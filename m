@@ -1,101 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263198AbTIVPcY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 11:32:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263199AbTIVPcY
+	id S263185AbTIVPod (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 11:44:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263195AbTIVPod
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 11:32:24 -0400
-Received: from jimknopf.rz.uni-frankfurt.de ([141.2.22.56]:60388 "EHLO
-	jimknopf.rz.uni-frankfurt.de") by vger.kernel.org with ESMTP
-	id S263198AbTIVPcW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 11:32:22 -0400
-Message-ID: <3F6F1605.1040204@slit.de>
-Date: Mon, 22 Sep 2003 17:32:21 +0200
-From: Alexander Achenbach <xela@slit.de>
-Reply-To: xela@slit.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021205 Debian/1.2.1-0
-X-Accept-Language: en
+	Mon, 22 Sep 2003 11:44:33 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:12164 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263185AbTIVPoc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 11:44:32 -0400
+From: Kevin Corry <kevcorry@us.ibm.com>
+To: torvalds@osdl.org, akpm@zip.com.au, thornber@sistina.com
+Subject: 2.6.0-test5-mm2 Device Mapper Patches
+Date: Mon, 22 Sep 2003 10:44:21 -0500
+User-Agent: KMail/1.5
+Cc: LKML <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH] IDE modules + cmd640 (2.4.22)
-Content-Type: multipart/mixed;
- boundary="------------010507020301020401040308"
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309221044.21694.kevcorry@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010507020301020401040308
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+A handful of minor fixes for Device-Mapper. Joe Thornber asked me to forward 
+these on while he is changing internet connections.
 
-Hi all.
-
-This patch intends to fix an unresolved symbol 'init_cmd640_vlb' error
-when compiling kernel 2.4.22 using
-
-     CONFIG_IDE=m
-     CONFIG_BLK_DEV_IDE=m
-
-and an enabled 'CONFIG_BLK_DEV_CMD640' option. The problem would show up
-on the first attempt to run 'depmod' or otherwise deal with IDE modules.
-
-I've not seen any fix for this in any recent prerelease.
-
-The problem is caused by the way 'cmd640' is included in the kernel. If
-
-     CONFIG_BLK_DEV_CMD640=y
-
-(which is the only answer offered besides 'n' for a stock 2.4.22), the
-'cmd640' code will be put into the kernel statically. As 'ide-core.o'
-will be a module and it will contain a reference to the (unexported)
-function 'init_cmd640_vlb' of 'cmd640.c', symbol resolution will fail.
-
-The following patch assumes that 'cmd640' is meant to be an independent
-module now (as all other IDE drivers in 'drivers/ide/pci') if IDE core is
-modular. The patch only adds the required configuration option changes to
-allow an additional answer 'm' for 'CONFIG_BLK_DEV_CMD640' (and disabling
-'y' completely if IDE is modular). Boolean 'CONFIG_BLK_DEV_CMD640_ENHANCED'
-may now be set to 'y' if 'CONFIG_BLK_DEV_CMD640' is either 'y' or 'm'.
-
-With 'CONFIG_BLK_DEV_CMD640=m', the reference to 'init_cmd640_vlb' from
-'ide.c' will be omitted, leaving VLB handling to the respective module
-parameter of 'cmd640.o'.
-
-NB: While I have verified that symbols resolve cleanly and 'cmd640.o' loads
-     without problems, I currently have no hardware to actually test any
-     CMD640 chipsets on (I only added the driver to my configuration for
-     completeness), so I cannot tell whether the modular driver actually
-     works as it should. At least it doesn't break IDE module loading now.
-
-Best regards,
-Alex
-
-[ Please send answers to my From address.
-   I'm not subscribed to the kernel mailing list. ]
-
---------------010507020301020401040308
-Content-Type: text/plain;
- name="cmd640fix.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="cmd640fix.diff"
-
-diff -ur linux-2.4.22/drivers/ide/Config.in linux-2.4.22-cmd640fix/drivers/ide/Config.in
---- linux-2.4.22/drivers/ide/Config.in	Mon Aug 25 13:44:41 2003
-+++ linux-2.4.22-cmd640fix/drivers/ide/Config.in	Sun Sep 21 17:03:19 2003
-@@ -27,8 +27,8 @@
- 
-    comment 'IDE chipset support/bugfixes'
-    if [ "$CONFIG_BLK_DEV_IDE" != "n" ]; then
--      dep_bool '  CMD640 chipset bugfix/support' CONFIG_BLK_DEV_CMD640 $CONFIG_X86
--      dep_bool '    CMD640 enhanced support' CONFIG_BLK_DEV_CMD640_ENHANCED $CONFIG_BLK_DEV_CMD640
-+      dep_tristate '  CMD640 chipset bugfix/support' CONFIG_BLK_DEV_CMD640 $CONFIG_X86 $CONFIG_BLK_DEV_IDE
-+      dep_mbool '    CMD640 enhanced support' CONFIG_BLK_DEV_CMD640_ENHANCED $CONFIG_BLK_DEV_CMD640
-       dep_bool '  ISA-PNP EIDE support' CONFIG_BLK_DEV_ISAPNP $CONFIG_ISAPNP
-       if [ "$CONFIG_PCI" = "y" ]; then
- 	 bool '  PCI IDE chipset support' CONFIG_BLK_DEV_IDEPCI
-
---------------010507020301020401040308--
+-- 
+Kevin Corry
+kevcorry@us.ibm.com
+http://evms.sourceforge.net/
 

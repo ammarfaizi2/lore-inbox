@@ -1,40 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265051AbUELNyD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265087AbUELN6D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265051AbUELNyD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 09:54:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265094AbUELNyD
+	id S265087AbUELN6D (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 09:58:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265089AbUELN6D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 09:54:03 -0400
-Received: from coyote.holtmann.net ([217.160.111.169]:20616 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S265051AbUELNyB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 09:54:01 -0400
-Subject: Re: [PATCH 2.6.6-mm1] bluetooth definition redundancy fix
-From: Marcel Holtmann <marcel@holtmann.org>
-To: FabF <Fabian.Frederick@skynet.be>
-Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1084381970.7894.4.camel@bluerhyme.real3>
-References: <1084381970.7894.4.camel@bluerhyme.real3>
-Content-Type: text/plain
-Message-Id: <1084370028.25099.60.camel@pegasus>
+	Wed, 12 May 2004 09:58:03 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:61907 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S265087AbUELN6A (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 09:58:00 -0400
+Message-Id: <200405121357.i4CDvspo006445@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Matt Porter <mporter@kernel.crashing.org>
+Cc: akpm@osdl.org, benh@kernel.crashing.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] (Take 2) PPC32: New OCP core support 
+In-Reply-To: Your message of "Wed, 12 May 2004 06:26:21 PDT."
+             <20040512062621.A8797@home.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <20040512062621.A8797@home.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 12 May 2004 15:53:48 +0200
+Content-Type: multipart/signed; boundary="==_Exmh_-1343377220P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Wed, 12 May 2004 09:57:54 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Fabian,
+--==_Exmh_-1343377220P
+Content-Type: text/plain; charset=us-ascii
 
-> 	HCI Core debug context is redefined 4 times in mm1 bluetooth
-> module.Here's a trivial patch to have it in hci_core.h (only).
+On Wed, 12 May 2004 06:26:21 PDT, Matt Porter said:
+> New OCP infrastructure ported from 2.4 along with several
+> enhancements. Updated patch includes hch and Valdis comments.
+> Please apply.
 
-this posting is on the wrong mailing list. Send such requests to the
-BlueZ developer mailing list and not the LKML. However I am not going to
-apply it, because everything is fine as it is.
+Thanks.. :)
 
-Regards
+--==_Exmh_-1343377220P
+Content-Type: application/pgp-signature
 
-Marcel
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQFAoi1icC3lWbTT17ARAlxEAJ9OGbGeBIkoQa1RwAE3FnSpARtSqQCfbx5/
+3ayJjZj8BhpaWjfYmDQnHc8=
+=XJMQ
+-----END PGP SIGNATURE-----
 
+--==_Exmh_-1343377220P--

@@ -1,88 +1,131 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262169AbTEEMz3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 08:55:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262170AbTEEMz3
+	id S262170AbTEENAs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 09:00:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262171AbTEENAs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 08:55:29 -0400
-Received: from iucha.net ([209.98.146.184]:52590 "EHLO mail.iucha.net")
-	by vger.kernel.org with ESMTP id S262169AbTEEMz0 (ORCPT
+	Mon, 5 May 2003 09:00:48 -0400
+Received: from wiprom2mx1.wipro.com ([203.197.164.41]:38043 "EHLO
+	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
+	id S262170AbTEENAq convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 08:55:26 -0400
-Date: Mon, 5 May 2003 08:07:56 -0500
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.69
-Message-ID: <20030505130756.GH1059@iucha.net>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030505043058.GG1059@iucha.net> <Pine.LNX.4.44.0305042137370.6183-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="cfJ13FhsvNR/yOpm"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0305042137370.6183-100000@home.transmeta.com>
-X-message-flag: Microsoft: Where do you want to go today? Nevermind, you are coming with us!
-X-gpg-key: http://iucha.net/florin_iucha.gpg
-X-gpg-fingerprint: 41A9 2BDE 8E11 F1C5 87A6  03EE 34B3 E075 3B90 DFE4
-User-Agent: Mutt/1.5.3i
-From: florin@iucha.net (Florin Iucha)
+	Mon, 5 May 2003 09:00:46 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: [BUG] problem with timer_create(2) for SIGEV_NONE ??
+Date: Mon, 5 May 2003 18:43:00 +0530
+Message-ID: <E935C89216CC5D4AB77D89B253ADED2A92257F@blr-m2-msg.wipro.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [BUG] problem with timer_create(2) for SIGEV_NONE ??
+Thread-Index: AcMTCA0QRg2fqNSKRTCgKFXEWtHpyA==
+From: "Aniruddha M Marathe" <aniruddha.marathe@wipro.com>
+To: "george anzinger" <george@mvista.com>, <linux-kernel@vger.kernel.org>
+Cc: "Chandrashekhar RS" <chandra.smurthy@wipro.com>
+X-OriginalArrivalTime: 05 May 2003 13:13:01.0560 (UTC) FILETIME=[0E361F80:01C31308]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+George,
 
---cfJ13FhsvNR/yOpm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+ timer_create(2) fails in the case where sigev_notify parameter of
+sigevent structure is SIGEV_NONE. I believe this should not happen.
 
-On Sun, May 04, 2003 at 09:41:10PM -0700, Linus Torvalds wrote:
->=20
-> On Sun, 4 May 2003, Florin Iucha wrote:
-> >=20
-> > On SIS 735 motherboard, with agpgart, sis-agp and radeon loaded, I get
-> > this on the serial console before the machine freezes:
-> >    agpgart: Found an AGP 2.0 compliant device.
-> >    agpgart: Putting AGP V2 device at 00:00.0 into 4x mode
-> >    agpgart: Putting AGP V2 device at 01:00.0 into 4x mode
-> > Without these modules loaded, the machine is stable.
->=20
-> Make sure to also test with regular 1x AGP (and no fast write stuff etc).=
-=20
-> A lot of motherboards really aren't going to like 4x and some other=20
-> settings (in particular, enabling fast writes seems to be a very iffy=20
-> proposition indeed).
+Consider following code which was run on x86:
 
-On your suggestion I did use AGPMode 1 and 2. No difference.
+#include <stdio.h>
+#include <syscall.h>
+#include <errno.h>
+#include <time.h>
+#include <signal.h>
 
-> Also, check if the same setup is stable under 2.4.x and possibly using the
-> DRI CVS tree. Radeon in particular seems to be a lot stabler in DRI these=
-=20
-> days than it has historically been.
+#define ANYSIG SIGALRM  /* Any signal value works*/
 
-The machine was stable in 2.5.30 - 2.5.40 timeframe, using DRI modules
-=66rom DRI nightly builds on top of XFree 4.2 . Direct rendering was
-working as well.
+#ifndef __NR_timer_create
+#if defined(__i386__)
+#define __NR_timer_create 259
+#elif defined(__ppc__)
+#define __NR_timer_create 240
+#elif defined(__powerpc64__)
+#define __NR_timer_create 240
+#elif defined(__x86_64__)
+#define __NR_timer_create 222
+#endif
+#endif
 
-I will try with the DRI modules again.
+_syscall3(int, timer_create, clockid_t, which_clock, struct sigevent *,
+        timer_event_spec, timer_t *, created_timer_id);
 
-Thank you,
-florin
+ int main(int ac, char **av)
+{
+	timer_t created_timer_id;     /* holds the returned timer_id*/
+	struct sigevent evp;
+	int retval;
 
---=20
+	evp.sigev_value =  (sigval_t) 0;
+	evp.sigev_signo = ANYSIG;
+	evp.sigev_notify = SIGEV_NONE;
 
-"NT is to UNIX what a doughnut is to a particle accelerator."
+	retval =	timer_create(CLOCK_REALTIME, &evp,
+                                                &created_timer_id);
 
---cfJ13FhsvNR/yOpm
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+	if (retval < 0) {
+		perror("timer_crete");
+		printf("timer_create returned %d\n", retval); 
+	} else {
+		printf("timer_create success");
+	}
+	return 0;
+}  /* End of main */
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+My analysis of this problem:
 
-iD8DBQE+tmIsNLPgdTuQ3+QRAjSCAKCVLfjgOIX1Gx/y5XHCeifGUxeYBQCdF1Hi
-KHoOh2rNNlgm2vpERzhUh4Y=
-=Vxcs
------END PGP SIGNATURE-----
+Kernel/include/asm-generic/siginfo.h contains following defintions
 
---cfJ13FhsvNR/yOpm--
+#define SIGEV_SIGNAL    0       /* notify via signal */
+#define SIGEV_NONE      1       /* other notification: meaningless */
+#define SIGEV_THREAD    2       /* deliver via thread creation */
+#define SIGEV_THREAD_ID 4       /* deliver to thread */
+
+In 2.5.68/kernel/posix-timers.c
+
+Line 86:
+MIPS_SEGV = ~(SIGEV_NONE & \
+                      SIGEV_SIGNAL & \
+                      SIGEV_THREAD &  \
+                      SIGEV_THREAD_ID)
+= (001 & 000 & 010 & 100) = ~(000) = 111
+
+Line 364: in good_sigevent()
+Lets assume that event->sigev_notify = SIGEV_NONE = 001
+ 
+Line 368:
+SIGEV_NONE & SIGEV_THREAD_ID = 001 & 100 = 000. Therefore the if
+statement becomes false
+ 
+Line 373:
+SIGEV_NONE & SIGEV_SIGNAL = 001 & 000 = 000. Therefore the if statement
+is false
+ 
+Line 377:
+SIGEV_NONE & ~(SIGEV_SIGNAL | SIGEV_THREAD_ID)
+= 001 & ~(000 | 100)
+= 001 & ~(100)
+= 001 & 011
+= 001
+therefore the if condition is true
+therefore the function returns NULL from line 378.
+ 
+Now in sys_timer_create() at line number 462
+Process = NULL
+ 
+Now at line 489
+if (!process) becomes TRUE
+and function returns with EINVAL
+
+Is my analysis right? If so can you comment on this behaviour?
+
+-Aniruddha

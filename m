@@ -1,77 +1,121 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129091AbQKMPXh>; Mon, 13 Nov 2000 10:23:37 -0500
+	id <S129050AbQKMP0r>; Mon, 13 Nov 2000 10:26:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129477AbQKMPX1>; Mon, 13 Nov 2000 10:23:27 -0500
-Received: from duck.doc.ic.ac.uk ([146.169.1.46]:54538 "EHLO duck.doc.ic.ac.uk")
-	by vger.kernel.org with ESMTP id <S129091AbQKMPXO>;
-	Mon, 13 Nov 2000 10:23:14 -0500
-To: "David Schwartz" <davids@webmaster.com>
-Cc: <tytso@mit.edu>, <linux-kernel@vger.kernel.org>
-Subject: Re: What protects f_pos?
-In-Reply-To: <NCBBLIEPOCNJOAEKBEAKKENGLNAA.davids@webmaster.com>
-From: David Wragg <dpw@doc.ic.ac.uk>
-Date: 13 Nov 2000 15:22:56 +0000
-In-Reply-To: "David Schwartz"'s message of "Sun, 12 Nov 2000 14:27:54 -0800"
-Message-ID: <y7rg0kv99rj.fsf@sytry.doc.ic.ac.uk>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
+	id <S129477AbQKMP0h>; Mon, 13 Nov 2000 10:26:37 -0500
+Received: from relay03.valueweb.net ([216.219.253.237]:22800 "EHLO
+	relay03.valueweb.net") by vger.kernel.org with ESMTP
+	id <S129050AbQKMP00>; Mon, 13 Nov 2000 10:26:26 -0500
+Message-ID: <3A100930.FEEB617B@opersys.com>
+From: Karim Yaghmour <karym@opersys.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.14 i686)
+X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
+Subject: Re: Mac-buttons emulation broken in 2.4.0-test10
+In-Reply-To: <3A0FC230.BF7E537B@opersys.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Date: Mon, 13 Nov 2000 10:26:12 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David Schwartz" <davids@webmaster.com> writes:
-> 	Suppose you had a multithreaded program that used a
-> configuration file with a group of fixed-length blocks indicating what
-> work it had to do. Each thread read a block from the file and then did
-> the work. One might think that there's no need to protect the file
-> descriptor with a mutex.
 
-I don't think that this will work, due to a separate non-atomicity
-issue with f_pos.  The generic file read and write implementations do
-not atomically update f_pos.  They read f_pos to determine the file
-offset to use, then manipulate the page cache (possibly sleeping on
-I/O), and only then set f_pos to the appropriate updated value.  So
-the example you suggest, with two threads, could do something like:
+Well, it seems I found a solution to my own problem :)
 
-          Thread 1                           Thread 2
+Here are patches that fix the problem.
 
-   sys_read(fd, buf1, len)
+Doing this, I discovered there are 2 modes to button emulation (3 if you
+include no emulation):
+Mode 0:
+No emulation whatsoever.
+Mode 1:
+echo "1" > /proc/sys/dev/mac_.../mouse_...
+In this mode, when you press on fct-ctrl or fct-alt, then it's like if you
+pressed on the corresponding mouse button.
+Mode 2:
+echo "2" > /proc/sys/dev/mac_.../mouse_...
+In this mode, you have to hold down fct-ctrl or fct-alt __and__ click
+the mouse to get the corresponding mouse button.
 
-      off = file->f_pos                sys_read(fd, buf2, len)
+Cheers
 
-         read to buf1                     off = file->f_pos
+Karim
 
-    file->f_pos = off + len                 read to buf2
+---------------------------------------------------------------------------------------------------
+--- linux/drivers/input/keybdev.c	Thu Jul 27 21:36:54 2000
++++ linux-2.4.0-test10/drivers/input/keybdev.c	Mon Nov 13 08:19:48 2000
+@@ -90,7 +90,7 @@
+ 	return 0;
+ }
+ 
+-#elif defined(CONFIG_ADB_KEYBOARD)
++#elif defined(CONFIG_ADB_KEYBOARD) || defined(CONFIG_MAC_HID)
+ 
+ static unsigned char mac_keycodes[128] =
+ 	{ 0, 53, 18, 19, 20, 21, 23, 22, 26, 28, 25, 29, 27, 24, 51, 48,
+@@ -129,9 +129,19 @@
+ 	}
+ }
+ 
++#ifdef CONFIG_MAC_EMUMOUSEBTN
++extern int mac_hid_mouse_emulate_buttons(int caller, unsigned int keycode, int down);
++#endif
++
+ void keybdev_event(struct input_handle *handle, unsigned int type, unsigned int code, int down)
+ {
+ 	if (type != EV_KEY) return;
++
++#ifdef CONFIG_MAC_EMUMOUSEBTN
++	/* There should be an if() here to determine whether emulate_raw() is to be called or not.
++	 If the key is caught, emulate_raw() should not be called. K.Y. */
++	mac_hid_mouse_emulate_buttons(1, code, down);
++#endif
+ 
+ 	if (emulate_raw(code, down))
+ 		printk(KERN_WARNING "keyboard.c: can't emulate rawmode for keycode %d\n", code);
+--- linux/drivers/input/mousedev.c	Tue Aug 22 12:06:31 2000
++++ linux-2.4.0-test10/drivers/input/mousedev.c	Mon Nov 13 08:25:41 2000
+@@ -79,6 +79,10 @@
+ static struct mousedev *mousedev_table[MOUSEDEV_MINORS];
+ static struct mousedev mousedev_mix;
+ 
++#ifdef CONFIG_MAC_EMUMOUSEBTN
++extern int mac_hid_mouse_emulate_buttons(int caller, unsigned int keycode, int down);
++#endif
++
+ static void mousedev_event(struct input_handle *handle, unsigned int type, unsigned int code, int value)
+ {
+ 	struct mousedev *mousedevs[3] = { handle->private, &mousedev_mix, NULL };
+@@ -132,6 +136,9 @@
+ 						case BTN_MIDDLE: index = 2; break;	
+ 						default: return;
+ 					}
++#ifdef CONFIG_MAC_EMUMOUSEBTN
++				        index = mac_hid_mouse_emulate_buttons(2, index, 0);
++#endif
+ 					switch (value) {
+ 						case 0: clear_bit(index, &list->buttons); break;
+ 						case 1: set_bit(index, &list->buttons); break;
 
-                                        file->f_pos = off + len
+---------------------------------------------------------------------------------------------------
 
+Karim Yaghmour wrote:
+> 
+> The mac_hid_mouse_emulate_buttons() in drivers/macintosh/mac_hid.c
+> which takes care of emulating multiple buttons on a mac doesn't
+> seem to be used anywhere. In fact, by doing a "grep -r mac_hid... *"
+> in the kernel's base directory yields only one result and it's
+> the one in mac_hid.c. Shouldn't this be called upon from the
+> keyboard and mouse handlers?
+> 
 
-So both threads read the same block, and f_pos only gets incremented
-once.
-
-(Pipes and sockets are a different matter, of course.)
-
-2.2 has the same issue, since although the BKL is held, it will get
-dropped if one of the threads sleeps on I/O.  (Earlier Linux versions
-might well have the same issue, but I don't have the source around to
-check.)
-
-POSIX doesn't seem to bar this behaviour.  From 6.4.1.2:
-
-    On a regular file or other file capable of seeking, read() shall
-    start at a position in the file given by the file offset
-    associated with fildes.  Before successful return from read(), the
-    file offset shall be incremented by the number of bytes actually
-    read.
-
-Which is exactly what Linux does.  I can't find text anywhere else in
-POSIX.1 that strengthens that condition for the case of multiple
-processes/threads reading from the same file.  I'll try to find out
-what the Austin Group has to say about this.
-
-
-David
+===================================================
+                 Karim Yaghmour
+               karym@opersys.com
+          Operating System Consultant
+ (Linux kernel, real-time and distributed systems)
+===================================================
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

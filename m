@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261917AbVBOW0A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261919AbVBOWgJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261917AbVBOW0A (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 17:26:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbVBOW0A
+	id S261919AbVBOWgJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 17:36:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbVBOWgJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 17:26:00 -0500
-Received: from rproxy.gmail.com ([64.233.170.200]:63774 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261917AbVBOWZz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 17:25:55 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=EXR0O0B27Q5lGxbB6M5p7fcCwpL2t8xGoDjPg+2t5A18fQ7u0SpgqWEGa9UvUL1mVDhJtONBdiZuCY4FZLZ+N1XDyccF4FUKzdzh7fMEE0hwcP+PGC07hqPRzxBsDZGB9iqVkj8V7wstuECwHnebqXdbUO3iMsJvztcxaM7+pRg=
-Message-ID: <d120d50005021514251492dd10@mail.gmail.com>
-Date: Tue, 15 Feb 2005 17:25:54 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Kay Sievers <kay.sievers@vrfy.org>
-Subject: Re: [PATCH] add "bus" symlink to class/block devices
-Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-In-Reply-To: <20050215220406.GA1419@vrfy.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050215205344.GA1207@vrfy.org> <20050215220406.GA1419@vrfy.org>
+	Tue, 15 Feb 2005 17:36:09 -0500
+Received: from tiere.net.avaya.com ([198.152.12.100]:53672 "EHLO
+	tiere.net.avaya.com") by vger.kernel.org with ESMTP id S261919AbVBOWgH convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 17:36:07 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: [2.4 TTY] Lost wake-up of tty->write_wait due to race?
+Date: Tue, 15 Feb 2005 15:35:34 -0700
+Message-ID: <21FFE0795C0F654FAD783094A9AE1DFC07023513@cof110avexu4.global.avaya.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [2.4 TTY] Lost wake-up of tty->write_wait due to race?
+Thread-Index: AcUTrqqGHVWuX5hMRwSFNoUMOL6iBg==
+From: "Davda, Bhavesh P \(Bhavesh\)" <bhavesh@avaya.com>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Feb 2005 23:04:06 +0100, Kay Sievers <kay.sievers@vrfy.org> wrote:
-> 
-> -static int class_device_dev_link(struct class_device * class_dev)
-> -{
-> -       if (class_dev->dev)
-> -               return sysfs_create_link(&class_dev->kobj,
-> -                                        &class_dev->dev->kobj, "device");
-> -       return 0;
-> -}
-> -
-> -static void class_device_dev_unlink(struct class_device * class_dev)
-> -{
-> -       sysfs_remove_link(&class_dev->kobj, "device");
-> -}
-> -
+In the 2.4 kernels, is there a race window when a wake_up() of the
+tty->write_wait queue from the underlying tty_driver can be lost in
+la-la-land, while a task is sleeping on it from tty_wait_until_sent() ?
 
-Hi,
+I am seeing something similar. I have the "pppd" daemon in the
+TASK_INTERRUPTIBLE state stuck in tty_wait_until_sent() [determined from
+wchan] as a result of its ioctl(fd, TIOCSETD, [N_TTY]) call while about
+to exit.
 
-I can agree on dropping driver link but I think that the link to
-underlying real device is still needed.
+The debug module is showing that the tty->write_wait queue is empty. As
+a result, *nothing* will wake up pppd from its TASK_INTERRUPTIBLE state.
 
--- 
-Dmitry
+How could that be? Just to show that I've done my homework, attached is
+my analysis of the issue.
+
+I've seen references to race conditions in the changing of
+line-disciplines in postings by Alan Cox, but none of those references
+seems to explain what I am seeing.
+
+Any insight will be greatly appreciated!
+
+Thanks
+
+- Bhavesh
+
+Bhavesh P. Davda | Distinguished Member of Technical Staff | Avaya |
+1300 West 120th Avenue | B3-B03 | Westminster, CO 80234 | U.S.A. |
+Voice/Fax: 303.538.4438 | bhavesh@avaya.com

@@ -1,80 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266165AbUFUJCF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266169AbUFUJTp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266165AbUFUJCF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 05:02:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266168AbUFUJCF
+	id S266169AbUFUJTp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 05:19:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266171AbUFUJTo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 05:02:05 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:57512 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S266165AbUFUJCA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 05:02:00 -0400
-Date: Mon, 21 Jun 2004 11:01:34 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Andreas Gruenbacher <agruen@suse.de>,
-       Kai Germaschewski <kai@germaschewski.name>
-Subject: Re: [PATCH 2/2] kbuild: Improved external module support
-In-Reply-To: <20040620212353.GD10189@mars.ravnborg.org>
-Message-ID: <Pine.GSO.4.58.0406211059030.6543@waterleaf.sonytel.be>
-References: <20040620211905.GA10189@mars.ravnborg.org>
- <20040620212353.GD10189@mars.ravnborg.org>
+	Mon, 21 Jun 2004 05:19:44 -0400
+Received: from 168-226-89-34.speedy.com.ar ([168.226.89.34]:57353 "HELO
+	hotmail.com") by vger.kernel.org with SMTP id S266169AbUFUJTn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 05:19:43 -0400
+From: "Romia Fersi" <castr@alex4all.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: linux-kernel@vger.kernel.org
+Date: Mon, 21 Jun 2004 06:19:33 -0300
+Reply-To: "Romia Fersi" <ggesstor@hotmail.com>
+Message-ID: <32348739.20040621061933@alex4all.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Priority: 3 (Normal)
+Importance: Normal
+X-Mailer: EM: 4.40.0.600
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 Jun 2004, Sam Ravnborg wrote:
-> #   1) When using a separate output directory create a small
-> #      Makefile that is a simple wrapper, calling the Makefile
-> #      in the kernel tree.
-> #      - This allows the user to shift to the output directory
-> #        and execute make.
-> #      - The Makefile is also useful to document the location
-> #        source used for the kernel
+Linux-kernel
+Usted sabe que si su sitio web esta indexado en buscadores
+USTED VENDE MAS
 
-> diff -Nru a/scripts/mkmakefile b/scripts/mkmakefile
-> --- /dev/null	Wed Dec 31 16:00:00 196900
-> +++ b/scripts/mkmakefile	2004-06-20 23:06:03 +02:00
-> @@ -0,0 +1,25 @@
-> +#!/bin/sh
-> +# Generates a small Makefile used in the root of the output
-> +# directory, to allow make to be started from there.
-> +# The Makefile also allow for more convinient build of external modules
-> +
-> +# Usage
-> +# $1 - Kernel src directory
-> +# $2 - Output directory
-> +
-> +
-> +cat << EOF
-> +
-> +KERNELSRC    := $1
-> +KERNELOUTPUT := $2
-> +
-> +MAKEFLAGS += --no-print-directory
-> +
-> +all:
-> +	\$(MAKE) -C \$(KERNELSRC) O=\$(KERNELOUTPUT)
-> +
-> +%:
-> +	\$(MAKE) -C \$(KERNELSRC) O=\$(KERNELOUTPUT) \$@
-> +
-> +EOF
+Pero de nada sirve aparecer en el puesto 24.728 de Google o Yahoo...
 
-The generated Makefile looks sufficiently similar to the one I'm using, so I'm
-wondering: Does it work if I say e.g. `make drivers/char/mem.o'? For me that
-part never worked, but `make drivers/char/' does work.
+Si quiere que su web este BIEN INDEXADA en la mayoria de los buscadores...
 
-Gr{oetje,eeting}s,
+ESTE MAIL ES PARA USTED
 
-						Geert
+1- Revisamos y corregimos los METATAGS de su sitio
+2- Damos una adecuada ALTA EN BUSCADORES
+3- Si es necesario creamos PAGINAS ESPEJO para hacer subir su web hasta el Top del Ranking
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Para mas informacion sobre este y otros metodos de promocion en internet
+visite http://www.publicidadglobal.com.ar
+Aclare sus dudas al tel 15-4427-1044 lunes a domingos 10 a 21 hs
+>> INGRESE A NUESTRA WEB Y SOLICITE EL ANALISIS GRATUITO DE SU SITIO WEB
+PARA SER DADO DE ALTA EN BUSCADORES << 
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Este mail se envia por unica vez a linux-kernel@vger.kernel.org
+No hace falta removerse.
+Gracias Linux-kernel
+
+

@@ -1,48 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269698AbUJAFan@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269701AbUJAFdz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269698AbUJAFan (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 01:30:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269701AbUJAFan
+	id S269701AbUJAFdz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 01:33:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269703AbUJAFdy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 01:30:43 -0400
-Received: from smtp812.mail.sc5.yahoo.com ([66.163.170.82]:52135 "HELO
-	smtp812.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S269698AbUJAFal (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 01:30:41 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.9-rc2-mm4
-Date: Fri, 1 Oct 2004 00:30:39 -0500
-User-Agent: KMail/1.6.2
-Cc: "J.A. Magallon" <jamagallon@able.es>, linux-kernel@vger.kernel.org,
-       Vojtech Pavlik <vojtech@suse.cz>
-References: <20040926181021.2e1b3fe4.akpm@osdl.org> <1096586774l.5206l.1l@werewolf.able.es> <20040930170505.6536197c.akpm@osdl.org>
-In-Reply-To: <20040930170505.6536197c.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 1 Oct 2004 01:33:54 -0400
+Received: from fw.osdl.org ([65.172.181.6]:38093 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269701AbUJAFdx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 01:33:53 -0400
+Date: Thu, 30 Sep 2004 22:29:28 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: george@mvista.com
+Cc: juhl-lkml@dif.dk, clameter@sgi.com, drepper@redhat.com,
+       johnstul@us.ibm.com, Ulrich.Windl@rz.uni-regensburg.de, jbarnes@sgi.com,
+       linux-kernel@vger.kernel.org, libc-alpha@sources.redhat.com
+Subject: Re: patches inline in mail
+Message-Id: <20040930222928.1d38389f.akpm@osdl.org>
+In-Reply-To: <415B4FEE.2000209@mvista.com>
+References: <B6E8046E1E28D34EB815A11AC8CA312902CD3264@mtv-atc-605e--n.corp.sgi.com>
+	<Pine.LNX.4.58.0409240508560.5706@schroedinger.engr.sgi.com>
+	<4154F349.1090408@redhat.com>
+	<Pine.LNX.4.58.0409242253080.13099@schroedinger.engr.sgi.com>
+	<41550B77.1070604@redhat.com>
+	<B6E8046E1E28D34EB815A11AC8CA312902CD327E@mtv-atc-605e--n.corp.sgi.com>
+	<Pine.LNX.4.58.0409271344220.32308@schroedinger.engr.sgi.com>
+	<4159B920.3040802@redhat.com>
+	<Pine.LNX.4.58.0409282017340.18604@schroedinger.engr.sgi.com>
+	<415AF4C3.1040808@mvista.com>
+	<Pine.LNX.4.58.0409291054230.25276@schroedinger.engr.sgi.com>
+	<415B0C9E.5060000@mvista.com>
+	<Pine.LNX.4.61.0409292143050.2744@dragon.hygekrogen.localhost>
+	<415B4FEE.2000209@mvista.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200410010030.39826.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 30 September 2004 07:05 pm, Andrew Morton wrote:
-> > One other question. Isn't /dev/input/mice supposed to be a multiplexor
-> > for mice ? I think I remember some time when I could have both a PS2 and
-> > a USB mouse connected and X pointer followed both. Now if I boot with the
-> > USB mouse plugged, the PS2 one does not work. If I boot with usb unplugged
-> > and plug it after boot, both work; usb mouse works fine, and PS2 just
-> > jumps half screen each time I move it, and with big delays.
-> > 
+George Anzinger <george@mvista.com> wrote:
+>
+> We agree.  Still, I have been bitten too many times by misshandled white space 
+>  to trust pure inlineing.  Likewise on picking it up one would usually past it in 
+>  the mail (I suppose) where as the attachment is through the mailer and less 
+>  prone to missing a character.
 > 
+>  The best answer, I think, is attachments that show as inline AND stay that way 
+>  on the reply.
+> 
+>  Guild lines on how to insure this are welcome.
 
-I bet it's USB legacy emulation topic again. Try loading USB modules first
-and then psmouse, should help.
+Send angry email to everyone@mozilla.org.  AFAICT it's impossible with
+recent mailnews.
 
-Vojtech, what is the status of USB handoff patches. I have seen several
-variants and so far heard only success stories from people using them. Can
-we have them in kernel proper?
+Slightly more on-topic:
 
--- 
-Dmitry
++int do_posix_clock_process_gettime(struct timespec *tp);
++int do_posix_clock_process_settime(struct timespec *tp);
++int do_posix_clock_thread_gettime(struct timespec *tp);
++int do_posix_clock_thread_settime(struct timespec *tp);
+
+These should all be given static scope.
+
+And it would be nice to structure the code so the forward decl isn't
+needed, if poss.
+

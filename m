@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288544AbSAVQGd>; Tue, 22 Jan 2002 11:06:33 -0500
+	id <S288288AbSAVQRX>; Tue, 22 Jan 2002 11:17:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288566AbSAVQGX>; Tue, 22 Jan 2002 11:06:23 -0500
-Received: from p50859276.dip.t-dialin.net ([80.133.146.118]:60635 "EHLO
-	minerva.local.lan") by vger.kernel.org with ESMTP
-	id <S288544AbSAVQGG>; Tue, 22 Jan 2002 11:06:06 -0500
-From: Martin Loschwitz <madkiss@madkiss.de>
-Date: Tue, 22 Jan 2002 17:06:03 +0100
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.18-pre4: undefined reference to `local symbols in discarded section .text.exit'
-Message-ID: <20020122160603.GA7182@madkiss.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.26i
+	id <S288566AbSAVQRO>; Tue, 22 Jan 2002 11:17:14 -0500
+Received: from [198.17.35.35] ([198.17.35.35]:65471 "HELO mx1.peregrine.com")
+	by vger.kernel.org with SMTP id <S288288AbSAVQRA>;
+	Tue, 22 Jan 2002 11:17:00 -0500
+Message-ID: <B51F07F0080AD511AC4A0002A52CAB445B2AB7@ottonexc1.ottawa.loran.com>
+From: Dana Lacoste <dana.lacoste@peregrine.com>
+To: "'Amit Gupta'" <amit.gupta@amd.com>,
+        "'Luigi Genoni'" <kernel@Expansa.sns.it>
+Cc: linux-kernel@vger.kernel.org,
+        "Linux-Net (E-mail)" <linux-net@vger.kernel.org>
+Subject: arpx source code released under GPL
+Date: Tue, 22 Jan 2002 08:16:52 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear ladies and gentleman,
+FINALLY I have permission to make this available :
 
-5 minutes ago, I tried to compile Linux 2.4.18-pre4 on my Debian Sid box.
-I did this from a cleanly unpacked/patched kernel-source. The build
-failed for the following reason:
+Note that I'm not the original author, but I am
+maintaining it, so please let me know about any
+comments, complaints, patches, flames, whatever.
 
-ld -m elf_i386 -T /usr/src/linux/arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o \
-	--start-group \
-	arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
-	drivers/parport/driver.o drivers/char/char.o drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o drivers/char/agp/agp.o drivers/char/drm/drm.o drivers/ide/idedriver.o drivers/sound/sounddrivers.o drivers/pci/driver.o drivers/video/video.o drivers/i2c/i2c.o \
-	net/network.o \
-	/usr/src/linux/arch/i386/lib/lib.a /usr/src/linux/lib/lib.a /usr/src/linux/arch/i386/lib/lib.a \
-	--end-group \
-	-o vmlinux
-drivers/media/media.o: In function `bttv_probe':
-drivers/media/media.o(.text.init+0x15db): undefined reference to `local symbols in discarded section .text.exit'
-							 
-Would you be so friendly to fix this bug please? :)
+This is an arpd-replacement daemon that runs under
+kernel 2.4.9 without any problems.  I have successfully
+had over 2000 entries in the arp cache (from /proc)
+with this daemon running.
 
---
--- Martin Loschwitz ---------------- hobbit.NeverAgain.DE --
--- Koernerstrasse 58 ---------- mail <madkiss@madkiss-de> --
--- 41747 Viersen ------------ http http://www.madkiss.de/ -- 
--- Germany ------------------------ irc Madkiss (IRC-Net) --
+I haven't done any work on making it good code or work
+properly or making sure that it's working the 'right'
+way, but it does work and I haven't had any problems
+(yet) so feel free to download it, try it out, and
+check back to the web page to see any updates as they
+become available.
+
+http://home.loran.com/~dlacoste/

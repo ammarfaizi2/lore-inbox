@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261908AbTAUFDK>; Tue, 21 Jan 2003 00:03:10 -0500
+	id <S261872AbTAUFCF>; Tue, 21 Jan 2003 00:02:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261907AbTAUFCJ>; Tue, 21 Jan 2003 00:02:09 -0500
-Received: from dhcp34.trinity.linux.conf.au ([130.95.169.34]:3968 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id <S261908AbTAUFCD>; Tue, 21 Jan 2003 00:02:03 -0500
-Subject: Re: Spurious 8259A interrupt: IRQ7 ????
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: "David D. Hagood" <wowbagger@sktc.net>
-Cc: AnonimoVeneziano <voloterreno@tin.it>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <3E2C9623.60709@sktc.net>
-References: <3E2C8EFF.6020707@tin.it>  <3E2C9623.60709@sktc.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1043119202.13397.8.camel@dhcp22.swansea.linux.org.uk>
+	id <S261907AbTAUFCB>; Tue, 21 Jan 2003 00:02:01 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:48813 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S261872AbTAUFB7>;
+	Tue, 21 Jan 2003 00:01:59 -0500
+Date: Tue, 21 Jan 2003 16:09:59 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: ralf@gnu.org, linux-kernel@vger.kernel.org
+Subject: Re: Minor header bug? MIPS (32-bit) nlink_t sign
+Message-Id: <20030121160959.6e392885.sfr@canb.auug.org.au>
+In-Reply-To: <20030118033435.GC18282@bjl1.asuk.net>
+References: <20030118033435.GC18282@bjl1.asuk.net>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 21 Jan 2003 03:20:02 +0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-01-21 at 00:36, David D. Hagood wrote:
-> AnonimoVeneziano wrote:
-> > What does it mean this message?
-> > 
-> > Of what problem is the signal?
-> 
-> It is most likely a hardware problem.
+Hi Jamie,
 
-It can occur for lots of harmless software reasons too. If you disable
-the IRQ on a device just as the PIC sees it you may see this result
-for example.
+On Sat, 18 Jan 2003 03:34:35 +0000 Jamie Lokier <jamie@shareable.org> wrote:
+>
+> Stephen, I guess you have already figured this out with your recent
+> 32-bit compatibility cleanup?
 
-Really for 7/15 on a PC we shouldnt be bugging people
+I mainly did direct substitutions, but will have a look shortly and see
+what I think.
 
+I assume we are being compatable with Irix? Ralf?
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/

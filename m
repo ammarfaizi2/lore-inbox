@@ -1,68 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262711AbSI1EmP>; Sat, 28 Sep 2002 00:42:15 -0400
+	id <S262705AbSI1EbR>; Sat, 28 Sep 2002 00:31:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262714AbSI1Eke>; Sat, 28 Sep 2002 00:40:34 -0400
-Received: from ns.commfireservices.com ([216.6.9.162]:46862 "HELO
-	hemi.commfireservices.com") by vger.kernel.org with SMTP
-	id <S262711AbSI1EbQ>; Sat, 28 Sep 2002 00:31:16 -0400
-Date: Sat, 28 Sep 2002 00:35:30 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Dipankar Sarma <dipankar@in.ibm.com>
-Cc: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@digeo.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>
-Subject: Re: 2.5.38-mm3
-In-Reply-To: <20020927152833.D25021@in.ibm.com>
-Message-ID: <Pine.LNX.4.44.0209280034101.32347-100000@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262706AbSI1EaF>; Sat, 28 Sep 2002 00:30:05 -0400
+Received: from atlrel6.hp.com ([156.153.255.205]:2500 "HELO atlrel6.hp.com")
+	by vger.kernel.org with SMTP id <S262707AbSI1E3f>;
+	Sat, 28 Sep 2002 00:29:35 -0400
+To: marcelo@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] missing bit of non-executable data patch
+Message-Id: <E17v9Je-0001n9-00@eeyore>
+From: Bjorn Helgaas <helgaas@fc.hp.com>
+Date: Fri, 27 Sep 2002 22:34:54 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Sep 2002, Dipankar Sarma wrote:
+Most of David Mosberger's work to allow data to be non-executable
+by default is already in, but this bit appears to have been lost.
+Note that all architectures except ia64 currently set the default
+so data is executable, so this doesn't change behavior for anybody.
 
-> The counts are off by one.
-> 
-> With a UP kernel, I see that fget() cost is negligible.
-> So it is most likely the atomic operations for rwlock acquisition/release
-> in fget() that is adding to its cost. Unless of course my sampling
-> is too less.
-
-Mine is a UP box not an SMP kernel, although preempt is enabled;
-
-0xc013d370 <fget>:      push   %ebx
-0xc013d371 <fget+1>:    mov    %eax,%ecx
-0xc013d373 <fget+3>:    mov    $0xffffe000,%edx
-0xc013d378 <fget+8>:    and    %esp,%edx
-0xc013d37a <fget+10>:   incl   0x4(%edx)
-0xc013d37d <fget+13>:   xor    %ebx,%ebx
-0xc013d37f <fget+15>:   mov    0x554(%edx),%eax
-0xc013d385 <fget+21>:   cmp    0x8(%eax),%ecx
-0xc013d388 <fget+24>:   jae    0xc013d390 <fget+32>
-0xc013d38a <fget+26>:   mov    0x14(%eax),%eax
-0xc013d38d <fget+29>:   mov    (%eax,%ecx,4),%ebx
-0xc013d390 <fget+32>:   test   %ebx,%ebx
-0xc013d392 <fget+34>:   je     0xc013d397 <fget+39>
-0xc013d394 <fget+36>:   incl   0x14(%ebx)
-0xc013d397 <fget+39>:   decl   0x4(%edx)
-0xc013d39a <fget+42>:   mov    0x14(%edx),%eax
-0xc013d39d <fget+45>:   cmp    %eax,0x4(%edx)
-0xc013d3a0 <fget+48>:   jge    0xc013d3a7 <fget+55>
-0xc013d3a2 <fget+50>:   call   0xc01179b0 <preempt_schedule>
-0xc013d3a7 <fget+55>:   mov    %ebx,%eax
-0xc013d3a9 <fget+57>:   pop    %ebx
-0xc013d3aa <fget+58>:   ret
-0xc013d3ab <fget+59>:   nop
-0xc013d3ac <fget+60>:   lea    0x0(%esi,1),%esi
-
-> Please try running the files_struct_rcu patch where fget() is lockfree
-> and let me know what you see.
-
-Lock acquisition/release should be painless on this system no?
-
-	Zwane
--- 
-function.linuxpower.ca
-
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.683   -> 1.684  
+#	  include/linux/mm.h	1.39    -> 1.40   
+#	include/asm-arm/page.h	1.4     -> 1.5    
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/09/20	bjorn_helgaas@hp.com	1.684
+# Last bit of VM_DATA_DEFAULT_FLAGS patch (makes rights on a data
+# page architecture-dependent).
+# --------------------------------------------
+#
+diff -Nru a/include/asm-arm/page.h b/include/asm-arm/page.h
+--- a/include/asm-arm/page.h	Fri Sep 20 16:13:54 2002
++++ b/include/asm-arm/page.h	Fri Sep 20 16:13:54 2002
+@@ -106,6 +106,9 @@
+ #define VALID_PAGE(page)	((page - mem_map) < max_mapnr)
+ #endif
+ 
++#define VM_DATA_DEFAULT_FLAGS	(VM_READ | VM_WRITE | VM_EXEC | \
++				 VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC)
++
+ #endif
+ 
+ #endif
+diff -Nru a/include/linux/mm.h b/include/linux/mm.h
+--- a/include/linux/mm.h	Fri Sep 20 16:13:54 2002
++++ b/include/linux/mm.h	Fri Sep 20 16:13:54 2002
+@@ -104,7 +104,7 @@
+ #define VM_DONTEXPAND	0x00040000	/* Cannot expand with mremap() */
+ #define VM_RESERVED	0x00080000	/* Don't unmap it from swap_out */
+ 
+-#define VM_STACK_FLAGS	0x00000177
++#define VM_STACK_FLAGS			(VM_DATA_DEFAULT_FLAGS | VM_GROWSDOWN)
+ 
+ #define VM_READHINTMASK			(VM_SEQ_READ | VM_RAND_READ)
+ #define VM_ClearReadHint(v)		(v)->vm_flags &= ~VM_READHINTMASK

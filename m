@@ -1,67 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262353AbUK3W0W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262363AbUK3W12@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262353AbUK3W0W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 17:26:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262355AbUK3W0W
+	id S262363AbUK3W12 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 17:27:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262361AbUK3W12
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 17:26:22 -0500
-Received: from fw.osdl.org ([65.172.181.6]:30852 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262353AbUK3W0U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 17:26:20 -0500
-Date: Tue, 30 Nov 2004 14:25:58 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Alexandre Oliva <aoliva@redhat.com>
-cc: David Howells <dhowells@redhat.com>, Paul Mackerras <paulus@samba.org>,
-       Greg KH <greg@kroah.com>, David Woodhouse <dwmw2@infradead.org>,
-       Matthew Wilcox <matthew@wil.cx>, hch@infradead.org,
-       linux-kernel@vger.kernel.org, libc-hacker@sources.redhat.com
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-In-Reply-To: <orekibrpmn.fsf@livre.redhat.lsd.ic.unicamp.br>
-Message-ID: <Pine.LNX.4.58.0411301423030.22796@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0411290926160.22796@ppc970.osdl.org>
- <19865.1101395592@redhat.com> <20041125165433.GA2849@parcelfarce.linux.theplanet.co.uk>
- <1101406661.8191.9390.camel@hades.cambridge.redhat.com> <20041127032403.GB10536@kroah.com>
- <16810.24893.747522.656073@cargo.ozlabs.ibm.com>
- <Pine.LNX.4.58.0411281710490.22796@ppc970.osdl.org>
- <ord5xwvay2.fsf@livre.redhat.lsd.ic.unicamp.br> <8219.1101828816@redhat.com>
- <Pine.LNX.4.58.0411300744120.22796@ppc970.osdl.org>
- <ormzwzrrmy.fsf@livre.redhat.lsd.ic.unicamp.br> <Pine.LNX.4.58.0411301249590.22796@ppc970.osdl.org>
- <orekibrpmn.fsf@livre.redhat.lsd.ic.unicamp.br>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 30 Nov 2004 17:27:28 -0500
+Received: from adsl-67-120-171-161.dsl.lsan03.pacbell.net ([67.120.171.161]:19584
+	"HELO home.linuxace.com") by vger.kernel.org with SMTP
+	id S262359AbUK3W1P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 17:27:15 -0500
+Date: Tue, 30 Nov 2004 14:27:13 -0800
+From: Phil Oester <kernel@linuxace.com>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] misleading error message
+Message-ID: <20041130222713.GA8501@linuxace.com>
+References: <001101c4d715$25a59470$af00a8c0@BEBEL> <Pine.LNX.4.61.0411302251180.3635@dragon.hygekrogen.localhost> <Pine.LNX.4.53.0411302310080.31695@yvahk01.tjqt.qr> <Pine.LNX.4.61.0411302328450.3635@dragon.hygekrogen.localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0411302328450.3635@dragon.hygekrogen.localhost>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 30 Nov 2004, Alexandre Oliva wrote:
-
-> >  (a) it can't break anything (ie the old location still includes the new 
-> >      one, exactly the same way)
+On Tue, Nov 30, 2004 at 11:29:20PM +0100, Jesper Juhl wrote:
+> On Tue, 30 Nov 2004, Jan Engelhardt wrote:
 > 
-> You mean it can't break anything in a kernel build, or it can't break
-> anything except for userland apps that abused kernel headers and used
-> to get away with that?
+> > >> This may be a BUG REPORT, as I see it, allthough more experienced Linux users
+> > >> might think differently:
+> > >>
+> > >> I compiled built-in support for iptables in my new 2.6.9 kernel, but when my
+> > >> legacy firewall does a "modprobe ip_tables" , I get the startling message:
+> > >> "FATAL: module ip_tables not found" .
+> > >
+> > >In my oppinion the message is perfectly clear. You told modprobe to load a
+> > >module, the file was not found so it is forced to give up - and that's
+> > >exactely what it told you.
+> > 
+> > So how would you go about finding out whether something is compiled-in?
+> > 
+> Personally I'd just go check my kernels .config
 
-It can't break userland either.
+Or adjust your (broken) firewall script to do something like:
 
-> >  (b) there are people who will actually take _advantage_ of that 
-> >      particular file (ie "just because I think so" doesn't fly).
-> 
-> People who currently get to maintain duplicates of these header
-> contents will take immediate advantage of these changes, since they
-> will no longer have to maintain the duplicates.
+[ -f /proc/net/ip_tables_names ] || modprobe ip_tables
 
-Wrong. They'll _still_ have to maintain duplicates, since they can't rely
-ont he end-user to have a recent enough kernel.
+Phil
 
-It's just that they can hopefully start _copying_ their dupliates more 
-easily. But if you think the duplication goes away, then I don't want you 
-to send me patches, because you don't understand the issues.
-
-At RH you may see only the case where people do a whole-system upgrade. 
-Please realize that that is just _one_ schenario, and you should not 
-assume that it's the only valid one.
-
-		Linus

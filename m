@@ -1,93 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264561AbUFTQrT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264702AbUFTQ4q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264561AbUFTQrT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 12:47:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264702AbUFTQrT
+	id S264702AbUFTQ4q (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 12:56:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264857AbUFTQ4q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 12:47:19 -0400
-Received: from stat1.steeleye.com ([65.114.3.130]:40639 "EHLO
+	Sun, 20 Jun 2004 12:56:46 -0400
+Received: from stat1.steeleye.com ([65.114.3.130]:19906 "EHLO
 	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S264561AbUFTQrQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 12:47:16 -0400
-Subject: Re: DMA API issues
+	id S264705AbUFTQ4e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 12:56:34 -0400
+Subject: Re: Proposal for new generic device API: dma_get_required_mask()
 From: James Bottomley <James.Bottomley@steeleye.com>
-To: Ian Molton <spyro@f2s.com>
-Cc: rmk+lkml@arm.linux.org.uk, david-b@pacbell.net,
-       Linux Kernel <linux-kernel@vger.kernel.org>, greg@kroah.com,
-       tony@atomide.com, jamey.hicks@hp.com, joshua@joshuawise.com
-In-Reply-To: <20040620165042.393f2756.spyro@f2s.com>
-References: <1087584769.2134.119.camel@mulgrave>
-	<20040618195721.0cf43ec2.spyro@f2s.co <40D34078.5060909@pacbell.net>
-	<20040618204438.35278560.spyro@f2s.com> <1087588627.2134.155.camel@mulgrave
-	<40D359BB.3090106@pacbell.net> <1087593282.2135.176.camel@mulgrave>
-	<40D36EDE.2080803@pacbell.net> <1087600052.2135.197.camel@mulgrave>
-	<40D4849B.3070001@pacbell.net>
-	<20040619214126.C8063@flint.arm.linux.org.uk>
-	<1087681604.2121.96.camel@mulgrave> <20040619234933.214b810b.spyro@f2s.com>
-	<1087738680.10858.5.camel@mulgrave>  <20040620165042.393f2756.spyro@f2s.com>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <m34qp7glsp.fsf@defiant.pm.waw.pl>
+References: <1087481331.2210.27.camel@mulgrave>
+	<m33c4tsnex.fsf@defiant.pm.waw.pl> <1087523134.2210.97.camel@mulgrave>
+	<m3fz8s79dz.fsf@defiant.pm.waw.pl> <1087657251.2162.49.camel@mulgrave> 
+	<m34qp7glsp.fsf@defiant.pm.waw.pl>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 20 Jun 2004 11:46:53 -0500
-Message-Id: <1087750024.11222.81.camel@mulgrave>
+Date: 20 Jun 2004 11:56:26 -0500
+Message-Id: <1087750590.11000.87.camel@mulgrave>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-06-20 at 10:50, Ian Molton wrote:
-> Those two statements are contradictory. clearly the iseries cant use the
-> DMA API *now* so I dont see how that makes any difference. We're talking
-> about adding propper support for *addresssable* memory mapped devices
-> with limited size DMA-able windows to the DMA API, not adding support
-> for a whole new weird way of talking to devices. These devices work the
-> same way as all the other devices that use the DMA API but are simply
-> restricted in the range of addresses they can DMA from. they require no
-> special 'accessors'.
+On Sat, 2004-06-19 at 18:39, Krzysztof Halasa wrote:
+> The problem is that (depending on platform) the pci_map_* and dma_map_*
+> functions ignore both masks. An example of such platform is i386 :-)
 > 
-> iseries cant work the usual way now and wont with these modifications -
-> so nothing is made worse.
+> It seems the masks are used on i386 for only one thing - consistent
+> dma mask is used for consistent allocations only, and normal dma mask
+> is not used at all.
 
-OK, let's try and make this as simple as I know how.  The system looks
-like this
+Actually, I think you misunderstand the way the API works.  The only
+time the dma_map_ functions pay attention to the mask is in an IOMMU
+transaction.  For no-IOMMU systems, its far more efficient for bouncing
+to occur in the upper layers (as it does for block and net).
 
+> The normal mask is used mainly on 64-bit platforms and the meaningful
+> values are 2^32-1 and 2^64-1. It's used by PCI-X device drivers to
+> enable DAC transfers. This is why it isn't used on 32-bit platforms.
 
-       +-----+
-       | CPU |
-       +--+--+
-          |
-    <-----+-----+----------------------+-----> Central Bus
-                |                      |
-          +-----+------+        +------+-----+
-          |   Memory   |        |    I/O     |
-          | Controller |        | Controller |
-          +-----+------+        +------+-----+
-                |                      |
-            +---+-----+             +--+---+    +--------+
-            | Memory  |             | OHCI |----| Memory |
-            +---------+             +------+    +--------+
-
-In order to access this OHCI memory, both the I/O controller and the
-OHCI have to respond to the memory access cycles, rather than the memory
-controller.  This is why such memory is termed "bus remote".
-
-Even though ARM can programm the I/O controller and the OHCI device to
-access this memory as though it were behind the memory controller (i.e.
-using normal CPU memory cycles), you'll find that even on ARM there's
-probably special page table trickery involved (probably to do with cache
-coherency issues).  Next, you'll find that no other device can see this
-memory without some type of i2o support, so it can't be the target of a
-DMA transaction. So even on ARM, you can't treat it as "normal" memory.
-
-On iSeries, the I/O controller sits behind the hypervisor and can't be
-the target of normal memory cycles, that's why the CPU can't address
-this bus remote memory normally. As I've explained.
-
-The DMA API is about allowing devices to transact directly with memory
-behind the memory controller, it's an API that essentially allows the
-I/O controller and memory controller to communicate without CPU
-intervention.  This is still possible through the hypervisor, so the
-iSeries currently fully implements the DMA API.
+This statement is incorrect, Russell has already given you a counter
+example.
 
 James
-
 

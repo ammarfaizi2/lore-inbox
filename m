@@ -1,58 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263459AbTEMUdf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 16:33:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263461AbTEMUde
+	id S263416AbTEMU1I (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 16:27:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263411AbTEMUZ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 16:33:34 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:19163 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S263459AbTEMUc1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 16:32:27 -0400
-Date: Tue, 13 May 2003 13:46:20 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Oleg Drokin <green@namesys.com>
-Cc: jdike@karaya.com, roland@redhat.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: build problems on architectures where FIXADDR_* stuff is not
- constant
-Message-Id: <20030513134620.3dafeaf3.akpm@digeo.com>
-In-Reply-To: <20030513122329.GA31609@namesys.com>
-References: <20030513122329.GA31609@namesys.com>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 13 May 2003 16:25:27 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:48139 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263396AbTEMUZP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 16:25:15 -0400
+Date: Tue, 13 May 2003 21:37:59 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, openafs-devel@openafs.org
+Subject: Re: [PATCH] PAG support only
+Message-ID: <20030513213759.A9244@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	David Howells <dhowells@redhat.com>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+	openafs-devel@openafs.org
+References: <8943.1052843591@warthog.warthog>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 13 May 2003 20:45:06.0753 (UTC) FILETIME=[89641B10:01C31990]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <8943.1052843591@warthog.warthog>; from dhowells@redhat.com on Tue, May 13, 2003 at 05:33:11PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Drokin <green@namesys.com> wrote:
->
->    Since there are architectures where FIXADDR_* stuff is not constant (e.g. UML),
-> ...
-> +			fixmap_vma.vm_start = FIXADDR_START;
-> +			fixmap_vma.vm_end = FIXADDR_TOP;
-> +			fixmap_vma.vm_page_prot = PAGE_READONLY;
->  			pgd = pgd_offset_k(pg);
->  			if (!pgd)
->  				return i ? : -EFAULT;
+> @@ -166,6 +166,7 @@
+>  	if (file->f_op && file->f_op->release)
+>  		file->f_op->release(inode, file);
+>  	security_file_free(file);
+> +	if (file->f_token) vfs_token_put(file->f_token);
 
-That's modifying static storage which other, unrelated processes or CPUs
-may be playing with.
+Please split this into 2 lines as per Documentation/CodingStyle.  Even better
+make vfs_token_put handle a NULL argument.
 
-The new code in get_user_pages() is rather rude - it's returning a
-statically allocated VMA which isn't in the VMA tree - the caller (who
-holds mmap_sem()) could reasonably expect that the VMA can be located via
-find_vma(), or removed from the tree or whatever.  But it cannot.
+> diff -uNr linux-2.5.69/fs/open.c linux-2.5.69-cred/fs/open.c
+> --- linux-2.5.69/fs/open.c	2003-05-06 15:04:45.000000000 +0100
+> +++ linux-2.5.69-cred/fs/open.c	2003-05-13 11:28:08.000000000 +0100
+> @@ -46,7 +46,7 @@
+>  	struct nameidata nd;
+>  	int error;
+>  
+> -	error = user_path_walk(path, &nd);
+> +	error = user_path_walk(path,&nd);
 
-I think it needs to be redone.  Either by stuffing a VMA into every
-process's mm which describes the fixmap area, or by failing
-get_user_pages() if the caller has passed in a non-NULL `vmas' and is
-requesting access to the fixmap area.
+Random whitespace change - and even a wrong one..
 
-Probably the latter.  That'll require that access_process_vm() be changed
-to not require a vma.  It's only using the vma for cache flushing, but the
-flishing in there is borked anyway.  
+> +static inline int is_vfs_token_valid(struct vfs_token *vtoken)
+> +{
+> +	return !list_empty(&vtoken->link);
+> +}
 
+This one is not used - and the name would imply it would be used without taking
+a lock and thus racy..
+
+> +static kmem_cache_t *vfs_token_cache;
+> +static kmem_cache_t *vfs_pag_cache;
+
+How many of those will be around for a typical AFS client?  I have the vague
+feeling the slabs are overkill..
+
+> +	if (pag>0) {
+> +		/* join existing PAG */
+> +		if (tsk->vfspag->pag &&
+> +		    tsk->vfspag->pag==pag)
+> +			return pag;
+
+Please try to get your code in conformance with Documentation/CodingStyle.
+
+> +} /* end vfs_pag_put() */
 

@@ -1,435 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318227AbSG3LQC>; Tue, 30 Jul 2002 07:16:02 -0400
+	id <S318229AbSG3LZ7>; Tue, 30 Jul 2002 07:25:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318230AbSG3LQC>; Tue, 30 Jul 2002 07:16:02 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:29446 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S318227AbSG3LP5>; Tue, 30 Jul 2002 07:15:57 -0400
-Message-ID: <3D467625.1080507@namesys.com>
-Date: Tue, 30 Jul 2002 15:19:01 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] ReiserFS C99 style conversion
-Content-Type: text/plain; charset=koi8-r; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S318228AbSG3LZ6>; Tue, 30 Jul 2002 07:25:58 -0400
+Received: from mout1.freenet.de ([194.97.50.132]:3546 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id <S318229AbSG3LZ5>;
+	Tue, 30 Jul 2002 07:25:57 -0400
+Date: Tue, 30 Jul 2002 13:29:34 +0200
+From: Axel Siebenwirth <axel@hh59.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.29: Oops in handle_scancode.
+Message-ID: <20020730112934.GA372@prester.freenet.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Organization: hh59.org
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hi,
 
-     Thanks to Rusty Russell for informing us of the need for this.
-     trivial changeset to convert named struct initialisers in reiserfs to
-     C99 style.
-     You can pull it from bk://cvs.namesys.com/bk/reiser3-linux-2.5
-     Diffstat:
-  file.c     |   18 +++++------
-  item_ops.c |   96 
-++++++++++++++++++++++++++++++------------------------------- super.c    |   10 
-+++---
-  3 files changed, 62 insertions(+), 62 deletions(-)
+I encountered following oops invoked from swapper. Unfortunately I do not
+remember when it happened.. sorry.
 
+ksymoops 2.4.6 on i686 2.5.29.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.5.29/ (default)
+     -m /boot/System.map-2.5.29 (specified)
 
-    Plain text patch:
-
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-# 
-            ChangeSet	1.508   -> 1.509
-# 
-   fs/reiserfs/file.c	1.17    -> 1.18
-# 
-fs/reiserfs/item_ops.c 
-1.8     -> 1.9
-# 
-  fs/reiserfs/super.c	1.50    -> 1.51
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/07/30	green@angband.namesys.com	1.509
-# super.c, item_ops.c, file.c:
-#   C99 struct initialisers
-# --------------------------------------------
-#
-diff -Nru a/fs/reiserfs/file.c b/fs/reiserfs/file.c
---- a/fs/reiserfs/file.c	Tue Jul 30 14:03:10 2002
-+++ b/fs/reiserfs/file.c	Tue Jul 30 14:03:10 2002
-@@ -141,19 +141,19 @@
-  }
-
-  struct file_operations reiserfs_file_operations = {
--    read:	generic_file_read,
--    write:	generic_file_write,
--    ioctl:	reiserfs_ioctl,
--    mmap:	generic_file_mmap,
--    release:	reiserfs_file_release,
--    fsync:	reiserfs_sync_file,
--    sendfile:	generic_file_sendfile,
-+    .read	= generic_file_read,
-+    .write	= generic_file_write,
-+    .ioctl	= reiserfs_ioctl,
-+    .mmap	= generic_file_mmap,
-+    .release	= reiserfs_file_release,
-+    .fsync	= reiserfs_sync_file,
-+    .sendfile	= generic_file_sendfile,
-  };
+Unable to handle kernel paging request at virtual address 5a5a5a66
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c01ffc12>]       Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010086
+eax: 5a5a5a5a ebx: 0000000e ecx: 00000000 edx: 0000000e
+esi: c923d000 edi: cbbfae00 ebp: c031e944 esp: c02c5ed4
+ds: 0018 es: 0018 ss: 0018
+Stack: 0000000e c02c5ef3 00000000 00000001 00000001 00000000 00000046
+0e00006c
+       0000000e 0000270f c02c5f6c 00000001 c02002ac 0000000e 00000001
+00fffffe
+       c02c4000 00000001 c02002ca cbc1b21c c0109495 00000001 00000000
+c02c5f6c
+Call Trace: [<c02002ac>] [<c02002ca>] [<c0109495>] [<c01096c7>] [<c0107fa4>]
+[<c01e12ab>] [<c0105410>] [<c01e1130>] [<c0105410>] [<c01054ca>]
+[<c0105000>]
+Code: f6 40 0c 08 0f 84 ee 00 00 00 0f b6 5d 01 a1 f0 cc 2b c0 09
 
 
-  struct  inode_operations reiserfs_file_inode_operations = {
--    truncate:	reiserfs_vfs_truncate_file,
--    setattr:    reiserfs_setattr,
-+    .truncate	= reiserfs_vfs_truncate_file,
-+    .setattr    = reiserfs_setattr,
-  };
+>>EIP; c01ffc12 <handle_scancode+122/2f0>   <=====
+
+>>esi; c923d000 <_end+8f0abfc/c5e3bfc>
+>>edi; cbbfae00 <_end+b8c89fc/c5e3bfc>
+>>ebp; c031e944 <kbd_table+4/fc>
+>>esp; c02c5ed4 <init_thread_union+1ed4/2000>
+
+Trace; c02002ac <handle_kbd_event+bc/c0>
+Trace; c02002ca <keyboard_interrupt+1a/30>
+Trace; c0109495 <handle_IRQ_event+45/70>
+Trace; c01096c7 <do_IRQ+97/120>
+Trace; c0107fa4 <common_interrupt+18/20>
+Trace; c01e12ab <acpi_processor_idle+17b/230>
+Trace; c0105410 <default_idle+0/40>
+Trace; c01e1130 <acpi_processor_idle+0/230>
+Trace; c0105410 <default_idle+0/40>
+Trace; c01054ca <cpu_idle+3a/50>
+Trace; c0105000 <_stext+0/0>
+
+Code;  c01ffc12 <handle_scancode+122/2f0>
+00000000 <_EIP>:
+Code;  c01ffc12 <handle_scancode+122/2f0>   <=====
+   0:   f6 40 0c 08               testb  $0x8,0xc(%eax)   <=====
+Code;  c01ffc16 <handle_scancode+126/2f0>
+   4:   0f 84 ee 00 00 00         je     f8 <_EIP+0xf8> c01ffd0a
+<handle_scancode+21a/2f0>
+Code;  c01ffc1c <handle_scancode+12c/2f0>
+   a:   0f b6 5d 01               movzbl 0x1(%ebp),%ebx
+Code;  c01ffc20 <handle_scancode+130/2f0>
+   e:   a1 f0 cc 2b c0            mov    0xc02bccf0,%eax
+Code;  c01ffc25 <handle_scancode+135/2f0>
+  13:   09 00                     or     %eax,(%eax)
+
+<0>Kernel panic: Aiee, killing interrupt handler!
 
 
-diff -Nru a/fs/reiserfs/item_ops.c b/fs/reiserfs/item_ops.c
---- a/fs/reiserfs/item_ops.c	Tue Jul 30 14:03:10 2002
-+++ b/fs/reiserfs/item_ops.c	Tue Jul 30 14:03:10 2002
-@@ -111,18 +111,18 @@
-  }
-
-  struct item_operations stat_data_ops = {
-- 
-bytes_number: 
-	sd_bytes_number,
-- 
-decrement_key: 
-	sd_decrement_key,
-- 
-is_left_mergeable: 
-sd_is_left_mergeable,
-- 
-print_item: 
-	sd_print_item,
-- 
-check_item: 
-	sd_check_item,
--
-- 
-create_vi: 
-	sd_create_vi,
-- 
-check_left: 
-	sd_check_left,
-- 
-check_right: 
-	sd_check_right,
-- 
-part_size: 
-	sd_part_size,
-- 
-unit_num: 
-	sd_unit_num,
-- 
-print_vi: 
-	sd_print_vi
-+ 
-.bytes_number 
-	= sd_bytes_number,
-+ 
-.decrement_key 
-	= sd_decrement_key,
-+ 
-.is_left_mergeable 
-= sd_is_left_mergeable,
-+ 
-.print_item 
-	= sd_print_item,
-+ 
-.check_item 
-	= sd_check_item,
-+
-+ 
-.create_vi 
-	= sd_create_vi,
-+ 
-.check_left 
-	= sd_check_left,
-+ 
-.check_right 
-	= sd_check_right,
-+ 
-.part_size 
-	= sd_part_size,
-+ 
-.unit_num 
-	= sd_unit_num,
-+ 
-.print_vi 
-	= sd_print_vi
-  };
-
-
-@@ -214,18 +214,18 @@
-  }
-
-  struct item_operations direct_ops = {
-- 
-bytes_number: 
-	direct_bytes_number,
-- 
-decrement_key: 
-	direct_decrement_key,
-- 
-is_left_mergeable: 
-direct_is_left_mergeable,
-- 
-print_item: 
-	direct_print_item,
-- 
-check_item: 
-	direct_check_item,
--
-- 
-create_vi: 
-	direct_create_vi,
-- 
-check_left: 
-	direct_check_left,
-- 
-check_right: 
-	direct_check_right,
-- 
-part_size: 
-	direct_part_size,
-- 
-unit_num: 
-	direct_unit_num,
-- 
-print_vi: 
-	direct_print_vi
-+ 
-.bytes_number 
-	= direct_bytes_number,
-+ 
-.decrement_key 
-	= direct_decrement_key,
-+ 
-.is_left_mergeable 
-= direct_is_left_mergeable,
-+ 
-.print_item 
-	= direct_print_item,
-+ 
-.check_item 
-	= direct_check_item,
-+
-+ 
-.create_vi 
-	= direct_create_vi,
-+ 
-.check_left 
-	= direct_check_left,
-+ 
-.check_right 
-	= direct_check_right,
-+ 
-.part_size 
-	= direct_part_size,
-+ 
-.unit_num 
-	= direct_unit_num,
-+ 
-.print_vi 
-	= direct_print_vi
-  };
-
-
-@@ -368,18 +368,18 @@
-  }
-
-  struct item_operations indirect_ops = {
-- 
-bytes_number: 
-	indirect_bytes_number,
-- 
-decrement_key: 
-	indirect_decrement_key,
-- 
-is_left_mergeable: 
-indirect_is_left_mergeable,
-- 
-print_item: 
-	indirect_print_item,
-- 
-check_item: 
-	indirect_check_item,
--
-- 
-create_vi: 
-	indirect_create_vi,
-- 
-check_left: 
-	indirect_check_left,
-- 
-check_right: 
-	indirect_check_right,
-- 
-part_size: 
-	indirect_part_size,
-- 
-unit_num: 
-	indirect_unit_num,
-- 
-print_vi: 
-	indirect_print_vi
-+ 
-.bytes_number 
-	= indirect_bytes_number,
-+ 
-.decrement_key 
-	= indirect_decrement_key,
-+ 
-.is_left_mergeable 
-= indirect_is_left_mergeable,
-+ 
-.print_item 
-	= indirect_print_item,
-+ 
-.check_item 
-	= indirect_check_item,
-+
-+ 
-.create_vi 
-	= indirect_create_vi,
-+ 
-.check_left 
-	= indirect_check_left,
-+ 
-.check_right 
-	= indirect_check_right,
-+ 
-.part_size 
-	= indirect_part_size,
-+ 
-.unit_num 
-	= indirect_unit_num,
-+ 
-.print_vi 
-	= indirect_print_vi
-  };
-
-
-@@ -662,18 +662,18 @@
-  }
-
-  struct item_operations direntry_ops = {
-- 
-bytes_number: 
-	direntry_bytes_number,
-- 
-decrement_key: 
-	direntry_decrement_key,
-- 
-is_left_mergeable: 
-direntry_is_left_mergeable,
-- 
-print_item: 
-	direntry_print_item,
-- 
-check_item: 
-	direntry_check_item,
--
-- 
-create_vi: 
-	direntry_create_vi,
-- 
-check_left: 
-	direntry_check_left,
-- 
-check_right: 
-	direntry_check_right,
-- 
-part_size: 
-	direntry_part_size,
-- 
-unit_num: 
-	direntry_unit_num,
-- 
-print_vi: 
-	direntry_print_vi
-+ 
-.bytes_number 
-	= direntry_bytes_number,
-+ 
-.decrement_key 
-	= direntry_decrement_key,
-+ 
-.is_left_mergeable 
-= direntry_is_left_mergeable,
-+ 
-.print_item 
-	= direntry_print_item,
-+ 
-.check_item 
-	= direntry_check_item,
-+
-+ 
-.create_vi 
-	= direntry_create_vi,
-+ 
-.check_left 
-	= direntry_check_left,
-+ 
-.check_right 
-	= direntry_check_right,
-+ 
-.part_size 
-	= direntry_part_size,
-+ 
-.unit_num 
-	= direntry_unit_num,
-+ 
-.print_vi 
-	= direntry_print_vi
-  };
-
-
-diff -Nru a/fs/reiserfs/super.c b/fs/reiserfs/super.c
---- a/fs/reiserfs/super.c	Tue Jul 30 14:03:10 2002
-+++ b/fs/reiserfs/super.c	Tue Jul 30 14:03:10 2002
-@@ -1313,11 +1313,11 @@
-  }
-
-  static struct file_system_type reiserfs_fs_type = {
-- 
-owner: THIS_MODULE,
-- 
-name: "reiserfs",
-- 
-get_sb: get_super_block,
-- 
-kill_sb: kill_block_super,
-- 
-fs_flags: FS_REQUIRES_DEV,
-+ 
-.owner 
-	= THIS_MODULE,
-+ 
-.name 
-	= "reiserfs",
-+ 
-.get_sb 
-	= get_super_block,
-+ 
-.kill_sb 
-= kill_block_super,
-+ 
-.fs_flags 
-= FS_REQUIRES_DEV,
-  };
-
-  MODULE_DESCRIPTION ("ReiserFS journaled filesystem");
-
-Bye,
-     Oleg
-
-
-
+Best regards,
+Axel Siebenwirth

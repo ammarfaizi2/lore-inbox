@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262749AbUCOUpH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 15:45:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262753AbUCOUpG
+	id S262753AbUCOUt5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 15:49:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262765AbUCOUt5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 15:45:06 -0500
-Received: from mail.shareable.org ([81.29.64.88]:38028 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S262749AbUCOUo6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 15:44:58 -0500
-Date: Mon, 15 Mar 2004 20:44:56 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Andy Isaacson <adi@bitmover.com>
-Cc: linux-kernel@vger.kernel.org, Larry McVoy <lm@bitmover.com>
-Subject: Re: BK/Web improvements (includes patch server)
-Message-ID: <20040315204456.GD10682@mail.shareable.org>
-References: <200403150616.i2F6Gu2Z030020@work.bitmover.com> <20040315114142.GA22039@codepoet.org> <20040315200204.GH8249@bitmover.com> <20040315201057.GB10682@mail.shareable.org> <20040315201840.GA17813@bitmover.com>
+	Mon, 15 Mar 2004 15:49:57 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:5038 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262753AbUCOUt4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 15:49:56 -0500
+Date: Mon, 15 Mar 2004 12:49:06 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: "chas williams (contractor)" <chas@cmf.nrl.navy.mil>
+Cc: gator@cs.tu-berlin.de, linux-kernel@vger.kernel.org,
+       linux-atm-general@lists.sourceforge.net
+Subject: Re: [Linux-ATM-General] NICSTAR_USE_SUNI broken in 2.6.3+
+Message-Id: <20040315124906.21dd0e88.davem@redhat.com>
+In-Reply-To: <200403151728.i2FHSHgu021955@ginger.cmf.nrl.navy.mil>
+References: <Pine.LNX.4.30.0403131045040.3568-100000@swamp.bayern.net>
+	<200403151728.i2FHSHgu021955@ginger.cmf.nrl.navy.mil>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040315201840.GA17813@bitmover.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Isaacson wrote:
-> On Mon, Mar 15, 2004 at 08:10:57PM +0000, Jamie Lokier wrote:
-> > Andy Isaacson @bitmover.com wrote:
-> > > 'cuz I don't get pissed when people say "thanks for bending over,
-> > > now bend over farther".
-> > 
-> > Oh, is that what it's like working for Larry :)
+On Mon, 15 Mar 2004 12:28:19 -0500
+"chas williams (contractor)" <chas@cmf.nrl.navy.mil> wrote:
+
+> this points directly to suni.c:236, in particular the PRIV(dev)->dev
+> bit.  it looks like gcc3 fixups from akpm inadvertently converted PRIV()
+> to dev_data instead of phy_data.
 > 
-> It's an amusing feature of English that leaving out the word "backwards"
-> can so drastically change the meaning of a sentence, without actually
-> changing its meaning.
+> the following patch should get things running again.
+> 
+> dave, can you apply to 2.6?  thanks!
 
-I'm not sure which is the more satisfying image -- bending over
-forwards for Larry, or bending over backwards for him ;)
-
-> (I wonder if this is peculiar to American English, or to my dialect, or
-> if it's shared with British.  Linguist BCCed.)
-
-Is he any linguist or a cunning linguist?
-
--- Jamie
+Applied, thanks Chas.

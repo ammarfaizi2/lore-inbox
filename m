@@ -1,55 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268498AbUHYUS6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268541AbUHYUXS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268498AbUHYUS6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 16:18:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268589AbUHYUS6
+	id S268541AbUHYUXS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 16:23:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268637AbUHYUXS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 16:18:58 -0400
-Received: from mail.tmr.com ([216.238.38.203]:5126 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S268498AbUHYURf (ORCPT
+	Wed, 25 Aug 2004 16:23:18 -0400
+Received: from verein.lst.de ([213.95.11.210]:47554 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S268541AbUHYUTf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 16:17:35 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: Linux 2.6.9-rc1
-Date: Wed, 25 Aug 2004 16:18:09 -0400
-Organization: TMR Associates, Inc
-Message-ID: <cgirou$2ju$1@gatekeeper.tmr.com>
-References: <20040824184245.GE5414@waste.org><Pine.LNX.4.58.0408240031560.17766@ppc970.osdl.org> <Pine.LNX.4.58.0408241221390.17766@ppc970.osdl.org>
+	Wed, 25 Aug 2004 16:19:35 -0400
+Date: Wed, 25 Aug 2004 22:19:29 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: Christoph Hellwig <hch@lst.de>, Hans Reiser <reiser@namesys.com>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040825201929.GA16855@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
+	Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Alexander Lyamin aka FLX <flx@namesys.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	ReiserFS List <reiserfs-list@namesys.com>
+References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com> <20040825200859.GA16345@lst.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1093464670 2686 192.168.12.100 (25 Aug 2004 20:11:10 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-In-Reply-To: <Pine.LNX.4.58.0408241221390.17766@ppc970.osdl.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040825200859.GA16345@lst.de>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Tue, 24 Aug 2004, Matt Mackall wrote:
-> 
->>Phew, I was worried about that. Can I get a ruling on how you intend
->>to handle a x.y.z.1 to x.y.z.2 transition? I've got a tool that I'm
->>looking to unbreak. My preference would be for all x.y.z.n patches to
->>be relative to x.y.z.
-> 
-> 
-> Hmm.. I have no strong preferences. There _is_ obviously a well-defined 
-> ordering from x.y.z.1 -> x.y.z.2 (unlike the -rcX releases that don't have 
-> any ordering wrt the bugfixes), so either interdiffs or whole new full 
-> diffs are totally "logical". We just have to chose one way or the other, 
-> and I don't actually much care.
-> 
-> Any reason for your preference? 
+Btw, I just got reminded you might take my saying as an "piss of you're
+idea stinks" or similar things.  So let me clarify again the actual
+technical and project managment issues another time before we start
+getting really personal :)
 
-It should work like a bk, so two kinds of logic aren't needed.
+Over the last at least five years we've taken as much as possible
+semantics out of the filesystems and into the VFS layer, thus having
+a separation between the semantical layer (VFS) and the low level
+filesystem.  Your attributes are absoultely a VFS thing and as such
+should not happen at the filesystem layer, and no, that doesn't mean
+they're bad per se, I just think they are a rather bad fit for Linux.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+So now go on and try to work together with the other peope doing VFS
+level work instead of hiding, or if you think you can't work together
+with us search a nice research OS where you can take over the VFS layer,
+if your ideas prove to be good I'm sure Linux will pick them up sooner
+or later.
+
+	Christoph

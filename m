@@ -1,69 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261481AbVCORAl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261498AbVCORBr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261481AbVCORAl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 12:00:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbVCORAk
+	id S261498AbVCORBr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 12:01:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbVCORBr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 12:00:40 -0500
-Received: from A.painless.aaisp.net.uk ([81.187.81.51]:9605 "EHLO
-	smtp.aaisp.net.uk") by vger.kernel.org with ESMTP id S261481AbVCORAb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 12:00:31 -0500
-Subject: Re: drm lockups since 2.6.11-bk2
-From: Andrew Clayton <andrew@rootshell.co.uk>
-To: Dave Jones <davej@redhat.com>
-Cc: Dave Airlie <airlied@linux.ie>, Andrew Clayton <andrew@digital-domain.net>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       dri-devel@lists.sourceforge.net
-In-Reply-To: <20050315165337.GG15531@redhat.com>
-References: <Pine.LNX.4.58.0503151033110.22756@skynet>
-	 <20050315143629.GA27654@redhat.com>
-	 <Pine.LNX.4.58.0503151610560.443@skynet>
-	 <20050315165337.GG15531@redhat.com>
-Content-Type: text/plain
-Date: Tue, 15 Mar 2005 17:00:22 +0000
-Message-Id: <1110906022.3244.111.camel@theta.digital-domain.net>
+	Tue, 15 Mar 2005 12:01:47 -0500
+Received: from fed1rmmtao02.cox.net ([68.230.241.37]:14830 "EHLO
+	fed1rmmtao02.cox.net") by vger.kernel.org with ESMTP
+	id S261498AbVCORBf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 12:01:35 -0500
+Date: Tue, 15 Mar 2005 10:01:13 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: [PATCH] ppc32: Fix a warning in planb video driver
+Message-ID: <20050315170112.GQ8345@smtp.west.cox.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-03-15 at 11:53 -0500, Dave Jones wrote:
-> On Tue, Mar 15, 2005 at 04:15:42PM +0000, Dave Airlie wrote:
->  > 
->  > >  >
->  > >  > I might get time to do a code review, my main worry is that all the
->  > >  > problems reported with those patches in -mm made it into the patchset that
->  > >  > went into Linus.. mainly things like forgetting to memset certain
->  > >  > structures to 0 and sillies like that...
->  > >
->  > > I saw one report where the recent drm security hole fix broke dri
->  > > for one user.  Whilst it seems an isolated incident, could this have
->  > > more impact than we first realised ?
->  > 
->  > the radeon security changes? I've gotten no bad feedback on those neither
->  > has dri-devel, so I've assumed they were all fine (usually radeon bug
->  > reports get back fairly quickly as everyone has one ..),
->  > 
->  > the multi-bridge stuff is definitely broken as I've seen radeon and r128
->  > reports on it .. and it looks most like 2.6.11-bk2 broke things and I
->  > haven't merged anything until -bk7 ...
-> 
-> Wait, -bk2 broke things ?   The big agp changes went into -bk3,
-> so this seems odd.
-> 
+[ aside: This has been sitting in the linuxppc-2.5 bk tree for I don't
+  know how long.  And the driver is still horribly broken. ]
 
-To clarify. 2.6.11-bk2 is working fine. It broke with 2.6.11-bk3, where
-IIRC a drm update was made.
+The following patch moves overlay_is_active to before its first use.  It
+was originally written when gcc wouldn't complain, but now does, about
+not having the definition before usage.
 
-Disabling DRI in X and/or DRM in the kernel prevents X from locking the
-machine.
+ drivers/media/video/planb.c |   20 ++++++++++----------
+ 1 files changed, 10 insertions(+), 10 deletions(-)
+--- linux-2.6.11/drivers/media/video/planb.c	2005-03-02 00:38:19.000000000 -0700
++++ linuxppc-2.6.11/drivers/media/video/planb.c	2005-03-15 08:04:16.000000000 -0700
+@@ -421,6 +421,16 @@
+ /* overlay support functions */
+ /*****************************/
+ 
++static inline int overlay_is_active(struct planb *pb)
++{
++	unsigned int size = pb->tab_size * sizeof(struct dbdma_cmd);
++	unsigned int caddr = (unsigned)in_le32(&pb->planb_base->ch1.cmdptr);
++
++	return (in_le32(&pb->overlay_last1->cmd_dep) == pb->ch1_cmd_phys)
++			&& (caddr < (pb->ch1_cmd_phys + size))
++			&& (caddr >= (unsigned)pb->ch1_cmd_phys);
++}
++
+ static void overlay_start(struct planb *pb)
+ {
+ 
+@@ -852,16 +862,6 @@
+ 
+ #define PLANB_PALETTE_MAX 15
+ 
+-static inline int overlay_is_active(struct planb *pb)
+-{
+-	unsigned int size = pb->tab_size * sizeof(struct dbdma_cmd);
+-	unsigned int caddr = (unsigned)in_le32(&pb->planb_base->ch1.cmdptr);
+-
+-	return (in_le32(&pb->overlay_last1->cmd_dep) == pb->ch1_cmd_phys)
+-			&& (caddr < (pb->ch1_cmd_phys + size))
+-			&& (caddr >= (unsigned)pb->ch1_cmd_phys);
+-}
+-
+ static int vgrab(struct planb *pb, struct video_mmap *mp)
+ {
+ 	unsigned int fr = mp->frame;
 
-> 		Dave
-> 
-
-Cheers,
-
-Andrew
-
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

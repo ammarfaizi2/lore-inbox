@@ -1,87 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267519AbRGMSVK>; Fri, 13 Jul 2001 14:21:10 -0400
+	id <S267525AbRGMSWk>; Fri, 13 Jul 2001 14:22:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267521AbRGMSVA>; Fri, 13 Jul 2001 14:21:00 -0400
-Received: from willow.seitz.com ([207.106.55.140]:47620 "EHLO willow.seitz.com")
-	by vger.kernel.org with ESMTP id <S267519AbRGMSUx>;
-	Fri, 13 Jul 2001 14:20:53 -0400
-From: Ross Vandegrift <ross@willow.seitz.com>
-Date: Fri, 13 Jul 2001 14:20:54 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Crash on boot with 2.4.6
-Message-ID: <20010713142054.A5042@willow.seitz.com>
+	id <S267524AbRGMSWa>; Fri, 13 Jul 2001 14:22:30 -0400
+Received: from smtp01.fields.gol.com ([203.216.5.131]:57618 "EHLO
+	smtp01.fields.gol.com") by vger.kernel.org with ESMTP
+	id <S267522AbRGMSWS>; Fri, 13 Jul 2001 14:22:18 -0400
+Date: Sat, 14 Jul 2001 03:21:46 +0900
+From: Masaru Kawashima <masaruk@gol.com>
+To: moffe@amagerkollegiet.dk
+Cc: linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH] Re: [MINOR PROBLEM] RTL8139C: transmit timed out
+In-Reply-To: <Pine.LNX.4.33.0107122043350.1097-100000@grignard.amagerkollegiet.dk>
+In-Reply-To: <Pine.LNX.4.33.0107122043350.1097-100000@grignard.amagerkollegiet.dk>
+X-Mailer: Sylpheed version 0.5.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Type: multipart/mixed;
+ boundary="Multipart_Sat__14_Jul_2001_03:21:46_+0900_094006c8"
+Message-Id: <E15L7Zp-0006k9-00@smtp01.fields.gol.com>
+X-Abuse-Complaints: abuse@gol.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+This is a multi-part message in MIME format.
 
-	2.4.6 crashes while calibrating the delay loop 
-on a machine I've built it for, saying:
+--Multipart_Sat__14_Jul_2001_03:21:46_+0900_094006c8
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Calibrating delay loop... kernel bug at softirq.c:206!
+Hi!
 
-	The machine that fails is a Cyrix MII 233MHz.
-The chipset is a PIIX4.  I've tried building the kernel 
-with the CPU set to 6x86MX as well as plain-jane 386, i
-both have the same effect.  2.2.19 boots an runs correctly.
+> Jul 12 20:36:43 wiibroe kernel: NETDEV WATCHDOG: eth0: transmit timed out
 
-The output of the crash sent through ksymoops follows.
+I had the same problem with linux-2.4.6-ac2, and I found a bug
+in the function rtl8139_start_xmit() of 8139too.c.
 
-Ross Vandegrift
-ross@willow.seitz.com
+Attached patch will fix this bug.
 
-ksymoops 2.3.4 on i586 2.4.6.  Options used
-     -v /home/usr/ross/kernels/willow/vmlinux (specified)
-     -K (specified)
-     -L (specified)
-     -O (specified)
-     -m /home/usr/ross/kernels/willow/System.map (specified)
+Enjoy!
+--
+Masaru Kawashima <masaruk@gol.com>
 
-CPU:    0
-EIP:    0010:[<c011454e>]
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010086
-eax: 0000001d ebx: c02af2c0 ecx: 00000001 edx: c024e3e8
-esi: c02af2c0 edi: 00000001 ebp: 00000000 esp: c0263f64
-ds: 0018 es: 0018 ss: 0018
-Process swapper (pid: 0, stackpage=c0263000)
-Stack:  c0210a55 c0210af1 000000ce 00000009 c0295560 c0263fa8 c011435f
-        c0295560 00000000 c0293900 00000000 c0107d4d 00000001 000994c1 c0105000
-        c024df20 0008e000 c0106b1c 00000001 00000001 c024e3e8 000994c1 c0105000
-Call Trace: [<c011435f>] [<c0107d4d>] [<c0105000>] [<c0106b1c>] [<c0105000>] [<c0105000>]
-Code: 0f 0b 83 c4 0c 8b 43 08 85 c0 75 14 fb ff 73 10 8b 43 0c ff
+--Multipart_Sat__14_Jul_2001_03:21:46_+0900_094006c8
+Content-Type: text/plain;
+ name="8139too.patch"
+Content-Disposition: attachment;
+ filename="8139too.patch"
+Content-Transfer-Encoding: base64
 
->>EIP; c011454e <tasklet_hi_action+6e/b0>   <=====
-Trace; c011435f <do_softirq+3f/68>
-Trace; c0107d4d <do_IRQ+9d/b0>
-Trace; c0105000 <_stext+0/0>
-Trace; c0106b1c <ret_from_intr+0/7>
-Trace; c0105000 <_stext+0/0>
-Trace; c0105000 <_stext+0/0>
-Code;  c011454e <tasklet_hi_action+6e/b0>
-00000000 <_EIP>:
-Code;  c011454e <tasklet_hi_action+6e/b0>   <=====
-   0:   0f 0b                     ud2a      <=====
-Code;  c0114550 <tasklet_hi_action+70/b0>
-   2:   83 c4 0c                  add    $0xc,%esp
-Code;  c0114553 <tasklet_hi_action+73/b0>
-   5:   8b 43 08                  mov    0x8(%ebx),%eax
-Code;  c0114556 <tasklet_hi_action+76/b0>
-   8:   85 c0                     test   %eax,%eax
-Code;  c0114558 <tasklet_hi_action+78/b0>
-   a:   75 14                     jne    20 <_EIP+0x20> c011456e <tasklet_hi_action+8e/b0>
-Code;  c011455a <tasklet_hi_action+7a/b0>
-   c:   fb                        sti
-Code;  c011455b <tasklet_hi_action+7b/b0>
-   d:   ff 73 10                  pushl  0x10(%ebx)
-Code;  c011455e <tasklet_hi_action+7e/b0>
-  10:   8b 43 0c                  mov    0xc(%ebx),%eax
-Code;  c0114561 <tasklet_hi_action+81/b0>
-  13:   ff 00                     incl   (%eax)
+LS0tIGRyaXZlcnMvbmV0LzgxMzl0b28uYy5vcmlnCVdlZCBKdWwgIDQgMTQ6MzQ6MjcgMjAwMQor
+KysgZHJpdmVycy9uZXQvODEzOXRvby5jCVNhdCBKdWwgMTQgMDI6MzQ6NTAgMjAwMQpAQCAtMTcz
+Miw3ICsxNzMyLDYgQEAKIAlSVExfVzMyX0YgKFR4QWRkcjAgKyAoZW50cnkgKiA0KSwgZG1hX2Fk
+ZHIpOwogCVJUTF9XMzJfRiAoVHhTdGF0dXMwICsgKGVudHJ5ICogc2l6ZW9mICh1MzIpKSwKIAkJ
+ICAgdHAtPnR4X2ZsYWcgfCAoc2tiLT5sZW4gPj0gRVRIX1pMRU4gPyBza2ItPmxlbiA6IEVUSF9a
+TEVOKSk7Ci0Jc3Bpbl91bmxvY2tfaXJxKCZ0cC0+bG9jayk7CiAKIAlkZXYtPnRyYW5zX3N0YXJ0
+ID0gamlmZmllczsKIApAQCAtMTc0MCw2ICsxNzM5LDcgQEAKIAltYigpOwogCWlmICgodHAtPmN1
+cl90eCAtIE5VTV9UWF9ERVNDKSA9PSB0cC0+ZGlydHlfdHgpCiAJCW5ldGlmX3N0b3BfcXVldWUg
+KGRldik7CisJc3Bpbl91bmxvY2tfaXJxKCZ0cC0+bG9jayk7CiAKIAlEUFJJTlRLICgiJXM6IFF1
+ZXVlZCBUeCBwYWNrZXQgYXQgJXAgc2l6ZSAldSB0byBzbG90ICVkLlxuIiwKIAkJIGRldi0+bmFt
+ZSwgc2tiLT5kYXRhLCBza2ItPmxlbiwgZW50cnkpOwo=
 
-Kernel panic: Aiee, killing interrupt handler!
+--Multipart_Sat__14_Jul_2001_03:21:46_+0900_094006c8--

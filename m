@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263411AbTDCPLj>; Thu, 3 Apr 2003 10:11:39 -0500
+	id <S263415AbTDCPVX>; Thu, 3 Apr 2003 10:21:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263415AbTDCPLj>; Thu, 3 Apr 2003 10:11:39 -0500
-Received: from twister.ispgateway.de ([62.67.200.3]:12 "HELO
-	twister.ispgateway.de") by vger.kernel.org with SMTP
-	id <S263411AbTDCPLh>; Thu, 3 Apr 2003 10:11:37 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: Much better framebuffer fixes.
-References: <20030402221008$2d6c@gated-at.bofh.it>
-        <20030402221008$69b9@gated-at.bofh.it>
-From: Lars Noschinski <lars@usenet.noschinski.de>
-Date: Thu, 03 Apr 2003 17:25:52 +0200
-In-Reply-To: <20030402221008$69b9@gated-at.bofh.it> (James Simmons's message
- of "Thu, 03 Apr 2003 00:10:08 +0200")
-Message-ID: <87u1dfiovz.fsf@vetinari.home.noschinski.de>
-User-Agent: Gnus/5.090008 (Oort Gnus v0.08) XEmacs/21.4 (Common Lisp,
- i386-debian-linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S263418AbTDCPVX>; Thu, 3 Apr 2003 10:21:23 -0500
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:29378 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id <S263415AbTDCPVW>; Thu, 3 Apr 2003 10:21:22 -0500
+Date: Thu, 3 Apr 2003 17:32:43 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Brent Clements <bclem@rice.edu>
+Cc: linux-kernel@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+       James Bourne <jbourne@hardrock.org>
+Subject: Re: Updates list of 2.4.20 patches
+Message-ID: <20030403153243.GB5651@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Simmons <jsimmons@infradead.org> writes:
->> Doesn't work for my Radeon 9100, as I get a kernel panic. As of 2.5.66
->> the Radeon 9100 is not supported, I run a slightly modified version
->> (diff to 2.5.66 appended). At least the framebuffer seems to work,
->> till now I had now time for further tests.
->
-> I applied your patch. With your patch plus my it does work perfectly find
-> for you?
+Some people are just too stupid for their tools.
+Resent w/out an empty line between headers.
 
-With both patches, the kernel panics at boot time. With only my patch,
-the framebuffer is initialised at 640x480. Console switching and X
-work perfectly.
+On Thu, 3 April 2003 08:39:31 -0600, Brent Clements wrote:
+> 
+> Is there a list somewhere(with ability to download) of all of the
+> patches to 2.4.20 that people have applied or suggested?
+> 
+> I don't want to move my production system to 2.4.21-preX but I do want
+> to make sure I've kept 2.4.20 up-to-date.
 
-But if I try to change the video mode with fbset 2.1, the screen wents
-blank after a console switch. I found no way to change resolution at
-boot time ("video=radeon:1024x768-32@85" for example did not work).
+Depends on what you consider to be up-to-date. But I guess, you want
+to have all the security fixes and important bug fixes and nothing
+but.
 
+James Bourne intends to maintain that and has put it somewhere on
+www.hardrock.org (although I cannot find it right now).
+
+James and H. Peter still haven't gotten around to put the stuff on
+www.kernel.org, where most people would expect it to be. *hint*
+
+Jörn
+
+-- 
+The grand essentials of happiness are: something to do, something to
+love, and something to hope for.
+-- Allan K. Chalmers

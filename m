@@ -1,84 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261708AbVAYB5r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261730AbVAYCFA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261708AbVAYB5r (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 20:57:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbVAYB5l
+	id S261730AbVAYCFA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 21:05:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbVAYCFA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 20:57:41 -0500
-Received: from fire.osdl.org ([65.172.181.4]:5827 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S261708AbVAYB5T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 20:57:19 -0500
-Subject: Re: [PATCH] BUG in io_destroy (fs/aio.c:1248)
-From: Daniel McNeil <daniel@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Darrick J. Wong" <djwong@us.ibm.com>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "linux-aio@kvack.org" <linux-aio@kvack.org>
-In-Reply-To: <20050124165856.02ac0c50.akpm@osdl.org>
-References: <41F04D73.20800@us.ibm.com> <20050124085805.GA4462@in.ibm.com>
-	 <20050124155613.3a741825.akpm@osdl.org>
-	 <1106613801.11633.2.camel@localhost.localdomain>
-	 <20050124165856.02ac0c50.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1106618202.9346.26.camel@ibm-c.pdx.osdl.net>
+	Mon, 24 Jan 2005 21:05:00 -0500
+Received: from h80ad25f5.async.vt.edu ([128.173.37.245]:24850 "EHLO
+	h80ad25f5.async.vt.edu") by vger.kernel.org with ESMTP
+	id S261730AbVAYCE5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 21:04:57 -0500
+Message-Id: <200501250204.j0P24mFE014360@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: John Richard Moser <nigelenki@comcast.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: undefined references 
+In-Reply-To: Your message of "Mon, 24 Jan 2005 19:04:53 EST."
+             <41F58D25.1000203@comcast.net> 
+From: Valdis.Kletnieks@vt.edu
+References: <41F58D25.1000203@comcast.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 24 Jan 2005 17:56:42 -0800
+Content-Type: multipart/signed; boundary="==_Exmh_1106618688_11132P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Mon, 24 Jan 2005 21:04:48 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-01-24 at 16:58, Andrew Morton wrote:
-> "Darrick J. Wong" <djwong@us.ibm.com> wrote:
-> >
-> > Andrew Morton wrote:
-> > 
-> > > So...  Will someone be sending a new patch?
-> > 
-> > Here's a cheesy patch that simply marks the ioctx as dead before
-> > destroying it.
+--==_Exmh_1106618688_11132P
+Content-Type: text/plain; charset=us-ascii
+
+On Mon, 24 Jan 2005 19:04:53 EST, John Richard Moser said:
+
+> fs/built-in.o(.text+0xe413): In function `link_path_walk':
+> : undefined reference to `gr_inode_follow_link'
+> fs/built-in.o(.text+0xe933): In function `link_path_walk':
+> : undefined reference to `gr_inode_follow_link'
+> fs/built-in.o(.text+0x10c28): In function `sys_link':
+> : undefined reference to `gr_inode_hardlink'
+> fs/built-in.o(.text+0x10c52): In function `sys_link':
+> : undefined reference to `gr_inode_handle_create'
+> make: *** [.tmp_vmlinux1] Error 1
 > 
-> super-cheesy, given that `ctx' is an unsigned long.
-> 
-> > +		spin_lock_irq(&ctx->ctx_lock);
-> > +		ctx->dead = 1;
-> > +		spin_unlock_irq(&ctx->ctx_lock);
-> > +
-> 
-> Even with this fixed up, the locking looks very odd.
-> 
-> Needs more work, please.  Or we just run with the original patch which I
-> assume was tested.  It's a rare error path and performance won't matter.
+> What would cause this kind of error?
 
-The use of 'dead' looks very strange.  It is set to 1 in
-aio_cancel_all() while holding spin_lock_irq(&ctx->ctx_lock);
-but it is set to 1 in io_destroy() holding
-write_lock(&mm->ioctx_list_lock);
+link_path_walk() still has a reference to gr_inode_follow_link (the code
+you probably want to move to an LSM exit), and sys_ling() still calls
+gr_inode_hardlink() and gr_inode_handle_create() - but the actual functions
+you're calling either don't exist anymore, or they didn't get compiled and linked
+in.  If those functions are supposed to exist, you need to get them into a .o.
+If those are (as I suspect) becoming LSM exit hooks, then you need to clean up
+the direct calls in link_path_walk() and sys_link().
 
-The io_destroy() comment says
-"Protects against races with itself via ->dead."
+--==_Exmh_1106618688_11132P
+Content-Type: application/pgp-signature
 
-I assume the race the comment is talking about is
-multiple threads calling io_destroy() on the same
-ctx.  io_destroy() in only called from sys_io_destroy() or
-from sys_io_setup() in the failure case that is trying
-to be fixed.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-aio_cancel_all() is only called from exit_aio() when the
-mm is going away.  So this path is using 'dead' for something
-else since the mm cannot go away twice (and there cannot be
-an io_destroy() in progress or the mm would not be going away).
+iD8DBQFB9ak/cC3lWbTT17ARAmXfAJ9LoZw2WKrnfoMaDM921/S28Cx2owCg1mcQ
+cTPFdv2NA37LeJCJfOmDtyw=
+=ad5b
+-----END PGP SIGNATURE-----
 
-The overloading of 'dead' is ugly and confusing.
-
-The use of spin_lock_irq(&ctx->ctx_lock) in sys_io_setup()
-does not do any good AFAICT.
-
-Daniel
-
-
-
-
-
+--==_Exmh_1106618688_11132P--

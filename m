@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262970AbVCJSze@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262820AbVCJTB6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262970AbVCJSze (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 13:55:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262911AbVCJSqU
+	id S262820AbVCJTB6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 14:01:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262996AbVCJTBi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 13:46:20 -0500
-Received: from fire.osdl.org ([65.172.181.4]:45966 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262863AbVCJSid (ORCPT
+	Thu, 10 Mar 2005 14:01:38 -0500
+Received: from rproxy.gmail.com ([64.233.170.202]:48927 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262836AbVCJSw7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 13:38:33 -0500
-Date: Thu, 10 Mar 2005 10:40:25 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Robin Holt <holt@sgi.com>, Andrew Morton <akpm@osdl.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] AB-BA deadlock between uidhash_lock and tasklist_lock.
-In-Reply-To: <20050310123714.GA22068@attica.americas.sgi.com>
-Message-ID: <Pine.LNX.4.58.0503101034400.2530@ppc970.osdl.org>
-References: <20050310123714.GA22068@attica.americas.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 10 Mar 2005 13:52:59 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=uANuLhs5c9FfvHO/qTHx1xf0G7apI0wgTUMAQTUsLpFq2VnKLk3G9xpD65NHtDtMIO/vI6V6utvXGiD8e2geRCGuFaklHEqqiwuam64zXi8PFfGClRCzWs0lXbz9G1dim3sBAuQ+EmQOj2B+oxwXiNh+OjLqiaeieZFeheGQ+aU=
+Message-ID: <9e47339105031010527aa0e3af@mail.gmail.com>
+Date: Thu, 10 Mar 2005 13:52:59 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: current linus bk, error mounting root
+Cc: Jeff Garzik <jgarzik@pobox.com>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050310162918.GD2578@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050309210926.GZ28855@suse.de> <20050310075049.GA30243@suse.de>
+	 <9e4733910503100658ff440e3@mail.gmail.com>
+	 <20050310153151.GY2578@suse.de>
+	 <9e473391050310074556aad6b0@mail.gmail.com>
+	 <20050310154830.GB2578@suse.de>
+	 <9e47339105031007595b1e0cc3@mail.gmail.com>
+	 <20050310160155.GC2578@suse.de>
+	 <9e4733910503100818df5fb2@mail.gmail.com>
+	 <20050310162918.GD2578@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Here's a big clue, if I build ata_piix in I can boot. If it is a
+module I can't. The console output definitely shows that the module is
+being loaded.
 
-
-On Thu, 10 Mar 2005, Robin Holt wrote:
-> 
-> reparent_to_init() does write_lock_irq(&tasklist_lock) then calls
-> switch_uid() which calls free_uid() which grabs the uidhash_lock.
-> 
-> Independent of that, we have seen a different cpu call free_uid as a
-> result of sys_wait4 and, immediately after acquiring the uidhash_lock,
-> receive a timer interrupt which eventually leads to an attempt to grab
-> the tasklist_lock.
-
-Hmm..  We fixed this already, and the current tree doesn't have this 
-problem (and the fix was much simpler: just move "switch_uid()" to outside 
-the tasklist_lock.
-
-That fix was done late december last year (current BK revision: 
-1.1938.446.38), and I really think your patch is stale. Please 
-double-check,
-
-		Linus
+-- 
+Jon Smirl
+jonsmirl@gmail.com

@@ -1,62 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262522AbUCWMta (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 07:49:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262535AbUCWMt3
+	id S262538AbUCWMvk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 07:51:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262545AbUCWMvk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 07:49:29 -0500
-Received: from potato.cts.ucla.edu ([149.142.36.49]:40855 "EHLO
-	potato.cts.ucla.edu") by vger.kernel.org with ESMTP id S262522AbUCWMt1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 07:49:27 -0500
-Date: Tue, 23 Mar 2004 04:49:18 -0800 (PST)
-From: Chris Stromsoe <cbs@cts.ucla.edu>
-To: linux-kernel@vger.kernel.org
-cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: apic errors and looping with 2.4, none with 2.2
-Message-ID: <Pine.LNX.4.58.0403230420000.25095@potato.cts.ucla.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 23 Mar 2004 07:51:40 -0500
+Received: from disk.smurf.noris.de ([192.109.102.53]:37306 "EHLO
+	server.smurf.noris.de") by vger.kernel.org with ESMTP
+	id S262538AbUCWMvG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Mar 2004 07:51:06 -0500
+From: "Matthias Urlichs" <smurf@smurf.noris.de>
+Date: Tue, 23 Mar 2004 13:47:42 +0100
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linux/m68k <linux-m68k@lists.linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: remove-page-list patch in -mm breaks m68k
+Message-ID: <20040323124742.GA7247@kiste>
+References: <pan.2004.03.23.11.15.01.701720@smurf.noris.de> <Pine.GSO.4.58.0403231322200.4928@waterleaf.sonytel.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.58.0403231322200.4928@waterleaf.sonytel.be>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have one machine that won't run 2.4.  As soon as a 2.4 kernel boots, it
-starts throwing APIC errors.
+Hi,
 
-The machine is a dual CPU pIII 933MHz system with 512Mb ram on a
-SuperMicro motherboard, either a P3TDLR or a 370DLR, with the ServerWorks
-LE chipset.  I'm booting using lilo with append="noapic".
+Geert Uytterhoeven:
+> Are all of these (except for m68k) converted in the mm tree?
 
-As soon as I boot into a 2.4 kernel, I start getting APIC errors on both
-CPUs.  Varying combinations of:
+The hugetlb stuff is covered; it basically replaces page->list with
+page->lru.
 
-Mar 23 00:40:45 dahlia kernel: APIC error on CPU0: 02(08)
-Mar 23 00:40:45 dahlia kernel: APIC error on CPU1: 01(08)
-Mar 23 00:45:45 dahlia kernel: APIC error on CPU1: 08(08)
-Mar 23 00:45:45 dahlia kernel: APIC error on CPU0: 08(08)
-Mar 23 00:58:27 dahlia kernel: APIC error on CPU0: 08(01)
-Mar 23 00:58:27 dahlia kernel: APIC error on CPU1: 08(02)
-Mar 23 01:04:54 dahlia kernel: APIC error on CPU1: 02(02)
-Mar 23 01:04:54 dahlia kernel: APIC error on CPU0: 01(02)
-Mar 23 01:05:46 dahlia kernel: APIC error on CPU1: 02(08)
-Mar 23 01:05:46 dahlia kernel: APIC error on CPU0: 02(08)
-Mar 23 01:08:37 dahlia kernel: APIC error on CPU1: 08(02)
-Mar 23 01:08:37 dahlia kernel: APIC error on CPU0: 08(02)
-Mar 23 01:11:04 dahlia kernel: APIC error on CPU1: 02(02)
-Mar 23 01:11:04 dahlia kernel: APIC error on CPU0: 02(0a)
-Mar 23 01:11:04 dahlia kernel: APIC error on CPU1: 02(08)
-Mar 23 01:25:45 dahlia kernel: APIC error on CPU1: 08(08)
-Mar 23 01:25:45 dahlia kernel: APIC error on CPU0: 0a(08)
+> | arch/arm26/machine/small_page.c
 
-After a few hours of uptime, the box stops responding to keyboard input.
-It begins printing the above messages to console over and over.  I have
-several other identical machines that I received in the same batch that
-run 2.4 without any problems (though they do seem to require "noapic").
+That's missing from -mm. However, the code suggests that a patch for
+arm26 would also just s/list/lru/g.
 
-It runs fine with 2.2 and is running 2.2.26 right now.
+Something similar to the arm26 code might work for m68k..?
 
-The machine is not in production use and can be used to test.  Any ideas
-for what I should look at?
-
-
--Chris
+-- 
+Matthias Urlichs

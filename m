@@ -1,69 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264538AbUE2UCD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264198AbUE2UNh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264538AbUE2UCD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 May 2004 16:02:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264424AbUE2UCD
+	id S264198AbUE2UNh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 May 2004 16:13:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264236AbUE2UNg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 May 2004 16:02:03 -0400
-Received: from relay03.roc.ny.frontiernet.net ([66.133.131.36]:34722 "EHLO
-	relay03.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
-	id S264401AbUE2UB2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 May 2004 16:01:28 -0400
-Message-ID: <40B8EC02.3050506@xfs.org>
-Date: Sat, 29 May 2004 15:01:06 -0500
-From: Steve Lord <lord@xfs.org>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ricky Beam <jfbeam@bluetronic.net>
-CC: Linux Kernel Mail List <linux-kernel@vger.kernel.org>,
-       XFS List <linux-xfs@oss.sgi.com>
-Subject: Re: xfs partition refuses to mount
-References: <Pine.GSO.4.33.0405291528450.14297-100000@sweetums.bluetronic.net>
-In-Reply-To: <Pine.GSO.4.33.0405291528450.14297-100000@sweetums.bluetronic.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 29 May 2004 16:13:36 -0400
+Received: from hierophant.serpentine.com ([66.92.13.71]:62943 "EHLO
+	pelerin.serpentine.com") by vger.kernel.org with ESMTP
+	id S264198AbUE2UNf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 May 2004 16:13:35 -0400
+Subject: Re: bk-3.2.0 released
+From: "Bryan O'Sullivan" <bos@serpentine.com>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Hugo Mills <hugo-lkml@carfax.org.uk>, Vojtech Pavlik <vojtech@suse.cz>,
+       bitkeeper-announce@work.bitmover.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20040529154714.GC20605@work.bitmover.com>
+References: <20040518233238.GC28206@work.bitmover.com>
+	 <20040529095419.GB1269@ucw.cz> <20040529130436.GA20605@work.bitmover.com>
+	 <20040529131510.GB13999@selene>  <20040529154714.GC20605@work.bitmover.com>
+Content-Type: text/plain
+Message-Id: <1085861614.2620.11.camel@camp4.serpentine.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sat, 29 May 2004 13:13:35 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ricky Beam wrote:
-> On Sat, 29 May 2004, Steve Lord wrote:
-> 
->>You have turned on XFS debug, which is really a developer option. It
->>looks like you have a corrupt journal though. A non debug kernel may
->>still refuse to mount it and you would need to run xfs_repair from
->>a rescue disk in that case.
-> 
-> 
-> Unless xfs_repair has been changed recently, all it will be able to do it
-> delete (zero) the journal.  If it detects metadata in the journal, it'll
-> stop and tell you mount the filesystem to replay the journal.  Personally,
-> I think that's sorta stupid... if I could mount the fs, I wouldn't be
-> running xfs_repair. (I've had the journal become spooge on a sparc64
-> box a few times.)
+On Sat, 2004-05-29 at 08:47, Larry McVoy wrote:
 
-Yes, xfs_repair will not replay a log, and if it finds dirty metadata in
-the log it wants you to replay it via mount. Having xfs_repair able to
-replay the log would be handy, but if mount cannot replay it, then
-repair will not either. xfs_repair -L bypasses this check and resets
-the log. Following that it does a complete consistancy check and
-fixup of metadata - it does a good job in most cases. Note that it
-deletes lost+found, and if you had files in there, they would be
-disconnected and get put back in lost+found again.
+> So is Fedora 1 OK with you?  Any
+> nay sayers?
 
-The whole reason for -L was customers who automatically ran xfs_repair
-after a crash, and hence threw away anything which was in the log. So
-it is more of a stop and think what you are doing option.
+Fedora Core 1 and SuSE 9.0 use roughly the same version of glibc (2.3.2,
+with some divergent patches), and the two seem fairly compatible in that
+regard based on a little testing I just did.
 
-> 
-> There should be a way to instruct the kernel's rootfs mount to not look
-> at the log.  I don't know if one can pass any generic mount options at
-> boot. ("ro"/"rw" and rootfs type, but I don't know of any others.)  This
-> would be handy for more than just xfs, btw.
-> 
+If you use any libstdc++ stuff, you'll want to build on SuSE 9.0, which
+has an older libstdc++.
 
-You can mount norecovery,ro - but no guarantees that it will stay up
-long. See Documentation/filesystems/xfs.txt for a list of xfs mount
-options.
+	<b
 
-Steve

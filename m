@@ -1,233 +1,171 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264474AbTLGS1K (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 13:27:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264479AbTLGS1K
+	id S263357AbTLGSqo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 13:46:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264479AbTLGSqo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 13:27:10 -0500
-Received: from modemcable067.88-70-69.mc.videotron.ca ([69.70.88.67]:39041
+	Sun, 7 Dec 2003 13:46:44 -0500
+Received: from modemcable067.88-70-69.mc.videotron.ca ([69.70.88.67]:54403
 	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S264474AbTLGS07 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 13:26:59 -0500
-Date: Sun, 7 Dec 2003 13:26:00 -0500 (EST)
+	id S263357AbTLGSqk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Dec 2003 13:46:40 -0500
+Date: Sun, 7 Dec 2003 13:45:36 -0500 (EST)
 From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: =?ISO-8859-1?Q?Rapha=EBl_Rigo?= <raphael.rigo@inp-net.eu.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [OOPS?] 2.6-test11 : problem about irq18.
-In-Reply-To: <3FD367F1.2060501@inp-net.eu.org>
-Message-ID: <Pine.LNX.4.58.0312071325250.1758@montezuma.fsmlabs.com>
-References: <3FD367F1.2060501@inp-net.eu.org>
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: pgcl-2.6.0-test5-bk3-17
+In-Reply-To: <20031207072803.GU8039@holomorphy.com>
+Message-ID: <Pine.LNX.4.58.0312071342590.1758@montezuma.fsmlabs.com>
+References: <20031128041558.GW19856@holomorphy.com> <20031128072148.GY8039@holomorphy.com>
+ <20031130164301.GK8039@holomorphy.com> <20031201073632.GQ8039@holomorphy.com>
+ <20031207072803.GU8039@holomorphy.com>
 MIME-Version: 1.0
-Content-Type: MULTIPART/Mixed; BOUNDARY=------------090601000504080205000509
-Content-ID: <Pine.LNX.4.58.0312071325251.1758@montezuma.fsmlabs.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Sat, 6 Dec 2003, William Lee Irwin III wrote:
 
---------------090601000504080205000509
-Content-Type: TEXT/PLAIN; CHARSET=ISO-8859-1; FORMAT=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Content-ID: <Pine.LNX.4.58.0312071325252.1758@montezuma.fsmlabs.com>
+> On Sun, Nov 30, 2003 at 08:43:01AM -0800, William Lee Irwin III wrote:
+> >> I wonder if this would be enough to get sysenter support going again.
+> >> I've not got a sysenter-capable userspace around, so I can't really
+> >> test this myself.
+> >> vs. pgcl-2.6.0-test11-5
+>
+> On Sun, Nov 30, 2003 at 11:36:32PM -0800, William Lee Irwin III wrote:
+> > Stack decoding fixes, shutting up some compiler warnings, and dumping
+> > PAGE_SIZE and MMUPAGE_SIZE into /proc/meminfo (for lack of a better place).
+> > The printk()'s down there should eventually get ripped out anyway for
+> > minimal impact and a quieter boot, but until then...
+>
+> Woops, those page sizes were a bit off. Come to think of it, so is
+> aio_setup_ring()...
 
-On Sun, 7 Dec 2003, [ISO-8859-1] Rapha=EBl Rigo wrote:
+And here is a sync point, it gets DRI memory allocation/mapping code
+working. There are a few things which need to be ironed out wrt the radeon
+driver, but this is some good progress.
 
-> I have a hard time making the 2.6-test11 to work correctly.
-> I constantly get messages about irq 18.
-> The kernel boots, linux works, but I get such messages every second :
+Tested with the radeon DRI driver.
 
-Just to verify things, try booting with the 'noirqdebug' kernel parameter.
-Then make sure everything works ok.
---------------090601000504080205000509
-Content-Type: TEXT/PLAIN; NAME=".configok"
-Content-ID: <Pine.LNX.4.58.0312071325253.1758@montezuma.fsmlabs.com>
-Content-Description: 
-Content-Disposition: INLINE; FILENAME=".configok"
+Index: linux-2.6.0-test11/drivers/char/drm/drmP.h
+===================================================================
+RCS file: /build/cvsroot/linux-2.6.0-test11/drivers/char/drm/drmP.h,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 drmP.h
+--- linux-2.6.0-test11/drivers/char/drm/drmP.h	28 Nov 2003 18:03:00 -0000	1.1.1.1
++++ linux-2.6.0-test11/drivers/char/drm/drmP.h	7 Dec 2003 17:47:22 -0000
+@@ -203,7 +203,7 @@ static inline struct page * vmalloc_to_p
+ #define DRM_RPR_ARG(vma) vma,
+ #endif
 
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_CLEAN_COMPILE=y
-CONFIG_STANDALONE=y
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_BSD_PROCESS_ACCT=y
-CONFIG_SYSCTL=y
-CONFIG_IKCONFIG=y
-CONFIG_IKCONFIG_PROC=y
-CONFIG_KALLSYMS=y
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-CONFIG_IOSCHED_NOOP=y
-CONFIG_IOSCHED_AS=y
-CONFIG_IOSCHED_DEADLINE=y
-CONFIG_MODULES=y
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_MODVERSIONS=y
-CONFIG_KMOD=y
-CONFIG_X86_PC=y
-CONFIG_MPENTIUM4=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_SMP=y
-CONFIG_PREEMPT=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_TSC=y
-CONFIG_X86_MCE=y
-CONFIG_X86_MCE_NONFATAL=y
-CONFIG_X86_MCE_P4THERMAL=y
-CONFIG_X86_CPUID=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_ACPI_BOOT=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_LEGACY_PROC=y
-CONFIG_PCI_NAMES=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_AOUT=y
-CONFIG_BINFMT_MISC=y
-CONFIG_PARPORT=m
-CONFIG_PARPORT_PC=m
-CONFIG_PARPORT_PC_CML1=m
-CONFIG_PARPORT_1284=y
-CONFIG_PNP=y
-CONFIG_BLK_DEV_FD=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_IDESCSI=m
-CONFIG_IDE_TASKFILE_IO=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_GENERIC=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_IDEDMA_PCI_WIP=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_PIIX=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_SCSI=y
-CONFIG_SCSI_PROC_FS=y
-CONFIG_BLK_DEV_SD=m
-CONFIG_CHR_DEV_SG=m
-CONFIG_SCSI_REPORT_LUNS=y
-CONFIG_IEEE1394=m
-CONFIG_IEEE1394_OUI_DB=y
-CONFIG_IEEE1394_OHCI1394=m
-CONFIG_IEEE1394_VIDEO1394=m
-CONFIG_IEEE1394_DV1394=m
-CONFIG_IEEE1394_RAWIO=m
-CONFIG_NET=y
-CONFIG_PACKET=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_IPV6_SCTP__=y
-CONFIG_NETDEVICES=y
-CONFIG_DUMMY=m
-CONFIG_SK98LIN=m
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_CORE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_PRINTER=m
-CONFIG_AGP=y
-CONFIG_AGP_INTEL=y
-CONFIG_DRM=y
-CONFIG_DRM_I830=y
-CONFIG_VIDEO_DEV=m
-CONFIG_FB=y
-CONFIG_FB_VGA16=y
-CONFIG_FB_VESA=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_FRAMEBUFFER_CONSOLE=y
-CONFIG_PCI_CONSOLE=y
-CONFIG_FONT_8x8=y
-CONFIG_FONT_8x16=y
-CONFIG_SOUND=y
-CONFIG_SND=y
-CONFIG_SND_SEQUENCER=y
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=y
-CONFIG_SND_PCM_OSS=y
-CONFIG_SND_SEQUENCER_OSS=y
-CONFIG_SND_INTEL8X0=y
-CONFIG_USB=m
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_EHCI_HCD=m
-CONFIG_USB_UHCI_HCD=m
-CONFIG_USB_PRINTER=m
-CONFIG_USB_STORAGE=m
-CONFIG_USB_HID=m
-CONFIG_USB_HIDINPUT=y
-CONFIG_EXT2_FS=y
-CONFIG_EXT3_FS=y
-CONFIG_EXT3_FS_XATTR=y
-CONFIG_JBD=y
-CONFIG_FS_MBCACHE=y
-CONFIG_AUTOFS4_FS=y
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_UDF_FS=y
-CONFIG_FAT_FS=y
-CONFIG_MSDOS_FS=y
-CONFIG_VFAT_FS=y
-CONFIG_NTFS_FS=y
-CONFIG_PROC_FS=y
-CONFIG_PROC_KCORE=y
-CONFIG_DEVPTS_FS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_SMB_FS=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_SMB_NLS=y
-CONFIG_NLS=y
-CONFIG_NLS_CODEPAGE_437=y
-CONFIG_NLS_ISO8859_1=y
-CONFIG_DEBUG_SPINLOCK_SLEEP=y
-CONFIG_FRAME_POINTER=y
-CONFIG_X86_EXTRA_IRQS=y
-CONFIG_X86_FIND_SMP_CONFIG=y
-CONFIG_X86_MPPARSE=y
-CONFIG_CRC32=y
-CONFIG_X86_SMP=y
-CONFIG_X86_HT=y
-CONFIG_X86_BIOS_REBOOT=y
-CONFIG_X86_TRAMPOLINE=y
-CONFIG_PC=y
+-#define VM_OFFSET(vma) ((vma)->vm_pgoff << PAGE_SHIFT)
++#define VM_OFFSET(vma) ((vma)->vm_pgoff << MMUPAGE_SHIFT)
 
---------------090601000504080205000509--
+ /*@}*/
+
+Index: linux-2.6.0-test11/drivers/char/drm/drm_bufs.h
+===================================================================
+RCS file: /build/cvsroot/linux-2.6.0-test11/drivers/char/drm/drm_bufs.h,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 drm_bufs.h
+--- linux-2.6.0-test11/drivers/char/drm/drm_bufs.h	28 Nov 2003 18:03:00 -0000	1.1.1.1
++++ linux-2.6.0-test11/drivers/char/drm/drm_bufs.h	7 Dec 2003 18:37:49 -0000
+@@ -120,7 +120,7 @@ int DRM(addmap)( struct inode *inode, st
+ 	}
+ 	DRM_DEBUG( "offset = 0x%08lx, size = 0x%08lx, type = %d\n",
+ 		   map->offset, map->size, map->type );
+-	if ( (map->offset & (~PAGE_MASK)) || (map->size & (~PAGE_MASK)) ) {
++	if ((map->offset & ~MMUPAGE_MASK) || (map->size & ~MMUPAGE_MASK)) {
+ 		DRM(free)( map, sizeof(*map), DRM_MEM_MAPS );
+ 		return -EINVAL;
+ 	}
+@@ -392,7 +392,7 @@ int DRM(addbufs_agp)( struct inode *inod
+ 	size = 1 << order;
+
+ 	alignment  = (request.flags & _DRM_PAGE_ALIGN)
+-		? PAGE_ALIGN(size) : size;
++		? MMUPAGE_ALIGN(size) : size;
+ 	page_order = order - PAGE_SHIFT > 0 ? order - PAGE_SHIFT : 0;
+ 	total = PAGE_SIZE << page_order;
+
+@@ -572,7 +572,7 @@ int DRM(addbufs_pci)( struct inode *inod
+ 	if ( dev->queue_count ) return -EBUSY; /* Not while in use */
+
+ 	alignment = (request.flags & _DRM_PAGE_ALIGN)
+-		? PAGE_ALIGN(size) : size;
++		? MMUPAGE_ALIGN(size) : size;
+ 	page_order = order - PAGE_SHIFT > 0 ? order - PAGE_SHIFT : 0;
+ 	total = PAGE_SIZE << page_order;
+
+@@ -800,7 +800,7 @@ int DRM(addbufs_sg)( struct inode *inode
+ 	size = 1 << order;
+
+ 	alignment  = (request.flags & _DRM_PAGE_ALIGN)
+-			? PAGE_ALIGN(size) : size;
++			? MMUPAGE_ALIGN(size) : size;
+ 	page_order = order - PAGE_SHIFT > 0 ? order - PAGE_SHIFT : 0;
+ 	total = PAGE_SIZE << page_order;
+
+Index: linux-2.6.0-test11/drivers/char/drm/drm_ioctl.h
+===================================================================
+RCS file: /build/cvsroot/linux-2.6.0-test11/drivers/char/drm/drm_ioctl.h,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 drm_ioctl.h
+Index: linux-2.6.0-test11/drivers/char/drm/drm_memory.h
+===================================================================
+RCS file: /build/cvsroot/linux-2.6.0-test11/drivers/char/drm/drm_memory.h,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 drm_memory.h
+--- linux-2.6.0-test11/drivers/char/drm/drm_memory.h	28 Nov 2003 18:03:00 -0000	1.1.1.1
++++ linux-2.6.0-test11/drivers/char/drm/drm_memory.h	7 Dec 2003 18:37:00 -0000
+@@ -279,7 +281,7 @@ unsigned long DRM(alloc_pages)(int order
+ 	for (addr = address, sz = bytes;
+ 	     sz > 0;
+ 	     addr += PAGE_SIZE, sz -= PAGE_SIZE) {
+-		SetPageReserved(virt_to_page(addr));
++		SetPageReserved(pfn_to_page(vmalloc_to_pfn((void *)addr)));
+ 	}
+
+ 	return address;
+@@ -307,7 +309,8 @@ void DRM(free_pages)(unsigned long addre
+ 	for (addr = address, sz = bytes;
+ 	     sz > 0;
+ 	     addr += PAGE_SIZE, sz -= PAGE_SIZE) {
+-		ClearPageReserved(virt_to_page(addr));
++
++		ClearPageReserved(pfn_to_page(vmalloc_to_pfn((void *)addr)));
+ 	}
+
+ 	free_pages(address, order);
+Index: linux-2.6.0-test11/drivers/char/drm/drm_scatter.h
+===================================================================
+RCS file: /build/cvsroot/linux-2.6.0-test11/drivers/char/drm/drm_scatter.h,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 drm_scatter.h
+--- linux-2.6.0-test11/drivers/char/drm/drm_scatter.h	28 Nov 2003 18:03:00 -0000	1.1.1.1
++++ linux-2.6.0-test11/drivers/char/drm/drm_scatter.h	29 Nov 2003 17:15:58 -0000
+@@ -137,7 +137,7 @@ int DRM(sg_alloc)( struct inode *inode,
+ 	DRM_DEBUG( "sg alloc virtual = %p\n", entry->virtual );
+
+ 	for ( i = entry->handle, j = 0 ; j < pages ; i += PAGE_SIZE, j++ ) {
+-		entry->pagelist[j] = vmalloc_to_page((void *)i);
++		entry->pagelist[j] = pfn_to_page(vmalloc_to_pfn((void *)i));
+ 		if (!entry->pagelist[j])
+ 			goto failed;
+ 		SetPageReserved(entry->pagelist[j]);
+Index: linux-2.6.0-test11/drivers/char/drm/drm_vm.h
+===================================================================
+RCS file: /build/cvsroot/linux-2.6.0-test11/drivers/char/drm/drm_vm.h,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 drm_vm.h
+--- linux-2.6.0-test11/drivers/char/drm/drm_vm.h	28 Nov 2003 18:03:00 -0000	1.1.1.1
++++ linux-2.6.0-test11/drivers/char/drm/drm_vm.h	7 Dec 2003 18:42:11 -0000
+@@ -166,7 +166,7 @@ struct page *DRM(vm_shm_nopage)(struct v
+
+ 	offset	 = address - vma->vm_start;
+ 	i = (unsigned long)map->handle + offset;
+-	page = vmalloc_to_page((void *)i);
++	page = pfn_to_page(vmalloc_to_pfn((void *)i));
+ 	if (!page)
+ 		return NOPAGE_OOM;
+ 	get_page(page);

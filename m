@@ -1,87 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261202AbVALOt4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbVALOwG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261202AbVALOt4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 09:49:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbVALOt4
+	id S261205AbVALOwG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 09:52:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261204AbVALOwF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 09:49:56 -0500
-Received: from relay1.tiscali.de ([62.26.116.129]:28310 "EHLO
-	webmail.tiscali.de") by vger.kernel.org with ESMTP id S261202AbVALOtx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 09:49:53 -0500
-Message-ID: <41E53918.1090703@tiscali.de>
-Date: Wed, 12 Jan 2005 15:50:00 +0100
-From: Matthias-Christian Ott <matthias.christian@tiscali.de>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040916)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: comment/whitespace updates
-References: <20050112132005.GA1553@elf.ucw.cz>
-In-Reply-To: <20050112132005.GA1553@elf.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 12 Jan 2005 09:52:05 -0500
+Received: from adsl-298.mirage.euroweb.hu ([193.226.239.42]:33666 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261203AbVALOv6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 09:51:58 -0500
+To: diegocg@gmail.com
+CC: kinema@gmail.com, fuse-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
+In-reply-to: <20050112153131.1f778264.diegocg@gmail.com> (message from Diego
+	Calleja on Wed, 12 Jan 2005 15:31:31 +0100)
+Subject: Re: [fuse-devel] Merging?
+References: <loom.20041231T155940-548@post.gmane.org>
+	<E1ClQi2-0004BO-00@dorka.pomaz.szeredi.hu>
+	<E1CoisR-0001Hi-00@dorka.pomaz.szeredi.hu> <20050112153131.1f778264.diegocg@gmail.com>
+Message-Id: <E1CojqJ-0001Mw-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Wed, 12 Jan 2005 15:51:27 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
 
->Hi!
->
->This cleans few comments/formatting. Please apply,
->
->Signed-off-by: Pavel Machek <pavel@ucw.cz>
->
->								Pavel
->
->--- clean/arch/i386/kernel/acpi/wakeup.S	2004-12-25 13:34:57.000000000 +0100
->+++ linux/arch/i386/kernel/acpi/wakeup.S	2004-12-25 15:51:04.000000000 +0100
->@@ -278,7 +294,7 @@
-> 	movl %edi, saved_context_edi
-> 	pushfl ; popl saved_context_eflags
-> 
->-	movl $ret_point,saved_eip
->+	movl $ret_point, saved_eip
-> 	ret
-> 
-> 
->@@ -295,7 +311,7 @@
-> 	call	save_registers
-> 	pushl	$3
-> 	call	acpi_enter_sleep_state
->-	addl	$4,%esp
->+	addl	$4, %esp
-> 	ret
-> 	.p2align 4,,7
-> ret_point:
->--- clean/drivers/acpi/events/evgpeblk.c	2004-12-25 13:34:58.000000000 +0100
->+++ linux/drivers/acpi/events/evgpeblk.c	2004-12-25 15:51:15.000000000 +0100
->@@ -925,7 +925,7 @@
-> 
-> 	/*
-> 	 * Runtime option: Should Wake GPEs be enabled at runtime?  The default
->-	 * is No,they should only be enabled just as the machine goes to sleep.
->+	 * is No, they should only be enabled just as the machine goes to sleep.
-> 	 */
-> 	if (acpi_gbl_leave_wake_gpes_disabled) {
-> 		/*
->--- clean/include/linux/page-flags.h	2005-01-12 11:07:40.000000000 +0100
->+++ linux/include/linux/page-flags.h	2005-01-12 11:25:19.000000000 +0100
->@@ -74,7 +74,7 @@
-> #define PG_swapcache		16	/* Swap page: swp_entry_t in private */
-> #define PG_mappedtodisk		17	/* Has blocks allocated on-disk */
-> #define PG_reclaim		18	/* To be reclaimed asap */
->-#define PG_nosave_free		19	/* Free, should not be written */
->+#define PG_nosave_free		19	/* Page is free, and should not be written by swsusp */
-> 
-> 
-> /*
->
->  
->
-Very useful. :-)
-Why do you send such a nonsense to mailinglist? It's poor.
+> -You could implement several "not-performance-critical" filesystems (fat,
+>  isofs) with FUSE to avoid possible security issues. Give that nowadays 
+>  usb sticks and cd/dvds are so common it'd be possible to modify a filesystem
+>  on purpose to crash the kernel if a bug were found in those filesytems. With
+>  FUSE that posibility decreases.
 
-Matthias-Christian Ott
+One of my pet ideas, is a userspace loopback mounter, which would use
+UML to actually mount an image, and export the resulting filesystem
+through FUSE to the host.
+
+Brilliant isn't it?
+
+Miklos
+

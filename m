@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285841AbRLTCo3>; Wed, 19 Dec 2001 21:44:29 -0500
+	id <S285829AbRLTCht>; Wed, 19 Dec 2001 21:37:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285835AbRLTCoT>; Wed, 19 Dec 2001 21:44:19 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:13025 "EHLO
-	VL-MS-MR001.sc1.videotron.ca") by vger.kernel.org with ESMTP
-	id <S285841AbRLTCoM>; Wed, 19 Dec 2001 21:44:12 -0500
-Date: Wed, 19 Dec 2001 21:43:41 -0500
-From: Jean-Francois Levesque <jfl@jfworld.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: UDMA problem with Maxtor 7200rpm disk
-Message-Id: <20011219214341.66b6b83e.jfl@jfworld.net>
-In-Reply-To: <20011219203804.4c68f1ee.jfl@jfworld.net>
-In-Reply-To: <20011219151636.50e930ac.jfl@jfworld.net>
-	<w53k7viy91z.wl@megaela.fe.dis.titech.ac.jp>
-	<20011219203804.4c68f1ee.jfl@jfworld.net>
-X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S285828AbRLTCh2>; Wed, 19 Dec 2001 21:37:28 -0500
+Received: from bexfield.research.canon.com.au ([203.12.172.125]:3761 "HELO
+	b.mx.canon.com.au") by vger.kernel.org with SMTP id <S285823AbRLTCh0>;
+	Wed, 19 Dec 2001 21:37:26 -0500
+Date: Thu, 20 Dec 2001 13:37:05 +1100
+From: Cameron Simpson <cs@zip.com.au>
+To: "David S. Miller" <davem@redhat.com>
+Cc: billh@tierra.ucsd.edu, bcrl@redhat.com, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org, linux-aio@kvack.org
+Subject: Re: aio
+Message-ID: <20011220133705.A21648@zapff.research.canon.com.au>
+Reply-To: cs@zip.com.au
+In-Reply-To: <20011219135708.A12608@devserv.devel.redhat.com> <20011219.161359.71089731.davem@redhat.com> <20011219171631.A544@burn.ucsd.edu> <20011219.172046.08320763.davem@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011219.172046.08320763.davem@redhat.com>; from davem@redhat.com on Wed, Dec 19, 2001 at 05:20:46PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I tried the 2.4.17-rc2 kernel and I was able to boot. (but I'm not with 2.4.9, 2.4.12-ac5 and 2.4.16)
+On Wed, Dec 19, 2001 at 05:20:46PM -0800, David S. Miller <davem@redhat.com> wrote:
+|    From: Bill Huey <billh@tierra.ucsd.edu>
+|    Like the Java folks ? few and far between ?
+| Precisely, in fact.  Anyone who can say that Java is going to be
+| relevant in a few years time, with a straight face, is only kidding
+| themselves.
 
-Unfortunately, when I try hdparm -d1 /dev/hda, I get the same errors 
+Maybe. I'm good at that.
 
-hda: timeout waiting for DMA
-ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
-hda: timeout waiting for DMA
-ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
-hda: timeout waiting for DMA
-ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
-hda: timeout waiting for DMA
-ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
-hda: DMA disabled
-ide0: reset: success
+| Java is not something to justify a new kernel feature, that is for
+| certain.
 
+Of itself, maybe. (Though an attitude like yours is a core reason Java is
+spreading as slowly as it is - much like Linux desktops...)
 
-What can influence the DMA on the BIOS else than the disk configuration?
+However, heavily threaded apps regardless of language are hardly likely
+to disappear; threads are the natural way to write many many things. And
+if the kernel implements threads as on Linux, then the scheduler will
+become much more important to good performance.
+-- 
+Cameron Simpson, DoD#743        cs@zip.com.au    http://www.zip.com.au/~cs/
 
-I always get this PCI bus warning : 
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-
-Maybe I have somthing wrong with PCI bus that change everything???
-
-Jean-François
-
-PS: I have the lastest asus BIOS update (1003).
+Questions are a burden to others,
+	Answers, a prison for oneself.

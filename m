@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274012AbRISGsG>; Wed, 19 Sep 2001 02:48:06 -0400
+	id <S274013AbRISGvq>; Wed, 19 Sep 2001 02:51:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274013AbRISGr5>; Wed, 19 Sep 2001 02:47:57 -0400
-Received: from h24-78-175-24.vn.shawcable.net ([24.78.175.24]:50315 "EHLO
-	oof.localnet") by vger.kernel.org with ESMTP id <S274012AbRISGrm>;
-	Wed, 19 Sep 2001 02:47:42 -0400
-Date: Tue, 18 Sep 2001 23:46:48 -0700
-From: Simon Kirby <sim@netnation.com>
-To: linux-kernel@vger.kernel.org
-Subject: O_NONBLOCK on files
-Message-ID: <20010918234648.A21010@netnation.com>
-Mime-Version: 1.0
+	id <S274014AbRISGvg>; Wed, 19 Sep 2001 02:51:36 -0400
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:27787 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S274013AbRISGv2>;
+	Wed, 19 Sep 2001 02:51:28 -0400
+Message-ID: <3BA84088.27698798@candelatech.com>
+Date: Tue, 18 Sep 2001 23:51:52 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-12 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Locked up 2.4.10-pre11 on Tyan 815t motherboard.
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've always wondered why it's not possible to do this:
 
-fd = open("an_actual_file",O_RDONLY);
-fcntl(fd,F_SETFL,O_NONBLOCK);
-r = read(fd,buf,4096);
+I was running a network stress test (sending lots of 64 byte packets
+on the DLINK 4-port NIC and two EEPRO-100 NICs.  This ran for 5 minutes,
+and all was good (about 12Mbps of 64byte packets)..
 
-And actually have read return -1 and errno == EWOULDBLOCK/EAGAIN if the
-block requested is not already cached.
+Then, I re-started the test with 128 byte packets.  As soon as traffic
+started, the whole machine locked up.  Couldn't even ping it from another
+machine.  I had to hold down the power-switch for about 5 seconds before
+it reset (ie it wasn't even listening to the power-down??)
 
-Wouldn't this be the ideal interface for daemons of all types that want
-to stay single-threaded and still offer useful performance when the
-working set doesn't fit in cache?  It works with sockets, so why not
-with files?
+I'm using the eepro100 driver that is included in the kernel, btw.  This
+used to have a lockup problem, but I thought it was fixed...
 
-I see even TUX has to have I/O worker threads to work around this
-limitation, which seems a bit silly.
+I'm going to see if I can re-produce this.  If so, can someone suggest
+a way to get more/better debugging information??
 
-Simon-
+Thanks,
+Ben
 
-[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
-[       sim@stormix.com       ][       sim@netnation.com        ]
-[ Opinions expressed are not necessarily those of my employers. ]
+-- 
+Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear

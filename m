@@ -1,53 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263862AbRFRJHz>; Mon, 18 Jun 2001 05:07:55 -0400
+	id <S263851AbRFRJPp>; Mon, 18 Jun 2001 05:15:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263859AbRFRJHp>; Mon, 18 Jun 2001 05:07:45 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:48377 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S263851AbRFRJHb>; Mon, 18 Jun 2001 05:07:31 -0400
-Message-ID: <3B2DC48B.392795A7@mvista.com>
-Date: Mon, 18 Jun 2001 02:06:19 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S263874AbRFRJPf>; Mon, 18 Jun 2001 05:15:35 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:36882 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id <S263851AbRFRJPS>;
+	Mon, 18 Jun 2001 05:15:18 -0400
+Date: Mon, 18 Jun 2001 11:14:58 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: <roman@serv>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        David Flynn <Dave@keston.u-net.com>, <rjd@xyzzy.clara.co.uk>,
+        Bill Pringlemeir <bpringle@sympatico.ca>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Newbie idiotic questions.
+In-Reply-To: <Pine.GSO.4.21.0106171821430.15952-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.33.0106181111210.6596-100000@serv>
 MIME-Version: 1.0
-To: "SATHISH.J" <sathish.j@tatainfotech.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Reg:current a pointer to task_struct
-In-Reply-To: <Pine.LNX.4.10.10106181403400.9461-100000@blrmail>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"SATHISH.J" wrote:
-> 
-> Hi,
-> 
-> Please help me with the following:
-> 
-> I tried to go through get_current function which is in assembly.
-> 
-> static inline struct task_struct * get_current(void) {
->         struct task_struct *current;
->         __asm__("andl %%esp,%0; ":"=r" (current) : "0" (~8191UL));
->         return current;
->  }
-> 
-> Please tell me what is done here. Does current refer to process onproc.
+Hi,
 
-Actually the code returns the stack pointer (esp) anded with ~8191
-(FFFE000).
+On Sun, 17 Jun 2001, Alexander Viro wrote:
 
-The trick is that kernel task structures are allocated at the low end of
-the kernel stack for each task.  The stack is a the high end of the
-address range and works down.  (Kernel stack overflow will "eat" the
-task structure.)
+> > typeof?  It's rather popular in the kernel already.  Besides, who is going to
+>
+> Really? 5 instances in PPC arch-specific code, 1 (absolutely gratitious)
+> in drivers/mtd, 2 - in m68k (also useless), 4 - in drivers/video, 2 -
+> in AFFS and 1 - in netfilter.
+>
+> I wouldn't call it "rather popular".
 
-current is (struct tast_struct *) and points to the task_struc for the
-current task (how could it be otherwise, given that it comes from the
-tasks stack pointer).
+You should also grep for '__typeof__'. :-)
 
-George
+bye, Roman
+

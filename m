@@ -1,73 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267255AbRGKJLr>; Wed, 11 Jul 2001 05:11:47 -0400
+	id <S267257AbRGKJOH>; Wed, 11 Jul 2001 05:14:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267254AbRGKJLh>; Wed, 11 Jul 2001 05:11:37 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:4624 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S267250AbRGKJLU>; Wed, 11 Jul 2001 05:11:20 -0400
-Message-ID: <3B4C180E.D3AE1960@idb.hist.no>
-Date: Wed, 11 Jul 2001 11:10:38 +0200
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7-pre5 i686)
-X-Accept-Language: no, en
-MIME-Version: 1.0
-To: "C. Slater" <cslater@wcnet.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Switching Kernels without Rebooting?
-In-Reply-To: <NOEJJDACGOHCKNCOGFOMOEKECGAA.davids@webmaster.com> <001501c10980$f42035a0$fe00000a@cslater>
+	id <S267258AbRGKJN5>; Wed, 11 Jul 2001 05:13:57 -0400
+Received: from a93-143.dialup.iol.cz ([194.228.143.93]:57288 "EHLO
+	twilight.suse.cz") by vger.kernel.org with ESMTP id <S267257AbRGKJNn>;
+	Wed, 11 Jul 2001 05:13:43 -0400
+Date: Wed, 11 Jul 2001 11:11:59 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Rob Landley <landley@webofficenow.com>
+Cc: Ville Herva <vherva@mail.niksula.cs.hut.fi>, linux-kernel@vger.kernel.org
+Subject: Re: Hardware testing [was Re: VIA Southbridge bug (Was: Crash on boot (2.4.5))]
+Message-ID: <20010711111159.A2026@suse.cz>
+In-Reply-To: <E15JIVD-0000Qc-00@the-village.bc.nu> <01070912485904.00705@localhost.localdomain> <20010710121724.Z1503@niksula.cs.hut.fi> <01071011282504.00634@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <01071011282504.00634@localhost.localdomain>; from landley@webofficenow.com on Tue, Jul 10, 2001 at 11:28:25AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"C. Slater" wrote:
-
-> I don't think that it would be possible to switch kernels when one was not
-> properly set up to do it, if thats what you mean. You could only switch
-> between kernels that have been compiled to support live switching.
+On Tue, Jul 10, 2001 at 11:28:25AM -0400, Rob Landley wrote:
+> On Tuesday 10 July 2001 05:17, Ville Herva wrote:
+> > On Mon, Jul 09, 2001 at 12:48:59PM -0400, you [Rob Landley] claimed:
+> > > (P.S. What kind of CPU load is most likely to send a processor into
+> > > overheat? (Other than "a tight loop", thanks.  I mean what kind of
+> > > instructions?) This is going to be CPU specific, isn't it?  Our would a
+> > > general instruction mix that doesn't call halt be enough?  It would need
+> > > to keep the FPU busy too, wouldn't it?  And maybe handle interrupts. 
+> > > Hmmm...)
+> >
+> > See Robert Redelmeier's cpuburn:
+> >
+> > http://users.ev1.net/~redelm/
 > 
-Sure.  
-> I do see you'r point with the datastructures changeing. We would need to use
-> some format that all properly setup kernels could understand, 
+> Cool.  If nothing else, this is a much better starting point for further work 
+> than starting from scratch...
+> 
+> > It is coded is assembly specificly to heat the CPU as much as possible. See
+> > the README for details, but it seems that floating point operations are
+> > tougher than integers and MMX can be even harder (depending on CPU model,
+> > of course). Not sure what kind of role SSE, SSE2, 3dNow! play these days.
+> > Perhaps Alan knows?
+> 
+> There's at least three seperate things that need testing here.  memtest86 
+> tests whether your memory is OK.  CPUburn seems to do a good job testing 
+> processor heat (not that I'm running it on my laptop, which doesn't seem to 
+> have a thermal readout thingy anyway...)
+> 
+> The third thing (which started this thread) was memory bus.  The new 3DNow 
+> optimizations drove a memory bus into failure, and that IS processor 
+> specific...
 
-That seems completely out of question.  The structures a 2.4.7 
-kernel understands might be insufficient to express the setup 
-a future 2.6.9 kernel is using to do its stuff better.  (And vice
-versa, if future kernels drop a 2.4.7 feature deemed obsolete.
-But what if that feature is in use when you decide to upgrade?) 
-You can easily deal with simple stuff like struct
-rearrangement and type conversions, but what to do when whole data
-structures
-change completely?  
+Don't forget the L1/L2/L3 caches. I had once a mainboard with a faulty
+L2 cache chip ('twas a K6-3 CPU, plus a FIC VA-503+ mainboard). No memory
+or CPU test found the failure, yet kernel compliation was still crashing
+after 6-8 hours.
 
-Example: something changes from two linked lists representation to a
-single tree or 4 hashtables.  You'll have a very hard time inventing
-a generic data format to deal with that kind of changes.  It might
-happen.  Look at differences in 2.2 and 2.4 VM with the big pagecache
-change in early 2.3.  And the dentry cache that suddenly appeared.
+I modified the 'memtest.c' little proggy (not the big memtest86, just a
+little utility that runs under Linux), to use patterns and test size
+that tests the L1 and then L2, and the error has shown after ten seconds
+of running the test.
 
-And of course the rules change too, from time to time.  
-Many releases have a list of "active pages".  what kind exactly is that?
-The rules may change, what to do if the new kernel don't allow
-one particular kind of page on that list, but the old running kernel
-have a bunch?
-
-This was jsut some made-up examples, I guess you'll run into a ton
-of such issues.  New releases aren't simply fixes and tweaks, there
-are frequent design changes.
-
-> Are you saying that swaping the kernels out altogether would be a massive
-> task, or that saveing/restoring the datastructures would be a massive task.
-
-All you need to swap kernel images is memory.  Swapping structures
-can't be done in a generic way, you'll need code that convert the
-structures of one particular kernel release to those of a
-particular other kernel.  And I don't think you'll have the usual
-kernel developers do that.
-
-A "long-term uptime" distro might do this kind of work for a few
-selected kernels, but I cannot imagine it happen for the regular
-ones.
-
-Helge Hafting
+-- 
+Vojtech Pavlik
+SuSE Labs

@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129460AbQLAWQ0>; Fri, 1 Dec 2000 17:16:26 -0500
+	id <S129547AbQLAWW6>; Fri, 1 Dec 2000 17:22:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129547AbQLAWQH>; Fri, 1 Dec 2000 17:16:07 -0500
-Received: from vp175103.reshsg.uci.edu ([128.195.175.103]:7954 "EHLO
-	moisil.dev.hydraweb.com") by vger.kernel.org with ESMTP
-	id <S129460AbQLAWP7>; Fri, 1 Dec 2000 17:15:59 -0500
-Date: Fri, 1 Dec 2000 13:45:24 -0800
-Message-Id: <200012012145.eB1LjOl03300@moisil.dev.hydraweb.com>
-From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
-To: Andrey Savochkin <saw@saw.sw.com.sg>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: eepro100 driver update for 2.4
-In-Reply-To: <20001201175109.A4209@saw.sw.com.sg>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.2.18pre23 (i586))
+	id <S129626AbQLAWWt>; Fri, 1 Dec 2000 17:22:49 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:7714 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129547AbQLAWWg>; Fri, 1 Dec 2000 17:22:36 -0500
+Date: Fri, 1 Dec 2000 22:52:10 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Reto Baettig <baettig@scs.ch>
+Cc: Richard Henderson <rth@twiddle.net>,
+        Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+        linux-alpha@vger.kernel.org
+Subject: Re: Alpha SMP problem
+Message-ID: <20001201225210.A1580@inspiron.random>
+In-Reply-To: <3A08455E.F3583D1B@scs.ch> <20001107225749.B26542@twiddle.net> <20001124044615.A6807@athlon.random> <3A27D1C9.95F63366@scs.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3A27D1C9.95F63366@scs.ch>; from baettig@scs.ch on Fri, Dec 01, 2000 at 08:28:57AM -0800
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Dec 2000 17:51:09 +0800, Andrey Savochkin <saw@saw.sw.com.sg> wrote:
+On Fri, Dec 01, 2000 at 08:28:57AM -0800, Reto Baettig wrote:
+> Is there any chance that we will see this patch as well as your other
+> Alpha patches included in future 2.2.X and 2.4.X releases?
 
-> I've been promised that this issue would be looked up in Intel's errata by
-> people who had the access to it, but I haven't got the results yet.
+Yes, for 2.2.x I'm waiting 2.2.19pre, for 2.4.x as DaveM suggested we first
+need to cleanup the interface of the context[] information to optimize the
+memory usage on x86*/sparc64 etc...
 
-There is nothing relevant in the errata, unfortunately...
+It would be nice if in the meantime somebody with an old ev4 based machine
+(possibly SMP if it exists) could verify that current 2.2.x and 2.4.x patches
+works well there too.
 
-> The card itself doesn't report its revision in details.
-> It can be checked by `lspci'.
-> Rev 8 is 82559, if I remember, and rev 9 is 82559ER.
-
-No, 82559ER has its own PCI id, 0x1209. There is also a newer 82559 chip
-which reports a different PCI device id, 0x1030 (I have one of those).
-
-For the old chips reporting 0x1229, revisions 1-3 are 82557, revisions
-4-5 are 82558 and revisions 6-8 are 82559.
-
-Ion
-
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,58 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261356AbVBRMvD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261358AbVBRMya@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261356AbVBRMvD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 07:51:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbVBRMvD
+	id S261358AbVBRMya (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 07:54:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbVBRMya
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 07:51:03 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:52594
-	"EHLO opteron.random") by vger.kernel.org with ESMTP
-	id S261352AbVBRMvA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 07:51:00 -0500
-Date: Fri, 18 Feb 2005 13:50:57 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Erik =?iso-8859-1?Q?B=E5gfors?= <zindar@gmail.com>
-Cc: Tupshin Harper <tupshin@tupshin.com>, darcs-users@darcs.net,
-       lm@bitmover.com, linux-kernel@vger.kernel.org
-Subject: Re: [darcs-users] Re: [BK] upgrade will be needed
-Message-ID: <20050218125057.GE2071@opteron.random>
-References: <20050214020802.GA3047@bitmover.com> <200502172105.25677.pmcfarland@downeast.net> <421551F5.5090005@tupshin.com> <20050218090900.GA2071@opteron.random> <845b6e8705021803533ba8cc34@mail.gmail.com>
+	Fri, 18 Feb 2005 07:54:30 -0500
+Received: from roadrunner-base.egenera.com ([63.160.166.46]:17382 "EHLO
+	coyote.egenera.com") by vger.kernel.org with ESMTP id S261352AbVBRMyZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 07:54:25 -0500
+Date: Fri, 18 Feb 2005 07:54:14 -0500
+From: Philip R Auld <pauld@egenera.com>
+To: axboe@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: bio refcount problem
+Message-ID: <20050218125414.GA14362@vienna.egenera.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <845b6e8705021803533ba8cc34@mail.gmail.com>
-X-AA-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-Cpushare-GPG-Key: 1024D/4D11C21C 5F99 3C8B 5142 EB62 26C3  2325 8989 B72A 4D11 C21C
-X-Cpushare-SSL-SHA1-Cert: 3812 CD76 E482 94AF 020C  0FFA E1FF 559D 9B4F A59B
-X-Cpushare-SSL-MD5-Cert: EDA5 F2DA 1D32 7560  5E07 6C91 BFFC B885
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 18, 2005 at 12:53:09PM +0100, Erik Bågfors wrote:
-> RCS/SCCS format doesn't make much sence for a changeset oriented SCM.
+Hi,
+	I think there are some potential issues with the reference
+counting of bios as used in 2.6.10. The __make_request function 
+which is the default block device routine accesses the bio structure 
+after issuing the call to add_request. This means that the bio could 
+have completed before __make_request uses it. 
 
-The advantage it will provide is that it'll be compact and a backup will
-compress at best too. Small compressed tarballs compress very badly
-instead, it wouldn't be even comparable. Once the thing is very compact
-it has a better chance to fit in cache, and if it fits in cache
-extracting diffs from each file will be very fast. Once it'll be compact
-the cost of a changeset will be diminished allowing it to scale better
-too.
+The submit_bh path takes an extra reference with an explicit
+bio_get/put pair around the submit_bio, but many other users of
+submit_bio do not. Given that most of the end_io routines remove a
+reference and hence could free the bio this can lead at the least to 
+__make_request mis-reading the sync flag. In more extreme cases it can 
+cause an oops when run with CONFIG_DEBUG_PAGEALLOC.
 
-Now it's true new disks are bigger, but they're not much faster, so if
-the size of the repository is much larger, it'll be much slower to
-checkout if it doesn't fit in cache. And if it's smaller it has better
-chances of fitting in cache too.
+The question is what is the preferred fix? I think it may be to simply
+have submit_bio take its own reference (and remove the extra one from 
+submit_bh).
 
-The thing is, RCS seems a space efficient format for storing patches,
-and it's efficient at extracting them too (plus it's textual so it's not
-going to get lost info even if something goes wrong).
+Alternatively __make_request could be adjusted so that it does not
+access the bio after calling add_request. All it is doing is checking
+the bi_rw field for the sync bit.
 
-The whole linux-2.5 CVS is 500M uncompressed and 75M tar.bz2 compressed.
+Or make all users of submit_bio take and release and extra reference
+like submit_bh.
 
-My suggestion is to convert _all_ dozen thousand changesets to arch or
-SVN and then compare the size with CVS (also the compressed size is
-interesting for backups IMHO). Unfortunately I know nothing about darcs
-yet (except it eats quite some memory ;)
+Thoughts?
+
+
+Cheers,
+
+Phil
+
+
+-- 
+Philip R. Auld, Ph.D.  	        	       Egenera, Inc.    
+Software Architect                            165 Forest St.
+(508) 858-2628                            Marlboro, MA 01752

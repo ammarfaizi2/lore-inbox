@@ -1,41 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265127AbUJLPiq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265207AbUJLPmA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265127AbUJLPiq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 11:38:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265971AbUJLPip
+	id S265207AbUJLPmA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 11:42:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265795AbUJLPl7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 11:38:45 -0400
-Received: from gate.corvil.net ([213.94.219.177]:27152 "EHLO corvil.com")
-	by vger.kernel.org with ESMTP id S265127AbUJLPi3 (ORCPT
+	Tue, 12 Oct 2004 11:41:59 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:53709 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S265207AbUJLPlv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 11:38:29 -0400
-Message-ID: <416BFA6F.2060408@draigBrady.com>
-Date: Tue, 12 Oct 2004 16:38:23 +0100
-From: P@draigBrady.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040124
-X-Accept-Language: en-us, en
+	Tue, 12 Oct 2004 11:41:51 -0400
+Date: Tue, 12 Oct 2004 08:39:16 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Rik van Riel <riel@redhat.com>
+cc: linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au, linux-mm@kvack.org
+Subject: Re: NUMA: Patch for node based swapping
+In-Reply-To: <Pine.LNX.4.44.0410121126390.13693-100000@chimarrao.boston.redhat.com>
+Message-ID: <Pine.LNX.4.58.0410120838570.12195@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.44.0410121126390.13693-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: No mtime updates for loopback mounted filesystems
-References: <416BF891.9080806@draigBrady.com>
-In-Reply-To: <416BF891.9080806@draigBrady.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-P@draigBrady.com wrote:
-> I've noticed recently that files mounted loopback
-> do not have their mtimes updated if any writes are
-> done to the filesystem.
+On Tue, 12 Oct 2004, Rik van Riel wrote:
+> On Tue, 12 Oct 2004, Christoph Lameter wrote:
+> > The minimum may be controlled through /proc/sys/vm/node_swap.
+> > By default node_swap is set to 100 which means that kswapd will be run on
+> > a zone if less than 10% are available after allocation.
+> That sounds like an extraordinarily bad idea for eg. AMD64
+> systems, which have a very low numa factor.
 
-The above is still valid.
+Any other suggestions?
 
-> In addition, files within
-> the loopback mounted filesystem do not have their
-> mtime updated if changed.
-
-I did see this but it must have been fixed,
-as I can't repeat it on 2.4.26
-
-Pádraig.

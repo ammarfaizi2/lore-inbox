@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270050AbRIABY7>; Fri, 31 Aug 2001 21:24:59 -0400
+	id <S269971AbRIAClR>; Fri, 31 Aug 2001 22:41:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269868AbRIABYu>; Fri, 31 Aug 2001 21:24:50 -0400
-Received: from f271.law7.hotmail.com ([216.33.236.149]:54799 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S269971AbRIABYe>;
-	Fri, 31 Aug 2001 21:24:34 -0400
-X-Originating-IP: [211.117.39.54]
-From: "Tobin Park" <shinywind@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: In ip.c (Kernel 1.3.0)
-Date: Sat, 01 Sep 2001 01:24:47 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F27139LktrLEzdzF2tl000039cc@hotmail.com>
-X-OriginalArrivalTime: 01 Sep 2001 01:24:47.0644 (UTC) FILETIME=[E377DDC0:01C13284]
+	id <S270073AbRIAClI>; Fri, 31 Aug 2001 22:41:08 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:24083 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S269971AbRIAClA>; Fri, 31 Aug 2001 22:41:00 -0400
+Message-ID: <3B904AC4.6A449086@zip.com.au>
+Date: Fri, 31 Aug 2001 19:41:08 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-ac5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: mb/ext3@dcs.qmul.ac.uk
+CC: linux-kernel@vger.kernel.org, ext3-users@redhat.com
+Subject: Re: ext3 oops under moderate load
+In-Reply-To: <Pine.LNX.4.33.0108301740420.7921-100000@inconnu.isu.edu> <Pine.LNX.4.33.0108310759460.13139-100000@nick.dcs.qmul.ac.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
-I am studying linux kernel 1.3.0.
+mb/ext3@dcs.qmul.ac.uk wrote:
+> 
+> Hi bug hunters,
+> 
+> I left my spangly new dual PIII with an ext3 partition on a Promise
+> FastTrak 100TX2 being used both by a local process and knfsd for a few
+> hours, and the following happened:
+> 
+> [ 2.4.9-ac3 SMP (noapic) + the one patch from Zygo Blaxell to recognise
+> the Promise card; now I have kupdated, kjournald and user-space processes
+> trying to access the volume in question all in state 'D' ]
+> 
+> kernel BUG at revoke.c:307!
 
-In ip.c this sentence appeared.
+Yours is the third report of this - it's definitely a bug in
+ext3.  I still need to work out how you managed to get a page
+attached to the inode which has not had its buffers fed through
+journal_dirty_data().  There seem to be several ways in which
+this can happen.
 
-if(iph->frag_off)
-	{
-		if (iph->frag_off & 0x0020)
-			is_frag|=1;
-		/*
-		 *	Last fragment ?
-		 */
+Is it possible that you ran out of disk space on the relevant
+partition shortly before it died?
 
-		if (ntohs(iph->frag_off) & 0x1fff)
-			is_frag|=2;
-	}
-
-
-what is that mean is_frag?
-what's the difference between is_frag are 1,2,4?
-
-Thank you.
-
-_________________________________________________________________
-Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
-
+-

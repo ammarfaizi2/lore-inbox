@@ -1,62 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264366AbTKUPy6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Nov 2003 10:54:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264370AbTKUPy6
+	id S262965AbTKUPsG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Nov 2003 10:48:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264365AbTKUPsG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Nov 2003 10:54:58 -0500
-Received: from wiproecmx1.wipro.com ([164.164.31.5]:4508 "EHLO
-	wiproecmx1.wipro.com") by vger.kernel.org with ESMTP
-	id S264366AbTKUPy5 convert rfc822-to-8bit (ORCPT
+	Fri, 21 Nov 2003 10:48:06 -0500
+Received: from ns.sws.net.au ([61.95.69.3]:45580 "EHLO ns.sws.net.au")
+	by vger.kernel.org with ESMTP id S262965AbTKUPsD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Nov 2003 10:54:57 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-content-class: urn:content-classes:message
+	Fri, 21 Nov 2003 10:48:03 -0500
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Christian Kujau <evil@g-house.de>
+Subject: Re: de2104x tulip driver bug in 2.6.0-test9
+Date: Sat, 22 Nov 2003 02:47:49 +1100
+User-Agent: KMail/1.5.4
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+References: <200311212051.32352.russell@coker.com.au> <3FBE2FF4.5010904@g-house.de>
+In-Reply-To: <3FBE2FF4.5010904@g-house.de>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: DIRECT IO for ext3/ext2.
-Date: Fri, 21 Nov 2003 21:23:06 +0530
-Message-ID: <1E27FF611EBEFB4580387FCB5BEF00F3013DEEE8@blr-ec-msg04.wipro.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: DIRECT IO for ext3/ext2.
-Thread-Index: AcOwR41rB3v363nNSQaYnWx3dtOVOA==
-From: <dhruv.anand@wipro.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <akpm@zip.com.au>, <janetinc@us.ibm.com>, <akpm@zip.com.au>,
-       <pbadari@us.ibm.com>, <nathans@sgi.com>
-X-OriginalArrivalTime: 21 Nov 2003 15:53:06.0968 (UTC) FILETIME=[8E191180:01C3B047]
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200311220247.49948.russell@coker.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I am working on an application on linux-2.6 that needs to
-bypass the buffer cache. In order to do so i use the direct
-IO functionality. Although open to the device succeeds with
-the DIRECT_IO flag, read from the device fails.
+On Sat, 22 Nov 2003 02:32, Christian Kujau <evil@g-house.de> wrote:
+> Russell Coker wrote:
+> > 00:14.0 Ethernet controller: Digital Equipment Corporation DECchip 21041
+> > [Tulip Pass 3] (rev 11)
+> >
+> > Above is the lspci output for my PCI Ethernet card.  Below is what
+> > happens when I try to boot 2.6.0-test9.  2.4.x kernels have been working
+> > well on the same card for a long time, so the hardware seems basically
+> > OK.
+> >
+> > Configuring network interfaces... eth0: set link BNC
+> >  eth0:    mode 0x7ffc0040, sia 0x10c4,0xffffef09,0xfffff7fd,0xffff0006
+> >  eth0:    set mode 0x7ffc0000, set sia 0xef09,0xf7fd,0x6
+> >  eth0: timeout expired stopping DMA
+>
+> could this be anyhow related to this:
+>
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=106766135110165&w=2
+>
+> there is a thread on linuxppc-dev too, as this is ppc specific:
 
-Following is the exceprt fromt he code to open and read;
---------------------------------------------------------
+It is a bit different.  If I don't load the module during the boot sequence 
+then I can get it to the stage of being pingable.  I think that timing is the 
+issue, the boot scripts do everything quickly.  If I modprobe it, then 
+ifconfig it, then change the media type, then I have succeeded once in 
+getting ping responses, but I couldn't ssh.
 
-if ((devf = open(dumpdev, O_RDONLY | O_DIRECT, 0)) < 0) {
-     fprintf(KL_ERRORFP, "Error: open failed!\n");
-     ...
-}
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
-if(err = read(devf, &magic_nr, sizeof(magic_nr)) != sizeof(magic_nr)) {
-     fprintf(KL_ERRORFP, "Error: read() failed!\n");
-      ...
-}
-
----------------------------------------------------------
-I am returned an errno=22, indicating 'Invalid argument'
-
-I would appreciate it, if you could knowledge me importantly about
-the completeness of the 'direct IO' functionality in ext3 file-system.
-Or if i am doing something wrong in usage?
-
-
-Regards
-Dhruv.

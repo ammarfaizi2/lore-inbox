@@ -1,59 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315758AbSFCXMM>; Mon, 3 Jun 2002 19:12:12 -0400
+	id <S315748AbSFCXLh>; Mon, 3 Jun 2002 19:11:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315760AbSFCXMK>; Mon, 3 Jun 2002 19:12:10 -0400
-Received: from pD9E23450.dip.t-dialin.net ([217.226.52.80]:12683 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S315758AbSFCXMF>; Mon, 3 Jun 2002 19:12:05 -0400
-Date: Mon, 3 Jun 2002 17:11:46 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Scott Murray <scottm@somanetworks.com>
-cc: Lightweight patch manager <patch@luckynet.dynu.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-Subject: Re: [PATCH][2.5] Port opl3sa2 changes from 2.4
-In-Reply-To: <Pine.LNX.4.33.0206031846520.5598-100000@rancor.yyz.somanetworks.com>
-Message-ID: <Pine.LNX.4.44.0206031709370.3833-100000@hawkeye.luckynet.adm>
+	id <S315921AbSFCXLd>; Mon, 3 Jun 2002 19:11:33 -0400
+Received: from flrtn-4-m1-42.vnnyca.adelphia.net ([24.55.69.42]:42130 "EHLO
+	jyro.mirai.cx") by vger.kernel.org with ESMTP id <S315785AbSFCXLU>;
+	Mon, 3 Jun 2002 19:11:20 -0400
+Message-ID: <3CFBF795.3090602@tmsusa.com>
+Date: Mon, 03 Jun 2002 16:11:17 -0700
+From: J Sloan <joe@tmsusa.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020601
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
+CC: Larry McVoy <lm@bitmover.com>, Matti Aarnio <matti.aarnio@zmailer.org>,
+        "Holzrichter, Bruce" <bruce.holzrichter@monster.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: please kindly get back to me
+In-Reply-To: <Pine.LNX.4.33.0206031302050.1038-100000@shell1.aracnet.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Mon, 3 Jun 2002, Scott Murray wrote:
-> I think it would be better to wait until Zwane sends something to Alan
-> and/or Marcelo, as this patch is incorrect on a couple of levels.  See my
-> annotations below:
 
-His patch won't match for 2.5. I just adapted it, even though I've had a 
-typo there.
+M. Edward (Ed) Borasky wrote:
 
-> > +		opl3sa2_state[card].activated = 1;
-> 
-> This line should really be below the following if statement, as I believe
-> Zwane mentioned to Gerald.
+>Now that there are Linux viruses, maybe we also need an open source
+>virus scanner.
+>  
+>
+Ah yes, the perennial "linux virus" scare -
+the anti virus labs are hard at work trying
+to drum up new business....
 
-You could of course have it there. No problem with that.
+The thing with linux/unix "virii" is, they
+are actually for the most part trojans -
+they've been in labs for years, the problem
+is that there is no suitable transport vector!
 
-> I think always blindly remapping the the DMA channels to 0 and 1 is a bad
-> idea and will likely break things for some people.  It would be better if
-> the core isapnp code could be made smarter, but a simple alternative would
-> be to rework the opl3sa2 module parameter parsing to allow using the DMA
-> parameters as an override when using PnP.
+You'd have to dupe an unwitting superuser
+(now there's a dangerous combination) into
+running the "virus" by hand - sort of like
+the "honor system" virus....
 
-As I mentioned, I was just porting it.
+Joe
 
-> Scott
 
-Regards,
-Thunder
--- 
-ship is leaving right on time	|	Thunder from the hill at ngforever
-empty harbour, wave goodbye	|
-evacuation of the isle		|	free inhabitant not directly
-caveman's paintings drowning	|	belonging anywhere
 

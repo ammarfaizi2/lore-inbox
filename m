@@ -1,62 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264561AbUF1AKx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264560AbUF1AQI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264561AbUF1AKx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jun 2004 20:10:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264569AbUF1AKx
+	id S264560AbUF1AQI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jun 2004 20:16:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264569AbUF1AQI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jun 2004 20:10:53 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:49054 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264561AbUF1AKv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jun 2004 20:10:51 -0400
-Date: Sun, 27 Jun 2004 17:10:44 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Oliver Neukum <oliver@neukum.org>, Andries Brouwer <aebr@win.tue.nl>,
-       <greg@kroah.com>, <arjanv@redhat.com>, <jgarzik@redhat.com>,
-       <tburke@redhat.com>, <linux-kernel@vger.kernel.org>,
-       <mdharm-usb@one-eyed-alien.net>, <david-b@pacbell.net>,
-       zaitcev@redhat.com
-Subject: Re: drivers/block/ub.c
-Message-Id: <20040627171044.052a67c6@lembas.zaitcev.lan>
-In-Reply-To: <Pine.LNX.4.44L0.0406271108190.10134-100000@netrider.rowland.org>
-References: <200406271624.18984.oliver@neukum.org>
-	<Pine.LNX.4.44L0.0406271108190.10134-100000@netrider.rowland.org>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 27 Jun 2004 20:16:08 -0400
+Received: from mail020.syd.optusnet.com.au ([211.29.132.131]:34765 "EHLO
+	mail020.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S264560AbUF1AQE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jun 2004 20:16:04 -0400
+Date: Mon, 28 Jun 2004 10:15:47 +1000 (EST)
+From: Con Kolivas <kernel@kolivas.org>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+cc: Michael Buesch <mbuesch@freenet.de>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Willy Tarreau <willy@w.ods.org>
+Subject: Re: [PATCH] Staircase scheduler v7.4
+In-Reply-To: <1088373352.1691.1.camel@teapot.felipe-alfaro.com>
+Message-ID: <Pine.LNX.4.58.0406281013590.11399@kolivas.org>
+References: <200406251840.46577.mbuesch@freenet.de>  <200406261929.35950.mbuesch@freenet.de>
+  <1088363821.1698.1.camel@teapot.felipe-alfaro.com>  <200406272128.57367.mbuesch@freenet.de>
+ <1088373352.1691.1.camel@teapot.felipe-alfaro.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 27 Jun 2004 11:19:38 -0400 (EDT)
-Alan Stern <stern@rowland.harvard.edu> wrote:
+On Sun, 27 Jun 2004, Felipe Alfaro Solana wrote:
 
-> My favorite approach has always been:
+> On Sun, 2004-06-27 at 21:28 +0200, Michael Buesch wrote:
+> > -----BEGIN PGP SIGNED MESSAGE-----
+> > Hash: SHA1
+> > 
+> > Quoting Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>:
+> > > On Sat, 2004-06-26 at 19:29 +0200, Michael Buesch wrote:
+> > > 
+> > > > Now another "problem":
+> > > > Maybe it's because I'm tired, but it seems like
+> > > > your fix-patch made moving windows in X11 is less smooth.
+> > > > I wanted to mention it, just in case there's some other
+> > > > person, who sees this behaviour, too. In case I'm the
+> > > > only one seeing it, you may forget it. ;)
+> > > 
+> > > I can see the same with 7.4-1 (that's 2.6.7-ck2 plus the fix-patch): X11
+> > > feels sluggish while moving windows around. Simply by loading a Web page
+> > > into Konqueror and dragging Evolution over it, makes me able to
+> > > reproduce this problem.
+> > > 
+> > > Doing the same on 2.6.7-mm3 is totally smooth, however.
+> > 
+> > I think staircase-7.7 fixed this, too. (for me).
+> > Have a try.
 > 
-> 	put_be32(cmd->cdb + 2, block);
-> 
-> Unfortunately there is no such function or macro!  It's easy to define an
-> inline function that would carry out the series of four single-byte
-> assignments that originally started this discussion.  A more sophisticated
-> implementation would expand to Andries' unspeakably ugly code on
-> big-endian platforms that don't impose a large penalty for non-aligned
-> 4-byte accesses.  I leave it up to others to decide which is best on
-> little-endian platforms that can do unaligned accesses.
-> 
-> I think it would be great if some such utility routine were added to a
-> standard header in the kernel, together with its siblings put_le32(),
-> put_be16(), put_le16(), and the corresponding get_xxxx() functions.
+> Staircase 7.7 over 2.6.7-ck2 still feels somewhat sluggish... Renicing X
+> to -5 seems to improve a bit, but -mm3 is smoother and does not require
+> renicing the X server.
 
-This is very nice and would be a great help for Infiniband developers.
-However, parts of SCSI commands are not defined in terms of C structures
-or even 32 bit words with an endianness. They are streams of bytes, at
-least historically. Please kindly refer to the WRITE(6) command for
-the evidence. You'd need put_be20() to form that block address. :-)
+Hi
 
-I write these byte marshalling sequences since 1985 and I'm a little
-used to them. I do not recall thinking twice about writing that element
-of ub. It probably doesn't deserve all the tempest Oliver raised over it.
+I seem to have an oversight with ck in the batch implementation that may 
+be causing problems that wouldn't happen if you used the standalone 
+staircase patch. Can you try the standalone s7.7 patch (not from the split 
+out patches in the ck directory) that is in my patches/2.6/2.6.7 
+directory?
 
--- Pete
+Thanks
+Con

@@ -1,44 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264090AbTDWP1B (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 11:27:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264091AbTDWP1B
+	id S264088AbTDWPhs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 11:37:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264089AbTDWPhs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 11:27:01 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:16862 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S264090AbTDWPZ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 11:25:29 -0400
-Date: Wed, 23 Apr 2003 17:37:24 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Newest Ext3 code for 2.4.x
-Message-ID: <20030423153724.GA503@wohnheim.fh-wedel.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.28i
+	Wed, 23 Apr 2003 11:37:48 -0400
+Received: from imap.gmx.net ([213.165.65.60]:13672 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264088AbTDWPhr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 11:37:47 -0400
+Message-ID: <3EA6B61B.7030303@gmx.net>
+Date: Wed, 23 Apr 2003 17:49:47 +0200
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Neil Brown <neilb@cse.unsw.edu.au>
+CC: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: BK->CVS, kernel.bkbits.net
+References: <20030417162723.GA29380@work.bitmover.com>	<b7n46e$dtb$1@cesium.transmeta.com>	<20030420003021.GA10547@work.bitmover.com> <16035.30645.648954.185797@notabene.cse.unsw.edu.au>
+In-Reply-To: <16035.30645.648954.185797@notabene.cse.unsw.edu.au>
+X-Enigmail-Version: 0.71.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Neil Brown wrote:
+> % time bk pull
+> ....
+> 444.95user 42.29system 49:09.46elapsed 16%CPU (0avgtext+0avgdata 0maxresident)k
+> 0inputs+0outputs (326737major+196385minor)pagefaults 0swaps
+> 
+> 
+> % time cvs update
+> .....
+> 2.78user 1.94system 4:12.36elapsed 1%CPU (0avgtext+0avgdata 0maxresident)k
+> 0inputs+0outputs (333major+7240minor)pagefaults 0swaps
+> 
+> 
+> That is an order of magnitude difference in wall-clock time!  This is
+> on my humble notebook with "only" 128Meg of RAM.  The delay is mostly 
+> in the consistency checking.  Sure there is a way to turn that off.
 
-I've found a reproducable bug in ext3 on my notebook. This gets hit
-under 2.4.19-ac4 and 2.4.20.1 (or whatever you want to call the
-patches from hardrock.org).
+Just add this line to your /etc/BitKeeper/etc/config:
+[]partial_check:yes!
 
-Before I dive into the code, what is the most recent ext3 code that I
-could update to? 2.4.21-rc1? Are any of the patches from
-http://www.zip.com.au/~akpm/linux/patches/2.4/2.4.20/ missing? Is
-there more unreleased code?
+and you should notice a big speedup.
 
-Jörn
+HTH,
+Carl-Daniel
 
+P.S. If anyone knows other speedup tricks for a kernel tree in bk,
+please tell me.
 -- 
-To announce that there must be no criticism of the President, or that we
-are to stand by the President, right or wrong, is not only unpatriotic
-and servile, but is morally treasonable to the American public.
--- Theodore Roosevelt, Kansas City Star, 1918
+http://www.hailfinger.org/
 

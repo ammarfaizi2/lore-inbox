@@ -1,42 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292142AbSBAXfN>; Fri, 1 Feb 2002 18:35:13 -0500
+	id <S292144AbSBAXjX>; Fri, 1 Feb 2002 18:39:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292143AbSBAXfD>; Fri, 1 Feb 2002 18:35:03 -0500
-Received: from rakis.net ([207.8.143.12]:62628 "EHLO egg.rakis.net")
-	by vger.kernel.org with ESMTP id <S292142AbSBAXer>;
-	Fri, 1 Feb 2002 18:34:47 -0500
-Date: Fri, 1 Feb 2002 18:34:47 -0500 (EST)
-From: Greg Boyce <gboyce@rakis.net>
-X-X-Sender: gboyce@egg
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: gmack@innerfire.net, Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Machines misreporting Bogomips
-In-Reply-To: <E16WnJL-0006Tg-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.42.0202011831170.6556-100000@egg>
+	id <S292145AbSBAXjN>; Fri, 1 Feb 2002 18:39:13 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:24076 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292144AbSBAXi5>; Fri, 1 Feb 2002 18:38:57 -0500
+Subject: Re: Artificially starving a process for CPU/Disk/etc?
+To: nneul@umr.edu (Neulinger, Nathan)
+Date: Fri, 1 Feb 2002 23:51:59 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <A69C6C0DB9068F40AC122C194F9DBEF0AEBD@umr-mail1.umr.edu> from "Neulinger, Nathan" at Feb 01, 2002 12:29:32 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16WnTL-0006WL-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Feb 2002, Alan Cox wrote:
+> I've got a situation where I want to simulate a server process getting 
+> starved for cpu/paging to death/etc. I realize I could renice the process(s)
+> and then create artificial loading on the machine, but is there any way to 
+> do this more effectively?
 
-> > The machine is reporting that the cache is enabled.  Even if this was
-> > true, I have trouble believing that turning on the cache would result in a
-> > 50,000% increase in speed (4 bogomips compared to 500).
->
-> L1 and L2 cache both disabled comes up as about 2.5 bogomips typically on
-> a Pentium II/III.
->
+There are a couple of approaches. One is to use ptrace the other
+just signals and keep stopping/starting the process. Neither will give 
+accurate paging to death behaviour. To get that you would have to do some
+simulated fault and pauses every new page access.
 
-Ahh.  I was working with someone else trying to figure out if the cache
-would affect the calculated bogomips.  Looks like it would.
-
-The machine I'm reporting shows 512K of cache though.  I included a second
-machine as a comparison, and apparently choose poorly.  That was the
-machine reporting no cache.
-
-Would a machine with L1 cache disabled, but with 512K of L2 cache report
-around 4 Bogomips, or would the performance hit not be that strong?
-
+Alan

@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313818AbSDFAky>; Fri, 5 Apr 2002 19:40:54 -0500
+	id <S313847AbSDFBFF>; Fri, 5 Apr 2002 20:05:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313823AbSDFAko>; Fri, 5 Apr 2002 19:40:44 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:29079 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S313818AbSDFAkZ>; Fri, 5 Apr 2002 19:40:25 -0500
-Message-ID: <3CAE43FA.8010608@us.ibm.com>
-Date: Fri, 05 Apr 2002 16:40:26 -0800
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9+) Gecko/20020405
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] remove initialization from removed sem
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S313848AbSDFBEz>; Fri, 5 Apr 2002 20:04:55 -0500
+Received: from nessie.weebeastie.net ([61.8.7.205]:19182 "EHLO
+	theirongiant.weebeastie.net") by vger.kernel.org with ESMTP
+	id <S313847AbSDFBEo>; Fri, 5 Apr 2002 20:04:44 -0500
+Date: Sat, 6 Apr 2002 11:04:02 +1000
+From: CaT <cat@zip.com.au>
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19pre5-ac3
+Message-ID: <20020406010402.GX550@zip.com.au>
+In-Reply-To: <200204051945.g35JjnX23183@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
-   The last patch I sent still initialized the semaphore that I removed.
+On Fri, Apr 05, 2002 at 02:45:49PM -0500, Alan Cox wrote:
+> Linux 2.4.19pre5-ac3
+> o	Software suspend initial patch 		(Pavel Machek, Gabor Kuti,..)
+> 	| Don't enable this idly. Its here to get exposure and so
+> 	| people can bring the rest of the code up to meet its needs as
+> 	| well as fix it.
+> 	| Read the docs first!
 
---- fs/inode.c.orig	Fri Apr  5 16:36:11 2002
-+++ fs/inode.c	Fri Apr  5 16:36:21 2002
-@@ -143,7 +143,6 @@
-  	INIT_LIST_HEAD(&inode->i_dirty_data_buffers);
-  	INIT_LIST_HEAD(&inode->i_devices);
-  	sema_init(&inode->i_sem, 1);
-- 
-sema_init(&inode->i_attr_lock, 1);
-  	spin_lock_init(&inode->i_data.i_shared_lock);
-  	INIT_LIST_HEAD(&inode->i_data.i_mmap);
-  	INIT_LIST_HEAD(&inode->i_data.i_mmap_shared);
+Would love to but unless I mis-grepped it is not in the patch... Wanted
+to find out if it plays nice with ext3 now. :)
+
+Was it missed or does it not exist? :) 
 
 -- 
-Dave Hansen
-haveblue@us.ibm.com
-
+SOCCER PLAYER IN GENITAL-BITING SCANDAL  ---  "It was something between
+friends that I thought would have no importance until this morning when
+I got up and saw all  the commotion in the news,"  Gallardo told a news
+conference. "It stunned me."
+Reyes told Marca that he had "felt a slight pinch."
+      -- http://www.azcentral.com/offbeat/articles/1129soccer29-ON.html

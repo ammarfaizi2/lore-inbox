@@ -1,62 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262738AbTKYPXS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 10:23:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262740AbTKYPXS
+	id S262731AbTKYPW7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 10:22:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262738AbTKYPW7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 10:23:18 -0500
-Received: from natsmtp00.rzone.de ([81.169.145.165]:26840 "EHLO
-	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
-	id S262738AbTKYPXO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 10:23:14 -0500
-Message-ID: <3FC373DE.9090507@softhome.net>
-Date: Tue, 25 Nov 2003 16:23:10 +0100
-From: "Ihar 'Philips' Filipau" <filia@softhome.net>
-Organization: Home Sweet Home
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
-X-Accept-Language: en-us, en
+	Tue, 25 Nov 2003 10:22:59 -0500
+Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:46684 "HELO
+	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S262731AbTKYPW6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 10:22:58 -0500
+Message-ID: <3FC348D1.8060408@yahoo.com>
+Date: Tue, 25 Nov 2003 07:19:29 -0500
+From: moiz kohari <moiz_kohari@yahoo.com>
+Reply-To: moiz_kohari@yahoo.com
+User-Agent: Mozilla/5.0 (Windows; U; Win 9x 4.90; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: arjanv@redhat.com
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.2/2.4/2.6 VMs: do malloc() ever return NULL?
-References: <VLAm.2g1.9@gated-at.bofh.it> <VM3n.3jY.9@gated-at.bofh.it>
-In-Reply-To: <VM3n.3jY.9@gated-at.bofh.it>
+To: linux-kernel@vger.kernel.org
+Subject: Posix record locking.
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> 
-> that is due to the overcommit policy that your admin has set. 
-> You can set it to disabled and then malloc will return NULL in userspace
-> 
+Hi,
 
-    Target (patched by mvista) system works as expected in case of 
-memory being touch.
-    But in case of "for(;;) malloc(N)" it still gets 1.8GB memory 
-allocated. (this is ppc32 - looks like 2/2 memory split) So it doesn't 
-look like working at all. So basicly pool allocation used in carrier 
-grade systems goes south: even with overcommit_memory=-1 && malloc()!=0 
-you can not be sure that memory is really allocated. Not good.
+I am looking at posix record locking with nfs and I have a couple of 
+questions:
 
-    Vanilla 2.4.22 (this is x86) (with HZ=1024, if it does matter).
+1. The fcntl_setlk() calls nfs_lock() (towards the end of fcntl_setlk by 
+calling filp->f_op->lock), fcntl_setlk() then calls posix_lock_file() 
+(where all the vfs magic happens for file locks).  If nfs_lock() returns 
+successful (server has granted the lock) but the subsequent 
+posix_lock_file() fails (due to deadlock, conflict or low memory), we 
+never go back to the server to clean up this lock.  Is this a problem or 
+am I missing something?
 
-    after '# echo -1 >/proc/sys/vm/overcommit_memory'
-    1. test app with memory touch still gets killed by oom_killer. (so 
-no malloc() == NULL)
-    2. test app w/o memory touch still can happily allocate 2.8GB of 
-memory (x86 - looks like 3/1 memory split) and only then gets NULL 
-pointer - oom_killer is silent.
+2. nfs_lock() calls nlmclnt_proc() after we pick up the kernel lock 
+(lock_kernel()).  The nlmclnt_proc() goes on to call:
+   nlmclnt_lock()
+   nlmclnt_call()
+   rpc...
 
-    But thanks for pointers in any way...
+Is this OK?  Are we going over the wire while holding the kernel lock?
 
--- 
-Ihar 'Philips' Filipau  / with best regards from Saarbruecken.
---                                                           _ _ _
-  Because the kernel depends on it existing. "init"          |_|*|_|
-  literally _is_ special from a kernel standpoint,           |_|_|*|
-  because its' the "reaper of zombies" (and, may I add,      |*|*|*|
-  that would be a great name for a rock band).
-                                 -- Linus Torvalds
+Best Regards,
+
+Moiz
+
 

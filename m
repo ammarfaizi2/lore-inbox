@@ -1,62 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312512AbSCYVcQ>; Mon, 25 Mar 2002 16:32:16 -0500
+	id <S312161AbSCYVqJ>; Mon, 25 Mar 2002 16:46:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312577AbSCYVcH>; Mon, 25 Mar 2002 16:32:07 -0500
-Received: from p50846B26.dip.t-dialin.net ([80.132.107.38]:51680 "EHLO
-	sol.fo.et.local") by vger.kernel.org with ESMTP id <S312512AbSCYVbr> convert rfc822-to-8bit;
-	Mon, 25 Mar 2002 16:31:47 -0500
-To: Xavier Bestel <xavier.bestel@free.fr>
-Cc: Robert Love <rml@tech9.net>, Andrew Morton <akpm@zip.com.au>,
-        christophe =?iso-8859-1?q?barb=E9?= 
-	<christophe.barbe.ml@online.fr>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 3c59x and resume
-In-Reply-To: <20020323161647.GA11471@ufies.org> <3C9CCBEB.D39465A6@zip.com.au>
-	<1016914030.949.20.camel@phantasy> <m3r8m851ad.fsf@venus.fo.et.local>
-	<1017057192.22083.4.camel@bip>
-From: Joachim Breuer <jmbreuer@gmx.net>
-Date: Mon, 25 Mar 2002 22:31:28 +0100
-Message-ID: <m38z8gmj0v.fsf@venus.fo.et.local>
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.1 (Cuyahoga Valley,
- i386-redhat-linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S312163AbSCYVp7>; Mon, 25 Mar 2002 16:45:59 -0500
+Received: from CPE00c0f0141dc1.cpe.net.cable.rogers.com ([24.42.47.5]:23246
+	"EHLO mail.jukie.net") by vger.kernel.org with ESMTP
+	id <S312161AbSCYVpu>; Mon, 25 Mar 2002 16:45:50 -0500
+Date: Mon, 25 Mar 2002 16:45:35 -0500
+From: Bart Trojanowski <bart@jukie.net>
+To: Anthony Chee <anthony.chee@polyu.edu.hk>, linux-kernel@vger.kernel.org
+Cc: kbuild-devel@vger.kernel.org, kernelnewbies@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: undefined reference
+Message-ID: <20020325164535.A5144@jukie.net>
+In-Reply-To: <004501c1d34f$32bda110$0100a8c0@winxp>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="zhXaljGHf11kAtnf"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Xavier Bestel <xavier.bestel@free.fr> writes:
 
-> le lun 25-03-2002 à 12:34, Joachim Breuer a écrit :
->> Being able to redetect a pulled card put in a different slot as a
->> "known" one giving it the same eth<i> (and associated WOL etc. config)
->> as before would of course be nice, but I can't see how this can be
->> cleanly done over reboots.
->
-> Some may say that being able to give the same eth<i> to the same bus
-> position, even after swapping the card for a new one, is more important
-> - think of production machines which can't afford being off-service for
-> too long. You just shutdown, swap the cards, poweron and you go. No
-> reconfig, that's how it should run.
+--zhXaljGHf11kAtnf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Reading it again I wasn't all too clear in that last posting - I meant
-it to show two alternatives (eth<i> stays with bus vs. eth<i> stays
-with card). Each with its own advantages and disadvantages; I don't
-have a fixed preference, but a slight leaning towards fixed
-bus-position based numbers (spanning different drivers, if at all
-possible). That would allow Xavier's scenario even with a different
-type of replacement card.
+* Anthony Chee <anthony.chee@polyu.edu.hk> [020324 11:17]:
+> I am now developing a module. This module need communicate with the kerne=
+l.
+> So I exported a function func(), by using EXPORT_SYMBOL(func). In the hea=
+der
+> file, I set "extern int func()".
+<snip>
 
-(Yes of course you'd have to reconfig to swap a PCI card for an ISA
-one but let's not go there, OK?)
+The problem you face is that the kernel needs to know where foo is to
+generate a the bytecode that calls it.  Here is a better scenario...
 
+You expose an interface in the kernel such as
 
-So long,
-   Joe
+	typedef void (*func_t)(int);
+	void register_func ( func_t func );
+	EXPORT_SYMBOL (register_func);
 
--- 
-"I use emacs, which might be thought of as a thermonuclear
- word processor."
--- Neal Stephenson, "In the beginning... was the command line"
+Then in your modules you call 'register_func' and that will pass the
+function in question to the kernel.  The kernel can then do whatever it
+wants to that pointer (like call it).
+
+B.
+
+--=20
+				WebSig: http://www.jukie.net/~bart/sig/
+
+--zhXaljGHf11kAtnf
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8n5p/kmD5p7UxHJcRAnGAAJ40wZDL2LLYMdSVQ+hmJe/FpsBvPQCfaB9q
+Dw+WW7brhnzPPniFJeG/yKw=
+=Keu5
+-----END PGP SIGNATURE-----
+
+--zhXaljGHf11kAtnf--

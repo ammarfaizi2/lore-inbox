@@ -1,29 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129187AbQKIDOP>; Wed, 8 Nov 2000 22:14:15 -0500
+	id <S129881AbQKIDWF>; Wed, 8 Nov 2000 22:22:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129507AbQKIDOF>; Wed, 8 Nov 2000 22:14:05 -0500
-Received: from c837140-a.vncvr1.wa.home.com ([65.0.81.146]:40452 "EHLO
-	cyclonehq.dnsalias.net") by vger.kernel.org with ESMTP
-	id <S129187AbQKIDNw>; Wed, 8 Nov 2000 22:13:52 -0500
-Date: Wed, 8 Nov 2000 19:14:20 -0800 (PST)
-From: Dan Browning <danb@cyclonehq.dnsalias.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org, danb@cyclonecomputers.com
-Subject: VPN Masquerade patch going into 2.2.18final?
-In-Reply-To: <E13tf6v-0000cW-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0011081909170.2626-100000@cyclonehq.dnsalias.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130079AbQKIDVz>; Wed, 8 Nov 2000 22:21:55 -0500
+Received: from chac.inf.utfsm.cl ([200.1.19.54]:53513 "EHLO chac.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S129881AbQKIDVq>;
+	Wed, 8 Nov 2000 22:21:46 -0500
+Message-Id: <200011090219.eA92J2a10670@sleipnir.valparaiso.cl>
+To: David Feuer <David_Feuer@brown.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: pcmcia 
+In-Reply-To: Message from David Feuer <David_Feuer@brown.edu> 
+   of "Wed, 08 Nov 2000 17:24:18 CDT." <4.3.2.7.2.20001108172304.00adb270@postoffice.brown.edu> 
+Date: Wed, 08 Nov 2000 23:19:02 -0300
+From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Would you care to comment on the VPN Masquerade patch that has been
-floating around?  Will it make it into an official 2.2.x kernel soon?  The
-VPN-Masq HOWTO seems to think it is going into 2.2.18 proper.
+David Feuer <David_Feuer@brown.edu> said:
+> What is the current status of PC-card support?  I've seen ominous signs on 
+> this list about the state of support....  I have a laptop with a PCMCIA 
+> network card (a 3com thing). Will it work?
 
-ftp://ftp.rubyriver.com/pub/jhardin/masquerade/ip_masq_vpn-2.2.17.patch.gz
-
+I've got a Toshiba Satellite Pro 4280xdvd + 3com cardbus 10/100 card. Works
+fine with Red Hat 7, and also with 2.2.18pre20 + latest pcmcia-cs tools (X
+doesn't work out of the box, I had to grab an X server from somewhere for
+the S3 Savage IX the machine has. The builtin Lucent winmodem is hopeless,
+BTW: The Lucent drivers just crash the kernel once the call is answered.)
+--
+Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
+Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

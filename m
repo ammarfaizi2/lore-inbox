@@ -1,58 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262437AbTENPyw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 11:54:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262473AbTENPyw
+	id S262354AbTENPym (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 11:54:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262437AbTENPym
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 11:54:52 -0400
-Received: from siaag2ab.compuserve.com ([149.174.40.132]:48596 "EHLO
-	siaag2ab.compuserve.com") by vger.kernel.org with ESMTP
-	id S262437AbTENPys (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 11:54:48 -0400
-Date: Wed, 14 May 2003 12:04:38 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [PATCH] PAG support only
-To: David Howells <dhowells@warthog.cambridge.redhat.com>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       dhowells@redhat.com, Jeff Garzik <jgarzik@pobox.com>
-Message-ID: <200305141207_MC3-1-38D7-EB5B@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+	Wed, 14 May 2003 11:54:42 -0400
+Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:36794 "HELO
+	spf1.us.outblaze.com") by vger.kernel.org with SMTP id S262354AbTENPyl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 11:54:41 -0400
+Message-ID: <20030514160712.73636.qmail@mail.com>
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "David Anderson" <david-anderson2003@mail.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-scsi@vger.kernel.org
+Date: Wed, 14 May 2003 11:07:11 -0500
+Subject: Tracing the life of a Buffer head
+X-Originating-Ip: 203.94.235.209
+X-Originating-Server: ws1-1.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells wrote:
+Hi,
 
-> Fair enough, but in arch/i386/kernel/process.c:
->
->       asmlinkage int sys_fork(struct pt_regs regs)
->       asmlinkage int sys_clone(struct pt_regs regs)
->       asmlinkage int sys_vfork(struct pt_regs regs)
->       asmlinkage int sys_execve(struct pt_regs regs)
->       etc...
->
-> Should these be fixed too (the i386 arch is referred to quite a lot)?
+Any suggestions on how I could track the life of a 
+buffer head ?? Need to do this for a large no. of 
+buffer heads.
 
+Any suggestion would help.
 
-$ grep 'asmlinkage int sys_' arch/i386/kernel/*.c | wc -l
-     19
+Thanks and Regards,
+David Anderson
 
-
-  And what is this all about?
-
-$ grep -A 2 'unused)' arch/i386/kernel/*.c | grep -B 2 regs
-arch/i386/kernel/ioport.c:asmlinkage int sys_iopl(unsigned long unused)
-arch/i386/kernel/ioport.c-{
-arch/i386/kernel/ioport.c-      volatile struct pt_regs * regs = (struct pt_regs *) &unused;
---
-arch/i386/kernel/signal.c:asmlinkage int sys_sigreturn(unsigned long __unused)
-arch/i386/kernel/signal.c-{
-arch/i386/kernel/signal.c-      struct pt_regs *regs = (struct pt_regs *) &__unused;
---
-arch/i386/kernel/signal.c:asmlinkage int sys_rt_sigreturn(unsigned long __unused)
-arch/i386/kernel/signal.c-{
-arch/i386/kernel/signal.c-      struct pt_regs *regs = (struct pt_regs *) &__unused;
+-- 
+__________________________________________________________
+Sign-up for your own FREE Personalized E-mail at Mail.com
+http://www.mail.com/?sr=signup
 

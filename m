@@ -1,42 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266078AbTAPKSo>; Thu, 16 Jan 2003 05:18:44 -0500
+	id <S266203AbTAPKTo>; Thu, 16 Jan 2003 05:19:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266081AbTAPKSo>; Thu, 16 Jan 2003 05:18:44 -0500
-Received: from pollux.et6.tu-harburg.de ([134.28.85.242]:9927 "EHLO
-	mail.et6.tu-harburg.de") by vger.kernel.org with ESMTP
-	id <S266078AbTAPKSn>; Thu, 16 Jan 2003 05:18:43 -0500
-Subject: Promise SuperTrak SX6000 w/ kernel 2.4.20
-From: Sebastian Zimmermann <S.Zimmermann@tu-harburg.de>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: Technical University Hamburg-Harburg
-Message-Id: <1042712859.14520.39.camel@antares.et6.tu-harburg.de>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 16 Jan 2003 11:27:39 +0100
-Content-Transfer-Encoding: 7bit
+	id <S266295AbTAPKTn>; Thu, 16 Jan 2003 05:19:43 -0500
+Received: from 5-116.ctame701-1.telepar.net.br ([200.193.163.116]:35535 "EHLO
+	5-116.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S266203AbTAPKTm>; Thu, 16 Jan 2003 05:19:42 -0500
+Date: Thu, 16 Jan 2003 08:28:11 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Alex <akhripin@MIT.EDU>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Dynamic memory stack?
+In-Reply-To: <20030116010454.GB3288@dodecahedron.mit.edu>
+Message-ID: <Pine.LNX.4.50L.0301160825330.6044-100000@imladris.surriel.com>
+References: <20030116010454.GB3288@dodecahedron.mit.edu>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wed, 15 Jan 2003, Alex wrote:
 
-we are using a Promise SuperTrak RAID controller together with the
-integrated i2o-drivers in the linux kernel 2.4.18. Everything works fine
-so far.
+> bar(){
+> .
+> foo=kmallc
+> .
+> kfree(foo)
 
-Now we wanted to upgrade to kernel 2.4.20. Configuration was unchanged.
-But now the system hangs at boot time:
+> This sort of thing is best handled on the stack,
 
-When the IDE driver is loaded, it finds the system disk /dev/hda just
-like before. But with 2.4.20 the IDE driver also finds disks /dev/hde,
-/dev/hdf and so on which belong to the raid system. At this point many
-"interrupt lost" messages appear on the screen and the system hangs. It
-never gets far enough to load i2o.
+The kernel stack is 8 kB per process.
 
-Any ideas?
+> A way to deal with this is to create a per-cpu kmalloc'ed dynamically
+> extended stack from which memory can be allocated.
 
-Thanks,
+That only works if this kernel thread doesn't schedule.
 
-Sebastian
+If you schedule, you'd end up with multiple processes
+wanting to use the same pool, or with a process moving
+from one pool to the other (without the ability to
+take its data with it).
 
+> Furthermore, with the help of macros, memory leaks due to mid-function
+> returns and such can be completely avoided.
+
+I'm doubtful, but if you think you know a way to pull
+it off I'm curious to see it ...
+
+cheers,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://guru.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>

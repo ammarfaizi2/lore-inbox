@@ -1,135 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264498AbTLQRuC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Dec 2003 12:50:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264502AbTLQRuC
+	id S264489AbTLQSCl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Dec 2003 13:02:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264490AbTLQSCl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Dec 2003 12:50:02 -0500
-Received: from xavier.comcen.com.au ([203.23.236.73]:6674 "EHLO
-	xavier.etalk.net.au") by vger.kernel.org with ESMTP id S264498AbTLQRt5
+	Wed, 17 Dec 2003 13:02:41 -0500
+Received: from mail48-s.fg.online.no ([148.122.161.48]:16068 "EHLO
+	mail48.fg.online.no") by vger.kernel.org with ESMTP id S264489AbTLQSCk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Dec 2003 12:49:57 -0500
-From: Ross Dickson <ross@datscreative.com.au>
-Reply-To: ross@datscreative.com.au
-Organization: Dat's Creative Pty Ltd
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>, george@mvista.com
-Subject: Re: Catching NForce2 lockup with NMI watchdog
-Date: Thu, 18 Dec 2003 04:14:17 +1000
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org
+	Wed, 17 Dec 2003 13:02:40 -0500
+To: linux-kernel@vger.kernel.org
+Subject: video4linux headers
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: Wed, 17 Dec 2003 19:02:37 +0100
+Message-ID: <yw1xvfofnwzm.fsf@kth.se>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312180414.17925.ross@datscreative.com.au>
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->On Tue, 16 Dec 2003, George Anzinger wrote: 
- 
 
+When compiling any program that uses video4linux under linux
+2.6.0-testANY, I always get these errors:
 
->> How confusing :( Could you give me some idea how this works? I have tried 
-> > disable_irq(0) and, as best as I can tell, it does not do the trick. The 
-> > confusion I have is understanding where in the chain of hardware each of these 
-> > thing is taking place. 
+In file included from /usr/include/linux/videodev2.h:16,
+/usr/include/linux/time.h:9: redefinition of `struct timespec'
+/usr/include/linux/time.h:15: redefinition of `struct timeval'
+/usr/include/time.h:160: redefinition of `struct itimerspec'
 
-Here is where to find Intel's MP arch spec Maceij mentions.
-I had to find it recently wrt nforce2 issues
+Am I doing something terribly wrong?  Simply placing an
+#include <linux/time> in videodev2.h under #ifdef __KERNEL__ seems to
+get rid of the compiler errors, though I'm sure that's not the proper
+solution.
 
-http://www.intel.com/design/pentium/datashts/24201606.pdf
-
-Section 3.6.1 Apic Architecture is relevant
-particularly
-Section 3.6.2.2 Virtual Wire Mode
-
-<snip>
-great diagram!
-
-<snip>
-> If the above variant does not work, as a last resort, the path for the 
-> 8254 timer interrupt is via the 8259 reconfigured back into its usual mode 
-> and then LINT0 of the BSP reconfigured for an ExtINTA APIC interrupt. 
-> Additionally, since at this point the glue logic has probably already 
-> locked up due to the messing done above, a few artiffical sets of double 
-> INTA cycles are sent to the system bus using the RTC chip and INTIN8 
-> reconfigured temporarily to send ExtINTA APIC interrupts via the 
-> inter-APIC bus. 
- 
-> I do hope a thorough read of the description will make the available 
-> variants clear. The I/O APIC input numbers may differ but so far they are 
-> almost always as noted above. 
- 
->  Maciej 
-
-All good.
-
-I would like to add a footnote to highlight a potential gotcha as I understand it.
-
-To clarify, the xt pic 8259A does not in itself have a transparent mode as would
-a logic buffer or inverter. It always needs inta cycles to function. In PIC mode
-it is wired to processor pins as per old 8086 and original cpu architecture
-provides the inta cycles to it (bypasses apic, apic seems off).
-
-In virtual wire mode with the 8259A output wired either to a local apic pin on cpu
-or through the io-apic. In this mode it is the local apic which has to provide the 
-inta cycles on the bus back to the 8259A for it to function correctly. 
-
-The delivery mode has to be set to ExtInt for the register associated with the pin
-that the 8259A output (int on Maceij diagram) is connected to. This is the only
-way to force the apic to deliver the inta cycles to the 8259A and that is how it
-appears transparent to the system. Spec says there can only be one source 
-register (local apic) or redirection register (ioapic) of mode ExtInt per system
-regardless of how many local apic and io-apic pins it (int on Maceij diagram)
-is connected to. 
-
-Gotcha: If none are set to ExtInt then the 8259A will hang for lack of IntA 
-cycles.
-
-Section 7.5.11 covers it
-24319202.pdf available here
-
-http://www.intel.com/design/pentiumii/manuals/243192.htm
-
-Why only one Extint source in virtual wire mode?:
-
-The 8259A in X86 architecture systems needs two inta cycles per interrupt event.
-Do not confuse them with the EOI which is software, the inta is purely hardware.
-It only works properly with one source causing inta cycles. Docs I have do not
-say what happens with more than one source.
-
-How 8259A works in a nutshell (it is more complex in cascade mode).
-
-First the 8259A gets a request from H/ware and if unmasked etc generates its int 
-(int on Maceij diagram) out.  8259A then sits there waiting for Inta from cpu 
-(PIC mode) or local apic (Virtual wire mode). When the inta arrives the 8259A
-latches its internal ISR bit and waits for second inta. When second inta arrives
-it outputs a vector onto the data bus indicating which ISR bit was set. 
-
-If the request from H/ware is still active when the first inta arrives then we get
-the correct vector number.
-
-If it is NOT still exerted then its tough luck and the vector we get 7 for the first
-8259A or 15 for the second 8259A and it is too late to try and find out where
-the real source was, hence the spurious irq7 messages and corresponding
-irq 7 count increase.
-
-It is pretty bad when the apic system that is handling the 8259A in virtual
-wire mode cannot get the inta to the 8259A in time while the int request
-hardware is still exerting but it happens.
-
-I certainly agree with Marceij's comments that mixed mode of having 8254 PIT
-routed via the 8259A was never meant to occur alongside ioapic handling of
-the other interrupts. It is very problematic not to mention confusing. 
-
-I do not know how smoothly the apic handles the 8259A if you would be turning
-that source on and off frequently.
-
-Regards
-Ross Dickson
-
-
-
+-- 
+Måns Rullgård
+mru@kth.se

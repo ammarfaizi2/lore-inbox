@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267260AbTBQOkh>; Mon, 17 Feb 2003 09:40:37 -0500
+	id <S267131AbTBQPWX>; Mon, 17 Feb 2003 10:22:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267263AbTBQOjc>; Mon, 17 Feb 2003 09:39:32 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:7121
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S267260AbTBQOjV>; Mon, 17 Feb 2003 09:39:21 -0500
-Date: Mon, 17 Feb 2003 09:47:40 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Ingo Molnar <mingo@elte.hu>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>, Robert Love <rml@tech9.net>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH][2.5] Don't schedule tasks on offline cpus
-In-Reply-To: <Pine.LNX.4.44.0302171513380.24394-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.50.0302170941040.18087-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.44.0302171513380.24394-100000@localhost.localdomain>
+	id <S267135AbTBQPWW>; Mon, 17 Feb 2003 10:22:22 -0500
+Received: from mail.scsiguy.com ([63.229.232.106]:4369 "EHLO aslan.scsiguy.com")
+	by vger.kernel.org with ESMTP id <S267131AbTBQPWW>;
+	Mon, 17 Feb 2003 10:22:22 -0500
+Date: Mon, 17 Feb 2003 08:31:32 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: Shawn Starr <shawn.starr@datawire.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5.61][SCSI][AIC7xxx] Problems with Tape driver
+Message-ID: <348100000.1045495892@aslan.scsiguy.com>
+In-Reply-To: <200302170923.50463.shawn.starr@datawire.net>
+References: <200302170923.50463.shawn.starr@datawire.net>
+X-Mailer: Mulberry/3.0.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Feb 2003, Ingo Molnar wrote:
-
+> While attempting to cpio extract data from the tape I got this in the logs. Is 
+> this due to corrupt data on tape or the tape driver having a fit? ;-)
 > 
-> On Mon, 17 Feb 2003, Zwane Mwaikambo wrote:
-> 
-> > We don't want to allow a cpu going offline to keep doing scheduler work
-> > so let it exit early, otherwise we'd keep pulling in tasks every timer
-> > tick.
-> 
-> i'd rather have all the hotplug CPU code to do this kind of stuff
-> completely out of line. Start up a max-RT-priority housekeeping task and
-> just clean the runqueue and deregister the CPU in one atomic pass - look
-> at how the migration threads do similar stuff. No need to contaminate
-> various codepaths with 'is this CPU online' checks.
+> We are the following SCSI card and tape drive:
 
-Ok for this we'll have to move the task migration down till after the cpu 
-has gone completely offline ie dead, then pull the tasks off the dead 
-runqueue. I'm not aware of any ill effects of such a move.
+...
 
-	Zwane
--- 
-function.linuxpower.ca
+> Problems below:
+> ==========
+> st0: Error with sense data: Info fld=0x4, Current stst0: sense = f0  4
+> ASC=40 ASCQ=81
+
+The sense code translate into:
+  Hardware Failure, Diagnostic failure: ASCQ = Component ID
+
+In otherwords some component on the tape drive is failing diagnostics.
+This is the likely cause of the other timeouts you reported.
+
+--
+Justin
+

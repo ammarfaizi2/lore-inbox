@@ -1,38 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280925AbRKOQCG>; Thu, 15 Nov 2001 11:02:06 -0500
+	id <S280921AbRKOQH4>; Thu, 15 Nov 2001 11:07:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280929AbRKOQB5>; Thu, 15 Nov 2001 11:01:57 -0500
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:36870 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S280925AbRKOQBp>;
-	Thu, 15 Nov 2001 11:01:45 -0500
-Date: Thu, 15 Nov 2001 09:00:23 -0800
-From: Greg KH <greg@kroah.com>
-To: Martin McWhorter <m_mcwhorter@prairiegroup.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Possible Bug: 2.4.14 USB Keyboard
-Message-ID: <20011115090023.A10511@kroah.com>
-In-Reply-To: <3BF2DFBF.6090502@prairiegroup.com> <20011114145312.A6925@kroah.com> <3BF3D029.7070609@prairiegroup.com>
+	id <S280929AbRKOQHr>; Thu, 15 Nov 2001 11:07:47 -0500
+Received: from f86.law3.hotmail.com ([209.185.241.86]:55815 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S280921AbRKOQHd>;
+	Thu, 15 Nov 2001 11:07:33 -0500
+X-Originating-IP: [63.127.215.130]
+From: "Jim M." <msg124@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: guinness-list@redhat.com
+Subject: building module into the kernel question
+Date: Thu, 15 Nov 2001 16:07:27 +0000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BF3D029.7070609@prairiegroup.com>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Thu, 18 Oct 2001 15:54:03 -0700
+Content-Type: text/plain; format=flowed
+Message-ID: <F861Tg7yDHFCsI5W0uP00007492@hotmail.com>
+X-OriginalArrivalTime: 15 Nov 2001 16:07:28.0035 (UTC) FILETIME=[9F4D7730:01C16DEF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 15, 2001 at 08:24:41AM -0600, Martin McWhorter wrote:
-> 
-> Yes. I appoligize for not being clear. I get the same results with plain 
-> 2.4.14 w/out the preemptive patch.
+Hi,
+I have came up with a driver for a piece of pci hardware.
+It is called mydevice.c. How do i incorporate or build that into
+the linux kernel so that it supports this piece of hardware?.
+Thanx,
+Jim
 
-Thanks for the files.  It looks like the USB drivers are being bound to
-your devices properly.
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
 
-What does the kernel log say when you plug in your keyboard?
-
-thanks,
-
-greg k-h

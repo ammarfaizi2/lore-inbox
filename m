@@ -1,58 +1,83 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316837AbSE1QWe>; Tue, 28 May 2002 12:22:34 -0400
+	id <S316843AbSE1Qez>; Tue, 28 May 2002 12:34:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316838AbSE1QWd>; Tue, 28 May 2002 12:22:33 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:2291 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S316837AbSE1QWb>;
-	Tue, 28 May 2002 12:22:31 -0400
-Date: Tue, 28 May 2002 21:55:35 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Robert Love <rml@tech9.net>
-Cc: "David S. Miller" <davem@redhat.com>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        Paul McKenney <paul.mckenney@us.ibm.com>,
-        Andrea Arcangeli <andrea@suse.de>
-Subject: Re: 8-CPU (SMP) #s for lockfree rtcache
-Message-ID: <20020528215535.A22328@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-In-Reply-To: <20020528171104.D19734@in.ibm.com> <20020528.042514.92633856.davem@redhat.com> <20020528182806.A21303@in.ibm.com> <1022600998.20317.44.camel@sinai>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S316844AbSE1Qey>; Tue, 28 May 2002 12:34:54 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:41220 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S316843AbSE1Qex>; Tue, 28 May 2002 12:34:53 -0400
+Message-ID: <3CF3A2C3.7060706@evision-ventures.com>
+Date: Tue, 28 May 2002 17:31:15 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        breed@users.sourceforge.net
+Subject: [PATCH] airo
+In-Reply-To: <Pine.LNX.4.33.0205241902001.1537-100000@penguin.transmeta.com>
+Content-Type: multipart/mixed;
+ boundary="------------000309050805040704090401"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Robert,
+This is a multi-part message in MIME format.
+--------------000309050805040704090401
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Tue, May 28, 2002 at 08:49:58AM -0700, Robert Love wrote:
-> 
-> > Well, the last time RCU was discussed, Linus said that he would
-> > like to see someplace where RCU clearly helps.
-> 
-> I agree the numbers posted are nice, but I remain skeptical like Linus. 
-> Sure, the locking overhead is nearly gone in the profiled function where
-> RCU is used.  But the overhead has just been _moved_ to wherever the RCU
-> work is now done.  Any benchmark needs to include the damage done there,
-> too.
+Since apparently no body else did care thus far, and
+since I'm using this driver, well here it comes:
 
-Have you looked at the rt_rcu patch ? Where do you think there
-is overhead compared to what route cache alread does ? In my
-profiles, rcu routines and kernel mechanisms that it uses
-don't show high up. If you have any suggestions, then I can
-do an investigation.
+- Adjust the airo wireless LAN card driver for the fact that modules
+   don't export symbols by default any longer.
 
-> 
-> I also balk at implicit locking...
-> 
+- Make some stuff which obivously should be static there static as well.
+   (Plenty of code in Linux actually deserves a review for this
+    far too common bug...)
 
-I agree that it is better to keep things simple and RCU isn't a
-replacement for locking. However the route cache hash table with
-refcount is a relatively simpler use of RCU and since it has
-benefits, we shouldn't shy away from using it if it is useful.
+--------------000309050805040704090401
+Content-Type: text/plain;
+ name="airo-2.5.18.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="airo-2.5.18.diff"
 
-Thanks
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.
+diff -ur linux-2.5.18/drivers/net/wireless/airo.c linux/drivers/net/wireless/airo.c
+--- linux-2.5.18/drivers/net/wireless/airo.c	2002-05-25 03:55:19.000000000 +0200
++++ linux/drivers/net/wireless/airo.c	2002-05-28 18:20:41.000000000 +0200
+@@ -1146,6 +1146,8 @@
+ 	kfree( dev );
+ }
+ 
++EXPORT_SYMBOL(stop_airo_card);
++
+ static int add_airo_dev( struct net_device *dev );
+ 
+ struct net_device *init_airo_card( unsigned short irq, int port, int is_pcmcia )
+@@ -1239,7 +1241,9 @@
+ 	return NULL;
+ }
+ 
+-int waitbusy (struct airo_info *ai) {
++EXPORT_SYMBOL(init_airo_card);
++
++static int waitbusy (struct airo_info *ai) {
+ 	int delay = 0;
+ 	while ((IN4500 (ai, COMMAND) & COMMAND_BUSY) & (delay < 10000)) {
+ 		udelay (10);
+@@ -1283,7 +1287,9 @@
+ 	return 0;
+ }
+ 
+-int wll_header_parse(struct sk_buff *skb, unsigned char *haddr)
++EXPORT_SYMBOL(reset_airo_card);
++
++static int wll_header_parse(struct sk_buff *skb, unsigned char *haddr)
+ {
+ 	memcpy(haddr, skb->mac.raw + 10, ETH_ALEN);
+ 	return ETH_ALEN;
+
+--------------000309050805040704090401--
+

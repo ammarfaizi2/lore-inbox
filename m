@@ -1,61 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131383AbQLXXPz>; Sun, 24 Dec 2000 18:15:55 -0500
+	id <S130664AbQLXXy7>; Sun, 24 Dec 2000 18:54:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131505AbQLXXPp>; Sun, 24 Dec 2000 18:15:45 -0500
-Received: from mout1.freenet.de ([194.97.50.132]:32709 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id <S131383AbQLXXPg>;
-	Sun, 24 Dec 2000 18:15:36 -0500
-From: Andreas Franck <afranck@gmx.de>
-Date: Sun, 24 Dec 2000 23:49:00 +0100
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="US-ASCII"
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.Linu.4.10.10012231826350.645-100000@mikeg.weiden.de>
-In-Reply-To: <Pine.Linu.4.10.10012231826350.645-100000@mikeg.weiden.de>
-Subject: Re: Fatal Oops on boot with 2.4.0testX and recent GCC snapshots
-Cc: Mike Galbraith <mikeg@wen-online.de>
+	id <S131538AbQLXXyt>; Sun, 24 Dec 2000 18:54:49 -0500
+Received: from inje.iskon.hr ([213.191.128.16]:55566 "EHLO inje.iskon.hr")
+	by vger.kernel.org with ESMTP id <S130664AbQLXXyd>;
+	Sun, 24 Dec 2000 18:54:33 -0500
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: "Marco d'Itri" <md@Linux.IT>, Alexander Viro <viro@math.psu.edu>,
+        linux-kernel@vger.kernel.org, riel@conectiva.com.br
+Subject: Re: innd mmap bug in 2.4.0-test12
+In-Reply-To: <Pine.LNX.4.10.10012241004430.3972-100000@penguin.transmeta.com>
+Reply-To: zlatko@iskon.hr
+X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
+ i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
+ pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
+From: Zlatko Calusic <zlatko@iskon.hr>
+Date: 25 Dec 2000 00:23:49 +0100
+In-Reply-To: Linus Torvalds's message of "Sun, 24 Dec 2000 10:10:38 -0800 (PST)"
+Message-ID: <87puihl7y2.fsf@atlas.iskon.hr>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.2 (Peisino,Ak(B)
 MIME-Version: 1.0
-Message-Id: <00122423490000.00575@dg1kfa.ampr.org>
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Mike, hello linux-kernel hackers,
+Linus Torvalds <torvalds@transmeta.com> writes:
 
-Mike Galbraith wrote:
-
-> Yes, hmm indeed.  Try these two things.
+> On Sun, 24 Dec 2000, Linus Torvalds wrote:
+> > 
+> > Marco, would you mind changing the test in reclaim_page(), somewheer
+> > around line mm/vmscan.c:487 that says:
 > 
-> 1. make DECLARE_MUTEX_LOCKED(sem) in bdflush_init() static.
-> 2. compile with frame pointers.  (normal case for IKD)
-> 
-> My IKD tree works with either option, but not with neither.  I haven't
-> figured out why yet.
 
-1 worked for me, too - with the same effect as compiling buffer.c with 
-2.95.2, thus meaning successful boot and heavy crashing later on. 
-I haven't tried to boot 2 yet, but this looks seriously fishy to me. It would 
-be nice if we could make a simpler testcase to reproduce it, as it's much 
-work to boot the kernel over and over again.
+Speaking of page_launder() I just stumbled upon two oopsen today on
+the UP build. Maybe it could give a hint to someone, I'm not that good
+at Oops decoding.
 
-I have now printed out the buffer.c:bdflush_init assembly for all four cases, 
-2.95.2, 2.97 without patch, 2.97 with static DECLARE... and 2.97 with frame 
-pointer, and will try to figure out what's going wrong - it would still be 
-nice to know if its a gcc problem or if some kernel assumption about GCC 
-behaviour triggered this bug, which seems equally likely, as kernel_thread 
-and the mutex/semaphore stuff involve some nontrivial (at least for beginners 
-like me...) hand-made assembly code.
+Merry Christmas!
 
-A nice evening and still merry christmas to the people westward of Europe :-)
 
-Andreas
+Unable to handle kernel NULL pointer dereference at virtual address 0000000c
+ printing eip:
+c012872e
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[page_launder+510/2156]
+EFLAGS: 00010202
+eax: 00000000   ebx: c12e2ce8   ecx: c1244474   edx: 00000000
+esi: c12e2d04   edi: 00000000   ebp: 00000000   esp: c15d1fb4
+ds: 0018   es: 0018   ss: 0018
+Process bdflush (pid: 6, stackpage=c15d1000)
+Stack: c15d0000 00000000 c15d023a 0008e000 00000000 00000000 00000001 00002933 
+       00000000 c0131e5d 00000003 00000000 00010f00 c146ff88 c146ffc4 c01073fc 
+       c146ffc4 00000078 c146ffc4 
+Call Trace: [bdflush+141/236] [kernel_thread+40/56] 
+Code: 8b 40 0c 8b 00 85 c0 0f 84 ba 04 00 00 83 7c 24 10 00 75 73 
+
+
+Unable to handle kernel NULL pointer dereference at virtual address 0000000c
+ printing eip:
+c012872e
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[page_launder+510/2156]
+EFLAGS: 00010202
+eax: 00000000   ebx: c1260eec   ecx: c15d5fe0   edx: c02917f0
+esi: c1260f08   edi: 00000000   ebp: 00000000   esp: c15d5f9c
+ds: 0018   es: 0018   ss: 0018
+Process kswapd (pid: 4, stackpage=c15d5000)
+Stack: 00010f00 00000004 00000000 00000000 00000004 00000000 00000000 00002938 
+       00000000 c01290fc 00000004 00000000 00010f00 c01f77f7 c15d4239 0008e000 
+       c01291c6 00000004 00000000 c146ffb8 00000000 c01073fc 00000000 00000078 
+Call Trace: [do_try_to_free_pages+52/128] [tvecs+8683/64084] [kswapd+126/288] [kernel_thread+40/56] 
+Code: 8b 40 0c 8b 00 85 c0 0f 84 ba 04 00 00 83 7c 24 10 00 75 73 
 
 -- 
-->>>----------------------- Andreas Franck --------<<<-
----<<<---- Andreas.Franck@post.rwth-aachen.de --->>>---
-->>>---- Keep smiling! ----------------------------<<<-
+Zlatko
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

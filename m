@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270990AbRHTBgM>; Sun, 19 Aug 2001 21:36:12 -0400
+	id <S270992AbRHTBoH>; Sun, 19 Aug 2001 21:44:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270992AbRHTBgD>; Sun, 19 Aug 2001 21:36:03 -0400
-Received: from warden.digitalinsight.com ([208.29.163.2]:15859 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id <S270990AbRHTBfr>; Sun, 19 Aug 2001 21:35:47 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: tristan <fattymikefx@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Date: Sun, 19 Aug 2001 17:18:36 -0700 (PDT)
-Subject: Re: installing Linux over a network
-In-Reply-To: <20010820012137.8E169501DB@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33.0108191714210.798-100000@dlang.diginsite.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S270993AbRHTBnz>; Sun, 19 Aug 2001 21:43:55 -0400
+Received: from member.michigannet.com ([207.158.188.18]:12553 "EHLO
+	member.michigannet.com") by vger.kernel.org with ESMTP
+	id <S270992AbRHTBnp>; Sun, 19 Aug 2001 21:43:45 -0400
+Date: Sun, 19 Aug 2001 21:43:22 -0400
+From: Paul <set@pobox.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [OOPS] repeatable 2.4.8-ac7, 2.4.7-ac6 [I] just run xdos
+Message-ID: <20010819214322.D1315@squish.home.loc>
+Mail-Followup-To: Paul <set@pobox.com>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0108191600580.10914-100000@boston.corp.fedex.com> <m166bjokre.fsf@frodo.biederman.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m166bjokre.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Sun, Aug 19, 2001 at 02:30:29PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-with slackware you need to NFS export the slakware directory from the CD
-on one machine.
+"Eric W. Biederman" <ebiederm@xmission.com>, on Sun Aug 19, 2001 [02:30:29 PM] said:
+[...]
+> There are a number of cases, where dosemu is different enough it has
+> been known to cause code to go down buggy non-common paths and cause
+> things to fail.  This has happened with both X and the kernel.
+> I suspect that is what is happening here.
+> 
+> Paul is dosemu configured to do any direct hardware access?
+> 
+> Also of interest is that this crash is not even directly triggered by
+> the dosemu process.  Instead an interrupt handler is doing something
+> bad.  
+> 
+> Paul If you can verify that dosemu isn't doing any direct hardware
+> access.  i.e. Dosemu isn't suid root, and you have no ports lines
+> you should be fine.
+> 
+> Eric
+> 
+	Dear Eric;
 
-with slackware 8
+	No, the program isnt setuid, nor run by root, and no
+ports specified in the config. Let me know if there is anything
+further I can do.
 
-the on the 386 boot from the boot disk, then the root disk, then type
-network and put in the network driver floppy. when the NIC is detected
-then go through the setup menu and choose the 'install from nfs' option.
+Paul
+set@pobox.com
 
-e-mail me directly if you have more questions, this is now off-topic for
-this list.
-
-David Lang
-
-On Sun, 19 Aug 2001, tristan wrote:
-
-> Date: Sun, 19 Aug 2001 21:21:37 -0400
-> From: tristan <fattymikefx@yahoo.com>
-> To: linux-kernel@vger.kernel.org
-> Subject: installing Linux over a network
->
-> I havent been able to find a way of installing
-> Linux slackware or red hat with out using 90 or more
-> floppies, and i have no cd rom on my 386. Is there
-> a way to install Linux over a network on such an old machine.
-> It currently has windows 3.1 and DOS running. And
-> has one 60 mb hard drive and one 120 mb hard drive.
-> I have found a small easy to install minix 386 that goes over
-> DOS so I may just use that to start off, in order to install
-> a very old linux kernel .01 or .02
->
-> Tristan
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->

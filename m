@@ -1,45 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130733AbRCTUPn>; Tue, 20 Mar 2001 15:15:43 -0500
+	id <S130768AbRCTUUd>; Tue, 20 Mar 2001 15:20:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130768AbRCTUPY>; Tue, 20 Mar 2001 15:15:24 -0500
-Received: from lacrosse.corp.redhat.com ([207.175.42.154]:51243 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S130733AbRCTUPR>; Tue, 20 Mar 2001 15:15:17 -0500
-Message-ID: <3AB7BB59.9513514C@redhat.com>
-Date: Tue, 20 Mar 2001 15:19:37 -0500
-From: Doug Ledford <dledford@redhat.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-11 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: David Ford <david@blue-labs.org>
-CC: Peter Lund <firefly@netgroup.dk>, Pozsar Balazs <pozsy@sch.bme.hu>,
-        linux-kernel@vger.kernel.org
-Subject: Re: esound (esd), 2.4.[12] chopped up sound -- solved
-In-Reply-To: <Pine.GSO.4.30.0103201832260.15849-100000@balu> <3AB7A2CB.64ED61F3@netgroup.dk> <3AB7B477.2A740CE0@blue-labs.org>
-Content-Type: text/plain; charset=us-ascii
+	id <S130793AbRCTUUX>; Tue, 20 Mar 2001 15:20:23 -0500
+Received: from smtp011.mail.yahoo.com ([216.136.173.31]:65032 "HELO
+	smtp011.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S130768AbRCTUUO>; Tue, 20 Mar 2001 15:20:14 -0500
+X-Apparently-From: <quintaq@yahoo.co.uk>
+Date: Tue, 20 Mar 2001 20:21:41 +0000
+From: quintaq@yahoo.co.uk
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: UDMA 100 / PIIX4 question
+In-Reply-To: <3AB79464.A7A95A54@coplanar.net>
+In-Reply-To: <20010318165246Z131240-406+1417@vger.kernel.org> <3AB65C51.3DF150E5@bigfoot.com> <3AB65F14.26628BEF@coplanar.net> <20010319222113Z131588-406+1752@vger.kernel.org> <3AB7811D.97601E82@internet-factory.de>
+	<3AB79464.A7A95A54@coplanar.net>
+Reply-To: <linux-kernel@vger.kernel.org>
+X-Mailer: Sylpheed version 0.4.62 (GTK+ 1.2.8; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+Message-Id: <20010320202020Z130768-406+2207@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Ford wrote:
+Hi,
+
+First, thank you very much Mark, Tim, Jeremy and Holger for your continuing contributions which, I think, are at last casting some light on my "problem".
+
+> Yes this is why I originally replied to the post... but he's not using a
+> PIIXx at
+> all,
+> but the IDE chip on an Intel 815 motherboard.  I'm not sure if they use
+> the same
+> driver
+> , but I don't think so.
 > 
-> Actually you probably upgraded to a non-broken version of esd.  Stock esd -still-
-> writes to the socket without regard to return value.  If the write only accepted
-> 2098 of 4096 bytes, the residual bytes are lost, esd will write the next packet at
-> 4097, not 2099.  esd is incredibly bad about err checking as is old e stuff.
+
+I found a helpful post from Peter Denison on 6th January this year which suggests that it is at least the same driver.
+
+"Description:
+Includes new PCI device IDs for the Intel i815E chipset, and corrects some
+of the names for the associated parts of the chipset. This has effects in
+the EEPro100 network driver and the PCI IDE driver.
+Detail & Justification:
+The Intel ICH2 (I/O Controller Hub 2) is used in several chipsets, not
+just the 820 (Camino) chipset it is accredited to in the PCI ID database.
+Nor is the IDE portion of the ICH2 really a PIIX4 chip, though it is very
+similar and PIIX driver works on both. These changes are just
+internal macro naming and minor user interface tweaks."
+
+
+> try hdparm -t /dev/hda1 instead of hda5 (if those are on opposite ends
+> of the
+> disk)
 > 
-> I posted my last patch for esd here and to other places in June of 2000.  All it
-> does is check for return value and adjust the writes accordingly.  For reference,
-> the patch is at http://stuph.org/esound-audio.c.patch.
+> include output of fdisk so we can see partition layout, and results of
+> hdparm on
+> different areas.
 
-Why would esd get a short write() unless it is opening the file in non
-blocking mode (which I didn't see when I was working on the i810 sound
-driver)?  If esd is writing to a file in blocking mode and that write is
-returning short, then that sounds like a driver bug to me.
+Here is my fdisk output :
 
--- 
+Disk /dev/hda: 255 heads, 63 sectors, 3737 cylinders
+Units = cylinders of 16065 * 512 bytes
 
- Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
-      Please check my web site for aic7xxx updates/answers before
-                      e-mailing me about problems
+   Device Boot    Start       End    Blocks   Id  System
+/dev/hda1   *         1       932   7486258+   b  Win95 FAT32
+/dev/hda2           933      3737  22531162+   5  Extended
+/dev/hda5           933       935     24066   83  Linux
+/dev/hda6           936       952    136521   82  Linux swap
+/dev/hda7           953      3737  22370481   83  Linux
+
+
+I also ran hdparm -tT /dev/hda1:
+ 
+Timing buffer-cache reads:   128 MB in  1.28 seconds =100.00 MB/sec
+ Timing buffered disk reads:  64 MB in  4.35 seconds = 14.71 MB/sec
+
+Which obviously gives much the same result as my usual hdparm -tT /dev/hda
+
+I then tried hdparm -tT /dev/hda7:
+
+ Timing buffer-cache reads:   128 MB in  1.28 seconds =100.00 MB/sec
+ Timing buffered disk reads:  64 MB in  2.12 seconds = 30.19 MB/sec
+
+As you would expect, I get almost identical results with several repetitions.
+
+Does this solve the mystery ?
+
+Regards,
+
+Geoff
+
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
+

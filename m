@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263090AbTJaNio (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Oct 2003 08:38:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263282AbTJaNio
+	id S263088AbTJaNts (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Oct 2003 08:49:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263312AbTJaNts
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Oct 2003 08:38:44 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:45442 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263090AbTJaNim
+	Fri, 31 Oct 2003 08:49:48 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18134 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263088AbTJaNtq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Oct 2003 08:38:42 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Nuno Silva <nuno.silva@vgertech.com>, Dave Jones <davej@redhat.com>
-Subject: Re: ide-scsi is working [was: Post-halloween doc updates.]
-Date: Fri, 31 Oct 2003 14:42:31 +0100
-User-Agent: KMail/1.5.4
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20031030141519.GA10700@redhat.com> <3FA21098.6020504@vgertech.com>
-In-Reply-To: <3FA21098.6020504@vgertech.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Fri, 31 Oct 2003 08:49:46 -0500
+Date: Fri, 31 Oct 2003 13:49:45 +0000
+From: Matthew Wilcox <willy@debian.org>
+To: linux-fsdevel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] Make fs operations const
+Message-ID: <20031031134945.GT25237@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200310311442.32092.bzolnier@elka.pw.edu.pl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 31 of October 2003 08:34, Nuno Silva wrote:
-> Hi!!
->
->
-> Dave Jones wrote:
->
-> [...]
->
-> > IDE.
-> > ~~~~
->
-> [...]
->
-> >   o  ide_scsi is completely broken in 2.6 currently. Known problem.
-> >      If you need it either use 2.4 or fix it 8)
->
-> I have 2.6.0-test9 and I just recorded knoppix to CD with ide-scsi. In
-> fact, it never stopped working, in this box, with several 2.6.* kernels.
->
-> Hmmmm maybe it's because my cdrecorder is USB?
 
-So you don't even use ide-scsi... and it is broken.
+The 54k patch at http://ftp.linux.org.uk/pub/linux/willy/patches/fs-const.diff
+makes many file_operations, dentry_operations, address_space_operations,
+inode_operations, super_operations and dquot_operations const.
 
---bartlomiej
+This was inspired by intermezzo doing something naughty which the
+compiler didn't know to warn about.  By making these pointers point to
+const structs, the compiler knows we shouldn't be doing that and will
+issue a warning.
 
+As a bonus for the embedded people, this enables us to move more of the
+kernel into ROMmable sections.  I've only done this for ext2 and a few
+well-known *_operations in this patch, but it could be done to many
+more filesystems.  It only saves a few hundred bytes per filesystem,
+but it all adds up.
+
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

@@ -1,39 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261658AbUKCP0j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbUKCPac@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261658AbUKCP0j (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 10:26:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261653AbUKCP0c
+	id S261610AbUKCPac (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 10:30:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261663AbUKCP1B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 10:26:32 -0500
-Received: from out004pub.verizon.net ([206.46.170.142]:45525 "EHLO
-	out004.verizon.net") by vger.kernel.org with ESMTP id S261658AbUKCPXT
+	Wed, 3 Nov 2004 10:27:01 -0500
+Received: from 200.80-202-166.nextgentel.com ([80.202.166.200]:39877 "EHLO
+	mail.inprovide.com") by vger.kernel.org with ESMTP id S261659AbUKCPZr convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 10:23:19 -0500
-From: james4765@verizon.net
+	Wed, 3 Nov 2004 10:25:47 -0500
 To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, james4765@verizon.net
-Message-Id: <20041103152314.24869.56459.88722@localhost.localdomain>
-In-Reply-To: <20041103152246.24869.2759.68945@localhost.localdomain>
-References: <20041103152246.24869.2759.68945@localhost.localdomain>
-Subject: [PATCH 5/5] documentation: Remove drivers/char/README.cycladesZ
-X-Authentication-Info: Submitted using SMTP AUTH at out004.verizon.net from [68.238.31.6] at Wed, 3 Nov 2004 09:23:14 -0600
-Date: Wed, 3 Nov 2004 09:23:15 -0600
+Subject: Re: is killing zombies possible w/o a reboot?
+References: <200411030751.39578.gene.heskett@verizon.net>
+	<20041103143348.GA24596@outpost.ds9a.nl>
+	<yw1xis8nhtst.fsf@ford.inprovide.com>
+	<20041103152531.GA22610@DervishD>
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Date: Wed, 03 Nov 2004 16:25:21 +0100
+In-Reply-To: <20041103152531.GA22610@DervishD> (DervishD's message of "Wed,
+ 3 Nov 2004 16:25:31 +0100")
+Message-ID: <yw1xbrefhs4e.fsf@ford.inprovide.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove obsolete file in drivers/char.
+DervishD <lkml@dervishd.net> writes:
 
-Signed-off-by: James Nelson <james4765@gmail.com>
+>     Hi all :)
+>
+>  * Måns Rullgård <mru@inprovide.com> dixit:
+>> >> I'd tried to kill the zombie earlier but couldn't.
+>> >> Isn't there some way to clean up a &^$#^#@)_ zombie?
+>> > Kill the parent, is the only (portable) way.
+>> Perhaps not as portable, but another possible, though slightly
+>> complicated, way is to ptrace the parent and force it to wait().
+>
+>     Or write a little program that just 'wait()'s for the specified
+> PID's. That is perfectly portable IMHO. But I must admit that the
+> preferred way should be killing the parent. 'init' will reap the
+> children after that.
 
-diff -urN --exclude='*~' linux-2.6.9-original/drivers/char/README.cycladesZ linux-2.6.9/drivers/char/README.cycladesZ
---- linux-2.6.9-original/drivers/char/README.cycladesZ	2004-10-18 17:54:32.000000000 -0400
-+++ linux-2.6.9/drivers/char/README.cycladesZ	1969-12-31 19:00:00.000000000 -0500
-@@ -1,8 +0,0 @@
--
--The Cyclades-Z must have firmware loaded onto the card before it will
--operate.  This operation should be performed during system startup,
--
--The firmware, loader program and the latest device driver code are
--available from Cyclades at
--    ftp://ftp.cyclades.com/pub/cyclades/cyclades-z/linux/
--
+You can only wait() for your own children.
+
+-- 
+Måns Rullgård
+mru@inprovide.com

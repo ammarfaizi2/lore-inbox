@@ -1,104 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266635AbTGFIVT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jul 2003 04:21:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266641AbTGFIVT
+	id S266642AbTGFIdQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jul 2003 04:33:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266644AbTGFIdQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jul 2003 04:21:19 -0400
-Received: from mailout09.sul.t-online.com ([194.25.134.84]:6540 "EHLO
-	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S266635AbTGFIVR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jul 2003 04:21:17 -0400
-Message-Id: <5.1.0.14.2.20030706094227.00af09f8@pop.t-online.de>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sun, 06 Jul 2003 10:36:20 +0200
-To: linux-kernel@vger.kernel.org
-From: margitsw@t-online.de (Margit Schubert-While)
-Subject: Re: Linux 2.4.22-pre3
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="=====================_8477319==_"
-X-Seen: false
-X-ID: TDoLBgZcQe750wnfg3nCKnZcuKHn9qvmpa-NcMbscto7UvhpxSSXk7@t-dialin.net
+	Sun, 6 Jul 2003 04:33:16 -0400
+Received: from dp.samba.org ([66.70.73.150]:20407 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S266642AbTGFIdP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jul 2003 04:33:15 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-ID: <16135.57910.936187.611245@cargo.ozlabs.ibm.com>
+Date: Sun, 6 Jul 2003 18:47:50 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: benh@kernel.crashing.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       linuxppc-dev@lists.linuxppc.org
+Subject: Re: [PATCH 2.5.73] Signal stack fixes #1 introduce PF_SS_ACTIVE
+In-Reply-To: <20030705073946.GD32363@wohnheim.fh-wedel.de>
+References: <20030703202410.GA32008@wohnheim.fh-wedel.de>
+	<20030704174339.GB22152@wohnheim.fh-wedel.de>
+	<20030704174558.GC22152@wohnheim.fh-wedel.de>
+	<20030704175439.GE22152@wohnheim.fh-wedel.de>
+	<16134.2877.577780.35071@cargo.ozlabs.ibm.com>
+	<20030705073946.GD32363@wohnheim.fh-wedel.de>
+X-Mailer: VM 7.16 under Emacs 21.3.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=====================_8477319==_
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Jörn Engel writes:
 
-Erros/unresolved as below.
-Attached patch fixes sdla_chdlc, sbni and mark_page_accessed.
-The sonyapi I don't know. Seems like we should export acpi_disabled in
-kernel/setup.c.
-The comx is an ongoing fight :-)
+> The problem is with a broken signal handler, that moves the stack
+> pointer to nirvana.  You get a signal, set up the signal stack, move
+> the pointer to nirvana, get a signal, set up the signal stack, move
+> the pointer to nirvana, get a signal, ...
 
-Margit
+You can get the same effect by doing kill(0, SIGINT) inside a handler
+for SIGINT.  All you seem to be saying is "if you behave stupidly then
+bad things happen to you".  I don't see that this example exposes any
+bug or vulnerability in the kernel.
 
+> If I was just going down the signal stack, I would be perfectly happy,
+> but instead the kernel believes each signal is the very first on the
+> signal stack and sets it up again (and again...) each time.
 
-sdla_chdlc.c:594:43: missing terminating " character
-sdla_chdlc.c: In function `wpc_init':
-sdla_chdlc.c:595: error: parse error before "Failed"
-sdla_chdlc.c:595: error: stray '\' in program
-sdla_chdlc.c:595:68: missing terminating " character
-make[3]: *** [sdla_chdlc.o] Error 1
+You had to go to some trouble to get this effect - you had to use an
+asm statement to change the stack pointer, which is well and truly
+into "undefined behaviour" territory, and so you deserve all you
+get. :)  It's a very contrived example IMHO.
 
-sbni.c: In function `calc_crc32':
-sbni.c:1558: error: asm-specifier for variable `_crc' conflicts with asm 
-clobber list
-make[3]: *** [sbni.o] Error 1
-
-depmod: *** Unresolved symbols in 
-/lib/modules/2.4.22-pre3/kernel/drivers/char/sonypi.o
-depmod:         acpi_disabled
-depmod: *** Unresolved symbols in 
-/lib/modules/2.4.22-pre3/kernel/drivers/net/wan/comx.o
-depmod:         proc_get_inode
-depmod: *** Unresolved symbols in 
-/lib/modules/2.4.22-pre3/kernel/fs/hfsplus/hfsplus.o
-depmod:         mark_page_accessed
-
-
-         Margit
---=====================_8477319==_
-Content-Type: application/octet-stream; name="patchpre3"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="patchpre3"
-
-ZGlmZiAtTmF1ciBsaW51eC0yLjQuMjJwcmUyL2RyaXZlcnMvbmV0L3dhbi9zYm5pLmMgbGludXgt
-Mi40LjIycHJlMm13MC9kcml2ZXJzL25ldC93YW4vc2JuaS5jCi0tLSBsaW51eC0yLjQuMjJwcmUy
-L2RyaXZlcnMvbmV0L3dhbi9zYm5pLmMJMjAwMi0xMS0yOSAwMDo1MzoxNC4wMDAwMDAwMDAgKzAx
-MDAKKysrIGxpbnV4LTIuNC4yMnByZTJtdzAvZHJpdmVycy9uZXQvd2FuL3NibmkuYwkyMDAzLTA3
-LTA0IDE4OjI2OjI2LjAwMDAwMDAwMCArMDIwMApAQCAtMTU1MiwxMyArMTU1MiwxMyBAQAogc3Rh
-dGljIHUzMgogY2FsY19jcmMzMiggdTMyICBjcmMsICB1OCAgKnAsICB1MzIgIGxlbiApCiB7Ci0J
-cmVnaXN0ZXIgdTMyICBfY3JjIF9fYXNtICggImF4IiApOworCXJlZ2lzdGVyIHUzMiAgX2NyYzsK
-IAlfY3JjID0gY3JjOwogCQogCV9fYXNtIF9fdm9sYXRpbGUgKAogCQkieG9ybAklJWVieCwgJSVl
-YnhcbiIKLQkJIm1vdmwJJTEsICUlZXNpXG4iIAotCQkibW92bAklMiwgJSVlY3hcbiIgCisJCSJt
-b3ZsCSUyLCAlJWVzaVxuIiAKKwkJIm1vdmwJJTMsICUlZWN4XG4iIAogCQkibW92bAkkY3JjMzJ0
-YWIsICUlZWRpXG4iCiAJCSJzaHJsCSQyLCAlJWVjeFxuIgogCQkianoJMWZcbiIKQEAgLTE1OTQs
-NyArMTU5NCw3IEBACiAJCSJqbnoJMGJcbiIKIAogCSIxOlxuIgotCQkibW92bAklMiwgJSVlY3hc
-biIKKwkJIm1vdmwJJTMsICUlZWN4XG4iCiAJCSJhbmRsCSQzLCAlJWVjeFxuIgogCQkianoJMmZc
-biIKIApAQCAtMTYxOSw5ICsxNjE5LDkgQEAKIAkJInhvcmIJMiglJWVzaSksICUlYmxcbiIKIAkJ
-InhvcmwJKCUlZWRpLCUlZWJ4LDQpLCAlJWVheFxuIgogCSIyOlxuIgotCQk6Ci0JCTogImEiIChf
-Y3JjKSwgImciIChwKSwgImciIChsZW4pCi0JCTogImF4IiwgImJ4IiwgImN4IiwgImR4IiwgInNp
-IiwgImRpIgorCQk6ICI9YSIgKF9jcmMpCisJCTogIjAiIChfY3JjKSwgImciIChwKSwgImciIChs
-ZW4pCisJCTogImJ4IiwgImN4IiwgImR4IiwgInNpIiwgImRpIgogCSk7CiAKIAlyZXR1cm4gIF9j
-cmM7CmRpZmYgLU5hdXIgbGludXgtMi40LjIycHJlMi9kcml2ZXJzL25ldC93YW4vc2RsYV9jaGRs
-Yy5jIGxpbnV4LTIuNC4yMnByZTJtdzAvZHJpdmVycy9uZXQvd2FuL3NkbGFfY2hkbGMuYwotLS0g
-bGludXgtMi40LjIycHJlMi9kcml2ZXJzL25ldC93YW4vc2RsYV9jaGRsYy5jCTIwMDItMTEtMjkg
-MDA6NTM6MTQuMDAwMDAwMDAwICswMTAwCisrKyBsaW51eC0yLjQuMjJwcmUybXcwL2RyaXZlcnMv
-bmV0L3dhbi9zZGxhX2NoZGxjLmMJMjAwMy0wNy0wNCAxNzoyMDoxOS4wMDAwMDAwMDAgKzAyMDAK
-QEAgLTU5MSw4ICs1OTEsNyBAQAogCQogCiAJCWlmIChjaGRsY19zZXRfaW50cl9tb2RlKGNhcmQs
-IEFQUF9JTlRfT05fVElNRVIpKXsKLQkJCXByaW50ayAoS0VSTl9JTkZPICIlczogCi0JCQkJRmFp
-bGVkIHRvIHNldCBpbnRlcnJ1cHQgdHJpZ2dlcnMhXG4iLAorCQkJcHJpbnRrIChLRVJOX0lORk8g
-IiVzOiBGYWlsZWQgdG8gc2V0IGludGVycnVwdCB0cmlnZ2VycyFcbiIsCiAJCQkJY2FyZC0+ZGV2
-bmFtZSk7CiAJCQlyZXR1cm4gLUVJTzsJCiAgICAgICAgIAl9CmRpZmYgLU5hdXIgbGludXgtMi40
-LjIycHJlMi9tbS9maWxlbWFwLmMgbGludXgtMi40LjIycHJlMm13MC9tbS9maWxlbWFwLmMKLS0t
-IGxpbnV4LTIuNC4yMnByZTIvbW0vZmlsZW1hcC5jCTIwMDMtMDYtMzAgMDk6NTI6NDUuMDAwMDAw
-MDAwICswMjAwCisrKyBsaW51eC0yLjQuMjJwcmUybXcwL21tL2ZpbGVtYXAuYwkyMDAzLTA3LTA1
-IDE1OjIyOjQwLjAwMDAwMDAwMCArMDIwMApAQCAtMTMzOCw2ICsxMzM4LDggQEAKIAkJU2V0UGFn
-ZVJlZmVyZW5jZWQocGFnZSk7CiB9CiAKK0VYUE9SVF9TWU1CT0wobWFya19wYWdlX2FjY2Vzc2Vk
-KTsKKwogLyoKICAqIFRoaXMgaXMgYSBnZW5lcmljIGZpbGUgcmVhZCByb3V0aW5lLCBhbmQgdXNl
-cyB0aGUKICAqIGlub2RlLT5pX29wLT5yZWFkcGFnZSgpIGZ1bmN0aW9uIGZvciB0aGUgYWN0dWFs
-IGxvdy1sZXZlbAo=
---=====================_8477319==_--
-
+Paul.

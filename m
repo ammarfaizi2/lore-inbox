@@ -1,56 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273098AbRIIXo4>; Sun, 9 Sep 2001 19:44:56 -0400
+	id <S273096AbRIIXn4>; Sun, 9 Sep 2001 19:43:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273099AbRIIXoq>; Sun, 9 Sep 2001 19:44:46 -0400
-Received: from femail35.sdc1.sfba.home.com ([24.254.60.25]:45820 "EHLO
-	femail35.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S273098AbRIIXoe>; Sun, 9 Sep 2001 19:44:34 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Nicholas Knight <tegeran@home.com>
-Reply-To: tegeran@home.com
-To: "J. Dow" <jdow@earthlink.net>, "Carsten Leonhardt" <leo@debian.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Athlon/K7-Opimisation problems
-Date: Sun, 9 Sep 2001 16:44:12 -0700
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <87g09w70o4.fsf@cymoril.oche.de> <01090915292502.00173@c779218-a> <066701c13981$b9e91830$1125a8c0@wednesday>
-In-Reply-To: <066701c13981$b9e91830$1125a8c0@wednesday>
-MIME-Version: 1.0
-Message-Id: <01090916441200.00423@c779218-a>
-Content-Transfer-Encoding: 7BIT
+	id <S273098AbRIIXnq>; Sun, 9 Sep 2001 19:43:46 -0400
+Received: from ns.snowman.net ([63.80.4.34]:20486 "EHLO ns.snowman.net")
+	by vger.kernel.org with ESMTP id <S273096AbRIIXn2>;
+	Sun, 9 Sep 2001 19:43:28 -0400
+Date: Sun, 9 Sep 2001 19:43:13 -0400
+From: Stephen Frost <sfrost@snowman.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.10-pre6
+Message-ID: <20010909194313.G11136@ns>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0109081949510.1097-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="cupjvedY0UaoiHsO"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0109081949510.1097-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, Sep 08, 2001 at 07:52:04PM -0700
+X-Editor: Vim http://www.vim.org/
+X-Info: http://www.snowman.net
+X-Operating-System: Linux/2.2.16 (i686)
+X-Uptime: 7:37pm  up 388 days, 21:55, 12 users,  load average: 2.00, 2.00, 2.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 09 September 2001 03:49 pm, J. Dow wrote:
-> From: "Nicholas Knight" <tegeran@home.com>
->
-> > > What about the power supply. If it is at all marginal the power
-> > > consumption boost going to 1.4G is likely a killer.
-> >
-> > Well, he didn't mention the amperage outputs, but he said 431W
-> > Enermax, from what I hear Enermax PSU's are good.
-> > I still have trouble dealing with the idea that the optimizations
-> > cause power consumption like this, but then, I have trouble with my
-> > own idea that it causes sufficient heat increase in the chipset that
-> > soon after boot.
-> >
-> > Do most people that experience this problem also experience after a
-> > cold-boot where the system had been off for at least 10-15 minutes?
-> > And has ANYONE sucsesfully cured this problem by changing power
-> > supplies?
->
-> Don't forget that there are two regulators involved. First there is the
-> primary power supply's regulator down to either 3.3 or 5 volts. Then
-> there is the motherboard regulator down to the 1.7 volt range. If THAT
-> one is not up to handling the required oompf during certain CPU loads
-> that is a sure way to glitch the machine.
 
-Now THAT I'll buy... It would certainly explain why some KT133A 
-motherboards work and some don't, but the relation would be a little 
-complex, the chipset might be exposing general problems with regulators 
-used in motherboards.
-Verifying this would require both extensive analysis of the motherboards 
-and chipsets, and the regulators.
-You'd also need to verify the manufacturing place, batch and time/date 
-for at least 50 to 100 motherboards to begin verifying this.
+--cupjvedY0UaoiHsO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+* Linus Torvalds (torvalds@transmeta.com) wrote:
+>=20
+> Most noticeable (except perhaps for the NTFS update if you're a NTFS user)
+> is that the broken bootdata patch that could cause some spurious MM
+> corruption due to a double page free of the bootdata got reverted. This is
+> the one that caused BUG reports from mm/page_alloc.c..
+
+	The changes to rd.c cause it to fail in compiling.  Following
+	is a patch which I believe to be correct.  It fixes the
+	compilation problem and the module appears to load, work and
+	unload correctly.
+
+		Stephen
+
+
+--- linux-2.4.10-pre6-orig/drivers/block/rd.c	Sun Sep  9 16:19:07 2001
++++ linux/drivers/block/rd.c	Sun Sep  9 16:06:59 2001
+@@ -259,7 +259,7 @@
+ 			/* special: we want to release the ramdisk memory,
+ 			   it's not like with the other blockdevices where
+ 			   this ioctl only flushes away the buffer cache. */
+-			if ((atomic_read(rd_bdev[minor]->bd_openers) > 2))
++			if ((atomic_read(&rd_bdev[minor]->bd_openers) > 2))
+ 				return -EBUSY;
+ 			destroy_buffers(inode->i_rdev);
+ 			rd_blocksizes[minor] =3D 0;
+@@ -372,7 +372,7 @@
+ 		struct block_device *bdev =3D rd_bdev[i];
+ 		rd_bdev[i] =3D NULL;
+ 		if (bdev) {
+-			blkdev_put(bdev);
++			blkdev_put(bdev, BDEV_FILE);
+ 			bdput(bdev);
+ 		}
+ 		destroy_buffers(MKDEV(MAJOR_NR, i));
+
+--cupjvedY0UaoiHsO
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7m/6QrzgMPqB3kigRAlXWAKCCOnGhJitx2bLRAZG8PiV9TTxwXACfV0nD
+6cYtQoP3atW46Hn+/TXtJ1M=
+=Ijq6
+-----END PGP SIGNATURE-----
+
+--cupjvedY0UaoiHsO--

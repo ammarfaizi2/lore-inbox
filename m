@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263019AbTLAK53 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 05:57:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263205AbTLAK53
+	id S263378AbTLALVP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 06:21:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263435AbTLALVP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 05:57:29 -0500
-Received: from matrix.roma2.infn.it ([141.108.255.2]:11971 "EHLO
-	matrix.roma2.infn.it") by vger.kernel.org with ESMTP
-	id S263019AbTLAK52 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 05:57:28 -0500
-From: "Emiliano 'AlberT' Gabrielli" <AlberT_NOSPAM_@SuperAlberT.it>
-Reply-To: AlberT@SuperAlberT.it
-Organization: SuperAlberT.it
-To: Bill Davidsen <davidsen@tmr.com>, AlberT@SuperAlberT.it
-Subject: Re: hyperthreading
-Date: Mon, 1 Dec 2003 11:53:15 +0100
-User-Agent: KMail/1.5.4
-Cc: lgb@lgb.hu, linux-kernel@vger.kernel.org
-References: <Pine.LNX.3.96.1031129082435.26461B-100000@gatekeeper.tmr.com>
-In-Reply-To: <Pine.LNX.3.96.1031129082435.26461B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
+	Mon, 1 Dec 2003 06:21:15 -0500
+Received: from ookhoi.xs4all.nl ([213.84.114.66]:11205 "EHLO
+	favonius.humilis.net") by vger.kernel.org with ESMTP
+	id S263378AbTLALVO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Dec 2003 06:21:14 -0500
+Date: Mon, 1 Dec 2003 12:21:12 +0100
+From: Ookhoi <ookhoi@humilis.net>
+To: Daniel Flinkmann <DFlinkmann@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0test11 overwriting file on mounted smb volume causes corrupted files!
+Message-ID: <20031201112112.GA22180@favonius>
+Reply-To: ookhoi@humilis.net
+References: <200311290156.02239.DFlinkmann@gmx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200312011153.31441.AlberT_NOSPAM_@SuperAlberT.it>
+In-Reply-To: <200311290156.02239.DFlinkmann@gmx.de>
+X-Uptime: 17:58:39 up 15 days,  9:22, 25 users,  load average: 1.02, 1.01, 1.00
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi Daniel,
 
-On 14:29, sabato 29 novembre 2003, Bill Davidsen wrote:
-> new generation P4-HT does.
->
-> Not quite right, the 3.06GHz has HT enabled.
+Daniel Flinkmann wrote (ao):
+> [Please CC to me directly, I'm not on the linix kernel mailing list]
+> 
+> [1.] One line summary of the problem:
+> 
+> 2.6.0test11 overwriting file on mounted smb volume causes corrupted files! 
 
-P4-HT is a my neologism, intended to indicate newest P4 ... 3.06GHz is in this 
-category
+I saw te same with -test9 with cifs.
+For some reason the November archive of
+http://lists.samba.org/archive/samba-technical/ is gone, but google has
+my report cached. Search for:
 
-- -- 
-<?php echo '       Emiliano `AlberT` Gabrielli       '."\n".
-           '  E-Mail: AlberT_AT_SuperAlberT_it  '."\n".
-           '  Web:    http://SuperAlberT.it  '."\n".
-'  IRC:    #php,#AES azzurra.com '."\n".'ICQ: 158591185'; ?>
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+"problem with updating files on cifs mount"
 
-iD8DBQE/yx2oF4boRkzPHocRArViAJ9DzwCwzyE4PvS+zAoF44/rwSHFiwCfdUcO
-IVzuaP8XxU0F8Gd/QrZkqnw=
-=TKeD
------END PGP SIGNATURE-----
-
+I'm still stuck btw.

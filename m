@@ -1,78 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264595AbTLEXbi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 18:31:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264600AbTLEXbh
+	id S264301AbTLEXah (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 18:30:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264595AbTLEXah
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 18:31:37 -0500
-Received: from may.nosdns.com ([207.44.240.96]:44481 "EHLO may.nosdns.com")
-	by vger.kernel.org with ESMTP id S264595AbTLEXbd (ORCPT
+	Fri, 5 Dec 2003 18:30:37 -0500
+Received: from main.gmane.org ([80.91.224.249]:41926 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S264301AbTLEXaf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 18:31:33 -0500
-Date: Fri, 5 Dec 2003 16:31:29 -0700
-From: "Russell \"Elik\" Rademacher" <elik@webspires.com>
-X-Mailer: The Bat! (v2.00.6) Business
-Reply-To: "Rusell \"Elik\" Rademacher" <elik@webspires.com>
-X-Priority: 3 (Normal)
-Message-ID: <141103166375.20031205163129@webspires.com>
+	Fri, 5 Dec 2003 18:30:35 -0500
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: Re[2]: HT apparently not detected properly on 2.4.23
-In-Reply-To: <3FD114A5.5070100@stinkfoot.org>
-References: <20031203235837.GW8039@holomorphy.com>
- <Pine.LNX.4.44.0312051511440.5412-100000@logos.cnet>
- <20031205174850.GE8039@holomorphy.com>
- <17783749062.20031205110751@webspires.com> <3FD0CD65.5080307@stinkfoot.org>
- <86101410218.20031205160213@webspires.com> <3FD114A5.5070100@stinkfoot.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - may.nosdns.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - webspires.com
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: Large-FAT32-Filesystem Bug
+Date: Sat, 06 Dec 2003 00:26:22 +0100
+Message-ID: <yw1x65gu3kyp.fsf@kth.se>
+References: <3FD0555F.5060608@gmx.de> <20031205160746.GA18568@codepoet.org>
+ <3FD0C64D.5050804@gmx.de> <20031205221051.GA3244@codepoet.org>
+ <20031205224529.GS29119@mis-mike-wstn.matchmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:qhVR4AVgqBdJf3wiY3WF7IGC8xM=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Ethan,
+Mike Fedyk <mfedyk@matchmail.com> writes:
 
-   So noted.  Thanks William for this.  Now I have to resume patching the rest of 284 servers from various clients this weekend and have it all brought up to speed.
+>> No problem.  I put this patch together quite a while ago for
+>> my own use and never got around to sending it in.  It removes
+>> a number of artificial fat32 limits, and allows files up to 4GB,
+>
+> Why only 4gb?
 
-Friday, December 5, 2003, 4:28:37 PM, you wrote:
-
-Ethan Weinstein> Russell "Elik" Rademacher wrote:
->> Hello Ethan,
->> 
->>    Seems that patch of yours finally did the job of reporting it right
->> this time around.  I had to gank a few servers of different versions and
->> giving the webhosting customers some little inconvience of downtime of 3 to
->> 10 minutes for the linux recompile and reboot.  And they all finally reports
->> the number of processors correctly as it should be.
->> 
->>    Thanks Ethan.  I going to put it on more servers that got those and
->> see how they all go as well.  As for the servers, they are all usually
->> ServerWorks, Intel Chipsets of various types with Intel E1000, E100, Realtek
->> network ports and with 3Ware or SCSI Adaptec adapters.  Got about 80 of them
->> in various types to go though, but 5 of them I that tested it on, it all
->> reports correctly.
->> 
->>    Let see if the Dell servers also report the same as well when I get though with them tonight.
->> 
-
-Ethan Weinstein> Glad to help, but don't credit me with that
-Ethan Weinstein> patch, it was courtesy of 
-Ethan Weinstein> William Irwin.
-
-
-Ethan Weinstein> -E
-
-
-
+That's what the 32 in fat32 means.
 
 -- 
-Best regards,
-Russell "Elik" Rademacher
-Freelance Remote System Adminstrator/Tech Support
+Måns Rullgård
+mru@kth.se
 

@@ -1,49 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264008AbRFSJ65>; Tue, 19 Jun 2001 05:58:57 -0400
+	id <S264071AbRFSKQu>; Tue, 19 Jun 2001 06:16:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264015AbRFSJ6r>; Tue, 19 Jun 2001 05:58:47 -0400
-Received: from c012-h025.c012.sfo.cp.net ([209.228.12.173]:20908 "HELO
-	c012.sfo.cp.net") by vger.kernel.org with SMTP id <S264008AbRFSJ6i>;
-	Tue, 19 Jun 2001 05:58:38 -0400
-Date: 19 Jun 2001 02:58:34 -0700
-Message-ID: <20010619095834.8228.cpmta@c012.sfo.cp.net>
-X-Sent: 19 Jun 2001 09:58:34 GMT
-Content-Type: text/plain
-Content-Disposition: inline
+	id <S264053AbRFSKQa>; Tue, 19 Jun 2001 06:16:30 -0400
+Received: from mail.mediaways.net ([193.189.224.113]:1022 "HELO
+	mail.mediaways.net") by vger.kernel.org with SMTP
+	id <S264031AbRFSKQ2>; Tue, 19 Jun 2001 06:16:28 -0400
+Date: Tue, 19 Jun 2001 11:19:55 +0200
+From: Walter Hofmann <walter.hofmann@physik.stud.uni-erlangen.de>
+To: Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.5-ac15
+Message-ID: <20010619111955.B2262@frodo.uni-erlangen.de>
+In-Reply-To: <20010615230635.A27708@lightning.swansea.linux.org.uk> <20010617201119.A2331@frodo.uni-erlangen.de>
 Mime-Version: 1.0
-To: schwab@suse.de
-From: Ralph Jones <ralph.jones@altavista.com>
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: Web Mail 3.9.3.1
-Subject: Re: pivot_root from non-interactive script
-X-Sent-From: ralph.jones@altavista.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010617201119.A2331@frodo.uni-erlangen.de>; from walter.hofmann@physik.stud.uni-erlangen.de on Sun, Jun 17, 2001 at 08:11:19PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks.  Yes it looks as if this might be the case.  Do you have any ideas how I might get around this?  Or do I have to use a different shell?
+On Sun, 17 Jun 2001, Walter Hofmann wrote:
 
-Ralph
+> I had already two crashes with ac15. The system was still ping-able, but
+> login over the network didn't work anymore.
+> 
+> The first crash happened after I started xosview and noticed that the
+> system almost used up the swap (for no apparent reason). The second
+> crash happened shortly after I started fsck on a crypto-loop device.
+> 
+> This does not happen with ac14, even under heavy load.
 
-On Mon, 18 June 2001, Andreas Schwab wrote:
+I had a hang with ac14 now, too. 
+It hung when I tried to close a browser window after reading the text in
+it for quite some time. No swapping was going on.
 
-> 
-> Ralph Jones <ralph.jones@altavista.com> writes:
-> 
-> |> I have followed the instructions given in Documentation/initrd.txt with regard to pivot_root, but am unable to unmount the filesystem, when everything is called from a non-interactive script. 
-> |> 
-> |> ie. When I set a link from linuxrc to /bin/ash and then manually go through the commands in the shell script, I am able to unmount the old initrd filesystem.  However, when linuxrc is a shell script containing the same commands, I am unable to umount the old initrd fs.  I get instead: "Device or resource busy".
-> 
-> Perhaps the shell didn't close the filedescriptor on the script.
-> 
-> Andreas.
-> 
-> -- 
-> Andreas Schwab                                  "And now for something
-> SuSE Labs                                        completely different."
-> Andreas.Schwab@suse.de
-> SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg
-> Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-
-Find the best deals on the web at AltaVista Shopping!
-http://www.shopping.altavista.com
+Walter

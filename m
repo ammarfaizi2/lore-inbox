@@ -1,42 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263491AbREYCiu>; Thu, 24 May 2001 22:38:50 -0400
+	id <S263497AbREYCtu>; Thu, 24 May 2001 22:49:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263492AbREYCik>; Thu, 24 May 2001 22:38:40 -0400
-Received: from csl.Stanford.EDU ([171.64.66.149]:64733 "EHLO csl.Stanford.EDU")
-	by vger.kernel.org with ESMTP id <S263491AbREYCiV>;
-	Thu, 24 May 2001 22:38:21 -0400
-From: Dawson Engler <engler@csl.Stanford.EDU>
-Message-Id: <200105250238.TAA00788@csl.Stanford.EDU>
-Subject: Re: [CHECKER] error path memory leaks in 2.4.4 and 2.4.4-ac8
-To: dwmw2@infradead.org (David Woodhouse)
-Date: Thu, 24 May 2001 19:38:14 -0700 (PDT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <10347.990741765@redhat.com> from "David Woodhouse" at May 24, 2001 11:02:45 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S263494AbREYCtl>; Thu, 24 May 2001 22:49:41 -0400
+Received: from venus.cs.uml.edu ([129.63.8.51]:47517 "EHLO venus.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S263493AbREYCtZ>;
+	Thu, 24 May 2001 22:49:25 -0400
+Date: Thu, 24 May 2001 22:49:23 -0400 (EDT)
+From: Mike Brown <mbrown@cs.uml.edu>
+To: linux-scsi@vger.kernel.org
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] memory leak in scsi_proc.c
+Message-ID: <Pine.OSF.3.96.1010524223647.334235J-100000@venus.cs.uml.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> These are all now either fixed or obsoleted in my tree, and I will send a 
-> patch to Linus shortly. Thankyou. 
+Hi,
 
-Good deal.  Thanks for letting us know!
+If someone writes to a scsi adapter's /proc entry and that scsi adapter
+has not defined a proc_info() entry point, proc_scsi_write() will leak a
+page.  Furthermore, no sense asking for a page if said proc_info() entry
+point does not exist.  This patch fixes the above problem and patches
+cleanly against 2.4.4
 
-> Do you find it useful to get a response such as this? Are you keeping track
-> of the bugs you find? (Or is it simply reassuring to confirm that someone's
-> paying attention? :)
+--- drivers/scsi/scsi_proc.c.orig       Fri Feb  9 14:30:23 2001
++++ drivers/scsi/scsi_proc.c    Thu May 24 22:26:59 2001
+@@ -99,6 +99,9 @@
+        char * page;
+        char *start;
+     
++       if (hpnt->hostt->proc_info == NULL)
++               return -ENOSYS;
++
+        if (count > PROC_BLOCK_SIZE)
+                return -EOVERFLOW;
+ 
+@@ -106,12 +109,10 @@
+                return -ENOMEM;
+        copy_from_user(page, buf, count);
+ 
+-       if (hpnt->hostt->proc_info == NULL)
+-               ret = -ENOSYS;
+-       else
+-               ret = hpnt->hostt->proc_info(page, &start, 0, count,
+-                                               hpnt->host_no, 1);
++        ret = hpnt->hostt->proc_info(page, &start, 0, count,
++                                     hpnt->host_no, 1);
+        free_page((ulong) page);
++
+        return(ret);
+ }
+ 
 
-It's definitely useful, since it lets us keep tabs on what types of bugs
-people actually fix ;-)  The tool keeps track of the bugs/false positives we
-find, so that it can say when we find something new.
+-Michael F. Brown, UMass Lowell Computer Science
 
-> I believe we can make that a short. Arjan?
+email:  mbrown@cs.uml.edu
 
-Is the general way to fix these too-large stack vars to heap allocate
-them?  Or is it preferable to put a "static" in front of them, if the
-routine is non-reentrant?
+"In theory, there is no difference between theory and practice,
+ but in practice, there is."       - Jan L.A. van de Snepscheut
 
-Dawson

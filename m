@@ -1,47 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266130AbRGGLvc>; Sat, 7 Jul 2001 07:51:32 -0400
+	id <S266142AbRGGMIE>; Sat, 7 Jul 2001 08:08:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266131AbRGGLvV>; Sat, 7 Jul 2001 07:51:21 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:41927 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S266130AbRGGLvN>;
-	Sat, 7 Jul 2001 07:51:13 -0400
-Message-ID: <3B46F7AF.5D677F1D@mandrakesoft.com>
-Date: Sat, 07 Jul 2001 07:51:11 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6 i686)
-X-Accept-Language: en
+	id <S266138AbRGGMHy>; Sat, 7 Jul 2001 08:07:54 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:62217 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S266133AbRGGMHj>; Sat, 7 Jul 2001 08:07:39 -0400
+Subject: Re: ASUS CUV4X-D Dual CPU's - Failure to boot...
+To: dushaw@apl.washington.edu (Brian Dushaw)
+Date: Sat, 7 Jul 2001 13:07:23 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, dushaw@apl.washington.edu (Brian Dushaw),
+        wolfson@apl.washington.edu (Mike Wolfson)
+In-Reply-To: <Pine.LNX.4.33.0107062244260.3175-100000@munk.apl.washington.edu> from "Brian Dushaw" at Jul 06, 2001 11:04:28 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: paulus@samba.org
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-        dhinds@zen.stanford.edu
-Subject: Re: Memory region check in drivers/pcmcia/rsrc_mgr.c
-In-Reply-To: <15174.62880.772230.734585@tango.paulus.ozlabs.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15Iqrr-0005jy-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Mackerras wrote:
-> In drivers/pcmcia/rsrc_mgr.c, there is code that check whether a given
-> range of PCI memory addresses are available for the pcmcia code to
-> use.  This code uses a macro, check_mem_resource(), to check whether a
-> particular region is available, defined like this:
-> 
-> #define check_mem_resource(b,n) check_resource(&iomem_resource, (b), (n))
-[...]
-> I think that
-> we should be using check_mem_region instead,
+>    A friend of mine has a new PC with an ASUS CUV4X-D motherboard
+> and dual 1GHZ PIII's.  We have installed RedHat 7.1.  The original
+> RedHat SMP kernel (2.4.2) did not boot; it froze with some complaints
 
-AFAICS you are correct.
-
-check_xxx is deprecated, though.  Is it possible to move a request_xxx
-earlier in the logic?
-
-check_xxx is inherently racy.
-
--- 
-Jeff Garzik      | A recent study has shown that too much soup
-Building 1024    | can cause malaise in laboratory mice.
-MandrakeSoft     |
+You need at least bios rev 1007 I believe

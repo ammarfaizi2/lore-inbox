@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261799AbTBTObI>; Thu, 20 Feb 2003 09:31:08 -0500
+	id <S264646AbTBTOe5>; Thu, 20 Feb 2003 09:34:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262492AbTBTObI>; Thu, 20 Feb 2003 09:31:08 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:41133 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S261799AbTBTObH>;
-	Thu, 20 Feb 2003 09:31:07 -0500
-Subject: Re: [PATCH] IPSec protocol application order
-To: "David S. Miller" <davem@redhat.com>
-Cc: cw@f00f.org, kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.11   July 24, 2002
-Message-ID: <OFEE5E8DF8.35868017-ON86256CD3.004F81AF-86256CD3.005099DD@pok.ibm.com>
-From: "Tom Lendacky" <toml@us.ibm.com>
-Date: Thu, 20 Feb 2003 08:40:22 -0600
-X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.11 +SPRs MIAS5EXFG4, MIAS5AUFPV
- and DHAG4Y6R7W, MATTEST |November 8th, 2002) at 02/20/2003 09:40:25 AM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S264657AbTBTOe5>; Thu, 20 Feb 2003 09:34:57 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:34481 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S264646AbTBTOe4>;
+	Thu, 20 Feb 2003 09:34:56 -0500
+Date: Thu, 20 Feb 2003 14:57:19 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Song Zhao <song.zhao@nuix.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Supermicro X5DL8-GG (ServerWorks Grandchampion LE chipset) slow
+Message-ID: <20030220145719.GC13507@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Song Zhao <song.zhao@nuix.com.au>, linux-kernel@vger.kernel.org
+References: <200302202034.28676.song.zhao@nuix.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200302202034.28676.song.zhao@nuix.com.au>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Feb 20, 2003 at 08:34:28PM -0500, Song Zhao wrote:
 
-I believe that good documentation will also be required then.  If it is
-being decided that the user must enter the ipsec protocols in the proper
-order using the setkey spdadd operation, then the user will need to know
-what order in which to specify the arguments to setkey.  Given that the
-spdadd operation:
+ > Dual 2.8GHz Xeon, 3ware Escalade 7850 (7500-8) 12 port IDE RAID controller, 
+ > RAID 10, 4x 1GB DDR SDRAM Registered ECC, 2x 80GB WD HDD, 10x 120GB WD HDD, 
+ > ServerWorks Grand Champion LE. 
+ > I am running RH7.3 with 2.4.20 kernel. The performance of this box is about 
+ > half of an almost identical box (Supermicro X5DP8-G2 mobo, E7501 chipset)
 
-  spdadd src-ip dst-ip any -P out ipsec ah/transport//require
-esp/transport//require;
+You mentioned nothing about what sort of performance you were measuring.
+Disk, network, memory bandwidth etc.., however at a complete guess you
+are hitting this..
 
-would result in improper ordering of the AH and ESP headers and therefore
-interoperability problems, while
+mtrr: Serverworks LE detected. Write-combining disabled.
 
-  spdadd src-ip dst-ip any -P out ipsec esp/transport//require
-ah/transport//require;
+This workaround was for older sewerworks chipsets which were
+buggy. Rumour has it that revisions 6 and above are ok.
+I have a patch pending for 2.5, if it turns out to be stable,
+it should also get merged back to 2.4
 
-results in the proper order.
+		Dave
 
-No where have I been able to find any user level documentation that says
-what order the ipsec protocols need to be specified on the spdadd
-operation.  Without good documentation I believe support centers, both a
-customer's own and/or a distributor's, may be getting a lot of unnecessary
-calls.
-
-Tom
-
-
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

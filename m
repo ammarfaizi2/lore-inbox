@@ -1,96 +1,68 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314835AbSEYQaf>; Sat, 25 May 2002 12:30:35 -0400
+	id <S314889AbSEYQmx>; Sat, 25 May 2002 12:42:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314889AbSEYQae>; Sat, 25 May 2002 12:30:34 -0400
-Received: from mailout10.sul.t-online.com ([194.25.134.21]:38098 "EHLO
-	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S314835AbSEYQad>; Sat, 25 May 2002 12:30:33 -0400
-Subject: Re: RTAI/RtLinux
-From: Erwin Rol <erwin@muffin.org>
+	id <S314961AbSEYQmw>; Sat, 25 May 2002 12:42:52 -0400
+Received: from relay04.valueweb.net ([216.219.253.238]:26130 "EHLO
+	relay04.valueweb.net") by vger.kernel.org with ESMTP
+	id <S314889AbSEYQmv>; Sat, 25 May 2002 12:42:51 -0400
+Message-ID: <3CEFBEA3.71611EDB@opersys.com>
+Date: Sat, 25 May 2002 12:41:07 -0400
+From: Karim Yaghmour <karim@opersys.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
+MIME-Version: 1.0
 To: Larry McVoy <lm@bitmover.com>
-Cc: linux-kernel@vger.kernel.org, RTAI users <rtai@rtai.org>
-In-Reply-To: <20020525090537.G28795@work.bitmover.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-0/bN7KDIfxqAdRrAEote"
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 25 May 2002 18:30:29 +0200
-Message-Id: <1022344229.29849.301.camel@rawpower>
-Mime-Version: 1.0
+CC: Thunder from the hill <thunder@ngforever.de>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Andrea Arcangeli <andrea@e-mind.com>, Dan Kegel <dank@kegel.com>,
+        Andrew Morton <akpm@zip.com.au>, Hugh Dickins <hugh@veritas.com>,
+        Christoph Rohland <cr@sap.com>, Jens Axboe <axboe@suse.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
+In-Reply-To: <20020524223950.D22643@work.bitmover.com> <Pine.LNX.4.44.0205250152110.15928-100000@hawkeye.luckynet.adm> <20020525091444.H28795@work.bitmover.com> <3CEFB9C6.FC21D7CB@opersys.com> <20020525092557.K28795@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-0/bN7KDIfxqAdRrAEote
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Larry McVoy wrote:
+> > You can dimiss those who haven't chosen #4 as much as you want and
+> > find all the reasons to justify your dismissal. It remains that the
+> > embedded/rt market is closed to Linux because of the current situation.
+> 
+> Hmm, then why did Lineo license the patent?   Why is FSMlabs still in
+> business?
 
-On Sat, 2002-05-25 at 18:05, Larry McVoy wrote:
-> On Sat, May 25, 2002 at 11:05:32AM +0200, Erwin Rol wrote:
-> > Both Linus and Larry seem to be not very interested in hard-realtime
-> > Linux additions, this is OK.=20
->=20
-> I'm interested in hard realtime.  I'm extremely uninterested in changes=20
-> to the mainline source base in order to get them.  That's exactly why
-> I like the RT/Linux approach so much, it is the least invasive to the
-> kernel and - surprise - also has the best performance.
->=20
+I'm not denying that there are clients who will still choose to pay
+FSMLabs. But they're a staff of less than 10, so that's not very indicative
+of anything else than minor market interest for the technology.
 
-If you take a look at RTAI's history you will see that RTAI has been
-using a HAL and a very small kernel patch long before RTLinux started
-using that.  =20
+As for Lineo, they've been in financial trouble for some time, so their
+situation is rather telling.
 
+> I don't buy your assertions for one second without some strong data to
+> back them up.  Just saying something doesn't make it so, show me the
+> data.
 
-> If people were to learn that real time and multi-user throughput are=20
-> by definition mutually exclusive, I'd be a lot happier.  As it is,
-> we have the SGI/Montevista crowd cramming their stuff into the kernel
-> and each "little" thing makes the kernel a less pleasant place to be
-> and brings it one step closer to the point when it gets abandoned=20
-> like ever other OS in the history of our field.
->=20
-> > Also apparently there is the idea that all RTAI developers want to
-> > become rich by getting the patent out of the way and sell RTAI.=20
->=20
-> So the thing I have a problem with is that Victor says that all GPL
-> is fine.  You say you are all GPL.  So far, no problem.  Yet you keep
-> coming back and saying there is a problem, that Linux is going to
-> be out of the running as a real time platform because of the patent.
-> I don't get it, why should the patent prevent Linux from being used?
-> All it does is say "if you aren't making money, we aren't making money,
-> if you are making money, we want a cut".  That seems OK to me, in fact,
-> it seems more than OK.  It seems like someone who is trying to help
-> those who are helping others and charge those who are charging others.
-> That's smart, that's good.  It means that FSMlabs will be here 20 years
-> from now, still supporting this stuff, whereas all the "we'll survive
-> off of support" people will have long since gone under.
+Developers will simply not come out in the cold and say we chose OS xyz
+instead of Linux because of the rtlinux issues. But talk to them in
+private and then you get an entirely different picture.
 
-It is not so OK if you keep in mind that this "if you make money, we
-want a part of it" is backed by a questionable patent. And if FSMLAbs
-still will be there in 20 years is not something you or I can predict,
-they might be bought by some large embedded firm tomorrow and the patent
-with it, and as far as i understand the patent license this means it is
-void when that happens.
+One sympton of the current situation is the recent study by the VDC
+which I alluded to earlier:
+http://www.linuxdevices.com/articles/AT6328992055.html
 
-- Erwin
-=20
+When asked what the #1 factor inhibiting the use of Linux, developers
+answered "real-time limitations".
 
-> --=20
-> ---
-> Larry McVoy            	 lm at bitmover.com           http://www.bitmover=
-.com/lm=20
+This speaks for itself.
 
+Karim
 
---=-0/bN7KDIfxqAdRrAEote
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQA877wlILu3T9PlUj8RAi2qAJ9vptl13cjFhqFMOfZ5SYcIqmfoJQCeNkCU
-68D0wbDRQIHK1gZev5So1vI=
-=WAj2
------END PGP SIGNATURE-----
-
---=-0/bN7KDIfxqAdRrAEote--
+===================================================
+                 Karim Yaghmour
+               karim@opersys.com
+      Embedded and Real-Time Linux Expert
+===================================================

@@ -1,1116 +1,156 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263354AbTJUV0w (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 17:26:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263378AbTJUV0w
+	id S263355AbTJUV1C (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 17:27:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263378AbTJUV1B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 17:26:52 -0400
-Received: from tolkor.sgi.com ([198.149.18.6]:60309 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id S263354AbTJUV0P (ORCPT
+	Tue, 21 Oct 2003 17:27:01 -0400
+Received: from mout0.freenet.de ([194.97.50.131]:16028 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id S263355AbTJUV00 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 17:26:15 -0400
-Message-ID: <3F95A46B.19D3AD91@sgi.com>
-Date: Tue, 21 Oct 2003 16:26:04 -0500
-From: Patrick Gefre <pfg@sgi.com>
-Organization: SGI
-X-Mailer: Mozilla 4.8C-SGI [en] (X11; U; IRIX 6.5 IP32)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] Altix console driver
-Content-Type: multipart/mixed;
- boundary="------------F05F52ABF7CF4C83D880FE77"
+	Tue, 21 Oct 2003 17:26:26 -0400
+Date: Tue, 21 Oct 2003 23:27:27 +0200
+From: Jens Kubieziel <jens@kubieziel.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [test8] Oops after trying to access USB-device /dev/sda
+Message-ID: <20031021212727.GL1133@kubieziel.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20031021194143.GI1133@kubieziel.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="xesSdrSSBC0PokLI"
+Content-Disposition: inline
+In-Reply-To: <20031021194143.GI1133@kubieziel.de>
+Organisation: Qbi's Welt
+X-Message-flag: Formating hard disk. please wait...   10%...   20%...
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------F05F52ABF7CF4C83D880FE77
+
+--xesSdrSSBC0PokLI
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-2.6 Altix serial console driver add
+On Tue, Oct 21, 2003 at 09:41:43PM +0200, Jens Kubieziel wrote:
+> after plugging in an USB stick and a 'mount /dev/sda1 /mnt/stick'
+> 2.6.0-test8-kernel oopses.
+
+Here comes the output of ksymoops:
+
+Error (regular_file): read_ksyms stat /proc/ksyms failed
+No modules in ksyms, skipping objects
+No ksyms, skipping lsmod
+Oct 21 21:09:35 QBI050102 kernel: Unable to handle kernel NULL pointer dere=
+ference at virtual address 00000284
+Oct 21 21:09:35 QBI050102 kernel: e08a0ded
+Oct 21 21:09:35 QBI050102 kernel: *pde =3D 00000000
+Oct 21 21:09:35 QBI050102 kernel: Oops: 0000 [#1]
+Oct 21 21:09:35 QBI050102 kernel: CPU:    0
+Oct 21 21:09:35 QBI050102 kernel: EIP:    0060:[<e08a0ded>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+Oct 21 21:09:35 QBI050102 kernel: EFLAGS: 00010282
+Oct 21 21:09:35 QBI050102 kernel: eax: e08b62e0   ebx: 00000000   ecx: e08b=
+62e4   edx: e08b62e0
+Oct 21 21:09:35 QBI050102 kernel: esi: 00000000   edi: df8fbb00   ebp: dffe=
+178c   esp: df8db9f8
+Oct 21 21:09:35 QBI050102 kernel: ds: 007b   es: 007b   ss: 0068
+Oct 21 21:09:35 QBI050102 kernel: Stack: e08b62e0 df8da000 00000000 e089c40=
+2 00000000 ca1f9c00 df8da000 e089c3c0=20
+Oct 21 21:09:35 QBI050102 kernel: dffe1740 e089ecc0 c0154a5c dffe178c df8db=
+b28 00000001 df8dba5c c0118927=20
+Oct 21 21:09:35 QBI050102 kernel: c151cc80 dffe174c df8dba64 00000000 dffe1=
+740 00000001 df8dbb28 ca1f9c00=20
+Oct 21 21:09:35 QBI050102 kernel: Call Trace: [<e089c402>]  [<e089c3c0>]  [=
+<c0154a5c>]  [<c0118927>]  [<c0154b3d>]  [<c017c66f>]  [<c0208e9a>]  [<c020=
+8e20>]  [<c0208e30>]  [<e089d7c5>]  [<c017d87a>]  [<c0201eaf>]  [<c0201f2f>=
+]  [<c020212b>]  [<c0200e41>]  [<e08a86ed>]  [<e08a715d>]  [<e08a7354>]  [<=
+e08a7bb1>]  [<e08a7caa>]  [<e08a7da1>]  [<e08a7e0f>]  [<e08ef20f>]  [<e0884=
+0e9>]  [<c0201eaf>]  [<c0201f2f>]  [<c020212b>]  [<c0200e41>]  [<e088ba08>]=
+  [<e0885260>]  [<e0887906>]  [<e0887e0d>]  [<e0887efd>]  [<c0109272>]  [<c=
+0119780>]  [<e0887ed0>]  [<c0107275>]=20
+Oct 21 21:09:35 QBI050102 kernel: Code: 8b 83 84 02 00 00 a8 02 0f 85 97 00=
+ 00 00 8b 43 10 be 01 00=20
 
 
---------------F05F52ABF7CF4C83D880FE77
-Content-Type: text/plain; charset=us-ascii;
- name="console.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="console.patch"
+>>EIP; e08a0ded <__crc_sleep_on+2273ae/37314b>   <=3D=3D=3D=3D=3D
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1347  -> 1.1348 
-#	drivers/char/Kconfig	1.24    -> 1.25   
-#	         MAINTAINERS	1.174   -> 1.175  
-#	drivers/char/Makefile	1.60    -> 1.61   
-#	               (new)	        -> 1.1     drivers/char/sn_serial.c
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/10/21	pfg@attica.americas.sgi.com	1.1348
-# Altix serial console patch
-# --------------------------------------------
-#
-diff -Nru a/MAINTAINERS b/MAINTAINERS
---- a/MAINTAINERS	Tue Oct 21 16:18:17 2003
-+++ b/MAINTAINERS	Tue Oct 21 16:18:17 2003
-@@ -1753,6 +1753,12 @@
- W:	http://www.nsa.gov/selinux
- S:	Supported
- 
-+SGI SN-IA64 (Altix) SERIAL CONSOLE DRIVER
-+P:	Pat Gefre
-+M:	pfg@sgi.com
-+L:	linux-ia64@vger.kernel.org
-+S:	Supported
-+
- SGI VISUAL WORKSTATION 320 AND 540
- P:	Andrey Panin
- M:	pazke@donpac.ru
-diff -Nru a/drivers/char/Kconfig b/drivers/char/Kconfig
---- a/drivers/char/Kconfig	Tue Oct 21 16:18:17 2003
-+++ b/drivers/char/Kconfig	Tue Oct 21 16:18:17 2003
-@@ -373,6 +373,22 @@
- 	  If you have an Alchemy AU1000 processor (MIPS based) and you want
- 	  to use serial ports, say Y.  Otherwise, say N.
- 
-+config SGI_L1_SERIAL
-+	bool "SGI Altix L1 serial support"
-+	depends on SERIAL_NONSTANDARD && IA64
-+	help
-+	  If you have an SGI Altix and you want to use the serial port
-+	  connected to the system controller (you want this!), say Y.
-+	  Otherwise, say N.
-+
-+config SGI_L1_SERIAL_CONSOLE
-+	bool "SGI Altix L1 serial console support"
-+	depends on SGI_L1_SERIAL
-+	help
-+	  If you have an SGI Altix and you would like to use the system
-+	  controller serial port as your console (you want this!), 
-+	  say Y.  Otherwise, say N.
-+
- config AU1000_SERIAL_CONSOLE
- 	bool "Enable Au1000 serial console"
- 	depends on AU1000_UART
-diff -Nru a/drivers/char/Makefile b/drivers/char/Makefile
---- a/drivers/char/Makefile	Tue Oct 21 16:18:17 2003
-+++ b/drivers/char/Makefile	Tue Oct 21 16:18:17 2003
-@@ -42,6 +42,7 @@
- obj-$(CONFIG_SH_SCI)		+= sh-sci.o generic_serial.o
- obj-$(CONFIG_HVC_CONSOLE)	+= hvc_console.o
- obj-$(CONFIG_RAW_DRIVER)	+= raw.o
-+obj-$(CONFIG_SGI_L1_SERIAL)	+= sn_serial.o
- 
- obj-$(CONFIG_PRINTER) += lp.o
- obj-$(CONFIG_TIPAR) += tipar.o
-diff -Nru a/drivers/char/sn_serial.c b/drivers/char/sn_serial.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/drivers/char/sn_serial.c	Tue Oct 21 16:18:17 2003
-@@ -0,0 +1,1000 @@
-+/*
-+ * C-Brick Serial Port (and console) driver for SGI Altix machines.
-+ *
-+ * This driver is NOT suitable for talking to the l1-controller for
-+ * anything other than 'console activities' --- please use the l1
-+ * driver for that.
-+ *
-+ * This file is subject to the terms and conditions of the GNU General Public
-+ * License.  See the file "COPYING" in the main directory of this archive
-+ * for more details.
-+ *
-+ * Copyright (C) 2003 Silicon Graphics, Inc. All rights reserved.
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/interrupt.h>
-+#include <linux/tty.h>
-+#include <linux/serial.h>
-+#include <linux/console.h>
-+#include <linux/module.h>
-+#include <linux/sysrq.h>
-+#include <linux/circ_buf.h>
-+#include <linux/serial_reg.h>
-+#include <asm/sn/sn_sal.h>
-+#include <asm/sn/pci/pciio.h>		/* this is needed for get_console_nasid */
-+#include <asm/sn/simulator.h>
-+#include <asm/sn/sn2/sn_private.h>
-+
-+#if defined(CONFIG_SGI_L1_SERIAL_CONSOLE) && defined(CONFIG_MAGIC_SYSRQ)
-+static char sysrq_serial_str[] = "\eSYS";
-+static char *sysrq_serial_ptr = sysrq_serial_str;
-+static unsigned long sysrq_requested;
-+#endif /* CONFIG_SGI_L1_SERIAL_CONSOLE && CONFIG_MAGIC_SYSRQ */
-+
-+/* minor device number */
-+#define SN_SAL_MINOR 64
-+
-+/* number of characters left in xmit buffer before we ask for more */
-+#define WAKEUP_CHARS 128
-+
-+/* number of characters we can transmit to the SAL console at a time */
-+#define SN_SAL_MAX_CHARS 120
-+
-+#define SN_SAL_EVENT_WRITE_WAKEUP 0
-+
-+/* 64K, when we're asynch, it must be at least printk's LOG_BUF_LEN to
-+ * avoid losing chars, (always has to be a power of 2) */
-+#define SN_SAL_BUFFER_SIZE (64 * (1 << 10))
-+
-+#define SN_SAL_UART_FIFO_DEPTH 16
-+#define SN_SAL_UART_FIFO_SPEED_CPS 9600/10
-+
-+/* we don't kmalloc/get_free_page these as we want them available
-+ * before either of those are initialized */
-+static char sn_xmit_buff_mem[SN_SAL_BUFFER_SIZE];
-+
-+struct volatile_circ_buf {
-+	char *cb_buf;
-+	int cb_head;
-+	int cb_tail;
-+};
-+
-+static struct volatile_circ_buf xmit = { .cb_buf = sn_xmit_buff_mem };
-+static char sn_tmp_buffer[SN_SAL_BUFFER_SIZE];
-+
-+static struct tty_struct *sn_sal_tty;
-+
-+static struct timer_list sn_sal_timer;
-+static int sn_sal_event; /* event type for task queue */
-+
-+static int sn_sal_is_asynch;
-+static int sn_sal_irq;
-+static spinlock_t sn_sal_lock = SPIN_LOCK_UNLOCKED;
-+static int sn_total_tx_count;
-+static int sn_total_rx_count;
-+
-+static void sn_sal_tasklet_action(unsigned long data);
-+static DECLARE_TASKLET(sn_sal_tasklet, sn_sal_tasklet_action, 0);
-+
-+static unsigned long sn_interrupt_timeout;
-+
-+extern u64 master_node_bedrock_address;
-+
-+static int sn_debug_printf(const char *fmt, ...);
-+
-+#undef DEBUG
-+#ifdef DEBUG
-+#define DPRINTF(x...) sn_debug_printf(x)
-+#else
-+#define DPRINTF(x...) do { } while (0)
-+#endif
-+
-+struct sn_sal_ops {
-+	int (*sal_puts)(const char *s, int len);
-+	int (*sal_getc)(void);
-+	int (*sal_input_pending)(void);
-+	void (*sal_wakeup_transmit)(void);
-+};
-+
-+/* This is the pointer used. It is assigned to point to one of
-+ * the tables below.
-+ */
-+static struct sn_sal_ops *sn_func;
-+
-+/* Prototypes */
-+static void __init sn_sal_serial_console_init(void);
-+static int snt_hw_puts(const char *, int);
-+static int snt_poll_getc(void);
-+static int snt_poll_input_pending(void);
-+static int snt_sim_puts(const char *, int);
-+static int snt_sim_getc(void);
-+static int snt_sim_input_pending(void);
-+static int snt_intr_getc(void);
-+static int snt_intr_input_pending(void);
-+static void sn_intr_transmit_chars(void);
-+
-+/* A table for polling */
-+static struct sn_sal_ops poll_ops = {
-+	.sal_puts		= snt_hw_puts,
-+	.sal_getc		= snt_poll_getc,
-+	.sal_input_pending	= snt_poll_input_pending
-+};
-+
-+/* A table for the simulator */
-+static struct sn_sal_ops sim_ops = {
-+	.sal_puts		= snt_sim_puts,
-+	.sal_getc		= snt_sim_getc,
-+	.sal_input_pending	= snt_sim_input_pending
-+};
-+
-+/* A table for interrupts enabled */
-+static struct sn_sal_ops intr_ops = {
-+	.sal_puts		= snt_hw_puts,
-+	.sal_getc		= snt_intr_getc,
-+	.sal_input_pending	= snt_intr_input_pending,
-+	.sal_wakeup_transmit	= sn_intr_transmit_chars
-+};
-+
-+
-+/* the console does output in two distinctly different ways:
-+ * synchronous and asynchronous (buffered).  initally, early_printk
-+ * does synchronous output.  any data written goes directly to the SAL
-+ * to be output (incidentally, it is internally buffered by the SAL)
-+ * after interrupts and timers are initialized and available for use,
-+ * the console init code switches to asynchronous output.  this is
-+ * also the earliest opportunity to begin polling for console input.
-+ * after console initialization, console output and tty (serial port)
-+ * output is buffered and sent to the SAL asynchronously (either by
-+ * timer callback or by UART interrupt) */
-+
-+
-+/* routines for running the console in polling mode */
-+
-+static int
-+snt_hw_puts(const char *s, int len)
-+{
-+	/* looking at the PROM source code, putb calls the flush
-+	 * routine, so if we send characters in FIFO sized chunks, it
-+	 * should go out by the next time the timer gets called */
-+	return ia64_sn_console_putb(s, len);
-+}
-+
-+static int
-+snt_poll_getc(void)
-+{
-+	int ch;
-+	ia64_sn_console_getc(&ch);
-+	return ch;
-+}
-+
-+static int
-+snt_poll_input_pending(void)
-+{
-+	int status, input;
-+
-+	status = ia64_sn_console_check(&input);
-+	return !status && input;
-+}
-+
-+
-+/* routines for running the console on the simulator */
-+
-+static int
-+snt_sim_puts(const char *str, int count)
-+{
-+	int counter = count;
-+
-+#ifdef FLAG_DIRECT_CONSOLE_WRITES
-+	/* This is an easy way to pre-pend the output to know whether the output
-+	 * was done via sal or directly */
-+	writeb('[', master_node_bedrock_address + (UART_TX << 3));
-+	writeb('+', master_node_bedrock_address + (UART_TX << 3));
-+	writeb(']', master_node_bedrock_address + (UART_TX << 3));
-+	writeb(' ', master_node_bedrock_address + (UART_TX << 3));
-+#endif /* FLAG_DIRECT_CONSOLE_WRITES */
-+	while (counter > 0) {
-+		writeb(*str, master_node_bedrock_address + (UART_TX << 3));
-+		counter--;
-+		str++;
-+	}
-+
-+	return count;
-+}
-+
-+static int
-+snt_sim_getc(void)
-+{
-+	return readb(master_node_bedrock_address + (UART_RX << 3));
-+}
-+
-+static int
-+snt_sim_input_pending(void)
-+{
-+	return readb(master_node_bedrock_address + (UART_LSR << 3)) & UART_LSR_DR;
-+}
-+
-+
-+/* routines for an interrupt driven console (normal) */
-+
-+static int
-+snt_intr_getc(void)
-+{
-+	return ia64_sn_console_readc();
-+}
-+
-+static int
-+snt_intr_input_pending(void)
-+{
-+	return ia64_sn_console_intr_status() & SAL_CONSOLE_INTR_RECV;
-+}
-+
-+/* The early printk (possible setup) and function call */
-+
-+void
-+early_printk_sn_sal(const char *s, unsigned count)
-+{
-+	extern void early_sn_setup(void);
-+
-+	if (!sn_func) {
-+		if (IS_RUNNING_ON_SIMULATOR())
-+			sn_func = &sim_ops;
-+		else
-+			sn_func = &poll_ops;
-+
-+		early_sn_setup();
-+	}
-+	sn_func->sal_puts(s, count);
-+}
-+
-+/* this is as "close to the metal" as we can get, used when the driver
-+ * itself may be broken */
-+static int
-+sn_debug_printf(const char *fmt, ...)
-+{
-+	static char printk_buf[1024];
-+	int printed_len;
-+	va_list args;
-+
-+	va_start(args, fmt);
-+	printed_len = vsnprintf(printk_buf, sizeof(printk_buf), fmt, args);
-+	early_printk_sn_sal(printk_buf, printed_len);
-+	va_end(args);
-+	return printed_len;
-+}
-+
-+/*
-+ * Interrupt handling routines.
-+ */
-+
-+static void
-+sn_sal_sched_event(int event)
-+{
-+	sn_sal_event |= (1 << event);
-+	tasklet_schedule(&sn_sal_tasklet);
-+}
-+
-+/* sn_receive_chars can be called before sn_sal_tty is initialized.  in
-+ * that case, its only use is to trigger sysrq and kdb */
-+static void
-+sn_receive_chars(struct pt_regs *regs, unsigned long *flags)
-+{
-+	int ch;
-+
-+	while (sn_func->sal_input_pending()) {
-+		ch = sn_func->sal_getc();
-+		if (ch < 0) {
-+			printk(KERN_ERR "sn_serial: An error occured while "
-+			       "obtaining data from the console (0x%0x)\n", ch);
-+			break;
-+		}
-+#if defined(CONFIG_SGI_L1_SERIAL_CONSOLE) && defined(CONFIG_MAGIC_SYSRQ)
-+		if (sysrq_requested) {
-+			unsigned long sysrq_timeout = sysrq_requested + HZ*5;
-+
-+			sysrq_requested = 0;
-+			if (ch && time_before(jiffies, sysrq_timeout)) {
-+				spin_unlock_irqrestore(&sn_sal_lock, *flags);
-+				handle_sysrq(ch, regs, NULL);
-+				spin_lock_irqsave(&sn_sal_lock, *flags);
-+				/* don't record this char */
-+				continue;
-+			}
-+		}
-+		if (ch == *sysrq_serial_ptr) {
-+			if (!(*++sysrq_serial_ptr)) {
-+				sysrq_requested = jiffies;
-+				sysrq_serial_ptr = sysrq_serial_str;
-+			}
-+		}
-+		else
-+			sysrq_serial_ptr = sysrq_serial_str;
-+#endif /* CONFIG_SGI_L1_SERIAL_CONSOLE && CONFIG_MAGIC_SYSRQ */
-+
-+		/* record the character to pass up to the tty layer */
-+		if (sn_sal_tty) {
-+			*sn_sal_tty->flip.char_buf_ptr = ch;
-+			sn_sal_tty->flip.char_buf_ptr++;
-+			sn_sal_tty->flip.count++;
-+			if (sn_sal_tty->flip.count == TTY_FLIPBUF_SIZE)
-+				break;
-+		}
-+		sn_total_rx_count++;
-+	}
-+
-+	if (sn_sal_tty)
-+		tty_flip_buffer_push((struct tty_struct *)sn_sal_tty);
-+}
-+
-+
-+/* synch_flush_xmit must be called with sn_sal_lock */
-+static void
-+synch_flush_xmit(void)
-+{
-+	int xmit_count, tail, head, loops, ii;
-+	int result;
-+	char *start;
-+
-+	if (xmit.cb_head == xmit.cb_tail)
-+		return; /* Nothing to do. */
-+
-+	head = xmit.cb_head;
-+	tail = xmit.cb_tail;
-+	start = &xmit.cb_buf[tail];
-+
-+	/* twice around gets the tail to the end of the buffer and
-+	 * then to the head, if needed */
-+	loops = (head < tail) ? 2 : 1;
-+
-+	for (ii = 0; ii < loops; ii++) {
-+		xmit_count = (head < tail) ?  (SN_SAL_BUFFER_SIZE - tail) : (head - tail);
-+
-+		if (xmit_count > 0) {
-+			result = sn_func->sal_puts((char *)start, xmit_count);
-+			if (!result)
-+				sn_debug_printf("\n*** synch_flush_xmit failed to flush\n");
-+			if (result > 0) {
-+				xmit_count -= result;
-+				sn_total_tx_count += result;
-+				tail += result;
-+				tail &= SN_SAL_BUFFER_SIZE - 1;
-+				xmit.cb_tail = tail;
-+				start = (char *)&xmit.cb_buf[tail];
-+			}
-+		}
-+	}
-+}
-+
-+/* must be called with a lock protecting the circular buffer and
-+ * sn_sal_tty */
-+static void
-+sn_poll_transmit_chars(void)
-+{
-+	int xmit_count, tail, head;
-+	int result;
-+	char *start;
-+
-+	BUG_ON(!sn_sal_is_asynch);
-+
-+	if (xmit.cb_head == xmit.cb_tail ||
-+	    (sn_sal_tty && (sn_sal_tty->stopped || sn_sal_tty->hw_stopped))) {
-+		/* Nothing to do. */
-+		return;
-+	}
-+
-+	head = xmit.cb_head;
-+	tail = xmit.cb_tail;
-+	start = &xmit.cb_buf[tail];
-+
-+	xmit_count = (head < tail) ?  (SN_SAL_BUFFER_SIZE - tail) : (head - tail);
-+
-+	if (xmit_count == 0)
-+		sn_debug_printf("\n*** empty xmit_count\n");
-+
-+	/* use the ops, as we could be on the simulator */
-+	result = sn_func->sal_puts((char *)start, xmit_count);
-+	if (!result)
-+		sn_debug_printf("\n*** error in synchronous sal_puts\n");
-+	/* XXX chadt clean this up */
-+	if (result > 0) {
-+		xmit_count -= result;
-+		sn_total_tx_count += result;
-+		tail += result;
-+		tail &= SN_SAL_BUFFER_SIZE - 1;
-+		xmit.cb_tail = tail;
-+		start = &xmit.cb_buf[tail];
-+	}
-+
-+	/* if there's few enough characters left in the xmit buffer
-+	 * that we could stand for the upper layer to send us some
-+	 * more, ask for it. */
-+	if (sn_sal_tty)
-+		if (CIRC_CNT(xmit.cb_head, xmit.cb_tail, SN_SAL_BUFFER_SIZE) < WAKEUP_CHARS)
-+			sn_sal_sched_event(SN_SAL_EVENT_WRITE_WAKEUP);
-+}
-+
-+
-+/* must be called with a lock protecting the circular buffer and
-+ * sn_sal_tty */
-+static void
-+sn_intr_transmit_chars(void)
-+{
-+	int xmit_count, tail, head, loops, ii;
-+	int result;
-+	char *start;
-+
-+	BUG_ON(!sn_sal_is_asynch);
-+
-+	if (xmit.cb_head == xmit.cb_tail ||
-+	    (sn_sal_tty && (sn_sal_tty->stopped || sn_sal_tty->hw_stopped))) {
-+		/* Nothing to do. */
-+		return;
-+	}
-+
-+	head = xmit.cb_head;
-+	tail = xmit.cb_tail;
-+	start = &xmit.cb_buf[tail];
-+
-+	/* twice around gets the tail to the end of the buffer and
-+	 * then to the head, if needed */
-+	loops = (head < tail) ? 2 : 1;
-+
-+	for (ii = 0; ii < loops; ii++) {
-+		xmit_count = (head < tail) ?
-+			(SN_SAL_BUFFER_SIZE - tail) : (head - tail);
-+
-+		if (xmit_count > 0) {
-+			result = ia64_sn_console_xmit_chars((char *)start, xmit_count);
-+#ifdef DEBUG
-+			if (!result)
-+				sn_debug_printf("`");
-+#endif
-+			if (result > 0) {
-+				xmit_count -= result;
-+				sn_total_tx_count += result;
-+				tail += result;
-+				tail &= SN_SAL_BUFFER_SIZE - 1;
-+				xmit.cb_tail = tail;
-+				start = &xmit.cb_buf[tail];
-+			}
-+		}
-+	}
-+
-+	/* if there's few enough characters left in the xmit buffer
-+	 * that we could stand for the upper layer to send us some
-+	 * more, ask for it. */
-+	if (sn_sal_tty)
-+		if (CIRC_CNT(xmit.cb_head, xmit.cb_tail, SN_SAL_BUFFER_SIZE) < WAKEUP_CHARS)
-+			sn_sal_sched_event(SN_SAL_EVENT_WRITE_WAKEUP);
-+}
-+
-+
-+static irqreturn_t
-+sn_sal_interrupt(int irq, void *dev_id, struct pt_regs *regs)
-+{
-+	/* this call is necessary to pass the interrupt back to the
-+	 * SAL, since it doesn't intercept the UART interrupts
-+	 * itself */
-+	int status = ia64_sn_console_intr_status();
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&sn_sal_lock, flags);
-+	if (status & SAL_CONSOLE_INTR_RECV)
-+		sn_receive_chars(regs, &flags);
-+	if (status & SAL_CONSOLE_INTR_XMIT)
-+		sn_intr_transmit_chars();
-+	spin_unlock_irqrestore(&sn_sal_lock, flags);
-+	return IRQ_HANDLED;
-+}
-+
-+
-+/* returns the console irq if interrupt is successfully registered,
-+ * else 0 */
-+static int
-+sn_sal_connect_interrupt(void)
-+{
-+	cpuid_t intr_cpuid;
-+	unsigned int intr_cpuloc;
-+	nasid_t console_nasid;
-+	unsigned int console_irq;
-+	int result;
-+
-+	console_nasid = ia64_sn_get_console_nasid();
-+	intr_cpuid = NODEPDA(NASID_TO_COMPACT_NODEID(console_nasid))->node_first_cpu;
-+	intr_cpuloc = cpu_physical_id(intr_cpuid);
-+	console_irq = CPU_VECTOR_TO_IRQ(intr_cpuloc, SGI_UART_VECTOR);
-+
-+	result = intr_connect_level(intr_cpuid, SGI_UART_VECTOR);
-+	BUG_ON(result != SGI_UART_VECTOR);
-+
-+	result = request_irq(console_irq, sn_sal_interrupt, SA_INTERRUPT,  "SAL console driver", &sn_sal_tty);
-+	if (result >= 0)
-+		return console_irq;
-+
-+	printk(KERN_INFO "sn_serial: console proceeding in polled mode\n");
-+	return 0;
-+}
-+
-+static void
-+sn_sal_tasklet_action(unsigned long data)
-+{
-+	unsigned long flags;
-+
-+	if (sn_sal_tty) {
-+		spin_lock_irqsave(&sn_sal_lock, flags);
-+		if (sn_sal_tty) {
-+			if (test_and_clear_bit(SN_SAL_EVENT_WRITE_WAKEUP, &sn_sal_event)) {
-+				if ((sn_sal_tty->flags & (1 << TTY_DO_WRITE_WAKEUP)) && sn_sal_tty->ldisc.write_wakeup)
-+					(sn_sal_tty->ldisc.write_wakeup)((struct tty_struct *)sn_sal_tty);
-+				wake_up_interruptible((wait_queue_head_t *)&sn_sal_tty->write_wait);
-+			}
-+		}
-+		spin_unlock_irqrestore(&sn_sal_lock, flags);
-+	}
-+}
-+
-+
-+/*
-+ * This function handles polled mode.
-+ */
-+static void
-+sn_sal_timer_poll(unsigned long dummy)
-+{
-+	unsigned long flags;
-+
-+	if (!sn_sal_irq) {
-+		spin_lock_irqsave(&sn_sal_lock, flags);
-+		sn_receive_chars(NULL, &flags);
-+		sn_poll_transmit_chars();
-+		spin_unlock_irqrestore(&sn_sal_lock, flags);
-+		mod_timer(&sn_sal_timer, jiffies + sn_interrupt_timeout);
-+	}
-+}
-+
-+
-+/*
-+ * User-level console routines
-+ */
-+
-+static int
-+sn_sal_open(struct tty_struct *tty, struct file *filp)
-+{
-+	unsigned long flags;
-+
-+	DPRINTF("sn_sal_open: sn_sal_tty = %p, tty = %p, filp = %p\n",
-+		sn_sal_tty, tty, filp);
-+
-+	spin_lock_irqsave(&sn_sal_lock, flags);
-+	if (!sn_sal_tty)
-+		sn_sal_tty = tty;
-+	spin_unlock_irqrestore(&sn_sal_lock, flags);
-+
-+	return 0;
-+}
-+
-+
-+/* We're keeping all our resources.  We're keeping interrupts turned
-+ * on.  Maybe just let the tty layer finish its stuff...? GMSH
-+ */
-+static void
-+sn_sal_close(struct tty_struct *tty, struct file * filp)
-+{
-+	if (tty->count == 1) {
-+		unsigned long flags;
-+		tty->closing = 1;
-+		if (tty->driver->flush_buffer)
-+			tty->driver->flush_buffer(tty);
-+		if (tty->ldisc.flush_buffer)
-+			tty->ldisc.flush_buffer(tty);
-+		tty->closing = 0;
-+		spin_lock_irqsave(&sn_sal_lock, flags);
-+		sn_sal_tty = NULL;
-+		spin_unlock_irqrestore(&sn_sal_lock, flags);
-+	}
-+}
-+
-+
-+static int
-+sn_sal_write(struct tty_struct *tty, int from_user,
-+	     const unsigned char *buf, int count)
-+{
-+	int c, ret = 0;
-+	unsigned long flags;
-+
-+	if (from_user) {
-+		while (1) {
-+			int c1;
-+			c = CIRC_SPACE_TO_END(xmit.cb_head, xmit.cb_tail,
-+					      SN_SAL_BUFFER_SIZE);
-+
-+			if (count < c)
-+				c = count;
-+			if (c <= 0)
-+				break;
-+
-+			c -= copy_from_user(sn_tmp_buffer, buf, c);
-+			if (!c) {
-+				if (!ret)
-+					ret = -EFAULT;
-+				break;
-+			}
-+
-+			/* Turn off interrupts and see if the xmit buffer has
-+			 * moved since the last time we looked.
-+			 */
-+			spin_lock_irqsave(&sn_sal_lock, flags);
-+			c1 = CIRC_SPACE_TO_END(xmit.cb_head, xmit.cb_tail, SN_SAL_BUFFER_SIZE);
-+
-+			if (c1 < c)
-+				c = c1;
-+
-+			memcpy(xmit.cb_buf + xmit.cb_head, sn_tmp_buffer, c);
-+			xmit.cb_head = ((xmit.cb_head + c) & (SN_SAL_BUFFER_SIZE - 1));
-+			spin_unlock_irqrestore(&sn_sal_lock, flags);
-+
-+			buf += c;
-+			count -= c;
-+			ret += c;
-+		}
-+	}
-+	else {
-+		/* The buffer passed in isn't coming from userland,
-+		 * so cut out the middleman (sn_tmp_buffer).
-+		 */
-+		spin_lock_irqsave(&sn_sal_lock, flags);
-+		while (1) {
-+			c = CIRC_SPACE_TO_END(xmit.cb_head, xmit.cb_tail, SN_SAL_BUFFER_SIZE);
-+
-+			if (count < c)
-+				c = count;
-+			if (c <= 0) {
-+				break;
-+			}
-+			memcpy(xmit.cb_buf + xmit.cb_head, buf, c);
-+			xmit.cb_head = ((xmit.cb_head + c) & (SN_SAL_BUFFER_SIZE - 1));
-+			buf += c;
-+			count -= c;
-+			ret += c;
-+		}
-+		spin_unlock_irqrestore(&sn_sal_lock, flags);
-+	}
-+
-+	spin_lock_irqsave(&sn_sal_lock, flags);
-+	if (xmit.cb_head != xmit.cb_tail && !(tty && (tty->stopped || tty->hw_stopped)))
-+		if (sn_func->sal_wakeup_transmit)
-+			sn_func->sal_wakeup_transmit();
-+	spin_unlock_irqrestore(&sn_sal_lock, flags);
-+
-+	return ret;
-+}
-+
-+
-+static void
-+sn_sal_put_char(struct tty_struct *tty, unsigned char ch)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&sn_sal_lock, flags);
-+	if (CIRC_SPACE(xmit.cb_head, xmit.cb_tail, SN_SAL_BUFFER_SIZE) != 0) {
-+		xmit.cb_buf[xmit.cb_head] = ch;
-+		xmit.cb_head = (xmit.cb_head + 1) & (SN_SAL_BUFFER_SIZE-1);
-+		if ( sn_func->sal_wakeup_transmit )
-+			sn_func->sal_wakeup_transmit();
-+	}
-+	spin_unlock_irqrestore(&sn_sal_lock, flags);
-+}
-+
-+
-+static void
-+sn_sal_flush_chars(struct tty_struct *tty)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&sn_sal_lock, flags);
-+	if (CIRC_CNT(xmit.cb_head, xmit.cb_tail, SN_SAL_BUFFER_SIZE))
-+		if (sn_func->sal_wakeup_transmit)
-+			sn_func->sal_wakeup_transmit();
-+	spin_unlock_irqrestore(&sn_sal_lock, flags);
-+}
-+
-+
-+static int
-+sn_sal_write_room(struct tty_struct *tty)
-+{
-+	unsigned long flags;
-+	int space;
-+
-+	spin_lock_irqsave(&sn_sal_lock, flags);
-+	space = CIRC_SPACE(xmit.cb_head, xmit.cb_tail, SN_SAL_BUFFER_SIZE);
-+	spin_unlock_irqrestore(&sn_sal_lock, flags);
-+	return space;
-+}
-+
-+
-+static int
-+sn_sal_chars_in_buffer(struct tty_struct *tty)
-+{
-+	unsigned long flags;
-+	int space;
-+
-+	spin_lock_irqsave(&sn_sal_lock, flags);
-+	space = CIRC_CNT(xmit.cb_head, xmit.cb_tail, SN_SAL_BUFFER_SIZE);
-+	DPRINTF("<%d>", space);
-+	spin_unlock_irqrestore(&sn_sal_lock, flags);
-+	return space;
-+}
-+
-+
-+static void
-+sn_sal_flush_buffer(struct tty_struct *tty)
-+{
-+	unsigned long flags;
-+
-+	/* drop everything */
-+	spin_lock_irqsave(&sn_sal_lock, flags);
-+	xmit.cb_head = xmit.cb_tail = 0;
-+	spin_unlock_irqrestore(&sn_sal_lock, flags);
-+
-+	/* wake up tty level */
-+	wake_up_interruptible(&tty->write_wait);
-+	if ((tty->flags & (1 << TTY_DO_WRITE_WAKEUP)) && tty->ldisc.write_wakeup)
-+		(tty->ldisc.write_wakeup)(tty);
-+}
-+
-+
-+static void
-+sn_sal_hangup(struct tty_struct *tty)
-+{
-+	sn_sal_flush_buffer(tty);
-+}
-+
-+
-+static void
-+sn_sal_wait_until_sent(struct tty_struct *tty, int timeout)
-+{
-+	/* this is SAL's problem */
-+	DPRINTF("<sn_serial: should wait until sent>");
-+}
-+
-+
-+/*
-+ * sn_sal_read_proc
-+ *
-+ * Console /proc interface
-+ */
-+
-+static int
-+sn_sal_read_proc(char *page, char **start, off_t off, int count,
-+		   int *eof, void *data)
-+{
-+	int len = 0;
-+	off_t	begin = 0;
-+
-+	len += sprintf(page, "sn_serial: nasid:%d irq:%d tx:%d rx:%d\n",
-+		       get_console_nasid(), sn_sal_irq,
-+		       sn_total_tx_count, sn_total_rx_count);
-+	*eof = 1;
-+
-+	if (off >= len+begin)
-+		return 0;
-+	*start = page + (off-begin);
-+
-+	return count < begin+len-off ? count : begin+len-off;
-+}
-+
-+
-+static struct tty_operations sn_sal_driver_ops = {
-+	.open		 = sn_sal_open,
-+	.close		 = sn_sal_close,
-+	.write		 = sn_sal_write,
-+	.put_char	 = sn_sal_put_char,
-+	.flush_chars	 = sn_sal_flush_chars,
-+	.write_room	 = sn_sal_write_room,
-+	.chars_in_buffer = sn_sal_chars_in_buffer,
-+	.hangup		 = sn_sal_hangup,
-+	.wait_until_sent = sn_sal_wait_until_sent,
-+	.read_proc	 = sn_sal_read_proc,
-+};
-+static struct tty_driver *sn_sal_driver;
-+
-+/* sn_sal_init wishlist:
-+ * - allocate sn_tmp_buffer
-+ * - fix up the tty_driver struct
-+ * - turn on receive interrupts
-+ * - do any termios twiddling once and for all
-+ */
-+
-+/*
-+ * Boot-time initialization code
-+ */
-+
-+static void __init
-+sn_sal_switch_to_asynch(void)
-+{
-+	unsigned long flags;
-+
-+	sn_debug_printf("sn_serial: about to switch to asynchronous console\n");
-+
-+	/* without early_printk, we may be invoked late enough to race
-+	 * with other cpus doing console IO at this point, however
-+	 * console interrupts will never be enabled */
-+	spin_lock_irqsave(&sn_sal_lock, flags);
-+
-+	/* early_printk invocation may have done this for us */
-+	if (!sn_func) {
-+		if (IS_RUNNING_ON_SIMULATOR())
-+			sn_func = &sim_ops;
-+		else
-+			sn_func = &poll_ops;
-+	}
-+
-+	/* we can't turn on the console interrupt (as request_irq
-+	 * calls kmalloc, which isn't set up yet), so we rely on a
-+	 * timer to poll for input and push data from the console
-+	 * buffer.
-+	 */
-+	init_timer(&sn_sal_timer);
-+	sn_sal_timer.function = sn_sal_timer_poll;
-+
-+	if (IS_RUNNING_ON_SIMULATOR())
-+		sn_interrupt_timeout = 6;
-+	else {
-+		/* 960cps / 16 char FIFO = 60HZ 
-+		 * HZ / (SN_SAL_FIFO_SPEED_CPS / SN_SAL_FIFO_DEPTH) */
-+		sn_interrupt_timeout = HZ * SN_SAL_UART_FIFO_DEPTH / SN_SAL_UART_FIFO_SPEED_CPS;
-+	}
-+	mod_timer(&sn_sal_timer, jiffies + sn_interrupt_timeout);
-+
-+	sn_sal_is_asynch = 1;
-+	spin_unlock_irqrestore(&sn_sal_lock, flags);
-+}
-+
-+static void __init
-+sn_sal_switch_to_interrupts(void)
-+{
-+	int irq;
-+
-+	sn_debug_printf("sn_serial: switching to interrupt driven console\n");
-+
-+	irq = sn_sal_connect_interrupt();
-+	if (irq) {
-+		unsigned long flags;
-+		spin_lock_irqsave(&sn_sal_lock, flags);
-+
-+		/* sn_sal_irq is a global variable.  When it's set to
-+		 * a non-zero value, we stop polling for input (since
-+		 * interrupts should now be enabled). */
-+		sn_sal_irq = irq;
-+		sn_func = &intr_ops;
-+
-+		/* turn on receive interrupts */
-+		ia64_sn_console_intr_enable(SAL_CONSOLE_INTR_RECV);
-+		spin_unlock_irqrestore(&sn_sal_lock, flags);
-+	}
-+}
-+
-+static int __init
-+sn_sal_module_init(void)
-+{
-+	int retval;
-+
-+	printk("sn_serial: sn_sal_module_init\n");
-+
-+	if (!ia64_platform_is("sn2"))
-+		return -ENODEV;
-+
-+	sn_sal_driver = alloc_tty_driver(1);
-+	if ( !sn_sal_driver )
-+		return -ENOMEM;
-+
-+	sn_sal_driver->owner = THIS_MODULE;
-+	sn_sal_driver->driver_name = "sn_serial";
-+	sn_sal_driver->name = "ttyS";
-+	sn_sal_driver->major = TTY_MAJOR;
-+	sn_sal_driver->minor_start = SN_SAL_MINOR;
-+	sn_sal_driver->type = TTY_DRIVER_TYPE_SERIAL;
-+	sn_sal_driver->subtype = SERIAL_TYPE_NORMAL;
-+	sn_sal_driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_NO_DEVFS;
-+
-+	tty_set_operations(sn_sal_driver, &sn_sal_driver_ops);
-+
-+	/* when this driver is compiled in, the console initialization
-+	 * will have already switched us into asynchronous operation
-+	 * before we get here through the module initcalls */
-+	if (!sn_sal_is_asynch)
-+		sn_sal_switch_to_asynch();
-+
-+	/* at this point (module_init) we can try to turn on interrupts */
-+	if (!IS_RUNNING_ON_SIMULATOR())
-+	    sn_sal_switch_to_interrupts();
-+
-+	sn_sal_driver->init_termios = tty_std_termios;
-+	sn_sal_driver->init_termios.c_cflag = B9600 | CS8 | CREAD | HUPCL | CLOCAL;
-+
-+	if ((retval = tty_register_driver(sn_sal_driver))) {
-+		printk(KERN_ERR "sn_serial: Unable to register tty driver\n");
-+		return retval;
-+	}
-+#ifdef CONFIG_SGI_L1_SERIAL_CONSOLE
-+	sn_sal_serial_console_init();
-+#endif	/* CONFIG_SGI_L1_SERIAL_CONSOLE */
-+	return 0;
-+}
-+
-+
-+static void __exit
-+sn_sal_module_exit(void)
-+{
-+	del_timer_sync(&sn_sal_timer);
-+	tty_unregister_driver(sn_sal_driver);
-+	put_tty_driver(sn_sal_driver);
-+}
-+
-+module_init(sn_sal_module_init);
-+module_exit(sn_sal_module_exit);
-+
-+/*
-+ * Kernel console definitions
-+ */
-+
-+#ifdef CONFIG_SGI_L1_SERIAL_CONSOLE
-+/*
-+ * Print a string to the SAL console.  The console_lock must be held
-+ * when we get here.
-+ */
-+static void
-+sn_sal_console_write(struct console *co, const char *s, unsigned count)
-+{
-+	unsigned long flags;
-+
-+	BUG_ON(!sn_sal_is_asynch);
-+
-+	/* somebody really wants this output, might be an
-+	 * oops, kdb, panic, etc.  make sure they get it. */
-+	if (spin_is_locked(&sn_sal_lock)) {
-+		synch_flush_xmit();
-+		sn_func->sal_puts(s, count);
-+	}
-+	else if (in_interrupt()) {
-+		spin_lock_irqsave(&sn_sal_lock, flags);
-+		synch_flush_xmit();
-+		spin_unlock_irqrestore(&sn_sal_lock, flags);
-+		sn_func->sal_puts(s, count);
-+	}
-+	else
-+		sn_sal_write(NULL, 0, s, count);
-+}
-+
-+static struct tty_driver *
-+sn_sal_console_device(struct console *c, int *index)
-+{
-+	*index = c->index;
-+	return sn_sal_driver;
-+}
-+
-+static int __init
-+sn_sal_console_setup(struct console *co, char *options)
-+{
-+	return 0;
-+}
-+
-+
-+static struct console sal_console = {
-+	.name = "ttyS",
-+	.write = sn_sal_console_write,
-+	.device = sn_sal_console_device,
-+	.setup = sn_sal_console_setup,
-+	.index = -1
-+};
-+
-+static void __init
-+sn_sal_serial_console_init(void)
-+{
-+	if (ia64_platform_is("sn2")) {
-+		sn_sal_switch_to_asynch();
-+		sn_debug_printf("sn_sal_serial_console_init : register console\n");
-+		register_console(&sal_console);
-+	}
-+}
-+
-+#endif /* CONFIG_SGI_L1_SERIAL_CONSOLE */
+>>eax; e08b62e0 <__crc_sleep_on+23c8a1/37314b>
+>>ecx; e08b62e4 <__crc_sleep_on+23c8a5/37314b>
+>>edx; e08b62e0 <__crc_sleep_on+23c8a1/37314b>
+>>edi; df8fbb00 <__crc___ndelay+351a6/62a16>
+>>ebp; dffe178c <__crc_iunique+22f2a1/2fd026>
+>>esp; df8db9f8 <__crc___ndelay+1509e/62a16>
 
---------------F05F52ABF7CF4C83D880FE77--
+Trace; e089c402 <__crc_sleep_on+2229c3/37314b>
+Trace; e089c3c0 <__crc_sleep_on+222981/37314b>
+Trace; c0154a5c <do_open+39c/400>
+Trace; c0118927 <try_to_wake_up+a7/160>
+Trace; c0154b3d <blkdev_get+7d/a0>
+Trace; c017c66f <register_disk+bf/140>
+Trace; c0208e9a <add_disk+4a/60>
+Trace; c0208e20 <exact_match+0/10>
+Trace; c0208e30 <exact_lock+0/20>
+Trace; e089d7c5 <__crc_sleep_on+223d86/37314b>
+Trace; c017d87a <sysfs_add_file+9a/a0>
+Trace; c0201eaf <bus_match+3f/70>
+Trace; c0201f2f <device_attach+4f/b0>
+Trace; c020212b <bus_add_device+5b/a0>
+Trace; c0200e41 <device_add+a1/130>
+Trace; e08a86ed <__crc_sleep_on+22ecae/37314b>
+Trace; e08a715d <__crc_sleep_on+22d71e/37314b>
+Trace; e08a7354 <__crc_sleep_on+22d915/37314b>
+Trace; e08a7bb1 <__crc_sleep_on+22e172/37314b>
+Trace; e08a7caa <__crc_sleep_on+22e26b/37314b>
+Trace; e08a7da1 <__crc_sleep_on+22e362/37314b>
+Trace; e08a7e0f <__crc_sleep_on+22e3d0/37314b>
+Trace; e08ef20f <__crc_sleep_on+2757d0/37314b>
+Trace; e08840e9 <__crc_sleep_on+20a6aa/37314b>
+Trace; c0201eaf <bus_match+3f/70>
+Trace; c0201f2f <device_attach+4f/b0>
+Trace; c020212b <bus_add_device+5b/a0>
+Trace; c0200e41 <device_add+a1/130>
+Trace; e088ba08 <__crc_sleep_on+211fc9/37314b>
+Trace; e0885260 <__crc_sleep_on+20b821/37314b>
+Trace; e0887906 <__crc_sleep_on+20dec7/37314b>
+Trace; e0887e0d <__crc_sleep_on+20e3ce/37314b>
+Trace; e0887efd <__crc_sleep_on+20e4be/37314b>
+Trace; c0109272 <ret_from_fork+6/14>
+Trace; c0119780 <default_wake_function+0/30>
+Trace; e0887ed0 <__crc_sleep_on+20e491/37314b>
+Trace; c0107275 <kernel_thread_helper+5/10>
 
+Code;  e08a0ded <__crc_sleep_on+2273ae/37314b>
+00000000 <_EIP>:
+Code;  e08a0ded <__crc_sleep_on+2273ae/37314b>   <=3D=3D=3D=3D=3D
+   0:   8b 83 84 02 00 00         mov    0x284(%ebx),%eax   <=3D=3D=3D=3D=3D
+Code;  e08a0df3 <__crc_sleep_on+2273b4/37314b>
+   6:   a8 02                     test   $0x2,%al
+Code;  e08a0df5 <__crc_sleep_on+2273b6/37314b>
+   8:   0f 85 97 00 00 00         jne    a5 <_EIP+0xa5>
+Code;  e08a0dfb <__crc_sleep_on+2273bc/37314b>
+   e:   8b 43 10                  mov    0x10(%ebx),%eax
+Code;  e08a0dfe <__crc_sleep_on+2273bf/37314b>
+  11:   be 01 00 00 00            mov    $0x1,%esi
+
+
+--=20
+Jens Kubieziel                                   http://www.kubieziel.de
+Cursor, n.:
+	One whose program will not run.
+		-- Robb Russon
+
+--xesSdrSSBC0PokLI
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/laS/Vm02LO4Jd+gRAlRBAKCi3TvVqP/Ey8vV0zcHEtr+VmgiTgCdFufG
+h7kBBV19qQ/2iryGxkSUaqk=
+=6JPS
+-----END PGP SIGNATURE-----
+
+--xesSdrSSBC0PokLI--

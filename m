@@ -1,62 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266117AbUION2H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266221AbUIONaU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266117AbUION2H (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 09:28:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266115AbUION2G
+	id S266221AbUIONaU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 09:30:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266250AbUIONaU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 09:28:06 -0400
-Received: from smtp806.mail.sc5.yahoo.com ([66.163.168.185]:57498 "HELO
-	smtp806.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266149AbUION17 convert rfc822-to-8bit (ORCPT
+	Wed, 15 Sep 2004 09:30:20 -0400
+Received: from users.ccur.com ([208.248.32.211]:21218 "EHLO mig.iccur.com")
+	by vger.kernel.org with ESMTP id S266221AbUION3h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 09:27:59 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org, Stelian Pop <stelian@popies.net>
-Subject: Re: [RFC, 2.6] a simple FIFO implementation
-Date: Wed, 15 Sep 2004 08:27:54 -0500
-User-Agent: KMail/1.6.2
-References: <20040913135253.GA3118@crusoe.alcove-fr>
-In-Reply-To: <20040913135253.GA3118@crusoe.alcove-fr>
-MIME-Version: 1.0
+	Wed, 15 Sep 2004 09:29:37 -0400
+Date: Wed, 15 Sep 2004 09:29:36 -0400
+From: Joe Korty <joe.korty@ccur.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] tune vmalloc size
+Message-ID: <20040915132936.GB30233@tsunami.ccur.com>
+Reply-To: joe.korty@ccur.com
+References: <20040915125356.GA11250@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200409150827.55011.dtor_core@ameritech.net>
+In-Reply-To: <20040915125356.GA11250@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-OriginalArrivalTime: 15 Sep 2004 13:29:36.0823 (UTC) FILETIME=[0B907470:01C49B28]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 13 September 2004 08:52 am, Stelian Pop wrote:
-> +static inline unsigned int kfifo_len(struct kfifo *fifo) {
-> +       unsigned long flags;
-> +       unsigned int result;
-> +       
-> +       spin_lock_irqsave(&fifo->lock, flags);
-> +       
-> +       result = fifo->len;
-> +
-> +       spin_unlock_irqrestore(&fifo->lock, flags);
-> +
-> +       return result;
-> +}
+On Wed, Sep 15, 2004 at 02:53:56PM +0200, Ingo Molnar wrote:
+> 
+> there are a few devices that use lots of ioremap space. vmalloc space is
+> a showstopper problem for them.
+> 
+> this patch adds the vmalloc=<size> boot parameter to override
+> __VMALLOC_RESERVE. The default is 128mb right now - e.g. vmalloc=256m
+> doubles the size.
 
-Hi,
-
-I do not think that taking/releasing spinlock here serves any purpose as
-len can get canged right after releasing the lock and therefore no longer
-valid... And relying on result of kfifo_len to decide if the FIF can be
-drained is not reliable so probably the inteface is better off without this
-function.
-
-Also I think that most users would put only sertain structures (homogenous?)
-in their FIFOs so maybe it should be:
-
-struct kfifo *kfifo_alloc(unsigned int el_size, unsigned int len)
-unsigned int kfifo_put(struct kfifo *fifo, void *buffer)
-unsigned int kfifo_get(struct kfifo *fifo, void *buffer)
-
-Also, don't we have a rule that for functions the opening curly brace should
-be on a new line?
-
--- 
-Dmitry
+Perhaps this should instead be a configurable.
+Joe

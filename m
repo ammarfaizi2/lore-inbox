@@ -1,103 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263124AbTDBSwQ>; Wed, 2 Apr 2003 13:52:16 -0500
+	id <S263123AbTDBTHF>; Wed, 2 Apr 2003 14:07:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263123AbTDBSwN>; Wed, 2 Apr 2003 13:52:13 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:28943 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S263121AbTDBSwH>; Wed, 2 Apr 2003 13:52:07 -0500
-Date: Wed, 2 Apr 2003 20:03:32 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] Framebuffer cursor updates.
-In-Reply-To: <Pine.LNX.4.33.0304021137570.7983-100000@maxwell.earthlink.net>
-Message-ID: <Pine.LNX.4.44.0304022002320.1611-100000@phoenix.infradead.org>
+	id <S263125AbTDBTHF>; Wed, 2 Apr 2003 14:07:05 -0500
+Received: from meryl.it.uu.se ([130.238.12.42]:2216 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id <S263123AbTDBTHD>;
+	Wed, 2 Apr 2003 14:07:03 -0500
+From: Mikael Pettersson <mikpe@user.it.uu.se>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16011.14209.703212.772185@gargle.gargle.HOWL>
+Date: Wed, 2 Apr 2003 21:18:25 +0200
+To: ak@suse.de
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH][2.4.21-pre6] update x86_64 for kernel_thread change
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> Hi folks!!!
-> 
->   I have a new patch to fix the cursor problems. This patch Is a massive 
-> rewrite of the cursor handling code. I have tested it on two machines. The 
-> VBL irq code in fbcon.c should be moved to there respected drivers. Please 
-> review and test. 
+Building an x86_64 kernel from 2.4.21-pre6 results in two linkage
+errors due to the recent kernel_thread to arch_kernel_thread name change.
+This patch updates x86_64 for that change.
 
-Oops. The patch is at 
+/Mikael
 
-http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
-
-and it does apply against 2.5.66. 
-
- Documentation/devices.txt       |    7 
- drivers/video/aty/aty128fb.c    |   16 -
- drivers/video/cfbimgblt.c       |    4 
- drivers/video/console/fbcon.c   |  548 ++++++++++++++++++----------------------
- drivers/video/console/fbcon.h   |    1 
- drivers/video/controlfb.c       |   18 -
- drivers/video/fbcmap.c          |   33 +-
- drivers/video/fbmem.c           |  159 ++++++-----
- drivers/video/i810/i810.h       |    6 
- drivers/video/i810/i810_accel.c |  140 +++++-----
- drivers/video/i810/i810_dvt.c   |    3 
- drivers/video/i810/i810_gtf.c   |    7 
- drivers/video/i810/i810_main.c  |  135 ++++-----
- drivers/video/i810/i810_main.h  |    4 
- drivers/video/logo/logo.c       |   69 ++---
- drivers/video/platinumfb.c      |   28 --
- drivers/video/radeonfb.c        |   10 
- drivers/video/riva/fbdev.c      |    2 
- drivers/video/softcursor.c      |  198 +++++++-------
- drivers/video/tdfxfb.c          |   18 -
- drivers/video/tgafb.c           |    2 
- drivers/video/vga16fb.c         |    6 
- include/linux/fb.h              |   16 -
- include/linux/linux_logo.h      |    2 
- 24 files changed, 690 insertions(+), 742 deletions(-)
-
-through these ChangeSets:
-
-<jsimmons@kozmo.(none)> (03/04/02 1.991.1.2)
-   [FBDEV SOFT CURSOR] Test to see if kmalloc failed.
-   
-   [FBCON] Test to see if the user priovides there own work queue.
-
-<jsimmons@kozmo.(none)> (03/04/02 1.991.1.1)
-   [FBDEV] Final cursor code cleanups. Now the burden of handling the cursor code lies on the driver side. The reason for this is that a invalid cursor might come from userland.
-
-<jsimmons@kozmo.(none)> (03/03/31 1.990)
-   [FBDEV] Massive cleanups of the cursor api.
-
-<jsimmons@maxwell.earthlink.net> (03/03/26 1.986)
-   [FBDEV] Documentation on the device numbers of /dev/fb being mulitples of 32 is no longer true. Removed that info.
-   
-   [FBDEV] Logo fixes. Now we can display different color logos on screens of different color depths.
-   
-   [VGA16 FBDEV] Small compile error. Fixed it now.
-
-<jsimmons@maxwell.earthlink.net> (03/03/26 1.984)
-   [I810 FBDEV] Driver updates.
-   
-   [FBCON] Reversed some of my cursor changes.
-
-<jsimmons@kozmo.(none)> (03/03/25 1.983)
-   [FBDEV] The image color depth of zero hack has been killed.
-
-<jsimmons@maxwell.earthlink.net> (03/03/25 1.982)
-   [FBCON] Now we use workqueues so framebuffer code can always work in a process context.
-   
-   [GENERIC CURSOR] Safety check in case kmalloc failes
-
-<jsimmons@maxwell.earthlink.net> (03/03/25 1.981)
-   [FBCON] Could be called outside of a process context. This fixes that.
-
-<jsimmons@maxwell.earthlink.net> (03/03/25 1.979)
-   [RAGE 128/CONTROL/PLATNIUM FBDEV] PPC updates.
-   
-   [RADEON FBDEV] PLL fix for specific type of card.
-
-
+--- linux-2.4.21-pre6/arch/x86_64/kernel/entry.S.~1~	2003-04-02 20:02:40.000000000 +0200
++++ linux-2.4.21-pre6/arch/x86_64/kernel/entry.S	2003-04-02 20:51:08.000000000 +0200
+@@ -77,7 +77,7 @@
+ 	jnz 2f
+ 1:
+ 	RESTORE_REST
+-	testl $3,CS-ARGOFFSET(%rsp) # from kernel_thread?
++	testl $3,CS-ARGOFFSET(%rsp) # from arch_kernel_thread?
+ 	jz   int_ret_from_sys_call
+ 	testl $ASM_THREAD_IA32,tsk_thread+thread_flags(%rcx)
+ 	jnz  int_ret_from_sys_call
+@@ -542,12 +542,12 @@
+  * Create a kernel thread.
+  *
+  * C extern interface:
+- *	extern long kernel_thread(int (*fn)(void *), void * arg, unsigned long flags)
++ *	extern long arch_kernel_thread(int (*fn)(void *), void * arg, unsigned long flags)
+  *
+  * asm input arguments:
+  *	rdi: fn, rsi: arg, rdx: flags
+  */
+-ENTRY(kernel_thread)
++ENTRY(arch_kernel_thread)
+ 	FAKE_STACK_FRAME $child_rip
+ 	SAVE_ALL
+ 
+@@ -566,7 +566,7 @@
+ 
+ 	/*
+ 	 * It isn't worth to check for reschedule here,
+-	 * so internally to the x86_64 port you can rely on kernel_thread()
++	 * so internally to the x86_64 port you can rely on arch_kernel_thread()
+ 	 * not to reschedule the child before returning, this avoids the need
+ 	 * of hacks for example to fork off the per-CPU idle tasks.
+          * [Hopefully no generic code relies on the reschedule -AK]	
+@@ -578,7 +578,7 @@
+ child_rip:
+ 	/*
+ 	 * Here we are in the child and the registers are set as they were
+-	 * at kernel_thread() invocation in the parent.
++	 * at arch_kernel_thread() invocation in the parent.
+ 	 */
+ 	movq %rdi, %rax
+ 	movq %rsi, %rdi
+--- linux-2.4.21-pre6/include/asm-x86_64/processor.h.~1~	2003-04-02 20:40:19.000000000 +0200
++++ linux-2.4.21-pre6/include/asm-x86_64/processor.h	2003-04-02 20:49:53.000000000 +0200
+@@ -361,7 +361,7 @@
+ /*
+  * create a kernel thread without removing it from tasklists
+  */
+-extern long kernel_thread(int (*fn)(void *), void * arg, unsigned long flags);
++extern long arch_kernel_thread(int (*fn)(void *), void * arg, unsigned long flags);
+ 
+ /* Copy and release all segment info associated with a VM */
+ extern void copy_segments(struct task_struct *p, struct mm_struct * mm);

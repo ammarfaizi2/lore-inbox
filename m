@@ -1,68 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262170AbUK3Qte@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262183AbUK3Qyp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262170AbUK3Qte (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 11:49:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbUK3QsW
+	id S262183AbUK3Qyp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 11:54:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbUK3Qyo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 11:48:22 -0500
-Received: from mail.dnm.gov.ar ([200.55.54.66]:14248 "EHLO mail.dnm.gov.ar")
-	by vger.kernel.org with ESMTP id S262170AbUK3QqM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 11:46:12 -0500
-Message-ID: <41ACA45B.206@migraciones.gov.ar>
-Date: Tue, 30 Nov 2004 13:48:27 -0300
-From: Javier Villavicencio <javierv@migraciones.gov.ar>
-User-Agent: Mozilla Thunderbird 0.7.1 (Windows/20040626)
-X-Accept-Language: en-us, en
+	Tue, 30 Nov 2004 11:54:44 -0500
+Received: from 70-56-133-193.albq.qwest.net ([70.56.133.193]:44490 "EHLO
+	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S262183AbUK3QxR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 11:53:17 -0500
+Date: Tue, 30 Nov 2004 09:52:41 -0700 (MST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Gene Heskett <gene.heskett@verizon.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-13
+In-Reply-To: <200411301124.18628.gene.heskett@verizon.net>
+Message-ID: <Pine.LNX.4.61.0411300951220.14514@montezuma.fsmlabs.com>
+References: <36536.195.245.190.93.1101471176.squirrel@195.245.190.93>
+ <200411292354.05995.gene.heskett@verizon.net> <41AC9121.8020001@cybsft.com>
+ <200411301124.18628.gene.heskett@verizon.net>
 MIME-Version: 1.0
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: David Wagner <daw-usenet@taverner.cs.berkeley.edu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: no entropy and no output at /dev/random (quick question)
-References: <200411301249.iAUCnJgs004281@laptop11.inf.utfsm.cl>
-In-Reply-To: <200411301249.iAUCnJgs004281@laptop11.inf.utfsm.cl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand wrote:
+On Tue, 30 Nov 2004, Gene Heskett wrote:
 
-> daw@taverner.cs.berkeley.edu (David Wagner) said:
+> On Tuesday 30 November 2004 10:26, K.R. Foley wrote:
+> >
+> >"<some process> is being piggy... Read missed before next interrupt"
+> >
+> >2) tvtime is probably running at a RT priority of 99. The IRQ
+> > handler for the rtc defaults to 48-49 (I think). If you didn't
+> > already do so, you should bump the priority up as in:
+> >
+> >chrt -f -p 99 `/sbin/pidof 'IRQ 8'`
 > 
->>Javier Villavicencio  wrote:
->>
->>>it's encouraged to use /dev/urandom instead of /dev/random?
+> [root@coyote root]# chrt -f -p 99 `/sbin/pidof 'IRQ 8'`
+> bash: chrt: command not found
 > 
-> 
->>Yes, for almost all purposes, applications should use /dev/urandom,
->>not /dev/random.  (The names for these devices are unfortunate.)
-> 
-> 
-> To seed a random number generator, never directly.
-> 
-> 
->>Sadly, many applications fail to follow these rules, and consequently
->>/dev/random's entropy pool often ends up getting depleted much faster
->>than it has to be.
-> 
-> 
-> Reading /dev/urandom depletes exactly the same pool, it just doesn't block
-> when the pool is empty. As said pool has other uses, indiscriminate reading
-> of either can DoS other parts of the system.
+> chrt is an unknown command here. WTH?  Basicly an FC2 system.
 
-But why if /dev/random depletes and you don't have any source of entropy 
-? As you may have seen in my setup I had no mouse/keyboard attached to 
-that server, and the only "things" capable of generate entropy where the 
-two nics and the DAC960.
-So I've enabled entropy only for the local nic and the DAC960 (at least 
-"I think", for the dac :+) and now I'm plenty of entropy, but for a 
-setup like this, the server may have been running without entropy at all 
-for weeks (I've forgot to check the uptime :+P).
-About this, think about php generating session_id()s without entropy 
-(o_O), and stuff like that....
+Install the package first (from an FC2 system)
 
-Salu2.
+zwane@r3000 ~ {0:1} rpm -qif `which chrt`
+Name        : schedutils                   Relocations: (not relocatable)
+Version     : 1.3.0                             Vendor: Red Hat, Inc.
+Release     : 6                             Build Date: Tue 17 Feb 2004 
+10:16:15 MST
+Install Date: Tue 13 Jul 2004 11:13:52 MDT      Build Host: tweety.devel.redhat.com
+Group       : Applications/System           Source RPM: schedutils-1.3.0-6.src.rpm
+Size        : 39412                            License: GPL
+Signature   : DSA/SHA1, Thu 06 May 2004 16:36:57 MDT, Key ID b44269d04f2a6fd2
+Packager    : Red Hat, Inc. <http://bugzilla.redhat.com/bugzilla>
+Summary     : Utilities for manipulating process scheduler attributes
+Description : schedutils is a set of utilities for retrieving and 
+manipulating process scheduler-related attributes, such as real-time 
+parameters and CPU affinity.
 
-Javier Villavicencio.
+This package includes the chrt and taskset utilities.
 
+Install this package if you need to set or get scheduler-related 
+attributes.

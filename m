@@ -1,48 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290389AbSA3Sb4>; Wed, 30 Jan 2002 13:31:56 -0500
+	id <S290421AbSA3SdW>; Wed, 30 Jan 2002 13:33:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290333AbSA3SaZ>; Wed, 30 Jan 2002 13:30:25 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:6615 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S290379AbSA3S3l>;
-	Wed, 30 Jan 2002 13:29:41 -0500
-Date: Wed, 30 Jan 2002 13:29:39 -0500
-From: Jeff Garzik <garzik@havoc.gtf.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Greg KH <greg@kroah.com>, Linus Torvalds <torvalds@transmeta.com>,
-        Alexander Viro <viro@math.psu.edu>,
-        Daniel Phillips <phillips@bonn-fries.net>, mingo@elte.hu,
-        Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org
-Subject: Re: A modest proposal -- We need a patch penguin
-Message-ID: <20020130132939.B29606@havoc.gtf.org>
-In-Reply-To: <20020130171126.GA26583@kroah.com> <E16VzZj-00082y-00@the-village.bc.nu>
+	id <S290333AbSA3ScB>; Wed, 30 Jan 2002 13:32:01 -0500
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:56844 "HELO
+	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
+	id <S290421AbSA3Sbj>; Wed, 30 Jan 2002 13:31:39 -0500
+Date: Wed, 30 Jan 2002 19:31:36 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: James Simmons <jsimmons@transvirtual.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Pozsar Balazs <pozsy@sch.bme.hu>,
+        Dave Jones <davej@suse.de>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.2-dj7
+Message-ID: <20020130193136.B2487@suse.cz>
+In-Reply-To: <E16Vie4-0005gE-00@the-village.bc.nu> <Pine.LNX.4.10.10201301018200.7609-100000@www.transvirtual.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16VzZj-00082y-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Jan 30, 2002 at 06:35:15PM +0000
+In-Reply-To: <Pine.LNX.4.10.10201301018200.7609-100000@www.transvirtual.com>; from jsimmons@transvirtual.com on Wed, Jan 30, 2002 at 10:22:02AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 30, 2002 at 06:35:15PM +0000, Alan Cox wrote:
-> > Especially after spelunking through the SCSI drivers, and being amazed
-> > that only one of them uses the, now two year old, pci_register_driver()
-> > interface (which means that only that driver works properly in PCI
-> > hotplug systems.)
+On Wed, Jan 30, 2002 at 10:22:02AM -0800, James Simmons wrote:
+
+> > >    In dmi_scan.c there is a hook to deal with the PS/2 mouse on Dell
+> > > Latitude C600. Can someone with this machine test the new input drivers on
+> > > it. I like to see if we need some kind of fix for this device.
+> > 
+> > You I suspect will. When the machine resumes it likes to re-enable the mouse
+> > pad irrespective of whether it is being used - so you get an IRQ12. Even
+> > more fun if you ignore that IRQ you dont get keyboard events because the
+> > microcontroller (or SMM code impersonating it - who knows these days) is
+> > waiting for the ps/2 event to be handled first.
 > 
-> I doubt it does actually. The problem with pci register driver and scsi is
-> that the two subsystems are designed with violently conflicting goals. Once
-> DaveJ or someone does the proposed scsi cleanups it'll become the natural
-> not the obscenely complicated way to do a scsi driver, as well as sorting out
-> the pcmcia and cardbus scsi mess, and the card failed/recovered stuff once and
-> for all.
+> Oh man is that brain dead. 
 
-I disagree... I outlined a workable scheme for hotplugging SCSI
-controllers to Justin Gibbs a long time ago, when the new aic7xxx was
-first being merged.  Using the new PCI API was fairly easy, handling the
-disk-disappearing-from-under-you problem was a bit more annoying :)
+The i8042 has a single byte output buffer shared by both the keyboard
+and a mouse. If it's full, no more data is accepted from the keyboard or
+mouse. Hence the problem above.
 
-	Jeff
+> > The alternative (possibly cleaner) fix on those machines would be to turn
+> > the PS/2 port on always and process/discard output if its not wanted by
+> > the user
+> 
+> This could be easily arranged with the new input drivers with it modular
+> design. Since for the ix86 platform most people will want PS/2 input
+> support to be built in. The only expection are the USB only users. I guess
+> with the Dell Latitude C600 we will have to force i8042.c to be built in. 
+> Vojtech what do you think about this solution?
 
+I don't think we need to have it built in. If we need keyboard support
+(which is likely), we'll have it, and if we don't need keyboard, then
+we can safely ignore the IRQ12 as well.
 
+And i8042.c, once power management is implemented in it, will reset the
+keyboard controller and flush its buffers upon resume from sleep anyway.
+(A problem may arise if the machine doesn't tell us about sleep/wake and
+handles it all in SMM ...)
 
+-- 
+Vojtech Pavlik
+SuSE Labs

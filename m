@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264183AbUG2EYo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264192AbUG2E64@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264183AbUG2EYo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 00:24:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264085AbUG2EYn
+	id S264192AbUG2E64 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 00:58:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264236AbUG2E64
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 00:24:43 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:38663 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S264154AbUG2EYm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 00:24:42 -0400
-Date: Thu, 29 Jul 2004 06:18:11 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Ben Greear <greearb@candelatech.com>
-Cc: Andrew Morton <akpm@osdl.org>, Alan Cox <alan@redhat.com>,
-       jgarzik@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: VLAN support for 3c59x/3c90x
-Message-ID: <20040729041811.GF1545@alpha.home.local>
-References: <20040728124256.GA31246@devserv.devel.redhat.com> <20040728143634.0931ee07.akpm@osdl.org> <41081E8B.7030607@candelatech.com>
+	Thu, 29 Jul 2004 00:58:56 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:46030 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S264192AbUG2E6y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 00:58:54 -0400
+Date: Thu, 29 Jul 2004 15:54:37 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: L A Walsh <lkml@tlinx.org>, Chris Wedgwood <cw@f00f.org>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>, linux-xfs@oss.sgi.com
+Subject: Re: 2.6.7-vanilla-SMP kernel: pagebuf_get: failed to lookup pages
+Message-ID: <20040729055437.GL800@frodo>
+References: <40FF0479.6050509@tlinx.org> <20040722001224.GC30595@taniwha.stupidest.org> <40FF0885.7060704@tlinx.org> <20040722003357.GA31163@taniwha.stupidest.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41081E8B.7030607@candelatech.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20040722003357.GA31163@taniwha.stupidest.org>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+On Wed, Jul 21, 2004 at 05:33:57PM -0700, Chris Wedgwood wrote:
+> On Wed, Jul 21, 2004 at 05:21:25PM -0700, L A Walsh wrote:
+> 
+> > Will this be included/fixed in 2.6.8?
+> 
+> i assume that's the intention but i don't know when 2.6.8 is and how
+> much time the sgi people have before then.  my guess is yes though
 
-On Wed, Jul 28, 2004 at 02:45:47PM -0700, Ben Greear wrote:
- 
-> In my opinion Becker's complaints were invalid, or maybe I just
-> didn't understand what he was trying to say.  At any rate, lots of
-> other NICs have supported larger MTUs and VLANs w/out problem, so
-> it is unlikely that there is a fundamental flaw in accepting larger
-> frames.
+The fix has been included in the 2.6.8-pre/rc kernels for some
+time now, so yes it'll be in 2.6.8.
 
-I've already used these cards with larger MTU to experiment some tunnelling
-without decreasing the tunnel's MTU. I believe I used a NIC MTU around 1518
-so that it could pass a cisco switch limited to 1536 bytes per frame. It
-never went into production but it worked well.
+> > How serious is the problem?  The system doesn't seem to panic or
+> > indicate backup failures.
+> 
+> not sure, hch can you comment here maybe?
 
-> There are patches for tulip floating around too.  I have been running
-> traffic on these patches for a while with no obvious problems
-> (on 2.4 kernel, however).  Jeff, if you want me to re-send this to you,
-> please let me know!
+This leaked locked pages on metadata readahead failure (which
+could occur when free memory becomes low), which is serious.
 
-I noticed a bug in the 2.4 tulip driver concerning MTU. The parameter
-is correctly declared as a static int, initialized with default values,
-checked by the code, but not declared as MODULE_PARM, so the user cannot
-change it ! I wanted to send a patch but didn't find time to work on it
-yet. So if your vlan patch fixes it, it's welcome :-)
+cheers.
 
-Cheers,
-Willy
-
+-- 
+Nathan

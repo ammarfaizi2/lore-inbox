@@ -1,31 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289838AbSAPDXV>; Tue, 15 Jan 2002 22:23:21 -0500
+	id <S289880AbSAPD3b>; Tue, 15 Jan 2002 22:29:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289835AbSAPDXL>; Tue, 15 Jan 2002 22:23:11 -0500
-Received: from mail.webmaster.com ([216.152.64.131]:49344 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S289751AbSAPDXC> convert rfc822-to-8bit; Tue, 15 Jan 2002 22:23:02 -0500
-From: David Schwartz <davids@webmaster.com>
-To: <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.51 (995) - Registered Version
-Date: Tue, 15 Jan 2002 19:22:59 -0800
-Subject: likely/unlikely
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <20020116032300.AAA27749@shell.webmaster.com@whenever>
+	id <S289965AbSAPD3V>; Tue, 15 Jan 2002 22:29:21 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:40936 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S289880AbSAPD3N>;
+	Tue, 15 Jan 2002 22:29:13 -0500
+Date: Tue, 15 Jan 2002 22:29:12 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: David Garfield <garfield@irving.iisd.sra.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Query about initramfs and modules
+In-Reply-To: <15428.47094.435181.278715@irving.iisd.sra.com>
+Message-ID: <Pine.GSO.4.21.0201152226100.4339-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-	By the way, has anybody actually benchmarked these macros to see if they 
-make any difference. I did a few quick inexact benchmarks on test code and 
-found that in most cases there was no difference and in some cases code was 
-made worse.
 
--- 
-David Schwartz
-<davids@webmaster.com>
+On Tue, 15 Jan 2002, David Garfield wrote:
 
+> Hearing all this talk about initramfs and eliminating hardwired
+> drivers, it occurs to me to ask:
+> 
+> 
+> 
+> Can/will the initramfs mechanism be made to implicitly load into the
+> kernel the modules (or some of the modules) in the image?
+
+No.  The point of initramfs is to remove crap from kernel and switch
+to using normal code paths for late-boot stuff.  _Adding_ insmod
+analog into the kernel?  No, thanks.
 

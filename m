@@ -1,89 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261673AbTJFUia (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 16:38:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbTJFUia
+	id S261299AbTJFUjY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 16:39:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbTJFUjY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 16:38:30 -0400
-Received: from main.gmane.org ([80.91.224.249]:35034 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261673AbTJFUiY (ORCPT
+	Mon, 6 Oct 2003 16:39:24 -0400
+Received: from fw.osdl.org ([65.172.181.6]:52373 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261299AbTJFUjS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 16:38:24 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Andreas Schwarz <usenet@andreas-s.net>
-Subject: Re: Extremely low disk performance on K7S5A Pro
-Date: Mon, 6 Oct 2003 20:38:21 +0000 (UTC)
-Message-ID: <slrnbo3kmg.4af.usenet@home.andreas-s.net>
-References: <slrnbnoi5i.3re.usenet@home.andreas-s.net> <3F813E19.7020303@inet6.fr>
+	Mon, 6 Oct 2003 16:39:18 -0400
+Subject: Re: Linux 2.6.0-test6 (compile statistics)
+From: John Cherry <cherry@osdl.org>
+To: Jesper Juhl <jju@dif.dk>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.56.0309291937350.12255@jju_lnx.backbone.dif.dk>
+References: <Pine.LNX.4.44.0309271822450.6141-100000@home.osdl.org>
+	 <1064853054.914.5.camel@cherrytest.pdx.osdl.net>
+	 <Pine.LNX.4.56.0309291937350.12255@jju_lnx.backbone.dif.dk>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1065472754.21161.26.camel@cherrypit.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: slrn/0.9.8.0 (Linux)
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 06 Oct 2003 13:39:14 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lionel Bouton wrote:
-> Andreas Schwarz said the following on 10/02/2003 05:47 PM:
->
->>Hi,
->>
->>since I replaced my Abit KT7 with an Elitegroup K7S5A Pro (SIS735), I've
->>got extremly low disk performance with every tested kernel version
->>(2.4.20, 2.6.0-test6-mm2):
->>
->># hdparm -tT /dev/hda                                                           
->>/dev/hda:                                                                       
->> Timing buffer-cache reads:   824 MB in  2.00 seconds = 411.65 MB/sec           
->> Timing buffered disk reads:   10 MB in  3.28 seconds =   3.05 MB/sec
->>                                                          ^^^^
->>
->>DMA, 32bit etc. is activated (hdparm -d1 -c3 -u1 /dev/hda):
->>
->>  
->>
->
-> 3.05 MB is even less than what I'm used to see with most drives and *PIO 
-> 4* !
->
-> Is there any ide message in /var/log/messages ?
+On Mon, 2003-09-29 at 10:44, Jesper Juhl wrote:
+[snip]
+> 
+> I was wondering if there would be any point in doing these builds with
+> "allnoconfig" as well?
+> Could this possibly flush out some warnings/errors that only occur when
+> something is left out?
+> 
+> 
 
-No, nothing at all.
+The compile regressions now build with allnoconfig as well for both
+Linus' tree and Andrew's tree.  Check out...
 
-> I see you use hdparm to setup the drive/controller settings. I advise 
-> you to let the kernel autotune the transfer modes by itself.
+http://developer.osdl.org/cherry/compile/
 
-That doesn't change anything.
+BTW, the latest compile stats for test6-mm3 and test6-mm4 are:
 
-> Could you send us :
-> - the exact kernel version,
+Kernel version: 2.6.0-test6-mm4
+Kernel build: 
+   Making bzImage (defconfig): 0 warnings, 0 errors
+   Making modules (defconfig): 0 warnings, 0 errors
+   Making bzImage (allnoconfig): 1 warnings, 0 errors
+   Making bzImage (allyesconfig): 179 warnings, 1 errors
+   Making modules (allyesconfig): 9 warnings, 0 errors
+   Making bzImage (allmodconfig): 3 warnings, 0 errors
+   Making modules (allmodconfig): 234 warnings, 1 errors
 
-2.6.20-test6-mm2 (but 2.4.20 produces exactly the same result!)
-
-> - your kernel compilation config file,
-
-http://andreas-s.net/kernel/config.gz
-
-> - any kernel parameters provided,
-
-root=/dev/hda7 hdc=ide-scsi hdd=ide-scsi vga=792 noapic
-
-> - the content of /var/log/dmesg,
-
-http://andreas-s.net/kernel/dmesg.gz
-
-> - the output of `lspci -vvxxx`,
-
-http://andreas-s.net/kernel/lspci.gz
-
-> - the ouput of `cat /proc/ide/sis`
-
-http://andreas-s.net/kernel/sis.gz
+Kernel version: 2.6.0-test6-mm3
+Kernel build: 
+   Making bzImage (defconfig): 0 warnings, 0 errors
+   Making modules (defconfig): 0 warnings, 0 errors
+   Making bzImage (allnoconfig): 1 warnings, 0 errors
+   Making bzImage (allyesconfig): 178 warnings, 1 errors
+   Making modules (allyesconfig): 9 warnings, 0 errors
+   Making bzImage (allmodconfig): 3 warnings, 0 errors
+   Making modules (allmodconfig): 252 warnings, 1 errors
 
 
--- 
-AVR-Tutorial, über 350 Links
-Forum für AVRGCC und MSPGCC
--> http://www.mikrocontroller.net
+John
 

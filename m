@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317423AbSFHS35>; Sat, 8 Jun 2002 14:29:57 -0400
+	id <S317427AbSFHTQC>; Sat, 8 Jun 2002 15:16:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317427AbSFHS34>; Sat, 8 Jun 2002 14:29:56 -0400
-Received: from mailout10.sul.t-online.com ([194.25.134.21]:37511 "EHLO
-	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S317423AbSFHS3z>; Sat, 8 Jun 2002 14:29:55 -0400
-Date: Sat, 8 Jun 2002 20:29:45 +0200
-To: Mukesh Rajan <mrajan@ics.uci.edu>
+	id <S317430AbSFHTQB>; Sat, 8 Jun 2002 15:16:01 -0400
+Received: from newman.msbb.uc.edu ([129.137.2.198]:57861 "EHLO smtp.uc.edu")
+	by vger.kernel.org with ESMTP id <S317427AbSFHTQB>;
+	Sat, 8 Jun 2002 15:16:01 -0400
+From: kuebelr@email.uc.edu
+Date: Sat, 8 Jun 2002 15:15:48 -0400
+To: trivial@rustcorp.com.au
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: HDD power states + kernel
-Message-ID: <20020608182945.GA2451@pelks01.extern.uni-tuebingen.de>
-Mail-Followup-To: Mukesh Rajan <mrajan@ics.uci.edu>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020607205114Z317348-22021+121@vger.kernel.org> <Pine.SOL.4.20.0206071355570.16596-100000@hobbit.ics.uci.edu>
+Subject: [PATCH] [TRIVIAL] remove agpgart_be.c unused variables
+Message-Id: <20020608191548.GA21529@cartman>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.3.28i
-From: Daniel Kobras <kobras@tat.physik.uni-tuebingen.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 07, 2002 at 02:05:05PM -0700, Mukesh Rajan wrote:
-> i need to implement powering down of the Hard Disk in the linux kernel. i
-> understand that using "hdparm" i could set a timeout and power down the
-> HDD after a certain idle time.
-> 
-> but then HDD has 4 power states and instead of powering down to the lowest
-> power state, i would like to power down one state at a time based on
-> certain timeout values.  
-> 
-> i'm not sure where to start with this. would i have to play around with
-> "llrwblk.c"? and what would i have to do here in order to monitor disk
-> inactivity (idleness)? or should i look into APM stuff?
+This patch removes a few un-needed variables in agpgart_be.c.  Patch is
+against 2.4.19-pre10.
 
-The various standby modes of IDE disks are exported to userland via
-ioctl()s (WIN_STANDBYNOW* and friends).  For a userland solution see
-http://noflushd.sourceforge.net.  A first stab at a kernel
-implementation was recently posted by Andrew Morton to linux-kernel
-(June 4th, look out for "laptop mode").  Neither code makes use of
-multiple power states, but you could start hacking from there.
-
-Regards,
-
-Daniel.
+--- linux-clean/drivers/char/agp/agpgart_be.c	Fri Jun  7 23:41:55 2002
++++ linux-dirty/drivers/char/agp/agpgart_be.c	Sat Jun  8 00:45:17 2002
+@@ -397,7 +397,7 @@
+ static void agp_generic_agp_enable(u32 mode)
+ {
+ 	struct pci_dev *device = NULL;
+-	u32 command, scratch, cap_id;
++	u32 command, scratch;
+ 	u8 cap_ptr;
+ 
+ 	pci_read_config_dword(agp_bridge.dev,
+@@ -4201,7 +4201,6 @@
+ {
+ 	struct pci_dev *dev = NULL;
+ 	u8 cap_ptr = 0x00;
+-	u32 cap_id, scratch;
+ 
+ 	if ((dev = pci_find_class(PCI_CLASS_BRIDGE_HOST << 8, NULL)) == NULL)
+ 		return -ENODEV;

@@ -1,70 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267144AbTAHQm6>; Wed, 8 Jan 2003 11:42:58 -0500
+	id <S267633AbTAHQw7>; Wed, 8 Jan 2003 11:52:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267153AbTAHQm6>; Wed, 8 Jan 2003 11:42:58 -0500
-Received: from stroke.of.genius.brain.org ([206.80.113.1]:24245 "EHLO
-	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
-	id <S267144AbTAHQm5>; Wed, 8 Jan 2003 11:42:57 -0500
-Date: Wed, 8 Jan 2003 11:51:30 -0500
-From: "Murray J. Root" <murrayr@brain.org>
+	id <S267647AbTAHQw7>; Wed, 8 Jan 2003 11:52:59 -0500
+Received: from home.wiggy.net ([213.84.101.140]:18921 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id <S267633AbTAHQw6>;
+	Wed, 8 Jan 2003 11:52:58 -0500
+Date: Wed, 8 Jan 2003 18:01:39 +0100
+From: Wichert Akkerman <wichert@wiggy.net>
 To: linux-kernel@vger.kernel.org
-Subject: USB CF reader reboots PC
-Message-ID: <20030108165130.GA1181@Master.Wizards>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+Cc: Maciej Soltysiak <solt@dns.toxicfilms.tv>, netdev@oss.sgi.com
+Subject: Re: ipv6 stack seems to forget to send ACKs
+Message-ID: <20030108170139.GL22951@wiggy.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Maciej Soltysiak <solt@dns.toxicfilms.tv>, netdev@oss.sgi.com
+References: <20030108150201.GA30490@wiggy.net> <Pine.LNX.4.44.0301081718340.4542-100000@dns.toxicfilms.tv>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+In-Reply-To: <Pine.LNX.4.44.0301081718340.4542-100000@dns.toxicfilms.tv>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ASUS P4S533 (SiS645DX chipset)
-P4 2GHz
-1G PC2700 RAM
-SanDisk SDDR-77 ImageMate Dual Card Reader (using only CF cards)
+Previously Maciej Soltysiak wrote:
+> I seem to be getting better results than you, i think that it is not an
+> issue of ipv6 implementation but simply the case of time sensitive
+> traffic fighting with other Internet traffic over tunnels through ipv4
+> networks.
 
-----------------------------
-devfs compiled in to kernel, devfs=nomount in lilo.conf
-  
-Insert CF card. mount it. cd to it, do reads and/or writes
-umount card. remove card.
-insert a different card (does not happen if the same card is used)
-mount it. system reboots. logs are corrupted
+Actually, I don't follow this. How could any kind of traffic shaping
+result in my client not sending ACKs, which is what the tcpdump
+seems to indicate? I can understand packets being dropped which
+would result in retransmits, but that is not the case here.
 
-Doesn't happen every time for read - sometimes I can read 2 or 3 cards first
-Happens every time for write - if I write to a card then changing cards
-causes a reboot
+Wichert.
 
-----------------------------
-devfs=mount in lilo.conf
-              
-Insert CF card. 
-ls /dev shows sda and sda1
-mount it. 
-ls /dev shows sda - no sda1
-cd to mounted CF card
-process hangs, sd-mod & usb-storage "busy"
-rmmod -f usb-storage or sd-mod causes PC to stop
-(keyboard & mouse unresponsive, wmfire frozen, net disconnects)
-
-reboot
-Insert CF card. 
-ls /dev shows sda & sda1
-mount it. 
-ls /dev shows sda - no sda1
-umount it
-ls /dev shows sda - no sda1
-modprobe -r sd-mod && modprobe sd-mod 
-ls /dev shows sda & sda1
+(usual I'm-no-network-guru-and-might-be-misreading-things disclaimer here)
 
 -- 
-Murray J. Root
-------------------------------------------------
-DISCLAIMER: http://www.goldmark.org/jeff/stupid-disclaimers/
-------------------------------------------------
-Mandrake on irc.freenode.net:
-  #mandrake & #mandrake-linux = help for newbies 
-  #mdk-cooker = Mandrake Cooker
-  #cooker = moderated Mandrake Cooker
-
+Wichert Akkerman <wichert@wiggy.net>           http://www.wiggy.net/
+A random hacker

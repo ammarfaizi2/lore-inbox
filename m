@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132347AbQKZRad>; Sun, 26 Nov 2000 12:30:33 -0500
+        id <S131353AbQKZSYY>; Sun, 26 Nov 2000 13:24:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132435AbQKZRaX>; Sun, 26 Nov 2000 12:30:23 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:32754 "EHLO
-        brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-        id <S132347AbQKZRaN>; Sun, 26 Nov 2000 12:30:13 -0500
-Date: Sun, 26 Nov 2000 14:58:50 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Olaf Dietsche <olaf.dietsche@gmx.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: gcc-2.95.2-51 is buggy
-In-Reply-To: <87ofz2lpdm.fsf@tigram.bogus.local>
-Message-ID: <Pine.LNX.4.21.0011261458290.23375-100000@duckman.distro.conectiva>
+        id <S132503AbQKZSYN>; Sun, 26 Nov 2000 13:24:13 -0500
+Received: from www.ylenurme.ee ([193.40.6.1]:24821 "EHLO ylenurme.ee")
+        by vger.kernel.org with ESMTP id <S131353AbQKZSXx>;
+        Sun, 26 Nov 2000 13:23:53 -0500
+Date: Sun, 26 Nov 2000 19:53:42 +0200 (GMT-2)
+From: Elmer Joandi <elmer@ylenurme.ee>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] removal of "static foo = 0"
+Message-ID: <Pine.LNX.4.10.10011261942420.11180-100000@yle-server.ylenurme.sise>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 26 Nov 2000, Olaf Dietsche wrote:
 
-> A simple `gcc -march=i686' or `gcc -mpentiumpro' does fix it as
-> well. So, if you configure your kernel with `CONFIG_M686=y' the
-> problem should be gone.
+Nice to see again a two cutting-edge-killing opinions.
 
-Except for the fact that it'll no longer boot on Pentiums
-and 486es ;)
+Every time I really wonder, how such brilliant hackers can be that stupid
+that they can not have cake and eat it the same time, and have to scratch
+each-others eyes every time.
 
-Rik
---
-Hollywood goes for world dumbination,
-	Trailer at 11.
+Use macros.
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+Kernel has become so big that it really needs universal  debugging macros
+instead of comments. Comments are waste of brain&fingerpower, if the same
+can be explained by long variable names and debug macros.
+
+static Subsystem_module_LocalVariableForThisPurpose;
+
+int Subsytem_module_function_this_and_that(){
+	DEBUG_ASSERT( Subsystem_module_LocalVariableForThisPurpose  == 0 );
+	DEBUG_ASSERT(MOST_OF_TIME,FS_AREA,MYFS_MODULE, somethingaboutIndodes->node != NULL )
+}
+
+
+Those macros would be acceptable if they are unified and taken to
+kernel configuration level, so it would be easy to switch them in/out 
+not only as boolean option but systematically for different levels,
+subsystems and modules.
+
+elmer.
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261934AbSJNPqY>; Mon, 14 Oct 2002 11:46:24 -0400
+	id <S261744AbSJNPyQ>; Mon, 14 Oct 2002 11:54:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261936AbSJNPqY>; Mon, 14 Oct 2002 11:46:24 -0400
-Received: from ausadmmsps305.aus.amer.dell.com ([143.166.224.100]:3852 "HELO
-	AUSADMMSPS305.aus.amer.dell.com") by vger.kernel.org with SMTP
-	id <S261934AbSJNPqW>; Mon, 14 Oct 2002 11:46:22 -0400
-X-Server-Uuid: bc938b4d-8e35-4c08-ac42-ea3e606f44ee
-Message-ID: <20BF5713E14D5B48AA289F72BD372D68C1E9A1@AUSXMPC122.aus.amer.dell.com>
-From: Matt_Domsch@Dell.com
-To: rob@osinvestor.com, davej@codemonkey.org.uk, wim@iguana.be,
-       rddunlap@osdl.org, rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: RE: Watchdog drivers
-Date: Mon, 14 Oct 2002 10:51:59 -0500
+	id <S261835AbSJNPyQ>; Mon, 14 Oct 2002 11:54:16 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:31106 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S261744AbSJNPyP>;
+	Mon, 14 Oct 2002 11:54:15 -0400
+Date: Mon, 14 Oct 2002 08:58:02 -0700 (PDT)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Wim Van Sebroeck <wim@iguana.be>
+cc: Dave Jones <davej@codemonkey.org.uk>, Rob Radez <rob@osinvestor.com>,
+       Russell King <rmk@arm.linux.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: Watchdog drivers
+In-Reply-To: <20021014144158.A19209@medelec.uia.ac.be>
+Message-ID: <Pine.LNX.4.33L2.0210140857050.24860-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-X-WSS-ID: 11B437A22145710-01-01
-Content-Type: text/plain; 
- charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Also, I've got patches around from Matt Domsch that did the 
-> move, and changed
-> around the necessary drivers/char/ files.  I haven't been 
-> keeping them up-to- date, maybe Matt has.
+On Mon, 14 Oct 2002, Wim Van Sebroeck wrote:
 
-I haven't been, but it doesn't look too painful to do it.  The Natsemi
-SCx200 merge is what's screwing up BK's automerge of it (I hadn't updated
-that tree since April...).
+| On Mon, Oct 14, 2002 at 01:22:39PM +0100, Dave Jones wrote:
+|
+| >  > Now I'm still left with my original question: wouldn't it be easier if we
+| >  > put all watchdog drivers in drivers/char/watchdog/ ?
+| >
+| > I'd say go for it. drivers/char/ is looking quite cluttered, and this
+| > has the added advantage of decreasing the size of the Config.in and
+| > config.help files too.
+|
+| I still see two options:
+| 1) drivers/char/watchdog/
+| 2) drivers/watchdog/
+|
+| Not sure what's best in this case...
 
-The move work took me a few hours last time I did it, I can resurrect that
-now that there's interest.  Give me a few hours, today's kind of busy...
+I agree that you should split them out.
+I would expect them to be in drivers/char/watchdog .
 
-Thanks,
-Matt
-
---
-Matt Domsch
-Sr. Software Engineer, Lead Engineer, Architect
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+-- 
+~Randy
+  "In general, avoiding problems is better than solving them."
+  -- from "#ifdef Considered Harmful", Spencer & Collyer, USENIX 1992.
 

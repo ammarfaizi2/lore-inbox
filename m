@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270443AbTGMXUf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 19:20:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270441AbTGMXUf
+	id S270432AbTGMW4R (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 18:56:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270433AbTGMW4R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 19:20:35 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:36241 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S270434AbTGMXUd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 19:20:33 -0400
-Date: Sun, 13 Jul 2003 16:35:03 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Roland Dreier <roland@topspin.com>, alan@storlinksemi.com,
-       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-       netdev@oss.sgi.com
+	Sun, 13 Jul 2003 18:56:17 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:18118 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S270432AbTGMW4P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 18:56:15 -0400
+Date: Sun, 13 Jul 2003 16:02:00 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Roland Dreier <roland@topspin.com>
+Cc: alan@storlinksemi.com, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org, netdev@oss.sgi.com
 Subject: Re: TCP IP Offloading Interface
-Message-ID: <20030713233503.GA31793@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	"David S. Miller" <davem@redhat.com>,
-	Roland Dreier <roland@topspin.com>, alan@storlinksemi.com,
-	linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-	netdev@oss.sgi.com
-References: <ODEIIOAOPGGCDIKEOPILCEMBCMAA.alan@storlinksemi.com> <20030713004818.4f1895be.davem@redhat.com> <52u19qwg53.fsf@topspin.com> <20030713160200.571716cf.davem@redhat.com>
+Message-Id: <20030713160200.571716cf.davem@redhat.com>
+In-Reply-To: <52u19qwg53.fsf@topspin.com>
+References: <ODEIIOAOPGGCDIKEOPILCEMBCMAA.alan@storlinksemi.com>
+	<20030713004818.4f1895be.davem@redhat.com>
+	<52u19qwg53.fsf@topspin.com>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030713160200.571716cf.davem@redhat.com>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 13, 2003 at 04:02:00PM -0700, David S. Miller wrote:
-> On send this doesn't matter, on receive you use my clever receive
-> buffer handling + flow cache idea to accumulate the data portion of
-> packets into page sized chunks for the networking to flip.
+On 13 Jul 2003 09:22:32 -0700
+Roland Dreier <roland@topspin.com> wrote:
 
-Please don't.  I think page flipping was a bad idea.  I think you'd be 
-better off to try and make the data flow up the stack in small enough 
-windows that it all sits in the cache.
+>     David> TOE is evil, read this:
+> 
+>     David> http://www.usenix.org/events/hotos03/tech/full_papers/mogul/mogul.pdf
 
-One thing SGI taught me (not that they wanted to do so) is that infinitely
-large packets are infinitely stupid, for lots of reasons.  One is that
-you have to buffer them somewhere and another is that the bigger they 
-are the bigger your cache needs to be to go fast.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+> Your ideas are certainly very interesting, and I would be happy to see
+> hardware that supports flow identification.  But the Usenix paper
+> you're citing completely disagrees with you!
+
+I didn't say I agree with all of Moguls ideas, just his anti-TOE
+arguments.  For example, I also think RDMA sucks too yet he thinks
+it's a good iea.
+
+>  For example, Mogul writes:
+> 
+>  "Nevertheless, copy-avoidance designs have not been widely adopted,
+>   due to significant limitations. For example, when network maximum
+>   segment size (MSS) values are smaller than VM page sizes, which is
+>   often the case, page-remapping techniques are insufficient (and
+>   page-remapping often imposes overheads of its own.)"
+
+On send this doesn't matter, on receive you use my clever receive
+buffer handling + flow cache idea to accumulate the data portion of
+packets into page sized chunks for the networking to flip.
+
+You obviously don't understand my ideas if you think that it matters
+whether there is some relationship between the MTU and the system
+page size necessary for the scheme to work.

@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264784AbTE1QMj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 12:12:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264788AbTE1QMj
+	id S264791AbTE1QOn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 12:14:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264793AbTE1QOn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 12:12:39 -0400
-Received: from va-leesburg1b-227.stngva.adelphia.net ([68.64.41.227]:12164
-	"EHLO ccs.covici.com") by vger.kernel.org with ESMTP
-	id S264784AbTE1QMi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 12:12:38 -0400
-To: linux-kernel@vger.kernel.org
-Subject: peculiar alsa problems in 2.5.70
-From: John Covici <covici@ccs.covici.com>
-Date: Wed, 28 May 2003 12:25:54 -0400
-Message-ID: <m38ysravhp.fsf@ccs.covici.com>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
+	Wed, 28 May 2003 12:14:43 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:35599 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S264791AbTE1QOm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 12:14:42 -0400
+Date: Wed, 28 May 2003 09:14:03 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Bill Davidsen <davidsen@tmr.com>
+cc: Ricky Beam <jfbeam@bluetronic.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.70
+In-Reply-To: <Pine.LNX.3.96.1030528115243.19675A-100000@gatekeeper.tmr.com>
+Message-ID: <Pine.LNX.4.44.0305280909550.8790-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am using via82xx and I have all the alsa stuff configured as
-modules and every time I do  /etc/init.d/alsasound start I get the
-following:
 
-Starting sound driver: snd-via82xx done
-/usr/sbin/alsactl: set_control:780: failed to obtain info for control
-#37 (No such file or directory)
-/usr/sbin/alsactl: set_control:780: failed to obtain info for control
-#38 (No such file or directory)
-/usr/sbin/alsactl: set_control:780: failed to obtain info for control
-#39 (No such file or directory)
+On Wed, 28 May 2003, Bill Davidsen wrote:
+> 
+> Just the other day you posted strong opposition to breaking existing
+> binaries, how does that map with breaking existing hardware?
 
-Any assistance would be appreciated.
+One fundamental difference is that I cannot fix it without people who
+_have_ the hardware caring. So if they don't care, I don't care. It's that
+easy. If you want to have your hardware supported, you need to help
+support it.
 
--- 
-         John Covici
-         covici@ccs.covici.com
+Another difference is that it's better to not work at all, than to work
+incorrectly. So if your kernel doesn't boot or can't use your random piece
+of hardware, you just use an old kernel. But if everything looks normal,
+but some binary breaks in strange ways, that's _bad_.
+
+The latter reason is, btw, why we don't paper over the build failures like 
+some people suggested. If it hasn't been updated to the new interfaces, it 
+should preferably not even build: which is a big reason why we try to 
+rename interfaces when they change, exactly so that you don't get a subtly 
+broken build.
+
+		Linus
+

@@ -1,95 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314079AbSDVHds>; Mon, 22 Apr 2002 03:33:48 -0400
+	id <S314080AbSDVHfU>; Mon, 22 Apr 2002 03:35:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314081AbSDVHdr>; Mon, 22 Apr 2002 03:33:47 -0400
-Received: from bg77.anu.edu.au ([150.203.223.77]:58597 "EHLO lassus.himi.org")
-	by vger.kernel.org with ESMTP id <S314079AbSDVHdr>;
-	Mon, 22 Apr 2002 03:33:47 -0400
-Date: Mon, 22 Apr 2002 17:33:44 +1000
-To: linux-kernel@vger.kernel.org
-Cc: Larry McVoy <lm@work.bitmover.com>
-Subject: Re: [OFF TOPIC] BK license change
-Message-ID: <20020422073344.GA7376@himi.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Larry McVoy <lm@work.bitmover.com>
-In-Reply-To: <20020421095715.A10525@work.bitmover.com>
+	id <S314081AbSDVHfU>; Mon, 22 Apr 2002 03:35:20 -0400
+Received: from w226.z064000207.nyc-ny.dsl.cnc.net ([64.0.207.226]:25140 "EHLO
+	carey-server.stronghold.to") by vger.kernel.org with ESMTP
+	id <S314080AbSDVHfS>; Mon, 22 Apr 2002 03:35:18 -0400
+Message-Id: <4.3.2.7.2.20020422033757.03b9a5e0@mail.strongholdtech.com>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Mon, 22 Apr 2002 03:40:41 -0400
+To: "Steve Wolfe" <sw@codon.com>, <linux-kernel@vger.kernel.org>
+From: "Nicolae P. Costescu" <nick@strongholdtech.com>
+Subject: Re: AMD 760MPX B2 stepping
+In-Reply-To: <000f01c1e659$17abd6e0$d281f6cc@iboats.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="u3/rZRmxL6MmkK24"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: simon@himi.org (Simon Fowler)
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Steve
+Just put 3 of these together and they seem to work fine (Tyan 2466N-4M, 
+2x1.6GHz Athlon MP processors - make sure you are using MP and not XP - 
+Tyan won't certify the XP for SMP and a lot of people complain about 
+stability with the XPs in an SMP config).
 
---u3/rZRmxL6MmkK24
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+There is a catch - they only work with "single bank" dimms (64x4 for 512MB 
+dimm). The vendor shipped me a mix of 64x4 and 32x8 512MB dimms, and the 
+32x8's would not even POST. Tyan's web site indicates the board should work 
+with the 32x8 as well (in fact they list the ATP/Samsung part # of the 
+DIMMs I was sent, both 64x4 and 32x8). However, since I've tried 6 DIMMS 
+and 3 motherboards, I feel confident in saying they are WRONG :)
 
-On Sun, Apr 21, 2002 at 09:57:15AM -0700, Larry McVoy wrote:
-> Well, now seems like a great time to discuss this.  Ha.
->=20
-> It's come to our attention that commercial companies are abusing BK under
-> the openlogging rules.  To avoid paying for the product, they either put
-> in no comments or obscure comments.  That is a violation of the license,
-> but good luck proving that they are doing it on purpose.
->=20
-> The real issue is that we know from past history that companies make=20
-> changes to GPLed software and then delay access to those changes as
-> long as they can (the GPL allows for a "reasonable" amount of lag,
-> whatever that is).
->=20
-> The intent of the openlogging requirement was to allow people to work
-> out in the open on free software, at no charge.  The intent was never=20
-> to allow people to work on free software without giving their changes=20
-> back.  I'm not commenting on people's rights to hide their changes,=20
-> they can do whatever they want, but I *am* saying that we don't have
-> support closed use for free.
->=20
-> I'm considering a change to the BKL which says that N days after a
-> changeset is made, that changeset (and its ancestory) must be available
-> on a public bk server.  In other words, put a hard limit on how long
-> you may hide.
->=20
-> The time period has to be long enough to cover security fixes, DaveM=20
-> raised that issue.  I'm thinking 90 days.
->=20
-> Note: public server is not limited to bkbits.net.  Any public server is
-> fine, so long as it is stable, well known, and available ~95% of the time.
->=20
-Does 'public server' imply that the server is running bkd for
-anonymous access? I have several small projects under bk that I keep
-in repositories that are accesible to people with an account on my
-server, but not to anyone else - would this be a license violation?
-(I have no problem with openlogging - it just encourages me to make
-/intelligent/ checkin comments, or some approximation thereof)
+Good luck.
+Nick
 
-I'd prefer not to have to run bkd on my server if I don't /have/ to.
-Minimising the number of services available to be cracked, and all
-that . . .=20
+At 03:44 PM 4/17/2002 -0600, Steve Wolfe wrote:
 
-Simon Fowler
+>    I have been having a devil of a time trying to get SMP to work with
+>stability on the new B2 stepping of the 760 MPX chipset (Tyan 2466N-4M
+>motherboard).  Has anyone fiddled with it, and if so, are there any known
+>bugs?  My gut feeling is that the BIOS included with the motherboard is
+>incredibly buggy, but I haven't been able to find any information to
+>confirm or contradict that.
+>
+>steve
+>
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
---=20
-PGP public key Id 0x144A991C, or ftp://bg77.anu.edu.au/pub/himi/himi.asc
-(crappy) Homepage: http://bg77.anu.edu.au
-doe #237 (see http://www.lemuria.org/DeCSS)=20
-My DeCSS mirror: ftp://bg77.anu.edu.au/pub/mirrors/css/=20
+****************************************************
+Nicolae P. Costescu, Ph.D.  / Senior Developer
+Stronghold Technologies
+46040 Center Oak Plaza, Suite 160 / Sterling, Va 20166
+Tel: 571-434-1472 / Fax: 571-434-1478
 
---u3/rZRmxL6MmkK24
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8w7zXQPlfmRRKmRwRAr8eAJ0X0D3kLBGQ+FxjUEqnwmnpWz5z+gCgxx25
-m/NkHiiuTQHdX9f8YSadppg=
-=1Axt
------END PGP SIGNATURE-----
-
---u3/rZRmxL6MmkK24--

@@ -1,47 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267993AbUHaWys@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268707AbUHaW6q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267993AbUHaWys (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 18:54:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268088AbUHaWwd
+	id S268707AbUHaW6q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 18:58:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268675AbUHaWz5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 18:52:33 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:7062 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S268544AbUHaWuM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 18:50:12 -0400
-From: jmerkey@comcast.net
-To: Roland Dreier <roland@topspin.com>, "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: alan@lxorguk.ukuu.org.uk, wli@holomorphy.com, linux-kernel@vger.kernel.org,
-       jmerkey@drdos.com
-Subject: Re: 1GB/2GB/3GB User Space Splitting Patch 2.6.8.1 (PSEUDO SPAM)
-Date: Tue, 31 Aug 2004 22:50:10 +0000
-Message-Id: <083120042250.11424.413500A200044BFB00002CA02200748184970A059D0A0306@comcast.net>
-X-Mailer: AT&T Message Center Version 1 (Jul 16 2004)
-X-Authenticated-Sender: am1lcmtleUBjb21jYXN0Lm5ldA==
+	Tue, 31 Aug 2004 18:55:57 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:1265 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S268527AbUHaWwy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 18:52:54 -0400
+Date: Wed, 1 Sep 2004 00:52:44 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: ak@muc.de, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch]  kill __always_inline
+Message-ID: <20040831225244.GY3466@fs.tum.de>
+References: <20040831221348.GW3466@fs.tum.de> <20040831153649.7f8a1197.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040831153649.7f8a1197.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-
->     Randy> It doesn't barf on me.  I added one other patch on top of
->     Randy> yours: one from Roland Dreier, for
->     Randy> arch/i386/kernel/doublefault.c [below].
+On Tue, Aug 31, 2004 at 03:36:49PM -0700, Andrew Morton wrote:
+> Adrian Bunk <bunk@fs.tum.de> wrote:
+> >
+> > An issue that we already discussed at 2.6.8-rc2-mm2 times:
+> > 
+> > 2.6.9-rc1 includes __always_inline which was formerly in  -mm.
+> > __always_inline doesn't make any sense:
+> > 
+> > __always_inline is _exactly_ the same as __inline__, __inline and inline .
+> > 
+> > 
+> > The patch below removes __always_inline again:
 > 
-> BTW, I can't imagine my patch would make any difference -- it only
-> affects what gets printed out right before the kernel locks up on a
-> double fault.
+> But what happens if we later change `inline' so that it doesn't do
+> the `always inline' thing?
 > 
-> I am running a 2.6.8.1 kernel with PAGE_OFFSET set to 0xb000000 on my
-> desktop with USB mouse and keyboard (and 1 GB of RAM) with no problems.
-> 
->  - R.
+> An explicit usage of __always_inline is semantically different than
+> boring old `inline'.
+
+Who audits all current users of inline whether they are __always_inline?
+
+Who ensures, that in the future there will always be the right one of 
+inline and __always_inline choosen in the kernel?
 
 
-I'll retest on 2.6.9-rc1  At present, the Orinoco 
-Wireless USB Adapter does lock 
-up my system when I enable 3BG kernel space.  
-1 GB and 2 GB kernel address settings
-seem to work OK.
+If it doesn't give a compile or runtime error for anyone when it's 
+wrong, many wrong inline/__always_inline will go into the kernel over 
+time.
 
-Jeff
+The intention might be a different semantics, but in the end, it won't 
+work.
+
+
+E.g., check how many wrong __init/__exit annotations show up in 2.6, 
+each of whom would have been a compile error in 2.4 (and different 
+from a wrong inline/__always_inline, a wrong __init/__exit annotation 
+can cause real problems for users).
+
+
+If you want to change inline at some point, you will have to audit all  
+users of inline anyway - so why bother if you don't intend to change 
+inline in the forseeable future?
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292373AbSBYWli>; Mon, 25 Feb 2002 17:41:38 -0500
+	id <S292368AbSBYWlz>; Mon, 25 Feb 2002 17:41:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292368AbSBYWkW>; Mon, 25 Feb 2002 17:40:22 -0500
-Received: from zero.tech9.net ([209.61.188.187]:23558 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S292370AbSBYWjn>;
-	Mon, 25 Feb 2002 17:39:43 -0500
-Subject: Re: Linux 2.4.18 - the missing patch issue
-From: Robert Love <rml@tech9.net>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: Jesper Juhl <jju@dif.dk>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020225223415.GA4393@matchmail.com>
-In-Reply-To: <3C7AB9D5.9080906@dif.dk>  <20020225223415.GA4393@matchmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 25 Feb 2002 17:39:45 -0500
-Message-Id: <1014676785.846.1318.camel@phantasy>
-Mime-Version: 1.0
+	id <S292370AbSBYWlo>; Mon, 25 Feb 2002 17:41:44 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:18701 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S292375AbSBYWkv>; Mon, 25 Feb 2002 17:40:51 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Linux 2.4.18 - Full tarball is OK
+Date: 25 Feb 2002 14:40:31 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a5eegv$10o$1@cesium.transmeta.com>
+In-Reply-To: <E16fTkG-0006VG-00@the-village.bc.nu> <Pine.LNX.4.33L.0202251931360.7820-100000@imladris.surriel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-02-25 at 17:34, Mike Fedyk wrote:
-
-> Does anyone know how long this bug has been in the kernel?
-
-For a very short time -- it was introduced around pre6.
-
-> If it's an old bug, 2.4.19-pre1 already has the fix, just like rc4 did...
+Followup to:  <Pine.LNX.4.33L.0202251931360.7820-100000@imladris.surriel.com>
+By author:    Rik van Riel <riel@conectiva.com.br>
+In newsgroup: linux.dev.kernel
+>
+> On Mon, 25 Feb 2002, Alan Cox wrote:
 > 
-> This *one* bug isn't big enough to hurry, IMO.
+> > If so Marcelo can you put up 2.4.18-fixed patch and a borked-fixed diff ?
+> That would break hpa's incremental diff patches.
+> If somebody needs 2.4.18 + fix, they can just run 2.4.18-rc4.
+> 
 
-Agreed.
+Since the tarball apparently is OK and it's only the patch that's
+different, just re-create the patch, put it in the proper place, and
+make sure the file date on the patch is different; the incremental
+diff will be regenerated to match.
 
-	Robert Love
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

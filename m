@@ -1,86 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129909AbQLGGb5>; Thu, 7 Dec 2000 01:31:57 -0500
+	id <S129370AbQLGGrL>; Thu, 7 Dec 2000 01:47:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129939AbQLGGbq>; Thu, 7 Dec 2000 01:31:46 -0500
-Received: from pop.gmx.net ([194.221.183.20]:61309 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S129909AbQLGGbj>;
-	Thu, 7 Dec 2000 01:31:39 -0500
-From: Norbert Breun <nbreun@gmx.de>
-Reply-To: nbreun@gmx.de
-Organization: private
-Date: Thu, 7 Dec 2000 06:59:01 +0100
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="US-ASCII"
-To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
-In-Reply-To: <Pine.LNX.4.10.10012010234320.20188-100000@coffee.psychology.mcmaster.ca>
-In-Reply-To: <Pine.LNX.4.10.10012010234320.20188-100000@coffee.psychology.mcmaster.ca>
-Subject: Re: 2.4.0-test12-pre3: kernel: APIC error on CPU0: 08(00) /Gigabyte GA-586DX SMP_BOARD
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Message-Id: <00120706590100.03542@nmb>
-Content-Transfer-Encoding: 8bit
+	id <S129464AbQLGGrC>; Thu, 7 Dec 2000 01:47:02 -0500
+Received: from grunt.okdirect.com ([209.54.94.12]:28428 "HELO mail.pyxos.com")
+	by vger.kernel.org with SMTP id <S129370AbQLGGqn>;
+	Thu, 7 Dec 2000 01:46:43 -0500
+Message-Id: <5.0.2.1.2.20001207000341.03a196e8@209.54.94.12>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Thu, 07 Dec 2000 00:13:50 -0600
+To: linux-kernel@vger.kernel.org
+From: Daniel Walton <zwwe@opti.cgi.net>
+Subject: Re: Out of socket memory? (2.4.0-test11)
+In-Reply-To: <Pine.LNX.4.10.10012070029250.3437-100000@coffee.psychology
+ .mcmaster.ca>
+In-Reply-To: <5.0.2.1.2.20001206223822.03997008@209.54.94.12>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo Mark,
-
-there is one thing, that is some kind of curious:
-
-using 2.4.0-test12pre5 I've many apic errors with CPU1 a n d CPU0:
-
-Dec  7 06:52:04 nmb kernel: APIC error on CPU1: 04(00)
-Dec  7 06:52:04 nmb kernel: APIC error on CPU0: 02(00)
-Dec  7 06:52:04 nmb kernel: APIC error on CPU0: 04(00)
-Dec  7 06:52:07 nmb kernel: APIC error on CPU0: 02(00)
-Dec  7 06:52:07 nmb kernel: APIC error on CPU1: 04(00)
 
 
-running 2.4.0-test11ac4 apic errors only appear with CPU0:
+I'm not quite clear how the settings under /proc/sys/vm/* would effect the 
+problem.  I neglected to mention in my previous post that all web content 
+is served directly from the memory of the web server (no file 
+accesses).  The only file accesses that happen are from a MySQL server 
+which gets queried about once a second.
 
-Dec  6 13:41:33 nmb kernel: APIC error on CPU0: 01(00)
-Dec  6 13:41:33 nmb kernel: APIC error on CPU0: 02(00)
-Dec  6 13:42:07 nmb last message repeated 2 times
-Dec  6 13:42:28 nmb last message repeated 10 times
-Dec  6 13:42:32 nmb kernel: APIC error on CPU0: 04(00)
-Dec  6 13:42:34 nmb kernel: APIC error on CPU0: 02(00)
-Dec  6 13:42:39 nmb last message repeated 4 times
-Dec  6 13:42:40 nmb kernel: APIC error on CPU0: 08(00)
-Dec  6 13:42:49 nmb kernel: APIC error on CPU0: 02(00)
-Dec  6 13:42:55 nmb kernel: APIC error on CPU0: 08(00)
-Dec  6 13:43:02 nmb kernel: APIC error on CPU0: 02(00)
+Here's the output of /proc/meminfo.  I'm not sure how helpful it is.  I was 
+kinda hoping for something that would allow me to see how much memory had 
+been allocated for sockets and what the max was.
 
-and n e v e r on CPU1 !
-today I will compile 2.4.0-test12pre7 and 'll see....
+[root@s4 /proc]# cat meminfo
+         total:    used:    free:  shared: buffers:  cached:
+Mem:  261742592 122847232 138895360        0  1757184 88633344
+Swap: 271392768        0 271392768
+MemTotal:       255608 kB
+MemFree:        135640 kB
+MemShared:           0 kB
+Buffers:          1716 kB
+Cached:          86556 kB
+Active:          15684 kB
+Inact_dirty:     72588 kB
+Inact_clean:         0 kB
+Inact_target:       68 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:       255608 kB
+LowFree:        135640 kB
+SwapTotal:      265032 kB
+SwapFree:       265032 kB
 
-kind regards
-Norbert
+
+-Dan
 
 
 
-On Friday 01 December 2000 08:36, Mark Hahn wrote:
-> > > unfortunately, many SMP boards have noisy APIC lines.
-> >
-> > Hallo Mark,
-> >
-> > thank you for your immediate reply!
-> > Do APIC errors mean => hardware errors? With the actual kernel
+
+At 12:30 AM 12/7/2000 -0500, you wrote:
+
+>backlog queue?  tuning /proc/sys/vm/*?
 >
-> they are corrected errors.  that is, the apic checksums its messages
-> and retries.  obviously, if the corruption is bad enough, it'll hang.
+> > problem?  Is there any way I can get runtime information from the 
+> kernel on
+> > things like amount of socket memory used and amount available?  Am I using
 >
-> > (2.4.0-test12pre3) they apear less often...
->
-> there have been tweaks to the kernel code that handles the error
-> reports, and there have been changes in how the kernel uses apics.
->
-> > Can I do anything to solve this problem besides buying a new board (I do
-> > not need a new computer ;o))?
->
-> nope.  among people who have abit bp6's (very prone to this problem),
-> a number of voodoo techniques are used, including >=300W power,
-> fan on the BX chipset, bios updates, etc.
+>/proc/meminfo?
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

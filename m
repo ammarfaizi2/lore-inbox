@@ -1,91 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261332AbUKSJlz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261330AbUKSJql@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261332AbUKSJlz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 04:41:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261330AbUKSJlz
+	id S261330AbUKSJql (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 04:46:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261222AbUKSJqk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 04:41:55 -0500
-Received: from smtp-out5.blueyonder.co.uk ([195.188.213.8]:12211 "EHLO
-	smtp-out5.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S261332AbUKSJlF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 04:41:05 -0500
-Message-ID: <419DBFA7.7000705@blueyonder.co.uk>
-Date: Fri, 19 Nov 2004 09:40:55 +0000
-From: Ross Kendall Axe <ross.axe@blueyonder.co.uk>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chris Wright <chrisw@osdl.org>
-CC: James Morris <jmorris@redhat.com>, netdev@oss.sgi.com,
-       Stephen Smalley <sds@epoch.ncsc.mil>,
-       lkml <linux-kernel@vger.kernel.org>,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH] linux 2.9.10-rc1: Fix oops in unix_dgram_sendmsg when
- using SELinux and SOCK_SEQPACKET
-References: <Xine.LNX.4.44.0411180257300.3144-100000@thoron.boston.redhat.com> <Xine.LNX.4.44.0411180305060.3192-100000@thoron.boston.redhat.com> <20041118084449.Z14339@build.pdx.osdl.net> <419D6746.2020603@blueyonder.co.uk> <20041118231943.B14339@build.pdx.osdl.net>
-In-Reply-To: <20041118231943.B14339@build.pdx.osdl.net>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig5D86439C9872B78DC700D940"
-X-OriginalArrivalTime: 19 Nov 2004 09:41:33.0058 (UTC) FILETIME=[F4415E20:01C4CE1B]
+	Fri, 19 Nov 2004 04:46:40 -0500
+Received: from gprs214-9.eurotel.cz ([160.218.214.9]:48513 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261191AbUKSJqf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 04:46:35 -0500
+Date: Fri, 19 Nov 2004 10:46:20 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: torvalds@osdl.org, alan@lxorguk.ukuu.org.uk, hbryan@us.ibm.com,
+       akpm@osdl.org, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
+Message-ID: <20041119094620.GA32322@elf.ucw.cz>
+References: <OF28252066.81A6726A-ON88256F50.005D917A-88256F50.005EA7D9@us.ibm.com> <E1CUq57-00043P-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.58.0411180959450.2222@ppc970.osdl.org> <1100798975.6018.26.camel@localhost.localdomain> <Pine.LNX.4.58.0411181047590.2222@ppc970.osdl.org> <E1CUrwu-0004Mh-00@dorka.pomaz.szeredi.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1CUrwu-0004Mh-00@dorka.pomaz.szeredi.hu>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig5D86439C9872B78DC700D940
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi!
 
-Chris Wright wrote:
-> * Ross Kendall Axe (ross.axe@blueyonder.co.uk) wrote:
+> > The GFP_IO and GFP_FS pages are the _real_ protectors. They don't dip into
+> > the (very limited) set of pages, they say "we can still free 90% of
+> > memory, we just have to ignore that dangerous 10%".
 > 
->>Taking this idea further, couldn't we split unix_dgram_sendmsg into 2 
->>functions, do_unix_dgram_sendmsg and do_unix_connectionless_sendmsg (and 
->>similarly for unix_stream_sendmsg), then all we'd need is:
->>
->><pseudocode>
->>static int do_unix_dgram_sendmsg(...);
->>static int do_unix_stream_sendmsg(...);
->>static int do_unix_connectionless_sendmsg(...);
->>static int do_unix_connectional_sendmsg(...);
+> I don't see how this makes more problems to userspace filesystems.
+> When you clear GFP_IO or GFP_FS for an allocation you are limiting
+> yourself from freeing some sort of memory.  But that will not make it
+> easier to actually _get_ that memory.
 > 
-> 
-> We could probably break it down to better functions and helpers, but I'm
-> not sure that's quite the breakdown.  That looks to me like an indirect
-> way to pass a flag which is already encoded in the ops and sk_type.
+> With FUSE the allocation is NOT limited.  Deadlock will not happen
+> since page writeback is non-blocking, so while more FUSE backed pages
+> can't be written, other filesystem's pages can be written back.  The
+> situation is better not worse.
+>
+> What am I missing?
 
-The idea of that breakdown was to encode the semantics purely into the ops 
-and mostly ignore sk_type. An alternative would be to create a couple of 
-macros is_connectionless and is_stream and lump it all together in one big 
-unix_sendmsg. Unfortunately, unix_sendmsg could end up a bit too large. 
-IMHO, unix_{dgram,stream}_sendmsg are large as it is.
+I believe problem is when there are no other filesystem's
+pages.... and at that point FUSE is worse than kernel filesystems
+because you do not have reserved pools to use for freeing memory.
 
-> At anyrate, for 2.6.10 the changes should be small and obvious.
-> Better refactoring should be left for 2.6.11.
-
-Agreed. I had my eye on 2.6.11 anyway.
-
-> 
-> thanks,
-> -chris
-
-Ross
-
-
---------------enig5D86439C9872B78DC700D940
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBnb+t9bR4xmappRARAi2wAJ9j7e1W+67cJEZxRB+3mqwomuALlgCgnlD9
-askyxQzduUklgL76DWcDKaQ=
-=frax
------END PGP SIGNATURE-----
-
---------------enig5D86439C9872B78DC700D940--
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

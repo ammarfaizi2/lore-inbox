@@ -1,61 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263000AbTH0BGw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 21:06:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263009AbTH0BGw
+	id S263033AbTH0B3U (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 21:29:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263041AbTH0B3U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 21:06:52 -0400
-Received: from fw.osdl.org ([65.172.181.6]:39843 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263000AbTH0BGp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 21:06:45 -0400
-Date: Tue, 26 Aug 2003 18:06:26 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Jim Keniston <jkenisto@us.ibm.com>
-Cc: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>,
-       netdev <netdev@oss.sgi.com>, Jeff Garzik <jgarzik@pobox.com>,
-       "Feldman, Scott" <scott.feldman@intel.com>,
-       Larry Kessler <kessler@us.ibm.com>, Randy Dunlap <rddunlap@osdl.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 1/4] Net device error logging, revised
-Message-Id: <20030826180626.50778705.shemminger@osdl.org>
-In-Reply-To: <3F4BEE68.A6C862C2@us.ibm.com>
-References: <3F4A8027.6FE3F594@us.ibm.com>
-	<20030826183221.GB3167@kroah.com>
-	<3F4BEE68.A6C862C2@us.ibm.com>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.9.4claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+	Tue, 26 Aug 2003 21:29:20 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:55052
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S263033AbTH0B3R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 21:29:17 -0400
+Date: Tue, 26 Aug 2003 18:29:14 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Peter Chubb <peterc@gelato.unsw.edu.au>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.0-test4 -- add context switch counters
+Message-ID: <20030827012914.GB5280@matchmail.com>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Peter Chubb <peterc@gelato.unsw.edu.au>,
+	linux-kernel@vger.kernel.org
+References: <16204.520.61149.961640@wombat.disy.cse.unsw.edu.au> <20030826181807.1edb8c48.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030826181807.1edb8c48.akpm@osdl.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> The following options come to mind:
-> 1. Keep the msg buffer, but make it smaller.  Around 120 bytes would probably be
-> big enough for the vast majority of messages.  (printk() uses a 1024-byte buffer,
-> but it's static -- see #2.)
+On Tue, Aug 26, 2003 at 06:18:07PM -0700, Andrew Morton wrote:
+> Peter Chubb <peterc@gelato.unsw.edu.au> wrote:
+> >
+> > Currently, the context switch counters reported by getrusage() are
+> >  always zero.  The appended patch adds fields to struct task_struct to
+> >  count context switches, and adds code to do the counting.
+> >
+> >  The patch adds 4 longs to struct task struct, and a single addition to
+> >  the fast path in schedule().
 > 
-> 2. Use a big, static buffer, protected by a spinlock.  printk() does this.
+> OK...  Why is this useful?  A bit of googling doesn't show much interest in
+> it.
 > 
-> 3. Do the whole thing in a macro, as in previous proposals.  The size of the macro
-> expansion could be reduced somewhat by doing the encode-prefix step in a function --
-> something like:
-> 
-> #define netdev_printk(sevlevel, netdev, msglevel, format, arg...)	\
-> do {									\
-> if (NETIF_MSG_##msglevel == NETIF_MSG_ALL || ((netdev)->msg_enable & NETIF_MSG_##msglevel)) {	\
-> 	char pfx[40];							\
-> 	printk(sevlevel "%s: " format , make_netdev_msg_prefix(pfx, netdev) , ## arg);	\
-> }} while (0)
-> 
-> This would make your code bigger, but not that much bigger for the common case where
-> the msglevel is omitted (and the 'if(...)' is optimized out).
+> What apps should be reporting this info?  /usr/bin/time?
 
-Is there some way to tack copy and prepend what you want onto the format
-string, and add additional arguments to the call to printk?  That way you
-wouldn't need space for the potentially large resulting string, but only
-enough room for the expanded format string.
+E: Could not open lock file /var/lib/apt/lists/lock - open (13 Permission denied)
+E: Unable to lock the list directory
+Command exited with non-zero status 100
+	Command being timed: "apt-get update"
+	User time (seconds): 0.01
+	System time (seconds): 0.00
+	Percent of CPU this job got: 6%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.32
+
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+
+The averages might be nice...
+
+	Maximum resident set size (kbytes): 0
+	
+But the maximum would allow any polling app to do its polling less often.
+As well as the averages above...
+	
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 320
+	Minor (reclaiming a frame) page faults: 21
+	Voluntary context switches: 0
+
+How can you have voluntary context switches in a preemptive environment?
+
+	Involuntary context switches: 0
+
+	Swaps: 0
+	
+Counting swaps would be nice too.	
+	
+	File system inputs: 0
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+
+Yes, yes, yes.
+
+     	Page size (bytes): 4096
+	Exit status: 100
+
+
+One more thing:
+$ cat /proc/meminfo 
+MemTotal:       320628 kB
+MemFree:          5148 kB
+Buffers:          8316 kB
+
+Where'd shared go, and why didn't rmap start populating this value?  It
+should be there in the pte-chain lists...
+
+Cached:         127140 kB
+SwapCached:          0 kB
+Active:         266212 kB
+Inactive:        10608 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+
+Why is high(total|free) there in a non-highmem kernel?  If this file were
+more dynamic, then we wouldn't have apps that counted on the line number
+instead of the first colum's value...
+
+Ok, so that was two more... ;)
+

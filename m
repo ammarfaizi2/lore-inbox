@@ -1,82 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267630AbUBRR2H (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 12:28:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267623AbUBRR1z
+	id S267998AbUBRUHZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 15:07:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267999AbUBRUHY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 12:27:55 -0500
-Received: from 221.80-203-45.nextgentel.com ([80.203.45.221]:12095 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267618AbUBRR1s convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 12:27:48 -0500
-Subject: Re: 2.6.2 ACPI problem
-From: Kjartan Maraas <kmaraas@broadpark.no>
-To: Lenar =?ISO-8859-1?Q?L=F5hmus?= <lenar@vision.ee>
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       acpi-devel@lists.sourceforge.net
-In-Reply-To: <4028EBC3.6090002@vision.ee>
-References: <4028EBC3.6090002@vision.ee>
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1077108844.7141.12.camel@localhost.localdomain>
+	Wed, 18 Feb 2004 15:07:24 -0500
+Received: from node-402418b2.mdw.onnet.us.uu.net ([64.36.24.178]:241 "EHLO
+	found.lostlogicx.com") by vger.kernel.org with ESMTP
+	id S267998AbUBRUHR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 15:07:17 -0500
+Date: Wed, 18 Feb 2004 14:04:39 -0600
+From: Brandon Low <blow@rbsys.com>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.3-mm1
+Message-ID: <20040218200439.GB449@lostlogicx.com>
+References: <20040217232130.61667965.akpm@osdl.org> <40338FE8.60809@tmr.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.5.4 
-Date: Wed, 18 Feb 2004 13:54:04 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40338FE8.60809@tmr.com>
+X-Operating-System: Linux found.lostlogicx.com 2.6.1-mm2
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tir, 10.02.2004 kl. 16.33 +0200, skrev Lenar Lõhmus:
+On Wed, 02/18/04 at 11:16:40 -0500, Bill Davidsen wrote:
+> Andrew Morton wrote:
+> >ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.3/2.6.3-mm1/
+> >
+> >- Added the dm-crypt driver: a crypto layer for device-mapper.
+> >
+> >  People need to test and use this please.  There is documentation at
+> >  http://www.saout.de/misc/dm-crypt/.
+> >
+> >  We should get this tested and merged up.  We can then remove the nasty
+> >  bio remapping code from the loop driver.  This will remove the current
+> >  ordering guarantees which the loop driver provides for journalled
+> >  filesystems.  ie: ext3 on cryptoloop will no longer be crash-proof.
+> >
+> >  After that we should remove cryptoloop altogether.
+> >
+> >  It's a bit late but cyptoloop hasn't been there for long anyway and it
+> >  doesn't even work right with highmem systems (that part is fixed in -mm).
+> 
+> What definition of "stable kernel" do you use which includes removal of 
+> features which were reasons to migrate to 2.6 from 2.4? This change 
+> would mean having to add dm to the kernel which otherwise doesn't use 
+> it, carry dm utilities on the system whcih are otherwise unneeded, and 
+> train people to use and not use dm.
+> 
+> I expect major things to change in a development series, but less major 
+> things than this have been pushed to 2.7, why is this being forced in?
+>
+I must add my voice here in strong opposition of the removal of
+cryptoloop from the 2.6 series of kernels.  This is no longer a
+development series kernel, I (and others, I'm sure) have been working on
+developing technologies which depend on this functionality and which
+would be _very_ annoying to do with DM (liveCD-on-cryptoloop-on-iso).
 
-> Hi,
-> 
-> Having problems here with ACPI on Compaq Evo N610c laptop.
-> Everything boots up fine except when loading battery module
-> one gets this:
-> 
->     ACPI-1120: *** Error: Method execution failed 
-> [\_SB_.C045.C059.C0E2.C13F] (Node c157bd40), AE_AML_UNINITIALIZED_LOCAL
->     ACPI-1120: *** Error: Method execution failed 
-> [\_SB_.C045.C059.C0E2.C14E] (Node c157bc40), AE_AML_UNINITIALIZED_LOCAL
->     ACPI-1120: *** Error: Method execution failed [\_SB_.C198._BTP] 
-> (Node c1577d20), AE_AML_UNINITIALIZED_LOCAL
-> ACPI: Battery Slot [C198] (battery present)
-> ACPI: Battery Slot [C199] (battery absent)
-> 
-Seeing this exact same output on a N600c laptop here.
+Please do not drop cryptoloop!
 
-> Tried with and without RELAXED_AML.
-> 
-> Now despite this machine seems to work fine until kde's laptop daemon 
-> does something I'm not aware of which results in
-> these lines in dmesg:
-> 
-> Feb 10 17:52:35 debian kernel:     ACPI-0245: *** Error: Cannot release 
-> Mutex [_GL_], not acquired
-> Feb 10 17:52:35 debian kernel:     ACPI-1120: *** Error: Method 
-> execution failed [\_SB_.C045.C059.C0E2.C12C] (Node c157bf80), 
-> AE_AML_MUTEX_NOT_ACQUIRED
-> Feb 10 17:52:35 debian kernel:     ACPI-1120: *** Error: Method 
-> execution failed [\_SB_.C045.C059.C0E2.C13F] (Node c157bd40), 
-> AE_AML_MUTEX_NOT_ACQUIRED
-> Feb 10 17:52:35 debian kernel:     ACPI-1120: *** Error: Method 
-> execution failed [\_SB_.C045.C059.C0E2.C145] (Node c157bcc0), 
-> AE_AML_MUTEX_NOT_ACQUIRED
-> Feb 10 17:52:35 debian kernel:     ACPI-1120: *** Error: Method 
-> execution failed [\_SB_.C045.C059.C0E2.C14C] (Node c157bc60), 
-> AE_AML_MUTEX_NOT_ACQUIRED
-> Feb 10 17:52:35 debian kernel:     ACPI-1120: *** Error: Method 
-> execution failed [\_SB_.C14C] (Node c1577ee0), AE_AML_MUTEX_NOT_ACQUIRED
-> Feb 10 17:52:35 debian kernel:     ACPI-1120: *** Error: Method 
-> execution failed [\_SB_.C198._BST] (Node c1577da0), 
-> AE_AML_MUTEX_NOT_ACQUIRED
-> 
-I also saw these with GNOME until the battery status applet was fixed.
-
-See http://bugzilla.gnome.org/show_bug.cgi?id=129167 for the relevant
-fix for battstat. Maybe this fix shows a similar fix is possible under
-KDE? Not sure this is a fix really, but at least the symptoms went away
-for me after this got fixed.
-
-Cheers
-Kjartan
+Thanks,
+--
+Brandon Low
+Release Coordinator
+Ribstone Systems
+http://www.ribstonesystems.com

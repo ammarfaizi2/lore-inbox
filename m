@@ -1,57 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272414AbTHFUbY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 16:31:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272426AbTHFUbY
+	id S270939AbTHFUVf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 16:21:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270991AbTHFUVf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 16:31:24 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:48086 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S272414AbTHFUbU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 16:31:20 -0400
-Subject: [PATCH][2.6.0-test2]adm1021 i2c driver bug fix
-From: Rusty Lynch <rusty@linux.co.intel.com>
-To: Philip Edelbrock <phil@netroedge.com>, Frodo Looijaard <frodol@dds.nl>
+	Wed, 6 Aug 2003 16:21:35 -0400
+Received: from fw.osdl.org ([65.172.181.6]:26061 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270939AbTHFUVe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 16:21:34 -0400
+Date: Wed, 6 Aug 2003 13:17:31 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: kj <kernel-janitor-discuss@lists.sourceforge.net>
 Cc: lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 06 Aug 2003 13:17:55 -0700
-Message-Id: <1060201075.3854.15.camel@vmhack>
+Subject: [announce] 2.6.0-test2-bk6-KJ patchset
+Message-Id: <20030806131731.702205f9.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While initializing the adm1021 device, the driver is performing a conversion 
-from fixed point to Celcius on values that were declaired as Celcius.  On 
-my Dell Precision 220 this results in a shutdown after a couple of minutes
-running.
 
-This patch was made against the 2.6.0-test2 tree, and just removes the 
-conversion.
+patch is at:
+http://developer.osdl.org/rddunlap/kj-patches/2.6.0-test2-bk6/patch-2.6.0-test2-bk6-kj1.bz2
 
-    --rustyl
-
---- drivers/i2c/chips/adm1021.c.orig	2003-08-06 13:04:25.000000000 -0700
-+++ drivers/i2c/chips/adm1021.c	2003-08-06 13:09:43.000000000 -0700
-@@ -356,13 +356,13 @@
- {
- 	/* Initialize the adm1021 chip */
- 	adm1021_write_value(client, ADM1021_REG_TOS_W,
--			    TEMP_TO_REG(adm1021_INIT_TOS));
-+			    adm1021_INIT_TOS);
- 	adm1021_write_value(client, ADM1021_REG_THYST_W,
--			    TEMP_TO_REG(adm1021_INIT_THYST));
-+			    adm1021_INIT_THYST);
- 	adm1021_write_value(client, ADM1021_REG_REMOTE_TOS_W,
--			    TEMP_TO_REG(adm1021_INIT_REMOTE_TOS));
-+			    adm1021_INIT_REMOTE_TOS);
- 	adm1021_write_value(client, ADM1021_REG_REMOTE_THYST_W,
--			    TEMP_TO_REG(adm1021_INIT_REMOTE_THYST));
-+			    adm1021_INIT_REMOTE_THYST);
- 	/* Enable ADC and disable suspend mode */
- 	adm1021_write_value(client, ADM1021_REG_CONFIG_W, 0);
- 	/* Set Conversion rate to 1/sec (this can be tinkered with) */
+description is at:
+http://developer.osdl.org/rddunlap/kj-patches/2.6.0-test2-bk6/desc.txt
 
 
-
+--
+~Randy				For Linux-2.6, see:
+http://www.kernel.org/pub/linux/kernel/people/davej/misc/post-halloween-2.5.txt

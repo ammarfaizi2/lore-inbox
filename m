@@ -1,78 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264400AbRFNCIj>; Wed, 13 Jun 2001 22:08:39 -0400
+	id <S264402AbRFNCTk>; Wed, 13 Jun 2001 22:19:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264402AbRFNCI3>; Wed, 13 Jun 2001 22:08:29 -0400
-Received: from dsl-64-192-150-245.telocity.com ([64.192.150.245]:41996 "EHLO
-	mail.communicationsboard.net") by vger.kernel.org with ESMTP
-	id <S264400AbRFNCIU>; Wed, 13 Jun 2001 22:08:20 -0400
-To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
-Subject: Re: 2.4.6-pre2, pre3 VM Behavior
-Message-ID: <992484497.3b281c91ce043@eargle.com>
-Date: Wed, 13 Jun 2001 22:08:17 -0400 (EDT)
-From: Tom Sightler <ttsig@tuxyturvy.com>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.10.10106140024230.980-100000@coffee.psychology.mcmaster.ca>
-In-Reply-To: <Pine.LNX.4.10.10106140024230.980-100000@coffee.psychology.mcmaster.ca>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: IMP/PHP IMAP webmail program 2.2.5
+	id <S264405AbRFNCTa>; Wed, 13 Jun 2001 22:19:30 -0400
+Received: from f89.law12.hotmail.com ([64.4.19.89]:63756 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S264402AbRFNCTN>;
+	Wed, 13 Jun 2001 22:19:13 -0400
+X-Originating-IP: [142.169.166.23]
+From: "Seigneur Angmar" <seigneurangmar@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Lecteur CD-ROM
+Date: Wed, 13 Jun 2001 22:19:03 -0400
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Message-ID: <F89qlOQq2vXqZAmN0oG000027c6@hotmail.com>
+X-OriginalArrivalTime: 14 Jun 2001 02:19:04.0337 (UTC) FILETIME=[61F98810:01C0F478]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Mark Hahn <hahn@coffee.psychology.mcmaster.ca>:
+Bonsoir,
+    Je vous décrirai le problème du mieux que je peux.  Avant tout, je tiens 
+à souligner que, sous les mêmes configurations, le problème ne s'est produit 
+et reproduit que sur les kernels 2.4.X (kernels testés : 2.2.18, 2.2.19, 
+2.4.0, 2.4.3, 2.4.5).
 
-> > 1.  Transfer of the first 100-150MB is very fast (9.8MB/sec via 100Mb
-> Ethernet,
-> > close to wire speed).  At this point Linux has yet to write the first
-> byte to
-> > disk.  OK, this might be an exaggerated, but very little disk activity
-> has
-> > occured on my laptop.
-> 
-> right.  it could be that the VM scheduling stuff needs some way to
-> tell
-> whether the IO system is idle.  that is, if there's no contention for 
-> the disk, it might as well be less lazy about writebacks.
+    J'ai en ma possession un CD-R (fait sous Windows 98) qui fonctionne sans 
+reproches.  Absolument rien d'anormal ne se produit quand j'écris la ligne 
+suivante : "mount /dev/cdrom".  Le problème survient quand j'essaye de 
+copier un fichier sur le disc dur.  Le message suivant s'affiche :
 
-That's exactly the way it seems.
+hdb: command error: status=0x51 { DriveReady SeekComplete Error }
+hdb: command error: error=0x54
+end_request: I/O error, dev 03:40 (hdb), sector 14776
+hdb: command error: status=0x51 { DriveReady SeekComplete Error }
+hdb: command error: error=0x54
+end_request: I/O error, dev 03:40 (hdb), sector 14780
+cp: wumpscut - mortal highway.mp3: Input/output error
+...
 
-> > 2.  Suddenly it's as if Linux says, "Damn, I've got a lot of data to
-> flush,
-> > maybe I should do that" then the hard drive light comes on solid for
-> several
-> > seconds.  During this time the ftp transfer drops to about 1/5 of the
-> original
-> > speed.
-> 
-> such a dramatic change could be the result of IDE misconfiguration;
-> is it safe to assume you have DMA or UDMA enabled?
+Je rappelle que ce problème n'est jamais arrivé sur aucuns des kernels 2.2.X 
+que j'ai compilé.
 
-Yes, UDMA/33 is enabled and working on the drive (using hdparm -d 0 makes the
-problem way worse and my drive performs about 1/4 the speed).
+N.B. : je possède un ATAPI CDROM: LTN242F
 
-> > This was much less noticeable on a server with a much faster SCSI hard
-> disk
-> > subsystem as it took significantly less time to flush the information
-> to the
-> 
-> is the SCSI disk actually faster (unlikley, for modern disks), or 
-> is the SCSI controller simply busmastering, like DMA/UDMA IDE,
-> but wholly unlike PIO-mode IDE?
+Merci beaucoup
 
-First, lets be fair, we're comparing a UDMA/33 IDE drive in a 1 year old laptop
-(IBM Travelstar, if your interested) to a true SCSI Disk Subsystem with
-mirrored/striped Ultra160 SCSI disk connected via 64bit PCI/66Mhz bus, so yes,
-the SCSI subsystem is MUCH faster.  Specific numbers:
+Michel
 
-Laptop with TravelStar IDE HD Max sustained read: 16.5MB/s
-Server with Ultra160 SCSI disk array Max sustained read: >100MB/s
-
-That's a big difference.  The Travelstar is probably only 5400RPM and is
-optimized for power savings, not speed, the SCSI subsystem has multiple 15000RPM
-in a striped/mirrored configuration for speed.
-
-Later,
-Tom
+_________________________________________________________________________
+Get Your Private, Free E-mail from MSN Hotmail at http://www.hotmail.com.
 

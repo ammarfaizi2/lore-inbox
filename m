@@ -1,70 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263870AbTDIWRm (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 18:17:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263890AbTDIWRm (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 18:17:42 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:13707 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S263870AbTDIWRk convert rfc822-to-8bit (for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Apr 2003 18:17:40 -0400
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10499275003618@kroah.com>
-Subject: Re: [PATCH] i2c driver changes for 2.5.67
-In-Reply-To: <10499274993464@kroah.com>
+	id S263895AbTDIWTQ (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 18:19:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263890AbTDIWSs (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 18:18:48 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:35980 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263895AbTDIWRn (for <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Apr 2003 18:17:43 -0400
+Date: Wed, 9 Apr 2003 15:31:17 -0700
 From: Greg KH <greg@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Wed, 9 Apr 2003 15:31:40 -0700
-Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
+Subject: [BK PATCH] i2c driver changes for 2.5.67
+Message-ID: <20030409223117.GA2812@kroah.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1133.1.4, 2003/04/08 12:31:53-07:00, azarah@gentoo.org
+Hi,
 
-[PATCH] i2c: remove compiler warning in w83781d sensor driver
+Here are some i2c driver changes for 2.5.67.  These include a number of
+compile fixes, and a build fix due to my previous patches.  Also a patch
+to help out the i2c based video drivers is in here.
 
-On Wed, 2003-04-09 at 00:04, Greg KH wrote:
+Please pull from:  bk://kernel.bkbits.net/gregkh/linux/i2c-2.5
 
-> Oh, I'm getting the following warning when building the driver, want to
-> look into this?
->
-> drivers/i2c/chips/w83781d.c: In function `store_fan_div_reg':
-> drivers/i2c/chips/w83781d.c:715: warning: `old3' might be used uninitialized in this function
->
+thanks,
 
-It is because old3 is only referenced if:
+greg k-h
 
- ((data->type != w83781d) && data->type != as99127f)
+ drivers/i2c/chips/Kconfig   |    5 
+ drivers/i2c/chips/via686a.c |  551 ++++++++++++++++++++++++--------------------
+ drivers/i2c/chips/w83781d.c |    6 
+ drivers/i2c/i2c-adap-ite.c  |    4 
+ drivers/i2c/i2c-dev.c       |   97 +++----
+ drivers/i2c/i2c-frodo.c     |    4 
+ drivers/i2c/scx200_i2c.c    |    6 
+ include/linux/i2c-dev.h     |    6 
+ include/linux/i2c.h         |   13 -
+ 9 files changed, 376 insertions(+), 316 deletions(-)
+-----
 
-as those two chips don't have extended divisor bits ...
+<azarah@gentoo.org>:
+  o i2c: remove compiler warning in w83781d sensor driver
+  o i2c: Fix w83781d sensor to use Milli-Volt for in_* in sysfs
 
-It is however set in the first occurrence:
+<j.dittmer@portrix.net>:
+  o i2c: convert via686a i2c driver to sysfs
 
-       /* w83781d and as99127f don't have extended divisor bits */
-       if ((data->type != w83781d) && data->type != as99127f) {
-               old3 = w83781d_read_value(client, W83781D_REG_VBAT);
-       }
+<schlicht@uni-mannheim.de>:
+  o i2c: fix compilation error for various i2c-devices
 
-and thus is rather gcc being brain dead for not being able to figure
-old3 is only used within a if block like that.
+Gerd Knorr <kraxel@bytesex.org>:
+  o i2c: add i2c_clientname()
 
-I was not sure about style policy in a case like this, so I left it as
-is, it should however be possible to 'fix' it with:
-
-
- drivers/i2c/chips/w83781d.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-
-diff -Nru a/drivers/i2c/chips/w83781d.c b/drivers/i2c/chips/w83781d.c
---- a/drivers/i2c/chips/w83781d.c	Wed Apr  9 15:15:55 2003
-+++ b/drivers/i2c/chips/w83781d.c	Wed Apr  9 15:15:55 2003
-@@ -712,7 +712,7 @@
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct w83781d_data *data = i2c_get_clientdata(client);
--	u32 val, old, old2, old3;
-+	u32 val, old, old2, old3 = 0;
- 
- 	val = simple_strtoul(buf, NULL, 10);
- 	old = w83781d_read_value(client, W83781D_REG_VID_FANDIV);
+Greg Kroah-Hartman <greg@kroah.com>:
+  o i2c: clean up i2c-dev.c's formatting, DEBUG, and ioctl mess
+  o i2c: fix up compile error in scx200_i2c driver
+  o i2c: fix up via686a.c driver based on previous i2c api changes
+  o i2c: fix up CONFIG_I2C_SENSOR configuration logic
 

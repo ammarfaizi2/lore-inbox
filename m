@@ -1,44 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262549AbUKRBXG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262670AbUKRB1d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262549AbUKRBXG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 20:23:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262661AbUKRBXF
+	id S262670AbUKRB1d (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 20:27:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262604AbUKRBZC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 20:23:05 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:49043 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262549AbUKRBUf
+	Wed, 17 Nov 2004 20:25:02 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:2721 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S262673AbUKRBXn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 20:20:35 -0500
-Subject: Re: [patch 4/4] Xen core patch : /dev/mem calls io_remap_page_range
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Keir.Fraser@cl.cam.ac.uk,
-       Christian.Limpach@cl.cam.ac.uk
-In-Reply-To: <E1CUajU-0005vu-00@mta1.cl.cam.ac.uk>
-References: <E1CUajU-0005vu-00@mta1.cl.cam.ac.uk>
+	Wed, 17 Nov 2004 20:23:43 -0500
+Subject: Re: [patch] inotify: add sysfs store support
+From: Robert Love <rml@novell.com>
+To: John McCutchan <ttb@tentacle.dhs.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1100739641.8984.10.camel@vertex>
+References: <1100710677.6280.2.camel@betsy.boston.ximian.com>
+	 <1100714560.6280.7.camel@betsy.boston.ximian.com>
+	 <1100722226.4981.46.camel@betsy.boston.ximian.com>
+	 <1100739641.8984.10.camel@vertex>
 Content-Type: text/plain
-Message-Id: <1100740828.12373.269.camel@localhost>
+Date: Wed, 17 Nov 2004 20:24:41 -0500
+Message-Id: <1100741081.5656.81.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 17 Nov 2004 17:20:28 -0800
+X-Mailer: Evolution 2.0.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-11-17 at 17:05, Ian Pratt wrote:
-> If there really are no uses, an alternative patch would be to
-> introduce an ARCH_HAS_REMAP_PAGE_RANGE. Would this be preferable?
+On Wed, 2004-11-17 at 20:00 -0500, John McCutchan wrote:
+> Awesome work!
 
-Well, first of all, remap_page_range() is now deprecated, so some of
-this might not even be relevant.  :) 
+Thanks.
 
-My only worry is that you might want *all* calls to
-remap_page/pfn_range() to be to io_remap_page/pfn_range() for your
-arch.  If this isn't the case, then there really isn't an issue.  And,
-yes, mem.c is a mess.
+> But I am going to hold off applying this, until the
+> mainline kernel gets the misc device changes.
 
-Thanks for the explanation.
+OK, but it is going to be awhile.  It is too late for 2.6.10, so it
+won't go in until 2.6.11.
 
--- Dave
+	Robert Love
+
 

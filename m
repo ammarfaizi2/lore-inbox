@@ -1,92 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264049AbTDWOPG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 10:15:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264050AbTDWOPG
+	id S264050AbTDWOQI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 10:16:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264052AbTDWOQI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 10:15:06 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:3720 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S264049AbTDWOPD
+	Wed, 23 Apr 2003 10:16:08 -0400
+Received: from 101.24.177.216.inaddr.G4.NET ([216.177.24.101]:16512 "EHLO
+	sparrow.stearns.org") by vger.kernel.org with ESMTP id S264050AbTDWOQG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 10:15:03 -0400
-Date: Wed, 23 Apr 2003 10:24:26 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Chuck Ebbert <76306.1226@compuserve.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Wanted: A decent assembler
-In-Reply-To: <200304230952_MC3-1-35A8-EDA3@compuserve.com>
-Message-ID: <Pine.LNX.4.53.0304231019300.23237@chaos>
-References: <200304230952_MC3-1-35A8-EDA3@compuserve.com>
+	Wed, 23 Apr 2003 10:16:06 -0400
+Date: Wed, 23 Apr 2003 10:27:31 -0400 (EDT)
+From: William Stearns <wstearns@pobox.com>
+X-X-Sender: wstearns@sparrow
+Reply-To: William Stearns <wstearns@pobox.com>
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+cc: Nir Livni <nir_l3@netvision.net.il>,
+       ML-linux-kernel <linux-kernel@vger.kernel.org>,
+       Erez Zadok <ezk@shekel.mcl.cs.columbia.edu>
+Subject: Re: FileSystem Filter Driver
+In-Reply-To: <20030423135326.A7131@bitwizard.nl>
+Message-ID: <Pine.LNX.4.44.0304231023490.6853-100000@sparrow>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Apr 2003, Chuck Ebbert wrote:
+Good day, Nir, Rogier,
 
->
-> Chuck Ebbert wrote:
->
-> > <mangled asm source>
->
->  Should be:
->
->
-> .if NR_IRQS gt 16			# only build this for IO-APIC
-> 	.align 8,0x90			# make ENTRY have exact address
-> irq_align=8				# start with 8-byte alignment
-> ENTRY(high_irq_entries_start)
-> .rept NR_IRQS-16			# the rest of the stubs
-> 	.align irq_align,0x90
-> 1:	pushl $vector-256		# 5-byte instruction
-> 	jmp common_interrupt		# 2 or 5 bytes (8 or 32-bit offset)
-> 2:
-> .if 2b-1b > 8				# offset changed to 32-bit
-> 	irq_align=16			# switch to 16-byte alignment
-> .endif
-> .data
-> 	.long 1b
-> .text
-> vector=vector+1
-> .endr
-> .endif
->
->
-\
+On Wed, 23 Apr 2003, Rogier Wolff wrote:
 
-Well the source has several errors. I fixed a couple and made
-the jump (temporarily) a fixed-length jump. The remaining error
-is the improper construction of the label "vector", which needs
-to be fixed and I need to take a work-break. I think all you
-need to do is pre-define it, i.e., like the following:
+> On Wed, Apr 23, 2003 at 12:28:33PM +0200, Nir Livni wrote:
+> > I am looking for information about writing a FileSystem Filter Driver on RH.
+> > Any documentation or source code samples whould be appreciated.
+> 
+> Check out one of the latest Linux Journals. I think they just
+> published an article about this!
 
-NR_IRQS = 32
+	The May 2003 issue did include an article from Erez Zadok on the 
+topic of the FiST project (File System Translator), which is exactly what 
+you're looking for.
+	The project homepage is at 
+http://www1.cs.columbia.edu/~ezk/research/fist/ .  There are links there 
+to the language specification (see his phd dissertation), downloadable 
+code, sample filesystems, and a mailing list.
+	Cheers,
+	- Bill
 
-.if NR_IRQS > 16			# only build this for IO-APIC
-	.align 8,0x90			# make ENTRY have exact address
-irq_align=8				# start with 8-byte alignment
-#ENTRY(high_irq_entries_start)
-vector = 0;                             # Define as a variable, not label
-.rept NR_IRQS-16			# the rest of the stubs
-	.align irq_align,0x90
-1:	pushl $vector		# 5-byte instruction
-	ljmp common_interrupt		# 2 or 5 bytes (8 or 32-bit offset)
-2:
-.if 2b-1b > 8				# offset changed to 32-bit
-	irq_align=16			# switch to 16-byte alignment
-.endif
-.data
-	.long 1b
-.text
-vector=vector+1
-.endr
-.endif
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+---------------------------------------------------------------------------
+	"Never underestimate the bandwidth of a station wagon full of
+tapes."
+	-- Dr. Warren Jackson, Director, UTCS
+(Courtesy of Clem Yonkers <cyonkers@intervis.com>)
+--------------------------------------------------------------------------
+William Stearns (wstearns@pobox.com).  Mason, Buildkernel, freedups, p0f,
+rsync-backup, ssh-keyinstall, dns-check, more at:   http://www.stearns.org
+Linux articles at:                         http://www.opensourcedigest.com
+--------------------------------------------------------------------------
 

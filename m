@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129891AbQJ3Xky>; Mon, 30 Oct 2000 18:40:54 -0500
+	id <S129517AbQJ3XlP>; Mon, 30 Oct 2000 18:41:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129887AbQJ3Xko>; Mon, 30 Oct 2000 18:40:44 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:65293 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129517AbQJ3Xk1>;
-	Mon, 30 Oct 2000 18:40:27 -0500
-Message-ID: <39FE06C7.485467DF@mandrakesoft.com>
-Date: Mon, 30 Oct 2000 18:39:51 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
-X-Accept-Language: en
+	id <S129822AbQJ3XlF>; Mon, 30 Oct 2000 18:41:05 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:47368 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129807AbQJ3Xkz>; Mon, 30 Oct 2000 18:40:55 -0500
+Date: Mon, 30 Oct 2000 15:40:24 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Christoph Hellwig <hch@ns.caldera.de>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org,
+        Keith Owens <kaos@ocs.com.au>
+Subject: Re: test10-pre7
+In-Reply-To: <200010302332.AAA15959@ns.caldera.de>
+Message-ID: <Pine.LNX.4.10.10010301536340.3595-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: David Woodhouse <dwmw2@infradead.org>
-CC: "H. Peter Anvin" <hpa@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: / on ramfs, possible?
-In-Reply-To: <Pine.LNX.4.21.0010302329140.16675-100000@imladris.demon.co.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse wrote:
+
+
+On Tue, 31 Oct 2000, Christoph Hellwig wrote:
 > 
-> On Mon, 30 Oct 2000, H. Peter Anvin wrote:
-> 
-> > Pardon?!  This doesn't make any sense...
-> >
-> > The question was: how do switch from the initrd to using the ramfs as /?
-> > Using pivot_root should do it (after the pivot, you can of course nuke
-> > the initrd ramdisk.)
-> 
-> My question is: What do you want to do that for? You can nuke the initrd
-> ramdisk, but you can't drop the rd.c code, or ll_rw_blk.c code, etc. So
-> why not just keep your root filesystem in the initrd where it started off?
+> It is simple - but a change in _every_ makefile is required.
+> And it is not really needed for old-style makefiles.
 
-ramfs size is far more dynamic than rd, and it shrinks as well as grows.
+Actually, you don't have to change every makefile, because you CAN do this
+all with a simple backwards-compatibility layer, something like:
 
-Unless you are creating a lot of temporary files and such, though,
-initrd is indeed a much better solution from many perspectives. (IMHO)
+	OXONLY = $(filter-out $(O_OBJS), $(OX_OBJS))
+	ALL_O = $(OXONLY) $(O_OBJS)
 
-	Jeff
+which is a no-op for a "proper" makefile that follows the new rules
+(OXONLY will be empty, because all OX_OBJS files will be part of O_OBJS),
+but it will make old-style stuff act the same..
 
+I'd actually prefer to just change every Makefile, but hey, I think
+something like the above (untested) would make them work unmodified too.
 
--- 
-Jeff Garzik             | "Mind if I drive?"  -Sam
-Building 1024           | "Not if you don't mind me clawing at the
-MandrakeSoft            |  dash and shrieking like a cheerleader."
-                        |                     -Max
+		Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

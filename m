@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273976AbRI3S23>; Sun, 30 Sep 2001 14:28:29 -0400
+	id <S273703AbRI3SZ7>; Sun, 30 Sep 2001 14:25:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273977AbRI3S2T>; Sun, 30 Sep 2001 14:28:19 -0400
-Received: from lsmls01.we.mediaone.net ([24.130.1.20]:6389 "EHLO
-	lsmls01.we.mediaone.net") by vger.kernel.org with ESMTP
-	id <S273976AbRI3S2B>; Sun, 30 Sep 2001 14:28:01 -0400
-Message-ID: <3BB76492.76D014BE@kegel.com>
-Date: Sun, 30 Sep 2001 11:29:38 -0700
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Davide Libenzi <davidel@xmailserver.org>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Nimesh vakharia <nvakhari@clio.rad.sunysb.edu>
-Subject: Re: [PATCH] tcp_v4_get_port() and ephemeral ports
-In-Reply-To: <Pine.LNX.4.40.0109301114390.7223-100000@blue1.dev.mcafeelabs.com>
+	id <S273920AbRI3SZt>; Sun, 30 Sep 2001 14:25:49 -0400
+Received: from [194.213.32.137] ([194.213.32.137]:11012 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S273703AbRI3SZk>;
+	Sun, 30 Sep 2001 14:25:40 -0400
+Message-ID: <20010930002339.A715@bug.ucw.cz>
+Date: Sun, 30 Sep 2001 00:23:39 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Tim Connors <tcon@Physics.usyd.edu.au>,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: resume before mounting root [diff against vanilla 2.4.9]
+In-Reply-To: <200109270302.f8R32pl12537@saturn.cs.uml.edu> <Pine.SOL.3.96.1010927143756.6329A-100000@suphys.physics.usyd.edu.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 0.93i
+In-Reply-To: <Pine.SOL.3.96.1010927143756.6329A-100000@suphys.physics.usyd.edu.au>; from Tim Connors on Thu, Sep 27, 2001 at 02:51:50PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi wrote:
-> 
-> On Sun, 30 Sep 2001, Dan Kegel wrote:
-> 
-> > I'm doing ftp server benchmarking, doing lots of connect()'s.
-> > Since ports aren't supposed to be reused for 2MSL (theoretically 120 seconds),
-> > the absolute limit on connections per second is 64K/120 = 500.
-> > This actually could pose a problem for me.  (Yeah, 2MSL is
-> > set to 30 seconds in linux, so the problem isn't as severe
-> > as the standard says, but it's still a problem.)
-> 
-> net.ipv4.tcp_tw_recycle=1
-> net.ipv4.tcp_fin_timeout=8
-> 
-> ONLY FOR TESTING !! :)
+Hi!
 
-OK, thanks, that will help!
+> > That is totally broken, because I may mount the disk in between
+> > the suspend and resume. I might even:
+> > 
+> > 1. boot kernel X
+> > 2. suspend kernel X
+> > 3. boot kernel Y
+> > 4. suspend kernel Y
+> > 5. resume kernel X
+> > 6. suspend kernel X
+> > 7. resume kernel Y
+> > 8. suspend kernel Y
+> > 9. goto #5
+> > 
+> > You really have to close the logs and mark the disks clean
+> > when you suspend. The problems here are similar the the ones
+> > NFS faces. Between the suspend and resume, filesystems may be
+> > modified in arbitrary ways.
+> 
+> I missed the rest of the thread, but if you are talking about what I think
+> you are talking about, I'll go <AOL>Me too</AOL>
+> 
+> A horrible combination of accidents with scripts that set lilo to boot
+> to the hibernated partition if last suspended, and an apparent BIOS bug
+> that allowed me to boot out of a hibernated partition for a second
+> time meant that my laptop came out of regular hibernation mode (as
 
-I'm still interested in whether that patch I posted makes sense.
-bind() *should* work that way, darn it :-)
+swsusp code will not allow you to restore from one partition twice.
 
-- Dan
+								Pavel
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262034AbVCTHd6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262035AbVCTHev@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262034AbVCTHd6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Mar 2005 02:33:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbVCTHd5
+	id S262035AbVCTHev (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Mar 2005 02:34:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbVCTHev
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Mar 2005 02:33:57 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:30995 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S262034AbVCTHd4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Mar 2005 02:33:56 -0500
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: domen@coderock.org
-Subject: Re: [patch 1/4] crypto/sha256.c: fix sparse warnings
-Cc: herbert@gondor.apana.org.au, davem@davemloft.net,
-       linux-kernel@vger.kernel.org, domen@coderock.org, adobriyan@mail.ru
-Organization: Core
-In-Reply-To: <20050319131810.4A9111ECA8@trashy.coderock.org>
-X-Newsgroups: apana.lists.os.linux.kernel
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
-Message-Id: <E1DCuuz-0003fC-00@gondolin.me.apana.org.au>
-Date: Sun, 20 Mar 2005 18:32:13 +1100
+	Sun, 20 Mar 2005 02:34:51 -0500
+Received: from wproxy.gmail.com ([64.233.184.199]:33403 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262035AbVCTHer (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Mar 2005 02:34:47 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=mz7r+EGCY3PKAxdal5+kIq2tEqX5UfhZ8o7+kUUcMpHGDRdOEg6rfYTxgvOM9wdKtEK8+5ovpoexT4LIMGUW7jyA9vFuIsH18p6FDHb98KaF4IkFzhvpmBghCjV9xUTMRMfDCJd19WKQygE8qAGuHaLU2bJZh3Dk/dVCrPxUfzE=
+Message-ID: <5a3ed565050319233447e74fc9@mail.gmail.com>
+Date: Sun, 20 Mar 2005 10:34:46 +0300
+From: regatta <regatta@gmail.com>
+Reply-To: regatta <regatta@gmail.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>,
+       "Red Hat developer's list" <redhat-devel-list@redhat.com>
+Subject: RDMA (Remote Direct Memory Access)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-domen@coderock.org wrote:
->
-> diff -puN crypto/sha256.c~sparse-crypto_sha256 crypto/sha256.c
-> --- kj/crypto/sha256.c~sparse-crypto_sha256     2005-03-18 20:05:34.000000000 +0100
-> +++ kj-domen/crypto/sha256.c    2005-03-18 20:05:34.000000000 +0100
-> @@ -58,7 +58,7 @@ static inline u32 Maj(u32 x, u32 y, u32 
-> 
-> static inline void LOAD_OP(int I, u32 *W, const u8 *input)
-> {
-> -       W[I] = __be32_to_cpu( ((u32*)(input))[I] );
-> +       W[I] = __be32_to_cpu( ((__be32*)(input))[I] );
+Hi
 
-I don't get any warnings here (sparse version dated 12/03/2005).
-What warnings are you getting exactly?
+Is there any plan to support RDMA in Linux ? what is the status ?
 
-Cheers,
+my question is because I know that windows HPC project will support
+RDMA in release 2 and they also will support infiniband
+
+They also will support Intel Xeon 64 or the AMD Opteron  only
+
+
+
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Best Regards,
+--------------------
+-*- If Linux doesn't have the solution, you have the wrong problem -*-

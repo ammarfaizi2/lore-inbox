@@ -1,65 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261229AbUJ3Q1J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbUJ3QSe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261229AbUJ3Q1J (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 12:27:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbUJ3Q1I
+	id S261198AbUJ3QSe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 12:18:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbUJ3QRP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 12:27:08 -0400
-Received: from fw.osdl.org ([65.172.181.6]:54220 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261216AbUJ3QZo (ORCPT
+	Sat, 30 Oct 2004 12:17:15 -0400
+Received: from mail.kroah.org ([69.55.234.183]:48024 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261238AbUJ3P3Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 12:25:44 -0400
-Message-ID: <4183BF5B.5000303@osdl.org>
-Date: Sat, 30 Oct 2004 09:20:43 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: james4765@verizon.net
-CC: kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [KJ] [PATCH] floppy: change MODULE_PARM to module_param in	drivers/block/floppy.c
-References: <20041030134246.23710.45693.84191@localhost.localdomain>
-In-Reply-To: <20041030134246.23710.45693.84191@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 30 Oct 2004 11:29:24 -0400
+Date: Fri, 29 Oct 2004 20:23:57 -0700
+From: Greg KH <greg@kroah.com>
+To: David Vrabel <dvrabel@arcom.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] PCI: Add is_bridge to pci_dev to allow fixups to disable bridge functionality.
+Message-ID: <20041030032357.GA1441@kroah.com>
+References: <4174F909.1040804@arcom.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4174F909.1040804@arcom.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-james4765@verizon.net wrote:
-> Replace MODULE_PARM with module_param in drivers/block/floppy.c.  Compile tested.
+On Tue, Oct 19, 2004 at 12:22:49PM +0100, David Vrabel wrote:
+> Hi,
 > 
-> Signed-off-by: James Nelson <james4765@gmail.com>
+> This patch allows device fixups to force the PCI subsystem to ignore 
+> bridges and hence not allocate resources to them.
 > 
-> diff -urN --exclude='*~' linux-2.6.9-original/drivers/block/floppy.c linux-2.6.9/drivers/block/floppy.c
-> --- linux-2.6.9-original/drivers/block/floppy.c	2004-10-18 17:53:22.000000000 -0400
-> +++ linux-2.6.9/drivers/block/floppy.c	2004-10-30 09:16:04.856720081 -0400
-> @@ -180,6 +180,7 @@
->  #include <linux/devfs_fs_kernel.h>
->  #include <linux/device.h>
->  #include <linux/buffer_head.h>	/* for invalidate_buffers() */
-> +#include <linux/moduleparam.h>
->  
->  /*
->   * PS/2 floppies have much slower step rates than regular floppies.
-> @@ -4623,9 +4624,9 @@
->  	wait_for_completion(&device_release);
->  }
->  
-> -MODULE_PARM(floppy, "s");
-> -MODULE_PARM(FLOPPY_IRQ, "i");
-> -MODULE_PARM(FLOPPY_DMA, "i");
-> +module_param(floppy, charp, 0);
-> +module_param(FLOPPY_IRQ, int, 0);
-> +module_param(FLOPPY_DMA, int, 0);
->  MODULE_AUTHOR("Alain L. Knaff");
->  MODULE_SUPPORTED_DEVICE("fd");
->  MODULE_LICENSE("GPL");
+> I have an IXP425 (ARM) board with a CardBus controller on it (of which 
+> only the PC card interfaces are used).  The problem is that the PCI 
+> memory window is too small to fit in all the bridge resources and the 
+> rest of the PCI devices and up being unconfigured.  With this patch, and 
+> a fixup to clear is_bridge, this doesn't happen.
+> 
+> The plan was to make the CardBus driver (drivers/pcmcia/yenta_socket.c) 
+> honour the is_bridge flag and not bother with CardBus stuff if it's cleared.
 
-Please check Andrew's 2.6.10-rc1-mm2 for a large MODULE_PARAM
-patch, and then convert drivers that are not yet converted...
+But why can't any code that wants to check this, just look at the
+dev->hdr_type instead?  I don't think we need to add a new bit for this
+because of that, right?
 
-http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc1/2.6.10-rc1-mm2/broken-out/convert-module_parm-to-module_param-family.patch
+> Index: linux-2.6-armbe/drivers/pci/probe.c
+> ===================================================================
+> --- linux-2.6-armbe.orig/drivers/pci/probe.c	2004-10-14 
+> 11:26:38.000000000 +0100
+> +++ linux-2.6-armbe/drivers/pci/probe.c	2004-10-19 
+> 12:00:00.000000000 +0100
 
+Also, your patch was linewrapped :(
 
--- 
-~Randy
+thanks,
+
+greg k-h

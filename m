@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262210AbTHZOcJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 10:32:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261625AbTHZOb7
+	id S261513AbTHZOcs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 10:32:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261591AbTHZObt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 10:31:59 -0400
-Received: from holomorphy.com ([66.224.33.161]:37295 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S261461AbTHZObq (ORCPT
+	Tue, 26 Aug 2003 10:31:49 -0400
+Received: from verein.lst.de ([212.34.189.10]:176 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S261963AbTHZObP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 10:31:46 -0400
-Date: Tue, 26 Aug 2003 07:32:52 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test4-mm1
-Message-ID: <20030826143252.GT4306@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20030824171318.4acf1182.akpm@osdl.org> <30190000.1061853042@flay> <20030826100824.GQ4306@holomorphy.com> <9910000.1061907789@[10.10.2.4]>
+	Tue, 26 Aug 2003 10:31:15 -0400
+Date: Tue, 26 Aug 2003 16:30:24 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: Oleg Drokin <green@namesys.com>
+Cc: marcelo@hera.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] backport iget_locked from 2.5/2.6
+Message-ID: <20030826143024.GA4184@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
+	Oleg Drokin <green@namesys.com>, marcelo@hera.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <20030825140714.GA17359@lst.de> <20030826112716.GA14680@namesys.com> <20030826134809.GA924@lst.de> <20030826135442.GB23462@namesys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <9910000.1061907789@[10.10.2.4]>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030826135442.GB23462@namesys.com>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -5 () EMAIL_ATTRIBUTION,IN_REP_TO,QUOTED_EMAIL_TEXT,REFERENCES,REPLY_WITH_QUOTES,USER_AGENT_MUTT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> wrote (on Tuesday, August 26, 2003 03:08:24 -0700):
->> Hmm, seeing functions I wrote in diffprofiles like this gives me the
->> wli's. Any chance you could snapshot /proc/slabinfo say every 1s during
->> a run so I can see what's going on?
+On Tue, Aug 26, 2003 at 05:54:42PM +0400, Oleg Drokin wrote:
+> Hello!
+> 
+> > Mail-Followup-To: Christoph Hellwig <hch@angband.namesys.com>,
+> 
+> Hm, very interesting header, I'd say. No wonder I'm getting errors replying to
+> your emails.
 
-On Tue, Aug 26, 2003 at 07:23:10AM -0700, Martin J. Bligh wrote:
-> You should be able to recreate this easily yourself, but on closer
-> inspection, it seems the cost is just shifted from pgd_ctor.
+Well, I got the same from you although I though only in the Cc line
+which I removed.
 
-That's a big relief.
+> 
+> > > The patch below does not achieve this. We still fill inode private part
+> > > outside of inode_lock locked region.
+> > -ENOPATCH :)
+> 
+> I meant the patch in the email you sent and to which I answered originally ;)
 
-Thanks.
 
+Sorry, I missed the 'not' when reading and though you had an alternate
+patch
 
--- wli

@@ -1,50 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312194AbSDIXVo>; Tue, 9 Apr 2002 19:21:44 -0400
+	id <S312219AbSDIXYN>; Tue, 9 Apr 2002 19:24:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312208AbSDIXVn>; Tue, 9 Apr 2002 19:21:43 -0400
-Received: from 66-133-183-62.fod.frontiernet.net ([66.133.183.62]:7066 "EHLO
-	66-133-183-62.fod.frontiernet.net") by vger.kernel.org with ESMTP
-	id <S312194AbSDIXVn>; Tue, 9 Apr 2002 19:21:43 -0400
-Message-Id: <200204092257.g39Mvrb30910@66-133-183-62.fod.frontiernet.net>
-Content-Type: text/plain; charset=US-ASCII
-From: Russell Miller <rmiller@duskglow.com>
-Reply-To: rmiller@duskglow.com
-Organization: If you only saw my house...
-To: vda@port.imtp.ilyichevsk.odessa.ua, linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18 data corruption issues
-Date: Tue, 9 Apr 2002 17:57:50 -0500
-X-Mailer: KMail [version 1.3.2]
-Cc: barry@Know-Where.com (Barry Bakalor)
-In-Reply-To: <200204090252.g392qNb24499@66-133-183-62.fod.frontiernet.net> <200204090604.g3964rX01196@Port.imtp.ilyichevsk.odessa.ua>
+	id <S312235AbSDIXYM>; Tue, 9 Apr 2002 19:24:12 -0400
+Received: from 202-77-223-23.outblaze.com ([202.77.223.23]:18878 "EHLO
+	testdcc.outblaze.com") by vger.kernel.org with ESMTP
+	id <S312219AbSDIXYL>; Tue, 9 Apr 2002 19:24:11 -0400
+Message-ID: <20020409232409.12438.qmail@fastermail.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "mark manning" <mark.manning@fastermail.com>
+To: linux-kernel@vger.kernel.org
+Date: Tue, 09 Apr 2002 18:24:09 -0500
+Subject: nanosleep
+X-Originating-Ip: 67.241.61.96
+X-Originating-Server: ws4.hk5.outblaze.com
+X-DCC-Outblaze-Metrics: testdcc.outblaze.com 100; env_From=3 From=3 Message-ID=1 Received=1 Body=1
+	Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 09 April 2002 06:08 am, Denis Vlasenko wrote:
 
-> What is your GCC version?
->
-2.96 20000731 (Redhat Linux 7.1 2.96-98)
-
-> It was Linux? What kernel version? Did you try copying with that kernel?
->
-Kernel 2.2.16.  I believe we did but we didn't verify the copies, regardless, 
-we never found any problems with it.
-
-> You may try to repeat your test with:
-> * newer / older kernel (maybe this is a kernel bug?)
-> * newer GCC (miscompiled kernel?)
-> * different fs (ext3 bug?)
-> * different hardware (last resort to rule out hw problems)
-
-I'll do this.  I doubt it's a miscompiled kernel, gcc problems usually cause 
-crashes, not such subtle problems.
-
---Russell
-
+could someone show me how to do a delay of N miliseconds using nanosleep ? (given n delay n mili seconds etc) - i cant seem to get my code to work doh!
 -- 
-Russell Miller
-rmiller@duskglow.com
-Somewhere in Northwestern Iowa
+
+_______________________________________________
+Get your free email from http://www.fastermail.com
+
+Powered by Outblaze

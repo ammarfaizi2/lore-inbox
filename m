@@ -1,47 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267828AbUIGLnm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267859AbUIGLqZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267828AbUIGLnm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 07:43:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267859AbUIGLnm
+	id S267859AbUIGLqZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 07:46:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267860AbUIGLqZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 07:43:42 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:34991 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S267828AbUIGLnl (ORCPT
+	Tue, 7 Sep 2004 07:46:25 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:58532 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S267859AbUIGLqT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 07:43:41 -0400
-Date: Tue, 7 Sep 2004 13:42:31 +0200
-From: Jens Axboe <axboe@suse.de>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Paul Mackerras <paulus@samba.org>, Jesper Juhl <juhl-lkml@dif.dk>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] remember to check return value from __copy_to_user() in cdrom_read_cdda_old()
-Message-ID: <20040907114231.GS6323@suse.de>
-References: <Pine.LNX.4.61.0409062335250.2705@dragon.hygekrogen.localhost> <20040907080223.GF6323@suse.de> <16701.32784.10441.884090@cargo.ozlabs.ibm.com> <20040907093437.GK6323@suse.de> <20040907102331.GS23987@parcelfarce.linux.theplanet.co.uk> <20040907103031.GP6323@suse.de> <20040907104514.GT23987@parcelfarce.linux.theplanet.co.uk>
+	Tue, 7 Sep 2004 07:46:19 -0400
+Date: Tue, 7 Sep 2004 13:45:36 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Gunnar Ritter <Gunnar.Ritter@pluto.uni-freiburg.de>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Steve French <smfltc@us.ibm.com>
+Subject: Re: [PATCH 1/3] copyfile: generic_sendpage
+Message-ID: <20040907114536.GA26630@wohnheim.fh-wedel.de>
+References: <20040904165733.GC8579@wohnheim.fh-wedel.de> <20040904153902.6ac075ea.akpm@osdl.org> <413C5BF2.nail2RA1138AG@pluto.uni-freiburg.de> <20040906133523.GC25429@wohnheim.fh-wedel.de> <413C74E6.nail3YF11Y0TT@pluto.uni-freiburg.de> <20040907110913.GA25802@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20040907104514.GT23987@parcelfarce.linux.theplanet.co.uk>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040907110913.GA25802@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 07 2004, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> On Tue, Sep 07, 2004 at 12:30:31PM +0200, Jens Axboe wrote:
-> > it boils down to access_ok() not being sufficient on its own, and in
-> > which case yes we should just use copy_to_user() and kill the check
-> > completely as per the patch sent out.
+On Tue, 7 September 2004 13:09:13 +0200, Jörn Engel wrote:
 > 
-> access_ok() is just "we can trust MMU to do the right thing when dealing
-> with access to process address space at that address".  On platforms with
-> secondary address spaces (e.g. sparc) it's always true.  On something like
-> i386 we *could* use segments for the same purposes.  In fact, we used to
-> do just that - access to userland memory went with %fs as segment (thus
-> the names like extinct memcpy_fromfs() and surviving set_fs()).  However,
-> it's cheaper to do that check explicitly instead of relying on MMU.  And
-> that's what access_ok() does.
+> I did the loop inside the kernel, so the syscall overhead is less of
+> an issue.  4k is a safe bet for _really_ slow devices and if people
+> want to increase it, hey, it's just a single constant to touch.
 
-Alright, I'm wondering how the misconception of what access_ok() really
-guarantees snuck into cdrom.c. At least the patch takes care of it.
+And a stupid bug I missed.  Call sendfile with count>filesize and the
+loop doesn't terminate.  Fixed patch below.
+
+Jörn
 
 -- 
-Jens Axboe
+Premature optimization is the root of all evil.
+-- Donald Knuth
 
+
+Linus and Andrew are rightfully concerned about local DoS via a large
+file->file sendfile().  This patch turns large sendfile() calls into a
+loop of 4k chunks.  After each chunk, it adds a cond_resched for
+interactivity and a signal check to allow aborts etc. after the user
+found out what a bad idea this may be.
+
+Signed-off-by: Jörn Engel <joern@wohnheim.fh-wedel.de>
+---
+
+ read_write.c |   31 ++++++++++++++++++++++++++++++-
+ 1 files changed, 30 insertions(+), 1 deletion(-)
+
+
+--- linux-2.6.8cow/fs/read_write.c~sendfile_loop	2004-09-05 12:06:39.000000000 +0200
++++ linux-2.6.8cow/fs/read_write.c	2004-09-07 13:27:30.000000000 +0200
+@@ -561,6 +561,35 @@
+ 	return ret;
+ }
+ 
++/**
++ * sendfile() of a 2GB file over usb1-attached hard drives can take a moment.
++ * This little loop is supposed to stop now and then to check for signals,
++ * reschedule and generally play nice with others.
++ */
++ssize_t inline __vfs_sendfile(struct file *in_file, loff_t *ppos, size_t count,
++		read_actor_t actor, struct file *out_file)
++{
++	ssize_t done = 0, ret;
++	while (count) {
++		size_t n = min(count, (size_t)4096);
++		ret = in_file->f_op->sendfile(in_file, ppos, n, actor,out_file);
++		if (ret < 0) {
++			if (done)
++				return done;
++			else
++				return ret;
++		}
++
++		done += ret;
++		count -= ret;
++
++		if ((ret == 0) || signal_pending(current))
++			break;
++		cond_resched();
++	}
++	return done;
++}
++
+ ssize_t vfs_sendfile(struct file *out_file, struct file *in_file, loff_t *ppos,
+ 		     size_t count, loff_t max)
+ {
+@@ -608,7 +637,7 @@
+ 		count = max - pos;
+ 	}
+ 
+-	ret = in_file->f_op->sendfile(in_file, ppos, count, file_send_actor, out_file);
++	ret = __vfs_sendfile(in_file, ppos, count, file_send_actor, out_file);
+ 
+ 	if (*ppos > max)
+ 		return -EOVERFLOW;

@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266410AbRGBIjH>; Mon, 2 Jul 2001 04:39:07 -0400
+	id <S266408AbRGBIsj>; Mon, 2 Jul 2001 04:48:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266411AbRGBIi6>; Mon, 2 Jul 2001 04:38:58 -0400
-Received: from patan.Sun.COM ([192.18.98.43]:8403 "EHLO patan.sun.com")
-	by vger.kernel.org with ESMTP id <S266410AbRGBIip>;
-	Mon, 2 Jul 2001 04:38:45 -0400
-Message-ID: <3B40330C.274A34DB@Sun.COM>
-Date: Mon, 02 Jul 2001 09:38:36 +0100
-From: Craig McLean <Craig.McLean@Sun.COM>
-Reply-To: Craig.McLean@Sun.COM
-Organization: Sun Microsystems
-X-Mailer: Mozilla 4.76C-CCK-MCD Netscape [en] (X11; U; SunOS 5.8 sun4u)
-X-Accept-Language: en
+	id <S266412AbRGBIs3>; Mon, 2 Jul 2001 04:48:29 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:9408 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S266408AbRGBIsV>;
+	Mon, 2 Jul 2001 04:48:21 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-To: sl@fireplug.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Cosmetic JFFS patch.
-In-Reply-To: <993825330.30635@whiskey.enposte.net> <9hinh4$47a$1@whiskey.enposte.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15168.13648.602917.563647@pizda.ninka.net>
+Date: Mon, 2 Jul 2001 01:48:16 -0700 (PDT)
+To: paulus@samba.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: hang from HUP'ing init in linuxrc
+In-Reply-To: <15167.61332.139916.158874@cargo.ozlabs.ibm.com>
+In-Reply-To: <15167.61332.139916.158874@cargo.ozlabs.ibm.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Stuart Lynne wrote:
+Paul Mackerras writes:
+ > What was happening was rather interesting.  The init process was stuck
+ > inside prepare_namespace(), in the while loop here (this is lines 749
+ > - 751 of init/main.c):
+ > 
+ > 		pid = kernel_thread(do_linuxrc, "/linuxrc", SIGCHLD);
+ > 		if (pid>0)
+ > 			while (pid != wait(&i));
+ > 
+ ...
+ [ no signal delivery due to returning to kernel space, blah blah blah
+   :-) ]
 
-> I think listing driver versions on boot with perhaps some diagnostic info
-> if appropriate is useful. Names and copyrights should be in the source.
+For 2.4.x I'd just check for sigpending in this wait loop.
 
-Yup, if you go out and buy a book, the copyright business is in small
-print inside, not under the title on the dust-cover..
-Now, I'll just have to pretend they don't put the authors name on the
-front in huge letters, and my analogy will be complete. Hmmm.
+Longer term (ie. 2.5.x and onward) we should look into ideas like those
+mentioned by Ben.  I for one would not complain about seeing dhcp
+getting removed from the kernel :-)
 
-Craig.
---
-Craig McLean				P: 01276 423905
-Proactive Technical Analyst		M: 07801 459497
-Sun Microsystems Proactive Services	E: craig.mclean@sun.com
-My opinions are not necessarily those of Sun Microsystems
+Later,
+David S. Miller
+davem@redhat.com
+

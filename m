@@ -1,113 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264801AbUFGPwr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264777AbUFGPwE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264801AbUFGPwr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 11:52:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264772AbUFGPwr
+	id S264777AbUFGPwE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 11:52:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264772AbUFGPwD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 11:52:47 -0400
-Received: from may.priocom.com ([213.156.65.50]:51674 "EHLO may.priocom.com")
-	by vger.kernel.org with ESMTP id S264801AbUFGPwS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 11:52:18 -0400
-Subject: Re: [PATCH] 2.6.6 memory allocation checks in
-	drivers/pci/hotplug/shpchprm_acpi.c
-From: Yury Umanets <torque@ukrpost.net>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20040606105106.01c2fec9.rddunlap@osdl.org>
-References: <1086538851.2793.90.camel@firefly>
-	 <20040606105106.01c2fec9.rddunlap@osdl.org>
-Content-Type: text/plain
-Message-Id: <1086623550.20964.16.camel@firefly>
+	Mon, 7 Jun 2004 11:52:03 -0400
+Received: from dh132.citi.umich.edu ([141.211.133.132]:24704 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S264811AbUFGPvv convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 11:51:51 -0400
+Subject: Re: [BUG] NFS no longer updates file modification times
+	appropriately
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: joe.korty@ccur.com
+Cc: linux-kernel@vger.kernel.org, Ronny.Lampert@telecasystems.de,
+       ioe-lkml@rameria.de
+In-Reply-To: <20040607152139.GA21926@tsunami.ccur.com>
+References: <1086297112.3659.3.camel@lade.trondhjem.org>
+	 <20040607152139.GA21926@tsunami.ccur.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1086623509.4173.7.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 07 Jun 2004 18:52:31 +0300
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 07 Jun 2004 11:51:49 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-06-06 at 20:51, Randy.Dunlap wrote:
-> On Sun, 06 Jun 2004 19:20:51 +0300 Yury Umanets wrote:
-> 
-> | Adds memory allocation checks in acpi_get__hpp()
-> | 
-> |  ./linux-2.6.6-modified/drivers/pci/hotplug/shpchprm_acpi.c |    2 ++
-> |  1 files changed, 2 insertions(+)
-> | 
-> | Signed-off-by: Yury Umanets <torque@ukrpost.net>
-> | 
-> | diff -rupN ./linux-2.6.6/drivers/pci/hotplug/shpchprm_acpi.c
-> | ./linux-2.6.6-modified/drivers/pci/hotplug/shpchprm_acpi.c
-> | --- ./linux-2.6.6/drivers/pci/hotplug/shpchprm_acpi.c	Mon May 10
-> | 05:32:28 2004
-> | +++ ./linux-2.6.6-modified/drivers/pci/hotplug/shpchprm_acpi.c	Wed Jun 
-> | 2 14:28:07 2004
-> | @@ -218,6 +218,8 @@ static void acpi_get__hpp ( struct acpi_
-> |  	}
-> |  
-> |  	ab->_hpp = kmalloc (sizeof (struct acpi__hpp), GFP_KERNEL);
-> | +	if (!ab->_hpp)
-> | +		goto free_and_return;
-> |  	memset(ab->_hpp, 0, sizeof(struct acpi__hpp));
-> |  
-> |  	ab->_hpp->cache_line_size	= nui[0];
-> | 
-> | -- 
-> 
-> All other failure paths in this function use err() to inform the
-> console about what's happening...  so flip a coin, I guess:
-> add a message or say that ACPI already has too many messages.  :(
+På må , 07/06/2004 klokka 11:21, skreiv Joe Korty:
 
-Hello Randy!
+> Unless the real reason is reducing ethernet traffic.
 
-Fixed versions for both (shpchprm_acpi.c and pciehprm_acpi.c) are below:
+That is after all, why we cache data. Look at the GETATTR traffic using
+nfsstat.
 
- ./linux-2.6.6-modified/drivers/pci/hotplug/pciehprm_acpi.c |    4 ++++
- 1 files changed, 4 insertions(+)
+>   In which case we
+> could defer a timestamp-on-write only when it is still in the same second
+> as the previous write, but don't defer when a new second rolls around
+> on the client.  That would reduce timestamp updates to at most one per
+> second per inode per client, while preserving old NFS behavior.
 
-Signed-off-by: Yury Umanets <torque@ukrpost.net>
+Exactly why should we go to all this trouble?
 
-diff -rupN ./linux-2.6.6/drivers/pci/hotplug/pciehprm_acpi.c
-./linux-2.6.6-modified/drivers/pci/hotplug/pciehprm_acpi.c
---- ./linux-2.6.6/drivers/pci/hotplug/pciehprm_acpi.c	Mon May 10
-05:33:19 2004
-+++ ./linux-2.6.6-modified/drivers/pci/hotplug/pciehprm_acpi.c	Mon Jun 
-7 18:40:15 2004
-@@ -218,6 +218,10 @@ static void acpi_get__hpp ( struct acpi_
- 	}
- 
- 	ab->_hpp = kmalloc (sizeof (struct acpi__hpp), GFP_KERNEL);
-+	if (!ab->_hpp) {
-+		err ("acpi_pciehprm:%s alloc for _HPP fail\n", path_name);
-+		goto free_and_return;
-+	}
- 	memset(ab->_hpp, 0, sizeof(struct acpi__hpp));
- 
- 	ab->_hpp->cache_line_size	= nui[0];
-
-
- ./linux-2.6.6-modified/drivers/pci/hotplug/shpchprm_acpi.c |    4 ++++
- 1 files changed, 4 insertions(+)
-
-diff -rupN ./linux-2.6.6/drivers/pci/hotplug/shpchprm_acpi.c
-./linux-2.6.6-modified/drivers/pci/hotplug/shpchprm_acpi.c
---- ./linux-2.6.6/drivers/pci/hotplug/shpchprm_acpi.c	Mon May 10
-05:32:28 2004
-+++ ./linux-2.6.6-modified/drivers/pci/hotplug/shpchprm_acpi.c	Mon Jun 
-7 18:39:01 2004
-@@ -218,6 +218,10 @@ static void acpi_get__hpp ( struct acpi_
- 	}
- 
- 	ab->_hpp = kmalloc (sizeof (struct acpi__hpp), GFP_KERNEL);
-+	if (!ab->_hpp) {
-+		err ("acpi_shpchprm:%s alloc for _HPP fail\n", path_name);
-+		goto free_and_return;
-+	}
- 	memset(ab->_hpp, 0, sizeof(struct acpi__hpp));
- 
- 	ab->_hpp->cache_line_size	= nui[0];
-
-
--- 
-umka
-
+Cheers,
+   Trond

@@ -1,48 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265334AbRGEPM2>; Thu, 5 Jul 2001 11:12:28 -0400
+	id <S265337AbRGEPM2>; Thu, 5 Jul 2001 11:12:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265319AbRGEPMT>; Thu, 5 Jul 2001 11:12:19 -0400
-Received: from pop.gmx.net ([194.221.183.20]:42479 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S265334AbRGEPMJ>;
+	id <S265334AbRGEPMT>; Thu, 5 Jul 2001 11:12:19 -0400
+Received: from pop.gmx.net ([194.221.183.20]:43759 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S265336AbRGEPMJ>;
 	Thu, 5 Jul 2001 11:12:09 -0400
-Date: Thu, 5 Jul 2001 16:15:21 +0200
+Date: Thu, 5 Jul 2001 16:28:12 +0200
 From: "Manfred H. Winter" <mahowi@gmx.net>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
+To: Andrew Morton <andrewm@uow.edu.au>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
 Subject: Re: PROBLEM: [2.4.6] kernel BUG at softirq.c:206!
-Message-ID: <20010705161521.A4755@marvin.mahowi.de>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Message-ID: <20010705162812.A602@marvin.mahowi.de>
+Mail-Followup-To: Andrew Morton <andrewm@uow.edu.au>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <E15I79i-0002NI-00@the-village.bc.nu>
+In-Reply-To: <3B4450DF.82EEC851@uow.edu.au>
 User-Agent: Mutt/1.3.18i
 X-Operating-System: Linux 2.4.5 i686
 X-Editor: VIM - Vi IMproved 5.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan!
+Hi Andrew!
 
-On Thu, 05 Jul 2001, Alan Cox wrote:
+On Thu, 05 Jul 2001, Andrew Morton wrote:
 
-> > This bug hits me since 2.4.6-pre5 but nobody answered to my emails... The
-> > code line is identical (and the softirq.c:206 ofc).
-> > 
-> > Anyone, any idea?
+> > kernel panic every time (see original post). My CPU is a MediaGX, and
+> > Manfred's one is a 6x86MX. What about yours ?
+> > After my first unsuccessful attempt with a 2.4.6-pre3, I tried several other
+> > 2.4.6-preX and 2.4.5-acX kernels. All 2.4.6 (since pre1) seem to be
+> > affected, and so do the latest ac's. I don't have tested 2.4.7-pre[12] yet,
+> > but looking at the changelog, I doubt the fix is in.
 > 
-> None at all. There are odd items in your config - like khttpd which if 
-> involved might explain why there are not more reports.
+> 
+> It may help to know which tasklet is in the wrong state.
+> Could you please add this patch:
+> 
+> --- linux-2.4.6/kernel/softirq.c	Wed Jul  4 18:21:32 2001
+> +++ lk-ext3/kernel/softirq.c	Thu Jul  5 21:32:08 2001
+> @@ -202,8 +202,10 @@ static void tasklet_hi_action(struct sof
+>  		if (!tasklet_trylock(t))
+>  			BUG();
+>  repeat:
+> -		if (!test_and_clear_bit(TASKLET_STATE_SCHED, &t->state))
+> +		if (!test_and_clear_bit(TASKLET_STATE_SCHED, &t->state)) {
+> +			printk("func: %p\n", t->func);
+>  			BUG();
+> +		}
+>  		if (!atomic_read(&t->count)) {
+>  			local_irq_enable();
+>  			t->func(t->data);
 > 
 
-But khttpd is compiled as a module which isn't loaded at the moment, the
-crash appears. The crash is just after "Calibrating delay loop... 333.41
-BogoMIPS". At this moment, there should be no modules loaded.
+Okay, here's the output of gdb:
 
-As others report the same error, it seems to be a conflict with Cyrix
-processors.
+(gdb) x/10i 0xc0118028
+0xc0118028 <bh_action>: mov    0x4(%esp,1),%eax
+0xc011802c <bh_action+4>:       cmpl   $0x0,0xc025c2e4
+0xc0118033 <bh_action+11>:      jne    0xc0118043 <bh_action+27>
+0xc0118035 <bh_action+13>:      mov    0xc024af20(,%eax,4),%eax
+0xc011803c <bh_action+20>:      test   %eax,%eax
+0xc011803e <bh_action+22>:      je     0xc0118042 <bh_action+26>
+0xc0118040 <bh_action+24>:      call   *%eax
+0xc0118042 <bh_action+26>:      ret
+0xc0118043 <bh_action+27>:      lea    (%eax,%eax,4),%eax
+0xc0118046 <bh_action+30>:      lea    0xc025bf80(,%eax,4),%eax
 
-Bye,
+HTH,
 
 Manfred
 -- 

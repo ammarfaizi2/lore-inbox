@@ -1,89 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262840AbULRGBY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262842AbULRGBj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262840AbULRGBY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Dec 2004 01:01:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262842AbULRGBY
+	id S262842AbULRGBj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Dec 2004 01:01:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262843AbULRGBi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Dec 2004 01:01:24 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:30088
-	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S262840AbULRGBV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Dec 2004 01:01:21 -0500
-Subject: Re: Linux 2.6.9-ac16
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Chris Ross <chris@tebibyte.org>
-Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <41C2FF09.5020005@tebibyte.org>
-References: <1103222616.21920.12.camel@localhost.localdomain>
-	 <41C2DA43.9070900@tebibyte.org> <41C2F273.6010707@nortelnetworks.com>
-	 <41C2FF09.5020005@tebibyte.org>
-Content-Type: text/plain
-Date: Sat, 18 Dec 2004 07:01:15 +0100
-Message-Id: <1103349675.27708.39.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-6) 
-Content-Transfer-Encoding: 7bit
+	Sat, 18 Dec 2004 01:01:38 -0500
+Received: from web51503.mail.yahoo.com ([206.190.38.195]:55386 "HELO
+	web51503.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262842AbULRGBf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Dec 2004 01:01:35 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=yDXIpfgc+KL6+1wZMOzNy/HGus+mTlEVSytKDeSPG9BJG3q2ZIAXoudosmiHt18AXc23rE2liABWZQokAKSDzYUTMrz70fBZcBwRIygTxHftRsjMu8OiLuX4farbKty83mgTB0qprDg8NiFgjBNFP0sAtxdgmA8LQbBTb9ZMBdM=  ;
+Message-ID: <20041218060134.77655.qmail@web51503.mail.yahoo.com>
+Date: Fri, 17 Dec 2004 22:01:34 -0800 (PST)
+From: Park Lee <parklee_sel@yahoo.com>
+Subject: Re: Issue on netconsole vs. Linux kernel oops
+To: Matt Mackall <mpm@selenic.com>
+Cc: linux-kernel@vger.kernel.org, ipsec-tools-devel@lists.sourceforge.net
+In-Reply-To: <20041217164419.GO2767@waste.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-12-17 at 16:45 +0100, Chris Ross wrote:
-> Hi Chris,
-> 
-> Chris Friesen escreveu:
-> > As it stands, 2.6.10-rc2-mm4 still shows nasty behaviour in OOM
-> > conditions, killing off more tasks than strictly required, and
-> > locking up the system for 10-15secs while doing it.
-> > 
-> > I'd be much happier doing a quick and dirty scan and knocking off 
-> > something *now* rather than locking up the system.  Surely it can't
-> > take 60 billion cycles of cpu time to pick a task to kill.
-> 
-> Thomas Gleixner has been particularly interested the algorithms for 
-> deciding which task to kill (like me he got fed up with it picking the 
-> ssh daemon first).
-> 
-> See for example the thread at 
-> http://marc.theaimsgroup.com/?t=110189482200001&r=1&w=2
-> 
-> Some of the delay is by design: when OOM is reached we kill something 
-> off, wait a bit for the memory to be freed and become available to the 
-> system again, check whether now have enough memory, if not rinse and 
-> repeat. However, as I recall this is compounded by 2.6.9 having some 
-> nasty rentrancy problems causing the OOM killer to be called something 
-> like 100 times instead of once.
-> 
-> Perhaps Thomas could enlighten us as to the current state of play here?
+On Fri, 17 Dec 2004 at 08:44, Matt Mackall wrote:
+>
+> Netconsole builds very simple IPv4 packets by hand 
+> without the use of the rest of the IP stack. This 
+> is how it continues to work when the system is 
+> crashing. So it will never be able to build IPSEC 
+> packets.
+> Nor is it likely to do IPv6 any time soon.
+>
+> You can probably get it to work by using a 
+> different IP address for netconsole than you use 
+> for IPSEC, and set up the receiving end to
+> recognize packets from that address as normal 
+> unencrypted IPv4.
 
-Andrea fixed the invocation problem, which also handles the reentrancy
-problem in a clean way. It get's us rid of the ugly count, time,
-whatever mechanisms in out_of_memory which was designed to cover the
-invocation problem but was not able to prevent reentrancy and the
-resulting overkill (kill a random amount of processes even if enough
-memory is available). 
+Thank you.
 
-I added the "Take child processes into account" modification for the
-whom to kill selection on top of that and I was not able to make it
-missbehave with my different test scenarios.
-
-The patches are available in parts in this thread and the final combined
-patch is there:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=110269783227867&w=2
-
-2.6.10-rc3 contains a partial fix for the erroneous invocation problem,
-but it is not as effective as Andrea's solution and it still runs into
-overkill once the oom mechanism is invoked.
-
-Andrea's fix and the selection changes should go into 2.6.10, but I
-suspect that the VM gurus havent still reached a point, where they
-agree. I also have the feeling that the problem is partially ignored.
-Obviously has everybody plenty of memory in his boxes. </rant off>
-
-Andrea's fix revealed some GFP_ flag related problems, which should be
-addressed seperately. Detailed explanation is in the mail thread.
-
-tglx
+But that will need at least 3 computers(i.e. 2 for
+IPsec, 1 for receiving end), Am I right?
 
 
+=====
+Best Regards,
+Park Lee
+
+
+		
+__________________________________ 
+Do you Yahoo!? 
+Yahoo! Mail - Helps protect you from nasty viruses. 
+http://promotions.yahoo.com/new_mail

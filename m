@@ -1,69 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262277AbSJEJkx>; Sat, 5 Oct 2002 05:40:53 -0400
+	id <S262276AbSJEJqZ>; Sat, 5 Oct 2002 05:46:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262278AbSJEJkx>; Sat, 5 Oct 2002 05:40:53 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:54247 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S262277AbSJEJkw>; Sat, 5 Oct 2002 05:40:52 -0400
-Date: Sat, 5 Oct 2002 11:46:23 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: "frode@freenix.no" <frode@freenix.no>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.40 (several issues): kernel BUG! at slab.c:1292, imm/ppa
- IOMegaZIP drivers modules ".o" not found, XFS won't link, depmod complains
- on
-In-Reply-To: <3D9E23E2.8000400@freenix.no>
-Message-ID: <Pine.NEB.4.44.0210051141530.17935-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262282AbSJEJqZ>; Sat, 5 Oct 2002 05:46:25 -0400
+Received: from sj-msg-core-3.cisco.com ([171.70.157.152]:56734 "EHLO
+	sj-msg-core-3.cisco.com") by vger.kernel.org with ESMTP
+	id <S262276AbSJEJqZ>; Sat, 5 Oct 2002 05:46:25 -0400
+Message-Id: <5.1.0.14.2.20021005194507.031018c0@mira-sjcm-3.cisco.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sat, 05 Oct 2002 19:49:29 +1000
+To: Linus Torvalds <torvalds@transmeta.com>
+From: Lincoln Dale <ltd@cisco.com>
+Subject: Re: [PATCH] direct-IO API change
+Cc: Andrew Morton <akpm@digeo.com>, Chuck Lever <cel@citi.umich.edu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux NFS List <nfs@lists.sourceforge.net>
+In-Reply-To: <Pine.LNX.4.44.0210041621170.2526-100000@home.transmeta.com
+ >
+References: <3D9E1847.F6DDA3AE@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 5 Oct 2002, frode@freenix.no wrote:
+At 04:23 PM 4/10/2002 -0700, Linus Torvalds wrote:
+>Especially since I thought that O_DIRECT on the regular file (or block
+>device) performed about as well as raw does anyway these days? Or is that
+>just one of my LSD-induced flashbacks?
 
-> I just downloaded the linux-2.5.40 tarball.
->
-> The kernel was built and tested on a box running Debian Unstable (refreshed today).
-> I had four (five if you include ALSA breaking make menuconfig) issues.
->
->      - the kernel wouldn't link with XFS enabled due to some
->        unreferenced symbols ("run_task_queue", etc).
+from my multiple 64/66 PCI bus + multiple 2gbit/s FC HBA tests, yes, 
+they're around the same.
+(now up to 390mbyte/sec throughput on latest & greatest x86 hardware i 
+have; front-side-bus no longer the limiting factor, but dual 64/66 PCI).
 
-AFAIR fixed in Linus' BK tree.
-
->      - configuring for the SCSI IOMega Parallel port drivers as modules,
->        make modules_install fails as the 'imm.o' and 'ppa.o' files
->        are missing. (i just 'touch'ed these files to get
->        "make modules_install" to continue)
->
->      - make modules_install runs depmod which fails with
-> depmod: cannot read ELF header from /lib/modules/2.5.40/kernel/drivers/scsi/imm.o
-> depmod: cannot read ELF header from /lib/modules/2.5.40/kernel/drivers/scsi/ppa.o
-
-The problem that was causing it is that "make modules" didn't stop when
-the compilation of imm.c and ppa.c failed. The bug in the build system and
-the compilation of these two files are fixed in Linus' BK tree.
-
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.5.40/kernel/drivers/usb/input/usbkbd.o
-> depmod: 	usb_kbd_free_buffers
->...
-
-Already fixed in Linus' BK tree.
+of course, purely synthetic tests designed to stress Fibre Channel 
+switching infrastructure, not real-world disk i/o..
 
 
-Please wait for 2.5.41 and check whether any problems will be present in
-this kernel.
+cheers,
 
-
-cu
-Adrian
-
--- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
+lincoln.
 

@@ -1,65 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318258AbSIFDbb>; Thu, 5 Sep 2002 23:31:31 -0400
+	id <S318265AbSIFDiZ>; Thu, 5 Sep 2002 23:38:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318259AbSIFDbb>; Thu, 5 Sep 2002 23:31:31 -0400
-Received: from antigonus.hosting.pacbell.net ([216.100.98.13]:22179 "EHLO
-	antigonus.hosting.pacbell.net") by vger.kernel.org with ESMTP
-	id <S318258AbSIFDbb>; Thu, 5 Sep 2002 23:31:31 -0400
-Reply-To: <imran.badr@cavium.com>
-From: "Imran Badr" <imran.badr@cavium.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Calculating kernel logical address ..
-Date: Thu, 5 Sep 2002 20:34:07 -0700
-Message-ID: <00d301c25556$4290f5e0$9e10a8c0@IMRANPC>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	id <S318264AbSIFDiZ>; Thu, 5 Sep 2002 23:38:25 -0400
+Received: from [210.78.134.243] ([210.78.134.243]:64781 "EHLO 210.78.134.243")
+	by vger.kernel.org with ESMTP id <S318259AbSIFDiY>;
+	Thu, 5 Sep 2002 23:38:24 -0400
+Date: Fri, 6 Sep 2002 11:46:3 +0800
+From: zhengchuanbo <zhengcb@netpower.com.cn>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: problem with eepro100 on cisco 2950
+X-mailer: FoxMail 3.11 Release [cn]
+Mime-Version: 1.0
+Content-Type: text/plain; charset="GB2312"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <E17n9im-0006Ef-00@starship>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+Message-Id: <200209061150844.SM00836@zhengcb>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I need help to correctly calculate kernel logical address for a user pointer
-which I mmaped from device driver. In mmap() file operation, I allocate some
-memory using kmalloc() and call :
+we have a eepro100 card on our linux system. we build an IDS on the system. the problem is when  we use the system on the monitor port of cisco 2950,it could not sniffer any packets. we made some test on the monitor ports of other kinds of cisco swithes,all worked well.when applied on hubs,it also worked well.
+we tried rtl8139 on cisco 2950, it worked well.
+so what's the problem? the driver? or the 2950 switch?
 
-remap_page_range(vma->vm_start,
-virt_to_phys((void *)(Uint32)kmalloc_buffer),
-size,
-PAGE_SHARED);
+please cc. thanks. 
 
-after reserving all pages and doing some other stuff. Now when I get a user
-pointer and I need to calculate correspoding kernel logical address, I use
-following code:
-
-adr = user_address;
-pgd_offset(current->mm, adr);
-
-if (!pgd_none(*pgd)) {
-	pmd = pmd_offset(pgd, adr);
-	if (!pmd_none(*pmd)) {
-		ptep = pte_offset(pmd, adr);
-		pte = *ptep;
-		if(pte_present(pte)) {
-			kaddr  = (unsigned long) page_address(pte_page(pte));
-			kaddr |= (adr & (PAGE_SIZE - 1));
-		}
-	}
-}
-
-Will this code always give me correct kernel logical address?
-
-I will really appreciate any guidance.
-
-Thanks,
-Imran.
-
+zhengchuanbo
+zhengcb@netpower.com.cn
 

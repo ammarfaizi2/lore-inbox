@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263731AbTDNSbd (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 14:31:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263723AbTDNS2f (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 14:28:35 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:6329 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S263663AbTDNSO2 (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 14:14:28 -0400
-Date: Mon, 14 Apr 2003 19:25:53 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: J?rn Engel <joern@wohnheim.fh-wedel.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: top stack (l)users for 2.5.67
-Message-ID: <20030414182544.GA6866@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	J?rn Engel <joern@wohnheim.fh-wedel.de>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030414173047.GJ10347@wohnheim.fh-wedel.de> <1050338275.25353.93.camel@dhcp22.swansea.linux.org.uk> <20030414174645.GK10347@wohnheim.fh-wedel.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030414174645.GK10347@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.5.4i
+	id S263624AbTDNS2R (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 14:28:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263665AbTDNSOb (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 14:14:31 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:50444 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S263624AbTDNRzl (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 13:55:41 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Memory mapped files question
+Date: 14 Apr 2003 11:07:09 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <b7etcd$s0n$1@cesium.transmeta.com>
+References: <002101c30239$fc0ae630$fe64a8c0@webserver> <8180000.1050330998@[10.10.2.4]> <20030414150759.GA14552@wind.cocodriloo.com> <11640000.1050332688@[10.10.2.4]>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 14, 2003 at 07:46:45PM +0200, J?rn Engel wrote:
+Followup to:  <11640000.1050332688@[10.10.2.4]>
+By author:    "Martin J. Bligh" <mbligh@aracnet.com>
+In newsgroup: linux.dev.kernel
+>
+> > Martin, something which was not mentioned last week (I've just checked).
+> > 
+> > It's OK if we never write to disk unless explicitely told, but will we writeback
+> > when we munmap?
+> 
+> Don't know for sure - you'd have to read the code (do_munmap) ... I couldn't
+> see anything there at a quick glance. However, I'd guess we don't write it, 
+> as multiple people could have the file mapped, or we could remap it
+> again from somewhere. Presumably the standard LRU will just flush it out.
+> 
 
- > +/* FIXME: should the below go into some header file? */
- > +#define PRESTO_COPY_KML_TAIL_BUFSIZE 4096
- >  struct file * presto_copy_kml_tail(struct presto_file_set *fset,
- >                                     unsigned long int start)
- >  {
+munmap() and fsync() or msync() will flush it to disk; there is no
+reason munmap() should unless perhaps the file was opened O_SYNC.
 
-so, presto_copy_kml_tail() is only called from
-presto_finish_kml_truncate(), which doesn't seem to be called
-from anywhere. What am I missing here? Or can this whole lot
-just be nuked ?
+	-hpa
 
-If not, this patch introduces a problem.  You're now
-calling a sleeping function (kmalloc) whilst holding
-a lock according to the comment above presto_finish_kml_truncate()
-
-		Dave
-
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

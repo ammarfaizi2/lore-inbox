@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261198AbREUOhW>; Mon, 21 May 2001 10:37:22 -0400
+	id <S261274AbREUPTG>; Mon, 21 May 2001 11:19:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261201AbREUOhN>; Mon, 21 May 2001 10:37:13 -0400
-Received: from x86unx3.comp.nus.edu.sg ([137.132.90.2]:34187 "EHLO
-	x86unx3.comp.nus.edu.sg") by vger.kernel.org with ESMTP
-	id <S261198AbREUOhG>; Mon, 21 May 2001 10:37:06 -0400
-Date: Mon, 21 May 2001 22:36:58 +0800
-From: Zou Min <zoum@comp.nus.edu.sg>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Simple question on kstat
-Message-ID: <20010521223658.A2417@comp.nus.edu.sg>
-Mail-Followup-To: Zou Min <zoum@comp.nus.edu.sg>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S261262AbREUPS4>; Mon, 21 May 2001 11:18:56 -0400
+Received: from ncc1701.cistron.net ([195.64.68.38]:37131 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP
+	id <S261246AbREUPSo>; Mon, 21 May 2001 11:18:44 -0400
+From: wichert@cistron.nl (Wichert Akkerman)
+Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
+Date: 21 May 2001 17:18:31 +0200
+Organization: Cistron Internet Services
+Message-ID: <9ebbk7$3uq$1@picard.cistron.nl>
+In-Reply-To: <990411054.773.0.camel@phantasy> <Pine.LNX.4.33.0105210205520.1590-100000@asdf.capslock.lan>
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+In article <Pine.LNX.4.33.0105210205520.1590-100000@asdf.capslock.lan>,
+Mike A. Harris <mharris@opensourceadvocate.org> wrote:
+>For the record, the kgcc "mess" you speak of was used by
+>Conectiva, and I believe also by debian
 
-I just want to clarify some fields in the "kstat" struct in kernel 2.4.
-does "kstat.pgpgin" record all the real disk reads(not from buffer cache) ?
-does "kstat.pswpin" record all the disk reads from swap partitions?
-is "kstat.pswpin" already counted in "kstat.pgpgin"?
+Debian never had that mess.
 
-Thanks a lot!
+Wichert.
 
 -- 
-Cheers!
---Zou Min 
+  _________________________________________________________________
+ /       Nothing is fool-proof to a sufficiently talented fool     \
+| wichert@cistron.nl                  http://www.liacs.nl/~wichert/ |
+| 1024D/2FA3BC2D 576E 100B 518D 2F16 36B0  2805 3CB8 9250 2FA3 BC2D |
+-- 
+  _________________________________________________________________
+ /       Nothing is fool-proof to a sufficiently talented fool     \
+| wichert@cistron.nl                  http://www.liacs.nl/~wichert/ |
+| 1024D/2FA3BC2D 576E 100B 518D 2F16 36B0  2805 3CB8 9250 2FA3 BC2D |
 
-zoum@comp.nus.edu.sg			URL: http://www.comp.nus.edu.sg/~zoum
------------------------------------------------------------------------------
-There is no sure cure to birth and death save to enjoy the interval.
-		--George Santayana

@@ -1,53 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262629AbTIQSyT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Sep 2003 14:54:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262634AbTIQSyT
+	id S262633AbTIQTH1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Sep 2003 15:07:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262824AbTIQTH1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Sep 2003 14:54:19 -0400
-Received: from smtp1.libero.it ([193.70.192.51]:63662 "EHLO smtp1.libero.it")
-	by vger.kernel.org with ESMTP id S262629AbTIQSyS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Sep 2003 14:54:18 -0400
-From: Eduard Roccatello <liste@roccatello.it>
-Organization: Pcimprover.it
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test5-mm2 ipv6 and irda warnings
-Date: Wed, 17 Sep 2003 09:56:21 +0200
-User-Agent: KMail/1.5.2
-X-IRC: #hardware@azzurra.org #rolug@freenode
-X-Jabber: eduardroccatello@jabber.linux.it
-X-GPG-Keyserver: keyserver.linux.it
-X-GPG-FingerPrint: F7B3 3844 038C D582 2C04 4488 8D46 368B 474D 6DB0
-X-GPG-KeyID: 474D6DB0
-X-Website: http://www.pcimprover.it
+	Wed, 17 Sep 2003 15:07:27 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:16256 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262633AbTIQTHY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Sep 2003 15:07:24 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Arve Knudsen <aknuds-1@broadpark.no>
+Subject: Re: Changes in siimage driver?
+Date: Wed, 17 Sep 2003 21:09:54 +0200
+User-Agent: KMail/1.5
+References: <oprvnjyf2oq1sf88@mail.broadpark.no> <1063816835.12648.90.camel@dhcp23.swansea.linux.org.uk> <oprvnqkoo5q1sf88@mail.broadpark.no>
+In-Reply-To: <oprvnqkoo5q1sf88@mail.broadpark.no>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200309170956.21850.liste@roccatello.it>
+Message-Id: <200309172109.54450.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.6.0-test5-mm2 gives me these warnings:
+On Wednesday 17 of September 2003 20:49, Arve Knudsen wrote:
+> On Wed, 17 Sep 2003 17:40:36 +0100, Alan Cox <alan@lxorguk.ukuu.org.uk>
+>
+> wrote:
+> > On Mer, 2003-09-17 at 17:26, Arve Knudsen wrote:
+> >> X66 etc.) with hdparm, I get ~50MB/S. It's not an ideal solution since
+> >> now
+> >> and then I get a bunch of "disabling irq #18" messages after running
+> >> hdparm (I think, its part of the startup scripts), and I have to
+> >> restart.
+> >
+> > That is a bug in the 2.6.0 core still. Just hack out the code which does
+> > the IRQ disable on too many apparently unidentified interrupts.
+>
+> Ok, thanks for identifying the source of this. I'm no kernel hacker at
+> all, but I'll see what I can find.
 
-net/ipv6/ipcomp6.c: In function `ipcomp6_input`:
-net/ipv6/ipcomp6.c:61: warning: `skb_linearize` is deprecated (declared at 
-include/linux/skbuff.h:1131)
+s/IRQ_NONE/IRQ_HANDLE/ in ide-io.c or trace which one is offending one.
 
-net/ipv6/ipcomp6.c: In function `ipcomp6_output`:
-net/ipv6/ipcomp6.c:174: warning: `skb_linearize` is deprecated (declared at 
-include/linux/skbuff.h:1131)
+> >> directories. Am I the only one who's run into any sort of issues with
+> >> the
+> >> updated driver? From what I can see it hasn't been modified in the last
+> >> revision (test5-bk4), hopefully noone is losing important data because
+> >> of
+> >> this (fortunately I had some recent backups). Anyway, I'd like some
+> >> feedback on this from those in the know (the performance drop should be
+> >> fairly easy to verify, unless hdparm is playing tricks on me).
+> >
+> > Don't keep important data only on 2.6-test boxes. Its 'test' - it
+> > shouldnt eat anything but...
+>
+> Well, I understand that, but the older version of the driver (as of
+> test4-mm4) doesn't have these problems (better performance according to
+> hdparm, no corruption). The latest changes to the driver seems to have
+> introduced problems, or is it just me?
 
-net/irda/irlap_frame.c: In function `irlap_driver_rcv`:
-net/irda/irlap_frame.c:1306: warning: `skb_linearize` is deprecated 
-(declared at include/linux/skbuff.h:1131)
+You are the first person reporting problems after syncing siimage driver with
+2.4.x ;-).  It's unlikely that corruption is caused by siimage driver update,
+we should have seen similar problems with 2.4.x, but...
 
-gcc is 3.2.3
--- 
-Eduard <Master^Shadow> Roccatello
+Performance is crippled because of workaround for buggy controllers.
+We turn it on unconditionally now, we should do it only on affected
+controllers.  I believe freebsd's workaround is correct and we can adopt it.
+For more details please see the other thread regarding siimage.
 
-Pcimprover.it Admin - http://www.pcimprover.it
-S.P.I.N.E. Group - http://www.spine-group.org
+--bartlomiej
+
+> Thanks for the swift reply
+>
+> Arve Knudsen
+
 

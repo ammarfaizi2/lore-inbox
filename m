@@ -1,28 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265837AbUGHHCG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265841AbUGHHCN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265837AbUGHHCG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 03:02:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265825AbUGHHBE
+	id S265841AbUGHHCN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 03:02:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265847AbUGHHAg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 03:01:04 -0400
-Received: from smtp810.mail.sc5.yahoo.com ([66.163.170.80]:50818 "HELO
+	Thu, 8 Jul 2004 03:00:36 -0400
+Received: from smtp810.mail.sc5.yahoo.com ([66.163.170.80]:50306 "HELO
 	smtp810.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S265828AbUGHG7S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 02:59:18 -0400
+	id S265825AbUGHG7R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 02:59:17 -0400
 From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: [PATCH 4/8] New set of input patches
-Date: Thu, 8 Jul 2004 01:57:15 -0500
+Subject: [PATCH 3/8] New set of input patches
+Date: Thu, 8 Jul 2004 01:56:30 -0500
 User-Agent: KMail/1.6.2
 Cc: LKML <linux-kernel@vger.kernel.org>
-References: <200407080155.07827.dtor_core@ameritech.net> <200407080156.05021.dtor_core@ameritech.net> <200407080156.32341.dtor_core@ameritech.net>
-In-Reply-To: <200407080156.32341.dtor_core@ameritech.net>
+References: <200407080155.07827.dtor_core@ameritech.net> <200407080155.38937.dtor_core@ameritech.net> <200407080156.05021.dtor_core@ameritech.net>
+In-Reply-To: <200407080156.05021.dtor_core@ameritech.net>
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200407080157.17205.dtor_core@ameritech.net>
+Message-Id: <200407080156.32341.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -30,112 +30,116 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 ===================================================================
 
 
-ChangeSet@1.1823, 2004-07-08 00:24:20-05:00, dtor_core@ameritech.net
-  Input: add serio_pause_rx and serio_continue_rx so drivers can protect
-         their critical sections from port's interrupt handler
+ChangeSet@1.1822, 2004-07-08 00:23:44-05:00, dtor_core@ameritech.net
+  Input: workaround for i8042 active multiplexing controllers losing
+         track of where data is coming from. Also sprinkled some
+         "likely"s in i8042 interrupt handler.
   
   Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 
 
- drivers/input/serio/serio.c |   18 ++++++++----------
- include/linux/serio.h       |   21 +++++++++++++++++++--
- 2 files changed, 27 insertions(+), 12 deletions(-)
+ i8042.c |   60 ++++++++++++++++++++++++++++++++++++++++++------------------
+ 1 files changed, 42 insertions(+), 18 deletions(-)
 
 
 ===================================================================
 
 
 
-diff -Nru a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
---- a/drivers/input/serio/serio.c	2004-07-08 01:35:14 -05:00
-+++ b/drivers/input/serio/serio.c	2004-07-08 01:35:14 -05:00
-@@ -541,15 +541,14 @@
- /* called from serio_driver->connect/disconnect methods under serio_sem */
- int serio_open(struct serio *serio, struct serio_driver *drv)
- {
--	unsigned long flags;
--
--	spin_lock_irqsave(&serio->lock, flags);
-+	serio_pause_rx(serio);
- 	serio->drv = drv;
--	spin_unlock_irqrestore(&serio->lock, flags);
-+	serio_continue_rx(serio);
-+
- 	if (serio->open && serio->open(serio)) {
--		spin_lock_irqsave(&serio->lock, flags);
-+		serio_pause_rx(serio);
- 		serio->drv = NULL;
--		spin_unlock_irqrestore(&serio->lock, flags);
-+		serio_continue_rx(serio);
- 		return -1;
+diff -Nru a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+--- a/drivers/input/serio/i8042.c	2004-07-08 01:35:04 -05:00
++++ b/drivers/input/serio/i8042.c	2004-07-08 01:35:04 -05:00
+@@ -362,6 +362,7 @@
+ 	unsigned long flags;
+ 	unsigned char str, data = 0;
+ 	unsigned int dfl;
++	unsigned int aux_idx;
+ 	int ret;
+ 
+ 	mod_timer(&i8042_timer, jiffies + I8042_POLL_PERIOD);
+@@ -378,44 +379,67 @@
+ 		goto out;
  	}
- 	return 0;
-@@ -558,13 +557,12 @@
- /* called from serio_driver->connect/disconnect methods under serio_sem */
- void serio_close(struct serio *serio)
- {
--	unsigned long flags;
+ 
+-	dfl = ((str & I8042_STR_PARITY) ? SERIO_PARITY : 0) |
+-	      ((str & I8042_STR_TIMEOUT) ? SERIO_TIMEOUT : 0);
 -
- 	if (serio->close)
- 		serio->close(serio);
--	spin_lock_irqsave(&serio->lock, flags);
-+
-+	serio_pause_rx(serio);
- 	serio->drv = NULL;
--	spin_unlock_irqrestore(&serio->lock, flags);
-+	serio_continue_rx(serio);
- }
+-	if (i8042_mux_values[0].exists && (str & I8042_STR_AUXDATA)) {
++	if (i8042_mux_present && (str & I8042_STR_AUXDATA)) {
++		static unsigned long last_transmit;
++		static unsigned char last_str;
  
- irqreturn_t serio_interrupt(struct serio *serio,
-diff -Nru a/include/linux/serio.h b/include/linux/serio.h
---- a/include/linux/serio.h	2004-07-08 01:35:14 -05:00
-+++ b/include/linux/serio.h	2004-07-08 01:35:14 -05:00
-@@ -35,7 +35,7 @@
- 	unsigned long type;
- 	unsigned long event;
- 
--	spinlock_t lock;
-+	spinlock_t lock;		/* protects critical sections from port's interrupt handler */
- 
- 	int (*write)(struct serio *, unsigned char);
- 	int (*open)(struct serio *);
-@@ -43,7 +43,7 @@
- 
- 	struct serio *parent, *child;
- 
--	struct serio_driver *drv; /* Accessed from interrupt, writes must be protected by serio_lock */
-+	struct serio_driver *drv;	/* accessed from interrupt, must be protected by serio->lock */
- 
- 	struct device dev;
- 
-@@ -81,6 +81,7 @@
- void serio_register_port_delayed(struct serio *serio);
- void serio_unregister_port(struct serio *serio);
- void serio_unregister_port_delayed(struct serio *serio);
-+
- void serio_register_driver(struct serio_driver *drv);
- void serio_unregister_driver(struct serio_driver *drv);
- 
-@@ -103,6 +104,22 @@
- 	if (serio->drv && serio->drv->cleanup)
- 		serio->drv->cleanup(serio);
- }
-+
-+
++		dfl = 0;
+ 		if (str & I8042_STR_MUXERR) {
++			dbg("MUX error, status is %02x, data is %02x", str, data);
+ 			switch (data) {
++				default:
 +/*
-+ * Use the following fucntions to protect critical sections in
-+ * driver code from port's interrupt handler
++ * When MUXERR condition is signalled the data register can only contain
++ * 0xfd, 0xfe or 0xff if implementation follows the spec. Unfortunately
++ * it is not always the case. Some KBC just get confused which port the
++ * data came from and signal error leaving the data intact. They _do not_
++ * revert to legacy mode (actually I've never seen KBC reverting to legacy
++ * mode yet, when we see one we'll add proper handling).
++ * Anyway, we will assume that the data came from the same serio last byte
++ * was transmitted (if transmission happened not too long ago).
 + */
-+static __inline__ void serio_pause_rx(struct serio *serio)
-+{
-+	spin_lock_irq(&serio->lock);
-+}
++					if (time_before(jiffies, last_transmit + HZ/10)) {
++						str = last_str;
++						break;
++					}
++					/* fall through - report timeout */
+ 				case 0xfd:
+-				case 0xfe: dfl = SERIO_TIMEOUT; break;
+-				case 0xff: dfl = SERIO_PARITY; break;
++				case 0xfe: dfl = SERIO_TIMEOUT; data = 0xfe; break;
++				case 0xff: dfl = SERIO_PARITY;  data = 0xfe; break;
+ 			}
+-			data = 0xfe;
+-		} else dfl = 0;
++		}
 +
-+static __inline__ void serio_continue_rx(struct serio *serio)
-+{
-+	spin_unlock_irq(&serio->lock);
-+}
++		aux_idx = (str >> 6) & 3;
+ 
+ 		dbg("%02x <- i8042 (interrupt, aux%d, %d%s%s)",
+-			data, (str >> 6), irq,
++			data, aux_idx, irq,
+ 			dfl & SERIO_PARITY ? ", bad parity" : "",
+ 			dfl & SERIO_TIMEOUT ? ", timeout" : "");
+ 
+-		serio_interrupt(i8042_mux_port[(str >> 6) & 3], data, dfl, regs);
++		if (likely(i8042_mux_values[aux_idx].exists))
++			serio_interrupt(i8042_mux_port[aux_idx], data, dfl, regs);
+ 
++		last_str = str;
++		last_transmit = jiffies;
+ 		goto irq_ret;
+ 	}
+ 
++	dfl = ((str & I8042_STR_PARITY) ? SERIO_PARITY : 0) |
++	      ((str & I8042_STR_TIMEOUT) ? SERIO_TIMEOUT : 0);
 +
+ 	dbg("%02x <- i8042 (interrupt, %s, %d%s%s)",
+ 		data, (str & I8042_STR_AUXDATA) ? "aux" : "kbd", irq,
+ 		dfl & SERIO_PARITY ? ", bad parity" : "",
+ 		dfl & SERIO_TIMEOUT ? ", timeout" : "");
  
- #endif
+-	if (i8042_aux_values.exists && (str & I8042_STR_AUXDATA)) {
+-		serio_interrupt(i8042_aux_port, data, dfl, regs);
+-		goto irq_ret;
+-	}
+-
+-	if (!i8042_kbd_values.exists)
+-		goto irq_ret;
  
+-	serio_interrupt(i8042_kbd_port, data, dfl, regs);
++	if (str & I8042_STR_AUXDATA) {
++		if (likely(i8042_aux_values.exists))
++			serio_interrupt(i8042_aux_port, data, dfl, regs);
++	} else {
++		if (likely(i8042_kbd_values.exists))
++			serio_interrupt(i8042_kbd_port, data, dfl, regs);
++	}
+ 
+ irq_ret:
+ 	ret = 1;

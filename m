@@ -1,66 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317520AbSINVUe>; Sat, 14 Sep 2002 17:20:34 -0400
+	id <S317525AbSINVVG>; Sat, 14 Sep 2002 17:21:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317525AbSINVUe>; Sat, 14 Sep 2002 17:20:34 -0400
-Received: from 653272hfc53.tampabay.rr.com ([65.32.72.53]:5651 "EHLO
-	bender.davehollis.com") by vger.kernel.org with ESMTP
-	id <S317520AbSINVUd>; Sat, 14 Sep 2002 17:20:33 -0400
-Message-ID: <3D83A943.3010200@davehollis.com>
-Date: Sat, 14 Sep 2002 17:25:23 -0400
-From: David T Hollis <dhollis@davehollis.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020825
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	id <S317540AbSINVVG>; Sat, 14 Sep 2002 17:21:06 -0400
+Received: from CPEdeadbeef0000.cpe.net.cable.rogers.com ([24.100.232.94]:1028
+	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
+	id <S317525AbSINVVC> convert rfc822-to-8bit; Sat, 14 Sep 2002 17:21:02 -0400
+From: Shawn Starr <spstarr@sh0n.net>
+Organization: sh0n.net
 To: linux-kernel@vger.kernel.org
-CC: Srinivas Chavva <chavvasrini@yahoo.com>
-Subject: Re: Configuring kernel
-References: <20020913184715.62063.qmail@web13205.mail.yahoo.com> <02091315021800.01433@aragorn>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: ANNOUNCEMENT: 2.4.20-pre7-rmap14a-xfs-uml-shawn12c released
+Date: Sat, 14 Sep 2002 17:26:26 -0400
+User-Agent: KMail/1.4.6
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200209141726.26264.spstarr@sh0n.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I seem to remember either the early RH 7.x series or 6.x series did not 
-necessarily install ncurses by default, thus make menuconfig did not 
-run.  If you did a very slim install, you may not have the right 
-libraries to do what you need.  Do an 'rpm -q ncurses ncurses-devel' and 
-see what you get.  If either is not found, make menuconfig will not run.
+It's been a while since my last release. AFAIK -shawn11 is stable for use. 
 
-Adam Jaskiewicz wrote:
+Please test this, works for me =)
 
->>I downloaded the sofware and opened it in the /usr/src
->>directory. I did the following
->>1. unzipped the tar file
->>2. mv linux linux-2.4.16
->>3 ln -s linux-2.4.16 linux
->>4. changed to linux directory and issued the command
->>make mproper.
->>Then when I issued the command make xconfig I was
->>getting errors. I got similar errors when I tried to
->>use the following commands make menuconfig, make
->>config.
->>    
->>
->
->What errors did you get? We need to know what the errors are to help you.
->
->  
->
->>When I used the command uname -i I still was getting
->>the kernel version as 2.4.2.
->>I do not know why this error is coming.
->>    
->>
->
->This is not an error. If you did not install a new kernel and reboot your 
->computer with the new kernel, uname will still have the same kernel version. 
->Once you have properly configured, compiled and installed the kernel and its 
->modules, you reboot the computer to apply the new kernel. Then uname will 
->give you the new version.
->
->  
->
+-shawn12c (a, b blew up on me) might be coming this weekend.  Sept 14, 2002
 
+xfs-2.4.20-pre7-rmap14a-uml-shawn12c against 2.4.19 vanilla. (September 14th, 2002)
 
+2.4.20-pre7					(Marcelo Tosatti)
 
+rmap-14a						(Rik van Riel
+				 			William Lee Irwin III)
+
+uml-2.4.19-4					(User Mode Linux Team)
+
+September 13/14th, XFS CVS		(me)
+
+* NOTE: If If I can get Alan's patches to work I'll have another release tonight.

@@ -1,33 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312082AbSCQSFQ>; Sun, 17 Mar 2002 13:05:16 -0500
+	id <S312086AbSCQSKI>; Sun, 17 Mar 2002 13:10:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312084AbSCQSFG>; Sun, 17 Mar 2002 13:05:06 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:7940 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S312082AbSCQSEt>; Sun, 17 Mar 2002 13:04:49 -0500
-Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
-To: kaih@khms.westfalen.de (Kai Henningsen)
-Date: Sun, 17 Mar 2002 18:20:01 +0000 (GMT)
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-In-Reply-To: <8L1noxPHw-B@khms.westfalen.de> from "Kai Henningsen" at Mar 17, 2002 04:38:00 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S312090AbSCQSJ7>; Sun, 17 Mar 2002 13:09:59 -0500
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:5043 "EHLO
+	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S312086AbSCQSJx>; Sun, 17 Mar 2002 13:09:53 -0500
+Date: Sun, 17 Mar 2002 12:19:54 +0100
+From: Felix Braun <Felix.Braun@mail.McGill.ca>
+To: rgooch@atnf.csiro.au
+Cc: linux-kernel@vger.kernel.org
+Subject: devfs mounted twice in linux 2.4.19-pre3
+Message-Id: <20020317121954.390bc242.Felix.Braun@mail.McGill.ca>
+Organization: Vectrix -- Legal Department
+X-Mailer: Sylpheed version 0.7.4claws1 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16mfGE-00034P-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > That's not an umlaut, that's an "ae", which is a real letter in Finnish and
-> > Swedish (it just _looks_ like an a with an umlaut to you uncultured
-> > people), and it happens to be a letter that is just left of the ' mark on
-> > a Finnish keyboard.
-> 
-> Hey, careful there! Those English speakers stole that name from German,  
-> and in German those umlauts are real letters, too. Incidentally, my ae is  
-> next to the '# key ...
+Hi Richard,
 
-There are still a couple of places you can legitimaely use an ae symbol in
-English. It's not quite dead yet 8)
+I just noticed that devfs is listed twice in /proc/mounts in linux
+2.4.19-pre3, which confuses my shutdown script. Under 2.4.19-pre my
+/proc/mounts looks like this:
+
+devfs /dev devfs rw 0 0
+/dev/ide/host0/bus0/target0/lun0/part5 / reiserfs rw 0 0
+none /dev devfs rw 0 0
+/proc /proc proc rw 0 0
+/dev/discs/disc0/part1 /dos vfat rw 0 0
+/dev/discs/disc0/part9 /opt reiserfs rw,noatime 0 0
+none /dev/pts devpts rw 0 0
+/dev/discs/disc0/part7 /usr reiserfs rw 0 0
+none /dev/shm tmpfs rw 0 0
+
+whereas under 2.4.18 the first line didn't show up. Is that a
+misconfiguration on my part?
+
+Bye
+Felix

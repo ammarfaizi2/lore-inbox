@@ -1,84 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261676AbVCNSC7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261672AbVCNSHL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261676AbVCNSC7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 13:02:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbVCNR6q
+	id S261672AbVCNSHL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 13:07:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbVCNSD2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 12:58:46 -0500
-Received: from mailhub.sw.ru ([195.133.213.200]:35857 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S261659AbVCNRzo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 12:55:44 -0500
-Message-ID: <4235CFFD.1040006@vlnb.net>
-Date: Mon, 14 Mar 2005 20:55:09 +0300
-From: Vladislav Bolkhovitin <vst@vlnb.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: ru, en-us, en
+	Mon, 14 Mar 2005 13:03:28 -0500
+Received: from amdext4.amd.com ([163.181.251.6]:63175 "EHLO amdext4.amd.com")
+	by vger.kernel.org with ESMTP id S261680AbVCNR7d convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 12:59:33 -0500
+X-Server-Uuid: 5FC0E2DF-CD44-48CD-883A-0ED95B391E89
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: "Moore, Eric Dean" <Eric.Moore@lsil.com>, mpt_linux_developer@lsil.com,
-       linux-kernel@vger.kernel.org,
-       "Shirron, Stephen" <Stephen.Shirron@lsil.com>
-Subject: Re: 2.6: unused code under drivers/message/fusion/
-References: <91888D455306F94EBD4D168954A9457C2D1E91@nacos172.co.lsil.com> <4191CD47.1000205@vlnb.net> <20041110094041.GI4089@stusta.de> <4191E657.1030409@vlnb.net> <20050312113142.GB3156@stusta.de>
-In-Reply-To: <20050312113142.GB3156@stusta.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: RE: PowerNow-K8 and Winchester CPUs
+Date: Mon, 14 Mar 2005 11:59:08 -0600
+Message-ID: <84EA05E2CA77634C82730353CBE3A843021DDF8A@SAUSEXMB1.amd.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: PowerNow-K8 and Winchester CPUs
+Thread-Index: AcUouell8WPRCLTYQ+2yCXHZFOJLaQABSnYw
+From: "Devriendt, Paul" <paul.devriendt@amd.com>
+To: "Pavel Machek" <pavel@suse.cz>, "Vojtech Pavlik" <vojtech@suse.cz>
+cc: davej@codemonkey.org.uk, linux@brodo.de, linux-kernel@vger.kernel.org,
+       "Langsdorf, Mark" <mark.langsdorf@amd.com>
+X-WSS-ID: 6E2B0F641Q04395285-01-01
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> On Wed, Nov 10, 2004 at 12:58:47PM +0300, Vladislav Bolkhovitin wrote:
+Hi Pavel, 
+
+This is similar to the Sempron patch I put out a while ago -
+that was a similar problem. Let Mark and I think about it for
+a couple of days. I think there is a better way to fix this.
+There are some new fields in the status register in newer
+parts to give things like maxvid, and we are not using them
+at present. They were added in a manner compatible with the
+older parts. I think we may have a better solution to use
+the new fields.
+
+Paul.
+
+> -----Original Message-----
+> From: Pavel Machek [mailto:pavel@suse.cz] 
+> Sent: Monday, March 14, 2005 11:18 AM
+> To: Vojtech Pavlik; Devriendt, Paul
+> Cc: davej@codemonkey.org.uk; linux@brodo.de; 
+> linux-kernel@vger.kernel.org
+> Subject: Re: PowerNow-K8 and Winchester CPUs
 > 
->>Adrian Bunk wrote:
->>
->>>On Wed, Nov 10, 2004 at 11:11:51AM +0300, Vladislav Bolkhovitin wrote:
->>>
->>>
->>>>Moore, Eric Dean wrote:
->>>>
->>>>
->>>>>We need to hold off on this change. Yes, there are 
->>>>>customers of LSI Logic using mptstm.c, as
->>>>>part of the target-mode drivers.  
->>>>>
->>>>>The proposed generic target mode drivers proposal is yet part
->>>>>of the kernel.  
->>>>>http://scst.sourceforge.net/
->>>>>We are looking into supporting this once its available.
->>>>
->>>>Well, SCST is already available, stable and useful. People use it 
->>>>without considerable problems, except with inconvenient LUNs management, 
->>>>which we are going to fix in the next version. I don't expect it will be 
->>>>considering for the kernel inclusion at least until 2.7. So, you can 
->>>>start supporting it right now :-).
->>>
->>>
->>>With the current kernel development model, there is no 2.7 planned for 
->>>the next years.
->>>
->>>Linus and Andrew believe 6 was an odd number, so you could submit your 
->>>code now. [1]
->>
->>OK, I'll prepare the next version as the kernel patch.
+> Hi!
+> 
+> Paul, can you comment on this one? I know that pn-k8 logic is quite
+> tricky... And BIOS tables are often wrong.
+> 								Pavel
+> 
+> > I have a machine with an Athlon64 with a Winchester core. 
+> It has a max
+> > frequency of 2GHz, vid 0x6. The maximum vid allowed is 0x4. 
+> It has an
+> > intermediate vid 0x8. RVO is 3.
+> > 
+> > When transitioning (phase1) from vid 0x8 to vid 0x6, it 
+> first increases
+> > the vid to 6, and then proceeds increasing it three more 
+> steps. This of
+> > course fails, because it overflows the maximum allowed vid 0x4.
+> > 
+> > My first attempt to fix this was to limit the vid to the 
+> max vid while
+> > doing the rvo bump-up.
+> > 
+> > However, I believe that the real reason for the problem is that the
+> > condition to start doing the rvo bump is wrong.
+> > 
+> > This patch should fix it:
+> > 
+> > diff -Nru a/arch/i386/kernel/cpu/cpufreq/powernow-k8.c 
+> b/arch/i386/kernel/cpu/cpufreq/powernow-k8.c
+> > --- a/arch/i386/kernel/cpu/cpufreq/powernow-k8.c	
+> 2005-03-14 17:20:17 +01:00
+> > +++ b/arch/i386/kernel/cpu/cpufreq/powernow-k8.c	
+> 2005-03-14 17:20:17 +01:00
+> > @@ -286,7 +286,7 @@
+> >  			return 1;
+> >  	}
+> >  
+> > -	while ((rvosteps > 0)  && ((data->rvo + data->currvid) 
+> > reqvid)) {
+> > +	while ((rvosteps > 0) && ((data->currvid - data->rvo) > 
+> reqvid)) {
+> >  		if (data->currvid == 0) {
+> >  			rvosteps = 0;
+> >  		} else {
+> > 
+> > if I understand the original intent of the second test in 
+> the while()
+> > statement. 
+> > 
+> > Any comments? Is my understanding of that bit of code correct?
+> > 
+> 
+> -- 
+> People were complaining that M$ turns users into beta-testers...
+> ...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
 > 
 > 
-> Any news regarding this?
-
-Unfortunately, I have not much time for it now, so I can't expect
-release of 0.9.3 version, which is going to have the patch, earlier than
-in May. But I'm ready to publish 0.9.3-pre1 as well as some bugfixes in
-the Qlogic driver in the nearest future, as soon as I settle down some
-untechnical stuff. If somebody is interested, I can send him a copy
-privately. As before, it still has ZERO modifications of the kernel, so
-it could live perfectly outside the tree.
-
-Also, everybody who think that he/she can help in testing,
-developing, bugfixing or just commenting/suggesting are welcome.
-
-Vlad
-
-
-
-
 

@@ -1,124 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261196AbUCAKm0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 05:42:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261197AbUCAKmZ
+	id S261197AbUCAKpc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 05:45:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261199AbUCAKpc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 05:42:25 -0500
-Received: from svr44.ehostpros.com ([66.98.192.92]:46560 "EHLO
-	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S261196AbUCAKmT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 05:42:19 -0500
-From: "Amit S. Kale" <amitkale@emsyssoft.com>
-Organization: EmSysSoft
-To: Tom Rini <trini@kernel.crashing.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@suse.cz>, kgdb-bugreport@lists.sourceforge.net
-Subject: Re: [KGDB PATCH][6/7] KGDBOE fixes
-Date: Mon, 1 Mar 2004 16:12:02 +0530
-User-Agent: KMail/1.5
-References: <20040227212301.GC1052@smtp.west.cox.net> <20040227214605.GH1052@smtp.west.cox.net> <20040227215211.GI1052@smtp.west.cox.net>
-In-Reply-To: <20040227215211.GI1052@smtp.west.cox.net>
+	Mon, 1 Mar 2004 05:45:32 -0500
+Received: from nsmtp.pacific.net.th ([203.121.130.117]:55969 "EHLO
+	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
+	id S261197AbUCAKpZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Mar 2004 05:45:25 -0500
+Date: Mon, 01 Mar 2004 18:45:04 +0800
+From: "Michael Frank" <mhf@linuxmail.org>
+To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
+Subject: Re: Dropping CONFIG_PM_DISK?
+Cc: linux-kernel@vger.kernel.org
+References: <1ulUA-33w-3@gated-at.bofh.it> <20040229161721.GA16688@hell.org.pl> <20040229162317.GC283@elf.ucw.cz> <yw1x4qt93i6y.fsf@kth.se> <20040229181053.GD286@elf.ucw.cz> <yw1xznb120zn.fsf@kth.se> <20040301094023.GF352@elf.ucw.cz> <yw1xhdx8ani6.fsf@kth.se>
+Content-Type: text/plain; format=flowed; delsp=yes; charset=iso-8859-1
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200403011612.02255.amitkale@emsyssoft.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - emsyssoft.com
+Content-Transfer-Encoding: 8bit
+Message-ID: <opr36itevo4evsfm@smtp.pacific.net.th>
+In-Reply-To: <yw1xhdx8ani6.fsf@kth.se>
+User-Agent: Opera M2/7.50 (Linux, build 600)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ok by me
--Amit
+On Mon, 01 Mar 2004 11:08:01 +0100, Måns Rullgård <mru@kth.se> wrote:
 
-On Saturday 28 Feb 2004 3:22 am, Tom Rini wrote:
-> Hello.  The following is a couple of small but important cleanups to
-> kgdboe. - memset out_buf in case we don't have it full when we flush.
-> - In rx_hook, if netpoll_trap() is set, clear it.  If kgdb_isn't connected,
->   schedule a breakpoint, and never call breakpoint() directly.
-> - In kgdb_serial->hook, set netpoll_trap(1).  kgdb_serial->hook must be
->   called prior to using a 'serial' port, so this is where we should stick
->   this.
-> - Backout unneeded changes to other files.
+> Pavel Machek <pavel@ucw.cz> writes:
 >
-> --- linux-2.6.3/drivers/net/kgdb_eth.c.orig	2004-02-27 13:27:53.778658691
-> -0700 +++ linux-2.6.3/drivers/net/kgdb_eth.c	2004-02-27 13:32:07.920255062
-> -0700 @@ -18,6 +18,7 @@
->   * Refactored for netpoll API by Matt Mackall <mpm@selenic.com>
->   *
->   * Some cleanups by Pavel Machek <pavel@suse.cz>
-> + * Further cleanups by Tom Rini <trini@mvista.com>
->   */
+>>> > Try current swsusp with minimal drivers, init=/bin/bash.
+>>>
+>>> Well, if I do that it works.  Or at least some old version did, I
+>>> assume the later ones would too.  However, that sort of removes the
+>>> whole point.  Taking down the system enough to be able to unload
+>>> almost everything is as close as rebooting you'll get.
+>>
+>> Well, now do a search for "which module/application causes failure".
 >
->  #include <linux/module.h>
-> @@ -60,7 +61,6 @@
->  static atomic_t in_count;
->  int kgdboe = 0;			/* Default to tty mode */
+> I know, it just takes an awful time.
 >
-> -extern void breakpoint(void);
->  static void rx_hook(struct netpoll *np, int port, char *msg, int len);
+>>> BTW, is there some easier way to track the development than using the
+>>> patches from the web page?  Unpatching after a couple of BK merges
+>>> isn't the easiest thing.  Is there a BK tree somewhere I can pull
+>>> from?
+>>
+>> Are you using swsusp2?
 >
->  static struct netpoll np = {
-> @@ -89,6 +89,7 @@
->  {
->  	if (out_count && np.dev) {
->  		netpoll_send_udp(&np, out_buf, out_count);
-> +		memset(out_buf, 0, sizeof(out_buf));
->  		out_count = 0;
->  	}
->  }
-> @@ -107,12 +108,15 @@
->  	np->remote_port = port;
+> Well, trying to.  Isn't it supposed to be the latest and greatest?
 >
-> +	/* Do we need to clear the trap? */
-> +	if (netpoll_trap())
-> +		netpoll_set_trap(0);
->  	/* Is this gdb trying to attach? */
-> -	if (!netpoll_trap() && len == 8 && !strncmp(msg, "$Hc-1#09", 8))
-> -		breakpoint();
-> +	if (kgdb_connected) {
-> +		kgdb_schedule_breakpoint();
+>> That's _not_ what I'm talking about. swsusp is in mainline.
 >
->  	for (i = 0; i < len; i++) {
->  		if (msg[i] == 3)
-> -			breakpoint();
-> +			kgdb_schedule_breakpoint();
+> It would still be the same module(s) that caused it to fail, right?
 >
->  		if (atomic_read(&in_count) >= IN_BUF_SIZE) {
->  			/* buffer overflow, clear it */
-> @@ -138,6 +141,9 @@
->  	/* Un-initalized, don't go further. */
->  	if (kgdboe != 1)
->  		return 1;
-> +
-> +	netpoll_set_trap(1);
-> +
->  	return 0;
->  }
->
-> --- linux-2.6.3/net/core/skbuff.c.orig	2004-02-27 13:30:21.107968572 -0700
-> +++ linux-2.6.3/net/core/skbuff.c	2004-02-27 13:30:44.279825113 -0700
-> @@ -55,7 +55,6 @@
->  #include <linux/rtnetlink.h>
->  #include <linux/init.h>
->  #include <linux/highmem.h>
-> -#include <linux/debugger.h>
->
->  #include <net/protocol.h>
->  #include <net/dst.h>
-> --- linux-2.6.3/net/core/dev.c.orig	2004-02-27 13:30:27.687508165 -0700
-> +++ linux-2.6.3/net/core/dev.c	2004-02-27 13:30:44.261829108 -0700
-> @@ -1547,6 +1547,7 @@
->  }
->  #endif
->
-> +
->  /**
->   *	netif_rx	-	post buffer to the network code
->   *	@skb: buffer to post
 
+Further to my post yesterday, here is a short article which may be of interest.
+
+http://lwn.net/Articles/68747/
+
+So, to make it work better lets get PM usable :)
+
+swsusp2 mailing list: swsusp-devel@lists.sourceforge.net
+
+Regards
+Michael

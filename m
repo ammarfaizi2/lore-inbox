@@ -1,56 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132511AbRDKAzq>; Tue, 10 Apr 2001 20:55:46 -0400
+	id <S132503AbRDKA5R>; Tue, 10 Apr 2001 20:57:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132503AbRDKAzg>; Tue, 10 Apr 2001 20:55:36 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:44048 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S132511AbRDKAzV>; Tue, 10 Apr 2001 20:55:21 -0400
-Date: Tue, 10 Apr 2001 17:55:09 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: David Weinehall <tao@acc.umu.se>
-cc: Andi Kleen <ak@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	id <S132512AbRDKA5I>; Tue, 10 Apr 2001 20:57:08 -0400
+Received: from khan.acc.umu.se ([130.239.18.139]:19950 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S132503AbRDKA4x>;
+	Tue, 10 Apr 2001 20:56:53 -0400
+Date: Wed, 11 Apr 2001 02:56:32 +0200
+From: David Weinehall <tao@acc.umu.se>
+To: Andi Kleen <ak@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>,
         David Howells <dhowells@cambridge.redhat.com>,
         Andrew Morton <andrewm@uow.edu.au>, Ben LaHaise <bcrl@redhat.com>,
         Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] i386 rw_semaphores fix
-In-Reply-To: <20010411021318.A21221@khan.acc.umu.se>
-Message-ID: <Pine.LNX.4.31.0104101750320.15069-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20010411025632.C21221@khan.acc.umu.se>
+In-Reply-To: <20010410220551.A24251@gruyere.muc.suse.de> <E14n6Be-0005Ir-00@the-village.bc.nu> <20010411020058.B28670@gruyere.muc.suse.de> <20010411021318.A21221@khan.acc.umu.se> <20010411022028.A28874@gruyere.muc.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <20010411022028.A28874@gruyere.muc.suse.de>; from ak@suse.de on Wed, Apr 11, 2001 at 02:20:28AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Apr 11, 2001 at 02:20:28AM +0200, Andi Kleen wrote:
+> On Wed, Apr 11, 2001 at 02:13:18AM +0200, David Weinehall wrote:
+> > > 
+> > > Yes, and with CMPXCHG handler in the kernel it wouldn't be needed 
+> > > (the other 686 optimizations like memcpy also work on 386) 
+> > 
+> > But the code would be much slower, and it's on 386's and similarly
+> > slow beasts you need every cycle you can get, NOT on a Pentium IV.
+> 
+> My reasoning is that who uses a 386 is not interested in speed, so a little
+> bit more slowness is not that bad.
+
+My reasoning is that the choice of computer is a direct function of
+your financial situation. I can get hold of a lot of 386's/486's, but
+however old a Pentium may be, people are still reluctant to give away
+those. Doing the sometimes necessary updates on my 386:en is already
+painfully slow, and I'd rather not take another performance hit.
+
+> You realize that the alternative for distributions is to drop 386 support
+> completely?
+
+Yes, I realise that. But if _distribution X_ drops support for the 386,
+there's always _distribution Y_ available with it still in, while if
+we give the glibc-people the thumbs up saying "Ignore the 386 users from
+now on", every distribution will get lousy performance on those machines.
+
+> Most 386 i've seen used for linux do not run multi threaded applications
+> anyways; they usually do things like ISDN routing. Also on early 386 with
+> the kernel mode wp bug it's a security hazard to use clone().
+
+Well, not all 386:en are early...
 
 
-On Wed, 11 Apr 2001, David Weinehall wrote:
-> >
-> > Yes, and with CMPXCHG handler in the kernel it wouldn't be needed
-> > (the other 686 optimizations like memcpy also work on 386)
->
-> But the code would be much slower, and it's on 386's and similarly
-> slow beasts you need every cycle you can get, NOT on a Pentium IV.
-
-Note that the "fixup" approach is not necessarily very painful at all,
-from a performance standpoint (either on 386 or on newer CPU's). It's not
-really that hard to just replace the instruction in the "undefined
-instruction"  handler by having strict rules about how to use the "xadd"
-instruction.
-
-For example, you would not actually fix up the xadd to be a function call
-to something that emulates "xadd" itself on a 386. You would fix up the
-whole sequence of "inline down_write()" with a simple call to an
-out-of-line "i386_down_write()" function.
-
-Note that down_write() on an old 386 is likely to be complicated enough
-that you want to do it out-of-line anyway, so the code-path you take
-(afetr the first time you've trapped on that particular location) would be
-the one you would take for an optimized 386 kernel anyway. And similarly,
-the restrictions you place on non-386-code to make it fixable are simple
-enough that it probably shouldn't make a difference for performance on
-modern chips.
-
-		Linus
-
-
-
+/David
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Project MCA Linux hacker        //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

@@ -1,62 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261356AbVBNWZv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261217AbVBNWfZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261356AbVBNWZv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 17:25:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbVBNWZu
+	id S261217AbVBNWfZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 17:35:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261243AbVBNWfZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 17:25:50 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6110 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261356AbVBNWZi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 17:25:38 -0500
-Message-ID: <42112544.2030006@pobox.com>
-Date: Mon, 14 Feb 2005 17:25:08 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Mon, 14 Feb 2005 17:35:25 -0500
+Received: from fmr18.intel.com ([134.134.136.17]:57243 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261217AbVBNWfR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 17:35:17 -0500
+From: Mark Gross <mgross@linux.intel.com>
+Organization: Intel
+To: Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: queue_work from interrupt Real time preemption2.6.11-rc2-RT-V0.7.37-03
+Date: Mon, 14 Feb 2005 14:29:11 -0800
+User-Agent: KMail/1.5.4
+Cc: LKML <linux-kernel@vger.kernel.org>
+References: <200502141240.14355.mgross@linux.intel.com> <1108416249.8413.54.camel@localhost.localdomain>
+In-Reply-To: <1108416249.8413.54.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Roland Dreier <roland@topspin.com>
-CC: Greg KH <greg@kroah.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: avoiding pci_disable_device()...
-References: <4210021F.7060401@pobox.com> <20050214190619.GA9241@kroah.com>	<4211013E.6@pobox.com> <52hdke29sh.fsf@topspin.com>	<20050214200043.GA15868@havoc.gtf.org> <52d5v224z3.fsf@topspin.com>
-In-Reply-To: <52d5v224z3.fsf@topspin.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502141429.11587.mgross@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland Dreier wrote:
->     Jeff> That's an MSI bug.
-> 
->     Jeff> A current PCI driver -should- be using pci_request_regions().
-> 
-> Hmm... I'm not sure everyone would agree with that.  It does make
-> sense that the MSI-X core wants to make sure that it owns the MSI-X
-> table without having someone else stomp on it.
+On Monday 14 February 2005 13:24, Steven Rostedt wrote:
+> On Mon, 2005-02-14 at 12:40 -0800, Mark Gross wrote:
+> > I'm working on a tweak to the preepmtive soft IRQ implementation using
+> > work queues and I'm having problems with a BUG assert when trying to
+> > queue_work.
+> >
+> > Souldn't I be able to call queue_work form ISR context?
+>
+> Yes, but not with interrupts disabled.
+>
 
-The idea is right but the implementation is definitely incorrect, for 
-multiple reasons:
+Hmm.  It seems to me that one should be able to call queue_work from wherever 
+you can call raise_softirq.  This constraint adds a bit of asymetry in the 
+deffered processing API's
 
-* Every PCI driver should call pci_request_regions(), because there 
-should only be one pci_driver associated with that set of resources.
 
-* Therefore, any _addition_ to the PCI API that prevents a driver from 
-using pci_request_regions() causes multiple problems, by virtue of 
-diverging from the other 98% of the kernel's PCI drivers, which use 
-pci_request_regions().
+> > --mgross
+> >
+> > ---------------------------
+> >
+> > | preempt count: 00000001 ]
+> > | 1-level deep critical section nesting:
+> >
+> > ----------------------------------------
+> > .. [<c0140f5d>] .... print_traces+0x1d/0x60
+> > .....[<c01042a3>] ..   ( <= dump_stack+0x23/0x30)
+> >
+> > BUG: sleeping function called from invalid context IRQ 20(2039) at
+> > kernel/rt.c in_atomic():0 [00000000], irqs_disabled():1
+>
+> Here you have interrupts disabled. Since you are tweaking the softirq I
+> don't know your code, but the kernel should not schedule after turning
+> off interrupts, and the spinlocks under the PREEMPT kernel, may now
+> sleep (unless they are raw_spin_locks).  Here we also see that
+> queue_work calls spin_lock_irqsave.  I'm suspecting that you turned off
+> interrupts somewhere.
+>
+> -- Steve
 
-IOW, MSI-X's implementation incorrectly constrains PCI driver authors.
+I'll post my code soon, I hope.  I now need to work around this API problem :(
 
-* Programmer over-protection.  Who is attempting to stomp on MSI-X 
-tables?  If a driver is reading an MSI-X bar and doing something without 
-consulting the kernel MSI-X code, that's a bug and most likely a 
-violation of the PCI spec.  Fix the driver.
+thanks, 
 
-In Linux we don't over-protect programmers with a zillion sanity checks 
-for every internal API call; that leads to bloat, and papers over bugs 
-that should be fixed.
-
-	Jeff
-
+--mgross
 

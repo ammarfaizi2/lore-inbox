@@ -1,54 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131763AbRCOPyk>; Thu, 15 Mar 2001 10:54:40 -0500
+	id <S131446AbRCOPwI>; Thu, 15 Mar 2001 10:52:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131764AbRCOPya>; Thu, 15 Mar 2001 10:54:30 -0500
-Received: from clev-max1-cs-8.dial.bright.net ([209.143.46.10]:53889 "EHLO
-	skylab.winds.org") by vger.kernel.org with ESMTP id <S131763AbRCOPyQ>;
-	Thu, 15 Mar 2001 10:54:16 -0500
-Date: Thu, 15 Mar 2001 10:53:02 -0500 (EST)
-From: Byron Stanoszek <gandalf@skylab.winds.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: Need help with allocating a 2M buffer size
-Message-ID: <Pine.LNX.4.31.0103151040280.2983-100000@skylab.winds.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131762AbRCOPv7>; Thu, 15 Mar 2001 10:51:59 -0500
+Received: from [148.88.16.231] ([148.88.16.231]:5336 "EHLO zooty.lancs.ac.uk")
+	by vger.kernel.org with ESMTP id <S131446AbRCOPvp>;
+	Thu, 15 Mar 2001 10:51:45 -0500
+Message-Id: <l0313030cb6d6931983e8@[192.168.239.101]>
+In-Reply-To: <200103151420.JAA03185@gloworm.cnchost.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Date: Thu, 15 Mar 2001 15:44:51 +0000
+To: Peter DeVries <peter@devries.tv>, linux-kernel@vger.kernel.org
+From: Jonathan Morton <chromi@cyberspace.org>
+Subject: Re: Drvie Corruption CONSTANTLY with Linux and KT7-RAID
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a real picky tape drive (DLT series) that likes to be fed large chunks
-of data at once, otherwise after every 2-4KB of data it halts and rewinds
-itself because its cache for writing to the tape is empty.
+>At this point I am 100% lost.  any help would be
+>greatly appreciated.  I am willing to do any testing
+>of the system that anyone may need.  Currently I have
+>no working copy of linux on the sytem.  My normal
+>process to get running is to install slackware.
+>download 2.4.2 and the latest ac patch.  Compile, add
+>ide=reverse to lilo, switch the hd over to the
+>highpoint hpt366 controller and reboot.  As soon as I
+>boot corruption begins and drive will be useless
+>within 10 minutes.  I have also tried leaving the HD
+>on the VIA82686a controller witht the same results.
+>Also note I have tried IBM & MAXTOR UDMA100 drives as
+>well as IBM & WD UDMA66 Drives.  I have tried both 40
+>& 80 pin cables on the drives.
 
-My best solution to this problem was to use 'tar -b 4096', which sends 4096 x
-512-byte blocks at once for a total of a 2MB buffer size. This worked fine for
-several weeks, until 2 days ago I got this message (and the backup fails):
+I suggest using the 82686-based controller rather than the HPT one.  Also,
+try running with DMA mode disabled.  Personally, I'm running fine with the
+82686-based controller in DMA mode with a Seagate UDMA/66 drive.  You might
+also want to look at the BIOS settings, which Windows drivers might
+"adjust" at runtime to saner values.
 
-st: failed to enlarge buffer to 2097152 bytes.
+--------------------------------------------------------------
+from:     Jonathan "Chromatix" Morton
+mail:     chromi@cyberspace.org  (not for attachments)
+big-mail: chromatix@penguinpowered.com
+uni-mail: j.d.morton@lancaster.ac.uk
 
-Free memory shows:
+The key to knowledge is not to rely on people to teach you it.
 
-             total       used       free     shared    buffers     cached
-Mem:        517036     514468       2568     751908      47804     189488
--/+ buffers/cache:     277176     239860
-Swap:       136544        452     136092
+Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
 
-Unfortunately, all of the "free" memory right now is eaten up using cache. Is
-there a way I can just tell the kernel to allocate memory from the cache for
-the buffer? I'm sure there's gotta be a 2MB-sized chunk in that 189MB cache
--somewhere-.
+-----BEGIN GEEK CODE BLOCK-----
+Version 3.12
+GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
+PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
+-----END GEEK CODE BLOCK-----
 
-Why doesn't the kernel's get_free_pages() function support moving data around
-in memory to get larger chunks for what it needs? I see this same problem
-happening in SVGATextMode where allocating space for a NxM character screen
-(where NxM >= 16384) fails because there is no contiguous memory space. I think
-at least it should be able to use some cache.
-
-Suggestions?
- -Byron
-
---
-Byron Stanoszek                         Ph: (330) 644-3059
-Systems Programmer                      Fax: (330) 644-8110
-Commercial Timesharing Inc.             Email: byron@comtime.com
 

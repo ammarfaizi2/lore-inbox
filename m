@@ -1,66 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266436AbUFUUBS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266441AbUFUUDs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266436AbUFUUBS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 16:01:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266440AbUFUUBS
+	id S266441AbUFUUDs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 16:03:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266442AbUFUUDs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 16:01:18 -0400
-Received: from fmr01.intel.com ([192.55.52.18]:23731 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id S266436AbUFUUBM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 16:01:12 -0400
-Subject: Re: [PATCH] 2.4.27-rc1 i386 and x86_64 ACPI mpparse timer bug
-From: Len Brown <len.brown@intel.com>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: Hans-Frieder Vogt <hfvogt@arcor.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <200406202355.i5KNtPdp021261@harpo.it.uu.se>
-References: <200406202355.i5KNtPdp021261@harpo.it.uu.se>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1087848051.4319.202.camel@dhcppc4>
+	Mon, 21 Jun 2004 16:03:48 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64473 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266441AbUFUUDp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 16:03:45 -0400
+Date: Mon, 21 Jun 2004 16:56:50 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: "Ramy M. Hassan" <ramy@gawab.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kswapd problem
+Message-ID: <20040621195650.GA13944@logos.cnet>
+References: <20040612153247.13279.qmail@gawab.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 21 Jun 2004 16:00:51 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040612153247.13279.qmail@gawab.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks Mikael, Hans, you got it right.
+On Sat, Jun 12, 2004 at 03:32:47PM +0000, Ramy M. Hassan wrote:
+> 
+> kswapd and kupdated are causing our production server to
+> completely freezeup for few seconds every now and then.
+> The server is running kernel 2.4.26SMP on a Dual Xeon 2.20GHz
+> with 4GB RAM, 900GB FC RAID Qlogic HBA using driver qla2300.o
+> and reiserfs.
+> The RAID filesystem contains millions of files in thousands of
+> directories.
+> The system is under fair load. Normally the load avarage is
+> about 3 and everything works properly, but suddenly the system
+> stops responding except to ping, and stay freezed for about 20
+> seconds, during that time I can not even type anything, then the
+> system becomes responsive again and I see the load avarge over
+> 250 and starts to decrease till it is back to 3 , then few
+> minutes later that same thing is repeated.
+> I noticed that at the time of the freezups both kswapd and
+> kupdated are the most active processes each consuming over 30%
+> of the CPU ( kswapd is usually more than kupdated )
 
--Len
+Hi Ramy,
 
-On Sun, 2004-06-20 at 19:55, Mikael Pettersson wrote:
-> 2.4.27-rc1 reintroduced the double-speed timer ACPI bug.
-> Both x86-64 and i386 are affected.
-> 
-> The patch below fixes it on my box. It's a backport of a
-> patch Hans-Frieder Vogt made for 2.6.7-bk2, extended to
-> also handle i386.
-> 
-> /Mikael Pettersson
-> 
-> diff -ruN linux-2.4.27-rc1/arch/i386/kernel/mpparse.c linux-2.4.27-rc1.mpparse-fix/arch/i386/kernel/mpparse.c
-> --- linux-2.4.27-rc1/arch/i386/kernel/mpparse.c	2004-06-21 00:39:30.000000000 +0200
-> +++ linux-2.4.27-rc1.mpparse-fix/arch/i386/kernel/mpparse.c	2004-06-21 00:50:01.000000000 +0200
-> @@ -1211,7 +1211,7 @@
->  
->  		for (idx = 0; idx < mp_irq_entries; idx++)
->  			if (mp_irqs[idx].mpc_srcbus == MP_ISA_BUS &&
-> -				(mp_irqs[idx].mpc_dstapic == ioapic) &&
-> +				(mp_irqs[idx].mpc_dstapic == mp_ioapics[ioapic].mpc_apicid) &&
->  				(mp_irqs[idx].mpc_srcbusirq == i ||
->  				mp_irqs[idx].mpc_dstirq == i))
->  					break;
-> diff -ruN linux-2.4.27-rc1/arch/x86_64/kernel/mpparse.c linux-2.4.27-rc1.mpparse-fix/arch/x86_64/kernel/mpparse.c
-> --- linux-2.4.27-rc1/arch/x86_64/kernel/mpparse.c	2004-06-21 00:39:30.000000000 +0200
-> +++ linux-2.4.27-rc1.mpparse-fix/arch/x86_64/kernel/mpparse.c	2004-06-21 00:50:01.000000000 +0200
-> @@ -866,7 +866,7 @@
->  
->  		for (idx = 0; idx < mp_irq_entries; idx++)
->  			if (mp_irqs[idx].mpc_srcbus == MP_ISA_BUS &&
-> -				(mp_irqs[idx].mpc_dstapic == ioapic) &&
-> +				(mp_irqs[idx].mpc_dstapic == intsrc.mpc_dstapic) &&
->  				(mp_irqs[idx].mpc_srcbusirq == i ||
->  				mp_irqs[idx].mpc_dstirq == i))
->  					break;
+Can you get us some more data when this happens?
+
+What are the size's of the page lists (/proc/meminfo) when the freeze happens, 
+can you capture that?
+
+Also leave vmstat running in the background.
+
+If you are willing to debug I'm sure we will be able to find the 
+reason for the problem.
+
 

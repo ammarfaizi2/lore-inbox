@@ -1,73 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262864AbSJGFDD>; Mon, 7 Oct 2002 01:03:03 -0400
+	id <S262866AbSJGFKT>; Mon, 7 Oct 2002 01:10:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262865AbSJGFDD>; Mon, 7 Oct 2002 01:03:03 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:33212 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S262864AbSJGFDC>;
-	Mon, 7 Oct 2002 01:03:02 -0400
-Date: Sun, 6 Oct 2002 22:07:37 -0700 (PDT)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Roberto De Leo <deleo@unica.it>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: limit to the length of args passed to kernel
-In-Reply-To: <3D9EBDBD.4030402@unica.it>
-Message-ID: <Pine.LNX.4.33L2.0210062156550.7363-100000@dragon.pdx.osdl.net>
+	id <S262867AbSJGFKS>; Mon, 7 Oct 2002 01:10:18 -0400
+Received: from [203.117.131.12] ([203.117.131.12]:28612 "EHLO
+	gort.metaparadigm.com") by vger.kernel.org with ESMTP
+	id <S262866AbSJGFKR>; Mon, 7 Oct 2002 01:10:17 -0400
+Message-ID: <3DA11884.7050004@metaparadigm.com>
+Date: Mon, 07 Oct 2002 13:15:48 +0800
+From: Michael Clark <michael@metaparadigm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: GrandMasterLee <masterlee@digitalroadkill.net>
+Cc: jbradford@dial.pipex.com, linux-kernel@vger.kernel.org
+Subject: Re: QLogic Linux failover/Load Balancing ER0000000020860
+References: <200210061103.g96B3mlO001484@darkstar.example.net>	 <3DA02BF2.2040506@metaparadigm.com>  <1033933235.2436.1.camel@localhost>	 <1033946058.2436.13.camel@localhost> <1033966448.1512.2.camel@localhost>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I haven't seen any other replies to this on lkml, so...
 
-On Sat, 5 Oct 2002, Roberto De Leo wrote:
 
-| Hi,
-| I recently found out the you can't pass too many args to the kernel
-| through the LILO "append"
-| option. Actually I passed the args through the similar "append" option
-| of the SysLinux package
-| (http://syslinux.zytor.com/) but on their ML I have been told it is
-| equivalent to LILO's one and
-| that there is a 256 characters limit for passing args at boot time to
-| the kernel.
+On 10/07/02 12:54, GrandMasterLee wrote:
+> On Sun, 2002-10-06 at 18:14, GrandMasterLee wrote:
+> 
+> 
+>>I just reassigned all my LUNs to be a part of the same host
+>>configuration on the storage(polling by HBAs and host, versus splitting
+>>LUNs by HBA). I do get more than 1 LUN now, but only EVEN luns. I'll see
+>>if I can identify why that is. 
+> 
+> 
+> After defining LSI in drivers/scsi/scsi_scan.c I can get half my luns,
+> but still not all. I'm not sure what else I need to do. I now can see
+> LUNs 0,2,4,6,8, etc but not 1,3,5,7,etc. I'm not sure what else to do,
+> but maybe now that I've done this, I can get information from QLogic
+> about what should be happening. Or does this still seem like a kernel
+> config issue? 
 
-According to that mailing list, Peter Anvin has already confirmed
-this.
+So sparse lun scanning is working then - sounds like your missing luns
+is a problem with your array configuration as the kernel is probing them
+(if it is was creating the even ones) - means the qlogic driver must
+not be able to see these luns. Not familiar with your array so can't
+help any more - your array vendor would probably be the most help.
 
-| My question is: is this really a kernel limit or I misunderstood? if it
-| is a kernel limit, is there any way to bypass it?
-
-I didn't see any mention of what type of hardware you are using,
-but COMMAND_LINE_SIZE is a #define in the Linux kernel.
-You could change that, but that wouldn't "fix it."
-The boot protocol interface (from LILO or SysLinux etc. to the
-kernel) must also be changed for this to work.
-
-See linux/Documentation/i386/boot.txt for that interface definition.
-
-BTW, some other CPU architectures #define larger command line
-sizes, but then they don't use this same boot interface (I
-guess).
-
-| It would be very useful for a package I am developing: it is a micro
-| linux distro (the initrd.gz
-| is ~4MB) containing basically only a kernel and what you need to play a
-| movie through the FB.
-| The kernel (2.4.19) has been compiled with support for all possible FB
-| drivers, but for several
-| reasons it would be nice to have two booting options: one containing the
-| initialization for all
-| possible FB and one turning all of them off except the vesa FB.
-| Unfortunately though there are so many FB driverd that to turn them all
-| off it takes much more than 256 chars!
-|
-| Any help would be greatly appreciated.
-| Please CC me any answer to deleo@unica.it, I'm not subscrribed to the ML.
-
-Good luck.
-
--- 
-~Randy
+~mc
 

@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264788AbTBOSOG>; Sat, 15 Feb 2003 13:14:06 -0500
+	id <S264857AbTBOSaI>; Sat, 15 Feb 2003 13:30:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264797AbTBOSOG>; Sat, 15 Feb 2003 13:14:06 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:15001 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S264788AbTBOSOF> convert rfc822-to-8bit; Sat, 15 Feb 2003 13:14:05 -0500
-Date: Sat, 15 Feb 2003 10:23:54 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 359] New: eth0: Too much work at interrupt, IntrStatus=0x0001
- at network shutdown
-Message-ID: <1040000.1045333434@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S264863AbTBOSaI>; Sat, 15 Feb 2003 13:30:08 -0500
+Received: from phoenix.mvhi.com ([195.224.96.167]:60426 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S264857AbTBOSaH>; Sat, 15 Feb 2003 13:30:07 -0500
+Date: Sat, 15 Feb 2003 18:39:59 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Andreas Gruenbacher <agruen@suse.de>
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org, "Theodore T'so" <tytso@mit.edu>
+Subject: Re: [PATCH] Extended attribute fixes, etc.
+Message-ID: <20030215183959.B22045@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andreas Gruenbacher <agruen@suse.de>,
+	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+	Theodore T'so <tytso@mit.edu>
+References: <200302112018.58862.agruen@suse.de> <20030215110732.A17564@infradead.org> <200302151859.11370.agruen@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200302151859.11370.agruen@suse.de>; from agruen@suse.de on Sat, Feb 15, 2003 at 06:59:11PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=359
+On Sat, Feb 15, 2003 at 06:59:11PM +0100, Andreas Gruenbacher wrote:
+> > Please don't do the ugly flags stuff.  We have fsuids and fsgids for
+> > exactly that reason (and because we're still lacking a credentials
+> > cache..).
+> 
+> The XATTR_KERNEL_CONTEXT flag cannot be substituted by a uid/gid change; 
+> it is unrelated to that; that's the whole point of it. It would be 
+> possible to raise some other flag (such as a capability, etc.) instead 
+> of passing an explicit flag, but that seems uglier and more 
+> problematic/error prone to me.
 
-           Summary: eth0: Too much work at interrupt, IntrStatus=0x0001 at
-                    network shutdown
-    Kernel Version: 2.5.61
-            Status: NEW
-          Severity: low
-             Owner: jgarzik@pobox.com
-         Submitter: Nicolas.Mailhot@LaPoste.net
+Then raise CAP_DAC_OVERRIDE.  The right thing would be to pass down a
+struct cred, so we could pass down the magic sys_cred that allows all
+access (look at the XFS ACL code for details on that..), but
+unfortuantately we still don't have proper credentials although there
+were numerous patches around in the last years and we really want it
+for other reasons.
 
-
-Distribution: Red Hat Raw Hide (15.2.2003)
-
-Hardware Environment:  http://www.giga-byte.com/products/7vax.htm (Via KT
-400 + Via VT 8235 + Realtek RTL8100BL), F9 bios
-Problem Description: when the network is shut down I get pages of « Too much
-work at interrupt, IntrStatus=0x0001 »
-
-Steps to reproduce: service network stop, system shutdown...
-
+Magic flags that change the DAC checks work are ugly and will most
+certainly lead to bugs in some implementations sooner or later.
 

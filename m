@@ -1,76 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262380AbVADV7Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262160AbVADV70@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262380AbVADV7Z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 16:59:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262160AbVADV5I
+	id S262160AbVADV70 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 16:59:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbVADV4Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 16:57:08 -0500
-Received: from mail.tmr.com ([216.238.38.203]:46095 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S262266AbVADVvr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 16:51:47 -0500
-Date: Tue, 4 Jan 2005 16:28:20 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Pavel Machek <pavel@ucw.cz>
-cc: Adrian Bunk <bunk@stusta.de>, Diego Calleja <diegocg@teleline.es>,
-       Willy Tarreau <willy@w.ods.org>, wli@holomorphy.com, aebr@win.tue.nl,
-       solt2@dns.toxicfilms.tv, linux-kernel@vger.kernel.org
+	Tue, 4 Jan 2005 16:56:25 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:34829 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S262372AbVADVwM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 16:52:12 -0500
+Date: Tue, 4 Jan 2005 22:43:24 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: "Theodore Ts'o" <tytso@mit.edu>, Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Thomas Graf <tgraf@suug.ch>, Bill Davidsen <davidsen@tmr.com>,
+       Adrian Bunk <bunk@stusta.de>, Diego Calleja <diegocg@teleline.es>,
+       wli@holomorphy.com, aebr@win.tue.nl, solt2@dns.toxicfilms.tv,
+       linux-kernel@vger.kernel.org
 Subject: Re: starting with 2.7
-In-Reply-To: <20050104210424.GA1619@elf.ucw.cz>
-Message-ID: <Pine.LNX.3.96.1050104162400.3306B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20050104214324.GG22075@alpha.home.local>
+References: <20050104031229.GE26856@postel.suug.ch> <200501041534.j04FY9g7008583@laptop11.inf.utfsm.cl> <20050104211910.GB7280@thunk.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050104211910.GB7280@thunk.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Jan 2005, Pavel Machek wrote:
+On Tue, Jan 04, 2005 at 04:19:10PM -0500, Theodore Ts'o wrote:
+> The problem with the -rc releases is that we try to predict in advance
+> which releases in advance will be stable, and we don't seem to be able
+> to do a good job of that.
 
-> Hi!
-> 
-> > > Yes, -mm gives a bit more testing coverage, but it doesn't seem to be 
-> > > enough for this vast amount of changes.
-> > 
-> > I have to say that with a few minor exceptions the introduction of new
-> > features hasn't created long term (more than a few days) of problems. And
-> > we have had that in previous stable versions as well. New features
-> > themselves may not be totally stable, but in most cases they don't break
-> > existing features, or are fixed in bk1 or bk2. What worries me is removing
-> > features deliberately, and I won't beat that dead horse again, I've said
-> > my piece.
-> > 
-> > The "few minor exceptions:"
-> > 
-> > SCSI command filtering - while I totally support the idea (and always
-> > have), I miss running cdrecord as a normal user. Multisession doesn't work
-> > as a normal user (at least if you follow the man page) because only root
-> > can use -msinfo. There's also some raw mode which got a permission denied,
-> > don't remember as I was trying something not doing production stuff.
-> > 
-> > APM vs. ACPI - shutdown doesn't reliably power down about half of the
-> > machines I use, and all five laptops have working suspend and non-working
-> > resume. APM seems to be pretty unsupported beyond "use ACPI for that."
-> 
-> Go ahead and become APM maintainer... APM needs some care. 
-> 
-> Problem is that ACPI needs driver model changes, and those affect APM
-> too. But noone is using APM these days, so when something breaks
-> there, it takes long to discover.
+I really like this description, it's the most accurate description I ever
+read of an -rc release. I wish you could convince Linus with it. 
 
-I wouldn't try it if ACPI support worked on my machines, and I really
-wasn't suggesting that effort should go into APM so much as refuting the
-notion that people could just use ACPI. I would rather see resources go
-into ACPI, as I would be delighted to move into the future.
-> 
-> So even someone testing APM at regular (like every -rc and every -mm)
-> basis would help...
-> 								Pavel
-> -- 
-> People were complaining that M$ turns users into beta-testers...
-> ...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
-> 
+The problem with -rc is that if we try to predict, it implies that we don't
+expect to count much on user reports. Then why do an -rc at all if we don't
+expect enough testings ?
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+> If we do a release every week, my guess is
+> that at least 1 in 3 releases will turn out to be stable enough for
+> most purposes.  But we won't know until after 2 or 3 days which
+> releases will be the good ones.
+
+That's always been my point, and one of the reasons why *some* of Alan's
+kernels work well.
+
+> In practice, that's all the -rc releases are these days anyway (there
+> are times when a 2.6.x-rcy release is more stable than 2.6.z).  The
+> problem is that since the -rc releases are called what they are
+> called, they don't get enough testing.
+
+Perfectly true. I would add that with -rc releases, people only upgrade when
+we tell them that they can, while with more frequent releases, they upgrade
+when they *need* to, and can try several versions if the first one they pick
+does not work.
+
+Regards,
+Willy
 

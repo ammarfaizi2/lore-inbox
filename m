@@ -1,50 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265648AbUBPO2X (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 09:28:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265641AbUBPO2X
+	id S265659AbUBPOaw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 09:30:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265667AbUBPOaw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 09:28:23 -0500
-Received: from mail.shareable.org ([81.29.64.88]:9604 "EHLO mail.shareable.org")
-	by vger.kernel.org with ESMTP id S265667AbUBPO2J (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 09:28:09 -0500
-Date: Mon, 16 Feb 2004 14:28:07 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Eduard Bloch <edi@gmx.de>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: JFS default behavior (was: UTF-8 in file systems? xfs/extfs/etc.)
-Message-ID: <20040216142807.GB16658@mail.shareable.org>
-References: <20040209115852.GB877@schottelius.org> <200402121655.39709.robin.rosenberg.lists@dewire.com> <20040213003839.GB24981@mail.shareable.org> <200402130216.53434.robin.rosenberg.lists@dewire.com> <20040213022934.GA8858@parcelfarce.linux.theplanet.co.uk> <20040213032305.GH25499@mail.shareable.org> <20040214150934.GA5023@zombie.inka.de> <20040215010150.GA3611@mail.shareable.org> <20040216140338.GA2927@zombie.inka.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 16 Feb 2004 09:30:52 -0500
+Received: from mail011.syd.optusnet.com.au ([211.29.132.65]:49810 "EHLO
+	mail011.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S265659AbUBPOat (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 09:30:49 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Nick Piggin <piggin@cyberone.com.au>
+Subject: Re: [BENCHMARK] 2.6.3-rc2 v 2.6.3-rc3-mm1 kernbench
+Date: Tue, 17 Feb 2004 01:30:24 +1100
+User-Agent: KMail/1.6
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <200402170000.00524.kernel@kolivas.org> <4030C38A.4050909@cyberone.com.au>
+In-Reply-To: <4030C38A.4050909@cyberone.com.au>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040216140338.GA2927@zombie.inka.de>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200402170130.24070.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eduard Bloch wrote:
-> >    I think this is because the character encoding used by the terminal
-> >    should be in the TERM environment variable, but it is in LANG instead.
-> 
-> No. TERM does not have anything to do with locales (LANG).
+On Tue, 17 Feb 2004 00:20, Nick Piggin wrote:
+> Con Kolivas wrote:
+> >-----BEGIN PGP SIGNED MESSAGE-----
+> >Hash: SHA1
+> >
+> >Here's some nice evidence of the sched domains' patch value:
+> >kernbench 0.20 running on an X440 8x1.5Ghz P4HT (2 node)
+> >
+> >Time is in seconds. Lower is better (fixed font table)
+> >
+> >Summary:
+> >Kernel:		2.6.3-rc2	2.6.3-rc3-mm1
+> >Half(-j8)	120.8		113.0
+> >Optimal(-j64)	81.6		79.3
+> >Max(-j)		82.9		80.3
+> >
+> >
+> >shorter summary:
+> >2.6.3-rc3-mm1 kicks butt
+>
+> Thanks Con,
+> Results look pretty good. The half-load context switches are
+> increased - that is probably a result of active balancing.
+> And speaking of active balancing, it is not yet working across
+> nodes with the configuration you're on.
+>
+> To get some idea of our worst case SMT performance (-j8), would
+> it be possible to do -j8 and -j64 runs with HT turned off?
 
-No.  The locale should not have anything to do with the appropriate
-byte sequences need to make the terminal display characters.
+sure.
 
-It is wrong that LANG must have a different value depending on whether
-I log in using a DEC VT100 or a Gnome Terminal, even though I wish to
-see exactly the same language, dialect, messages, number formats,
-currency formats, dates and times.
+results.2.6.3-rc3-mm1 + SMT:
+Average Half Load Run:
+Elapsed Time 113.008
+User Time 742.786
+System Time 90.65
+Percent CPU 738
+Context Switches 28062.6
+Sleeps 24571.8
 
-It is acceptable that LANG may control the encoding stored in files
-and filenames, but this should be independent of the terminal type.
+Average Optimum Load Run:
+Elapsed Time 79.278
+User Time 1007.69
+System Time 107.388
+Percent CPU 1407
+Context Switches 33355
+Sleeps 32720
 
-It is especially wrong that libraries which should be
-locale-independent - such as curses, slang and readline - must read
-the LANG variable in addition to TERM.  If curses does not read and
-parse LANG, simple things like the box around a dialog will not line
-up correctly.  This is wrong - it is a terminal characteristic.
 
--- Jamie
+2.6.3-rc3-mm1 no SMT:
+Average Half Load Run:
+Elapsed Time 133.51
+User Time 799.268
+System Time 92.784
+Percent CPU 669
+Context Switches 19340.8
+Sleeps 24427.4
+
+Average Optimum Load Run:
+Elapsed Time 81.486
+User Time 1006.37
+System Time 106.952
+Percent CPU 1366.8
+Context Switches 33939
+Sleeps 32453.4
+
+
+Con

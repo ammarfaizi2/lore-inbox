@@ -1,54 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317363AbSH0WOy>; Tue, 27 Aug 2002 18:14:54 -0400
+	id <S315483AbSH0WU1>; Tue, 27 Aug 2002 18:20:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317373AbSH0WOx>; Tue, 27 Aug 2002 18:14:53 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:11789
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S317363AbSH0WOw>; Tue, 27 Aug 2002 18:14:52 -0400
-Date: Tue, 27 Aug 2002 15:17:31 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: linux-kernel@vger.kernel.org
-cc: linux-ide@vger.kernel.org
-Subject: ide-2.4.20-pre4-ac2.patch
-Message-ID: <Pine.LNX.4.10.10208271503530.24156-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S315214AbSH0WU0>; Tue, 27 Aug 2002 18:20:26 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:3851 "EHLO www.home.local")
+	by vger.kernel.org with ESMTP id <S315483AbSH0WU0>;
+	Tue, 27 Aug 2002 18:20:26 -0400
+Date: Wed, 28 Aug 2002 00:24:40 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Christoph Hellwig <hch@infradead.org>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] XFree v4.2.x DRM/DRI Support for 2.4.20-pre4
+Message-ID: <20020827222440.GC28513@alpha.home.local>
+References: <200208272247.26637.m.c.p@gmx.net> <20020827222740.A6591@infradead.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020827222740.A6591@infradead.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Aug 27, 2002 at 10:27:40PM +0100, Christoph Hellwig wrote:
+> On Tue, Aug 27, 2002 at 10:54:50PM +0200, Marc-Christian Petersen wrote:
+> > Hi there,
+> > 
+> > this adds DRM/DRI Support for recent versions of XFree, f.e. v4.2.0 with a 
+> > slight modification. If you select SiS DRM Module, you also have to select 
+> > FrameBuffer SiS support otherwise it will result in unresolved symbols or 
+> > linking failure.
+> 
+> Don't do this.   Alan already has a sane version in his tree which I've made
+> ready for and sent to Marcelo.  It wouldn't hurt if you read lkml..
+> 
+> The patch you posted is the crap directly from the XFfree repo and backs out
+> kernel changes.  It might be enough for a random collection of junk patches
+> but certainly does not meet the quality criteria for official kernels.
 
-This is out and has been forwarded to AC for review.
+Christoph,
 
-Joel Becker
-Nick Bellinger
-Alan Cox
-Peter Denison
-Jeff Garzik
-Benjamin Herrensch
-Roman Zippel
-Alexander Viro
+why do you always feel the need to discourage people who offer their
+contribution ? Your two first sentences are quite enough to let Marc-Christian
+understand that his patch isn't as good as YOURS. The rest of the mail is pure
+gratuitous insults, just like every other mail you send these times (except
+those in which you compliment yourself). Since a few weeks, each time I see
+a mail from you, before opening it, I ask to myself "well, who is he killing
+today ?".
 
-Others helped with ideas and concepts.
+Perhaps you're fed up with crap in the kernel, but IMHO that's not this way
+that you'll get rid of it. This list is a developper's list, so it tends to
+be constructive by nature. So please be a little more tolerant with other
+people, particularly when they are contributing.
 
-This should work on all archs in IDE, there may be other issues which
-causes compile failures but should not be related to IDE.
-
-http://www.kernel.org/pub/linux/kernel/people/hedrick/ide-2.4.20/ide-2.4.20-pre4-ac2.patch.bz2
-http://www.kernel.org/pub/linux/kernel/people/hedrick/ide-2.4.20/ide-2.4.20-pre4-ac2.patch.gz
-http://www.linuxdiskcert.org/ide-2.4.20-pre4-ac2.patch.bz2
-
-http://www.kernel.org/pub/linux/kernel/people/hedrick/ide-2.5.32/
-
-This shall have something in it soon, as I am reviewing the pieces to pick
-up and play catch up in 2.5 learning curve as to beat the Halloween
-DEAD-DATE.
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-
-
+Thanks for your attention,
+Willy
 

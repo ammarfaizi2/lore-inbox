@@ -1,109 +1,152 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264883AbRGIUV3>; Mon, 9 Jul 2001 16:21:29 -0400
+	id <S264927AbRGIU1T>; Mon, 9 Jul 2001 16:27:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264910AbRGIUVW>; Mon, 9 Jul 2001 16:21:22 -0400
-Received: from sammy.netpathway.com ([208.137.139.2]:9989 "EHLO
+	id <S264932AbRGIU1K>; Mon, 9 Jul 2001 16:27:10 -0400
+Received: from sammy.netpathway.com ([208.137.139.2]:33797 "EHLO
 	sammy.netpathway.com") by vger.kernel.org with ESMTP
-	id <S264883AbRGIUVO>; Mon, 9 Jul 2001 16:21:14 -0400
-Message-ID: <3B4A1234.4CDA9C20@netpathway.com>
-Date: Mon, 09 Jul 2001 15:21:08 -0500
+	id <S264927AbRGIU1B>; Mon, 9 Jul 2001 16:27:01 -0400
+Message-ID: <3B4A138F.EA586C67@netpathway.com>
+Date: Mon, 09 Jul 2001 15:26:55 -0500
 From: "Gary White (Network Administrator)" <admin@netpathway.com>
 Organization: Internet Pathway
 X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>, linux-kernel@vger.kernel.org,
-        "Mohammad A. Haque" <mhaque@haque.net>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+CC: linux-kernel@vger.kernel.org
 Subject: Re: VMWare crashes
-In-Reply-To: <82677BD2F89@vcnet.vc.cvut.cz>
+In-Reply-To: <82677BD2F89@vcnet.vc.cvut.cz> <3B4A0133.D7270B6D@netpathway.com> <20010709221247.A4040@vana.vc.cvut.cz>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 X-scanner: scanned by Inflex 0.1.5c - (http://www.inflex.co.za/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just happened again. This only happens when there is a lot
-of network activity. This time I was downloading an mp3 from
-the newsgroups. During normal day to day activity it does not
-die. 
+Thanks,
 
-
-Unable to handle kernel NULL pointer dereference at virtual address 00000070
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<e1af9639>]
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00013282
-eax: 00000000   ebx: 00000000   ecx: dae7c000   edx: 00000000
-esi: dfe42864   edi: dfe46c10   ebp: dfe46bdc   esp: dae7deb0
-ds: 0018   es: 0018   ss: 0018
-Process vmware (pid: 371, stackpage=dae7d000)
-Stack: dca4e804 00000000 dca4e800 dfe4212c c01283d2 c1887690 de21d584 c18dac00
-       dfe425c4 dfe425c4 dfe4212c e1af7ffe dfe46c30 d83d6a5c 00003202 dca4e804
-       00000000 dca4e800 dfe4212c e1af8546 dca4e804 d83d6a5c dfe427bc c020a91f
-Call Trace: [<c01283d2>] [<c020a91f>] [<c013e85a>] [<c0130696>] [<c0106e33>]
-Code: 8b 42 70 83 f8 01 74 0a ff 4a 70 0f 94 c0 84 c0 74 0c 83 c4
-
->>EIP; e1af9639 <[vmnet]VNetBridgeReceiveFromVNet+191/20c>   <=====
-Trace; c01283d2 <kfree+1d2/270>
-Trace; c020a91f <__kfree_skb+12f/140>
-Trace; c013e85a <select_bits_free+a/10>
-Trace; c0130696 <sys_write+96/d0>
-Trace; c0106e33 <system_call+33/38>
-Code;  e1af9639 <[vmnet]VNetBridgeReceiveFromVNet+191/20c>
-0000000000000000 <_EIP>:
-Code;  e1af9639 <[vmnet]VNetBridgeReceiveFromVNet+191/20c>   <=====
-   0:   8b 42 70                  mov    0x70(%edx),%eax   <=====
-Code;  e1af963c <[vmnet]VNetBridgeReceiveFromVNet+194/20c>
-   3:   83 f8 01                  cmp    $0x1,%eax
-Code;  e1af963f <[vmnet]VNetBridgeReceiveFromVNet+197/20c>
-   6:   74 0a                     je     12 <_EIP+0x12> e1af964b <[vmnet]VNetBridgeReceiveFromVNet+1a3/20c>
-Code;  e1af9641 <[vmnet]VNetBridgeReceiveFromVNet+199/20c>
-   8:   ff 4a 70                  decl   0x70(%edx)
-Code;  e1af9644 <[vmnet]VNetBridgeReceiveFromVNet+19c/20c>
-   b:   0f 94 c0                  sete   %al
-Code;  e1af9647 <[vmnet]VNetBridgeReceiveFromVNet+19f/20c>
-   e:   84 c0                     test   %al,%al
-Code;  e1af9649 <[vmnet]VNetBridgeReceiveFromVNet+1a1/20c>
-  10:   74 0c                     je     1e <_EIP+0x1e> e1af9657 <[vmnet]VNetBridgeReceiveFromVNet+1af/20c>
-Code;  e1af964b <[vmnet]VNetBridgeReceiveFromVNet+1a3/20c>
-  12:   83 c4 00                  add    $0x0,%esp
-
+I will apply the patch and see if it cures my problem.
 
 Petr Vandrovec wrote:
 > 
-> On  9 Jul 01 at 9:49, Gary White (Network Administr wrote:
-> > I realize this may be a VMWare problem, but I just waited to
-> > bring this to the attention of the developers in case it was related
-> > to the kernel and to also see if anyone else is having the same
-> > problem. VMWare dies under load with all kernel versions up to and
-> > including ac versions after 2.4.6. Kernel version up to and including
-> > 2.4.5-ac15 I know all run fine. Somewhere between 2.4.5-ac15 and 2.4.6
-> > is where the problem started. I have backed up to 2.4.5 now and VMWare
-> > is rock solid.
+> On Mon, Jul 09, 2001 at 02:08:35PM -0500, Gary White (Network Administrator) wrote:
+> > Here are the results of ksymoops...
+> >
+> > Code;  e1af85e1 <[vmnet]VNetHubCycleDetect+69/7c>   <=====
+> >    0:   8b 42 70                  mov    0x70(%edx),%eax   <=====
 > 
-> > Unable to handle kernel NULL pointer dereference at virtual address 00000070
-> >  printing eip:
-> > e1af85e1
-> > Call Trace: [<c0203fe4>] [<c0203fe4>] [<c011722f>] [<c012eb26>] [<c0106dc3>]
+> Thanks, meanwhile I found simillar report on VMware newsgroups, so there must be
+> something really real (it was with example how to reproduce it, so I received
+> fine oops too).
 > 
-> Could you feed these oopeses through ksymoops?
+> Following patch fixes oopses, at least for me. Due to some changes in tasklets
+> and/or in networking there is now very large quantum of skbs in flight from
+> one part of vmnet (packet written to /dev/vmnet*) through netif_rx to another
+> (packet received on eth0 interface). This trigerred 'history buffer overflow'
+> message, which then started cleaning history buffer. And if two CPUs started
+> cleaning at the same moment, one of them did kfree_skb(NULL) sooner or later...
 > 
-> I'm now running vmware 24h/day with linux and win98 as guest, doing
-> network transfers between host and guest, and I did not noticed any problems.
+> So only increasing VNET_BRIDGE_HISTORY from 8 to 48 fixes problem, but as
+> I do not want oopses, rest of this patch just fixes oopses themselves. If
+> you'll apply patch except VNET_BRIDGE_HISTORY line, it will work, but you'll
+> get large stream of 'history buffer full' messages when doing TCP transfers
+> between guest and host. (48 is apparently enough for dual PIII/800, I did
+> not tested lower values (48 is next multiple of 8 which ends on 8,
+> this saved one keystroke and so on...))
 > 
-> It worked fine with 2.4.5-ac24 from wednesday to sunday, and yesterday
-> I upgraded to 2.4.6-ac2, and it still works. Kernel compiled with
-> Debian's gcc-3.0-3 or gcc-3.0-4, Asus A7V, KT133, 1GHz Athlon, and
-> Chaintech 6BTM, 440BX, 300MHz Celeron... I did not tested Linus's kernel
-> for more than 6 months now, so I cannot tell whether it works with Linus's
-> 2.4.6, or not...
+> For those unfamiliar with patch (I'm sure there are no on linux-kernel,
+> but there can be some in VMware newsgroups) I put updated vmnet.tar.gz
+> at ftp://platan.vc.cvut.cz/pub/vmware/vmnet-204-for-2.4.6.tar.gz
+> 
 >                                         Best regards,
->                                             Petr Vandrovec
->                                             vandrove@vc.cvut.cz
+>                                                 Petr Vandrovec
+>                                                 vandrove@vc.cvut.cz
 > 
+> diff -urN vmnet-only.orig/bridge.c vmnet-only/bridge.c
+> --- vmnet-only.orig/bridge.c    Thu Apr 26 19:59:28 2001
+> +++ vmnet-only/bridge.c Mon Jul  9 21:50:36 2001
+> @@ -44,7 +44,7 @@
+>  #include "vnetInt.h"
+> 
+> 
+> -#define VNET_BRIDGE_HISTORY    8
+> +#define VNET_BRIDGE_HISTORY    48
+> 
+>  typedef struct VNetBridge VNetBridge;
+> 
+> @@ -58,6 +58,7 @@
+>     Bool                     savedPromisc;
+>     struct sk_buff          *history[VNET_BRIDGE_HISTORY];
+>     VNetPort                 port;
+> +   spinlock_t              historyLock;
+>  };
+> 
+> 
+> @@ -130,6 +131,7 @@
+>        goto out;
+>     }
+>     memset(bridge, 0, sizeof *bridge);
+> +   spin_lock_init(&bridge->historyLock);
+>     memcpy(bridge->name, devName, sizeof bridge->name);
+> 
+>     /*
+> @@ -391,6 +393,8 @@
+>          unsigned long flags;
+>          int i;
+>          SKB_INCREF(clone);
+> +
+> +        spin_lock_irqsave(&bridge->historyLock, flags);
+>          // XXX need to lock history
+>          for (i = 0; i < VNET_BRIDGE_HISTORY; i++) {
+>             if (bridge->history[i] == NULL) {
+> @@ -417,11 +421,15 @@
+>             for (i = 0; i < VNET_BRIDGE_HISTORY; i++) {
+>                struct sk_buff *s = bridge->history[i];
+>                bridge->history[i] = NULL;
+> -              KFREE_SKB(s, FREE_WRITE);
+> +              if (s) {
+> +                 spin_unlock_irqrestore(&bridge->historyLock, flags);
+> +                 KFREE_SKB(s, FREE_WRITE);
+> +                 spin_lock_irqsave(&bridge->historyLock, flags);
+> +              }
+>             }
+>             bridge->history[0] = clone;
+>          }
+> -
+> +         spin_unlock_irqrestore(&bridge->historyLock, flags);
+>          clone->dev = dev;
+>          clone->protocol = eth_type_trans(clone, dev);
+>          save_flags(flags);
+> @@ -773,6 +781,7 @@
+>  {
+>     VNetBridge *bridge = *(VNetBridge**)&((struct sock *)pt->data)->protinfo;
+>     int i;
+> +   unsigned long flags;
+> 
+>     if (bridge->dev == NULL) {
+>        LOG(3, (KERN_DEBUG "bridge-%s: received %d closed\n",
+> @@ -782,11 +791,13 @@
+>     }
+> 
+>     // XXX need to lock history
+> +   spin_lock_irqsave(&bridge->historyLock, flags);
+>     for (i = 0; i < VNET_BRIDGE_HISTORY; i++) {
+>        struct sk_buff *s = bridge->history[i];
+>        if (s != NULL &&
+>           (s == skb || SKB_IS_CLONE_OF(skb, s))) {
+>          bridge->history[i] = NULL;
+> +        spin_unlock_irqrestore(&bridge->historyLock, flags);
+>          KFREE_SKB(s, FREE_WRITE);
+>          LOG(3, (KERN_DEBUG "bridge-%s: receive %d self %d\n",
+>                  bridge->name, (int) skb->len, i));
+> @@ -795,6 +806,7 @@
+>          return 0;
+>        }
+>     }
+> +   spin_unlock_irqrestore(&bridge->historyLock, flags);
+> 
+>  #  if LOGLEVEL >= 4
+>     {
 
 -- 
 Gary White               Network Administrator

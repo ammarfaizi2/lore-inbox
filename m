@@ -1,37 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266993AbSLQTaZ>; Tue, 17 Dec 2002 14:30:25 -0500
+	id <S266584AbSLQT21>; Tue, 17 Dec 2002 14:28:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266998AbSLQTaZ>; Tue, 17 Dec 2002 14:30:25 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:26297 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S266993AbSLQTaR>;
-	Tue, 17 Dec 2002 14:30:17 -0500
-Date: Tue, 17 Dec 2002 11:31:06 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.52-mjb1 (scalability / NUMA patchset)
-Message-ID: <162390000.1040153466@flay>
-In-Reply-To: <20021217174958.GY2690@holomorphy.com>
-References: <19270000.1038270642@flay> <134580000.1039414279@titus> <32230000.1039502522@titus> <568990000.1040112629@titus> <20021217174958.GY2690@holomorphy.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S266637AbSLQT21>; Tue, 17 Dec 2002 14:28:27 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:63238 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S266584AbSLQT20>; Tue, 17 Dec 2002 14:28:26 -0500
+Date: Tue, 17 Dec 2002 11:37:04 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "H. Peter Anvin" <hpa@transmeta.com>
+cc: Ulrich Drepper <drepper@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Matti Aarnio <matti.aarnio@zmailer.org>,
+       Hugh Dickins <hugh@veritas.com>, Dave Jones <davej@codemonkey.org.uk>,
+       Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Intel P6 vs P7 system call performance
+In-Reply-To: <3DFF7951.6020309@transmeta.com>
+Message-ID: <Pine.LNX.4.44.0212171132530.1095-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> The patchset contains mainly scalability and NUMA stuff, and
->> anything else that stops things from irritating me. It's meant
->> to be pretty stable, not so much a testing ground for new stuff.
->> I'd be very interested in feedback from other people running
->> large SMP or NUMA boxes.
->> http://www.aracnet.com/~fletch/linux/2.5.52/patch-2.5.52-mjb1.bz2
-> 
-> pfn_to_nid() got lots of icache misses. Try using a macro.
 
-How much difference does this make?
 
-M.
+On Tue, 17 Dec 2002, H. Peter Anvin wrote:
+>
+> Let's see... it works fine on UP and on *most* SMP, and on the ones
+> where it doesn't work you just fill in a system call into the vsyscall
+> slot.  It just means that gettimeofday() needs a different vsyscall slot.
+
+The thing is, gettimeofday() isn't _that_ special. It's just not worth a
+vsyscall of it's own, I feel. Where do you stop? Do we do getpid() too?
+Just because we can?
+
+This is especially true since the people who _really_ might care about
+gettimeofday() are exactly the people who wouldn't be able to use the fast
+user-space-only version.
+
+How much do you think gettimeofday() really matters on a desktop? Sure, X
+apps do gettimeofday() calls, but they do a whole lot more of _other_
+calls, and gettimeofday() is really far far down in the noise for them.
+The people who really call for gettimeofday() as a performance thing seem
+to be database people who want it as a timestamp. But those are the same
+people who also want NUMA machines which don't necessarily have
+synchronized clocks.
+
+		Linus
 

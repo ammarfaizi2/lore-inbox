@@ -1,82 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261951AbUDZWxJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263183AbUDZW4W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261951AbUDZWxJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 18:53:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262381AbUDZWxJ
+	id S263183AbUDZW4W (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 18:56:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263307AbUDZW4W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 18:53:09 -0400
-Received: from [61.172.126.219] ([61.172.126.219]:9476 "EHLO j6t1p0")
-	by vger.kernel.org with ESMTP id S261951AbUDZWxC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 18:53:02 -0400
-From: hcgroup_7@eyou.com
-Subject: RE:locks  introduce
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/alternative;
- boundary="=_NextPart_2rfkindysadvnqw3nerasdf";
-	charset="GB2312"
-MIME-Version: 1.0
-Reply-To: hcgroup_7@eyou.com
-Date: Tue, 27 Apr 2004 06:56:19 +0800
-X-Priority: 1
-X-Library: Indy 9.0.3-B
-Message-Id: <S261951AbUDZWxC/20040426225302Z+272@vger.kernel.org>
+	Mon, 26 Apr 2004 18:56:22 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:690 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263183AbUDZW4V
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Apr 2004 18:56:21 -0400
+Date: Mon, 26 Apr 2004 23:56:20 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Grzegorz Kulewski <kangur@polcom.net>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       raven@themaw.net
+Subject: Re: 2.6.6-rc2-bk3 (and earlier?) mount problem (?)
+Message-ID: <20040426225620.GP17014@parcelfarce.linux.theplanet.co.uk>
+References: <20040426013944.49a105a8.akpm@osdl.org> <Pine.LNX.4.58.0404270105200.2304@donald.themaw.net> <Pine.LNX.4.58.0404261917120.24825@alpha.polcom.net> <Pine.LNX.4.58.0404261102280.19703@ppc970.osdl.org> <Pine.LNX.4.58.0404262350450.3003@alpha.polcom.net> <Pine.LNX.4.58.0404261510230.19703@ppc970.osdl.org> <Pine.LNX.4.58.0404270034110.4469@alpha.polcom.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0404270034110.4469@alpha.polcom.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format
+On Tue, Apr 27, 2004 at 12:38:53AM +0200, Grzegorz Kulewski wrote:
+> On Mon, 26 Apr 2004, Linus Torvalds wrote:
+> > Try turning off MD first. Then quota, and if neither of those matters, 
+> > start tuning off the individual filesystem drivers (reiser, xfs).
+> 
+> Yes, when I turned off MD and DM it started to work. Thanks. Can I help 
+> more to track the problem down? (I currently have no MD or DM volumes in 
+> my system - I just wanted to start experimenting with them...)
 
---=_NextPart_2rfkindysadvnqw3nerasdf
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-=20
-
-This mail is very important,please forward it to  the general manager of=
- your=20
-company directly,thank you!
-
-Dear Sir/Madam,
-Wenzhou HCI Locks Industry Co,.Ltd  bought one main state-owned fingerpr=
-int products=20
-factory a month ago .Now we have set up a whole locks production lines ,=
-from=20
-camlocks  to auto locks . Our target is turn HCI group into the largest =
-locks=20
-producer in China .Please make time to browse our web ,to see :
-http://fingers.vip.cn/
-
-If you need sample ,please tell me in time .Thank you. If you have time =
-,welcome to=20
-China.
-
-Kind regards,
-Mark Chung
-Wenzhou HCI Locks Industry Co,.Ltd
-Production Base :Wenzhou, Zhejiang ,China
-Tel: +86 21 57157408 57157409  Fax :+86 21 57157408=20
-E-mail: hci_2@eyou.com   hcc_3@eyou.com=20
-http://fingers.vip.cn/
-
-
-
-
---=_NextPart_2rfkindysadvnqw3nerasdf
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-..............
-
-
-
-##################################################################
-#=B1=BE=D3=CA=BC=FE=D3=C9=A1=BE=C9=CC=D6=DB@=B9=E3=B8=E6=D6=B1=D3=CA=CF=B5=
-=CD=B3=A1=BF=B2=E2=CA=D4=B0=E6=B7=A2=CB=CD=A3=AC=BE=DF=CC=E5=C4=DA=C8=DD=
-=D3=C9=B7=A2=CB=CD=D5=DF=B8=BA=D4=F0########
-#=BB=B6=D3=AD=C3=E2=B7=D1=CF=C2=D4=D8=C9=CC=D6=DB@=CD=F8=C2=E7=D3=AA=CF=FA=
-=CF=B5=C1=D0=C8=ED=BC=FE(http://www.bytesky.com)##########
-##################################################################
-
-..............
-
---=_NextPart_2rfkindysadvnqw3nerasdf--
+Add
+	printk("claim: %d:%d %p -> %d\n",
+		MAJOR(bdev->bd_dev), MINOR(bdev->bd_dev), holder, res);
+in the very end of fs/block_dev.c::bd_claim() (just before return) and
+	printk("release: %d:%d\n", 
+		MAJOR(bdev->bd_dev), MINOR(bdev->bd_dev));
+in bd_release() (same file).

@@ -1,56 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262983AbUJ1Lma@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262980AbUJ1Lmb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262983AbUJ1Lma (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 07:42:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262981AbUJ1LlV
+	id S262980AbUJ1Lmb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 07:42:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262974AbUJ1LlF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 07:41:21 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:59033 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S262982AbUJ1Ljd (ORCPT
+	Thu, 28 Oct 2004 07:41:05 -0400
+Received: from colin2.muc.de ([193.149.48.15]:25361 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S262980AbUJ1Lhs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 07:39:33 -0400
-Date: Thu, 28 Oct 2004 13:39:03 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: James Bruce <bruce@andrew.cmu.edu>
-cc: Linus Torvalds <torvalds@osdl.org>, Roman Zippel <zippel@linux-m68k.org>,
-       Andrea Arcangeli <andrea@novell.com>,
-       Larry McVoy <lm@work.bitmover.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BK kernel workflow
-In-Reply-To: <4180B9E9.3070801@andrew.cmu.edu>
-Message-ID: <Pine.GSO.4.61.0410281338210.7058@waterleaf.sonytel.be>
-References: <Pine.LNX.4.58.0410191510210.2317@ppc970.osdl.org>
- <20041023161253.GA17537@work.bitmover.com> <4d8e3fd304102403241e5a69a5@mail.gmail.com>
- <20041024144448.GA575@work.bitmover.com> <4d8e3fd304102409443c01c5da@mail.gmail.com>
- <20041024233214.GA9772@work.bitmover.com> <20041025114641.GU14325@dualathlon.random>
- <1098707342.7355.44.camel@localhost.localdomain> <20041025133951.GW14325@dualathlon.random>
- <20041025162022.GA27979@work.bitmover.com> <20041025164732.GE14325@dualathlon.random>
- <Pine.LNX.4.58.0410251017010.27766@ppc970.osdl.org>
- <Pine.LNX.4.61.0410252350240.17266@scrub.home> <Pine.LNX.4.58.0410251732500.427@ppc970.osdl.org>
- <Pine.LNX.4.61.0410270223080.877@scrub.home> <Pine.LNX.4.58.0410261931540.28839@ppc970.osdl.org>
- <4180B9E9.3070801@andrew.cmu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 28 Oct 2004 07:37:48 -0400
+Date: 28 Oct 2004 13:37:44 +0200
+Date: Thu, 28 Oct 2004 13:37:44 +0200
+From: Andi Kleen <ak@muc.de>
+To: Prasanna S Panchamukhi <prasanna@in.ibm.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       Andrew Morton <akpm@osdl.org>, suparna@in.ibm.com,
+       dprobes@www-124.southbury.usf.ibm.com
+Subject: Re: [0/3] PATCH Kprobes for x86_64- 2.6.9-final
+Message-ID: <20041028113744.GA82042@muc.de>
+References: <20041028113208.GA11182@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041028113208.GA11182@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Oct 2004, James Bruce wrote:
-> 3(d) Notwithstanding  any  other  terms  in  this  License, this License is
-> not available to You if You and/or your employer develop,  produce, sell,
-> and/or resell a product which contains substantially similar capabilities of
-> the  BitKeeper Software, or, in the reasonable opinion of BitMover, competes
-> with the BitKeeper Software.
+On Thu, Oct 28, 2004 at 05:02:08PM +0530, Prasanna S Panchamukhi wrote:
+> Hi,
+> 
+> Below are the Kprobes patches ported to x86_64 architecture.
+> I have updated these patches with suggestions from Andi Kleen.
+> Thanks Andi for reviewing and providing your feedback.
+> These patches can be applied over 2.6.9-final. Please
+> see the description in the individual patches.
+> 
+> Please review and provide your feedback.
 
-Hence all the Linux people at IBM pay for a BK license, since IBM does
-ClearCase these days...
+The patch is not ready to be applied yet. You didn't address
+some issues from the last review.
 
-Gr{oetje,eeting}s,
+Like I still would like to have the page fault notifier
+completely moved out of the fast path into no_context 
+(that i386 has it there is also wrong). Adding kprobe_runn 
+doesn't make a difference.
 
-						Geert
+And the jprobe_return_end change is wrong, my suggestion
+was to move it into the inline assembler statement. Adding asmlinkage 
+doesn't help at all 
+(I think i386 gets this wrong too) 
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-Andi

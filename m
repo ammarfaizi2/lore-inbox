@@ -1,33 +1,68 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316972AbSEWSEG>; Thu, 23 May 2002 14:04:06 -0400
+	id <S316973AbSEWSHE>; Thu, 23 May 2002 14:07:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316974AbSEWSEF>; Thu, 23 May 2002 14:04:05 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:36369 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S316972AbSEWSEE>; Thu, 23 May 2002 14:04:04 -0400
-Date: Thu, 23 May 2002 20:03:57 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: "Gryaznova E." <grev@namesys.botik.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IDE problem: linux-2.5.17
-Message-ID: <20020523180357.GA725@louise.pinerecords.com>
-In-Reply-To: <3CECF59B.D471F505@namesys.botik.ru> <3CECFA15.8040707@evision-ventures.com> <3CED2B73.ABA3C95F@namesys.botik.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.99i
-X-OS: GNU/Linux 2.2.21 SMP
-X-Architecture: sparc
-X-Uptime: 21:50
+	id <S316974AbSEWSHD>; Thu, 23 May 2002 14:07:03 -0400
+Received: from freeside.toyota.com ([63.87.74.7]:44552 "EHLO
+	freeside.toyota.com") by vger.kernel.org with ESMTP
+	id <S316973AbSEWSHD>; Thu, 23 May 2002 14:07:03 -0400
+Message-ID: <3CED2FB2.9080804@lexus.com>
+Date: Thu, 23 May 2002 11:06:42 -0700
+From: J Sloan <jjs@lexus.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020522
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bill Davidsen <davidsen@tmr.com>
+CC: "Mohammad A. Haque" <mhaque@haque.net>, linux-kernel@vger.kernel.org
+Subject: Re: ip alias and default outgoing interface
+In-Reply-To: <Pine.LNX.3.96.1020523101028.11249B-100000@gatekeeper.tmr.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have 40 wires cable. When ide=nodma is passed to 2.5.17 kernel -
-> kernel boots. Am I correct that it is not possible to have DMA
-> on with such cable? Is there any reason for doing that?
+I'm seeing also - this is with 2.4.19-pre3aa2 -
+and I know I saw it with earlier 2.4 kernels.
+I just checked and I'm seeing it on my
+workstation here, running 2.4.19-pre8-ac5.
 
-40-conductor IDE cables are capable of transfering data
-in DMA modes up to udma2, but no faster.
+I'd have a working ethernet interface, with
+a functional default route - now if I bring up
+a virtual address on the same ethernet
+device, all outgoing traffic from that point
+on emanates from the IP of the new virtual
+interface - which created some problems
+if there are firewall rules based on IP addr.
 
-T.
+I know there is some way to fix this with the
+advanced routing features, but I hadn't time
+to look into it until now - and the above does
+seem to be the default behavior.
+
+Joe
+
+Bill Davidsen wrote:
+
+>On Wed, 22 May 2002, Mohammad A. Haque wrote:
+>
+>  
+>
+>>I've got a setup where I have one ethernet card and multiple ips 
+>>assigned using ip alias.
+>>
+>>i've noticed that sometimes out going traffic goes out using the ip of 
+>>the last interface I brought up.
+>>
+>>Is this supposed to happen? How do I make it so that the default gw 
+>>interface is used?
+>>    
+>>
+>
+>Time to tell us which kernel you run. I haven't seen this with 2.4.recent,
+>but most of the connections are either incoming or explicitly SNET'd.
+>
+>  
+>
+
+
+

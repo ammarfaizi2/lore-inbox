@@ -1,56 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261741AbTFHMjS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jun 2003 08:39:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261743AbTFHMjS
+	id S261775AbTFHNGH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jun 2003 09:06:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261785AbTFHNGH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jun 2003 08:39:18 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:36292 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261741AbTFHMjQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jun 2003 08:39:16 -0400
-Date: Sun, 8 Jun 2003 14:52:49 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Christoph Hellwig <hch@infradead.org>, lord@sgi.com, linux-xfs@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5.70-mm5: XFS compile error if CONFIG_SYSCTL && !CONFIG_PROC_FS
-Message-ID: <20030608125249.GE16164@fs.tum.de>
-References: <20030607140844.GM15311@fs.tum.de> <20030608120159.A450@infradead.org>
+	Sun, 8 Jun 2003 09:06:07 -0400
+Received: from [211.167.76.68] ([211.167.76.68]:15595 "HELO soulinfo")
+	by vger.kernel.org with SMTP id S261775AbTFHNGG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jun 2003 09:06:06 -0400
+Date: Sun, 8 Jun 2003 21:19:28 +0800
+From: hugang <hugang@soulinfo.com>
+To: linux-kernel@vger.kernel.org
+Subject: fix oops in driver/serial/core.c
+Message-Id: <20030608211928.3d425b56.hugang@soulinfo.com>
+X-Mailer: Sylpheed version 0.8.10claws13 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030608120159.A450@infradead.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+ =?ISO-8859-1?Q?=CA=D5=BC=FE=C8=CB=A3=BA:?= linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 08, 2003 at 12:01:59PM +0100, Christoph Hellwig wrote:
-> On Sat, Jun 07, 2003 at 04:08:44PM +0200, Adrian Bunk wrote:
-> > I'm getting the following compile error in 2.5.70-mm5 if CONFIG_SYSCTL 
-> > && !CONFIG_PROC_FS:
-> > 
-> > <--  snip  -->
-> > 
-> > ...
-> >   CC      fs/xfs/linux/xfs_sysctl.o
-> > fs/xfs/linux/xfs_sysctl.c: In function `xfs_stats_clear_proc_handler':
-> > fs/xfs/linux/xfs_sysctl.c:61: `xfsstats' undeclared (first use in this function)
-> > fs/xfs/linux/xfs_sysctl.c:61: (Each undeclared identifier is reported only once
-> > fs/xfs/linux/xfs_sysctl.c:61: for each function it appears in.)
-> > make[2]: *** [fs/xfs/linux/xfs_sysctl.o] Error 1
-> 
-> This should fix it:
->...
+Hell all:
 
-Thanks, I can confirm your patch fixes the problem.
+Fix bug in 2.5.70.
 
-cu
-Adrian
+--- linux-2.5.70/drivers/serial/core.c.old	Sun Jun  8 21:11:49 2003
++++ linux-2.5.70/drivers/serial/core.c	Sun Jun  8 21:12:06 2003
+@@ -2189,11 +2189,11 @@
+ void uart_unregister_driver(struct uart_driver *drv)
+ {
+ 	struct tty_driver *p = drv->tty_driver;
+-	drv->tty_driver = NULL;
+ 	tty_unregister_driver(p);
+ 	kfree(drv->state);
+ 	kfree(drv->tty_driver->termios);
+ 	kfree(drv->tty_driver);
++	drv->tty_driver = NULL;
+ }
+ 
+ struct tty_driver *uart_console_device(struct console *co, int *index)
+
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Hu Gang / Steve
+Email        : huagng@soulinfo.com, steve@soulinfo.com
+GPG FinePrint: 4099 3F1D AE01 1817 68F7  D499 A6C2 C418 86C8 610E
+http://soulinfo.com/~hugang/HuGang.asc
+ICQ#         : 205800361
+Registered Linux User : 204016

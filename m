@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267289AbTBNCxa>; Thu, 13 Feb 2003 21:53:30 -0500
+	id <S268162AbTBNC6y>; Thu, 13 Feb 2003 21:58:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268160AbTBNCxa>; Thu, 13 Feb 2003 21:53:30 -0500
-Received: from ool-4351594a.dyn.optonline.net ([67.81.89.74]:1286 "EHLO
-	badula.org") by vger.kernel.org with ESMTP id <S267289AbTBNCx3>;
-	Thu, 13 Feb 2003 21:53:29 -0500
-Date: Thu, 13 Feb 2003 22:03:13 -0500 (EST)
-From: Ion Badulescu <ionut@badula.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [net drvr] starfire driver update for 2.5.60
-In-Reply-To: <3E4C3AF7.1000203@pobox.com>
-Message-ID: <Pine.LNX.4.44.0302132158160.3318-100000@moisil.badula.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268160AbTBNC6y>; Thu, 13 Feb 2003 21:58:54 -0500
+Received: from sccrmhc02.attbi.com ([204.127.202.62]:16842 "EHLO
+	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
+	id <S268164AbTBNC6J>; Thu, 13 Feb 2003 21:58:09 -0500
+Subject: Re: Synchronous signal delivery..
+From: Keith Adamson <keith.adamson@attbi.com>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030214024046.GA18214@bjl1.jlokier.co.uk>
+References: <Pine.LNX.4.44.0302131120280.2076-100000@home.transmeta.com> 
+	<20030214024046.GA18214@bjl1.jlokier.co.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 13 Feb 2003 22:11:07 -0500
+Message-Id: <1045192268.14703.20.camel@x1-6-00-d0-70-00-74-d1>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Feb 2003, Jeff Garzik wrote:
+trimmed cc list
 
-> Just to add, I think a lot of your patch is obviously useful, and needed.
+> I see that there are several fairly general event sources now:
 > 
-> Can you split it up into digestable chunks?
+> 	- signals
+> 	- epoll events
+> 	- async I/O events
+> 	- posix timers
+> 
+> More events that don't provide enough information:
+> 
+> 	- dnotify details (siginfo doesn't say enough)
+> 	- sigsegv read/write? (siginfo doesn't say enough)
+> 
+> More events that should be accessible but aren't:
+> 
+> 	- vm paging like crazy, please release some memory
+> 
+> Your synchronous signals code effectively makes signals work with
+> select/poll/epoll nicely.  
 
-I can split it as:
+How about also including a connect()/bind() interface so that 
+you can sort of have a "sockets for signals" type interface.  
+This seems like a nice type of interface for synchronization.
+And maybe use send()/recv() instead of read()/write().  Or am 
+I on crack:)
 
--1.3.6+bugfixes (the patch I submitted to the Red Hat bugzilla)
--1.3.7 (VLAN support)
--1.3.9 (64-bit support)
--1.4.1 (NAPI support)
-
-But I'd like to hear first if my previous mail addressed your concerns.  
-BTW, if I didn't make it clear enough: that 4 slot reservation is an
-optimization, not a workaround -- it would work correctly even without it,
-but you'd get really sucky behavior with SG skbuffs.
-
-Ion
-
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
 

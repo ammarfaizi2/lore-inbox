@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129431AbRAKBZC>; Wed, 10 Jan 2001 20:25:02 -0500
+	id <S129584AbRAKBcN>; Wed, 10 Jan 2001 20:32:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129584AbRAKBYw>; Wed, 10 Jan 2001 20:24:52 -0500
-Received: from uucp.gnuu.de ([151.189.0.84]:27912 "EHLO uucp.gnuu.de")
-	by vger.kernel.org with ESMTP id <S129431AbRAKBYm>;
-	Wed, 10 Jan 2001 20:24:42 -0500
-Date: Thu, 11 Jan 2001 02:23:21 +0100
-From: Ulrich Schwarz <uschwarz@gmx.net>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0 vm BUG (ksymoopsed)
-Message-ID: <20010111022321.A4067@fruli.2y.net>
-In-Reply-To: <20010111011328.A2945@fruli.2y.net> <Pine.LNX.4.21.0101102121141.8803-100000@freak.distro.conectiva>
-Mime-Version: 1.0
+	id <S130406AbRAKBcD>; Wed, 10 Jan 2001 20:32:03 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:38919 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129584AbRAKBby>; Wed, 10 Jan 2001 20:31:54 -0500
+Subject: Re: [PATCH] 2.2.18pre21 ide-disk.c for OB800
+To: andre@linux-ide.org (Andre Hedrick)
+Date: Thu, 11 Jan 2001 01:33:08 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), grundler@cup.hp.com (Grant Grundler),
+        linux-kernel@vger.kernel.org, taggart@fc.hp.com, m.ashley@unsw.edu.au
+In-Reply-To: <Pine.LNX.4.10.10101101725070.26556-100000@master.linux-ide.org> from "Andre Hedrick" at Jan 10, 2001 05:28:58 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0101102121141.8803-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Wed, Jan 10, 2001 at 09:21:57PM -0200
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14GWc2-0001QZ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 10, 2001 at 09:21:57PM -0200, Marcelo Tosatti wrote:
+> Okay then are you wanting me to create a struct or bit mask to carry the
+> the device settings/mode that is set before an APM/ACPI event happens.
+> 
+> Regardless that the answer is wrong, somebody/thing has to keep a copy of
+> the device settings, and the case of swapout they get nuked.  Thus a
+> reprobe must happen. yes/no?
 
->> kernel BUG at vmscan.c:452!
->> invalid operand: 0000
-
-> Does reiserfs patch changes vmscan.c ?
-
-No, it doesn't.
-
-It's strange that the console reported vmscan.c:452 whilst
-kern.log reports page_alloc.c:74
-
-So long.
-Ulrich
-
+Quite probably. It just needs to happen before we need to touch the disk. It
+could be we need to mlock something or that the kernel needs to keep it
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

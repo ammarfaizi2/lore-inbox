@@ -1,199 +1,399 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261154AbUKMSi1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261155AbUKMSkn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261154AbUKMSi1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Nov 2004 13:38:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261153AbUKMSi0
+	id S261155AbUKMSkn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Nov 2004 13:40:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261151AbUKMSkn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Nov 2004 13:38:26 -0500
-Received: from fsmlabs.com ([168.103.115.128]:11394 "EHLO musoma.fsmlabs.com")
-	by vger.kernel.org with ESMTP id S261155AbUKMShC (ORCPT
+	Sat, 13 Nov 2004 13:40:43 -0500
+Received: from fsmlabs.com ([168.103.115.128]:11906 "EHLO musoma.fsmlabs.com")
+	by vger.kernel.org with ESMTP id S261163AbUKMShI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Nov 2004 13:37:02 -0500
-Date: Sat, 13 Nov 2004 11:36:47 -0700 (MST)
+	Sat, 13 Nov 2004 13:37:08 -0500
+Date: Sat, 13 Nov 2004 11:36:42 -0700 (MST)
 From: Zwane Mwaikambo <zwane@linuxpower.ca>
 To: Andi Kleen <ak@suse.de>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] Intel thermal monitor for x86_64
-Message-ID: <Pine.LNX.4.61.0411130629190.3062@musoma.fsmlabs.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Dave Jones <davej@redhat.com>, Alan Cox <alan@redhat.com>
+Subject: Re: [PATCH] lockless MCE i386 port
+In-Reply-To: <Pine.LNX.4.61.0411090126190.3047@musoma.fsmlabs.com>
+Message-ID: <Pine.LNX.4.61.0411130627050.3062@musoma.fsmlabs.com>
+References: <Pine.LNX.4.61.0411090126190.3047@musoma.fsmlabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andi, Andrew,
+On Fri, 12 Nov 2004, Zwane Mwaikambo wrote:
 
-Patch adds support for notification of overheating conditions on intel 
-x86_64 processors. Tested on EM64T, test booted on AMD64.
+> Andi fixed the locking issues with respect to printk and MCEs on x86_64, 
+> this is a port of said code with a few small changes due to i386 currently 
+> supporting the extended MCE MSRs on intel processors (also present on 
+> intel x86_64). The addition of hooks allows for the Pentium and P4 MCE 
+> drivers to print additional/extended information. I've also converted the 
+> P4 thermal monitor driver to avoid printing from interrupt context.
+> 
+> Tested on P4 and K7
+> 
+> Signed-off-by: Zwane Mwaikambo <zwane@fsmlabs.com>
+> 
+>  arch/i386/kernel/cpu/mcheck/k7.c  |   68 ++++++++++-----
+>  arch/i386/kernel/cpu/mcheck/mce.c |  109 ++++++++++++++++++++++++-
+>  arch/i386/kernel/cpu/mcheck/mce.h |   53 ++++++++++++
+>  arch/i386/kernel/cpu/mcheck/p4.c  |  165 ++++++++++++++++++++++++++------------
+>  arch/i386/kernel/cpu/mcheck/p5.c  |   27 ++++--
+>  arch/i386/kernel/cpu/mcheck/p6.c  |   66 +++++++++------
+>  6 files changed, 382 insertions(+), 106 deletions(-)
 
-Hardware courtesy of Intel Corporation
+I flipped the printk output for the m.addrl/m.addrh, here is the patch 
+rediffed.
 
- arch/x86_64/Kconfig            |    7 ++
- arch/x86_64/kernel/Makefile    |    1
- arch/x86_64/kernel/entry.S     |    5 +
- arch/x86_64/kernel/i8259.c     |    7 ++
- arch/x86_64/kernel/mce.c       |   12 ++++
- arch/x86_64/kernel/mce_intel.c |  116 +++++++++++++++++++++++++++++++++++++++++
- include/asm-x86_64/mce.h       |    8 ++
- 7 files changed, 155 insertions(+), 1 deletion(-)
-
-Signed-off-by: Zwane Mwaikambo <zwane@linuxpower.ca>
-
-Index: linux-2.6.10-rc1-mm5/include/asm-x86_64/mce.h
+Index: linux-2.6.10-rc1-mm4/arch/i386/kernel/cpu/mcheck/k7.c
 ===================================================================
-RCS file: /home/cvsroot/linux-2.6.10-rc1-mm5/include/asm-x86_64/mce.h,v
+RCS file: /home/cvsroot/linux-2.6.10-rc1-mm4/arch/i386/kernel/cpu/mcheck/k7.c,v
 retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 mce.h
---- linux-2.6.10-rc1-mm5/include/asm-x86_64/mce.h	11 Nov 2004 17:21:48 -0000	1.1.1.1
-+++ linux-2.6.10-rc1-mm5/include/asm-x86_64/mce.h	13 Nov 2004 13:43:39 -0000
-@@ -64,4 +64,12 @@ struct mce_log { 
- #define MCE_GET_LOG_LEN      _IOR('M', 2, int)
- #define MCE_GETCLEAR_FLAGS   _IOR('M', 3, int)
- 
-+#ifdef CONFIG_X86_MCE_INTEL
-+void mce_intel_feature_init(struct cpuinfo_x86 *c);
-+#else
-+static inline void mce_intel_feature_init(struct cpuinfo_x86 *c)
-+{
-+}
-+#endif
-+
- #endif
-Index: linux-2.6.10-rc1-mm5/arch/x86_64/Kconfig
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.10-rc1-mm5/arch/x86_64/Kconfig,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 Kconfig
---- linux-2.6.10-rc1-mm5/arch/x86_64/Kconfig	11 Nov 2004 17:24:12 -0000	1.1.1.1
-+++ linux-2.6.10-rc1-mm5/arch/x86_64/Kconfig	13 Nov 2004 12:57:35 -0000
-@@ -352,6 +352,13 @@ config X86_MCE
- 	   machine check error logs. See
- 	   ftp://ftp.x86-64.org/pub/linux/tools/mcelog
- 
-+config X86_MCE_INTEL
-+	bool "Intel MCE features"
-+	depends on X86_MCE
-+	default y
-+	help
-+	   Additional support for intel specific MCE features such as
-+	   the thermal monitor.
- endmenu
- 
- #
-Index: linux-2.6.10-rc1-mm5/arch/x86_64/kernel/Makefile
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.10-rc1-mm5/arch/x86_64/kernel/Makefile,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 Makefile
---- linux-2.6.10-rc1-mm5/arch/x86_64/kernel/Makefile	11 Nov 2004 17:24:12 -0000	1.1.1.1
-+++ linux-2.6.10-rc1-mm5/arch/x86_64/kernel/Makefile	13 Nov 2004 12:55:31 -0000
-@@ -10,6 +10,7 @@ obj-y	:= process.o semaphore.o signal.o 
- 		setup64.o bootflag.o e820.o reboot.o warmreboot.o quirks.o
- 
- obj-$(CONFIG_X86_MCE)         += mce.o
-+obj-$(CONFIG_X86_MCE_INTEL)	+= mce_intel.o
- obj-$(CONFIG_MTRR)		+= ../../i386/kernel/cpu/mtrr/
- obj-$(CONFIG_ACPI_BOOT)		+= acpi/
- obj-$(CONFIG_X86_MSR)		+= msr.o
-Index: linux-2.6.10-rc1-mm5/arch/x86_64/kernel/entry.S
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.10-rc1-mm5/arch/x86_64/kernel/entry.S,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 entry.S
---- linux-2.6.10-rc1-mm5/arch/x86_64/kernel/entry.S	11 Nov 2004 17:24:12 -0000	1.1.1.1
-+++ linux-2.6.10-rc1-mm5/arch/x86_64/kernel/entry.S	13 Nov 2004 13:02:11 -0000
-@@ -565,6 +565,11 @@ ENTRY(perfctr_interrupt)
- 	apicinterrupt LOCAL_PERFCTR_VECTOR,smp_perfctr_interrupt
- #endif
- 
-+#if defined(CONFIG_X86_MCE_INTEL)
-+ENTRY(thermal_interrupt)
-+	apicinterrupt THERMAL_APIC_VECTOR,smp_thermal_interrupt
-+#endif
-+
- /*
-  * Exception entry points.
-  */ 		
-Index: linux-2.6.10-rc1-mm5/arch/x86_64/kernel/i8259.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.10-rc1-mm5/arch/x86_64/kernel/i8259.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 i8259.c
---- linux-2.6.10-rc1-mm5/arch/x86_64/kernel/i8259.c	11 Nov 2004 17:24:12 -0000	1.1.1.1
-+++ linux-2.6.10-rc1-mm5/arch/x86_64/kernel/i8259.c	13 Nov 2004 14:21:59 -0000
-@@ -491,6 +491,7 @@ void error_interrupt(void);
- void reschedule_interrupt(void);
- void call_function_interrupt(void);
- void invalidate_interrupt(void);
-+void thermal_interrupt(void);
- 
- static void setup_timer(void)
+diff -u -p -B -r1.1.1.1 k7.c
+--- linux-2.6.10-rc1-mm4/arch/i386/kernel/cpu/mcheck/k7.c	9 Nov 2004 21:54:52 -0000	1.1.1.1
++++ linux-2.6.10-rc1-mm4/arch/i386/kernel/cpu/mcheck/k7.c	12 Nov 2004 04:20:38 -0000
+@@ -20,36 +20,54 @@
+ /* Machine Check Handler For AMD Athlon/Duron */
+ static asmlinkage void k7_machine_check(struct pt_regs * regs, long error_code)
  {
-@@ -543,8 +544,12 @@ void __init init_IRQ(void)
- 			break;
- 		if (vector != IA32_SYSCALL_VECTOR && vector != KDB_VECTOR) { 
- 			set_intr_gate(vector, interrupt[i]);
-+		}
- 	}
--	}
+-	int recover=1;
+-	u32 alow, ahigh, high, low;
+-	u32 mcgstl, mcgsth;
+-	int i;
+-
+-	rdmsr (MSR_IA32_MCG_STATUS, mcgstl, mcgsth);
+-	if (mcgstl & (1<<0))	/* Recoverable ? */
++	int i, recover=1;
++	u32 high, low;
++	u64 mcestart;
++	struct mce m, panicm;
++	int panicm_found = 0;
 +
-+#ifdef CONFIG_X86_MCE_INTEL
-+        set_intr_gate(THERMAL_APIC_VECTOR, thermal_interrupt);
-+#endif
++	memset(&m, 0, sizeof(m));
++	m.cpu = smp_processor_id();
++	rdtscll(mcestart);
++	rdmsr (MSR_IA32_MCG_STATUS, m.mcgstl, m.mcgsth);
++	if (m.mcgstl & (1<<0))	/* Recoverable ? */
+ 		recover=0;
+-
+-	printk (KERN_EMERG "CPU %d: Machine Check Exception: %08x%08x\n",
+-		smp_processor_id(), mcgsth, mcgstl);
+-
++	
+ 	for (i=1; i<nr_mce_banks; i++) {
++		m.bank = i;
++		m.tsc = 0;
++		m.stsl = m.stsh = 0;
++		m.addrl = m.addrh = 0;
++		m.miscl = m.misch = 0;
+ 		rdmsr (MSR_IA32_MC0_STATUS+i*4,low, high);
+ 		if (high&(1<<31)) {
+ 			if (high & (1<<29))
+ 				recover |= 1;
+ 			if (high & (1<<25))
+ 				recover |= 2;
+-			printk (KERN_EMERG "Bank %d: %08x%08x", i, high, low);
++			m.stsl = low;
++			m.stsh = high;
+ 			high &= ~(1<<31);
+-			if (high & (1<<27)) {
+-				rdmsr (MSR_IA32_MC0_MISC+i*4, alow, ahigh);
+-				printk ("[%08x%08x]", ahigh, alow);
++			if (high & (1<<27))
++				rdmsr (MSR_IA32_MC0_MISC+i*4, m.miscl, m.misch);
++			if (high & (1<<26))
++				rdmsr (MSR_IA32_MC0_ADDR+i*4, m.addrl, m.addrh);
++
++			/* Error at %eip ? */
++			if (m.mcgstl & (1<<1)) {
++				m.eip = regs->eip;
++				m.cs = regs->xcs;
++			} else {
++				m.eip = 0;
++				m.cs = 0;
+ 			}
+-			if (high & (1<<26)) {
+-				rdmsr (MSR_IA32_MC0_ADDR+i*4, alow, ahigh);
+-				printk (" at %08x%08x", ahigh, alow);
++			
++			rdtscll(m.tsc);
++			mce_log(&m);
++			if (recover) {
++				panicm = m;
++				panicm_found = 1;
+ 			}
+-			printk ("\n");
+ 			/* Clear it */
+ 			wrmsr (MSR_IA32_MC0_STATUS+i*4, 0UL, 0UL);
+ 			/* Serialize */
+@@ -58,13 +76,15 @@ static asmlinkage void k7_machine_check(
+ 		}
+ 	}
  
- #ifdef CONFIG_SMP
- 	/*
-Index: linux-2.6.10-rc1-mm5/arch/x86_64/kernel/mce.c
++	if (!panicm_found)
++		panicm = m;
++
+ 	if (recover&2)
+-		panic ("CPU context corrupt");
++		mce_panic("CPU context corrupt", &panicm, mcestart);
+ 	if (recover&1)
+-		panic ("Unable to continue");
+-	printk (KERN_EMERG "Attempting to continue.\n");
+-	mcgstl &= ~(1<<2);
+-	wrmsr (MSR_IA32_MCG_STATUS,mcgstl, mcgsth);
++		mce_panic("Unable to continue", &panicm, mcestart);
++	wrmsr (MSR_IA32_MCG_STATUS, m.mcgstl & ~(1 << 2), m.mcgsth);
++	mce_dump();
+ }
+ 
+ 
+Index: linux-2.6.10-rc1-mm4/arch/i386/kernel/cpu/mcheck/mce.c
 ===================================================================
-RCS file: /home/cvsroot/linux-2.6.10-rc1-mm5/arch/x86_64/kernel/mce.c,v
+RCS file: /home/cvsroot/linux-2.6.10-rc1-mm4/arch/i386/kernel/cpu/mcheck/mce.c,v
 retrieving revision 1.1.1.1
 diff -u -p -B -r1.1.1.1 mce.c
---- linux-2.6.10-rc1-mm5/arch/x86_64/kernel/mce.c	11 Nov 2004 17:24:12 -0000	1.1.1.1
-+++ linux-2.6.10-rc1-mm5/arch/x86_64/kernel/mce.c	13 Nov 2004 13:45:04 -0000
-@@ -305,6 +305,17 @@ static void __init mce_cpu_quirks(struct
- 	}
- }			
+--- linux-2.6.10-rc1-mm4/arch/i386/kernel/cpu/mcheck/mce.c	9 Nov 2004 21:54:52 -0000	1.1.1.1
++++ linux-2.6.10-rc1-mm4/arch/i386/kernel/cpu/mcheck/mce.c	12 Nov 2004 15:08:04 -0000
+@@ -1,6 +1,7 @@
+ /*
+  * mce.c - x86 Machine Check Exception Reporting
+  * (c) 2002 Alan Cox <alan@redhat.com>, Dave Jones <davej@codemonkey.org.uk>
++ * (c) 2004 Andi Kleen <ak@suse.de>, Zwane Mwaikambo <zwane@fsmlabs.com>
+  */
  
-+static void __init mce_cpu_features(struct cpuinfo_x86 *c)
+ #include <linux/init.h>
+@@ -10,6 +11,8 @@
+ #include <linux/module.h>
+ #include <linux/smp.h>
+ #include <linux/thread_info.h>
++#include <linux/rcupdate.h>
++#include <linux/kallsyms.h>
+ 
+ #include <asm/processor.h> 
+ #include <asm/system.h>
+@@ -23,7 +26,7 @@ EXPORT_SYMBOL_GPL(nr_mce_banks);	/* non-
+ 
+ /* Handle unconfigured int18 (should never happen) */
+ static asmlinkage void unexpected_machine_check(struct pt_regs * regs, long error_code)
+-{	
 +{
-+	switch (c->x86_vendor) {
-+	case X86_VENDOR_INTEL:
-+		mce_intel_feature_init(c);
-+		break;
-+	default:
-+		break;
+ 	printk(KERN_ERR "CPU#%d: Unexpected int18 (Machine Check).\n", smp_processor_id());
+ }
+ 
+@@ -61,6 +64,110 @@ void __init mcheck_init(struct cpuinfo_x
+ 	}
+ }
+ 
++/*
++ * Lockless MCE logging infrastructure.
++ * This avoids deadlocks on printk locks without having to break locks. Also
++ * separate MCEs from kernel messages to avoid bogus bug reports.
++ */
++
++struct mce_log mcelog = { 
++	MCE_LOG_SIGNATURE,
++	MCE_LOG_LEN,
++}; 
++
++static void print_mce(struct mce *);
++static void __mce_dump_log(unsigned long data)
++{
++	int i;
++
++	for (i = 0; i < MCE_LOG_LEN; i++) {
++		smp_rmb();
++		if (!mcelog.entry[i].finished)
++			continue;
++		print_mce(&mcelog.entry[i]);
 +	}
 +}
 +
- /* 
-  * Called for each booted CPU to set up machine checks.
-  * Must be called with preempt off. 
-@@ -321,6 +332,7 @@ void __init mcheck_init(struct cpuinfo_x
- 		return;
- 
- 	mce_init(NULL);
-+	mce_cpu_features(c);
- }
- 
- /*
-Index: linux-2.6.10-rc1-mm5/arch/x86_64/kernel/mce_intel.c
++DECLARE_TASKLET(mce_tasklet, __mce_dump_log, 0);
++
++void mce_log(struct mce *mce)
++{
++	unsigned next, entry;
++	mce->finished = 0;
++	smp_wmb();
++	for (;;) {
++		entry = rcu_dereference(mcelog.next);
++		/* When the buffer fills up discard new entries. Assume 
++		   that the earlier errors are the more interesting. */
++		if (entry >= MCE_LOG_LEN) {
++			set_bit(MCE_OVERFLOW, &mcelog.flags);
++			return;
++		}
++		/* Old left over entry. Skip. */
++		if (mcelog.entry[entry].finished)
++			continue;
++		smp_rmb();
++		next = entry + 1;
++		if (cmpxchg(&mcelog.next, entry, next) == entry)
++			break;
++	}
++	if (mcelog.ext_entry_len && mce->ext_arg) {
++		char *p = (char *)mcelog.ext_buffer + (entry * mcelog.ext_entry_len);
++		memcpy(p, mce->ext_arg, mcelog.ext_entry_len);
++		mce->ext_arg = p;
++	}
++	memcpy(mcelog.entry + entry, mce, sizeof(struct mce));
++	smp_wmb();
++	mcelog.entry[entry].finished = 1;
++	smp_wmb();
++}
++
++static void print_mce(struct mce *m)
++{
++	printk(KERN_EMERG "CPU %d: Machine Check Exception: %08x%08x\n",
++		m->cpu, m->mcgsth, m->mcgstl);
++
++	printk(KERN_EMERG "Bank %d: %08x%08x", m->bank, m->stsh, m->stsl);
++	if (m->miscl || m->misch)
++		printk("[%08x%08x]", m->misch, m->miscl);
++	if (m->addrl || m->addrh)
++		printk(" at %08x%08x", m->addrh, m->addrl);
++	printk("\n");
++
++	if (m->eip) {
++		printk(KERN_EMERG "EIP %02x:<%08x> ",
++			m->cs, m->eip);
++		if (m->cs == __KERNEL_CS)
++			print_symbol("{%s}", m->eip);
++		printk("\n");
++	}
++
++	if (m->tsc)
++		printk(KERN_EMERG "TSC %016Lx\n", m->tsc);
++	if (m->ext_arg)
++		mcelog.ext_call(m->ext_arg);
++}
++
++void mce_panic(char *msg, struct mce *backup, u64 start)
++{
++	int i;
++
++	oops_in_progress = 1;
++	for (i = 0; i < MCE_LOG_LEN; i++) {
++		if (mcelog.entry[i].tsc < start)
++			continue;
++
++		print_mce(&mcelog.entry[i]);
++		if (backup && mcelog.entry[i].tsc == backup->tsc)
++			backup = NULL;
++	}
++
++	if (backup)
++		print_mce(backup);
++
++	panic(msg);
++}
++
+ static int __init mcheck_disable(char *str)
+ {
+ 	mce_disabled = 1;
+Index: linux-2.6.10-rc1-mm4/arch/i386/kernel/cpu/mcheck/mce.h
 ===================================================================
-RCS file: linux-2.6.10-rc1-mm5/arch/x86_64/kernel/mce_intel.c
-diff -N linux-2.6.10-rc1-mm5/arch/x86_64/kernel/mce_intel.c
---- /dev/null	1 Jan 1970 00:00:00 -0000
-+++ linux-2.6.10-rc1-mm5/arch/x86_64/kernel/mce_intel.c	13 Nov 2004 13:59:31 -0000
-@@ -0,0 +1,116 @@
+RCS file: /home/cvsroot/linux-2.6.10-rc1-mm4/arch/i386/kernel/cpu/mcheck/mce.h,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 mce.h
+--- linux-2.6.10-rc1-mm4/arch/i386/kernel/cpu/mcheck/mce.h	9 Nov 2004 21:54:52 -0000	1.1.1.1
++++ linux-2.6.10-rc1-mm4/arch/i386/kernel/cpu/mcheck/mce.h	12 Nov 2004 04:21:34 -0000
+@@ -1,5 +1,58 @@
+ #include <linux/init.h>
++#include <linux/interrupt.h>
+ 
 +/*
-+ * Intel specific MCE features.
-+ * Copyright 2004 Zwane Mwaikambo <zwane@linuxpower.ca>
++ * This structure contains all data related to the MCE log.
++ * Also carries a signature to make it easier to find from external debugging tools.
++ * Each entry is only valid when its finished flag is set.
 + */
 +
-+#include <linux/init.h>
-+#include <linux/interrupt.h>
-+#include <asm/processor.h>
-+#include <asm/msr.h>
-+#include <asm/mce.h>
-+#include <asm/hw_irq.h>
++#define MCE_LOG_LEN 32
++#define MCE_OVERFLOW 0		/* bit 0 in flags means overflow */
++#define MCE_LOG_SIGNATURE	"MACHINECHECK"
++#define MCE_GET_RECORD_LEN	_IOR('M', 1, int)
++#define MCE_GET_LOG_LEN		_IOR('M', 2, int)
++#define MCE_GETCLEAR_FLAGS	_IOR('M', 3, int)
 +
++struct mce {
++	u64 tsc;	/* cpu timestamp counter */
++	u32 stsl;
++	u32 stsh;
++	u32 miscl;
++	u32 misch;
++	u32 addrl;
++	u32 addrh;
++	u32 mcgstl;
++	u32 mcgsth;
++	u32 eip;
++	u8  cs;		/* code segment */
++	u8  bank;	/* machine check bank */
++	u8  cpu;	/* cpu that raised the error */
++	u8  finished;	/* entry is valid */
++	void *ext_arg;	/* extended feature arg */
++};
++
++struct mce_log {
++	char signature[12];	/* "MACHINECHECK" */
++	unsigned long len;		/* = MCE_LOG_LEN */
++	unsigned long next;
++	unsigned long flags;
++	unsigned long pad0;
++	struct mce entry[MCE_LOG_LEN];
++	void *ext_buffer;	/* extended feature storage */
++	void (*ext_call)(void *); /* extended feature callback */
++	unsigned long ext_entry_len;	/* extended feature argument length */
++};
++
++extern struct tasklet_struct mce_tasklet;
++extern struct mce_log mcelog;
++static void inline mce_dump(void)
++{
++	tasklet_hi_schedule(&mce_tasklet);
++}
++
++void mce_log(struct mce *m);
++void mce_panic(char *msg, struct mce *backup, u64 start);
+ void amd_mcheck_init(struct cpuinfo_x86 *c);
+ void intel_p4_mcheck_init(struct cpuinfo_x86 *c);
+ void intel_p5_mcheck_init(struct cpuinfo_x86 *c);
+Index: linux-2.6.10-rc1-mm4/arch/i386/kernel/cpu/mcheck/p4.c
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.10-rc1-mm4/arch/i386/kernel/cpu/mcheck/p4.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 p4.c
+--- linux-2.6.10-rc1-mm4/arch/i386/kernel/cpu/mcheck/p4.c	9 Nov 2004 21:54:52 -0000	1.1.1.1
++++ linux-2.6.10-rc1-mm4/arch/i386/kernel/cpu/mcheck/p4.c	12 Nov 2004 05:48:00 -0000
+@@ -9,6 +9,7 @@
+ #include <linux/irq.h>
+ #include <linux/interrupt.h>
+ #include <linux/smp.h>
++#include <linux/bootmem.h>
+ 
+ #include <asm/processor.h> 
+ #include <asm/system.h>
+@@ -32,39 +33,65 @@ struct intel_mce_extended_msrs {
+ 	/* u32 *reserved[]; */
+ };
+ 
++static struct intel_mce_extended_msrs mce_ext_buffer[MCE_LOG_LEN];
++
+ static int mce_num_extended_msrs = 0;
+ 
+ 
+ #ifdef CONFIG_X86_MCE_P4THERMAL
+ static void unexpected_thermal_interrupt(struct pt_regs *regs)
+-{	
++{
++	ack_APIC_irq();
+ 	printk(KERN_ERR "CPU%d: Unexpected LVT TMR interrupt!\n",
+ 			smp_processor_id());
+ 	add_taint(TAINT_MACHINE_CHECK);
+ }
+ 
+ /* P4/Xeon Thermal transition interrupt handler */
 +static cpumask_t cpu_thermal_status;
 +static unsigned long next_thermal_check;
 +
@@ -202,19 +402,17 @@ diff -N linux-2.6.10-rc1-mm5/arch/x86_64/kernel/mce_intel.c
 +	static cpumask_t log;
 +	int cpu;
 +
-+	next_thermal_check = jiffies + HZ * 10;
++	next_thermal_check = jiffies + HZ*10;
 +	for_each_online_cpu(cpu) {
 +		if (cpu_isset(cpu, cpu_thermal_status)) {
 +			if (cpu_isset(cpu, log))
 +				continue;
 +
 +			printk(KERN_EMERG
-+			       "CPU%d: Temperature above threshold, cpu clock throttled\n",
-+			       cpu);
++				"CPU%d: Temperature above threshold, cpu clock throttled\n", cpu);
 +			cpu_set(cpu, log);
 +		} else if (cpu_isset(cpu, log)) {
-+			printk(KERN_INFO
-+			       "CPU%d: Temperature/speed normal\n", cpu);
++			printk(KERN_INFO "CPU%d: Temperature/speed normal\n", cpu);
 +			cpu_clear(cpu, log);
 +		}
 +	}
@@ -222,79 +420,366 @@ diff -N linux-2.6.10-rc1-mm5/arch/x86_64/kernel/mce_intel.c
 +
 +static DECLARE_TASKLET(thermal_tasklet, intel_thermal_check, 0);
 +
-+asmlinkage void smp_thermal_interrupt(void)
-+{
-+	u64 status;
-+
-+	ack_APIC_irq();
-+
-+	irq_enter();
-+	rdmsrl(MSR_IA32_THERM_STATUS, status);
-+	if (status & 0x1) {
+ static void intel_thermal_interrupt(struct pt_regs *regs)
+ {
+-	u32 l, h;
+-	unsigned int cpu = smp_processor_id();
+-	static unsigned long next[NR_CPUS];
++	unsigned long  l, h;
+ 
+ 	ack_APIC_irq();
+ 
+-	if (time_after(next[cpu], jiffies))
+-		return;
+-
+-	next[cpu] = jiffies + HZ*5;
+ 	rdmsr(MSR_IA32_THERM_STATUS, l, h);
+ 	if (l & 0x1) {
+-		printk(KERN_EMERG "CPU%d: Temperature above threshold\n", cpu);
+-		printk(KERN_EMERG "CPU%d: Running in modulated clock mode\n",
+-				cpu);
 +		cpu_set(smp_processor_id(), cpu_thermal_status);
-+		add_taint(TAINT_MACHINE_CHECK);
-+	} else {
+ 		add_taint(TAINT_MACHINE_CHECK);
+ 	} else {
+-		printk(KERN_INFO "CPU%d: Temperature/speed normal\n", cpu);
 +		cpu_clear(smp_processor_id(), cpu_thermal_status);
-+	}
+ 	}
 +
-+	if (time_after(jiffies, next_thermal_check))
-+		tasklet_schedule(&thermal_tasklet);
++	if (time_before(jiffies, next_thermal_check))
++		return;
++	
++	tasklet_schedule(&thermal_tasklet);
+ }
+ 
+ /* Thermal interrupt handler for this CPU setup */
+@@ -159,57 +186,83 @@ done:
+ 	return mce_num_extended_msrs;
+ }
+ 
++static void intel_print_extended_msr(void *__dbg_msrs)
++{
++	struct intel_mce_extended_msrs *dbg = __dbg_msrs;
 +
-+	irq_exit();
++	printk(KERN_EMERG "EIP: %08x EFLAGS: %08x\n",
++		dbg->eip, dbg->eflags);
++	printk(KERN_EMERG "EAX: %08x EBX: %08x ECX: %08x EDX: %08x\n",
++		dbg->eax, dbg->ebx, dbg->ecx, dbg->edx);
++	printk (KERN_EMERG "ESI: %08x EDI: %08x EBP: %08x ESP: %08x\n",
++		dbg->esi, dbg->edi, dbg->ebp, dbg->esp);
 +}
 +
-+static void __init intel_init_thermal(struct cpuinfo_x86 *c)
-+{
-+	u32 l, h;
-+	int tm2 = 0;
-+	unsigned int cpu = smp_processor_id();
+ static asmlinkage void intel_machine_check(struct pt_regs * regs, long error_code)
+ {
+-	int recover=1;
+-	u32 alow, ahigh, high, low;
+-	u32 mcgstl, mcgsth;
+-	int i;
++	int i, recover = 1;
++	u32 high, low;
++	u64 mcestart;
+ 	struct intel_mce_extended_msrs dbg;
++	struct mce m, panicm;
++	int panicm_found = 0;
+ 
+-	rdmsr (MSR_IA32_MCG_STATUS, mcgstl, mcgsth);
+-	if (mcgstl & (1<<0))	/* Recoverable ? */
+-		recover=0;
+-
+-	printk (KERN_EMERG "CPU %d: Machine Check Exception: %08x%08x\n",
+-		smp_processor_id(), mcgsth, mcgstl);
+-
+-	if (intel_get_extended_msrs(&dbg)) {
+-		printk (KERN_DEBUG "CPU %d: EIP: %08x EFLAGS: %08x\n",
+-			smp_processor_id(), dbg.eip, dbg.eflags);
+-		printk (KERN_DEBUG "\teax: %08x ebx: %08x ecx: %08x edx: %08x\n",
+-			dbg.eax, dbg.ebx, dbg.ecx, dbg.edx);
+-		printk (KERN_DEBUG "\tesi: %08x edi: %08x ebp: %08x esp: %08x\n",
+-			dbg.esi, dbg.edi, dbg.ebp, dbg.esp);
+-	}
++	memset(&m, 0, sizeof(m));
++	m.cpu = smp_processor_id();
++	rdtscll(mcestart);
++	rdmsr(MSR_IA32_MCG_STATUS, m.mcgstl, m.mcgsth);
++	if (m.mcgstl & (1<<0))	/* Recoverable ? */
++		recover = 0;
++	
++	if (intel_get_extended_msrs(&dbg))
++		m.ext_arg = &dbg;
+ 
+ 	for (i=0; i<nr_mce_banks; i++) {
+-		rdmsr (MSR_IA32_MC0_STATUS+i*4,low, high);
++		m.bank = i;
++		m.tsc = 0;
++		m.stsl = m.stsh = 0;
++		m.addrl = m.addrh = 0;
++		m.miscl = m.misch = 0;
++		rdmsr (MSR_IA32_MC0_STATUS+i*4, low, high);
+ 		if (high & (1<<31)) {
+ 			if (high & (1<<29))
+ 				recover |= 1;
+ 			if (high & (1<<25))
+ 				recover |= 2;
+-			printk (KERN_EMERG "Bank %d: %08x%08x", i, high, low);
++			m.stsl = low;
++			m.stsh = high;
+ 			high &= ~(1<<31);
+-			if (high & (1<<27)) {
+-				rdmsr (MSR_IA32_MC0_MISC+i*4, alow, ahigh);
+-				printk ("[%08x%08x]", ahigh, alow);
++			if (high & (1<<27))
++				rdmsr (MSR_IA32_MC0_MISC+i*4, m.miscl, m.misch);
++			if (high & (1<<26))
++				rdmsr (MSR_IA32_MC0_ADDR+i*4, m.addrl, m.addrh);
 +
-+	if (!cpu_has(c, X86_FEATURE_ACPI))
-+		return;
++			/* Error at %eip ? */
++			if (m.mcgstl & (1<<1)) {
++				m.eip = regs->eip;
++				m.cs = regs->xcs;
++			} else {
++				m.eip = 0;
++				m.cs = 0;
+ 			}
+-			if (high & (1<<26)) {
+-				rdmsr (MSR_IA32_MC0_ADDR+i*4, alow, ahigh);
+-				printk (" at %08x%08x", ahigh, alow);
 +
-+	if (!cpu_has(c, X86_FEATURE_ACC))
-+		return;
++			rdtscll(m.tsc);
++			mce_log(&m);
++			if (recover) {
++				panicm = m;
++				panicm_found = 1;
+ 			}
+-			printk ("\n");
+ 		}
+ 	}
+ 
++	if (!panicm_found)
++		panicm = m;
 +
-+	/* first check if TM1 is already enabled by the BIOS, in which
-+	 * case there might be some SMM goo which handles it, so we can't even
-+	 * put a handler since it might be delivered via SMI already -zwanem.
-+	 */
-+	rdmsr(MSR_IA32_MISC_ENABLE, l, h);
-+	h = apic_read(APIC_LVTTHMR);
-+	if ((l & (1 << 3)) && (h & APIC_DM_SMI)) {
-+		printk(KERN_DEBUG
-+		       "CPU%d: Thermal monitoring handled by SMI\n", cpu);
-+		return;
+ 	if (recover & 2)
+-		panic ("CPU context corrupt");
++		mce_panic("CPU context corrupt", &panicm, mcestart);
+ 	if (recover & 1)
+-		panic ("Unable to continue");
++		mce_panic("Unable to continue", &panicm, mcestart);
+ 
+-	printk(KERN_EMERG "Attempting to continue.\n");
+ 	/* 
+ 	 * Do not clear the MSR_IA32_MCi_STATUS if the error is not 
+ 	 * recoverable/continuable.This will allow BIOS to look at the MSRs
+@@ -218,7 +271,7 @@ static asmlinkage void intel_machine_che
+ 	for (i=0; i<nr_mce_banks; i++) {
+ 		u32 msr;
+ 		msr = MSR_IA32_MC0_STATUS+i*4;
+-		rdmsr (msr, low, high);
++		rdmsr(msr, low, high);
+ 		if (high&(1<<31)) {
+ 			/* Clear it */
+ 			wrmsr(msr, 0UL, 0UL);
+@@ -227,11 +280,10 @@ static asmlinkage void intel_machine_che
+ 			add_taint(TAINT_MACHINE_CHECK);
+ 		}
+ 	}
+-	mcgstl &= ~(1<<2);
+-	wrmsr (MSR_IA32_MCG_STATUS,mcgstl, mcgsth);
++	wrmsr(MSR_IA32_MCG_STATUS, m.mcgstl & ~(1 << 2), m.mcgsth);
++	mce_dump();
+ }
+ 
+-
+ void __init intel_p4_mcheck_init(struct cpuinfo_x86 *c)
+ {
+ 	u32 l, h;
+@@ -258,14 +310,25 @@ void __init intel_p4_mcheck_init(struct 
+ 	/* Check for P4/Xeon extended MCE MSRs */
+ 	rdmsr (MSR_IA32_MCG_CAP, l, h);
+ 	if (l & (1<<9))	{/* MCG_EXT_P */
++		struct intel_mce_extended_msrs *p;
++		
++		if (smp_processor_id() != 0)
++			goto skip;
++
++		p = mce_ext_buffer;
++		memset(p, 0, sizeof(*p) * MCE_LOG_LEN);
++		mcelog.ext_buffer = p;
++		mcelog.ext_call = intel_print_extended_msr;
++		mcelog.ext_entry_len = sizeof(*p);
+ 		mce_num_extended_msrs = (l >> 16) & 0xff;
++skip:
+ 		printk (KERN_INFO "CPU%d: Intel P4/Xeon Extended MCE MSRs (%d)"
+-				" available\n",
++			" available\n",
+ 			smp_processor_id(), mce_num_extended_msrs);
 +	}
-+
-+	if (cpu_has(c, X86_FEATURE_TM2) && (l & (1 << 13)))
-+		tm2 = 1;
-+
-+	if (h & APIC_VECTOR_MASK) {
-+		printk(KERN_DEBUG
-+		       "CPU%d: Thermal LVT vector (%#x) already "
-+		       "installed\n", cpu, (h & APIC_VECTOR_MASK));
-+		return;
-+	}
-+
-+	h = THERMAL_APIC_VECTOR;
-+	h |= (APIC_DM_FIXED | APIC_LVT_MASKED);
-+	apic_write_around(APIC_LVTTHMR, h);
-+
-+	rdmsr(MSR_IA32_THERM_INTERRUPT, l, h);
-+	wrmsr(MSR_IA32_THERM_INTERRUPT, l | 0x03, h);
-+
-+	rdmsr(MSR_IA32_MISC_ENABLE, l, h);
-+	wrmsr(MSR_IA32_MISC_ENABLE, l | (1 << 3), h);
-+
-+	l = apic_read(APIC_LVTTHMR);
-+	apic_write_around(APIC_LVTTHMR, l & ~APIC_LVT_MASKED);
-+	printk(KERN_INFO "CPU%d: Thermal monitoring enabled (%s)\n",
-+		cpu, tm2 ? "TM2" : "TM1");
-+	return;
-+}
-+
-+void __init mce_intel_feature_init(struct cpuinfo_x86 *c)
-+{
+ 
+ #ifdef CONFIG_X86_MCE_P4THERMAL
+-		/* Check for P4/Xeon Thermal monitor */
+-		intel_init_thermal(c);
++	/* Check for P4/Xeon Thermal monitor */
 +	intel_init_thermal(c);
+ #endif
+-	}
+ }
+Index: linux-2.6.10-rc1-mm4/arch/i386/kernel/cpu/mcheck/p5.c
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.10-rc1-mm4/arch/i386/kernel/cpu/mcheck/p5.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 p5.c
+--- linux-2.6.10-rc1-mm4/arch/i386/kernel/cpu/mcheck/p5.c	9 Nov 2004 21:54:52 -0000	1.1.1.1
++++ linux-2.6.10-rc1-mm4/arch/i386/kernel/cpu/mcheck/p5.c	12 Nov 2004 04:36:16 -0000
+@@ -16,23 +16,32 @@
+ 
+ #include "mce.h"
+ 
++static void pentium_print_status(void *mc_typel)
++{
++	if ((u32)mc_typel & (1 << 5))
++		printk("Possible thermal failure (CPU on fire?).\n");
 +}
++
+ /* Machine check handler for Pentium class Intel */
+ static asmlinkage void pentium_machine_check(struct pt_regs * regs, long error_code)
+ {
+-	u32 loaddr, hi, lotype;
+-	rdmsr(MSR_IA32_P5_MC_ADDR, loaddr, hi);
+-	rdmsr(MSR_IA32_P5_MC_TYPE, lotype, hi);
+-	printk(KERN_EMERG "CPU#%d: Machine Check Exception:  0x%8X (type 0x%8X).\n", smp_processor_id(), loaddr, lotype);
+-	if(lotype&(1<<5))
+-		printk(KERN_EMERG "CPU#%d: Possible thermal failure (CPU on fire ?).\n", smp_processor_id());
++	struct mce m;
++
++	memset(&m, 0, sizeof(m));
++	m.cpu = smp_processor_id();
++	rdmsr(MSR_IA32_P5_MC_ADDR, m.addrl, m.addrh);
++	rdmsr(MSR_IA32_P5_MC_TYPE, m.mcgstl, m.mcgsth);
++	m.ext_arg = (void *)m.mcgstl;
++	mce_log(&m);
+ 	add_taint(TAINT_MACHINE_CHECK);
++	mce_dump();
+ }
+ 
+ /* Set up machine check reporting for processors with Intel style MCE */
+ void __init intel_p5_mcheck_init(struct cpuinfo_x86 *c)
+ {
+ 	u32 l, h;
+-	
++		
+ 	/*Check for MCE support */
+ 	if( !cpu_has(c, X86_FEATURE_MCE) )
+ 		return;	
+@@ -40,6 +49,10 @@ void __init intel_p5_mcheck_init(struct 
+ 	/* Default P5 to off as its often misconnected */
+ 	if(mce_disabled != -1)
+ 		return;
++	
++	mcelog.ext_call = pentium_print_status;
++	mcelog.ext_entry_len = 0;
++
+ 	machine_check_vector = pentium_machine_check;
+ 	wmb();
+ 
+Index: linux-2.6.10-rc1-mm4/arch/i386/kernel/cpu/mcheck/p6.c
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.10-rc1-mm4/arch/i386/kernel/cpu/mcheck/p6.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 p6.c
+--- linux-2.6.10-rc1-mm4/arch/i386/kernel/cpu/mcheck/p6.c	9 Nov 2004 21:54:52 -0000	1.1.1.1
++++ linux-2.6.10-rc1-mm4/arch/i386/kernel/cpu/mcheck/p6.c	11 Nov 2004 14:42:58 -0000
+@@ -19,45 +19,65 @@
+ /* Machine Check Handler For PII/PIII */
+ static asmlinkage void intel_machine_check(struct pt_regs * regs, long error_code)
+ {
+-	int recover=1;
+-	u32 alow, ahigh, high, low;
+-	u32 mcgstl, mcgsth;
+-	int i;
+-
+-	rdmsr (MSR_IA32_MCG_STATUS, mcgstl, mcgsth);
+-	if (mcgstl & (1<<0))	/* Recoverable ? */
++	int i, recover=1;
++	u32 high, low;
++	u64 mcestart;
++	struct mce m, panicm;
++	int panicm_found = 0;
++
++	memset(&m, 0, sizeof(m));
++	m.cpu = smp_processor_id();
++	rdtscll(mcestart);
++	rdmsr (MSR_IA32_MCG_STATUS, m.mcgstl, m.mcgsth);
++	if (m.mcgstl & (1<<0))	/* Recoverable ? */
+ 		recover=0;
+ 
+-	printk (KERN_EMERG "CPU %d: Machine Check Exception: %08x%08x\n",
+-		smp_processor_id(), mcgsth, mcgstl);
+-
+ 	for (i=0; i<nr_mce_banks; i++) {
++		m.bank = i;
++		m.tsc = 0;
++		m.stsl = m.stsh = 0;
++		m.addrl = m.addrh = 0;
++		m.miscl = m.misch = 0;
+ 		rdmsr (MSR_IA32_MC0_STATUS+i*4,low, high);
+ 		if (high & (1<<31)) {
+ 			if (high & (1<<29))
+ 				recover |= 1;
+ 			if (high & (1<<25))
+ 				recover |= 2;
+-			printk (KERN_EMERG "Bank %d: %08x%08x", i, high, low);
++			m.stsl = low;
++			m.stsh = high;
+ 			high &= ~(1<<31);
+-			if (high & (1<<27)) {
+-				rdmsr (MSR_IA32_MC0_MISC+i*4, alow, ahigh);
+-				printk ("[%08x%08x]", ahigh, alow);
++			if (high & (1<<27))
++				rdmsr (MSR_IA32_MC0_MISC+i*4, m.miscl, m.misch);
++			if (high & (1<<26))
++				rdmsr (MSR_IA32_MC0_ADDR+i*4, m.addrl, m.addrh);
++
++			/* Error at %eip ? */
++			if (m.mcgstl & (1<<1)) {
++				m.eip = regs->eip;
++				m.cs = regs->xcs;
++			} else {
++				m.eip = 0;
++				m.cs = 0;
+ 			}
+-			if (high & (1<<26)) {
+-				rdmsr (MSR_IA32_MC0_ADDR+i*4, alow, ahigh);
+-				printk (" at %08x%08x", ahigh, alow);
++
++			rdtscll(m.tsc);
++			mce_log(&m);
++			if (recover) {
++				panicm = m;
++				panicm_found = 1;
+ 			}
+-			printk ("\n");
+ 		}
+ 	}
+ 
++	if (!panicm_found)
++		panicm = m;
++
+ 	if (recover & 2)
+-		panic ("CPU context corrupt");
++		mce_panic ("CPU context corrupt", &panicm, mcestart);
+ 	if (recover & 1)
+-		panic ("Unable to continue");
++		mce_panic ("Unable to continue", &panicm, mcestart);
+ 
+-	printk (KERN_EMERG "Attempting to continue.\n");
+ 	/* 
+ 	 * Do not clear the MSR_IA32_MCi_STATUS if the error is not 
+ 	 * recoverable/continuable.This will allow BIOS to look at the MSRs
+@@ -75,8 +95,8 @@ static asmlinkage void intel_machine_che
+ 			add_taint(TAINT_MACHINE_CHECK);
+ 		}
+ 	}
+-	mcgstl &= ~(1<<2);
+-	wrmsr (MSR_IA32_MCG_STATUS,mcgstl, mcgsth);
++	wrmsr (MSR_IA32_MCG_STATUS, m.mcgstl & ~(1 << 2), m.mcgsth);
++	mce_dump();
+ }
+ 
+ /* Set up machine check reporting for processors with Intel style MCE */

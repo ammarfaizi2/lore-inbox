@@ -1,73 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265251AbUAPDWA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 22:22:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265254AbUAPDWA
+	id S265256AbUAPDVD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 22:21:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265254AbUAPDVD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 22:22:00 -0500
-Received: from fep03-mail.bloor.is.net.cable.rogers.com ([66.185.86.73]:21610
-	"EHLO fep03-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
-	with ESMTP id S265251AbUAPDVy (ORCPT
+	Thu, 15 Jan 2004 22:21:03 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:24430 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id S265246AbUAPDU6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 22:21:54 -0500
-Message-ID: <40075914.5000008@rogers.com>
-Date: Thu, 15 Jan 2004 22:23:00 -0500
-From: Jeff Muizelaar <muizelaar@rogers.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Russell King <rmk@arm.linux.org.uk>
-Subject: [PATCH] cleanup single_open usage in dma.c
-Content-Type: multipart/mixed;
- boundary="------------070605080000080201090608"
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at fep03-mail.bloor.is.net.cable.rogers.com from [129.97.226.198] using ID <muizelaar@rogers.com> at Thu, 15 Jan 2004 22:20:50 -0500
+	Thu, 15 Jan 2004 22:20:58 -0500
+Date: Thu, 15 Jan 2004 19:19:14 -0800
+From: Jeremy Higdon <jeremy@sgi.com>
+To: Grant Grundler <iod00d@hp.com>
+Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: [PATCH] readX_relaxed interface
+Message-ID: <20040116031914.GE374259@sgi.com>
+References: <20040115204913.GA8172@sgi.com> <20040115221640.GA11283@cup.hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040115221640.GA11283@cup.hp.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070605080000080201090608
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, Jan 15, 2004 at 02:16:40PM -0800, Grant Grundler wrote:
+> On Thu, Jan 15, 2004 at 12:49:13PM -0800, Jesse Barnes wrote:
+> > Based on the PIO ordering disucssion, I've come up with the following
+> > patch.  It has the potential to help any platform that has seperate PIO
+> > and DMA channels, and allows them to be reorderd wrt each other.
+> 
+> This is only significant for DMA writes (inbound) vs. PIO Read returns.
 
-The attached patch lets the seq_file api take care of buffer allocation 
-instead of doing it by hand.
+Correct.
 
--Jeff
+> The ZX1 platforms have reordering enabled for outbound DMA (vs PIO
+> writes) since last summer.
 
---------------070605080000080201090608
-Content-Type: text/plain;
- name="dma-proc-cleanup.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="dma-proc-cleanup.patch"
+The SGI NUMA platforms do this also.  This is always safe, at least
+in real life systems, I think (though someone will now undoubtedly
+come up with an example where it isn't), as long as CPU updates to
+memory made by the CPU prior to issuing the PIO are coherent by the
+time the device sees the PIO.  If not, then you need some sort of
+cache writeback, which is already provided for in APIs.
 
-diff -ur linux-2.6.1-mm3/kernel/dma.c linux-2.6.1-mm3-dma-proc/kernel/dma.c
---- linux-2.6.1-mm3/kernel/dma.c	2004-01-09 01:59:10.000000000 -0500
-+++ linux-2.6.1-mm3-dma-proc/kernel/dma.c	2004-01-15 22:10:04.000000000 -0500
-@@ -136,20 +136,7 @@
- 
- static int proc_dma_open(struct inode *inode, struct file *file)
- {
--	char *buf = kmalloc(PAGE_SIZE, GFP_KERNEL);
--	struct seq_file *m;
--	int res;
--
--	if (!buf)
--		return -ENOMEM;
--	res = single_open(file, proc_dma_show, NULL);
--	if (!res) {
--		m = file->private_data;
--		m->buf = buf;
--		m->size = PAGE_SIZE;
--	} else
--		kfree(buf);
--	return res;
-+	return single_open(file, proc_dma_show, NULL);
- }
- 
- static struct file_operations proc_dma_operations = {
+> Outside the context of PCI-X Relaxed Ordering, this violates PCI
+> ordering rules. Any patches to drivers *using* the new readb()
+> variants in effect work around this violation. I"m ok with that - just
+> want it to be clear.
 
---------------070605080000080201090608--
+I would put it a different way.  We are currently conforming to
+PCI ordering rules using a relatively expensive sw/hw workaround
+in the SN versions of readX().
+These readX_relaxed() variants allow us to speed up drivers in
+cases where DMA write and PIO read ordering is unnecessary or
+taken care of some other way (maybe a previous readX call).
 
+So with this patch, we're providing a fast PIO read that violates
+PCI ordering rules, to be used only when the ordering rules are
+unnecessary.
+
+Btw, in certain situations, this can cut what would be a 50us or
+longer PIO read down to about 1us, which is why we're pushing this.
+
+> PCI-X support will need a different interface
+> (eg pcix_enable_relaxed_ordering()) to support
+> it's form of "Relaxed Ordering".
+
+Right.
+
+
+Thanks for the reviews.
+
+jeremy

@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293476AbSCBFMI>; Sat, 2 Mar 2002 00:12:08 -0500
+	id <S310319AbSCBFXG>; Sat, 2 Mar 2002 00:23:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310316AbSCBFL6>; Sat, 2 Mar 2002 00:11:58 -0500
-Received: from mx2out.umbc.edu ([130.85.253.52]:17892 "EHLO mx2out.umbc.edu")
-	by vger.kernel.org with ESMTP id <S293476AbSCBFLq>;
-	Sat, 2 Mar 2002 00:11:46 -0500
-Date: Sat, 2 Mar 2002 00:11:45 -0500
-From: John Jasen <jjasen1@umbc.edu>
-X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: dell inspiron and 2.4.18?
-Message-ID: <Pine.SGI.4.31L.02.0203020004440.5865235-100000@irix2.gl.umbc.edu>
+	id <S310317AbSCBFW4>; Sat, 2 Mar 2002 00:22:56 -0500
+Received: from ns.crrstv.net ([209.128.25.4]:33464 "EHLO mail.crrstv.net")
+	by vger.kernel.org with ESMTP id <S310316AbSCBFWy>;
+	Sat, 2 Mar 2002 00:22:54 -0500
+Date: Sat, 2 Mar 2002 01:22:39 -0400 (AST)
+From: skidley <skidley@crrstv.net>
+X-X-Sender: skidley@localhost.localdomain
+To: Mike Fedyk <mfedyk@matchmail.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.19pre2-ac1
+In-Reply-To: <20020302040348.GA353@matchmail.com>
+Message-ID: <Pine.LNX.4.43.0203020119270.2195-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 1 Mar 2002, Mike Fedyk wrote:
 
-I have a Dell Inspiron 3700 running Redhat 7.2 with the latest updates,
-and I just upgraded to kernel 2.4.18. On random intervals, usually within
-about 10 minutes of usage, it hangs completely solid.
+> I believe any pII or newer MB should support it, and you need to tell your
+> log checker to look for the new output from the kernel...
+> 
+> Mike
+> 
+what about the boot option, and what do i tell the logchecker to look
+for? There must be documentation somewhere about this? all i find in a
+google search is stuff from list archives and cant seem to find much
+about using it. Maybe need to dig deeper or something *shrug*
+-- 
+"With a name like Black Sabbath, we'd look a right bunch of idiots standing 
+there with a flower in our hands." -- Ozzy Osbourne
 
-Enabling sysrq, recompiling 2.4.18 with kdb, and going to tinker with APIC
-tomorrow. Results, kernel .config, lspci -v, and so forth will be posted
-when I'm more awake.
-
-Anyway, the short form: anyone else have any problems, or have I gone
-crazy again?
-
---
--- John E. Jasen (jjasen1@umbc.edu)
--- In theory, theory and practise are the same. In practise, they aren't.
+Chad Young           
+Registered Linux User #195191
+@ http://counter.li.org
+-----------------------------------------------------------------------
+Linux localhost 2.4.19-pre2-ac1 #1 Fri Mar 1 23:14:20 AST 2002 i686 unknown
+  1:15am  up  1:28,  1 user,  load average: 0.07, 0.16, 0.17
 

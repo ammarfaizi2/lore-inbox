@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311262AbSCQCt6>; Sat, 16 Mar 2002 21:49:58 -0500
+	id <S311255AbSCQCmS>; Sat, 16 Mar 2002 21:42:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311263AbSCQCts>; Sat, 16 Mar 2002 21:49:48 -0500
-Received: from rwcrmhc54.attbi.com ([216.148.227.87]:10148 "EHLO
-	rwcrmhc54.attbi.com") by vger.kernel.org with ESMTP
-	id <S311262AbSCQCti>; Sat, 16 Mar 2002 21:49:38 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Adam Keys <akeys@post.cis.smu.edu>
-To: Andreas Ferber <aferber@techfak.uni-bielefeld.de>,
-        Adam Keys <akeys@post.cis.smu.edu>
-Subject: Re: [BK] Having a hard time updating by pre-patch
-Date: Sat, 16 Mar 2002 20:49:07 -0600
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020317005425.TVMQ1147.rwcrmhc52.attbi.com@there> <20020317031527.A31674@devcon.net>
-In-Reply-To: <20020317031527.A31674@devcon.net>
+	id <S311262AbSCQCmH>; Sat, 16 Mar 2002 21:42:07 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:36625 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S311255AbSCQCl5>; Sat, 16 Mar 2002 21:41:57 -0500
+Date: Sat, 16 Mar 2002 18:40:01 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Paul Mackerras <paulus@samba.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 7.52 second kernel compile
+In-Reply-To: <15507.63649.587641.538009@argo.ozlabs.ibm.com>
+Message-ID: <Pine.LNX.4.33.0203161834250.1591-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020317024932.UNAN1214.rwcrmhc54.attbi.com@there>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On March 16, 2002 08:15, Andreas Ferber wrote:
-> If you have a clone of the full master 2.5 repository somewhere on
-> your harddisk, you can go just there and do a
->
-> % bk send -r1.158 - | bk receive /your/uml/repository
->
-> After that change to your uml repository and do a
->
-> % bk resolve
->
-> to apply the 1.158 changeset to your uml repository (if you give a
-> "-a" option to bk receive, bk resolve will be run automatically).
 
-This looks like exactly what I need!  Except, the following is something I 
-don't need:
+On Sun, 17 Mar 2002, Paul Mackerras wrote:
+> 
+> But this is all a bit academic, the real question is how do we deal
+> most efficiently with the real hardware that is out there.  And if you
+> want a 7.5 second kernel compile the only option currently available
+> is a machine whose MMU uses a hash table. :)
 
-bk: slib.c:11283: sccs_getInit: Assertion `e' failed.
+Yeah, at a cost of $2M+, if I'm not mistaken. I think I'll settle for my 2
+minute time that is actually available to mere mortals at a small fraction
+of one percent of that ;)
 
-I ran the bk send command exactly as above.  Is this a known bug?
--- 
-akk~
+		Linus
+

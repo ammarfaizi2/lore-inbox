@@ -1,104 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265322AbUFRWH3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261932AbUFRWaK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265322AbUFRWH3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 18:07:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262138AbUFRVzl
+	id S261932AbUFRWaK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 18:30:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265543AbUFRW3K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 17:55:41 -0400
-Received: from ida.rowland.org ([192.131.102.52]:7940 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S264482AbUFRVgw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 17:36:52 -0400
-Date: Fri, 18 Jun 2004 17:36:52 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: Greg KH <greg@kroah.com>
-cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: BUG(?): class_device_driver_link()
-In-Reply-To: <20040618202305.GB18008@kroah.com>
-Message-ID: <Pine.LNX.4.44L0.0406181723020.979-100000@ida.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 18 Jun 2004 18:29:10 -0400
+Received: from lists.us.dell.com ([143.166.224.162]:36724 "EHLO
+	lists.us.dell.com") by vger.kernel.org with ESMTP id S265300AbUFRW13
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 18:27:29 -0400
+Date: Fri, 18 Jun 2004 17:26:51 -0500
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Hannu Savolainen <hannu@opensound.com>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       4Front Technologies <dev@opensound.com>, linux-kernel@vger.kernel.org
+Subject: Re: Stop the Linux kernel madness
+Message-ID: <20040618222651.GJ19269@lists.us.dell.com>
+References: <40D232AD.4020708@opensound.com> <20040618004450.GT12308@parcelfarce.linux.theplanet.co.uk> <40D23EBD.50600@opensound.com> <Pine.LNX.4.58.0406180313350.10292@scrub.local> <40D2464D.2060202@opensound.com> <Pine.LNX.4.58.0406181205500.13079@scrub.local> <Pine.LNX.4.58.0406182006060.20336@zeus.compusonic.fi> <40D3642E.4050509@pobox.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Ublo+h3cBgJ33ahC"
+Content-Disposition: inline
+In-Reply-To: <40D3642E.4050509@pobox.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Jun 2004, Greg KH wrote:
 
-> On Fri, Jun 18, 2004 at 04:12:32PM -0400, Alan Stern wrote:
-> > Greg:
-> > 
-> > I'm not sure if this is a bug or not, but it is inconsistent behavior in 
-> > sysfs.
-> > 
-> > When a class_device is added, if it has a regular device associated with
-> > it and that device has a driver, a symlink is added from the class_device
-> > to the driver.  However, if the class_device is added _first_ and the
-> > driver later, this symlink is not created.  It's not clear that there's
-> > any good way to create it, especially if the class_device is added by the
-> > bus layer and the device driver itself is unaware of the class_device.
-> 
-> Yes, this is the way it was designed.  The thinking was that a device
-> would be registered to a driver by the time the class code was
-> initialized for it.
+--Ublo+h3cBgJ33ahC
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-That seems reasonable, but obviously it doesn't work if the driver is
-loaded much later.  I don't know what happens when the driver is loaded by
-the hotplug system following a device attach, for example, but probably
-that won't work either.
+On Fri, Jun 18, 2004 at 05:52:46PM -0400, Jeff Garzik wrote:
+> Hannu Savolainen wrote:
+>=20
+> >The actual problem is that there is no standardized way to compile modul=
+es
+> >outside the kernel source tree. There will be serious problems if
+> >different distributions need slightly different installation procedure.
+> >Who is going to be able to tell the customer what exactly he should do?
+>=20
+> In 2.6.x there is a way to do this :)
+>=20
+> Sam Ravnborg recently posted documentation for this, as well.
 
-> > Is this a known problem?  It definitely affects the sd driver, and maybe 
-> > others.
-> 
-> The sd use of classes is a monumental hack.  So much that every time I
-> see one of them in the hall at work I run the other way just to avoid
-> talking about it again :)
-> 
-> No, seriously, if this is a problem for the sd driver, we should fix it.
+<shameless plug>
+and we suggest using DKMS for exactly this purpose, until you get your
+code merged into the kernel.org trees.  http://linux.dell.com/dkms/
+</shameless plug>
 
-I'm not sure that it's a problem -- all that happens is the "driver"
-symlink under the class_device's directory isn't present.  Also, it will 
-affect every SCSI device, not just SCSI disks, since the class_device 
-management is done by the central SCSI core.
+--=20
+Matt Domsch
+Sr. Software Engineer, Lead Engineer
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
 
-> > There is a related side-effect that is a bit unpleasant.  The symlink from
-> > the class_device to the driver increments the driver's refcount.
-> 
-> Yes, that is a recent change.
+--Ublo+h3cBgJ33ahC
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Okay, that explains why I never used to have these difficulties.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-> > Since
-> > the driver is unaware of the class_device, it doesn't know to remove the
-> > symlink when its release() method runs.
-> 
-> The symlink should be removed by the class, right?
+iD8DBQFA02wrIavu95Lw/AkRAnRsAJ4mc9IEYo7OJxs5DD0BugaFT0tAOQCfVVSh
+zKkeecwEbp8jyBf5oVTOvIc=
+=drj9
+-----END PGP SIGNATURE-----
 
-Sure.  But when you rmmod the driver, the class doesn't know that anything
-has happened.  There is no link from the driver to the class_device; the
-links all go the other way.
-
-> > Consequently, if the driver is
-> > modprobed before the device exists and rmmod'ed after the device is added,
-> > the rmmod will hang until the device also goes away.  But if the driver is 
-> > modprobed _after_ the device exists then the rmmod will complete 
-> > immediately.
-> > 
-> > Perhaps the answer is that the bus layer must take these things into 
-> > account.  Or perhaps a struct device should somehow know about all the 
-> > class_devices that refer to it.
-> 
-> Hm, I was not wanting to have to have struct device know about classes,
-> only classes knowing about struct devices.  Any input here would be
-> appreciated.
-
-I don't know what the best approach is.  Linus would probably say that 
-having rmmod hang until the device is gone isn't a problem since unloading 
-drivers is only done for development.  As a developer, I find it somewhat 
-inconvenient.
-
-Perhaps James will have some ideas about how changes to the SCSI core 
-might improve the situation.
-
-Alan Stern
-
+--Ublo+h3cBgJ33ahC--

@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264007AbUDFUxw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 16:53:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264009AbUDFUxw
+	id S264004AbUDFUxa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 16:53:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264007AbUDFUxa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 16:53:52 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:24726 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S264007AbUDFUxp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 16:53:45 -0400
-Date: Tue, 6 Apr 2004 22:50:45 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: Adam Nielsen <a.nielsen@optushome.com.au>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix kernel lockup in RTL-8169 gigabit ethernet driver
-Message-ID: <20040406225045.A7916@electric-eye.fr.zoreil.com>
-References: <406EA054.2020401@colorfullife.com> <20040404105558.2bffd4f0.malvineous@optushome.com.au> <20040404111513.A3165@electric-eye.fr.zoreil.com> <20040406075142.147a0e4c.a.nielsen@optushome.com.au> <4072E4B8.2070102@colorfullife.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <4072E4B8.2070102@colorfullife.com>; from manfred@colorfullife.com on Tue, Apr 06, 2004 at 07:11:20PM +0200
-X-Organisation: Land of Sunshine Inc.
+	Tue, 6 Apr 2004 16:53:30 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:15322 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S264004AbUDFUxY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 16:53:24 -0400
+Message-Id: <200404062053.i36KrC3Y005111@eeyore.valparaiso.cl>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: {put,get}_user() side effects 
+In-Reply-To: Your message of "Tue, 06 Apr 2004 13:46:41 +0200."
+             <Pine.GSO.4.58.0404061344390.4158@waterleaf.sonytel.be> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
+Date: Tue, 06 Apr 2004 16:53:11 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Spraul <manfred@colorfullife.com> :
-[...]
-> Thanks. The code reloads the tx ring value from memory, thus I don't 
-> understand why it deadlocks.
+Geert Uytterhoeven <geert@linux-m68k.org> said:
+> On Tue, 6 Apr 2004, Andi Kleen wrote:
+> > Geert Uytterhoeven <geert@linux-m68k.org> writes:
+> > > On most (all?) architectures {get,put}_user() has side effects:
+> > >
+> > > #define put_user(x,ptr)                                                 \
+> > >   __put_user_check((__typeof__(*(ptr)))(x),(ptr),sizeof(*(ptr)))
+> >
+> > Neither typeof not sizeof are supposed to have side effects. If your
+> > compiler generates them that's a compiler bug.
 
-Well...
-- rtl8169_interrupt() acks all events before rtl8169_tx_interrupt() is called
-- the count of descriptors handled in rtl8169_tx_interrupt() is only limited
-  by the number of packets submitted for TX at the time rtl8169_tx_interrupt()
-  is called
+> From a simple compile test, you seem to be right... Weird, since it does
+> expand to 3 times 'pIndex++', but pIndex is incremented only once.
 
--> if there is a stream of Tx events, it is possible that Tx descriptors are
-   processed before the relevant event is notified to the host by the network
-   adapter.
-
---
-Ueimor
+Better check with a C language lawyer. Maybe gcc gets it wrong, or it is
+undefined (in which case next gcc could screw you over, and give you a hard
+time finding out how...). An inline should be safe, and unless gcc still
+gets them wrong, equally fast/small.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

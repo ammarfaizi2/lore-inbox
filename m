@@ -1,85 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265694AbUBJHe0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 02:34:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265709AbUBJHe0
+	id S265757AbUBJHn1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 02:43:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265775AbUBJHn1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 02:34:26 -0500
-Received: from khe-mailhub1.eigner.com ([194.120.231.246]:20594 "EHLO
-	khe-mailhub1.eigner.com") by vger.kernel.org with ESMTP
-	id S265694AbUBJHeX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 02:34:23 -0500
-Message-ID: <4028895C.4010101@gmx.de>
-Date: Tue, 10 Feb 2004 08:33:48 +0100
-From: Andreas Fester <Andreas.Fester@gmx.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       "Randy.Dunlap" <rddunlap@osdl.org>
-Subject: Re: [2.6 PATCH] persist qconf options
-References: <4028075E.1070809@gmx.de> <Pine.LNX.4.58.0402100050230.7851@serv>
-In-Reply-To: <Pine.LNX.4.58.0402100050230.7851@serv>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 10 Feb 2004 07:33:46.0512 (UTC) FILETIME=[37BC0900:01C3EFA8]
-X-agile-MailScanner-Information: Please contact the ISP for more information
-X-agile-MailScanner: Found to be clean
-X-agile-MailScanner-SpamCheck: not spam (whitelisted),
-	SpamAssassin (score=-2.1, required 5, IN_REP_TO -0.50,
-	QUOTED_EMAIL_TEXT -0.48, REFERENCES -0.50, REPLY_WITH_QUOTES -0.50,
-	USER_AGENT_MOZILLA_UA 0.00, X_ACCEPT_LANG -0.10)
+	Tue, 10 Feb 2004 02:43:27 -0500
+Received: from mail.kroah.org ([65.200.24.183]:23948 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265757AbUBJHnV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 02:43:21 -0500
+Date: Mon, 9 Feb 2004 23:39:52 -0800
+From: Greg KH <greg@kroah.com>
+To: Len Brown <len.brown@intel.com>
+Cc: Matthew Wilcox <willy@debian.org>,
+       Sundarapandian Durairaj <sundarapandian.durairaj@intel.com>,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       Harinarayanan Seshadri <harinarayanan.seshadri@intel.com>,
+       Vladimir Kondratiev <vladimir.kondratiev@intel.com>,
+       Jun Nakajima <jun.nakajima@intel.com>, Andrew Morton <akpm@zip.com.au>
+Subject: Re: [PATCH] pci-mmconfig for 2.6.3-rc1
+Message-ID: <20040210073951.GB20139@kroah.com>
+References: <20040210044540.GA13351@parcelfarce.linux.theplanet.co.uk> <1076390140.4105.671.camel@dhcppc4>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1076390140.4105.671.camel@dhcppc4>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Roman,
-
-thanks for the feedback :-)
-
->>@@ -1145,6 +1162,10 @@
->>  	menuList->updateListAll();
->>  }
->>
->>+bool ConfigMainWindow::getShowAll() {
->>+	return configList->showAll;
->>+}
->>+
->>  void ConfigMainWindow::setShowDebug(bool b)
->>  {
->>  	if (showDebug == b)
+On Tue, Feb 10, 2004 at 12:15:40AM -0500, Len Brown wrote:
+> On Mon, 2004-02-09 at 23:45, Matthew Wilcox wrote:
+> > Another round of the MMCONFIG patch.  Changes since last time ...
 > 
+> If the system has no MADT, then acpi_boot_init() will never call
+> acpi_parse_mcfg() -- looks like that call needs to be moved up.  (And
+> yes, it seems that HPET has the same problem).
 > 
-> All these access functions are really not neccessary.
+> I see i386 and ia64 updates -- are they the only platforms that will
+> support pci-express?
 
-Well, I think in the sense of an Object Oriented interface
-with getter/setter methods they probably *do* make sense ...
+I know of some other platforms that will need pci-express support for
+them, but that will probably happen some time next year due to hardware
+availability...
 
-> If we change this I'd like to see this done properly. First all the
-> settings business should be moved into a small helper class, so that there
+I think we can only test i386 and ia64 at this time, unless someone else
+knows differently?
 
-Agreed. I thought about something similar, but simply started to
-hack some code last night ;-)
+thanks,
 
-> are not x number of new arguments to the ConfigList constructor. The
-
-Agreed. The four additional arguments is what I mostly dislike with my
-solution.
-
-> saving of the settings should be connected to aboutToQuit().
-
-Ok.
-
-> Bonus points if you also save the list mode and the position of the
-> splitter. :)
-
-Lets see if I can win them :-)
-
-Thanks,
-
-	Andreas
-
--- 
-Andreas Fester
-mailto:Andreas.Fester@gmx.de
-WWW: http://littletux.homelinux.org
+greg k-h

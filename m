@@ -1,41 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265007AbTFCN12 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 09:27:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265012AbTFCN12
+	id S265010AbTFCNe6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 09:34:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265011AbTFCNez
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 09:27:28 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:28906
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S265007AbTFCN11 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 09:27:27 -0400
-Subject: Re: siimage driver status
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Marco Tedaldi <mtedaldi@hifo.unizh.ch>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3EDC4B72.7090407@hifo.unizh.ch>
-References: <Pine.LNX.4.44.0305291025550.11675-100000@bork.hampshire.edu>
-	 <1054216464.20725.70.camel@dhcp22.swansea.linux.org.uk>
-	 <001801c32631$642ba220$41010101@toshiba>  <3EDC4B72.7090407@hifo.unizh.ch>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1054644183.9233.8.camel@dhcp22.swansea.linux.org.uk>
+	Tue, 3 Jun 2003 09:34:55 -0400
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:35300 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S265010AbTFCNew (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 09:34:52 -0400
+Message-Id: <5.1.0.14.2.20030603154641.00b130e8@pop.t-online.de>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 03 Jun 2003 15:48:12 +0200
+To: linux-kernel@vger.kernel.org
+From: margitsw@t-online.de (Margit Schubert-While)
+Subject: Re: Linux 2.4.21rc6-ac2
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 03 Jun 2003 13:43:04 +0100
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Seen: false
+X-ID: VmU01wZS8eiPVq+DJMokCyh1X8Q2UfAfK2bSJ2Wnkcv4UDrF59wRUP@t-dialin.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-06-03 at 08:17, Marco Tedaldi wrote:
-> This issue was reported by at least 3 People here on the list (including 
-> me) with different 21-rcX kernels. Seems noone really cared :-(
+Sorry WLI , my bad  :-(
+Forgot to say that a patch file was attached in may original mail.
 
-Wrong
-
-> I hope, this issue now get's addressed.
-
-It already has been. Its just I like to take the time to make sure a
-change is correct rather than dumping it out and seeing if it eats
-anyones disks.
+Margit
 

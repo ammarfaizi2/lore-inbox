@@ -1,31 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261635AbSJJNDS>; Thu, 10 Oct 2002 09:03:18 -0400
+	id <S261383AbSJJNM0>; Thu, 10 Oct 2002 09:12:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261636AbSJJNDS>; Thu, 10 Oct 2002 09:03:18 -0400
-Received: from dsl-213-023-020-143.arcor-ip.net ([213.23.20.143]:59327 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S261635AbSJJNDR>;
-	Thu, 10 Oct 2002 09:03:17 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Andrew_Purtell@NAI.com, tytso@mit.edu
-Subject: Re: two problems using EXT3 htrees
-Date: Thu, 10 Oct 2002 15:08:55 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-References: <1D4F16D4D695D21186A300A0C9DCF9838F611F@LOS-83-207.nai.com>
-In-Reply-To: <1D4F16D4D695D21186A300A0C9DCF9838F611F@LOS-83-207.nai.com>
+	id <S261530AbSJJNM0>; Thu, 10 Oct 2002 09:12:26 -0400
+Received: from denise.shiny.it ([194.20.232.1]:35471 "EHLO denise.shiny.it")
+	by vger.kernel.org with ESMTP id <S261383AbSJJNMY>;
+	Thu, 10 Oct 2002 09:12:24 -0400
+Message-ID: <XFMail.20021010151735.pochini@shiny.it>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17zd3i-0008A8-00@starship>
+In-Reply-To: <3DA55E0C.24033BB5@aitel.hist.no>
+Date: Thu, 10 Oct 2002 15:17:35 +0200 (CEST)
+From: Giuliano Pochini <pochini@shiny.it>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Subject: Re: [PATCH] O_STREAMING - flag for optimal streaming I/O
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 09 October 2002 20:29, Andrew_Purtell@NAI.com wrote:
-> I recently patched my 2.4.19 kernel with EXT3 dir_index support and tried
-> it out on my 80GB EXT3 data partition...
 
-Could you please provide a pointer to the patch you used?
+On 10-Oct-2002 Helge Hafting wrote:
+> Giuliano Pochini wrote:
+> 
+>> Yes, it makes sense, but it's useless or harmful to discard caches
+>> if nobody else needs memory. You just lose data that may be
+>> requested in the future for no reason.
+> 
+> Sure, so the ideal is to not drop unconditionally, but
+> make sure that the "finished" O_STREAMING pages are
+> the very first ones to go whenever memory pressure happens.
+> 
+> The question then becomes "can you do that, with no more
+> overhead or code complexity than the existing stuff?"
 
--- 
-Daniel
+I don't know enough of linux internals to suggest anything
+really useful. Perhaps something like: "drop pages which
+weren't already loaded when we requested them" might be
+enough to prevent cached stuff used by other tasks to be
+removed from memory.
+
+> It wouldn't necessarily make much difference, because
+> a linux machine is almost always under memory pressure.
+> Free memory is simply filled up with cache till there
+> is no more left.  From then on, all requests for memory
+> are handled by throwing something else out of cache
+> or into swap.  In that case the streaming pages
+> are evicted quickly anyway, and the ideal case
+> is no different from the implemented case.
+
+O_STREAMING is a way to reduce cache footprint of some
+files, ad it does the job very well, unless those files
+are accessed concurrently by two of more processes.
+Thing again about to backup a large database. I don't
+want to use tar because it kills the caches. I would
+like a way to read the db so that the cached part of
+the db (the 20% which gets 80% of accesses) is not
+expunged.
+
+
+Bye.
+

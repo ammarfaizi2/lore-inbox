@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268234AbUJCXV6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268235AbUJCXWf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268234AbUJCXV6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Oct 2004 19:21:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268235AbUJCXV6
+	id S268235AbUJCXWf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Oct 2004 19:22:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268236AbUJCXWf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Oct 2004 19:21:58 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:48027 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268234AbUJCXV5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Oct 2004 19:21:57 -0400
-Subject: Re: Merging DRM and fbdev
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Vladimir Dergachev <volodya@mindspring.com>
-Cc: Jon Smirl <jonsmirl@gmail.com>, Dave Airlie <airlied@linux.ie>,
-       DRI Devel <dri-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0410031145560.17248@node2.an-vo.com>
-References: <9e47339104100220553c57624a@mail.gmail.com>
-	 <Pine.LNX.4.58.0410030824280.2325@skynet>
-	 <9e4733910410030833e8a6683@mail.gmail.com>
-	 <Pine.LNX.4.61.0410031145560.17248@node2.an-vo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1096841964.16457.17.camel@localhost.localdomain>
+	Sun, 3 Oct 2004 19:22:35 -0400
+Received: from fw.osdl.org ([65.172.181.6]:26522 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268235AbUJCXWc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Oct 2004 19:22:32 -0400
+Date: Sun, 3 Oct 2004 16:20:12 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Josef 'Jeff' Sipek" <jeffpc@optonline.net>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, trivial@rustcorp.com.au,
+       rusty@rustcorp.com.au
+Subject: Re: [PATCH 2.6][resend] Add DEVPATH env variable to hotplug helper
+ call
+Message-Id: <20041003162012.79296b37.akpm@osdl.org>
+In-Reply-To: <20041003100857.GB5804@optonline.net>
+References: <20041003100857.GB5804@optonline.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 03 Oct 2004 23:19:24 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2004-10-03 at 16:50, Vladimir Dergachev wrote:
-> In particular, I can contribute the code that does Framebuffer->System Ram
-> transfers over PCI/AGP. It is currently GPL licensed, but there is no 
-> problem if BSD folks want it too.
+"Josef 'Jeff' Sipek" <jeffpc@optonline.net> wrote:
+>
+> Add $DEVPATH to the environmental variables during /sbin/hotplug call.
+> 
+>  Josef 'Jeff' Sipek.
+> 
+>  Signed-off-by: Josef 'Jeff' Sipek <jeffpc@optonline.net>
+> 
+> 
+>  diff -Nru a/kernel/cpu.c b/kernel/cpu.c
+>  --- a/kernel/cpu.c	2004-09-24 13:08:57 -04:00
+>  +++ b/kernel/cpu.c	2004-09-24 13:08:57 -04:00
+>  @@ -61,13 +61,13 @@
+>    * cpu' with certain environment variables set.  */
+>   static int cpu_run_sbin_hotplug(unsigned int cpu, const char *action)
 
-This will do *wonders* to X render performance if used properly on those
-cards we can't do render in hardware.
+I don't think this function should exist at all.  We already have kobjects
+which represent the CPUs so it should be possible to find that kobject and
+use kobject_hotplug() on it.  That gives you your $DEVPATH.
 
-> This is also potentially useful for any Mesa functions that want to 
-> transfer data back from video RAM - using plain reads for this is really slow.
-
-Agreed - and Mesa tends to skip even tricks like SSE2 that can quadruple
-read performance.
+Does CPU hotplug behave correctly wrt /sys/devices/system/cpu?  Given that
+register_cpu() is still marked __init, I assume not.

@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264857AbTAJKaX>; Fri, 10 Jan 2003 05:30:23 -0500
+	id <S264815AbTAJK1n>; Fri, 10 Jan 2003 05:27:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264875AbTAJKaX>; Fri, 10 Jan 2003 05:30:23 -0500
-Received: from TYO201.gate.nec.co.jp ([210.143.35.51]:43514 "EHLO
-	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id <S264857AbTAJKaW>; Fri, 10 Jan 2003 05:30:22 -0500
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] Make `obsolete params' work correctly if MODULE_SYMBOL_PREFIX is non-empty
-References: <20030110073328.D41A52C310@lists.samba.org>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-Blat: Foop
-From: Miles Bader <miles@lsi.nec.co.jp>
-Date: 10 Jan 2003 19:39:03 +0900
-In-Reply-To: <20030110073328.D41A52C310@lists.samba.org>
-Message-ID: <buor8bl8f20.fsf@mcspd15.ucom.lsi.nec.co.jp>
-MIME-Version: 1.0
+	id <S264818AbTAJK1n>; Fri, 10 Jan 2003 05:27:43 -0500
+Received: from adsl-66-112-90-25-rb.spt.centurytel.net ([66.112.90.25]:21888
+	"EHLO carthage") by vger.kernel.org with ESMTP id <S264815AbTAJK1m>;
+	Fri, 10 Jan 2003 05:27:42 -0500
+Date: Fri, 10 Jan 2003 04:33:09 -0600
+From: James Curbo <phoenix@sandwich.net>
+To: Manish Lachwani <manish@Zambeel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: DMA timeouts on Promise 20267 IDE card
+Message-ID: <20030110103309.GA412@carthage>
+Reply-To: James Curbo <phoenix@sandwich.net>
+References: <233C89823A37714D95B1A891DE3BCE5202AB1B7A@xch-a.win.zambeel.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <233C89823A37714D95B1A891DE3BCE5202AB1B7A@xch-a.win.zambeel.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Debian GNU/Linux
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-BTW, I noticed that there's actually a bug in my patch -- it assumes
-the length of MODULE_SYMBOL_PREFIX is 1.  So change:
+On Jan 09, Manish Lachwani wrote:
 
-        char sym_name[strlen(obsparm[i].name) + 2];
+> You should change the drive hda and also the cable. Then try again. 
+> 
 
-to:
+Oops! One of my IDE cables wasn't seated properly. Thanks for the help!
+At least it wasn't a kernel bug :)
 
-        char sym_name[strlen(obsparm[i].name) + sizeof MODULE_SYMBOL_PREFIX];
-
--Miles
 -- 
-Would you like fries with that?
+James Curbo <hannibal@adtrw.org> <phoenix@sandwich.net>
+http://www.adtrw.org/blogs/hannibal/

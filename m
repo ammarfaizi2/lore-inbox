@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266967AbTBVLgp>; Sat, 22 Feb 2003 06:36:45 -0500
+	id <S266983AbTBVLkS>; Sat, 22 Feb 2003 06:40:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266983AbTBVLgp>; Sat, 22 Feb 2003 06:36:45 -0500
-Received: from Mix-Lyon-107-2-213.abo.wanadoo.fr ([193.249.191.213]:49798 "EHLO
-	zion.wanadoo.fr") by vger.kernel.org with ESMTP id <S266967AbTBVLgo>;
-	Sat, 22 Feb 2003 06:36:44 -0500
-Subject: Re: ethernet-ATM-Router freezing
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Marc Haber <mh+linux-kernel@zugschlus.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030222084958.GC23827@torres.ka0.zugschlus.de>
-References: <20030222084958.GC23827@torres.ka0.zugschlus.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1045914526.12534.153.camel@zion.wanadoo.fr>
+	id <S267024AbTBVLkS>; Sat, 22 Feb 2003 06:40:18 -0500
+Received: from angband.namesys.com ([212.16.7.85]:7045 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S266983AbTBVLkR>; Sat, 22 Feb 2003 06:40:17 -0500
+Date: Sat, 22 Feb 2003 14:50:25 +0300
+From: Oleg Drokin <green@namesys.com>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: Hans Reiser <reiser@namesys.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Compile error, reiserfs, 2.4.21-pre4-ac5
+Message-ID: <20030222145025.A26010@namesys.com>
+References: <200302220433.44284.ivg2@cornell.edu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 22 Feb 2003 12:48:46 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200302220433.44284.ivg2@cornell.edu>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-02-22 at 09:49, Marc Haber wrote:
+Hello!
 
-> These freezes occur on the machine actually doing the work. If I move
-> the work to the other box, the freezes go with the work. Thus, I am
-> pretty confident that this is not faulty hardware. I don't believe
-> either that this is a incompatibility of the kernel since the systems
-> in question have been working in this software configuration for two
-> months before the problems started.
+On Sat, Feb 22, 2003 at 04:33:27AM -0500, Ivan Gyurdiev wrote:
+> gcc -D__KERNEL__ -I/usr/src/linux-2.4.21-pre4-ac5/include -Wall 
+> - -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
+> - -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=athlon    
+> - -nostdinc -iwithprefix include -DKBUILD_BASENAME=namei  -c -o namei.o namei.c
+> namei.c: In function `reiserfs_mkdir':
+> namei.c:651: label `out_failed' used but not defined
+[...]
 
-Your reasoning is wrong. It can well be a HW failure, those can be
-load related in various way (memory failure happening when memory
-is actually used, thermal failure happening on CPU load, etc...)
+I am unable to reproduce.
+Can you please show me your kernel config.
+What gcc version do you use?
+Did the patch applied cleanly for you?
+(look for *.rej files in fs/reiserfs)
 
-If the exact same setup worked for a while with same/similar loads
-and suddenly started to fail, there are great chances it's actually
-HW failure (possibly RAM).
+Thank you.
 
-Ben.
-
+Bye,
+    Oleg

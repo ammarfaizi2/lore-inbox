@@ -1,35 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266686AbRGKNiK>; Wed, 11 Jul 2001 09:38:10 -0400
+	id <S266689AbRGKOCZ>; Wed, 11 Jul 2001 10:02:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266687AbRGKNhu>; Wed, 11 Jul 2001 09:37:50 -0400
-Received: from horus.its.uow.edu.au ([130.130.68.25]:5528 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S266686AbRGKNhr>; Wed, 11 Jul 2001 09:37:47 -0400
-Message-ID: <3B4C56F1.3085D698@uow.edu.au>
-Date: Wed, 11 Jul 2001 23:38:57 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-CC: Klaus Dittrich <kladit@t-online.de>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.7p6 hang
-In-Reply-To: <200107110849.f6B8nlm00414@df1tlpc.local.here>,
-		kladit@t-online.de's message of "Wed, 11 Jul 2001 10:49:47 +0200 (METDST)" <shslmlv62us.fsf@charged.uio.no>
+	id <S266697AbRGKOCF>; Wed, 11 Jul 2001 10:02:05 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:3848 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S266689AbRGKOCC>;
+	Wed, 11 Jul 2001 10:02:02 -0400
+Date: Wed, 11 Jul 2001 16:01:48 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Dipankar Sarma <dipankar@sequent.com>
+Cc: Mike Anderson <mike.anderson@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: io_request_lock patch?
+Message-ID: <20010711160148.A712@suse.de>
+In-Reply-To: <20010710172545.A8185@in.ibm.com> <20010710160512.A25632@us.ibm.com> <20010711142311.B9220@in.ibm.com> <20010711105339.F17314@suse.de> <20010711193256.G9220@in.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20010711193256.G9220@in.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
+On Wed, Jul 11 2001, Dipankar Sarma wrote:
+> On Wed, Jul 11, 2001 at 10:53:39AM +0200, Jens Axboe wrote:
+> > The queue lengths should always be long enough to keep the hw busy of
+> > course. And in addition, the bigger the queues the bigger the chance of
+> > skipping seeks due to reordering. But don't worry, I've scaled the queue
+> > lengths so I'm pretty sure that they are always on the safe side in
+> > size.
+> > 
+> > It's pretty easy to test for yourself if you want, just change
+> > QUEUE_NR_REQUESTS in blkdev.h. It's currently 8192, the request slots
+> > are scaled down from this value. 8k will give you twice the amount of
+> > slots that you have RAM in mb, ie 2048 on a 1gig machine.
+> > 
+> > block: queued sectors max/low 683554kB/552482kB, 2048 slots per queue
 > 
-> ...
-> I have the same problem on my setup. To me, it looks like the loop in
-> spawn_ksoftirqd() is suffering from some sort of atomicity problem.
+> Hmm.. The tiobench run was done on a 1GB machine and we still ran
+> out of request slots. Will investigate.
 
-Does a `set_current_state(TASK_RUNNING);' in spawn_ksoftirqd()
-fix it?  If so we have a rogue initcall...
+Sure, that's to be expected. If we never ran out we would be wasting
+memory. My point is that you should rerun the same test with more
+request slots -- and I'd be surprised if you gained any significant
+performance on that account. I never said that you'd never run out,
+that's of course not true. In fact, running out is what starts the I/O
+typically on a 1GB machine and bigger.
 
--
+-- 
+Jens Axboe
+

@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264836AbTABQkx>; Thu, 2 Jan 2003 11:40:53 -0500
+	id <S265222AbTABQoc>; Thu, 2 Jan 2003 11:44:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265074AbTABQkx>; Thu, 2 Jan 2003 11:40:53 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:18699 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S264836AbTABQkv>;
-	Thu, 2 Jan 2003 11:40:51 -0500
-Date: Thu, 2 Jan 2003 17:49:14 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Christoph Hellwig <hch@lst.de>, Christoph Hellwig <hch@infradead.org>,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Subject: Re: [PATCH] more procfs bits for !CONFIG_MMU
-Message-ID: <20030102164914.GC956@mars.ravnborg.org>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
-	Christoph Hellwig <hch@infradead.org>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org,
-	Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-References: <20030102000522.A6137@lst.de> <Pine.LNX.4.44.0301011539070.12809-100000@home.transmeta.com> <20030101235842.A3044@infradead.org> <20030102162956.GB956@mars.ravnborg.org> <20030102173505.B11900@lst.de>
-Mime-Version: 1.0
+	id <S265236AbTABQoc>; Thu, 2 Jan 2003 11:44:32 -0500
+Received: from atlrel9.hp.com ([156.153.255.214]:3222 "HELO atlrel9.hp.com")
+	by vger.kernel.org with SMTP id <S265222AbTABQoa>;
+	Thu, 2 Jan 2003 11:44:30 -0500
+Message-ID: <3E146E6B.8CCA954E@hp.com>
+Date: Thu, 02 Jan 2003 09:52:59 -0700
+From: Khalid Aziz <khalid_aziz@hp.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel .config support?
+References: <Pine.LNX.4.44.0301021141210.8604-100000@dell>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030102173505.B11900@lst.de>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 02, 2003 at 05:35:05PM +0100, Christoph Hellwig wrote:
-> On Thu, Jan 02, 2003 at 05:29:56PM +0100, Sam Ravnborg wrote:
-> > New Makefile:
-> > proc-y             := proc_mmu.o
-> > proc-$(CONFIG_MMU) := proc_nommu.o
-> >
+"Robert P. J. Day" wrote:
 > 
-> Wouldn't this add proc_mmu.o even if CONFIG_MMU is not y?
+> On 2 Jan 2003, Alan Cox wrote:
+> 
+> >
+> > Its never been in the standard 2.4 kernel. The facility has been in the
+> > -ac kernel, and was recently submitted for consideration in 2.5
+> 
+> that's odd.  the selection for kernel .config support has been in
+> the red hat config menus for at least the last release, as well
+> as the extraction script .../scripts/extract-ikconfig.  but this
+> never worked due to a missing "binoffset" utility.  i even filed
+> a bugzilla on that (bug 65677).
+> 
+> just curious -- how did that ever end up in the distributed red hat
+> kernel if it was never standard?  strange.
+> 
 
-Ups, you are right. I thought about CONFIG_NOMMU..
-Should read:
-proc-y := proc_nommu.o
-proc-$(CONFIG_MMU) := proc_mmu.o
+Redhat kernel is not the same as standard kernel (the official one, on
+kernel.org). Redhat adds a number of patches to the standard kernel
+before releasing it.
 
-If CONFIG_MMU is 'y', then the first assignment is overwritten.
+-- 
+Khalid
 
-The same principle (pattern?), but with reversed logic.
-But this one is not that nice, because the common case overwrite the
-un-common case.
+====================================================================
+Khalid Aziz                                Linux and Open Source Lab
+(970)898-9214                                        Hewlett-Packard
+khalid@hp.com                                       Fort Collins, CO
 
-	Sam
+"The Linux kernel is subject to relentless development" 
+				- Alessandro Rubini

@@ -1,77 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129733AbQLGFtJ>; Thu, 7 Dec 2000 00:49:09 -0500
+	id <S129909AbQLGGb5>; Thu, 7 Dec 2000 01:31:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129231AbQLGFs7>; Thu, 7 Dec 2000 00:48:59 -0500
-Received: from linuxcare.com.au ([203.29.91.49]:5641 "EHLO
-	front.linuxcare.com.au") by vger.kernel.org with ESMTP
-	id <S129361AbQLGFsu>; Thu, 7 Dec 2000 00:48:50 -0500
-From: Anton Blanchard <anton@linuxcare.com.au>
-Date: Thu, 7 Dec 2000 16:15:54 +1100
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, riel@conectiva.com.br, davej@suse.de
-Subject: [PATCH]: sysctl to tune async and sync bdflush triggers
-Message-ID: <20001207161554.A9375@linuxcare.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S129939AbQLGGbq>; Thu, 7 Dec 2000 01:31:46 -0500
+Received: from pop.gmx.net ([194.221.183.20]:61309 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S129909AbQLGGbj>;
+	Thu, 7 Dec 2000 01:31:39 -0500
+From: Norbert Breun <nbreun@gmx.de>
+Reply-To: nbreun@gmx.de
+Organization: private
+Date: Thu, 7 Dec 2000 06:59:01 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain;
+  charset="US-ASCII"
+To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
+In-Reply-To: <Pine.LNX.4.10.10012010234320.20188-100000@coffee.psychology.mcmaster.ca>
+In-Reply-To: <Pine.LNX.4.10.10012010234320.20188-100000@coffee.psychology.mcmaster.ca>
+Subject: Re: 2.4.0-test12-pre3: kernel: APIC error on CPU0: 08(00) /Gigabyte GA-586DX SMP_BOARD
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Message-Id: <00120706590100.03542@nmb>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hallo Mark,
 
-Hi,
+there is one thing, that is some kind of curious:
 
-At the moment the synchronous flush trigger for bdflush is hardwired to be
-double the asynchronous one. This is a pain for people with lots of RAM.
+using 2.4.0-test12pre5 I've many apic errors with CPU1 a n d CPU0:
 
-This patch adds a new variable to the bdflush sysctl so both can be
-tuned independently. It also sets the defaults to 40% and 80% for async and
-sync flushing. This has worked fine on my test machines (128M RAM and 2G RAM).
-
-btw: does anything still touch these dummy entries?
-
-Cheers,
-Anton
+Dec  7 06:52:04 nmb kernel: APIC error on CPU1: 04(00)
+Dec  7 06:52:04 nmb kernel: APIC error on CPU0: 02(00)
+Dec  7 06:52:04 nmb kernel: APIC error on CPU0: 04(00)
+Dec  7 06:52:07 nmb kernel: APIC error on CPU0: 02(00)
+Dec  7 06:52:07 nmb kernel: APIC error on CPU1: 04(00)
 
 
-diff -urN linux/fs/buffer.c linux_intel/fs/buffer.c
---- linux/fs/buffer.c	Thu Dec  7 11:24:40 2000
-+++ linux_intel/fs/buffer.c	Thu Dec  7 00:08:06 2000
-@@ -122,16 +122,17 @@
- 				  when trying to refill buffers. */
- 		int interval; /* jiffies delay between kupdate flushes */
- 		int age_buffer;  /* Time for normal buffer to age before we flush it */
--		int dummy1;    /* unused, was age_super */
-+		int nfract_sync; /* Percentage of buffer cache dirty to 
-+				    activate bdflush synchronously */
- 		int dummy2;    /* unused */
- 		int dummy3;    /* unused */
- 	} b_un;
- 	unsigned int data[N_PARAM];
--} bdf_prm = {{40, 500, 64, 256, 5*HZ, 30*HZ, 5*HZ, 1884, 2}};
-+} bdf_prm = {{40, 500, 64, 256, 5*HZ, 30*HZ, 80, 0, 0}};
- 
- /* These are the min and max parameter values that we will allow to be assigned */
--int bdflush_min[N_PARAM] = {  0,  10,    5,   25,  0,   1*HZ,   1*HZ, 1, 1};
--int bdflush_max[N_PARAM] = {100,50000, 20000, 20000,600*HZ, 6000*HZ, 6000*HZ, 2047, 5};
-+int bdflush_min[N_PARAM] = {  0,  10,    5,   25,  0,   1*HZ,   0, 0, 0};
-+int bdflush_max[N_PARAM] = {100,50000, 20000, 20000,600*HZ, 6000*HZ, 100, 0, 0};
- 
- /*
-  * Rewrote the wait-routines to use the "new" wait-queue functionality,
-@@ -1036,9 +1037,9 @@
- 	dirty = size_buffers_type[BUF_DIRTY] >> PAGE_SHIFT;
- 	tot = nr_free_buffer_pages();
- 
--	dirty *= 200;
-+	dirty *= 100;
- 	soft_dirty_limit = tot * bdf_prm.b_un.nfract;
--	hard_dirty_limit = soft_dirty_limit * 2;
-+	hard_dirty_limit = tot * bdf_prm.b_un.nfract_sync;
- 
- 	/* First, check for the "real" dirty limit. */
- 	if (dirty > soft_dirty_limit) {
+running 2.4.0-test11ac4 apic errors only appear with CPU0:
+
+Dec  6 13:41:33 nmb kernel: APIC error on CPU0: 01(00)
+Dec  6 13:41:33 nmb kernel: APIC error on CPU0: 02(00)
+Dec  6 13:42:07 nmb last message repeated 2 times
+Dec  6 13:42:28 nmb last message repeated 10 times
+Dec  6 13:42:32 nmb kernel: APIC error on CPU0: 04(00)
+Dec  6 13:42:34 nmb kernel: APIC error on CPU0: 02(00)
+Dec  6 13:42:39 nmb last message repeated 4 times
+Dec  6 13:42:40 nmb kernel: APIC error on CPU0: 08(00)
+Dec  6 13:42:49 nmb kernel: APIC error on CPU0: 02(00)
+Dec  6 13:42:55 nmb kernel: APIC error on CPU0: 08(00)
+Dec  6 13:43:02 nmb kernel: APIC error on CPU0: 02(00)
+
+and n e v e r on CPU1 !
+today I will compile 2.4.0-test12pre7 and 'll see....
+
+kind regards
+Norbert
+
+
+
+On Friday 01 December 2000 08:36, Mark Hahn wrote:
+> > > unfortunately, many SMP boards have noisy APIC lines.
+> >
+> > Hallo Mark,
+> >
+> > thank you for your immediate reply!
+> > Do APIC errors mean => hardware errors? With the actual kernel
+>
+> they are corrected errors.  that is, the apic checksums its messages
+> and retries.  obviously, if the corruption is bad enough, it'll hang.
+>
+> > (2.4.0-test12pre3) they apear less often...
+>
+> there have been tweaks to the kernel code that handles the error
+> reports, and there have been changes in how the kernel uses apics.
+>
+> > Can I do anything to solve this problem besides buying a new board (I do
+> > not need a new computer ;o))?
+>
+> nope.  among people who have abit bp6's (very prone to this problem),
+> a number of voodoo techniques are used, including >=300W power,
+> fan on the BX chipset, bios updates, etc.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

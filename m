@@ -1,51 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266195AbUITLDU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266243AbUITLEo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266195AbUITLDU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 07:03:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266244AbUITLBA
+	id S266243AbUITLEo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 07:04:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266216AbUITLEo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 07:01:00 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:4113 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S266195AbUITK7j
+	Mon, 20 Sep 2004 07:04:44 -0400
+Received: from ns9.hostinglmi.net ([213.194.149.146]:35269 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S266243AbUITLEU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 06:59:39 -0400
-Date: Mon, 20 Sep 2004 20:57:20 +1000
-To: Martin Bouzek <martin.bouzek@radas-atc.cz>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, davem@davemloft.net,
-       netdev@oss.sgi.com
-Subject: Re: Minor IPSec bug + solution
-Message-ID: <20040920105720.GA14214@gondor.apana.org.au>
-References: <E1C83f1-0002X7-00@gondolin.me.apana.org.au> <1095413173.2708.106.camel@mabouzek> <20040917102720.GA14579@gondor.apana.org.au> <1095666589.2723.8.camel@mabouzek>
+	Mon, 20 Sep 2004 07:04:20 -0400
+Date: Mon, 20 Sep 2004 13:06:31 +0200
+From: DervishD <lkml@dervishd.net>
+To: Andries.Brouwer@cwi.nl
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: OOM & [OT] util-linux-2.12e
+Message-ID: <20040920110631.GJ5482@DervishD>
+Mail-Followup-To: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+References: <UTC200409192205.i8JM52C25370.aeb@smtp.cwi.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <1095666589.2723.8.camel@mabouzek>
-User-Agent: Mutt/1.5.6+20040722i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <UTC200409192205.i8JM52C25370.aeb@smtp.cwi.nl>
+User-Agent: Mutt/1.4.2.1i
+Organization: DervishD
+X-PopBeforeSMTPSenders: raul@dervishd.net
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 20, 2004 at 09:49:49AM +0200, Martin Bouzek wrote:
-> 
-> Ok. And would it be possible to check the protocols too (eg.
-> tmpl->id.proto == x->id.proto)? If it is realy not possible to make the
+    Hi Andries :)
 
-Obviously not, since IPCOMP != IPIP.
+ * Andries.Brouwer@cwi.nl <Andries.Brouwer@cwi.nl> dixit:
+> If we would put the mount options in /proc/mounts, and introduced
+> a comment convention (say, the part starting with \: is ignored by
+> the kernel but can be used by programs reading /proc/mounts),
+> then /etc/mtab can die. Comments? Better solutions?
 
-> IPComp/required tunnel to work, it would be nice to mention it in for
-> example the setkey man page. It could save quite lot of time to some
-> people. (like me :-) ).
+    If you add a comment convention to /proc/mounts so you can use it
+as a substitute for /etc/mtab, you will probably break the apps that
+use /etc/mtab. I was wondering, then... does the kernel *read*
+/proc/mounts contents? If the answer is no, then you can add all
+syntactic noise you want to /proc/mounts, exporting options needed
+for userspace programs, with no problem. You can make /proc/mounts to
+look like /etc/mtab. That will solve most of the problems.
 
-IPComp is the main reason why we have optional SAs at all.  So
-IPComp/required definitely does not make sense.
+    If the kernel needs to read /proc/mounts, then you have a
+problem: you will need /etc/mtab as long as you have to use loop
+devices, user mounts, etc.
 
-As to the documentation of this issue, feel free to write something up
-and send it to either the kernel maintainers or one of the user-space
-projects.
+    Raúl Núñez de Arenas Coronado
 
-Cheers,
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Linux Registered User 88736
+http://www.pleyades.net & http://raul.pleyades.net/

@@ -1,79 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268211AbUHFRZQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268186AbUHFRVw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268211AbUHFRZQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 13:25:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266561AbUHFRWe
+	id S268186AbUHFRVw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 13:21:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266561AbUHFRTg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 13:22:34 -0400
-Received: from shockwave.systems.pipex.net ([62.241.160.9]:30441 "EHLO
-	shockwave.systems.pipex.net") by vger.kernel.org with ESMTP
-	id S268192AbUHFRUE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 13:20:04 -0400
-Message-ID: <4113BDC0.6050604@tungstengraphics.com>
-Date: Fri, 06 Aug 2004 18:20:00 +0100
-From: Keith Whitwell <keith@tungstengraphics.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030922
-X-Accept-Language: en-us, en
+	Fri, 6 Aug 2004 13:19:36 -0400
+Received: from out007pub.verizon.net ([206.46.170.107]:7048 "EHLO
+	out007.verizon.net") by vger.kernel.org with ESMTP id S268190AbUHFRQ0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 13:16:26 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: Possible dcache BUG
+Date: Fri, 6 Aug 2004 13:16:24 -0400
+User-Agent: KMail/1.6.82
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, vda@port.imtp.ilyichevsk.odessa.ua,
+       ak@suse.de, Chris Shoemaker <c.shoemaker@cox.net>,
+       William Lee Irwin III <wli@holomorphy.com>
+References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org> <200408060751.07605.gene.heskett@verizon.net> <Pine.LNX.4.58.0408060948310.24588@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0408060948310.24588@ppc970.osdl.org>
 MIME-Version: 1.0
-To: Jon Smirl <jonsmirl@yahoo.com>
-Cc: Ian Romanick <idr@us.ibm.com>, Dave Airlie <airlied@linux.ie>,
-       "DRI developer's list" <dri-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: DRM function pointer work..
-References: <20040806171641.14189.qmail@web14928.mail.yahoo.com>
-In-Reply-To: <20040806171641.14189.qmail@web14928.mail.yahoo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200408061316.24495.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [151.205.8.94] at Fri, 6 Aug 2004 12:16:25 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Smirl wrote:
-> --- Keith Whitwell <keith@tungstengraphics.com> wrote:
-> 
->>Ian Romanick wrote:
+On Friday 06 August 2004 12:58, Linus Torvalds wrote:
+>On Fri, 6 Aug 2004, Gene Heskett wrote:
+>> Linus, Andrew, should I apply this patch too at the next remake?
+>
+>Might be worth it, but it's more important to see any oops at all,
+> or lack of oopses..
+>
+>> FWIW, I'm still up (20:38) this morning, and showing plenty (127+
+>> megs) of free memory.  No crash, no odd log (other than samba
+>> squawking about some option thats been changed & I haven't fixed
+>> the smb.conf) so far.
 >>
->>>Jon Smirl wrote:
->>>
->>>
->>>>The only case I see a problem is when drm-core is compiled into
->>>>the kernel. Why don't we just change the Makefile to default to
->>>>copying the CVS code into the kernel source tree and tell the 
->>>>user to rebuild his kernel? 
->>>
->>>
->>>I don't think that will fly with Joe-user that just wants to
->>>upgrade his graphics driver.  The other problem case is if the 
->>>user has two graphics cards in his system.  He wants to upgrade
->>>the driver for one of them (or install a new driver for a new 
->>>card), but the interface between the device-independent 
->>>(in-kernel) layer and the device-dependent (in-kernel) layer 
->>>has changed.
-> 
-> 
-> fbdev is in exactly this model and it isn't causing anyone problems.
-> The simple rule is that if you want to upgrade fbdev past the current
-> version you have to do it in entirety. You do that for fbdev but
-> pulling bk://fbdev.bkbits.net/. But Joe user doesn't do that, that is
-> something only developers do.
-> 
-> Distributions release new kernels all of the time. If Joe wants to
-> upgrade he graphics driver he should wait until we push it into the
-> kernel and it arrives via his distribution. If he really wants to be
-> bleeding edge he can copy the entirety of the DRM CVS into his kernel
-> tree. 
-> 
-> Linux doesn't have a stable driver binary interface. It isn't meant for
-> you to be able to upgrade one module while keeping the core and an
-> older module.
-> 
-> The key here is that distributions release new kernels at a rapid pace.
-> This is not X where we get a new release every five years. The standard
-> mechanism for upgrading device drivers in Linux is to add them to the
-> kernel and wait for a release.  If DRM uses that mechanism for
-> distribution we won't have problems.
+>> I'm beginning to like this test patch, Linus, thanks :)
+>
+>If the only thing you have done is add the list_del_init() debugging
+>patch, then the only thing that has changed is really the access
+> patterns to uncached memory.
+>
+>The original list_del_init() tries to only do a few single _writes_
+> to the dentries around it. The added debugging will do _reads_ (and
+> thus bring it into the cache) of the dentry pointers of the
+> dentries around it.
+>
+>If that change makes a real difference, I really only see two
+>possibilities:
+> - there really is a prefetch bug (or possibly, there's a bug in our
+>   prefetch fixup code, and the known prefetch bug just triggers the
+>   problem indirectly)
+> - it just changes the timing enough that whatever bug you hit went
+> away.
+>
+>Now, Chris Shoemaker reported dentry problems on a intel CPU and
+> said that wli had seen something too, but I'm wondering whether
+> Chris and wli might have been seeing the knfsd/xfs-related dentry
+> bug that I found yesterday. So I think the prefetch theory is still
+> alive, but we should check with Chris. Chris?
+>
+>		Linus
 
-Sorry, I don't buy it.  Graphics drivers are a special case and people upgrade 
-them with a passion...  No new interfaces, thankyou.
+I'm still up, a bit over 24 hours now. :)  Free memory is slowly going 
+away, I ran mozilla for a while which got rid of about 60 megs, and 
+now I see I'm down to 23 free, whereas at the 11 hour up marker I had 
+nearly 130 megs free yet.  I've got to go to town, so that will leave 
+seti and kmail doing their thing till I get back.  If it goes down, 
+hopefully it will record something, unlike the last couple of times.
 
-Keith
-
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.24% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

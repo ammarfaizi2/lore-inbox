@@ -1,96 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263214AbTCNA63>; Thu, 13 Mar 2003 19:58:29 -0500
+	id <S263186AbTCNA5W>; Thu, 13 Mar 2003 19:57:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263211AbTCNA6C>; Thu, 13 Mar 2003 19:58:02 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:62987 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S263209AbTCNAz4>;
-	Thu, 13 Mar 2003 19:55:56 -0500
+	id <S263192AbTCNA5B>; Thu, 13 Mar 2003 19:57:01 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:58635 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S263205AbTCNAzp>;
+	Thu, 13 Mar 2003 19:55:45 -0500
 Subject: Re: [PATCH] i2c driver changes for 2.5.64
-In-reply-to: <10476033233796@kroah.com>
+In-reply-to: <10476033153504@kroah.com>
 Content-Transfer-Encoding: 7BIT
 To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
 From: Greg KH <greg@kroah.com>
 Content-Type: text/plain; charset=US-ASCII
 Mime-version: 1.0
 Date: Thu, 13 Mar 2003 16:55 -0800
-Message-id: <1047603324728@kroah.com>
+Message-id: <1047603318248@kroah.com>
 X-mailer: gregkh_patchbomb
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1112, 2003/03/13 12:26:39-08:00, greg@kroah.com
+ChangeSet 1.1106, 2003/03/13 10:50:41-08:00, greg@kroah.com
 
-i2c: add i2c sysfs bus support.
-
-
- drivers/i2c/i2c-core.c |   33 ++++++++++++++++++++++++++++++---
- include/linux/i2c.h    |    3 +++
- 2 files changed, 33 insertions(+), 3 deletions(-)
+i2c: get i2c-ali15x3 driver to actually bind to a PCI device.
 
 
-diff -Nru a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
---- a/drivers/i2c/i2c-core.c	Thu Mar 13 16:57:09 2003
-+++ b/drivers/i2c/i2c-core.c	Thu Mar 13 16:57:09 2003
-@@ -598,10 +598,37 @@
+ drivers/i2c/busses/i2c-ali15x3.c |   32 +++++++++-----------------------
+ 1 files changed, 9 insertions(+), 23 deletions(-)
+
+
+diff -Nru a/drivers/i2c/busses/i2c-ali15x3.c b/drivers/i2c/busses/i2c-ali15x3.c
+--- a/drivers/i2c/busses/i2c-ali15x3.c	Thu Mar 13 16:57:58 2003
++++ b/drivers/i2c/busses/i2c-ali15x3.c	Thu Mar 13 16:57:58 2003
+@@ -135,32 +135,11 @@
+ 
+ static unsigned short ali15x3_smba = 0;
+ 
+-/* Detect whether a ALI15X3 can be found, and initialize it, where necessary.
+-   Note the differences between kernels with the old PCI BIOS interface and
+-   newer kernels with the real PCI interface. In compat.h some things are
+-   defined to make the transition easier. */
+-int ali15x3_setup(void)
++int ali15x3_setup(struct pci_dev *ALI15X3_dev)
  {
- 	remove_proc_entry("i2c",proc_bus);
- }
-+#else
-+static int __init i2cproc_init(void) { return 0; }
-+static void __exit i2cproc_cleanup(void) { }
-+#endif /* CONFIG_PROC_FS */
+ 	u16 a;
+ 	unsigned char temp;
  
--module_init(i2cproc_init);
--module_exit(i2cproc_cleanup);
--#endif /* def CONFIG_PROC_FS */
-+/* match always succeeds, as we want the probe() to tell if we really accept this match */
-+static int i2c_device_match(struct device *dev, struct device_driver *drv)
-+{
-+	return 1;
-+}
-+
-+struct bus_type i2c_bus_type = {
-+	.name =		"i2c",
-+	.match =	i2c_device_match,
-+};
-+
-+
-+static int __init i2c_init(void)
-+{
-+	bus_register(&i2c_bus_type);
-+	return i2cproc_init();
-+}
-+
-+static void __exit i2c_exit(void)
-+{
-+	i2cproc_cleanup();
-+	bus_unregister(&i2c_bus_type);
-+}
-+
-+module_init(i2c_init);
-+module_exit(i2c_exit);
+-	struct pci_dev *ALI15X3_dev;
+-
+-	/* First check whether we can access PCI at all */
+-	if (pci_present() == 0) {
+-		printk("i2c-ali15x3.o: Error: No PCI-bus found!\n");
+-		return -ENODEV;
+-	}
+-
+-	/* Look for the ALI15X3, M7101 device */
+-	ALI15X3_dev = NULL;
+-	ALI15X3_dev = pci_find_device(PCI_VENDOR_ID_AL,
+-				      PCI_DEVICE_ID_AL_M7101, ALI15X3_dev);
+-	if (ALI15X3_dev == NULL) {
+-		printk("i2c-ali15x3.o: Error: Can't detect ali15x3!\n");
+-		return -ENODEV;
+-	}
+-
+ /* Check the following things:
+ 	- SMB I/O address is initialized
+ 	- Device is enabled
+@@ -534,12 +513,18 @@
  
- /* ----------------------------------------------------
-  * the functional interface to the i2c busses.
-diff -Nru a/include/linux/i2c.h b/include/linux/i2c.h
---- a/include/linux/i2c.h	Thu Mar 13 16:57:09 2003
-+++ b/include/linux/i2c.h	Thu Mar 13 16:57:09 2003
-@@ -34,6 +34,7 @@
- #include <linux/module.h>
- #include <linux/types.h>
- #include <linux/i2c-id.h>
-+#include <linux/device.h>	/* for struct device */
- #include <asm/semaphore.h>
  
- /* --- General options ------------------------------------------------	*/
-@@ -143,6 +144,8 @@
- 	 */
- 	int (*command)(struct i2c_client *client,unsigned int cmd, void *arg);
+ static struct pci_device_id ali15x3_ids[] __devinitdata = {
++	{
++	.vendor =	PCI_VENDOR_ID_AL,
++	.device =	PCI_DEVICE_ID_AL_M7101,
++	.subvendor =	PCI_ANY_ID,
++	.subdevice =	PCI_ANY_ID,
++	},
+ 	{ 0, }
  };
-+
-+extern struct bus_type i2c_bus_type;
  
- /*
-  * i2c_client identifies a single device (i.e. chip) that is connected to an 
+ static int __devinit ali15x3_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ {
+-	if (ali15x3_setup()) {
++	if (ali15x3_setup(dev)) {
+ 		printk
+ 		    ("i2c-ali15x3.o: ALI15X3 not detected, module not inserted.\n");
+ 
+@@ -549,6 +534,7 @@
+ 	sprintf(ali15x3_adapter.name, "SMBus ALI15X3 adapter at %04x",
+ 		ali15x3_smba);
+ 	i2c_add_adapter(&ali15x3_adapter);
++	return 0;
+ }
+ 
+ static void __devexit ali15x3_remove(struct pci_dev *dev)
 

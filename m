@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274049AbRIXRI0>; Mon, 24 Sep 2001 13:08:26 -0400
+	id <S274051AbRIXROQ>; Mon, 24 Sep 2001 13:14:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274050AbRIXRIQ>; Mon, 24 Sep 2001 13:08:16 -0400
-Received: from cpe.atm0-0-0-122182.bynxx2.customer.tele.dk ([62.243.2.100]:53137
-	"HELO marvin.athome.dk") by vger.kernel.org with SMTP
-	id <S274049AbRIXRID>; Mon, 24 Sep 2001 13:08:03 -0400
-Message-ID: <3BAF688B.5090508@fugmann.dhs.org>
-Date: Mon, 24 Sep 2001 19:08:27 +0200
-From: Anders Peter Fugmann <afu@fugmann.dhs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Rasmus =?ISO-8859-1?Q?B=F8g?= Hansen <moffe@amagerkollegiet.dk>
-Cc: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Binary only module overview
-In-Reply-To: <Pine.LNX.4.33.0109241851281.3698-100000@grignard.amagerkollegiet.dk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S274052AbRIXROJ>; Mon, 24 Sep 2001 13:14:09 -0400
+Received: from granger.mail.mindspring.net ([207.69.200.148]:50981 "EHLO
+	granger.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S274051AbRIXRN7>; Mon, 24 Sep 2001 13:13:59 -0400
+Subject: Re: ext3-2.4-0.9.10
+From: Robert Love <rml@ufl.edu>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <3BAECC4F.EF25393@zip.com.au>
+In-Reply-To: <3BAECC4F.EF25393@zip.com.au>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.14.99+cvs.2001.09.22.08.08 (Preview Release)
+Date: 24 Sep 2001 13:14:21 -0400
+Message-Id: <1001351664.8416.34.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rasmus Bøg Hansen wrote:
+On Mon, 2001-09-24 at 02:01, Andrew Morton wrote:
+> An ext3 patch against linux 2.4.10 is at
 
-> On Mon, 24 Sep 2001, Arjan van de Ven wrote:
-> 
-> 
->>I'm composing a list of all existing binary only modules, 
->>and I got to a list of 26 different modules; I undoubtedly forgot a few, 
->>so I hereby request feedback from people who know about modules I
->>left out, so that I can complete the list. (I do not really care about
->>modules that once existed for 2.0 or earlier and no longer exist for all
->>intents and purposes)
->>
-> 
-> IIRC, vmware includes one or more kernel modules.
-> 
-> Rasmus
-> 
-> 
-Yes, but the modules are not binary-only. 
+Any chance of a patch for Alan's tree?
 
-The sourcecode is in the package, although it is not GPL.
+I have a patch for 2.4.9-ac15 that is ext 0.9.9 + ted's speedup, but I
+wouldn't feel comfortable trying to diff that against a patch for
+Linus's tree.
 
+Let me know if I can help.  Maybe Alan can merge 0.9.9 -- its been
+running solid here since release.
 
-Regards
-Anders Fugman
-
-
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
 

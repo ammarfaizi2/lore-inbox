@@ -1,52 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264591AbUAFW0F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 17:26:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265354AbUAFW0F
+	id S265398AbUAFW2w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 17:28:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265399AbUAFW2w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 17:26:05 -0500
-Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:25069 "EHLO
-	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
-	id S264591AbUAFW0C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 17:26:02 -0500
-Date: Tue, 6 Jan 2004 14:25:25 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Oleg Drokin <green@linuxhacker.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Suspected bug infilesystems (UFS,ADFS,BEFS,BFS,ReiserFS) related to sector_t being unsigned, advice requested
-Message-ID: <20040106222525.GF1882@matchmail.com>
-Mail-Followup-To: Oleg Drokin <green@linuxhacker.ru>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.56.0401052343350.7407@jju_lnx.backbone.dif.dk> <3FFA7717.7080808@namesys.com> <Pine.LNX.4.56.0401061218320.7945@jju_lnx.backbone.dif.dk> <20040106174650.GD1882@matchmail.com> <200401062135.i06LZAOY005429@car.linuxhacker.ru>
+	Tue, 6 Jan 2004 17:28:52 -0500
+Received: from [66.62.77.7] ([66.62.77.7]:43417 "EHLO mail.gurulabs.com")
+	by vger.kernel.org with ESMTP id S265398AbUAFW2v (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 17:28:51 -0500
+Subject: Re: name spaces good (was: [autofs] [RFC] Towards a Modern Autofs)
+From: Dax Kelson <dax@gurulabs.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: thockin@Sun.COM, Mike Waychison <Michael.Waychison@Sun.COM>,
+       autofs mailing list <autofs@linux.kernel.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3FFB316A.6000004@zytor.com>
+References: <3FFB12AD.6010000@sun.com> <3FFB223A.8000606@zytor.com>
+	 <20040106215018.GA911@sun.com>  <3FFB316A.6000004@zytor.com>
+Content-Type: text/plain
+Message-Id: <1073428129.2454.35.camel@mentor.gurulabs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200401062135.i06LZAOY005429@car.linuxhacker.ru>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 06 Jan 2004 15:28:49 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 06, 2004 at 11:35:10PM +0200, Oleg Drokin wrote:
-> Hello!
-> 
-> Mike Fedyk <mfedyk@matchmail.com> wrote:
-> MF> Did you check the locking after this is removed?
-> 
-> Locking should be fine.
-> As I remember, we take this lock near reiserfs_get_block() entrance,
-> and then drop it on exit.
-> 
+On Tue, 2004-01-06 at 15:06, H. Peter Anvin wrote:
+> First of all, I'll be blunt: namespaces currently provide zero benefit
+> in Linux, and virtually noone uses them.
 
-Ok, I just wondered if the sector_t merge overlooked this part, maybe it
-also changed the locking in this area because of that.
+I strongly disagree.
 
-> MF> Maybe after the sector_t merges, this code covered a case that is left open
-> MF> now...
-> 
-> This code was never executing anyway.
+I find them very useful, and there are lots of problems that are not
+cleanly solved any other way. In particular they are very useful in
+security hardening, compartmentalization scenarios.
 
-Right.
+The abysmal state of Linux autofs is something that needs fixing
+yesterday.
 
-Thanks,
+Dax Kelson
 
-Mike

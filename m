@@ -1,55 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261699AbTJHQBF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Oct 2003 12:01:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261705AbTJHQBF
+	id S261686AbTJHPzp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Oct 2003 11:55:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbTJHPzV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Oct 2003 12:01:05 -0400
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:47196 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S261699AbTJHQBC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Oct 2003 12:01:02 -0400
-Date: Wed, 8 Oct 2003 11:59:06 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Hugh Dickins <hugh@veritas.com>
-cc: Matt_Domsch@Dell.com, <marcelo.tosatti@cyclades.com>,
-       <linux-kernel@vger.kernel.org>, <benh@kernel.crashing.org>
-Subject: Re: [PATCH] page->flags corruption fix
-In-Reply-To: <Pine.LNX.4.44.0310081648560.3138-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0310081156320.5568-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 8 Oct 2003 11:55:21 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:16053 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S261686AbTJHPyg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Oct 2003 11:54:36 -0400
+Date: Wed, 8 Oct 2003 11:51:12 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Larry McVoy <lm@work.bitmover.com>, Pavel Machek <pavel@ucw.cz>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: bkcvs problems?
+Message-ID: <20031008155112.GX689@phunnypharm.org>
+References: <20031007191433.GA683@elf.ucw.cz> <20031008153832.GA9561@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031008153832.GA9561@work.bitmover.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Oct 2003, Hugh Dickins wrote:
-> On Wed, 8 Oct 2003 Matt_Domsch@Dell.com wrote:
+On Wed, Oct 08, 2003 at 08:38:32AM -0700, Larry McVoy wrote:
+> Fixed.  Ben, please check the SVN tree to see if it is OK.  I suspect
+> it is, I believe that the problem was a screwed up ssh key so the CVS
+> archive on kernel.bkbits.net was not getting updated.
 
-> > We've seen a similar failure with the RHEL2.1 kernel w/o RMAP patches
-> > too.  So we fully believe it's possible in stock 2.4.x.
-> 
-> A similar failure - but what exactly?
-> And what is the actual race which would account for it?
-> 
-> I don't mind you and Rik fixing bugs!
-> I'd just like to understand the bug before it's fixed.
-
-1) cpu A adds page P to the swap cache, loading page->flags
-   and modifying it locally
-
-2) a second thread scans a page table entry and sees that
-   the page was accessed, so cpu B moves page P to the
-   active list
-
-3) cpu A undoes the PG_inactive -> PG_active bit change,
-   corrupting the page->flags of P
-
-The -rmap VM doesn't do anything to this bug, except making
-it easy to trigger due to some side effects.
+Everything seems ok with bkcvs2svn. Thanks for the check.
 
 -- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
-
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+WatchGuard - http://www.watchguard.com/

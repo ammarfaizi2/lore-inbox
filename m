@@ -1,65 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261976AbREQQSB>; Thu, 17 May 2001 12:18:01 -0400
+	id <S262003AbREQQVl>; Thu, 17 May 2001 12:21:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262000AbREQQRw>; Thu, 17 May 2001 12:17:52 -0400
-Received: from mta1.snfc21.pbi.net ([206.13.28.122]:4041 "EHLO
-	mta1.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S261976AbREQQRi>; Thu, 17 May 2001 12:17:38 -0400
-Date: Thu, 17 May 2001 09:17:04 -0700
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: LANANA: To Pending Device Number Registrants
-To: Miles Lane <miles@megapathdsl.net>, Tim Jansen <tim@tjansen.de>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Message-id: <0a5401c0deec$d06b1260$6800000a@brownell.org>
-MIME-version: 1.0
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-Content-type: text/plain; charset="iso-8859-1"
-Content-transfer-encoding: 7bit
-X-MSMail-Priority: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-In-Reply-To: <047801c0dd95$231331e0$6800000a@brownell.org>
- <01051601562302.01000@cookie> <990079966.25105.1.camel@agate>
-X-Priority: 3
+	id <S262000AbREQQVb>; Thu, 17 May 2001 12:21:31 -0400
+Received: from [164.77.245.130] ([164.77.245.130]:2053 "HELO
+	dec1.hc1.vtrnet.cl") by vger.kernel.org with SMTP
+	id <S262003AbREQQVR>; Thu, 17 May 2001 12:21:17 -0400
+Date: Thu, 17 May 2001 12:20:19 -0400 (CLT)
+From: Fabian Arias <dewback@vtr.net>
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+Cc: Rik van Riel <riel@conectiva.com.br>, virii <virii@gcecisp.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: cmpci sound chip lockup
+In-Reply-To: <20010517135808.G754@nightmaster.csn.tu-chemnitz.de>
+Message-ID: <Pine.LNX.4.21.0105171210310.1166-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > At this point of the discussion I would like to point to the Device Registry 
-> > patch (http://www.tjansen.de/devreg) that already solves these problems and 
-> > offers stable device ids for the identification of devices and finding their 
-> > /dev nodes.
-> > 
-> > The devreg device id has four components: the bus identifier, the location of 
-> > the device (for pci bus number and slot number, for usb the bus number and a 
-> > list of port numbers), a model (product and device id) and, if available, a 
-> > serial number. 
+
+I can also report that I'm having the same problem running kernel
+2.4.[3-4{ac1-9}] with a C-Media using ESD. So the problem appears when I
+tried to run XMMS with ESD, the sound have an annoying "ss ss ss
+..." while I play mp3's. The frecuency of the "ss ss ss ..." is symetrical
+(1/4 of a second I say).
+The problem appears to have a direct asociation with esound cause it only
+happens with the use of XMMS over ESD. No problems reported during
+execution of mpg123 wich not use esound.
+
+ronto:~# lspci
+00:00.0 Host bridge: Silicon Integrated Systems [SiS] 630 Host (rev 21)
+00:00.1 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev
+d0)
+00:01.0 ISA bridge: Silicon Integrated Systems [SiS] 85C503/5513
+00:01.1 Ethernet controller: Silicon Integrated Systems [SiS] SiS900
+10/100 Ethernet (rev 83)
+00:01.2 USB Controller: Silicon Integrated Systems [SiS] 7001 (rev 07)
+00:01.3 USB Controller: Silicon Integrated Systems [SiS] 7001 (rev 07)
+00:02.0 PCI bridge: Silicon Integrated Systems [SiS] 5591/5592 AGP
+00:05.0 Multimedia audio controller: C-Media Electronics Inc CM8738 (rev
+10)
+01:00.0 VGA compatible controller: Silicon Integrated Systems
+[SiS]: Unknown device 6300 (rev 21)
+
+
+On Thu, 17 May 2001, Ingo Oeser wrote:
+
+> Date: Thu, 17 May 2001 13:58:08 +0200
+> From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+> To: Rik van Riel <riel@conectiva.com.br>
+> Cc: virii <virii@gcecisp.com>, linux-kernel@vger.kernel.org
+> Subject: Re: cmpci sound chip lockup
 > 
-> Hmm.  It's interesting to me that there have been no replies discussing
-> Tim's code.  
+> On Wed, May 16, 2001 at 08:02:06PM -0300, Rik van Riel wrote:
+> > I'm seeing a similar thing on 2.4.4-pre[23], but in a far less
+> > serious way. Using xmms the music stops after anything between
+> > a few seconds and a minute, I suspect a race condition somewhere.
+> > 
+> > Using mpg123 everything works fine...
+> 
+> Your xmms uses esd[1]?
+> 
+> Friends of mine report problems with esd and 2.4.x. Tested on
+> SB-Live! and es1371.
+> 
+> Regards
+> 
+> Ingo Oeser
+> 
+> [1] E Sound Deamon - A sound mixing framework
+> -- 
+> To the systems programmer,
+> users and applications serve only to provide a test load.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-I'd want to put it in the context of some of the USB work already done,
-and also know how it generalizes to other busses ... 
-
-For example, that usb-devname patch of mine, posted to linux-usb-devel
-somewhere around 12/6/2000 (2.4.0-test12), which worked the issue
-of teaching USB about "stable" identifiers (like pci slot_name, except
-it didn't address functions within device configurations since PCI doesn't
-have that notion of "configuration").
-
-Or the patch providing a standard API for USB device drivers to report
-what major/minor device numbers are associated with a given interface
-(I think it was Alan Barnett who provided that).
-
-Or the original (userspace) XML dump of XML tree structure, shown
-at  http://jusb.sourceforge.net/?selected=tree ... it's not clear to me which
-structural information there is also found in the "devreg" XML syntax
-(from the kernel!), and which isn't.  (Class information omitted from
-"devreg"?  Interface structure?)  Most of it's known to be needed.
-
-For example, USB "bus numbers" are themselves unstable identifiers;
-PCI slot_name fields work better, at least for host controllers (most!)
-which use PCI.  If "devreg" uses "bus numbers", that needs to change.
-
-- Dave
-
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ Fabian Arias Mu~oz                     |        Debian GNU/Linux 2.2r3 Potato
+ Facultad de Cs. Economicas y           |            Corriendo en Kernel 2.4.4
+ Administrativas.                       |                           dewback en
+ Universidad de Concepcion   -  Chile   |                 #linuxhelp IRC.CHILE
 

@@ -1,47 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285097AbRLRUxN>; Tue, 18 Dec 2001 15:53:13 -0500
+	id <S285147AbRLRUwy>; Tue, 18 Dec 2001 15:52:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285133AbRLRUxE>; Tue, 18 Dec 2001 15:53:04 -0500
-Received: from cs182072.pp.htv.fi ([213.243.182.72]:16000 "EHLO
-	cs182072.pp.htv.fi") by vger.kernel.org with ESMTP
-	id <S285097AbRLRUxA>; Tue, 18 Dec 2001 15:53:00 -0500
-Message-ID: <3C1FAC8F.699E1287@welho.com>
-Date: Tue, 18 Dec 2001 22:52:31 +0200
-From: Mika Liljeberg <Mika.Liljeberg@welho.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: kuznet@ms2.inr.ac.ru
-CC: Mika.Liljeberg@nokia.com, davem@redhat.com, linux-kernel@vger.kernel.org,
-        sarolaht@cs.helsinki.fi, rmk@arm.linux.ORG.UK
-Subject: Re: ARM: Re: TCP LAST-ACK state broken in 2.4.17-pre2 [NEW DATA]
-In-Reply-To: <200112182029.XAA11287@ms2.inr.ac.ru>
+	id <S285097AbRLRUwo>; Tue, 18 Dec 2001 15:52:44 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:36878 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S285133AbRLRUwc>; Tue, 18 Dec 2001 15:52:32 -0500
+Date: Tue, 18 Dec 2001 18:52:00 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: "David S. Miller" <davem@redhat.com>
+Cc: SteveW@ACM.org, jschlst@samba.org, ncorbic@sangoma.com, eis@baty.hanse.de,
+        dag@brattli.net, torvalds@transmeta.com, marcelo@conectiva.com.br,
+        netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFC 2] cleaning up struct sock
+Message-ID: <20011218185200.A1211@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	"David S. Miller" <davem@redhat.com>, SteveW@ACM.org,
+	jschlst@samba.org, ncorbic@sangoma.com, eis@baty.hanse.de,
+	dag@brattli.net, torvalds@transmeta.com, marcelo@conectiva.com.br,
+	netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20011210230810.C896@conectiva.com.br> <20011210.231826.55509210.davem@redhat.com> <20011218033552.B910@conectiva.com.br> <20011217.225134.91313099.davem@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20011217.225134.91313099.davem@redhat.com>
+User-Agent: Mutt/1.3.23i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kuznet@ms2.inr.ac.ru wrote:
-
-> > It's ARM in little endian mode.
+Em Mon, Dec 17, 2001 at 10:51:34PM -0800, David S. Miller escreveu:
+> Which brings me to...
+>    
+>    Please let me know if this is something acceptable for 2.5.
 > 
-> I think it is answer to the question.
-> 
-> No doubts it still has broken misaligned access.
+> What kind of before/after effect do you see in lat_tcp/lat_connect
+> (from lmbench) runs?
 
-Oops, I think there was a misunderstanding. The linux machine is Intel.
-The other one is a non-Linux ARM.
+Improvements on the lat_connect case? :)
 
-> > Now that you mention it, tcp_parse_options() in input.c seems to expect
-> > that the timestamps are word aligned,
-> 
-> Nope. It does not expect any alignment, but it is really supposed
-> to penalise misbehaving cases.
+2.4.16
+TCP latency using 127.0.0.1: 119.3369 microseconds
+TCP latency using 127.0.0.1: 118.9847 microseconds
+TCP latency using 127.0.0.1: 118.5139 microseconds
+TCP latency using 127.0.0.1: 119.1301 microseconds
+TCP latency using 127.0.0.1: 118.6322 microseconds
 
-Ahh, I see. There's a kernel exception handler that is supposed to fix
-misaligned access? Hacky.
+TCP/IP connection cost to 127.0.0.1: 429.6667 microseconds
+TCP/IP connection cost to 127.0.0.1: 430.7692 microseconds
+TCP/IP connection cost to 127.0.0.1: 431.4615 microseconds
+TCP/IP connection cost to 127.0.0.1: 430.3846 microseconds
+TCP/IP connection cost to 127.0.0.1: 435.4615 microseconds
 
-Cheers,
+2.4.16-acme5
+TCP latency using 127.0.0.1: 119.2639 microseconds
+TCP latency using 127.0.0.1: 118.6068 microseconds
+TCP latency using 127.0.0.1: 119.0443 microseconds
+TCP latency using 127.0.0.1: 119.5683 microseconds
+TCP latency using 127.0.0.1: 118.9556 microseconds
 
-	MikaL
+TCP/IP connection cost to 127.0.0.1: 408.3571 microseconds
+TCP/IP connection cost to 127.0.0.1: 409.6429 microseconds
+TCP/IP connection cost to 127.0.0.1: 410.6429 microseconds
+TCP/IP connection cost to 127.0.0.1: 409.2143 microseconds
+TCP/IP connection cost to 127.0.0.1: 414.8333 microseconds
+
+More results are coming, this time for local connections on a 8-way box
+
+- Arnaldo

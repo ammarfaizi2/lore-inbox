@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288977AbSAUAN6>; Sun, 20 Jan 2002 19:13:58 -0500
+	id <S288976AbSAUAKi>; Sun, 20 Jan 2002 19:10:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288978AbSAUANs>; Sun, 20 Jan 2002 19:13:48 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:23850 "EHLO
-	svldns02.veritas.com") by vger.kernel.org with ESMTP
-	id <S288977AbSAUANi>; Sun, 20 Jan 2002 19:13:38 -0500
-Date: Mon, 21 Jan 2002 00:15:49 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-To: alad@hss.hns.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: free_swap_and_cache() doubt
-In-Reply-To: <65256B46.004C44FE.00@sandesh.hss.hns.com>
-Message-ID: <Pine.LNX.4.21.0201210013001.1153-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288977AbSAUAK2>; Sun, 20 Jan 2002 19:10:28 -0500
+Received: from ftoomsh.progsoc.uts.edu.au ([138.25.6.1]:11786 "EHLO ftoomsh")
+	by vger.kernel.org with ESMTP id <S288976AbSAUAKT>;
+	Sun, 20 Jan 2002 19:10:19 -0500
+Date: Mon, 21 Jan 2002 11:10:05 +1100
+From: Matt <matt@progsoc.uts.edu.au>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Rik van Riel <riel@conectiva.com.br>, Shawn <spstarr@sh0n.net>,
+        linux-kernel@vger.kernel.org, Josh MacDonald <jmacd@CS.Berkeley.EDU>
+Subject: Re: Possible Idea with filesystem buffering.
+Message-ID: <20020121111005.F12258@ftoomsh.progsoc.uts.edu.au>
+In-Reply-To: <Pine.LNX.4.33L.0201201936340.32617-100000@imladris.surriel.com> <3C4B3B67.60505@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <3C4B3B67.60505@namesys.com>; from reiser@namesys.com on Mon, Jan 21, 2002 at 12:49:27AM +0300
+X-OperatingSystem: Linux ftoomsh.progsoc.uts.edu.au 2.2.15-pre13
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 Jan 2002 alad@hss.hns.com wrote:
-> I am reading 2.4.16, let us assume following scenario
-> 
-> swap_map[offset] == 2;
-> and page->count == 2; (before function execution)
-> vm_swap is full (nr_swap_pages*2 > total_swap_pages);
-> 
-> first question is the above case possible.
+On Mon, Jan 21, 2002 at 12:49:27AM +0300, Hans Reiser wrote:
+> Rik van Riel wrote:
 
-Yes.
+[snip snip]
 
-> if yes, then
-> after execution of this function, we would have page->count == 1, i.e.
-> mapped by some process, with good page->index and what we have is, the
-> associated swap entry is already freed.
-> 
-> Am i wrong somewhere ??
+>> On basically any machine we'll have multiple memory zones.
 
-The only place you are wrong is in using the word "good" of page->index
-at the end, and indeed I think your point is that it's not good.  It is
-not good, it is stale, but that's okay because page->mapping has been
-set to NULL, and page->index has no meaning without page->mapping.
+>> Each of those memory zones has its own free list and each of the
+>> zones can get low on free pages independantly of the other zones.
 
-You'll notice that __free_pages_ok() contains many BUG() hurdles
-(including check on page->mapping and redundant check on PageSwapCache)
-but doesn't mind if page->index is non-zero.
+>> This means that if the VM asks to get a particular page freed, at
+>> the very minimum you need to make a page from the same zone
+>> freeable.
 
-But thanks for making me look at this function, there
-is a bug there and I'll post a patch for it right now...
+>> regards,
 
-Hugh
+>> Rik
+
+
+> I'll discuss with Josh tomorrow how we might implement support for that. 
+>   A clean and simple mechanism does not come to my mind immediately.
+
+> Hans
+
+i know this sounds semi-evil, but can't you just drop another non
+dirty page and do a copy if you need the page you have been asked to
+write out? because if you have no non dirty pages around you'd
+probably have to drop the page anyway at some stage..
+
+	matt
 

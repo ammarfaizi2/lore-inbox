@@ -1,45 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277509AbRKDCUB>; Sat, 3 Nov 2001 21:20:01 -0500
+	id <S277533AbRKDCZa>; Sat, 3 Nov 2001 21:25:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277493AbRKDCTt>; Sat, 3 Nov 2001 21:19:49 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:64018 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S277533AbRKDCTc>;
-	Sat, 3 Nov 2001 21:19:32 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200111040219.fA42JUi129573@saturn.cs.uml.edu>
-Subject: Re: pre6 weird ps output
-To: jgarzik@mandrakesoft.com (Jeff Garzik)
-Date: Sat, 3 Nov 2001 21:19:30 -0500 (EST)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <3BDFFB64.CE5F73D9@mandrakesoft.com> from "Jeff Garzik" at Oct 31, 2001 08:23:48 AM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	id <S277559AbRKDCZU>; Sat, 3 Nov 2001 21:25:20 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:41492 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S277533AbRKDCZH>; Sat, 3 Nov 2001 21:25:07 -0500
+Date: Sun, 4 Nov 2001 03:25:07 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.2.20aa1
+Message-ID: <20011104032507.K1898@athlon.random>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik writes:
-> Jeff Garzik wrote:
->> [jgarzik@brutus rpm]$ ps xf
->>   PID TTY      STAT   TIME COMMAND
->> 16013 pts/1    S      0:00 -bash
->> 32105 pts/1    R      0:00 ps xf
->> 15858 pts/0    S      0:00 -bash
->> 15889 pts/0    S      0:02 /bin/sh /usr/bin/rpm-rebuilder
->> 30660 /tmp/rpm/other_clisp-2.27-1mdk.src.rpm.log S   0:00  \_
->> /usr/lib/rpm/rpmb
+URL:
 
-Your TTY is /tmp/rpm/other_clisp-2.27-1mdk.src.rpm.log isn't it?
-(it is a char device that matches what /proc/*/stat reports)
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.2/2.2.20aa1.bz2
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.2/2.2.20aa1/
 
-> Further clue:  kill ssh session and log back in later, and ps output
-> [from a different pty] is normal.
+Diff between 2.2.20pre10aa1 and 2.2.20aa1 (besides moving on top of
+2.2.20):
 
-This may be because ps from a different pty is unable to see
-the real pathname in /proc/*/fd/ and must guess via other means.
+Only in 2.2.20aa1: 00_local-freelist-race-1
 
-The whole name resolution process is really gross. It would be
-wonderful to have a /proc/*/tty symlink to examine.
+	Fix irq race in the page allocator (spotted by Linus).
 
+Andrea

@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267534AbSLEWUR>; Thu, 5 Dec 2002 17:20:17 -0500
+	id <S267557AbSLEW2k>; Thu, 5 Dec 2002 17:28:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267535AbSLEWUR>; Thu, 5 Dec 2002 17:20:17 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57106 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267534AbSLEWUQ>;
-	Thu, 5 Dec 2002 17:20:16 -0500
-Message-ID: <3DEFD2CE.4070805@pobox.com>
-Date: Thu, 05 Dec 2002 17:27:26 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
+	id <S267556AbSLEW2k>; Thu, 5 Dec 2002 17:28:40 -0500
+Received: from albatross.mail.pas.earthlink.net ([207.217.120.120]:10903 "EHLO
+	albatross.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S267555AbSLEW2j>; Thu, 5 Dec 2002 17:28:39 -0500
+Message-ID: <3DEFD4FC.7D2ED539@earthlink.net>
+Date: Thu, 05 Dec 2002 14:36:44 -0800
+From: Erblichs <erblichs@earthlink.net>
+X-Mailer: Mozilla 4.72 [en]C-gatewaynet  (Win98; I)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: Eric Altendorf <EricAltendorf@orst.edu>, Jochen Hein <jochen@jochen.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       andrew.grover@intel.com
-Subject: Re: [2.5.50, ACPI] link error
-References: <E18Ix71-0003ik-00@gswi1164.jochen.org> <200212031007.01782.EricAltendorf@orst.edu> <87znrn3q92.fsf@gswi1164.jochen.org> <200212031247.07284.EricAltendorf@orst.edu> <20021205173145.GB731@elf.ucw.cz> <3DEFD17D.4090809@pobox.com> <20021205222431.GB7396@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20021205222431.GB7396@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: Kernel: question/bug: mm/vmscan.c : refill_inactive_zone() : 2.4.18-3
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Yes, there are about 10 patches to fix it floating around... I just
-> hope linus takes one of them. (Fix is make ACPI_SLEEP depend on
-> swsusp).
+Statement:
 
+	In a "while" loop we are looking for a target number of
+	pages to deactivate.
 
-I haven't seen the patch, but does it make sense for hardware suspend to 
-depend on software suspend?
+Question?
+	If there are a large number of processes that have not
+	exceeded their Resident Set Size (rss) and they are
+	keeping their pages hot, then we won't reach our target
+	value. This would keep our inactive page list small.
 
-IMO there should be a common core (CONFIG_SUSPEND?), not force ACPI to 
-depend on swsusp.  That way you get the _least_ common denominator, not 
-the union of two sets.
+Suggestion and solution:
+	In this environment, I would think it would make sense
+	to effectively walk this list again (without aging)
+	and effectively half the rss so we are able to reach
+	our target value.
 
-	Jeff
+	I would think that this approach would then penalize
+	all tasks equally. If halving the rss is too extreme,
+	then an increased percentage (< 100%) would walk more
+	pages to reach the target value.
 
-
-
+	Mitchell Erblich : erblichs@earthlink.net
+	Note: I am not currently on this mail alias.

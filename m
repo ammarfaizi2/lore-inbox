@@ -1,35 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265279AbTFMIiN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 04:38:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265281AbTFMIiM
+	id S265278AbTFMIgq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 04:36:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265276AbTFMIgf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 04:38:12 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:7088
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S265279AbTFMIhG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 04:37:06 -0400
-Subject: Re: unresolve external 'noautodma'  in siimage 2.4.21-rc8
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: John T Copeland <johnc@neto.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3EE8BD90.4080107@neto.com>
-References: <3EE8BD90.4080107@neto.com>
-Content-Type: text/plain
+	Fri, 13 Jun 2003 04:36:35 -0400
+Received: from smtp3.cwidc.net ([154.33.63.113]:23715 "EHLO smtp3.cwidc.net")
+	by vger.kernel.org with ESMTP id S265270AbTFMIgY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 04:36:24 -0400
+Message-ID: <3EE9903E.2040101@tequila.co.jp>
+Date: Fri, 13 Jun 2003 17:50:06 +0900
+From: Clemens Schwaighofer <cs@tequila.co.jp>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5a) Gecko/20030528
+X-Accept-Language: en-us, en, ja
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: uptime wrong in 2.5.70
+X-Enigmail-Version: 0.75.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1055494112.5163.22.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 13 Jun 2003 09:48:33 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2003-06-12 at 18:51, John T Copeland wrote:
-> When I try to install driver siimage I get an unresolved external in 
-> siimage.o, noautodma.
-> 
-> Do I need to set some config parameter(s) when I compile the kernel?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Added to my pile ot investigate
+Hi,
+
+I a got a test vmware running with a 2.5.70 and I have sligh "overflow"
+with my uptime.
+
+gentoo root # uptime
+ 22:29:47 up 14667 days, 19:08,  3 users,  load average: 0.00, 0.00, 0.00
+
+I think thats a bit too much ;)
+
+Linux gentoo.tequila.intern 2.5.80 #1 Tue May 27 14:42:51 JST 2003 i686
+Intel(R) Penitum(R) 4 CPU 1.60GHz GenuineIntel GNU/Linux
+running on a
+Gentoo System (unstable tree)
+
+- --
+Clemens Schwaighofer - IT Engineer & System Administration
+==========================================================
+Tequila Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
+Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
+http://www.tequila.jp
+==========================================================
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQE+6ZA9jBz/yQjBxz8RAgnJAJ4yZTZJuP5QJOZv3Lc9Awnr4sblpQCeOHaD
+fgjlR74Svry26Jh+1oBjt6g=
+=6rUw
+-----END PGP SIGNATURE-----
 

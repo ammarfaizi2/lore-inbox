@@ -1,11 +1,11 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318635AbSIKLkr>; Wed, 11 Sep 2002 07:40:47 -0400
+	id <S318638AbSIKLjN>; Wed, 11 Sep 2002 07:39:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318721AbSIKLkr>; Wed, 11 Sep 2002 07:40:47 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:40431
+	id <S318721AbSIKLjM>; Wed, 11 Sep 2002 07:39:12 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:36079
 	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318635AbSIKLkq>; Wed, 11 Sep 2002 07:40:46 -0400
+	id <S318638AbSIKLjM>; Wed, 11 Sep 2002 07:39:12 -0400
 Subject: Re: ignore pci devices?
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 To: Gerd Knorr <kraxel@bytesex.org>
@@ -17,20 +17,17 @@ References: <20020910134708.GA7836@bytesex.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 11 Sep 2002 12:48:58 +0100
-Message-Id: <1031744938.2768.37.camel@irongate.swansea.linux.org.uk>
+Date: 11 Sep 2002 12:47:20 +0100
+Message-Id: <1031744840.2768.34.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Wed, 2002-09-11 at 11:51, Gerd Knorr wrote:
-> Well, at least nothing in PCI space.  It looks just like a random,
-> cheap bt878 card.
+> > We already find the USB on the NSC SuperIO by peeking at the next
+> > device along and checking if its the SuperIO functions 8)
+> 
+> It is a PCI card you can plug into some slot, not a motherboard ...
 
-Arggh read the email properly this time 8)
-
-If its a BT878 on a board then assuming we can't tell the difference I
-guess it doesn't work mixed with tv cards. Does it work in windows
-paired with a real video capture card by some cheapo cardmaker that also
-doesn't set the ssid ?
+Yes but what other PCI devices are on that card ?
 

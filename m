@@ -1,49 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273495AbRJKH2Z>; Thu, 11 Oct 2001 03:28:25 -0400
+	id <S273487AbRJKH2p>; Thu, 11 Oct 2001 03:28:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273463AbRJKH2G>; Thu, 11 Oct 2001 03:28:06 -0400
-Received: from t2.redhat.com ([199.183.24.243]:43769 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S273385AbRJKH1z>; Thu, 11 Oct 2001 03:27:55 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <16172.1002749316@ocs3.intra.ocs.com.au> 
-In-Reply-To: <16172.1002749316@ocs3.intra.ocs.com.au> 
-To: Keith Owens <kaos@ocs.com.au>
-Cc: "Morgan Collins [Ax0n]" <sirmorcant@morcant.org>, tkhoadfdsaf@hotmail.com,
-        alan@lxorguk.ukuu.org.uk, viro@math.psu.edu,
-        linux-kernel@vger.kernel.org
-Subject: Re: Tainted Modules Help Notices 
-Mime-Version: 1.0
+	id <S273385AbRJKH2g>; Thu, 11 Oct 2001 03:28:36 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:17 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S273487AbRJKH2Y>; Thu, 11 Oct 2001 03:28:24 -0400
+Subject: Re: [patch] .version, newversion in Makefile
+To: davem@redhat.com (David S. Miller)
+Date: Thu, 11 Oct 2001 08:34:19 +0100 (BST)
+Cc: rmk@arm.linux.org.uk, rudi@sluijtman.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20011010.170805.35468036.davem@redhat.com> from "David S. Miller" at Oct 10, 2001 05:08:05 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 11 Oct 2001 08:27:17 +0100
-Message-ID: <31498.1002785237@redhat.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15raMF-0002M1-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>    There is a patch in -ac to fix this.
+>    
+> I've also independantly just sent Linus a patch to fix this.
+> I was not aware of the -ac fix, sorry.
 
-kaos@ocs.com.au said:
->  If somebody uses a different string, their license is not GPL. 
+Maybe he'll notice this time. Russell sent him a fix, I sent him Russells
+fix and now you've sent him a fix 8)
 
-We do not care if they use a licence which is not GPL. We only care if they 
-use a licence which is not GPL-compatible.
+No big problem
 
->  To triage bug reports.  Any bug report against a tainted kernel is
-> almost certain to be bounced with "your kernel contains code that we
-> do not have the source for, send this bug report to the company that
-> maintains the non-GPL code".
-
-In the case which started this thread, the non-GPL code in question was part
-of the kernel source tree, and we _do_ have the source for it. It was the
-BSD-licensed PPP compression code. 
-
-You seem to have claimed that this is not a bug, but that it's intentional.
-Are you therefore going to make changes to the build system so that the
-static kernel image will boot up marked as tainted if CONFIG_PPP_BSDCOMP=y?
-
---
-dwmw2
-
-
+Alan

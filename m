@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261545AbSL1PJC>; Sat, 28 Dec 2002 10:09:02 -0500
+	id <S262394AbSL1P1D>; Sat, 28 Dec 2002 10:27:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261723AbSL1PJC>; Sat, 28 Dec 2002 10:09:02 -0500
-Received: from amsfep14-int.chello.nl ([213.46.243.22]:27690 "EHLO
-	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
-	id <S261545AbSL1PJB>; Sat, 28 Dec 2002 10:09:01 -0500
-Subject: Kernel panic on 2.4.19 when running netstat
-From: Frederik Vanrenterghem <frederik.vanrenterghem@chello.be>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1041088610.913.5.camel@maui>
+	id <S262789AbSL1P1D>; Sat, 28 Dec 2002 10:27:03 -0500
+Received: from [195.20.32.236] ([195.20.32.236]:40110 "HELO euro.verza.com")
+	by vger.kernel.org with SMTP id <S262394AbSL1P1C>;
+	Sat, 28 Dec 2002 10:27:02 -0500
+Date: Sat, 28 Dec 2002 16:30:09 +0100
+From: Alexander Kellett <lypanov@kde.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       william stinson <wstinson@wanadoo.fr>, trivial@rustcorp.com.au
+Subject: Re: [PATCH] Mark deprecated functions so they give a warning on use
+Message-ID: <20021228153009.GA29614@groucho.verza.com>
+Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
+	torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+	william stinson <wstinson@wanadoo.fr>, trivial@rustcorp.com.au
+References: <20021228035319.903502C04B@lists.samba.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 28 Dec 2002 16:16:51 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021228035319.903502C04B@lists.samba.org>
+User-Agent: Mutt/1.4i
+X-Disclaimer: My opinions do not necessarily represent those of my employer
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Sat, Dec 28, 2002 at 11:57:10AM +1100, Rusty Russell wrote:
+> If anyone can think of a better way, please share.  This should speed
+> up the removal of functions like check_region() (which, despite
+> William's janitorial efforts, is still not at the stage where it can
+> be removed).
 
-when running netstat -a, the kernel panics. Here's some of the output:
+can gcc 3.2's __attribute__((deprecated)) be used?
 
-Unable to handle kernel paging request at virtual address 00800024
-*pde = 0000000000
-Oops: 000
-CPU: 0
-EIP: ....
+(someone noted this on kde lists a few days back)
 
-Process netstat (pid: 1725, stackpage=d7335000)
-
-....
-
-Code: 66 83 7b 24 02 75 4a 8b 94 24 d0 00 00 00 81 44 24 1c 96 00
-<0> Kernel panic: Aiee, killing interrupt handler!
-In interrupt handler - not syncing
-
-Any idea what might be causing this behaviour?
-
-Best regards,
-Frederik
--- 
-Frederik Vanrenterghem <frederik.vanrenterghem@chello.be>
-
-
+Alex

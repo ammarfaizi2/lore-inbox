@@ -1,34 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264712AbSKIMfe>; Sat, 9 Nov 2002 07:35:34 -0500
+	id <S264714AbSKIMmu>; Sat, 9 Nov 2002 07:42:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264714AbSKIMfe>; Sat, 9 Nov 2002 07:35:34 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:48542 "EHLO
+	id <S264722AbSKIMmu>; Sat, 9 Nov 2002 07:42:50 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:51358 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S264712AbSKIMfe>; Sat, 9 Nov 2002 07:35:34 -0500
-Subject: Re: [PATCH][2.5] notsc option needs some attention/TLC
+	id <S264714AbSKIMmu>; Sat, 9 Nov 2002 07:42:50 -0500
+Subject: Re: [PATCH] SCSI on non-ISA systems
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       zwane@holomorphy.com, Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <200211091200.NAA19909@harpo.it.uu.se>
-References: <200211091200.NAA19909@harpo.it.uu.se>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Russell King <rmk@arm.linux.org.uk>,
+       Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Rusty Trivial Russell <trivial@rustcorp.com.au>
+In-Reply-To: <20021109005344.A26065@infradead.org>
+References: <20021108135742.A22790@flint.arm.linux.org.uk>
+	<Pine.GSO.4.21.0211081522050.23267-100000@vervain.sonytel.be>
+	<20021108144234.A24114@flint.arm.linux.org.uk>
+	<1036772421.16651.10.camel@irongate.swansea.linux.org.uk> 
+	<20021109005344.A26065@infradead.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 09 Nov 2002 13:05:49 +0000
-Message-Id: <1036847149.20313.2.camel@irongate.swansea.linux.org.uk>
+Date: 09 Nov 2002 13:13:05 +0000
+Message-Id: <1036847585.20393.8.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-11-09 at 12:00, Mikael Pettersson wrote:
-> If we configure for "I have a TSC, period" you add the option
-> to disable it, which nullifies any benefit of the config option
-> in the first place since we can't assume TSC presence any more.
-> If we don't configure for TSC, you force tsc_disable, which means
-> that a generic kernel _can't_ use the TSC.
+On Sat, 2002-11-09 at 00:53, Christoph Hellwig wrote:
+> No.  I restructured the BHA interfaces to get rid of ->detect and
+> ->release.  Makeing it mandatory is a step backwards.  Not having a
+> default fallback is a good idea, though.
 
-2.4 was modified to printk a message that TSC was not disabled. This
-does confuse people
+That IMHO is not a 2.6 change
 

@@ -1,69 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261446AbUCDEoW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 23:44:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261450AbUCDEoW
+	id S261431AbUCDEmW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 23:42:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbUCDEmW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 23:44:22 -0500
-Received: from terminus.zytor.com ([63.209.29.3]:51635 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S261446AbUCDEoN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 23:44:13 -0500
-Message-ID: <4046B3F5.3070004@zytor.com>
-Date: Wed, 03 Mar 2004 20:43:33 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20040105
-X-Accept-Language: en, sv, es, fr
-MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: Krzysztof Halasa <khc@pm.waw.pl>, linuxabi@zytor.com,
-       Chris Friesen <cfriesen@nortelnetworks.com>,
-       linux-kernel@vger.kernel.org,
-       =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
-Subject: Re: [Linuxabi] Re: linux-libc-headers 2.6.3.0
-References: <200402291942.45392.mmazur@kernel.pl>	<200402292130.55743.mmazur@kernel.pl>	<c1tk26$c1o$1@terminus.zytor.com>	<200402292221.41977.mmazur@kernel.pl> <yw1xn0711sgw.fsf@kth.se>	<40434BD7.9060301@nortelnetworks.com>	<m37jy4cuaw.fsf@defiant.pm.waw.pl> <20040303152213.GA2148@mars.ravnborg.org>
-In-Reply-To: <20040303152213.GA2148@mars.ravnborg.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 3 Mar 2004 23:42:22 -0500
+Received: from smtp9.wanadoo.fr ([193.252.22.22]:19844 "EHLO
+	mwinf0902.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S261446AbUCDEl4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 23:41:56 -0500
+Date: Thu, 4 Mar 2004 05:42:15 +0000
+From: Philippe Elie <phil.el@wanadoo.fr>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] nmi_watchdog=2 and P4-HT
+Message-ID: <20040304054215.GA683@zaniah>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg wrote:
-> 
-> IIRC the current agreed scheme is something along the lines of this:
-> 
-> abi/abi-linux/* Userspace relevant parts of include/linux
-> abi/abi-asm/ symlink to abi/abi-$(ARCH)
-> abi/abi-i386 i386 specific userland abi
-> abi/abi-ppc  ppc ....
-> 
-> So a header file in include/linux with a counterpart in abi could look like this:
-> 
-> include/linux/wait.h:
-> #include <abi-linux/wait.h>
-> 
-> #include <linux/config.h>
-> typedef struct __wait_queue wait_queue_t;
-> ...
-> 
-> 
-> abi/abi-linux/wait.h:
-> #define WNOHANG         0x00000001
-> #define WUNTRACED       0x00000002
-> 
-> 
-> This proposal meets some resistence related to internal issues such as
-> renaming of internal types etc.
-> But in the end the gain from a scheme like this outweights the drawbacks - IMHO. 
-> 
-> And the backward compatible stuff can be located in abi where it may belong -
-> if really needed.
-> 
+Hi,
 
-I think the main issue is that it's going to take a fair amount of work, 
-and hence needs to wait until 2.7.
+Actually with nmi_watchdog=2 and a P4 ht box the nmi is reflected
+only on logical processor 0, it's better to get it on both.
 
-The other thing to consider if whether or not there should be some way 
-to export things that aren't easily expressible as #defines...
+Note, if you test this patch, than on all x86 SMP and nmi_watchdog=2
+nmi occurs at 1000 hz (if the cpu is loaded) not at the intended 1 hz
+rate but that's a distinct problem.
 
-	-hpa
+regards,
+Phil
+
+--- linux-2.6.orig/arch/i386/kernel/nmi.c	2004-03-04 05:05:19.000000000 +0000
++++ linux-2.6/arch/i386/kernel/nmi.c	2004-03-04 04:28:43.000000000 +0000
+@@ -33,7 +33,8 @@
+ 
+ unsigned int nmi_watchdog = NMI_NONE;
+ static unsigned int nmi_hz = HZ;
+-unsigned int nmi_perfctr_msr;	/* the MSR to reset in NMI handler */
++static unsigned int nmi_perfctr_msr;	/* the MSR to reset in NMI handler */
++static unsigned int nmi_p4_cccr_val;
+ extern void show_registers(struct pt_regs *regs);
+ 
+ /* nmi_active:
+@@ -66,7 +67,8 @@ int nmi_active;
+ #define P4_ESCR_EVENT_SELECT(N)	((N)<<25)
+ #define P4_ESCR_OS		(1<<3)
+ #define P4_ESCR_USR		(1<<2)
+-#define P4_CCCR_OVF_PMI		(1<<26)
++#define P4_CCCR_OVF_PMI0	(1<<26)
++#define P4_CCCR_OVF_PMI1	(1<<27)
+ #define P4_CCCR_THRESHOLD(N)	((N)<<20)
+ #define P4_CCCR_COMPLEMENT	(1<<19)
+ #define P4_CCCR_COMPARE		(1<<18)
+@@ -79,7 +81,7 @@ int nmi_active;
+ #define MSR_P4_IQ_COUNTER0	0x30C
+ #define P4_NMI_CRU_ESCR0	(P4_ESCR_EVENT_SELECT(0x3F)|P4_ESCR_OS|P4_ESCR_USR)
+ #define P4_NMI_IQ_CCCR0	\
+-	(P4_CCCR_OVF_PMI|P4_CCCR_THRESHOLD(15)|P4_CCCR_COMPLEMENT|	\
++	(P4_CCCR_OVF_PMI0|P4_CCCR_THRESHOLD(15)|P4_CCCR_COMPLEMENT|	\
+ 	 P4_CCCR_COMPARE|P4_CCCR_REQUIRED|P4_CCCR_ESCR_SELECT(4)|P4_CCCR_ENABLE)
+ 
+ int __init check_nmi_watchdog (void)
+@@ -322,6 +324,11 @@ static int setup_p4_watchdog(void)
+ 		return 0;
+ 
+ 	nmi_perfctr_msr = MSR_P4_IQ_COUNTER0;
++	nmi_p4_cccr_val = P4_NMI_IQ_CCCR0;
++#ifdef CONFIG_SMP
++	if (smp_num_siblings == 2)
++		nmi_p4_cccr_val |= P4_CCCR_OVF_PMI1;
++#endif
+ 
+ 	if (!(misc_enable & MSR_P4_MISC_ENABLE_PEBS_UNAVAIL))
+ 		clear_msr_range(0x3F1, 2);
+@@ -339,7 +346,8 @@ static int setup_p4_watchdog(void)
+ 	Dprintk("setting P4_IQ_COUNTER0 to 0x%08lx\n", -(cpu_khz/nmi_hz*1000));
+ 	wrmsr(MSR_P4_IQ_COUNTER0, -(cpu_khz/nmi_hz*1000), -1);
+ 	apic_write(APIC_LVTPC, APIC_DM_NMI);
+-	wrmsr(MSR_P4_IQ_CCCR0, P4_NMI_IQ_CCCR0, 0);
++	wrmsr(MSR_P4_IQ_CCCR0, nmi_p4_cccr_val, 0);
++	nmi_hz = 1;
+ 	return 1;
+ }
+ 
+@@ -455,7 +463,7 @@ void nmi_watchdog_tick (struct pt_regs *
+ 			 * - LVTPC is masked on interrupt and must be
+ 			 *   unmasked by the LVTPC handler.
+ 			 */
+-			wrmsr(MSR_P4_IQ_CCCR0, P4_NMI_IQ_CCCR0, 0);
++			wrmsr(MSR_P4_IQ_CCCR0, nmi_p4_cccr_val, 0);
+ 			apic_write(APIC_LVTPC, APIC_DM_NMI);
+ 		}
+ 		wrmsr(nmi_perfctr_msr, -(cpu_khz/nmi_hz*1000), -1);
+
+
+

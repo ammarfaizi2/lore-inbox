@@ -1,153 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269363AbUI3RJb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269357AbUI3RMi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269363AbUI3RJb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 13:09:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269358AbUI3RI6
+	id S269357AbUI3RMi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 13:12:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269359AbUI3RMh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 13:08:58 -0400
-Received: from mail0.lsil.com ([147.145.40.20]:50835 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S269357AbUI3RIS (ORCPT
+	Thu, 30 Sep 2004 13:12:37 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:63736 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S269357AbUI3RM2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 13:08:18 -0400
-Message-ID: <0E3FA95632D6D047BA649F95DAB60E570230C97D@exa-atlanta>
-From: "Bagalkote, Sreenivas" <sreenib@lsil.com>
-To: "'James Bottomley'" <James.Bottomley@SteelEye.com>,
-       "Mukker, Atul" <Atulm@lsil.com>
-Cc: "Bagalkote, Sreenivas" <sreenib@lsil.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-       "'bunk@fs.tum.de'" <bunk@fs.tum.de>, "'Andrew Morton'" <akpm@osdl.org>,
-       "'Matt_Domsch@dell.com'" <Matt_Domsch@dell.com>
-Subject: [RESEND][PATCH]: megaraid 2.20.4: Fixes a data corruption bug
-Date: Thu, 30 Sep 2004 13:00:16 -0400
+	Thu, 30 Sep 2004 13:12:28 -0400
+Message-ID: <415C3F44.2080206@sgi.com>
+Date: Thu, 30 Sep 2004 12:15:48 -0500
+From: Ray Bryant <raybry@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_000_01C4A70E.F57BF9A0"
+To: Nick Piggin <piggin@cyberone.com.au>
+CC: Nick Piggin <nickpiggin@yahoo.com.au>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org, riel@redhat.com
+Subject: Re: swapping and the value of /proc/sys/vm/swappiness
+References: <cone.1094512172.450816.6110.502@pc.kolivas.org> <20040906162740.54a5d6c9.akpm@osdl.org> <cone.1094513660.210107.6110.502@pc.kolivas.org> <20040907000304.GA8083@logos.cnet> <20040907212051.GC3492@logos.cnet> <413F1518.7050608@sgi.com> <20040908165412.GB4284@logos.cnet> <413F5EE7.6050705@sgi.com> <20040908193036.GH4284@logos.cnet> <413FC8AC.7030707@sgi.com> <20040909030916.GR3106@holomorphy.com> <4158C45B.8090409@sgi.com> <4158DC27.9010603@yahoo.com.au> <415A0378.9030007@cyberone.com.au>
+In-Reply-To: <415A0378.9030007@cyberone.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
+Nick Piggin wrote:
+> 
+> 
+> Nick Piggin wrote:
+> 
+>>
+>> Thanks Ray. From looking over your old results, it appears that 
+>> -kswapdfix
+>> probably has the nicest swappiness ramp, which is probably to be 
+>> expected,
+>> as the problem that is being fixed did exist in all other kernels you 
+>> tested,
+>> but the later ones just had other aggrivating changes.
+>>
+>> The swappiness=60 weirdness might just be some obscure interaction 
+>> with the
+>> workload. If that is the case, it is probably not too important, 
+>> however it
+>> could be due to a possible oversight in my patch....
+>>
+> 
+> Here is a patch on top of the last one - if you can give it a test
+> some time, that would be great.
+> 
+> Thanks
+> Nick
+> 
+> 
 
-------_=_NextPart_000_01C4A70E.F57BF9A0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Hi Nick,
 
-Hello All,
+Here are the results for the kswapd2 patch, along with the previous version 
+and the original 2.6.9-rc1-mm3 test.  It pretty much looks like a wash between
+the kswapd and kswapd2 patches.
 
-I am resending this patch as an attachment.
-
-Thanks,
-Sreenivas
-
-
-
->-----Original Message-----
->From: James Bottomley [mailto:James.Bottomley@SteelEye.com]
->Sent: Wednesday, September 29, 2004 11:16 PM
->To: Mukker, Atul
->Cc: Bagalkote, Sreenivas; 'linux-kernel@vger.kernel.org';
->'linux-scsi@vger.kernel.org'; 'bunk@fs.tum.de'; 'Andrew Morton';
->'Matt_Domsch@dell.com'
->Subject: RE: [PATCH]: megaraid 2.20.4: Fixes a data corruption bug
->
->
->On Wed, 2004-09-29 at 17:28, Mukker, Atul wrote:
->> Considering the criticality of this fix, we hope it make 
->into the 2.6.9
->> release candidate as soon as possible. Can you update us 
->with your views on
->> this.
->
->The attached patch is mangled by the emailer...do you have a pristine
->version?
->
->James
->
->
+Kernel Version 2.6.9-rc1-mm3:
+         Total I/O   Avg Swap   min    max     pg cache    min    max
+        ----------- --------- ------- ------  --------- ------- -------
+    0   274.80 MB/s  10511 MB (  5644, 14492)  13293 MB (  8596, 17156)
+   20   267.02 MB/s  12624 MB (  5578, 16287)  15298 MB (  8468, 18889)
+   40   267.66 MB/s  13541 MB (  6619, 17461)  16199 MB (  9393, 20044)
+   60   233.73 MB/s  18094 MB ( 16550, 19676)  20629 MB ( 19103, 22192)
+   80   213.64 MB/s  20950 MB ( 15844, 22977)  23450 MB ( 18496, 25440)
+  100   164.58 MB/s  26004 MB ( 26004, 26004)  28410 MB ( 28327, 28455)
 
 
-------_=_NextPart_000_01C4A70E.F57BF9A0
-Content-Type: application/octet-stream;
-	name="megaraid-2.20.4.0.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="megaraid-2.20.4.0.patch"
+Kernel Version 2.6.9-rc1-mm3-kdb-kswapdfix:
+         Total I/O   Avg Swap   min    max     pg cache    min    max
+        ----------- --------- ------- ------  --------- ------- -------
+    0   279.97 MB/s     89 MB (    12,   265)   3062 MB (  2947,  3267)
+   20   283.55 MB/s    161 MB (    15,   372)   3190 MB (  3011,  3427)
+   40   282.32 MB/s    204 MB (     6,   407)   3187 MB (  2995,  3331)
+   60   279.42 MB/s     72 MB (    15,   171)   3091 MB (  3027,  3155)
+   80   283.34 MB/s    920 MB (   144,  3028)   3904 MB (  3106,  5957)
+  100   160.55 MB/s  26008 MB ( 26007, 26008)  28473 MB ( 28455, 28487)
 
-diff -Naur linux-2.6.9-rc2-mrbug/Documentation/scsi/ChangeLog.megaraid =
-linux-2.6.9-rc2-fixed/Documentation/scsi/ChangeLog.megaraid=0A=
---- linux-2.6.9-rc2-mrbug/Documentation/scsi/ChangeLog.megaraid	=
-2004-09-28 17:31:10.000000000 -0400=0A=
-+++ linux-2.6.9-rc2-fixed/Documentation/scsi/ChangeLog.megaraid	=
-2004-09-28 17:43:50.000000000 -0400=0A=
-@@ -1,3 +1,11 @@=0A=
-+Release Date	: Mon Sep 27 22:15:07 EDT 2004 - Atul Mukker =
-<atulm@lsil.com>=0A=
-+Current Version	: 2.20.4.0 (scsi module), 2.20.2.0 (cmm module)=0A=
-+Older Version	: 2.20.3.1 (scsi module), 2.20.2.0 (cmm module)=0A=
-+=0A=
-+i.	Fix data corruption. Because of a typo in the driver, the IO =
-packets=0A=
-+	were wrongly shared by the ioctl path. This causes a whole IO =
-command=0A=
-+	to be replaced by an incoming ioctl command.=0A=
-+=0A=
- Release Date	: Tue Aug 24 09:43:35 EDT 2004 - Atul Mukker =
-<atulm@lsil.com>=0A=
- Current Version	: 2.20.3.1 (scsi module), 2.20.2.0 (cmm module)=0A=
- Older Version	: 2.20.3.0 (scsi module), 2.20.2.0 (cmm module)=0A=
-diff -Naur linux-2.6.9-rc2-mrbug/drivers/scsi/megaraid/megaraid_mbox.c =
-linux-2.6.9-rc2-fixed/drivers/scsi/megaraid/megaraid_mbox.c=0A=
---- linux-2.6.9-rc2-mrbug/drivers/scsi/megaraid/megaraid_mbox.c	=
-2004-09-28 17:31:33.000000000 -0400=0A=
-+++ linux-2.6.9-rc2-fixed/drivers/scsi/megaraid/megaraid_mbox.c	=
-2004-09-28 17:43:50.000000000 -0400=0A=
-@@ -10,7 +10,7 @@=0A=
-  *	   2 of the License, or (at your option) any later version.=0A=
-  *=0A=
-  * FILE		: megaraid_mbox.c=0A=
-- * Version	: v2.20.3.1 (August 24 2004)=0A=
-+ * Version	: v2.20.4 (September 27 2004)=0A=
-  *=0A=
-  * Authors:=0A=
-  * 	Atul Mukker		<Atul.Mukker@lsil.com>=0A=
-@@ -197,7 +197,7 @@=0A=
-  * ### global data ###=0A=
-  */=0A=
- static uint8_t megaraid_mbox_version[8] =3D=0A=
--	{ 0x02, 0x20, 0x02, 0x00, 7, 22, 20, 4 };=0A=
-+	{ 0x02, 0x20, 0x04, 0x00, 9, 27, 20, 4 };=0A=
- =0A=
- =0A=
- /*=0A=
-@@ -3562,7 +3562,7 @@=0A=
- 	for (i =3D 0; i < MBOX_MAX_USER_CMDS; i++) {=0A=
- =0A=
- 		scb			=3D adapter->uscb_list + i;=0A=
--		ccb			=3D raid_dev->ccb_list + i;=0A=
-+		ccb			=3D raid_dev->uccb_list + i;=0A=
- =0A=
- 		scb->ccb		=3D (caddr_t)ccb;=0A=
- 		ccb->mbox64		=3D raid_dev->umbox64 + i;=0A=
-diff -Naur linux-2.6.9-rc2-mrbug/drivers/scsi/megaraid/megaraid_mbox.h =
-linux-2.6.9-rc2-fixed/drivers/scsi/megaraid/megaraid_mbox.h=0A=
---- linux-2.6.9-rc2-mrbug/drivers/scsi/megaraid/megaraid_mbox.h	=
-2004-09-28 17:31:33.000000000 -0400=0A=
-+++ linux-2.6.9-rc2-fixed/drivers/scsi/megaraid/megaraid_mbox.h	=
-2004-09-28 17:43:50.000000000 -0400=0A=
-@@ -21,8 +21,8 @@=0A=
- #include "megaraid_ioctl.h"=0A=
- =0A=
- =0A=
--#define MEGARAID_VERSION	"2.20.3.1"=0A=
--#define MEGARAID_EXT_VERSION	"(Release Date: Tue Aug 24 09:43:35 EDT =
-2004)"=0A=
-+#define MEGARAID_VERSION	"2.20.4.0"=0A=
-+#define MEGARAID_EXT_VERSION	"(Release Date: Mon Sep 27 22:15:07 EDT =
-2004)"=0A=
- =0A=
- =0A=
- /*=0A=
+Kernel Version 2.6.9-rc1-mm3-kdb-kswapdfix2:
+         Total I/O   Avg Swap   min    max     pg cache    min    max
+        ----------- --------- ------- ------  --------- ------- -------
+    0   282.71 MB/s    247 MB (     8,   691)   3248 MB (  2995,  3636)
+   20   281.96 MB/s    127 MB (     3,   300)   3097 MB (  2931,  3283)
+   40   282.24 MB/s    252 MB (    16,   417)   3270 MB (  3059,  3475)
+   60   281.27 MB/s    404 MB (   106,  1070)   3414 MB (  3139,  4068)
+   80   281.30 MB/s    494 MB (   204,   662)   3485 MB (  3187,  3635)
+  100   160.35 MB/s  26003 MB ( 26003, 26003)  28477 MB ( 28407, 28519)
 
-------_=_NextPart_000_01C4A70E.F57BF9A0--
+-- 
+Best Regards,
+Ray
+-----------------------------------------------
+                   Ray Bryant
+512-453-9679 (work)         512-507-7807 (cell)
+raybry@sgi.com             raybry@austin.rr.com
+The box said: "Requires Windows 98 or better",
+            so I installed Linux.
+-----------------------------------------------
+

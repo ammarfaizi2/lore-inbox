@@ -1,35 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269886AbRHEAwX>; Sat, 4 Aug 2001 20:52:23 -0400
+	id <S269882AbRHEAwX>; Sat, 4 Aug 2001 20:52:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269882AbRHEAwE>; Sat, 4 Aug 2001 20:52:04 -0400
-Received: from cx570538-a.elcjn1.sdca.home.com ([24.5.14.144]:48256 "EHLO
-	keroon.dmz.dreampark.com") by vger.kernel.org with ESMTP
-	id <S269879AbRHEAvy>; Sat, 4 Aug 2001 20:51:54 -0400
-Message-ID: <3B6C97B5.250FB335@randomlogic.com>
-Date: Sat, 04 Aug 2001 17:47:49 -0700
-From: "Paul G. Allen" <pgallen@randomlogic.com>
-Organization: Akamai Technologies, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Linux kernel developer's mailing list" 
-	<linux-kernel@vger.kernel.org>
-Subject: MTRR and Athlon Processors
+	id <S269883AbRHEAwE>; Sat, 4 Aug 2001 20:52:04 -0400
+Received: from [209.250.53.120] ([209.250.53.120]:2578 "EHLO
+	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S269882AbRHEAvz>; Sat, 4 Aug 2001 20:51:55 -0400
+Date: Sat, 4 Aug 2001 19:51:31 -0500
+From: Steven Walter <srwalter@yahoo.com>
+To: rich+ml@lclogic.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: module unresolved symbols
+Message-ID: <20010804195131.A17350@hapablap.dyn.dhs.org>
+Mail-Followup-To: Steven Walter <srwalter@yahoo.com>, rich+ml@lclogic.com,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0108041726050.8186-100000@baddog.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.30.0108041726050.8186-100000@baddog.localdomain>; from rich+ml@lclogic.com on Sat, Aug 04, 2001 at 05:39:17PM -0700
+X-Uptime: 7:50pm  up 4 days, 22:24,  2 users,  load average: 1.00, 1.00, 1.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is the mtrr code supposed to work properly for Athlon (Model 4) in
-kernel 2.4.7?
+On Sat, Aug 04, 2001 at 05:39:17PM -0700, rich+ml@lclogic.com wrote:
+> Hi all, kindly redirect me if this is the wrong list.
+> 
+> Starting with a stock RH 7.0 install, I changed a single kernel config
+> item and recompiled with 'make defs clean bzImage modules
+> modules_install'.
+> 
+> Booted on the new kernel and depmod complains that dozens of modules
+> contain unresolved symbols. Back to the original kernel, now it also
+> complains of unresolved symbols (not the same set of modules, and modules
+> that were previously OK).
+> 
+> I can't find an answer on the net, does anyone know how to fix this?
+> 
+> Thanks == Rich
 
-I still get mtrr errors/warnings.
-
-PGA
-
---
-Paul G. Allen
-UNIX Admin II/Network Security
-Akamai Technologies, Inc.
-www.akamai.com
+For one, it should have been 'make deps clean bzImage modules'.
+However, depending on the option you changed, a 'make mrproper' may have
+been in order.  Be sure to back up your .config first, though
+-- 
+-Steven
+In a time of universal deceit, telling the truth is a revolutionary act.
+			-- George Orwell

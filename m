@@ -1,69 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266717AbUFYMIP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265872AbUFYMKa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266717AbUFYMIP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 08:08:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266720AbUFYMIP
+	id S265872AbUFYMKa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 08:10:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266720AbUFYMK3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 08:08:15 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:53913 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S266717AbUFYMIJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 08:08:09 -0400
-Subject: Re: Elastic Quota File System (EQFS)
-From: Josh Boyer <jdub@us.ibm.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: alan <alan@clueserver.org>, "Fao, Sean" <Sean.Fao@dynextechnologies.com>,
-       linux-kernel@vger.kernel.org, Amit Gud <gud@eth.net>
-In-Reply-To: <20040625001545.GI20649@elf.ucw.cz>
-References: <20040624220318.GE20649@elf.ucw.cz>
-	 <Pine.LNX.4.44.0406241544010.19187-100000@www.fnordora.org>
-	 <20040625001545.GI20649@elf.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1088165267.8241.7.camel@weaponx.rchland.ibm.com>
+	Fri, 25 Jun 2004 08:10:29 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:38839 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S265872AbUFYMKZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jun 2004 08:10:25 -0400
+Date: Fri, 25 Jun 2004 13:10:23 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: David van Hoose <david.vanhoose@comcast.net>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Helge Hafting <helge.hafting@hist.no>,
+       John Richard Moser <nigelenki@comcast.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Collapse ext2 and 3 please
+Message-ID: <20040625121023.GA29274@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	David van Hoose <david.vanhoose@comcast.net>,
+	Helge Hafting <helge.hafting@hist.no>,
+	John Richard Moser <nigelenki@comcast.net>,
+	linux-kernel@vger.kernel.org
+References: <40DB605D.6000409@comcast.net> <40DBED77.6090704@hist.no> <40DC0CE0.6040509@comcast.net> <20040625114105.GA28892@infradead.org> <40DC1192.7030006@comcast.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 25 Jun 2004 07:07:48 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40DC1192.7030006@comcast.net>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-06-24 at 19:15, Pavel Machek wrote:
+On Fri, Jun 25, 2004 at 07:50:42AM -0400, David van Hoose wrote:
+> yeah.. Really. Here's what I do.
+> 
+> I have ext3 partitions, so I decided if they are different partitions, 
+> then I can compile my kernel with ext2 as a module and ext3 builtin.
+> So I do it and reboot. Panic! Reason? Cannot find filesystem for the 
+> root partition.
+> The error is in the kernel itself either way. Pick your reason.
+> 1) ext3 is identified as ext2 on bootup.
+> 2) There is no fallback to ext3 if ext2 is not found.
 
-> > A better option in this case is to reduce the default size of Mozilla's 
-> > cache or expand the size of the quota for each user to deal with the added 
-> > space requirements.
-> > 
-> > If you are concerned about disk usage from caches, you can always create 
-> > a script that removes the cache(s) when the user logs out.
-> 
-> That's not the right thing.. that way you loose caching effects around
-> logins even when there's plenty of space.
-> 
-> There's quite a lot of data -- at least on my systems -- that can be
-> removed with "only" loss of performance...
-> 
-> 1) browser caches
-> 
-> 2) package lists, downloaded packages
-> 
-> 3) object files
-> 
-> heck, if you know you have reliable network connection 4), you could
-> even mark stuff like /usr/bin/mozilla elastic, and re-install it from
-> the network when it is needed... Doing anything more complex than 1)
-> requires extensive changes all around the kernel and userland, and
-> you'd probably not call that system unix any more.
-> 
-> I'm not saying that "elastic" feature should go into 2.6 or 2.8 or
-> whatever, but it still seems interesting to me.
+Doesn't make sense.  The kernel just tries all registered filesystems
+for the rootfs until one clames it.  It means you either:
 
-Couldn't most of this be done in userspace with xattrs and a "elastic
-quota" daemon?  Mark such files as elastic with an xattr, and when space
-is needed for user N, the daemon comes along and deletes the marked
-files.  You could even make the deamon semi-smart and take things such
-as filesize, least recently used files, etc into account.
+ - don't actually have ext3 in the kernel or
+ - the filesystems actually is ext2 and not ext3
 
-Or maybe I am missing something... wouldn't be the first time.
-
-josh
+Try calling debugfs /dev/$ROOTDEVICE and then typing features, what does it
+say?
 

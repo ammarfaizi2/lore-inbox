@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264543AbRFTSfC>; Wed, 20 Jun 2001 14:35:02 -0400
+	id <S264545AbRFTSfx>; Wed, 20 Jun 2001 14:35:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264545AbRFTSex>; Wed, 20 Jun 2001 14:34:53 -0400
-Received: from mailhost.tue.nl ([131.155.2.5]:37145 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S264543AbRFTSel>;
-	Wed, 20 Jun 2001 14:34:41 -0400
-Message-ID: <20010620203444.A22204@win.tue.nl>
-Date: Wed, 20 Jun 2001 20:34:44 +0200
-From: Guest section DW <dwguest@win.tue.nl>
-To: Josh Fryman <fryman@cc.gatech.edu>, linux-kernel@vger.kernel.org
-Subject: Re: IDE drives mis-reporting size... bug or feature?
-In-Reply-To: <3B30E4CC.3794331@cc.gatech.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <3B30E4CC.3794331@cc.gatech.edu>; from Josh Fryman on Wed, Jun 20, 2001 at 02:00:44PM -0400
+	id <S264548AbRFTSfo>; Wed, 20 Jun 2001 14:35:44 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:10907 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S264545AbRFTSf2>;
+	Wed, 20 Jun 2001 14:35:28 -0400
+Date: Wed, 20 Jun 2001 14:35:25 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: george anzinger <george@mvista.com>
+cc: Jes Sorensen <jes@sunsite.dk>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        bert hubert <ahu@ds9a.nl>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
+In-Reply-To: <3B30D1AC.325A4CCB@mvista.com>
+Message-ID: <Pine.GSO.4.21.0106201429150.26389-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 20, 2001 at 02:00:44PM -0400, Josh Fryman wrote:
 
-> this is an odd one.  i think it's technically a feature
-> but might be perceived instead as a "bug".  anyway, i've
-> got a pair of Ultra100 Maxtor 52049h4 20GB drives, on a 
-> Promise Ultra 100 (PDC20267) controller.  
-> 
-> the drives were popped in with the jumper on for the
-> 4096 cylinder limit forced.
-> 
-> the promise controller recognizes the drives on boot-up
-> init as being what they are - ~20GB - and continues on
-> merrily.  
-> 
-> Windows 2000 recognizes the drives as ~2GB in size, due to
-> the jumper.  it's observing the 4096cyl limit on the drive
-> in some way.  (remove the jumper and it sees ~20GB too.)
-> 
-> Linux 2.4.3 recognizes the drives as ~20GB regardless of
-> the jumper.
-> 
-> so, is this a bug or feature?  is windows or linux not 
-> working right here?  what *should* be seen with the drive
-> jumpered such?
 
-The jumper is to overcome a BIOS defect.
-The operating system should see the true size.
-In order to get Windows to see the true size you may need MaxBlast
-or similar boot manager stuff.
+On Wed, 20 Jun 2001, george anzinger wrote:
+
+> > around we _will_ get problems. Kernel UP programming is not different
+> > from SMP one. It is multithreaded. And amount of genuine SMP bugs is
+> > very small compared to ones that had been there on UP since way back.
+> > And yes, programming threads is the same thing. No arguments here.
+> > 
+> Correct, IF the UP kernel is preemptable.  As long as it is not (and SMP
+> is ignored) threads are harder BECAUSE they are preemptable.
+
+In practice it's a BS. There is a lot of ways minor modifications of code
+could add a preemption point, so if you rely on the lack of such - expect
+major PITA.
+
+Yes, in theory SMP adds some extra fun. Practically, almost every "SMP"
+race found so far did not require SMP.
+
+Clean code is trivial to make SMP-safe - critical areas that rely on
+lack of preemption are couple of instructions wide and are easy to
+protect. Anything trickier and I bet that you have a race on (normal)
+UP kernel. Been there, found probably several hundreds of them.
+

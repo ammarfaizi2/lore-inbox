@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131149AbQK1Njy>; Tue, 28 Nov 2000 08:39:54 -0500
+        id <S129682AbQK1N6U>; Tue, 28 Nov 2000 08:58:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131199AbQK1Njp>; Tue, 28 Nov 2000 08:39:45 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:15426 "EHLO
-        twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-        id <S131149AbQK1Nje>; Tue, 28 Nov 2000 08:39:34 -0500
-Date: Tue, 28 Nov 2000 15:09:11 +0200
-From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+        id <S130021AbQK1N6B>; Tue, 28 Nov 2000 08:58:01 -0500
+Received: from mail.ima.pl ([195.117.13.5]:44807 "EHLO mail.ima.pl")
+        by vger.kernel.org with ESMTP id <S129682AbQK1N5v>;
+        Tue, 28 Nov 2000 08:57:51 -0500
+Message-Id: <5.0.0.25.0.20001128142121.01da9e20@195.117.13.2>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0
+Date: Tue, 28 Nov 2000 14:29:34 +0100
+To: reiserfs-list@namesys.com
+From: Blizbor <tb670725@ima.pl>
+Subject: VFS: brelse message in syslog, its due to ReiserFS or kernel
+  failure ?
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18pre19 oops in try_to_free_pages
-Message-ID: <20001128150911.P53529@niksula.cs.hut.fi>
-In-Reply-To: <20001128145229.O53529@niksula.cs.hut.fi> <E140kKf-0004U3-00@the-village.bc.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E140kKf-0004U3-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Nov 28, 2000 at 12:57:59PM +0000
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 28, 2000 at 12:57:59PM +0000, you [Alan Cox] claimed:
-> > I wasn't the one who used cdrom, so it is possible, that the person in
-> > question had been able to eject the cd without unmounting it first. I'll
-> > check if the door locking on that device works.
-> 
-> Also rpm -e magicdev --nodeps if magicdev is on the box.
+Machine: P3 500 on ASUS P2B, WD 15GB IDE drive.
+System RH7 with upgraded glibc.
 
-Oops. Seems that there was one. Looks like I did not check the system well
-enough after rh70 install...
+When I'm using 2.2.17 with ReiserFS:
+Nov 26 00:05:05 localhost kernel: Linux version 2.2.17 (root@localhost.localdomain) (gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 relea
+se)) #9 Sat Nov 25 17:09:40 CET 2000
 
-> > But you are certain that the oops was eventually caused by these and not
-> > by any bug in vm?
-> 
-> This one . Yes.
+I have such messages in syslog and console:
+Nov 26 06:00:49 localhost kernel: VFS: brelse: Trying to free free buffer
+Nov 26 06:07:41 localhost kernel: VFS: brelse: Trying to free free buffer
+Nov 26 06:32:28 localhost kernel: VFS: brelse: Trying to free free buffer
 
-Ok, good. So avoiding ejecting cdrom without unmounting first will save me
-from further oopses.
+FS size is about 8GB.
 
-> The VM layer isnt causing any oopses I've seen in 2.2.17+. It doesn't always
-> make good choices and Rik or Andrea's stuff is on the list after 2.2.18
+When I've switched to 2.4.0-test11 + ReiserFS patch there are no such messages.
 
-Yes. The other problem I saw with 2.2.18pre vm wasn't an oops, it was a
-rampaging vm rambo that slaughtered my X while it was idle. Admittedly
-that is not as severe as oops, so the vm situation is not as bad as I
-thought.
+Both kerlels are patched with latest ReiserFS patches.
 
-> (I refuse to mix VM changes with the big driver changes)
 
-No problem. 
+-- 
+</Microsoft>
 
- 
--- v --
-
-v@iki.fi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

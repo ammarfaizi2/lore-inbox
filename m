@@ -1,49 +1,251 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263258AbTCYTku>; Tue, 25 Mar 2003 14:40:50 -0500
+	id <S263280AbTCYThG>; Tue, 25 Mar 2003 14:37:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263259AbTCYTku>; Tue, 25 Mar 2003 14:40:50 -0500
-Received: from M1019P023.adsl.highway.telekom.at ([62.47.159.87]:64935 "EHLO
-	sputnik") by vger.kernel.org with ESMTP id <S263258AbTCYTks>;
-	Tue, 25 Mar 2003 14:40:48 -0500
-Date: Tue, 25 Mar 2003 20:51:58 +0100
-From: maximilian attems <maks@sternwelten.at>
-To: linux-kernel@vger.kernel.org
-Cc: maximilian attems <maks@sternwelten.at>
-Subject: Re: 2.5.65 compile failure
-Message-ID: <20030325195158.GD9811@mail.sternwelten.at>
-References: <20030325184211.GA9811@mail.sternwelten.at>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="n/aVsWSeQ4JHkrmm"
-Content-Disposition: inline
-In-Reply-To: <20030325184211.GA9811@mail.sternwelten.at>
+	id <S263283AbTCYThG>; Tue, 25 Mar 2003 14:37:06 -0500
+Received: from carisma.slowglass.com ([195.224.96.167]:44046 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S263280AbTCYThB>; Tue, 25 Mar 2003 14:37:01 -0500
+Date: Tue, 25 Mar 2003 19:48:06 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BK FBDEV] A few more updates.
+In-Reply-To: <1048617354.10476.6.camel@zion.wanadoo.fr>
+Message-ID: <Pine.LNX.4.44.0303251947020.6228-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 25 Mar 2003, Benjamin Herrenschmidt wrote:
 
---n/aVsWSeQ4JHkrmm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> On Tue, 2003-03-25 at 19:28, Benjamin Herrenschmidt wrote:
+> 
+> > You "fixed" it by using GFP_ATOMIC but didn't test the result of
+> > kmalloc. That is very bad. GFP_ATOMIC can fail (return NULL), thus
+> > you will crash the kernel under high memory pressure.
+> > 
+> > I think the proper fix is, as you asked me, using a workqueue,
+> > that way, you can both use GFP_KERNEL allocations, and avoid
+> > the spinlock you added to fbmem.c, thus letting the fb_sync()
+> > ops on fbdev's be able to block.
+> 
+> Well, actually, creating a workqueue would be overhead since
+> it involves one kernel thread per CPU. After more thinking &
+> discussion, I beleive you shall rather use keventd existing
+> workqueue (schedule_work() will do that)
+
+Done. Can you look over this patch and test it. I tested it and it worked 
+fine.
+
+diff -urN -X /home/jsimmons/dontdiff linus-2.5/drivers/video/console/fbcon.c fbdev-2.5/drivers/video/console/fbcon.c
+--- linus-2.5/drivers/video/console/fbcon.c	Sat Mar 22 21:45:23 2003
++++ fbdev-2.5/drivers/video/console/fbcon.c	Tue Mar 25 12:03:56 2003
+@@ -172,8 +172,9 @@
+  *  Internal routines
+  */
+ static void fbcon_set_display(struct vc_data *vc, int init, int logo);
++static void accel_cursor(struct vc_data *vc, struct fb_info *info,
++			 struct fb_cursor *cursor, int yy);
+ static __inline__ int real_y(struct display *p, int ypos);
+-static void fb_vbl_handler(int irq, void *dummy, struct pt_regs *fp);
+ static __inline__ void updatescrollmode(struct display *p, struct vc_data *vc);
+ static __inline__ void ywrap_up(struct vc_data *vc, int count);
+ static __inline__ void ywrap_down(struct vc_data *vc, int count);
+@@ -194,6 +195,34 @@
+ }
+ #endif
+
++static void fb_callback(void *private)
++{
++	struct fb_info *info = (struct fb_info *) private;
++	struct display *p = &fb_display[fg_console];
++	struct vc_data *vc = vc_cons[fg_console].d;
++	struct fb_cursor cursor;
++
++	if (!info || !cursor_on)
++		return;
++
++	if (vbl_cursor_cnt && --vbl_cursor_cnt == 0) {
++		cursor.set = 0;
++
++		if (!cursor_drawn)
++			cursor.set = FB_CUR_SETCUR;
++		accel_cursor(vc, info, &cursor, real_y(p, vc->vc_y));
++		cursor_drawn ^= 1;
++		vbl_cursor_cnt = cursor_blink_rate;
++	}
++}
++
++static void fb_vbl_handler(int irq, void *dev_id, struct pt_regs *fp)
++{
++	struct fb_info *info = dev_id;
++
++	schedule_work(&info->queue);
++}
++
+ static void cursor_timer_handler(unsigned long dev_addr);
+
+ static struct timer_list cursor_timer =
+@@ -203,7 +232,7 @@
+ {
+ 	struct fb_info *info = (struct fb_info *) dev_addr;
+
+-	fb_vbl_handler(0, info, NULL);
++	schedule_work(&info->queue);
+ 	cursor_timer.expires = jiffies + HZ / 50;
+ 	add_timer(&cursor_timer);
+ }
+@@ -290,14 +319,14 @@
+ 			    const unsigned short *s)
+ {
+ 	unsigned short charmask = vc->vc_hi_font_mask ? 0x1ff : 0xff;
+-	unsigned int width = (vc->vc_font.width + 7)/8;
++	unsigned int width = (vc->vc_font.width + 7) >> 3;
+ 	unsigned int cellsize = vc->vc_font.height * width;
+ 	unsigned int maxcnt = info->pixmap.size/cellsize;
+ 	unsigned int shift_low = 0, mod = vc->vc_font.width % 8;
+ 	unsigned int shift_high = 8, size, pitch, cnt, k;
+ 	unsigned int buf_align = info->pixmap.buf_align - 1;
+ 	unsigned int scan_align = info->pixmap.scan_align - 1;
+-	unsigned int idx = vc->vc_font.width/8;
++	unsigned int idx = vc->vc_font.width >> 3;
+ 	u8 mask, *src, *dst, *dst0;
+
+ 	while (count) {
+@@ -307,7 +336,7 @@
+ 			cnt = k = count;
+
+ 		image->width = vc->vc_font.width * cnt;
+-		pitch = (image->width + 7)/8 + scan_align;
++		pitch = ((image->width + 7) >> 3) + scan_align;
+ 		pitch &= ~scan_align;
+ 		size = pitch * vc->vc_font.height + buf_align;
+ 		size &= ~buf_align;
+@@ -338,7 +367,7 @@
+ 			  const unsigned short *s)
+ {
+ 	unsigned short charmask = vc->vc_hi_font_mask ? 0x1ff : 0xff;
+-	unsigned int width = vc->vc_font.width/8;
++	unsigned int width = vc->vc_font.width >> 3;
+ 	unsigned int cellsize = vc->vc_font.height * width;
+ 	unsigned int maxcnt = info->pixmap.size/cellsize;
+ 	unsigned int scan_align = info->pixmap.scan_align - 1;
+@@ -411,7 +440,7 @@
+                       int c, int ypos, int xpos)
+ {
+ 	unsigned short charmask = vc->vc_hi_font_mask ? 0x1ff : 0xff;
+-	unsigned int width = (vc->vc_font.width + 7)/8;
++	unsigned int width = (vc->vc_font.width + 7) >> 3;
+ 	unsigned int scan_align = info->pixmap.scan_align - 1;
+ 	unsigned int buf_align = info->pixmap.buf_align - 1;
+ 	int bgshift = (vc->vc_hi_font_mask) ? 13 : 12;
+@@ -559,6 +588,15 @@
+
+ 	vc = (struct vc_data *) kmalloc(sizeof(struct vc_data), GFP_ATOMIC);
+
++	if (!vc) {
++		if (softback_buf)
++			kfree((void *) softback_buf);
++		return NULL;
++	}
++
++	/* Initialize the work queue */
++	INIT_WORK(&info->queue, fb_callback, info);
++
+ 	/* Setup default font */
+ 	vc->vc_font.data = font->data;
+ 	vc->vc_font.width = font->width;
+@@ -956,8 +994,8 @@
+ 	accel_putcs(vc, info, s, count, real_y(p, ypos), xpos);
+ }
+
+-void accel_cursor(struct vc_data *vc, struct fb_info *info, struct fb_cursor *cursor,
+-		  int yy)
++static void accel_cursor(struct vc_data *vc, struct fb_info *info,
++			 struct fb_cursor *cursor, int yy)
+ {
+ 	unsigned short charmask = vc->vc_hi_font_mask ? 0x1ff : 0xff;
+ 	int bgshift = (vc->vc_hi_font_mask) ? 13 : 12;
+@@ -986,7 +1024,15 @@
+ 	size = ((width + 7) >> 3) * height;
+
+ 	data = kmalloc(size, GFP_KERNEL);
++
++	if (!data) return;
++
+ 	mask = kmalloc(size, GFP_KERNEL);
++
++	if (!mask) {
++		kfree(data);
++		return;
++	}
+
+ 	if (cursor->set & FB_CUR_SETSIZE) {
+ 		memset(data, 0xff, size);
+@@ -1101,27 +1147,6 @@
+ 	}
+ }
+
+-static void fb_vbl_handler(int irq, void *dev_id, struct pt_regs *fp)
+-{
+-	struct fb_info *info = dev_id;
+-	struct display *p = &fb_display[fg_console];
+-	struct vc_data *vc = vc_cons[fg_console].d;
+-	struct fb_cursor cursor;
+-
+-	if (!cursor_on)
+-		return;
+-
+-	if (vbl_cursor_cnt && --vbl_cursor_cnt == 0) {
+-		cursor.set = 0;
+-
+-		if (!cursor_drawn)
+-			cursor.set = FB_CUR_SETCUR;
+-		accel_cursor(vc, info, &cursor, real_y(p, vc->vc_y));
+-		cursor_drawn ^= 1;
+-		vbl_cursor_cnt = cursor_blink_rate;
+-	}
+-}
+-
+ static int scrollback_phys_max = 0;
+ static int scrollback_max = 0;
+ static int scrollback_current = 0;
+diff -urN -X /home/jsimmons/dontdiff linus-2.5/drivers/video/softcursor.c fbdev-2.5/drivers/video/softcursor.c
+--- linus-2.5/drivers/video/softcursor.c	Sat Mar 22 21:45:22 2003
++++ fbdev-2.5/drivers/video/softcursor.c	Tue Mar 25 11:41:28 2003
+@@ -44,6 +44,7 @@
+ 		if (info->cursor.mask)
+ 			kfree(info->cursor.mask);
+ 		info->cursor.mask = kmalloc(dsize, GFP_KERNEL);
++		if (!info->cursor.mask) return -ENOMEM;
+ 		if (cursor->mask)
+ 			memcpy(info->cursor.mask, cursor->mask, dsize);
+ 		else
+diff -urN -X /home/jsimmons/dontdiff linus-2.5/include/linux/fb.h fbdev-2.5/include/linux/fb.h
+--- linus-2.5/include/linux/fb.h	Sat Mar 22 21:45:25 2003
++++ fbdev-2.5/include/linux/fb.h	Tue Mar 25 12:00:20 2003
+@@ -2,6 +2,7 @@
+ #define _LINUX_FB_H
+
+ #include <linux/tty.h>
++#include <linux/workqueue.h>
+ #include <asm/types.h>
+ #include <asm/io.h>
+
+@@ -406,8 +407,9 @@
+    struct fb_fix_screeninfo fix;        /* Current fix */
+    struct fb_monspecs monspecs;         /* Current Monitor specs */
+    struct fb_cursor cursor;		/* Current cursor */
+-   struct fb_cmap cmap;                 /* Current cmap */
++   struct work_struct queue;		/* Framebuffer event queue */
+    struct fb_pixmap pixmap;	        /* Current pixmap */
++   struct fb_cmap cmap;                 /* Current cmap */
+    struct fb_ops *fbops;
+    char *screen_base;                   /* Virtual address */
+    struct vc_data *display_fg;		/* Console visible on this display */
 
 
-ooups 2.5.66 is definetly meant
-
-maks
-
-
-
---n/aVsWSeQ4JHkrmm
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE+gLNe6//kSTNjoX0RAhVCAJoCUsMzd0/CEYZ3oyNlQiboeplt6ACdFTJF
-5ZyfxLe2INqMbuabwZyP9x8=
-=iwNo
------END PGP SIGNATURE-----
-
---n/aVsWSeQ4JHkrmm--

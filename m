@@ -1,151 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261833AbVDERpv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261849AbVDESBW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261833AbVDERpv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 13:45:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261836AbVDERob
+	id S261849AbVDESBW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 14:01:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261874AbVDER7E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 13:44:31 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:61392 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261847AbVDERVf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 13:21:35 -0400
-Date: Tue, 5 Apr 2005 13:21:28 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, Stephen Smalley <sds@epoch.ncsc.mil>
-Subject: [PATCH] SELinux: add support for NETLINK_KOBJECT_UEVENT
-Message-ID: <Xine.LNX.4.44.0504051317280.12266-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 5 Apr 2005 13:59:04 -0400
+Received: from vbo91-1-82-238-217-224.fbx.proxad.net ([82.238.217.224]:43653
+	"EHLO mirchusko.localnet") by vger.kernel.org with ESMTP
+	id S261861AbVDERyL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 13:54:11 -0400
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear 
+	copyright notice.
+From: Josselin Mouette <joss@debian.org>
+To: linux-os@analogic.com
+Cc: debian-legal@lists.debian.org, debian-kernel@lists.debian.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0504051123100.16479@chaos.analogic.com>
+References: <lLj-vC.A.92G.w4pUCB@murphy> <4252A821.9030506@almg.gov.br>
+	 <Pine.LNX.4.61.0504051123100.16479@chaos.analogic.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-JCDN6GY9etBv3HfuggMz"
+Date: Tue, 05 Apr 2005 19:53:57 +0200
+Message-Id: <1112723637.4878.14.camel@mirchusko.localnet>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds SELinux support for the KOBJECT_UEVENT Netlink family,
-so that SELinux can apply finer grained controls to it.  For example,
-security policy for hald can be locked down to the KOBJECT_UEVENT
-Netlink family only.  Currently, this family simply defaults to the
-default Netlink socket class.
 
-Note that some new permission definitions are added to sync with
-changes in the core userspace policy package, which auto-generates
-header files.
+--=-JCDN6GY9etBv3HfuggMz
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Please apply.
+Le mardi 05 avril 2005 =C3=A0 11:50 -0400, Richard B. Johnson a =C3=A9crit =
+:
+> >> You are mixing apples and oranges. The fact that the GFDL sucks has
+> >> nothing to do with the firmware issue. With the current situation of
+> >> firmwares in the kernel, it is illegal to redistribute binary images o=
+f
+> >> the kernel. Full stop. End of story. Bye bye. Redhat and SuSE may stil=
+l
+> >> be willing to distribute such binary images, but it isn't our problem.
+> >>
+>=20
+> Wrong! It is perfectly legal in the United States, and I'm pretty
+> sure in your country, to distribute or redistribute copyrighted
+> works. Otherwise there wouldn't be any bookstores or newspaper
+> stands.
 
-Signed-off-by: James Morris <jmorris@redhat.com>
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+It is not legal to distribute the mix of a GPL software (the Linux
+kernel) and a proprietary file (the firmware). I wasn't aware of the
+"mere aggregation" interpretation, and I'm probably a bit late to say I
+disagree with it - mainly because you'd have a hard time convincing a
+court this is the case.
 
----
+> There is nothing about firmware that is any different than any
+> other component of a product. If the product was legally obtained
+> and it requires firmware to run, then there are no special
+> considerations about how one inserts the firmware into the
+> product.
 
- security/selinux/hooks.c                     |    2 +
- security/selinux/include/av_inherit.h        |    1 
- security/selinux/include/av_perm_to_string.h |    4 +++
- security/selinux/include/av_permissions.h    |   28 +++++++++++++++++++++++++++
- security/selinux/include/class_to_string.h   |    2 +
- security/selinux/include/flask.h             |    2 +
- 6 files changed, 39 insertions(+)
+Indeed, but that's not what I'm talking about.
 
-diff -purN -X dontdiff linux-2.6.12-rc1-mm4.o/security/selinux/hooks.c linux-2.6.12-rc1-mm4.w/security/selinux/hooks.c
---- linux-2.6.12-rc1-mm4.o/security/selinux/hooks.c	2005-04-04 18:39:37.000000000 -0400
-+++ linux-2.6.12-rc1-mm4.w/security/selinux/hooks.c	2005-04-05 12:41:03.000000000 -0400
-@@ -672,6 +672,8 @@ static inline u16 socket_type_to_securit
- 			return SECCLASS_NETLINK_IP6FW_SOCKET;
- 		case NETLINK_DNRTMSG:
- 			return SECCLASS_NETLINK_DNRT_SOCKET;
-+		case NETLINK_KOBJECT_UEVENT:
-+			return SECCLASS_NETLINK_KOBJECT_UEVENT_SOCKET;
- 		default:
- 			return SECCLASS_NETLINK_SOCKET;
- 		}
-diff -purN -X dontdiff linux-2.6.12-rc1-mm4.o/security/selinux/include/av_inherit.h linux-2.6.12-rc1-mm4.w/security/selinux/include/av_inherit.h
---- linux-2.6.12-rc1-mm4.o/security/selinux/include/av_inherit.h	2005-03-15 19:17:05.000000000 -0500
-+++ linux-2.6.12-rc1-mm4.w/security/selinux/include/av_inherit.h	2005-04-05 06:44:00.000000000 -0400
-@@ -28,3 +28,4 @@
-    S_(SECCLASS_NETLINK_AUDIT_SOCKET, socket, 0x00400000UL)
-    S_(SECCLASS_NETLINK_IP6FW_SOCKET, socket, 0x00400000UL)
-    S_(SECCLASS_NETLINK_DNRT_SOCKET, socket, 0x00400000UL)
-+   S_(SECCLASS_NETLINK_KOBJECT_UEVENT_SOCKET, socket, 0x00400000UL)
-diff -purN -X dontdiff linux-2.6.12-rc1-mm4.o/security/selinux/include/av_permissions.h linux-2.6.12-rc1-mm4.w/security/selinux/include/av_permissions.h
---- linux-2.6.12-rc1-mm4.o/security/selinux/include/av_permissions.h	2005-04-04 18:39:37.000000000 -0400
-+++ linux-2.6.12-rc1-mm4.w/security/selinux/include/av_permissions.h	2005-04-05 06:44:00.000000000 -0400
-@@ -559,6 +559,8 @@
- #define CAPABILITY__SYS_TTY_CONFIG                0x04000000UL
- #define CAPABILITY__MKNOD                         0x08000000UL
- #define CAPABILITY__LEASE                         0x10000000UL
-+#define CAPABILITY__AUDIT_WRITE                   0x20000000UL
-+#define CAPABILITY__AUDIT_CONTROL                 0x40000000UL
- 
- #define PASSWD__PASSWD                            0x00000001UL
- #define PASSWD__CHFN                              0x00000002UL
-@@ -900,3 +902,29 @@
- #define NSCD__SHMEMGRP                            0x00000040UL
- #define NSCD__SHMEMHOST                           0x00000080UL
- 
-+#define ASSOCIATION__SENDTO                       0x00000001UL
-+#define ASSOCIATION__RECVFROM                     0x00000002UL
-+
-+#define NETLINK_KOBJECT_UEVENT_SOCKET__IOCTL      0x00000001UL
-+#define NETLINK_KOBJECT_UEVENT_SOCKET__READ       0x00000002UL
-+#define NETLINK_KOBJECT_UEVENT_SOCKET__WRITE      0x00000004UL
-+#define NETLINK_KOBJECT_UEVENT_SOCKET__CREATE     0x00000008UL
-+#define NETLINK_KOBJECT_UEVENT_SOCKET__GETATTR    0x00000010UL
-+#define NETLINK_KOBJECT_UEVENT_SOCKET__SETATTR    0x00000020UL
-+#define NETLINK_KOBJECT_UEVENT_SOCKET__LOCK       0x00000040UL
-+#define NETLINK_KOBJECT_UEVENT_SOCKET__RELABELFROM 0x00000080UL
-+#define NETLINK_KOBJECT_UEVENT_SOCKET__RELABELTO  0x00000100UL
-+#define NETLINK_KOBJECT_UEVENT_SOCKET__APPEND     0x00000200UL
-+#define NETLINK_KOBJECT_UEVENT_SOCKET__BIND       0x00000400UL
-+#define NETLINK_KOBJECT_UEVENT_SOCKET__CONNECT    0x00000800UL
-+#define NETLINK_KOBJECT_UEVENT_SOCKET__LISTEN     0x00001000UL
-+#define NETLINK_KOBJECT_UEVENT_SOCKET__ACCEPT     0x00002000UL
-+#define NETLINK_KOBJECT_UEVENT_SOCKET__GETOPT     0x00004000UL
-+#define NETLINK_KOBJECT_UEVENT_SOCKET__SETOPT     0x00008000UL
-+#define NETLINK_KOBJECT_UEVENT_SOCKET__SHUTDOWN   0x00010000UL
-+#define NETLINK_KOBJECT_UEVENT_SOCKET__RECVFROM   0x00020000UL
-+#define NETLINK_KOBJECT_UEVENT_SOCKET__SENDTO     0x00040000UL
-+#define NETLINK_KOBJECT_UEVENT_SOCKET__RECV_MSG   0x00080000UL
-+#define NETLINK_KOBJECT_UEVENT_SOCKET__SEND_MSG   0x00100000UL
-+#define NETLINK_KOBJECT_UEVENT_SOCKET__NAME_BIND  0x00200000UL
-+
-diff -purN -X dontdiff linux-2.6.12-rc1-mm4.o/security/selinux/include/av_perm_to_string.h linux-2.6.12-rc1-mm4.w/security/selinux/include/av_perm_to_string.h
---- linux-2.6.12-rc1-mm4.o/security/selinux/include/av_perm_to_string.h	2005-04-04 18:39:37.000000000 -0400
-+++ linux-2.6.12-rc1-mm4.w/security/selinux/include/av_perm_to_string.h	2005-04-05 06:44:00.000000000 -0400
-@@ -118,6 +118,8 @@
-    S_(SECCLASS_CAPABILITY, CAPABILITY__SYS_TTY_CONFIG, "sys_tty_config")
-    S_(SECCLASS_CAPABILITY, CAPABILITY__MKNOD, "mknod")
-    S_(SECCLASS_CAPABILITY, CAPABILITY__LEASE, "lease")
-+   S_(SECCLASS_CAPABILITY, CAPABILITY__AUDIT_WRITE, "audit_write")
-+   S_(SECCLASS_CAPABILITY, CAPABILITY__AUDIT_CONTROL, "audit_control")
-    S_(SECCLASS_PASSWD, PASSWD__PASSWD, "passwd")
-    S_(SECCLASS_PASSWD, PASSWD__CHFN, "chfn")
-    S_(SECCLASS_PASSWD, PASSWD__CHSH, "chsh")
-@@ -230,3 +232,5 @@
-    S_(SECCLASS_NSCD, NSCD__SHMEMPWD, "shmempwd")
-    S_(SECCLASS_NSCD, NSCD__SHMEMGRP, "shmemgrp")
-    S_(SECCLASS_NSCD, NSCD__SHMEMHOST, "shmemhost")
-+   S_(SECCLASS_ASSOCIATION, ASSOCIATION__SENDTO, "sendto")
-+   S_(SECCLASS_ASSOCIATION, ASSOCIATION__RECVFROM, "recvfrom")
-diff -purN -X dontdiff linux-2.6.12-rc1-mm4.o/security/selinux/include/class_to_string.h linux-2.6.12-rc1-mm4.w/security/selinux/include/class_to_string.h
---- linux-2.6.12-rc1-mm4.o/security/selinux/include/class_to_string.h	2005-03-15 19:17:05.000000000 -0500
-+++ linux-2.6.12-rc1-mm4.w/security/selinux/include/class_to_string.h	2005-04-05 06:44:00.000000000 -0400
-@@ -56,3 +56,5 @@
-     S_("netlink_dnrt_socket")
-     S_("dbus")
-     S_("nscd")
-+    S_("association")
-+    S_("netlink_kobject_uevent_socket")
-diff -purN -X dontdiff linux-2.6.12-rc1-mm4.o/security/selinux/include/flask.h linux-2.6.12-rc1-mm4.w/security/selinux/include/flask.h
---- linux-2.6.12-rc1-mm4.o/security/selinux/include/flask.h	2005-03-15 19:17:05.000000000 -0500
-+++ linux-2.6.12-rc1-mm4.w/security/selinux/include/flask.h	2005-04-05 06:44:00.000000000 -0400
-@@ -58,6 +58,8 @@
- #define SECCLASS_NETLINK_DNRT_SOCKET                     51
- #define SECCLASS_DBUS                                    52
- #define SECCLASS_NSCD                                    53
-+#define SECCLASS_ASSOCIATION                             54
-+#define SECCLASS_NETLINK_KOBJECT_UEVENT_SOCKET           55
- 
- /*
-  * Security identifier indices for initial entities
+> If you are a GPL-religious-zealot who believes that you are
+> supposed to get the technical design (i.e. the software schematics)
+> of the hardware device for free so you can copy it, then you are
+> going to have to learn something about intellectual property.
 
+Maybe you should try to understand what people are saying before
+teaching them anything.
 
+> The firmware, in most cases, are the bits generated by a design
+> program that creates the function of the device. It's what the
+> manufacturer paid 5-10 engineers over a period of a year or so
+> to produce. The rest of the design is just some chips you
+> can get off-the-shelf. Even if the manufacturer said; "Here you
+> are.... You can have the design....". You don't have the
+> "compilers" and other stuff necessary to turn this design
+> into the firmware unless you planned to steal the design.
+>=20
+> So, you either accept the firmware component, thanking the
+> manufacturer for it, or you go cry foul someplace else. This
+> whole firmware thing is a non-issue, blown way out of
+> proportion by people who don't have a clue.
+
+You are completely missing the point. I don't care whether the firmwares
+should be free, or whether they could be free. The fact is they are not
+free, and Debian doesn't distribute non-free software in the "main"
+archive. The fact is also that mixing them with a GPLed software gives
+an result you can't redistribute - although it seems many people
+disagree with that assertion now.
+
+Finally, you shouldn't forget that, technically speaking, using hotplug
+for uploading the firmware is much more flexible and elegant than
+including it in the kernel. Upgrading the firmware and the module should
+be two independent operations. People who are advocating the current
+situation are refusing technical improvements just because they are
+brought by people they find convenient to call "zealots".
+--=20
+ .''`.           Josselin Mouette        /\./\
+: :' :           josselin.mouette@ens-lyon.org
+`. `'                        joss@debian.org
+  `-  Debian GNU/Linux -- The power of freedom
+
+--=-JCDN6GY9etBv3HfuggMz
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Ceci est une partie de message
+	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQBCUtC0rSla4ddfhTMRAnXfAJoD85MkcC6YrTTsrBylJGNnwis3zgCfWY81
+F3s3ztAgwsawozQhhxOmy8o=
+=dQYl
+-----END PGP SIGNATURE-----
+
+--=-JCDN6GY9etBv3HfuggMz--

@@ -1,130 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266903AbUHITW4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266897AbUHITJs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266903AbUHITW4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 15:22:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266920AbUHITWU
+	id S266897AbUHITJs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 15:09:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266902AbUHITJV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 15:22:20 -0400
-Received: from smtp3.Stanford.EDU ([171.67.16.138]:47764 "EHLO
-	smtp3.Stanford.EDU") by vger.kernel.org with ESMTP id S266903AbUHITUA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 15:20:00 -0400
-Subject: 2.4.x vs 2.6.x: denormal handling and audio performance
-From: Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: jackit-devel <jackit-devel@lists.sourceforge.net>,
-       Lee Revell <rlrevell@joe-job.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1092079195.16794.257.camel@cmn37.stanford.edu>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 09 Aug 2004 12:19:55 -0700
-Content-Transfer-Encoding: 7bit
+	Mon, 9 Aug 2004 15:09:21 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:18115 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S266876AbUHITIS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 15:08:18 -0400
+Date: Mon, 9 Aug 2004 20:08:09 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Oskar Berggren <beo@sgs.o.se>
+cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Bug in 2.6.8-rc3 at mm/page_alloc.c:792 and mm/rmap.c:407
+In-Reply-To: <Pine.LNX.4.44.0408081930050.2366-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0408092007000.5981-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all, I've been trying to track weird behavior I'm experiencing when
-trying to use 2.6.x for "pro audio" applications and I think I have
-something to report (and some questions). 
-
-First, the environment. I'm running the Jack low latency server on top
-of two different software installs on the same hardware, one is FC1 +
-2.4.26 + low latency and preemption patches, the other is FC2 + 2.6.7
-rc2-mm2 + voluntary preemption O3. They are different hard disks swapped
-into the same P4 laptop. Both are running the same source code versions
-of all the audio programs that I use to test (but _not_ the same
-binaries, each one is built in the environment it runs on). 
-
-One example app that illustrates the problem well is Freqtweak, a
-frequency domain sound processing application that includes controlled
-feedback of the frequency domain bins. If I connect a source to it and
-feed samples and then disconnect it (ie: feed silence), and let the
-processed samples inside Freqtweak slowly decay to zero, at some point
-the processing load of the app goes up _drastically_. It eventually
-gobbles up all the cpu if left alone. If I feed samples to it again, the
-load immediately goes back to normal. This only happens on the 2.6.x
-based environment. It does not happen on the 2.4.x case. 
-
-My guess is that the processing of denormals is different in my two
-environments, in the 2.4.x case they are converted to zeros, in the
-2.6.x case they stay as denormals. To check the load denormals create
-Steve Harris wrote a small app and tested on several processors:
-
-On Mon, 2004-08-09 at 03:03, Steve Harris wrote: 
-> Source code + binary can be found at:
-> http://www.ecs.soton.ac.uk/~swh/denormal-finder/
+On Sun, 8 Aug 2004, Hugh Dickins wrote:
+> On Sun, 8 Aug 2004, Oskar Berggren wrote:
+> > Two BUG's I've been seeing, one in page_alloc.c and one in rmap.c.
 > 
-> I tried on a few different machines:
-> 	PIII running 2.6 (glibc 2.3.3)
-> 	Pentium M (PIII derived) running 2.6 (glibc 2.3.3)
-> 	Athlon XP running 2.4 (glibc 2.3.2)
-> 	Xeon P4 running 2.4 (glibc 2.3.2)
-> 	Opteron running 2.6 (glibc 2.3.2)
+> This is not the first report of an rmap.c:407,
+> Denis reported one a week ago (on 2.6.7-bk20).
 > 
-> In all cases the denormal values are the same, apparently regardless of
-> whether SSE or 387 instructions are used:
-> 	lower bound on normals   = 1.17549e-38
-> 	upper bound on denormals = 1.17549e-38
-> 	lower bound on denormals = 7.00649e-46
-> 	upper bound on zeros     = 7.00649e-46
-> 
-> tried with -march=i686 -msse and without, so I guess gcc doesn't disbale
-> the denormal handling by default with SSE.
-> 
-> what does vary is the time taken to process denormals relative to normals:
-> 	PIII      38x
-> 	AthlonXP  63x
-> 	Opteron   71x (32bit binary)
-> 	PM        78x (SSE / i387)
-> 	PM        95x (SSE2)
-> 	Opteron  104x (64bit binary)
-> 	Xeon     191x
-> 
-> So, this doesnt really shed any light on Fernando's problem, but its still
-> interesting.
+> I don't know what's behind it, but I am wondering if PageReserved
+> might be getting cleared while page is still mapped into userspace.
 
-I added these two cases this morning:
-On Mon, 2004-08-09 at 10:49, Fernando Pablo Lopez-Lezcano wrote: 
-> Athlon64 3000+, 2.6 (glibc 2.3.3, FC2): 27.5x
-> 
-> P4 Mobile, 2.6 (glibc 2.3.3, FC2):      191x
-> P4 Mobile, 2.4 (glibc 2.3.2, FC1):      315x
-> 
-> So, there is a difference in the runtime configuration of the FPU. Both
-> P4 Mobile examples are exactly the same hardware :-)
+That was just a guess, I've no evidence, and now doubt that.
 
-And here is what I think is happening:
+> You both have sound modules in, are you using audio?
 
-> But the problem, I think, is not the time it takes to process denormals
-> but whether those denormals get converted to zeros by the FPU or not. 
-> 
-> Apparently there is a "denormals-are-zero" flag in the MXCSR register
-> (introduced in the later P4 and Xeon processors)[*]. My guess is that is
-> being initialized differently. In 2.4.x/FC1 denormals get zeroed and
-> don't generate extra cpu load, in 2.6.x/FC2 denormals stay denormals and
-> are recirculated in algorithms that have feedback (and that's why the
-> load stays high in my tests). 
-> 
-> As far as I can tell this is being set in arch/i386/kernel/i387.c and
-> the code for 2.4 and 2.6 _is_ different... I also don't know if
-> something else is changing that setting later. 
-> 
-> A good test would be to be able to set and reset this setting
-> globally...
+You weren't actually using it (you mention in other mail),
+even if Denis was, so audio no longer looks like a suspect.
 
-So, is there a way to do this?  (toggle denormals-are-zero)
+> Could you mail me (privately) your /var/log/messages, Oskar, I don't
+> have a clear picture of the relation between your page_alloc.c:792s,
+> your rmap.c:407s and your other oopses.
 
-Is this setting indeed different on 2.4 and 2.6? (denormals-are-zero).
+Thanks a lot for the /var/log/messages.
 
-If the default setting is the same on both 2.4 and 2.6, where would this
-be changed if the kernel is not responsible for the change in behavior
-I observe?
+The frustrating thing is that the most interesting lines are missing:
+the "unqualified" printks, e.g. handle_BUG's "--- [ cut here ] ---" line
+and stack traces do appear; but handle_BUG's KERN_ALERT "kernel BUG..."
+and bad_page's very useful KERN_EMERG messages do not appear at all.
 
--- Fernando
+The "kernel BUG" messages you've already told us, but the missing
+bad_page lines might, _might_ be really helpful.  Do you have some
+klogd option set, not to print out the most important messages ;-?
+I hope someone can tell us how to fix that.
 
-> [*] See this:
-> http://gcc.gnu.org/ml/gcc/2001-07/msg02162.html
-> http://lkml.org/lkml/2003/5/9/144
+I notice the page_remove_rmap BUG (which we know to be rmap.c:407
+from your mail) was preceded 10 minutes earlier by a bad_page; and
+one of the things bad_page will do is force page->mapcount to 0,
+which would trigger the page_remove_rmap BUG, if that page being
+freed was actually still in use in some process address space.
 
+Most of the other BUGs (mostly page_alloc.c:792s, __free_pages called
+from below shrink_cache or sock_release, finding page_count already 0)
+were also preceded, less immediately, by bad_pages; though not all.
+
+It's all consistent with pages being freed while still in use,
+but I don't think I'm saying anything new there.  It doesn't look
+to me like random corruption or bad memory, I don't think those would
+show up so consistently as page freeing errors.  (Though if KERN_ERRs
+aren't getting into /var/log/messages, there might be page table
+corruption swap_free errors missing too.)
+
+But I've no idea of where to look for the culprit: I'd better get
+on with other things, and hope someone else can take this further.
+
+Hugh
 

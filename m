@@ -1,101 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312772AbSCVR4r>; Fri, 22 Mar 2002 12:56:47 -0500
+	id <S312773AbSCVR5r>; Fri, 22 Mar 2002 12:57:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312773AbSCVR4i>; Fri, 22 Mar 2002 12:56:38 -0500
-Received: from numenor.qualcomm.com ([129.46.51.58]:63160 "EHLO
-	numenor.qualcomm.com") by vger.kernel.org with ESMTP
-	id <S312772AbSCVR4W>; Fri, 22 Mar 2002 12:56:22 -0500
-Message-Id: <5.1.0.14.2.20020322095459.02f70cf0@mail1.qualcomm.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 22 Mar 2002 09:56:10 -0800
-To: jt@hpl.hp.com
-From: Maksim Krasnyanskiy <maxk@qualcomm.com>
-Subject: Re: Killing tasklet from interrupt
-Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        Paul Mackerras <paulus@samba.org>
-In-Reply-To: <5.1.0.14.2.20020319105838.02f70cf0@mail1.qualcomm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S312774AbSCVR52>; Fri, 22 Mar 2002 12:57:28 -0500
+Received: from [66.35.146.201] ([66.35.146.201]:14 "EHLO int1.nea-fast.com")
+	by vger.kernel.org with ESMTP id <S312773AbSCVR5S>;
+	Fri, 22 Mar 2002 12:57:18 -0500
+Message-ID: <3C9B7056.502BB64E@nea-fast.com>
+Date: Fri, 22 Mar 2002 12:56:38 -0500
+From: walt <walt@nea-fast.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-SGI_XFS_1.0.2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Abdij Bhat <Abdij.Bhat@kshema.com>
+CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel Upgrade Hangs!
+In-Reply-To: <91A7E7FABAF3D511824900B0D0F95D10136FA4@BHISHMA>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Abdij Bhat wrote:
 
-Did it help ?
+> Hi,
+>  I am trying to build the 2.4.17 Kernel and upgrade my existing 2.4.7-10 Red
+> Hat Linux System. Here is the procedure I followed ( based on Red Hat
+> Documentation on the same ):
+>
+> 1. tar -xvzf linux-2.4.17.tar.gz
+> 2. cd linux
+> 3. make mkproper
+> 4. make menuconfig
+> 5.make dep
+> 6. make clean
+> 7. make bzImage
+> 8. make modules
+> 9. make modules_install
+> 10. cp /usr/src/linux-2.4.17/arch/i386/boot/bzImage /boot/vmlinuz-2.4.17
+> 11. cp /usr/src/linux-2.4.17/System.map /boot/System.map-2.4.17
+> 12. cd /boot rm System.map ln -s System.map-2.4.17 System.map
+> 13. mkinitrd /boot/initrd-2.4.17.img 2.4.17
+> 14. Modify the /etc/lilo.conf to add
+>                 image=/boot/vmlinuz-2.4.17
+>                 label=linux-Mine
+>                 root=/dev/hda1
+>                 initrd=/boot/initrd-2.4.17
+>                 read-only
+>
+>  Now when i reboot and select the linux-Mine option the screen displays
+>                 Loading vmlinuz-2.4.7
+>                 Uncompressing Linux... Ok, booting the kernel
+>
+>  and then HANGS!!!!!!
+>
+>  What might be the problem. I have followed the instruction to the T. I
+> tried without the initrd option too. I have enabled the RAM diak
+> option/disabled it....
+>
+>  Please help me out on the issue.
+>
+> Thanks and Regards,
+> Abdij
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
->> > Sounds like what you need is tasklet_disable.
->> > tasklet_kill needs process context so you can't use it in timer.
->> >
->> > >It's a shame that the code doesn't explitely allow for it (i.e. you will
->> > >deadlock every time
->> > >in tasklet_unlock_wait(t);).
->> > Use tasklet_disable_nosync within the tasklet itself.
->>
->>         Well. I thought about that. Not possible.
->>         tasklet_disable is not the answer, because if the tasklet was
->>scheduled, it will stay forever in the tasklet queue. Also, I need to
->>forget forever about getting rid of the tasklet within the tasklet
->>itself, because it will just crash.
->How about something like this ?
->
->void tasklet_kill_from_interrupt(struct tasklet_struct *t)
->{
->         while (test_and_set_bit(TASKLET_STATE_SCHED, &t->state));
->         tasklet_unlock_wait(t);
->}
->
->So, in your timer you would do:
->         set_bit(CLOSING_PLEASE_DONT_SCHEDULE_ANYTHING, something->state);
->         tasklet_kill_from_interrupt(something->tasklet);
->         /* cleanup/kfree/etc */
->
->>         Look below, comments by me (you've got to love uncommented
->>code). So, it's not today that I will use tasklets.
->Well, I use them without any problems in Bluetooth code. May be you should
->redesign your code a bit. For example don't kill tasklets from the timer.
->
->>P.S. : By the way, regarding flow control between TCP and netdevice
->>(our previous e-mail exchange with Paul), have you investigated the
->>effect of skb->destructor; (for example sock_wfree()).
->I'm sorry I must have missed skb->destructor part. How sock_wfree could 
->affect flow ctl between TCP and netdev ?
->sock_wfree just wakes up process sleeping in sock_alloc_send_skb or alike.
->
->>-------------------------------------------------------------
->>
->>static void tasklet_action(struct softirq_action *a)
->>{
->>         int cpu = smp_processor_id();
->>         struct tasklet_struct *list;
->>
->>         local_irq_disable();
->>         list = tasklet_vec[cpu].list;
->>         tasklet_vec[cpu].list = NULL;
->>         local_irq_enable();
->>
->>         while (list) {
->>                 struct tasklet_struct *t = list;
->>
->>                 list = list->next;
->>
->>                 if (tasklet_trylock(t)) {
->>                         if (!atomic_read(&t->count)) {
->>                                 if 
->> (!test_and_clear_bit(TASKLET_STATE_SCHED, &t->state))
->>                                         BUG();
->>         // Call tasklet handler
->>                                 t->func(t->data);
->>         // If tasklet was killed/destroyed/kfree above, we will die
->>                                 tasklet_unlock(t);
->>                                 continue;
->>                         }
->>                         tasklet_unlock(t);
->>                 }
->"kill" means "wait until tasklet terminates and is not in the queue". So 
->it's not a problem
->And you would not want to destroy _locked_ tasklet. You'd wait until it's 
->unlocked.
->
->Max
+You must run /sbin/lilo so lilo knows the "physical" location on the disk of
+the kernel image
 

@@ -1,58 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265250AbSLBV0H>; Mon, 2 Dec 2002 16:26:07 -0500
+	id <S263899AbSLBVk7>; Mon, 2 Dec 2002 16:40:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265266AbSLBV0H>; Mon, 2 Dec 2002 16:26:07 -0500
-Received: from ulima.unil.ch ([130.223.144.143]:3555 "EHLO ulima.unil.ch")
-	by vger.kernel.org with ESMTP id <S265250AbSLBV0G>;
-	Mon, 2 Dec 2002 16:26:06 -0500
-Date: Mon, 2 Dec 2002 22:33:35 +0100
-From: Gregoire Favre <greg@ulima.unil.ch>
-To: linux-kernel@vger.kernel.org
-Subject: Re: What does that mean (2.5.50)?
-Message-ID: <20021202213335.GB28863@ulima.unil.ch>
-References: <20021202212421.GA28863@ulima.unil.ch>
+	id <S264756AbSLBVk7>; Mon, 2 Dec 2002 16:40:59 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:44959 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263899AbSLBVk6>; Mon, 2 Dec 2002 16:40:58 -0500
+Subject: Re: [RFC] remove IDESCSI_SG_TRANSFORM (compile fix)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Andre Hedrick <andre@linux-ide.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021202182131.A32468@lst.de>
+References: <20021129235353.A13377@lst.de>
+	<20021130004435.GB3182@beaverton.ibm.com>  <20021202182131.A32468@lst.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 02 Dec 2002 22:22:04 +0000
+Message-Id: <1038867724.8952.4.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20021202212421.GA28863@ulima.unil.ch>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 02, 2002 at 10:24:21PM +0100, Gregoire Favre wrote:
-
-> matroxfb: framebuffer at 0xDC000000, mapped to 0xe0805000, size 33554432
-> Uninitialised timer!
-> This is just a warning.  Your computer is OK
-> function=0xc02a654c, data=0x0
-> Call Trace:
->  [<c0123e7f>] check_timer_failed+0x63/0x65
->  [<c02a654c>] cursor_timer_handler+0x0/0x3c
->  [<c0123ec0>] add_timer+0x3f/0xa1
->  [<c02a68fa>] fbcon_startup+0x4b/0x4d
->  [<c023c400>] take_over_console+0x29/0x1c8
->  [<c02a5be8>] register_framebuffer+0xe9/0x16d
->  [<c02ad111>] initMatrox2+0x849/0xaba
->  [<c02ad810>] matroxfb_probe+0x286/0x2da
->  [<c021e80a>] pci_device_probe+0x5e/0x6c
->  [<c0227746>] bus_match+0x45/0x7d
->  [<c0227847>] driver_attach+0x51/0x69
->  [<c0227b13>] bus_add_driver+0xa7/0xcd
->  [<c0227ef5>] driver_register+0x2f/0x33
->  [<c01703c5>] create_proc_entry+0x88/0xbc
->  [<c021e922>] pci_register_driver+0x47/0x57
->  [<c010506e>] init+0x3d/0x15a
->  [<c0105031>] init+0x0/0x15a
->  [<c0107079>] kernel_thread_helper+0x5/0xb
+On Mon, 2002-12-02 at 17:21, Christoph Hellwig wrote:
+> On Fri, Nov 29, 2002 at 04:44:35PM -0800, Mike Anderson wrote:
+> > Thanks for catching this Christoph I thought the only use was inside
+> > SCSI. I could make a patch to scsi-misc to add tag back in. Another
+> > option if it is still needed is to switch to "->name == "generic").
+> > 
+> > Though I have not used this interface I thought if one was using an sg
+> > device to a ide-scsi device and the flag was set that sg commands that
+> > where not 100% the same as ATAP commands where translated.
 > 
-> Console: switching to colour frame buffer device 200x75
+> Well, imho IDESCSI_SG_TRANSFORM is broken in 2.5.  Now that ever block
+> driver implements the sg ioctls a sg request can come from sd or sr
+> aswell.
 
-Is the principal question...
+Quite possibly, but newer drivers that might used sd/sr via the new
+API's should also know about the newer standards. Older sg users are not
+always so bright.
 
-Thank you very much,
 
-	Grégoire
-________________________________________________________________
-http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

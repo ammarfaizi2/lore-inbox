@@ -1,63 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266153AbUGZW6v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266176AbUGZXCN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266153AbUGZW6v (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 18:58:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266154AbUGZW6v
+	id S266176AbUGZXCN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 19:02:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266158AbUGZXCN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 18:58:51 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:51343 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S266153AbUGZW6s convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 18:58:48 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Mon, 26 Jul 2004 19:02:13 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:16583 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S266170AbUGZXBO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jul 2004 19:01:14 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Andrew Morton <akpm@osdl.org>
+Date: Tue, 27 Jul 2004 09:00:58 +1000
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [patch] kernel events layer
-Date: Mon, 26 Jul 2004 15:58:26 -0700
-Message-ID: <F989B1573A3A644BAB3920FBECA4D25A6EBFB9@orsmsx407>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch] kernel events layer
-Thread-Index: AcRzH9ut5eApZ763QF6qo/o9Il9cRQAQiOzg
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "Robert Love" <rml@ximian.com>
-Cc: "Andrew Morton" <akpm@osdl.org>, <cw@f00f.org>,
-       <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 26 Jul 2004 22:58:27.0013 (UTC) FILETIME=[0FACE750:01C47364]
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16645.36138.385234.785650@cse.unsw.edu.au>
+Cc: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: ext3 and SPEC SFS Run rules.
+In-Reply-To: message from Andrew Morton on Monday July 26
+References: <20040726000313.3fbf8403.akpm@osdl.org>
+	<Pine.LNX.4.44.0407261010400.32233-100000@localhost.localdomain>
+	<20040726130128.668c0722.akpm@osdl.org>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Robert Love [mailto:rml@ximian.com]
->
-> > methinks: if the message is related to some object that has a kobject
-> > representation, use it. If not, come up with one on a case by case
-> > basis [now this is the difficult one--is where it'd be difficult to
-> > keep things on leash].
+On Monday July 26, akpm@osdl.org wrote:
+> >    2. For NFS Version 3, the server adheres to the protocol specification. 
+> > In particular the requirement that for STABLE write requests and COMMIT 
+> > operations the NFS server must not reply to the NFS client before any 
+> > modified file system data or metadata, with the exception of access times, 
+> > are written to stable storage for that specific or related operation. See 
+> > RFC 1813, NFSv3 protocol specification for a definition of STABLE and 
+> > COMMIT for NFS write requests.
+
+Providing you use the "sync" export option, the Linux kNFSd should
+meet this requirement.
+
+> >    3. For NFS Version 3, operations which are specified to return wcc data 
+> > must, in all cases, return TRUE and the correct attribute data. Those 
+> > operations are:
+> > 
+> >       NFS Version 3
+> >       SETATTR
+> >       READLINK
+> >       CREATE
+> >       MKDIR
+> >       SYMLINK
+> >       MKNOD
+> >       REMOVE
+> >       RMDIR
+> >       RENAME
+> >       LINK
 > 
-> That introduces two orthogonal name spaces, and that really doesn't cut
-> it.
-> 
-> If Greg can come up with a solution for using kobjects, I am all for
-> that - that would be great - but I really do not see kobject paths
-> working out.  I think the best we have is the file path in the tree.
+> To confirm this we'd need to undertake an audit of the server
+> implementation, and we'll need to ask Neil about it.
 
-Agreed -- I guess what I am looking for is a regular way to link the 
-instance of the object (if any) that caused the message, so it is easier 
-to take action.
+To help with the audit: the wcc data is set by "fh_unlock".  i.e. when
+a filehandle is unlocked (up(i_sem)) a copy of the state information
+is taken and included where appropriate in the reply.
 
-For a silly example, IDE, I want to know which hard drive had a read 
-error; knowing that it came from drivers/ide/ide-disk.c is useful, but
-quite limited; it doesn't tell me which drive I need to babysit and 
-maybe swap. Certainly the message can print that information as part of
-the text, but chances up we'll end up with something like printk again
-if following that path.
+The only place that I am aware of where we *do*not* return wcc data is
+for the WRITE request (which you have not listed).  As the underlying
+filesystem is left to do whatever locking it thinks is appropriate,
+and vfs_write does none, nfsd is not in a position to lock it itself
+against sys_write and so cannot record before and after stat
+information that is atomic w.r.t the update.
 
-Ok, I did my share of non-very-constructive criticism already--shutting up :)
-
-Thx,
-
-Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own (and my fault) 
+NeilBrown

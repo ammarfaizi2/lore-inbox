@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312447AbSDCWjA>; Wed, 3 Apr 2002 17:39:00 -0500
+	id <S312431AbSDCWju>; Wed, 3 Apr 2002 17:39:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312431AbSDCWiw>; Wed, 3 Apr 2002 17:38:52 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:11657 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S312447AbSDCWic>;
-	Wed, 3 Apr 2002 17:38:32 -0500
-Date: Thu, 4 Apr 2002 00:38:12 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Message changed in libc
-Message-ID: <20020403223811.GA1151@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S312442AbSDCWjp>; Wed, 3 Apr 2002 17:39:45 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:13072 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S312431AbSDCWjd>;
+	Wed, 3 Apr 2002 17:39:33 -0500
+Date: Wed, 3 Apr 2002 19:39:04 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
+Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
+        Gerd Knorr <kraxel@bytesex.org>, <linux-kernel@vger.kernel.org>,
+        Hugh Dickins <hugh@veritas.com>
+Subject: Re: [PATCH 2.5.5] do export vmalloc_to_page to modules...
+In-Reply-To: <Pine.LNX.4.33.0204032327360.2006-100000@einstein.homenet>
+Message-ID: <Pine.LNX.4.44L.0204031937560.18660-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, 3 Apr 2002, Tigran Aivazian wrote:
+> On Wed, 3 Apr 2002, Rik van Riel wrote:
+> > after all Redhat, SuSE, Conectiva, etc. wouldn't want to have
+> > vmware and Veritas use their work without giving anything back ...
+>
+> I don't know about vmware (probably applies too) but more than one person
+> at Veritas can be justly offended by your implication that Veritas
+> employees have not contributed anything useful to the Linux kernel.
+>
+> I hope I understood you incorrectly and you weren't implying anything of
+> the kind.
 
-...so this change makes it way easier to grep...
+Indeed, Veritas has contributed significantly to kernel development,
+but I can't remember ever seeing anything but troubled users from
+companies like nvidia or vmware.
 
-									Pavel
+Veritas was a bad example indeed ;)
 
---- clean.2.5/include/asm-i386/errno.h	Fri Feb  9 20:40:02 2001
-+++ linux/include/asm-i386/errno.h	Thu Oct 25 13:24:35 2001
-@@ -7,7 +7,7 @@
- #define	EINTR		 4	/* Interrupted system call */
- #define	EIO		 5	/* I/O error */
- #define	ENXIO		 6	/* No such device or address */
--#define	E2BIG		 7	/* Arg list too long */
-+#define	E2BIG		 7	/* Argument list too long */
- #define	ENOEXEC		 8	/* Exec format error */
- #define	EBADF		 9	/* Bad file number */
- #define	ECHILD		10	/* No child processes */
-									
+regards,
+
+Rik
 -- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266967AbSK2Gnq>; Fri, 29 Nov 2002 01:43:46 -0500
+	id <S266969AbSK2Gwd>; Fri, 29 Nov 2002 01:52:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266969AbSK2Gnq>; Fri, 29 Nov 2002 01:43:46 -0500
-Received: from pat.uio.no ([129.240.130.16]:8600 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S266967AbSK2Gnp>;
-	Fri, 29 Nov 2002 01:43:45 -0500
-To: KELEMEN Peter <fuji@elte.hu>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org
-Subject: Re: NFS performance ...
-References: <200211241521.09981.m.c.p@wolk-project.de>
-	<20021128110627.GD26875@chiara.elte.hu>
-	<shs65uh1wch.fsf@charged.uio.no>
-	<20021128213612.GB6321@chiara.elte.hu>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 29 Nov 2002 07:51:05 +0100
-In-Reply-To: <20021128213612.GB6321@chiara.elte.hu>
-Message-ID: <shsznrs98di.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+	id <S266970AbSK2Gwd>; Fri, 29 Nov 2002 01:52:33 -0500
+Received: from [211.101.140.97] ([211.101.140.97]:26129 "EHLO
+	dns.rabbit.redflag-linux.com") by vger.kernel.org with ESMTP
+	id <S266969AbSK2Gwc> convert rfc822-to-8bit; Fri, 29 Nov 2002 01:52:32 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Zou Pengcheng <pczou@redflag-linux.com>
+Organization: RedFlag Linux
+To: linux-kernel@vger.kernel.org
+Subject: writev/readv dnotify confusion
+Date: Fri, 29 Nov 2002 14:58:12 +0800
+User-Agent: KMail/1.4.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200211291458.12893.pczou@redflag-linux.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == KELEMEN Peter <fuji@elte.hu> writes:
+hi,
 
+not sure if dnotify is handled by writev/readv correctly,
 
-     > 2.4.20rc2aa1 with my .config, NFS sucked.  make menuconfig,
-     > turned off CONFIG_NFS_DIRECTIO, make -j2 bzImage modules
-     > modules_install (no compiler errors), install kernel, lilo,
-     > reboot, NFS flies.  Confirmed on other machine as well.  gcc is
-     > 3.2.1 (Debian sid).  Wish to seek more input on the case?
+below are some code of do_readv_writev() in linux/fs/read_write.c:
 
-I'd rather see if you can reproduce it on stock 2.4.20-pre4 + the
-NFS_ALL patch. I have a strong feeling that this is something that is
-particular to the aa kernels...
+out_nofree:
+        /* VERIFY_WRITE actually means a read, as we write to user space */
+        if ((ret + (type == VERIFY_WRITE)) > 0)
+                dnotify_parent(file->f_dentry,
+                        (type == VERIFY_WRITE) ? DN_MODIFY : DN_ACCESS);
+        return ret;
+}
 
-Cheers,
-  Trond
+based on this code, it seems writev() sets DN_ACCESS while readv() sets 
+DN_MODIFY.
+
+i have also verified this by writing a testing program, in my testing program,
+if just do fcntl(fd, F_NOTIFY, DN_MODIFY), on signal is raised after a 
+writev(),  if i do fcntl(fd, F_NOTIFY, DN_ACCESS), then get the signal.
+
+so wonder maybe the code above should be modified as something like:
+
+out_nofree:
+        /* VERIFY_WRITE actually means a read, as we write to user space */
+        if ((ret + (type == VERIFY_WRITE)) > 0)
+                dnotify_parent(file->f_dentry,
+                        (type == VERIFY_WRITE) ? DN_ACCESS : DN_MODIFY);
+        return ret;
+}
+
+cheers,

@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262823AbUBZRCG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 12:02:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261579AbUBZRCG
+	id S262883AbUBZRON (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 12:14:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262884AbUBZRON
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 12:02:06 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:26375 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S262825AbUBZRBy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 12:01:54 -0500
-Date: Thu, 26 Feb 2004 17:53:18 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BUG][2.4] /proc/kcore is a random generator ?
-Message-ID: <20040226165318.GA4377@alpha.home.local>
-References: <200402181337.i1IDbsXU010467@hera.kernel.org> <20040226161637.GA4201@alpha.home.local> <Pine.LNX.4.53.0402261148080.3152@chaos>
-Mime-Version: 1.0
+	Thu, 26 Feb 2004 12:14:13 -0500
+Received: from ns.suse.de ([195.135.220.2]:19112 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262883AbUBZROI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 12:14:08 -0500
+To: Brian Childs <brian@rentec.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Multicast broken on x86_64 (Patch Included)
+References: <20040226162652.GG1760@rentec.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 26 Feb 2004 18:14:06 +0100
+In-Reply-To: <20040226162652.GG1760@rentec.com.suse.lists.linux.kernel>
+Message-ID: <p737jy969wh.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0402261148080.3152@chaos>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 26, 2004 at 11:50:27AM -0500, Richard B. Johnson wrote:
- 
-> Well with 'older' utilities on 2.4.24, I always get '0' with `du`!
+Brian Childs <brian@rentec.com> writes:
 
-that's what I've always been used to, too. I noticed it first because a
-classical "du -sc /" was 500 MB bigger than it ought to be.
+> csum-partial.c in 2.4.25 and 2.6.3 has a bug that causes it to compute
+> the checksum incorrectly.
+> 
+> As a result, multicast doesn't work.  It looks as though iptables is
+> also affected.
+> 
+> Anyway, here's a simple patch.
 
-> Probably moon-phase.
+Thanks. Added.
 
-I didn't think about this, but you may be right :-)
-
-Cheers,
-Willy
-
+-Andi

@@ -1,60 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261821AbUBWM5M (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 07:57:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261816AbUBWM5L
+	id S261836AbUBWNL6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 08:11:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261831AbUBWNL6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 07:57:11 -0500
-Received: from main.gmane.org ([80.91.224.249]:51384 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261821AbUBWM5I (ORCPT
+	Mon, 23 Feb 2004 08:11:58 -0500
+Received: from mail.brainsys.cz ([193.179.153.3]:44523 "EHLO mail.brainsys.cz")
+	by vger.kernel.org with ESMTP id S261836AbUBWNLu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 07:57:08 -0500
-X-Injected-Via-Gmane: http://gmane.org/
+	Mon, 23 Feb 2004 08:11:50 -0500
+Message-ID: <4039FBE9.4050001@Kristof.CZ>
+Date: Mon, 23 Feb 2004 14:11:05 +0100
+From: =?UTF-8?B?S3JpxaF0b2YgUGV0cg==?= <Petr@kristof.cz>
+Reply-To: Petr@kristof.cz
+Organization: Another certified B.O.F.H.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031114
+X-Accept-Language: cs, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-From: Juha Pahkala <juhis@trinity.is-a-geek.com>
-Subject: Re: matroxfb not working after trying to upgrade to 2.6.3
-Date: Mon, 23 Feb 2004 12:57:01 +0000 (UTC)
-Message-ID: <loom.20040223T134724-944@post.gmane.org>
-References: <loom.20040223T132140-441@post.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Call Trace: [<c010ca22>] __report_bad_irq+0x2a/0x8b
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: main.gmane.org
-User-Agent: Loom/3.14 (http://gmane.org/)
-X-Loom-IP: 193.110.64.16 (Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5b) Gecko/20030819 Mozilla Firebird/0.6.1+)
+X-Filter-Version: MailCorral Ver 1.1.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Juha <juhis <at> trinity.is-a-geek.com> writes:
+Hello
 
-> 
-> 
-
-
-
-by the way, I forgot this one the first time:
-
-I had to apply this patch, found from the lkml archives, in order for
-matroxfb_maven not to segfault when inserting the module.
-
---- gold-2.6/drivers/video/matrox/matroxfb_maven.c      2003-10-25
-14:42:44.000000000 -0400
-+++ linux-2.6.0/drivers/video/matrox/matroxfb_maven.c   2003-12-22
-21:55:04.082725504 -0500
-@@ -1249,6 +1249,7 @@
-                err = -ENOMEM;
-                goto ERROR0;
-        }
-+       memset(new_client, 0, sizeof(*new_client) + sizeof(*data));
-        data = (struct maven_data*)(new_client + 1);
-        i2c_set_clientdata(new_client, data);
-        new_client->addr = address;
+from kernel 2.6.2rc1 about I getting this message and system lock
+console from time to time. Standard HW, intel based PC.
 
 
+irq 18: nobody cared!
+Call Trace:
+[<c010ca22>] __report_bad_irq+0x2a/0x8b
+[<c010cb0c>] note_interrupt+0x6f/0x9f
+[<c010cda1>] do_IRQ+0x11e/0x13d
+[<c010b20c>] common_interrupt+0x18/0x20
+[<c01086ae>] default_idle+0x0/0x2c
+[<c01086d7>] default_idle+0x29/0x2c
+[<c0108740>] cpu_idle+0x33/0x3c
+[<c011fa28>] printk+0x169/0x19b
 
-juhis
+handlers:
+[<c020f071>] (ide_intr+0x0/0x16b)
+[<c020f071>] (ide_intr+0x0/0x16b)
+[<f894cb8a>] (ata_interrupt+0x0/0x123 [libata])
+Disabling IRQ #18
 
+I reported it as
+http://bugme.osdl.org/show_bug.cgi?id=2160
 
+Petr
 
 

@@ -1,25 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262647AbVCKJgX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263239AbVCKJlS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262647AbVCKJgX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 04:36:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262654AbVCKJgX
+	id S263239AbVCKJlS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 04:41:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263248AbVCKJlS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 04:36:23 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:62937 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262647AbVCKJgP (ORCPT
+	Fri, 11 Mar 2005 04:41:18 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:52698 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S263239AbVCKJkx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 04:36:15 -0500
-Date: Fri, 11 Mar 2005 10:36:07 +0100
+	Fri, 11 Mar 2005 04:40:53 -0500
+Date: Fri, 11 Mar 2005 10:40:24 +0100
 From: Ingo Molnar <mingo@elte.hu>
-To: Scott Wood <scott@gw.timesys.com>
-Cc: linux-kernel@vger.kernel.org, manas.saksena@timesys.com
-Subject: Re: [PATCH] realtime-preempt: update inherited priorities on setscheduler
-Message-ID: <20050311093607.GB19954@elte.hu>
-References: <20050310212116.GA2420@yoda.timesys>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Andrew Morton <akpm@osdl.org>, Badari Pulavarty <pbadari@us.ibm.com>,
+       dhowells@redhat.com, torvalds@osdl.org, suparna@in.ibm.com,
+       linux-aio@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rwsem: Make rwsems use interrupt disabling spinlocks
+Message-ID: <20050311094024.GC19954@elte.hu>
+References: <20050309032832.159e58a4.akpm@osdl.org> <20050308170107.231a145c.akpm@osdl.org> <1110327267.24286.139.camel@dyn318077bld.beaverton.ibm.com> <18744.1110364438@redhat.com> <20050309110404.GA4088@in.ibm.com> <1110366469.6280.84.camel@laptopd505.fenrus.org> <4175.1110370343@redhat.com> <1110395783.24286.207.camel@dyn318077bld.beaverton.ibm.com> <20050309114234.6598f486.akpm@osdl.org> <1110399036.6280.151.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050310212116.GA2420@yoda.timesys>
+In-Reply-To: <1110399036.6280.151.camel@laptopd505.fenrus.org>
 User-Agent: Mutt/1.4.1i
 X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
 X-ELTE-VirusStatus: clean
@@ -32,27 +34,23 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Scott Wood <scott@gw.timesys.com> wrote:
+* Arjan van de Ven <arjan@infradead.org> wrote:
 
-> -	p->prio = effective_prio(p);
-> +	/* Don't overwrite an inherited RT priority with the static
-> +	   RT priority. */
-> +
-> +	if (!rt_task(p))
-> +		p->prio = effective_prio(p);
+> > Ingo, we already have a touch_nmi_watchdog() in the sysrq code.  It might be
+> > worth adding a touch_softlockup_watchdog() wherever we have a
+> > touch_nmi_watchdog().
+> 
+> ....or add touch_softlockup_watchdog to touch_nmi_watchdog() instead
+> and rename it tickle_watchdog() overtime.
 
-are you sure this is needed? The -RT code currently does this:
+you mean like:
 
- static int effective_prio(task_t *p)
- {
-         if (rt_task(p))
-                 return p->prio;
-         return __effective_prio(p);
- }
++extern void touch_softlockup_watchdog(void);
 
-i.e. if it's an RT task then 'effective priority' is whatever it has
-right now. I.e. 'p->prio = effective_prio(p)' will have no effect for RT
-tasks. PI would not be working at all if we were overwriting the
-inherited priority.
+in:
+
+ http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11/2.6.11-mm2/broken-out/detect-soft-lockups.patch
+
+?
 
 	Ingo

@@ -1,100 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313307AbSEYDsX>; Fri, 24 May 2002 23:48:23 -0400
+	id <S313314AbSEYEBY>; Sat, 25 May 2002 00:01:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313314AbSEYDsW>; Fri, 24 May 2002 23:48:22 -0400
-Received: from relay02.valueweb.net ([216.219.253.236]:12303 "EHLO
-	relay02.valueweb.net") by vger.kernel.org with ESMTP
-	id <S313307AbSEYDsV>; Fri, 24 May 2002 23:48:21 -0400
-Message-ID: <3CEF0911.425C00E7@opersys.com>
-Date: Fri, 24 May 2002 23:46:25 -0400
-From: Karim Yaghmour <karim@opersys.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Andrea Arcangeli <andrea@e-mind.com>, Dan Kegel <dank@kegel.com>,
-        Andrew Morton <akpm@zip.com.au>, Hugh Dickins <hugh@veritas.com>,
-        Christoph Rohland <cr@sap.com>, Jens Axboe <axboe@suse.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
-In-Reply-To: <Pine.LNX.4.44.0205242020010.4051-100000@home.transmeta.com>
+	id <S313384AbSEYEBX>; Sat, 25 May 2002 00:01:23 -0400
+Received: from khazad-dum.debian.net ([200.196.10.6]:8832 "EHLO
+	khazad-dum.debian.net") by vger.kernel.org with ESMTP
+	id <S313314AbSEYEBX>; Sat, 25 May 2002 00:01:23 -0400
+Date: Sat, 25 May 2002 01:01:22 -0300
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux crypto?
+Message-ID: <20020525010122.A1921@khazad-dum>
+In-Reply-To: <Pine.GSO.4.05.10205241955480.11037-100000@mausmaki.cosy.sbg.ac.at> <20020524191811.70013.qmail@web12304.mail.yahoo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-GPG-Fingerprint-1: 1024D/128D36EE 50AC 661A 7963 0BBA 8155  43D5 6EF7 F36B 128D 36EE
+X-GPG-Fingerprint-2: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
+From: hmh@rcm.org.br (Henrique de Moraes Holschuh)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 24 May 2002, Myrddin Ambrosius wrote:
+> not permitted. However, I'd like it if someone else
+> who has seen the documents could correct me if I'm
+> wrong, as I think I fell asleep at several points.)
 
-Linus Torvalds wrote:
-> On Fri, 24 May 2002, Karim Yaghmour wrote:
-> > This is incorrect, see below.
-> 
-> This is _correct_.
-> 
-> The fact that under RTAI it isn't the case does not change the fact that
-> under RTLinux it _is_.
+http://www.debian.org/legal/
 
-Fine, but aren't you the least bit interested in seing how it is done in 
-the other real-time Linux implementation?
-
-> > I'm sorry, but I'm missing the point here about visualization tools.
-> > Such tools are not part of any of the real-time Linux community's
-> > concerns.
-> 
-> With RTLinux, you have to split the app up into the "hard realtime" part
-> (which ends up being in kernel space) and the "rest".
-> 
-> Which is, in my opinion, the only sane way to handle hard realtime. No
-> confusion about priority inversions, no crap. Clear borders between what
-> is "has to happen _now_" and "this can do with the regular soft realtime".
-
-There are no priority inversions in the case of RTAI hard-real-time processes
-either. They get scheduled exactly as other real-time processes and they
-can have priority even over real-time tasks within modules.
-
-Moreover, I would like to point out that many real-time developers like
-to have memory protection for their tasks. Hard-real-time in the kernel
-with RTLinux isn't possible. Hard-real-time in user-space with RTAI
-is.
-
-There is no reason that what happens _now_ shouldn't have memory protection
-and what happens later should.
-
-> Your claim was that RTLinux made realtime hard to do with licensing
-> concerns. MY claim is that if you actually were to use RTLinux, you
-> wouldn't _have_ any licensing concerns: the kernel module would have to be
-> GPL (both because the kernel wants it that way _and_ because you get the
-> liences to the patent that way), and the user-level code that uses
-> whatever data the RT module produces is no longer hard realtime at all.
-
-Sure. I'm not contesting the merits of using GPL modules. True, this
-is the best way to go. However, not everyone has this option and my
-claim is that this is one of the facts that is putting Linux out in the
-cold in front of the competition in regards to rt.
-
-That said, I wouldn't be using RTLinux, I'd be using RTAI to implement
-both the collection and visualization tasks in user-space. The separation
-between what's hard-rt and what's soft-rt could then be done either on
-a process basis or even separate C files within the same program.
-
-Again, why should hard-rt tasks not use memory protection when they can?
-
-> Clean separation, both from a license standpoint _and_ from a purely
-> technical standpoint.
-
-Again, from a purely technical standpoint, there are many advantages in
-having the hard-rt tasks in user-space. As for the licensing standpoint,
-the issues "should" also be very clear: since the hard-rt tasks are in
-user-space, then they are covered by the GPL-exclusion put in place in
-the Linux kernel.
-
-I say "should" because nothing is clear in the current situation and
-this is pivotal in developers' decision to use or not to use Linux.
-
-Karim
-
-===================================================
-                 Karim Yaghmour
-               karim@opersys.com
-      Embedded and Real-Time Linux Expert
-===================================================
+-- 
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

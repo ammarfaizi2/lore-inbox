@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267456AbTAXAiP>; Thu, 23 Jan 2003 19:38:15 -0500
+	id <S267452AbTAXAxr>; Thu, 23 Jan 2003 19:53:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267455AbTAXAiP>; Thu, 23 Jan 2003 19:38:15 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:5137 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S267456AbTAXAiO>;
-	Thu, 23 Jan 2003 19:38:14 -0500
-Date: Thu, 23 Jan 2003 16:45:29 -0800
-From: Greg KH <greg@kroah.com>
-To: Stanley Wang <stanley.wang@linux.co.intel.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       PCI_Hot_Plug_Discuss <pcihpd-discuss@lists.sourceforge.net>
-Subject: Re: [PATCH] Replace pcihpfs with sysfs.
-Message-ID: <20030124004529.GA11646@kroah.com>
-References: <20030123045447.GB6584@kroah.com> <Pine.LNX.4.44.0301231814110.28943-100000@manticore.sh.intel.com>
+	id <S267459AbTAXAxr>; Thu, 23 Jan 2003 19:53:47 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:63105 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S267452AbTAXAxr>;
+	Thu, 23 Jan 2003 19:53:47 -0500
+Date: Fri, 24 Jan 2003 00:59:34 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Cc: linux-kernel@vger.kernel.org, acpi-devel@sourceforge.net
+Subject: Re: [PATCH] ACPI update (20030122)
+Message-ID: <20030124005934.GA24152@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	"Grover, Andrew" <andrew.grover@intel.com>,
+	linux-kernel@vger.kernel.org, acpi-devel@sourceforge.net
+References: <F760B14C9561B941B89469F59BA3A847137FB5@orsmsx401.jf.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0301231814110.28943-100000@manticore.sh.intel.com>
+In-Reply-To: <F760B14C9561B941B89469F59BA3A847137FB5@orsmsx401.jf.intel.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 23, 2003 at 06:34:42PM +0800, Stanley Wang wrote:
-> > > +static struct subsystem hotplug_slot_subsys;
-> > 
-> > You need to initialize this structure to something, and give it a name.
-> > Otherwise all of the slots show up in the top of sysfs, right?  I would
-> > really like to see these directories show up in /sys/bus/pci/slots/ if
-> > you can get them to go there.
-> >
-> Done. I move it from "/sys/hotplug_slot" to "/sys/bus/pci/hotplug_slots".
-> Is it OK ? 
+On Thu, Jan 23, 2003 at 04:09:07PM -0800, Grover, Andrew wrote:
 
-Thanks, yes, that looks good, along with your other changes.
-But can you send me a patch against a clean kernel, and not against your
-last patch?  Makes it easier for me to apply that way.
+ > > Known bug? Fixed in this patch ?
+ > Known bug. Not fixed in this patch. Are you sure this is new in recent
+ > kernels?
 
-thanks,
+Only seems to started biting me this last week for some reason.
 
-greg k-h
+		Dave
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

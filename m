@@ -1,84 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266378AbUG0JGb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbUG0JZq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266378AbUG0JGb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 05:06:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266376AbUG0JGb
+	id S261159AbUG0JZq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 05:25:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbUG0JZp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 05:06:31 -0400
-Received: from cantor.suse.de ([195.135.220.2]:41413 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S266380AbUG0JGY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 05:06:24 -0400
-Message-ID: <41061AC0.8000607@suse.de>
-Date: Tue, 27 Jul 2004 11:05:04 +0200
-From: Hannes Reinecke <hare@suse.de>
-Organization: SuSE Linux AG
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.6) Gecko/20040114
-X-Accept-Language: en-us, en
+	Tue, 27 Jul 2004 05:25:45 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:61178 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S261159AbUG0JZn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 05:25:43 -0400
+Date: Tue, 27 Jul 2004 05:29:10 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>
+Subject: [PATCH][2.6] Allow x86_64 to reenable interrupts on contention
+Message-ID: <Pine.LNX.4.58.0407270432470.23989@montezuma.fsmlabs.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Limit number of concurrent hotplug processes
-References: <40FD23A8.6090409@suse.de>	<20040725182006.6c6a36df.akpm@osdl.org>	<4104E421.8080700@suse.de>	<20040726131807.47816576.akpm@osdl.org>	<4105FE68.7040506@suse.de>	<20040727002409.68d49d7c.akpm@osdl.org>	<41060B62.1060806@suse.de> <20040727013427.52d3e5f5.akpm@osdl.org>
-In-Reply-To: <20040727013427.52d3e5f5.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Hannes Reinecke <hare@suse.de> wrote:
-> 
->> Patch (for the semaphore version) is attached.
-> 
-> 
-> err, what on earth is this patch trying to do?  It adds tons more
-> complexity then I expected to see.  Are the async (wait=0) semantics for
-> call_usermodehelper() preserved?
-> 
-Problem with your patch is that call_usermodehelper might block on 
-down() regardless whether it is called async or sync.
-So any write to sysfs which triggers a hotplug event might block until 
-enough resources are available.
+This is a follow up to the previous patches for ia64 and i386, it will
+allow x86_64 to reenable interrupts during contested locks depending on
+previous interrupt enable status. It has been runtime and compile tested
+on UP and 2x SMP Linux-tiny/x86_64.
 
-Most complexity is in fact due to the possibility to change khelper_max 
-on the fly. If we disallow that everything else will be far cleaner.
+Signed-off-by: Zwane Mwaikambo <zwane@fsmlabs.com>
 
-> Why is the code now doing
-> 
-> 	if (stored_info.wait > 0) {
-> and
-> 	if (stored_info.wait >= 0) {
-> 
-> ?  `wait' is a boolean.  Or did its semantics get secretly changed somewhere?
-> 
-> Why is a new kernel thread needed to up and down a semaphore?
-> 
-As I said; down() might block. Unless we accept that the caller will 
-only return after all down()s have been executed successfully we need 
-something like that.
+--- linux-2.6-amd64/include/asm-x86_64/spinlock.h.orig	2004-07-27 03:32:18.689949016 -0400
++++ linux-2.6-amd64/include/asm-x86_64/spinlock.h	2004-07-27 03:45:19.610231088 -0400
+@@ -41,7 +41,6 @@ typedef struct {
 
-> Sorry, but I've completely lost the plot on what you're trying to do here!
-> 
-Sorry for this. I've probably pushed too hard for this.
+ #define spin_is_locked(x)	(*(volatile signed char *)(&(x)->lock) <= 0)
+ #define spin_unlock_wait(x)	do { barrier(); } while(spin_is_locked(x))
+-#define _raw_spin_lock_flags(lock, flags) _raw_spin_lock(lock)
 
-I'll wrap up a patch which only allows for a static setting (via kernel 
-command line parameters) and leave the on-the-fly setting for later :-).
+ #define spin_lock_string \
+ 	"\n1:\t" \
+@@ -55,6 +54,23 @@ typedef struct {
+ 	"jmp 1b\n" \
+ 	LOCK_SECTION_END
 
-> 
-> I'd have though that something like the below (untested, slightly hacky)
-> patch would suit.
-> 
-Indeed, but only if we accept that any call to call_usermodehelper might 
-block if not enough resources are available.
++#define spin_lock_string_flags \
++	"\n1:\t" \
++	"lock ; decb %0\n\t" \
++	"js 2f\n\t" \
++	LOCK_SECTION_START("") \
++	"2:\t" \
++	"test $0x200, %1\n\t" \
++	"jz 3f\n\t" \
++	"sti\n\t" \
++	"3:\t" \
++	"rep;nop\n\t" \
++	"cmpb $0, %0\n\t" \
++	"jle 3b\n\t" \
++	"cli\n\t" \
++	"jmp 1b\n" \
++	LOCK_SECTION_END
++
+ /*
+  * This works. Despite all the confusion.
+  * (except on PPro SMP or if we are using OOSTORE)
+@@ -125,6 +141,20 @@ printk("eip: %p\n", &&here);
+ 		:"=m" (lock->lock) : : "memory");
+ }
 
-THX for the patch, btw.
++static inline void _raw_spin_lock_flags (spinlock_t *lock, unsigned long flags)
++{
++#ifdef CONFIG_DEBUG_SPINLOCK
++	__label__ here;
++here:
++	if (unlikely(lock->magic != SPINLOCK_MAGIC)) {
++		printk("eip: %p\n", &&here);
++		BUG();
++	}
++#endif
++	__asm__ __volatile__(spin_lock_string_flags
++		:"=m" (lock->lock) : "r" (flags) : "memory");
++}
++
 
-Cheers,
-
-Hannes
--- 
-Dr. Hannes Reinecke			hare@suse.de
-SuSE Linux AG				S390 & zSeries
-Maxfeldstraße 5				+49 911 74053 688
-90409 Nürnberg				http://www.suse.de
+ /*
+  * Read-write spinlocks, allowing multiple readers

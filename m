@@ -1,59 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262412AbUKQSE6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262495AbUKQTUz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262412AbUKQSE6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 13:04:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262427AbUKQSCj
+	id S262495AbUKQTUz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 14:20:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262492AbUKQTS5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 13:02:39 -0500
-Received: from emulex.emulex.com ([138.239.112.1]:9405 "EHLO emulex.emulex.com")
-	by vger.kernel.org with ESMTP id S262456AbUKQSB4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 13:01:56 -0500
-From: James.Smart@Emulex.Com
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: Potential issue with some implementations of pci_resource_start()
-Date: Wed, 17 Nov 2004 12:54:25 -0500
-Message-ID: <0B1E13B586976742A7599D71A6AC733C12E722@xbl3.ma.emulex.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Potential issue with some implementations of pci_resource_start()
-Thread-Index: AcTMzSOXb9UWK5sYQyu45gmOn2xdqgAAOLBQ
-To: <greg@kroah.com>
-Cc: <linux-kernel@vger.kernel.org>, <linux-os@chaos.analogic.com>,
-       <jes@wildopensource.com>
+	Wed, 17 Nov 2004 14:18:57 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:9615 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S262423AbUKQTSD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 14:18:03 -0500
+Date: Wed, 17 Nov 2004 20:00:55 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
+Message-ID: <20041117190055.GC6952@openzaurus.ucw.cz>
+References: <E1CToBi-0008V7-00@dorka.pomaz.szeredi.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1CToBi-0008V7-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I started to - but had no idea what pci_resource_end() would correspond to. I'm guessing it's "cookie + N" where N is the size of the BAR. However, this seems really odd and would only be used to calculate the size of N. I figured someone actually in tune with the pci subsytem was better qualified to write the summary.
+Hi!
 
--- James
+> Please consider adding the FUSE filesystem to the mainline kernel.
+> 
+> FUSE exports the filesystem functionality to userspace.  The
+> communication interface is designed to be simple, efficient, secure
+> and able to support most of the usual filesystem semantics.
 
+Coda should do the job, too... What are advantages of FUSE over Coda?
 
-> -----Original Message-----
-> From: Greg KH [mailto:greg@kroah.com]
-> Sent: Wednesday, November 17, 2004 12:45 PM
-> To: Smart, James
-> Cc: linux-kernel@vger.kernel.org; linux-os@chaos.analogic.com;
-> jes@wildopensource.com
-> Subject: Re: Potential issue with some implementations of
-> pci_resource_start()
-> 
-> 
-> On Wed, Nov 17, 2004 at 09:18:27AM -0500, 
-> James.Smart@Emulex.Com wrote:
-> > 
-> > Can someone please update Documentation/pci.txt so that it 
-> has correct
-> > definitions for pci_resource_start() and pci_resource_end()...
-> 
-> Patches gladly accepted for this.  And as you now know exactly what is
-> missing, you might be the best person to write such a patch :)
-> 
-> thanks,
-> 
-> greg k-h
-> 
+				Pavel
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+

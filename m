@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267126AbTA0FcY>; Mon, 27 Jan 2003 00:32:24 -0500
+	id <S267132AbTA0Fnp>; Mon, 27 Jan 2003 00:43:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267130AbTA0FcY>; Mon, 27 Jan 2003 00:32:24 -0500
-Received: from adsl-b3-74-169.telepac.pt ([213.13.74.169]:64644 "HELO
-	puma-vgertech.no-ip.com") by vger.kernel.org with SMTP
-	id <S267126AbTA0FcX>; Mon, 27 Jan 2003 00:32:23 -0500
-Message-ID: <3E34C6B4.8090707@vgertech.com>
-Date: Mon, 27 Jan 2003 05:42:12 +0000
-From: Nuno Silva <nuno.silva@vgertech.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
-X-Accept-Language: en-us, pt
+	id <S267133AbTA0Fnp>; Mon, 27 Jan 2003 00:43:45 -0500
+Received: from kunde0416.oslo-asen.alfanett.no ([62.249.189.163]:54029 "EHLO
+	kunde0416.oslo-asen.alfanett.no") by vger.kernel.org with ESMTP
+	id <S267132AbTA0Fnp>; Mon, 27 Jan 2003 00:43:45 -0500
+Date: Mon, 27 Jan 2003 06:52:53 +0100 (CET)
+From: Peter Karlsson <peter@softwolves.pp.se>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20 kernel crashes while scanning partition list
+In-Reply-To: <20030126211810.GB696@louise.pinerecords.com>
+Message-ID: <Pine.LNX.4.43.0301270650470.3402-100000@perkele>
+X-Warning: Junk / bulk email will be reported
+X-Rating: This message is not to be eaten by humans
+Organization: /universe/earth/europe/norway/oslo
 MIME-Version: 1.0
-To: Kevin Lawton <kevinlawton2001@yahoo.com>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Simple patches for Linux as a guest OS in a plex86 VM (please
- consider)
-References: <20030124171415.34636.qmail@web80310.mail.yahoo.com>
-In-Reply-To: <20030124171415.34636.qmail@web80310.mail.yahoo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Tomas Szepe:
 
-Why don't you take the route that Jeff Dike did with UML's skas mode?
+> I have yet to hear about a scenario where Linux raid performs poorly.
+> What exactly did these people mean who told you md weren't reliable?
 
-List the patches in your site and release plex86-v2 that requires this 
-host patches to run.
+The problem was not performance, according to what I read, the problem
+was in handling when harddisks fail and such. And since I want to use
+raid to improve security (by using mirroring), not performance, that's
+quite important.
 
-If the results are really good lots of people will use it and you'll end 
-up with a number of people asking in lkml "why is the plex86-v2 patch 
-not available in Linus' tree?" ;)
+-- 
+\\//
+Peter - http://www.softwolves.pp.se/
 
-Regards,
-Nuno Silva
-
-
+  I do not read or respond to mail with HTML attachments.
 

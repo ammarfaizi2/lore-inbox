@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272603AbTG1Ayz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 20:54:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272619AbTG1Ayi
+	id S272574AbTG1AmH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 20:42:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272573AbTG1AEZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 20:54:38 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23197 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S272603AbTG1AyW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 20:54:22 -0400
-Message-ID: <3F2477C4.2000105@pobox.com>
-Date: Sun, 27 Jul 2003 21:09:24 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew de Quincey <adq_dvb@lidskialf.net>
-CC: Rahul Karnik <rahul@genebrew.com>,
-       Marcelo Penna Guerra <eu@marcelopenna.org>,
-       lkml <linux-kernel@vger.kernel.org>, Laurens <masterpe@xs4all.nl>
-Subject: Re: [PATCH] nvidia nforce 1.0-261 nvnet for kernel 2.5
-References: <200307262309.20074.adq_dvb@lidskialf.net> <200307271222.13649.adq_dvb@lidskialf.net> <3F23BC1D.7070804@genebrew.com> <200307271301.41660.adq_dvb@lidskialf.net>
-In-Reply-To: <200307271301.41660.adq_dvb@lidskialf.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 27 Jul 2003 20:04:25 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:28659 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S272729AbTG0W6V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 18:58:21 -0400
+Date: Sun, 27 Jul 2003 21:23:49 +0100
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <200307272023.h6RKNn5s029792@hraefn.swansea.linux.org.uk>
+To: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: PATCH: fix strncpy on generic user platforms
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One can set the MAC address manually via ifconfig.
-
-So, try modprobing amd8111e with the nforce pci ids, then manually 
-setting the MAC address, and see if that works.
-
-(just make sure the MAC address you make up is unique)
-
-	Jeff
-
-
-
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.6.0-test2/lib/string.c linux-2.6.0-test2-ac1/lib/string.c
+--- linux-2.6.0-test2/lib/string.c	2003-07-10 21:13:38.000000000 +0100
++++ linux-2.6.0-test2-ac1/lib/string.c	2003-07-17 17:46:40.000000000 +0100
+@@ -80,8 +80,7 @@
+  * @src: Where to copy the string from
+  * @count: The maximum number of bytes to copy
+  *
+- * Note that unlike userspace strncpy, this does not %NUL-pad the buffer.
+- * However, the result is not %NUL-terminated if the source exceeds
++ * The result is not %NUL-terminated if the source exceeds
+  * @count bytes.
+  */
+ char * strncpy(char * dest,const char *src,size_t count)
+@@ -90,7 +89,8 @@
+ 
+ 	while (count-- && (*dest++ = *src++) != '\0')
+ 		/* nothing */;
+-
++	while (count-- > 0)
++		*dest++ = 0;
+ 	return tmp;
+ }
+ #endif

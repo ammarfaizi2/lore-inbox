@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315260AbSHVRpw>; Thu, 22 Aug 2002 13:45:52 -0400
+	id <S315278AbSHVRxW>; Thu, 22 Aug 2002 13:53:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315265AbSHVRpw>; Thu, 22 Aug 2002 13:45:52 -0400
-Received: from natpost.webmailer.de ([192.67.198.65]:20363 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S315260AbSHVRpv>; Thu, 22 Aug 2002 13:45:51 -0400
-Date: Thu, 22 Aug 2002 19:46:55 +0200
-From: Dominik Brodowski <devel@brodo.de>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Gabriel Paubert <paubert@iram.es>,
-       Yoann Vandoorselaere <yoann@prelude-ids.org>,
-       cpufreq@lists.arm.linux.org.uk, cpufreq@www.linux.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: fix 32bits integer overflow in loops_per_jiffy calculation
-Message-ID: <20020822194655.C2016@brodo.de>
-References: <20020822185107.A1160@brodo.de> <20020822193516.15445@192.168.4.1>
+	id <S315337AbSHVRxV>; Thu, 22 Aug 2002 13:53:21 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:54515 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S315278AbSHVRxV>; Thu, 22 Aug 2002 13:53:21 -0400
+Subject: Re: ServerWorks OSB4 in impossible state
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Martin Wilck <Martin.Wilck@Fujitsu-Siemens.com>
+Cc: Andre Hedrick <andre@linux-ide.org>,
+       Gonzalo Servat <gonzalo@unixpac.com.au>,
+       Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1030017756.9866.74.camel@biker.pdb.fsc.net>
+References: <Pine.LNX.4.10.10208220143440.11626-100000@master.linux-ide.org> 
+	<1030017756.9866.74.camel@biker.pdb.fsc.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 22 Aug 2002 18:58:07 +0100
+Message-Id: <1030039087.3161.27.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.16i
-In-Reply-To: <20020822193516.15445@192.168.4.1>; from benh@kernel.crashing.org on Thu, Aug 22, 2002 at 09:35:16PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 22, 2002 at 09:35:16PM +0200, Benjamin Herrenschmidt wrote:
-> >IMHO per-arch functions are really not needed. The only architectures which
-> >have CPUFreq drivers by now are ARM and i386. This will change, hopefully;
-> >IMHO it should be enough to include some basic limit checking in 
-> >cpufreq_scale().
-> 
-> In this specific case, we were talking about PPC since the problem
-> occured when I implemented cpufreq support to switch the speed
-> of the latest powerbooks between 667 and 800Mhz
+On Thu, 2002-08-22 at 13:02, Martin Wilck wrote:
+> 1) The "4 byte shift" issue does not affect the CSB5 series.
 
-And the patch from Yoann solves this? Then it might be easiest to use this
-for the time being, and switch to George Anzinger's sc_math.h once 
-high-res-timer is merged.
+True (not a rule the -ac tree knows about right now) but one that the
+next tree will subject to time constraints.
 
-Dominik
+> 2) The tested condition inb(dma_base+0x02)&1 is valid if the
+>    device doing the DMA reported an error status. Only if the
+>    device reports success is there an indication of the "4 byte shift".
+
+True
+
+> 3) The "4 byte shift" problem matters not for read-only devices like
+>    CD-ROMS; at least it is no reason to stall the computer if it occurs
+>    because data corruption is not an issue.
+
+True (-ac knows about this)
+
+

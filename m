@@ -1,84 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269630AbRHCVw4>; Fri, 3 Aug 2001 17:52:56 -0400
+	id <S269631AbRHCWAH>; Fri, 3 Aug 2001 18:00:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269631AbRHCVwr>; Fri, 3 Aug 2001 17:52:47 -0400
-Received: from natpost.webmailer.de ([192.67.198.65]:2731 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S269630AbRHCVwj>; Fri, 3 Aug 2001 17:52:39 -0400
-From: "Stefan Burkei" <stefan@burkei.de>
-To: "'@Linux Kernel Miller, David S.'" <davem@redhat.com>,
-        "'@Linux Kernel Ostrowski, Michal'" <mostrows@us.ibm.com>
-Cc: "'@Linux Kernel Mailingliste'" <linux-kernel@vger.kernel.org>
-Subject: oops in skbuff.c
-Date: Fri, 3 Aug 2001 23:40:44 +0200
-Message-ID: <000001c11c64$f3bc5d40$3100000a@sb>
+	id <S269632AbRHCV74>; Fri, 3 Aug 2001 17:59:56 -0400
+Received: from smtp-server2.tampabay.rr.com ([65.32.1.39]:62939 "EHLO
+	smtp-server2.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id <S269631AbRHCV7o>; Fri, 3 Aug 2001 17:59:44 -0400
+Message-ID: <007801c11c67$87d55980$b6562341@cfl.rr.com>
+From: "Mike Black" <mblack@csihq.com>
+To: "Rik van Riel" <riel@conectiva.com.br>, "David Ford" <david@blue-labs.org>
+Cc: "Jeffrey W. Baker" <jwbaker@acm.org>,
+        "Richard B. Johnson" <root@chaos.analogic.com>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33L.0108031751590.11893-100000@imladris.rielhome.conectiva>
+Subject: Re: Ongoing 2.4 VM suckage
+Date: Fri, 3 Aug 2001 17:59:09 -0400
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
+X-Priority: 3
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook 8.5, Build 4.71.2377.0
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+X-Mailer: Microsoft Outlook Express 6.00.2462.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I floated this idea a while ago but didn't receive any comments (or
+flames)...
+Couldn't kswapd just gracefully back-off when it doesn't make any progress?
+In my case (with ext3/raid5 and a tiobench test) kswapd NEVER actually swaps
+anything out.
+It just chews CPU time.
+So...if kswapd just said "didn't make any progress...*2 last sleep" so it
+would degrade itself.
+Doesn't sound like a major rewrite to me.
 
-I'm using Kernel 2.4.7 (i think with the actual
-pppoe-patches 0.6.8) and it still oopses on the
-same place - in the routine skb_drop_fraglist.
-
-My Linux-Box acts as a NAT-Router to the Internet
-for my Win98-Clients with a german DSL-Connection
-using pppoe with pppd 2.4.1.
-With pppd 2.4.0 the result is the same.
-
-The problem appears with Kernel 2.4.4 and
-is always reproducable since then.
-I start on my Win98-Box the Gnutella-Client
-BearShare and don't have to wait longer
-than 10 sec. until the machine crashes.
-
-I figured out, that the kernel attempts to free
-a fraglist in the routine skb_drop_fraglist with
-an invalid pointer to it.
-During one pppd-session this "pointer" has
-always the same (i think) false value. The
-high word is always zero and the low word doesn't
-change during one online session of pppd.
-The low word will have a new value on the next
-dialup of pppd. Again - this value stays in place
-until the pppd hangs up.
-
-I use a short code fragment to check this invalid
-pointer and, if detected, jumps over the kfree-routine.
-This isn't a really patch, because the real error wasn't
-corrected - but the kernel remains stable since then.
-
-This here is my skb_drop_fraglist-routine:
-
-static void skb_drop_fraglist(struct sk_buff *skb)
-{
-        struct sk_buff *list = skb_shinfo(skb)->frag_list;
-
-        skb_shinfo(skb)->frag_list = NULL;
-
-        if ((unsigned long)list & 0xffff0000) {
-            do {
-                    struct sk_buff *this = list;
-                    list = list->next;
-                    kfree_skb(this);
-            } while (list);
-        } else
-            printk(KERN_WARNING "Warning: skb_drop_fraglist() \
-	    invalid pointer detected: %08lx.\n", (unsigned long)list);
-}
+----- Original Message -----
+From: "Rik van Riel" <riel@conectiva.com.br>
+To: "David Ford" <david@blue-labs.org>
+Cc: "Jeffrey W. Baker" <jwbaker@acm.org>; "Richard B. Johnson"
+<root@chaos.analogic.com>; <linux-kernel@vger.kernel.org>
+Sent: Friday, August 03, 2001 4:53 PM
+Subject: Re: Ongoing 2.4 VM suckage
 
 
-I hope I can give you two a hint on your bug-hunting.
-
-ciao - stebu
+> On Fri, 3 Aug 2001, David Ford wrote:
+>
+> > If it is that badly broken, isn't that sufficient criteria to justify
+> > the patch?
+>
+> It's not just a patch. Fixing this problem will require
+> a major VM rewrite. A rewrite I really wasn't willing
+> to make for 2.4.
+>
+> I'll start writing the thing, but I won't be aiming at
+> getting it included in 2.4. I guess I could code it in
+> such a way to give a drop-in replacement for people
+> willing to cut themselves on the bleeding edge, though ;)
+>
+> Rik
+> --
+> Virtual memory is like a game you can't win;
+> However, without VM there's truly nothing to lose...
+>
+> http://www.surriel.com/ http://distro.conectiva.com/
+>
+> Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

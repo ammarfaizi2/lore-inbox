@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263772AbTDNWGb (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 18:06:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263950AbTDNWGb (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 18:06:31 -0400
+	id S263768AbTDNWGd (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 18:06:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263965AbTDNWGd (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 18:06:33 -0400
 Received: from post2.inre.asu.edu ([129.219.110.73]:21916 "EHLO
-	post2.inre.asu.edu") by vger.kernel.org with ESMTP id S263772AbTDNWG3 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Apr 2003 18:06:29 -0400
-Date: Mon, 14 Apr 2003 15:15:51 -0700 (MST)
+	post2.inre.asu.edu") by vger.kernel.org with ESMTP id S263768AbTDNWGa (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Apr 2003 18:06:30 -0400
+Date: Mon, 14 Apr 2003 15:17:44 -0700 (MST)
 From: Shesha@asu.edu
-Subject: readprofile: Meaning of "Length of procedure"
+Subject: readprofile ; Meaning of "Length of procedure"
 To: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
-Message-id: <Pine.GSO.4.21.0304141510330.3054-100000@general2.asu.edu>
+Message-id: <Pine.GSO.4.21.0304141517040.3054-100000@general2.asu.edu>
 MIME-version: 1.0
 Content-type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -45,9 +45,6 @@ be a high load procedure.
 
 Thanking You
 Shesha
- 
- 
- 
  
 
 

@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261183AbULZCVl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261601AbULZCpe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261183AbULZCVl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Dec 2004 21:21:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbULZCVl
+	id S261601AbULZCpe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Dec 2004 21:45:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbULZCpe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Dec 2004 21:21:41 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:8410 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S261183AbULZCVk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Dec 2004 21:21:40 -0500
-Date: Sat, 25 Dec 2004 18:21:35 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: Larry McVoy <lm@bitmover.com>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: lease.openlogging.org is unreachable
-Message-ID: <20041226022135.GA3250@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Chuck Ebbert <76306.1226@compuserve.com>,
-	Larry McVoy <lm@bitmover.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@osdl.org>
-References: <200412250121_MC3-1-91AF-7FBB@compuserve.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200412250121_MC3-1-91AF-7FBB@compuserve.com>
-User-Agent: Mutt/1.4.1i
+	Sat, 25 Dec 2004 21:45:34 -0500
+Received: from mail.tmr.com ([216.238.38.203]:8644 "EHLO gaimboi.tmr.com")
+	by vger.kernel.org with ESMTP id S261601AbULZCp2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Dec 2004 21:45:28 -0500
+Message-ID: <41CE282C.3010606@tmr.com>
+Date: Sat, 25 Dec 2004 21:55:40 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Ho ho ho - Linux v2.6.10
+References: <Pine.LNX.4.58.0412241434110.17285@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0412241434110.17285@ppc970.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 25, 2004 at 01:20:34AM -0500, Chuck Ebbert wrote:
-> lease.openlogging.org is unreachable today.
+Linus Torvalds wrote:
+> Ok, with a lot of people taking an xmas break, here's something to play
+> with over the holidays (not to mention an excuse for me to get into the
+> Glögg for real ;)
 > 
-> So I guess I need to set up a cron job to renew my lease every
-> minute/hour/day/whatever so I can actually download new kernel
-> releases when they come out?  I can't even examine the code I
-> downloaded yesterday without that lease...  Now that's what I call
-> having my source code held hostage!
+> Mostly a lot of small fixes since 2.6.10-rc3, with the biggest thing being
+> probably the CIFS update and the switch-over to the new DVB frontend
+> driver world order.  Some MMC and USB work too, and ARM updates as usual.
 
-It's back up.  Go to a repo and say "bk lease renew" and you should be
-all set.  
+Alas, It sort-of boots but is terminally slow. I see the log with 
+endless repetitions of "irq 18 nobody cared" and some trace, then 
+"disabling irq 18." Unfortunately it lies, after about 20MB of this I 
+decided it had no real intention of disabling irq 18 and tried to stop 
+it. After ten minutes I had to pull the plug and it's still cleaning 
+filesystems.
+
+I will dig through the log after it gets back up, but there is clearly a 
+problem in the logic to ignore garbage irq's, or at least stop whining. 
+If there is any similarity between the traces I'll post, but I suspect 
+that it was one of those edge vs. level things by the behaviour.
+
+Just a warning in case others are seeing a failure of irq disable to 
+actually work.
+
+
 -- 
----
-Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com
+bill davidsen <davidsen@tmr.com>
+   CTO TMR Associates, Inc
+   Doing interesting things with small computers since 1979

@@ -1,45 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270647AbUJUFI4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269136AbUJTW34@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270647AbUJUFI4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 01:08:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270651AbUJUFIx
+	id S269136AbUJTW34 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 18:29:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269040AbUJTWZb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 01:08:53 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:3732 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S270647AbUJUFHb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 01:07:31 -0400
-Message-ID: <417743EF.90604@nortelnetworks.com>
-Date: Wed, 20 Oct 2004 23:06:55 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-CC: Michael Clark <michael@metaparadigm.com>, linux-kernel@vger.kernel.org
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-References: <20041016062512.GA17971@mark.mielke.cc> <MDEHLPKNGKAHNMBLJOLKMEONPAAA.davids@webmaster.com> <20041017133537.GL7468@marowsky-bree.de> <cl6lfq$jlg$1@terminus.zytor.com> <4176DF84.4050401@nortelnetworks.com> <4176E001.1080104@zytor.com> <41772674.50403@metaparadigm.com> <417736C0.8040102@zytor.com>
-In-Reply-To: <417736C0.8040102@zytor.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 20 Oct 2004 18:25:31 -0400
+Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:6867 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S270549AbUJTWWC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 18:22:02 -0400
+Date: Thu, 21 Oct 2004 00:10:34 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Matthias Andree <matthias.andree@gmx.de>, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org
+Subject: Re: 2.6.9 network regression killing amanda (was: 2.6.9 network regression killing amanda - 3c59x?)
+Message-ID: <20041020221034.GA10414@merlin.emma.line.org>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+References: <20041020191203.GA14356@merlin.emma.line.org> <20041020142420.0d513191.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041020142420.0d513191.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
+On Wed, 20 Oct 2004, Andrew Morton wrote:
 
-> The whole point is that it doesn't break the *documented* interface.
+> Matthias Andree <matthias.andree@gmx.de> wrote:
+> >
+> > Has the 3c59x driver changed between 2.6.8.1 and 2.6.9?
+> 
+> Not much, really.  Just vlan support.
+> 
+> > Which patches or changesets are worth backing out?
+> 
+> Try the 2.6.8.1 driver in a 2.6.9 kernel?
 
-In my view (and apparently others, as has been verified in current apps using 
-blocking sockets), current behaviour *does* break the documented interface.
+I tried the 2.6.8 3c59x driver (just changed 3c59x.c), problem persists.
 
-The man page for select says:
+I used the Rhine interface (VIA VT6102 Rhine II rev. 78), problem persists.
 
-"Those  listed  in  readfds  will  be watched  to  see if characters become 
-available for reading (more precisely, to see if a read will not block..."
+I removed the bridge and used the Rhine-II interface directly, problem persists.
 
-If I'm the only one touching the socket, select returns with it readable, and I 
-block when calling recvmsg, then by definition that behaviour does not match the 
-documented interface.
+Apparently the problem is not in 3c59x or bridge code but somewhere
+else.  Here's a tcpdump of eth3, my Rhine-II interface, again,
+192.168.0.1 is the machine running Linux 2.6.9 with the failing amanda
+server, 192.168.0.2 is the FreeBSD 4.10-RELEASE-p3 client.
 
-Chris
+00:03:00.604639 IP (tos 0x0, ttl  64, id 1, offset 0, flags [DF], length: 145) 192.168.0.1.680 > 192.168.0.2.10080: [udp sum ok] UDP, length: 117
+00:03:00.634775 IP (tos 0x0, ttl  64, id 35321, offset 0, flags [none], length: 78) 192.168.0.2.10080 > 192.168.0.1.680: [udp sum ok] UDP, length: 50
+00:03:00.637893 IP (tos 0x0, ttl  64, id 35322, offset 0, flags [none], length: 111) 192.168.0.2.10080 > 192.168.0.1.680: [udp sum ok] UDP, length: 83
+00:03:00.637977 IP (tos 0x0, ttl  64, id 2, offset 0, flags [DF], length: 78) 192.168.0.1.680 > 192.168.0.2.10080: [udp sum ok] UDP, length: 50
+00:03:00.638546 IP (tos 0x0, ttl  64, id 3, offset 0, flags [DF], length: 474) 192.168.0.1.680 > 192.168.0.2.10080: [udp sum ok] UDP, length: 446
+00:03:00.667236 IP (tos 0x0, ttl  64, id 35323, offset 0, flags [none], length: 78) 192.168.0.2.10080 > 192.168.0.1.680: [udp sum ok] UDP, length: 50
+00:03:23.874517 IP (tos 0x0, ttl  64, id 35324, offset 0, flags [none], length: 172) 192.168.0.2.10080 > 192.168.0.1.680: [udp sum ok] UDP, length: 144
+00:03:23.874666 IP (tos 0x0, ttl  64, id 7, offset 0, flags [DF], length: 78) 192.168.0.1.680 > 192.168.0.2.10080: [udp sum ok] UDP, length: 50
+00:03:28.476532 IP (tos 0x0, ttl  64, id 0, offset 0, flags [DF], length: 242) 192.168.0.1.683 > 192.168.0.2.10080: [udp sum ok] UDP, length: 214
+00:03:28.505893 IP (tos 0x0, ttl  64, id 35325, offset 0, flags [none], length: 78) 192.168.0.2.10080 > 192.168.0.1.683: [udp sum ok] UDP, length: 50
+00:03:28.534138 IP (tos 0x0, ttl  64, id 35326, offset 0, flags [none], length: 150) 192.168.0.2.10080 > 192.168.0.1.683: [bad udp cksum a!] UDP, length: 122
+00:03:38.542777 IP (tos 0x0, ttl  64, id 35327, offset 0, flags [none], length: 150) 192.168.0.2.10080 > 192.168.0.1.683: [bad udp cksum a!] UDP, length: 122
+
+I can provide hex dumps if desired.
+
+-- 
+Matthias Andree

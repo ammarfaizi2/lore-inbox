@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130006AbRA2AST>; Sun, 28 Jan 2001 19:18:19 -0500
+	id <S144574AbRA2AVk>; Sun, 28 Jan 2001 19:21:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S144574AbRA2ASJ>; Sun, 28 Jan 2001 19:18:09 -0500
-Received: from Huntington-Beach.Blue-Labs.org ([208.179.0.198]:42034 "EHLO
-	Huntington-Beach.Blue-Labs.org") by vger.kernel.org with ESMTP
-	id <S144550AbRA2ASA>; Sun, 28 Jan 2001 19:18:00 -0500
-Message-ID: <3A74B6AE.C179050B@linux.com>
-Date: Mon, 29 Jan 2001 00:17:50 +0000
-From: David Ford <david@linux.com>
-Organization: Blue Labs Software
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac12 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: D state after applying ps hang patch
+	id <S144590AbRA2AVb>; Sun, 28 Jan 2001 19:21:31 -0500
+Received: from 4-035.cwb-adsl.brasiltelecom.net.br ([200.193.163.35]:39928
+	"HELO brinquedo.distro.conectiva") by vger.kernel.org with SMTP
+	id <S144574AbRA2AVW>; Sun, 28 Jan 2001 19:21:22 -0500
+Date: Sun, 28 Jan 2001 20:37:04 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Louis Garcia <louisg00@bellsouth.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: linux-2.4.1-pre11
+Message-ID: <20010128203703.T19833@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Louis Garcia <louisg00@bellsouth.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <3A74B16D.6020304@bellsouth.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A74B16D.6020304@bellsouth.net>; from louisg00@bellsouth.net on Sun, Jan 28, 2001 at 06:55:25PM -0500
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kernel 2.4.0-ac12
+Em Sun, Jan 28, 2001 at 06:55:25PM -0500, Louis Garcia escreveu:
+> I am getting messages everytime I use the network from my RH7 + 
+> kernel-2.4.1-pre11 system:
+> 
+> modprobe: modprobe: Can't locate module net-pf-10
+> 
+> I have checked my .config  and can't find that modules. This does not 
+> happen with 2.4.0 kernel, only with the latest pre series maybe pre7 on.
 
-# ps -eo user,pid,args,wchan|egrep "imap|update|procmail"
-root         7 [kupdate]        get_request_wait
-david      627 imapd            get_request_wait
-david      752 procmail -f linu down
-david      761 procmail -f linu down
-david      799 procmail -f linu down
-david      854 procmail -f linu down
-david      886 procmail -f linu down
-david      847 imapd            get_request_wait
-david     1079 procmail -f linu down
-david     3280 imapd            interruptible_sleep_on_locked
-david     3321 imapd            interruptible_sleep_on_locked
+you haven't included support for IPv6 and your distribution initscripts is
+trying to load it for some reason, two solutions:
 
-and the cpu load is artificially inflated to 9.17
+1. enable IPv6 in your kernel build
+2. disable it in your /etc/modules.conf file, like this:
 
--d
+alias net-pf-10 off
 
---
-  There is a natural aristocracy among men. The grounds of this are virtue and talents. Thomas Jefferson
-  The good thing about standards is that there are so many to choose from. Andrew S. Tanenbaum
-
-
-
+- Arnaldo
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

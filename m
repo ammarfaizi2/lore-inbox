@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318965AbSHTOM4>; Tue, 20 Aug 2002 10:12:56 -0400
+	id <S318959AbSHTOWd>; Tue, 20 Aug 2002 10:22:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318959AbSHTOM4>; Tue, 20 Aug 2002 10:12:56 -0400
-Received: from mail.iok.net ([62.249.129.22]:39690 "EHLO mars.iok.net")
-	by vger.kernel.org with ESMTP id <S318965AbSHTOMz>;
-	Tue, 20 Aug 2002 10:12:55 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Holger Schurig <h.schurig@mn-logistik.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: new driver: multimedia card (mmc) framework, patch against 2.4.19
-Date: Tue, 20 Aug 2002 16:07:27 +0200
-User-Agent: KMail/1.4.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200208201607.27397.h.schurig@mn-logistik.de>
+	id <S318987AbSHTOWd>; Tue, 20 Aug 2002 10:22:33 -0400
+Received: from h55p111.delphi.afb.lu.se ([130.235.187.184]:58260 "EHLO
+	gagarin.0x63.nu") by vger.kernel.org with ESMTP id <S318959AbSHTOWc>;
+	Tue, 20 Aug 2002 10:22:32 -0400
+Date: Tue, 20 Aug 2002 16:26:34 +0200
+To: hermes@gibson.dropbear.id.au
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+       trivial@rustcorp.com.au
+Subject: [PATCH] Remove extraneous ptrace.h include in hermes.c
+Message-ID: <20020820142634.GB577@h55p111.delphi.afb.lu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+From: Anders Gustafsson <andersg@0x63.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> At the moment, access to the information required to write a driver for SD
-> or SDIO requires signing and NDA that precludes the release of an open
-> source driver, so only MMC is supported at this time.
+Remove extraneous ptrace.h include in hermes.c
 
-I'm interested to write the device driver for the Intel PXA 250. See if this 
-chip is uncrippled enought to get it working. I'm only trying to do the MMC 
-part, I'm not interested in SD.
+-- 
 
-Do you by any chance have me a pointer to MMC related documentation (in other 
-words: to the specs) ?
+//anders/g
 
-The MMC interface of the PXA250 processor is written in chaper 15 of the 
-Developers's Manual from Intel, see 
-http://developer.intel.com/design/pca/applicationsprocessors/manuals/278522-001.htm
-
+diff -Nru a/drivers/net/wireless/hermes.c b/drivers/net/wireless/hermes.c
+--- a/drivers/net/wireless/hermes.c	Tue Aug 20 16:19:49 2002
++++ b/drivers/net/wireless/hermes.c	Tue Aug 20 16:19:49 2002
+@@ -45,7 +45,6 @@
+ #include <linux/threads.h>
+ #include <linux/smp.h>
+ #include <asm/io.h>
+-#include <linux/ptrace.h>
+ #include <linux/delay.h>
+ #include <linux/init.h>
+ #include <linux/kernel.h>

@@ -1,52 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261349AbVCQXIp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261348AbVCQXNB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261349AbVCQXIp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 18:08:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbVCQXIp
+	id S261348AbVCQXNB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 18:13:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261357AbVCQXNB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 18:08:45 -0500
-Received: from mail.kroah.org ([69.55.234.183]:11670 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261349AbVCQXIP (ORCPT
+	Thu, 17 Mar 2005 18:13:01 -0500
+Received: from fire.osdl.org ([65.172.181.4]:47546 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261348AbVCQXLx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 18:08:15 -0500
-Date: Thu, 17 Mar 2005 14:55:59 -0800
-From: Greg KH <greg@kroah.com>
-To: Kay Sievers <kay.sievers@vrfy.org>
-Cc: linux-kernel@vger.kernel.org, Hannes Reinecke <hare@suse.de>
-Subject: Re: [PATCH] add TIMEOUT to firmware_class hotplug event
-Message-ID: <20050317225559.GD6620@kroah.com>
-References: <20050317023431.GA27777@vrfy.org> <20050317054602.GA14459@kroah.com> <1111057675.6675.4.camel@localhost.localdomain>
+	Thu, 17 Mar 2005 18:11:53 -0500
+Date: Thu, 17 Mar 2005 15:11:51 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Prezeroing V8
+Message-Id: <20050317151151.47fd6e5f.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0503171423590.10008@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0503171340480.9678@schroedinger.engr.sgi.com>
+	<20050317140831.414b73bb.akpm@osdl.org>
+	<Pine.LNX.4.58.0503171423590.10008@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1111057675.6675.4.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.8i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 17, 2005 at 12:07:55PM +0100, Kay Sievers wrote:
-> On Wed, 2005-03-16 at 21:46 -0800, Greg KH wrote:
-> > On Thu, Mar 17, 2005 at 03:34:31AM +0100, Kay Sievers wrote:
-> > > On Tue, 2005-03-15 at 09:25 +0100, Hannes Reinecke wrote:
-> > > > The current implementation of the firmware class breaks a fundamental
-> > > > assumption in udevd: that the physical device can be initialised fully
-> > > > prior to executing the next event for that device.
-> > > 
-> > > Here we add a TIMEOUT value to the hotplug environment of the firmware
-> > > requesting event. I will adapt udevd not to wait for anything else, if
-> > > it finds a TIMEOUT key.
-> > 
-> > Can't you just trigger off of the FIRMWARE variable instead?
+Christoph Lameter <clameter@sgi.com> wrote:
+>
+> On Thu, 17 Mar 2005, Andrew Morton wrote:
 > 
-> Sure, that will work too. I just thought it would be nice to give
-> userspace a hint about the event behavior the kernel expects, instead of
-> adding an exception to the udevd event management?
+> > Christoph Lameter <clameter@sgi.com> wrote:
+> > >
+> > > Adds management of ZEROED and NOT_ZEROED pages and a background daemon
+> > > called scrubd. /proc/sys/vm/scrubd_load, /proc/sys/vm_scrubd_start and
+> > > /proc/sys/vm_scrubd_stop control the scrub daemon. See Documentation/vm/
+> > > scrubd.txt
+> >
+> > It's hard to know what to think about this without benchmarking numbers.
 
-Hm, so by adding the TIMEOUT value, we are telling userspace that we
-better act on this operation soon, right?  That's a special case too :)
+?
 
-Anyway, sure, this is fine, I'll go add this to the driver-bk tree.
+> >
+> > It would help if you could briefly describe the implementation and design
+> > decisions when sending patches.
+> 
+> Oh. This was discussed so many times that I thought it would not be
+> necessary anymore. The discussion is attached.
 
-thanks,
+Add it to the changelog and maintain it, please.  It never hurts.
 
-greg k-h
+But that only describes why we want the feature, which is nice.  It's also
+useful to explain how the feature works.  Although my preference there is
+that this be done within code comments if at all appropriate.
+
+<looks>
+
+OK, so we're splitting each zone's buddy structure into two: one for zeroed
+pages and one for not-zeroed pages, yes?
+
+It's not obvious what the page->private of freed pages are being used for. 
+Please comment that.
+
+What's all this (zero << 10) stuff?
+
++	page->private = order + (zero << 10);
++           (page_zorder(page) == order + (zero << 10)) &&
+
+Doesn't this explode if we already have order-1024 pages in there?  I guess
+that's a reasonable restriction, but where did the "10" come from? 
+Non-obvious, needs commenting.
+
+And given that we have separate buddy structures for zeroed and not-zeroed
+pages, why is this tagging needed at all?
+
+
+These are all design decisions which have been made, but they're not
+communicated either in the patch description or in code comments.  It's to
+everyone's advantage to fix that, no?
+

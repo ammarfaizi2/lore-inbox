@@ -1,161 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261302AbULWToW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261296AbULWTqD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261302AbULWToW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Dec 2004 14:44:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbULWToW
+	id S261296AbULWTqD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Dec 2004 14:46:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbULWToh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Dec 2004 14:44:22 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:51381 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261292AbULWTfk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Dec 2004 14:35:40 -0500
-Date: Thu, 23 Dec 2004 11:35:36 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: akpm@osdl.org, linux-ia64@vger.kernel.org, torvalds@osdl.org,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Prezeroing V2 [4/4]: Hardware Zeroing through SGI BTE
-In-Reply-To: <Pine.LNX.4.58.0412231132170.31791@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.58.0412231135000.31791@schroedinger.engr.sgi.com>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F02900FBD@scsmsx401.amr.corp.intel.com>
- <41C20E3E.3070209@yahoo.com.au> <Pine.LNX.4.58.0412211154100.1313@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0412231119540.31791@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0412231132170.31791@schroedinger.engr.sgi.com>
+	Thu, 23 Dec 2004 14:44:37 -0500
+Received: from web51501.mail.yahoo.com ([206.190.38.193]:12905 "HELO
+	web51501.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261293AbULWTj0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Dec 2004 14:39:26 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=1/y6e9lat7w3fIYTkekCTVLxFBx98czcp82/gocPBFIHAnlO8bl53KcMZ0Tc3BzNeCSzF3qmTaQIOCjWGQRCNBJj5p71oO8S6DoyGqg7I/5U3VdxUPSU+9wRkxtkHj9zapjDYychqDzk6uWBS5iLMDZju5qyGBKopm6/JzwMbIg=  ;
+Message-ID: <20041223193925.57234.qmail@web51501.mail.yahoo.com>
+Date: Thu, 23 Dec 2004 11:39:25 -0800 (PST)
+From: Park Lee <parklee_sel@yahoo.com>
+Subject: Something wrong when transform Documentation/DocBook/*.tmpl into pdf
+To: twaugh@redhat.com
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-o Zeroing driver implemented with the Block Transfer Engine in the Altix SN2 SHub
+Hi,
+  I'm using Fedora Core 2. In
+/usr/src/linux-2.6.5-1.358/Documentation/kernel-doc-nano-HOWTO.txt,
+in the 'How to extract the documentation' subsection,
+it says:
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
+If you just want to read the ready-made books on the
+various subsystems (see Documentation/DocBook/*.tmpl),
+just type 'make psdocs', or 'make pdfdocs', or 'make
+htmldocs', depending on your preference.
 
-Index: linux-2.6.9/arch/ia64/sn/kernel/bte.c
-===================================================================
---- linux-2.6.9.orig/arch/ia64/sn/kernel/bte.c	2004-12-17 14:40:10.000000000 -0800
-+++ linux-2.6.9/arch/ia64/sn/kernel/bte.c	2004-12-22 12:48:23.000000000 -0800
-@@ -4,6 +4,8 @@
-  * for more details.
-  *
-  * Copyright (c) 2000-2003 Silicon Graphics, Inc.  All Rights Reserved.
-+ *
-+ * Support for zeroing pages, Christoph Lameter, SGI, December 2004.
-  */
+  Then, on the command line, I type the following
+commands:
 
- #include <linux/config.h>
-@@ -20,6 +22,8 @@
- #include <linux/bootmem.h>
- #include <linux/string.h>
- #include <linux/sched.h>
-+#include <linux/mm.h>
-+#include <linux/scrub.h>
+cd /usr/src/linux-2.6.5-1.358/Documentation/DocBook 
+<ENTER>
+make pdfdocs  <ENTER>
 
- #include <asm/sn/bte.h>
+  But the system says the following:
 
-@@ -30,7 +34,7 @@
- /* two interfaces on two btes */
- #define MAX_INTERFACES_TO_TRY		4
+make: *** No rule to make target `scripts/kernel-doc',
+needed by `/wanbook.sgml'.  Stop.
 
--static struct bteinfo_s *bte_if_on_node(nasid_t nasid, int interface)
-+static inline struct bteinfo_s *bte_if_on_node(nasid_t nasid, int interface)
- {
- 	nodepda_t *tmp_nodepda;
+  Then, what's the matter? How actually can I
+transform the *.tmpl in Documentation/DocBook into pdf
+files? 
 
-@@ -132,7 +136,6 @@
- 			if (bte == NULL) {
- 				continue;
- 			}
--
- 			if (spin_trylock(&bte->spinlock)) {
- 				if (!(*bte->most_rcnt_na & BTE_WORD_AVAILABLE) ||
- 				    (BTE_LNSTAT_LOAD(bte) & BTE_ACTIVE)) {
-@@ -157,7 +160,7 @@
- 		}
- 	} while (1);
+  Thank you.
 
--	if (notification == NULL) {
-+	if (notification == NULL || (mode & BTE_NOTIFY_AND_GET_POINTER)) {
- 		/* User does not want to be notified. */
- 		bte->most_rcnt_na = &bte->notify;
- 	} else {
-@@ -192,6 +195,8 @@
 
- 	itc_end = ia64_get_itc() + (40000000 * local_cpu_data->cyc_per_usec);
 
-+	if (mode & BTE_NOTIFY_AND_GET_POINTER)
-+		 *(u64 volatile **)(notification) = &bte->notify;
- 	spin_unlock_irqrestore(&bte->spinlock, irq_flags);
+=====
+Best Regards,
+Park Lee
 
- 	if (notification != NULL) {
-@@ -449,5 +454,37 @@
- 		mynodepda->bte_if[i].cleanup_active = 0;
- 		mynodepda->bte_if[i].bh_error = 0;
- 	}
-+}
-+
-+u64 *bte_zero_notify[MAX_COMPACT_NODES];
-+
-+static int bte_check_bzero(void)
-+{
-+	int node = get_nasid();
-+
-+	return *(bte_zero_notify[node]) != BTE_WORD_BUSY;
-+}
-+
-+static int bte_start_bzero(void *p, unsigned long len)
-+{
-+	int node = get_nasid();
-+
-+	/* Check limitations.
-+		1. System must be running (weird things happen during bootup)
-+		2. Size >64KB. Smaller requests cause too much bte traffic
-+	 */
-+	if (len >= BTE_MAX_XFER || len < 60000 || system_state != SYSTEM_RUNNING)
-+		return EINVAL;
-+
-+	return bte_zero(ia64_tpa(p), len, BTE_NOTIFY_AND_GET_POINTER, bte_zero_notify+node);
-+}
-+
-+static struct zero_driver bte_bzero = {
-+	.start = bte_start_bzero,
-+	.check = bte_check_bzero,
-+	.rate = 500000000		/* 500 MB /sec */
-+};
 
-+void sn_bte_bzero_init(void) {
-+	register_zero_driver(&bte_bzero);
- }
-Index: linux-2.6.9/arch/ia64/sn/kernel/setup.c
-===================================================================
---- linux-2.6.9.orig/arch/ia64/sn/kernel/setup.c	2004-12-17 14:40:10.000000000 -0800
-+++ linux-2.6.9/arch/ia64/sn/kernel/setup.c	2004-12-22 12:28:00.000000000 -0800
-@@ -243,6 +243,7 @@
- 	int pxm;
- 	int major = sn_sal_rev_major(), minor = sn_sal_rev_minor();
- 	extern void sn_cpu_init(void);
-+	extern void sn_bte_bzero_init(void);
-
- 	/*
- 	 * If the generic code has enabled vga console support - lets
-@@ -333,6 +334,7 @@
- 	screen_info = sn_screen_info;
-
- 	sn_timer_init();
-+	sn_bte_bzero_init();
- }
-
- /**
-Index: linux-2.6.9/include/asm-ia64/sn/bte.h
-===================================================================
---- linux-2.6.9.orig/include/asm-ia64/sn/bte.h	2004-12-17 14:40:16.000000000 -0800
-+++ linux-2.6.9/include/asm-ia64/sn/bte.h	2004-12-22 12:28:00.000000000 -0800
-@@ -48,6 +48,8 @@
- #define BTE_ZERO_FILL (BTE_NOTIFY | IBCT_ZFIL_MODE)
- /* Use a reserved bit to let the caller specify a wait for any BTE */
- #define BTE_WACQUIRE (0x4000)
-+/* Return the pointer to the notification cacheline to the user */
-+#define BTE_NOTIFY_AND_GET_POINTER (0x8000)
- /* Use the BTE on the node with the destination memory */
- #define BTE_USE_DEST (BTE_WACQUIRE << 1)
- /* Use any available BTE interface on any node for the transfer */
+		
+__________________________________ 
+Do you Yahoo!? 
+Meet the all-new My Yahoo! - Try it today! 
+http://my.yahoo.com 
+ 
 

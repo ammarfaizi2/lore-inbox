@@ -1,58 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261555AbUJ0Axr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261596AbUJ0AyB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261555AbUJ0Axr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 20:53:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261583AbUJ0Axq
+	id S261596AbUJ0AyB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 20:54:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261583AbUJ0AyA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 20:53:46 -0400
-Received: from mail-relay-4.tiscali.it ([213.205.33.44]:54251 "EHLO
-	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
-	id S261555AbUJ0Axd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 20:53:33 -0400
-Date: Wed, 27 Oct 2004 02:54:25 +0200
-From: Andrea Arcangeli <andrea@novell.com>
-To: Rik van Riel <riel@redhat.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: lowmem_reserve (replaces protection)
-Message-ID: <20041027005425.GO14325@dualathlon.random>
-References: <417DCFDD.50606@yahoo.com.au> <Pine.LNX.4.44.0410262029210.21548-100000@chimarrao.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0410262029210.21548-100000@chimarrao.boston.redhat.com>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+	Tue, 26 Oct 2004 20:54:00 -0400
+Received: from relay00.pair.com ([209.68.1.20]:34573 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id S261557AbUJ0Axg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 20:53:36 -0400
+X-pair-Authenticated: 66.190.53.4
+Message-ID: <417EF18D.8010207@cybsft.com>
+Date: Tue, 26 Oct 2004 19:53:33 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Alexander Batyrshin <abatyrshin@ru.mvista.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0
+References: <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <417D4B5E.4010509@cybsft.com> <20041025203807.GB27865@elte.hu> <417E2CB7.4090608@cybsft.com> <20041027002455.GC31852@elte.hu>
+In-Reply-To: <20041027002455.GC31852@elte.hu>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 26, 2004 at 08:31:32PM -0400, Rik van Riel wrote:
-> On Tue, 26 Oct 2004, Nick Piggin wrote:
+Ingo Molnar wrote:
+> * K.R. Foley <kr@cybsft.com> wrote:
 > 
-> > OK that makes sense... it isn't the length of the name, but the fact
-> > that that naming convention hasn't proliferated thoughout the 2.6 tree;
 > 
-> Speaking about not proliferating...
+>>Several things in regard to V0.2:
+>>
+>>1) Interactive responsiveness seems to be noticably sluggish at times on
+>>all three of the systems I have tested this on.
+>>2) My 450MHz UP system is definitely the worst by far. Scrolling through
+>>the syslog in a telnet session produces pauses every few seconds for
+>>about a second, that is while it's still responding. These problems seem
+>>to be network related, but there are no indications of what the problem
+>>is. This system also at times will just stop responding to network requests.
+>>3) Both of the SMP systems are lacking the snappy responsiveness in X
+>>that I have become accustomed to with previous patches, but the 2.6GHz
+>>Xeon (w/HT) is worse than the 933MHz Xeon. Again no indications of
+>>problems in the logs.
+>>4) Using amlat to run the RTC at 1kHz will kill any of these systems
+>>very quickly.
 > 
-> One thing we need to make sure of is that the lower zone
-> protection stuff doesn't put the allocation threshold
-> higher than kswapd's freeing threshold.
+> 
+> could you try this with -V0.3 too? I believe most of these problems
+> should be solved.
+> 
+> 	Ingo
+> 
 
-I agree. I didn't introduce that bug, the very same problem would happen
-with the previous protection code. So this is not a regression, I'm far
-from finished... I'm just trying to post orthogonal patches, since Hugh
-had a much better merging success rate with small patches (though I find
-very hard to produce small patches myself when there's more than one
-thing to fix in the same file).
+Sure will. It's building on two of the systems now (V0.3.1).
 
-the per-classzone kswapd treshold was very well taken care of in 2.4,
-thanks the watermarks embedding the low/min/high and the classzone being
-passed up to the kswapd wakeup function.
-
-> Otherwise on a 1GB system, we'll end up cycling most of
-> userspace allocations through the 128MB highmem zone,
-> instead of falling back to the other zones.
-
-that's the side effect of the per-zone lru too (though I'm not going to
-change the lru).
+kr

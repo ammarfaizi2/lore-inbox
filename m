@@ -1,61 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131441AbQLVSih>; Fri, 22 Dec 2000 13:38:37 -0500
+	id <S131489AbQLVSlr>; Fri, 22 Dec 2000 13:41:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131489AbQLVSi1>; Fri, 22 Dec 2000 13:38:27 -0500
-Received: from storm.ca ([209.87.239.69]:37331 "EHLO mail.storm.ca")
-	by vger.kernel.org with ESMTP id <S131441AbQLVSiU>;
-	Fri, 22 Dec 2000 13:38:20 -0500
-Message-ID: <3A439833.C64D493A@storm.ca>
-Date: Fri, 22 Dec 2000 13:06:43 -0500
-From: Sandy Harris <sandy@storm.ca>
-X-Mailer: Mozilla 4.76 [en] (Win98; U)
-X-Accept-Language: en,fr
+	id <S131370AbQLVSli>; Fri, 22 Dec 2000 13:41:38 -0500
+Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:38908 "EHLO
+	webber.adilger.net") by vger.kernel.org with ESMTP
+	id <S129870AbQLVSlZ>; Fri, 22 Dec 2000 13:41:25 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200012221809.eBMI9jA27136@webber.adilger.net>
+Subject: Re: recommended gcc compiler version
+In-Reply-To: <200012220700.XAA09901@pobox.com> "from Barry K. Nathan at Dec 21,
+ 2000 11:00:46 pm"
+To: barryn@pobox.com
+Date: Fri, 22 Dec 2000 11:09:45 -0700 (MST)
+CC: "Robert B. Easter" <reaster@comptechnews.com>,
+        linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL73 (25)]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: The NSA's Security-Enhanced Linux (fwd)
-In-Reply-To: <91uu8i$f1nrj$1@fido.engr.sgi.com> <3A4394C6.792D0092@sgi.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Casey Schaufler wrote:
+Barry writes:
+> > Linux 2.2.18?
 > 
-> "Mike A. Harris" wrote:
-> >
-> > Anyone looked into this?
-> 
-> It's an implementation of Domain Enforcement, ported
-> from the flask project. It is a prototype.
+> gcc 2.7.2.3 is safest, but egcs 1.1.2 should be safe even for
+> mission-critical stuff. gcc 2.95.2 seems to work for many people, but
+> isn't necessarily safe.
 
-These folks are good at what they do and the code is GPL.
-It is worth starting to consider whether this code, or code
-from one of the other security-enhancement projects, should
-be included in the standard kernel for 2.6 or 3.0.
+Speaking of this - I had problems with a gcc 2.95.2 compiled 2.2.18+IDE patch,
+yet the same kernel compiled with egcs is OK.  On one system the 2.95.2
+kernel complained at partition checking time, but seemed to work OK, and
+on an SMP box, the kernel would just panic at partition checking time.
 
-A more secure Linux would be great for a lot of people, but
-we need to look at the trade-offs. Does the approach damage
-usability? Are there better ways? ... ?
- 
-> Persons looking for backdoors, tricks, traps, snares,
-> or ice are going to be disappointed.
+If anyone is interested in looking at this (gcc folks or whatever), I
+have KDB in that kernel and can send you a stack trace at the panic.
+Otherwise, I'll just stick with egcs.
 
-That won't, and shouldn't, stop anyone having a good look.
-
-> It's just code like everone else produces.
-
-So people looking at it may find bugs and vulnerabilities the
-implementers hadn't considered. Great.
-
-> Much of the work was done
-> by employees of the NSA. They should be applauded for
-> the effort they put in just to be allowed to make this
-> available.
-
-<applause intensity=loud>
-Bravo!
->/applause>
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

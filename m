@@ -1,55 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264795AbUHGX5I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264881AbUHHAGp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264795AbUHGX5I (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 19:57:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265051AbUHGX5C
+	id S264881AbUHHAGp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 20:06:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264900AbUHHAGp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 19:57:02 -0400
-Received: from gate.crashing.org ([63.228.1.57]:16837 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S264795AbUHGXzE (ORCPT
+	Sat, 7 Aug 2004 20:06:45 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:17367 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264881AbUHHAGo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 19:55:04 -0400
-Subject: Re: Solving suspend-level confusion
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: David Brownell <david-b@pacbell.net>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@digitalimplant.org>
-In-Reply-To: <200408071514.49498.david-b@pacbell.net>
-References: <20040730164413.GB4672@elf.ucw.cz>
-	 <200407310723.12137.david-b@pacbell.net>
-	 <20040806200442.GC30518@elf.ucw.cz>
-	 <200408071514.49498.david-b@pacbell.net>
-Content-Type: text/plain
-Message-Id: <1091922821.14105.12.camel@gaston>
+	Sat, 7 Aug 2004 20:06:44 -0400
+Date: Sat, 7 Aug 2004 17:05:03 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Pekka Pietikainen <pp@ee.oulu.fi>
+Cc: jgarzik@pobox.com, jolt@tuxbox.org, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Re: [PATCH] b44 1GB DMA workaround (was: b44: add 47xx support)
+Message-Id: <20040807170503.3b05255a.davem@redhat.com>
+In-Reply-To: <20040807224019.GA24817@ee.oulu.fi>
+References: <200407232335.37809.jolt@tuxbox.org>
+	<20040726141128.GA5435@ee.oulu.fi>
+	<20040804003108.GA10445@ee.oulu.fi>
+	<20040803183919.2990d045.davem@redhat.com>
+	<20040807224019.GA24817@ee.oulu.fi>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 08 Aug 2004 09:53:41 +1000
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-08-08 at 08:14, David Brownell wrote:
-> On Friday 06 August 2004 13:04, Pavel Machek wrote:
-> 
-> > > These look to me like "wrong device-level suspend state" cases.
+On Sun, 8 Aug 2004 01:40:19 +0300
+Pekka Pietikainen <pp@ee.oulu.fi> wrote:
+
+> On Tue, Aug 03, 2004 at 06:39:19PM -0700, David S. Miller wrote:
+> > Changing skb->data is not legal.  Please implement this in
+> > such a way that skb->data does not get modified.  By modifying
+> > skb->data you will break things such as packet sniffers and
+> > netfilter, and that's just the tip of the iceberg. :-)
 > > 
-> > Actually, suspend-to-disk has to suspend all devices *twices*. Once it
-> > wants them in "D0 but DMA/interrupts stopped", and once in "D3cold but
-> > I do not really care power is going to be cut anyway". I do not think
-> > this can be expressed with PCI states.
+> Haven't noticed any breakage (tm) but I'm just a x86 weenie :-)
+
+Not an x86 specific problem :-)  Just run tcpdump in a shell when
+one of these TX bounce cases happen, your skb->data modification could
+will make tcpdump see a corrupt packet.
+
+> Current approach is:
 > 
-> How are those different from "PCI_D1" then later "PCI_D3hot"?
+>         if(1 (just for testing ;) ) || mapping+len > B44_DMA_MASK) {
+>                 /* Chip can't handle DMA to/from >1GB, use bounce buffer */
+>                 pci_unmap_single(bp->pdev, mapping, len,PCI_DMA_TODEVICE);
+>                 memcpy(bp->tx_bufs+entry*TX_PKT_BUF_SZ,skb->data,skb->len);
+>                 mapping = pci_map_single(bp->pdev,bp->tx_bufs+entry*TX_PKT_BUF_SZ, len, PCI_DMA_TODEVICE);
+>         }
 
-D1 is a real HW state, we don't really need to enter it at all. On some
-chip, suspending to D1 require some mess that we don't need here. We
-just need to block the driver.
-
-> I'd understood that loss of VAUX was always possible, so robust
-> drivers always had to handle resume  from PCI_D3cold.
-
-When they can ....
-
-Ben.
-
-
+This looks a bit better.

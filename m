@@ -1,189 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265907AbTFSTK0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 15:10:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265908AbTFSTK0
+	id S265911AbTFSTQg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 15:16:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265912AbTFSTQg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 15:10:26 -0400
-Received: from inet-mail2.oracle.com ([148.87.2.202]:19867 "EHLO
-	inet-mail2.oracle.com") by vger.kernel.org with ESMTP
-	id S265907AbTFSTJ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 15:09:57 -0400
-Message-ID: <3EF20DC7.3050303@oracle.com>
-Date: Thu, 19 Jun 2003 21:23:51 +0200
-From: Alessandro Suardi <alessandro.suardi@oracle.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030617
-X-Accept-Language: en-us, en
+	Thu, 19 Jun 2003 15:16:36 -0400
+Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:4342 "EHLO
+	tabby.cats.internal") by vger.kernel.org with ESMTP id S265911AbTFSTQe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 15:16:34 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Jesse Pollard <jesse@cats-chateau.net>
+To: Thorsten =?iso-8859-1?q?K=F6rner?= 
+	<thorstenkoerner@123tkshop.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Troll Tech [was RE: Sco vs. IBM]
+Date: Thu, 19 Jun 2003 14:30:02 -0500
+X-Mailer: KMail [version 1.2]
+References: <170EBA504C3AD511A3FE00508BB89A920234CD34@exnanycmbx4.ipc.com> <03061913583400.25866@tabby> <200306192108.13032.thorstenkoerner@123tkshop.org>
+In-Reply-To: <200306192108.13032.thorstenkoerner@123tkshop.org>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.5.72-bk[12] oops on boot (cpufreq/ACPI)
-Content-Type: multipart/mixed;
- boundary="------------060604010503020700060504"
+Message-Id: <03061914300200.25966@tabby>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060604010503020700060504
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thursday 19 June 2003 14:08, Thorsten Körner wrote:
+> Hi Jesse
+>
+> Am Donnerstag, 19. Juni 2003 20:58 schrieb Jesse Pollard:
+> > On Thursday 19 June 2003 12:37, Downing, Thomas wrote:
+> > > I'm no authority, but IMHO
+> > >
+> > > > In article <20030619141443.GR29247@fs.tum.de>,
+> > > >
+> > > > Adrian Bunk  <bunk@fs.tum.de> wrote:
+> >
+> > [snip]
+> >
+> > > > Which makes no sense. You're not at the mercy of Linus or the
+> > > > kernel developers, neither at that of the KDE developers, but
+> > > > TrollTech controls the KDE desktop wrt commercial apps.
+> > >
+> > > No, they don't.  KDE uses the GPL for QT.  If I build a commercial
+> > > app using KDE, it is GPL.  If I build a commercial app not using
+> > > KDE, but using commercial QT, that has no effect on the KDE desktop.
+> >
+> > Lets see...
+> >
+> > SCO releases Linux code under GPL...
+>
+> Did they ?!? No they didn't
+> They are talking about old Unix-Licenses, not about Linux. And SCO also has
+> not licensed Unix to IBM themselves.
 
-Latitude C640 laptop, RedHat 8.0 base installation, P4@1.8Ghz.
+It was my understanding that you could download SCO Linux up until about a 
+month after they started the lawsuit. By that time, all/most of the contested
+code had to already be in the kernel. Since SCO was supplying it, it was 
+released (my opinion).
 
-SysRq still functional. From the console:
+IMHO IBM AIX doesn't owe anything to SCO. Sure in the early days, IBM did 
+consider using System V... but it had so many problems being ported that they
+completely dropped it, and continued with AIX development instead.
 
-cpufreq: P0: 1Mhz, 0mW, 0uS
-cpufreq: P1: 0Mhz, 0mW, 0uS
-divide error: 0000 [#1]
+I've used both.. and believe me, AIX doesn't work ANYTHING like System V. no
+virtualization (disks), no partitioning (systems), no distributed operations, 
+minimal networking, no Power support... (this was a 202e prototype at the 
+time I believe...
 
-[snip]
-
-EFLAGS: 00010246
-EIP is at cpufreq_notify_transition+0x25/0x170
-
-[snip]
-
-Call trace from the oopsed screen:
-
-delay_tsc + 0xf/0x16
-acpi_processor_set_performance + 0x1e5/0x3ae
-acpi_cpufreq_init + 0x23e/0x29a
-do_initcalls + 0x27/0x94
-init_workqueues + 0xf/0x28
-init + 0x31/0x190
-init + 0x0/0x190
-kernel_thread_helper + 0x5/0xc
-
-gzipped .config attached.
-
---alessandro
-
-  "I'm always trying to find some kind of honest emotion
-    and connection with the most naked human emotions.
-   It's a dangerous, dark path but also very exciting."
-       (Steve Wynn, interviewed by 'Mescalina', 2003)
-
---------------060604010503020700060504
-Content-Type: application/x-gzip;
- name=".config.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename=".config.gz"
-
-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
-rVwdXes8Ea+Z31aw/Q9LXUv5sF8AAA==
---------------060604010503020700060504--
-
+All of that belonged to AIX. which even had SMP beginnings (some platforms).
+Even shared memory was not exactly working well on System V (semaphores were
+very slow).

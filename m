@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261777AbVAYIWk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261598AbVAYI1l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261777AbVAYIWk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 03:22:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261870AbVAYIWk
+	id S261598AbVAYI1l (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 03:27:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261607AbVAYI1l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 03:22:40 -0500
-Received: from opersys.com ([64.40.108.71]:19974 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261777AbVAYIWj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 03:22:39 -0500
-Message-ID: <41F60D86.5070506@opersys.com>
-Date: Tue, 25 Jan 2005 04:12:38 -0500
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Tue, 25 Jan 2005 03:27:41 -0500
+Received: from massena-4-82-67-197-146.fbx.proxad.net ([82.67.197.146]:33152
+	"EHLO pbaldrick.hd.free.fr") by vger.kernel.org with ESMTP
+	id S261598AbVAYI1i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 03:27:38 -0500
+From: Duncan Sands <duncan.sands@math.u-psud.fr>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] Enforce USB interface claims
+Date: Tue, 25 Jan 2005 09:27:33 +0100
+User-Agent: KMail/1.7.1
+Cc: Chris Wedgwood <cw@f00f.org>, LKML <linux-kernel@vger.kernel.org>
+References: <20050123111258.GA29513@taniwha.stupidest.org> <20050125060555.GC2061@kroah.com>
+In-Reply-To: <20050125060555.GC2061@kroah.com>
 MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-CC: Nikita Danilov <nikita@clusterfs.com>, linux-kernel@vger.kernel.org,
-       Tom Zanussi <zanussi@us.ibm.com>
-Subject: Re: 2.6.11-rc1-mm1
-References: <20050114002352.5a038710.akpm@osdl.org> <m1zmzcpfca.fsf@muc.de> <m17jmg2tm8.fsf@clusterfs.com> <20050114103836.GA71397@muc.de> <41E7A7A6.3060502@opersys.com> <Pine.LNX.4.61.0501141626310.6118@scrub.home> <41E8358A.4030908@opersys.com> <Pine.LNX.4.61.0501150101010.30794@scrub.home> <41E899AC.3070705@opersys.com> <Pine.LNX.4.61.0501160245180.30794@scrub.home> <41EA0307.6020807@opersys.com> <Pine.LNX.4.61.0501161648310.30794@scrub.home> <41EADA11.70403@opersys.com> <Pine.LNX.4.61.0501171403490.30794@scrub.home> <41EC2DCA.50904@opersys.com> <Pine.LNX.4.61.0501172323310.30794@scrub.home> <41EC8AA2.1030000@opersys.com> <Pine.LNX.4.61.0501181359250.30794@scrub.home> <41F0A0A2.1010109@opersys.com> <Pine.LNX.4.61.0501211754110.30794@scrub.home> <41F355AD.50901@opersys.com> <Pine.LNX.4.61.0501231703010.30794@scrub.home>
-In-Reply-To: <Pine.LNX.4.61.0501231703010.30794@scrub.home>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501250927.33971.duncan.sands@math.u-psud.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > -	/* if not yet claimed, claim it for the driver */
+> > -	dev_warn(&ps->dev->dev, "usbfs: process %d (%s) did not claim interface %u before use\n",
+> > -	       current->pid, current->comm, ifnum);
+> > -	return claimintf(ps, ifnum);
+> > +	return -EINVAL;
+> >  }
+> >  
+> >  static int findintfep(struct usb_device *dev, unsigned int ep)
+> 
+> 
+> Um, why?  I think this is there to help with "broken" userspace code
+> that was written before we enforced the rules of "you must claim an
+> interface before using it."  As such, I don't think we can apply this
+> patch.
 
-Roman Zippel wrote:
-> Ok, great.
-> BTW I don't really expect the first version to be fully optimized (unless 
-> you want to :) ), but once the basics are right, that can still be added 
-> later.
+Unfortunately it also means that there is no pressure to fix the user-space
+code.  How about having it say that the autoclaiming is deprecated, and will
+be removed at some point?
 
-Agreed. Tom will post updated patches sometime this week. I'll follow up
-with the LTT stuff separately as agreed.
+Ciao,
 
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+Duncan.

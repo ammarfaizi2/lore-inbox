@@ -1,72 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261776AbVA3U33@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261777AbVA3UgB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261776AbVA3U33 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jan 2005 15:29:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261777AbVA3U33
+	id S261777AbVA3UgB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jan 2005 15:36:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261778AbVA3UgB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jan 2005 15:29:29 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:19205 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S261776AbVA3U3Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jan 2005 15:29:25 -0500
-Subject: Re: inter-module-* removal.. small next step
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: bunk@stusta.de, werner@mrcoffee.engr.sgi.com, linux-kernel@vger.kernel.org,
-       dwmw2@infradead.org, davej@codemonkey.org.uk
-In-Reply-To: <20050130115825.09d306e7.akpm@osdl.org>
-References: <20050130180016.GA12987@infradead.org>
-	 <20050130181042.GR3185@stusta.de>
-	 <1107108932.4306.57.camel@laptopd505.fenrus.org>
-	 <20050130115825.09d306e7.akpm@osdl.org>
-Content-Type: text/plain
-Date: Sun, 30 Jan 2005 21:29:12 +0100
-Message-Id: <1107116952.4306.99.camel@laptopd505.fenrus.org>
+	Sun, 30 Jan 2005 15:36:01 -0500
+Received: from wproxy.gmail.com ([64.233.184.193]:33799 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261777AbVA3Ufs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jan 2005 15:35:48 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=KgtCjR7g3RP8RDjoLjhsRImx28hmFNYVBGS6VYLNwZr7k+pqSOImSXcKLA7o1s+tf5K81BdRdkk49hJZUGyLPtVBYkcEa8xbCe1oaDPf0ns51TSDOX5rjE8BqjtWUCfxND39iTWDaDGwK4VrsImu1zp75KqY9VhiFHt8+XCnMsU=
+Message-ID: <9dda34920501301235137ebf92@mail.gmail.com>
+Date: Sun, 30 Jan 2005 15:35:48 -0500
+From: Paul Blazejowski <diffie@gmail.com>
+Reply-To: Paul Blazejowski <diffie@gmail.com>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: 2.6.11-rc2-mm2
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Nathan Scott <nathans@sgi.com>,
+       Roman Zippel <zippel@linux-m68k.org>
+In-Reply-To: <20050130121241.GH3185@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+References: <9dda349205012923347bc6a456@mail.gmail.com>
+	 <20050129235653.1d9ba5a9.akpm@osdl.org>
+	 <20050130105429.GA28300@infradead.org>
+	 <20050130105738.GA28387@infradead.org>
+	 <20050130120009.GG3185@stusta.de> <20050130121241.GH3185@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-01-30 at 11:58 -0800, Andrew Morton wrote:
-> Arjan van de Ven <arjan@infradead.org> wrote:
+On Sun, 30 Jan 2005 13:12:42 +0100, Adrian Bunk <bunk@stusta.de> wrote:
+> On Sun, Jan 30, 2005 at 01:00:09PM +0100, Adrian Bunk wrote:
+> >...
+> > His problem is:
+> > - CONFIG_NFSD=m
+> > - CONFIG_EXPORTFS=m
+> > - CONFIG_XFS=y
+> > - CONFIG_XFS_EXPORT=y
 > >
-> > On Sun, 2005-01-30 at 19:10 +0100, Adrian Bunk wrote:
-> > > On Sun, Jan 30, 2005 at 06:00:17PM +0000, Arjan van de Ven wrote:
-> > > 
-> > > > Hi,
-> > > > 
-> > > > intermodule is deprecated for quite some time now, and MTD is the sole last
-> > > > user in the tree. To shrink the kernel for the people who don't use MTD, and
-> > > > to prevent accidental return of more users of this, make the compiling of
-> > > > this function conditional on MTD.
-> > > >...
-> > > 
-> > > agpgart-allow-multiple-backends-to-be-initialized.patch in -mm adds a 
-> > > call to inter_module_unregister to drivers/char/agp/backend.c ...
-> > 
-> > that is a bug in -mm; inter-module* got removed from agp entirely some
-> > time ago 
+> > The builtin fs/xfs/linux-2.6/xfs_export.c can't call the function
+> > find_exported_dentry in the modular fs/exportfs/expfs.c .
 > 
-> Michael's patches put it back in.  What's the fix?
+> Below is a patch that should fix these problems.
+> 
+> It isn't very elebgant, and I've Cc'd Roman Zippel who might be able to
+> tell how to express these things without two helper variables.
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> --- linux-2.6.11-rc2-mm2-test/fs/Kconfig.old    2005-01-30 12:46:07.000000000 +0100
+> +++ linux-2.6.11-rc2-mm2-test/fs/Kconfig        2005-01-30 12:51:00.000000000 +0100
+> @@ -1476,6 +1476,7 @@
+>         select LOCKD
+>         select SUNRPC
+>         select NFS_ACL_SUPPORT if NFSD_ACL
+> +       select WANT_EXPORTFS
+>         help
+>           If you want your Linux box to act as an NFS *server*, so that other
+>           computers on your local network which support NFS can access certain
+> @@ -1560,9 +1561,12 @@
+>         depends on NFSD_V3 || NFS_V3
+>         default y
+> 
+> +config WANT_EXPORTFS
+> +       tristate
+> +       select EXPORTFS
+> +
+>  config EXPORTFS
+>         tristate
+> -       default NFSD
+> 
+>  config SUNRPC
+>         tristate
+> --- linux-2.6.11-rc2-mm2-test/fs/xfs/Kconfig.old        2005-01-30 12:46:25.000000000 +0100
+> +++ linux-2.6.11-rc2-mm2-test/fs/xfs/Kconfig    2005-01-30 13:04:11.000000000 +0100
+> @@ -20,9 +20,15 @@
+>           system of your root partition is compiled as a module, you'll need
+>           to use an initial ramdisk (initrd) to boot.
+> 
+> +config XFS_WANT_EXPORT
+> +       tristate
+> +       default XFS_FS
+> +       depends on WANT_EXPORTFS!=n
+> +       select XFS_EXPORT
+> +       select EXPORTFS
+> +
+>  config XFS_EXPORT
+>         bool
+> -       default y if XFS_FS && EXPORTFS
+>  
+>  config XFS_RT
+>         bool "Realtime support (EXPERIMENTAL)"
+> 
+> 
 
-they only put it half in. just drop the one line; it tries to unregister
-something that never got registered... 
-the old cleanup code had to do that, but that got removed. The patch
-basically replaces the cleanup code, and thus puts it back in. One line
-deleted and it's fine.
+Adrian,
 
+This patch works here.
+
+Thanks,
+
+Paul
+
+-- 
+FreeBSD the Power to Serve!

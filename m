@@ -1,74 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262161AbSJFUO4>; Sun, 6 Oct 2002 16:14:56 -0400
+	id <S262180AbSJFUTh>; Sun, 6 Oct 2002 16:19:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262162AbSJFUO4>; Sun, 6 Oct 2002 16:14:56 -0400
-Received: from web13202.mail.yahoo.com ([216.136.174.187]:25495 "HELO
-	web13202.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S262161AbSJFUOz>; Sun, 6 Oct 2002 16:14:55 -0400
-Message-ID: <20021006202032.52214.qmail@web13202.mail.yahoo.com>
-Date: Sun, 6 Oct 2002 13:20:32 -0700 (PDT)
-From: Gigi Duru <giduru@yahoo.com>
-Subject: Re: The end of embedded Linux?
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10210051847360.22517-100000@master.linux-ide.org>
+	id <S262181AbSJFUTh>; Sun, 6 Oct 2002 16:19:37 -0400
+Received: from zipp.nu ([212.72.99.60]:5002 "EHLO mail.zipp.nu")
+	by vger.kernel.org with ESMTP id <S262180AbSJFUTg>;
+	Sun, 6 Oct 2002 16:19:36 -0400
+Message-ID: <3DA09C34.4070709@holodeck1.com>
+Date: Sun, 06 Oct 2002 22:25:24 +0200
+From: Jure Repinc <jlp@holodeck1.com>
+Organization: Holodeck 1
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.2b) Gecko/20021005
+X-Accept-Language: en-us, en-gb, en, sl
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Support for Mount Rainier / Packet Writing
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We obviously have a very different perception of the
-term "hacker". I wonder if anyone here shares yours...
+Hi all.
 
-It was not my intention to offend anyone, but to get
-your attention on what seems to be a forgotten detail:
-kernel size. 
+Now that feature freeze is just around the corner I would like to ask 
+you if we will get support for packet writing in the 2.6/3.0 kernel. It 
+would be especialy nice to have support for Mount Rainier which enables 
+easy use of CD-RWs and that would help people (especially newbies) that 
+use CD-RWs a lot.
 
-It has nothing to do with who I am or what platform am
-I working on or those annoying emails nagging you. It
-is about making Linux better. "Better" may have
-different meanings for different people. For most
-"faster" is the closest. You optimize for speed.
-Adding a second criterion (size) would only increase
-the value of the code. 
+There are some patches from Jens Axboe that are available here:
+http://w1.894.telia.com/~u89404340/patches/packet/2.5/
 
-Keep up the good work, and your ego down,
-Gigi
- 
---- Andre Hedrick <andre@linux-ide.org> wrote:
-> 
-> Well given that I get emails for "embedded" space
-> nagging me about
-> supporting their stuff yet they will not reveal the
-> alterations to the GPL
-> code they borrowed, and moan when the discuss of
-> paying for consulting on
-> opensource they have illegally closed.  Yeah, I have
-> zero compasion for
-> the embedded folks.
-> 
-> Gee every considered embedding somthing with a
-> little horsepower?
-> 
-> So again, if you want change?  Submit it.
-> If you want a consultant?  Pay for it.
-> 
-> Next running around calling people "hackers" is not
-> the best way to win
-> friends.  Do you think you could sell your embedded
-> cruft if you told your
-> customer base, "Gee, I am just a hacker.  Please buy
-> my product."
-> 
-> Dead thread for me now.
-> 
-> Cheers,
-> Andre Hedrick
-> LAD Storage Consulting Group
-> 
+Are patches these OK for this or would support have to be completely 
+rewriten?
 
-__________________________________________________
-Do you Yahoo!?
-Faith Hill - Exclusive Performances, Videos & More
-http://faith.yahoo.com
+Thanks in advance for any information about this important feature for 
+many people.
+
+-- 
+Live long and prosper!
+
+

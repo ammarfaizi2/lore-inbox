@@ -1,42 +1,23 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129772AbRCERNo>; Mon, 5 Mar 2001 12:13:44 -0500
+	id <S129470AbRCERQo>; Mon, 5 Mar 2001 12:16:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129470AbRCERNc>; Mon, 5 Mar 2001 12:13:32 -0500
-Received: from mail.inf.tu-dresden.de ([141.76.2.1]:8816 "EHLO
-	mail.inf.tu-dresden.de") by vger.kernel.org with ESMTP
-	id <S129797AbRCERNI>; Mon, 5 Mar 2001 12:13:08 -0500
-Date: Mon, 5 Mar 2001 18:12:52 +0100
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Jeremy Jackson <jerj@coplanar.net>, linux-kernel@vger.kernel.org,
-        linux-kernel-owner@vger.kernel.org
-Subject: Re: anti-spam regexps
-Message-ID: <20010305181252.A1589@ugly.wh8.tu-dresden.de>
-In-Reply-To: <3AA3909D.805707AB@coplanar.net> <Pine.LNX.4.21.0103051221130.5591-100000@imladris.rielhome.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <Pine.LNX.4.21.0103051221130.5591-100000@imladris.rielhome.conectiva>; from riel@conectiva.com.br on Mon, Mar 05, 2001 at 12:23:13PM -0300
-From: Oswald Buddenhagen <ob6@inf.tu-dresden.de>
+	id <S129797AbRCERQe>; Mon, 5 Mar 2001 12:16:34 -0500
+Received: from [62.90.5.51] ([62.90.5.51]:41228 "EHLO salvador.shunra.co.il")
+	by vger.kernel.org with ESMTP id <S129470AbRCERQV>;
+	Mon, 5 Mar 2001 12:16:21 -0500
+Message-ID: <F1629832DE36D411858F00C04F24847A11DEE4@SALVADOR>
+From: Ofer Fryman <ofer@shunra.co.il>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: Intel-e1000 for Linux 2.0.36-pre14
+Date: Mon, 5 Mar 2001 19:21:00 +0200 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2448.0)
+Content-Type: text/plain;
+	charset="WINDOWS-1255"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Anybody interested in the ~100 anti-spam regexps I'm using
-> on NL.linux.org at the moment ?
-> 
-there is a much simpler method:
-drop any mail, which does not contain the address of the mailing list
-in To: or Cc:. 
-Bcc: mails (who wants to post with a bcc legitimately?) and bulk
-mailers (which don't put the receipients into the headers) are
-rejected. this does not only protect from spam, but also from the
-jerks, that subscribe one mailing list to another. 
-or did i miss some important point?
+Finally e1000 works on linux2.0.x kernel. If only I had the specs a couple
+of days ago...
 
-best regards
-
--- 
-Hi! I'm a .signature virus! Copy me into your ~/.signature, please!
---
-Nothing is fool-proof to a sufficiently talented fool.

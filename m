@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318717AbSG0JHv>; Sat, 27 Jul 2002 05:07:51 -0400
+	id <S318722AbSG0JQP>; Sat, 27 Jul 2002 05:16:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318719AbSG0JHu>; Sat, 27 Jul 2002 05:07:50 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:20443 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S318717AbSG0JHu>;
-	Sat, 27 Jul 2002 05:07:50 -0400
-Date: Sat, 27 Jul 2002 11:10:00 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Doug Ledford <dledford@redhat.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Greg KH <greg@kroah.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: i810_audio.c cli/sti fix
-In-Reply-To: <20020725021439.A9261@redhat.com>
-Message-ID: <Pine.LNX.4.44.0207271103180.2606-100000@localhost.localdomain>
+	id <S318723AbSG0JQP>; Sat, 27 Jul 2002 05:16:15 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56590 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318722AbSG0JQO>;
+	Sat, 27 Jul 2002 05:16:14 -0400
+Message-ID: <3D426588.6070704@mandrakesoft.com>
+Date: Sat, 27 Jul 2002 05:19:04 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: kees <kees@schoen.nl>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19.rc3{8139too as module}
+References: <Pine.LNX.4.33.0207271054120.8193-100000@schoen3.schoen.nl>
+X-Enigmail-Version: 0.65.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+kees wrote:
+> Hi
+> 
+> I tried to use 8139too as module, but that failed. 4 mii_...... like
+> mii_link_ok() could not be resolved (at load time).  As a compiled in
+> driver it works ok.
 
-On Thu, 25 Jul 2002, Doug Ledford wrote:
 
-> it is merely intended to stop all interrupts that might skew our timing
-> via udelay() on the local CPU (it's actually pretty important that we
-> keep our variance from a real 50ms delay as small as possible, since the
-> more variance we allow in this loop the more likely it will be that our
-> sound card will play sounds either a bit too fast or too slow).
+It requires the mii.o module.  Use modprobe instead of insmod :)
 
-how about a disable_irq_all() and enable_irq_all() call, which would
-disable every single interrupt source in the system? Sure it's a bit
-heavyweight (it disables the timer interrupt too), but if some driver
-**really** needs complete silence in the IRQ system then it might be
-useful. It would roughly be equivalent to cli() and sti(), from the
-hardirq disabling point of view. [it would not disable bottom halves.]
-
-	Ingo
 

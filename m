@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136318AbRECJt2>; Thu, 3 May 2001 05:49:28 -0400
+	id <S136483AbRECJws>; Thu, 3 May 2001 05:52:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136326AbRECJtT>; Thu, 3 May 2001 05:49:19 -0400
-Received: from t2.redhat.com ([199.183.24.243]:43760 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S136318AbRECJtL>; Thu, 3 May 2001 05:49:11 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <3AF10E80.63727970@alsa-project.org> 
-In-Reply-To: <3AF10E80.63727970@alsa-project.org>  <Pine.LNX.4.05.10105030852330.9438-100000@callisto.of.borg> <15089.979.650927.634060@pizda.ninka.net> 
-To: Abramo Bagnara <abramo@alsa-project.org>
-Cc: "David S. Miller" <davem@redhat.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: unsigned long ioremap()? 
+	id <S136515AbRECJwi>; Thu, 3 May 2001 05:52:38 -0400
+Received: from styx.suse.cz ([213.210.157.162]:46326 "EHLO monk.suse.cz")
+	by vger.kernel.org with ESMTP id <S136483AbRECJwb>;
+	Thu, 3 May 2001 05:52:31 -0400
+Date: Thu, 3 May 2001 11:52:20 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: i386/kernel/traps.c: doing udelay by hand is ugly
+Message-ID: <20010503115220.A30507@monk.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 03 May 2001 10:45:28 +0100
-Message-ID: <11718.988883128@redhat.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-abramo@alsa-project.org said:
->  The problem I see is that with the former solution nothing prevents
-> from to do:
+Tiny cleanup in kernel/traps.c: doing mdelay by hand is ugly. Please apply.
 
-> 	regs->reg2 = 13;
+							      Pavel
 
-> That's indeed the reason to change ioremap prototype for 2.5. 
-
-An alternative is to add an fixed offset to the cookie before returning it, 
-and subtract it again in {read,write}[bwl].
-
---
-dwmw2
-
-
+Index: arch/i386/kernel/traps.c
+===================================================================
+RCS file: /home/cvs/Repository/linux/arch/i386/kernel/traps.c,v
+retrieving revision 1.1.1.2
+diff -u -r1.1.1.2 traps.c
+--- arch/i386/kernel/traps.c	2001/04/19 20:02:45	1.1.1.2
++++ arch/i386/kernel/traps.c	2001/05/03 08:46:37
+@@ -357,16 +350,13 @@
+ 
+ static void io_check_error(unsigned char reason, struct pt_regs * regs)
+ {
+-	unsigned long i;
+-
+ 	printk("NMI: IOCK error (debug interrupt?)\n");
+ 	show_registers(regs);
+ 
+ 	/* Re-enable the IOCK line, wait for a few seconds */
+ 	reason = (reason & 0xf) | 8;
+ 	outb(reason, 0x61);
+-	i = 2000;
+-	while (--i) udelay(1000);
++	mdelay(2000);
+ 	reason &= ~8;
+ 	outb(reason, 0x61);
+ }

@@ -1,61 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263772AbUE1SWQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263777AbUE1S2d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263772AbUE1SWQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 14:22:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263775AbUE1SWQ
+	id S263777AbUE1S2d (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 14:28:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263775AbUE1S2c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 14:22:16 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:62908 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S263772AbUE1SWO convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 14:22:14 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: CONFIG_IRQBALANCE for AMD64?
-Date: Fri, 28 May 2004 11:20:45 -0700
-Message-ID: <7F740D512C7C1046AB53446D372001730182BB40@scsmsx402.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: CONFIG_IRQBALANCE for AMD64?
-thread-index: AcRE3US5bMPta0HKQhu22/+JNEcD3QAAG6ew
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: "Arjan van de Ven" <arjanv@redhat.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: "Jeff Garzik" <jgarzik@pobox.com>, "Andrew Morton" <akpm@osdl.org>,
-       "Anton Blanchard" <anton@samba.org>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 28 May 2004 18:20:47.0066 (UTC) FILETIME=[7F337BA0:01C444E0]
+	Fri, 28 May 2004 14:28:32 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:28904 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S263777AbUE1S2a
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 14:28:30 -0400
+Subject: Re: [PATCH 2.6] CREDITS file update
+From: Robert Love <rml@ximian.com>
+To: Valdis.Kletnieks@vt.edu
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200405281732.i4SHWGNY010471@turing-police.cc.vt.edu>
+References: <200405281732.i4SHWGNY010471@turing-police.cc.vt.edu>
+Content-Type: multipart/mixed; boundary="=-7jz2N43w03BGS6EyVrw1"
+Date: Fri, 28 May 2004 14:28:29 -0400
+Message-Id: <1085768909.1380.11.camel@betsy>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.8 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: Arjan van de Ven [mailto:arjanv@redhat.com]
->Sent: Friday, May 28, 2004 10:57 AM
->To: Martin J. Bligh
->Cc: Jeff Garzik; Nakajima, Jun; Andrew Morton; Anton Blanchard; linux-
->kernel@vger.kernel.org
->Subject: Re: CONFIG_IRQBALANCE for AMD64?
->
->On Fri, May 28, 2004 at 10:46:18AM -0700, Martin J. Bligh wrote:
->>
->> Personally, I find the argument that it's hardware-specific control
-code
->> a much better reason for it to belong in the kernel.
->
->Is it really hardware specific ??
 
-I think automatic IRQ binding business should belong to the user-level;
-it can use generic statistics, application, or platform configuration
-knowledge.
+--=-7jz2N43w03BGS6EyVrw1
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-The kernel-level should have some simple chipset model, such as lowest
-priority delivery mode with finer granularity of control. The kirqd at
-this point, is doing automatic IRQ binding business as well today,
-although it does not literally bind them. So I think we need to remove
-that part of code from kirqd. 
+On Fri, 2004-05-28 at 13:32 -0400, Valdis.Kletnieks@vt.edu wrote:
 
-Jun
+> Thomas Dunbar used to be working in one of the Dean's offices
+> here.  He's now down the hall from me (and has been for several
+> years, actually).  So let's fix the crufty pointers...
+
+I got another CREDITS patch!
+
+	Robert Love
+
+
+
+--=-7jz2N43w03BGS6EyVrw1
+Content-Disposition: attachment; filename=credits-patch-1.patch
+Content-Type: text/x-patch; name=credits-patch-1.patch; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+
+
+diff -urN linux-2.6.7-mm1/CREDITS linux/CREDITS
+--- linux-2.6.7-mm1/CREDITS	2004-05-09 22:32:54.000000000 -0400
++++ linux/CREDITS	2004-05-28 13:56:18.535983235 -0400
+@@ -1951,9 +1951,9 @@
+ 
+ N: Robert M. Love
+ E: rml@tech9.net
+-E: rml@ufl.edu
++E: rml@novell.com
+ D: misc. kernel hacking and debugging
+-S: Gainesville, Florida 32608
++S: Cambridge, MA 02139
+ S: USA
+ 
+ N: Martin von Löwis
+
+--=-7jz2N43w03BGS6EyVrw1--
 

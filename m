@@ -1,90 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267206AbSLKQRl>; Wed, 11 Dec 2002 11:17:41 -0500
+	id <S267205AbSLKQXL>; Wed, 11 Dec 2002 11:23:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267210AbSLKQRl>; Wed, 11 Dec 2002 11:17:41 -0500
-Received: from ext-nj2gw-3.online-age.net ([216.35.73.165]:5014 "EHLO
-	ext-nj2gw-3.online-age.net") by vger.kernel.org with ESMTP
-	id <S267206AbSLKQRh>; Wed, 11 Dec 2002 11:17:37 -0500
-Message-ID: <A9713061F01AD411B0F700D0B746CA68048955FA@vacho6misge.cho.ge.com>
-From: "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>
-To: "'george anzinger'" <george@mvista.com>, Dan Kegel <dkegel@ixiacom.com>
-Cc: "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>,
+	id <S267211AbSLKQXL>; Wed, 11 Dec 2002 11:23:11 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:36740 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S267205AbSLKQXK> convert rfc822-to-8bit; Wed, 11 Dec 2002 11:23:10 -0500
+Date: Wed, 11 Dec 2002 11:33:00 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
+cc: Herman Oosthuysen <Herman@WirelessNetworksInc.com>,
        linux-kernel@vger.kernel.org
-Subject: RE: [RFC] countdown timer driver
-Date: Wed, 11 Dec 2002 11:25:04 -0500
+Subject: Re: Is this going to be true ?
+In-Reply-To: <yw1xbs3smtx0.fsf@gladiusit.e.kth.se>
+Message-ID: <Pine.LNX.3.95.1021211111221.24200A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2655.55)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 11 Dec 2002, [iso-8859-1] Måns Rullgård wrote:
 
-> > 
-> > > Questions:
-> > > 1. Is there already a standard kernel interface to this 
-> type of timer?
-> > 
-> > The Posix high-res timer stuff, I think.  Have you tried expressing
-> > what you want user programs to do in terms of Posix 
-> high-res timers yet?
-> > 
-> > > 2. Is there any reason to interface/integrate this type 
-> of device with the
-> > >    high-res timer stuff currently under development for 
-> the 2.5 kernel?
-> > 
-> > Yes; perhaps you could create a service provider interface
-> > for the posix high-res timer stuff, then use that SPI
-> > to plug your hardware in?
-> > 
-> > I may be way off base here, but it does seem like it's due 
-> dilligence
-> > to verify that you're not reinventing an interface here.
-> > - Dan
-> > 
-> Let me help out here if I may.  First, not to rain on your
-> parade but, when I did high-res timers on another system,
-> far away and long ago, we dropped support for the hardware
-> timers.  I.e. I would submit that the POSIX timers interface
-> to a common system timer does all you need and more.
-
-I suspect that is most often the case. My task, working for an OEM,
-is to provide access to the available hardware. The customer's decide
-if the hardware is appropriate to their needs, and still many customers
-are demanding access to these devices. I am going to try to do a study
-on whether additional hardware timers are of any benefit given the
-resources available on current standard hardware and the availability of
-the high-res patch, but the additional hardware is probably still going
-to be available because it is needed on others OS's.
-
-> You MAY want to consider using your hardware as the system clock
-> underlying jiffies and all the system timers, but that is
-> another issue.
+> Herman Oosthuysen <Herman@WirelessNetworksInc.com> writes:
 > 
-> You also may want to define a new CLOCK for the POSIX
-> timers.  Most of this capability is in place in the current
-> patch.  I did notice, however, that I took a short cut on
-> the clock_nanosleep code and assumed that it was a standard
-> clock.  This is easy to change...   The new CLOCK(s) would
-> then talk to your hardware.  The problem you will encounter,
-> and which the high-res-patch solves, is making the timers
-> available to all comers, i.e. there is no reservation system
-> or busy counter, etc.  Just a nice set timer and give me a
-> signal when it is done.
+> > MS history shows that they did and does support various flavours of
+> > *nix.  So, it is not beneath them to release apps for Linux too one
+> > day and it would be a good thing if they do.
+> 
+> Why would that be good?  People would start using their programs and
+> blame Linux when they crash.
+
+Well, when the program crashes, you get to run it again under Linux
+and Unix operating systems. Not so with Windows. With Windows, you
+reinstall windows after first booting DOS from a floppy and using
+DEBUG to clear out the partition information, otherwise the new
+Windows installation won't boot. Microsoft "help" desk advises to
+replace the disk when, in fact, the partition information has been
+corrupted by Windows.
+
+> 
+> > Competition is always good. It inpires people to do better.
+> 
+> Doing better than MS isn't much of an inspiration to me.
 > 
 
-Hmmm, that sounds promising.
+Competition isn't always good. There are people in the former
+Soviet Union and in India who will gladly do your job. And, they
+will do it just as well as you, perhaps even better. You get to
+live where you have your own bathroom, but can't afford hot water
+because you don't have a job. The people who now do your job
+never had it so good. They have hot water for the first time in
+their lives.
 
-> You can code a blocking interface using the sigwait and
-> friends calls which will also cut down of the timer delivery
-> overhead by eliminating the signal.
+So, competition simply changes who has hot water.
 
-Very good.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 
-> So what more could you ask for? 
 
-I've already sent Santa my list.
-
-Thanks for the advice.

@@ -1,92 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263024AbUC2SMi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 13:12:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263032AbUC2SMi
+	id S263032AbUC2SQz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 13:16:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263042AbUC2SQz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 13:12:38 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:11511 "EHLO
-	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S263024AbUC2SMf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 13:12:35 -0500
-Date: Mon, 29 Mar 2004 19:12:34 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Rajesh Venkatasubramanian <vrajesh@umich.edu>, <akpm@osdl.org>,
-       <riel@redhat.com>, <mingo@elte.hu>, <linux-kernel@vger.kernel.org>,
-       <linux-mm@kvack.org>
-Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity
-    fix
-In-Reply-To: <20040329172248.GR3808@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0403291843320.18876-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Mon, 29 Mar 2004 13:16:55 -0500
+Received: from law10-f96.law10.hotmail.com ([64.4.15.96]:17424 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S263032AbUC2SQw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 13:16:52 -0500
+X-Originating-IP: [141.156.159.253]
+X-Originating-Email: [jpiszcz@hotmail.com]
+From: "Justin Piszcz" <jpiszcz@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Linux Kernel 2.6.4 - APIC Errors
+Date: Mon, 29 Mar 2004 18:16:51 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <Law10-F962yDX4WeD7800014ce0@hotmail.com>
+X-OriginalArrivalTime: 29 Mar 2004 18:16:52.0116 (UTC) FILETIME=[025FF540:01C415BA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Mar 2004, Andrea Arcangeli wrote:
-> 
-> Here a further update for xfs:
-> 
-> --- sles/fs/xfs/linux/xfs_vnode.h.~1~	2004-03-29 18:33:20.047028592 +0200
-> +++ sles/fs/xfs/linux/xfs_vnode.h	2004-03-29 19:02:37.101915648 +0200
-> @@ -601,8 +601,8 @@ static __inline__ void vn_flagclr(struct
->   * Some useful predicates.
->   */
->  #define VN_MAPPED(vp)	\
-> -	(!list_empty(&(LINVFS_GET_IP(vp)->i_mapping->i_mmap)) || \
-> -	(!list_empty(&(LINVFS_GET_IP(vp)->i_mapping->i_mmap_shared))))
-> +	(!prio_tree_empty(&(LINVFS_GET_IP(vp)->i_mapping->i_mmap)) || \
-> +	(!prio_tree_empty(&(LINVFS_GET_IP(vp)->i_mapping->i_mmap_shared))))
->  #define VN_CACHED(vp)	(LINVFS_GET_IP(vp)->i_mapping->nrpages)
->  #define VN_DIRTY(vp)	mapping_tagged(LINVFS_GET_IP(vp)->i_mapping, \
->  					PAGECACHE_TAG_DIRTY)
+Does anyone know what would cause these APIC errors?
 
-Needs also to check
-	!list_empty(&(LINVFS_GET_IP(vp)->i_mapping->i_mmap_nonlinear))
+# dmesg
+APIC error on CPU0: 40(40)
+APIC error on CPU0: 40(40)
+APIC error on CPU0: 40(40)
 
-Various arches need a similar conversion too (and use page_mapping(page)
-rather than page->mapping: see arch and include/asm in my anobjrmap 3/6).
+Linux l1 2.6.4 #1 Thu Mar 18 10:11:29 EST 2004 i686 unknown unknown 
+GNU/Linux
+processor	: 0
+vendor_id	: GenuineIntel
+cpu family	: 15
+model		: 2
+model name	: Intel(R) Pentium(R) 4 CPU 2.53GHz
+stepping	: 7
+cpu MHz		: 2546.123
+cache size	: 512 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 2
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat 
+pse36
+clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid
+bogomips	: 5029.88
 
-Those arches which do more than test list_empty (now prio_tree_empty),
-arm and parisc (I think that's all): look as if they can take full
-advantage of the prio tree; and I hope we can ignore the nonlinears
-in those cases - if a page is mapped in a nonlinear vma it may suffer
-from  D-cache aliasing inconsistencies if also mapped elsewhere in
-that user address space, never mind.  Is that reasonable?
+00:00.0 Host bridge: Silicon Integrated Systems [SiS]: Unknown device 0655
+00:01.0 PCI bridge: Silicon Integrated Systems [SiS] SiS 530 Virtual 
+PCI-to-PCI
+bridge (AGP)
+00:02.0 ISA bridge: Silicon Integrated Systems [SiS]: Unknown device 0963 
+(rev
+04)
+00:02.1 SMBus: Silicon Integrated Systems [SiS]: Unknown device 0016
+00:02.5 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE]
+00:07.0 Unknown mass storage controller: Promise Technology, Inc. 20269 (rev 
+02)
+00:08.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 07)
+00:08.1 Input device controller: Creative Labs SB Live! MIDI/Game Port (rev 
+07)
+00:0a.0 SCSI storage controller: LSI Logic / Symbios Logic 53c875 (rev 03)
+00:0f.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5702 Gigabit
+Ethernet (rev 02)
+01:00.0 VGA compatible controller: nVidia Corporation NV28 [GeForce4 Ti 4800 
+SE]
+(rev a1)
 
-> and really some other bigger tree needs this part too (not a mainline
-> issue).
-> 
-> --- sles/fs/xfs/dmapi/dmapi_xfs.c.~1~	2004-03-29 18:33:03.781501328 +0200
-> +++ sles/fs/xfs/dmapi/dmapi_xfs.c	2004-03-29 18:58:57.754261560 +0200
-> @@ -228,17 +228,21 @@ prohibited_mr_events(
->  	struct address_space *mapping = LINVFS_GET_IP(vp)->i_mapping;
->  	int prohibited = (1 << DM_EVENT_READ);
->  	struct vm_area_struct *vma;
-> +	struct prio_tree_iter iter;
->  
->  	if (!VN_MAPPED(vp))
->  		return 0;
->  
->  #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
->  	down(&mapping->i_shared_sem);
-> -	list_for_each_entry(vma, &mapping->i_mmap_shared, shared) {
-> +	vma = __vma_prio_tree_first(&mapping->i_mmap_shared, &iter, 0, ULONG_MAX);
-> +	while (vma) {
->  		if (!(vma->vm_flags & VM_DENYWRITE)) {
->  			prohibited |= (1 << DM_EVENT_WRITE);
->  			break;
->  		}
-> +
-> +		vma = __vma_prio_tree_next(vma, &mapping->i_mmap_shared, &iter, 0, ULONG_MAX);
->  	}
->  	up(&mapping->i_shared_sem);
->  #else
-
-This looks horrid (not your change, the original), and would need to look
-at nonlinears too; but I thought this was what i_writecount < 0 is for?
-
-Hugh
+_________________________________________________________________
+Free up your inbox with MSN Hotmail Extra Storage. Multiple plans available. 
+http://join.msn.com/?pgmarket=en-us&page=hotmail/es2&ST=1/go/onm00200362ave/direct/01/
 

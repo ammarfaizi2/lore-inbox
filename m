@@ -1,38 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263298AbRFMSzR>; Wed, 13 Jun 2001 14:55:17 -0400
+	id <S263341AbRFMTFR>; Wed, 13 Jun 2001 15:05:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263341AbRFMSzH>; Wed, 13 Jun 2001 14:55:07 -0400
-Received: from port29.ds1-rdo.adsl.cybercity.dk ([212.242.196.94]:61543 "HELO
-	xyzzy.adsl.dk") by vger.kernel.org with SMTP id <S263298AbRFMSyv>;
-	Wed, 13 Jun 2001 14:54:51 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: Has it been done: User Script File System?
-In-Reply-To: <3B27A546.A64F8B00@lycosmail.com>
-X-Home-Page: http://peter.makholm.net/
-Xyzzy: Nothing happens!
-From: Peter Makholm <peter@makholm.net>
-Date: 13 Jun 2001 20:54:40 +0200
-In-Reply-To: <3B27A546.A64F8B00@lycosmail.com> (russl@lycosmail.com's message of "Wed, 13 Jun 2001 17:40:30 +0000 (UTC)")
-Message-ID: <878ziwtdlb.fsf@xyzzy.adsl.dk>
-User-Agent: Gnus/5.090001 (Oort Gnus v0.01) Emacs/20.7
+	id <S263943AbRFMTFI>; Wed, 13 Jun 2001 15:05:08 -0400
+Received: from [32.97.182.103] ([32.97.182.103]:24988 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S263341AbRFMTEv>;
+	Wed, 13 Jun 2001 15:04:51 -0400
+Importance: Normal
+Subject: Re: threading question
+To: bert hubert <ahu@ds9a.nl>
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OF8B8E165A.F0F1217D-ON85256A6A.0068B1CA@pok.ibm.com>
+From: "Hubertus Franke" <frankeh@us.ibm.com>
+Date: Wed, 13 Jun 2001 15:05:49 -0400
+X-MIMETrack: Serialize by Router on D01ML244/01/M/IBM(Release 5.0.7 |March 21, 2001) at
+ 06/13/2001 03:04:14 PM
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-russl@lycosmail.com (Russ Lewis) writes:
 
-> Is there any filesystem in Linux that uses user scripts/executables to
-> implement the various function calls?  What I'm thinking of is something
 
-It has been done before.
+>I got that response too. When I pressed kernel people for details it turns
+>out that they think having hundreds of runnable threads/processes (mostly
+>the same thing under Linux) is wasteful. The scheduler is just not
+optimised
+>for that.
 
-http://www.ibiblio.org/pub/Linux/ALPHA/userfs/userfs.lsm describes a
-patch/kernel module for kernel 1.2.10, 1.3.13 and 2.0.30.
+Try out the http://lse.sourceforge.net/scheduling  patches. The MQ kernel
+scheduler sure can handle this
+kind of load :-)
 
-I vaguely remember that some more resen suggestion was to implement it
-with the some usper-space nfs-deamon.
+Hubertus Franke
+Enterprise Linux Group (Mgr),  Linux Technology Center (Member Scalability)
+, OS-PIC (Chair)
+email: frankeh@us.ibm.com
+(w) 914-945-2003    (fax) 914-945-4425   TL: 862-2003
 
--- 
-hash-bang-slash-bin-slash-bash
+
+
+bert hubert <ahu@ds9a.nl>@vger.kernel.org on 06/13/2001 01:31:39 PM
+
+Sent by:  linux-kernel-owner@vger.kernel.org
+
+
+To:   linux-kernel@vger.kernel.org
+cc:
+Subject:  Re: threading question
+
+
+
+On Tue, Jun 12, 2001 at 12:06:40PM -0700, Kip Macy wrote:
+> This may sound like flamebait, but its not. Linux threads are basically
+> just processes that share the same address space. Their performance is
+> measurably worse than it is on most commercial Unixes and FreeBSD.
+
+Thread creation may be a bit slow. But the kludges to provide posix threads
+completely from userspace also hurt. Notably, they do not scale over
+multiple CPUs.
+
+> They are not, or at least two years ago, were not POSIX compliant
+> (they behaved badly with respect to signals). The impoverished
+
+POSIX threads are silly with respect to signals. I do almost all my
+programming these days with pthreads and I find that I really do not miss
+signals at all.
+
+> from Larry McVoy's home page attributed to Alan Cox illustrates this
+> reasonably well: "A computer is a state machine. Threads are for people
+> who can't program state machines." Sorry for not being more helpful.
+
+I got that response too. When I pressed kernel people for details it turns
+out that they think having hundreds of runnable threads/processes (mostly
+the same thing under Linux) is wasteful. The scheduler is just not
+optimised
+for that.
+
+Regards,
+
+bert
+
+--
+http://www.PowerDNS.com      Versatile DNS Services
+Trilab                       The Technology People
+'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
+

@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264097AbTFYIGq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 04:06:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264151AbTFYIGq
+	id S264203AbTFYIaU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 04:30:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264219AbTFYIaU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 04:06:46 -0400
-Received: from abicko.abclinuxu.cz ([80.95.102.12]:52617 "HELO
-	abicko.abclinuxu.cz") by vger.kernel.org with SMTP id S264097AbTFYIGp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 04:06:45 -0400
-Date: Wed, 25 Jun 2003 10:20:53 +0200 (CEST)
-From: Semler Michal <cijoml@abclinuxu.cz>
-To: linux-kernel@vger.kernel.org
-Subject: hda: dma_timer_expiry: dma status == 0x24
-Message-ID: <Pine.LNX.4.44.0306251015520.6524-100000@ABicko.abclinuxu.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 25 Jun 2003 04:30:20 -0400
+Received: from mail019.syd.optusnet.com.au ([210.49.20.160]:50860 "EHLO
+	mail019.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S264203AbTFYIaS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 04:30:18 -0400
+Date: Wed, 25 Jun 2003 18:43:09 +1000
+To: trivial@rustcorp.com.au
+Cc: linux-kernel@vger.kernel.org
+Subject: [trivial 2.5] kconfig language doc r.e. --help--
+Message-ID: <20030625084309.GA9295@cancer>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
+From: Stewart Smith <stewart@linux.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-after running 2.4.21 I getts into dmesg one time per day
-this message:
+How does this read? hopefully it makes sense :)
 
-hda: dma_timer_expiry: dma status == 0x24
-hda: lost interrupt
-hda: dma_intr: bad DMA status (dma_stat=30)
-hda: dma_intr: status=0x50 { DriveReady SeekComplete }
-
-this never  did before. I tried revert to 2.4.20
-and it's clean?
-
-hda: ST360021A, ATA DISK drive
-hda: attached ide-disk driver.
-hda: host protected area => 1
-hda: 117231408 sectors (60022 MB) w/2048KiB Cache, CHS=116301/16/63,
-UDMA(100)
-
-Partition check:
- hda: hda1 hda2 hda3
+--- linux-2.5.73/Documentation/kbuild/kconfig-language.txt	2003-06-15 17:47:18.000000000 +1000
++++ linux-2.5.73-stew1/Documentation/kbuild/kconfig-language.txt	2003-06-25 18:38:49.000000000 +1000
+@@ -109,6 +109,8 @@
+   This defines a help text. The end of the help text is determined by
+   the indentation level, this means it ends at the first line which has
+   a smaller indentation than the first line of the help text.
++  You may also use dashes around the word help to assist in the visual
++  separation of help from configuration. e.g. '--help--' or '---help---'.
++  These dashes have no effect on functionality, they are purely decorative.
+ 
+ Menu dependencies
 
 
-Thanks
-CIJOML
-
+-- 
+Stewart Smith
+Vice President, Linux Australia
+http://www.linux.org.au (personal: http://www.flamingspork.com)

@@ -1,73 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265766AbSJTEpn>; Sun, 20 Oct 2002 00:45:43 -0400
+	id <S265767AbSJTFC7>; Sun, 20 Oct 2002 01:02:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265767AbSJTEpn>; Sun, 20 Oct 2002 00:45:43 -0400
-Received: from codepoet.org ([166.70.99.138]:40065 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S265766AbSJTEpm>;
-	Sun, 20 Oct 2002 00:45:42 -0400
-Date: Sat, 19 Oct 2002 22:51:49 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Matthew Wilcox <willy@debian.org>
-Cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] work around duff ABIs
-Message-ID: <20021020045149.GA27887@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Matthew Wilcox <willy@debian.org>,
-	Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-References: <20021020053147.C5285@parcelfarce.linux.theplanet.co.uk>
+	id <S265770AbSJTFC7>; Sun, 20 Oct 2002 01:02:59 -0400
+Received: from orion.netbank.com.br ([200.203.199.90]:51466 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id <S265767AbSJTFC4>; Sun, 20 Oct 2002 01:02:56 -0400
+Date: Sun, 20 Oct 2002 02:08:49 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ipv4: only produce one record in fib_seq_show
+Message-ID: <20021020050849.GD15254@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+References: <20021020000943.GL14009@conectiva.com.br> <20021019.173806.111570656.davem@redhat.com> <20021020010331.GB15254@conectiva.com.br> <20021019.211307.00017347.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021020053147.C5285@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux 2.4.19-rmk2, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+In-Reply-To: <20021019.211307.00017347.davem@redhat.com>
+User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun Oct 20, 2002 at 05:31:47AM +0100, Matthew Wilcox wrote:
-> 
-> *sigh*.  i hate this kind of bullshit.  please, don't anyone ever try
-> to pass 64-bit args through the syscall interface again.
+Em Sat, Oct 19, 2002 at 09:13:07PM -0700, David S. Miller escreveu:
+>    From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+>    Date: Sat, 19 Oct 2002 22:03:31 -0300
+    
+>    We'll, if everybody stopped using net-tools and started using iproute2 the
+>    world would be a better place
 
-I agree it can be a pain.
+> 'iproute2' would need to be able to obtain things, such as
+> the snmp statistics, some other way.  Currently /proc/net/snmp
+> is the only place these values are provided.
 
-[-----------snip-------------]
-> -asmlinkage ssize_t sys_pread64(unsigned int fd, char *buf,
-> -			     size_t count, loff_t pos)
-> +#ifdef __BIG_ENDIAN
-> +asmlinkage ssize_t sys_pread64(unsigned int fd, char *buf, size_t count,
-> +				unsigned int high, unsigned int low)
-> +#else
-> +asmlinkage ssize_t sys_pread64(unsigned int fd, char *buf, size_t count,
-> +				unsigned int low, unsigned int high)
-> +#endif
+> Ditto for UDP socket listings et al.  Only tcp_diag has moved
+> the TCP socket information into the non-proc realm of netlink.
 
-Nonono.  Please see __LONG_LONG_PAIR in /usr/include/endian.h.
-Your user space code should be doing something like this:
+> If these facilities existed already, I'd agree with you.
+> :-)
 
-    static inline _syscall5(ssize_t, __syscall_pread, int, fd, void *, buf,
-	    size_t, count, off_t, offset_hi, off_t, offset_lo);
+Hey, but those can be converted, can't they? I for one would be willing to
+spend the time and study this to implement it. Indeed I'll do that, unless you
+object, of course.
 
-    ssize_t __libc_pread(int fd, void *buf, size_t count, off_t offset)
-    {
-	return(__syscall_pread(fd,buf,count,__LONG_LONG_PAIR((off_t)0,offset)));
-    }
+And take a look at this:
 
-    ssize_t __libc_pread64(int fd, void *buf, size_t count, off64_t offset)
-    {
-	return(__syscall_pread(fd, buf, count,
-		    __LONG_LONG_PAIR((off_t)(offset>>32),
-		    (off_t)(offset&0xffffffff))));
-    }
+CONFIG_PROC_FS=y
+[acme@oops net-2.5]$ l net/ipv4/built-in.o
+-rw-rw-r--    1 acme     acme       328783 Out 20 01:44 net/ipv4/built-in.o
 
-Your patch is going to break GNU libc, uClibc, and anyone else in
-userspace that is doing pread and pread64 correctly....
+CONFIG_PROC_FS=n
+[acme@oops net-2.5]$ l net/ipv4/built-in.o
+-rw-rw-r--    1 acme     acme       320708 Out 20 02:03 net/ipv4/built-in.o
 
- -Erik
+Both with CONFIG_SMP, CONFIG_NR_CPUS=2, so almos whooping 2 pages! Almost
+one third of what CONFIG_SECURITY would add! ia32! Imagine on Sparc64! 8-P
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+- Arnaldo

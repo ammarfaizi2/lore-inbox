@@ -1,49 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132842AbRDIUcX>; Mon, 9 Apr 2001 16:32:23 -0400
+	id <S132844AbRDIUqq>; Mon, 9 Apr 2001 16:46:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132841AbRDIUcO>; Mon, 9 Apr 2001 16:32:14 -0400
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:65028 "EHLO
-	bug.ucw.cz") by vger.kernel.org with ESMTP id <S132840AbRDIUcD>;
-	Mon, 9 Apr 2001 16:32:03 -0400
-Date: Sat, 7 Apr 2001 21:29:32 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Dawson Engler <engler@csl.Stanford.EDU>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [CHECKER] __init functions called by non-__init
-Message-ID: <20010407212932.A34@(none)>
-In-Reply-To: <200104050649.XAA22384@csl.Stanford.EDU>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <200104050649.XAA22384@csl.Stanford.EDU>; from engler@csl.Stanford.EDU on Wed, Apr 04, 2001 at 11:49:48PM -0700
+	id <S132845AbRDIUqh>; Mon, 9 Apr 2001 16:46:37 -0400
+Received: from iris.mc.com ([192.233.16.119]:25320 "EHLO mc.com")
+	by vger.kernel.org with ESMTP id <S132844AbRDIUqY>;
+	Mon, 9 Apr 2001 16:46:24 -0400
+From: Mark Salisbury <mbs@mc.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, mbs@mc.com (Mark Salisbury)
+Subject: Re: No 100 HZ timer !
+Date: Mon, 9 Apr 2001 16:32:25 -0400
+X-Mailer: KMail [version 1.0.29]
+Content-Type: text/plain; charset=US-ASCII
+Cc: jdike@karaya.com (Jeff Dike), schwidefsky@de.ibm.com,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <E14mi1M-0002pU-00@the-village.bc.nu>
+In-Reply-To: <E14mi1M-0002pU-00@the-village.bc.nu>
+MIME-Version: 1.0
+Message-Id: <01040916383615.01893@pc-eng24.mc.com>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> 	1. The best case: an init function calls a non-init, which in
-> 	turn calls an init:
+On Mon, 09 Apr 2001, Alan Cox wrote:
+> > this is one of linux biggest weaknesses.  the fixed interval timer is a
+> > throwback.  it should be replaced with a variable interval timer with interrupts
+> > on demand for any system with a cpu sane/modern enough to have an on-chip
+> > interrupting decrementer.  (i.e just about any modern chip)
 > 
-> 		void __init probe() { a(); }
-> 		void a() { b(); }
-> 		void __init b() { ... }
+> Its worth doing even on the ancient x86 boards with the PIT. It does require
+> some driver changes since
+> 
+> 
+> 	while(time_before(jiffies, we_explode))
+> 		poll_things();
+> 
+> no longer works
+> 
 
-> 	in this case, is the missing __init on 'a' only a performance
-> 	bug in that a's code won't be freed up?
+It would be great if this could be one of the 2.5 goals/projects.
 
-...not neccesarily an error. If a() is being used to do stuff needed at
-runtime, and only calls b() at initialzation.
+it would make all sorts of fun and useful timed event services easier to
+implement and provide (potentially) microsecond resolution as opposed to the
+current 10Ms.
 
-> On the other hand, if I understood the rules right, this next one looks like
-> a more exciting error, since an __exit routine is calling an __init routine:
+plus, we would only get one "sysclock" timer interrupt per process quantum
+instead of 10.
 
-Actually, it is right for subtle reasons:
 
-__exit is only used in module case. And in module case __init functions are
-not freed.
-								Pavel
+
 -- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+/*------------------------------------------------**
+**   Mark Salisbury | Mercury Computer Systems    **
+**   mbs@mc.com     | System OS - Kernel Team     **
+**------------------------------------------------**
+**  I will be riding in the Multiple Sclerosis    **
+**  Great Mass Getaway, a 150 mile bike ride from **
+**  Boston to Provincetown.  Last year I raised   **
+**  over $1200.  This year I would like to beat   **
+**  that.  If you would like to contribute,       **
+**  please contact me.                            **
+**------------------------------------------------*/
 

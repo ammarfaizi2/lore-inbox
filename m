@@ -1,24 +1,24 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316626AbSE0OUA>; Mon, 27 May 2002 10:20:00 -0400
+	id <S316631AbSE0OXI>; Mon, 27 May 2002 10:23:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316625AbSE0OT7>; Mon, 27 May 2002 10:19:59 -0400
-Received: from mailrelay1.inwind.it ([212.141.54.101]:33771 "EHLO
+	id <S316630AbSE0OXH>; Mon, 27 May 2002 10:23:07 -0400
+Received: from mailrelay1.inwind.it ([212.141.54.101]:65516 "EHLO
 	mailrelay1.inwind.it") by vger.kernel.org with ESMTP
-	id <S316624AbSE0OT6>; Mon, 27 May 2002 10:19:58 -0400
+	id <S316627AbSE0OXG>; Mon, 27 May 2002 10:23:06 -0400
 Content-Type: text/plain; charset=US-ASCII
 From: d_vangreg <d.vangreg@inwind.it>
 To: linux-kernel@vger.kernel.org
-Subject: CompilationBugs_kernel-2.2.5
-Date: Mon, 27 May 2002 16:29:19 +0200
+Subject: COMPILATION-BUGS_KERNEL-2.5.18
+Date: Mon, 27 May 2002 16:32:42 +0200
 X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <20020527141958Z316624-22651+61951@vger.kernel.org>
+Message-Id: <20020527142306Z316627-22651+61956@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-BEGIN-COMPILATION-BUG-REPORT for kernel version 2.5.15
+BEGIN-COMPILATION-BUG-REPORT for kernel version 2.5.18
 
 ver_linux:
 
@@ -49,7 +49,6 @@ COMPILATION-BUG-1, encountered while executing:  'make bzImage'
 -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
 -march=athlon    -DKBUILD_BASENAME=dev  -c -o dev.o dev.c
-
 dev.c: In function `netif_receive_skb':
 dev.c:1465: void value not ignored as it ought to be
 dev.c:1465:    ret = handle_diverter(skb); 
@@ -83,7 +82,6 @@ make[2]: Entering directory `/usr/src/linux-2.5.18/drivers/ide'
 -march=athlon  -DMODULE -DMODVERSIONS -include 
 /usr/src/linux-2.5.18/include/linux/modversions.h   
 -DKBUILD_BASENAME=ide_tape  -c -o ide-tape.o ide-tape.c
-
 ide-tape.c: In function `__idetape_kmalloc_stage':
 ide-tape.c:2810: `BH_Lock' undeclared (first use in this function)
 ide-tape.c:2810: (Each undeclared identifier is reported only once
@@ -115,7 +113,6 @@ COMPILATION-BUG-3 encountered while executing:  'make modules'
 -march=athlon  -DMODULE -DMODVERSIONS -include 
 /usr/src/linux-2.5.18/include/linux/modversions.h   
 -DKBUILD_BASENAME=usbvideo -DEXPORT_SYMTAB -c -o usbvideo.o usbvideo.c
-
 usbvideo.c: In function `usbvideo_StartDataPump':
 usbvideo.c:1906: structure has no member named `next'
 usbvideo.c:1908: structure has no member named `next'
@@ -146,7 +143,6 @@ COMPILATION-BUG-4 encountered while executing:  'make modules'
 -march=athlon  -DMODULE -DMODVERSIONS -include 
 /usr/src/linux-2.5.18/include/linux/modversions.h   -DKBUILD_BASENAME=ov511 
 -DEXPORT_SYMTAB -c -o ov511.o ov511.c
-
 ov511.c: In function `ov51x_init_isoc':
 ov511.c:3978: structure has no member named `next'
 ov511.c:3980: structure has no member named `next'
@@ -176,7 +172,6 @@ COMPILATION-BUG-5 encountered while executing:  'make modules'
 -march=athlon  -DMODULE -DMODVERSIONS -include 
 /usr/src/linux-2.5.18/include/linux/modversions.h   -DKBUILD_BASENAME=pwc_if  
 -c -o pwc-if.o pwc-if.c
-
 pwc-if.c: In function `pwc_isoc_init':
 pwc-if.c:818: structure has no member named `next'
 pwc-if.c: In function `pwc_isoc_cleanup':
@@ -198,7 +193,7 @@ pwc-if.c:818: warning: assignment from incompatible pointer type
 
 #################
 
-END-COMPILATION-BUG-REPORT
+END-COMPILATION-BUG-REPORT_Kernel-2.5.18
 
 sender:   d.vangreg@inwind.it
 

@@ -1,87 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267511AbUI1CpL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267515AbUI1DNZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267511AbUI1CpL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 22:45:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267466AbUI1CpL
+	id S267515AbUI1DNZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 23:13:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267517AbUI1DNZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 22:45:11 -0400
-Received: from sa2.bezeqint.net ([192.115.104.16]:21202 "EHLO sa2.bezeqint.net")
-	by vger.kernel.org with ESMTP id S267511AbUI1CpB (ORCPT
+	Mon, 27 Sep 2004 23:13:25 -0400
+Received: from rproxy.gmail.com ([64.233.170.195]:31560 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S267515AbUI1DNU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 22:45:01 -0400
-Date: Tue, 28 Sep 2004 05:46:22 +0200
-From: Micha Feigin <michf@post.tau.ac.il>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.9-rc2-mm4 + alps locks input in X (alps not identifying correctly)
-Message-ID: <20040928034622.GA3158@luna.mooo.com>
-Mail-Followup-To: Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20040927192744.GA8947@luna.mooo.com> <200409271604.33993.joakley@solutioninc.com> <m3wtyf792x.fsf@telia.com>
+	Mon, 27 Sep 2004 23:13:20 -0400
+Message-ID: <da99aff004092720138ba398a@mail.gmail.com>
+Date: Mon, 27 Sep 2004 23:13:20 -0400
+From: Madhu Bandireddy <mbandireddy@gmail.com>
+Reply-To: Madhu Bandireddy <mbandireddy@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Help: Connection drops with kernel 2.4.21-15 over Broadcom NetXtreme BCM5703 gigabit cards
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m3wtyf792x.fsf@telia.com>
-User-Agent: Mutt/1.5.6+20040818i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 27, 2004 at 10:25:42PM +0200, Peter Osterlund wrote:
-> James Oakley <joakley@solutioninc.com> writes:
-> 
-> > On Monday 27 September 2004 4:27 pm, Micha Feigin wrote:
-> > > I tried both with mm4 with the already included alps patch and with
-> > > bk11 and bk13 with the patch manually applied. In both cases when
-> > > starting X with the alps driver input is completely dead in X, both
-> > > mouse and keyboard, including sysrq keys and num-lock/caps-lock.
-> > 
-> > I had this problem when I accidentally used the event device for my keyboard 
-> > instead of the touchpad. It didn't help that every alps XF86Config example 
-> > out there points to event1, which is my keyboard.
-> > 
+We are seeing a large number of connection drops on our SAP
+application servers with the following config:
 
-Thanks that solved the problem, no more lockups.
+Linux: Redhat Enterprise 3.0
+Kernel: 2.4.21-15
+HW: Dell 2650 with Broadcom NetXtreme BCM5703 gigabit ethernet card
+CPU: 2x 2.8GHz
+Memory: 12GB
+Ethernet driver: Tigon 3.0
 
-> > cat /proc/bus/input/devices to see which event device to use.
-> 
-> Or better yet, use the auto-dev feature, which should work if you have
-> a new enough X driver and kernel patch.
-> 
+We could not find any errors on the interface itself. We are seeing
+most of these connections drops from sites which are connected to our
+data center over site-to-site VPN connections with high latencies.
+In addition to the Linux servers in our SAP application server set we
+also have 2 HP PA-RISC servers running HPUX 11.0 server. We do not see
+any such connection drop problems on the HPUX servers. This makes us
+believe that the problem is more related to the Linux environment.
+Another thing to note is that these connection drops seem to occur
+when there a large number of connections (about 500 or so) to each
+server.
 
-auto-dev doesn't work for me and I don't have time to check it
-out. While poking around I did find another problem though.
+SAP seems to think this an OS problem. We do not see any error
+messages in any of the system logs or on the ethernet interfaces. The
+network itself does not show any errors.
 
-There is also a kernel problem, to summarize, the touchpad is
-identifying itself differently then with previous kernels and thus
-isn't recognized at all by the kernel.
+Here is the output of netstat -s:
+lnas4 Fri Sep 24 11:11:07 CDT 2004
+Tcp:
+   27157 active connections openings
+   37507 passive connection openings
+   4 failed connection attempts
+   318 connection resets received
+   209 connections established
+   70267903 segments received
+   64033785 segments send out
+   49041 segments retransmited
+   395 bad segments received.
+   3269 resets sent
+TcpExt:
+   3 packets pruned from receive queue because of socket buffer overrun
+   16 ICMP packets dropped because socket was locked
+   ArpFilter: 0
+   31311 TCP sockets finished time wait in fast timer
+   920380 delayed acks sent
+   206 delayed acks further delayed because of locked socket
+   Quick ack mode was activated 19329 times
+   64619380 packets directly queued to recvmsg prequeue.
+   337477000 packets directly received from backlog
+   1199298288 packets directly received from prequeue
+   48 packets dropped from prequeue
+   1503618 packets header predicted
+   64689963 packets header predicted and directly queued to user
+   TCPPureAcks: 740615
+   TCPHPAcks: 48292250
+   TCPRenoRecovery: 0
+   TCPSackRecovery: 675
+   TCPSACKReneging: 0
+   TCPFACKReorder: 5
+   TCPSACKReorder: 2
+   TCPRenoReorder: 0
+   TCPTSReorder: 0
+   TCPFullUndo: 0
+   TCPPartialUndo: 0
+   TCPDSACKUndo: 0
+   TCPLossUndo: 5
+   TCPLoss: 641
+   TCPLostRetransmit: 0
+   TCPRenoFailures: 0
+   TCPSackFailures: 2879
+   TCPLossFailures: 281
+   TCPFastRetrans: 804
+   TCPForwardRetrans: 11
+   TCPSlowStartRetrans: 30896
+   TCPTimeouts: 5143
+   TCPRenoRecoveryFail: 0
+   TCPSackRecoveryFail: 174
+   TCPSchedulerFailed: 1
+   TCPRcvCollapsed: 146
+   TCPDSACKOldSent: 3987
+   TCPDSACKOfoSent: 203
+   TCPDSACKRecv: 39
+   TCPDSACKOfoRecv: 0
+   TCPAbortOnSyn: 0
+   TCPAbortOnData: 10
+   TCPAbortOnClose: 1
+   TCPAbortOnMemory: 0
+   TCPAbortOnTimeout: 222
+   TCPAbortOnLinger: 0
+   TCPAbortFailed: 0
+   TCPMemoryPressures: 0
 
-I don't know how much effect it actually has since some initialization
-is also done through X.
+Since the problem seems to be with connections over site-to-site VPN
+and are generally more pronounced during periods of high loads. I
+believe this is more a tuning issue or a bug.
 
-The main problem I found:
+Any help in resolving this problem is greatly appreciated.
 
-Under 2.6.9-rc2-mm4 in alps.c under function alps_get_model, for the
-call to ps2_command with PSMOUSE_CMD_GETINFO (the E6 report output) the
-output is 00 00 14 instead of 00 00 64 like it was before and what is
-expected, so the touchpad isn't recognized at all as an alps. (I can't
-figure out whats causing the difference or how the return value is
-received at all, and I don't have any more time to dig further into it).
-
-Second problem is that hardware tapping is disabled by default
-(I found no way to enable it externally) which in my case causes most
-taps to be interpreted as double clicks instead of single clicks.
-
-After fixing both things and X to use the right device things finally
-work again.
-
-> -- 
-> Peter Osterlund - petero2@telia.com
-> http://w1.894.telia.com/~u89404340
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->  
->  +++++++++++++++++++++++++++++++++++++++++++
->  This Mail Was Scanned By Mail-seCure System
->  at the Tel-Aviv University CC.
-> 
+Thanks
+Madhu

@@ -1,64 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261312AbVARP3r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261316AbVARPap@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261312AbVARP3r (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 10:29:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261316AbVARP3r
+	id S261316AbVARPap (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 10:30:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbVARPao
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 10:29:47 -0500
-Received: from piggy.rz.tu-ilmenau.de ([141.24.4.8]:7303 "EHLO
-	piggy.rz.tu-ilmenau.de") by vger.kernel.org with ESMTP
-	id S261312AbVARP3p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 10:29:45 -0500
-Date: Tue, 18 Jan 2005 16:29:42 +0100
-From: Mario Holbe <Mario.Holbe@TU-Ilmenau.DE>
-To: "Piszcz, Justin Michael" <justin.piszcz@mitretek.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4: "access beyond end of device" after ext2 mount
-Message-ID: <20050118152942.GK2839@darkside.22.kls.lan>
-Mail-Followup-To: Mario Holbe <Mario.Holbe@TU-Ilmenau.DE>,
-	"Piszcz, Justin Michael" <justin.piszcz@mitretek.org>,
-	linux-kernel@vger.kernel.org
-References: <2E314DE03538984BA5634F12115B3A4E01BC42B3@email1.mitretek.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2E314DE03538984BA5634F12115B3A4E01BC42B3@email1.mitretek.org>
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 18 Jan 2005 10:30:44 -0500
+Received: from [193.120.144.98] ([193.120.144.98]:53209 "EHLO europlex.ie")
+	by vger.kernel.org with ESMTP id S261316AbVARPa0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 10:30:26 -0500
+Message-ID: <41ED2DAC.5030209@eircom.net>
+Date: Tue, 18 Jan 2005 15:39:24 +0000
+From: "Bryan O'Donoghue" <typedef@eircom.net>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: ppc32 2.6.x builds for ppc m8xx arch.
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 18 Jan 2005 15:34:28.0890 (UTC) FILETIME=[32D1E7A0:01C4FD73]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 18, 2005 at 09:24:03AM -0500, Piszcz, Justin Michael wrote:
-> Is the problem with the drive on the promise board or the drive on the
-> VIA chipset?
+Greetings list.
 
-The problem is with each drive on each controller. The problem is even
-with no drive on no controller - as I've shown to you with my loop
-example, because it does have exactly nothing to do with drives or
-controllers at all but just with block devices and their block size.
+I'm curious about something which looks like an error in the mpc8xx 
+build of the latest 2.6.11-rc1 kernel.
 
-> the same problem you are having, the motherboard did not support drives
-> over 32GB or it was because I had the 32GB clip (pins on the back of the
-
-I'm quite sure my board supports drives bigger than 32G and also drives
-biggern than 128G.
-
-> hard drive) shorted.  Did you check your HDD manual to see if you have
-> the 32GB clip enabled?  If so, you need to disable this.
-
-And I'm horribly sure, that I don't have 32GB clipping enabled on
-my 40, 80 or 160G drives :)
-
-However - it has nothing to do with drives at all. Just with block
-devices and block sizes. It's no physical problem but a logical one
-and you can reproduce it on any drive you like just by creating
-partitions big enough to force mke2fs to allocate (2048|4096) blocks
-(or by creating small ones and force mke2fs manually) and with an
-absolute size being a multiple of 1024 but none of (2048|4096).
+Firstly, I have a 2.4.28-rc1 which builds just fine for this arch, 
+however from an almost totally similar kernel config as was used in the 
+2.4, and with the same compiler, the 2.6 build gives a (bad insturction 
+?) error when attempting to execute the resulting zImage.elf from a 2.6 
+build.
 
 
-Mario
--- 
-<jv> Oh well, config
-<jv> one actually wonders what force in the universe is holding it
-<jv> and makes it working
-<Beeth> chances and accidents :)
+
+Looking at the difference between the 2.4 and the 2.6 build arguments.
+
+powerpc-linux-gcc -D__KERNEL__ 
+-I/home/kernels/2.4.28-pre/vanilla/linux-2.4.28-rc3/include -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
+-fomit-frame-pointer 
+-I/home/kernels/2.4.28-pre/vanilla/linux-2.4.28-rc3/arch/ppc 
+-fsigned-char -msoft-float -pipe -ffixed-r2 -Wno-uninitialized 
+-mmultiple -mstring -mcpu=860 -nostdinc -iwithprefix include 
+-DKBUILD_BASENAME=uart -c -o uart.o uart.c
+
+
+powerpc-linux-gcc -m32 -Wp,-MD,scripts/mod/.empty.o.d -nostdinc -isystem 
+/usr/local/powerpc/lib/gcc/powerpc-linux/3.4.2/include -D__KERNEL__ 
+-Iinclude -Iarch/ppc -Wall -Wstrict-prototypes -Wno-trigraphs 
+-fno-strict-aliasing -fno-common -ffreestanding -O2 -fomit-frame-pointer 
+-Iarch/ppc -msoft-float -pipe -ffixed-r2 -mmultiple -mstring 
+-Wdeclaration-after-statement -DKBUILD_BASENAME=empty 
+-DKBUILD_MODNAME=empty -c -o scripts/mod/.tmp_empty.o scripts/mod/empty.c
+scripts/mod/mk_elfconfig ppc < scripts/mod/empty.o > scripts/mod/elfconfig.h
+
+I notice that for a start -m32 has appeared out of nowhere and 
+furthermore -mcpu=860 has gone away.
+
+Is this actually correct ? I have specified that the arch should be 8xx 
+in menuconfig.
+
+My build command is make ARCH=ppc CROSS_COMPILE=powerpc-linux- V=1
+yet still shouldn't mcpu=860, be present in the 2.6 compile arguments?
+
+It _is_ the case that the 2.4.x in question had some modification 
+initially by the PCB vendor to make Linux talk to specific settings for 
+their hardware, but, I've found these differences between the vanilla 
+2.4.27 and the vendor modified 2.4.27.. and can reliably get 2.4.x 
+booting on this PCB, however 2.6.x won't work.
+
+After applying a 2.6 version of the patches that should be applied to a 
+2.4.x, I get a boot error... what I'd like to be able to do is verify 
+that the above 2.6 compile arguments are _not_ the source of the boot 
+error, so that I can focus on finding the difference between the 2.4 
+build and 2.6 build in terms of necessary patching to make things boot.
+
+So essentially, I'd like to ask the list if the specified compile 
+arguments above are correct for the targetted architecture "mpc860", so 
+that I can rule it out of my boot error, or perhaps fix said compile 
+arguments and send a patch ?
+
+root@bimbette:~# powerpc-linux-gcc -v 
+
+Reading specs from /usr/local/powerpc/lib/gcc/powerpc-linux/3.4.2/specs
+Configured with: ../configure --target=powerpc-linux 
+--prefix=/usr/local/powerpc 
+--with-as=/usr/local/powerpc/bin/powerpc-linux-as 
+--with-ld=/usr/local/powerpc/bin/powerpc-linux-ld 
+--enable-languages=c,c++,java --enable-long-long --with-newlib 
+--with-headers=/root/crossbuild/gcc-3.4.x/toolchain_powerpc/powerpc-linux-uclibc/sys-include 
+--with-libs=/root/crossbuild/gcc-3.4.x/toolchain_powerpc/powerpc-linux-uclibc/lib 
+--with-ecos --disable-werror --enable-threads=posix : (reconfigured) 
+../configure --target=powerpc-linux --prefix=/usr/local/powerpc 
+--with-as=/usr/local/powerpc/bin/powerpc-linux-as 
+--with-ld=/usr/local/powerpc/bin/powerpc-linux-ld --enable-languages=c 
+--enable-long-long --with-newlib 
+--with-headers=/root/crossbuild/gcc-3.4.x/toolchain_powerpc/powerpc-linux-uclibc/sys-include 
+--with-libs=/root/crossbuild/gcc-3.4.x/toolchain_powerpc/powerpc-linux-uclibc/lib 
+--with-ecos --disable-werror --enable-threads=posix
+Thread model: posix
+gcc version 3.4.2
+
+Best
+Bryan
+
+

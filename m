@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261783AbTCaSaD>; Mon, 31 Mar 2003 13:30:03 -0500
+	id <S261777AbTCaS31>; Mon, 31 Mar 2003 13:29:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261784AbTCaSaD>; Mon, 31 Mar 2003 13:30:03 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:54034 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S261783AbTCaS37>; Mon, 31 Mar 2003 13:29:59 -0500
-Date: Mon, 31 Mar 2003 19:41:17 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-Subject: Re: 64GB NUMA-Q after pgcl
-Message-ID: <20030331194117.A27859@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrea Arcangeli <andrea@suse.de>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org
-References: <20030328040038.GO1350@holomorphy.com> <20030330231945.GH2318@x30.local> <20030331042729.GQ30140@holomorphy.com> <20030331183506.GC11026@x30.random>
-Mime-Version: 1.0
+	id <S261783AbTCaS31>; Mon, 31 Mar 2003 13:29:27 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:292 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S261777AbTCaS30>; Mon, 31 Mar 2003 13:29:26 -0500
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200303311835.h2VIZXp04133@devserv.devel.redhat.com>
+Subject: Re: Linux 2.4.21-pre6
+To: fede2@fuerzag.ulatina.ac.cr (Alvaro Figueroa)
+Date: Mon, 31 Mar 2003 13:35:33 -0500 (EST)
+Cc: alan@redhat.com, marcelo@conectiva.com.br (Marcelo Tosatti),
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1049134568.27013.7.camel@viena> from "Alvaro Figueroa" at Mar 31, 2003 12:16:07 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030331183506.GC11026@x30.random>; from andrea@suse.de on Mon, Mar 31, 2003 at 08:35:06PM +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 31, 2003 at 08:35:06PM +0200, Andrea Arcangeli wrote:
-> About you not caring anymore about the mem_map array size, that still
-> matters on the embedded usage, infact rmap on the embedded usage is the
-> biggest waste there, normally they don't even have swap so if something
-> you should use the rmap provided for truncate, rather than wasting
-> memory in the mem_map array.
+> > Here goes -pre6.
+> 
+> > Alan Cox <alan@lxorguk.ukuu.org.uk>:
+> (...)
+> >   o ali5451 is 31bit audio
+> 
+> Unfortunately, this patch has completely screwed up sound on the Sun
+> Blade 100.
+> 
+> I was wondering if this patch could be backed up in -pre7.
 
-We have CONFIG_SWAP for that in 2.5..
-
+No. Its a bug fix. DaveM is aware of the fact the sparc side needs
+some tweaking

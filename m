@@ -1,66 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277758AbRJLTBW>; Fri, 12 Oct 2001 15:01:22 -0400
+	id <S277806AbRJLTHw>; Fri, 12 Oct 2001 15:07:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277803AbRJLTBD>; Fri, 12 Oct 2001 15:01:03 -0400
-Received: from D8FA50AA.ptr.dia.nextlink.net ([216.250.80.170]:14088 "EHLO
-	mail.applianceware.com") by vger.kernel.org with ESMTP
-	id <S277758AbRJLTAu>; Fri, 12 Oct 2001 15:00:50 -0400
-Message-ID: <006501c15351$76e881d0$cc00000a@foo>
-From: "Jean-Gabriel Rican" <grican@applianceware.com>
-To: "Ingo Molnar" <mingo@redhat.com>, <gaby@applianceware.com>
-Cc: <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0110120220290.7954-100000@devserv.devel.redhat.com>
-Subject: Re: [PATCH] for Multiple Device driver - md.c (kernel 2.4.12)
-Date: Fri, 12 Oct 2001 12:09:49 -0700
+	id <S277807AbRJLTHn>; Fri, 12 Oct 2001 15:07:43 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:39587 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S277806AbRJLTHa>;
+	Fri, 12 Oct 2001 15:07:30 -0400
+Date: Fri, 12 Oct 2001 20:06:41 +0200 (CEST)
+From: Rui Sousa <rui.p.m.sousa@clix.pt>
+X-X-Sender: <rsousa@sophia-sousar2.nice.mindspeed.com>
+To: "Udo A. Steinberg" <reality@delusion.de>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+        <emu10k1-devel@opensource.creative.com>
+Subject: Re: Linux 2.4.12-ac1
+In-Reply-To: <3BC6F876.9AC2C102@delusion.de>
+Message-ID: <Pine.LNX.4.33.0110122000500.3012-100000@sophia-sousar2.nice.mindspeed.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo,
+On Fri, 12 Oct 2001, Udo A. Steinberg wrote:
 
-Yes you are right: raidhotadd does the job and I cannot believe that I
-wasn't considering it myself. Probably I was so focused on the process of
-adding a hot spare that I forgot to try this.
+The PCM mixer channel is now controlled by dsp microcode, but by default
+this is working when you load the driver.
 
-It looks that my patch isn't necessary required after all. The only
-advantage that it offers is that it saves a raidhotremove call (and the test
-to see if the drive is really faulty or still present in the RAID array -
-because raidhotadd will fail in this case), but in rest it seems to be
-rather equivalent.
+What probably happened is that you loaded the bass/treble patches with
+and old version of the emu-dspmgr tool and this messed up the PCM mixer
+channel code.
 
-Anyway, thank you for the solution and I hope that I didn't caused any
-inconvenience.
+Two things to try:
+1. Use the driver before loading any dsp microcode.
+2. Get the latest user space tools 0.9.2 from
+   <http://opensource.creative.com/dist.html>
 
-Jean-Gabriel Rican
+Rui Sousa
 
+> Alan Cox wrote:
+> >
+> > 2.4.12-ac1
+> > 2.4.10-ac12
+> > o       EMU10K driver update                            (Rui Sousa)
 >
-> > Suppose you can hot-swap a hard disk in a system. Now if you have a
-> > degraded Software RAID device (for example a RAID-5 with one disk
-> > failed) and you replace the failed disk on-the-fly you cannot start
-> > reconstruction (with raidhotadd) of the Software RAID device with the
-> > replaced disk because it says it is BUSY.
+> It seems that the new EMU10K driver no longer has a PCM mixer channel.
 >
-> this is possible already: you should first raidhotremove the failed drive,
-> then raidhotadd the new drive. It can be the 'same' drive if it's a
-> hot-swap disk, or it can be another, spare disk.
+> Creative EMU10K1 PCI Audio Driver, version 0.16, 15:28:05 Oct 12 2001
+> PCI: Enabling device 00:0a.0 (0004 -> 0005)
+> PCI: Assigned IRQ 5 for device 00:0a.0
+> emu10k1: EMU10K1 rev 8 model 0x8027 found, IO at 0xa400-0xa41f, IRQ 5
+> ac97_codec: AC97  codec, id: 0x5452:0x4123 (TriTech TR?????)
 >
-> > + if (rdev && rdev->faulty) {
-> > + err = hot_remove_disk(mddev, dev);
+> Per default I have the following mixer channels:
+> volume, speaker, line, microphone, cd, igain, line1, phonein, phoneout,
+> video.
 >
-> what your patch does is a forced remove of any drive that is
-> raidhotadd-ed. This is less finegrained than the current solution, and
-> might make the method more volatile. (easier to mess up accidentally.) Is
-> there anything your patch allows that is not possible today, via
-> raidhotremove+raidhotadd?
+> Additionally I have added two mixer channels via emu-dspmgr userspace
+> tools: bass, treble
 >
-> Ingo
+> Does the new driver require userspace configuration for the PCM mixer
+> or has it just vanished mysteriously?
+>
+> Regards,
+> -Udo.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 >
 

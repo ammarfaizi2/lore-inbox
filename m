@@ -1,384 +1,476 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129933AbQLIJPe>; Sat, 9 Dec 2000 04:15:34 -0500
+	id <S130583AbQLIJRO>; Sat, 9 Dec 2000 04:17:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130606AbQLIJPX>; Sat, 9 Dec 2000 04:15:23 -0500
-Received: from smtp5.libero.it ([193.70.192.55]:41160 "EHLO smtp5.libero.it")
-	by vger.kernel.org with ESMTP id <S129933AbQLIJPN>;
-	Sat, 9 Dec 2000 04:15:13 -0500
-Message-ID: <3A31F094.480AAAFB@alsa-project.org>
-Date: Sat, 09 Dec 2000 09:43:00 +0100
-From: Abramo Bagnara <abramo@alsa-project.org>
-Organization: Opera Unica
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17 i586)
-X-Accept-Language: it, en
+	id <S130481AbQLIJRE>; Sat, 9 Dec 2000 04:17:04 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:4872 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130583AbQLIJQv>; Sat, 9 Dec 2000 04:16:51 -0500
+Date: Sat, 9 Dec 2000 00:45:51 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: David Woodhouse <dwmw2@infradead.org>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Re: kernel BUG at buffer.c:827 in test12-pre6 and 7 
+In-Reply-To: <Pine.GSO.4.21.0012082343370.27010-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.10.10012082356020.2121-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [2*PATCH] alpha I/O access and mb()
-Content-Type: multipart/mixed;
- boundary="------------6A571FE22658A1610E0A8F45"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------6A571FE22658A1610E0A8F45
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 
+On Fri, 8 Dec 2000, Alexander Viro wrote:
+> On Fri, 8 Dec 2000, Linus Torvalds wrote:
+> 
+> > Looking more at this issue, I suspect that the easiest pretty solution
+> > that everybody can probably agree is reasonable is to either pass down the
+> > end-of-io callback to ll_rw_block as you suggested, or, preferably by just
+> > forcing the _caller_ to do the buffer locking, and just do the b_end_io
+> > stuff inside the buffer lock and get rid of all the races that way
+> > instead (and make ll_rw_block() verify that the buffers it is passed are
+> > always locked).
+> 
+> Hmm... I've looked through the ll_rw_block() callers and yes, it seems
+> to be doable.
 
-Here you are two patches:
+Looking at this, there's a _lot_ of them.
 
-alpha-mb-2.2.diff add the missing mb() to the cores that still lack it
-(against 2.2.18pre25)
+I've taken a test-approach that is fairly simple:
 
-alpha-mb-2.4.diff add missing defines from core_t2.h for non generic
-kernel (against 2.4.0test11)
+ - get rid of the old "ll_rw_block()", because it was inherently racey wrt
+   bh->b_end_io, I think we all agree that changing bh->b_end_io without
+   holding any locks at all is fairly dangerous.
 
-Please apply on your trees.
+ - instead, a simple "submit_bh()" thing, that takes only one locked
+   buffer head at a time, and queues it for IO. The usage would basically
+   be
 
-I've also noted that 2.4 uses mb() after read[bwlq] while 2.2 don't.
-Who's right?
+		lock_buffer(bh);
+		bh->b_end_io = completion_callback;
+		submit_bh(READ|WRITE, bh);
 
--- 
-Abramo Bagnara                       mailto:abramo@alsa-project.org
+   which is a pretty clean and simple interface that has no obvious
+   races - submit_bh() will set bh->b_end_io to the completion callback.
 
-Opera Unica                          Phone: +39.546.656023
-Via Emilia Interna, 140
-48014 Castel Bolognese (RA) - Italy
+ - BUT BUT BUT: Because of tons of old users of ll_rw_block(), we
+   introduce a totally new ll_rw_block() that has the same old interface,
+   but basically does
 
-ALSA project is            http://www.alsa-project.org
-sponsored by SuSE Linux    http://www.suse.com
+	void ll_rw_block(int op, int nr, struct buffer_head **array)
+	{
+		int i;
 
-It sounds good!
---------------6A571FE22658A1610E0A8F45
-Content-Type: text/plain; charset=us-ascii;
- name="alpha-mb-2.2.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="alpha-mb-2.2.diff"
+		for (i = 0; i < nr; i++) {
+			struct buffer_head * bh = array[i];
+			lock_buffer(bh);
+			bh->b_end_io = end_buffer_io_sync;
+			submit_bh(op, bh);
+		}
+	}
 
---- linux-2.2/include/asm-alpha/core_pyxis.h.~1~	Tue Jan  4 19:12:24 2000
-+++ linux-2.2/include/asm-alpha/core_pyxis.h	Sat Dec  9 09:17:43 2000
-@@ -437,11 +437,13 @@
- __EXTERN_INLINE void pyxis_bw_writel(unsigned int b, unsigned long addr)
- {
- 	*(vuip)(addr+PYXIS_BW_MEM) = b;
-+	mb();
- }
- 
- __EXTERN_INLINE void pyxis_bw_writeq(unsigned long b, unsigned long addr)
- {
- 	*(vulp)(addr+PYXIS_BW_MEM) = b;
-+	mb();
- }
- 
- __EXTERN_INLINE unsigned long pyxis_srm_base(unsigned long addr)
-@@ -504,6 +506,7 @@
- 	if (work) {
- 		work += 0x00;	/* add transfer length */
- 		*(vuip) work = b * 0x01010101;
-+		mb();
- 	}
- }
- 
-@@ -513,6 +516,7 @@
- 	if (work) {
- 		work += 0x08;	/* add transfer length */
- 		*(vuip) work = b * 0x00010001;
-+		mb();
- 	}
- }
- 
-@@ -551,6 +555,7 @@
- 	set_hae(msb);
- 
- 	*(vuip) ((addr << 5) + PYXIS_SPARSE_MEM + 0x00) = b * 0x01010101;
-+	mb();
- }
- 
- __EXTERN_INLINE void pyxis_writew(unsigned short b, unsigned long addr)
-@@ -562,6 +567,7 @@
- 	set_hae(msb);
- 
- 	*(vuip) ((addr << 5) + PYXIS_SPARSE_MEM + 0x08) = b * 0x00010001;
-+	mb();
- }
- 
- __EXTERN_INLINE unsigned long pyxis_readl(unsigned long addr)
-@@ -577,11 +583,13 @@
- __EXTERN_INLINE void pyxis_writel(unsigned int b, unsigned long addr)
- {
- 	*(vuip) (addr + PYXIS_DENSE_MEM) = b;
-+	mb();
- }
- 
- __EXTERN_INLINE void pyxis_writeq(unsigned long b, unsigned long addr)
- {
- 	*(vulp) (addr + PYXIS_DENSE_MEM) = b;
-+	mb();
- }
- 
- /* Find the DENSE memory area for a given bus address.  */
---- linux-2.2/include/asm-alpha/core_apecs.h.~1~	Mon Dec 28 00:21:50 1998
-+++ linux-2.2/include/asm-alpha/core_apecs.h	Sat Dec  9 09:28:16 2000
-@@ -543,6 +543,7 @@
- 		set_hae(msb);
- 	}
- 	*(vuip) ((addr << 5) + APECS_SPARSE_MEM + 0x00) = b * 0x01010101;
-+	mb();
- }
- 
- __EXTERN_INLINE void apecs_writew(unsigned short b, unsigned long addr)
-@@ -555,16 +556,19 @@
- 		set_hae(msb);
- 	}
- 	*(vuip) ((addr << 5) + APECS_SPARSE_MEM + 0x08) = b * 0x00010001;
-+	mb();
- }
- 
- __EXTERN_INLINE void apecs_writel(unsigned int b, unsigned long addr)
- {
- 	*(vuip) (addr + APECS_DENSE_MEM) = b;
-+	mb();
- }
- 
- __EXTERN_INLINE void apecs_writeq(unsigned long b, unsigned long addr)
- {
- 	*(vulp) (addr + APECS_DENSE_MEM) = b;
-+	mb();
- }
- 
- /* Find the DENSE memory area for a given bus address.  */
---- linux-2.2/include/asm-alpha/core_cia.h.~1~	Thu Aug 26 02:29:49 1999
-+++ linux-2.2/include/asm-alpha/core_cia.h	Sat Dec  9 09:28:16 2000
-@@ -460,6 +460,7 @@
- 		work += 0x00;	/* add transfer length */
- 		w = __kernel_insbl(b, addr & 3);
- 		*(vuip) work = w;
-+		mb();
- 	}
- }
- 
-@@ -470,6 +471,7 @@
- 		work += 0x08;	/* add transfer length */
- 		w = __kernel_inswl(b, addr & 3);
- 		*(vuip) work = w;
-+		mb();
- 	}
- }
- 
-@@ -507,6 +509,7 @@
- 
- 	w = __kernel_insbl(b, addr & 3);
- 	*(vuip) ((addr << 5) + CIA_SPARSE_MEM + 0x00) = w;
-+	mb();
- }
- 
- __EXTERN_INLINE void cia_writew(unsigned short b, unsigned long addr)
-@@ -519,6 +522,7 @@
- 
- 	w = __kernel_inswl(b, addr & 3);
- 	*(vuip) ((addr << 5) + CIA_SPARSE_MEM + 0x08) = w;
-+	mb();
- }
- 
- __EXTERN_INLINE unsigned long cia_readl(unsigned long addr)
-@@ -534,11 +538,13 @@
- __EXTERN_INLINE void cia_writel(unsigned int b, unsigned long addr)
- {
- 	*(vuip) (addr + CIA_DENSE_MEM) = b;
-+	mb();
- }
- 
- __EXTERN_INLINE void cia_writeq(unsigned long b, unsigned long addr)
- {
- 	*(vulp) (addr + CIA_DENSE_MEM) = b;
-+	mb();
- }
- 
- /* Find the DENSE memory area for a given bus address.  */
---- linux-2.2/include/asm-alpha/core_t2.h.~1~	Mon Dec 28 00:21:50 1998
-+++ linux-2.2/include/asm-alpha/core_t2.h	Sat Dec  9 09:28:16 2000
-@@ -499,6 +499,7 @@
- 	if (work) {
- 		work += 0x00;	/* add transfer length */
- 		*(vuip) work = b * 0x01010101;
-+		mb();
- 	}
- }
- 
-@@ -508,6 +509,7 @@
- 	if (work) {
- 		work += 0x08;	/* add transfer length */
- 		*(vuip) work = b * 0x00010001;
-+		mb();
- 	}
- }
- 
-@@ -518,6 +520,7 @@
- 	if (work) {
- 		work += 0x18;	/* add transfer length */
- 		*(vuip) work = b;
-+		mb();
- 	}
- }
- 
-@@ -530,6 +533,7 @@
- 		work += 0x18;	/* add transfer length */
- 		*(vuip) work = b;
- 		*(vuip) (work + (4 << 5)) = b >> 32;
-+		mb();
- 	}
- }
- 
-@@ -592,6 +596,7 @@
- 	set_hae(msb);
- 
- 	*(vuip) ((addr << 5) + T2_SPARSE_MEM + 0x00) = b * 0x01010101;
-+	mb();
- }
- 
- __EXTERN_INLINE void t2_writew(unsigned short b, unsigned long addr)
-@@ -603,6 +608,7 @@
- 	set_hae(msb);
- 
- 	*(vuip) ((addr << 5) + T2_SPARSE_MEM + 0x08) = b * 0x00010001;
-+	mb();
- }
- 
- /* On SABLE with T2, we must use SPARSE memory even for 32-bit access. */
-@@ -615,6 +621,7 @@
- 	set_hae(msb);
- 
- 	*(vuip) ((addr << 5) + T2_SPARSE_MEM + 0x18) = b;
-+	mb();
- }
- 
- __EXTERN_INLINE void t2_writeq(unsigned long b, unsigned long addr)
-@@ -628,6 +635,7 @@
- 	work = (addr << 5) + T2_SPARSE_MEM + 0x18;
- 	*(vuip)work = b;
- 	*(vuip)(work + (4 << 5)) = b >> 32;
-+	mb();
- }
- 
- /* Find the DENSE memory area for a given bus address.  */
---- linux-2.2/include/asm-alpha/core_lca.h.~1~	Mon Dec 28 00:21:50 1998
-+++ linux-2.2/include/asm-alpha/core_lca.h	Sat Dec  9 09:28:16 2000
-@@ -349,6 +349,7 @@
- 	}
- 	w = __kernel_insbl(b, addr & 3);
- 	*(vuip) ((addr << 5) + LCA_SPARSE_MEM + 0x00) = w;
-+	mb();
- }
- 
- __EXTERN_INLINE void lca_writew(unsigned short b, unsigned long addr)
-@@ -363,16 +364,19 @@
- 	}
- 	w = __kernel_inswl(b, addr & 3);
- 	*(vuip) ((addr << 5) + LCA_SPARSE_MEM + 0x08) = w;
-+	mb();
- }
- 
- __EXTERN_INLINE void lca_writel(unsigned int b, unsigned long addr)
- {
- 	*(vuip) (addr + LCA_DENSE_MEM) = b;
-+	mb();
- }
- 
- __EXTERN_INLINE void lca_writeq(unsigned long b, unsigned long addr)
- {
- 	*(vulp) (addr + LCA_DENSE_MEM) = b;
-+	mb();
- }
- 
- /* Find the DENSE memory area for a given bus address.  */
---- linux-2.2/include/asm-alpha/core_mcpcia.h.~1~	Tue Jan  4 19:12:24 2000
-+++ linux-2.2/include/asm-alpha/core_mcpcia.h	Sat Dec  9 09:28:16 2000
-@@ -352,6 +352,7 @@
- 	if (work) {
- 		work += 0x00;	/* add transfer length */
- 		*(vuip) work = b * 0x01010101;
-+		mb();
- 	}
- }
- 
-@@ -361,6 +362,7 @@
- 	if (work) {
- 		work += 0x08;	/* add transfer length */
- 		*(vuip) work = b * 0x00010001;
-+		mb();
- 	}
- }
- 
-@@ -405,6 +407,7 @@
- 	set_hae(msb);
- 
- 	*(vuip) ((addr << 5) + MCPCIA_SPARSE(hose) + 0x00) = b * 0x01010101;
-+	mb();
- }
- 
- __EXTERN_INLINE void mcpcia_writew(unsigned short b, unsigned long in_addr)
-@@ -418,6 +421,7 @@
- 	set_hae(msb);
- 
- 	*(vuip) ((addr << 5) + MCPCIA_SPARSE(hose) + 0x08) = b * 0x00010001;
-+	mb();
- }
- 
- __EXTERN_INLINE unsigned long mcpcia_readl(unsigned long in_addr)
-@@ -439,6 +443,7 @@
- 	unsigned long addr = in_addr & 0xffffffffUL;
- 	unsigned long hose = (in_addr >> 32) & 3;
- 	*(vuip) (addr + MCPCIA_DENSE(hose)) = b;
-+	mb();
- }
- 
- __EXTERN_INLINE void mcpcia_writeq(unsigned long b, unsigned long in_addr)
-@@ -446,6 +451,7 @@
- 	unsigned long addr = in_addr & 0xffffffffUL;
- 	unsigned long hose = (in_addr >> 32) & 3;
- 	*(vulp) (addr + MCPCIA_DENSE(hose)) = b;
-+	mb();
- }
- 
- /* Find the DENSE memory area for a given bus address.  */
+   Again, the above avoids the race (we never touch b_end_io except with
+   the buffer lock held), and allows all old uses of "ll_rw_block()"
+   _except_ the ones that wanted to do the fancy async callbacks.
 
---------------6A571FE22658A1610E0A8F45
-Content-Type: text/plain; charset=us-ascii;
- name="alpha-mb-2.4.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="alpha-mb-2.4.diff"
+The advantage? All the regular old code that isn't fancy (ie the low-level
+filesystems, bread(), breada() etc) will get a working ll_rw_block() with
+the semantics they want, and we can pretty much prove that they can never
+get an async handler even by mistake.
 
---- linux/include/asm-alpha/core_t2.h.~1~	Fri Mar 17 22:01:38 2000
-+++ linux/include/asm-alpha/core_t2.h	Sat Dec  9 09:07:35 2000
-@@ -533,6 +533,21 @@
- #define __ioremap(a)		t2_ioremap((unsigned long)(a))
- #define __is_ioaddr(a)		t2_is_ioaddr((unsigned long)(a))
+And the (few) clever routines in fs/buffer.c that currently use
+ll_rw_block() with async handlers can just be converted to use the
+submit_bh() interface.
+
+This is a preliminary patch that I have not compiled and probably breaks,
+but you get the idea. I'm going to sleep, to survive another night with
+three small kids.
+
+If somebody wants to run with this, please try it out, but realize that
+it's a work-in-progress. And realize that bugs in this area tend to
+corrupt filesystems very quickly indeed. I would strongly advice against
+trying this patch out without really grokking what it does and feeling
+confident that it actually works.
+
+NOTE NOTE NOTE! I've tried to keep the patch small and simple. I've tried
+to make all the changes truly straightforward and obvious. I want this bug
+squashed, and I don't want to see it again. But I _still_ think this is a
+dangerous patch until somebody like Al has given it a green light. Caveat
+Emptor.
+
+		Linus
+
+-----
+diff -u --recursive t12p7/linux/drivers/block/ll_rw_blk.c linux/drivers/block/ll_rw_blk.c
+--- t12p7/linux/drivers/block/ll_rw_blk.c	Thu Dec  7 15:56:25 2000
++++ linux/drivers/block/ll_rw_blk.c	Sat Dec  9 00:40:35 2000
+@@ -885,6 +885,36 @@
+ 	while (q->make_request_fn(q, rw, bh));
+ }
  
-+#define inb(p)			__inb(p)
-+#define inw(p)			__inw(p)
-+#define inl(p)			__inl(p)
-+#define outb(x,p)		__outb((x),(p))
-+#define outw(x,p)		__outw((x),(p))
-+#define outl(x,p)		__outl((x),(p))
-+#define __raw_readb(a)		__readb(a)
-+#define __raw_readw(a)		__readw(a)
-+#define __raw_readl(a)		__readl(a)
-+#define __raw_readq(a)		__readq(a)
-+#define __raw_writeb(v,a)	__writeb((v),(a))
-+#define __raw_writew(v,a)	__writew((v),(a))
-+#define __raw_writel(v,a)	__writel((v),(a))
-+#define __raw_writeq(v,a)	__writeq((v),(a))
 +
- #endif /* __WANT_IO_DEF */
++/*
++ * Submit a buffer head for IO.
++ */
++void submit_bh(int rw, struct buffer_head * bh)
++{
++	if (!test_bit(BH_Lock, &bh->b_state))
++		BUG();
++
++	set_bit(BH_Req, &bh->b_state);
++
++	/*
++	 * First step, 'identity mapping' - RAID or LVM might
++	 * further remap this.
++	 */
++	bh->b_rdev = bh->b_dev;
++	bh->b_rsector = bh->b_blocknr * (bh->b_size>>9);
++
++	generic_make_request(rw, bh);
++}
++
++/*
++ * Default IO end handler, used by "ll_rw_block()".
++ */
++static void end_buffer_io_sync(struct buffer_head *bh, int uptodate)
++{
++	mark_buffer_uptodate(bh, uptodate);
++	unlock_buffer(bh);
++}
++
+ /* This function can be used to request a number of buffers from a block
+    device. Currently the only restriction is that all buffers must belong to
+    the same device */
+@@ -931,7 +961,8 @@
+ 		if (test_and_set_bit(BH_Lock, &bh->b_state))
+ 			continue;
  
- #ifdef __IO_EXTERN_INLINE
-
---------------6A571FE22658A1610E0A8F45--
+-		set_bit(BH_Req, &bh->b_state);
++		/* We have the buffer lock */
++		bh->b_end_io = end_buffer_io_sync;
+ 
+ 		switch(rw) {
+ 		case WRITE:
+@@ -954,17 +985,9 @@
+ 	end_io:
+ 			bh->b_end_io(bh, test_bit(BH_Uptodate, &bh->b_state));
+ 			continue;
+-			
+ 		}
+ 
+-		/*
+-		 * First step, 'identity mapping' - RAID or LVM might
+-		 * further remap this.
+-		 */
+-		bh->b_rdev = bh->b_dev;
+-		bh->b_rsector = bh->b_blocknr * (bh->b_size>>9);
+-
+-		generic_make_request(rw, bh);
++		submit_bh(rw, bh);
+ 	}
+ 	return;
+ 
+@@ -972,7 +995,6 @@
+ 	for (i = 0; i < nr; i++)
+ 		buffer_IO_error(bhs[i]);
+ }
+-
+ 
+ #ifdef CONFIG_STRAM_SWAP
+ extern int stram_device_init (void);
+diff -u --recursive t12p7/linux/fs/buffer.c linux/fs/buffer.c
+--- t12p7/linux/fs/buffer.c	Thu Dec  7 15:56:26 2000
++++ linux/fs/buffer.c	Sat Dec  9 00:38:20 2000
+@@ -758,12 +758,6 @@
+ 	bh->b_private = private;
+ }
+ 
+-static void end_buffer_io_sync(struct buffer_head *bh, int uptodate)
+-{
+-	mark_buffer_uptodate(bh, uptodate);
+-	unlock_buffer(bh);
+-}
+-
+ static void end_buffer_io_bad(struct buffer_head *bh, int uptodate)
+ {
+ 	mark_buffer_uptodate(bh, uptodate);
+@@ -1001,7 +995,7 @@
+ 	 * and it is clean.
+ 	 */
+ 	if (bh) {
+-		init_buffer(bh, end_buffer_io_sync, NULL);
++		init_buffer(bh, end_buffer_io_bad, NULL);
+ 		bh->b_dev = dev;
+ 		bh->b_blocknr = block;
+ 		bh->b_state = 1 << BH_Mapped;
+@@ -1210,7 +1204,6 @@
+ 
+ 	if (buffer_uptodate(bh))
+ 		return(bh);   
+-	else ll_rw_block(READ, 1, &bh);
+ 
+ 	blocks = (filesize - pos) >> (9+index);
+ 
+@@ -1225,12 +1218,11 @@
+ 			brelse(bh);
+ 			break;
+ 		}
+-		else bhlist[j++] = bh;
++		bhlist[j++] = bh;
+ 	}
+ 
+ 	/* Request the read for these buffers, and then release them. */
+-	if (j>1)  
+-		ll_rw_block(READA, (j-1), bhlist+1); 
++	ll_rw_block(READ, j, bhlist);
+ 	for(i=1; i<j; i++)
+ 		brelse(bhlist[i]);
+ 
+@@ -1439,7 +1431,7 @@
+ 		block = *(b++);
+ 
+ 		tail = bh;
+-		init_buffer(bh, end_buffer_io_async, NULL);
++		init_buffer(bh, end_buffer_io_bad, NULL);
+ 		bh->b_dev = dev;
+ 		bh->b_blocknr = block;
+ 
+@@ -1586,8 +1578,6 @@
+ 	int err, i;
+ 	unsigned long block;
+ 	struct buffer_head *bh, *head;
+-	struct buffer_head *arr[MAX_BUF_PER_PAGE];
+-	int nr = 0;
+ 
+ 	if (!PageLocked(page))
+ 		BUG();
+@@ -1600,6 +1590,8 @@
+ 
+ 	bh = head;
+ 	i = 0;
++
++	/* Stage 1: make sure we have all the buffers mapped! */
+ 	do {
+ 		/*
+ 		 * If the buffer isn't up-to-date, we can't be sure
+@@ -1616,28 +1608,32 @@
+ 			if (buffer_new(bh))
+ 				unmap_underlying_metadata(bh);
+ 		}
+-		set_bit(BH_Uptodate, &bh->b_state);
+-		set_bit(BH_Dirty, &bh->b_state);
++		bh = bh->b_this_page;
++		block++;
++	} while (bh != head);
++
++	/* Stage 2: lock the buffers, mark them dirty */
++	do {
++		lock_buffer(bh);
+ 		bh->b_end_io = end_buffer_io_async;
+ 		atomic_inc(&bh->b_count);
+-		arr[nr++] = bh;
++		set_bit(BH_Uptodate, &bh->b_state);
++		set_bit(BH_Dirty, &bh->b_state);
+ 		bh = bh->b_this_page;
+-		block++;
+ 	} while (bh != head);
+ 
+-	if (nr) {
+-		ll_rw_block(WRITE, nr, arr);
+-	} else {
+-		UnlockPage(page);
+-	}
++	/* Stage 3: submit the IO */
++	do {
++		submit_bh(WRITE, bh);
++		bh = bh->b_this_page;		
++	} while (bh != head);
++
++	/* Done - end_buffer_io_async will unlock */
+ 	SetPageUptodate(page);
+ 	return 0;
++
+ out:
+-	if (nr) {
+-		ll_rw_block(WRITE, nr, arr);
+-	} else {
+-		UnlockPage(page);
+-	}
++	UnlockPage(page);
+ 	ClearPageUptodate(page);
+ 	return err;
+ }
+@@ -1669,7 +1665,6 @@
+ 			continue;
+ 		if (block_start >= to)
+ 			break;
+-		bh->b_end_io = end_buffer_io_sync;
+ 		if (!buffer_mapped(bh)) {
+ 			err = get_block(inode, block, bh, 1);
+ 			if (err)
+@@ -1766,7 +1761,6 @@
+ 	unsigned long iblock, lblock;
+ 	struct buffer_head *bh, *head, *arr[MAX_BUF_PER_PAGE];
+ 	unsigned int blocksize, blocks;
+-	char *kaddr = NULL;
+ 	int nr, i;
+ 
+ 	if (!PageLocked(page))
+@@ -1793,35 +1787,40 @@
+ 					continue;
+ 			}
+ 			if (!buffer_mapped(bh)) {
+-				if (!kaddr)
+-					kaddr = kmap(page);
+-				memset(kaddr + i*blocksize, 0, blocksize);
++				memset(kmap(page) + i*blocksize, 0, blocksize);
+ 				flush_dcache_page(page);
++				kunmap(page);
+ 				set_bit(BH_Uptodate, &bh->b_state);
+ 				continue;
+ 			}
+ 		}
+ 
+-		init_buffer(bh, end_buffer_io_async, NULL);
+-		atomic_inc(&bh->b_count);
+ 		arr[nr] = bh;
+ 		nr++;
+ 	} while (i++, iblock++, (bh = bh->b_this_page) != head);
+ 
+-	if (nr) {
+-		if (Page_Uptodate(page))
+-			BUG();
+-		ll_rw_block(READ, nr, arr);
+-	} else {
++	if (!nr) {
+ 		/*
+ 		 * all buffers are uptodate - we can set the page
+ 		 * uptodate as well.
+ 		 */
+ 		SetPageUptodate(page);
+ 		UnlockPage(page);
++		return 0;
+ 	}
+-	if (kaddr)
+-		kunmap(page);
++
++	/* Stage two: lock the buffers */
++	for (i = 0; i < nr; i++) {
++		struct buffer_head * bh = arr[i];
++		lock_buffer(bh);
++		bh->b_end_io = end_buffer_io_async;
++		atomic_inc(&bh->b_count);
++	}
++
++	/* Stage 3: start the IO */
++	for (i = 0; i < nr; i++)
++		submit_bh(READ, arr[i]);
++
+ 	return 0;
+ }
+ 
+@@ -1989,7 +1988,6 @@
+ 	if (Page_Uptodate(page))
+ 		set_bit(BH_Uptodate, &bh->b_state);
+ 
+-	bh->b_end_io = end_buffer_io_sync;
+ 	if (!buffer_uptodate(bh)) {
+ 		err = -EIO;
+ 		ll_rw_block(READ, 1, &bh);
+@@ -2263,67 +2261,31 @@
+  */
+ int brw_page(int rw, struct page *page, kdev_t dev, int b[], int size)
+ {
+-	struct buffer_head *head, *bh, *arr[MAX_BUF_PER_PAGE];
+-	int nr, fresh /* temporary debugging flag */, block;
++	struct buffer_head *head, *bh;
+ 
+ 	if (!PageLocked(page))
+ 		panic("brw_page: page not locked for I/O");
+-//	ClearPageError(page);
+-	/*
+-	 * We pretty much rely on the page lock for this, because
+-	 * create_page_buffers() might sleep.
+-	 */
+-	fresh = 0;
+-	if (!page->buffers) {
+-		create_page_buffers(rw, page, dev, b, size);
+-		fresh = 1;
+-	}
++
+ 	if (!page->buffers)
++		create_page_buffers(rw, page, dev, b, size);
++
++	head = bh = page->buffers;
++	if (!head)
+ 		BUG();
+ 
+-	head = page->buffers;
+-	bh = head;
+-	nr = 0;
++	/* Stage 1: lock all the buffers */
+ 	do {
+-		block = *(b++);
++		lock_buffer(bh);
++		bh->b_end_io = end_buffer_io_async;
++		atomic_inc(&bh->b_count);
++		bh = bh->b_this_page;
++	} while (bh != head);
+ 
+-		if (fresh && (atomic_read(&bh->b_count) != 0))
+-			BUG();
+-		if (rw == READ) {
+-			if (!fresh)
+-				BUG();
+-			if (!buffer_uptodate(bh)) {
+-				arr[nr++] = bh;
+-				atomic_inc(&bh->b_count);
+-			}
+-		} else { /* WRITE */
+-			if (!bh->b_blocknr) {
+-				if (!block)
+-					BUG();
+-				bh->b_blocknr = block;
+-			} else {
+-				if (!block)
+-					BUG();
+-			}
+-			set_bit(BH_Uptodate, &bh->b_state);
+-			set_bit(BH_Dirty, &bh->b_state);
+-			arr[nr++] = bh;
+-			atomic_inc(&bh->b_count);
+-		}
++	/* Stage 2: start the IO */
++	do {
++		submit_bh(rw, bh);
+ 		bh = bh->b_this_page;
+ 	} while (bh != head);
+-	if ((rw == READ) && nr) {
+-		if (Page_Uptodate(page))
+-			BUG();
+-		ll_rw_block(rw, nr, arr);
+-	} else {
+-		if (!nr && rw == READ) {
+-			SetPageUptodate(page);
+-			UnlockPage(page);
+-		}
+-		if (nr && (rw == WRITE))
+-			ll_rw_block(rw, nr, arr);
+-	}
+ 	return 0;
+ }
+ 
+diff -u --recursive t12p7/linux/include/linux/fs.h linux/include/linux/fs.h
+--- t12p7/linux/include/linux/fs.h	Thu Dec  7 15:56:26 2000
++++ linux/include/linux/fs.h	Sat Dec  9 00:27:41 2000
+@@ -1193,6 +1193,7 @@
+ extern struct buffer_head * get_hash_table(kdev_t, int, int);
+ extern struct buffer_head * getblk(kdev_t, int, int);
+ extern void ll_rw_block(int, int, struct buffer_head * bh[]);
++extern void submit_bh(int, struct buffer_head *);
+ extern int is_read_only(kdev_t);
+ extern void __brelse(struct buffer_head *);
+ static inline void brelse(struct buffer_head *buf)
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

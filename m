@@ -1,75 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272683AbTG3Heo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 03:34:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272795AbTG3Heo
+	id S272793AbTG3H0a (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 03:26:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272794AbTG3H0a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 03:34:44 -0400
-Received: from web20506.mail.yahoo.com ([216.136.226.141]:46184 "HELO
-	web20506.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S272683AbTG3Hem (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 03:34:42 -0400
-Message-ID: <20030730073441.61933.qmail@web20506.mail.yahoo.com>
-Date: Wed, 30 Jul 2003 00:34:41 -0700 (PDT)
-From: Studying MTD <studying_mtd@yahoo.com>
-Subject: Re: linux-2.6.0-test1 : modules not working
-To: Alex Goddard <agoddard@purdue.edu>
-Cc: Joshua Kwan <joshk@triplehelix.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.56.0307300223300.4665@dust>
-MIME-Version: 1.0
+	Wed, 30 Jul 2003 03:26:30 -0400
+Received: from [195.206.1.27] ([195.206.1.27]:62987 "EHLO spidernet.it")
+	by vger.kernel.org with ESMTP id S272793AbTG3H03 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 03:26:29 -0400
+Date: Wed, 30 Jul 2003 09:27:08 +0200
+From: adri <adriano.archetti@tiscali.it>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test1/2 won't let me use keyboard
+Message-ID: <20030730072708.GA893@inwind.it>
+Mail-Followup-To: adri <adriano.archetti@tiscali.it>,
+	Andries Brouwer <aebr@win.tue.nl>, linux-kernel@vger.kernel.org
+References: <20030728214523.GA485@inwind.it> <20030729142025.GA2180@win.tue.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030729142025.GA2180@win.tue.nl>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am curious that linux-2.6.0-test1 supports external
-modules yet or not ?
+il giorno Tue, Jul 29, 2003 at 04:20:25PM +0200, Andries Brouwer ha scritto
+> Could you compile i8042.c with #define DEBUG instead of #undef DEBUG
+> and report what that yields in the syslog?
+yes, because the very long report, i prefer to put it in:
+http://www.archetti.org/syslog
 
-Thanks.
+I also read about some keyboard failure dues at the new kernel, so i'm
+still tring using patch i see in lkml.
 
---- Alex Goddard <agoddard@purdue.edu> wrote:
-> On Tue, 29 Jul 2003, Studying MTD wrote:
-> 
-> > I tried hello world example from
-> > http://lwn.net/Articles/21817/
-> > 
-> > but i am still getting :-
-> > 
-> > #insmod hello_module.o
-> > No module found in object
-> > Error inserting 'hello_module.o': -1 Invalid
-> module
-> > format
-> 
-> [Snip]
-> 
-> 'kay.  So modules are enabled and everything.  More
-> specifically, I was 
-> after information such as the gcc options and stuff
-> you used to compile 
-> hello_module.o
-> 
-> Check the second article at that URL, and try
-> building your hello_module
-> with the basic Makefile it gives.  That uses the
-> best way for building
-> external modules.  After building your kernel that
-> way, try inserting the
-> hello_module.ko.
-> 
-> -- 
-> Alex Goddard
-> agoddard@purdue.edu
-> -
-> To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+many thanks for your interesting, i hope to easy solve the problem ;))
 
-
-__________________________________
-Do you Yahoo!?
-Yahoo! SiteBuilder - Free, easy-to-use web site design software
-http://sitebuilder.yahoo.com
+adri
+-- 
+icq# 63011800 - jabber: adri@jabber.org
+gnupg key id: 4472FB13
+"Non esiste vento favorevole per il marinaio che non sa dove andare."
+Seneca

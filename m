@@ -1,77 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277039AbRJDAfa>; Wed, 3 Oct 2001 20:35:30 -0400
+	id <S277044AbRJDAfu>; Wed, 3 Oct 2001 20:35:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277046AbRJDAfV>; Wed, 3 Oct 2001 20:35:21 -0400
-Received: from sphinx.mythic-beasts.com ([195.82.107.246]:31247 "EHLO
-	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
-	id <S277039AbRJDAfB>; Wed, 3 Oct 2001 20:35:01 -0400
-Date: Thu, 4 Oct 2001 01:35:18 +0100 (BST)
-From: <chris@scary.beasts.org>
-X-X-Sender: <cevans@sphinx.mythic-beasts.com>
-To: "Bond, Andrew" <Andrew.Bond@COMPAQ.com>
-cc: <linux-kernel@vger.kernel.org>,
-        "Nikolaiev, Mike" <Mike.Nikolaiev@COMPAQ.com>,
-        "Jamshed Patel (E-mail)" <Jamshed.Patel@oracle.com>
-Subject: Re: [PATCH] kiobuf_init optimization
-In-Reply-To: <45B36A38D959B44CB032DA427A6E106410AA5A@cceexc18.americas.cpqcorp.net>
-Message-ID: <Pine.LNX.4.33.0110040132260.29315-100000@sphinx.mythic-beasts.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277046AbRJDAfl>; Wed, 3 Oct 2001 20:35:41 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:28421 "EHLO
+	deathstar.prodigy.com") by vger.kernel.org with ESMTP
+	id <S277044AbRJDAfd>; Wed, 3 Oct 2001 20:35:33 -0400
+Date: Wed, 3 Oct 2001 20:36:01 -0400
+Message-Id: <200110040036.f940a1I08480@deathstar.prodigy.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: kernel changes
+X-Newsgroups: linux.dev.kernel
+In-Reply-To: <07f901c148b8$720a6230$1a01a8c0@allyourbase>
+Organization: TMR Associates, Schenectady NY
+From: davidsen@tmr.com (bill davidsen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <07f901c148b8$720a6230$1a01a8c0@allyourbase> dmaas@dcine.com wrote:
+| > The answer is to treat all linus/ac/aa/... kernels as development
+| > kernels.  Don't treat anything as stable until it's been through
+| > a real QA cycle.
+| 
+| I definitely have to second what you guys are saying here... 2.2.x is the
+| stable kernel series, 2.4.x is for caffeine-fueled developers who read the
+| LKML at least once every day...
 
-Hi,
+  Not really. I have found that 2.4 kernels are usefully stable if you
+pick them carefully.
 
-Have a look at 2.4.10 - I believe this has a similar optimization?
-Re-running your benchmark against plain 2.4.10 would be interesting.
+| e.g. I consider it extremely embarrassing that fundamental drivers like
+| aic7xxx, emu10k1, tulip, etc. are breaking regularly in the mainline
+| kernels. I haven't had any trouble with things like this in Windows for
+| several years now... Sure the Windows drivers are probably a few percent
+| slower, but as Nathan Myers once wrote, "It is meaningless to compare the
+| efficiency of a running system against one which might have done some
+| operations faster if it had not crashed."
 
-Cheers
-Chris
+  Again, given the choice of the o/s failing every few months or not
+using your hardware, where do you go? I haven't found a 2.2 kernel which
+like running multiple NICs at 85% of max most of the time, while several
+of the 2.4.kernels, most recently 2.4.6 will.
 
-On Wed, 3 Oct 2001, Bond, Andrew wrote:
+| I think we all owe major thanks to Alan Cox, who does his best to keep the
+| house in order amidst the chaos of kernel development (kudos to Mr. Cox for
+| holding on to Rik's VM design long enough for it to stabilize!). If anything
+| I wish there were a third primary maintainer who would take an even more
+| conservative stance, hanging maybe 2 minor versions behind Linus and -ac,
+| and only picking up changes that have been tested widely. Hmm, the people
+| working on distro kernels are probably just about doing this already...
+| Maybe if they could combine efforts somehow?
 
-> 	I have come up with a change to the kiobuf_init() routine that
-> drops the blind memset() to 0 of the entire kiobuf structure and zeros
-> out 3 specific fields instead.  Since this is done on every IO and the
-> kiobuf structure is over 8K in size (8756 bytes I believe) it becomes
-> quite costly from a cpu cycle perspective as well as a cache utilization
-> perspective.  The typical IO path uses a small subset of the
-> preallocated fields within the kiobuf structure.  Therefore, the IO path
-> pays a performance penalty for having to zero out many fields that it
-> typically doesn't use.
->
-> 	The kiobuf_init() routine using a memset() of the entire kiobuf
-> structure is in the top 10 of cpu consuming kernel routines in Oracle 9i
-> testing using raw io.  Using the included kiobuf_init patch, our testing
-> has shown a 5% improvement in Oracle transactional performance in 4 and
-> 8 processor configurations, and the kiobuf_init() routine became a
-> non-issue for performance.  The testing was performed with Oracle, but
-> this patch could provide performance improvements to any application
-> that uses raw IO or relies on kiobufs in the IO path.
->
-> 	Obviously, since the structure is no longer set to zero, any
-> code that makes a zero assumption would break.  I haven't come across
-> code that makes this assumption yet for fields that I did not
-> specifically zero out in the patch, but I could very well be missing
-> something.  It appears that Alan has included this patch in his
-> 2.4.10-ac4 tree.  So, let me know if you have any problems that you
-> think might be related to this patch.   Any input would be greatly
-> appreciated.
->
-> 	The patch is against a 2.4.9 tree, but it is localized to just
-> the kiobuf_init() routine and should apply to any of the recent kernels.
->
-> 	Run from the root level of your kernel tree:
-> 		patch -p1 < kiobuf_init_speedup.patch
->
-> 	I cannot currently receive the kernel mailing list at this email
-> address, so please cc: me on posts related to this patch.
->
-> Thanks,
-> Andrew Bond
->
->  <<kiobuf_init_speedup.patch>>
->
+  A quick look at the c.o.l.development.system will show I said ages ago
+that we should QA "stable" kernel releases before sending them out. I
+offered to set up a group to do that for each release candidate, but
+there was no interest.
+
+  The VM work is really needed, but I wish the development was in "pre"
+kernels, not releases. I've been playing while on vacation, and
+2.4.9-ac14 looks much better, 2.4.9-ac16 has minor problems on a machine
+I won't see until I "get back to work," and I haven't deceded if I want
+to try 2.4.9-ac18 or not. Sadly, horror stories on 2.4.10 have suggested
+that I let others try that.
+
+  Given the load of totally new VM stuff dropped in, I admit I'd like to
+see useful stuff which only takes effect if configured (the so-called
+Athlon patch) in the kernel, since many systems simply will not run an
+Athlon kernel without it. I only wish the preempt was being pushed as
+hard as VM, it looks really good on loaded machines.
+
+  Perhaps it's time for 2.5 indeed.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+ "If I were a diplomat, in the best case I'd go hungry.  In the worst
+  case, people would die."
+		-- Robert Lipe
 

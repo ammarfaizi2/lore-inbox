@@ -1,56 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283688AbRK3QH3>; Fri, 30 Nov 2001 11:07:29 -0500
+	id <S283694AbRK3QF5>; Fri, 30 Nov 2001 11:05:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283691AbRK3QHS>; Fri, 30 Nov 2001 11:07:18 -0500
-Received: from hermes.domdv.de ([193.102.202.1]:19205 "EHLO zeus.domdv.de")
-	by vger.kernel.org with ESMTP id <S283688AbRK3QHJ>;
-	Fri, 30 Nov 2001 11:07:09 -0500
-Message-ID: <XFMail.20011130170443.ast@domdv.de>
-X-Mailer: XFMail 1.5.1 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S283698AbRK3QFs>; Fri, 30 Nov 2001 11:05:48 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:13574 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S283694AbRK3QFe> convert rfc822-to-8bit; Fri, 30 Nov 2001 11:05:34 -0500
+Date: Fri, 30 Nov 2001 12:48:05 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
+Cc: Linux <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: 2 small patches against 2.4.15-pre6 (sym2 + email change)
+ (fwd)
+In-Reply-To: <20011127191808.S2714-300000@gerard>
+Message-ID: <Pine.LNX.4.21.0111301246050.17450-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-In-Reply-To: <E169pzm-0003sq-00@the-village.bc.nu>
-Date: Fri, 30 Nov 2001 17:04:43 +0100 (CET)
-Organization: D.O.M. Datenverarbeitung GmbH
-From: Andreas Steinmetz <ast@domdv.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Deadlock on kernels > 2.4.13-pre6
-Cc: linux-kernel@vger.kernel.org, <emmanuele.bassi@iol.it (Emmanuele Bassi)>
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had this kind of deadlock on a MSI-6215 (i815) running in console mode (no X).
-It always happened during screen blanking while there was interrupt load
-(networking via ISDN). APM based screen blanking didn't work so I suspected APM
-but at least this is only half true at maximum. The system does run fine with
-APM but no APM screen blanking, if you disable console blanking completely by
-issuing:
 
-echo -n -e "\033[9;0]\033[10;0]\033[11;0]\033[14;0]"
 
-during the boot sequence, i.e. output to /dev/console (beeps silenced too but I
-do believe this can be ignored). By now I do suspect the console blanking code
-to be the trigger of the lockup, not the APM code.
+On Tue, 27 Nov 2001, Gérard Roudier wrote:
 
-On 30-Nov-2001 Alan Cox wrote:
->> So far, I've excluded everything but a bug in the OSS sound drivers,
->> but, according to the ChangeLogs, they did not change from 2.4.13-pre6
->> (the last working kernel) to 2.4.13.
 > 
-> The OSS core and SB AWE driver have to all intents not changed since before
-> 2.4 was released.
-> 
-> You might want to check when the  various VIA chipset fixes went in if you
-> are using a VIA chipset
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> Hi Marcelo,
 
-Andreas Steinmetz
-D.O.M. Datenverarbeitung GmbH
+Hi,
+
+Sorry for the delay, I saved this mail to my pending list... :) 
+
+> 
+> I didn't see these patches applied by previous kernel maintainer, neither
+> received any ack nor nack about from. You may let me know if something
+> gets wrong with them. Btw, I have another one after those ones.
+> 
+> Note that I am used of the "no news means bad news" when patches for linux
+> development are in concern, but I guess that I am not the only guy who
+> will be glad if usual good practice of "no news means good news" would
+> also apply there. Let me hope that this will be changed as it has been
+> with 2.0 and 2.2 kernel maintainance. :)
+> 
+> By the way, I missed the postings that made you the maintainer of 2.4
+> kernel neither saw any comments from Alan about. I am sure that you will
+> do the best you can and will do a very good work, but I feel a bit
+> frustrated not to know the reasons of this decision. If you can point me
+> to the corresponding articles, I will be very interested in.
+
+Well, basically, it seems Alan got tired of maintenance... :) 
+
+You can take a look at Alan's diary for more stuff.
+
+> Thanks to people who tried, did or are doing Linux kernel maintainance as
+> I think that maintainance is a very important process at least as
+> important as development (I want to write a lot more, in fact...).
+> 
+> Good luck and TIA.
+
+About the two patches you mention, can you please send me them ?
+
+

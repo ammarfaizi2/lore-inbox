@@ -1,62 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267267AbRGKJwv>; Wed, 11 Jul 2001 05:52:51 -0400
+	id <S267266AbRGKKD4>; Wed, 11 Jul 2001 06:03:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267266AbRGKJwl>; Wed, 11 Jul 2001 05:52:41 -0400
-Received: from rcum.uni-mb.si ([164.8.2.10]:59661 "EHLO rcum.uni-mb.si")
-	by vger.kernel.org with ESMTP id <S267264AbRGKJw1>;
-	Wed, 11 Jul 2001 05:52:27 -0400
-Date: Wed, 11 Jul 2001 11:52:26 +0200
-From: David Balazic <david.balazic@uni-mb.si>
-Subject: Re: Switching Kernels without Rebooting?
-To: cslater@wcnet.org,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Message-id: <3B4C21DA.5FFCBE2@uni-mb.si>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
+	id <S267271AbRGKKDn>; Wed, 11 Jul 2001 06:03:43 -0400
+Received: from rhenium.btinternet.com ([194.73.73.93]:50423 "EHLO rhenium")
+	by vger.kernel.org with ESMTP id <S267266AbRGKKD2>;
+	Wed, 11 Jul 2001 06:03:28 -0400
+Reply-To: <lar@cs.york.ac.uk>
+From: "Laramie Leavitt" <laramie.leavitt@btinternet.com>
+To: "David Balazic" <david.balazic@uni-mb.si>, <cslater@wcnet.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: RE: Switching Kernels without Rebooting?
+Date: Wed, 11 Jul 2001 11:08:02 +0100
+Message-ID: <JKEGJJAJPOLNIFPAEDHLGEEFDFAA.laramie.leavitt@btinternet.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+In-Reply-To: <3B4C21DA.5FFCBE2@uni-mb.si>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-C. Slater (cslater@wcnet.org) wrote :
+>
+> This is not a problem at all, because UNIX does not guarantee that
+> a process will get at least one CPU slice every X seconds.
+> ( read : UNIX is not a real time system )
+>
+> soft-suspend "freezes" processes for several hours anyway ...
+>
+> Note that there is a patch for hot replacing a kernel, which is equivalent
+> to rebooting, but much faster :
+> Two Kernel Monte (Linux loading Linux on x86)
+> http://www.scyld.com/products/beowulf/software/monte.html
+>
 
-> Hi, i was just thinking about if it would be possible to switch kernels 
-> without haveing to restart the entire system. Sort of a "Live kernel 
-> replacement". It sort of goes along with the hot-swap-everything ideas. I 
-> was thinking something like 
-> - Take all the structs related to userspace memory and processes 
-> - Save them to a reserved area of memory 
-> - Halt the kernel, mostly 
-> - Wipe kernel-space memory clean to avoid confusion 
-> - Load new kernel into memory 
-> - Replace all saved structures 
-> - Start kernel running agin 
-> 
-> This seems like the easiest way to do it. The biggest problem is that there 
-> would be somewhere about 30 seconds where all processes would be frozen. 
+So if the Two Kernel Monte patch was combined with the
+system suspend/resume in swap patch then you add some
+transitions so that the code path does this:
 
-This is not a problem at all, because UNIX does not guarantee that
-a process will get at least one CPU slice every X seconds.
-( read : UNIX is not a real time system )
+1-  Suspend->Monte
+2-  Monte->Load new Kernel
+3-  Load->Resume.
 
-soft-suspend "freezes" processes for several hours anyway ...
+If it was just for very similar kernels, i.e. most
+-pre and -ac kernels it would probably work fine.
+If not, then you could just do the Monte route.
 
-Note that there is a patch for hot replacing a kernel, which is equivalent
-to rebooting, but much faster :
-Two Kernel Monte (Linux loading Linux on x86)
-http://www.scyld.com/products/beowulf/software/monte.html
+Laramie
 
-
-> This could cause problems with tcp/ip connections timeing out say on a 
-> webserver, but it would be more managable than a few minutes downtime to 
-> restart the machine.
-
-[ rest snipped ]
-
--- 
-David Balazic
---------------
-"Be excellent to each other." - Bill & Ted
-- - - - - - - - - - - - - - - - - - - - - -

@@ -1,74 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265271AbTLZU1G (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Dec 2003 15:27:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265273AbTLZU1G
+	id S265253AbTLZUjB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Dec 2003 15:39:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265254AbTLZUjA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Dec 2003 15:27:06 -0500
-Received: from adsl-67-121-154-253.dsl.pltn13.pacbell.net ([67.121.154.253]:19338
-	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
-	id S265271AbTLZU1C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Dec 2003 15:27:02 -0500
-Date: Fri, 26 Dec 2003 12:27:00 -0800
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Can't eject a previously mounted CD?
-Message-ID: <20031226202700.GD12871@triplehelix.org>
-Mail-Followup-To: joshk@triplehelix.org,
-	linux-kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20031226081535.GB12871@triplehelix.org> <20031226103427.GB11127@ucw.cz> <20031226194457.GC12871@triplehelix.org> <3FEC91FA.1050705@rackable.com>
+	Fri, 26 Dec 2003 15:39:00 -0500
+Received: from ncc1701.cistron.net ([62.216.30.38]:18332 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S265253AbTLZUi6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Dec 2003 15:38:58 -0500
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: XFS filesystem corruption: 2.6.0. Massive failure. With raid5
+Date: Fri, 26 Dec 2003 20:38:57 +0000 (UTC)
+Organization: Cistron Group
+Message-ID: <bsi691$fkf$1@news.cistron.nl>
+References: <1072425031.737.9.camel@osaka>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Qrgsu6vtpU/OV/zm"
-Content-Disposition: inline
-In-Reply-To: <3FEC91FA.1050705@rackable.com>
-User-Agent: Mutt/1.5.4i
-From: joshk@triplehelix.org (Joshua Kwan)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1072471137 16015 62.216.29.200 (26 Dec 2003 20:38:57 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <1072425031.737.9.camel@osaka>,
+Jerry Haltom  <jhaltom@feedbackplusinc.com> wrote:
+>This has happened twice now. Massive XFS file system corruption. The
+>system is running on a 3ware card in Raid5 config. / is XFS. Cannot
+>mount:
+>
+>XFS: log has mismatchd uuid - can't recover
+>XFS: failed to find log head
+>XFS: log mount/recovery/failed
+>...
+>
+>xfs_repair lets me know a lot of stuff, and:
+>
+>* ERROR: mismathced uuid in log
+>* SB: some long number
+>* log: a slightly different long number
+>
+>It doesn't work.
+>
+>xfs_logprint -t /dev/sda4 produces a lot of illegal type errors and ends
+>up with Segmentation fault (uh oh).
 
---Qrgsu6vtpU/OV/zm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I'm testing the same setup here right now, and you got me a bit worried..
+If you know of a way to reproduce the bug, I can see if I can
+replicate it on my hardware.
 
-On Fri, Dec 26, 2003 at 11:54:34AM -0800, Samuel Flory wrote:
->   What does fuser -kv /mnt/cdrom claim?
+Mike.
+-- 
+When life hands you lemons, grab the salt and pass the tequila.
 
-It's /cdrom here. I tried it on both /cdrom and /dev/cdrom after
-unmounting it, and the output was blank.
-
-While mounted, here was the output:
-
-                     USER        PID ACCESS COMMAND
-/cdrom               root     kernel mount  /cdrom
-No automatic removal. Please use  umount /cdrom
-
-I guess that doesn't say much though...
-
---=20
-Joshua Kwan
-
---Qrgsu6vtpU/OV/zm
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iQIVAwUBP+yZkqOILr94RG8mAQKiDBAA0GDJjazUqKzdCddRhFLvH1yEDVt64wYg
-rmxK/yPPqLudgrgiPceL876G0rI9lFvJQoE3xXD3XLmVFzIH7PTEgHT4Ibo5ZK5T
-whC8k7wVnabzJdKWB8olsEYx3GycUjfER/g344vOjto4qV+djpy/zTvYY3HLUaIH
-mGIMVsyoGYAo2LVrMipT4N+6QW+gRChkReJtCabHkSxOgIPnqVkAQe1py2cqi/SO
-d6UkUMmEDGbRZgR8ufcOKyN9O9Mi5EFqbwd5frkSZMi1M/Y7NySPV5tejIPpIkSm
-cfecSr69bCVFGIZJCFsnU9yEiPb283n2XoP5tuM2ukvaO5qUATrgcoEHOVa2wqbM
-nylJysiVAgZwuKMSqMvAU8kfETr0InBmhTehqFqSb2LbIzFS5kyRILT71ygeB4xc
-bfIpmL2LJi+V8uw9ePqmcOMebHlzQJuU91YhHnJJGOkw1QEvnOB6bXcWO9T3CC6m
-cjQF7YcSTQbb8QI0SldGGSOVOev9f5SyKZDDGjKFbhSm786gVAEfLyfQvrlIqPfO
-U6Yw1K3ZDRKxGBNN69TGQz9cotzY1gPkfJHfSZ3kUcY9ILepuwQKetCDxKRAodmc
-0nbjCo4NDfgFxqKmuUtgXrVRChpFbCPOmoWkBVRye/JNMF9Y498dRyjr+xY7hYu3
-XOByxY1RQ08=
-=z0Qx
------END PGP SIGNATURE-----
-
---Qrgsu6vtpU/OV/zm--

@@ -1,44 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282838AbRLLWfg>; Wed, 12 Dec 2001 17:35:36 -0500
+	id <S282844AbRLLWoH>; Wed, 12 Dec 2001 17:44:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282817AbRLLWfR>; Wed, 12 Dec 2001 17:35:17 -0500
-Received: from ulima.unil.ch ([130.223.144.143]:2176 "HELO ulima.unil.ch")
-	by vger.kernel.org with SMTP id <S282838AbRLLWez>;
-	Wed, 12 Dec 2001 17:34:55 -0500
-Date: Wed, 12 Dec 2001 23:34:53 +0100
-From: Gregoire Favre <greg@ulima.unil.ch>
-To: tech_info@vmware.com
+	id <S282848AbRLLWn5>; Wed, 12 Dec 2001 17:43:57 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:15378 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S282844AbRLLWnw>; Wed, 12 Dec 2001 17:43:52 -0500
+Subject: Re: 2.4.16 not booting with Athlon optimisations
+To: lakeland@atlas.otago.ac.nz (Corrin Lakeland)
+Date: Wed, 12 Dec 2001 22:51:44 +0000 (GMT)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Unable to handle kernel NULL pointer dereference at virtual address 00000004 (VMWARE,2.4.16 and 2.4.17-pre7)
-Message-ID: <20011212233453.A3795@ulima.unil.ch>
-In-Reply-To: <20011210164505.A3770@ulima.unil.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=unknown-8bit
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20011210164505.A3770@ulima.unil.ch>
-User-Agent: Mutt/1.3.22.1i
+In-Reply-To: <Pine.OSF.4.21.0112130954120.517863-100000@atlas.otago.ac.nz> from "Corrin Lakeland" at Dec 13, 2001 10:01:37 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16EIE4-0002jn-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 10, 2001 at 04:45:05PM +0100, Gregoire Favre wrote:
-> Hello,
-> 
-> I try to use VMWARE 3.0 under 2.4.16 and had problems, so I try under
-> 2.4.17-pre7, with same results:
-> 
-> ble to handle kernel NULL pointer dereference at virtual address 00000004
-> ...
+> went largely as expected until I decided to recompile the kernel (2.4.16)
+> for the Duron rather than a generic PII.  Immediatly after booting with
+> the new kernel I got oopses.  Changing kernel parameters doesn't seem to
+> have any effect -- Duron optimisation -> !boot.
 
-Shame on me: I compiled my kernel with gcc (which is 3.02) and
-vmware-config.pl take kgcc (if I have well understood) as default, which
-wasn't working that good...
+Congratulations. You probably have a VIA chipset and a BIOS that misconfigures
+MWQ. 2.4.17pre8 might work for you, as might a BIOS update
 
-Sorry, now I could try vmware ;-)
-
-Thanks,
-
-	Grégoire
-________________________________________________________________
-http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265180AbSJRPxX>; Fri, 18 Oct 2002 11:53:23 -0400
+	id <S265189AbSJRPyC>; Fri, 18 Oct 2002 11:54:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265189AbSJRPxX>; Fri, 18 Oct 2002 11:53:23 -0400
-Received: from cs.columbia.edu ([128.59.16.20]:29413 "EHLO cs.columbia.edu")
-	by vger.kernel.org with ESMTP id <S265180AbSJRPxW>;
-	Fri, 18 Oct 2002 11:53:22 -0400
-Subject: understanding devpts_pty_new/kill
-From: Shaya Potter <spotter@cs.columbia.edu>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1034956748.2256.62.camel@zaphod>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.1.2 (Preview Release)
-Date: 18 Oct 2002 11:59:08 -0400
+	id <S265192AbSJRPyC>; Fri, 18 Oct 2002 11:54:02 -0400
+Received: from mx.alles.or.jp ([210.231.151.65]:50858 "EHLO mx.alles.or.jp")
+	by vger.kernel.org with ESMTP id <S265189AbSJRPyA>;
+	Fri, 18 Oct 2002 11:54:00 -0400
+Message-ID: <3DB03026.63AF250F@alles.or.jp>
+Date: Sat, 19 Oct 2002 01:00:38 +0900
+From: Takeharu Kato <tk1219@alles.or.jp>
+X-Mailer: Mozilla 4.05 [ja] (Win95; I)
+MIME-Version: 1.0
+To: karim@opersys.com
+CC: linux-kernel <linux-kernel@vger.kernel.org>, LTT-Dev <ltt-dev@shafik.org>
+Subject: Re: [ltt-dev] [ANNOUNCE] LTT 0.9.6pre2: Per-CPU buffers, TSC timestamps, etc.
+References: <3DAF850D.D104A6D@opersys.com>
+Content-Type: text/plain; charset=iso-2022-jp
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying to understand how the path those functions take to be called.
+Dear Yaghmour:
 
->From a basic understanding, is that we register f_ops for tty's and
-ptys.  So we register tty_open for tty's which includes ptmx. 
+Karim Yaghmour wrote:
+> 
+> A new development version of LTT is now available, 0.9.6pre2.
+> Here's what's new:
+> - Per-CPU buffering
+> - TSC timestamping
+> - Use of syscall interface instead of char dev abstraction
+> 
+As long as I think, 0.9.6pre2 has called CHAR DEV in LibUserTrace.
+Should I apply the patch which you send before?
 
-therefore when we open ptmx, tty_open gets called, we do the code for
-PTMX, which calls devpts_pty_new() which creates the appropriate
-enteries in /dev/pts.  These f_ops are registered in chrdevs struct
-(from fs/devices.c)
-
-I'm a little more hazy on devpts_pty_kill.  That seems to similiar
-(except it's in pty_close, in pty.c) which is part of a much larger "tty
-driver" structure and is the "close" member of that structure.  This
-structure is then registered.  Then basically, it's also registered w/
-tty_fops, but tty_release calls tty->driver.close.
-
-Is this a correct understanding, or is there more going on behind the
-scenes?
-
-thanks,
-
-shaya potter
-
+-- 
+---------------------------
+Takeharu KATO
+E-mail: tk1219@alles.or.jp

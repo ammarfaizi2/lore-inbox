@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264897AbSJ3UYu>; Wed, 30 Oct 2002 15:24:50 -0500
+	id <S264915AbSJ3U3m>; Wed, 30 Oct 2002 15:29:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264904AbSJ3UYu>; Wed, 30 Oct 2002 15:24:50 -0500
-Received: from newmail.somanetworks.com ([216.126.67.42]:35504 "EHLO
-	mail.somanetworks.com") by vger.kernel.org with ESMTP
-	id <S264897AbSJ3UYr>; Wed, 30 Oct 2002 15:24:47 -0500
-Date: Wed, 30 Oct 2002 15:31:07 -0500 (EST)
-From: Scott Murray <scottm@somanetworks.com>
-X-X-Sender: <scottm@rancor.yyz.somanetworks.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Steven Dake <sdake@mvista.com>, Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH] SCSI and FibreChannel Hotswap for linux 2.5.44-bk2
-In-Reply-To: <1036007128.5141.119.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.33.0210301530270.18116-100000@rancor.yyz.somanetworks.com>
+	id <S264917AbSJ3U3m>; Wed, 30 Oct 2002 15:29:42 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:49299 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S264915AbSJ3U3m>; Wed, 30 Oct 2002 15:29:42 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Wed, 30 Oct 2002 12:45:38 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Andrew Morton <akpm@digeo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] sys_epoll 0.14 ...
+In-Reply-To: <Pine.LNX.4.44.0210301230350.4060-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0210301243380.1446-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 30 Oct 2002, Alan Cox wrote:
+On Wed, 30 Oct 2002, Linus Torvalds wrote:
 
-> On Wed, 2002-10-30 at 18:54, Steven Dake wrote:
-> > This patch has been reviewed by Alan Cox, Greg KH, Christoph Hellwig,
-> > Patrick Mansfield, Rob Landly, Jeff Garzik, Scott Murray, James
 >
-> Glanced at briefly once, not reviewed.
+> On Wed, 30 Oct 2002, Davide Libenzi wrote:
+> >
+> > Thank you very much Janet for doing performance and stability test.
+> > Working with Andrew we agreed to remove the main hash table since, by
+> > using in full the fcblist.c capabilities, it is not needed any more.
+>
+> Ok. I was just about to apply the 0.14 stuff, so please just cc me with
+> the patch (and an appropriate description for the ChangeSet comment) when
+> you're done with the cleanup..
 
-I didn't look at it all, in fact.  I just commented on some general
-hotplug issues raised in the discussion.
-
-Scott
+Linus, it would be good if you could wait a couple of days so that cleanup
+and regression testing is completed. Friday looks good for me ...
 
 
--- 
-Scott Murray
-SOMA Networks, Inc.
-Toronto, Ontario
-e-mail: scottm@somanetworks.com
+
+- Davide
+
 

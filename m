@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268008AbUHZJXA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268003AbUHZJWy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268008AbUHZJXA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 05:23:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267882AbUHZJSy
+	id S268003AbUHZJWy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 05:22:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268207AbUHZJOg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 05:18:54 -0400
-Received: from main.uucpssh.org ([212.27.33.224]:51166 "EHLO main.uucpssh.org")
-	by vger.kernel.org with ESMTP id S268020AbUHZJKQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 05:10:16 -0400
-To: "Nemosoft Unv." <nemosoft@smcc.demon.nl>
-Cc: Linux USB Mailing List <linux-usb-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.6.8 pwc patches and counterpatches
-References: <1092793392.17286.75.camel@localhost>
-	<1092845135.8044.22.camel@localhost> <20040823221028.GB4694@kroah.com>
-	<200408250058.24845@smcc.demon.nl>
-From: syrius.ml@no-log.org
-Message-ID: <87isb6cn1y.87hdqqcn1y@87fz6acn1y.message.id>
-Date: Thu, 26 Aug 2004 11:00:43 +0200
-In-Reply-To: <200408250058.24845@smcc.demon.nl> (Nemosoft Unv.'s message of
- "Wed, 25 Aug 2004 00:58:24 +0200")
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
+	Thu, 26 Aug 2004 05:14:36 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:56267 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S267839AbUHZJA0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 05:00:26 -0400
+Message-ID: <412DA6A9.5060106@namesys.com>
+Date: Thu, 26 Aug 2004 02:00:25 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Rik van Riel <riel@redhat.com>
+CC: Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>,
+       Nikita Danilov <Nikita@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+References: <Pine.LNX.4.44.0408251703430.5145-100000@chimarrao.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0408251703430.5145-100000@chimarrao.boston.redhat.com>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rik van Riel wrote:
 
-Hi there,
+>On Wed, 25 Aug 2004, Hans Reiser wrote:
+>
+>  
+>
+>>other filesystems in that, but Christoph is a puppy who has never 
+>>    
+>>
+>
+>It's not Christoph who's shown more bark than bite in this thread.
+>
+>  
+>
+The bite is at www.namesys.com/download.html
 
-I'm very sad to read about that story...
-I don't know all of the background, I first read
-http://www.smcc.demon.nl/webcam/ then went to lkml to read a bit more
-about it.
-I just don't understand why Nemosoft did remove all his work (sources,
-doc, and stuff). I don't like to be taken hostage !
-btw nemosoft, atm what's philips' position about that ended nda and
-about opening their source ? (has anyone asked philips already ?)
 
-anyway, i've just applied pwcx-9.0-beta-2 on top of 2.6.9-rc1-bk1 and
-it's working.
-but I'm looking for the lastest pwc-9.0.2.tar.gz and pwcx-9.0.tar.gz,
-could someone tell me where to find them (or send them to me) please.
-
-TIA.
-
--- 
+Hans

@@ -1,47 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262452AbUJ0OSi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262456AbUJ0OWa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262452AbUJ0OSi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 10:18:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262454AbUJ0OSi
+	id S262456AbUJ0OWa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 10:22:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262454AbUJ0OW3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 10:18:38 -0400
-Received: from wproxy.gmail.com ([64.233.184.199]:14174 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262452AbUJ0OSc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 10:18:32 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=L/+1otPjVc2yN1lzV/u0iJ4SBOzJVQCwbow2CS/Zvf1s4bBFxsxXfn0emLuogH2myAmzzlcuHZgd4qnStCd4rYOERnb7An4maDa25YBs8S1IrHXYgjgtegToXN3s3FOzCIvs1l8YvbzU5ZyPblFnrfJQtR89Iji3z8PranildQA=
-Message-ID: <6cb735e904102707181e58d208@mail.gmail.com>
-Date: Wed, 27 Oct 2004 17:18:31 +0300
-From: Guven Demir <guven.demir@gmail.com>
-Reply-To: Guven Demir <guven.demir@gmail.com>
-To: kernel <linux-kernel@vger.kernel.org>
-Subject: Question: how to invalidate read cache
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 27 Oct 2004 10:22:29 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:27407 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S262456AbUJ0OVL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 10:21:11 -0400
+Message-ID: <417FAE3F.20908@vmware.com>
+Date: Wed, 27 Oct 2004 07:18:39 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: benh@kernel.crashing.org, linux-kernel@vger.kernel.org
+Subject: Re: Strange IO behaviour on wakeup from sleep
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 27 Oct 2004 14:18:39.0771 (UTC) FILETIME=[DB0C2EB0:01C4BC2F]
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.28.0.12; VDF: 6.28.0.41; host: mailout1.vmware.com)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi all,
+>
+>
+>Hi !
+>
+>Not much datas at this point yet, but paulus and I noticed that current
+>bk (happened already last saturday or so) has a very strange problem
+>when waking up from sleep (suspend to ram) on our laptops.
+>
+>This doesn't seem to be directly related to the PM code, at least not
+>the arch one, as far as I know. The IDE throughput goes down to less
+>than 100k/sec on hdparm. We haven't yet figured out where the time is
+>lost, the disk seem to properly be restored to UDMA4 as usual, that code
+>didn't change for ages, I don't think it's a problem at that level in
+>IDE.
+>  
+>
 
-i hope this is the right place to ask question... anyway, it goes like this:
+I would tend to be very suspicious of DMA not being restored correctly 
+because on some systems, prior to or during suspend, DMA may be shutdown 
+to conserve power.  There are changes afloat that touch suspend/resume, 
+and there have been historical problems with DMA not being restored 
+properly after wakeup on some laptops.
 
-how can i invalidate the read cache for a file system?
+Although this may be another shot in the dark, it might rule out the DMA 
+problem:  try cat /proc/ide/yourchipset before and after suspend and 
+note any changes.  Failing that, use hdparm to turn off DMA before 
+suspend and see if the performance suffers to the same degree as after 
+wakeup.
 
-the reason i'm asking this question is:
-
-i'm mounting this ntfs partition to my linux box r/o, which i also
-used by "another os" running under vmware r/w.
-
-so when this partition gets updated under vmware, linux does not get
-the changes until i umount / mount the partition again.
-
-the problem is, i cant do this when the partiton is busy so i'm stuck
-with invalid directory entries etc...
-
-so, is there a way to disable or invalidate the read cache for this partition?
-
-thanks in advance.
+Zachary Amsden
+zach@vmware.com

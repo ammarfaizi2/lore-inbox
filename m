@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290753AbSBFTho>; Wed, 6 Feb 2002 14:37:44 -0500
+	id <S290756AbSBFTqH>; Wed, 6 Feb 2002 14:46:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290772AbSBFThf>; Wed, 6 Feb 2002 14:37:35 -0500
-Received: from ns.suse.de ([213.95.15.193]:52234 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S290767AbSBFTha>;
-	Wed, 6 Feb 2002 14:37:30 -0500
-Date: Wed, 6 Feb 2002 20:37:29 +0100
-From: Dave Jones <davej@suse.de>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [RFC] List of maintainers (draft #2)
-Message-ID: <20020206203729.F11277@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200202061008.g16A8Ct29437@Port.imtp.ilyichevsk.odessa.ua> <20020206193300.GA314@mis-mike-wstn>
+	id <S290767AbSBFTp5>; Wed, 6 Feb 2002 14:45:57 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:24962
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S290756AbSBFTpf>; Wed, 6 Feb 2002 14:45:35 -0500
+Date: Wed, 6 Feb 2002 12:45:15 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Christoph Hellwig <hch@ns.caldera.de>
+Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
+Message-ID: <20020206194515.GJ1447@opus.bloom.county>
+In-Reply-To: <20020206000343.I14622@work.bitmover.com> <200202061935.g16JZLh18377@ns.caldera.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020206193300.GA314@mis-mike-wstn>; from mfedyk@matchmail.com on Wed, Feb 06, 2002 at 11:33:00AM -0800
+In-Reply-To: <200202061935.g16JZLh18377@ns.caldera.de>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 06, 2002 at 11:33:00AM -0800, Mike Fedyk wrote:
+On Wed, Feb 06, 2002 at 08:35:21PM +0100, Christoph Hellwig wrote:
+> In article <20020206000343.I14622@work.bitmover.com> you wrote:
+> >> I second that. Maybe however we can have it both ways -- I have no
+> >> experience with bk, but can't this same info be made available elsewhere
+> >> like a public web interface or some such thing?
+> >
+> > I've put up read-only clones on 
+> >
+> > 	http://linux.bkbits.net
+> >
+> > you can go there and get the changelogs in web form.  I just figured out
+> > what a bad choice 8088 was for a port and we'll be moving stuff over to
+> > 8080 since that seems to go through more firewalls.
+> 
+> Btw, is there a generic way to move repos cloned from Ted's (now
+> orphaned?) 2.4 tree to Linus' official one?
 
- > > H. Peter Anvin <hpa@zytor.com> [5 feb 2002]
- > > 	?
- > Kernel.org sysadmin.  Contact me if you notice something breaks, or if you
- > want a change make sure you give me at least 1-2 weeks...
-
- hpa also maintains a handful of drivers/core code.
- MAINTAINERS actually lists this, but I guess that would be too
- obvious a place to look 8-)
+Working under the assuming that Linus started his own tree first and
+didn't grab Ted's, no.
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

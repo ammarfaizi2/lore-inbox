@@ -1,62 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263996AbRFMPWz>; Wed, 13 Jun 2001 11:22:55 -0400
+	id <S264001AbRFMP0Y>; Wed, 13 Jun 2001 11:26:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264001AbRFMPWp>; Wed, 13 Jun 2001 11:22:45 -0400
-Received: from dialin-194-29-61-34.berlin.gigabell.net ([194.29.61.34]:772
-	"EHLO server1.localnet") by vger.kernel.org with ESMTP
-	id <S263996AbRFMPWf>; Wed, 13 Jun 2001 11:22:35 -0400
-Date: Wed, 13 Jun 2001 17:23:20 +0200
-From: =?ISO-8859-1?Q?Ren=E9?= Rebe <rene.rebe@gmx.net>
-To: linux-kernel@vger.kernel.org,
-        "Ademar de Souza Reis Jr." <ademar@conectiva.com.br>
-Cc: Rolf Schillinger <rolf@sir-wum.de>
-Subject: sis630 - help needed debugging in the kernel
-Message-Id: <20010613172320.306d5208.rene.rebe@gmx.net>
-X-Mailer: Sylpheed version 0.4.66 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Organization: FreeSourceCommunity ;-)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S264005AbRFMP0O>; Wed, 13 Jun 2001 11:26:14 -0400
+Received: from smtp6vepub.gte.net ([206.46.170.27]:378 "EHLO
+	smtp6ve.mailsrvcs.net") by vger.kernel.org with ESMTP
+	id <S264001AbRFMP0D>; Wed, 13 Jun 2001 11:26:03 -0400
+Message-ID: <3B278602.B1C4DFB8@neuronet.pitt.edu>
+Date: Wed, 13 Jun 2001 11:25:54 -0400
+From: Rafael Herrera <raffo@neuronet.pitt.edu>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4.SuSE-12 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Mark Mokryn <mark@sangate.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: SMP module compilation on UP?
+In-Reply-To: <3B276DDE.A19F60DF@sangate.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all!
+Mark Mokryn wrote:
+> Is it possible to build an SMP module on a machine running a UP kernel
+> (or vice versa)? We of course get unresolved symbols during module load
+> due to the smp prefix on the ksyms, and haven't seen how to get around
+> it. (Defining __SMP__ does not cut it, though I believe this used to
+> work a while ago).
 
-I currently try to debug why the sisfb driver crashes my machine. (SIS 630
-based laptop - linux-2.4.5-ac13).
-
-On my serial-console I get:
-[...]
-sisfb: framebuffer at 0xe0000000, mapped to 0xcb800000, size 16384k
-sisfb: MMIO at 0xefce0000, mapped to 0xcc801000, size 128k
-sisfb: encountered LCD # debug output by me
-sisfb: fall back to 1024x768 # debug ouput by me
-sisfb: LCD mode # debug output by me
-sisfb: mode is 800x600x8, linelength=800
-[...]
-Unable to handle kernel paging request at virtual address cc800180
-[oops]
-
-This happens in the method: register_framebuffer called from sisfb_init.
-
-I compared the sisfb_init with other framebuffer drivers and can't find what is wrong.
-(I normally don't do kernel hacking...). What does the kernel try to do with the
-_io-memory_, mapped around line 2230 in sis_main.c? - Must the memory reqeuested or
-mapped in an other way?
-
-Another strange thing is, that the code seems to work for some people ...
-
-I would be nice if anyone could give me a hint - because the sis-drivers (kernel and X)
-doesn't work for many people ...
-
-k33p h4ck1n6 René
-
+Yes. It does not matter what kernel you are running. What's important is
+that you configure your sources. Configure your kernel for SMP and do a
+'make dep', then compile your module.
 -- 
-René Rebe (Registered Linux user: #127875)
-http://www.rene.rebe.myokay.net/
--Germany-
-
-Anyone sending unwanted advertising e-mail to this address will be charged
-$25 for network traffic and computing time. By extracting my address from
-this message or its header, you agree to these terms.
+     Rafael

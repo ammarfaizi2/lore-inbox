@@ -1,42 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262060AbUDYHKy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262217AbUDYHcQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262060AbUDYHKy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Apr 2004 03:10:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262205AbUDYHKy
+	id S262217AbUDYHcQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Apr 2004 03:32:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262339AbUDYHcP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Apr 2004 03:10:54 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:5070 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S262060AbUDYHKx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Apr 2004 03:10:53 -0400
-Date: Sun, 25 Apr 2004 03:10:29 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Alexey Mahotkin <alexm@w-m.ru>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: flooded by "CPU#0: Running in modulated clock mode"
-In-Reply-To: <20040424110730.GB2595@openzaurus.ucw.cz>
-Message-ID: <Pine.LNX.4.58.0404250309080.3414@montezuma.fsmlabs.com>
-References: <8765btmd9n.fsf@dim.w-m.ru> <Pine.LNX.4.58.0404211355220.2250@montezuma.fsmlabs.com>
- <87y8opkxyo.fsf@dim.w-m.ru> <Pine.LNX.4.58.0404211411390.2250@montezuma.fsmlabs.com>
- <20040424110730.GB2595@openzaurus.ucw.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 25 Apr 2004 03:32:15 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:19731 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S262217AbUDYHcO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Apr 2004 03:32:14 -0400
+Date: Sun, 25 Apr 2004 09:29:18 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: File system compression, not at the block layer
+Message-ID: <20040425072918.GA21148@alpha.home.local>
+References: <20040424073622.GN596@alpha.home.local> <200404250305.i3P355eF003826@pincoya.inf.utfsm.cl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200404250305.i3P355eF003826@pincoya.inf.utfsm.cl>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 24 Apr 2004, Pavel Machek wrote:
+On Sat, Apr 24, 2004 at 11:05:05PM -0400, Horst von Brand wrote:
+ 
+> >                             Haven't you noticed that drives with many
+> > platters are always faster than their cousins with fewer platters ? And
+> > I don't speak about access time, but about sequential reads.
+> 
+> Have you ever wondered how they squeeze 16 or more platters into that slim
+> enclosure? If you take them apart, the question evaporates: There are 2 or
+> 3 platters in them, no more. The "many platters" are an artifact of BIOS'
+> "disk geometry" description.
 
-> Hi!
->
->
-> > If i recall correctly it's hardware set, i'm not sure if BIOSes can modify
-> > that these days. One thing you may want to note is that in the modulated
-> > state the processor doesn't process interrupts and runs at a 50% clock
->
-> No interrupts? That would mean almost dead machine.
-> Are you sure?
+I know, I was speaking about physical platters of course. Mark Hann told
+me in private that he disagreed with me, so I checked recent disks 
+(36, 73, 147 GB SCSI with 1, 2, 4 platters) and he was right, they have
+exactly the same spec concerning speed. But I said that I remember the
+times when I regularly did this test on disks that I was integrating about
+7-8 years ago, they were 2.1, 4.3, 6.4 GB (1,2,3 platters), and I'm fairly
+certain that the 1-platter performed at about 5 MB/s while the 6.4 was around
+12 MB/s. BTW, the 9GB SCSI I have in my PC does about 28 MB/s for 1 platter,
+while its 18 GB equivalent (2 platters) does about 51. So I think that what
+I observed remained true for such capacities, but changed on bigger disks
+because of mechanical constraints. Afterall, what's 18 GB now ? Less than
+one twentieth of the biggest disk.
 
-Yep, it's normally 50% modulation for 1ms or until the temperature drops
-below threshold, whichever comes first with interrupts remaining pending.
+Anyway, this is off-topic, so that's my last post on LKML on the subject.
 
+Regards,
+Willy

@@ -1,92 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277918AbRLNXJl>; Fri, 14 Dec 2001 18:09:41 -0500
+	id <S278701AbRLNXKc>; Fri, 14 Dec 2001 18:10:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280191AbRLNXJd>; Fri, 14 Dec 2001 18:09:33 -0500
-Received: from mail.vasoftware.com ([198.186.202.175]:24266 "EHLO
-	mail.vasoftware.com") by vger.kernel.org with ESMTP
-	id <S285574AbRLNXJI>; Fri, 14 Dec 2001 18:09:08 -0500
-Date: Fri, 14 Dec 2001 15:11:03 -0800 (PST)
-From: Amy Abascal-Turner <amy@vasoftware.com>
-To: <linux-kernel@vger.kernel.org>
-cc: Josh Neal <jneal@vasoftware.com>
-Subject: Re: TLB IPI Wait Errors & APIC interrupt handling
-In-Reply-To: <Pine.LNX.4.30.0112141420380.22243-100000@beefcake.hdqt.vasoftware.com>
-Message-ID: <Pine.LNX.4.30.0112141510530.22243-100000@beefcake.hdqt.vasoftware.com>
+	id <S280365AbRLNXKM>; Fri, 14 Dec 2001 18:10:12 -0500
+Received: from mail.libertysurf.net ([213.36.80.91]:4903 "EHLO
+	mail.libertysurf.net") by vger.kernel.org with ESMTP
+	id <S278701AbRLNXKA> convert rfc822-to-8bit; Fri, 14 Dec 2001 18:10:00 -0500
+Date: Fri, 14 Dec 2001 21:16:06 +0100 (CET)
+From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
+X-X-Sender: <groudier@gerard>
+To: Peter Bornemann <eduard.epi@t-online.de>
+cc: Jens Axboe <axboe@suse.de>, Kirk Alexander <kirkalx@yahoo.co.nz>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: your mail
+In-Reply-To: <Pine.LNX.4.33.0112142248290.4722-100000@eduard.t-online.de>
+Message-ID: <20011214210728.K2427-100000@gerard>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oh, I should mention that they're using 2.2.19
 
---
-Amy Abascal-Turner                   510-687-6741
-Sr. Mgr. Product Support       amy@vasoftware.com
-VA SOFTWARE CORP.       http://www.vasoftware.com
--------------------------------------------------
 
-On Fri, 14 Dec 2001, Amy Abascal-Turner wrote:
+On Fri, 14 Dec 2001, Peter Bornemann wrote:
 
-> Hi!
+> On Fri, 14 Dec 2001, [ISO-8859-1] Gérard Roudier wrote:
+> > By the way, for now, I haven't received any report about sym-2 failing
+> > when sym-1 or ncr succeeds, and my feeling is that this could well be very
+> > unlikely.
+> >
 >
-> VA Linux (Software) is in dire need of some kernel help.
-> If you know anything about TLB IPI and/or APIC interrupt
-> handling, we will gladly pay well for your expertise and
-> time.  We need the help on a very short timeline.
+> Ahemm -- well,
+> maybe I'm the first one. I have a symbios card, which is recognized by
+> lspci:  SCSI storage controller: LSI Logic Corp. / Symbios Logic Inc.
+> (formerly NCR) 53c810 (rev 23).
 >
-> A brief description of the problem is below.  Please email
-> me or call me at 408-621-7054 (or the number below) if you
-> can help or would like further details.
+> This card goes into an endless loop during parity-checking. So tried to
+> disable it for the new sym53cxx in modules.conf:
+> options sym53c8xx mpar:n spar:n
+> This did not help in this case, however.
 >
-> Thanks!
+> There have been so far three ways to solve  this problem:
+> 1. Use the very old ncr53c7,8 or so driver. This is working rather
+> unreliable for me.
+> 2. Use the ncr53c8xx, which works usually well
+> 3. Use sym53c8xx(old) compiled with parity disabled
 >
-> Amy
-> --
-> Amy Abascal-Turner                   510-687-6741
-> Sr. Mgr. Product Support       amy@vasoftware.com
-> VA SOFTWARE CORP.       http://www.vasoftware.com
-> -------------------------------------------------
->
-> Brief History
->
-> A scientific computing cluster of 600 VA 1220s has been
-> experiencing various problems under heavy loading
-> conditions under production scenarios.  VA engineers have
-> been dedicated to identifying and solving these problems
-> and although the situation has vastly improved, it is
-> still not completely resolved.  The primary issue
-> remaining is random rebooting in SMP mode contributing to
-> instability as a cluster.
->
-> Technical Problems
->
-> Random Reboots:
-> "TLB IPI Wait" errors, possibly indicative of kernel
-> deadlock.  This will require kernel-development expertise
-> to resolve.
->
-> Reboots possibly indicative of APIC interrupt handling
-> which will require kernel development expertise to
-> resolve.
->
-> Internal Clock Skew:  resolved on by replacing motherboard
-> on most nodes experiencing problem.  Suspect that some
-> clock problems are side-effects of the APIC/TLB issues
-> noted.
->
-> Resolution
->
-> In order to resolve the Reboot / TLB/IPI issues, the
-> expertise of a kernel developer is required.  We are
-> currently identifying resources to contract with to
-> analyze the problem(s) and implement a solution.
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> Probably there is a way around that, but somebody trying to install Linux
+> from a SCSI-CDROM with this card for the first time will very likely not
+> succeed. I have seen this with (for instance) Corel-Linux and FreeBSD
+> (same driver).
+> NB Parity checking for me is not really all that important as there is no
+> hardrive connected to that card. Only CD and scanner.
+
+About what parity sort are you talking about ?
+PCI parity ? SCSI parity ?
+
+PCI parity checking is not an option. If it is this one, then your
+hardware is simply broken. For such broken hardwares that returns such
+spurious PCI parity error early during HBA probing, sym-2 can detect this
+and disable PCI parity checking. This has been reported to work well under
+FreeBSD. And sym-2 is also supposed to accept the manual disabling, either
+by compiled-in option or using the mpar=n boot-up options.
+
+For SCSI parity, which is different matter, both drivers try to cope and
+still sym-2 should accept the spar=n boot-up option.
+
+Could you, please,  report me more accurate information.
+TIA,
+  Gérard.
 

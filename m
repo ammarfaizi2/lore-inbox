@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261293AbVC0SNM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261270AbVC0SNH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261293AbVC0SNM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 13:13:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261330AbVC0SNM
+	id S261270AbVC0SNH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 13:13:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbVC0SNH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 13:13:12 -0500
-Received: from mail.kroah.org ([69.55.234.183]:27800 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261293AbVC0SNF (ORCPT
+	Sun, 27 Mar 2005 13:13:07 -0500
+Received: from mail.kroah.org ([69.55.234.183]:27032 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261270AbVC0SNE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 13:13:05 -0500
-Date: Sun, 27 Mar 2005 10:12:22 -0800
+	Sun, 27 Mar 2005 13:13:04 -0500
+Date: Sun, 27 Mar 2005 10:10:56 -0800
 From: Greg KH <greg@kroah.com>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Aaron Gyes <floam@sh.nu>, linux-kernel@vger.kernel.org
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Mark Fortescue <mark@mtfhpc.demon.co.uk>, linux-kernel@vger.kernel.org
 Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
-Message-ID: <20050327181221.GB14502@kroah.com>
-References: <1111886147.1495.3.camel@localhost> <490243b66dc7c3f592df7a7d0769dcb7@mac.com>
+Message-ID: <20050327181056.GA14502@kroah.com>
+References: <Pine.LNX.4.10.10503261710320.13484-100000@mtfhpc.demon.co.uk> <20050326182828.GA8540@kroah.com> <1111869274.32641.0.camel@mindpipe> <20050327004801.GA610@kroah.com> <1111885480.1312.9.camel@mindpipe> <20050327032059.GA31389@kroah.com> <1111894220.1312.29.camel@mindpipe>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <490243b66dc7c3f592df7a7d0769dcb7@mac.com>
+In-Reply-To: <1111894220.1312.29.camel@mindpipe>
 User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 26, 2005 at 09:55:33PM -0500, Kyle Moffett wrote:
-> On Mar 26, 2005, at 20:15, Aaron Gyes wrote:
-> >How is what they are doing illegal? How it is even "bad"? They 
-> >obviously
-> >can't give up their IP. Them providing binary modules wrapped in GPL
-> >glue (so anyone can fix most kernel incompatabilities) is a good thing
-> >for Linux. Many people and businesses would not be using Linux if they
-> >did not do that.
+On Sat, Mar 26, 2005 at 10:30:20PM -0500, Lee Revell wrote:
+> On Sat, 2005-03-26 at 19:20 -0800, Greg KH wrote:
+> > > Anyway, this is news to me.  How about putting it in the FAQ?  Too
+> > > politically charged?
+> > 
+> > Why does it need to be in the FAQ, when the file COPYING in the main
+> > kernel directory explicitly spells this out?
 > 
-> I think that at the moment the general consensus is that it is ok to use
-> the Linux kernel APIs (but not the EXPORT_SYMBOL_GPL ones) from binary
-> modules _if_ _and_ _only_ _if_ the driver was originally written 
-> elsewhere and ported to the Linux kernel.  Otherwise it's a derivative
-> work, and must therefore be GPLed.  Yes it's kinda draconian, but it's
-> generally been for the betterment of the Open Source community.
+> That's the problem, it's not spelled out explicitly anywhere.  That file
+> does not address the issue of whether a driver is a "derived work".
+> This is the part he should talk to a lawyer about, right?
 
-No, that is not the general consensus at all.  Please search the
-archives and the web for summaries of this discussion topic the last
-time it came up.
+How about the fact that when you load a kernel module, it is linked into
+the main kernel image?  The GPL explicitly states what needs to be done
+for code linked in.
+
+Also, realize that you have to use GPL licensed header files to build
+your kernel module...
 
 greg k-h

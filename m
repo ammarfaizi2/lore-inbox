@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291452AbSBNLoF>; Thu, 14 Feb 2002 06:44:05 -0500
+	id <S291436AbSBNLzf>; Thu, 14 Feb 2002 06:55:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291460AbSBNLn4>; Thu, 14 Feb 2002 06:43:56 -0500
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:40968 "EHLO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S291452AbSBNLnj>; Thu, 14 Feb 2002 06:43:39 -0500
-Date: Thu, 14 Feb 2002 12:43:35 +0100
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.18-pre9-mjc2
-Message-ID: <20020214114335.GA4058@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1013662709.6671.16.camel@ohdarn.net>
+	id <S291426AbSBNLz2>; Thu, 14 Feb 2002 06:55:28 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:30654 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S291436AbSBNLzO>;
+	Thu, 14 Feb 2002 06:55:14 -0500
+Date: Thu, 14 Feb 2002 17:27:09 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: alan@redhat.com, viro@math.psu.edu
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.18pre9-ac3
+Message-ID: <20020214172709.G8328@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1013662709.6671.16.camel@ohdarn.net>
-User-Agent: Mutt/1.3.27i
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Feb 2002, Michael Cohen wrote:
 
-> 2.4.18-pre9-ac3				(Alan Cox et al)
-...
-> lm_sensors				(lm_sensors team)
+Hi Alan, 
 
-Hum, the last time I merged that stuff into my own kernel, the
-patch-generator that they ship did not include all of the drivers I
-needed. Also, I'm missing i2c from your patch list. Is that intentional
-or is the i2c patch not needed? Which lm_sensors version did you merge?
+In article <200202131317.g1DDHSQ14686@devserv.devel.redhat.com> you wrote:
+
+> Linux 2.4.18pre3-ac2
+> +/o/X	Fix locking of file struct stuff found by ibm	(Dipankar Sarma)
+> 	audit
+
+I can see that the audit patch has in-correct fix for proc_readfd. Can
+you tell us if there is anything else wrong in the audit patch. I will re-do 
+the patch.
+
+Regards,
+Maneesh
 
 -- 
-Matthias Andree
-
-"They that can give up essential liberty to obtain a little temporary
-safety deserve neither liberty nor safety."         Benjamin Franklin
+Maneesh Soni
+IBM Linux Technology Center, 
+IBM India Software Lab, Bangalore.
+Phone: +91-80-5044999 email: maneesh@in.ibm.com
+http://lse.sourceforge.net/locking/rcupdate.html

@@ -1,117 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129114AbRBGO5h>; Wed, 7 Feb 2001 09:57:37 -0500
+	id <S129130AbRBGPGu>; Wed, 7 Feb 2001 10:06:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129132AbRBGO53>; Wed, 7 Feb 2001 09:57:29 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:43741 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129114AbRBGO5N>;
-	Wed, 7 Feb 2001 09:57:13 -0500
-Date: Wed, 7 Feb 2001 14:52:15 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-        Ben LaHaise <bcrl@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Manfred Spraul <manfred@colorfullife.com>, Steve Lord <lord@sgi.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        kiobuf-io-devel@lists.sourceforge.net
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
-Message-ID: <20010207145215.D7254@redhat.com>
-In-Reply-To: <20010207014928.O1167@redhat.com> <Pine.LNX.4.10.10102061829230.2448-100000@penguin.transmeta.com>
+	id <S129186AbRBGPGb>; Wed, 7 Feb 2001 10:06:31 -0500
+Received: from tetsuo.zabbo.net ([204.138.55.44]:15626 "HELO tetsuo.zabbo.net")
+	by vger.kernel.org with SMTP id <S129130AbRBGPGV>;
+	Wed, 7 Feb 2001 10:06:21 -0500
+Date: Wed, 7 Feb 2001 10:06:19 -0500
+From: Zach Brown <zab@zabbo.net>
+To: linux-kernel@vger.kernel.org
+Subject: maestro3 patch, resent
+Message-ID: <20010207100619.A8529@tetsuo.zabbo.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.10.10102061829230.2448-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Feb 06, 2001 at 06:37:41PM -0800
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+duh.  I sent this to rutgers originally..
 
-On Tue, Feb 06, 2001 at 06:37:41PM -0800, Linus Torvalds wrote:
-> >
-> However, I really _do_ want to have the page cache have a bigger
-> granularity than the smallest memory mapping size, and there are always
-> special cases that might be able to generate IO in bigger chunks (ie
-> in-kernel services etc)
+--- 
 
-No argument there.
+Date: Mon, 5 Feb 2001 07:42:25 -0500
+From: Zach Brown <zab@zabbo.net>
+To: linux-kernel@vger.rutgers.edu
+Subject: [PATCH] maestro3 2.4.1-ac2 shutdown fix
 
-> > Yes.  We still have this fundamental property: if a user sends in a
-> > 128kB IO, we end up having to split it up into buffer_heads and doing
-> > a separate submit_bh() on each single one.  Given our VM, PAGE_SIZE
-> > (*not* PAGE_CACHE_SIZE) is the best granularity we can hope for in
-> > this case.
-> 
-> Absolutely. And this is independent of what kind of interface we end up
-> using, whether it be kiobuf of just plain "struct buffer_head". In that
-> respect they are equivalent.
+Its a wonder that anyone lets me write code.
 
-Sorry?  I'm not sure where communication is breaking down here, but
-we really don't seem to be talking about the same things.  SGI's
-kiobuf request patches already let us pass a large IO through the
-request layer in a single unit without having to split it up to
-squeeze it through the API.
+The following fixes a goofy shutdown problem with the 2.4 maestro3 driver
+as it appears in Alan's 2.4.1-ac2 patch.   If power management was
+disabled the maestro3 driver would oops trying to save the dsp state as
+the machine shut down.  
 
-> > THAT is the overhead that I'm talking about: having to split a large
-> > IO into small chunks, each of which just ends up having to be merged
-> > back again into a single struct request by the *make_request code.
-> 
-> You could easily just generate the bh then and there, if you wanted to.
+The full source for the up to date 2.4 driver can be found at:
 
-In the current 2.4 tree, we already do: brw_kiovec creates the
-temporary buffer_heads on demand to feed them to the IO layers.
+	http://www.zabbo.net/maestro3/maestro3-2.4-20010204.tar.gz
 
-> Your overhead comes from the fact that you want to gather the IO together. 
+thanks again to Andres Salomon for continuing to report my dumb bugs.
+Hopefully this will be the last of the trivial bugs, this driver needs
+some real meaningful cleaning up..
 
-> And I'm saying that you _shouldn't_ gather the IO. There's no point.
+-- 
+ zach
 
-I don't --- the underlying layer does.  And that is where the overhead
-is: for every single large IO being created by the higher layers,
-make_request is doing a dozen or more merges because I can only feed
-the IO through make_request in tiny pieces.
-
-> The
-> gathering is sufficiently done by the low-level code anyway, and I've
-> tried to explain why the low-level code _has_ to do that work regardless
-> of what upper layers do.
-
-I know.  The problem is the low-level code doing it a hundred times
-for a single injected IO.
-
-> You need to generate a separate sg entry for each page anyway. So why not
-> just use the existing one? The "struct buffer_head". Which already
-> _handles_ all the issues that you have complained are hard to handle.
-
-Two issues here.  First is that the buffer_head is an enormously
-heavyweight object for a sg-list fragment.  It contains a ton of
-fields of interest only to the buffer cache.  We could mitigate this
-to some extent by ensuring that the relevant fields for IO (rsector,
-size, req_next, state, data, page etc) were in a single cache line.
-
-Secondly, the cost of adding each single buffer_head to the request
-list is O(n) in the number of requests already on the list.  We end up
-walking potentially the entire request queue before finding the
-request to merge against, and we do that again and again, once for
-every single buffer_head in the list.  We do this even if the caller
-went in via a multi-bh ll_rw_block() call in which case we know in
-advance that all of the buffer_heads are contiguous on disk.
-
-
-There is a side problem: right now, things like raid remapping occur
-during generic_make_request, before we have a request built.  That
-means that all of the raid0 remapping or raid1/5 request expanding is
-being done on a per-buffer_head, not per-request, basis, so again
-we're doing a whole lot of unnecessary duplicate work when an IO
-larger than a buffer_head is submitted.
-
-
-If you really don't mind the size of the buffer_head as a sg fragment
-header, then at least I'd like us to be able to submit a pre-built
-chain of bh's all at once without having to go through the remap/merge
-cost for each single bh.
-
-Cheers,
- Stephen
+--- maestro3.c	Mon Feb  5 06:51:58 2001
++++ maestro3.c	Mon Feb  5 07:40:53 2001
+@@ -28,6 +28,8 @@
+  * Shouts go out to Mike "DJ XPCom" Ang.
+  *
+  * History
++ *  v1.21 - Feb 04 2001 - Zach Brown <zab@zabbo.net>
++ *   fix up really dumb notifier -> suspend oops
+  *  v1.20 - Jan 30 2001 - Zach Brown <zab@zabbo.net>
+  *   get rid of pm callback and use pci_dev suspend/resume instead
+  *   m3_probe cleanups, including pm oops think-o
+@@ -147,7 +149,7 @@
+ 
+ #define M_DEBUG 1
+ 
+-#define DRIVER_VERSION      "1.20"
++#define DRIVER_VERSION      "1.21"
+ #define M3_MODULE_NAME      "maestro3"
+ #define PFX                 M3_MODULE_NAME ": "
+ 
+@@ -2763,7 +2765,6 @@
+ static void m3_suspend(struct pci_dev *pci_dev)
+ {
+     unsigned long flags;
+-    int index;
+     int i;
+     struct m3_card *card = pci_dev->driver_data;
+ 
+@@ -2788,15 +2789,18 @@
+ 
+     m3_assp_halt(card);
+ 
+-    index = 0;
+-    DPRINTK(DPMOD, "saving code\n");
+-    for(i = REV_B_CODE_MEMORY_BEGIN ; i <= REV_B_CODE_MEMORY_END; i++)
+-        card->suspend_mem[index++] = 
+-            m3_assp_read(card, MEMTYPE_INTERNAL_CODE, i);
+-    DPRINTK(DPMOD, "saving data\n");
+-    for(i = REV_B_DATA_MEMORY_BEGIN ; i <= REV_B_DATA_MEMORY_END; i++)
+-        card->suspend_mem[index++] = 
+-            m3_assp_read(card, MEMTYPE_INTERNAL_DATA, i);
++    if(card->suspend_mem) {
++        int index = 0;
++
++        DPRINTK(DPMOD, "saving code\n");
++        for(i = REV_B_CODE_MEMORY_BEGIN ; i <= REV_B_CODE_MEMORY_END; i++)
++            card->suspend_mem[index++] = 
++                m3_assp_read(card, MEMTYPE_INTERNAL_CODE, i);
++        DPRINTK(DPMOD, "saving data\n");
++        for(i = REV_B_DATA_MEMORY_BEGIN ; i <= REV_B_DATA_MEMORY_END; i++)
++            card->suspend_mem[index++] = 
++                m3_assp_read(card, MEMTYPE_INTERNAL_DATA, i);
++    }
+ 
+     DPRINTK(DPMOD, "powering down apci regs\n");
+     m3_outw(card, 0xffff, 0x54);
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

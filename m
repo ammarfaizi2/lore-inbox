@@ -1,53 +1,75 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314551AbSE2I5L>; Wed, 29 May 2002 04:57:11 -0400
+	id <S314602AbSE2JLf>; Wed, 29 May 2002 05:11:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314553AbSE2I5K>; Wed, 29 May 2002 04:57:10 -0400
-Received: from mail.loewe-komp.de ([62.156.155.230]:41734 "EHLO
-	mail.loewe-komp.de") by vger.kernel.org with ESMTP
-	id <S314551AbSE2I5K>; Wed, 29 May 2002 04:57:10 -0400
-Message-ID: <3CF4983D.2080207@loewe-komp.de>
-Date: Wed, 29 May 2002 10:58:37 +0200
-From: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: de, en
+	id <S314634AbSE2JLf>; Wed, 29 May 2002 05:11:35 -0400
+Received: from [212.176.239.134] ([212.176.239.134]:9094 "EHLO
+	vzhik.octet.spb.ru") by vger.kernel.org with ESMTP
+	id <S314602AbSE2JLe>; Wed, 29 May 2002 05:11:34 -0400
+Message-ID: <000901c206f0$cfd42620$baefb0d4@nick>
+Reply-To: "Nick Evgeniev" <nick@octet.spb.ru>
+From: "Nick Evgeniev" <nick@octet.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4.19-pre8-ac5 ide & raid0 bugs
+Date: Wed, 29 May 2002 13:11:26 +0400
+Organization: Octet Corp.
 MIME-Version: 1.0
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-CC: James Bottomley <James.Bottomley@SteelEye.com>,
-        Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-Subject: Re: A reply on the RTLinux discussion.
-In-Reply-To: <zippel@linux-m68k.org> <200205281803.g4SI3vx05013@localhost.localdomain> <20020528142147.A7353@vger.timpanogas.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="koi8-r"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-Scanner: exiscan *17CzUM-0000Qx-00*xW.sgZmpYmw* http://duncanthrax.net/exiscan/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff V. Merkey wrote:
-> 
-> I've been reading all this discussion, and I think the solution
-> is pretty simple.  Patents are fairly easy to invalidate if you
-> can show prior art.  Novell and these big software companies 
-> do it all the time.  When they implement something that infringes
-> someone's patent, they wait until litigation is filed, then seek to
-> invalidate specific claims in the patent.  There are administrative
-> procedures in place wih the USPTO that take this into account.  It's
-> expensive and you have to be willing to risk litigation.
-> 
+Hi,
 
-Yes, exactly. Look at http://www.bountyquest.com
+I wrote about ide problems with 2.4.19-pre8 a few days ago (it just trashed
+filesystem in a couple hours) & I was told to try 2.4.19-pre8-ac5 it was a
+little bit better though every 5-8 hours I've got ide errors in log (at
+least it didn't crash my reiserfs volumes yet):
+>-----------------------------
+May 27 14:38:02 vzhik kernel: hdg: status error: status=0x58 { DriveReady
+SeekComplete DataRequest }
+May 27 14:38:02 vzhik kernel:
+May 27 14:38:02 vzhik kernel: hdg: drive not ready for command
+May 27 14:38:02 vzhik kernel: hdg: status error: status=0x58 { DriveReady
+SeekComplete DataRequest }
+May 27 14:38:02 vzhik kernel:
+May 27 14:38:02 vzhik kernel: hdg: drive not ready for command
+May 27 17:08:05 vzhik kernel: hdg: drive_cmd: status=0xd0 { Busy }
+May 27 17:08:05 vzhik kernel:
+May 27 17:08:05 vzhik kernel: hdg: status error: status=0x58 { DriveReady
+SeekComplete DataRequest }
+>-----------------------------
+But now I've got even more bugs in log like:
+>-----------------------------
+May 29 11:28:06 vzhik kernel: raid0_make_request bug: can't convert block
+across chunks or bigger than 16k 37713311 4
+May 29 11:28:06 vzhik kernel: raid0_make_request bug: can't convert block
+across chunks or bigger than 16k 37713343 4
+May 29 11:28:06 vzhik kernel: raid0_make_request bug: can't convert block
+across chunks or bigger than 16k 37713375 4
+May 29 11:28:06 vzhik kernel: raid0_make_request bug: can't convert block
+across chunks or bigger than 16k 37713407 2
+May 29 11:28:07 vzhik kernel: raid0_make_request bug: can't convert block
+across chunks or bigger than 16k 38161563 4
+May 29 11:28:07 vzhik kernel: raid0_make_request bug: can't convert block
+across chunks or bigger than 16k 38161595 4
+May 29 11:28:07 vzhik kernel: raid0_make_request bug: can't convert block
+across chunks or bigger than 16k 38161627 4
+May 29 11:28:07 vzhik kernel: raid0_make_request bug: can't convert block
+across chunks or bigger than 16k 38161659 4
+May 29 11:28:07 vzhik kernel: raid0_make_request bug: can't convert block
+across chunks or bigger than 16k 37713308 4
+>-----------------------------
 
-A patent gives the owner of the patent the right to _deny_ anybody
-to use this "invention" (17 years when granted).
-
-History has proved that inventions where done independantly in
-different countries at almost the same time.
-
-With software patents the chance that two programmers code something
-up almost exactly the same way grows _rapidly_.
-
-I don't like the fact, that somebody can deny me the use of my
-own ideas. The whole idea of helping innovations with patents
-is outdated.
-
+I don't even think about trying 2.4.19-pre9 since it doesn't has any ide
+related issues in its changelist.
+The question is -- What I have to try to get WORKING ide driver under
+"STABLE" kernel?
 
 

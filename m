@@ -1,55 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271410AbTHMG1S (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 02:27:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271411AbTHMG1S
+	id S271408AbTHMGWv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 02:22:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271410AbTHMGWv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 02:27:18 -0400
-Received: from f16.mail.ru ([194.67.57.46]:49930 "EHLO f16.mail.ru")
-	by vger.kernel.org with ESMTP id S271410AbTHMG1Q (ORCPT
+	Wed, 13 Aug 2003 02:22:51 -0400
+Received: from mail.gmx.net ([213.165.64.20]:1509 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S271408AbTHMGWs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 02:27:16 -0400
-From: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	<arvidjaar@mail.ru>
-To: =?koi8-r?Q?=22?=Norbert Preining=?koi8-r?Q?=22=20?= 
-	<preining@logic.at>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SOLUTION Re: 2.6.0-test3 cannot mount root fs
+	Wed, 13 Aug 2003 02:22:48 -0400
+Message-Id: <5.2.1.1.2.20030813081904.019e4608@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
+Date: Wed, 13 Aug 2003 08:26:54 +0200
+To: Pavel Machek <pavel@ucw.cz>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [patch] SCHED_SOFTRR starve-free linux scheduling policy
+  ...
+Cc: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20030812233502.GC1417@elf.ucw.cz>
+References: <5.2.1.1.2.20030810084805.01a0dfa8@pop.gmx.net>
+ <5.2.1.1.2.20030809183021.0197ae00@pop.gmx.net>
+ <Pine.LNX.4.55.0307131442470.15022@bigblue.dev.mcafeelabs.com>
+ <5.2.1.1.2.20030809183021.0197ae00@pop.gmx.net>
+ <5.2.1.1.2.20030810084805.01a0dfa8@pop.gmx.net>
 Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [212.248.25.26]
-Date: Wed, 13 Aug 2003 10:27:06 +0400
-In-Reply-To: <20030813061546.GB24994@gamma.logic.tuwien.ac.at>
-Reply-To: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	  <arvidjaar@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E19mp6A-000Osj-00.arvidjaar-mail-ru@f16.mail.ru>
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 01:35 AM 8/13/2003 +0200, Pavel Machek wrote:
+>Hi!
+>
+> > >> 2.   It's not useful for video (I see no difference between realtime
+> > >> component of video vs audio), and if the cpu restriction were opened up
+> > >> enough to become useful, you'd end up with ~pure SCHED_RR, which you 
+> can
+> > >no
+> > >> way allow Joe User access to.  As a SCHED_LOWLATENCY, it seems like it
+> > >> might be useful, but I wonder how useful.
+> > >
+> > >Why shouldn't it be useful with video, is a frame processing burst longer
+> > >than
+> > >a time slice? The rule for when to and how to revert a SCHED_SOFTRR can be
+> > >changed.
+> >
+> > Everything I've seen says "you need at least a 300Mhz cpu to decode".  My
+> > little cpu is 500Mhz, so I'd have to make more than half of my total
+> > computational power available for SCHED_SOFTRR tasks for video decode in
+> > realtime to work.  Even on my single user box, I wouldn't want to have to
+> > fight for cpu because some random developer decided to use
+> > SCHED_SOFTRR.  If I make that much cpu available, someone will try to use
+> > it.  Personally, I think you should need authorization for even tiny
+> > amounts of cpu at this priority.
+>
+>What about only offering SCHED_SOFTRR to people logged in on console,
+>similar to way cdrom and /dev/dsp is handled on newer boxes?
 
-congratulations :)
+I'm always logged in on console, so with no authorization required, it'd 
+always be available to every task I start.
 
------Original Message-----
-
-> 
-> On Die, 12 Aug 2003, Christian Mautner wrote:
-> > Hast du auch einen kompletten Kernel tarball versucht? Wahrscheinlich
-> 
-> The solution is:
-> 	Get a COMPLETE linux-2.6.0-test3.tar.bz2
-> and 
-> 	DO NOT USE patch
-> 
-> I patched up the kernel from 2.5.20 or something and there seemed to be
-> an error somewhere on the way up. Getting a *clean* kernel tar file,
-> compile with the same .config, running.
-> 
-> This is the use of patches!
-> 
-
-well, I always do make distclean after patch ... I cannot afford
-loading 30MB every week.
-
+         -Mike 
 

@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265436AbRF2DHq>; Thu, 28 Jun 2001 23:07:46 -0400
+	id <S265478AbRF2DXz>; Thu, 28 Jun 2001 23:23:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265474AbRF2DHh>; Thu, 28 Jun 2001 23:07:37 -0400
-Received: from crete.csd.uch.gr ([147.52.16.2]:17626 "EHLO crete.csd.uch.gr")
-	by vger.kernel.org with ESMTP id <S265436AbRF2DH2>;
-	Thu, 28 Jun 2001 23:07:28 -0400
-Organization: 
-Date: Fri, 29 Jun 2001 06:06:41 +0300 (EET DST)
-From: mythos <papadako@csd.uoc.gr>
-To: <linux-kernel@vger.kernel.org>
-Subject: Problem with Via VT82C686A
-Message-ID: <Pine.GSO.4.33.0106290600290.28793-100000@iridanos.csd.uch.gr>
+	id <S265483AbRF2DXo>; Thu, 28 Jun 2001 23:23:44 -0400
+Received: from mauve.demon.co.uk ([158.152.209.66]:14485 "EHLO
+	mauve.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S265478AbRF2DXb>; Thu, 28 Jun 2001 23:23:31 -0400
+From: Ian Stirling <root@mauve.demon.co.uk>
+Message-Id: <200106290322.EAA04600@mauve.demon.co.uk>
+Subject: Re: Cosmetic JFFS patch.
+To: linux-kernel@vger.kernel.org
+Date: Fri, 29 Jun 2001 04:22:45 +0100 (BST)
+In-Reply-To: <3B3B7EC4.F4C8F2F0@mandrakesoft.com> from "Jeff Garzik" at Jun 28, 2001 03:00:20 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have installed a second hard drive in my system in the second
-channel of my controller.But when I try to enable DMA I get:
-hdc: DMA disabled
-hdc: timeout waiting for DMA
-ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-hdc: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
-hdc: timeout waiting for DMA
-ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-hdc: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
-hdc: timeout waiting for DMA
-ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-hdc: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
-hdc: timeout waiting for DMA
-ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-hdc: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
-hdc: DMA disabled
-ide1: reset: success
+> 
+> Linus Torvalds wrote:
+> > Things like version strings etc sound useful, but the fact is that the
+> > only _real_ problem it has ever solved for anybody is when somebody thinks
+> > they install a new kernel, and forgets to run "lilo" or something. But
+> > even that information you really get from a simple "uname -a".
+> > 
+> > Do we care that when you boot kernel-2.4.5 you get "net-3"? No. Do we care
+> > that we have quota version "dquot_6.4.0"? No. Do we want to get the
+> > version printed for every single driver we load? No.
 
-I thought that there were problems only with Via VT82C686B.
-Can anyone please help me?
-My motherbord is an ASUS K7V with KX133 chipset.
+It would be nice to show driver version for every single non-stock
+driver we load though.
+Perhaps a list of versions in the stock kernel build, stored somewhere,
+that shouldn't be patched by anyone, but only change with official releases.
+At compile time, if the driver version string is different from the
+'blessed' version, it prints it's version, and possibly more.
 
+<snip>
+> As Alan said, driver versions are incredibly useful.  People use update
+> their drivers over top of kernel drivers all the time.  Vendors do it
+> too.  "Run dmesg and e-mail me the output" is 1000 times more simple for
+> end users.
 

@@ -1,43 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261999AbVACXlI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262074AbVADAhU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261999AbVACXlI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 18:41:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261974AbVACXfq
+	id S262074AbVADAhU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 19:37:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbVADAfZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 18:35:46 -0500
-Received: from mail.mellanox.co.il ([194.90.237.34]:13766 "EHLO
-	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S261980AbVACXe4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 18:34:56 -0500
-Date: Tue, 4 Jan 2005 01:34:49 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Roland Dreier <roland@topspin.com>
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-Subject: Re: [openib-general] Re: [2.6 patch] infiniband: possible cleanups
-Message-ID: <20050103233449.GC7747@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <20050103171937.GG2980@stusta.de> <52sm5i70um.fsf@topspin.com> <20050103231024.GP2980@stusta.de> <524qhy6qpg.fsf@topspin.com>
-Mime-Version: 1.0
+	Mon, 3 Jan 2005 19:35:25 -0500
+Received: from dp.samba.org ([66.70.73.150]:38830 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S262021AbVADAVC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 19:21:02 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <524qhy6qpg.fsf@topspin.com>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16857.57572.25294.431752@samba.org>
+Date: Tue, 4 Jan 2005 11:18:44 +1100
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Michael B Allen <mba2000@ioplex.com>, sfrench@samba.org,
+       linux-ntfs-dev@lists.sourceforge.net, samba-technical@lists.samba.org,
+       aia21@cantab.net, hirofumi@mail.parknet.co.jp,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: FAT, NTFS, CIFS and DOS attributes
+In-Reply-To: <41D9D65D.7050001@zytor.com>
+References: <41D9C635.1090703@zytor.com>
+	<54479.199.43.32.68.1104794772.squirrel@li4-142.members.linode.com>
+	<41D9D65D.7050001@zytor.com>
+X-Mailer: VM 7.19 under Emacs 21.3.1
+Reply-To: tridge@samba.org
+From: tridge@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
-Quoting r. Roland Dreier (roland@topspin.com) "[openib-general] Re: [2.6 patch] infiniband: possible cleanups":
->     Adrian> Is there an ETA when the debugging modules and the modules
->     Adrian> in development will be merged into the kernel?
-> 
-> Once they're ready and pass review on lkml.
-> 
->  - R.
+ > 	system.dosattrib	- DOS attributes (single byte)
+ > 	system.dosshortname	- DOS short name (e.g. for VFAT)
 
-By the way, http://linus.bkbits.net:8080/linux-2.5/ChangeSet@-2w?nav=index.html
-already has Roland's patches, and I thought that was what Linus uses
-for kernel releases, right, Roland?
+you need more than one byte for DOS attrib. These are the bits Samba4
+defines:
 
+/* FileAttributes (search attributes) field */
+#define FILE_ATTRIBUTE_READONLY		0x0001
+#define FILE_ATTRIBUTE_HIDDEN		0x0002
+#define FILE_ATTRIBUTE_SYSTEM		0x0004
+#define FILE_ATTRIBUTE_VOLUME		0x0008
+#define FILE_ATTRIBUTE_DIRECTORY	0x0010
+#define FILE_ATTRIBUTE_ARCHIVE		0x0020
+#define FILE_ATTRIBUTE_DEVICE		0x0040
+#define FILE_ATTRIBUTE_NORMAL		0x0080
+#define FILE_ATTRIBUTE_TEMPORARY	0x0100
+#define FILE_ATTRIBUTE_SPARSE		0x0200
+#define FILE_ATTRIBUTE_REPARSE_POINT	0x0400
+#define FILE_ATTRIBUTE_COMPRESSED	0x0800
+#define FILE_ATTRIBUTE_OFFLINE		0x1000
+#define FILE_ATTRIBUTE_NONINDEXED	0x2000
+#define FILE_ATTRIBUTE_ENCRYPTED	0x4000
 
-mst
+while most apps don't care about the bits beyond 0xFF at the moment, I
+think that might change, especially for win32 clients accessing linux
+filesystems via wine and Samba.
+
+Also, there are many other bits of windows meta-data that matter for
+apps that care about dos attributes, including the extra 1.5 time
+fields (windows has 4 settable time fields, posix has 2 settable and 3
+readable time fields), the 8.3 name, the allocation size and all the
+DOS EAs (important for OS/2 clients).
+
+We use the following xattrs in Samba4:
+
+ user.DosAttrib     : structure holding basic non-privileged attribute information
+ user.DosEAs        : all the DOS (OS/2) style EAs
+ user.DosStreams    : list of alternate data steams, flagged as internal or external
+ user.DosStream.name: the stream data itself for internal streams
+ security.NTACL     : the NT ACL
+
+the rationale for making most of them in the user namespace is that it
+is 'mostly harmless' to allow the owner of the file to change those
+ones. The NTACL needs to be in the security namespace as it contains
+elements that the user must not be able to control without system
+permission (everyone can read it, but only root can write).
+
+see xattr.idl for the full definitions of the above.
+
+Cheers, Tridge

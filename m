@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262159AbREQA0M>; Wed, 16 May 2001 20:26:12 -0400
+	id <S262163AbREQA3W>; Wed, 16 May 2001 20:29:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262169AbREQA0C>; Wed, 16 May 2001 20:26:02 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:16398 "EHLO
+	id <S262166AbREQA3M>; Wed, 16 May 2001 20:29:12 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:22798 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262168AbREQAZ4>; Wed, 16 May 2001 20:25:56 -0400
+	id <S262163AbREQA24>; Wed, 16 May 2001 20:28:56 -0400
 Subject: Re: LANANA: To Pending Device Number Registrants
-To: hpa@transmeta.com (H. Peter Anvin)
-Date: Thu, 17 May 2001 01:21:41 +0100 (BST)
+To: rgooch@ras.ucalgary.ca (Richard Gooch)
+Date: Thu, 17 May 2001 01:24:24 +0100 (BST)
 Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        rgooch@ras.ucalgary.ca (Richard Gooch),
         geert@linux-m68k.org (Geert Uytterhoeven),
+        ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser),
         torvalds@transmeta.com (Linus Torvalds),
-        jlundell@pobox.com (Jonathan Lundell),
-        jgarzik@mandrakesoft.com (Jeff Garzik),
-        jsimmons@transvirtual.com (James Simmons),
         neilb@cse.unsw.edu.au (Neil Brown),
+        jgarzik@mandrakesoft.com (Jeff Garzik),
+        hpa@transmeta.com (H. Peter Anvin),
         linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
         viro@math.psu.edu
-In-Reply-To: <3B030DDE.B4E7B0CC@transmeta.com> from "H. Peter Anvin" at May 16, 2001 04:31:42 PM
+In-Reply-To: <200105162358.f4GNwll13400@vindaloo.ras.ucalgary.ca> from "Richard Gooch" at May 16, 2001 05:58:47 PM
 X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E150BXx-0004js-00@the-village.bc.nu>
+Message-Id: <E150Baa-0004kJ-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > USB disks are required (haha etc) to have serial numbers. Firewire similarly
-> > has unique disk identifiers.
+> Yes, it's broken if someone writes a cabbage dicer driver and uses
+> "cd" as the leaf node name for devfs.
 > 
-> How about for other device classes?
+> Yes, it's broken if someone writes a cabbage dicer driver and uses
+> the same major as the IDE CD-ROM or SCSI CD-ROM drivers.
 
-Keyboards and mice dont which is a real pig because it prevents you using
-dual head, two usb keyboards and 2 usb mice for a dual user box (assuming
-someone fixed the console code mess to cope with multiple console users as
-a concept)
-
+The difference is one is a kernel interface magic cookie (be it a variable
+length one with a 7bit ascii mapping that happens to relate to it, or a 
+short constnt) the other is user policy and has no business being set in a
+spec

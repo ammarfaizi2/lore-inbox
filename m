@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267471AbTACJYX>; Fri, 3 Jan 2003 04:24:23 -0500
+	id <S267473AbTACJZc>; Fri, 3 Jan 2003 04:25:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267472AbTACJYX>; Fri, 3 Jan 2003 04:24:23 -0500
-Received: from pheniscidae.tvnetwork.hu ([80.95.85.58]:15111 "EHLO
-	pheniscidae.TvNetWork.Hu") by vger.kernel.org with ESMTP
-	id <S267471AbTACJYX>; Fri, 3 Jan 2003 04:24:23 -0500
-Date: Fri, 3 Jan 2003 10:32:50 +0100
-From: SZALAY Attila <sasa@pheniscidae.tvnetwork.hu>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.5.54
-Message-ID: <20030103093250.GC7661@sasa.home>
-References: <20030102103422.GB24116@sasa.home> <Pine.LNX.4.33L2.0301020745260.22868-100000@dragon.pdx.osdl.net>
-Mime-Version: 1.0
+	id <S267474AbTACJZc>; Fri, 3 Jan 2003 04:25:32 -0500
+Received: from packet.digeo.com ([12.110.80.53]:30947 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267473AbTACJZb>;
+	Fri, 3 Jan 2003 04:25:31 -0500
+Message-ID: <3E155903.F8C22286@digeo.com>
+Date: Fri, 03 Jan 2003 01:33:55 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.52 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Aniruddha M Marathe <aniruddha.marathe@wipro.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [BENCHMARK] Lmbench 2.5.54-mm2 (impressive improvements)
+References: <94F20261551DC141B6B559DC4910867204491F@blr-m3-msg.wipro.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33L2.0301020745260.22868-100000@dragon.pdx.osdl.net>
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 03 Jan 2003 09:33:55.0568 (UTC) FILETIME=[3C316F00:01C2B30B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-On 2003 Jan 02, Randy.Dunlap wrote:
+Aniruddha M Marathe wrote:
 > 
-> Yes, unfortunately this is a well-known problem.
-> See kernel.bugzilla.org # 126 and # 164.
-> 
-> You need to have CONFIG_INPUT=y, not =m.
+> Here is a comparison of results of 2.5.54 with mm2 and 2.5.54.
 
-Thank you, it's work.
+I'm sorry, but all you are doing with these tests is discrediting
+lmbench, AIM9, tiobench and unixbench.  There really is nothing in
+these patches which can account for the changes which you are observing.
 
-But I have another problem.
+Possibly, it is all caused by cache colouring effects - the physical
+addresses at which critical kernel and userspace text and data
+happen to end up.
 
-drivers/message/i2o/i2o_lan.c:28: #error Please convert me to Documentation/DMA-mapping.txt
-drivers/message/i2o/i2o_lan.c:119: parse error before `struct'
-drivers/message/i2o/i2o_lan.c: In function 	2o_lan_receive_post_reply':
-drivers/message/i2o/i2o_lan.c:385: `run_i2o_post_buckets_task' undeclared (first use in this function)
-drivers/message/i2o/i2o_lan.c:385: (Each undeclared identifier is reported only once
-drivers/message/i2o/i2o_lan.c:385: for each function it appears in.)
-drivers/message/i2o/i2o_lan.c: In function 	2o_lan_register_device':
-drivers/message/i2o/i2o_lan.c:1406: structure has no member named `list'
-drivers/message/i2o/i2o_lan.c:1406: structure has no member named `list'
-drivers/message/i2o/i2o_lan.c:1406: structure has no member named `list'
-drivers/message/i2o/i2o_lan.c:1406: structure has no member named `list'
-drivers/message/i2o/i2o_lan.c:1407: structure has no member named `sync'
-make[4]: *** [drivers/message/i2o/i2o_lan.o] Error 1
-make[3]: *** [drivers/message/i2o] Error 2
-make[2]: *** [drivers/message] Error 2
-make[1]: *** [drivers] Error 2
+I'd suggest that you look for more complex tests.  There's a decent
+list at http://lbs.sourceforge.net/, but even those are rather microscopic.
 
+If you have time, things like the osdl dbt1 test, http://osdb.sourceforge.net/
+and the commercial benchmarks would be more interesting.
 
--- 
-PGP ID 0x8D143771, /C5 95 43 F8 6F 19 E8 29  53 5E 96 61 05 63 42 D0
-GPG ID   ABA0E8B2, 45CF B559 8281 8091 8469  CACD DB71 AEFC ABA0 E8B2
+Or cook up some of your own: it's not hard.  Just think of some time-consuming
+operation which we perform on a daily basis and measure it.  Script
+the startup and shutdown of X11 applications. rsync. sendmail.  cvs.
 
-                          Szeretem a Zsanit - SaSa
+Mixed workloads are interesting and real world: run tiobench or dbench
+or qsbench or whatever while trying to do something else, see how long
+"something else" takes.
+
+It is these sorts of things which will find areas of weakness which
+can be addressed in this phase of kernel development.
+
+The teeny little microbenchmarks are telling us that the rmap overhead
+hurts, that the uninlining of copy_*_user may have been a bad idea, that
+the addition of AIO has cost a little and that the complexity which
+yielded large improvements in readv(), writev() and SMP throughput were
+not free.  All of this is already known.

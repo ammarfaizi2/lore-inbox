@@ -1,53 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270645AbRHJVW4>; Fri, 10 Aug 2001 17:22:56 -0400
+	id <S270647AbRHJVTq>; Fri, 10 Aug 2001 17:19:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270648AbRHJVWg>; Fri, 10 Aug 2001 17:22:36 -0400
-Received: from [64.156.208.74] ([64.156.208.74]:36519 "EHLO
-	sol.compendium-tech.com") by vger.kernel.org with ESMTP
-	id <S270645AbRHJVWe>; Fri, 10 Aug 2001 17:22:34 -0400
-Date: Fri, 10 Aug 2001 14:22:17 -0700 (PDT)
-From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
-X-X-Sender: <kernel@sol.compendium-tech.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Can I have a serial display output and a kbd PS/2 input?
-In-Reply-To: <9l0n95$1me$1@ncc1701.cistron.net>
-Message-ID: <Pine.LNX.4.33.0108101416550.9874-100000@sol.compendium-tech.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S270649AbRHJVTf>; Fri, 10 Aug 2001 17:19:35 -0400
+Received: from pD9516138.dip.t-dialin.net ([217.81.97.56]:57849 "EHLO
+	bonzo.nirvana") by vger.kernel.org with ESMTP id <S270645AbRHJVTW>;
+	Fri, 10 Aug 2001 17:19:22 -0400
+Date: Fri, 10 Aug 2001 23:19:06 +0200
+From: Axel Thimm <Axel.Thimm@physik.fu-berlin.de>
+To: linux-kernel@vger.kernel.org
+Subject: Remotely rebooting a machine with state 'D' processes, how?
+Message-ID: <20010810231906.A21435@bonzo.nirvana>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Aug 2001, Miquel van Smoorenburg wrote:
+How can I reboot a stuck machine remotely, when there are uninterruptable
+processes arround? shutdown -r, reboot [-n] [-f], telinit 6 do not give the
+intended results. Localy I can use Alt-SysRq-S/U/B, but what if I still have a
+remote ssh connection and don't want to have to get to the machines location?
 
-> In article <001b01c12194$a34a3370$66011ec0@frank>,
-> Frank Torres <frank@ingecom.net> wrote:
-> >Sorry to be insistent in this point, but perhaps requesting the problem this
-> >way someone figures out what I am trying to do.
-> >The display is already configured and sending getty line from inittab waits
-> >for an input from serial so it doesn't work.
-> >Any other ideas? This is my last try.
->
-> If you want /dev/console to behave so that it sends output to the
-> serial device yet takes input from the PC keyboard, no, that cannot
-> be done. Right now /dev/console can be associated with only one
-> device for both input and output at the same time.
->
-> Output from kernel printk's does go to all console devices though.
+Of course the real problem are the processes themselves, but being able to
+revive a machine is also nice ;)
 
-Well, as a sleightly more expensive solution, you could build a Sun
-keyboard to serial adapter. Somewhere on the SuSE webpage there is
-instructions on how to do this. IIRC, the keyboard only uses the RxD pin
-on the serial port so you would be free to use the TxD pin for your serial
-LCD.
-
-The schematic can be had here:
-http://www.suse.cz/development/input/adapters
-
-good luck, and hope this is of some use to you.
-
- Kelsey Hudson                                           khudson@ctica.com
- Software Engineer
- Compendium Technologies, Inc                               (619) 725-0771
----------------------------------------------------------------------------
-
+Regards, Axel.
+-- 
+Axel.Thimm@physik.fu-berlin.de

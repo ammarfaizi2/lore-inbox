@@ -1,51 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261617AbVCNA4w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261615AbVCNBIk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261617AbVCNA4w (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 19:56:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261616AbVCNA4w
+	id S261615AbVCNBIk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 20:08:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261618AbVCNBIk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 19:56:52 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:2462 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S261617AbVCNA4q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 19:56:46 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: Mon, 14 Mar 2005 11:56:33 +1100
+	Sun, 13 Mar 2005 20:08:40 -0500
+Received: from 83-216-143-24.alista342.adsl.metronet.co.uk ([83.216.143.24]:33286
+	"EHLO devzero.co.uk") by vger.kernel.org with ESMTP id S261615AbVCNBIh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Mar 2005 20:08:37 -0500
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Greg Stark <gsstark@mit.edu>, linux-kernel@vger.kernel.org,
+       Patrick McFarland <pmcfarland@downeast.net>
+Subject: Re: OSS Audio borked between 2.6.6 and 2.6.10
+Date: Mon, 14 Mar 2005 01:03:55 +0000
+User-Agent: KMail/1.8
+References: <87u0ng90mo.fsf@stark.xeocode.com> <200503130152.52342.pmcfarland@downeast.net> <874qff89ob.fsf@stark.xeocode.com>
+In-Reply-To: <874qff89ob.fsf@stark.xeocode.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16948.57665.671437.810184@cse.unsw.edu.au>
-Cc: Daniel Jacobowitz <dan@debian.org>, Junfeng Yang <yjf@stanford.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [CHECKER] inconsistent NFS stat cache (NFS on ext3, 2.6.11)
-In-Reply-To: message from Trond Myklebust on Sunday March 13
-References: <Pine.GSO.4.44.0503120335160.12085-100000@elaine24.Stanford.EDU>
-	<1110690267.24123.7.camel@lade.trondhjem.org>
-	<20050313200412.GA21521@nevyn.them.org>
-	<1110746550.23876.8.camel@lade.trondhjem.org>
-	<20050314003512.GA16875@nevyn.them.org>
-	<1110761410.30085.13.camel@lade.trondhjem.org>
-X-Mailer: VM 7.19 under Emacs 21.3.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+Message-Id: <200503140103.55354.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday March 13, trond.myklebust@fys.uio.no wrote:
-> 
-> You'll rather want to ask Neil Brown about why subtree_check is still
-> the default for knfsd. He is the NFS server maintainer.
+On Sunday 13 March 2005 22:26, you wrote:
+> Patrick McFarland <pmcfarland@downeast.net> writes:
+> > On Saturday 12 March 2005 01:31 pm, Greg Stark wrote:
+> > > OSS Audio doesn't work properly for Quake3 in 2.6.10 but it worked in
+> > > 2.6.6. In fact I have the same problems in 2.6.9-rc1 so I assume 2.6.9
+> > > is affected as well. This is with the Intel i810 drivers.
+> >
+> > Why are you not using ALSA?
+>
+> Well frankly because whenever I tried it it didn't work. The i810 drivers
+> were *completely* broken in the 2.6 kernel I original installed, 2.6.5 I
+> think.
+>
+> In any case I understood that Quake doesn't work with alsa drivers because
+> it depends on mmapped output which they don't support at all. Or something
+> like that. I gave up on them when I found OSS worked reliably.
 
-Apathy?
-No-one has complained loudly enough or long enough or sent me a patch,
-and it simply isn't a priority for me.
-(a patch would have to provide clear warning to the user of the change
-in defaults, such as is currently done for sync/async (and it's
-probably time to remove that warning).
+Quake3's doing something strange with the OSS devices. You can work around it 
+in ALSA's OSS emulation by disabling the record features for the quake3.x86 
+binary, and it should all work fine.
 
-Note: this is purely a userspace issue.  nfs-utils sets the default,
-not the kernel.
+echo "quake3.x86 0 0 direct" > /proc/asound/card0/pcm0p/oss
+echo "quake3.x86 0 0 disable" > /proc/asound/card0/pcm0c/oss
 
-NeilBrown
+(I gleamed the above from google.com, you might need to modify it slightly).
+
+The intel8x0 driver is probably one of the most widely used ALSA drivers, so 
+I'd hope it wasn't broken! My laptop uses the driver, it is superb.
+
+-- 
+Cheers,
+Alistair.
+
+personal:   alistair()devzero!co!uk
+university: s0348365()sms!ed!ac!uk
+student:    CS/CSim Undergraduate
+contact:    1F2 55 South Clerk Street,
+            Edinburgh. EH8 9PP.

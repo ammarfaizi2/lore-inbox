@@ -1,58 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130744AbQL1QhI>; Thu, 28 Dec 2000 11:37:08 -0500
+	id <S130524AbQL1RAY>; Thu, 28 Dec 2000 12:00:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131009AbQL1Qg5>; Thu, 28 Dec 2000 11:36:57 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:62724 "HELO hermes.mixx.net")
-	by vger.kernel.org with SMTP id <S130744AbQL1Qgm>;
-	Thu, 28 Dec 2000 11:36:42 -0500
-Message-ID: <3A4B6463.C18FB8C5@innominate.de>
-Date: Thu, 28 Dec 2000 17:03:47 +0100
-From: Daniel Phillips <phillips@innominate.de>
-Organization: innominate
-X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
-X-Accept-Language: en
+	id <S130582AbQL1RAP>; Thu, 28 Dec 2000 12:00:15 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:4625 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S130524AbQL1RAB>; Thu, 28 Dec 2000 12:00:01 -0500
+Date: Thu, 28 Dec 2000 12:36:55 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: chris@freedom2surf.net, linux-kernel@vger.kernel.org
+Subject: Re: Repeatable Oops in 2.4t13p4ac2
+In-Reply-To: <E14BfI7-0003qn-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21.0012281236060.12295-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: innd mmap bug in 2.4.0-test12
-In-Reply-To: <Pine.LNX.4.21.0012281210480.14052-100000@duckman.distro.conectiva> <Pine.LNX.4.21.0012281227570.14052-100000@duckman.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> 
-> On Thu, 28 Dec 2000, Rik van Riel wrote:
-> > On Wed, 27 Dec 2000, Linus Torvalds wrote:
-> > > On Wed, 27 Dec 2000, Rik van Riel wrote:
-> > > >
-> > > > The (trivial) patch below should fix this problem.
-> > >
-> > > It must be wrong.
-> > >
-> > > If we have a dirty page on the LRU lists, that page _must_ have
-> > > a mapping.
-> >
-> > Hmm, last I looked buffercache pages didn't have
-> > page->mapping set ...
-> 
-> OK, you're right ;)
-> 
-> We never set PG_dirty for buffercache pages, so a
-> pure buffercache page shouldn't be caught here...
 
-But we should, and something that does it is buried in Chris Mason's
-patch under the thread [RFC] changes to buffer.c.  Chris is also trying
-some other fancy things in that patch, but the buffer cache mapping part
-is actually pretty simple.
+On Thu, 28 Dec 2000, Alan Cox wrote:
 
-For buffer cache pages I think the current thinking is that PG_dirty
-should stay on until the last dirty buffer on the page has been
-submitted for writing.
+> > Hi - we are seeing the following repeatable Oops in 2.4t13p4ac2 compiled using 
+> > gcc 2.95.2 for PIII running on IDE disks. Occurs whilst copying lots of files 
+> > to/from remote filesystems.
+> 
+> I've had a couple of reports like this. Can you test 2.4t13p4 without the -ac
+> changes. If the -ac changes cause it then I need to know, but with the -ac
+> changes nobody else will care ;)
+> 
+> So the first way to narrow it down is that
 
---
-Daniel
+Alan, 
+
+Do you remember if the reports you've got always oopsed the same
+address (0040000) ? 
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

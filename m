@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268053AbUJFFuO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268072AbUJFFxb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268053AbUJFFuO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 01:50:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268069AbUJFFuO
+	id S268072AbUJFFxb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 01:53:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267278AbUJFFxa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 01:50:14 -0400
-Received: from mail.dif.dk ([193.138.115.101]:65408 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S268053AbUJFFuI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 01:50:08 -0400
-Date: Wed, 6 Oct 2004 07:57:34 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Anthony DiSante <orders@nodivisions.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: KVM -> jumping mouse... still no solution?
-In-Reply-To: <4163845C.9020900@nodivisions.com>
-Message-ID: <Pine.LNX.4.61.0410060753590.2993@dragon.hygekrogen.localhost>
-References: <4163845C.9020900@nodivisions.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 6 Oct 2004 01:53:30 -0400
+Received: from fmr03.intel.com ([143.183.121.5]:43950 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S268072AbUJFFwq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 01:52:46 -0400
+Message-Id: <200410060552.i965qF601006@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Andrew Morton'" <akpm@osdl.org>, "Nick Piggin" <nickpiggin@yahoo.com.au>
+Cc: <mingo@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: Default cache_hot_time value back to 10ms
+Date: Tue, 5 Oct 2004 22:52:26 -0700
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcSrYGGe/eUC0tBtSvSByCX71PqbLAABsLcw
+In-Reply-To: <20041005215116.3b0bd028.akpm@osdl.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Oct 2004, Anthony DiSante wrote:
+Andrew Morton wrote on Tuesday, October 05, 2004 9:51 PM
+> >  > It sounds like this needs to be runtime tunable?
+> >  >
+> >
+> >  I'd say it is probably too low level to be a useful tunable (although
+> >  for testing I guess so... but then you could have *lots* of parameters
+> >  tunable).
+>
+> This tunable caused an 11% performance difference in (I assume) TPCx.
+> That's a big deal, and people will want to diddle it.
+>
+> If one number works optimally for all machines and workloads then fine.
+>
+> But yes, avoiding a tunable would be nice, but we need a tunable to work
+> out whether we can avoid making it tunable ;)
 
-> you don't move it, but if you move it N/E/NE it's really slow and jerky, and
-> if you move it S/W/SW even a hair, it slams down to the SW corner of the
-> screen and acts like you hit all the mouse's buttons 50 times simultaneously.
-> 
-I've had similar problems with my mouse and KVM switch.
+Just to throw in some more benchmark numbers, we measured that specjbb
+throughput went up by about 0.3% with cache_hot_time set to 10ms compare
+to default 2.5ms.  No measurable speedup/regression on volanmark (we
+just tried 10 and 2.5ms).
 
-> The other day I came across this (kerneltrap.org/node/view/2199): "Use
-> psmouse.proto=bare on the kernel command line, or proto=bare on the
-> psmouse module command line."  But that makes the mouse's scroll-wheel not
-> work.  (And this problem doesn't exist with some of the mouse drivers, but it
-> does with IMPS/2, which is the only one I've ever been able to get the scroll
-> wheel working with.)
-> 
-psmouse.proto=imps solves the problem for me (wheel works as well).
-The funny thing is that I don't need to do anything like this when I boot 
-a 2.4 kernel, only 2.6 kernels show this behaviour on my system.???
+- Ken
 
---
-Jesper Juhl
 

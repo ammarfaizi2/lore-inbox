@@ -1,39 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293630AbSCPA7M>; Fri, 15 Mar 2002 19:59:12 -0500
+	id <S293628AbSCPA6D>; Fri, 15 Mar 2002 19:58:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293631AbSCPA7D>; Fri, 15 Mar 2002 19:59:03 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45840 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S293630AbSCPA6t>; Fri, 15 Mar 2002 19:58:49 -0500
-Date: Fri, 15 Mar 2002 16:58:14 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: bit ops on unsigned long?
-In-Reply-To: <E16m2Qu-0007mc-00@wagner.rustcorp.com.au>
-Message-ID: <Pine.LNX.4.33.0203151656320.1379-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293630AbSCPA5w>; Fri, 15 Mar 2002 19:57:52 -0500
+Received: from h55p103-3.delphi.afb.lu.se ([130.235.187.176]:59290 "EHLO gin")
+	by vger.kernel.org with ESMTP id <S293628AbSCPA5p>;
+	Fri, 15 Mar 2002 19:57:45 -0500
+Date: Sat, 16 Mar 2002 01:57:37 +0100
+To: arjanv@redhat.com
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: [PATCH] devexit fixes in i82092.c
+Message-ID: <20020316005736.GB31421@h55p111.delphi.afb.lu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+From: Anders Gustafsson <andersg@0x63.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+this patch fixes "undefined reference to `local symbols in discarded
+section .text.exit'" linking error.
 
-On Sat, 16 Mar 2002, Rusty Russell wrote:
->
-> 	nfs is broken in 2.5 ATM because it does set_bit on an "int".
-> Can be *please* just bite the bullet and change the prototype on these
-> ops so we stop seeing the same mistakes over and over?
+-- 
 
-The problem with the prototype is that it's not always correct.
+//anders/g
 
-It's fine to pass non-"unsigned long *" pointers to set_bit, if you know
-the pointers are otherwise aligned. Things like buffer bitmaps etc.
-
-How does the patch look? If it has a lot of unnecessary casts, I don't
-want it, but if the casts are only in things like ext2_setbit(), then that
-might be ok..
-
-		Linus
-
+--- linux-2.5.7-pre1/drivers/pcmcia/i82092.c	Fri Nov  9 22:45:35 2001
++++ linux-2.5.7-pre1-reiser/drivers/pcmcia/i82092.c	Sat Mar 16 01:39:42 2002
+@@ -42,7 +42,7 @@
+ 	name:           "i82092aa",
+ 	id_table:       i82092aa_pci_ids,
+ 	probe:          i82092aa_pci_probe,
+-	remove:         i82092aa_pci_remove,
++	remove:         __devexit_p(i82092aa_pci_remove),
+ 	suspend:        NULL,
+ 	resume:         NULL 
+ };
+@@ -88,7 +88,7 @@
+ static int socket_count;  /* shortcut */                                  	                                	
+ 
+ 
+-static int __init i82092aa_pci_probe(struct pci_dev *dev, const struct pci_device_id *id)
++static int __devinit i82092aa_pci_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ {
+ 	unsigned char configbyte;
+ 	int i;
+@@ -160,7 +160,7 @@
+ 	return 0;
+ }
+ 
+-static void __exit i82092aa_pci_remove(struct pci_dev *dev)
++static void __devexit i82092aa_pci_remove(struct pci_dev *dev)
+ {
+ 	enter("i82092aa_pci_remove");
+ 	

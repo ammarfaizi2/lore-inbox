@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269756AbRHYQeK>; Sat, 25 Aug 2001 12:34:10 -0400
+	id <S269770AbRHYQia>; Sat, 25 Aug 2001 12:38:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269752AbRHYQeA>; Sat, 25 Aug 2001 12:34:00 -0400
-Received: from [209.250.60.228] ([209.250.60.228]:12804 "EHLO
-	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S269756AbRHYQdz>; Sat, 25 Aug 2001 12:33:55 -0400
-Date: Sat, 25 Aug 2001 11:33:44 -0500
-From: Steven Walter <srwalter@yahoo.com>
-To: linux-kernel@vger.kernel.org
-Subject: Odd __alloc_pages failure in 2.4.9
-Message-ID: <20010825113344.A528@hapablap.dyn.dhs.org>
-Mail-Followup-To: Steven Walter <srwalter@yahoo.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Uptime: 11:24am  up 6 min,  0 users,  load average: 2.43, 1.08, 0.44
+	id <S269763AbRHYQiU>; Sat, 25 Aug 2001 12:38:20 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:65038 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S269770AbRHYQiB>; Sat, 25 Aug 2001 12:38:01 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Rik van Riel <riel@conectiva.com.br>
+Subject: Re: [resent PATCH] Re: very slow parallel read performance
+Date: Sat, 25 Aug 2001 18:43:29 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
+        "Marc A. Lehmann" <pcg@goof.com>, <linux-kernel@vger.kernel.org>,
+        <oesi@plan9.de>
+In-Reply-To: <Pine.LNX.4.33L.0108251249510.5646-100000@imladris.rielhome.conectiva>
+In-Reply-To: <Pine.LNX.4.33L.0108251249510.5646-100000@imladris.rielhome.conectiva>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010825163648Z16186-32383+1334@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Running kernel 2.4.9, if I start xcdroast 0.98alpha9 as an ordinary
-user, the system seems to freeze indefinitely.
+On August 25, 2001 05:50 pm, Rik van Riel wrote:
+> On Sat, 25 Aug 2001, Daniel Phillips wrote:
+> 
+> > > True, it's just an issue of performance and heavily used
+> > > servers falling over under load, nothing as serious as
+> > > data corruption or system instability.
+> >
+> > If your server is falling over under load, this is not the reason.
+> 
+> I bet your opinion will be changed the moment you see a system
+> get close to falling over exactly because of this.
+> 
+> Remember NL.linux.org a few weeks back, where a difference of
+> 10 FTP users more or less was the difference between a system
+> load of 3 and a system load of 250 ?  ;)
 
-If I start it as root, however, the system only freeze for 2-3 seconds.
-After this time, if I check dmesg, I get a slew of __alloc_pages
-failures, even 0-order failures.
+Well, lets look into that then.  Surely you hit the wall at some point, no 
+matter which replacement policy you use.  How many simultaneous downloads can 
+you handle with 2.4.7 vs 2.4.8?
 
-Being unable to diagnose the complete lockup in the user case any
-better, I assume that this is what's happening there, too, only
-indefinitely.
-
-The system is an AMD Thunderbird 900MHz with 2 IDE CD-ROM drives, both
-use ide-scsi.  One is a burner, the other is a DVD-ROM drive.
-
-I'll try and get a backtrace of whats happening during the lockup later
-when I can hook up my serial console.
--- 
--Steven
-In a time of universal deceit, telling the truth is a revolutionary act.
-			-- George Orwell
+--
+Daniel

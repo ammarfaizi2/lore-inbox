@@ -1,36 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130781AbQLPXqr>; Sat, 16 Dec 2000 18:46:47 -0500
+	id <S130873AbQLPXu2>; Sat, 16 Dec 2000 18:50:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130873AbQLPXqh>; Sat, 16 Dec 2000 18:46:37 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:24846 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S130781AbQLPXq1>;
-	Sat, 16 Dec 2000 18:46:27 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Rasmus Andersen <rasmus@jaquet.dk>
-cc: dwmw2@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] link time error in drivers/mtd (240t13p2) 
-In-Reply-To: Your message of "Sat, 16 Dec 2000 23:07:01 BST."
-             <20001216230701.E609@jaquet.dk> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 17 Dec 2000 10:15:53 +1100
-Message-ID: <27504.977008553@ocs3.ocs-net>
+	id <S129733AbQLPXuS>; Sat, 16 Dec 2000 18:50:18 -0500
+Received: from moutvdom00.kundenserver.de ([195.20.224.149]:10564 "EHLO
+	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S130873AbQLPXuC>; Sat, 16 Dec 2000 18:50:02 -0500
+Date: Sun, 17 Dec 2000 00:19:20 +0100 (MET)
+From: Armin Schindler <mac@melware.de>
+To: Gunther Mayer <Gunther.Mayer@t-online.de>
+cc: <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Patch: test13-pre2 fails "make xconfig" in isdn/Config.in
+In-Reply-To: <3A3B53BE.41C31B99@t-online.de>
+Message-ID: <Pine.LNX.4.31.0012170016050.31429-100000@phoenix.melware.de>
+Organization: Cytronics & Melware
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 16 Dec 2000 23:07:01 +0100, 
-Rasmus Andersen <rasmus@jaquet.dk> wrote:
->Various files in drivers/mtd references cfi_probe (by way of do_cfi_probe).
->This function is static and thus not shared. The following patch removes
->the static declaration but if it is What Was Intended I do not know. It
->makes the kernel link, however.
+On Sat, 16 Dec 2000, Gunther Mayer wrote:
 
-Somebody changed include/linux/mtd/map.h between 2.4.0-test11 and
-test12.  That change is wrong, it adds conditional complexity where it
-is not required - inter_module_xxx works even without CONFIG_MODULES.
-cfi_probe should still be static.
+This patch does not fix all problems in isdn/eicon.
+
+A bigger patch is on the way.
+
+Thanx,
+Armin
+
+> Hi Linus,
+> apply this patch if like to fix this obvious error
+> with "make xconfig" on plain tree:
+> 	./tkparse < ../arch/i386/config.in >> kconfig.tk
+> 	drivers/isdn/Config.in: 98: can't handle dep_bool/dep_mbool/dep_tristate condition
+> 	make[1]: *** [kconfig.tk] Error 1
+> 	make[1]: Leaving directory `/usr/src/linux/scripts'
+>
+> -
+> Gunther
+>
+>
+>
+>
+> --- linux/drivers/isdn/Config.in-240t13pre2-orig        Sat Dec 16 12:20:59 2000
+> +++ linux/drivers/isdn/Config.in        Sat Dec 16 12:21:48 2000
+> @@ -95,7 +95,7 @@
+>        dep_bool  '    Eicon PCI DIVA Server BRI/PRI/4BRI support' CONFIG_ISDN_DRV_EICON_PCI $CONFIG_PCI
+>        bool      '    Eicon S,SX,SCOM,Quadro,S2M support' CONFIG_ISDN_DRV_EICON_ISA
+>     fi
+> -   dep_tristate '  Build Eicon driver type standalone' CONFIG_ISDN_DRV_EICON_DIVAS
+> +   bool '  Build Eicon driver type standalone' CONFIG_ISDN_DRV_EICON_DIVAS
+>  fi
+>
+>  # CAPI subsystem
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+>
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

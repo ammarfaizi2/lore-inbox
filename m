@@ -1,83 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289815AbSCWBWj>; Fri, 22 Mar 2002 20:22:39 -0500
+	id <S288830AbSCWB7k>; Fri, 22 Mar 2002 20:59:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310769AbSCWBPX>; Fri, 22 Mar 2002 20:15:23 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:41967 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S293071AbSCWBPH>;
-	Fri, 22 Mar 2002 20:15:07 -0500
-Date: Fri, 22 Mar 2002 17:23:04 -0600
-From: Steven Walter <srwalter@yahoo.com>
-To: Danijel Schiavuzzi <dschiavu@public.srce.hr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Screen corruption in 2.4.18
-Message-ID: <20020322232304.GA19579@hapablap.dyn.dhs.org>
-Mail-Followup-To: Steven Walter <srwalter@yahoo.com>,
-	Danijel Schiavuzzi <dschiavu@public.srce.hr>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200203192112.WAA09721@jagor.srce.hr> <200203211209.NAA11121@jagor.srce.hr> <20020321172234.GA21274@hapablap.dyn.dhs.org> <200203222204.XAA01121@jagor.srce.hr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-Uptime: 17:13:34 up 1 day, 16:10,  1 user,  load average: 0.58, 0.91, 0.91
+	id <S288748AbSCWB7a>; Fri, 22 Mar 2002 20:59:30 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:44930 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S288830AbSCWB7V>;
+	Fri, 22 Mar 2002 20:59:21 -0500
+Date: Fri, 22 Mar 2002 20:58:16 -0500 (EST)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Maksim Krasnyanskiy <maxk@qualcomm.com>
+cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        marcelo Tosatti <marcelo@conectiva.com.br>, <Alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] Updated ATM patch for 2.4.19-pre4
+In-Reply-To: <Pine.LNX.4.44.0203222051240.26451-100000@filesrv1.baby-dragons.com>
+Message-ID: <Pine.LNX.4.44.0203222056510.26451-100000@filesrv1.baby-dragons.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 22, 2002 at 08:49:02PM +0100, Danijel Schiavuzzi wrote:
-> In 2.4.18, unmodified (with 0x1f value), it shows:
-> 	Disabling VIA memory write queue: [55] 38->18
-> 
-> In 2.4.18, modified (changed 0x1f to 0x7f), it shows:
-> 	 Disabling VIA memory write queue: [55] 38->38
-> 
-> The modified kernel runs *fine*.
 
-Aha.  Excellent.
+	Hello Maksim & all ,  OOPS , Sorry .  Make that ...
 
-> lspci tells:
-> 
-> 00:00.0 Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] (rev 81)
-                                              ^^^^^^
-I think you actually do have an 8363, and so some sort of fix is
-probably needed.
+	linux-atm-general@lists.sourceforge.net
 
-> 00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP]
-> 00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 
-> 40)
-> /cut/
-> 
-> But in fact mine is a *VT8365* (KM133) Northbridge.
-> 
-> from pci-pc.c:
->         { PCI_FIXUP_HEADER,     PCI_VENDOR_ID_VIA,      
-> PCI_DEVICE_ID_VIA_8363_0,       pci_fixup_via_northbridge_bug },
-> 		^^^^^^^^
->         { PCI_FIXUP_HEADER,     PCI_VENDOR_ID_VIA,      
-> PCI_DEVICE_ID_VIA_8622,         pci_fixup_via_northbridge_bug },
->         { PCI_FIXUP_HEADER,     PCI_VENDOR_ID_VIA,      
-> PCI_DEVICE_ID_VIA_8361,         pci_fixup_via_northbridge_bug },
->         { PCI_FIXUP_HEADER,     PCI_VENDOR_ID_VIA,      
-> PCI_DEVICE_ID_VIA_8367_0,       pci_fixup_via_northbridge_bug },
->         { 0 }
-> 
-> Maybe because of this, the kernel thinks mine is a 8363, and applies the fix, 
-> but in fact it doesn't need to be applied, or does it? I'm confused %:I
+On Fri, 22 Mar 2002, Mr. James W. Laferriere wrote:
+> 	Hello Maksim ,  Could you please also cc:
+> 	linux-atm@vger.kernel.org
+> 	That is where the rest of the people that would be giving your
+> 	patches a try listen .  More at bottom .  Tia ,  JimL
 
-I think your system does need the fix, but only bit 7 needs clearing.
-Not all of it.  If memory serves me, clearing bit 7 was the
-experimentally-determined fix for the bug, however, VIA said that all 3
-bit needed clearing.  Perhaps this should be looked into, as I
-experienced the same screen corruption bug on the same chipset.  I have
-yet to try my own proposed fix on it, however :-/
+> On Fri, 22 Mar 2002, Maksim Krasnyanskiy wrote:
+> > Marcelo, Alan,
+> > I updated ATM patch for 2.4.19-pre4. It includes couple of fixes that I
+> > missed in my first patch
+> > and includes ATM Ethernet bridging support (RFC2684) implemented by Marcell
+> > GAL.
+> > It is rather big for email. Here is the URL:
+> >          http://bluez.sourceforge.net/patches/atm.patch-2.4.19-pre4.gz
+> >
+> > Please apply.
+> > Thanks
+> > Max
+> >
+> > http://bluez.sf.net
+> > http://vtun.sf.net
+>   ^^^^^^^^^^^^^^^^^^ Cool !-) , IPSec available ?
+>
+>        +------------------------------------------------------------------+
+>        | James   W.   Laferriere | System    Techniques | Give me VMS     |
+>        | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+>        | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+>        +------------------------------------------------------------------+
+>
+>
 
-I'll do this within the next week or so, and if it works for me, I'll
-propose a patch to only clear bit 7, at least on these chips.  Sound
-good to you?
--- 
--Steven
-In a time of universal deceit, telling the truth is a revolutionary act.
-			-- George Orwell
-He's alive.  He's alive!  Oh, that fellow at RadioShack said I was mad!
-Well, who's mad now?
-			-- Montgomery C. Burns
+       +------------------------------------------------------------------+
+       | James   W.   Laferriere | System    Techniques | Give me VMS     |
+       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+       +------------------------------------------------------------------+
+
+

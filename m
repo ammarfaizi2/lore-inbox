@@ -1,74 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263453AbUA0LH0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 06:07:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263468AbUA0LH0
+	id S263468AbUA0LIf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 06:08:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263472AbUA0LIe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 06:07:26 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:6846 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263453AbUA0LHX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 06:07:23 -0500
-Date: Tue, 27 Jan 2004 12:07:13 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Pascal Schmidt <der.eremit@email.de>
+	Tue, 27 Jan 2004 06:08:34 -0500
+Received: from smtp101.mail.sc5.yahoo.com ([216.136.174.139]:2208 "HELO
+	smtp101.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263468AbUA0LIa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 06:08:30 -0500
+Subject: Re: Re : Alsa create high problems...
+From: Eddahbi Karim <installation_fault_association@yahoo.fr>
+To: Jaroslav Kysela <perex@suse.cz>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: MO: opening for write in cdrom.c
-Message-ID: <20040127110713.GR11683@suse.de>
-References: <Pine.LNX.4.44.0401261826340.1102-100000@neptune.local> <Pine.LNX.4.44.0401261900460.855-100000@neptune.local>
+In-Reply-To: <Pine.LNX.4.58.0401230936130.1875@pnote.perex-int.cz>
+References: <1074382859.29525.20.camel@gamux>
+	 <1074839589.8684.1.camel@gamux>
+	 <Pine.LNX.4.58.0401230936130.1875@pnote.perex-int.cz>
+Content-Type: text/plain; charset=ISO-8859-1
+Organization: Installation Fault
+Message-Id: <1075201490.3661.7.camel@gamux>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0401261900460.855-100000@neptune.local>
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 27 Jan 2004 12:07:09 +0100
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 26 2004, Pascal Schmidt wrote:
-> On Mon, 26 Jan 2004, Pascal Schmidt wrote:
+Le ven 23/01/2004 à 09:39, Jaroslav Kysela a écrit :
+> On Fri, 23 Jan 2004, Eddahbi Karim wrote:
 > 
-> [short summary for l-k: this is about finding out whether an MO is 
-> write-protected or not, code that is yet missing from cdrom.c]
+> > Hiya,
+> > 
+> > The bug is still there in 2.6.2-rc1 and I still need to do a :
+> > while true; do cat /proc/asound/card0/pcm0p/sub0/*; done
+> > 
+> > To get my sound work properly...
 > 
-> > I'll try to implement the fallback that sd.c uses next. That code
-> > tries several mode senses with different page and length.
+> Ok, let's go. Can you try which files exactly affects the playback?
+> If you find one file, can you remove code step-by-step from routines in 
+> linux/sound/core/pcm.c snd*read() functions (locate function by strings
+> in the proc file).
 > 
-> Okay, I got it working with the exact method that sd.c uses. I've put
-> a few printk's in to see where it fails a mode sense. It's actually
-> inconsistent:
+> I suspect that snd_pcm_stream_lock_irq() and snd_pcm_stream_unlock_irq() 
+> will affect this (note that you must remove these calls together).
 > 
-> 	a) insert a writable disc first after boot, method 1 works
-> 	b) then insert a non-writable disc once - suddenly method 1
-> 	   stops working, even on writable discs, instead method 2
-> 	   works
-> 	c) insert a non-writable disc first after boot, method 1
-> 	   never works, but method 2 does
+> 					Thanks,
 
-Sounds pretty shaky...
+So here is the report :
 
-> There's a third method in sd.c. I've also left that in since I suspect
-> it might be necessary under some circumstances, too.
+1) The file which affects the playback is
+/proc/asound/card0/pcm0p/sub0/status
 
-Probably a good idea.
+2) I tried to remove only
 
-> >From my testing, I get the impression that this Fujitsu drive only
-> has mode page 0, meaning that only 0x00 and 0x3F make sense, and that
-> mode page 0x00 also only contains very few bytes of information -
-> because asking for 16 bytes from 0x3F didn't work, but 4 bytes does.
-> What's weird is that asking for all pages can also stop suddenly, after
-> which only page 0x00 is accessible. And when that happens, we only get
-> a meaningless request sense of 00/00/00 back.
-> 
-> Oh well, strange hardware indeed.
-> 
-> Here's the patch that works for me, please consider applying and
-> pushing to Linus/Andrew:
+ snd_pcm_stream_lock_irq(substream);
+ snd_pcm_stream_unlock_irq(substream);
 
-Hmm, looks a bit strange. You want write protect to be set _if_
-detection works, not otherwise. If it fails, just assume that you can
-write to the drive and let the normal drive rejection work fail those
-(maybe even catch them and write protect then). Seeing as the method is
-unreliable, we cannot solely rely on that.
+3) I tried to remove only
+entry->c.text.read = snd_pcm_substream_proc_status_read
+
+4) I tried to remove irq calls, substream proc calls and
+proc_status_entry calls
+
+And it still doesn't work but...
+
+pcm.c from my 2.6.2-rc1 and pcm.c from my 2.6.0 are the same...
+Or on my 2.6.0 the sound works without any problem...
+
+I use the same elevator "deadline".
+
+I've Preempt enabled on both...
+
+I'll maybe try the standalone version of alsa-drivers with 2.6.2-rc1...
+Btw I'll try the 2.6.2-rc2 kernel before.
+
+Best regards,
 
 -- 
-Jens Axboe
+Eddahbi Karim <installation_fault_association@yahoo.fr>
+Installation Fault
 

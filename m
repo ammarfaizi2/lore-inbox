@@ -1,40 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265225AbUFRPQE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265232AbUFRPRc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265225AbUFRPQE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 11:16:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265229AbUFRPQD
+	id S265232AbUFRPRc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 11:17:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265229AbUFRPQM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 11:16:03 -0400
-Received: from 206-176-252-18.vbbn.com ([206.176.252.18]:6660 "Helo vxyuhp.com")
-	by vger.kernel.org with SMTP id S265212AbUFRPPF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 11:15:05 -0400
-From: colson@summit-e.com
-To: sarcher@vger.kernel.org
-Date: Fri, 18 Jun 2004 15:13:30 GMT
-MIME-Version: 1.0
-Subject: EU gibt Erwerbslosen volle Freizuegigkeit
-Importance: Normal
-X-Mailer: Mail-SMTP V6.65
-X-Priority: 3 (Normal)
-Message-ID: <3e377fb80ee9a3.2e815.qmail@summit-e.com>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"
+	Fri, 18 Jun 2004 11:16:12 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55216 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265223AbUFRPQB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 11:16:01 -0400
+Date: Fri, 18 Jun 2004 16:15:58 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Chris Mason <mason@suse.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH RFC] __bd_forget should wait for inodes using the mapping
+Message-ID: <20040618151558.GX12308@parcelfarce.linux.theplanet.co.uk>
+References: <1087523668.8002.103.camel@watt.suse.com> <20040618021043.GV12308@parcelfarce.linux.theplanet.co.uk> <1087563810.8002.116.camel@watt.suse.com> <20040618142207.GW12308@parcelfarce.linux.theplanet.co.uk> <1087570031.8002.153.camel@watt.suse.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1087570031.8002.153.camel@watt.suse.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Einwanderungswelle osteuropaeischer Sozialhilfe-Empfaenger befuerchtet
+On Fri, Jun 18, 2004 at 10:47:11AM -0400, Chris Mason wrote:
+> During writeback, we need to answer the question: "are there dirty pages
+> attached to this inode", and the only way to answer it is via the
+> address space.
+> 
+> If bdev inodes don't want other inodes using their address space, they
+> shouldn't be setting the i_mapping on other inodes.  Since they are, the
+> bdev code needs to be aware that someone else might be using it.
 
-Muenchen (rpo). Hans-Werner Sinn, Praesident des ifo-Institut hat in der 'Sueddeutschen Zeitung' vor einer massiven Einwanderungswelle osteuropaeischer Sozialhilfe-Empfaenger nach Deutschland gewarnt. Zwar habe die EU Uebergangsfristen fuer Arbeitnehmer verankert, doch Erwerbslose duerften sofort einwandern und haetten von Anfang an 'Anspruch auf alle sozialen Leistungen'.
+Scheduled for 2.7.1; for now users of ->i_mapping (the fewer of them remain,
+the better) have to be aware of bdev.
 
-Diese Regelung sei grotesk und werde die westeuropaeischen Sozialstaaten zerstoeren. Nur eine Aenderung der EU-Verfassung koenne das noch verhindern. Die Folgen der vom EU-Parlament gebilligten Freizuegigkeits-Richtlinie fuer Wanderungen innerhalb der EU seien 'von Politik und Oeffentlichkeit total uebersehen' worden, kritisierte der Wirtschaftswissenschaftler. Osteuropaeer duerfen waehrend einer mehrjaehrigen Uebergangsfrist zwar 'nicht als Arbeitnehmer kommen.
-
-Als Selbststaendige und nicht erwerbstaetige Personen duerfen sie sich jedoch sofort in Deutschland niederlassen', erklaerte Sinn. 'Von Anfang an hat auch der nicht Erwerbstaetige Anspruch auf alle sozialen Leistungen des Staates wie ein Einheimischer. Das wird viele, die in den aermeren Regionen Europas zu Hause sind, veranlassen, in die reichen Sozialstaaten der EU zu wandern.' Die Anreize seien uebermaechtig. Die deutsche Sozialhilfe sei fuenf Mal so hoch wie ein slowakischer Lohn.
-
-Die bevorstehende Armutswanderung aus Osteuropa werde die westeuropaeischen Sozialstaaten erodieren: 'Die Staaten werden ihre Leistungen in einer Art Abschreckungswettbewerb zurueckschrauben, weil keiner zum Ziel der Wohlfahrtswanderungen werden will', und 'im Endeffekt wird Europa nur noch so sozial sein koennen, wie es Amerika heute ist'. Um dies abzuwenden, muessten die EU-Staaten 'das Recht der Migration in den Sozialstaat' streichen: Das Heimatland muesste fuer die Sozialleistungen an nicht erwerbstaetige Zuwanderer zustaendig bleiben, forderte der ifo-Praesident.
-
-
-Link's:
-http://www.rp-online.de/public/article/nachrichten/politik/deutschland/48909
-
-http://www.rhein-main.net/sixcms/list.php?page=fnp2_news_article&id=1685544
+And yes, ->i_mapping flips on "normal" bdev inodes will go away - we set
+->f_mapping on open directly.

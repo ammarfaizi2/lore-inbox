@@ -1,216 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264541AbUGMAXN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264482AbUGMAYp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264541AbUGMAXN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 20:23:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264531AbUGMAWK
+	id S264482AbUGMAYp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 20:24:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264538AbUGMAY0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 20:22:10 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:57031 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264519AbUGMAUI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 20:20:08 -0400
-Date: Tue, 13 Jul 2004 02:20:05 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: support@moxa.com.tw
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] mxser.c: fix inlines
-Message-ID: <20040713002004.GC4701@fs.tum.de>
+	Mon, 12 Jul 2004 20:24:26 -0400
+Received: from mail009.syd.optusnet.com.au ([211.29.132.64]:9173 "EHLO
+	mail009.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S264482AbUGMAWX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 20:22:23 -0400
+References: <20040712163141.31ef1ad6.akpm@osdl.org> <200407122358.i6CNwvBD003469@localhost.localdomain> <20040712170649.6f4c0c71.akpm@osdl.org>
+Message-ID: <cone.1089678113.958014.12958.502@pc.kolivas.org>
+X-Mailer: http://www.courier-mta.org/cone/
+From: Con Kolivas <kernel@kolivas.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Paul Davis <paul@linuxaudiosystems.com>, rlrevell@joe-job.com,
+       linux-audio-dev@music.columbia.edu, mingo@elte.hu, arjanv@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Voluntary Kernel Preemption Patch
+Date: Tue, 13 Jul 2004 10:21:53 +1000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Content-Type: multipart/signed;
+    boundary="=_mimegpg-pc.kolivas.org-12958-1089678113-0002";
+    micalg=pgp-sha1; protocol="application/pgp-signature"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trying to compile drivers/char/mxser.c with gcc 3.4 and
-  # define inline         __inline__ __attribute__((always_inline))
-results in the following compile error:
+This is a MIME GnuPG-signed message.  If you see this text, it means that
+your E-mail or Usenet software does not support MIME signed messages.
 
-<--  snip  -->
+--=_mimegpg-pc.kolivas.org-12958-1089678113-0002
+Content-Type: text/plain; format=flowed; charset="US-ASCII"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-...
-  CC      drivers/char/mxser.o
-drivers/char/mxser.c: In function `mxser_interrupt':
-drivers/char/mxser.c:352: sorry, unimplemented: inlining failed in call 
-to 'mxser_receive_chars': function body not available
-drivers/char/mxser.c:1347: sorry, unimplemented: called from here
-drivers/char/mxser.c:354: sorry, unimplemented: inlining failed in call 
-to 'mxser_check_modem_status': function body not available
-drivers/char/mxser.c:1350: sorry, unimplemented: called from here
-drivers/char/mxser.c:353: sorry, unimplemented: inlining failed in call 
-to 'mxser_transmit_chars': function body not available
-drivers/char/mxser.c:1355: sorry, unimplemented: called from here
-make[2]: *** [drivers/char/mxser.o] Error 1
+Andrew Morton writes:
 
-<--  snip  -->
+> Paul Davis <paul@linuxaudiosystems.com> wrote:
+>>
+>> >resierfs: yes, it's a problem.  I "fixed" it multiple times in 2.4, but the
+>> >fixes ended up breaking the fs in subtle ways and I eventually gave up.
+>> 
+>> andrew, this is really helpful. should we conclude that until some
+>> announcement from reiser that they have addressed this, the reiserfs
+>> should be avoided on low latency systems?
+>> 
+> 
+> It seems that way, yes.  I do not know how common the holdoffs are in real
+> life.  It would be interesting if there was a user report that switching
+> from reiserfs to ext2/ext3 actually made a difference - this would tell us
+> that it is indeed a real-world problem.
+> 
+> Note that this info because available because someone set
+> /proc/asound/*/*/xrun_debug.  We need more people doing that
+
+Can I just point out that the reiserfs3.6 delays that I originally reported 
+with the preempt threshhold test did not come up once the patch was fixed. I 
+have my preempt threshold set at 1ms and did not see one single reiserfs 
+dump in my syslog. ie I don't think I am personally seeing any significant 
+reiserfs3.6 latencies.
+
+Cheers,
+Con
 
 
-The patch below moves mxser_interrupt below the inline functions it 
-uses.
+--=_mimegpg-pc.kolivas.org-12958-1089678113-0002
+Content-Type: application/pgp-signature
+Content-Transfer-Encoding: 7bit
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-An alternative approach would be to remove the inlines.
+iD8DBQBA8yshZUg7+tp6mRURAloCAJ42Ql94R2EsxPaCWV2PUb3EJZwa1gCeMwzS
+tRI5F6baZJMdMTPgWkuBolA=
+=kNOL
+-----END PGP SIGNATURE-----
 
-
-diffstat output:
- drivers/char/mxser.c |  128 +++++++++++++++++++++----------------------
- 1 files changed, 64 insertions(+), 64 deletions(-)
-
-
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
-
---- linux-2.6.7-mm7-full-gcc3.4/drivers/char/mxser.c.old	2004-07-13 02:12:23.000000000 +0200
-+++ linux-2.6.7-mm7-full-gcc3.4/drivers/char/mxser.c	2004-07-13 02:16:13.000000000 +0200
-@@ -348,10 +348,10 @@
- static void mxser_stop(struct tty_struct *);
- static void mxser_start(struct tty_struct *);
- static void mxser_hangup(struct tty_struct *);
--static irqreturn_t mxser_interrupt(int, void *, struct pt_regs *);
- static inline void mxser_receive_chars(struct mxser_struct *, int *);
- static inline void mxser_transmit_chars(struct mxser_struct *);
- static inline void mxser_check_modem_status(struct mxser_struct *, int);
-+static irqreturn_t mxser_interrupt(int, void *, struct pt_regs *);
- static int mxser_block_til_ready(struct tty_struct *, struct file *, struct mxser_struct *);
- static int mxser_startup(struct mxser_struct *);
- static void mxser_shutdown(struct mxser_struct *);
-@@ -1302,69 +1302,6 @@
- 	wake_up_interruptible(&info->open_wait);
- }
- 
--/*
-- * This is the serial driver's generic interrupt routine
-- */
--static irqreturn_t mxser_interrupt(int irq, void *dev_id, struct pt_regs *regs)
--{
--	int status, i;
--	struct mxser_struct *info;
--	struct mxser_struct *port;
--	int max, irqbits, bits, msr;
--	int pass_counter = 0;
--	int handled = 0;
--
--	port = 0;
--	for (i = 0; i < MXSER_BOARDS; i++) {
--		if (dev_id == &(mxvar_table[i * MXSER_PORTS_PER_BOARD])) {
--			port = dev_id;
--			break;
--		}
--	}
--
--	if (i == MXSER_BOARDS)
--		return IRQ_NONE;
--	if (port == 0)
--		return IRQ_NONE;
--	max = mxser_numports[mxsercfg[i].board_type];
--
--	while (1) {
--		irqbits = inb(port->vector) & port->vectormask;
--		if (irqbits == port->vectormask)
--			break;
--		handled = 1;
--		for (i = 0, bits = 1; i < max; i++, irqbits |= bits, bits <<= 1) {
--			if (irqbits == port->vectormask)
--				break;
--			if (bits & irqbits)
--				continue;
--			info = port + i;
--			if (!info->tty ||
--			  (inb(info->base + UART_IIR) & UART_IIR_NO_INT))
--				continue;
--			status = inb(info->base + UART_LSR) & info->read_status_mask;
--			if (status & UART_LSR_DR)
--				mxser_receive_chars(info, &status);
--			msr = inb(info->base + UART_MSR);
--			if (msr & UART_MSR_ANY_DELTA)
--				mxser_check_modem_status(info, msr);
--			if (status & UART_LSR_THRE) {
--/* 8-2-99 by William
--   if ( info->x_char || (info->xmit_cnt > 0) )
-- */
--				mxser_transmit_chars(info);
--			}
--		}
--		if (pass_counter++ > MXSER_ISR_PASS_LIMIT) {
--#if 0
--			printk("MOXA Smartio/Indusrtio family driver interrupt loop break\n");
--#endif
--			break;	/* Prevent infinite loops */
--		}
--	}
--	return IRQ_RETVAL(handled);
--}
--
- static inline void mxser_receive_chars(struct mxser_struct *info,
- 					 int *status)
- {
-@@ -1485,6 +1422,69 @@
- 	}
- }
- 
-+/*
-+ * This is the serial driver's generic interrupt routine
-+ */
-+static irqreturn_t mxser_interrupt(int irq, void *dev_id, struct pt_regs *regs)
-+{
-+	int status, i;
-+	struct mxser_struct *info;
-+	struct mxser_struct *port;
-+	int max, irqbits, bits, msr;
-+	int pass_counter = 0;
-+	int handled = 0;
-+
-+	port = 0;
-+	for (i = 0; i < MXSER_BOARDS; i++) {
-+		if (dev_id == &(mxvar_table[i * MXSER_PORTS_PER_BOARD])) {
-+			port = dev_id;
-+			break;
-+		}
-+	}
-+
-+	if (i == MXSER_BOARDS)
-+		return IRQ_NONE;
-+	if (port == 0)
-+		return IRQ_NONE;
-+	max = mxser_numports[mxsercfg[i].board_type];
-+
-+	while (1) {
-+		irqbits = inb(port->vector) & port->vectormask;
-+		if (irqbits == port->vectormask)
-+			break;
-+		handled = 1;
-+		for (i = 0, bits = 1; i < max; i++, irqbits |= bits, bits <<= 1) {
-+			if (irqbits == port->vectormask)
-+				break;
-+			if (bits & irqbits)
-+				continue;
-+			info = port + i;
-+			if (!info->tty ||
-+			  (inb(info->base + UART_IIR) & UART_IIR_NO_INT))
-+				continue;
-+			status = inb(info->base + UART_LSR) & info->read_status_mask;
-+			if (status & UART_LSR_DR)
-+				mxser_receive_chars(info, &status);
-+			msr = inb(info->base + UART_MSR);
-+			if (msr & UART_MSR_ANY_DELTA)
-+				mxser_check_modem_status(info, msr);
-+			if (status & UART_LSR_THRE) {
-+/* 8-2-99 by William
-+   if ( info->x_char || (info->xmit_cnt > 0) )
-+ */
-+				mxser_transmit_chars(info);
-+			}
-+		}
-+		if (pass_counter++ > MXSER_ISR_PASS_LIMIT) {
-+#if 0
-+			printk("MOXA Smartio/Indusrtio family driver interrupt loop break\n");
-+#endif
-+			break;	/* Prevent infinite loops */
-+		}
-+	}
-+	return IRQ_RETVAL(handled);
-+}
-+
- static int mxser_block_til_ready(struct tty_struct *tty, struct file *filp,
- 				 struct mxser_struct *info)
- {
-
+--=_mimegpg-pc.kolivas.org-12958-1089678113-0002--

@@ -1,76 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268215AbUIFQDv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268189AbUIFQEt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268215AbUIFQDv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 12:03:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268193AbUIFQDt
+	id S268189AbUIFQEt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 12:04:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268193AbUIFQEF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 12:03:49 -0400
-Received: from ip189.73.1311O-CUD12K-02.ish.de ([62.143.73.189]:32129 "EHLO
-	sheridan") by vger.kernel.org with ESMTP id S268225AbUIFQDY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 12:03:24 -0400
-From: Marcus Metzler <mocm@mocm.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16700.35413.648707.198360@mocm.de>
-Date: Mon, 6 Sep 2004 18:03:33 +0200
-To: Emmanuel Fleury <fleury@cs.aau.dk>
-Cc: mocm@mocm.de, Linux Kernel Mailing-list <linux-kernel@vger.kernel.org>
-Subject: Re: [Transmeta hardware] Update of the CMS under Linux ?
-In-Reply-To: <1094486295.4125.16.camel@rade7.e.cs.auc.dk>
-References: <1093165082.11189.20.camel@aphrodite.olympus.net>
-	<ch8lop$m3t$1@sea.gmane.org>
-	<1094457952.22441.34.camel@rade7.e.cs.auc.dk>
-	<16700.9401.569488.38007@mocm.de>
-	<1094486295.4125.16.camel@rade7.e.cs.auc.dk>
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Reply-To: mocm@mocm.de
-X-Face: X!$Vwl\?,AW_[zm^ej\MLxN>q;R?C_sRZ*XE4V;BGT28Ewyd\:TS')W'G#Dgay8ci$*{lEd
- 02(Nk0OndG\752U>lozmb_R1poDm6mgHm_4.}bdS0hh.`xGUI.X2x_50T9.?_v~.,QI*$2:Q=HV@>F
- IP6%l~E:T|w,X[eC;|YD(A9X'sS"r$l]g<4CjAm4|f7o0>6zGwUPLinP0.d=E+_%?4>0A9'esEZ=9h
- $#b[g*/q/g'GVj-hDc,+V_]1.H^N,1Bju,>5FZn"B
+	Mon, 6 Sep 2004 12:04:05 -0400
+Received: from pat.uio.no ([129.240.130.16]:34277 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S268189AbUIFP7b convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Sep 2004 11:59:31 -0400
+Subject: Re: why do i get "Stale NFS file handle" for hours?
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Sven =?ISO-8859-1?Q?K=F6hler?= <skoehler@upb.de>,
+       linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
+In-Reply-To: <1094464633.3986.36.camel@imladris.demon.co.uk>
+References: <chdp06$e56$1@sea.gmane.org>
+	 <1094348385.13791.119.camel@lade.trondhjem.org>  <413A7119.2090709@upb.de>
+	 <1094349744.13791.128.camel@lade.trondhjem.org>  <413A789C.9000501@upb.de>
+	 <1094353267.13791.156.camel@lade.trondhjem.org>
+	 <1094464633.3986.36.camel@imladris.demon.co.uk>
+Content-Type: text/plain; charset=iso-8859-1
+Message-Id: <1094486357.8342.12.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 06 Sep 2004 11:59:17 -0400
+Content-Transfer-Encoding: 8BIT
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=0, required 12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Emmanuel" == Emmanuel Fleury <fleury@cs.aau.dk> writes:
+På må , 06/09/2004 klokka 05:57, skreiv David Woodhouse:
 
-    Emmanuel> On Mon, 2004-09-06 at 10:50, Marcus Metzler wrote:
-    >> I read the description of your bug and discovered that my
-    >> problems with my Fujitsu Biblo Loox T93C notebook (AFAIK the
-    >> Japanese version of the Lifebook 2120) seem to have the same
-    >> cause. Since you seem to be collecting a list of hardware that
-    >> has this bug, here is my information: I am using debian testing
-    >> with kernel 2.6.4 (from kernel.org) and XFree86 Version
-    >> 4.3.0.1. dmesg gives the following information about the CMS
-    >> version:
-    >> 
-    >> CPU: After generic identify, caps: 0084893f 0081813f 00000000
-    >> 00000000 CPU: After vendor identify, caps: 0084893f 0081813f
-    >> 000000ce 00000000 CPU: L1 I Cache: 64K (64 bytes/line), D cache
-    >> 64K (32 bytes/line) CPU: L2 Cache: 512K (128 bytes/line) CPU:
-    >> Processor revision 1.4.1.0, 933 MHz CPU: Code Morphing Software
-    >> revision 4.3.3-9-562 CPU: 20030107 01:17 official release
-    >> 28.0.1-4.3.3#1 CPU serial number disabled.  CPU: After all
-    >> inits, caps: 0080893f 0081813f 000000ce 00000000 CPU:
-    >> Transmeta(tm) Crusoe(tm) Processor TM5800 stepping 03
+> The fact that we require a persistent table of exports at all, and can't
+> call back to mountd to authenticate 'new' clients instead of just
+> telling them to sod off if the kernel doesn't already know about them,
+> is considered by some to be a bug in knfsd. 
 
-    Emmanuel> Thanks for your input !
+That should have been fixed in 2.6.x. If you do mount /proc/fs/nfsd, and
+use a recent enough version of mountd, then knfsd can and will work
+without any extra help from exportfs.
 
-    Emmanuel> I just added it to my list (I keep a more detailled
-    Emmanuel> description of each plateform in my archives).
+The one problem I have found with this implementation is that it relies
+very heavily on reverse-DNS lookups, so it may give unexpected results
+if you have more than one name for your client. I can't see why that
+shouldn't be fixable, though...
 
-    Emmanuel> It's the first 4.3.3 that is reported to have the
-    Emmanuel> bug. :)
+Cheers,
+  Trond
 
-I might add that, although I don't have quantitative data, it seems
-that since the last X11 upgrade the bug seems to be less frequent.
-
-Marcus
-
--- 
-/--------------------------------------------------------------------\
-| Dr. Marcus O.C. Metzler        |                                   |
-| mocm@metzlerbros.de            | http://www.metzlerbros.de/        |
-\--------------------------------------------------------------------/
- |>>>             Quis custodiet ipsos custodies                 <<<|

@@ -1,80 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312332AbSDXQmd>; Wed, 24 Apr 2002 12:42:33 -0400
+	id <S312386AbSDXQpt>; Wed, 24 Apr 2002 12:45:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312357AbSDXQmc>; Wed, 24 Apr 2002 12:42:32 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:12783 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S312332AbSDXQma>; Wed, 24 Apr 2002 12:42:30 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Wed, 24 Apr 2002 10:40:56 -0600
-To: il boba <il_boba@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: what`s wrong?
-Message-ID: <20020424164056.GA15812@turbolinux.com>
-Mail-Followup-To: il boba <il_boba@hotmail.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <F218eE3VsX7PVTdAMDm0000842f@hotmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S312392AbSDXQps>; Wed, 24 Apr 2002 12:45:48 -0400
+Received: from exchange.macrolink.com ([64.173.88.99]:52489 "EHLO
+	exchange.macrolink.com") by vger.kernel.org with ESMTP
+	id <S312386AbSDXQpp>; Wed, 24 Apr 2002 12:45:45 -0400
+Message-ID: <11E89240C407D311958800A0C9ACF7D13A77B8@EXCHANGE>
+From: Ed Vance <EdV@macrolink.com>
+To: "'David S. Miller'" <davem@redhat.com>
+Cc: peterson@austin.ibm.com, linux-kernel@vger.kernel.org
+Subject: RE: PowerPC Linux and PCI
+Date: Wed, 24 Apr 2002 09:45:44 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 24, 2002  18:06 +0200, il boba wrote:
-> Is there anybody that can help me understand what`s wrong with this code?
+Hi Dave,
 
-Yes, easily spotted a major problem without even reading the whole
-thing.
-
-> #define BUFSIZ 8192
+David S. Miller wrote:
 > 
-> int init_module()
-> {
->  int err_frame[BUFSIZ];
+>    From: Ed Vance <EdV@macrolink.com>
+>    Date: Tue, 23 Apr 2002 10:16:16 -0700
+> 
+>    James L Peterson wrote: 
+>    > What does this mean?  This suggests that PCI controller for
+>    > big-endian systems are not interchangeable with PCI controllers
+>    > for little-endian systems, because the controller itself does
+>    > byte swapping (is that what you mean by "byte twisting"?)
+>    
+>    I think David's reference is to the system's PCI subsystem/interface 
+>    rather than to the PCI cards plugged into it. 
+> 
+> No, I'm talking about the "PCI host controller" the thing that
+> connects the PCI bus to the system bus :-)
 
-The entire kernel stack is only 8kB in size.  You have already killed
-a bunch of random memory by allocating this much memory on the stack.
-You allocated 4*8192 = 32kB on the stack here.
+Hi Dave,
 
-> #if CONFIG_MODVERSIONS==1
-> #define MODVERSIONS
-> #include <linux/modversions.h>
-> #endif
+Yup, same thing I was talking about. In technical terms, the thingy that 
+marries the processor to the PCI bus. Some SBC's have more than one bus in
+front of the PCI bus. Hmmm... I've heard that such marriages are illegal in
+Texas. ;-)
 
-You shouldn't do things like this.  Rather have a makefile which sets
-the correct defines.
+Hi Jim,
 
-> int init_err_frame(int err_frame[]) {
->  int i, k = 0, j = 0;
->  char buffer[BUFSIZ];
+Any time two unlike buses have a nexus, the nexus hardware has the major 
+responsibility to resolve the issues of that nexus, whatever they may be. 
+Nothing new here. Ordering of the PCI bus is always the same, as specified
+in the spec, regardless of how you get there. ... And it's not always
+obvious from the code what is going on in the hardware, especially if it's
+_good_ hardware that makes the driver writer's life easier. 
 
-Another 8kB on the stack here - further random corruption.
+It's all magic ...
 
->  struct file * f = 
-> filp_open("/usr/src/kernel-source-2.2.19/pinux/misc/err_file", 0, 0);  /* i 
-> want it only readable */
+Ed
 
-More clear to add "O_RDONLY" to filp_open, even though it is still 0.
-
->  if (f == '\0'){
->       printk ("errore nell' APERTURA del file d'errore");
->       return -1;
->  }
-
-How about "if (f == NULL)"?
-
->  if ((generic_file_read(f, buffer, BUFSIZ, &f->f_pos)) < 0 ){
-
-Calling generic_file_read() may work in some cases, but not others.  It
-depends on the filesystem.  Use "f->f_op->read" instead.
-
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+---------------------------------------------------------------- 
+Ed Vance              edv@macrolink.com
+Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
+----------------------------------------------------------------
 

@@ -1,69 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129055AbRBEWuy>; Mon, 5 Feb 2001 17:50:54 -0500
+	id <S129168AbRBEXBs>; Mon, 5 Feb 2001 18:01:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135881AbRBEWuo>; Mon, 5 Feb 2001 17:50:44 -0500
-Received: from bgnet.bg ([212.56.2.2]:54032 "EHLO bgnet.bg")
-	by vger.kernel.org with ESMTP id <S129055AbRBEWui>;
-	Mon, 5 Feb 2001 17:50:38 -0500
-Date: Tue, 6 Feb 2001 01:02:08 +0000 (UTC)
-From: Vesselin Atanasov <vesselin@bgnet.bg>
-To: Admin Mailing Lists <mlist@intergrafix.net>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: rlim_t and DNS?
-In-Reply-To: <Pine.LNX.4.10.10102051339460.18021-100000@athena.intergrafix.net>
-Message-ID: <Pine.LNX.4.10.10102060056060.2964-100000@bgnet.bg>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129930AbRBEXBj>; Mon, 5 Feb 2001 18:01:39 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:8416 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129168AbRBEXBa>;
+	Mon, 5 Feb 2001 18:01:30 -0500
+Date: Mon, 5 Feb 2001 22:58:04 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, Steve Lord <lord@sgi.com>,
+        linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait /notify + callback chains
+Message-ID: <20010205225804.Z1167@redhat.com>
+In-Reply-To: <20010205121921.C1167@redhat.com> <Pine.LNX.4.30.0102052213470.10520-100000@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.30.0102052213470.10520-100000@elte.hu>; from mingo@elte.hu on Mon, Feb 05, 2001 at 10:28:37PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
-Just edit lib/isc/unix/resource.c and find following line:
-"typedef quad_t rlim_t"
+Hi,
 
-replace it with
-"typedef unsigned long rlim_t"
-
-In my case I had also to #undef HAVE_LINUX_CAPABILITY_H in config.h
-after running ./configure
-
-This was enough for my libc5 machine.
-
-Regards,
-Vesselin Atanasov
-
-On Mon, 5 Feb 2001, Admin Mailing Lists wrote:
-
+On Mon, Feb 05, 2001 at 10:28:37PM +0100, Ingo Molnar wrote:
 > 
-> Yep, it is libc5. i have 1 glibc system and they both have the files
-> you've mentioned. :( either i'll have to upgrade to glibc (no small task)
-> or use 8.2.3 for now..the previous 8.2.2 series was compiling ok for me.
-> Unless someone has a workaround i might try for 9?
+> On Mon, 5 Feb 2001, Stephen C. Tweedie wrote:
 > 
-> -Tony
-> .-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
-> Anthony J. Biacco                       Network Administrator/Engineer
-> thelittleprince@asteroid-b612.org       Intergrafix Internet Services
+> it's exactly these 'compound' structures i'm vehemently against. I do
+> think it's a design nightmare. I can picture these monster kiobufs
+> complicating the whole code for no good reason - we couldnt even get the
+> bh-list code in block_device.c right - why do you think kiobufs *all
+> across the kernel* will be any better?
 > 
->     "Dream as if you'll live forever, live as if you'll die today"
-> http://www.asteroid-b612.org                http://www.intergrafix.net
-> .-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
-> 
-> On Thu, 1 Feb 2001, Peter Samuelson wrote:
-> 
-> > 
-> > [Admin Mailing Lists]
-> > > i have no bits directory
-> > 
-> > Really?  What version of libc, and on what Linux distro?  I thought all
-> > versions of glibc2 had /usr/include/bits/.
-> > 
-> > If you are using libc4 or libc5, it is not surprising if the BIND
-> > people didn't notice the problem -- they probably didn't try it.
-> > 
-> > Peter
+> RAID0 is not an issue. Split it up, use separate kiobufs for every
+> different disk.
 
+Umm, that's not the point --- of course you can use separate kiobufs
+for the communication between raid0 and the underlying disks, but what
+do you then tell the application _above_ raid0 if one of the
+underlying IOs succeeds and the other fails halfway through?
+
+And what about raid1?  Are you really saying that raid1 doesn't need
+to know which blocks succeeded and which failed?  That's the level of
+completion information I'm worrying about at the moment.
+
+> fragmented skbs are a different matter: they are simply a bit more generic
+> abstractions of 'memory buffer'. Clear goal, clear solution. I do not
+> think kiobufs have clear goals.
+
+The goal: allow arbitrary IOs to be pushed down through the stack in
+such a way that the callers can get meaningful information back about
+what worked and what did not.  If the write was a 128kB raw IO, then
+you obviously get coarse granularity of completion callback.  If the
+write was a series of independent pages which happened to be
+contiguous on disk, you actually get told which pages hit disk and
+which did not.
+
+> and what is the goal of having multi-page kiobufs. To avoid having to do
+> multiple function calls via a simpler interface? Shouldnt we optimize that
+> codepath instead?
+
+The original multi-page buffers came from the map_user_kiobuf
+interface: they represented a user data buffer.  I'm not wedded to
+that format --- we can happily replace it with a fine-grained sg list
+--- but the reason they have been pushed so far down the IO stack is
+the need for accurate completion information on the originally
+requested IOs.
+
+In other words, even if we expand the kiobuf into a sg vector list,
+when it comes to merging requests in ll_rw_blk.c we still need to
+track the callbacks on each independent source kiobufs.  
+
+--Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

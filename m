@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317107AbSGNUb6>; Sun, 14 Jul 2002 16:31:58 -0400
+	id <S317083AbSGNU17>; Sun, 14 Jul 2002 16:27:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317091AbSGNUb5>; Sun, 14 Jul 2002 16:31:57 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:21488 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S317107AbSGNUb4>; Sun, 14 Jul 2002 16:31:56 -0400
-Subject: Re: [RFC][Patch] DMA for CD-ROM audio
-From: Robert Love <rml@tech9.net>
-To: Kristian Peters <kristian.peters@korseby.net>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020714113341.786b3600.kristian.peters@korseby.net>
-References: <20020714113341.786b3600.kristian.peters@korseby.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 14 Jul 2002 13:34:43 -0700
-Message-Id: <1026678886.1244.417.camel@sinai>
-Mime-Version: 1.0
+	id <S317091AbSGNU16>; Sun, 14 Jul 2002 16:27:58 -0400
+Received: from lsanca2-ar27-4-3-064-252.lsanca2.dsl-verizon.net ([4.3.64.252]:14468
+	"EHLO barbarella.hawaga.org.uk") by vger.kernel.org with ESMTP
+	id <S317083AbSGNU16>; Sun, 14 Jul 2002 16:27:58 -0400
+Date: Sun, 14 Jul 2002 13:30:37 -0700 (PDT)
+From: Ben Clifford <benc@hawaga.org.uk>
+To: Heinz Diehl <hd@cavy.de>
+cc: Dave Jones <davej@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.25-dj2
+In-Reply-To: <20020714111153.GA4692@chiara.cavy.de>
+Message-ID: <Pine.LNX.4.44.0207141312250.28537-100000@barbarella.hawaga.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-07-14 at 02:33, Kristian Peters wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> I've taken the CD-audio-DMA patch from Andrew Morton and made it available
-> as a config option. You're now able to choose whether you still want
-> the old code which uses PIO or the new code which decreases CPU load
-> (on some systems up to 70%) and improves total time of read.
+On Sun, 14 Jul 2002, Heinz Diehl wrote:
+
+> > Just kill those lines.
 > 
-> It should be safe with old systems. My broken AMD 386 falls back to PIO.
+> This leads to:
 
-If the code is truly safe on older systems, what I think makes more
-sense is merging it without a configure option and having DMA-capable
-systems use DMA CD-audio and older systems fall back to PIO.
+That happens even if you don't kill those lines. I have ide-scsi as a 
+module and if I say "make bzImage modules" I get the SCSI error handling 
+error, and if I just say "make bzImage" I get the __udivdi3 error.
 
-It seems wiser to me to support something entirely as correct and sane
-or consider it not an issue.  This is not a separate feature, for
-example like IDE itself which should be an option, but an evolutionary
-feature of which we should just do it.
+The only occurence of __udvidi3 in source code seems to be in the 
+arch-specific directories (and not the i386 one - which I am using). 
 
-This would clean up all those nasty ifdefs and perhaps we could
-generalize the two codepaths together, further reducing size.
+Looks like it is being referenced somehow in the procfs .o files (but not 
+procfs source)
 
-I like the patch... up for my idea for 2.5?
+- -- 
+Ben Clifford     benc@hawaga.org.uk     GPG: 30F06950
+http://www.hawaga.org.uk/ben/
 
-I wonder what akpm thinks..
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-	Robert Love
+iD8DBQE9Md9vsYXoezDwaVARAmH8AJ9Dca0CI0qTU6PkYQ5lAg6C5ZvxkQCeOXJ/
+Ux2lMrRF9pRU5P2M9kr3o9c=
+=bEVu
+-----END PGP SIGNATURE-----
 

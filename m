@@ -1,37 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287106AbSA2Xf5>; Tue, 29 Jan 2002 18:35:57 -0500
+	id <S287111AbSA2XhZ>; Tue, 29 Jan 2002 18:37:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287109AbSA2Xee>; Tue, 29 Jan 2002 18:34:34 -0500
-Received: from ns.suse.de ([213.95.15.193]:49156 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S287045AbSA2Xds>;
-	Tue, 29 Jan 2002 18:33:48 -0500
-Date: Wed, 30 Jan 2002 00:33:46 +0100
-From: Dave Jones <davej@suse.de>
-To: Pozsar Balazs <pozsy@sch.bme.hu>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.2-dj7
-Message-ID: <20020130003346.A16379@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Pozsar Balazs <pozsy@sch.bme.hu>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020129225526.A3064@suse.de> <Pine.GSO.4.30.0201300018450.940-100000@balu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.4.30.0201300018450.940-100000@balu>; from pozsy@sch.bme.hu on Wed, Jan 30, 2002 at 12:19:27AM +0100
+	id <S287163AbSA2Xf6>; Tue, 29 Jan 2002 18:35:58 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:33811 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S286647AbSA2Xed>; Tue, 29 Jan 2002 18:34:33 -0500
+Date: Tue, 29 Jan 2002 15:33:52 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Momchil Velikov <velco@fadata.bg>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Radix-tree pagecache for 2.5
+In-Reply-To: <877kq04v7w.fsf@fadata.bg>
+Message-ID: <Pine.LNX.4.33.0201291515480.1747-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 30, 2002 at 12:19:27AM +0100, Pozsar Balazs wrote:
- > > 2.5.2-dj7
- > > o   Workaround some broken PS/2 mice.			(Vojtech Pavlik)
- > What is this about exactly?
 
- Some PS2 mice forget to ACK the GetID command before sending
- a response.
+On 30 Jan 2002, Momchil Velikov wrote:
+>
+> rat-7 is with 128-way radix tree branch factor, rat-4 is with 16-way.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Hmm. It appears that the 128-way one is no slower, at least.
+
+Probably not very relevant question: What are the memory usage
+implications? I love having that global big page_hash_table gone, but what
+are the differences in memory usage between rat-4 and rat-7? In
+particular, it _looks_ like the way the radix_node is done, it will
+basically always be a factor-of-two+1 words, which sounds like the worst
+possible schenario from an allocator standpoint.
+
+		Linus
+

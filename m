@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262686AbTKRNhh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Nov 2003 08:37:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262707AbTKRNhh
+	id S262591AbTKRNcz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Nov 2003 08:32:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262652AbTKRNcz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Nov 2003 08:37:37 -0500
-Received: from gprs147-139.eurotel.cz ([160.218.147.139]:18561 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S262686AbTKRNhe (ORCPT
+	Tue, 18 Nov 2003 08:32:55 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:29595 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262591AbTKRNcx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Nov 2003 08:37:34 -0500
-Date: Tue, 18 Nov 2003 14:38:04 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Jens Axboe <axboe@suse.de>
+	Tue, 18 Nov 2003 08:32:53 -0500
+Date: Tue, 18 Nov 2003 14:32:53 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Pavel Machek <pavel@suse.cz>
 Cc: Guillaume Chazarain <guichaz@yahoo.fr>,
        Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] cfq + io priorities
-Message-ID: <20031118133804.GC662@elf.ucw.cz>
-References: <SRLGXA875SP047EDQLEC055ZHDZX2V.3fae1da3@monpc> <20031109113928.GN2831@suse.de> <20031113125427.GB643@openzaurus.ucw.cz> <20031117081407.GI888@suse.de> <20031118132634.GB470@elf.ucw.cz> <20031118133253.GK888@suse.de>
+Message-ID: <20031118133253.GK888@suse.de>
+References: <SRLGXA875SP047EDQLEC055ZHDZX2V.3fae1da3@monpc> <20031109113928.GN2831@suse.de> <20031113125427.GB643@openzaurus.ucw.cz> <20031117081407.GI888@suse.de> <20031118132634.GB470@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031118133253.GK888@suse.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20031118132634.GB470@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > At least idle class can not be used to hold important semaphore
-> > forever (even low-priority prosses receive enough time not to hold
-> > important semaphores too long)... I believe you should do the same (==
-> > get rid of idle class for now, and clearly state that realtime ones
-> > are not _guaranteed_ anything).
+On Tue, Nov 18 2003, Pavel Machek wrote:
+> > > If semaphore is held over disk io somewhere (quota code? journaling?)
+> > > you have ugly possibility of priority inversion there.
+> > 
+> > Indeed yes. That's a general problem with all the io priorities though,
+> > RT io might end up waiting for nice 10 io etc. Dunno what to do about
+> > this yet...
 > 
-> That's not doing something about it, that's giving up... 
+> Well, traditional (== scheduler) solution is not to have idle classes
+> and not guarantee anything about realtime classes.
+> 
+> At least idle class can not be used to hold important semaphore
+> forever (even low-priority prosses receive enough time not to hold
+> important semaphores too long)... I believe you should do the same (==
+> get rid of idle class for now, and clearly state that realtime ones
+> are not _guaranteed_ anything).
 
-:-) Yes. That's what we do for scheduler, already. [And its better to
-give up than to have DoS security hole, right?]
+That's not doing something about it, that's giving up... I'm not giving
+any guarentees in the first place, just 'best effort'.
 
-> You could allow idle prio to proceed, if it holds a resource that could
-> potentially block others.
+You could allow idle prio to proceed, if it holds a resource that could
+potentially block others.
 
-I guess you can't push this for 2.6. And notice that we use same
-solution for cpu scheduler, where solution is quite easy (with no
-hot-paths overhead).
-							Pavel
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Jens Axboe
+

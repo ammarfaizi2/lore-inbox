@@ -1,54 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263618AbTDTPsl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Apr 2003 11:48:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263619AbTDTPsk
+	id S263619AbTDTPza (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 11:55:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263620AbTDTPza
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Apr 2003 11:48:40 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:19461 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S263618AbTDTPsj (ORCPT
+	Sun, 20 Apr 2003 11:55:30 -0400
+Received: from mail.ithnet.com ([217.64.64.8]:60942 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id S263619AbTDTPz3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Apr 2003 11:48:39 -0400
-Date: Sun, 20 Apr 2003 18:00:34 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: linux-kernel@vger.kernel.org, linus@transmeta.com
-Subject: Re: [CFT] more kdev_t-ectomy
-Message-ID: <20030420160034.GA20123@win.tue.nl>
-References: <20030420133143.GF10374@parcelfarce.linux.theplanet.co.uk>
+	Sun, 20 Apr 2003 11:55:29 -0400
+Date: Sun, 20 Apr 2003 18:07:20 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Jos Hulzink <josh@stack.nl>
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: Are linux-fs's drive-fault-tolerant by concept?
+Message-Id: <20030420180720.099b4c34.skraw@ithnet.com>
+In-Reply-To: <200304192313.53955.josh@stack.nl>
+References: <20030419180421.0f59e75b.skraw@ithnet.com>
+	<1050766175.3694.4.camel@dhcp22.swansea.linux.org.uk>
+	<200304192313.53955.josh@stack.nl>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030420133143.GF10374@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.3.25i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 20, 2003, viro@parcelfarce.linux.theplanet.co.uk
-wrote:
+On Sat, 19 Apr 2003 23:13:53 +0200
+Jos Hulzink <josh@stack.nl> wrote:
 
-[lots of useful stuff].
+> [...]
+> Fault tolerance in a filesystem layer means in practical terms that you are 
+> guessing what a filesystem should look like, for the disk doesn't answer that
+> 
+> question anymore. IMHO you don't want that to be done automagically, for it 
+> might go right sometimes, but also might trash everything on RW filesystems.
 
-Happy Easter!
+Let me clarify again: I don't want fancy stuff inside the filesystem that
+magically knows something about right-or-wrong. The only _very small_
+enhancement I would like to see is: driver tells fs there is an error while
+writing a certain block => fs tries writing the same data onto another block.
+That's it, no magic, no RAID stuff. Very simple.
 
-Concerning kdev_t vs dev_t, probably I said this before, but just to be sure:
+> Fault tolerance OK, but the fs layer should only detect errors reported by
+> the lower level drivers and handle them gracefully (which is something that
+> might need impovement a little for some fs drivers), or else trust the data
+> it gets. 
 
-Long ago the purpose of kdev_t was to become a pointer. Roughly speaking
-we got that pointer, only it is called struct gendisk * today.
+You are completely right, I don't want any more: nice management of an error a
+low-level driver reports to the fs. Only I would like to see as an fs-answer to
+this: ok, let's try another part of the media. Currently it just sinks like
+titanic.
 
-Today the purpose of kdev_t is to be a form of dev_t: taking the minor
-of a kdev_t is just taking the lower 32 bits, no tests, no branches;
-taking the minor of a dev_t requires tests and branches - more code,
-slower code.
-
-So, the interface with filesystems and with userspace has dev_t.
-For kernel-internal numbers kdev_t is better than dev_t.
-
-Of course it may be possible to avoid kernel-internal numbers altogether.
-Sometimes that is an improvement, sometimes not. Pointers are more
-complicated than numbers - they point at something that must be allocated
-and freed and reference counted. A number is like a pointer without the
-reference counting.
-
-Andries
-
+Regards,
+Stephan

@@ -1,51 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268998AbUJTSie@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269010AbUJTSh4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268998AbUJTSie (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 14:38:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268995AbUJTSiU
+	id S269010AbUJTSh4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 14:37:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268995AbUJTShw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 14:38:20 -0400
-Received: from cantor.suse.de ([195.135.220.2]:48030 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S269008AbUJTSfF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 14:35:05 -0400
-Date: Wed, 20 Oct 2004 20:35:04 +0200
-From: Olaf Hering <olh@suse.de>
-To: Andreas Kleen <ak@suse.de>, Sam Ravnborg <sam@ravnborg.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix cross compile on x86_64
-Message-ID: <20041020183504.GA11821@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+	Wed, 20 Oct 2004 14:37:52 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:57765 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S269010AbUJTSfY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 14:35:24 -0400
+Date: Wed, 20 Oct 2004 19:15:33 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Mikael Starvik <mikael.starvik@axis.com>
+cc: linux-kernel@vger.kernel.org
+Subject: RE: 2.6.9 PageAnon bug
+In-Reply-To: <BFECAF9E178F144FAEF2BF4CE739C66818F59B@exmail1.se.axis.com>
+Message-ID: <Pine.LNX.4.44.0410201903060.9436-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 20 Oct 2004, Mikael Starvik wrote:
 
-make all fails while building a helper app:
+> >Ah, sorry for messing CRIS up, I was unaware of that.
+> 
+> Well, it's kind of odd nowadays to have the freedom of arbitrary alignment. 
+> 
+> >I don't think that's ugly, and the comment is good.
+> >It only actually needs "aligned(2)", would that be better?
+> 
+> Yes, aligned(2) is enough.
+> 
+> >But what does "aligned(2)" or "aligned(4)" do on 64-bit machines -
+> >any danger of it aligning stupidly?  I think not, but know little.
+> 
+> Same here, we need input from the 64-bit world (or make it aligned(8)).
+> 
+> >>Another possible patch would be to move i_data above i_bytes and i_sock.
+> >Really?  Precarious, I think you'd still need to insist on alignment.
+> 
+> I agree that there may be compilers out there that actually pads the
+> structure to make the members unaligned. So you are correct, aligned()
+> should be used to be safe (until memory allocation routines start to return
+> unaligned addresses).
+> 
+> Will you send this upstream to Andrew?
 
-arch/x86_64/boot/tools/build.c:36:22: asm/boot.h: No such file or directory
+Not without confirmation from people who know more about
+__attribute__((aligned(N))) than we do.  I notice init.h has an
+		__attribute__((aligned((sizeof(long)))))
+which perhaps would be better (though going the other way than from 4 to 2).
 
-Possible that make O=$foo did never work on x86_64.
+And would it be better on the declaration of struct address_space itself,
+than on the struct address_space i_data?
 
-This patch fixes it for me.
+If nobody chimes in to help us, I'll ping a few people in a day or two:
+for now use what works for you.
 
-diff -purN linux-2.6.9-bk4.orig/arch/x86_64/boot/Makefile linux-2.6.9/arch/x86_64/boot/Makefile
---- linux-2.6.9-bk4.orig/arch/x86_64/boot/Makefile	2004-10-18 23:53:51.000000000 +0200
-+++ linux-2.6.9/arch/x86_64/boot/Makefile	2004-10-20 20:29:31.368618554 +0200
-@@ -31,6 +31,7 @@ targets		:= vmlinux.bin bootsect bootsec
- EXTRA_CFLAGS := -m32
- 
- hostprogs-y	:= tools/build
-+HOST_EXTRACFLAGS += $(LINUXINCLUDE)
- subdir-		:= compressed/	#Let make clean descend in compressed/
- # ---------------------------------------------------------------------------
- 
--- 
-USB is for mice, FireWire is for men!
+Hugh
 
-sUse lINUX ag, nÜRNBERG

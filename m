@@ -1,63 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268276AbUH2TWf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268279AbUH2T03@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268276AbUH2TWf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 15:22:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268279AbUH2TWe
+	id S268279AbUH2T03 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 15:26:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268281AbUH2T03
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 15:22:34 -0400
-Received: from smtp-vbr10.xs4all.nl ([194.109.24.30]:2060 "EHLO
-	smtp-vbr10.xs4all.nl") by vger.kernel.org with ESMTP
-	id S268276AbUH2TWc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 15:22:32 -0400
-Subject: [PATCH] 1/3: 2.6.8 zr36067 driver - correct i2c-algo-bit
-	dependency in Kconfig
-From: Ronald Bultje <rbultje@ronald.bitfreak.net>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, Adrian Bunk <bunk@fs.tum.de>,
-       mjpeg-developer@lists.sourceforge.net
-Content-Type: multipart/mixed; boundary="=-2nn9nnF5XxVQrBrahEwz"
-Message-Id: <1093807411.2493.91.camel@localhost.localdomain>
+	Sun, 29 Aug 2004 15:26:29 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:48512 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S268279AbUH2T01 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Aug 2004 15:26:27 -0400
+Date: Sun, 29 Aug 2004 21:26:17 +0200
+From: Andries Brouwer <Andries.Brouwer@cwi.nl>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       mita akinobu <amgta@yacht.ocn.ne.jp>, linux-kernel@vger.kernel.org,
+       Andries Brouwer <Andries.Brouwer@cwi.nl>,
+       Alessandro Rubini <rubini@ipvvis.unipv.it>
+Subject: Re: [util-linux] readprofile ignores the last element in /proc/profile
+Message-ID: <20040829192617.GB24937@apps.cwi.nl>
+References: <200408250022.09878.amgta@yacht.ocn.ne.jp> <20040829162252.GG5492@holomorphy.com> <20040829184114.GS5492@holomorphy.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 29 Aug 2004 21:23:31 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040829184114.GS5492@holomorphy.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Aug 29, 2004 at 11:41:14AM -0700, William Lee Irwin III wrote:
+> On Sun, Aug 29, 2004 at 09:22:52AM -0700, William Lee Irwin III wrote:
+> > Well, since I couldn't stop vomiting for hours after I looked at the
+> > code for readprofile(1), here's a reimplementation, with various
+> > misfeatures removed, included as a MIME attachment.
+> 
+> I guess I might as well write a diffprof(1) too.
 
---=-2nn9nnF5XxVQrBrahEwz
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Thanks!
 
-Hi,
+<mutter>
+Is it really necessary to tell Alessandro Rubini, Stephane Eranian,
+Andrew Morton, Werner Almesberger, John Levon, Nikita Danilov
+that their work makes you vomit?
+Many kernel people have such unpleasant habits.
+It fully suffices to say that you considered the original code
+too ugly to fix.
+</mutter>
 
-attached patch correctly makes the zr36067 driver depend on i2c-ago-bit
-in the kernel config. Bug reported and patch sent to me by Adrian Bunk
-<bunk@fs.tum.de> (6/21). It wasn't signed off.
+<util-linux maintainer>
+Your code still requires some polishing. No localized messages, etc.
+And next, you removed some features, but do not indicate what
+replacement you see.
+For example, Andrew added the -M option that sets a frequency.
+Are you going to contribute a write_profile too?
+Or do you think nobody should wish to set a frequency?
+</util-linux maintainer>
 
-Ronald
-
-Signed-off-by: Ronald Bultje <rbultje@ronald.bitfreak.net>
-
--- 
-Ronald Bultje <rbultje@ronald.bitfreak.net>
-
---=-2nn9nnF5XxVQrBrahEwz
-Content-Disposition: attachment; filename=zoran-i2c-dep.diff
-Content-Type: text/x-patch; name=zoran-i2c-dep.diff; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-Index: linux/drivers/media/video/Kconfig
---- linux~zoran-i2c-dep/drivers/media/video/Kconfig	2004-08-14 12:56:22.000000000 +0200
-+++ linux/drivers/media/video/Kconfig	2004-08-29 18:26:46.243334816 +0200
-@@ -155,7 +155,7 @@
- 
- config VIDEO_ZORAN
- 	tristate "Zoran ZR36057/36067 Video For Linux"
--	depends on VIDEO_DEV && PCI && I2C
-+	depends on VIDEO_DEV && PCI && I2C_ALGOBIT
- 	help
- 	  Say Y for support for MJPEG capture cards based on the Zoran
- 	  36057/36067 PCI controller chipset. This includes the Iomega
-
---=-2nn9nnF5XxVQrBrahEwz--
-
+Andries

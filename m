@@ -1,53 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266291AbUAGVYy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 16:24:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266290AbUAGVYy
+	id S266317AbUAGV3W (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 16:29:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266318AbUAGV3W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 16:24:54 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22458 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266291AbUAGVYv
+	Wed, 7 Jan 2004 16:29:22 -0500
+Received: from 204.Red-213-96-224.pooles.rima-tde.net ([213.96.224.204]:38406
+	"EHLO betawl.net") by vger.kernel.org with ESMTP id S266317AbUAGV3T
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 16:24:51 -0500
-Message-ID: <3FFC790A.3060206@pobox.com>
-Date: Wed, 07 Jan 2004 16:24:26 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mike Waychison <Michael.Waychison@Sun.COM>
-CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: [autofs] [RFC] Towards a Modern Autofs
-References: <1b5GC-29h-1@gated-at.bofh.it> <1b6CO-3v0-15@gated-at.bofh.it> <m3ad50tmlq.fsf@averell.firstfloor.org> <3FFC46EB.9050201@zytor.com> <3FFC7469.3050700@sun.com>
-In-Reply-To: <3FFC7469.3050700@sun.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 7 Jan 2004 16:29:19 -0500
+Date: Wed, 7 Jan 2004 22:29:16 +0100
+From: Santiago Garcia Mantinan <manty@manty.net>
+To: linux-kernel@vger.kernel.org
+Subject: ALSA in 2.6 failing to find the OPL chip of the sb cards
+Message-ID: <20040107212916.GA978@man.manty.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Waychison wrote:
-> To put it into perspective, the I'm calling for the following major 
-> changes:
-[...]
-> 2) move the loop that used to spin around and ask kernelspace if there 
-> was anything to expire into the VFS as well, where it won't be killed.
-[...]
-> (1) and (2) shouldn't be hard at all to do considering David Howells has 
-> done the majority of this already. (3) is needed in order to manage 
-> direct mounts properly for when they are 'covered'.  Admittedly, (4) 
-> comes off as an ugly hack.
-> 
-> Also, (2) was the only 'active' task the automount daemon was doing. 
-> Everything else it did can be rewritten in the form of a usermode helper 
-> that runs only when it is needed.  This simplifies the userspace code a 
-> lot.
+Hi!
 
-Just going by your own explanation here, #2 should not be in the kernel.
+I have a SB16PNP on which alsa under kernel 2.6 fails to detect the OPL
+chip, I have tried the 0.9.7 version wich comes with the kernel (up to
+version 2.6.1-rc2) and now even alsa 1.0.0rc2 compiled for the 2.6.1-rc2
+kernel, on both I get the same result:
 
-If we moving daemons into the kernel just because they won't be killed, 
-we'll have Oracle in-kernel before you know it.  Completely spurious reason.
+sb16: no OPL device at 0x388-0x38a
 
-	Jeff
+this is the full output on version 1.0.0rc2:
 
+Starting ALSA (version 1.0.0rc2):pnp: Device 00:01.00 activated.
+ALSA /usr/src/modules/alsa-driver/alsa-kernel/isa/sb/sb16.c:489: sb16: no
+OPL device at 0x388-0x38a
+ sb16.
 
+Alsa version 0.9.8 works perfectly under 2.4.X.
 
+Don't hesitate to contact me for any other info that may be needed to track
+this.
+
+Regards...
+-- 
+Manty/BestiaTester -> http://manty.net

@@ -1,58 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269167AbTGJKEs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 06:04:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269168AbTGJKEs
+	id S269152AbTGJKLS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 06:11:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269156AbTGJKLS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 06:04:48 -0400
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:31983 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S269167AbTGJKEo
+	Thu, 10 Jul 2003 06:11:18 -0400
+Received: from landfill.ihatent.com ([217.13.24.22]:30684 "EHLO
+	pileup.ihatent.com") by vger.kernel.org with ESMTP id S269152AbTGJKLR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 06:04:44 -0400
-Subject: Re: memset (was: Redundant memset in AIO read_events)
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Etienne Lorrain <etienne_lorrain@yahoo.fr>
+	Thu, 10 Jul 2003 06:11:17 -0400
+To: A Guy Called Tyketto <tyketto@wizard.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030710100417.83333.qmail@web11801.mail.yahoo.com>
-References: <20030710100417.83333.qmail@web11801.mail.yahoo.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-6zWRbGZMJlXzh9bqgD3t"
-Organization: Red Hat, Inc.
-Message-Id: <1057832361.5817.2.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
-Date: 10 Jul 2003 12:19:21 +0200
+Subject: Re: finger.kernel.org
+References: <200307031340.h63Der4k012982@green.mif.pg.gda.pl>
+	<87vfujsjpt.fsf@lapper.ihatent.com> <20030710085202.GA8927@wizard.com>
+From: Alexander Hoogerhuis <alexh@ihatent.com>
+Date: 10 Jul 2003 12:25:56 +0200
+In-Reply-To: <20030710085202.GA8927@wizard.com>
+Message-ID: <87vfua65l7.fsf@lapper.ihatent.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+A Guy Called Tyketto <tyketto@wizard.com> writes:
 
---=-6zWRbGZMJlXzh9bqgD3t
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> On Thu, Jul 03, 2003 at 05:39:26PM +0200, Alexander Hoogerhuis wrote:
+> > just finger @kernel.org, and whoever is in charge of the .plan, can we
+> > have the mm-sources included?
+> > 
+> > mvh,
+> > A
+> > 
+> 
+>         Not sure about the mm sources, but @kernel.org bombs as well:
+> 
+> bradl@bellicha:~> date
+> Thu Jul 10 01:51:37 PDT 2003
+> bradl@bellicha:~> f @finger.kernel.org
+> [zeus-pub.kernel.org]
+> bradl@bellicha:~> f @finger.kernel.org
+> [zeus-pub.kernel.org]
+> bradl@bellicha:~> f @finger.kernel.org
+> [zeus-pub.kernel.org]
+> bradl@bellicha:~> f @finger.kernel.org
+> [zeus-pub.kernel.org]
+> bradl@bellicha:~> f @finger.kernel.org
+> [zeus-pub.kernel.org]
+> bradl@bellicha:~> f @kernel.org
+> [kernel.org]
+> bradl@bellicha:~> f @kernel.org
+> [kernel.org]
+> bradl@bellicha:~> f @kernel.org
+> [kernel.org]
+> bradl@bellicha:~> f @kernel.org
+> [kernel.org]
+> bradl@bellicha:~> f @kernel.org
+> [kernel.org]
+> bradl@bellicha:~>
+> 
 
-On Thu, 2003-07-10 at 12:04, Etienne Lorrain wrote:
->  Note that using memset() is better reserved to initialise variable-size
->  structures or buffers. Even if memset() is extremely optimised,
->  it is still not as fast as not doing anything.
+In deed. It used to answer. 
 
-this is not always true....
-memset can be used as an optimized cache-warmup, which can avoid the
-write-allocate behavior of normal writes, which means that if you memset
-a structure first and then fill it, it can be halve the memory bandwidth
-and thus half as fast. This assumes an optimized memset which we
-*currently* don't have I think... but well, we can fix that ;)
-
-
---=-6zWRbGZMJlXzh9bqgD3t
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/DT2pxULwo51rQBIRAjYZAJ0e3LDgB2zo/B3cTKzNPOJoeCf/VQCcDGV/
-RNKxJXrywBqU1REePcf+zRg=
-=ie72
------END PGP SIGNATURE-----
-
---=-6zWRbGZMJlXzh9bqgD3t--
+mvh,
+A
+-- 
+Alexander Hoogerhuis                               | alexh@ihatent.com
+CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
+"You have zero privacy anyway. Get over it."  --Scott McNealy

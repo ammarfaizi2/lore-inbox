@@ -1,34 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316088AbSG3Tu7>; Tue, 30 Jul 2002 15:50:59 -0400
+	id <S316258AbSG3Tvm>; Tue, 30 Jul 2002 15:51:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316185AbSG3Tu7>; Tue, 30 Jul 2002 15:50:59 -0400
-Received: from mnh-1-19.mv.com ([207.22.10.51]:21510 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S316088AbSG3Tu7>;
-	Tue, 30 Jul 2002 15:50:59 -0400
-Message-Id: <200207302057.PAA03624@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: Benjamin LaHaise <bcrl@redhat.com>
-cc: Linus Torvalds <torvalds@transmeta.com>, Andrea Arcangeli <andrea@suse.de>,
-       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       linux-aio@kvack.org
-Subject: Re: async-io API registration for 2.5.29 
-In-Reply-To: Your message of "Tue, 30 Jul 2002 14:31:46 -0400."
-             <20020730143146.G10315@redhat.com> 
+	id <S316223AbSG3Tve>; Tue, 30 Jul 2002 15:51:34 -0400
+Received: from naur.csee.wvu.edu ([157.182.194.28]:16611 "EHLO
+	naur.csee.wvu.edu") by vger.kernel.org with ESMTP
+	id <S316204AbSG3Tva>; Tue, 30 Jul 2002 15:51:30 -0400
+Subject: what version of gcc can be used to build kernels on Linux/sparc64?
+From: Shanti Katta <katta@csee.wvu.edu>
+To: sparclinux@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 30 Jul 2002 16:02:20 -0400
+Message-Id: <1028059341.17195.4.camel@indus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 30 Jul 2002 15:57:05 -0500
-From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bcrl@redhat.com said:
-> Hmmm, it would be possible  to make the vsyscall page mapped by
-> default and leave the global bit enabled  until UML forcibly unmapped
-> it (and then clear the global bit and do a global  invalidate).  Would
-> that be acceptible?
+I would like to know what version of gcc is currently available to build
+linux kernels on Linux/Sparc64. I would like the builds to generate
+64-bit executables.
 
-That sounds like it would work for me.
-
-				Jeff
+-Shanti 
 

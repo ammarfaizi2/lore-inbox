@@ -1,43 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268064AbUHKNjM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268061AbUHKNnX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268064AbUHKNjM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 09:39:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268061AbUHKNjL
+	id S268061AbUHKNnX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 09:43:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268062AbUHKNnX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 09:39:11 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:62861 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S268060AbUHKNjH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 09:39:07 -0400
-Subject: Re: [PATCH] SCSI midlayer power management
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Nathan Bryant <nbryant@optonline.net>,
-       Linux SCSI Reflector <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@ucw.cz>, Jeff Garzik <jgarzik@pobox.com>
-In-Reply-To: <1092218000.18968.2.camel@localhost.localdomain>
-References: <411960C3.5090107@optonline.net> 
-	<1092218000.18968.2.camel@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 11 Aug 2004 08:39:01 -0500
-Message-Id: <1092231542.2087.7.camel@mulgrave>
+	Wed, 11 Aug 2004 09:43:23 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:25552 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S268061AbUHKNnV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 09:43:21 -0400
+Date: Wed, 11 Aug 2004 15:43:16 +0200
+From: Sascha Wilde <wilde@sha-bang.de>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
+       "David N. Welton" <davidw@eidetix.com>
+Subject: Re: 2.6 kernel won't reboot on AMD system - 8042 problem?
+Message-ID: <20040811134316.GA2399@kenny.sha-bang.local>
+References: <4107E788.8030903@eidetix.com> <41122C82.3020304@eidetix.com> <200408110131.14114.dtor_core@ameritech.net> <20040811122711.GA5759@ucw.cz>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040811122711.GA5759@ucw.cz>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-08-11 at 04:53, Alan Cox wrote:
-> That was something Mark Lord reported higher level I suspect - which is
-> that the scsi path is disabled before the sync cache command is sent so
-> the command is always errored before it hits the drive
+On Wed, Aug 11, 2004 at 02:27:11PM +0200, Vojtech Pavlik wrote:
+> On Wed, Aug 11, 2004 at 01:31:13AM -0500, Dmitry Torokhov wrote:
+> > On Thursday 05 August 2004 07:48 am, David N. Welton wrote:
+> > > By putting a series of 'crashme/reboot' calls into the kernel, I 
+> > > narrowed a possibl cause of it down to this bit of code in 
+> > > drivers/input/serio.c:753
+[...]
+> > Could you please try the patch below? I am interested in tests both with
+> > and without keyboard/mouse. The main idea is to leave ports that have been
+> > disabled by BIOS alone... The patch compiles but otherwise untested. Against
+> > 2.6.7.
+> 
+> Well, this has a problem - plugging a mouse later will never work, as
+> the interface will be disabled by the BIOS if a mouse is not present at
+> boot.
 
-Yes, this one's my fault.  I have patches to fix this, I never got
-around to merging them.  Randy was on at me yesterday about this too. 
-I'll dig them out.  (The problem is that last sync is sent in SDEV_DEL
-state, so it gets rejected).
+Is PS/2 supposed to support hotpluging at all?  I guess it's not, but I may
+be wrong...
 
-James
-
-
+cheers
+-- 
+Sascha Wilde   -.-. ..- .-. .. --- ... .. - -.-- 
+               -.- .. .-.. .-.. . -.. 
+               - .... .
+               -.-. .- -

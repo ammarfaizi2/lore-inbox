@@ -1,28 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286730AbRLVIq2>; Sat, 22 Dec 2001 03:46:28 -0500
+	id <S286728AbRLVIpa>; Sat, 22 Dec 2001 03:45:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286731AbRLVIqP>; Sat, 22 Dec 2001 03:46:15 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:46856 "EHLO
+	id <S286730AbRLVIpS>; Sat, 22 Dec 2001 03:45:18 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:46088 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S286730AbRLVIqC>; Sat, 22 Dec 2001 03:46:02 -0500
-Subject: Re: IDE Harddrive Performance
-To: akeys@post.cis.smu.edu (Adam Keys)
-Date: Sat, 22 Dec 2001 08:56:06 +0000 (GMT)
-Cc: thomas@deselaers.de (Thomas Deselaers), linux-kernel@vger.kernel.org
-In-Reply-To: <20011222082147.CCTE6450.rwcrmhc52.attbi.com@there> from "Adam Keys" at Dec 22, 2001 02:21:59 AM
+	id <S286728AbRLVIpG>; Sat, 22 Dec 2001 03:45:06 -0500
+Subject: Re: PROBLEM: arcnet bugs in 2.4.x
+To: petr@vt.cs.nstu.ru (Petr Bavorovsky)
+Date: Sat, 22 Dec 2001 08:48:32 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200112092255.fB9Mtwg18442@vt.cs.nstu.ru> from "Petr Bavorovsky" at Dec 10, 2001 03:57:21 AM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16Hhws-0003Rj-00@the-village.bc.nu>
+Message-Id: <E16HhpY-0003Q3-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> # hdparm -t /dev/hda
-> 
-> /dev/hda:
->  Timing buffered disk reads:  64 MB in 86.98 seconds =753.46 kB/sec
+> arc0: arcnet_header: Yikes!  skb->len(0) !=3D len(18)!
+> Unable to handle kernel NULL pointer dereference at virtual address 000=
+> 00064
+>  printing eip:
 
-Do you get sane numbers if you use 2.4.9 for the hdparm test ?
+It looks like the drivers are making a few assumptions about headers and
+length they shouldn't be. I don't think anyone is maintaining ARCnet any
+more, all those who worked on it before have moved on to more real
+networking. Its one of those things that may well just vanish in 2.5 if
+nobody becomes a maintainer.
+
+Looking at the code it looks like arcnet_header is a bit fragile when handed
+non random "normal" network layer frames.
+
+The length check is redundant (and wrong) - which explains the message, but
+the oops isn't obvious from inspection. Probably you want to turn on debug
+and see where in the build/rebuild of the header it dies
+
+Alan
+

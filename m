@@ -1,34 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313767AbSFYB73>; Mon, 24 Jun 2002 21:59:29 -0400
+	id <S313867AbSFYCDO>; Mon, 24 Jun 2002 22:03:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313867AbSFYB72>; Mon, 24 Jun 2002 21:59:28 -0400
-Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:24821 "EHLO
-	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
-	id <S313767AbSFYB72>; Mon, 24 Jun 2002 21:59:28 -0400
-From: Peter Chubb <peter@chubb.wattle.id.au>
+	id <S314096AbSFYCDN>; Mon, 24 Jun 2002 22:03:13 -0400
+Received: from tomts7.bellnexxia.net ([209.226.175.40]:7161 "EHLO
+	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S313867AbSFYCDM>; Mon, 24 Jun 2002 22:03:12 -0400
+Message-ID: <3D17CF60.1DD1B82D@sympatico.ca>
+Date: Mon, 24 Jun 2002 22:03:12 -0400
+From: Christian Robert <xtian-test@sympatico.ca>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en, fr-CA
 MIME-Version: 1.0
+To: Brad Hards <bhards@bigpond.net.au>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: gettimeofday problem
+References: <3D17BB4B.F5E2571F@sympatico.ca> <200206251043.28051.bhards@bigpond.net.au>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15639.52864.507842.639969@wombat.chubb.wattle.id.au>
-Date: Tue, 25 Jun 2002 11:59:27 +1000
-To: linux-kernel@vger.kernel.org
-Subject: Bogus LBD patch
-X-Mailer: VM 7.04 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-X-Face: .slVUC18R`%{j(W3ztQe~*ATzet;h`*Wv33MZ]*M,}9AP<`+C=U)c#NzI5vK!0^d#6:<_`a
- {#.<}~(T^aJ~]-.C'p~saJ7qZXP-$AY==]7,9?WVSH5sQ}g3,8j>u%@f$/Z6,WR7*E~BFY.Yjw,H6<
- F.cEDj2$S:kO2+-5<]afj@kC!:uw\(<>lVpk)lPZs+2(=?=D/TZPG+P9LDN#1RRUPxdX
-Comments: Hyperbole mail buttons accepted, v04.18.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Brad Hards wrote:
+> 
+> On Tue, 25 Jun 2002 10:37, Christian Robert wrote:
+> >   gettimeofday (&tv, NULL);
+> How about checking the return value of the function call?
+> 
+> Brad
+> --
+> http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.
 
-Hi,
-	The patch at the URL I just posted doesn't work.  Blame my
-poor handling of bitkeeper --- some changes seem to be missing.
+$ time ./tloop
+Bump negative -4294967295
+Summary:
+-------
+ Min = 0
+ Max = 140068
+ Avg = 1 (4064861295/3825797418)
 
-I'll get a new patch up asap.
+real    67m44.891s
+user    29m29.690s
+sys     27m53.130s
 
---
-Dr Peter Chubb				    peterc@gelato.unsw.edu.au
-You are lost in a maze of BitKeeper repositories, all almost the same.
+
+Same thing. Took about an hour before getting the negative bump.
+
+Xtian.
+
+---- modified GetTime() checking return value of gettimeofday() -----
+
+LL GetTime (void)
+{
+  struct timeval tv;
+  LL     retval;
+  int    rc;
+
+  while (0 != (rc = gettimeofday (&tv, NULL)))
+    printf ("Wow! gettimeofday () returned %d\n", rc);
+
+  retval = (tv.tv_sec * 1000000) + (tv.tv_usec);
+  return retval;
+}

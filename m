@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264383AbUBKOP1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 09:15:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265264AbUBKOP1
+	id S264376AbUBKOFv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 09:05:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264392AbUBKOFv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 09:15:27 -0500
-Received: from kamikaze.scarlet-internet.nl ([213.204.195.165]:36799 "EHLO
-	kamikaze.scarlet-internet.nl") by vger.kernel.org with ESMTP
-	id S264383AbUBKOPX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 09:15:23 -0500
-Message-ID: <1076508920.402a38f8ee106@webmail.dds.nl>
-Date: Wed, 11 Feb 2004 15:15:20 +0100
-From: wdebruij@dds.nl
-To: =?iso-8859-1?b?TeVucyA=?= =?iso-8859-1?b?UnVsbGflcmQ=?= 
-	<mru@kth.se>
-Cc: linux-kernel@vger.kernel.org
+	Wed, 11 Feb 2004 09:05:51 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:29201 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S264376AbUBKOFp convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 09:05:45 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Maciej Zenczykowski <maze@cela.pl>, wdebruij@dds.nl
 Subject: Re: printk and long long
-References: <Sea2-F7mFkwDjKqc3eQ0001c385@hotmail.com> <1076506513.402a2f9120fb8@webmail.dds.nl> <yw1xy8r9iuha.fsf@kth.se>
-In-Reply-To: <yw1xy8r9iuha.fsf@kth.se>
+Date: Wed, 11 Feb 2004 16:04:48 +0200
+X-Mailer: KMail [version 1.4]
+Cc: sting sting <zstingx@hotmail.com>, <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0402111448320.10791-100000@gaia.cela.pl>
+In-Reply-To: <Pine.LNX.4.44.0402111448320.10791-100000@gaia.cela.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-User-Agent: Internet Messaging Program (IMP) 3.2.1
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200402111604.49082.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Måns Rullgård <mru@kth.se>:
+On Wednesday 11 February 2004 15:48, Maciej Zenczykowski wrote:
+> > how about simply using a shift to output two regular longs, i.e.
+> >
+> > printk("%ld%ld",loff_t >> (sizeof(long) * 8), loff_t << sizeof(long) * 8
+> > >> sizeof(long) * 8);
+>
+> I'd venture to guess you'd also have to cast the above to long.
 
-> 
-> And how do you plan to make sense of the printed value?
-> 
+Hey that will work only for %x, not %d.
 
-perhaps I was a bit quick with replying. As others have pointed out, you should
-specify the precision to be able to glue the two parts together. Ideally, this
-should be done using a "%.8lx%.8lx", since the length of the variable in hex is
-static. Unfortunately, it seems %ld is requested, in which case "%ld*(2^32)+%ld"
-works (for humans), but is obviously not great.
+BTW, man printf says:
 
-I guess you'll need a number of extra tests (if lower 32bits > 1 billion ..) and
-specific printk statements if the output should be shown as a correct 10-base
-number. 
-
-I don't know, it depends on the specific use-case, really. If at all possible, I
-would stick to the hex-representation.
+The character L specifying that a following e, E, f, g, or G
+conversion corresponds to a long double argument, or a following
+d, i, o, u, x, or X conversion corresponds to a long long argument.
+Note that long long is not specified in ANSI C and therefore
+not portable to all architectures.
+--
+vda

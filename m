@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282163AbRKWOsn>; Fri, 23 Nov 2001 09:48:43 -0500
+	id <S282166AbRKWPI0>; Fri, 23 Nov 2001 10:08:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282162AbRKWOse>; Fri, 23 Nov 2001 09:48:34 -0500
-Received: from nydalah028.sn.umu.se ([130.239.118.227]:9104 "EHLO
-	x-files.giron.wox.org") by vger.kernel.org with ESMTP
-	id <S282161AbRKWOs1>; Fri, 23 Nov 2001 09:48:27 -0500
-Message-ID: <018d01c1742d$ceaa6b70$0201a8c0@HOMER>
-From: "Martin Eriksson" <nitrax@giron.wox.org>
-To: "Roy Sigurd Karlsbakk" <roy@karlsbakk.net>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.30.0111231535500.553-100000@mustard.heime.net>
-Subject: Re: gcc vs intel's cc
-Date: Fri, 23 Nov 2001 15:47:43 +0100
+	id <S282165AbRKWPIR>; Fri, 23 Nov 2001 10:08:17 -0500
+Received: from [216.191.235.254] ([216.191.235.254]:13325 "HELO
+	bugs.dinmar.com") by vger.kernel.org with SMTP id <S282166AbRKWPID>;
+	Fri, 23 Nov 2001 10:08:03 -0500
+From: "Norm Dressler" <ndressler@dinmar.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Sparc64 Compiles OK, but won't boot new kernel
+Date: Fri, 23 Nov 2001 10:09:29 -0500
+Message-ID: <002101c17430$d94b2f80$3828a8c0@ndrlaptop>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-Mailer: Microsoft Outlook, Build 10.0.2605
+Importance: Normal
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message -----
-From: "Roy Sigurd Karlsbakk" <roy@karlsbakk.net>
-To: <linux-kernel@vger.kernel.org>
-Sent: Friday, November 23, 2001 3:36 PM
-Subject: gcc vs intel's cc
+Hi,
 
+I have been able to successfully compile the 2.4.14 and 2.4.15 kernels
+for Sparc64 but each gives me an error on boot-up:
 
-> hi all
->
-> have anyone tried Intel's commercial compiler and tried to compare the
-> results with gcc?
+Image to large for Destination  (twice)
 
-I have heard it's pretty nice, even for Athlon XP's, but you can't compile
-the kernel with it anyway, so this should not be in "linux-kernel".
+It then kicks me back to the silo prompt.  My kernel is trimmed back
+quite a bit and there isn't a lot there.  
 
-_____________________________________________________
-|  Martin Eriksson <nitrax@giron.wox.org>
-|  MSc CSE student, department of Computing Science
-|  Umeå University, Sweden
+It's not a compressed kernel -- should it be?  How do I do that since
+the bzImage make is missing from the Sparc64 makefiles?
 
+I am using Redhat 6.2 on an Enterprise 4000, 4 Ultrasparc-II CPU's and
+2Gb of Ram.
+
+Any suggestions??
+
+Norm
 

@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264153AbTDJSO6 (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 14:14:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264151AbTDJSO6 (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 14:14:58 -0400
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:787 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP id S264150AbTDJSO4 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Apr 2003 14:14:56 -0400
-Date: Thu, 10 Apr 2003 19:26:33 +0100
-From: John Levon <levon@movementarian.org>
-To: Andries.Brouwer@cwi.nl
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       torvalds@transmeta.com
-Subject: Re: [PATCH] kill two scsi ioctls
-Message-ID: <20030410182633.GE96127@compsoc.man.ac.uk>
-References: <UTC200304101729.h3AHTB426607.aeb@smtp.cwi.nl>
+	id S264143AbTDJS0n (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 14:26:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264152AbTDJS0n (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 14:26:43 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:25250
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S264143AbTDJS0m (for <rfc822;linux-kernel@vger.kernel.org>); Thu, 10 Apr 2003 14:26:42 -0400
+Subject: RE: questions regarding Journalling-FSes and w-cache reordering
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Torrey Hoffman <thoffman@arnor.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "'Oliver S.'" <Follow.Me@gmx.net>
+In-Reply-To: <1049924154.5404.26.camel@torrey.et.myrio.com>
+References: <785F348679A4D5119A0C009027DE33C102E0D0B1@mcoexc04.mlm.maxtor.com>
+	 <1049919134.10871.5.camel@dhcp22.swansea.linux.org.uk>
+	 <1049924154.5404.26.camel@torrey.et.myrio.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1049996358.10871.29.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <UTC200304101729.h3AHTB426607.aeb@smtp.cwi.nl>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
-X-Spam-Score: -29.2 (-----------------------------)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *193gkr-0005yF-JM*UuW5pdCOUaE*
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 10 Apr 2003 18:39:19 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 10, 2003 at 07:29:11PM +0200, Andries.Brouwer@cwi.nl wrote:
+On Mer, 2003-04-09 at 22:35, Torrey Hoffman wrote:
+> Can anyone recommend some decent 120 GB or larger IDE drives which don't
+> play these games?   
 
-> It happens all the time. Hundreds of cases.
+On the newer drives you should be fine. You may need to tell the drive to
+remember settings over a reset.
 
-That's obviously no excuse.
+Alan
 
-> historical explanations somewhere else, for example in
-> Documentation/ioctl_list.
-
-Fine by me.
-
-regards
-john

@@ -1,71 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261575AbTLDC6O (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 21:58:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbTLDC6O
+	id S261775AbTLDDOd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 22:14:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbTLDDOd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 21:58:14 -0500
-Received: from mail.netzentry.com ([157.22.10.66]:23558 "EHLO netzentry.com")
-	by vger.kernel.org with ESMTP id S261575AbTLDC6M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 21:58:12 -0500
-Message-ID: <3FCEA2AD.5040805@netzentry.com>
-Date: Wed, 03 Dec 2003 18:57:49 -0800
-From: "b@netzentry.com" <b@netzentry.com>
-Reply-To: b@netzentry.com
-Organization: b@netzentry.com
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5) Gecko/20031013 Thunderbird/0.3
-X-Accept-Language: en-us, en
+	Wed, 3 Dec 2003 22:14:33 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:23231 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S261775AbTLDDO0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 22:14:26 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Fredrik Tolf <fredrik@dolda2000.com>
+Date: Thu, 4 Dec 2003 14:14:15 +1100
 MIME-Version: 1.0
-To: recbo@nishanet.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: NForce2 pseudoscience stability testing (2.6.0-test11)
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16334.42631.400677.325907@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6 nfsd troubles - stale filehandles
+In-Reply-To: message from Fredrik Tolf on Wednesday December 3
+References: <16325.11418.646482.223946@pc7.dolda2000.com>
+	<16325.14967.248703.483363@notabene.cse.unsw.edu.au>
+	<16326.253.163939.9953@pc7.dolda2000.com>
+	<16333.11722.151279.490037@pc7.dolda2000.com>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- >Bob wrote:
- >Local APIC locked up with nforce2 and VIA,
- >impossibly serious with nforce2 and non-amd
- >offboard ide controller cards. BIOS flash made
- >problems go away.
- >
- >I experienced the lockups when using promise and
- >siig sis ide hd controller pci cards. I still had problems
- >with a 3ware card.
- >
- >Flashing the bios solved all problems. Now I run
- >both the via and nforce2 mboards with APIC and
- >Local APIC on in kernel. I'm running six ide drives,
- >four on a 3ware pci hd controller card using ide-scsi.
- >
- >I got sound working on nforce2, and nvidia ti4200
- >agp8 vid card(nvidia drivers crash X but agpgart
- >with X "nv" instead of "nvidia" works in 2D well),
- >but not usb. The sound config problem was fixed
- >by "ln -s sound/dsp2 /dev/dsp". The apps only
- >look for /dev/dsp.
- >
- >-Bob
+On Wednesday December 3, fredrik@dolda2000.com wrote:
+> 
+> So, I managed to do it now. The strange thing is, I had created an
+> extra share of the home dirs for this test (I had "mount --bind"'ed it
+> on /var/lib/nfs/nfstest), and only set subtree_check back on the test
+> export, in an attempt to keep the normal parts of the system reliable
+> while testing, but just doing that made the real export behave bad as
+> well. It seems to run amok as soon as I have subtree_checking on only
+> one export.
 
-Do you think that motherboard maker was really at fault or
-did they genuinely fix a grotesque error. Were any changes
-in the BIOS-change-list relevant to fixing up this APIC
-problem in Linux?
+"mount --bind" certainly has a good chance of confusing nfsd.
+If you --bind mount the root of the filesystem somewhere else and
+export that, then the filehandles generated will be exactly the same
+and nfsd cannot know whether a request is indented for one mountpoint
+or the other.
+When using --bind, it is best to give an 'fsid=' option in
+/etc/exports so that nfsd can use that to differentiate the mount
+points.
 
-Can you provide the following:
-- which motherboard
-- which bios revs (the broken one and the fixed one)
-- which kernel are you running (is it vanilla, from a dist,
-recompiled)
-- lspci
-- cat /proc/interrupts
-- dmesg
-- .config from kernel (if not stock from dist)
+> 
+> nfsd_dispatch: vers 3 proc 1 
+> nfsd: GETATTR(3)  36: 06000001 0000fe00 00000002 00023b44 00023957 00000000 
+> nfsd: fh_verify(36: 06000001 0000fe00 00000002 00023b44 00023957 00000000) 
+> nfsd_acceptable failed at c669a5c0 dc 
 
-I really, really hope this problem can be solved without
-a BIOS upgrade because getting board manufacturers to do
-anything is very difficult.
+This strongly suggests that nfsd thought that the user making the
+request didn't have 'x' access to the parent of 'dc'. i.e. to /hannes.
 
+> 
+> Some more info: I was root while causing this error, and the dir arch
+> looks like this (from this filesystem's point of view, it is really my
+> home dirs):
+> 
+> rwxr-xr-x  root   root  /
+> rwx--x---+ hannes users /hannes
+> rwxr-xr-x  hannes users /hannes/dc
+
+And if you are not exporting with no_root_squash, then the user does
+not have 'x' access to hannes.
+
+So if you haven't exported with 'no_root_squash', then this completely
+makes sense. The nfs client is allowing root access (based on cached
+data that some other local users recently accessed) but the server is
+not allowing root access. 
+Arguably you should be getting "permission denied" rather than
+"stale", but you certainly shouldn't expect it to work.
+
+If, on the other hand, you have specified no_root_squash, then this is
+still very strange.
+
+What export options are you using?
+
+NeilBrown
 

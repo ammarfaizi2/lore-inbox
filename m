@@ -1,40 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264680AbRF1Vt0>; Thu, 28 Jun 2001 17:49:26 -0400
+	id <S264735AbRF1VtG>; Thu, 28 Jun 2001 17:49:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264561AbRF1VtS>; Thu, 28 Jun 2001 17:49:18 -0400
-Received: from u-234-19.karlsruhe.ipdial.viaginterkom.de ([62.180.19.234]:60404
-	"EHLO dea.waldorf-gmbh.de") by vger.kernel.org with ESMTP
-	id <S264506AbRF1VtK>; Thu, 28 Jun 2001 17:49:10 -0400
-Date: Thu, 28 Jun 2001 23:46:59 +0200
-From: Ralf Baechle <ralf@uni-koblenz.de>
-To: "Ryan W. Maple" <ryan@guardiandigital.com>
-Cc: Justin Guyett <justin@soze.net>, james bond <difda@hotmail.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: BIG PROBLEM
-Message-ID: <20010628234659.A8105@bacchus.dhis.org>
-In-Reply-To: <Pine.LNX.4.33.0106281413080.23200-100000@gw.soze.net> <Pine.LNX.4.10.10106281734140.11669-100000@mastermind.inside.guardiandigital.com>
-Mime-Version: 1.0
+	id <S264692AbRF1Vs5>; Thu, 28 Jun 2001 17:48:57 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:26385 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S264561AbRF1Vsj>; Thu, 28 Jun 2001 17:48:39 -0400
+Subject: Re: VIA 686B/Data Corruption
+To: ryan@guardiandigital.com (Ryan W. Maple)
+Date: Thu, 28 Jun 2001 22:48:32 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), jlaako@pp.htv.fi (Jussi Laako),
+        linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <Pine.LNX.4.10.10106281741070.11750-100000@mastermind.inside.guardiandigital.com> from "Ryan W. Maple" at Jun 28, 2001 05:41:57 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10106281734140.11669-100000@mastermind.inside.guardiandigital.com>; from ryan@guardiandigital.com on Thu, Jun 28, 2001 at 05:35:14PM -0400
-X-Accept-Language: de,en,fr
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15FjeK-0007hz-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 28, 2001 at 05:35:14PM -0400, Ryan W. Maple wrote:
-
-> Check out:  http://bugs.debian.org/85478
+> > Interesting. They should be the same code for the VIA driver.
 > 
->   "When klogd's LogLine() function encounters a null byte in state
->    PARSING_TEXT, it will loop infinitely.  More precisely, copyin()
->    will treat the null byte as a delimiter - unlike LogLine(), which
->    will invoke copyin() ever and ever again."
-> 
-> Kinda off-topic, but I just wanted to prove that the bug was in klogd and
-> not the kernel. :)
+> I remember hearing something about Red Hat disabling UDMA on VIA chips
+> across the board.  Maybe that has something to do with it?
 
-The kernel definately shouldn't communicate with the user using NUL chars.
+The RH 7.1 kernel disables VIA UDMA if the board has a DMI string indiciating
+its a KT7 or KT7RAID. The errata kernel applies the fixups that people deduced
+by hacking on the VIA stuff
 
-  Ralf
+Alan
+

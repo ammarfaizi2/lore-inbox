@@ -1,84 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263806AbUIJHMj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266878AbUIJHQN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263806AbUIJHMj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 03:12:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266888AbUIJHLB
+	id S266878AbUIJHQN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 03:16:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266837AbUIJHPr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 03:11:01 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:2455 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S263806AbUIJHJE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 03:09:04 -0400
-Subject: Re: voluntary-preemption: understanding latency trace
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Kevin Hilman <kjh-lkml@hilman.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040910063749.GA25298@elte.hu>
-References: <83656nk9mk.fsf@www2.muking.org>
-	 <1094763737.1362.325.camel@krustophenia.net>
-	 <20040910063749.GA25298@elte.hu>
-Content-Type: text/plain
-Message-Id: <1094800144.15407.4.camel@krustophenia.net>
+	Fri, 10 Sep 2004 03:15:47 -0400
+Received: from pimout2-ext.prodigy.net ([207.115.63.101]:36997 "EHLO
+	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S264726AbUIJHPo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 03:15:44 -0400
+Date: Fri, 10 Sep 2004 00:15:30 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
+Message-ID: <20040910071530.GB4480@taniwha.stupidest.org>
+References: <20040909232532.GA13572@taniwha.stupidest.org> <1094798428.2800.3.camel@laptop.fenrus.com> <20040910064519.GA4232@taniwha.stupidest.org> <20040910065213.GA11140@devserv.devel.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 10 Sep 2004 03:09:04 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040910065213.GA11140@devserv.devel.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-09-10 at 02:37, Ingo Molnar wrote:
-> * Lee Revell <rlrevell@joe-job.com> wrote:
+On Fri, Sep 10, 2004 at 08:52:13AM +0200, Arjan van de Ven wrote:
+
+> I just did ;)
+
+riiight
+
+> the roadmap was
 > 
-> > > I've got a SCHED_FIFO kernel thread at the highest priority
-> > > (MAX_USER_RT_PRIO-1) and it's sleeping on a wait queue.  The wake is
-> > > called from an ISR.  Since this thread is the highest priority in the
-> > > system, I expect it to run before the ISR threads and softIRQ threads
-> > > etc. 
-> > > 
-> > > In the ISR I sample sched_clock() just before the call to wake_up()
-> > > and in the thread I sample sched_clock() again just after the call to
-> > > sleep.  I'm seeing an almost 4ms latency between the call to wake_up
-> > > and the actual wakeup.  However, in /proc/latency_trace, the worst
-> > > latency I see during the running of this test is <500us.
-> 
-> > Ingo, any ideas here?  Looks like maybe the use of sched_clock is the
-> > problem.
-> 
-> sched_clock() is not 100% accurate (it takes a few shortcuts to avoid a
-> division) but it should be better than 90% so 4 msec measured means
-> there's likely some big delay.
-> 
-> if the priority setup is indeed as described above then the RT task
-> should have run much faster. First i'd suggest to check whether it's not
-> console printing (printing of a stacktrace or a latency trace) that 
-> slows things down.
-> 
+> 8K stacks  ->  dual 4k/8k option -> 4k stacks
 
-Ah, this is probably it, this is pretty close to the latency I get when
-/proc/latency_trace is updated, and this is also the one latency that
-doesn't show in the traces by design.
-
-rlrevell@mindpipe:~$ ./amlat-rlr/amlat 
-599.895 MHz
-secondsPerTick=0.000000
-ticksPerSecond=599894954.372806
-599.895 MHz
-Using rtc interval of 1024
-u=0
-latency = 53 microseconds
-latency = 60 microseconds
-latency = 60 microseconds
-latency = 62 microseconds
-latency = 66 microseconds
-latency = 76 microseconds
-latency = 78 microseconds
-latency = 2548 microseconds
-
-The last line is the latency trace being updated.  If I turn off tracing
-or set preempt_max_latency to a high value then amlat doesn't show
-these.
-
-Lee
+URL?
 
 
+also, why 4K and not 8K or 2K?  because it's the page size?  why not
+4K to then on amd64 or ppc64?

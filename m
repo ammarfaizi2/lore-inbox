@@ -1,146 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135565AbRARQCx>; Thu, 18 Jan 2001 11:02:53 -0500
+	id <S130549AbRARQDX>; Thu, 18 Jan 2001 11:03:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135592AbRARQCn>; Thu, 18 Jan 2001 11:02:43 -0500
-Received: from cic.teleco.ulpgc.es ([193.145.140.2]:44429 "EHLO
-	cic.teleco.ulpgc.es") by vger.kernel.org with ESMTP
-	id <S135565AbRARQC3>; Thu, 18 Jan 2001 11:02:29 -0500
-Date: Thu, 18 Jan 2001 16:00:26 +0000 (WET)
-From: Eugenio Jimenez <eugenio@masdache.teleco.ulpgc.es>
-To: linux-kernel@vger.kernel.org
-Subject: ACPI slows down the system (2.4.0)
-Message-ID: <Pine.LNX.4.21.0101181557140.759-100000@gic12.gic.ulpgc.es>
+	id <S135822AbRARQDS>; Thu, 18 Jan 2001 11:03:18 -0500
+Received: from jane.hollins.EDU ([192.160.94.78]:54800 "EHLO earth.hollins.edu")
+	by vger.kernel.org with ESMTP id <S135592AbRARQDB>;
+	Thu, 18 Jan 2001 11:03:01 -0500
+Message-ID: <3A6713AC.1010904@hollins.edu>
+Date: Thu, 18 Jan 2001 11:02:52 -0500
+From: "Scott A. Sibert" <kernel@hollins.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.1-pre8 i686; en-US; m18) Gecko/20010116
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Urban Widmark <urban@teststation.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: oops in 2.4.1-pre8
+In-Reply-To: <Pine.LNX.4.30.0101172312550.18642-100000@cola.teststation.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-Testing a 2.4 kernel I have found something I think it's rather strange
-Running a 2.4.0 kernel with APM enabled (not ACPI), it takes about ten minutes
-to compile a kernel (Pentium III Coppermine 450 Mhz 128 MB)
-[eugenio@gic12 linux]$ time make dep clean bzImage modules >& /dev/null
-real    9m45.098s
-user    8m1.410s
-sys     0m28.800s
+Hi Urban.
 
-Compiling the same kernel with the same options but with ACPI enabled (not
-APM) and after failing in the initialization of the ACPI subsystem (see the
-ouput of dmseg in this kernel), it takes more than an hour to compile the
-kernel. No swap, no stange messages, just sloooooww
-[eugenio@gic12 linux]$ time make dep clean bzImage modules >& /dev/null
-real    78m58.129s
-user    72m56.610s
-sys     4m22.810s
+I'm connecting to a Win2K server (same share between computers).  A 
+slight change in my previous post:  my dual P2 w/320MB appears to be 
+running 2.4.0-ac9 instead of 2.4.1-pre8.  The bigmem machine (1gb mem) 
+had the oops on 2.4.0-ac9 but before reporting I thought I'd try 
+2.4.1-pre8 and see if it also had the oops.  (This morning the small mem 
+machine had a problem but I'll put that in a separate email.)
 
-Can a wrongly initializated ACPI subsystem slow down the clock or something
-so ? How can I measure the speed ?
+Earlier I had tried 2.4.0-test12 but it partially scrambled my root 
+partition so I went back to 2.2.19-pre2.  After the oops I tried 2.4.0 
+straight but when it was booting it decided my root partition had been 
+umounted not-cleanly and decided it needed to do lots of icky things to 
+my root partition.  I just rebooted it (without letting it do any 
+changes) and went back into 2.4.1-pre8 and let it clean up the root 
+partition.  So I don't know if 2.4.0 straight would do this (apparently 
+it does from other people's reports) since 2.4.0 didn't want to play 
+nice on my machine.
 
-PS: It doesn't matter if you compile the Kernel or Ptolemy or XFree86, you
-just need something hard to do for your box :-)
+Since I can't do without smbfs I guess I'll have to do without bigmem.  
+Please let me know when you're ready to test some fixes; I would be glad 
+to help testing.
 
-PS2: dmesg output of the ACPI kernel
+--Scott
 
-Linux version 2.4.0 (root@gic12) (gcc version egcs-2.91.66 19990314 (egcs-1.1.2 release)) #9 Thu Jan 18 11:23:43 WET 2001
-BIOS-provided physical RAM map:
- BIOS-e820: 000000000009fc00 @ 0000000000000000 (usable)
- BIOS-e820: 0000000000000400 @ 000000000009fc00 (reserved)
- BIOS-e820: 0000000000010000 @ 00000000000f0000 (reserved)
- BIOS-e820: 0000000007ef0000 @ 0000000000100000 (usable)
- BIOS-e820: 0000000000008000 @ 0000000007ff0000 (ACPI data)
- BIOS-e820: 0000000000008000 @ 0000000007ff8000 (ACPI NVS)
- BIOS-e820: 0000000000010000 @ 00000000ffff0000 (reserved)
-Scan SMP from c0000000 for 1024 bytes.
-Scan SMP from c009fc00 for 1024 bytes.
-Scan SMP from c00f0000 for 65536 bytes.
-Scan SMP from c009fc00 for 4096 bytes.
-On node 0 totalpages: 32752
-zone(0): 4096 pages.
-zone(1): 28656 pages.
-zone(2): 0 pages.
-mapped APIC to ffffe000 (01222000)
-Kernel command line: BOOT_IMAGE=test ro root=302
-Initializing CPU#0
-Detected 449.079 MHz processor.
-Console: colour VGA+ 80x25
-Calibrating delay loop... 894.56 BogoMIPS
-Memory: 126668k/131008k available (988k kernel code, 3952k reserved, 344k data, 200k init, 0k highmem)
-Dentry-cache hash table entries: 16384 (order: 5, 131072 bytes)
-Buffer-cache hash table entries: 4096 (order: 2, 16384 bytes)
-Page-cache hash table entries: 32768 (order: 5, 131072 bytes)
-Inode-cache hash table entries: 8192 (order: 4, 65536 bytes)
-CPU: Before vendor init, caps: 0387f9ff 00000000 00000000, vendor = 0
-CPU: L1 I cache: 16K, L1 D cache: 16K
-CPU: L2 cache: 256K
-Intel machine check architecture supported.
-Intel machine check reporting enabled on CPU#0.
-CPU: After vendor init, caps: 0387f9ff 00000000 00000000 00000000
-CPU serial number disabled.
-CPU: After generic, caps: 0383f9ff 00000000 00000000 00000000
-CPU: Common caps: 0383f9ff 00000000 00000000 00000000
-CPU: Intel Pentium III (Coppermine) stepping 01
-Enabling fast FPU save and restore... done.
-Enabling unmasked SIMD FPU exception support... done.
-Checking 'hlt' instruction... OK.
-POSIX conformance testing by UNIFIX
-mtrr: v1.37 (20001109) Richard Gooch (rgooch@atnf.csiro.au)
-mtrr: detected mtrr type: Intel
-PCI: PCI BIOS revision 2.10 entry at 0xf0200, last bus=1
-PCI: Using configuration type 1
-PCI: Probing PCI hardware
-Unknown bridge resource 2: assuming transparent
-PCI: Using IRQ router PIIX [8086/7110] at 00:02.0
-  got res[10000000:10000fff] for resource 0 of O2 Micro, Inc. 6832
-  got res[10001000:10001fff] for resource 0 of O2 Micro, Inc. 6832 (#2)
-Limiting direct PCI/PCI transfers.
-Linux NET4.0 for Linux 2.4
-Based upon Swansea University Computer Society NET3.039
-DMI 2.3 present.
-25 structures occupying 960 bytes.
-DMI table at 0x000F8380.
-BIOS Vendor: ACER
-BIOS Version: V3.3 R01-A4g-EN                         
-BIOS Release: 02/10/2000
-System Vendor: Acer            .
-Product Name: TravelMate 730 Series.
-Version -1.
-Serial Number 9149C0110S005002D5M             .
-Board Vendor: Acer            .
-Board Name: Intel 440BX and PX4M.
-Board Version: -1.
-IA-32 Microcode Update Driver: v1.08 <tigran@veritas.com>
-Starting kswapd v1.8
-pty: 256 Unix98 ptys configured
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-[snipped ide info]
-Real Time Clock Driver v1.10d
-Linux agpgart interface v0.99 (c) Jeff Hartmann
-agpgart: Maximum main memory to use for agp memory: 94M
-agpgart: Detected Intel 440BX chipset
-agpgart: AGP aperture is 64M @ 0xe0000000
-usb.c: registered new driver usbdevfs
-usb.c: registered new driver hub
-NET4: Linux TCP/IP 1.0 for NET4.0
-IP Protocols: ICMP, UDP, TCP
-IP: routing cache hash table of 512 buckets, 4Kbytes
-TCP: Hash tables configured (established 8192 bind 8192)
-NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
-----------------------------------ACPI messages-------------
-ACPI: System description tables found
-ACPI: System description tables loaded
-ACPI: Subsystem enable failed
-------------------------------------------------------------
-VFS: Mounted root (ext2 filesystem) readonly.
 
-Thanks in advance
+Urban Widmark wrote:
 
------------------------------------------------------------------------
- Eugenio Jimenez Yguacel             eugenio@masdache.teleco.ulpgc.es
- E.T.S.I. Telecomunicacion           Tfno: (+34)-28-458079
- Campus de Tafira S/N                Fax:  (+34)-28-451243
- 35017 Las Palmas, Spain             Beer, breakfast for champions!
------------------------------------------------------------------------
+> On Wed, 17 Jan 2001, Scott A. Sibert wrote:
+> 
+>> I'm consistently getting an oops when accessing any smbfs mount whether
+>> running 'ls' inside the smbfs mount or hitting TAB for filename
+>> completion of a directory in an smbfs mount.  I have another machine
+>> (dual P2/300 w/320MB memory) that does not have this problem.  The P2
+> 
+> 
+> That other machine is not compiled with bigmem, I assume.
+> 
+> 
+>> Ethernet is compiled into the kernel as is smbfs (not as modules).  I've
+>> compiled this kernel with 4GB bigmem support (otherwise I only get 8xxMB
+>> total).
+> 
+> 
+> The smbfs cache code in 2.4.0 doesn't work with bigmem. For now disable
+> bigmem or don't use smbfs, it's oopsing all the time.
+> 
+> Rainer Mager reported the same thing yesterday ("Oops with 4GB memory
+> setting in 2.4.0 stable" if you want to read the thread).
+> 
+> I am currently looking into this ... what kind of server are you
+> connecting to? win2k/NT4/9x? It is easier to test with those than the more
+> exotic OS/2 & NetApp.
+> 
+> /Urban
+> 
 
 
 -

@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263130AbUDLWEW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Apr 2004 18:04:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263136AbUDLWEW
+	id S263134AbUDLWJS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Apr 2004 18:09:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263140AbUDLWJS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 18:04:22 -0400
-Received: from mail.kroah.org ([65.200.24.183]:25231 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263130AbUDLWEV (ORCPT
+	Mon, 12 Apr 2004 18:09:18 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:54915 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S263134AbUDLWJP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 18:04:21 -0400
-Date: Mon, 12 Apr 2004 14:52:56 -0700
-From: Greg KH <greg@kroah.com>
-To: Ian Stirling <ian.stirling@mauve.plus.com>
-Cc: Wolfgang Fritz <wolfgang.fritz@gmx.net>, linux-kernel@vger.kernel.org
-Subject: Re: Where did the USB generic scanner driver go? 2.6.5
-Message-ID: <20040412215256.GB23692@kroah.com>
-References: <407AC3A1.8090503@mauve.plus.com> <c5ejt0$802$1@fritz38552.news.dfncis.de> <407B0E42.9060509@mauve.plus.com>
+	Mon, 12 Apr 2004 18:09:15 -0400
+Subject: Re: possible bug in the acpi_bus.h file in kernel 2.4.25
+From: Len Brown <len.brown@intel.com>
+To: Support <Support@btfh.net>
+Cc: linux-kernel@vger.kernel.org, Andrew Grover <andrew.grover@intel.com>,
+       "Diefenbaugh, Paul S" <paul.s.diefenbaugh@intel.com>
+In-Reply-To: <A6974D8E5F98D511BB910002A50A6647615F7911@hdsmsx402.hd.intel.com>
+References: <A6974D8E5F98D511BB910002A50A6647615F7911@hdsmsx402.hd.intel.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1081807733.2251.14.camel@dhcppc4>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <407B0E42.9060509@mauve.plus.com>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 12 Apr 2004 18:08:53 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 12, 2004 at 10:46:42PM +0100, Ian Stirling wrote:
+On Mon, 2004-04-05 at 04:52, Support wrote:
+> in the acpi_bus.h file, there is a reference to  device.h, however no
+> such
+> file exists in the 2.4.25 source code and causes a compile error when
+> including acpi in the compile.
 > 
-> If the scanner module was deprecated, wouldn't some notice on the config
-> entry have been a good idea?
+> the line is as follows
+> 
+> 
+> #include <linux/device.h>
 
-It was posted here that it was going away a number of times, and if you
-search the archives, a number of people have reported this same
-question.
+works for me.
 
-Anyway, the driver is gone, no use worrying about it now :)
+Is your acpi_bus.h missing the following line immediately
+before the include?
 
-thanks,
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,4))
 
-greg k-h
+-Len
+

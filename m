@@ -1,64 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272251AbTHDVRK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 17:17:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272253AbTHDVRK
+	id S272253AbTHDVYQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 17:24:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272255AbTHDVYQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 17:17:10 -0400
-Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:45811 "EHLO
-	tabby.cats.internal") by vger.kernel.org with ESMTP id S272251AbTHDVRI
+	Mon, 4 Aug 2003 17:24:16 -0400
+Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:59891 "EHLO
+	tabby.cats.internal") by vger.kernel.org with ESMTP id S272253AbTHDVYO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 17:17:08 -0400
+	Mon, 4 Aug 2003 17:24:14 -0400
 Content-Type: text/plain; charset=US-ASCII
 From: Jesse Pollard <jesse@cats-chateau.net>
-To: Stephan von Krawczynski <skraw@ithnet.com>,
-       Anton Altaparmakov <aia21@cam.ac.uk>
+To: "Richard B. Johnson" <root@chaos.analogic.com>,
+       Stephan von Krawczynski <skraw@ithnet.com>
 Subject: Re: FS: hardlinks on directories
-Date: Mon, 4 Aug 2003 16:16:39 -0500
+Date: Mon, 4 Aug 2003 16:23:42 -0500
 X-Mailer: KMail [version 1.2]
 Cc: aebr@win.tue.nl, linux-kernel@vger.kernel.org
-References: <20030804141548.5060b9db.skraw@ithnet.com> <Pine.SOL.4.56.0308041458500.22102@orange.csi.cam.ac.uk> <20030804165002.791aae3d.skraw@ithnet.com>
-In-Reply-To: <20030804165002.791aae3d.skraw@ithnet.com>
+References: <20030804141548.5060b9db.skraw@ithnet.com> <20030804170506.11426617.skraw@ithnet.com> <Pine.LNX.4.53.0308041142520.802@chaos>
+In-Reply-To: <Pine.LNX.4.53.0308041142520.802@chaos>
 MIME-Version: 1.0
-Message-Id: <03080416163901.04444@tabby>
+Message-Id: <03080416234202.04444@tabby>
 Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 04 August 2003 09:50, Stephan von Krawczynski wrote:
-> On Mon, 4 Aug 2003 15:04:28 +0100 (BST)
+On Monday 04 August 2003 10:57, Richard B. Johnson wrote:
+> On Mon, 4 Aug 2003, Stephan von Krawczynski wrote:
+> > On Mon, 4 Aug 2003 09:33:44 -0500
+> >
+> > Jesse Pollard <jesse@cats-chateau.net> wrote:
+> > > Find for one. Any application that must scan the tree in a search. Any
+> > > application that must backup every file for another (I know, dump
+> > > bypasses the filesystem to make backups, tar doesn't).
+> >
+> > All that can handle symlinks already have the same problem nowadays.
+> > Where is the difference? And yet again: it is no _must_ for the feature
+> > to use it for creating complete loops inside your fs.
+> > You _can_ as well dd if=/dev/zero of=/dev/hda, but of course you
+> > shouldn't. Have you therefore deleted dd from your bin ?
+> >
+> > > It introduces too many unique problems to be easily handled. That is
+> > > why symbolic links actually work. Symbolic links are not hard links,
+> > > therefore they are not processed as part of the tree. and do not cause
+> > > loops.
+> >
+> > tar --dereference loops on symlinks _today_, to name an example.
+> > All you have to do is to provide a way to find out if a directory is a
+> > hardlink, nothing more. And that should be easy.
 >
-> Anton Altaparmakov <aia21@cam.ac.uk> wrote:
-> > For a start the kernel VFS dcache would break because you end up with
-> > multiple entries for each inode, one entry for each parallel directory
-> > tree.  Read-only you are just about able to get away with it (been there,
-> > done that, don't recommend it!) but allow files to be deleted and it will
-> > blow up in your face.
+> [SNIPPED...]
 >
-> I cannot comment, I have no inside knowledge of it.
+> Reading Denis Howe's  Free Online Dictionary of Computing;
+> http://burks.bton.ac.uk/burks/foldoc/55/51.html, we see that
+> the chief reason for no directory hard-links is that `rm`
+> and `rmdir` won't allow you to delete them. There is no
+> POSIX requirement for eliminating them, and it is possible
+> "Some systems provide link and unlink commands which give
+> direct access to the system calls of the same name, for
+> which no such restrictions apply."
 >
-> > You ask for examples of applications?  There are millions!  Anything that
-> > walks the directory tree for a start, e.g. ls -R, find, locatedb, medusa,
-> > du, any type of search and/or indexing engine, chown -R, cp -R, scp
-> > -R, chmod -R, etc...
+> Perhaps Linux does support hard-links to directories?
 >
-> There is a flaw in this argument. If I am told that mount --bind does just
-> about what I want to have as a feature then these applictions must have the
-> same problems already (if I mount braindead). So an implementation in fs
-> cannot do any _additional_ damage to these applications, or not?
+> mkdir("foo", 0644)                      = 0
+> link("foo", "bar")                      = -1 EPERM (Operation not
+> permitted) _exit(0)                                = ?
+>
+> Nah... No such luck. I'll bet it's artificial. I think you
+> could remove that S_IFDIR check and get away with it!
 
-Mount -bind only modifies the transient memory storage of a directory. It 
-doesn't change the filesystem. Each bind occupies memory, and on a reboot, 
-the bind is gone.
+Nope -- what you get is a corrupted filesystem.... Usually, a lost directory
+gets put in lost+found, othertimes you get a "corrupted inode", and if the
+inode is cleared you then find every file that was contained in the directory
+that used to be the inode, is now in lost+found.
 
-> My saying is not "I want to have hardlinks for creating a big mess of loops
-> inside my filesystems". Your view simply drops the fact that there are more
-> possibilities to create and use hardlinks without any loops...
-
-been there done that, is is a "big mess of loops".
-
-And you can't prevent the loops either, without scanning the entire graph, or
-keeping a graph location reference embeded with the file.
-Which then breaks "mv" for renaming directories... It would then have to
-scan the entire graph again to locate a possble creation of a loop, and 
-regenerate the graph location for every file.
+The only place I can think of that this might not happen are those filesystems
+that don't use the UNIX style tree structure.

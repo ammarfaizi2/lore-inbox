@@ -1,35 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263907AbRFIWxI>; Sat, 9 Jun 2001 18:53:08 -0400
+	id <S263909AbRFIXAJ>; Sat, 9 Jun 2001 19:00:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263908AbRFIWw6>; Sat, 9 Jun 2001 18:52:58 -0400
-Received: from erasmus.off.net ([64.39.30.25]:33808 "HELO erasmus.off.net")
-	by vger.kernel.org with SMTP id <S263907AbRFIWwx>;
-	Sat, 9 Jun 2001 18:52:53 -0400
-Date: Sat, 9 Jun 2001 18:52:40 -0400
-From: Zach Brown <zab@zabbo.net>
-To: Ben Pfaff <pfaffben@msu.edu>
-Cc: Lukas Schroeder <lukas@edeal.de>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] ess maestro, support for hardware volume control
-Message-ID: <20010609185240.A23980@erasmus.off.net>
-In-Reply-To: <200106091931.f59JVw731673@devserv.devel.redhat.com> <87elst2vr2.fsf@pfaffben.user.msu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <87elst2vr2.fsf@pfaffben.user.msu.edu>; from pfaffben@msu.edu on Sat, Jun 09, 2001 at 05:23:13PM -0400
+	id <S264494AbRFIW77>; Sat, 9 Jun 2001 18:59:59 -0400
+Received: from imladris.infradead.org ([194.205.184.45]:63760 "EHLO
+	infradead.org") by vger.kernel.org with ESMTP id <S263909AbRFIW7t>;
+	Sat, 9 Jun 2001 18:59:49 -0400
+Date: Sat, 9 Jun 2001 23:58:55 +0100 (BST)
+From: Riley Williams <rhw@MemAlpha.CX>
+X-X-Sender: <rhw@infradead.org>
+To: "David S. Miller" <davem@redhat.com>
+cc: Adrian Cox <adrian@humboldt.co.uk>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Probable endianess problem in TLAN driver
+In-Reply-To: <15138.42357.146305.892652@pizda.ninka.net>
+Message-ID: <Pine.LNX.4.33.0106092356360.23184-100000@infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I now have a patch that will output the hwv buttons pressed (up,
-> down, mute) to a new dynamically allocated misc device as letters
-> u, d, m, instead of directly modifying the mixer.  Anyone want
-> that?  It's more flexible than either the patch that's currently
-> in -ac or Lukas's patch, but you need a little userspace daemon
-> for it to do anything useful.
+Hi David.
 
-hmm.. how do the alsa guys deal with hw volume?  I'm not sure I like
-adding more stuff to the OSS API.  
+On Sat, 9 Jun 2001, David S. Miller wrote:
 
--- 
- zach
+ > Adrian Cox writes:
+
+ >>> +#if defined(__powerpc__)
+ >>> +#define inw(addr)                      le32_to_cpu(inw(addr))
+ >>> +#define inl(addr)                      le32_to_cpu(inl(addr))
+ >>> +#define outw(val, addr)                outw(cpu_to_le32(val), addr)
+ >>> +#define outl(val, addr)                outl(cpu_to_le32(val), addr)
+ >>> +#endif
+
+ >> On ppc the inw, inl, outw, and outl functions already byteswap,
+ >> so by adding the extra byteswap you're now passing unswapped
+ >> data to the chip.
+
+ > Yes, and this is true for every architecture.
+
+ > All of {in,out}{b,w,l}() and {read/write}{b,w,l}() swap to/from
+ > bus endianness for you.
+
+Even if that wasn't true, aren't the above all self-recursive
+definitions that would prevent anything calling them from compiling?
+
+Best wishes from Riley.
+

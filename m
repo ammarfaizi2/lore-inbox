@@ -1,44 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318484AbSGSJWh>; Fri, 19 Jul 2002 05:22:37 -0400
+	id <S318486AbSGSJ02>; Fri, 19 Jul 2002 05:26:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318486AbSGSJWg>; Fri, 19 Jul 2002 05:22:36 -0400
-Received: from ns.suse.de ([213.95.15.193]:2832 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S318484AbSGSJWf>;
-	Fri, 19 Jul 2002 05:22:35 -0400
-Date: Fri, 19 Jul 2002 11:25:28 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Thunder from the hill <thunder@ngforever.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andre Hedrick <andre@linux-ide.org>
-Subject: Re: Severe problems with 2.4.19-rc2-aa1 on k6-II
-Message-ID: <20020719112528.B15517@oldwotan.suse.de>
-References: <Pine.LNX.4.44.0207182027480.3525-100000@hawkeye.luckynet.adm>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0207182027480.3525-100000@hawkeye.luckynet.adm>; from thunder@ngforever.de on Thu, Jul 18, 2002 at 08:37:42PM -0600
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S318488AbSGSJ02>; Fri, 19 Jul 2002 05:26:28 -0400
+Received: from loke.as.arizona.edu ([128.196.209.61]:35972 "EHLO
+	loke.as.arizona.edu") by vger.kernel.org with ESMTP
+	id <S318486AbSGSJ01>; Fri, 19 Jul 2002 05:26:27 -0400
+Date: Fri, 19 Jul 2002 02:27:19 -0700 (MST)
+From: Craig Kulesa <ckulesa@as.arizona.edu>
+To: linux-kernel@vger.kernel.org
+cc: linux-mm@kvack.org
+Subject: [PATCH 5/6] move slab pages to the lru, for rmap
+Message-ID: <Pine.LNX.4.44.0207190120270.4647-100000@loke.as.arizona.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 18, 2002 at 08:37:42PM -0600, Thunder from the hill wrote:
-> Hi,
-> 
-> I'm running 2.4.19-rc2-aa1 on an AMD K6-II 450 (bluemoon).
-> The CPU is family 5, model 8, stepping 12. It's constantly at no more 
-> than fifty degree Fahrenheit, so it's certainly not a temperature bugset.
-> 
-> The problems are:
-> 
-> 1. When booting, I always have to specify hde=none hdf=none ... hdl=none, 
-> because otherwise IDE will start probing wildly. (never had that before)
-> 2. Mouse and keyboard are both on one port. Now if I load gpm, the whole 
-> PS/2 controller gets stuck until I unplug both mouse and keyboard and then 
-> re-plug them. It all worked fine ever before.
 
-please try to reproduce with mainline 2.4.19rc2, I don't recall changes from my
-part in that area but just in case. thanks,
 
-Andrea
+Part 5 in my rmap patch queue against 2.5.26:
+
+	http://loke.as.arizona.edu/~ckulesa/kernel/rmap-vm/2.5.26/
+	[ 2.5.26-rmap-5-slablru 18-Jul-2002 22:35    40k ]
+
+This is a port of Ed Tomlinson's (tomlins@cam.org) really nifty patch to 
+let the (full) rmap VM do the work of freeing (inode/dentry/dquot) slab 
+pages based on page aging.  
+
+	http://mail.nl.linux.org/linux-mm/2002-06/msg00001.html
+
+Summary: The slab pages are moved into the active list, where they are
+aged and pruned.  The rate of pruning is simply the rate we see entries
+for these slabs in refill_inactive_zone (while scanning the active list
+for pages to deactivate).  This has the significant advantage of being
+wholly self-tuning!  If we can count a slab page as fully pruned and no
+longer in use, it is freed.  For non-lru slab caches, we occasionally call
+kmem_cache_shrink to keep those caches in check.  A final sweep though
+kmem_cache_reap() is our last protection against OOM.
+
+---
+
+The only significant structural change to the patch is 2.5's invocation 
+of the inode caches per-filesystem.  I have given each fs's inode 
+cache a pruner method during its allocation (a one-line change).  
+Filesystems edited:
+
+ fs/adfs/super.c          |    1 
+ fs/affs/super.c          |    1 
+ fs/bfs/inode.c           |    1 
+ fs/coda/inode.c          |    2 
+ fs/efs/super.c           |    1 
+ fs/ext2/super.c          |    1 
+ fs/ext3/super.c          |    1 
+ fs/fat/inode.c           |    1 
+ fs/freevxfs/vxfs_super.c |    4 
+ fs/hfs/super.c           |    1 
+ fs/hpfs/super.c          |    1 
+ fs/isofs/inode.c         |    1 
+ fs/jffs2/super.c         |    1 
+ fs/jfs/super.c           |    1 
+ fs/minix/inode.c         |    1 
+ fs/ncpfs/inode.c         |    1 
+ fs/nfs/inode.c           |    1 
+ fs/ntfs/super.c          |    2 
+ fs/proc/inode.c          |    1 
+ fs/qnx4/inode.c          |    1 
+ fs/reiserfs/super.c      |    1 
+ fs/romfs/inode.c         |    1 
+ fs/smbfs/inode.c         |    1 
+ fs/sysv/inode.c          |    1 
+ fs/udf/super.c           |    1 
+ fs/ufs/super.c           |    1 
+
+Intermezzo has a funky dentry cache that may need a pruner method (??), 
+but I didn't touch it.  If there was a better way to do this, I was too 
+blind to see it.  
+
+This patch has been well tested with ext3 and the generic slab caches.  I 
+expect the other filesystems' inode caches to behave correctly, but it 
+wouldn't hurt to test! ... ;)
+
+I haven't benchmarked the patch quantitatively, but the balance of 
+eviction between nonslab and slab pages seems to scale with the age of the 
+pages.  Slocate runs don't evict the desktop, but do evict cold daemons 
+and other cruft.  New allocations for applications shrink the older slabs 
+accordingly.  Seems sane.  By comparison, plain rmap-13b plunders the slab 
+caches rather ruthlessly.  
+
+The overhead for putting these pages on the lru lists, and the hopeful 
+benefits for properly aging and evicting them, should be benchmarked 
+sometime. 
+
+Give it a try! :)
+
+Craig Kulesa
+Steward Observatory
+Univ. of Arizona
+

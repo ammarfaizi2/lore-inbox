@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270811AbTG0PE4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 11:04:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270815AbTG0PE4
+	id S270819AbTG0POT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 11:14:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270820AbTG0POT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 11:04:56 -0400
-Received: from smtp02.web.de ([217.72.192.151]:62232 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S270811AbTG0PEz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 11:04:55 -0400
-Date: Sun, 27 Jul 2003 17:21:50 +0200
-From: =?ISO-8859-1?B?UmVu?= <l.s.r@web.de>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Inline vfat_strnicmp()
-Message-Id: <20030727172150.15f8df7f.l.s.r@web.de>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Sun, 27 Jul 2003 11:14:19 -0400
+Received: from 015.atlasinternet.net ([212.9.93.15]:51423 "EHLO
+	ponti.gallimedina.net") by vger.kernel.org with ESMTP
+	id S270819AbTG0POS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 11:14:18 -0400
+From: Ricardo Galli <gallir@uib.es>
+Organization: UIB
+To: linux-kernel@vger.kernel.org,
+       =?iso-8859-15?q?Benjam=ED=20Villoslada?= <benjami@bitassa.com>
+Subject: Ensenyaments de UNIX
+Date: Sun, 27 Jul 2003 17:29:27 +0200
+User-Agent: KMail/1.5.2
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200307271729.27756.gallir@uib.es>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+http://www.catb.org/~esr/writings/unix-koans/
 
-the function vfat_strnicmp() has just one callsite. Inlining it
-actually shrinks vfat.o slightly.
+Hi ha alguns molt bons, com la del metodologista (en relacio a los "pseudo 
+informàtics" preocupats per la gestió de recursos, i.e. kefe de projectes ;).
 
-René
+-- 
+  ricardo galli       GPG id C8114D34
+  http://mnm.uib.es/~gallir/
 
-
-
-diff -u ./fs/vfat/namei.c~ ./fs/vfat/namei.c
---- ./fs/vfat/namei.c~	2003-07-27 16:41:36.000000000 +0200
-+++ ./fs/vfat/namei.c	2003-07-27 17:12:12.000000000 +0200
-@@ -103,7 +103,7 @@
- 	return nc ? nc : c;
- }
- 
--static int
-+static inline int
- vfat_strnicmp(struct nls_table *t, const unsigned char *s1,
- 					const unsigned char *s2, int len)
- {

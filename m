@@ -1,76 +1,128 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314548AbSG2Kez>; Mon, 29 Jul 2002 06:34:55 -0400
+	id <S314553AbSG2KkT>; Mon, 29 Jul 2002 06:40:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314551AbSG2Kez>; Mon, 29 Jul 2002 06:34:55 -0400
-Received: from ophelia.ess.nec.de ([193.141.139.8]:10725 "EHLO
-	ophelia.ess.nec.de") by vger.kernel.org with ESMTP
-	id <S314548AbSG2Kex> convert rfc822-to-8bit; Mon, 29 Jul 2002 06:34:53 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Erich Focht <efocht@ess.nec.de>
-To: Matt Dobson <colpatch@us.ibm.com>
-Subject: Re: [Lse-tech] [patch] Memory Binding API v0.2
-Date: Mon, 29 Jul 2002 12:37:57 +0200
-User-Agent: KMail/1.4.1
-References: <3D407E62.8080707@us.ibm.com>
-In-Reply-To: <3D407E62.8080707@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
-       Michael Hohnbaum <hohnbaum@us.ibm.com>,
-       Martin Bligh <mjbligh@us.ibm.com>, Andrew Morton <akpm@zip.com.au>,
-       lse-tech <lse-tech@lists.sourceforge.net>,
-       Andrea Arcangeli <andrea@suse.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207291237.57044.efocht@ess.nec.de>
+	id <S314634AbSG2KkT>; Mon, 29 Jul 2002 06:40:19 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:54440 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S314553AbSG2KkR>;
+	Mon, 29 Jul 2002 06:40:17 -0400
+Date: Mon, 29 Jul 2002 12:43:51 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: James Bottomley <James.Bottomley@steeleye.com>,
+       Marcin Dalecki <dalecki@evision.ag>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.28 small REQ_SPECIAL abstraction
+Message-ID: <20020729124351.C4861@suse.de>
+References: <20020729083409.D4445@suse.de> <Pine.LNX.4.44.0207282352030.10092-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0207282352030.10092-100000@home.transmeta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Matt,
+On Sun, Jul 28 2002, Linus Torvalds wrote:
+> 
+> 
+> On Mon, 29 Jul 2002, Jens Axboe wrote:
+> >
+> > I think Martin's was wrong in concept, mine was wrong in implementation.
+> 
+> I don't understand why you think the concept is wrong. Right now all users
+> clearly do want to free the tag on re-issue, and doing so clearly cleans
+> up the code and avoids duplication.
+> 
+> So I still don't see the advantage of your patch, even once you've fixed
+> the locking issue.
 
-On Friday 26 July 2002 00:40, Matthew Dobson wrote:
-> Here is the latest version of the Mem Binding API.  It's a follow-up to the
-> patch posted a week or so ago.  It incorporates some changes, and should be
-> a bit more efficient, readable, and functional.  Bigger, better, faster,
-> eh?  It needs to be patched on top of the Simple binding API that I posted
-> a minute ago..
+Ok... I had two issues with the patch. 1) it did
 
-the patch is a good start for introducing the NUMA API which we definitely
-need for some coherence among NUMA developments. Also I think stuff like
-memory hot-add/remove will absolutely need a concept like memblk.
+	rq->flags &= REQ_QUEUED;
 
-I'm just having some small technical comments:
+which is just broken. 2) it combined the act of inserting back into the
+block queue with clearing the tag associated with the request. #1 is
+clearly a bug that should be fixed regardless of what we do. Right now,
+yes, the only user of blk_insert_request (SCSI) needs the tag cleared. I
+still don't think that's a reason to mingle the two different tasks into
+one. Code duplication is not an argument, the two scsi_insert_* should
+be folded into one. The only difference is SRpnt->sr_request vs
+SCpnt->request after all.
 
-You're using spinlocks for protecting the memblk structure. Mostly these
-structures would be just read during the lifetime of a task. Besides: the
-current syscalls allow changing them only from the current context, there
-is no danger of getting the wrong values here, because current isn't
-allocating pages while it changes its memblk_list. Even if you change
-the memblk variables from another task, it isn't that bad if they're
-unprotected. After all just before changing the values you might have
-allocated memory by using the old values... I think we can live without
-the spinlocks.
+> HOWEVER, if you really think that some future users might not want to have
+> the tag played with, how about making the "at_head" thing a flags field,
+> and letting people say so by having "INSERT_NOTAG" (and making the
+> existing bit be INSERT_ATHEAD).
+> 
+> So then the SCSI users would look like
+> 
+> 	blk_insert_request(q, SRpnt->sr_request,
+> 		at_head ? INSERT_ATHEAD : 0,
+> 		SRpnt)
+> 
+> while your future non-tag user might do
+> 
+> 	blk_insert_request(q, newreq,
+> 		INSERT_ATHEAD | INSERT_NOTAG,
+> 		channel);
+> 
+> _without_ having that unnecessary code duplication.
 
-The implemented syscalls only change the memblk_list of the current task.
-Would you please consider extending them to arbitrary PIDs? With
-reasonable protection, of course.
+*shrug* I guess we could do that. I don't see any immediate use beyond
+at_head/back and tag clearing.
 
-The include file include/linux/membind.h is kind of small and isn't
-supposed to grow too much. How about putting this into
-include/linux/numa.h where we could gather some more NUMA stuff and more
-things to come with the NUMA API?
+I'll back down, it's not a matter of life and death after all. Here's
+the minimal patch that corrects the flag thing, and also makes
+blk_insert_request() conform to kernel style. Are we all happy?
 
-In _alloc_pages() you might want to check for online memblks when
-initialising the mask:
-	memblk_mask = curr->memblk_binding.bitmask & memblk_online_map;
-In the search_twice branch I'd reset the mask to memblk_online_map. There
-are chances that the desired memblk has been freed in the mean time.
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.509   -> 1.510  
+#	drivers/block/ll_rw_blk.c	1.96    -> 1.97   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/07/29	axboe@burns.home.kernel.dk	1.510
+# fix REQ_QUEUED clearing in blk_insert_request()
+# --------------------------------------------
+#
+diff -Nru a/drivers/block/ll_rw_blk.c b/drivers/block/ll_rw_blk.c
+--- a/drivers/block/ll_rw_blk.c	Mon Jul 29 12:42:43 2002
++++ b/drivers/block/ll_rw_blk.c	Mon Jul 29 12:42:43 2002
+@@ -1253,7 +1253,7 @@
+  *    host that is unable to accept a particular command.
+  */
+ void blk_insert_request(request_queue_t *q, struct request *rq,
+-		int at_head, void *data)
++			int at_head, void *data)
+ {
+ 	unsigned long flags;
+ 
+@@ -1262,15 +1262,18 @@
+ 	 * must not attempt merges on this) and that it acts as a soft
+ 	 * barrier
+ 	 */
+-	rq->flags &= REQ_QUEUED;
+ 	rq->flags |= REQ_SPECIAL | REQ_BARRIER;
+ 
+ 	rq->special = data;
+ 
+ 	spin_lock_irqsave(q->queue_lock, flags);
+-	/* If command is tagged, release the tag */
+-	if(blk_rq_tagged(rq))
++
++	/*
++	 * If command is tagged, release the tag
++	 */
++	if (blk_rq_tagged(rq))
+ 		blk_queue_end_tag(q, rq);
++
+ 	_elv_add_request(q, rq, !at_head, 0);
+ 	q->request_fn(q);
+ 	spin_unlock_irqrestore(q->queue_lock, flags);
 
-Do you have plans for adding the setlaunch() part of the NUMA API? Guess
-that should take care of both memblk_list and cpus_allowed...
 
-Thanks,
-best regards,
-
-Erich
-
+-- 
+Jens Axboe
 

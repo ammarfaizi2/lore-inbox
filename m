@@ -1,73 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262123AbSJNT0P>; Mon, 14 Oct 2002 15:26:15 -0400
+	id <S262134AbSJNTg3>; Mon, 14 Oct 2002 15:36:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262115AbSJNT0P>; Mon, 14 Oct 2002 15:26:15 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:65522 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S262123AbSJNT0N>;
-	Mon, 14 Oct 2002 15:26:13 -0400
-Date: Mon, 14 Oct 2002 15:32:00 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Christoph Hellwig <hch@infradead.org>
-cc: Joe Thornber <joe@fib011235813.fsnet.co.uk>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@redhat.com>, Jens Axboe <axboe@suse.de>
-Subject: Re: Linux v2.5.42
-In-Reply-To: <20021014202158.A27076@infradead.org>
-Message-ID: <Pine.GSO.4.21.0210141524550.6505-100000@weyl.math.psu.edu>
+	id <S262136AbSJNTg3>; Mon, 14 Oct 2002 15:36:29 -0400
+Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:23686 "EHLO
+	dad.molina") by vger.kernel.org with ESMTP id <S262134AbSJNTg2>;
+	Mon, 14 Oct 2002 15:36:28 -0400
+Date: Mon, 14 Oct 2002 14:41:45 -0500 (CDT)
+From: Thomas Molina <tmolina@cox.net>
+X-X-Sender: tmolina@dad.molina
+To: Andy Pfiffer <andyp@osdl.org>
+cc: Robert Love <rml@tech9.net>, Eric Blade <eblade@m-net.arbornet.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Evolution and 2.5.x
+In-Reply-To: <1034618822.1995.47.camel@andyp>
+Message-ID: <Pine.LNX.4.44.0210141435440.6072-100000@dad.molina>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 14 Oct 2002, Christoph Hellwig wrote:
-
-> +{
-> +	int r;
-> +
-> +	if (d->bdev)
-> +		BUG();
-> +
-> +	if (!(d->bdev = bdget(kdev_t_to_nr(d->dev))))
-> +		return -ENOMEM;
-> +
-> + 	r = blkdev_get(d->bdev, d->mode, 0, BDEV_RAW);
-> +	if (r) {
-> +		bdput(d->bdev);
-
-*blam*
-failing blkdev_get() does bdput() itself.
-
-> +
-> +	if (sscanf(path, "%x:%x", &major, &minor) == 2) {
-> +		/* Extract the major/minor numbers */
-> +		dev = mk_kdev(major, minor);
-> +	} else {
-> +		/* convert the path to a device */
-> +		if ((r = lookup_device(path, &dev)))
-> +			return r;
-> +	}
+> > See this thread:
+> > http://lists.ximian.com/archives/public/evolution-hackers/2002-June/004841.html
+> > 
+> > It is indeed broken in 2.5 and it is not, for once, our fault.  This
+> > thread and other discussion seem to point out it is a bug in ORBit.
+> > 
+> > 	Robert Love
 > 
-> What do you need the major/minor version for?
+> I spent some time trying to track this problem down, but reached a wall
+> due to the size and nature of the ChangeSet.
+> 
+> The bitkeeper ChangeSet that made Evolution's address book hang when
+> trying to compose a new message when run on 2.5.x kernels was 1.262.2.2.
 
-... and in any case, both branches should result in struct block_device *
-(the former - via bdget(MKDEV(...));)
- 
-> +	switch (command) {
-> +	case BLKGETSIZE:
-> +		l_size = (long) size;
-> +		if (copy_to_user((void *) a, &l_size, sizeof(long)))
-> +			return -EFAULT;
-> +		break;
-
-> These two are in generic code and odn't need to be implemented
-> by a lowlevel driver (won't ever be called).
-
-Not only that, but BLKGETSIZE above is missing overflow check.
-(these two are still called, with generic version called if we
-get -EINVAL; with patches submitted to Linus they won't be even
-tried).
+I've read this thread and I'm confused.  Is this seen as a problem with 
+Evolution, ORBit, or the 2.5 kernel?  If it is seen as a possible kernel 
+problem, I'll add it to my problem report status page and track it.  If I 
+track it, Eric Blade will get a weekly email asking whether he's still 
+seeing the problem, at least until I'm told to drop it, or no one 
+responds.
 

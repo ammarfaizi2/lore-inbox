@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264001AbTBESpB>; Wed, 5 Feb 2003 13:45:01 -0500
+	id <S264610AbTBESpz>; Wed, 5 Feb 2003 13:45:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264610AbTBESpB>; Wed, 5 Feb 2003 13:45:01 -0500
-Received: from sprocket.loran.com ([209.167.240.9]:13556 "EHLO
-	ottonexc1.peregrine.com") by vger.kernel.org with ESMTP
-	id <S264001AbTBESpA>; Wed, 5 Feb 2003 13:45:00 -0500
-Subject: Re: Monta Vista software license terms
-From: Dana Lacoste <dana.lacoste@peregrine.com>
+	id <S264617AbTBESpz>; Wed, 5 Feb 2003 13:45:55 -0500
+Received: from fw-az.mvista.com ([65.200.49.158]:6652 "EHLO
+	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
+	id <S264610AbTBESpw>; Wed, 5 Feb 2003 13:45:52 -0500
+Message-ID: <3E415D89.1050805@mvista.com>
+Date: Wed, 05 Feb 2003 11:52:57 -0700
+From: Steven Dake <sdake@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Christoph Hellwig <hch@infradead.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030205181512.A24002@infradead.org>
-References: <87d6m6fx4c.fsf@topo.binary-only.priv>
-	<Pine.LNX.4.44.0302051247280.8496-100000@xanadu.home> 
-	<20030205181512.A24002@infradead.org>
-Content-Type: text/plain
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Nicolas Pitre <nico@cam.org>,
+       andrea.glorioso@binary-only.com, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Monta Vista software license terms
+References: <87d6m6fx4c.fsf@topo.binary-only.priv> <Pine.LNX.4.44.0302051247280.8496-100000@xanadu.home> <20030205181512.A24002@infradead.org> <3E4156E0.6010004@mvista.com> <1044474105.32062.39.camel@irongate.swansea.linux.org.uk> <20030205184719.A24870@infradead.org>
+In-Reply-To: <20030205184719.A24870@infradead.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 05 Feb 2003 13:54:36 -0500
-Message-Id: <1044471276.6464.306.camel@dlacoste.ottawa.loran.com>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-02-05 at 13:15, Christoph Hellwig wrote:
+Thanks I stand corrected, when I looked previously I couldn't find them, 
+but maybe I just didn't look hard enough
 
-> Blah.  Why can't mvista put up the source to their products on some ftp
-> server like suse/redhat/caldera/mandrake/etc??  That's the whole point of
-> this discussion.  mvista doesn't do anything illegal, but they certainly
-> don't play nice.
+-steve
 
-The source code is available to those with the binaries,
-just as the GPL requires.  AFAIK everyone's said so far
-that they not only meet the GPL requirements they feed
-the changes they do make back to the community as well
-as to their customers.
+Christoph Hellwig wrote:
 
-SO WHAT THE FUCK IS YOUR PROBLEM?
-
-Why do you need access to a source tree
-if you're not even using the product????????
-
-It's nazi fascist BS like this that makes companies shy away from Linux.
-
---
-
-Dana "hoping that the word 'nazi' kills this stupid thread off" Lacoste
-Ottawa, Canada
+>On Wed, Feb 05, 2003 at 07:41:46PM +0000, Alan Cox wrote:
+>  
+>
+>>On Wed, 2003-02-05 at 18:24, Steven Dake wrote:
+>>    
+>>
+>>>Redhat does _not_ put up the source or binaries to redhat advanced 
+>>>server on their web site.
+>>>      
+>>>
+>>The AS kernel sources are up on http://www.kernelnewbies.org/kernels/ if 
+>>anyone needs them.
+>>    
+>>
+>
+>Or at ftp.redhat.com/pub/redhat/linux/enterprise (or in the updates section
+>for the current versions).
+>
+>
+>
+>  
+>
 

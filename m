@@ -1,56 +1,394 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265305AbSKFBeb>; Tue, 5 Nov 2002 20:34:31 -0500
+	id <S265478AbSKFBnV>; Tue, 5 Nov 2002 20:43:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265306AbSKFBeb>; Tue, 5 Nov 2002 20:34:31 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:14608 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S265305AbSKFBe3>;
-	Tue, 5 Nov 2002 20:34:29 -0500
-Date: Tue, 5 Nov 2002 17:37:08 -0800
+	id <S265477AbSKFBmp>; Tue, 5 Nov 2002 20:42:45 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:18960 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S265474AbSKFBlT>;
+	Tue, 5 Nov 2002 20:41:19 -0500
+Date: Tue, 5 Nov 2002 17:43:58 -0800
 From: Greg KH <greg@kroah.com>
 To: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
-Subject: Re: [BK PATCH] PCI hotplug changes for 2.5.46
-Message-ID: <20021106013708.GR18627@kroah.com>
-References: <20021106013615.GQ18627@kroah.com>
+Subject: Re: [PATCH] PCI hotplug changes for 2.5.46
+Message-ID: <20021106014358.GW18627@kroah.com>
+References: <20021106013615.GQ18627@kroah.com> <20021106013708.GR18627@kroah.com> <20021106013741.GS18627@kroah.com> <20021106013835.GT18627@kroah.com> <20021106013915.GU18627@kroah.com> <20021106014304.GV18627@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021106013615.GQ18627@kroah.com>
+In-Reply-To: <20021106014304.GV18627@kroah.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.875.1.1, 2002/11/02 22:25:32-08:00, rmk@arm.linux.org.uk
+ChangeSet 1.875.1.6, 2002/11/02 23:14:54-08:00, scottm@somanetworks.com
 
-[PATCH] PCI hotplug comment fixes
+[PATCH] 2.5.45 CompactPCI driver patch 4/4
 
-Fix comments about /sbin/hotplug; pci_insert_device does not call
-/sbin/hotplug.
+This is a patch 4 of 4 of my CompactPCI hotplug core and
+drivers, consisting of the generic port I/O cPCI hotplug driver.
+
+Let me know if the kernel parameter parsing code that's #ifndef MODULE is
+objectionable.  I spent quite a while today testing it, it seems reasonably
+robust.  Without it, this driver would only be useable as a module, which
+I've not figured out how to do with the new kernel configuration stuff.
 
 
-diff -Nru a/drivers/pci/hotplug.c b/drivers/pci/hotplug.c
---- a/drivers/pci/hotplug.c	Tue Nov  5 17:26:33 2002
-+++ b/drivers/pci/hotplug.c	Tue Nov  5 17:26:33 2002
-@@ -71,8 +71,7 @@
-  * @bus: where to insert it
-  *
-  * Link the device to both the global PCI device chain and the 
-- * per-bus list of devices, add the /proc entry, and notify
-- * userspace (/sbin/hotplug).
-+ * per-bus list of devices, add the /proc entry.
-  */
- void
- pci_insert_device(struct pci_dev *dev, struct pci_bus *bus)
-diff -Nru a/drivers/pci/probe.c b/drivers/pci/probe.c
---- a/drivers/pci/probe.c	Tue Nov  5 17:26:33 2002
-+++ b/drivers/pci/probe.c	Tue Nov  5 17:26:33 2002
-@@ -480,8 +480,7 @@
+diff -Nru a/CREDITS b/CREDITS
+--- a/CREDITS	Tue Nov  5 17:26:06 2002
++++ b/CREDITS	Tue Nov  5 17:26:06 2002
+@@ -2223,7 +2223,7 @@
+ E: scott@spiteful.org
+ D: OPL3-SA2, OPL3-SA3 sound driver
+ D: CompactPCI hotplug core
+-D: Ziatech ZT5550 CompactPCI hotplug drivers
++D: Ziatech ZT5550 and generic CompactPCI hotplug drivers
+ S: Toronto, Ontario
+ S: Canada
  
- 		/*
- 		 * Link the device to both the global PCI device chain and
--		 * the per-bus list of devices and call /sbin/hotplug if we
--		 * should.
-+		 * the per-bus list of devices and add the /proc entry.
- 		 */
- 		pci_insert_device (dev, bus);
+diff -Nru a/MAINTAINERS b/MAINTAINERS
+--- a/MAINTAINERS	Tue Nov  5 17:26:06 2002
++++ b/MAINTAINERS	Tue Nov  5 17:26:06 2002
+@@ -331,6 +331,13 @@
+ L:	pcihpd-discuss@lists.sourceforge.net
+ S:	Supported
  
++COMPACTPCI HOTPLUG GENERIC DRIVER
++P:	Scott Murray
++M:	scottm@somanetworks.com
++M:	scott@spiteful.org
++L:	pcihpd-discuss@lists.sourceforge.net
++S:	Supported
++
+ COMPAQ FIBRE CHANNEL 64-bit/66MHz PCI non-intelligent HBA
+ P:	Amy Vanzant-Hodge 
+ M:	Amy Vanzant-Hodge (fibrechannel@compaq.com)
+diff -Nru a/drivers/hotplug/Kconfig b/drivers/hotplug/Kconfig
+--- a/drivers/hotplug/Kconfig	Tue Nov  5 17:26:06 2002
++++ b/drivers/hotplug/Kconfig	Tue Nov  5 17:26:06 2002
+@@ -101,5 +101,20 @@
+ 
+ 	  When in doubt, say N.
+ 
++config HOTPLUG_PCI_CPCI_GENERIC
++	tristate "Generic port I/O CompactPCI Hotplug driver"
++	depends on HOTPLUG_PCI_CPCI && X86
++	help
++	  Say Y here if you have a CompactPCI system card that exposes the #ENUM
++	  hotswap signal as a bit in a system register that can be read through
++	  standard port I/O.
++
++	  This code is also available as a module ( = code which can be
++	  inserted in and removed from the running kernel whenever you want).
++	  The module will be called cpcihp_generic.o. If you want to compile it
++	  as a module, say M here and read <file:Documentation/modules.txt>.
++
++	  When in doubt, say N.
++
+ endmenu
+ 
+diff -Nru a/drivers/hotplug/Makefile b/drivers/hotplug/Makefile
+--- a/drivers/hotplug/Makefile	Tue Nov  5 17:26:06 2002
++++ b/drivers/hotplug/Makefile	Tue Nov  5 17:26:06 2002
+@@ -10,6 +10,7 @@
+ obj-$(CONFIG_HOTPLUG_PCI_ACPI)		+= acpiphp.o
+ obj-$(CONFIG_HOTPLUG_PCI_CPCI)		+= cpci_hotplug.o
+ obj-$(CONFIG_HOTPLUG_PCI_CPCI_ZT5550)	+= cpcihp_zt5550.o
++obj-$(CONFIG_HOTPLUG_PCI_CPCI_GENERIC)	+= cpcihp_generic.o
+ 
+ pci_hotplug-objs	:=	pci_hotplug_core.o	\
+ 				pci_hotplug_util.o
+diff -Nru a/drivers/hotplug/cpcihp_generic.c b/drivers/hotplug/cpcihp_generic.c
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/drivers/hotplug/cpcihp_generic.c	Tue Nov  5 17:26:06 2002
+@@ -0,0 +1,291 @@
++/*
++ * cpcihp_generic.c
++ *
++ * Generic port I/O CompactPCI driver
++ *
++ * Copyright 2002 SOMA Networks, Inc.
++ * Copyright 2001 Intel San Luis Obispo
++ * Copyright 2000,2001 MontaVista Software Inc.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the
++ * Free Software Foundation; either version 2 of the License, or (at your
++ * option) any later version.
++ *
++ * THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
++ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY 
++ * AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL 
++ * THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
++ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
++ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
++ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
++ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
++ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
++ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
++ *
++ * You should have received a copy of the GNU General Public License along
++ * with this program; if not, write to the Free Software Foundation, Inc.,
++ * 675 Mass Ave, Cambridge, MA 02139, USA.
++ *
++ * This generic CompactPCI hotplug driver should allow using the PCI hotplug
++ * mechanism on any CompactPCI board that exposes the #ENUM signal as a bit
++ * in a system register that can be read through standard port I/O.
++ *
++ * Send feedback to <scottm@somanetworks.com>
++ */
++
++#include <linux/config.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/errno.h>
++#include <linux/pci.h>
++#include "cpci_hotplug.h"
++
++#define DRIVER_VERSION	"0.1"
++#define DRIVER_AUTHOR	"Scott Murray <scottm@somanetworks.com>"
++#define DRIVER_DESC	"Generic port I/O CompactPCI Hot Plug Driver"
++
++#if !defined(CONFIG_HOTPLUG_CPCI_GENERIC_MODULE)
++#define MY_NAME	"cpcihp_generic"
++#else
++#define MY_NAME	THIS_MODULE->name
++#endif
++
++#define dbg(format, arg...)					\
++	do {							\
++		if(debug)					\
++			printk (KERN_DEBUG "%s: " format "\n",	\
++				MY_NAME , ## arg); 		\
++	} while(0)
++#define err(format, arg...) printk(KERN_ERR "%s: " format "\n", MY_NAME , ## arg)
++#define info(format, arg...) printk(KERN_INFO "%s: " format "\n", MY_NAME , ## arg)
++#define warn(format, arg...) printk(KERN_WARNING "%s: " format "\n", MY_NAME , ## arg)
++
++/* local variables */
++static int debug;
++static int setup;
++static char* bridge;
++static u8 bridge_busnr;
++static u8 bridge_slot;
++static struct pci_bus *bus;
++static u8 first_slot;
++static u8 last_slot;
++static u16 port;
++static unsigned int enum_bit;
++static u8 enum_mask;
++
++static struct cpci_hp_controller_ops generic_hpc_ops;
++static struct cpci_hp_controller generic_hpc;
++
++/* The following allows configuring the driver when it's compiled into the kernel */
++#ifndef MODULE
++static int __init cpcihp_generic_setup(char* str)
++{
++	char* p;
++	unsigned long tmp;
++
++	if(!str)
++		return -EINVAL;
++	bridge = str;
++
++	p = strchr(str, ',');
++	str = p + 1;
++	if(!(p && *str && *p == ','))
++		goto setup_error;
++	tmp = simple_strtoul(str, &p, 0);
++	if(p == str || tmp > 0xff) {
++		err("hotplug bus first slot number out of range");
++		goto setup_error;
++	}
++	first_slot = (u8) tmp;
++
++	str = p + 1;		
++	if(!(*str && *p == ','))
++		return -EINVAL;
++	tmp = simple_strtoul(str, &p, 0);
++	if(p == str || tmp > 0xff) {
++		err("hotplug bus last slot number out of range");
++		goto setup_error;
++	}
++	last_slot = (u8) tmp;
++
++	str = p + 1;
++	if(!(*str && *p == ','))
++		goto setup_error;
++	tmp = simple_strtoul(str, &p, 0);
++	if(p == str || tmp > 0xffff) {
++		err("port number out of range");
++		goto setup_error;
++	}
++	port = (u16) tmp;
++
++	str = p + 1;
++	if(!(*str && *p == ','))
++		goto setup_error;
++	tmp = simple_strtoul(str, &p, 0);
++	if(p == str) {
++		err("invalid #ENUM bit number");
++		goto setup_error;
++	}
++	enum_bit = (u8) tmp;
++
++	str = p + 1;
++	if(*str && *p == ',') {
++		tmp = simple_strtoul(str, &p, 0);
++		if(p != str)
++			debug = (int) tmp;
++	}
++	return 0;
++setup_error:
++	bridge = NULL;
++	return -EINVAL;
++}
++
++__setup("cpcihp_generic=", cpcihp_generic_setup);
++#endif
++
++static int __init validate_parameters(void)
++{
++	char* str;
++	char* p;
++	unsigned long tmp;
++
++	if(!bridge) {
++		info("not configured, disabling.");
++		return 1;
++	}
++	str = bridge;
++	if(!*str)
++		return -EINVAL;
++
++	tmp = simple_strtoul(str, &p, 16);
++	if(p == str || tmp > 0xff) {
++		err("Invalid hotplug bus bridge device bus number");
++		return -EINVAL;
++	}
++	bridge_busnr = (u8) tmp;
++	dbg("bridge_busnr = 0x%02x", bridge_busnr);
++	if(*p != ':') {
++		err("Invalid hotplug bus bridge device");
++		return -EINVAL;
++	}
++	str = p + 1;
++	tmp = simple_strtoul(str, &p, 16);
++	if(p == str || tmp > 0x1f) {
++		err("Invalid hotplug bus bridge device slot number");
++		return -EINVAL;
++	}
++	bridge_slot = (u8) tmp;
++	dbg("bridge_slot = 0x%02x", bridge_slot);
++
++	dbg("first_slot = 0x%02x", first_slot);
++	dbg("last_slot = 0x%02x", last_slot);
++	if(!(first_slot && last_slot)) {
++		err("Need to specify first_slot and last_slot");
++		return -EINVAL;
++	}
++	if(last_slot < first_slot) {
++		err("first_slot must be less than last_slot");
++		return -EINVAL;
++	}
++
++	dbg("port = 0x%04x", port);
++	dbg("enum_bit = 0x%02x", enum_bit);
++	if(enum_bit > 7) {
++		err("Invalid #ENUM bit");
++		return -EINVAL;
++	}
++	enum_mask = 1 << enum_bit;
++	return 0;
++}
++
++static int query_enum(void)
++{
++	u8 value;
++
++	value = inb_p(port);
++	return ((value & enum_mask) == enum_mask);
++}
++
++static int __init cpcihp_generic_init(void)
++{
++	int status;
++	struct resource* r;
++	struct pci_dev* dev;
++
++	info(DRIVER_DESC " version: " DRIVER_VERSION);
++	status = validate_parameters();
++	if(status != 0)
++		return status;
++
++	r = request_region(port, 1, "#ENUM hotswap signal register");
++	if(!r)
++		return -EBUSY;
++
++	dev = pci_find_slot(bridge_busnr, PCI_DEVFN(bridge_slot, 0));
++	if(!dev || dev->hdr_type != PCI_HEADER_TYPE_BRIDGE) {
++		err("Invalid bridge device %s", bridge);
++		return -EINVAL;
++	}
++	bus = dev->subordinate;
++
++	memset(&generic_hpc, 0, sizeof (struct cpci_hp_controller));
++	generic_hpc_ops.query_enum = query_enum;
++	generic_hpc.ops = &generic_hpc_ops;
++
++	status = cpci_hp_register_controller(&generic_hpc);
++	if(status != 0) {
++		err("Could not register cPCI hotplug controller");
++		return -ENODEV;
++	}
++	dbg("registered controller");
++
++	status = cpci_hp_register_bus(bus, first_slot, last_slot);
++	if(status != 0) {
++		err("Could not register cPCI hotplug bus");
++		goto init_bus_register_error;
++	}
++	dbg("registered bus");
++
++	status = cpci_hp_start();
++	if(status != 0) {
++		err("Could not started cPCI hotplug system");
++		goto init_start_error;
++	}
++	dbg("started cpci hp system");
++	return 0;
++init_start_error:
++	cpci_hp_unregister_bus(bus);
++init_bus_register_error:
++	cpci_hp_unregister_controller(&generic_hpc);
++	err("status = %d", status);
++	return status;
++
++}
++
++static void __exit cpcihp_generic_exit(void)
++{
++	cpci_hp_stop();
++	cpci_hp_unregister_bus(bus);
++	cpci_hp_unregister_controller(&generic_hpc);
++	release_region(port, 1);
++}
++
++module_init(cpcihp_generic_init);
++module_exit(cpcihp_generic_exit);
++
++MODULE_AUTHOR(DRIVER_AUTHOR);
++MODULE_DESCRIPTION(DRIVER_DESC);
++MODULE_LICENSE("GPL");
++MODULE_PARM(debug, "i");
++MODULE_PARM_DESC(debug, "Debugging mode enabled or not");
++MODULE_PARM(bridge, "s");
++MODULE_PARM_DESC(bridge, "Hotswap bus bridge device, <bus>:<slot> (bus and slot are in hexadecimal)");
++MODULE_PARM(first_slot, "b");
++MODULE_PARM_DESC(first_slot, "Hotswap bus first slot number");
++MODULE_PARM(last_slot, "b");
++MODULE_PARM_DESC(last_slot, "Hotswap bus last slot number");
++MODULE_PARM(port, "h");
++MODULE_PARM_DESC(port, "#ENUM signal I/O port");
++MODULE_PARM(enum_bit, "i");
++MODULE_PARM_DESC(enum_bit, "#ENUM signal bit (0-7)");

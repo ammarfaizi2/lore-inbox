@@ -1,55 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261511AbSKBXIH>; Sat, 2 Nov 2002 18:08:07 -0500
+	id <S261495AbSKBXNW>; Sat, 2 Nov 2002 18:13:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261512AbSKBXIH>; Sat, 2 Nov 2002 18:08:07 -0500
-Received: from smtp08.iddeo.es ([62.81.186.18]:6845 "EHLO smtp08.retemail.es")
-	by vger.kernel.org with ESMTP id <S261511AbSKBXIG>;
-	Sat, 2 Nov 2002 18:08:06 -0500
-Date: Sun, 3 Nov 2002 00:14:35 +0100
-From: =?iso-8859-1?Q?J=2EA=2E_Magall=F3n?= <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [RFC] Kernel GUI config
-Message-ID: <20021102231435.GA2384@werewolf.able.es>
+	id <S261505AbSKBXNW>; Sat, 2 Nov 2002 18:13:22 -0500
+Received: from to-velocet.redhat.com ([216.138.202.10]:25085 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S261495AbSKBXNV>; Sat, 2 Nov 2002 18:13:21 -0500
+Date: Sat, 2 Nov 2002 18:19:52 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Jos Hulzink <josh@stack.nl>
+Cc: Stas Sergeev <stssppnn@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: Larger IO bitmap?
+Message-ID: <20021102181952.C2748@redhat.com>
+References: <3DC417A4.2000903@yahoo.com> <200211022248.11869.josh@stack.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 2.0.3
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200211022248.11869.josh@stack.nl>; from josh@stack.nl on Sat, Nov 02, 2002 at 10:48:11PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all...
+On Sat, Nov 02, 2002 at 10:48:11PM +0100, Jos Hulzink wrote:
+> Hi,
+> 
+> Increasing the IO bitmap size has huge effects on your Task State Segment 
+> size. It sure is possible to increase that size, but be aware that this means 
+> you are using megabytes for your TSS's only !
 
-I have readl all the comments about qconfig, gconfig, etc..., and I wanto to
-comment about an idea that perhaps can make everybody happy...
+Keep in mind that a task's io bitmap is now lazily allocated, so by 
+default no memory will be allocated for it.  A similar enhancement 
+for large vs small io bitmaps could be made by allowing the task io 
+bitmap to be a variable size.
 
-I don't like qt. As many others. Others do not like GTK. QT requires a C++
-compiler to configure the kernel. Everybody agrees on putting the gui config
-tool outside the tree. So...
-
-- Make a new target called 'guiconfig'. This is neutral, and just should call
-  an utility called for example kconfig-gui.
-- People can implement many different front ends and call them things like
-  kconfig-qt, kconfig-gtk, kconfig-xaw, etc... The user can configure its
-  own prefs with an alias or with 'alternatives' as some distros do. None
-  of this utilities should be included in the tree. Put another dir in
-  ftp.kernel.org.
-
-To reduce implementation efforts (and bug chasing), as someone said, you
-can take all the current parts toolkit-independent (parsers, etc.) from
-qconf and split them in a library.
-
-Other possibility is to let parsers in the kernel and generate some kind
-of XML file the utilities should read (do not know how hard would be to put
-dependencies on an XML file...).
-
-This way even 'menuconfig' could be split as a separate package.
-
-But please, don't force people to use one toolkit.
-
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.1 (Cooker) for i586
-Linux 2.4.20-rc1-jam0 (gcc 3.2 (Mandrake Linux 9.0 3.2-2mdk))
+		-ben

@@ -1,73 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261208AbULWLOz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261209AbULWLVk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261208AbULWLOz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Dec 2004 06:14:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261209AbULWLOz
+	id S261209AbULWLVk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Dec 2004 06:21:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261210AbULWLVk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Dec 2004 06:14:55 -0500
-Received: from rproxy.gmail.com ([64.233.170.197]:61642 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261208AbULWLOw (ORCPT
+	Thu, 23 Dec 2004 06:21:40 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:32172 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261209AbULWLVf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Dec 2004 06:14:52 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type:content-transfer-encoding;
-        b=XKCWaFLNvqMwsj+hvzMjgMHUPJvO9jupzakP14EJGT9VEybJsZS9c1rb5juByOsDYdq2cefyaR2twIyKp49TZ+Ob6/tBwqo++bRzHhW2lzfciWw9Qjxh3huYfU38qOs5QWEiuDf8STcCAPR1atvATfWazLZp8rD001yGX6NiBcg=
-Message-ID: <e7b30b240412230314395fbf29@mail.gmail.com>
-Date: Thu, 23 Dec 2004 19:14:52 +0800
-From: Mildred Frisco <mildred.frisco@gmail.com>
-Reply-To: Mildred Frisco <mildred.frisco@gmail.com>
-To: linux-arm@lists.arm.linux.org.uk
-Subject: setting gpio on MX1
-Cc: linux-kernel@vger.kernel.org
+	Thu, 23 Dec 2004 06:21:35 -0500
+Subject: [PATCH] Secondary cpus boot-up for non defalut location built
+	kernels
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: fastboot <fastboot@lists.osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       dipankar sarma <dipankar@in.ibm.com>
+Content-Type: multipart/mixed; boundary="=-g3ER876ZvIFtdj5+5rrs"
+Organization: 
+Message-Id: <1103802944.8123.114.camel@2fwv946.in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 23 Dec 2004 17:25:44 +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
+--=-g3ER876ZvIFtdj5+5rrs
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
 Hi,
 
-I am using an MX1-based board and would like to use one of its GPIO
-pins for interrupt.  I tried to initlialize it in
-arch/arm/mach-xxx/arch.c  by the __fixup function. Here's the part of
-the code I added ...
+This patch fixes the problem of secondary cpus boot up. This situation
+is faced when kernel is built for non default locations like 16MB and
+onwards. In this configuration, only primary cpu (BP) comes and
+secondary cpus don't boot.
+
+Problem occurs because in trampoline code, lgdt is not able to load the
+GDT as it happens to be situated beyond 16MB. This is due to the fact
+that cpu is still in real mode and default operand size is 16bit.
+
+This patch uses lgdtl instead of lgdt to force operand size to 32
+instead of 16.
+
+Testing Details:
+----------------
+
+I have tested the patch on all combinations of following testing setup.
+
+Kernel:
+------
+2.6.10-rc3-mm1
+
+Hardware:
+---------
+1. 8way, PIII, 
+2. 4way, Xeon, Hyper Threaded
+
+Boot Loader:
+-----------
+1. Grub
+2. LILO
+3. Kexec
+
+Memory Location Kernel built for:
+--------------------------------
+1MB
+32MB
+
+Kernel Image Type:
+------------------
+bzImage
+
+Thanks
+Vivek
+-- 
+Vivek Goyal
+Linux Technology Center
+India Software Labs
+IBM India, Bangalore
+
+--=-g3ER876ZvIFtdj5+5rrs
+Content-Disposition: attachment; filename=boot_ap_for_nondefault_kernel.patch
+Content-Type: text/plain; name=boot_ap_for_nondefault_kernel.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
 
-#include <asm/arch/mx1board-gpio.h>
+This patch fixes the problem of secondary cpus not coming up over a reboot. 
+This problem was seen when a kernel compiled for non default (16MB) location 
+is booted.
 
-/* Configure interrupt setting, for bitnum of port configured as input.
- * */
-void mx1board_init_gpio(void)
-{
-	int i,j;
-	i=mx1_register_gpio(PORT_B,17,INPUT);
-	j=mx1_gpio_config_intr(PORT_B,17,POSITIVE_LEVEL);
-}  
+Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
+---
 
-void mx1board_init_devices(void)
-{
-	mx1board_init_gpio();
-}
+ linux-2.6.10-rc3-mm1-changes-root/arch/i386/kernel/trampoline.S |    8 +++++++-
+ 1 files changed, 7 insertions(+), 1 deletion(-)
 
-static void __init
-mx1skx4043_fixup(struct machine_desc *desc, struct param_struct *unused,
-		 char **cmdline, struct meminfo *mi)
-{
-	mx1board_init_devices();
-}
+diff -puN arch/i386/kernel/trampoline.S~boot_ap_for_nondefault_kernel arch/i386/kernel/trampoline.S
+--- linux-2.6.10-rc3-mm1-changes/arch/i386/kernel/trampoline.S~boot_ap_for_nondefault_kernel	2004-12-22 16:36:50.000000000 +0530
++++ linux-2.6.10-rc3-mm1-changes-root/arch/i386/kernel/trampoline.S	2004-12-22 16:47:54.000000000 +0530
+@@ -51,8 +51,14 @@ r_base = .
+ 	movl	$0xA5A5A5A5, trampoline_data - r_base
+ 				# write marker for master knows we're running
+ 
++	/* GDT tables in non default location kernel can be beyond 16MB and
++	 * lgdt will not be able to load the address as in real mode default
++	 * operand size is 16bit. Use lgdtl instead to force operand size
++	 * to 32 bit.
++	 */
++
+ 	lidt	boot_idt - r_base	# load idt with 0, 0
+-	lgdt	boot_gdt - r_base	# load gdt with whatever is appropriate
++	lgdtl	boot_gdt - r_base	# load gdt with whatever is appropriate
+ 
+ 	xor	%ax, %ax
+ 	inc	%ax		# protected mode (PE) bit
+_
 
+--=-g3ER876ZvIFtdj5+5rrs--
 
-MACHINE_START....
-
--------
-
-I've generated a kernel image but it only goes until "Uncompressing linux..."
-The kernel booted successfully when this part is not included yet.
-
-Or maybe I am initializing the gpio in the wrong place or I forgot to
-call an some function.  Is the kernel console already enabled by this
-time so I can see the kernel messages?
-
-Thanks in advance,
-Mildred

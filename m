@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129464AbQLKIhg>; Mon, 11 Dec 2000 03:37:36 -0500
+	id <S129543AbQLKIxy>; Mon, 11 Dec 2000 03:53:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130330AbQLKIh0>; Mon, 11 Dec 2000 03:37:26 -0500
-Received: from supreme.pcug.org.au ([203.10.76.34]:34516 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S129464AbQLKIhL>;
-	Mon, 11 Dec 2000 03:37:11 -0500
-Date: Mon, 11 Dec 2000 19:06:36 +1100 (EST)
-From: "Edward C. Lang" <edlang@pcug.org.au>
-To: linux-kernel@vger.kernel.org
-Subject: [2.4.0-test12-pre8] plip error.
-Message-ID: <Pine.GSO.4.21.0012111904050.20898-100000@supreme.pcug.org.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129655AbQLKIxo>; Mon, 11 Dec 2000 03:53:44 -0500
+Received: from altrade.nijmegen.inter.nl.net ([193.67.237.6]:17288 "EHLO
+	altrade.nijmegen.inter.nl.net") by vger.kernel.org with ESMTP
+	id <S129543AbQLKIxk>; Mon, 11 Dec 2000 03:53:40 -0500
+Date: Mon, 11 Dec 2000 09:21:30 +0100
+From: Frank van Maarseveen <F.vanMaarseveen@inter.NL.net>
+To: Guest section DW <dwguest@win.tue.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-test11 EXT2 corruption (closed)
+Message-ID: <20001211092130.A9129@iapetus.localdomain>
+In-Reply-To: <20001210161723.A1060@iapetus.localdomain> <20001210183101.A6947@iapetus.localdomain> <20001210213500.A17413@iapetus.localdomain> <20001210224402.A913@iapetus.localdomain> <20001211013736.A18862@win.tue.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
+In-Reply-To: <20001211013736.A18862@win.tue.nl>; from dwguest@win.tue.nl on Mon, Dec 11, 2000 at 01:37:36AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gcc -D__KERNEL__ -I/usr/local/src/linux/include -Wall -Wstrict-prototypes
--O2 -fomit-frame-pointer -fno-strict-aliasing -pipe
--mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS -include
-/usr/local/src/linux/include/linux/modversions.h   -c -o plip.o plip.c
-plip.c: In function `plip_init_dev':
-plip.c:352: structure has no member named `next'
-plip.c:357: structure has no member named `next'
-plip.c:363: structure has no member named `next'
-{standard input}: Assembler messages:
-{standard input}:18: Warning: Ignoring changed section attributes for
-.modinfo
-make[3]: *** [plip.o] Error 1
-
+On Mon, Dec 11, 2000 at 01:37:36AM +0100, Guest section DW wrote:
+> 
+> I see lots of messages from you about corruption in 2.4.0-test11
+> but we all know very well that 2.4.0-test11 corrupts things
+> and further evidence is not necessary.
+> Hopefully all, or at least the most significant, problems
+> have been solved now, so you should upgrade to the most
+> recent test kernel and see how things are there.
+> 
+Thanks. test12-pre7 fixes this for me: it ran all night testing and
+no problems so far.
 
 -- 
-
-Edward C. Lang   woot on various channels on irc.openprojects.net
-edlang@pcug.org.au - Normal mail. Most stuff ends up here anyway.
-edlang@debian.org  - Debian mail. Finger this address for keys.
-woot@zork.net edlang@manuka.net - Other email addresses.    TINC.
-
-
+Frank
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

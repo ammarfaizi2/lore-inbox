@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312894AbSDSUjW>; Fri, 19 Apr 2002 16:39:22 -0400
+	id <S312570AbSDSUse>; Fri, 19 Apr 2002 16:48:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312895AbSDSUjV>; Fri, 19 Apr 2002 16:39:21 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:32248 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S312894AbSDSUjV>; Fri, 19 Apr 2002 16:39:21 -0400
-Date: Fri, 19 Apr 2002 14:37:44 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: Mel <mel@csn.ul.ie>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Documenation/vm/numa
-Message-ID: <1972720000.1019252264@flay>
-In-Reply-To: <m1n0vz4er5.fsf@frodo.biederman.org>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S312889AbSDSUsd>; Fri, 19 Apr 2002 16:48:33 -0400
+Received: from mpdr0.chicago.il.ameritech.net ([67.38.100.19]:487 "EHLO
+	mailhost.chi.ameritech.net") by vger.kernel.org with ESMTP
+	id <S312570AbSDSUsd>; Fri, 19 Apr 2002 16:48:33 -0400
+Message-ID: <3CC08373.4090708@ameritech.net>
+Date: Fri, 19 Apr 2002 15:52:03 -0500
+From: watermodem <aquamodem@ameritech.net>
+Reply-To: aquamodem@ameritech.net
+Organization: not at all
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+CC: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19pre7-ac1
+In-Reply-To: <200204190916.g3J9G0b01318@devserv.devel.redhat.com> <3CC0790F.2070400@ameritech.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Note that there are two possible ways to define a pfn, in my mind.
->> One would be page_phys_addr >> PAGE_SHIFT. The other would be the
->> offset of the struct page for that page within the mythical mem_map
->> array. I prefer the former, though it probably contradicts everyone
->> else ;-) It's useful to have some way to pass around a 36 bit address
->> inside a 32 bit field.
-> 
-> A page frame number (pfn) is definitely the former 
-> (page_phys_addr >> PAGE_SHIFT).
 
-That's how I'd conceptually define it ... unfortunately the latter
-definition
-also matches for non-discontigmem machines, and it's easy to think of
-it that way. I guess it's just everything that says "mapnr" in it that needs
-killing then ... I'm off to make some patches.
+Trying again with menuconfig the compile fails..
 
-M.
+
+         net/network.o \
+         /usr/src/linux-2.4.19-pre7-ac1/arch/i386/lib/lib.a 
+/usr/src/linux-2.4.1
+1/lib/lib.a /usr/src/linux-2.4.19-pre7-ac1/arch/i386/lib/lib.a \
+         --end-group \
+         -o vmlinux
+init/main.o: In function `smp_init':
+init/main.o(.text.init+0x5f1): undefined reference to `skip_ioapic_setup'
+arch/i386/kernel/kernel.o: In function `broken_pirq':
+arch/i386/kernel/kernel.o(.text.init+0x350b): undefined reference to 
+`skip_ioap
+make: *** [vmlinux] Error 1
 

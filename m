@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270795AbRH1MPF>; Tue, 28 Aug 2001 08:15:05 -0400
+	id <S270814AbRH1MXP>; Tue, 28 Aug 2001 08:23:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270800AbRH1MO4>; Tue, 28 Aug 2001 08:14:56 -0400
-Received: from d12lmsgate.de.ibm.com ([195.212.91.199]:2176 "EHLO
-	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S270795AbRH1MOx> convert rfc822-to-8bit; Tue, 28 Aug 2001 08:14:53 -0400
-Importance: Normal
-Subject: re: VM: Bad swap entry 0044cb00
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OFA77434C9.FE08E5EE-ONC1256AB6.0043214E@de.ibm.com>
-From: "Christian Borntraeger" <CBORNTRA@de.ibm.com>
-Date: Tue, 28 Aug 2001 14:15:07 +0200
-X-MIMETrack: Serialize by Router on D12ML020/12/M/IBM(Release 5.0.6 |December 14, 2000) at
- 28/08/2001 14:14:34
-MIME-Version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 8BIT
+	id <S270818AbRH1MXF>; Tue, 28 Aug 2001 08:23:05 -0400
+Received: from kweetal.tue.nl ([131.155.2.7]:7213 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S270814AbRH1MWs>;
+	Tue, 28 Aug 2001 08:22:48 -0400
+Message-ID: <20010828142315.A20775@win.tue.nl>
+Date: Tue, 28 Aug 2001 14:23:15 +0200
+From: Guest section DW <dwguest@win.tue.nl>
+To: nick@guardiandigital.com, linux-kernel@vger.kernel.org
+Subject: Re: Determining maximum partition size on a hard disk
+In-Reply-To: <3B82BCCB.377BCC4@guardiandigital.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <3B82BCCB.377BCC4@guardiandigital.com>; from Nick DeClario on Tue, Aug 21, 2001 at 03:55:55PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, Aug 21, 2001 at 03:55:55PM -0400, Nick DeClario wrote:
 
-I faced the same problem with the VM System on an S/390-System and Kernel
-2.4.7 + S/390 patches. As there is hardware ECC-checking it is not a memory
-problem.
-I can reproduce the problem If I put load on the system (256 MB RAM, 512 MB
-SWAP on a file, 3CPUs).
+> I am trying to calculate the maximum size a partition can be on a hard
+> drive and I ran into some problems I don't fully understand.  
+> 
+> First I found that the maximum size of the drive Linux reports is not
+> the maximum size I get when I calculate it from the drives geometry. 
+> Secondly, the total drive space reported by linux is not the amount
+> available for the maximum partition.
+> 
+> For example, I have a 4.3Gb disk.  The drives geometry is 525 cylinders,
+> 255 heads and 63 sectors (525 * 255 * 63 * 512 = 4318272000 or
+> 4.318Gb).  
+> 
+> This is an IDE disk so I found in /proc/ide/hdx/capacity a block size
+> 8439184, which when divided by 2048 is 4120.7, ~200Mb less than what I
+> calculated as the disk size.
 
-To reproduce this behaviour I run a lot of programs which consume all the
-heap memory.
-The C++ program uses the new function until the OOM killer is activated.
+I don't know why you would want to divide by 2048.
+Multiply by 512 and find 512*8439184 = 4320862208 bytes.
+Since that is more than you thought you had, be happy.
 
-I start several of this programs with nohup prog &
+> I assume that the difference between the maximum size that linux reports
+> and the maximum partition size is due to linux leaving room for a MBR
 
-This behaviour startet with 2.4.7.
-With all previous Kernel versions since 2.4.0 there were a kernel BUG
-messages during this test. The messages changed regularly with every new
-kernel version, unfortunately we were not able to track this problem down.
-Kernel 2.2 runs fine.
+No. There are rounding differences. The disk capacity is not an integral
+number of cylinders and you lose if you insist on alignment.
 
---
-Mit freundlichen Grüßen / Best Regards
+Find a lot of details in the Large Disk Howto.
 
-Christian Bornträger
-IBM Deutschland Entwicklung GmbH
-eServer SW  System Evaluation + Test
-email: CBORNTRA@de.ibm.com
-Tel +49 7031-16-3507
+> I thought maybe Linux set 1MB=1000k but that doesn't seem to case.
 
-
+Well, 1 M = 1000 k by definition of the SI system of units.
+This has nothing to do with Linux.
+But if you are confused about units, just compute in bytes.

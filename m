@@ -1,77 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbUKJJ3o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261529AbUKJJii@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261552AbUKJJ3o (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 04:29:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261568AbUKJJ3o
+	id S261529AbUKJJii (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 04:38:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261527AbUKJJii
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 04:29:44 -0500
-Received: from ns9.hostinglmi.net ([213.194.149.146]:32923 "EHLO
-	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S261552AbUKJJ3K
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 04:29:10 -0500
-Date: Wed, 10 Nov 2004 10:11:16 +0100
-From: DervishD <lkml@dervishd.net>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: is killing zombies possible w/o a reboot?
-Message-ID: <20041110091116.GF29302@DervishD>
-Mail-Followup-To: Bill Davidsen <davidsen@tmr.com>,
-	=?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>,
-	linux-kernel@vger.kernel.org
-References: <20041104211138.GB25290@DervishD> <41915353.1070507@tmr.com>
+	Wed, 10 Nov 2004 04:38:38 -0500
+Received: from postino3.roma1.infn.it ([141.108.26.5]:52957 "EHLO
+	postino3.roma1.infn.it") by vger.kernel.org with ESMTP
+	id S261529AbUKJJh0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 04:37:26 -0500
+Subject: Re: isa memory address
+From: Antonino Sergi <Antonino.Sergi@roma1.infn.it>
+To: "Maciej W. Rozycki" <macro@linux-mips.org>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58L.0411091638570.9795@blysk.ds.pg.gda.pl>
+References: <1099901664.2718.92.camel@delphi.roma1.infn.it>
+	 <418FA2F1.2090003@osdl.org>
+	 <1100014956.30102.54.camel@delphi.roma1.infn.it>
+	 <Pine.LNX.4.58L.0411091638570.9795@blysk.ds.pg.gda.pl>
+Content-Type: text/plain
+Message-Id: <1100079437.30102.66.camel@delphi.roma1.infn.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <41915353.1070507@tmr.com>
-User-Agent: Mutt/1.4.2.1i
-Organization: DervishD
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - dervishd.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 10 Nov 2004 10:37:17 +0100
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by Vexira Milter 1.0.6; VAE 6.28.0.12; VDF 6.28.0.65
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Bill :)
+On Tue, 2004-11-09 at 17:56, Maciej W. Rozycki wrote:
+> On Tue, 9 Nov 2004, Antonino Sergi wrote:
+> 
+> > I looked for iomem with a kernel-2.4.2:
+> > 
+> > /proc/iomem reports
+> > 00000000-0009fbff : System RAM
+> > 0009fc00-0009ffff : reserved
+> > 000a0000-000bffff : Video RAM area
+> > 000c0000-000c7fff : Video ROM
+> > 000f0000-000fffff : System ROM
+> > 00100000-1fffbfff : System RAM
+> > 
+> > Nothing in the region 000d0000-000d0006 (used by my driver),
+> > so why is it BUSY?
+> 
+>  Because you are trying to use the region in the I/O port space.  That's
+> probably not what you want to do and an 8-bit ISA board cannot decode it
+> at all anyway.  Actually for some platforms using the I/O space outside
+> the low 16-bit range may be quite difficult even for buses and devices
+> that support it and Linux does not support it then, either.  So Linux 
+> correctly informs you you cannot use that range.
 
- * Bill Davidsen <davidsen@tmr.com> dixit:
-> >    Probably it won't do. If the zombies are there due to a signal
-> >delivery problem, sending a SIGCHLD to the parent will (probably)
-> >solve the problem. But the common case is that the parent is screwed
-> >up or simply so badly programmed that the only way of getting rid of
-> >the zombies is to kill the parent...
-> Wait a minute, in another message you just suggested that a SIGCHLD to 
-> init would cause the status to be reaped.
+This is actually not clear for me.
 
-    I don't consider init the parent of such processes. It just
-'adopts' them when the real parent doesn't care for them. I was
-talking, in the paragraph above, about the *real* parent. I don't see
-any contradiction, although sending SIGCHLD to a program that has not
-waited for a children is risky: if the programmer was so clueless
-that children were not waited for in the first place, chances are
-that SIGCHLD handling is damaged, too.
+> > > > I'm working with an old data acquisition system that uses an 8-bit card
+> > > > in an ISA slot (address 0xd0000), by a simple driver I ported from
+> > > > kernel 1.1.x to 2.2.24.
+> > > > 
+> > > > It works fine, but I'd like to have features by newer kernels (2.4 or
+> > > > even 2.6), like new filesystems support.
+> > > > 
+> > > > On kernels >=2.4.0 check_region returns -EBUSY for that address,
+> > > > but it is not actually used; I tried to understand if something has been
+> > > > changed/removed, because of obsolescence of devices, in IO management,
+> > > > but I couldn't.
+> 
+>  Try check_mem_region() instead, ...
+> 
+> > > You might have to dummy up a call to release_resource() first,
+> > > then use request_resource() to acquire it.
+> 
+>  ... or better yet request_mem_region()/release_resource(), as the former 
+> is deprecated and will be removed.
 
-> >    Anyway I suppose that sending the SIGCHLD won't do any harm so it
-> >may be worth trying.
-> It won't hurt init, but some processes do use the SIGCHLD to trigger a 
-> wait(), which might hang the parent.
+I tried but (on 2.4.2):
+- request_region fails but, ignoring it and remapping physical address
+to virtual, everything works fine, except for release_region, of course.
+- request_mem_region works but what I get from communication with the
+actual device are numbers that sometimes are surely wrong.
 
-    If a parent does 'wait()' instead of 'waitpid', that's lazy
-programming. The signal won't hurt anyway: if the parent blocks (bug
-in the program), then a 'kill -9' is the correct medication (it's
-what I use for buggy programs), the children are reparented to init
-and correctly handled (because a good init should, IMHO, use waitpid
-instead of wait). Let's say that sending SIGCHLD is 'mostly harmless'
-;))
+I couldn't understand what is the actual difference between
+ioport_resource and iomem_resource to track the problem.
 
-    Raúl Núñez de Arenas Coronado
+Antonino
 
--- 
-Linux Registered User 88736
-http://www.dervishd.net & http://www.pleyades.net/
+
+>   Maciej
+

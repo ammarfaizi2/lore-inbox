@@ -1,26 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280186AbRLDDCD>; Mon, 3 Dec 2001 22:02:03 -0500
+	id <S283673AbRLCXq1>; Mon, 3 Dec 2001 18:46:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284600AbRLCXqw>; Mon, 3 Dec 2001 18:46:52 -0500
-Received: from mx1out.umbc.edu ([130.85.253.51]:39307 "EHLO mx1out.umbc.edu")
-	by vger.kernel.org with ESMTP id <S284772AbRLCQfu>;
-	Mon, 3 Dec 2001 11:35:50 -0500
-Date: Mon, 3 Dec 2001 11:35:49 -0500
-From: John Jasen <jjasen1@umbc.edu>
-X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: ignore me: test
-Message-ID: <Pine.SGI.4.31L.02.0112031135240.13305781-100000@irix2.gl.umbc.edu>
+	id <S282096AbRLCXgc>; Mon, 3 Dec 2001 18:36:32 -0500
+Received: from trappist.elis.rug.ac.be ([157.193.67.1]:45526 "EHLO
+	trappist.elis.rug.ac.be") by vger.kernel.org with ESMTP
+	id <S284465AbRLCLqs>; Mon, 3 Dec 2001 06:46:48 -0500
+Date: Mon, 3 Dec 2001 12:46:40 +0100 (CET)
+From: Frank Cornelis <fcorneli@elis.rug.ac.be>
+To: Linux Kernel Mailing list <linux-kernel@vger.kernel.org>
+Subject: i386 specific slab cache init code
+Message-ID: <Pine.LNX.4.33.0112031242440.11663-100000@trappist.elis.rug.ac.be>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-testing why oh why I've not seem lkml traffic since last night ...
+I'm using a new slab cache in some kernel functions I've changed.
+These changes are only visible on the i386 arch.
+So my question is: where to put the code that initializes my cache when 
+booting the kernel? I don't think that init/main.c is the preferred place 
+to put arch-dependent init stuff...
 
---
--- John E. Jasen (jjasen1@umbc.edu)
--- In theory, theory and practise are the same. In practise, they aren't.
+Frank.
 

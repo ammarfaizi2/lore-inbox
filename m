@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263667AbTLXQpw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Dec 2003 11:45:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263679AbTLXQpw
+	id S263606AbTLXQkW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Dec 2003 11:40:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263647AbTLXQkW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Dec 2003 11:45:52 -0500
-Received: from mail.kroah.org ([65.200.24.183]:1413 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263667AbTLXQpu (ORCPT
+	Wed, 24 Dec 2003 11:40:22 -0500
+Received: from fw.osdl.org ([65.172.181.6]:53739 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263606AbTLXQkV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Dec 2003 11:45:50 -0500
-Date: Wed, 24 Dec 2003 08:45:15 -0800
-From: Greg KH <greg@kroah.com>
-To: Kronos <kronos@kronoz.cjb.net>
+	Wed, 24 Dec 2003 11:40:21 -0500
+Date: Wed, 24 Dec 2003 08:35:40 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: sumit_uconn@lycos.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] sysfs class patches - take 2 [0/5]
-Message-ID: <20031224164514.GB29365@kroah.com>
-References: <20031223220707.GC15946@kroah.com> <20031224142717.GA3133@dreamland.darkstar.lan>
+Subject: Re: undefined reference error
+Message-Id: <20031224083540.40a04c0d.rddunlap@osdl.org>
+In-Reply-To: <BCLLEMEMOFNOFJAA@mailcity.com>
+References: <BCLLEMEMOFNOFJAA@mailcity.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031224142717.GA3133@dreamland.darkstar.lan>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 24, 2003 at 03:27:17PM +0100, Kronos wrote:
-> Greg KH <greg@kroah.com> ha scritto:
-> > > On Tue, Dec 23, 2003 at 04:57:56PM -0500, Jeff Garzik wrote:
-> > > Interesting...  I bet that will be useful to the iPAQ folks (I've been 
-> > > wading through their patches lately), as they have created a couple 
-> > > ultra-simple classes for SoC devices and such.
-> >
-> > I bet it will.  I've ported my old frame buffer patch to use it, and
-> > it saved a lot of code.
-> > 
-> > Hm, I wonder if the frame buffer people ever intregrated that patch...
-> 
-> I had a patch that add class_device to struct fb_info. This was 3-4
-> months ago.
+On Wed, 24 Dec 2003 10:52:10 -0500 "Sumit Narayan" <sumit_uconn@lycos.com> wrote:
 
-So all of the frame buffer drivers have to be changed to dynamically
-allocate the fb_info structure?  That's the "proper" way to do this, but
-I felt it was a bit too late in the 2.6 development cycle to try to
-intregrate such a large change in...
+| Hi,
+| 
+| Pretty out of the place I am, and beg your pardon. I have modified my kernel 2.6.0 with few new functions in fs/kernthread.c, which required a header file linux/kernthread.h.
+| 
+| On compilation, I get this error:
+| 
+| fs/built-in.o(.text+0x242f1): In function 'stop_kernthread' :
+|  : undefined reference to 'lock_kernel'
+| make: ***[.tmp_vmlinux1] Error 1
+| 
+| Could someone help me out with this.
+| Thanks in advance.
 
-Oh well,
+Add this line near the top of the source file, with the other
+#include lines:
 
-greg k-h
+#include <linux/smp_lock.h>
+
+
+--
+~Randy
+MOTD:  Always include version info.

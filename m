@@ -1,48 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261817AbTICBii (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 21:38:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263916AbTICBii
+	id S263916AbTICBmW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 21:42:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264006AbTICBmV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 21:38:38 -0400
-Received: from mailhub2.uq.edu.au ([130.102.5.59]:65199 "EHLO
-	mailhub2.uq.edu.au") by vger.kernel.org with ESMTP id S261817AbTICBig convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 21:38:36 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Stuart Low <stuart@perlboy.org>
-Organization: Perlboy.org
-To: William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: [DEBUG] 2.6.0-test4 - sleeping function called from invalid context
-Date: Wed, 3 Sep 2003 11:46:54 +1000
-User-Agent: KMail/1.4.3
+	Tue, 2 Sep 2003 21:42:21 -0400
+Received: from MAIL.13thfloor.at ([212.16.62.51]:47246 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S263916AbTICBmU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Sep 2003 21:42:20 -0400
+Date: Wed, 3 Sep 2003 03:42:18 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Matti Aarnio <matti.aarnio@zmailer.org>
 Cc: linux-kernel@vger.kernel.org
-References: <1062520736.2331.10.camel@poohbox.perlaholic.com> <20030902173320.GM4306@holomorphy.com>
-In-Reply-To: <20030902173320.GM4306@holomorphy.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200309031146.54406.stuart@perlboy.org>
+Subject: Re: vger's todays hickups
+Message-ID: <20030903014218.GB12492@DUK2.13thfloor.at>
+Mail-Followup-To: Matti Aarnio <matti.aarnio@zmailer.org>,
+	linux-kernel@vger.kernel.org
+References: <20030902214833.GR16395@mea-ext.zmailer.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030902214833.GR16395@mea-ext.zmailer.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-And the lost_journal errors?
+On Wed, Sep 03, 2003 at 12:48:33AM +0300, Matti Aarnio wrote:
+> Sorry folks,  sometimes my coding faults produce spectacular goofups.
+> 
+> Today a brain-fart caused email delivery to hang up, and its first
+> correction attempt(*) caused smallish messages to duplicate message
+> content.   Slowdown would have been nothing, but that duplication...
+> 
+> *) I really should not do attempts, only use Correct Code,
+>    but these beasts are not always trivial, nor are my
+>    testbeds as serious loaders, as VGER's normal operation..
+>    (Thus "it is perfect"-code isn't that at vger...)
 
-It's happened 3 times in 24 hours now.
+ahh good to know, I checked my MUA twice, before
+I read this message ...
 
-Stuart
+best,
+Herbert
 
+> /Matti Aarnio
+On Wed, Sep 03, 2003 at 12:48:33AM +0300, Matti Aarnio wrote:
+> Sorry folks,  sometimes my coding faults produce spectacular goofups.
+> 
+> Today a brain-fart caused email delivery to hang up, and its first
+> correction attempt(*) caused smallish messages to duplicate message
+> content.   Slowdown would have been nothing, but that duplication...
+> 
+> *) I really should not do attempts, only use Correct Code,
+>    but these beasts are not always trivial, nor are my
+>    testbeds as serious loaders, as VGER's normal operation..
+>    (Thus "it is perfect"-code isn't that at vger...)
 
-On Wed, 3 Sep 2003 03:33 am, William Lee Irwin III wrote:
-> On Wed, Sep 03, 2003 at 02:38:56AM +1000, Stuart Low wrote:
-> > - -snip- -
-> > nvidia: no version magic, tainting kernel.
-> > nvidia: module license 'NVIDIA' taints kernel.
-> > 0: nvidia: loading NVIDIA Linux x86 nvidia.o Kernel Module  1.0-4496
-> > Wed Jul 16 19:03:09 PDT 2003
-> > Debug: sleeping function called from invalid context at mm/slab.c:1817
->
-> Looks very much like an nvidia problem; best to report it to them.
->
->
-> -- wli
+ahh good to know, I checked my MUA twice, before
+I read this message ...
 
+best,
+Herbert
+
+> /Matti Aarnio
+sorry couldn't resist ;)

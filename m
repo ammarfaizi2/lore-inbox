@@ -1,37 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266460AbSLJAgV>; Mon, 9 Dec 2002 19:36:21 -0500
+	id <S261914AbSLJAtC>; Mon, 9 Dec 2002 19:49:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266462AbSLJAgV>; Mon, 9 Dec 2002 19:36:21 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:42255 "EHLO
+	id <S266407AbSLJAtC>; Mon, 9 Dec 2002 19:49:02 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:51983 "EHLO
 	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S266460AbSLJAgT>; Mon, 9 Dec 2002 19:36:19 -0500
-Date: Mon, 9 Dec 2002 19:42:23 -0500 (EST)
+	id <S261914AbSLJAtB>; Mon, 9 Dec 2002 19:49:01 -0500
+Date: Mon, 9 Dec 2002 19:55:03 -0500 (EST)
 From: Bill Davidsen <davidsen@tmr.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Dazed and Confused
-In-Reply-To: <at2qck$ffi$1@cesium.transmeta.com>
-Message-ID: <Pine.LNX.3.96.1021209193548.9066A-100000@gatekeeper.tmr.com>
+To: Peter Waechtler <pwaechtler@mac.com>
+cc: Krzysztof Benedyczak <golbi@mat.uni.torun.pl>,
+       linux-kernel@vger.kernel.org, wrona@mat.uni.torun.pl
+Subject: Re: POSIX message queues, 2.5.50
+In-Reply-To: <1039390666.19736.1.camel@picklock>
+Message-ID: <Pine.LNX.3.96.1021209194238.9066B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9 Dec 2002, H. Peter Anvin wrote:
+On 9 Dec 2002, Peter Waechtler wrote:
 
-> The fact that you're seeing the error means data corruption has
-> already occurred.
+> On Sun, 2002-12-08 at 18:38, Krzysztof Benedyczak wrote:
+> > On Fri, 6 Dec 2002, Peter Waechtler wrote:
+> > >
+> > > >  - our implementation does support priority scheduling which is omitted in
+> > > > Peter's version (meaning that if many processes wait e.g. for a message
+> > > > _random_ one will get it). It is important because developers could rely
+> > > > on this feature - and it is as I think the most difficult part of
+> > > > implementation
+> > >
+> > > Well, can you give an realistic and sensible example where an app design
+> > > really takes advantage on this?
+> > >
+> > > If I've got a thread pool listening on the queue, I _expect_ non
+> > > predictability on which thread gets which message:
+> > 
+> > But someone could. When you implement POSIX message queues you have to
+> > follow the standard and not write something similar to it.
+> > Even if you mention in docs that your mqueues aren't strictly POSIX,
+> > someone can miss it and end up with hard to explain "bug" in his program.
+> > BTW as your implementation will act randomly I can't see how you will
+> > handle multiple readers (maybe except some trivial cases).
+> > 
+> 
+> Just iterating over and over again does not produce the truth.
+> It's not "random" - it's highly deterministic: the longest waiter
+> will be woken up.
 
-Maybe. The fact that the error is noticed indicates that the memory has at
-least parity capability. However, current memory with has "by 72" width
-instead of "by 64" can also do EDAC, in which case all one bit errors will
-be corrected. Some motherboards can be configured to NMI on parity, even
-if corrected. I had one, back when PPro was hot stuff.
+I think your original post saying you expect non-predictability is/was
+very misleading. I think you meant the application can't make assumptions
+based on knowing which thread will be scheduled next, but even then the
+truth is that if it is always deterministic then assumptions could be
+legitimately be made. 
 
-So it's just possible that the data is fine in spite of the NMI. That
-said, I'd start looking for a hardware problem regardless, even if it's
-currently working, it's not working *right*.
+If it was random then a thread could wait forever, and Murphy's law says
+it would happen most of the time:-(
 
 -- 
 bill davidsen <davidsen@tmr.com>

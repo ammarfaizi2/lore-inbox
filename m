@@ -1,57 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262409AbVAUQUL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262413AbVAUQWc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262409AbVAUQUL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 11:20:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262410AbVAUQUK
+	id S262413AbVAUQWc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 11:22:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262414AbVAUQWc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 11:20:10 -0500
-Received: from relay.muni.cz ([147.251.4.35]:58246 "EHLO tirith.ics.muni.cz")
-	by vger.kernel.org with ESMTP id S262409AbVAUQUF (ORCPT
+	Fri, 21 Jan 2005 11:22:32 -0500
+Received: from shinjuku.bdi.com ([63.124.198.36]:50353 "EHLO shinjuku.bdi.com")
+	by vger.kernel.org with ESMTP id S262413AbVAUQWV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 11:20:05 -0500
-Date: Fri, 21 Jan 2005 17:19:59 +0100
-From: Jan Kasprzak <kas@fi.muni.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Memory leak in 2.6.11-rc1?
-Message-ID: <20050121161959.GO3922@fi.muni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-Muni-Envelope-From: kas@fi.muni.cz
-X-Muni-Virus-Test: Clean
+	Fri, 21 Jan 2005 11:22:21 -0500
+Message-ID: <41F12C75.5040007@bdi.com>
+Date: Fri, 21 Jan 2005 11:23:17 -0500
+From: "Aaron D. Ball" <adb@bdi.com>
+Organization: Boston Dynamics
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+CC: Vladimir Saveliev <vs@namesys.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: knfsd and append-only attribute:  "operation not permitted"
+References: <8381054C-6B13-11D9-BFA6-000D933B35AA@bdi.com>	 <1106318654.3200.38.camel@tribesman.namesys.com> <1106322787.30627.5.camel@lade.trondhjem.org>
+In-Reply-To: <1106322787.30627.5.camel@lade.trondhjem.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Known-Correspondent: 65.194.110.56 is a relay host (learned as non-spam)
+X-Virus-Scan: clamd says this checks out OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi all,
+Trond Myklebust wrote:
 
-I've been running 2.6.11-rc1 on my dual opteron Fedora Core 3 box for a week
-now, and I think there is a memory leak somewhere. I am measuring the
-size of active and inactive pages (from /proc/meminfo), and it seems
-that the count of sum (active+inactive) pages is decreasing. Please
-take look at the graphs at
+>fr den 21.01.2005 Klokka 17:44 (+0300) skreiv Vladimir Saveliev:
+>  
+>
+>> fs/nfsd/vfs.c:nfsd_open() refuses to open append only files.
+>
+>
+>Append-only is an unsupported concept in the all existing revisions of
+>the NFS protocol. In fact, NFS has no support for append writes at all:
+>they have to be emulated by the clients.
+>  
+>
+OK, but that certainly shouldn't preclude read access.  The way it is 
+now, you can't even list append-only directories.  It seems like this 
+check should treat append-only files as read-only, only failing to open 
+them if write access is requested, rather than failing all the time like 
+it does now.
 
-http://www.linux.cz/stats/mrtg-rrd/vm_active.html
+In this particular case, I'm not using append-only files, but rather 
+using immutable files and append-only directories to create an archival 
+space where things can be added but not changed.  Even if the protocol 
+can't deal with append-only regular files, isn't it possible to allow 
+mkdir but not rmdir?
 
-(especially the "monthly" graph) - I've booted 2.6.11-rc1 last Friday,
-and since then the size of "inactive" pages is decreasing almost
-constantly, while "active" is not increasing. The active+inactive
-sum has been steady before, as you can see from both the monthly
-and yearly graphs.
-
-Now I am playing with 2.6.11-rc1-bk snapshots to see what happens.
-I have been running 2.6.10-rc3 before. More info is available, please ask me.
-The box runs 3ware 7506-8 controller with SW RAID-0, 1, and 5 volumes,
-Tigon3 network card. The main load is FTP server, and there is also
-a HTTP server and Qmail.
-
-	Thanks,
-
--Yenya
-
--- 
-| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
-| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
-| http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
-> Whatever the Java applications and desktop dances may lead to, Unix will <
-> still be pushing the packets around for a quite a while.      --Rob Pike <

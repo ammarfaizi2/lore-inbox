@@ -1,131 +1,128 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271002AbTHFS4W (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 14:56:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271003AbTHFS4V
+	id S270875AbTHFS72 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 14:59:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270877AbTHFS72
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 14:56:21 -0400
-Received: from eurogra4543-gw.clients.easynet.fr ([212.180.52.85]:23169 "HELO
-	hubert.heliogroup.fr") by vger.kernel.org with SMTP id S271002AbTHFS4I
+	Wed, 6 Aug 2003 14:59:28 -0400
+Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:16371 "EHLO
+	tabby.cats.internal") by vger.kernel.org with ESMTP id S270875AbTHFS7X
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 14:56:08 -0400
-From: Hubert Tonneau <hubert.tonneau@fullpliant.org>
-To: linux-kernel@vger.kernel.org
-Cc: Herbert =?ISO-8859-1?Q?=20P=F6tzl?= <herbert@13thfloor.at>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: 2.4.22rc1 bug report
-Date: Wed, 06 Aug 2003 18:51:35 GMT
-Message-ID: <03B7B2011@hubert.heliogroup.fr>
-X-Mailer: Pliant 85
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 6 Aug 2003 14:59:23 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Jesse Pollard <jesse@cats-chateau.net>
+To: Andy Isaacson <adi@hexapodia.org>
+Subject: Re: TOE brain dump
+Date: Wed, 6 Aug 2003 13:58:59 -0500
+X-Mailer: KMail [version 1.2]
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+References: <20030802140444.E5798@almesberger.net> <03080607463300.08387@tabby> <20030806112556.C26920@hexapodia.org>
+In-Reply-To: <20030806112556.C26920@hexapodia.org>
+MIME-Version: 1.0
+Message-Id: <03080613585900.09086@tabby>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
+On Wednesday 06 August 2003 11:25, Andy Isaacson wrote:
+> On Wed, Aug 06, 2003 at 07:46:33AM -0500, Jesse Pollard wrote:
+> > On Tuesday 05 August 2003 12:19, Eric W. Biederman wrote:
+> > > So store and forward of packets in a 3 layer switch hierarchy, at 1.3
+> > > us per copy. 1.3us to the NIC + 1.3us to the first switch chip + 1.3us
+> > > to the second switch chip + 1.3us to the top level switch chip + 1.3us
+> > > to a middle layer switch chip + 1.3us to the receiving NIC + 1.3us the
+> > > receiver.
+> > >
+> > > 1.3us * 7 = 9.1us to deliver a packet to the other side.  That is
+> > > still quite painful.  Right now I can get better latencies over any of
+> > > the cluster interconnects.  I think 5 us is the current low end, with
+> > > the high end being about 1 us.
+> >
+> > I think you are off here since the second and third layer should not
+> > recompute checksums other than for the header (if they even did that).
+> > Most of the switches I used (mind, not configured) were wire speed. Only
+> > header checksums had recomputes, and I understood it was only for
+> > routing.
 >
-> Can you please run ksymoops to convert the oops output in human readable 
-> format ?
+> The switches may be "wire speed" but that doesn't help the latency any.
+> AFAIK all GigE switches are store-and-forward, which automatically costs
+> you the full 1.3us for each link hop.  (I didn't check Eric's numbers,
+> so I don't know that 1.3us is the right value, but it sounds right.)
+> Also I think you might be confused about what Eric meant by "3 layer
+> switch hierarchy"; he's referring to a tree topology network with
+> layer-one switches connecting hosts, layer-two switches connecting
+> layer-one switches, and layer-three switches connecting layer-two
+> switches.  This means that your worst-case node-to-node latency has 6
+> wire hops with 7 "read the entire packet into memory" operations,
+> depending on how you count the initiating node's generation of the
+> packet.
 
-Unable to handle kernel NULL pointer dereference at virtual address 0000002c
-c01800d6
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c01800d6>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010046
-eax: 00000006   ebx: 00000246   ecx: 00000024   edx: 00000006
-esi: 0000001c   edi: 0000001c   ebp: c72fbb50   esp: c72fbb0c
-ds: 0018   es: 0018   ss: 0018
-Process cardctl (pid: 40, stackpage=c72fb000)
-Stack: 00000024 c733a000 d0a88866 0000001c 00000024 ffffffff 00000000 00000006 
-       c0121908 00000006 c01f21e0 000001ff 00000001 00000000 c733a08c 00000000 
-       00000286 c72fbb90 d0a88a51 c733a000 00000006 000001d2 cfe9a3a0 00000002 
-Call Trace:    [<d0a88866>] [<c0121908>] [<d0a88a51>] [<d0a84b22>] [<c0121908>]
-  [<c0121908>] [<c012a0a6>] [<c0120eed>] [<d0a84f3e>] [<c0121908>] [<d0a84d5b>]
-  [<c01213c2>] [<c012190e>] [<d0a83b5f>] [<d0a9bc33>] [<c01c9c26>] [<c0121908>]
-  [<c0147644>] [<c01239b3>] [<c012a2b0>] [<c012a0a6>] [<c0120db6>] [<c0120e03>]
-  [<c0120f9e>] [<c013085e>] [<c0130707>] [<c013077a>] [<c013122f>] [<c0124494>]
-  [<c01244c1>] [<c0131850>] [<c014f2c9>] [<c014fe61>] [<c015265d>] [<c013917f>]
-  [<c013b197>] [<c0106be3>]
-Code: 8b 46 10 8b 50 30 8b 44 24 14 50 51 56 8b 42 14 ff d0 83 c4 
+If it reads the packet into memory before starting transmission, it isn't
+"wire speed". It is a router.
 
+> [snip]
+>
+> > > Quite often in MPI when a message is sent the program cannot continue
+> > > until the reply is received.  Possibly this is a fundamental problem
+> > > with the application programming model, encouraging applications to
+> > > be latency sensitive.  But it is a well established API and
+> > > programming paradigm so it has to be lived with.
+>
+> This is true, in HPC.  Some of the problem is the APIs encouraging such
+> behavior; another part of the problem is that sometimes, the problem has
+> fundamental latency dependencies that cannot be programmed around.
+>
+> > > A lot of the NICs which are used for MPI tend to be smart for two
+> > > reasons.  1) So they can do source routing. 2) So they can safely
+> > > export some of their interface to user space, so in the fast path
+> > > they can bypass the kernel.
+> >
+> > And bypass any security checks required. A single rogue MPI application
+> > using such an interface can/will bring the cluster down.
+>
+> This is just false.  Kernel bypass (done properly) has no negative
+> effect on system stability, either on-node or on-network.  By "done
+> properly" I mean that the NIC has mappings programmed into it by the
+> kernel at app-startup time, and properly bounds-checks all remote DMA,
+> and has a method for verifying that incoming packets are not rogue or
+> corrupt.  (Of course a rogue *kernel* can probably interfere with other
+> *applications* on the network it's connected to, by inserting malicious
+> packets into the datastream, but even that is soluble with cookies or
+> routing checks.  However, I don't believe any systems try to defend
+> against rogue nodes today.)
 
->>EIP; c01800d6 <pci_write_config_dword+12/34>   <=====
+Just because the packet gets transfered to a buffer correctly does not
+mean that buffer is the one it should have been sent to. If it didn't
+have this problem, then there would be no kernel TCP/IP interaction. Just
+open the ethernet device and start writing/reading. Ooops. known security
+failure.
 
->>ebp; c72fbb50 <_end+70bc784/10841c34>
->>esp; c72fbb0c <_end+70bc740/10841c34>
+>
+> I believe that Myrinet's hardware has the capability to meet the "kernel
+> bypass done properly" requirement I state above; I make no claim that
+> their GM implementation actually meets the requirement (although I think
+> it might).  It's pretty likely that QSW's Elan hardware can, too, but I
+> know even less about that.
 
-Trace; d0a88866 <[pcmcia_core]cb_setup_cis_mem+d6/210>
-Trace; c0121908 <do_mmap_pgoff+408/4cc>
-Trace; d0a88a51 <[pcmcia_core]read_cb_mem+b1/1b8>
-Trace; d0a84b22 <[pcmcia_core]read_cis_cache+10e/18c>
-Trace; c0121908 <do_mmap_pgoff+408/4cc>
-Trace; c0121908 <do_mmap_pgoff+408/4cc>
-Trace; c012a0a6 <_alloc_pages+16/18>
-Trace; c0120eed <do_no_page+11d/17c>
-Trace; d0a84f3e <[pcmcia_core]get_next_tuple+7e/240>
-Trace; c0121908 <do_mmap_pgoff+408/4cc>
-Trace; d0a84d5b <[pcmcia_core]get_first_tuple+10f/118>
-Trace; c01213c2 <__vma_link+62/b0>
-Trace; c012190e <do_mmap_pgoff+40e/4cc>
-Trace; d0a83b5f <[pcmcia_core]CardServices+1c3/884>
-Trace; d0a9bc33 <[ds]ds_ioctl+4f3/7d8>
-Trace; c01c9c26 <clear_user+2e/40>
-Trace; c0121908 <do_mmap_pgoff+408/4cc>
-Trace; c0147644 <load_elf_binary+0/ae8>
-Trace; c01239b3 <do_generic_file_read+3f7/404>
-Trace; c012a2b0 <__alloc_pages+40/160>
-Trace; c012a0a6 <_alloc_pages+16/18>
-Trace; c0120db6 <do_anonymous_page+ba/d4>
-Trace; c0120e03 <do_no_page+33/17c>
-Trace; c0120f9e <handle_mm_fault+52/b0>
-Trace; c013085e <__refile_buffer+56/5c>
-Trace; c0130707 <balance_dirty_state+f/50>
-Trace; c013077a <balance_dirty+6/24>
-Trace; c013122f <__block_commit_write+af/cc>
-Trace; c0124494 <filemap_nopage+bc/1f8>
-Trace; c01244c1 <filemap_nopage+e9/1f8>
-Trace; c0131850 <generic_commit_write+34/60>
-Trace; c014f2c9 <ext2_commit_chunk+39/70>
-Trace; c014fe61 <ext2_delete_entry+12d/13c>
-Trace; c015265d <ext2_unlink+51/5c>
-Trace; c013917f <sys_unlink+cf/110>
-Trace; c013b197 <sys_ioctl+21b/234>
-Trace; c0106be3 <system_call+33/38>
+since the routing is done is user mode, as part of the library, it can be
+used to directly affect processes NOT owned by the user. This bypasses
+the kernel security checks by definition. Already known to happen with
+raw myrinet, so there is a kernel layer on top of it to shield it (or
+at least try to). If there is no kernel involvement, then there can be
+no restrictions on what can be passed down the line to the device. Now
+some of the modifications for myrinet were to use normal TCP/IP to establish
+source/destination header information, then bypass any packet handshake, but
+force EACH packet to include the pre-established source/destination header 
+info. This is equivalent to UDP, but without any checksums, and sometimes
+can bypass part of the kernel cache. Unfortunately, it also means that
+sometimes incoming data is NOT destined for the user, and must be 
+erased/copied before the final destination is achieved. This introduces leaks 
+due to the race condition caused by the transfer to the wrong buffer.
 
-Code;  c01800d6 <pci_write_config_dword+12/34>
-00000000 <_EIP>:
-Code;  c01800d6 <pci_write_config_dword+12/34>   <=====
-   0:   8b 46 10                  mov    0x10(%esi),%eax   <=====
-Code;  c01800d9 <pci_write_config_dword+15/34>
-   3:   8b 50 30                  mov    0x30(%eax),%edx
-Code;  c01800dc <pci_write_config_dword+18/34>
-   6:   8b 44 24 14               mov    0x14(%esp,1),%eax
-Code;  c01800e0 <pci_write_config_dword+1c/34>
-   a:   50                        push   %eax
-Code;  c01800e1 <pci_write_config_dword+1d/34>
-   b:   51                        push   %ecx
-Code;  c01800e2 <pci_write_config_dword+1e/34>
-   c:   56                        push   %esi
-Code;  c01800e3 <pci_write_config_dword+1f/34>
-   d:   8b 42 14                  mov    0x14(%edx),%eax
-Code;  c01800e6 <pci_write_config_dword+22/34>
-  10:   ff d0                     call   *%eax
-Code;  c01800e8 <pci_write_config_dword+24/34>
-  12:   83 c4 00                  add    $0x0,%esp
+You can't DMA directly to a users buffer, because you MUST verify the header
+before the data... and you can't do that until the buffer is in memory...
+So bypassing the kernel generates security failures.
 
- <6>cs: cb_alloc(bus 2): vendor 0x10b7, device 0x5257
-cs: cb_config(bus 2)
-cs: IO port probe 0x0100-0x04ff: excluding 0x378-0x37f 0x3f8-0x3ff 0x4d0-0x4d7
-cs: IO port probe 0x0380-0x03f7: clean.
-cs: IO port probe 0x0400-0x04cf: clean.
-cs: IO port probe 0x04d8-0x04ff: clean.
-cs: IO port probe 0x0800-0x08ff: clean.
-cs: IO port probe 0x0a00-0x0aff: clean.
-cs: IO port probe 0x0c00-0x0cff: clean.
-cs: cb_enable(bus 2)
-
-1 warning issued.  Results may not be reliable.
-
+This is already a problem in fibre channel devices, and in other network
+devices. Anytime you bypass the kernel security you also void any 
+restrictions on the network, and any hosts it is attached to.

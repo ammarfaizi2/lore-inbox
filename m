@@ -1,201 +1,153 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261817AbVC1OFC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261764AbVC1OQx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261817AbVC1OFC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 09:05:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbVC1Nkp
+	id S261764AbVC1OQx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 09:16:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbVC1OQx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 08:40:45 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:41403 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261783AbVC1N1P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 08:27:15 -0500
-Subject: [RFC/PATCH 10/17][Kdump] Routines for copying dump pages
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       fastboot <fastboot@lists.osdl.org>
-Content-Type: multipart/mixed; boundary="=-twJOe+ONIDYgQnP6ymPR"
-Date: Mon, 28 Mar 2005 18:57:12 +0530
-Message-Id: <1112016432.4001.81.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+	Mon, 28 Mar 2005 09:16:53 -0500
+Received: from unknown.xeex.net ([216.152.252.175]:34052 "EHLO
+	mail.intworks.biz") by vger.kernel.org with ESMTP id S261764AbVC1OQP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Mar 2005 09:16:15 -0500
+Date: Mon, 28 Mar 2005 06:15:58 -0800
+From: jayalk@intworks.biz
+Message-Id: <200503281415.j2SEFwg4014119@intworks.biz>
+To: hpa@zytor.com
+Subject: [RFC 2.6.11.2 1/1] Add reboot fixup for gx1/cs5530a
+Cc: linux-kernel@vger.kernel.org, davej@codemonkey.org.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Riley, Dave, Peter, i386 boot/workaround maintainers,
 
---=-twJOe+ONIDYgQnP6ymPR
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+I ran into a problem getting reboot working with 2.6.11 on an embedded
+board. The board has a Geode GX1 with a CS5530A companion. What I observe on
+reboot is the "Restarting system" printk, and then a cpu stall/hang. I think
+the problem arises because the keyboard controller is disabled by the BIOS,
+so the traditional mach_reboot()'s output to port 0x64 is ignored. Then the
+386 triple fault issued after mach_reboot() results in a shutdown (because
+the hardware doesn't have to detect the triple fault and issue a reset).
+That then gives the end result of a stalled cpu/hang. 
 
+I found that the CS5530A in question has a "issue system wide reset" bit.
+The reboot works cleanly if I write that bit rather than do mach_reboot().
+So the following patch is my attempt to incorporate that change into 2.6.11
+by adding a X86_REBOOTFIXUPS option. In order to keep reboot.c free of hw
+specific fixups, I put it in another file, reboot_fixups.c. I tried to make
+it a bit generic so that if there are other reboot related fixups for other
+chipsets/boards, there'd be a clean place to put it. Please let me know what
+you think.
 
+Thanks,
+Jaya Kumar
 
---=-twJOe+ONIDYgQnP6ymPR
-Content-Disposition: attachment; filename=crashdump-routines-for-copying-dump-pages.patch
-Content-Type: message/rfc822; name=crashdump-routines-for-copying-dump-pages.patch
-
-From: 
-Date: Mon, 28 Mar 2005 17:45:11 +0530
-Subject: No Subject
-Message-Id: <1112012111.4001.33.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-
-From: "Vivek Goyal" <vgoyal@in.ibm.com>
-
-o Moved architecture independent crash_dump.c and crash_dump.h file creation
-  code from crashdump-memory-preserving-reboot-using-kexec.patch to here. This
-  makes more logical sense.
-
-From: "Eric W. Biederman" <ebiederm@xmission.com>
-
-kernel/crash.c has been renamed kernel/crash_dump.c to clarify it's purpose.
-
-From: Hariprasad Nellitheertha <hari@in.ibm.com>
-
-This patch provides the interfaces necessary to read the dump contents,
-treating it as a high memory device.
-
-Signed off by Hariprasad Nellitheertha <hari@in.ibm.com>
-Signed-off-by: Eric Biederman <ebiederm@xmission.com>
-Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
 ---
 
- linux-2.6.12-rc1-mm1-1M-root/arch/i386/mm/highmem.c     |   18 ++++++
- linux-2.6.12-rc1-mm1-1M-root/include/asm-i386/highmem.h |    1 
- linux-2.6.12-rc1-mm1-1M-root/include/linux/crash_dump.h |   12 ++++
- linux-2.6.12-rc1-mm1-1M-root/include/linux/highmem.h    |    1 
- linux-2.6.12-rc1-mm1-1M-root/kernel/Makefile            |    1 
- linux-2.6.12-rc1-mm1-1M-root/kernel/crash_dump.c        |   46 ++++++++++++++++
- 6 files changed, 79 insertions(+)
+Signed-off-by:  Jaya Kumar      <jayalk@intworks.biz>
 
-diff -puN arch/i386/mm/highmem.c~crashdump-routines-for-copying-dump-pages arch/i386/mm/highmem.c
---- linux-2.6.12-rc1-mm1-1M/arch/i386/mm/highmem.c~crashdump-routines-for-copying-dump-pages	2005-03-22 16:14:37.000000000 +0530
-+++ linux-2.6.12-rc1-mm1-1M-root/arch/i386/mm/highmem.c	2005-03-22 16:14:37.000000000 +0530
-@@ -74,6 +74,24 @@ void kunmap_atomic(void *kvaddr, enum km
- 	preempt_check_resched();
- }
+diff -uprN -X dontdiff linux-2.6.11.2-vanilla/arch/i386/Kconfig linux-2.6.11.2/arch/i386/Kconfig
+--- linux-2.6.11.2-vanilla/arch/i386/Kconfig	2005-03-10 16:31:25.000000000 +0800
++++ linux-2.6.11.2/arch/i386/Kconfig	2005-03-28 21:30:15.000000000 +0800
+@@ -645,6 +645,23 @@ config I8K
+ 	  Say Y if you intend to run this kernel on a Dell Inspiron 8000.
+ 	  Say N otherwise.
  
-+/* This is the same as kmap_atomic() but can map memory that doesn't
-+ * have a struct page associated with it.
-+ */
-+void *kmap_atomic_pfn(unsigned long pfn, enum km_type type)
++config X86_REBOOTFIXUPS
++	bool "Enable X86 Board Specific Fixups for Reboot"
++	depends on X86 
++	default n
++	---help---
++	  This enables chipset and/or board specific fixups to be done
++	  in order to get reboot to work correctly. This is only needed on
++	  some combinations of hardware and BIOS. The symptom, for which 
++	  this config is intended, is when reboot ends with a stalled/hung 
++	  system. 
++
++	  Currently, the only fixup is for the Geode GX1/CS5530A/TROM2.1. 
++	  combination. 
++
++	  Say Y if you want to enable the fixup.
++	  Say N otherwise.
++
+ config MICROCODE
+ 	tristate "/dev/cpu/microcode - Intel IA32 CPU microcode support"
+ 	---help---
+diff -uprN -X dontdiff linux-2.6.11.2-vanilla/arch/i386/kernel/Makefile linux-2.6.11.2/arch/i386/kernel/Makefile
+--- linux-2.6.11.2-vanilla/arch/i386/kernel/Makefile	2005-03-10 16:31:25.000000000 +0800
++++ linux-2.6.11.2/arch/i386/kernel/Makefile	2005-03-28 15:56:31.000000000 +0800
+@@ -23,6 +23,7 @@ obj-$(CONFIG_X86_TRAMPOLINE)	+= trampoli
+ obj-$(CONFIG_X86_MPPARSE)	+= mpparse.o
+ obj-$(CONFIG_X86_LOCAL_APIC)	+= apic.o nmi.o
+ obj-$(CONFIG_X86_IO_APIC)	+= io_apic.o
++obj-$(CONFIG_X86_REBOOTFIXUPS)	+= reboot_fixups.o
+ obj-$(CONFIG_X86_NUMAQ)		+= numaq.o
+ obj-$(CONFIG_X86_SUMMIT_NUMA)	+= summit.o
+ obj-$(CONFIG_KPROBES)		+= kprobes.o
+diff -uprN -X dontdiff linux-2.6.11.2-vanilla/arch/i386/kernel/reboot.c linux-2.6.11.2/arch/i386/kernel/reboot.c
+--- linux-2.6.11.2-vanilla/arch/i386/kernel/reboot.c	2005-03-10 16:31:25.000000000 +0800
++++ linux-2.6.11.2/arch/i386/kernel/reboot.c	2005-03-28 21:36:39.562079136 +0800
+@@ -14,6 +14,10 @@
+ #include <asm/apic.h>
+ #include "mach_reboot.h"
+ 
++#ifdef CONFIG_X86_REBOOTFIXUPS
++extern void mach_reboot_fixups(void);
++#endif
++
+ /*
+  * Power off function, if any
+  */
+@@ -348,6 +352,9 @@ void machine_restart(char * __unused)
+ 		/* rebooting needs to touch the page at absolute addr 0 */
+ 		*((unsigned short *)__va(0x472)) = reboot_mode;
+ 		for (;;) {
++#ifdef CONFIG_X86_REBOOTFIXUPS
++			mach_reboot_fixups();
++#endif
+ 			mach_reboot();
+ 			/* That didn't work - force a triple fault.. */
+ 			__asm__ __volatile__("lidt %0": :"m" (no_idt));
+diff -uprN -X dontdiff linux-2.6.11.2-vanilla/arch/i386/kernel/reboot_fixups.c linux-2.6.11.2/arch/i386/kernel/reboot_fixups.c
+--- linux-2.6.11.2-vanilla/arch/i386/kernel/reboot_fixups.c	1970-01-01 07:30:00.000000000 +0730
++++ linux-2.6.11.2/arch/i386/kernel/reboot_fixups.c	2005-03-28 21:38:30.893154240 +0800
+@@ -0,0 +1,40 @@
++#include <asm/delay.h>
++#include <linux/pci.h>
++
++void cs5530a_warm_reset(struct pci_dev *dev)
 +{
-+	enum fixed_addresses idx;
-+	unsigned long vaddr;
-+
-+	inc_preempt_count();
-+
-+	idx = type + KM_TYPE_NR*smp_processor_id();
-+	vaddr = __fix_to_virt(FIX_KMAP_BEGIN + idx);
-+	set_pte(kmap_pte-idx, pfn_pte(pfn, kmap_prot));
-+	__flush_tlb_one(vaddr);
-+
-+	return (void*) vaddr;
++	/* writing 1 to the reset control register, 0x44 causes the 
++	cs5530a to perform a system warm reset */
++	pci_write_config_byte(dev, 0x44, 0x1);
++	udelay(50); /* shouldn't get here but be safe and spin-a-while */
++	return; 
 +}
 +
- struct page *kmap_atomic_to_page(void *ptr)
- {
- 	unsigned long idx, vaddr = (unsigned long)ptr;
-diff -puN include/asm-i386/highmem.h~crashdump-routines-for-copying-dump-pages include/asm-i386/highmem.h
---- linux-2.6.12-rc1-mm1-1M/include/asm-i386/highmem.h~crashdump-routines-for-copying-dump-pages	2005-03-22 16:14:37.000000000 +0530
-+++ linux-2.6.12-rc1-mm1-1M-root/include/asm-i386/highmem.h	2005-03-22 16:14:37.000000000 +0530
-@@ -70,6 +70,7 @@ void *kmap(struct page *page);
- void kunmap(struct page *page);
- void *kmap_atomic(struct page *page, enum km_type type);
- void kunmap_atomic(void *kvaddr, enum km_type type);
-+void *kmap_atomic_pfn(unsigned long pfn, enum km_type type);
- struct page *kmap_atomic_to_page(void *ptr);
- 
- #define flush_cache_kmaps()	do { } while (0)
-diff -puN /dev/null include/linux/crash_dump.h
---- /dev/null	2004-02-24 02:32:56.000000000 +0530
-+++ linux-2.6.12-rc1-mm1-1M-root/include/linux/crash_dump.h	2005-03-22 16:14:37.000000000 +0530
-@@ -0,0 +1,12 @@
-+#ifndef LINUX_CRASH_DUMP_H
-+#define LINUX_CRASH_DUMP_H
++struct device_fixup {
++	unsigned int vendor;
++	unsigned int device;
++	void (*reboot_fixup)(struct pci_dev *);
++};
 +
-+#ifdef CONFIG_CRASH_DUMP
-+#include <linux/kexec.h>
-+#include <linux/smp_lock.h>
-+#include <linux/device.h>
-+#include <linux/proc_fs.h>
++struct device_fixup fixups_table[] = {
++	{ PCI_VENDOR_ID_CYRIX, PCI_DEVICE_ID_CYRIX_5530_LEGACY, cs5530a_warm_reset },
++};
 +
-+extern ssize_t copy_oldmem_page(unsigned long, char *, size_t, int);
-+#endif /* CONFIG_CRASH_DUMP */
-+#endif /* LINUX_CRASHDUMP_H */
-diff -puN include/linux/highmem.h~crashdump-routines-for-copying-dump-pages include/linux/highmem.h
---- linux-2.6.12-rc1-mm1-1M/include/linux/highmem.h~crashdump-routines-for-copying-dump-pages	2005-03-22 16:14:37.000000000 +0530
-+++ linux-2.6.12-rc1-mm1-1M-root/include/linux/highmem.h	2005-03-22 16:14:37.000000000 +0530
-@@ -28,6 +28,7 @@ static inline void *kmap(struct page *pa
- 
- #define kmap_atomic(page, idx)		page_address(page)
- #define kunmap_atomic(addr, idx)	do { } while (0)
-+#define kmap_atomic_pfn(pfn, idx)	page_address(pfn_to_page(pfn))
- #define kmap_atomic_to_page(ptr)	virt_to_page(ptr)
- 
- #endif /* CONFIG_HIGHMEM */
-diff -puN /dev/null kernel/crash_dump.c
---- /dev/null	2004-02-24 02:32:56.000000000 +0530
-+++ linux-2.6.12-rc1-mm1-1M-root/kernel/crash_dump.c	2005-03-22 16:14:37.000000000 +0530
-@@ -0,0 +1,46 @@
-+/*
-+ *	kernel/crash_dump.c - Memory preserving reboot related code.
-+ *
-+ *	Created by: Hariprasad Nellitheertha (hari@in.ibm.com)
-+ *	Copyright (C) IBM Corporation, 2004. All rights reserved
-+ */
-+
-+#include <linux/smp_lock.h>
-+#include <linux/errno.h>
-+#include <linux/proc_fs.h>
-+#include <linux/bootmem.h>
-+#include <linux/highmem.h>
-+#include <linux/crash_dump.h>
-+
-+#include <asm/io.h>
-+#include <asm/uaccess.h>
-+
-+/*
-+ * Copy a page from "oldmem". For this page, there is no pte mapped
-+ * in the current kernel. We stitch up a pte, similar to kmap_atomic.
-+ */
-+ssize_t copy_oldmem_page(unsigned long pfn, char *buf,
-+				size_t csize, int userbuf)
++void mach_reboot_fixups(void)
 +{
-+	void *page, *vaddr;
++	struct device_fixup *cur;
++	struct pci_dev *dev;
++	int i;
 +
-+	if (!csize)
-+		return 0;
++	for (i=0; i < (sizeof(fixups_table)/sizeof(fixups_table[0])); i++) {
++		cur = fixups_table + i;
++		dev = pci_find_device(cur->vendor, cur->device, 0);
++		if (!dev) 
++			continue;
 +
-+	page = kmalloc(PAGE_SIZE, GFP_KERNEL);
-+
-+	vaddr = kmap_atomic_pfn(pfn, KM_PTE0);
-+	copy_page(page, vaddr);
-+	kunmap_atomic(vaddr, KM_PTE0);
-+
-+	if (userbuf) {
-+		if (copy_to_user(buf, page, csize)) {
-+			kfree(page);
-+			return -EFAULT;
-+		}
-+	} else
-+		memcpy(buf, page, csize);
-+	kfree(page);
-+
-+	return 0;
++		cur->reboot_fixup(dev);
++	}
++	
++	printk(KERN_WARNING "No reboot fixup found for your hardware\n");
 +}
-diff -puN kernel/Makefile~crashdump-routines-for-copying-dump-pages kernel/Makefile
---- linux-2.6.12-rc1-mm1-1M/kernel/Makefile~crashdump-routines-for-copying-dump-pages	2005-03-22 16:14:37.000000000 +0530
-+++ linux-2.6.12-rc1-mm1-1M-root/kernel/Makefile	2005-03-22 16:14:37.000000000 +0530
-@@ -29,6 +29,7 @@ obj-$(CONFIG_KPROBES) += kprobes.o
- obj-$(CONFIG_SYSFS) += ksysfs.o
- obj-$(CONFIG_DETECT_SOFTLOCKUP) += softlockup.o
- obj-$(CONFIG_GENERIC_HARDIRQS) += irq/
-+obj-$(CONFIG_CRASH_DUMP) += crash_dump.o
- obj-$(CONFIG_SECCOMP) += seccomp.o
- 
- ifneq ($(CONFIG_IA64),y)
-_
-
---=-twJOe+ONIDYgQnP6ymPR--
-
++

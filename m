@@ -1,42 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314149AbSGUMb2>; Sun, 21 Jul 2002 08:31:28 -0400
+	id <S314277AbSGUMcf>; Sun, 21 Jul 2002 08:32:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314277AbSGUMb2>; Sun, 21 Jul 2002 08:31:28 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:32501 "EHLO
+	id <S314381AbSGUMcf>; Sun, 21 Jul 2002 08:32:35 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:33269 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S314149AbSGUMb2>; Sun, 21 Jul 2002 08:31:28 -0400
-Subject: Re: [PATCH] VM strict overcommit, again
+	id <S314277AbSGUMce>; Sun, 21 Jul 2002 08:32:34 -0400
+Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Robert Love <rml@tech9.net>
-Cc: Linus Torvalds <torvalds@transmeta.com>, akpm@zip.com.au,
-       riel@conectiva.com.br, linux-kernel@vger.kernel.org
-In-Reply-To: <1027216974.1116.996.camel@sinai>
-References: <1027216974.1116.996.camel@sinai>
+To: Tom Walcott <thomaswalcott@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020721044238.70210.qmail@web12905.mail.yahoo.com>
+References: <20020721044238.70210.qmail@web12905.mail.yahoo.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 21 Jul 2002 14:46:31 +0100
-Message-Id: <1027259191.16818.94.camel@irongate.swansea.linux.org.uk>
+Date: 21 Jul 2002 14:48:02 +0100
+Message-Id: <1027259282.16818.96.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-07-21 at 03:02, Robert Love wrote:
-> OK, here we go again...
-> 
-> Attached patch implements VM strict overcommit with the following
-> changes over the previous patch:
+On Sun, 2002-07-21 at 05:42, Tom Walcott wrote:
+> Can LVM2 currently do everything that EVMS does? From
+> looking at this, it appears there is a difference.
+> http://evms.sourceforge.net/comparison.pdf
 
-Looks good to me
-
-> 	- (unrelated to the controversy) back out some of the shmem
-> 	  changes.  I am weary of them and they would be best brought
-> 	  forward from 2.4-ac in pieces. 2.4-ac, btw, has quite
-> 	  a few shmem fixes.
-
-This is probably wise. Its partly complicated by the fact that the shmem
-changes are in part very recent (Hugh fixed a load) and also by the fact
--ac has a vm callback for when a page cache page is freed up which is
-used by the shmem code I have
+Include an identical comparison document by the LVM2 team and it might
+be worth looking at in detail 8)
 

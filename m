@@ -1,60 +1,135 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262051AbTJ3AjT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Oct 2003 19:39:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbTJ3AjT
+	id S262069AbTJ3AvT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Oct 2003 19:51:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbTJ3AvT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Oct 2003 19:39:19 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:28123 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262015AbTJ3AjL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Oct 2003 19:39:11 -0500
-Date: Wed, 29 Oct 2003 16:37:20 -0800
-From: Rusty Lynch <rusty@linux.co.intel.com>
-To: Greg KH <greg@kroah.com>
-Cc: "Guo, Min" <min.guo@intel.com>, linux-raid@vger.kernel.org,
-       linux-hotplug-devel@lists.sourceforge.net,
-       Lars Marowsky-Bree <lmb@suse.de>,
-       "Ling, Xiaofeng" <xiaofeng.ling@intel.com>,
-       Mark Bellon <mbellon@mvista.com>, linux-kernel@vger.kernel.org,
-       cgl_discussion@osdl.org, Steven Dake <sdake@mvista.com>
-Subject: Re: [cgl_discussion] Re: ANNOUNCE: User-space System Device Enumation (uSDE)
-Message-ID: <20031030003720.GA6000@penguin.co.intel.com>
-References: <3ACA40606221794F80A5670F0AF15F840215DC2F@pdsmsx403.ccr.corp.intel.com> <20031029190421.GA4173@kroah.com>
+	Wed, 29 Oct 2003 19:51:19 -0500
+Received: from mail.kroah.org ([65.200.24.183]:43444 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262069AbTJ3AvL convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Oct 2003 19:51:11 -0500
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <10674750381029@kroah.com>
+Subject: [PATCH] fixes for 2.6.0-test9
+In-Reply-To: <20031030004852.GA2042@kroah.com>
+From: Greg KH <greg@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Wed, 29 Oct 2003 16:50:38 -0800
+Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031029190421.GA4173@kroah.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 29, 2003 at 11:04:21AM -0800, Greg KH wrote:
-<huge snip>
-> In the interest of full disclosure, Min is one of the SDE authors, and I
-> am one of the udev authors.
+ChangeSet 1.1384, 2003/10/29 15:20:38-08:00, ink@jurassic.park.msu.ru
 
-man... I saw this thread and thought there is no way in hell I am jumping in
-this bloody mess.  oh well...
+[PATCH] PCI: fix bug in pci_setup_bridge()
+
+This bug prevents Alphas with older firmware from booting if there
+is a card with PCI-PCI bridge that supports 32-bit IO.
+This has happened on AS2100 with a quad-tulip card, for example:
+ - initially, the I/O window of 21152 bridge was 0x10000-0x10fff,
+   as set up by firmware;
+ - pci_setup_bridge() is going to change this, say, to 0xa000-0xafff:
+   first, it updates PCI_IO_BASE_UPPER16 and PCI_IO_LIMIT_UPPER16
+   registers, so that IO window temporarily is at 0x0000-0x0fff,
+   which effectively blocks up all legacy IO ports in the lower
+   4K range, such as serial, floppy, RTC an so on;
+   does debugging printk - machine dies here with recursive
+   machine checks as the serial console has gone.
+
+Moving (or disabling) the debugging printk is not a solution -
+there is possibility that timer interrupt (which might access RTC
+ports) occurs between writes to lower and upper parts of the
+base/limit registers.
+
+The patch temporarily disables the IO window of the bridge by
+setting PCI_IO_BASE_UPPER16 > PCI_IO_LIMIT_UPPER16 before doing
+an update. It's safe, as we don't have any active IO behind
+the bridge at this point. Also, it's a NOP for bridges with
+16-bit-only IO.
+Similar (but simpler, as we always clear upper 32 bits) fix
+for 64-bit prefetchable MMIO range.
+
+
+ drivers/pci/setup-bus.c |   30 +++++++++++++++++++++---------
+ 1 files changed, 21 insertions(+), 9 deletions(-)
+
+
+diff -Nru a/drivers/pci/setup-bus.c b/drivers/pci/setup-bus.c
+--- a/drivers/pci/setup-bus.c	Wed Oct 29 16:45:17 2003
++++ b/drivers/pci/setup-bus.c	Wed Oct 29 16:45:17 2003
+@@ -132,13 +132,19 @@
+    PCI-to-PCI Bridge Architecture Specification rev. 1.1 (1998)
+    requires that if there is no I/O ports or memory behind the
+    bridge, corresponding range must be turned off by writing base
+-   value greater than limit to the bridge's base/limit registers.  */
++   value greater than limit to the bridge's base/limit registers.
++
++   Note: care must be taken when updating I/O base/limit registers
++   of bridges which support 32-bit I/O. This update requires two
++   config space writes, so it's quite possible that an I/O window of
++   the bridge will have some undesirable address (e.g. 0) after the
++   first write. Ditto 64-bit prefetchable MMIO.  */
+ static void __devinit
+ pci_setup_bridge(struct pci_bus *bus)
+ {
+ 	struct pci_dev *bridge = bus->self;
+ 	struct pci_bus_region region;
+-	u32 l;
++	u32 l, io_upper16;
  
-...and I told Min to help out on usde. 
+ 	DBGC((KERN_INFO "PCI: Bus %d, bridge: %s\n",
+ 			bus->number, pci_name(bridge)));
+@@ -151,20 +157,22 @@
+ 		l |= (region.start >> 8) & 0x00f0;
+ 		l |= region.end & 0xf000;
+ 		/* Set up upper 16 bits of I/O base/limit. */
+-		pci_write_config_word(bridge, PCI_IO_BASE_UPPER16,
+-				      region.start >> 16);
+-		pci_write_config_word(bridge, PCI_IO_LIMIT_UPPER16,
+-				      region.end >> 16);
++		io_upper16 = (region.end & 0xffff0000) | (region.start >> 16);
+ 		DBGC((KERN_INFO "  IO window: %04lx-%04lx\n",
+ 				region.start, region.end));
+ 	}
+ 	else {
+ 		/* Clear upper 16 bits of I/O base/limit. */
+-		pci_write_config_dword(bridge, PCI_IO_BASE_UPPER16, 0);
++		io_upper16 = 0;
+ 		l = 0x00f0;
+ 		DBGC((KERN_INFO "  IO window: disabled.\n"));
+ 	}
++	/* Temporarily disable the I/O range before updating PCI_IO_BASE. */
++	pci_write_config_dword(bridge, PCI_IO_BASE_UPPER16, 0x0000ffff);
++	/* Update lower 16 bits of I/O base/limit. */
+ 	pci_write_config_dword(bridge, PCI_IO_BASE, l);
++	/* Update upper 16 bits of I/O base/limit. */
++	pci_write_config_dword(bridge, PCI_IO_BASE_UPPER16, io_upper16);
+ 
+ 	/* Set up the top and bottom of the PCI Memory segment
+ 	   for this bus. */
+@@ -181,8 +189,9 @@
+ 	}
+ 	pci_write_config_dword(bridge, PCI_MEMORY_BASE, l);
+ 
+-	/* Clear out the upper 32 bits of PREF base/limit. */
+-	pci_write_config_dword(bridge, PCI_PREF_BASE_UPPER32, 0);
++	/* Clear out the upper 32 bits of PREF limit.
++	   If PCI_PREF_BASE_UPPER32 was non-zero, this temporarily
++	   disables PREF range, which is ok. */
+ 	pci_write_config_dword(bridge, PCI_PREF_LIMIT_UPPER32, 0);
+ 
+ 	/* Set up PREF base/limit. */
+@@ -198,6 +207,9 @@
+ 		DBGC((KERN_INFO "  PREFETCH window: disabled.\n"));
+ 	}
+ 	pci_write_config_dword(bridge, PCI_PREF_MEMORY_BASE, l);
++
++	/* Clear out the upper 32 bits of PREF base. */
++	pci_write_config_dword(bridge, PCI_PREF_BASE_UPPER32, 0);
+ 
+ 	/* Check if we have VGA behind the bridge.
+ 	   Enable ISA in either case (FIXME!). */
 
-> 
-> Min, maybe you can answer why Intel has spent effort on this project
-> instead of offering to help udev, which has been public for a long time
-> now?
-> 
-
-I have never believed that any one implementation of (in CGL speak) "persistent
-device naming" would be palatable by everyone, and have no problem in donating
-some resources toward udev.  
-
-In the past we experimented with udev, and even did a little work on
-sysfsutils (which I though udev was using, but looking at udev-005 I still
-see the libsysfs directory.)
-
-I see the the TODO list in udev-005.  Are all these items wide open, or have
-people already spoken for some parts?  Maybe you have a couple of items you 
-consider higher priority?
-
-    --rustyl

@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267204AbTAKNS0>; Sat, 11 Jan 2003 08:18:26 -0500
+	id <S267206AbTAKNRi>; Sat, 11 Jan 2003 08:17:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267207AbTAKNS0>; Sat, 11 Jan 2003 08:18:26 -0500
-Received: from harpo.it.uu.se ([130.238.12.34]:30938 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S267204AbTAKNSZ>;
-	Sat, 11 Jan 2003 08:18:25 -0500
-Date: Sat, 11 Jan 2003 14:23:24 +0100 (MET)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200301111323.OAA26365@harpo.it.uu.se>
-To: davidsen@tmr.com, rddunlap@osdl.org
-Subject: Re: [BUG] 2.5.5x can't find my printer
-Cc: linux-kernel@vger.kernel.org
+	id <S267207AbTAKNRh>; Sat, 11 Jan 2003 08:17:37 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:60854 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S267206AbTAKNRh>; Sat, 11 Jan 2003 08:17:37 -0500
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200301111325.h0BDPMr00756@devserv.devel.redhat.com>
+Subject: Re: [2.5 patch] go to drivers/ide/pci/ even for !CONFIG_BLK_DEV_IDEPCI
+To: bunk@fs.tum.de (Adrian Bunk)
+Date: Sat, 11 Jan 2003 08:25:22 -0500 (EST)
+Cc: alan@redhat.com (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <20030111131059.GK10486@fs.tum.de> from "Adrian Bunk" at Jan 11, 2003 02:11:00 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Jan 2003 22:08:00 -0500 (EST), Bill Davidsen wrote:
->On Fri, 10 Jan 2003, Randy.Dunlap wrote:
->
->> On Fri, 10 Jan 2003, Bill Davidsen wrote:
->> 
->> | The 2.5.5x kernels can't find my printer. 2.4 kernels work fine. dmesg
->> | attached, I'll send config if anyone cares.
->> |
->> | Known problem, new problem, or just some config error? The modules load
->> | but don't find anything.
->> |
->> | lsmod:
->> | Module                  Size  Used by
->> | apm                    15140
->> | parport_pc             33320
->> | parport                34496
->> 
->> I'm having trouble seeing the trouble.
->
->The lpr/lpq programs tell me /dev/lp0 "no such device", and catting a file
+> I observed the following problem with the cmd640 driver in 2.5.56:
 
-parport printing works for me since 2.5.54 when a module param bug
-that affected parport_pc was fixed. From your module listing above,
-you seem to be missing the lp module. Ensure that CONFIG_PRINTER=m
-and that your /etc/modprobe.conf contains 'alias char-major-6 lp'.
+I know
 
-/Mikael
+> - cmd640.c is in the drivers/ide/pci/ subdirectory.
+> - BLK_DEV_CMD640 does not depend on BLK_DEV_IDEPCI
+
+This is correct
+
+> - drivers/ide/Makefile only goes to pci/ if BLK_DEV_IDEPCI is selected
+> If the .config contains the following legal configuration:
+
+There are a lot of configurations with this property. 
+
+> The following patch fixes this (similar to 2.4 where pci/ is already 
+> visited for !CONFIG_BLK_DEV_IDEPCI):
+> 
+> --- linux-2.5.56/drivers/ide/Makefile.old	2003-01-11 13:52:30.000000000 +0100
+> +++ linux-2.5.56/drivers/ide/Makefile	2003-01-11 13:52:51.000000000 +0100
+> @@ -10,7 +10,7 @@
+>  export-objs := ide-iops.o ide-taskfile.o ide-proc.o ide.o ide-probe.o ide-dma.o ide-lib.o setup-pci.o ide-io.o
+>  
+>  # First come modules that register themselves with the core
+> -obj-$(CONFIG_BLK_DEV_IDEPCI)		+= pci/
+> +obj-$(CONFIG_BLK_DEV_IDE)		+= pci/
+
+I think thats the best approach. 

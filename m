@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262384AbSKCT63>; Sun, 3 Nov 2002 14:58:29 -0500
+	id <S262369AbSKCUAq>; Sun, 3 Nov 2002 15:00:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262385AbSKCT63>; Sun, 3 Nov 2002 14:58:29 -0500
-Received: from holomorphy.com ([66.224.33.161]:19088 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S262384AbSKCT62>;
-	Sun, 3 Nov 2002 14:58:28 -0500
-Date: Sun, 3 Nov 2002 12:03:40 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Patrick Mau <mau@oscar.prima.de>
-Cc: Margit Schubert-While <margit@margit.com>, linux-kernel@vger.kernel.org
-Subject: Re: U160 on Adaptec 39160
-Message-ID: <20021103200340.GL23425@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Patrick Mau <mau@oscar.prima.de>,
-	Margit Schubert-While <margit@margit.com>,
-	linux-kernel@vger.kernel.org
-References: <4.3.2.7.2.20021103124403.00b4c860@mail.dns-host.com> <20021103133014.GJ23425@holomorphy.com> <20021103195325.GA9689@oscar.homelinux.net>
+	id <S262371AbSKCUAq>; Sun, 3 Nov 2002 15:00:46 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:48526 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262369AbSKCUAp>; Sun, 3 Nov 2002 15:00:45 -0500
+Subject: Re: Some functions are not inlined by gcc 3.2, resulting code is
+	ugly
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: vda@port.imtp.ilyichevsk.odessa.ua
+Cc: Jakub Jelinek <jakub@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Dave Jones <davej@suse.de>
+In-Reply-To: <200211031928.gA3JSSp29136@Port.imtp.ilyichevsk.odessa.ua>
+References: <200211031125.gA3BP4p27812@Port.imtp.ilyichevsk.odessa.ua>
+	<20021103103710.D10988@devserv.devel.redhat.com>
+	<1036340502.29642.36.camel@irongate.swansea.linux.org.uk> 
+	<200211031928.gA3JSSp29136@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 03 Nov 2002 20:28:32 +0000
+Message-Id: <1036355312.30629.25.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021103195325.GA9689@oscar.homelinux.net>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 03, 2002 at 05:30:14AM -0800, William Lee Irwin III wrote:
->> 39160 does 80MB/s/channel, the 160MB/s happens pretty much only as
->> the sum of both channels. I've had one for a couple of years, and it
->> performs very well, though it won't ever quite live up to the marketing
->> gimmick for bandwidth on a single channel. ISTR something about RAID
->> across channels involved, but I just use disks directly instead.
+On Mon, 2002-11-04 at 00:20, Denis Vlasenko wrote:
+> __constant_c_and_count_memset *has to* be inlined.
+> There is large switch statement which meant to be optimized out.
+> It does optimize out *only if* count is compile-time constant.
 
-On Sun, Nov 03, 2002 at 08:53:25PM +0100, Patrick Mau wrote:
-> the Adaptec 39160 is indeed capable of doing 160MB/s/channel. Did I
-> misread the whole thread ? Here's the dmesg output of my system.
-> I get >40MB/s per disk and >80MB/s per channel.
-> Maybe it's because of your DVD and DAT device. I only have disks
-> connected to the adapter.
+gcc already allows you to check for constants that means you can
+generate
 
-64-bit vs. 32-bit PCI. Please follow up with the PCI info from dmesg
-to let them know of where to get the (uncommon/expensive) right hardware.
+	(is a constant ? inline: noninline)(to, from, len)
 
+and I would hope gcc does the right thing. Similarly your switch will 
+be optimised out so the default case for the constant one can be the
+invocation of uninlined code and it should optimise back to the straight
+expected call.
 
-Bill
+Alan
+

@@ -1,41 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261872AbTJ2C1t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 21:27:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbTJ2C1t
+	id S261879AbTJ2C2k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 21:28:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbTJ2C2k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 21:27:49 -0500
-Received: from corpmail.outblaze.com ([203.86.166.82]:9862 "EHLO
-	corpmail.outblaze.com") by vger.kernel.org with ESMTP
-	id S261872AbTJ2C1s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 21:27:48 -0500
-Date: Wed, 29 Oct 2003 10:27:15 +0800
-From: Yusuf Goolamabbas <yusufg@outblaze.com>
-To: linux-kernel@vger.kernel.org
-Subject: Anybody has a pointer to int80/sysenter benchmark program
-Message-ID: <20031029022715.GC29856@outblaze.com>
+	Tue, 28 Oct 2003 21:28:40 -0500
+Received: from h80ad2501.async.vt.edu ([128.173.37.1]:9600 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261879AbTJ2C2i (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 21:28:38 -0500
+Message-Id: <200310290224.h9T2Oc43005010@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Peter Chubb <peter@chubb.wattle.id.au>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Pavel Machek <pavel@suse.cz>,
+       felipe_alfaro@linuxmail.org, mochel@osdl.org, george@mvista.com,
+       johnstul@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [pm] fix time after suspend-to-* 
+In-Reply-To: Your message of "Wed, 29 Oct 2003 09:23:50 +1100."
+             <16286.60534.924753.349385@wombat.chubb.wattle.id.au> 
+From: Valdis.Kletnieks@vt.edu
+References: <Pine.LNX.4.44.0310271535160.13116-100000@cherise> <1067329994.861.3.camel@teapot.felipe-alfaro.com> <20031028093233.GA1253@elf.ucw.cz> <20031028224101.3220e0a6.sfr@canb.auug.org.au>
+            <16286.60534.924753.349385@wombat.chubb.wattle.id.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.11; VAE: 6.22.0.1; VDF: 6.22.0.18; host: corpmail.outblaze.com)
+Content-Type: multipart/signed; boundary="==_Exmh_1682402374P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 28 Oct 2003 21:24:37 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, I am trying to find a benchmark program which can show the number of
-cycles int80/sysenter take on various hardware. 
+--==_Exmh_1682402374P
+Content-Type: text/plain; charset=us-ascii
 
-I found the following URL
-http://colorfullife.com/~manfred/Linux-Kernel/old/sysenter/
+On Wed, 29 Oct 2003 09:23:50 +1100, Peter Chubb said:
 
-Running it on Redhat Fedora with 2.6.0-test8, int80 works fine but I get
-a segfault with sysenter (my understanding is that Fedora glibc is
-sysenter aware)
+> Maybe use SIGCKPT and SIGCONT?  Or even SIGSTOP and SIGCONT (after
+> all, you're stopping the process, then restarting it)
 
-Anybody has a pointer to such a benchmark program ?
+Some programs do special handling of SIGSTOP (for instance, 'vi' will
+drop the terminal out of raw mode) that may not be appropriate for
+suspending the system.
 
-Regards, Yusuf
--- 
-If you're not using Firebird, you're not surfing the web 
-   you're suffering it
-http://www.mozilla.org/products/firebird/why/
+--==_Exmh_1682402374P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/nyTlcC3lWbTT17ARAv8OAJ41H/NDM0e2Hh7aGbo4herkmGgF9gCg1Ict
+bnNeRaBv+DML1dHgqzf+XHs=
+=rotq
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1682402374P--

@@ -1,527 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261215AbVDBTPM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbVDBTZ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261215AbVDBTPM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Apr 2005 14:15:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261201AbVDBTOg
+	id S261187AbVDBTZ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Apr 2005 14:25:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261201AbVDBTZ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Apr 2005 14:14:36 -0500
-Received: from pin.if.uz.zgora.pl ([212.109.128.251]:28149 "EHLO
-	pin.if.uz.zgora.pl") by vger.kernel.org with ESMTP id S261187AbVDBTNu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Apr 2005 14:13:50 -0500
-Message-ID: <424EEF39.50805@pin.if.uz.zgora.pl>
-Date: Sat, 02 Apr 2005 21:15:05 +0200
-From: Jacek Luczak <difrost@pin.if.uz.zgora.pl>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: pl, en-us, en
+	Sat, 2 Apr 2005 14:25:59 -0500
+Received: from weber.sscnet.ucla.edu ([128.97.42.3]:23468 "EHLO
+	weber.sscnet.ucla.edu") by vger.kernel.org with ESMTP
+	id S261187AbVDBTZu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Apr 2005 14:25:50 -0500
+Message-ID: <424EF19B.7030105@cogweb.net>
+Date: Sat, 02 Apr 2005 11:25:15 -0800
+From: David Liontooth <liontooth@cogweb.net>
+User-Agent: Debian Thunderbird 1.0 (X11/20050118)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Something wrong with 2.6.12-rc1-RT-V0.7.43-05
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+To: venza@brownhat.org, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: ICS1883 LAN PHY not detected
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi
+Gigabyte's K8NS Ultra-939 mobo has a 100/10 LAN PHY chip, ICS1883, which
+isn't detected by the 2.6.12-rc1 kernel (and likely not previous kernels).
 
-Early morning i made a 2.6.12-rc1 with RT-V0.7.43-05 and this is what I 
-sow in dmesg after 6 hours of computers work:
+http://www.giga-byte.com/MotherBoard/Products/Products_Spec_GA-K8NS%20Ultra-939.htm
 
-BUG: scheduling while atomic: events/0/0x00000001/8
-caller is schedule+0x40/0x140
-  [<c0104333>] dump_stack+0x23/0x30 (20)
-  [<c032ba03>] __schedule+0xe53/0xeb0 (124)
-  [<c032baa0>] schedule+0x40/0x140 (36)
-  [<c032cde6>] __down_mutex+0x2c6/0x370 (92)
-  [<c013c2f6>] __spin_lock+0x36/0x50 (24)
-  [<c013c32d>] _spin_lock+0x1d/0x30 (16)
-  [<c0154cdb>] kmem_cache_alloc+0x3b/0x120 (44)
-  [<dede8d49>] NdisMIndicateReceivePacket+0x189/0x3d0 [ndiswrapper] (60)
-  [<dee3a58d>] 0xdee3a58d (628)
-  [<dee35acf>] 0xdee35acf (28)
-  [<dede8583>] ndis_irq_bh+0x63/0x100 [ndiswrapper] (24)
-  [<c0131241>] worker_thread+0x1b1/0x270 (128)
-  [<c013626b>] kthread+0xbb/0xc0 (48)
-  [<c01013f9>] kernel_thread_helper+0x5/0xc (1052311572)
-BUG: scheduling while atomic: ksoftirqd/1/0x00000001/6
-caller is schedule+0x40/0x140
-  [<c0104333>] dump_stack+0x23/0x30 (20)
-  [<c032ba03>] __schedule+0xe53/0xeb0 (124)
-  [<c032baa0>] schedule+0x40/0x140 (36)
-  [<c032cde6>] __down_mutex+0x2c6/0x370 (92)
-  [<c013c2f6>] __spin_lock+0x36/0x50 (24)
-  [<c013c32d>] _spin_lock+0x1d/0x30 (16)
-  [<c0128f18>] __mod_timer+0x128/0x170 (44)
-  [<dede4417>] wrapper_set_timer+0x157/0x250 [ndiswrapper] (44)
-  [<dede8243>] NdisSetTimer+0x43/0x50 [ndiswrapper] (24)
-  [<dee43ab7>] 0xdee43ab7 (32)
-  [<dede4079>] wrapper_timer_handler+0x119/0x250 [ndiswrapper] (44)
-  [<c0129a15>] run_timer_softirq+0x1f5/0x420 (56)
-  [<c0125033>] ___do_softirq+0xd3/0x130 (44)
-  [<c0125159>] _do_softirq+0x29/0x30 (8)
-  [<c0125771>] ksoftirqd+0xd1/0x160 (28)
-  [<c013626b>] kthread+0xbb/0xc0 (48)
-  [<c01013f9>] kernel_thread_helper+0x5/0xc (1052344340)
-BUG: scheduling while atomic: events/0/0x00000001/8
-caller is schedule+0x40/0x140
-  [<c0104333>] dump_stack+0x23/0x30 (20)
-  [<c032ba03>] __schedule+0xe53/0xeb0 (124)
-  [<c032baa0>] schedule+0x40/0x140 (36)
-  [<c032cde6>] __down_mutex+0x2c6/0x370 (92)
-  [<c013c2f6>] __spin_lock+0x36/0x50 (24)
-  [<c013c32d>] _spin_lock+0x1d/0x30 (16)
-  [<c0154cdb>] kmem_cache_alloc+0x3b/0x120 (44)
-  [<c02d2538>] alloc_skb+0x28/0xf0 (32)
-  [<dede8c24>] NdisMIndicateReceivePacket+0x64/0x3d0 [ndiswrapper] (60)
-  [<dee3a58d>] 0xdee3a58d (628)
-  [<dee35acf>] 0xdee35acf (28)
-  [<dede8583>] ndis_irq_bh+0x63/0x100 [ndiswrapper] (24)
-  [<c0131241>] worker_thread+0x1b1/0x270 (128)
-  [<c013626b>] kthread+0xbb/0xc0 (48)
-  [<c01013f9>] kernel_thread_helper+0x5/0xc (1052311572)
-BUG: scheduling while atomic: events/0/0x00000001/8
-caller is schedule+0x40/0x140
-  [<c0104333>] dump_stack+0x23/0x30 (20)
-  [<c032ba03>] __schedule+0xe53/0xeb0 (124)
-  [<c032baa0>] schedule+0x40/0x140 (36)
-  [<c032cde6>] __down_mutex+0x2c6/0x370 (92)
-  [<c013c2f6>] __spin_lock+0x36/0x50 (24)
-  [<c013c32d>] _spin_lock+0x1d/0x30 (16)
-  [<c0154cdb>] kmem_cache_alloc+0x3b/0x120 (44)
-  [<dede8d49>] NdisMIndicateReceivePacket+0x189/0x3d0 [ndiswrapper] (60)
-  [<dee3a58d>] 0xdee3a58d (628)
-  [<dee35acf>] 0xdee35acf (28)
-  [<dede8583>] ndis_irq_bh+0x63/0x100 [ndiswrapper] (24)
-  [<c0131241>] worker_thread+0x1b1/0x270 (128)
-  [<c013626b>] kthread+0xbb/0xc0 (48)
-  [<c01013f9>] kernel_thread_helper+0x5/0xc (1052311572)
-BUG: scheduling while atomic: events/0/0x00000001/8
-caller is schedule+0x40/0x140
-  [<c0104333>] dump_stack+0x23/0x30 (20)
-  [<c032ba03>] __schedule+0xe53/0xeb0 (124)
-  [<c032baa0>] schedule+0x40/0x140 (36)
-  [<c032cde6>] __down_mutex+0x2c6/0x370 (92)
-  [<c013c2f6>] __spin_lock+0x36/0x50 (24)
-  [<c013c32d>] _spin_lock+0x1d/0x30 (16)
-  [<c0154cdb>] kmem_cache_alloc+0x3b/0x120 (44)
-  [<c02d2538>] alloc_skb+0x28/0xf0 (32)
-  [<dede8c24>] NdisMIndicateReceivePacket+0x64/0x3d0 [ndiswrapper] (60)
-  [<dee3a58d>] 0xdee3a58d (628)
-  [<dee35acf>] 0xdee35acf (28)
-  [<dede8583>] ndis_irq_bh+0x63/0x100 [ndiswrapper] (24)
-  [<c0131241>] worker_thread+0x1b1/0x270 (128)
-  [<c013626b>] kthread+0xbb/0xc0 (48)
-  [<c01013f9>] kernel_thread_helper+0x5/0xc (1052311572)
-BUG: scheduling while atomic: ksoftirqd/1/0x00000001/6
-caller is schedule+0x40/0x140
-  [<c0104333>] dump_stack+0x23/0x30 (20)
-  [<c032ba03>] __schedule+0xe53/0xeb0 (124)
-  [<c032baa0>] schedule+0x40/0x140 (36)
-  [<c032cde6>] __down_mutex+0x2c6/0x370 (92)
-  [<c013c2f6>] __spin_lock+0x36/0x50 (24)
-  [<c013c32d>] _spin_lock+0x1d/0x30 (16)
-  [<c0128f18>] __mod_timer+0x128/0x170 (44)
-  [<dede4417>] wrapper_set_timer+0x157/0x250 [ndiswrapper] (44)
-  [<dede8243>] NdisSetTimer+0x43/0x50 [ndiswrapper] (24)
-  [<dee43ab7>] 0xdee43ab7 (32)
-  [<dede4079>] wrapper_timer_handler+0x119/0x250 [ndiswrapper] (44)
-  [<c0129a15>] run_timer_softirq+0x1f5/0x420 (56)
-  [<c0125033>] ___do_softirq+0xd3/0x130 (44)
-  [<c0125159>] _do_softirq+0x29/0x30 (8)
-  [<c0125771>] ksoftirqd+0xd1/0x160 (28)
-  [<c013626b>] kthread+0xbb/0xc0 (48)
-  [<c01013f9>] kernel_thread_helper+0x5/0xc (1052344340)
-BUG: scheduling while atomic: events/0/0x00000001/8
-caller is schedule+0x40/0x140
-  [<c0104333>] dump_stack+0x23/0x30 (20)
-  [<c032ba03>] __schedule+0xe53/0xeb0 (124)
-  [<c032baa0>] schedule+0x40/0x140 (36)
-  [<c032cde6>] __down_mutex+0x2c6/0x370 (92)
-  [<c013c2f6>] __spin_lock+0x36/0x50 (24)
-  [<c013c32d>] _spin_lock+0x1d/0x30 (16)
-  [<c0154e89>] __kmalloc+0x69/0x150 (44)
-  [<c02d255d>] alloc_skb+0x4d/0xf0 (32)
-  [<dede8c24>] NdisMIndicateReceivePacket+0x64/0x3d0 [ndiswrapper] (60)
-  [<dee3a58d>] 0xdee3a58d (628)
-  [<dee35acf>] 0xdee35acf (28)
-  [<dede8583>] ndis_irq_bh+0x63/0x100 [ndiswrapper] (24)
-  [<c0131241>] worker_thread+0x1b1/0x270 (128)
-  [<c013626b>] kthread+0xbb/0xc0 (48)
-  [<c01013f9>] kernel_thread_helper+0x5/0xc (1052311572)
-BUG: scheduling while atomic: events/0/0x00000001/8
-caller is schedule+0x40/0x140
-  [<c0104333>] dump_stack+0x23/0x30 (20)
-  [<c032ba03>] __schedule+0xe53/0xeb0 (124)
-  [<c032baa0>] schedule+0x40/0x140 (36)
-  [<c032cde6>] __down_mutex+0x2c6/0x370 (92)
-  [<c013c2f6>] __spin_lock+0x36/0x50 (24)
-  [<c013c32d>] _spin_lock+0x1d/0x30 (16)
-  [<c0155298>] kfree+0x78/0x180 (48)
-  [<dedef62e>] free_send_packet+0x2e/0x80 [ndiswrapper] (32)
-  [<dedefb29>] sendpacket_done+0x49/0x60 [ndiswrapper] (24)
-  [<dede8fd0>] NdisMSendComplete+0x20/0x40 [ndiswrapper] (20)
-  [<dee38d53>] 0xdee38d53 (32)
-  [<dee48683>] 0xdee48683 (88)
-  [<dee35ad5>] 0xdee35ad5 (28)
-  [<dede8583>] ndis_irq_bh+0x63/0x100 [ndiswrapper] (24)
-  [<c0131241>] worker_thread+0x1b1/0x270 (128)
-  [<c013626b>] kthread+0xbb/0xc0 (48)
-  [<c01013f9>] kernel_thread_helper+0x5/0xc (1052311572)
-BUG: scheduling while atomic: events/0/0x00000001/8
-caller is schedule+0x40/0x140
-  [<c0104333>] dump_stack+0x23/0x30 (20)
-  [<c032ba03>] __schedule+0xe53/0xeb0 (124)
-  [<c032baa0>] schedule+0x40/0x140 (36)
-  [<c032cde6>] __down_mutex+0x2c6/0x370 (92)
-  [<c013c2f6>] __spin_lock+0x36/0x50 (24)
-  [<c013c32d>] _spin_lock+0x1d/0x30 (16)
-  [<c0154cdb>] kmem_cache_alloc+0x3b/0x120 (44)
-  [<dede8d49>] NdisMIndicateReceivePacket+0x189/0x3d0 [ndiswrapper] (60)
-  [<dee3a58d>] 0xdee3a58d (628)
-  [<dee35acf>] 0xdee35acf (28)
-  [<dede8583>] ndis_irq_bh+0x63/0x100 [ndiswrapper] (24)
-  [<c0131241>] worker_thread+0x1b1/0x270 (128)
-  [<c013626b>] kthread+0xbb/0xc0 (48)
-  [<c01013f9>] kernel_thread_helper+0x5/0xc (1052311572)
-BUG: scheduling while atomic: events/0/0x00000001/8
-caller is schedule+0x40/0x140
-  [<c0104333>] dump_stack+0x23/0x30 (20)
-  [<c032ba03>] __schedule+0xe53/0xeb0 (124)
-  [<c032baa0>] schedule+0x40/0x140 (36)
-  [<c032cde6>] __down_mutex+0x2c6/0x370 (92)
-  [<c013c2f6>] __spin_lock+0x36/0x50 (24)
-  [<c013c32d>] _spin_lock+0x1d/0x30 (16)
-  [<c0154cdb>] kmem_cache_alloc+0x3b/0x120 (44)
-  [<dede8d49>] NdisMIndicateReceivePacket+0x189/0x3d0 [ndiswrapper] (60)
-  [<dee3a58d>] 0xdee3a58d (628)
-  [<dee35acf>] 0xdee35acf (28)
-  [<dede8583>] ndis_irq_bh+0x63/0x100 [ndiswrapper] (24)
-  [<c0131241>] worker_thread+0x1b1/0x270 (128)
-  [<c013626b>] kthread+0xbb/0xc0 (48)
-  [<c01013f9>] kernel_thread_helper+0x5/0xc (1052311572)
-BUG: scheduling while atomic: ksoftirqd/1/0x00000001/6
-caller is schedule+0x40/0x140
-  [<c0104333>] dump_stack+0x23/0x30 (20)
-  [<c032ba03>] __schedule+0xe53/0xeb0 (124)
-  [<c032baa0>] schedule+0x40/0x140 (36)
-  [<c032cde6>] __down_mutex+0x2c6/0x370 (92)
-  [<c013c2f6>] __spin_lock+0x36/0x50 (24)
-  [<c013c32d>] _spin_lock+0x1d/0x30 (16)
-  [<c0128f18>] __mod_timer+0x128/0x170 (44)
-  [<dede4417>] wrapper_set_timer+0x157/0x250 [ndiswrapper] (44)
-  [<dede8243>] NdisSetTimer+0x43/0x50 [ndiswrapper] (24)
-  [<dee43ab7>] 0xdee43ab7 (32)
-  [<dede4079>] wrapper_timer_handler+0x119/0x250 [ndiswrapper] (44)
-  [<c0129a15>] run_timer_softirq+0x1f5/0x420 (56)
-  [<c0125033>] ___do_softirq+0xd3/0x130 (44)
-  [<c0125159>] _do_softirq+0x29/0x30 (8)
-  [<c0125771>] ksoftirqd+0xd1/0x160 (28)
-  [<c013626b>] kthread+0xbb/0xc0 (48)
-  [<c01013f9>] kernel_thread_helper+0x5/0xc (1052344340)
-BUG: scheduling while atomic: events/0/0x00000001/8
-caller is schedule+0x40/0x140
-  [<c0104333>] dump_stack+0x23/0x30 (20)
-  [<c032ba03>] __schedule+0xe53/0xeb0 (124)
-  [<c032baa0>] schedule+0x40/0x140 (36)
-  [<c032cde6>] __down_mutex+0x2c6/0x370 (92)
-  [<c013c2f6>] __spin_lock+0x36/0x50 (24)
-  [<c013c32d>] _spin_lock+0x1d/0x30 (16)
-  [<c0154cdb>] kmem_cache_alloc+0x3b/0x120 (44)
-  [<dede8d49>] NdisMIndicateReceivePacket+0x189/0x3d0 [ndiswrapper] (60)
-  [<dee3a58d>] 0xdee3a58d (628)
-  [<dee35acf>] 0xdee35acf (28)
-  [<dede8583>] ndis_irq_bh+0x63/0x100 [ndiswrapper] (24)
-  [<c0131241>] worker_thread+0x1b1/0x270 (128)
-  [<c013626b>] kthread+0xbb/0xc0 (48)
-  [<c01013f9>] kernel_thread_helper+0x5/0xc (1052311572)
-BUG: scheduling while atomic: ksoftirqd/1/0x00000001/6
-caller is schedule+0x40/0x140
-  [<c0104333>] dump_stack+0x23/0x30 (20)
-  [<c032ba03>] __schedule+0xe53/0xeb0 (124)
-  [<c032baa0>] schedule+0x40/0x140 (36)
-  [<c032cde6>] __down_mutex+0x2c6/0x370 (92)
-  [<c013c2f6>] __spin_lock+0x36/0x50 (24)
-  [<c013c32d>] _spin_lock+0x1d/0x30 (16)
-  [<c0128f18>] __mod_timer+0x128/0x170 (44)
-  [<dede4417>] wrapper_set_timer+0x157/0x250 [ndiswrapper] (44)
-  [<dede8243>] NdisSetTimer+0x43/0x50 [ndiswrapper] (24)
-  [<dee43ab7>] 0xdee43ab7 (32)
-  [<dede4079>] wrapper_timer_handler+0x119/0x250 [ndiswrapper] (44)
-  [<c0129a15>] run_timer_softirq+0x1f5/0x420 (56)
-  [<c0125033>] ___do_softirq+0xd3/0x130 (44)
-  [<c0125159>] _do_softirq+0x29/0x30 (8)
-  [<c0125771>] ksoftirqd+0xd1/0x160 (28)
-  [<c013626b>] kthread+0xbb/0xc0 (48)
-  [<c01013f9>] kernel_thread_helper+0x5/0xc (1052344340)
-BUG: scheduling while atomic: events/0/0x00000001/8
-caller is schedule+0x40/0x140
-  [<c0104333>] dump_stack+0x23/0x30 (20)
-  [<c032ba03>] __schedule+0xe53/0xeb0 (124)
-  [<c032baa0>] schedule+0x40/0x140 (36)
-  [<c032cde6>] __down_mutex+0x2c6/0x370 (92)
-  [<c013c2f6>] __spin_lock+0x36/0x50 (24)
-  [<c013c32d>] _spin_lock+0x1d/0x30 (16)
-  [<c0154cdb>] kmem_cache_alloc+0x3b/0x120 (44)
-  [<dede8d49>] NdisMIndicateReceivePacket+0x189/0x3d0 [ndiswrapper] (60)
-  [<dee3a58d>] 0xdee3a58d (628)
-  [<dee35acf>] 0xdee35acf (28)
-  [<dede8583>] ndis_irq_bh+0x63/0x100 [ndiswrapper] (24)
-  [<c0131241>] worker_thread+0x1b1/0x270 (128)
-  [<c013626b>] kthread+0xbb/0xc0 (48)
-  [<c01013f9>] kernel_thread_helper+0x5/0xc (1052311572)
-BUG: scheduling while atomic: events/0/0x00000001/8
-caller is schedule+0x40/0x140
-  [<c0104333>] dump_stack+0x23/0x30 (20)
-  [<c032ba03>] __schedule+0xe53/0xeb0 (124)
-  [<c032baa0>] schedule+0x40/0x140 (36)
-  [<c032cde6>] __down_mutex+0x2c6/0x370 (92)
-  [<c013c2f6>] __spin_lock+0x36/0x50 (24)
-  [<c013c32d>] _spin_lock+0x1d/0x30 (16)
-  [<c0154cdb>] kmem_cache_alloc+0x3b/0x120 (44)
-  [<dede8d49>] NdisMIndicateReceivePacket+0x189/0x3d0 [ndiswrapper] (60)
-  [<dee3a58d>] 0xdee3a58d (628)
-  [<dee35acf>] 0xdee35acf (28)
-  [<dede8583>] ndis_irq_bh+0x63/0x100 [ndiswrapper] (24)
-  [<c0131241>] worker_thread+0x1b1/0x270 (128)
-  [<c013626b>] kthread+0xbb/0xc0 (48)
-  [<c01013f9>] kernel_thread_helper+0x5/0xc (1052311572)
-BUG: scheduling while atomic: events/0/0x00000001/8
-caller is schedule+0x40/0x140
-  [<c0104333>] dump_stack+0x23/0x30 (20)
-  [<c032ba03>] __schedule+0xe53/0xeb0 (124)
-  [<c032baa0>] schedule+0x40/0x140 (36)
-  [<c032cde6>] __down_mutex+0x2c6/0x370 (92)
-  [<c013c2f6>] __spin_lock+0x36/0x50 (24)
-  [<c013c32d>] _spin_lock+0x1d/0x30 (16)
-  [<c0154cdb>] kmem_cache_alloc+0x3b/0x120 (44)
-  [<dede8d49>] NdisMIndicateReceivePacket+0x189/0x3d0 [ndiswrapper] (60)
-  [<dee3a58d>] 0xdee3a58d (628)
-  [<dee35acf>] 0xdee35acf (28)
-  [<dede8583>] ndis_irq_bh+0x63/0x100 [ndiswrapper] (24)
-  [<c0131241>] worker_thread+0x1b1/0x270 (128)
-  [<c013626b>] kthread+0xbb/0xc0 (48)
-  [<c01013f9>] kernel_thread_helper+0x5/0xc (1052311572)
-BUG: scheduling while atomic: events/0/0x00000001/8
-caller is schedule+0x40/0x140
-  [<c0104333>] dump_stack+0x23/0x30 (20)
-  [<c032ba03>] __schedule+0xe53/0xeb0 (124)
-  [<c032baa0>] schedule+0x40/0x140 (36)
-  [<c032cde6>] __down_mutex+0x2c6/0x370 (92)
-  [<c013c2f6>] __spin_lock+0x36/0x50 (24)
-  [<c013c32d>] _spin_lock+0x1d/0x30 (16)
-  [<c0154cdb>] kmem_cache_alloc+0x3b/0x120 (44)
-  [<dede8d49>] NdisMIndicateReceivePacket+0x189/0x3d0 [ndiswrapper] (60)
-  [<dee3a58d>] 0xdee3a58d (628)
-  [<dee35acf>] 0xdee35acf (28)
-  [<dede8583>] ndis_irq_bh+0x63/0x100 [ndiswrapper] (24)
-  [<c0131241>] worker_thread+0x1b1/0x270 (128)
-  [<c013626b>] kthread+0xbb/0xc0 (48)
-  [<c01013f9>] kernel_thread_helper+0x5/0xc (1052311572)
-BUG: scheduling while atomic: events/0/0x00000001/8
-caller is schedule+0x40/0x140
-  [<c0104333>] dump_stack+0x23/0x30 (20)
-  [<c032ba03>] __schedule+0xe53/0xeb0 (124)
-  [<c032baa0>] schedule+0x40/0x140 (36)
-  [<c032cde6>] __down_mutex+0x2c6/0x370 (92)
-  [<c013c2f6>] __spin_lock+0x36/0x50 (24)
-  [<c013c32d>] _spin_lock+0x1d/0x30 (16)
-  [<c0154cdb>] kmem_cache_alloc+0x3b/0x120 (44)
-  [<dede8d49>] NdisMIndicateReceivePacket+0x189/0x3d0 [ndiswrapper] (60)
-  [<dee3a58d>] 0xdee3a58d (628)
-  [<dee35acf>] 0xdee35acf (28)
-  [<dede8583>] ndis_irq_bh+0x63/0x100 [ndiswrapper] (24)
-  [<c0131241>] worker_thread+0x1b1/0x270 (128)
-  [<c013626b>] kthread+0xbb/0xc0 (48)
-  [<c01013f9>] kernel_thread_helper+0x5/0xc (1052311572)
-BUG: scheduling while atomic: events/0/0x00000001/8
-caller is schedule+0x40/0x140
-  [<c0104333>] dump_stack+0x23/0x30 (20)
-  [<c032ba03>] __schedule+0xe53/0xeb0 (124)
-  [<c032baa0>] schedule+0x40/0x140 (36)
-  [<c032cde6>] __down_mutex+0x2c6/0x370 (92)
-  [<c013c2f6>] __spin_lock+0x36/0x50 (24)
-  [<c013c32d>] _spin_lock+0x1d/0x30 (16)
-  [<c0154cdb>] kmem_cache_alloc+0x3b/0x120 (44)
-  [<c02d2538>] alloc_skb+0x28/0xf0 (32)
-  [<dede8c24>] NdisMIndicateReceivePacket+0x64/0x3d0 [ndiswrapper] (60)
-  [<dee3a58d>] 0xdee3a58d (628)
-  [<dee35acf>] 0xdee35acf (28)
-  [<dede8583>] ndis_irq_bh+0x63/0x100 [ndiswrapper] (24)
-  [<c0131241>] worker_thread+0x1b1/0x270 (128)
-  [<c013626b>] kthread+0xbb/0xc0 (48)
-  [<c01013f9>] kernel_thread_helper+0x5/0xc (1052311572)
-BUG: scheduling while atomic: ksoftirqd/1/0x00000001/6
-caller is schedule+0x40/0x140
-  [<c0104333>] dump_stack+0x23/0x30 (20)
-  [<c032ba03>] __schedule+0xe53/0xeb0 (124)
-  [<c032baa0>] schedule+0x40/0x140 (36)
-  [<c032cde6>] __down_mutex+0x2c6/0x370 (92)
-  [<c013c2f6>] __spin_lock+0x36/0x50 (24)
-  [<c013c32d>] _spin_lock+0x1d/0x30 (16)
-  [<c0128f18>] __mod_timer+0x128/0x170 (44)
-  [<dede4417>] wrapper_set_timer+0x157/0x250 [ndiswrapper] (44)
-  [<dede8243>] NdisSetTimer+0x43/0x50 [ndiswrapper] (24)
-  [<dee43ab7>] 0xdee43ab7 (32)
-  [<dede4079>] wrapper_timer_handler+0x119/0x250 [ndiswrapper] (44)
-  [<c0129a15>] run_timer_softirq+0x1f5/0x420 (56)
-  [<c0125033>] ___do_softirq+0xd3/0x130 (44)
-  [<c0125159>] _do_softirq+0x29/0x30 (8)
-  [<c0125771>] ksoftirqd+0xd1/0x160 (28)
-  [<c013626b>] kthread+0xbb/0xc0 (48)
-  [<c01013f9>] kernel_thread_helper+0x5/0xc (1052344340)
-BUG: scheduling while atomic: events/0/0x00000001/8
-caller is schedule+0x40/0x140
-  [<c0104333>] dump_stack+0x23/0x30 (20)
-  [<c032ba03>] __schedule+0xe53/0xeb0 (124)
-  [<c032baa0>] schedule+0x40/0x140 (36)
-  [<c032cde6>] __down_mutex+0x2c6/0x370 (92)
-  [<c013c2f6>] __spin_lock+0x36/0x50 (24)
-  [<c013c32d>] _spin_lock+0x1d/0x30 (16)
-  [<c0154cdb>] kmem_cache_alloc+0x3b/0x120 (44)
-  [<dede8d49>] NdisMIndicateReceivePacket+0x189/0x3d0 [ndiswrapper] (60)
-  [<dee3a58d>] 0xdee3a58d (628)
-  [<dee35acf>] 0xdee35acf (28)
-  [<dede8583>] ndis_irq_bh+0x63/0x100 [ndiswrapper] (24)
-  [<c0131241>] worker_thread+0x1b1/0x270 (128)
-  [<c013626b>] kthread+0xbb/0xc0 (48)
-  [<c01013f9>] kernel_thread_helper+0x5/0xc (1052311572)
-BUG: scheduling while atomic: events/0/0x00000001/8
-caller is schedule+0x40/0x140
-  [<c0104333>] dump_stack+0x23/0x30 (20)
-  [<c032ba03>] __schedule+0xe53/0xeb0 (124)
-  [<c032baa0>] schedule+0x40/0x140 (36)
-  [<c032cde6>] __down_mutex+0x2c6/0x370 (92)
-  [<c013c2f6>] __spin_lock+0x36/0x50 (24)
-  [<c013c32d>] _spin_lock+0x1d/0x30 (16)
-  [<c0154cdb>] kmem_cache_alloc+0x3b/0x120 (44)
-  [<dede8d49>] NdisMIndicateReceivePacket+0x189/0x3d0 [ndiswrapper] (60)
-  [<dee3a58d>] 0xdee3a58d (628)
-  [<dee35acf>] 0xdee35acf (28)
-  [<dede8583>] ndis_irq_bh+0x63/0x100 [ndiswrapper] (24)
-  [<c0131241>] worker_thread+0x1b1/0x270 (128)
-  [<c013626b>] kthread+0xbb/0xc0 (48)
-  [<c01013f9>] kernel_thread_helper+0x5/0xc (1052311572)
-BUG: scheduling while atomic: events/0/0x00000001/8
-caller is schedule+0x40/0x140
-  [<c0104333>] dump_stack+0x23/0x30 (20)
-  [<c032ba03>] __schedule+0xe53/0xeb0 (124)
-  [<c032baa0>] schedule+0x40/0x140 (36)
-  [<c032cde6>] __down_mutex+0x2c6/0x370 (92)
-  [<c013c2f6>] __spin_lock+0x36/0x50 (24)
-  [<c013c32d>] _spin_lock+0x1d/0x30 (16)
-  [<c0154cdb>] kmem_cache_alloc+0x3b/0x120 (44)
-  [<dede8d49>] NdisMIndicateReceivePacket+0x189/0x3d0 [ndiswrapper] (60)
-  [<dee3a58d>] 0xdee3a58d (628)
-  [<dee35acf>] 0xdee35acf (28)
-  [<dede8583>] ndis_irq_bh+0x63/0x100 [ndiswrapper] (24)
-  [<c0131241>] worker_thread+0x1b1/0x270 (128)
-  [<c013626b>] kthread+0xbb/0xc0 (48)
-  [<c01013f9>] kernel_thread_helper+0x5/0xc (1052311572)
-BUG: scheduling while atomic: events/0/0x00000001/8
-caller is schedule+0x40/0x140
-  [<c0104333>] dump_stack+0x23/0x30 (20)
-  [<c032ba03>] __schedule+0xe53/0xeb0 (124)
-  [<c032baa0>] schedule+0x40/0x140 (36)
-  [<c032cde6>] __down_mutex+0x2c6/0x370 (92)
-  [<c013c2f6>] __spin_lock+0x36/0x50 (24)
-  [<c013c32d>] _spin_lock+0x1d/0x30 (16)
-  [<c0154cdb>] kmem_cache_alloc+0x3b/0x120 (44)
-  [<dede8d49>] NdisMIndicateReceivePacket+0x189/0x3d0 [ndiswrapper] (60)
-  [<dee3a58d>] 0xdee3a58d (628)
-  [<dee35acf>] 0xdee35acf (28)
-  [<dede8583>] ndis_irq_bh+0x63/0x100 [ndiswrapper] (24)
-  [<c0131241>] worker_thread+0x1b1/0x270 (128)
-  [<c013626b>] kthread+0xbb/0xc0 (48)
-  [<c01013f9>] kernel_thread_helper+0x5/0xc (1052311572)
-BUG: scheduling while atomic: events/0/0x00000001/8
-caller is schedule+0x40/0x140
-  [<c0104333>] dump_stack+0x23/0x30 (20)
-  [<c032ba03>] __schedule+0xe53/0xeb0 (124)
-  [<c032baa0>] schedule+0x40/0x140 (36)
-  [<c032cde6>] __down_mutex+0x2c6/0x370 (92)
-  [<c013c2f6>] __spin_lock+0x36/0x50 (24)
-  [<c013c32d>] _spin_lock+0x1d/0x30 (16)
-  [<c0154cdb>] kmem_cache_alloc+0x3b/0x120 (44)
-  [<dede8d49>] NdisMIndicateReceivePacket+0x189/0x3d0 [ndiswrapper] (60)
-  [<dee3a58d>] 0xdee3a58d (628)
-  [<dee35acf>] 0xdee35acf (28)
-  [<dede8583>] ndis_irq_bh+0x63/0x100 [ndiswrapper] (24)
-  [<c0131241>] worker_thread+0x1b1/0x270 (128)
-  [<c013626b>] kthread+0xbb/0xc0 (48)
-  [<c01013f9>] kernel_thread_helper+0x5/0xc (1052311572)
-BUG: scheduling while atomic: events/0/0x00000001/8
-caller is schedule+0x40/0x140
-  [<c0104333>] dump_stack+0x23/0x30 (20)
-  [<c032ba03>] __schedule+0xe53/0xeb0 (124)
-  [<c032baa0>] schedule+0x40/0x140 (36)
-  [<c032cde6>] __down_mutex+0x2c6/0x370 (92)
-  [<c013c2f6>] __spin_lock+0x36/0x50 (24)
-  [<c013c32d>] _spin_lock+0x1d/0x30 (16)
-  [<c0154cdb>] kmem_cache_alloc+0x3b/0x120 (44)
-  [<c02d2538>] alloc_skb+0x28/0xf0 (32)
-  [<dede8c24>] NdisMIndicateReceivePacket+0x64/0x3d0 [ndiswrapper] (60)
-  [<dee3a58d>] 0xdee3a58d (628)
-  [<dee35acf>] 0xdee35acf (28)
-  [<dede8583>] ndis_irq_bh+0x63/0x100 [ndiswrapper] (24)
-  [<c0131241>] worker_thread+0x1b1/0x270 (128)
-  [<c013626b>] kthread+0xbb/0xc0 (48)
-  [<c01013f9>] kernel_thread_helper+0x5/0xc (1052311572)
-BUG: scheduling while atomic: events/0/0x00000001/8
-caller is schedule+0x40/0x140
-  [<c0104333>] dump_stack+0x23/0x30 (20)
-  [<c032ba03>] __schedule+0xe53/0xeb0 (124)
-  [<c032baa0>] schedule+0x40/0x140 (36)
-  [<c032cde6>] __down_mutex+0x2c6/0x370 (92)
-  [<c013c2f6>] __spin_lock+0x36/0x50 (24)
-  [<c013c32d>] _spin_lock+0x1d/0x30 (16)
-  [<c0154e89>] __kmalloc+0x69/0x150 (44)
-  [<c02d255d>] alloc_skb+0x4d/0xf0 (32)
-  [<dede8c24>] NdisMIndicateReceivePacket+0x64/0x3d0 [ndiswrapper] (60)
-  [<dee3a58d>] 0xdee3a58d (628)
-  [<dee35acf>] 0xdee35acf (28)
-  [<dede8583>] ndis_irq_bh+0x63/0x100 [ndiswrapper] (24)
-  [<c0131241>] worker_thread+0x1b1/0x270 (128)
-  [<c013626b>] kthread+0xbb/0xc0 (48)
-  [<c01013f9>] kernel_thread_helper+0x5/0xc (1052311572)
-BUG: scheduling while atomic: events/0/0x00000001/8
-caller is schedule+0x40/0x140
-  [<c0104333>] dump_stack+0x23/0x30 (20)
-  [<c032ba03>] __schedule+0xe53/0xeb0 (124)
-  [<c032baa0>] schedule+0x40/0x140 (36)
-  [<c032cde6>] __down_mutex+0x2c6/0x370 (92)
-  [<c013c2f6>] __spin_lock+0x36/0x50 (24)
-  [<c013c32d>] _spin_lock+0x1d/0x30 (16)
-  [<c0154cdb>] kmem_cache_alloc+0x3b/0x120 (44)
-  [<dede8d49>] NdisMIndicateReceivePacket+0x189/0x3d0 [ndiswrapper] (60)
-  [<dee3a58d>] 0xdee3a58d (628)
-  [<dee35acf>] 0xdee35acf (28)
-  [<dede8583>] ndis_irq_bh+0x63/0x100 [ndiswrapper] (24)
-  [<c0131241>] worker_thread+0x1b1/0x270 (128)
-  [<c013626b>] kthread+0xbb/0xc0 (48)
-  [<c01013f9>] kernel_thread_helper+0x5/0xc (1052311572)
-BUG: scheduling while atomic: events/0/0x00000001/8
-caller is schedule+0x40/0x140
-  [<c0104333>] dump_stack+0x23/0x30 (20)
-  [<c032ba03>] __schedule+0xe53/0xeb0 (124)
-  [<c032baa0>] schedule+0x40/0x140 (36)
-  [<c032cde6>] __down_mutex+0x2c6/0x370 (92)
-  [<c013c2f6>] __spin_lock+0x36/0x50 (24)
-  [<c013c32d>] _spin_lock+0x1d/0x30 (16)
-  [<c0155084>] kmem_cache_free+0x44/0x130 (48)
-  [<dedec5ec>] free_mdl+0x3c/0x60 [ndiswrapper] (16)
-  [<dedef636>] free_send_packet+0x36/0x80 [ndiswrapper] (32)
-  [<dedefb29>] sendpacket_done+0x49/0x60 [ndiswrapper] (24)
-  [<dede8fd0>] NdisMSendComplete+0x20/0x40 [ndiswrapper] (20)
-  [<dee38d53>] 0xdee38d53 (32)
-  [<dee48683>] 0xdee48683 (88)
-  [<dee35ad5>] 0xdee35ad5 (28)
-  [<dede8583>] ndis_irq_bh+0x63/0x100 [ndiswrapper] (24)
-  [<c0131241>] worker_thread+0x1b1/0x270 (128)
-  [<c013626b>] kthread+0xbb/0xc0 (48)
-  [<c01013f9>] kernel_thread_helper+0x5/0xc (1052311572)
+On the other hand, the ports light up when connected.
+
+The device may be similar to ICS1893, which is supported by the sis900 
+driver.
+However, I figure the device first has to be detected?
+
+Any advice appreciated. 
+
+Dave
 
 
-Regards
-	Jacek
+
+# lspci
+0000:00:00.0 Host bridge: nVidia Corporation: Unknown device 00e1 (rev a1)
+0000:00:01.0 ISA bridge: nVidia Corporation: Unknown device 00e0 (rev a2)
+0000:00:01.1 SMBus: nVidia Corporation: Unknown device 00e4 (rev a1)
+0000:00:02.0 USB Controller: nVidia Corporation: Unknown device 00e7 
+(rev a1)
+0000:00:02.1 USB Controller: nVidia Corporation: Unknown device 00e7 
+(rev a1)
+0000:00:02.2 USB Controller: nVidia Corporation: Unknown device 00e8 
+(rev a2)
+0000:00:05.0 Bridge: nVidia Corporation: Unknown device 00df (rev a2)
+0000:00:06.0 Multimedia audio controller: nVidia Corporation: Unknown 
+device 00ea (rev a1)
+0000:00:08.0 IDE interface: nVidia Corporation: Unknown device 00e5 (rev a2)
+0000:00:0a.0 IDE interface: nVidia Corporation: Unknown device 00e3 (rev a2)
+0000:00:0b.0 PCI bridge: nVidia Corporation: Unknown device 00e2 (rev a2)
+0000:00:0e.0 PCI bridge: nVidia Corporation: Unknown device 00ed (rev a2)
+0000:00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
+0000:00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
+0000:00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
+0000:00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
+0000:02:0b.0 Ethernet controller: Marvell Technology Group Ltd. Yukon 
+Gigabit Ethernet 10/100/1000Base-T Adapter (rev 13)
+0000:02:0d.0 Unknown mass storage controller: Silicon Image, Inc. 
+(formerly CMD Technology Inc)SiI 3512 [SATALink/SATARaid] Serial ATA 
+Controller (rev 01)
+0000:02:0e.0 FireWire (IEEE 1394): Texas Instruments TSB82AA2 IEEE-1394b 
+Link Layer Controller (rev 01)
+

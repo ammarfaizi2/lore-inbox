@@ -1,67 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263140AbTIAQwu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 12:52:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263116AbTIAQwu
+	id S263147AbTIAQ7m (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 12:59:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263152AbTIAQ7m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 12:52:50 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:60297 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S263140AbTIAQwq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 12:52:46 -0400
-Date: Mon, 1 Sep 2003 17:52:39 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: "Paul J.Y. Lahaie" <pjlahaie@steamballoon.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
-Message-ID: <20030901165239.GB3556@mail.jlokier.co.uk>
-References: <20030829053510.GA12663@mail.jlokier.co.uk> <1062188787.4062.21.camel@elenuial.steamballoon.com> <20030901091524.A15370@flint.arm.linux.org.uk> <20030901101224.GB1638@mail.jlokier.co.uk> <20030901151710.A22682@flint.arm.linux.org.uk>
+	Mon, 1 Sep 2003 12:59:42 -0400
+Received: from sunpizz1.rvs.uni-bielefeld.de ([129.70.123.31]:27617 "EHLO
+	mail.rvs.uni-bielefeld.de") by vger.kernel.org with ESMTP
+	id S263147AbTIAQ7e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 12:59:34 -0400
+Subject: Re: [PATCH] Firmware loading depends on hotplug support
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030901163505.GA27754@ip68-0-152-218.tc.ph.cox.net>
+References: <200309011502.h81F2Mq6003467@hera.kernel.org> 
+	<20030901163505.GA27754@ip68-0-152-218.tc.ph.cox.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 01 Sep 2003 18:59:15 +0200
+Message-Id: <1062435561.30892.193.camel@pegasus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030901151710.A22682@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> On Mon, Sep 01, 2003 at 11:12:24AM +0100, Jamie Lokier wrote:
-> > Russell King wrote:
-> > > This looks like an old kernel on your NetWinder.  Later 2.4 kernels
-> > > should get this right (by marking the pages uncacheable in user space.)
+Hi Tom,
+
+> > 	[PATCH] Firmware loading depends on hotplug support
+> > 	
+> > 	This patch makes the firmware loading support only selectable if the
+> > 	hotplug support is also enabled.
 > > 
-> > How do they know which pages to mark uncacheable?  Surely not all
-> > MAP_SHARED|MAP_FIXED mappings are uncacheable?
+> > 
+> > # This patch includes the following deltas:
+> > #	           ChangeSet	1.1065.2.2 -> 1.1065.2.3
+> > #	       lib/Config.in	1.4     -> 1.5    
+> > #
+> > 
+> >  Config.in |    3 ++-
+> >  1 files changed, 2 insertions(+), 1 deletion(-)
+> > 
+> > 
+> > diff -Nru a/lib/Config.in b/lib/Config.in
+> > --- a/lib/Config.in	Mon Sep  1 08:02:24 2003
+> > +++ b/lib/Config.in	Mon Sep  1 08:02:24 2003
+> > @@ -41,7 +41,8 @@
+> >    fi
+> >  fi
+> >  
+> > -if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
+> > +if [ "$CONFIG_EXPERIMENTAL" = "y" -a \
+> > +     "$CONFIG_HOTPLUG" = "y" ]; then
+> >     tristate 'Hotplug firmware loading support (EXPERIMENTAL)' CONFIG_FW_LOADER
+> >  fi
 > 
-> By looking at the mappings present in the process.  If a process maps the
-> same file using MAP_SHARED _and_ we fault the same page of data into two
-> or more mappings, we turn off the cache for those pages.
+> Is this really a good idea, given that USB devices may be hot-plugged,
+> without CONFIG_HOTPLUG set (drivers are compiled in, for example) ?
 
-   1. That's not necessary when the virtual addresses are separated
-      by some multiple, is it?
+this option is only provided for drivers outside the kernel. If a driver
+inside the kernel needs it, it is selected automaticly like the CRC32
+routines.
 
-   2. The other architectures with incoherent caches set SHMLBA to the
-      multiple, and they don't do anything special in
-      update_mmu_cache(), so MAP_FIXED can create incoherent mappings.
+If you disable hotplug support the request_firmware() routine will
+return an error and this must be handled by the driver.
 
-      Is there any special reason why ARM is different?
+Regards
 
-> I've tested on several silicon revisions of StrongARM-110's:
-> - H appears buggy (reports as rev. 2)
-> - K appears fine (reports as rev. 2)
-> - S appears buggy (reports as rev. 3)
+Marcel
 
-It's possible that all of them are buggy, but the write buffer test
-doesn't manage to get writes into the buffer with the exact timing
-needed to trigger it.  Unfortunately, while the write buffer test does
-pretty much guarantee a store/store/load instruction sequence, because
-it's generic it can't guarantee how those are executed in a
-superscalar or out of order pipeline.
 
-> So it seems your test program finds problems which DaveM's aliastest
-> program fails to detect...  Gah. ;(
-
-Well, it's good to know it was useful :/
-
-Thanks,
--- Jamie

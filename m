@@ -1,73 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262555AbUCCT3a (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 14:29:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262557AbUCCT3a
+	id S262556AbUCCTdW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 14:33:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262561AbUCCTdW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 14:29:30 -0500
-Received: from NS1.idleaire.net ([65.220.16.2]:29401 "EHLO iasrv1.idleaire.net")
-	by vger.kernel.org with ESMTP id S262555AbUCCT3V (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 14:29:21 -0500
-Subject: Re: poll() in 2.6 and beyond
-From: Dave Dillow <dave@thedillows.org>
-To: root@chaos.analogic.com
-Cc: Bill Davidsen <davidsen@tmr.com>, Roland Dreier <roland@topspin.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.53.0403031313270.12900@chaos>
-References: <1vmPm-4lU-11@gated-at.bofh.it> <1vonq-6dr-37@gated-at.bofh.it>
-	 <1voGY-6vC-41@gated-at.bofh.it> <1vpjt-7dl-17@gated-at.bofh.it>
-	 <1vpCV-7wY-41@gated-at.bofh.it> <1vpWa-7Py-19@gated-at.bofh.it>
-	 <4045106D.8060902@tmr.com>  <Pine.LNX.4.53.0403021817050.9351@chaos>
-	 <1078286221.4302.23.camel@ori.thedillows.org>
-	 <Pine.LNX.4.53.0403031313270.12900@chaos>
-Content-Type: text/plain
-Message-Id: <1078342159.1123.18.camel@dillow.idleaire.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 03 Mar 2004 14:29:19 -0500
+	Wed, 3 Mar 2004 14:33:22 -0500
+Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:40845 "EHLO
+	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
+	id S262556AbUCCTdR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 14:33:17 -0500
+Message-ID: <404631C8.4000804@pacbell.net>
+Date: Wed, 03 Mar 2004 11:28:08 -0800
+From: David Brownell <david-b@pacbell.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en, fr
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Ed Tomlinson <edt@aei.ca>, Michael Weiser <michael@weiser.dinsnail.net>,
+       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] udev 021 release
+References: <20040303000957.GA11755@kroah.com> <20040303095615.GA89995@weiser.dinsnail.net> <200403030722.17632.edt@aei.ca> <20040303151433.GC25687@kroah.com>
+In-Reply-To: <20040303151433.GC25687@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 03 Mar 2004 19:29:19.0513 (UTC) FILETIME=[D2E29890:01C40155]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-03-03 at 13:23, Richard B. Johnson wrote:
-> The very great problems that exist with poll on linux-2.6.0
-> are being quashed by those who just like to argue.
+Greg KH wrote:
 
-No, the argument has always been that your understanding of poll()'s
-internals is not entirely correct. We have simply asked you to post code
-that shows poll()'s problems, which you have finally provided. Sort of.
+> Users need to learn that the kernel is changing models from one which
+> automatically loaded modules when userspace tried to access the device,
+> to one where the proper modules are loaded when the hardware is found.
+> 
+> Note that this is a much more sane model due to removable devices, and
+> instances of multiple types of the same kind of devices in the same
+> system.
 
->  Therefore,
-> I wrote some code that emulates the environment in which I
-> discovered the poll failure. Experts can decide whatever they
-> want about the inner workings of poll(). I supposed that if
-> `ps` showed that a task was sleeping in poll() then it must
-> be sleeping in poll(). 
 
-This we all agree on -- poll() sleeps. Duh. No argument there.
-poll_wait() doesn't and never has, which was your original assertion.
+Actually I think that sysadmin frameworks are the ones that'll have
+the hardest time changing.  It's a different way to look at system
+configuration, and changing basic models incrementally may not work.
+User adoption normally lags sysadmin adoption for such stuff.  (Yes,
+developers often wear both of those hats too.)
 
-But on to the code!
 
-> So, even it that's wrong, here is
-> irrefutable proof that there is a problem with polling events
-> getting lost on 2.6.0.
+Luckily, all the usermode frameworks to boot and configure Linux have
+had since the 2.4.0 kernel (or was that 2.4.0-test10?) to start moving
+from that "historical UNIX" sysadmin model to something more modern;
+Linux devices have been hotplugging for quite a while now.  All that
+2.6 changed was to use it more universally; and with sysfs, that also
+means stuff like "udev" is now possible.
 
-Ahem, no, not so much. What you have here is proof that your user
-program is not getting control again withing 0.488ms of the interrupt
-happening. That does not mean poll() is loosing events.
+Which means that any day now, all Linux systems (and their users,
+docs, and sysadmin procedures) will be done converting!
 
-You are definately seeing some significant latency -- 50 lost increments
-is ~25ms.
+- Dave
 
-What else is running when you perform this test? Can you repeat with a
-more recent kernel? Can you repeat in single user mode, with it being
-the only process present? With as few extra modules loaded as possible?
+p.s.    You in the back there saying "Huh?  NOT!!!".  Be quiet.
 
-I still think your problem is not poll() -- if there were problems
-there, bug reports would be coming out of the woodwork.
--- 
-Dave Dillow <dave@thedillows.org>
+p.p.s.  And that "we shall coexist" chanting -- enough already!
+
+;-)
 

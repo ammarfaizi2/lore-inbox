@@ -1,42 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269477AbUIZCSB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269485AbUIZCbS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269477AbUIZCSB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Sep 2004 22:18:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269485AbUIZCSA
+	id S269485AbUIZCbS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Sep 2004 22:31:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269486AbUIZCbS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Sep 2004 22:18:00 -0400
-Received: from holomorphy.com ([207.189.100.168]:60909 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S269477AbUIZCR7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Sep 2004 22:17:59 -0400
-Date: Sat, 25 Sep 2004 19:17:51 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [sched.h 6/8] move aio include to mm.h
-Message-ID: <20040926021751.GT9106@holomorphy.com>
-References: <20040925024513.GL9106@holomorphy.com> <20040925032419.GQ9106@holomorphy.com> <20040925032616.GR9106@holomorphy.com> <200409260356.27499.arnd@arndb.de> <20040926020637.GS9106@holomorphy.com> <1096164911.3697.39.camel@krustophenia.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1096164911.3697.39.camel@krustophenia.net>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Sat, 25 Sep 2004 22:31:18 -0400
+Received: from science.horizon.com ([192.35.100.1]:15151 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S269485AbUIZCbP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Sep 2004 22:31:15 -0400
+Date: 26 Sep 2004 02:31:14 -0000
+Message-ID: <20040926023114.19531.qmail@science.horizon.com>
+From: linux@horizon.com
+To: jlcooke@certainkey.com
+Subject: Re: [PROPOSAL/PATCH] Fortuna PRNG in /dev/random
+Cc: cryptoapi@lists.logix.cz, jmorris@redhat.com, linux-kernel@vger.kernel.org,
+       tytso@mit.edu
+In-Reply-To: <20040925145444.GW28317@certainkey.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-09-25 at 22:06, William Lee Irwin III wrote:
->> Grepping by hand turned up 186 files missing potentially missing direct
->> includes of workqueue.h, though I don't have a way to tell if I got
->> false negatives.
+> I was trying to point out a flaw in Ted's logic.  He said "we've recently
+> discoverd these hashes are weak because we found collsions.  Current
+> /dev/random doesn't care about this."
 
-On Sat, Sep 25, 2004 at 10:15:12PM -0400, Lee Revell wrote:
-> Can't you just try to build it with allyesconfig and see what breaks?
+And he's exactly right.  The only attack that would be vaguely relevant
+to /dev/random's use would be a (first) preimage attack, and even that's
+probably not helpful.
 
-No, architectural ifdefs, not always done directly in drivers, fool
-that, among other things, e.g. turning an option on can bring in the
-header under various circumstances.
+There *is* no flaw in his logic.  The attack we need to guard against
+is, given hash(x) and a (currently mostly linear) state mixing function
+mix(), one that would let you compute (partial information about)
+y[i+1] = hash(x[i+1]) from y[1] = hash(x[1]) ... y[i] = hash(x[i])
+where x[i] = mix(x[i-1]).
+
+Given that y[i] is much smaller than x[i], you'd need to put together
+a lot of them to derive something, and that's distinctly harder than
+a single-output preimage attack.
+
+> I certainly wasn't saying padding was a requirment.  But I was trying to
+> point out that the SHA-1 implementaion crrently in /dev/random by design is
+> collision vulnerable.  Collision resistance isn't a requirment for its
+> purposes obviously.
+
+No, it is, by design, 100% collision-resistant.  An attacker neither
+sees nor controls the input x, so cannot use a collision attack.
+Thus, it's resistant to collisions in the same way that it's resistant
+to AIDS.
+
+[There's actually a flaw in my logic.  I know Ted knows about it, because
+he implemented a specific defense in the /dev/random code against it; it's
+just not 100% information-theoretic ironclad.  If anyone else can spot
+it, award yourself a clue point.  But it's still not a plausible attack.]
+
+FURTHERMORE, even if an attacker *could* control the input, it's still
+exactly as collision resistant as unmodified SHA-1.  Because it only
+accepts fixed-size input blocks, padding is unnecessary and irrelevant
+to security.  Careful padding is ONLY required if you are working with
+VARIABLE-SIZED input.
+
+The fact that collision resistance is not a security requirement is a
+third point.
+
+> Guess my pointing this out is a lost cause.
+
+In much the same way that pointing out that the earth is flat is a
+lost cause.  If you want people to believe nonsense, you need to dress
+it up a lot and call it a religion.
+
+As for Ted's words:
+> Whether or not we should trust the design of something as
+> critical to the security of security applications as /dev/random to
+> someone who fails to grasp the difference between these two rather
+> basic issues is something I will leave to the others on LKML.
+
+Fortuna may be a good idea after all (I disagree, but I can imagine
+being persuaded otherwise), but it has a very bad advocate right now.
+Would anyone else like to pick up the torch?
 
 
--- wli
+By the way, I'd like to repeat my earlier question: you say Fortuna ia
+well-regarded in crypto circles.  Can you cite a single paper to back
+that conclusion?  Name a single well-known cryptographer, other than
+the authors, who has looked at it in some detail?
+
+There might be one, but I don't know of any.  I respect the authors
+enough to know that even they recognize that an algorithm's designers
+sometimes have blind spots.

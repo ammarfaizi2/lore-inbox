@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265074AbSLBWG1>; Mon, 2 Dec 2002 17:06:27 -0500
+	id <S265066AbSLBWL4>; Mon, 2 Dec 2002 17:11:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265092AbSLBWG1>; Mon, 2 Dec 2002 17:06:27 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:51871 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S265074AbSLBWG0>; Mon, 2 Dec 2002 17:06:26 -0500
-Subject: Re: [PATCH] set_cpus_allowed() for 2.4
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Christoph Hellwig <hch@sgi.com>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       marcelo@connectiva.com.br.munich.sgi.com, rml@tech9.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021202201101.A26164@sgi.com>
-References: <20021202192652.A25938@sgi.com>
-	<1919608311.1038822649@[10.10.2.3]>  <20021202201101.A26164@sgi.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 02 Dec 2002 22:47:28 +0000
-Message-Id: <1038869248.8945.18.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S265092AbSLBWL4>; Mon, 2 Dec 2002 17:11:56 -0500
+Received: from carisma.slowglass.com ([195.224.96.167]:57870 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S265066AbSLBWLz>; Mon, 2 Dec 2002 17:11:55 -0500
+Date: Mon, 2 Dec 2002 22:18:57 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Tobias Rittweiler <inkognito.anonym@uni.de>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux console project <linuxconsole-dev@lists.sourceforge.net>
+Subject: Re: [STATUS] fbdev api.
+In-Reply-To: <9814769328.20021202225728@uni.de>
+Message-ID: <Pine.LNX.4.44.0212022214400.20834-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-12-03 at 01:11, Christoph Hellwig wrote:
-> On Mon, Dec 02, 2002 at 09:50:50AM -0800, Martin J. Bligh wrote:
-> > There was talk of merging the O(1) scheduler into 2.4 at OLS.
-> > If every distro has it, and 2.5 has it, and it's been around for
-> > this long, I think that proves it stable.
-> > 
-> > Marcelo, what are the chances of getting this merged into mainline
-> > in the 2.4.20 timeframe?
-> 
-> Ingo vetoed it.
 
-I wasnt aware Ingo had a veto
+> JS> I have a new patch avaiable. It is against 2.5.50. The patch is at
+> JS> http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
+> 
+> JS> [...]
+> JS> The diffstat is:
+> 
+> JS>  CREDITS                                |   10 
+> 
+> Hunk #1 succeeded at 2836 (offset -6 lines).
+> 
+> JS>  [...]
+> JS>  arch/i386/vmlinux.lds.s                |  114
+>                ^^^^^^^^^^^^^^
+> really intended?
+> 
+> JS>  [...]
+> JS>  drivers/char/tty_io.c                  |    7
+> 
+> Hunk #1 succeeded at 1503 (offset -6 lines).
+> 
+> JS>  [...]
+> JS>  drivers/video/Kconfig                  |  411 --
+> 
+> Hunk #19 succeeded at 864 with fuzz 1 (offset -7 lines).
+
+It does work but I made the patch against Linus tree with a few extra 
+fixes due to the pci/quirks bug. I will post a exact patch.
+
+
 

@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268077AbUHQCRG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268076AbUHQCZg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268077AbUHQCRG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 22:17:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268076AbUHQCRG
+	id S268076AbUHQCZg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 22:25:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268078AbUHQCZg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 22:17:06 -0400
-Received: from fw.osdl.org ([65.172.181.6]:47037 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268078AbUHQCRD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 22:17:03 -0400
-Date: Mon, 16 Aug 2004 19:15:08 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Warren Togami <wtogami@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Merge I2O patches from -mm
-Message-Id: <20040816191508.428f1022.akpm@osdl.org>
-In-Reply-To: <411F37CC.3020909@redhat.com>
-References: <411F37CC.3020909@redhat.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 16 Aug 2004 22:25:36 -0400
+Received: from scl-ims.phoenix.com ([216.148.212.222]:59009 "EHLO
+	scl-ims.phoenix.com") by vger.kernel.org with ESMTP id S268076AbUHQCZe convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 22:25:34 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: Re: Keyboard input ignored by 2.6.8
+Date: Mon, 16 Aug 2004 19:25:45 -0700
+Message-ID: <5F106036E3D97448B673ED7AA8B2B6B3015B698E@scl-exch2k.phoenix.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Keyboard input ignored by 2.6.8
+Thread-Index: AcSCHhdKMgeYrjdpRPCJN1PWfj8w1wB4wsBQ
+From: "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com>
+To: "Tetsuji Rai" <badtrans666@yahoo.co.jp>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 17 Aug 2004 02:25:45.0779 (UTC) FILETIME=[806EB830:01C48401]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Warren Togami <wtogami@redhat.com> wrote:
+>Today I compiled 2.6.8 on my Debian sarge with gcc-3.4(and tested with
+>gcc-3.3 also), and found 2.6.8 didn't accept my keyboard input.   My
+>keybaord is a usual PS/2 keyboard.  I don't know what's going 
+>on.  I cannot
+>even login.   Until today I have been using 2.6.7 without any 
+>problem.   I
+>attach my .config file as the attachment.
 >
-> This is a request to please merge the I2O patches currently in Andrew 
-> Morton's -mm tree into the mainline kernel.  They resolve all known 
-> reported issues with I2O RAID devices.  If they can be included soon, it 
-> would be possible to implement and test direct installation before FC3 
-> Test2 freeze.
+>Another (minor?) problem is when I compiled into usb stuff 
+>into the 2.6.8
+>kernel, it freezed on booting.  So I compiled usb stuff as 
+>modules and it
+>was solved.
 
-We'll get it in when Linus returns.
+Try this patch
+http://www.mail-archive.com/linux-usb-devel%40lists.sourceforge.net/msg2
+6993.html.
+You need to specify "usb-handoff" as a kernel boot parameter.
 
-> Also because Markus would never ask himself, I nominate Markus Lidel as 
-> the "maintainer" of the 2.6 generic I2O layer.  He has put a tremendous 
-> amount of work into improving an otherwise neglected part of the kernel. 
-
-No problem with that, but we wouldn't want to go adding Markus to
-./MAINTAINERS without his approval.
-
->   Thanks to his efforts it is today usable and stable on multiple archs 
-> and all known supported cards.
-
-yup.
+Aleks.

@@ -1,44 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268972AbRHLHb6>; Sun, 12 Aug 2001 03:31:58 -0400
+	id <S268974AbRHLHg2>; Sun, 12 Aug 2001 03:36:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268974AbRHLHbt>; Sun, 12 Aug 2001 03:31:49 -0400
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:56301
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S268972AbRHLHbg>; Sun, 12 Aug 2001 03:31:36 -0400
-Date: Sun, 12 Aug 2001 09:31:40 +0200
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Tom Rini <trini@kernel.crashing.org>, kbuild-devel@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: [kbuild-devel] Re: Announce: Kernel Build for 2.5, Release 1.1 is available.
-Message-ID: <20010812093140.A820@jaquet.dk>
-In-Reply-To: <20010811212051.A819@jaquet.dk> <6820.997582287@ocs3.ocs-net>
+	id <S268977AbRHLHgT>; Sun, 12 Aug 2001 03:36:19 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:9234 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S268974AbRHLHgC>;
+	Sun, 12 Aug 2001 03:36:02 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: louisg00@bellsouth.net
+cc: linux-kernel@vger.kernel.org, device@lanana.org
+Subject: Re: Unknown error 
+In-Reply-To: Your message of "Sun, 12 Aug 2001 01:40:01 -0400."
+             <20010812054001.VTIR4421.imf12bis.bellsouth.net@[127.0.0.1]> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <6820.997582287@ocs3.ocs-net>; from kaos@ocs.com.au on Sun, Aug 12, 2001 at 12:11:27PM +1000
+Date: Sun, 12 Aug 2001 17:36:07 +1000
+Message-ID: <10497.997601767@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 12, 2001 at 12:11:27PM +1000, Keith Owens wrote:
-[...] 
-> >pp_makefile2: Cannot find source for target drivers/sound/emu10k1/efxmgr.o
-> >pp_makefile2: Cannot find source for target drivers/sound/emu10k1/joystick.o
-> >pp_makefile2: Cannot find source for target drivers/sound/emu10k1/passthrough.o
-> 
-> You put kbuild-2.5-2.4.8-1 on an 2.4.8-pre kernel.  Linus moved emu10k1
-> to its own directory in 2.4.8.  You have match kbuild with the correct
-> kernel.
+On Sun, 12 Aug 2001 1:40:01 -0400, 
+<louisg00@bellsouth.net> wrote:
+>I'm running kernel-2.4.8-ac1 on RH beta and I'm this:
+>
+>modprobe: modprobe: Can't locate module char-major-226
+>Did I forget a to compile a module?
 
-Yes, I have to and no, I did not. It was kbuild-2.5-2.4.8-1 on a
-freshly untarred 248.tar.gz from a mirror. But kbuild-...-2 fixes
-it for me fine.
+2.4.8 says that device 228 is unassigned, but ...
 
--- 
-        Rasmus(rasmus@jaquet.dk)
+  drivers/char/drm/drm.h:#define DRM_MAJOR       226
+  drivers/net/wan/sdla_chdlc.c:#define WAN_TTY_MAJOR 226
 
-"Give a man a fish, and he eats for a day. Teach a man to fish, and a
-US Navy submarine will make sure he's never hungry again." -- Chris
-Neufeld
+Somebody has been naughty and used a code not assigned to them.
+

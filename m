@@ -1,90 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262756AbUJ0WoY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262929AbUJ0WYe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262756AbUJ0WoY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 18:44:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262757AbUJ0WnX
+	id S262929AbUJ0WYe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 18:24:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262954AbUJ0WWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 18:43:23 -0400
-Received: from fms.tor.istop.com ([66.11.182.43]:6277 "EHLO
-	maximus.fullmotions.com") by vger.kernel.org with ESMTP
-	id S262920AbUJ0WPk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 18:15:40 -0400
-Subject: Re: SSH and 2.6.9
-From: Danny Brow <fms@istop.com>
-To: Kernel-List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1098912301.4535.1.camel@hanzo.fullmotions.com>
-References: <1098906712.2972.7.camel@hanzo.fullmotions.com>
-	 <Pine.LNX.4.61.0410272247460.3284@dragon.hygekrogen.localhost>
-	 <1098912301.4535.1.camel@hanzo.fullmotions.com>
-Content-Type: text/plain
-Date: Wed, 27 Oct 2004 18:27:25 -0400
-Message-Id: <1098916045.3741.5.camel@hanzo.fullmotions.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.0 
-Content-Transfer-Encoding: 7bit
+	Wed, 27 Oct 2004 18:22:10 -0400
+Received: from smtp09.auna.com ([62.81.186.19]:61062 "EHLO smtp09.retemail.es")
+	by vger.kernel.org with ESMTP id S262917AbUJ0WT6 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 18:19:58 -0400
+Date: Wed, 27 Oct 2004 22:19:52 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: [PATCH] Re: pdc202xx_old broke boot [was Re: 2.6.9-mm1]
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Greg KH <greg@kroah.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+References: <20041022032039.730eb226.akpm@osdl.org>
+	<1098490330l.28166l.0l@werewolf.able.es>
+	<20041022172100.183f9fe1.akpm@osdl.org>
+	<58cb370e041022173465c22894@mail.gmail.com>
+In-Reply-To: <58cb370e041022173465c22894@mail.gmail.com> (from
+	bzolnier@gmail.com on Sat Oct 23 02:34:28 2004)
+X-Mailer: Balsa 2.2.5
+Message-Id: <1098915592l.20613l.0l@werewolf.able.es>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-10-27 at 17:25 -0400, Danny Brow wrote:
-> I'm recompiling right now. 
+
+On 2004.10.23, Bartlomiej Zolnierkiewicz wrote:
+> On Fri, 22 Oct 2004 17:21:00 -0700, Andrew Morton <akpm@osdl.org> wrote:
+> > "J.A. Magallon" <jamagallon@able.es> wrote:
+> > >
+> > > Hi all...
+> > >
+> > > On 2004.10.22, Andrew Morton wrote:
+> > > >
+> > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9/2.6.9-mm1/
+> > > >
+> > >
+> > > I upgraded from 2.6.9-rc3-mm3 to 2.6.9-mm1 and the system coould not boot.
+> > > What was before hde now was hda (guess ? root is on hde1...)
+> > 
+> > yikes.  Perhaps the PCI scanning order was changed?
 > 
-> On Wed, 2004-10-27 at 22:54 +0200, Jesper Juhl wrote:
-> > On Wed, 27 Oct 2004, Danny Brow wrote:
-> > 
-> > > I have this odd issue with the 2.6.9 & greater kernels, that I can't ssh
-> > > or use scp any more, this is what happens when I try:
-> > > 
-> > > SSH Error with-in X:
-> > > ssh_askpass: exec(/usr/libexec/ssh-askpass): No such file or directory
-> > > Host key verification failed.
-> > > 
-> > > SCP Error with-in X:
-> > > ssh_askpass: exec(/usr/libexec/ssh-askpass): No such file or directory
-> > > Host key verification failed.
-> > > lost connection
-> > > 
-> > > I just get Host key verification failed in the terminal with either
-> > > command.
-> > > 
-> > > ssh-askpass does not exsisit but it never has & ssh/scp works fine with
-> > > 2.6.8.1 and below. When upgrading to the new kernel I just copied my
-> > > old .config and did a make oldconfig, make, etc.
-> > > 
-> > > Any ideas?
-> > > 
-> > 
-> > As it happens, I had a chat with a few people on IRC a few days ago who 
-> > had very similar trouble and I had no such trouble. After talking about 
-> > our kernel configs a bit we came to the conclusion that the main 
-> > difference between our .config's (except for some hardware specific 
-> > drivers and a few other bits that seemed unrelated) was that they had 
-> > CONFIG_LEGACY_PTYS=y while I had it unset. One guy recompiled his kernel 
-> > on the spot and disabled CONFIG_LEGACY_PTYS and then reported that his 
-> > trouble went away. He may have made other changes as well, I don't know, 
-> > and it may have been some of the seemingly unrelated bits that did the 
-> > trick, again I don't know.
-> > 
-> > I have not attempted to verify this myself, but I'd say it's worth a try 
-> > for you to disable CONFIG_LEGACY_PTYS (if you have it enabled) and then 
-> > test that (and report your findings back).
-> > 
-
-
-
-This was the problem.
-
-Thanks,
-Dan.
-
-
-
-
-> > --
-> > Jesper Juhl
+> Fortunately, not. :)
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> What happened is that ide-dev-2.6 tree contains a patch which ignores
+> BIOS settings for Promise controllers but ide-dev-2.6 tree is not in
+> 2.6.9-mm1 (due to syncing with -linus -> temporary breakage).
+> 
+> > > How can I restore the old behaviour ? Plain 2.6.9 booted. So reconfiguring
+> > > fstab to say / == hda1 will make impossible switch between kernels ...
+> 
+> In 2.6.9-mm1 CONFIG_PDC202XX_FORCE option can also be used
+> for pdc202xx_old but pdc202xx_new must be enabled (yes it a bug).
+> 
+
+Is this patch OK ? (against 2.6.9-mm1)
+
+--- linux/drivers/ide/Kconfig.orig	2004-10-26 01:26:09.000000000 +0200
++++ linux/drivers/ide/Kconfig	2004-10-28 00:15:27.936420036 +0200
+@@ -624,6 +624,8 @@
+ 
+ 	  Please read the comments at the top of <file:drivers/ide/pci/ns87415.c>.
+ 
++menu "Promise PDC support"
++
+ config BLK_DEV_PDC202XX_OLD
+ 	tristate "PROMISE PDC202{46|62|65|67} support"
+ 	help
+@@ -648,9 +650,15 @@
+ 
+ 	  If unsure, say N.
+ 
++config BLK_DEV_PDC202XX_NEW
++	tristate "PROMISE PDC202{68|69|70|71|75|76|77} support"
++
++config PDC202XX_DUMMY
++	bool
++
+ config PDC202XX_BURST
+ 	bool "Special UDMA Feature"
+-	depends on BLK_DEV_PDC202XX_OLD
++	depends on BLK_DEV_PDC202XX_OLD || BLK_DEV_PDC202XX_NEW
+ 	help
+ 	  This option causes the pdc202xx driver to enable UDMA modes on the
+ 	  PDC202xx even when the PDC202xx BIOS has not done so.
+@@ -665,15 +673,20 @@
+ 
+ 	  If unsure, say N.
+ 
+-config BLK_DEV_PDC202XX_NEW
+-	tristate "PROMISE PDC202{68|69|70|71|75|76|77} support"
+-
+-# FIXME - probably wants to be one for old and for new
+ config PDC202XX_FORCE
+ 	bool "Enable controller even if disabled by BIOS"
+-	depends on BLK_DEV_PDC202XX_NEW
++	depends on BLK_DEV_PDC202XX_OLD || BLK_DEV_PDC202XX_NEW
+ 	help
+-	  Enable the PDC202xx controller even if it has been disabled in the BIOS setup.
++	  Enable the PDC202xx controller even if it has been disabled, both
++	  manually in the BIOS setup, or because it has no drive connected.
++	  If you do not force the detection and have other IDE busses
++	  in the box, the device names for your other busses (/dev/hdX)
++	  can change depending on drives being connected to the Promise or not.
++
++	  If unsure, say Y. This will keep your IDE drive device names
++	  consistent with or without drives connected to the PDC.
++
++endmenu
+ 
+ config BLK_DEV_SVWKS
+ 	tristate "ServerWorks OSB4/CSB5/CSB6 chipsets support"
+
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandrakelinux release 10.1 (Community) for i586
+Linux 2.6.9-jam1 (gcc 3.4.1 (Mandrakelinux 10.1 3.4.1-4mdk)) #6
+
 

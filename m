@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267290AbUBSOny (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 09:43:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267217AbUBSOmL
+	id S267286AbUBSOmF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 09:42:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267217AbUBSOlK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 09:42:11 -0500
-Received: from smtp-gw.fnbs.net.my ([202.9.108.191]:25868 "EHLO
-	smtp-gw.fnbs.net.my") by vger.kernel.org with ESMTP id S267290AbUBSOlG
+	Thu, 19 Feb 2004 09:41:10 -0500
+Received: from dns.toxicfilms.tv ([150.254.37.24]:59337 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S267286AbUBSOjR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 09:41:06 -0500
-Subject: Security update patch to 2.6.3 for mremap()?
-From: Nur Hussein <obiwan@slackware.org.my>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1077201466.1636.19.camel@sophia.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 19 Feb 2004 22:37:46 +0800
+	Thu, 19 Feb 2004 09:39:17 -0500
+Message-ID: <007b01c3f6f6$2492e420$0e25fe96@pysiak>
+From: "Maciej Soltysiak" <solt@dns.toxicfilms.tv>
+To: <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0402172013320.2686@home.osdl.org> <1077132367.30936.16.camel@telecentrolivre> <005501c3f65b$027191c0$0e25fe96@pysiak> <200402190141.15211.madx@tlen.pl> <40341438.7050706@cyberone.com.au>
+Subject: Re: [REALLY STUPID] Re: Linux 2.6.3 (website)
+Date: Thu, 19 Feb 2004 15:39:12 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-Rcpt-To: <linux-kernel@vger.kernel.org>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+X-Spam-Rating: 0 1.6.2 0/1000/N
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
-                                                                                                                             I was searching the source and changelogs of 2.6.3 to find the specific
-patch that fixed the recent security hole discovered in mremap()
- 
-http://isec.pl/vulnerabilities/isec-0014-mremap-unmap.txt
-                                                                                                                             I found Andrew Morton's changelog entry that touched mremap:
- 
-http://linux.bkbits.net:8080/linux-2.5/cset@1.1557.2.83?nav=index.html|ChangeSet@-2d
-                                                                                                                             I noticed however, that a fix to the same problem in 2.4.25 sent by
-Andrea Arcangeli adds only one line to a different section of code:
- 
-http://linux.bkbits.net:8080/linux-2.4/diffs/mm/mremap.c@1.7?nav=cset@1.1136.94.4
-                                                                                                                             Is this line missing from 2.6.3, or did Andrew Morton's fixes address
-the problem already?
- 
--= Nur Hussein =-
+> I think this should be a 2.7 thing. Let's stick with funny
+> sounding animal names in 2.6 for backward compatibility.
+That sounds reasonable, also this means we'd be better
+prepared for 2.7 :-)
 
+Anyway, there was an update:
+http://soltysiak.com/kernel-codenames.php
+
+New characters + info + links to valuable resources :-)
+
+Regards,
+Maciej
 

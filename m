@@ -1,85 +1,132 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264779AbTE1PtE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 11:49:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264780AbTE1PtE
+	id S264781AbTE1P4E (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 11:56:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264785AbTE1P4E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 11:49:04 -0400
-Received: from auemail1.lucent.com ([192.11.223.161]:62940 "EHLO
-	auemail1.firewall.lucent.com") by vger.kernel.org with ESMTP
-	id S264779AbTE1Psv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 11:48:51 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16084.56696.483384.79844@gargle.gargle.HOWL>
-Date: Wed, 28 May 2003 12:02:00 -0400
-From: "John Stoffel" <stoffel@lucent.com>
+	Wed, 28 May 2003 11:56:04 -0400
+Received: from customer-148-223-196-18.uninet.net.mx ([148.223.196.18]:31360
+	"EHLO soltisns.soltis.cc") by vger.kernel.org with ESMTP
+	id S264781AbTE1Pzq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 11:55:46 -0400
+From: "jds" <jds@soltis.cc>
 To: linux-kernel@vger.kernel.org
-Subject: 2.5.70-mm1 - no boot console
+Subject: ALSA Segmentation fault load modules 2.5.70 and 2.5.70mm1
+Date: Wed, 28 May 2003 09:35:34 -0600
+Message-Id: <20030528153440.M46134@soltis.cc>
+X-Mailer: Open WebMail 1.90 20030212
+X-OriginatingIP: 180.175.220.238 (jds)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi all,
 
-I've been trying on and off to get the 2.5.x series to boot on my DELL
-Precision 610 MT dual processor machine.  I've got a pair of 550mhz
-PIII Xeon and 768mb of ECC RAM.  I've got a Matrox G450 AGP card along
-with a mix of SCSI and IDE drives, cdroms and tape.  And an
-USB2.0/1394 Firewire combo card.  I've been happily running
-2.4.21-pre5-ac1 for about a month without any problems, and previous
-2.4.x versions as well. 
+  Hi:
 
-But over the past few days I've tried to get 2.5.69 and 2.5.70-mm1 to
-start up and run, but without any luck.  All I get on the console is
-the first two lines of output and then the system just hangs.  It
-never gets to even mounting file systems, since I never have to fsck
-on reboot.
+    I have problems when load ALSA module, this message:
 
-I don't have a spare serial console currently, though I'm starting to
-think I need to get one up and running if I'm ever going to make this
-work.
+    [root@toshiba root]# modprobe snd-ymfpci
+Segmentation fault
+    [root@toshiba root]#
 
-Here's what I have in my .config for CONSOLE & INPUT entries:
+    This log message:
 
-  CONFIG_VT_CONSOLE=y
-  CONFIG_HW_CONSOLE=y
-  # CONFIG_SERIAL_8250_CONSOLE is not set
-  # CONFIG_LP_CONSOLE is not set
-  # Console display driver support
-  CONFIG_VGA_CONSOLE=y
-  # CONFIG_MDA_CONSOLE is not set
-  CONFIG_DUMMY_CONSOLE=y
-  CONFIG_FRAMEBUFFER_CONSOLE=y
+    Debug: sleeping function called from illegal context at
+include/linux/rwsem.h:43Call Trace:
+[<c0119d5e>] __might_sleep+0x5e/0x70
+[<c0117319>] do_page_fault+0x79/0x4b4
+[<c0177cc9>] proc_create+0x89/0xe0
+[<c0177b18>] proc_register+0x18/0xb0
+[<c0177f42>] create_proc_entry+0x82/0xd0
+[<c03340d0>] snd_create_proc_entry+0x20/0x30
+[<c01172a0>] do_page_fault+0x0/0x4b4
+[<c010b249>] error_code+0x2d/0x38
+[<c020e6c3>] pci_bus_write_config_word+0x53/0x60
+[<e08b6521>] +0x521/0x790 [snd_ymfpci]
+[<e08b9efb>] +0x7c/0x281 [snd_ymfpci]
+[<c017c1db>] sysfs_new_inode+0x6b/0xb0
+[<e08bc660>] driver+0x0/0xa0 [snd_ymfpci]
+[<e08bc5f0>] snd_ymfpci_ids+0x70/0xe0 [snd_ymfpci]
+[<e08bc660>] driver+0x0/0xa0 [snd_ymfpci]
+[<e08bc660>] driver+0x0/0xa0 [snd_ymfpci]
+[<c02120ac>] __pci_device_probe+0x3c/0x50
+[<e08bc660>] driver+0x0/0xa0 [snd_ymfpci]
+[<c021210d>] pci_device_probe+0x4d/0x60
+[<e08bc660>] driver+0x0/0xa0 [snd_ymfpci]
+[<e08bc688>] driver+0x28/0xa0 [snd_ymfpci]
+[<c028c4b3>] bus_match+0x43/0x80
+[<e08bc688>] driver+0x28/0xa0 [snd_ymfpci]
+[<e08bc688>] driver+0x28/0xa0 [snd_ymfpci]
+[<c028c5dd>] driver_attach+0x5d/0x70
+[<e08bc688>] driver+0x28/0xa0 [snd_ymfpci]
+[<c028c8d5>] bus_add_driver+0xa5/0xc0
+[<e08bc688>] driver+0x28/0xa0 [snd_ymfpci]
+[<e08bc660>] driver+0x0/0xa0 [snd_ymfpci]
+[<e08bc6f8>] driver+0x98/0xa0 [snd_ymfpci]
+[<c028cd51>] driver_register+0x31/0x40
+[<e08bc688>] driver+0x28/0xa0 [snd_ymfpci]
+[<c0212351>] pci_register_driver+0x71/0xa0
+[<e08bc688>] driver+0x28/0xa0 [snd_ymfpci]
+[<e08c2e40>] +0x0/0x100 [snd_ymfpci]
+[<e089b01a>] +0x1a/0x5a [snd_ymfpci]
+[<e08bc660>] driver+0x0/0xa0 [snd_ymfpci]
+[<c012f981>] sys_init_module+0x131/0x220
+[<e08c2e40>] +0x0/0x100 [snd_ymfpci]
+[<c010b04d>] sysenter_past_esp+0x52/0x71
 
-  CONFIG_INPUT=y
-  CONFIG_INPUT_MOUSEDEV=y
-  CONFIG_INPUT_MOUSEDEV_PSAUX=y
-  CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-  CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-  # CONFIG_INPUT_JOYDEV is not set
-  # CONFIG_INPUT_TSDEV is not set
-  CONFIG_INPUT_EVDEV=y
-  # CONFIG_INPUT_EVBUG is not set
-  # Input I/O drivers
-  # Input Device Drivers
-  CONFIG_INPUT_KEYBOARD=y
-  CONFIG_INPUT_MOUSE=y
-  # CONFIG_INPUT_JOYSTICK is not set
-  # CONFIG_INPUT_TOUCHSCREEN is not set
-  CONFIG_INPUT_MISC=y
-  CONFIG_INPUT_PCSPKR=y
-  CONFIG_INPUT_UINPUT=y
+Unable to handle kernel NULL pointer dereference at virtual address 00000004
+printing eip:
+c020e6c3
+*pde = 00000000
+Oops: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c020e6c3>]    Not tainted VLI
+EFLAGS: 00010046
+EIP is at pci_bus_write_config_word+0x53/0x60
+eax: c17f6be0   ebx: 00000246   ecx: 00000330   edx: 00000000
+esi: 00000064   edi: c045c1a0   ebp: c9c65e58   esp: c9c65e38
+ds: 007b   es: 007b   ss: 0068
+Process modprobe (pid: 1618, threadinfo=c9c64000 task=cc1b98a0)
+Stack: c045c1a0 c17f6be0 00000064 00000002 00000330 c9c65e90 00000800 0000000a
+      c9c65ea4 e08b6521 c045c1a0 c17f6be0 00000064 00000330 000041ed 00000000
+      c9c311e0 000041ed e08b9efb df703a00 c017c1db c9c65e90 0330e199 0d690388
+Call Trace:
+[<e08b6521>] +0x521/0x790 [snd_ymfpci]
+[<e08b9efb>] +0x7c/0x281 [snd_ymfpci]
+[<c017c1db>] sysfs_new_inode+0x6b/0xb0
+[<e08bc660>] driver+0x0/0xa0 [snd_ymfpci]
+[<e08bc5f0>] snd_ymfpci_ids+0x70/0xe0 [snd_ymfpci]
+[<e08bc660>] driver+0x0/0xa0 [snd_ymfpci]
+[<e08bc660>] driver+0x0/0xa0 [snd_ymfpci]
+[<c02120ac>] __pci_device_probe+0x3c/0x50
+[<e08bc660>] driver+0x0/0xa0 [snd_ymfpci]
+[<c021210d>] pci_device_probe+0x4d/0x60
+[<e08bc660>] driver+0x0/0xa0 [snd_ymfpci]
+[<e08bc688>] driver+0x28/0xa0 [snd_ymfpci]
+[<c028c4b3>] bus_match+0x43/0x80
+[<e08bc688>] driver+0x28/0xa0 [snd_ymfpci]
+[<e08bc688>] driver+0x28/0xa0 [snd_ymfpci]
+[<c028c5dd>] driver_attach+0x5d/0x70
+[<e08bc688>] driver+0x28/0xa0 [snd_ymfpci]
+[<c028c8d5>] bus_add_driver+0xa5/0xc0
+[<e08bc688>] driver+0x28/0xa0 [snd_ymfpci]
+[<e08bc660>] driver+0x0/0xa0 [snd_ymfpci]
+[<e08bc6f8>] driver+0x98/0xa0 [snd_ymfpci]
+[<c028cd51>] driver_register+0x31/0x40
+[<e08bc688>] driver+0x28/0xa0 [snd_ymfpci]
+[<c0212351>] pci_register_driver+0x71/0xa0
+[<e08bc688>] driver+0x28/0xa0 [snd_ymfpci]
+[<e08c2e40>] +0x0/0x100 [snd_ymfpci]
+[<e089b01a>] +0x1a/0x5a [snd_ymfpci]
+[<e08bc660>] driver+0x0/0xa0 [snd_ymfpci]
+[<c012f981>] sys_init_module+0x131/0x220
+[<e08c2e40>] +0x0/0x100 [snd_ymfpci]
+[<c010b04d>] sysenter_past_esp+0x52/0x71
 
-I've even tried to back off from CONFIG_M686 back down to just
-CONFIG_M386, but nothing seems to help.  I'm using CONFIG_X86=y, but
-none of the other CONFIG_X86_* options. 
-
-Next I guess I'll try to get rid of SMP and PREEMPT and see how that
-goes.  Any ideas on whats going on here, or what I should try to get
-this working?
-
-Thanks,
-John
-
+Code: f4 8b 75 f8 8b 7d fc 89 ec 5d c3 9c 5b fa 8b 45 0c 8b 57 30 89 3c 24 89
+4c 24 10 c7 44 24 0c 02 00 00 00 89 74 24 08 89 44 24 04  <ff> 52 04 53 9d eb
+cc b6 00 00 00 00 55 89 e5 83 ec 1c 89 75
+ 
+  Regards.

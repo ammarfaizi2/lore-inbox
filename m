@@ -1,56 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272375AbRIFByj>; Wed, 5 Sep 2001 21:54:39 -0400
+	id <S271017AbRIFDDT>; Wed, 5 Sep 2001 23:03:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272386AbRIFBy1>; Wed, 5 Sep 2001 21:54:27 -0400
-Received: from COD-ETH-14.WYOMING.COM ([204.227.211.254]:40595 "HELO
-	noir.kain.org") by vger.kernel.org with SMTP id <S272375AbRIFByQ>;
-	Wed, 5 Sep 2001 21:54:16 -0400
-Date: Wed, 5 Sep 2001 19:54:34 -0600
-From: Kain <kain@kain.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [OFFTOPIC] Secure network fileserving Linux <-> Linux
-Message-ID: <20010905195434.B10919@noir.kain.org>
-In-Reply-To: <200109052212.RAA64901@tomcat.admin.navo.hpc.mil> <Pine.SGI.4.31L.02.0109052116010.3586235-100000@irix2.gl.umbc.edu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="qcHopEYAB45HaUaB"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.SGI.4.31L.02.0109052116010.3586235-100000@irix2.gl.umbc.edu>; from jjasen1@umbc.edu on Wed, Sep 05, 2001 at 09:17:11PM -0400
+	id <S271862AbRIFDDA>; Wed, 5 Sep 2001 23:03:00 -0400
+Received: from mail3.aracnet.com ([216.99.193.38]:18960 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S271017AbRIFDCx>; Wed, 5 Sep 2001 23:02:53 -0400
+From: "M. Edward Borasky" <znmeb@aracnet.com>
+To: <bug-binutils@gnu.org>, <linux-kernel@vger.kernel.org>,
+        <gcc-bugs@gcc.gnu.org>
+Cc: <jonathan.bright@onebox.com>, <aron@cs.rice.edu>
+Subject: gprof, threads and forks
+Date: Wed, 5 Sep 2001 20:04:00 -0700
+Message-ID: <HBEHIIBBKKNOBLMPKCBBEEKODKAA.znmeb@aracnet.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+It's rare that I cross-post to this many lists, but
 
---qcHopEYAB45HaUaB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+1. I blew a week trying to track this little monster down, and
+2. It isn't at all clear to me where the appropriate fixes and documentation
+changes need to be applied.
 
-On Wed, Sep 05, 2001 at 09:17:11PM -0400, John Jasen wrote:
-> Did you consider AFS?
+So here goes:
 
-There is also Coda, which I have had good luck with.  It also supports volu=
-me replication, ACLs, and disconnectecd operation, to boot.
---=20
-When you look into the abyss,the abyss also looks into you.
-	- Friedrich Nietzche
-**
-Penguin Sympathizer
-Bryon Roche, Kain <kain@imperativesoultions.com>
-<kain@kain.org>
+If you have an executable compiled with *gcc* using the "-pg" option, it is
+supposed to generate a "gmon.out" file, which you can later process with the
+*binutils* utility "gprof" to produce a profile. All this magic works just
+dandy for a single threaded executable, but apparently child threads and
+child processes created with "fork" don't get their execution time counted.
+See the following links for the gory details:
 
---qcHopEYAB45HaUaB
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+http://sources.redhat.com/ml/bug-binutils/2001-q3/msg00090.html
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+http://uwsg.iu.edu/hypermail/linux/kernel/0101.3/1516.html
 
-iD8DBQE7ltdaBK2G/mh4q9URAmecAKCgSnAYSrAqogwzf8IeO6OpxZ83WgCeK2rU
-4VwueFsuJkCiuJm31cL2BkI=
-=D6Ro
------END PGP SIGNATURE-----
+The second link implies that it's possible to fix this at the *kernel*
+level. So my question to all of you is, "what's the best way to get this
+fixed?" I need to profile a multi-threaded executable and personally don't
+care about the "fork" case, but I'm sure there are others who would care
+about forks and not threads.
+--
+M. Edward (Ed) Borasky, Chief Scientist, Borasky Research
+http://www.borasky-research.net  http://www.aracnet.com/~znmeb
+mailto:znmeb@borasky-research.com  mailto:znmeb@aracnet.com
 
---qcHopEYAB45HaUaB--
+Stand-Up Comedy: Because Man Does Not Live By Dread Alone
+

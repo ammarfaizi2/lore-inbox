@@ -1,62 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129181AbRBUWl6>; Wed, 21 Feb 2001 17:41:58 -0500
+	id <S129183AbRBUWo2>; Wed, 21 Feb 2001 17:44:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129183AbRBUWls>; Wed, 21 Feb 2001 17:41:48 -0500
-Received: from dns-229.dhcp-248.nai.com ([161.69.248.229]:243 "HELO
-	localdomain") by vger.kernel.org with SMTP id <S129181AbRBUWld>;
-	Wed, 21 Feb 2001 17:41:33 -0500
-Message-ID: <XFMail.20010221144316.davidel@xmailserver.org>
-X-Mailer: XFMail 1.4.7 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S129754AbRBUWoS>; Wed, 21 Feb 2001 17:44:18 -0500
+Received: from pop.gmx.net ([194.221.183.20]:46747 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S129183AbRBUWoL>;
+	Wed, 21 Feb 2001 17:44:11 -0500
+Message-ID: <3A9445EE.CD6C97B1@gmx.at>
+Date: Wed, 21 Feb 2001 23:49:18 +0100
+From: rayn <Wilfried.Weissmann@gmx.at>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-In-Reply-To: <20010221232635.A25272@atrey.karlin.mff.cuni.cz>
-Date: Wed, 21 Feb 2001 14:43:16 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-To: Martin Mares <mj@suse.cz>
-Subject: Re: [rfc] Near-constant time directory index for Ext2
-Cc: Linux-kernel@vger.kernel.org, tytso@valinux.com,
-        Andreas Dilger <adilger@turbolinux.com>, hch@ns.caldera.de,
-        ext2-devel@lists.sourceforge.net,
-        Daniel Phillips <phillips@innominate.de>
+To: Jeremy Jackson <jeremy.jackson@sympatico.ca>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: partitions for RAID volumes?
+In-Reply-To: <3A942AEC.4004DA3F@gmx.at> <3A942C1E.6E539E5F@sympatico.ca>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 21-Feb-2001 Martin Mares wrote:
-> Hello!
+Jeremy Jackson wrote:
 > 
->> My personal preference goes to skiplist coz it doesn't have fixed ( or
->> growing
->> ) tables to handle. You've simply a stub of data togheter with FS data in
->> each
->> direntry.
+> rayn wrote:
 > 
-> Another problem with skip lists is that they require variable sized nodes,
-> so you either need to keep free chunk lists and lose some space in deleted
-> nodes kept in these lists, or you choose to shift remaining nodes which is
-> slow and complicated as you need to keep the inter-node links right. With
-> hashing, you can separate the control part of the structure and the actual
-> data and shift data while leaving most of the control part intact.
-
-An entry in skip list table is a u32 direntry offset and You've not to keep
-free entries, simply the height of the node will change depending on the number
-of entries.
-
-
->> And performance ( O(log2(n)) ) are the same for whatever number of entries.
+> > Hi,
+> >
+> > Is there any chance that RAID volumes would support partitions like the
+> > hard-disk driver in the future? This could be handsome if you try to
 > 
-> I don't understand this complexity estimate -- it cannot be the same for
-> whatever number of entries as the complexity function depends on the number
-> of entries.
+> You may wish to try LVM in kernel 2.4.0.  This is much more flexible
+> for administration, but I don't know about windoze...
 
-n == number of entries
+I agree. I know LVM from HP-UX and it works absolutely flawless there.
+But when it comes to dualbooting several OSes like Linux and Win* I do
+not think that you have a chance with LVM (unless all OSes support the
+same LVM standard. Microsoft pops in my mind!).
 
-For constant I mean the formula not the result.
-
-
-
-- Davide
-
+Wilfried Weissmann

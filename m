@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265637AbTBJWf5>; Mon, 10 Feb 2003 17:35:57 -0500
+	id <S265543AbTBJWeL>; Mon, 10 Feb 2003 17:34:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265612AbTBJWf5>; Mon, 10 Feb 2003 17:35:57 -0500
-Received: from pc-80-195-34-144-ed.blueyonder.co.uk ([80.195.34.144]:64649
-	"EHLO sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S265603AbTBJWfz>; Mon, 10 Feb 2003 17:35:55 -0500
-Subject: Re: [Ext2-devel] Re: fsck out of memory
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Stephan van Hienen <raid@a2000.nu>
-Cc: Andreas Dilger <adilger@clusterfs.com>, linux-kernel@vger.kernel.org,
-       linux-raid@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-       "Theodore Ts'o" <tytso@mit.edu>, peter@chubb.wattle.id.au, tbm@a2000.nu
-In-Reply-To: <Pine.LNX.4.53.0302090953440.1039@ddx.a2000.nu>
-References: <Pine.LNX.4.53.0302071555110.718@ddx.a2000.nu>
-	<Pine.LNX.4.53.0302071800200.1306@ddx.a2000.nu>
-	<20030207102858.P18636@schatzie.adilger.int> 
-	<Pine.LNX.4.53.0302090953440.1039@ddx.a2000.nu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11james) 
-Date: 10 Feb 2003 22:44:20 +0000
-Message-Id: <1044917060.11838.108.camel@sisko.scot.redhat.com>
-Mime-Version: 1.0
+	id <S265567AbTBJWeL>; Mon, 10 Feb 2003 17:34:11 -0500
+Received: from amsfep14-int.chello.nl ([213.46.243.22]:53593 "EHLO
+	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
+	id <S265543AbTBJWeK>; Mon, 10 Feb 2003 17:34:10 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Jos Hulzink <josh@stack.nl>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5.60] : drivers/video/* compile errors
+Date: Mon, 10 Feb 2003 23:43:50 +0100
+User-Agent: KMail/1.4.3
+References: <200302102335.53302.josh@stack.nl>
+In-Reply-To: <200302102335.53302.josh@stack.nl>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200302102343.50581.josh@stack.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Monday 10 February 2003 23:35, Jos Hulzink wrote:
+> Hi,
+>
+> drivers/video/clgenfb.c doesn't compile, for hundreds of things are
+> undefined...
+>
+> seems the include/video/fbdev*.h files are missing in the ftp.kernel.org
+> 2.5.60 ?
 
-On Sun, 2003-02-09 at 10:08, Stephan van Hienen wrote:
+Err.. fbcon*.h of course...
 
-> Feb  7 04:18:15 storage kernel: EXT3-fs error (device md(9,0)):
-> ext3_new_block:
-> Allocating block in system zone - block = 536875638
+I see now they moved...
 
-That looks like it could be a block wrap, amongst other possible causes.
+A simple grep learns me that 15 drivers use the wrong include dir
 
-> makes me wonder if this can have todo with the lbd (to allow 2TB+ devices)
-> patch ? or is this something else?
-
-Well, that's the most likely candidate, because it's the least tested
-component.  Are you using Ben LaHaise's LBD fixes for the md devices? 
-Without those, md and lvm are not LBD-safe.
-
-Cheers,
- Stephen
-
+Jos

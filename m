@@ -1,41 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262167AbTIHJdM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 05:33:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262168AbTIHJdM
+	id S261637AbTIHJV3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 05:21:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbTIHJV3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 05:33:12 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:6338 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S262167AbTIHJdL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 05:33:11 -0400
-Date: Mon, 8 Sep 2003 11:33:00 +0200 (MEST)
-Message-Id: <200309080933.h889X06U011447@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: linux-kernel@vger.kernel.org, mathieu.desnoyers@polymtl.ca,
-       mingo@redhat.com
-Subject: Re: PROBLEM: APIC on a Pentium Classic SMP, kernel 2.4.21-pre5 to 2.4.23-pre3
+	Mon, 8 Sep 2003 05:21:29 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:13863 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261637AbTIHJV1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 05:21:27 -0400
+To: "Brown, Len" <len.brown@intel.com>
+Cc: "Larry McVoy" <lm@bitmover.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       "William Lee Irwin III" <wli@holomorphy.com>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Giuliano Pochini" <pochini@shiny.it>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Re: Scaling noise
+References: <BF1FE1855350A0479097B3A0D2A80EE009FD35@hdsmsx402.hd.intel.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 08 Sep 2003 03:21:10 -0600
+In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE009FD35@hdsmsx402.hd.intel.com>
+Message-ID: <m1k78jmy9l.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 07 Sep 2003 18:37:48 -0400, Mathieu Desnoyers wrote:
->IRQ problems with APIC enabled on a Neptune chipset, Pentium 90 SMP.
->
->Description
->
->Since kernel 2.4.21-pre2, IRQ problems are present on my Pentium 90 SMP, wi=
->th
->APIC enabled. It works well with 2.4.20 with APIC enabled, or with newer
->kernels with "noapic" kernel option.
+"Brown, Len" <len.brown@intel.com> writes:
 
-There were a lot of I/O-APIC & MP table parsing changes in 2.4.21
-for clustered apic. Chances are something there broke on your
-ancient BIOS & mobo. I can't immediately see anything obviously
-broken in 2.4.21: you'll have to identify the first pre-patch where
-things broke and then test or revert it piece by piece.
+> > 5) NUMA machines are slow.  There is not a single NUMA machine in the
+> >    top 10 of the top500 supercomputers list.  Likely this has more to
+> >    do with system sizes supported by the manufacture than inherent
+> >    process inferiority, but it makes a difference.
+> 
+> Hardware that is good at running linpack (all you gotta run to get onto
+> http://www.top500.org/ )isn't necessarily hardware that is any good at,
+> say, http://www.tpc.org/
 
->On kernel 2.4.21-pre2, there is a kernel oops before this, with a
->"Dereferencing NULL pointer".
+Quite true.  And there have been some very reasonable criticisms of linpack,
+as it is cache friendly.   So I will not argue that clusters are the
+proper solution for everything.
 
-You didn't run that through ksymoops and post it, so how is anyone
-supposed to be able to debug it?
+The barrier to submitting a TPC result is much higher so it captures
+a smaller chunk of the market.  For the people who are their customers
+this seems reasonable.  Though I find the absence of google
+from the TPC-H fascinating.
+
+But none of those machines have nearly the same number of cpus
+as the machines in the top500.   And the point of Larry ideas are
+an infrastructure that scales.  It is easy to scale things to 64
+processors, 2.6 will do that today (though not necessarily
+well).  Going an order a magnitude bigger is a very significant
+undertaking.
+
+I won't argue that a NUMA design is bad.  In fact I think it is quite a
+nice hardware idea.  And optimizing for it if you got it is cool.
+
+But I think if people are going to build software that scales
+built of multiple kernels, it will probably be the cluster guys.
+Because that is what they must do, and they already have the big
+hardware.  And if the code works in a non-coherent mode it should only
+get better when you tell it the machine is cache coherent.
+
+Eric

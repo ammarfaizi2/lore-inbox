@@ -1,60 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261618AbUCGDzR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Mar 2004 22:55:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbUCGDzR
+	id S261741AbUCGEPR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Mar 2004 23:15:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261747AbUCGEPR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Mar 2004 22:55:17 -0500
-Received: from mtaw4.prodigy.net ([64.164.98.52]:55528 "EHLO mtaw4.prodigy.net")
-	by vger.kernel.org with ESMTP id S261618AbUCGDzN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Mar 2004 22:55:13 -0500
-Message-ID: <404A9D14.5030107@matchmail.com>
-Date: Sat, 06 Mar 2004 19:55:00 -0800
+	Sat, 6 Mar 2004 23:15:17 -0500
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:58339 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S261741AbUCGEPN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Mar 2004 23:15:13 -0500
+Message-ID: <404AA1B2.4090500@matchmail.com>
+Date: Sat, 06 Mar 2004 20:14:42 -0800
 From: Mike Fedyk <mfedyk@matchmail.com>
 User-Agent: Mozilla Thunderbird 0.5 (X11/20040209)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Rumi Szabolcs <rumi_ml@rtfm.hu>
-CC: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Subject: Re: Marvell PATA-SATA bridge meets 2.4.x
-References: <20040305231642.708841dd.rumi_ml@rtfm.hu>
-In-Reply-To: <20040305231642.708841dd.rumi_ml@rtfm.hu>
+To: Pavel Machek <pavel@ucw.cz>
+CC: Jean-Luc Cooke <jlcooke@certainkey.com>,
+       dean gaudet <dean-list-linux-kernel@arctic.org>,
+       James Morris <jmorris@redhat.com>,
+       Christophe Saout <christophe@saout.de>,
+       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: DM for detecting bad disks was: dm-crypt, new IV and standards
+References: <20040220172237.GA9918@certainkey.com> <Xine.LNX.4.44.0402201624030.7335-100000@thoron.boston.redhat.com> <20040221164821.GA14723@certainkey.com> <Pine.LNX.4.58.0403022352080.12846@twinlark.arctic.org> <20040303150647.GC1586@certainkey.com> <20040304150836.GE531@openzaurus.ucw.cz>
+In-Reply-To: <20040304150836.GE531@openzaurus.ucw.cz>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rumi Szabolcs wrote:
-> Hello!
+Pavel Machek wrote:
+> Hi!
 > 
-> A while ago I reported a problem with the 2.4.22 kernel and the
-> tiny Marvell PATA to SATA bridge chip that is used on many of
-> the now-not-so-recent motherboards which don't have native
-> SATA ports in their southbridges.
 > 
-> As it can be seen below, a native SATA150 drive is connected
-> to a SATA port implemented using that Marvell chip hooked up
-> to the ICH4's parallel ATA133 port and this way the drive is
-> only recognized (and used) as UDMA33:
+>>>>Well, CTR mode is not recommended for encrypted file systems because it is very
+>>>>easy to corrupt single bits, bytes, blocks, etc without an integrity check.
+>>>>If we add a MAC, then any mode of operation except ECB can be used for
+>>>>encrypted file systems.
+>>>
+>>>what does "easy to corrupt" mean?  i haven't really seen disks generate
+>>>bit errors ever.  this MAC means you'll need to write integrity data for
+>>>every real write.  that really doesn't seem worth it...
+>>
+>>The difference between "_1,000,000" and "_8,000,000" is 1 bit.  If an
+>>attacker knew enough about the layout of the filesystem (modify times on blocks,
+>>etc) they could flip a single bit and change your _1Mil purchase order
+>>approved by your boss to a _8Mil order.
 > 
-> ICH4: IDE controller at PCI slot 00:1f.1
-> ICH4: chipset revision 2
-> ICH4: not 100% native mode: will probe irqs later
->     ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:pio, hdb:pio
->     ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:pio
-> hdc: ST3160023AS, ATA DISK drive
-> blk: queue c04a1ff4, I/O limit 4095Mb (mask 0xffffffff)
-> ide1 at 0x170-0x177,0x376 on irq 15
-> hdc: attached ide-disk driver.
-> hdc: host protected area => 1
-> hdc: 312581808 sectors (160042 MB) w/8192KiB Cache, CHS=19457/255/63, UDMA(33)
 > 
-> As far as I can remember someone (Jeff Garzik?) suspected the
-> SATA cable not being recognized as a 80-conductor thus >=UDMA66
-> capable cable. Then it was told that there is a fix underway that
-> will be included in the 2.4.23 kernel. The above snippet shows
-> that the 2.4.25 kernel still has this problem. Any comments?
+> Hmm... long time ago I created crc loop device to catch
+> faulty disks. If cryptoloop can do that for me... very good!
 
-You want to use a 2.6 kernel and talk to Bart, and Jeff about this...
+Yes, a crc, or some other very low overhead DM target would be great for 
+this.  I haven't looked at DM too much. :( Does it already have 
+something like this already?

@@ -1,92 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316506AbSEOW1B>; Wed, 15 May 2002 18:27:01 -0400
+	id <S316508AbSEOWaf>; Wed, 15 May 2002 18:30:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316510AbSEOW1A>; Wed, 15 May 2002 18:27:00 -0400
-Received: from smtp.comcast.net ([24.153.64.2]:18161 "EHLO smtp.comcast.net")
-	by vger.kernel.org with ESMTP id <S316506AbSEOW06>;
-	Wed, 15 May 2002 18:26:58 -0400
-Date: Wed, 15 May 2002 17:36:27 -0400
-From: Russell Leighton <russ@elegant-software.com>
-Subject: Re: InfiniBand BOF @ LSM - topics of interest
-To: Tony.P.Lee@nokia.com
-Cc: wookie@osdl.org, alan@lxorguk.ukuu.org.uk, lmb@suse.de, woody@co.intel.com,
-        linux-kernel@vger.kernel.org, zaitcev@redhat.com
-Message-id: <3CE2D4DB.3020702@elegant-software.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.9)
- Gecko/20020311
-In-Reply-To: <4D7B558499107545BB45044C63822DDE3A2071@mvebe001.NOE.Nokia.com>
+	id <S316509AbSEOWaf>; Wed, 15 May 2002 18:30:35 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:49168 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S316508AbSEOWad>; Wed, 15 May 2002 18:30:33 -0400
+Date: Wed, 15 May 2002 19:30:18 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Andrea Arcangeli <andrea@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19pre8aa3
+In-Reply-To: <20020515212733.GA1025@dualathlon.random>
+Message-ID: <Pine.LNX.4.44L.0205151929430.32261-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 15 May 2002, Andrea Arcangeli wrote:
 
-Lot's of very cool ideas for IB ...not knowing much about IB, but
-being curious and interested, I have a question which may be stupid
-so I apoligize in advance if it is...
+> Only in 2.4.19pre8aa3: 00_ext3-register-filesystem-lifo-1
+>
+> 	Make sure to always try mounting with ext3 before ext2 (otherwise
+> 	it's impossible to mount the real rootfs with ext3 if ext3 is a module
+> 	loaded by an initrd and ext2 is linked into the kernel).
 
-Can we really have these sort of low level IB interactions and have :
-    - security issues addressed, mostly an issue if the devices are over 
-a network w/other devices
-       doing other things for other processes/people...
-       (I get the a bit scared when someone suggests that a remote 
-device can write directly to my frame
-         buffer or disk, I hope there are security controls in place!)
-    - congestion control (already mentioned)
-    - qos control
+Funny, I've been doing this for months.
 
-OR is it saner to layer TCP/IP etc. over IB... it seems to me the point
-others were making was that  there is more to "network"  style services
-than just passing bits from here to there...will IB have low level
-support many of the features people have come to expect?
+Maybe you should look into pivot_mount(2) and pivot_mount(8)
+some day ?
 
-Thanks!
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
 
-Russ
-
-
-Tony.P.Lee@nokia.com wrote:
-
->
->For VNC type application, instead server translates
->every X Windows, Mac, Windows GUI calls/Bitmap update
->to TCP stream, you convert the GUI API calls to 
->IB RC messages and bitmap updates to RDMA write directly 
->to client app's frame buffer.  
->
->For SAMBA like fs, the file read api can be translated to 
->IB RC messages on client + RDMA write to remote 
->client app's buffer directly from server.
->
->They won't be "standard" VNC/SAMBA any more. 
->
->On the other hand, we can put VNC over TCP over IP over IB,
->- "for people with hammer, every problem looks like a nail." :-)
->
->In theory, we can have IB DVD drive RDMA video directly 
->over IB switch to IB enable VGA frame buffer and completely
->by pass the system.  CPU only needed setup the proper 
->connections.   The idea is to truely virtualized the system
->resources and "resource server" RDMA the data to anyone on IB
->switch with minimal CPU interaction in the process.
->
->You can also config a normal SCSI card DMA data to virtualized 
->IB address on PCI address space and have the data shows up 15 meters
->or 2 km away on server's "virtual scsi driver" destination DMA address.
->It made iSCSI looked like dial up modem in term of performance
->and latency. 
->
->
->----------------------------------------------------------------
->Tony 
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
-
+http://www.surriel.com/		http://distro.conectiva.com/
 

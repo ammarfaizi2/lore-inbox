@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315491AbSEVJ3E>; Wed, 22 May 2002 05:29:04 -0400
+	id <S315485AbSEVJgK>; Wed, 22 May 2002 05:36:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316904AbSEVJ3D>; Wed, 22 May 2002 05:29:03 -0400
-Received: from pluvier.ens-lyon.fr ([140.77.167.5]:41403 "EHLO pluvier")
-	by vger.kernel.org with ESMTP id <S315491AbSEVJ3C>;
-	Wed, 22 May 2002 05:29:02 -0400
-Date: Wed, 22 May 2002 11:31:40 +0200
-From: Eric Lemoine <Eric.Lemoine@ens-lyon.fr>
+	id <S316901AbSEVJgJ>; Wed, 22 May 2002 05:36:09 -0400
+Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:4881 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S315485AbSEVJgI>; Wed, 22 May 2002 05:36:08 -0400
+Date: Wed, 22 May 2002 10:36:02 +0100
+From: Russell King <rmk@arm.linux.org.uk>
 To: linux-kernel@vger.kernel.org
-Subject: i8259 and IO-APIC
-Message-ID: <20020522093139.GA390@hookipa>
+Subject: Re: [PATCH] SLC82C105 IDE driver: missing __init
+Message-ID: <20020522103602.A15750@flint.arm.linux.org.uk>
+In-Reply-To: <20020522091648.GB312@pazke.ipt>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Warning: return path set from From: address
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I already asked this question but did not get any responses. Please
-condider answering.
+On Wed, May 22, 2002 at 01:16:48PM +0400, Andrey Panin wrote:
+> slc82c105_bridge_revision() functions lacks __init modifier.
+> Attached patch (against 2.5.17) fixes it.
+> Compiles, but untested. Please consider applying.
 
-Using the old i8259 interrupts controller, my 1-way Linux2.4.16 box
-livelocks when receiving a high rate UDP flow (interrupt rate is so
-high that the NET_RX_SOFTIRQ never gets the chance to pull the
-packets off the backlog queue). However, the receive livelock
-phenomenom completely disappears when making use of the IO-APIC.
-Does anyone have an explanation for this?
+I'm surprised it compiles.  I've got a rather major update to it here,
+but I need to find time to pull it out of the ARM patch, and I need IDE
+to settle down a bit so the two are actually in sync with each other.
+(Martin messed up my DMA changes which'd prevent sl82c105 linking - I'm
+waiting for the fix to emerge, which I think is in 2.5.17, but the TLB
+stuff in 2.5.17 has broken all my ARM builds, so I'm unable to build or
+test anything on 2.5 currently.)
 
-TIA
+Too many things to do... too many problems to solve... too many patches
+to look at... too much email... not enough hours in the day... not enough
+fast machines to build kernels on... not enough rmk clones to run kernel
+tests... 8)
+
 -- 
-Eric
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

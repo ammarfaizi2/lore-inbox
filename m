@@ -1,67 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129385AbRBVU24>; Thu, 22 Feb 2001 15:28:56 -0500
+	id <S130054AbRBVUa5>; Thu, 22 Feb 2001 15:30:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129627AbRBVU2q>; Thu, 22 Feb 2001 15:28:46 -0500
-Received: from cvsftp.cotw.com ([208.242.241.39]:57360 "EHLO cvsftp.cotw.com")
-	by vger.kernel.org with ESMTP id <S129589AbRBVU23>;
-	Thu, 22 Feb 2001 15:28:29 -0500
-Message-ID: <3A9592F4.FFCC2236@cotw.com>
-Date: Thu, 22 Feb 2001 14:30:12 -0800
-From: Scott A McConnell <samcconn@cotw.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16-3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S129680AbRBVUar>; Thu, 22 Feb 2001 15:30:47 -0500
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:32006 "EHLO
+	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S129599AbRBVUaa>; Thu, 22 Feb 2001 15:30:30 -0500
+Date: 22 Feb 2001 21:04:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
 To: linux-kernel@vger.kernel.org
-Subject: nfs_refresh_inode: inode number mismatch
+Message-ID: <7wNdSRv1w-B@khms.westfalen.de>
+In-Reply-To: <20010222000755.A29061@atrey.karlin.mff.cuni.cz>
+Subject: Re: [rfc] Near-constant time directory index for Ext2
+X-Mailer: CrossPoint v3.12d.kh5 R/C435
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <3A94470C.2E54EB58@transmeta.com> <3A94435D.59A4D729@transmeta.com> <20010221235008.A27924@atrey.karlin.mff.cuni.cz> <3A94470C.2E54EB58@transmeta.com> <20010222000755.A29061@atrey.karlin.mff.cuni.cz>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am getting NFS errors/warnings
+mj@suse.cz (Martin Mares)  wrote on 22.02.01 in <20010222000755.A29061@atrey.karlin.mff.cuni.cz>:
 
-VFS: Mounted root (nfs filesystem).
-Freeing unused kernel memory: 196k freed
-nfs_refresh_inode: inode number mismatch
-expected (0x806/0x6246a), got (0x806/0x62b48)
-                     ^/var/run/utmp
-^/var/log/wtmp                        **************
-nfs_refresh_inode: inode number mismatch
-expected (0x806/0x62b48), got (0x806/0x6246a)
-nfs_refresh_inode: inode number mismatch
-expected (0x806/0x6246a), got (0x806/0x62b48)
-nfs_refresh_inode: inode number mismatch
-expected (0x806/0x62b4f), got (0x806/0x6246a)
+> One could avoid this, but it would mean designing the whole filesystem in a
+> completely different way -- merge all directories to a single gigantic
+> hash table and use (directory ID,file name) as a key, but we were originally
+> talking about extending ext2, so such massive changes are out of question
+> and your log n access argument is right.
 
-^/var/run/inetd.pid
-*****************
-nfs_refresh_inode: inode number mismatch
-expected (0x806/0x6246a), got (0x806/0x62b48)
-nfs_refresh_inode: inode number mismatch
-expected (0x806/0x62b48), got (0x806/0x6246a)
-nfs_refresh_inode: inode number mismatch
-expected (0x806/0x62b48), got (0x806/0x6246a)
-nfs_refresh_inode: inode number mismatch
-expected (0x806/0x6246a), got (0x806/0x62b48)
-nfs_refresh_inode: inode number mismatch
-expected (0x806/0x42d60), got (0x806/0x42d5f)
-nfs_refresh_inode: inode number mismatch
-expected (0x806/0x6246a), got (0x806/0x62b48)
-nfs_refresh_inode: inode number mismatch
-expected (0x806/0x6246a), got (0x806/0x62b48)
-nfs_refresh_inode: inode number mismatch
-expected (0x806/0x6246a), got (0x806/0x62b48)
-
-I am running  RedHat Linux version 2.2.16-3 on  my PC and  Hardhat Linux
-version 2.4.0-test5 on my MIPS board. Any thoughts or suggestions?
-
-I saw a discussion start on the ARM list along these lines but I never
-saw a solution.
-
-Please CC me at samcconn@cotw.com
-
-Thanks,
-Scott
+s/hash table/btree/ and you have just described the Macintosh HFS file  
+system. (Incidentally, it stores file extent indices in a similar manner,  
+with key = (file id, fork, offset).)
 
 
+MfG Kai

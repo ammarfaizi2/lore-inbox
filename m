@@ -1,42 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270170AbUJTVWR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268851AbUJTVU7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270170AbUJTVWR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 17:22:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267619AbUJTVQD
+	id S268851AbUJTVU7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 17:20:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267951AbUJTVU4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 17:16:03 -0400
-Received: from lana.hrz.tu-chemnitz.de ([134.109.132.3]:20677 "EHLO
-	lana.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id S270547AbUJTVLY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 17:11:24 -0400
-To: linux-kernel@vger.kernel.org
-Subject: [2.6.9] HPT372N - oops (NULL pointer dereference)
-From: Ronald Wahl <ronald.wahl@informatik.tu-chemnitz.de>
-Date: Wed, 20 Oct 2004 23:11:20 +0200
-Message-ID: <m23c09p01z.fsf@rohan.middle-earth.priv>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Spam-Score: 0.0 (/)
-X-Spam-Report: --- Start der SpamAssassin 2.64 Textanalyse (0.0 Punkte)
-	Fragen an/questions to:  Postmaster TU Chemnitz <postmaster@tu-chemnitz.de>
-	--- Ende der SpamAssassin Textanalyse
-X-Scan-Signature: b75b3a670525627ec81a7de66e8d9271
+	Wed, 20 Oct 2004 17:20:56 -0400
+Received: from fw.osdl.org ([65.172.181.6]:39373 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269100AbUJTVUf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 17:20:35 -0400
+Date: Wed, 20 Oct 2004 14:24:20 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Matthias Andree <matthias.andree@gmx.de>
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: Re: 2.6.9 network regression killing amanda - 3c59x?
+Message-Id: <20041020142420.0d513191.akpm@osdl.org>
+In-Reply-To: <20041020191203.GA14356@merlin.emma.line.org>
+References: <20041020191203.GA14356@merlin.emma.line.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Matthias Andree <matthias.andree@gmx.de> wrote:
+>
+> Has the 3c59x driver changed between 2.6.8.1 and 2.6.9?
 
-I just tried upgrading from 2.6.7 to 2.6.9 and got a kernel oops during
-boot. Stack trace looked very similar to the one João Luis Meloni Assirati
-reported on Oct 05 2004 (Subject: hpt366 under hpt372N oops). I have a
-HPT372N on my board with one disk attached.
+Not much, really.  Just vlan support.
 
-Is there any news on this issue yet? It keeps me from using 2.6.9. :-/
+> Which patches or changesets are worth backing out?
 
-thanks,
-ron
-
-PS: Keep me in Cc:, please. I'm not on the list. Thx.
+Try the 2.6.8.1 driver in a 2.6.9 kernel?

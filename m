@@ -1,103 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311583AbSCTGPU>; Wed, 20 Mar 2002 01:15:20 -0500
+	id <S312276AbSCTKfy>; Wed, 20 Mar 2002 05:35:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311585AbSCTGPL>; Wed, 20 Mar 2002 01:15:11 -0500
-Received: from mail3.aracnet.com ([216.99.193.38]:41415 "EHLO
-	mail3.aracnet.com") by vger.kernel.org with ESMTP
-	id <S311583AbSCTGO4>; Wed, 20 Mar 2002 01:14:56 -0500
-Date: Tue, 19 Mar 2002 22:15:30 -0800
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Scalability problem (kmap_lock) with -aa kernels
-Message-ID: <221408128.1016576129@[10.10.2.3]>
-In-Reply-To: <20020320024008.A4268@dualathlon.random>
-X-Mailer: Mulberry/2.1.2 (Win32)
+	id <S312275AbSCTKfo>; Wed, 20 Mar 2002 05:35:44 -0500
+Received: from morrison.empeg.co.uk ([193.119.19.130]:43260 "EHLO
+	fatboy.internal.empeg.com") by vger.kernel.org with ESMTP
+	id <S312274AbSCTKfm>; Wed, 20 Mar 2002 05:35:42 -0500
+Message-ID: <004901c1cffa$80567d50$2701230a@electronic>
+From: "Peter Hartley" <pdh@utter.chaos.org.uk>
+To: "Theodore Tso" <tytso@mit.edu>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <006701c1cf6d$d9701230$2701230a@electronic> <20020319191018.A23000@thunk.org>
+Subject: Re: setrlimit and RLIM_INFINITY causing fsck failure, 2.4.18
+Date: Wed, 20 Mar 2002 10:09:10 -0000
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If you have PIII cpus pre3 mainline has a bug in the machine check code,
-> this one liner will fix it:
+Theodore Tso wrote:
+> On Tue, Mar 19, 2002 at 05:45:24PM -0000, Peter Hartley wrote:
+> >  * glibc knows nothing about the new unsigned limits, because
+> >    it's compiled against 2.2 headers. So it clips the limit
+> >    value to 0x7FFFFFFF to "correct" it before calling the
+> >    setrlimit syscall. This is IMO still the Right Thing,
+> >    because it's trying to call the old syscall as if to run
+> >    a new program on a 2.2 kernel.
+>
+> Unfortunately, all of my testing was done under systems where the
+> glibc was already compiled under 2.4 headers, so I didn't realize that
+> glibc would try to be "helpful" and correct the limit used by rlimit.
+> (In other words, the e2fsprogs workaround was only worked in the case
+> where other programs were losing because they were using the 2.2
+> kernel ABI, but the libc was using the 2.4 kernel ABI.  Sigh.)
+>
+> So obviously, the way I need to fix e2fsprogs is to fork a child
+> process, check to see whether or not I can safely call setrlimit, and
+> if not, exit without trying to set it.  :-( This is a really dirty
+> hack, but I don't see any other way fixing user-land programs that are
+> trying to work around this ABI mess.
 
-Thanks - that'll probably save me a bunch of time ... 
+I don't think you can tell whether it's safe to call setrlimit (unless you
+mean having e2fsck call the *syscall* directly, which is icky). The
+getrlimit in a 2.2-headered glibc returns 0x7FFFFFFF whether the kernel's
+idea of the value is 0x7FFFFFFF or 0xFFFFFFFF. I still like Andreas Dilger's
+idea that you only set the limit if it's not already RLIM_INFINITY as
+returned by glibc.
 
-May I assume, for the sake of discussion, that there's not much 
-difference between pre1-aa1 and your latest stuff in the area we're 
-talking about here?
+If PAM, or something else, has already set the 0x7FFFFFFF value, there
+appears to be no way of setting the 0xFFFFFFFF value via a 2.2-headered
+glibc :-( and you'd need to go for the syscall :-((
 
-> One thing I see is not only a scalability problem with the locking, but
-> it seems kmap_high is also spending an huge amount of time in kernel
-> compared to the "standard" profiling.  
+        Peter
 
-One other wierd thing to note in the profiling is that kunmap_high
-is way up in the profile as well - seeing as kunmap_high doesn't
-do the same sort of scanning as kmap_high, it shouldn't be O(N).
-I'm wondering if somehow the profiling attributes some of the spinning
-cost to the calling function. Pure speculation, but there's defintely
-something strange there ....
-
-> That maybe  because I increased
-> too much the size of the pool (the algorithm is O(N)). Can you try 
-> again with this incremental patch applied?
-
-Sure ... will retest. But by shrinking the size of the pool back down, 
-won't you just increase the number of global tlbflushes? Any way you 
-cut it, the kmaps are going to be expensive ... according to the 
-lockmeter stuff, you're doing about 3.5 times as many kmaps.
-
-> The pte-highmem stuff has nothing to do with the kmap_high O(N)
-> complexity that maybe the real reason of this slowdown. (the above 
-> patch decreases N of an order of magnitude and so we'll see if that 
-> was the real problem or not)
-
-I appreciate the scanning doesn't scale well, but is the pte-highmem
-stuff the cause of the increase of kmap frequency? There seems to be
-both a frequency and duration problem.
-
-> So avoiding persistent kmaps in the pte handling would in turn you give
-> you additional scalability __if__ your workload is very pagetable
-> intensive (a kernel compile is very pagetable intensive incidentally),
-> but the very same scalability problem you can find with the pagetables
-> you will have it also for the cache in different workloads because all
-> the pagecache is in highmem too and every time you execute a read
-> syscall you will also need to kmap-persistent a pagecache.
-
-I don't think anyone would deny that making kmap faster / more scalable
-would be a Good Thing ;-) I haven't stared at the pagecache code too
-much - once we avoid the bounce buffers with Jens' patches, do we 
-still need to do a kmap for the pagecache situation you mention?
-
-> The 2.5 kernel avoids using persistent kmaps for pagetables, that's the
-> only interesting difference with pte-highmem in 2.4 (all other
-> differences are not interesting and I prefer pte-highmem for all other
-> parts for sure), but note that you will still have to pay for an hit if
-> you want the feature compared to the "standard" 2.4 that you benchmarked
-> against: in 2.5 the CPU will have to walk pagetables for the kmap areas
-> after every new kmap because the kmap will be forced to flush the tlb
-> entry without persistence. The pagetables relative to the kmap atomic
-> area are shared across all cpus and the cpu issues locked cycles to walk
-> them.
-
-OK, I guess we're back to the question of whether a local tlb_flush_one
-per kmap is cheaper than a global tlb_flush_all once per LAST_PKMAP 
-kmaps. Not just in terms of time to execute, but in terms of how much
-we slow down others by trashing the cache ... I guess that's going to
-be tough to really measure.
-
-It would be nice to be able to compare the two different kmap approaches
-against each other - AFAIK, the 2.5 implementation isn't available for 
-2.4 to compare though ... if your stuff is easy to change over to 
-atomic_kmap, I'd be happy to compare it (unless shrinking the pool size
-fixes it, in which case we're done).
-
-Thanks for taking the time to explain all of this - I have a much 
-better idea what's going on now. I'll get you the new numbers tommorow.
-
-M.
 

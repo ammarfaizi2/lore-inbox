@@ -1,66 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266212AbUHJNo3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265044AbUHJNXY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266212AbUHJNo3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 09:44:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266215AbUHJNmw
+	id S265044AbUHJNXY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 09:23:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264808AbUHJNUo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 09:42:52 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:30399 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S264973AbUHJNlT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 09:41:19 -0400
-From: Benno <benjl@cse.unsw.edu.au>
-To: Andrew Morton <akpm@osdl.org>
-Date: Tue, 10 Aug 2004 23:41:02 +1000
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Use posix headers in sumversion.c
-Message-ID: <20040810134102.GA15576@cse.unsw.edu.au>
+	Tue, 10 Aug 2004 09:20:44 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:39574 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S265214AbUHJNPW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 09:15:22 -0400
+Date: Tue, 10 Aug 2004 15:16:28 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: William Lee Irwin III <wli@holomorphy.com>, V13 <v13@priest.com>,
+       Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: 2.6.8-rc3-mm2
+Message-ID: <20040810131628.GA28167@elte.hu>
+References: <200408091217.50786.jbarnes@engr.sgi.com> <20040810100234.GN11200@holomorphy.com> <20040810115307.GR11200@holomorphy.com> <200408101552.22501.v13@priest.com> <20040810125140.GU11200@holomorphy.com> <20040810125529.GA22650@elte.hu> <20040810125651.GV11200@holomorphy.com> <20040810130122.GA26326@elte.hu> <20040810141220.B20890@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="TB36FDmn/VVEgNH/"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040810141220.B20890@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---TB36FDmn/VVEgNH/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+* Russell King <rmk+lkml@arm.linux.org.uk> wrote:
 
-When compiling Linux on Mac OSX I had trouble with scripts/sumversion.c.
-It includes <netinet/in.h> to obtain to definitions of htonl and ntohl.
+> Except serial console IO does not generate _any_ IRQ traffic - it
+> purposely disables IRQs on the device before starting any IO to
+> prevent any user-level IO interfering with the console output.
 
-On Mac OSX these are found in <arpa/inet.h>. After checking the POSIX
-specification it appears that this is the correct place to get
-the definitons for these functions.
+indeed - but it does generate _some_ IRQ traffic still:
 
-(http://www.opengroup.org/onlinepubs/009695399/functions/htonl.html)
+  3:        251    IO-APIC-edge  serial
 
-Using this header also appears to work on Linux (at least with
-Glibc-2.3.2).
+this is from a box that uses the serial line only for the kernel
+console.
 
-It seems clearer to me to go with the POSIX standard than implementing
-#if __APPLE__ style macros, but if such an approach is preferred I can
-supply patches for that instead.
-
-A patch against 2.6.7 which change <netinet/in.h> -> <arpa/inet.h> is
-attached.
-
-Cheers,
-
-Benno
-
---TB36FDmn/VVEgNH/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="sumversion.patch"
-
---- sumversion.c	2004-08-10 23:26:27.000000000 +1000
-+++ sumversion.c.orig	2004-08-10 23:26:08.000000000 +1000
-@@ -1,4 +1,4 @@
--#include <arpa/inet.h>
-+#include <netinet/in.h>
- #include <stdint.h>
- #include <ctype.h>
- #include <errno.h>
-
---TB36FDmn/VVEgNH/--
+	Ingo

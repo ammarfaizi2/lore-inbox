@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264678AbSKDOWx>; Mon, 4 Nov 2002 09:22:53 -0500
+	id <S264680AbSKDOdo>; Mon, 4 Nov 2002 09:33:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264680AbSKDOWw>; Mon, 4 Nov 2002 09:22:52 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:50851 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S264678AbSKDOWw>;
-	Mon, 4 Nov 2002 09:22:52 -0500
-Date: Mon, 4 Nov 2002 14:27:03 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix undeclared NULL in timer.h
-Message-ID: <20021104142703.GA20234@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-	Rusty Russell <rusty@rustcorp.com.au>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org
-References: <20021104083918.126192C27F@lists.samba.org> <200211041139.gA4Bdjp32237@Port.imtp.ilyichevsk.odessa.ua>
+	id <S264681AbSKDOdo>; Mon, 4 Nov 2002 09:33:44 -0500
+Received: from thunk.org ([140.239.227.29]:415 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id <S264680AbSKDOdn>;
+	Mon, 4 Nov 2002 09:33:43 -0500
+Date: Mon, 4 Nov 2002 09:39:27 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Oliver Xymoron <oxymoron@waste.org>,
+       Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>,
+       Dax Kelson <dax@gurulabs.com>, Rusty Russell <rusty@rustcorp.com.au>,
+       linux-kernel@vger.kernel.org, davej@suse.de
+Subject: Re: Filesystem Capabilities in 2.6?
+Message-ID: <20021104143927.GB9197@think.thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Alexander Viro <viro@math.psu.edu>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Oliver Xymoron <oxymoron@waste.org>,
+	Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>,
+	Dax Kelson <dax@gurulabs.com>,
+	Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
+	davej@suse.de
+References: <Pine.LNX.4.44.0211022128050.2633-100000@home.transmeta.com> <Pine.GSO.4.21.0211030048170.25010-100000@steklov.math.psu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200211041139.gA4Bdjp32237@Port.imtp.ilyichevsk.odessa.ua>
-User-Agent: Mutt/1.4i
+In-Reply-To: <Pine.GSO.4.21.0211030048170.25010-100000@steklov.math.psu.edu>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 04, 2002 at 02:31:39PM -0200, Denis Vlasenko wrote:
- > The whole problem of #include forest going out of control
- > needs some clever solution or we will eternally chase missing
- > .h files
+On Sun, Nov 03, 2002 at 01:37:19AM -0500, Alexander Viro wrote:
+> > In other words, it would actually make perfect sense to have 
+> > 
+> >   -r-sr-sr-x    1 nobody  mail  451280 Apr  8  2002 /usr/bin/sendmail
+> > 
+> >   mount --bind --capability=chown,bindlow /usr/bin/sendmail /usr/bin/sendmail
+> 
+> *blam*
+> 
+> Congratulations with potential crapload of security holes - now anyone
+> who'd compromised a process running as nobody can chmod the damn thing
+> and modify it.
+> 
+> And that is the reason why suid-nonroot is bad.  It creates a class of
+> binaries that can easily give you a root compromise if one of them has
+> an exploit - even if that one is never run by root.
 
-Doing an untangle at this point is pretty much a waste of effort.
-As we get closer to stabilising, we can regenerate the dependancy
-graphs and see what looks out of place again.
+This is solved by some implementations of POSIX capabilities by
+zapping any capabilities if the executible is modified --- just as
+some Unix systems zap the setuid bit if the executable is modified.
+It addresses specifically the problem that you've raised.
 
-Adding lots of #include's isn't an issue as long as those includes
-aren't sucking in 200 others.
-
-		Dave
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
+						- Ted

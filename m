@@ -1,108 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264951AbTIJOnh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 10:43:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264952AbTIJOnh
+	id S264974AbTIJOx1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 10:53:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264981AbTIJOx1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 10:43:37 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:1922 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S264951AbTIJOnd
+	Wed, 10 Sep 2003 10:53:27 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:36542 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S264974AbTIJOxY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 10:43:33 -0400
-Date: Wed, 10 Sep 2003 10:45:16 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Takashi Iwai <tiwai@suse.de>
-cc: Jaroslav Kysela <perex@suse.cz>, Russ Garrett <rg@tcslon.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Audio skipping with alsa
-In-Reply-To: <s5hhe3kvjtc.wl@alsa2.suse.de>
-Message-ID: <Pine.LNX.4.53.0309101037120.12986@chaos>
-References: <1063116861.852.50.camel@russell> <s5hk78gvkt7.wl@alsa2.suse.de>
- <Pine.LNX.4.53.0309101536080.1411@pnote.perex-int.cz> <s5hhe3kvjtc.wl@alsa2.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 10 Sep 2003 10:53:24 -0400
+Date: Wed, 10 Sep 2003 07:53:17 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Luca Veraldi <luca.veraldi@katamail.com>
+Cc: uek32z@phoenix.hadiko.de, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Efficient IPC mechanism on Linux
+Message-ID: <20030910145317.GA32321@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Luca Veraldi <luca.veraldi@katamail.com>, uek32z@phoenix.hadiko.de,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <E19x3el-0002Fc-Rj@phoenix.hadiko.de> <03ca01c37795$6497ac80$5aaf7450@wssupremo>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <03ca01c37795$6497ac80$5aaf7450@wssupremo>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Sep 2003, Takashi Iwai wrote:
+On Wed, Sep 10, 2003 at 02:16:40PM +0200, Luca Veraldi wrote:
+> > I've read your posting on the lkml and also the answers
+> > concerning IPC mechanisms on Linux.
+> > You speak English very well - why don't you translate your
+> > page into english, I think many people would be very interested
+> > in it... at least I am ;) Unfortunately not many kernel hackers
+> > are able to understand Italian, I think...
+> 
+> Page is now in English since last night (Italian time).
+> Please, refresh your browser.
+> 
+> http://web.tiscali.it/lucavera/www/root/ecbm/index.htm
+> for English users and
 
-> At Wed, 10 Sep 2003 15:38:46 +0200 (CEST),
-> Jaroslav wrote:
-> >
-> > On Wed, 10 Sep 2003, Takashi Iwai wrote:
-> >
-> > > At Tue, 09 Sep 2003 15:14:21 +0100,
-> > > Russ Garrett wrote:
-> > > >
-> > > > Hi, I've just installed an M-Audio Audiophile 2496 sound card (Envy24)
-> > > > with the 2.6.0-test5 kernel (with the preemptible kernel option on),
-> > > > using the ice1712 alsa driver (although this also happens in 2.4.21
-> > > > without preemptible kernel).
-> > > >
-> > > > Music plays fine until I do *anything* - changing windows, scrolling,
-> > > > pressing buttons, whatever - when it stutters badly. Scrolling in an
-> > > > anti-aliased terminal is especially fun. However, if I play using XMMS
-> > > > with the realtime priority option, everything's fine, although that has
-> > > > the distinct disadvantage that I have to run it as root.
-> > > >
-> > > > I've tried enabling/disabling ACPI/APM/APIC. The card isn't sharing an
-> > > > IRQ with anything.  It's not a hard drive/IDE related issue, although
-> > > > that's all using DMA anyway.
-> > > >
-> > > > I do have both an AGP and a PCI graphics card installed and in use,
-> > > > although the stuttering happens if I do anything on either. I've found a
-> > > > few references to this problem on google, but no solutions. It works
-> > > > fine on Windows ;).
-> > > >
-> > > > Here's what happens if I try to scroll in gnome-terminal whilst aplaying
-> > > > something:
-> > > >
-> > > > rg@russell:~$ aplay < test
-> > > > Playing raw data 'stdin' : Unsigned 8 bit, Rate 8000 Hz, Mono
-> > > > xrun!!! (at least 869.990 ms long)
-> > > > xrun!!! (at least 21.552 ms long)
-> > > > xrun!!! (at least 17.686 ms long)
-> > > > xrun!!! (at least 16.482 ms long)
-> > > > xrun!!! (at least 17.194 ms long)
-> > > > xrun!!! (at least 17.126 ms long)
-> > > > xrun!!! (at least 14.123 ms long)
-> > > > xrun!!! (at least 13.679 ms long)
-> > > > xrun!!! (at least 12.928 ms long)
-> > > > [...and so on, for another 20 or so lines]
-> > >
-> > > i guess it's a general scheduler issue.
-> > >
-> > > why you face this problem more severly than others:
-> > > the timing on the ice1712 (envy24) chip is quite tight, because it
-> > > always needs 32bit * 10 channels interleaved samples even if you want
-> > > to play a two-channel mp3 file.  more badly, the maximum buffer size
-> > > is limited to 64k byte.  hence, at most, you can get about 0.1 sec for
-> >
-> > It's limited to 256kB. And yes, it's only 0.14 sec for 44.1kHz playback.
->
-> oh yes, thanks for correction :)
->
->
-> Takashi
->
+I read it and I must be missing something, which is possible, I need more
+coffee.
 
-I don't see the driver in linux-2.4.22/drivers/sound, so I can't
-look at it directly, but normally all you have to do is keep
-a FIFO full (not empty) during play. There should not be any
-scheduling issues with sound chips although I am seeing too
-much of that lately. Maybe  somebody should look at the driver
-before the scheduler is blamed. Perhaps the driver is not
-designed properly so it assumes the user-mode code can do
-something it can't possibly be expected to do with any
-reliability. For instance, perhaps it's the user-mode's
-responsibility to keep a FIFO full? And, you can never
-guarantee that.
+I question the measurement methodology.  Why didn't you grab the sources
+to LMbench and use them to measure this?  It may well be that you disagree
+with how it measures things, which may be fine, but I think you'd benefit
+from understanding it and thinking about it.  It's also trivial to add
+another test to the system, you can do it in a few lines of code.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (794.73 BogoMips).
-            Note 96.31% of all statistics are fiction.
+I also question the results.  I modified lat_pipe.c from LMbench to measure
+a range of sizes, code is included below.  The results don't match yours at
+all.  This is on a 466Mhz Celeron running RedHat 7.1, Linux 2.4.2.  The 
+time reported is the time to send and receive the data between two processes,
+i.e., 
 
+	Process A		Process B
+	write
+		 <context switch>
+				read
+				write
+		 <context switch>
+	read
 
+In other words, the time printed is for a round trip.  Your numbers
+appear to be off by a factor of two, they look pretty similar to mine
+but as far as I can tell you are saying that it costs 4 usecs for a send
+and 4 for a recv and that's not true, the real numbers are 2 sends and
+2 receives and 2 context switches.
+
+     1 bytes: Pipe latency: 8.0272 microseconds
+     8 bytes: Pipe latency: 7.8736 microseconds
+    64 bytes: Pipe latency: 8.0279 microseconds
+   512 bytes: Pipe latency: 10.0920 microseconds
+  4096 bytes: Pipe latency: 19.6434 microseconds
+ 40960 bytes: Pipe latency: 313.3328 microseconds
+ 81920 bytes: Pipe latency: 1267.7174 microseconds
+163840 bytes: Pipe latency: 3052.1020 microseconds
+
+I want to stick some other numbers in here from LMbench, the signal
+handler cost and the select cost.  On this machine it is about 5 usecs
+to handle the signal and about 4 for select on 10 file descriptors.
+
+If I were faced with the problem of moving data between processes at very
+low cost the path I choose would depend on whether it was a lot of data
+or just an event notification.  It would also depend on whether the 
+receiving process is doing anything else.  Let's walk a couple of those
+paths:
+
+If all I want to do is let another process know that something has happened
+then a signal is darn close to as cheap as I can get.  That's what SIGUSR1
+and SIGUSR2 are for.  
+
+If I wanted to move large quantities of data I'd combine signals with 
+mmap and mutexes.  This is easier than it sounds.  Map a scratch file,
+truncate it up to the size you need, start writing into it and when you
+have enough signal the other side.  It's a lot like the I/O loop in 
+many device drivers.  
+
+So I guess I'm not seeing why there needs to be a new interface here.
+This looks to me like you combine cheap messaging (signals, select,
+or even pipes) with shared data (mmap).  I don't know why you didn't
+measure that, it's the obvious thing to measure and you are going to be
+running at memory speeds.
+
+The only justification I can see for a different mechanism is if the 
+signaling really hurt but it doesn't.  What am I missing?
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265851AbSKKRfD>; Mon, 11 Nov 2002 12:35:03 -0500
+	id <S266728AbSKKRqr>; Mon, 11 Nov 2002 12:46:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265859AbSKKRfD>; Mon, 11 Nov 2002 12:35:03 -0500
-Received: from ma-northadams1b-126.bur.adelphia.net ([24.52.166.126]:3200 "EHLO
-	ma-northadams1b-126.bur.adelphia.net") by vger.kernel.org with ESMTP
-	id <S265851AbSKKRfC>; Mon, 11 Nov 2002 12:35:02 -0500
-Date: Mon, 11 Nov 2002 12:42:33 -0500
-From: Eric Buddington <eric@ma-northadams1b-126.bur.adelphia.net>
-To: Jens Axboe <axboe@suse.de>
-Cc: ebuddington@wesleyan.edu, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.47 hangs while checking hda on PII laptop
-Message-ID: <20021111124233.C8017@ma-northadams1b-126.bur.adelphia.net>
-Reply-To: ebuddington@wesleyan.edu
-References: <20021111104153.A8017@ma-northadams1b-126.bur.adelphia.net> <20021111161259.GB838@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20021111161259.GB838@suse.de>; from axboe@suse.de on Mon, Nov 11, 2002 at 05:12:59PM +0100
-Organization: ECS Labs
-X-Eric-Conspiracy: there is no conspiracy
+	id <S266730AbSKKRqr>; Mon, 11 Nov 2002 12:46:47 -0500
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:25217 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id <S266728AbSKKRqr>; Mon, 11 Nov 2002 12:46:47 -0500
+Message-ID: <3DCFEE97.9010301@nortelnetworks.com>
+Date: Mon, 11 Nov 2002 12:53:27 -0500
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: strange behaviour with statfs() call, looking for advice -- followup
+References: <3DCFDE0A.1030506@nortelnetworks.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 11, 2002 at 05:12:59PM +0100, Jens Axboe wrote:
-> On Mon, Nov 11 2002, Eric Buddington wrote:
-> > This is 2.5.47, compiled for a PII laptop (Omnibook 4100) with
-> > gcc-3.2. I fixed an earlier boot panic by disabling IDE-TCQ, but now
-> > it hangs in the hda check (shown below) I waited at least 2 minutes
-> > for it to unhang.
-> > 
-> > Below is as much of the boot messages as I could capture; I don't know
-> > if the hdc error is significant (the drive had no media), but pulling
-> > the CD-ROM did not prevent the hda hang in a subsequent boot.
-> 
-> Try disabling the acpi crap
+Friesen, Christopher [CAR:7Q26:EXCH] wrote:
 
-Recompiled without ACPI, and I still get the same hang.
+> The system in question is a yellowdog system, but the same problem is 
+> present on a recent mandrake box as well.  Is this a redhat issue?
 
--Eric
+It appears that this is a glibc problem, and it is still present in the 
+latest glibc.  Just a warning to people using statfs().
+
+Chris
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+

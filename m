@@ -1,81 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131506AbRC0TcA>; Tue, 27 Mar 2001 14:32:00 -0500
+	id <S131509AbRC0Tru>; Tue, 27 Mar 2001 14:47:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131503AbRC0Tbv>; Tue, 27 Mar 2001 14:31:51 -0500
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:577 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S131507AbRC0Tbk>; Tue, 27 Mar 2001 14:31:40 -0500
-Date: Tue, 27 Mar 2001 13:30:58 -0600 (CST)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200103271930.NAA35751@tomcat.admin.navo.hpc.mil>
-To: law@sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: 64-bit block sizes on 32-bit systems
-X-Mailer: [XMailTool v3.1.2b]
+	id <S131513AbRC0Trk>; Tue, 27 Mar 2001 14:47:40 -0500
+Received: from james.kalifornia.com ([208.179.59.2]:33890 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S131509AbRC0Tr3>; Tue, 27 Mar 2001 14:47:29 -0500
+Message-ID: <3AC0EE21.BD5CB144@blue-labs.org>
+Date: Tue, 27 Mar 2001 11:46:42 -0800
+From: David Ford <david@blue-labs.org>
+Organization: Blue Labs Software
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre6 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Bug in reiserfs?  2.4.3-pre6
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-LA Walsh <law@sgi.com>:
-> Ion Badulescu wrote:
-> > Compile option or not, 64-bit arithmetic is unacceptable on IA32. The
-> > introduction of LFS was bad enough, we don't need yet another proof that
-> > IA32 sucks. Especially when there *are* better alternatives.
-> ===
->         So if it is a compile option -- the majority of people
-> wouldn't be affected, is that in agreement?  Since the default would
-> be to use the same arithmetic as we use  now.
-> 
->         In fact, I posit that if anything, the majority of the people
-> might be helped as the block_nr becomes a a 'typed' value -- and
-> perhaps the sector_nr as well.  They remain the same size, but as
-> a typed value the kernel gains increased integrity from the increased
-> type checking.  At worst, it finds no new bugs and there is no impact
-> in speed.  Are we in agreement so far?
-> 
->         Now lets look at the sites want to process terabytes of
-> data -- perhaps files systems up into the Pentabyte range.  Often I
-> can see these being large multi-node (think 16-1024 clusters as 
-> are in use today for large super-clusters).  If I was to characterize
-> the performance of them, I'd likely see the CPU pegged at 100% 
-> with 99% usage in user space.  Let's assume that increasing the
-> block size decreases disk accesses by as much as 10% (you'll have
-> to admit -- using a 64bit quantity vs. 32bit quantity isn't going
-> to even come close to increasing disk access times by 1 millisecond,
-> really, so it really is going to be a much smaller fraction when
-> compared to the actual disk latency).  
+Lately I've been having to reboot every few days due to D state
+processes, always mozilla so far.  When I exit mozilla it doesn't always
+cleanly shutdown, sometimes processes are left behind.  I'll post what I
+have and if I'm lucky I'll follow up with a backtrace on the pids.  Last
+time I tried a sysrq-t, it killed X from under me.
 
-Relatively small quibble - Current large clusters (SP3, 330 node 4cpu/node)
-gets around 85% to 90% (real user) user mode total cpu. The rest is user
-mode is attributed to overhead. Why:
-    1. Inter-node communication/synchronization
-    2. Memory bus saturation
-    3. Users usually use only 3 cpus/node and allow the last cpu to handle
-       filesystem/network/administration/batch handling functions. Using the
-       last cpu in the node for part of the job reduces the overall throughput
+# ps aux|grep mozi
+david     6530  0.3  7.1 33444 18180 ?       D    11:34   0:00
+/usr/src/mozilla/
+david     6533  0.0  7.1 33444 18180 ?       D    11:34   0:00
+/usr/src/mozilla/
 
->         Ok...but for the sake of
-> argument using 10% -- that's still only 10% of 1% spent in the system.
-> or a slowdown of .1%.  Now that's using a really liberal figure
-> of 10%.  If you look at the actual speed of 64 bit arithmatic vs.
-> 32, we're likely talking -- upper bound, 10x the clocks for 
-> disk block arithmetic.  Disk block arithmetic is a small fraction
-> of time spent in the kernel.  We have to be looking at *maximum*
-> slowdowns in the range of a few hundred maybe a few thousand extra clocks.
-> A 1000 extra clocks on a 1G machine is 1 microsecond, or approx
-> 1/5000th your average seek latency on a *fast* hard disk.  So
-> instead of 10% slowdown we are talking slowdowns in the 1/1000 range
-> or less.  Now that's a slowdown in the 1% that was being spent in
-> the kernel, so now we've slowdown the total program speed by .001%
-> at the increase benefit (to that site) of being able to process
-> those mega-gig's (Pentabytes) of information.  For a hit that is
-> not noticable to human perception, they go from not being able to
-> use super-clusters of IA32 machines (for which HW and SW is cheap), 
-> to being able to use it.  That's quite a cost savings for them.
-> 
->         Is there some logical flaw in the above reasoning?
+# ps -eo pid,args,wchan|grep moz
+ 6530 /usr/src/mozilla down_write_failed
+ 6533 /usr/src/mozilla down_write_failed
 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
+ 5 [kreclaimd]      kreclaimd
+ 6 [bdflush]        bdflush
+18 [kreiserfsd]     reiserfs_journal_commit_thread
 
-Any opinions expressed are solely my own.
+
+# ls -l /proc/6530/fd
+total 0
+lrwx------   1 david    users          64 Mar 27 11:42 0 -> /dev/vc/12
+lrwx------   1 david    users          64 Mar 27 11:42 1 -> /dev/vc/12
+lrwx------   1 david    users          64 Mar 27 11:42 2 -> /dev/vc/12
+lrwx------   1 david    users          64 Mar 27 11:42 3 -> /dev/zero
+lrwx------   1 david    users          64 Mar 27 11:42 4 ->
+/usr/src/mozilla/component.reg
+lr-x------   1 david    users          64 Mar 27 11:42 5 ->
+pipe:[3377132]
+l-wx------   1 david    users          64 Mar 27 11:42 6 ->
+pipe:[3377132]
+lr-x------   1 david    users          64 Mar 27 11:42 7 ->
+/usr/src/mozilla/chrome/classic.jar
+lrwx------   1 david    users          64 Mar 27 11:42 8 ->
+socket:[3377145]
+lr-x------   1 david    users          64 Mar 27 11:42 9 ->
+/usr/src/mozilla/chrome/en-US.jar
+lr-x------   1 david    users          64 Mar 27 11:42 10 ->
+pipe:[3377180]
+l-wx------   1 david    users          64 Mar 27 11:42 11 ->
+pipe:[3377180]
+lr-x------   1 david    users          64 Mar 27 11:42 12 ->
+pipe:[3377181]
+l-wx------   1 david    users          64 Mar 27 11:42 13 ->
+pipe:[3377181]
+lr-x------   1 david    users          64 Mar 27 11:42 14 ->
+pipe:[3377298]
+l-wx------   1 david    users          64 Mar 27 11:42 15 ->
+pipe:[3377298]
+lr-x------   1 david    users          64 Mar 27 11:42 16 ->
+/usr/src/mozilla/chrome/comm.jar
+lr-x------   1 david    users          64 Mar 27 11:42 17 ->
+/usr/src/mozilla/chrome/toolkit.jar
+lr-x------   1 david    users          64 Mar 27 11:42 18 ->
+/usr/src/mozilla/chrome/messenger.jar
+lr-x------   1 david    users          64 Mar 27 11:42 19 ->
+/usr/src/mozilla/chrome/US.jar
+lr-x------   1 david    users          64 Mar 27 11:42 20 ->
+/usr/src/mozilla/chrome/en-unix.jar
+lr-x------   1 david    users          64 Mar 27 11:42 21 ->
+/usr/src/mozilla/chrome/chatzilla.jar
+
+-d
+
+
+--
+  There is a natural aristocracy among men. The grounds of this are virtue and talents. Thomas Jefferson
+  The good thing about standards is that there are so many to choose from. Andrew S. Tanenbaum
+
+
+

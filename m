@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269419AbUIIK4k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269421AbUIILC2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269419AbUIIK4k (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 06:56:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269421AbUIIK4j
+	id S269421AbUIILC2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 07:02:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269424AbUIILC2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 06:56:39 -0400
-Received: from fw.osdl.org ([65.172.181.6]:15291 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269419AbUIIK4i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 06:56:38 -0400
-Date: Thu, 9 Sep 2004 03:54:38 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Anton Blanchard <anton@samba.org>
-Cc: hch@infradead.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: Current BK breakage
-Message-Id: <20040909035438.59d70176.akpm@osdl.org>
-In-Reply-To: <20040909101847.GA11358@krispykreme>
-References: <20040909101847.GA11358@krispykreme>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 9 Sep 2004 07:02:28 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:29366 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S269421AbUIILC0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 07:02:26 -0400
+Message-ID: <41403848.7020305@voicenet.com>
+Date: Thu, 09 Sep 2004 07:02:32 -0400
+From: Adam K Kirchhoff <adamk@voicenet.com>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: irq 26: nobody cared!
+References: <Pine.LNX.4.58.0409081726530.1820@thorn.ashke.com> <1094682284.12336.21.camel@localhost.localdomain>
+In-Reply-To: <1094682284.12336.21.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Blanchard <anton@samba.org> wrote:
+Alan Cox wrote:
+
+>On Mer, 2004-09-08 at 22:35, Adam K Kirchhoff wrote:
+>  
 >
->  Looks like a bug in the cleanup patch :)
+>>I have a dual P3 system (via motherboard) with 1.5 gigs of RAM (with
+>>highmem enabled in the kernel).  Under heavy networking load, I get the
+>>following error:
+>>    
+>>
+>
+>Try variously turning off acpi and the apic. If the routing tables are
+>still shot try the irqfixup patch I posted, it might well rescue your
+>box.
+>
+>  
+>
 
-oop.  Shows how many people are testing ext2.  Let's fix up that whitespace
-also.
+Booting with 'noapic' seems to have solved the problem.  At least my 
+attempts to replicate it so far (copying a large directory over nfs) 
+hasn't produced the same error.
 
---- 25/fs/buffer.c~a	2004-09-09 03:53:03.625363720 -0700
-+++ 25-akpm/fs/buffer.c	2004-09-09 03:53:17.022327072 -0700
-@@ -895,9 +895,8 @@ void mark_buffer_dirty_inode(struct buff
- 		spin_lock(&buffer_mapping->private_lock);
- 		list_move_tail(&bh->b_assoc_buffers,
- 				&mapping->private_list);
--		spin_lock(&buffer_mapping->private_lock);
--}
--
-+		spin_unlock(&buffer_mapping->private_lock);
-+	}
- }
- EXPORT_SYMBOL(mark_buffer_dirty_inode);
- 
-_
+Thanks for the help, Alan!
 
-
+Adam
 

@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129047AbQKOCw2>; Tue, 14 Nov 2000 21:52:28 -0500
+	id <S129060AbQKOCxt>; Tue, 14 Nov 2000 21:53:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129060AbQKOCwT>; Tue, 14 Nov 2000 21:52:19 -0500
-Received: from Host4.modempool1.milfordcable.net ([206.72.42.4]:3076 "HELO
-	windeath.2y.net") by vger.kernel.org with SMTP id <S129047AbQKOCwI>;
-	Tue, 14 Nov 2000 21:52:08 -0500
-Message-ID: <3A11F441.327F14B4@windeath.2y.net>
-Date: Tue, 14 Nov 2000 20:26:09 -0600
-From: James M <dart@windeath.2y.net>
-X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
+	id <S129371AbQKOCxj>; Tue, 14 Nov 2000 21:53:39 -0500
+Received: from h00059aa0e40d.ne.mediaone.net ([24.91.9.69]:28150 "EHLO
+	flowers.house.larsshack.org") by vger.kernel.org with ESMTP
+	id <S129060AbQKOCxg>; Tue, 14 Nov 2000 21:53:36 -0500
+Date: Tue, 14 Nov 2000 21:23:36 -0500 (EST)
+From: Lars Kellogg-Stedman <lars@larsshack.org>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Whither sparc bugs?
+Message-ID: <Pine.LNX.4.21.0011142119460.24272-100000@flowers>
 MIME-Version: 1.0
-To: Gert Wollny <wollny@cns.mpg.de>
-Cc: linux-kernel@vger.kernel.org, twaugh@redhat.com
-Subject: Re: Parport/IMM/Zip Oops Revisited -- Winbond
-In-Reply-To: <Pine.LNX.4.10.10011150012390.684-100000@bolide.beigert.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gert Wollny wrote:
-> 
-> On Tue, 14 Nov 2000, James M wrote:
-> >    Was just trying to find out why I can mount in 11pre1 and 11pre2 when
-> > Gert can't mount at all, so I removed my VFAT factory formatted zipdisk
-> > and put in an Ext2 formatted one.....**BOOM**
-> 
+I've recently run into what look like some kernel bugs[1] in the 2.2.17
+kernel (on a sparcstation 2 (sun4c) and a javasation (sun4m)).  I've
+posted them to the sparclinux mailing list, but I was wondering if there
+was somewhere else (e.g., here) that I should send them.
 
-The configure help for the Winbond SuperIO states:
+Is there anyone actively maintaining the sparc port?
 
-"Saying Y here enables some probes for Super-IO chipsets in order to
-find out things like base addresses, IRQ lines and DMA channels.  It
-is safe to say N."
+Thanks,
 
-Enabling this allows me to mount both VFAT and EXT2 in 11pre3, it
-appears it should no longer be marked "Experimental" or "Safe to say No"
-in the case of Zipdrives at least.
+  -- Lars
 
-Dunno what time it is over there but could you give this a try when you
-get a chance? My port is still misdetected but at least I didn't have to
-fsck this time...;=)
+[1] kernel oops on the javastation triggered by mis-detected floppy drive,
+    and memory allocation issues on the sparcstation 2 that result in
+    kmem_cache_alloc() failing.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,98 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269028AbUIQVCq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268982AbUIQVHK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269028AbUIQVCq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 17:02:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269018AbUIQU6K
+	id S268982AbUIQVHK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 17:07:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269022AbUIQVDG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 16:58:10 -0400
-Received: from mailfe02.swip.net ([212.247.154.33]:58292 "EHLO
-	mailfe02.swip.net") by vger.kernel.org with ESMTP id S268982AbUIQUy0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 16:54:26 -0400
-X-T2-Posting-ID: dCnToGxhL58ot4EWY8b+QGwMembwLoz1X2yB7MdtIiA=
-Date: Fri, 17 Sep 2004 22:54:22 +0200
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6] smbfs & "du" illness
-Message-ID: <20040917205422.GD2685@bouh.is-a-geek.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Fri, 17 Sep 2004 17:03:06 -0400
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:8677 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S269001AbUIQU6o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 16:58:44 -0400
+Date: Fri, 17 Sep 2004 22:56:39 +0200
+From: Andrea Arcangeli <andrea@novell.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Arjan van de Ven <arjanv@redhat.com>, Lee Revell <rlrevell@joe-job.com>
+Subject: Re: [patch] remove the BKL (Big Kernel Lock), this time for real
+Message-ID: <20040917205639.GB15426@dualathlon.random>
+References: <20040915151815.GA30138@elte.hu> <20040917103945.GA19861@elte.hu> <20040917125334.GA4954@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.5.6i-nntp
+In-Reply-To: <20040917125334.GA4954@elte.hu>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Sep 17, 2004 at 02:53:34PM +0200, Ingo Molnar wrote:
+> the attached debug patch is ontop of the above patch and prints warnings
+> if code uses smp_processor_id() in a preemptible section of code. The
+> patch gets rid of a number of common false positives but more false
+> positives are more than likely.
 
-When smbmounting some samba-served share and running du on linux with
-smbfs, one gets crazy results:
+This cannot be applied to 2.6 IMHO. it still doesn't track the
+lock_kernel usage inside a spinlock, and even if it did,  we cannot use
+the stable 2.6 userbase for the beta testing and see if some production
+machine triggers those warnings.
 
-$ ls -l file
--rwxr-xr-x  1 samy thibault 348K 2004-05-12 18:04 file*
-$ du file
-512M    file
-$ stat file
-  File: `file'
-  Size: 356352          Blocks: 1048576       IO Block: 4096   fichier régulier
-Device: bh/11d  Inode: 80199       Links: 1
-Access: (0755/-rwxr-xr-x)  Uid: ( 1000/sthibaul)   Gid: (  101/  vmware)
-Access: 2004-09-15 23:33:53.000000000 +0200
-Modify: 2004-05-12 18:04:28.000000000 +0200
-Change: 2004-05-12 18:04:28.000000000 +0200
+If you would make this a config option *then* it could be included, OTOH
+for these kind of things 2.7 would be more appropriate (the config
+option is just a waste of resources since eventually the whole thing
+will go away).
 
-This can be reproduced with a 2.6 kernel reading at any recent samba
-server (2.2 or 3.0). 2.4 works fine.
+Overall I think this is not a change that a vendor kernel could ever
+make in the middle of a stable series (it sounds quite similar to
+preempt, even if less risky, and it really buys nothing to the end
+user and in turn it's definitely not justified), and in turn I don't
+think it's appropriate for a 2.6 mainline either (at least by default
+without config option like you're posting).
 
-What happens is that samba & kernel's smbfs don't agree on the meaning
-of the 2nd 64-bit value in unix extension: samba/smbd/trans2.c tells
-(and has always told since addition, cvs rev 1.149.4.47):
-SOFF_T(p,0,get_allocation_size(NULL,&sbuf)); /* Number of bytes used on disk - 64 Bit
-while the kernel does (and has always been doing since addition to
-2.5.40)
-        fattr->f_blocks = LVAL(p, 8);
-I.e. takes it as a number of sectors.
-
-Who is wrong ? I could find some draft here:
-http://uranus.it.swin.edu.au/~jn/linux/smbfs/Byron_Deadwiler_Paper.doc
-which tells that:
-CIFS Extensions for UNIX systems V1
-LARGE_INTEGER NumOfBlocks
-Number of file system block used to store file
-
-Which is on the kernel's side...
-
-But I discussed about it with samba people (see
-http://lists.samba.org/archive/samba-technical/2004-September/thread.html
-"Unix Extension & "du"" subject), and they told that they modified
-it into bytes because there was no block size specified.
-
-Some conservative way of correcting it is the following:
-
---- fs/smbfs/proc.c.vanilla	2004-09-17 22:18:38.000000000 +0200
-+++ fs/smbfs/proc.c	2004-09-17 22:36:12.000000000 +0200
-@@ -2095,6 +2095,9 @@ void smb_decode_unix_basic(struct smb_fa
- 
- 	fattr->f_size = LVAL(p, 0);
- 	fattr->f_blocks = LVAL(p, 8);
-+	if (fattr->f_blocks * 512 - fattr->f_size >= 512*512 - 512)
-+		/* samba reports bytes, convert to sectors */
-+		fattr->f_blocks >>= 9;
- 	fattr->f_ctime = smb_ntutc2unixutc(LVAL(p, 16));
- 	fattr->f_atime = smb_ntutc2unixutc(LVAL(p, 24));
- 	fattr->f_mtime = smb_ntutc2unixutc(LVAL(p, 32));
-
-Which works fine, even if samba people think back to tell a number of
-sectors. Why 512*512 - 512 ? Because that's the minimum gap you'll
-see between "bytes taken as sectors" size and real size: when the
-file is 512 bytes and the disk uses 512b blocks.
-
-Now another trouble is that samba people also use a minimum of 1Mo
-(hence the number in the above fstat result). I'm not sure what to do
-with this: should we then use file size which we divide into sectors
-ourselves ? Or should we keep 1Mo, getting some strange results to some
-extent ?
-
-Regards,
-Samuel Thibault
+Infact I'm not even convinced this is the right step forward in the
+removal of the BKL, rather than wasting our time discussing this, it'd
+be better to start removing the lock_kernel calls.

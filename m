@@ -1,11 +1,11 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318869AbSHRHLS>; Sun, 18 Aug 2002 03:11:18 -0400
+	id <S318870AbSHRHWo>; Sun, 18 Aug 2002 03:22:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318870AbSHRHLR>; Sun, 18 Aug 2002 03:11:17 -0400
-Received: from mail14.speakeasy.net ([216.254.0.214]:31430 "EHLO
+	id <S318872AbSHRHWo>; Sun, 18 Aug 2002 03:22:44 -0400
+Received: from mail12.speakeasy.net ([216.254.0.212]:33949 "EHLO
 	mail.speakeasy.net") by vger.kernel.org with ESMTP
-	id <S318869AbSHRHLQ>; Sun, 18 Aug 2002 03:11:16 -0400
+	id <S318870AbSHRHWn>; Sun, 18 Aug 2002 03:22:43 -0400
 Subject: Re: cerberus errors on 2.4.19 (ide dma related)
 From: Ed Sweetman <safemode@speakeasy.net>
 To: linux-kernel@vger.kernel.org
@@ -14,11 +14,23 @@ References: <1029653085.674.53.camel@psuedomode>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 
-Date: 18 Aug 2002 03:15:16 -0400
-Message-Id: <1029654916.2037.0.camel@psuedomode>
+Date: 18 Aug 2002 03:26:42 -0400
+Message-Id: <1029655603.2970.6.camel@psuedomode>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+Ok, i reran the test with a little process of elimination.
+The problem occurs only when dma is enabled on the promise controller's harddrive. 
+
+The cerberus test ran for 15 minutes when dma was disabled on the promise controller but both disabled and enabled on the via controller's card without any errors.  When dma was enabled on the promise controller's, both with dma enabled on via and disabled cerberus reported MEMORY errors within 30 seconds both times.  
+
+It appears then that there are some DMA issues with the promise controller i have with the driver.  My swap used to be on the drive on the promise controller before which would explain fs corruption on both drives (swap cached and such).  
+
+If whoever develops this driver wants some more bug testing or specific information I can give it.  I'd like to help get the problem solved.  
+
+
+
 
 On Sun, 2002-08-18 at 02:44, Ed Sweetman wrote:
 > (overview written in hindsight of writing email)  
@@ -93,7 +105,8 @@ On Sun, 2002-08-18 at 02:44, Ed Sweetman wrote:
 > motherboard primary  drive after posting this in case something happens
 > and i hose everything.  
 
-Forgot to add my kernel config. 
-http://signal-lost.homeip.net/lkml/config
+> Forgot to add my kernel config. 
+> http://signal-lost.homeip.net/lkml/config
+
 
 

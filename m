@@ -1,67 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132224AbRA2HiU>; Mon, 29 Jan 2001 02:38:20 -0500
+	id <S135706AbRA2HmU>; Mon, 29 Jan 2001 02:42:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135706AbRA2HiK>; Mon, 29 Jan 2001 02:38:10 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:57031 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S132224AbRA2HiA>;
-	Mon, 29 Jan 2001 02:38:00 -0500
-From: "David S. Miller" <davem@redhat.com>
+	id <S145346AbRA2HmK>; Mon, 29 Jan 2001 02:42:10 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:65285 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S159768AbRA2Hlz>; Mon, 29 Jan 2001 02:41:55 -0500
+Date: Sun, 28 Jan 2001 23:41:38 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Robert Siemer <siemer@panorama.hadiko.de>
+cc: jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org
+Subject: Re: PCI IRQ routing problem in 2.4.0
+In-Reply-To: <20010129081132I.siemer@panorama.hadiko.de>
+Message-ID: <Pine.LNX.4.10.10101282323570.5605-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14965.7321.926528.391631@pizda.ninka.net>
-Date: Sun, 28 Jan 2001 23:32:41 -0800 (PST)
-To: James Sutherland <jas88@cam.ac.uk>
-Cc: Miquel van Smoorenburg <miquels@traveler.cistron-office.nl>,
-        linux-kernel@vger.kernel.org
-Subject: Re: ECN: Clearing the air (fwd)
-In-Reply-To: <Pine.SOL.4.21.0101281642180.16734-100000@green.csi.cam.ac.uk>
-In-Reply-To: <951am4$gbf$1@ncc1701.cistron.net>
-	<Pine.SOL.4.21.0101281642180.16734-100000@green.csi.cam.ac.uk>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-James Sutherland writes:
- > Except you can detect and deal with these "PMTU black holes". Just as you
- > should detect and deal with ECN black holes. Maybe an ideal Internet
- > wouldn't have them, but this one does. If you can find an ideal Internet,
- > go code for it: until then, stick with the real one. It's all we've got.
 
-Guess what, Linux works not around PMTU black holes either for the
-same exact reason we will not work around ECN.
+On Mon, 29 Jan 2001, Robert Siemer wrote:
+> 
+> Further I always see '09' in the Configuration Space at Interrupt_Line
+> (0x3c) for the 00:01.2 USB Controller. But 2.4.0 says:
+>   Interrupt: pin A routed to IRQ 12
+> while 2.4.0-test9 states:
+>   Interrupt: pin A routed to IRQ 9
 
-I'm getting a bit tired of you, and I suppose others are as
-well.  You are being nothing but a pompous ass.
+Ahhah!
 
-Anyways, let me quote a comment from the Linux source code where
-we would have done PMTU black hole detection:
+I bet it's the code that goes through all PCI devices, and tries to find
+devices that have the same "pirq" (aka "link") value in the tables.
 
-			/* NOTE. draft-ietf-tcpimpl-pmtud-01.txt requires pmtu black
-			   hole detection. :-(
+How about this patch? I bet that you'll get a message about pirq table
+conflicts. Does USB end up working afterwards?
 
-			   It is place to make it. It is not made. I do not want
-			   to make it. It is disguisting. It does not work in any
-			   case. Let me to cite the same draft, which requires for
-			   us to implement this:
+		Linus
 
-   "The one security concern raised by this memo is that ICMP black holes
-   are often caused by over-zealous security administrators who block
-   all ICMP messages.  It is vitally important that those who design and
-   deploy security systems understand the impact of strict filtering on
-   upper-layer protocols.  The safest web site in the world is worthless
-   if most TCP implementations cannot transfer data from it.  It would
-   be far nicer to have all of the black holes fixed rather than fixing
-   all of the TCP implementations."
+----
+--- v2.4.0/linux/arch/i386/kernel/pci-irq.c	Wed Jan  3 20:45:26 2001
++++ linux/arch/i386/kernel/pci-irq.c	Sun Jan 28 23:36:48 2001
+@@ -462,18 +462,9 @@
+ 		irq = pirq & 0xf;
+ 		DBG(" -> hardcoded IRQ %d\n", irq);
+ 		msg = "Hardcoded";
+-		if (dev->irq && dev->irq != irq) {
+-			printk("IRQ routing conflict in pirq table! Try 'pci=autoirq'\n");
+-			return 0;
+-		}
+ 	} else if (r->get && (irq = r->get(pirq_router_dev, dev, pirq))) {
+ 		DBG(" -> got IRQ %d\n", irq);
+ 		msg = "Found";
+-		/* We refuse to override the dev->irq information. Give a warning! */
+-	    	if (dev->irq && dev->irq != irq) {
+-	    		printk("IRQ routing conflict in pirq table! Try 'pci=autoirq'\n");
+-	    		return 0;
+-	    	}
+ 	} else if (newirq && r->set && (dev->class >> 8) != PCI_CLASS_DISPLAY_VGA) {
+ 		DBG(" -> assigning IRQ %d", newirq);
+ 		if (r->set(pirq_router_dev, dev, pirq, newirq)) {
+@@ -504,6 +495,11 @@
+ 		if (!info)
+ 			continue;
+ 		if (info->irq[pin].link == pirq) {
++			/* We refuse to override the dev->irq information. Give a warning! */
++		    	if (dev2->irq && dev2->irq != irq) {
++		    		printk("IRQ routing conflict in pirq table for device %s\n", dev2->slot_name);
++		    		continue;
++		    	}
+ 			dev2->irq = irq;
+ 			pirq_penalty[irq]++;
+ 			if (dev != dev2)
 
-                           Golden words :-).
-		   */
-
-Later,
-David S. Miller
-davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,88 +1,177 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261438AbVCFRLh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261440AbVCFR2Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261438AbVCFRLh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 12:11:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261439AbVCFRLg
+	id S261440AbVCFR2Y (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 12:28:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261439AbVCFR2Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 12:11:36 -0500
-Received: from main.gmane.org ([80.91.229.2]:58581 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261438AbVCFRLd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 12:11:33 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Andres Salomon <dilinger@voxel.net>
-Subject: Re: [RFQ] Rules for accepting patches into the linux-releases tree
-Date: Sun, 06 Mar 2005 12:10:43 -0500
-Message-ID: <pan.2005.03.06.17.10.41.114607@voxel.net>
-References: <20050304222146.GA1686@kroah.com> <20050305104305.GB7671@pclin040.win.tue.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: cpe-24-194-62-26.nycap.res.rr.com
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
-X-Gmane-MailScanner: Found to be clean
-X-Gmane-MailScanner: Found to be clean
-X-Gmane-MailScanner-SpamScore: ss
-X-MailScanner-From: glk-linux-kernel@m.gmane.org
-X-MailScanner-To: linux-kernel@vger.kernel.org
+	Sun, 6 Mar 2005 12:28:24 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:43747 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261441AbVCFR1n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Mar 2005 12:27:43 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: BIOS overwritten during resume (was: Re: Asus L5D resume on battery power)
+Date: Sun, 6 Mar 2005 18:29:59 +0100
+User-Agent: KMail/1.7.1
+Cc: Andi Kleen <ak@suse.de>, kernel list <linux-kernel@vger.kernel.org>,
+       paul.devriendt@amd.com, Nigel Cunningham <ncunningham@cyclades.com>
+References: <200502252237.04110.rjw@sisk.pl> <200503050026.06378.rjw@sisk.pl> <20050304234149.GD2647@elf.ucw.cz>
+In-Reply-To: <20050304234149.GD2647@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503061830.00574.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 05 Mar 2005 11:43:05 +0100, Andries Brouwer wrote:
-
-> On Fri, Mar 04, 2005 at 02:21:46PM -0800, Greg KH wrote:
+On Saturday, 5 of March 2005 00:41, Pavel Machek wrote:
+> Hi!
 > 
->> Anything else anyone can think of?  Any objections to any of these?
->> I based them off of Linus's original list.
->> 
->> thanks,
->> 
->> greg k-h
->> 
->> ------
->> 
->> Rules on what kind of patches are accepted, and what ones are not, into
->> the "linux-release" tree.
->> 
->>  - It can not bigger than 100 lines, with context.
->>  - It must fix only one thing.
->>  - It must fix a real bug that bothers people (not a, "This could be a
->>    problem..." type thing.)
-
-An obvious fix is an obvious fix.  It shouldn't matter whether people have
-triggered a bug or not; why discriminate?
-
->>  - It must fix a problem that causes a build
-error (but not for things
->>    marked CONFIG_BROKEN), an oops, a hang, or a real security issue.
->>  - No "theoretical race condition" issues, unless an explanation of how
->>    the race can be exploited.
-
-I disagree w/ this; if it's an obvious fix, there should be no need for
-this.  Either it's a race that is clearly incorrect (after tracing through
-the relevant code), or it's not.
-
->>  - It can not contain any "trivial" fixes in it (spelling changes,
->>    whitespace cleanups, etc.)
-
-This and the "it must fix a problem" are basically saying the same thing.
-
+> > > Actually, take a look at Nigel's patch. He simply uses PageNosave
+> > > instead of PageLocked -- that is cleaner.
+> > 
+> > Yes.  I thought about using PG_nosave in the begining, but there's a
+> > 
+> > BUG_ON(PageReserved(page) && PageNosave(page));
+> > 
+> > in swsusp.c:saveable() that I just didn't want to trigger.  It seems to me,
+> > though, that we don't need it any more, do we?
 > 
-> Objections - no. Anything else - yes. I would like the requirement: "It
-> must be obviously correct".
-> 
+> No, we can just kill it. It was "if something unexpected happens, bail
+> out soon".
 
-It seems like this would be the primary thing that matters.  The rest of
-them (aside from the "fixes only one thing" and "no cleanups" rules)
-overlap considerably.  
+OK
+
+The following is what I'm comfortable with.  I didn't took the Nigel's patch
+literally, because we do one thing differently (ie nosave pfns) and it contained
+some changes that I thought were unnecessary.  The i386 part is untested.
+
+Greets,
+Rafael
+
+
+Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+
+diff -Nrup linux-2.6.11/arch/i386/mm/init.c linux-2.6.11-a/arch/i386/mm/init.c
+--- linux-2.6.11/arch/i386/mm/init.c	2005-03-02 08:38:17.000000000 +0100
++++ linux-2.6.11-a/arch/i386/mm/init.c	2005-03-06 18:16:34.000000000 +0100
+@@ -272,12 +272,15 @@ void __init one_highpage_init(struct pag
+ {
+ 	if (page_is_ram(pfn) && !(bad_ppro && page_kills_ppro(pfn))) {
+ 		ClearPageReserved(page);
++		ClearPageNosave(page);
+ 		set_bit(PG_highmem, &page->flags);
+ 		set_page_count(page, 1);
+ 		__free_page(page);
+ 		totalhigh_pages++;
+-	} else
++	} else {
+ 		SetPageReserved(page);
++		SetPageNosave(page);
++	}
+ }
  
-> In a hundred lines one can put a lot of tricky code and subtle
-changes.
-> For example, if a security problem necessitates a nontrivial change, it
-> should cause an earlier release of 2.6.x+1 instead of a 2.6.x.y+1.
-> 
-> Andries
+ #ifndef CONFIG_DISCONTIGMEM
+@@ -602,11 +605,17 @@ void __init mem_init(void)
+ 
+ 	reservedpages = 0;
+ 	for (tmp = 0; tmp < max_low_pfn; tmp++)
+-		/*
+-		 * Only count reserved RAM pages
+-		 */
+-		if (page_is_ram(tmp) && PageReserved(pfn_to_page(tmp)))
+-			reservedpages++;
++		if (!page_is_ram(tmp))
++			/*
++			 * Non-RAM pages are always nosave
++			 */
++			SetPageNosave(pfn_to_page(tmp));
++		else
++			/*
++			 * Count reserved RAM pages
++			 */
++			if (PageReserved(pfn_to_page(tmp)))
++				reservedpages++;
+ 
+ 	set_highmem_pages_init(bad_ppro);
+ 
+@@ -705,6 +714,7 @@ void free_initmem(void)
+ 	addr = (unsigned long)(&__init_begin);
+ 	for (; addr < (unsigned long)(&__init_end); addr += PAGE_SIZE) {
+ 		ClearPageReserved(virt_to_page(addr));
++		ClearPageNosave(virt_to_page(addr));
+ 		set_page_count(virt_to_page(addr), 1);
+ 		memset((void *)addr, 0xcc, PAGE_SIZE);
+ 		free_page(addr);
+@@ -720,6 +730,7 @@ void free_initrd_mem(unsigned long start
+ 		printk (KERN_INFO "Freeing initrd memory: %ldk freed\n", (end - start) >> 10);
+ 	for (; start < end; start += PAGE_SIZE) {
+ 		ClearPageReserved(virt_to_page(start));
++		ClearPageNosave(virt_to_page(start));
+ 		set_page_count(virt_to_page(start), 1);
+ 		free_page(start);
+ 		totalram_pages++;
+diff -Nrup linux-2.6.11/arch/x86_64/mm/init.c linux-2.6.11-a/arch/x86_64/mm/init.c
+--- linux-2.6.11/arch/x86_64/mm/init.c	2005-03-02 08:37:49.000000000 +0100
++++ linux-2.6.11-a/arch/x86_64/mm/init.c	2005-03-06 18:16:34.000000000 +0100
+@@ -438,11 +438,17 @@ void __init mem_init(void)
+ 	totalram_pages += free_all_bootmem();
+ 
+ 	for (tmp = 0; tmp < end_pfn; tmp++)
+-		/*
+-		 * Only count reserved RAM pages
+-		 */
+-		if (page_is_ram(tmp) && PageReserved(pfn_to_page(tmp)))
+-			reservedpages++;
++		if (!page_is_ram(tmp))
++			/*
++			 * Non-RAM pages are always nosave
++			 */
++			SetPageNosave(pfn_to_page(tmp));
++		else
++			/*
++			 * Count reserved RAM pages
++			 */
++			if (PageReserved(pfn_to_page(tmp)))
++				reservedpages++;
+ #endif
+ 
+ 	after_bootmem = 1;
+@@ -488,6 +494,7 @@ void free_initmem(void)
+ 	addr = (unsigned long)(&__init_begin);
+ 	for (; addr < (unsigned long)(&__init_end); addr += PAGE_SIZE) {
+ 		ClearPageReserved(virt_to_page(addr));
++		ClearPageNosave(virt_to_page(addr));
+ 		set_page_count(virt_to_page(addr), 1);
+ 		memset((void *)(addr & ~(PAGE_SIZE-1)), 0xcc, PAGE_SIZE); 
+ 		free_page(addr);
+@@ -505,6 +512,7 @@ void free_initrd_mem(unsigned long start
+ 	printk ("Freeing initrd memory: %ldk freed\n", (end - start) >> 10);
+ 	for (; start < end; start += PAGE_SIZE) {
+ 		ClearPageReserved(virt_to_page(start));
++		ClearPageNosave(virt_to_page(start));
+ 		set_page_count(virt_to_page(start), 1);
+ 		free_page(start);
+ 		totalram_pages++;
+diff -Nrup linux-2.6.11/kernel/power/swsusp.c linux-2.6.11-a/kernel/power/swsusp.c
+--- linux-2.6.11/kernel/power/swsusp.c	2005-03-02 08:37:50.000000000 +0100
++++ linux-2.6.11-a/kernel/power/swsusp.c	2005-03-06 18:16:34.000000000 +0100
+@@ -532,9 +532,9 @@ static int saveable(struct zone * zone, 
+ 		return 0;
+ 
+ 	page = pfn_to_page(pfn);
+-	BUG_ON(PageReserved(page) && PageNosave(page));
+ 	if (PageNosave(page))
+ 		return 0;
++
+ 	if (PageReserved(page) && pfn_is_nosave(pfn)) {
+ 		pr_debug("[nosave pfn 0x%lx]", pfn);
+ 		return 0;
 
-
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

@@ -1,107 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268406AbUJSLkm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268119AbUJSMMt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268406AbUJSLkm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 07:40:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268148AbUJSLiP
+	id S268119AbUJSMMt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 08:12:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268136AbUJSMMt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 07:38:15 -0400
-Received: from mail20.syd.optusnet.com.au ([211.29.132.201]:47266 "EHLO
-	mail20.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S268316AbUJSLNj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 07:13:39 -0400
-Message-ID: <4174F6DB.3000304@kolivas.org>
-Date: Tue, 19 Oct 2004 21:13:31 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       CK Kernel <ck@vds.kolivas.org>
-Subject: 2.6.9-ck1
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 19 Oct 2004 08:12:49 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:20232 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S268119AbUJSMMo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 08:12:44 -0400
+Date: Tue, 19 Oct 2004 13:12:40 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Linus Torvalds <torvalds@osdl.org>
+Subject: Fwd: [Bug 3592] New: pppd "IPCP: timeout sending Config-Requests"
+Message-ID: <20041019131240.A20243@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	Linus Torvalds <torvalds@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-These are patches designed to improve system responsiveness with 
-specific emphasis on the desktop, but configurable to any workload.
+Can someone else look at this - I presently have no time for any
+"community" work from the end of this week onwards, and shall be
+bouncing all bugs to lkml.  I'm expecting this situation to continue
+until maybe Christmas time.
 
-http://ck.kolivas.org/patches/2.6/2.6.9/2.6.9-ck1/patch-2.6.9-ck1.bz2
+I'm going to try to flush as much stuff from my patch queues as
+possible for the remainder of this week, and then I think it'll
+be up to others.
 
-web:
-http://kernel.kolivas.org
-all patches:
-http://ck.kolivas.org/patches/
-Split patches and a server specific patch available.
+mbligh - please assign the default owner for:
+- PCMCIA bugs to linux-pcmcia@lists.infradead.org
+- serial bugs to, I guess, linux-kernel@vger.kernel.org
 
+I'm not sure at present what's going to happen with "community"
+ARM kernel work, but I think it will certainly not be progressing
+very quickly.  I'll do what I can but I fear it won't be very much.
 
-Added:
-  +block_fix.diff
-A small fix for congestion which was causing stalls under heavy i/o load.
+----- Forwarded message from bugme-daemon@osdl.org -----
 
-  +269rc4-mingo_ll.diff
-  +269rc4-mingo-bkl.diff
-The low latency hacks in current -mm releases by Ingo Molnar, including 
-the preemptible big kernel lock
+Date: Tue, 19 Oct 2004 04:53:50 -0700
+From: bugme-daemon@osdl.org
+To: rmk@arm.linux.org.uk
+Subject: [Bug 3592] New: pppd "IPCP: timeout sending Config-Requests"
 
-  +ll-config.diff
-Default the preemptible kernel lock off
+http://bugme.osdl.org/show_bug.cgi?id=3592
 
-  +nvidia_compat.diff
-This allows the current version of the evil binary nvidia drivers to 
-compile.
-
-  +buildfix.diff
-This is a last minute fix for 2.6.9 that causes internal compiler errors
-
-  +269ck1-version.diff
-Version
-
-
-Changed:
-  ~2.6.9_to_staircase9.0.diff
-Latest version of staircase cpu scheduler. This is version8.K renamed in 
-line with kernel release. There are no known bugs with this release. The 
-main changes since last -ck released staircase are significantly better 
-handling of subjiffy timeslices, and much larger timeslices for -niced 
-processes as per mainline.
-
-  ~schedbatch2.5.diff
-  ~schediso2.8.diff
-Resync with latest staircase.
-
-  ~mwII.diff
-The mapped watermark code was incompatible with newer vm changes so it 
-was rewritten and is much less likely to cause oom. The same sysctls 
-still exist (vm.mapped and vm.hardmaplimit), but the hardmaplimit is off 
-by default. If you still have large amounts of swapping under heavy disk 
-i/o I recommend turning this on.
-
-  ~cfq2-20041019.patch
-One small bugfix.
+           Summary: pppd "IPCP: timeout sending Config-Requests"
+    Kernel Version: 2.6.9-rc4
+            Status: NEW
+          Severity: normal
+             Owner: rmk@arm.linux.org.uk
+         Submitter: vovan@planet.nl
 
 
-Full patchlist:
-2.6.9_to_staircase9.0.diff
-schedrange.diff
-schedbatch2.5.diff
-schediso2.8.diff
-mwII.diff
-1g_lowmem1_i386.diff
-cfq2-20041019.patch
-block_fix.diff
-defaultcfq.diff
-269rc4-mingo_ll.diff
-269rc4-mingo-bkl.diff
-ll-config.diff
-cddvd-cmdfilter-drop.patch
-nvidia_compat.diff
-buildfix.diff
-269ck1-version.diff
+Distribution: Gentoo
+Hardware Environment: 
+Software Environment: ppp-2.4.1 ( tested with ppp-2.4.2 - the same error )
+Problem Description: With 2.6.9-rc4 I'm getting the error when dialing to my
+provider. With older kernel versions everything works fine. After remote modem
+cosed the connection (rcvd [CHAP Success id=0x29 ""]) pppd keeps sending
+Config-Requests
+sent [IPCP ConfReq id=0x1 <addr 192.168.1.2> <compress VJ 0f 01>]              
+      
+sent [CCP ConfReq id=0x1 <deflate 15> <deflate(old#) 15> <bsd v1 15>]
 
+Steps to reproduce: 
+1) Install kernel 2.6.9-rc4
+2) use the following script to connect ( chap1 )
+REPORT 'CONNECT'                                                               
+                                        
+ABORT 'BUSY'                                                                   
+                                        
+ABORT 'ERROR'                                                                  
+                                        
+ABORT 'NO ANSWER'                                                              
+                                        
+ABORT 'NO CARRIER'                                                             
+                                        
+ABORT 'NO DIALTONE'                                                            
+                                        
+ABORT 'Invalid Login'                                                          
+                                        
+ABORT 'Login incorrect'                                                        
+                                        
+TIMEOUT 45                                                                     
+                                        
+'' 'ATZ'                                                                       
+                                        
+'OK' 'ATS32=98'                                                                
+                                        
+'OK' 'ATS0=1'                                                                  
+                                        
+'OK' 'ATDT0*******'                                                            
+                                      
+'CONNECT' ''                                                                   
+                                        
+'~--' '' 
+3) pppd command:
+/usr/sbin/pppd debug nodetach lock modem crtscts asyncmap 00000000 mru 768 mtu
+768 user username remotename NT4RAS /dev/ttyS4 115200 noauth linkname ppp0
+connect /usr/sbin/chat -v -f /etc/ppp/chat1
 
-Cheers,
-Con Kolivas
+------- You are receiving this mail because: -------
+You are the assignee for the bug, or are watching the assignee.
 
+----- End forwarded message -----
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

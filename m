@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262855AbTJGX10 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 19:27:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262862AbTJGX10
+	id S262117AbTJGXtm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 19:49:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262637AbTJGXtm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 19:27:26 -0400
-Received: from mail.kroah.org ([65.200.24.183]:25831 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262855AbTJGX1T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 19:27:19 -0400
-Date: Tue, 7 Oct 2003 16:27:06 -0700
-From: Greg KH <greg@kroah.com>
-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
+	Tue, 7 Oct 2003 19:49:42 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:39038 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S262117AbTJGXtk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Oct 2003 19:49:40 -0400
+Date: Wed, 8 Oct 2003 00:49:02 +0100
+From: Dave Jones <davej@redhat.com>
+To: Juliusz Chroboczek <jch@pps.jussieu.fr>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: devfs and udev
-Message-ID: <20031007232706.GA3621@kroah.com>
-Reply-To: linux-kernel@vger.kernel.org
-References: <20031007131719.27061.qmail@web40910.mail.yahoo.com> <200310072128.09666.insecure@mail.od.ua> <20031007194124.GA2670@kroah.com> <200310072347.41749.insecure@mail.od.ua> <20031007205244.GA2978@kroah.com> <yw1xvfr0wxfa.fsf@users.sourceforge.net> <20031007213758.GB3095@kroah.com> <yw1xr81owvv0.fsf@users.sourceforge.net> <1065564766.1238.144.camel@serpentine.internal.keyresearch.com> <yw1x7k3gwtmi.fsf@users.sourceforge.net>
+Subject: Re: MCE: The hardware reports... (AMD Duron)
+Message-ID: <20031007234902.GB10471@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Juliusz Chroboczek <jch@pps.jussieu.fr>,
+	linux-kernel@vger.kernel.org
+References: <tppth8j07y.fsf@helium.pps.jussieu.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <yw1x7k3gwtmi.fsf@users.sourceforge.net>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <tppth8j07y.fsf@helium.pps.jussieu.fr>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 08, 2003 at 12:49:41AM +0200, Måns Rullgård wrote:
-> Bryan O'Sullivan <bos@serpentine.com> writes:
-> 
-> >> Can you point me to any documentation at all?
-> >
-> > Really, I don't know why Greg is bothering to answer your questions.
-> >
-> > This stuff is all readily accessible via (a) getting off your nethers
-> > and doing a Google search for "linux udev" and (b) reading what you
-> > find.  It's trivial to find, and it's utterly obvious how it works.
-> 
-> I followed the link provided in the Kconfig, and downloaded the files
-> that seemed reasonable.  The only documentation I found there warned
-> me against using it.
+On Tue, Oct 07, 2003 at 09:50:57PM +0200, Juliusz Chroboczek wrote:
+ > Under both 2.6.0test4 and test6, I'm fairly regularly getting the
+ > following at boot time:
+ > 
+ >  MCE: The hardware reports a non fatal, correctable incident occurred on CPU 0.
+ >  Bank 0: e603800000000175
+ > 
+ > The machine is a Compaq Presario 711, with a 950MHz Mobile Duron
+ > (family 6 model 7 stepping 1 according to /proc/cpuinfo).
+ > 
+ > The Intel docs seem to imply that this is something memory-related, I
+ > couldn't find the relevant AMD docs.
+ > 
+ > Would somebody be so kind as to explain what the above means?
 
-Then don't use it, no one is forcing you to.
+Probably spurious, a fix was merged on the 29th. Test6 came out on 
+the 28th, so just missed...
 
-But if you do, wow, look at the second Google link for "linux udev":
-	http://www.ussg.iu.edu/hypermail/linux/kernel/0307.3/0495.html
+		Dave
 
-Hey look, documentation, a presentation, and wow, a statement saying
-that the code sucks, and is merely a proof of concept, and that it will
-get better over time.  That's a zillion lines more of text than most
-open source projects ever generate.
-
-{sigh}
-
-greg k-h
+-- 
+ Dave Jones     http://www.codemonkey.org.uk

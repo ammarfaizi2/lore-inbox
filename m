@@ -1,64 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132986AbRDKUXl>; Wed, 11 Apr 2001 16:23:41 -0400
+	id <S132991AbRDKU1w>; Wed, 11 Apr 2001 16:27:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132989AbRDKUXV>; Wed, 11 Apr 2001 16:23:21 -0400
-Received: from schiele.swm.uni-mannheim.de ([134.155.20.124]:54659 "EHLO
-	schiele.swm.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id <S132986AbRDKUXO>; Wed, 11 Apr 2001 16:23:14 -0400
-Date: Wed, 11 Apr 2001 22:22:50 +0200
-From: Robert Schiele <rschiele@uni-mannheim.de>
-To: Daniel.Stutz@astaro.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Where is NR_TASKS gone in 2.4?
-Message-ID: <20010411222250.A10215@schiele.local>
-In-Reply-To: <20010409172419.H430@mukmin.astaro.de>
+	id <S132992AbRDKU1m>; Wed, 11 Apr 2001 16:27:42 -0400
+Received: from ns.caldera.de ([212.34.180.1]:12553 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S132990AbRDKU1a>;
+	Wed, 11 Apr 2001 16:27:30 -0400
+Date: Wed, 11 Apr 2001 22:27:22 +0200
+From: Christoph Hellwig <hch@caldera.de>
+To: Dave Jones <davej@suse.de>
+Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net,
+        "Eric S. Raymond" <esr@snark.thyrsus.com>
+Subject: Re: CML2 1.0.0 release announcement
+Message-ID: <20010411222722.A31359@caldera.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>, linux-kernel@vger.kernel.org,
+	kbuild-devel@lists.sourceforge.net,
+	"Eric S. Raymond" <esr@snark.thyrsus.com>
+In-Reply-To: <200104112004.WAA30164@ns.caldera.de> <Pine.LNX.4.30.0104112212310.29627-100000@Appserv.suse.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="UlVJffcvxoiEqYs2"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20010409172419.H430@mukmin.astaro.de>; from dstutz@astaro.de on Mon, Apr 09, 2001 at 05:24:19PM -0700
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
+In-Reply-To: <Pine.LNX.4.30.0104112212310.29627-100000@Appserv.suse.de>; from davej@suse.de on Wed, Apr 11, 2001 at 10:16:36PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Apr 11, 2001 at 10:16:36PM +0200, Dave Jones wrote:
+> On Wed, 11 Apr 2001, Christoph Hellwig wrote:
+> 
+> > > CML2 takes around 15 seconds before I get that far.
+> > > This is on an Athlon 800 w/512MB. I dread to think how this
+> > > responds on a 486.
+> >
+> > If you look for something _even_ faster try mconfig.  For everyone who is
+> > interested, I've put my latests half-way stable version is on ftp.  It's at
+> >   ftp.openlinux.org:/pub/people/hch/mconfig/mconfig-0.19-pre1.tar.gz
+> > Props for all the hard work go to Michael Elizabeth Chastain!
+> 
+> This is the first I've heard of mconfig. (I don't track the kbuild list)
+> Does it solve all the problems that Eric's solution proposes?
+> It's certainly fast (CML1 menuconfig speed at least).
 
---UlVJffcvxoiEqYs2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Not all (yet).
+o It is one programm with multiple frontends:
+	old,
+	text,
+	ncurses,
+	random,
+	maximum,
+	minimum,
+	syntax checking
+	(X is still missing as my brain is not made for GUI programming)
 
-On Mon, Apr 09, 2001 at 05:24:19PM -0700, Daniel Stutz wrote:
-> How can i get the max. number of tasks in kernel 2.4?
->=20
-> In 2.2 there was a macro NR_TASKS
+o An 'show me all options and handle the rest' mode is still missing -
+  my devel tree has something like that in the works, but I'll probably
+  never finish it now that CML2 is official.
 
-2.4 has no hardcoded limit on the number of processes. So NR_TASKS is
-not necessary any longer.
-But you can read the current value of max threads from
-/proc/sys/kernel/threads-max.
+o it still has multiple top-level config.in.  Again that is easily fixable
+  and in fact I did a patch for it (including {old,menu,x}config support
+  in 2.3 times but never submitted it.
 
-Robert
+Something missing?
 
---=20
-Robert Schiele			mailto:rschiele@uni-mannheim.de
-Tel./Fax: +49-621-10059		http://webrum.uni-mannheim.de/math/rschiele/
+	Christoph
 
---UlVJffcvxoiEqYs2
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iQEVAwUBOtS9GcQAnns5HcHpAQER1Af/fO3BYSI+jG3m4JCMvZhLte1gTjBqR4vq
-SafLjnpdvFRVIZYb1usGGr7Bye1UgYeSVYt6KIMHaP5bFcejukQbW8wQIng4Op+K
-MIEO16DD44nM91hFDvYMxj+CvmKzP+LdB2TD2VAtNqJYc/d4NPD20lF0JmlhIwHN
-mUwIkgmoGgXZtk36vLUIGUe+3jRTk2HIsybi6cBO3qIIDbvAPlb+4x/2nL1ZF7Yp
-ELg7JLyYmLq5TbqTHA45HKyBh5UHnq/RLQP/1Mv4ktW1vClTo5usAVhZIeGdo09Z
-Txg0OW+QhNwqsmQafAWoNqdpsO2YaqRWskiK1iQRwwvKBIkc6oNw6Q==
-=DBgg
------END PGP SIGNATURE-----
-
---UlVJffcvxoiEqYs2--
+-- 
+Of course it doesn't work. We've performed a software upgrade.

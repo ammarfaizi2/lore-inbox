@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268011AbTCFLmR>; Thu, 6 Mar 2003 06:42:17 -0500
+	id <S268012AbTCFLss>; Thu, 6 Mar 2003 06:48:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268012AbTCFLmR>; Thu, 6 Mar 2003 06:42:17 -0500
-Received: from ns.suse.de ([213.95.15.193]:47377 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S268011AbTCFLmQ>;
-	Thu, 6 Mar 2003 06:42:16 -0500
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] work around gcc-3.x inlining bugs
-References: <20030306032208.03f1b5e2.akpm@digeo.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 06 Mar 2003 12:52:48 +0100
-In-Reply-To: Andrew Morton's message of "6 Mar 2003 12:27:25 +0100"
-Message-ID: <p73fzq067an.fsf@amdsimf.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.7
+	id <S268013AbTCFLss>; Thu, 6 Mar 2003 06:48:48 -0500
+Received: from k7g317-2.kam.afb.lu.se ([130.235.57.218]:50058 "EHLO
+	cheetah.psv.nu") by vger.kernel.org with ESMTP id <S268012AbTCFLsr>;
+	Thu, 6 Mar 2003 06:48:47 -0500
+Date: Wed, 5 Mar 2003 07:49:23 +0100 (CET)
+From: Peter Svensson <petersv@psv.nu>
+To: Eric Lammerts <eric@lammerts.org>
+cc: Uwe Reimann <linux-kernel@pulsar.homelinux.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Direct access to parport
+In-Reply-To: <Pine.LNX.4.52.0303042329450.18334@ally.lammerts.org>
+Message-ID: <Pine.LNX.4.44.0303050746220.16313-100000@cheetah.psv.nu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@digeo.com> writes:
+On Tue, 4 Mar 2003, Eric Lammerts wrote:
 
-> This patch:
-[...]
+> On Tue, 4 Mar 2003, Uwe Reimann wrote:
+> > I'd like to connect some self made hardware to the parallel port and
+> > read the values of the dataline using linux. Can this be done in
+> > userspace or do I have to write kernel code to do so? I'm currently
+> > thinking of writing a device like lp, which in turn uses the parport
+> > device. Does this sound like a good idea?
+> 
+> >From userspace it's quite simple:
 
-I submitted a similar patch (using -include) it to Linus some time ago.
-It's even required to work around gcc 3.3 inlining bugs.
-Unfortunately he didn't like it and prefered __force_inline
-to be added to the places that really rely on inline.
+[ioperm-based suggestion removed]
 
-I experimented with -finline-limit=<huge number> to get it to obey inline, 
-but that doesn't fully work. The only way to get it to work in 3.2 and 3.3 
-is to specify various long and weird --param arguments. In 3.0 the only
-way is to change the values in the compiler source and recompile.
+A better idea may be to use ppdev - the portable and safe way to access a 
+paralell port directly. This driver is in the stock kernels. This prevents 
+races between the kernel and userland over control for the paralell port.
 
-So doing it with always_inline is much less ugly and also less compiler
-version dependent.
+Peter
+--
+Peter Svensson      ! Pgp key available by finger, fingerprint:
+<petersv@psv.nu>    ! 8A E9 20 98 C1 FF 43 E3  07 FD B9 0A 80 72 70 AF
+------------------------------------------------------------------------
+Remember, Luke, your source will be with you... always...
 
-I always add them currently by hand to linux/brlock.h to get 2.5
-to compile with gcc 3.3 on x86-64.
-
-I think it is the right thing to do. In kernel land when we say inline
-we mean inline. Don't expect the compiler to second guess that,
-especially since it doesn't seem to be very good at that.
-
-There was also talk on the gcc mailing list to add an
--fobey-inline switch, but nothing got out of it.  And it would be 3.3+
-only anwyays.
-
-I didn't see a 64K shrink however on x86-64, but I guess that's
-because it has a much cleaner uaccess.h ;) For i386 it is a nice bonus.
-
--Andi
 

@@ -1,43 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268359AbTBNJj7>; Fri, 14 Feb 2003 04:39:59 -0500
+	id <S268200AbTBNJot>; Fri, 14 Feb 2003 04:44:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268357AbTBNJi6>; Fri, 14 Feb 2003 04:38:58 -0500
-Received: from kerberos.ncsl.nist.gov ([129.6.57.216]:4748 "EHLO
-	kerberos.ncsl.nist.gov") by vger.kernel.org with ESMTP
-	id <S268331AbTBNJiZ>; Fri, 14 Feb 2003 04:38:25 -0500
-Date: Fri, 14 Feb 2003 04:48:18 -0500
-From: Olivier Galibert <galibert@pobox.com>
+	id <S268329AbTBNJ13>; Fri, 14 Feb 2003 04:27:29 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:40787
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S268330AbTBNJZe>; Fri, 14 Feb 2003 04:25:34 -0500
+Date: Fri, 14 Feb 2003 04:33:54 -0500 (EST)
+From: Zwane Mwaikambo <zwane@zwane.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
 To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] smctr.c changes in latest BK
-Message-ID: <20030214044818.A5658@kerberos.ncsl.nist.gov>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0302132335540.28838-100000@gfrw1044.bocc.de> <Pine.LNX.4.44.0302140001160.28838-100000@gfrw1044.bocc.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0302140001160.28838-100000@gfrw1044.bocc.de>; from jochen@scram.de on Fri, Feb 14, 2003 at 12:05:24AM +0100
+cc: Linus Torvalds <torvalds@transmeta.com>, Andi Kleen <ak@suse.de>
+Subject: [PATCH][2.5][14/14] smp_call_function_on_cpu - x86_64
+Message-ID: <Pine.LNX.4.50.0302140412190.3518-100000@montezuma.mastecende.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 14, 2003 at 12:05:24AM +0100, Jochen Friedrich wrote:
-> On Thu, 13 Feb 2003, Jochen Friedrich wrote:
-> > Please revert this one as it is just wrong. As already mentioned here in
-> > LKML (IIRC it was Alan), the semicolon is really intended here.
-> >
-> > The above loop just runs until a non-zero byte is found in the MAC
-> > address or all 6 bytes have been checked. A value of i=6 will then
-> > indicate an all-zero MAC address.
-> 
-> After taking a second look, i just recognized that both cases (MAC adress
-> all-zero or not) are handled exactly the same (by duplicated code), so the
-> whole stuff is unnecessary.
-> 
-> The whole function just reduces to a simple copy loop:
+ smp.c |   48 ++++++++++++++++++++++++++++++++----------------
+ 1 files changed, 32 insertions(+), 16 deletions(-)
 
-Doesn't that mean that the original function was buggy and it should
-not have copied the mac address over if one was user-provided?
-
-  OG.
+Index: linux-2.5.60/arch/x86_64/kernel/smp.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.60/arch/x86_64/kernel/smp.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 smp.c
+--- linux-2.5.60/arch/x86_64/kernel/smp.c	10 Feb 2003 22:15:09 -0000	1.1.1.1
++++ linux-2.5.60/arch/x86_64/kernel/smp.c	14 Feb 2003 05:47:57 -0000
+@@ -385,26 +385,35 @@
+  * in the system.
+  */
+ 
+-int smp_call_function (void (*func) (void *info), void *info, int nonatomic,
+-			int wait)
+ /*
+- * [SUMMARY] Run a function on all other CPUs.
+- * <func> The function to run. This must be fast and non-blocking.
+- * <info> An arbitrary pointer to pass to the function.
+- * <nonatomic> currently unused.
+- * <wait> If true, wait (atomically) until function has completed on other CPUs.
+- * [RETURNS] 0 on success, else a negative status code. Does not return until
+- * remote CPUs are nearly ready to execute <<func>> or are or have executed.
++ * smp_call_function_on_cpu - Runs func on all processors in the mask
++ *
++ * @func: The function to run. This must be fast and non-blocking.
++ * @info: An arbitrary pointer to pass to the function.
++ * @wait: If true, wait (atomically) until function has completed on other CPUs.
++ * @mask: The bitmask of CPUs to call the function
++ * 
++ * Returns 0 on success, else a negative status code. Does not return until
++ * remote CPUs are nearly ready to execute func or have executed it.
+  *
+  * You must not call this function with disabled interrupts or from a
+  * hardware interrupt handler or from a bottom half handler.
+  */
++
++int smp_call_function_on_cpu (void (*func) (void *info), void *info, int wait,
++				unsigned long mask)
+ {
+ 	struct call_data_struct data;
+-	int cpus = num_online_cpus()-1;
++	int i, cpu, num_cpus;
++
+ 
+-	if (!cpus)
+-		return 0;
++	cpu = get_cpu();
++	mask &= ~(1UL << cpu);
++	num_cpus = hweight64(mask);
++	if (num_cpus == 0) {
++		put_cpu_no_resched();
++		return -EINVAL;
++	}
+ 
+ 	data.func = func;
+ 	data.info = info;
+@@ -416,19 +425,26 @@
+ 	spin_lock(&call_lock);
+ 	call_data = &data;
+ 	wmb();
++
+ 	/* Send a message to all other CPUs and wait for them to respond */
+-	send_IPI_allbutself(CALL_FUNCTION_VECTOR);
++	send_IPI_mask(mask, CALL_FUNCTION_VECTOR);
+ 
+ 	/* Wait for response */
+-	while (atomic_read(&data.started) != cpus)
++	while (atomic_read(&data.started) != num_cpus)
+ 		barrier();
+ 
+ 	if (wait)
+-		while (atomic_read(&data.finished) != cpus)
++		while (atomic_read(&data.finished) != num_cpus)
+ 			barrier();
+ 	spin_unlock(&call_lock);
+-
++	put_cpu_no_resched();
+ 	return 0;
++}
++
++int smp_call_function (void (*func) (void *info), void *info, int nonatomic,
++			int wait)
++{
++	return smp_call_function_on_cpu(func, info, wait, cpu_online_map);
+ }
+ 
+ static void stop_this_cpu (void * dummy)

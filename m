@@ -1,64 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268441AbTBNNwF>; Fri, 14 Feb 2003 08:52:05 -0500
+	id <S268390AbTBNOKU>; Fri, 14 Feb 2003 09:10:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268444AbTBNNwF>; Fri, 14 Feb 2003 08:52:05 -0500
-Received: from vsmtp1.tin.it ([212.216.176.221]:5261 "EHLO smtp1.cp.tin.it")
-	by vger.kernel.org with ESMTP id <S268441AbTBNNwE>;
-	Fri, 14 Feb 2003 08:52:04 -0500
-Message-ID: <3E4CF5D2.6ED23062@libero.it>
-Date: Fri, 14 Feb 2003 14:57:38 +0100
-From: Abramo Bagnara <abramo.bagnara@libero.it>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20 i686)
-X-Accept-Language: en, it
+	id <S268400AbTBNOKU>; Fri, 14 Feb 2003 09:10:20 -0500
+Received: from 12-237-214-24.client.attbi.com ([12.237.214.24]:24089 "EHLO
+	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S268390AbTBNOKQ>;
+	Fri, 14 Feb 2003 09:10:16 -0500
+Message-ID: <3E4CFB11.1080209@mvista.com>
+Date: Fri, 14 Feb 2003 08:20:01 -0600
+From: Corey Minyard <cminyard@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021204
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Davide Libenzi <davidel@xmailserver.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Synchronous signal delivery..
-References: <Pine.LNX.4.44.0302131452450.4232-100000@penguin.transmeta.com>
-		 <3E4CAEFC.92914AB3@libero.it> <1045232677.7958.9.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii
+To: Werner Almesberger <wa@almesberger.net>
+CC: "Eric W. Biederman" <ebiederm@xmission.com>, suparna@in.ibm.com,
+       Kenneth Sumrall <ken@mvista.com>, linux-kernel@vger.kernel.org,
+       lkcd-devel@lists.sourceforge.net
+Subject: Re: Kexec, DMA, and SMP
+References: <m18ywoyq78.fsf@frodo.biederman.org> <20030211182508.A2936@in.ibm.com> <20030211191027.A2999@in.ibm.com> <3E490374.1060608@mvista.com> <20030211201029.A3148@in.ibm.com> <3E4914CA.6070408@mvista.com> <m1of5ixgun.fsf@frodo.biederman.org> <3E4A578C.7000302@mvista.com> <m13cmty2kq.fsf@frodo.biederman.org> <3E4A70EA.4020504@mvista.com> <20030214001310.B2791@almesberger.net>
+In-Reply-To: <20030214001310.B2791@almesberger.net>
+X-Enigmail-Version: 0.71.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> On Fri, 2003-02-14 at 08:55, Abramo Bagnara wrote:
-> > This reminds me the unfortunate (and much needed) lack of an unified way
-> > to send/receive out-of-band data to/from a regular fd.
-> >
-> > Something like:
-> >       oob = fd_open(fd, channel, flags);
-> >       write(oob, ...)
-> >       read(oob, ....)
-> >       close(oob);
-> >
-> > Don't you think it's time to introduce it and to start to avoid the
-> > proliferation of different tricky ways to do the same things?
-> 
-> Why are you trying to throw yet more crap into the kernel. Linus signals
-> as fd thing is questionable but makes a little sense (its in many ways
-> more unix than the traditional approach of using real time queued
-> signal since you can now select on it)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-My comment was not related to "signals as fd" stuff, but to the more
-generic need (implicit in Linus reply to Davide's comment) to have
-sometimes a control channel for an open fd (much like a file approach to
-ioctl/fcntl problem space).
+Werner Almesberger wrote:
 
-FWIW and IIRC a similar solution (based on a fs approach) was suggested
-also by Al Viro some time ago.
+|Corey Minyard wrote:
+|
+|>Another thought.  If you add a delay with all other processors and
+|>interrupts off, the disk devices
+|>will run out of things to do.
+|
+|
+|But the network will be there, patiently waiting for its chance to
+|strike. Likewise, I guess: USB (e.g. move the mouse at the wrong
+|moment to crash the system).
 
-> Out of band data is a second data channel, so open two pipes. Jeez
+Yes, we were talking about temporary stopgaps.
 
-What about the relation between the two channels?
+But, I had another idea.  What about using power management?  If you 
+suspended everything, would that be good enough.  I looked at a few 
+drivers, and it seemed so.
 
--- 
-Abramo Bagnara                       mailto:abramo.bagnara@libero.it
+- -Corey
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-Opera Unica                          Phone: +39.546.656023
-Via Emilia Interna, 140
-48014 Castel Bolognese (RA) - Italy
+iD8DBQE+TPsOmUvlb4BhfF4RAic3AJ4qKgL0CHROXoyu30rWlhfzlBxOEgCfSzJ6
+GeM4AJbZLaHv8GeD5N/uaHI=
+=Dg5Q
+-----END PGP SIGNATURE-----
+
+

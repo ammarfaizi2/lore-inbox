@@ -1,52 +1,84 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316927AbSE1Uyr>; Tue, 28 May 2002 16:54:47 -0400
+	id <S316943AbSE1UyB>; Tue, 28 May 2002 16:54:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316919AbSE1UyD>; Tue, 28 May 2002 16:54:03 -0400
-Received: from vger.timpanogas.org ([216.250.140.154]:25767 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S316941AbSE1Uxo>; Tue, 28 May 2002 16:53:44 -0400
-Date: Tue, 28 May 2002 14:21:47 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-Subject: Re: A reply on the RTLinux discussion.
-Message-ID: <20020528142147.A7353@vger.timpanogas.org>
-In-Reply-To: <zippel@linux-m68k.org> <200205281803.g4SI3vx05013@localhost.localdomain>
+	id <S316934AbSE1UwG>; Tue, 28 May 2002 16:52:06 -0400
+Received: from dhcp024-210-218-255.woh.rr.com ([24.210.218.255]:38578 "HELO
+	hoho.shacknet.nu") by vger.kernel.org with SMTP id <S316915AbSE1Uvo>;
+	Tue, 28 May 2002 16:51:44 -0400
+Subject: Sony DSC-P71 Camera
+From: Colin Slater <hoho@binbash.net>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-cVf/4gvV2gFWz4AYypY9"
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 28 May 2002 16:50:53 -0400
+Message-Id: <1022619053.894.35.camel@neptune>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--=-cVf/4gvV2gFWz4AYypY9
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I've been reading all this discussion, and I think the solution
-is pretty simple.  Patents are fairly easy to invalidate if you
-can show prior art.  Novell and these big software companies 
-do it all the time.  When they implement something that infringes
-someone's patent, they wait until litigation is filed, then seek to
-invalidate specific claims in the patent.  There are administrative
-procedures in place wih the USPTO that take this into account.  It's
-expensive and you have to be willing to risk litigation.
+Hello,=20
+ I just got a Sony DSC-P71 digital camera (wonderful), but it doesn't
+seem to be working in linux. I beleive it uses the usb mass storage
+driver, it seems to use an equivilent driver in windows. I have scsi,
+usb, usb mass storage modules all loaded.=20
+dmesg after I load the usb-storage module, and then plug the camera in:
 
-Patents describe "methods".  If you alter the methods, however slightly,
-it makes it tougher for the patent holder to win an infringement case.
-Based upon the whirlwind of discussion on this topic, it would seem 
-that there is significant deviation from the patent claims to 
-circumvent the probability that such claims would succeed.  
+Initializing USB Mass Storage driver...
+usb.c: registered new driver usb-storage
+USB Mass Storage support registered.
+hub.c: USB new device connect on bus1/1, assigned device number 3
+scsi0 : SCSI emulation for USB Mass Storage devices
 
-The bottom line is you can get sued anyway.  Patent cases are pretty
-tough to defend, but the only test will be to implement it, then 
-wait for the patent holder to bring claims in US District Court and 
-attack the basic claims in the patent on the basis of prior art.  
+I am useing devfs, and /dev/scsi is empty.
 
-This RTLinux patent appears, at least on the surface, to be another
-software "trash patent".  Microsoft has thousands of such patents,
-and it's questionable they will ever be able to win enforcement on 
-many of them.  Ditto this case.
+cat /proc/bus/usb/devices:
+<snip>
+T:  Bus=3D01 Lev=3D01 Prnt=3D01 Port=3D00 Cnt=3D01 Dev#=3D  3 Spd=3D12  MxC=
+h=3D 0
+D:  Ver=3D 1.10 Cls=3D00(>ifc ) Sub=3D00 Prot=3D00 MxPS=3D 8 #Cfgs=3D  1
+P:  Vendor=3D054c ProdID=3D0010 Rev=3D 4.10
+S:  Manufacturer=3DSony
+S:  Product=3DSony DSC
+C:* #Ifs=3D 1 Cfg#=3D 1 Atr=3Dc0 MxPwr=3D  2mA
+I:  If#=3D 0 Alt=3D 0 #EPs=3D 3 Cls=3D08(stor.) Sub=3Dff Prot=3D01 Driver=
+=3D(none)
+E:  Ad=3D01(O) Atr=3D02(Bulk) MxPS=3D  64 Ivl=3D  0ms
+E:  Ad=3D82(I) Atr=3D02(Bulk) MxPS=3D  64 Ivl=3D  0ms
+E:  Ad=3D83(I) Atr=3D03(Int.) MxPS=3D   8 Ivl=3D255ms
+<snip>
 
-Jeff
+All this happens regardless of NVdriver being loaded or not.
+
+If someone with one of these cameras or the nearly identical DSC-P31
+could help me, it would be appreciated
+
+Colin
 
 
+--=20
+-----
+GPG Key 0x7E959232; wwwkeys.pgp.net
+861C AE70 158F C440  EEE1 397C 7CBD 1148 7E95 9232=20
+0x626FD58E Revoked, see keyserver.
+
+--=-cVf/4gvV2gFWz4AYypY9
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQA88+2tfL0RSH6VkjIRAh0BAJ9GlDnmPytMJmxCY8X2bLblUJj6SwCeMc9f
+MHN4uiMZHGlimNCMFkQP4vI=
+=l2rX
+-----END PGP SIGNATURE-----
+
+--=-cVf/4gvV2gFWz4AYypY9--

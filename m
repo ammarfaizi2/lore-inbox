@@ -1,60 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273799AbRIRBnl>; Mon, 17 Sep 2001 21:43:41 -0400
+	id <S273800AbRIRBxO>; Mon, 17 Sep 2001 21:53:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273800AbRIRBnc>; Mon, 17 Sep 2001 21:43:32 -0400
-Received: from web10403.mail.yahoo.com ([216.136.130.95]:50180 "HELO
-	web10403.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S273799AbRIRBnY>; Mon, 17 Sep 2001 21:43:24 -0400
-Message-ID: <20010918014348.17878.qmail@web10403.mail.yahoo.com>
-Date: Tue, 18 Sep 2001 11:43:48 +1000 (EST)
-From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
-Subject: compile 2.4.10-pre11 error
-To: kernel <linux-kernel@vger.kernel.org>
+	id <S273802AbRIRBxE>; Mon, 17 Sep 2001 21:53:04 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:39431 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S273800AbRIRBxB>; Mon, 17 Sep 2001 21:53:01 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: kernel.org downtime and IP number change - Wed, Sep 19, 2001
+Date: 17 Sep 2001 18:53:07 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9o69e3$3ir$1@cesium.transmeta.com>
+In-Reply-To: <3BA681A9.1090703@transmeta.com> <20010917181555.A1834@vitelus.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Followup to:  <20010917181555.A1834@vitelus.com>
+By author:    Aaron Lehmann <aaronl@vitelus.com>
+In newsgroup: linux.dev.kernel
+> 
+> Is IP-based virtual hosting still in fashion?
+> 
 
-ld -m elf_i386 -T /home/linux/arch/i386/vmlinux.lds -e
-stext arch/i386/kernel/head.o
-arch/i386/kernel/init_task.o init/main.o
-init/version.o \
-        --start-group \
-        arch/i386/kernel/kernel.o arch/i386/mm/mm.o
-kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
-         drivers/char/char.o drivers/block/block.o
-drivers/misc/misc.o drivers/net/net.o
-drivers/media/media.o drivers/char/agp/agp.o
-drivers/char/drm/drm.o drivers/ide/idedriver.o
-drivers/cdrom/driver.o drivers/pci/driver.o
-drivers/video/video.o \
-        net/network.o \
-        /home/linux/arch/i386/lib/lib.a
-/home/linux/lib/lib.a /home/linux/arch/i386/lib/lib.a
-\
-        --end-group \
-        -o vmlinux
-mm/mm.o: In function `kmem_cache_alloc':
-mm/mm.o(.text+0x8ef2): undefined reference to
-`__builtin_expect'
-mm/mm.o(.text+0x8f0f): undefined reference to
-`__builtin_expect'
-mm/mm.o(.text+0x8f62): undefined reference to
-`__builtin_expect'
-mm/mm.o: In function `kmalloc':
-mm/mm.o(.text+0x9022): undefined reference to
-`__builtin_expect'
-mm/mm.o(.text+0x903f): undefined reference to
-`__builtin_expect'
-mm/mm.o(.text+0x9092): more undefined references to
-`__builtin_expect' follow
-make: *** [vmlinux] Error 1
+It is if you care about anything but HTTP and mail.
 
-=====
-S.KIEU
-
-http://travel.yahoo.com.au - Yahoo! Travel
-- Got Itchy feet? Get inspired!
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

@@ -1,61 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263338AbTETAbC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 20:31:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263349AbTETAbC
+	id S263328AbTETA3t (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 20:29:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263333AbTETA3t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 20:31:02 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:56673 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP id S263338AbTETAa7
+	Mon, 19 May 2003 20:29:49 -0400
+Received: from rwcrmhc51.attbi.com ([204.127.198.38]:21669 "EHLO
+	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP id S263328AbTETA3s
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 20:30:59 -0400
-To: Valdis.Kletnieks@vt.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Recent changes to sysctl.h breaks glibc
-References: <20030519165623.GA983@mars.ravnborg.org>
-	<Pine.LNX.4.44.0305191039320.16596-100000@home.transmeta.com>
-	<babhik$sbd$1@cesium.transmeta.com>
-	<m1d6ie37i8.fsf@frodo.biederman.org> <3EC95B58.7080807@zytor.com>
-	<m18yt235cf.fsf@frodo.biederman.org> <3EC9660D.2000203@zytor.com>
-	<m14r3q331h.fsf@frodo.biederman.org>
-	<200305200024.h4K0OnPc025466@turing-police.cc.vt.edu>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 19 May 2003 18:40:18 -0600
-In-Reply-To: <200305200024.h4K0OnPc025466@turing-police.cc.vt.edu>
-Message-ID: <m1y9121mdp.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	Mon, 19 May 2003 20:29:48 -0400
+Message-ID: <3EC9807D.3080804@kegel.com>
+Date: Mon, 19 May 2003 18:10:21 -0700
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
+X-Accept-Language: de-de, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Davide Libenzi <davidel@xmailserver.org>
+CC: John Myers <jgmyers@netscape.com>, linux-aio@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Comparing the aio and epoll event frameworks.
+References: <200305192333.QAA12018@pagarcia.nscp.aoltw.net> <Pine.LNX.4.55.0305191657540.6565@bigblue.dev.mcafeelabs.com>
+In-Reply-To: <Pine.LNX.4.55.0305191657540.6565@bigblue.dev.mcafeelabs.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu writes:
+Davide Libenzi wrote:
+> Adding a single shot feature to epoll takes about 5 lines of code,
+> comments included :) You know how many reuqests I had ? Zero, nada.
 
-> On Mon, 19 May 2003 17:55:06 MDT, Eric W. Biederman said:
-> > If things must be maintained in concert it is a bug.  
-> > 
-> > With a fixed ABI people take advantage of new features as they
-> > care for them.  And in general to use new features requires new code.
-> 
-> And if the kernel headers aren't maintained in concert with the kernel,
-> new userspace code can't reach the new features.
-> 
-> Therefor, by your definition, the current situation is a bug.
+I thought edge triggered epoll *was* single-shot.
+- Dan
 
-Yes, glibc uses kernel headers.
+-- 
+Dan Kegel
+http://www.kegel.com
+http://counter.li.org/cgi-bin/runscript/display-person.cgi?user=78045
 
-> Try compiling code that uses futexes on a system that has a kernel that
-> supports them, but kernel-headers that haven't been upgraded to mention them.
-> The kernel has the new code, the userspace has the new code, but gcc will
-> turn around and whinge about the new code because there's a piece missing in
-> between.  So people *CANT* take advantage of the new features (unless they
-> do something silly like drag their own foo.h file around where it can get
-> out of sync with reality).
-
-Or the build against a library that does that.  There are not that
-many libraries.
-
-For a lot of system calls it is actively dangerous to assume dev_t ==
-__kernel_dev_t.  As glibc does some cute things in there.
-
-Eric

@@ -1,45 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262219AbTDAJ7l>; Tue, 1 Apr 2003 04:59:41 -0500
+	id <S262229AbTDAKKT>; Tue, 1 Apr 2003 05:10:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262229AbTDAJ7l>; Tue, 1 Apr 2003 04:59:41 -0500
-Received: from ns.suse.de ([213.95.15.193]:33809 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S262219AbTDAJ7k>;
-	Tue, 1 Apr 2003 04:59:40 -0500
-Subject: Re: [PATCH][2.5][RFT] sfence wmb for K7,P3,VIAC3-2(?)
-From: Andi Kleen <ak@suse.de>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Dave Jones <davej@suse.de>
-In-Reply-To: <Pine.LNX.4.50.0304010320220.8773-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.50.0304010242250.8773-100000@montezuma.mastecende.com> 
-	<Pine.LNX.4.50.0304010320220.8773-100000@montezuma.mastecende.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 01 Apr 2003 12:11:00 +0200
-Message-Id: <1049191863.30759.3.camel@averell>
+	id <S262230AbTDAKKT>; Tue, 1 Apr 2003 05:10:19 -0500
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:42986 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id <S262229AbTDAKKS>; Tue, 1 Apr 2003 05:10:18 -0500
+Date: Tue, 1 Apr 2003 12:21:26 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Marcus Alanen <marcus@infa.abo.fi>
+Cc: ramands@indiatimes.com, linux-kernel@vger.kernel.org
+Subject: Re: Compilation Error: variable has intializer but incomplete type
+Message-ID: <20030401102126.GA6128@wohnheim.fh-wedel.de>
+References: <200304010401.JAA16708@WS0005.indiatimes.com> <200304010907.h3197Mi20706@infa.abo.fi>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200304010907.h3197Mi20706@infa.abo.fi>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-04-01 at 10:22, Zwane Mwaikambo wrote:
-> On Tue, 1 Apr 2003, Zwane Mwaikambo wrote:
+On Tue, 1 April 2003 12:07:22 +0300, Marcus Alanen wrote:
 > 
-> > +config X86_SSE
-> > +	bool
-> > +	depends on MK7 || MPENTIUMIII || MVIAC3_2
-> > +	default y
-> > +
+> >i am trying to learn and write device driver on linux kernel 2.4 redhat
+> >  distribution 
+> >
+> >iam getting compilation errors for driver code.
+> >struct file_operations my_ops ={NULL,my_read,my_write,NULL,NULL,NULL
+> >NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,
+> >NULL };
+> >
+> >ERROR -> my_ops has intializer but incomplete type
 > 
-> Bad option to flag against as pointed out by someone, seeing as K7 
-> implimented half the SSE instructions.
+> This is not a good way to do it. See e.g. fs/pipe.c#read_fifo_fops
+> for an easier approach:
+> 
+> struct file_operations read_fifo_fops = {
+>         llseek:         no_llseek,
+>         read:           pipe_read,
+>         write:          bad_pipe_w,
+>         poll:           fifo_poll,
+>         ioctl:          pipe_ioctl,
+>         open:           pipe_read_open,
+>         release:        pipe_read_release,
+> };
 
-SSE2 != SSE1. K7 has SSE1, like the Pentium 3.
+You should use the c99 initializers, though.
 
-X86_SSE is SSE1
+struct file_operations read_fifo_fops = {
+        .llseek		= no_llseek,
+        .read		= pipe_read,
+        .write		= bad_pipe_w,
+        .poll		= fifo_poll,
+        .ioctl		= pipe_ioctl,
+        .open		= pipe_read_open,
+        .release	= pipe_read_release,
+};
 
-sfence is part of SSE2. That's X86_SSE2
+Jörn
 
--Andi
-
-
+-- 
+Good warriors cause others to come to them and do not go to others.
+-- Sun Tzu

@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131707AbQK2Vgv>; Wed, 29 Nov 2000 16:36:51 -0500
+        id <S131507AbQK2VlK>; Wed, 29 Nov 2000 16:41:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131479AbQK2Vgp>; Wed, 29 Nov 2000 16:36:45 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:40964
-        "EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-        id <S131707AbQK2Vgc>; Wed, 29 Nov 2000 16:36:32 -0500
-Date: Wed, 29 Nov 2000 13:05:41 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>,
-        "Henning P. Schmiedehausen" <hps@tanstaafl.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Fasttrak100 questions...
-In-Reply-To: <E141E3Y-0006Lb-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.10.10011291300470.1743-100000@master.linux-ide.org>
+        id <S131592AbQK2VlA>; Wed, 29 Nov 2000 16:41:00 -0500
+Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:12527 "EHLO
+        webber.adilger.net") by vger.kernel.org with ESMTP
+        id <S131507AbQK2Vks>; Wed, 29 Nov 2000 16:40:48 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200011292109.eATL9l808900@webber.adilger.net>
+Subject: Re: searchable l-k archive
+In-Reply-To: <Pine.GSO.4.21.0011291437240.16506-100000@weyl.math.psu.edu>
+ "from Alexander Viro at Nov 29, 2000 02:57:11 pm"
+To: Alexander Viro <viro@math.psu.edu>
+Date: Wed, 29 Nov 2000 14:09:47 -0700 (MST)
+CC: Linux kernel development list <linux-kernel@vger.kernel.org>
+X-Mailer: ELM [version 2.4ME+ PL73 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Nov 2000, Alan Cox wrote:
+Al Viro writes:
+> BTW, if you know some searchable l-k archive...
+> DN sucks coprolites through the straw these days ;-/
 
-> > You are wrong: If you modify the kernel you have to make it available for
-> > anyone who wishes to use it; that's also in the GPL. You can't add stuff
-> 
-> No it isnt. Some people seem to think it is. You only have to provide a 
-> change if you give someone the binaries concerned. Some people also think
-> that 'linking' clauses mean they can just direct the customer to do the link,
-> that also would appear to be untrue in legal precedent - the law cares about
-> the intent.
+There are archives of pretty much all of the linux- and oss-development
+related mailing lists at:
 
-Of the list of poeple here, only Alan was present with the discussion of
-the terms of how the FASTTRAK SCSI-Emulation API to ATA was defined.
-Since you are not in the position to define the terms of how the
-interaction between the two subsystems work, you have no clue that
-building it into the kernel will fail!
+http://marc.theaimsgroup.com/
 
-Second read the causes about "COMMERIAL INTENT", somewhere around section
-7 paragraph 3.
+For l-k in particular, I use
+http://marc.theaimsgroup.com/?l=linux-kernel&r=1&w=4
 
-I have defined the terms that are acceptable to a binary module that
-incorporates GPL code of MINE!  This I DEFINE THE TERMS, and they are
-module only!
-
-Regards,
-
-Andre Hedrick
-CTO Timpanogas Research Group
-EVP Linux Development, TRG
-Linux ATA Development
-
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

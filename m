@@ -1,65 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265299AbRF0IHb>; Wed, 27 Jun 2001 04:07:31 -0400
+	id <S265297AbRF0IFb>; Wed, 27 Jun 2001 04:05:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265298AbRF0IHV>; Wed, 27 Jun 2001 04:07:21 -0400
-Received: from mail.fbab.net ([212.75.83.8]:24078 "HELO mail.fbab.net")
-	by vger.kernel.org with SMTP id <S265295AbRF0IHF>;
-	Wed, 27 Jun 2001 04:07:05 -0400
-X-Qmail-Scanner-Mail-From: mag@fbab.net via mail.fbab.net
-X-Qmail-Scanner-Rcpt-To: linux-kernel@vger.kernel.org
-X-Qmail-Scanner: 0.94 (No viruses found. Processed in 8.631607 secs)
-Message-ID: <002b01c0fee0$6429bc00$020a0a0a@totalmef>
-From: "Magnus Naeslund\(f\)" <mag@fbab.net>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: Maximum mountpoints + chrooted login
-Date: Wed, 27 Jun 2001 10:08:47 +0200
+	id <S265295AbRF0IFW>; Wed, 27 Jun 2001 04:05:22 -0400
+Received: from energy.pdb.sbs.de ([192.109.2.19]:10760 "EHLO energy.pdb.sbs.de")
+	by vger.kernel.org with ESMTP id <S265292AbRF0IFD>;
+	Wed, 27 Jun 2001 04:05:03 -0400
+Date: Wed, 27 Jun 2001 10:07:57 +0200 (CEST)
+From: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
+To: Jonathan Lundell <jlundell@pobox.com>
+cc: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>,
+        Mike Galbraith <mikeg@wen-online.de>,
+        Linux Kernel mailing list <linux-kernel@vger.kernel.org>,
+        <Paul.Russell@rustcorp.com.au>
+Subject: Re: [PATCH] proc_file_read() (Was: Re: proc_file_read() question)
+In-Reply-To: <p05100308b75e7a57e777@[207.213.214.37]>
+Message-ID: <Pine.LNX.4.30.0106270925540.13052-100000@biker.pdb.fsc.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was thinking of doing a chrooted login for some ssh accounts.
-The plan is this:
+On Tue, 26 Jun 2001, Jonathan Lundell wrote:
 
-put stuff in
-/home/u_dev
-/home/u_etc
-/home/u_bin
+> I use the hack myself, to implement a record-oriented file where the
+> file position is a record number. I could probably live with
+> PAGE_SIZE, but the current hack works fine with start bigger than
+> that, and it's possible that someone counts on it.
 
-Then at login time mount them to
-/home/user/dev
-/home/user/etc
-/home/user/bin
-as readonly
+Ok, let's use PAGE_OFFSET instead of PAGE_SIZE, then (see new patch
+below).
 
-chroot to /home/user
+Unless I'm mislead, legitimate values of "start" as a pointer are always
+larger than that, and I can hardly imagin e a case where the "unsigned
+int" value of start must be greater than PAGE_OFFSET.
 
-...
+I insist that relying on the comparison of two pointers is the wrong
+thing. If (as you suggest) the major use of "start" has migrated from the
+original intention to that of the "hack", this should be reflected
+in the interface by making the "start" parameter to read_proc ()
+an unsigned long. Everything else is misleading and error-prone.
+For now, "start" is a char* and should be treated as such.
 
-And then unmount them at logout time.
+> But if you're allocating your own buffer, you'd probably be better
+> off writing your own file ops, and not using the default
+> proc_file_read() at all. At the very least you'd save a redundant
+> __get_free_page/free_page pair.
 
-Does this seem like a bad idea?
-(then please tell me why :))
+That's right, but nevertheless (repeat) comparing "start" and "page" is
+wrong.
 
-One problem could be the _massive_ mounts, 3*online_users.
-Are there any limits/drawbacks doing it like this?
-Should i hardlink stuff instead? (worse maintainability).
+Regards,
+Martin
 
-Just a funny idea i have...
-Hit me.
+-- 
+Martin Wilck     <Martin.Wilck@fujitsu-siemens.com>
+FSC EP PS DS1, Paderborn      Tel. +49 5251 8 15113
 
-Magnus
+--- linux-2.4.5/fs/proc/generic.c	Mon Jun 25 13:46:26 2001
++++ 2.4.5mw/fs/proc/generic.c	Wed Jun 27 11:22:14 2001
+@@ -104,14 +104,14 @@
+  		 * return the bytes, and set `start' to the desired offset
+  		 * as an unsigned int. - Paul.Russell@rustcorp.com.au
+ 		 */
+- 		n -= copy_to_user(buf, start < page ? page : start, n);
++ 		n -= copy_to_user(buf, (unsigned long) start < PAGE_OFFSET ? page : start, n);
+ 		if (n == 0) {
+ 			if (retval == 0)
+ 				retval = -EFAULT;
+ 			break;
+ 		}
 
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
- Programmer/Networker [|] Magnus Naeslund
- PGP Key: http://www.genline.nu/mag_pgp.txt
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+-		*ppos += start < page ? (long)start : n; /* Move down the file */
++		*ppos += (unsigned long) start < PAGE_OFFSET ? (unsigned long) start : n; /* Move down the file */
+ 		nbytes -= n;
+ 		buf += n;
+ 		retval += n;
+
 
 

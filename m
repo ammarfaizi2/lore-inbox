@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129439AbRBEKoz>; Mon, 5 Feb 2001 05:44:55 -0500
+	id <S129504AbRBEK6d>; Mon, 5 Feb 2001 05:58:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129504AbRBEKop>; Mon, 5 Feb 2001 05:44:45 -0500
-Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:19937 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S129912AbRBEKof>; Mon, 5 Feb 2001 05:44:35 -0500
-Date: Mon, 5 Feb 2001 11:19:05 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
-cc: Frank de Lange <frank@unternet.org>, linux-kernel@vger.kernel.org
-Subject: Re: hard crashes 2.4.0/1 with NE2K stuff
-In-Reply-To: <20010203113604.A625@grobbebol.xs4all.nl>
-Message-ID: <Pine.GSO.3.96.1010205111436.18067A-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	id <S130633AbRBEK6Y>; Mon, 5 Feb 2001 05:58:24 -0500
+Received: from colorfullife.com ([216.156.138.34]:19717 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S129504AbRBEK6K>;
+	Mon, 5 Feb 2001 05:58:10 -0500
+Message-ID: <3A7E873E.54E3ECC2@colorfullife.com>
+Date: Mon, 05 Feb 2001 11:58:06 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Thomas Stewart <T.Stewart@student.umist.ac.uk>
+CC: Urban Widmark <urban@teststation.com>,
+        Jonathan Morton <chromi@cyberspace.org>, linux-kernel@vger.kernel.org,
+        ksa1 <ksa1@gmx.de>
+Subject: Re: d-link dfe-530 tx (bug-report)
+In-Reply-To: <3A7D77B5.ABF5A850@colorfullife.com> <3A7DEEB2.20915.276D09D@localhost>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 3 Feb 2001, Roeland Th. Jansen wrote:
+Thomas Stewart wrote:
+> 
+> Right, i patched the via-diag and its showing more regs.
+> 
+> I applyed Manfred's patch but that changed nothing.
+> Then I applyed your patch and still changed nothing as you suspected.
+> But there are regs that are different.
+> 
+Several regs are just the wakeup frames, but some look suspicious.
 
-> I have sysrq'd twice. the first one is the one where it works, then,
-> after a floodping of only 5 seconds, eth0 stops working. the floodping
-> is generated from outside towards this machine. then again I sysrq'd/
-> here are the results. I glued dmesg from begin to end so that all
-> messages are visible from boot time. pls explain what you find :-)
+Could you try Urban's patch, but add
 
- The I/O APIC still sends an edge-triggered interrupt resulting in a
-lockup, sigh.  This is already being discussed in another thread. 
+<<<<<<<<
+	writeb(0x00, ioaddr + 0x83);
+	writel(0x01010000, ioaddr + 0xa0);
+	writel(0x01010000, ioaddr + 0xa4)
+	writew(0xffff, ioaddr + 0x72);
+	writeb(0x08, ioaddr + 0x96);
+>>>>>>>>>
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+just before
++      writeb(0x40, ioaddr + 0x81);    /* Force software reset */
+(around line 540)
 
+--
+	Manfred
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

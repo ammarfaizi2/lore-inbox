@@ -1,73 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261852AbUCLAHJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 19:07:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbUCLAHJ
+	id S261854AbUCLAXz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 19:23:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbUCLAXz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 19:07:09 -0500
-Received: from mail.kroah.org ([65.200.24.183]:21177 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261852AbUCLAGq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 19:06:46 -0500
-Date: Thu, 11 Mar 2004 16:06:31 -0800
-From: Greg KH <greg@kroah.com>
-To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: [ANNOUNCE] 2004-03-11 release of hotplug scripts
-Message-ID: <20040312000631.GA26449@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 11 Mar 2004 19:23:55 -0500
+Received: from mta07-svc.ntlworld.com ([62.253.162.47]:5111 "EHLO
+	mta07-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id S261854AbUCLAXy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 19:23:54 -0500
+From: Richard Browning <richard@redline.org.uk>
+Organization: Redline Software Engineering
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Subject: Re: SMP + Hyperthreading / Asus PCDL Deluxe / Kernel 2.4.x 2.6.x / Crash/Freeze
+Date: Fri, 12 Mar 2004 00:22:13 +0000
+User-Agent: KMail/1.6
+Cc: Len Brown <len.brown@intel.com>, linux-kernel@vger.kernel.org
+References: <A6974D8E5F98D511BB910002A50A6647615F4B99@hdsmsx402.hd.intel.com> <200403111819.25819.richard@redline.org.uk> <Pine.LNX.4.58.0403111715560.29087@montezuma.fsmlabs.com>
+In-Reply-To: <Pine.LNX.4.58.0403111715560.29087@montezuma.fsmlabs.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200403120022.13534.richard@redline.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've just packaged up the latest Linux hotplug scripts into a release,
-which can be found at:
-	kernel.org/pub/linux/utils/kernel/hotplug/hotplug-2004_03_11.tar.gz
-or for those who like bz2 packages:
-	kernel.org/pub/linux/utils/kernel/hotplug/hotplug-2004_03_11.tar.bz2
+On Thursday 11 March 2004 22:17, Zwane Mwaikambo wrote:
+> On Thu, 11 Mar 2004, Richard Browning wrote:
+> > I've now updated the BIOS to the latest version available on Asus' site.
+> > The crash occurs even earlier - during bootup this time. Exactly:
+> >
+> > CPU2: Machine Check Exception: 000.0004
+> > CPU3: Machine Check Exception: 000.0004
+> > Bank 0: a20000008c010400Bank0: a20000008c010400
+> > Kernel Panic: CPU context corrupt
+> > In idle task - not syncing
+> >
+> > Again, disabling hyperthreading allows the system to operate normally.
+>
+> For my own curiosity, does switching the processors around do anything?
+> Those MCEs look confined to the non bootstrap processor package.
 
-This is a snapshot of the recent development in the scripts, and should
-be used by anyone who has reported a bug or sent me a patch against the
-last release, to check if your fix is in or not.
+Switched CPUs. This time I get the following:
 
-If I have missed any changes, please let me know and send the patch to
-me and the linux-hotplug-devel mailing list.  I'll collect them all and
-make a "official" release afterwards.
+CPU3: Machine Check Exception: 000.0004
+CPU2: Machine Check Exception: 000.0004
+Bank 0: a20000008c010400
+Kernel Panic: CPU context corrupt
+In idle task - not syncing
 
-Sorry for delaying so long since the last hotplug release.
+Note that the CPU# designations are swapped and that there's only one Bank 0: 
+message. Is this significant?
 
-A changelog of all the stuff in this release is below.
-
-thanks,
-
-greg k-h
-
-------------------
-
-Thu Mar 11 2004 kroah
-        - 2004_03_11 release
-        - From Dmitry Torokhov <dtor_core@ameritech.net>:
-                add evbug to the blacklist of modules
-        - From Kay Sievers <kay.sievers@vrfy.org>:
-                We should mention the DEVPATH in the hotplug man page too,
-                as someone missed it and got confused.
-        - 5 patches from Marco d'Itri <md@Linux.IT>:
-                - 000_small_fixes: fixed some small bugs.
-                - 001_no_bashisms: removed bashisms from all scripts.
-                - 003_no_useless_includes: removed some unused code.
-                - 004_2.6_pci_synthesis: added sysfs support to pci.rc,
-                  enabling boot time events synthesis on lacking the
-                  pcimodules program.
-                - 004_2.6_usb_sysfs: improved sysfs support in the USB
-                  scripts. Please review the changes marked with the FIXME
-                  comment: this works on my system and others, but I'm not
-                  sure that it's the proper way.
-
-Fri Feb 13 2004 dbrownell
-        - scsi.agent waits for /sys$DEVPATH/type to appear before
-          modprobing higher level drivers.  Patch from Patrick
-          Mansfield <patmans@us.ibm.com>
-
-
+R

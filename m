@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293670AbSCACda>; Thu, 28 Feb 2002 21:33:30 -0500
+	id <S310166AbSCADnT>; Thu, 28 Feb 2002 22:43:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293735AbSCACbS>; Thu, 28 Feb 2002 21:31:18 -0500
-Received: from dhcp065-024-127-026.columbus.rr.com ([65.24.127.26]:14478 "EHLO
-	mail.rivenstone.net") by vger.kernel.org with ESMTP
-	id <S310327AbSCAC0u>; Thu, 28 Feb 2002 21:26:50 -0500
-Date: Thu, 28 Feb 2002 21:24:38 -0500
-To: Dave Jones <davej@suse.de>, James Simmons <jsimmons@transvirtual.com>,
-        Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
+	id <S310340AbSCADla>; Thu, 28 Feb 2002 22:41:30 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:54029 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S310350AbSCADk7>; Thu, 28 Feb 2002 22:40:59 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Thu, 28 Feb 2002 19:43:57 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Bill Davidsen <davidsen@tmr.com>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] tdfx ported to new fbdev api
-Message-ID: <20020301022438.GA4732@rivenstone.net>
-In-Reply-To: <20020228214045.E32662@suse.de> <Pine.LNX.4.10.10202281242570.20040-100000@www.transvirtual.com> <20020228221152.K32662@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020228221152.K32662@suse.de>
-User-Agent: Mutt/1.3.27i
-From: jhf@rivenstone.net (Joseph Fannin)
+Subject: Re: 2.4.19-preX: What we really need: -AA patches finally in the
+ tree
+In-Reply-To: <Pine.LNX.4.33L.0203010009510.2801-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.4.44.0202281942420.939-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  Now that you mention the penguin, I was reminded of something.
->  Normally with this box, when the fb starts, the top 3rd of the
->  screen has a large white rectangle blitted onto it for reasons
->  I never figured out. Its purely cosmetic (it disappears when scrolling
->  begins), so it wasn't something I really bothered investigating.
+On Fri, 1 Mar 2002, Rik van Riel wrote:
 
-   Attila Kesmarki's v0.2.0 patch for tdfxfb fixed this problem for me
-when I tested it about a year and a half ago, but I don't think his
-updates were ever integrated -- I don't know if there were issues with
-the changes or not.
+> Not at all. The yield() function would just be a define to
+> the code which no longer works with the new scheduler, ie:
+>
+> #define yield()				\
+> 	current->policy |= SCHED_YIELD;	\
+> 	schedule();
 
-   Anyway, the patches still seem to be up:
+or better :
 
-http://www.medex.hu/~danthe/tdfx/
+#define yield() \
+	do { \
+		current->policy |= SCHED_YIELD; \
+		schedule(); \
+	} while (0)
 
 
--- 
-Joseph Fannin
-jhf@rivenstone.net
 
-"I think I said something eloquent, like 'Fuck.'" -- Rusty Russell
+- Davide
+
+

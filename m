@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314381AbSFISFT>; Sun, 9 Jun 2002 14:05:19 -0400
+	id <S314340AbSFISJT>; Sun, 9 Jun 2002 14:09:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314340AbSFISD5>; Sun, 9 Jun 2002 14:03:57 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:61531 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S314381AbSFISCK>; Sun, 9 Jun 2002 14:02:10 -0400
-To: Dave Jones <davej@suse.de>
-Cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        linux-kernel@vger.kernel.org, chaffee@cs.berkeley.edu
-Subject: Re: [patch] fat/msdos/vfat crud removal
-In-Reply-To: <87r8jhc685.fsf@devron.myhome.or.jp>
-	<200206090709.g5979iK439624@saturn.cs.uml.edu>
-	<20020609114638.J13140@suse.de>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 09 Jun 2002 11:52:28 -0600
-Message-ID: <m18z5owd9f.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S314389AbSFISJS>; Sun, 9 Jun 2002 14:09:18 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3588 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S314340AbSFISJQ>; Sun, 9 Jun 2002 14:09:16 -0400
+Date: Sun, 9 Jun 2002 11:09:02 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Kai Henningsen <kaih@khms.westfalen.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Futex Asynchronous Interface
+In-Reply-To: <8QXHSZTXw-B@khms.westfalen.de>
+Message-ID: <Pine.LNX.4.44.0206091056550.13459-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@suse.de> writes:
 
-> On Sun, Jun 09, 2002 at 03:09:44AM -0400, Albert D. Cahalan wrote:
-> 
->  > There has been talk of removing __KERNEL__ usage from
->  > some of the header files.
-> 
-> Where? If anything we need to increase __KERNEL__ usage in headers.
-> We export far too much crap which makes no sense to userspace.
 
-So we should just remove __KERNEL__ altogether.  And say with 2.5.x
-nothing is exported.  Which pretty much has been the official policy
-since user space started using glibc.
+On 9 Jun 2002, Kai Henningsen wrote:
+>
+> However, I don't think that's all that important. What I'd rather see is
+> making the network devices into namespace nodes. The situation of eth0 and
+> friends, from a Unix perspective, is utterly unnatural.
 
-#include <linux/*>
-and 
-#include <asm/*>
-are no longer supported.
+But what would you _do_ with them? What would be the advantage as compared
+to the current situation?
 
-Eric
+Now, to configure a device, you get a fd to the device the same way you
+get a fd _anyway_ - with "socket()".
+
+And anybody who says that "socket()" is utterly unnatural to the UNIX way
+is quite far out to lunch. It may be unnatural to the Plan-9 way of
+"everything is a namespace", but that was never the UNIX way. The UNIX way
+is "everything is a file descriptor or a process", but that was never
+about namespaces.
+
+Yes, some old-timers could argue that original UNIX didn't have sockets,
+and that the BSD interface is ugly and an abomination and that it _should_
+have been a namespace thing, but that argument falls flat on its face when
+you realize that the "pipe()" system call _was_ in original UNIX, and has
+all the same issues.
+
+Don't get hung up about names.
+
+			Linus
+

@@ -1,77 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262729AbUCRQAh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 11:00:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262727AbUCRQAg
+	id S262731AbUCRQB2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 11:01:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262727AbUCRQB1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 11:00:36 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:33417
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262729AbUCRQA1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 11:00:27 -0500
-Date: Thu, 18 Mar 2004 17:01:09 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Robert Love <rml@ximian.com>
-Cc: Andrew Morton <akpm@osdl.org>, mjy@geizhals.at,
-       linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_PREEMPT and server workloads
-Message-ID: <20040318160109.GJ2246@dualathlon.random>
-References: <40591EC1.1060204@geizhals.at> <20040318060358.GC29530@dualathlon.random> <20040318015004.227fddfb.akpm@osdl.org> <20040318145129.GA2246@dualathlon.random> <1079624062.2136.21.camel@localhost>
+	Thu, 18 Mar 2004 11:01:27 -0500
+Received: from fire.osdl.org ([65.172.181.4]:12500 "EHLO fire-2.osdl.org")
+	by vger.kernel.org with ESMTP id S262733AbUCRQBU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 11:01:20 -0500
+Subject: Re: 2.6.5-rc1-mm2
+From: John Cherry <cherry@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040317201454.5b2e8a3c.akpm@osdl.org>
+References: <20040317201454.5b2e8a3c.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1079625668.5731.0.camel@cherrybomb.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1079624062.2136.21.camel@localhost>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 18 Mar 2004 08:01:08 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Robert,
+No change with 2.6.5-rc1-mm2.
 
-On Thu, Mar 18, 2004 at 10:34:22AM -0500, Robert Love wrote:
-> I also feel you underestimate the improvements kernel preemption gives. 
+Linux 2.6 (mm tree) Compile Statistics (gcc 3.2.2)
+Warnings/Errors Summary
 
-Takashi benchmarked the worst case latency in very good detail.  2.6
-stock with PREEMPT=y has a worst case latency of 2.4-aa. This is a fact.
+Kernel            bzImage   bzImage  bzImage  modules  bzImage  modules
+                (defconfig) (allno) (allyes) (allyes) (allmod) (allmod)
+--------------- ---------- -------- -------- -------- -------- --------
+2.6.5-rc1-mm2     0w/0e     5w/0e   135w/ 5e   8w/0e   3w/0e    133w/0e
+2.6.5-rc1-mm1     0w/0e     5w/0e   135w/ 5e   8w/0e   3w/0e    133w/0e
+2.6.4-mm2         1w/2e     5w/2e   144w/10e   8w/0e   3w/2e    144w/0e
+2.6.4-mm1         1w/0e     5w/0e   146w/ 5e   8w/0e   3w/0e    144w/0e
+2.6.4-rc2-mm1     1w/0e     5w/0e   146w/12e  11w/0e   3w/0e    147w/2e
+2.6.4-rc1-mm2     1w/0e     5w/0e   144w/ 0e  11w/0e   3w/0e    145w/0e
+2.6.4-rc1-mm1     1w/0e     5w/0e   147w/ 5e  11w/0e   3w/0e    147w/0e
+2.6.3-mm4         1w/0e     5w/0e   146w/ 0e   7w/0e   3w/0e    142w/0e
+2.6.3-mm3         1w/2e     5w/2e   146w/15e   7w/0e   3w/2e    144w/5e
+2.6.3-mm2         1w/8e     5w/0e   140w/ 0e   7w/0e   3w/0e    138w/0e
+2.6.3-mm1         1w/0e     5w/0e   143w/ 5e   7w/0e   3w/0e    141w/0e
+2.6.3-rc3-mm1     1w/0e     0w/0e   144w/13e   7w/0e   3w/0e    142w/3e
+2.6.3-rc2-mm1     1w/0e     0w/265e 144w/ 5e   7w/0e   3w/0e    145w/0e
+2.6.3-rc1-mm1     1w/0e     0w/265e 141w/ 5e   7w/0e   3w/0e    143w/0e
+2.6.2-mm1         2w/0e     0w/264e 147w/ 5e   7w/0e   3w/0e    173w/0e
+2.6.2-rc3-mm1     2w/0e     0w/265e 146w/ 5e   7w/0e   3w/0e    172w/0e
+2.6.2-rc2-mm2     0w/0e     0w/264e 145w/ 5e   7w/0e   3w/0e    171w/0e
+2.6.2-rc2-mm1     0w/0e     0w/264e 146w/ 5e   7w/0e   3w/0e    172w/0e
+2.6.2-rc1-mm3     0w/0e     0w/265e 144w/ 8e   7w/0e   3w/0e    169w/0e
+2.6.2-rc1-mm2     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
+2.6.2-rc1-mm1     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
+2.6.1-mm5         2w/5e     0w/264e 153w/11e  10w/0e   3w/0e    180w/0e
+2.6.1-mm4         0w/821e   0w/264e 154w/ 5e   8w/1e   5w/0e    179w/0e
+2.6.1-mm3         0w/0e     0w/0e   151w/ 5e  10w/0e   3w/0e    177w/0e
+2.6.1-mm2         0w/0e     0w/0e   143w/ 5e  12w/0e   3w/0e    171w/0e
+2.6.1-mm1         0w/0e     0w/0e   146w/ 9e  12w/0e   6w/0e    171w/0e
+2.6.1-rc2-mm1     0w/0e     0w/0e   149w/ 0e  12w/0e   6w/0e    171w/4e
+2.6.1-rc1-mm2     0w/0e     0w/0e   157w/15e  12w/0e   3w/0e    185w/4e
+2.6.1-rc1-mm1     0w/0e     0w/0e   156w/10e  12w/0e   3w/0e    184w/2e
+2.6.0-mm2         0w/0e     0w/0e   161w/ 0e  12w/0e   3w/0e    189w/0e
+2.6.0-mm1         0w/0e     0w/0e   173w/ 0e  12w/0e   3w/0e    212w/0e
 
-With Takashi's lowlatency fixes the latency goes below 2.4-aa, w/ or w/o
-PREEMPT.
+Web page with links to complete details:
+   http://developer.osdl.org/cherry/compile/
 
-PREEMPT=y doesn't and cannot improve the worst case latency. This is
-true today like it was true 4 years ago.
 
-> Yes, the absolute worst case latency probably remains because it tends
-> to occur under lock (although, it is now easier to pinpoint that latency
-> and work some magic on the locks).  But the variance of the latency goes
-> way down, too.  We smooth out the curve.  And these are differences that
-> matter.
-
-I don't think they can matter when the worst case is below 0.2msec.
-
-> And it can be turned off, so if you don't care about that and are not
-> debugging atomicity (which preempt is a big help with, right?) then turn
-> it off.
-
-I want to implement my aged idea that is to do the opposite of preempt.
-
-I believe that is a much more efficient way to smooth the curve at lower
-overhead and no kernel complexity.
-
-Preempt is always enabled as soon as the cpu enters kernel. And it can
-be disabled on demand.
-
-I want preempt to be disabled as soon as teh cpu enters kernel, and I
-want to enable it on demand _only_ during the copy user, or similar cpu
-intensive operations, also guaranteeing that those operations comes to
-an end to avoid RCU starvation.
-
-Then I would like to ompare the average latency (the curve) I doubt
-they'll be any different, and the overhead will be zero (we've to check
-need_resched anyways after a copy-user, so we can as well do
-preempt_enable preembt_disable around it).
-
-> Oh, and if the PREEMPT=n overhead is really an issue, then I agree that
-> needs to be fixed :)
-
-It's not a big issue of course (very low prio thing ;).

@@ -1,44 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132846AbRDQTdw>; Tue, 17 Apr 2001 15:33:52 -0400
+	id <S132838AbRDQTgm>; Tue, 17 Apr 2001 15:36:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132835AbRDQT3r>; Tue, 17 Apr 2001 15:29:47 -0400
-Received: from stanis.onastick.net ([207.96.1.49]:14093 "EHLO
-	stanis.onastick.net") by vger.kernel.org with ESMTP
-	id <S132837AbRDQT1u>; Tue, 17 Apr 2001 15:27:50 -0400
-Date: Tue, 17 Apr 2001 15:27:48 -0400
-From: Disconnect <lkml@sigkill.net>
-To: Dave Zarzycki <dave@zarzycki.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Your response is requested
-Message-ID: <20010417152748.J11536@sigkill.net>
-In-Reply-To: <20010417190405.PTFU6564.tomts8-srv.bellnexxia.net@mail.vger.kernel.org> <Pine.LNX.4.33.0104171212520.960-100000@batman.zarzycki.org>
-Mime-Version: 1.0
+	id <S132844AbRDQTfz>; Tue, 17 Apr 2001 15:35:55 -0400
+Received: from raven.toyota.com ([63.87.74.200]:32517 "EHLO raven.toyota.com")
+	by vger.kernel.org with ESMTP id <S132838AbRDQTen>;
+	Tue, 17 Apr 2001 15:34:43 -0400
+Message-ID: <3ADC9ACC.A9FB19A@lexus.com>
+Date: Tue, 17 Apr 2001 12:34:36 -0700
+From: J Sloan <jjs@toyota.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-ac3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [OT] Re: Your response is requested
+In-Reply-To: <20010417190405.PTFU6564.tomts8-srv.bellnexxia.net@mail.vger.kernel.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0104171212520.960-100000@batman.zarzycki.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Sending to LKML just so nobody else flips out)
+J.I.@toyota.com wrote:
 
-OK it wasn't just us.  Lemme reassure the admins I just forwarded it to ;)
+> Dear Friend:
+>
+> YOU CAN make over a half million dollars every 4 to 5 months from
+> your home for a one time investment of only twenty five U.S.
+> Dollars.
 
-It seems to list the hostname of whoever receives it (neat trick).
+This did not originate from toyota.com - The spammer simply
+used that domain as the "from" hostname. We are careful
+about mail server security here, there is no open relay.
 
-On Tue, 17 Apr 2001, Dave Zarzycki did have cause to say:
+jjs
 
-> On Tue, 17 Apr 2001 J.I.@thor.sbay.org wrote:
->                     ^^^^^^^^^^^^^^^^^^
-> 
-> Arrggg!!! Mumble... grumble... F*cking spammer using my hostname as the
-> from address for sending spam...
-> 
----
------BEGIN GEEK CODE BLOCK-----
-Version: 3.1 [www.ebb.org/ungeek]
-GIT/CC/CM/AT d--(-)@ s+:-- a-->? C++++$ ULBS*++++$ P+>+++ L++++>+++++ 
-E--- W+++ N+@ o+>$ K? w--->+++++ O- M V-- PS+() PE Y+@ PGP++() t 5--- 
-X-- R tv+@ b++++>$ DI++++ D++(+++) G++ e* h(-)* r++ y++
-------END GEEK CODE BLOCK------

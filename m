@@ -1,51 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279190AbRKMVNz>; Tue, 13 Nov 2001 16:13:55 -0500
+	id <S279233AbRKMVTp>; Tue, 13 Nov 2001 16:19:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279170AbRKMVM0>; Tue, 13 Nov 2001 16:12:26 -0500
-Received: from modemcable058.33-200-24.mtl.mc.videotron.ca ([24.200.33.58]:4877
-	"EHLO firewall.imaginary.lan") by vger.kernel.org with ESMTP
-	id <S279156AbRKMVMV>; Tue, 13 Nov 2001 16:12:21 -0500
-Date: Tue, 13 Nov 2001 16:17:34 -0500
-From: Eric Preston <eric@linuxmontreal.com>
-To: David Ranch <dranch@juniper.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.20 - Possible module symbol bug
-Message-ID: <20011113161734.A10370@firewall.imaginary.lan>
-In-Reply-To: <3BEC4122.4C4DFB32@juniper.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BEC4122.4C4DFB32@juniper.net>; from dranch@juniper.net on Fri, Nov 09, 2001 at 12:48:34PM -0800
-X-Redundant: [drbones@drbones drbones]
+	id <S279242AbRKMVTg>; Tue, 13 Nov 2001 16:19:36 -0500
+Received: from anime.net ([63.172.78.150]:9487 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S279233AbRKMVT2>;
+	Tue, 13 Nov 2001 16:19:28 -0500
+Date: Tue, 13 Nov 2001 13:19:07 -0800 (PST)
+From: Dan Hollis <goemon@anime.net>
+To: Martin Eriksson <nitrax@giron.wox.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: What Athlon chipset is most stable in Linux?
+In-Reply-To: <001201c16c45$dc2b6820$0201a8c0@HOMER>
+Message-ID: <Pine.LNX.4.30.0111131317540.3250-100000@anime.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 13 Nov 2001, Martin Eriksson wrote:
+> I'm hearing rumours about my University wanting to set up a cluster with AMD
+> Athlon XP+DDR computers, so I wonder what chipset is most stable under
+> Linux?
+> I assume it's the AMD DDR chipset, but I want to be pretty sure.
 
-> #depmod -a
-> /lib/modules/2.2.20/scsi/ide-scsi.o: unresolved symbol(s)
-> /lib/modules/2.2.20/block/loop.o: unresolved symbol(s)
-> /lib/modules/2.2.20/ipv4/ip_masq_vdolive.o: unresolved symbol(s)
-> /lib/modules/2.2.20/ipv4/ip_masq_quake.o: unresolved symbol(s)
-> /lib/modules/2.2.20/ipv4/ip_masq_raudio.o: unresolved symbol(s)
-> /lib/modules/2.2.20/ipv4/ip_masq_irc.o: unresolved symbol(s)
-> /lib/modules/2.2.20/ipv4/ip_masq_ftp.o: unresolved symbol(s)
-> /lib/modules/2.2.20/ipv4/ip_masq_user.o: unresolved symbol(s) 
-> 
-> #modprobe --debug ip_masq_ftp
-> /lib/modules/2.2.20/ipv4/ip_masq_ftp.o: unresolved symbol ip_masq_new
-> /lib/modules/2.2.20/ipv4/ip_masq_ftp.o: unresolved symbol ip_masq_put
-> /lib/modules/2.2.20/ipv4/ip_masq_ftp.o: unresolved symbol ip_masq_listen
-> /lib/modules/2.2.20/ipv4/ip_masq_ftp.o: unresolved symbol ip_masq_control_add
-> /lib/modules/2.2.20/ipv4/ip_masq_ftp.o: unresolved symbol ip_masq_out_get 
+AMD761 or AMD760MP(|X) is what you want. They seem to have by far the
+least bugs of all the Athlon chipsets (and coming from AMD, you would
+certainly hope so).
 
-I noticed the same problem when recently building 2.2.20,
-
-Enable "prompt for experimental code"
-And choose the appropriate masq options that now appear,
-and the masq stuff goes away. Something to do with CONFIG_MASQUERADE_MOD
-not being set, was in a hurry so i didn't bother to look into it more,
-
-regards,
-Eric
+-Dan
+-- 
+[-] Omae no subete no kichi wa ore no mono da. [-]
 

@@ -1,60 +1,108 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310304AbSCBEDy>; Fri, 1 Mar 2002 23:03:54 -0500
+	id <S310306AbSCBEL1>; Fri, 1 Mar 2002 23:11:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310306AbSCBEDo>; Fri, 1 Mar 2002 23:03:44 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:42993
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S310304AbSCBED3>; Fri, 1 Mar 2002 23:03:29 -0500
-Date: Fri, 1 Mar 2002 20:03:48 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: skidley <skidley@crrstv.net>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19pre2-ac1
-Message-ID: <20020302040348.GA353@matchmail.com>
-Mail-Followup-To: skidley <skidley@crrstv.net>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020302025013.GA1600@matchmail.com> <Pine.LNX.4.43.0203012351360.1612-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.43.0203012351360.1612-100000@localhost.localdomain>
-User-Agent: Mutt/1.3.27i
+	id <S310309AbSCBELQ>; Fri, 1 Mar 2002 23:11:16 -0500
+Received: from cdserv.meridian-data.com ([206.79.177.152]:54286 "EHLO
+	nasexs1.meridian-data.com") by vger.kernel.org with ESMTP
+	id <S310306AbSCBELA>; Fri, 1 Mar 2002 23:11:00 -0500
+Message-ID: <2D0AFEFEE711D611923E009027D39F2B153ADF@cdserv.meridian-data.com>
+From: "Dennis, Jim" <jdennis@snapserver.com>
+To: "'Stephen Degler'" <sdegler@degler.net>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: "Dennis, Jim" <jdennis@snapserver.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: Congrats Marcelo,
+Date: Fri, 1 Mar 2002 20:13:37 -0800 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 01, 2002 at 11:56:51PM -0400, skidley wrote:
-> On Fri, 1 Mar 2002, Mike Fedyk wrote:
-> 
-> > On Sat, Mar 02, 2002 at 02:09:46AM +0000, Alan Cox wrote:
-> > > This one is a bit more experimental. I've avoided putting too much in so
-> > > we can see how the O(1) scheduler pans out.
-> > > 
-> > 
-> > --- linux.19p2/Makefile Fri Mar  1 18:26:30 2002
-> > +++ linux.19pre2-ac1/Makefile   Fri Mar  1 18:41:22 2002
-> > @@ -1,7 +1,7 @@
-> >  VERSION = 2
-> >  PATCHLEVEL = 4
-> >  SUBLEVEL = 19
-> > -EXTRAVERSION = -pre2
-> > +EXTRAVERSION = -pre1-ac3
-> >  
-> >  KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
-> > 
-> > Ehh, a little problem here. :(
-> > 
-> > It does apply and compile on top of pre2, but uname -r will say different.
-> > 
-> I just changed the Makefile here, note my signature (uname -a)
->
 
-Yep, me too, but after the first compile. drrr.
+ Hi Stephen.  Seen M lately?
 
-> I was wondering about the new Machine Check Exception Option added with
-> this patch. where can I get info(if there is any) on using it, re the boot option to use the Mb's it supports and any userland stuff if any.
+> Hi,
 
-I believe any pII or newer MB should support it, and you need to tell your
-log checker to look for the new output from the kernel...
+> FYI crypto is included in (Net|Free|Open)BSD source releases and I don't
+> believe it is an issue for them.
 
-Mike
+> skd
+
+ OpenBSD is maintained in Canada.  IIRC the FreeBSD IPSec patches started in
+
+ Japan, but I guess they have been merged into the mainstream.  I don't know
+ about NetBSD.
+
+ However, the point is well taken.  If our *BSD freeware OS' have been
+successfully
+ shipping with IPSec and other advanced crypto, from the U.S. outbound than
+it's a
+ precedent we may be able to follow.  Also the Debian project seems to be
+moving in 
+ that direction (including crypto in their mainstream distro).  
+
+ Obviously I opened a can of worms with my question.  I just wanted to know
+when
+ the unofficial patches would be sync with 2.4.18 (so I could fetch and
+apply them
+ without having to wrangle addition .rej files; since I a number of local
+patches to 
+ apply and wrangle *their* rejects is enough work already).
+
+ Clearly there's alot of pent up demand to include more stuff in the
+mainstream.  
+ I can understand Marcelo's conservatism (and Linus').  So the various
+branch trees
+ that are popping up.  This latest one by Jorg Prante (sorry of the the lack
+of 
+ proper diacriticals) is a nice base, with XFS, rmap, Ingo's O(1) scheduler,
+KLIPS
+ and patch-int, and quite a few others.  It isn't as outrageous as FOLK and
+it uses
+ the GR (getrewted) patches rather than LIDS.  However, as I say, it's a
+nice base
+ for someone who wants to be a few steps off the mainstream.
+
+
+> On Thu, Feb 28, 2002 at 06:52:25PM -0300, Marcelo Tosatti wrote:
+> On Tue, 26 Feb 2002, Dennis, Jim wrote:
+>> Marcelo,
+>> 
+>>  Contratulations on your first "official" kernel release.  It seems to
+>> have gone
+>>  well (except for some complaints on slashdot about -rc4 SPARC patches
+>> missing from
+>>  the patch, but apparently in the full tarball).
+>> 
+>>  Now I need to know about the status of several unofficial patches:
+>> 
+>> 	XFS
+ 
+> Want to see stable in -ac first.
+ 
+>> 	LVM
+ 
+> Its on 2.4 already.
+ 
+>> 	i2c
+>> 	Crypto
+>> 	FreeS/WAN KLIPS
+>> 	LIDS
+ 
+> I think its not possible to distribute crypto stuff in the stock kernel.
+ 
+> Am I wrong? 
+ 
+>> 	rmap
+ 
+> I need to see it running in production for more time.
+ 
+>>  Marcelo, there were some i2c updates included in the lmsensors package,
+>> have they
+>>  submitted those to you for integration into 2.4.19?
+ 
+> Nope. I could well integrate lm_sensors in the future.
+ 

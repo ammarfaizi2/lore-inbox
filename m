@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264012AbUD0Lgx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263950AbUD0Loj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264012AbUD0Lgx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 07:36:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264014AbUD0Lgx
+	id S263950AbUD0Loj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 07:44:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264010AbUD0Loj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 07:36:53 -0400
-Received: from ozlabs.org ([203.10.76.45]:10114 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S264012AbUD0Lgu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 07:36:50 -0400
+	Tue, 27 Apr 2004 07:44:39 -0400
+Received: from web12824.mail.yahoo.com ([216.136.174.205]:5508 "HELO
+	web12824.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263950AbUD0Loi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 07:44:38 -0400
+Message-ID: <20040427114437.66819.qmail@web12824.mail.yahoo.com>
+Date: Tue, 27 Apr 2004 04:44:37 -0700 (PDT)
+From: Shantanu Goel <sgoel01@yahoo.com>
+Subject: Re: 2.6.6-rc{1,2} bad VM/NFS interaction in case of dirty page writeback
+To: Andrew Morton <akpm@osdl.org>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: sgoel01@yahoo.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20040426225834.7035d2c1.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16526.17872.872703.799153@cargo.ozlabs.ibm.com>
-Date: Tue, 27 Apr 2004 21:36:48 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: Keith Owens <kaos@sgi.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] 2.6.6-rc2 Allow architectures to reenable interrupts on contended spinlocks 
-In-Reply-To: <6087.1083051952@kao2.melbourne.sgi.com>
-References: <1083048850.11576.19.camel@gaston>
-	<6087.1083051952@kao2.melbourne.sgi.com>
-X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens writes:
 
-> On Tue, 27 Apr 2004 16:54:11 +1000, 
-> Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
-> >Looks good, except as paulus noted that using 0 for flags in the
-> >_raw_spin_lock() case is wrong, since 0 is a valid flags value
-> >for some archs that could mean anything... 
+--- Andrew Morton <akpm@osdl.org> wrote:
+> Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+> >
+> > 
+> > Err... Anything that currently ends up calling
+> writepage() and returning
+> > WRITEPAGE_ACTIVATE. This is a problem that you
+> believe you are seeing
+> > the effects of, right? 
 > 
-> 0 is valid for ia64, which is the only architecture that currently
-> defines __HAVE_ARCH_RAW_SPIN_LOCK_FLAGS.  If other architectures want
-> to define __HAVE_ARCH_RAW_SPIN_LOCK_FLAGS and they need a different
-> flag value to indicate 'no flags available' then the 0 can be changed
-> to an arch defined value.  Worry about that if it ever occurs.
+> I didn't report the problem - Shantanu is reporting
+> problems where all the
+> NFS pages are stuck on the active list and the VM
+> has nothing to reclaim on
+> the inactive list.
+> 
 
-I was just thinking yesterday that it would be good to reenable
-interrupts during spin_lock_irq on ppc64.  I am hacking on the
-spinlocks for ppc64 at the moment and this looks like something worth
-adding.
+Yup, what happens is the NFS writepage() returns
+WRITEPAGE_ACTIVATE causing the scanner to place the
+page at the head of the active list.  Now the page
+won't be reclaimed until the scanner has run through
+the entire active list.  I do not see such behaviour
+with ext3 for instance.
 
-Why not keep _raw_spin_lock as it is and only use _raw_spin_lock_flags
-in the spin_lock_irq{,save} case?
 
-Paul.
+
+	
+		
+__________________________________
+Do you Yahoo!?
+Win a $20,000 Career Makeover at Yahoo! HotJobs  
+http://hotjobs.sweepstakes.yahoo.com/careermakeover 

@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133015AbRDLMnX>; Thu, 12 Apr 2001 08:43:23 -0400
+	id <S133117AbRDLMoO>; Thu, 12 Apr 2001 08:44:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133117AbRDLMnN>; Thu, 12 Apr 2001 08:43:13 -0400
-Received: from r108m105.cybercable.tm.fr ([195.132.108.105]:23307 "HELO
-	alph.dyndns.org") by vger.kernel.org with SMTP id <S133015AbRDLMnH>;
-	Thu, 12 Apr 2001 08:43:07 -0400
-To: kowalski@datrix.co.za
-Cc: davem@redhat.com, viro@math.psu.edu, jgarzik@mandrakesoft.com,
-        adilger@turbolinux.com, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
-Subject: Re: [CFT][PATCH] Re: Fwd: Re: memory usage - dentry_cache
-In-Reply-To: <3AD550F0.8058FAA@mandrakesoft.com>
-	<Pine.GSO.4.21.0104120257070.18135-100000@weyl.math.psu.edu>
-	<15061.27388.843554.687422@pizda.ninka.net>
-	<01041214272403.11986@webman>
-From: Yoann Vandoorselaere <yoann@mandrakesoft.com>
-Date: 12 Apr 2001 14:43:05 +0200
-In-Reply-To: <01041214272403.11986@webman>
-Message-ID: <87zodmmgpy.fsf@mandrakesoft.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S135170AbRDLMny>; Thu, 12 Apr 2001 08:43:54 -0400
+Received: from gherkin.sa.wlk.com ([192.158.254.49]:23820 "HELO
+	gherkin.sa.wlk.com") by vger.kernel.org with SMTP
+	id <S133117AbRDLMnw>; Thu, 12 Apr 2001 08:43:52 -0400
+Message-Id: <m14ngRr-0005khC@gherkin.sa.wlk.com>
+From: rct@gherkin.sa.wlk.com (Bob_Tracy)
+Subject: Re: SCSI Tape Corruption - update
+In-Reply-To: <20010412084318.LESP2878.fep02-svc.tin.it@fep41-svc.tin.it>
+ "from lomarcan@tin.it at Apr 12, 2001 10:43:18 am"
+To: lomarcan@tin.it
+Date: Thu, 12 Apr 2001 07:43:43 -0500 (CDT)
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+X-Mailer: ELM [version 2.4ME+ PL82 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcin Kowalski <kowalski@datrix.co.za> writes:
+lomarcan@tin.it wrote:
+> It seems that the tape is written incorrectly. I wrote some large file
+> (300MB)
+> and read it back four time. The read copies are all the same. They differ
+> from the original only in 32 consecutive bytes (the replaced values SEEM
+> random). Of course, 32 bytes in 300MB tar.gz files are TOO MUCH to be 
+> accepted :)
 
-> Hi
-> 
-> Regarding the patch ....
-> 
-> I don't have experience with the linux kernel internals but could this patch 
-> not lead to a run-loop condition as the only thing that can break our of the 
-> for(;;) loop is the tmp==&dentry_unused statement. So if the required number 
-> of dentries does not exist and this condition is not satisfied we would have 
-> an infinate loop... sorry if this is a silly question.
+Several years ago I ran into a problem with similar symptoms on an old
+Adaptec AHA-154X controller.  Files (and most certainly "file systems"
+if I had persisted) on my hard disk were getting corrupted in random
+places with constant length strings of garbage.  This turned out to be
+an inappropriate setting for the AHA1542_SCATTER constant: it *was* 16,
+and setting it to 8 fixed my problem.  I'd look for a similar "#define"
+in the header file for your SCSI device driver and try cutting the value
+by half.  Why "half"?  No justification other than it worked for me, and
+it's a power-of-two kind of thing that hardware seems to like :-).
 
-AFAICT no because of the list_del_init(tmp) call :
-When the list will be empty, 
-tmp will be equal to dentry_unused.prev (this is a circular list).
-
--- 
-Yoann Vandoorselaere | "Programming is a race between programmers, who try and
-MandrakeSoft         | make more and more idiot-proof software, and universe,
-                     | which produces more and more remarkable idiots. Until
-                     | now, universe leads the race"  -- R. Cook
+--Bob

@@ -1,62 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265235AbTLaT1k (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 14:27:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265237AbTLaT1k
+	id S265248AbTLaTar (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 14:30:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265250AbTLaTar
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 14:27:40 -0500
-Received: from mail.kroah.org ([65.200.24.183]:40083 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265235AbTLaT1i (ORCPT
+	Wed, 31 Dec 2003 14:30:47 -0500
+Received: from smtp01.web.de ([217.72.192.180]:19223 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id S265248AbTLaTam (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 14:27:38 -0500
-Date: Wed, 31 Dec 2003 11:23:06 -0800
-From: Greg KH <greg@kroah.com>
-To: Pascal Schmidt <der.eremit@email.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: udev and devfs - The final word
-Message-ID: <20031231192306.GG25389@kroah.com>
-References: <18Cz7-7Ep-7@gated-at.bofh.it> <E1AbWgJ-0000aT-00@neptune.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1AbWgJ-0000aT-00@neptune.local>
-User-Agent: Mutt/1.4.1i
+	Wed, 31 Dec 2003 14:30:42 -0500
+Message-ID: <3FF323DF.5060708@web.de>
+Date: Wed, 31 Dec 2003 20:30:39 +0100
+From: =?ISO-8859-1?Q?Ren=E9_Scharfe?= <l.s.r@web.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: File change notification
+References: <18PG9-4og-27@gated-at.bofh.it> <18TgF-QJ-7@gated-at.bofh.it> <18TJE-1qL-3@gated-at.bofh.it>
+In-Reply-To: <18TJE-1qL-3@gated-at.bofh.it>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 31, 2003 at 04:05:59AM +0100, Pascal Schmidt wrote:
-> On Wed, 31 Dec 2003 01:40:09 +0100, you wrote in linux.kernel:
-> 
-> >     2) udev does not care about the major/minor number schemes.  If the
-> >        kernel tomorrow switches to randomly assign major and minor numbers
-> >        to different devices, it would work just fine (this is exactly
-> >        what I am proposing to do in 2.7...)
-> 
-> Why? I want to keep my static device files in /dev. I don't even have
-> hotpluggable devices, and many months do pass before even one piece
-> of hardware gets changed (in which case I know what I have to do).
-> I don't want to eat any overhead or run any daemons or hotplug agents.
+Rüdiger Klaehn wrote:
+> Any help is appreciated. At the moment I am quite happy about what is 
+> being logged, but I am not sure how to best expose this to the 
+> interested user space processes. A device was the easiest way, and so 
+> that is what I used. Other possibilities would be a file in /proc or 
+> something completely different. I got the impression that dbus might be 
+> useful for this, but I have no idea how to use it.
 
-You would not have any "extra" overhead if you don't add any new devices
-to your system.  udev only runs when /sbin/hotplug runs.  As for extra
-space on your disk, this email thread is almost as big as the udev
-binary is :)
+Maybe relayfs is suitable for this task: http://www.opersys.com/relayfs/
 
-> What benefit would there be in "random" numbers? More compressed number
-> space by giving out numbers sequentially?
-
-Yes.
-
-> Or less having to work with the numbers because they become just
-> cookies and never need to be inspected except in very small parts of
-> the kernel?
-
-That is already happening today in the kernel.  
-
-And 2.8 will probably have the "random number" assignment be a compile
-option, depending on the maturity of udev.  We'll just have to see how
-it works out.
-
-thanks,
-
-greg k-h
+Regards,
+René

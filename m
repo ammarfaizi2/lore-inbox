@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261539AbSJIKS5>; Wed, 9 Oct 2002 06:18:57 -0400
+	id <S261557AbSJIKUP>; Wed, 9 Oct 2002 06:20:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261542AbSJIKS5>; Wed, 9 Oct 2002 06:18:57 -0400
-Received: from 213-187-164-2.dd.nextgentel.com ([213.187.164.2]:47238 "EHLO
-	mail.pronto.tv") by vger.kernel.org with ESMTP id <S261534AbSJIKSz> convert rfc822-to-8bit;
-	Wed, 9 Oct 2002 06:18:55 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: ProntoTV AS
-To: mdew <mdew@mdew.dyndns.org>
-Subject: Re: [Jfs-discussion] maximum filesystem size limit
-Date: Wed, 9 Oct 2002 12:25:24 +0200
-User-Agent: KMail/1.4.1
-Cc: Cameron Bahar <CBahar@s8.com>,
-       "'jfs-discussion@www-124.ibm.com'" 
-	<jfs-discussion@www-124.southbury.usf.ibm.com>,
-       Kernel mailing list <linux-kernel@vger.kernel.org>,
-       linux-raid@vger.kernel.org
-References: <8D587D949A61D411AFE300D0B74D75D703F0BF1B@server.s8.com> <200210091153.59452.roy@karlsbakk.net> <1034158761.5865.1.camel@mdew>
-In-Reply-To: <1034158761.5865.1.camel@mdew>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210091225.24185.roy@karlsbakk.net>
+	id <S261556AbSJIKUO>; Wed, 9 Oct 2002 06:20:14 -0400
+Received: from mnh-1-17.mv.com ([207.22.10.49]:24324 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S261557AbSJIKUO>;
+	Wed, 9 Oct 2002 06:20:14 -0400
+Message-Id: <200210091130.GAA01533@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+cc: Linus <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] make do_signal static on i386 
+In-Reply-To: Your message of "Wed, 09 Oct 2002 18:10:03 +1000."
+             <20021009181003.022da660.sfr@canb.auug.org.au> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 09 Oct 2002 06:30:19 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > Can someone please tell me if I can use JFS to create a single 12TB
-> > > filesystem under Linux?
-> >
-> > Afaik, you have a problem here concerning the Linux 2.4 maximum block
-> > device size of 2TB.
->
-> is this "fixed" in 2.5 yet?
+sfr@canb.auug.org.au said:
+> This patch makes do_signal static in arch/i386/kernel/signal.c which
+> means its declaration can be removed from asm-i386/signal.h which may
+> help Jeff out with UML. 
 
-I beleive so
--- 
-Roy Sigurd Karlsbakk, Datavaktmester
-ProntoTV AS - http://www.pronto.tv/
-Tel: +47 9801 3356
+Cool, anything which makes the other arch headers more UML-friendly is
+good.
 
-Computers are like air conditioners.
-They stop working when you open Windows.
+> (Does UML work on x86_64, yet?)
+
+Not yet.
+
+				Jeff
 

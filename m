@@ -1,55 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261841AbULUVPu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbULUVV7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261841AbULUVPu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 16:15:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbULUVPt
+	id S261366AbULUVV7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 16:21:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261745AbULUVV7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 16:15:49 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:45013 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261841AbULUVPn (ORCPT
+	Tue, 21 Dec 2004 16:21:59 -0500
+Received: from main.gmane.org ([80.91.229.2]:19390 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261366AbULUVV6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 16:15:43 -0500
-Date: Tue, 21 Dec 2004 13:15:34 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Attila BODY <compi@freemail.hu>, zaitcev@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB storage (pendrive) problems
-Message-ID: <20041221131534.411e3553@lembas.zaitcev.lan>
-In-Reply-To: <mailman.1103615580.2095.linux-kernel2news@redhat.com>
-References: <1103579679.23963.14.camel@localhost>
-	<200412202325.20064.andrew@walrond.org>
-	<41C75E8B.1020200@osdl.org>
-	<mailman.1103615580.2095.linux-kernel2news@redhat.com>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.14; i386-redhat-linux-gnu)
+	Tue, 21 Dec 2004 16:21:58 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Shankar Unni <shankarunni@netscape.net>
+Subject: Re: at_fork & at_exit
+Date: Tue, 21 Dec 2004 12:59:05 -0800
+Message-ID: <cqa2qq$rma$1@sea.gmane.org>
+References: <41C835C7.2010203@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: adsl-68-120-146-125.dsl.snfc21.pacbell.net
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.5) Gecko/20041201 Thunderbird/1.0RC1 Mnenhy/0.7
+X-Accept-Language: en-us, en
+In-Reply-To: <41C835C7.2010203@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Dec 2004 09:35:03 +0200, Attila BODY <compi@freemail.hu> wrote:
+Arun C Murthy wrote:
 
-> > >>If I copy more than few megabytes to the drive, the activity LED keeps
-> > >>flashing forever. sync, umount keeps runing forever, normal reboot is
-> > >>inpossible (alt+sysreq+b seems to work)
-> > >>
-> > >>Tested with usb 1.1 and 2.0 pendrives, behaviour is the same.
+> Im looking for linux equivalent of the FreeBSD calls:
+> 1. at_fork
+> 2. at_exit
 
-> Dec 21 08:58:52 smiley kernel: /dev/ub/a: p1
+There is an ANSI C equivalent of at_exit: it's called atexit(). Use that 
+  instead of OS-specific hacks like at_exit.
 
-> The problem is reproducable with 2.6.9. [...]
+No direct analog to at_fork() that I know of, but there's a "sort of" 
+equivalent thing you can use: pthread_atfork(). No reason why you can't 
+use it, even if your program is not multi-threaded..
 
-> I left the 2.0 device here all night and it did not. To make it worse,
-> it seems that the whole USB 2.0 system went down, there was no activity
-> even if i reconnected the pen, had to reboot to be detected and powered
-> on again (normal reboot was not an option again, so I had to use
-> alt-sysrq-B).
-
-Thanks for the note. Unfortunately, 2.6.9 apparently has problems with
-its virtual memory and write throttling, so I'm sure a few people suffering
-from it will jump on this thread. It's essential to split root causes.
-Your case may be different from the original poster's, who apparently
-had the same deal with both ub and usb-storage. First things first, did
-you try to set CONFIG_BLK_DEV_UB to off? What happens if you do?
-
--- Pete

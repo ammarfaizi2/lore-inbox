@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273667AbRIQTuD>; Mon, 17 Sep 2001 15:50:03 -0400
+	id <S273663AbRIQTvN>; Mon, 17 Sep 2001 15:51:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273664AbRIQTtx>; Mon, 17 Sep 2001 15:49:53 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:49392
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S273663AbRIQTts>; Mon, 17 Sep 2001 15:49:48 -0400
-Date: Mon, 17 Sep 2001 12:50:06 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Reading Windows CD on Linux 2.4.6
-Message-ID: <20010917125006.H24067@mikef-linux.matchmail.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <3BA26542.21DC105A@MissionCriticalLinux.com> <3BA29CC2.8030008@phobos.sharif.edu> <3BA6517F.B0E18888@MissionCriticalLinux.com>
+	id <S273664AbRIQTvD>; Mon, 17 Sep 2001 15:51:03 -0400
+Received: from dynamic-135.remotepoint.com ([204.221.114.135]:19718 "EHLO
+	AeroSpace.davidapt.local") by vger.kernel.org with ESMTP
+	id <S273663AbRIQTux>; Mon, 17 Sep 2001 15:50:53 -0400
+Date: Mon, 17 Sep 2001 14:51:30 -0500
+From: David Fries <dfries@mail.win.org>
+To: John Weber <john@worldwideweber.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: how to get cpu_khz?
+Message-ID: <20010917145130.C4041@aerospace.fries.net>
+In-Reply-To: <fa.ginsptv.1gg45b5@ifi.uio.no> <3BA64ADE.999E1402@worldwideweber.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3BA6517F.B0E18888@MissionCriticalLinux.com>
+In-Reply-To: <3BA64ADE.999E1402@worldwideweber.org>
 User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 17, 2001 at 12:39:43PM -0700, Bruce Blinn wrote:
-> Masoud Sharbiani wrote:
+On Mon, Sep 17, 2001 at 03:11:26PM -0400, John Weber wrote:
+> David Fries wrote:
 > > 
-> > Hi,
-> > Can you generate a cdrom image which has that problem (and less than 50
-> > megs) in order
-> > to test?
-> > thanks,
-> > Masoud
+> > I'm using the TSC of the Pentium processors to get some precise timing
+> > delays for writing to a eeprom (bit banging bus operations), and it
+> > works just fine, but the cpu_khz variable isn't exported to a kernel
+> > module, so I hardcoded in my module.  It works fine for that one
+> > system, but obviously I don't want to hard code it for the general
+> > case.  I guess I could write my own routine to figure out what the
+> > cpu_khz is, but it is already done, so how do I get access to it?
 > 
-> Hi Masoud:
-> 
-> I created a new CD that only contains linux-2.4.6.tar.gz (23Mb), and
-> this CD duplicates my problem.  On 2.2.19, I can copy the tar file from
-> the CD, and it is the same as the original, but when using 2.4.6, I get
-> an IO error.
-> 
-> However, when I tried to copy the CD image to a file, I get the
-> following IO error regardless of which kernel I use.
-> 
-> 	# dd if=/dev/cdrom of=/tmp/cd.iso
-> 	dd: /dev/cdrom: Input/output error
-> 	1440+0 records in
-> 	1440+0 records out 
-> 
-> Does this shed any more light on what I am doing wrong.  Is there
-> another way for me to create a CD image for you?
-> 	
-> Thanks,
-> Bruce
+> I don't know of any official way of doing this, but here's some 
+> code (written by aa) that accomplishes this.
 
-Do you get any errors when you loopback mount the cd.iso file?
+For a user space program you could just read /proc/cpuinfo, I'm
+actually writing a kernel driver, maybe I wasn't clear enough.  I'm
+just frustrated because the variable I'm after, cpu_khz is already
+calculated at boot time (that's where /proc/cpuinfo gets its data) and
+that variable doesn't appear to be exported to the rest of the kernel,
+either that or I'm just missing something, which I would rather be the
+case at this point.
+
+-- 
+		+---------------------------------+
+		|      David Fries                |
+		|      dfries@mail.win.org        |
+		+---------------------------------+

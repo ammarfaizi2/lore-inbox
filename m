@@ -1,102 +1,297 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270538AbTGSVDO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 17:03:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270540AbTGSVDO
+	id S270540AbTGSVJT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 17:09:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270541AbTGSVJS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 17:03:14 -0400
-Received: from kknd.mweb.co.za ([196.2.45.79]:56723 "EHLO kknd.mweb.co.za")
-	by vger.kernel.org with ESMTP id S270538AbTGSVDK (ORCPT
+	Sat, 19 Jul 2003 17:09:18 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:30480 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S270540AbTGSVJK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 17:03:10 -0400
-Subject: Re: libata driver update posted
-From: Martin Schlemmer <azarah@gentoo.org>
-Reply-To: azarah@gentoo.org
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Catalin BOIE <util@deuroconsult.ro>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Vojtech Pavlik <vojtech@suse.cz>
-In-Reply-To: <3F19A651.2080503@pobox.com>
-References: <3F1711C8.6040207@pobox.com>
-	 <Pine.LNX.4.53.0307180924020.19703@hosting.rdsbv.ro>
-	 <3F17F28C.9050105@pobox.com>
-	 <1058542771.13515.1599.camel@workshop.saharacpt.lan>
-	 <20030718154322.GB27152@gtf.org> <1058645294.23174.7.camel@nosferatu.lan>
-	 <3F19A651.2080503@pobox.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-O7aIybiZw/kbf7cHT9Kd"
-Message-Id: <1058649494.23174.43.camel@nosferatu.lan>
+	Sat, 19 Jul 2003 17:09:10 -0400
+Date: Sat, 19 Jul 2003 23:24:07 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH] usr/: Updated .incbin support
+Message-ID: <20030719212406.GA12993@mars.ravnborg.org>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 19 Jul 2003 23:18:14 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Linus, please apply.
 
---=-O7aIybiZw/kbf7cHT9Kd
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Update support for .incbin in /usr. No longer generate .S files
+from within the Makefile.
+Also deleted the assignment to LDFLAGS_BLOB for most architectures.
+Only ARM and cris i di not touch.
+arm: Russell told me they did not have a new as that could be used
+cris: Lokked like it was used for more than just usr/
 
-On Sat, 2003-07-19 at 22:13, Jeff Garzik wrote:
-> Martin Schlemmer wrote:
-> > On Fri, 2003-07-18 at 17:43, Jeff Garzik wrote:
-> >=20
-> > Slower this side.  The Maxtor 40GB (ata133) is however just set to
-> > udma33, where the Seagate 20GB (ata100) driver is set correctly to
-> > udma100.
->=20
-> Yeah, that's expected:  Parallel ATA (PATA) requires cable detection to=20
-> go beyond UDMA/33, and my driver doesn't do that yet [since I'm=20
-> concentrating on SATA].
->=20
+	Sam
 
-Ok, make sense.  Nothing like the ide's 'hdx=3Dfoo' param?
+ arch/alpha/Makefile     |    1 -
+ arch/h8300/Makefile     |    1 -
+ arch/i386/Makefile      |    1 -
+ arch/m68k/Makefile      |    1 -
+ arch/m68knommu/Makefile |    2 --
+ arch/mips/Makefile      |    2 --
+ arch/parisc/Makefile    |    2 --
+ arch/ppc/Makefile       |    1 -
+ arch/ppc64/Makefile     |    1 -
+ arch/s390/Makefile      |    2 --
+ arch/sh/Makefile        |    2 --
+ arch/sparc/Makefile     |    2 --
+ arch/sparc64/Makefile   |    1 -
+ arch/v850/Makefile      |    1 -
+ arch/x86_64/Makefile    |    1 -
+ usr/Makefile            |    9 +++++----
+ usr/initramfs_data.S    |   30 ++++++++++++++++++++++++++++++
+ 17 files changed, 35 insertions(+), 25 deletions(-)
 
->=20
-> > The Seagate start off ok (about 35mb/s), but then after doing some heav=
-y
-> > disk io, it also just drops to the 20mb/s region.
->=20
-> That's definitely interesting.  Is "heavy disk I/O" the hdparm stuff you=20
-> described, or something else too?
->=20
-
-Nope, its unpacking, compiling and installing glibc.  Sure, not _that_
-extensive, but it does make it work a bit.  Might be some other
-weirdness, as I did not try to reproduce it more than twice.
-
-And then something else - gnome did not want to start due to missing
-icons.  They are there however, and rebooting to old kernel without
-libata worked fine (same kernel, just do not have the patch applied
-or the normal ata driver disabled).
-
-I will give it a go some more.  Currently I am having some issues with
-getting latest cvs glibc & nptl to play nice, so I will not take it too
-serious for now.  If anything obvious might cause it and you want me
-to test, ask.  Otherwise I will give it a good run in the next few
-weeks and get a more complete report.
-
-
-Thanks,
-
---=20
-
-Martin Schlemmer
-
-
-
-
---=-O7aIybiZw/kbf7cHT9Kd
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/GbWWqburzKaJYLYRAg+IAJ96aBrsoy8WOcfdYHat9W5OikDfkwCgmWlV
-4j8bHoalwqKvvP+IZM4awmc=
-=Hbsb
------END PGP SIGNATURE-----
-
---=-O7aIybiZw/kbf7cHT9Kd--
-
+diff -Nru a/arch/alpha/Makefile b/arch/alpha/Makefile
+--- a/arch/alpha/Makefile	Sat Jul 19 23:19:24 2003
++++ b/arch/alpha/Makefile	Sat Jul 19 23:19:24 2003
+@@ -11,7 +11,6 @@
+ NM := $(NM) -B
+ 
+ LDFLAGS_vmlinux	:= -static -N #-relax
+-LDFLAGS_BLOB	:= --format binary --oformat elf64-alpha
+ cflags-y	:= -pipe -mno-fp-regs -ffixed-8
+ 
+ # Determine if we can use the BWX instructions with GAS.
+diff -Nru a/arch/h8300/Makefile b/arch/h8300/Makefile
+--- a/arch/h8300/Makefile	Sat Jul 19 23:19:24 2003
++++ b/arch/h8300/Makefile	Sat Jul 19 23:19:24 2003
+@@ -34,7 +34,6 @@
+ CFLAGS += -DUTS_SYSNAME=\"uClinux\" -DTARGET=$(BOARD)
+ AFLAGS += -DPLATFORM=$(PLATFORM) -DTARGET=$(BOARD) -DMODEL=$(MODEL) $(cflags-y)
+ LDFLAGS += $(ldflags-y)
+-LDFLAGS_BLOB :=  --format binary --oformat elf32-h8300
+ 
+ CROSS_COMPILE = h8300-elf-
+ #HEAD := arch/$(ARCH)/platform/$(platform-y)/$(board-y)/crt0_$(model-y).o
+diff -Nru a/arch/i386/Makefile b/arch/i386/Makefile
+--- a/arch/i386/Makefile	Sat Jul 19 23:19:24 2003
++++ b/arch/i386/Makefile	Sat Jul 19 23:19:24 2003
+@@ -18,7 +18,6 @@
+ LDFLAGS		:= -m elf_i386
+ OBJCOPYFLAGS	:= -O binary -R .note -R .comment -S
+ LDFLAGS_vmlinux :=
+-LDFLAGS_BLOB	:= --format binary --oformat elf32-i386
+ 
+ CFLAGS += -pipe
+ 
+diff -Nru a/arch/m68k/Makefile b/arch/m68k/Makefile
+--- a/arch/m68k/Makefile	Sat Jul 19 23:19:24 2003
++++ b/arch/m68k/Makefile	Sat Jul 19 23:19:24 2003
+@@ -19,7 +19,6 @@
+ # override top level makefile
+ AS += -m68020
+ LDFLAGS := -m m68kelf
+-LDFLAGS_BLOB := --format binary --oformat elf32-m68k
+ ifneq ($(COMPILE_ARCH),$(ARCH))
+ 	# prefix for cross-compiling binaries
+ 	CROSS_COMPILE = m68k-linux-
+diff -Nru a/arch/m68knommu/Makefile b/arch/m68knommu/Makefile
+--- a/arch/m68knommu/Makefile	Sat Jul 19 23:19:24 2003
++++ b/arch/m68knommu/Makefile	Sat Jul 19 23:19:24 2003
+@@ -85,8 +85,6 @@
+ CFLAGS += -D__linux__
+ CFLAGS += -DUTS_SYSNAME=\"uClinux\"
+ 
+-LDFLAGS_BLOB	:= --format binary --oformat elf32-m68k
+-
+ head-y := arch/m68knommu/platform/$(platform-y)/$(board-y)/crt0_$(model-y).o
+ 
+ CLEAN_FILES := include/asm-$(ARCH)/asm-offsets.h \
+diff -Nru a/arch/mips/Makefile b/arch/mips/Makefile
+--- a/arch/mips/Makefile	Sat Jul 19 23:19:24 2003
++++ b/arch/mips/Makefile	Sat Jul 19 23:19:24 2003
+@@ -18,11 +18,9 @@
+ ifdef CONFIG_CPU_LITTLE_ENDIAN
+ tool-prefix	= mipsel-linux-
+ JIFFIES32	= jiffies_64
+-LDFLAGS_BLOB   := --format binary --oformat elf32-tradlittlemips
+ else
+ tool-prefix	= mips-linux-
+ JIFFIES32	= jiffies_64 + 4
+-LDFLAGS_BLOB   := --format binary --oformat elf32-tradbigmips
+ endif
+ 
+ ifdef CONFIG_CROSSCOMPILE
+diff -Nru a/arch/parisc/Makefile b/arch/parisc/Makefile
+--- a/arch/parisc/Makefile	Sat Jul 19 23:19:24 2003
++++ b/arch/parisc/Makefile	Sat Jul 19 23:19:24 2003
+@@ -20,13 +20,11 @@
+ ifdef CONFIG_PARISC64
+ CROSS_COMPILE	:= hppa64-linux-
+ UTS_MACHINE	:= parisc64
+-LDFLAGS_BLOB	:= --format binary --oformat elf64-hppa-linux
+ else
+ MACHINE := $(subst 64,,$(shell uname -m))
+ ifneq ($(MACHINE),parisc)
+ CROSS_COMPILE	:= hppa-linux-
+ endif
+-LDFLAGS_BLOB	:= --format binary --oformat elf32-hppa-linux
+ endif
+ 
+ FINAL_LD=$(CROSS_COMPILE)ld --warn-common --warn-section-align 
+diff -Nru a/arch/ppc/Makefile b/arch/ppc/Makefile
+--- a/arch/ppc/Makefile	Sat Jul 19 23:19:24 2003
++++ b/arch/ppc/Makefile	Sat Jul 19 23:19:24 2003
+@@ -13,7 +13,6 @@
+ # This must match PAGE_OFFSET in include/asm-ppc/page.h.
+ KERNELLOAD	:= $(CONFIG_KERNEL_START)
+ 
+-LDFLAGS_BLOB	:= --format binary --oformat elf32-powerpc
+ LDFLAGS_vmlinux	:= -Ttext $(KERNELLOAD) -Bstatic
+ CPPFLAGS	+= -Iarch/$(ARCH)
+ AFLAGS		+= -Iarch/$(ARCH)
+diff -Nru a/arch/ppc64/Makefile b/arch/ppc64/Makefile
+--- a/arch/ppc64/Makefile	Sat Jul 19 23:19:24 2003
++++ b/arch/ppc64/Makefile	Sat Jul 19 23:19:24 2003
+@@ -17,7 +17,6 @@
+ 
+ LDFLAGS		:= -m elf64ppc
+ LDFLAGS_vmlinux	:= -Bstatic -e $(KERNELLOAD) -Ttext $(KERNELLOAD)
+-LDFLAGS_BLOB	:= --format binary --oformat elf64-powerpc
+ CFLAGS		+= -msoft-float -pipe -Wno-uninitialized -mminimal-toc \
+ 		-mtraceback=full -mcpu=power4
+ 
+diff -Nru a/arch/s390/Makefile b/arch/s390/Makefile
+--- a/arch/s390/Makefile	Sat Jul 19 23:19:24 2003
++++ b/arch/s390/Makefile	Sat Jul 19 23:19:24 2003
+@@ -17,7 +17,6 @@
+ 
+ ifdef CONFIG_ARCH_S390_31
+ LDFLAGS		:= -m elf_s390
+-LDFLAGS_BLOB	:= --format binary --oformat elf32-s390
+ CFLAGS		+= -m31
+ AFLAGS		+= -m31
+ UTS_MACHINE	:= s390
+@@ -26,7 +25,6 @@
+ ifdef CONFIG_ARCH_S390X
+ LDFLAGS		:= -m elf64_s390
+ MODFLAGS	+= -fpic -D__PIC__
+-LDFLAGS_BLOB	:= --format binary --oformat elf64-s390
+ CFLAGS		+= -m64
+ AFLAGS		+= -m64
+ UTS_MACHINE	:= s390x
+diff -Nru a/arch/sh/Makefile b/arch/sh/Makefile
+--- a/arch/sh/Makefile	Sat Jul 19 23:19:24 2003
++++ b/arch/sh/Makefile	Sat Jul 19 23:19:24 2003
+@@ -50,10 +50,8 @@
+ 
+ ifdef CONFIG_CPU_LITTLE_ENDIAN
+ LDFLAGS_vmlinux     +=  --defsym 'jiffies=jiffies_64' -EL
+-LDFLAGS_BLOB    :=--format binary --oformat elf32-sh-linux
+ else
+ LDFLAGS_vmlinux     +=  --defsym 'jiffies=jiffies_64+4' -EB
+-LDFLAGS_BLOB    :=--format binary --oformat elf32-shbig-linux
+ endif
+ 
+ CFLAGS		+= -pipe $(cpu-y)
+diff -Nru a/arch/sparc/Makefile b/arch/sparc/Makefile
+--- a/arch/sparc/Makefile	Sat Jul 19 23:19:24 2003
++++ b/arch/sparc/Makefile	Sat Jul 19 23:19:24 2003
+@@ -23,8 +23,6 @@
+ LDFLAGS		:= -m elf32_sparc
+ endif
+ 
+-LDFLAGS_BLOB	:= --format binary --oformat elf32-sparc
+-
+ #CFLAGS := $(CFLAGS) -g -pipe -fcall-used-g5 -fcall-used-g7
+ ifneq ($(IS_EGCS),y)
+ CFLAGS := $(CFLAGS) -pipe -mno-fpu -fcall-used-g5 -fcall-used-g7
+diff -Nru a/arch/sparc64/Makefile b/arch/sparc64/Makefile
+--- a/arch/sparc64/Makefile	Sat Jul 19 23:19:24 2003
++++ b/arch/sparc64/Makefile	Sat Jul 19 23:19:24 2003
+@@ -32,7 +32,6 @@
+ else
+ AS		:= $(AS) -64
+ LDFLAGS		:= -m elf64_sparc
+-LDFLAGS_BLOB	:= --format binary --oformat elf64-sparc
+ endif
+ 
+ ifneq ($(UNDECLARED_REGS),y)
+diff -Nru a/arch/v850/Makefile b/arch/v850/Makefile
+--- a/arch/v850/Makefile	Sat Jul 19 23:19:24 2003
++++ b/arch/v850/Makefile	Sat Jul 19 23:19:24 2003
+@@ -27,7 +27,6 @@
+ # some reason)
+ LDFLAGS_MODULE += --unique=.gnu.linkonce.this_module
+ 
+-LDFLAGS_BLOB := -b binary --oformat elf32-little
+ OBJCOPY_FLAGS_BLOB := -I binary -O elf32-little -B v850e
+ 
+ 
+diff -Nru a/arch/x86_64/Makefile b/arch/x86_64/Makefile
+--- a/arch/x86_64/Makefile	Sat Jul 19 23:19:24 2003
++++ b/arch/x86_64/Makefile	Sat Jul 19 23:19:24 2003
+@@ -36,7 +36,6 @@
+ LDFLAGS		:= -m elf_x86_64
+ OBJCOPYFLAGS	:= -O binary -R .note -R .comment -S
+ LDFLAGS_vmlinux := -e stext
+-LDFLAGS_BLOB	:= --format binary --oformat elf64-x86-64
+ 
+ CFLAGS += -mno-red-zone
+ CFLAGS += -mcmodel=kernel
+diff -Nru a/usr/Makefile b/usr/Makefile
+--- a/usr/Makefile	Sat Jul 19 23:19:24 2003
++++ b/usr/Makefile	Sat Jul 19 23:19:24 2003
+@@ -3,11 +3,12 @@
+ 
+ host-progs  := gen_init_cpio
+ 
+-clean-files := initramfs_data.cpio.gz initramfs_data.S
++clean-files := initramfs_data.cpio.gz
+ 
+-$(src)/initramfs_data.S: $(obj)/initramfs_data.cpio.gz
+-	echo "	.section .init.ramfs,\"a\"" > $(src)/initramfs_data.S
+-	echo ".incbin \"usr/initramfs_data.cpio.gz\"" >> $(src)/initramfs_data.S
++# initramfs_data.o contains the initramfs_data.cpio.gz image.
++# The image is included using .incbin, a dependency which is not
++# tracked automatically.
++$(obj)/initramfs_data.o: $(obj)/initramfs_data.cpio.gz FORCE
+ 
+ # initramfs-y are the programs which will be copied into the CPIO
+ # archive. Currently, the filenames are hardcoded in gen_init_cpio,
+diff -Nru a/usr/initramfs_data.S b/usr/initramfs_data.S
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/usr/initramfs_data.S	Sat Jul 19 23:19:24 2003
+@@ -0,0 +1,30 @@
++/*
++  initramfs_data includes the compressed binary that is the
++  filesystem used for early user space.
++  Note: Older versions of "as" (prior to binutils 2.11.90.0.23
++  released on 2001-07-14) dit not support .incbin.
++  If you are forced to use older binutils than that then the
++  following trick can be applied to create the resulting binary:
++
++
++  ld -m elf_i386  --format binary --oformat elf32-i386 -r \
++  -T initramfs_data.scr initramfs_data.cpio.gz -o initramfs_data.o
++   ld -m elf_i386  -r -o built-in.o initramfs_data.o
++
++  initramfs_data.scr looks like this:
++SECTIONS
++{
++       .init.ramfs : { *(.data) }
++}
++
++  The above example is for i386 - the parameters vary from architectures.
++  Eventually look up LDFLAGS_BLOB in an older version of the
++  arch/$(ARCH)/Makefile to see the flags used before .incbin was introduced.
++
++  Using .incbin has the advantage over ld that the correct flags are set
++  in the ELF header, as required by certain architectures.
++*/
++
++.section .init.ramfs,"a"
++.incbin "usr/initramfs_data.cpio.gz"
++

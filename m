@@ -1,66 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288259AbSAHT1L>; Tue, 8 Jan 2002 14:27:11 -0500
+	id <S288261AbSAHTcc>; Tue, 8 Jan 2002 14:32:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288262AbSAHT1B>; Tue, 8 Jan 2002 14:27:01 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:59661 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S288259AbSAHT06>;
-	Tue, 8 Jan 2002 14:26:58 -0500
-Date: Tue, 8 Jan 2002 11:24:50 -0800
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, felix-dietlibc@fefe.de,
-        andersen@codepoet.org
-Subject: [RFC] klibc requirements
-Message-ID: <20020108192450.GA14734@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
+	id <S288262AbSAHTcW>; Tue, 8 Jan 2002 14:32:22 -0500
+Received: from 24-163-106-43.he2.cox.rr.com ([24.163.106.43]:6050 "EHLO
+	asd.ppp0.com") by vger.kernel.org with ESMTP id <S288261AbSAHTcP>;
+	Tue, 8 Jan 2002 14:32:15 -0500
+Date: Tue, 8 Jan 2002 14:32:29 -0500
+Subject: Re: Whizzy New Feature: Paged segmented memory
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v480)
+Cc: Jacques Gelinas <jack@solucorp.qc.ca>, linux-kernel@vger.kernel.org
+To: jtv <jtv@xs4all.nl>
+From: Anthony DeRobertis <asd@suespammers.org>
+In-Reply-To: <20020108181121.A12696@xs4all.nl>
+Message-Id: <74063840-046E-11D6-8467-00039355CFA6@suespammers.org>
+Content-Transfer-Encoding: 7bit
+X-Mailer: Apple Mail (2.480)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
 
-First off, I do not want to fork off yet another tiny libc
-implementation, unless it is determined that we really need to do it.  I
-posted the klibc implementation because I have found that in the past,
-people can talk all they want, but the only way to actually get people
-all riled up and start paying attention is to post code :)
+On Tuesday, January 8, 2002, at 12:11 PM, jtv wrote:
 
-Now that people are riled up, and want to talk about it, let's try to
-describe the problem and see if any of the existing libc implementations
-help solve them.  Here's what I see as a list of requirements for a
-klibc like library that can be used by initramfs programs (please,
-everyone else jump in here with their requirements too):
-	- portable, runs on all platforms that the kernel currently
-	  works on, but doesn't have to run on any non-Linux based OS.
-	- tiny.  If we link statically it should be _small_.  Both
-	  dietLibc and uClibc are good examples of the size goal.  We do
-	  not need to support all of POSIX here, only what we really
-	  need.
-	- If we end up having a lot of different programs in initramfs,
-	  a dynamic version of the library should be available.  This
-	  shared library should be _small_ and only contain the symbols
-	  that are needed by the programs to run.  This should be able
-	  to be determined at build time.
-	- It has to "not suck" :)  This is a lovely relative feeling
-	  about the quality of the code base, ease at building the
-	  library, ease at understanding the code, and responsiveness of
-	  the developers of the library.
+>
+> And, of course, the same for all other software.  But for a 
+> highly secure
+> project, for instance, that might be worth it.
 
-I don't think either dietHotplug or uClibc or glibc or any other
-existing libc implementation meets these goals right now, right?
+I'd imagine most things would just work. It's only going to be 
+the things that make assumptions about memory layout that will 
+break.
 
-I had asked the dietLibc authors about the ability of tweaking their
-library into something that resembles the above, but didn't get a
-response.  Hence my post.  I would love to work with the authors of an
-existing libc to build such a library, as I have other things I would
-rather work on than a libc :)
+I picked X as an example because it cares quite a bit about 
+memory layout, especially when mapping in framebuffers and 
+whatnot.
 
-Comments from the various libc authors?  Comments from other kernel
-developers about requirements and goals they would like to see from such
-a libc?
+>
+> 68K has predecrement/postincrement addressing modes (I'm not sure that
+> counts as "forcing" the stack to grow downwards);
 
-thanks,
+The address stack on 68K grows downwards because JSR, BSR, etc. 
+do the stack manipulation for you.
 
-greg k-h
+Sure, you _could_ use JMP and BRA and maintain your own linkage, 
+but that'd take a large performance hit. Much larger than making 
+the data stack grow upwards, I dare say.
+
+>  PPC has a symmetrical
+> load/store-with-update IIRC.
+
+Right. I don't think it cares. Nice architecture ;-)
+

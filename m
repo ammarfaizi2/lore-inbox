@@ -1,86 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262668AbVAKKFr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262673AbVAKKKr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262668AbVAKKFr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 05:05:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262670AbVAKKFr
+	id S262673AbVAKKKr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 05:10:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262680AbVAKKKr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 05:05:47 -0500
-Received: from wproxy.gmail.com ([64.233.184.200]:55877 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262668AbVAKKFk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 05:05:40 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=KFeo/9+AmpeeQ7AMCptpbwgqvwUVCslHck3JrGGagNUvShSxgQdn9lyFbqHBPf6lZgYgnpZnLXAqCRcl0SszzblNwmprf3slTGfzYID6Uq55gsFsOki00NrqExRe8hR72/aB/0MJARfiWIGgkBT625oH3N8zaSWV7xQiklGLfJY=
-Message-ID: <4d6522b905011102052e16092e@mail.gmail.com>
-Date: Tue, 11 Jan 2005 12:05:40 +0200
-From: Edjard Souza Mota <edjard@gmail.com>
-Reply-To: Edjard Souza Mota <edjard@gmail.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Subject: Re: User space out of memory approach
-Cc: Thomas Gleixner <tglx@linutronix.de>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Mauricio Lin <mauriciolin@gmail.com>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20050111095616.GH26799@dualathlon.random>
+	Tue, 11 Jan 2005 05:10:47 -0500
+Received: from wavehammer.waldi.eu.org ([82.139.196.55]:64948 "EHLO
+	wavehammer.waldi.eu.org") by vger.kernel.org with ESMTP
+	id S262673AbVAKKKk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 05:10:40 -0500
+Date: Tue, 11 Jan 2005 11:10:38 +0100
+From: Bastian Blank <bastian@waldi.eu.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Richard Henderson <rth@twiddle.net>
+Subject: Re: removing bcopy... because it's half broken
+Message-ID: <20050111101010.GB27768@wavehammer.waldi.eu.org>
+Mail-Followup-To: Bastian Blank <bastian@waldi.eu.org>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Christoph Hellwig <hch@infradead.org>,
+	Arjan van de Ven <arjan@infradead.org>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>, Richard Henderson <rth@twiddle.net>
+References: <20050109192305.GA7476@infradead.org> <Pine.LNX.4.58.0501091213000.2339@ppc970.osdl.org> <20050109203459.GA28788@infradead.org> <Pine.LNX.4.58.0501091240550.2339@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <3f250c71050110134337c08ef0@mail.gmail.com>
-	 <20050110192012.GA18531@logos.cnet>
-	 <4d6522b9050110144017d0c075@mail.gmail.com>
-	 <20050110200514.GA18796@logos.cnet>
-	 <1105403747.17853.48.camel@tglx.tec.linutronix.de>
-	 <4d6522b90501101803523eea79@mail.gmail.com>
-	 <1105433093.17853.78.camel@tglx.tec.linutronix.de>
-	 <4d6522b905011101202918f361@mail.gmail.com>
-	 <1105435846.17853.85.camel@tglx.tec.linutronix.de>
-	 <20050111095616.GH26799@dualathlon.random>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="7qSK/uQB79J36Y4o"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0501091240550.2339@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-> Allowing userspace to tune is a great idea. However we cannot invoke
-> userland at oom-time to make the decision, or it would be deadlock prone
-> (userland may be swapped out or it might require minor allocations of
-> memory, if we were to allow userspace to do the decision it would be
-> required to be a mlockall userland and not allowed to do syscalls, and
-> even then it could mess up with the stack or signal handlers).
+--7qSK/uQB79J36Y4o
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hmm, no it is not the case. The deamon application would start from the
-boot. It only keeps the list of candidates whenever you're getting
-close to red zone.
-There is no deadlock.
+On Sun, Jan 09, 2005 at 12:42:42PM -0800, Linus Torvalds wrote:
+> On Sun, 9 Jan 2005, Christoph Hellwig wrote:
+> > We're building with -ffreestanding now, so gcc isn't allowed to emit
+> > any calls to standard library functions.
+> Bzzt. It still emits calls to libgcc.=20
 
-Deamon just started at user space, and does only calculation. It doesn't
-take decision at all. That OOM killer at kernel level who get the list
-and chooses
-who to shoot dead.
+Yes. This means IMHO that the image and every module needs to link
+against libgcc to include the required symbols. It is rather annoying to
+see modules asking for libgcc symbols.
 
-> So the safe thing to do is to assign different ratings to different userspace
-> tasks. Of course this is inherited from the childs. That is a reasonable
-> approach IMHO. Kurt wrote that patch, I only ported it to a more recent
-> codebase.
+Bastian
 
-Could be. Interesting idea. We shall keep thinking about it. Have you done
-some experiment like that?
+--=20
+It would be illogical to assume that all conditions remain stable.
+		-- Spock, "The Enterprise Incident", stardate 5027.3
 
-> 
-> This way you can rate your important services and the not important
-> ones.
-> 
-> Anyway as you've mentioned in a earlier email, there were more
-> fundamental problems than the selection algorithm, the userspace rating
-> was the lowest one in the prio list.
-> 
+--7qSK/uQB79J36Y4o
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-Yes, agreed. Our point was just to re-organize current OOM killer to release the
-kernel from doing rating, which is not its task any way.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
 
-br
+iEYEARECAAYFAkHjph4ACgkQnw66O/MvCNEz7gCfYeIPFZpuYuoi7ZFY48KEHpPX
+hl8An2akr0IBNzh/PHrRKrVYSThtFynV
+=xPLo
+-----END PGP SIGNATURE-----
 
-Edjard
--- 
-"In a world without fences ... who needs Gates?"
+--7qSK/uQB79J36Y4o--

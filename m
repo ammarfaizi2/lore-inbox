@@ -1,37 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265063AbSJRLF1>; Fri, 18 Oct 2002 07:05:27 -0400
+	id <S265068AbSJRLLb>; Fri, 18 Oct 2002 07:11:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265065AbSJRLF1>; Fri, 18 Oct 2002 07:05:27 -0400
-Received: from mx6.mail.ru ([194.67.57.16]:48908 "EHLO mx6.mail.ru")
-	by vger.kernel.org with ESMTP id <S265063AbSJRLF0>;
-	Fri, 18 Oct 2002 07:05:26 -0400
-From: "Samium Gromoff" <_deepfire@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5 and lowmemory boxens
+	id <S265069AbSJRLLb>; Fri, 18 Oct 2002 07:11:31 -0400
+Received: from tml.hut.fi ([130.233.44.1]:12549 "EHLO tml-gw.tml.hut.fi")
+	by vger.kernel.org with ESMTP id <S265068AbSJRLLa>;
+	Fri, 18 Oct 2002 07:11:30 -0400
+Date: Fri, 18 Oct 2002 14:16:25 +0300
+From: Antti Tuominen <ajtuomin@morphine.tml.hut.fi>
+To: Mitsuru KANDA <mk@linux-ipv6.org>
+Cc: yoshfuji@linux-ipv6.org, davem@redhat.com, kuznet@ms2.inr.ac.ru,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org, pekkas@netcore.fi,
+       torvalds@transmeta.com, jagana@us.ibm.com
+Subject: Re: [PATCHSET] Mobile IPv6 for 2.5.43
+Message-ID: <20021018111625.GA19394@morphine.tml.hut.fi>
+References: <20021017162624.GC16370@morphine.tml.hut.fi> <20021018.021802.87011078.yoshfuji@linux-ipv6.org> <m3wuohq78u.wl@karaba.org>
 Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: 194.226.0.89 via proxy [194.226.0.63]
-Date: Fri, 18 Oct 2002 15:11:13 +0400
-Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E182V29-000Pfa-00@f15.mail.ru>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m3wuohq78u.wl@karaba.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   first: i`ve successfully ran 2.5.43 on a 386sx20/4M ram notebook.
+On Fri, Oct 18, 2002 at 02:56:33AM +0900, Mitsuru KANDA wrote:
+> > [ipv6_tunnel]
+> > 
+> > I think this is almost ok.
+> I think so.
+> I know ipv6_tunnel is stable as I use.
 
- the one problem was the ppp over serial not working, but i suspect
- that it just needs to be recompiled with 2.5 headers (am i right?).
+Thanks for the vote of confidence :)
 
- the other was, well, the fact that ultra-stripped 2.5.43
- still used 200k more memory than 2.4.19, and thats despite it was
- compiled with -Os instead of -O2.
- actually it was 2000k free with 2.4 vs 1800k  free with 2.5
+> plus:
+>    (maybe not whole kernel issue)
+> It is important to integrate your ipv6tunnel command into
+> ifconfig(8) and/or ip(8).
 
- i know Rik had plans of some ultra bloody embedded/lowmem
- changes for such cases. i`d like to hear about things in the area :)
+Obviously we will provide patches to add that functionality to ip (and
+maybe also ifconfig), if the code goes into the kernel.
 
-regards, Samium Gromoff, aka Serge Kosyrev
+Regards,
+
+Antti
+
+-- 
+Antti J. Tuominen, Gyldenintie 8A 11, 00200 Helsinki, Finland.
+Research assistant, Institute of Digital Communications at HUT
+work: ajtuomin@tml.hut.fi; home: tuominen@iki.fi
 

@@ -1,71 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261656AbULFVSv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261591AbULFV0B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261656AbULFVSv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 16:18:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261658AbULFVSu
+	id S261591AbULFV0B (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 16:26:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261657AbULFV0B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 16:18:50 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:3047 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261656AbULFVSd (ORCPT
+	Mon, 6 Dec 2004 16:26:01 -0500
+Received: from math.ut.ee ([193.40.5.125]:42697 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S261591AbULFVZz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 16:18:33 -0500
-Date: Mon, 6 Dec 2004 22:18:17 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Dimitri Sivanich <sivanich@sgi.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Jesse Barnes <jbarnes@sgi.com>, piggin@cyberone.com.au
-Subject: Re: [PATCH] isolcpus option broken in 2.6.10-rc2-bk2
-Message-ID: <20041206211817.GB10235@elte.hu>
-References: <20041206185221.GA23917@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041206185221.GA23917@sgi.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Mon, 6 Dec 2004 16:25:55 -0500
+Date: Mon, 6 Dec 2004 23:25:47 +0200 (EET)
+From: Riina Kikas <riinak@ut.ee>
+X-X-Sender: riinak@spartacus.at.mt.ut.ee
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+cc: linux-kernel@vger.kernel.org, mroos@ut.ee
+Subject: Re: [PATCH 2.6] clean-up: fixes "unsigned>=0" warning
+In-Reply-To: <41B4C93E.10203@nortelnetworks.com>
+Message-ID: <Pine.SOC.4.61.0412062324590.14553@spartacus.at.mt.ut.ee>
+References: <Pine.SOC.4.61.0412062247160.21075@math.ut.ee>
+ <41B4C93E.10203@nortelnetworks.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Seems that this one has been fixed somewhere between 2.6.8 and 2.6.9, so
+it doesn't need to be fixed any more. Sorry for that.
 
-* Dimitri Sivanich <sivanich@sgi.com> wrote:
+Riina
 
-> The isolcpus option is broken in 2.6.10-rc2-bk2.  The domains are no longer
-> being properly initialized (which results in a panic at bootup).
-> 
-> The following patch fixes this.
-> 
-> Signed-off-by: Dimitri Sivanich <sivanich@sgi.com>
 
-Acked-by: Ingo Molnar <mingo@elte.hu>
+On Mon, 6 Dec 2004, Chris Friesen wrote:
 
-only a minor nit:
-
-> +	/* Initialize isolated CPU (physical) domains and groups */
-> +	for_each_cpu_mask(i, cpu_isolated_map) {
-> +		struct sched_domain *sd = NULL;
-
-there's no need to initialize 'sd' to NULL here.
-
-> +		int group;
-> +
-> +		sd = &per_cpu(phys_domains, i);
-> +		group = cpu_to_phys_group(i);
-
-> +	for_each_cpu_mask(i, cpu_isolated_map) {
-> +		struct sched_domain *sd = NULL;
-
-ditto.
-
-> +		int group;
-> +
-> +		sd = &per_cpu(phys_domains, i);
-> +		group = cpu_to_phys_group(i);
-> +		*sd = SD_CPU_INIT;
-
-	Ingo
+> Riina Kikas wrote:
+>> This patch fixes warning "comparison of unsigned expression >= 0 is 
+>> always true"
+>> occuring on line 38
+>> 
+>> Signed-off-by: Riina Kikas <Riina.Kikas@mail.ee>
+>> 
+>> --- a/fs/ntfs/collate.h    2004-10-18 21:53:06.000000000 +0000
+>> +++ b/fs/ntfs/collate.h    2004-12-04 13:26:03.000000000 +0000
+>> @@ -37,7 +37,7 @@
+>>      if (unlikely(cr != COLLATION_BINARY && cr != 
+>> COLLATION_NTOFS_ULONG))
+>>          return FALSE;
+>>      i = le32_to_cpu(cr);
+>> -    if (likely(((i >= 0) && (i <= 0x02)) ||
+>> +    if (likely(cr <= 0x02 ||
+>
+> Do we really want to be doing any operations on "cr", since it's not 
+> known what endianness of cpu we're on?
+>
+> Chris
+>

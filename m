@@ -1,27 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262129AbSJJTH3>; Thu, 10 Oct 2002 15:07:29 -0400
+	id <S262086AbSJJTGB>; Thu, 10 Oct 2002 15:06:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262130AbSJJTH3>; Thu, 10 Oct 2002 15:07:29 -0400
-Received: from www.microgate.com ([216.30.46.105]:26634 "EHLO
+	id <S262128AbSJJTGB>; Thu, 10 Oct 2002 15:06:01 -0400
+Received: from www.microgate.com ([216.30.46.105]:24586 "EHLO
 	sol.microgate.com") by vger.kernel.org with ESMTP
-	id <S262129AbSJJTHQ>; Thu, 10 Oct 2002 15:07:16 -0400
-Subject: [PATCH] synclinkmp.c 2.5.41
+	id <S262086AbSJJTEe>; Thu, 10 Oct 2002 15:04:34 -0400
+Subject: [PATCH] synclink.c 2.5.41
 From: Paul Fulghum <paulkf@microgate.com>
 To: "davej@suse.de" <davej@suse.de>
 Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.4 
-Date: 10 Oct 2002 14:13:04 -0500
-Message-Id: <1034277185.785.7.camel@diemos.microgate.com>
+Date: 10 Oct 2002 14:10:21 -0500
+Message-Id: <1034277022.785.3.camel@diemos.microgate.com>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
 * Remove cli()/restore()
 * Use time_after() macro for jiffie wrap
-* call timer_init() before actual timer usage
+* Remove unecessary printk
 
 Please apply
 
@@ -29,25 +30,27 @@ Paul Fulghum
 paulkf@microgate.com
 
 
---- linux-2.5.41/drivers/char/synclinkmp.c	Thu Oct 10 09:56:24 2002
-+++ linux-2.5.41-mg/drivers/char/synclinkmp.c	Thu Oct 10 09:56:06 2002
-@@ -1,5 +1,5 @@
+--- linux-2.5.41/drivers/char/synclink.c	Thu Oct 10 09:56:24 2002
++++ linux-2.5.41-mg/drivers/char/synclink.c	Thu Oct 10 09:56:05 2002
+@@ -1,7 +1,7 @@
  /*
-- * $Id: synclinkmp.c,v 4.4 2002/04/22 16:05:41 paulkf Exp $
-+ * $Id: synclinkmp.c,v 4.6 2002/10/10 14:50:47 paulkf Exp $
+  * linux/drivers/char/synclink.c
   *
-  * Device driver for Microgate SyncLink Multiport
-  * high speed multiprotocol serial adapter.
-@@ -503,7 +503,7 @@
- MODULE_PARM(dosyncppp,"1-" __MODULE_STRING(MAX_DEVICES) "i");
+- * $Id: synclink.c,v 4.2 2002/04/10 20:45:13 paulkf Exp $
++ * $Id: synclink.c,v 4.4 2002/10/10 14:53:36 paulkf Exp $
+  *
+  * Device driver for Microgate SyncLink ISA and PCI
+  * high speed multiprotocol serial adapters.
+@@ -917,7 +917,7 @@
+ MODULE_PARM(txholdbufs,"1-" __MODULE_STRING(MAX_TOTAL_DEVICES) "i");
  
- static char *driver_name = "SyncLink MultiPort driver";
--static char *driver_version = "$Revision: 4.4 $";
-+static char *driver_version = "$Revision: 4.6 $";
+ static char *driver_name = "SyncLink serial driver";
+-static char *driver_version = "$Revision: 4.2 $";
++static char *driver_version = "$Revision: 4.4 $";
  
- static int synclinkmp_init_one(struct pci_dev *dev,const struct pci_device_id *ent);
- static void synclinkmp_remove_one(struct pci_dev *dev);
-@@ -1204,7 +1204,7 @@
+ static int synclink_init_one (struct pci_dev *dev,
+ 				     const struct pci_device_id *ent);
+@@ -3387,7 +3387,7 @@
  			schedule_timeout(char_time);
  			if (signal_pending(current))
  				break;
@@ -56,7 +59,7 @@ paulkf@microgate.com
  				break;
  		}
  	} else {
-@@ -1215,7 +1215,7 @@
+@@ -3397,7 +3397,7 @@
  			schedule_timeout(char_time);
  			if (signal_pending(current))
  				break;
@@ -65,59 +68,31 @@ paulkf@microgate.com
  				break;
  		}
  	}
-@@ -2605,18 +2605,11 @@
- 
- 	info->pending_bh = 0;
- 
--	init_timer(&info->tx_timer);
--	info->tx_timer.data = (unsigned long)info;
--	info->tx_timer.function = tx_timeout;
--
- 	/* program hardware for current parameters */
- 	reset_port(info);
- 
- 	change_params(info);
- 
--	init_timer(&info->status_timer);
--	info->status_timer.data = (unsigned long)info;
--	info->status_timer.function = status_timeout;
- 	info->status_timer.expires = jiffies + jiffies_from_ms(10);
- 	add_timer(&info->status_timer);
- 
-@@ -3304,12 +3297,12 @@
- 		printk("%s(%d):%s block_til_ready() before block, count=%d\n",
+@@ -3512,12 +3512,12 @@
+ 		printk("%s(%d):block_til_ready before block on %s count=%d\n",
  			 __FILE__,__LINE__, tty->driver.name, info->count );
  
 -	save_flags(flags); cli();
-+	spin_lock_irqsave(&info->lock, flags);
++	spin_lock_irqsave(&info->irq_spinlock, flags);
  	if (!tty_hung_up_p(filp)) {
  		extra_count = 1;
  		info->count--;
  	}
 -	restore_flags(flags);
-+	spin_unlock_irqrestore(&info->lock, flags);
++	spin_unlock_irqrestore(&info->irq_spinlock, flags);
  	info->blocked_open++;
- 
+ 	
  	while (1) {
-@@ -3772,6 +3765,14 @@
- 		info->bus_type = MGSL_BUS_TYPE_PCI;
- 		info->irq_flags = SA_SHIRQ;
+@@ -4728,21 +4728,18 @@
  
-+		init_timer(&info->tx_timer);
-+		info->tx_timer.data = (unsigned long)info;
-+		info->tx_timer.function = tx_timeout;
-+
-+		init_timer(&info->status_timer);
-+		info->status_timer.data = (unsigned long)info;
-+		info->status_timer.function = status_timeout;
-+
- 		/* Store the PCI9050 misc control register value because a flaw
- 		 * in the PCI9050 prevents LCR registers from being read if
- 		 * BIOS assigns an LCR base address with bit 7 set.
-@@ -3959,15 +3960,13 @@
- 	SLMP_INFO *tmp;
+ static void __exit synclink_exit(void) 
+ {
+-	unsigned long flags;
+ 	int rc;
+ 	struct mgsl_struct *info;
+ 	struct mgsl_struct *tmp;
  
- 	printk("Unloading %s %s\n", driver_name, driver_version);
+ 	printk("Unloading %s: %s\n", driver_name, driver_version);
 -	save_flags(flags);
 -	cli();
 +
@@ -129,8 +104,45 @@ paulkf@microgate.com
  		       __FILE__,__LINE__,rc);
 -	restore_flags(flags);
  
- 	info = synclinkmp_device_list;
+ 	info = mgsl_device_list;
  	while(info) {
+@@ -7486,7 +7483,7 @@
+ 	EndTime = jiffies + jiffies_from_ms(100);
+ 
+ 	for(;;) {
+-		if ( jiffies > EndTime ) {
++		if (time_after(jiffies, EndTime)) {
+ 			rc = FALSE;
+ 			break;
+ 		}
+@@ -7542,7 +7539,7 @@
+ 	EndTime = jiffies + jiffies_from_ms(100);
+ 
+ 	for(;;) {
+-		if ( jiffies > EndTime ) {
++		if (time_after(jiffies, EndTime)) {
+ 			rc = FALSE;
+ 			break;
+ 		}
+@@ -7590,7 +7587,7 @@
+ 		spin_unlock_irqrestore(&info->irq_spinlock,flags);
+ 
+ 		while ( !(status & (BIT6+BIT5+BIT4+BIT2+BIT1)) ) {
+-			if ( jiffies > EndTime ) {
++			if (time_after(jiffies, EndTime)) {
+ 				rc = FALSE;
+ 				break;
+ 			}
+@@ -7617,8 +7614,7 @@
+ 		/* Wait for 16C32 to write receive status to buffer entry. */
+ 		status=info->rx_buffer_list[0].status;
+ 		while ( status == 0 ) {
+-			if ( jiffies > EndTime ) {
+-			printk(KERN_ERR"mark 4\n");
++			if (time_after(jiffies, EndTime)) {
+ 				rc = FALSE;
+ 				break;
+ 			}
 
 
 

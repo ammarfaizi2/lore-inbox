@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261283AbTDCPs7>; Thu, 3 Apr 2003 10:48:59 -0500
+	id <S261293AbTDCPuM>; Thu, 3 Apr 2003 10:50:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261287AbTDCPs7>; Thu, 3 Apr 2003 10:48:59 -0500
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:7118 "EHLO
-	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S261283AbTDCPs6>; Thu, 3 Apr 2003 10:48:58 -0500
-Date: Thu, 03 Apr 2003 10:00:19 -0600
-From: Dave McCracken <dmccr@us.ibm.com>
-To: Hugh Dickins <hugh@veritas.com>
-cc: Andrew Morton <akpm@digeo.com>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.5.66-mm2] Fix page_convert_anon locking issues
-Message-ID: <8750000.1049385619@baldur.austin.ibm.com>
-In-Reply-To: <Pine.LNX.4.44.0304031615190.1951-100000@localhost.localdomain>
-References: <Pine.LNX.4.44.0304031615190.1951-100000@localhost.localdomain>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S261294AbTDCPuL>; Thu, 3 Apr 2003 10:50:11 -0500
+Received: from s161-184-77-200.ab.hsia.telus.net ([161.184.77.200]:63641 "EHLO
+	cafe.hardrock.org") by vger.kernel.org with ESMTP
+	id <S261293AbTDCPuK> convert rfc822-to-8bit; Thu, 3 Apr 2003 10:50:10 -0500
+Date: Thu, 3 Apr 2003 09:00:51 -0700 (MST)
+From: James Bourne <jbourne@hardrock.org>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+cc: Brent Clements <bclem@rice.edu>, <linux-kernel@vger.kernel.org>,
+       "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Updates list of 2.4.20 patches
+In-Reply-To: <20030403153243.GB5651@wohnheim.fh-wedel.de>
+Message-ID: <Pine.LNX.4.44.0304030859240.6029-100000@cafe.hardrock.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 3 Apr 2003, Jörn Engel wrote:
 
---On Thursday, April 03, 2003 16:38:12 +0100 Hugh Dickins
-<hugh@veritas.com> wrote:
+> On Thu, 3 April 2003 08:39:31 -0600, Brent Clements wrote:
+> > 
+> > Is there a list somewhere(with ability to download) of all of the
+> > patches to 2.4.20 that people have applied or suggested?
+> > 
+> > I don't want to move my production system to 2.4.21-preX but I do want
+> > to make sure I've kept 2.4.20 up-to-date.
+> 
+> Depends on what you consider to be up-to-date. But I guess, you want
+> to have all the security fixes and important bug fixes and nothing
+> but.
+> 
+> James Bourne intends to maintain that and has put it somewhere on
+> www.hardrock.org (although I cannot find it right now).
 
-> I don't see that as a big hole at all.  While we're in page_convert_anon,
-> yes, page_referenced won't find all the ptes and try_to_unmap won't be
-> able to unmap them all; but there are plenty of other reasons why a page
-> may be briefly unfreeable even though try_to_unmap succeeded, it'll just
-> try again later.
+Follow the link on the main page that says
+"Current Mainstream Kernel Updates (2.4.20)"
 
-No, try_to_unmap will claim success when in fact there are still mappings.
-It'd be all right if it failed, but there's no way to tell it to fail.  The
-page will be freed by kswapd based on try_to_unmap's claim of success.
+and you'll have it.
 
-> (Hmm, is the current page_convert_anon maintaining nr_reverse_maps
-> correctly?  I would think not, since it's doing nothing about it, and
-> page_remove_rmap would decrement seeing an Anon.  But perhaps I'm
-> confused again, a quick test doesn't show the drop I'd expect.)
+> Jörn
 
-You're right, it is a hole.
+Regards
+James Bourne
 
-Dave
-
-======================================================================
-Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
-dmccr@us.ibm.com                                        T/L   678-3059
+-- 
+James Bourne                  | Email:            jbourne@hardrock.org          
+Unix Systems Administrator    | WWW:           http://www.hardrock.org
+Custom Unix Programming       | Linux:  The choice of a GNU generation
+----------------------------------------------------------------------
+ "All you need's an occasional kick in the philosophy." Frank Herbert  
 

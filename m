@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131239AbRAISil>; Tue, 9 Jan 2001 13:38:41 -0500
+	id <S130571AbRAISjV>; Tue, 9 Jan 2001 13:39:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131230AbRAISic>; Tue, 9 Jan 2001 13:38:32 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:62223 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130902AbRAISiP>; Tue, 9 Jan 2001 13:38:15 -0500
-Date: Tue, 9 Jan 2001 10:37:44 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Christoph Rohland <cr@sap.com>
-cc: "Stephen C. Tweedie" <sct@redhat.com>,
-        Rik van Riel <riel@conectiva.com.br>,
-        "Sergey E. Volkov" <sve@raiden.bancorp.ru>,
-        linux-kernel@vger.kernel.org
-Subject: Re: VM subsystem bug in 2.4.0 ?
-In-Reply-To: <qwwlmskya2f.fsf@sap.com>
-Message-ID: <Pine.LNX.4.10.10101091036360.2070-100000@penguin.transmeta.com>
+	id <S131372AbRAISjF>; Tue, 9 Jan 2001 13:39:05 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:27660 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S131230AbRAISiu>;
+	Tue, 9 Jan 2001 13:38:50 -0500
+Date: Tue, 9 Jan 2001 19:38:28 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Jens Axboe <axboe@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "Stephen C. Tweedie" <sct@redhat.com>,
+        Christoph Hellwig <hch@caldera.de>,
+        "David S. Miller" <davem@redhat.com>, <riel@conectiva.com.br>,
+        <netdev@oss.sgi.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
+In-Reply-To: <20010109183808.A12128@suse.de>
+Message-ID: <Pine.LNX.4.30.0101091935461.7155-100000@e2>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On Tue, 9 Jan 2001, Jens Axboe wrote:
 
-On 9 Jan 2001, Christoph Rohland wrote:
+> > > ever seen, this is why i quoted it - the talk was about block-IO
+> > > performance, and Stephen said that our block IO sucks. It used to suck,
+> > > but in 2.4, with the right patch from Jens, it doesnt suck anymore. )
+> >
+> > Thats fine. Get me 128K-512K chunks nicely streaming into my raid controller
+> > and I'll be a happy man
+>
+> No problem, apply blk-13B and you'll get 512K chunks for SCSI and RAID.
 
-> Hi Stephen,
-> 
-> On Tue, 9 Jan 2001, Stephen C. Tweedie wrote:
-> > D'oh, right --- so can't you lock a segment just by bumping
-> > page_count on its pages?
-> 
-> Looks like a good idea. 
-> 
-> Oh, and my last posting was partly bogus: I can directly get the pages
-> with page cache lookups on the file.
+i cannot agree more - Jens' patch did wonders to IO performance here. It
+fixes a long-standing bug in the Linux block-IO-scheduler that caused very
+suboptimal requests being issued to lowlevel drivers once the request
+queue gets full. I think this patch is a clear candidate for 2.4.x
+inclusion.
 
-Even more appropriately, you have the inode->i_mapping lists that you can
-use directly (no need to do lookups, just walk the list).
-
-Note that bumping the counts is _NOT_ as easy as you seem to think. The
-problem: vmtruncate() and friends. It's much easier to just have a flag
-that gets cleared on truncate.
-
-		Linus
+	Ingo
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

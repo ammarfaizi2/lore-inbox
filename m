@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264962AbSJaFaZ>; Thu, 31 Oct 2002 00:30:25 -0500
+	id <S264943AbSJaF3P>; Thu, 31 Oct 2002 00:29:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265085AbSJaFaZ>; Thu, 31 Oct 2002 00:30:25 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:15059 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S264962AbSJaFaY>;
-	Thu, 31 Oct 2002 00:30:24 -0500
-Date: Wed, 30 Oct 2002 21:32:58 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+	id <S264962AbSJaF3P>; Thu, 31 Oct 2002 00:29:15 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:14865 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S264943AbSJaF3P>;
+	Thu, 31 Oct 2002 00:29:15 -0500
+Date: Wed, 30 Oct 2002 21:32:50 -0800
+From: Greg KH <greg@kroah.com>
 To: Phillip Lougher <phillip@lougher.demon.co.uk>
-cc: <linux-kernel@vger.kernel.org>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Squashfs in the kernel?
+Message-ID: <20021031053250.GB5602@kroah.com>
+References: <3DC0BE77.6060505@lougher.demon.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <3DC0BE77.6060505@lougher.demon.co.uk>
-Message-ID: <Pine.LNX.4.33L2.0210302130270.20212-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Oct 2002, Phillip Lougher wrote:
+On Thu, Oct 31, 2002 at 05:24:07AM +0000, Phillip Lougher wrote:
+> Hi,
+> 
+> I'm a complete newbie here... What steps do I need to do to
+> get something included in the kernel?
 
-| Hi,
-|
-| I'm a complete newbie here... What steps do I need to do to
-| get something included in the kernel?
+Start by reading Documentation/CodingStyle and
+Documentation/SubmittingPatches.  That should give you a good start, and
+if anything's unclear after that, please let us know.
 
-Generally, read linux/Documentation/Submitting*
-and post the patch file to the appropriate mailing list(s)
-for review.  After review and modifications, send it to
-torvalds@transmeta.com and ask for it to be added to the
-next version of the development kernel.
+thanks,
 
-After it survives in the development kernel for awhile,
-it might also be added to the stable kernel if it's not
-a kernel interface change (e.g., a device driver or a
-file system).
-
--- 
-~Randy
-
+greg k-h

@@ -1,91 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264969AbUELEzY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264973AbUELE7h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264969AbUELEzY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 00:55:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262963AbUELEzY
+	id S264973AbUELE7h (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 00:59:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264972AbUELE7h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 00:55:24 -0400
-Received: from smtp2.Stanford.EDU ([171.67.16.125]:63398 "EHLO
-	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S264972AbUELEzP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 00:55:15 -0400
-Date: Tue, 11 May 2004 21:55:08 -0700 (PDT)
-From: Junfeng Yang <yjf@stanford.edu>
-To: "Theodore Ts'o" <tytso@mit.edu>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <ext2-devel@lists.sourceforge.net>, <mc@cs.Stanford.EDU>,
-       <madan@cs.Stanford.EDU>, "David L. Dill" <dill@cs.Stanford.EDU>
-Subject: Re: [CHECKER] e2fsck writes out blocks out of order, causing root
- dir to be corrupted (ext3, linux 2.4.19, e2fsprogs 1.34)
-In-Reply-To: <20040512033110.GC4245@thunk.org>
-Message-ID: <Pine.GSO.4.44.0405112118400.8807-100000@elaine24.Stanford.EDU>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 12 May 2004 00:59:37 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:28291 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S264971AbUELE7d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 00:59:33 -0400
+Subject: Re: [PATCH] [RFC] adding support for .patches and /proc/patches.gz
+From: Jon Oberheide <jon@focalhost.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk,
+       Paul Eggert <eggert@CS.UCLA.EDU>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, bug-patch@gnu.org, bug-gnu-utils@gnu.org
+In-Reply-To: <c7r676$gvo$1@gatekeeper.tmr.com>
+References: <1084157289.7867.0.camel@latitude>
+	 <c7r676$gvo$1@gatekeeper.tmr.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-8XS7WnNMfU+cbx+LqOAs"
+Message-Id: <1084337968.31228.35.camel@latitude>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 12 May 2004 00:59:28 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm not sure how this is really a [CHECKER] issue per se, since it
-> isn't a kernel issue and you didn't really find this via using the a
-> hacked-up gcc compiler, did you?
 
-Yeah this is a bug in e2fsprogs not in kernel.  The kernel journal_recover
-flushes out the blocks using sync_dev_no_super, so it's fine.
+--=-8XS7WnNMfU+cbx+LqOAs
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-We caught this warning by a new FS checking tool.  It is based on a C
-Model Checker developed by Madan and a few Stanford people (Descritions of
-CMC can be found at
-http://chicory.stanford.edu/thesis/madan-thesis-abs.html).  You can think
-of the tool as a whole machine simulator.  Althought the disk is virtual
-in memory, both the kernel and e2fsck will believe they are talking to a
-real block device.  The strength of the tool is that it can systematically
-enumerate all the possible failures and check for errors.  We aim at
-catching deep consistency errors in both the kernel fs code and the fs
-utilities code.
+On Tue, 2004-05-11 at 14:37, Bill Davidsen wrote:
+> Jon Oberheide wrote:
+> > Greetings,
+> >=20
+> > This feature has been brought up several times before, as can be seen
+> > here:
+> > http://www.ussg.iu.edu/hypermail/linux/kernel/0404.3/0798.html
+> > http://www.uwsg.iu.edu/hypermail/linux/kernel/0203.1/0598.html
+> > http://www.uwsg.iu.edu/hypermail/linux/kernel/9803.0/0223.html
+> >=20
+> > For those unfamiliar, a file linux/.patches would be adding to the
+> > source tree.  When applying patches to the source tree, descriptive
+> > information would be written to .patches.  After compilation and runnin=
+g
+> > of this kernel, the .patches information would be accessible through
+> > /proc/patches.gz; similar to the /proc/config.gz feature.
+>=20
+> The first question would be, patches between the current kernel and=20
+> what? Vendor kernel, people may not have it. Kernel.org kernal, just the=20
+> patches to a current vendor kernel diff would be pretty huge in some case=
+s.
 
-> I assume you did this by setting a breakpoint somewhere inside e2fsck?
-> Where, specifically?  I want to make sure I can replicate this test
-> case exactly as you did, at least under gdb control.  Later I'll think
+Any patches applied against the current vanilla kernel.org kernel would
+be listed in .patches.  This would include vendor, third-party, and even
+pre/bk/mm patches. =20
 
-We got the warning using our tool, which can stop fsck after each block
-write and run it again.  To repeat it with gdb, try to stop fsck when the
-journal is closed (after replaying is done) and the journal super block is
-flushed out by flush_cached_blocks.  If you use the image I provide, the
-journal super block should be block 268.
+Keep in mind, .patches would not contain the entire patch, as that would
+be WAY to large, but just a short entry such as the name, date last
+modified, and date applied of the patch file.
 
-> Assuming I can automate this for a regression test suite, may I have
-> permission to include a compressed version of this crashed disk image
-> in e2fsprogs?
+> Let's say it looks like a high cost/benefit ratio, would be much less=20
+> effective unless it were used for every patch, and feels like something=20
+> you might want to do within an organization rather than as a general=20
+> practice.
 
-sure, my pleasure :)
+Exactly as I stated, adoption would be the hardest part.  Paul's idea of
+adding an option to patch w/o breaking POSIX sounds like a way to go.=20
+Of course that would require widespread documentation updates and
+contacting vendors but would be very possible.
 
-> BTW, it looks like you didn't realize that there was a simpler way of
-> instrumenting e2fsck's I/O.  You could have simple built e2fsck with
-> configure --enable-testio-debug, and then set the environment variable
-> TEST_IO_FLAGS=0x0F to log all reads, writes, set_blksize, and flush
-> operations.  See lib/ext2fs/test_io.c for more information.  There are
-> also environment variables that can be used to direct the log
-> information to a file, as well as ask the test_io layer to dump out
-> the contents of a specific block whenver it is read or written.
-> E2fsprogs has a very civilized debugging environment.  :-)
+> Sorry, you asked for comments...
 
-Thanks for the information :)  I used debuge2fs utility last night when
-diagnosing this warning.  It is really nice.  Without it I wouldn't be
-able to pin down the warning.  Thanks!
+No need to be sorry, thanks!  :)
 
->
->
-> In any case, I believe the following patch (versus the latest
-> e2fsprogs tree in Bitkeeper; it looks like probably won't apply
-> cleanly to e2fpsrogs 1.34, but it shouldn't be that hard to fix up for
-> 1.34) should address this issue, but I'd like to repeat your test case
-> exactly as you performed it before pronouncing it fixed.  The fix
-> doesn't cause any problems for the existing regression test suite, so
-> at the very least I'm confident the fix is safe.
+Regards,
+Jon Oberheide
+jon@focalhost.com
 
-I'll apply the patch and re-run our tool. I'll let know you if this will
-fix it or not.
+--=-8XS7WnNMfU+cbx+LqOAs
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Thanks for the quick reply and the patch!
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
--Junfeng
+iD8DBQBAoa8vxmFkpQzxUm0RAmfQAJ4lg2F2Q3rNnhIsb+PI1XKePHUykQCggPfq
+y+bMmCaqwIzC1URdA888Rqw=
+=1eqT
+-----END PGP SIGNATURE-----
+
+--=-8XS7WnNMfU+cbx+LqOAs--
 

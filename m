@@ -1,65 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313681AbSDPNz1>; Tue, 16 Apr 2002 09:55:27 -0400
+	id <S313683AbSDPN7H>; Tue, 16 Apr 2002 09:59:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313682AbSDPNz0>; Tue, 16 Apr 2002 09:55:26 -0400
-Received: from elin.scali.no ([62.70.89.10]:3851 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id <S313681AbSDPNzZ>;
-	Tue, 16 Apr 2002 09:55:25 -0400
-Subject: Re: Why HZ on i386 is 100 ?
-From: Terje Eggestad <terje.eggestad@scali.com>
-To: Mark Mielke <mark@mark.mielke.cc>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-        Liam Girdwood <l_girdwood@bitwise.co.uk>,
-        BALBIR SINGH <balbir.singh@wipro.com>,
-        William Olaf Fraczyk <olaf@navi.pl>,
-        Lee Irwin III <wli@holomorphy.com>
-In-Reply-To: <20020416093824.A4025@mark.mielke.cc>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 16 Apr 2002 15:55:21 +0200
-Message-Id: <1018965321.13507.39.camel@pc-16.office.scali.no>
+	id <S313682AbSDPN7G>; Tue, 16 Apr 2002 09:59:06 -0400
+Received: from mole.bio.cam.ac.uk ([131.111.36.9]:14906 "EHLO
+	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S313683AbSDPN7F>; Tue, 16 Apr 2002 09:59:05 -0400
+Message-Id: <5.1.0.14.2.20020416145732.00ac6cb0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 16 Apr 2002 14:59:09 +0100
+To: James Bourne <jbourne@MtRoyal.AB.CA>
+From: Anton Altaparmakov <aia21@cantab.net>
+Subject: Re: linux-2.4.19-pre7: undefined reference to
+  `page_cache_release'
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0204160744210.27937-300000@skuld.mtroyal.ab.
+ ca>
 Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-04-16 at 15:38, Mark Mielke wrote:
-> On Tue, Apr 16, 2002 at 03:35:19PM +0200, Terje Eggestad wrote:
-> > I seem to recall from theory that the 100HZ is human dependent. Any
-> > higher and you would begin to notice delays from you input until
-> > whatever program you're talking to responds. 
-> 
-> I suspect by "higher" you mean "each tick takes up more of a second".
-> 
-> As in, if the HZ is *less* than 100HZ, you would notice delays when
-> typing, or similar.
-> 
+Hi James,
 
-Quote right, my typo.
+I have already submitted a patch to fix this earlier today... and in fact 
+it is identical to yours. (-:
 
-> 
-> mark
-> 
-> -- 
-> mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-> .  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-> |\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-> |  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
-> 
->   One ring to rule them all, one ring to find them, one ring to bring them all
->                        and in the darkness bind them...
-> 
->                            http://mark.mielke.cc/
+Cheers,
+
+Anton
+
+At 14:50 16/04/02, James Bourne wrote:
+>Hi all,
+>When compiling 2.4.19-pre7 I am getting undefined reference to
+>`page_cache_release' errors on linking vmlinux:
+>
+>make CFLAGS="-D__KERNEL__
+>-I/usr/src/linux/include -Wall -Wstrict-prototypes
+>-Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer
+>-pipe -mpreferred-stack-boundary=2 -march=i686 " -C  arch/i386/lib
+>make[1]: Entering directory /usr/src/linux/arch/i386/lib'
+>make all_targets
+>make[2]: Entering directory /usr/src/linux/arch/i386/lib'
+>make[2]: Nothing to be done for `all_targets'.
+>make[2]: Leaving directory /usr/src/linux/arch/i386/lib'
+>make[1]: Leaving directory /usr/src/linux/arch/i386/lib'
+>ld -m elf_i386 -T /usr/src/linux/arch/i386/vmlinux.lds
+>-e stext arch/i386/kernel/head.o
+>arch/i386/kernel/init_task.o init/main.o init/version.o init/do_mounts.o \
+>         --start-group \
+>
+>  arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o
+>ipc/ipc.o \
+>          drivers/char/char.o drivers/block/block.o drivers/misc/misc.o
+>drivers/net/net.o drivers/media/media.o drivers/scsi/scsidrv.o
+>drivers/cdrom/driver.o
+>drivers/pci/driver.o drivers/video/video.o drivers/md/mddev.o \
+>         net/network.o \
+>         /usr/src/linux/arch/i386/lib/lib.a
+>/usr/src/linux/lib/lib.a /usr/src/linux/arch/i386/lib/lib.a \
+>         --end-group \
+>         -o vmlinux
+>fs/fs.o: In function `create_data_partitions':
+>fs/fs.o(.text+0x2594d): undefined reference to `page_cache_release'
+>fs/fs.o(.text+0x25a05): undefined reference to `page_cache_release'
+>fs/fs.o: In function `get_disk_objid':
+>fs/fs.o(.text+0x25d63): undefined reference to `page_cache_release'
+>fs/fs.o(.text+0x25ddd): undefined reference to `page_cache_release'
+>fs/fs.o(.text+0x25e18): undefined reference to `page_cache_release'
+>fs/fs.o(.text+0x25ef6): more undefined references to `page_cache_release'
+>follow
+>make: *** [vmlinux] Error 1
+
 -- 
-_________________________________________________________________________
-
-Terje Eggestad                  mailto:terje.eggestad@scali.no
-Scali Scalable Linux Systems    http://www.scali.com
-
-Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
-P.O.Box 150, Oppsal                     +47 975 31 574  (MOBILE)
-N-0619 Oslo                     fax:    +47 22 62 89 51
-NORWAY            
-_________________________________________________________________________
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

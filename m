@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264593AbTFEKwf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 06:52:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264601AbTFEKwf
+	id S264272AbTFELF1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 07:05:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264608AbTFELF1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 06:52:35 -0400
-Received: from rth.ninka.net ([216.101.162.244]:22657 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S264593AbTFEKwe (ORCPT
+	Thu, 5 Jun 2003 07:05:27 -0400
+Received: from h2.prohosting.com.ua ([217.106.231.81]:48041 "EHLO
+	h2.prohosting.com.ua") by vger.kernel.org with ESMTP
+	id S264272AbTFELF0 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 06:52:34 -0400
-Subject: Re: PCI cache line messages 2.4/2.5
-From: "David S. Miller" <davem@redhat.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Margit Schubert-While <margitsw@t-online.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1054809554.15276.8.camel@dhcp22.swansea.linux.org.uk>
-References: <5.1.0.14.2.20030602084908.00aed558@pop.t-online.de>
-	 <3EDE7522.8040206@pobox.com>
-	 <1054809554.15276.8.camel@dhcp22.swansea.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1054811157.19407.3.camel@rth.ninka.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 05 Jun 2003 04:05:58 -0700
+	Thu, 5 Jun 2003 07:05:26 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Artemio <artemio@artemio.net>
+To: "Linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: adlink pci7300a drivers
+Date: Thu, 5 Jun 2003 14:15:18 +0300
+User-Agent: KMail/1.4.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200306051415.18783.artemio@artemio.net>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - h2.prohosting.com.ua
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [0 0]
+X-AntiAbuse: Sender Address Domain - artemio.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-06-05 at 03:39, Alan Cox wrote:
-> > Your BIOS did not set the PCI cache line size correctly.  The kernel 
-> > caught that mistake, and fixed it.
-> 
-> I can't find anywhere the BIOS is obliged to set it for you if a PnP OS
-> is installed, ditto in the presence of any form of hotplug the test is
-> wrong.
-> 
-> As far as I can see you can only warn if MWI is already set in the
-> control word, and (I'd have to check the spec) possibly if the
-> cache line size is non zero.
+Hello.
 
-I don't know how PnP OS plays into it, but the last time I dug into this
-deep dark area, the BIOS was expected to setup the cache line size for
-all PCI devices in the system.
+I have built a system basing on a 2.4.20 kernel.
 
-I do specifically remember situations, involving Acenic cards, where
-one Acenic card would have things setup correctly but for whatever
-reason the BIOS decided not to init the other Acenic cards.
+I have two AdLink PCI7300A digital I/O boards, but AdLink only provides it 
+with pre-compiled 2.4.18 modules.
 
--- 
-David S. Miller <davem@redhat.com>
+I can't downgrade to 2.4.18 because my hardware (eth cards etc.) is not 
+supported by this kernel.
+
+So, does anyone know if I can get the sources for 7300A drivers? AdLink 
+support keeps silence for my e-mails, so I'm a bit hopeless.
+
+I know that there is ftp.systemy.it with some volunteers' drivers but I can't 
+reach this server - maybe it doesn't wok these days at all.
+
+
+Please help me if you can.
+
+
+Thanks!
+
+
+Artemio.
+

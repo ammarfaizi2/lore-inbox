@@ -1,39 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269245AbUISOxd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269250AbUISPAN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269245AbUISOxd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Sep 2004 10:53:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269248AbUISOxd
+	id S269250AbUISPAN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Sep 2004 11:00:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269248AbUISPAN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Sep 2004 10:53:33 -0400
-Received: from mo00.iij4u.or.jp ([210.130.0.19]:26058 "EHLO mo00.iij4u.or.jp")
-	by vger.kernel.org with ESMTP id S269245AbUISOxc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Sep 2004 10:53:32 -0400
-Date: Sun, 19 Sep 2004 23:53:20 +0900
-From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-To: akpm@osdl.org
-Cc: yuasa@hh.iij4u.or.jp, linux-kernel@vger.kernel.org
-Subject: [PATCH] mips: fixed definition order of _sigchld
-Message-Id: <20040919235320.24d9e069.yuasa@hh.iij4u.or.jp>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 19 Sep 2004 11:00:13 -0400
+Received: from spanner.eng.cam.ac.uk ([129.169.8.9]:54775 "EHLO
+	spanner.eng.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S269250AbUISPAJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Sep 2004 11:00:09 -0400
+Date: Sun, 19 Sep 2004 16:00:04 +0100 (BST)
+From: "P. Benie" <pjb1008@eng.cam.ac.uk>
+To: Pascal Schmidt <pascal.schmidt@email.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Design for setting video modes, ownership of sysfs attributes
+In-Reply-To: <E1C92WT-00005z-7q@localhost>
+Message-ID: <Pine.HPX.4.58L.0409191541030.24772@punch.eng.cam.ac.uk>
+References: <2FYdH-10h-5@gated-at.bofh.it> <2G6Et-6D7-31@gated-at.bofh.it>
+ <2G6Et-6D7-31@gated-at.bofh.it> <E1C92WT-00005z-7q@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This change had fixed definition order of _sigchld about MIPS.
+On Sun, 19 Sep 2004, Pascal Schmidt wrote:
+> On Sun, 19 Sep 2004 12:00:21 +0200, you wrote in linux.kernel:
+> > The FDs 0, 1 and posibly 2 will be the console.
+>
+> *The* console? They can all be connected to different console
+> devices (think redirection). I'd think for video mode questions,
+> you'd look at stdout...
 
-diff -urN -X dontdiff a-orig/include/asm-mips/siginfo.h a/include/asm-mips/siginfo.h
---- a-orig/include/asm-mips/siginfo.h	Mon Sep 13 14:32:48 2004
-+++ a/include/asm-mips/siginfo.h	Sun Sep 19 23:14:21 2004
-@@ -47,8 +47,8 @@
- 		struct {
- 			pid_t _pid;		/* which child */
- 			uid_t _uid;		/* sender's uid */
--			clock_t _utime;
- 			int _status;		/* exit code */
-+			clock_t _utime;
- 			clock_t _stime;
- 		} _sigchld;
- 
+Early versions of stty made that mistake - to find out what settings your
+printers had, you ended up printing the output of stty on paper.
+
+If you're going to subvert an fd, use stdin, not stdout.
+stdin is less valuable most commands use argv rather than stdin, and it
+allows you to retreive the output of a command using the shell `backtick`
+operators.
+
+Peter
+

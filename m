@@ -1,65 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317660AbSFLHSL>; Wed, 12 Jun 2002 03:18:11 -0400
+	id <S317656AbSFLHUj>; Wed, 12 Jun 2002 03:20:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317661AbSFLHSK>; Wed, 12 Jun 2002 03:18:10 -0400
-Received: from ausmtp01.au.ibm.COM ([202.135.136.97]:7623 "EHLO
-	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S317656AbSFLHSI>; Wed, 12 Jun 2002 03:18:08 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: "David S. Miller" <davem@redhat.com>
-Subject: Re: [PATCH] 2.5.21 Nonlinear CPU support 
-Cc: akpm@zip.com.au, torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        k-suganuma@mvj.biglobe.ne.jp
-In-Reply-To: Your message of "Tue, 11 Jun 2002 02:10:43 MST."
-             <20020611.021043.04190747.davem@redhat.com> 
-Date: Wed, 12 Jun 2002 16:58:23 +1000
-Message-Id: <E17I25H-0002hf-00@wagner.rustcorp.com.au>
+	id <S317661AbSFLHUi>; Wed, 12 Jun 2002 03:20:38 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:29188 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S317656AbSFLHUh>; Wed, 12 Jun 2002 03:20:37 -0400
+Subject: Re: 2.4.18 no timestamp update on modified mmapped files
+To: hugh@veritas.com (Hugh Dickins)
+Date: Wed, 12 Jun 2002 08:40:54 +0100 (BST)
+Cc: akpm@zip.com.au (Andrew Morton), kaos@ocs.com.au (Keith Owens),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0206111006300.1028-100000@localhost.localdomain> from "Hugh Dickins" at Jun 11, 2002 10:10:28 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17I2kQ-000757-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20020611.021043.04190747.davem@redhat.com> you write:
->    From: Rusty Russell <rusty@rustcorp.com.au>
->    Date: Tue, 11 Jun 2002 19:09:44 +1000
+> On Tue, 11 Jun 2002, Andrew Morton wrote:
+> > 
+> > I think it's too late to fix this in 2.4.  If we did, a person
+> > could develop and test an application on 2.4.21, ship it, then
+> > find that it fails on millions of 2.4.17 machines.
 > 
->    In message <3D05A9E8.FF0DA223@zip.com.au> you write:
->    > and slowdown:
->    
->    ARGH!  STOP IT!  I realize it's 'leet to be continually worrying about
->    possible microoptimizations, but I challenge you to *measure* the
->    slowdown between:
-> 
-> Regardless, his space arguments still hold.
+> Oh, please reconsider that!  Doesn't loss of modification time
+> approach data loss?  Surely we'll continue to fix any data loss
+> issues in 2.4, and be grateful if you fixed this mmap modtime loss.
 
-	You can allocate based on cpu_possible(cpu) (which is in the
-next patch) if you like, but I think you're better off fixing the
-existing NR_CPUS bloat as well, and keeping all the code simple.
-
-> I don't like having everyone eat the overhead that hotplugging cpus
-> seem to entail.
-
-	But there's an important difference between something which is
-simple and unoptimized, and something which is unoptimizable.
-
-> And remember, it's the anal "every microoptimization at all costs"
-> people that keep the kernel sane and from running out of control bloat
-> wise.
-
-But it also gave us crap like net/ipv4/route.c:ip_rt_acct_read() 8(
-
-I know *you* benchmark and read the asm during optimization, but it's
-quite clear that others are so scared of "bloat" criticism that they
-optimize without measuring the straightforward case *first*.
-
-Remember, to be cool:
-	1) Use bitops and memory barriers not spinlocks,
-	2) Use inlines everywhere,
-	3) Use likely()/unlikely() on every branch
-	4) Use prefetch() everywhere,
-	5) Use gotos to minimize the path length
-	6) __set_current_state() not set_current_state()
-	7) Pass in current as a function param
-
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+It doesnt approach data loss, when doing incremental backups it
+*is* data loss. Ditto with rsync --newer

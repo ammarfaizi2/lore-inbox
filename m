@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129317AbRBPS1J>; Fri, 16 Feb 2001 13:27:09 -0500
+	id <S129321AbRBPSha>; Fri, 16 Feb 2001 13:37:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129321AbRBPS07>; Fri, 16 Feb 2001 13:26:59 -0500
-Received: from uhura.concentric.net ([206.173.118.93]:23188 "EHLO
-	uhura.concentric.net") by vger.kernel.org with ESMTP
-	id <S129317AbRBPS0o>; Fri, 16 Feb 2001 13:26:44 -0500
-Date: Fri, 16 Feb 2001 10:26:27 -0800 (PST)
-From: James Simmons <jsimmons@linux-fbdev.org>
-X-X-Sender: <jsimmons@zeus.concentric.net>
-To: Louis Garcia <louisg00@bellsouth.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Video drivers and the kernel
-Message-ID: <Pine.LNX.4.31.0102160943150.25300-100000@zeus.concentric.net>
+	id <S130821AbRBPShU>; Fri, 16 Feb 2001 13:37:20 -0500
+Received: from [62.172.234.2] ([62.172.234.2]:48231 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S129321AbRBPShR>; Fri, 16 Feb 2001 13:37:17 -0500
+Date: Fri, 16 Feb 2001 18:36:58 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+cc: Manfred Spraul <manfred@colorfullife.com>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        bcrl@redhat.com
+Subject: Re: x86 ptep_get_and_clear question
+In-Reply-To: <20010216183707.A4821@pcep-jamie.cern.ch>
+Message-ID: <Pine.LNX.4.21.0102161810350.1977-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 16 Feb 2001, Jamie Lokier wrote:
+> 
+> > And check the Pentium III erratas. There is one with the tlb
+> > that's only triggered if 4 instruction lie in a certain window and all
+> > access memory in the same way of the tlb (EFLAGS incorrect if 'andl
+> > mask,<memory_addr>' causes page fault)).
+> 
+> Nasty, but I don't see what an obscure and impossible to work around
+> processor bug has to do with this thread.  It doesn't actually change
+> page fault handling, does it?
 
->I was wondering why video drivers are not part of the kernel like every
->other piece of hardware. I would think if video drivers were part of the
->kernel and had a nice API for X or any other windowing system, would not
->only improve performance but would allow competing windowing systems
->without having to develop drivers for each. Has anyone thought or
->rejected this idea.
+Obscure but not nasty: the copy of EFLAGS pushed onto the stack when
+taking the fault is wrong, but once the instruction is restarted it
+all sorts itself out (as I understand from the Spec Update).
+Possible to work around, but just not worth the effort.
 
-Hi!
+Nastier was its precursor, Pentium Pro Erratum #63, generated under
+similar conditions: where the wrong (carry bit of) EFLAGS when faulting
+in the middle of ADC, SBB, RCR or RCL could cause a wrong arithmetic
+result when restarted.  Perfectly possible to work around (only lower
+permissions of a pte visible on another CPU while that CPU is pulled
+into the kernel with an IPI), and necessary to work around it back
+then (4 years ago) when the Pentium Pro was at the leading edge;
+but I doubt it's worth redesigning now to suit an old erratum.
 
-  Their are two schools of though which I have encountered. One is have
-everything in userland. The second is have everything in the kernel. Well
-both are wrong. What is really needed? Proper virtualization of the
-graphics engine. This means the graphics hardware state is private to each
-process and no other process can effect another process graphics hardware
-state. This is all that is needed. DRI attemptes to address this. Will
-their be more kernel support in the future. Yes if you every want to port
-high end graphic servers. Here you end up dealing with with pipes on
-different nodes in NUMA systems. Data is passed from node to node to allow
-really fast parallel rendering. Note even in this case you don't have
-the hardware programmed in the driver but only management of the pipe
-state per process.
+These errata do make the point that, whatever x86 specs say should
+happen, Intel sometimes fails to match them; and the SMP TLB area
+was certainly prone to errata at the time of the Pentium Pro -
+but hopefully that means Intel exercise greater care there now.
 
+Hugh
 

@@ -1,41 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270182AbUJSXrj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270227AbUJSX5i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270182AbUJSXrj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 19:47:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268086AbUJSXqk
+	id S270227AbUJSX5i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 19:57:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270225AbUJSX5Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 19:46:40 -0400
-Received: from mail.kroah.org ([69.55.234.183]:60059 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S270182AbUJSX2H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 19:28:07 -0400
-Date: Tue, 19 Oct 2004 16:27:10 -0700
-From: Greg KH <greg@kroah.com>
-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Larry McVoy <lm@bitmover.com>, torvalds@osdl.org, akpm@osdl.org
-Subject: Re: BK kernel workflow
-Message-ID: <20041019232710.GA10841@kroah.com>
-References: <41752E53.8060103@pobox.com> <20041019153126.GG18939@work.bitmover.com> <41753B99.5090003@pobox.com> <4d8e3fd304101914332979f86a@mail.gmail.com> <20041019213803.GA6994@havoc.gtf.org> <4d8e3fd3041019145469f03527@mail.gmail.com>
+	Tue, 19 Oct 2004 19:57:25 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:6278 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S270227AbUJSX4P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 19:56:15 -0400
+Subject: [PATCH] Make netif_rx_ni preempt-safe
+From: Lee Revell <rlrevell@joe-job.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       "David S. Miller" <davem@davemloft.net>, herbert@gondor.apana.org.au,
+       vda@port.imtp.ilyichevsk.odessa.ua, linux-kernel@vger.kernel.org,
+       maxk@qualcomm.com, irda-users@lists.sourceforge.net,
+       Linux Network Development <netdev@oss.sgi.com>,
+       Alain Schroeder <alain@parkautomat.net>
+Content-Type: text/plain
+Message-Id: <1098230132.23628.28.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4d8e3fd3041019145469f03527@mail.gmail.com>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 19 Oct 2004 19:55:33 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 19, 2004 at 11:54:16PM +0200, Paolo Ciarrocchi wrote:
-> I know I'm pedantic but can we all see the list of bk trees ("patches
-> ready for mainstream" and "patches eventually ready for mainstream")
-> that we'll be used by Linus ?
+This patch makes netif_rx_ni() preempt-safe.  The problem was reported
+by Alain Schroeder.  Here are the users:
 
-The -mm releases has these as a big patch, starting with bk-*
+drivers/s390/net/ctcmain.c
+drivers/s390/net/netiucv.c
+drivers/net/irda/vlsi_ir.c
+drivers/net/tun.c
 
-Those should give you an idea of what is being staged, before it is sent
-to Linus.
+As David S. Miller explained, the do_softirq (and therefore the preempt
+dis/enable) is required because there is no softirq check on the return
+path when netif_rx is called from non-interrupt context.
 
-thanks,
+Signed-Off-By: Lee Revell <rlrevell@joe-job.com>
 
-greg k-h
+--- include/linux/netdevice.h~	2004-10-19 18:50:18.000000000 -0400
++++ include/linux/netdevice.h	2004-10-19 18:51:01.000000000 -0400
+@@ -696,9 +696,11 @@
+  */
+ static inline int netif_rx_ni(struct sk_buff *skb)
+ {
++       preempt_disable();
+        int err = netif_rx(skb);
+        if (softirq_pending(smp_processor_id()))
+                do_softirq();
++       preempt_enable();
+        return err;
+ }
+ 
+
+

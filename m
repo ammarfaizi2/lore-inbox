@@ -1,83 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270713AbTHALnf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 07:43:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270720AbTHALnf
+	id S270720AbTHALyN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 07:54:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270722AbTHALyN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 07:43:35 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:13319 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S270713AbTHALnX (ORCPT
-	<rfc822;linux-kernel@vger.redhat.com>);
-	Fri, 1 Aug 2003 07:43:23 -0400
-Date: Fri, 1 Aug 2003 07:38:29 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Dinesh Gandhewar <dinesh_gandhewar@rediffmail.com>
-cc: mlist-linux-kernel@nntp-server.caltech.edu
-Subject: Re: volatile variable
-In-Reply-To: <20030801105706.30523.qmail@webmail28.rediffmail.com>
-Message-ID: <Pine.LNX.4.53.0308010723060.3077@chaos>
-References: <20030801105706.30523.qmail@webmail28.rediffmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 1 Aug 2003 07:54:13 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:51464 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S270720AbTHALyN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Aug 2003 07:54:13 -0400
+Date: Fri, 1 Aug 2003 12:54:08 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: William Stearns <wstearns@pobox.com>
+Cc: crh@samba.org, Matt Domsch <Matt_Domsch@Dell.com>,
+       ML-linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Follow-up: Linux, Dell Access Point, and the GPL.
+Message-ID: <20030801125408.A29907@flint.arm.linux.org.uk>
+Mail-Followup-To: William Stearns <wstearns@pobox.com>, crh@samba.org,
+	Matt Domsch <Matt_Domsch@Dell.com>,
+	ML-linux-kernel <linux-kernel@vger.kernel.org>
+References: <20030731190521.A29009@dp.samba.org> <Pine.LNX.4.44.0307311525070.24707-100000@sparrow>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0307311525070.24707-100000@sparrow>; from wstearns@pobox.com on Thu, Jul 31, 2003 at 03:31:41PM -0400
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Aug 2003, Dinesh  Gandhewar wrote:
+On Thu, Jul 31, 2003 at 03:31:41PM -0400, William Stearns wrote:
+> 	I've CC'd him.  Please consider getting in touch with him first in 
+> the future before trying to get the entire linux-kernel list involved.  He 
+> may or may not have the answers you need, but at least he'd be more able 
+> to identify the right person to contact.
 
-> Hello,
->
-> If a system call is having following code.
->
-> add current process into wait quque ;
-> while (1)
-> {  set task state INTERRUPTIBLE ;
->     if (a > 0)
->       break ;
->     schedule() ;
-> }
-> set task state RUNNING ;
-> remove current from wait queue ;
->
->
-> If an interrupt service is having following code
->
-> set a = 512 ;
->
-> 'a' is a global variable shared in ISR and system call
->
-> Do I need to define a as 'volatile int a ;' ? Why?
->
-> Thanks & Regards,
-> Dinesh
->
+Is there some place where the copyright holders of the concerned code
+can keep in touch with what's happening in this area?  (eg, mailing
+list, etc.)
 
-First, there are already procedures available to do just
-what you seem to want to do, interruptible_sleep_on() and
-interruptible_sleep_on_timeout(). These take care of the
-ugly details that can trip up compilers.
-
-In any event in your loop, variable 'a', has already been
-read by the code the compiler generates. There is nothing
-else in the loop that touches that variable. Therefore
-the compiler is free to (correctly) assume that whatever
-it was when it was first read is what it will continue to
-be. The compiler will therefore optimise it to be a single
-read and compare. So, the loop will continue forever if
-'a' started as zero because the compiler correctly knows
-that it cannot possibly change in the only execution
-path that it knows about.
-
-To tell the compiler that there are other possible execution
-paths in which the variable could be modified, you need to
-declare the variable as "volatile". The variable's storage
-hasn't changed. The size of the variable hasn't changed.
-All you have done is told the compiler to read that variable
-every time because it could have changed.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,63 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284768AbRLMSwk>; Thu, 13 Dec 2001 13:52:40 -0500
+	id <S284793AbRLMSxU>; Thu, 13 Dec 2001 13:53:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284775AbRLMSwa>; Thu, 13 Dec 2001 13:52:30 -0500
-Received: from vsat-148-63-243-254.c3.sb4.mrt.starband.net ([148.63.243.254]:260
-	"HELO ns1.ltc.com") by vger.kernel.org with SMTP id <S284768AbRLMSwQ>;
-	Thu, 13 Dec 2001 13:52:16 -0500
-Message-ID: <080d01c18407$4f741650$5601010a@prefect>
-From: "Bradley D. LaRonde" <brad@ltc.com>
-To: <root@chaos.analogic.com>
-Cc: "Thomas Capricelli" <orzel@kde.org>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.95.1011213132109.707A-100000@chaos.analogic.com>
-Subject: Re: Mounting a in-ROM filesystem efficiently
-Date: Thu, 13 Dec 2001 13:52:27 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S284813AbRLMSxK>; Thu, 13 Dec 2001 13:53:10 -0500
+Received: from vitelus.com ([64.81.243.207]:30729 "EHLO vitelus.com")
+	by vger.kernel.org with ESMTP id <S284793AbRLMSw4>;
+	Thu, 13 Dec 2001 13:52:56 -0500
+Date: Thu, 13 Dec 2001 10:52:53 -0800
+From: Aaron Lehmann <aaronl@vitelus.com>
+To: Rene Rebe <rene.rebe@gmx.net>
+Cc: linux-kernel@vger.kernel.org, hfhsu@sis.com.tw, lcchang@sis.com.tw
+Subject: Re: Disappointing SiS900 performance - driver issue?
+Message-ID: <20011213105253.A14819@vitelus.com>
+In-Reply-To: <20011213102423.B13809@vitelus.com> <20011213194555.50d6adeb.rene.rebe@gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011213194555.50d6adeb.rene.rebe@gmx.net>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message -----
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-To: "Bradley D. LaRonde" <brad@ltc.com>
-Cc: "Thomas Capricelli" <orzel@kde.org>; <linux-kernel@vger.kernel.org>
-Sent: Thursday, December 13, 2001 1:34 PM
-Subject: Re: Mounting a in-ROM filesystem efficiently
+Hrm.
 
+I get similar results.
 
-> On Thu, 13 Dec 2001, Bradley D. LaRonde wrote:
-> [SNIPPED...]
->
-> > Sent: Thursday, December 13, 2001 1:02 PM Subject: Re: Mounting a in-ROM
-> > filesystem efficiently
-> >
-> >
-> > > Generally, ROM based stuff is compressed before being written to >
-> > NVRAM. It's uncompressed into a RAM-Disk and the RAM-Disk is mounted.  >
-> > > That way, you can use, say, 2 megabytes of NVRAM to get a 10 to 20 >
-> > megabyte root file-system. This also allows /tmp and /var/log to be >
-> > writable, which is a great help because the development environment >
-> > closely approximates the run-time environment.
-> >
-> > That's perfect if you have plenty of RAM to spare.
-> >
->
-> Well RAM is a hell of a lot cheaper than NVRAM. If you don't have
-> the required RAM on your box, the hardware engineers screwed up
-> and have to be "educated" preferably with an axe in the parking-lot.
+On Thu, Dec 13, 2001 at 07:45:55PM +0100, Rene Rebe wrote:
+> TCP/IP connection established.
+> Packet size  1 k bytes:   10259 k bytes/sec
+> Packet size  2 k bytes:   10146 k bytes/sec
+> Packet size  4 k bytes:   10288 k bytes/sec
+> Packet size  8 k bytes:   10317 k bytes/sec
+> Packet size 16 k bytes:   10248 k bytes/sec
+> Packet size 32 k bytes:   10173 k bytes/sec
 
-As I mentioned before, there may be other-than-cost considerations for
-choosing the amount of RAM on a box.  For example, low power consumption on
-portable devices.  For another example, a huge ROM database that doesn't
-need to be in RAM all at once.
+[aaronl@endquote:~]$ ./netio 192.168.2.1
 
-Regards,
-Brad
+NETIO - Network Throughput Benchmark, Version 1.13
+(C) 1997-2001 Kai Uwe Rommel
+
+TCP/IP connection established.
+Packet size  1 k bytes:   10102 k bytes/sec
+Packet size  2 k bytes:   9460 k bytes/sec
+Packet size  4 k bytes:   10129 k bytes/sec
+Packet size  8 k bytes:   9912 k bytes/sec
+Packet size 16 k bytes:   10112 k bytes/sec
+Packet size 32 k bytes:   9773 k bytes/sec
+
+But it doesn't live up to this on HTTP or FTP.
+
+10:52:03 (3.64 MB/s) - `/dev/null' saved [4663650/4663650]
+10:52:13 (4.19 MB/s) - `/dev/null' saved [4663650/4663650]
+10:52:16 (3.99 MB/s) - `/dev/null' saved [4663650/4663650]
 

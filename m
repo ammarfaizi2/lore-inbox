@@ -1,61 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264970AbRFUOAU>; Thu, 21 Jun 2001 10:00:20 -0400
+	id <S264972AbRFUODU>; Thu, 21 Jun 2001 10:03:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264972AbRFUOAK>; Thu, 21 Jun 2001 10:00:10 -0400
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:1540 "EHLO
-	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S264970AbRFUOAA>; Thu, 21 Jun 2001 10:00:00 -0400
-Date: Thu, 21 Jun 2001 09:59:18 -0400
-From: Chris Mason <mason@suse.com>
-To: Christian Robottom Reis <kiko@async.com.br>, NFS@lists.sourceforge.net
-cc: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: [reiserfs-list] NFS insanity 
-Message-ID: <424880000.993131958@tiny>
-In-Reply-To: <Pine.LNX.4.32.0106202015380.2976-100000@blackjesus.async.com.br>
-X-Mailer: Mulberry/2.0.8 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S264975AbRFUODK>; Thu, 21 Jun 2001 10:03:10 -0400
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:41247 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S264974AbRFUODB>; Thu, 21 Jun 2001 10:03:01 -0400
+Date: Thu, 21 Jun 2001 09:02:54 -0500 (CDT)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200106211402.JAA78332@tomcat.admin.navo.hpc.mil>
+To: landley@webofficenow.com
+Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
+In-Reply-To: <0106201412240B.00776@localhost.localdomain>
+Cc: linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wednesday, June 20, 2001 08:23:06 PM -0300 Christian Robottom Reis
-<kiko@async.com.br> wrote:
-
+Rob Landley <landley@webofficenow.com>:
 > 
-> I've got an NFS server, version 2.4.4, using reiserfs with trond's NFS
-> patches and the reiser-2.4.4 nfs patch.
+> On Wednesday 20 June 2001 17:20, Albert D. Cahalan wrote:
+> > Rob Landley writes:
+> > > My only real gripe with Linux's threads right now [...] is
+> > > that ps and top and such aren't thread aware and don't group them
+> > > right.
+> > >
+> > > I'm told they added some kind of "threadgroup" field to processes
+> > > that allows top and ps and such to get the display right.  I haven't
+> > > noticed any upgrades, and haven't had time to go hunting myself.
+> >
+> > There was a "threadgroup" added just before the 2.4 release.
+> > Linus said he'd remove it if he didn't get comments on how
+> > useful it was, examples of usage, etc. So I figured I'd look at
+> > the code that weekend, but the patch was removed before then!
 > 
-> On a client running 2.4.5 with trond's patches and the corresponding
-> reiser patches, I get the wierdest behaviour:
+> Can we give him feedback now, asking him to put it back?
 > 
-> # on client
-> cp libgkcontent.so libgkcontent.so.x
-> diff libgkcontent.so libgkcontent.so.x
-> # no diff
+> > Submit patches to me, under the LGPL please. The FSF isn't likely
+> > to care. What, did you think this was the GNU system or something?
 > 
-> # on server
-> diff libgkcontent.so libgkcontent.so.x
-> Binary files libgkcontent.so and libgkcontent.so.x differ
+> I've stopped even TRYING to patch bash.  try a for loop calling "echo $$&", 
+> eery single process bash forks off has the PARENT'S value for $$, which is 
+> REALLY annoying if you spend an afternoon writing code not knowing that and 
+> then wonder why the various process's temp file sare stomping each other...
+
+Actually - you have an error there. $$ gets evaluated during the parse, not
+during execution of the subprocess. To get what you are describing it is
+necessary to "sh -c 'echo $$'" to force the delay of evaluation. The only
+"bug" interpretation is in the evaluation of the quotes. IF echo '$$' &
+delayed the interpretation of "$$", then when the subprocess shell
+"echo $$" reparsed the line the $$ would be substituted as you wanted.
+This delay can only be done via the "sh -c ..." method. (its the same with
+bourne/korn shell).
+
+> Oh, and anybody who can explain this is welcome to try:
 > 
-> It _only_ happens in this file of all files I've tried out so far. I'm
-> trying to get xdelta to show me what's differing so I can see if there's a
-> pattern or something, but it's awful - data corruption not only possibly
-> but happening. :-)
-> 
-> I haven't tried remounting yet to see what I get, but I don't see the
-> problems on unpatched 2.4.2. I'll wait a bit to see if anyone has seen
-> this. Anyone?
+> lines=`ls -l | awk '{print "\""$0"\""}'`
+> for i in $lines
+> do
+>   echo line:$i
+> done
 
-Sounds like some of the problems fixed in 2.4.5 and 2.4.6pre kernels, where
-NFS data didn't get flushed right away, but I thought that only involved
-mmap'd files.
+That depends on what you are trying to do. Are you trying to echo the
+entire "ls -l"? or are you trying to convert an "ls -l" into a single
+column based on a field extracted from "ls -l".
 
--chris
+If the latter, then the script should be:
 
+ls -l | awk '{print $<fieldno>}' | while read i
+do
+    echo line: $i
+done
 
+If the fields don't matter, but you want each line processed in the
+loop do:
 
+ls -l | while read i
+do
+   echo line:$i
+done
+
+Bash doesn't need patching for this.
+
+Again, the evaluation of the quotes is biting you. When the $lines
+parameter is evaluated, the quotes are present.
+
+bash is doing a double evaluation for "for" loop. It expects
+a list of single tokens, rather than a list of quoted strings. This is
+the same as in the bourne/korn shell.
+
+If you want such elaborate handling of strings, I suggest using perl.
+
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.

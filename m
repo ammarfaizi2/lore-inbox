@@ -1,52 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261380AbVAGRvt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261395AbVAGRwl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261380AbVAGRvt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 12:51:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261400AbVAGRsj
+	id S261395AbVAGRwl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 12:52:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261381AbVAGRwO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 12:48:39 -0500
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:43973 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S261379AbVAGRqK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 12:46:10 -0500
-Message-ID: <41DECAA8.3040909@nortelnetworks.com>
-Date: Fri, 07 Jan 2005 11:45:12 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Fri, 7 Jan 2005 12:52:14 -0500
+Received: from fw.osdl.org ([65.172.181.6]:37055 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261382AbVAGRsd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 12:48:33 -0500
+Date: Fri, 7 Jan 2005 09:48:23 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linus Torvalds <torvalds@osdl.org>, Oleg Nesterov <oleg@tv-sign.ru>,
+cc: Oleg Nesterov <oleg@tv-sign.ru>,
        William Lee Irwin III <wli@holomorphy.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Make pipe data structure be a circular list of pages, rather
  than
-References: <41DE9D10.B33ED5E4@tv-sign.ru>	 <Pine.LNX.4.58.0501070735000.2272@ppc970.osdl.org> <1105113998.24187.361.camel@localhost.localdomain>
-In-Reply-To: <1105113998.24187.361.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <Pine.LNX.4.58.0501070923590.2272@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.58.0501070936500.2272@ppc970.osdl.org>
+References: <41DE9D10.B33ED5E4@tv-sign.ru>  <Pine.LNX.4.58.0501070735000.2272@ppc970.osdl.org>
+ <1105113998.24187.361.camel@localhost.localdomain>
+ <Pine.LNX.4.58.0501070923590.2272@ppc970.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Gwe, 2005-01-07 at 16:17, Linus Torvalds wrote:
-> 
->>it a "don't do that then", and I'll wait to see if people do. I can't
->>think of anything that cares about performance that does that anyway:  
->>becuase system calls are reasonably expensive regardless, anybody who
->>cares at all about performance will have buffered things up in user space.
-> 
-> 
-> Actually I found a load of apps that do this but they don't care about
-> performance. Lots of people have signal handlers that just do
-> 
-> 	write(pipe_fd, &signr, sizeof(signr))
-> 
-> so they can drop signalled events into their event loops
 
-I would be one of those people, although I do pass the signal 
-information as well.
 
-Chris
+On Fri, 7 Jan 2005, Linus Torvalds wrote:
+> 
+> So the "standard behaviour" (aka just plain read/write on the pipe) is all
+> the same copies that it used to be.
 
+I want to highlight this again. The increase in throughput did _not_ come
+from avoiding a copy. It came purely from the fact that we have multiple
+buffers, and thus a throughput-intensive load gets to do several bigger
+chunks before it needs to wait for the recipient. So the increase in
+throughput comes from fewer synchronization points (scheduling and
+locking), not from anything else.
+
+Another way of saying the same thing: pipes actually used to have clearly
+_lower_ bandwidth than UNIX domain sockets, even though clearly pipes are
+simpler and should thus be able to be faster. The reason? UNIX domain
+sockets allow multiple packets in flight, and pipes only used to have a
+single buffer. With the new setup, pipes get roughly comparable
+performance to UNIX domain sockets for me.
+
+Sockets can still outperform pipes, truth be told - there's been more
+work on socket locking than on pipe locking. For example, the new pipe
+code should conceptually really allow one CPU to empty one pipe buffer
+while another CPU fills another pipe buffer, but because I kept the
+locking structure the same as it used to be, right now read/write
+serialize over the whole pipe rather than anything else.
+
+This is the main reason why I want to avoid coalescing if possible: if you
+never coalesce, then each "pipe_buffer" is complete in itself, and that
+simplifies locking enormously.
+
+(The other reason to potentially avoid coalescing is that I think it might
+be useful to allow the "sendmsg()/recvmsg()" interfaces that honour packet
+boundaries. The new pipe code _is_ internally "packetized" after all).
+
+				Linus

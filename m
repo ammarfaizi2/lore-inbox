@@ -1,35 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312680AbSDSQRS>; Fri, 19 Apr 2002 12:17:18 -0400
+	id <S312491AbSDSQTr>; Fri, 19 Apr 2002 12:19:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312681AbSDSQRR>; Fri, 19 Apr 2002 12:17:17 -0400
-Received: from ns.suse.de ([213.95.15.193]:25860 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S312680AbSDSQRQ>;
-	Fri, 19 Apr 2002 12:17:16 -0400
-To: Tim Kay <timk@advfn.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: TCP: Treason uncloaked DoS ??
-In-Reply-To: <200204191512.g3JFCvl18558@mail.advfn.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 19 Apr 2002 18:17:13 +0200
-Message-ID: <p731ydbacja.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S312498AbSDSQTq>; Fri, 19 Apr 2002 12:19:46 -0400
+Received: from venus.ci.uw.edu.pl ([193.0.74.207]:1542 "EHLO
+	venus.ci.uw.edu.pl") by vger.kernel.org with ESMTP
+	id <S312491AbSDSQTp>; Fri, 19 Apr 2002 12:19:45 -0400
+Date: Fri, 19 Apr 2002 18:14:12 +0200 (CEST)
+From: Jan Slupski <jslupski@email.com>
+To: Pete Zaitcev <zaitcev@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Wrong IRQ for USB on Sony Vaio (dmi_scan.c, pci-irq.c)
+In-Reply-To: <200204191556.g3JFuw131245@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.21.0204191801410.11418-100000@venus.ci.uw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Kay <timk@advfn.com> writes:
-> that the connections are kept open if the client connecting doesn't actually 
-> go away so surely lots of these ocurring at once would overload a server. I 
-> have googled this and an occasional instance seems normal and could be down 
-> to a broken client, but lots from different IP addr's at once??
+On Fri, 19 Apr 2002, Pete Zaitcev wrote:
 
-It is a TCP bug of the other side.
+> > Broken BIOS of these notebooks assigns IRQ 10 for USB,
+> > even though it is actually wired to IRQ 9.
+> > 
+> > I use PCG-FX240 model of Sony Vaio, but I have proofs of other users, 
+> > that exactly the same problem exists on models:
+> > FX200, FX220, FX250, FX270, FX290, FX370, FX503, R505JS, R505JL
+> > These models use Intel's 82801BA controller, and Phoenix bios.
+> 
+> My Z505JE works perfectly without it. In general Z505's are
+> known to work.
 
-You can safely comment out the printk. It would be interesting however
-to find out what the other side is running and yell at the vendor.
+I don't know nothing more than this...
+I already send an email, and I hope I'll get DMI & PCI informations
+for these computers.
 
-> I'm a bit concerned that maybe someone is warming up for a hit or something.
+(fwd)
+From: girish <girishji@yahoo.com>
 
-More likely someone released a new buggy TCP stack to the world.
+Thanks for your USB patch. I got the USB mouse to work
+on Sony Vaio PCG-R505JL. I installed RedHat 7.2 first
+and the mouse would work for a few minutes and die
+(with timeout messages appearing on
+/var/log/messages). I did not find the source code for
+redhat on the CD. So I ended up compiling the latest
+kernel (2.4.18). This is the first time I compiled the
+linux kernel, couldn't have been easier!
 
--Andi
+(fwd)
+From: Kirk VanOpdorp <kirk@chpc.utah.edu>
+
+I had the same USB problem on the Sony PCG-R505JS laptop. Your kernel
+patch worked perfectly. At least on the 2.4.18 kernel.
+
+> > +             dev->irq = 9;
+> > +             pci_write_config_byte(dev, PCI_INTERRUPT_LINE, 9);
+> > +             r->set(pirq_router_dev, dev, pirq, 9);
+> > +     }
+>
+> So...
+> 
+>         if (dev->irq == 9) {
+>                 dev->irq = 9;
+>         }
+> 
+> Are you sure it's right?
+
+OK.
+This line isn't very important. ;)
+Other two are!
+
+I just modified HP Pavillion code taht do the same, but 
+numbers are other .
+
+Jan
+
+   _  _  _  _  _____________________________________________
+   | |_| |\ |  S L U P S K I              jslupski@email.com
+ |_| | | | \|                 http://www.pm.waw.pl/~jslupski  
+
+
+

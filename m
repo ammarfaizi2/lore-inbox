@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268915AbRG0SBu>; Fri, 27 Jul 2001 14:01:50 -0400
+	id <S268923AbRG0SFA>; Fri, 27 Jul 2001 14:05:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268917AbRG0SBk>; Fri, 27 Jul 2001 14:01:40 -0400
-Received: from e22.nc.us.ibm.com ([32.97.136.228]:8660 "EHLO e22.nc.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S268915AbRG0SB3>;
-	Fri, 27 Jul 2001 14:01:29 -0400
-Date: Fri, 27 Jul 2001 11:01:00 -0700 (PDT)
-From: Sridhar Samudrala <samudrala@us.ibm.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Sridhar Samudrala <samudrala@us.ibm.com>, linux-kernel@vger.kernel.org,
-        linux-net@vger.kernel.org, lartc@mailman.ds9a.nl,
-        diffserv-general@lists.sourceforge.net, kuznet@ms2.inr.ac.ru,
-        rusty@rustcorp.com.au
+	id <S268921AbRG0SEu>; Fri, 27 Jul 2001 14:04:50 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:21517 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S268917AbRG0SEi>;
+	Fri, 27 Jul 2001 14:04:38 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200107271804.WAA22016@ms2.inr.ac.ru>
 Subject: Re: [PATCH] Inbound Connection Control mechanism: Prioritized Accept
-In-Reply-To: <E15QBMf-00066p-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0107271036390.14246-100000@w-sridhar2.des.sequent.com>
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Date: Fri, 27 Jul 2001 22:04:13 +0400 (MSK DST)
+Cc: samudrala@us.ibm.com, linux-kernel@vger.kernel.org,
+        linux-net@vger.kernel.org, lartc@mailman.ds9a.nl,
+        diffserv-general@lists.sourceforge.net, rusty@rustcorp.com.au
+In-Reply-To: <E15QBMf-00066p-00@the-village.bc.nu> from "Alan Cox" at Jul 27, 1 06:25:29 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-There are couple of reasons why prioritization in kernel works better than at 
-user level. 
-* The kernel mechanisms are more efficient and scalable than the user space
-  mechanism. Non compliant connection requests are discarded earlier reducing the
-  queuing time of the compliant requests, in particular less CPU is consumed and
-  the context switch to userspace is avoided. 
-* Doing it in user space requires changes to existing applications which is not
-  always possible.
+Hello!
 
-Thanks
-Sridhar
-
-On Fri, 27 Jul 2001, Alan Cox wrote:
-
-> > The documentation on HOWTO use this patch and the test results which show an
-> > improvement in connection rate for higher priority classes can be found at our
-> > project website.
-> >         http://oss.software.ibm.com/qos
-> > 
-> > We would appreciate any comments or suggestions.
-> 
-> Simple question.
-> 
 > How is this different from having a single userspace thread in your
 > application which accepts connections as they come in and then hands them
 > out in an order it chooses, if need be erorring and closing some ?
-> 
-> Alan
-> 
 
+Seems, I can answer. Because closing some would break the service.
+
+The idea is that when kernel accept queue is full we stop to
+move open requests to established state and hence spurious
+aborts are not generated. So, accepting cannot be artificially
+speed up and extension of accept queue to user space is impossible.
+The similar problem was open with TUX, which relays requests
+to slow path. I do not know how Ingo solved it, by the way,
+but it looked terrible: either massive socket leak (no limit on accept queue)
+or massive aborts. :-)
+
+
+Another question to author: missing prioritization of drops.
+"Low priority" connections will clog accept queue, so that no room
+for high priority connections remains. It is not good.
+Any scheme with priority reserves some room for each high priority band
+or does dropping based on priority.
+
+Alexey

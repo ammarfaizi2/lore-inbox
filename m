@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313638AbSGUVqg>; Sun, 21 Jul 2002 17:46:36 -0400
+	id <S314340AbSGUVyL>; Sun, 21 Jul 2002 17:54:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314340AbSGUVqg>; Sun, 21 Jul 2002 17:46:36 -0400
-Received: from ns.suse.de ([213.95.15.193]:28686 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S313638AbSGUVqf>;
-	Sun, 21 Jul 2002 17:46:35 -0400
-Date: Sun, 21 Jul 2002 23:49:42 +0200
-From: Dave Jones <davej@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.27 build errors - linux/i2c-old.h
-Message-ID: <20020721234942.A27749@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	linux-kernel@vger.kernel.org
-References: <20020721214537.GA24886@ksu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020721214537.GA24886@ksu.edu>; from trelane@jakob.neurotek.dyndns.org on Sun, Jul 21, 2002 at 04:45:37PM -0500
+	id <S314546AbSGUVyL>; Sun, 21 Jul 2002 17:54:11 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:51609 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S314340AbSGUVyK>;
+	Sun, 21 Jul 2002 17:54:10 -0400
+Date: Sun, 21 Jul 2002 23:56:11 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
+       Robert Love <rml@tech9.net>
+Subject: Re: [patch] "big IRQ lock" removal, 2.5.27-A9
+In-Reply-To: <20020721234619.A10561@lst.de>
+Message-ID: <Pine.LNX.4.44.0207212345490.29913-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 21, 2002 at 04:45:37PM -0500, Johnny Q. Hacker wrote:
- > Hello.
- > 
- > We're moving, or I'd track thisone down meself.  I'd guess that it'll
- >   be fairly easy to rectify.
 
-the i2c-old.h using files are broken and need updating to the new i2c
-API. There are some conversions done already in the -dj tree.
-I'll upload a .27-dj1 in a few minutes..
+On Sun, 21 Jul 2002, Christoph Hellwig wrote:
 
-        Dave
+> > the genhd.c bit is safe as well, removed the comment.
+> 
+> Is there any reason the sti is there at all?  In -dj almost all drivers
+> use module_init() now so it becomes increasingly useless..
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+well, indeed. While the sti() can be understood to a certain degree - we
+used to boot with the IRQ lock on and accidentally leaving it enabled can
+cause problems - but otherwise preceeding code should not disable
+interrupts in an unbalanced way. I've removed the __sti() from my tree.
+
+there's even more ancient code in the block driver init path, eg. in
+drivers/block/ll_rw_blk.c:blk_dev_init():
+
+        outb_p(0xc, 0x3f2);
+
+i suspect this is ancient Linux code. 0x3f2 is one of the floppy
+controller ports - many modern x86 boxes do not even have a floppy
+controller! I've removed this from my tree as well - if this is needed at
+all then it belongs into the floppy driver. Latest patch is at:
+    
+  http://redhat.com/~mingo/remove-irqlock-patches/remove-irqlock-2.5.27-B0
+
+	Ingo
+

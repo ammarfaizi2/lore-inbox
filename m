@@ -1,49 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268328AbUHXVPg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268334AbUHXVR1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268328AbUHXVPg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 17:15:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268331AbUHXVPf
+	id S268334AbUHXVR1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 17:17:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268336AbUHXVR0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 17:15:35 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43692 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268328AbUHXVP2 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 17:15:28 -0400
-Date: Tue, 24 Aug 2004 16:39:22 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: =?iso-8859-1?Q?Ram=F3n?= Rey Vicente <ramon.rey@hispalinux.es>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] Update ftape webpage
-Message-ID: <20040824193922.GA9565@logos.cnet>
-References: <4123F54E.4090900@hispalinux.es> <16676.29765.963260.634569@alkaid.it.uu.se>
+	Tue, 24 Aug 2004 17:17:26 -0400
+Received: from waste.org ([209.173.204.2]:45728 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S268334AbUHXVRX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 17:17:23 -0400
+Date: Tue, 24 Aug 2004 16:17:17 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: "Theodore Ts'o" <tytso@mit.edu>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] [2/4] /dev/random: Add pool name to entropy store
+Message-ID: <20040824211716.GG5414@waste.org>
+References: <E1By1Sm-0001TM-V7@thunk.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <16676.29765.963260.634569@alkaid.it.uu.se>
-User-Agent: Mutt/1.5.5.1i
-Content-Transfer-Encoding: 8BIT
+In-Reply-To: <E1By1Sm-0001TM-V7@thunk.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 19, 2004 at 11:35:01AM +0200, Mikael Pettersson wrote:
-> Ramón Rey Vicente writes:
->  > --- linux-2.6-rrey/MAINTAINERS.orig	2004-08-19 01:57:52.405537120 +0200
->  > +++ linux-2.6-rrey/MAINTAINERS	2004-08-19 02:26:44.012733140 +0200
->  > @@ -849,7 +849,7 @@
->  >  P:	Claus-Justus Heine
->  >  M:	claus@momo.math.rwth-aachen.de
->  >  L:	linux-tape@vger.kernel.org
->  > -W:	http://www-math.math.rwth-aachen.de/~LBFM/claus/ftape/
->  > +W:	http://www.instmath.rwth-aachen.de/~heine/ftape/
->  >  S:	Maintained
+On Fri, Aug 20, 2004 at 12:57:16AM -0400, Theodore Ts'o wrote:
 > 
-> NAK. If anything it should be marked orphaned or something.
-> Heine hasn't maintained the in-kernel code for ages, and the
-> web page you listed gives 403 errors on download attempts.
-> 
-> Don't remove it though. It still mostly works.
+> This adds a pool name to the entropy_store data structure, which
+> simplifies the debugging code, and makes the code more generic for
+> adding additional entropy pools.
 
-Mikael,
+My version from last year called these "input", "blocking", and
+"nonblocking", which I think added substantially to the readability
+here.
 
-the URL works just fine. I've applied this to v2.4 mainline.
+-- 
+Mathematics is the supreme nostalgia of our time.

@@ -1,41 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264883AbUFLSJa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264882AbUFLSJW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264883AbUFLSJa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jun 2004 14:09:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264891AbUFLSJZ
+	id S264882AbUFLSJW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jun 2004 14:09:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264886AbUFLSJW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jun 2004 14:09:25 -0400
-Received: from pimout2-ext.prodigy.net ([207.115.63.101]:30907 "EHLO
-	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S264883AbUFLSJV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jun 2004 14:09:22 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:23957 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S264882AbUFLSJV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Sat, 12 Jun 2004 14:09:21 -0400
-Date: Sat, 12 Jun 2004 11:09:18 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] O_NOATIME support
-Message-ID: <20040612180918.GA21857@taniwha.stupidest.org>
-References: <20040612011129.GD1967@flower.home.cesarb.net> <E1BZBbt-0007jL-00@calista.eckenfels.6bone.ka-ip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1BZBbt-0007jL-00@calista.eckenfels.6bone.ka-ip.net>
+From: sliphacker@yahoo.com.br
+Date: Sat, 12 Jun 2004 17:49:08 GMT
+MIME-Version: 1.0
+Subject: ASYLANT QUAELTE TIERE BRUTAL ZU TODE
+Importance: Normal
+X-Mailer: Mail-SMTP V6.79
+X-Priority: 3 (Normal)
+Message-ID: <ef5d300d3c5bfd.72dcd.qmail@yahoo.com.br>
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 12, 2004 at 06:44:01PM +0200, Bernd Eckenfels wrote:
+11.06.2003 Hamburg-Alsterdorf:
 
-> This is less related to your patch (i like this feature!) but more
-> to the current source layout: is there a reason for not sharing
-> those open flags on an non architecture specific file?
-
-We just never did it that way, and they are not all the same across
-all architectures.
-
-> And should you not try to use the same value on all architectures to
-> make that especially easy to change later?
-
-They are ABI specific and will never change.
-
-
-  --cw
+Gewisse Angewohnheiten kann man offensichtlich nicht so einfach ablegen, auch wenn sie recht bestialisch sind. In einigen Laendern ist es ueblich, Tiere zu schaechten. Das bedeutet, ihnen wir die Kehle durchgeschnitten, um sie wenn sie ausgeblutet sind zu haeuten. Obwohl das Schaechten von Tieren in Deutschland verboten ist, passierte genau dieses in einer Asylbewerberunterkunft in Hamburg-Alsterdorf. Ein Jugoslawe schaechtete zwei Schafe, bevor die Polizei eingriff und so ganz nebenbei eine Abstellkammer voller Diebesgut fand.

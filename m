@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261568AbULJAVL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261571AbULJA0E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261568AbULJAVL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 19:21:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261571AbULJAVL
+	id S261571AbULJA0E (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 19:26:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261579AbULJA0E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 19:21:11 -0500
-Received: from alg145.algor.co.uk ([62.254.210.145]:34566 "EHLO
-	dmz.algor.co.uk") by vger.kernel.org with ESMTP id S261568AbULJAVC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 19:21:02 -0500
-Date: Fri, 10 Dec 2004 00:20:40 +0000 (GMT)
-From: "Maciej W. Rozycki" <macro@mips.com>
-To: Greg Kroah-Hartman <greg@kroah.com>
-cc: linux-kernel@vger.kernel.org, Chris Dearman <chris@mips.com>,
-       "Maciej W. Rozycki" <macro@linux-mips.org>
-Subject: [PATCH] Don't touch BARs of host bridges
-Message-ID: <Pine.LNX.4.61.0412092349560.6535@perivale.mips.com>
+	Thu, 9 Dec 2004 19:26:04 -0500
+Received: from ozlabs.org ([203.10.76.45]:25737 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261571AbULJAZ7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Dec 2004 19:25:59 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-MTUK-Scanner: Found to be clean
-X-MTUK-SpamCheck: not spam (whitelisted), SpamAssassin (score=-4.748,
-	required 4, AWL, BAYES_00)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16824.60713.130758.578122@cargo.ozlabs.ibm.com>
+Date: Fri, 10 Dec 2004 11:26:17 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: akpm@osdl.org, torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org, anton@samba.org
+Subject: [PATCH] PPC64 Make UP kernel run on POWER4 logical partition
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Recently I tried booting a UP kernel on a 1-processor logical
+partition on a POWER4 system.  It failed because the CPU we happened
+to be running on was CPU 2, but hard_smp_processor_id() is defined to
+0 for !CONFIG_SMP.  (Note that this code runs quite early, as part of
+init_IRQ, so hard_smp_processor_id() should be the physical ID of the
+boot cpu.)
 
- BARs of host bridges often have special meaning and AFAIK are best left 
-to be setup by the firmware or system-specific startup code and kept 
-intact by the generic resource handler.  For example a couple of host 
-bridges used for MIPS processors interpret BARs as target-mode decoders 
-for accessing host memory by PCI masters (which is quite reasonable).  
-For them it's desirable to keep their decoded address range overlapping 
-with the host RAM for simplicity if nothing else (I can imagine running 
-out of address space with lots of memory and 32-bit PCI with no DAC 
-support in the participating devices).
+This patch does a minimal fix to make it work.  I think this patch
+should go in 2.6.10.  Ultimately I think the hard_smp_processor_id()
+definition should be removed from include/linux/smp.h, but that
+carries a risk of breaking other architectures and probably shouldn't
+be done pre 2.6.10.
 
- This is already the case with the i386 and ppc platform-specific PCI 
-resource allocators.  Please consider the following change for the generic 
-allocator.  Currently we have a pile of hacks implemented for host bridges 
-to be left untouched and I'd be pleased to remove them.
+Signed-off-by: Paul Mackerras <paulus@samba.org>
 
-  Maciej
-
-patch-mips-2.6.10-rc2-20041124-pci-hb-0
-diff -up --recursive --new-file linux-mips-2.6.10-rc2-20041124.macro/drivers/pci/setup-bus.c linux-mips-2.6.10-rc2-20041124/drivers/pci/setup-bus.c
---- linux-mips-2.6.10-rc2-20041124.macro/drivers/pci/setup-bus.c	2004-11-12 13:12:47.000000000 +0000
-+++ linux-mips-2.6.10-rc2-20041124/drivers/pci/setup-bus.c	2004-12-08 13:32:06.000000000 +0000
-@@ -57,8 +57,13 @@ pbus_assign_resources_sorted(struct pci_
- 	list_for_each_entry(dev, &bus->devices, bus_list) {
- 		u16 class = dev->class >> 8;
- 
--		if (class == PCI_CLASS_DISPLAY_VGA
--				|| class == PCI_CLASS_NOT_DEFINED_VGA)
-+		/* Don't touch classless devices and host bridges.  */
-+		if (class == PCI_CLASS_NOT_DEFINED ||
-+		    class == PCI_CLASS_BRIDGE_HOST)
-+			continue;
-+
-+		if (class == PCI_CLASS_DISPLAY_VGA ||
-+		    class == PCI_CLASS_NOT_DEFINED_VGA)
- 			bus->bridge_ctl |= PCI_BRIDGE_CTL_VGA;
- 
- 		pdev_sort_resources(dev, &head);
+diff -urN linux-2.5/arch/ppc64/kernel/xics.c test/arch/ppc64/kernel/xics.c
+--- linux-2.5/arch/ppc64/kernel/xics.c	2004-10-27 07:32:57.000000000 +1000
++++ test/arch/ppc64/kernel/xics.c	2004-12-10 11:08:18.532939288 +1100
+@@ -504,7 +504,7 @@
+ 	     np;
+ 	     np = of_find_node_by_type(np, "cpu")) {
+ 		ireg = (uint *)get_property(np, "reg", &ilen);
+-		if (ireg && ireg[0] == hard_smp_processor_id()) {
++		if (ireg && ireg[0] == boot_cpuid_phys) {
+ 			ireg = (uint *)get_property(np, "ibm,ppc-interrupt-gserver#s",
+ 						    &ilen);
+ 			i = ilen / sizeof(int);

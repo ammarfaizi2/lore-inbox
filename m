@@ -1,58 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281762AbRLBSnT>; Sun, 2 Dec 2001 13:43:19 -0500
+	id <S282453AbRLBSs3>; Sun, 2 Dec 2001 13:48:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281957AbRLBSnB>; Sun, 2 Dec 2001 13:43:01 -0500
-Received: from dsl-213-023-038-056.arcor-ip.net ([213.23.38.56]:17160 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S281217AbRLBSmo>;
-	Sun, 2 Dec 2001 13:42:44 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: <mingo@elte.hu>, Rik van Riel <riel@conectiva.com.br>
-Subject: Re: Coding style - a non-issue
-Date: Sun, 2 Dec 2001 19:41:26 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Victor Yodaiken <yodaiken@fsmlabs.com>,
-        Andrew Morton <akpm@zip.com.au>, Larry McVoy <lm@bitmover.com>,
-        Henning Schmiedehausen <hps@intermeta.de>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0112022102150.19739-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.33.0112022102150.19739-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16AbYM-00009p-00@starship.berlin>
+	id <S282062AbRLBSsT>; Sun, 2 Dec 2001 13:48:19 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:2751 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S281210AbRLBSsE>; Sun, 2 Dec 2001 13:48:04 -0500
+Date: Sun, 2 Dec 2001 11:47:48 -0700
+Message-Id: <200112021847.fB2IlmZ11175@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: andrew may <acmay@acmay.homeip.net>
+Cc: Adam Schrotenboer <ajschrotenboer@lycosmail.com>,
+        =?iso-8859-1?Q?Christian_Borntr=E4ger?= 
+	<linux-kernel@borntraeger.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.17pre2: devfs: devfs_mk_dir(printers): could not append to dir: dffe45c0 "", err: -17
+In-Reply-To: <20011201180940.B21185@ecam.san.rr.com>
+In-Reply-To: <E16A6LR-00042s-00@mrvdom02.schlund.de>
+	<200112011808.fB1I8lq31535@vindaloo.ras.ucalgary.ca>
+	<20011202013724.9085AFB80D@tabris.net>
+	<20011201180940.B21185@ecam.san.rr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On December 2, 2001 09:12 pm, Ingo Molnar wrote:
-> On Sun, 2 Dec 2001, Rik van Riel wrote:
-> > Also, natural selection tends to favour the best return/effort ratio,
-> > not the best end result. [...]
+andrew may writes:
+> On Sat, Dec 01, 2001 at 08:37:24PM -0500, Adam Schrotenboer wrote:
+> > On Saturday 01 December 2001 13:08, Richard Gooch wrote:
+> > > linux-kernel@borntraeger.net writes:
+> > <snip>
+> > > The new devfs core is less forgiving about these kinds of
+> > > bugs/misuses.
+> > >
+> > > > devfs: devfs_register(nvidiactl): could not append to parent, err: -17
+> > > > devfs: devfs_register(nvidia0): could not append to parent, err: -17
+> > > >
+> > > > with 2.4.16 and before the message was:
+> > > >
+> > > > devfs: devfs_register(): device already registered: "nvidia0"
+> > >
+> > > Who knows what nvidia does? Talk to them. Could be a bug in their
+> > > driver where they create duplicate entries (the old devfs code would
+> > > often let you get away with this). Or again, perhaps something in
+> > > user-space is creating these entries.
+> > >
+> > As of 1541 anyway (haven't tried anything newer, assuming newer exists), the 
+> > make install of the nvidia driver also runs makedevices.sh (a vendor sp 
+> > script that makes the devnodes. This may also have been put in the 
+> > initscripts (mine isn't, but i tend to use the tar.gz fmt, not using the RPMs)
+> > Perhaps there is no check for devfs (likely will be fixed in the next 
+> > release, as this is a new situation)
 > 
-> there is no 'effort' involved in evolution. Nature does not select along
-> the path we went. It's exactly this property why it took 5 billion years
-> to get here, while Linux took just 10 years to be built from grounds up.
-> The fact is that bacteria took pretty random paths for 2 billion years to
-> get to the next level. That's alot of 'effort'.
+> There is now a 2313 version of the driver. It has put in devfs
+> calls, but it seems they still call the makedefs script in the make
+> install.
 
-One fact that is often missed by armchair evolutionists is that evolution is 
-not random.  It's controlled by a mechanism (most obviously: gene shuffling) 
-and the mechanism *itself* evolves.  That is why evolution speeds up over 
-time.  There's a random element, yes, but it's not the principle element.
+What's important is whether something has been added to the boot
+scripts which create these device nodes in /dev.
 
-The fact that Linux has evolved from nothing to what it is in a mere 10 years 
-- 30 if you count the 20 years of Unix that came before it - is due entirely 
-to the fact that Nature has evolved a very efficient mechanism (us) to guide 
-Linux's evolution.
+> I don't know if the devfs code is correct but here it is.
+> 
+> from nv.c modules_init();
+> 
+> #ifdef CONFIG_DEVFS_FS
+>     rc = devfs_register_chrdev(nv_major, "nvidia", &nv_fops);
+> #else
+>     rc = register_chrdev(nv_major, "nvidia", &nv_fops);
+> #endif
+> 
+>     if (rc < 0) {
+>         NV_EMSG((nv_state_t *) 0, "init_module: register failed");
+>         return rc;
+>     }
+> 
+>     osMemSet(nv_linux_devices, 0, sizeof(nv_linux_state_t) * NV_MAX_DEVICES);
+>     num_devices = nvos_probe_devices();
+>     
+> #ifdef CONFIG_DEVFS_FS
+>     osMemSet(nv_dev_handle, 0, sizeof(devfs_handle_t) * NV_MAX_DEVICES);
+>     do {
+>         char name[16];
+>         int i;
+> 
+>         nv_ctl_handle = devfs_register(NULL, "nvidiactl",
+>                             DEVFS_FL_DEFAULT, nv_major, 255,
+>                             S_IFCHR | S_IRUGO | S_IWUGO,
+>                             &nv_fops, NULL);
+> 
+>         for (i = 0; i < num_devices; i++) {
+>             snprintf(name, 16, "nvidia%d", i);
+>             nv_dev_handle[i] = devfs_register(NULL, name,
+>                                   DEVFS_FL_DEFAULT, nv_major, i,
+>                                   S_IFCHR | S_IRUGO | S_IWUGO,
+>                                   &nv_fops, NULL);
+>         }
+>     } while(0);
+> #endif
 
-> So *once* we have something that is better, it does not matter how long it 
-> took to get there.
+This appears reasonable. However, if they call this initialisation
+code twice, it's a bug.
 
-Sure, once you are better than the other guy you're going to eat his lunch.  
-But time does matter: a critter that fails to get its evolutionary tail in 
-gear before somebody eats its lunch isn't going to get a second chance.
+				Regards,
 
---
-Daniel
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

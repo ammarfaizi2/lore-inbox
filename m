@@ -1,50 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281074AbRKDS0V>; Sun, 4 Nov 2001 13:26:21 -0500
+	id <S281064AbRKDS1w>; Sun, 4 Nov 2001 13:27:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281069AbRKDS0L>; Sun, 4 Nov 2001 13:26:11 -0500
-Received: from mailout00.sul.t-online.com ([194.25.134.16]:42192 "EHLO
-	mailout00.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S281076AbRKDSZ7>; Sun, 4 Nov 2001 13:25:59 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Tim Jansen <tim@tjansen.de>
-To: Jakob =?iso-8859-1?q?=D8stergaard=20?= <jakob@unthought.net>
-Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-Date: Sun, 4 Nov 2001 19:27:16 +0100
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <E15zF9H-0000NL-00@wagner> <20011104172742Z16629-26013+37@humbolt.nl.linux.org> <20011104184159.E14001@unthought.net>
-In-Reply-To: <20011104184159.E14001@unthought.net>
-Cc: linux-kernel@vger.kernel.org
+	id <S281069AbRKDS1m>; Sun, 4 Nov 2001 13:27:42 -0500
+Received: from colorfullife.com ([216.156.138.34]:52750 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S281085AbRKDS1d>;
+	Sun, 4 Nov 2001 13:27:33 -0500
+Message-ID: <3BE58883.844058@colorfullife.com>
+Date: Sun, 04 Nov 2001 19:27:15 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.14-pre7 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <160RwJ-2D3EHoC@fmrl05.sul.t-online.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: linux-kernel@vger.kernel.org, viro@math.psu.edu
+Subject: Re: [CFT][PATCH] ramfs/tmpfs readdir()
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 04 November 2001 18:41, you wrote:
-> The "fuzzy parsing" userland has to do today to get useful information
-> out of many proc files today is not nice at all. 
+ 
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-I agree, but you dont need a binary format to achieve this. A WELL-DEFINED 
-format is sufficient. XML is one of them, one-value-files another one. The 
-"fuzzy parsing" only happens because the files try to be friendly for human 
-readers.
+> 
+> Note that other filesystems would already enjoy having a d_offset in the
+> dentry: it allows for various other optimizations (ie making "unlink()" a
+> O(1) operation, by not having to search the directory).
+> 
+The dentry structure already contains 2 members for filesystem use
+(d_time and d_fsdata), is a third member really required?
 
-
-> It eats CPU, it's error-prone, and all in all it's just "wrong".
-
-How much of your CPU time is spent parsing /proc files?
-
-
-> However - having a human-readable /proc that you can use directly with
-> cat, echo,  your scripts,  simple programs using read(), etc.   is
-> absolutely a *very* cool feature that I don't want to let go.  It is just
-> too damn practical.
-
-You shouldn't use them in scripts because they are likely to break. That's 
-the whole point. At least not when you want to distribute the scripts to 
-others. And BTW the one-value-files are much easier to parse for scripts than 
-any other solution that I have seen so far, including the current /proc 
-interface.
-
-bye...
+--
+	Manfred

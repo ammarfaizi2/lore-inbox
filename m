@@ -1,240 +1,162 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261657AbUKOSOW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261659AbUKOSVT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261657AbUKOSOW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 13:14:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261658AbUKOSOW
+	id S261659AbUKOSVT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 13:21:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261662AbUKOSVT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 13:14:22 -0500
-Received: from struggle.mr.itd.umich.edu ([141.211.14.79]:16332 "EHLO
-	struggle.mr.itd.umich.edu") by vger.kernel.org with ESMTP
-	id S261657AbUKOSOA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 13:14:00 -0500
-Date: Mon, 15 Nov 2004 13:13:48 -0500 (EST)
-From: Rajesh Venkatasubramanian <vrajesh@umich.edu>
-X-X-Sender: vrajesh@red.engin.umich.edu
-To: Werner Almesberger <werner@almesberger.net>,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Generalize prio_tree (1/3)
-In-Reply-To: <20041114235646.K28802@almesberger.net>
-Message-ID: <Pine.LNX.4.58.0411151226010.20003@red.engin.umich.edu>
-References: <20041114235646.K28802@almesberger.net>
+	Mon, 15 Nov 2004 13:21:19 -0500
+Received: from mail.aknet.ru ([217.67.122.194]:24076 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S261659AbUKOSVM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 13:21:12 -0500
+Message-ID: <4198F3B9.7070604@aknet.ru>
+Date: Mon, 15 Nov 2004 21:21:45 +0300
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: ru, en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-rc1-mm5
+References: <41967669.3070707@aknet.ru> <20041113133832.101db8d9.akpm@osdl.org>
+In-Reply-To: <20041113133832.101db8d9.akpm@osdl.org>
+Content-Type: multipart/mixed;
+ boundary="------------080808030109060900010208"
+X-AV-Checked: ClamAV using ClamSMTP
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------080808030109060900010208
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Hi Andrew.
+
+Andrew Morton wrote:
+> Here's a random hack for smbfs.  Does it help?
+Unfortunately this (and the updated)
+patch is very far from any help :(
+I did some investigations myself.
+At first I checked up the callers and
+found that they do smb_rput() themselves
+if smb_add_request() returns error. So
+we have double-free. Then I found that
+smb_rput() does list_del_init() itself,
+so this is being done 3 times instead
+of one. So all that piece of code you
+were trying to correct, was actually
+completely useless. I removed it (patch
+attached). That made the smbfs to work
+for me (for the first time in 2.6!), but
+after about 5 minutes I've got the attached
+Oops and Slab corruption again. A quick
+glance to the code pointed by Oops, revealed
+that there are plenty of use-after-rput
+instances. Then I've found much more of
+them all around the code.
+I don't suppose this can ever work.
+Now I am just scared to even load the smbfs
+module.
+I asked our admin to enable the NTLM auth
+and mounted everything as cifs instead.
+That works like a charm!
+If there are any other patches to try -
+I'll test them, but what is the current
+official status of smbfs? Is it deprecated?
+Or broken? Or undergoing some redesign?
+Very strange...
 
 
-On Sun, 14 Nov 2004, Werner Almesberger wrote:
+--------------080808030109060900010208
+Content-Type: text/plain;
+ name="slbug1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="slbug1"
 
-> perhaps you remember me posting a long time ago about generalizing
-> prio_tree. Now I finally got to make that patch. In fact, there are
-> three parts:
->
->  - the prio_tree "core" in lib/
->  - switching mm/prio_tree.c to use the "core"
->  - some debugging extensions
->
-[snip]
->
-> The patch below puts an includeable version of prio_tree to lib/.
-> This should be included similar to how inflate.c is used.
+Nov 15 15:23:31 stas kernel: Unable to handle kernel paging request at virtual address 6b6b6b6b
+Nov 15 15:23:31 stas kernel:  printing eip:
+Nov 15 15:23:31 stas kernel: c011d4d7
+Nov 15 15:23:31 stas kernel: *pde = 00000000
+Nov 15 15:23:31 stas kernel: Oops: 0000 [#1]
+Nov 15 15:23:31 stas kernel: PREEMPT SMP 
+Nov 15 15:23:31 stas kernel: Modules linked in: snd_mixer_oss snd_cmipci snd_pcm snd_page_alloc snd_opl3_lib snd_timer snd_hwdep snd_mpu401_uart snd_rawmidi snd_seq_device snd soundcore intel_agp agpgart md5 ipv6 smbfs 3c59x mii sd_mod ntfs nls_cp866 usb_storage scsi_mod uhci_hcd usbcore video thinkpad_acpi
+Nov 15 15:23:31 stas kernel: CPU:    0
+Nov 15 15:23:31 stas kernel: EIP:    0060:[<c011d4d7>]    Not tainted VLI
+Nov 15 15:23:31 stas kernel: EFLAGS: 00010897   (2.6.10-rc1-mm5) 
+Nov 15 15:23:31 stas kernel: EIP is at __wake_up_common+0x17/0x70
+Nov 15 15:23:31 stas kernel: eax: d1007efc   ebx: d1007ef0   ecx: 00000001   edx: 6b6b6b6b
+Nov 15 15:23:31 stas kernel: esi: 00000000   edi: 00000001   ebp: de9caf44   esp: de9caf28
+Nov 15 15:23:31 stas kernel: ds: 007b   es: 007b   ss: 0068
+Nov 15 15:23:31 stas kernel: Process smbiod (pid: 2567, threadinfo=de9ca000 task=deab5550)
+Nov 15 15:23:31 stas kernel: Stack: c014c65f 00000000 00000001 00000001 d1007ef0 00000000 00000001 de9caf68 
+Nov 15 15:23:31 stas kernel:        c011d568 00000000 00000000 00000286 00000001 deabcd74 d1007ee4 00000000 
+Nov 15 15:23:31 stas kernel:        de9caf80 e0920d35 00000000 00000000 deabcd74 00000007 de9caf94 e091fc97 
+Nov 15 15:23:31 stas kernel: Call Trace:
+Nov 15 15:23:31 stas kernel:  [<c010600a>] show_stack+0x7a/0x90
+Nov 15 15:23:31 stas kernel:  [<c0106196>] show_registers+0x156/0x1c0
+Nov 15 15:23:31 stas kernel:  [<c01063a4>] die+0xf4/0x180
+Nov 15 15:23:31 stas kernel:  [<c0119c9a>] do_page_fault+0x36a/0x69f
+Nov 15 15:23:31 stas kernel:  [<c0105c8f>] error_code+0x2b/0x30
+Nov 15 15:23:31 stas kernel:  [<c011d568>] __wake_up+0x38/0x50
+Nov 15 15:23:31 stas kernel:  [<e0920d35>] smb_request_recv+0x115/0x1ed [smbfs]
+Nov 15 15:23:31 stas kernel:  [<e091fc97>] smbiod_doio+0x27/0xa0 [smbfs]
+Nov 15 15:23:31 stas kernel:  [<e091fe4b>] smbiod+0x13b/0x178 [smbfs]
+Nov 15 15:23:31 stas kernel:  [<c01032e5>] kernel_thread_helper+0x5/0x10
+Nov 15 15:23:31 stas kernel: Code: c0 eb d2 90 55 89 e5 8b 40 04 5d e9 84 e3 ff ff 8d 74 26 00 55 89 e5 57 56 53 83 ec 10 89 55 f0 89 4d ec 8b 50 0c 83 c0 0c 39 c2 <8b> 3a 89 45 e8 74 3b 89 f6 8b 45 0c 8d 5a f4 8b 72 f4 8b 4d 08 
+Nov 15 15:23:31 stas kernel:  <3>Debug: sleeping function called from invalid context at include/linux/rwsem.h:43
+Nov 15 15:23:31 stas kernel: in_atomic():1, irqs_disabled():0
+Nov 15 15:23:31 stas kernel:  [<c0106037>] dump_stack+0x17/0x20
+Nov 15 15:23:31 stas kernel:  [<c011f102>] __might_sleep+0xa2/0xb0
+Nov 15 15:23:31 stas kernel:  [<c0122c73>] profile_task_exit+0x23/0x60
+Nov 15 15:23:31 stas kernel:  [<c0124d3c>] do_exit+0x1c/0x580
+Nov 15 15:23:32 stas kernel:  [<c0106428>] die+0x178/0x180
+Nov 15 15:23:32 stas kernel:  [<c0119c9a>] do_page_fault+0x36a/0x69f
+Nov 15 15:23:32 stas kernel:  [<c0105c8f>] error_code+0x2b/0x30
+Nov 15 15:23:32 stas kernel:  [<c011d568>] __wake_up+0x38/0x50
+Nov 15 15:23:32 stas kernel:  [<e0920d35>] smb_request_recv+0x115/0x1ed [smbfs]
+Nov 15 15:23:32 stas kernel:  [<e091fc97>] smbiod_doio+0x27/0xa0 [smbfs]
+Nov 15 15:23:32 stas kernel:  [<e091fe4b>] smbiod+0x13b/0x178 [smbfs]
+Nov 15 15:23:32 stas kernel:  [<c01032e5>] kernel_thread_helper+0x5/0x10
+Nov 15 15:23:32 stas kernel: note: smbiod[2567] exited with preempt_count 1
+Nov 15 15:23:38 stas kernel: Slab corruption: start=d1007ee4, len=256
+Nov 15 15:23:38 stas kernel: Redzone: 0x5a2cf071/0x5a2cf071.
+Nov 15 15:23:38 stas kernel: Last user: [<e0920d1c>](smb_request_recv+0xfc/0x1ed [smbfs])
+Nov 15 15:23:38 stas kernel: 000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 00 6b 6b 6b
+Nov 15 15:23:38 stas kernel: Prev obj: start=d1007dd8, len=256
+Nov 15 15:23:38 stas kernel: Redzone: 0x5a2cf071/0x5a2cf071.
+Nov 15 15:23:38 stas kernel: Last user: [<00000000>](0x0)
+Nov 15 15:23:38 stas kernel: 000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+Nov 15 15:23:38 stas kernel: 010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
 
-I don't like including prio_tree. I will only choose to go the
-include way if and only if every other choice leads to significant
-performance overhead.
+--------------080808030109060900010208
+Content-Type: text/x-patch;
+ name="smb.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="smb.diff"
 
-Currently I prefer the following way, but I didn't implement it
-because I don't have a strong reason to generalize prio_tree and
-the generalization may lead to some preformance loss (which may be
-insignificant loss in real world apps). We have to test to know
-the performance loss.
+--- linux-2.6.10-rc1-mm5/fs/smbfs/request.c	2004-11-05 17:47:35.000000000 +0300
++++ linux-2.6.10-rc1-mm5/fs/smbfs/request.c	2004-11-15 15:09:44.000000000 +0300
+@@ -335,18 +335,6 @@
+ 
+ 	timeleft = wait_event_interruptible_timeout(req->rq_wait,
+ 				    req->rq_flags & SMB_REQ_RECEIVED, 30*HZ);
+-	if (!timeleft || signal_pending(current)) {
+-		/*
+-		 * On timeout or on interrupt we want to try and remove the
+-		 * request from the recvq/xmitq.
+-		 */
+-		smb_lock_server(server);
+-		if (!(req->rq_flags & SMB_REQ_RECEIVED)) {
+-			list_del_init(&req->rq_queue);
+-			smb_rput(req);
+-		}
+-		smb_unlock_server(server);
+-	}
+ 
+ 	if (!timeleft) {
+ 		PARANOIA("request [%p, mid=%d] timed out!\n",
 
-Again I don't like the following approach fully. I couldn't come
-out with a clean generalization something like rb_tree code. I don't
-think such a clean generalization exists for prio_tree. Therefore,
-if we have a strong reason to generalize the prio_tree, then we have to
-choose one of the options we have. Untested prototype patch below.
-
-prio_tree generalization...
-
----
-
- linux-2.6.9-testuser/fs/inode.c                |    2
- linux-2.6.9-testuser/include/linux/prio_tree.h |   10 +++-
- linux-2.6.9-testuser/mm/prio_tree.c            |   56 ++++++++++++++-----------
- 3 files changed, 41 insertions(+), 27 deletions(-)
-
-diff -puN include/linux/prio_tree.h~prio_tree_gen include/linux/prio_tree.h
---- linux-2.6.9/include/linux/prio_tree.h~prio_tree_gen	2004-11-15 12:30:34.513076512 -0500
-+++ linux-2.6.9-testuser/include/linux/prio_tree.h	2004-11-15 13:04:55.772717416 -0500
-@@ -9,7 +9,8 @@ struct prio_tree_node {
-
- struct prio_tree_root {
- 	struct prio_tree_node	*prio_tree_node;
--	unsigned int 		index_bits;
-+	unsigned short		index_bits;
-+	unsigned short		type;
- };
-
- struct prio_tree_iter {
-@@ -31,10 +32,15 @@ static inline void prio_tree_iter_init(s
- 	iter->h_index = h_index;
- }
-
--#define INIT_PRIO_TREE_ROOT(ptr)	\
-+/* prio_tree types */
-+#define VMA_PRIO_TREE		0
-+#define ABISS_PRIO_TREE		1
-+
-+#define INIT_PRIO_TREE_ROOT(ptr, t)	\
- do {					\
- 	(ptr)->prio_tree_node = NULL;	\
- 	(ptr)->index_bits = 1;		\
-+	(ptr)->type = t;		\
- } while (0)
-
- #define INIT_PRIO_TREE_NODE(ptr)				\
-diff -puN mm/prio_tree.c~prio_tree_gen mm/prio_tree.c
---- linux-2.6.9/mm/prio_tree.c~prio_tree_gen	2004-11-15 12:32:39.010150080 -0500
-+++ linux-2.6.9-testuser/mm/prio_tree.c	2004-11-15 12:54:00.085397040 -0500
-@@ -44,23 +44,10 @@
-  * The following macros are used for implementing prio_tree for i_mmap
-  */
-
--#define RADIX_INDEX(vma)  ((vma)->vm_pgoff)
--#define VMA_SIZE(vma)	  (((vma)->vm_end - (vma)->vm_start) >> PAGE_SHIFT)
-+#define VMA_RADIX_INDEX(vma)	((vma)->vm_pgoff)
-+#define VMA_SIZE(vma)		(((vma)->vm_end - (vma)->vm_start) >> PAGE_SHIFT)
- /* avoid overflow */
--#define HEAP_INDEX(vma)	  ((vma)->vm_pgoff + (VMA_SIZE(vma) - 1))
--
--#define GET_INDEX_VMA(vma, radix, heap)		\
--do {						\
--	radix = RADIX_INDEX(vma);		\
--	heap = HEAP_INDEX(vma);			\
--} while (0)
--
--#define GET_INDEX(node, radix, heap)		\
--do { 						\
--	struct vm_area_struct *__tmp = 		\
--	  prio_tree_entry(node, struct vm_area_struct, shared.prio_tree_node);\
--	GET_INDEX_VMA(__tmp, radix, heap); 	\
--} while (0)
-+#define VMA_HEAP_INDEX(vma)	((vma)->vm_pgoff + (VMA_SIZE(vma) - 1))
-
- static unsigned long index_bits_to_maxindex[BITS_PER_LONG];
-
-@@ -83,6 +70,27 @@ static inline unsigned long prio_tree_ma
-
- static void prio_tree_remove(struct prio_tree_root *, struct prio_tree_node *);
-
-+static void get_index(struct prio_tree_root *root, struct prio_tree_node *node,
-+		unsigned long *radix, unsigned long *heap)
-+{
-+	switch (root->type) {
-+	case VMA_PRIO_TREE:
-+		struct vm_area_struct *vma;
-+		vma = prio_tree_entry(node, struct vm_area_struct,
-+				shared.prio_tree_node);
-+		*radix = VMA_RADIX_INDEX(vma);
-+		*heap = VMA_HEAP_INDEX(vma);
-+		break;
-+	case ABISS_PRIO_TREE:
-+		...
-+		break;
-+	default:
-+		BUG();
-+		break;
-+	}
-+}
-+
-+
- /*
-  * Extend a priority search tree so that it can store a node with heap_index
-  * max_heap_index. In the worst case, this algorithm takes O((log n)^2).
-@@ -190,7 +198,7 @@ static struct prio_tree_node *prio_tree_
- 	unsigned long r_index, h_index, index, mask;
- 	int size_flag = 0;
-
--	GET_INDEX(node, radix_index, heap_index);
-+	get_index(root, node, &radix_index, &heap_index);
-
- 	if (prio_tree_empty(root) ||
- 			heap_index > prio_tree_maxindex(root->index_bits))
-@@ -200,7 +208,7 @@ static struct prio_tree_node *prio_tree_
- 	mask = 1UL << (root->index_bits - 1);
-
- 	while (mask) {
--		GET_INDEX(cur, r_index, h_index);
-+		get_index(root, cur, &r_index, &h_index);
-
- 		if (r_index == radix_index && h_index == heap_index)
- 			return cur;
-@@ -269,14 +277,14 @@ static void prio_tree_remove(struct prio
-
- 	while (!prio_tree_left_empty(cur) || !prio_tree_right_empty(cur)) {
- 		if (!prio_tree_left_empty(cur))
--			GET_INDEX(cur->left, r_index, h_index_left);
-+			get_index(root, cur->left, &r_index, &h_index_left);
- 		else {
- 			cur = cur->right;
- 			continue;
- 		}
-
- 		if (!prio_tree_right_empty(cur))
--			GET_INDEX(cur->right, r_index, h_index_right);
-+			get_index(root, cur->right, &r_index, &h_index_right);
- 		else {
- 			cur = cur->left;
- 			continue;
-@@ -291,7 +299,7 @@ static void prio_tree_remove(struct prio
-
- 	if (prio_tree_root(cur)) {
- 		BUG_ON(root->prio_tree_node != cur);
--		INIT_PRIO_TREE_ROOT(root);
-+		INIT_PRIO_TREE_ROOT(root, root->type);
- 		return;
- 	}
-
-@@ -318,7 +326,7 @@ static struct prio_tree_node *prio_tree_
- 	if (prio_tree_left_empty(iter->cur))
- 		return NULL;
-
--	GET_INDEX(iter->cur->left, *r_index, *h_index);
-+	get_index(iter->root, iter->cur->left, r_index, h_index);
-
- 	if (iter->r_index <= *h_index) {
- 		iter->cur = iter->cur->left;
-@@ -359,7 +367,7 @@ static struct prio_tree_node *prio_tree_
- 	if (iter->h_index < value)
- 		return NULL;
-
--	GET_INDEX(iter->cur->right, *r_index, *h_index);
-+	get_index(iter->root, iter->cur->right, r_index, h_index);
-
- 	if (iter->r_index <= *h_index) {
- 		iter->cur = iter->cur->right;
-@@ -425,7 +433,7 @@ static struct prio_tree_node *prio_tree_
- 	if (prio_tree_empty(root))
- 		return NULL;
-
--	GET_INDEX(root->prio_tree_node, r_index, h_index);
-+	get_index(root, root->prio_tree_node, &r_index, &h_index);
-
- 	if (iter->r_index > h_index)
- 		return NULL;
-diff -puN fs/inode.c~prio_tree_gen fs/inode.c
---- linux-2.6.9/fs/inode.c~prio_tree_gen	2004-11-15 12:50:22.393491240 -0500
-+++ linux-2.6.9-testuser/fs/inode.c	2004-11-15 12:51:18.155014200 -0500
-@@ -201,7 +201,7 @@ void inode_init_once(struct inode *inode
- 	atomic_set(&inode->i_data.truncate_count, 0);
- 	INIT_LIST_HEAD(&inode->i_data.private_list);
- 	spin_lock_init(&inode->i_data.private_lock);
--	INIT_PRIO_TREE_ROOT(&inode->i_data.i_mmap);
-+	INIT_PRIO_TREE_ROOT(&inode->i_data.i_mmap, VMA_PRIO_TREE);
- 	INIT_LIST_HEAD(&inode->i_data.i_mmap_nonlinear);
- 	spin_lock_init(&inode->i_lock);
- 	i_size_ordered_init(inode);
-_
+--------------080808030109060900010208--

@@ -1,54 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261673AbUKIULt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261650AbUKIURO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261673AbUKIULt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 15:11:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261676AbUKIULt
+	id S261650AbUKIURO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 15:17:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261633AbUKIURO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 15:11:49 -0500
-Received: from stacja.kursor.pl ([80.55.191.138]:43988 "EHLO stacja.lan")
-	by vger.kernel.org with ESMTP id S261673AbUKIULm (ORCPT
+	Tue, 9 Nov 2004 15:17:14 -0500
+Received: from quechua.inka.de ([193.197.184.2]:10723 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S261650AbUKIURM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 15:11:42 -0500
-Date: Tue, 9 Nov 2004 21:11:18 +0100 (CET)
-From: Janusz Dziemidowicz <rraptorr@nails.eu.org>
-X-X-Sender: rraptorr@cube.lan
-To: Oded Shimon <ods15@ods15.dyndns.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: RivaFB on Geforce FX 5200
-In-Reply-To: <200411091458.06585.ods15@ods15.dyndns.org>
-Message-ID: <Pine.LNX.4.61.0411092106150.2007@cube.lan>
-References: <200411091458.06585.ods15@ods15.dyndns.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 9 Nov 2004 15:17:12 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: Why my computer freeze completely with xawtv ?
+References: <20041107224621.GB5360@magma.epfl.ch> <418EB58A.7080309@kolivas.org> <20041108000229.GC5360@magma.epfl.ch> <418EB8EB.30405@kolivas.org> <20041108003323.GE5360@magma.epfl.ch> <418EBFE5.5080903@kolivas.org> <Pine.LNX.4.60.0411080919220.32677@alpha.polcom.net> <E1CRGZd-0002ss-00@bigred.inka.de> <87is8frjkv.fsf@bytesex.org>
+Organization: private Linux site, southern Germany
+Date: Tue, 09 Nov 2004 21:10:30 +0100
+From: Olaf Titz <olaf@bigred.inka.de>
+Message-Id: <E1CRcJy-0001fF-00@bigred.inka.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Nov 2004, Oded Shimon wrote:
+> Thats something completely different and usually caused by the gfx
+> card not being able to handle the bandwith needed for full video
+> display.  Result are aborted PCI transfers, which results in the video
+> being displayed fine on the left side and not being displayed
+> correctly on the right side of the window.
 
-> One problem is when switching from X back to FB console, I can still see the X
-> cache (at the different res and color depth, it simply looks like noise...),
-> until some kind of modification has happenned in the console.
-> If i run any kind of program which modifies the frame buffer, for ex. fbset or
-> ppmtofb, the FB console is irreversibly ruined until reboot. (it looks mostly
-> like noise which you can barely make out the console text underneath).
-> The worst problem - no penguin at boot up. :(  There is a black bar in the
-> area where its supposed to be, but no image...
-> My guess is the cause for most of these problem is me causing the driver to
-> think it can support my card, when it doesn't really have all the kinks
-> sorted out...
+The symptom is different (the picture has vertical stripes, as if
+pixels get re-ordered in each horizontal line). xawtv running in
+overlay mode works well. This does the same things to the hardware
+wrt. PCI-PCI transfers as Xv, it's just a different driver programming
+the registers - so I suspect a bug in either Xfree86 or DVB.
 
-Hi,
-I assume You are trying to use rivafb with nvidia binary drivers? If 
-that's the case, then here's an excerpt from NVIDIA README file:
+Olaf
 
-Q: My system hangs when vt-switching if I have rivafb enabled.
-
-A: Using both rivafb and the NVIDIA kernel module at the same time is
-    currently broken.  In general, using two independent software drivers
-    to drive the same piece of hardware is a bad idea.
-
-So it is unlikely to make this two drivers to work together.
-
---
-Janusz Dziemidowicz
-rraptorr@nails.eu.org

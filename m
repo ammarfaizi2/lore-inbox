@@ -1,55 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136176AbRECHw3>; Thu, 3 May 2001 03:52:29 -0400
+	id <S136208AbRECHyT>; Thu, 3 May 2001 03:54:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136182AbRECHwU>; Thu, 3 May 2001 03:52:20 -0400
-Received: from geos.coastside.net ([207.213.212.4]:5262 "EHLO
-	geos.coastside.net") by vger.kernel.org with ESMTP
-	id <S136176AbRECHwI>; Thu, 3 May 2001 03:52:08 -0400
-Mime-Version: 1.0
-Message-Id: <p0510030ab716bdcf5556@[207.213.214.37]>
-In-Reply-To: <80BTbI6mw-B@khms.westfalen.de>
-In-Reply-To: <p05100303b70eadd613b0@[207.213.214.37]>
- <80BTbI6mw-B@khms.westfalen.de>
-Date: Thu, 3 May 2001 00:51:25 -0700
-To: kaih@khms.westfalen.de (Kai Henningsen)
-From: Jonathan Lundell <jlundell@pobox.com>
-Subject: Re: [PATCH] adding PCI bus information to SCSI layer
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+	id <S136182AbRECHyH>; Thu, 3 May 2001 03:54:07 -0400
+Received: from smtp3.libero.it ([193.70.192.53]:62924 "EHLO smtp3.libero.it")
+	by vger.kernel.org with ESMTP id <S136186AbRECHxq>;
+	Thu, 3 May 2001 03:53:46 -0400
+Message-ID: <3AF10E80.63727970@alsa-project.org>
+Date: Thu, 03 May 2001 09:53:36 +0200
+From: Abramo Bagnara <abramo@alsa-project.org>
+Organization: Opera Unica
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19 i586)
+X-Accept-Language: it, en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: Geert Uytterhoeven <geert@linux-m68k.org>,
+        Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: unsigned long ioremap()?
+In-Reply-To: <Pine.LNX.4.05.10105030852330.9438-100000@callisto.of.borg> <15089.979.650927.634060@pizda.ninka.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 9:32 AM +0200 2001-05-03, Kai Henningsen wrote:
->jlundell@pobox.com (Jonathan Lundell)  wrote on 26.04.01 in 
-><p05100303b70eadd613b0@[207.213.214.37]>:
->
->>  At 10:31 PM -0600 2001-04-26, Richard Gooch wrote:
->>  >BTW: please fix your mailer to do linewrap at 72 characters. Your
->>  >lines are hundreds of characters long, and that's hard to read.
->>
->>  Sorry for the inconvenience. There are a lot of reasons why I believe
->>  it's properly a display function to wrap long lines, and that an MUA
->>  has no business altering outgoing messages (one on-topic reason being
->>  that patches get screwed up by inserted newlines), but I grant that
->>  there are broken clients out there that can't or won't or don't wrap
->>  at display time.
->
->What's a lot more important is that the mail standards say that this stuff 
->should not be interpreted by the receivers as needing wrapping, so 
->irregardless of good or bad design it's just plain illegal.
->
->If you want to support wrapping with plain text, investigate
->format=flowed.
+"David S. Miller" wrote:
+> 
+> Geert Uytterhoeven writes:
+>  > Since you're not allowed to use direct memory dereferencing on ioremapped
+>  > areas, wouldn't it be more logical to let ioremap() return an unsigned long
+>  > instead of a void *?
+>  >
+>  > Of course we then have to change readb() and friends to take a long as well,
+>  > but at least we'd get compiler warnings when someone tries to do a direct
+>  > dereference.
+> 
+> There is a school of thought which believes that:
+> 
+> struct xdev_regs {
+>         u32 reg1;
+>         u32 reg2;
+> };
+> 
+>         val = readl(&regs->reg2);
+> 
+> is cleaner than:
+> 
+> #define REG1 0x00
+> #define REG2 0x04
+> 
+>         val = readl(regs + REG2);
+> 
+> I'm personally ambivalent and believe that both cases should be allowed.
 
-Yes, I did that.
+The problem I see is that with the former solution nothing prevents from
+to do:
 
-I'm curious, though: I haven't found the mail standards that forbid 
-receivers to wrap long lines. Certainly many mail clients do it. 
-What's the relevant RFC?
+	regs->reg2 = 13;
 
->MfG Kai
-
+That's indeed the reason to change ioremap prototype for 2.5.
 
 -- 
-/Jonathan Lundell.
+Abramo Bagnara                       mailto:abramo@alsa-project.org
+
+Opera Unica                          Phone: +39.546.656023
+Via Emilia Interna, 140
+48014 Castel Bolognese (RA) - Italy
+
+ALSA project               http://www.alsa-project.org
+It sounds good!

@@ -1,97 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263786AbTDUIIe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 04:08:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263787AbTDUIIe
+	id S263785AbTDUIGG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 04:06:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263786AbTDUIGG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 04:08:34 -0400
-Received: from main.gmane.org ([80.91.224.249]:32965 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S263786AbTDUIIc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 04:08:32 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Mon, 21 Apr 2003 04:06:06 -0400
+Received: from web8004.mail.in.yahoo.com ([203.199.70.64]:64786 "HELO
+	web8004.mail.in.yahoo.com") by vger.kernel.org with SMTP
+	id S263785AbTDUIGF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 04:06:05 -0400
+Message-ID: <20030421081802.67851.qmail@web8004.mail.in.yahoo.com>
+Date: Mon, 21 Apr 2003 09:18:02 +0100 (BST)
+From: =?iso-8859-1?q?Yours=20Lovingly?= <ylovingly@yahoo.co.in>
+Subject: queer error in kernel
 To: linux-kernel@vger.kernel.org
-From: "Andres Salomon" <dilinger@voxel.net>
-Subject: [PATCH] ppc32 compilation fixes for 2.5.68
-Date: Mon, 21 Apr 2003 04:20:31 -0400
-Message-ID: <pan.2003.04.21.08.19.15.748399@voxel.net>
-Mime-Version: 1.0
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: Pan/0.13.4 (She had eyes like strange sins. (Debian GNU/Linux))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-These patches are mostly simple compilation fixes, needed in order to get
-2.5.68 compiling for my ti-book.  The kernel boots up fine w/ them (gnome
-is severely broken, but that's a separate issue).
+Hi,
+  I have a small hack for the linux kernel's nfs
+module which was working just fine before the
+following code was introduced:
 
-Also, I've submitted these as bugs #609, 610, and 611 to bugme.osdl.org. 
-I'm not sure how active developers are w/ that BTS, so I'm posting here as
-well, just in case.
+static void nfs_print_path(struct dentry *d) {
+	struct dentry *parent;
+	struct inode *inode_parent, *inode;
+	unsigned long p, me;
 
+	if(!d) {
+		return;
+	}	
+	parent = d->d_parent;
+	
+	if(parent) {
+		inode_parent = parent->d_inode;
+		inode = d->d_inode;
+// till here everything works just fine
+		
+/* the following code just doesn't work. None of it
+works, neither the assignments to 'p' and 'me', nor
+the printk, nor the comparision in the if statement
+after that. I tested each of these 3 different cases
+separately and each time i got the same error (see
+below) */
+                p = (unsigned long)inode_parent;
+		me = (unsigned long)inode;
 
---- a/drivers/macintosh/adbhid.c	2003-04-19 22:51:22.000000000 -0400
-+++ b/drivers/macintosh/adbhid.c	2003-04-20 21:17:21.000000000 -0400
-@@ -84,7 +84,7 @@
- 
- static void adbhid_probe(void);
- 
--static void adbhid_input_keycode(int, int, int);
-+static void adbhid_input_keycode(int, int, int, struct pt_regs*);
- static void leds_done(struct adb_request *);
- 
- static void init_trackpad(int id);
-@@ -140,7 +140,7 @@
- }
- 
- static void
--adbhid_input_keycode(int id, int keycode, int repeat, pt_regs *regs)
-+adbhid_input_keycode(int id, int keycode, int repeat, struct pt_regs *regs)
- {
- 	int up_flag;
- 
-diff -urN a/include/asm-ppc/agp.h b/include/asm-ppc/agp.h
---- a/include/asm-ppc/agp.h	1969-12-31 19:00:00.000000000 -0500
-+++ b/include/asm-ppc/agp.h	2003-04-20 20:52:15.000000000 -0400
-@@ -0,0 +1,11 @@
-+#ifndef AGP_H
-+#define AGP_H 1
-+
-+/* dummy for now */
-+
-+#define map_page_into_agp(page) 
-+#define unmap_page_from_agp(page) 
-+#define flush_agp_mappings() 
-+#define flush_agp_cache() mb()
-+
-+#endif
---- tmp/linux-2.5.68/sound/ppc/keywest.c	2003-04-19 22:51:12.000000000 -0400
-+++ linux-2.5.68/sound/ppc/keywest.c	2003-04-20 21:48:55.000000000 -0400
-@@ -57,20 +57,20 @@
- 	if (! keywest_ctx)
- 		return -EINVAL;
- 
--	if (strncmp(adapter->name, "mac-io", 6))
-+	if (strncmp(adapter->dev.name, "mac-io", 6))
- 		return 0; /* ignored */
- 
- 	new_client = kmalloc(sizeof(struct i2c_client), GFP_KERNEL);
- 	if (! new_client)
- 		return -ENOMEM;
- 
-+	i2c_set_clientdata(new_client, (void *) keywest_ctx);
- 	new_client->addr = keywest_ctx->addr;
--	new_client->data = keywest_ctx;
- 	new_client->adapter = adapter;
- 	new_client->driver = &keywest_driver;
- 	new_client->flags = 0;
- 
--	strcpy(new_client->name, keywest_ctx->name);
-+	strcpy(i2c_clientname(new_client), keywest_ctx->name);
- 
- 	new_client->id = keywest_ctx->id++; /* Automatically unique */
- 	keywest_ctx->client = new_client;
+		printk("parent inode: %x child inode: %x\n",
+inode_parent, inode);
+
+                if( ((char *)inode_parent == 
+                              (char *)inode) ) { 
+		       
+............
+}
 
 
+I got an error something like this: 
+Unable to handle kernel NULL pointer dereference at
+virtual address 0...0f 
+printing eip ....
+		
+
+As i see it, if there is really an error where it
+appears to be to me, there is error in just 'reading'
+the values of the variable 'inode_parent' and 'inode'.
+But considering the object code the C Compiler must
+have produced, there is nothing that actually *does*
+some real task - all that is being done is reading
+some
+arbit value from the function's stack: whats so wrong
+with that ???
+
+thanks in advance
+abhishek
+
+________________________________________________________________________
+Missed your favourite TV serial last night? Try the new, Yahoo! TV.
+       visit http://in.tv.yahoo.com

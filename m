@@ -1,25 +1,24 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262143AbTEUOpb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 10:45:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262144AbTEUOpa
+	id S262144AbTEUO4a (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 10:56:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262148AbTEUO4a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 10:45:30 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:7135 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S262143AbTEUOp2
+	Wed, 21 May 2003 10:56:30 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:59529 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S262144AbTEUO43
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 10:45:28 -0400
-Date: Wed, 21 May 2003 07:58:11 -0700
+	Wed, 21 May 2003 10:56:29 -0400
+Date: Wed, 21 May 2003 08:05:55 -0700
 From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: "David S. Miller" <davem@redhat.com>, habanero@us.ibm.com
-cc: haveblue@us.ibm.com, wli@holomorphy.com, arjanv@redhat.com,
-       pbadari@us.ibm.com, linux-kernel@vger.kernel.org, gh@us.ibm.com,
-       johnstul@us.ibm.com, jamesclv@us.ibm.com, akpm@digeo.com,
-       mannthey@us.ibm.com
-Subject: Re: userspace irq balancer
-Message-ID: <6610000.1053529089@[10.10.2.4]>
-In-Reply-To: <20030520.163833.104040023.davem@redhat.com>
-References: <1053412583.13289.322.camel@nighthawk><20030519.234055.35511478.davem@redhat.com><200305200907.41443.habanero@us.ibm.com> <20030520.163833.104040023.davem@redhat.com>
+To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+cc: lse-tech@lists.sourceforge.net, kaos@ocs.com.au,
+       James.Bottomley@steeleye.com, mort@wildopensource.com,
+       davidm@napali.hpl.hp.com, jun.nakajima@intel.com, tomita@cinet.co.jp
+Subject: Re: [Lse-tech] cpu-2.5.69-bk14-1
+Message-ID: <11120000.1053529553@[10.10.2.4]>
+In-Reply-To: <20030520170331.GK29926@holomorphy.com>
+References: <20030520170331.GK29926@holomorphy.com>
 X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -28,18 +27,21 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> There is zero reason why IRQ balancing should be in any way
-> different.  It's POLICY, and POLICY == USERSPACE.  It is the end
-> of the argument.
+> Extended cpumasks for larger systems. Now featuring bigsmp, Summit,
+> and Voyager updates in addition to PC-compatible, NUMA-Q, and SN2
+> bits from SGI.
 
-Despite whatever political wrangling there is between userspace and
-kernelspace implementations (and some very valid points about other
-arches), there is still a dearth of testing, as far as I can see.
+Can you remove the random cleanups from this, and just leave the actual
+patch please? Things like:
 
-I can't see anything wrong with making it a config option for now,
-and letting people choose what they want to do, until we have more
-information as to which performs better under a variety of workloads. 
-That seems the most pragmatic way forward.
+ static inline int apic_id_registered(void)
+ {
+-       return (1);
++       return 1;
+ }
+ 
+... have sweet FA to do with this. If you want to do that, it's a separate
+patch.
 
 M.
 

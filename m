@@ -1,51 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262240AbUCRAcW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Mar 2004 19:32:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262250AbUCRAcW
+	id S262248AbUCRAbg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Mar 2004 19:31:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262240AbUCRAbg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Mar 2004 19:32:22 -0500
-Received: from fw.osdl.org ([65.172.181.6]:17026 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262240AbUCRAcS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Mar 2004 19:32:18 -0500
-Date: Wed, 17 Mar 2004 16:32:14 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Kurt Garloff <garloff@suse.de>
-Cc: kernel@kolivas.org, hch@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: dynamic sched timeslices
-Message-Id: <20040317163214.16c943c5.akpm@osdl.org>
-In-Reply-To: <20040318002027.GO20121@tpkurt.garloff.de>
-References: <20040315224201.GX4452@tpkurt.garloff.de>
-	<200403170013.38140.kernel@kolivas.org>
-	<20040316142957.GX4452@tpkurt.garloff.de>
-	<200403170745.02538.kernel@kolivas.org>
-	<20040318002027.GO20121@tpkurt.garloff.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 17 Mar 2004 19:31:36 -0500
+Received: from fmr04.intel.com ([143.183.121.6]:1244 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262236AbUCRAb3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Mar 2004 19:31:29 -0500
+Message-Id: <200403180031.i2I0VQF02038@unix-os.sc.intel.com>
+From: "Kenneth Chen" <kenneth.w.chen@intel.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <linux-ia64@vger.kernel.org>
+Subject: add lowpower_idle sysctl
+Date: Wed, 17 Mar 2004 16:31:26 -0800
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcQMgFk4FqG2Qc/WQ86ABjRymBVj/w==
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kurt Garloff <garloff@suse.de> wrote:
->
-> Hi Con,
-> 
-> On Wed, Mar 17, 2004 at 07:45:02AM +1100, Con Kolivas wrote:
-> > > That's why I think we should offer the tunables.
-> > 
-> > If your workload is so dedicated to just number crunching it isn't hard to add 
-> > a zero to maximum timeslice in kernel/sced.c. 
-> 
-> Of course I can compile a custom kernel for myself and tune all sorts of
-> things. But this is not the way most Linux users want to use Linux any
-> more. Actually that's a long time ago.
-> 
+On ia64, we need runtime control to manage CPU power state in the idle
+loop.  Logically it means a sysctl entry in /proc/sys/kernel.  Even
+though this sysctl entry doesn't exist today, lots of arch already has
+some sort of API to dynamically enable/disable low power idle state.
+Looking at linux-2.6.4, arm, arm26, cris, i386, parisc, sh, um, x86-64
+all has very much the same code in each arch.  So instead of replicate
+another set under arch/ia64, we are proposing these API to be abstracted
+out in the generic code.  And also add a sysctl entry under /proc/sys/kernel.
 
-I don't think we should be averse to offering a couple of nice high-level
-scheduler tunables.  But I do think we should have testing results which
-clearly show that they provide some benefit, and we should agree that the
-scheduler cannot provide the same benefit automagically.
+Would this be useful to all architecture who wants this features?  It
+would be a lot less code duplication.
 
-Apologies in advance if we've seen those testing results and I missed it.
+- Ken
+
+
+diff -Nur linux-2.6.4/include/linux/sysctl.h linux-2.6.4.halt/include/linux/sysctl.h
+--- linux-2.6.4/include/linux/sysctl.h	2004-03-10 18:55:28.000000000 -0800
++++ linux-2.6.4.halt/include/linux/sysctl.h	2004-03-17 15:33:30.000000000 -0800
+@@ -131,6 +131,7 @@
+ 	KERN_PRINTK_RATELIMIT_BURST=61,	/* int: tune printk ratelimiting */
+ 	KERN_PTY=62,		/* dir: pty driver */
+ 	KERN_NGROUPS_MAX=63,	/* int: NGROUPS_MAX */
++	KERN_LOWPOWER_IDLE=64,	/* int: low power idle */
+ };
+
+
+diff -Nur linux-2.6.4/kernel/cpu.c linux-2.6.4.halt/kernel/cpu.c
+--- linux-2.6.4/kernel/cpu.c	2004-03-10 18:55:44.000000000 -0800
++++ linux-2.6.4.halt/kernel/cpu.c	2004-03-17 15:36:32.000000000 -0800
+@@ -64,3 +64,15 @@
+ 	up(&cpucontrol);
+ 	return ret;
+ }
++
++atomic_t halt_counter;
++void enable_halt(void)
++{
++	atomic_dec(&halt_counter);
++}
++void disable_halt(void)
++{
++	atomic_inc(&halt_counter);
++}
++EXPORT_SYMBOL(enable_halt);
++EXPORT_SYMBOL(disable_halt);
+diff -Nur linux-2.6.4/kernel/sysctl.c linux-2.6.4.halt/kernel/sysctl.c
+--- linux-2.6.4/kernel/sysctl.c	2004-03-10 18:55:22.000000000 -0800
++++ linux-2.6.4.halt/kernel/sysctl.c	2004-03-17 15:34:52.000000000 -0800
+@@ -64,6 +64,7 @@
+ extern int min_free_kbytes;
+ extern int printk_ratelimit_jiffies;
+ extern int printk_ratelimit_burst;
++extern atomic_t halt_counter;
+
+ /* this is needed for the proc_dointvec_minmax for [fs_]overflow UID and GID */
+ static int maxolduid = 65535;
+@@ -615,6 +616,14 @@
+ 		.mode		= 0444,
+ 		.proc_handler	= &proc_dointvec,
+ 	},
++	{
++		.ctl_name	= KERN_LOWPOWER_IDLE,
++		.procname	= "lowpower_idle",
++		.data		= &halt_counter,
++		.maxlen		= sizeof (int),
++		.mode		= 0644,
++		.proc_handler	= &proc_dointvec,
++	},
+ 	{ .ctl_name = 0 }
+ };
+
+
+

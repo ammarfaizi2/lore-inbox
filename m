@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261764AbULJRn6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261772AbULJRry@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261764AbULJRn6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 12:43:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261769AbULJRn6
+	id S261772AbULJRry (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 12:47:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261770AbULJRry
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 12:43:58 -0500
-Received: from holomorphy.com ([207.189.100.168]:32658 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261764AbULJRn4 (ORCPT
+	Fri, 10 Dec 2004 12:47:54 -0500
+Received: from holomorphy.com ([207.189.100.168]:35730 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261772AbULJRrj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 12:43:56 -0500
-Date: Fri, 10 Dec 2004 09:43:42 -0800
+	Fri, 10 Dec 2004 12:47:39 -0500
+Date: Fri, 10 Dec 2004 09:47:30 -0800
 From: William Lee Irwin III <wli@holomorphy.com>
 To: Thomas Gleixner <tglx@linutronix.de>
 Cc: Andrew Morton <akpm@osdl.org>, andrea@suse.de,
        marcelo.tosatti@cyclades.com, LKML <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] oom killer (Core)
-Message-ID: <20041210174342.GQ2714@holomorphy.com>
+Message-ID: <20041210174730.GR2714@holomorphy.com>
 References: <20041201104820.1.patchmail@tglx> <20041210163247.GM2714@holomorphy.com> <1102697553.3306.91.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -42,7 +42,7 @@ On Fri, Dec 10, 2004 at 05:52:33PM +0100, Thomas Gleixner wrote:
 > to kill.
 > This should really go into mainline.
 
-ARGH, preempt.
+This should all be split up; it's doing a dozen things at a time.
 
 
 -- wli

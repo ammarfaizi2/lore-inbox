@@ -1,54 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285417AbSBECcy>; Mon, 4 Feb 2002 21:32:54 -0500
+	id <S287111AbSBECgq>; Mon, 4 Feb 2002 21:36:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286895AbSBECcq>; Mon, 4 Feb 2002 21:32:46 -0500
-Received: from tantale.fifi.org ([216.27.190.146]:65415 "EHLO tantale.fifi.org")
-	by vger.kernel.org with ESMTP id <S285417AbSBECcg>;
-	Mon, 4 Feb 2002 21:32:36 -0500
-To: Alexander Sandler <ASandler@store-age.com>
-Cc: "'sathish jayapalan'" <sathish_jayapalan@yahoo.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: How to crash a system and take a dump?
-In-Reply-To: <BDE817654148D51189AC00306E063AAE054623@exchange.store-age.com>
-From: Philippe Troin <phil@fifi.org>
-Date: 04 Feb 2002 18:32:21 -0800
-In-Reply-To: <BDE817654148D51189AC00306E063AAE054623@exchange.store-age.com>
-Message-ID: <87zo2oacay.fsf@ceramic.fifi.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S287565AbSBECge>; Mon, 4 Feb 2002 21:36:34 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19471 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S287111AbSBECgX>;
+	Mon, 4 Feb 2002 21:36:23 -0500
+Message-ID: <3C5F4522.8D4D74A6@mandrakesoft.com>
+Date: Mon, 04 Feb 2002 21:36:18 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: jt@hpl.hp.com
+CC: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.5.3] wavelan_cs.c : new WE api
+In-Reply-To: <20020204110138.B6533@bougret.hpl.hp.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Sandler <ASandler@store-age.com> writes:
+Comments pertaining to all three of wavelan, wavelan_cs, and netwave_cs:
+* wv_splhi should really just be spin_lock_irqsave.  calling
+spin_lock_irqsave with 'flags' from another function is non-portable. 
+doing so to an inline function is just barely portable, and is
+discouraged :)
+* I still see a couple save_flags/restore_flags in there...
 
-> > Hi,
-> > I have a doubt. I know that linux kernel doesn't crash
-> > so easily. Is there any way to panic the system? Can I
-> > go to the source area and insert/modify a variable in
-> > kernel code so that the kernel references a null
-> > pointer and crashes while running the kernel compiled
-> > with this variable. My aim is to learn crash dump
-> > analysis with 'Lcrash tool". Please help me out with
-> > this.
-> 
-> Go to interrupt handler (for instance in fs/buffer.c end_buffer_io_async() )
-> and cause segmentation fault.
-> System will try to kill process that caused segmentation fault and since
-> it's in interrupt context will panic.
+otherwise looks ok to me.
 
-Simplier: insmod this module:
-
-#include <linux/module.h>
-
-int init_module()
-{
-   panic("Forcing panic");
-}
-
-int cleanup_module()
-{
-}
-
-Phil.
+-- 
+Jeff Garzik      | "I went through my candy like hot oatmeal
+Building 1024    |  through an internally-buttered weasel."
+MandrakeSoft     |             - goats.com

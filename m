@@ -1,73 +1,164 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312983AbSDPTOY>; Tue, 16 Apr 2002 15:14:24 -0400
+	id <S313827AbSDPTXz>; Tue, 16 Apr 2002 15:23:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313827AbSDPTOX>; Tue, 16 Apr 2002 15:14:23 -0400
-Received: from mailg.telia.com ([194.22.194.26]:35838 "EHLO mailg.telia.com")
-	by vger.kernel.org with ESMTP id <S312983AbSDPTOW>;
-	Tue, 16 Apr 2002 15:14:22 -0400
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
-To: Andrea Arcangeli <andrea@suse.de>,
-        Moritz Franosch <jfranosc@physik.tu-muenchen.de>
-Subject: Re: IO performance problems in 2.4.19-pre5 when writing to DVD-RAM/ZIP/MO
-Date: Tue, 16 Apr 2002 21:14:09 +0200
-X-Mailer: KMail [version 1.4.5]
-Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-In-Reply-To: <rxxadshj1rh.fsf@synapse.t30.physik.tu-muenchen.de> <20020416165358.E29747@dualathlon.random>
+	id <S313828AbSDPTXy>; Tue, 16 Apr 2002 15:23:54 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:61700 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S313827AbSDPTXx>; Tue, 16 Apr 2002 15:23:53 -0400
+Message-ID: <3CBC7A41.384FD032@zip.com.au>
+Date: Tue, 16 Apr 2002 12:23:45 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200204162114.09589.roger.larsson@skelleftea.mail.telia.com>
+To: Andries.Brouwer@cwi.nl
+CC: linux-kernel@vger.kernel.org
+Subject: Re: readahead
+In-Reply-To: <UTC200204161910.g3GJAx009370.aeb@smtp.cwi.nl>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 16 April 2002 16.53, Andrea Arcangeli wrote:
-> The reason hd is faster is because new algorithm is much better than the
-> previous mainline code. Now the reason the DVDRAM hangs the machine
-> more, that's probably because more ram can be marked dirty with those
-> new changes (beneficial for some workload, but it stalls much more the
-> fast hd, if there's one very slow blkdev in the system). You can try
-> decrasing the percent of vm dirty in the system with:
->
->
->         echo 2 500 0 0 500 3000 3 1 0 >/proc/sys/vm/bdflush
->
->
-> hope this helps,
->
->
-> Right fix is different but not suitable for 2.4.
->
->
-> Andrea
+Andries.Brouwer@cwi.nl wrote:
+> 
+> ...
+>     Do these cards not have a request queue?
+> 
+> The kernel views them as SCSI disks.
+> So yes, I can do
+> 
+>    blockdev --setra 0 /dev/sdc
+> 
+> Unfortunately that does not help in the least.
+> Indeed, the only user of the readahead info is
+> readahead.c: get_max_readahead() and it does
+> 
+>         blk_ra_kbytes = blk_get_readahead(inode->i_dev) / 2;
+>         if (blk_ra_kbytes < VM_MIN_READAHEAD)
+>                 blk_ra_kbytes = VM_MAX_READAHEAD;
+> 
+> We need to distinguish between undefined, and explicily zero.
 
-In an other recent thread "PROMBLEM: CD burning at 16x uses excessive CPU, 
-although DMA is enabled" it was found out that writing to CD-R did not use 
-DMA. This resulted in lots of wasted CPU cycles.
+Yup.  The below (untested) patch should fix it up.  Assuming
+that all drivers use blk_init_queue(), and heaven knows if
+that's the case.  If not, the readahead window will have to be
+set from userspace for those devices.
 
->From a main by Anssi Saari
-> cdrdao simulate -n --speed 8 foo.cue  2.62s user 3.37s system 1% cpu 6:41
-> cdrdao simulate -n --speed 12 foo.cue  2.78s user 29.91s system 12% cpu 4:31
-> cdrdao simulate -n --speed 16 foo.cue  2.67s user 128.8s system 52% cpu 4:11
+> ...
+> 
+>     Yes, but things should be OK as-is.  If the readahead attempt
+>     gets an I/O error, do_generic_file_read will notice the non-uptodate
+>     page and will issue a single-page read.  So everything up to
+>     a page's distance from the bad block should be recoverable.
+>     That's the theory; can't say that I've tested it.
+> 
+> It is really important to be able to tell the kernel to read and
+> write only the blocks it has been asked to read and write and
+> not to touch anything else.
 
-> But even though 50% is quite high, CPU load is not the problem as such,
-> the problem is getting data to the writer fast enough. And it's not
-> happening. Even a single audio track that is completely cached so that
-> there is no HD access has problems. It's like somehow accessing the CD
-> writer hogs the system for such long periods that there is insufficient
-> time to fill the writing program's buffer.
-
-Might this be part of the problem in this case too? Moritz please time your 
-commands and use vmstat too... (time spent in interrupt while running the
-idle process - does not always show up)
-
-
-/RogerL
-
--- 
-Roger Larsson
-Skellefteå
-Sweden
+That is really hard when there is a filesystem mounted.
+Even with readahead set to zero, the kernel will go and
+read PAGE_CACHE_SIZE chunks.  That's not worth changing 
+to address this problem.  In the last resort, the
+user would need to perform a sector-by-sector read of
+the dud device into a regular file, recover from that.
 
 
+--- 2.5.8/mm/readahead.c~readahead-fixes	Tue Apr 16 12:07:42 2002
++++ 2.5.8-akpm/mm/readahead.c	Tue Apr 16 12:13:52 2002
+@@ -25,9 +25,6 @@
+  * has a zero value of ra_sectors.
+  */
+ 
+-#define VM_MAX_READAHEAD	128	/* kbytes */
+-#define VM_MIN_READAHEAD	16	/* kbytes (includes current page) */
+-
+ /*
+  * Return max readahead size for this inode in number-of-pages.
+  */
+@@ -36,9 +33,6 @@ static int get_max_readahead(struct inod
+ 	unsigned blk_ra_kbytes = 0;
+ 
+ 	blk_ra_kbytes = blk_get_readahead(inode->i_dev) / 2;
+-	if (blk_ra_kbytes < VM_MIN_READAHEAD)
+-		blk_ra_kbytes = VM_MAX_READAHEAD;
+-
+ 	return blk_ra_kbytes >> (PAGE_CACHE_SHIFT - 10);
+ }
+ 
+@@ -96,10 +90,10 @@ static int get_min_readahead(struct inod
+  * second page) then the window will build more slowly.
+  *
+  * On a readahead miss (the application seeked away) the readahead window is shrunk
+- * by 25%.  We don't want to drop it too aggressively, because it's a good assumption
+- * that an application which has built a good readahead window will continue to
+- * perform linear reads.  Either at the new file position, or at the old one after
+- * another seek.
++ * by 25%.  We don't want to drop it too aggressively, because it is a good
++ * assumption that an application which has built a good readahead window will
++ * continue to perform linear reads.  Either at the new file position, or at the
++ * old one after another seek.
+  *
+  * There is a special-case: if the first page which the application tries to read
+  * happens to be the first page of the file, it is assumed that a linear read is
+@@ -109,9 +103,9 @@ static int get_min_readahead(struct inod
+  * sequential file reading.
+  *
+  * This function is to be called for every page which is read, rather than when
+- * it is time to perform readahead.  This is so the readahead algorithm can centrally
+- * work out the access patterns.  This could be costly with many tiny read()s, so
+- * we specifically optimise for that case with prev_page.
++ * it is time to perform readahead.  This is so the readahead algorithm can
++ * centrally work out the access patterns.  This could be costly with many tiny
++ * read()s, so we specifically optimise for that case with prev_page.
+  */
+ 
+ /*
+@@ -208,8 +202,10 @@ void page_cache_readahead(struct file *f
+ 			goto out;
+ 	}
+ 
+-	min = get_min_readahead(inode);
+ 	max = get_max_readahead(inode);
++	if (max == 0)
++		goto out;	/* No readahead */
++	min = get_min_readahead(inode);
+ 
+ 	if (ra->next_size == 0 && offset == 0) {
+ 		/*
+@@ -310,7 +306,8 @@ void page_cache_readaround(struct file *
+ {
+ 	unsigned long target;
+ 	unsigned long backward;
+-	const int min = get_min_readahead(file->f_dentry->d_inode->i_mapping->host) * 2;
++	const int min =
++		get_min_readahead(file->f_dentry->d_inode->i_mapping->host) * 2;
+ 
+ 	if (file->f_ra.next_size < min)
+ 		file->f_ra.next_size = min;
+--- 2.5.8/include/linux/mm.h~readahead-fixes	Tue Apr 16 12:11:39 2002
++++ 2.5.8-akpm/include/linux/mm.h	Tue Apr 16 12:12:14 2002
+@@ -539,6 +539,8 @@ extern int filemap_sync(struct vm_area_s
+ extern struct page *filemap_nopage(struct vm_area_struct *, unsigned long, int);
+ 
+ /* readahead.c */
++#define VM_MAX_READAHEAD	128	/* kbytes */
++#define VM_MIN_READAHEAD	16	/* kbytes (includes current page) */
+ void do_page_cache_readahead(struct file *file,
+ 			unsigned long offset, unsigned long nr_to_read);
+ void page_cache_readahead(struct file *file, unsigned long offset);
+--- 2.5.8/drivers/block/ll_rw_blk.c~readahead-fixes	Tue Apr 16 12:12:19 2002
++++ 2.5.8-akpm/drivers/block/ll_rw_blk.c	Tue Apr 16 12:13:43 2002
+@@ -851,7 +851,7 @@ int blk_init_queue(request_queue_t *q, r
+ 	q->plug_tq.data		= q;
+ 	q->queue_flags		= (1 << QUEUE_FLAG_CLUSTER);
+ 	q->queue_lock		= lock;
+-	q->ra_sectors		= 0;		/* Use VM default */
++	q->ra_sectors		= VM_MAX_READAHEAD << (PAGE_CACHE_SHIFT - 9);
+ 
+ 	blk_queue_segment_boundary(q, 0xffffffff);
+ 
+
+-

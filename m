@@ -1,56 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267417AbRGLCaz>; Wed, 11 Jul 2001 22:30:55 -0400
+	id <S266006AbRGLDXf>; Wed, 11 Jul 2001 23:23:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267420AbRGLCaq>; Wed, 11 Jul 2001 22:30:46 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:22291 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S267417AbRGLCaf>; Wed, 11 Jul 2001 22:30:35 -0400
-Date: Thu, 12 Jul 2001 04:30:46 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Lance Larsh <llarsh@oracle.com>
-Cc: Brian Strand <bstrand@switchmanagement.com>, linux-kernel@vger.kernel.org,
-        lvm-devel@sistina.com
-Subject: Re: 2x Oracle slowdown from 2.2.16 to 2.4.4
-Message-ID: <20010712043046.R3496@athlon.random>
-In-Reply-To: <3B4C8263.6000407@switchmanagement.com> <Pine.LNX.4.21.0107111530170.2342-100000@llarsh-pc3.us.oracle.com>
-Mime-Version: 1.0
+	id <S266771AbRGLDXZ>; Wed, 11 Jul 2001 23:23:25 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:35512 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S266006AbRGLDXN>; Wed, 11 Jul 2001 23:23:13 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Andrew Morton <andrewm@uow.edu.au>
+Date: Thu, 12 Jul 2001 13:22:58 +1000 (EST)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0107111530170.2342-100000@llarsh-pc3.us.oracle.com>; from llarsh@oracle.com on Wed, Jul 11, 2001 at 04:03:09PM -0700
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
+Message-ID: <15181.6162.414864.195108@notabene.cse.unsw.edu.au>
+Cc: Peter Zaitsev <pz@spylog.ru>, linux-kernel@vger.kernel.org
+Subject: Re: Is  Swapping on software RAID1 possible  in linux 2.4 ?
+In-Reply-To: message from Andrew Morton on Thursday July 12
+In-Reply-To: <1011478953412.20010705152412@spylog.ru>
+	<15172.22988.643481.421716@notabene.cse.unsw.edu.au>
+	<11486070195.20010705172249@spylog.ru>
+	<15180.63984.722843.539959@notabene.cse.unsw.edu.au>
+	<3B4D01E3.1A2F534F@uow.edu.au>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 11, 2001 at 04:03:09PM -0700, Lance Larsh wrote:
-> some of our servers experienced as much as 10-15x slowdown after we moved
-[..]
-> also tried reiserfs without lvm, which was 5-6x slower than ext2 without
+On Thursday July 12, andrewm@uow.edu.au wrote:
+> 
+> Could you please review these changes?
 
-Hmm, so lvm introduced a significant slowdown too.
+I think I see what you are trying to do, and there is nothing
+obviously wrong except this comment :-)
 
-The only thing I'm scared about lvm are the down() in the ll_rw_block
-fast paths and sumbit_bh which should *obviously* be converted to rwsem
-(the write lock is needed only while moving PV around or while taking
-COW in a snapshotted device). This way the fast paths common cases will
-never wait for a lock. We inherit those non rw semaphores from the
-latest lvm release (more recent than beta7 there's only the head CVS).
+> + * Return true if the caller make take a raid1_bh from the list.
+                                ^^^^
 
-The down() of beta7 fixes race conditions present in previous releases
-so they weren't pointless, but it was obviously a suboptimal fix. When I
-seen them I was just scared but it was hard to tell if they could hurt
-in real life and since 'till today nobody said anything bad about lvm
-performance I assumed it wasn't a problem, but now something has
-changed thanks to your feedback.
+but now that I see what the problem is, I think a simpler patch would
+be 
 
-I will soon somehow make those changes in the lvm (based on beta7) in my
-tree and it will be interesting to see if this will make a difference. I
-will also have a look to see if I can improve a little more the lvm_map
-but other than those non rw semaphores there should be not a significant
-overhead to remove in the lvm fast path.
+--- drivers/md/raid1.c	2001/07/12 02:00:35	1.1
++++ drivers/md/raid1.c	2001/07/12 02:01:42
+@@ -83,6 +83,7 @@
+ 			cnt--;
+ 		} else {
+ 			PRINTK("raid1: waiting for %d bh\n", cnt);
++			run_task_queue(&tq_disk);
+ 			wait_event(conf->wait_buffer, conf->freebh_cnt >= cnt);
+ 		}
+ 	}
+@@ -170,6 +171,7 @@
+ 			memset(r1_bh, 0, sizeof(*r1_bh));
+ 			return r1_bh;
+ 		}
++		run_task_queue(&tq_disk);
+ 		wait_event(conf->wait_buffer, conf->freer1);
+ 	} while (1);
+ }
 
-Andrea
 
-PS. hint: if the down() were the problem you should also see an higher
-    context switching rate with lvm+ext2 than with plain ext2.
+This is needed anyway to be "correct", as you should always unplug
+the queues before waiting for IO to complete.
+
+On the issue of whether to pre-allocate some reserved structures or
+not, I think it's "6-of-one-half-a-dozen-of-the-other".  My rationale
+for pre-allocating was that the buffer that we hold on to would have
+been allocated together and so probably are fairly dense within their
+pages, and so there is no risk of hogging excess memory that isn't
+actually being used.  Mind you, if I was really serious about being
+gentle on the memory allocation, I would use 
+   kmem_cache_alloc(bh_cachep,SLAB_whatever)
+instead of 
+   kmalloc(sizeof(struct buffer_head), GFP_whatever)
+but I hadn't 'got' the slab stuff properly when I was writing that
+code. 
+
+Peter, does the above little patch help your problem?
+
+NeilBrown

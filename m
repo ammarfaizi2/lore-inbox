@@ -1,43 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266616AbUHIOOt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266596AbUHIORL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266616AbUHIOOt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 10:14:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266613AbUHIONI
+	id S266596AbUHIORL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 10:17:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266582AbUHIOJk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 10:13:08 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:53180 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S266610AbUHIOMv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 10:12:51 -0400
-Date: Mon, 9 Aug 2004 16:12:07 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Message-Id: <200408091412.i79EC7iR010554@burner.fokus.fraunhofer.de>
-To: alan@lxorguk.ukuu.org.uk, schilling@fokus.fraunhofer.de
-Cc: James.Bottomley@steeleye.com, axboe@suse.de, eric@lammerts.org,
-       linux-kernel@vger.kernel.org
+	Mon, 9 Aug 2004 10:09:40 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:12488 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S266595AbUHIOID (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 10:08:03 -0400
+Date: Mon, 9 Aug 2004 16:07:34 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, eric@lammerts.org,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Message-ID: <20040809140733.GM10418@suse.de>
+References: <200408091224.i79COp69009736@burner.fokus.fraunhofer.de> <1092056464.14152.4.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1092056464.14152.4.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Aug 09 2004, Alan Cox wrote:
+> On Llu, 2004-08-09 at 13:24, Joerg Schilling wrote:
+> > On Linux, it is impossible to run cdrecord without root privilleges.
+> > Make cdrecord suid root, it has been audited....
+> 
+> Wrong. Although in part that is a bug in the kernel urgently needing
+> a fix.
 
->From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-
->> On Solaris, there is ACLs, RBAC & getppriv() / setppriv()
->> 
->> http://docs.sun.com/db/doc/816-5167/6mbb2jaeu?a=expand
-
->and Linux has capabilities, ACLs and SELinux rulesets which can
->also be used to manage this. I can give the cd burner a role that 
->permits it certain things.
-
-If you are right, why then is SuSE removing the warnings in cdrecord
-that are there to tell the user that cdrecord is running with insufficient 
-privilleges?
-
-Jörg
+Even with that fixing, write privileges on the device would be enough.
+So root would still not be required.
 
 -- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
- URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily
+Jens Axboe
+

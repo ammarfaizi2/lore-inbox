@@ -1,298 +1,345 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262812AbSLQAl2>; Mon, 16 Dec 2002 19:41:28 -0500
+	id <S262821AbSLQAmM>; Mon, 16 Dec 2002 19:42:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262821AbSLQAl1>; Mon, 16 Dec 2002 19:41:27 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:29708 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262812AbSLQAlY>;
-	Mon, 16 Dec 2002 19:41:24 -0500
-Date: Mon, 16 Dec 2002 16:46:50 -0800
-From: Greg KH <greg@kroah.com>
-To: marcelo@conectiva.com.br
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [BK PATCH] USB changes for 2.4.21-pre1
-Message-ID: <20021217004650.GB18319@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S262838AbSLQAmM>; Mon, 16 Dec 2002 19:42:12 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:51980 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262821AbSLQAl4>; Mon, 16 Dec 2002 19:41:56 -0500
+Date: Mon, 16 Dec 2002 16:47:00 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Dave Jones <davej@codemonkey.org.uk>, Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Intel P6 vs P7 system call performance
+In-Reply-To: <20021209193649.GC10316@suse.de>
+Message-ID: <Pine.LNX.4.44.0212161639310.1623-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Here are some USB updates for 2.4.21-pre1.  It also includes the tipar char
-driver which has been in the 2.5 tree for a while.
+On Mon, 9 Dec 2002, Dave Jones wrote:
+> 
+> Time to look into an alternative like SYSCALL perhaps ?
 
-Please pull from:  bk://linuxusb.bkbits.net/marcelo-2.4
+Well, here's a very raw first try at using intel sysenter/sysexit.
 
-The individual patches will be sent in follow up messages to this email
-to you and the linux-usb-devel mailing list.
+It does actually work, I've done a "hello world" program that used 
+sysenter to enter the kernel, but kernel exit requires knowing where to 
+return to (the SYSENTER_RETURN define in entry.S), and I didn't set up a 
+fixmap entry for this yet, so I don't have a good value to return to yet.
 
-thanks,
+But this, together with a fixmap entry that is user-readable (and thus
+executable) that contains the "sysenter" instruction (and enough setup so
+that %ebp points to the stack we want to return with), and together with
+some debugging should get you there.
 
-greg k-h
+WARNING! I may be setting up the stack slightly incorrectly, since this
+also hurls chunks when debugging. Dunno. Ingo, care to take a look?
 
- Documentation/Configure.help       |   66 +++
- Documentation/tipar.txt            |   93 ++++
- MAINTAINERS                        |   10 
- drivers/char/Config.in             |    1 
- drivers/char/Makefile              |    1 
- drivers/char/tipar.c               |  540 +++++++++++++++++++++++++++
- drivers/usb/Config.in              |    3 
- drivers/usb/hc_sl811.c             |    2 
- drivers/usb/pegasus.c              |   31 +
- drivers/usb/pwc-ctrl.c             |   38 -
- drivers/usb/pwc-if.c               |  406 ++++++++++++--------
- drivers/usb/pwc-ioctl.h            |   13 
- drivers/usb/pwc-uncompress.c       |   24 -
- drivers/usb/pwc.h                  |    9 
- drivers/usb/rtl8150.c              |   53 ++
- drivers/usb/serial/Config.in       |    1 
- drivers/usb/serial/Makefile        |    1 
- drivers/usb/serial/ftdi_sio.c      |   31 +
- drivers/usb/serial/ftdi_sio.h      |   12 
- drivers/usb/serial/kobil_sct.c     |  721 ++++++++++++++++++++++++++++++++++++-
- drivers/usb/serial/kobil_sct.h     |   60 +++
- drivers/usb/storage/unusual_devs.h |   16 
- drivers/usb/uhci.c                 |    4 
- drivers/usb/usb.c                  |   14 
- drivers/usb/usbnet.c               |  100 +++--
- 25 files changed, 1969 insertions(+), 281 deletions(-)
------
+Btw, that per-CPU sysenter entry-point is really clever of me, but it's 
+not strictly NMI-safe. There's a single-instruction window between having 
+started "sysenter" and having a valid kernel stack, and if an NMI comes in 
+at that point, the NMI will now have a bogus stack pointer.
 
-ChangeSet@1.886, 2002-12-16 16:20:13-08:00, greg@kroah.com
-  Merge kroah.com:/home/greg/linux/BK/bleeding_edge-2.4
-  into kroah.com:/home/greg/linux/BK/gregkh-2.4
+That NMI problem is pretty fundamentally unfixable due to the stupid
+sysenter semantics, but we could just make the NMI handlers be real
+careful about it and fix it up if it happens.
 
- Documentation/Configure.help |   33 +++++++++++++++++++++++++++++++++
- MAINTAINERS                  |    5 +++++
- 2 files changed, 38 insertions(+)
-------
+Most of the diff here is actually moving around some of the segments, 
+since sysenter/sysexit wants them in one particular order. The setup code 
+to initialize sysenter is itself pretty trivial.
 
-ChangeSet@1.811.1.18, 2002-12-16 12:00:21-08:00, greg@kroah.com
-  [PATCH] USB: uhci: fix formatting problem with last patch.
+		Linus
 
- drivers/usb/uhci.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-------
-
-ChangeSet@1.811.1.17, 2002-12-16 11:55:30-08:00, jkt@Helius.COM
-  [PATCH] uhci corruption on usb_submit_urb when already -EINPROGRESS
-  
-    uhci corrupts a list, either uhci->urb_list or uhci->urb_remove_list,
-    when usb_submit_urb is called against an urb already in flight
-    (urb->status == -EINPROGRESS).  yeah, i know you're not *supposed* to do
-    that but Real Programmers(tm) make Real Mistakes(tm) (and timeouts are
-    oh, so tricky!) and the code catches this case otherwise; unfortunately,
-    the INIT_LIST_HEAD has already hammered your list.
-  
-    :{)}
-
- drivers/usb/uhci.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-------
-
-ChangeSet@1.811.1.16, 2002-12-16 11:55:18-08:00, david-b@pacbell.net
-  [PATCH] usbnet:  framing, sync with 2.5
-  
-  This patch matches the 2.5 patch I just submitted, except that
-  it keeps Pavel's table-based crc32 code since <linux/crc32.h>
-  says it's not for "bulk data" (which is what this driver does).
-  Plus some changes (ethtool) were forward ports from pre1.
-  
-  - Addresses two issues Toby Milne reported against the Zaurus:
-      (a) if skbs had extra framing added (z, net1080, gl620a),
-          the original size (now too small) was used on tx;
-      (b) added FLAG_FRAMING_Z so rx packets had enough space
-  
-  - Stubs in some PXA-250 support for non-Zaurus PDAs.
-      This is currently commented out; so far those PDAs
-      only run Linux for bleeding edge developers.
-  
-  - Minor cleanups.
-
- drivers/usb/Config.in |    2 -
- drivers/usb/usbnet.c  |   98 +++++++++++++++++++++++++++++++++++---------------
- 2 files changed, 70 insertions(+), 30 deletions(-)
-------
-
-ChangeSet@1.811.1.15, 2002-12-16 11:55:06-08:00, david-b@pacbell.net
-  [PATCH] remove CONFIG_USB_LONG_TIMEOUT
-  
-  This matches 2.5.latest ... the config option isn't needed,
-  since neither timeout was actually as large as what the
-  USB spec says (5 seconds).  It'll prevent some devices
-  from failing to enumerate (like MGE Ellips UPSes).
-
- drivers/usb/Config.in |    1 -
- drivers/usb/usb.c     |   14 +++++++-------
- 2 files changed, 7 insertions(+), 8 deletions(-)
-------
-
-ChangeSet@1.811.1.14, 2002-12-16 11:24:34-08:00, greg@kroah.com
-  USB: pwc driver: fix compile time warning
-
- drivers/usb/pwc-if.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-------
-
-ChangeSet@1.811.1.13, 2002-12-16 11:21:34-08:00, greg@kroah.com
-  Merge
-
- drivers/usb/pwc-if.c |  197 +++++++++++++++++++++++++++++----------------------
- 1 files changed, 115 insertions(+), 82 deletions(-)
-------
-
-ChangeSet@1.811.2.1, 2002-12-16 11:18:15-08:00, arjanv@redhat.com
-  [PATCH] USB pwc deadlock fixes
-
- drivers/usb/pwc-if.c |   10 ++++++----
- 1 files changed, 6 insertions(+), 4 deletions(-)
-------
-
-ChangeSet@1.811.1.12, 2002-12-16 10:45:23-08:00, nemosoft@smcc.demon.nl
-  [PATCH] USB: PWC 8.10 for 2.4.20
-  
-  Well, two patches in one... These patches will bring the PWC (Philips
-  Webcam) driver in both 2.4.20 and 2.5.51 up to version 8.10. Functionally,
-  the two branches are the same (about 70% of the code is shared), but the
-  differences in kernel architecture are too large to handle with a few
-  #ifdefs.
-  
-  This patch fixes the following (this are only the differences between 8.9
-  and 8.10):
-  
-  * Fixed ID for QuickCam Notebook pro
-  * Added GREALSIZE ioctl() call
-  * Fixed bug in case PWCX was not loaded and invalid size was set
-
- drivers/usb/pwc-ctrl.c       |   38 ++++----
- drivers/usb/pwc-if.c         |  197 +++++++++++++++++++++++++------------------
- drivers/usb/pwc-ioctl.h      |   13 ++
- drivers/usb/pwc-uncompress.c |   24 +----
- drivers/usb/pwc.h            |    9 +
- 5 files changed, 157 insertions(+), 124 deletions(-)
-------
-
-ChangeSet@1.811.1.11, 2002-12-13 09:30:44-08:00, petkan@rakia.dce.bg
-  [PATCH] USB: pegasus: the data for the control requests is now stored in DMA able memory.
-  
-
- drivers/usb/pegasus.c |   31 +++++++++++++++++++++++++------
- 1 files changed, 25 insertions(+), 6 deletions(-)
-------
-
-ChangeSet@1.811.1.10, 2002-12-12 13:45:00-08:00, kuba@mareimbrium.org
-  [PATCH] USB: ftdi-sio update
-  
-  Attached is a patch which updates ftdi sio driver with better (i.e. always
-  correct ;-) fractional divisor code. The previous one was an
-  oversimplification that would not always give the best approximation of the
-  divisor. It also became an internal static function -- exposing it as a (yet
-  another) macro was unnecessary.
-
- drivers/usb/serial/ftdi_sio.c |   31 ++++++++++++++++++++++++++++++-
- drivers/usb/serial/ftdi_sio.h |   12 ++----------
- 2 files changed, 32 insertions(+), 11 deletions(-)
-------
-
-ChangeSet@1.811.1.9, 2002-12-12 13:32:39-08:00, nobita@t-online.de
-  [PATCH] support for Sony Cybershot F717 digital camera / usb-storage
-  
-  here is an id-patch to get the Sony Cybershot F717 6meg pixel digital
-  camera working with the standard usb-storage device driver.
-
- drivers/usb/storage/unusual_devs.h |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-------
-
-ChangeSet@1.811.1.8, 2002-12-11 00:38:01-08:00, marekm@amelek.gda.pl
-  [PATCH] Datafab KECF-USB / Sagatek DCS-CF / Simpletech UCF-100
-  
-  sorry to bother you again - now that 2.4.20 is out, is there any
-  chance to include this in 2.4.21?  I've been trying since 2.4.19,
-  a few other UNUSUAL_DEV entries were added, but not this one...
-  
-  The device works fine with the patch (and doesn't work at all without
-  it) for me and a few other people (devices with different "marketing"
-  names, the same vendor:device id), no one has reported any problems.
-  The patch has been in the 2.4-ac tree for a while, too.
-
- drivers/usb/storage/unusual_devs.h |   12 ++++++++++++
- 1 files changed, 12 insertions(+)
-------
-
-ChangeSet@1.811.1.7, 2002-12-11 00:37:49-08:00, m.c.p@wolk-project.de
-  [PATCH] Eliminate warning in drivers/usb/hc_sl811.c
-  
-  compile warning is:
-   #warning linux/malloc.h is deprecated, use linux/slab.h instead.
-  
-  attached patch uses linux/slab.h instead, as adviced by above ;)
-
- drivers/usb/hc_sl811.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-------
-
-ChangeSet@1.811.1.6, 2002-12-11 00:37:38-08:00, stelian@popies.net
-  [PATCH] usbnet typo
-  
-  There is a typo in the latest usbnet driver which disables
-  the compile of iPAQ specific code.
-  
-  With the attached patch, the new driver recognises the iPAQ
-  and even works :*)
-
- drivers/usb/usbnet.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-------
-
-ChangeSet@1.811.1.5, 2002-12-11 00:37:26-08:00, greg@kroah.com
-  [PATCH] tipar: fix #include so the driver can compile.
-
- drivers/char/tipar.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-------
-
-ChangeSet@1.811.1.4, 2002-12-11 00:37:14-08:00, rlievin@free.fr
-  [PATCH] Add tipar char driver
-
- Documentation/Configure.help |   22 +
- Documentation/tipar.txt      |   93 +++++++
- MAINTAINERS                  |    5 
- drivers/char/Config.in       |    1 
- drivers/char/Makefile        |    1 
- drivers/char/tipar.c         |  538 +++++++++++++++++++++++++++++++++++++++++++
- 6 files changed, 660 insertions(+)
-------
-
-ChangeSet@1.811.1.3, 2002-12-11 00:36:59-08:00, wahrenbruch@kobil.de
-  [PATCH] USB: kobil_sct driver bugfix
-  
-  Here it is. For readers, connected via Adapter B (Kaan Pro, B1 Pro),
-  the driver starts now reading after open(), so that the PNP string doesn't
-  confuse the CT-API.
-
- drivers/usb/serial/kobil_sct.c |   10 ++++++----
- 1 files changed, 6 insertions(+), 4 deletions(-)
-------
-
-ChangeSet@1.811.1.2, 2002-12-11 00:36:47-08:00, wahrenbruch@kobil.de
-  [PATCH] USB: add kobil_sct driver
-
- Documentation/Configure.help   |   11 
- drivers/usb/serial/Config.in   |    1 
- drivers/usb/serial/Makefile    |    1 
- drivers/usb/serial/kobil_sct.c |  711 +++++++++++++++++++++++++++++++++++++++++
- drivers/usb/serial/kobil_sct.h |   60 +++
- 5 files changed, 784 insertions(+)
-------
-
-ChangeSet@1.811.1.1, 2002-12-11 00:36:25-08:00, petkan@mastika.dce.bg
-  [PATCH] set_mac_address is now added to the driver.  thanks to Orjan Friberg <orjan.friberg@axis.com>
-
- drivers/usb/rtl8150.c |   53 ++++++++++++++++++++++++++++++++++++++++++++++----
- 1 files changed, 49 insertions(+), 4 deletions(-)
-------
+----
+===== arch/i386/kernel/sysenter.c 1.1 vs edited =====
+--- 1.1/arch/i386/kernel/sysenter.c	Sat Dec 14 04:38:56 2002
++++ edited/arch/i386/kernel/sysenter.c	2002-12-16 16:37:32.000000000 -0800
+@@ -0,0 +1,52 @@
++/*
++ * linux/arch/i386/kernel/sysenter.c
++ *
++ * (C) Copyright 2002 Linus Torvalds
++ *
++ * This file contains the needed initializations to support sysenter.
++ */
++
++#include <linux/init.h>
++#include <linux/smp.h>
++#include <linux/thread_info.h>
++#include <linux/gfp.h>
++
++#include <asm/cpufeature.h>
++#include <asm/msr.h>
++
++extern asmlinkage void sysenter_entry(void);
++
++static void __init enable_sep_cpu(void *info)
++{
++	unsigned long page = __get_free_page(GFP_ATOMIC);
++	int cpu = get_cpu();
++	unsigned long *esp0_ptr = &(init_tss + cpu)->esp0;
++	unsigned long rel32;
++
++	rel32 = (unsigned long) sysenter_entry - (page+11);
++
++	
++	*(short *) (page+0) = 0x258b;		/* movl xxxxx,%esp */
++	*(long **) (page+2) = esp0_ptr;
++	*(char *)  (page+6) = 0xe9;		/* jmp rl32 */
++	*(long *)  (page+7) = rel32;
++
++	wrmsr(0x174, __KERNEL_CS, 0);		/* SYSENTER_CS_MSR */
++	wrmsr(0x175, page+PAGE_SIZE, 0);	/* SYSENTER_ESP_MSR */
++	wrmsr(0x176, page, 0);			/* SYSENTER_EIP_MSR */
++
++	printk("Enabling SEP on CPU %d\n", cpu);
++	put_cpu();	
++}
++
++static int __init sysenter_setup(void)
++{
++	if (!boot_cpu_has(X86_FEATURE_SEP))
++		return 0;
++
++	enable_sep_cpu(NULL);
++	smp_call_function(enable_sep_cpu, NULL, 1, 1);
++	return 0;
++}
++
++__initcall(sysenter_setup);
+===== arch/i386/kernel/Makefile 1.30 vs edited =====
+--- 1.30/arch/i386/kernel/Makefile	Sat Dec 14 04:38:56 2002
++++ edited/arch/i386/kernel/Makefile	Mon Dec 16 13:43:57 2002
+@@ -29,6 +29,7 @@
+ obj-$(CONFIG_PROFILING)		+= profile.o
+ obj-$(CONFIG_EDD)             	+= edd.o
+ obj-$(CONFIG_MODULES)		+= module.o
++obj-y				+= sysenter.o
+ 
+ EXTRA_AFLAGS   := -traditional
+ 
+===== arch/i386/kernel/entry.S 1.41 vs edited =====
+--- 1.41/arch/i386/kernel/entry.S	Fri Dec  6 09:43:43 2002
++++ edited/arch/i386/kernel/entry.S	Mon Dec 16 16:17:47 2002
+@@ -94,7 +94,7 @@
+ 	movl %edx, %ds; \
+ 	movl %edx, %es;
+ 
+-#define RESTORE_ALL	\
++#define RESTORE_REGS	\
+ 	popl %ebx;	\
+ 	popl %ecx;	\
+ 	popl %edx;	\
+@@ -104,14 +104,25 @@
+ 	popl %eax;	\
+ 1:	popl %ds;	\
+ 2:	popl %es;	\
+-	addl $4, %esp;	\
+-3:	iret;		\
+ .section .fixup,"ax";	\
+-4:	movl $0,(%esp);	\
++3:	movl $0,(%esp);	\
+ 	jmp 1b;		\
+-5:	movl $0,(%esp);	\
++4:	movl $0,(%esp);	\
+ 	jmp 2b;		\
+-6:	pushl %ss;	\
++.previous;		\
++.section __ex_table,"a";\
++	.align 4;	\
++	.long 1b,3b;	\
++	.long 2b,4b;	\
++.previous
++
++
++#define RESTORE_ALL	\
++	RESTORE_REGS	\
++	addl $4, %esp;	\
++1:	iret;		\
++.section .fixup,"ax";   \
++2:	pushl %ss;	\
+ 	popl %ds;	\
+ 	pushl %ss;	\
+ 	popl %es;	\
+@@ -120,11 +131,11 @@
+ .previous;		\
+ .section __ex_table,"a";\
+ 	.align 4;	\
+-	.long 1b,4b;	\
+-	.long 2b,5b;	\
+-	.long 3b,6b;	\
++	.long 1b,2b;	\
+ .previous
+ 
++
++
+ ENTRY(lcall7)
+ 	pushfl			# We get a different stack layout with call
+ 				# gates, which has to be cleaned up later..
+@@ -219,6 +230,39 @@
+ 	cli
+ 	jmp need_resched
+ #endif
++
++#define SYSENTER_RETURN 0
++
++	# sysenter call handler stub
++	ALIGN
++ENTRY(sysenter_entry)
++	sti
++	pushl $(__USER_DS)
++	pushl %ebp
++	pushfl
++	pushl $(__USER_CS)
++	pushl $SYSENTER_RETURN
++
++	pushl %eax
++	SAVE_ALL
++	GET_THREAD_INFO(%ebx)
++	cmpl $(NR_syscalls), %eax
++	jae syscall_badsys
++
++	testb $_TIF_SYSCALL_TRACE,TI_FLAGS(%ebx)
++	jnz syscall_trace_entry
++	call *sys_call_table(,%eax,4)
++	movl %eax,EAX(%esp)
++	cli
++	movl TI_FLAGS(%ebx), %ecx
++	testw $_TIF_ALLWORK_MASK, %cx
++	jne syscall_exit_work
++	RESTORE_REGS
++	movl 4(%esp),%edx
++	movl 16(%esp),%ecx
++	sti
++	sysexit
++
+ 
+ 	# system call handler stub
+ 	ALIGN
+===== arch/i386/kernel/head.S 1.18 vs edited =====
+--- 1.18/arch/i386/kernel/head.S	Thu Dec  5 18:56:49 2002
++++ edited/arch/i386/kernel/head.S	Mon Dec 16 14:14:44 2002
+@@ -414,8 +414,8 @@
+ 	.quad 0x0000000000000000	/* 0x0b reserved */
+ 	.quad 0x0000000000000000	/* 0x13 reserved */
+ 	.quad 0x0000000000000000	/* 0x1b reserved */
+-	.quad 0x00cffa000000ffff	/* 0x23 user 4GB code at 0x00000000 */
+-	.quad 0x00cff2000000ffff	/* 0x2b user 4GB data at 0x00000000 */
++	.quad 0x0000000000000000	/* 0x20 unused */
++	.quad 0x0000000000000000	/* 0x28 unused */
+ 	.quad 0x0000000000000000	/* 0x33 TLS entry 1 */
+ 	.quad 0x0000000000000000	/* 0x3b TLS entry 2 */
+ 	.quad 0x0000000000000000	/* 0x43 TLS entry 3 */
+@@ -425,22 +425,25 @@
+ 
+ 	.quad 0x00cf9a000000ffff	/* 0x60 kernel 4GB code at 0x00000000 */
+ 	.quad 0x00cf92000000ffff	/* 0x68 kernel 4GB data at 0x00000000 */
+-	.quad 0x0000000000000000	/* 0x70 TSS descriptor */
+-	.quad 0x0000000000000000	/* 0x78 LDT descriptor */
++	.quad 0x00cffa000000ffff	/* 0x73 user 4GB code at 0x00000000 */
++	.quad 0x00cff2000000ffff	/* 0x7b user 4GB data at 0x00000000 */
++
++	.quad 0x0000000000000000	/* 0x80 TSS descriptor */
++	.quad 0x0000000000000000	/* 0x88 LDT descriptor */
+ 
+ 	/* Segments used for calling PnP BIOS */
+-	.quad 0x00c09a0000000000	/* 0x80 32-bit code */
+-	.quad 0x00809a0000000000	/* 0x88 16-bit code */
+-	.quad 0x0080920000000000	/* 0x90 16-bit data */
+-	.quad 0x0080920000000000	/* 0x98 16-bit data */
++	.quad 0x00c09a0000000000	/* 0x90 32-bit code */
++	.quad 0x00809a0000000000	/* 0x98 16-bit code */
+ 	.quad 0x0080920000000000	/* 0xa0 16-bit data */
++	.quad 0x0080920000000000	/* 0xa8 16-bit data */
++	.quad 0x0080920000000000	/* 0xb0 16-bit data */
+ 	/*
+ 	 * The APM segments have byte granularity and their bases
+ 	 * and limits are set at run time.
+ 	 */
+-	.quad 0x00409a0000000000	/* 0xa8 APM CS    code */
+-	.quad 0x00009a0000000000	/* 0xb0 APM CS 16 code (16 bit) */
+-	.quad 0x0040920000000000	/* 0xb8 APM DS    data */
++	.quad 0x00409a0000000000	/* 0xb8 APM CS    code */
++	.quad 0x00009a0000000000	/* 0xc0 APM CS 16 code (16 bit) */
++	.quad 0x0040920000000000	/* 0xc8 APM DS    data */
+ 
+ #if CONFIG_SMP
+ 	.fill (NR_CPUS-1)*GDT_ENTRIES,8,0 /* other CPU's GDT */
+===== include/asm-i386/segment.h 1.2 vs edited =====
+--- 1.2/include/asm-i386/segment.h	Mon Aug 12 10:56:27 2002
++++ edited/include/asm-i386/segment.h	Mon Dec 16 14:08:09 2002
+@@ -9,8 +9,8 @@
+  *   2 - reserved
+  *   3 - reserved
+  *
+- *   4 - default user CS		<==== new cacheline
+- *   5 - default user DS
++ *   4 - unused			<==== new cacheline
++ *   5 - unused
+  *
+  *  ------- start of TLS (Thread-Local Storage) segments:
+  *
+@@ -25,16 +25,18 @@
+  *
+  *  12 - kernel code segment		<==== new cacheline
+  *  13 - kernel data segment
+- *  14 - TSS
+- *  15 - LDT
+- *  16 - PNPBIOS support (16->32 gate)
+- *  17 - PNPBIOS support
+- *  18 - PNPBIOS support
++ *  14 - default user CS
++ *  15 - default user DS
++ *  16 - TSS
++ *  17 - LDT
++ *  18 - PNPBIOS support (16->32 gate)
+  *  19 - PNPBIOS support
+  *  20 - PNPBIOS support
+- *  21 - APM BIOS support
+- *  22 - APM BIOS support
+- *  23 - APM BIOS support 
++ *  21 - PNPBIOS support
++ *  22 - PNPBIOS support
++ *  23 - APM BIOS support
++ *  24 - APM BIOS support
++ *  25 - APM BIOS support 
+  */
+ #define GDT_ENTRY_TLS_ENTRIES	3
+ #define GDT_ENTRY_TLS_MIN	6
+@@ -42,10 +44,10 @@
+ 
+ #define TLS_SIZE (GDT_ENTRY_TLS_ENTRIES * 8)
+ 
+-#define GDT_ENTRY_DEFAULT_USER_CS	4
++#define GDT_ENTRY_DEFAULT_USER_CS	14
+ #define __USER_CS (GDT_ENTRY_DEFAULT_USER_CS * 8 + 3)
+ 
+-#define GDT_ENTRY_DEFAULT_USER_DS	5
++#define GDT_ENTRY_DEFAULT_USER_DS	15
+ #define __USER_DS (GDT_ENTRY_DEFAULT_USER_DS * 8 + 3)
+ 
+ #define GDT_ENTRY_KERNEL_BASE	12
+@@ -56,14 +58,14 @@
+ #define GDT_ENTRY_KERNEL_DS		(GDT_ENTRY_KERNEL_BASE + 1)
+ #define __KERNEL_DS (GDT_ENTRY_KERNEL_DS * 8)
+ 
+-#define GDT_ENTRY_TSS			(GDT_ENTRY_KERNEL_BASE + 2)
+-#define GDT_ENTRY_LDT			(GDT_ENTRY_KERNEL_BASE + 3)
++#define GDT_ENTRY_TSS			(GDT_ENTRY_KERNEL_BASE + 4)
++#define GDT_ENTRY_LDT			(GDT_ENTRY_KERNEL_BASE + 5)
+ 
+-#define GDT_ENTRY_PNPBIOS_BASE		(GDT_ENTRY_KERNEL_BASE + 4)
+-#define GDT_ENTRY_APMBIOS_BASE		(GDT_ENTRY_KERNEL_BASE + 9)
++#define GDT_ENTRY_PNPBIOS_BASE		(GDT_ENTRY_KERNEL_BASE + 6)
++#define GDT_ENTRY_APMBIOS_BASE		(GDT_ENTRY_KERNEL_BASE + 11)
+ 
+ /*
+- * The GDT has 21 entries but we pad it to cacheline boundary:
++ * The GDT has 23 entries but we pad it to cacheline boundary:
+  */
+ #define GDT_ENTRIES 24
+ 
 

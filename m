@@ -1,103 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261190AbULACpw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261173AbULACqp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261190AbULACpw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 21:45:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbULACpw
+	id S261173AbULACqp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 21:46:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbULACqo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 21:45:52 -0500
-Received: from wproxy.gmail.com ([64.233.184.194]:47166 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261190AbULACpX (ORCPT
+	Tue, 30 Nov 2004 21:46:44 -0500
+Received: from rproxy.gmail.com ([64.233.170.198]:19624 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261173AbULACqY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 21:45:23 -0500
+	Tue, 30 Nov 2004 21:46:24 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=IbQnuqB0ratmakd5QS5lsNy03EvPph683ycEbUsB0QzMbvqjsqqTdrL5Gs0bCeJ1IEbtCUF5HOZKmQIYxxF6jAYYMFFHnKQ+WVzrQfrhaVlXWJ5TMPLYyLaXZu5Hr/pqQzOW/4/GqXmatsQx5YsKGojnseYw7+sZLnG/zxgAd1s=
-Message-ID: <ee3a8d4a04113018445a4f84f4@mail.gmail.com>
-Date: Tue, 30 Nov 2004 21:44:52 -0500
-From: Scott Young <scottyoung@gmail.com>
-Reply-To: Scott Young <scottyoung@gmail.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: file as a directory
-Cc: Amit Gud <amitgud1@gmail.com>, linux-kernel@vger.kernel.org,
-       reisefs-list@namesys.com, Hans Reiser <reiser@namesys.com>
-In-Reply-To: <Pine.LNX.4.53.0411301935240.9193@yvahk01.tjqt.qr>
+        b=Nbn7e7RM2FQm6rQO1TkNTDE8FkVtwrIaxRVssvjsNx0RkGIPlJjlMXVQfBgIAB8GPvqD7buTh+W/7RJ/PUvTDBH7UzcczeCvStpJ/JRrxdVjUoAdOR+JWNGndiadf2BAsjc+45dJLTkDA2DHGW3rwlJfN0xnxce6pp/VVCuLjAY=
+Message-ID: <cce9e37e04113018465091010f@mail.gmail.com>
+Date: Wed, 1 Dec 2004 02:46:18 +0000
+From: Phil Lougher <phil.lougher@gmail.com>
+Reply-To: Phil Lougher <phil.lougher@gmail.com>
+To: John Richard Moser <nigelenki@comcast.net>
+Subject: Re: Designing Another File System
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <41AD218E.7090305@comcast.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-References: <200411292120.iATLKZxE004233@laptop11.inf.utfsm.cl>
-	 <1101832103.2885.4.camel@zathras.emsl.pnl.gov>
-	 <Pine.LNX.4.53.0411301740430.1622@yvahk01.tjqt.qr>
-	 <04113011354200.08643@tabby>
-	 <Pine.LNX.4.53.0411301844100.16712@yvahk01.tjqt.qr>
-	 <2c59f00304113010262063d219@mail.gmail.com>
-	 <Pine.LNX.4.53.0411301935240.9193@yvahk01.tjqt.qr>
+References: <41ABF7C5.5070609@comcast.net>
+	 <cce9e37e041130112243beb62d@mail.gmail.com>
+	 <41AD218E.7090305@comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Nov 2004 19:39:15 +0100 (MET), Jan Engelhardt
-<jengelh@linux01.gwdg.de> wrote:
-> >My suggestion is to add a framework, an infrastructure, in the VFS
-> >wherein a simple plugin can be written to poke into the file as if it
-> >were a directory. So with that framework in place, I can write a
-> >plugin for archive support (treating the .tar files as directories),
-> >Peter could write a plugin for poking into /etc/passwd (treating it as
-> >a directory), and Jon Doe could write a plugin for sendmail.cf
+On Tue, 30 Nov 2004 20:42:38 -0500, John Richard Moser
+> Phil Lougher wrote:
+> | Um,  all filesystems do that, I think you're missing words to the
+> | effect "without any performance loss or block fragmentation" !
+>
+> All filesystems allow you to create the FS with 1 inode total?
+>
+> Filesystem            Inodes   IUsed   IFree IUse% Mounted on
+> /dev/hda1            7823616  272670 7550946    4% /
+>
+> No, it looks like this one allocates many inodes and uses them as it
+> goes.  Reiser has 0 inodes . . .
 
-The biggest problem I see with adding the complicated stuff to VFS is
-the bloat and risk to system stability.  However, some things cannot
-be done in userspace, such as good caching.  How is one userspace
-library supposed to keep a transparent cache of, for example, an index
-for a tar file, not clutter up the on-disk representation of the
-cache, effectively manage space utilization, and  be able to
-efficiently detect changes to files in order to invalidate the cache? 
-This would become orders of magnitude easier if a ubiquitous
-filesystem interface were in use.  However, the only ubiquitous
-filesystem interface is VFS, which shouldn't have to take all the code
-bloat.
+Yes you're right.  What I said was total rubbish.  I read your
+statement as meaning to dynamically allocate/deallocate inodes from a
+set configured at filesystem creation...
 
-Maybe something crazy could work.  Let's take some concepts from the
-Aspect Oriented Programming paradigm.  Whenever a program is loaded
-into memory, calls in the program to the vfs interface are modified to
-instead call new userspace functions that have all of the desired
-functionality, and those userspace functions eventually call the real
-system functions.  The kernel wouldn't have to take the bloat, plus it
-would be able to do things the userspace libraries wouldn't be able to
-do efficiently.  It's the best of both worlds, with a little insanity
-thrown in (It'd be neat to see the loader bootstrap its own code to
-weave in the caching of the pre-woven binaries).
+> |
+> | The 64 bit resolution is only necessary within the filesystem dentry
+> | lookup function to go from a directory name entry to the physical
+> | inode location on disk.  The inode number can then be reduced to 32
+> | bits for 'presentation' to the VFS.  AFAIK as all file access is
+> | through the dentry cache this is sufficient.  The only problems are
+> | that VFS iget() needs to be replaced with a filesystem specific iget.
+> | A number of filesystems do this.  Squashfs internally uses 37 bit
+> | inode numbers and presents them as 32 bit inode numbers in this way.
+> |
+>
+> Ugly, but ok.  What happens when i actually have >4G inodes though?
 
+Well this is an issue that affects all filesystems on 32-bit systems
+(as Alan said inode numbers are 64 bits on 64 bit systems).  To be
+honest I've never let this worry me...
 
-> That's something I could live with, but how do you want to tag a file being
-> "tar" so that tar_ops is used instead of the "default file" ops?
+A 32-bit system can never cache 4G inodes in memory without falling
+over, and so a simple solution would be to allocate the 32-bit inode
+number dynamically (e.g. starting at one and going up, keeping track
+of inode numbers still used for use when/if wraparound occured), this
+would guarantee inode number uniqueness for the subset of file inodes
+in memory at any one time, with the drawback that inode numbers
+allocated to files will change over filesystem mounts.  Alternatively
+from reading fs/inode.c it appears that inode numbers only need to be
+unique if the fast hashed inode cache lookup functions are used, there
+are other inode cache lookup functions that can be used if inode
+numbers are not unique.
+
+> | I've had people trying to store 500,000 + files in a Squashfs
+> | directory.  Needless to say with the original directory implementation
+> | this didn't work terribly well...
+> |
 > 
-> You could not do so without an extra function, and once you use that extra
-> function to tag a certain file being "tar" -- you know that extensions are
-> kinda "worthless", and, especially, unrealiable -- you could also have used tar
-> -tvf.
-> 
-> Did I mention tar is not the perfect format? It's because it is lacking an
-> index and letting the kernel wade through a GB-sized tar file just to perform
-> and readdir (yet imagine reading the last file of it) would be a hell of
-> skipping. Keeping a non-persistent index in memory may solve the problem, but
-> hey, I also do not want to spend too much memory just for a single tar file.
+> Ouch.  Someone told me the directory had to be O(1) lookup . . . .
 
-It would also be nice to have an interface which can build, maintain,
-and cache on the disk a persistent index into a tar file on the disk,
-and then be able to delete this index when space is running low. 
-Plus, this index could be generated by streaming the file through
-memory, so you don't need to consume too much memory for a single
-file.
+Ideally yes, but ultimately with your filesystem you make the rules
+:-)   The Squashfs directory design was fast for the original expected
+directory size (ideally <= 64K, maximum 512K) seen on embedded
+systems.  The next release of Squashfs has considerably improved
+indexed directories which are O(1) for large directories.  To be
+released sometime soon, if anyone's interested...
 
-
-> >struct file_operations ops = {
-> >   .read            = tar_readdir,
-> >   .readdir        = tar_readdir,
-> >   ......
-> >};
-> >
-> >register_file_type("tar", &ops);
-> 
-> Jan Engelhardt
-> --
-> ENOSPC
+Phillip Lougher

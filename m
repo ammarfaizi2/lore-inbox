@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265946AbUA1Nay (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 08:30:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265950AbUA1Nay
+	id S265940AbUA1NYJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 08:24:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265946AbUA1NYI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 08:30:54 -0500
-Received: from rzfoobar.is-asp.com ([217.11.194.155]:26527 "EHLO mail.isg.de")
-	by vger.kernel.org with ESMTP id S265946AbUA1Nax (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 08:30:53 -0500
-Message-ID: <4017B98C.2040603@isg.de>
-Date: Wed, 28 Jan 2004 14:30:52 +0100
-From: Lutz Vieweg <lkv@isg.de>
-Organization: Innovative Software AG
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030721 wamcom.org
-X-Accept-Language: de, German, en
-MIME-Version: 1.0
-To: Bart Samwel <bart@samwel.tk>
-Cc: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
-Subject: Re: Is there a way to keep the 2.6 kjournald from writing to idle
- disks? (to allow spin-downs)
-References: <Pine.LNX.3.96.1040127133932.11664B-100000@gatekeeper.tmr.com> <4016B3F0.1060804@samwel.tk>
-In-Reply-To: <4016B3F0.1060804@samwel.tk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 28 Jan 2004 08:24:08 -0500
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:23475 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S265940AbUA1NYE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 08:24:04 -0500
+Date: Wed, 28 Jan 2004 08:24:00 -0500
+From: Willem Riede <wrlk@riede.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: The survival of ide-scsi in 2.6.x
+Message-ID: <20040128132400.GA23308@serve.riede.org>
+Reply-To: wrlk@riede.org
+References: <1072809890.2839.24.camel@mulgrave> <20031230221820.GQ1277@linnie.riede.org> <20040103190857.GY5523@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20040103190857.GY5523@suse.de> (from axboe@suse.de on Sat, Jan 03, 2004 at 14:08:57 -0500)
+X-Mailer: Balsa 2.0.16
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bart Samwel wrote:
+On 2004.01.03 14:08, Jens Axboe wrote:
+> On Tue, Dec 30 2003, Willem Riede wrote:
+> > On 2003.12.30 13:44, James Bottomley wrote:
+> > >     If people will have me, I am prepared to take on that responsibility.
+> > >     I am just concerned that I may not have enough of a variety of devices
+> > >     to be able to thoroughly test it (unless the DI-30 is the only one :-)).
+> > >     What do people see as the requirements to be able to maintain ide-scsi?
+> > >     
+> > > Well...there's currently not a long line of people wanting to do this,
+> > > so feel free to send in patches (at least cc'd to linux-scsi so I can
+> > > pick them up easily), and we'll see how it goes.
+> > 
+> > OK. You did see the patch that came with the original, right? I just sent
+> > it to linux-kernel because the audience there is broader. 
+> > 
+> > Linus wants Jens to look at it, so I'm waiting for his response.
+> 
+> It's pending review, I'll get to it tomorrow...
 
->> Well, it's the o.p. system, not mine, but I don't see how noatime will
->> help him, the atime shouldn't change unless he's doing disk access, and
->> if he's doing disk access the disk will spin up anyway.
+I guess it's been a long day :-), but can you let me know what 
+realistically I can expect?
 
-That's what I thought, too... and I really killed everything that I could
-imagine accessing the disk... but...
-
-> If something really is accessing the drive, noatime might still help as 
-> long as the accesses are from the cache.
-
-... that really helped! I'm kind of surprised, since I didn't use noatime
-before the update, and I still don't know of any process that might do
-the reading, but since mounting / with noatime helped, I'm happy for now.
-
-My curiosity isn't completely gone, though, so maybe one day I'll try to
-find out who-is-trying-to-read-what, "find -atime ..." didn't reveal the secret
-yet.
-
-Regards,
-
-Lutz Vieweg
-
-
+Thanks, Willem Riede.

@@ -1,60 +1,186 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266763AbTAKAcx>; Fri, 10 Jan 2003 19:32:53 -0500
+	id <S266772AbTAKAwy>; Fri, 10 Jan 2003 19:52:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266772AbTAKAcx>; Fri, 10 Jan 2003 19:32:53 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:45954 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S266763AbTAKAcw>; Fri, 10 Jan 2003 19:32:52 -0500
-Message-Id: <200301110041.h0B0fWLK016406@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Bugs that are resolved but not closed in Bugzilla 
-In-Reply-To: Your message of "Fri, 10 Jan 2003 16:16:52 PST."
-             <306150000.1042244212@flay> 
-From: Valdis.Kletnieks@vt.edu
-References: <306150000.1042244212@flay>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1285645520P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	id <S266844AbTAKAwy>; Fri, 10 Jan 2003 19:52:54 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:10984 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S266772AbTAKAwv>; Fri, 10 Jan 2003 19:52:51 -0500
+Date: Fri, 10 Jan 2003 16:54:26 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@zip.com.au>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] remove cruel torture of macros and small furry animals in io-apic.c
+Message-ID: <308730000.1042246466@flay>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Date: Fri, 10 Jan 2003 19:41:32 -0500
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1285645520P
-Content-Type: text/plain; charset=us-ascii
+Andrew, sent to you because I figure it might appeal to you,
+just based on a random gut feeling.
 
-On Fri, 10 Jan 2003 16:16:52 PST, "Martin J. Bligh" <mbligh@aracnet.com>  said:
-> There are 31 bugs in RESOLVED state in Bugzilla, but not CLOSED.
-> Either they should be closed, or there's a patch available that's not pushed.
-> 
-> If the patch is merged into Linus's tree, please could you close them out,
-> or send me email and I will?
+This removes the DO_ACTION stuff. The downside is that we add
+some boring and repetive code. The upside is that it's simple,
+and mere mortals can read it without screwing their brains into
+a small piece of silly putty and bouncing it off the wall. 
+I think that's more important than pure source code size.
 
-> 128 nor mbligh@aracnet.com RESO CODE 2.5.50 CONFIG_ACPI_SLEEP fails to build 
-without
+It also removes an unnecessary IO/apic read the code called 
+from balance_irq, which seems worthwhile.
 
-I filed this one, and have verified that Dave Jones did merge my patch into
-2.5.51 - got a 'mid air collision' trying to close it.  Hope that was
-you, Martin.. ;)
--- 
-				Valdis Kletnieks
-				Computer Systems Senior Engineer
-				Virginia Tech
+I'd like to reformat the for loops into something more obvious
+as well, but I'll let that one lie for now. This is tested on
+a 16-way NUMA-Q.
 
+diff -purN -X /home/mbligh/.diff.exclude virgin/arch/i386/kernel/io_apic.c doaction2/arch/i386/kernel/io_apic.c
+--- virgin/arch/i386/kernel/io_apic.c	Fri Dec 27 10:31:36 2002
++++ doaction2/arch/i386/kernel/io_apic.c	Fri Jan 10 15:41:30 2003
+@@ -116,40 +116,84 @@ static void __init replace_pin_at_irq(un
+ 	}
+ }
+ 
+-#define __DO_ACTION(R, ACTION, FINAL)					\
+-									\
+-{									\
+-	int pin;							\
+-	struct irq_pin_list *entry = irq_2_pin + irq;			\
+-									\
+-	for (;;) {							\
+-		unsigned int reg;					\
+-		pin = entry->pin;					\
+-		if (pin == -1)						\
+-			break;						\
+-		reg = io_apic_read(entry->apic, 0x10 + R + pin*2);	\
+-		reg ACTION;						\
+-		io_apic_modify(entry->apic, 0x10 + R + pin*2, reg);	\
+-		if (!entry->next)					\
+-			break;						\
+-		entry = irq_2_pin + entry->next;			\
+-	}								\
+-	FINAL;								\
+-}
+-
+-#define DO_ACTION(name,R,ACTION, FINAL)					\
+-									\
+-	static void name##_IO_APIC_irq (unsigned int irq)		\
+-	__DO_ACTION(R, ACTION, FINAL)
+-
+-DO_ACTION( __mask,             0, |= 0x00010000, io_apic_sync(entry->apic) )
+-						/* mask = 1 */
+-DO_ACTION( __unmask,           0, &= 0xfffeffff, )
+-						/* mask = 0 */
+-DO_ACTION( __mask_and_edge,    0, = (reg & 0xffff7fff) | 0x00010000, )
+-						/* mask = 1, trigger = 0 */
+-DO_ACTION( __unmask_and_level, 0, = (reg & 0xfffeffff) | 0x00008000, )
+-						/* mask = 0, trigger = 1 */
++/* mask = 1 */
++static void __mask_IO_APIC_irq (unsigned int irq)
++{
++	int pin;
++	struct irq_pin_list *entry = irq_2_pin + irq;
++
++	for (;;) {
++		unsigned int reg;
++		pin = entry->pin;
++		if (pin == -1)
++			break;
++		reg = io_apic_read(entry->apic, 0x10 + pin*2);
++		io_apic_modify(entry->apic, 0x10 + pin*2, reg |= 0x00010000);
++		if (!entry->next)
++			break;
++		entry = irq_2_pin + entry->next;
++	}
++	io_apic_sync(entry->apic);
++}
++
++/* mask = 0 */
++static void __unmask_IO_APIC_irq (unsigned int irq)
++{
++	int pin;
++	struct irq_pin_list *entry = irq_2_pin + irq;
++
++	for (;;) {
++		unsigned int reg;
++		pin = entry->pin;
++		if (pin == -1)
++			break;
++		reg = io_apic_read(entry->apic, 0x10 + pin*2);
++		io_apic_modify(entry->apic, 0x10 + pin*2, reg &= 0xfffeffff);
++		if (!entry->next)
++			break;
++		entry = irq_2_pin + entry->next;
++	}
++}
++
++/* mask = 1, trigger = 0 */
++static void __mask_and_edge_IO_APIC_irq (unsigned int irq)
++{
++	int pin;
++	struct irq_pin_list *entry = irq_2_pin + irq;
++
++	for (;;) {
++		unsigned int reg;
++		pin = entry->pin;
++		if (pin == -1)
++			break;
++		reg = io_apic_read(entry->apic, 0x10 + pin*2);
++		reg = (reg & 0xffff7fff) | 0x00010000;
++		io_apic_modify(entry->apic, 0x10 + pin*2, reg);
++		if (!entry->next)
++			break;
++		entry = irq_2_pin + entry->next;
++	}
++}
++
++/* mask = 0, trigger = 1 */
++static void __unmask_and_level_IO_APIC_irq (unsigned int irq)
++{
++	int pin;
++	struct irq_pin_list *entry = irq_2_pin + irq;
++
++	for (;;) {
++		unsigned int reg;
++		pin = entry->pin;
++		if (pin == -1)
++			break;
++		reg = io_apic_read(entry->apic, 0x10 + pin*2);
++		reg = (reg & 0xfffeffff) | 0x00008000;
++		io_apic_modify(entry->apic, 0x10 + pin*2, reg);
++		if (!entry->next)
++			break;
++		entry = irq_2_pin + entry->next;
++	}
++}
+ 
+ static void mask_IO_APIC_irq (unsigned int irq)
+ {
+@@ -197,13 +241,23 @@ static void clear_IO_APIC (void)
+ static void set_ioapic_affinity (unsigned int irq, unsigned long mask)
+ {
+ 	unsigned long flags;
++	int pin;
++	struct irq_pin_list *entry = irq_2_pin + irq;
+ 
+ 	/*
+ 	 * Only the first 8 bits are valid.
+ 	 */
+ 	mask = mask << 24;
+ 	spin_lock_irqsave(&ioapic_lock, flags);
+-	__DO_ACTION(1, = mask, )
++	for (;;) {
++		pin = entry->pin;
++		if (pin == -1)
++			break;
++		io_apic_modify(entry->apic, 0x10 + 1 + pin*2, mask);
++		if (!entry->next)
++			break;
++		entry = irq_2_pin + entry->next;
++	}
+ 	spin_unlock_irqrestore(&ioapic_lock, flags);
+ }
+ 
 
---==_Exmh_-1285645520P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+H2g8cC3lWbTT17ARAk1YAJ4uxEgwHd+s7MUpDBX4MpvzIaU3SgCg7qMI
-HGAU9/MIWm0UVkNKPYuPrfg=
-=WHie
------END PGP SIGNATURE-----
-
---==_Exmh_-1285645520P--

@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276836AbRJCCU7>; Tue, 2 Oct 2001 22:20:59 -0400
+	id <S276834AbRJCCR7>; Tue, 2 Oct 2001 22:17:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276837AbRJCCUt>; Tue, 2 Oct 2001 22:20:49 -0400
-Received: from tisch.mail.mindspring.net ([207.69.200.157]:37146 "EHLO
-	tisch.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S276836AbRJCCUi>; Tue, 2 Oct 2001 22:20:38 -0400
-Subject: Re: [PATCH] Intel 830 support for agpgart
-From: Robert Love <rml@tech9.net>
-To: David Weinehall <tao@acc.umu.se>
-Cc: Christof Efkemann <efkemann@uni-bremen.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20011003021658.O7800@khan.acc.umu.se>
-In-Reply-To: <20011002033227.6e047544.efkemann@uni-bremen.de>
-	<1001988137.2780.53.camel@phantasy>
-	<20011002151051.488306ee.efkemann@uni-bremen.de>
-	<1002066345.1003.66.camel@phantasy>  <20011003021658.O7800@khan.acc.umu.se>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.14.99+cvs.2001.09.30.08.08 (Preview Release)
-Date: 02 Oct 2001 22:20:43 -0400
-Message-Id: <1002075650.1237.2.camel@phantasy>
-Mime-Version: 1.0
+	id <S276836AbRJCCRu>; Tue, 2 Oct 2001 22:17:50 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:52182 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S276834AbRJCCRi>; Tue, 2 Oct 2001 22:17:38 -0400
+Date: Tue, 2 Oct 2001 22:18:08 -0400 (EDT)
+From: Alex Larsson <alexl@redhat.com>
+X-X-Sender: <alexl@devserv.devel.redhat.com>
+To: <linux-kernel@vger.kernel.org>
+cc: <alexl@redhat.com>
+Subject: Directory notification problem
+Message-ID: <Pine.LNX.4.33.0110022206100.29931-100000@devserv.devel.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2001-10-02 at 20:16, David Weinehall wrote:
-> If the only differences between the different cards are the nr of
-> aperture-sizes and the status-register settings, why not have a struct
-> which contains all the valid cards, and use a scan-routine?!
+I discovered a problem with the dnotify API while fixing a FAM bug today.
 
-I suppose we could, and this is a good idea -- although we'd be
-reapproaching the size of the current implementation which would be
-theoretically faster, too.
+The problem occurs when you want to watch a file in a directory, and that 
+file is changed several times in the same second. When I get the directory 
+notify signal on the directory I need to stat the file to see if the 
+change was actually in the file. If the file already changed in the 
+current second the stat() result will be identical to the previous stat() 
+call, since the resolution of mtime and ctime is one second. 
 
-There are only 3 possibilities right now (i830, i840, and everything
-else).
+This leads to missed notifications, leaving clients (such as Nautilus or 
+Konqueror) displaying an state not representing the current state.
 
-Hmm, maybe I will code this nonetheless...
+The only userspace solutions I see is to delay all change notifications to 
+the end of the second, so that clients always read the correct state. This 
+is somewhat countrary to the idea of FAM though, as it does not give 
+instant feedback.
 
--- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
+Is there any possibility of extending struct stat with a generation 
+counter? Or is there another solution to this problem?
+
+/ Alex
+
+Please CC any reply to me, i'm not on the list.
+
+
+
+
+
 

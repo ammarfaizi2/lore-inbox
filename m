@@ -1,71 +1,186 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265110AbUAEFYj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 00:24:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265171AbUAEFYj
+	id S265884AbUAEFbU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 00:31:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265885AbUAEFbU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 00:24:39 -0500
-Received: from glockenspiel.complete.org ([69.10.152.57]:52353 "EHLO
-	glockenspiel.complete.org") by vger.kernel.org with ESMTP
-	id S265110AbUAEFYe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 00:24:34 -0500
-Date: Sun, 4 Jan 2004 23:24:26 -0600
-From: John Goerzen <jgoerzen@complete.org>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SYM53c8xx Panic on Boot: 2.6.1rc1 (Alpha)
-Message-ID: <20040105052426.GA2116@complete.org>
-References: <slrnbvegjp.4er.jgoerzen@christoph.complete.org> <20040105025450.A16408@jurassic.park.msu.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040105025450.A16408@jurassic.park.msu.ru>
-User-Agent: Mutt/1.5.4i
+	Mon, 5 Jan 2004 00:31:20 -0500
+Received: from c-24-15-219-142.client.comcast.net ([24.15.219.142]:42934 "EHLO
+	rekl.yi.org") by vger.kernel.org with ESMTP id S265884AbUAEFax
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 00:30:53 -0500
+Date: Sun, 4 Jan 2004 23:30:51 -0600 (CST)
+From: lk@rekl.yi.org
+To: linux-kernel@vger.kernel.org
+Subject: KM266/VT8235, USB2.0 and problems
+Message-ID: <Pine.LNX.4.58.0401042314160.18200@rekl.yi.org>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811792-1499134638-1073280321=:18200"
+Content-ID: <Pine.LNX.4.58.0401042325570.18234@rekl.yi.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 05, 2004 at 02:54:50AM +0300, Ivan Kokshaysky wrote:
-> On Sat, Jan 03, 2004 at 10:30:17PM +0000, John Goerzen wrote:
-> > SCSI device sda: drive cache: write back
-> >  sda:Bad unaligned kernel access at fffffc000043ec28: fffffc001fe72432 22 31
-> > Kernel panic: Attempted to kill init!
-> ...
-> > # CONFIG_ALPHA_SRM is not set
-> 
-> So you're booting from MILO - its ancient PALcode doesn't handle
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Yes.
+---1463811792-1499134638-1073280321=:18200
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.58.0401042325571.18234@rekl.yi.org>
 
-> prefetch instructions with invalid target address "properly".
-> Personally I don't consider this as a PALcode bug, since even
-> with a "correct" PALcode spin_lock_prefetch() just burns CPU cycles
-> on uni-processor (and I think this applies not only to Alpha).
-> 
-> Does that old patch work for you?
+Hi.  I've noticed that intermittently in the past with some devices, and 
+now every time with my new USB2.0 thumb drive (aka pen drive, aka flash 
+memory thing) that there are errors with the USB on my motherboard.  It's 
+a M7VIG-PRO, which has a KM266/VT8235 chipset.
 
-That does improve matters immensely, and the system does actually boot
-far enough for me to get a login prompt.
+Using kernel 2.6.0, I can only access my flash drive several times before 
+getting an error about not being able to access the device.  The dmesg 
+output is below.  When I try on my laptop, which has an EHCI USB2.0 
+controller, the device works flawlessly.  There are no errors, etc.
 
-However, a few seconds after I logged in, I received:
+I am using a USB keyboard and a USB mouse.  Both work fine.
 
->n  4 23:12:07 erwin kernel: SCSI error : <0 0 6 0> return code = 0x70000
-Jan  4 23:12:07 erwin kernel: end_request: I/O error, dev sdb, sector 4973144
-Jan  4 23:12:07 erwin kernel: Buffer I/O error on device dm-1, logical block 237
-663
-Jan  4 23:12:07 erwin kernel: lost page write due to I/O error on dm-1
+I've tried several combinations of connecting the device, with and without 
+the "noapic" kernel option while booting.  I've connected the device to 
+the motherboard's USB sockets (ie the ones soldered to the board, not via 
+wires to the case), through a USB2.0 hub, etc.  I get the same result 
+every time.
 
-then after it repeated about 30 times...
+I've included the relevant parts of "dmesg" and "dmidecode".  Please cc: 
+me on responses, since I'm not subscribed, and let me know what to try 
+next.
 
-Jan  4 23:12:07 erwin kernel: SCSI error : <0 0 6 0> return code = 0x70000
-Jan  4 23:12:07 erwin kernel: end_request: I/O error, dev sdb, sector 4980224
-Jan  4 23:12:07 erwin kernel: Buffer I/O error on device dm-1, logical block 239
-434
-Jan  4 23:12:07 erwin kernel: lost page write due to I/O error on dm-1
+Thanks.
 
-which also repeated many times.
+---1463811792-1499134638-1073280321=:18200
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="dmidecode.txt"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.58.0401042326230.18234@rekl.yi.org>
+Content-Description: 
+Content-Disposition: ATTACHMENT; FILENAME="dmidecode.txt"
 
-While this did not appear to cause any actual data loss, I was spooked
-enough that I rebooted the machine into 2.4.23 immediately.  I do not
-believe that this is any sort of physical disk problem.
+IyBkbWlkZWNvZGUgMS44DQpTTUJJT1MgMi4zIHByZXNlbnQuDQpETUkgMi4z
+IHByZXNlbnQuDQozOCBzdHJ1Y3R1cmVzIG9jY3VweWluZyAxMDgzIGJ5dGVz
+Lg0KRE1JIHRhYmxlIGF0IDB4MDAwRjA4MDAuDQpIYW5kbGUgMHgwMDAwDQoJ
+RE1JIHR5cGUgMCwgMjAgYnl0ZXMuDQoJQklPUyBJbmZvcm1hdGlvbiBCbG9j
+aw0KCQlWZW5kb3I6IFBob2VuaXggVGVjaG5vbG9naWVzLCBMVEQNCgkJVmVy
+c2lvbjogNi4wMCBQRw0KCQlSZWxlYXNlOiAwMi8yNC8yMDAzDQoJCUJJT1Mg
+YmFzZTogMHhFMDAwMA0KCQlST00gc2l6ZTogMjU2Sw0KCQlDYXBhYmlsaXRp
+ZXM6DQoJCQlGbGFnczogMHgwMDAwMDAwMDdGQ0JERTkwDQouLi4NCkhhbmRs
+ZSAweDAwMDINCglETUkgdHlwZSAyLCA4IGJ5dGVzLg0KCUJvYXJkIEluZm9y
+bWF0aW9uIEJsb2NrDQoJCVZlbmRvcjogIA0KCQlQcm9kdWN0OiBLTTI2Ni04
+MjM1DQoJCVZlcnNpb246ICANCgkJU2VyaWFsIE51bWJlcjogIA0K
 
--- John
+---1463811792-1499134638-1073280321=:18200
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="dmesg.txt"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.58.0401042326231.18234@rekl.yi.org>
+Content-Description: 
+Content-Disposition: ATTACHMENT; FILENAME="dmesg.txt"
+
+TGludXggdmVyc2lvbiAyLjYuMCAocm9vdEBheHAuaXNhY29sb3IpIChnY2Mg
+dmVyc2lvbiAzLjIuMyAyMDAzMDQyMiAoR2VudG9vIExpbnV4IDEuNCAzLjIu
+My1yMywgcHJvcG9saWNlKSkgIzE4IFN1biBKYW4gNCAxNzoyNjowMyBDU1Qg
+MjAwNA0KLi4uDQplaGNpX2hjZCAwMDAwOjAwOjEwLjM6IEVIQ0kgSG9zdCBD
+b250cm9sbGVyDQplaGNpX2hjZCAwMDAwOjAwOjEwLjM6IGlycSA1LCBwY2kg
+bWVtIGUxODEyMDAwDQplaGNpX2hjZCAwMDAwOjAwOjEwLjM6IG5ldyBVU0Ig
+YnVzIHJlZ2lzdGVyZWQsIGFzc2lnbmVkIGJ1cyBudW1iZXIgMQ0KZWhjaV9o
+Y2QgMDAwMDowMDoxMC4zOiBVU0IgMi4wIGVuYWJsZWQsIEVIQ0kgMS4wMCwg
+ZHJpdmVyIDIwMDMtSnVuLTEzDQpodWIgMS0wOjEuMDogVVNCIGh1YiBmb3Vu
+ZA0KaHViIDEtMDoxLjA6IDYgcG9ydHMgZGV0ZWN0ZWQNCm9oY2lfaGNkOiAy
+MDAzIE9jdCAxMyBVU0IgMS4xICdPcGVuJyBIb3N0IENvbnRyb2xsZXIgKE9I
+Q0kpIERyaXZlciAoUENJKQ0Kb2hjaV9oY2Q6IGJsb2NrIHNpemVzOiBlZCA2
+NCB0ZCA2NA0KZHJpdmVycy91c2IvaG9zdC91aGNpLWhjZC5jOiBVU0IgVW5p
+dmVyc2FsIEhvc3QgQ29udHJvbGxlciBJbnRlcmZhY2UgZHJpdmVyIHYyLjEN
+CnVoY2lfaGNkIDAwMDA6MDA6MTAuMDogVUhDSSBIb3N0IENvbnRyb2xsZXIN
+CnVoY2lfaGNkIDAwMDA6MDA6MTAuMDogaXJxIDExLCBpbyBiYXNlIDAwMDBk
+MDAwDQp1aGNpX2hjZCAwMDAwOjAwOjEwLjA6IG5ldyBVU0IgYnVzIHJlZ2lz
+dGVyZWQsIGFzc2lnbmVkIGJ1cyBudW1iZXIgMg0KaHViIDItMDoxLjA6IFVT
+QiBodWIgZm91bmQNCmh1YiAyLTA6MS4wOiAyIHBvcnRzIGRldGVjdGVkDQp1
+aGNpX2hjZCAwMDAwOjAwOjEwLjE6IFVIQ0kgSG9zdCBDb250cm9sbGVyDQp1
+aGNpX2hjZCAwMDAwOjAwOjEwLjE6IGlycSAxMiwgaW8gYmFzZSAwMDAwZDQw
+MA0KdWhjaV9oY2QgMDAwMDowMDoxMC4xOiBuZXcgVVNCIGJ1cyByZWdpc3Rl
+cmVkLCBhc3NpZ25lZCBidXMgbnVtYmVyIDMNCmh1YiAzLTA6MS4wOiBVU0Ig
+aHViIGZvdW5kDQpodWIgMy0wOjEuMDogMiBwb3J0cyBkZXRlY3RlZA0KdWhj
+aV9oY2QgMDAwMDowMDoxMC4yOiBVSENJIEhvc3QgQ29udHJvbGxlcg0KdWhj
+aV9oY2QgMDAwMDowMDoxMC4yOiBpcnEgMTAsIGlvIGJhc2UgMDAwMGQ4MDAN
+CnVoY2lfaGNkIDAwMDA6MDA6MTAuMjogbmV3IFVTQiBidXMgcmVnaXN0ZXJl
+ZCwgYXNzaWduZWQgYnVzIG51bWJlciA0DQpodWIgNC0wOjEuMDogVVNCIGh1
+YiBmb3VuZA0KaHViIDQtMDoxLjA6IDIgcG9ydHMgZGV0ZWN0ZWQNCmRyaXZl
+cnMvdXNiL2NvcmUvdXNiLmM6IHJlZ2lzdGVyZWQgbmV3IGRyaXZlciB1c2Js
+cA0KZHJpdmVycy91c2IvY2xhc3MvdXNibHAuYzogdjAuMTM6IFVTQiBQcmlu
+dGVyIERldmljZSBDbGFzcyBkcml2ZXINCkluaXRpYWxpemluZyBVU0IgTWFz
+cyBTdG9yYWdlIGRyaXZlci4uLg0KZHJpdmVycy91c2IvY29yZS91c2IuYzog
+cmVnaXN0ZXJlZCBuZXcgZHJpdmVyIHVzYi1zdG9yYWdlDQpVU0IgTWFzcyBT
+dG9yYWdlIHN1cHBvcnQgcmVnaXN0ZXJlZC4NCmRyaXZlcnMvdXNiL2NvcmUv
+dXNiLmM6IHJlZ2lzdGVyZWQgbmV3IGRyaXZlciBoaWQNCmRyaXZlcnMvdXNi
+L2lucHV0L2hpZC1jb3JlLmM6IHYyLjA6VVNCIEhJRCBjb3JlIGRyaXZlcg0K
+Li4uDQpodWIgMS0wOjEuMDogbmV3IFVTQiBkZXZpY2Ugb24gcG9ydCAzLCBh
+c3NpZ25lZCBhZGRyZXNzIDQNCnNjc2kwIDogU0NTSSBlbXVsYXRpb24gZm9y
+IFVTQiBNYXNzIFN0b3JhZ2UgZGV2aWNlcw0KICBWZW5kb3I6IE1pY3JvQWR2
+ICBNb2RlbDogUXVpY2tpRHJpdmUxMjhNICAgUmV2OiAyLjAwDQogIFR5cGU6
+ICAgRGlyZWN0LUFjY2VzcyAgICAgICAgICAgICAgICAgICAgICBBTlNJIFND
+U0kgcmV2aXNpb246IDAyDQpzZGE6IFVuaXQgTm90IFJlYWR5LCBzZW5zZToN
+CkN1cnJlbnQgOiBzZW5zZSA9IDcwICA2DQpBU0M9MjggQVNDUT0gMA0KUmF3
+IHNlbnNlIGRhdGE6MHg3MCAweDAwIDB4MDYgMHgwMCAweDAwIDB4MDAgMHgw
+MCAweDBhIDB4MDAgMHgwMCAweDAwIDB4MDAgMHgyOCAweDAwIDB4MDAgMHgw
+MCAweDAwIDB4MDAgDQpzZGEgOiBSRUFEIENBUEFDSVRZIGZhaWxlZC4NCnNk
+YSA6IHN0YXR1cz0xLCBtZXNzYWdlPTAwLCBob3N0PTAsIGRyaXZlcj0wOCAN
+CkN1cnJlbnQgc2Q6IHNlbnNlID0gNzAgIDYNCkFTQz0yOCBBU0NRPSAwDQpS
+YXcgc2Vuc2UgZGF0YToweDcwIDB4MDAgMHgwNiAweDAwIDB4MDAgMHgwMCAw
+eDAwIDB4MGEgMHgwMCAweDAwIDB4MDAgMHgwMCAweDI4IDB4MDAgMHgwMCAw
+eDAwIDB4MDAgMHgwMCANCnNkYTogdGVzdCBXUCBmYWlsZWQsIGFzc3VtZSBX
+cml0ZSBFbmFibGVkDQpzZGE6IGFzc3VtaW5nIGRyaXZlIGNhY2hlOiB3cml0
+ZSB0aHJvdWdoDQpTQ1NJIGRldmljZSBzZGE6IDI1NjAwMCA1MTItYnl0ZSBo
+ZHdyIHNlY3RvcnMgKDEzMSBNQikNCnNkYTogV3JpdGUgUHJvdGVjdCBpcyBv
+ZmYNCnNkYTogTW9kZSBTZW5zZTogMDAgMjYgOTQgMDANCnNkYTogYXNzdW1p
+bmcgZHJpdmUgY2FjaGU6IHdyaXRlIHRocm91Z2gNClNDU0kgZGV2aWNlIHNk
+YTogMjU2MDAwIDUxMi1ieXRlIGhkd3Igc2VjdG9ycyAoMTMxIE1CKQ0Kc2Rh
+OiBXcml0ZSBQcm90ZWN0IGlzIG9mZg0Kc2RhOiBNb2RlIFNlbnNlOiAwMCAy
+NiA5NCAwMA0Kc2RhOiBhc3N1bWluZyBkcml2ZSBjYWNoZTogd3JpdGUgdGhy
+b3VnaA0KIC9kZXYvc2NzaS9ob3N0MC9idXMwL3RhcmdldDAvbHVuMDogcDEN
+CiAvZGV2L3Njc2kvaG9zdDAvYnVzMC90YXJnZXQwL2x1bjA6IHAxDQpkZXZm
+c19ta19iZGV2OiBjb3VsZCBub3QgYXBwZW5kIHRvIHBhcmVudCBmb3Igc2Nz
+aS9ob3N0MC9idXMwL3RhcmdldDAvbHVuMC9wYXJ0MQ0Ka29iamVjdF9yZWdp
+c3RlciBmYWlsZWQgZm9yIHNkYTEgKC0xNykNCkNhbGwgVHJhY2U6DQogWzxj
+MDFkYTI3Mj5dIGtvYmplY3RfcmVnaXN0ZXIrMHg1Mi8weDYwDQogWzxjMDE3
+YWJjOT5dIGFkZF9wYXJ0aXRpb24rMHhiOS8weGQwDQogWzxjMDE3YWQ3ZT5d
+IHJlZ2lzdGVyX2Rpc2srMHgxM2UvMHgxNzANCiBbPGMwMjI4MjVhPl0gYWRk
+X2Rpc2srMHg0YS8weDYwDQogWzxjMDIyODFlMD5dIGV4YWN0X21hdGNoKzB4
+MC8weDEwDQogWzxjMDIyODFmMD5dIGV4YWN0X2xvY2srMHgwLzB4MjANCiBb
+PGMwMjU0OGRkPl0gc2RfcHJvYmUrMHgxYmQvMHgyNzANCiBbPGMwMTdjMzU1
+Pl0gc3lzZnNfYWRkX2ZpbGUrMHhhNS8weGIwDQogWzxjMDIyMTNlZj5dIGJ1
+c19tYXRjaCsweDNmLzB4NzANCiBbPGMwMjIxNDYxPl0gZGV2aWNlX2F0dGFj
+aCsweDQxLzB4YTANCiBbPGMwMjIxNjRiPl0gYnVzX2FkZF9kZXZpY2UrMHg1
+Yi8weGEwDQogWzxjMDIyMDUzNT5dIGRldmljZV9hZGQrMHhiNS8weDEyMA0K
+IFs8YzAyNTFiZTg+XSBzY3NpX3N5c2ZzX2FkZF9zZGV2KzB4NTgvMHgxNzAN
+CiBbPGMwMjUwODJkPl0gc2NzaV9hZGRfbHVuKzB4MmJkLzB4MzkwDQogWzxj
+MDI1MGEyMD5dIHNjc2lfcHJvYmVfYW5kX2FkZF9sdW4rMHgxMjAvMHgxYjAN
+CiBbPGMwMjUxMDkxPl0gc2NzaV9zY2FuX3RhcmdldCsweGExLzB4MTIwDQog
+WzxjMDI1MTE2OT5dIHNjc2lfc2Nhbl9jaGFubmVsKzB4NTkvMHhhMA0KIFs8
+YzAyNTEyNzU+XSBzY3NpX3NjYW5faG9zdF9zZWxlY3RlZCsweGM1LzB4ZDAN
+CiBbPGMwMjUxMmFmPl0gc2NzaV9zY2FuX2hvc3QrMHgyZi8weDQwDQogWzxj
+MDI4ZDY4OD5dIHN0b3JhZ2VfcHJvYmUrMHgxNTgvMHgxZDANCiBbPGMwMjcx
+ODAzPl0gdXNiX3Byb2JlX2ludGVyZmFjZSsweDczLzB4YTANCiBbPGMwMjIx
+M2VmPl0gYnVzX21hdGNoKzB4M2YvMHg3MA0KIFs8YzAyMjE0NjE+XSBkZXZp
+Y2VfYXR0YWNoKzB4NDEvMHhhMA0KIFs8YzAyMjE2NGI+XSBidXNfYWRkX2Rl
+dmljZSsweDViLzB4YTANCiBbPGMwMjIwNTM1Pl0gZGV2aWNlX2FkZCsweGI1
+LzB4MTIwDQogWzxjMDI3N2Q5OD5dIHVzYl9zZXRfY29uZmlndXJhdGlvbisw
+eDFjOC8weDI0MA0KIFs8YzAyNzI1ZmM+XSB1c2JfbmV3X2RldmljZSsweDI4
+Yy8weDQxMA0KIFs8YzAyNzQ2N2E+XSBodWJfcG9ydF9jb25uZWN0X2NoYW5n
+ZSsweDFjYS8weDMzMA0KIFs8YzAyNzRhZWE+XSBodWJfZXZlbnRzKzB4MzBh
+LzB4MzUwDQogWzxjMDI3NGI1ZD5dIGh1Yl90aHJlYWQrMHgyZC8weGYwDQog
+WzxjMDEwYjE4Mj5dIHJldF9mcm9tX2ZvcmsrMHg2LzB4MTQNCiBbPGMwMTFh
+YjEwPl0gZGVmYXVsdF93YWtlX2Z1bmN0aW9uKzB4MC8weDIwDQogWzxjMDI3
+NGIzMD5dIGh1Yl90aHJlYWQrMHgwLzB4ZjANCiBbPGMwMTA5MmM5Pl0ga2Vy
+bmVsX3RocmVhZF9oZWxwZXIrMHg1LzB4Yw0KDQpBdHRhY2hlZCBzY3NpIHJl
+bW92YWJsZSBkaXNrIHNkYSBhdCBzY3NpMCwgY2hhbm5lbCAwLCBpZCAwLCBs
+dW4gMA0KQXR0YWNoZWQgc2NzaSBnZW5lcmljIHNnMCBhdCBzY3NpMCwgY2hh
+bm5lbCAwLCBpZCAwLCBsdW4gMCwgIHR5cGUgMA0KV0FSTklORzogVVNCIE1h
+c3MgU3RvcmFnZSBkYXRhIGludGVncml0eSBub3QgYXNzdXJlZA0KVVNCIE1h
+c3MgU3RvcmFnZSBkZXZpY2UgZm91bmQgYXQgNA0KU0NTSSBlcnJvciA6IDww
+IDAgMCAwPiByZXR1cm4gY29kZSA9IDB4NzAwMDANCmVuZF9yZXF1ZXN0OiBJ
+L08gZXJyb3IsIGRldiBzZGEsIHNlY3RvciA3NDQwDQpCdWZmZXIgSS9PIGVy
+cm9yIG9uIGRldmljZSBzZGEsIGxvZ2ljYWwgYmxvY2sgOTMwDQo=
+
+---1463811792-1499134638-1073280321=:18200--

@@ -1,64 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136473AbREDR4W>; Fri, 4 May 2001 13:56:22 -0400
+	id <S136474AbREDSDc>; Fri, 4 May 2001 14:03:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136474AbREDR4M>; Fri, 4 May 2001 13:56:12 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:5380 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S136473AbREDR4E>; Fri, 4 May 2001 13:56:04 -0400
-Date: Fri, 4 May 2001 10:55:58 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alexander Viro <viro@math.psu.edu>
-cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        volodya@mindspring.com, Andrea Arcangeli <andrea@suse.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
-In-Reply-To: <Pine.GSO.4.21.0105041330510.19970-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.21.0105041048290.521-100000@penguin.transmeta.com>
+	id <S136475AbREDSDX>; Fri, 4 May 2001 14:03:23 -0400
+Received: from chromium11.wia.com ([207.66.214.139]:35851 "EHLO
+	neptune.kirkland.local") by vger.kernel.org with ESMTP
+	id <S136474AbREDSDK>; Fri, 4 May 2001 14:03:10 -0400
+Message-ID: <3AF2EFCF.22DCDBA9@chromium.com>
+Date: Fri, 04 May 2001 11:07:11 -0700
+From: Fabio Riccardi <fabio@chromium.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: mingo@elte.hu
+CC: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Christopher Smith <x@xman.org>, Andrew Morton <andrewm@uow.edu.au>,
+        "Timothy D. Witham" <wookie@osdlab.org>, David_J_Morse@Dell.com
+Subject: Re: X15 alpha release
+In-Reply-To: <Pine.LNX.4.33.0105041015230.2178-100000@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo,
 
-On Fri, 4 May 2001, Alexander Viro wrote:
-> 
-> Ehh... There _is_ a way to deal with that, but it's deeply Albertesque:
-> 	* add pagecache access for block device
-> 	* put your "real" root on /dev/loop0 (setup from initrd)
-> 	* dd
+I'm really impressed by your feedback! How do you manage to discover so many
+things?
 
-You're one sick puppy.
+I fixed the bug, and checked that it hadn't affected my specweb results.
 
-Now, the above is basically equivalent to using and populating a
-dynamically sized ramdisk.
+Indeed specweb never issues closing 1.1 connections, it would use a 1.0
+request with close in that case.
 
-If you really want to go this way, I'd much rather see you using a real
-ram-disk (that you populate at startup with something like a compressed
-tar-file). THAT is definitly going to speed up booting - thanks to
-compression you'll not only get linear reads, but you will get fewer reads
-than the amount of data you need would imply.
+Moreover even if a client says that it will close the connection and the
+server instead leaves it open, the client would just close the connection
+anyway, unless there is a (very contrived) bug in the client which would let
+itself be diverted from its original intention by an overly talkative
+server...
 
-Couple that with tmpfs, or possibly something like coda (to dynamically
-move things between the ramdisk and the "backing store" filesystem), and
-you can get a ramdisk approach that actually shrinks (and, in the case of
-coda or whatever, truly grows) dynamically.
+X15 would be indeed negatively affected by these useless idle open
+connections cluttering the file descriptor table and consuming resources for
+nothing.
 
-Think of it as an exercise in multi-level filesystems and filesystem
-management. Others have done it before (usually between disk and tape, or
-disk and network), and in these days of ever-growing memory it might just
-make sense to do it on that level too.
+I'll post the corrected version later on today.
 
-(No, I don't seriously think it makes sense today. But if RAM keeps
-growing and becoming ever cheaper, it might some day. At the point where
-everybody has multi-gigabyte memories, and don't really need it for
-anything but caching, you could think of it as just moving the caching to
-a higher level - you don't cache blocks, you cache parts of the
-filesystem).
+BTW: is there any _concise_ document specifying the HTTP protocol and its
+variants?
 
-> 	Al, feeling sadistic today...
+ - Fabio
 
-Sadistic you are.
+Ingo Molnar wrote:
 
-		Linus
+> Fabio,
+>
+> i noticed another RFC anomaly in X15. It ignores the "Connection: close"
+> request header passed by a HTTP/1.1 client. This behavior is against RFC
+> 2616, a server must not override the client's choice of non-persistent
+> connection. (there might be HTTP/1.1 clients that do not support
+> persistent connections and signal this via "Connection: close".)
+>
+> the rule is this: a request is either keepalive or non-keepalive. HTTP/1.0
+> requests default to non-keepalive. HTTP/1.1 requests default to keepalive.
+> The default can be overriden via the "Connection: Keep-Alive" or
+> "Connection: close" header fields.
+>
+> if you fix this, does it impact SPECweb99 performance in any way?
+>
+>         Ingo
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

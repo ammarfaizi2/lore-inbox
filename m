@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262219AbTD3QCq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 12:02:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262220AbTD3QCq
+	id S262193AbTD3QIh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 12:08:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262195AbTD3QIh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 12:02:46 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:60688 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S262219AbTD3QCp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 12:02:45 -0400
-Date: Wed, 30 Apr 2003 09:16:04 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>
-cc: dphillips@sistina.com, <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] Faster generic_fls
-In-Reply-To: <87el3kt1kt.fsf@student.uni-tuebingen.de>
-Message-ID: <Pine.LNX.4.44.0304300911420.16712-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 30 Apr 2003 12:08:37 -0400
+Received: from ltgp.iram.es ([150.214.224.138]:40584 "EHLO ltgp.iram.es")
+	by vger.kernel.org with ESMTP id S262193AbTD3QIg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 12:08:36 -0400
+From: Gabriel Paubert <paubert@iram.es>
+Date: Wed, 30 Apr 2003 18:15:25 +0200
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Jamie Lokier <jamie@shareable.org>, Andi Kleen <ak@suse.de>,
+       joe briggs <jbriggs@briggsmedia.com>, linux-kernel@vger.kernel.org
+Subject: Re: software reset
+Message-ID: <20030430161525.GA3834@iram.es>
+References: <200304291037.13598.jbriggs@briggsmedia.com.suse.lists.linux.kernel> <p73vfwx2uw8.fsf@oldwotan.suse.de> <20030430075004.GB13859@mail.jlokier.co.uk> <m1llxsfdpg.fsf@frodo.biederman.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1llxsfdpg.fsf@frodo.biederman.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 30 Apr 2003, Falk Hueffner wrote:
-> Linus Torvalds <torvalds@transmeta.com> writes:
+On Wed, Apr 30, 2003 at 05:04:59AM -0600, Eric W. Biederman wrote:
 > 
-> > There is _never_ any excuse to use a lookup table for something that
-> > can be calculated with a few simple instructions. That's just
-> > stupid.
+> And as an interesting data point all a triple fault does on a modern
+> system is to put the cpu in a weird stopped state.  Some hardware
+> usually the southbridge then detects this and if properly configured
+> will trigger the reset line.
 > 
-> Well, the "few simple instructions" are 28 instructions on Alpha for
-> example, including 6 data-dependent branches. So I don't think it's
-> *that* stupid.
+> I believe this may actually go back into history as far as the 486 but
+> I have not done the researched to see how far back this behavior goes.
 
-You're comparing apples to oranges.
+Try 286. It was the fastest (actually only) way to make a 286 switch back
+from protected to real mode.
 
-Clearly you're not going to make _one_ load to get fls, since having a 
-4GB lookup array for a 32-bit fls would be "somewhat" wasteful.
-
-So the lookup table would probably look up just the last 8 bits.
-
-So the lookup table version is several instructions in itself, doing about
-half of what the calculating version needs to do _anyway_. Including those
-data-dependent branches.
-
-		Linus
-
+	Gabriel

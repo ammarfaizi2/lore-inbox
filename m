@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266633AbUBEVGr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 16:06:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266636AbUBEVGq
+	id S266638AbUBEVHK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 16:07:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266663AbUBEVHJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 16:06:46 -0500
-Received: from gprs146-127.eurotel.cz ([160.218.146.127]:12417 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S266633AbUBEVGp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 16:06:45 -0500
-Date: Thu, 5 Feb 2004 22:06:23 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: John Bradford <john@grabjohn.com>
-Cc: Jens Axboe <axboe@suse.de>, Tomas Zvala <tomas@zvala.cz>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0, cdrom still showing directories after being erased
-Message-ID: <20040205210623.GA1541@elf.ucw.cz>
-References: <20040203131837.GF3967@aurora.fi.muni.cz> <Pine.LNX.4.53.0402030839380.31203@chaos> <401FB78A.5010902@zvala.cz> <20040203152805.GI11683@suse.de> <20040205182335.GB294@elf.ucw.cz> <200402052004.i15K4Bqx000266@81-2-122-30.bradfords.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 5 Feb 2004 16:07:09 -0500
+Received: from mout2.freenet.de ([194.97.50.155]:47265 "EHLO mout2.freenet.de")
+	by vger.kernel.org with ESMTP id S266638AbUBEVHD convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 16:07:03 -0500
+From: Michael Buesch <mbuesch@freenet.de>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: psmouse.c, throwing 3 bytes away
+Date: Thu, 5 Feb 2004 22:06:48 +0100
+User-Agent: KMail/1.6.50
+References: <200402041820.39742.wnelsonjr@comcast.net> <200402051517.37466.murilo_pontes@yahoo.com.br> <20040205203840.GA13114@ucw.cz>
+In-Reply-To: <20040205203840.GA13114@ucw.cz>
+Cc: linux-kernel@vger.kernel.org, Murilo Pontes <murilo_pontes@yahoo.com.br>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <200402052004.i15K4Bqx000266@81-2-122-30.bradfords.org.uk>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200402052207.00423.mbuesch@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> > mount
-> > umount
-> > cdrecord -blank
-> > mount
-> > see old data
-> > 
-> > That looks pretty bad. If there's no other solution, we might just
-> > document it, but...
-> 
-> I think cdrecord should be hacked to complain loudly if the device is
-> already mounted.  Regardless of the device cache not being cleared,
-> (which is a firmware bug, in my opinion), blanking a mounted device is
-> usually not what the user intended.  This is not a kernel problem as
-> such, and should be dealt with in userspace.
+On Thursday 05 February 2004 21:38, you wrote:
+> Hey, guys, could you possibly try to figure out what your machines have
+> in common? I've switched all my computers to PS/2 mice so that I have a
+> bigger chance to reproduce the problem, but it is not happening on any
+> of them.
 
-But it is _not_ mounted at that point. User did no mistake.
-								Pavel
+Hm, that's a good question. :)
+As I said I had these error messages on 2.6.2-rc2, but now
+on 2.6.2 I don't have them anymore. (at least until yet).
+But could also have something to do with the switch from
+KDE-cvsHEAD-december2003 to KDE-3.2. I don't know.
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+I'm compiling software and accessing the disk heavily today
+(and yesterday) but I can't see the message anymore.
+That's strange!
+
+- -- 
+Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAIrBzFGK1OIvVOP4RAs1SAKCHWBStoIZ119Zq7wAomnYC2R1ukACePqTH
+o0HPu/uLewEvpUD52TzbWqw=
+=RG51
+-----END PGP SIGNATURE-----

@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267332AbTBFPj7>; Thu, 6 Feb 2003 10:39:59 -0500
+	id <S267344AbTBFPlz>; Thu, 6 Feb 2003 10:41:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267338AbTBFPj7>; Thu, 6 Feb 2003 10:39:59 -0500
-Received: from nimbus19.internetters.co.uk ([209.61.216.65]:10880 "HELO
-	nimbus19.internetters.co.uk") by vger.kernel.org with SMTP
-	id <S267332AbTBFPj6>; Thu, 6 Feb 2003 10:39:58 -0500
-Subject: Re: Linux Kernel Architectural Diagram
-From: Alex Bennee <kernel-hacker@bennee.com>
-To: Linux Lists <user_linux@citma.cu>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <5E3C3E93.80209@citma.cu>
-References: <20030203221923.M79151@webmail.citma.cu>
-	 <1044360902.23312.16.camel@irongate.swansea.linux.org.uk>
-	 <5E3C3E93.80209@citma.cu>
-Content-Type: text/plain
-Organization: Hackers Inc
-Message-Id: <1044546197.30945.8.camel@cambridge.braddahead>
+	id <S267347AbTBFPlz>; Thu, 6 Feb 2003 10:41:55 -0500
+Received: from ns.suse.de ([213.95.15.193]:38669 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S267344AbTBFPly>;
+	Thu, 6 Feb 2003 10:41:54 -0500
+Date: Thu, 6 Feb 2003 16:51:14 +0100
+From: Andi Kleen <ak@suse.de>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+Subject: Re: [Lse-tech] gcc -O2 vs gcc -Os performance
+Message-ID: <20030206155114.GA16390@wotan.suse.de>
+References: <336780000.1044313506@flay> <224770000.1044546145@[10.10.2.4]>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1-1mdk 
-Date: 06 Feb 2003 15:43:18 +0000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <224770000.1044546145@[10.10.2.4]>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2020-02-06 at 16:28, Linux Lists wrote:
-> Where can I get a diagram of the Linux Kernel Architectural ?
+> All done with gcc-2.95.4 (Debian Woody). These machines (16x NUMA-Q) have 
+> 700MHz P3 Xeons with 2Mb L2 cache ... -Os might fare better on celeron 
+> with a puny cache if someone wants to try that out.
 
-Depends what your after. There is a nice kernel poster sold by Think
-Geek that uses a script (IIRC) written by Rusty Russel of the 2.4.0
-kernel layout. Basically a glorified call tree diagram. I think the
-image public so you should be able to download it somewhere.
+-Os on 2.95 is not too useful. It only started becomming useful on 3.1+,
+even more so on the upcomming 3.3.
 
-Are you interested in any particular bit or just a general overview.
-There are a number of books available that offer commentry on how it all
-goes together which are worth looking at.
+e.g. there was one report of ACPI shrinking by >60k by recompiling it
+with -Os on 3.1. ACPI is only slow path code so that is completely reasonable.
 
--- 
-Alex Bennee <kernel-hacker@bennee.com>
-Hackers Inc
+Best would be of course to use profile feedback to let the compiler
+decide where to generate small and where to generate fast&big code.
+But that has problems with the maintainability (it will be hard to generate
+the same vmlinux as users for debugging/ksymoops reading purposes)
 
+-Andi

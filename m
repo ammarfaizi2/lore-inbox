@@ -1,62 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268734AbUH3R41@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268708AbUH3Rvt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268734AbUH3R41 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 13:56:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268706AbUH3Rwu
+	id S268708AbUH3Rvt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 13:51:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268682AbUH3Ror
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 13:52:50 -0400
-Received: from pD9E73D60.dip.t-dialin.net ([217.231.61.96]:55941 "EHLO
-	abc.local") by vger.kernel.org with ESMTP id S268723AbUH3RvC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 13:51:02 -0400
-Date: Mon, 30 Aug 2004 19:52:15 +0200
-From: Johannes Stezenbach <js@linuxtv.org>
-To: Jacek Pop?awski <jacekpoplawski@wp.pl>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.19-rc1 stv0299 fix
-Message-ID: <20040830175215.GA15303@convergence.de>
-Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
-	Jacek Pop?awski <jacekpoplawski@wp.pl>,
-	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-References: <20040830075244.GA166@bokowka>
+	Mon, 30 Aug 2004 13:44:47 -0400
+Received: from ms-smtp-04.rdc-kc.rr.com ([24.94.166.116]:3734 "EHLO
+	ms-smtp-04.rdc-kc.rr.com") by vger.kernel.org with ESMTP
+	id S268677AbUH3RoU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 13:44:20 -0400
+Date: Mon, 30 Aug 2004 12:42:25 -0500
+From: Andy Warner <andyw@pobox.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: "John W. Linville" <linville@tuxdriver.com>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: [patch] libata: add ioctls to support SMART
+Message-ID: <20040830124225.A4358@florence.linkmargin.com>
+References: <200408301531.i7UFVBg29089@ra.tuxdriver.com> <413361BF.8020805@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040830075244.GA166@bokowka>
-User-Agent: Mutt/1.5.6+20040818i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <413361BF.8020805@pobox.com>; from jgarzik@pobox.com on Mon, Aug 30, 2004 at 01:19:59PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 30, 2004 at 07:52:44AM +0000, Jacek Pop?awski wrote:
-> 
-> I use SkyStar 2.6c DVB card. I noticed that I can't watch digital television
-> anymore, after 2.6.7 to 2.6.9-rc1 upgrade. First reason was change of DVB
-> device, but second one is little bug in kernel.
-> 
-> Name of device has been changed in 2.6.9-rc1 to "SkyStar2", but module stv0299
-> still compares name with "Technisat SkyStar2 driver", strings are different,
-> and result is that stv0299 detects invalid tuner type. Not only I am not able
-> to tune anything, but also I can crash system just by reloading DVB modules and
-> being in X at same time.
+Jeff Garzik wrote:
+> [...]
+> That implies, then, that you would add code to libata-scsi.c that 
+> translates the ATA-passthru SCSI command into an ATA command using the 
+> ata_scsi_translate() infrastructure.
 
-How so? What does the DVB driver have to do with X?
+Speaking of which - I'm working on this and want to find like
+minded people playing in the libata-scsi.c/04-262r<n>.pdf
+sandbox, and collaborate with them.
 
-> Following obvious patch fixes problem.
+If you're one of these people, ping me off list and we
+can pool our efforts.
+-- 
+andyw@pobox.com
 
-Patch looks good. Please apply.
-
-Johannes
-
-
---- linux-2.6.9-rc1/drivers/media/dvb/frontends/stv0299.c	2004-08-25 21:40:56.000000000 +0200
-+++ linux/drivers/media/dvb/frontends/stv0299.c	2004-08-30 02:08:00.902739808 +0200
-@@ -1271,7 +1271,7 @@
- 
- 	printk ("%s: try to attach to %s\n", __FUNCTION__, adapter->name);
- 
--	if ( strcmp(adapter->name, "Technisat SkyStar2 driver") == 0 )
-+	if ( strcmp(adapter->name, "SkyStar2") == 0 )
- 	{
- 	    printk ("%s: setup for tuner Samsung TBMU24112IMB\n", __FILE__)
-
-
+Andy Warner		Voice: (612) 801-8549	Fax: (208) 575-5634

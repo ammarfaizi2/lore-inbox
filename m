@@ -1,42 +1,108 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319558AbSH3MkC>; Fri, 30 Aug 2002 08:40:02 -0400
+	id <S319559AbSH3MqT>; Fri, 30 Aug 2002 08:46:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319559AbSH3MkC>; Fri, 30 Aug 2002 08:40:02 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:13060 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S319558AbSH3MkB>; Fri, 30 Aug 2002 08:40:01 -0400
-Message-ID: <3D6F6874.40BE5519@aitel.hist.no>
-Date: Fri, 30 Aug 2002 14:43:32 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.30 i686)
-X-Accept-Language: no, en, en
+	id <S319560AbSH3MqT>; Fri, 30 Aug 2002 08:46:19 -0400
+Received: from nycsmtp2fb.rdc-nyc.rr.com ([24.29.99.78]:43793 "EHLO si.rr.com")
+	by vger.kernel.org with ESMTP id <S319559AbSH3MqS>;
+	Fri, 30 Aug 2002 08:46:18 -0400
+Date: Fri, 30 Aug 2002 08:03:38 -0400 (EDT)
+From: Frank Davis <fdavis@si.rr.com>
+X-X-Sender: <fdavis@primetime>
+To: <linux-kernel@vger.kernel.org>
+cc: <fdavis@si.rr.com>
+Subject: 2.5.32 : net/ipv4/netfilter/ipfwadm_core.c compile error 
+Message-ID: <Pine.LNX.4.33.0208300801120.27846-100000@primetime>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.32 oops during reboot 
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.5.32 oopsed during shutdown, terminating the reboot process.
-The machine wouldn't die this way.
+Hello all, 
+  While 'make modules', I received the following error.
 
-Of course there were no logs, so I wrote down
-some numbers and looked them up later:
+Regards,
+Frank
 
-Unable to handle kernel paging request at d0c65498
-eip: c019bb38  tty_register_devfs
+ipfwadm_core.c: In function `ip_fw_chk':
+ipfwadm_core.c:450: structure has no member named `read_locked_map'
+ipfwadm_core.c:450: structure has no member named `write_locked_map'
+ipfwadm_core.c:450: structure has no member named `l'
+ipfwadm_core.c:450: structure has no member named `read_locked_map'
+ipfwadm_core.c:452: structure has no member named `read_locked_map'
+ipfwadm_core.c:452: structure has no member named `write_locked_map'
+ipfwadm_core.c:452: structure has no member named `l'
+ipfwadm_core.c:452: structure has no member named `write_locked_map'
+ipfwadm_core.c:677: structure has no member named `read_locked_map'
+ipfwadm_core.c:677: structure has no member named `read_locked_map'
+ipfwadm_core.c:677: structure has no member named `l'
+ipfwadm_core.c:679: structure has no member named `write_locked_map'
+ipfwadm_core.c:679: structure has no member named `write_locked_map'
+ipfwadm_core.c:679: structure has no member named `l'
+ipfwadm_core.c: In function `zero_fw_chain':
+ipfwadm_core.c:689: structure has no member named `read_locked_map'
+ipfwadm_core.c:689: structure has no member named `write_locked_map'
+ipfwadm_core.c:689: structure has no member named `l'
+ipfwadm_core.c:689: structure has no member named `write_locked_map'
+ipfwadm_core.c:696: structure has no member named `write_locked_map'
+ipfwadm_core.c:696: structure has no member named `write_locked_map'
+ipfwadm_core.c:696: structure has no member named `l'
+ipfwadm_core.c: In function `free_fw_chain':
+ipfwadm_core.c:701: structure has no member named `read_locked_map'
+ipfwadm_core.c:701: structure has no member named `write_locked_map'
+ipfwadm_core.c:701: structure has no member named `l'
+ipfwadm_core.c:701: structure has no member named `write_locked_map'
+ipfwadm_core.c:710: structure has no member named `write_locked_map'
+ipfwadm_core.c:710: structure has no member named `write_locked_map'
+ipfwadm_core.c:710: structure has no member named `l'
+ipfwadm_core.c: In function `insert_in_chain':
+ipfwadm_core.c:738: structure has no member named `read_locked_map'
+ipfwadm_core.c:738: structure has no member named `write_locked_map'
+ipfwadm_core.c:738: structure has no member named `l'
+ipfwadm_core.c:738: structure has no member named `write_locked_map'
+ipfwadm_core.c:748: structure has no member named `write_locked_map'
+ipfwadm_core.c:748: structure has no member named `write_locked_map'
+ipfwadm_core.c:748: structure has no member named `l'
+ipfwadm_core.c: In function `append_to_chain':
+ipfwadm_core.c:780: structure has no member named `read_locked_map'
+ipfwadm_core.c:780: structure has no member named `write_locked_map'
+ipfwadm_core.c:780: structure has no member named `l'
+ipfwadm_core.c:780: structure has no member named `write_locked_map'
+ipfwadm_core.c:796: structure has no member named `write_locked_map'
+ipfwadm_core.c:796: structure has no member named `write_locked_map'
+ipfwadm_core.c:796: structure has no member named `l'
+ipfwadm_core.c: In function `del_from_chain':
+ipfwadm_core.c:807: structure has no member named `read_locked_map'
+ipfwadm_core.c:807: structure has no member named `write_locked_map'
+ipfwadm_core.c:807: structure has no member named `l'
+ipfwadm_core.c:807: structure has no member named `write_locked_map'
+ipfwadm_core.c:816: structure has no member named `write_locked_map'
+ipfwadm_core.c:816: structure has no member named `write_locked_map'
+ipfwadm_core.c:816: structure has no member named `l'
+ipfwadm_core.c:868: structure has no member named `write_locked_map'
+ipfwadm_core.c:868: structure has no member named `write_locked_map'
+ipfwadm_core.c:868: structure has no member named `l'
+ipfwadm_core.c: In function `ip_chain_procinfo':
+ipfwadm_core.c:1158: structure has no member named `read_locked_map'
+ipfwadm_core.c:1158: structure has no member named `write_locked_map'
+ipfwadm_core.c:1158: structure has no member named `l'
+ipfwadm_core.c:1158: structure has no member named `read_locked_map'
+ipfwadm_core.c:1199: structure has no member named `read_locked_map'
+ipfwadm_core.c:1199: structure has no member named `read_locked_map'
+ipfwadm_core.c:1199: structure has no member named `l'
+ipfwadm_core.c: In function `ipfw_device_event':
+ipfwadm_core.c:1345: structure has no member named `read_locked_map'
+ipfwadm_core.c:1345: structure has no member named `write_locked_map'
+ipfwadm_core.c:1345: structure has no member named `l'
+ipfwadm_core.c:1345: structure has no member named `write_locked_map'
+ipfwadm_core.c:1362: structure has no member named `write_locked_map'
+ipfwadm_core.c:1362: structure has no member named `write_locked_map'
+ipfwadm_core.c:1362: structure has no member named `l'
+make[3]: *** [ipfwadm_core.o] Error 1
+make[3]: Leaving directory `/usr/src/linux/net/ipv4/netfilter'
+make[2]: *** [netfilter] Error 2
+make[2]: Leaving directory `/usr/src/linux/net/ipv4'
+make[1]: *** [ipv4] Error 2
+make[1]: Leaving directory `/usr/src/linux/net'
+make: *** [net] Error 2
 
-call trace:
-c0197077 disable_irq_nosync
-c011f78d sys_reboot
-c014gf40 posix_lock_file
-c024be45 devinet_ioctl
-c02175c7 sock_destroy_inode
-
-process reboot exited with preempt count 2
-
-UP kernel, with preempt & devfs
-
-Helge Hafting

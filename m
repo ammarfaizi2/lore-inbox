@@ -1,67 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261766AbUCaWJS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 17:09:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbUCaWJS
+	id S261703AbUCaWNy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 17:13:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbUCaWNy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 17:09:18 -0500
-Received: from ns.suse.de ([195.135.220.2]:58573 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261766AbUCaWJI (ORCPT
+	Wed, 31 Mar 2004 17:13:54 -0500
+Received: from fw.osdl.org ([65.172.181.6]:39901 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261703AbUCaWNw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 17:09:08 -0500
-Subject: Re: [PATCH] barrier patch set
-From: Chris Mason <mason@suse.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <406B3799.5060203@pobox.com>
-References: <20040319153554.GC2933@suse.de>
-	 <200403201723.11906.bzolnier@elka.pw.edu.pl>
-	 <1079800362.11062.280.camel@watt.suse.com>
-	 <200403201805.26211.bzolnier@elka.pw.edu.pl>
-	 <1080662685.1978.25.camel@sisko.scot.redhat.com>
-	 <1080674384.3548.36.camel@watt.suse.com>
-	 <1080683417.1978.53.camel@sisko.scot.redhat.com> <4069F2FC.90003@pobox.com>
-	 <1080742105.1991.40.camel@sisko.scot.redhat.com>
-	 <1080742895.3547.139.camel@watt.suse.com>  <406B3799.5060203@pobox.com>
-Content-Type: text/plain
-Message-Id: <1080770982.3546.207.camel@watt.suse.com>
+	Wed, 31 Mar 2004 17:13:52 -0500
+Date: Wed, 31 Mar 2004 14:15:58 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Craig, Dave" <dwcraig@qualcomm.com>
+Cc: list@noduck.net, linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at kernel/timer.c:370!
+Message-Id: <20040331141558.1dce267c.akpm@osdl.org>
+In-Reply-To: <0320111483D8B84AAAB437215BBDA526847F7F@NAEX01.na.qualcomm.com>
+References: <0320111483D8B84AAAB437215BBDA526847F7F@NAEX01.na.qualcomm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 31 Mar 2004 17:09:42 -0500
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-03-31 at 16:26, Jeff Garzik wrote:
->  
-> > Yes, it gets ugly in a hurry.  Jeff, look at the whole thread about the
-> > O_DIRECT read vs buffered write races.  I don't think we can use FUA for
+"Craig, Dave" <dwcraig@qualcomm.com> wrote:
+>
+> Sure thing.
 > 
-> Yes, I'm aware of the thread...
+> 7ecb001b A __crc___per_cpu_offset
+> c033a510 r __kcrctab___per_cpu_offset
+> c033c462 r __kstrtab___per_cpu_offset
+> c03366c4 r __ksymtab___per_cpu_offset
+> c040bd90 A __per_cpu_end
+> c040c020 B __per_cpu_offset
+> c04090a0 A __per_cpu_start
 > 
-> 
-> > fsync or O_SYNC without using it for every write.
-> 
-> Why not for O_SYNC?  Is some crazy userspace application flipping this 
-> bit on and off rapidly?
-> 
+> It is a dual processor and the processors are hyperthreaded.
 
-For both fsync and O_SYNC, the pages we want to write synchronously are
-also available for some other part of the kernel to write async.  Since
-we do know the write is going to be O_SYNC when we are marking the pages
-dirty, we could mark them dirty_fua or something as well.
-
-Even assuming we can deal with the data=ordered ext3/reiserfs issues, it
-makes the writeback for O_SYNC yet another corner case to check, and one
-where we have no useful way to make sure the fua bit really got set on
-all the writes for a given O_SYNC (unless we pin the page and check each
-one after the writes are complete).
-
-Since O_DIRECT is much less complex I think we should start there.
-
--chris
-
-
-
+OK.  We're consistently seeing a single-bit difference and there's no
+simple power-of-two stride in the things which that pointer points at. 
+Most likely you have a hardware problem.

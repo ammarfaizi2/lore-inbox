@@ -1,36 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129511AbQLHOWV>; Fri, 8 Dec 2000 09:22:21 -0500
+	id <S129523AbQLHOYv>; Fri, 8 Dec 2000 09:24:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129595AbQLHOWL>; Fri, 8 Dec 2000 09:22:11 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:18192 "EHLO
+	id <S129595AbQLHOYl>; Fri, 8 Dec 2000 09:24:41 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:19216 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129511AbQLHOWF>; Fri, 8 Dec 2000 09:22:05 -0500
-Subject: Re: Signal 11
-To: davej@suse.de
-Date: Fri, 8 Dec 2000 13:52:15 +0000 (GMT)
-Cc: jmerkey@timpanogas.org (Jeff V. Merkey), rmager@vgkk.com (Rainer Mager),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <Pine.LNX.4.21.0012080217400.12383-100000@neo.local> from "davej@suse.de" at Dec 08, 2000 02:28:49 AM
+	id <S129523AbQLHOY1>; Fri, 8 Dec 2000 09:24:27 -0500
+Subject: Re: [Fwd: NTFS repair tools]
+To: jmerkey@timpanogas.org (Jeff V. Merkey)
+Date: Fri, 8 Dec 2000 13:55:43 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3A30552D.A6BE248C@timpanogas.org> from "Jeff V. Merkey" at Dec 07, 2000 08:27:41 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E144Nwg-0003uo-00@the-village.bc.nu>
+Message-Id: <E144O01-0003v7-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Various processes have been getting random signals after heavy CPU usage.
-> Playing an MPEG movie, kernel compile, or even just some small apps
-> compiling sometimes. Just for the record, this isn't an OOM situation,
-> I've watched this box with half its memory free or in buffers left
-> unattended, and suddenly a compile will just die.
+> somewhere in the thousands.  Is NTFS write stable enough now in 2.4 to
+> fix these problems, if so, can we DISABLE by REMOVING write code in the
 
-This is consistent with page cache corruption in memory. We definitely had
-that in older 2.4test kernels. I saw this building stuff on Linux parisc
-and it was because some page of gcc had randomly decided to become something
-different. Since that was test6 I didnt figure it important 8)
+It says DANGEROUS in big letters on the configuration option. We are now
+down to the level of people who don't understand 'smoking kills you' in big
+letters on packaging, and people using very old trees that merely warned you
+that it was a very bad idea
+
+Alan
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261386AbREQJz1>; Thu, 17 May 2001 05:55:27 -0400
+	id <S261387AbREQJ55>; Thu, 17 May 2001 05:57:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261387AbREQJzR>; Thu, 17 May 2001 05:55:17 -0400
-Received: from munchkin.spectacle-pond.org ([209.192.197.45]:58375 "EHLO
-	munchkin.spectacle-pond.org") by vger.kernel.org with ESMTP
-	id <S261386AbREQJy5>; Thu, 17 May 2001 05:54:57 -0400
-Date: Thu, 17 May 2001 05:35:49 -0400
-From: Michael Meissner <meissner@spectacle-pond.org>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: esr@thyrsus.com, Pavel Machek <pavel@suse.cz>,
-        Jes Sorensen <jes@sunsite.dk>, CML2 <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: CML2 design philosophy heads-up
-Message-ID: <20010517053549.A17562@munchkin.spectacle-pond.org>
-In-Reply-To: <20010517032636.A1109@thyrsus.com> <28870.990085661@kao2.melbourne.sgi.com>
-Mime-Version: 1.0
+	id <S261389AbREQJ5r>; Thu, 17 May 2001 05:57:47 -0400
+Received: from sunrise.pg.gda.pl ([153.19.40.230]:63214 "EHLO
+	sunrise.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S261387AbREQJ5b>; Thu, 17 May 2001 05:57:31 -0400
+From: Andrzej Krzysztofowicz <ankry@pg.gda.pl>
+Message-Id: <200105170957.LAA19756@sunrise.pg.gda.pl>
+Subject: Re: make xconfig with tcl/tk 8.3 - the patches
+To: simon.geard@ntlworld.com (Simon Geard)
+Date: Thu, 17 May 2001 11:57:18 +0200 (MET DST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <01051710052900.01236@Granville> from "Simon Geard" at May 17, 2001 10:05:29 AM
+Reply-To: ankry@green.mif.pg.gda.pl
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <28870.990085661@kao2.melbourne.sgi.com>; from kaos@ocs.com.au on Thu, May 17, 2001 at 05:47:41PM +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 17, 2001 at 05:47:41PM +1000, Keith Owens wrote:
-> On Thu, 17 May 2001 03:26:36 -0400, 
-> "Eric S. Raymond" <esr@thyrsus.com> wrote:
-> >Pavel Machek <pavel@suse.cz>:
-> >> And If I want scsi-on-atapi emulation but not vme147_scsi?
-> >
-> >Help me understand this case, please.  What is scsi-on-atapi?
-> >Is SCSI on when you enable it?  And is it a realistic case for an SBC?
+"Simon Geard wrote:"
 > 
-> SCSI emulation over IDE, CONFIG_BLK_DEV_IDESCSI.  You have the SCSI mid
-> layer code but no SCSI hardware drivers.  It is a realistic case for an
-> embedded CD-RW appliance.
+> Re my previous message on this subject, the patch files are attached.
+> 
+> They can also be found at my web site:
+> 
+> http://homepage.ntlworld.com/whiteowl/kernel
 
-Or alternatively, you want to enable SCSI code, with no hardware driver,
-because you are going to build pcmcia, which builds the scsi drivers only if
-CONFIG_SCSI is defined, and the user might put in an Adaptec 1460B or 1480 scsi
-card into your pcmcia slot.
+Unfortunately your patches break with older tk:
 
--- 
-Michael Meissner, Red Hat, Inc.  (GCC group)
-PMB 198, 174 Littleton Road #3, Westford, Massachusetts 01886, USA
-Work:	  meissner@redhat.com		phone: +1 978-486-9304
-Non-work: meissner@spectacle-pond.org	fax:   +1 978-692-4482
+Error in startup script: couldn't compile regular expression pattern: nested
+*?+
+    while executing
+"regexp {([0-9A-Za-z_]+)="(.*?)"} $line foo var value"
+    (procedure "read_config" line 18)
+    invoked from within
+"read_config $defaults"
+    (file "scripts/kconfig.tk" line 21611)
+make: *** [xconfig] Error 1
+
+I've checked tk-8.0 and 8.0.3.
+
+Some other comments:
+- please generate patches as universal diff (-uNr options for diff are
+  preferred)
+- please follow indentation rules used in a file you modify.
+  {header,tail}.tk are tab-indented, not spaces.
+
+Regards
+    Andrzej
+

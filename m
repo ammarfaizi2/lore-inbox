@@ -1,44 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261421AbUKOV7A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261441AbUKOWHN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261421AbUKOV7A (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 16:59:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261423AbUKOV67
+	id S261441AbUKOWHN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 17:07:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbUKOWHN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 16:58:59 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:43335 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261421AbUKOV4t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 16:56:49 -0500
-Date: Mon, 15 Nov 2004 21:56:29 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Sami Farin <7atbggg02@sneakemail.com>
-cc: linux-kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Andrea Arcangeli <andrea@novell.com>
-Subject: Re: vm-pageout-throttling.patch: hanging in
-    throttle_vm_writeout/blk_congestion_wait
-In-Reply-To: <20041115012620.GA5750@m.safari.iki.fi>
-Message-ID: <Pine.LNX.4.44.0411152140030.4171-100000@localhost.localdomain>
+	Mon, 15 Nov 2004 17:07:13 -0500
+Received: from fire.osdl.org ([65.172.181.4]:23531 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S261441AbUKOWHF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 17:07:05 -0500
+Message-ID: <41992590.4060004@osdl.org>
+Date: Mon, 15 Nov 2004 13:54:24 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Brian Gerst <bgerst@quark.didntduck.org>,
+       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Regparm for x86 machine check handlers
+References: <4198EA70.202@quark.didntduck.org> <Pine.LNX.4.58.0411151201580.2222@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0411151201580.2222@ppc970.osdl.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Nov 2004, Sami Farin wrote:
+Linus Torvalds wrote:
 > 
-> this time I had some swapspace on /dev/loop1 (file-backed, reiserfs,
-> loop-AES-2.2d)...  I think (!) it caused this deadlock.
+> On Mon, 15 Nov 2004, Brian Gerst wrote:
+> 
+>>The patch to change traps and interrupts to the fastcall convention 
+>>missed the machine check handlers.
+> 
+> 
+> Thanks, that was silly.
+> 
+> Anybody want to write a script that verifies that the only remaining 
+> "asmlinkage" entries are of the type "sys_xxxx()"? 
 
-That's not at all surprising.  See the swap_extent work Andrew did
-for 2.5 (in mm/swapfile.c), by which swap to a swapfile now avoids
-the filesystem altogether (except while swapon prepares the map of
-disk blocks).  By swapping to a loop device over a file, you're
-sneaking past his work, and putting the filesystem back under swap.
-It is begging for deadlocks: I'm not saying it couldn't be got to
-work, and of course it would be nice to boast that there's no such
-issue; but there are so many better places to invest such effort...
+Is part of the problem definition missing here?
+or I missed it?
 
-Hugh
+E.g., printk() and vprint() are asmlinkage but not sys_xyz()...
+but I have a suspicion that they are OK.
 
+> "grep" shows that there's a number of incorrect ones left, but most of 
+> them seem to take no arguments, so ir doesn't matter. And there's the FP 
+> emulation stuff, which really -does- use the old interfaces.
+
+so ignore the FP emulation, ignore functions with no arguments, right?
+
+and omit "asmlinkage.*sys_xyz".  that leaves a handful of functions
+which are <asm>, like:
+
+acpi_status asmlinkage acpi_enter_sleep_state(u8 sleep_state);
+csum_partial(), csum_partial_copy_generic(),
+schedule_tail(), aes_enc_blk(), aes_dec_blk().
+
+I don't see others than need to be fixed, but a script
+would be a safer way to check, so I'm trying to nail down
+the requirements ... and what tool to use, like is there
+already a PERL [or python or xyz] script that parses C,
+or would you *coff* recommend sparse?
+
+-- 
+~Randy

@@ -1,92 +1,151 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266895AbUAXJ0k (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 04:26:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266896AbUAXJ0k
+	id S266896AbUAXJ22 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 04:28:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266897AbUAXJ22
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 04:26:40 -0500
-Received: from plim.fujitsu-siemens.com ([217.115.66.8]:51257 "EHLO
-	plim.fujitsu-siemens.com") by vger.kernel.org with ESMTP
-	id S266895AbUAXJ0i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 04:26:38 -0500
-Date: Sat, 24 Jan 2004 10:27:30 +0100
-From: Josef =?ISO-8859-1?Q?=20M=F6llers?= 
-	<josef.moellers@fujitsu-siemens.com>
-Message-Id: <200401240927.i0O9RUQ11749@bounty.psw.pdb.fsc.net>
-To: linux-kernel@vger.kernel.org
-Subject: Kernel hang under extremely high load
+	Sat, 24 Jan 2004 04:28:28 -0500
+Received: from blount.mail.mindspring.net ([207.69.200.226]:15640 "EHLO
+	blount.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id S266896AbUAXJ1o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jan 2004 04:27:44 -0500
+From: "Emmanuel Hislen" <hislen@mindspring.com>
+To: "Hugo Mills" <hugo-lkml@carfax.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: SiI2112 + Seagate + nFroce2: no DMA!
+Date: Sat, 24 Jan 2004 01:27:24 -0800
+Message-ID: <IEEHKGFDFPBODOHJKGLIKEIJCAAA.hislen@mindspring.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
+In-Reply-To: <20040120085800.GB31330@carfax.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-We're having problems with a SuSE Linux Enterprise Server 7 2.4.18-275
-kernel under very high load (A SAP system using an Oracle database and
-Networker backup).
-This happens on several systems!
+Hi Hugo,
 
-Shortly (some 1.5 hours) after the backup is started (usually at 10pm),
-kinoded went into 100% system mode, makeing the system unavailable to
-users.
-I thought I had found a bug in fs/buffer.c, size_buffers_type[] being 32
-bits and counting bytes (the system has 8GB of main memory). I discussed
-this with Andrea Arcangeli and he said that it was unlikely that this
-counter overflowed, but offered a patch, nonethless (it changed the
-counting from bytes to 512 byte chunks).
-I have installed this patch on one of the systems and it now looks
-slightly more stable. I also added two lines to check wither the count
-has bit 23 set (which would indicate an overflow in the non-patched
-case), but, so far, this hasn't happened.
+I have re-installed my machine with Fedora Core 1 (thinking a newer version
+than RH9 would make the jump to 2.4.24 or 2.6 easier), and this fixed the
+DMA issue :-)
 
-The system is now more stable, but yesterday it killed a few Oracle and
-SAP processes due to kernel oopses. As the system was still usable, I
-was able to trace one of the oopses to the following:
+Now my SATA drive is running stable in UDMA6.
 
-The "page" pointer in __block_write_full_page pointed at the following
-data
+However, performance is still way below expectations.
 
-        c54b37f0: c630b310 c34d0490 cbde3e74 0001a018
-        c54b3800: c6fbcc70 00000004 0200884d c4fbc37c
-        c54b3810: c37bab7c c3a6a5c0 d32782a0 00000000
+I got a huge improvement: my disc read speed (hdparm -t) went from 1.3 to 25
+MB/sec.
+This is still slower than my PATA drive on my 3 years old AMD 900 PC running
+Redhat 9.0 (around 35 MB/sec).
 
-which does resemble a valid struct page (kernel virtual addresses where
-they should be, more numeric looking values where indexes or counts are,
-reasonably looking "flags").
-The value at offset 0x28 (d32782a0) is supposed to be
-        struct buffer_head * buffers;
-It points to the following data
+Could you please let me know what you are getting so I know what to expect?
 
-        d32782a0: 34323534 0287b08b 20012001 012c3a0c
-        d32782b0: 3030030c 4c500431 300c4e51 304e3130
-        d32782c0: 34313030 0a323738 37313030
 
-which does not really resemble anything like a struct buffer_head.
-The oops happened when the kernel tried to use 0x37313030 as
+My next step is to try 2.4.24 or 2.6.1 as you suggested, but googling around
+a little bit before I do so I found out a few worrying things:
 
-        struct buffer_head *b_this_page;
+- people have reported a drop in performance on SATA in some 2.6 based
+kernel (2.6.0-test9), with reported speeds around 20MB/sec. Apparently there
+is no more way to tune max_kb_per_req in 2.6??
+- I have found reports that both ide and libdata libraries are limiting
+max_kb_per_req to 15 Kb specifically for Seagate drives. So It looks like I
+can't even set it to 128 (I did not even try as I saw reports of memory
+corruption).
 
-One other of the Oopses which killed processes had
-        d3278240
-in one of his registers (unfortunately they had to reboot the system
-before I had a chance to analyze the other oopses).
+So basically since you've got it to work I'd like to know:
 
-My currenty assumption is that the system is extremely tight on free and
-available memory, the backup reading in masses of data from disk (a
-CLARiiON box connected through a 2GB FC link) and writing it out to tape
-(a tape library connected through a 1GB FC link). Now some kernel
-component (presumably in the buffer cache or paging area) tries to
-allocate memory, none is available, so it gets NULL but doesn't seem to
-realize this, uses it and, as a consequence, mangles some pointers.
+* what speed you get, and what is the RPM of your Seagate
+* what is your max_kb_per_req setting (I have 15K)
+* what is your accoustic management setting (I have 0)
 
-Over the last couple of weeks we have seen some 29 oopses on one
-machine, all of which were in
-        __block_write_full_page+108/432
-        __block_write_full_page+92/432
-        kmem_cache_alloc_batch+50/188
-        kmem_cache_alloc_batch+99/188
-        sync_page_buffers+20/184
-        sync_page_buffers+36/184
-this makes me think that it's a problem somewhere in mm.
 
-Any ideas? I'm slowly running out of 'em (and time's running out on us).
+I could not fix the time on linux so I am sending this mail from WinXP (just
+kidding I lost my mails on the linux machine after re-installing :-).
+
+
+Thanks,
+
+
+Emmanuel.
+
+
+
+-----Message d'origine-----
+De : Hugo Ranger Mills [mailto:hrm@carfax.org.uk]De la part de Hugo
+Mills
+Envoye : Tuesday, January 20, 2004 12:58 AM
+A : manu
+Cc : linux-kernel@vger.kernel.org
+Objet : Re: SiI2112 + Seagate + nFroce2: no DMA!
+
+
+On Tue, Dec 31, 2002 at 09:55:59PM -0800, manu wrote:
+
+   Incidentally, did you know that the date on your computer is very,
+very wrong?
+
+> I'm about to give up on my SATA drive as I can't get it to work properly.
+> So I thought I may try asking the experts before falling back to PATA.
+>
+> I have seen many mails reporting the same issue, some of them 6-month old:
+>
+> - SATA drive comes up in pio mode, not in dma
+> - trying to turn on dma with hdparm is a nightmare: I/O errors, crash
+> with data corruption... I tried both:
+>
+>  hddarm -d1 /dev/hde
+>
+> and:
+>
+>  hdparm -u1 -c3 -d1 -X66 /dev/hde
+>
+> crash in both cases :-((
+>
+>
+> Here's my equipment:
+>
+>
+> ABIT AN7 motherboard (nForce2 chipset, SiI3112 SATA controller)
+> AMD Athlon XP 2600+ (+ 512 DDR / 400 MHz)
+> SATA HD Seagate Barracuda 160 Gb
+>
+> The SATA HD is my only drive. The only thing connected to my IDE
+> controllers is a DVD/CD combo.
+>
+> Running Linux Redhat 9.0
+> kernel 2.4.20-28.9
+  ^^^^^^^^^^^^^^^^^^
+   This is your problem. There have been a number of bug-fixes to the
+SiI drivers since 2.4.20. Try it again with a newer kernel -- such as
+2.4.24.
+
+> I've been googling for days now and could not come accross a solution,
+> on the contrary I came under the impression that the combination of
+> SiI3112 +and Seagate was doomed.
+
+   Not so. I have a SiI3112 controller and a 120GiB Seagate drive, and
+they work very well together. I'm using 2.6.1, although 2.4.23 also
+worked well for me.
+
+[snip]
+> Isn't there a solution??
+>
+> I am willing to try patches of experimental code. At this point I am
+> looking at reinstalling everything on a PATA drive anyway, so  I have
+> nothing to loose.
+
+   Try using 2.4.24 or 2.6.1.
+
+   Hugo.
+
+--
+=== Hugo Mills: hugo@... carfax.org.uk | darksatanic.net | lug.org.uk ===
+  PGP key: 1C335860 from wwwkeys.eu.pgp.net or http://www.carfax.org.uk
+           --- All hope abandon,  Ye who press Enter here. ---
 

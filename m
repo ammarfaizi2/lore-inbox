@@ -1,38 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262415AbTAREsV>; Fri, 17 Jan 2003 23:48:21 -0500
+	id <S262418AbTAREwK>; Fri, 17 Jan 2003 23:52:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262414AbTAREsV>; Fri, 17 Jan 2003 23:48:21 -0500
-Received: from mail.webmaster.com ([216.152.64.131]:57323 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S262395AbTAREsU> convert rfc822-to-8bit; Fri, 17 Jan 2003 23:48:20 -0500
-From: David Schwartz <davids@webmaster.com>
-To: <jamie@shareable.org>, Larry McVoy <lm@bitmover.com>,
-       <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.63 (1077) - Licensed Version
-Date: Fri, 17 Jan 2003 20:57:18 -0800
-In-Reply-To: <20030118043309.GA18658@bjl1.asuk.net>
+	id <S262420AbTAREwK>; Fri, 17 Jan 2003 23:52:10 -0500
+Received: from packet.digeo.com ([12.110.80.53]:40583 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262418AbTAREwJ>;
+	Fri, 17 Jan 2003 23:52:09 -0500
+Date: Fri, 17 Jan 2003 21:02:21 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: lm@bitmover.com, linux-kernel@vger.kernel.org
 Subject: Re: Is the BitKeeper network protocol documented?
+Message-Id: <20030117210221.17ce1054.akpm@digeo.com>
+In-Reply-To: <20030118043309.GA18658@bjl1.asuk.net>
+References: <20030118043309.GA18658@bjl1.asuk.net>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-ID: <20030118045719.AAA8414@shell.webmaster.com@whenever>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 18 Jan 2003 05:00:57.0460 (UTC) FILETIME=[9646BB40:01C2BEAE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jamie Lokier <jamie@shareable.org> wrote:
+>
+> Thus far, the best solution I have for tracking checkins is to rsync
+> the SCCS files from Rik's mirror, and use a Perl script to extract the
+> head version from each SCCS file.
 
-	I'm starting to think that one cannot legally use BitKeeper as the 
-preferred means of developing a GPLed program. The problem is, the 
-GPL defines the source as the preferred base to modify the software 
-from and requires you to be able to distribute the source without any 
-additional licensing requirements.
+Do you not use
 
-	If BitKeeper is the version management tool, then BitKeeper is part 
-of the source by this definition. Providing the source in BK form 
-without BK is as useless as providing it encrypted. Providing it in 
-any other form does not satisfy the GPL (assuming that BK form is in 
-fact the preferred way of modifying it).
+	http://www.kernel.org/pub/linux/kernel/v2.5/testing/cset/
 
-	DS
+?
+
+It always has the latest diff against the last-released kernel.
+
+I snarf it hourly, so I have decent granularity for doing the
+binary-search-to-see-where-it-broke trick.
 
 
+#!/bin/sh
+
+URL=ftp://ftp.kernel.org/pub/linux/kernel/v2.5/testing/cset/
+
+cd /opt/downloads/bk
+rm -f index.html
+wget --quiet $URL/index.html
+VERSION=$(grep 'patches since' index.html | \
+		head -1 | \
+		sed -e 's/.*since \([^:]*\).*/\1/')
+mkdir -p $VERSION
+cd $VERSION
+wget --quiet --timestamping --recursive $URL 2>&1

@@ -1,44 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263872AbTKAP6N (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Nov 2003 10:58:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263879AbTKAP6N
+	id S263884AbTKAP4O (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Nov 2003 10:56:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263892AbTKAP4O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Nov 2003 10:58:13 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:41233 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S263872AbTKAP6L
+	Sat, 1 Nov 2003 10:56:14 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:40721 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S263884AbTKAP4N
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Nov 2003 10:58:11 -0500
-Date: Sat, 1 Nov 2003 16:58:07 +0100
+	Sat, 1 Nov 2003 10:56:13 -0500
+Date: Sat, 1 Nov 2003 16:56:04 +0100
 From: Willy Tarreau <willy@w.ods.org>
-To: Christoph Lehnberger <debian@internetists.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.23-pre9] Compilation Error
-Message-ID: <20031101155807.GC530@alpha.home.local>
-References: <200311011242.01886.debian@internetists.de>
+To: Ville Herva <vherva@twilight.cs.hut.fi>, linux-kernel@vger.kernel.org
+Subject: Re: ide write cache issue? [Re: Something corrupts raid5 disks slightly during reboot]
+Message-ID: <20031101155604.GB530@alpha.home.local>
+References: <20031031190829.GM4868@niksula.cs.hut.fi> <3FA30F4A.5030500@hundstad.net> <20031101082745.GF4640@niksula.cs.hut.fi>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200311011242.01886.debian@internetists.de>
+In-Reply-To: <20031101082745.GF4640@niksula.cs.hut.fi>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi Ville,
 
-On Sat, Nov 01, 2003 at 12:42:01PM +0100, Christoph Lehnberger wrote:
- 
-> cc -D__KERNEL__ -I/usr/src/linux-2.4.22/include -Wall -Wstrict-prototypes 
-> -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer 
-> -pipe -mpreferred-stack-boundary=2 -march=i686   -nostdinc -iwithprefix 
-> include -DKBUILD_BASENAME=inode  -c -o inode.o inode.c
-> inode.c:968: error: redefinition of `iget4'
-> /usr/src/linux-2.4.22/include/linux/fs.h:1415: error: `iget4' previously 
-> defined here
+do you have the ability to reboot this beast on a DOS floppy equiped with a
+disk editor or even debug ? It would tell you wether it's the IDE
+initialization or shutdown which harms the disks. BTW, it may even be your
+bios which believes for an unknown reason that it has to write to the
+partition table which is not one.
 
-Did the 2.4.23-pre9 patch apply cleanly there ? I didn't get such errors.
-BTW, what compiler are you using, and could you post your config file once
-you have checked that the patch is ok ?
-
+just my 2 cents,
 Willy
 

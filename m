@@ -1,80 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267196AbTGLAgU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 20:36:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267200AbTGLAgT
+	id S267200AbTGLAnE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 20:43:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267201AbTGLAnE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 20:36:19 -0400
-Received: from dp.samba.org ([66.70.73.150]:15827 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S267196AbTGLAgQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 20:36:16 -0400
-MIME-Version: 1.0
+	Fri, 11 Jul 2003 20:43:04 -0400
+Received: from pa208.myslowice.sdi.tpnet.pl ([213.76.228.208]:49281 "EHLO
+	finwe.eu.org") by vger.kernel.org with ESMTP id S267200AbTGLAm7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 20:42:59 -0400
+Date: Sat, 12 Jul 2003 02:57:38 +0200
+From: Jacek Kawa <jfk@zeus.polsl.gliwice.pl>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: "Theodore Ts'o" <tytso@mit.edu>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.5.75, 8250 Oops
+Message-ID: <20030712005738.GA15060@finwe.eu.org>
+Mail-Followup-To: Russell King <rmk@arm.linux.org.uk>,
+	Theodore Ts'o <tytso@mit.edu>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16143.23320.180064.599815@cargo.ozlabs.ibm.com>
-Date: Sat, 12 Jul 2003 10:49:28 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Mikael Pettersson <mikpe@csd.uu.se>, axboe@suse.de, bernie@develer.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5.75 as-iosched.c & asm-generic/div64.h breakage
-In-Reply-To: <20030711140158.0b27117e.akpm@osdl.org>
-References: <200307112048.h6BKmUQj003987@harpo.it.uu.se>
-	<20030711140158.0b27117e.akpm@osdl.org>
-X-Mailer: VM 7.16 under Emacs 21.3.2
+Content-Disposition: inline
+Organization: Kreatorzy Kreacji Bialej
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
 
-> Mikael Pettersson <mikpe@csd.uu.se> wrote:
-> >
-> > drivers/block/as-iosched.c: In function `as_update_iohist':
-> > drivers/block/as-iosched.c:840: warning: right shift count >= width of type
-> > drivers/block/as-iosched.c:840: warning: passing arg 1 of `__div64_32' from incompatible pointer type
-> 
-> You mean that code was in -mm for all those months and no ppc32 person
-> bothered testing it?  Bah.
+Hi!
 
-We've only been getting those warnings since the changeover to the new
-asm-generic/div64.h.  Settle down. :)
+pppd was trying to open /dev/ttyS0  (persist & maxfail 0, etc.), but
+I had not created alias for it....
 
-> Something like this?  (Could be sped up for 32-bit sector_t)
-> 
-> diff -puN drivers/block/as-iosched.c~as-do_div-fix drivers/block/as-iosched.c
-> --- 25/drivers/block/as-iosched.c~as-do_div-fix	Fri Jul 11 14:00:55 2003
-> +++ 25-akpm/drivers/block/as-iosched.c	Fri Jul 11 14:00:58 2003
-> @@ -836,8 +836,10 @@ static void as_update_iohist(struct as_i
->  		aic->seek_samples += 256;
->  		aic->seek_total += 256*seek_dist;
->  		if (aic->seek_samples) {
-> -			aic->seek_mean = aic->seek_total + 128;
-> -			do_div(aic->seek_mean, aic->seek_samples);
-> +			u64 seek_mean = aic->seek_total + 128;
-> +
-> +			do_div(seek_mean, aic->seek_samples);
-> +			aic->seek_mean = seek_mean;
->  		}
+Jul 12 01:29:19 finwe pppd[643]: Failed to open /dev/ttyS0: No such device
 
-There are several interesting aspects to this:
+...so I manually loaded 8250 and:
 
-1. For some reason the LBD config option in drivers/block/Kconfig
-   depends on X86.  (CONFIG_LBD is what makes sector_t an unsigned
-   long long instead of an unsigned long).  I think the LBD option
-   should be available on all 32-bit platforms.  Working out a neat
-   way to tell the config system that is left as an exercise for the
-   reader. :)
+ Serial: 8250/16550 driver $Revision: 1.90 $ IRQ sharing disabled
+ ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+ Unable to handle kernel NULL pointer dereference at virtual address 00000014
+  printing eip:
+ d08c6b21
+ *pde = 00000000
+ Oops: 0000 [#1]
+ CPU:    0
+ EIP:    0060:[_end+274047177/1070142888]    Not tainted
+ EFLAGS: 00010282
+ EIP is at uart_close+0x11/0x200 [core]
+ eax: d08c6b10   ebx: cbdfe000   ecx: 00000000   edx: cee66000
+ esi: cbbe6600   edi: 00000000   ebp: cbdfe000   esp: cec79e58
+ ds: 007b   es: 007b   ss: 0068
+ Process pppd (pid: 643, threadinfo=cec78000 task=c139f980)
+ Stack: 00000000 c01bb9d5 ffffffff cbbe6600 00000000 cbdfe000 cbbe6600 00000001 
+        00000000 c01bb4c1 cbdfe000 cbbe6600 00000000 d08c9bc0 c010822c d08c9bc0 
+        00000000 00000004 d08c84a6 d08b7b8e 00000001 00000000 00000004 00000000 
+ Call Trace:
+  [tty_fasync+133/320] tty_fasync+0x85/0x140
+  [release_dev+1777/1840] release_dev+0x6f1/0x730
+  [__down_failed+8/12] __down_failed+0x8/0xc
+  [_end+274053710/1070142888] .text.lock.core+0xcd/0x1a5 [core]
+  [_end+274049152/1070142888] uart_open+0x58/0x160 [core]
+  [tty_open+300/880] tty_open+0x12c/0x370
+  [chrdev_open+242/544] chrdev_open+0xf2/0x220
+  [dentry_open+336/528] dentry_open+0x150/0x210
+  [filp_open+104/112] filp_open+0x68/0x70
+  [sys_open+91/144] sys_open+0x5b/0x90
+  [syscall_call+7/11] syscall_call+0x7/0xb
+ 
+ Code: 8b 47 14 89 44 24 10 b8 00 e0 ff ff 21 e0 8b 00 8b 40 14 85 
 
-2. It seems to me that seek_total is bounded above by 1024 * the
-   maximum seek distance.  I'm a bit concerned about that overflowing
-   32 bits - AFAICS I would only need a > 2GB disk (or do I mean
-   partition?) for that to happen.  Could we make seek_total be a u64
-   unconditionally please?
+ ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
 
-3. I guess that adding 128 on to the seek_total is to get a
-   round-to-nearest effect in the division.  In fact you need to add
-   on (seek_samples >> 1) to get that effect.
+Linux finwe 2.5.75 #1 Fri Jul 11 01:02:39 CEST 2003 i686 GNU/Linux
 
-Regards,
-Paul.
+processor	: 0
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 11
+model name	: Intel(R) Celeron(TM) CPU                1300MHz
+stepping	: 1
+cpu MHz		: 1305.846
+cache size	: 256 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 2
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse
+bogomips	: 2580.48
+
+ 
+Gnu C                  3.3.1
+Gnu make               3.80
+util-linux             2.11z
+mount                  2.11z
+e2fsprogs              1.34-WIP
+jfsutils               1.1.1
+xfsprogs               2.4.12
+PPP                    2.4.1
+Linux C Library        2.3.1
+Dynamic linker (ldd)   2.3.1
+Procps                 3.1.9
+Net-tools              1.60
+Console-tools          0.2.3
+Sh-utils               5.0
+
+
+config: http://zeus.polsl.gliwice.pl/~jfk/kernel/2.5.75/config1
+
+jk :)
+
+
+-- 
+Jacek Kawa

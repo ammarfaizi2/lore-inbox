@@ -1,70 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261363AbULHV0v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261369AbULHV2I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261363AbULHV0v (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 16:26:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261364AbULHV0v
+	id S261369AbULHV2I (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 16:28:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261366AbULHV14
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 16:26:51 -0500
-Received: from petasus.ch.intel.com ([143.182.124.5]:930 "EHLO
-	petasus.ch.intel.com") by vger.kernel.org with ESMTP
-	id S261363AbULHV0s convert rfc822-to-8bit (ORCPT
+	Wed, 8 Dec 2004 16:27:56 -0500
+Received: from wproxy.gmail.com ([64.233.184.204]:47409 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261364AbULHV1m (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 16:26:48 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Figuring out physical memory regions from a kernel module
-Date: Wed, 8 Dec 2004 14:26:43 -0700
-Message-ID: <C863B68032DED14E8EBA9F71EB8FE4C20596063B@azsmsx406>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Figuring out physical memory regions from a kernel module
-Thread-Index: AcTdVWimpd/RBNAtSqalFa/Bv8kCmAAFePYw
-From: "Hanson, Jonathan M" <jonathan.m.hanson@intel.com>
-To: <haveblue@us.ibm.com>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 08 Dec 2004 21:26:43.0587 (UTC) FILETIME=[9D24FD30:01C4DD6C]
+	Wed, 8 Dec 2004 16:27:42 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=q6Amg4wGpPn0WSRoIaR7rLSxYZTdpRY8n3XNaE4WYZY0iXMXdb0tOd7y9B3pDJUfRLTjxow5oq0pe6Y7b5wJJ6mmtGUvZVsJaRevuNYveVlASE7PCTPyj3/eO9FaIanBG4Dee0bO7Yo7Oo7duiKjO166B7PLfhCFJRZKbFci3O4=
+Message-ID: <8e93903b041208132573a3c118@mail.gmail.com>
+Date: Wed, 8 Dec 2004 21:25:56 +0000
+From: Alan Pope <alan.pope@gmail.com>
+Reply-To: Alan Pope <alan.pope@gmail.com>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Subject: Re: PDC202XX_OLD broken
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andre Hedrick <andre@linux-ide.org>
+In-Reply-To: <58cb370e041207125864b97eea@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <8e93903b041206140529a8baa9@mail.gmail.com>
+	 <1102425655.17950.21.camel@localhost.localdomain>
+	 <58cb370e041207125864b97eea@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 7 Dec 2004 21:58:52 +0100, Bartlomiej Zolnierkiewicz
+<bzolnier@gmail.com> wrote:
+> You are using 40c cable instead of 80c one.
+> Thus transfer rate is limited to UDMA33.
+> 
+
+No, I'm using an 80c cable. I have even gone out and bought a new 80c
+one just to make sure the cable isn't broken. I have also got two
+identical disks, and experience exactly the same problem on both.
+
+I booted with "ide2=dma" because it was booting with the disk in pio mode.
+
+> Moreover pdc202xx_old has a bug in cable detection code.
+> pdc202xx_old_cable_detect() always returns '0' (which means
+> 80c cable) due to a sloppy coding - result of CIS & mask is
+> truncated to 8 bits although CIS holds cable info in bits 10-11.
+> 
+> Does this fix work for you?
+> 
+
+Not tried it, but it wouldn't help me would it? I *do* have an 80c
+cable, and the disk does show up in dmesg as a UDMA100 disk..
+
+This is what happens when I thrash it, note my /home/alan is on
+another non-UDMA100 disk on a separate controller.
+
+# time cp -Rvp /home/alan/* temp
+
+ide: failed opcode was: unknown
+hde: DMA disabled
+PDC202XX: Primary channel reset.
+PDC202XX: Secondary channel reset.
+
+(then lots of these)
+ 
+end_request: I/O error, dev hde, sector 145225487
+end_request: I/O error, dev hde, sector 145225495
+end_request: I/O error, dev hde, sector 145225503
+end_request: I/O error, dev hde, sector 145225511
+end_request: I/O error, dev hde, sector 145225519
+end_request: I/O error, dev hde, sector 145225527
+end_request: I/O error, dev hde, sector 145225535
+
+EXT3-fs error (device hde1) in ext3_prepare_write: IO failure
+EXT3-fs error (device hde1) in start_transaction: Journal has aborted
+
+printk: 2018 messages suppressed.
+Buffer I/O error on device hde1, logical block 5
+lost page write due to I/O error on hde1
+end_request: I/O error, dev hde, sector 183
 
 
------Original Message-----
-From: Dave Hansen [mailto:haveblue@us.ibm.com] 
-Sent: Wednesday, December 08, 2004 11:40 AM
-To: Hanson, Jonathan M
-Cc: Linux Kernel Mailing List
-Subject: RE: Figuring out physical memory regions from a kernel module
-
-On Wed, 2004-12-08 at 10:28, Hanson, Jonathan M wrote:
->  The module is dumping the contents of physical memory
-> and saving the architecture state of the system to a file when
-triggered
-> (ioctl call). What I have works but I need to extend it to systems
-other
-> than my own where I have hard-coded the system RAM regions into the
-> code. I need the physical addresses of memory because the tool I feed
-> this output into requires this. Here is an example of what the memory
-> file looks like:
-
-Sounds like crash dumping.  I think they've already run into and
-addressed the same general problems.  
-
-See crashdump-*.patch in here:
-http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc
-2/2.6.10-rc2-mm4/broken-out/
-
--- Dave
-
-[Jon M. Hanson] Even looking at the implementation of the crashdump
-code, I still encounter the same problem I've run into up until now: the
-crashdump code is a part of the kernel so it has access to all of the
-kernel's data structures and functions; as a kernel module, I'm
-hamstrung by what is exported by the kernel. I know that I can modify
-the kernel to export whatever I want but I don't want to have to do
-that. I want to be able to run my kernel module without having to patch
-the kernel itself.
-
+Any ideas?
+Cheers,
+Al.

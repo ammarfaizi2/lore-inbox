@@ -1,110 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268843AbUHYVPR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268591AbUHYUia@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268843AbUHYVPR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 17:15:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268813AbUHYVLc
+	id S268591AbUHYUia (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 16:38:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268665AbUHYU3G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 17:11:32 -0400
-Received: from websrv2.werbeagentur-aufwind.de ([213.239.197.240]:52711 "EHLO
-	websrv2.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S268707AbUHYVAQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 17:00:16 -0400
-Subject: Re: silent semantic changes with reiser4
-From: Christophe Saout <christophe@saout.de>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
-       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org,
+	Wed, 25 Aug 2004 16:29:06 -0400
+Received: from verein.lst.de ([213.95.11.210]:55234 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S268609AbUHYUZr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 16:25:47 -0400
+Date: Wed, 25 Aug 2004 22:25:39 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Christoph Hellwig <hch@lst.de>, Hans Reiser <reiser@namesys.com>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
        Alexander Lyamin aka FLX <flx@namesys.com>,
        ReiserFS List <reiserfs-list@namesys.com>
-In-Reply-To: <20040825204240.GI21964@parcelfarce.linux.theplanet.co.uk>
-References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com>
-	 <20040825200859.GA16345@lst.de>
-	 <Pine.LNX.4.58.0408251314260.17766@ppc970.osdl.org>
-	 <20040825204240.GI21964@parcelfarce.linux.theplanet.co.uk>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-P50iur+ziqPql9646vnW"
-Date: Wed, 25 Aug 2004 23:00:00 +0200
-Message-Id: <1093467601.9749.14.camel@leto.cs.pocnet.net>
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040825202539.GA17107@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Alexander Lyamin aka FLX <flx@namesys.com>,
+	ReiserFS List <reiserfs-list@namesys.com>
+References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com> <20040825200859.GA16345@lst.de> <20040825201929.GA16855@lst.de> <Pine.LNX.4.58.0408251323170.17766@ppc970.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.92.1 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0408251323170.17766@ppc970.osdl.org>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Aug 25, 2004 at 01:24:36PM -0700, Linus Torvalds wrote:
+> Now this I agree with, in the sense that I think that if we want to 
+> support this, it should be supported at a VFS layer. 
+> 
+> On the other hand, I think doing it inside the filesystem with ugly hacks 
+> is an acceptable way to prototype the idea before it's been proven to 
+> really be workable. Maybe it has more problems with legacy apps than we'd 
+> expect..
 
---=-P50iur+ziqPql9646vnW
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-Am Mittwoch, den 25.08.2004, 21:42 +0100 schrieb :
-
-> > > For one thing _I_ didn't decide about xattrs anyway.  And I still
-> > > haven't seen a design from you on -fsdevel how you try to solve the
-> > > problems with files as directories.
-> >=20
-> > Hey, files-as-directories are one of my pet things, so I have to side w=
-ith=20
-> > Hans on this one. I think it just makes sense. A hell of a lot more sen=
-se=20
-> > than xattrs, anyway, since it allows scripts etc standard tools to touc=
-h=20
-> > the attributes.
-> >=20
-> > It's the UNIX way.
->=20
-> Not if you allow link(2) on them.
-
-That doesn't make sense anyway. (actually, I tried what happens and the
-result was an Oops ;))
-
-It should be completely forbidden to link into a meta-directory or out
-of such a directory. You could think of those meta-directory as a sysfs
-for that inode. Of course it's not an own filesystem and that means that
-there need to be a lot of security precautions in the VFS layer. Where
-something like that belongs anyway, if done correctly.
-
->   And not if you design and market your
-> stuff as a general-purpose backdoor into kernel.  Note how *EVERY* *DAMN*
-> *OPERATION* is made possible to override by "plugins".  Which is the reas=
-on
-> for deadlocks in question, BTW.
-
-What do you mean? If you tell that file that you want it to be
-compressed or encrypted or modify some attributes (like ACLs) this isn't
-necessarily a backdoor.
-
-> Don't fool yourself - that's what Hans is selling.  Target market: ISV.
-> Marketed product: a set of hooks, the wider the better, no matter how
-> little sense it makes.  The reason for doing that outside of core kernel:
-> bypassing any review and being able to control the product being sold (se=
-e
-> above).
-
-Yes, I don't think it was a good idea either. Probably someone should
-remove these features and make it a "normal" filesystem. The people who
-need it now can turn it on again and a real solution could be worked out
-in Linux 2.7.
-
-I wouldn't use it on a public server anyway now because I'm not
-convinced some malicious guy could find a way to exploit that. What if
-you changed into a meta directory using ftp and some manage to break
-things? This might be very dangerous.
-
-I personally think that the idea of doing something like this (I'm not
-speaking of the current implementation which I think is really bad) is
-the right way to go in the long term.
-
-
---=-P50iur+ziqPql9646vnW
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBBLP3QZCYBcts5dM0RAm6vAJ0Tp4cjC+VjlzXQBpQTlQhENgBeCQCeIJWq
-A+PI0RhfPqccic2Ue7FBCLM=
-=EjhV
------END PGP SIGNATURE-----
-
---=-P50iur+ziqPql9646vnW--
+Oh, I'm the last person to tell anyone how to prototype things.  I just
+don't want such inconsistancies in the mainline kernel.
 

@@ -1,59 +1,257 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262478AbVAUUGl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262469AbVAUULm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262478AbVAUUGl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 15:06:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262479AbVAUUGl
+	id S262469AbVAUULm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 15:11:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262471AbVAUULm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 15:06:41 -0500
-Received: from pD9F87519.dip0.t-ipconnect.de ([217.248.117.25]:64641 "EHLO
-	susi.maya.org") by vger.kernel.org with ESMTP id S262478AbVAUUGa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 15:06:30 -0500
-From: Andreas Hartmann <andihartmann@01019freenet.de>
-X-Newsgroups: fa.linux.kernel
-Subject: Re: 2.6.10 dies when X uses PCI radeon 9200 SE, binary search result
-Date: Fri, 21 Jan 2005 21:05:12 +0100
-Organization: privat
-Message-ID: <csrn9o$b83$1@pD9F87519.dip0.t-ipconnect.de>
-References: <fa.jfkohta.1il0fq0@ifi.uio.no> <fa.hh8592m.qji2ie@ifi.uio.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: abuse@fu.berlin.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.4) Gecko/20050112
-X-Accept-Language: de, en-us, en
-In-Reply-To: <fa.hh8592m.qji2ie@ifi.uio.no>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-To: linux-kernel@vger.kernel.org
+	Fri, 21 Jan 2005 15:11:42 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:13291 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262469AbVAUUKb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 15:10:31 -0500
+Date: Fri, 21 Jan 2005 12:09:33 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: "David S. Miller" <davem@davemloft.net>
+cc: Hugh Dickins <hugh@veritas.com>, akpm@osdl.org, linux-ia64@vger.kernel.org,
+       torvalds@osdl.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: alloc_zeroed_user_highpage to fix the clear_user_highpage issue
+In-Reply-To: <20050108135636.6796419a.davem@davemloft.net>
+Message-ID: <Pine.LNX.4.58.0501211206380.25925@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0501041512450.1536@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.44.0501082103120.5207-100000@localhost.localdomain>
+ <20050108135636.6796419a.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Helge,
+This patch adds a new function alloc_zeroed_user_highpage that is then used in the
+anonymous page fault handler and in the COW code to allocate zeroed pages. The function
+can be defined per arch to setup special processing for user pages by defining
+__HAVE_ARCH_ALLOC_ZEROED_USER_PAGE. For arches that do not need to do special things
+for user pages, alloc_zeroed_user_highpage is defined to simply do
 
-Helge Hafting schrieb:
-> On Sun, Jan 16, 2005 at 10:41:23PM +1100, Dave Airlie wrote:
->> > 
->> > I'm fine with adding this code, but we still don't know if this is the
->> > cause of his problem. The debug output can determine if this really is
->> > the source of the problem or if it is somewhere else.
->> > 
->> 
->> I actually doubt it is this stuff.. my guess is that it is something
->> nasty like ACPI breaking int10 for X or something like that... it
->> seems a lot more subtle than the usually things that break when we
->> mess with the DRM :-)
+	alloc_page_vma(GFP_HIGHUSER | __GFP_ZERO, vma, vaddr)
 
-Which glibc do you use? I have problems with glibc 2.3.4, kernel 2.4.x and
-X / Xorg while executing the int10-code of X. glibc 2.3.3 works fine for
-me. But I could find another posting, which describes, that there are even
-problems with glibc 2.3.3 and kernel 2.4.x.
+Patch against 2.6.11-rc1-bk9
 
-It's new for me, that there could be problems with kernelversions of 2.6, too.
+This patch needs to update a number of archs. Wish there was a better way
+to do this.
 
-Therefore, it would be really interessting to know, which glibc version
-you are using.
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
+Index: linux-2.6.10/include/linux/highmem.h
+===================================================================
+--- linux-2.6.10.orig/include/linux/highmem.h	2005-01-21 10:43:59.000000000 -0800
++++ linux-2.6.10/include/linux/highmem.h	2005-01-21 10:44:27.000000000 -0800
+@@ -42,6 +42,17 @@ static inline void clear_user_highpage(s
+ 	smp_wmb();
+ }
 
-Kind regards,
-Andreas Hartmann
++#ifndef __HAVE_ARCH_ALLOC_ZEROED_USER_HIGHPAGE
++static inline struct page* alloc_zeroed_user_highpage(struct vm_area_struct *vma,
++	 unsigned long vaddr)
++{
++	struct page *page = alloc_page_vma(GFP_HIGHUSER, vma, vaddr);
++
++	clear_user_highpage(page, vaddr);
++	return page;
++}
++#endif
++
+ static inline void clear_highpage(struct page *page)
+ {
+ 	void *kaddr = kmap_atomic(page, KM_USER0);
+Index: linux-2.6.10/mm/memory.c
+===================================================================
+--- linux-2.6.10.orig/mm/memory.c	2005-01-21 10:43:59.000000000 -0800
++++ linux-2.6.10/mm/memory.c	2005-01-21 11:10:42.000000000 -0800
+@@ -84,20 +84,6 @@ EXPORT_SYMBOL(high_memory);
+ EXPORT_SYMBOL(vmalloc_earlyreserve);
+
+ /*
+- * We special-case the C-O-W ZERO_PAGE, because it's such
+- * a common occurrence (no need to read the page to know
+- * that it's zero - better for the cache and memory subsystem).
+- */
+-static inline void copy_cow_page(struct page * from, struct page * to, unsigned long address)
+-{
+-	if (from == ZERO_PAGE(address)) {
+-		clear_user_highpage(to, address);
+-		return;
+-	}
+-	copy_user_highpage(to, from, address);
+-}
+-
+-/*
+  * Note: this doesn't free the actual pages themselves. That
+  * has been handled earlier when unmapping all the memory regions.
+  */
+@@ -1329,11 +1315,16 @@ static int do_wp_page(struct mm_struct *
+
+ 	if (unlikely(anon_vma_prepare(vma)))
+ 		goto no_new_page;
+-	new_page = alloc_page_vma(GFP_HIGHUSER, vma, address);
+-	if (!new_page)
+-		goto no_new_page;
+-	copy_cow_page(old_page,new_page,address);
+-
++	if (old_page == ZERO_PAGE(address)) {
++		new_page = alloc_zeroed_user_highpage(vma, address);
++		if (!new_page)
++			goto no_new_page;
++	} else {
++		new_page = alloc_page_vma(GFP_HIGHUSER, vma, address);
++		if (!new_page)
++			goto no_new_page;
++		copy_user_highpage(new_page, old_page, address);
++	}
+ 	/*
+ 	 * Re-check the pte - we dropped the lock
+ 	 */
+@@ -1795,10 +1786,9 @@ do_anonymous_page(struct mm_struct *mm,
+
+ 		if (unlikely(anon_vma_prepare(vma)))
+ 			goto no_mem;
+-		page = alloc_page_vma(GFP_HIGHUSER, vma, addr);
++		page = alloc_zeroed_user_highpage(vma, addr);
+ 		if (!page)
+ 			goto no_mem;
+-		clear_user_highpage(page, addr);
+
+ 		spin_lock(&mm->page_table_lock);
+ 		page_table = pte_offset_map(pmd, addr);
+Index: linux-2.6.10/include/asm-ia64/page.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-ia64/page.h	2004-12-24 13:34:00.000000000 -0800
++++ linux-2.6.10/include/asm-ia64/page.h	2005-01-21 10:44:27.000000000 -0800
+@@ -75,6 +75,16 @@ do {						\
+ 	flush_dcache_page(page);		\
+ } while (0)
+
++
++#define alloc_zeroed_user_highpage(vma, vaddr) \
++({						\
++	struct page *page = alloc_page_vma(GFP_HIGHUSER | __GFP_ZERO, vma, vaddr); \
++	flush_dcache_page(page);		\
++	page;					\
++})
++
++#define __HAVE_ARCH_ALLOC_ZEROED_USER_HIGHPAGE
++
+ #define virt_addr_valid(kaddr)	pfn_valid(__pa(kaddr) >> PAGE_SHIFT)
+
+ #ifdef CONFIG_VIRTUAL_MEM_MAP
+Index: linux-2.6.10/include/asm-i386/page.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-i386/page.h	2005-01-21 10:43:58.000000000 -0800
++++ linux-2.6.10/include/asm-i386/page.h	2005-01-21 10:44:27.000000000 -0800
+@@ -36,6 +36,9 @@
+ #define clear_user_page(page, vaddr, pg)	clear_page(page)
+ #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
+
++#define alloc_zeroed_user_highpage(vma, vaddr) alloc_page_vma(GFP_HIGHUSER | __GFP_ZERO, vma, vaddr)
++#define __HAVE_ARCH_ALLOC_ZEROED_USER_HIGHPAGE
++
+ /*
+  * These are used to make use of C type-checking..
+  */
+Index: linux-2.6.10/include/asm-x86_64/page.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-x86_64/page.h	2005-01-21 10:43:59.000000000 -0800
++++ linux-2.6.10/include/asm-x86_64/page.h	2005-01-21 10:44:27.000000000 -0800
+@@ -38,6 +38,8 @@ void copy_page(void *, void *);
+ #define clear_user_page(page, vaddr, pg)	clear_page(page)
+ #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
+
++#define alloc_zeroed_user_highpage(vma, vaddr) alloc_page_vma(GFP_HIGHUSER | __GFP_ZERO, vma, vaddr)
++#define __HAVE_ARCH_ALLOC_ZEROED_USER_HIGHPAGE
+ /*
+  * These are used to make use of C type-checking..
+  */
+Index: linux-2.6.10/include/asm-m32r/page.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-m32r/page.h	2004-12-24 13:34:29.000000000 -0800
++++ linux-2.6.10/include/asm-m32r/page.h	2005-01-21 10:44:27.000000000 -0800
+@@ -17,6 +17,9 @@ extern void copy_page(void *to, void *fr
+ #define clear_user_page(page, vaddr, pg)	clear_page(page)
+ #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
+
++#define alloc_zeroed_user_highpage(vma, vaddr) alloc_page_vma(GFP_HIGHUSER | __GFP_ZERO, vma, vaddr)
++#define __HAVE_ARCH_ALLOC_ZEROED_USER_HIGHPAGE
++
+ /*
+  * These are used to make use of C type-checking..
+  */
+Index: linux-2.6.10/include/asm-alpha/page.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-alpha/page.h	2004-12-24 13:35:24.000000000 -0800
++++ linux-2.6.10/include/asm-alpha/page.h	2005-01-21 10:44:27.000000000 -0800
+@@ -18,6 +18,9 @@
+ extern void clear_page(void *page);
+ #define clear_user_page(page, vaddr, pg)	clear_page(page)
+
++#define alloc_zeroed_user_highpage(vma, vaddr) alloc_page_vma(GFP_HIGHUSER | __GFP_ZERO, vma, vmaddr)
++#define __HAVE_ARCH_ALLOC_ZEROED_USER_HIGHPAGE
++
+ extern void copy_page(void * _to, void * _from);
+ #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
+
+Index: linux-2.6.10/include/asm-m68knommu/page.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-m68knommu/page.h	2005-01-21 10:43:58.000000000 -0800
++++ linux-2.6.10/include/asm-m68knommu/page.h	2005-01-21 10:44:27.000000000 -0800
+@@ -30,6 +30,9 @@
+ #define clear_user_page(page, vaddr, pg)	clear_page(page)
+ #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
+
++#define alloc_zeroed_user_highpage(vma, vaddr) alloc_page_vma(GFP_HIGHUSER | __GFP_ZERO, vma, vaddr)
++#define __HAVE_ARCH_ALLOC_ZEROED_USER_HIGHPAGE
++
+ /*
+  * These are used to make use of C type-checking..
+  */
+Index: linux-2.6.10/include/asm-cris/page.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-cris/page.h	2004-12-24 13:34:30.000000000 -0800
++++ linux-2.6.10/include/asm-cris/page.h	2005-01-21 10:44:27.000000000 -0800
+@@ -21,6 +21,9 @@
+ #define clear_user_page(page, vaddr, pg)    clear_page(page)
+ #define copy_user_page(to, from, vaddr, pg) copy_page(to, from)
+
++#define alloc_zeroed_user_highpage(vma, vaddr) alloc_page_vma(GFP_HIGHUSER | __GFP_ZERO, vma, vaddr)
++#define __HAVE_ARCH_ALLOC_ZEROED_USER_HIGHPAGE
++
+ /*
+  * These are used to make use of C type-checking..
+  */
+Index: linux-2.6.10/include/asm-s390/page.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-s390/page.h	2004-12-24 13:34:01.000000000 -0800
++++ linux-2.6.10/include/asm-s390/page.h	2005-01-21 10:44:27.000000000 -0800
+@@ -106,6 +106,9 @@ static inline void copy_page(void *to, v
+ #define clear_user_page(page, vaddr, pg)	clear_page(page)
+ #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
+
++#define alloc_zeroed_user_highpage(vma, vaddr) alloc_page_vma(GFP_HIGHUSER | __GFP_ZERO, vma, vaddr)
++#define __HAVE_ARCH_ALLOC_ZEROED_USER_HIGHPAGE
++
+ /* Pure 2^n version of get_order */
+ extern __inline__ int get_order(unsigned long size)
+ {
+Index: linux-2.6.10/include/asm-h8300/page.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-h8300/page.h	2004-12-24 13:35:25.000000000 -0800
++++ linux-2.6.10/include/asm-h8300/page.h	2005-01-21 10:44:27.000000000 -0800
+@@ -30,6 +30,9 @@
+ #define clear_user_page(page, vaddr, pg)	clear_page(page)
+ #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
+
++#define alloc_zeroed_user_highpage(vma, vaddr) alloc_page_vma(GFP_HIGHUSER | __GFP_ZERO, vma, vaddr)
++#define __HAVE_ARCH_ALLOC_ZEROED_USER_HIGHPAGE
++
+ /*
+  * These are used to make use of C type-checking..
+  */
+

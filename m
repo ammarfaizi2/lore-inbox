@@ -1,55 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261950AbUCSUal (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 15:30:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261980AbUCSUal
+	id S261980AbUCSUbK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 15:31:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbUCSUbK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 15:30:41 -0500
-Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:39857 "EHLO
-	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261950AbUCSUaj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 15:30:39 -0500
-Date: Fri, 19 Mar 2004 21:30:38 +0100 (CET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Thomas Schlichter <thomas.schlichter@web.de>
-Cc: Philippe Elie <phil.el@wanadoo.fr>, Andrew Morton <akpm@osdl.org>,
-       Andreas Schwab <schwab@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6.4-rc2] bogus semicolon behind if()
-In-Reply-To: <200403192001.13129.thomas.schlichter@web.de>
-Message-ID: <Pine.LNX.4.55.0403192116530.11965@jurand.ds.pg.gda.pl>
-References: <200403090014.03282.thomas.schlichter@web.de>
- <200403091208.20556.thomas.schlichter@web.de> <Pine.LNX.4.55.0403171734090.14525@jurand.ds.pg.gda.pl>
- <200403192001.13129.thomas.schlichter@web.de>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 19 Mar 2004 15:31:10 -0500
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:36357 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S261980AbUCSUbE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 15:31:04 -0500
+Subject: Re: 2.6.4 UHCI HCD BUG
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040319184640.GA1938@mail.muni.cz>
+References: <20040319184640.GA1938@mail.muni.cz>
+Content-Type: text/plain
+Message-Id: <1079728197.2735.5.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-1) 
+Date: Fri, 19 Mar 2004 21:29:58 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Mar 2004, Thomas Schlichter wrote:
+On Fri, 2004-03-19 at 19:46, Lukas Hejtmanek wrote:
+> Hello,
+> 
+> with 2.6.4 if I do rmmod uhci_hcd and then modprobe uhci_hcd while running
+> X server with USB mouse connected to UHCI USB I got:
+> uhci_hcd 0000:00:1d.2: USB bus 3 deregistered
+> slab error in kmem_cache_destroy(): cache `uhci_urb_priv': Can't free all object
+> s
+> Call Trace:
+>  [<c013c154>] kmem_cache_destroy+0x85/0xf3
+>  [<d0e9ec9b>] uhci_hcd_cleanup+0x1c/0x61 [uhci_hcd]
+>  [<c01307f8>] sys_delete_module+0x12d/0x154
+>  [<c010af61>] do_IRQ+0x10d/0x140
+>  [<c01092c9>] sysenter_past_esp+0x52/0x71
+> 
+> drivers/usb/host/uhci-hcd.c: not all urb_priv's were freed!
+> USB Universal Host Controller Interface driver v2.2
+> kmem_cache_create: duplicate cache uhci_urb_priv
+> ------------[ cut here ]------------
+> kernel BUG at mm/slab.c:1314!
+> invalid operand: 0000 [#1]
+> PREEMPT 
+> CPU:    0
+> EIP:    0060:[<c013be42>]    Not tainted
+> EFLAGS: 00210202
+> EIP is at kmem_cache_create+0x3e9/0x48f
+> eax: 00000031   ebx: ceda82c8   ecx: c03df728   edx: cd0ea000
+> esi: d0e9f2da   edi: d0e9f2da   ebp: ceda81e8   esp: cd0ebf4c
+> ds: 007b   es: 007b   ss: 0068
+> Process modprobe (pid: 11450, threadinfo=cd0ea000 task=c32cee40)
+> Stack: c0304c80 d0e9f2cc 00000000 cd0ebf68 ceda8224 c0000000 fffffffc 00000010 
+>        00000000 fffffff4 c0342cb8 cd0ea000 d08a60ce d0e9f2cc 0000002c 00000080 
+>        00000000 00000000 00000000 c0342cd0 d0ea1100 c01321fb c03df5e4 00000001 
+> Call Trace:
+>  [<d08a60ce>] uhci_hcd_init+0xce/0x130 [uhci_hcd]
+>  [<c01321fb>] sys_init_module+0x12e/0x24b
+>  [<c01092c9>] sysenter_past_esp+0x52/0x71
+> 
+> Code: 0f 0b 22 05 c2 44 30 c0 8b 0b e9 76 ff ff ff 8b 47 34 c7 04
 
-> Well, my timer interrupt goes through the IO-APIC but I do have a functional 
-> TSC. Nevertheless my system requires timer_ack to be set... If it isn't, my 
-> CPU does not utilize its C2 state...
+Stupid question... Have you tried with the latest -mm patch against
+kernel 2.6.5-rc1 from Andrew Morton? It does include the latest bits
+from the USB BK repository, AFAIK. For me, the -mm tree solved some USB
+bugs I have been experiencing when resuming from APM suspension with the
+USB UHCI host.
 
- Hmm, I wonder if there's any relationship between the state of the local
-APIC and your observation.  Can you please see if the following hack
-changes anything (this assumes you have your timer IRQ directly connected
-to an I/O APIC input)?
-
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
-
---- io_apic.c.macro	2004-03-19 20:13:44.000000000 +0000
-+++ io_apic.c	2004-03-19 20:15:23.000000000 +0000
-@@ -1613,7 +1613,7 @@ static inline void check_timer(void)
- 		timer_ack = 1;
- 	else
- 		timer_ack = !cpu_has_tsc;
--	enable_8259A_irq(0);
-+	disable_8259A_irq(0);
- 
- 	pin1 = find_isa_irq_pin(0, mp_INT);
- 	pin2 = find_isa_irq_pin(0, mp_ExtINT);

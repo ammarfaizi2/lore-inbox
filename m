@@ -1,57 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267022AbTAZVrc>; Sun, 26 Jan 2003 16:47:32 -0500
+	id <S267011AbTAZWAZ>; Sun, 26 Jan 2003 17:00:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267026AbTAZVrc>; Sun, 26 Jan 2003 16:47:32 -0500
-Received: from mail.hometree.net ([212.34.181.120]:46985 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S267022AbTAZVrb>; Sun, 26 Jan 2003 16:47:31 -0500
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: [BUG] e100 driver fails to initialize the hardware after kernel bootup through kexec
-Date: Sun, 26 Jan 2003 21:56:46 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <b11liu$bcl$1@forge.intermeta.de>
-References: <1042450072.1744.75.camel@aminoacin.sh.intel.com> <1043390954.892.10.camel@aminoacin.sh.intel.com> <m18yxaeje3.fsf@frodo.biederman.org> <20030124145754.GA1116@an.local> <20030124160748.GB18428@gtf.org>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1043618206 26968 212.34.181.4 (26 Jan 2003 21:56:46 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Sun, 26 Jan 2003 21:56:46 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S267013AbTAZWAZ>; Sun, 26 Jan 2003 17:00:25 -0500
+Received: from moutng.kundenserver.de ([212.227.126.185]:24023 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S267011AbTAZWAY>; Sun, 26 Jan 2003 17:00:24 -0500
+Date: Mon, 27 Jan 2003 00:03:01 +0100
+From: Christian Zander <zander@minion.de>
+To: Christian Zander <zander@minion.de>,
+       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+       Mark Fasheh <mark.fasheh@oracle.com>,
+       Thomas Schlichter <schlicht@uni-mannheim.de>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, Sam Ravnborg <sam@ravnborg.org>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: no version magic, tainting kernel.
+Message-ID: <20030126230301.GD394@kugai>
+Reply-To: Christian Zander <zander@minion.de>
+References: <20030123193540.GD13137@ca-server1.us.oracle.com> <Pine.LNX.4.44.0301261054250.15538-100000@chaos.physics.uiowa.edu> <20030126220842.GB394@kugai> <20030126212950.GA6334@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030126212950.GA6334@mars.ravnborg.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@pobox.com> writes:
+On Sun, Jan 26, 2003 at 10:29:50PM +0100, Sam Ravnborg wrote:
+> 
+> Judging on the number of people that got bid by the mach- include
+> changes, I conclude that we better ask people to use kbuild.
+> 
 
->+	/* Wait 20 msec for reset to take effect */
->+	set_current_state(TASK_UNINTERRUPTIBLE);
->+	schedule_timeout(HZ / 50);
+Fair enough.
 
-Hm. This assumes HZ=100, doesn't it? 
+> The whole issues boils down to the following options:
+> 1) The "kernel-headers" package shall be extended to include the
+> vital part of kbuild
+> 2) To develop modules you need the full kernel src
+> 3) Do-it-yourself makefiles
+> 
+> Can we agree on that - and take the discussion from there?
+> 
+> In 1) and 2) you have total freedom to change options etc.
+> Several architectures filter out generic options they dislike.
+> Adding extra options is supported by kbuild (EXTRA_CFLAGS).
+> 
+> In 3) you have all possibilities to screw up things. You would
+> probarly argue you have full flexibility.  But then I wonder what
+> kind of flexibility you need for your module, that is not needed for
+> all the modules included in the kernel?  To take your argument and
+> turn it around: What technical reasons are there to avoid kbuild?
+> 
+> Please realise that you will be hit by changes in include paths,
+> compiler options etc.  That is visible in the number of mails seen
+> on lkml the last couple of months.
+> 
 
->+	/* Wait for command to be cleared up to 1 sec */
->+	for (i=0; i<1000; i++) {
->+		if (!readb(&bdp->scb->scb_cmd_low))
->+			break;
->+		set_current_state(TASK_UNINTERRUPTIBLE);
->+		schedule_timeout(HZ / 1000);
->+	}
+The problem isn't necessarily lack of flexibility, but the lack of
+unity across kernel versions. I agree that kbuild is the preferable
+solution for Linux 2.5, but it isn't for all incarnations of Linux
+2.4 and definetely not for Linux 2.2. I do realize that changes have
+resulted in problems for external build systems and understand that
+future changes may result in similar problems.
 
-HZ = 100 -> HZ / 1000 == 0 ?
-
-This whole patch scares me. :-)
-
-	Regards
-		Henning
+I guess a reasonable solution is adjusting existing Makefiles to be
+smart enough to detect kbuild and use it when available.
 
 -- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+christian zander
+zander@minion.de

@@ -1,36 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131666AbRDJMlt>; Tue, 10 Apr 2001 08:41:49 -0400
+	id <S131742AbRDJMlp>; Tue, 10 Apr 2001 08:41:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131691AbRDJMlL>; Tue, 10 Apr 2001 08:41:11 -0400
-Received: from ns.suse.de ([213.95.15.193]:56329 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S131666AbRDJMhy>;
-	Tue, 10 Apr 2001 08:37:54 -0400
-Date: Tue, 10 Apr 2001 14:37:52 +0200
-From: Andi Kleen <ak@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andi Kleen <ak@suse.de>, Mark Salisbury <mbs@mc.com>,
-        Jeff Dike <jdike@karaya.com>, schwidefsky@de.ibm.com,
-        linux-kernel@vger.kernel.org
+	id <S131672AbRDJMlI>; Tue, 10 Apr 2001 08:41:08 -0400
+Received: from iris.mc.com ([192.233.16.119]:19151 "EHLO mc.com")
+	by vger.kernel.org with ESMTP id <S132337AbRDJMkG>;
+	Tue, 10 Apr 2001 08:40:06 -0400
+From: Mark Salisbury <mbs@mc.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, ak@suse.de (Andi Kleen)
 Subject: Re: No 100 HZ timer !
-Message-ID: <20010410143752.A16120@gruyere.muc.suse.de>
-In-Reply-To: <20010410143216.A15880@gruyere.muc.suse.de> <E14mxNm-0004BT-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E14mxNm-0004BT-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Apr 10, 2001 at 01:36:27PM +0100
+Date: Tue, 10 Apr 2001 08:27:13 -0400
+X-Mailer: KMail [version 1.0.29]
+Content-Type: text/plain; charset=US-ASCII
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), ak@suse.de (Andi Kleen),
+        mbs@mc.com (Mark Salisbury), jdike@karaya.com (Jeff Dike),
+        schwidefsky@de.ibm.com, linux-kernel@vger.kernel.org
+In-Reply-To: <E14mx0K-00049P-00@the-village.bc.nu>
+In-Reply-To: <E14mx0K-00049P-00@the-village.bc.nu>
+MIME-Version: 1.0
+Message-Id: <0104100832191C.01893@pc-eng24.mc.com>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 10, 2001 at 01:36:27PM +0100, Alan Cox wrote:
-> > It's also all interrupts, not only syscalls, and also context switch if you
-> > want to be accurate.
+On Tue, 10 Apr 2001, Alan Cox wrote:
+> > Does not sound very attractive all at all on non virtual machines (I see the point on
+> > UML/VM):
+> > making system entry/context switch/interrupts slower, making add_timer slower, just to 
+> > process a few less timer interrupts. That's like robbing the fast paths for a slow path.
 > 
-> We dont need to be that accurate. Our sample rate is currently so low the
-> data is worthless anyway
+> Measure the number of clocks executing a timer interrupt. rdtsc is fast. Now
+> consider the fact that out of this you get KHz or better scheduling 
+> resolution required for games and midi. I'd say it looks good. I agree
+> the accounting of user/system time needs care to avoid slowing down syscall
+> paths
+> 
+> Alan
 
-Just without checking on context switch you would lose the information of per pid
-system/user/total that is currently collected completely.
+the system I implemented this in went from 25 Millisecond resolution to 25-60
+Nanosecond resolution (depending on the CPU underneath).  that is a theoretical
+factor of 500,000 to 1,000,000 improvement in resolution for timed events, and
+the clock overhead after the change was about the same. (+-10% depending on
+underlying CPU)
 
--Andi
+this is on a system that only had one clock tick per process quantum, as
+opposed to the 10 in linux.
+
+
+
+
+
+-- 
+/*------------------------------------------------**
+**   Mark Salisbury | Mercury Computer Systems    **
+**   mbs@mc.com     | System OS - Kernel Team     **
+**------------------------------------------------**
+**  I will be riding in the Multiple Sclerosis    **
+**  Great Mass Getaway, a 150 mile bike ride from **
+**  Boston to Provincetown.  Last year I raised   **
+**  over $1200.  This year I would like to beat   **
+**  that.  If you would like to contribute,       **
+**  please contact me.                            **
+**------------------------------------------------*/
+

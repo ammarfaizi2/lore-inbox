@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261861AbTELDKl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 23:10:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261871AbTELDKl
+	id S261876AbTELDNf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 23:13:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261878AbTELDNf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 23:10:41 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:40669 "EHLO
+	Sun, 11 May 2003 23:13:35 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:41437 "EHLO
 	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S261861AbTELDKj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 23:10:39 -0400
-Message-ID: <3EBF1398.9090704@nortelnetworks.com>
-Date: Sun, 11 May 2003 23:23:04 -0400
+	id S261876AbTELDNe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 23:13:34 -0400
+Message-ID: <3EBF144E.7050608@nortelnetworks.com>
+Date: Sun, 11 May 2003 23:26:06 -0400
 X-Sybari-Space: 00000000 00000000 00000000
 From: Chris Friesen <cfriesen@nortelnetworks.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
 X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Werner Almesberger <wa@almesberger.net>
+To: Muli Ben-Yehuda <mulix@mulix.org>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: anyone ever implemented a reparent(pid) syscall?
-References: <3EBBF965.4060001@nortelnetworks.com> <20030510063936.D13069@almesberger.net>
+Subject: Re: [RFC]  new syscall to allow notification when arbitrary pids die
+References: <3EBC9C62.5010507@nortelnetworks.com> <20030510073842.GA31003@actcom.co.il>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Werner Almesberger wrote:
- > Chris Friesen wrote:
- >
- >> I would like some way for the main one to restart, read the list of pids
- >> out of a file that it conveniently stashed away,
+Muli Ben-Yehuda wrote:
+> On Sat, May 10, 2003 at 02:29:54AM -0400, Chris Friesen wrote:
+> 
+> 
+>>I see two immediate uses for this.  One would be to enable a "watcher" 
+>>process which can do useful things on the death of processes which 
+>>registered with it (logging, respawning, notifying other processes,
+>>etc).  
+>>
+> 
+> Do it from user space, kill(pid, 0), check for ESRCH. I might see the
+> benefit of a new system call if it was synchronous (wait() semantics),
+> but since signal delivery is asynch anyway.... 
 
- > And until it has done this, any child death will still only be seen by init.
- > So you either didn't have a problem with this in the first place, or you
- > can make sure your children don't die while their parents are changing, or
- > you've just designed yourself a race condition.
+Exactly.  I don't want to explicitly poll each process being monitored to see if 
+it is still alive.  That solution doesn't scale well--what happens when you are 
+monitoring 5000 processes and you want to make sure that you catch them within a 
+certain amount of time?  You end up spending a lot of cpu time doing the monitoring.
 
-Sure. So the monitorer starts up, attempts to watch a pid, gets an error saying
-that it doesn't exist, and handles it.
 
-In the particular case that I'm planning for, the processes in question are 
-long-running ones which should never die except for upgrades (which could be 
-designed for).
+> There's already a well established way to do what you want (get
+> non-immediate notification of process death). What benefit would your
+> approach give? 
 
-The general case would be trickier.
+Its cheaper and faster.  It only costs a single call for each process, and then 
+you get notified immediately when it dies.
 
 Chris
 

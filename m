@@ -1,465 +1,510 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312461AbSCaVTS>; Sun, 31 Mar 2002 16:19:18 -0500
+	id <S312465AbSCaVid>; Sun, 31 Mar 2002 16:38:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312480AbSCaVTL>; Sun, 31 Mar 2002 16:19:11 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:60348 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S312461AbSCaVS5>;
-	Sun, 31 Mar 2002 16:18:57 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Sun, 31 Mar 2002 21:18:56 GMT
-Message-Id: <UTC200203312118.VAA468180.aeb@cwi.nl>
-To: linux-kernel@vger.kernel.org
-Subject: kbdbook.tmpl
+	id <S312464AbSCaViZ>; Sun, 31 Mar 2002 16:38:25 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:58376
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S312465AbSCaViL>; Sun, 31 Mar 2002 16:38:11 -0500
+Date: Sun, 31 Mar 2002 13:37:03 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Geoffrey Hoff <ghoff@math.utk.edu>
+cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: 2.4.19-pre3 udma ide hang with heavy disk activity
+In-Reply-To: <20020331203726.GB16709@MATHSUN1.MATH.UTK.EDU>
+Message-ID: <Pine.LNX.4.10.10203311335400.10681-300000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; BOUNDARY="1430322656-710942142-1017610623=:10681"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Spent the past hour or two documenting the keyboard ioctls.
-For the result, see below (and on ftp.xx.kernel.org).
-Comments are welcome, both about the factual contents
-and about the style and layout. The idea is to eventually
-have all ioctls documented.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Andries
-
-----------kbdbook.tmpl-------------
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V3.1//EN"[]>
-
-<book id="KeyboardGuide">
- <bookinfo>
-   <title>Keyboard Programming Interface</title>
-
-   <authorgroup>
-    <author>
-     <firstname>Andries</firstname>
-     <surname>Brouwer</surname>
-     <affiliation>
-      <address>
-       <email>aeb@cwi.nl</email>
-      </address>
-     </affiliation>
-    </author>
-   </authorgroup>
-
-   <copyright>
-    <year>2002</year>
-    <holder>Andries Brouwer</holder>
-   </copyright>
-
-  <legalnotice>
-   <para>
-     This documentation is free software; you can redistribute
-     it and/or modify it under the terms of the GNU General Public
-     License as published by the Free Software Foundation; either
-     version 2 of the License, or (at your option) any later
-     version.
-   </para>
-      
-   <para>
-     This program is distributed in the hope that it will be
-     useful, but WITHOUT ANY WARRANTY; without even the implied
-     warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-     See the GNU General Public License for more details.
-   </para>
-      
-   <para>
-     You should have received a copy of the GNU General Public
-     License along with this program; if not, write to the Free
-     Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-     MA 02111-1307 USA
-   </para>
-      
-   <para>
-     For more details see the file COPYING in the source
-     distribution of Linux.
-   </para>
-  </legalnotice>
- </bookinfo>
-
-<toc></toc>
-
-  <chapter id="KeyboardAPI">
-   <title>Keyboard API</title>
-
-   <para>
-	This document describes the user interface to the
-	kernel keyboard driver.
-   </para>
-
-   <sect1 id="KeyboardType">
-    <title>The keyboard type</title>
-    <para>
-    <programlisting>
-	unsigned char kbtype;
-	ioctl(fd, KDGKBTYPE, &amp;kbtype); /* get keyboard type */
-    </programlisting>
-    </para>
-
-    <para>
-	The <constant>KDGKBTYPE</constant> ioctl returns the keyboard type
-	in the unsigned char <varname>kbtype</varname>.
-    </para>
-
-    <para>
-	This ioctl is fairly useless.
-	It returns the value of the kernel variable
-	<varname>keyboard_type</varname>, which defaults to
-	<constant>KB_101</constant> but is set to
-	<constant>KB_84</constant> in the Atari code.
-	There is no real attempt in the kernel to determine and return
-	the actual type of keyboard.
-    </para>
-
-    <para>
-	The main use of this ioctl is to test the validity of the
-	<varname>fd</varname> argument. When user space needs a
-	file descriptor for doing keyboard or console ioctl's
-	it might try file descriptors 0, 1, 2, or files like
-	<filename>/dev/tty</filename> or <filename>/dev/console</filename>.
-	The file descriptor is OK when the <constant>KDGKBTYPE</constant>
-	ioctl succeeds:
-	<programlisting>
-#include &lt;sys/ioctl.h&gt;
-#include &lt;linux/kd.h&gt;
-static int
-is_a_console(int fd) {
-    unsigned char arg;
-
-    arg = 0;
-    return (ioctl(fd, KDGKBTYPE, &amp;arg) == 0
-            &amp;&amp; (arg == KB_101 || arg == KB_84));
-}
-	</programlisting>
-    </para>
-   </sect1>
-
-   <sect1 id="KeyboardModes">
-    <title>The keyboard modes</title>
-    <para>
-    <programlisting>
-	int kbmode;
-	ioctl(fd, KDGKBMODE, &amp;kbmode); /* get keyboard mode */
-	ioctl(fd, KDSKBMODE, kbmode);  /* set keyboard mode */
-    </programlisting>
-    </para>
-
-    <para>
-	The keyboard can be in three modes: <constant>K_RAW</constant>,
-	where scancodes are transmitted directly to user space (or, rather,
-	to the tty line discipline), <constant>K_MEDIUMRAW</constant>,
-	where scancodes are converted to keycodes, and these are transmitted
-	to user space, and "cooked", where scancodes are converted to keycodes
-	and keycodes are converted to keysyms using the user's keymap.
-	This "cooked" mode comes in two flavours: <constant>K_XLATE</constant>,
-	which is the default, and <constant>K_UNICODE</constant> (see below).
-    </para>
-
-    <note>
-     <para>
-	Do not confuse the "raw" and "cooked" here with the "raw" and "cooked"
-	of the tty line discipline, as set, e.g., by stty(1).
-     </para>
-    </note>
-   </sect1>
-
-   <sect1 id="KeyboardKeycodes">
-    <title>The keyboard keycodes</title>
-    <para>
-    <programlisting>
-	struct kbkeycode a;
-	ioctl(fd, KDGETKEYCODE, &amp;a); /* get keycode */
-	ioctl(fd, KDSETKEYCODE, &amp;a); /* set keycode */
-    </programlisting>
-    </para>
-
-    <para>
-	Scancodes are produced by the hardware.
-	Keycodes are used by the user in their keymap.
-	The usual PC keyboard, in the default mode, returns
-	a sequence of scancodes for each key press and key release.
-	The kernel parses the sequence into the keycode.
-    </para>
-
-    <para>
-	The keycode is a single byte, of which the high order bit
-	is used to indicate press(0)/release(1). The value 0 is used
-	for special purposes. So, 127 keycodes are available to
-	identify the keyboard keys. Usually this suffices, but not always.
-    </para>
-
-    <para>
-	The correspondence between scancode sequence and keycode
-	is hardwired to be the identity for single scancodes in the range
-	1-88 (0x01-0x58). For the remaining single scancodes
-	(0x59-0x7f) or scancode pairs (sequences of length two:
-	0xe0 0x00 - 0xe0 0x7f), a corresponding keycode can be assigned
-	(in the range 1-127).
-	<programlisting>
-	struct kbkeycode a;
-	a.scancode = 0x59; /* for single scancode 59 (hex) */
-	a.scancode += 128; /* for scancode pair e0 59 (hex) */
-	a.keycode = 123;
-	ioctl(fd,KDSETKEYCODE,&amp;a);
-	</programlisting>
-	See also getkeycodes(8) and setkeycodes(8).
-    </para>
-
-    <note>
-     <para>
-	Keycode 0 cannot be used: the value 0 is used to control
-	allocation and deallocation of keymaps. For some architectures
-	the setup is broken.
-     </para>
-    </note>
-   </sect1>
-
-   <sect1 id="KeyboardKeymap">
-    <title>The keyboard keymap</title>
-    <para>
-	<programlisting>
-	struct kbentry ke;
-	ioctl(fd, KDGKBENT, &amp;ke);    /* get keyboard keymap entry */
-	ioctl(fd, KDSKBENT, &amp;ke);    /* set keyboard keymap entry */
-
-	struct kbsentry sbuf;
-	ioctl(fd, KDGKBSENT, &amp;sbuf); /* get keyboard string entry */
-	ioctl(fd, KDSKBSENT, &amp;sbuf); /* set keyboard string entry */
-
-	struct kbdiacrs kd;
-	ioctl(fd, KDGKBDIACR, &amp;kd);  /* get keyboard compose pair */
-	ioctl(fd, KDSKBDIACR, &amp;kd);  /* set keyboard compose pair */
-
-	char meta;
-	ioctl(0, KDGKBMETA, &amp;meta;   /* get meta treatment */
-	ioctl(0, KDSKBMETA, meta;    /* set meta treatment */
-	</programlisting>
-    </para>
-
-    <para>
-	The user's keymap indicates the correspondence between
-	keycodes and symbols or actions belonging to these keys.
-	<programlisting>
-	alt_is_meta
-	keycode 1 = Escape
-	...
-	control alt keycode 83 = Boot
-	...
-	alt keycode 103 = KeyboardSignal
-	...
-	string F1 = "\033[[A"
-	...
-	compose '`' 'A' to 'À'
-	...
-	</programlisting>
-    </para>
-
-    <para>
-	Ordinary entries of the keymap are set using the
-	<constant>KDSKBENT</constant> ioctl:
-	<programlisting>
-	struct kbentry ke;
-	ke.kb_table = table_number;
-	ke.kb_index = keycode;
-	ke.kb_value = resulting_value;
-	ioctl(fd, KDSKBENT, &amp;ke);
-	</programlisting>
-    </para>
-
-    <para>
-	Here there are 256 possible table numbers, corresponding
-	to the simultaneous position of 8 shift keys
-	(0: plain map, 1: shift, 2: altgr, 3: shift altgr,
-	4: control, 5: shift control, ...) where these 8 shift keys
-	are conventionally called 1: shift, 2: altgr, 4: control,
-	8: alt, 16: shiftl, 32: shiftr, 64: ctrll, 128: ctrlr.
-	Tables are dynamically allocated as needed, and deallocated
-	by using keycode 0 with value <constant>K_NOSUCHMAP</constant>.
-    </para>
-
-    <para>
-	The <varname>resulting_value</varname> variable is
-	a 16-bit value. Its interpretation depends on the keyboard mode.
-	In <constant>K_UNICODE</constant> mode it is a 16-bit Unicode
-	value. In <constant>K_XLATE</constant> mode it is an 8-bit
-	type field followed by an 8-bit value.
-	See also keymaps(5), dumpkeys(1), loadkeys(1).
-    </para>
-
-    <para>
-	String entries of the keymap are set using the
-	<constant>KDSKBSENT</constant> ioctl:
-	<programlisting>
-	struct kbsentry sbuf;
-	sbuf.kb_func = function_key_number;
-	strncpy(sbuf.kb_string, "my string", 512);
-	ioctl(fd, KDSKBSENT, &amp;sbuf);
-	</programlisting>
-    </para>
-
-    <para>
-	Compose combinations are set using the
-	<constant>KDSKBDIACR</constant> ioctl:
-	<programlisting>
-	struct kbdiacrs kd;
-	int accent_table_size;
-	if (accent_table_size > MAX_DIACR)
-		accent_table_size = MAX_DIACR;
-	for (i = 0; i < accent_table_size; i++) {
-		kd.kbdiacr[i].diacr = diacritic[i];
-		kd.kbdiacr[i].base = base_symbol[i];
-		kd.kbdiacr[i].result = combined_symbol[i];
-	}
-	kd.kb_cnt = accent_table_size;
-	ioctl(fd, KDSKBDIACR, &amp;kd);
-	</programlisting>
-    </para>
-
-    <para>
-	As mentioned already, in <constant>K_XLATE</constant> mode
-	a keymap entry consists of an 8-bit type field followed by
-	an 8-bit value. If the type is <constant>KT_META</constant>,
-	then there are two possible treatments, depending on the
-	metamode setting of the VC. The possible settings are
-	<constant>K_METABIT</constant> and <constant>K_ESCPREFIX</constant>.
-	In the former mode the meta request causes setting of the
-	high order bit of the value. In the latter it produces an
-	ESC prefix.
-	<programlisting>
-	char meta = esc ? K_ESCPREFIX : K_METABIT;
-	ioctl(fd, KDSKBMETA, meta);
-	</programlisting>
-    </para>
-   </sect1>
-
-   <sect1 id="KeyboardLEDAPI">
-    <title>The keyboard LEDs</title>
-    <para>
-	<programlisting>
-	char leds;
-	ioctl(fd, KDGETLED, &amp;leds); /* get keyboard led settings */
-	ioctl(fd, KDSETLED, leds);  /* set keyboard led settings */
-
-#ifdef __sparc__
-	/* Special Sun version */
-	ioctl(fd, KIOCGLED, &amp;leds); /* get keyboard led settings */
-	ioctl(fd, KIOCSLED, leds);  /* set keyboard led settings */
-#endif
-
-	char flags;
-	ioctl(fd, KDGKBLED, &amp;flags); /* get keyboard flags */
-	ioctl(fd, KDSKBLED, flags);  /* set keyboard flags */
-	</programlisting>
-    </para>
-
-    <para>
-	Most keyboards have three or four LEDs, normally indicating
-	NumLock, CapsLock, ScrollLock and perhaps Compose or so.
-	The default situation is that the LEDs indicate these
-	keyboard flags (for the current foreground console).
-	This is the <constant>LED_SHOW_FLAGS</constant> mode.
-	The <constant>KDSKBLED</constant> ioctl sets these keyboard flags
-	(and the default flags that are used after a reset).
-	<programlisting>
-	/* Set CapsLock, as if the CapsLock key was hit. */
-	int flags = LED_CAP;
-	int default_flags = 0;
-	ioctl(fd, KDSKBLED, (default_flags << 4) | flags);
-	</programlisting>
-    </para>
-
-    <para>
-	It is also possible to show arbitrary information
-	(or nice patterns - "blinkenlights") in the LEDs.
-	This is the <constant>LED_SHOW_IOCTL</constant> mode.
-	We get into this mode by using <constant>KDSETLED</constant>
-	with a value that is zero outside the last three bits,
-	and get out of it again by using the value 0xff.
-	<programlisting>
-/* Blink LEDs - run on a text console */
-#include &lt;sys/ioctl.h&gt;
-#include &lt;linux/kd.h&gt;
-
-main() {
-        int leds = 0;
-
-        while (1) {
-                leds = 2*leds+1;
-                if (leds & 8)
-                        leds ^= 9;
-                if (ioctl(0, KDSETLED, leds))
-                        exit(1);        /* 0 is not a good fd */
-                sleep(1);
-        }
-}
-	</programlisting>
-	See also setleds(1).
-    </para>
-
-    <para>
-	On a Sun, this same effect is obtained using the ioctl
-	<constant>KIOCSLED</constant> on a file descriptor
-	obtained by opening <filename>/dev/kbd</filename>.
-    </para>
-
-    <para>
-	The third and last LED mode is LED_SHOW_MEM, where the
-	LEDs show the contents of three specified bits in kernel memory.
-	See the routine <function>register_leds()</function>
-	in <filename>keyboard.c</filename>.
-    </para>
-	
-   </sect1>
-
-   <sect1 id="KeyboardRepeatRate">
-    <title>The keyboard repeat rate</title>
-    <para>
-	<programlisting>
-	struct kbd_repeat kbdrep;
-	kbdrep.rate = rate;
-	kbdrep.delay = delay;
-	ioctl(fd, KDKBDREP, &amp;kbdrep);  /* m68k, i386 */
-
-	fd = open("/dev/kbd", O_RDONLY);
-	ioctl(fd, KIOCSRATE, &amp;kbdrep); /* sparc */
-	</programlisting>
-    </para>
-
-    <para>
-	The oldfashioned way of setting keyboard repeat rate
-	on i386 was by direct port access. The <constant>KDKBDREP</constant>
-	ioctl occurred in old m68k patches, but presently occurs in the stock
-	kernel and is also usable for other architectures - they have to
-	fill the function pointer <varname>kbd_rate</varname> in
-	<filename>vt.c</filename>.
-	The sparc uses a different name.
-	See also kbdrate(8).
-    </para>
-   </sect1>
-
-   <sect1 id="KeyboardSignal">
-    <title>The Keyboard Signal</title>
-    <para>
-	<programlisting>
-	long sig;
-	ioctl(fd, KDSIGACCEPT, sig);
-	</programlisting>
-    </para>
-
-    <para>
-	A program can indicate its willingness to receive keyboard signals
-	by executing the <constant>KDSIGACCEPT</constant> ioctl.
-	For example, init(8) does this, and upon receipt of a keyboard
-	signal performs the action described after the "kb" label.
-	The requested signal <varname>sig</varname> is sent when
-	the key combination that maps to the keysym KeyboardSignal
-	is pressed. This has been used to spawn a new console each
-	time this key combination is pressed, and the terminology used
-	still reflects that. See also <filename>spawn_console.c</filename>
-	in the kbd package.
-    </para>
-   </sect1>
-
-  </chapter>
+--1430322656-710942142-1017610623=:10681
+Content-Type: text/plain; charset=us-ascii
 
 
-</book>
+Please apply these which have been submitted to Alan Cox but originate
+from Vojtech.
+
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+On Sun, 31 Mar 2002, Geoffrey Hoff wrote:
+
+> On kernels 2.4.19-pre3 and later I get a disk hang any time I generate
+> heavy disk activity.  My test is a quick script that untars 2.4.0 and
+> then applys patch up to 2.4.19 and repeats.  With kernels 19-pre3
+> through 19-pre5, I can usually get through about the third patch and then
+> my hard drive activity led goes solid and I can no longer access any
+> disk.  This is happening specifically with a VIA controller (vt82c596b
+> rev 22) with a Maxtor 91536U6.  Attached are part of my dmesg,
+> proc/ide/via, hdinfo of /dev/hda and part of my .config.  If I use
+> hdparm to set the drive to mdma2 in 19-pre3 I never see any problems.  It
+> only happens in any udma mode.  I compiled 19-pre3 with the via
+> driver disabled, but the problem continues.  I also tried 19-pre5 as I
+> looked and saw that it contains more ide updates, but I get the same
+> results.
+> 
+> In 19-pre2 and previous kernels, If the drive is running in UDMA66, I
+> ocassionally get checksum errors and retries so I usually on boot put
+> the drive in UDMA33 mode.  I have never seen any error of any kind in
+> this mode.  I have tried modes udma0, 2, and 4 on 2.4.19-pre3 and they
+> all eventually hang.  When this hang occurs, I get no kernel messages at
+> all.  I set dmesg to level 8 so I should see any message on the console.
+> If it weren't for ext3 and reiserfs, I would be very tired of fscks by
+> now.  If there is anything that I can try to help narrow this problem
+> down, please let me know.
+> 
+
+--1430322656-710942142-1017610623=:10681
+Content-Type: text/plain; charset=us-ascii; name="via-3.33.diff"
+Content-Transfer-Encoding: base64
+Content-ID: <Pine.LNX.4.10.10203311337030.10681@master.linux-ide.org>
+Content-Description: 
+Content-Disposition: attachment; filename="via-3.33.diff"
+
+ZGlmZiAtdXJOIGxpbnV4L01BSU5UQUlORVJTIGxpbnV4LXZpYS9NQUlOVEFJ
+TkVSUw0KLS0tIGxpbnV4L01BSU5UQUlORVJTCU1vbiBEZWMgMTAgMTk6Mzk6
+MjAgMjAwMQ0KKysrIGxpbnV4LXZpYS9NQUlOVEFJTkVSUwlNb24gRGVjIDI0
+IDAwOjEzOjUxIDIwMDENCkBAIC04NDMsNyArODQzLDcgQEANCiBNOgl2b2p0
+ZWNoQHN1c2UuY3oNCiBMOglsaW51eC1qb3lzdGlja0BhdHJleS5rYXJsaW4u
+bWZmLmN1bmkuY3oNCiBXOglodHRwOi8vd3d3LnN1c2UuY3ovZGV2ZWxvcG1l
+bnQvam95c3RpY2svDQotUzoJU3VwcG9ydGVkDQorUzoJTWFpbnRhaW5lZA0K
+IA0KIEtFUk5FTCBBVVRPTU9VTlRFUiAoQVVUT0ZTKQ0KIFA6CUguIFBldGVy
+IEFudmluDQpAQCAtMTUzOCw3ICsxNTM4LDcgQEANCiBNOgl2b2p0ZWNoQHN1
+c2UuY3oNCiBMOglsaW51eC11c2ItdXNlcnNAbGlzdHMuc291cmNlZm9yZ2Uu
+bmV0DQogTDoJbGludXgtdXNiLWRldmVsQGxpc3RzLnNvdXJjZWZvcmdlLm5l
+dA0KLVM6CVN1cHBvcnRlZA0KK1M6CU1haW50YWluZWQNCiANCiBVU0IgQkxV
+RVRPT1RIIERSSVZFUg0KIFA6CUdyZWcgS3JvYWgtSGFydG1hbg0KQEAgLTE1
+NjEsNyArMTU2MSw3IEBADQogTDoJbGludXgtdXNiLXVzZXJzQGxpc3RzLnNv
+dXJjZWZvcmdlLm5ldA0KIEw6CWxpbnV4LXVzYi1kZXZlbEBsaXN0cy5zb3Vy
+Y2Vmb3JnZS5uZXQNCiBXOglodHRwOi8vd3d3LnN1c2UuY3ovZGV2ZWxvcG1l
+bnQvaW5wdXQvDQotUzoJU3VwcG9ydGVkDQorUzoJTWFpbnRhaW5lZA0KIA0K
+IFVTQiBIVUINCiBQOglKb2hhbm5lcyBFcmRmZWx0DQpAQCAtMTYxMiw3ICsx
+NjEyLDcgQEANCiBNOgl2b2p0ZWNoQHN1c2UuY3oNCiBMOglsaW51eC11c2It
+dXNlcnNAbGlzdHMuc291cmNlZm9yZ2UubmV0DQogTDoJbGludXgtdXNiLWRl
+dmVsQGxpc3RzLnNvdXJjZWZvcmdlLm5ldA0KLVM6CVN1cHBvcnRlZA0KK1M6
+CU1haW50YWluZWQNCiANCiBVU0IgU0U0MDEgRFJJVkVSDQogUDoJSmVyb2Vu
+IFZyZWVrZW4NCmRpZmYgLXVyTiBsaW51eC9kcml2ZXJzL2lkZS9pZGUtdGlt
+aW5nLmggbGludXgtdmlhL2RyaXZlcnMvaWRlL2lkZS10aW1pbmcuaA0KLS0t
+IGxpbnV4L2RyaXZlcnMvaWRlL2lkZS10aW1pbmcuaAlTYXQgRmViICAzIDIw
+OjI3OjQzIDIwMDENCisrKyBsaW51eC12aWEvZHJpdmVycy9pZGUvaWRlLXRp
+bWluZy5oCU1vbiBEZWMgMjQgMDA6MDQ6MTMgMjAwMQ0KQEAgLTIsMTEgKzIs
+OSBAQA0KICNkZWZpbmUgX0lERV9USU1JTkdfSA0KIA0KIC8qDQotICogJElk
+OiBpZGUtdGltaW5nLmgsdiAxLjUgMjAwMS8wMS8xNSAyMTo0ODo1NiB2b2p0
+ZWNoIEV4cCAkDQorICogJElkOiBpZGUtdGltaW5nLmgsdiAxLjYgMjAwMS8x
+Mi8yMyAyMjo0Nzo1NiB2b2p0ZWNoIEV4cCAkDQogICoNCi0gKiAgQ29weXJp
+Z2h0IChjKSAxOTk5LTIwMDAgVm9qdGVjaCBQYXZsaWsNCi0gKg0KLSAqICBT
+cG9uc29yZWQgYnkgU3VTRQ0KKyAqICBDb3B5cmlnaHQgKGMpIDE5OTktMjAw
+MSBWb2p0ZWNoIFBhdmxpaw0KICAqLw0KIA0KIC8qDQpAQCAtMjUsMTYgKzIz
+LDE0IEBADQogICogRm91bmRhdGlvbiwgSW5jLiwgNTkgVGVtcGxlIFBsYWNl
+LCBTdWl0ZSAzMzAsIEJvc3RvbiwgTUEgMDIxMTEtMTMwNyBVU0ENCiAgKg0K
+ICAqIFNob3VsZCB5b3UgbmVlZCB0byBjb250YWN0IG1lLCB0aGUgYXV0aG9y
+LCB5b3UgY2FuIGRvIHNvIGVpdGhlciBieQ0KLSAqIGUtbWFpbCAtIG1haWwg
+eW91ciBtZXNzYWdlIHRvIDx2b2p0ZWNoQHN1c2UuY3o+LCBvciBieSBwYXBl
+ciBtYWlsOg0KLSAqIFZvanRlY2ggUGF2bGlrLCBVY2l0ZWxza2EgMTU3Niwg
+UHJhZ3VlIDgsIDE4MiAwMCBDemVjaCBSZXB1YmxpYw0KKyAqIGUtbWFpbCAt
+IG1haWwgeW91ciBtZXNzYWdlIHRvIDx2b2p0ZWNoQHVjdy5jej4sIG9yIGJ5
+IHBhcGVyIG1haWw6DQorICogVm9qdGVjaCBQYXZsaWssIFNpbXVua292YSAx
+NTk0LCBQcmFndWUgOCwgMTgyIDAwIEN6ZWNoIFJlcHVibGljDQogICovDQog
+DQogI2luY2x1ZGUgPGxpbnV4L2hkcmVnLmg+DQogDQotI2lmbmRlZiBYRkVS
+X1BJT181DQogI2RlZmluZSBYRkVSX1BJT181CQkweDBkDQogI2RlZmluZSBY
+RkVSX1VETUFfU0xPVwkJMHg0Zg0KLSNlbmRpZg0KIA0KIHN0cnVjdCBpZGVf
+dGltaW5nIHsNCiAJc2hvcnQgbW9kZTsNCkBAIC00OSwxMyArNDUsMTUgQEAN
+CiB9Ow0KIA0KIC8qDQotICogUElPIDAtNSwgTVdETUEgMC0yIGFuZCBVRE1B
+IDAtNSB0aW1pbmdzIChpbiBuYW5vc2Vjb25kcykuDQorICogUElPIDAtNSwg
+TVdETUEgMC0yIGFuZCBVRE1BIDAtNiB0aW1pbmdzIChpbiBuYW5vc2Vjb25k
+cykuDQogICogVGhlc2Ugd2VyZSB0YWtlbiBmcm9tIEFUQS9BVEFQSS02IHN0
+YW5kYXJkLCByZXYgMGEsIGV4Y2VwdA0KLSAqIGZvciBQSU8gNSwgd2hpY2gg
+aXMgYSBub25zdGFuZGFyZCBleHRlbnNpb24uDQorICogZm9yIFBJTyA1LCB3
+aGljaCBpcyBhIG5vbnN0YW5kYXJkIGV4dGVuc2lvbiBhbmQgVURNQTYsIHdo
+aWNoDQorICogaXMgY3VycmVudGx5IHN1cHBvcnRlZCBvbmx5IGJ5IE1heHRv
+ciBkcml2ZXMuIA0KICAqLw0KIA0KIHN0YXRpYyBzdHJ1Y3QgaWRlX3RpbWlu
+ZyBpZGVfdGltaW5nW10gPSB7DQogDQorCXsgWEZFUl9VRE1BXzYsICAgICAw
+LCAgIDAsICAgMCwgICAwLCAgIDAsICAgMCwgICAwLCAgMTUgfSwNCiAJeyBY
+RkVSX1VETUFfNSwgICAgIDAsICAgMCwgICAwLCAgIDAsICAgMCwgICAwLCAg
+IDAsICAyMCB9LA0KIAl7IFhGRVJfVURNQV80LCAgICAgMCwgICAwLCAgIDAs
+ICAgMCwgICAwLCAgIDAsICAgMCwgIDMwIH0sDQogCXsgWEZFUl9VRE1BXzMs
+ICAgICAwLCAgIDAsICAgMCwgICAwLCAgIDAsICAgMCwgICAwLCAgNDUgfSwN
+CkBAIC0xMDUsNiArMTAzLDcgQEANCiAjZGVmaW5lIEVaKHYsdW5pdCkJKCh2
+KT9FTk9VR0godix1bml0KTowKQ0KIA0KICNkZWZpbmUgWEZFUl9NT0RFCTB4
+ZjANCisjZGVmaW5lIFhGRVJfVURNQV8xMzMJMHg0OA0KICNkZWZpbmUgWEZF
+Ul9VRE1BXzEwMAkweDQ0DQogI2RlZmluZSBYRkVSX1VETUFfNjYJMHg0Mg0K
+ICNkZWZpbmUgWEZFUl9VRE1BCTB4NDANCkBAIC0xMjMsNiArMTIyLDkgQEAN
+CiANCiAJaWYgKChtYXAgJiBYRkVSX1VETUEpICYmIChpZC0+ZmllbGRfdmFs
+aWQgJiA0KSkgewkvKiBXYW50IFVETUEgYW5kIFVETUEgYml0bWFwIHZhbGlk
+ICovDQogDQorCQlpZiAoKG1hcCAmIFhGRVJfVURNQV8xMzMpID09IFhGRVJf
+VURNQV8xMzMpDQorCQkJaWYgKChiZXN0ID0gKGlkLT5kbWFfdWx0cmEgJiAw
+eDAwNDApID8gWEZFUl9VRE1BXzYgOiAwKSkgcmV0dXJuIGJlc3Q7DQorDQog
+CQlpZiAoKG1hcCAmIFhGRVJfVURNQV8xMDApID09IFhGRVJfVURNQV8xMDAp
+DQogCQkJaWYgKChiZXN0ID0gKGlkLT5kbWFfdWx0cmEgJiAweDAwMjApID8g
+WEZFUl9VRE1BXzUgOiAwKSkgcmV0dXJuIGJlc3Q7DQogDQpAQCAtMTc0LDE0
+ICsxNzYsMTQgQEANCiANCiBzdGF0aWMgdm9pZCBpZGVfdGltaW5nX3F1YW50
+aXplKHN0cnVjdCBpZGVfdGltaW5nICp0LCBzdHJ1Y3QgaWRlX3RpbWluZyAq
+cSwgaW50IFQsIGludCBVVCkNCiB7DQotCXEtPnNldHVwICAgPSBFWih0LT5z
+ZXR1cCwgICBUKTsNCi0JcS0+YWN0OGIgICA9IEVaKHQtPmFjdDhiLCAgIFQp
+Ow0KLQlxLT5yZWM4YiAgID0gRVoodC0+cmVjOGIsICAgVCk7DQotCXEtPmN5
+YzhiICAgPSBFWih0LT5jeWM4YiwgICBUKTsNCi0JcS0+YWN0aXZlICA9IEVa
+KHQtPmFjdGl2ZSwgIFQpOw0KLQlxLT5yZWNvdmVyID0gRVoodC0+cmVjb3Zl
+ciwgVCk7DQotCXEtPmN5Y2xlICAgPSBFWih0LT5jeWNsZSwgICBUKTsNCi0J
+cS0+dWRtYSAgICA9IEVaKHQtPnVkbWEsICAgVVQpOw0KKwlxLT5zZXR1cCAg
+ID0gRVoodC0+c2V0dXAgICAqIDEwMDAsICBUKTsNCisJcS0+YWN0OGIgICA9
+IEVaKHQtPmFjdDhiICAgKiAxMDAwLCAgVCk7DQorCXEtPnJlYzhiICAgPSBF
+Wih0LT5yZWM4YiAgICogMTAwMCwgIFQpOw0KKwlxLT5jeWM4YiAgID0gRVoo
+dC0+Y3ljOGIgICAqIDEwMDAsICBUKTsNCisJcS0+YWN0aXZlICA9IEVaKHQt
+PmFjdGl2ZSAgKiAxMDAwLCAgVCk7DQorCXEtPnJlY292ZXIgPSBFWih0LT5y
+ZWNvdmVyICogMTAwMCwgIFQpOw0KKwlxLT5jeWNsZSAgID0gRVoodC0+Y3lj
+bGUgICAqIDEwMDAsICBUKTsNCisJcS0+dWRtYSAgICA9IEVaKHQtPnVkbWEg
+ICAgKiAxMDAwLCBVVCk7DQogfQ0KIA0KIHN0YXRpYyB2b2lkIGlkZV90aW1p
+bmdfbWVyZ2Uoc3RydWN0IGlkZV90aW1pbmcgKmEsIHN0cnVjdCBpZGVfdGlt
+aW5nICpiLCBzdHJ1Y3QgaWRlX3RpbWluZyAqbSwgdW5zaWduZWQgaW50IHdo
+YXQpDQpkaWZmIC11ck4gbGludXgvZHJpdmVycy9pZGUvdmlhODJjeHh4LmMg
+bGludXgtdmlhL2RyaXZlcnMvaWRlL3ZpYTgyY3h4eC5jDQotLS0gbGludXgv
+ZHJpdmVycy9pZGUvdmlhODJjeHh4LmMJVHVlIE5vdiAyNyAxODoyMzoyNyAy
+MDAxDQorKysgbGludXgtdmlhL2RyaXZlcnMvaWRlL3ZpYTgyY3h4eC5jCU1v
+biBEZWMgMjQgMDA6MDk6MjMgMjAwMQ0KQEAgLTEsNSArMSw1IEBADQogLyoN
+Ci0gKiAkSWQ6IHZpYTgyY3h4eC5jLHYgMy4yOSAyMDAxLzA5LzEwIDEwOjA2
+OjAwIHZvanRlY2ggRXhwICQNCisgKiAkSWQ6IHZpYTgyY3h4eC5jLHYgMy4z
+MyAyMDAxLzEyLzIzIDIyOjQ2OjEyIHZvanRlY2ggRXhwICQNCiAgKg0KICAq
+ICBDb3B5cmlnaHQgKGMpIDIwMDAtMjAwMSBWb2p0ZWNoIFBhdmxpaw0KICAq
+DQpAQCAtNywyMyArNywyMSBAQA0KICAqCU1pY2hlbCBBdWJyeQ0KICAqCUpl
+ZmYgR2FyemlrDQogICoJQW5kcmUgSGVkcmljaw0KLSAqDQotICogIFNwb25z
+b3JlZCBieSBTdVNFDQogICovDQogDQogLyoNCiAgKiBWSUEgSURFIGRyaXZl
+ciBmb3IgTGludXguIFN1cHBvcnRzDQogICoNCiAgKiAgIHZ0ODJjNTc2LCB2
+dDgyYzU4NiwgdnQ4MmM1ODZhLCB2dDgyYzU4NmIsIHZ0ODJjNTk2YSwgdnQ4
+MmM1OTZiLA0KLSAqICAgdnQ4MmM2ODYsIHZ0ODJjNjg2YSwgdnQ4MmM2ODZi
+LCB2dDgyMzEsIHZ0ODIzMw0KKyAqICAgdnQ4MmM2ODYsIHZ0ODJjNjg2YSwg
+dnQ4MmM2ODZiLCB2dDgyMzEsIHZ0ODIzMywgdnQ4MjMzYywgdnQ4MjMzYQ0K
+ICAqDQogICogc291dGhicmlkZ2VzLCB3aGljaCBjYW4gYmUgZm91bmQgaW4N
+CiAgKg0KICAqICBWSUEgQXBvbGxvIE1hc3RlciwgVlAsIFZQMiwgVlAyLzk3
+LCBWUDMsIFZQWCwgVlBYLzk3LCBNVlAzLCBNVlA0LCBQNiwgUHJvLA0KICAq
+ICAgIFByb0lJLCBQcm9QbHVzLCBQcm8xMzMsIFBybzEzMyssIFBybzEzM0Es
+IFBybzEzM0EgRHVhbCwgUHJvMTMzVCwgUHJvMTMzWiwNCiAgKiAgICBQTEUx
+MzMsIFBMRTEzM1QsIFBybzI2NiwgUHJvMjY2VCwgUHJvUDRYMjY2LCBQTTYw
+MSwgUE0xMzMsIFBOMTMzLCBQTDEzM1QsDQotICogICAgUFgyNjYsIFBNMjY2
+LCBLWDEzMywgS1QxMzMsIEtUMTMzQSwgS0xFMTMzLCBLVDI2NiwgS1gyNjYs
+IEtNMTMzLCBLTTEzM0EsDQotICogICAgS0wxMzMsIEtOMTMzLCBLTTI2Ng0K
+KyAqICAgIFBYMjY2LCBQTTI2NiwgS1gxMzMsIEtUMTMzLCBLVDEzM0EsIEtU
+MTMzRSwgS0xFMTMzLCBLVDI2NiwgS1gyNjYsIEtNMTMzLA0KKyAqICAgIEtN
+MTMzQSwgS0wxMzMsIEtOMTMzLCBLTTI2Ng0KICAqICBQQy1DaGlwcyBWWFBy
+bywgVlhQcm8rLCBWWFR3bywgVFhQcm8tSUlJLCBUWFByby1BR1AsIEFHUFBy
+bywgVmlhR3JhLCBCWFRvbywNCiAgKiAgICBCWFRlbCwgQlhwZXJ0DQogICog
+IEFNRCA2NDAsIDY0MCBBR1AsIDc1MCBJcm9uR2F0ZSwgNzYwLCA3NjBNUA0K
+QEAgLTMyLDkgKzMwLDkgQEANCiAgKg0KICAqIGNoaXBzZXRzLiBTdXBwb3J0
+cw0KICAqDQotICogICBQSU8gMC01LCBNV0RNQSAwLTIsIFNXRE1BIDAtMiBh
+bmQgVURNQSAwLTUNCisgKiAgIFBJTyAwLTUsIE1XRE1BIDAtMiwgU1dETUEg
+MC0yIGFuZCBVRE1BIDAtNg0KICAqDQotICogKHRoaXMgaW5jbHVkZXMgVURN
+QTMzLCA2NiBhbmQgMTAwKSBtb2Rlcy4gVURNQTY2IGFuZCBoaWdoZXIgbW9k
+ZXMgYXJlDQorICogKHRoaXMgaW5jbHVkZXMgVURNQTMzLCA2NiwgMTAwIGFu
+ZCAxMzMpIG1vZGVzLiBVRE1BNjYgYW5kIGhpZ2hlciBtb2RlcyBhcmUNCiAg
+KiBhdXRvZW5hYmxlZCBvbmx5IGluIGNhc2UgdGhlIEJJT1MgaGFzIGRldGVj
+dGVkIGEgODAgd2lyZSBjYWJsZS4gVG8gaWdub3JlDQogICogdGhlIEJJT1Mg
+ZGF0YSBhbmQgYXNzdW1lIHRoZSBjYWJsZSBpcyBwcmVzZW50LCB1c2UgJ2lk
+ZTA9YXRhNjYnIG9yDQogICogJ2lkZTE9YXRhNjYnIG9uIHRoZSBrZXJuZWwg
+Y29tbWFuZCBsaW5lLg0KQEAgLTU2LDggKzU0LDggQEANCiAgKiBGb3VuZGF0
+aW9uLCBJbmMuLCA1OSBUZW1wbGUgUGxhY2UsIFN1aXRlIDMzMCwgQm9zdG9u
+LCBNQSAwMjExMS0xMzA3IFVTQQ0KICAqDQogICogU2hvdWxkIHlvdSBuZWVk
+IHRvIGNvbnRhY3QgbWUsIHRoZSBhdXRob3IsIHlvdSBjYW4gZG8gc28gZWl0
+aGVyIGJ5DQotICogZS1tYWlsIC0gbWFpbCB5b3VyIG1lc3NhZ2UgdG8gPHZv
+anRlY2hAc3VzZS5jej4sIG9yIGJ5IHBhcGVyIG1haWw6DQotICogVm9qdGVj
+aCBQYXZsaWssIFVjaXRlbHNrYSAxNTc2LCBQcmFndWUgOCwgMTgyIDAwIEN6
+ZWNoIFJlcHVibGljDQorICogZS1tYWlsIC0gbWFpbCB5b3VyIG1lc3NhZ2Ug
+dG8gPHZvanRlY2hAdWN3LmN6Piwgb3IgYnkgcGFwZXIgbWFpbDoNCisgKiBW
+b2p0ZWNoIFBhdmxpaywgU2ltdW5rb3ZhIDE1OTQsIFByYWd1ZSA4LCAxODIg
+MDAgQ3plY2ggUmVwdWJsaWMNCiAgKi8NCiANCiAjaW5jbHVkZSA8bGludXgv
+Y29uZmlnLmg+DQpAQCAtODcsMTAgKzg1LDEyIEBADQogI2RlZmluZSBWSUFf
+VURNQV8zMwkJMHgwMDENCiAjZGVmaW5lIFZJQV9VRE1BXzY2CQkweDAwMg0K
+ICNkZWZpbmUgVklBX1VETUFfMTAwCQkweDAwMw0KKyNkZWZpbmUgVklBX1VE
+TUFfMTMzCQkweDAwNA0KICNkZWZpbmUgVklBX0JBRF9QUkVRCQkweDAxMAkv
+KiBDcmFzaGVzIGlmIFBSRVEjIHRpbGwgRERBQ0sjIHNldCAqLw0KICNkZWZp
+bmUgVklBX0JBRF9DTEs2NgkJMHgwMjAJLyogNjYgTUh6IGNsb2NrIGRvZXNu
+J3Qgd29yayBjb3JyZWN0bHkgKi8NCiAjZGVmaW5lIFZJQV9TRVRfRklGTwkJ
+MHgwNDAJLyogTmVlZHMgdG8gaGF2ZSBGSUZPIHNwbGl0IHNldCAqLw0KICNk
+ZWZpbmUgVklBX05PX1VOTUFTSwkJMHgwODAJLyogRG9lc24ndCB3b3JrIHdp
+dGggSVJRIHVubWFza2luZyBvbiAqLw0KKyNkZWZpbmUgVklBX0JBRF9JRAkJ
+MHgxMDAJLyogSGFzIHdyb25nIHZlbmRvciBJRCAoMHgxMTA3KSAqLw0KIA0K
+IC8qDQogICogVklBIFNvdXRoQnJpZGdlIGNoaXBzLg0KQEAgLTEwNCwxMCAr
+MTA0LDExIEBADQogCXVuc2lnbmVkIHNob3J0IGZsYWdzOw0KIH0gdmlhX2lz
+YV9icmlkZ2VzW10gPSB7DQogI2lmZGVmIEZVVFVSRV9CUklER0VTDQotCXsg
+InZ0ODIzNyIsCVBDSV9ERVZJQ0VfSURfVklBXzgyMzcsICAgICAweDAwLCAw
+eDJmLCBWSUFfVURNQV8xMDAgfSwNCi0JeyAidnQ4MjM1IiwJUENJX0RFVklD
+RV9JRF9WSUFfODIzNSwgICAgIDB4MDAsIDB4MmYsIFZJQV9VRE1BXzEwMCB9
+LA0KLQl7ICJ2dDgyMzNjIiwJUENJX0RFVklDRV9JRF9WSUFfODIzM0MsICAg
+IDB4MDAsIDB4MmYsIFZJQV9VRE1BXzEwMCB9LA0KKwl7ICJ2dDgyMzciLAlQ
+Q0lfREVWSUNFX0lEX1ZJQV84MjM3LCAgICAgMHgwMCwgMHgyZiwgVklBX1VE
+TUFfMTMzIH0sDQorCXsgInZ0ODIzNSIsCVBDSV9ERVZJQ0VfSURfVklBXzgy
+MzUsICAgICAweDAwLCAweDJmLCBWSUFfVURNQV8xMzMgfSwNCiAjZW5kaWYN
+CisJeyAidnQ4MjMzYSIsCVBDSV9ERVZJQ0VfSURfVklBXzgyMzNBLCAgICAw
+eDAwLCAweDJmLCBWSUFfVURNQV8xMzMgfSwNCisJeyAidnQ4MjMzYyIsCVBD
+SV9ERVZJQ0VfSURfVklBXzgyMzNDXzAsICAweDAwLCAweDJmLCBWSUFfVURN
+QV8xMDAgfSwNCiAJeyAidnQ4MjMzIiwJUENJX0RFVklDRV9JRF9WSUFfODIz
+M18wLCAgIDB4MDAsIDB4MmYsIFZJQV9VRE1BXzEwMCB9LA0KIAl7ICJ2dDgy
+MzEiLAlQQ0lfREVWSUNFX0lEX1ZJQV84MjMxLCAgICAgMHgwMCwgMHgyZiwg
+VklBX1VETUFfMTAwIH0sDQogCXsgInZ0ODJjNjg2YiIsCVBDSV9ERVZJQ0Vf
+SURfVklBXzgyQzY4NiwgICAweDQwLCAweDRmLCBWSUFfVURNQV8xMDAgfSwN
+CkBAIC0xMjEsNiArMTIyLDcgQEANCiAJeyAidnQ4MmM1ODZhIiwJUENJX0RF
+VklDRV9JRF9WSUFfODJDNTg2XzAsIDB4MjAsIDB4MmYsIFZJQV9VRE1BXzMz
+IHwgVklBX1NFVF9GSUZPIH0sDQogCXsgInZ0ODJjNTg2IiwJUENJX0RFVklD
+RV9JRF9WSUFfODJDNTg2XzAsIDB4MDAsIDB4MGYsIFZJQV9VRE1BX05PTkUg
+fCBWSUFfU0VUX0ZJRk8gfSwNCiAJeyAidnQ4MmM1NzYiLAlQQ0lfREVWSUNF
+X0lEX1ZJQV84MkM1NzYsICAgMHgwMCwgMHgyZiwgVklBX1VETUFfTk9ORSB8
+IFZJQV9TRVRfRklGTyB8IFZJQV9OT19VTk1BU0sgfSwNCisJeyAidnQ4MmM1
+NzYiLAlQQ0lfREVWSUNFX0lEX1ZJQV84MkM1NzYsICAgMHgwMCwgMHgyZiwg
+VklBX1VETUFfTk9ORSB8IFZJQV9TRVRfRklGTyB8IFZJQV9OT19VTk1BU0sg
+fCBWSUFfQkFEX0lEIH0sDQogCXsgTlVMTCB9DQogfTsNCiANCkBAIC0xMjgs
+NyArMTMwLDcgQEANCiBzdGF0aWMgdW5zaWduZWQgY2hhciB2aWFfZW5hYmxl
+ZDsNCiBzdGF0aWMgdW5zaWduZWQgaW50IHZpYV84MHc7DQogc3RhdGljIHVu
+c2lnbmVkIGludCB2aWFfY2xvY2s7DQotc3RhdGljIGNoYXIgKnZpYV9kbWFb
+XSA9IHsgIk1XRE1BMTYiLCAiVURNQTMzIiwgIlVETUE2NiIsICJVRE1BMTAw
+IiB9Ow0KK3N0YXRpYyBjaGFyICp2aWFfZG1hW10gPSB7ICJNV0RNQTE2Iiwg
+IlVETUEzMyIsICJVRE1BNjYiLCAiVURNQTEwMCIsICJVRE1BMTMzIiB9Ow0K
+IA0KIC8qDQogICogVklBIC9wcm9jIGVudHJ5Lg0KQEAgLTE1MSw3ICsxNTMs
+NyBAQA0KIA0KIHN0YXRpYyBpbnQgdmlhX2dldF9pbmZvKGNoYXIgKmJ1ZmZl
+ciwgY2hhciAqKmFkZHIsIG9mZl90IG9mZnNldCwgaW50IGNvdW50KQ0KIHsN
+Ci0Jc2hvcnQgc3BlZWRbNF0sIGN5Y2xlWzRdLCBzZXR1cFs0XSwgYWN0aXZl
+WzRdLCByZWNvdmVyWzRdLCBkZW5bNF0sDQorCWludCBzcGVlZFs0XSwgY3lj
+bGVbNF0sIHNldHVwWzRdLCBhY3RpdmVbNF0sIHJlY292ZXJbNF0sIGRlbls0
+XSwNCiAJCSB1ZW5bNF0sIHVkbWFbNF0sIHVtdWxbNF0sIGFjdGl2ZThiWzRd
+LCByZWNvdmVyOGJbNF07DQogCXN0cnVjdCBwY2lfZGV2ICpkZXYgPSBibWlk
+ZV9kZXY7DQogCXVuc2lnbmVkIGludCB2LCB1LCBpOw0KQEAgLTE2MSw3ICsx
+NjMsNyBAQA0KIA0KIAl2aWFfcHJpbnQoIi0tLS0tLS0tLS1WSUEgQnVzTWFz
+dGVyaW5nIElERSBDb25maWd1cmF0aW9uLS0tLS0tLS0tLS0tLS0tLSIpOw0K
+IA0KLQl2aWFfcHJpbnQoIkRyaXZlciBWZXJzaW9uOiAgICAgICAgICAgICAg
+ICAgICAgIDMuMjkiKTsNCisJdmlhX3ByaW50KCJEcml2ZXIgVmVyc2lvbjog
+ICAgICAgICAgICAgICAgICAgICAzLjMzIik7DQogCXZpYV9wcmludCgiU291
+dGggQnJpZGdlOiAgICAgICAgICAgICAgICAgICAgICAgVklBICVzIiwgdmlh
+X2NvbmZpZy0+bmFtZSk7DQogDQogCXBjaV9yZWFkX2NvbmZpZ19ieXRlKGlz
+YV9kZXYsIFBDSV9SRVZJU0lPTl9JRCwgJnQpOw0KQEAgLTE3MCw3ICsxNzIs
+NyBAQA0KIAl2aWFfcHJpbnQoIkhpZ2hlc3QgRE1BIHJhdGU6ICAgICAgICAg
+ICAgICAgICAgICVzIiwgdmlhX2RtYVt2aWFfY29uZmlnLT5mbGFncyAmIFZJ
+QV9VRE1BXSk7DQogDQogCXZpYV9wcmludCgiQk0tRE1BIGJhc2U6ICAgICAg
+ICAgICAgICAgICAgICAgICAgJSN4IiwgdmlhX2Jhc2UpOw0KLQl2aWFfcHJp
+bnQoIlBDSSBjbG9jazogICAgICAgICAgICAgICAgICAgICAgICAgICVkTUh6
+IiwgdmlhX2Nsb2NrKTsNCisJdmlhX3ByaW50KCJQQ0kgY2xvY2s6ICAgICAg
+ICAgICAgICAgICAgICAgICAgICAlZC4lZE1IeiIsIHZpYV9jbG9jayAvIDEw
+MDAsIHZpYV9jbG9jayAvIDEwMCAlIDEwKTsNCiANCiAJcGNpX3JlYWRfY29u
+ZmlnX2J5dGUoZGV2LCBWSUFfTUlTQ18xLCAmdCk7DQogCXZpYV9wcmludCgi
+TWFzdGVyIFJlYWQgIEN5Y2xlIElSRFk6ICAgICAgICAgICAgJWR3cyIsICh0
+ICYgNjQpID4+IDYpOw0KQEAgLTIxOCw0MCArMjIwLDQ1IEBADQogCQl1ZW5b
+aV0gICAgICAgPSAoKHUgPj4gKCgzIC0gaSkgPDwgMykpICYgMHgyMCk7DQog
+CQlkZW5baV0gICAgICAgPSAoYyAmICgoaSAmIDEpID8gMHg0MCA6IDB4MjAp
+IDw8ICgoaSAmIDIpIDw8IDIpKTsNCiANCi0JCXNwZWVkW2ldID0gMjAgKiB2
+aWFfY2xvY2sgLyAoYWN0aXZlW2ldICsgcmVjb3ZlcltpXSk7DQotCQljeWNs
+ZVtpXSA9IDEwMDAgLyB2aWFfY2xvY2sgKiAoYWN0aXZlW2ldICsgcmVjb3Zl
+cltpXSk7DQorCQlzcGVlZFtpXSA9IDIgKiB2aWFfY2xvY2sgLyAoYWN0aXZl
+W2ldICsgcmVjb3ZlcltpXSk7DQorCQljeWNsZVtpXSA9IDEwMDAwMDAgKiAo
+YWN0aXZlW2ldICsgcmVjb3ZlcltpXSkgLyB2aWFfY2xvY2s7DQogDQogCQlp
+ZiAoIXVlbltpXSB8fCAhZGVuW2ldKQ0KIAkJCWNvbnRpbnVlOw0KIA0KIAkJ
+c3dpdGNoICh2aWFfY29uZmlnLT5mbGFncyAmIFZJQV9VRE1BKSB7DQotCQkJ
+DQotCQkJY2FzZSBWSUFfVURNQV8xMDA6DQotCQkJCXNwZWVkW2ldID0gNjAg
+KiB2aWFfY2xvY2sgLyB1ZG1hW2ldOw0KLQkJCQljeWNsZVtpXSA9IDMzMyAv
+IHZpYV9jbG9jayAqIHVkbWFbaV07DQorDQorCQkJY2FzZSBWSUFfVURNQV8z
+MzoNCisJCQkJc3BlZWRbaV0gPSAyICogdmlhX2Nsb2NrIC8gdWRtYVtpXTsN
+CisJCQkJY3ljbGVbaV0gPSAxMDAwMDAwICogdWRtYVtpXSAvIHZpYV9jbG9j
+azsNCiAJCQkJYnJlYWs7DQogDQogCQkJY2FzZSBWSUFfVURNQV82NjoNCi0J
+CQkJc3BlZWRbaV0gPSA0MCAqIHZpYV9jbG9jayAvICh1ZG1hW2ldICogdW11
+bFtpXSk7DQotCQkJCWN5Y2xlW2ldID0gNTAwIC8gdmlhX2Nsb2NrICogKHVk
+bWFbaV0gKiB1bXVsW2ldKTsNCisJCQkJc3BlZWRbaV0gPSA0ICogdmlhX2Ns
+b2NrIC8gKHVkbWFbaV0gKiB1bXVsW2ldKTsNCisJCQkJY3ljbGVbaV0gPSA1
+MDAwMDAgKiAodWRtYVtpXSAqIHVtdWxbaV0pIC8gdmlhX2Nsb2NrOw0KIAkJ
+CQlicmVhazsNCiANCi0JCQljYXNlIFZJQV9VRE1BXzMzOg0KLQkJCQlzcGVl
+ZFtpXSA9IDIwICogdmlhX2Nsb2NrIC8gdWRtYVtpXTsNCi0JCQkJY3ljbGVb
+aV0gPSAxMDAwIC8gdmlhX2Nsb2NrICogdWRtYVtpXTsNCisJCQljYXNlIFZJ
+QV9VRE1BXzEwMDoNCisJCQkJc3BlZWRbaV0gPSA2ICogdmlhX2Nsb2NrIC8g
+dWRtYVtpXTsNCisJCQkJY3ljbGVbaV0gPSAzMzMzMzMgKiB1ZG1hW2ldIC8g
+dmlhX2Nsb2NrOw0KKwkJCQlicmVhazsNCisNCisJCQljYXNlIFZJQV9VRE1B
+XzEzMzoNCisJCQkJc3BlZWRbaV0gPSA4ICogdmlhX2Nsb2NrIC8gdWRtYVtp
+XTsNCisJCQkJY3ljbGVbaV0gPSAyNTAwMDAgKiB1ZG1hW2ldIC8gdmlhX2Ns
+b2NrOw0KIAkJCQlicmVhazsNCiAJCX0NCiAJfQ0KIA0KIAl2aWFfcHJpbnRf
+ZHJpdmUoIlRyYW5zZmVyIE1vZGU6ICIsICIlMTBzIiwgZGVuW2ldID8gKHVl
+bltpXSA/ICJVRE1BIiA6ICJETUEiKSA6ICJQSU8iKTsNCiANCi0JdmlhX3By
+aW50X2RyaXZlKCJBZGRyZXNzIFNldHVwOiAiLCAiJThkbnMiLCAoMTAwMCAv
+IHZpYV9jbG9jaykgKiBzZXR1cFtpXSk7DQotCXZpYV9wcmludF9kcml2ZSgi
+Q21kIEFjdGl2ZTogICAgIiwgIiU4ZG5zIiwgKDEwMDAgLyB2aWFfY2xvY2sp
+ICogYWN0aXZlOGJbaV0pOw0KLQl2aWFfcHJpbnRfZHJpdmUoIkNtZCBSZWNv
+dmVyeTogICIsICIlOGRucyIsICgxMDAwIC8gdmlhX2Nsb2NrKSAqIHJlY292
+ZXI4YltpXSk7DQotCXZpYV9wcmludF9kcml2ZSgiRGF0YSBBY3RpdmU6ICAg
+IiwgIiU4ZG5zIiwgKDEwMDAgLyB2aWFfY2xvY2spICogYWN0aXZlW2ldKTsN
+Ci0JdmlhX3ByaW50X2RyaXZlKCJEYXRhIFJlY292ZXJ5OiAiLCAiJThkbnMi
+LCAoMTAwMCAvIHZpYV9jbG9jaykgKiByZWNvdmVyW2ldKTsNCisJdmlhX3By
+aW50X2RyaXZlKCJBZGRyZXNzIFNldHVwOiAiLCAiJThkbnMiLCAxMDAwMDAw
+ICogc2V0dXBbaV0gLyB2aWFfY2xvY2spOw0KKwl2aWFfcHJpbnRfZHJpdmUo
+IkNtZCBBY3RpdmU6ICAgICIsICIlOGRucyIsIDEwMDAwMDAgKiBhY3RpdmU4
+YltpXSAvIHZpYV9jbG9jayk7DQorCXZpYV9wcmludF9kcml2ZSgiQ21kIFJl
+Y292ZXJ5OiAgIiwgIiU4ZG5zIiwgMTAwMDAwMCAqIHJlY292ZXI4YltpXSAv
+IHZpYV9jbG9jayk7DQorCXZpYV9wcmludF9kcml2ZSgiRGF0YSBBY3RpdmU6
+ICAgIiwgIiU4ZG5zIiwgMTAwMDAwMCAqIGFjdGl2ZVtpXSAvIHZpYV9jbG9j
+ayk7DQorCXZpYV9wcmludF9kcml2ZSgiRGF0YSBSZWNvdmVyeTogIiwgIiU4
+ZG5zIiwgMTAwMDAwMCAqIHJlY292ZXJbaV0gLyB2aWFfY2xvY2spOw0KIAl2
+aWFfcHJpbnRfZHJpdmUoIkN5Y2xlIFRpbWU6ICAgICIsICIlOGRucyIsIGN5
+Y2xlW2ldKTsNCi0JdmlhX3ByaW50X2RyaXZlKCJUcmFuc2ZlciBSYXRlOiAi
+LCAiJTRkLiVkTUIvcyIsIHNwZWVkW2ldIC8gMTAsIHNwZWVkW2ldICUgMTAp
+Ow0KKwl2aWFfcHJpbnRfZHJpdmUoIlRyYW5zZmVyIFJhdGU6ICIsICIlNGQu
+JWRNQi9zIiwgc3BlZWRbaV0gLyAxMDAwLCBzcGVlZFtpXSAvIDEwMCAlIDEw
+KTsNCiANCiAJcmV0dXJuIHAgLSBidWZmZXI7CS8qIGhvcGluZyBpdCBpcyBs
+ZXNzIHRoYW4gNEsuLi4gKi8NCiB9DQpAQCAtMjgwLDYgKzI4Nyw3IEBADQog
+CQljYXNlIFZJQV9VRE1BXzMzOiAgdCA9IHRpbWluZy0+dWRtYSA/ICgweGUw
+IHwgKEZJVCh0aW1pbmctPnVkbWEsIDIsIDUpIC0gMikpIDogMHgwMzsgYnJl
+YWs7DQogCQljYXNlIFZJQV9VRE1BXzY2OiAgdCA9IHRpbWluZy0+dWRtYSA/
+ICgweGU4IHwgKEZJVCh0aW1pbmctPnVkbWEsIDIsIDkpIC0gMikpIDogMHgw
+ZjsgYnJlYWs7DQogCQljYXNlIFZJQV9VRE1BXzEwMDogdCA9IHRpbWluZy0+
+dWRtYSA/ICgweGUwIHwgKEZJVCh0aW1pbmctPnVkbWEsIDIsIDkpIC0gMikp
+IDogMHgwNzsgYnJlYWs7DQorCQljYXNlIFZJQV9VRE1BXzEzMzogdCA9IHRp
+bWluZy0+dWRtYSA/ICgweGUwIHwgKEZJVCh0aW1pbmctPnVkbWEsIDIsIDkp
+IC0gMikpIDogMHgwNzsgYnJlYWs7DQogCQlkZWZhdWx0OiByZXR1cm47DQog
+CX0NCiANCkBAIC0yOTYsMjAgKzMwNCwyMSBAQA0KIHsNCiAJaWRlX2RyaXZl
+X3QgKnBlZXIgPSBIV0lGKGRyaXZlKS0+ZHJpdmVzICsgKH5kcml2ZS0+ZG4g
+JiAxKTsNCiAJc3RydWN0IGlkZV90aW1pbmcgdCwgcDsNCi0JaW50IFQsIFVU
+Ow0KKwl1bnNpZ25lZCBpbnQgVCwgVVQ7DQogDQogCWlmIChzcGVlZCAhPSBY
+RkVSX1BJT19TTE9XICYmIHNwZWVkICE9IGRyaXZlLT5jdXJyZW50X3NwZWVk
+KQ0KIAkJaWYgKGlkZV9jb25maWdfZHJpdmVfc3BlZWQoZHJpdmUsIHNwZWVk
+KSkNCiAJCQlwcmludGsoS0VSTl9XQVJOSU5HICJpZGUlZDogRHJpdmUgJWQg
+ZGlkbid0IGFjY2VwdCBzcGVlZCBzZXR0aW5nLiBPaCwgd2VsbC5cbiIsDQog
+CQkJCWRyaXZlLT5kbiA+PiAxLCBkcml2ZS0+ZG4gJiAxKTsNCiANCi0JVCA9
+IDEwMDAgLyB2aWFfY2xvY2s7DQorCVQgPSAxMDAwMDAwMDAwIC8gdmlhX2Ns
+b2NrOw0KIA0KIAlzd2l0Y2ggKHZpYV9jb25maWctPmZsYWdzICYgVklBX1VE
+TUEpIHsNCiAJCWNhc2UgVklBX1VETUFfMzM6ICAgVVQgPSBUOyAgIGJyZWFr
+Ow0KIAkJY2FzZSBWSUFfVURNQV82NjogICBVVCA9IFQvMjsgYnJlYWs7DQog
+CQljYXNlIFZJQV9VRE1BXzEwMDogIFVUID0gVC8zOyBicmVhazsNCi0JCWRl
+ZmF1bHQ6CSAgICBVVCA9IFQ7ICAgYnJlYWs7DQorCQljYXNlIFZJQV9VRE1B
+XzEzMzogIFVUID0gVC80OyBicmVhazsNCisJCWRlZmF1bHQ6IFVUID0gVDsN
+CiAJfQ0KIA0KIAlpZGVfdGltaW5nX2NvbXB1dGUoZHJpdmUsIHNwZWVkLCAm
+dCwgVCwgVVQpOw0KQEAgLTM2NSw3ICszNzQsOCBAQA0KIAkJCVhGRVJfUElP
+IHwgWEZFUl9FUElPIHwgWEZFUl9TV0RNQSB8IFhGRVJfTVdETUEgfA0KIAkJ
+CSh2aWFfY29uZmlnLT5mbGFncyAmIFZJQV9VRE1BID8gWEZFUl9VRE1BIDog
+MCkgfA0KIAkJCSh3ODAgJiYgKHZpYV9jb25maWctPmZsYWdzICYgVklBX1VE
+TUEpID49IFZJQV9VRE1BXzY2ID8gWEZFUl9VRE1BXzY2IDogMCkgfA0KLQkJ
+CSh3ODAgJiYgKHZpYV9jb25maWctPmZsYWdzICYgVklBX1VETUEpID49IFZJ
+QV9VRE1BXzEwMCA/IFhGRVJfVURNQV8xMDAgOiAwKSk7DQorCQkJKHc4MCAm
+JiAodmlhX2NvbmZpZy0+ZmxhZ3MgJiBWSUFfVURNQSkgPj0gVklBX1VETUFf
+MTAwID8gWEZFUl9VRE1BXzEwMCA6IDApIHwNCisJCQkodzgwICYmICh2aWFf
+Y29uZmlnLT5mbGFncyAmIFZJQV9VRE1BKSA+PSBWSUFfVURNQV8xMzMgPyBY
+RkVSX1VETUFfMTMzIDogMCkpOw0KIA0KIAkJdmlhX3NldF9kcml2ZShkcml2
+ZSwgc3BlZWQpOw0KIA0KQEAgLTM5NSwxNCArNDA1LDE2IEBADQogICovDQog
+DQogCWZvciAodmlhX2NvbmZpZyA9IHZpYV9pc2FfYnJpZGdlczsgdmlhX2Nv
+bmZpZy0+aWQ7IHZpYV9jb25maWcrKykNCi0JCWlmICgoaXNhID0gcGNpX2Zp
+bmRfZGV2aWNlKFBDSV9WRU5ET1JfSURfVklBLCB2aWFfY29uZmlnLT5pZCwg
+TlVMTCkpKSB7DQorCQlpZiAoKGlzYSA9IHBjaV9maW5kX2RldmljZShQQ0lf
+VkVORE9SX0lEX1ZJQSArDQorCQkJISEodmlhX2NvbmZpZy0+ZmxhZ3MgJiBW
+SUFfQkFEX0lEKSwgdmlhX2NvbmZpZy0+aWQsIE5VTEwpKSkgew0KKw0KIAkJ
+CXBjaV9yZWFkX2NvbmZpZ19ieXRlKGlzYSwgUENJX1JFVklTSU9OX0lELCAm
+dCk7DQogCQkJaWYgKHQgPj0gdmlhX2NvbmZpZy0+cmV2X21pbiAmJiB0IDw9
+IHZpYV9jb25maWctPnJldl9tYXgpDQogCQkJCWJyZWFrOw0KIAkJfQ0KIA0K
+IAlpZiAoIXZpYV9jb25maWctPmlkKSB7DQotCQlwcmludGsoS0VSTl9XQVJO
+SU5HICJWUF9JREU6IFVua25vd24gVklBIFNvdXRoQnJpZGdlLCBjb250YWN0
+IFZvanRlY2ggUGF2bGlrIDx2b2p0ZWNoQHN1c2UuY3o+XG4iKTsNCisJCXBy
+aW50ayhLRVJOX1dBUk5JTkcgIlZQX0lERTogVW5rbm93biBWSUEgU291dGhC
+cmlkZ2UsIGNvbnRhY3QgVm9qdGVjaCBQYXZsaWsgPHZvanRlY2hAdWN3LmN6
+PlxuIik7DQogCQlyZXR1cm4gLUVOT0RFVjsNCiAJfQ0KIA0KQEAgLTQxMiwy
+MiArNDI0LDI4IEBADQogDQogCXN3aXRjaCAodmlhX2NvbmZpZy0+ZmxhZ3Mg
+JiBWSUFfVURNQSkgew0KIA0KLQkJY2FzZSBWSUFfVURNQV8xMDA6DQotDQot
+CQkJcGNpX3JlYWRfY29uZmlnX2R3b3JkKGRldiwgVklBX1VETUFfVElNSU5H
+LCAmdSk7DQotCQkJZm9yIChpID0gMjQ7IGkgPj0gMDsgaSAtPSA4KQ0KLQkJ
+CQlpZiAoKCh1ID4+IGkpICYgMHgxMCkgfHwgKCgodSA+PiBpKSAmIDB4MjAp
+ICYmICgoKHUgPj4gaSkgJiA3KSA8IDMpKSkNCi0JCQkJCXZpYV84MHcgfD0g
+KDEgPDwgKDEgLSAoaSA+PiA0KSkpOwkvKiBCSU9TIDgwLXdpcmUgYml0IG9y
+IFVETUEgdy8gPCA1MG5zL2N5Y2xlICovDQotCQkJYnJlYWs7DQotDQogCQlj
+YXNlIFZJQV9VRE1BXzY2Og0KLQ0KIAkJCXBjaV9yZWFkX2NvbmZpZ19kd29y
+ZChkZXYsIFZJQV9VRE1BX1RJTUlORywgJnUpOwkvKiBFbmFibGUgQ2xrNjYg
+Ki8NCiAJCQlwY2lfd3JpdGVfY29uZmlnX2R3b3JkKGRldiwgVklBX1VETUFf
+VElNSU5HLCB1IHwgMHg4MDAwOCk7DQogCQkJZm9yIChpID0gMjQ7IGkgPj0g
+MDsgaSAtPSA4KQ0KIAkJCQlpZiAoKCh1ID4+IChpICYgMTYpKSAmIDgpICYm
+ICgodSA+PiBpKSAmIDB4MjApICYmICgoKHUgPj4gaSkgJiA3KSA8IDIpKQ0K
+IAkJCQkJdmlhXzgwdyB8PSAoMSA8PCAoMSAtIChpID4+IDQpKSk7CS8qIDJ4
+IFBDSSBjbG9jayBhbmQgVURNQSB3LyA8IDNUL2N5Y2xlICovDQogCQkJYnJl
+YWs7DQorDQorCQljYXNlIFZJQV9VRE1BXzEwMDoNCisJCQlwY2lfcmVhZF9j
+b25maWdfZHdvcmQoZGV2LCBWSUFfVURNQV9USU1JTkcsICZ1KTsNCisJCQlm
+b3IgKGkgPSAyNDsgaSA+PSAwOyBpIC09IDgpDQorCQkJCWlmICgoKHUgPj4g
+aSkgJiAweDEwKSB8fCAoKCh1ID4+IGkpICYgMHgyMCkgJiYgKCgodSA+PiBp
+KSAmIDcpIDwgNCkpKQ0KKwkJCQkJdmlhXzgwdyB8PSAoMSA8PCAoMSAtIChp
+ID4+IDQpKSk7CS8qIEJJT1MgODAtd2lyZSBiaXQgb3IgVURNQSB3LyA8IDYw
+bnMvY3ljbGUgKi8NCisJCQlicmVhazsNCisNCisJCWNhc2UgVklBX1VETUFf
+MTMzOg0KKwkJCXBjaV9yZWFkX2NvbmZpZ19kd29yZChkZXYsIFZJQV9VRE1B
+X1RJTUlORywgJnUpOw0KKwkJCWZvciAoaSA9IDI0OyBpID49IDA7IGkgLT0g
+OCkNCisJCQkJaWYgKCgodSA+PiBpKSAmIDB4MTApIHx8ICgoKHUgPj4gaSkg
+JiAweDIwKSAmJiAoKCh1ID4+IGkpICYgNykgPCA4KSkpDQorCQkJCQl2aWFf
+ODB3IHw9ICgxIDw8ICgxIC0gKGkgPj4gNCkpKTsJLyogQklPUyA4MC13aXJl
+IGJpdCBvciBVRE1BIHcvIDwgNjBucy9jeWNsZSAqLw0KKwkJCWJyZWFrOw0K
+Kw0KIAl9DQogDQogCWlmICh2aWFfY29uZmlnLT5mbGFncyAmIFZJQV9CQURf
+Q0xLNjYpIHsJCQkvKiBEaXNhYmxlIENsazY2ICovDQpAQCAtNDY2LDEwICs0
+ODQsMTcgQEANCiAgKiBEZXRlcm1pbmUgc3lzdGVtIGJ1cyBjbG9jay4NCiAg
+Ki8NCiANCi0JdmlhX2Nsb2NrID0gc3lzdGVtX2J1c19jbG9jaygpOw0KLQlp
+ZiAodmlhX2Nsb2NrIDwgMjAgfHwgdmlhX2Nsb2NrID4gNTApIHsNCisJdmlh
+X2Nsb2NrID0gc3lzdGVtX2J1c19jbG9jaygpICogMTAwMDsNCisNCisJc3dp
+dGNoICh2aWFfY2xvY2spIHsNCisJCWNhc2UgMzMwMDA6IHZpYV9jbG9jayA9
+IDMzMzMzOyBicmVhazsNCisJCWNhc2UgMzcwMDA6IHZpYV9jbG9jayA9IDM3
+NTAwOyBicmVhazsNCisJCWNhc2UgNDEwMDA6IHZpYV9jbG9jayA9IDQxNjY2
+OyBicmVhazsNCisJfQ0KKw0KKwlpZiAodmlhX2Nsb2NrIDwgMjAwMDAgfHwg
+dmlhX2Nsb2NrID4gNTAwMDApIHsNCiAJCXByaW50ayhLRVJOX1dBUk5JTkcg
+IlZQX0lERTogVXNlciBnaXZlbiBQQ0kgY2xvY2sgc3BlZWQgaW1wb3NzaWJs
+ZSAoJWQpLCB1c2luZyAzMyBNSHogaW5zdGVhZC5cbiIsIHZpYV9jbG9jayk7
+DQotCQlwcmludGsoS0VSTl9XQVJOSU5HICJWUF9JREU6IFVzZSBpZGUwPWF0
+YTY2IGlmIHlvdSB3YW50IHRvIGZvcmNlIFVETUE2Ni9VRE1BMTAwLlxuIik7
+DQorCQlwcmludGsoS0VSTl9XQVJOSU5HICJWUF9JREU6IFVzZSBpZGUwPWF0
+YTY2IGlmIHlvdSB3YW50IHRvIGFzc3VtZSA4MC13aXJlIGNhYmxlLlxuIik7
+DQogCQl2aWFfY2xvY2sgPSAzMzsNCiAJfQ0KIA0KZGlmZiAtdXJOIGxpbnV4
+L2luY2x1ZGUvbGludXgvcGNpX2lkcy5oIGxpbnV4LXZpYS9pbmNsdWRlL2xp
+bnV4L3BjaV9pZHMuaA0KLS0tIGxpbnV4L2luY2x1ZGUvbGludXgvcGNpX2lk
+cy5oCVNhdCBEZWMgIDggMDE6MjY6MTMgMjAwMQ0KKysrIGxpbnV4LXZpYS9p
+bmNsdWRlL2xpbnV4L3BjaV9pZHMuaAlNb24gRGVjIDI0IDAwOjExOjE1IDIw
+MDENCkBAIC05NDYsMTEgKzk0NiwxMiBAQA0KICNkZWZpbmUgUENJX0RFVklD
+RV9JRF9WSUFfODIzM183CTB4MzA2NQ0KICNkZWZpbmUgUENJX0RFVklDRV9J
+RF9WSUFfODJDNjg2XzYJMHgzMDY4DQogI2RlZmluZSBQQ0lfREVWSUNFX0lE
+X1ZJQV84MjMzXzAJMHgzMDc0DQotI2RlZmluZSBQQ0lfREVWSUNFX0lEX1ZJ
+QV84NjIyICAgICAgICAgIDB4MzEwMiANCi0jZGVmaW5lIFBDSV9ERVZJQ0Vf
+SURfVklBXzgyMzNDXzAJMHgzMTA5DQotI2RlZmluZSBQQ0lfREVWSUNFX0lE
+X1ZJQV84MzYxICAgICAgICAgIDB4MzExMiANCiAjZGVmaW5lIFBDSV9ERVZJ
+Q0VfSURfVklBXzg2MzNfMAkweDMwOTENCiAjZGVmaW5lIFBDSV9ERVZJQ0Vf
+SURfVklBXzgzNjdfMAkweDMwOTkgDQorI2RlZmluZSBQQ0lfREVWSUNFX0lE
+X1ZJQV84NjIyCQkweDMxMDIgDQorI2RlZmluZSBQQ0lfREVWSUNFX0lEX1ZJ
+QV84MjMzQ18wCTB4MzEwOQ0KKyNkZWZpbmUgUENJX0RFVklDRV9JRF9WSUFf
+ODM2MQkJMHgzMTEyIA0KKyNkZWZpbmUgUENJX0RFVklDRV9JRF9WSUFfODIz
+M0EJCTB4MzE0Nw0KICNkZWZpbmUgUENJX0RFVklDRV9JRF9WSUFfODZDMTAw
+QQkweDYxMDANCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURfVklBXzgyMzEJCTB4
+ODIzMQ0KICNkZWZpbmUgUENJX0RFVklDRV9JRF9WSUFfODIzMV80CTB4ODIz
+NQ0KQEAgLTk2MCw3ICs5NjEsNyBAQA0KICNkZWZpbmUgUENJX0RFVklDRV9J
+RF9WSUFfODJDNTk3XzEJMHg4NTk3DQogI2RlZmluZSBQQ0lfREVWSUNFX0lE
+X1ZJQV84MkM1OThfMQkweDg1OTgNCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURf
+VklBXzg2MDFfMQkweDg2MDENCi0jZGVmaW5lIFBDSV9ERVZJQ0VfSURfVklB
+Xzg1MDVfMQkwWDg2MDUNCisjZGVmaW5lIFBDSV9ERVZJQ0VfSURfVklBXzg1
+MDVfMQkweDg2MDUNCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURfVklBXzg2MzNf
+MQkweEIwOTENCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURfVklBXzgzNjdfMQkw
+eEIwOTkNCiANCg==
+--1430322656-710942142-1017610623=:10681
+Content-Type: text/plain; charset=us-ascii; name="via-3.34.diff"
+Content-Transfer-Encoding: base64
+Content-ID: <Pine.LNX.4.10.10203311337031.10681@master.linux-ide.org>
+Content-Description: 
+Content-Disposition: attachment; filename="via-3.34.diff"
+
+ZGlmZiAtdXJOIGxpbnV4LTIuNS41L2RyaXZlcnMvaWRlL3ZpYTgyY3h4eC5j
+IGxpbnV4LTIuNS41LXZpYS9kcml2ZXJzL2lkZS92aWE4MmN4eHguYw0KLS0t
+IGxpbnV4LTIuNS41L2RyaXZlcnMvaWRlL3ZpYTgyY3h4eC5jCU1vbiBNYXIg
+MTEgMDg6NDY6MjIgMjAwMg0KKysrIGxpbnV4LTIuNS41LXZpYS9kcml2ZXJz
+L2lkZS92aWE4MmN4eHguYwlNb24gTWFyIDExIDA5OjA0OjE3IDIwMDINCkBA
+IC0xLDUgKzEsNSBAQA0KIC8qDQotICogJElkOiB2aWE4MmN4eHguYyx2IDMu
+MzMgMjAwMS8xMi8yMyAyMjo0NjoxMiB2b2p0ZWNoIEV4cCAkDQorICogJElk
+OiB2aWE4MmN4eHguYyx2IDMuMzQgMjAwMi8wMi8xMiAxMToyNjoxMSB2b2p0
+ZWNoIEV4cCAkDQogICoNCiAgKiAgQ29weXJpZ2h0IChjKSAyMDAwLTIwMDEg
+Vm9qdGVjaCBQYXZsaWsNCiAgKg0KQEAgLTE2Myw3ICsxNjMsNyBAQA0KIA0K
+IAl2aWFfcHJpbnQoIi0tLS0tLS0tLS1WSUEgQnVzTWFzdGVyaW5nIElERSBD
+b25maWd1cmF0aW9uLS0tLS0tLS0tLS0tLS0tLSIpOw0KIA0KLQl2aWFfcHJp
+bnQoIkRyaXZlciBWZXJzaW9uOiAgICAgICAgICAgICAgICAgICAgIDMuMzMi
+KTsNCisJdmlhX3ByaW50KCJEcml2ZXIgVmVyc2lvbjogICAgICAgICAgICAg
+ICAgICAgICAzLjM0Iik7DQogCXZpYV9wcmludCgiU291dGggQnJpZGdlOiAg
+ICAgICAgICAgICAgICAgICAgICAgVklBICVzIiwgdmlhX2NvbmZpZy0+bmFt
+ZSk7DQogDQogCXBjaV9yZWFkX2NvbmZpZ19ieXRlKGlzYV9kZXYsIFBDSV9S
+RVZJU0lPTl9JRCwgJnQpOw0KQEAgLTQ5NSw3ICs0OTUsNyBAQA0KIAlpZiAo
+dmlhX2Nsb2NrIDwgMjAwMDAgfHwgdmlhX2Nsb2NrID4gNTAwMDApIHsNCiAJ
+CXByaW50ayhLRVJOX1dBUk5JTkcgIlZQX0lERTogVXNlciBnaXZlbiBQQ0kg
+Y2xvY2sgc3BlZWQgaW1wb3NzaWJsZSAoJWQpLCB1c2luZyAzMyBNSHogaW5z
+dGVhZC5cbiIsIHZpYV9jbG9jayk7DQogCQlwcmludGsoS0VSTl9XQVJOSU5H
+ICJWUF9JREU6IFVzZSBpZGUwPWF0YTY2IGlmIHlvdSB3YW50IHRvIGFzc3Vt
+ZSA4MC13aXJlIGNhYmxlLlxuIik7DQotCQl2aWFfY2xvY2sgPSAzMzsNCisJ
+CXZpYV9jbG9jayA9IDMzMzMzOw0KIAl9DQogDQogLyoNCg==
+--1430322656-710942142-1017610623=:10681--

@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269861AbRHDV47>; Sat, 4 Aug 2001 17:56:59 -0400
+	id <S269868AbRHDW21>; Sat, 4 Aug 2001 18:28:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269868AbRHDV4u>; Sat, 4 Aug 2001 17:56:50 -0400
-Received: from p061.as-l031.contactel.cz ([212.65.234.253]:12804 "EHLO
-	p061.as-l031.contactel.cz") by vger.kernel.org with ESMTP
-	id <S269861AbRHDV4o>; Sat, 4 Aug 2001 17:56:44 -0400
-Date: Sat, 4 Aug 2001 23:56:27 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: alan@lxorguk.ukuu.org.uk
-Cc: linux-kernel@vger.kernel.org, viro@math.psu.edu
-Subject: [PATCH] 2.4.7-ac4/ac5 dies due to double unlock
-Message-ID: <20010804235627.C11632@ppc.vc.cvut.cz>
+	id <S269870AbRHDW2S>; Sat, 4 Aug 2001 18:28:18 -0400
+Received: from dnai-216-15-62-124.cust.dnai.com ([216.15.62.124]:20172 "HELO
+	soni.ppetru.net") by vger.kernel.org with SMTP id <S269868AbRHDW2L>;
+	Sat, 4 Aug 2001 18:28:11 -0400
+Date: Sat, 4 Aug 2001 15:27:15 -0700
+To: linux-kernel@vger.kernel.org
+Subject: Megaraid trouble in 2.4.8-pre and 2.4.7-ac
+Message-ID: <20010804152714.C466@ppetru.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.3.20i
+From: ppetru@ppetru.net (Petru Paler)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
-  double-unlock on sb_lock in try_to_sync_unused inodes when 
-try_to_sync_unused_list() returns 0... It is reliably
-triggered by xmms loading mp3 tags from vfat...
+Hi,
 
-  Originally from 2.4.7-ac4, but still unfixed in -ac5.
-					Thanks,
-						Petr Vandrovec
-						vandrove@vc.cvut.cz
+I get this:
 
-diff -urdN linux/fs/inode.c linux/fs/inode.c
---- linux/fs/inode.c	Sat Aug  4 00:02:18 2001
-+++ linux/fs/inode.c	Sat Aug  4 17:37:50 2001
-@@ -412,7 +412,7 @@
- 			continue;
- 		spin_unlock(&sb_lock);
- 		if (!try_to_sync_unused_list(&sb->s_dirty))
--			break;
-+			return;
- 		spin_lock(&sb_lock);
- 	}
- 	spin_unlock(&sb_lock);
+megaraid: v1.17a (Release Date: Fri Jul 13 18:44:01 EDT 2001)
+PCI: Found IRQ 5 for device 01:02.0
+megaraid: found 0x101e:0x1960:idx 0:bus 1:slot 2:func 0
+scsi0 : Found a MegaRAID controller at 0xf8802000, IRQ: 5
+scsi0 : Enabling 64 bit support
+megaraid: [l148:3.11] detected 1 logical drives
+megaraid: channel[1] is raid.
+scsi0 : AMI MegaRAID l148 254 commands 16 targs 1 chans 40 luns
+scsi0: scanning channel 1 for devices.
+scsi0: scanning virtual channel for logical drives.
+  Vendor: MegaRAID  Model: LD0 RAID5 35254R  Rev: l148
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+Attached scsi disk sda at scsi0, channel 1, id 0, lun 0
+Partition check:
+ sda:scsi : aborting command due to timeout : pid 0, scsi0, channel 1, id 0, lun 0 Read (10) 00 00 00 00 00 00 00 02 00
 
+when trying to boot 2.4.8-pre4 or 2.4.7-ac5, then the machine hangs.
+2.4.7 works fine.
 
+Any ideeas?
 
+Petru

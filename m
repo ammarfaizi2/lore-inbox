@@ -1,53 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317363AbSHMFFx>; Tue, 13 Aug 2002 01:05:53 -0400
+	id <S317365AbSHMFRL>; Tue, 13 Aug 2002 01:17:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317365AbSHMFFx>; Tue, 13 Aug 2002 01:05:53 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:40878 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S317363AbSHMFFx>;
-	Tue, 13 Aug 2002 01:05:53 -0400
-Date: Tue, 13 Aug 2002 15:09:29 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org, matthew@wil.cx, michael.kerrisk@gmx.net
-Subject: Re: [PATCH] [2.4.20-pre2] File lease fixes
-Message-Id: <20020813150929.2770f9d4.sfr@canb.auug.org.au>
-In-Reply-To: <Pine.LNX.4.44.0208122346260.3620-100000@freak.distro.conectiva>
-References: <20020813111012.2ea19232.sfr@canb.auug.org.au>
-	<Pine.LNX.4.44.0208122346260.3620-100000@freak.distro.conectiva>
-X-Mailer: Sylpheed version 0.8.1 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S317371AbSHMFRL>; Tue, 13 Aug 2002 01:17:11 -0400
+Received: from dp.samba.org ([66.70.73.150]:3546 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S317365AbSHMFRK>;
+	Tue, 13 Aug 2002 01:17:10 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [TRIVIAL] [patch, 2.4] drivers_sound_ad1848.c doesn't release region on error 
+In-reply-to: Your message of "12 Aug 2002 11:14:18 +0100."
+             <1029147258.16421.123.camel@irongate.swansea.linux.org.uk> 
+Date: Tue, 13 Aug 2002 15:01:12 +1000
+Message-Id: <20020813002128.9959C2C150@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
-
-On Mon, 12 Aug 2002 23:47:03 -0300 (BRT) Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
->
-> On Tue, 13 Aug 2002, Stephen Rothwell wrote:
+In message <1029147258.16421.123.camel@irongate.swansea.linux.org.uk> you write
+:
+> On Mon, 2002-08-12 at 04:35, Rusty Russell wrote:
+> > [ Simple, and looks trivially correct from reading file. ]
+> > From:  Marcus Alanen <maalanen@ra.abo.fi>
+> >   
+> >   Doesn't check request_region and doesn't release region on failed 
+> >   kmalloc.
 > 
-> >  static inline int get_lease(struct inode *inode, unsigned int mode)
-> >  {
-> > -	if (inode->i_flock && (inode->i_flock->fl_flags & FL_LEASE))
-> > +	if (inode->i_flock)
-> >  		return __get_lease(inode, mode);
-> >  	return 0;
-> >  }
-> 
-> Why do you remove the FL_LEASE check here?
+> I don't have hardware to test this, so on the basis its not tested I'd
+> say no until someone with the hardware tests it. 
 
-Because there is a race between checking inode->i_flock and
-inode->i_flock->fl_flags which a couple of people have actually
-hit ... The check for FL_EASE is done again in __get_lease
-but protected by the BKL.
+Can someone with an ad1848 please test this trivial patch?  Preferably
+test that loading the module the second time works fine?
 
-This is just an optimisation and having the check here is only
-faster in the case where there is a lock held that is NOT a lease.
+Thanks!
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
 
-This was the race fix provided by Willy.
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+===== drivers/sound/ad1848.c 1.8 vs edited =====
+--- 1.8/drivers/sound/ad1848.c	Fri May 10 01:40:52 2002
++++ edited/drivers/sound/ad1848.c	Sun Jul 14 18:21:20 2002
+@@ -1997,7 +1997,8 @@
+ 		sprintf(dev_name,
+ 			"Generic audio codec (%s)", devc->chip_name);
+ 
+-	request_region(devc->base, 4, devc->name);
++	if (!request_region(devc->base, 4, devc->name))
++		return -1;
+ 
+ 	conf_printf2(dev_name, devc->base, devc->irq, dma_playback, dma_capture);
+ 
+@@ -2013,8 +2014,10 @@
+ 	}
+ 
+ 	portc = (ad1848_port_info *) kmalloc(sizeof(ad1848_port_info), GFP_KERNEL);
+-	if(portc==NULL)
++	if(portc==NULL) {
++		release_region(devc->base, 4);
+ 		return -1;
++	}
+ 
+ 	if ((my_dev = sound_install_audiodrv(AUDIO_DRIVER_VERSION,
+ 					     dev_name,
+@@ -2026,8 +2029,8 @@
+ 					     dma_playback,
+ 					     dma_capture)) < 0)
+ 	{
++		release_region(devc->base, 4);
+ 		kfree(portc);
+-		portc=NULL;
+ 		return -1;
+ 	}
+ 	
+
+

@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262620AbSKYIBv>; Mon, 25 Nov 2002 03:01:51 -0500
+	id <S262631AbSKYIGM>; Mon, 25 Nov 2002 03:06:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262631AbSKYIBv>; Mon, 25 Nov 2002 03:01:51 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:60681 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S262620AbSKYIBu>; Mon, 25 Nov 2002 03:01:50 -0500
-Message-ID: <3DE1DAB3.A3508E9C@aitel.hist.no>
-Date: Mon, 25 Nov 2002 09:09:23 +0100
-From: Helge Hafting <helgehaf@aitel.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.47 i686)
-X-Accept-Language: no, en, en
+	id <S262646AbSKYIGM>; Mon, 25 Nov 2002 03:06:12 -0500
+Received: from modemcable017.51-203-24.mtl.mc.videotron.ca ([24.203.51.17]:17309
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S262631AbSKYIGL>; Mon, 25 Nov 2002 03:06:11 -0500
+Date: Mon, 25 Nov 2002 03:16:57 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: "Murray J. Root" <murrayr@brain.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: keyboard and mouse lost in X
+In-Reply-To: <20021125073110.GC1628@Master.Wizards>
+Message-ID: <Pine.LNX.4.50.0211250316320.1462-100000@montezuma.mastecende.com>
+References: <20021125070418.GB1628@Master.Wizards>
+ <Pine.LNX.4.50.0211250217110.1462-100000@montezuma.mastecende.com>
+ <20021125073110.GC1628@Master.Wizards>
 MIME-Version: 1.0
-To: "Milton D. Miller II" <miltonm@realtime.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.48-bk4 still impossible to mount root.
-References: <200211222115.gAMLFJe68953@sullivan.realtime.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Milton D. Miller II" wrote:
-> 
-> Maybe this patch has some merit?
-> 
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0211.2/0495.html
-> The patch perports to fix the case where getdirents on a directory takes
-> more than 512 bytes for the result.
+On Mon, 25 Nov 2002, Murray J. Root wrote:
 
-Maybe, but the patch claims to fix initrd problems, and I'm
-not using an initrd yet.  I'll mount root directly as
-long as the kernel supports it.
-Thanks anyway, it might be worth a try.
+> On Mon, Nov 25, 2002 at 02:20:55AM -0500, Zwane Mwaikambo wrote:
+> > On Mon, 25 Nov 2002, Murray J. Root wrote:
+> >
+> > > Mandrake's 2.4.20-0.3mdk kernel doesn't have this problem, and it is
+> > > based on 2.4.20-rc2. So - where would I start looking for the possible
+> > > differences that could be causing it in the 2.4.20-rc2/rc3? Mandrake
+> > > adds too many patches for me to just shoot in the dark.
+> >
+> > Try and backtrack from a working kernel till you find a kernel which
+> > doesn't work. Then you can check the diff between the non working and the
+> > last working kernel
+> >
+>
+> 2.4.20-pre8 is the last working one - and the diffs are huge. I was
+> hoping for a pointer to a module to look at - the whole thing is a bit
+> large.
 
-Helge Hafting
+What kind of keyboard/mouse?
+
+-- 
+function.linuxpower.ca

@@ -1,58 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261916AbTJXArv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 20:47:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbTJXArv
+	id S261928AbTJXBTh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 21:19:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbTJXBTh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 20:47:51 -0400
-Received: from wombat.indigo.net.au ([202.0.185.19]:4870 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S261916AbTJXArt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 20:47:49 -0400
-Date: Fri, 24 Oct 2003 08:47:57 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-X-X-Sender: <raven@wombat.indigo.net.au>
-To: Mike Waychison <Michael.Waychison@Sun.COM>
-cc: Ingo Oeser <ioe-lkml@rameria.de>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [NFS] RE: [autofs] multiple servers per automount
-In-Reply-To: <3F980949.1040201@sun.com>
-Message-ID: <Pine.LNX.4.33.0310240839090.14084-100000@wombat.indigo.net.au>
+	Thu, 23 Oct 2003 21:19:37 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48828 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261928AbTJXBTf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 21:19:35 -0400
+Message-ID: <3F987E18.9080606@pobox.com>
+Date: Thu, 23 Oct 2003 21:19:20 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Jon Smirl <jonsmirl@yahoo.com>, Eric Anholt <eta@lclark.edu>,
+       kronos@kronoz.cjb.net,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-fbdev-devel@lists.sourceforge.net,
+       dri-devel <dri-devel@lists.sourceforge.net>
+Subject: Re: [Dri-devel] Re: [Linux-fbdev-devel] DRM and pci_driver conversion
+References: <Pine.LNX.4.44.0310231541000.3421-100000@home.osdl.org>
+In-Reply-To: <Pine.LNX.4.44.0310231541000.3421-100000@home.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Thanks for the description.
-
-I thought it was bad to call a function that could block while
-holding a lock. At least I was close to right this time.
-
-I wasn't aware of the badness I'll see what I can find.
-
-On Thu, 23 Oct 2003, Mike Waychison wrote:
-
->
-> Ingo's patch simply moved the allocation outside the spinlock..  See my
-> later patch about moving the allocation to and __init section, which is
-> probably the cleaner thing to do and doesn't require grabbing the page
-> and using it conditionally.
->
-
-Missed that when I returned to it. Found it now.
-
-That is clearly a better way to do it.
-
-I there any chance this would be accepted into 2.6.0?
-
-I think it's quite important, hopefully others do as well.
+Linus Torvalds wrote:
+> [ Jeff: is that PCI ROM enable _really_ that complicated? Ouch. Or is
+>   there some helper function I missed? ]
 
 
--- 
+The mechanics aren't complicated, but I seem to recall there being a 
+Real Good Reason why you want to leave it disabled 99% of the time.  No, 
+I don't recall that reason :(  But my fuzzy memory seems to think that 
+"enable, grab a slice o 'rom, disable" was viable.
 
-   ,-._|\    Ian Kent
-  /      \   Perth, Western Australia
-  *_.--._/   E-mail: raven@themaw.net
-        v    Web: http://themaw.net/
+	Jeff
+
+
 

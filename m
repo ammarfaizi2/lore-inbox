@@ -1,85 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262427AbUKDVmx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262437AbUKDVoY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262427AbUKDVmx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 16:42:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262437AbUKDVmx
+	id S262437AbUKDVoY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 16:44:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262443AbUKDVoX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 16:42:53 -0500
-Received: from ns1.vbchosting.be ([62.213.193.67]:42193 "HELO vbc.be")
-	by vger.kernel.org with SMTP id S262427AbUKDVmr (ORCPT
+	Thu, 4 Nov 2004 16:44:23 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:10169 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262437AbUKDVn4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 16:42:47 -0500
-Message-ID: <2169.81.83.13.5.1099605723.squirrel@www.vbchosting.be>
-Date: Thu, 4 Nov 2004 23:02:03 +0100 (CET)
-Subject: HPT372 (on Lanparty pro875) on 2.6.8/9 not working
-From: p1234@p1.be
-To: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.1
-MIME-Version: 1.0
-Content-Type: text/plain;charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-Importance: Normal
+	Thu, 4 Nov 2004 16:43:56 -0500
+Date: Thu, 4 Nov 2004 13:44:14 -0800
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, cohuck@de.ibm.com
+Subject: Re: kernel BUG at fs/sysfs/dir.c:20!
+Message-ID: <20041104214414.GA2555@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <20041104205238.GA11885@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041104205238.GA11885@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a few lanparty pro875 mb's.
-They have the highpoint 372 hardware raid controller on board (bios
-says HPT370/372 v2.345).
-Each time two IDE harddisk connected (one as master on each channel),
-configured as mirror.
-I have one running on Linux RedHat 9 with the driver downloaded
-from the highpoint website.  Works splendid, shows up as /dev/sda.
-Recently I installed Fedore Core 2 (2.6.5-1.358 stock kernel).
-Works splendid (shows up as /dev/hde).
-Extract from the relevant boot sequence messages
-kernel: Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-kernel: ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-kernel: ICH5: IDE controller at PCI slot 0000:00:1f.1
-kernel: ICH5: chipset revision 2
-kernel: ICH5: not 100%% native mode: will probe irqs later
-kernel:     ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:pio
-kernel:     ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:pio, hdd:pio
-kernel: hda: CD-956E/AKV, ATAPI CD/DVD-ROM drive
-kernel: Using cfq io scheduler
-kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-kernel: F\201Ã^D^F: IDE controller at PCI slot 0000:03:01.0
-kernel: F\201Ã^D^F: chipset revision 6
-kernel: HPT37X: using 33MHz PCI clock
-kernel: F\201Ã^D^F: 100%% native mode on irq 185
-kernel:     ide2: BM-DMA at 0xa000-0xa007, BIOS settings: hde:DMA, hdf:pio
-kernel: hde: Maxtor 6Y120P0, ATA DISK drive
-kernel: ide2 at 0x9000-0x9007,0x9402 on irq 185
-kernel: hde: max request size: 128KiB
-kernel: hde: 240121728 sectors (122942 MB) w/7936KiB Cache,
-CHS=65535/16/63, UDMA(100)
-kernel:  hde: hde1 hde2 hde3 hde4 < hde5 hde6 hde7 hde8 >
+On Thu, Nov 04, 2004 at 12:52:38PM -0800, Greg KH wrote:
+> Hi,
+> 
+> I get the following BUG in the sysfs code when I do:
+> 	- plug in a usb-serial device.
+> 	- open the port with 'cat /dev/ttyUSB0'
+> 	- unplug the device.
+> 	- stop the 'cat' process with control-C
+> 
+> This used to work just fine before your big sysfs changes.
+> 
+> Anything I should look at testing?
+> 
 
-Bit weird identifier though.
-For various reasons, I wanted to upgrade to 2.6.8, got the source and
-compiled.  No go anymore.
-Consistently, the two harddisks show up instead of the "virtual" mirror
-disk, with all problems that follow (duplicate labels etc).
-I checked the changes in drivers/ide/pci/hpt366.c.  Directly taking
-the version from 2.6.5 is not possible as the "layout" of the ide
-structures seem to have changed quite a bit.  I tried to "undo" the changes
-manually in the 2.6.8 hpt366.c.  No go, still two disks show up.  So, I
-fear some more (drastic) changes have been made in the general/generic
-ide handling between 2.6.5 and 2.6.8, but for the life of me, I can't
-find any, but then again, I am far from a kernel expert.
-Also tried 2.6.9, same thing.
-As these disks are my boot disks, testing is difficult and I have
-no means of "grabbing" the boot log.
-I looked at the log, mostly it is the same, only now it finds a HPT372N,
-instead of the funny string above.
-Also, standard it says "Using anticipatory io scheduler".  I booted with
-the option elevator=cfq, and indeed it said "Using cfq io scheduler", but
-the net result was the same, two disks, no hardware raid recognised.
+Hi Greg,
 
-THis is as far as I can get, help would be very much appreciated.
+I was about to talk to you. There is a similar problem reported by
+s390 people where we see parent kobject (directory) going away before
+child kobject (sub-directory). It seems kobject code is able to handle
+this, but not the sysfs. What could be happening that in sysfs_remove_dir()
+of parent directory, we try to remove its contents. It works well with
+the regular files as it is the final removal for sysfs_dirent corresponding
+to the files. But in case of sub-directory we are doing an extra sysfs_put().
+Once while removing parent and the other one being the one from when 
+sysfs_remove_dir() is called for the child. 
 
-Regards,
+The following patch worked for the s390 people, I hope same will work in
+this case also.
 
---Pj.
-Peter.
+
+o Do not remove sysfs_dirents corresponding to the sub-directory in 
+  sysfs_remove_dir(). They will be removed in the sysfs_remove_dir() call
+  for the specific sub-directory.
+
+Signed-off-by: <maneesh@in.ibm.com>
+---
+
+ linux-2.6.10-rc1-bk14-maneesh/fs/sysfs/dir.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff -puN fs/sysfs/dir.c~parent-before-child-removal-fix fs/sysfs/dir.c
+--- linux-2.6.10-rc1-bk14/fs/sysfs/dir.c~parent-before-child-removal-fix	2004-11-04 13:37:32.000000000 -0800
++++ linux-2.6.10-rc1-bk14-maneesh/fs/sysfs/dir.c	2004-11-04 13:37:32.000000000 -0800
+@@ -277,7 +277,7 @@ void sysfs_remove_dir(struct kobject * k
+ 	pr_debug("sysfs %s: removing dir\n",dentry->d_name.name);
+ 	down(&dentry->d_inode->i_sem);
+ 	list_for_each_entry_safe(sd, tmp, &parent_sd->s_children, s_sibling) {
+-		if (!sd->s_element)
++		if (!sd->s_element || !(sd->s_type & SYSFS_NOT_PINNED))
+ 			continue;
+ 		list_del_init(&sd->s_sibling);
+ 		sysfs_drop_dentry(sd, dentry);
+_
+
+
+
+-- 
+Maneesh Soni
+Linux Technology Center, 
+IBM Austin
+email: maneesh@in.ibm.com
+Phone: 1-512-838-1896 Fax: 
+T/L : 6781896

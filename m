@@ -1,64 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263035AbVAFUXx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263046AbVAFUba@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263035AbVAFUXx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 15:23:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263028AbVAFUSl
+	id S263046AbVAFUba (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 15:31:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263024AbVAFUaG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 15:18:41 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:3779 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S263014AbVAFUQK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 15:16:10 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-mm1-V0.7.34-00
-To: Florian Schmidt <mista.tapas@gmx.net>
-Cc: Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Thomas Gleixner <tglx@linutronix.de>
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OFB0005E29.8FDCDD2D-ON86256F81.00692C36@raytheon.com>
-From: Mark_H_Johnson@raytheon.com
-Date: Thu, 6 Jan 2005 13:15:41 -0600
-X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
- 01/06/2005 01:22:48 PM
+	Thu, 6 Jan 2005 15:30:06 -0500
+Received: from alog0005.analogic.com ([208.224.220.20]:2432 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263014AbVAFUUE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 15:20:04 -0500
+Date: Thu, 6 Jan 2005 15:19:51 -0500 (EST)
+From: linux-os <linux-os@chaos.analogic.com>
+Reply-To: linux-os@analogic.com
+To: Stephen Warren <SWarren@nvidia.com>
+cc: Valdis.Kletnieks@vt.edu, root <root@mail.gadugi.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: RE: Cherokee Nation Posts Open Source Legisation - Invites comments
+ from Community Members 
+In-Reply-To: <DBFABB80F7FD3143A911F9E6CFD477B003CE111F@hqemmail02.nvidia.com>
+Message-ID: <Pine.LNX.4.61.0501061510170.5865@chaos.analogic.com>
+References: <DBFABB80F7FD3143A911F9E6CFD477B003CE111F@hqemmail02.nvidia.com>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-X-SPAM: 0.00
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tue, 4 Jan 2005 10:45:18 +0100
-> Ingo Molnar <mingo@elte.hu> wrote:
+On Thu, 6 Jan 2005, Stephen Warren wrote:
+
+> From: Valdis.Kletnieks@vt.edu
+>>
+>> On Thu, 06 Jan 2005 12:04:14 CST, root said:
+>>> This legislation Will be voted on in the Rules Committee
+>>> Jan 17 and will be presented for
+>>> ratification to the Full Tribal Council on February 14,
+>>> 2005. This legislation is designed
+>>> to protect trade secrets for both open source development
+>>> and general public licensing
+>>> schemes as well as proprietary technology developed in the
+>>> commerical sector.
+>>
+>> I fail to see how you can *possibly* have "trade secret"
+>> rights in open source
+>> software.  At least not in any way interoperable with any
+>> other country's usage
+>> of the term "trade secret".
 >
-> >   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.10.tar.bz2
-> >   http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10
-/2.6.10-mm1/2.6.10-mm1.bz2
-> >
-http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.10-mm1-V0.7.34-00
-
+> Nor is it compatible with the definitions of the words "public" and
+> "secret" in the English language...
 >
-> Hi,
->
-> something is wrong with 34-01 and ALSA:
 
-[snip - detailed error messages]
+These "Indian Nations" create and use special meanings for
+common words. For instance "No" becomes a "No clause" that
+could mean "yes" in certain instances like bypassing state
+taxes and running casinos. They have even been able to resurrect
+"tribes" that have long ago been assimilated and their
+"reservations" sold as farm land. Mohegan comes to mind.
 
-This is a known problem with -mm1 and the ALSA people already fixed it.
-The change log for -mm2 indicates it should be in that version.
+I suspect that the proposed "Act" displayed on the www.gagugi.org
+web-page is either a hoax, some kind of hard-to-understand joke,
+or the scribblings of idiots.
 
-A work around is to ENABLE power management. Another possible solution
-is to apply the patch I already provided in a lkml email message. See
-
-http://groups-beta.google.com/group/linux.kernel/attach/4fc6393590a2fa25/ac97-fix-nopm.patch?part=2
-for the patch or
-
-http://groups-beta.google.com/group/linux.kernel/browse_frm/thread/191dcbdb2db8683a/10b2db7bba380ae4#10b2db7bba380ae4
-for the context of the email exchange. This is NOT the same fix the ALSA
-people provided - but it worked for me.
-
---Mark H Johnson
-  <mailto:Mark_H_Johnson@raytheon.com>
-
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

@@ -1,57 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261969AbTHYQOX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 12:14:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261981AbTHYQOX
+	id S261732AbTHYQZT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 12:25:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbTHYQZT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 12:14:23 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:13454 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261969AbTHYQOW (ORCPT
+	Mon, 25 Aug 2003 12:25:19 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:49873 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S261732AbTHYQZQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 12:14:22 -0400
-Date: Mon, 25 Aug 2003 18:13:32 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Tom Rini <trini@kernel.crashing.org>
-cc: Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix the -test3 input config damages
-In-Reply-To: <20030822204903.GA847@ip68-0-152-218.tc.ph.cox.net>
-Message-ID: <Pine.GSO.4.21.0308251810010.15307-100000@waterleaf.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 25 Aug 2003 12:25:16 -0400
+Date: Mon, 25 Aug 2003 18:25:14 +0200 (MEST)
+Message-Id: <200308251625.h7PGPEh6008740@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: linux-kernel@vger.kernel.org, matthias.andree@gmx.de
+Subject: Re: linux-2.4.22 released
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Aug 2003, Tom Rini wrote:
-> --- 1.18/drivers/video/console/Kconfig	Wed Jul 16 10:39:32 2003
-> +++ edited/drivers/video/console/Kconfig	Fri Aug 22 13:27:21 2003
-> @@ -5,7 +5,7 @@
->  menu "Console display driver support"
->  
->  config VGA_CONSOLE
-> -	bool "VGA text console" if EMBEDDED || !X86
-> +	bool "VGA text console" if STANDARD && X86
->  	depends on !ARCH_ACORN && !ARCH_EBSA110 || !4xx && !8xx
->  	default y
->  	help
+On Mon, 25 Aug 2003 15:23:58 +0200, Matthias Andree wrote:
+>On Mon, 25 Aug 2003, Marcelo Tosatti wrote:
+>
+>> - 2.4.22-rc4 was released as 2.4.22 with no changes.
+>
+>What are the plans for 2.4.23? XFS merge perhaps <hint>?
 
-Ugh, this makes VGA_CONSOLE default to yes if X86 is not set, right? Don't you
-want
+Someone (sorry I forgot who) said they would submit a DRM update.
+This is needed to make current XFree86 happy with some cards.
 
-    bool "VGA text console" if !STANDARD || X86
+I'm going to submit 3 local-APIC fixes from 2.5/2.6.
 
-?
-
-Or do I need an update course on Kconfig syntax?
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+/Mikael

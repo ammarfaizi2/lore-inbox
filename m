@@ -1,67 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129406AbRAPI53>; Tue, 16 Jan 2001 03:57:29 -0500
+	id <S129436AbRAPI77>; Tue, 16 Jan 2001 03:59:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129523AbRAPI5U>; Tue, 16 Jan 2001 03:57:20 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:45029 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S129406AbRAPI5I>; Tue, 16 Jan 2001 03:57:08 -0500
-To: Gregor Jasny <gjasny@wh8.tu-dresden.de>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Bug in swapfs (2.4.0-ac9)
-In-Reply-To: <01011523192600.00565@backfire>
-From: Christoph Rohland <cr@sap.com>
-Date: 16 Jan 2001 09:50:09 +0100
-In-Reply-To: <01011523192600.00565@backfire>
-Message-ID: <qwwn1crhoe6.fsf@sap.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
-MIME-Version: 1.0
+	id <S129523AbRAPI7t>; Tue, 16 Jan 2001 03:59:49 -0500
+Received: from sulphur.cix.co.uk ([212.35.225.149]:60292 "EHLO
+	sulphur.cix.co.uk") by vger.kernel.org with ESMTP
+	id <S129436AbRAPI7b>; Tue, 16 Jan 2001 03:59:31 -0500
+X-Envelope-From: patrick@tykepenguin.cix.co.uk
+Date: Tue, 16 Jan 2001 08:51:18 +0000
+From: Patrick Caulfield <caulfield@sistina.com>
+To: linux-lvm@sistina.com, Anton Blanchard <anton@linuxcare.com.au>,
+        Mauelshagen@sistina.com, linux-kernel@vger.kernel.org, lvm@sistina.com
+Subject: Re: [linux-lvm] Re: *** ANNOUNCEMENT *** LVM 0.9.1 beta1 available at www.sistina.com
+Message-ID: <20010116085117.A696@tykepenguin.com>
+Mail-Followup-To: linux-lvm@sistina.com,
+	Anton Blanchard <anton@linuxcare.com.au>, Mauelshagen@sistina.com,
+	linux-kernel@vger.kernel.org, lvm@sistina.com
+In-Reply-To: <20010113114507.D15915@linuxcare.com> <200101130143.f0D1hNF19829@webber.adilger.net> <20010113170616.B22699@caldera.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010113170616.B22699@caldera.de>; from hch@ns.caldera.de on Sat, Jan 13, 2001 at 05:06:16PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Gregor,
+On Sat, Jan 13, 2001 at 05:06:16PM +0100, Christoph Hellwig wrote:
+> On Fri, Jan 12, 2001 at 06:43:23PM -0700, Andreas Dilger wrote:
+> > Anton, you write:
+> > > Have a look at 2.4, arch/sparc64/kernel/ioctl32.c
+> > 
+> > Yuk.
+> > 
+> > > Would it be possible to clean up the ioctl interface so we dont need
+> > > such large hacks for LVM support? I can do the work but I want to be
+> > > sure you guys will agree to it.
 
-On Mon, 15 Jan 2001, Gregor Jasny wrote:
-> I think I've found a bug in swapfs:
+If you're prepared to do the work we'd be glad to accept the patch - please send
+it to me or the list so I can check over it before committing it. As we don't
+have an UltraSPARC available for testing it's probably better done by someone
+who does !
+ 
+> > What is the reason for all this?  Alignment/wordsize/other?  If you look
+> > at the IOP10 code, much of the in-core data structs were changed to int
+> > or long, so this sparc code may not be necessary.
 > 
-> fstab:
-> swapfs          /dev/shm        swapfs  defaults 0 0
-> swapfs         /tmp    swapfs  defaults 0 0
-> 
-> When I hit <enter> on a tar.gz file in Midnight Commander nothing
-> happens. If I do a umonut /tmp and hit <enter> again it works as It
-> should (I see the archived files).  Nearly the same Problem with the
-> Acrobat Reader pluin for Netscape. It shows only a blank page when
-> /tmp is swapfs.
+> The longs are the biggest problem AFAICS.
+> long is 64bit on sparc64 and 32bit on sparc32...
 
-Yep, Alan introduced a maxbytes field to the superblock which is not
-set in swapfs. So the vfs will always fail with EFBIG. 
-I will send out a patch soon.
+There are still a few ulong members in lvm.h, they should be uint32_t 
 
-> I've noticed that it's possible to mount /tmp more than once. mount
-> shows then
-> [snip]
-> swapfs on /dev/shm type swapfs (rw)
-> swapfs on /tmp type swapfs (rw)
-> swapfs on /tmp type swapfs (rw)
-> swapfs on /tmp type swapfs (rw)
-> swapfs on /tmp type swapfs (rw)
-
-The vfs allows multiple mount with 2.4, and for swapfs you always get
-a fresh instance with its own resource limits. Think anout chroot with
-its own swapfs instance. AFAIK the new util-linux will give you some
-checking.
-
-> The permissions for /tmp are rwxrwxrwt, and even -omode=777,exec
-> didn't help.
-
-Your bootup script sets the mode after mounting? The mode parameter is
-functional for me and the default is 777. 1777 has to be done in user
-space.
-
-Greetings
-		Christoph
+patrick
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

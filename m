@@ -1,58 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263000AbVAFTnI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262993AbVAFTn0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263000AbVAFTnI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 14:43:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263001AbVAFTkM
+	id S262993AbVAFTn0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 14:43:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262974AbVAFTjO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 14:40:12 -0500
-Received: from colin2.muc.de ([193.149.48.15]:22283 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S262997AbVAFTi1 (ORCPT
+	Thu, 6 Jan 2005 14:39:14 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:32426 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S261166AbVAFTfz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 14:38:27 -0500
-Date: 6 Jan 2005 20:38:27 +0100
-Date: Thu, 6 Jan 2005 20:38:26 +0100
-From: Andi Kleen <ak@muc.de>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: linux-kernel@vger.kernel.org, DRI Devel <dri-devel@lists.sourceforge.net>
-Subject: Re: chasing the four level page table
-Message-ID: <20050106193826.GC47320@muc.de>
-References: <9e47339105010609175dabc381@mail.gmail.com> <m1vfaav340.fsf@muc.de> <9e47339105010610362fd7fffe@mail.gmail.com>
+	Thu, 6 Jan 2005 14:35:55 -0500
+Date: Thu, 6 Jan 2005 20:35:10 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: David Lang <dlang@digitalinsight.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, Rik van Riel <riel@redhat.com>,
+       Andries Brouwer <aebr@win.tue.nl>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
+       linux-kernel@vger.kernel.org
+Subject: Re: starting with 2.7
+Message-ID: <20050106193510.GL3096@stusta.de>
+References: <1697129508.20050102210332@dns.toxicfilms.tv> <20050102203615.GL29332@holomorphy.com> <20050102212427.GG2818@pclin040.win.tue.nl> <Pine.LNX.4.61.0501031011410.25392@chimarrao.boston.redhat.com> <20050103153438.GF2980@stusta.de> <1104767943.4192.17.camel@laptopd505.fenrus.org> <20050104174712.GI3097@stusta.de> <Pine.LNX.4.60.0501041215500.9517@dlang.diginsite.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <9e47339105010610362fd7fffe@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.60.0501041215500.9517@dlang.diginsite.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 06, 2005 at 01:36:46PM -0500, Jon Smirl wrote:
-> On Thu, 06 Jan 2005 19:12:15 +0100, Andi Kleen <ak@muc.de> wrote:
-> > Yes, you should use get_user_pages() instead if you access real memory.
-> > If you try to find hardware mappings using that there is no ready
-> > function for you right now, although I guess it could be added.
-> 
-> drm_follow_page is used like this:
-> 
-> offset = drm_follow_page(pt) | ((unsigned long) pt & ~PAGE_MASK);
-> map = drm_lookup_map(offset, size, dev);
-> if (map && map->type == _DRM_AGP) {
-> 	vunmap(pt);
-> 	return;
-> }
-> 
-> I think pt is a user space address. In DRM AGP memory is mapped into
-> kernel and user space so the user space address is being converted
-> into a kernel space one. The kernel space one is used to verify that
-> the address is a valid mapping to AGP space, if so the page is
-> unmapped.  I didn't write this code so I'm not 100% sure of what is
-> going on.
+On Tue, Jan 04, 2005 at 12:18:26PM -0800, David Lang wrote:
 
-You can't use get_user_pages in this case because the AGP aperture
-can be above mem_map.  If none of the callers take page_table_lock
-already you would need to add that too. I guess from the context the lock
-is not taken, but better double check.
+> Sorry, I've been useing kernel.org kernels since the 2.0 days and even 
+> within a stable series I always do a full set of tests before upgrading. 
+> every single stable series has had 'paper bag' releases, and every single 
+> one has had fixes to drivers that have ended up breaking those drivers.
+> 
+> the only way to know if a new kernel will work on your hardware is to try 
+> it. It doesn't matter if the upgrade is from 2.4.24 to 2.4.25 or 2.6.9 to 
+> 2.6.10 or even 2.4.24 to 2.6.10
+> 
+> anyone who assumes that just becouse the kernel is in the stable series 
+> they can blindly upgrade their production systems is just dreaming.
 
-Perhaps we should add a get_user_phys() or somesuch for this.
+I was not thinking about a "blindly upgrade".
 
--Andi
+But the question is if you compile and test a kernel, is it every 
+unlikely or relatively common to observe new problems?
+
+> David Lang
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

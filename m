@@ -1,83 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288127AbSBABtl>; Thu, 31 Jan 2002 20:49:41 -0500
+	id <S291488AbSBACOp>; Thu, 31 Jan 2002 21:14:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291487AbSBABtb>; Thu, 31 Jan 2002 20:49:31 -0500
-Received: from orange.csi.cam.ac.uk ([131.111.8.77]:57327 "EHLO
-	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S288127AbSBABtR>; Thu, 31 Jan 2002 20:49:17 -0500
-Message-Id: <5.1.0.14.2.20020201013842.04e9be40@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 01 Feb 2002 01:49:14 +0000
-To: Eli Carter <eli.carter@inet.com>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: vfs.txt and i_ino
-Cc: Anton Altaparmakov <aia21@cus.cam.ac.uk>,
-        Richard Gooch <rgooch@atnf.csiro.au>, linux-kernel@vger.kernel.org
-In-Reply-To: <3C59B487.64B7631A@inet.com>
-In-Reply-To: <Pine.SOL.3.96.1020131205057.15330A-100000@virgo.cus.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S291487AbSBACOe>; Thu, 31 Jan 2002 21:14:34 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:44933 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S290853AbSBACOV>;
+	Thu, 31 Jan 2002 21:14:21 -0500
+Date: Thu, 31 Jan 2002 21:14:12 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andre Hedrick <andre@linuxdiskcert.org>
+cc: Kris Urquhart <kurquhart@littlefeet-inc.com>,
+        "'Andreas Dilger'" <adilger@turbolabs.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: false positives on disk change checks
+In-Reply-To: <B9F49C7F90DF6C4B82991BFA8E9D547B12570A@BUFORD.littlefeet-inc.com>
+Message-ID: <Pine.GSO.4.21.0201312105210.624-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 21:17 31/01/02, Eli Carter wrote:
->Anton Altaparmakov wrote:
-> >
-> > On Thu, 31 Jan 2002, Eli Carter wrote:
-> > > It appears that struct inode i_ino has a special value of 0.  I don't
-> > > see a mention of that in vfs.txt, and I haven't found anything obvious
-> > > in the fs code... Would it be possible to add some documentation of
-> > > that, along with an explaination of what i_ino==0 is supposed to
-> > > indicate?  (Bad/invalid inode?)
-> >
-> > i_ino = 0 is perfectly valid and is in fact one of the system files in
-> > NTFS. And accessing inode 0 from user space works fine, too. The only
-> > thing which is odd is that a simple "ls" (or "ls -l") doesn't show the
-> > file with i_ino=0, while an explicit ls a-la "ls \$MFT" (or "ls -l \$MFT")
-> > does show the file. I believe this to be purely a userspace problem but
-> > when I looked at the /bin/ls source I got scared and ran away... A short
-> > investigation into /bin/ls source didn't make anything obvious appear but
-> > I do think it is /bin/ls at fault and not the kernel...
-> >
-> > So I guess my point is that i_ino=0 is not special as far as the kernel is
-> > concerned.
->
->Hmm... 'ls -al' doesn't show the file for me.  I was using i_ino=0 for
->the root inode, and found that 'ls -al' did not display '.' or '..'.  It
->very well may be a user-space error... do you know who I should ask
->about it?
-
-<bug-fileutils@gnu.org> might be a good start...
-
-Or one of the people who wrote it? To quote from the top of ls.c:
-----snip----
-/* Written by Richard Stallman and David MacKenzie.  */
-
-/* Color support by Peter Anvin <Peter.Anvin@linux.org> and Dennis
-    Flaherty <dennisf@denix.elk.miles.com> based on original patches by
-    Greg Lee <lee@uhunix.uhcc.hawaii.edu>.  */
-----snip----
-
-Anton
 
 
->TIA,
->
->Eli
->--------------------.     Real Users find the one combination of bizarre
->Eli Carter           \ input values that shuts down the system for days.
->eli.carter(a)inet.com `-------------------------------------------------
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+On Thu, 31 Jan 2002, Kris Urquhart wrote:
 
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+> No patches - linux-2.4.17 right off of www.linux.org.  
+> 
+> The chipset is an ALI 1487/1489.  
+> The disk itself is a JUMPtec DISKchip with a SanDisk 20-99-00024-1 on it.
+> 
+> The relevant lines from dmesg are:
+>  Uniform Multi-Platform E-IDE driver Revision: 6.31
+>  ide: Assuming 50MHz system bus speed for PIO modes; override with idebus=xx
+>  hda: SunDisk SDTB-128, ATA DISK drive
+>  ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+>  hda: 31360 sectors (16 MB) w/1KiB Cache, CHS=490/2/32
+>  Partition check:
+>   hda: hda1 hda2 hda3
+> 
+> % cat /proc/ide/driver
+> ide-disk version 1.10
+> 
+> There is a CONFIG_BLK_DEV_ALI14XX, but apparently it only turns on 
+> support for the second channel.  I tried it anyway (along with the 
+> ide0=ali14xx boot parameter), but the disk was then not recognized 
+> at boot time (busy/timeout during partition check).  A google search 
+> did not turn up any problems with ali14xx.c since 2.0.
+
+Andre, looks like setup above gives false positives on disk change check...
+
 

@@ -1,53 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261960AbUKBTlC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261345AbUKBTpd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261960AbUKBTlC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 14:41:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261877AbUKBTkF
+	id S261345AbUKBTpd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 14:45:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbUKBTpc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 14:40:05 -0500
-Received: from mail-relay-3.tiscali.it ([213.205.33.43]:32916 "EHLO
-	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
-	id S261964AbUKBTj1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 14:39:27 -0500
-Date: Tue, 2 Nov 2004 20:39:01 +0100
-From: Andrea Arcangeli <andrea@novell.com>
-To: Andy Whitcroft <apw@shadowen.org>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
-       nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
-Subject: Re: PG_zero
-Message-ID: <20041102193901.GO3571@dualathlon.random>
-References: <20041030141059.GA16861@dualathlon.random> <20041030140732.2ccc7d22.akpm@osdl.org> <40860000.1099235861@[10.10.2.4]> <41879145.7090309@shadowen.org>
+	Tue, 2 Nov 2004 14:45:32 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:63720 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261794AbUKBTh4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 14:37:56 -0500
+Date: Tue, 2 Nov 2004 20:38:59 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark_H_Johnson@raytheon.com
+Cc: Thomas Gleixner <tglx@linutronix.de>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Lee Revell <rlrevell@joe-job.com>,
+       Paul Davis <paul@linuxaudiosystems.com>,
+       LKML <linux-kernel@vger.kernel.org>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       jackit-devel <jackit-devel@lists.sourceforge.net>,
+       Rui Nuno Capela <rncbc@rncbc.org>, "K.R. Foley" <kr@cybsft.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.6.8
+Message-ID: <20041102193859.GB3053@elte.hu>
+References: <OF7B340ED3.3EE1B145-ON86256F40.005675F6-86256F40.005676E0@raytheon.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41879145.7090309@shadowen.org>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <OF7B340ED3.3EE1B145-ON86256F40.005675F6-86256F40.005676E0@raytheon.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 02, 2004 at 01:53:09PM +0000, Andy Whitcroft wrote:
-> I'll have a look out for the results, they should be around somewhere?
 
-could you give an hint on which workload to use for the measurements?
+* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
 
-> page for use.  The colder the page the slower the system went.
+> (cat/3504/CPU#0): new 5286 us maximum-latency wakeup.
+> (cat/3504/CPU#0): new 71828 us maximum-latency wakeup.
 
-this is expected. This is why I waste no more than 4k of cache for each
-local-apic irq, and this is also why I don't waste any cache at all if
-the zerolist is already full or the hot-cold list is empty (plus if
-there are PG_zero pages in the hot-cold list since I cache PG_zere deep
-down in the buddy, I don't waste any cache at all by refiling them into
-the zero quicklist). Not sure if you were using the same design. Note
-that idle zeroing is a worthless feature in my patch, I never intented
-to implement it, I just happened to be able to implement it with a
-trivial change so I did (and it can be disabled via sysctl). all the
-important stuff are bugfixes and obsoleting the inefficient slab for pte
-allocation and to create a superset of the pte_quicklist in 2.4 that is
-missing in 2.6 by mistake.
+ok - wakeup-latency timing is completely unreliable on SMP and will
+produce bogus results.
 
-Note that I'm keeping track of hot and cold cache for the zerolist too.
-Plus I can disable the idle zeroing and still I will be able to cache
-zero information in O(1) (so then caching zero will be zerocost, plus
-I'll keep track of the hottest zero page, and the coldest one).
+	Ingo

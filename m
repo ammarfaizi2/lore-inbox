@@ -1,58 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267966AbUHKGhH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267965AbUHKGjg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267966AbUHKGhH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 02:37:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267964AbUHKGhH
+	id S267965AbUHKGjg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 02:39:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267967AbUHKGjf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 02:37:07 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:41950 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S267963AbUHKGgz convert rfc822-to-8bit (ORCPT
+	Wed, 11 Aug 2004 02:39:35 -0400
+Received: from fw.osdl.org ([65.172.181.6]:59831 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267965AbUHKGiH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 02:36:55 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Hugetlb demanding paging for -mm tree
-Date: Tue, 10 Aug 2004 23:36:10 -0700
-Message-ID: <01EF044AAEE12F4BAAD955CB750649430205DE92@scsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Hugetlb demanding paging for -mm tree
-Thread-Index: AcR/VQtfC7Hsv+suSWKB+R6c+Ue2JwAFswGA
-From: "Seth, Rohit" <rohit.seth@intel.com>
-To: "William Lee Irwin III" <wli@holomorphy.com>
-Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       "Hirokazu Takahashi" <taka@valinux.co.jp>,
-       <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>
-X-OriginalArrivalTime: 11 Aug 2004 06:36:12.0981 (UTC) FILETIME=[7EDD4650:01C47F6D]
+	Wed, 11 Aug 2004 02:38:07 -0400
+Date: Tue, 10 Aug 2004 23:37:30 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: David Howells <dhowells@redhat.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, James Morris <jmorris@redhat.com>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, arjanv@redhat.com,
+       dwmw2@infradead.org, greg@kroah.com, Chris Wright <chrisw@osdl.org>,
+       sfrench@samba.org, mike@halcrow.us,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Kyle Moffett <mrmacman_g4@mac.com>,
+       viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [PATCH] implement in-kernel keys & keyring management [try #5]
+Message-ID: <20040810233730.B1924@build.pdx.osdl.net>
+References: <16109.1092044758@redhat.com> <Pine.LNX.4.58.0408072221480.1793@ppc970.osdl.org> <Xine.LNX.4.44.0408080046130.27710-100000@dhcp83-76.boston.redhat.com> <16109.1092044758@redhat.com> <5788.1092160798@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <5788.1092160798@redhat.com>; from dhowells@redhat.com on Tue, Aug 10, 2004 at 06:59:58PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <> wrote on Tuesday, August 10, 2004 5:45 PM:
+Hi David,
 
-> William Lee Irwin III <mailto:wli@holomorphy.com> wrote on Tuesday,
->>> Could you rephrase that? I'm having trouble figuring out what you
->>> meant.
+* David Howells (dhowells@redhat.com) wrote:
+> It can be found at:
 > 
-> On Tue, Aug 10, 2004 at 05:28:27PM -0700, Seth, Rohit wrote:
->> I was thinking that we only need to worry about the d-cache
->> coherency at the time of hugepage fault.  But that is not a safe
->> assumption.  You are right that we will need update_mmu_cache in the
->> hugetlb page fault path. Though I'm wondering if we can hide this
->> update_mmu_cache fucntionality behind the arch specific set_huge_pte
->> function in the demand paging patch for hugepage.  If so then we may
->> not need to make any changes in the existing update_mmu_cache API.
-> 
-> Most arches seem to be okay with the API, but it may be more
-> useful/etc. to e.g. explicitly pass the page size, particularly when
-> constant folding is possible.
-> 
-> 
+> 	http://people.redhat.com/~dhowells/keys/keys-268rc2-5.diff.bz2
 
-Are you working on the patch to provide this updated API for
-update_mmu_cache.
+Here's a few comments/questions from first pass-thru.  Looks good so
+far.  I have yet to fully digest it all, or run your current
+patchset/toolset to play with it.
 
+it's still tough to walk away from the idea that this is really close to
+a filesystem interface.
+                                                                                
+sys_keyctl prototype declaration in key.h?  maybe in syscalls.h?
+also, the #else /* !CONFIG_KEYS */ for doesn't look right.  i think
+the syscall should always be there, instead use cond_syscall.
+                                                                                
+prctl case statement.  are case ranges supported in all gcc versions
+that are valid for 2.6 kernel compilation?
+                                                                                
+key_euid_changed/key_egid_changed will change the process_keyring even
+if it's just a thread which did the setuid/gid.  this doesn't sound
+right.
+                                                                                
+i'm a little confused by suid_keys().  it's sprinkled in various spots,
+yet the function does nothing.  what's the intention there (esp. w.r.t.
+key_euid_changed)?  e.g.  placement in compute_creds is before the actual
+process uid updates are done.
+                                                                                
+why check pid ==1 and uid ==0 in exec_keys?
+                                                                                
+why not switch_uid_keyring for non root_session_keyrings?
+                                                                                
+in alloc_uid_keyring, keyring_alloc failure for session_keyring leaks
+uid_keyring allocation.
+                                                                                
+key_user can't be squished into user_struct?  seems like the quota stuff
+could become setable from userspace (rlimit-like).
+                                                                                
+/sbin/request-key should probably path configurable like /sbin/hotplug.
+
+thanks,
+-chris

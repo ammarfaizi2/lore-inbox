@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130004AbRBAW7w>; Thu, 1 Feb 2001 17:59:52 -0500
+	id <S130170AbRBAXAb>; Thu, 1 Feb 2001 18:00:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130674AbRBAW7m>; Thu, 1 Feb 2001 17:59:42 -0500
-Received: from mail5.svr.pol.co.uk ([195.92.193.20]:41282 "EHLO
-	mail5.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S130062AbRBAW7Y>; Thu, 1 Feb 2001 17:59:24 -0500
-Date: Thu, 1 Feb 2001 15:09:37 GMT
-From: James Stevenson <mistral@stev.org>
-Message-Id: <200102011509.f11F9bV13547@cyrix.home>
-To: nils@ipe.uni-stuttgart.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: What does "NAT: dropping untracked packet" mean?
-In-Reply-To: <20010201133811.D14768@ipe.uni-stuttgart.de>
-In-Reply-To: <20010201133811.D14768@ipe.uni-stuttgart.de>
-Reply-To: mistral@stev.org
-X-BadReturnPath: mistral@cyrix.home rewritten as mistral@stev.org
-  using "Reply-To" header
+	id <S130635AbRBAXAV>; Thu, 1 Feb 2001 18:00:21 -0500
+Received: from ping-ef-gw.ping.de ([62.72.90.14]:28436 "EHLO noefs.ping.de")
+	by vger.kernel.org with ESMTP id <S130170AbRBAXAL>;
+	Thu, 1 Feb 2001 18:00:11 -0500
+Message-Id: <200102012259.XAA02016@noefs.ping.de>
+Subject: e2fs corruption with 2.4.0-ac12
+To: linux-kernel@vger.kernel.org
+Date: Thu, 1 Feb 2001 23:59:30 +0100 (MET)
+From: Wolfgang Wegner <wolfgang@leila.ping.de>
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+just for the records, as I saw some reports about fs corruption:
+I had a case of e2fs corruption under 2.4.0-ac12 on an IDE drive
+(Intel BX chipset) yesterday.
+I was not able to reproduce it, all I can say it seemed to be related
+to a single file on a 1GB partition, filled about 70%. I noticed
+mkisofs reading from this filesystem aborting with an I/O error,
+resulting in "attempt to access beyond end of device". The
+filesystem was generated some days ago under 2.2.14 using
+mke2fs 1.18.
 
-Hi
+The machine itself is running fine under 2.2.14 for several
+months, the only flaw is this partition being unused up to
+now.
 
-do the messages apear when the windows machines a booting ?
-i would tend to think that the kernel cannot handle the NET on
-IGMP packets so its printting a message about it
-the packets do look like they are goign to a multicast address
+If this of any interest and there is any more information
+I should provide, let me know.
 
+Regards,
+Wolfgang
 
->
->Feb  1 12:58:56 obelix kernel: NAT: 0 dropping untracked packet ce767600 1 129.69.22.21 -> 224.0.0.2
->Feb  1 12:59:01 obelix kernel: NAT: 0 dropping untracked packet ce767480 1 129.69.22.21 -> 224.0.0.2
->Feb  1 12:59:04 obelix kernel: NAT: 0 dropping untracked packet ce767d80 1 129.69.22.21 -> 224.0.0.2
->Feb  1 13:00:44 obelix kernel: NAT: 0 dropping untracked packet ce767600 1 129.69.22.51 -> 224.0.0.2
->Feb  1 13:00:47 obelix kernel: NAT: 0 dropping untracked packet ce767600 1 129.69.22.51 -> 224.0.0.2
->Feb  1 13:00:50 obelix kernel: NAT: 0 dropping untracked packet ce767b40 1 129.69.22.51 -> 224.0.0.2
->
-
-
--- 
----------------------------------------------
-Check Out: http://stev.org
-E-Mail: mistral@stev.org
-  3:00pm  up 16 days, 22:21,  4 users,  load average: 1.37, 1.38, 1.25
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

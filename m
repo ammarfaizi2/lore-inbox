@@ -1,60 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263095AbUGFGEE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263107AbUGFGLw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263095AbUGFGEE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 02:04:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263117AbUGFGEE
+	id S263107AbUGFGLw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 02:11:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263117AbUGFGLw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 02:04:04 -0400
-Received: from pcp03394610pcs.midltn01.ct.comcast.net ([68.54.120.154]:14607
-	"HELO pcp03394610pcs.midltn01.ct.comcast.net") by vger.kernel.org
-	with SMTP id S263095AbUGFGD6 (ORCPT
+	Tue, 6 Jul 2004 02:11:52 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:17807 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S263107AbUGFGLv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 02:03:58 -0400
-Date: Tue, 06 Jul 2004 06:00:38 +0000
-From: Kliszka@pcp03394610pcs.midltn01.ct.comcast.net
-Subject: Free Morgage Quotes... TheBest rates Nationwide... Inside
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-References: <CDIF7FKDA38A0C58@vger.kernel.org>
-In-Reply-To: <CDIF7FKDA38A0C58@vger.kernel.org>
-Message-ID: <34HFJ9160DG3AJF1@pcp03394610pcs.midltn01.ct.comcast.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 6 Jul 2004 02:11:51 -0400
+Date: Tue, 6 Jul 2004 08:11:50 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: Mark Adler <madler@alumni.caltech.edu>
+Cc: Jesse Stockall <stockall@magma.ca>, Paul Jackson <pj@sgi.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] gcc 3.5 fixes
+Message-ID: <20040706061149.GA3557@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Mark Adler <madler@alumni.caltech.edu>,
+	Jesse Stockall <stockall@magma.ca>, Paul Jackson <pj@sgi.com>,
+	linux-kernel@vger.kernel.org
+References: <2e9is-5YT-1@gated-at.bofh.it> <2e9iu-5YT-5@gated-at.bofh.it> <2ecq2-80i-1@gated-at.bofh.it> <7ab39013.0407042237.40ea9035@posting.google.com> <20040705064010.C9BFB5F7AA@attila.bofh.it> <9FC7DA98-CEA3-11D8-B083-000A95820F30@alumni.caltech.edu> <20040705144436.62544a3d.pj@sgi.com> <1C37F9C6-CEEA-11D8-B083-000A95820F30@alumni.caltech.edu> <1089085868.8452.2.camel@localhost> <1820F1EE-CF07-11D8-B083-000A95820F30@alumni.caltech.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1820F1EE-CF07-11D8-B083-000A95820F30@alumni.caltech.edu>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Programs for You
+On Mon, Jul 05, 2004 at 09:43:58PM -0700, Mark Adler wrote:
+> On Jul 5, 2004, at 8:51 PM, Jesse Stockall wrote:
+> >Did I miss something or are you saying that the version in the kernel
+> >has a security vulnerability?
+> 
+> If the kernel has 1.1.3, then yes.  You can get 1.1.4 here, which 
+> remedies that vulnerability:
 
-> Programs For Every Credit Situation
-> Lenders Reply Within 24hours 
-> Borrow Up To 120 % of Your Homes Value
-> Special Programs For Self Employed
-> No Income Verification Programs
+I seem to recall that vulnerability was fixed in place, without upgrading to
+1.1.4.
 
-http://uNyVakh.fkmjecb.info/?7k9qFX7NcbK4s77Zpmttou
-
-
-
-
-
- My love it knows no bounds
- You have awakened an unkindled fire
- It grows by leaps and bounds
- Larger than any pyre
- 
- Rather than ending, just beginning
- To grow higher, and higher
- With only the sun up above
- All else, neath the fire
- 
- Ecstasy growing
- Adventure and passion lie ahead
- Earth Shakers, down Thunder Road
- Trailing paths of glory, do we go
- 
- Take my hand, my love
- We have many miles to explore
- Until we rest, adventure is with us
- Until we rest, adventure is with us
- 
-
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

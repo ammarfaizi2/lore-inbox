@@ -1,52 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261655AbVADNPT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261636AbVADNRW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261655AbVADNPT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 08:15:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261631AbVADNPS
+	id S261636AbVADNRW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 08:17:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261645AbVADNPs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 08:15:18 -0500
-Received: from holomorphy.com ([207.189.100.168]:31878 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261625AbVADNOd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 08:14:33 -0500
-Date: Tue, 4 Jan 2005 05:11:10 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Felipe Alfaro Solana <lkml@mac.com>, Adrian Bunk <bunk@stusta.de>,
-       linux-kernel@vger.kernel.org, Rik van Riel <riel@redhat.com>,
-       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
-       Andries Brouwer <aebr@win.tue.nl>,
-       William Lee Irwin III <wli@debian.org>
-Subject: Re: starting with 2.7
-Message-ID: <20050104131110.GE2708@holomorphy.com>
-References: <6D2C0E07-5DAE-11D9-9FD3-000D9352858E@mac.com> <200501032059.j03KxOEB004666@laptop11.inf.utfsm.cl> <20050104054458.GB7048@alpha.home.local>
+	Tue, 4 Jan 2005 08:15:48 -0500
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:39922 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S261609AbVADNLg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 08:11:36 -0500
+Date: Tue, 4 Jan 2005 14:11:01 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: rusty@rustcorp.com.au, paulus@au1.ibm.com, nathanl@austin.ibm.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [BUG] mm_struct leak on cpu hotplug (s390/ppc64)
+Message-ID: <20050104131101.GA3560@osiris.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050104054458.GB7048@alpha.home.local>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 03, 2005 at 05:59:24PM -0300, Horst von Brand wrote:
->> Open up the code. Most of the changes will then be done as a matter of
->> course by others.
+Hi,
 
-On Tue, Jan 04, 2005 at 06:44:58AM +0100, Willy Tarreau wrote:
-> it will not solve the problem : if a driver or any glue logic breaks, it's
-> because interface has changed again. When you will have 3000 open drivers,
-> you'll have to find people to make the changes every week. The solution in
-> the first place is to respect some code stability and not to break thinks
-> every week.
+there is an mm_struct memory leak when using cpu hotplug. Appearently
+start_secondary in smp.c initializes active_mm of the cpu's idle task
+and increases init_mm's mm_count. But on cpu_die the idle task's
+active_mm doesn't get dropped and therefore on the next cpu_up event
+(->start_secondary) it gets overwritten and the result is a forgotten
+reference count to whatever mm_struct was active when the cpu
+was taken down previously.
 
-Tihs is not entirely true. I'd like to point to remap_pfn_range() as a
-smoothly-executed API change. All in-tree drivers were swept. Out-of-
-tree open-source drivers got by with nothing more than warnings. Even
-binary-only drivers had no trouble with mere recompiles of glue layers.
+The patch below should fix this for s390 (at least it works fine for
+me), but I'm not sure if it's ok to call mmdrop from __cpu_die.
 
-Many other API changes are also executed with similar smoothness.
+Also this very same leak exists for ppc64 as well.
 
+Any opinions?
 
--- wli
+Thanks,
+Heiko
+
+diff -urN linux-2.6.10/arch/s390/kernel/smp.c linux-2.6.10-patched/arch/s390/kernel/smp.c
+--- linux-2.6.10/arch/s390/kernel/smp.c	2004-12-24 22:35:50.000000000 +0100
++++ linux-2.6.10-patched/arch/s390/kernel/smp.c	2005-01-04 13:42:14.000000000 +0100
+@@ -728,9 +728,14 @@
+ void
+ __cpu_die(unsigned int cpu)
+ {
++	struct task_struct *p;
++
+ 	/* Wait until target cpu is down */
+ 	while (!cpu_stopped(cpu));
+ 	printk("Processor %d spun down\n", cpu);
++	p = current_set[cpu];
++	mmdrop(p->active_mm);
++	p->active_mm = NULL;
+ }
+ 
+ void

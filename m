@@ -1,78 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262116AbTFIVb6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 17:31:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262013AbTFIVb5
+	id S262165AbTFIVes (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 17:34:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbTFIVer
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 17:31:57 -0400
-Received: from pointblue.com.pl ([62.89.73.6]:8972 "EHLO pointblue.com.pl")
-	by vger.kernel.org with ESMTP id S262148AbTFIVbS convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 17:31:18 -0400
-From: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
-Organization: K4 Labs
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: 2.4.22 timeline was RE: 2.4.21-rc7 ACPI broken
-Date: Mon, 9 Jun 2003 22:24:20 +0100
-User-Agent: KMail/1.5.2
-References: <F760B14C9561B941B89469F59BA3A84725A2DF@orsmsx401.jf.intel.com>
-In-Reply-To: <F760B14C9561B941B89469F59BA3A84725A2DF@orsmsx401.jf.intel.com>
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Guy Therien <guy.therien@intel.com>, Len Brown <len.brown@intel.com>,
-       Sunil Saxena <sunil.saxena@intel.com>,
-       Andrew Grover <andrew.grover@intel.com>
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200306092224.32663@gjs>
+	Mon, 9 Jun 2003 17:34:47 -0400
+Received: from pcp701542pcs.bowie01.md.comcast.net ([68.50.82.18]:51978 "EHLO
+	lucifer.gotontheinter.net") by vger.kernel.org with ESMTP
+	id S262165AbTFIVe0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 17:34:26 -0400
+Subject: [PATCHSET] 2.4.21-rc6-dis3 released
+From: Disconnect <kernel@gotontheinter.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1055195284.19815.55.camel@slappy>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 09 Jun 2003 17:48:04 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+I am happy to announce the 3rd release of my laptop-oriented patchset. 
+Some patches that I liked in -dis1 and -dis2 are missing, notably
+packet-mode cdrw/dvd writing, because they proved unstable.  (A couple
+of others are missing because they proved unmergable; they might come
+back if anyone wanted them.  If your favorite patch went away, mail me
+and let me know..)
 
-On Monday 09 of June 2003 22:21, you wrote:
-> > From: Marcelo Tosatti [mailto:marcelo@conectiva.com.br]
-> >
-> > > > Any chance to get patch against latest -rc7 ?
-> > >
-> > > It's big, and deemed too risky. We are shooting for 2.4.22-pre1.
-> >
-> > Just had a few thoughts about that and I want to have a fast 2.4.22
-> > release (maximum two months). 2.4.21's development time was
-> > unnaceptable.
-In this world there should be no rush :-)
+Its been very stable for me for about 3 days, including swsusp, boot
+winxp, read-only-mount the ext3 fs as ext2, copy stuff off, etc, then
+resume linux.
 
-> > Lets do the ACPI merge in 2.4.23.
->
-> I wouldn't have a problem with this, except that you've been deferring
-> the ACPI merge for over a year. We've been maintaining this patch
-> outside the mainline tree for EIGHTEEN MONTHS. Please stop leading me
-> along. Will you EVER merge it?
->
-> I am confident it will merge cleanly.
-> I am confident it will cause no problems when CONFIG_ACPI=off.
-> I am confident the total number of working machines will go up.
-> I am willing to bet $500 of MY OWN MONEY on this.
+Bug reports welcome, and nvidia users, I'm still looking to hear from
+more of you.  (Those of you who have responded already should have
+replies by now; if not, let me know..)
 
-Well, Marcelo - i am happy with new ACPI, Alan does (otherwise it wouldn't be 
-included into ac tree). We will welcome it in 2.4.22-pre1 :]
+The patch is against 2.4.21-rc6 and is available at
+http://www.gotontheinter.net/kernel/ (including an untested update to
+rc7)
 
-Anyway, still ACPI does not work fully in my PCG-C1VE Sony Vaio. I don't know 
-if due to incompatibilities of this equipment ?
-All other servers/desktops works perfectly fine for me :D
+Included:
+ - ACPI 20030523-2.4.21-rc3.diff
+ - journal-deadlock-on-mount
+(http://marc.theaimsgroup.com/?l=linux-kernel&m=105433050315208&w=2)
+ - BCM4400 driver integrated (this may be bad:
+http://hypermail.idiosynkrasia.net/linux-kernel/archived/2003/week04/0165.html ..)
+ - patch-acpi-acpi20021212-swsusp19.gz
+ - add CONFIG_ACPI_I8500 for custom DSDT - no more patching needed for
+non-I8500 users!
+ - 1080_NF2_0305311048_2.4.21-ck1.patch - Nvidia Nforce2 update. Lemme
+know if this helps. (Yep, as with several of these its stolen from -CK..
+yay for Con!)
+ - 1100_CFS_0305311539_2.4.21-ck1.patch - CPUfreq (no modifications this
+time)
+ - orinoco-0.11b-patch for monitor-mode
+ - linux-2.4.13-vfat-symlink-0.90
+ - trackpad-2.4.20, latest version (Tue, 27 May 2003 22:47:06 +0200)
+ - patch-agp for swsusp on i810 motherboards
+ - 1020_RL2_0305310042_2.4.21-ck1.patch.bz2 Read Latency2
+ - 025_ide-cd-dma-4 (from -jp) -- use dma to read audio cds
+ - 065_cdfs-0.5b 0.5c (also from -jp)
+ - 068_ntfs-22a (jp again, yay) - new NTFS
+ - Removed OSS, patched in alsa (from -jp)
 
-Thanks guys. 
-- --
-Grzegorz Jaskiewicz
-K4 Labs
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE+5PsLqu082fCQYIgRAuaFAJ0RxLG8gj2/Lk2B+bxS7bxwcve4zgCghgzO
-d7hfwJa81RyJ+ltxmBd+KIs=
-=JkND
------END PGP SIGNATURE-----
 

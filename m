@@ -1,27 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289495AbSA2LVF>; Tue, 29 Jan 2002 06:21:05 -0500
+	id <S289511AbSA2LUp>; Tue, 29 Jan 2002 06:20:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289507AbSA2LU4>; Tue, 29 Jan 2002 06:20:56 -0500
-Received: from [61.135.132.105] ([61.135.132.105]:57802 "EHLO
+	id <S289507AbSA2LUg>; Tue, 29 Jan 2002 06:20:36 -0500
+Received: from [61.135.132.105] ([61.135.132.105]:52675 "EHLO
 	webmail10.sohu.com") by vger.kernel.org with ESMTP
-	id <S289495AbSA2LUl>; Tue, 29 Jan 2002 06:20:41 -0500
+	id <S289495AbSA2LUT>; Tue, 29 Jan 2002 06:20:19 -0500
 Content-Class: urn:content-classes:message
 From: <lucidasohu@sohu.com>
 To: <linux-kernel@vger.kernel.org>
 Subject: Contribute Data Mining  Methods For  MySQL
-Date: Tue, 29 Jan 2002 19:03:05 +0800
-Message-ID: <1a72001c1a8b4$873a2940$6e84a8c0@sohu.com>
+Date: Tue, 29 Jan 2002 19:02:43 +0800
+Message-ID: <1a71501c1a8b4$79c13790$6e84a8c0@sohu.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="gb2312"
 X-Mailer: Microsoft CDO for Windows 2000
 X-Mimeole: Produced By Microsoft MimeOLE V5.00.2314.1300
-Thread-Index: AcGotIc6uRvZpBSOEdaJSgBQi8wnpw==
+Thread-Index: AcGotHm/uRvZjBSOEdaJSgBQi8wnpw==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 8bit
-X-MIME-Autoconverted: from base64 to 8bit by mangalore.zipworld.com.au id WAA29488
+X-MIME-Autoconverted: from base64 to 8bit by mangalore.zipworld.com.au id WAA29506
 
 Hello all ,
 

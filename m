@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261874AbTFTGtm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 02:49:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262127AbTFTGtm
+	id S262423AbTFTG4d (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 02:56:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbTFTG4a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 02:49:42 -0400
-Received: from smaug.dreamhost.com ([66.33.209.15]:37033 "EHLO
-	smaug.dreamhost.com") by vger.kernel.org with ESMTP id S261874AbTFTGtl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 02:49:41 -0400
-Subject: Re: memory problem with 2.4.21 SMP on Dell Dimension 8300 (i875p
-	chipset)
-From: Matti Rendahl <matti@comedialabs.com>
-To: Greg Norris <haphazard@kc.rr.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030620012411.GA1532@glitch.localdomain>
-References: <20030616021059.GA1671@glitch.localdomain>
-	 <20030620012411.GA1532@glitch.localdomain>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1056092485.9391.41.camel@comedialabs.dyndns.info>
+	Fri, 20 Jun 2003 02:56:30 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:62734 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262148AbTFTG4Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 02:56:25 -0400
+Date: Fri, 20 Jun 2003 08:10:22 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PnP Changes for 2.5.72
+Message-ID: <20030620081021.C7431@flint.arm.linux.org.uk>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20030618234418.GC333@neo.rr.com> <20030619093632.A29602@flint.arm.linux.org.uk> <20030619234249.GA31392@neo.rr.com> <20030620065547.B7431@flint.arm.linux.org.uk> <20030620061020.GC786@pazke>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4- 
-Date: 20 Jun 2003 09:01:25 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030620061020.GC786@pazke>; from pazke@donpac.ru on Fri, Jun 20, 2003 at 10:10:20AM +0400
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-06-20 at 03:24, Greg Norris wrote:
-> I still haven't figured this one out, but for whatever it's worth
-> 2.5.72 doesn't appear to trigger the problem.  Guess I won't worry
-> about it too much. ;-)
-> 
-> On Sun, Jun 15, 2003 at 09:10:59PM -0500, Greg Norris wrote:
-> > After running a SMP 2.4.21 kernel on my Dell Dimension 8300, the BIOS
-> > thinks that the amount of memory has changed.  When the box is
-> > rebooted, I get the following message at the end of BIOS
-> > initialization:
-> > 
-> >    The amount of system memory has changed.
-> >    Alert! OS Install Mode enabled. Amount of available memory limited to 256MB.
-> > 
+On Fri, Jun 20, 2003 at 10:10:20AM +0400, Andrey Panin wrote:
+> It was me who added this crappy quirk.
 
-This is something related to/triggered by the ACPI code, booting with
-acpi=off makes it go away (2.4.21). 
+It helps when the people with the problems are reading the list. 8)
 
---matti
+> My ELine modem which identified itself "Rockwell 56K ACF II Fax+Data+Voice
+> Modem" was going mad when its IRQ was shared with any device. So I decided
+> to add this quirk.
 
+Can you remember any further details?  Eg, was it when sharing with other
+serial ports (and were these serial ports in use), or any thing else?
+
+Thanks.
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

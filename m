@@ -1,54 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261439AbULNHYZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261440AbULNH1i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261439AbULNHYZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 02:24:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbULNHYZ
+	id S261440AbULNH1i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 02:27:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261442AbULNH1i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 02:24:25 -0500
-Received: from pne-smtpout2-sn2.hy.skanova.net ([81.228.8.164]:40395 "EHLO
-	pne-smtpout2-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
-	id S261439AbULNHYW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 02:24:22 -0500
-Message-ID: <24338756.1103009050547.JavaMail.tomcat@pne-ps1-sn1>
-Date: Tue, 14 Dec 2004 08:24:10 +0100 (MET)
-From: Voluspa <lista4@comhem.se>
-Reply-To: lista4@comhem.se
-To: mr@ramendik.ru
-Subject: Re: 2.6.10-rc3: kswapd eats CPU on start of memory-eating task
+	Tue, 14 Dec 2004 02:27:38 -0500
+Received: from cantor.suse.de ([195.135.220.2]:30865 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261440AbULNH1h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 02:27:37 -0500
+Date: Tue, 14 Dec 2004 08:27:25 +0100
+From: Andi Kleen <ak@suse.de>
+To: Stephen Degler <stephen@degler.net>
 Cc: linux-kernel@vger.kernel.org
+Subject: Re: NUMA on i386 with Opterons
+Message-ID: <20041214072725.GI1046@wotan.suse.de>
+References: <43220.166.84.149.254.1102702048.squirrel@crusoe.degler.net>
 Mime-Version: 1.0
-Content-Type: text/plain;charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Mailer: CP Presentation Server
-X-clientstamp: [213.64.150.229]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43220.166.84.149.254.1102702048.squirrel@crusoe.degler.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 2004-12-14 2:28:59 Mikhail Ramendik wrote:
+On Fri, Dec 10, 2004 at 01:07:28PM -0500, Stephen Degler wrote:
+> Hello,
+> 
+> Should i386 NUMA be working on with Opteron systems?  I'm blowing up
+> on various Tyan motherboards.  Of course x86_64 kernels run fine.
 
-> BTW, somebody told me in a private email to try the oomkiller patch, but 
-I 
-> could not extract it from the Web archive, so I don't have the latest version 
-> of that :( I'd apreciate if anyone emailed that to me, or gave me a link. 
-or 
-> a pointer to instructions on getting it right from obe of the Web archives.
+No. The i386 NUMA support was written for completely different
+systems. In theory it could be fixed, but it's probably
+not worth it because 32bit NUMA has a lot of problems
+and it's much better to use a 64bit kernel on these machines.
 
-Final incarnation can be picked up at
-http://marc.theaimsgroup.com/?l=linux-kernel&m=110269783227867&w=2
+However some check should be probably added to avoid the oops.
 
-But on my machine it doesn't address the issue you speak of. When I run something
-as demanding as that (end of memory, eating a large chunk of swap) it behaves 
-like
-yours. Gkrellm stops - no screen updates, mouse becomes very unresponsive etc. 
-Though
-I saw that as "normal" for the workload.
-
-In this appartment there's no difference between 2.6.9 patched with the kswapd 
-fix and
-the oomkill patch, or 2.6.10-rc3 with or without oomkill patch. Can't comment 
-on 2.6.8
-since I didn't exhaust memory with applications back then.
-
-Mvh
-Mats Johannesson
-
+-Andi

@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268802AbRG0J5a>; Fri, 27 Jul 2001 05:57:30 -0400
+	id <S268816AbRG0KAa>; Fri, 27 Jul 2001 06:00:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268815AbRG0J5W>; Fri, 27 Jul 2001 05:57:22 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:30086 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S268802AbRG0J5F>;
-	Fri, 27 Jul 2001 05:57:05 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S268818AbRG0KAK>; Fri, 27 Jul 2001 06:00:10 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:2054 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S268816AbRG0KAE>; Fri, 27 Jul 2001 06:00:04 -0400
+Subject: Re: Hard disk problem:
+To: thorgal@amiga.com.pl (Miloslaw Smyk)
+Date: Fri, 27 Jul 2001 11:00:08 +0100 (BST)
+Cc: mharris@opensourceadvocate.org (Mike A. Harris),
+        linux-kernel@vger.kernel.org (Linux Kernel mailing list)
+In-Reply-To: <no.id> from "Miloslaw Smyk" at Jul 27, 2001 11:11:29 AM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15201.15059.75725.225907@pizda.ninka.net>
-Date: Fri, 27 Jul 2001 02:56:35 -0700 (PDT)
-To: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Minor net/core/sock.c security issue?
-In-Reply-To: <200107242224.CAA00437@mops.inr.ac.ru>
-In-Reply-To: <15196.45004.237634.928656@pizda.ninka.net>
-	<200107242224.CAA00437@mops.inr.ac.ru>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Message-Id: <E15Q4Pg-0005MV-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+> >  Model=IBM-DTLA-307030, FwRev=TX4OA50C, SerialNo=YKDYKGF1437
+> 
+> Ah, one of these excellent Hungarian DTLA drives? :) AFAIK, the entire batch
+> was broken, although there are people who insist that there was no single
+> working hard drive leaving that factory! I personally have seen 7 out of 7
+> failing...
 
-Alexey Kuznetsov writes:
- > > 1) have standard inline functions with names that suggest the
- > >    signedness, much like Rusty's netfilter macros.
- > 
- > min/max are macros. I do not know how to make a valid inline
- > for it: cast to long has problems with unsigned longs, cast to unsigned long
- > have the same problems with signedness.
+I have a large collection of these drives and none of them are problematic,
+while the maxtors seem a little less reliable
 
-For the time being I've just killed that bogus min define
-from sock.c and also open-coded the min/max usage in the
-rest of sock.c
+> Take it back to where you bought it and demand a replacement for something
+> NOT bearing "MADE IN HUNGARY" sign.
 
-This solves the original report, but later I'd like to do
-something more satisfactory here.
+Of course the writer of this is Polish and the drives are Hungarian ..
 
-I mean, grep for "define [min|max]" in just the networking
-sources right now, yuck!
-
-Later,
-David S. Miller
-davem@redhat.com
+Alan

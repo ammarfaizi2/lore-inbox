@@ -1,64 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268165AbTBYMnj>; Tue, 25 Feb 2003 07:43:39 -0500
+	id <S267959AbTBYMkC>; Tue, 25 Feb 2003 07:40:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268164AbTBYMnj>; Tue, 25 Feb 2003 07:43:39 -0500
-Received: from falcon.mail.pas.earthlink.net ([207.217.120.74]:55474 "EHLO
-	falcon.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S268165AbTBYMnh>; Tue, 25 Feb 2003 07:43:37 -0500
-Date: Tue, 25 Feb 2003 07:59:42 -0500
-To: akpm@digeo.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IO scheduler benchmarking
-Message-ID: <20030225125942.GA1657@rushmore>
+	id <S268066AbTBYMkC>; Tue, 25 Feb 2003 07:40:02 -0500
+Received: from mta.sara.nl ([145.100.16.144]:60667 "EHLO mta.sara.nl")
+	by vger.kernel.org with ESMTP id <S267959AbTBYMkB>;
+	Tue, 25 Feb 2003 07:40:01 -0500
+Date: Tue, 25 Feb 2003 13:50:10 +0100
+From: Remco Post <r.post@sara.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: zImage now holds vmlinux, System.map and config in sections. (fwd)
+Message-Id: <20030225135010.69f9f58f.r.post@sara.nl>
+In-Reply-To: <20030225113557.C9257@flint.arm.linux.org.uk>
+References: <3C6BEE8B5E1BAC42905A93F13004E8AB017DE84C@mailse01.axis.se>
+	<20030225092520.A9257@flint.arm.linux.org.uk>
+	<20030225110704.GD159052@niksula.cs.hut.fi>
+	<20030225113557.C9257@flint.arm.linux.org.uk>
+X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; sparc-sun-solaris2.7)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-From: rwhron@earthlink.net
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Why does 2.5.62-mm2 have higher sequential
->> write latency than 2.5.61-mm1?
+On Tue, 25 Feb 2003 11:35:57 +0000
+Russell King <rmk@arm.linux.org.uk> wrote:
 
-> And there are various odd interactions in, at least, ext3.  You did not
-> specify which filesystem was used.
+> On Tue, Feb 25, 2003 at 01:07:04PM +0200, Ville Herva wrote:
+> > On Tue, Feb 25, 2003 at 09:25:20AM +0000, you [Russell King] wrote:
+> > > Agreed - zImage is already around 1MB on many ARM machines, and since
+> > > loading zImage over a serial port using xmodem takes long enough
+> > > already, this is one silly feature I'll definitely keep out of the
+> > > ARM tree.
+> > 
+> > Why not make it a config option (like the other (two? three?) rejected
+> > patches that implemented this did)?
+> 
+> I, for one, do not see any point in trying to put more and more crap
+> into one file, when its perfectly easy to just use the "cp" command
+> to produce the same end result, namely a copy of zImage, System.map
+> and configuration, thusly:
+> 
+> cp arch/$ARCH/boot/zImage /boot/vmlinuz-$VERSION
+> cp .config /boot/config-$VERSION
+> cp System.map /boot/System.map-$VERSION
+> 
 
-ext2
-
->>                     Thr  MB/sec   CPU%     avg lat      max latency
->> 2.5.62-mm2-as         8   14.76   52.04%     6.14        4.5
->> 2.5.62-mm2-dline      8    9.91   13.90%     9.41         .8
->> 2.5.62-mm2            8    9.83   15.62%     7.38      408.9
-
-> Fishiness.  2.5.62-mm2 _is_ 2.5.62-mm2-as.  Why the 100x difference?
-
-Bad EXTRAVERSION naming on my part.  2.5.62-mm2 _was_ booted with 
-elevator=cfq.
-
-How it happened:
-2.5.61-mm1 tested
-2.5.61-mm1-cfq tested and elevator=cfq added to boot flags
-2.5.62-mm1 tested (elevator=cfq still in lilo boot boot flags)
-Then to test the other two schedulers I changed extraversion and boot
-flags.
-
-> That 408 seconds looks suspect.
-
-AFAICT, that's the one request in over 500,000 that took the longest.
-The numbers are fairly consistent.  How relevant they are is debatable.  
-
-> If you want to test write latency, do this:
-
-Your approach is more realistic than tiobench.  
-
-> There is a place in VFS where one writing task could accidentally hammer a
-> different one.  I cannot trigger that, but I'll fix it up in next -mm.
-
-2.5.62-mm3 or 2.5.63-mm1?  (-mm3 is running now)
+Hmm, and how would you implement that on a system (ppc/prep) that could very
+easily netboot a kernel... no /boot needed? I for one build kernels on one
+box that is more or less production and netboot another just to see it fail
+horribly... having all stuff in one file could help....
 
 -- 
-Randy Hron
-http://home.earthlink.net/~rwhron/kernel/bigbox.html
+Met vriendelijke groeten,
 
+Remco Post
+
+SARA - Stichting Academisch Rekencentrum Amsterdam    http://www.sara.nl
+High Performance Computing  Tel. +31 20 592 8008    Fax. +31 20 668 3167
+
+"I really didn't foresee the Internet. But then, neither did the computer
+industry. Not that that tells us very much of course - the computer industry
+didn't even foresee that the century was going to end." -- Douglas Adams

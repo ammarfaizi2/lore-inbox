@@ -1,96 +1,194 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311025AbSGYM1V>; Thu, 25 Jul 2002 08:27:21 -0400
+	id <S311885AbSGYMcY>; Thu, 25 Jul 2002 08:32:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311749AbSGYM1V>; Thu, 25 Jul 2002 08:27:21 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:41226
+	id <S312558AbSGYMcY>; Thu, 25 Jul 2002 08:32:24 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:42762
 	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S311025AbSGYM1U>; Thu, 25 Jul 2002 08:27:20 -0400
-Date: Thu, 25 Jul 2002 05:25:15 -0700 (PDT)
+	id <S311885AbSGYMcV>; Thu, 25 Jul 2002 08:32:21 -0400
+Date: Thu, 25 Jul 2002 05:30:00 -0700 (PDT)
 From: Andre Hedrick <andre@linux-ide.org>
-To: Mike Insch <vofka@hotpop.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Oddities with HighPoint HPT374, 2.4.19-pre10-ac2
-In-Reply-To: <200207251249.02531.vofka@hotpop.com>
-Message-ID: <Pine.LNX.4.10.10207250507480.4719-100000@master.linux-ide.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: martin@dalecki.de, Vojtech Pavlik <vojtech@suse.cz>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC/CFT] cmd640 irqlocking fixes
+In-Reply-To: <1027602528.9488.68.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.10.10207250526000.4719-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The oddities are the fact I have not finished creating the channel and
-drive set inner-lock sequence code :-/  If you run it in master mode only
-one drive per channel, it is perfectly safe.  The problem happens the
-instant you pair drives on the channels.  I have not figured out the
-correct interrupt sequence ordering and blocking recipe.
+EEK!
 
-The issue stands to deal with double hwgroups locking and having more than
-two channels to the effective HBA.
+Alan, how are you going to sync to access to the shared HBA registers if
+the lock is decoupled from the main loop?  Since there are general
+register mucking abouts during data transfers, iirc the behavors of the
+CMD640B I use for testing.  You have me a little close to the edge of my
+seat on concern.
 
-Instead of 
 
-HPT374
-  ide4
-  ide5
-HPT374
-  ide6
-  ide7
+On 25 Jul 2002, Alan Cox wrote:
 
-It has to evlolve to
-
-HPT374
-  ide4p
-  ide4s
-  ide5p
-  ide5s
-
-This means extened minor on the second half of each major must be created.
-There is not enough sane bandwith in the driver, nor would anybody take
-such an exotic solution.
-
-Sorry,
+> Martin this patch should do the job. It uses the correct pci_config_lock
+> and it also adds the 2.4 probe safety checks for deciding which pci
+> modes to use.
+> 
+> --- ../linux-2.5.28/drivers/ide/cmd640.c	Thu Jul 25 10:49:19 2002
+> +++ drivers/ide/cmd640.c	Thu Jul 25 11:41:27 2002
+> @@ -216,27 +216,27 @@
+>  
+>  /* PCI method 1 access */
+>  
+> -static void put_cmd640_reg_pci1 (unsigned short reg, byte val)
+> +extern spinlock_t pci_config_lock;
+> +
+> +static void put_cmd640_reg_pci1 (unsigned short reg, u8 val)
+>  {
+>  	unsigned long flags;
+> -
+> -	save_flags(flags);
+> -	cli();
+> -	outl_p((reg & 0xfc) | cmd640_key, 0xcf8);
+> +	
+> +	spin_lock_irqsave(&pci_config_lock, flags);
+> +	outb_p((reg & 0xfc) | cmd640_key, 0xcf8);
+>  	outb_p(val, (reg & 3) | 0xcfc);
+> -	restore_flags(flags);
+> +	spin_unlock_irqrestore(&pci_config_lock, flags);
+>  }
+>  
+>  static u8 get_cmd640_reg_pci1 (unsigned short reg)
+>  {
+>  	u8 b;
+>  	unsigned long flags;
+> -
+> -	save_flags(flags);
+> -	cli();
+> -	outl_p((reg & 0xfc) | cmd640_key, 0xcf8);
+> -	b = inb_p((reg & 3) | 0xcfc);
+> -	restore_flags(flags);
+> +	
+> +	spin_lock_irqsave(&pci_config_lock, flags);
+> +	outb_p((reg & 0xfc) | cmd640_key, 0xcf8);
+> +	b=inb_p((reg & 3) | 0xcfc);
+> +	spin_unlock_irqrestore(&pci_config_lock, flags);
+>  	return b;
+>  }
+>  
+> @@ -245,26 +245,24 @@
+>  static void put_cmd640_reg_pci2 (unsigned short reg, u8 val)
+>  {
+>  	unsigned long flags;
+> -
+> -	save_flags(flags);
+> -	cli();
+> +	
+> +	spin_lock_irqsave(&pci_config_lock, flags);
+>  	outb_p(0x10, 0xcf8);
+>  	outb_p(val, cmd640_key + reg);
+>  	outb_p(0, 0xcf8);
+> -	restore_flags(flags);
+> +	spin_unlock_irqrestore(&pci_config_lock, flags);
+>  }
+>  
+>  static u8 get_cmd640_reg_pci2 (unsigned short reg)
+>  {
+>  	u8 b;
+>  	unsigned long flags;
+> -
+> -	save_flags(flags);
+> -	cli();
+> +	
+> +	spin_lock_irqsave(&pci_config_lock, flags);
+>  	outb_p(0x10, 0xcf8);
+>  	b = inb_p(cmd640_key + reg);
+>  	outb_p(0, 0xcf8);
+> -	restore_flags(flags);
+> +	spin_unlock_irqrestore(&pci_config_lock, flags);
+>  	return b;
+>  }
+>  
+> @@ -701,9 +699,62 @@
+>  
+>  #endif
+>  
+> +/**
+> + *	pci_conf1	-	check for PCI type 1 configuration
+> + *	
+> + *	Issues a safe probe sequence for PCI configuration type 1 and
+> + *	returns non-zero if conf1 is supported. Takes the pci_config lock
+> + */
+> + 
+> +static int pci_conf1(void)
+> +{
+> +	u32 tmp;
+> +	unsigned long flags;
+> +	
+> +	spin_lock_irqsave(&pci_config_lock, flags);
+> +
+> +	OUT_BYTE(0x01, 0xCFB);
+> +	tmp = inl(0xCF8);
+> +	outl(0x80000000, 0xCF8);
+> +	if (inl(0xCF8) == 0x80000000) {
+> +		spin_unlock_irqrestore(&pci_config_lock, flags);
+> +		outl(tmp, 0xCF8);
+> +		return 1;
+> +	}
+> +	outl(tmp, 0xCF8);
+> +	spin_unlock_irqrestore(&pci_config_lock, flags);
+> +	return 0;
+> +}
+> +
+> +/**
+> + *	pci_conf2	-	check for PCI type 2 configuration
+> + *	
+> + *	Issues a safe probe sequence for PCI configuration type 2 and
+> + *	returns non-zero if conf2 is supported. Takes the pci_config lock.
+> + */
+> + 
+> +
+> +static int pci_conf2(void)
+> +{
+> +	unsigned long flags;
+> +	spin_lock_irqsave(&pci_config_lock, flags);
+> +	
+> +	OUT_BYTE(0x00, 0xCFB);
+> +	OUT_BYTE(0x00, 0xCF8);
+> +	OUT_BYTE(0x00, 0xCFA);
+> +	if (IN_BYTE(0xCF8) == 0x00 && IN_BYTE(0xCF8) == 0x00) {
+> +		spin_unlock_irqrestore(&pci_config_lock, flags);
+> +		return 1;
+> +	}
+> +	spin_unlock_irqrestore(&pci_config_lock, flags);
+> +	return 0;
+> +}
+> +
+> +
+>  /*
+>   * Probe for a cmd640 chipset, and initialize it if found.  Called from ide.c
+>   */
+> + 
+>  int __init ide_probe_for_cmd640x(void)
+>  {
+>  #ifdef CONFIG_BLK_DEV_CMD640_ENHANCED
+> @@ -718,9 +769,10 @@
+>  		bus_type = "VLB";
+>  	} else {
+>  		cmd640_vlb = 0;
+> -		if (probe_for_cmd640_pci1())
+> +		/* Find out what kind of PCI probing is supported */
+> +		if (pci_conf1() && probe_for_cmd640_pci1())
+>  			bus_type = "PCI (type1)";
+> -		else if (probe_for_cmd640_pci2())
+> +		else if (pci_conf2() && probe_for_cmd640_pci2())
+>  			bus_type = "PCI (type2)";
+>  		else
+>  			return 0;
+> 
 
 Andre Hedrick
 LAD Storage Consulting Group
-
-On Thu, 25 Jul 2002, Mike Insch wrote:
-
-> Hi,
-> 
-> I have a system with an ABIT AT7 Motherboard (Duron 1200, 256MB PC2100 RAM), 
-> and have 8 80GB Maxtor IDE HDD's connected to the HPT374 controller on the 
-> board, configured as a single RAID-0 Array in hardware.
-> 
-> When copying data from another disk connected to the VIA IDE Controller, the 
-> kernel oopses with an 'Unable to handle NULL pointer dereference at virtual 
-> address 00000004' after about 5MB has copied.  The process implicated by the 
-> oops is the kjournald process for the only partition on the RAID array.
-> 
-> Sorry I have no output from the oops - it locks totally, and the oops is never 
-> logged :(
-> 
-> Copying large amounts of data from a Samba Share on the network (over 15GB!) 
-> has produced no similar problems - so I'm guessing that kjournald, or the 
-> HPT374 drivers don't like the 640GB array when data is being committed too 
-> fast. (All the drives involved are UDMA 133 Drives, both the one on the VIA 
-> Controller, and all 8 on the HPT Controller).
-> 
-> I know it's hard to say without me giving more info, but does anyone have any 
-> idea what could possibly cause this?  Have there been updates in newer 
-> releases to either the HPT374 Code, or to the kjournald code that could solve 
-> this?  Is it worth me getting and compiling 2.4.19-rc3-ac3 to see if the 
-> problem is solved there?  Any and all info. which may help tracking down this 
-> gremlin would be greatly appreciated....
-> 
-> (I can post detailed info. about the hardware (lspci, dmesg etc), and kernel 
-> configurations if that would be of any use?)
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
 

@@ -1,88 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261449AbVCNLLD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261586AbVCNLRg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261449AbVCNLLD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 06:11:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbVCNLLD
+	id S261586AbVCNLRg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 06:17:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbVCNLRg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 06:11:03 -0500
-Received: from wproxy.gmail.com ([64.233.184.196]:34215 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261449AbVCNLKw (ORCPT
+	Mon, 14 Mar 2005 06:17:36 -0500
+Received: from mail.dif.dk ([193.138.115.101]:43461 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261586AbVCNLRd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 06:10:52 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=p2rGNCBvptR/bx/JYr9EM3dWJQVI36W3jxOw8txSrdOJ3hL9DwQnzU7BtTiwwQdJLcO2chUCQWLTWOasP01UDSBQkctksGSIB/5OnIlXcugE9sfL+0GFIeOreW/vDGgjjXey6JrMNjVt4MAjgDfQi1HKqXapHNVdk7A0iRX2Zrc=
-Message-ID: <84144f0205031403105351abf5@mail.gmail.com>
-Date: Mon, 14 Mar 2005 13:10:46 +0200
-From: Pekka Enberg <penberg@gmail.com>
-Reply-To: Pekka Enberg <penberg@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: A new 10GB Ethernet Driver by Chelsio Communications
-Cc: Christoph Lameter <christoph@graphe.net>, linux-kernel@vger.kernel.org,
-       mark@chelsio.com, netdev@oss.sgi.com, Jeff Garzik <jgarzik@pobox.com>,
-       penberg@cs.helsinki.fi
-In-Reply-To: <20050311112132.6a3a3b49.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <Pine.LNX.4.58.0503110356340.14213@server.graphe.net>
-	 <20050311112132.6a3a3b49.akpm@osdl.org>
+	Mon, 14 Mar 2005 06:17:33 -0500
+Date: Mon, 14 Mar 2005 12:18:52 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Steven French <sfrench@us.ibm.com>
+Cc: Andreas Dilger <adilger@clusterfs.com>, Domen Puncer <domen@coderock.org>,
+       =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
+       linux-cifs-client@lists.samba.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       samba-technical@lists.samba.org
+Subject: Re: [PATCH][-mm][1/2] cifs: whitespace cleanups for file.c
+In-Reply-To: <OF4C53518E.FBC70B15-ON87256FC4.00252AB1-86256FC4.00257AE2@us.ibm.com>
+Message-ID: <Pine.LNX.4.62.0503141211120.2534@dragon.hyggekrogen.localhost>
+References: <OF4C53518E.FBC70B15-ON87256FC4.00252AB1-86256FC4.00257AE2@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some of my usual coding style comments...
+On Mon, 14 Mar 2005, Steven French wrote:
 
-On Fri, 11 Mar 2005 11:21:32 -0800, Andrew Morton <akpm@osdl.org> wrote:
-> diff -puN /dev/null drivers/net/chelsio/osdep.h
-> --- /dev/null	2003-09-15 06:40:47.000000000 -0700
-> +++ 25-akpm/drivers/net/chelsio/osdep.h	2005-03-11 11:13:06.000000000 -0800
-> +static inline void *t1_malloc(size_t len)
-> +{
-> +	void *m = kmalloc(len, GFP_KERNEL);
-> +	if (m)
-> +		memset(m, 0, len);
-> +	return m;
-> +}
-> +
-> +static inline void t1_free(void *v, size_t len)
-> +{
-> +	kfree(v);
-> +}
+> 
+> > Here's the first of two patches with cleanups for fs/cifs/file.c
+> The patch looks safe enough but I can not get the patch to apply (pattch
+> always claims it is malformed) - whichever email clients I received it
+> from probably because of wrap at 80 columns or some conversion that
+> occurred in the email text of the patch, although evolution email client
+> also had problems with it being to big to cut and paste (but even trying
+> it in smaller chunks I could not get it to apply). If you could resend
+> it as a file that would be helpful.
+> 
+I just send it to you as an attachment in private email. I'd rather not 
+resend that big a file to the lists if not needed. 
 
-Please do not introduce subsystem specific wrappers to kmalloc and kfree.
+I've also put the patches online here :  
 
-> +/*
-> + * Allocates basic RX resources, consisting of memory mapped freelist Qs and a
-> + * response Q.
-> + */
-> +static int alloc_rx_resources(struct sge *sge, struct sge_params *p)
-> +{
-> +	struct pci_dev *pdev = sge->adapter->pdev;
-> +	unsigned int size, i;
-> +
-> +	for (i = 0; i < SGE_FREELQ_N; i++) {
-> +		struct freelQ *Q = &sge->freelQ[i];
-> +
-> +		Q->genbit = 1;
-> +		Q->entries_n = p->freelQ_size[i];
-> +		Q->dma_offset = SGE_RX_OFFSET - sge->rx_pkt_pad;
-> +		size = sizeof(struct freelQ_e) * Q->entries_n;
-> +		Q->entries = (struct freelQ_e *)
-> +			      pci_alloc_consistent(pdev, size, &Q->dma_addr);
-> +		if (!Q->entries)
-> +			goto err_no_mem;
-> +		memset(Q->entries, 0, size);
-> +		size = sizeof(struct freelQ_ce) * Q->entries_n;
-> +		Q->centries = (struct freelQ_ce *) kmalloc(size, GFP_KERNEL);
-> +		if (!Q->centries)
-> +			goto err_no_mem;
-> +		memset(Q->centries, 0, size);
+http://www.linuxtux.org/~juhl/fs_cifs_file-whitespace-cleanups-part-1.patch
+http://www.linuxtux.org/~juhl/fs_cifs_file-whitespace-cleanups-part-2-and_cifs_open-rework.patch
 
-Please drop the redundant casts and use kcalloc() here and in various
-other places as
-well.
+They won't live forever at that location, but I can leave them there for a 
+few weeks at least.
 
-Also, the patch has some whitespace damage (spaces instead of tabs).
 
-				Pekka
+-- 
+Jesper Juhl
+
+

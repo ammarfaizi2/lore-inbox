@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262581AbRENXih>; Mon, 14 May 2001 19:38:37 -0400
+	id <S262582AbRENXjh>; Mon, 14 May 2001 19:39:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262587AbRENXi1>; Mon, 14 May 2001 19:38:27 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:666 "EHLO
+	id <S262583AbRENXj1>; Mon, 14 May 2001 19:39:27 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:1946 "EHLO
 	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S262581AbRENXiK>; Mon, 14 May 2001 19:38:10 -0400
-Date: Mon, 14 May 2001 17:34:44 -0600
-Message-Id: <200105142334.f4ENYiG19426@vindaloo.ras.ucalgary.ca>
+	id <S262582AbRENXjX>; Mon, 14 May 2001 19:39:23 -0400
+Date: Mon, 14 May 2001 17:39:09 -0600
+Message-Id: <200105142339.f4ENd9t19497@vindaloo.ras.ucalgary.ca>
 From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Andi Kleen <ak@suse.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "H. Peter Anvin" <hpa@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        viro@math.psu.edu
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: viro@math.psu.edu (Alexander Viro), hpa@transmeta.com (H. Peter Anvin),
+        torvalds@transmeta.com (Linus Torvalds),
+        jgarzik@mandrakesoft.com (Jeff Garzik),
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
 Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <20010514230954.A4305@gruyere.muc.suse.de>
-In-Reply-To: <3B003EFC.61D9C16A@mandrakesoft.com>
-	<Pine.LNX.4.31.0105141328020.22874-100000@penguin.transmeta.com>
-	<20010514230954.A4305@gruyere.muc.suse.de>
+In-Reply-To: <E14zRIW-0001dr-00@the-village.bc.nu>
+In-Reply-To: <Pine.GSO.4.21.0105141856090.19333-100000@weyl.math.psu.edu>
+	<E14zRIW-0001dr-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen writes:
-> On Mon, May 14, 2001 at 01:29:51PM -0700, Linus Torvalds wrote:
-> > Big device numbers are _not_ a solution. I will accept a 32-bit one, but
-> > no more, and I will _not_ accept a "manage by hand" approach any more. The
-> > time has long since come to say "No". Which I've done. If you can't make
-> > it manage the thing automatically with a script, you won't get a hardcoded
-> > major device number just because you're lazy.
+Alan Cox writes:
+> > Oh, _that_ one. <shrug> pass rootname=driver!name (or whatever syntax
+> > you prefer) to the kernel and call do_mount() instead of sys_mknod() in
+> > prepare_namespace() (rootfs patch). BFD.
 > 
-> As far as I can see it just needs a /proc/devices that also outputs
-> minor ranges with names, and a small program similar to scsidev to 
-> generate nodes in /dev based on that on the fly on early bootup.
+> Yet another 2.5 project. If Linus wants to go play with name driven
+> devices and you want to help him great, but if he'd care to put out
+> linux-2.5.0.tar.gz _before_ starting that would be good for all of
+> us
 
-You can do that with devfs. It provides all this information. If you
-really don't want to mount devfs over /dev, then mount it elsewhere
-and just use it as an information source to populate /dev. No need to
-add more code to the kernel to do it another way.
+I use LILO and I pass a devfs name for the ROOT fs. You just need to
+pass the name as a string. If you type it at the LILO prompt, it gets
+passed as a string (and thus devfs will use it to descend the tree).
+Also, you can put in /etc/lilo.conf:
+	append = "root=/dev/scsi/host0/bus0/target0/lun0/part2"
+
+and it will pass the string. Works nicely.
 
 				Regards,
 

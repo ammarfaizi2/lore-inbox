@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265409AbSLQS52>; Tue, 17 Dec 2002 13:57:28 -0500
+	id <S266939AbSLQTFK>; Tue, 17 Dec 2002 14:05:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265414AbSLQS52>; Tue, 17 Dec 2002 13:57:28 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:19716 "EHLO
+	id <S266953AbSLQTFK>; Tue, 17 Dec 2002 14:05:10 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:61700 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265409AbSLQS50>; Tue, 17 Dec 2002 13:57:26 -0500
-Date: Tue, 17 Dec 2002 11:05:56 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jeff Dike <jdike@karaya.com>
-cc: Hugh Dickins <hugh@veritas.com>, Dave Jones <davej@codemonkey.org.uk>,
-       Ingo Molnar <mingo@elte.hu>, <linux-kernel@vger.kernel.org>,
-       <hpa@transmeta.com>
-Subject: Re: Intel P6 vs P7 system call performance 
-In-Reply-To: <200212171839.NAA08357@ccure.karaya.com>
-Message-ID: <Pine.LNX.4.44.0212171105000.1095-100000@home.transmeta.com>
+	id <S266939AbSLQTFJ>; Tue, 17 Dec 2002 14:05:09 -0500
+Message-ID: <3DFF772E.2050107@transmeta.com>
+Date: Tue, 17 Dec 2002 11:12:46 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021119
+X-Accept-Language: en, sv
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Dave Jones <davej@codemonkey.org.uk>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Intel P6 vs P7 system call performance
+References: <Pine.LNX.4.44.0212162204300.1800-100000@home.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0212162204300.1800-100000@home.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds wrote:
+> 
+> It's not as good as a pure user-mode solution using tsc could be, but
+> we've seen the kinds of complexities that has with multi-CPU systems, and
+> they are so painful that I suspect the sysenter approach is a lot more
+> palatable even if it doesn't allow for the absolute best theoretical
+> numbers.
+> 
 
+The complexity only applies to nonsynchronized TSCs though, I would
+assume.  I believe x86-64 uses a vsyscall using the TSC when it can
+provide synchronized TSCs, and if it can't it puts a normal system call
+inside the vsyscall in question.
 
-On Tue, 17 Dec 2002, Jeff Dike wrote:
->
-> torvalds@transmeta.com said:
-> > That also allows the kernel to move around the SYSINFO page at will,
-> > and even makes it possible to avoid it altogether (ie this will solve
-> > the inevitable problems with UML - UML just wouldn't set AT_SYSINFO,
-> > so user level just wouldn't even _try_ to use it).
->
-> Why shouldn't I just set it to where UML provides its own SYSINFO page?
+	-hpa
 
-Sure, that works fine too.
-
-		Linus
 

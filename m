@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291605AbSBNMam>; Thu, 14 Feb 2002 07:30:42 -0500
+	id <S291625AbSBNMfC>; Thu, 14 Feb 2002 07:35:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291608AbSBNMac>; Thu, 14 Feb 2002 07:30:32 -0500
-Received: from smtp-out-1.wanadoo.fr ([193.252.19.188]:21909 "EHLO
-	mel-rto1.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S291605AbSBNMaQ>; Thu, 14 Feb 2002 07:30:16 -0500
-Message-ID: <3C6BAD61.5BC1AFC@wanadoo.fr>
-Date: Thu, 14 Feb 2002 13:28:17 +0100
-From: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17 i586)
-X-Accept-Language: fr-FR, en
+	id <S291608AbSBNMem>; Thu, 14 Feb 2002 07:34:42 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:18962 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S291618AbSBNMef>; Thu, 14 Feb 2002 07:34:35 -0500
+Subject: Re: weird system load (2.4.18-pre3)
+To: Teodor.Iacob@astral.kappa.ro
+Date: Thu, 14 Feb 2002 12:48:24 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.31.0202141244060.7065-100000@linux.kappa.ro> from "Teodor Iacob" at Feb 14, 2002 12:48:39 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.18-pre9-ac[23], make modules_install fails
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16bLJI-0008LG-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> I have a linux router running 2.4.18-pre3 kernel and I've got the
+> following problem with it:
+> 
+> It doesn't have free cpu, more than 75% of the resources go to system:
 
-I've the following problem with make modules_install and
-2.4.18-pre9-ac[23]. I've not tested ac1 and then vanilla 2.4.18-pre9
-works fine.
+Well its paging somewhat which suprises me, but unless your disks are in PIO
+mode I would not expect it to account for that.
 
-mkdir -p pcmcia; \
-find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{}
-pcmcia
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map -b
-/usr/src/linux/debian/tmp-image -r 2.4.18-pre9-ac3; fi
-depmod: *** Unresolved symbols in
-/usr/src/linux/debian/tmp-image/lib/modules/2.4.18-pre9-ac3/kernel/drivers/scsi/sd_mod.o
-depmod:         blkdev_varyio
+What network and disk drivers are you using ?
 
-----------
-Regards
-		jean-Luc
+> ext3 mounted, and we had a lot of problems with ext3 when reaching maximum
+> capacity ( after reboot had a lot of fatal errors ), but that seemed to
+
+Thats not a good sign for trusting the machine either
+
+> passed, and now we are getting this unusual load, plus the system is not
+> so reponsive.
+
+Not so responsive as when ?  also what is in the dmesg log ?

@@ -1,126 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265773AbUIVOOM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265489AbUIVORw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265773AbUIVOOM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 10:14:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265800AbUIVOOM
+	id S265489AbUIVORw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 10:17:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265800AbUIVORv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 10:14:12 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:6272 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S265773AbUIVONh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 10:13:37 -0400
-Date: Wed, 22 Sep 2004 10:13:07 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Jesper Juhl <juhl-lkml@dif.dk>
-cc: Marc Ballarin <Ballarin.Marc@gmx.de>, Patrick McHardy <kaber@trash.net>,
-       davem@davemloft.net, rusty@rustcorp.com.au, torvalds@osdl.org,
-       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Warn people that ipchains and ipfwadm are going away.
-In-Reply-To: <Pine.LNX.4.61.0409221556010.14486@jjulnx.backbone.dif.dk>
-Message-ID: <Pine.LNX.4.53.0409221005260.25803@chaos.analogic.com>
-References: <1095721742.5886.128.camel@bach> <20040921143613.2dc78e2f.Ballarin.Marc@gmx.de>
- <1095803902.1942.211.camel@bach> <20040922003646.3a84f4c5.Ballarin.Marc@gmx.de>
- <20040921153600.2e732ea6.davem@davemloft.net> <20040922013516.753044db.Ballarin.Marc@gmx.de>
- <4150C448.5040604@trash.net> <20040922153707.2cc1d886.Ballarin.Marc@gmx.de>
- <Pine.LNX.4.61.0409221556010.14486@jjulnx.backbone.dif.dk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 22 Sep 2004 10:17:51 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:48402 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S265489AbUIVORp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 10:17:45 -0400
+Date: Wed, 22 Sep 2004 15:17:35 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] MMC compatibility fix - GO_IDLE
+Message-ID: <20040922151735.D2347@flint.arm.linux.org.uk>
+Mail-Followup-To: Pierre Ossman <drzeus-list@drzeus.cx>,
+	linux-kernel@vger.kernel.org
+References: <414C065A.7000602@drzeus.cx>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="Dxnq1zWXvFF0Q93v"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <414C065A.7000602@drzeus.cx>; from drzeus-list@drzeus.cx on Sat, Sep 18, 2004 at 11:56:42AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Sep 2004, Jesper Juhl wrote:
 
-> On Wed, 22 Sep 2004, Marc Ballarin wrote:
->
-> > Date: Wed, 22 Sep 2004 15:37:07 +0200
-> > From: Marc Ballarin <Ballarin.Marc@gmx.de>
-> > To: Patrick McHardy <kaber@trash.net>
-> > Cc: davem@davemloft.net, rusty@rustcorp.com.au, torvalds@osdl.org,
-> >     netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
-> > Subject: Re: [PATCH] Warn people that ipchains and ipfwadm are going away.
-> >
-> > On Wed, 22 Sep 2004 02:16:08 +0200
-> > Patrick McHardy <kaber@trash.net> wrote:
-> >
-> > > Fixed by this patch.
-> >
-> > Yes, works fine. Does this mean that ipchains was broken for a while, but
-> > no one complained?
-> >
-> > Anyway, here is another trivial patch against -bk7 that adds runtime
-> > warnings. IMO most users are going to miss compile time warnings, or
-> > won't even compile kernels themselves.
-> >
->
-> I like having runtime info as well as a compile time warning, but maybe
-> the message should mention that iptables is staying and people should
-> migrate??
->
-> > +	printk(KERN_WARNING
-> > +		"Warning: ipchains is obsolete, and will be removed soon!\n");
-> > +
->
-> Perhaps something like this instead:
->
-> "Warning: ipchains is obsolete, and will be removed soon. Please migrate to iptables."
->
->
-> --
-> Jesper Juhl
+--Dxnq1zWXvFF0Q93v
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-FYI. I just migrated to iptables. The code downloaded from the Debian
-site did not compile cleanly, but enough worked to make most of the
-shared libraries and the iptables executable.
+On Sat, Sep 18, 2004 at 11:56:42AM +0200, Pierre Ossman wrote:
+> This patch adds a GO_IDLE before sending a new SEND_OP_COND (as required 
+> by MMC standard).
 
-The total time to do everything was slightly under 2 hours.
+Thanks; I haven't completely vanished off the face of the planet.
 
-The errors from the distribution are:
+We already have a function using MMC_GO_IDLE_STATE, so I suggest we
+separate this out.  If you need a 1ms delay after sending this, maybe
+the other case also needs this delay as well?
 
+How about this patch?
 
-cc -O2 -Wall -Wunused -I/usr/src/linux-2.4.26/include -Iinclude/ -DNETFILTER_VERSION=\"1.2.6a\"  -fPIC -o extensions/libipt_ECN_sh.o -c extensions/libipt_ECN.c
-extensions/libipt_ECN.c: In function `parse':
-extensions/libipt_ECN.c:51: `IPT_ECN_OP_REMOVE' undeclared (first use in this function)
-extensions/libipt_ECN.c:51: (Each undeclared identifier is reported only once
-extensions/libipt_ECN.c:51: for each function it appears in.)
-extensions/libipt_ECN.c: In function `print':
-extensions/libipt_ECN.c:82: `IPT_ECN_OP_REMOVE' undeclared (first use in this function)
-extensions/libipt_ECN.c:83: warning: unreachable code at beginning of switch statement
-extensions/libipt_ECN.c: In function `save':
-extensions/libipt_ECN.c:99: `IPT_ECN_OP_REMOVE' undeclared (first use in this function)
-extensions/libipt_ECN.c:100: warning: unreachable code at beginning of switch statement
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core
 
-make: [extensions/libipt_ECN_sh.o] Error 1 (ignored)
-ld -shared -o extensions/libipt_ECN.so extensions/libipt_ECN_sh.o
-ld: cannot open extensions/libipt_ECN_sh.o: No such file or directory
-make: [extensions/libipt_ECN.so] Error 1 (ignored)
+--Dxnq1zWXvFF0Q93v
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="mmc-idlecards.diff"
 
+diff -u linux-2.6-mmc/drivers/mmc/mmc.c linux/drivers/mmc/mmc.c
+--- linux-2.6-mmc/drivers/mmc/mmc.c	Mon Sep 20 10:23:16 2004
++++ linux/drivers/mmc/mmc.c	Wed Sep 22 15:14:00 2004
+@@ -451,11 +451,26 @@
+ }
+ 
+ /*
++ * Tell attached cards to go to IDLE state
++ */
++static void mmc_idle_cards(struct mmc_host *host)
++{
++	struct mmc_command cmd;
++
++	cmd.opcode = MMC_GO_IDLE_STATE;
++	cmd.arg = 0;
++	cmd.flags = MMC_RSP_NONE;
++
++	mmc_wait_for_cmd(host, &cmd, 0);
++
++	mmc_delay(1);
++}
++
++/*
+  * Apply power to the MMC stack.
+  */
+ static void mmc_power_up(struct mmc_host *host)
+ {
+-	struct mmc_command cmd;
+ 	int bit = fls(host->ocr_avail) - 1;
+ 
+ 	host->ios.vdd = bit;
+@@ -470,12 +485,6 @@
+ 	host->ops->set_ios(host, &host->ios);
+ 
+ 	mmc_delay(2);
+-
+-	cmd.opcode = MMC_GO_IDLE_STATE;
+-	cmd.arg = 0;
+-	cmd.flags = MMC_RSP_NONE;
+-
+-	mmc_wait_for_cmd(host, &cmd, 0);
+ }
+ 
+ static void mmc_power_off(struct mmc_host *host)
+@@ -647,12 +656,22 @@
+ 		u32 ocr;
+ 
+ 		mmc_power_up(host);
++		mmc_idle_cards(host);
+ 
+ 		err = mmc_send_op_cond(host, 0, &ocr);
+ 		if (err != MMC_ERR_NONE)
+ 			return;
+ 
+ 		host->ocr = mmc_select_voltage(host, ocr);
++
++		/*
++		 * Since we're changing the OCR value, we seem to
++		 * need to tell some cards to go back to the idle
++		 * state.  We wait 1ms to give cards time to
++		 * respond.
++		 */
++		if (host->ocr)
++			mmc_idle_cards(host);
+ 	} else {
+ 		host->ios.bus_mode = MMC_BUSMODE_OPENDRAIN;
+ 		host->ios.clock = host->f_min;
 
-ip6tables.o: In function `addr_to_host':
-ip6tables.o(.text+0x4d8): undefined reference to `getnameinfo'
-ip6tables.o: In function `parse_hostnetworkmask':
-ip6tables.o(.text+0x731): undefined reference to `in6addr_any'
-ip6tables.o: In function `print_firewall':
-ip6tables.o(.text+0x19e7): undefined reference to `in6addr_any'
-collect2: ld returned 1 exit status
-make: [ip6tables] Error 1 (ignored)
-
-
-The build command was:
-
-#
-#!/bin/sh
-#
-#make pending-patches KERNEL_DIR=/usr/src/linux-`uname -r`
-make -i  KERNEL_DIR=/usr/src/linux-`uname -r`
-
-
-The pending patches resulted in many rejects but the kernel
-was virgin 2.4.26.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
+--Dxnq1zWXvFF0Q93v--

@@ -1,41 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266296AbUIOOLT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266181AbUIOOLV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266296AbUIOOLT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 10:11:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266181AbUIOOIs
+	id S266181AbUIOOLV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 10:11:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266188AbUIOOI5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 10:08:48 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:57472 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S266216AbUIONfI (ORCPT
+	Wed, 15 Sep 2004 10:08:57 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:12967 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266173AbUIONb7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 09:35:08 -0400
-Date: Wed, 15 Sep 2004 15:34:08 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       "David S. Miller" <davem@davemloft.net>, akpm@osdl.org,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 0/3] beat kswapd with the proverbial clue-bat
-Message-ID: <20040915133408.GB6158@wohnheim.fh-wedel.de>
-References: <413AA7B2.4000907@yahoo.com.au> <20040904230210.03fe3c11.davem@davemloft.net> <413AAF49.5070600@yahoo.com.au> <413AE6E7.5070103@yahoo.com.au> <Pine.LNX.4.58.0409051021290.2331@ppc970.osdl.org> <1094405830.2809.8.camel@laptop.fenrus.com> <Pine.LNX.4.58.0409051051120.2331@ppc970.osdl.org> <20040915132712.GA6158@wohnheim.fh-wedel.de> <20040915132904.GA30530@devserv.devel.redhat.com>
+	Wed, 15 Sep 2004 09:31:59 -0400
+Date: Wed, 15 Sep 2004 15:31:44 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Joe Korty <joe.korty@ccur.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] tune vmalloc size
+Message-ID: <20040915133144.GB30530@devserv.devel.redhat.com>
+References: <20040915125356.GA11250@elte.hu> <20040915132936.GB30233@tsunami.ccur.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="7iMSBzlTiPOCCT2k"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040915132904.GA30530@devserv.devel.redhat.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20040915132936.GB30233@tsunami.ccur.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 September 2004 15:29:04 +0200, Arjan van de Ven wrote:
+
+--7iMSBzlTiPOCCT2k
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Wed, Sep 15, 2004 at 09:29:36AM -0400, Joe Korty wrote:
+> On Wed, Sep 15, 2004 at 02:53:56PM +0200, Ingo Molnar wrote:
+> > 
+> > there are a few devices that use lots of ioremap space. vmalloc space is
+> > a showstopper problem for them.
+> > 
+> > this patch adds the vmalloc=<size> boot parameter to override
+> > __VMALLOC_RESERVE. The default is 128mb right now - e.g. vmalloc=256m
+> > doubles the size.
 > 
-> if you haven't pinned those pages then you have lost already.
+> Perhaps this should instead be a configurable.
 
-Bug reports say otherwise.  Could you explain "pinning" to a newbie
-like me?
+boot time settable is 100x better than only compile time settable imo :)
 
-Jörn
+--7iMSBzlTiPOCCT2k
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
--- 
-Homo Sapiens is a goal, not a description.
--- unknown
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFBSEQ/xULwo51rQBIRAq3SAJ9sYjRXZnU47K3v+VWPH+4+LwPJFACeIEeL
+tjAwUdClFfkOlmCe2/s9vwE=
+=PpHn
+-----END PGP SIGNATURE-----
+
+--7iMSBzlTiPOCCT2k--

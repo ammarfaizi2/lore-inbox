@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313743AbSFJMki>; Mon, 10 Jun 2002 08:40:38 -0400
+	id <S313505AbSFJN0Y>; Mon, 10 Jun 2002 09:26:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313711AbSFJMjj>; Mon, 10 Jun 2002 08:39:39 -0400
-Received: from 27.Red-80-59-189.pooles.rima-tde.net ([80.59.189.27]:63478 "EHLO
-	femto") by vger.kernel.org with ESMTP id <S313628AbSFJMik>;
-	Mon, 10 Jun 2002 08:38:40 -0400
-Date: Sun, 9 Jun 2002 19:36:55 +0200
-From: Eric Van Buggenhaut <Eric.VanBuggenhaut@AdValvas.be>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.18 ooops when modprobe'ing if pci=biosirq
-Message-ID: <20020609173654.GC2350@eric.ath.cx>
-Reply-To: Eric.VanBuggenhaut@AdValvas.be
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Echelon: FBI WTC NSA Handgun Anthrax Afgahnistan Bomb Heroin Laden
-X-message-flag: Microsoft discourages the use of Outlook.
+	id <S314227AbSFJN0X>; Mon, 10 Jun 2002 09:26:23 -0400
+Received: from [64.76.155.18] ([64.76.155.18]:49828 "EHLO alumno.inacap.cl")
+	by vger.kernel.org with ESMTP id <S313505AbSFJN0W>;
+	Mon, 10 Jun 2002 09:26:22 -0400
+Date: Sat, 8 Jun 2002 22:51:05 -0400 (CLT)
+From: Robinson Maureira Castillo <rmaureira@alumno.inacap.cl>
+To: "Nix N. Nix" <nix@go-nix.ca>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ip_nat_irc & 2.4.18
+In-Reply-To: <1023589926.8435.1.camel@tux>
+Message-ID: <Pine.LNX.4.44.0206082249240.5254-100000@alumno.inacap.cl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 8 Jun 2002, Nix N. Nix wrote:
 
-My kernel ooops at boot time when using pci=biosirq.
+> 
+> I figured it out:
+> 
+> ip_nat_irc.o doesn't track connection going to ports other than 6667. 
+> So, if, initially, you connect to, say, twisted.ma.us.dal.net:6668, then
+> ip_nat_irc doesn't track your connection. :o(
+> 
 
+Hi, from ip_nat_irc.c
 
-Loading modules: 3c59x Unable to handle kernel paging request at
-virtual address 00009a28
- printing eip:
-c00f7241
-*pde = 00000000
-Oops: 0000
-[...]
-Process modprobe (pid: 34, stackpage=c1ddb000)
+-- snip --
+ *      Module load syntax:
+ *      insmod ip_nat_irc.o ports=port1,port2,...port<MAX_PORTS>
+ *      
+ *      please give the ports of all IRC servers You wish to connect to.
+ *      If You don't specify ports, the default will be port 6667
+ */
+-- snip --
 
+You should change your insmod line for ip_nat_irc to include all port 
+you're supposed to connect to.
 
+Hope this helps
 
-I tried pci=biosirq because I had a :
-
-kernel: PCI: No IRQ known for interrupt pin A of device 00:09.0. Please try
-using pci=biosirq.
-
-When trying to get a Ricoh RL5c475 CardBus bridge working.
-
-Is this a known bug ? What is the workaround ?
-
-I'm not a kernel guru, so I don't exactly know how to give you useful
-infos.
-
-If you want the full ooops output, just let me know, i'd copy it by
-hand.
-
-Cheers,
-
+Best regards.
 -- 
-Eric VAN BUGGENHAUT
-Eric.VanBuggenhaut@AdValvas.be
+Robinson Maureira Castillo
+Asesor DAI
+INACAP
+

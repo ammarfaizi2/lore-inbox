@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262886AbTI2Ihw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 04:37:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262896AbTI2Ihw
+	id S262909AbTI2I6Z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 04:58:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262910AbTI2I6Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 04:37:52 -0400
-Received: from amsfep15-int.chello.nl ([213.46.243.28]:8219 "EHLO
-	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
-	id S262886AbTI2Ihu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 04:37:50 -0400
-Date: Mon, 29 Sep 2003 10:39:07 +0200
-Message-Id: <200309290839.h8T8d7Xh003664@callisto.of.borg>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 297] m68k zImage
+	Mon, 29 Sep 2003 04:58:25 -0400
+Received: from aneto.able.es ([212.97.163.22]:33496 "EHLO aneto.able.es")
+	by vger.kernel.org with ESMTP id S262909AbTI2I6Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 04:58:24 -0400
+Date: Mon, 29 Sep 2003 10:58:07 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Frank Cusack <fcusack@fcusack.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2nd proc not seen
+Message-ID: <20030929085807.GA22884@werewolf.able.es>
+References: <20030904021113.A1810@google.com> <20030904091437.A25107@google.com> <20030928205045.B21288@google.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20030928205045.B21288@google.com> (from fcusack@fcusack.com on Mon, Sep 29, 2003 at 05:50:46 +0200)
+X-Mailer: Balsa 2.0.15
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-m68k: Build a zImage (vmlinux.gz) instead of an uncompressed image by default
 
---- linux-2.6.0-test6/arch/m68k/Makefile	Tue Jul 29 18:18:35 2003
-+++ linux-m68k-2.6.0-test6/arch/m68k/Makefile	Wed Sep  3 13:16:32 2003
-@@ -76,6 +76,8 @@
- core-$(CONFIG_M68060)		+= arch/m68k/ifpsp060/
- core-$(CONFIG_M68KFPU_EMU)	+= arch/m68k/math-emu/
- 
-+all:	zImage
-+
- lilo:	vmlinux
- 	if [ -f $(INSTALL_PATH)/vmlinux ]; then mv -f $(INSTALL_PATH)/vmlinux $(INSTALL_PATH)/vmlinux.old; fi
- 	if [ -f $(INSTALL_PATH)/System.map ]; then mv -f $(INSTALL_PATH)/System.map $(INSTALL_PATH)/System.old; fi
+On 09.29, Frank Cusack wrote:
+> On Thu, Sep 04, 2003 at 09:14:37AM -0700, Frank Cusack wrote:
+> > On Thu, Sep 04, 2003 at 02:11:13AM -0700, Frank Cusack wrote:
+> > > I think I've seen some recent talk about this problem.  I have an HPAQ
+> > > xw6000 w/ 2xP4 CPUs.  A RH kernel finds both CPUs (4 if I enable HT).  A
+> > > kernel.org kernel only finds 1 (2 if I enable HT).
+> 
+> This turned out to be a CPU numbering issue.  The HPAQ machine numbers
+> the cpus #0 and #6.  I had NR_CPUS set to 2.  That only works if the CPUs
+> are physically numbered 0 and 1.
+> 
+> So NR_CPUS is a little misleading.  I could suggest a Config.help change
+> if you like.
+> 
 
-Gr{oetje,eeting}s,
+This is a little weird. This forces you to have all the SMP structures sized
+8 just to use 2 members.
 
-						Geert
+Was not there a physical-logical map ? Or that was in -aa kernel and 2.6 ?
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-- 
+J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
+werewolf!able!es                         \           It's better when it's free
+Mandrake Linux release 9.2 (Cooker) for i586
+Linux 2.4.23-pre5-jam1 (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-2mdk))

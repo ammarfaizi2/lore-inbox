@@ -1,53 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261161AbUDSW5U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbUDSXHF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261161AbUDSW5U (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 18:57:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261236AbUDSW5U
+	id S261184AbUDSXHF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 19:07:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261236AbUDSXHF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 18:57:20 -0400
-Received: from fw.osdl.org ([65.172.181.6]:11450 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261161AbUDSW5P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 18:57:15 -0400
-Date: Mon, 19 Apr 2004 15:59:27 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: drepper@redhat.com, manfred@colorfullife.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] per-user signal pending and message queue limits
-Message-Id: <20040419155927.3279f13c.akpm@osdl.org>
-In-Reply-To: <20040419212810.GB10956@logos.cnet>
-References: <20040419212810.GB10956@logos.cnet>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 19 Apr 2004 19:07:05 -0400
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:22658 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261184AbUDSXHB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 19:07:01 -0400
+Date: Tue, 20 Apr 2004 01:07:37 +0200 (CEST)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: =?iso-8859-1?q?Fabiano=20Ramos?= <ramos_fabiano@yahoo.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: task switching at Page Faults
+In-Reply-To: <20040419201230.45125.qmail@web20210.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.58.0404200103330.18802@artax.karlin.mff.cuni.cz>
+References: <20040419201230.45125.qmail@web20210.mail.yahoo.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+> > > 	I am in doubt about the linux kernel behaviour is
+> > this situation:
+> > > supose a have the process A, with the highest
+> > realtime
+> > > priority and SCHED_FIFO policy. The process then
+> > issues a syscall,
+> > > say read():
+> > >
+> > > 	1) Can I be sure that there will be no process
+> > switch during the
+> > > syscall processing, even if the system call causes
+> > a page fault?
+> >
+> > No. If the data read is not in cache and if read
+> > operations causes page
+> > fault there will be process switch.
+> >
+> > Additionally, if you don't mlock memory, there can
+> > be process switch at
+> > any place, because of page faults on code pages or
+> > swapping of data pages.
 >
-> (forgot the subject on the first message)
-> 
-> Andrew, 
-> 
-> Here goes the signal pending & POSIX mqueue's per-uid limit patch. 
-> 
-> Initialization has been moved to include/asm-i386/resource.h, as you suggested.
-> 
-> The global mqueue limit has been increased to 256 (64 per user), and the global 
-> signal pending limit to 4096 (1024 per user).
-> 
-> This has been well tested.
-> 
-> If you are OK with it for inclusion (-mm) I'll generate the arch-dependant
-> changes for the other architectures.
+>     I was reading the book "Understanding the Linux
+> kernel", about 2.4, and the authors:
+>     1)assure that there is no process switch during
+> the execution of an eception handler (aka syscall).
+> they emphasize it.
 
-yes, please.
+It is wrong. The process switch will occur, if the process blocks waiting
+for some resource (disk IO, keyboard, net or similar). Moreover, on 2.6
+kernels, if you turn on CONFIG_PREEMPT, process switch in kernel may occur
+almost anywhere
 
->          { RLIM_INFINITY, RLIM_INFINITY },		\
-> +	{    IR_SIGNALS,    IR_SIGNALS },		\
-> +	{    IR_MSGQUEUE,  IR_MSGQUEUE },		\
+>     2) say that the execption handler may not generate
+> exceptions, except for page faults.
 
-What does "IR" stand for here?  Can a more meaningful abbreviation be chosen?
+That's true. Kernel can generate only page fault.
 
+>      So, if process switching occurs at page faults, I
+> was wondering which statement is true of if I am
+> missing sth.
+>      You mentioned page faults due to code. Aren´t the
+> syscall handlers located in mlocked?
 
+Kernel is nonswappable, but when the syscalls returns from kernel, it can
+generate page-fault because of its code or data were paged-out.
+
+Mikulas
+
+> Thanks again
+> Fabiano

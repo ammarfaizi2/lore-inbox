@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264133AbTDWRBf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 13:01:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264139AbTDWRBf
+	id S264120AbTDWRKN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 13:10:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264143AbTDWRKN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 13:01:35 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:32779 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S264133AbTDWRBd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 13:01:33 -0400
-Date: Wed, 23 Apr 2003 18:13:39 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Stuffed Crust <pizza@shaftnet.org>
+	Wed, 23 Apr 2003 13:10:13 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:52947 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S264120AbTDWRKK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 13:10:10 -0400
+Date: Wed, 23 Apr 2003 10:21:35 -0700
+From: Greg KH <greg@kroah.com>
+To: David van Hoose <davidvh@cox.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [2.5.68] [BUG #18] Add Synaptics touchpad tweaking to psmouse driver
-Message-ID: <20030423181339.A2904@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Stuffed Crust <pizza@shaftnet.org>, linux-kernel@vger.kernel.org
-References: <20030422024628.GA8906@shaftnet.org>
+Subject: Re: [2.4.21-rc1] USB Trackball broken
+Message-ID: <20030423172135.GA11572@kroah.com>
+References: <3EA6C558.5040004@cox.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030422024628.GA8906@shaftnet.org>; from pizza@shaftnet.org on Mon, Apr 21, 2003 at 10:46:28PM -0400
+In-Reply-To: <3EA6C558.5040004@cox.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 21, 2003 at 10:46:28PM -0400, Stuffed Crust wrote:
-> One of the side-effects of the new input layer is that the old usermode 
-> tools for manipulating the touchpad configuration don't work any more.
+On Wed, Apr 23, 2003 at 11:54:48AM -0500, David van Hoose wrote:
+> I am running RedHat 9. Trackball is detected and works when using the 
+> stock 2.4.20-9 kernel that RedHat provided.
 > 
-> Most importantly, the ability to disable the tap-to-click "feature".
-> And this has been long-recognized, as bug #18.  :)
-> 
-> So, here's my crack at scratching this itch.  it defaults to disabling 
-> the tap-to-click, but there's a module parameter to re-enable it.
-> 
-> I started writing this from the perspective of a full-native synaptics
-> driver, using the absolute mode of operation, which will let us do all
-> sorts of yummy things like corner taps and virtual scroll wheels and
-> sensitivity and whatnot... Anyone else working on this, before I wade
-> further in?
-> 
-> All of the new code is wrapped in #ifdef SYNAPTICS.
+> With 2.4.21-rc1, I have included the USB and input devices in the 
+> kernel, as modules, and as various combinations in between. My USB 
+> Logitech Trackball shows up as being detected and setup, but it doesn't 
+> work. Attached is my config and a trimmed down dmesg. (ppa is messed up 
+> and floods me with messages)
+> I have USB vebose debugging turned on. That may help. Please let me know 
+> what information you might need in addition.
 
-This is messy as hell - what about copying psmouse.c, remove all
-that code not relevant to the touchpad and make it a driver of it's
-own?
+Is this trackball plugged into a USB 2.0 hub or controller?
 
+If you cat /dev/input/mice and move the trackball around, do you get
+data?
+
+thanks,
+
+greg k-h

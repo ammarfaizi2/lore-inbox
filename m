@@ -1,73 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261369AbUCDAue (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 19:50:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbUCDAue
+	id S261380AbUCDBDk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 20:03:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261386AbUCDBDj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 19:50:34 -0500
-Received: from fw.osdl.org ([65.172.181.6]:48038 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261369AbUCDAub convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 19:50:31 -0500
-Date: Wed, 3 Mar 2004 16:52:29 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.4-rc1-mm2
-Message-Id: <20040303165229.131b7601.akpm@osdl.org>
-In-Reply-To: <1078351164.17019.57.camel@telecentrolivre>
-References: <20040302201536.52c4e467.akpm@osdl.org>
-	<1078351164.17019.57.camel@telecentrolivre>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Wed, 3 Mar 2004 20:03:39 -0500
+Received: from dinsnail.net ([217.160.166.159]:40094 "EHLO heinz.dinsnail.net")
+	by vger.kernel.org with ESMTP id S261380AbUCDBDh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 20:03:37 -0500
+Date: Thu, 4 Mar 2004 00:56:29 +0100
+From: Michael Weiser <michael@weiser.dinsnail.net>
+To: Greg KH <greg@kroah.com>
+Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] udev 021 release
+Message-ID: <20040303235629.GA80132@weiser.dinsnail.net>
+References: <20040303000957.GA11755@kroah.com> <20040303095615.GA89995@weiser.dinsnail.net> <20040303151500.GD25687@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040303151500.GD25687@kroah.com>
+User-Agent: Mutt/1.4.2.1i
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br> wrote:
->
-> Em Qua, 2004-03-03 às 01:15, Andrew Morton escreveu:
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.4-rc1/2.6.4-rc1-mm2/
-> 
-> I got this:
-> 
-> Unable to handle kernel paging request at virtual address c1d61f70
-> printing eip:
-> c0211f8f
-> *pde = 00006063
-> *pte = 01d61000
-> Oops: 0000 [#1]
-> DEBUG_PAGEALLOC
-> CPU:    0
-> EIP:    0060:[__make_request+671/1184]    Not tainted VLI
-> EFLAGS: 00010093
-> EIP is at __make_request+0x29f/0x4a0
+On Wed, Mar 03, 2004 at 07:15:00AM -0800, Greg KH wrote:
+> > > Major changes from the 019 version:
+> > > 	- new variable $local for the udev.permission file allows
+> > > 	  permissions to be set for the currently logged in user.
+> > Yay, just the other day I thought that might be a nice feature in
+> > concert with RedHat's/Fedora's pam_console module. Am I right in
+> > assuming that the current utmp based code will give the file to the user
+> > that most recently logged into the local console? This could cause some
+> > confusion with the pam_console-method which gives files to the user that
+> > logged in *first* on a local console.
+> I don't know, care to test it out?
+Aye. It's even worse. The user logged into the lowest-numbered console
+will get owner of the newly created file when using $local.
 
-hm, there's a possibility of indirection through an uninitialised variable
-there.
+So if I log into tty2 and plug in my USB stick I will be owner of
+/dev/sda1. If another guy comes along, logs into tty1, unplugs my USB
+stick and replugs it, he'll be owner of /dev/sda1. But if I log out now,
+re-login on tty2 and replug the stick again, I won't get the owner of
+/dev/sda1 but the other guy again. This will certainly break things - at
+least on Fedora Core 1. Maybe it's different with other
+distributions/glibc/utmp variants/versions.
 
---- 25/drivers/block/ll_rw_blk.c~blk-unplug-when-max-request-queued-fix	Wed Mar  3 16:03:01 2004
-+++ 25-akpm/drivers/block/ll_rw_blk.c	Wed Mar  3 16:03:32 2004
-@@ -2004,7 +2004,8 @@ EXPORT_SYMBOL(__blk_attempt_remerge);
- 
- static int __make_request(request_queue_t *q, struct bio *bio)
- {
--	struct request *req, *freereq = NULL;
-+	struct request *req = NULL;
-+	struct request *freereq = NULL;
- 	int el_ret, rw, nr_sectors, cur_nr_sectors, barrier, ra;
- 	sector_t sector;
- 
-@@ -2154,7 +2155,7 @@ out:
- 		int nr_queued = q->rq.count[READ] + q->rq.count[WRITE];
- 
- 		if (nr_queued == q->unplug_thresh ||
--				req->nr_sectors == q->max_sectors)
-+				(req && req->nr_sectors == q->max_sectors))
- 			__generic_unplug_device(q);
- 	}
- 	spin_unlock_irq(q->queue_lock);
-
-_
-
+Would it be an option to check for /var/run/console.lock and use the
+username stored there by pam_console if present?
+-- 
+Micha

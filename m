@@ -1,65 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318558AbSHAAdn>; Wed, 31 Jul 2002 20:33:43 -0400
+	id <S318514AbSHAA5u>; Wed, 31 Jul 2002 20:57:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318563AbSHAAdn>; Wed, 31 Jul 2002 20:33:43 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:48050 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S318558AbSHAAdm>; Wed, 31 Jul 2002 20:33:42 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Bill Davidsen <davidsen@tmr.com>
-Date: Thu, 1 Aug 2002 10:34:23 +1000 (EST)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15688.33295.630127.361498@notabene.cse.unsw.edu.au>
-Cc: Guillaume Boissiere <boissiere@adiglobal.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6] The List, pass #2
-In-Reply-To: message from Bill Davidsen on Wednesday July 31
-References: <3D3761A9.23960.8EB1A2@localhost>
-	<Pine.LNX.3.96.1020731133038.10066A-100000@gatekeeper.tmr.com>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+	id <S318563AbSHAA5u>; Wed, 31 Jul 2002 20:57:50 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:24014 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S318514AbSHAA5u>;
+	Wed, 31 Jul 2002 20:57:50 -0400
+Date: Thu, 1 Aug 2002 03:01:08 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200208010101.DAA00248@harpo.it.uu.se>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.29: bug in ide and hd kernel option handling
+Cc: gerald@io.com, martin@dalecki.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday July 31, davidsen@tmr.com wrote:
-> 
-> >   o Add support for NFS v4
-> 
-> Sorry to repeat, this seems to be a feature which will be in many if not
-> most other systems before any possible release date for 2.8. Is it really
-> that far out? (that's a status request, not a statement)
-> 
+On Tue, 30 Jul 2002, I wrote:
+> On my 486 test box (ISA/VLB only, CONFIG_PCI=n), passing any
+> any ide or hd kernel option (like idebus=33) to 2.5.29 results
+> in a kernel hang at boot: I get the initial "Uncompressing ..
+> booting .." and then nothing.
 
-Well, given that the protocol specification isn't 100% finalised, it's
-not clear that pushing for inclusion now is entirely sensible.  We
-don't want people to be using an NFSv4 on Linux that is incompatible
-in some subtle way with other vendors.
+Problem partially identified.
 
-Also, I suspect that NFSv4 will be fairly localised in the changes it
-makes and could well go in to 2.6.10 of whatever (afterall, reiserfs
-went in at 2.4.2).
+With CONFIG_PCI=n, include/asm-i386/ide.h:ide_init_default_hwifs()
+is defined to ide_register_hw() the PC's standard IDE ports, but
+with CONFIG_PCI=y, it's empty.
 
-There are some changes that NFSv4 would like to make that affect
-common code, such as making open(,O_EXCL) work for a networked
-filesystem, but we can live without that (as we do with NFSv3), but
-hopefully that functionality will get in before halloween anyway. 
+When drivers/ide/main.c:ide_setup() is called for some "ide..."
+kernel option, it starts by calling init_global_data(), which
+in turn calls ide_init_default_hwifs(). When CONFIG_PCI=n so
+ide_init_default_hwifs() isn't empty, the kernel either hangs
+or reboots at that point.
 
+init_global_data() and ide_init_default_hwifs() can also be called
+much later from 'module_init(init_ata)'. In that case there is no
+hang or reboot -- so my guess is that the initialisation does something
+which normally works but is illegal and causes a fault when done
+at __setup()-time.
 
-My understanding is that the CITI team will be funneling some of their
-NFSv4 code though the maintainers (Trond and myself) to at least get
-some of the code into 2.5.  This will likely not include support for
-all the fancy state and locking, but will support the well established
-aspects of the protocol and will allow minimal operability.  This will
-also mean there is a clear base in the mainline kernel for other bits
-to be added as appropriate.
-Obviously we will clarify the license before forwarding to Linus.
+I tested every kernel from 2.5.29 and back, and the problem started
+with 2.5.5.
 
-I'm particularly keen to get the crypto authentication stuff in and I
-will be looking into that RealSoonNow.
+As a workaround I applied the patch below to unconditionally
+make ide_init_default_hwifs() do nothing. This solved my problem
+and doesn't seem to have had any bad side-effects: the kernel still
+finds all standard IDE ports on my 486.
 
-NeilBrown
+/Mikael
+
+--- linux-2.5.29/include/asm-i386/ide.h.~1~	Sat Jul 20 23:49:45 2002
++++ linux-2.5.29/include/asm-i386/ide.h	Thu Aug  1 02:20:31 2002
+@@ -65,7 +65,7 @@
+ 
+ static __inline__ void ide_init_default_hwifs(void)
+ {
+-#ifndef CONFIG_PCI
++#if 0 && !defined(CONFIG_PCI)
+ 	hw_regs_t hw;
+ 	int index;
+ 

@@ -1,54 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266578AbUGUSjB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266585AbUGUSl3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266578AbUGUSjB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jul 2004 14:39:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266580AbUGUSjA
+	id S266585AbUGUSl3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jul 2004 14:41:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266596AbUGUSl2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jul 2004 14:39:00 -0400
-Received: from w130.z209220038.sjc-ca.dsl.cnc.net ([209.220.38.130]:62448 "EHLO
-	mail.inostor.com") by vger.kernel.org with ESMTP id S266578AbUGUSiu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jul 2004 14:38:50 -0400
-Message-ID: <40FEB7B8.2050501@inostor.com>
-Date: Wed, 21 Jul 2004 11:36:40 -0700
-From: Tom Dickson <tdickson@inostor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040713
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: What is the BUG() call in ll_rw_blk.c (2.4.26) for?
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 21 Jul 2004 14:41:28 -0400
+Received: from mail.kroah.org ([69.55.234.183]:59554 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266586AbUGUSlR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jul 2004 14:41:17 -0400
+Date: Wed, 21 Jul 2004 10:52:08 -0400
+From: Greg KH <greg@kroah.com>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] delete devfs
+Message-ID: <20040721145208.GA13522@kroah.com>
+References: <20040721141524.GA12564@kroah.com> <200407211626.55670.oliver@neukum.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200407211626.55670.oliver@neukum.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, Jul 21, 2004 at 04:26:55PM +0200, Oliver Neukum wrote:
+> Am Mittwoch, 21. Juli 2004 16:15 schrieb Greg KH:
+> > Hm, seems kernel.org dropped my big patch, so the patch below can be
+> > found at:
+> > 	www.kernel.org/pub/linux/kernel/people/gregkh/misc/2.6/devfs-delete-2.6.8-rc2.patch
+> 
+> May I point out that 2.6 is supposed to be a _stable_ series?
 
-void submit_bh(int rw, struct buffer_head * bh)
-{
-~        int count = bh->b_size >> 9;
+You didn't pay attention to the first sentance that I wrote for the
+patch :) 
 
+And as Lars points out, the code is unmaintained, unused, and buggy.
+All good reasons to rip out it out at any moment in time.
 
-~        if (!test_bit(BH_Lock, &bh->b_state))
-~                BUG();
+thanks,
 
-Does anyone know what that BUG(); is testing? We're seeing it and want
-to track down what we're doing that is causing it.
-
-It's at line 1289 of drivers/block/ll_rw_blk.c
-
-Thanks!
-
-- -Tom
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFA/re42dxAfYNwANIRAsM2AKCZK64SB8H3ypeOp6r9srECt8lSEgCfeyya
-amEarqisYBF6MocYu6m/Nbo=
-=HZZk
------END PGP SIGNATURE-----
+greg k-h

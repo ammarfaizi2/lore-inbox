@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315275AbSHRPk2>; Sun, 18 Aug 2002 11:40:28 -0400
+	id <S315267AbSHRPzS>; Sun, 18 Aug 2002 11:55:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315267AbSHRPk2>; Sun, 18 Aug 2002 11:40:28 -0400
-Received: from [213.23.6.193] ([213.23.6.193]:36367 "HELO is1.blocksberg.com")
-	by vger.kernel.org with SMTP id <S315266AbSHRPk1> convert rfc822-to-8bit;
-	Sun, 18 Aug 2002 11:40:27 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Justin Heesemann <jh@ionium.org>
-Organization: ionium Technologies
+	id <S315276AbSHRPzS>; Sun, 18 Aug 2002 11:55:18 -0400
+Received: from host194.steeleye.com ([216.33.1.194]:6155 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S315267AbSHRPzR>; Sun, 18 Aug 2002 11:55:17 -0400
+Message-Id: <200208181559.g7IFxE604241@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
 To: linux-kernel@vger.kernel.org
-Subject: epox 4g4a+ (i845g and hpt372) with kernel 2.4.x: Ok, now booting the kernel. hangs.
-Date: Sun, 18 Aug 2002 17:46:30 +0200
-User-Agent: KMail/1.4.2
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200208181746.30967.jh@ionium.org>
+cc: James.Bottomley@HansenPartnership.com
+Subject: [PATCH: NEW SUBARCHITECTURE FOR 2.5.31] support for NCR voyager 
+ (3/4/5xxx series)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 18 Aug 2002 10:59:14 -0500
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I've got some problems with booting a 2.4.19 (and other 2.4 kernels).
-The system is a P4 2.0 Ghz Northwood, Epox 4G4A+ (i845g) with onboard HPT372 
-and Realtek LAN, 512 MB DDR Ram, 80 GB Seagate IDE Disk at IDE1 and a CDROM 
-at IDE2. I am not using the HPT IDE Ports at this time (also tried with 
-disabling the HPT in the BIOS.
+This patch adds SMP (and UP) support for voyager which is an (up to 32 way) 
+SMP microchannel non-PC architecture.
 
-Ok. Whenever i try to boot a 2.4 Kernel (i tried the ones provided by the 
-Debian 3.0 boot cd, Knoppix boot cd and a p4 optimized gentoo kernel) It gets 
-as far as:
+The only change since 2.5.31 is that the code will now boot with a non-zero 
+boot cpu id (previously current->cpu was being initialised too late).
 
-Loading kernel..................
-Loading 
-rescue.gz.......................................................................
-ready.
-Uncompressing Linux... Ok, now booting the kernel.
+The patch is in two parts:  The i386 sub-architecture split is separated from 
+the addition of the voyager components
 
-Then it hangs.
-Is there a way to get more information what exactly it is doing before it 
-hangs ?
+http://www.hansenpartnership.com/voyager/files/arch-split-2.5.31.diff (108k)
+http://www.hansenpartnership.com/voyager/files/voyager-2.5.31.diff (146k)
 
--- 
-Best Regards,
-Justin Heesemann
+You must apply the split diff before applying the voyager one.
+
+These two patches are also available as separate bitkeeper trees (the voyager 
+tree is a superset of the arch-split one):
+
+http://linux-voyager.bkbits.net/voyager-2.5
+http://linux-voyager.bkbits.net/arch-split-2.5
+
+James Bottomley
+
+

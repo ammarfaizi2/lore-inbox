@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264865AbSJVTCL>; Tue, 22 Oct 2002 15:02:11 -0400
+	id <S264885AbSJVTE1>; Tue, 22 Oct 2002 15:04:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264876AbSJVTCL>; Tue, 22 Oct 2002 15:02:11 -0400
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:17930 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S264865AbSJVTCJ>; Tue, 22 Oct 2002 15:02:09 -0400
-Date: Tue, 22 Oct 2002 20:08:18 +0100
-From: John Levon <levon@movementarian.org>
-To: linux-kernel@vger.kernel.org
-Cc: dipankar@gamebox.net, cminyard@mvista.com
-Subject: Re: [PATCH] NMI request/release
-Message-ID: <20021022190818.GA84745@compsoc.man.ac.uk>
-References: <3DB4AABF.9020400@mvista.com> <20021022021005.GA39792@compsoc.man.ac.uk> <3DB4B8A7.5060807@mvista.com> <20021022025346.GC41678@compsoc.man.ac.uk> <3DB54C53.9010603@mvista.com> <20021022232345.A25716@dikhow> <3DB59385.6050003@mvista.com> <20021022233853.B25716@dikhow> <3DB59923.9050002@mvista.com>
-Mime-Version: 1.0
+	id <S264886AbSJVTE0>; Tue, 22 Oct 2002 15:04:26 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:3771 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S264885AbSJVTEA>;
+	Tue, 22 Oct 2002 15:04:00 -0400
+Date: Tue, 22 Oct 2002 12:03:55 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Benjamin LaHaise <bcrl@redhat.com>, Andrew Morton <akpm@digeo.com>
+cc: Rik van Riel <riel@conectiva.com.br>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Bill Davidsen <davidsen@tmr.com>, Dave McCracken <dmccr@us.ibm.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: [PATCH 2.5.43-mm2] New shared page table patch
+Message-ID: <408130000.1035313435@flay>
+In-Reply-To: <20021022140155.E20957@redhat.com>
+References: <2629464880.1035240956@[10.10.2.3]> <Pine.LNX.4.44L.0210221405260.1648-100000@duckman.distro.conectiva> <20021022131930.A20957@redhat.com> <396790000.1035308200@flay> <20021022134501.C20957@redhat.com> <3DB59134.38AA41F6@digeo.com> <20021022140155.E20957@redhat.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3DB59923.9050002@mvista.com>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 22, 2002 at 01:29:55PM -0500, Corey Minyard wrote:
+>> Have you reviewed the hugetlbfs and hugetlbpage-backed-shm patches?
+>> 
+>> That code is still requiring CAP_IPC_LOCK, although I suspect it
+>> would be better to allow hugetlbfs mmap to be purely administered
+>> by file permissions.
+> 
+> Can we delete the specialty syscalls now?
 
-> I would vote against using it for profiling; profiling has it's own 
-> special fast-path, anyway.
+I was lead to believe that Linus designed them, so he may be emotionally attatched 
+to them, but I think there would be few others that would cry over the loss ...
 
-But it would be good (less code, simpler, and even possibly for keeping
-NMI watchdog ticking when oprofile is running) if we could merge the two
-cases.
+M.
 
-> The NMI watchdog only gets hit once every 
-> minute or so, it seems, so that seems suitable for this.
-
-It can easily be much more frequent than that (though you could argue
-this is a mis-setup).
-
-> I've looked at the RCU code a little more, and I think I understand it 
-> better.  I think your scenario will work, if it's true that it won't be 
-> called until all CPUs have done what you say.  I'll look at it a little 
-> more.
-
-Thanks for looking into this ...
-
-regards
-john
-
--- 
-"This is mindless pedantism up with which I will not put."
-	- Donald Knuth on Pascal's lack of default: case statement

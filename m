@@ -1,61 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261509AbTJSKqY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 06:46:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261538AbTJSKqY
+	id S262119AbTJSL1i (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 07:27:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262118AbTJSL1e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 06:46:24 -0400
-Received: from mout2.freenet.de ([194.97.50.155]:1493 "EHLO mout2.freenet.de")
-	by vger.kernel.org with ESMTP id S261509AbTJSKqX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 06:46:23 -0400
-From: Michael Buesch <mbuesch@freenet.de>
-To: Nick Piggin <piggin@cyberone.com.au>
-Subject: Re: Where's the bzip2 compressed linux-kernel patch?
-Date: Sun, 19 Oct 2003 12:45:46 +0200
-User-Agent: KMail/1.5.4
-References: <200310180018.21818.rob@landley.net> <1066477155.5606.34.camel@sonja> <3F91E01C.4090507@cyberone.com.au>
-In-Reply-To: <3F91E01C.4090507@cyberone.com.au>
-Cc: Daniel Egger <degger@fhm.edu>, linux-kernel@vger.kernel.org,
-       rob@landley.net
+	Sun, 19 Oct 2003 07:27:34 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:50739 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S262110AbTJSL12 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Oct 2003 07:27:28 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: davidm@hpl.hp.com, bjorn.helgaas@hp.com, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] prevent "dd if=/dev/mem" crash
+References: <200310171610.36569.bjorn.helgaas@hp.com>
+	<20031017155028.2e98b307.akpm@osdl.org>
+	<200310171725.10883.bjorn.helgaas@hp.com>
+	<20031017165543.2f7e9d49.akpm@osdl.org>
+	<16272.34681.443232.246020@napali.hpl.hp.com>
+	<20031017174955.6c710949.akpm@osdl.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 19 Oct 2003 05:25:37 -0600
+In-Reply-To: <20031017174955.6c710949.akpm@osdl.org>
+Message-ID: <m1llrh79la.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200310191245.55961.mbuesch@freenet.de>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Andrew Morton <akpm@osdl.org> writes:
 
-On Sunday 19 October 2003 02:51, Nick Piggin wrote:
-> Daniel Egger wrote:
-> >I quick test with a PowerPC kernel and the normal vmlinux image reveals
-> >that this is nonsense.
+> David Mosberger <davidm@napali.hpl.hp.com> wrote:
 > >
-> >-rwxr-xr-x    1 root     root      2766490 2003-09-27 22:29 vmlinux
-> >-rwxr-xr-x    1 root     root      1149410 2003-09-27 22:29 vmlinux.gz
-> >-rwxr-xr-x    1 root     root      1062999 2003-09-27 22:29 vmlinux.bz2
-> >
-> >This is a 86411 bytes or 8.1% reduction, seems significant to me...
->
-> Sure, it might be worth it in some cases. I didn't mean improvement
-> wasn't measurable at all.
+> > >>>>> On Fri, 17 Oct 2003 16:55:43 -0700, Andrew Morton <akpm@osdl.org> said:
+> > 
+> >   >> If we really believe copy_*_user() must correctly handle *all* faults,
+> >   >> isn't the "p >= __pa(high_memory)" test superfluous?
+> > 
+> > Andrew> This code was conceived before my time and I don't recall seeing much
+> 
+> >   Andrew> discussion, so this is all guesswork..
+> > 
+> >   Andrew> I'd say that the high_memory test _is_ superfluous and that
+> >   Andrew> if anyone cared, we would remove it and establish a
+> >   Andrew> temporary pte against the address if it was outside the
+> >   Andrew> direct-mapped area.  But nobody cares enough to have done
+> >   Andrew> anything about it.
 
-What about making it configurable? If someone want's bzip2
-and if he want's to wait longer to boot, (s)he may
-compile bzip2 support.
-If someone dislikes it, (s)he may use gzip.
+This can be useful for the case of > 4GB on a 32bit box.  But for mmio
+it is useless.
 
-- -- 
-Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+> > What about memory-mapped device registers?  Isn't all memory
+> > physically contiguous on x86 and that's why the "p >=
+> > __pa(high_memory)" test saves you from that?
+> 
+> We _want_ to be able to read mmio ranges via /dev/mem, don't we?  I guess
+> it has never come up because everyone uses kmem.
 
-iD8DBQE/kmtjoxoigfggmSgRAqNAAJ9isDDlHbCBTWleCMMtd7/AtaogBACcDu8o
-tg6ggQ+w3nyn933Po7tRJ5I=
-=jft8
------END PGP SIGNATURE-----
+No.
 
+sys_read/sys_write does not give you enough control to write a device driver
+from user space if you want to access something other than RAM you need to
+mmap /dev/mem and issue the appropriate read/write commands.  
+
+On ia64 you can send the variant that won't generate a machine check if it
+fails.  You can get the alignment right etc, etc.  
+
+And even if you can get the interface right from user space to make mmio
+work through sys_read/sys_write it will still be slow and silly to use.
+And since it is useless it will go unused and then regress in
+strange peculiar unexpected ways.
+
+We do have all of the information we need in struct page to see if a
+page address is valid, so checking that is reasonable.  I suspect it
+will require some interesting variant of pfn_to_page to handle of the
+weird sparse memory locations properly.
+
+Of course it might just be reasonable to require knowing and
+responsible use of /dev/mem.  Whatever you are doing.
+
+Eric

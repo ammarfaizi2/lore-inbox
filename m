@@ -1,72 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265243AbTBGNi3>; Fri, 7 Feb 2003 08:38:29 -0500
+	id <S264962AbTBGNo2>; Fri, 7 Feb 2003 08:44:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265250AbTBGNi3>; Fri, 7 Feb 2003 08:38:29 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:36764 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S265243AbTBGNi1>; Fri, 7 Feb 2003 08:38:27 -0500
-Date: Fri, 7 Feb 2003 08:49:36 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Martin Zielinski <mz@seh.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: TCP Connection times out
-In-Reply-To: <200302071430.34001.mz@seh.de>
-Message-ID: <Pine.LNX.3.95.1030207083742.28526B-100000@chaos.analogic.com>
+	id <S265099AbTBGNo2>; Fri, 7 Feb 2003 08:44:28 -0500
+Received: from ns.investici.org ([213.140.29.37]:33416 "EHLO
+	astio.investici.org") by vger.kernel.org with ESMTP
+	id <S264962AbTBGNo1>; Fri, 7 Feb 2003 08:44:27 -0500
+Message-ID: <3E43C79A.2010506@autistici.org>
+Date: Fri, 07 Feb 2003 14:50:02 +0000
+From: c1cc10 <c1cc10@autistici.org>
+Reply-To: c1cc10@autistici.org
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Cyrix III processor and kernel boot problem
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 Feb 2003, Martin Zielinski wrote:
+Hello,
+I made an unsuccessfull search on the m-l archive about this problem, so 
+now I'm going to report it in the developing m-l.
+I own a Cyrix III processor (400 Mhz up to 800Mhz) on a via chipset 
+motherboard. When I boot with a kernel compiled for Cyrix processor or 
+with a 686 pentium the lilo gets the images, put it on memory and 
+decompress it, but when it has to boot (after the "Loading 
+mlinuz..........") it always reboot the computer.
+I've found out that the Cyrix III has no CMOV instruction and that this 
+could be the problem.
+So I compiled a pentium mmx version (after mrproper and dep) and all 
+worked fine.
+My question is: ok, it can't work if 686 compiled, but why does not it 
+work also for the Cyrix III version?
 
-> Hello,
-> I'm not on the list, so I'm not really informed what's going on. But...
-> 
-> our problem is a network printer the has paper empty.
-> The socket connection to the printer broke down after ~45 minutes with
-> errno 110 (Connection timed out).
-> 
-> Linux base version is 2.4.18 on a strongarm machine.
-> 
-> Tracking this down brought us to the tcp_send_probe0 function in 
-> net/ipv4/tcp_output.c.
-> The tp->backoff value becomes allways increased.
-> on this machine from 31 on  (tp->rto << tp->backoff) is 0.
-> 
-> The xmit timer is set to this timeout value - resulting in an ACK burst.
-> If the TCP sender gets the (default) 16 ACKS out, before the receiver can 
-> answer them, the connection dies.
-> This happened every night, when the printer received a huge job from a
-> foreign  office.
-> 
-> If this isn't a bug, it should be made configurable. Or do we miss something?
-> 
-> Thanks.
+I tried a "vanilla" kernel and some htb pathced one.
+kernel versions: 2.4.19 and 2.4.20.
+hope my report will help
 
-Get new firmware for your printer. It's broken. The connection
-timed out because the connection timed out, i.e., when the printer
-is out of paper, it refuses to ACK incoming packets. You do not
-modify a standard TCP/IP implementation to fix a broken printer.
+keep up the good work
 
-The printer is expecting to hold-off incoming network data, by
-refusing to ACK it, until someone adds more paper. This is
-unconsionable behavior that violates any standards of Engineering
-practice. There is no time-out you could increase because the
-printer may be out-of-paper forever, i.e., somebody needs to go
-buy some. Network-connected devices just can't do things this
-way. The name of the vendor should be published and the vendor
-"educated" in such a way that no such printers remain connected
-to a network until they are fixed.
+feel free to contact me
 
-And, if Linux didn't follow the standard, and let dead "connected"
-devices remain in a connected state, servers that use connections
-would would become impossible.
+bye
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+c1cc10
+-- 
+pub  1024D/76A9AC52 2002-12-13 ciunociciunozero (PORCODIO) <c1cc10@ecn.org>
+      Key fingerprint = 64A9 9498 B297 B49F D676  AAA1 9DA9 CABA 76A9 AC52
+sub  2048g/F248FA79 2002-12-13 [expires: 2004-12-12]
 
 

@@ -1,40 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262093AbTGXLCJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 07:02:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbTGXLCJ
+	id S262254AbTGXLHF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 07:07:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262290AbTGXLHF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 07:02:09 -0400
-Received: from beta.galatali.com ([216.40.241.205]:21476 "EHLO
-	beta.galatali.com") by vger.kernel.org with ESMTP id S262093AbTGXLCH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 07:02:07 -0400
-Date: Thu, 24 Jul 2003 07:17:12 -0400
-Mime-Version: 1.0 (Apple Message framework v552)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Subject: 2.6.0-test1 Adaptec aic7899 Ultra160 SCSI grief
-From: Tugrul Galatali <tugrul@galatali.com>
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-Message-Id: <5F99705E-BDC8-11D7-9859-000A957CBE4C@galatali.com>
-X-Mailer: Apple Mail (2.552)
+	Thu, 24 Jul 2003 07:07:05 -0400
+Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:12455 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S262254AbTGXLHD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jul 2003 07:07:03 -0400
+Date: Thu, 24 Jul 2003 13:22:10 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Promise SATA driver GPL'd
+Message-ID: <20030724112210.GC6565@merlin.emma.line.org>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1058956331.5520.13.camel@dhcp22.swansea.linux.org.uk> <Pine.LNX.4.10.10307231154110.13376-100000@master.linux-ide.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10307231154110.13376-100000@master.linux-ide.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	After months of using 2.5.x with stability on my box, and using 
-2.6.0-test1 since the day after its release (with the 20030714 ACPI 
-patch), I had two seemingly random SCSI hangs today. One shortly after 
-I booted the box in the afternoon, and one after about 15 hours of 
-uptime. I was busy the first time around, but the second time I managed 
-to scp out a copy of the current dmesg to another box before a hard 
-power down.
+On Wed, 23 Jul 2003, Andre Hedrick wrote:
 
-	Can somebody translate the error in the dmesg into english and advise 
-me on whether I want to change something in the software or the 
-hardware?
+> This is the stuff nobody talks about and the value I added and created,
+> good luck in finding the folks who deploy various asics and are willing to
+> discuss in confidence solutions against the variations.
 
-http://acm.cs.nyu.edu/~tugrul/scsi/
-
-	Thanks in advance,
-		Tugrul Galatali
-
+You mean stuff like FreeBSD blacklisting Promise chips before TX2 for
+TCQ because it just locks up?

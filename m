@@ -1,70 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbVAWOlD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261308AbVAWOxF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261206AbVAWOlD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jan 2005 09:41:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbVAWOlD
+	id S261308AbVAWOxF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jan 2005 09:53:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261310AbVAWOxF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jan 2005 09:41:03 -0500
-Received: from out002pub.verizon.net ([206.46.170.141]:22481 "EHLO
-	out002.verizon.net") by vger.kernel.org with ESMTP id S261206AbVAWOk5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jan 2005 09:40:57 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: None, usuallly detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.11-rc2-V0.7.36-00
-Date: Sun, 23 Jan 2005 09:40:56 -0500
-User-Agent: KMail/1.7
-Cc: Ingo Molnar <mingo@elte.hu>, andyliu <liudeyan@gmail.com>
-References: <20041122005411.GA19363@elte.hu> <aad1205e05012301271de3e365@mail.gmail.com> <20050123113111.GA11965@elte.hu>
-In-Reply-To: <20050123113111.GA11965@elte.hu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sun, 23 Jan 2005 09:53:05 -0500
+Received: from ra.tuxdriver.com ([24.172.12.4]:264 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S261308AbVAWOxC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jan 2005 09:53:02 -0500
+Date: Sun, 23 Jan 2005 09:48:59 -0500
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch 2.4.29] i810_audio: offset LVI from CIV to avoid stalled start
+Message-ID: <20050123144856.GA28932@tuxdriver.com>
+Mail-Followup-To: Herbert Xu <herbert@gondor.apana.org.au>,
+	linux-kernel@vger.kernel.org
+References: <20050120202258.GA7687@tuxdriver.com> <20050120210739.GC7687@tuxdriver.com> <20050120212346.GD7687@tuxdriver.com> <20050120220120.GF7687@tuxdriver.com> <20050120220713.GA16599@gondor.apana.org.au> <20050122030258.GA776@gondor.apana.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200501230940.56420.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out002.verizon.net from [151.205.47.137] at Sun, 23 Jan 2005 08:40:57 -0600
+In-Reply-To: <20050122030258.GA776@gondor.apana.org.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 23 January 2005 06:31, Ingo Molnar wrote:
->* andyliu <liudeyan@gmail.com> wrote:
->> hi , ingo
->>
->> i am trying to understand your patch,but the patch file is so long
->> and complex. i am wondering is there some documents about your
->> patch?
->>
->> :)
->
->well, it mainly offers the PREEMPT_RT feature, which is a 'no
->compromises' variant of kernel preemption: virtually everything
->(including normal spinlocked sections) is preemptable, with the goal
-> of providing hard-realtime category ~10-20 usecs maximum scheduling
-> latency guarantees on a typical PC (or embedded platform). Those
-> long and complex changes are almost all needed to achieve this
-> goal.
->
->this tree is mainly an experiment to see what it takes to achieve
-> that latency goal, and to see how much of that can go upstream
-> (without having to decide whether upstream wants to have the
-> PREEMPT_RT feature or not). (A couple of dozen patches were already
-> split out of this patch and are in the current upstream kernel -
-> they already made a latency difference for the 2.6.10 kernel.)
->
-> Ingo
+On Sat, Jan 22, 2005 at 02:02:58PM +1100, Herbert Xu wrote:
+> On Fri, Jan 21, 2005 at 09:07:13AM +1100, herbert wrote:
+> > On Thu, Jan 20, 2005 at 05:01:21PM -0500, John W. Linville wrote:
+> > > On Thu, Jan 20, 2005 at 04:23:46PM -0500, John W. Linville wrote:
 
-Hijacking the thread here Ingo, but did you see my build failure 
-message of yesterday?
+> > > > +	 * the next sg segment, it won't even get a start.  So, instead, when
+> > > > +	 * we are stopped, we increment the CIV value to the next sg segment
+> > > > +	 * to be played so that when we call start, things will operate
+> > > > +	 * properly
+> > > > +	 */
 
+> OK I dug into the archives and found that the reason we need to do
+> it this way is because you can't set the value of CIV directly.  So
+> how about s/CIV/LVI/ in the last sentence?
+
+Herbert,
+
+Agreed...I will post a patch to that effect shortly...
+
+John
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.32% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+John W. Linville
+linville@tuxdriver.com

@@ -1,52 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263734AbUEMM6Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263823AbUEMNRc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263734AbUEMM6Z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 08:58:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263823AbUEMM6Y
+	id S263823AbUEMNRc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 09:17:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264176AbUEMNRc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 08:58:24 -0400
-Received: from ultra12.almamedia.fi ([193.209.83.38]:27554 "EHLO
-	ultra12.almamedia.fi") by vger.kernel.org with ESMTP
-	id S263734AbUEMM6W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 08:58:22 -0400
-Message-ID: <40A37118.ED58E781@users.sourceforge.net>
-Date: Thu, 13 May 2004 15:59:04 +0300
-From: Jari Ruusu <jariruusu@users.sourceforge.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.22aa1r6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Michal Ludvig <michal@logix.cz>
-Cc: James Morris <jmorris@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] Support for VIA PadLock crypto engine
-References: <Xine.LNX.4.44.0405120933010.10943-100000@thoron.boston.redhat.com> <Pine.LNX.4.53.0405121546200.24118@maxipes.logix.cz>
+	Thu, 13 May 2004 09:17:32 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:54949 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S263823AbUEMNRb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 09:17:31 -0400
+Date: Thu, 13 May 2004 15:17:30 +0200
+From: Jan Kara <jack@suse.cz>
+To: Paul P Komkoff Jr <i@stingr.net>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: might_sleep in quota code path as of 2.6.6-rc2, may be fixed already
+Message-ID: <20040513131730.GE3629@atrey.karlin.mff.cuni.cz>
+References: <20040512121835.GP13255@stingr.net> <20040512165802.GB32138@atrey.karlin.mff.cuni.cz> <20040513103937.GA19183@stingr.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20040513103937.GA19183@stingr.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michal Ludvig wrote:
-> My padlock driver can be used for anything that uses CryptoAPI and in fact
-> it speeds things a lot (see a simple disk-based benchmark at
-> http://www.logix.cz/michal/dl/padlock.xp).
+> Replying to Jan Kara:
+> >   Hello,
+> > 
+> > > Have you seen that?
+> >   No. Thanks for the trace. Which kernel do you use?
+> 
+> that was in 2.6.6-rc2
+  OK. I fixed a bug which could cause your problem and the fix is in
+2.6.6 so please try that kernel.
 
-Cryptoapi version of AES is slowest implementation of AES that I know of.
-For speed tests, please compare against more modern implementation.
-
-Below is one old AES128 speed test that I ran on my 300 MHz test box:
-
-KERNEL      IMPLEMENTATION  MODE                WRITE MiB/s     READ MiB/s
-2.6.1       cryptoloop      single-key           5.21            4.08
-2.6.1       loop-AES        single-key           9.52            7.56
-2.6.1       loop-AES        multi-key(MD5 IV)    7.67            6.35
-2.4.22aa1   loop-AES        single-key          10.55           10.16
-2.4.22aa1   loop-AES        multi-key(MD5 IV)    8.75            8.13
-
-The cryptoloop implementation is busted in more than one way, so it is
-useless for security needs:
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=107419912024246&w=2
-http://marc.theaimsgroup.com/?l=linux-kernel&m=107719798631935&w=2
-
+						Thanks for report
+								Honza
 -- 
-Jari Ruusu  1024R/3A220F51 5B 4B F9 BB D3 3F 52 E9  DB 1D EB E3 24 0E A9 DD
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282916AbRLMKhx>; Thu, 13 Dec 2001 05:37:53 -0500
+	id <S282979AbRLMKka>; Thu, 13 Dec 2001 05:40:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282190AbRLMKho>; Thu, 13 Dec 2001 05:37:44 -0500
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:18194 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S281818AbRLMKhf>; Thu, 13 Dec 2001 05:37:35 -0500
-Date: Thu, 13 Dec 2001 10:36:52 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Thomas Hood <jdthood@mail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB not processing APM suspend event properly?
-Message-ID: <20011213103652.A8007@flint.arm.linux.org.uk>
-In-Reply-To: <1008205428.3108.0.camel@thanatos>
-Mime-Version: 1.0
+	id <S281818AbRLMKkS>; Thu, 13 Dec 2001 05:40:18 -0500
+Received: from mail.loewe-komp.de ([62.156.155.230]:44558 "EHLO
+	mail.loewe-komp.de") by vger.kernel.org with ESMTP
+	id <S282967AbRLMKj5>; Thu, 13 Dec 2001 05:39:57 -0500
+Message-ID: <3C188567.5791CF61@loewe-komp.de>
+Date: Thu, 13 Dec 2001 11:39:35 +0100
+From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+Organization: LOEWE. Hannover
+X-Mailer: Mozilla 4.78 [de] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Alon Altman <alon@vipe.technion.ac.il>
+CC: J Sloan <jjs@lexus.com>, Pozsar Balazs <pozsy@sch.bme.hu>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Where does 'vmlinuz' come from?
+In-Reply-To: <Pine.LNX.4.33L2.0112130202480.21624-100000@alon1.dhs.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1008205428.3108.0.camel@thanatos>; from jdthood@mail.com on Wed, Dec 12, 2001 at 08:03:48PM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 12, 2001 at 08:03:48PM -0500, Thomas Hood wrote:
-> But do you agree that the present code does NOT do this?
+Alon Altman schrieb:
 > 
-> The present code does not send 'n' events---only one.
+> On Wed, 12 Dec 2001, J Sloan wrote:
+> 
+> > Pozsar Balazs wrote:
+> >
+> > > Hi all,
+> > >
+> > > This is not a bugreport, but a simple question: :)
+> > > where does the term vmlinuz come from?
+> >
+> > compressed vmlinux = vmlinux.z -> vmlinuz?
+> 
+>   Yes, but I think he wanted to know where 'vmlinux' came from... what does
+> the "vm" stand for? Virtual Memory?
+> 
 
-Ok, thinking about this obfuscated code more, it would appear so.  It
-would also appear that when the suspend request comes from the APM bios,
-the ioctl() method will not call send_event() at all - instead it comes
-from check_events().
-
-However, as I said previously, this is a minor issue.  I'd rather the
-major problem was fixed.
-
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Well, I would guess: VM in this context: virtual machine

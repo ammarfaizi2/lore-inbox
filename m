@@ -1,129 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265675AbSK1Qhh>; Thu, 28 Nov 2002 11:37:37 -0500
+	id <S265649AbSK1QdL>; Thu, 28 Nov 2002 11:33:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265777AbSK1Qhh>; Thu, 28 Nov 2002 11:37:37 -0500
-Received: from pc-62-31-66-70-ed.blueyonder.co.uk ([62.31.66.70]:36739 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S265675AbSK1Qhf>; Thu, 28 Nov 2002 11:37:35 -0500
-Date: Thu, 28 Nov 2002 16:44:39 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>,
-       Jeremy Fitzhardinge <jeremy@goop.org>,
-       Ext2 devel <ext2-devel@lists.sourceforge.net>,
-       NFS maillist <nfs@lists.sourceforge.net>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [Ext2-devel] Re: [NFS] htree+NFS (NFS client bug?)
-Message-ID: <20021128164439.E2362@redhat.com>
-References: <1038354285.1302.144.camel@sherkaner.pao.digeo.com> <shsptsrd761.fsf@charged.uio.no> <1038387522.31021.188.camel@ixodes.goop.org> <20021127150053.A2948@redhat.com> <15845.10815.450247.316196@charged.uio.no> <20021127205554.J2948@redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="24zk1gE8NUlDmwG9"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021127205554.J2948@redhat.com>; from sct@redhat.com on Wed, Nov 27, 2002 at 08:55:54PM +0000
+	id <S265656AbSK1QdL>; Thu, 28 Nov 2002 11:33:11 -0500
+Received: from pat.uio.no ([129.240.130.16]:14287 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S265649AbSK1QdK>;
+	Thu, 28 Nov 2002 11:33:10 -0500
+To: KELEMEN Peter <fuji@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: NFS performance ...
+References: <200211241521.09981.m.c.p@wolk-project.de>
+	<20021128110627.GD26875@chiara.elte.hu>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 28 Nov 2002 17:40:30 +0100
+In-Reply-To: <20021128110627.GD26875@chiara.elte.hu>
+Message-ID: <shs65uh1wch.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> " " == KELEMEN Peter <fuji@elte.hu> writes:
 
---24zk1gE8NUlDmwG9
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+     > * Marc-Christian Petersen (m.c.p@wolk-project.de) [20021124
+     >   15:23]:
+     > Marc, Andrea,
 
-Hi,
+    >> I think Andrea and me have something in our kernels that may
+    >> cause it. For me I don't know what that can be. I even have no
+    >> idea what it can be :(
 
-On Wed, Nov 27, 2002 at 08:55:54PM +0000, Stephen C. Tweedie wrote:
- 
-> Having said that, the server is clearly in error in sending a
-> duplicate cookie in the first place, and if it did so we'd never get
-> into such a state.
+     > The culprit turned out to be an inherited CONFIG_NFS_DIRECTIO
+     > setting.  Having the client kernel (2.4.20rc2aa1) this option
+     > turned off, performance is stable 4 MB/sec (server hasn't
+     > changed).  This is almost twice as good as with 2.4.19-rmap14b.
 
-And it's ext3's fault.  Reproducer below.  Run the attached readdir
-against an htree directory and you get something like:
+Huh? Sounds like something is seriously screwed up in your kernel
+build then. CONFIG_NFS_DIRECTIO should should result in 2 things only:
 
-[root@host1 htest]# ~sct/test/fs/readdir 
-getdents at f_pos 0000000000000000 returned 4084.
-getdents at f_pos 0X0000000B753BE7 returned 4080.
-getdents at f_pos 0X000000158C4C61 returned 4080.
-getdents at f_pos 0X00000021E86BDC returned 4080.
-getdents at f_pos 0X0000002D60F25D returned 4080.
-getdents at f_pos 0X00000037BC95D7 returned 4096.
-getdents at f_pos 0X000000434E2AA3 returned 4080.
-getdents at f_pos 0X0000004EF11AE6 returned 4080.
-getdents at f_pos 0X000000596EBC2F returned 4080.
-getdents at f_pos 0X00000065A76668 returned 4080.
-getdents at f_pos 0X0000007060CF8B returned 4080.
-getdents at f_pos 0X0000007B9213FA returned 1464.
-getdents at f_pos 0X0000007B9213FA returned 0.
-Final f_pos is 0X0000007B9213FA.
-[root@host1 htest]# 
+  - direct.c gets compiled.
 
-The problem is that the htree readdir code is not updating f_pos after
-returning the very last chunk of data to the caller.  That doesn't
-hurt most callers because the location is cached in the filp->private
-data, but it really upsets NFS.
+  - the 'direct_IO' address space operation gets defined, so that the
+    VFS knows what to do with files that get opened with the O_DIRECT
+    flag.
 
---Stephen
+None of the ordinary NFS read and write code paths should be affected
+by the above.
 
---24zk1gE8NUlDmwG9
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="readdir.c"
-
-#define _LARGEFILE64_SOURCE
-#include <assert.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
-#include <signal.h>
-#include <sys/fcntl.h>
-#include <sys/stat.h>
-#include <sys/vfs.h>
-#include <sys/resource.h>
-
-#include <linux/types.h>
-#include <linux/unistd.h>
-#include <linux/dirent.h>
-_syscall3(int, getdents, uint, fd, struct dirent *, dirp, uint, count);
- 
-void try(const char *what, int err)
-{
-	if (!err)
-		return;
-	fprintf (stderr, "Unexpected result %d.  %s: %s\n",
-		 err, what, strerror(errno));
-	exit(1);
-}
-
-int test_readdir(int fd)
-{
-	loff_t offset;
-	char dirbuf[4096];
-	int res;
-
-	offset = lseek64(fd, 0, SEEK_CUR);
-	res = getdents(fd, (struct dirent *)dirbuf, sizeof(dirbuf));
-	printf("getdents at f_pos %#016llX returned %d.\n", offset, res);
-	return res;
-}
-
-int main()
-{
-	int fd;
-	int res;
-	loff_t offset;
-	
-	fd = open64(".", O_RDONLY, 0);
-	try ("open \".\"", fd < 0);
-
-	do {
-		res = test_readdir(fd);
-	} while (res > 0);
-
-	offset = lseek64(fd, 0, SEEK_CUR);
-	printf("Final f_pos is %#016llX.\n", offset);
-	return 0;
-}
-
---24zk1gE8NUlDmwG9--
+Cheers,
+  Trond

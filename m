@@ -1,42 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261907AbUBWKff (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 05:35:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261911AbUBWKff
+	id S261906AbUBWKmS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 05:42:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261910AbUBWKmS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 05:35:35 -0500
-Received: from bbned23-32-100.dsl.hccnet.nl ([80.100.32.23]:26030 "EHLO
-	fw-loc.vanvergehaald.nl") by vger.kernel.org with ESMTP
-	id S261907AbUBWKfc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 05:35:32 -0500
-Date: Mon, 23 Feb 2004 11:35:30 +0100
-From: Toon van der Pas <toon@hout.vanvergehaald.nl>
+	Mon, 23 Feb 2004 05:42:18 -0500
+Received: from moutng.kundenserver.de ([212.227.126.177]:16076 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S261906AbUBWKmQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 05:42:16 -0500
+Message-ID: <4039D976.5080103@paceblade.com>
+Date: Mon, 23 Feb 2004 11:44:06 +0100
+From: Robert Woerle <robert@paceblade.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.6) Gecko/20040113
+X-Accept-Language: de, en, de-at, en-us
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Re: distinguish two identical network cards
-Message-ID: <20040223103529.GE4363@hout.vanvergehaald.nl>
-References: <OF3A73498C.45F49506-ONC1256E43.002FC840@fiducia.de> <200402231437.17847.krishnakumar@naturesoft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200402231437.17847.krishnakumar@naturesoft.net>
-User-Agent: Mutt/1.5.4i
+Subject: ttyS0 why hardcoded to 3F8
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:b4ac6117e991eeeca15f2be66d9fb0df
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 23, 2004 at 02:37:17PM +0530, Krishnakumar. R wrote:
-> Hi,
-> 
-> If its physically identifying the cards that you want,  
-> then you can  use 'ethtool' for it.  ' -p ' option of 
-> ethtool will help you physically identify the cards.
+Hi
 
-Also, look into the 'nameif' utility.
-It enables you to assign interface names to MAC addresses.
-Great tool!
+I am working here at a Tablet PC with serial touscreen controller .
+For whatever reason this controller now is configured to have COM1 at 
+0x220 and not at 3F8 .
+Is the aera of the "wellknown legacy " ports over and therefore it is 
+becoming more rare that wellknown IO are dissapearing.
 
-Regards,
-Toon.
+Would it be therefore worth investigating the possibility to not 
+hardcode this in include/asm-i386/serial.h ?
+Or am i just in a lucky situation that some littel taiwanese did make a 
+joke of the week and programmed the serial at this IO ?
+
+Since i got it working now with a patch include/asm-i386/serial.h and 
+kinda fine with it.
+Of course i would love to have the ability to maybe load the serial 
+driver ( serial.o ) with a paramter telling where to search ?
+
+Or could it be a easy thing to have a addittional module loaded which 
+changes this config at runtime ... so i dont need a "special patched " 
+kernel ?
+
+Just curious Robert
 -- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+____________________________________
+*Robert Woerle
+*
+*Technical Product Manager
+
+2L Computers BV*
+*
+*Niederlassung Deutschland*
+*Pace/Blade/ /- /Commodore - Conceptronic*
+** 
+*
+phone: 	+49 89 552 999 34
+fax: 	+49 89 552 999 10
+email: 	robert@paceblade.com <mailto:robert@paceblade.com>
+web: 	http://www.paceblade.com <http://www.paceblade.com/>
+_____________________________________
+
+
+
+
+
+
+

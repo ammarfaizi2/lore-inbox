@@ -1,55 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262357AbVC3RYq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262358AbVC3R0W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262357AbVC3RYq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 12:24:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262358AbVC3RYq
+	id S262358AbVC3R0W (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 12:26:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261902AbVC3R0V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 12:24:46 -0500
-Received: from smtp4.poczta.onet.pl ([213.180.130.28]:26273 "EHLO
-	smtp4.poczta.onet.pl") by vger.kernel.org with ESMTP
-	id S262357AbVC3RYo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 12:24:44 -0500
-Message-ID: <424AE18B.1080009@poczta.onet.pl>
-Date: Wed, 30 Mar 2005 19:27:39 +0200
-From: Wiktor <victorjan@poczta.onet.pl>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFD] 'nice' attribute for executable files
-References: <fa.ed33rit.1e148rh@ifi.uio.no> <E1DGNaV-0005LG-9m@be1.7eggert.dyndns.org> <424ACEA9.6070401@poczta.onet.pl> <yw1xpsxhvzsz.fsf@ford.inprovide.com>
-In-Reply-To: <yw1xpsxhvzsz.fsf@ford.inprovide.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Wed, 30 Mar 2005 12:26:21 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:62165 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261889AbVC3RZs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 12:25:48 -0500
+To: Dave Hansen <haveblue@us.ibm.com>
+cc: Paul Jackson <pj@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ckrm-tech@lists.sourceforge.net,
+       "Vivek Kashyap [imap]" <kashyapv@us.ibm.com>, sekharan@us.ibm.com
+Reply-To: Gerrit Huizenga <gh@us.ibm.com>
+From: Gerrit Huizenga <gh@us.ibm.com>
+Subject: Re: [patch 0/8] CKRM: Core patch set 
+In-reply-to: Your message of Wed, 30 Mar 2005 08:53:19 PST.
+             <1112201599.11490.6.camel@localhost> 
+Date: Wed, 30 Mar 2005 09:25:44 -0800
+Message-Id: <E1DGgwq-0006eI-00@w-gerrit.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Måns Rullgård wrote:
+
+On Wed, 30 Mar 2005 08:53:19 PST, Dave Hansen wrote:
+> On Tue, 2005-03-29 at 23:03 -0800, Gerrit Huizenga wrote:
+> > The code provides a fairly simple mechanism for adding controllers for
+> > any resource type
 > 
-> It can be done entirely in userspace, if you want it.  Just hack your
-> shell to examine some extended attribute of your choice, and adjust
-> the nice value before executing files.  Then arrange to have the shell
-> run with a negative nice value.  This can be easily accomplished with
-> a simple wrapper, only for the shell.
-> 
+> Last time I saw the memory controller, it was 3000 lines.  Doesn't seem
+> too simple to me. :)
+ 
+ Chandra, Dave's suggestions for the memory controller makes a lot of
+ sense.  Can you post the current code, ported to the patch set that
+ I just posted, to linux-mm for comment?
 
-this method can be applied, as you've written, only for shell (which 
-have to be hacked before). so, every program that runs any other program 
-should be hacked to use pre-execution-renice-database. rewriting all the 
-programs in the world takes a bit more time than i have to the death. 
-woudn't it be simplier to implement it in kernel, somewhere near 
-setuid/setgid bits? if it would make system slower, support of such 
-attribute could be optional, just like acl-s.
-i've found a way to perform such function in userland, but it is awful, 
-and, if some program runs another, that should be reniced, very often, 
-starting a shell (even ash) for each call will surely smoke my cpu.
-this feature without doubt belongs to kernel - it is performed every 
-time kernel starts a program, and it is not so complicated like, let's 
-say, hotplug support, is it?
+> Can you post some of the additional controllers that you've been working
+> on to the appropriate mailing lists, like linux-mm?  If the subject
+> experts get a good look at the controllers, it's quite possible that
+> some comments will cascade back to the core, don't you think?
 
-thx for replies
+ You can access the various current controllers via the ckrm-tech
+ archives from sf.net/projects/ckrm today.
 
---
-wixor
-Maye the Source be with you.
+ However, if there are additional changes to the core, I'd like to
+ see them as patches built on top of this core set.  Resending the
+ modified core each time makes it hard for people to see what has
+ changed from release to release, where individual patches will help
+ track modifications better.
+
+gerrit

@@ -1,90 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278818AbRKOArX>; Wed, 14 Nov 2001 19:47:23 -0500
+	id <S278742AbRKOAqX>; Wed, 14 Nov 2001 19:46:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278810AbRKOArQ>; Wed, 14 Nov 2001 19:47:16 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:36334 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S278795AbRKOAq7>;
-	Wed, 14 Nov 2001 19:46:59 -0500
-Date: Wed, 14 Nov 2001 17:46:13 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: generic_file_llseek() broken?
-Message-ID: <20011114174613.U5739@lynx.no>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-Reply-To: <20011114165147.S5739@lynx.no> <E164A4l-0006SR-00@the-village.bc.nu>
+	id <S278800AbRKOAqN>; Wed, 14 Nov 2001 19:46:13 -0500
+Received: from mail1.amc.com.au ([203.15.175.2]:39428 "HELO mail1.amc.com.au")
+	by vger.kernel.org with SMTP id <S278742AbRKOAqC>;
+	Wed, 14 Nov 2001 19:46:02 -0500
+Message-Id: <5.1.0.14.0.20011115111324.01f0c540@mail.amc.localnet>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 15 Nov 2001 11:45:53 +1100
+To: linux-kernel@vger.kernel.org
+From: Stuart Young <sgy@amc.com.au>
+Subject: Re: What Athlon chipset is most stable in Linux?
+Cc: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20011113.191607.00304518.davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.30.0111131910440.9658-100000@anime.net>
+ <20011113.183256.15406047.davem@redhat.com>
+ <Pine.LNX.4.30.0111131910440.9658-100000@anime.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <E164A4l-0006SR-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Nov 15, 2001 at 12:08:15AM +0000
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 15, 2001  00:08 +0000, Alan Cox wrote:
-> > I was recently testing a bit with creating very large files on ext2/ext3
-> > (just to see if limits were what they should be).  Now, I know that ext2/3
-> > allows files just shy of 2TB right now, because of an issue with i_blocks
-> > being in units of 512-byte sectors, instead of fs blocks.
-> 
-> Does 2.4.13-ac7 show the same. There were some off by one fixes and its
-> possible I managed to forget to feed Linus one
+At 07:16 PM 13/11/01 -0800, David S. Miller wrote:
+>What is your quake3 com_maxfps set to?  By default it is 85, and
+>that can hide the bug.  Set it to 130 or something like that.
+>
+><snip!>
+>
+>I'm rather sure the AMD761 problems are motherboard vendor
+>independant, because I have 2 systems so far, using totally different
+>AMD761 based motherboards, which both hang pretty reliably with AGP.
 
-The test was done on 2.4.13, but I looked through 2.4.14, 2.4.15-pre4, and
-2.4.13-ac8, and the code in question was not touched.  It is definitely not
-just an off-by-one error, since if I try to create a 40TB file it is the same
-problem (i.e. llseek returns -EINVAL, dd tries to read 40TB of file to try
-and make the file offset correct).  When it would eventually get to the
-correct offset (I can't see anything on the read path checking s_maxbytes,
-and don't know what LFS says on this) it would just get EFBIG as soon as
-it tries to write anything.
+Last night I decided to test this out on my Asus A7M (AMD761 and VIA 686b), 
+which has a 1.4 Ghz Athlon, Creative SBLive!, 3Com 3c905B, and an Asus 
+V8200 (GeForce3 64Mb DDR). The case has very good airflow, at about 120 
+Cubic Feet per Minute, and most of this passes past the CPU. PSU is a 300W 
+Enhance (brand name) power supply - use a lot of this brand, and they are 
+good quality. Linux kernel is 2.4.14 vanilla, with the Nvidia 1.0-1541 
+binary driver (using kernel AGPgart, and Nvidia module options for speed), 
+XFree86 4.1.0 that is currently in Debian sid. Was running at 1024x768 at 
+24 bit, defaults for Q3A texture settings, sound, etc, with /com_maxfps set 
+to 255. I played the single player setup against the bots (in the medium 
+hardness setting - I didn't lose a round, which kept the 3D going as 
+continuous as possible) from the start to the finish (all 6 tiers and the 
+final Z tier) without a lockup. Note: I do not run the Riva FrameBuffer 
+module, nor do I enable ANY of the APM options (eg: Make CPU Idle calls, 
+Enable console blanking, etc) in the kernel, just the generic APM support 
+itself - mainly so the machine shuts off automatically after shutdown).
 
-An example of what I'm thinking should be changed is (not tested, compiled,
-anything yet; EFBIG might be EOVERFLOW, I don't know) just for illustration:
+AGP and bad Power Supplies are always a problem, especially when you try 
+and exploit anything greater than 1x AGP, and the power drain really rises. 
+Heat is always an issue, but with good cooling, most problems vanish.
 
---- linux.orig/fs/read_write.c	Tue Aug 14 12:09:09 2001
-+++ linux/fs/read_write.c	Wed Nov 14 16:11:23 2001
-@@ -36,15 +36,24 @@
- 		case 1:
- 			offset += file->f_pos;
- 	}
--	retval = -EINVAL;
--	if (offset>=0 && offset<=file->f_dentry->d_inode->i_sb->s_maxbytes) {
--		if (offset != file->f_pos) {
--			file->f_pos = offset;
--			file->f_reada = 0;
--			file->f_version = ++event;
--		}
--		retval = offset;
-+
-+	if (offset < 0) {
-+		retval = -EINVAL;
-+		goto out;
- 	}
-+
-+	if (offset > file->f_dentry->d_inode->i_sb->s_maxbytes) {
-+		retval = -EFBIG;
-+		goto out;
-+	}
-+
-+	if (offset != file->f_pos) {
-+		file->f_pos = offset;
-+		file->f_reada = 0;
-+		file->f_version = ++event;
-+	}
-+	retval = offset;
-+out:
- 	return retval;
- }
+Sure that beanie of yours isn't cutting off the circulation, or that you've 
+been drinking too much V again Dave? *joke*
+
+BTW: As a member of a group called the LGL (or Linux Gamers League) here in 
+Australia, I help out a lot of people who want to get their systems running 
+games, particularly 3D stuff like Q3A, UT, and Tribes2. I've been able to 
+track down most of the crash issues with AMD 76x chipsets to either 1) bad 
+quality components, 2) heat or 3) power supplies. Admittedly AMD 760 
+(vanilla, not sure about MP) chipsets don't like doing more than 1x AGP, 
+but since they are a bit old in the tooth now, this isn't so much of a 
+problem for us gamers. If there was a huge issue with this, I'm sure you'd 
+hear a hell of a lot of the guys and girls (yes, girls play games under 
+Linux too!) in the LGL complaining about it. *grin*
+
+Take care.
 
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+AMC Enterprises P/L    - Stuart Young
+First Floor            - Network and Systems Admin
+3 Chesterville Rd      - sgy@amc.com.au
+Cheltenham Vic 3192    - Ph:  (03) 9584-2700
+http://www.amc.com.au/ - Fax: (03) 9584-2755
 

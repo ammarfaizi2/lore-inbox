@@ -1,59 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270227AbTGWMPN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 08:15:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270230AbTGWMPN
+	id S270230AbTGWMR7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 08:17:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270240AbTGWMR7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 08:15:13 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:12553 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S270227AbTGWMPJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 08:15:09 -0400
-Date: Wed, 23 Jul 2003 14:30:14 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: textshell@neutronstar.dyndns.org, Dominik Brodowski <linux@brodo.de>,
-       davej@suse.de, Linux kernel <linux-kernel@vger.kernel.org>,
-       Henrik Persson <nix@syndicalist.net>
-Subject: Re: 2.6.0-test1: CPUFreq not working, can't find sysfs interface
-Message-ID: <20030723123014.GB18878@atrey.karlin.mff.cuni.cz>
-References: <20030720150243.GJ2331@neutronstar.dyndns.org> <200307201745.h6KHjcHt095999@sirius.nix.badanka.com> <20030720211246.GK2331@neutronstar.dyndns.org> <20030722120811.GD1160@brodo.de> <20030722141839.GD7517@neutronstar.dyndns.org> <20030722142353.GA1301@brodo.de> <20030722145352.GE7517@neutronstar.dyndns.org> <20030723111320.GB729@zaurus.ucw.cz> <Pine.LNX.4.53.0307230720190.8208@chaos>
+	Wed, 23 Jul 2003 08:17:59 -0400
+Received: from [163.118.102.59] ([163.118.102.59]:29071 "EHLO
+	mail.drunkencodepoets.com") by vger.kernel.org with ESMTP
+	id S270230AbTGWMR6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 08:17:58 -0400
+Date: Wed, 23 Jul 2003 08:19:46 -0400
+From: paterley <paterley@DrunkenCodePoets.com>
+To: Jason <jason@project-lace.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: AMD MP, SMP, Tyan 2466
+Message-Id: <20030723081946.44d4fe10.paterley@DrunkenCodePoets.com>
+In-Reply-To: <1058846559.8494.17.camel@big-blue.project-lace.org>
+References: <BB41BCD3.17A02%kernel@mousebusiness.com>
+	<1058846559.8494.17.camel@big-blue.project-lace.org>
+Organization: DrunkenCodePoets.com
+X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0307230720190.8208@chaos>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On 22 Jul 2003 00:02:39 -0400
+Jason <jason@project-lace.org> wrote:
 
-> > 				Pavel
-> > Hardware that lets software kill it deserved that.
+> Hello,
 > 
-> Don't touch the Motorola 56xxx DSP, then. There are several
-> "insane instructions" that will smoke the device (programming
-> a pin for both input and output at the same time). There are
+> I'm coming into this conversation a bit late, so I might be missing
+> something and appologize if I am.  But  I have the same board and
+> experienced some intersting weirdness with PC2100 NON ECC chips on this
+> board as well.  I was using High performance ram from Mushkin at the
+> time.  Now here's the interesting part, according to some small print in
+> the manual, non ecc ram works up to 1.5Gb.  Knowing this, I bought 1Gb
+> of it, 2 512MB sticks.  I put them both in, and the board only sees
+> 512Mb.  So I talk to Mushkin about it, apparently they've done some
+> testing with this board.  Non ECC memory is EXTREMELY flakey in this
+> board.  So flakey that Tyan, unofficially mind you, recommened to them
+> that they not suggest to their customers to put non ecc memory in this
+> board.  So I got 1Gb of ECC Registered memory, and have yet to have a
+> problem with it.
 
-Well, if motorola was so stupid that you can kill it by mistake... I
-don't want to touch _that_.
+Actually, your 2 dimm problem could have (probably) been solved by rearranging
+your dimms.  I have the 2462ung (thunder k7) and the only way I could get 512 
+megs (give me a break I'm a porr college student) was to put one in slot 1 and 
+one in slot 3 (numbering starting at 0).
 
-> Also, the bits for setting the power supply voltages to be
-> applied to your CPU are available in I/O space on many motherboards.
-> Try your 2.5 volt CPU on 5.0 volts. It will melt the solder that
-> holds the socket to the board!
-
-On mainboards I saw it was in 'reasonable' range. I trust it not to
-melt cpu before thermal diode does its job.
-
-AMD's PowerNow at least will not let you overclock and/or
-overvoltage. You are free to undervoltage, but that's crash-only.
-
-Its true that HP Omnibook xe3 probably can be damaged, provided that
-its CPU fan fails and there's just enough airflow to keep thermal
-protection from kicking in. Its harddrive overheats in such case.
-I guess that's uncommon enough.
-								Pavel
--- 
-Horseback riding is like software...
-...vgf orggre jura vgf serr.
+Pat Erley-- 

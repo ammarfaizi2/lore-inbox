@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270641AbUJUKgn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270649AbUJUKie@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270641AbUJUKgn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 06:36:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270672AbUJUKeC
+	id S270649AbUJUKie (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 06:38:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268368AbUJUJvz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 06:34:02 -0400
-Received: from gprs214-68.eurotel.cz ([160.218.214.68]:49536 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S270641AbUJUKTx (ORCPT
+	Thu, 21 Oct 2004 05:51:55 -0400
+Received: from rproxy.gmail.com ([64.233.170.205]:60467 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S269065AbUJUJqb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 06:19:53 -0400
-Date: Thu, 21 Oct 2004 12:19:37 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Nate Lawson <nate@root.org>
-Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>
-Subject: Re: [ACPI] Machines self-power-up with 2.6.9-rc3 (evo N620c, ASUS, ...)
-Message-ID: <20041021101937.GD21373@elf.ucw.cz>
-References: <20041020191531.GC21315@elf.ucw.cz> <1098311478.4989.100.camel@desktop.cunninghams> <20041020225639.GD29863@elf.ucw.cz> <4176FCB8.3060103@root.org>
+	Thu, 21 Oct 2004 05:46:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=omAXegKA2/dhi2WzNCnQRpbZf4YoqODHOM+DaAF4xeoE0/Z4VxzWboB4SC5JcU4oMWplF2vKtIMIXt2zDdiGWWN3C62VDp2gbZtdsK6TJoG6Iy7m9Nl+L6JGGSD/Sk7EqpERd2B0SkdIU+acEl44yefwyFc4Urco0IGe08ha2CU=
+Message-ID: <e7b30b2404102102466dc71118@mail.gmail.com>
+Date: Thu, 21 Oct 2004 17:46:29 +0800
+From: Mildred Frisco <mildred.frisco@gmail.com>
+Reply-To: Mildred Frisco <mildred.frisco@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: making a linux kernel with no root filesystem
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4176FCB8.3060103@root.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
+I would like to ask help in compiling a minimal linux kernel. 
+Basically, it would only contain the kernel andno filesystem (or
+probably devfs).  I would only have to boot the kernel from floppy.
+Then after the necessary kernel initializations, I would issue a
+prompt where I can either shutdown or reboot the system. That's the
+only functionality required.  As I've learned from the init program
+(and startup scripts), the init services and shutdown commands are
+called from /sbin. However, I do not require to mount the root fs
+anymore.  I also tried to search for the source code of the shutdown
+program but I can't find it.  Please help on the steps that I should
+do.
+Thanks in advance.
+Please CC my email add in the reply. Thanks
 
-> >>>I'm seeing bad problem with N620c notebook (and have reports of more
-> >>>machines behaving like this, for example ASUS L8400C.) If I shutdown
-> >>>machine with lid closed, opening lid will power the machine up. Ouch.
-> >>>2.6.7 behaves okay.
-> >>
-> >>:> Some people would love to have the machine power up when they open
-> >>the lid! Wish my XE3 would do that!
-> 
-> This problem sounds like a wake GPE is enabled for the lid switch and 
-> that it has a _PRW that indicates it can wake the system from S5.  If 
-> this is the case, just disabled the GPE.
-
-I tried disabling all events in /proc/acpi/wakeup, and that did not
-change anything.
-
-> >:-). Well for some other people it powers up when they unplug AC
-> >power, and *that* is nasty. I'd like my machine to stay powered down
-> >when I tell it so.
-> 
-> This is likely a similar GPE problem.  The GPE for the EC fires even in 
-> S5.  I think the EC GPE should be disabled in the suspend method.
-
-How did this hangling changed between 2.6.7 and 2.6.9?
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Mildred <mildred.frisco@gmail.com>

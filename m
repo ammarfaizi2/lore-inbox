@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271333AbUJVO4i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271344AbUJVPAl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271333AbUJVO4i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 10:56:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271329AbUJVO4f
+	id S271344AbUJVPAl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 11:00:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271331AbUJVO5V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 10:56:35 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:50157 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S271333AbUJVOzI (ORCPT
+	Fri, 22 Oct 2004 10:57:21 -0400
+Received: from smtp4.wanadoo.fr ([193.252.22.27]:41077 "EHLO
+	mwinf0407.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S271329AbUJVO4v convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 10:55:08 -0400
-Date: Fri, 22 Oct 2004 16:55:59 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Luben Tuikov <luben_tuikov@adaptec.com>
-Cc: "K.R. Foley" <kr@cybsft.com>, "J.A. Magallon" <jamagallon@able.es>,
-       Dave Hansen <haveblue@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.9-rc3-mm3 fails to detect aic7xxx
-Message-ID: <20041022145559.GA12434@elte.hu>
-References: <1097178019.24355.39.camel@localhost> <1097188963l.6408l.2l@werewolf.able.es> <41661013.9090700@cybsft.com> <41668346.6090109@adaptec.com> <20041022135800.GA8254@elte.hu> <41791302.5030305@adaptec.com> <20041022140701.GC8120@elte.hu> <41791BE6.7040209@adaptec.com>
+	Fri, 22 Oct 2004 10:56:51 -0400
+Subject: Re: Buggy DSDTs policy ?
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Onur Kucuk <onur@delipenguen.net>
+Cc: Olivier Galibert <galibert@pobox.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20041022174154.2ebd2c5c.onur@delipenguen.net>
+References: <20041022122326.GA69381@dspnet.fr.eu.org>
+	 <20041022174154.2ebd2c5c.onur@delipenguen.net>
+Content-Type: text/plain; charset=utf-8
+Message-Id: <1098456935.31003.77.camel@gonzales>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41791BE6.7040209@adaptec.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 22 Oct 2004 16:55:35 +0200
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Luben Tuikov <luben_tuikov@adaptec.com> wrote:
-
-> >no, i havent. Is it easy to apply that tree to 2.6.9-rc4-mm1?
+Le ven 22/10/2004 à 16:41, Onur Kucuk a écrit :
+> On Fri, 22 Oct 2004 14:23:27 +0200
+> Olivier Galibert <galibert@pobox.com> wrote:
 > 
-> Yes, I think so.  There's 2 patches there for the AIC drivers: the PCI
-> tables and sleeping while holding a lock.
+> > What is the policy w.r.t broken DSDTs and the ACPI subsystem?
+> > Specifically, which of these two options is right:
+> > 
+> > 1- Provide a non-buggy DSDT to the kernel
+> > 2- Make the ACPI subsystem tolerant of the bugs
+> > 
+> > The option 3, have all biosen over the world fixed is a nice fantasy,
+> > but nothing else.
+> > 
+> > If 1, we need to put a mechanism for that in the official kernel.
+> 
+>  CONFIG_ACPI_CUSTOM_DSDT is included in 2.6.9
 
-linux-scsi.bkbits.net seems to be down - is there any alternate site for 
-the patches?
+But fixed DSDTs are a pain to find, and fixing a buggy DSDT is
+impossible for a non-hacker.
 
-	Ingo
+	Xav
+

@@ -1,263 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262511AbVCCRpF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261459AbVCCRqi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262511AbVCCRpF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 12:45:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262533AbVCCR17
+	id S261459AbVCCRqi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 12:46:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261657AbVCCRpv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 12:27:59 -0500
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:51085 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S262556AbVCCRYV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 12:24:21 -0500
-Message-ID: <42274841.5030807@acm.org>
-Date: Thu, 03 Mar 2005 11:24:17 -0600
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] kref docs, take 2
-Content-Type: multipart/mixed;
- boundary="------------090303010306010002080507"
+	Thu, 3 Mar 2005 12:45:51 -0500
+Received: from sta.galis.org ([66.250.170.210]:39040 "HELO sta.galis.org")
+	by vger.kernel.org with SMTP id S262540AbVCCRfK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 12:35:10 -0500
+From: "George Georgalis" <george@galis.org>
+Date: Thu, 3 Mar 2005 12:34:59 -0500
+To: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+Subject: problem with linux 2.6.11 and sa
+Message-ID: <20050303173459.GC952@ixeon.local>
+Reply-To: george@galis.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090303010306010002080507
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Please keep me in cc as I'm not presently subscribed to lkml)
 
-Thanks to all those who commented on the documents.  Here is an updated 
-document with all the reported problems fixed.
+I recall a problem a while back with a pipe from
+/proc/kmsg that was sent by root to a program with a
+user uid. The fix was to run the logging program as
+root. Has that protected pipe method been extended
+since 2.6.8.1?
 
--Corey
 
---------------090303010306010002080507
-Content-Type: text/plain;
- name="kref-docs.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="kref-docs.diff"
+I'm very defiantly seeing a problem with the 2.6.11
+kernel and my spamassassin setup. However, it's not
+clear exactly where the problem is, seems like sa
+but it might be 2.6.11 with daemontools + qmail +
+QMAIL_QUEUE.
 
-Add some documentation for krefs.
+A sure sign of it is no logs (with debug) for
+remote sa connections which score "0/0" and correct
+operation with local "cat spam.txt | spamc -R"; fix
+is to use the older kernel.
 
-Signed-off-by: Corey Minyard <minyard@acm.org>
+SA has stopped stdout logging completely with 2.6.11
+in addition to the all pass score. But the message
+seems to go through my temp queue (for testing) and
+sent on to my local MDA. I'm not sure if it's a sa
+problem with the kernel or the new kernel doing
+something new with pipes from tcp connections.
+Maybe the new kernel is not making files available
+(eg 0 bytes), until the writing pipe is closed?
+That would make my SA test a zero byte file, which
+would pass, close, become full, and the file piped
+to local MDA is full? ...humm then I'd get a score
+of "0/5"... this sounds like a SA problem with the
+new kernel, ideas?
 
-Index: linux-2.6.11-rc5-mm1/Documentation/kref.txt
-===================================================================
---- /dev/null
-+++ linux-2.6.11-rc5-mm1/Documentation/kref.txt
-@@ -0,0 +1,211 @@
-+
-+krefs allow you to add reference counters to your objects.  If you
-+have objects that are used in multiple places and passed around, and
-+you don't have refcounts, your code is almost certainly broken.  If
-+you want refcounts, krefs are the way to go.
-+
-+To use a kref, add one to your data structures like:
-+
-+struct my_data
-+{
-+	.
-+	.
-+	struct kref refcount;
-+	.
-+	.
-+};
-+
-+The kref can occur anywhere within the data structure.
-+
-+You must initialize the kref after you allocate it.  To do this, call
-+kref_init as so:
-+
-+     struct my_data *data;
-+
-+     data = kmalloc(sizeof(*data), GFP_KERNEL);
-+     if (!data)
-+            return -ENOMEM;
-+     kref_init(&data->refcount);
-+
-+This sets the refcount in the kref to 1.
-+
-+Once you have an initialized kref, you must follow the following
-+rules:
-+
-+1) If you make a non-temporary copy of a pointer, especially if
-+   it can be passed to another thread of execution, you must
-+   increment the refcount with kref_get() before passing it off:
-+       kref_get(&data->refcount);
-+   If you already have a valid pointer to a kref-ed structure (the
-+   refcount cannot go to zero) you may do this without a lock.
-+
-+2) When you are done with a pointer, you must call kref_put():
-+       kref_put(&data->refcount, data_release);
-+   If this is the last reference to the pointer, the release
-+   routine will be called.  If the code never tries to get
-+   a valid pointer to a kref-ed structure without already
-+   holding a valid pointer, it is safe to do this without
-+   a lock.
-+
-+3) If the code attempts to gain a reference to a kref-ed structure
-+   without already holding a valid pointer, it must serialize access
-+   where a kref_put() cannot occur during the kref_get(), and the
-+   structure must remain valid during the kref_get().
-+
-+For example, if you allocate some data and then pass it to another
-+thread to process:
-+
-+void data_release(struct kref *ref)
-+{
-+	struct my_data *data = container_of(ref, struct my_data, refcount);
-+	kfree(data);
-+}
-+
-+void more_data_handling(void *cb_data)
-+{
-+	struct my_data *data = cb_data;
-+	.
-+	. do stuff with data here
-+	.
-+	kref_put(data, data_release);
-+}
-+
-+int my_data_handler(void)
-+{
-+	int rv = 0;
-+	struct my_data *data;
-+	struct task_struct *task;
-+	data = kmalloc(sizeof(*data), GFP_KERNEL);
-+	if (!data)
-+		return -ENOMEM;
-+	kref_init(&data->refcount);
-+
-+	kref_get(&data->refcount);
-+	task = kthread_run(more_data_handling, data, "more_data_handling");
-+	if (task == ERR_PTR(-ENOMEM)) {
-+		rv = -ENOMEM;
-+	        kref_put(&data->refcount, data_release);
-+		goto out;
-+	}
-+
-+	.
-+	. do stuff with data here
-+	.
-+ out:
-+	kref_put(&data->refcount, data_release);
-+	return rv;
-+}
-+
-+This way, it doesn't matter what order the two threads handle the
-+data, the kref_put() handles knowing when the data is not referenced
-+any more and releasing it.  The kref_get() does not require a lock,
-+since we already have a valid pointer that we own a refcount for.  The
-+put needs no lock because nothing tries to get the data without
-+already holding a pointer.
-+
-+Note that the "before" in rule 1 is very important.  You should never
-+do something like:
-+
-+	task = kthread_run(more_data_handling, data, "more_data_handling");
-+	if (task == ERR_PTR(-ENOMEM)) {
-+		rv = -ENOMEM;
-+		goto out;
-+	} else
-+		/* BAD BAD BAD - get is after the handoff */
-+		kref_get(&data->refcount);
-+
-+Don't assume you know what you are doing and use the above construct.
-+First of all, you may not know what you are doing.  Second, you may
-+know what you are doing (there are some situations where locking is
-+involved where the above may be legal) but someone else who doesn't
-+know what they are doing may change the code or copy the code.  It's
-+bad style.  Don't do it.
-+
-+There are some situations where you can optimize the gets and puts.
-+For instance, if you are done with an object and enqueuing it for
-+something else or passing it off to something else, there is no reason
-+to do a get then a put:
-+
-+	/* Silly extra get and put */
-+	kref_get(&obj->ref);
-+	enqueue(obj);
-+	kref_put(&obj->ref, obj_cleanup);
-+
-+Just do the enqueue.  A comment about this is always welcome:
-+
-+	enqueue(obj);
-+	/* We are done with obj, so we pass our refcount off
-+	   to the queue.  DON'T TOUCH obj AFTER HERE! */
-+
-+The last rule (rule 3) is the nastiest one to handle.  Say, for
-+instance, you have a list of items that are each kref-ed, and you wish
-+to get the first one.  You can't just pull the first item off the list
-+and kref_get() it.  That violates rule 3 because you are not already
-+holding a valid pointer.  You must add locks or semaphores.  For
-+instance:
-+
-+static DECLARE_MUTEX(sem);
-+static LIST_HEAD(q);
-+struct my_data
-+{
-+	struct kref      refcount;
-+	struct list_head link;
-+};
-+
-+static struct my_data *get_entry()
-+{
-+	struct my_data *entry = NULL;
-+	down(&sem);
-+	if (!list_empty(&q)) {
-+		entry = container_of(q.next, struct my_q_entry, link);
-+		kref_get(&entry->refcount);
-+	}
-+	up(&sem);
-+	return entry;
-+}
-+
-+static void release_entry(struct kref *ref)
-+{
-+	struct my_data *entry = container_of(ref, struct my_data, refcount);
-+
-+	list_del(&entry->link);
-+	kfree(entry);
-+}
-+
-+static void put_entry(struct my_data *entry)
-+{
-+	down(&sem);
-+	kref_put(&entry->refcount, release_entry);
-+	up(&sem);
-+}
-+
-+The kref_put() return value is useful if you do not want to hold the
-+lock during the whole release operation.  Say you didn't want to call
-+kfree() with the lock held in the example above (since it is kind of
-+pointless to do so).  You could use kref_put() as follows:
-+
-+static void release_entry(struct kref *ref)
-+{
-+	/* All work is done after the return from kref_put(). */
-+}
-+
-+static void put_entry(struct my_data *entry)
-+{
-+	down(&sem);
-+	if (kref_put(&entry->refcount, release_entry)) {
-+		list_del(&entry->link);
-+		up(&sem);
-+		kfree(entry);
-+	} else
-+		up(&sem);
-+}
-+
-+This is really more useful if you have to call other routines as part
-+of the free operations that could take a long time or might claim the
-+same lock.  Note that doing everything in the release routine is still
-+preferred as it is a little neater.
-+
-+
-+Corey Minyard <minyard@acm.org>
-+
-+A lot of this was lifted from Greg KH's OLS presentation on krefs.
 
---------------090303010306010002080507--
+// George
+
+
+-- 
+George Georgalis, systems architect, administrator Linux BSD IXOYE
+http://galis.org/george/ cell:646-331-2027 mailto:george@galis.org
+

@@ -1,80 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264178AbTICSLC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 14:11:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264158AbTICSJi
+	id S264163AbTICSH6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 14:07:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264128AbTICSG7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 14:09:38 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:59353 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S264165AbTICSIl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 14:08:41 -0400
-Date: Wed, 3 Sep 2003 11:07:55 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       "Brown, Len" <len.brown@intel.com>, Larry McVoy <lm@bitmover.com>,
-       Giuliano Pochini <pochini@shiny.it>, linux-kernel@vger.kernel.org
-Subject: Re: Scaling noise
-Message-ID: <20030903180755.GE5769@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	"Brown, Len" <len.brown@intel.com>, Larry McVoy <lm@bitmover.com>,
-	Giuliano Pochini <pochini@shiny.it>, linux-kernel@vger.kernel.org
-References: <BF1FE1855350A0479097B3A0D2A80EE009FCEF@hdsmsx402.hd.intel.com> <20030903173213.GC5769@work.bitmover.com> <20030903180702.GQ4306@holomorphy.com>
+	Wed, 3 Sep 2003 14:06:59 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11786 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264115AbTICSF1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 14:05:27 -0400
+Date: Wed, 3 Sep 2003 19:05:19 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Larry McVoy <lm@work.bitmover.com>,
+       "Paul J.Y. Lahaie" <pjlahaie@steamballoon.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
+Message-ID: <20030903190519.D24951@flint.arm.linux.org.uk>
+Mail-Followup-To: Jamie Lokier <jamie@shareable.org>,
+	Larry McVoy <lm@work.bitmover.com>,
+	"Paul J.Y. Lahaie" <pjlahaie@steamballoon.com>,
+	linux-kernel@vger.kernel.org
+References: <20030901151710.A22682@flint.arm.linux.org.uk> <20030901165239.GB3556@mail.jlokier.co.uk> <20030901181148.C22682@flint.arm.linux.org.uk> <20030902053415.GA7619@mail.jlokier.co.uk> <20030902091553.A29984@flint.arm.linux.org.uk> <20030902115731.GA14354@mail.jlokier.co.uk> <20030902195222.D9345@flint.arm.linux.org.uk> <20030902235900.GA5769@work.bitmover.com> <20030903083118.A17670@flint.arm.linux.org.uk> <20030903074134.GB19920@mail.jlokier.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030903180702.GQ4306@holomorphy.com>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030903074134.GB19920@mail.jlokier.co.uk>; from jamie@shareable.org on Wed, Sep 03, 2003 at 08:41:34AM +0100
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 03, 2003 at 11:07:02AM -0700, William Lee Irwin III wrote:
-> On Wed, Sep 03, 2003 at 01:07:03PM -0400, Brown, Len wrote:
-> >> Fortunately seek time on RAM is lower than disk;-)  Sure, parallel
-> >> systems are a waste of effort for running a single copy of a single
-> >> threaded app, but when you have multiple apps, or better yet MT apps,
-> >> you win.  If system performance were limited over time to the rate of
-> >> decrease in RAM latency, then we'd be in sorry shape.
+On Wed, Sep 03, 2003 at 08:41:34AM +0100, Jamie Lokier wrote:
+> Russell King wrote:
+> > > > Multiple mappings of the same object rarely occur in my experience, so
+> > > > the resulting performance loss caused by working around the cache and
+> > > > writebuffer is something we can live with.
+> > > 
+> > > Multiple *writable* mappings.   Don't forget about libc et al.
+> > 
+> > I mean in the same group of threads with the same struct mm, not the whole
+> > system.
 > 
-> On Wed, Sep 03, 2003 at 10:32:13AM -0700, Larry McVoy wrote:
-> > For a lot of applications we are.  Go talk to your buddies in the processor
-> > group, I think there is a fair amount of awareness that for most apps faster
-> > processors aren't doing any good.  Ditto for SMP.
-> 
-> You're thinking single-application again. Systems run more than one
-> thing at once.
+> Larry means that it's perfectly normal for libc to map the same file
+> more than once: you have the code section and the data section.
 
-Then explain why hyperthreading is turned off by default in Windows.
+Code is read-only, data is read-write and is copy on write.  Therefore
+its a different scenario.
 
-> On Wed, Sep 03, 2003 at 01:07:03PM -0400, Brown, Len wrote:
-> >> Back to the original off-topic...
-> >> An OEM can spin their motivation to focus on smaller systems in 3 ways:
-> >> 1. large server sales are a small % of industry units
-> >> 2. large server sales are a small % of industry revenue
-> >> 3. large server sales are a small % of industry profits
-> >> Only 1 is true.
-> 
-> On Wed, Sep 03, 2003 at 10:32:13AM -0700, Larry McVoy wrote:
-> > How about some data to back up that statement?
-> > Sun: ~11B/year and losing money, heavily server based
-> > Dell: ~38B/year and making money, 99% small box based
-> > If you were gambling with _your_ money, would you invest in Sun or Dell?
-> 
-> That's neither sufficient information about those two companies nor a
-> sufficient number of companies to make a proper empirical statement
-> about this. I really don't care for a stock market update, but I'm just
-> not going to believe anything this sketchy (from either source, actually).
+Practical tests indicate that the vast majority of applications do not
+trip the test.
 
-Translation: "I don't like your data so I'm ignoring it".
+You're right in theory, but I don't particularly care about theory when
+its real life which matters.
 
-How you can look at those two companies and not see what is obvious is
-beyond me but everyone is entitled to their opinion.  It's nice when your
-opinion is based on data, not religion.
 -- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

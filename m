@@ -1,67 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266254AbUGJOMR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266257AbUGJO0t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266254AbUGJOMR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 10:12:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266257AbUGJOMR
+	id S266257AbUGJO0t (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 10:26:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266258AbUGJO0t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 10:12:17 -0400
-Received: from rproxy.gmail.com ([64.233.170.202]:6855 "HELO mproxy.gmail.com")
-	by vger.kernel.org with SMTP id S266254AbUGJOMP convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 10:12:15 -0400
-Message-ID: <2a4f155d040710071244057045@mail.gmail.com>
-Date: Sat, 10 Jul 2004 17:12:14 +0300
-From: =?ISO-8859-1?Q?ismail_d=F6nmez?= <ismail.donmez@gmail.com>
-To: Roger Larsson <roger.larsson@norran.net>
-Subject: Re: (att. ismail) [announce] [patch] Voluntary Kernel Preemption Patch
+	Sat, 10 Jul 2004 10:26:49 -0400
+Received: from web20827.mail.yahoo.com ([216.136.227.166]:50778 "HELO
+	web20827.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S266257AbUGJO0s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 10:26:48 -0400
+Message-ID: <20040710142647.73810.qmail@web20827.mail.yahoo.com>
+Date: Sat, 10 Jul 2004 07:26:47 -0700 (PDT)
+From: Fawad Lateef <fawad_lateef@yahoo.com>
+Subject: Re: Re: Need help in creating 8GB RAMDISK
+To: ebiederm@xmission.com
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200407101503.58124.roger.larsson@norran.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-References: <200407101503.58124.roger.larsson@norran.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I made artswrapper suid root. It's still skipping during cp -rf
-big_folder copy operation. Jack is running with --realtime and I use
-realtime lsm module to give it realtime capabilities.
 
-doing a modprobe realtime gid=17
+> ebiederm@xmission.com (Eric W. Biederman) writes:
+> 
+> What do you need this for?
+> 
+> Mostly it looks like you just need to use kmap,
+> but...
+> As other have pointed out ramfs is usually the
+> better solution,
+> and you don't need to code anything.
+> 
+> Or are you trying to use an 7GB initrd.  An
+> interesting idea
+> but that would take a little bootloader hacking to
+> make work.
 
-where 17 is "audio" group which happens to contain "cartman" user too.
+Actually I need 7GB RAMDISK to use with my Caching
+Drive Project. I have to use RAMDISK of 7GB or more
+for the Caching purpose. The Architecture is like Disk
+Caching Disk (DCD), but here I hav to use RAMDISK. 
 
-On Sat, 10 Jul 2004 15:03:58 +0200, Roger Larsson
-<roger.larsson@norran.net> wrote:
-> > Tested on 2.6.7-bk20, Pentium3 700 mhz, 576 mb RAM
-> >
-> > I did cp -rf big_folder new_folder . Then opened up a gui ftp client
-> > and music in amarok started to skip like for 2-3 seconds.
-> >
-> > Btw Amarok uses Artsd ( KDE Sound Daemon ) which in turn set to use
-> > Jack Alsa Backend.
-> 
-> Are you sure that both artsd and jackd is run as RT processes?
-> artsd needs 'artswrapper' as suid root and option in kconfig enabled.
-> (never versions of amarok warns the user if this is not the case...)
-> 
-> [You can try to run the same as root to be sure]
-> 
-> But it does sound as a io scheduler problem - but 2-3 seconds!?
-> 
-> /RogerL
-> 
-> --
-> Roger Larsson
-> Skellefteå
-> Sweden
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+I created RAMDISK using physical address as I hav
+reserved all RAM above 1GB for my RAMDISK, but I am
+not able to create RAMDISK of 7GB as a single Drive. 
+
+Is there any Idea regarding this ????
+
+Fawad Lateef
 
 
--- 
-Time is what you make of it
+
+		
+__________________________________
+Do you Yahoo!?
+Yahoo! Mail - 50x more storage than other providers!
+http://promotions.yahoo.com/new_mail

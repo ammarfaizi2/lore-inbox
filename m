@@ -1,32 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262260AbRENRBh>; Mon, 14 May 2001 13:01:37 -0400
+	id <S262265AbRENRDh>; Mon, 14 May 2001 13:03:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262265AbRENRB1>; Mon, 14 May 2001 13:01:27 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:24838 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262260AbRENRBP>; Mon, 14 May 2001 13:01:15 -0400
-Subject: Re: Minor numbers
-To: Andries.Brouwer@cwi.nl
-Date: Mon, 14 May 2001 17:57:00 +0100 (BST)
-Cc: R.E.Wolff@bitwizard.nl, alan@lxorguk.ukuu.org.uk, aqchen@us.ibm.com,
-        linux-kernel@vger.kernel.org, torvalds@transmeta.com
-In-Reply-To: <UTC200105141653.SAA09595.aeb@vlet.cwi.nl> from "Andries.Brouwer@cwi.nl" at May 14, 2001 06:53:05 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S262268AbRENRD1>; Mon, 14 May 2001 13:03:27 -0400
+Received: from baltazar.tecnoera.com ([200.29.128.1]:63753 "EHLO
+	baltazar.tecnoera.com") by vger.kernel.org with ESMTP
+	id <S262265AbRENRDQ>; Mon, 14 May 2001 13:03:16 -0400
+Date: Mon, 14 May 2001 13:02:51 -0400 (CLT)
+From: Juan Pablo Abuyeres <jpabuyer@tecnoera.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Adaptec RAID SCSI 2100S
+In-Reply-To: <E14z6m5-00079E-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0105141256470.4694-100000@baltazar.tecnoera.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14zLeW-0000yU-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> That is not more common. Around us we see major:minor splits
-> 8:24, 12:20, 14:18. If we want to use NFSv3 and communicate
-> with all these systems we would do wise to use 32:32.
+On Mon, 14 May 2001, Alan Cox wrote:
 
-My error. 32:32 is however not interesting. The fs and stat structs
-are set up to allow 32bits. 64bits is a major exercise
+> > I'm trying to make this card work under 2.4.4, but I couldn't find a patch
+> > anywhere to get it working under 2.4.x nor on 2.2.x. I tried with the I2O
+> > kernel support, but it didn't work, it only reported errors after a pretty
+> > long waiting :)
+>
+> You need to 2.4.4ac8 or higher for dpt i2o_scsi and 2.4.4ac5 or so or higher
+> for dpt i2o_block
 
-> 
+well, I applied 2.4.4ac8 (I couldn't find ac9) and I still have only
+errors when recognizing the hardware. The long waiting is gone. I will try
+to send the messages somehow. They were not saved on log files because it
+couldn't mount the devices (and I don't have a spare disk to do the trick
+:/)
+
+Ideas?
 

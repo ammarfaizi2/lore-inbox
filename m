@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131718AbRCUSoY>; Wed, 21 Mar 2001 13:44:24 -0500
+	id <S131731AbRCUS6Z>; Wed, 21 Mar 2001 13:58:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131722AbRCUSoO>; Wed, 21 Mar 2001 13:44:14 -0500
-Received: from 069up090.chartermi.net ([24.247.69.90]:52864 "EHLO
-	oof.netnation.com") by vger.kernel.org with ESMTP
-	id <S131718AbRCUSn7>; Wed, 21 Mar 2001 13:43:59 -0500
-Date: Wed, 21 Mar 2001 13:43:10 -0500
-From: Simon Kirby <sim@netnation.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: LDT allocated for cloned task!
-Message-ID: <20010321134310.A2463@netnation.com>
-In-Reply-To: <Pine.LNX.4.33.0103201745080.1701-100000@pau.intranet.ct> <9983m2$1l5$1@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <9983m2$1l5$1@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Mar 20, 2001 at 09:23:14AM -0800
+	id <S131736AbRCUS6P>; Wed, 21 Mar 2001 13:58:15 -0500
+Received: from hq.pm.waw.pl ([195.116.170.10]:33039 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id <S131731AbRCUS55>;
+	Wed, 21 Mar 2001 13:57:57 -0500
+To: Francois Romieu <romieu@cogenit.fr>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com, Alan Cox <alan@redhat.com>
+Subject: Re: [PATCH] 2.4.3-pre6 - hdlc/dscc4 missing bits
+In-Reply-To: <20010321163031.A28981@se1.cogenit.fr>
+	<3AB8CDE0.2B2619AF@mandrakesoft.com>
+	<20010321173930.A29474@se1.cogenit.fr>
+Content-Type: text/plain; charset=US-ASCII
+From: Krzysztof Halasa <khc@intrepid.pm.waw.pl>
+Date: 21 Mar 2001 19:53:42 +0100
+In-Reply-To: Francois Romieu's message of "Wed, 21 Mar 2001 17:39:30 +0100"
+Message-ID: <m3pufbj6mh.fsf_-_@intrepid.pm.waw.pl>
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 20, 2001 at 09:23:14AM -0800, Linus Torvalds wrote:
+Francois Romieu <romieu@cogenit.fr> writes:
 
-> It's harmless.
+> What about the following (2.5 ?):
 > 
-> It's really a warning that says: the mm that you allocated a new LDT for
-> may have multiple users, and while the LDT is added to all of them, we
-> don't guarantee _when_ the other users will actually see the LDT.
-> 
-> It so happens that the other users are probably just something like
-> "top" or similar, that increment the MM count to make sure that the MM
-> doesn't go away while they get information about the process. And those
-> users don't care about the LDT in the least.
+> -		dev->type = ARPHRD_HDLC;
+> +		dev->type = ARPHRD_CISCO;
 
-xmms with the xmms-avi (or avi-xmms?) plugin reproduces the message each
-and every time xmms starts up.
-
-Simon-
-
-[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
-[       sim@stormix.com       ][       sim@netnation.com        ]
-[ Opinions expressed are not necessarily those of my employers. ]
+I'll replace ARPHRD_HDLC with ARPHRD_CISCO in the whole (AC) tree when
+2.4.x kernel with '#define ARPHRD_CISCO' is out, leaving ARPHRD_HDLC only
+in the header file for possible external drivers. It can then be removed
+in 2.5.
+-- 
+Krzysztof Halasa
+Network Administrator

@@ -1,52 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264688AbTBXXpZ>; Mon, 24 Feb 2003 18:45:25 -0500
+	id <S262806AbTBXXnO>; Mon, 24 Feb 2003 18:43:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264697AbTBXXpZ>; Mon, 24 Feb 2003 18:45:25 -0500
-Received: from holomorphy.com ([66.224.33.161]:33203 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S264688AbTBXXpX>;
-	Mon, 24 Feb 2003 18:45:23 -0500
-Date: Mon, 24 Feb 2003 15:54:33 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: yodaiken@fsmlabs.com
-Cc: Andrew Morton <akpm@digeo.com>, Bill Huey <billh@gnuppy.monkey.org>,
-       lm@work.bitmover.com, mbligh@aracnet.com, davidsen@tmr.com,
-       greearb@candelatech.com, linux-kernel@vger.kernel.org
-Subject: Re: Minutes from Feb 21 LSE Call
-Message-ID: <20030224235433.GO27135@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	yodaiken@fsmlabs.com, Andrew Morton <akpm@digeo.com>,
-	Bill Huey <billh@gnuppy.monkey.org>, lm@work.bitmover.com,
-	mbligh@aracnet.com, davidsen@tmr.com, greearb@candelatech.com,
-	linux-kernel@vger.kernel.org
-References: <33350000.1046043468@[10.10.2.4]> <20030224045717.GC4215@work.bitmover.com> <20030224074447.GA4664@gnuppy.monkey.org> <20030224075430.GN10411@holomorphy.com> <20030224080052.GA4764@gnuppy.monkey.org> <20030224004005.5e46758d.akpm@digeo.com> <20030224085031.GP10411@holomorphy.com> <20030224091758.A11805@hq.fsmlabs.com> <20030224231341.GQ10411@holomorphy.com> <20030224162754.A24766@hq.fsmlabs.com>
+	id <S262821AbTBXXnO>; Mon, 24 Feb 2003 18:43:14 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:7657 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262806AbTBXXnN>;
+	Mon, 24 Feb 2003 18:43:13 -0500
+Date: Mon, 24 Feb 2003 15:36:51 -0800 (PST)
+Message-Id: <20030224.153651.127259815.davem@redhat.com>
+To: chas@locutus.cmf.nrl.navy.mil
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][ATM] get skb->len right after adjusting head 
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200302241338.h1ODcwGi028650@locutus.cmf.nrl.navy.mil>
+References: <20030223.214513.120185268.davem@redhat.com>
+	<200302241338.h1ODcwGi028650@locutus.cmf.nrl.navy.mil>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030224162754.A24766@hq.fsmlabs.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 24, 2003 at 03:13:41PM -0800, William Lee Irwin III wrote:
->> Which, if you had bothered reading the rest of my post, is why I asked
->> for data.
+   From: chas williams <chas@locutus.cmf.nrl.navy.mil>
+   Date: Mon, 24 Feb 2003 08:38:58 -0500
 
-On Mon, Feb 24, 2003 at 04:27:54PM -0700, yodaiken@fsmlabs.com wrote:
-> I'm not sure what you are complaining about. I don't think there is good
-> or even marginal data or explanations of this "effect". 
+   In message <20030223.214513.120185268.davem@redhat.com>,"David S. Miller" writes:
+   >Don't try to modify skb->{data,len} by hands, let the skb_*()
+   >interfaces do it.  Use skb_pull() in this case.
+   
+   missed that function when i went looking for it.  again, the right way:
+   
+You need to resend your original patch with this fix
+added as I didn't apply your original patch :-)
 
-I'm complaining about being quoted out of context and the animus against
-unsupported preempt claims being directed against me.
-
-Re-stating preempt's "ostensible purpose" is the purpose of the "vague
-notion", not adding to the pile of speculation.
-
-For the data, akpm has apparently tracked scheduling latency, so there
-is a chance he actually knows whether it's serving its ostensible
-purpose as opposed to having a large stockpile of overwrought wisecracks
-and a propensity for quoting out of context.
-
-
--- wli
+Thanks.

@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312896AbSDKUVO>; Thu, 11 Apr 2002 16:21:14 -0400
+	id <S312901AbSDKUWK>; Thu, 11 Apr 2002 16:22:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312901AbSDKUVN>; Thu, 11 Apr 2002 16:21:13 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:22544 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S312896AbSDKUVN>; Thu, 11 Apr 2002 16:21:13 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: [prepatch] address_space-based writeback
-Date: Thu, 11 Apr 2002 20:20:04 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <a94r5k$m23$1@penguin.transmeta.com>
-In-Reply-To: <3CB4203D.C3BE7298@zip.com.au> <3CB48F8A.DF534834@zip.com.au> <20020410221211.GA6076@ravel.coda.cs.cmu.edu> <5.1.0.14.2.20020410235415.03d41d00@pop.cus.cam.ac.uk>
-X-Trace: palladium.transmeta.com 1018556454 19227 127.0.0.1 (11 Apr 2002 20:20:54 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 11 Apr 2002 20:20:54 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S312915AbSDKUWJ>; Thu, 11 Apr 2002 16:22:09 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:25851
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S312901AbSDKUWF>; Thu, 11 Apr 2002 16:22:05 -0400
+Date: Thu, 11 Apr 2002 13:24:16 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com, akpm@zip.com.au,
+        buytenh@gnu.org
+Subject: Re: [BUG] DEADLOCK when removing a bridge on 2.4.19-pre6
+Message-ID: <20020411202416.GN23513@matchmail.com>
+Mail-Followup-To: "David S. Miller" <davem@redhat.com>,
+	linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com,
+	akpm@zip.com.au, buytenh@gnu.org
+In-Reply-To: <20020411004911.GH23513@matchmail.com> <20020411010515.GI23513@matchmail.com> <20020411014035.GJ23513@matchmail.com> <20020410.194411.48882878.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <5.1.0.14.2.20020410235415.03d41d00@pop.cus.cam.ac.uk>,
-Anton Altaparmakov  <aia21@cam.ac.uk> wrote:
+On Wed, Apr 10, 2002 at 07:44:11PM -0700, David S. Miller wrote:
+>    From: Mike Fedyk <mfedyk@matchmail.com>
+>    Date: Wed, 10 Apr 2002 18:40:35 -0700
+> 
+>    On Wed, Apr 10, 2002 at 06:05:15PM -0700, Mike Fedyk wrote:
+>    > 2.4.19-pre6-nobr0fpsh building now...
+>    
+>    Yep, reversing 2.4.18_fix_port_state_handling.diff fixed it.
+> 
+> Thanks for tracking this down so precisely.  If every bug reporter
+> actually bothered to do this work, it'd take a lot less work to
+> fix most bugs :-)
 >
->Um, NTFS uses address spaces for things where ->host is not an inode at all 
->so doing host->i_sb will give you god knows what but certainly not a super 
->block!
 
-Then that should be fixed in NTFS.
+Thanks. :)
 
-The original meaning of "->host" was that it could be anything (and it
-was a "void *", but the fact is that all the generic VM code etc needed
-to know about host things like size, locking etc, so for over a year now
-"host" has been a "struct inode", and if you need to have something
-else, then that something else has to embed a proper inode.
+> Lennert, just let me know when you have a fix :-)
+> 
 
->As long as your patches don't break that is possible to have I am happy... 
->But from what you are saying above I have a bad feeling you are somehow 
->assuming that a mapping's host is an inode...
+Couldn't have done it if Lennert didn't keep those applied patches
+available, and separated. :)
 
-It's not Andrew who is assuming anything: it _is_. Look at <linux/fs.h>,
-and notice the
-
-	struct inode            *host;
-
-part.
-
-		Linus
+Mike

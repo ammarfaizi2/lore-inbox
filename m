@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264084AbTDOVUB (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 17:20:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264086AbTDOVUB 
+	id S264088AbTDOVYv (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 17:24:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264093AbTDOVYv 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 17:20:01 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9745 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264084AbTDOVTy (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 17:19:54 -0400
-Date: Tue, 15 Apr 2003 22:31:41 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Writing modules for 2.5
-Message-ID: <20030415223141.G32468@flint.arm.linux.org.uk>
-Mail-Followup-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <yw1x7k9w9flm.fsf@zaphod.guide.suse.lists.linux.kernel> <p73adesxane.fsf@oldwotan.suse.de> <yw1xllyc7yoz.fsf@zaphod.guide> <1050406513.27745.32.camel@dhcp22.swansea.linux.org.uk> <yw1xbrz87x59.fsf@zaphod.guide> <20030415135758.C32468@flint.arm.linux.org.uk> <yw1x7k9v938w.fsf@zaphod.guide>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <yw1x7k9v938w.fsf@zaphod.guide>; from mru@users.sourceforge.net on Tue, Apr 15, 2003 at 05:42:07PM +0200
-X-Message-Flag: Your copy of Microsoft Outlook is vurnerable to viruses. See www.mutt.org for more details.
+	Tue, 15 Apr 2003 17:24:51 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:19613 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264088AbTDOVYt 
+	(for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Apr 2003 17:24:49 -0400
+Date: Tue, 15 Apr 2003 14:35:22 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise
+To: Nigel Cunningham <ncunningham@clear.net.nz>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@ucw.cz>
+Subject: Re: New Software Suspend Patch for testing.
+In-Reply-To: <1050442411.2983.5.camel@laptop-linux.cunninghams>
+Message-ID: <Pine.LNX.4.44.0304151432410.912-100000@cherise>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 15, 2003 at 05:42:07PM +0200, Måns Rullgård wrote:
-> Does this work in 2.4 also
 
-Yes.
+> One more problem is that you're also trying to follow a moving target
+> :>. In response to Pavel's last request, I'm preparing to work toward
+> using a linked list for the meta information (to allow unlimited image
+> size), and at the request of others, compressing (zlib) the saved pages
+> to make the image faster to save/load.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+The issue is not following a moving target. It's reading poorly maintained 
+and documented code. 
+
+If I were you, I would work first at cleaning up the code, then work on 
+adding features to it. There were many opportunities I found for 
+improvement when reworking the code, plus it became orders of magnitude 
+easier to follow. 
+
+
+	-pat
 

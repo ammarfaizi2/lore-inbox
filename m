@@ -1,94 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261313AbTIYPYQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 11:24:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261297AbTIYPYQ
+	id S261311AbTIYP2k (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 11:28:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261325AbTIYP2k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 11:24:16 -0400
-Received: from [195.120.246.30] ([195.120.246.30]:33676 "EHLO
-	fatbastard.bmind.it") by vger.kernel.org with ESMTP id S261313AbTIYPYM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 11:24:12 -0400
-Message-ID: <3F730899.7080700@bmind.it>
-Date: Thu, 25 Sep 2003 17:24:09 +0200
-From: Paolo Dovera <pdovera@bmind.it>
-Organization: bmind SpA
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: it, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: kakadu_croc@yahoo.com
-Subject: Re: 2.6.0-test broke RPM 4.2 on Red Hat 9 in a VERY weird way
-References: <20030925132630.59015.qmail@web40903.mail.yahoo.com>
-In-Reply-To: <20030925132630.59015.qmail@web40903.mail.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 25 Sep 2003 11:28:40 -0400
+Received: from users.linvision.com ([62.58.92.114]:15567 "HELO bitwizard.nl")
+	by vger.kernel.org with SMTP id S261311AbTIYP2j (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 11:28:39 -0400
+Date: Thu, 25 Sep 2003 17:28:37 +0200
+From: Erik Mouw <erik@harddisk-recovery.nl>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: "Norris, Brent" <bnorris@Edmonson.k12.ky.us>,
+       "'Lou Langholtz'" <ldl@aros.net>, linux-kernel@vger.kernel.org
+Subject: Re: 128G Limit in Reiserfs? Or the Kernel? Or something else?
+Message-ID: <20030925152837.GF31199@bitwizard.nl>
+References: <9A8F8D67DC8ED311BF3E0008C7B9A0ADBAA871@E151000N0> <200309251644.22539.bzolnier@elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200309251644.22539.bzolnier@elka.pw.edu.pl>
+User-Agent: Mutt/1.3.28i
+Organization: Harddisk-recovery.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, try this:
+On Thu, Sep 25, 2003 at 04:44:22PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> IDE limit is 137GB, not 128GB.
 
-export LD_ASSUME_KERNEL=2.4.1
+It's the same limit:
 
-before run rpm command, this works fine on my RH9
+erik@zurix:~ >bc -l
+bc 1.06
+Copyright 1991-1994, 1997, 1998, 2000 Free Software Foundation, Inc.
+This is free software with ABSOLUTELY NO WARRANTY.
+For details type warranty'. 
+128 * 1024 * 1024 * 1024 / 1000000000
+137.43895347200000000000
 
-        Paolo
 
-Bradley Chapman wrote:
+Regards,
+Erik
 
->I've just discovered a very strange and unusual problem with rpm on my Red Hat 9
->laptop running 2.6.0-test. Under 2.4.22-ac2 rpm runs perfectly fine, but when I
->run it under 2.6.0-test, it outputs the following errors:
->
->sudo rpm -Uvh alsa-driver-0.9.6-1.fr.i386.rpm
->Password:
->rpmdb: unable to join the environment
->error: db4 error(11) from dbenv->open: Resource temporarily unavailable
->error: cannot open Packages index using db3 - Resource temporarily unavailable (11)
->error: cannot open Packages database in /var/lib/rpm
->warning: alsa-driver-0.9.6-1.fr.i386.rpm: V3 DSA signature: NOKEY, key ID e42d547b
->rpmdb: unable to join the environment
->error: db4 error(11) from dbenv->open: Resource temporarily unavailable
->error: cannot open Packages database in /var/lib/rpm
->rpmdb: unable to join the environment
->error: db4 error(11) from dbenv->open: Resource temporarily unavailable
->error: cannot open Packages database in /var/lib/rpm
->
->I have never seen rpm do this before, and it only occurs under 2.6.0-test. It
->happens under these specific kernels:
->
->2.6.0-test5-bk10
->2.6.0-test5-bk11
->2.6.0-test5-mm4
->
->I have not tried -test5-bk12 yet, but I have a feeling that I will get the same
->errors. I have checked syslog and dmesg and there are no errors from the kernel;
->under 2.4.22-ac2 rpm works perfectly fine, so I don't believe it's file corruption
->or filesystem breakage.
->
->Does anyone have any ideas that I can try?
->
->Thanks!
->
->Brad
->
->
->
->=====
->Brad Chapman
->
->Permanent e-mail: kakadu_croc@yahoo.com
->
->__________________________________
->Do you Yahoo!?
->The New Yahoo! Shopping - with improved product search
->http://shopping.yahoo.com
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+| Data lost?!
+| Stay calm and contact Harddisk-recovery.com!

@@ -1,55 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132747AbRDINjX>; Mon, 9 Apr 2001 09:39:23 -0400
+	id <S132752AbRDINmm>; Mon, 9 Apr 2001 09:42:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132749AbRDINjN>; Mon, 9 Apr 2001 09:39:13 -0400
-Received: from lacrosse.corp.redhat.com ([207.175.42.154]:3968 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S132747AbRDINjA>; Mon, 9 Apr 2001 09:39:00 -0400
-Date: Mon, 9 Apr 2001 14:38:54 +0100
-From: Tim Waugh <twaugh@redhat.com>
-To: Bjorn Wesen <bjorn@sparta.lu.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: parport initialisation
-Message-ID: <20010409143854.K1136@redhat.com>
-In-Reply-To: <Pine.LNX.3.96.1010409141107.9826A-100000@medusa.sparta.lu.se>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="kswDJesP0akhmDn8"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.3.96.1010409141107.9826A-100000@medusa.sparta.lu.se>; from bjorn@sparta.lu.se on Mon, Apr 09, 2001 at 02:13:10PM +0200
+	id <S132753AbRDINmc>; Mon, 9 Apr 2001 09:42:32 -0400
+Received: from mail.cis.nctu.edu.tw ([140.113.23.5]:3077 "EHLO
+	mail.cis.nctu.edu.tw") by vger.kernel.org with ESMTP
+	id <S132752AbRDINmT>; Mon, 9 Apr 2001 09:42:19 -0400
+Message-ID: <012a01c0c0fb$b9305290$ae58718c@cis.nctu.edu.tw>
+From: "nctucis" <gis88530@cis.nctu.edu.tw>
+To: <linux-kernel@vger.kernel.org>
+Subject: skbuff.h
+Date: Mon, 9 Apr 2001 21:48:12 +0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="big5"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---kswDJesP0akhmDn8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I use 2.2.16 kernel.
+I found that there is a sk_buff structure in
+"/usr/src/linux/include/linux/skbuff.c", and
+there is a variable "unsigned in csum;" in 
+the sk_buff structure.
 
-On Mon, Apr 09, 2001 at 02:13:10PM +0200, Bjorn Wesen wrote:
+I want to know this checksum check what information.
+Could you give me a hand, please?
 
-> Is it just because nobody has gotten around to "fixing" it or is there a
-> deeper reason ?
+-=-=-=-=-=-=-=-
+In fact, I found 64byte and 1518byte UDP packet waste different
+time to do masquerade(ip_fw_masquerade). 
+Many books say NAT just modify header fields, so it should no 
+different between small and big packet size.
+I guess the different time due to csum_partial(h.raw, doff, sum)
+in ip_fw_masquerade(). Right? Thanks a lot.
+(But I can't find out source code of this function.)
 
-There's no deeper reason.  But there are dependencies involved:
-parport needs to be initialised before any parport lowlevel drivers,
-and they need to be initialised before things like lp and ppdev.
+Cheers,
+Tom
 
-Tim.
-*/
 
---kswDJesP0akhmDn8
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE60bttONXnILZ4yVIRAvCBAJ4pta3FwVw8TB8OosB6aq589ZGBKwCfXqG6
-x6u5OQ//3DluHBVC+oqIRLo=
-=8exG
------END PGP SIGNATURE-----
-
---kswDJesP0akhmDn8--

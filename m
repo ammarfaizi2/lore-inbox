@@ -1,104 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262214AbTCRMaA>; Tue, 18 Mar 2003 07:30:00 -0500
+	id <S262289AbTCRMxv>; Tue, 18 Mar 2003 07:53:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262215AbTCRMaA>; Tue, 18 Mar 2003 07:30:00 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:31991 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S262214AbTCRM36>; Tue, 18 Mar 2003 07:29:58 -0500
-Date: Tue, 18 Mar 2003 13:40:50 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Jochen Friedrich <jochen@scram.de>, trivial@rustcorp.com.au,
-       linux-kernel@vger.kernel.org
-Subject: [2.5 patch] fix the compilation of drivers/net/tokenring/tms380tr.c (fwd)
-Message-ID: <20030318124049.GB18135@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S262367AbTCRMxv>; Tue, 18 Mar 2003 07:53:51 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:902 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S262289AbTCRMxu> convert rfc822-to-8bit; Tue, 18 Mar 2003 07:53:50 -0500
+Date: Tue, 18 Mar 2003 08:06:22 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: DervishD <raul@pleyades.net>
+cc: "Sparks, Jamie" <JAMIE.SPARKS@cubic.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: select() stress
+In-Reply-To: <20030318102837.GH42@DervishD>
+Message-ID: <Pine.LNX.4.53.0303180758380.26753@chaos>
+References: <Pine.WNT.4.44.0303171010580.1544-100000@GOLDENEAGLE.gameday2000>
+ <Pine.LNX.4.53.0303171112090.22652@chaos> <20030318102837.GH42@DervishD>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 18 Mar 2003, DervishD wrote:
 
-The patch in the mail forwarded below is still needed in 2.5.65.
+>     Hi all :)
+>
+>  Richard B. Johnson dixit:
+> > >       /*  ****************************** */
+> > >       if (select(getdtablesize(), &socklist, NULL, NULL, NULL) < 0)
+> > >       {
+> > >         if (errno != EINTR) perror("WeapTerrain");
+> > > 	continue;
+> > >       }
+> > select() takes a file-descriptor as its first argument, not the
+> > return-value of some function that returns the number of file-
+> > descriptors. You cannot assume that this number is the same
+> > as the currently open socket. Just use the socket-value. That's
+> > the file-descriptor.
+>
+>     Not at all. 'select()' takes a *number of file descriptors* as
+> its first argument, meaning the maximum number of file descriptors to
+> check (it checks only the first N file descriptors, being 'N' the
+> first argument). Usually that first argument is FD_SETSIZE, but the
+> result of any function returning a number is right if you know that
+> the return value is what you want.
+>
+>     If, for example, FD_SETSIZE is set to UINT_MAX but
+> getdtablesize() returns 100 ('ulimit' came to mind), it's a good idea
+> to use the return value of that function. Anyway, IMHO is better to
+> use FD_SETSIZE.
+>
+>     See the glibc info for more references.
+>
+>     Bye and happy coding :)
+>     Raúl Núñez de Arenas Coronado
+>
 
-Please apply
-Adrian
+What I said has been misinterpreted. Select takes the highest
+number fd in the set you want to examine plus 1. It therefore
+requires some relationship to the fd that you are using if
+you are using a socket whos value was N you must select on
+(at least) N+1, not the return value of a function that gives
+the maximum number of fds that you can open. They are not the
+same and are not guaranteed to be related although on some
+target, they might. It's the same problem as:
 
+	write(1, "Hello\n", 6);
 
------ Forwarded message from Adrian Bunk <bunk@fs.tum.de> -----
-
-Date: Wed, 5 Mar 2003 21:34:50 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Jochen Friedrich <jochen@scram.de>, trivial@rustcorp.com.au
-Subject: [2.5 patch] fix the compilation of drivers/net/tokenring/tms380tr.c
-
-Since 2.5.61 compilation of drivers/net/tokenring/tms380tr.c fails with 
-the following error:
-
-<--  snip  -->
-
-...
-  gcc -Wp,-MD,drivers/net/tokenring/.tms380tr.o.d -D__KERNEL__ -Iinclude 
--Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing 
--fno-common -pipe -mpreferred-stack-boundary=2 -march=k6 
--Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include    
--DKBUILD_BASENAME=tms380tr -DKBUILD_MODNAME=tms380tr -c -o 
-drivers/net/tokenring/tms380tr.o drivers/net/tokenring/tms380tr.c
-drivers/net/tokenring/tms380tr.c: In function `tms380tr_open':
-drivers/net/tokenring/tms380tr.c:260: invalid type argument of `->'
-drivers/net/tokenring/tms380tr.c:260: invalid type argument of `->'
-drivers/net/tokenring/tms380tr.c:260: invalid type argument of `->'
-drivers/net/tokenring/tms380tr.c:260: invalid type argument of `->'
-drivers/net/tokenring/tms380tr.c:260: invalid type argument of `->'
-drivers/net/tokenring/tms380tr.c:260: invalid type argument of `->'
-drivers/net/tokenring/tms380tr.c: In function `tms380tr_init_adapter':
-drivers/net/tokenring/tms380tr.c:1461: warning: long unsigned int format, different type arg (arg3)
-make[3]: *** [drivers/net/tokenring/tms380tr.o] Error 1
-
-<--  snip  -->
-
-
-The following patch by Jochen Friedrich fixes both the compile error and 
-the warning:
-
-
---- linux-2.5.64-notfull/drivers/net/tokenring/tms380tr.c.old	2003-03-05 21:22:59.000000000 +0100
-+++ linux-2.5.64-notfull/drivers/net/tokenring/tms380tr.c	2003-03-05 21:27:18.000000000 +0100
-@@ -257,7 +257,7 @@
- 	int err;
- 	
- 	/* init the spinlock */
--	spin_lock_init(tp->lock);
-+	spin_lock_init(&tp->lock);
- 
- 	/* Reset the hardware here. Don't forget to set the station address. */
- 
-@@ -1458,7 +1458,7 @@
- 	if(tms380tr_debug > 3)
- 	{
- 		printk(KERN_DEBUG "%s: buffer (real): %lx\n", dev->name, (long) &tp->scb);
--		printk(KERN_DEBUG "%s: buffer (virt): %lx\n", dev->name, (long) ((char *)&tp->scb - (char *)tp) + tp->dmabuffer);
-+		printk(KERN_DEBUG "%s: buffer (virt): %lx\n", dev->name, (long) ((char *)&tp->scb - (char *)tp) + (long) tp->dmabuffer);
- 		printk(KERN_DEBUG "%s: buffer (DMA) : %lx\n", dev->name, (long) tp->dmabuffer);
- 		printk(KERN_DEBUG "%s: buffer (tp)  : %lx\n", dev->name, (long) tp);
- 	}
+Such code is broken. At the very least, one needs to use
+STDOUT_FILENO as the fd, and really should not count characters
+by hand.
 
 
-
-
-Please apply
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
-
------ End forwarded message -----
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 

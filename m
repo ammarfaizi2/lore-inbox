@@ -1,53 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262672AbRE0BIe>; Sat, 26 May 2001 21:08:34 -0400
+	id <S262674AbRE0BLO>; Sat, 26 May 2001 21:11:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262674AbRE0BIY>; Sat, 26 May 2001 21:08:24 -0400
-Received: from server1.cosmoslink.net ([208.179.167.101]:20503 "EHLO
-	server1.cosmoslink.net") by vger.kernel.org with ESMTP
-	id <S262672AbRE0BIS>; Sat, 26 May 2001 21:08:18 -0400
-Message-ID: <018001c0e649$8111c380$52a6b3d0@Toshiba>
-From: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
-To: "Greg Banks" <gbanks@pocketpenguins.com>
-Cc: <esr@thyrsus.com>, "CML2" <linux-kernel@vger.kernel.org>,
-        <kbuild-devel@lists.sourceforge.net>,
-        "Jaswinder Singh" <jaswinder.singh@3disystems.com>
-In-Reply-To: <20010525012200.A5259@thyrsus.com> <3B0F3268.A671BC7A@pocketpenguins.com> <002401c0e5aa$0049a000$47a6b3d0@Toshiba> <3B0F8042.90DD5C5D@pocketpenguins.com> <005801c0e614$b49a0120$44a6b3d0@Toshiba> <3B105492.5300778F@pocketpenguins.com>
-Subject: Re: [kbuild-devel] Configure.help entries wanted
-Date: Sat, 26 May 2001 18:08:12 -0700
+	id <S262680AbRE0BLE>; Sat, 26 May 2001 21:11:04 -0400
+Received: from srvr1.telecom.lt ([212.59.0.10]:30214 "EHLO mail.takas.lt")
+	by vger.kernel.org with ESMTP id <S262674AbRE0BKy>;
+	Sat, 26 May 2001 21:10:54 -0400
+Message-Id: <200105270110.DAA2201932@mail.takas.lt>
+Date: Sun, 27 May 2001 03:07:54 +0200 (EET)
+From: Nerijus Baliunas <nerijus@users.sourceforge.net>
+Subject: [PATCH] fix typos in Configure.help
+To: linux-kernel@vger.kernel.org
+cc: alan@lxorguk.ukuu.org.uk
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-Disposition: INLINE
+X-Mailer: Mahogany, 0.63 'Saugus', compiled for Linux 2.2.19 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Against 2.4.5-ac1:
 
-"Greg Banks" <gbanks@pocketpenguins.com> wrote:
+--- Configure.help.orig Sun May 27 02:53:12 2001
++++ Configure.help      Sun May 27 03:02:50 2001
+@@ -12648,7 +12648,7 @@
+ Default NLS Option
+ CONFIG_NLS_DEFAULT
+   The default NLS used when mounting file system. Note, that this is
+-  the NLS used by your console, not the NLS used by a specyfic file
++  the NLS used by your console, not the NLS used by a specific file
+   system (if different) to store data (filenames) on a disk.
+   Currently, the valid values are:
+   big5, cp437, cp737, cp775, cp850, cp852, cp855, cp857, cp860, cp861,
+@@ -12745,7 +12745,7 @@
+   only, not to the file contents. You can include several codepages;
+   say Y here if you want to include the DOS codepage for Turkish.
 
-> Jaswinder Singh wrote:
-> >
-> > >
-> > BTW, how many WindowsCE machines are fully (means all the features as
-> > provided by Windows CE) supported by LinuxSH and how many machines are
-> > partially(only few features) supported by LinuxSH ?
->
->   I don't understand, what features do you mean?
->
+-Codepage 860 (Portugese)
++Codepage 860 (Portuguese)
+ CONFIG_NLS_CODEPAGE_860
+   The Microsoft FAT file system family can deal with filenames in
+   native language character sets. These character sets are stored in
+@@ -12847,7 +12847,7 @@
+   DOS/Windows partitions correctly. This does apply to the filenames
+   only, not to the file contents. You can include several codepages;
+   say Y here if you want to include the DOS codepage for Russian and
+-  Bulgarian and Belorussian.
++  Bulgarian and Belarussian.
 
-By features , i mean , that we can use all the hardware of WindowsCE machine
-, like Touch panel , modem , IrDA, Sound , etc , etc .
+ Japanese charsets (Shift-JIS, EUC-JP)
+ CONFIG_NLS_CODEPAGE_932
+@@ -13001,8 +13001,8 @@
+   correctly on the screen, you need to include the appropriate
+   input/output character sets. Say Y here for the Latin 8 character
+   set, which adds the last accented vowels for Welsh (aka Cymraeg)
+-  (and Manx Gaelic) hat were missing in Latin 1.
+-  <http://linux.speech.cymru.org/>has further information.
++  (and Manx Gaelic) that were missing in Latin 1.
++  <http://linux.speech.cymru.org/> has further information.
 
-Thank you,
-
-Best Regards,
-
-Jaswinder.
---
-These are my opinions not 3Di.
+ NLS ISO 8859-15 (Latin 9; Western European Languages with Euro)
+ CONFIG_NLS_ISO8859_15
 
 

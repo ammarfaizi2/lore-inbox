@@ -1,20 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263346AbTIWURI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 16:17:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262745AbTIWUQQ
+	id S262190AbTIWUPT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 16:15:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262217AbTIWUPS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 16:16:16 -0400
-Received: from fw.osdl.org ([65.172.181.6]:18826 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262188AbTIWUPa (ORCPT
+	Tue, 23 Sep 2003 16:15:18 -0400
+Received: from fw.osdl.org ([65.172.181.6]:61575 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262190AbTIWUPB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 16:15:30 -0400
-Date: Tue, 23 Sep 2003 13:15:15 -0700
+	Tue, 23 Sep 2003 16:15:01 -0400
+Date: Tue, 23 Sep 2003 13:14:53 -0700
 From: Chris Wright <chrisw@osdl.org>
 To: David Yu Chen <dychen@stanford.edu>
-Cc: linux-kernel@vger.kernel.org, mc@cs.stanford.edu, alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org, mc@cs.stanford.edu,
+       trond.myklebust@fys.uio.no
 Subject: Re: [CHECKER] 32 Memory Leaks on Error Paths
-Message-ID: <20030923131515.H20572@osdlab.pdx.osdl.net>
+Message-ID: <20030923131453.G20572@osdlab.pdx.osdl.net>
 References: <200309160435.h8G4ZkQM009953@elaine4.Stanford.EDU>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -25,49 +26,52 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 * David Yu Chen (dychen@stanford.edu) wrote:
-> [FILE:  2.6.0-test5/sound/oss/ymfpci.c]
+> [FILE:  2.6.0-test5/net/sunrpc/auth_gss/gss_mech_switch.c]
 > START -->
-> 2530:	if ((codec = kmalloc(sizeof(ymfpci_t), GFP_KERNEL)) == NULL) {
-> 2531:		printk(KERN_ERR "ymfpci: no core\n");
-> 2532:		return -ENOMEM;
-> 2533:	}
-> 2534:	memset(codec, 0, sizeof(*codec));
-> 2535:
->         ... DELETED 11 lines ...
-> 2547:		goto out_free;
-> 2548:	}
-> 2549:
-> 2550:	if ((codec->reg_area_virt = ioremap(base, 0x8000)) == NULL) {
-> 2551:		printk(KERN_ERR "ymfpci: unable to map registers\n");
-> GOTO -->
-> 2552:		goto out_release_region;
-> 2553:	}
-> 2554:
-> 2555:	pci_set_master(pcidev);
-> 2556:
-> 2557:	printk(KERN_INFO "ymfpci: %s at 0x%lx IRQ %d\n",
->         ... DELETED 78 lines ...
-> 2636: out_release_region:
-> 2637:	release_mem_region(pci_resource_start(pcidev, 0), 0x8000);
-> 2638: out_free:
-> 2639:	if (codec->ac97_codec[0])
-> 2640:		ac97_release_codec(codec->ac97_codec[0]);
+>   67:	if (!(gm = kmalloc(sizeof(*gm), GFP_KERNEL))) {
+>   68:		printk("Failed to allocate memory in gss_mech_register");
+>   69:		return -1;
+>   70:	}
+>   71:	gm->gm_oid.len = mech_type->len;
+>   72:	if (!(gm->gm_oid.data = kmalloc(mech_type->len, GFP_KERNEL))) {
+>   73:		printk("Failed to allocate memory in gss_mech_register");
 > END -->
-> 2641:	return -ENODEV;
+>   74:		return -1;
+<snip>
+> [FILE:  2.6.0-test5/net/sunrpc/auth_gss/gss_pseudoflavors.c]
+> [FUNC:  gss_register_triple]
+> START -->
+>   74:	if (!(triple = kmalloc(sizeof(*triple), GFP_KERNEL))) {
+>   75:		printk("Alloc failed in gss_register_triple");
+> GOTO -->
+>   86:		goto err_unlock;
+> END -->
+>   97:	return -1;
 
-Yes, this looks like a bug.  Patch below.  Alan, this look ok?
+Yes, these are both bugs.  Patch below.  Trond, this look ok?
 
 thanks,
 -chris
 
-===== sound/oss/ymfpci.c 1.38 vs edited =====
---- 1.38/sound/oss/ymfpci.c	Tue Aug 26 09:25:41 2003
-+++ edited/sound/oss/ymfpci.c	Tue Sep 23 12:42:45 2003
-@@ -2638,6 +2638,7 @@
-  out_free:
- 	if (codec->ac97_codec[0])
- 		ac97_release_codec(codec->ac97_codec[0]);
-+	kfree(codec);
- 	return -ENODEV;
- }
+===== net/sunrpc/auth_gss/gss_mech_switch.c 1.2 vs edited =====
+--- 1.2/net/sunrpc/auth_gss/gss_mech_switch.c	Wed Jun 11 19:25:40 2003
++++ edited/net/sunrpc/auth_gss/gss_mech_switch.c	Tue Sep 23 12:18:26 2003
+@@ -71,6 +71,7 @@
+ 	gm->gm_oid.len = mech_type->len;
+ 	if (!(gm->gm_oid.data = kmalloc(mech_type->len, GFP_KERNEL))) {
+ 		printk("Failed to allocate memory in gss_mech_register");
++		kfree(gm);
+ 		return -1;
+ 	}
+ 	memcpy(gm->gm_oid.data, mech_type->data, mech_type->len);
+===== net/sunrpc/auth_gss/gss_pseudoflavors.c 1.1 vs edited =====
+--- 1.1/net/sunrpc/auth_gss/gss_pseudoflavors.c	Sun Jan 12 13:40:13 2003
++++ edited/net/sunrpc/auth_gss/gss_pseudoflavors.c	Tue Sep 23 12:24:47 2003
+@@ -93,6 +93,7 @@
  
+ err_unlock:
+ 	spin_unlock(&registered_triples_lock);
++	kfree(triple);
+ err:
+ 	return -1;
+ }

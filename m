@@ -1,40 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265469AbSJSByv>; Fri, 18 Oct 2002 21:54:51 -0400
+	id <S265464AbSJSCAN>; Fri, 18 Oct 2002 22:00:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265470AbSJSByu>; Fri, 18 Oct 2002 21:54:50 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:6093 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S265469AbSJSByi>;
-	Fri, 18 Oct 2002 21:54:38 -0400
-Date: Fri, 18 Oct 2002 18:52:58 -0700 (PDT)
-Message-Id: <20021018.185258.27026815.davem@redhat.com>
-To: yoshfuji@linux-ipv6.org
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, usagi@linux-ipv6.org
-Subject: Re: [PATCH] IPv6: Sevaral MLD Fixes
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20021018.125223.130322644.yoshfuji@linux-ipv6.org>
-References: <20021018.125223.130322644.yoshfuji@linux-ipv6.org>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S265467AbSJSCAN>; Fri, 18 Oct 2002 22:00:13 -0400
+Received: from mithra.wirex.com ([65.102.14.2]:11269 "EHLO mail.wirex.com")
+	by vger.kernel.org with ESMTP id <S265464AbSJSCAM>;
+	Fri, 18 Oct 2002 22:00:12 -0400
+Message-ID: <3DB0BDF5.3050709@wirex.com>
+Date: Fri, 18 Oct 2002 19:05:41 -0700
+From: Crispin Cowan <crispin@wirex.com>
+Organization: WireX Communications, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       "David S. Miller" <davem@redhat.com>, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org, linux-security-module@wirex.com
+Subject: Re: [PATCH] remove sys_security
+References: <20021017201030.GA384@kroah.com> <20021017211223.A8095@infradead.org> <3DAFB260.5000206@wirex.com> <20021018.000738.05626464.davem@redhat.com> <3DAFC6E7.9000302@wirex.com> <20021018135243.B1670@infradead.org> <20021018150422.GA6693@kroah.com>
+X-Enigmail-Version: 0.65.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-md5;
+ protocol="application/pgp-signature";
+ boundary="------------enigDD6C5436DE7CBE251A42ECD4"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigDD6C5436DE7CBE251A42ECD4
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I had to add the following to my tree after this patch,
-please watch for compiler warnings introducted by your
-changes.   Thanks :-)
+Greg KH wrote:
 
---- net/ipv6/mcast.c.~1~	Fri Oct 18 18:55:04 2002
-+++ net/ipv6/mcast.c	Fri Oct 18 18:55:16 2002
-@@ -605,8 +605,6 @@
- 
- static void igmp6_leave_group(struct ifmcaddr6 *ma)
- {
--	int addr_type;
--
- 	if (IPV6_ADDR_MC_SCOPE(&ma->mca_addr) < IPV6_ADDR_SCOPE_LINKLOCAL ||
- 	    ipv6_addr_is_ll_all_nodes(&ma->mca_addr))
- 		return;
+>On Fri, Oct 18, 2002 at 01:52:43PM +0100, Christoph Hellwig wrote:
+>  
+>
+>>and btw, as LSM is part of the kernel anyone can and will change it.
+>>Your LSM team attitude is a bit like that hated CVS mentality..
+>>    
+>>
+>Please don't assume Crispin's attitude represents anyone but himself.
+>Not being a kernel developer, he makes statements that occasionally
+>offend pretty much everyone here (yesterday's gpl issue was a nice
+>example of that :)
+>
+I apologize to anyone I may have offended in the course of these 
+discussions.
+
+WRT the "LSM Team", I meant that there is a group of people who want LSM 
+to succeed, and will work on overcoming issues to make it succeed. It 
+was never intended to be exclusionary in any way.
+
+Thanks,
+    Crispin
+
+
+--------------enigDD6C5436DE7CBE251A42ECD4
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQE9sL395ZkfjX2CNDARAe4hAJ9sT5yJ7IcMCkbIqBPQL/3CvLkStACeJsIY
+I2hsBEeavqnnOtSfe2BQqeM=
+=MZTe
+-----END PGP SIGNATURE-----
+
+--------------enigDD6C5436DE7CBE251A42ECD4--
+

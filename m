@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262271AbTHaPnP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 11:43:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262290AbTHaPnP
+	id S262208AbTHaPz3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 11:55:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262465AbTHaPz2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 11:43:15 -0400
-Received: from [213.39.233.138] ([213.39.233.138]:29919 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S262271AbTHaPnJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 11:43:09 -0400
-Date: Sun, 31 Aug 2003 17:43:01 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrea Arcangeli <andrea@suse.de>, Larry McVoy <lm@bitmover.com>,
-       Pascal Schmidt <der.eremit@email.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: bandwidth for bkbits.net (good news)
-Message-ID: <20030831154301.GD30196@wohnheim.fh-wedel.de>
-References: <20030830230701.GA25845@work.bitmover.com> <Pine.LNX.4.44.0308310256420.16308-100000@neptune.local> <20030831013928.GN24409@dualathlon.random> <20030831025659.GA18767@work.bitmover.com> <1062335711.31351.44.camel@dhcp23.swansea.linux.org.uk> <20030831144505.GS24409@dualathlon.random> <1062343891.10323.12.camel@dhcp23.swansea.linux.org.uk>
+	Sun, 31 Aug 2003 11:55:28 -0400
+Received: from luli.rootdir.de ([213.133.108.222]:46982 "HELO luli.rootdir.de")
+	by vger.kernel.org with SMTP id S262208AbTHaPzZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 11:55:25 -0400
+Date: Sun, 31 Aug 2003 17:55:22 +0200
+From: Claas Langbehn <claas@rootdir.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.4.22: APM Power-Off does not work
+Message-ID: <20030831155522.GA1277@rootdir.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1062343891.10323.12.camel@dhcp23.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.28i
+Reply-By: Wed Sep  3 17:50:47 CEST 2003
+X-Message-Flag: Cranky? Try Free Software instead!
+X-Operating-System: Linux 2.6.0-test4-mm4 i686
+X-No-archive: yes
+X-Uptime: 17:50:47 up  1:17,  4 users,  load average: 0.07, 0.12, 0.07
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 31 August 2003 16:31:32 +0100, Alan Cox wrote:
-> On Sul, 2003-08-31 at 15:45, Andrea Arcangeli wrote:
-> > On Sun, Aug 31, 2003 at 02:15:12PM +0100, Alan Cox wrote:
-> > > On Sul, 2003-08-31 at 03:56, Larry McVoy wrote:
-> > > > I'm pretty convinced we can't solve the problem at our end.  Maybe we can
-> > > 
-> > > For bursts of traffic you can't.
-> > 
-> > what's the difference of rejecting packets in software, or because the
-> > link can't handle them? Assume the guaranteed bandwidth is much lower
-> 
-> It doesn't work when you dont control incoming. As a simple extreme
-> example if I pingflood you from a fast site then no amount of shaping
-> your end of the link will help, it has to be shaped at the ISP end.
+Hello!
 
-If someone wants to DOS you, he can.  Full stop.
 
-iirc, Larry was worried about well behaved traffic still doing bad
-things to his connection.
+Kernel 2.4.22 does not power of my HP omnibook 4150B (APM Bios 3.13)
+(http://h20004.www2.hp.com/soar_rnotes/bsdmatrix/matrix31635en_US.html#BIOS).
+With Kernel 2.6.0-test4-mm4 it works, but there suspend to disk does not
+work any more.
 
-Jörn
+I tried with CONFIG_APM_REAL_MODE_POWER_OFF and without. The machine
+does not power off. It just stops after saying "Power off". When I press
+ctrl-alt-del afterwards, the kernel crashes in both cases.
 
--- 
-Fancy algorithms are slow when n is small, and n is usually small.
-Fancy algorithms have big constants. Until you know that n is
-frequently going to be big, don't get fancy.
--- Rob Pike
+Is there a patch for 2.4.22 around?
+
+
+Regards, claas
+

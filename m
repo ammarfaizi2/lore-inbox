@@ -1,63 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261658AbTIOVom (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 17:44:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261659AbTIOVom
+	id S261632AbTIOWCS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 18:02:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261640AbTIOWCS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 17:44:42 -0400
-Received: from deadlock.et.tudelft.nl ([130.161.36.93]:44676 "EHLO
-	deadlock.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id S261658AbTIOVol convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 17:44:41 -0400
-Date: Mon, 15 Sep 2003 23:44:33 +0200 (CEST)
-From: =?ISO-8859-1?Q?Dani=EBl_Mantione?= <daniel@deadlock.et.tudelft.nl>
-To: Olaf Hering <olh@suse.de>
-cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.23-pre4: failed at atyfb_base.c
-In-Reply-To: <20030915213430.GA1833@suse.de>
-Message-ID: <Pine.LNX.4.44.0309152336110.24675-100000@deadlock.et.tudelft.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Mon, 15 Sep 2003 18:02:18 -0400
+Received: from chello080108023209.34.11.vie.surfer.at ([80.108.23.209]:40833
+	"HELO leto2.endorphin.org") by vger.kernel.org with SMTP
+	id S261632AbTIOWCR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 18:02:17 -0400
+Date: Tue, 16 Sep 2003 00:02:13 +0200
+To: linux-kernel@vger.kernel.org
+Cc: kartik_me@hotmail.com
+Subject: Re: [CRYPTO] Testing Module Cleanup.
+Message-ID: <20030915220213.GA2014@leto2.endorphin.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="r5Pyd7+fXNt84Ff3"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+From: Fruhwirth Clemens <clemens-dated-1064527334.15f5@endorphin.org>
+X-Delivery-Agent: TMDA/0.51 (Python 2.1.3 on Linux/i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--r5Pyd7+fXNt84Ff3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Mon, 15 Sep 2003, Olaf Hering wrote:
+Hi Kartikey,
 
-> This is in the device tree, not very helpful. I'm not sure where XFree86
-> gets the value 50. It seems to poke some regs here and there, havent
-> looked too closely.
+Nice cleanup!
 
-XFree86 uses backcalculation. So if Atyfb programs the chip at 50 MHz,
-XFree86 will read 50 MHz back. So, 50 MHz is not necessary the right
-frequency for your chip.
+Do you think it'd be hard to add a speed testing code for ciphers? .. so one
+can choose the fastest cipher for cryptoloop :)
 
-> [open firmware data]
+Regards, Clemens
 
-Hmmm. No clocks here at the first sight.
+--r5Pyd7+fXNt84Ff3
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-> All I see is that 50 works, 125 gives black/white stripes and a large
-> blinking cursor.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-Hmmm. Catch-22; Geert's VAIO malfunctions at 50 MHz :/
+iD8DBQE/ZjblW7sr9DEJLk4RApXRAJ4hQa0xPuZXLbPbyyPThifdGDLNHQCfdUva
+nrMMUMXJW7qEFQ0iClCy6EU=
+=QZFw
+-----END PGP SIGNATURE-----
 
-We can do two things:
-
-- Check the PLL registers at startup and determine your frequency.
-- Ask ATi again.
-
-I propose to do both. Please enable the debug define in atyfb_base.c, so
-it will print PLL registers.
-
-I'm going to write an e-mail to ATi devrel now, I will cc to all except
-linux-kernel.
-
-Greetings,
-
-Daniël Mantione
-
+--r5Pyd7+fXNt84Ff3--

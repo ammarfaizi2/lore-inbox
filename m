@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314459AbSGYOQI>; Thu, 25 Jul 2002 10:16:08 -0400
+	id <S313638AbSGYON6>; Thu, 25 Jul 2002 10:13:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314553AbSGYOQH>; Thu, 25 Jul 2002 10:16:07 -0400
-Received: from fysh.org ([212.47.68.126]:23754 "EHLO bowl.fysh.org")
-	by vger.kernel.org with ESMTP id <S314459AbSGYOQH>;
-	Thu, 25 Jul 2002 10:16:07 -0400
-Date: Thu, 25 Jul 2002 15:19:22 +0100
-From: Athanasius <link@gurus.tf>
-To: Alan Cox <alan@irongate.swansea.linux.org.uk>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: 2.5.28 Fix other peoples ALSA PCI fixe
-Message-ID: <20020725141922.GE4345@miggy.org.uk>
-Mail-Followup-To: Athanasius <link@gurus.tf>,
-	Alan Cox <alan@irongate.swansea.linux.org.uk>,
-	torvalds@transmeta.com, linux-kernel@vger.kernel.org
-References: <200207251449.g6PEngGW010478@irongate.swansea.linux.org.uk>
+	id <S314078AbSGYON6>; Thu, 25 Jul 2002 10:13:58 -0400
+Received: from draco.netpower.no ([212.33.133.34]:47368 "EHLO
+	draco.netpower.no") by vger.kernel.org with ESMTP
+	id <S313638AbSGYON4>; Thu, 25 Jul 2002 10:13:56 -0400
+Date: Thu, 25 Jul 2002 16:16:30 +0200
+From: Erlend Aasland <erlend-a@innova.no>
+To: Patchmonkey <trivial@rustcorp.com.au>
+Cc: LKML <linux-kernel@vger.kernel.org>, jffs-dev <jffs-dev@axis.com>
+Subject: [TRIVIAL][PATCH 2.5] Fix JFFS when procfs is not enabled
+Message-ID: <20020725161630.A23807@innova.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200207251449.g6PEngGW010478@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 25, 2002 at 03:49:42PM +0100, Alan Cox wrote:
-> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.28/sound/pci/ice1712.c linux-2.5.28-ac1/sound/pci/ice1712.c
-> --- linux-2.5.28/sound/pci/ice1712.c	Thu Jul 25 10:51:01 2002
-> +++ linux-2.5.28-ac1/sound/pci/ice1712.c	Thu Jul 25 13:09:37 2002
-> @@ -4070,8 +4070,8 @@
->  	/* --- */
->        __hw_end:
->  	snd_ice1712_proc_done(ice);
-> -	synchronize_irq();
->  	if (ice->irq)
-        ^^
-> +		synchronize_irq(ice->irq);
->  		free_irq(ice->irq, (void *) ice);
->  	if (ice->res_port) {
->  		release_resource(ice->res_port);
+Hi,
 
-   Um, need some {} on that if now ?
+Here's a trivial one. Only ask for procfs support when procfs is
+enabled.
 
--Ath
--- 
-- Athanasius = Athanasius(at)miggy.org.uk / http://www.clan-lovely.org/~athan/
-                  Finger athan(at)fysh.org for PGP key
-	   "And it's me who is my enemy. Me who beats me up.
-Me who makes the monsters. Me who strips my confidence." Paula Cole - ME
+It's against a clean 2.5.28 tree.
+
+
+Regards,
+	Erlend Aasland
+
+--- linux-2.5.28/fs/Config.in	2002-07-18 12:34:26.000000000 +0200
++++ linux-2.5.28-dirty/fs/Config.in	2002-07-23 03:56:10.000000000 +0200
+@@ -44,8 +44,8 @@
+ dep_tristate 'EFS file system support (read only) (EXPERIMENTAL)' CONFIG_EFS_FS $CONFIG_EXPERIMENTAL
+ dep_tristate 'Journalling Flash File System (JFFS) support' CONFIG_JFFS_FS $CONFIG_MTD
+ if [ "$CONFIG_JFFS_FS" = "y" -o "$CONFIG_JFFS_FS" = "m" ] ; then
+-   int 'JFFS debugging verbosity (0 = quiet, 3 = noisy)' CONFIG_JFFS_FS_VERBOSE 0
+-   bool 'JFFS stats available in /proc filesystem' CONFIG_JFFS_PROC_FS
++   int '  JFFS debugging verbosity (0 = quiet, 3 = noisy)' CONFIG_JFFS_FS_VERBOSE 0
++   dep_bool '  JFFS stats available in /proc filesystem' CONFIG_JFFS_PROC_FS $CONFIG_PROC_FS
+ fi
+ dep_tristate 'Journalling Flash File System v2 (JFFS2) support' CONFIG_JFFS2_FS $CONFIG_MTD
+ if [ "$CONFIG_JFFS2_FS" = "y" -o "$CONFIG_JFFS2_FS" = "m" ] ; then

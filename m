@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264488AbUAVOUn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 09:20:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266272AbUAVOUn
+	id S266474AbUAVXMK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 18:12:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266476AbUAVXMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 09:20:43 -0500
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:31122
-	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S264488AbUAVOUm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 09:20:42 -0500
-Date: Thu, 22 Jan 2004 09:31:49 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [OT] Confirmation Spam Blocking was: List 'linux-dvb' closed to public posts
-Message-ID: <20040122093149.A2923@animx.eu.org>
-References: <20040121213027.GN23765@srv-lnx2600.matchmail.com> <20040121175954.A1343@animx.eu.org> <20040122065104.GJ8401@lug-owl.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <20040122065104.GJ8401@lug-owl.de>; from Jan-Benedict Glaw on Thu, Jan 22, 2004 at 07:51:05AM +0100
+	Thu, 22 Jan 2004 18:12:09 -0500
+Received: from dp.samba.org ([66.70.73.150]:24782 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S266474AbUAVXMF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 18:12:05 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Niraj Kumar <niraj17@iitbombay.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.1 : Kernel oops with rmmod 
+In-reply-to: Your message of "Thu, 22 Jan 2004 17:08:53 +0530."
+             <400FB64D.2050806@iitbombay.org> 
+Date: Thu, 22 Jan 2004 23:34:32 +1100
+Message-Id: <20040122231220.A54D72C07C@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please keep me in CC
+In message <400FB64D.2050806@iitbombay.org> you write:
+> Hi ,
+> I am getting kernel oops after rmmod .  I was doing some changes in ufs 
+> filesystem
+> (basically , trying to add support for ufs2) and then loaded/unloaded 
+> the ufs module.
+> Loading was fine. But rmmod crashed with "Segmentation fault" .
 
-> > Consider a spammer using your address and spams people.  Say 25000 of those
-> > use this method (Called challenge response authentication protocol).  You'll
->                           ^         ^        ^              ^
-> You name it: crap...
+Most likely you introduced a bug.  Something you overran, or didn't
+clean up?
 
-I was wondering if anyone would catch on to that =)
-
-The acronym was chosen wisely.
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

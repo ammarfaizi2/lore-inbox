@@ -1,90 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264917AbUISX0s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264937AbUISXow@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264917AbUISX0s (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Sep 2004 19:26:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264937AbUISX0r
+	id S264937AbUISXow (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Sep 2004 19:44:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264953AbUISXow
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Sep 2004 19:26:47 -0400
-Received: from pop.gmx.net ([213.165.64.20]:42157 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264917AbUISX0n (ORCPT
+	Sun, 19 Sep 2004 19:44:52 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:33772 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264937AbUISXot (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Sep 2004 19:26:43 -0400
-X-Authenticated: #24390674
-From: Hans-Frieder Vogt <hfvogt@gmx.net>
-Reply-To: hfvogt@gmx.net
-To: felipe.alfaro@linuxmail.org
-Subject: Re: 2.6.9-rc2-mm1: i8042.c: Can't read CTR while initializing i8042
-Date: Mon, 20 Sep 2004 01:25:57 +0200
-User-Agent: KMail/1.7
-Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org
+	Sun, 19 Sep 2004 19:44:49 -0400
+Message-ID: <414E19DF.4090807@redhat.com>
+Date: Sun, 19 Sep 2004 19:44:31 -0400
+From: Neil Horman <nhorman@redhat.com>
+Reply-To: nhorman@redhat.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0; hi, Mom) Gecko/20020604 Netscape/7.01
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+CC: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Is anyone using vmware 4.5 with 2.6.9-rc2-mm1?
+References: <200409191214.47206.norberto+linux-kernel@bensa.ath.cx> <D36064A5-0A5D-11D9-96E1-000D9352858E@linuxmail.org>
+In-Reply-To: <D36064A5-0A5D-11D9-96E1-000D9352858E@linuxmail.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409200125.57953.hfvogt@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Felipe Alfaro Solana wrote:
-> My keyboard has suddenly stopped working with 2.6.9-rc2-mm1-VP-S1 and 
-2.6.9-rc2-mm1. This is part of the output of dmesg:
+
+> On Sep 19, 2004, at 17:14, Norberto Bensa wrote:
 >
-> i8042: ACPI [P2KI] at I/O 0x0, 0x0, irq 1
-> i8042: ACPI [P2MI] at irq 12
-> i8042.c: Can't read CTR while initializing i8042.
+>> Hello list,
+>>
+>> This is what vmware is saying:
+>>
+>>     "Could not mmap 139264 bytes of memory from file offset 0 at (nil):
+>>     Operation not permitted. Failed to allocate shared memory."
+>>
+>>
+>> Vmware works fine with 2.6.9-rc1-mm5.
 >
-> This does happen on 2.6.9-rc2-mm1-VP-S1 and 2.6.9-rc2-mm1 on a NEC Chrom@ 
-laptop, with a 440BX motherboard, Pentium III Mobile and integrated PS/2 
-keyboard and mouse. It doesn't happen in 2.6.8.1, not does it happen on my 
-Pentium 4 machine, however.
 >
-> Any ideas?
+> It's woking fine for me... I'm using VMwareWorkstation-4.5.2-8848 
+> running on top of kernel-2.6.9-rc2-mm1-VP-S1 and Fedora Core RawHide 
+> with no apparent problems (i.e. dmesg shows no errors) and total 
+> functionality.
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-I had the same problem on my AMD64 system (MSI K8T Neo board). The reason, why 
-the ioports are not recognised on this board (i.e., why they show up as 0x0, 
-0x0) is, that the ACPI defines these ports as FixedIO () and not as IO () as 
-expected by the current linux code. FixedIO is perfectly fine and in line 
-with the ACPI standard. So the DSDT table is NOT bad but linux is currently 
-simply not flexible enough to cope with all possible (and allowable) 
-combinations.
-
-With the small attached patch the i8042 IO-ports were recognised on my board 
-(only tested with keyboard).
-
-Voytech, could you include this patch into your next patch set?
-
---- linux-2.6.9-rc1-mm5.orig/drivers/input/serio/i8042-x86ia64io.h 2004-09-13 
-15:39:39.061522663 +0200
-+++ linux-2.6.9-rc1-mm5/drivers/input/serio/i8042-x86ia64io.h 2004-09-20 
-01:10:32.124593201 +0200
-@@ -105,6 +105,7 @@ static acpi_status i8042_acpi_parse_reso
- {
-  struct i8042_acpi_resources *i8042_res = data;
-  struct acpi_resource_io *io;
-+ struct acpi_resource_fixed_io *fixed_io;
-  struct acpi_resource_irq *irq;
-  struct acpi_resource_ext_irq *ext_irq;
- 
-@@ -119,6 +120,16 @@ static acpi_status i8042_acpi_parse_reso
-    }
-    break;
- 
-+  case ACPI_RSTYPE_FIXED_IO:
-+   fixed_io = &res->data.fixed_io;
-+   if (fixed_io->range_length) {
-+    if (!i8042_res->port1)
-+     i8042_res->port1 = fixed_io->base_address;
-+    else
-+     i8042_res->port2 = fixed_io->base_address;
-+   }
-+   break;
-+
-   case ACPI_RSTYPE_IRQ:
-    irq = &res->data.irq;
-    if (irq->number_of_interrupts > 0)
+Have you accidentally turned down the maximum sized shared memory 
+segment on your system, making an allocation of shared memory of that 
+size impossible? (assuming the 2.6 kernel has the same tunable that the 
+2.4 series had for shared memory).
+Neil
 
 -- 
---
-Hans-Frieder Vogt                 e-mail: hfvogt <at> arcor .dot. de
-                                          hfvogt <at> gmx .dot. net
+/***************************************************
+ *Neil Horman
+ *Software Engineer
+ *Red Hat, Inc.
+ *nhorman@redhat.com
+ *gpg keyid: 1024D / 0x92A74FA1
+ *http://pgp.mit.edu
+ ***************************************************/
+

@@ -1,57 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311024AbSCLNQb>; Tue, 12 Mar 2002 08:16:31 -0500
+	id <S311135AbSCLNWV>; Tue, 12 Mar 2002 08:22:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311166AbSCLNQX>; Tue, 12 Mar 2002 08:16:23 -0500
-Received: from [203.197.61.67] ([203.197.61.67]:1925 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S311024AbSCLNQF>; Tue, 12 Mar 2002 08:16:05 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: vinolin <vinolin@nodeinfotech.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: __get_user usage in mm/slab.c
-Date: Tue, 12 Mar 2002 18:48:47 +0530
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <Pine.LNX.4.21.0203121237070.19747-100000@serv>
-In-Reply-To: <Pine.LNX.4.21.0203121237070.19747-100000@serv>
-Cc: linux-kernel@vger.kernel.org
+	id <S311043AbSCLNWM>; Tue, 12 Mar 2002 08:22:12 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:55301 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S311166AbSCLNWG>; Tue, 12 Mar 2002 08:22:06 -0500
+Subject: Re: Linux 2.4.19-pre3
+To: knweiss@gmx.de (Karsten Weiss)
+Date: Tue, 12 Mar 2002 13:37:40 +0000 (GMT)
+Cc: marcelo@conectiva.com.br (Marcelo Tosatti),
+        linux-kernel@vger.kernel.org (lkml)
+In-Reply-To: <Pine.LNX.4.44.0203121351070.3320-100000@addx.localnet> from "Karsten Weiss" at Mar 12, 2002 02:01:28 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Message-Id: <02031218484706.00886@Vinolin>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16kmTE-0003gn-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 12 March 2002 17:28, Roman Zippel wrote:
-> Hi,
->
-> The way __get_user is currently used in mm/slab.c is not portable. It
-> breaks on arch which have seperate user/kernel memory space. It still
-> works during boot or from kernel threads, but /proc/slabinfo shows only
-> broken entries or if a module creates a slab cache, I got lots of
-> warnings.
-> We have to at least insert a "set_fs(get_fs())", but IMO a separate
-> interface would be better. Any opinions?
->
-> bye, Roman
+> I=B4m surprised that there are no descriptions for the following
+> config options (after months of fights for inclusion of this
+> patch):
+> 
+> CONFIG_IDEDISK_STROKE
+> CONFIG_IDE_TASK_IOCTL
+> CONFIG_BLK_DEV_IDEDMA_FORCED
+> CONFIG_IDEDMA_ONLYDISK
+> CONFIG_BLK_DEV_ELEVATOR_NOOP
+> 
+> Or did you simply forget to merge them?
 
-Hi !
-
-I guess u need to read user space from kernel sapce.
-You can use the sys_call_table functions for this.
-For example, u can use the following code in your file to open a user space 
-file from kernel space.
-
-#define BEGIN_KMEM {mm_segment_t old_fs=get_fs();set_fs(get_ds());
-#define END_KMEM set_fs(old_fs);}
-int (*sample_open)(char *, int);
-
-sample_open = sys_call_table[SYS_open];
-BEGIN_KMEM
-sample_open("/home/samplefile.txt",O_RDWR);
-/* the same way close , read , write etc. can be  written */
-END_KMEM
-
-Regards,
-Vinolin.
-
-
+I haven't extracted them and sent them yet - blame me not Marcelo

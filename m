@@ -1,52 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132575AbRAFVty>; Sat, 6 Jan 2001 16:49:54 -0500
+	id <S135220AbRAFV5P>; Sat, 6 Jan 2001 16:57:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135221AbRAFVti>; Sat, 6 Jan 2001 16:49:38 -0500
-Received: from islay.mach.uni-karlsruhe.de ([129.13.162.92]:45329 "EHLO
-	mailout.plan9.de") by vger.kernel.org with ESMTP id <S132575AbRAFVt1>;
-	Sat, 6 Jan 2001 16:49:27 -0500
-Date: Sat, 6 Jan 2001 22:49:03 +0100
-From: Marc Lehmann <pcg@goof.com>
-To: Chris Mason <mason@suse.com>
-Cc: Stefan Traby <stefan@hello-penguin.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        "Stephen C. Tweedie" <sct@redhat.com>,
-        Daniel Phillips <phillips@innominate.de>,
-        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: Journaling: Surviving or allowing unclean shutdown?
-Message-ID: <20010106224902.A2121@cerebro.laendle>
-Mail-Followup-To: Chris Mason <mason@suse.com>,
-	Stefan Traby <stefan@hello-penguin.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	"Stephen C. Tweedie" <sct@redhat.com>,
-	Daniel Phillips <phillips@innominate.de>,
-	Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010106210951.A3143@stefan.sime.com> <69400000.978813302@tiny>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <69400000.978813302@tiny>; from mason@suse.com on Sat, Jan 06, 2001 at 03:35:02PM -0500
-X-Operating-System: Linux version 2.2.18 (root@cerebro) (gcc version pgcc-2.95.2.1 20001224 (release)) 
-X-Copyright: copyright 2000 Marc Alexander Lehmann - all rights reserved
+	id <S135217AbRAFV44>; Sat, 6 Jan 2001 16:56:56 -0500
+Received: from hera.cwi.nl ([192.16.191.1]:20722 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S135209AbRAFV4e>;
+	Sat, 6 Jan 2001 16:56:34 -0500
+Date: Sat, 6 Jan 2001 22:56:30 +0100 (MET)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200101062156.WAA145870.aeb@texel.cwi.nl>
+To: Andries.Brouwer@cwi.nl, BJerrick@easystreet.com,
+        linux-kernel@vger.kernel.org, p_gortmaker@yahoo.com
+Subject: Re: 500 ms offset in i386 Real Time Clock setting
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 06, 2001 at 03:35:02PM -0500, Chris Mason <mason@suse.com> wrote:
-> > Nobody with working brain would read it completely into memory.
+> Neither hwclock nor the /dev/rtc driver takes the following comment from
+> set_rtc_mmss() in arch/i386/kernel/time.c into account.
+> As a result, using hwclock --systohc or --adjust always leaves the
+> Hardware Clock 500 ms ahead of the System Clock
 
-Instead everybody with a working brain would introduce another hashing
-layer for every block access? I don't think the reiserfs code (e.g.) would
-cope with yte another compliation in the code ;)
+By pure coincidence Q@ping.be sent me patches just one day ago.
+I still have to look at the details, but it seems very likely
+that this will be corrected in the next util-linux release.
 
--- 
-      -----==-                                             |
-      ----==-- _                                           |
-      ---==---(_)__  __ ____  __       Marc Lehmann      +--
-      --==---/ / _ \/ // /\ \/ /       pcg@opengroup.org |e|
-      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
-    The choice of a GNU generation                       |
-                                                         |
+Andries
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

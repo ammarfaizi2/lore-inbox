@@ -1,164 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281360AbRKPMmL>; Fri, 16 Nov 2001 07:42:11 -0500
+	id <S281371AbRKPNDo>; Fri, 16 Nov 2001 08:03:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281361AbRKPMmC>; Fri, 16 Nov 2001 07:42:02 -0500
-Received: from ids.big.univali.br ([200.169.51.11]:28032 "HELO
-	mail.big.univali.br") by vger.kernel.org with SMTP
-	id <S281360AbRKPMlw>; Fri, 16 Nov 2001 07:41:52 -0500
-Message-Id: <5.1.0.14.1.20011116103224.00a97088@mail.big.univali.br>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 16 Nov 2001 10:42:24 -0300
-To: linux-kernel@vger.kernel.org
-From: Marcus Grando <marcus@big.univali.br>
-Subject: [BUG] 2.4.15-pre5 it stopped the server
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S281368AbRKPNDf>; Fri, 16 Nov 2001 08:03:35 -0500
+Received: from mail0.epfl.ch ([128.178.50.57]:59909 "HELO mail0.epfl.ch")
+	by vger.kernel.org with SMTP id <S281381AbRKPNDW>;
+	Fri, 16 Nov 2001 08:03:22 -0500
+Message-ID: <3BF50E98.6020403@epfl.ch>
+Date: Fri, 16 Nov 2001 14:03:20 +0100
+From: Nicolas Aspert <Nicolas.Aspert@epfl.ch>
+Organization: LTS-DE-EPFL
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>,
+        torvalds <torvalds@transmeta.com>
+Subject: [PATCH]fix for Intel 8xx agp in 2.4.15-pre5
+Content-Type: multipart/mixed;
+ boundary="------------060602030204020205010201"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hello,
+This is a multi-part message in MIME format.
+--------------060602030204020205010201
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-	Kernel 2.4.15-pre5 it stopped the server, the log/message is:
+Hello
 
-Nov 16 10:11:42 ids kernel: remove_free_dquot: dquot not on the free list??
-Nov 16 10:12:05 ids kernel: t??
-Nov 16 10:12:05 ids kernel: dqput: dquot already on free list??
-Nov 16 10:12:05 ids last message repeated 837 times
-Nov 16 10:12:05 ids kernel: VFS: dqput: trying to free free dquot
-Nov 16 10:12:05 ids kernel: VFS: device 08:06, dquot of user 2285
-Nov 16 10:12:15 ids kernel: remove_free_dquot: dquot not on the free list??
+There is a mistake in the routine 'intel_8xx_tlbflush' in the agpgart 
+module (and I think I am responsible for it... shame on me !).
+Anyway here is the patch (against 2.4.15-pre5).
 
-.confg:
-CONFIG_X86=y
-CONFIG_ISA=y
-CONFIG_UID16=y
-CONFIG_MPENTIUMIII=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_L1_CACHE_SHIFT=5
-CONFIG_X86_TSC=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_PGE=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_MICROCODE=y
-CONFIG_X86_CPUID=y
-CONFIG_NOHIGHMEM=y
-CONFIG_SMP=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_NET=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_AOUT=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=y
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=y
-CONFIG_BLK_DEV_NBD=y
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-CONFIG_NETLINK=y
-CONFIG_RTNETLINK=y
-CONFIG_NETFILTER=y
-CONFIG_FILTER=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_NF_CONNTRACK=y
-CONFIG_IP_NF_IPTABLES=y
-CONFIG_IP_NF_MATCH_LIMIT=y
-CONFIG_IP_NF_MATCH_MAC=y
-CONFIG_IP_NF_MATCH_MARK=y
-CONFIG_IP_NF_MATCH_MULTIPORT=y
-CONFIG_IP_NF_MATCH_TOS=y
-CONFIG_IP_NF_MATCH_LENGTH=y
-CONFIG_IP_NF_MATCH_TTL=y
-CONFIG_IP_NF_MATCH_TCPMSS=y
-CONFIG_IP_NF_MATCH_STATE=y
-CONFIG_IP_NF_FILTER=y
-CONFIG_IP_NF_TARGET_REJECT=y
-CONFIG_IP_NF_NAT=y
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_REDIRECT=y
-CONFIG_IP_NF_TARGET_LOG=y
-CONFIG_IP_NF_TARGET_TCPMSS=y
-CONFIG_ATALK=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_CMD640=y
-CONFIG_BLK_DEV_RZ1000=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_PIIX=y
-CONFIG_PIIX_TUNING=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_BLK_DEV_IDE_MODES=y
-CONFIG_SCSI=y
-CONFIG_BLK_DEV_SD=y
-CONFIG_SD_EXTRA_DEVS=40
-CONFIG_CHR_DEV_ST=y
-CONFIG_SCSI_DEBUG_QUEUES=y
-CONFIG_SCSI_MULTI_LUN=y
-CONFIG_SCSI_CONSTANTS=y
-CONFIG_SCSI_LOGGING=y
-CONFIG_SCSI_AIC7XXX=y
-CONFIG_AIC7XXX_CMDS_PER_DEVICE=253
-CONFIG_AIC7XXX_RESET_DELAY_MS=2500
-CONFIG_AIC7XXX_BUILD_FIRMWARE=y
-CONFIG_NETDEVICES=y
-CONFIG_APPLETALK=y
-CONFIG_IPDDP=y
-CONFIG_IPDDP_ENCAP=y
-CONFIG_IPDDP_DECAP=y
-CONFIG_DUMMY=y
-CONFIG_NET_ETHERNET=y
-CONFIG_NET_PCI=y
-CONFIG_EEPRO100=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_SERIAL=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_MOUSE=y
-CONFIG_PSMOUSE=y
-CONFIG_QUOTA=y
-CONFIG_AUTOFS4_FS=y
-CONFIG_TMPFS=y
-CONFIG_ISO9660_FS=y
-CONFIG_PROC_FS=y
-CONFIG_DEVPTS_FS=y
-CONFIG_EXT2_FS=y
-CONFIG_SMB_FS=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_SMB_NLS=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_860=y
-CONFIG_NLS_ISO8859_1=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_DEBUG_KERNEL=y
+Best regards.
+-- 
+Nicolas Aspert      Signal Processing Laboratory (LTS)
+Swiss Federal Institute of Technology (EPFL)
 
-	Tanks in advance,
+--------------060602030204020205010201
+Content-Type: text/plain;
+ name="patch-agp_intel_8xx-2.4.15-pre5_fix_tlbflush"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-agp_intel_8xx-2.4.15-pre5_fix_tlbflush"
 
-Regards,
-Marcus Grando
+diff -Nru linux-2.4.15-pre5.clean/drivers/char/agp/agpgart_be.c linux-2.4.15-pre5/drivers/char/agp/agpgart_be.c
+--- linux-2.4.15-pre5.clean/drivers/char/agp/agpgart_be.c	Fri Nov 16 08:45:44 2001
++++ linux-2.4.15-pre5/drivers/char/agp/agpgart_be.c	Fri Nov 16 13:51:44 2001
+@@ -1462,7 +1462,7 @@
+   pci_read_config_dword(agp_bridge.dev, INTEL_AGPCTRL, &temp);
+   pci_write_config_dword(agp_bridge.dev, INTEL_AGPCTRL, temp & ~(1 << 7));
+   pci_read_config_dword(agp_bridge.dev, INTEL_AGPCTRL, &temp);
+-  pci_write_config_dword(agp_bridge.dev, INTEL_AGPCTRL, temp & (1 << 7));
++  pci_write_config_dword(agp_bridge.dev, INTEL_AGPCTRL, temp | (1 << 7));
+ }
+ 
+ 
+
+--------------060602030204020205010201--
 

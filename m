@@ -1,35 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132352AbRDAMva>; Sun, 1 Apr 2001 08:51:30 -0400
+	id <S132396AbRDANZg>; Sun, 1 Apr 2001 09:25:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132396AbRDAMvV>; Sun, 1 Apr 2001 08:51:21 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:45832 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S132352AbRDAMvP>;
-	Sun, 1 Apr 2001 08:51:15 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: chip@valinux.com (Chip Salzenberg)
-cc: hbryan@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] sane access to per-fs metadata (was Re: [PATCH] Documentation/ioctl-number.txt) 
-In-Reply-To: Your message of "Sun, 01 Apr 2001 01:01:59 PST."
-             <E14jdkF-0007Ps-00@tytlal> 
+	id <S132479AbRDANZ1>; Sun, 1 Apr 2001 09:25:27 -0400
+Received: from se1.cogenit.fr ([195.68.53.173]:30212 "EHLO se1.cogenit.fr")
+	by vger.kernel.org with ESMTP id <S132396AbRDANZX>;
+	Sun, 1 Apr 2001 09:25:23 -0400
+Date: Sun, 1 Apr 2001 15:23:26 +0200
+From: Francois Romieu <romieu@cogenit.fr>
+To: Daniel Nofftz <nofftz@castor.uni-trier.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: epic100 aka smc etherpower II
+Message-ID: <20010401152326.A8919@se1.cogenit.fr>
+In-Reply-To: <Pine.LNX.4.21.0103312129170.6125-100000@infcip10.uni-trier.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 01 Apr 2001 05:50:22 -0700
-Message-ID: <1140.986129422@ocs3.ocs-net>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0103312129170.6125-100000@infcip10.uni-trier.de>; from nofftz@castor.uni-trier.de on Sat, Mar 31, 2001 at 09:40:10PM +0200
+X-Organisation: Marie's fan club - I
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 01 Apr 2001 01:01:59 -0800, 
-chip@valinux.com (Chip Salzenberg) wrote:
->In article <OF791BBBC5.E3FCBEEE-ON87256A18.005BA3B7@LocalDomain> you write:
->Why not have a kernel thread and use standard RPC techniques like
->sockets?  Then you'd not have to invent anything unimportant like
->Yet Another IPC Technique.
+Daniel Nofftz <nofftz@castor.uni-trier.de> écrit :
+[...]
+> i can`t get my smc etherpower ii working with the 2.4.3 kernel.
+> now i have downgraded to 2.4.2 and it works again ...
+> does anyone have a suggestion, what the problem is ?
+[...]
+> Mar 31 19:23:29 hyperion kernel: eth0: Setting half-duplex based on MII
+> xcvr 3 register read of 0001.
+> Mar 31 19:23:29 hyperion kernel: Real Time Clock Driver v1.10d
+> Mar 31 19:23:29 hyperion kernel: eth0: Setting full-duplex based on MII #3
+> link partner capability of 45e1.
+> Mar 31 19:24:31 hyperion kernel: NETDEV WATCHDOG: eth0: transmit timed out
 
-kerneld (kmod's late unlamented predecessor) used to use Unix sockets
-to communicate from the kernel to the daemon.  It forced everybody to
-link Unix sockets into the kernel but there are some people out there
-who want to use it as a module.  Also the kernel code for communicating
-with kerneld was "unpleasant", see ipc/msg.c in a 2.0 kernel.
+How does it behave if you give it the following args:
+options=4
+full_duplex=4
 
+> lspci output:
+[...]
+
+No USB controller ?
+
+-- 
+Ueimor

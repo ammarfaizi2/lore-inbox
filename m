@@ -1,63 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279315AbRJZVd6>; Fri, 26 Oct 2001 17:33:58 -0400
+	id <S279425AbRJZVzX>; Fri, 26 Oct 2001 17:55:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279332AbRJZVds>; Fri, 26 Oct 2001 17:33:48 -0400
-Received: from air-1.osdl.org ([65.201.151.5]:58889 "EHLO osdlab.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S279315AbRJZVdp>;
-	Fri, 26 Oct 2001 17:33:45 -0400
-Message-ID: <3BD9D50E.859FC@osdl.org>
-Date: Fri, 26 Oct 2001 14:26:38 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Patch to read/parse the MPC oem tables
-In-Reply-To: <3372752995.1004100132@[10.10.1.2]>
+	id <S279443AbRJZVzE>; Fri, 26 Oct 2001 17:55:04 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:38924 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S279441AbRJZVyx>; Fri, 26 Oct 2001 17:54:53 -0400
+Date: Fri, 26 Oct 2001 23:54:47 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: CaT <cat@zip.com.au>
+Cc: Marcos Dione <mdione@hal.famaf.unc.edu.ar>, linux-kernel@vger.kernel.org
+Subject: Re: kjournald and disk sleeping
+Message-ID: <20011026235447.A23218@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <Pine.LNX.4.30.0110221415460.19985-100000@multivac.famaf.unc.edu.ar> <20011025161330.A38@toy.ucw.cz> <20011026192750.A670@zip.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20011026192750.A670@zip.com.au>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" wrote:
+Hi!
+
+> > > 	One thing I thought: how is this supposed to work on laptops? can
+> > > they be suspended? a question related to this one: I also have ACPI turned
+> > > on and APM turned off. how can I switch to stanby states? is there a way?
+> > > again, how does it works on laptops?
+> > 
+> > I'm working on suspend-to-disk, and suspend-to-ram is mostly working, also.
+> > ...
 > 
-> >> This patch will parse the OEM extensions to the mps tables
-> >> (if present). This gives me a mapping to tell which device
-> >> lies in which NUMA node (the current code just guesses).
-> >
-> > So these extensions are OEM-specific, not part of the MP spec,
-> > right?
+> Sweet.
 > 
-> As I understand this, the concept of OEM extensions is inside
-> the MPS spec (there's a pointer for it inside the main table),
-> though what's actually contained therein is OEM specific.
+> What's not working with suspend-to-ram? Gateway, in their infinate
 
-Right/agreed.  I didn't mean to imply that OEM extensions were
-new, just that their contents are OEM-specific and not part
-of the spec.
+Patrick Mochel from transmeta. [Or you meant suspend-to-disk?]
 
-> > Also, could the array of structs <mp_irqs and mp_ioapics> (in
-> > mpparse.c) be made __initdata, so that they could be discarded
-> > after init?
-> 
-> Probably, but they're used in lots of places, so it would take some
-> research to figure out all the possible combinations ;-) I'll leave that
-> possiblity for a seperate patch (the structures were there already
-> like this).
+> wisdon, nuked suspend-to-disk functionality of the bios in the most
+> recent edition (which they kindly upgraded me to when I put my laptop
+> in for servicing...). As such I only have suspend-to-ram working and
+> I'm also interested in playing with ACPI.
 
-Right. :)
-
-> A patch is attached below to fix these issues, plus one other bit
-> of idiocy I found - I'd accidentally reduced the number of
-> MAX_IRQ_SOURCES (I think I pulled the change forward from
-> an older kernel, and dropped someone's fix. Oops).
-
-Looks sane to me.
-
-Thanks,
-~Randy
+								Pavel
+-- 
+Casualities in World Trade Center: 6453 dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

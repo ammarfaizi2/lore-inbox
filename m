@@ -1,71 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268884AbUJEIhQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268878AbUJEInE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268884AbUJEIhQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 04:37:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268878AbUJEIhQ
+	id S268878AbUJEInE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 04:43:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268890AbUJEInD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 04:37:16 -0400
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:60086 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id S268889AbUJEIg7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 04:36:59 -0400
-Message-Id: <200410050836.i958atFM000889@rumms.uni-mannheim.de>
-Date: Tue, 5 Oct 2004 10:36:19 +0200
-From: Matthias Bernges <mbernges@rumms.uni-mannheim.de>
-To: linux-kernel@vger.kernel.org
-Subject: Oops in 2.6.x maybe r8169
-X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 5 Oct 2004 04:43:03 -0400
+Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:28571 "HELO
+	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S268878AbUJEIm6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 04:42:58 -0400
+Message-ID: <41625E8D.2070101@yahoo.com.au>
+Date: Tue, 05 Oct 2004 18:42:53 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Peter Williams <pwil3058@bigpond.net.au>
+CC: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, linux-kernel@vger.kernel.org
+Subject: Re: bug in sched.c:task_hot()
+References: <200410050237.i952bx620740@unix-os.sc.intel.com> <41624E42.8030105@bigpond.net.au> <416250F0.5010008@yahoo.com.au> <4162565F.60007@bigpond.net.au>
+In-Reply-To: <4162565F.60007@bigpond.net.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Peter Williams wrote:
+> Nick Piggin wrote:
+> 
+>> Peter Williams wrote:
+>>
+>>>
+>>> The interesting question is: How does now get to be less than 
+>>> timestamp?  This probably means that timestamp_last_tick is not a 
+>>> good way of getting a value for "now".
+>>
+>>
+>>
+>> It is the best we can do.
+> 
+> 
+> You could use sched_clock() which will do better.  The setting of 
+> timestamp in schedule() gives you a pretty good chance that it's value 
+> will be greater than timestamp_last_tick.
+> 
 
-since I use the Realtek 8169 Network card I get a kernel Oops
-after which the kernel hangs completly.
-I tried Kernel 2.6.6, 2.6.7 and 2.6.8.1. It appears randomly but
-only if the machine has high load and high network traffic.
-I've attached the output of the Oops with Kernel 2.6.8.1 (using
-ksymoops) with kernel 2.6.7 I don't get a oops the PC just hangs.
-2.6.6 gives me a veery long output which I can't catch (completly)
-because I don't have a null modem cable.
+sched_clock is not guaranteed to be synchronised across CPUs though.
+It may be completely different. So even if you did use sched_clock,
+you'd still have to apply the timestamp_last_tick adjustment.
 
+Considering that we really don't need sched_clock resolution here,
+it just isn't needed.
 
+Kenneth's overflow fix is definitely required though, even if you
+were to use sched_clock.
 
-Oops: 0000 [#1]
-CPU:    0
-EIP:    0060:[<c0271498>]    Not tainted
-EFLAGS: 00010206    (2.6.8.1)
-eax: 20000100   ebx: 0002bc49   ecx: 00000090   edx: 0000003c
-esi: 00000000   edi: c15eb220   ebp: 00000009   esp: c0497f80
-ds: 007b   es: 007b  ss: 0068
-Stack: dff2c800 c15eb3d0 decde080 00000202 decde000 fffd4440 00000004
-e0807e00       00000014 c0497000 c0271901 c15eb000 c15eb220 e0807e00
-00000001 c15eb220       deceb460 04000001 00000000 df3af8d4 c0105a3a
-00000005 c15eb000 df3af8d4 Call Trace:
-Code: 8b 46 60 ba 3c 00 00 00 83 f8 3b 0f 46 c2 ff 47 0c 01 47 14
+>>
+>>>  By the way, neither is sched_clock() when measuring small time 
+>>> differences as it is not monotonic (something that I had to allow for 
+>>> in my scheduling code).
+>>
+>>
+>>
+>> I'm pretty sure it is monotonic, actually. I know some CPUs can execute
+>> rdtsc speculatively, but I don't think it would ever be sane to execute
+>> two rdtsc's in the wrong order.
+> 
 
+Hmm, there may be some jitter when waking a process from a remote
+CPU - because in that case, we do have to apply the timestamp_last_tick
+correction.
 
->>EIP; c0271498 <SELECT_DRIVE+18/50>   <=====
+> 
+> I have experienced it going backwards and I assumed that it was due to 
+> the timing code applying corrections.  (You've got two choices if your 
+> clock is running fast: one is to mark time until the real world catches 
+> up with you and the other is to set your clock back to the correct time 
+> when you notice a discrepancy.  I assumed that the second strategy had 
+> been followed by the time code and didn't bother checking further 
+> because it was an easy problem to sidestep.) Admittedly, this behaviour 
 
->>edi; c15eb220 <pg0+113d220/3fb50000>
->>esp; c0497f80 <per_cpu__tvec_bases+ec0/1008>
+We don't really care what real time is doing here, just so long as the
+numbers returned are roughly the same for everyone (all processes).
 
-Code;  c0271498 <SELECT_DRIVE+18/50>
-00000000 <_EIP>:
-Code;  c0271498 <SELECT_DRIVE+18/50>   <=====
-   0:   8b 46 60                  mov    0x60(%esi),%eax   <=====
-Code;  c027149b <SELECT_DRIVE+1b/50>
-   3:   ba 3c 00 00 00            mov    $0x3c,%edx
-Code;  c02714a0 <SELECT_DRIVE+20/50>
-   8:   83 f8 3b                  cmp    $0x3b,%eax
-Code;  c02714a3 <SELECT_DRIVE+23/50>
-   b:   0f 46 c2                  cmovbe %edx,%eax
-Code;  c02714a6 <SELECT_DRIVE+26/50>
-   e:   ff 47 0c                  incl   0xc(%edi)
-Code;  c02714a9 <SELECT_DRIVE+29/50>
-  11:   01 47 14                  add    %eax,0x14(%edi)
+> was only observed when measuring very short times such as the time spent 
+> on the runqueue waiting for CPU access when the system was idle BUT it 
+> was definitely occurring.  And it only occurred on a system where the 
+> lower bits of the values returned by sched_clock() were not zero i.e. a 
+> reasonably modern one.  It was observed on a single CPU machine as well 
+> and was not, therefore, a result of drift between CPUs.
 
-<0>Kernel panic: Fatal exception in interrupt
+I don't see how this could happen on a single CPU system. I can
+believe you saw it though.

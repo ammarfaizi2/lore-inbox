@@ -1,65 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265125AbUBIMlR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 07:41:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265137AbUBIMlQ
+	id S265111AbUBIMht (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 07:37:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265117AbUBIMht
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 07:41:16 -0500
-Received: from smtp.sys.beep.pl ([195.245.198.13]:13837 "EHLO maja.beep.pl")
-	by vger.kernel.org with ESMTP id S265125AbUBIMlP convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 07:41:15 -0500
-From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-Organization: SelfOrganizing
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.3-rc1
-Date: Mon, 9 Feb 2004 13:41:08 +0100
-User-Agent: KMail/1.6
-References: <Pine.LNX.4.58.0402061823040.30672@home.osdl.org> <200402090234.20832.bzolnier@elka.pw.edu.pl> <4026F312.60703@tomt.net>
-In-Reply-To: <4026F312.60703@tomt.net>
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+	Mon, 9 Feb 2004 07:37:49 -0500
+Received: from [217.157.19.70] ([217.157.19.70]:13072 "EHLO jehova.dsm.dk")
+	by vger.kernel.org with ESMTP id S265111AbUBIMh1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Feb 2004 07:37:27 -0500
+Date: Mon, 9 Feb 2004 12:37:25 +0000 (GMT)
+From: Thomas Horsten <thomas@horsten.com>
+X-X-Sender: thomas@jehova.dsm.dk
+To: Arjan van de Ven <arjanv@redhat.com>
+cc: linux-kernel@vger.kernel.org, <linux-raid@vger.kernel.org>
+Subject: Re: New mailing list for 2.6 Medley RAID (Silicon Image 3112 etc.)
+ BIOS RAID development
+In-Reply-To: <20040209121144.GA24503@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.40.0402091220130.8715-100000@jehova.dsm.dk>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200402091341.08526.arekm@pld-linux.org>
-X-Authenticated-Id: arekm 
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dnia Monday 09 of February 2004 03:40, Andre Tomt napisa³:
-> Ahh, indeed it does, _but_
+On Mon, 9 Feb 2004, Arjan van de Ven wrote:
+
+> On Mon, Feb 09, 2004 at 12:01:55PM +0000, Thomas Horsten wrote:
+> > Ideally I'd want something like the MD autodetect code, so that the whole
+> > thing can be set up by the kernel at boot-time if the necessary drivers
+> > are compiled in (by reading the Medley superblock the same way it's done
+> > for 0xfe partitions).
 >
-> pdc202xx_old seems to have the same bug, making via82cxxx crash later on
-> instead.
+> I (and I suspect a lot of other folks) rather get rid of such autodetect and
+> move it to userspace. Either via initrd or initramfs.
+
+The question is, where do we draw the line between kernel and userspace
+setup of devices. For example, why is the frame buffer device detected in
+the kernel, it could just as well be done in the initrd.
+
+My gut feeling is that if it is provided by the BIOS and reliable
+autodetection is possible, it should be autodetected. Why require the user
+to discover and supply information that the kernel could easily and
+reliably find out by itself? Besides, if there is no autodetection, the
+drive will come up with an invalid partition table (since the partition
+tables for these arrays are stored as the first block of the first disk in
+the array). If there is an extended partition, the kernel may try to read
+past the end of the disk, causing a lot of spurious error messages that
+confuse the user.
+
+If the user tries to mount any of these partitions, or edit the partition
+table, they will probably corrupt the disk.
+
+What I have in mind currently is a solution that uses the md and dm
+frameworks. Basically an option that adds support for reading and parsing
+the Medley superblock, and create an md raiddev based on it (using the
+standard RAID0/RAID1 personalities). Then a dm drive needs to be
+registered, to support the partition table on the whole disk array.
+
+For the autodetection to work, when compiled into the kernel I would put a
+call into gendisk.c, just before it calls add_disk to parse the partition
+table. That way, if the Medley superblock is detected it will not try to
+parse the partition table.
+
+The only thing I don't like about this solution is that we are relying on
+both the md and dm framework. I can't see an easy way around this, since
+we need to parse the partition table on the RAID. If we just create a
+separate md device for each partition, the user won't be able to change
+the partition table.
+
+> > Having autodetection at kernel level would make it possible to boot from a
+> > kernel on a floppy disk without initrd support, and in general make a
+> > system easier to set up.
 >
-> Doing the same change to pdc202xx_old.h (removing __initdata) fixes this
-> case too :-)
+> initrd/initramfs is increasingly becoming mandatory sort of, and it's
+> actually easy if not even default to set up. (Eg on Fedora / Red Hat even
+> just typing make install will auto-create this for you)
 
-What about others?
+It's sort of mandatory for generic systems like distro installer disks,
+livecd's etc. But I've never needed to use it on any of my own systems
+after I compile a cutom kernel. I guess a lot of people are like me, and
+prefer to keep it simple with the essential drivers to get my specific
+system running compiled in, and the rest as modules.
 
-./pdc202xx_old.h:static ide_pci_host_proc_t pdc202xx_procs[] = {
-./hpt34x.h:static ide_pci_host_proc_t hpt34x_procs[] __initdata = {
-./alim15x3.h:static ide_pci_host_proc_t ali_procs[] __initdata = {
-./amd74xx.h:static ide_pci_host_proc_t amd74xx_procs[] __initdata = {
-./cs5530.h:static ide_pci_host_proc_t cs5530_procs[] __initdata = {
-./pdc202xx_new.h:static ide_pci_host_proc_t pdcnew_procs[] = {
-./piix.h:static ide_pci_host_proc_t piix_procs[] __devinitdata = {
-./sc1200.h:static ide_pci_host_proc_t sc1200_procs[] __initdata = {
-./slc90e66.h:static ide_pci_host_proc_t slc90e66_procs[] __initdata = {
-./serverworks.h:static ide_pci_host_proc_t svwks_procs[] __initdata = {
-./cmd64x.h:static ide_pci_host_proc_t cmd64x_procs[] __initdata = {
-./aec62xx.h:static ide_pci_host_proc_t aec62xx_procs[] __initdata = {
-./siimage.h:static ide_pci_host_proc_t siimage_procs[] __initdata = {
-./sis5513.h:static ide_pci_host_proc_t sis_procs[] __initdata = {
-./via82cxxx.h:static ide_pci_host_proc_t via_procs[] __initdata = {
-./hpt366.h:static ide_pci_host_proc_t hpt366_procs[] __initdata = {
-./triflex.h:static ide_pci_host_proc_t triflex_proc __initdata = {
-./cs5520.h:static ide_pci_host_proc_t cs5520_procs[] __initdata = {
+> > But the reason I wanted this discussion is to figure out the best way to
+> > go about it, and if there are some good arguments against autodetecting in
+> > the kernel I'll listen to them.
+>
+> It doesn't really belong there.
 
-all these __initdata (one __devinitdata) should also be removed?
+But where to draw the line?
 
--- 
-Arkadiusz Mi¶kiewicz     CS at FoE, Wroclaw University of Technology
-arekm.pld-linux.org, 1024/3DB19BBD, JID: arekm.jabber.org, PLD/Linux
+I think if it can be implemented cleanly (as cleanly as the current md
+detection at least), and if it can be nearly 100% reliable, it doesn't add
+much complexity to the kernel and removes a lot from userspace.
+
+// Thomas
+

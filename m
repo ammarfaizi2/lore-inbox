@@ -1,76 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265722AbUG1WNy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265974AbUG1WQ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265722AbUG1WNy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 18:13:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265893AbUG1WNy
+	id S265974AbUG1WQ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 18:16:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265893AbUG1WQz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 18:13:54 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:18093 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S265722AbUG1WM6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 18:12:58 -0400
-Date: Wed, 28 Jul 2004 18:49:21 -0400
-From: Adam Kropelin <akropel1@rochester.rr.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: 2.6.8-rc2-mm1
-Message-ID: <20040728184921.A17143@mail.kroptech.com>
-References: <20040728020444.4dca7e23.akpm@osdl.org>
+	Wed, 28 Jul 2004 18:16:55 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:57304 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265974AbUG1WQj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 18:16:39 -0400
+Date: Wed, 28 Jul 2004 18:15:54 -0400
+From: Alan Cox <alan@redhat.com>
+To: Ben Greear <greearb@candelatech.com>
+Cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: VLAN support for 3c59x/3c90x
+Message-ID: <20040728221554.GA22747@devserv.devel.redhat.com>
+References: <20040728124256.GA31246@devserv.devel.redhat.com> <41081BC4.6040607@candelatech.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040728020444.4dca7e23.akpm@osdl.org>; from akpm@osdl.org on Wed, Jul 28, 2004 at 02:04:44AM -0700
+In-Reply-To: <41081BC4.6040607@candelatech.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 28, 2004 at 02:04:44AM -0700, Andrew Morton wrote:
+On Wed, Jul 28, 2004 at 02:33:56PM -0700, Ben Greear wrote:
+> >Stefan de Konink ported this code from the 2.4 VLAN patches and tested it
+> >extensively. I cleaned up the ifdefs and fixed a problem with bracketing
+> >that made older cards fail.
 > 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.8-rc2/2.6.8-rc2-mm1/
+> I am sure this will be appreciated by the VLAN users!
+> 
+> Also, do you happen to know how large of an MTU these cards
+> can support?
 
-<snip>
+In VLAN mode they support just the extra VLAN bits, with the length
+checking turned off its either FDDI or jumbo frame size but I don't remember
+which. I think FDDI.
 
-> - If people have patches in here which are important for a 2.6.8 release,
->   please let me know.
-
-There's a trivial yet fairly important fix to hiddev.h in bk-input that
-it would be nice to get merged before 2.6.8. Distros have been
-shipping the current in-tree (broken) version with their kernel headers
-packages so a number of userspace apps cannot build. I've broken out the
-patch below.
-
-There's also a hiddev oops-on-removal fix that ought to be merged fairly
-soon, but I can understand if Vojtech wants that tested a bit longer
-first.
-
---Adam
-
-diff -Nru a/include/linux/hiddev.h b/include/linux/hiddev.h
---- a/include/linux/hiddev.h	2004-07-27 18:37:32 -07:00
-+++ b/include/linux/hiddev.h	2004-07-27 18:37:32 -07:00
-@@ -128,10 +128,11 @@
- 
- /* hiddev_usage_ref_multi is used for sending multiple bytes to a control.
-  * It really manifests itself as setting the value of consecutive usages */
-+#define HID_MAX_MULTI_USAGES 1024
- struct hiddev_usage_ref_multi {
- 	struct hiddev_usage_ref uref;
- 	__u32 num_values;
--	__s32 values[HID_MAX_USAGES];
-+	__s32 values[HID_MAX_MULTI_USAGES];
- };
- 
- /* FIELD_INDEX_NONE is returned in read() data from the kernel when flags
-@@ -211,6 +212,11 @@
- /*
-  * In-kernel definitions.
-  */
-+
-+struct hid_device;
-+struct hid_usage;
-+struct hid_field;
-+struct hid_report;
- 
- #ifdef CONFIG_USB_HIDDEV
- int hiddev_connect(struct hid_device *);
 

@@ -1,69 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129492AbRBQAFj>; Fri, 16 Feb 2001 19:05:39 -0500
+	id <S129871AbRBQAIj>; Fri, 16 Feb 2001 19:08:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130229AbRBQAF3>; Fri, 16 Feb 2001 19:05:29 -0500
-Received: from epi-gone.myalert.com ([195.119.207.10]:13491 "EHLO
-	epi.myalert.com") by vger.kernel.org with ESMTP id <S129492AbRBQAFW>;
-	Fri, 16 Feb 2001 19:05:22 -0500
-Message-ID: <058701c09875$1977efa0$f40237d1@MIACFERNANDEZ>
-From: "Carlos Fernandez Sanz" <cfernandez@myalert.com>
-To: "James Sutherland" <jas88@cam.ac.uk>,
-        "David D.W. Downey" <pgpkeys@hislinuxbox.com>
-Cc: "Rik van Riel" <riel@conectiva.com.br>, "Alan Olsen" <alan@clueserver.org>,
-        "Mark Haney" <mhaney@info4cars.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.SOL.4.21.0102162015490.28748-100000@orange.csi.cam.ac.uk>
-Subject: Re: Linux stifles innovation...
-Date: Fri, 16 Feb 2001 19:03:45 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S130282AbRBQAI3>; Fri, 16 Feb 2001 19:08:29 -0500
+Received: from 041imtd176.chartermi.net ([24.247.41.176]:50842 "EHLO
+	oof.netnation.com") by vger.kernel.org with ESMTP
+	id <S129871AbRBQAIN>; Fri, 16 Feb 2001 19:08:13 -0500
+Date: Fri, 16 Feb 2001 19:08:05 -0500
+From: Simon Kirby <sim@stormix.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4 TCP(?) timeouts
+Message-ID: <20010216190805.A14603@stormix.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I did some research on the patent database and found nothing regarding such
-a patent. There's patent on word processors (not the concept but related to)
-and uses tab on the description...and that patent is from 1980.
+Hello,
 
------ Original Message -----
-From: "James Sutherland" <jas88@cam.ac.uk>
-To: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
-Cc: "Rik van Riel" <riel@conectiva.com.br>; "Alan Olsen"
-<alan@clueserver.org>; "Mark Haney" <mhaney@info4cars.com>;
-<linux-kernel@vger.kernel.org>
-Sent: Friday, February 16, 2001 15:18
-Subject: RE: Linux stifles innovation...
+Today we put 2.4.1 on our mail server after having see it perform well on
+some other boxes.  It seems now we are receiving a few calls every hour
+from customers reporting that the server tends to hang and eventually
+time out on them when downloading mail.  All customers that have reported
+this problem so far are on a didalup connection.  Apparently the server
+will stop transmitting data (or the client seems to think so), and then
+their mail client will time out.
 
+I noticed that the 2.4.1 on my desktop seems to time out SSH connections
+to servers that have become unreachable in about 10 seconds or so, which
+is many times faster than 2.2 which used to sit for hours before it timed
+out (if it all).  I'm not sure if this is related.  I would expect the
+client to attempt to retransmit some ACKs and eventually get some RSTs
+back if this were the case.
 
-> On Fri, 16 Feb 2001, David D.W. Downey wrote:
->
-> > Would someone tell me where you get all this lovely information on
-> > patents held by M$? I can't find anything.
->
-> Sorry, it's *IBM* who are said to hold a patent on the tab key.
->
-> Legend has it Microsoft once found a patent of theirs which IBM appeared
-> to have infringed, and were very excited at the possibility of something
-> to hold over IBM, so their lawyers met IBM's lawyers. The MS lawyers
-> beamed "look at our patent you've infringed!" IBM's lawyers replied "look
-> at this pile of our patents YOU'VE infringed... let's start with this
-> one. A Tab key." MS suddenly realised they were outlawyered...
->
-> No idea how accurate it is, but just the thought of MS's lawyers getting a
-> nasty shock like that has a certain appeal :-)
->
->
-> James.
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Has anybody seen similar problems?  The box was previously running
+2.2.19pre8 and no customers reported such problems.
 
+We're using cucipop w/ldap on a dual PIII 800 MHz box with 1.5 GB of RAM.
+
+Simon-
+
+[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
+[       sim@stormix.com       ][       sim@netnation.com        ]
+[ Opinions expressed are not necessarily those of my employers. ]

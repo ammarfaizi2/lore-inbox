@@ -1,86 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262103AbUFRFy6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263629AbUFRF4L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262103AbUFRFy6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 01:54:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263629AbUFRFy6
+	id S263629AbUFRF4L (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 01:56:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263663AbUFRF4L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 01:54:58 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:62154 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S262103AbUFRFyz (ORCPT
+	Fri, 18 Jun 2004 01:56:11 -0400
+Received: from mail.homelink.ru ([81.9.33.123]:19338 "EHLO eltel.net")
+	by vger.kernel.org with ESMTP id S263629AbUFRF4A (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 01:54:55 -0400
-Date: Fri, 18 Jun 2004 07:54:54 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Stop the Linux kernel madness
-Message-ID: <20040618055454.GS20632@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <40D232AD.4020708@opensound.com> <77709e76040617180749cd1f09@mail.gmail.com> <40D24163.5000006@opensound.com> <1087522622.5475.30.camel@louise3.6s.nl> <40D24963.7040003@opensound.com>
+	Fri, 18 Jun 2004 01:56:00 -0400
+Date: Fri, 18 Jun 2004 09:55:59 +0400
+From: Andrew Zabolotny <zap@homelink.ru>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Backlight and LCD module patches [1]
+Message-Id: <20040618095559.20763766.zap@homelink.ru>
+In-Reply-To: <20040617220510.GA4122@kroah.com>
+References: <20040617223514.2e129ce9.zap@homelink.ru>
+	<20040617194739.GA15983@kroah.com>
+	<20040618015504.661a50a9.zap@homelink.ru>
+	<20040617220510.GA4122@kroah.com>
+Organization: home
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: #%`a@cSvZ:n@M%n/to$C^!{JE%'%7_0xb("Hr%7Z0LDKO7?w=m~CU#d@-.2yO<l^giDz{>9
+ epB|2@pe{%4[Q3pw""FeqiT6rOc>+8|ED/6=Eh/4l3Ru>qRC]ef%ojRz;GQb=uqI<yb'yaIIzq^NlL
+ rf<gnIz)JE/7:KmSsR[wN`b\l8:z%^[gNq#d1\QSuya1(
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gA6UC8XTb9NkxZ9U"
-Content-Disposition: inline
-In-Reply-To: <40D24963.7040003@opensound.com>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 17 Jun 2004 15:05:10 -0700
+Greg KH <greg@kroah.com> wrote:
 
---gA6UC8XTb9NkxZ9U
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> That function should be:
+> struct lcd_device lcd_device_register(const char *name, void *devdata,
+> 					struct lcd_properties *lp);
+> instead.  Then return an ERR_PTR() if you have an error.
 
-On Thu, 2004-06-17 18:46:11 -0700, 4Front Technologies <dev@opensound.com>
-wrote in message <40D24963.7040003@opensound.com>:
+Okay, that was the easy part. Fixed.
 
+> > extern struct lcd_device *lcd_device_find(const char *name);
+> > 
+> > It needs a char* argument because there's no other easy way to find the
+> > correspondence between framebuffer devices and lcd/backlight devices
+> > corresponding to that framebuffer device.
+> Then you need to have a way to corrispond those devices together,
+> becides just a name.  Use the pointer that you have provided to link
+> them together some way.
 
-> What's with you guys?. Would you really like to see Linux forking?
+There's no place to stuff that pointer into, because the load order of the
+framebuffer and lcd/backlight modules are not important (that's the reason for
+the notification chain), and at the time l/b modules are loaded there can be
+even no corresponding platform device (on my PDA for example, where platform
+device is also registered from a module).
 
-I like playing with non-i386 hardware, that is, I do have (at least) one
-"forked" kernel for each architecture, possibly even more than one...
-It's just that --most of the time-- it's missing time that leads to
-forked trees (that need unification some time after...).  Bet on it, I'd
-really like getting hired for keeping an eye on all those trees and
-working on reviewing/merging them all back to Linus' tree! It's probably
-nothing different with the SuSE kernels. You've hit a bug here, so let's
-solve that. But their large patch set won't go away completely:
+How about passing a pointer to struct dev, and a pointer to struct fbinfo to
+every l/b driver and asking them if they are for this device or not? The
+lcd/backlight device then could check anything they like inside the structs
+and make their decision - they are bound to this fb device or not. This way,
+the class_find_device() patch would not be needed anymore, and
+lcd_find_device replaced instead by something like this:
 
-	- Legacy drivers ported from 2.2.x and 2.4.x? Customer should
-	  use newer drivers.
-	- Bugs fixed? Bugfix needs review and merge! (Hire me, if you can:)
-	- New drivers? Review and merge!
-	- New features that touch all the kernel? Needs a lot of
-	  discussion...
+struct lcd_device *lcd_device_find (struct device *ld, struct fbinfo *fb)
+{
+	struct class_device *class_dev;
+	struct lcd_device *found = NULL;
 
-So, some parts are easy, some are not. Your problem's bugfix for sure
-isn't hard to do, but large chunks of their patch may need *long*
-lasting discussion...
+	down_read (&lcd_class->subsys.rwsem);
+	list_for_each_entry (class_dev, &lcd_class->children, node) {
+		struct lcd_device *ld = to_lcd_device (class_dev);
+		if (ld->props && (ld->props->check_device (ld, fb) == 0)) {
+			found = lcd_device_get (ld);
+			break;
+		}
+	}
+	up_read (&lcd_class->subsys.rwsem);
 
-MfG, JBG
+	return found;
+}
 
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
-PA));
-
---gA6UC8XTb9NkxZ9U
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFA0oOuHb1edYOZ4bsRAhWCAJ4xcJlASi7mljEwcrAzfy3KDPZG/ACeL8ZN
-+v440iikEfctNUD2lJLoNlU=
-=ZWqO
------END PGP SIGNATURE-----
-
---gA6UC8XTb9NkxZ9U--
+--
+Greetings,
+   Andrew

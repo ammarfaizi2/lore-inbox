@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317023AbSGELqj>; Fri, 5 Jul 2002 07:46:39 -0400
+	id <S317436AbSGEMcn>; Fri, 5 Jul 2002 08:32:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317193AbSGELqi>; Fri, 5 Jul 2002 07:46:38 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:13642 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S317023AbSGELqi>; Fri, 5 Jul 2002 07:46:38 -0400
-Date: Fri, 5 Jul 2002 13:49:56 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: "J.A. Magallon" <jamagallon@able.es>
+	id <S317437AbSGEMcm>; Fri, 5 Jul 2002 08:32:42 -0400
+Received: from pat.uio.no ([129.240.130.16]:4841 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S317436AbSGEMcl> convert rfc822-to-8bit;
+	Fri, 5 Jul 2002 08:32:41 -0400
+To: "Nils O." =?iso-8859-1?q?Sel=E5sdal?= <noselasd@frisurf.no>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19rc1aa1
-Message-ID: <20020705114956.GB7734@dualathlon.random>
-References: <20020629023459.GA1531@inspiron.ols.wavesec.org> <20020630230544.GA1766@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020630230544.GA1766@werewolf.able.es>
-User-Agent: Mutt/1.3.27i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Subject: Re: df on a nfs mounted share vs local?
+References: <1025793209.10267.5.camel@space>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 05 Jul 2002 14:35:13 +0200
+In-Reply-To: <1025793209.10267.5.camel@space>
+Message-ID: <shsu1nel5dq.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 01, 2002 at 01:05:44AM +0200, J.A. Magallon wrote:
-> 
-> On 2002.06.29 Andrea Arcangeli wrote:
-> >Only booted it on the laptop so far.
-> >
-> >URL:
-> >
-> >	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19rc1aa1.gz
-> >	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19rc1aa1/
-> >
-> 
-> Booted ? 
+>>>>> " " == Nils O <Selåsdal <noselasd@frisurf.no>> writes:
 
-booted, because menuconfig works as expected, it's just xconfig that
-complains.
+     > Just wondering, how come df reports root:~# df /mnt/export/
+     > Filesystem 1k-blocks Used Available Use% Mounted on /dev/hda5
+     > 2562252 383792 2178460 15% /mnt/export on the server, while on
+     > a client that mounts /mnt/export over nfs: [root@space
+     > download]# df /mnt/nfs/ Filesystem 1k-blocks Used Available
+     > Use% Mounted on lfs:/mnt/export 2562256 383792 2178464 15%
+     > /mnt/nfs
 
-now I changed to "=" that fixes it, thanks for noticing.
+     > Just a few blocks diffrent, but I've seen much bigger.. also
+     > seen +/- a few % on "Use"
 
-Andrea
+It is a rounding error. The block size on the NFS client is typically
+4 or 8k, whereas the block size on the local filesystem is typically
+512 bytes.
+
+On most UNIX implementations, the 'statvfs()' call supports two
+variables f_bsize and f_frsize, which allow you to distinguish between
+the two. Linux lacks kernel support for the latter variable.
+
+Cheers,
+  Trond

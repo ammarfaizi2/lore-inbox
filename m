@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266114AbTGDSu2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 14:50:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266117AbTGDSu2
+	id S266107AbTGDSxu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 14:53:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266109AbTGDSxu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 14:50:28 -0400
-Received: from svr7.m-online.net ([62.245.150.229]:19599 "EHLO
-	svr7.m-online.net") by vger.kernel.org with ESMTP id S266114AbTGDSu0
+	Fri, 4 Jul 2003 14:53:50 -0400
+Received: from ip212-226-133-178.adsl.kpnqwest.fi ([212.226.133.178]:12160
+	"EHLO jumper") by vger.kernel.org with ESMTP id S266107AbTGDSxt
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jul 2003 14:50:26 -0400
-Date: Fri, 4 Jul 2003 21:05:54 +0200
-From: Florian Huber <florian.huber@mnet-online.de>
+	Fri, 4 Jul 2003 14:53:49 -0400
 To: linux-kernel@vger.kernel.org
-Subject: Re: patches NVIDIA for 2.5 kernels.
-Message-Id: <20030704210554.55f56e0d.florian.huber@mnet-online.de>
-In-Reply-To: <8F2A2A2C85830A6468338C5E581E82E4@jlalarcon.chevy.zzn.com>
-References: <8F2A2A2C85830A6468338C5E581E82E4@jlalarcon.chevy.zzn.com>
-X-Mailer: Sylpheed version 0.8.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Subject: Re: netstat oopses 2.5.74
+References: <87n0fv7gio.fsf@jumper.lonesom.pp.fi>
+	<20030704.010454.101761988.yoshfuji@linux-ipv6.org>
+From: Jaakko Niemi <liiwi@lonesom.pp.fi>
+Date: Fri, 04 Jul 2003 22:08:16 +0300
+In-Reply-To: <20030704.010454.101761988.yoshfuji@linux-ipv6.org> (YOSHIFUJI
+ Hideaki's message of "Fri, 04 Jul 2003 01:04:54 +0900 (JST)")
+Message-ID: <87of0a3yan.fsf@jumper.lonesom.pp.fi>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Jul 2003 20:56:03 +0200
-"Jose Luis Alarcon" <jlalarcon@chevy.zzn.com> wrote:
+YOSHIFUJI Hideaki / ИЈСА <yoshfuji@linux-ipv6.org> writes:
 
->   Hi all.
-> 
->   Maybe some of you don't know this patches for give support
-> to the NVIDIA drivers with the 2.5 Linux kernel.
+> Hello.
+>
+> In article <87n0fv7gio.fsf@jumper.lonesom.pp.fi> (at Thu, 03 Jul 2003 18:54:07 +0300), Jaakko Niemi <liiwi@lonesom.pp.fi> says:
+>
+>>  I can reproduce attached oops by running 'netstat -na' after 
+>>  logging in. Changing compiler from gcc 3.3 to 2.95 does not
+>>  seem to change things. Please cc me on replies. 
+>
+> Please apply this patch:
+> http://bugme.osdl.org/attachment.cgi?id=476&action=view
 
-IMHO best page therefore is:
-http://minion.de/
-
-It also contains the latest freebsd patches.
+ Thanks, works perfectly.
+ 
+                --j

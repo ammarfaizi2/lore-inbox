@@ -1,58 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273028AbTGaOEr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 10:04:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273033AbTGaOEr
+	id S272491AbTGaOWM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 10:22:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272488AbTGaOWM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 10:04:47 -0400
-Received: from khan.acc.umu.se ([130.239.18.139]:37883 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id S273028AbTGaOEp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 10:04:45 -0400
-Date: Thu, 31 Jul 2003 16:04:43 +0200
-From: David Weinehall <tao@acc.umu.se>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: vda@port.imtp.ilyichevsk.odessa.ua, Ren <l.s.r@web.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Inline vfat_strnicmp()
-Message-ID: <20030731140442.GE16315@khan.acc.umu.se>
-References: <20030727172150.15f8df7f.l.s.r@web.de> <87wue4udxl.fsf@devron.myhome.or.jp> <200307311224.h6VCOMj19676@Port.imtp.ilyichevsk.odessa.ua> <87r846yfag.fsf@devron.myhome.or.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87r846yfag.fsf@devron.myhome.or.jp>
-User-Agent: Mutt/1.4.1i
-X-Accept-Language: Swedish, English
-X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
-X-GPG-Key: http://www.acc.umu.se/~tao/files/pubkey_dc47ca16.gpg.asc
+	Thu, 31 Jul 2003 10:22:12 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:58376 "HELO
+	kinesis.swishmail.com") by vger.kernel.org with SMTP
+	id S272491AbTGaOWI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 10:22:08 -0400
+Message-ID: <3F2928AD.90501@techsource.com>
+Date: Thu, 31 Jul 2003 10:33:17 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+CC: Jamie Lokier <jamie@shareable.org>,
+       "Richard B. Johnson" <root@chaos.analogic.com>,
+       James Simmons <jsimmons@infradead.org>, Charles Lepple <clepple@ghz.cc>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Turning off automatic screen clanking
+References: <Pine.LNX.4.44.0307291750170.5874-100000@phoenix.infradead.org> <Pine.LNX.4.53.0307291338260.6166@chaos> <Pine.LNX.4.53.0307292015580.11053@montezuma.mastecende.com> <20030730012533.GA18663@mail.jlokier.co.uk> <Pine.LNX.4.53.0307292136050.11053@montezuma.mastecende.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 31, 2003 at 10:52:23PM +0900, OGAWA Hirofumi wrote:
-> Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> writes:
+
+
+Zwane Mwaikambo wrote:
+> On Wed, 30 Jul 2003, Jamie Lokier wrote:
 > 
-> > On 27 July 2003 19:33, OGAWA Hirofumi wrote:
-> > > Ren <l.s.r@web.de> writes:
-> > > 
-> > > > the function vfat_strnicmp() has just one callsite. Inlining it
-> > > > actually shrinks vfat.o slightly.
-> > > 
-> > > Thanks. I'll submit this patch to Linus.
-> > 
-> > Just to deinline it in some months?
-> > 
-> > Come on, automatically inlining static functions with
-> > just one callsite is a compiler's job. Don't do it.
 > 
-> Unfortunately "gcc version 3.2.3 20030415 (Debian prerelease)"
-> doesn't, at least.
+>>One of Richard's points is that there is presently no way to fix the
+>>box in userspace.  If the kernel crashes during boot, it will blank
+>>the screen and there is no way to unblank it in that state.
+> 
+> 
+> Well something like this should work without complicating things during 
+> panic.
+> 
 
-And how big is the performance loss?  Is it even measurable?
-And even if it is, is optimizing this really worth the trouble?
+[snip]
+
+This looks like it prevents blanking after panic.  What about UNblanking 
+during panic?
 
 
-Regards: David Weinehall
--- 
- /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/

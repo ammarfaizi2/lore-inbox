@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271563AbTGQSb6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 14:31:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271584AbTGQS2Q
+	id S271542AbTGQSfa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 14:35:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271541AbTGQSfW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 14:28:16 -0400
-Received: from web20006.mail.yahoo.com ([216.136.225.69]:57643 "HELO
-	web20006.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S271563AbTGQSZF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 14:25:05 -0400
-Message-ID: <20030717183958.74004.qmail@web20006.mail.yahoo.com>
-Date: Thu, 17 Jul 2003 11:39:58 -0700 (PDT)
-From: navneet panda <navneet_panda@yahoo.com>
-Subject: Re: kernel panic at boot
-To: William T Wilson <fluffy@snurgle.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0307171405460.18906-100000@benatar>
+	Thu, 17 Jul 2003 14:35:22 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:15505 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S271469AbTGQSe7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 14:34:59 -0400
+Date: Thu, 17 Jul 2003 15:46:11 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Jim Gifford <maillist@jg555.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.22-pre6 deadlock
+In-Reply-To: <00fd01c34c8d$a03a4960$3400a8c0@W2RZ8L4S02>
+Message-ID: <Pine.LNX.4.55L.0307171545460.1789@freak.distro.conectiva>
+References: <Pine.LNX.4.55L.0307052151180.21992@freak.distro.conectiva>
+ <003501c34572$4113f0c0$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307081551480.21543@freak.distro.conectiva>
+ <020301c3459b$942a1860$3400a8c0@W2RZ8L4S02> <1057703020.5568.10.camel@dhcp22.swansea.linux.org.uk>
+ <024801c345a2$ceeef090$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307091428450.26373@freak.distro.conectiva>
+ <064101c34644$3d917850$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307100025160.6316@freak.distro.conectiva>
+ <042801c3472c$f4539f80$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307110953370.28177@freak.distro.conectiva>
+ <06e301c347c7$2a779590$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307111405320.29894@freak.distro.conectiva>
+ <002b01c347e9$36a04110$f300a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307111749160.5537@freak.distro.conectiva>
+ <001801c348a0$9dab91e0$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307141145340.23121@freak.distro.conectiva>
+ <00fd01c34c8d$a03a4960$3400a8c0@W2RZ8L4S02>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Thanks for the suggestion but I already tried that
-with
+Jim,
 
-root=/dev/hda6 ( same as for working 2.4.20-18 )
+I just noticed your kernel is tained.
 
-It didn't work
+For what reason?
 
-Thanks anyway
-Panda
-
---- William T Wilson <fluffy@snurgle.org> wrote:
-> On Thu, 17 Jul 2003, navneet panda wrote:
-> 
-> > root=LABEL=/ hdc=ide-scsi idebus=66
-> 
-> Try gettin rid of worthless LABEL= and use a device
-> identifier (i.e.  
-> root=/dev/hda3 or whatever).  I have found that
-> LABEL= is uniformly more
-> trouble than it is worth.
-> 
-
-
-__________________________________
-Do you Yahoo!?
-SBC Yahoo! DSL - Now only $29.95 per month!
-http://sbc.yahoo.com

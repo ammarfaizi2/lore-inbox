@@ -1,41 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261235AbVAMRGL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261275AbVAMSyc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261235AbVAMRGL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 12:06:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbVAMQmH
+	id S261275AbVAMSyc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 13:54:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbVAMRGU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 11:42:07 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:34788 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261233AbVAMQlb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 11:41:31 -0500
-Subject: Re: Proper procedure for reporting possible security
-	vulnerabilities?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Florian Weimer <fw@deneb.enyo.de>
-Cc: Steve Bergman <steve@rueb.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <87k6qiomhz.fsf@deneb.enyo.de>
-References: <41E2B181.3060009@rueb.com> <87d5wdhsxo.fsf@deneb.enyo.de>
-	 <41E2F6B3.9060008@rueb.com>
-	 <1105457773.15793.28.camel@localhost.localdomain>
-	 <87k6qiomhz.fsf@deneb.enyo.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1105629884.4664.43.camel@localhost.localdomain>
+	Thu, 13 Jan 2005 12:06:20 -0500
+Received: from verein.lst.de ([213.95.11.210]:42881 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S261216AbVAMRFn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 12:05:43 -0500
+Date: Thu, 13 Jan 2005 18:05:28 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       adaplas@pol.net,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       dwmw2@infradead.org
+Subject: Re: [PATCH] kill symbol_get & friends
+Message-ID: <20050113170528.GA24590@lst.de>
+References: <20050112203136.GA3150@lst.de> <1105575573.12794.27.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 13 Jan 2005 15:36:49 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1105575573.12794.27.camel@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2005-01-12 at 12:33, Florian Weimer wrote:
-> vendor-sec's reputation apparently has been damaged in some circles as
-> the result of the fake e-matters advisory.  Heise Online also
-> suggested that the exploit was leaked from vendor-sec ("a natural
-> conclusion").
+On Thu, Jan 13, 2005 at 11:19:33AM +1100, Rusty Russell wrote:
+> If you don't hold a reference, then yes, the module can go away.  This
+> hasn't been a huge problem for users in the past.
 
-For someone who has no actual information and is speculating wildly
-perhaps. There are very good reasons that those who know something about
-it are fairly sure it isnt the case.
+There's a single users, and it has these problems.
+
+> The lack of users is because, firstly, dynamic dependencies are less
+> common than static ones, and secondly because the remaining inter-module
+> users (AGP and mtd) have not been converted.
+
+AGP doesn't use dynamic symbols anymore, only mtd is gone.  And I'd
+rather see it not switching to symbol_get.
 

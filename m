@@ -1,74 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264371AbUG2Lsa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264389AbUG2L44@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264371AbUG2Lsa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 07:48:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264389AbUG2Lsa
+	id S264389AbUG2L44 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 07:56:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264396AbUG2L44
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 07:48:30 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:981 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264371AbUG2Ls0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 07:48:26 -0400
-Subject: Re: [2.6 patch] let 4KSTACKS depend on EXPERIMENTAL and XFS on
-	4KSTACKS=n
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Nathan Scott <nathans@sgi.com>,
-       "Jeffrey E. Hundstad" <jeffrey.hundstad@mnsu.edu>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Steve Lord <lord@xfs.org>, linux-xfs@oss.sgi.com,
-       xfs-masters@oss.sgi.com,
-       Cahya Wirawan <cwirawan@email.archlab.tuwien.ac.at>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20040729114219.GN2349@fs.tum.de>
-References: <20040720114418.GH21918@email.archlab.tuwien.ac.at>
-	 <40FD0A61.1040503@xfs.org> <40FD2E99.20707@mnsu.edu>
-	 <20040720195012.GN14733@fs.tum.de> <20040729060900.GA1946@frodo>
-	 <20040729114219.GN2349@fs.tum.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-cM5iABXiyfHOS7eUaigT"
-Organization: Red Hat UK
-Message-Id: <1091101612.2792.8.camel@laptop.fenrus.com>
+	Thu, 29 Jul 2004 07:56:56 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26240 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264389AbUG2L4z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 07:56:55 -0400
+Date: Thu, 29 Jul 2004 07:57:55 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Chris Caputo <ccaputo@alt.net>, linux-kernel@vger.kernel.org
+Subject: Re: inode_unused list corruption in 2.4.26 - spin_lock problem?
+Message-ID: <20040729105755.GA6897@logos.cnet>
+References: <20040729002535.GA5145@logos.cnet> <Pine.LNX.4.44.0407282325460.30510-100000@nacho.alt.net> <20040729075429.GA15700@devserv.devel.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 29 Jul 2004 13:46:52 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040729075429.GA15700@devserv.devel.redhat.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jul 29, 2004 at 09:54:29AM +0200, Arjan van de Ven wrote:
+> On Wed, Jul 28, 2004 at 11:27:41PM -0700, Chris Caputo wrote:
+> > On Wed, 28 Jul 2004, Marcelo Tosatti wrote:
+> > > Changing the affinity writes new values to the IOAPIC registers, I can't see
+> > > how that could interfere with the atomicity of a spinlock operation. I dont
+> > > understand why you think irqbalance could affect anything.
+> > 
+> > Because when I stop running irqbalance the crashes no longer happen.
+> 
+> what is the irq distribution when you do that?
+> Can you run irqbalance for a bit to make sure there's a static distribution
+> of irq's and then disable it and see if it survives ?
 
---=-cM5iABXiyfHOS7eUaigT
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Chris, Yes I'm also running irqbalance. 
 
+Arjan, what is an easy way for me to make irqbalance change the affinity
+as crazy on the SMP 8way box, just for a test?
 
-> > > Mark this combination as BROKEN until XFS is fixed.
-> >=20
-> > This part is not useful.  We want to hear about problems
-> > that people hit with 4K stacks so we can try to address
-> > them, and it mostly works as is.
->=20
-> 2.6 is a stable kernel series used in production environments.
->=20
-> Regarding Linus' tree, it's IMHO the best solution to work around it=20
-> this way until all issues are sorted out.
->=20
-> Feel free to revert it in -mm later, since there are many brave souls =20
-> running -mm you'll still get to hear about problems.
+TIA
 
-can you then also mark XFS broken in 2.4 entirely?
-2.4 has a nett stack of also 4Kb...=20
-
---=-cM5iABXiyfHOS7eUaigT
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBCOOrxULwo51rQBIRAhc4AJ9Jp+/ePsNufUxqo5ymgIAu1yufegCfRuLY
-jLyLMBfI7nJcjMBZQf4ivaY=
-=eahr
------END PGP SIGNATURE-----
-
---=-cM5iABXiyfHOS7eUaigT--
 

@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264015AbTCXASU>; Sun, 23 Mar 2003 19:18:20 -0500
+	id <S264017AbTCXA2Z>; Sun, 23 Mar 2003 19:28:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264016AbTCXAST>; Sun, 23 Mar 2003 19:18:19 -0500
-Received: from elaine24.Stanford.EDU ([171.64.15.99]:5516 "EHLO
-	elaine24.Stanford.EDU") by vger.kernel.org with ESMTP
-	id <S264015AbTCXASS>; Sun, 23 Mar 2003 19:18:18 -0500
-Date: Sun, 23 Mar 2003 16:29:19 -0800 (PST)
-From: Junfeng Yang <yjf@stanford.edu>
-To: linux-kernel@vger.kernel.org
-cc: mc@cs.stanford.edu
-Subject: [CHECKER] 1 potential double unlock error
-In-Reply-To: <Pine.GSO.4.44.0303231506070.21702-100000@elaine24.Stanford.EDU>
-Message-ID: <Pine.GSO.4.44.0303231627290.25487-100000@elaine24.Stanford.EDU>
+	id <S264018AbTCXA2Z>; Sun, 23 Mar 2003 19:28:25 -0500
+Received: from mail.gmx.de ([213.165.64.20]:35595 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S264017AbTCXA2Y>;
+	Sun, 23 Mar 2003 19:28:24 -0500
+Message-ID: <3E7E5360.3010401@gmx.de>
+Date: Mon, 24 Mar 2003 01:37:52 +0100
+From: Sven Schuster <schuster.sven@gmx.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: de-de, en, en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Ptrace hole / Linux 2.2.25
+References: <Pine.LNX.4.44.0303231717390.19670-100000@cafe.hardrock.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-It's in net/3c505.c. Please help us to confirm or clarify. Thanks.
 
-Junfeng
+James Bourne wrote:
 
-[BUG] if timeouts, will double unlock
+ >Hi,
+ >In an earlier email I posted a URL to an updates directory containing
+ >strictly updates for the current 2.4 kernel tree.  The URL is
+ >http://www.hardrock.org/kernel/current-updates/
+ >
+ >Currently there is the ext3 patch, tg3 patch and ptrace patch.  Also 
+is one
+ >single patch with all three patches include.
+ >
+ >
+It's not about me, I myself had the ext3+tg3 patches applied since...well,
+don't remember exactly, but it's been a while now. I'm reading lkml. This
+was just meant as a suggestion to provide a kindof "help" or "support" to
+people not reading lkml but building their own kernel. A mailinglist or
+central place where they can get all the urgent fixes for the latest stable
+kernel (here 2.4.20).
 
-/home/junfeng/linux-2.5.63/drivers/net/3c505.c:467:send_pcb:
-ERROR:LOCK:432:467:double unlock &(*adapter).lock[TRANS: &(*adapter).lock,
-locked->unlocked, /home/junfeng/linux-2.5.63/drivers/net/3c505.c,
-send_pcb, 446]
+Sven
 
-	set_hsf(dev, 0);
-
-	if (send_pcb_slow(dev->base_addr, pcb->command))
-		goto abort;
-
-Start --->
-	spin_lock_irqsave(&adapter->lock, flags);
-
-	... DELETED 29 lines ...
-
-
-	if (elp_debug >= 1)
-		printk("%s: timeout waiting for PCB acknowledge (status
-%02x)\n", dev->name, inb_status(dev->base_addr));
-
-      sti_abort:
-Error --->
-	spin_unlock_irqrestore(&adapter->lock, flags);
-      abort:
-	adapter->send_pcb_semaphore = 0;
-	return FALSE;
+ >Regards
+ >James Bourne
+ >
 
 

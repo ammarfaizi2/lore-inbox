@@ -1,57 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264654AbSLQEan>; Mon, 16 Dec 2002 23:30:43 -0500
+	id <S264657AbSLQFNm>; Tue, 17 Dec 2002 00:13:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264657AbSLQEan>; Mon, 16 Dec 2002 23:30:43 -0500
-Received: from smtp802.mail.sc5.yahoo.com ([66.163.168.181]:43294 "HELO
-	smtp802.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id <S264654AbSLQEan>; Mon, 16 Dec 2002 23:30:43 -0500
-From: "Joseph D. Wagner" <wagnerjd@prodigy.net>
-To: "Linux Kernel" <linux-kernel@vger.kernel.org>
-Subject: Problem using "make config/xconfig" with 2.4.20 on Redhat 7.3
-Date: Mon, 16 Dec 2002 22:38:38 -0600
-Message-ID: <000001c2a586$2feb5db0$e50f3941@joe>
+	id <S264665AbSLQFNm>; Tue, 17 Dec 2002 00:13:42 -0500
+Received: from pacific.moreton.com.au ([203.143.238.4]:33230 "EHLO
+	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
+	id <S264657AbSLQFNl>; Tue, 17 Dec 2002 00:13:41 -0500
+Message-ID: <3DFEB426.1080302@snapgear.com>
+Date: Tue, 17 Dec 2002 15:20:38 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH]: linux-2.5.52-uc0 (MMU-less fix ups)
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I must be doing something wrong, but I can't figure out what.
+Hi All,
 
-I've downloaded kernel version 2.4.20 from http://www.kernel.org and copied
-it to the /usr/src/linux-2.4.20 directory, but when I do "make xconfig" (or
-any other "make" for that matter, it exits with error code 2.
+An update of the uClinux (MMU-less) fixups against 2.5.52.
+There was a couple of minor fixups needed (over 2.5.51).
+The bulk of this patch is still the merge of the linker
+scripts, entry.S and startup code.
 
-I figure there is some Redhat-specific tweaking I must do to compile a
-generic kernel from http://www.kernel.org on a Redhat system, but I have no
-idea what that specific tweaking is.  The people at the Redhat-devel list
-were of no help so I'm turning to you guys.
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.52-uc0.patch.gz
 
-Could someone help me, please?
+Changelog:
 
-BTW, I'm using Redhat Linux 7.3.
+1. patch against 2.5.52                  (me)
+2. C99 initializers in m68knommu setup.c (Art Haas)
 
-Here's my output from "make xconfig":
 
-rm -f include/asm
-( cd include ; ln -sf asm-i386 asm)
-make -C scripts kconfig.tk
-make[1]: Entering directory `/usr/src/linux-2.4.20/scripts'
-cat header.tk >> ./kconfig.tk
-./tkparse < ../arch/i386/config.in >> kconfig.tk
--: 6: unknown command
-make[1]: *** [kconfig.tk] Error 1
-make[1]: Leaving directory `/usr/src/linux-2.4.20/scripts'
-make: *** [xconfig] Error 2
+Also updated:
 
-TIA
+. Motorola 68328 framebuffer driver
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.52-uc0-68328fb.patch.gz
 
-Joseph Wagner
+. Hitachi H8300 achitecture support
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.52-uc0-h8300.patch.gz
+
+Regards
+Greg
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
+825 Stanley St,                                  FAX:    +61 7 3279 1820
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

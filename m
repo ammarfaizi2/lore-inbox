@@ -1,62 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284460AbRLEQUD>; Wed, 5 Dec 2001 11:20:03 -0500
+	id <S283795AbRLEQYO>; Wed, 5 Dec 2001 11:24:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283770AbRLEQRz>; Wed, 5 Dec 2001 11:17:55 -0500
-Received: from [209.1.214.221] ([209.1.214.221]:32006 "EHLO
-	smtparch.vistocorporation.com") by vger.kernel.org with ESMTP
-	id <S283759AbRLEQRq> convert rfc822-to-8bit; Wed, 5 Dec 2001 11:17:46 -0500
-Message-ID: <3C091F550002B98E@smtparch.vistocorporation.com> (added by
-	    postmaster@smtparch.vistocorporation.com)
-Reply-To: linuxlist@visto.com
-From: "rohit prasad" <linuxlist@visto.com>
-Subject: newly compiled kernel no .img file
-Date: Wed, 05 Dec 2001 08:16:08 -0800
-X-Mailer: Visto
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-X-Mailer: Visto Server
+	id <S284459AbRLEQYE>; Wed, 5 Dec 2001 11:24:04 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:63024 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S283795AbRLEQXq>; Wed, 5 Dec 2001 11:23:46 -0500
+Date: Wed, 5 Dec 2001 17:23:23 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Peter Zaitsev <pz@spylog.ru>
+Cc: Andrew Morton <akpm@zip.com.au>, theowl@freemail.c3.hu, theowl@freemail.hu,
+        linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: your mail on mmap() to the kernel list
+Message-ID: <20011205172323.C6125@athlon.random>
+In-Reply-To: <3C082244.8587.80EF082@localhost>, <3C082244.8587.80EF082@localhost> <61437219298.20011201113130@spylog.ru> <3C08A4BD.1F737E36@zip.com.au> <20011204151549.U3447@athlon.random> <16498470022.20011204183624@spylog.ru> <20011204174824.D3447@athlon.random> <41187009255.20011205191203@spylog.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <41187009255.20011205191203@spylog.ru>; from pz@spylog.ru on Wed, Dec 05, 2001 at 07:12:03PM +0300
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
+On Wed, Dec 05, 2001 at 07:12:03PM +0300, Peter Zaitsev wrote:
+> I understand it but does it start so search standard way from the low
+> addresses or it looks it above the hint address before looking at
+> lower addresses ?
 
- I have recompiled the linux 2.4.7-10 kernel to get ntfs readonly support.
+mmap(2) with a "valid" hint (so with enough space in the hole between
+'start' and 'start+len') runs with O(log(N)) complexity because it uses
+the tree internally to verify that's a valid hole. It's only the search
+of an hole that has O(N) complexity, the "check" of one hole has just
+O(log(N)) complexity.
 
- this is what I entered in the lilo.conf in the fllowing order,
-
- NEWLY COMPILED KERNEL IMAGE
- OLD KERNEL IMAGE
- WINDOWS 	
-
- 
- image=/boot/wmlinux-2.4.7-10
-	label=xunil
-	read-only
-	root=/dev/hda2
- image=/boot/vmlinuz-2.4.7-10old
-	label=linux
-	initrd=/boot/initrd-2.4.7-10.img
-	read-only
-	root=/dev/hda2
-other=/dev/hda1
-	optional
-	label=windows
-
-If you notice the first declaration of image the 
-"initrd=/boot/initrd-2.4.7-10.img" is not present . Of course I removed it so that there would be no kernel panic and I am able to boot into the new kernel (xunil). 
-What I want to know is what is this .img file why is it required in the original kernel compilation and not in the newer . 
-
- Am I missing something here that could later on create problems.
-
-All help will be gratefully ackd.
-
-TIA,
-Rohit
-___________________________________________________________________________
-Visit http://www.visto.com.
-Find out  how companies are linking mobile users to the 
-enterprise with Visto.
-
+Andrea

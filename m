@@ -1,47 +1,41 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: (majordomo@vger.rutgers.edu) by vger.rutgers.edu via listexpand id <S160020AbQHAB4E>; Mon, 31 Jul 2000 21:56:04 -0400
-Received: by vger.rutgers.edu id <S160112AbQHABzT>; Mon, 31 Jul 2000 21:55:19 -0400
-Received: from hog.ctrl-c.liu.se ([130.236.252.129]:4772 "HELO t1.ctrl-c.liu.se") by vger.rutgers.edu with SMTP id <S160036AbQHABya>; Mon, 31 Jul 2000 21:54:30 -0400
-Date: 1 Aug 2000 02:06:15 -0000
-Message-ID: <20000801020615.23065.qmail@t1.ctrl-c.liu.se>
-From: wingel@t1.ctrl-c.liu.se
-To: hpa@transmeta.com
-Cc: linux-kernel@vger.rutgers.edu
+Received: (majordomo@vger.rutgers.edu) by vger.rutgers.edu via listexpand id <S157315AbQHACBu>; Mon, 31 Jul 2000 22:01:50 -0400
+Received: by vger.rutgers.edu id <S160060AbQHAB7k>; Mon, 31 Jul 2000 21:59:40 -0400
+Received: from smtp.networkusa.net ([216.15.144.12]:9891 "EHLO smtp.networkusa.net") by vger.rutgers.edu with ESMTP id <S160088AbQHAB55>; Mon, 31 Jul 2000 21:57:57 -0400
+Date: Mon, 31 Jul 2000 21:18:10 -0500
+From: Mike Castle <dalgoda@ix.netcom.com>
+To: linux-kernel@vger.rutgers.edu
 Subject: Re: RLIM_INFINITY inconsistency between archs
-Newsgroups: linux.kernel
-In-Reply-To: <3986213D.FBACB4D1@transmeta.com>
-References: <7iw6kYsXw-B@khms.westfalen.de> <8m4q9v$871$1@enterprise.cistron.net> <8m4tn3$cri$1@cesium.transmeta.com> <8m4uri$d9e$1@enterprise.cistron.net> <20000801004344.22321.qmail@t1.ctrl-c.liu.se>
-Organization: 
+Message-ID: <20000731211810.B28169@thune.mrc-home.org>
+Reply-To: Mike Castle <dalgoda@ix.netcom.com>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>, linux-kernel@vger.rutgers.edu
+References: <7iw6kYsXw-B@khms.westfalen.de> <Pine.LNX.3.95.1000731132321.529A-100000@chaos.analogic.com> <8m4q9v$871$1@enterprise.cistron.net> <8m4tn3$cri$1@cesium.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.5i
+In-Reply-To: <8m4tn3$cri$1@cesium.transmeta.com>; from hpa@zytor.com on Mon, Jul 31, 2000 at 03:13:55PM -0700
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-In article <3986213D.FBACB4D1@transmeta.com> you hpg@transmeta.com writes:
->wingel@t1.ctrl-c.liu.se wrote:
->> And IMHO to be able to do this, one should have to provide an explicit
->> -I/usr/src/my-kernel/linux/include, it should not be the default.
->
->I disagree.  It makes life far too painful for the end user, for really no gain.
+On Mon, Jul 31, 2000 at 03:13:55PM -0700, H. Peter Anvin wrote:
+> Unfortunately that doesn't work very well.  For user-space daemons
+> which talk to Linux-specific kernel interfaces, such as automount, you
+> need both the glibc and the Linux kernel headers.
 
-The idea was to make a point, that #include <linux/xxx.h> really is
-a kernel/kernel aware application thing only.  It ought to reduce the
-number of people who try to include kernel only stuff without knowing
-that it is a nono most of the time.
+Does this mean that automount has to be rebuilt for every kernel?  And that
+we should be running /lib/modules/`uname -r`/sbin/automount.
 
-It isn't all that hard to add the following lines to the Makefiles 
-for an application that needs the kernel includes:
+It's sounds like it's an awful lot like a loadable module in how tightly
+it's tied to the kernel.  And how a kernel change can break things
+horribly.  How you have to be built against the one you're going to run
+against and not the one glibc was built against.
 
-KERNELDIR=/usr/src/linux
-CFLAGS+=$(KERNELDIR)/include
-
-And then standardise on /usr/src/linux as the directory where the kernel 
-includes for the current kernel reside on a distribution.  Those who 
-compile multiple kernels on the same system should be savvy enough to
-do "KERNELDIR=/usr/src/my-kernel/linux make" or modify the Makefile.
-
-   /Christer
-
-
+mrc
 -- 
-"Just how much can I get away with and still go to heaven?"
+       Mike Castle       Life is like a clock:  You can work constantly
+  dalgoda@ix.netcom.com  and be right all the time, or not work at all
+www.netcom.com/~dalgoda/ and be right at least twice a day.  -- mrc
+    We are all of us living in the shadow of Manhattan.  -- Watchmen
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

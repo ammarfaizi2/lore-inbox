@@ -1,46 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270615AbRH1U7b>; Tue, 28 Aug 2001 16:59:31 -0400
+	id <S270822AbRH1VFL>; Tue, 28 Aug 2001 17:05:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270401AbRH1U7V>; Tue, 28 Aug 2001 16:59:21 -0400
-Received: from dsl-64-192-150-245.telocity.com ([64.192.150.245]:59148 "EHLO
-	mail.communicationsboard.net") by vger.kernel.org with ESMTP
-	id <S270252AbRH1U7N>; Tue, 28 Aug 2001 16:59:13 -0400
-Message-ID: <001d01c13004$61965890$70751a0a@zeusinc.com>
-From: "Tom Sightler" <ttsig@tuxyturvy.com>
-To: "Trond Myklebust" <trond.myklebust@fys.uio.no>
-Cc: "Linux-Kernel" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.05.10108281806180.20438-100000@lara.stud.fh-heilbronn.de> <shsk7zongjw.fsf@charged.uio.no>
-Subject: Re: NFS Client and SMP
-Date: Tue, 28 Aug 2001 16:59:48 -0400
+	id <S270154AbRH1VFC>; Tue, 28 Aug 2001 17:05:02 -0400
+Received: from h157s242a129n47.user.nortelnetworks.com ([47.129.242.157]:8654
+	"EHLO zcars0m9.ca.nortel.com") by vger.kernel.org with ESMTP
+	id <S270919AbRH1VEw>; Tue, 28 Aug 2001 17:04:52 -0400
+Message-ID: <3B8C0773.2D9314A4@nortelnetworks.com>
+Date: Tue, 28 Aug 2001 17:04:51 -0400
+From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+In-Reply-To: <20010828204207.12623.qmail@web10908.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+X-Orig: <cfriesen@nortelnetworks.com>
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> One other thing. If you're running on a Gigabit network, try turning
-> off jumbo frames - there seems to be some problems still with getting
-> that to work properly, and it's been known to cause NFS hangs.
->
+Brad Chapman wrote:
+> 
+> Mr. Schwab,
+> 
+> --- Andreas Schwab <schwab@suse.de> wrote:
+> > Brad Chapman <kakadu_croc@yahoo.com> writes:
+> >
+> > |> Everyone,
+> > |>
+> > |>    From reading this thread, I believe I have come up with several reasons,
+> > |> IMHO, why the old min()/max() macros were not usable:
+> > |>
+> > |>    - They did not take into account non-typesafe comparisons
+> > |>    - They were too generic
+> > |>    - Some versions, IIRC, relied on typeof()
+> > |>    - They did not take into account signed/unsigned conversions
+> > |>
+> > |>    I have also discovered one problem with the new three-arg min()/max()
+> > |> macro: it forces both arguments to be the same, thus preventing signed/unsigned
+> > |> comparisons.
+> >
+> > There is no such thing as signed/unsigned comparision in C.  Any
+> > comparison is either signed or unsigned, depending on whether the common
+> > type of arguments after applying the usual arithmetic conversions is
+> > signed or unsigned.
+> 
+>         Then why, IIRC, are the kernel hackers so upset about how the three-arg
+> macros _prevent_ signed/unsigned comparisons? Apparently the ability to compare
+> signed/unsigned variables must have _some_ significance....
 
-Is this problem specific to the 2.4 series or is the 2.2 NFS implementation
-suspect to this as well.  I am curious because we have a good number of SMP
-servers running SuSE's 2.2.19 kernel connected to a NetApp filer via GigE
-with jumbo frames and have not had any problems during development.
-However, we are about 1 month from going production and load will increase
-tremendously then (even though we've attempted to stress the system in
-development, real production always introduces new loads).
+Are they?  The most salient objections I've seen are to do with compatibility
+and code maintenance.
 
-Anyway, If this is a known problem with 2.2 as well I may reconsider leaving
-jumbo frames enabled.
+Since the underlying hardware has to compare either signed or unsigned numbers,
+you will always have to eventually cast to some common type.  The three arg
+macro simply makes it explicit *what* that common type is.
 
-Thanks,
-Tom
-
-
+-- 
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

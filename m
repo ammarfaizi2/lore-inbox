@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317922AbSHCW0x>; Sat, 3 Aug 2002 18:26:53 -0400
+	id <S317994AbSHCW1s>; Sat, 3 Aug 2002 18:27:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317935AbSHCW0x>; Sat, 3 Aug 2002 18:26:53 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34577 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317922AbSHCW0x>;
-	Sat, 3 Aug 2002 18:26:53 -0400
-Message-ID: <3D4C5BBB.EBD49EA3@zip.com.au>
-Date: Sat, 03 Aug 2002 15:39:55 -0700
+	id <S318008AbSHCW1s>; Sat, 3 Aug 2002 18:27:48 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35345 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317994AbSHCW1q>;
+	Sat, 3 Aug 2002 18:27:46 -0400
+Message-ID: <3D4C5BF0.90CD2850@zip.com.au>
+Date: Sat, 03 Aug 2002 15:40:48 -0700
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Daniel Phillips <phillips@arcor.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Rmap speedup
-References: <E17aiJv-0007cr-00@starship> <E17aptH-0008DR-00@starship> <3D4B692B.46817AD0@zip.com.au> <E17b725-00031K-00@starship>
+To: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: question on dup_task_struct
+References: <17b65z-1ERay0C@fmrl02.sul.t-online.com> <3D4C57BB.9D735B13@zip.com.au> <3D4C5935.568C1CF2@zip.com.au>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
+Andrew Morton wrote:
 > 
-> Wait a second guys, the problem is with the script, look at those CPU
-> numbers:
+> Andrew Morton wrote:
+> >
+> > Oliver Neukum wrote:
+> > >
+> > > Hi,
+> > >
+> > > why is GFP_ATOMIC used in fork.c::dup_task_struct?
+> >
+> > Presumably so that the allocation of the task structure can
+> > dip into the emergency pools, giving fork a better chance
+> > of succeeding?
 > 
-> > ./daniel.sh  39.78s user 71.72s system 368% cpu 30.260 total
-> > quad:/home/akpm> time ./daniel.sh
-> > ./daniel.sh  38.45s user 70.00s system 365% cpu 29.642 total
-> 
-> They should be 399%!!  With my fancy script, the processes themselves are
-> getting serialized somehow.
-> 
-> Lets back up and try this again with this pair of scripts, much closer to
-> the original:
+> Or maybe it's to _make_ it fail, so we don't loop forever in
+> a 1-order allocation?
 > 
 
-Still 360%.  I did have a version which achieved 398%, but it
-succumbed to the monthly "why is there so much junk in my home
-dir" disease.
-
-But it doesn't matter, does it?  We're looking at deltas here.
+It's not a 1-order allocation.  I'll go back to sleep now.

@@ -1,35 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261454AbTDDXYM (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 18:24:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbTDDXYM (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 18:24:12 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:31412 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261454AbTDDXYL (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Apr 2003 18:24:11 -0500
-Date: Fri, 04 Apr 2003 15:25:38 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: Andrew Morton <akpm@digeo.com>
-Subject: Error whilst running "tune2fs -j"
-Message-ID: <5880000.1049498738@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+	id S261470AbTDDX3n (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 18:29:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261472AbTDDX3n (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 18:29:43 -0500
+Received: from deviant.impure.org.uk ([195.82.120.238]:30365 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S261470AbTDDX3m (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 18:29:42 -0500
+Date: Sat, 5 Apr 2003 00:41:01 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: some serious problems compiling 2.5.66-bk10
+Message-ID: <20030404234035.GA19591@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	"Robert P. J. Day" <rpjday@mindspring.com>,
+	Linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0304041820540.21137-100000@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0304041820540.21137-100000@localhost.localdomain>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anyone see this before? This was 2.5.65-mjb2 running on my laptop,
-at the start of a "tune2fs -j" ....
+ >   but after i typed "make modules_install", the final
+ > depmod generated some 2000 lines of unresolved symbols.
+ > should i have expected this?
 
-buffer layer error at fs/buffer.c:395
-Pass this trace through ksymoops for reporting
-Call Trace: [__buffer_error+51/56]  [__find_get_block_slow+126/176]  [unmap_underlying_metadata+18/72]  [__block_prepare_write+374/
-1056]  [__block_commit_write+114/156]  [block_prepare_write+33/56]  [ext2_get_bl
-ock+0/744]  [ext2_prepare_write+25/32]  [ext2_get_block+0/744]  [generic_file_ai
-o_write_nolock+1527/2536]  [generic_commit_write+51/92]  [unlock_page+10/60]  [g
-eneric_file_write_nolock+111/140]  [do_lookup+24/148]  [link_path_walk+1499/1884
-]  [permission+43/56]  [may_open+99/376]  [open_namei+672/944]  [generic_file_wr
-ite+72/96]  [vfs_write+165/268]  [sys_write+42/60]  [syscall_call+7/11] 
+Yes. Lots of drivers still haven't been converted to use
+new APIs, lots are still using cli/sti etc, some still
+use the tqueue stuff, and a bunch of other similar issues..
 
-
+		Dave

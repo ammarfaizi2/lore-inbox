@@ -1,56 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266466AbUG2AU2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267386AbUG2AWe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266466AbUG2AU2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 20:20:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266409AbUG2ASX
+	id S267386AbUG2AWe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 20:22:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267378AbUG2AUo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 20:18:23 -0400
-Received: from holomorphy.com ([207.189.100.168]:6032 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267377AbUG2AOz (ORCPT
+	Wed, 28 Jul 2004 20:20:44 -0400
+Received: from fw.osdl.org ([65.172.181.6]:34281 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267370AbUG2AS5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 20:14:55 -0400
-Date: Wed, 28 Jul 2004 17:14:44 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Albert Cahalan <albert@users.sf.net>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>, kaos@ocs.com.au,
-       chrisw@osdl.org, jbarnes@engr.sgi.com, kiran@in.ibm.com,
-       dipankar@in.ibm.com
-Subject: Re: [RFC] Lock free fd lookup
-Message-ID: <20040729001444.GL2334@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Albert Cahalan <albert@users.sf.net>,
-	linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-	kaos@ocs.com.au, chrisw@osdl.org, jbarnes@engr.sgi.com,
-	kiran@in.ibm.com, dipankar@in.ibm.com
-References: <1090091875.1232.456.camel@cube>
+	Wed, 28 Jul 2004 20:18:57 -0400
+Date: Wed, 28 Jul 2004 17:22:04 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: ebiederm@xmission.com, suparna@in.ibm.com, fastboot@osdl.org,
+       mbligh@aracnet.com, jbarnes@engr.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] Re: Announce: dumpfs v0.01 - common RAS output API
+Message-Id: <20040728172204.2ecc5cdd.akpm@osdl.org>
+In-Reply-To: <1091055311.31923.3.camel@localhost.localdomain>
+References: <16734.1090513167@ocs3.ocs.com.au>
+	<20040725235705.57b804cc.akpm@osdl.org>
+	<m1r7qw7v9e.fsf@ebiederm.dsl.xmission.com>
+	<200407280903.37860.jbarnes@engr.sgi.com>
+	<25870000.1091042619@flay>
+	<m14qnr7u7b.fsf@ebiederm.dsl.xmission.com>
+	<20040728133337.06eb0fca.akpm@osdl.org>
+	<1091044742.31698.3.camel@localhost.localdomain>
+	<m1llh367s4.fsf@ebiederm.dsl.xmission.com>
+	<1091055311.31923.3.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1090091875.1232.456.camel@cube>
-User-Agent: Mutt/1.5.6+20040523i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens writes:
->> Writer vs. writer starvation on NUMA is a lot harder.  I don't know
->> of any algorithm that handles lists with lots of concurrent updates
->> and also scales well on large cpus, unless the underlying hardware
->> is fair in its handling of exclusive cache lines.
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+>
+> On Iau, 2004-07-29 at 00:17, Eric W. Biederman wrote:
+> > What is your concern with stopping DMA?
+> > - Not smashing the recovery routine.
+> > - Getting a corrupted core dump because of on-going DMA?
+> 
+> Completely random happenings occurring when they are trivial to avoid.
+> Given all the worries about SHA signed in kernel standalone objects I
+> find it farcical that the same people don't even care about ensuring
+> something isnt DMAing over their dump partition description.
+> 
 
-On Sat, Jul 17, 2004 at 03:17:55PM -0400, Albert Cahalan wrote:
-> How about MCS (Mellor-Crummey and Scott) locks?
-> Linux code:
-> http://oss.software.ibm.com/linux/patches/?patch_id=218
-> Something supposedly better:
-> http://user.it.uu.se/~zoranr/rh_lock/
-> Scott's list of 11 scalable synchronization algorithms:
-> http://www.cs.rochester.edu/u/scott/synchronization/pseudocode/ss.html
-> Scott's collection of papers and so on:
-> http://www.cs.rochester.edu/u/scott/synchronization/
-> Simply asking Scott might be a wise move. He'd likely know of anything
-> else that might fit the requirements. That's scott at cs.rochester.edu
+eh?  People do care.  The point here is that we should stop the DMA in the
+dump kernel, not from within the broken kernel.
 
-Did anyone follow up with Scott on this?
+btw, if we simply insert a five-second-pause, what problems does that
+leave?  Network Rx, which is OK.  Disk writes will have completed (?). 
+What remains?
 
-
--- wli

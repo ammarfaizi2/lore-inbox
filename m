@@ -1,75 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270760AbTGUXoM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 19:44:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270762AbTGUXoL
+	id S270755AbTGVALL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 20:11:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270762AbTGVALL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 19:44:11 -0400
-Received: from viriato1.servicios.retecal.es ([212.89.0.44]:59299 "EHLO
-	viriato1.servicios.retecal.es") by vger.kernel.org with ESMTP
-	id S270760AbTGUXoJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 19:44:09 -0400
-Subject: Re: [2.6.0-test1] Unable to handle kernel NULL pointer dereference
-	at virtual address 00000324
-From: =?ISO-8859-1?Q?Ram=F3n?= Rey =?UTF-8?Q?Vicente?=
-	 =?UTF-8?Q?=F3=AE=A0=92?= <ramon.rey@hispalinux.es>
-To: Ronald Jerome <imun1ty@yahoo.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030721223126.36712.qmail@web13304.mail.yahoo.com>
-References: <20030721223126.36712.qmail@web13304.mail.yahoo.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-4FLClmXigDNJHvznK8Dm"
-Organization: Hispalinux - http://www.hispalinux.es
-Message-Id: <1058831951.8576.4.camel@debian>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 22 Jul 2003 01:59:12 +0200
+	Mon, 21 Jul 2003 20:11:11 -0400
+Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:52178 "EHLO
+	mx.rackable.com") by vger.kernel.org with ESMTP id S270755AbTGVAKq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 20:10:46 -0400
+Message-ID: <3F1C8348.8080208@rackable.com>
+Date: Mon, 21 Jul 2003 17:20:24 -0700
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: rmiller@duskglow.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6-test1 reboots
+References: <200307211119.38154.rmiller@duskglow.com>
+In-Reply-To: <200307211119.38154.rmiller@duskglow.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 22 Jul 2003 00:25:45.0858 (UTC) FILETIME=[CB03F620:01C34FE7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Russell Miller wrote:
 
---=-4FLClmXigDNJHvznK8Dm
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: quoted-printable
+>Hello,
+>
+>I downloaded and compiled 2.6-test1.  When I attempted to start it, it said:
+>
+>uncompressing linux.................................
+>ok, booting the kernel.
+>
+>And then instantly rebooted.
+>
+>Any suggestions?
+>
+>I'm using an Athlon K-7/900 with an SiS motherboard.  2.4.20 works just fine.
+>
+>  
+>
 
-El mar, 22-07-2003 a las 00:31, Ronald Jerome escribi=F3:
-> That is the exact same Oops I get.  I wasunable to
-> catpure or print it because the kernel locks up.
->=20
-> How were you are ble catch the Oops message if yoru
-> system froze?
+  Can we get your .config file?
 
-My system work well :) after the Oops I got, not frozen, but with the
-kernel option=20
+-- 
+Once you have their hardware. Never give it back.
+(The First Rule of Hardware Acquisition)
+Sam Flory  <sflory@rackable.com>
 
-CONFIG_DEBUG_KERNEL=3Dy
-CONFIG_MAGIC_SYSRQ=3Dy
-
-you can try to recover information about crashes
---=20
-/=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D\
-| Ram=F3n Rey Vicente <ramon.rey at hispalinux.es> |
-|                                                |
-| Jabber ID <rreylinux at jabber.org>            |
-|                                                |
-| Public GPG Key http://pgp.escomposlinux.org    |
-|                                                |
-| GLiSa http://glisa.hispalinux.es               |
-\=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D/
-
---=-4FLClmXigDNJHvznK8Dm
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
-	digitalmente
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/HH5PRGk68b69cdURAqd2AJ48q8Y2PgRtvYa+8nmXFCxSfGiIdQCfTKZT
-w4iblfbvqKyZs/0z85NOcDU=
-=X1lN
------END PGP SIGNATURE-----
-
---=-4FLClmXigDNJHvznK8Dm--
 

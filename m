@@ -1,59 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280922AbRKLT5q>; Mon, 12 Nov 2001 14:57:46 -0500
+	id <S280949AbRKLT7G>; Mon, 12 Nov 2001 14:59:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280949AbRKLT5h>; Mon, 12 Nov 2001 14:57:37 -0500
-Received: from a59178.upc-a.chello.nl ([62.163.59.178]:6404 "EHLO
-	www.unternet.org") by vger.kernel.org with ESMTP id <S280922AbRKLT52>;
-	Mon, 12 Nov 2001 14:57:28 -0500
-Date: Mon, 12 Nov 2001 20:55:51 +0100
-From: Frank de Lange <lkml-frank@unternet.org>
-To: linux-kernel@vger.kernel.org
-Subject: Abysmal interactive performance on 2.4.linus
-Message-ID: <20011112205551.A14132@unternet.org>
-Mime-Version: 1.0
+	id <S280954AbRKLT65>; Mon, 12 Nov 2001 14:58:57 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:14090 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S280949AbRKLT6u>; Mon, 12 Nov 2001 14:58:50 -0500
+Message-ID: <3BF0365E.46DAABB0@evision-ventures.com>
+Date: Mon, 12 Nov 2001 21:51:42 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+Reply-To: dalecki@evision.ag
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: ptb@it.uc3m.es
+CC: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: what is teh current meaning of blk_size?
+In-Reply-To: <200111121939.UAA04358@nbd.it.uc3m.es>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On a 768 MB SMP box (2x466 MHz Celeron), I see some weird problems with
-interactive performance on 2.4.15pre{1,2}. A good example of this is the
-following scenario:
+"Peter T. Breuer" wrote:
+> 
+> Is blk_size[][] supposed to contain the size in KB or blocks?
+> 
+> I'm confused because it looks to me as though it's still in KB,
+> but people say that devices can be up to 8 or 16TB, and there's
+> not enough room for that within a signed int containing KB
+> (2^31 * 2^10 = 2^41 = 2TB).
+> 
+> Either the rumour is true and it's in blocks, or the rumour
+> is false and it's in KB.
+> 
+> Clue, please!
 
- - copy a large file (eg. an iso image file) to a directory on the same
-   (reiserfs in this case) filesystem, or...
- - do a filesystem comparison between a CD and the original file (with cmp
-   /mnt/cdrom/<filename> /mnt/reiserfs/1/data/<original_file_location>, using a
-   PLEXTOR Model: CD-ROM PX-40TS SCSI CD-ROM drive),
+There is no rumor it's in blocks.
 
- - and THEN (while the copy or comparison runs) try any simple command (like
-   'ls /mnt/reiserfs/1/data' or 'top' or anything else...). 
+There are three level of block size measurements in linux:
 
-Response time is abysmal, a simple 'ls /some/dir' takes tens of seconds to
-start. Once the command is running, performance is normal. Try this when a
-cdrecord session is running and you'll get a buffer underrun.
+1. FS level one.	(page chunks most of time main exceptions are dos and
+isofs)
+2. Driver level one.	(nearly always 1024, main exception are ATAPI
+cdrom)
+3. Hardware device level one. (nearly always 512, only prehistoric SCSI
+drives from the stone age are exceptional and providing 256 byte sized
+block. We discovered them druing our archeological efforts recently
+under 
+a thick layer of mood...)
 
-The box has 768 MB of RAM, 512 MB of swap. There is no significant load on the
-system (according to an already running copy of top) neither before nor during
-the test. Try tab-completing a command in a terminal, and that terminal freezes
-for tens of seconds, usually until after the file system load has gone down.
+It's left as an exercies to the reader which one of the sparse
+matrices in ll_rw_blk.c is declaring which ;-).
+...
 
-In a few words, heavy filesystem activity seems to wreak havoc on the system.
-Not by loading the CPU (it hardly breaks out a sweat at 178% idle (SMP...)).
+OK I was to fast to figure it out:
 
-Turning off swap (swapoff -a) does not change the observed behaviour.
 
-Anyone else seen something like this?
+/*
+ * blk_size contains the size of all block-devices in units of 1024 byte
+ * sectors:
+ *
+ * blk_size[MAJOR][MINOR]
+ *
+ * if (!blk_size[MAJOR]) then no minor size checking is done.
+ */
+int * blk_size[MAX_BLKDEV];
 
--- 
-  WWWWW      _______________________
- ## o o\    /     Frank de Lange     \
- }#   \|   /                          \
-  ##---# _/     <Hacker for Hire>      \
-   ####   \      +31-320-252965        /
-           \ lkml-frank@unternet.org  /
-            -------------------------
- [ "Omnis enim res, quae dando non deficit, dum habetur
-    et non datur, nondum habetur, quomodo habenda est."  ]
+/*
+ * blksize_size contains the size of all block-devices:
+ *
+ * blksize_size[MAJOR][MINOR]
+ *
+ * if (!blksize_size[MAJOR]) then 1024 bytes is assumed.
+ */
+int * blksize_size[MAX_BLKDEV];
+
+/*
+ * hardsect_size contains the size of the hardware sector of a device.
+ *
+ * hardsect_size[MAJOR][MINOR]
+ *
+ * if (!hardsect_size[MAJOR])
+ *		then 512 bytes is assumed.
+ * else
+ *		sector_size is hardsect_size[MAJOR][MINOR]
+ * This is currently set by some scsi devices and read by the msdos fs
+driver.
+ * Other uses may appear later.
+ */
+int * hardsect_size[MAX_BLKDEV];
+
+
+read_ahead there is a blunt - it's a "write only array anyway"....
+Initialize
+it to the system default and don't care.

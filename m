@@ -1,70 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262553AbTIQBCw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 21:02:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262560AbTIQBCw
+	id S262583AbTIQBlD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 21:41:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262585AbTIQBlD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 21:02:52 -0400
-Received: from mail.kroah.org ([65.200.24.183]:2025 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262553AbTIQBCv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 21:02:51 -0400
-Date: Tue, 16 Sep 2003 18:02:55 -0700
-From: Greg KH <greg@kroah.com>
-To: Andrew de Quincey <adq_dvb@lidskialf.net>
-Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net,
-       linux-acpi@intel.com, Chris Wright <chrisw@osdl.org>
-Subject: Re: [ACPI] [PATCH] 2.6.0-test4 Don't change BIOS allocated IRQs
-Message-ID: <20030917010254.GA1640@kroah.com>
-References: <200309170011.03630.adq_dvb@lidskialf.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200309170011.03630.adq_dvb@lidskialf.net>
-User-Agent: Mutt/1.4.1i
+	Tue, 16 Sep 2003 21:41:03 -0400
+Received: from [193.138.115.2] ([193.138.115.2]:60146 "HELO
+	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
+	id S262583AbTIQBlB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 21:41:01 -0400
+Date: Wed, 17 Sep 2003 03:39:17 +0200 (CEST)
+From: Jesper Juhl <jju@dif.dk>
+To: Lincoln Dale <ltd@cisco.com>
+cc: Vishwas Raman <vishwas@eternal-systems.com>, root@chaos.analogic.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Incremental update of TCP Checksum
+In-Reply-To: <5.1.0.14.2.20030917113553.02e3cd10@mira-sjcm-3.cisco.com>
+Message-ID: <Pine.LNX.4.56.0309170338420.943@jju_lnx.backbone.dif.dk>
+References: <3F6770CE.8040802@eternal-systems.com> <3F3C07E2.3000305@eternal-systems.com>
+ <20030821134924.GJ7611@naboo> <3F675B68.8000109@eternal-systems.com>
+ <Pine.LNX.4.53.0309161533030.30081@chaos> <3F6770CE.8040802@eternal-systems.com>
+ <5.1.0.14.2.20030917113553.02e3cd10@mira-sjcm-3.cisco.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 17, 2003 at 12:11:03AM +0100, Andrew de Quincey wrote:
-> With the help of Chris Wright testing several failed patches, I've tracked 
-> down another ACPI IRQ problem. On many systems, the BIOS 
-> pre-allocates IRQs for certain PCI devices, providing a list of alternate 
-> possibilities as well.
-> 
-> On some systems, changing the IRQ to one of those alternate possibilities 
-> works fine. On others however, it really isn't a good idea. As theres no 
-> way to tell which systems are good and bad in advance, this patch simply 
-> ensures that ACPI does not change an IRQ if the BIOS has pre-allocated it.
 
-Nice, the patch below, which Chris told me is from you, fixed my
-problems too.  It is against 2.6.0-test5-bk3 and fixes bug number 1186
-in the bugzilla.kernel.org database.
 
-Many thanks for this work, I really appreciate it.
+On Wed, 17 Sep 2003, Lincoln Dale wrote:
 
-thanks,
+> At 06:35 AM 17/09/2003, Jesper Juhl wrote:
+> >Personally I can't see that you have any other option. The way the
+> >checksum is calculated information is lost, so it's impossible to
+> >determine exactely what input generated the current output (the checksum).
+> >Just as it is impossible to tell if the number 6 was generated from 2+2+2,
+> >from 3*2 or from 3+3 or some other...  So I don't see what else you can do
+> >except just recalculate the checksum from scratch. To try and determine
+> >how your modification would affect the checksum would probably take far
+> >longer than just re-calculating it.
+>
+> of course you can do an incremental checksum update.
+> you know that if you're changing a field from (say) 0x22 to 0x11 then you
+> can 'back out' the 0x22 and recalculate the checksum with 0x11.
+>
+> this is the whole rationale behind why its a _checksum_ and not a _CRC_.
+>
+> router(s) have taken advantage of incremental since day one.
+>
 
-greg k-h
+I stand corrected.  Thank you for pointing that out.
 
-test5-bk_current
-===== drivers/acpi/pci_link.c 1.13 vs edited =====
---- 1.13/drivers/acpi/pci_link.c	Mon Sep  8 05:51:03 2003
-+++ edited/drivers/acpi/pci_link.c	Tue Sep 16 16:16:31 2003
-@@ -456,7 +456,6 @@
- 		irq = link->irq.active;
- 	} else {
- 		irq = link->irq.possible[0];
--	}
- 
- 		/* 
- 		 * Select the best IRQ.  This is done in reverse to promote 
-@@ -466,6 +465,7 @@
- 			if (acpi_irq_penalty[irq] > acpi_irq_penalty[link->irq.possible[i]])
- 				irq = link->irq.possible[i];
- 		}
-+	}
- 
- 	/* Attempt to enable the link device at this IRQ. */
- 	if (acpi_pci_link_set(link, irq)) {
-
+Jesper Juhl <jju@dif.dk>
 

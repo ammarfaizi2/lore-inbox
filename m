@@ -1,60 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130920AbRAYVT6>; Thu, 25 Jan 2001 16:19:58 -0500
+	id <S130927AbRAYVVS>; Thu, 25 Jan 2001 16:21:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130938AbRAYVTs>; Thu, 25 Jan 2001 16:19:48 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:28430 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S130920AbRAYVTj>;
-	Thu, 25 Jan 2001 16:19:39 -0500
-Message-ID: <3A70985F.E5A0AB7F@mandrakesoft.com>
-Date: Thu, 25 Jan 2001 16:19:27 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre10 i686)
-X-Accept-Language: en
+	id <S130938AbRAYVVI>; Thu, 25 Jan 2001 16:21:08 -0500
+Received: from moutvdom00.kundenserver.de ([195.20.224.149]:52018 "EHLO
+	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S130927AbRAYVU4>; Thu, 25 Jan 2001 16:20:56 -0500
+Message-ID: <3A709946.51505EF6@ngforever.de>
+Date: Thu, 25 Jan 2001 14:23:18 -0700
+From: Thunder from the hill <thunder@ngforever.de>
+X-Mailer: Mozilla 4.76 [en]C-CCK-MCD QXW03240  (WinNT; U)
+X-Accept-Language: de,en-US
 MIME-Version: 1.0
-To: Micah Gorrell <angelcode@myrealbox.com>
-CC: Tom Sightler <ttsig@tuxyturvy.com>, linux-kernel@vger.kernel.org,
-        saw@saw.sw.com.sg, Alan@redhat.com
-Subject: Re: [PATCH] Re: eepro100 problems in 2.4.0
-In-Reply-To: <006601c08711$4bdfb600$9b2f4189@angelw2k> <3A709504.5599E0F7@mandrakesoft.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: In kernel 2.4.0 in alloc_uhci when doing request_irq()
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> 
-> Micah Gorrell wrote:
-> > Because of the problems we where having we are no longer using the machine
-> > with 3 nics.  We are now using a machine with just one and it is going live
-> > next week.  We do need kernel 2.4 because of the process limits in 2.2.
-> > Does the 'Enable Power Management (EXPERIMENTAL)' option fix the no
-> > resources problems?
-> 
-> Does the attached patch, against 2.4.1-pre10, help matters any?
-> diff -u -r1.1.1.9.42.2 eepro100.c
-> --- drivers/net/eepro100.c      2001/01/24 15:56:16     1.1.1.9.42.2
-> +++ drivers/net/eepro100.c      2001/01/25 21:00:48
-> @@ -560,6 +560,9 @@
->         if (speedo_debug > 0  &&  did_version++ == 0)
->                 printk(version);
-> 
-> +       if (pci_enable_device(pdev))
-> +               return -EIO;
-> +
+Hi,
 
-Oops, sorry guys.  Thanks to DaveM for correcting me -- my patch has
-nothing to do with the "card reports no resources" problem.  My
-apologies.
+I am using an usual VIA MPV3 onboard USB device (on a AMD K6-II 400
+machine), and it has ever worked fine on Linux (until including
+2.4.0-test10). Now I wanted to use the "retail" 2.4.0-kernel, and USB
+gets stuck while booting. Last messages are:
+usb.c: registered new driver usbdevfs
+usb.c: registered new driver hub
+usb-uhci.c: $Revision: 1.251 $time 07:06:37 Jan 14 2001
+usb-uhci.c: high bandwidth mode enabled
+PCI: Assigned IRQ 10 for device 00:07.2
+usb-uhci.c: USB UHCI at I/O 0xe400, IRQ 10
+usb-uhci.c: Detected 2 ports
+usb.c: new USB bus registered, assigned bus number 1
 
-	Jeff
+That's all.
+I debugged a while and noticed that the error occurs beyond
+drivers/usb/usb-uhci.c in the function alloc_uhci() after start_hc (s);
+when calling request_irq(), the line reads:
+	if (request_irq (irq, uhci_interrupt, SA_SHIRQ, MODNAME, s)) {
+The called function crashes somewhere on top, as I noticed.
+Is there a patch avariable, or should I do further investigation?
 
-
--- 
-Jeff Garzik       | "You see, in this world there's two kinds of
-Building 1024     |  people, my friend: Those with loaded guns
-MandrakeSoft      |  and those who dig. You dig."  --Blondie
+Thunder
+---
+I did a "cat /boot/vmlinuz >> /dev/audio" - and I think I heard god...
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

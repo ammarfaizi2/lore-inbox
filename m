@@ -1,78 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269265AbUISQba@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269270AbUISQq2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269265AbUISQba (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Sep 2004 12:31:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269270AbUISQba
+	id S269270AbUISQq2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Sep 2004 12:46:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269273AbUISQq2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Sep 2004 12:31:30 -0400
-Received: from [81.23.229.73] ([81.23.229.73]:3564 "EHLO mail.eduonline.nl")
-	by vger.kernel.org with ESMTP id S269265AbUISQbQ (ORCPT
+	Sun, 19 Sep 2004 12:46:28 -0400
+Received: from rproxy.gmail.com ([64.233.170.201]:14669 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S269270AbUISQqW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Sep 2004 12:31:16 -0400
-From: Norbert van Nobelen <Norbert@edusupport.nl>
-Organization: EduSupport
-To: plt@taylorassociate.com
-Subject: Re:
-Date: Sun, 19 Sep 2004 18:31:12 +0200
-User-Agent: KMail/1.6.2
-References: <1095596968.414d7ba88efc1@webmail.taylorassociate.com> <200409191508.33537.Norbert@edusupport.nl> <1095607945.414da6891fc94@webmail.taylorassociate.com>
-In-Reply-To: <1095607945.414da6891fc94@webmail.taylorassociate.com>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 19 Sep 2004 12:46:22 -0400
+Message-ID: <9e47339104091909465c9a483f@mail.gmail.com>
+Date: Sun, 19 Sep 2004 12:46:13 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Keith Packard <keithp@keithp.com>
+Subject: Re: Design for setting video modes, ownership of sysfs attributes
+Cc: dri-devel <dri-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1095569137.6580.23.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200409191831.12034.Norbert@edusupport.nl>
+References: <9e47339104091811431fb44254@mail.gmail.com>
+	 <1095569137.6580.23.camel@gaston>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Assumption:
-You are doing "make modules_install"
-You are installing a new version of the kernel, not a recompile of the 
-currenct kernel.
+On Sun, 19 Sep 2004 14:45:37 +1000, Benjamin Herrenschmidt
+<benh@kernel.crashing.org> wrote:
+> One issue here... When we discussed all of this with Keith, we wanted
+> a mecanism where the user can set the mode without "owning" the device.
 
-Is the basic directory in /lib/modules/2.6.8 present for the modules to 
-install in?
+The owning part is for multiuser systems. If I have four users logged
+into the same system I have to assign them ownership of their video
+devices so that they can't mess with each other.  I want to avoid
+needing root priv to change the monitor mode.
 
+> Typically, with X: We don't want X itself to have to be the one setting
+> the mode, but rather set the mode and have X be notified properly before
+> and after it happens so it can "catch up".
 
-On Sunday 19 September 2004 17:32, you wrote:
-> I am compiling the newest kernel on Redhat Federo 2 and and I am getting
-> this error when I am running make modules install.  Do you know how I fix
-> this problems please?
->
-> Phillip Taylor
->
-> INSTALL sound/pci/ymfpci/snd-ymfpci.ko
->   INSTALL sound/pcmcia/pdaudiocf/snd-pdaudiocf.ko
->   INSTALL sound/soundcore.ko
->   INSTALL sound/synth/emux/snd-emux-synth.ko
->   INSTALL sound/synth/snd-util-mem.ko
->   INSTALL sound/usb/snd-usb-audio.ko
-> if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.6.8; fi
-> make: *** [_modinst_post] Error 143
-> You have new mail in /var/spool/mail/root
-> [root@localhost linux-2.6.8]#
->
-> Quoting Norbert van Nobelen <Norbert@edusupport.nl>:
-> > Warnings are not errors.
-> >
-> > On Sunday 19 September 2004 14:29, you wrote:
-> > > Question: Are you guys going to work on please cleaning up some of the
-> > > errors in the code so we can get please get a more clean compile?
-> > >
-> > >
-> > >
-> > > drivers/mtd/nftlmount.c:44: warning: unused variable `oob'
-> > >
-> > > ----------------------------------------------------------------
-> > > This message was sent using IMP, the Internet Messaging Program.
-> > >
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> > > in the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
->
-> ----------------------------------------------------------------
-> This message was sent using IMP, the Internet Messaging Program.
+This is going to require some more thought. Mode setting needs two
+things, a description of the mode timings and a location of the scan
+out buffer.  With multiple heads you can't just assume that the buffer
+starts at zero.  There also the problem of the buffer increasing in
+size and needing to be moved since it won't fit where it is.
+
+Keith, how should this work for X? We have to make sure all DRI users
+of the buffer are halted, get a new location for the buffer, set the
+mode, free the old buffer, notify all of the DRI clients that their
+target has been wiped and has a new size.
+
+I was wanting to switch mode setting into an atomic operation where
+you passed in both the mode timings and buffer location.
+
+-- 
+Jon Smirl
+jonsmirl@gmail.com

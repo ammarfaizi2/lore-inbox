@@ -1,54 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264396AbUJNMx4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264530AbUJNNCH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264396AbUJNMx4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 08:53:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264386AbUJNMx4
+	id S264530AbUJNNCH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 09:02:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264503AbUJNNCH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 08:53:56 -0400
-Received: from phoenix.infradead.org ([81.187.226.98]:51205 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S264113AbUJNMxw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 08:53:52 -0400
-Date: Thu, 14 Oct 2004 13:53:48 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Greg KH <greg@kroah.com>, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: [PATCH] Introduce PCI <-> CPU address conversion [1/2]
-Message-ID: <20041014125348.GA9633@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Matthew Wilcox <matthew@wil.cx>, Greg KH <greg@kroah.com>,
-	linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-	linux-ia64@vger.kernel.org
-References: <20041014124737.GM16153@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
+	Thu, 14 Oct 2004 09:02:07 -0400
+Received: from ihemail2.lucent.com ([192.11.222.163]:11976 "EHLO
+	ihemail2.lucent.com") by vger.kernel.org with ESMTP id S264530AbUJNNB7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 09:01:59 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041014124737.GM16153@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Transfer-Encoding: 7bit
+Message-ID: <16750.30914.666243.108593@gargle.gargle.HOWL>
+Date: Thu, 14 Oct 2004 09:01:54 -0400
+From: "John Stoffel" <stoffel@lucent.com>
+To: Ganesan R <rganesan@myrealbox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.x wrongly recognizes USB 2.0 DVD writer
+In-Reply-To: <ckln33$c3e$1@sea.gmane.org>
+References: <ckln33$c3e$1@sea.gmane.org>
+X-Mailer: VM 7.14 under Emacs 20.6.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +#define IS_MEMORY(l)	(((l) & PCI_BASE_ADDRESS_SPACE) == \
-> +				PCI_BASE_ADDRESS_SPACE_MEMORY)
-> +#define IS_64BIT(l)	(((l) & PCI_BASE_ADDRESS_MEM_TYPE_64) != 0)
 
-Should got to pci.h with more descriptive names
+Ganesan> I have a NEC ND-2500A DVD writer in a ByteCC USB 2.0 external
+Ganesan> enclosure.  It's recognized perfectly in 2.4.27 (Debian
+Ganesan> kernel-image-2.4.27-1-686 package)
 
->  /*
-> + * Convert between the CPU's view of addresses on a PCI card and the PCI
-> + * device's view of the same location.  The default implementation is a no-op
-> + * as most architectures have the same addresses on the CPU and PCI busses.
-> + */
-> +
-> +#ifndef pci_phys_to_bus
-> +#define pci_phys_to_bus(busdev, addr, flags) (addr)
-> +#define pci_bus_to_phys(busdev, addr, flags) (addr)
-> +#endif
+I've got a ByteCC external enclosure too, and I can't get it to work
+reliably under Linux or Windows under Firewire.  I'd return it and get
+something better.
 
-I'd rather have this declared in every architectures asm/ header, so it's
-more explicit that it's an per-arch thing.  Also make it a static inline
-so we get typechecking.
+Also, the 2.6 ieee1394 sbp2 driver isn't the best at detecting these
+things.  And if it does, it doesn't always work well with drives in
+there as well.  I've been having tons of problems and I basically gave
+up.  
 
+John

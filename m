@@ -1,97 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267283AbUINV6h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269207AbUINWv4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267283AbUINV6h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 17:58:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269587AbUINRJr
+	id S269207AbUINWv4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 18:51:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267940AbUINWti
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 13:09:47 -0400
-Received: from host-81-191-110-70.bluecom.no ([81.191.110.70]:31116 "EHLO
-	mail.blenning.no") by vger.kernel.org with ESMTP id S269454AbUINQkg
+	Tue, 14 Sep 2004 18:49:38 -0400
+Received: from rozz.csail.mit.edu ([128.30.2.16]:58055 "EHLO
+	rozz.csail.mit.edu") by vger.kernel.org with ESMTP id S266200AbUINWor
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 12:40:36 -0400
-Subject: Re: [PATCH] Spelling errors
-From: Tom Fredrik Blenning Klaussen <bfg-kernel@blenning.no>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0409140930160.2378@ppc970.osdl.org>
-References: <1095178918.11939.9.camel@host-81-191-110-70.bluecom.no>
-	 <Pine.LNX.4.58.0409140930160.2378@ppc970.osdl.org>
-Content-Type: multipart/mixed; boundary="=-ySEXJ+CXN08aKu4lwflP"
-Message-Id: <1095179960.11946.25.camel@host-81-191-110-70.bluecom.no>
+	Tue, 14 Sep 2004 18:44:47 -0400
+Date: Tue, 14 Sep 2004 18:44:43 -0400
+From: Noah Meyerhans <noahm@csail.mit.edu>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.8.1 XFS (or nfsd?) crash
+Message-ID: <20040914224443.GG9861@locutus.csail.mit.edu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 14 Sep 2004 18:39:20 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all.  Over this past weekend, a fileserver running kernel 2.6.8.1
+locked up completely on two occasions.  The machine is a dual P4 with 2
+GB of RAM and an external 2.2 terabyte filesystem attached via a QLogic
+ISP 2300 fibre-channel card.
 
---=-ySEXJ+CXN08aKu4lwflP
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+>From the crash dump, it looks like there's a problem with XFS when
+creating new files, but I'm sure you all have much more experience at
+deciphering crash dump output than I do.  The crash dump, along with
+the preceeding few lines from dmesg, is attached.  I'd be happy to
+provide more information as you need it, or if there's anything else
+that maybe helpful to you, just let me know.
 
-On Tue, 2004-09-14 at 18:30, Linus Torvalds wrote:
-> On Tue, 14 Sep 2004, Tom Fredrik Blenning Klaussen wrote:
-> >
-> > Just a few spelling errors in comments and conf-help.
-> > The word firmware was written wrong as firware several places.
-> 
-> Your patch is seriously whitespace-damaged, though.
-> 
-Tried the one from the mail myself, and you're right.
-Theres something going wrong during pasting.
+Thanks.
+noah
 
-Is this one better?
--- 
-BFG
 
---=-ySEXJ+CXN08aKu4lwflP
-Content-Disposition: attachment; filename=linux-2.6.8.1-spelling_errors.diff
-Content-Type: text/x-patch; name=linux-2.6.8.1-spelling_errors.diff; charset=iso-8859-1
-Content-Transfer-Encoding: base64
+pagebuf_get: failed to lookup pages
+pagebuf_get: failed to lookup pages
+pagebuf_get: failed to lookup pages
+pagebuf_get: failed to lookup pages
+pagebuf_get: failed to lookup pages
+pagebuf_get: failed to lookup pages
+pagebuf_get: failed to lookup pages
+svc: unknown version (0)
+svc: unknown version (0)
+svc: unknown version (0)
+svc: unknown version (0)
+svc: unknown version (0)
+svc: unknown version (0)
+svc: unknown version (0)
+svc: unknown version (0)
+svc: unknown version (0)
+svc: unknown version (0)
+svc: unknown version (0)
+svc: unknown version (0)
+svc: unknown version (0)
+Unable to handle kernel paging request at virtual address 01000004
+ printing eip:
 
-ZGlmZiAtcnVOIC91c3Ivc3JjL2xpbnV4LTIuNi44LjEvZHJpdmVycy9hdG0vZm9yZTIwMGUuaCAu
-L2RyaXZlcnMvYXRtL2ZvcmUyMDBlLmgNCi0tLSAvdXNyL3NyYy9saW51eC0yLjYuOC4xL2RyaXZl
-cnMvYXRtL2ZvcmUyMDBlLmgJMjAwNC0wOC0zMSAxMzoxMTo0NS4wMDAwMDAwMDAgKzAyMDANCisr
-KyAuL2RyaXZlcnMvYXRtL2ZvcmUyMDBlLmgJMjAwNC0wOS0xMiAxOTo0NzozMC4wMDAwMDAwMDAg
-KzAyMDANCkBAIC02NDUsNyArNjQ1LDcgQEANCiANCiB0eXBlZGVmIHN0cnVjdCBmd19oZWFkZXIg
-ew0KICAgICB1MzIgbWFnaWM7ICAgICAgICAgICAvKiBtYWdpYyBudW1iZXIgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgKi8NCi0gICAgdTMyIHZlcnNpb247ICAgICAgICAgLyogZmlyd2Fy
-ZSB2ZXJzaW9uIGlkICAgICAgICAgICAgICAgICAgICAgICAgICovDQorICAgIHUzMiB2ZXJzaW9u
-OyAgICAgICAgIC8qIGZpcm13YXJlIHZlcnNpb24gaWQgICAgICAgICAgICAgICAgICAgICAgICAq
-Lw0KICAgICB1MzIgbG9hZF9vZmZzZXQ7ICAgICAvKiBmdyBsb2FkIG9mZnNldCBpbiBib2FyZCBt
-ZW1vcnkgICAgICAgICAgICAgKi8NCiAgICAgdTMyIHN0YXJ0X29mZnNldDsgICAgLyogZncgZXhl
-Y3V0aW9uIHN0YXJ0IGFkZHJlc3MgaW4gYm9hcmQgbWVtb3J5ICovDQogfSBmd19oZWFkZXJfdDsN
-CmRpZmYgLXJ1TiAvdXNyL3NyYy9saW51eC0yLjYuOC4xL2RyaXZlcnMvYmFzZS9LY29uZmlnIC4v
-ZHJpdmVycy9iYXNlL0tjb25maWcNCi0tLSAvdXNyL3NyYy9saW51eC0yLjYuOC4xL2RyaXZlcnMv
-YmFzZS9LY29uZmlnCTIwMDQtMDgtMzEgMTM6MTE6NDUuMDAwMDAwMDAwICswMjAwDQorKysgLi9k
-cml2ZXJzL2Jhc2UvS2NvbmZpZwkyMDA0LTA5LTEyIDE5OjQ3OjMwLjAwMDAwMDAwMCArMDIwMA0K
-QEAgLTE0LDcgKzE0LDcgQEANCiAJZGVmYXVsdCB5DQogCWhlbHANCiAJICBTYXkgeWVzIHRvIGF2
-b2lkIGJ1aWxkaW5nIGZpcm13YXJlLiBGaXJtd2FyZSBpcyB1c3VhbGx5IHNoaXBwZWQNCi0JICB3
-aXRoIHRoZSBkcml2ZXIsIGFuZCBvbmx5IHdoZW4gdXBkYXRpbmcgdGhlIGZpcndhcmUgYSByZWJ1
-aWxkDQorCSAgd2l0aCB0aGUgZHJpdmVyLCBhbmQgb25seSB3aGVuIHVwZGF0aW5nIHRoZSBmaXJt
-d2FyZSBhIHJlYnVpbGQNCiAJICBzaG91bGQgYmUgbWFkZS4NCiAJICBJZiB1bnN1cmUgc2F5IFkg
-aGVyZS4NCiANCmRpZmYgLXJ1TiAvdXNyL3NyYy9saW51eC0yLjYuOC4xL2RyaXZlcnMvbmV0L3dh
-bi9jb3NhLmMgLi9kcml2ZXJzL25ldC93YW4vY29zYS5jDQotLS0gL3Vzci9zcmMvbGludXgtMi42
-LjguMS9kcml2ZXJzL25ldC93YW4vY29zYS5jCTIwMDQtMDgtMzEgMTM6MTE6NDUuMDAwMDAwMDAw
-ICswMjAwDQorKysgLi9kcml2ZXJzL25ldC93YW4vY29zYS5jCTIwMDQtMDktMTIgMTk6NDc6MzAu
-MDAwMDAwMDAwICswMjAwDQpAQCAtMTU2LDcgKzE1Niw3IEBADQogCXVuc2lnbmVkIHNob3J0IHN0
-YXJ0YWRkcjsJLyogRmlybXdhcmUgc3RhcnQgYWRkcmVzcyAqLw0KIAl1bnNpZ25lZCBzaG9ydCBi
-dXNtYXN0ZXI7CS8qIFVzZSBidXNtYXN0ZXJpbmc/ICovDQogCWludCBuY2hhbm5lbHM7CQkJLyog
-IyBvZiBjaGFubmVscyBvbiB0aGlzIGNhcmQgKi8NCi0JaW50IGRyaXZlcl9zdGF0dXM7CQkvKiBG
-b3IgY29tbXVuaWNhdGluZyB3aXRoIGZpcndhcmUgKi8NCisJaW50IGRyaXZlcl9zdGF0dXM7CQkv
-KiBGb3IgY29tbXVuaWNhdGluZyB3aXRoIGZpcm13YXJlICovDQogCWludCBmaXJtd2FyZV9zdGF0
-dXM7CQkvKiBEb3dubG9hZGVkLCByZXNldGVkLCBldGMuICovDQogCWxvbmcgaW50IHJ4Yml0bWFw
-LCB0eGJpdG1hcDsJLyogQml0bWFwIG9mIGNoYW5uZWxzIHdobyBhcmUgd2lsbGluZyB0byBzZW5k
-L3JlY2VpdmUgZGF0YSAqLw0KIAlsb25nIGludCByeHR4OwkJCS8qIFJYIG9yIFRYIGluIHByb2dy
-ZXNzPyAqLw0KZGlmZiAtcnVOIC91c3Ivc3JjL2xpbnV4LTIuNi44LjEvZHJpdmVycy9zY3NpL21l
-Z2FyYWlkLmMgLi9kcml2ZXJzL3Njc2kvbWVnYXJhaWQuYw0KLS0tIC91c3Ivc3JjL2xpbnV4LTIu
-Ni44LjEvZHJpdmVycy9zY3NpL21lZ2FyYWlkLmMJMjAwNC0wOC0zMSAxMzoxMTo0NS4wMDAwMDAw
-MDAgKzAyMDANCisrKyAuL2RyaXZlcnMvc2NzaS9tZWdhcmFpZC5jCTIwMDQtMDktMTIgMTk6NDc6
-MzAuMDAwMDAwMDAwICswMjAwDQpAQCAtNDAwNiw3ICs0MDA2LDcgQEANCiAJbWJveC0+bV9vdXQu
-eGZlcmFkZHIgPSAodTMyKWFkYXB0ZXItPmJ1Zl9kbWFfaGFuZGxlOw0KIA0KIAkvKg0KLQkgKiBO
-b24tUk9NQiBmaXJ3YXJlIGZhaWwgdGhpcyBjb21tYW5kLCBzbyBhbGwgY2hhbm5lbHMNCisJICog
-Tm9uLVJPTUIgZmlybXdhcmUgZmFpbCB0aGlzIGNvbW1hbmQsIHNvIGFsbCBjaGFubmVscw0KIAkg
-KiBtdXN0IGJlIHNob3duIFJBSUQNCiAJICovDQogCWFkYXB0ZXItPm1lZ2FfY2hfY2xhc3MgPSAw
-eEZGOw0K
+c013b123
+*pde = 00000000
+Oops: 0002 [#1]
+SMP 
+Modules linked in: nfsd exportfs lockd sunrpc ipv6 dm_mod
+CPU:    0
+EIP:    0060:[<c013b123>]    Not tainted
+EFLAGS: 00010046   (2.6.8.1) 
+EIP is at cache_alloc_refill+0xf2/0x20a
+eax: 01000000   ebx: c2228080   ecx: ea79c000   edx: f7dfc7a8
+esi: 0000000e   edi: ea79c018   ebp: c2228090   esp: f583f99c
+ds: 007b   es: 007b   ss: 0068
+Process nfsd (pid: 741, threadinfo=f583e000 task=f7847730)
+Stack: 00000001 f583f9b8 c01ff4a5 ea79c018 f7dfc7a8 f7dfc7b0 f7dfc7b8 00000296 
+       f7fadc00 c2114ee0 e3003472 c013b407 f7dfc780 000000d0 f7fadc00 c02456a2 
+       f7dfc780 000000d0 c01683e3 f7fadc00 00000000 f7fadc00 e3003472 c0168ed0 
+Call Trace:
+ [<c01ff4a5>] xfs_da_brelse+0xa3/0xbc
+ [<c013b407>] kmem_cache_alloc+0x4b/0x4d
+ [<c02456a2>] linvfs_alloc_inode+0x2d/0x3d
+ [<c01683e3>] alloc_inode+0x1b/0x149
+ [<c0168ed0>] get_new_inode_fast+0x27/0xda
 
---=-ySEXJ+CXN08aKu4lwflP--
+ [<c0169301>] iget_locked+0x97/0xae
+ [<c021628e>] xfs_iget+0x63/0x189
+ [<c02317ba>] xfs_dir_lookup_int+0xb4/0x12b
+ [<c0236e61>] xfs_lookup+0x50/0x88
+ [<c02432de>] linvfs_lookup+0x67/0x9f
+ [<c015e6f2>] __lookup_hash+0xa6/0xd6
+ [<c015e741>] lookup_hash+0x1f/0x23
+ [<c015e7ac>] lookup_one_len+0x67/0x74
+ [<f8a2ecab>] compose_entry_fh+0x5a/0x111 [nfsd]
+ [<f8a2f196>] encode_entry+0x434/0x55c [nfsd]
+ [<c023e3ff>] pagebuf_free+0x81/0xd5
+ [<c01ff4a5>] xfs_da_brelse+0xa3/0xbc
+ [<c0205d09>] xfs_dir2_leaf_getdents+0x7d6/0xc3f
+ [<c0240d61>] linvfs_readdir+0x1a1/0x23b
+ [<c01623bc>] vfs_readdir+0x88/0xa0
+ [<f8a2f2e5>] nfs3svc_encode_entry_plus+0x0/0x27 [nfsd]
+ [<f8a261d9>] nfsd_readdir+0x9f/0x128 [nfsd]
+ [<f8a2f2e5>] nfs3svc_encode_entry_plus+0x0/0x27 [nfsd]
+ [<f8a05c2b>] svcauth_unix_accept+0x258/0x291 [sunrpc]
+ [<f8a2c093>] nfsd3_proc_readdirplus+0xee/0x1d6 [nfsd]
+ [<f8a2f2e5>] nfs3svc_encode_entry_plus+0x0/0x27 [nfsd]
+ [<f8a206c0>] nfsd_dispatch+0xd9/0x1d6 [nfsd]
+
+ [<f8a01ecd>] svc_process+0x4b0/0x611 [sunrpc]
+ [<f8a20443>] nfsd+0x1ea/0x38e [nfsd]
+ [<f8a20259>] nfsd+0x0/0x38e [nfsd]
+ [<c0103da1>] kernel_thread_helper+0x5/0xb
+Code: 89 50 04 89 02 c7 41 04 00 02 20 00 66 83 79 14 ff c7 01 00 
+ 

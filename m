@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265388AbSJaWEz>; Thu, 31 Oct 2002 17:04:55 -0500
+	id <S265398AbSJaWOW>; Thu, 31 Oct 2002 17:14:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265392AbSJaWEV>; Thu, 31 Oct 2002 17:04:21 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:12804 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S265388AbSJaWC7>;
-	Thu, 31 Oct 2002 17:02:59 -0500
-Date: Fri, 1 Nov 2002 00:01:36 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Dave Jones <davej@codemonkey.org.uk>, boissiere@adiglobal.com,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [STATUS 2.5]  October 30, 2002
-Message-ID: <20021031230136.GE4331@elf.ucw.cz>
-References: <20021030161708.GA8321@suse.de> <m1iszjgmaz.fsf@frodo.biederman.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1iszjgmaz.fsf@frodo.biederman.org>
-User-Agent: Mutt/1.4i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S265412AbSJaWOW>; Thu, 31 Oct 2002 17:14:22 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:48138 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265398AbSJaWOU>; Thu, 31 Oct 2002 17:14:20 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Xiafs inclusion in 2.5?
+Date: 31 Oct 2002 14:20:17 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <apsab1$rv2$1@cesium.transmeta.com>
+References: <3DC18308.1040808@gmx.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> If you want I can dig up the drivers I am currently using and send
-> them to you.
+Followup to:  <3DC18308.1040808@gmx.net>
+By author:    Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2002-Q4@gmx.net>
+In newsgroup: linux.dev.kernel
+>
+> Hello Linus,
 > 
-> I even have a working memory scrub routine.
+> somewhere back in 2000, you wrote:
+>  > Who still remembers xiafs? We have 33 different filesystems in the kernel
+>  > tree - something that is quite impressive, and something that I don't
+>  > think anybody else has ever tried to support. But we could have had 34..
+> 
+> Out of curiosity, would you reaccept xiafs in 2.5, if it was cleaned up and 
+> forward ported to use the new interfaces?
+> And if you accept it, what's the latest date I could submit it? Technically, 
+> it is a regression, ;-) so the feature freeze date might not apply.
+> 
 
-What is "memory scrubbing" good for?
-								Pavel
+Not to be flippant, but really... what's the point?
+
+	-hpa
 -- 
-When do you have heart between your knees?
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

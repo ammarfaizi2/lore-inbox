@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262792AbTCKA6A>; Mon, 10 Mar 2003 19:58:00 -0500
+	id <S262782AbTCKBDb>; Mon, 10 Mar 2003 20:03:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262795AbTCKA6A>; Mon, 10 Mar 2003 19:58:00 -0500
-Received: from supreme.pcug.org.au ([203.10.76.34]:65236 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S262792AbTCKA57>;
-	Mon, 10 Mar 2003 19:57:59 -0500
-Date: Tue, 11 Mar 2003 12:08:31 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: rth@twiddle.net
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: [PATCH][COMPAT] compat_sys_fcntl{,64} 9/9 Aalpha part
-Message-Id: <20030311120831.311c4875.sfr@canb.auug.org.au>
-In-Reply-To: <20030311114113.44abed66.sfr@canb.auug.org.au>
-References: <20030311114113.44abed66.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S262783AbTCKBDb>; Mon, 10 Mar 2003 20:03:31 -0500
+Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:51074 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id <S262782AbTCKBD3>;
+	Mon, 10 Mar 2003 20:03:29 -0500
+Date: Mon, 10 Mar 2003 20:17:19 +0000
+From: Adam Belay <ambx1@neo.rr.com>
+To: "Ruslan U. Zakirov" <cubic@miee.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PnP Changes for 2.5.64
+Message-ID: <20030310201719.GA10035@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	"Ruslan U. Zakirov" <cubic@miee.ru>, linux-kernel@vger.kernel.org
+References: <20030310000705.GD2118@neo.rr.com> <Pine.BSF.4.05.10303110205530.63523-100000@wildrose.miee.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.BSF.4.05.10303110205530.63523-100000@wildrose.miee.ru>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Richard,
+On Tue, Mar 11, 2003 at 02:15:11AM +0300, Ruslan U. Zakirov wrote:
+> Hello, Adam and other.
+> Now with this changes, driver depend on CONFIG_PNP.
+> What to do if I want compile kernel without PnP layer and I want use my
+> soundcard?
+> 	Best regards, Ruslan.
 
-This is only partly to do with the other parts of this patch set.  All it
-does is remove struct flock64 from the Alpha port.  Please apply after
-Linus has applied the generic part of the patch.
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+Hi Ruslan,
 
-diff -ruN 2.5.64-2003030918-32bit.1/include/asm-alpha/fcntl.h 2.5.64-2003030918-32bit.2/include/asm-alpha/fcntl.h
---- 2.5.64-2003030918-32bit.1/include/asm-alpha/fcntl.h	2001-09-18 06:16:30.000000000 +1000
-+++ 2.5.64-2003030918-32bit.2/include/asm-alpha/fcntl.h	2003-03-09 20:34:45.000000000 +1100
-@@ -69,9 +69,6 @@
- 	__kernel_pid_t l_pid;
- };
- 
--#ifdef __KERNEL__
--#define flock64	flock
--#endif
- #define F_LINUX_SPECIFIC_BASE  1024
- 
- #endif
+I understand your concern, actually the code that prevents users from using
+als100 without CONFIG_PNP is hidden in kconfig.
+
+config SND_ALS100
+	tristate "Avance Logic ALS100/ALS120"
+	depends on SND && ISAPNP
+	help
+	  Say 'Y' or 'M' to include support for Avance Logic ALS100, ALS110,
+	  ALS120 and ALS200 soundcards.
+
+--->Notice ISAPNP
+
+Also the pnp functions are declared as blank inline functions if CONFIG_PNP
+isn't set (see pnp.h).  This will prevent compile errors.  When ALSA drivers
+contain support for both pnp and nonpnp devices (such as sb16), CONFIG_PNP
+will be used directly in the code.
+
+Best regards to you as well.
+
+Thanks,
+Adam

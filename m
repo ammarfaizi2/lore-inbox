@@ -1,83 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264094AbTEWQLD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 12:11:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264093AbTEWQLC
+	id S264095AbTEWQdH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 12:33:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264096AbTEWQdH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 12:11:02 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:10761 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S264089AbTEWQK7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 12:10:59 -0400
-Date: Fri, 23 May 2003 09:23:33 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-cc: Linux FSdevel <linux-fsdevel@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       NFS maillist <nfs@lists.sourceforge.net>
-Subject: Re: [PATCH 1/4] Optimize NFS open() calls by means of 'intents'...
-In-Reply-To: <16078.6093.339198.108592@charged.uio.no>
-Message-ID: <Pine.LNX.4.44.0305230911160.21297-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 23 May 2003 12:33:07 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:30604 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S264095AbTEWQdG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 12:33:06 -0400
+Date: Fri, 23 May 2003 09:46:08 -0700
+To: "David S. Miller" <davem@redhat.com>
+Cc: lists@mdiehl.de, akpm@digeo.com, greg@kroah.com,
+       linux-kernel@vger.kernel.org, jt@hpl.hp.com, shemminger@osdl.org
+Subject: Re: [2.5.69] rtnl-deadlock with usermodehelper and keventd
+Message-ID: <20030523164608.GC17288@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <20030522.235905.42785280.davem@redhat.com> <Pine.LNX.4.44.0305230934490.14825-100000@notebook.home.mdiehl.de> <20030523.024308.94566989.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030523.024308.94566989.davem@redhat.com>
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 23 May 2003, Trond Myklebust wrote:
+On Fri, May 23, 2003 at 02:43:08AM -0700, David S. Miller wrote:
+>    From: Martin Diehl <lists@mdiehl.de>
+>    Date: Fri, 23 May 2003 11:38:38 +0200 (CEST)
 > 
-> Minor cleanup of open() code. Put the original open flags, mode, etc. into
-> an 'opendata' structure that can be passed as an intent to lookup.
+>    On Thu, 22 May 2003, David S. Miller wrote:
+>    
+>    >    Asking just because there was another user hitting this deadlock:
+>    > 
+>    > It's fixed in current 2.5.x sources, wake up :-)
+>    
+>    Oops, sorry for the noise, I hadn't noticed this yet.
+>    
+>    But nope, unfortunately it's still hanging! I've just tested with 
+>    2.5.69-bk15. Running into the same deadlock due to sleeping with rtnl 
+>    hold. This time however it seems it's triggered from sysfs side!
+> 
+> Stephen, you need to do the device class stuff outside of the RTNL
+> lock please.
+> 
+> At least I didn't add this bug :-)
+> 
+> This should fix it.
 
-I don't mind the concepts, but I _really_ dislike the implementation.
+	Thanks Dave, we are very much obliged !
 
-For one thing, if you're creating a structure to pass in the flags for 
-open, then you should take the time to make the code _more_ readable 
-rather than less. In particular, the notion of having a structure like 
-this:
-
-	struct opendata {
-		int flag;
-		int mode;
-		int acc_mode;
-	};
-
-where each of "flag" and "acc_mode" are magic bitfields just fills me with
-horror. 
-
-So why not make those internal modes that we translate the "flags" into be 
-a real bitmap? That should make the code a lot more readable.
-
-Also, I don't really understand why you want to have "opendata" and 
-"intent" as different structures. That's _especially_ true now that the 
-only intent is the "open" intent, but even if there were other intents, 
-I'd rather have something like this
-
-	struct lookup_info {
-		enum type; /* open, validate, whatever.. */
-		union {
-			struct open_intent open;
-			..
-		} data;
-	}
-
-and gace tge flags (create/exclusive etc) inside that lookup_intent 
-instead of having multiple different pointers and transferring data from 
-one to the other at different phases of the "open".
-
-Also, in patch 3/4, you do
-
-	xxx_create(struct inode *dir, struct dentry *dentry, int mode, struct vfsintent *intent)
-
-and that "mode" this I again find offensive: why is it not in the intent?  
-It automatically _would_ be, if you only had one structure and one
-pointer, but you lost it when you did the "opendata->intent"  
-transformation.
-
-So please don't have this artifical (and clearly broken) differentiation
-between "intent" and "opendata". They should be one and the same thing:  
-"lookup_info". Because that is what they _are_. They are not intents. They
-are literally extra information for the lookup.
-
-		Linus
-
+	Jean

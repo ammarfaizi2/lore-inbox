@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282829AbRLKVBs>; Tue, 11 Dec 2001 16:01:48 -0500
+	id <S283694AbRLKVBs>; Tue, 11 Dec 2001 16:01:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283488AbRLKVBj>; Tue, 11 Dec 2001 16:01:39 -0500
-Received: from 210-86-49-187.jetstart.xtra.co.nz ([210.86.49.187]:2688 "EHLO
-	albatross.hisdad.org.nz") by vger.kernel.org with ESMTP
-	id <S283694AbRLKVBV>; Tue, 11 Dec 2001 16:01:21 -0500
-Subject: [2.4.16 bug] Major failure
-From: John Huttley <john@mwk.co.nz>
-To: linux kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 12 Dec 2001 10:01:15 +1300
-Message-Id: <1008104476.1373.0.camel@albatross.hisdad.org.nz>
+	id <S282829AbRLKVBi>; Tue, 11 Dec 2001 16:01:38 -0500
+Received: from gate.mesa.nl ([194.151.5.70]:55300 "EHLO joshua.mesa.nl")
+	by vger.kernel.org with ESMTP id <S283718AbRLKVB3>;
+	Tue, 11 Dec 2001 16:01:29 -0500
+Date: Tue, 11 Dec 2001 22:00:56 +0100
+From: "Marcel J.E. Mol" <marcel@mesa.nl>
+To: Joy Almacen <joy@empexis.com>
+Cc: wa@almesberger.net, linux-kernel@vger.kernel.org,
+        "Stephen C. Tweedie" <sct@redhat.com>
+Subject: Re: pivot_root and initrd kernel panic woes
+Message-ID: <20011211220056.A13996@joshua.mesa.nl>
+Reply-To: marcel@mesa.nl
+In-Reply-To: <3C165586.457A26F0@empexis.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C165586.457A26F0@empexis.com>; from joy@empexis.com on Tue, Dec 11, 2001 at 01:50:46PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks to those who have replied.
+Joy,
 
-The video card is a GA-660, which is a TNT2 using the Xfree driver.
+Had a similar problem a while ago. Explicitely after upgrading to 
+redhat mkinitrd-3.2.6-1.i386.rpm.
+Going back to mkinitrd-3.2.6-1.i386.rpm (form the installation CD)
+got me going again...
 
-I no longer have any old kernels on my system.
-I've never tried using more than one compiler, so I'll put
-that suggestion in the 'too hard' basket for the moment.
+-Marcel
 
-
-
-I have tried a 2.4.17-pre8 kernel with power management switched off.
-There were no problems with this! It works just fine.
-
-
-I subsequently tried a kernel with the ACPI drivers compiled in.
-The system booted ok, but rather coming up with gdm, it gave
-a part lit screen with no visible raster.
-
-It did not respond to the keyboard, however I was able to ssh into it.
-gdm and X were running. And i was able to shutdown. Even then the
-display did not clear until i reset it.
-
-I will try some more combinations tonight. A UP build+ACPI and a
-runlevel 3 version. If I can characterise it, I'll try to get some old
-kernels.
-
-I am not on the list, please cc' any replies.
-Regards
-John
-
-
-
-
+On Tue, Dec 11, 2001 at 01:50:46PM -0500, Joy Almacen wrote:
+> Werner and the Kernel Gods,
+> 
+> 
+>  I have tried for the past 3 days fruitlessly to resolve my kernel
+> woes.  Spent  most of my working hours searching  google for any answers
+> but I got confused instead.  I am desperate for any info that would
+> point
+> me to the right direction.  Your assistance will be highly appreciated
+> and I know that I am not alone on this one.
+> 
+> Here's what I am trying to do.
+> 
+-- 
+     ======--------         Marcel J.E. Mol                MESA Consulting B.V.
+    =======---------        ph. +31-(0)6-54724868          P.O. Box 112
+    =======---------        marcel@mesa.nl                 2630 AC  Nootdorp
+__==== www.mesa.nl ---____U_n_i_x______I_n_t_e_r_n_e_t____ The Netherlands ____
+ They couldn't think of a number,           Linux user 1148  --  counter.li.org
+    so they gave me a name!  -- Rupert Hine  --  www.ruperthine.com

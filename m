@@ -1,106 +1,129 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316852AbSG1PDi>; Sun, 28 Jul 2002 11:03:38 -0400
+	id <S316853AbSG1PIj>; Sun, 28 Jul 2002 11:08:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316853AbSG1PDh>; Sun, 28 Jul 2002 11:03:37 -0400
-Received: from dns1.arrancar.com ([209.92.187.33]:36518 "EHLO
-	core.arrancar.com") by vger.kernel.org with ESMTP
-	id <S316852AbSG1PDg>; Sun, 28 Jul 2002 11:03:36 -0400
-Subject: Re: Funding GPL projects or funding the GPL?
-From: Federico Ferreres <fferreres@ojf.com>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0207280601260.27010-100000@weyl.math.psu.edu>
-References: <Pine.GSO.4.21.0207280601260.27010-100000@weyl.math.psu.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 28 Jul 2002 12:02:55 -0300
-Message-Id: <1027868584.4087.76.camel@fede>
+	id <S316855AbSG1PIj>; Sun, 28 Jul 2002 11:08:39 -0400
+Received: from mailhost.tue.nl ([131.155.2.5]:48911 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S316853AbSG1PIi>;
+	Sun, 28 Jul 2002 11:08:38 -0400
+Date: Sun, 28 Jul 2002 17:11:56 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Daniel Egger <degger@fhm.edu>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: Linux-2.5.28
+Message-ID: <20020728151156.GB26862@win.tue.nl>
+References: <20020727235726.GB26742@win.tue.nl> <Pine.LNX.4.44.0207271939220.3799-100000@home.transmeta.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0207271939220.3799-100000@home.transmeta.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-07-28 at 07:35, Alexander Viro wrote:
-> You don't get it.  So far the only guy who had been charitable was Larry, who
-> felt that problem was real but had serious doubts about viability of your
-> idea. 
+On Sat, Jul 27, 2002 at 07:47:01PM -0700, Linus Torvalds wrote:
 
-Actually, this is what Larry said:
+> > My third candidate is USB. Systems without USB are clearly more stable.
+> 
+> Hmm.. I doubt that's your problem, but you might just want to pester
+> Martin about your particular IDE setup and see if some light eventually
+> goes off somewhere.
+> 
+> I have this memory that you're using PIO mode? Please do make full details
+> available, reminding people which exact setups are broken..
 
-| One problem I see is that you'd be talking a huge amount of money,
-| potentially money on Microsoft scale.  Managing that money, making
-| it go to the right places, without it sticking to the fingers of
-| management, isn't likely to happen.
+The machine I usually try new kernels on is a 400 MHz Intel Pentium II.
 
-This is not a problem of fundraising, but a problem of fund management
-and policy. You get the funds, how you use them is another concern. 
+% dmesg | grep hd
+Kernel command line: auto BOOT_IMAGE=2.5.27axboe ro root=346 rootfstype=reiserfs hdc=ide-scsi
+ide_setup: hdc=ide-scsi
+    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:DMA
+    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:DMA
+    ide2: BM-DMA at 0x9c00-0x9c07, BIOS settings: hde:pio, hdf:pio
+    ide3: BM-DMA at 0xa800-0xa807, BIOS settings: hdg:pio, hdh:pio
+hda: Maxtor 91728D8, ATA DISK drive
+hdb: Maxtor 91728D8, ATA DISK drive
+hdc: Hewlett-Packard CD-Writer Plus 8200, ATAPI CD/DVD-ROM drive
+hdd: CD-ROM 40X/AKU, ATAPI CD/DVD-ROM drive
+hde: Maxtor 93652U8, ATA DISK drive
+hdf: Maxtor 96147H6, ATA DISK drive
+hda: host protected area => 1
+hda: 33750864 sectors (17280 MB) w/512KiB Cache, CHS=2100/255/63
+hdb: host protected area => 1
+hdb: 33750864 sectors (17280 MB) w/512KiB Cache, CHS=2100/255/63
+hde: host protected area => 1
+hde: 71346240 sectors (36529 MB) w/2048KiB Cache, CHS=70780/16/63
+hdf: host protected area => 1
+hdf: 120064896 sectors (61473 MB) w/2048KiB Cache, CHS=119112/16/63
+hdd: ATAPI 48X CD-ROM drive, 128kB Cache
+ hda: hda1 < hda5 hda6 hda7 > hda4
+ hda4: <unixware: hda8 hda9 hda10 hda11 hda12 hda13 hda14 >
+ hdb: hdb1 hdb2 hdb3 < hdb5 hdb6 hdb7 >
+ hde: hde1 hde2 hde3 < hde5 > hde4
+ hde2: <bsd: hde6 hde7 hde8 hde9 >
+ hdf: hdf1 hdf2 hdf3
+...
 
-| Another problem is that GPLed software is essentially software in the
-| public domain. 
+Here hde and hdf live on a HPT366 card.
 
-But we don't want less people using (for example), the Linux kernel. We
-don't even want people who can't pay to pay. As long as a large enough
-group pays, you're really better off.
+% dmesg | grep HPT
+HPT366: IDE controller on PCI bus 00 dev 48
+HPT366: detected chipset, but driver not compiled in!
+HPT366: chipset revision 1
+HPT366: not 100% native mode: will probe irqs later
+HPT366: IDE controller on PCI bus 00 dev 49
+HPT366: chipset revision 1
+HPT366: not 100% native mode: will probe irqs later
 
-And here is what Rik said:
+[This is from dmesg on a 2.5.27+2.4ide.]
 
-| In the areas where open source software is doing well, there
-| already is funding by interested parties (companies, government,
-| universities, ...).
+hdc is a CD writer (on ide-scsi)
+hdd is a CDROM
 
-Meaning the kernel and some other OSS areas are already well funded.
+No hdparm is used - the IDE is left as the kernel sets it.
 
-| Some other areas won't ever get the funding through donations,
-| simply because people will freeload whenever they can and try
-| funding development as much as they can.  We've seen that with
-| BitKeeper and you had to "tighten up" the license a bit in order
-| to make sure development stayed funded.
+I have seen (at least) two kinds of problems:
+kernel hang and filesystem corruption.
+The hang was always on hde. The corruption was mostly on hdb.
 
-Here he seems to be suggesting that certain areas of OSS that can't get
-enough funds should either relicense, drop the towel or do it for the
-love as a part time job. I am suggesting they could all relicense to a
-single license that leverages each others work and centrally manages
-fundraising (but not fundspendings). 
+1) Hangs are caused by this HPT366 card. Early 2.5 kernels would
+not boot because they would hang as soon as hde was touched.
+The same happens for example with the SuSE 8.0 install kernel.
+Other kernels would boot but would hang when there was significant
+activity on hde or hdf.
 
-| In short, I believe the voluntary donations aren't needed in
-| most areas people would donate to and won't make enough of an
-| impact in the areas where they are needed.
+2) A different type of problem would be that the superblock
+of the root filesystem (on hdb) was zeroed. I have seen this
+at least three times - no damage at all, except for a wiped
+superblock. Easily repaired with e2fsck -b N.
 
-Now he is poining out something that I had stated in my first message: 
+A less pleasant version of this is a wiped block different
+from the superblock, or a block in which all data has been
+shifted by a few bytes. On such an occasion e2fsck went
+totally berserk and after believing this one block decided
+that most of my filesystem was broken, and "repaired" it
+out of existence. (That was a filesystem different from
+the root filesystem.)
 
-On Fri, Jul 26, 2002 at 01:09:32PM -0300, Federico Ferreres wrote:
-+ The Kernel may well be nicely funded ...
-+ Why post it here then? Because for it to work it must be supported 
-+ by at least some of the grand developements of OSS
+Also yesterday the damage was to a single block, this time
+to a reiserfs root filesystem. Lots of messages
 
-... and has nothing to do with the ability to raise the funds. The
-Kernel may not need the money but that it could help in a lot of areas
-of OSS where a kickstart is needed (after which I am sure they will be
-able to contribute funds back to the pool). 
+is_leaf: free space seems wrong: level=1, nr_items=29, free_space=64 rdkey
+vs-5150: search_by_key: invalid format found in block 8274. Fsck?
+vs-13070: reiserfs_read_locked_inode: i/o failure occurred trying to find stat data of [328 634 0x0 SD]
 
-Regarding your opinion on the pyramid nature of the system well that can
-be forgiven :)
+all involving block 8274.
 
-The real facts that I am aware are:
+Turns out that one needs to boot from other media in order to repair
+a reiserfs root filesystem - it does not suffice to mount it read-only.
+So, maybe ext2 is more convenient than reiserfs on root.
 
-- the kernel doesn't need the money
-- the idea of _enforcing_ payment may not be an option or what is wanted
-- there are doubt's about how many people would end up paying
-- it will not be easy to manage the funds and could have side effects
-- it may be nearly imposible to relicense the kernel due to the large
-number of people involved even if they wanted
+It is not impossible that this corruption-type problem is created at
+reboot time.
 
-But the last fact invalidates all others:
+Andries
 
-"The idea is discarded, nobody likes it"
-
-Which is fine! And I certainly am at the wrong place, poluting a
-developement list and wasting your time. So I'll stop replying to your
-flames (even though I find them funny and creative :-)
-
-Regards!
-
-Federico
 
 

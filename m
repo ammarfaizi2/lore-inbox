@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319071AbSH2CYG>; Wed, 28 Aug 2002 22:24:06 -0400
+	id <S319076AbSH2CZ6>; Wed, 28 Aug 2002 22:25:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319072AbSH2CYG>; Wed, 28 Aug 2002 22:24:06 -0400
-Received: from kraid.nerim.net ([62.4.16.95]:37391 "HELO kraid.nerim.net")
-	by vger.kernel.org with SMTP id <S319071AbSH2CYF>;
-	Wed, 28 Aug 2002 22:24:05 -0400
-Message-ID: <3D6D5674.9090103@inet6.fr>
-Date: Thu, 29 Aug 2002 01:02:12 +0200
-From: Lionel Bouton <Lionel.Bouton@inet6.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: 0@pervalidus.net
-Subject: Re: ECS K7S5A: IDE performance
-References: <Pine.LNX.4.44.0208281611210.213-100000@pervalidus.dyndns.org> <3D6D2537.F410B52A@nortelnetworks.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S319079AbSH2CZ6>; Wed, 28 Aug 2002 22:25:58 -0400
+Received: from dp.samba.org ([66.70.73.150]:42371 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S319076AbSH2CZ5>;
+	Wed, 28 Aug 2002 22:25:57 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [patch] "fully HT-aware scheduler" support, 2.5.31-BK-curr 
+In-reply-to: Your message of "Wed, 28 Aug 2002 19:16:31 +0200."
+             <Pine.LNX.4.44.0208281914100.2647-100000@localhost.localdomain> 
+Date: Thu, 29 Aug 2002 11:28:16 +1000
+Message-Id: <20020828213041.1BB3E2C152@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Friesen wrote:
+In message <Pine.LNX.4.44.0208281914100.2647-100000@localhost.localdomain> you 
+write:
+> 
+> On Wed, 28 Aug 2002, Rusty Russell wrote:
+> 
+> > >  - HT-aware affinity.
+> > > 
+> > >    Tasks should attempt to 'stick' to physical CPUs, not logical CPUs.
+> > 
+> > Linus disagreed with this before when I discussed it with him, and with
+> > the current (stupid, non-portable, broken) set_affinity syscall he's
+> > right.
+> 
+> actually, affinity still works just fine, users can bind tasks to logical
+> CPUs as well. What i meant was the affinity logic of the scheduler (ie.  
+> affinity decisions done by the scheduler), not the externally visible
+> affinity API.
 
->Frédéric L. W. Meunier wrote:
->
->>I just thought it'd be much more with an ATA100. I got more or
->>less the same with my earlier motherboard, an ASUS A7APro, and
->>without ATA66 - which would print a lot of CRC errors at boot
->>time if enabled in the BIOS. The K7S5A doesn't print any and is
->>rock solid.
->>
->
->If you're reading more than the size of your on-drive buffer then you'll be limited by the speed at
->which the information can be grabbed off the drive--in your case, 38.1MB/s, which is quite good.
->
->ATA33/66/100/133 only makes a significant difference in speed when you're reading from the on-drive
->cache.
->
+My bad.  I'll shut up now, and read the patch.
 
-In fact I remember having seen something like 10-20% throughput increase 
-for the same drive used in UDMA mode 4 (66MB/s) on an HPT366 and UDMA 
-mode 5 (100MB/s) on a SiS735 for a drive which maxed out at around 
-30/35MB/s.
-
-This could be either caused by IDE controller/PCI interface 
-(mis)behaviour, drive firmware tuned for ATA100 instead of ATA66, IDE 
-bus overheads. I don't know for sure, but apparently switching from 
-ATA66 to ATA100 can bring some juice in some cases where the max platter 
-throughput is not even near max advertised IDE bandwidth.
-
-Anyway, to answer to the original post, 38.1 MB/s is quite good.
-
-LB.
-
+Sorry,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

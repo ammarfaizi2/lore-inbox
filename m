@@ -1,43 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271107AbTHLU62 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 16:58:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271120AbTHLU62
+	id S271116AbTHLU47 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 16:56:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271117AbTHLU47
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 16:58:28 -0400
-Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:43651 "EHLO
-	tom.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id S271107AbTHLU6X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 16:58:23 -0400
-Message-ID: <3F3954EB.1080406@gmx.net>
-Date: Tue, 12 Aug 2003 22:58:19 +0200
-From: Jens Leuschner <leuschner@gmx.net>
-Organization: Chemnitz University of Technology, FRG
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030722
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Possible fix for NFORCE2 IDE hangups
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -0.1 (/)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19mgDj-0002Dp-00*Vlw1FZUKf.M*
+	Tue, 12 Aug 2003 16:56:59 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:53140 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S271116AbTHLU45 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 16:56:57 -0400
+Date: Tue, 12 Aug 2003 22:56:42 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: dean gaudet <dean-list-linux-kernel@arctic.org>
+Cc: Stefan Reinauer <stepan@suse.de>, linux-kernel@vger.kernel.org,
+       Andries Brouwer <aebr@win.tue.nl>
+Subject: Re: 2.6.0-test2 has i8042 mux problems
+Message-ID: <20030812205642.GD23011@ucw.cz>
+References: <Pine.LNX.4.53.0307271906020.18444@twinlark.arctic.org> <20030728142952.GA1341@suse.de> <Pine.LNX.4.53.0307280927590.18444@twinlark.arctic.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0307280927590.18444@twinlark.arctic.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Mon, Jul 28, 2003 at 09:38:15AM -0700, dean gaudet wrote:
+> On Mon, 28 Jul 2003, Stefan Reinauer wrote:
+> 
+> > * dean gaudet <dean-list-linux-kernel@arctic.org> [030728 04:13]:
+> > > the southbridge in this system is the ali1563.  if it helps i can supply a
+> > > complete trace of in/out on ports 0x60 and 0x64.
+> >
+> > I can confirm this. I have an Amilo A laptop with the following sb:
+> > 00:07.0 ISA bridge: ALi Corporation M1533 PCI to ISA Bridge [Aladdin IV]
+> >
+> > without "i8042_nomux" the keyboard is recognized fine, but no mouse is
+> > found on the mux. With the option everything works fine.
+> 
+> that's slightly different than what i get without i8042_nomux, and a
+> keyboard & mouse plugged in, the system crashes and burns badly during
+> boot.  without the keyboard and mouse it boots fine.
+> 
+> with i8042_nomux it's a lot happier.
+> 
+> my system is a test board for a new processor with the ali1563 -- which is
+> a newer hypertransport variant of the 1533/1535.  i'm not sure yet if
+> there are production boards with the 1563.  but it's nice to know it
+> happens with your 1533 as well.
 
-I have an ASUS A7N8X Deluxe board and had those annoying hangups when 
-the system had high disk activity.
-I tried to reduce the UDMA level or even remove the amd74xx driver from 
-my kernel and run the system with PIO, but the system still crashed from 
-time to time.
+Hmm, I think I may have a similar bridge around ... I'll try.
 
-Last weekend I disabled the use of the APIC (the system now uses XT-PIC) 
-and this seems to fix the problem. The system ran stable with UDMA100 
-enabled for the last 4 days.
+> andries -- i'll send you a copy of the in/out traffic (it's a bit large
+> for posting).
+> 
+> -dean
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-HTH,
-Jens
-
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

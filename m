@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270226AbTGMLgD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 07:36:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270227AbTGMLgD
+	id S265069AbTGMLue (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 07:50:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270235AbTGMLud
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 07:36:03 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:14771 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S270226AbTGMLgB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 07:36:01 -0400
-Date: Sun, 13 Jul 2003 13:50:33 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] SCHED_SOFTRR linux scheduler policy ...
-Message-ID: <20030713115033.GA371@elf.ucw.cz>
-References: <Pine.LNX.4.55.0307091929270.4625@bigblue.dev.mcafeelabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.55.0307091929270.4625@bigblue.dev.mcafeelabs.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+	Sun, 13 Jul 2003 07:50:33 -0400
+Received: from mailgate1.sover.net ([209.198.87.60]:13789 "EHLO
+	mailgate1.sover.net") by vger.kernel.org with ESMTP id S265069AbTGMLuc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 07:50:32 -0400
+Date: Sun, 13 Jul 2003 07:55:59 -0400 (EDT)
+From: David G Hamblen <dave@AFRInc.com>
+Reply-To: dave@AFRInc.com
+To: Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Dell Inspiron with 2.5.75 and ACPI, backlight issues
+Message-ID: <Pine.LNX.4.44.0307130714570.692-100000@puppy.afrinc.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+With a Dell Inspiron 8100, running 2.5.75 with ACPI compiled in with sleep
+states enabled, things work pretty much as expected except that the
+backlight stays on when the system is first suspended to RAM.  Kind of
+looks like the meaning of some bit is reversed.  It doesn't matter whether
+I'm running X or not.
 
-> I finally found a couple of hours for this and I also found a machine were
-> I can run 2.5, since luck abandoned myself about this. The small page
-> describe the obvious and contain the trivial patch and the latecy test app :
-> 
-> http://www.xmailserver.org/linux-patches/softrr.html
+root#echo 3 > /proc/acpi/sleep
+system suspends, screen goes white, backlight stays on.
 
-What happens if evil user forks 60 processes, marks them all
-SCHED_SOFTRR, and tries to starve everyone else?
-							Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+<Hit power button>
+ system comes up, backlight goes off!  At this point I can telnet (ssh) in
+from another machine, etc; but the backlight stays off.  I can cycle the
+sleep/power sequence many times, but the backlight stays off.
+
+
+
+			Dave
+
+
+

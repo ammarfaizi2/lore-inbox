@@ -1,36 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271663AbSISQuw>; Thu, 19 Sep 2002 12:50:52 -0400
+	id <S271719AbSISQ4D>; Thu, 19 Sep 2002 12:56:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271670AbSISQuw>; Thu, 19 Sep 2002 12:50:52 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:15375 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S271663AbSISQur>; Thu, 19 Sep 2002 12:50:47 -0400
-Date: Thu, 19 Sep 2002 13:55:32 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
+	id <S271798AbSISQ4D>; Thu, 19 Sep 2002 12:56:03 -0400
+Received: from mailer.zib.de ([130.73.108.11]:46038 "EHLO mailer.zib.de")
+	by vger.kernel.org with ESMTP id <S271719AbSISQ4C>;
+	Thu, 19 Sep 2002 12:56:02 -0400
+Subject: Re: /dev/null broken in 2.5.36 ?
+From: Sebastian Heidl <heidl@zib.de>
 To: Badari Pulavarty <pbadari@us.ibm.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: /dev/null broken in 2.5.36 ?
 In-Reply-To: <200209191652.g8JGqgv10535@eng2.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.44L.0209191355000.1519-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+References: <200209191652.g8JGqgv10535@eng2.beaverton.ibm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 19 Sep 2002 18:59:42 +0200
+Message-Id: <1032454783.1192.13.camel@csr-pc10>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Sep 2002, Badari Pulavarty wrote:
+On Don, 2002-09-19 at 18:52, Badari Pulavarty wrote:
+> /dev/null seems to be broken in 2.5.36 (and also 2.5.35)
+> 
+> [root@elm3b81 root]# uname -a
+> Linux elm3b81 2.5.36 #0 SMP Thu Sep 19 09:11:08 PDT 2002 i686 unknown
+> 
+> [root@elm3b81 root]# dd if=/dev/null of=/tmp/file bs=512 count=100
+> 0+0 records in
+> 0+0 records out
+> 
+> [root@elm3b81 root]# ls -l /tmp/file
+> -rw-r--r--    1 root     root            0 Sep 19 09:28 /tmp/file
 
-> As you can from strace output, read on /dev/null returned "0" bytes.
-> I wonder why ?
+try to read from /dev/zero
 
-It's supposed to.  Try /dev/zero instead.
-
-Rik
--- 
-Spamtrap of the month: september@surriel.com
-
-http://www.surriel.com/		http://distro.conectiva.com/
+HTH,
+_sh_
 

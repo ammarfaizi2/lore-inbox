@@ -1,60 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262117AbUCLN7B (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 08:59:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262121AbUCLN7B
+	id S262126AbUCLOD4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 09:03:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262121AbUCLOD4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 08:59:01 -0500
-Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:61941 "EHLO
-	tabby.cats.internal") by vger.kernel.org with ESMTP id S262117AbUCLN65
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 08:58:57 -0500
-Content-Type: text/plain;
-  charset="CP 1252"
-From: Jesse Pollard <jesse@cats-chateau.net>
-To: "J. Bruce Fields" <bfields@fieldses.org>
-Subject: Re: UID/GID mapping system
-Date: Fri, 12 Mar 2004 07:58:33 -0600
-X-Mailer: KMail [version 1.2]
-Cc: "Andreas Dilger <=?CP 1252?q?adilger=40clusterfs=2Ecom?=> =?CP
-	1252?q?=2CS=F8ren=20Hansen?=" <sh@warma.dk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1078775149.23059.25.camel@luke> <04031108083100.05054@tabby> <20040311160245.GB18466@fieldses.org>
-In-Reply-To: <20040311160245.GB18466@fieldses.org>
-MIME-Version: 1.0
-Message-Id: <04031207583301.07660@tabby>
-Content-Transfer-Encoding: 8bit
+	Fri, 12 Mar 2004 09:03:56 -0500
+Received: from colin2.muc.de ([193.149.48.15]:20491 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S262126AbUCLODy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 09:03:54 -0500
+Date: 12 Mar 2004 15:03:52 +0100
+Date: Fri, 12 Mar 2004 15:03:52 +0100
+From: Andi Kleen <ak@muc.de>
+To: Joe Thornber <thornber@redhat.com>
+Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.4-mm1
+Message-ID: <20040312140352.GA80958@colin2.muc.de>
+References: <1yyqt-83X-23@gated-at.bofh.it> <1yyqs-83X-17@gated-at.bofh.it> <1yyJK-8mD-41@gated-at.bofh.it> <1yzPs-1bI-21@gated-at.bofh.it> <1yGe9-7Rk-23@gated-at.bofh.it> <1yI6f-1Bj-3@gated-at.bofh.it> <1yQdz-1Uf-7@gated-at.bofh.it> <1yRCI-3lE-19@gated-at.bofh.it> <m3k71htm2l.fsf@averell.firstfloor.org> <20040312134943.GY18345@reti>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040312134943.GY18345@reti>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 11 March 2004 10:02, J. Bruce Fields wrote:
-> On Thu, Mar 11, 2004 at 08:08:31AM -0600, Jesse Pollard wrote:
-> > On Wednesday 10 March 2004 17:46, Andreas Dilger wrote:
-> > > If the client is trusted to mount NFS, then it is also trusted enough
-> > > not to use the wrong UID.  There is no "more" or "less" safe in this
-> > > regard.
-> >
-> > It is only trusted to not misuse the uids that are mapped for that
-> > client. If the client DOES misuse the uids, then only those mapped uids
-> > will be affected. UIDS that are not mapped for that host will be
-> > protected.
-> >
-> > It is to ISOLATE the penetration to the host that this is done. The
-> > server will not and should not extend trust to any uid not authorized to
-> > that host. This is what the UID/GID maps on the server provide.
->
-> You're making an argument that uid mapping on the server could be used
-> to provide additional security; I agree.
->
-> I don't believe you can argue, however, that providing uid mapping on
-> the client would *decrease* security, unless you believe that mapping
-> uid's on the client precludes also mapping uid's on the server.
+On Fri, Mar 12, 2004 at 01:49:43PM +0000, Joe Thornber wrote:
+> On Fri, Mar 19, 2004 at 06:58:26AM +0100, Andi Kleen wrote:
+> > That's bad because it will break binary compatibility for existing
+> > x86-64 systems.  Don't add that please. Either emulate it properly
+> > or I will just declare the 32bit DM emulation broken and users will
+> > have to live with that.
+> 
+> So you want me to put in a seperate set of ioctl codes for
+> compatibility.
 
-Not really - it would be a 1:1 map... so what would be the purpose?
+Breaking the 64bit ABI is not acceptable at least. There are distributions
+shipping that use it.
 
-The problem is in the audit - the server would report a violation in
-uid xxx. Which according to it's records is not used on the penetrated client
-(at least not via the filesystem). Yet the administrator would report that the
-uid is valid (because of a bogus local map).
+For 32bit emulation you can use what you think is easiest or just
+ignore it if it's too hard (64bit is more important than 32bit)
 
-Double mapping also doubles the audit complications :-)
+-Andi

@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267708AbTBKMVx>; Tue, 11 Feb 2003 07:21:53 -0500
+	id <S267791AbTBKMZG>; Tue, 11 Feb 2003 07:25:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267719AbTBKMVx>; Tue, 11 Feb 2003 07:21:53 -0500
-Received: from host213-121-98-76.in-addr.btopenworld.com ([213.121.98.76]:25005
-	"EHLO mail.dark.lan") by vger.kernel.org with ESMTP
-	id <S267708AbTBKMVx>; Tue, 11 Feb 2003 07:21:53 -0500
-Subject: Re: Evil bug in netfilter/kernel 2.4.x?
-From: Gianni Tedesco <gianni@ecsc.co.uk>
-To: jpiszcz <jpiszcz@lucidpixels.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3E482899.9070906@lucidpixels.com>
-References: <3E482899.9070906@lucidpixels.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-ZUQbNUsiCLUCviN5pTkK"
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 11 Feb 2003 12:31:56 +0000
-Message-Id: <1044966716.1118.82.camel@lemsip>
+	id <S267794AbTBKMZG>; Tue, 11 Feb 2003 07:25:06 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:63750 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267791AbTBKMZF>; Tue, 11 Feb 2003 07:25:05 -0500
+Date: Tue, 11 Feb 2003 12:34:38 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>, torvalds@transmeta.com
+Subject: Re: Clarify comment in kernel/acpi.c
+Message-ID: <20030211123438.B18184@flint.arm.linux.org.uk>
+Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
+	Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>,
+	kernel list <linux-kernel@vger.kernel.org>, torvalds@transmeta.com
+References: <20030210163623.GA1106@elf.ucw.cz>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030210163623.GA1106@elf.ucw.cz>; from pavel@ucw.cz on Mon, Feb 10, 2003 at 05:36:23PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Feb 10, 2003 at 05:36:23PM +0100, Pavel Machek wrote:
+> This is more explicit about which low memory means... Please apply,
+> 
+> --- clean/arch/i386/kernel/acpi.c	2003-01-17 23:13:33.000000000 +0100
+> +++ linux-swsusp/arch/i386/kernel/acpi.c	2003-01-27 17:23:36.000000000 +0100
+> @@ -507,7 +501,7 @@
+>  /**
+>   * acpi_reserve_bootmem - do _very_ early ACPI initialisation
+>   *
+> - * We allocate a page in low memory for the wakeup
+> + * We allocate a page in 1MB low memory for the wakeup
 
---=-ZUQbNUsiCLUCviN5pTkK
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Unfortunately this doesn't clarify it.  I think you mean:
 
-On Mon, 2003-02-10 at 22:32, jpiszcz wrote:
-> However, when I run tcpdump, I can clearly see these are not getting=20
-> dropped or logged by the kernel.
+"We allocate a page from the first 1MB of memory for the wakeup" ?
 
-Could your problem actually be a testing flaw? tcpdump sees firewalled
-packets since it works at packet level, below the IP stack.
-
---=20
-// Gianni Tedesco (gianni at scaramanga dot co dot uk)
-lynx --source www.scaramanga.co.uk/gianni-at-ecsc.asc | gpg --import
-8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
-
---=-ZUQbNUsiCLUCviN5pTkK
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA+SO07kbV2aYZGvn0RAtUCAJ9+cArEpYgTq2cv25A56fAvAdT9nACeM+l+
-l79PJJBUzX99eytortu8sss=
-=9cWT
------END PGP SIGNATURE-----
-
---=-ZUQbNUsiCLUCviN5pTkK--
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,66 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262412AbVBCCve@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262530AbVBCCzF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262412AbVBCCve (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 21:51:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262528AbVBCCve
+	id S262530AbVBCCzF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 21:55:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262563AbVBCCzE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 21:51:34 -0500
-Received: from smtpout.mac.com ([17.250.248.47]:11206 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S262412AbVBCCvJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 21:51:09 -0500
-In-Reply-To: <Pine.LNX.4.62.0502021950040.19812@localhost.localdomain>
-References: <Pine.LNX.4.62.0502021723280.5515@localhost.localdomain> <20050203000917.GA12204@digitasaru.net> <Pine.LNX.4.62.0502021950040.19812@localhost.localdomain>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <692795D1-758E-11D9-9D77-000393ACC76E@mac.com>
-Content-Transfer-Encoding: 7bit
-Cc: Joseph Pingenot <trelane@digitasaru.net>,
-       Patrick Mochel <mochel@digitalimplant.org>,
-       linux-kernel@vger.kernel.org, Greg Kroah-Hartman <greg@kroah.com>
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Please open sysfs symbols to proprietary modules
-Date: Wed, 2 Feb 2005 21:50:49 -0500
-To: Pavel Roskin <proski@gnu.org>
-X-Mailer: Apple Mail (2.619)
+	Wed, 2 Feb 2005 21:55:04 -0500
+Received: from smtp.Lynuxworks.com ([207.21.185.24]:43014 "EHLO
+	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S262484AbVBCCyf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 21:54:35 -0500
+Date: Wed, 2 Feb 2005 18:54:07 -0800
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: "Bill Huey (hui)" <bhuey@lnxw.com>, "Jack O'Quin" <joq@io.com>,
+       Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Paul Davis <paul@linuxaudiosystems.com>,
+       Con Kolivas <kernel@kolivas.org>, linux <linux-kernel@vger.kernel.org>,
+       rlrevell@joe-job.com, CK Kernel <ck@vds.kolivas.org>,
+       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature
+Message-ID: <20050203025407.GB15334@nietzsche.lynx.com>
+References: <20050126070404.GA27280@elte.hu> <87fz0neshg.fsf@sulphur.joq.us> <1106782165.5158.15.camel@npiggin-nld.site> <874qh3bo1u.fsf@sulphur.joq.us> <1106796360.5158.39.camel@npiggin-nld.site> <87pszr1mi1.fsf@sulphur.joq.us> <20050127113530.GA30422@elte.hu> <873bwfo8br.fsf@sulphur.joq.us> <20050202111045.GA12155@nietzsche.lynx.com> <42014C10.60407@bigpond.net.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42014C10.60407@bigpond.net.au>
+User-Agent: Mutt/1.5.6+20040907i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb 02, 2005, at 20:13, Pavel Roskin wrote:
-> OK, then the "insufficiency" is inability to set and get additional
-> named variables for network interfaces.
->
-> I won't open all details, but suppose I want the bridge to handle
-> certain frames in a special way, just like BPDU frames are handled if
-> STP is enabled.  There is a hook for that already - see
-> br_handle_frame_hook. The proprietary module would just have to
-> change it.
->
-> What I want it to tell that module what to do with those special
-> frames. I also want to get information like what was in the last
-> special frame and how many of them have been received.  In other
-> words, I want the proprietary module to communicate with userspace.
-> Ideally, the userspace application should be a simple shell script,
-> so I'm reluctant to use ioctl.
+On Thu, Feb 03, 2005 at 08:54:24AM +1100, Peter Williams wrote:
+> As Ingo said in an earlier a post, with a little ingenuity this problem 
+> can be solved in user space.  The programs in question can be setuid 
+> root so that they can set RT scheduling policy BUT have their 
+> permissions set so that they only executable by owner and group with the 
+> group set to a group that only contains those users that have permission 
+> to run this program in RT mode.  If you wish to allow other users to run 
+> the program but not in RT mode then you would need two copies of the 
+> program: one set up as above and the other with normal permissions.
 
-Why don't you just GPL your driver?  It's not like somebody will have
-some innate commercial advantage over you because they have your
-driver source code.  You might even have a commercial advantage by
-participating with GPL drivers because the community will help adjust
-them to in-kernel API changes too.  Besides, you'll get cross-platform
-portability basically for free, as opposed to a binary-only driver for
-x86 where you can't use it on PPC, Alpha, etc.  Please consider the
-benefits to GPL software ;-)
+Again, in my post that you snipped you didn't either read or understand
+what I was saying regarding QoS, nor about the large scale issues regarding
+dual/single kernel development environments. Ultimately this stuff requires
+non-trivial support in kernel space, a softirq thread migration mechanism
+and a frame driven scheduler to back IO submission across async boundaries.
 
-Cheers,
-Kyle Moffett
+My posts where pretty clear on this topic and lot of this has origins
+coming from SGI IRIX. Yes, SGI IRIX. One of the only system man enough
+to handle this stuff.
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
-!y?(-)
-------END GEEK CODE BLOCK------
+Ancient, antiquated Unix scheduler semantics (sort and run) and lack of
+control over critical facilities like softirq processing are obstacles
+to getting at this.
 
+bill
 

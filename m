@@ -1,56 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129169AbRBBUeK>; Fri, 2 Feb 2001 15:34:10 -0500
+	id <S129178AbRBBUgk>; Fri, 2 Feb 2001 15:36:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129178AbRBBUdu>; Fri, 2 Feb 2001 15:33:50 -0500
-Received: from dryline-fw.wireless-sys.com ([216.126.67.45]:12916 "EHLO
-	dryline-fw.wireless-sys.com") by vger.kernel.org with ESMTP
-	id <S129169AbRBBUdm>; Fri, 2 Feb 2001 15:33:42 -0500
-MIME-Version: 1.0
+	id <S129776AbRBBUga>; Fri, 2 Feb 2001 15:36:30 -0500
+Received: from h0000f8512160.ne.mediaone.net ([24.128.252.23]:24820 "EHLO
+	dragon.universe") by vger.kernel.org with ESMTP id <S129178AbRBBUgU>;
+	Fri, 2 Feb 2001 15:36:20 -0500
+Date: Fri, 2 Feb 2001 15:36:18 -0500
+From: newsreader@mediaone.net
+To: linux-kernel@vger.kernel.org
+Subject: did 2.4 messed up lilo?
+Message-ID: <20010202153618.A653@dragon.universe>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14971.6559.195525.434368@somanetworks.com>
-Date: Fri, 2 Feb 2001 15:33:35 -0500 (EST)
-From: "Georg Nikodym" <georgn@somanetworks.com>
-To: "Michael B. Trausch" <fd0man@crosswinds.net>
-Cc: Helge Hafting <helgehaf@idb.hist.no>, linux-kernel@vger.kernel.org
-Subject: Re: Modules and DevFS
-In-Reply-To: <Pine.LNX.4.21.0102021453560.27604-100000@fd0man.accesstoledo.com>
-In-Reply-To: <3A7A8D6D.2C13D5EB@idb.hist.no>
-	<Pine.LNX.4.21.0102021453560.27604-100000@fd0man.accesstoledo.com>
-X-Mailer: VM 6.75 under 21.2  (beta40) "Persephone" XEmacs Lucid
-Reply-To: georgn@somanetworks.com
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "MBT" == Michael B Trausch <fd0man@crosswinds.net> writes:
+I'm not sure whether this problem is related
+to 2.4 kernel.
 
- MBT> Is this fixable the "right" way?
+I've installed kernels 2.4.0-prex to 2.4.1 on
+the following machines.  All are now running 2.4.1.
+Judging from my past experience posting here I'm giving much
+information 
 
-On my box, which started its life as a RH7, I've been editing
-/etc/security/console.perms as I've discovered problems.
+- compaq prolinea p-90 de4x5 driver 1 gig quantum drive cmd 640 controller
+- dell optiplex p-133 hp-pcplus driver 8 gig seagate cmd 640 controller
+- ibm p-133 de4x5 driver maxtor 4 gig
 
-I don't know if this is the right way but thus far I've:
+All partitions are reiserfs.  except for dell box linux is
+the only system and root is on /dev/hda1.  dell's root is on
+/dev/hda7 with /dev/hda1 occupied by the unmentionable.
 
- - changed the <console> line to read:
+Soon after I've installed 2.4.xx lilo stopped working
+properly.  Unfortunately I'm not sure whether it
+started with as soon as any 2.4 installed or on subsequent
+installation.
 
-<console>=tty[0-9][0-9]* vc/[0-9][0-9]* :[0-9]\.[0-9] :[0-9]
+What happens is the lilo does not give you any prompt
+any more.  My /etc/lilo.conf, of course, have proper
+timeout parameter which were working before with 2.2.18.
 
-   (just added the vc/... pattern)
+On compaq it does not even boot at all from hard drive.
+I'm using a floopy to boot and run that box.  Others
+just boot right into the default specified in /etc/lilo.conf
 
- - changed the <cdrom> line to read:
+I would not be complaining if it weren't for the fact
+that lilo does not obey kernel parameters any more. On
+ibm box I need to append="hdc=ide-scsi" to use
+my cd-rw drive.  The system boots with the right
+kernel but I cannot use cd-rw because it apparently 
+is not looking at the kernel parameters.
 
-<cdrom>=/dev/cdroms/* /dev/cdwriter*
+I also am no good at installing lilo on a floppy.
 
-   (removed the /dev/cdrom* and added /dev/cdroms/*)
+I apologize in advance if this problem is not 2.4 related.
 
-I have not had reason (ie. xmms works) to change the sound settings,
-which are:
+FYI I've also installed 2.4 on celeron 566 without
+this problem.  I'm just not running 2.4 on this one
+just because I cannot make the graphics card
+operate under 2.4
 
-<sound>=/dev/dsp* /dev/audio* /dev/midi* \
-        /dev/mixer* /dev/sequencer
+Thanks in advance
 
-Hope that helps.
+
+
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,72 +1,82 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312590AbSEHJqo>; Wed, 8 May 2002 05:46:44 -0400
+	id <S312600AbSEHJ4k>; Wed, 8 May 2002 05:56:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312600AbSEHJqn>; Wed, 8 May 2002 05:46:43 -0400
-Received: from vivi.uptime.at ([62.116.87.11]:59622 "EHLO vivi.uptime.at")
-	by vger.kernel.org with ESMTP id <S312590AbSEHJqm>;
-	Wed, 8 May 2002 05:46:42 -0400
-Reply-To: <o.pitzeier@uptime.at>
-From: "Oliver Pitzeier" <o.pitzeier@uptime.at>
-To: "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: Problems with mm on Alpha...
-Date: Wed, 8 May 2002 11:46:28 +0200
-Organization: =?us-ascii?Q?UPtime_Systemlosungen?=
-Message-ID: <003701c1f675$3d1c5cc0$010b10ac@sbp.uptime.at>
+	id <S312634AbSEHJ4j>; Wed, 8 May 2002 05:56:39 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:11015 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S312600AbSEHJ4i>; Wed, 8 May 2002 05:56:38 -0400
+Message-ID: <3CD8E78E.40302@evision-ventures.com>
+Date: Wed, 08 May 2002 10:53:34 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Paul Mackerras <paulus@samba.org>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>, bjornw@axis.com
+Subject: Re: [PATCH] IDE 58
+In-Reply-To: <Pine.LNX.4.44.0205052046590.1405-100000@home.transmeta.com>	<3CD7ECB9.9050606@evision-ventures.com> <15576.51389.931803.495093@argo.ozlabs.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-In-Reply-To: <20020508113428.D31998@dualathlon.random>
-X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi volks!
+Uz.ytkownik Paul Mackerras napisa?:
+> Martin Dalecki writes:
+> 
+> 
+>>- Virtualize the udma_enable method as well to help ARM and PPC people.  Please
+>>   please if you would like to have some other methods virtualized in a similar
+>>   way - just tell me or even better do it yourself at the end of ide-dma.c.
+>>   I *don't mind* patches.
+>>
+>>- Fix the pmac code to adhere to the new API. It's supposed to work again.
+>>   However this is blind coding... I give myself 80% chances for it to work ;-).
+> 
+> 
+> OK, now I am truly impressed.  Not only does it compile cleanly, it
+> works first go!
 
-Can anybody help/explain this to me:
+Thank you.
 
-[ ... ]
-make[1]: Entering directory `/root/linux-2.5.14/mm'
-make all_targets
-make[2]: Entering directory `/root/linux-2.5.14/mm'
-gcc -D__KERNEL__ -I/root/linux-2.5.14/include -Wall -Wstrict-prototypes
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
--pipe -mno-fp-regs -ffixed-8 -mcpu=ev5 -Wa,-mev6
--DKBUILD_BASENAME=memory  -c -o memory.o memory.c
-memory.c: In function `__free_pte':
-memory.c:80: warning: implicit declaration of function `pte_pfn'
-memory.c:81: warning: implicit declaration of function `pfn_valid'
-memory.c:83: warning: implicit declaration of function `pfn_to_page'
-memory.c:83: warning: assignment makes pointer from integer without a
-cast
-memory.c: In function `copy_page_range':
-memory.c:289: warning: assignment makes pointer from integer without a
-cast
-memory.c: In function `zap_pte_range':
-memory.c:369: warning: assignment makes pointer from integer without a
-cast
-memory.c: In function `follow_page':
-memory.c:490: warning: return makes pointer from integer without a cast
-memory.c: In function `remap_pte_range':
-memory.c:879: invalid type argument of `->'
-memory.c:880: warning: implicit declaration of function `pfn_pte'
-memory.c:880: incompatible types in assignment
-memory.c: In function `do_wp_page':
-memory.c:996: warning: assignment makes pointer from integer without a
-cast
-make[2]: *** [memory.o] Error 1
-make[2]: Leaving directory `/root/linux-2.5.14/mm'
-make[1]: *** [first_rule] Error 2
-make[1]: Leaving directory `/root/linux-2.5.14/mm'
-make: *** [_dir_mm] Error 2
-[ ... ]
+BTW> I would really love it if the cris architecture people could
+"lend me" some small developement system for they interresting CPU.
+In return I could give them what's certainly worth "several weeks of
+developers time". (If you hear me: this is a hint if you need an argument for
+your management.)
 
--Oliver
+This unfortunately is the somehow most wired ATA interface
+around. Which is due to the fact that the interface cell is directly mapped to
+some CPU registers. As a CPU design I think it's a fine approach. Don't
+take me wrong. You save yourself the whole silicon which is needed
+for BM access arbitration and general handling and so on... Very nice tought
+out. But on the software side this is a bit wired, since you can't use
+the generic I/O primitives of the arch in question.
 
+This makes my  cleanup of the portability layer a bit hard
+to finish on the software side.
+
+> I am using the tiny patch below, it sets the unmask flag so interrupts
+> will be unmasked by default (which is safe on powermacs).
+
+And on every other fscking PCI based system... (modulo the "problematic"
+cmd640 and RZ1000). Should have been done a long time ago this way... I will 
+adjust the others as well.
+
+> Thanks,
+> Paul.
+> 
+> diff -urN linux-2.5/drivers/ide/ide-pmac.c pmac-2.5/drivers/ide/ide-pmac.c
+> --- linux-2.5/drivers/ide/ide-pmac.c	Wed May  8 16:40:17 2002
+> +++ pmac-2.5/drivers/ide/ide-pmac.c	Wed May  8 08:26:48 2002
+> @@ -343,6 +343,7 @@
+>  			ide_hwifs[ix].autodma = 1;
+>  #endif
+>  	}
+> +	ide_hwifs[ix].unmask = 1;
+>  }
+>  
+>  #if 0
+> 
 

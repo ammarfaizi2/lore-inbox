@@ -1,49 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261892AbTCaW7K>; Mon, 31 Mar 2003 17:59:10 -0500
+	id <S261903AbTCaXBq>; Mon, 31 Mar 2003 18:01:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261893AbTCaW7K>; Mon, 31 Mar 2003 17:59:10 -0500
-Received: from inet-mail3.oracle.com ([148.87.2.203]:464 "EHLO
-	inet-mail3.oracle.com") by vger.kernel.org with ESMTP
-	id <S261892AbTCaW7J>; Mon, 31 Mar 2003 17:59:09 -0500
-Date: Mon, 31 Mar 2003 15:07:21 -0800
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: bert hubert <ahu@ds9a.nl>, Greg KH <greg@kroah.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andries.Brouwer@cwi.nl,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Wim Coekaerts <Wim.Coekaerts@oracle.com>
-Subject: Re: 64-bit kdev_t - just for playing
-Message-ID: <20030331230720.GP32000@ca-server1.us.oracle.com>
-References: <1048805732.3953.1.camel@dhcp22.swansea.linux.org.uk> <Pine.LNX.4.44.0303280008530.5042-100000@serv> <20030327234820.GE1687@kroah.com> <Pine.LNX.4.44.0303281031120.5042-100000@serv> <20030328180545.GG32000@ca-server1.us.oracle.com> <Pine.LNX.4.44.0303281924530.5042-100000@serv> <20030331083157.GA29029@outpost.ds9a.nl> <Pine.LNX.4.44.0303311039190.5042-100000@serv> <20030331172403.GM32000@ca-server1.us.oracle.com> <Pine.LNX.4.44.0303312215020.5042-100000@serv>
+	id <S261898AbTCaXBq>; Mon, 31 Mar 2003 18:01:46 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:56472 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S261896AbTCaXBm>;
+	Mon, 31 Mar 2003 18:01:42 -0500
+Subject: [PATCH 2.5.66] sychronize_net patch (1/2)
+From: Stephen Hemminger <shemminger@osdl.org>
+To: David Miller <davem@redhat.com>
+Cc: linux-net@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: Open Source Devlopment Lab
+Message-Id: <1049152378.2204.22.camel@dell_ss3.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0303312215020.5042-100000@serv>
-X-Burt-Line: Trees are cool.
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 31 Mar 2003 15:12:58 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 31, 2003 at 11:32:55PM +0200, Roman Zippel wrote:
-> later. The ones who ask now for a larger dev_t the loudest are likely the 
-> first to demand later not change anything for "compability", because they 
-> hardcoded certain assumptions about dev_t into their applications.
+Several places are all doing the same thing to synchronize with network
+receive BH.  This patch for 2.5.66 moves this into a new function
+synchronize_net.
 
-	I'm right here campaigning loudly for a larger dev_t.  I intend
-to never, ever make assumptions about dev_t.  In fact, I'd rather not
-deal with dev_t.  But I do need a way to map 4k or 8k or 16k disks.
-now.
+By putting it in one place, it gets the brlock semantics out of several
+places. The motivation is that eventually on 2.5 based kernels the
+function can call synchronize_kernel for RCU but leave the 2.4 code
+alone. 
 
-Joel
+diff -urN -X dontdiff linux-2.4/include/linux/netdevice.h linux-2.4-netsync/include/linux/netdevice.h
+--- linux-2.4/include/linux/netdevice.h	2003-03-31 11:09:07.000000000 -0800
++++ linux-2.4-netsync/include/linux/netdevice.h	2003-03-31 06:25:34.000000000 -0800
+@@ -474,6 +474,7 @@
+ extern int		dev_queue_xmit(struct sk_buff *skb);
+ extern int		register_netdevice(struct net_device *dev);
+ extern int		unregister_netdevice(struct net_device *dev);
++extern void		synchronize_net(void);
+ extern int 		register_netdevice_notifier(struct notifier_block *nb);
+ extern int		unregister_netdevice_notifier(struct notifier_block *nb);
+ extern int		dev_new_index(void);
+diff -urN -X dontdiff linux-2.4/net/core/dev.c linux-2.4-netsync/net/core/dev.c
+--- linux-2.4/net/core/dev.c	2003-03-31 11:09:09.000000000 -0800
++++ linux-2.4-netsync/net/core/dev.c	2003-03-31 14:26:11.000000000 -0800
+@@ -2508,6 +2508,12 @@
+ 	return 0;
+ }
+ 
++/* Synchronize with packet receive processing. */
++void synchronize_net() {
++	br_write_lock_bh(BR_NETPROTO_LOCK);
++	br_write_unlock_bh(BR_NETPROTO_LOCK);
++}
++
+ /**
+  *	unregister_netdevice - remove device from the kernel
+  *	@dev: device
+@@ -2547,9 +2553,7 @@
+ 		return -ENODEV;
+ 	}
+ 
+-	/* Synchronize to net_rx_action. */
+-	br_write_lock_bh(BR_NETPROTO_LOCK);
+-	br_write_unlock_bh(BR_NETPROTO_LOCK);
++ 	synchronize_net();
+ 
+ 	if (dev_boot_phase == 0) {
+ #ifdef CONFIG_NET_FASTROUTE
+diff -urN -X dontdiff linux-2.4/net/netsyms.c linux-2.4-netsync/net/netsyms.c
+--- linux-2.4/net/netsyms.c	2003-03-31 11:09:08.000000000 -0800
++++ linux-2.4-netsync/net/netsyms.c	2003-03-31 06:25:34.000000000 -0800
+@@ -478,6 +478,7 @@
+ EXPORT_SYMBOL(loopback_dev);
+ EXPORT_SYMBOL(register_netdevice);
+ EXPORT_SYMBOL(unregister_netdevice);
++EXPORT_SYMBOL(synchronize_net);
+ EXPORT_SYMBOL(netdev_state_change);
+ EXPORT_SYMBOL(dev_new_index);
+ EXPORT_SYMBOL(dev_get_by_index);
 
--- 
 
-"Up and down that road in our worn out shoes,
- Talking bout good things and singing the blues."
 
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127

@@ -1,49 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312601AbSFQMgl>; Mon, 17 Jun 2002 08:36:41 -0400
+	id <S312590AbSFQMg3>; Mon, 17 Jun 2002 08:36:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312619AbSFQMgk>; Mon, 17 Jun 2002 08:36:40 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:11688 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S312601AbSFQMgi>;
-	Mon, 17 Jun 2002 08:36:38 -0400
-Date: Mon, 17 Jun 2002 14:32:52 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200206171232.OAA00172@harpo.it.uu.se>
-To: kai@tp1.ruhr-uni-bochum.de
-Subject: 2.5.22 broke modversions
-Cc: linux-kernel@vger.kernel.org
+	id <S312601AbSFQMg2>; Mon, 17 Jun 2002 08:36:28 -0400
+Received: from c2ce9fba.adsl.oleane.fr ([194.206.159.186]:26808 "EHLO
+	avalon.france.sdesigns.com") by vger.kernel.org with ESMTP
+	id <S312590AbSFQMg0>; Mon, 17 Jun 2002 08:36:26 -0400
+To: linux-kernel@vger.kernel.org
+Subject: binary compatibity (mixing different gcc versions) in modules
+From: Emmanuel Michon <emmanuel_michon@realmagic.fr>
+Date: 17 Jun 2002 14:36:25 +0200
+Message-ID: <7w3cvmdquu.fsf@avalon.france.sdesigns.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Something in the 2.5.22 Makefile/Rule.make changes broke
-modversions on my P4 box. For some reason, a number of
-exporting objects, including arch/i386/kernel/i386_ksyms,
-weren't given -D__GENKSYMS__ at genksym-time, with the
-effect that the resulting .ver files became empty, and the
-kernel exported the symbols with unexpanded _R__ver_ suffixes.
+Hi,
 
-Modversions worked in 2.5.21. I didn't see anything obvious
-in patch-2.5.22 what could explain this, but I did notice a
-tendency of touching files as a means of maintaining dependencies.
-This may not actually work, unless you have a slow CPU or a
-file system with millisecond or better st_mtime resolution --
-most only maintain whole-second resolution st_mtimes.
-(My modversions fix in the 2.4.0-test series, which moved the
-modversions.h creation/update to a separate rule after make dep,
-was due to this very problem.)
+looking at nvidia proprietary driver, the makefile warns
+the user against insmod'ing a module compiled with a gcc
+version different from the one that was used to compile
+the kernel.
 
-For now, I'm using the workaround below.
+This sounds strange to me, since I never encountered this
+problem.
 
-/Mikael
+As a counterpart, what I'm sure of, is that you easily get system
+crashes when insmod'ing a module resulting of the linking together 
+(with ld -r) of object files (.o) that were not produced by the same gcc.
 
---- linux-2.5.22/Rules.make.~1~	Mon Jun 17 10:15:13 2002
-+++ linux-2.5.22/Rules.make	Mon Jun 17 13:45:27 2002
-@@ -147,7 +147,7 @@
- quiet_cmd_cc_ver_c = MKVER  include/linux/modules/$(RELDIR)/$*.ver
- define cmd_cc_ver_c
- 	mkdir -p $(dir $@); \
--	$(CPP) $(c_flags) $< | $(GENKSYMS) $(genksyms_smp_prefix) \
-+	$(CPP) $(c_flags) -D__GENKSYMS__ $< | $(GENKSYMS) $(genksyms_smp_prefix) \
- 	  -k $(VERSION).$(PATCHLEVEL).$(SUBLEVEL) > $@.tmp; \
- 	if [ ! -r $@ ] || cmp -s $@ $@.tmp; then \
- 	  touch $(TOPDIR)/include/linux/modversions.h; \
+Can someone give me a clue on what happens?
+
+Everything is compiled with:
+cc 
+ -O2 
+ -DDEBUG=1
+ -D__KERNEL__
+ -DMODULE 
+ -fomit-frame-pointer 
+ -fno-strict-aliasing 
+ -fno-common 
+ -pipe 
+ -mpreferred-stack-boundary=2  
+ -Wno-import 
+ -Wimplicit 
+ -Wmain 
+ -Wreturn-type 
+ -Wswitch 
+ -Wtrigraphs 
+ -Wchar-subscripts 
+ -Wuninitialized 
+ -Wparentheses 
+ -Wpointer-arith 
+ -Wcast-align 
+ -fcheck-new
+
+One gcc is 
+gcc version 2.96 20000731 (Red Hat Linux 7.1 2.96-98)
+the other one is 2.95-2.
+
+Would -O1 be a safer choice?
+
+Sincerely yours,
+
+PS. Let's avoid to fall in a open source vs. binary only dialectics
+here, it's not really the point ;-)
+
+-- 
+Emmanuel Michon
+Chef de projet
+REALmagic France SAS
+Mobile: 0614372733 GPGkeyID: D2997E42  

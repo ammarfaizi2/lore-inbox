@@ -1,64 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261568AbVCNQZt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261573AbVCNQ2g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261568AbVCNQZt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 11:25:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbVCNQZs
+	id S261573AbVCNQ2g (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 11:28:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261570AbVCNQ2f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 11:25:48 -0500
-Received: from styx.suse.cz ([82.119.242.94]:33004 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S261568AbVCNQZA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 11:25:00 -0500
-Date: Mon, 14 Mar 2005 17:25:37 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Michael Tokarev <mjt@tls.msk.ru>
-Cc: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: mouse&keyboard with 2.6.10+
-Message-ID: <20050314162537.GA2716@ucw.cz>
-References: <4235683E.1020403@tls.msk.ru> <42357AE0.4050805@tls.msk.ru> <20050314142847.GA4001@ucw.cz> <4235B367.3000506@tls.msk.ru>
+	Mon, 14 Mar 2005 11:28:35 -0500
+Received: from rwcrmhc14.comcast.net ([216.148.227.89]:19627 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261575AbVCNQ10 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 11:27:26 -0500
+Subject: Re: [PATCH][RFC] Make /proc/<pid> chmod'able
+From: Albert Cahalan <albert@users.sf.net>
+To: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton OSDL <akpm@osdl.org>,
+       viro@parcelfarce.linux.theplanet.co.uk, pj@engr.sgi.com, 7eggert@gmx.de
+In-Reply-To: <42355C78.1020307@lsrfire.ath.cx>
+References: <1110771251.1967.84.camel@cube>
+	 <42355C78.1020307@lsrfire.ath.cx>
+Content-Type: text/plain
+Date: Mon, 14 Mar 2005 11:13:23 -0500
+Message-Id: <1110816803.1949.177.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4235B367.3000506@tls.msk.ru>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 14, 2005 at 06:53:11PM +0300, Michael Tokarev wrote:
-> Vojtech Pavlik wrote:
-> >On Mon, Mar 14, 2005 at 02:52:00PM +0300, Michael Tokarev wrote:
-> > 
-> >
-> >>After plugging in USB keyboard and loading uhci-hcd and
-> >>usbhid, the keyboard un-freeze, but mouse still didn't
-> >>work.  So I tried re-loading psmouse module, and
-> >>surprizingly, mouse started working again, but now dmesg
-> >>says:
-> >>
-> >>input: PS2++ Logitech Wheel Mouse on isa0060/serio1
-> >>
-> >>(normally it's
-> >>input: ImPS/2 Generic Wheel Mouse on isa0060/serio1
-> >>)
-> >>
-> >>and the mouse is moving very fast now.  Previously
-> >>I either didn't able to make it work at all after such
-> >>freeze, or it worked automatically after loading usbhid.
-> >>
-> >>BTW, it's 2.6.10, I can't made it work with 2.6.11 at all.
-> >
-> >
-> >Can you try 'usb-handoff' on the kernel command line?
+On Mon, 2005-03-14 at 10:42 +0100, Rene Scharfe wrote:
+> Albert Cahalan wrote:
+> > This is a bad idea. Users should not be allowed to
+> > make this decision. This is rightly a decision for
+> > the admin to make.
 > 
-> The problem has nothing to do with USB per se, as far as
-> I can see.  PS2 keyboard and mouse does not work when
-> the USB subsystem (incl. usbcore) is not loaded.  And the
-> problem is with PS2 keyboard/mouse, not with USB one which
-> works just fine.
- 
-Of course. Nevertheless 'usb-handoff' tells the BIOS not to meddle with
-the PS/2 interfaces, too. 
+> Why do you think users should not be allowed to chmod their processes' 
+> /proc directories?  Isn't it similar to being able to chmod their home 
+> directories?  They own both objects, after all (both conceptually and as 
+> attributed in the filesystem).
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+This is, to use your own word, "cloaking". This would let
+a bad user or even an unauthorized user hide from the admin.
+Why should someone be able to hide a suspicious CPU hog?
+Maybe they are cracking passwords or selling your CPU time.
+
+Note that the admin hopefully does not normally run as root.
+The admin should be using a normal user account most of the
+time, to reduce the damage caused by his accidents.
+
+Even if the admin were not running as a normal user, it is
+expected that normal users can keep tabs on each other.
+The admin may be sleeping. Social pressure is important to
+prevent one user from sucking up all the memory and CPU time.
+
+> > Note: I'm the procps (ps, top, w, etc.) maintainer.
+> > 
+> > Probably I'd have to make /bin/ps run setuid root
+> > to deal with this. (minor changes needed) The same
+> > goes for /usr/bin/top, which I know is currently
+> > unsafe and difficult to fix.
+> > 
+> > Let's not go there, OK?
+> 
+> I have to admit to not having done any real testing with those 
+> utilities.  My excuse is this isn't such a new feature, Openwall had 
+> something similar for at least four years now and GrSecurity contains 
+> yet another flavour of it.  Openwall also provides one patch for 
+> procps-2.0.6, so I figured that problem (whatever their patch is about) 
+> got fixed in later versions.
+
+If I haven't seen that patch, to Hell with 'em.
+
+It appears that Openwall is using procps-2.0.7 now. Oooh, they've
+upgraded to something that's only 4.5 years old! Anybody using a
+4-year-old procps is uninterested in security.
+
+> Why do ps and top need to be setuid root to deal with a resticted /proc? 
+>     What information in /proc/<pid> needs to be available to any and all 
+> users?
+
+Anything provided by traditional UNIX and BSD systems
+should be available. Users who want privacy can get their
+own computer. So, these need to work:
+
+ps -ef
+ps -el
+ps -ej
+ps axu
+ps axl
+ps axj
+ps axv
+w
+top
+
+Note that /proc does provide a bit more info than required.
+This could be changed; it requires new /proc files or a
+non-proc source of data.
+
+> > If you restricted this new ability to root, then I'd
+> > have much less of an objection. (not that I'd like it)
+> 
+> How about a boot parameter or sysctl to enable the chmod'ability of 
+> /proc/<pid>, defaulting to off?  But I'd like to resolve your more 
+> general objections above first, if possible. :)
+
+This at least avoids breaking the traditional ability of
+non-root users to spot abuse.
+
+

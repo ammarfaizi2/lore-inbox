@@ -1,43 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132833AbRDPBd2>; Sun, 15 Apr 2001 21:33:28 -0400
+	id <S132827AbRDPBh2>; Sun, 15 Apr 2001 21:37:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132825AbRDPBdI>; Sun, 15 Apr 2001 21:33:08 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:43537 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S132826AbRDPBdD>; Sun, 15 Apr 2001 21:33:03 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Can't free the ramdisk (initrd, pivot_root)
-Date: 15 Apr 2001 18:32:45 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9bdi3t$th3$1@cesium.transmeta.com>
-In-Reply-To: <3ADA0B50.8030301@muppetlabs.com>
+	id <S132825AbRDPBhT>; Sun, 15 Apr 2001 21:37:19 -0400
+Received: from 24.68.117.103.on.wave.home.com ([24.68.117.103]:3712 "EHLO
+	cs865114-a.amp.dhs.org") by vger.kernel.org with ESMTP
+	id <S132830AbRDPBhA>; Sun, 15 Apr 2001 21:37:00 -0400
+Date: Sun, 15 Apr 2001 21:37:01 -0400 (EDT)
+From: Arthur Pedyczak <arthur-p@home.com>
+To: Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: loop problems continue in 2.4.3
+In-Reply-To: <Pine.LNX.4.33.0104152058210.1129-100000@cs865114-a.amp.dhs.org>
+Message-ID: <Pine.LNX.4.33.0104152135590.6514-100000@cs865114-a.amp.dhs.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <3ADA0B50.8030301@muppetlabs.com>
-By author:    Amit D Chaudhary <amit@muppetlabs.com>
-In newsgroup: linux.dev.kernel
-> 
-> On the same topic, I have not found any change in free memory
-> reported before and after the ioctl call. Though umount /initrd does
-> free around 2 MB.
-> 
+On Sun, 15 Apr 2001, Arthur Pedyczak wrote:
 
-With Scott's patch applied, I get substantially better performance on
-low-memory machines, so I'm guessing it's doing its job.  Also, just
-umount /initrd for me made it still possible to mount it, so it
-clearly did not go away.
+> On Sat, 14 Apr 2001, Jeff Garzik wrote:
+>
+> > Can you try 2.4.4-pre3?
+> > ftp://ftp.us.kernel.org/pub/linux/kernel/testing/
+> >
 
-	-hpa
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+...the same thing happens in 2.4.3...
+
+
+
+> I am testing loop behaviour in 2.4.3 and 3.4.4p3. I have noticed something
+> disturbing:
+>
+> I can mount the same file on the same mountpoint more than once. If I
+> mount a file twice (same file on the same mount point)
+> both mounts (identical) show when I do df or cat /proc/mounts. If I issue
+> unmount (once), both mounts disappear from df output, but one of them
+> remains in /proc/mounts. If I issue umount again, the second mount
+> disappers from cat /proc/mounts output, but the module 'loop' shows as
+> busy and cannot be removed even though there are no more loop mounts.
+> lsmod shows loop being used by 1 process.
+> If I repeat this whole procedure again, loop will be used by 2 processess
+> in the end. I guess something is wrong here.
+> This experiment has been done under 2.4.4pre3. I will try the same under
+> 2.4.3.
+>
+> cheers,
+> Arthur
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

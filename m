@@ -1,64 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263274AbTD0COS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Apr 2003 22:14:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263269AbTD0COS
+	id S263315AbTD0CSq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Apr 2003 22:18:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263322AbTD0CSq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Apr 2003 22:14:18 -0400
-Received: from smtp-out.comcast.net ([24.153.64.110]:26811 "EHLO
-	smtp-out.comcast.net") by vger.kernel.org with ESMTP
-	id S263285AbTD0CNf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Apr 2003 22:13:35 -0400
-Date: Sat, 26 Apr 2003 22:24:04 -0400
-From: rmoser <mlmoser@comcast.net>
-Subject: Re: Re:  Swap Compression
-In-reply-to: <20030426160920.GC21015@wohnheim.fh-wedel.de>
-To: =?UNKNOWN?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <200304262224040410.031419FD@smtp.comcast.net>
-MIME-version: 1.0
-X-Mailer: Calypso Version 3.30.00.00 (3)
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
-References: <200304251848410590.00DEC185@smtp.comcast.net>
- <20030426091747.GD23757@wohnheim.fh-wedel.de>
- <200304261148590300.00CE9372@smtp.comcast.net>
- <20030426160920.GC21015@wohnheim.fh-wedel.de>
+	Sat, 26 Apr 2003 22:18:46 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:40362 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263315AbTD0CSo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Apr 2003 22:18:44 -0400
+Message-ID: <1376.4.64.196.31.1051410658.squirrel@www.osdl.org>
+Date: Sat, 26 Apr 2003 19:30:58 -0700 (PDT)
+Subject: Re: statistics for this mailinglist
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: <root@vanheusden.com>
+In-Reply-To: <200304270201.h3R211Vp030739@muur.intranet.vanheusden.com>
+References: <200304270201.h3R211Vp030739@muur.intranet.vanheusden.com>
+X-Priority: 3
+Importance: Normal
+Cc: <linux-kernel@vger.kernel.org>
+X-Mailer: SquirrelMail (version 1.2.11)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So what's the best way to do this?  I was originally thinking like this:
+To repeat some prior requests:
 
-Grab some swap data
-Stuff it into fcomp_push()
-When you have 100k of data, seal it up
-Write that 100k block
 
-But does swap compress in 64k blocks?  80x86 has 64k segments.
-The calculation for compression performance loss, 256/size_of_input,
-gives a loss of 0.003906 (0.3906%) for a dataset 65536 bytes long.
-So would it be better to just compress segments, whatever size they
-may be, and index those?  This would, of course, be much more efficient
-in terms of finding the data to uncompress.  (And system dependant)
+> Top organisations
+> ----------------------------------------------------------
+>  1]  128
+>  2]   28 The
+>  3]   22 ith
+>  4]   18 Transmeta
+>  5]   16 OSDL
+>  6]   15 K4
+>  7]   13 Red
+>  8]   13 National
+>  9]   11 Working
+> 10]    9 BMS
 
-The algo is flexible; it doesn't care about the size of the input.  If you
-pass full segments at once, you could gain a little more speed.  Best
-part, if you rewrite my decompression code to do the forward calculations
-for straight data copy (I'll likely do this before the night is up myself),
-you will evade a lot of realloc()'s in the data copy between pointers.  This
-could also optimize out the decriments of the distance-to-next-pointer
-counter, and total this all together gives a lot of speed increase over my
-original code.  Since this is a logic change, the compiler can't do this
-optimization for you.
+Org. names are only reporting the first word.
+Please report full org. names.
 
-Another thing, I did state the additional overhead (which now is going to be
-64K + code + 256 byte analysis section + 64k uncompressed data)
-before, but you can pull in less than the full block, decompress it, put it
-where it goes, and pull in more.  So on REALLY small systems, you
-can still do pagefile buffering and not blow out RAM with the extra 128k
-you may need.  (heck, all the work could be done in one 64k segment if
-you're that determined.  Then you could compress the swap on little 6 MB
-boxen).
+> Top user-agents
+> ----------------------------------------------------------
+>  1]   47 Mozilla/5.0
+>  2]   38 Ximian
+>  3]   25 Mutt/1.5.4i
+>  4]   23 Sylpheed
+>  5]   18 Mutt/1.4i
+>  6]   17 Mutt/1.4.1i
+>  7]   16 Mutt/1.3.28i
+>  8]   15 KMail/1.5.1
+>  9]   13 Mutt/1.2.5.1i
+> 10]   10 VM
 
---Bluefox Icy
+Can you merge MUAs by name only up to the slash (ignoring version
+numbers), so that all of the Mutts are combined, e.g.?
+
+Thanks for the stats.
+
+~Randy
+
+
 

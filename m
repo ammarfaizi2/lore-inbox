@@ -1,61 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271960AbRHVIik>; Wed, 22 Aug 2001 04:38:40 -0400
+	id <S271961AbRHVIou>; Wed, 22 Aug 2001 04:44:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271961AbRHVIia>; Wed, 22 Aug 2001 04:38:30 -0400
-Received: from mail.informatik.hu-berlin.de ([141.20.20.50]:5047 "EHLO
-	mail.informatik.hu-berlin.de") by vger.kernel.org with ESMTP
-	id <S271960AbRHVIiT>; Wed, 22 Aug 2001 04:38:19 -0400
-Date: Wed, 22 Aug 2001 10:26:59 +0200 (MEST)
-From: Bernhard Wiedemann <wiedeman@informatik.hu-berlin.de>
-To: linux-kernel@vger.kernel.org
-Subject: translucency lkm
-Message-ID: <Pine.LNX.4.10.10108211342100.3774-100000@rudow.informatik.hu-berlin.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271963AbRHVIok>; Wed, 22 Aug 2001 04:44:40 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:32772 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S271961AbRHVIo0>; Wed, 22 Aug 2001 04:44:26 -0400
+Date: Wed, 22 Aug 2001 10:44:24 +0200
+From: Jan Kara <jack@suse.cz>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, viro@math.psu.edu
+Subject: Ext2 quota bug in 2.4.8
+Message-ID: <20010822104424.D11019@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-in short: I wrote a (beta) linux-kernel-module that does translucency
-(virtually merging two directories to one)
-http://www.informatik.hu-berlin.de/~wiedeman/development/translucency.tgz
+  Hello,
 
+  Jan Sanislo <oystr@cs.washington.edu> found a bug in ext2 quota code in 2.4.6+.
+During changes in ext2 code in 2.4.6 some DQUOT_INIT()s were removed but they
+shouldn't and as a result quota is not computed right.
+  The patch which adds missing DQUOT_INIT()s is below. I didn't place DQUOT_INIT()s to
+original places but rather to generic vfs parts which seems better to me.
+  Please apply - patch is against 2.4.8.
 
-the whole story:
+								Honza
+--
+Jan Kara <jack@suse.cz>
+SuSE Labs
 
-three months ago I began building a bootable (stand-alone) linux on CD
-but found it cumbersome to burn that CD(RW) again for any little change.
-I also wanted some way to change system-files permanently
-(e.g store them on disk or nfs)
-So I started thinking about overlaying/translucency 
-(because I did not want to symlink any potentially writable file)
-asking google I found kernel mailing list archives at vger and 
-other sites of interest
+-------------------------------------------------------------------------
 
-having found several approaches - mostly at filesystem level (ovlfs, ifs)
-I got no working solution with recent kernels (2.2 or 2.4 series) 
-so I followed a fellow student's advice to do some kernel-programming
-myself. Weeks of reading sources and examples passed
-(but I am no expert - so please do not chop my head off for not 
-knowing everything - I will be glad if you help me to improve).
-
-I decided for a sys-call-redirecting approach that makes possible
-anything the user could do and avoids caring too much about permissions 
-but instead introduces some segment/memory and portability issues. 
-Yet it works on i386 compatible platforms with 2.4.x kernel 
-(about 80% of all features wanted). 
-With some trickery I even got a kernel configured and compiled with this
-translucency module redirecting any output file to another directory.
-
-it is now about 700 lines of code and works stable (but not as
-secure as could be)
-It is released under terms of the GPL and I hope that some of you 
-(who read so far) will find it useful, do peer-review, send
-bugfixes or do something otherwise helpful.
-
-please note that I am not subscribed to the mailing list so please
-cc your answer to my email address
-
-yours sincerely
-Bernhard M. Wiedemann
-
+--- linux-2.4.8/fs/namei.c	Tue Aug 21 20:43:31 2001
++++ linux-2.4.8/fs/namei.c	Tue Aug 21 20:44:08 2001
+@@ -1330,6 +1330,7 @@
+ 		return -EPERM;
+ 
+ 	DQUOT_INIT(dir);
++	DQUOT_INIT(dentry->d_inode);
+ 
+ 	double_down(&dir->i_zombie, &dentry->d_inode->i_zombie);
+ 	d_unhash(dentry);
+@@ -1405,10 +1406,11 @@
+ 	if (!error) {
+ 		error = -EPERM;
+ 		if (dir->i_op && dir->i_op->unlink) {
+-			DQUOT_INIT(dir);
+ 			if (d_mountpoint(dentry))
+ 				error = -EBUSY;
+ 			else {
++				DQUOT_INIT(dir);
++				DQUOT_INIT(dentry->d_inode);
+ 				lock_kernel();
+ 				error = dir->i_op->unlink(dir, dentry);
+ 				unlock_kernel();

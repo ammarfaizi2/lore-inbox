@@ -1,103 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263275AbTECIrc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 May 2003 04:47:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263277AbTECIrc
+	id S263279AbTECJA3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 May 2003 05:00:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263280AbTECJA3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 May 2003 04:47:32 -0400
-Received: from dsl-62-3-122-162.zen.co.uk ([62.3.122.162]:52865 "EHLO
-	marx.trudheim.com") by vger.kernel.org with ESMTP id S263275AbTECIra
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 May 2003 04:47:30 -0400
-Subject: Re: Compile error kernel 2.4.21-rc1
-From: Anders Karlsson <anders@trudheim.com>
-To: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1051946869.3976.32.camel@marx>
-References: <1051938126.3976.11.camel@marx>  <1051946869.3976.32.camel@marx>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-/nE8U1kuGS1CkYcc0oEx"
-Organization: Trudheim Technology Limited
-Message-Id: <1051952389.3976.35.camel@marx>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4Rubber Turnip 
-Date: 03 May 2003 09:59:49 +0100
+	Sat, 3 May 2003 05:00:29 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:62982
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S263279AbTECJA1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 May 2003 05:00:27 -0400
+Date: Sat, 3 May 2003 02:07:48 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: linux-kernel@vger.kernel.org
+Subject: SATA SiI Seagate Alpine Erratium, until patch
+Message-ID: <Pine.LNX.4.10.10305030139080.4263-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-/nE8U1kuGS1CkYcc0oEx
-Content-Type: multipart/mixed; boundary="=-6PIJEUtRSo7V7U9BWp1D"
+SATA users.
+
+If you have SiI SATA3112A and Seagate Alpine drives, in order to avoid
+the 0x21 DMA error, issue hdparm -X66 -d1 /dev/hdX
+
+If you have SiI SATA3112 and Seagate drives, don't that is a totally
+different erratium.
+
+I do not care and will not listen to any rants about, GEE, my 150 drive is
+running at 66 ... the simple fact is you are wrong because SATA is
+misleading.
+
+NET4: Frame Diverter 0.46
+RAMDISK driver initialized: 16 RAM disks of 4096K size 1024 blocksize
+Uniform Multi-Platform E-IDE driver Revision: 7.00beta-2.4
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+SiI3112 Serial ATA: IDE controller at PCI slot 00:04.0
+SiI3112 Serial ATA: chipset revision 2
+SiI3112 Serial ATA: not 100% native mode: will probe irqs later
+    ide0: MMIO-DMA at 0xe880d000-0xe880d007, BIOS settings: hda:pio, hdb:pio
+    ide1: MMIO-DMA at 0xe880d008-0xe880d00f, BIOS settings: hdc:pio, hdd:pio
+SvrWks CSB6: IDE controller at PCI slot 00:0e.0
+SvrWks CSB6: chipset revision 160
+SvrWks CSB6: 100% native mode on irq 11
+    ide2: BM-DMA at 0x1450-0x1457, BIOS settings: hde:pio, hdf:DMA
+SvrWks CSB6: IDE controller at PCI slot 00:0f.1
+SvrWks CSB6: chipset revision 160
+SvrWks CSB6: not 100% native mode: will probe irqs later
+    ide3: BM-DMA at 0x1460-0x1467, BIOS settings: hdg:DMA, hdh:pio
+    ide4: BM-DMA at 0x1468-0x146f, BIOS settings: hdi:pio, hdj:DMA
+hda: Maxtor 6Y080M0, ATA DISK drive
+hdc: ST3120026AS, ATA DISK drive
+hde: LS-120 VER5 00 UHD Floppy, ATAPI FLOPPY drive
+hdf: LTN483, ATAPI CD/DVD-ROM drive
+ide0 at 0xe880d080-0xe880d087,0xe880d08a on irq 22
+ide1 at 0xe880d0c0-0xe880d0c7,0xe880d0ca on irq 22
+ide2 at 0x1498-0x149f,0x148e on irq 11
+hda: host protected area => 1
+hda: 160086528 sectors (81964 MB) w/7936KiB Cache, CHS=158816/16/63
+hdc: host protected area => 1
+hdc: 234441648 sectors (120034 MB) w/8192KiB Cache, CHS=14593/255/63
+ide-floppy driver 0.99.newide
 
 
---=-6PIJEUtRSo7V7U9BWp1D
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+[root@svwks root]# hdparm -it /dev/hdc
 
-On Sat, 2003-05-03 at 08:27, Anders Karlsson wrote:
-> On Sat, 2003-05-03 at 06:02, Anders Karlsson wrote:
-> > Hi,
-> >=20
-> > Just tried to compile kernel 2.4.21-rc1 and I get the compile error as
-> > per attached file 'compile_error.txt'. The config file used is also
-> > attached. This happened while doing 'make rpm'. This is being compiled
-> > on SuSE Pro 8.2 which is using GCC 3.3.
-> >=20
-> > I'll happily try out patches.
->=20
-> Found another compile error. Again attached in 'compile_error.txt'.
->=20
-And another one.
+/dev/hdc:
 
-/Anders
+ Model=ST3120026AS, FwRev=3.05, SerialNo=3JT00Y2B
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs RotSpdTol>.5% }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=4
+ BuffType=unknown, BuffSize=8192kB, MaxMultSect=16, MultSect=16
+ CurCHS=65535/1/63, CurSects=4128705, LBA=yes, LBAsects=234441648
+ IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes:  pio0 pio1 pio2 pio3 pio4
+ DMA modes:  mdma0 mdma1 mdma2
+ UDMA modes: udma0 udma1 *udma2
+ AdvancedPM=no WriteCache=enabled
+ Drive conforms to: ATA/ATAPI-6 T13 1410D revision 2:  1 2 3 4 5 6
 
---=-6PIJEUtRSo7V7U9BWp1D
-Content-Disposition: attachment; filename=compile_error.txt
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; name=compile_error.txt; charset=UTF-8
+ Timing buffered disk reads:  64 MB in  1.25 seconds = 51.20 MB/sec
 
-gcc -D__KERNEL__ -I/usr/src/packages/BUILD/kernel-2.4.21rc1/include -Wall -=
-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fom=
-it-frame-pointer -pipe -mpreferred-stack-boundary=3D2 -march=3Di686 -DMODUL=
-E -DMODVERSIONS -include /usr/src/packages/BUILD/kernel-2.4.21rc1/include/l=
-inux/modversions.h  -nostdinc -iwithprefix include -DKBUILD_BASENAME=3Dolym=
-pic  -c -o olympic.o olympic.c
-olympic.c:658:16: missing terminating " character
-olympic.c:659:7: missing terminating " character
-olympic.c: In function `olympic_rx':
-olympic.c:858: warning: signed and unsigned type in conditional expression
-olympic.c: At top level:
-/usr/src/packages/BUILD/kernel-2.4.21rc1/include/linux/module.h:299: warnin=
-g: `__module_kernel_version' defined but not used
-/usr/src/packages/BUILD/kernel-2.4.21rc1/include/linux/module.h:302: warnin=
-g: `__module_using_checksums' defined but not used
-olympic.c:1805: warning: `__module_license' defined but not used
-make[4]: *** [olympic.o] Error 1
-make[4]: Leaving directory `/usr/src/packages/BUILD/kernel-2.4.21rc1/driver=
-s/net/tokenring'
-make[3]: *** [_modsubdir_tokenring] Error 2
-make[3]: Leaving directory `/usr/src/packages/BUILD/kernel-2.4.21rc1/driver=
-s/net'
-make[2]: *** [_modsubdir_net] Error 2
-make[2]: Leaving directory `/usr/src/packages/BUILD/kernel-2.4.21rc1/driver=
-s'
-make[1]: *** [_mod_drivers] Error 2
-make[1]: Leaving directory `/usr/src/packages/BUILD/kernel-2.4.21rc1'
-Bad exit status from /var/tmp/rpm-tmp.64597 (%build)
-make: *** [rpm] Error 1
+Like I said, I do not want to hear any rants, you have your erratium until
+I resolve a patch.
 
+If you are installing on RH9 or SuSE, you may need to issue hdparm -Xxx
+-d1 /dev/hdX to invoke DMA on the SATA3112A, I do not know why it fails to
+setup DMA but logically the driver is functional.
 
---=-6PIJEUtRSo7V7U9BWp1D--
+Regards,
 
---=-/nE8U1kuGS1CkYcc0oEx
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2-rc1-SuSE (GNU/Linux)
-
-iD8DBQA+s4UFLYywqksgYBoRAmJzAJ4gpQTN+NTwrwL0bzK6DGlRnSxqwwCffoeJ
-mNGZHX+AVL9W1EKnkiFzhGQ=
-=JiAw
------END PGP SIGNATURE-----
-
---=-/nE8U1kuGS1CkYcc0oEx--
+Andre Hedrick
+LAD Storage Consulting Group
 

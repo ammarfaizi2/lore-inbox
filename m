@@ -1,32 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264538AbUDTWbc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264297AbUDTWbb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264538AbUDTWbc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 18:31:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264543AbUDTWaT
+	id S264297AbUDTWbb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 18:31:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264538AbUDTWa3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 18:30:19 -0400
-Received: from postfix4-1.free.fr ([213.228.0.62]:61418 "EHLO
-	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S264569AbUDTVjO
+	Tue, 20 Apr 2004 18:30:29 -0400
+Received: from ip213-185-37-13.laajakaista.mtv3.fi ([213.185.37.13]:28805 "EHLO
+	home.holviala.com") by vger.kernel.org with ESMTP id S264502AbUDTUlh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 17:39:14 -0400
-Message-ID: <40859891.8080208@dlfp.org>
-Date: Tue, 20 Apr 2004 23:39:29 +0200
-From: matthieu <mat_@dlfp.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
-X-Accept-Language: fr-fr, en, en-us
-MIME-Version: 1.0
+	Tue, 20 Apr 2004 16:41:37 -0400
+From: Kim Holviala <kim@holviala.com>
 To: linux-kernel@vger.kernel.org
-Subject: pts having the same device number.
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Subject: Re: /dev/psaux-Interface
+Date: Tue, 20 Apr 2004 23:41:46 +0300
+User-Agent: KMail/1.6.1
+References: <Pine.GSO.4.58.0402271451420.11281@stekt37> <Pine.GSO.4.58.0404191124220.21825@stekt37> <200404200756.08672.dtor_core@ameritech.net>
+In-Reply-To: <200404200756.08672.dtor_core@ameritech.net>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200404202341.46397.kim@holviala.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-on 2.6.4 I have seen that two pts device can have the same number :
-$ls -l /dev/pts/
-total 0
-crw--w----    1 mat      tty      136,   2 2004-04-20 23:15 2562
-crw--w----    1 mat      tty      136,   2 2004-04-20 23:15 2818
+On Tuesday 20 April 2004 15:56, Dmitry Torokhov wrote:
 
-Is that normal ?
+> I think the right way is to fix the issues with psmouse driver and use
+> input system to tie all hardware together.
+
+I agree 100%, and that's why I'm working on the driver. I think the biggest 
+issue right now is the Fujitsu TouchScreen - I'll try to steal one of those 
+laptops from work later this week and maybe come up with a solution. It has a 
+Synaptics touchpad too so I get to test that as well.
+
+
+
+
+Kim

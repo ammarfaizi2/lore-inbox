@@ -1,45 +1,167 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263540AbUECC1S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263529AbUECC3t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263540AbUECC1S (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 May 2004 22:27:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263551AbUECC1S
+	id S263529AbUECC3t (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 May 2004 22:29:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263551AbUECC3t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 May 2004 22:27:18 -0400
-Received: from ausmtp02.au.ibm.com ([202.81.18.187]:41890 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S263540AbUECC1O
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 May 2004 22:27:14 -0400
-Subject: [PATCH] Numdimmies MUST DIE!
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1083551201.25582.149.camel@bach>
+	Sun, 2 May 2004 22:29:49 -0400
+Received: from holomorphy.com ([207.189.100.168]:18052 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S263529AbUECC3j (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 May 2004 22:29:39 -0400
+Date: Sun, 2 May 2004 19:29:36 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [0.5/2] scheduler caller profiling
+Message-ID: <20040503022936.GH1397@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <20040503021709.GF1397@holomorphy.com> <20040503022346.GG1397@holomorphy.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 03 May 2004 12:26:42 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040503022346.GG1397@holomorphy.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Status: Vitally Important
+On Sun, May 02, 2004 at 07:23:46PM -0700, William Lee Irwin III wrote:
+> This patch was used to collect the data on the offending callers into
+> the scheduler. It creates a profile buffer completely analogous to its
 
-I'm sure this is violating the trademark of a pre-schooler's TV show
-somewhere in the world.
+This patch creates a new scheduling entrypoint, wake_up_filtered(), and
+uses it in page waitqueue hashing to discriminate between the waiters
+on various pages. One of the sources of the thundering herds was
+identified as the page waitqueue hashing by a priori methods and
+empirically confirmed using the scheduler caller profiling patch.
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .18765-linux-2.6.6-rc3-bk4/drivers/net/dummy.c .18765-linux-2.6.6-rc3-bk4.updated/drivers/net/dummy.c
---- .18765-linux-2.6.6-rc3-bk4/drivers/net/dummy.c	2004-04-29 17:29:43.000000000 +1000
-+++ .18765-linux-2.6.6-rc3-bk4.updated/drivers/net/dummy.c	2004-05-03 12:25:11.000000000 +1000
-@@ -104,7 +104,7 @@ static struct net_device **dummies;
+
+-- wli
+
+Index: wli-2.6.6-rc3-mm1/include/linux/wait.h
+===================================================================
+--- wli-2.6.6-rc3-mm1.orig/include/linux/wait.h	2004-04-03 19:37:07.000000000 -0800
++++ wli-2.6.6-rc3-mm1/include/linux/wait.h	2004-04-30 19:50:33.000000000 -0700
+@@ -28,6 +28,11 @@
+ 	struct list_head task_list;
+ };
  
- /* Number of dummy devices to be set up by this module. */
- module_param(numdummies, int, 0);
--MODULE_PARM_DESC(numdimmies, "Number of dummy psuedo devices");
-+MODULE_PARM_DESC(numdummies, "Number of dummy psuedo devices");
++struct filtered_wait_queue {
++	void *key;
++	wait_queue_t wait;
++};
++
+ struct __wait_queue_head {
+ 	spinlock_t lock;
+ 	struct list_head task_list;
+@@ -104,6 +109,7 @@
+ 	list_del(&old->task_list);
+ }
  
- static int __init dummy_init_one(int index)
++void FASTCALL(wake_up_filtered(wait_queue_head_t *, void *));
+ extern void FASTCALL(__wake_up(wait_queue_head_t *q, unsigned int mode, int nr));
+ extern void FASTCALL(__wake_up_locked(wait_queue_head_t *q, unsigned int mode));
+ extern void FASTCALL(__wake_up_sync(wait_queue_head_t *q, unsigned int mode, int nr));
+@@ -257,6 +263,16 @@
+ 		wait->func = autoremove_wake_function;			\
+ 		INIT_LIST_HEAD(&wait->task_list);			\
+ 	} while (0)
++
++#define DEFINE_FILTERED_WAIT(name, p)					\
++	struct filtered_wait_queue name = {				\
++		.key	= p,						\
++		.wait	=	{					\
++			.task	= current,				\
++			.func	= autoremove_wake_function,		\
++			.task_list = LIST_HEAD_INIT(name.wait.task_list),\
++		},							\
++	}
+ 	
+ #endif /* __KERNEL__ */
+ 
+Index: wli-2.6.6-rc3-mm1/kernel/sched.c
+===================================================================
+--- wli-2.6.6-rc3-mm1.orig/kernel/sched.c	2004-04-30 16:13:32.000000000 -0700
++++ wli-2.6.6-rc3-mm1/kernel/sched.c	2004-04-30 19:50:33.000000000 -0700
+@@ -2524,6 +2524,19 @@
+ 	}
+ }
+ 
++void fastcall wake_up_filtered(wait_queue_head_t *q, void *key)
++{
++	unsigned long flags;
++	unsigned int mode = TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE;
++	struct filtered_wait_queue *wait, *save;
++	spin_lock_irqsave(&q->lock, flags);
++	list_for_each_entry_safe(wait, save, &q->task_list, wait.task_list) {
++		if (wait->key == key)
++			wait->wait.func(&wait->wait, mode, 0);
++	}
++	spin_unlock_irqrestore(&q->lock, flags);
++}
++
+ /**
+  * __wake_up - wake up threads blocked on a waitqueue.
+  * @q: the waitqueue
+Index: wli-2.6.6-rc3-mm1/mm/filemap.c
+===================================================================
+--- wli-2.6.6-rc3-mm1.orig/mm/filemap.c	2004-04-30 15:06:49.000000000 -0700
++++ wli-2.6.6-rc3-mm1/mm/filemap.c	2004-04-30 19:50:33.000000000 -0700
+@@ -307,16 +307,16 @@
+ void fastcall wait_on_page_bit(struct page *page, int bit_nr)
  {
-
--- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
-
+ 	wait_queue_head_t *waitqueue = page_waitqueue(page);
+-	DEFINE_WAIT(wait);
++	DEFINE_FILTERED_WAIT(wait, page);
+ 
+ 	do {
+-		prepare_to_wait(waitqueue, &wait, TASK_UNINTERRUPTIBLE);
++		prepare_to_wait(waitqueue, &wait.wait, TASK_UNINTERRUPTIBLE);
+ 		if (test_bit(bit_nr, &page->flags)) {
+ 			sync_page(page);
+ 			io_schedule();
+ 		}
+ 	} while (test_bit(bit_nr, &page->flags));
+-	finish_wait(waitqueue, &wait);
++	finish_wait(waitqueue, &wait.wait);
+ }
+ 
+ EXPORT_SYMBOL(wait_on_page_bit);
+@@ -344,7 +344,7 @@
+ 		BUG();
+ 	smp_mb__after_clear_bit(); 
+ 	if (waitqueue_active(waitqueue))
+-		wake_up_all(waitqueue);
++		wake_up_filtered(waitqueue, page);
+ }
+ 
+ EXPORT_SYMBOL(unlock_page);
+@@ -363,7 +363,7 @@
+ 		smp_mb__after_clear_bit();
+ 	}
+ 	if (waitqueue_active(waitqueue))
+-		wake_up_all(waitqueue);
++		wake_up_filtered(waitqueue, page);
+ }
+ 
+ EXPORT_SYMBOL(end_page_writeback);
+@@ -379,16 +379,16 @@
+ void fastcall __lock_page(struct page *page)
+ {
+ 	wait_queue_head_t *wqh = page_waitqueue(page);
+-	DEFINE_WAIT(wait);
++	DEFINE_FILTERED_WAIT(wait, page);
+ 
+ 	while (TestSetPageLocked(page)) {
+-		prepare_to_wait(wqh, &wait, TASK_UNINTERRUPTIBLE);
++		prepare_to_wait(wqh, &wait.wait, TASK_UNINTERRUPTIBLE);
+ 		if (PageLocked(page)) {
+ 			sync_page(page);
+ 			io_schedule();
+ 		}
+ 	}
+-	finish_wait(wqh, &wait);
++	finish_wait(wqh, &wait.wait);
+ }
+ 
+ EXPORT_SYMBOL(__lock_page);

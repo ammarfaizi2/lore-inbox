@@ -1,101 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261816AbVAKTAl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262023AbVAKTCU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261816AbVAKTAl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 14:00:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262005AbVAKTAl
+	id S262023AbVAKTCU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 14:02:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262005AbVAKTAs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 14:00:41 -0500
-Received: from mail.tyan.com ([66.122.195.4]:51461 "EHLO tyanweb.tyan")
-	by vger.kernel.org with ESMTP id S261816AbVAKTAZ (ORCPT
+	Tue, 11 Jan 2005 14:00:48 -0500
+Received: from waste.org ([216.27.176.166]:2958 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261949AbVAKTA0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 14:00:25 -0500
-Message-ID: <3174569B9743D511922F00A0C943142307291407@TYANWEB>
-From: YhLu <YhLu@tyan.com>
-To: "'Andi Kleen'" <ak@muc.de>
-Cc: "'Mikael Pettersson'" <mikpe@csd.uu.se>,
-       "'jamesclv@us.ibm.com'" <jamesclv@us.ibm.com>,
-       "'Matt_Domsch@dell.com'" <Matt_Domsch@dell.com>,
-       "'discuss@x86-64.org'" <discuss@x86-64.org>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'suresh.b.siddha@intel.com'" <suresh.b.siddha@intel.com>
-Subject: RE: 256 apic id for amd64
-Date: Tue, 11 Jan 2005 11:11:45 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	Tue, 11 Jan 2005 14:00:26 -0500
+Date: Tue, 11 Jan 2005 10:59:02 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: "Jack O'Quin" <joq@io.com>
+Cc: Paul Davis <paul@linuxaudiosystems.com>, Chris Wright <chrisw@osdl.org>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Lee Revell <rlrevell@joe-job.com>, arjanv@redhat.com, mingo@elte.hu,
+       alan@lxorguk.ukuu.org.uk, Con Kolivas <kernel@kolivas.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+Message-ID: <20050111185901.GS2940@waste.org>
+References: <200501111305.j0BD58U2000483@localhost.localdomain> <87oefw3p7m.fsf@sulphur.joq.us>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87oefw3p7m.fsf@sulphur.joq.us>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2.4.28 84 bit
-~ # cat /proc/interrupts 
-           CPU0       CPU1       CPU2       CPU3       
-  0:       5302         19          0          0    IO-APIC-edge  timer
-  1:          0          0          0          0    IO-APIC-edge  keyboard
-  2:          0          0          0          0          XT-PIC  cascade
-  4:        175          0          0          0    IO-APIC-edge  serial
- 19:          3          0          0          0   IO-APIC-level  ohci1394
- 22:          0          0          0          0   IO-APIC-level  usb-ohci
- 23:          0          0          0          0   IO-APIC-level  ehci_hcd
-NMI:        147        139        110         77 
-LOC:       5063       5060       5061       5062 
-ERR:        406
-MIS:          0
-~ # cat /proc/interrupts 
-           CPU0       CPU1       CPU2       CPU3       
-  0:       5612         19          0          0    IO-APIC-edge  timer
-  1:          0          0          0          0    IO-APIC-edge  keyboard
-  2:          0          0          0          0          XT-PIC  cascade
-  4:        226          0          0          0    IO-APIC-edge  serial
- 19:          3          0          0          0   IO-APIC-level  ohci1394
- 22:          0          0          0          0   IO-APIC-level  usb-ohci
- 23:          0          0          0          0   IO-APIC-level  ehci_hcd
-NMI:        147        139        110         77 
-LOC:       5373       5370       5371       5372 
-ERR:        406
-MIS:          0
+On Tue, Jan 11, 2005 at 10:28:13AM -0600, Jack O'Quin wrote:
+> Paul Davis <paul@linuxaudiosystems.com> writes:
+> 
+> >>Rlimits are neither UID/GID or PAM-specific. They fit well within
+> >>the general model of UNIX security, extending an existing mechanism
+> >>rather than adding a completely new one. That PAM happens to be the
+> >>way rlimits are usually administered may be unfortunate, yes, but it
+> >>doesn't mean that rlimits is the wrong way.
+> 
+> PAM is how most GNU/Linux systems manage rlimits.  It is very UID/GID
+> oriented.  So from the sysadmin perspective, claiming that rlimits is
+> "better" or "easier to manage" than "GID hacks" is bogus.
 
------Original Message-----
-From: YhLu 
-Sent: Tuesday, January 11, 2005 11:05 AM
-To: YhLu; Andi Kleen
-Cc: 'Mikael Pettersson'; jamesclv@us.ibm.com; Matt_Domsch@dell.com;
-discuss@x86-64.org; linux-kernel@vger.kernel.org; suresh.b.siddha@intel.com
-Subject: RE: 256 apic id for amd64
+Yes, you're right, so let's invent something completely new and
+inherently much less flexible so that the problem is made worse on
+both fronts.
 
-On 2.6.10 32 bit, it only crash core1/node0, still can go on but lost one
-cpu.
-
-~ # cat /proc/interrupts 
-           CPU0       CPU1       CPU2       
-  0:      47612          5       7643    IO-APIC-edge  timer
-  2:          0          0          0          XT-PIC  cascade
-  4:        365          0          1    IO-APIC-edge  serial
-  8:          0          0          0    IO-APIC-edge  rtc
- 17:          0          0          0   IO-APIC-level  libata
- 18:          0          0          0   IO-APIC-level  libata
- 19:          2          0          1   IO-APIC-level  ohci1394
- 22:          0          0          0   IO-APIC-level  ohci_hcd
- 23:          0          0          0   IO-APIC-level  ehci_hcd
-NMI:          0          0          0 
-LOC:      49259      49254      49253 
-ERR:       5729
-MIS:          0
-~ #
-
------Original Message-----
-From: Yinghai Lu [mailto:yhlu@tyan.com] 
-Sent: Tuesday, January 11, 2005 10:50 AM
-To: 'Andi Kleen'
-Cc: 'Mikael Pettersson'; 'jamesclv@us.ibm.com'; 'Matt_Domsch@dell.com';
-'discuss@x86-64.org'; 'linux-kernel@vger.kernel.org';
-'suresh.b.siddha@intel.com'
-Subject: RE: 256 apic id for amd64
-
-> It looks like the timer interrupt goes to the second CPU.
-Even I don't lift the apic id for bsp, the MB with Nvidia chipset still can
-not start core1/node0, from core0/node0 in kernel 2.6. But the 2.4.28 (32
-bit, 64 bit) works well. 
-
-How come?
-
-YH
+-- 
+Mathematics is the supreme nostalgia of our time.

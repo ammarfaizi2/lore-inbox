@@ -1,64 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293379AbSCAQuZ>; Fri, 1 Mar 2002 11:50:25 -0500
+	id <S293400AbSCAQuz>; Fri, 1 Mar 2002 11:50:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293373AbSCAQuS>; Fri, 1 Mar 2002 11:50:18 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27411 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S293375AbSCAQuA>; Fri, 1 Mar 2002 11:50:00 -0500
-Date: Fri, 1 Mar 2002 08:49:07 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: <davem@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: recalc_sigpending() / recalc_sigpending_tsk() ? 
-In-Reply-To: <22820.1014996781@redhat.com>
-Message-ID: <Pine.LNX.4.33.0203010838360.3798-100000@home.transmeta.com>
+	id <S293393AbSCAQuv>; Fri, 1 Mar 2002 11:50:51 -0500
+Received: from host-21.50by.nyc.onsiteaccess.net ([216.89.84.21]:782 "EHLO
+	me-2000.www.com") by vger.kernel.org with ESMTP id <S293375AbSCAQuV>;
+	Fri, 1 Mar 2002 11:50:21 -0500
+x-gfisavedcharset: Windows-1252
+Content-Type: text/plain;	charset="iso-8859-1"
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Subject: kernel 2.4.18 final : SET_PERSONALITY fix in rc4 mistake
+From: "Madhav Diwan" <mdiwan@wagweb.com>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 01 Mar 2002 11:50:11 -0500
+Message-ID: <1015001412.26970.42.camel@fglab>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 01 Mar 2002 16:41:20.0808 (UTC) FILETIME=[EAB78280:01C1C13F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Has a "good " version of 2.4.18 ( with the fix below added ) been put on
+the kernel.org site? if not when can we expect it?
+
+from kernel.org changelog :
+
+Update: The SET_PERSONALITY fix in rc4 has _not_
+been included in the final 2.4.18 by mistake.
+
+Thanks guys
+
+Madhav
 
 
-On Fri, 1 Mar 2002, David Woodhouse wrote:
->
-> I appreciate that the old recalc_sigpending(task) needed to stop working,
-> to force people to stop doing recalc_sigpending(current). How about
-> recalc_sigpending_cur() and recalc_sigpending_tsk() then?
+PS : Is this the last of the 2.4 series?
 
-The thing is, I refuse to have the "wrong" interface just because of
-backwards compatibility.
 
-And it's just _wrong_ to have to write "_cur" to point out that it's
-current, when current is the only thing that makes sense from a conceptual
-standpoint (except, as mentioned, in the special "internal signal sending
-implementation" case).
 
-But the solution might be a higher-level interface altogether: I don't
-think it's a good idea in the first place to have drivers and filesystems
-playing directly with the blocked signals or whatever it is that you are
-doing that makes you want to use recalc_sigpending() in the first place.
-
-So the basic rule should be: drivers etc should not ever have to touch
-"sigmask_lock", because they simply should never even _know_ about things
-like that. Agreed?
-
-So I would suggest solving this problem by just adding something like
-
-	/* Block all signals except for mask */
-	void sigallow(unsigned long mask)
-	{
-		spin_lock_irq(&current->sigmask_lock);
-		siginitsetinv(current->blocked, mask);
-		recalc_sigpending();
-		spin_unlock_irq(&current->sigmask_lock);
-	}
-
-and be done with it. That seems to be what most of the non-signal.c users
-actually _want_.
-
-So let's fix this by improving the interfaces, not by making them less
-readable.
-
-		Linus
-
+Note: The information contained in this message may be privileged and confidential and protected from disclosure.  If the reader of this message is not the intended recipient, or an employee or agent responsible for delivering this message to the intended recipient, you are hereby notified that any dissemination, distribution or copying of this communication is strictly prohibited. If you have received this communication in error, please notify us immediately by replying to the message and deleting it from your computer.  Thank you.  Wagner Weber & Williams

@@ -1,53 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131047AbRBEUsn>; Mon, 5 Feb 2001 15:48:43 -0500
+	id <S129130AbRBEU64>; Mon, 5 Feb 2001 15:58:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131606AbRBEUsd>; Mon, 5 Feb 2001 15:48:33 -0500
-Received: from d231.as5200.mesatop.com ([208.164.122.231]:17032 "HELO
-	localhost.localdomain") by vger.kernel.org with SMTP
-	id <S131047AbRBEUsU>; Mon, 5 Feb 2001 15:48:20 -0500
-From: Steven Cole <elenstev@mesatop.com>
-Reply-To: elenstev@mesatop.com
-Date: Mon, 5 Feb 2001 13:50:55 -0700
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Cc: alan@lxorguk.ukuu.org.uk, jmd@turbogeek.com
-Subject: [PATCH] 2.4.1-ac3 CONFIG_INPUT documentation in Configure.help
-MIME-Version: 1.0
-Message-Id: <01020513505500.02799@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+	id <S129132AbRBEU6q>; Mon, 5 Feb 2001 15:58:46 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:12226 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129130AbRBEU6n>;
+	Mon, 5 Feb 2001 15:58:43 -0500
+Date: Mon, 5 Feb 2001 20:54:29 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "Stephen C. Tweedie" <sct@redhat.com>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        Christoph Hellwig <hch@caldera.de>, Steve Lord <lord@sgi.com>,
+        linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
+Message-ID: <20010205205429.V1167@redhat.com>
+In-Reply-To: <E14Pr8G-0003zV-00@the-village.bc.nu> <Pine.LNX.4.10.10102051118210.31206-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.10.10102051118210.31206-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Feb 05, 2001 at 11:28:17AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is a patch which adds documentation for CONFIG_INPUT to Configure.help.
+Hi,
 
-Now, only  496 undocumented config options in the 2.4.1-ac3 tree left to go,
-out of a total of 1982, of which 40 are apparently unused.
+On Mon, Feb 05, 2001 at 11:28:17AM -0800, Linus Torvalds wrote:
 
-This patch applies to 2.4.1-ac3.
+> The _vectors_ are needed at the very lowest levels: the levels that do not
+> necessarily have to worry at all about completion notification etc. You
+> want the arbitrary scatter-gather vectors passed down to the stuff that
+> sets up the SG arrays etc, the stuff that doesn't care AT ALL about the
+> high-level semantics.
 
-Steven
+OK, this is exactly where we have a problem: I can see too many cases
+where we *do* need to know about completion stuff at a fine
+granularity when it comes to disk IO (unlike network IO, where we can
+usually rely on a caller doing retransmit at some point in the stack).
 
---- linux/Documentation/Configure.help.orig     Mon Feb  5 12:07:46 2001
-+++ linux/Documentation/Configure.help  Mon Feb  5 13:27:13 2001
-@@ -10560,6 +10560,16 @@
- 
-   If unsure, say Y.
- 
-+Input core support
-+CONFIG_INPUT
-+  Say Y here if you want to enable any of the following options for
-+  USB Human Interface Device (HID) support.
-+
-+  Say Y here if you want to enable any of the USB HID options in the
-+  USB support section which require Input core support.
-+
-+  Otherwise, say N.
-+
- Keyboard support
- CONFIG_INPUT_KEYBDEV
-   Say Y here if you want your USB HID keyboard (or an ADB keyboard
+If we are doing readahead, we want completion callbacks raised as soon
+as possible on IO completions, no matter how many other IOs have been
+merged with the current one.  More importantly though, when we are
+merging multiple page or buffer_head IOs in a request, we want to know
+exactly which buffer/page contents are valid and which are not once
+the IO completes.
+
+The current request struct's buffer_head list provides that quite
+naturally, but is a hugely heavyweight way of performing large IOs.
+What I'm really after is a way of sending IOs to make_request in such
+a way that if the caller provides an array of buffer_heads, it gets
+back completion information on each one, but if the IO is requested in
+large chunks (eg. XFS's pagebufs or large kiobufs from raw IO), then
+the request code can deal with it in those large chunks.
+
+What worries me is things like the soft raid1/5 code: pretending that
+we can skimp on the return information about which blocks were
+transferred successfully and which were not sounds like a really bad
+idea when you've got a driver which relies on that completion
+information in order to do intelligent error recovery.
+
+Cheers,
+ Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

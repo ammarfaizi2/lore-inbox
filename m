@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267008AbTBFMRD>; Thu, 6 Feb 2003 07:17:03 -0500
+	id <S265909AbTBFM1l>; Thu, 6 Feb 2003 07:27:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267021AbTBFMRD>; Thu, 6 Feb 2003 07:17:03 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:16018 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S267008AbTBFMRC>; Thu, 6 Feb 2003 07:17:02 -0500
-From: Arnd Bergmann <arndb@de.ibm.com>
-Reply-To: arnd@bergmann-dalldorf.de
-To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: klibc update
-Date: Thu, 6 Feb 2003 13:07:33 +0100
-User-Agent: KMail/1.5
-Organization: IBM Deutschland Entwicklung GmbH
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id <S267026AbTBFM1l>; Thu, 6 Feb 2003 07:27:41 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:24242 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S265909AbTBFM1l>;
+	Thu, 6 Feb 2003 07:27:41 -0500
+Date: Thu, 6 Feb 2003 12:33:40 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Jurriaan <thunder7@xs4all.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.59 won't boot, 2.5.58 will, how to I use bitkeeper to get 'in between' ?
+Message-ID: <20030206123340.GA3305@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Jurriaan <thunder7@xs4all.nl>, linux-kernel@vger.kernel.org
+References: <20030206060742.GA6458@middle.of.nowhere>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200302061307.33944.arndb@de.ibm.com>
+In-Reply-To: <20030206060742.GA6458@middle.of.nowhere>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I found what kept initramfs from working here: While creating
-of initramfs_data.cpio.gz, the padding between a file header
-and the file contents was wrong, which can be verified by
-unpacking the archive by hand.
+On Thu, Feb 06, 2003 at 07:07:42AM +0100, Jurriaan wrote:
+ > Until now, all 2.5.59-based kernels (2.5.59 vanilla, 2.5.59 + vmlinux
+ > patch, 2.5.59-mm[1-8]) hang very early in the boot-process on my system,
+ > right after 'Uncompressing Linux...'
 
-The trivial patch below fixed this for me.
+Two suspects (from freezing boxes Ive had here) are ACPI and PNP. Try
+disabling those first.
 
-	Arnd <><
+		Dave
 
-===== usr/gen_init_cpio.c 1.3 vs edited =====
---- 1.3/usr/gen_init_cpio.c	Tue Feb  4 23:29:14 2003
-+++ edited/usr/gen_init_cpio.c	Thu Feb  6 12:32:47 2003
-@@ -192,6 +192,7 @@
- 		0);			/* chksum */
- 	push_hdr(s);
- 	push_string(location);
-+	push_pad();
- 
- 	for (i = 0; i < buf.st_size; ++i)
- 		fputc(filebuf[i], stdout);
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

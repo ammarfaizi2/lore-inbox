@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263936AbTEWIdc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 04:33:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263943AbTEWIdc
+	id S263943AbTEWIdy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 04:33:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263944AbTEWIdy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 04:33:32 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:40216 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S263936AbTEWIdb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 04:33:31 -0400
-Date: Fri, 23 May 2003 01:49:34 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Alex Tomas <bzzz@tmi.comex.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Ext2-devel] [RFC] probably bug in current ext3/jbd
-Message-Id: <20030523014934.37a1c10d.akpm@digeo.com>
-In-Reply-To: <8765o1x6mb.fsf@gw.home.net>
-References: <87d6igmarf.fsf@gw.home.net>
-	<1053376482.11943.15.camel@sisko.scot.redhat.com>
-	<87he7qe979.fsf@gw.home.net>
-	<1053377493.11943.32.camel@sisko.scot.redhat.com>
-	<87addhd2mc.fsf@gw.home.net>
-	<20030521093848.59ada625.akpm@digeo.com>
-	<87smr8c9le.fsf@gw.home.net>
-	<20030521095921.4f457002.akpm@digeo.com>
-	<m3brxwe2lr.fsf@lexa.home.net>
-	<20030521103737.52eddeb3.akpm@digeo.com>
-	<87n0hgc6s6.fsf@gw.home.net>
-	<20030521105011.2d316baf.akpm@digeo.com>
-	<87k7ckc5z2.fsf@gw.home.net>
-	<20030521143140.3aaa86ba.akpm@digeo.com>
-	<8765o1x6mb.fsf@gw.home.net>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 23 May 2003 04:33:54 -0400
+Received: from mail.uptime.at ([62.116.87.11]:60140 "EHLO mail.uptime.at")
+	by vger.kernel.org with ESMTP id S263943AbTEWIdw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 04:33:52 -0400
+From: "Oliver Pitzeier" <o.pitzeier@uptime.at>
+To: "'Scott McDermott'" <vaxerdec@frontiernet.net>,
+       "'Marc-Christian Petersen'" <m.c.p@wolk-project.de>
+Cc: "'Sven Krohlas'" <darkshadow@web.de>, <marcelo@conectiva.com.br>,
+       <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: RE: Aix7xxx unstable in 2.4.21-rc2? (RE: Linux 2.4.21-rc2)
+Date: Fri, 23 May 2003 10:45:48 +0200
+Organization: UPtime system solutions
+Message-ID: <002b01c32107$b5686030$020b10ac@pitzeier.priv.at>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 May 2003 08:46:37.0393 (UTC) FILETIME=[D2574C10:01C32107]
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+In-Reply-To: <20030522173318.B1342@newbox.localdomain>
+X-MailScanner-Information: Please contact UPtime Systemloesungen for more information
+X-MailScanner: clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-6.6, required 4.8,
+	BAYES_01, EMAIL_ATTRIBUTION, IN_REP_TO, QUOTED_EMAIL_TEXT,
+	REPLY_WITH_QUOTES)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Tomas <bzzz@tmi.comex.ru> wrote:
->
-> here is small patch that intented to fix race with b_committed_data.
+Scott McDermott wrote:
+> Marc-Christian Petersen on Thu 22/05 17:31 +0200:
+> > http://people.freebsd.org/~gibbs/linux/SRC/
+> 
+> Why isn't this in mainline again? It seems everyone and
+> their grandmother needs it for their machine not to fall
+> apart.  I know I do, my machine won't even run for more than
+> a few dozen seconds without it.  Busy NFS server with it
+> (I'm using a 7892 HBA)
 
-Thanks, it looks good.
+Thanks for this information. Now it would be great to get a statement from
+Marcelo, wouldn't it?
+Why did you release the -rc3 without this? I believe there are more people like
+me, that have such problems and do not even know about it.
 
-The balloc.c code is getting awfully convoluted and hard to follow,
-but no obvious restructuring strategies are leaping out at me.
+Best regards,
+ Oliver
+

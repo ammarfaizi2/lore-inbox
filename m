@@ -1,69 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292599AbSCIKJl>; Sat, 9 Mar 2002 05:09:41 -0500
+	id <S292617AbSCIKWe>; Sat, 9 Mar 2002 05:22:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292592AbSCIKJb>; Sat, 9 Mar 2002 05:09:31 -0500
-Received: from mail.libertysurf.net ([213.36.80.91]:63020 "EHLO
-	mail.libertysurf.net") by vger.kernel.org with ESMTP
-	id <S292601AbSCIKJU>; Sat, 9 Mar 2002 05:09:20 -0500
-Message-ID: <3C81318C00184C5A@mail.libertysurf.net> (added by
-	    postmaster@libertysurf.fr)
-Content-Type: text/plain; charset=US-ASCII
-From: William Stinson <wstinson@infonie.fr>
-Reply-To: wstinson@infonie.fr
+	id <S292627AbSCIKWO>; Sat, 9 Mar 2002 05:22:14 -0500
+Received: from 1Cust55.tnt15.sfo3.da.uu.net ([67.218.75.55]:64525 "EHLO
+	morrowfield.home") by vger.kernel.org with ESMTP id <S292617AbSCIKWD>;
+	Sat, 9 Mar 2002 05:22:03 -0500
+Date: Sat, 9 Mar 2002 14:22:33 -0800 (PST)
+Message-Id: <200203092222.OAA03372@morrowfield.home>
+From: Tom Lord <lord@regexps.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] small patch to fix compilation error in drivers/char/rocket.c
-Date: Sat, 9 Mar 2002 11:09:33 +0000
-X-Mailer: KMail [version 1.3.1]
-Cc: ak@muc.de
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Subject: Re: Kernel SCM: When does CVS fall down where it REALLY matters?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi 
-
-this is a (trivial) patch for compilation error in the rocketport serial driver.
-
-Patch for 2.5.6. Please  CC' my for any answers/comments.
-
-I also put this patch at http://www.chez.com/wstinson/linux/kernel/patch-rocket
-
-William Stinson (wstinson@infonie.fr)
-
---- linux-2.5.6/drivers/char/rocket.c	Sat Mar  9 01:06:58 2002
-+++ linux-local/drivers/char/rocket.c	Sat Mar  9 01:09:20 2002
-@@ -227,7 +227,7 @@
- 	if (!info)
- 		return 1;
- 	if (info->magic != RPORT_MAGIC) {
--		printk(badmagic, MAJOR(device), MINOR(device), routine);
-+		printk(badmagic, major(device), minor(device), routine);
- 		return 1;
- 	}
- #endif
-@@ -896,7 +896,7 @@
- 	CHANNEL_t	*cp;
- 	unsigned long page;
- 	
--	line = MINOR(tty->device) - tty->driver.minor_start;
-+	line = minor(tty->device) - tty->driver.minor_start;
- 	if ((line < 0) || (line >= MAX_RP_PORTS))
- 		return -ENODEV;
- 	if (!tmp_buf) {
 
 
 
+       Val Henson:
+
+       For a laugh, read the instructions on how to "rename" CVS files. 
+       Hint: "Rename" is not the correct word. 
 
 
+       $ mv old new 
+       $ cvs remove old 
+       $ cvs add new 
+       $ cvs commit -m "Renamed old to new" old new 
+
+       [...]  There are two other ways to rename a file in CVS, one of
+       which is described as "dangerous" and the other as having
+       "drawbacks." References:
 
 
+       Note that the way to rename a file in in BitKeeper is: 
+
+       $ bk mv old new 
+
+       No danger, no drawbacks, no hand editing of history files. 
 
 
-_______________________________________________
-Kernel-janitor-discuss mailing list
-Kernel-janitor-discuss@lists.sourceforge.net
-https://lists.sourceforge.net/lists/listinfo/kernel-janitor-discuss
+I like the arch way of renaming a file:
 
+	$ mv old new
 
--------------------------------------------------------
+(Yes, history is preserved, etc.)
+
+-t

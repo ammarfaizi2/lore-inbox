@@ -1,173 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262432AbTIUP3A (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Sep 2003 11:29:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262433AbTIUP27
+	id S262434AbTIUPiK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Sep 2003 11:38:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262439AbTIUPiK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Sep 2003 11:28:59 -0400
-Received: from web12802.mail.yahoo.com ([216.136.174.37]:57362 "HELO
-	web12802.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262432AbTIUP24 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Sep 2003 11:28:56 -0400
-Message-ID: <20030921152855.61809.qmail@web12802.mail.yahoo.com>
-Date: Sun, 21 Sep 2003 08:28:55 -0700 (PDT)
-From: Shantanu Goel <sgoel01@yahoo.com>
-Subject: Re: A couple of 2.4.23-pre4 VM nits
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
-In-Reply-To: <20030921151418.GA29703@velociraptor.random>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-1586994407-1064158135=:61713"
+	Sun, 21 Sep 2003 11:38:10 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:29970 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262434AbTIUPiI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Sep 2003 11:38:08 -0400
+Date: Sun, 21 Sep 2003 10:38:02 -0500
+From: Tommy Reynolds <reynolds@redhat.com>
+To: "sting sting" <zstingx@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: EXPORT_SYMBOL MACRO definition (in 2.4.18-3) - newbie
+Message-Id: <20030921103802.138e96fa.reynolds@redhat.com>
+In-Reply-To: <Sea2-F317wbaj3ywtsI00006dd5@hotmail.com>
+References: <Sea2-F317wbaj3ywtsI00006dd5@hotmail.com>
+Organization: Red Hat GLS
+X-Mailer: Sylpheed version 0.9.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$
+ t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl
+ 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-1586994407-1064158135=:61713
-Content-Type: text/plain; charset=us-ascii
-Content-Id: 
-Content-Disposition: inline
+Uttered "sting sting" <zstingx@hotmail.com>, spoke thus:
 
-Great suggestion.  Attached is a fixed patch.
+> I want to know where EXPORT_SYMBOL macro is defined  (in 2.4.18-3 kernel).
 
---- Andrea Arcangeli <andrea@suse.de> wrote:
-> On Sun, Sep 21, 2003 at 07:51:27AM -0700, Shantanu
-> Goel wrote:
-> > I just realized the original code had one
-> desirable
-> > behaviour that my patch is missing, namely, it
-> > reclaimed memory from dcache/inode every time
-> swap_out
-> > is called.  Please use the attached patch that
-> > restores the original behaviour.  Otherwise, if
-> the
-> > interval is very long, no reclamation will happen
-> > until swap_out() fails which in the common case is
-> > unlikely.
-> 
-> I overlooked the *failed_swapout, I thought you used
-> only 0 and 1 as
-> parameters, the new version is fine.
-> 
-> BTW, it would also be cleaner to add a __ in front
-> of the function name,
-> and to #define a _force version that will pass 1, so
-> you don't have less
-> readable 0/1 in the caller, but I don't mind even
-> with the status in
-> version 2 (it's simple enough to understand the
-> semantics of the 0/1).
-> 
-> Andrea - If you prefer relying on open source
-> software, check these links:
-> 	   
->
-rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.[45]/
-> 	    http://www.cobite.com/cvsps/
-> 	    svn://svn.kernel.org/linux-2.[46]/trunk
+It's optionally defined in module source code.
 
-__________________________________
-Do you Yahoo!?
-Yahoo! SiteBuilder - Free, easy-to-use web site design software
-http://sitebuilder.yahoo.com
---0-1586994407-1064158135=:61713
-Content-Type: application/octet-stream; name="vfs-interval3.patch"
-Content-Transfer-Encoding: base64
-Content-Description: vfs-interval3.patch
-Content-Disposition: attachment; filename="vfs-interval3.patch"
-
-LS0tIC4va2VybmVsL3N5c2N0bC5jLn4xfgkyMDAzLTA5LTE2IDIwOjQ0OjE0
-LjAwMDAwMDAwMCAtMDQwMAorKysgLi9rZXJuZWwvc3lzY3RsLmMJMjAwMy0w
-OS0yMSAwMDo0OTozMi4wMDAwMDAwMDAgLTA0MDAKQEAgLTI4MSw2ICsyODEs
-OCBAQAogCSAmdm1fZ2ZwX2RlYnVnLCBzaXplb2YoaW50KSwgMDY0NCwgTlVM
-TCwgJnByb2NfZG9pbnR2ZWN9LAogCXtWTV9WRlNfU0NBTl9SQVRJTywgInZt
-X3Zmc19zY2FuX3JhdGlvIiwgCiAJICZ2bV92ZnNfc2Nhbl9yYXRpbywgc2l6
-ZW9mKGludCksIDA2NDQsIE5VTEwsICZwcm9jX2RvaW50dmVjfSwKKwl7Vk1f
-VkZTX1NDQU5fSU5URVJWQUwsICJ2bV92ZnNfc2Nhbl9pbnRlcnZhbCIsIAor
-CSAmdm1fdmZzX3NjYW5faW50ZXJ2YWwsIHNpemVvZihpbnQpLCAwNjQ0LCBO
-VUxMLCAmcHJvY19kb2ludHZlY30sCiAJe1ZNX0NBQ0hFX1NDQU5fUkFUSU8s
-ICJ2bV9jYWNoZV9zY2FuX3JhdGlvIiwgCiAJICZ2bV9jYWNoZV9zY2FuX3Jh
-dGlvLCBzaXplb2YoaW50KSwgMDY0NCwgTlVMTCwgJnByb2NfZG9pbnR2ZWN9
-LAogCXtWTV9NQVBQRURfUkFUSU8sICJ2bV9tYXBwZWRfcmF0aW8iLCAKLS0t
-IC4vbW0vdm1zY2FuLmMufjF+CTIwMDMtMDktMTYgMjA6NDQ6MTQuMDAwMDAw
-MDAwIC0wNDAwCisrKyAuL21tL3Ztc2Nhbi5jCTIwMDMtMDktMjEgMTE6MjQ6
-NDkuMDAwMDAwMDAwIC0wNDAwCkBAIC02NSw2ICs2NSwxMiBAQAogaW50IHZt
-X3Zmc19zY2FuX3JhdGlvID0gNjsKIAogLyoKKyAqICJ2bV92ZnNfc2Nhbl9p
-bnRlcnZhbCIgaXMgaG93IG9mdGVuIChpbiBzZWNvbmRzKQorICogbWVtb3J5
-IGdldHMgcmVjbGFpbWVkIGZyb20gaW5vZGUvZGVudHJ5IGNhY2hlLgorICov
-CitpbnQgdm1fdmZzX3NjYW5faW50ZXJ2YWwgPSBNQVhfU0NIRURVTEVfVElN
-RU9VVCAvIEhaOworCisvKgogICogVGhlIHN3YXAtb3V0IGZ1bmN0aW9uIHJl
-dHVybnMgMSBpZiBpdCBzdWNjZXNzZnVsbHkKICAqIHNjYW5uZWQgYWxsIHRo
-ZSBwYWdlcyBpdCB3YXMgYXNrZWQgdG8gKGBjb3VudCcpLgogICogSXQgcmV0
-dXJucyB6ZXJvIGlmIGl0IGNvdWxkbid0IGRvIGFueXRoaW5nLApAQCAtMzY0
-LDYgKzM3MCwyMyBAQAogCXJldHVybiAwOwogfQogCisjZGVmaW5lIHNocmlu
-a192ZnNfY2FjaGVzKGdmcF9tYXNrKQkJX19zaHJpbmtfdmZzX2NhY2hlcygw
-LCBnZnBfbWFzaykKKyNkZWZpbmUgc2hyaW5rX3Zmc19jYWNoZXNfZm9yY2Uo
-Z2ZwX21hc2spCV9fc2hyaW5rX3Zmc19jYWNoZXMoMSwgZ2ZwX21hc2spCisK
-K3N0YXRpYyB2b2lkIF9fc2hyaW5rX3Zmc19jYWNoZXMoaW50IGZvcmNlLCB1
-bnNpZ25lZCBpbnQgZ2ZwX21hc2spCit7CisJc3RhdGljIHVuc2lnbmVkIGxv
-bmcgbGFzdF9zY2FuID0gMDsKKworCWlmIChmb3JjZSB8fCB0aW1lX2FmdGVy
-KGppZmZpZXMsIGxhc3Rfc2NhbiArIHZtX3Zmc19zY2FuX2ludGVydmFsICog
-SFopKSB7CisJCXNocmlua19kY2FjaGVfbWVtb3J5KHZtX3Zmc19zY2FuX3Jh
-dGlvLCBnZnBfbWFzayk7CisJCXNocmlua19pY2FjaGVfbWVtb3J5KHZtX3Zm
-c19zY2FuX3JhdGlvLCBnZnBfbWFzayk7CisjaWZkZWYgQ09ORklHX1FVT1RB
-CisJCXNocmlua19kcWNhY2hlX21lbW9yeSh2bV92ZnNfc2Nhbl9yYXRpbywg
-Z2ZwX21hc2spOworI2VuZGlmCisJCWxhc3Rfc2NhbiA9IGppZmZpZXM7CisJ
-fQorfQorCiBzdGF0aWMgdm9pZCBGQVNUQ0FMTChyZWZpbGxfaW5hY3RpdmUo
-aW50IG5yX3BhZ2VzLCB6b25lX3QgKiBjbGFzc3pvbmUpKTsKIHN0YXRpYyBp
-bnQgRkFTVENBTEwoc2hyaW5rX2NhY2hlKGludCBucl9wYWdlcywgem9uZV90
-ICogY2xhc3N6b25lLCB1bnNpZ25lZCBpbnQgZ2ZwX21hc2ssIGludCAqIGZh
-aWxlZF9zd2Fwb3V0KSk7CiBzdGF0aWMgaW50IHNocmlua19jYWNoZShpbnQg
-bnJfcGFnZXMsIHpvbmVfdCAqIGNsYXNzem9uZSwgdW5zaWduZWQgaW50IGdm
-cF9tYXNrLCBpbnQgKiBmYWlsZWRfc3dhcG91dCkKQEAgLTQwMSw2ICs0MjQs
-OCBAQAogCQlpZiAoIW1lbWNsYXNzKHBhZ2Vfem9uZShwYWdlKSwgY2xhc3N6
-b25lKSkKIAkJCWNvbnRpbnVlOwogCisJCW1heF9zY2FuLS07CisKIAkJLyog
-UmFjeSBjaGVjayB0byBhdm9pZCB0cnlsb2NraW5nIHdoZW4gbm90IHdvcnRo
-d2hpbGUgKi8KIAkJaWYgKCFwYWdlLT5idWZmZXJzICYmIChwYWdlX2NvdW50
-KHBhZ2UpICE9IDEgfHwgIXBhZ2UtPm1hcHBpbmcpKQogCQkJZ290byBwYWdl
-X21hcHBlZDsKQEAgLTUxNiwxMSArNTQxLDcgQEAKIAkJCQlpZiAobnJfcGFn
-ZXMgPD0gMCkKIAkJCQkJZ290byBvdXQ7CiAKLQkJCQlzaHJpbmtfZGNhY2hl
-X21lbW9yeSh2bV92ZnNfc2Nhbl9yYXRpbywgZ2ZwX21hc2spOwotCQkJCXNo
-cmlua19pY2FjaGVfbWVtb3J5KHZtX3Zmc19zY2FuX3JhdGlvLCBnZnBfbWFz
-ayk7Ci0jaWZkZWYgQ09ORklHX1FVT1RBCi0JCQkJc2hyaW5rX2RxY2FjaGVf
-bWVtb3J5KHZtX3Zmc19zY2FuX3JhdGlvLCBnZnBfbWFzayk7Ci0jZW5kaWYK
-KwkJCQlzaHJpbmtfdmZzX2NhY2hlc19mb3JjZShnZnBfbWFzayk7CiAKIAkJ
-CQlpZiAoISpmYWlsZWRfc3dhcG91dCkKIAkJCQkJKmZhaWxlZF9zd2Fwb3V0
-ID0gIXN3YXBfb3V0KGNsYXNzem9uZSk7CkBAIC02MTQsNiArNjM1LDggQEAK
-IAlpZiAobnJfcGFnZXMgPD0gMCkKIAkJZ290byBvdXQ7CiAKKwlzaHJpbmtf
-dmZzX2NhY2hlcyhnZnBfbWFzayk7CisKIAlzcGluX2xvY2soJnBhZ2VtYXBf
-bHJ1X2xvY2spOwogCXJlZmlsbF9pbmFjdGl2ZShucl9wYWdlcywgY2xhc3N6
-b25lKTsKIApAQCAtNjM4LDExICs2NjEsOSBAQAogCQkJbnJfcGFnZXMgPSBz
-aHJpbmtfY2FjaGVzKGNsYXNzem9uZSwgZ2ZwX21hc2ssIG5yX3BhZ2VzLCAm
-ZmFpbGVkX3N3YXBvdXQpOwogCQkJaWYgKG5yX3BhZ2VzIDw9IDApCiAJCQkJ
-cmV0dXJuIDE7Ci0JCQlzaHJpbmtfZGNhY2hlX21lbW9yeSh2bV92ZnNfc2Nh
-bl9yYXRpbywgZ2ZwX21hc2spOwotCQkJc2hyaW5rX2ljYWNoZV9tZW1vcnko
-dm1fdmZzX3NjYW5fcmF0aW8sIGdmcF9tYXNrKTsKLSNpZmRlZiBDT05GSUdf
-UVVPVEEKLQkJCXNocmlua19kcWNhY2hlX21lbW9yeSh2bV92ZnNfc2Nhbl9y
-YXRpbywgZ2ZwX21hc2spOwotI2VuZGlmCisKKwkJCXNocmlua192ZnNfY2Fj
-aGVzX2ZvcmNlKGdmcF9tYXNrKTsKKwogCQkJaWYgKCFmYWlsZWRfc3dhcG91
-dCkKIAkJCQlmYWlsZWRfc3dhcG91dCA9ICFzd2FwX291dChjbGFzc3pvbmUp
-OwogCQl9IHdoaWxlICgtLXRyaWVzKTsKLS0tIC4vaW5jbHVkZS9saW51eC9z
-d2FwLmgufjF+CTIwMDMtMDktMTYgMjA6NDY6MzUuMDAwMDAwMDAwIC0wNDAw
-CisrKyAuL2luY2x1ZGUvbGludXgvc3dhcC5oCTIwMDMtMDktMjEgMDA6NTY6
-MjMuMDAwMDAwMDAwIC0wNDAwCkBAIC0xMTYsNiArMTE2LDcgQEAKIGV4dGVy
-biBpbnQgRkFTVENBTEwodHJ5X3RvX2ZyZWVfcGFnZXNfem9uZSh6b25lX3Qg
-KiwgdW5zaWduZWQgaW50KSk7CiBleHRlcm4gaW50IEZBU1RDQUxMKHRyeV90
-b19mcmVlX3BhZ2VzKHVuc2lnbmVkIGludCkpOwogZXh0ZXJuIGludCB2bV92
-ZnNfc2Nhbl9yYXRpbywgdm1fY2FjaGVfc2Nhbl9yYXRpbywgdm1fbHJ1X2Jh
-bGFuY2VfcmF0aW8sIHZtX3Bhc3Nlcywgdm1fZ2ZwX2RlYnVnLCB2bV9tYXBw
-ZWRfcmF0aW87CitleHRlcm4gaW50IHZtX3Zmc19zY2FuX2ludGVydmFsOwog
-CiAvKiBsaW51eC9tbS9wYWdlX2lvLmMgKi8KIGV4dGVybiB2b2lkIHJ3X3N3
-YXBfcGFnZShpbnQsIHN0cnVjdCBwYWdlICopOwotLS0gLi9pbmNsdWRlL2xp
-bnV4L3N5c2N0bC5oLn4xfgkyMDAzLTA5LTE2IDIwOjQ2OjM1LjAwMDAwMDAw
-MCAtMDQwMAorKysgLi9pbmNsdWRlL2xpbnV4L3N5c2N0bC5oCTIwMDMtMDkt
-MjEgMDA6NTk6MzcuMDAwMDAwMDAwIC0wNDAwCkBAIC0xNTQsNiArMTU0LDcg
-QEAKIAlWTV9HRlBfREVCVUc9MTgsICAgICAgICAvKiBkZWJ1ZyBHRlAgZmFp
-bHVyZXMgKi8KIAlWTV9DQUNIRV9TQ0FOX1JBVElPPTE5LCAvKiBwYXJ0IG9m
-IHRoZSBpbmFjdGl2ZSBjYWNoZSBsaXN0IHRvIHNjYW4gKi8KIAlWTV9NQVBQ
-RURfUkFUSU89MjAsICAgICAvKiBhbW91bnQgb2YgdW5mcmVlYWJsZSBwYWdl
-cyB0aGF0IHRyaWdnZXJzIHN3YXBvdXQgKi8KKwlWTV9WRlNfU0NBTl9JTlRF
-UlZBTD0yMSwvKiBpbnRlcnZhbCAoaW4gc2VjcykgYmV0d2VlbiByZWNsYWlt
-aW5nIG1lbW9yeSBmcm9tIGlub2RlL2RlbnRyeSBjYWNoZSAqLwogfTsKIAog
-Cg==
-
---0-1586994407-1064158135=:61713--
+This symbol is used to tailor the symbol scoping rules implemented by
+the module utilities.  A module is free to define this symbol before
+importing the standard module #include<> files.  Use is voluntary
+(2.4.x) but strongly recommended.

@@ -1,66 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261457AbUKIJlf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261459AbUKIJlj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261457AbUKIJlf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 04:41:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261456AbUKIJle
+	id S261459AbUKIJlj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 04:41:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261456AbUKIJlj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 04:41:34 -0500
-Received: from zone3.gcu-squad.org ([217.19.50.74]:53009 "EHLO
-	zone3.gcu-squad.org") by vger.kernel.org with ESMTP id S261459AbUKIJfJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 04:35:09 -0500
-Date: Tue, 9 Nov 2004 10:29:00 +0100 (CET)
-To: greg@kroah.com, akpm@osdl.org
-Subject: Re: [BK PATCH] I2C update for 2.6.10-rc1
-X-IlohaMail-Blah: khali@gcu.info
-X-IlohaMail-Method: mail() [mem]
-X-IlohaMail-Dummy: moo
-X-Mailer: IlohaMail/0.8.13 (On: webmail.gcu.info)
-Message-ID: <vYBFH9gE.1099992539.9943000.khali@gcu.info>
-In-Reply-To: <20041109052229.GA5117@kroah.com>
-From: "Jean Delvare" <khali@linux-fr.org>
-Bounce-To: "Jean Delvare" <khali@linux-fr.org>
-CC: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 9 Nov 2004 04:41:39 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:55442 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261460AbUKIJfk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 04:35:40 -0500
+Date: Tue, 9 Nov 2004 11:37:33 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Olivier Poitrey <olivier@pas-tres.net>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Andries Brouwer <Andries.Brouwer@cwi.nl>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, diffie@blazebox.homeip.net,
+       Greg KH <greg@kroah.com>, diffie@gmail.com
+Subject: Re: 2.6.10-rc1-mm3
+Message-ID: <20041109103733.GA15065@elte.hu>
+References: <9dda349204110611043e093bca@mail.gmail.com> <20041107024841.402c16ed.akpm@osdl.org> <20041108075934.GA4602@elte.hu> <20041107234225.02c2f9b6.akpm@osdl.org> <20041108224259.GA14506@kroah.com> <20041108212747.33b6e14a.akpm@osdl.org> <792238A4-3224-11D9-9F1E-000D934362B4@pas-tres.net> <1099988562.3989.4.camel@laptop.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1099988562.3989.4.camel@laptop.fenrus.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi Greg,
+* Arjan van de Ven <arjan@infradead.org> wrote:
 
->Greg Kroah-Hartman:
->  o I2C: delete normal_i2c_range logic from sensors as there are no more
->         users
->  o I2C: moved from all sensor drivers from normal_i2c_range to normal_i2c
->  o I2C: fix i2c_detect to allow NULL fields in adapter address structure
->  o I2C: remove normal_isa_range from I2C sensor drivers, as it's not used
->  o I2C: remove ignore_range from I2C sensor drivers, as it's not used
->  o I2C: remove probe_range from I2C sensor drivers, as it's not used
+> On Tue, 2004-11-09 at 08:53 +0100, Olivier Poitrey wrote:
+> > On 9 nov. 04, at 06:27, Andrew Morton wrote:
+> > 
+> > > [...] Is there a requirement to support more than 256 legacy ptys?
+> > 
+> > Yes it is. For big vserver hosting systems for instance, running like
+> > 100 vservers per node you can easily hit this limit.
+> 
+> but do you really need the legacy pty's for that instead of the
+> "modern" ones ?
 
-I'm very happy with that :) A documentation update will be needed though.
+probably not, but if the fix is easy then there's no reason not to do
+it.
 
-Also, while we're at it, is there any reason why I2C_CLIENT_END and
-I2C_CLIENT_ISA_END are two different constants? We could probably go
-with 0xffff (or 0xfffd if you don't like 0xffff) for both. We never saw
-a non-even-aligned ISA address anyway, did we? Just a though anyway, I
-agree it doesn't matter much.
-
-As a side note, I could never understand why the I2C-ISA kind of
-emulation was implemented the way it is. It could make sense if the
-clients really didn't know that they are accessing the ISA bus. It's
-not the case though, clients are accessing the ISA I/O space directly.
-The i2c-isa driver is almost empty. Client drivers with both I2C and ISA
-bus accesses (lm78, w83781d, it87) are a mess. I understand that the
-original idea was to avoid code duplication for chips supporting both
-bus interfaces, but in the end the benefit is questionable. In
-particular, people only using ISA chips have to bear the overhead of the
-whole I2C subsystem with little benefit. There must be a better way.
-Greg, do you have plans to clean it up? I can think of two completely
-different approaches, either a true i2c-isa emulation, or a complete
-separation of the ISA stuff. We may consider different approaches for
-I2C+ISA chips and ISA only chips, by the way.
-
-Thanks,
-Jean
+	Ingo

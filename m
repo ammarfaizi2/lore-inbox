@@ -1,75 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263462AbTJBTLt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Oct 2003 15:11:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263463AbTJBTLs
+	id S263411AbTJBTIE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Oct 2003 15:08:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263451AbTJBTIE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Oct 2003 15:11:48 -0400
-Received: from law11-f114.law11.hotmail.com ([64.4.17.114]:51467 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S263462AbTJBTLq
+	Thu, 2 Oct 2003 15:08:04 -0400
+Received: from 176.Red-81-38-200.pooles.rima-tde.net ([81.38.200.176]:1843
+	"EHLO falafell") by vger.kernel.org with ESMTP id S263411AbTJBTIB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Oct 2003 15:11:46 -0400
-X-Originating-IP: [220.224.20.254]
-X-Originating-Email: [kartik_me@hotmail.com]
-From: "kartikey bhatt" <kartik_me@hotmail.com>
-To: jmorris@redhat.com
+	Thu, 2 Oct 2003 15:08:01 -0400
+Date: Thu, 2 Oct 2003 21:07:44 +0200
+To: Nick Piggin <piggin@cyberone.com.au>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [CRYPTO] Testing Module Cleanup.
-Date: Fri, 03 Oct 2003 00:41:45 +0530
+Subject: Re: Linux 2.6.0-test6
+Message-ID: <20031002190744.GC1215@81.38.200.176>
+Reply-To: piotr@member.fsf.org
+References: <Pine.LNX.4.44.0309271822450.6141-100000@home.osdl.org> <200309281703.53067.kernel@kolivas.org> <200309280502.36177.rob@landley.net> <3F77BB2C.7030402@cyberone.com.au> <3F7863F0.6070401@wmich.edu> <20031002004102.GB2013@81.38.200.176> <3F7B9600.408@cyberone.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <Law11-F114t5BBBVhye0000106c@hotmail.com>
-X-OriginalArrivalTime: 02 Oct 2003 19:11:45.0833 (UTC) FILETIME=[05A40990:01C38919]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F7B9600.408@cyberone.com.au>
+User-Agent: Mutt/1.5.4i
+From: Pedro Larroy <piotr@member.fsf.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok I'll do it.
-
-
->From: James Morris <jmorris@redhat.com>
->To: kartikey bhatt <kartik_me@hotmail.com>
->CC: linux-kernel@vger.kernel.org
->Subject: Re: [CRYPTO] Testing Module Cleanup.
->Date: Thu, 2 Oct 2003 10:35:09 -0400 (EDT)
->
->On Thu, 2 Oct 2003, kartikey bhatt wrote:
->
-> > sending it as an attachment
+On Thu, Oct 02, 2003 at 01:05:36PM +1000, Nick Piggin wrote:
+> 
+> 
+> Pedro Larroy wrote:
+> >Why not run xmms with SCHED_RR or SCHED_FIFO?
 > >
->
->I'm seeing a failure with the 5th DES ECB test vector:
->
->   testing des ECB encryption
->   [...]
->   test 5 (64 bit key):
->   5630092f0161d576
->   fail
->
->Could you also retain the weak key test for DES?  Just add another field
->to the test vector struct to indicate that CRYPTO_TFM_REQ_WEAK_KEY needs
->to be set prior to setkey(), then clear it after the test.  (Once you do
->this the above test vector should fail anyway, which is probably why it
->is buggy -- it's never been run).
->
->Also, a minor nit: please be careful about this kind of thing:
->
->- * Copyright (c) 2002 Jean-Francois Dive <jef@linuxbe.org>$
->+ * Copyright (c) 2002 Jean-Francois Dive <jef@linuxbe.org> ^I$
->
->
->Otherwise, it looks good.
->
->Thanks,
->
->
->- James
->--
->James Morris
-><jmorris@redhat.com>
->
->
+> >
+> 
+> Well because playing an mp3 really is a pitiful task for modern CPUs,
+> and the standard scheduler should handle this fine. Also a music skip
+> isn't terribly important.
+> 
+> Realtime applications are difficult to make robust and they can easily
+> hang the system.
+> 
 
-_________________________________________________________________
-Contact brides & grooms FREE! http://www.shaadi.com/ptnr.php?ptnr=hmltag 
-Only on www.shaadi.com. Register now!
+I think there are better aproaches for deciding when a task should be
+interactive than the current one based in how much does the task sleep.
 
+I'm afraid this selection criteria leads to a scheduler that isn't
+predictable for situations that aren't the ones for which is tuned to work.
+Of course I may be wrong, but to me, seems that saying explicitly 
+which tasks are interactive sounds better.
+
+-- 
+  Pedro Larroy Tovar  |  piotr%member.fsf.org 
+
+Software patents are a threat to innovation in Europe please check: 
+	http://www.eurolinux.org/     

@@ -1,109 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268490AbUIGTbu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268333AbUIGTbu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268490AbUIGTbu (ORCPT <rfc822;willy@w.ods.org>);
+	id S268333AbUIGTbu (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 7 Sep 2004 15:31:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268503AbUIGT2b
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268490AbUIGT2N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 15:28:31 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:20238 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S268289AbUIGT0s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 15:26:48 -0400
-Date: Tue, 7 Sep 2004 21:26:16 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>, "Antonino A. Daplas" <adaplas@hotpop.com>
-Cc: linux-kernel@vger.kernel.org, jsimmons@infradead.org, geert@linux-m68k.org,
-       linux-fbdev-devel@lists.sourceforge.net
-Subject: [patch] 2.6.9-rc1-mm4: atyfb_base.c gcc 2.95 compile error
-Message-ID: <20040907192616.GC2454@fs.tum.de>
-References: <20040907020831.62390588.akpm@osdl.org>
-Mime-Version: 1.0
+	Tue, 7 Sep 2004 15:28:13 -0400
+Received: from mx02.qsc.de ([213.148.130.14]:53904 "EHLO mx02.qsc.de")
+	by vger.kernel.org with ESMTP id S268526AbUIGTYD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 15:24:03 -0400
+Date: Tue, 07 Sep 2004 21:22:33 +0200
+From: Gunnar Ritter <Gunnar.Ritter@pluto.uni-freiburg.de>
+Organization: Privat.
+To: Hans Reiser <reiser@namesys.com>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       viro@parcelfarce.linux.theplanet.co.uk,
+       Linus Torvalds <torvalds@osdl.org>, Tonnerre <tonnerre@thundrix.ch>,
+       Spam <spam@tnonline.net>, ReiserFS List <reiserfs-list@namesys.com>,
+       Pavel Machek <pavel@ucw.cz>, David Masover <ninja@slaphack.com>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       Jamie Lokier <jamie@shareable.org>, Christoph Hellwig <hch@lst.de>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       Chris Wedgwood <cw@f00f.org>, Christer Weinigel <christer@weinigel.se>
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <413E0A79.nailEBK11DW72@pluto.uni-freiburg.de>
+References: <200409070206.i8726vrG006493@localhost.localdomain>
+ <413D4C18.6090501@slaphack.com> <m3d60yjnt7.fsf@zoo.weinigel.se>
+ <413DA8EE.nailA301JQ74H@pluto.uni-freiburg.de>
+ <413DFC06.5070604@namesys.com>
+In-Reply-To: <413DFC06.5070604@namesys.com>
+User-Agent: nail 11.7pre 9/7/04
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040907020831.62390588.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040818i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 07, 2004 at 02:08:31AM -0700, Andrew Morton wrote:
->...
-> +fbdev-add-module_init-and-fb_get_options-per-driver.patch
-> 
->  fbdev update
->...
+Hans Reiser <reiser@namesys.com> wrote:
 
-gcc 2.95 doesn't support code mixed with variable declarations:
+> Gunnar Ritter wrote:
+> >You cannot just 'modify cp'. 
+> >
+> People who think that POSIX is the objective rather than the least 
+> common denominator of OS design
 
-<--  snip  -->
+I am not principally adversed against extensions to POSIX. My mailx
+implementation 'nail' has e.g. perhaps more extensions than there are
+commands and options in the POSIX standard for it.
 
-...
-  CC      drivers/video/aty/atyfb_base.o
-drivers/video/aty/atyfb_base.c: In function `atyfb_init':
-drivers/video/aty/atyfb_base.c:1912: parse error before `unsigned'
-...
-make[3]: *** [drivers/video/aty/atyfb_base.o] Error 1
+POSIX is also not against extensions. In fact, POSIX development
+generally works as follows: One vendor creates something as an extension,
+other vendors follow to implement it, and later on it is discussed if it
+is desirable to integrate the feature into the standard itself. It is
+absolutely possible that Sun's openat() might be in POSIX.1-2010 one day,
+for example. Useful extensions are thus welcome to POSIX.
 
-<--  snip  -->
+This does not mean, however, that one should not clearly distinct between
+standard and extensions, and that extensions should be created at will
+without carefully weighting pros and cons.
 
+I did not say: POSIX forbids to handle streams or directory/file mixes.
+This would not even have been true. However, POSIX restricts the choice
+of possible interfaces for them. One of those restrictions is that 'cp'
+may not copy streams if used in strict accordance with POSIX. As you
+acknowledged in your reply, POSIX is the least common denominator. Thus
+'cp' implementations should not be modified in a way that violates it.
 
-A possible fix is below.
+This means, in effect, that a strictly conforming POSIX application (i.e.
+something like a shell script that uses no POSIX extensions or methods
+which are not clearly defined in the standard) will very likely be unable
+to copy streams, unless some other, conforming, method is found. Which is
+a problem one should know about when discussing this.
 
-BTW (not related to this patch):
-Why are #ifdef __sparc__ in the #else branch of an #ifdef __sparc__
-(e.g. line 2225)???
+> have had their head screwed on backwards 
+> to better look at where their competitors used to be.
 
+But there are not only forwards and backwards directions. Sideways might
+lead to nowhere.
 
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
+	Gunnar
 
---- linux-2.6.9-rc1-mm4-full/drivers/video/aty/atyfb_base.c.old	2004-09-07 21:11:52.000000000 +0200
-+++ linux-2.6.9-rc1-mm4-full/drivers/video/aty/atyfb_base.c	2004-09-07 21:18:01.000000000 +0200
-@@ -1900,37 +1900,42 @@
- 	printk("fb%d: %s frame buffer device on %s\n",
- 	       info->node, info->fix.id, name);
- 	return 1;
- }
- 
- int __init atyfb_init(void)
- {
--#ifndef MODULE
--	atyfb_setup(fb_get_options("atyfb"));
--#endif
--
- #if defined(CONFIG_PCI)
- 	unsigned long addr, res_start, res_size;
- 	struct atyfb_par *default_par;
- 	struct pci_dev *pdev = NULL;
- 	struct fb_info *info;
- 	int i;
- #ifdef __sparc__
- 	extern void (*prom_palette) (int);
- 	extern int con_is_present(void);
- 	struct pcidev_cookie *pcp;
- 	char prop[128];
- 	int node, len, j;
- 	u32 mem, chip_id;
-+#else
-+	u16 tmp;
-+#endif
-+#endif
- 
-+#ifndef MODULE
-+	atyfb_setup(fb_get_options("atyfb"));
-+#endif
-+
-+#if defined(CONFIG_PCI)
-+
-+#ifdef __sparc__
- 	/* Do not attach when we have a serial console. */
- 	if (!con_is_present())
- 		return -ENXIO;
--#else
--	u16 tmp;
- #endif
- 
- 	while ((pdev =
- 		pci_find_device(PCI_VENDOR_ID_ATI, PCI_ANY_ID, pdev))) {
- 		if ((pdev->class >> 16) == PCI_BASE_CLASS_DISPLAY) {
- 			struct resource *rp;
- 
-
+-- 
+http://omnibus.ruf.uni-freiburg.de/~gritter

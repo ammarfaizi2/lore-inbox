@@ -1,70 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290111AbSAKVCf>; Fri, 11 Jan 2002 16:02:35 -0500
+	id <S290118AbSAKVOC>; Fri, 11 Jan 2002 16:14:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290110AbSAKVCU>; Fri, 11 Jan 2002 16:02:20 -0500
-Received: from zero.tech9.net ([209.61.188.187]:10767 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S290111AbSAKVCL>;
-	Fri, 11 Jan 2002 16:02:11 -0500
-Subject: [PATCH] Preemptive Kernel for Ingo's O(1) scheduler
-From: Robert Love <rml@tech9.net>
-To: linux-kernel@vger.kernel.org
-Cc: kpreempt-tech@lists.sourceforge.net, george@mvista.com, mingo@elte.hu,
-        torvalds@transmeta.com
-Content-Type: text/plain
+	id <S290117AbSAKVNw>; Fri, 11 Jan 2002 16:13:52 -0500
+Received: from 89dyn161.com21.casema.net ([62.234.20.161]:62650 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S290113AbSAKVNj>; Fri, 11 Jan 2002 16:13:39 -0500
+Message-Id: <200201112113.g0BLDKo05903@abraracourcix.bitwizard.nl>
+Subject: Re: Bigggg Maxtor drives (fwd)
+To: andre@linux-ide.org (Andre Hedrick)
+Date: Fri, 11 Jan 2002 22:13:19 +0100 (CET)
+Cc: ben@xmission.com (Benjamin S Carrell), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10201092011420.5104-100000@master.linux-ide.org> from "Andre Hedrick" at Jan 09, 2002 08:59:23 PM
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.0.99+cvs.2001.12.18.08.57 (Preview Release)
-Date: 11 Jan 2002 16:04:54 -0500
-Message-Id: <1010783095.819.61.camel@phantasy>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A version of preempt-kernel is now available for Ingo's O(1) scheduler.
+Andre Hedrick wrote:
+> 
+> 
+> Sorry but the amount of capacity we are talking about is vastly different.
+> 
+> hdg: Maxtor 4G160J8, ATA DISK drive
+> hdg: 320173056 sectors (163929 MB) w/2048KiB Cache, CHS=317632/255/63, UDMA(133)
 
-For 2.5.2-pre11:
-	ftp://ftp.kernel.org/pub/linux/kernel/people/rml/preempt-kernel/v2.5/preempt-kernel-rml-2.5.2-pre11-1.patch
-For 2.4.18-pre3 + sched-O1-H6:
-	ftp://ftp.kernel.org/pub/linux/kernel/people/rml/preempt-kernel/v2.4/ingo-O1-sched/preempt-kernel-rml-2.4.18-pre3-ingo-1.patch
+Hi Andre, 
 
-Because of changes in load_balance, I suggest not using preempt-kernel
-and an additional sched update on 2.5.  I'll update as the patches are
-merged into 2.5.
+I have one of these drives. Should I be able to run it off the promise 
+controller? (Which didn't boast 48-bit compatibilty when I bought it?)
 
-Making the kernel fully preemptible should be synergistic with Ingo's
-scheduler with its faster task dispatch time and better RT support.
+  Bus  0, device  10, function  0:
+    Unknown mass storage controller: Promise Technology, Inc. 20262 (rev 1).
+      IRQ 11.
+      Master Capable.  Latency=32.  
+      I/O at 0x9400 [0x9407].
+      I/O at 0x9800 [0x9803].
+      I/O at 0x9c00 [0x9c07].
+      I/O at 0xa000 [0xa003].
+      I/O at 0xa400 [0xa43f].
+      Non-prefetchable 32 bit memory at 0xf74c0000 [0xf74dffff].
 
-Getting the two to play together was not hard, albeit a bit of a pain. 
-The actually scheduling support is less, due to the simplified schedule
-and schedule_tail, although there is added code for making the per-CPU
-runqueues preempt-safe.
+I tried it before on a "test-machine" where it ran off the onboard
+controller just fine. But in my fileserver on the fast promise 
+controller it just hangs while scanning the partition table. 
 
-Benchmarks:
+We're running 2.4.16 with your patch off linux-ide.org. 
 
-2.5.2-pre11 dbench 16:		24.5364 MB/s
-2.5.2-pre11-preempt dbench 16:	27.5192 MB/s
+	Roger. 
 
-2.5.2-pre11 latencytest:
-worst-case latency is 18.7ms with 96% scheduling latency on-time
-2.5.2-pre11-preempt latencytest:
-6ms (<1.5ms in all but disk write) with 99.9% scheduling latency on-time
-
-2.5.2-pre11-preempt avg latency is 1.1ms (for an arbitray work-load I
-tested with).  The obstacle for sub-ms average latency is still the
-long-held spinlocks that can be 100ms+.
-
-Full ChangeLog:
-
-- make preempt-kernel and Ingo's O(1) scheduler play nicely
-
-- (2.5 only) more include additions
-
-- various cleanups and such
-
-Comments, patches, etc. are appreciated.  While it is running stable
-here in both SMP and UP on both 2.4 and 2.5, more testing could reveal
-problems.  Also, some optimization could be done at this point to
-hopefully reduce overhead.  Enjoy,
-
-	Robert Love
-
+-----
+I appreciate an Email copy on replies: I sometimes forget about the 
+list for quite a while.... 
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

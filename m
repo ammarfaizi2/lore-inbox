@@ -1,254 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262579AbULPA2z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262556AbULPAgx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262579AbULPA2z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 19:28:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262551AbULPA1c
+	id S262556AbULPAgx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 19:36:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262601AbULPAeA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 19:27:32 -0500
-Received: from mail.dif.dk ([193.138.115.101]:62371 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S262537AbULPAOW (ORCPT
+	Wed, 15 Dec 2004 19:34:00 -0500
+Received: from 69-18-3-179.lisco.net ([69.18.3.179]:21167 "EHLO slaphack.com")
+	by vger.kernel.org with ESMTP id S262539AbULPAQ6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 19:14:22 -0500
-Date: Thu, 16 Dec 2004 01:24:48 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Linux Kernel Trivial Patch Monkey <trivial@rustcorp.com.au>
-Subject: [PATCH 13/30] return statement cleanup - kill pointless parentheses
- in fs/xfs/xfs_log.c
-Message-ID: <Pine.LNX.4.61.0412160123540.3864@dragon.hygekrogen.localhost>
+	Wed, 15 Dec 2004 19:16:58 -0500
+Message-ID: <41C0D3F8.1020408@slaphack.com>
+Date: Wed, 15 Dec 2004 18:16:56 -0600
+From: David Masover <ninja@slaphack.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040916)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Hans Reiser <reiser@namesys.com>
+CC: Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk>, reiserfs-list@namesys.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: file as a directory
+References: <200411301631.iAUGVT8h007823@laptop11.inf.utfsm.cl>	 <41ACA7C9.1070001@namesys.com>	 <1103043518.21728.159.camel@pear.st-and.ac.uk>	 <41BF21BC.1020809@namesys.com> <1103059622.2999.17.camel@grape.st-and.ac.uk> <41BFC1C5.1070302@slaphack.com> <41BFCB66.3090809@namesys.com>
+In-Reply-To: <41BFCB66.3090809@namesys.com>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-This patch removes pointless parentheses from return statements in 
-fs/xfs/xfs_log.c
+Hans Reiser wrote:
+[...]
+| Explain the value of caching executable output more please.
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+If executables become "plugins" (see below), there is a performance loss
+to be made up by caching.  For instance, if we have an executable which
+calls "tar", which we attach to a tarball, we want to cache the
+extracted files.  It's even more urgent when people start writing
+perl/python/ruby executables to deal with system configuration files,
+such as /etc/passwd.  It's allright for passwd to take half a second to
+generate, so long as we cache that output, and thus only spend the half
+second when passwd is modified, instead of every time a user logs in.
+|
+|>
+|> | The component objects themselves could be full objects, so they
+|> | themselves could have sub-components.
+|>
+|> Right.
+|>
+|> Also, there should be an inverse. For instance, a file-as-directory type
+|> object should have a "contents" object, usually a normal directory, but
+|> which could conceivably be any type of object, including a code-ish
+|> object which implements a filesystem. Accessing foo/ would be the same
+|> as accessing foo/.../contents, only because "..." (or whatever we use
+|> for meta-files) is outside the actual directory namespace,
+|> foo/.../contents/... refers to the metas of object "contents", which are
+|> different than the metas of object "foo".
+|
+|
+| Are you sure that having more than one "...." is needed?  Hmmm,
+| interesting, must think about it.
 
---- linux-2.6.10-rc3-bk8-orig/fs/xfs/xfs_log.c	2004-10-18 23:55:36.000000000 +0200
-+++ linux-2.6.10-rc3-bk8/fs/xfs/xfs_log.c	2004-12-15 23:00:37.000000000 +0100
-@@ -377,7 +377,7 @@ xfs_log_release_iclog(xfs_mount_t *mp,
- 
- 	if (xlog_state_release_iclog(log, iclog)) {
- 		xfs_force_shutdown(mp, XFS_LOG_IO_ERROR);
--		return(EIO);
-+		return EIO;
- 	}
- 
- 	return 0;
-@@ -534,7 +534,7 @@ xfs_log_unmount(xfs_mount_t *mp)
- 
- 	error = xfs_log_unmount_write(mp);
- 	xfs_log_unmount_dealloc(mp);
--	return (error);
-+	return error;
- }
- 
- /*
-@@ -716,7 +716,7 @@ xfs_log_write(xfs_mount_t *	mp,
- 	if ((error = xlog_write(mp, reg, nentries, tic, start_lsn, NULL, 0))) {
- 		xfs_force_shutdown(mp, XFS_LOG_IO_ERROR);
- 	}
--	return (error);
-+	return error;
- }	/* xfs_log_write */
- 
- 
-@@ -829,7 +829,7 @@ xfs_log_need_covered(xfs_mount_t *mp)
- 		needed = 1;
- 	}
- 	LOG_UNLOCK(log, s);
--	return(needed);
-+	return needed;
- }
- 
- /******************************************************************************
-@@ -1001,7 +1001,7 @@ xlog_bdstrat_cb(struct xfs_buf *bp)
- 	XFS_BUF_ERROR(bp, EIO);
- 	XFS_BUF_STALE(bp);
- 	xfs_biodone(bp);
--	return (XFS_ERROR(EIO));
-+	return XFS_ERROR(EIO);
- 
- 
- }
-@@ -1283,7 +1283,7 @@ xlog_commit_record(xfs_mount_t  *mp,
- 			       iclog, XLOG_COMMIT_TRANS))) {
- 		xfs_force_shutdown(mp, XFS_LOG_IO_ERROR);
- 	}
--	return (error);
-+	return error;
- }	/* xlog_commit_record */
- 
- 
-@@ -1468,7 +1468,7 @@ xlog_sync(xlog_t		*log,
- 	if ((error = XFS_bwrite(bp))) {
- 		xfs_ioerror_alert("xlog_sync", log->l_mp, bp,
- 				  XFS_BUF_ADDR(bp));
--		return (error);
-+		return error;
- 	}
- 	if (split) {
- 		bp		= iclog->ic_log->l_xbuf;
-@@ -1506,10 +1506,10 @@ xlog_sync(xlog_t		*log,
- 		if ((error = XFS_bwrite(bp))) {
- 			xfs_ioerror_alert("xlog_sync (split)", log->l_mp,
- 					  bp, XFS_BUF_ADDR(bp));
--			return (error);
-+			return error;
- 		}
- 	}
--	return (0);
-+	return 0;
- }	/* xlog_sync */
- 
- 
-@@ -1694,7 +1694,7 @@ xlog_write(xfs_mount_t *	mp,
-     for (index = 0; index < nentries; ) {
- 	if ((error = xlog_state_get_iclog_space(log, len, &iclog, ticket,
- 					       &contwr, &log_offset)))
--		return (error);
-+		return error;
- 
- 	ASSERT(log_offset <= iclog->ic_size - 1);
- 	ptr = (__psint_t) ((char *)iclog->ic_datap+log_offset);
-@@ -1798,7 +1798,7 @@ xlog_write(xfs_mount_t *	mp,
- 		    xlog_state_finish_copy(log, iclog, record_cnt, data_cnt);
- 		    record_cnt = data_cnt = 0;
- 		    if ((error = xlog_state_release_iclog(log, iclog)))
--			    return (error);
-+			    return error;
- 		    break;			/* don't increment index */
- 	    } else {				/* copied entire region */
- 		index++;
-@@ -1812,7 +1812,7 @@ xlog_write(xfs_mount_t *	mp,
- 			ASSERT(flags & XLOG_COMMIT_TRANS);
- 			*commit_iclog = iclog;
- 		    } else if ((error = xlog_state_release_iclog(log, iclog)))
--			   return (error);
-+			   return error;
- 		    if (index == nentries)
- 			    return 0;		/* we are done */
- 		    else
-@@ -1829,7 +1829,7 @@ xlog_write(xfs_mount_t *	mp,
- 	*commit_iclog = iclog;
- 	return 0;
-     }
--    return (xlog_state_release_iclog(log, iclog));
-+    return xlog_state_release_iclog(log, iclog);
- }	/* xlog_write */
- 
- 
-@@ -1945,7 +1945,7 @@ xlog_get_lowest_lsn(
- 	    }
- 	    lsn_log = lsn_log->ic_next;
- 	} while (lsn_log != log->l_iclog);
--	return(lowest_lsn);
-+	return lowest_lsn;
- }
- 
- 
-@@ -2301,7 +2301,7 @@ restart:
- 		if (iclog->ic_refcnt == 1) {
- 			LOG_UNLOCK(log, s);
- 			if ((error = xlog_state_release_iclog(log, iclog)))
--				return (error);
-+				return error;
- 		} else {
- 			iclog->ic_refcnt--;
- 			LOG_UNLOCK(log, s);
-@@ -2468,7 +2468,7 @@ xlog_regrant_write_log_space(xlog_t	   *
- 	tic->t_curr_res = tic->t_unit_res;
- 
- 	if (tic->t_cnt > 0)
--		return (0);
-+		return 0;
- 
- #ifdef DEBUG
- 	if (log->l_flags & XLOG_ACTIVE_RECOVERY)
-@@ -2565,7 +2565,7 @@ redo:
- 	xlog_trace_loggrant(log, tic, "xlog_regrant_write_log_space: exit");
- 	xlog_verify_grant_head(log, 1);
- 	GRANT_UNLOCK(log, s);
--	return (0);
-+	return 0;
- 
- 
-  error_return:
-@@ -2736,7 +2736,7 @@ xlog_state_release_iclog(xlog_t		*log,
- 	if (sync) {
- 		return xlog_sync(log, iclog);
- 	}
--	return (0);
-+	return 0;
- 
- }	/* xlog_state_release_iclog */
- 
-@@ -3021,7 +3021,7 @@ try_again:
-     } while (iclog != log->l_iclog);
- 
-     LOG_UNLOCK(log, s);
--    return (0);
-+    return 0;
- }	/* xlog_state_sync */
- 
- 
-@@ -3406,12 +3406,12 @@ xlog_state_ioerror(
- 			ic->ic_state = XLOG_STATE_IOERROR;
- 			ic = ic->ic_next;
- 		} while (ic != iclog);
--		return (0);
-+		return 0;
- 	}
- 	/*
- 	 * Return non-zero, if state transition has already happened.
- 	 */
--	return (1);
-+	return 1;
- }
- 
- /*
-@@ -3447,7 +3447,7 @@ xfs_log_force_umount(
- 	    log->l_flags & XLOG_ACTIVE_RECOVERY) {
- 		mp->m_flags |= XFS_MOUNT_FS_SHUTDOWN;
- 		XFS_BUF_DONE(mp->m_sb_bp);
--		return (0);
-+		return 0;
- 	}
- 
- 	/*
-@@ -3456,7 +3456,7 @@ xfs_log_force_umount(
- 	 */
- 	if (logerror && log->l_iclog->ic_state & XLOG_STATE_IOERROR) {
- 		ASSERT(XLOG_FORCED_SHUTDOWN(log));
--		return (1);
-+		return 1;
- 	}
- 	retval = 0;
- 	/*
-@@ -3538,7 +3538,7 @@ xfs_log_force_umount(
- 	}
- #endif
- 	/* return non-zero if log IOERROR transition had already happened */
--	return (retval);
-+	return retval;
- }
- 
- int
-@@ -3552,8 +3552,8 @@ xlog_iclogs_empty(xlog_t *log)
- 		 * any language.
- 		 */
- 		if (iclog->ic_header.h_num_logops)
--			return(0);
-+			return 0;
- 		iclog = iclog->ic_next;
- 	} while (iclog != log->l_iclog);
--	return(1);
-+	return 1;
- }
+Yes. foo is a file, foo/contents is another file (an executable).  But
+maybe the executable has contents too -- with an extra "...", you can do
+things like "foo/.../contents/.../contents", where the first "contents"
+controls what you get from "ls foo/", and the second "contents" controls
+what you get from "ls foo/.../contents/".
 
+|>
+|> These two steps essentially create userspace "plugins", and do away with
+|> having to mount other kernel layers such as lufs (or whatever its
+|> current implementation is).
+|
+|
+| I don't follow this point above.
 
+lufs is (or was) a kernel filesystem which talks to a user daemon.  The
+daemon does all the work, so you don't have to do things like windows
+emulation in the kernel in order to get captive-ntfs to work.
 
+The reason we don't do that for the whole filesystem is performance --
+after all, userland things are easier to write, debug, upgrade, and
+install/use than kernel things.
 
+If an executable can generate a directory listing or a whole directory
+structure, some files, and so on, then we only need a few reiser4 kernel
+plugins, and these userland executables can implement all the
+functionality of most kernel plugins people have thought of so far.
+
+The only problem is, it would be much slower than a kernel plugin.
+Caching solves that.
+
+Of course, someone still might find a situation where people really need
+to create a new kernel plugin, and that would be allowed.  But I doubt
+it would help that much, or we'd all be using TUX instead of Apache.
+
+[...]
+
+|> I think the issues with directory-as-a-file were the same problems you
+|> get when you allow hardlinked directories -- that you'd eventually have
+|> to ditch reference counting for a garbage collector, which is hellishly
+|> impractical. I don't have a solution to that, other than dropping
+|> hardlinks entirely.
+|
+|
+| This issue is overblown.  Other fields have solved this problem.
+
+Nevertheless, it's an issue that I don't have the skills to solve, and
+one that must be solved if we are ever to implement these concepts.
+
+If you have a solution, I'd love to hear it.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iQIVAwUBQcDT93gHNmZLgCUhAQLn6g/+KXD5StI9m9Tpij0i3uwqXAc+oAdz/dX5
+YHSwU7YYXSdVPPqNqUNnU4t7i8M1p8Mba0Jpc2rPZk6Is67txBnphLX2F7c9jLm8
+wfqfkjrfOM7/+5/EDQbdGVch0gZnuLJrxjGcpvukkwi8hkiMQnOtZuKuZwn1ieMW
+UlTy5e/IhDPl5zW/Dy3rpoAOw7hszvPv6fjpFDujUENHhhUQmWYoiIbIaV3rdbhY
+De+9AOkCRDEYNOmreCQQYmTkJD6w4C9cHzqmx7FrVx8vhxU3k9CPwoGRGGIrn42+
+UPKAtUCAZu6Mya1v9v6QnPFaqnPgQatIJl4edg91bBzktpRZg6oR2iS9QnnAxc+b
+LFJr95OKtdjBVVNuJGLRVCi06xoQsIjNWe5rOajAGHw/YHr7mHMZF315XKcp7FPa
+F1df8FwdpQgq2xM6OdIfSFlBxk2poj21w5NqVyOZoEMunTyyDnK0YQkigsz2AQeN
+lOeryopJ1sh9eHkQOsxOh/JdpYCVSkOfWiPgDKMst9mZbFF4yWwsot9JP1rNIUOC
+EtGHdQzUOtKPkKWNy2+VXKxd8F+5EUpAtmOrdG2B7FT0wjS5Ao1pz6c7boMo1x9D
++9QxS2W1DdWjsCR9WhZhg0+eWc2wkf/dyVQIipf3JTm5vLOFJvJ/jfV3GRg0Ye7f
+gtjTMcGxzAc=
+=CIsH
+-----END PGP SIGNATURE-----

@@ -1,61 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261688AbTFZOda (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 10:33:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbTFZOcN
+	id S261801AbTFZOcJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 10:32:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbTFZOcJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 10:32:13 -0400
-Received: from B55b8.pppool.de ([213.7.85.184]:11392 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id S261688AbTFZOcI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 10:32:08 -0400
-Subject: Re: [ANNOUNCE] nf-hipac v0.8 released
-From: Daniel Egger <degger@fhm.edu>
-To: Michael Bellion and Thomas Heinz <nf@hipac.org>
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       netdev@oss.sgi.com
-In-Reply-To: <3EFB0143.7000606@hipac.org>
-References: <200306252248.44224.nf@hipac.org>
-	 <1056634720.5423.83.camel@sonja>  <3EFB0143.7000606@hipac.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-aOY37NhVanfwwvqe0Iu0"
-Message-Id: <1056638729.4962.86.camel@sonja>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 26 Jun 2003 16:45:30 +0200
+	Thu, 26 Jun 2003 10:32:09 -0400
+Received: from vdp184.ath05.cas.hol.gr ([195.97.120.185]:22431 "EHLO
+	pfn1.pefnos") by vger.kernel.org with ESMTP id S261801AbTFZObY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jun 2003 10:31:24 -0400
+From: "P. Christeas" <p_christ@hol.gr>
+To: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+Subject: Re: Synaptics support kills my mouse
+Date: Thu, 26 Jun 2003 17:46:14 +0300
+User-Agent: KMail/1.5
+Cc: lkml <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200306261746.14578.p_christ@hol.gr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+It is true, 2.5.73 unconditionally detects and tries to use the Syn. Touchpad 
+in 'absolute mode'. I wouldn't blame the authors of the module, however. They 
+are already doing a great job :).
 
---=-aOY37NhVanfwwvqe0Iu0
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I 've read the code to see what's wrong and found that the problem is that the 
+Touchpad itself doesn't report any data to the PS/2 port. The code still 
+looks conforming to the specs.
+However, you shouldn't give up 2.5.73 because of that. You can still use the 
+PS/2 compatibility mode
+ o Compile the ps mouse as a module "psmouse"
+ o Arrange so that the module is loaded with the option "psmouse_noext=1"
+ o Have gpm and X (you can even use both of them) read /dev/input/mice as an 
+exps2 or imps2 mouse (Intellimouse Explorer PS/2) .
 
-Am Don, 2003-06-26 um 16.20 schrieb Michael Bellion and Thomas Heinz:
-
-> Taking a look at nfhp_com.h and evt. nf-hipac.c gives you some clue
-> on how to build valid command packets.
-
-Thanks. Your reply made me somewhat curious and I'll definitely have a
-look, hoping the interface is much better than libiptables which is
-merely a bunch of convience functions for use of the iptables utility
-but unusable for real world applications which need to deal with=20
-firewall rules.
-
---=20
-Servus,
-       Daniel
-
---=-aOY37NhVanfwwvqe0Iu0
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA++wcJchlzsq9KoIYRAi03AKDfHluFMhoZiFpxSQpw+i6XYPj1DQCfaf29
-X50vfIvp0Zg4OIgFx/ZhkQE=
-=QoaY
------END PGP SIGNATURE-----
-
---=-aOY37NhVanfwwvqe0Iu0--
+I don't think the "event interface" has any support yet. Nor the synaptics 
+driver.
+Reading from /dev/input/mice means that the psmouse module doesn't have to be 
+loaded before X starts. You can safely rmmod/modprobe the module while X run.
+You may find that tapping with the finger may not work (produce 'click' 
+effect). I hope next release will have a fix (contact me in personal until 
+the official patch is out).
 

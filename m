@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274982AbTHAXCi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 19:02:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274984AbTHAXCi
+	id S274983AbTHAXBy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 19:01:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274982AbTHAXBy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 19:02:38 -0400
-Received: from dp.samba.org ([66.70.73.150]:9373 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S274982AbTHAXCg (ORCPT
+	Fri, 1 Aug 2003 19:01:54 -0400
+Received: from fw.osdl.org ([65.172.181.6]:30865 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S274980AbTHAXBv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 19:02:36 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: dipankar@in.ibm.com, andrea@suse.de, linux-kernel@vger.kernel.org,
-       paulmck@us.ibm.com
-Subject: Re: [PATCH] RCU: Reduce size of rcu_head 1 of 2 
-In-reply-to: Your message of "Thu, 31 Jul 2003 14:25:45 MST."
-             <20030731142545.7bcb50fb.akpm@osdl.org> 
-Date: Sat, 02 Aug 2003 07:16:07 +1000
-Message-Id: <20030801230235.E67442C286@lists.samba.org>
+	Fri, 1 Aug 2003 19:01:51 -0400
+Date: Fri, 1 Aug 2003 16:01:49 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Peter Johanson <latexer@gentoo.org>
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: Re: rmmodding e100 trace calls on 2.6.0-test2-mm2
+Message-Id: <20030801160149.2392a079.shemminger@osdl.org>
+In-Reply-To: <20030801224932.GA4241@gonzo.peterjohanson.com>
+References: <20030801224932.GA4241@gonzo.peterjohanson.com>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed version 0.9.3claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030731142545.7bcb50fb.akpm@osdl.org> you write:
-> Dipankar Sarma <dipankar@in.ibm.com> wrote:
-> >
-> > The linked-list change is internal enough for a future backport from
-> > 2.7. The only concern here is the change in call_rcu() API. What would
-> > be a good way to manage that ?
-> 
-> Oh I'd be okay with merging a change like this into (say) 2.6.3-pre1,
-> without it having had a run in 2.7.  We need to be able to do things like
-> that.
+One of the -mm patches produces a warning which will be taken care of later when
+all the network drivers are converted to dynamically allocating net_device's.
+At that point, a massive patch will be needed that changes all instances of:
 
-No, Andrew, no.
+	unregister_netdev(dev);
+	my cleanup...
+	kfree(dev);   // becomes release_netdev(dev);
 
-	Gratuitous change to API during stable series BAD BAD BAD.  If
-you drop this it stays as is until 2.8.  The extra arg in
-unneccessary, but breaking it is worse.
+new release_netdev() will release the dev kobject at that point.
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+I have the code ready, just been waiting till all net device's converted.
+Prefer not to break the world at this point.

@@ -1,60 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261936AbUL0RVp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261931AbUL0R10@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261936AbUL0RVp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 12:21:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261937AbUL0RVp
+	id S261931AbUL0R10 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 12:27:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261933AbUL0R10
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 12:21:45 -0500
-Received: from mail.fh-wedel.de ([213.39.232.198]:59035 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S261936AbUL0RVk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 12:21:40 -0500
-Date: Mon, 27 Dec 2004 18:21:34 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: linux-mtd <linux-mtd@lists.infradead.org>,
-       David Woodhouse <dwmw2@redhat.com>,
-       =?iso-8859-1?Q?J=F6rn?= Engel <joern@wh.fh-wedel.de>,
-       Greg Ungerer <gerg@snapgear.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] remove unnessesary casts from drivers/mtd/maps/nettel.c and kill two warnings
-Message-ID: <20041227172134.GB16025@wohnheim.fh-wedel.de>
-References: <Pine.LNX.4.61.0412262202510.3552@dragon.hygekrogen.localhost>
+	Mon, 27 Dec 2004 12:27:26 -0500
+Received: from coderock.org ([193.77.147.115]:53989 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261931AbUL0R1X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 12:27:23 -0500
+Date: Mon, 27 Dec 2004 18:27:39 +0100
+From: Domen Puncer <domen@coderock.org>
+To: Karel Kulhavy <clock@twibright.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: i2c-parport boot time parameters
+Message-ID: <20041227172739.GB18084@nd47.coderock.org>
+References: <20041227132307.GA3247@beton.cybernet.src>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.61.0412262202510.3552@dragon.hygekrogen.localhost>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20041227132307.GA3247@beton.cybernet.src>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 26 December 2004 22:13:48 +0100, Jesper Juhl wrote:
+On 27/12/04 13:23 +0000, Karel Kulhavy wrote:
+> Hello
 > 
-> I took a look at the cause for these warnings in the 2.6.10 kernel,
-> 
-> drivers/mtd/maps/nettel.c:361: warning: assignment makes pointer from integer without a cast
-> drivers/mtd/maps/nettel.c:395: warning: assignment makes pointer from integer without a cast
-> 
-> and as far as I can see the casts in there (to unsigned long and back to 
-> void*) are completely unnessesary ('virt' in 'struct map_info' is a void 
-> __iomem *), and getting rid of those casts buys us a warning free build.
-> 
-> Are there any reasons not to apply the patch below?
-> Unfortunately I don't have hardware to test this patch, so it has been 
-> compile tested only.
+> Is it possible to configure i2c-parport driver using boot time commandline
+> parameters? If so, where are these parameters described? I found just
+> description of module parameters using modinfo i2c-parport.
 
-Neither do I, but the patch looks fine to me.  Give Greg a grace
-period, in case he knows better.  And interpret this as a personal
-opinion, not as dwmw2's final word.
+Yes, for modules that use module_param (i2c-parport does), you can
+use module.parameter=blah in boot line.
 
-If it helps:
-Acked-by: Jörn Engel <joern@wh.fh-wedel.de>
+This is described in Documentation/kernel-parameters.txt
 
-Jörn
 
--- 
-To recognize individual spam features you have to try to get into the
-mind of the spammer, and frankly I want to spend as little time inside
-the minds of spammers as possible.
--- Paul Graham
+	Domen

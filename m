@@ -1,59 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264468AbUDVQe6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264554AbUDVQjp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264468AbUDVQe6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 12:34:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264513AbUDVQe6
+	id S264554AbUDVQjp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 12:39:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264520AbUDVQjp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 12:34:58 -0400
-Received: from fw.osdl.org ([65.172.181.6]:23246 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264468AbUDVQez (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 12:34:55 -0400
-Date: Thu, 22 Apr 2004 09:28:53 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Kieran <kieran@ihateaol.co.uk>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       jejb <james.bottomley@steeleye.com>
+	Thu, 22 Apr 2004 12:39:45 -0400
+Received: from stat1.steeleye.com ([65.114.3.130]:23271 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S264513AbUDVQjm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 12:39:42 -0400
 Subject: Re: Why is CONFIG_SCSI_QLA2X_X always enabled?
-Message-Id: <20040422092853.55d0b011.rddunlap@osdl.org>
-In-Reply-To: <4087E95F.5050409@ihateaol.co.uk>
-References: <4087E95F.5050409@ihateaol.co.uk>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Kieran <kieran@ihateaol.co.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <20040422092853.55d0b011.rddunlap@osdl.org>
+References: <4087E95F.5050409@ihateaol.co.uk> 
+	<20040422092853.55d0b011.rddunlap@osdl.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 22 Apr 2004 12:39:34 -0400
+Message-Id: <1082651974.1778.52.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Apr 2004 16:48:47 +0100 Kieran wrote:
+On Thu, 2004-04-22 at 12:28, Randy.Dunlap wrote:
+> A nuisance or annoyance perhaps.  Here's a patch for it.
 
-| This has been bugging me for a while.. on pretty much all 2.6 kernel 
-| configs I've done, the .config has had CONFIG_SCSI_QLA2XXX=y in it, 
-| regardless of whether or not I have any other SCSI stuff compiled in. Is 
-| there a reason for this, or is it a bug?
+No, it's a variable used to determine whether the user should be asked
+about qla2xxx or not.
 
-A nuisance or annoyance perhaps.  Here's a patch for it.
+The proposed patch is obviously not correct, because we don't want the
+user to be asked about it.
 
+A better fix might be to make the qla2xxx a menu dependent on SCSI &&
+PCI
 
-// linux-266-rc2
-// Make SCSI_QLA2XXX config option changeable/selectable
-
-diffstat:=
- drivers/scsi/qla2xxx/Kconfig |    3 +--
- 1 files changed, 1 insertion(+), 2 deletions(-)
+James
 
 
-diff -Naurp ./drivers/scsi/qla2xxx/Kconfig~scsi_qla2 ./drivers/scsi/qla2xxx/Kconfig
---- ./drivers/scsi/qla2xxx/Kconfig~scsi_qla2	2004-04-20 15:54:24.000000000 -0700
-+++ ./drivers/scsi/qla2xxx/Kconfig	2004-04-22 09:39:03.000000000 -0700
-@@ -1,6 +1,5 @@
- config SCSI_QLA2XXX
--	tristate
--	default (SCSI && PCI)
-+	tristate "Configure QLogic 21xx/22xx/23xx/63xx host adapters"
- 	depends on SCSI && PCI
- 
- config SCSI_QLA21XX

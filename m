@@ -1,75 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261678AbUJ1Oj4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261254AbUJ1Onz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261678AbUJ1Oj4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 10:39:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261591AbUJ1Ohq
+	id S261254AbUJ1Onz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 10:43:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbUJ1Oku
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 10:37:46 -0400
-Received: from out003pub.verizon.net ([206.46.170.103]:26031 "EHLO
-	out003.verizon.net") by vger.kernel.org with ESMTP id S261680AbUJ1Of4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 10:35:56 -0400
-From: james4765@verizon.net
+	Thu, 28 Oct 2004 10:40:50 -0400
+Received: from gherkin.frus.com ([192.158.254.49]:20366 "EHLO gherkin.frus.com")
+	by vger.kernel.org with ESMTP id S261318AbUJ1Ohp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 10:37:45 -0400
+Subject: [PATCH] sym53c500_cs driver update
 To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, rusty@rustcorp.com.au, james4765@verizon.net
-Message-Id: <20041028143555.2667.21190.14557@localhost.localdomain>
-In-Reply-To: <20041028143548.2667.72439.46892@localhost.localdomain>
-References: <20041028143548.2667.72439.46892@localhost.localdomain>
-Subject: [PATCH 2/2] to Documentation/mkdev.ida
-X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [209.158.211.53] at Thu, 28 Oct 2004 09:35:55 -0500
-Date: Thu, 28 Oct 2004 09:35:56 -0500
+Date: Thu, 28 Oct 2004 09:37:41 -0500 (CDT)
+Cc: hch@infradead.org
+X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary=ELM77937822-4994-0_
+Content-Transfer-Encoding: 7bit
+Message-Id: <20041028143741.57982DBDD@gherkin.frus.com>
+From: rct@gherkin.frus.com (Bob Tracy)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This file is no longer reqired - the MAKEDEV program makes the ida/ nodes automatically.
 
-Apply against 2.6.9.
+--ELM77937822-4994-0_
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 
-Description: To remove an obsolete script from the Documentation directory.
+The attached minor patch to linux/drivers/scsi/pcmcia/sym53c500_cs.c
+allows interrupt sharing, which is evidently a "must have" feature for
+at least G4 PowerBooks (ppc architecture).  The other user of the New
+Media Bus Toaster reports that his powerbook consistently assigns the
+yenta CardBus controller IRQ to whatever card he inserts.
 
-Signed-off-by: James Nelson <james4765@gmail.com>
+Applies to version 0.9b of the sym53c500_cs driver, as included with
+the 2.6.9 kernel.
 
-diff -urN --exclude='*~' linux-2.6.9-original/Documentation/mkdev.ida linux-2.6.9/Documentation/mkdev.ida
---- linux-2.6.9-original/Documentation/mkdev.ida	2004-10-18 17:53:44.000000000 -0400
-+++ linux-2.6.9/Documentation/mkdev.ida	1969-12-31 19:00:00.000000000 -0500
-@@ -1,40 +0,0 @@
--#!/bin/sh
--# Script to create device nodes for SMART array controllers
--# Usage:
--#	mkdev.ida [num controllers] [num log volumes] [num partitions]
--#
--# With no arguments, the script assumes 1 controller, 16 logical volumes,
--# and 16 partitions/volume, which is adequate for most configurations.
--#
--# If you had 5 controllers and were planning on no more than 4 logical volumes
--# each, using a maximum of 8 partitions per volume, you could say:
--#
--# mkdev.ida 5 4 8
--#
--# Of course, this has no real benefit over "mkdev.ida 5" except that it
--# doesn't create so many device nodes in /dev/ida.
--
--NR_CTLR=${1-1}
--NR_VOL=${2-16}
--NR_PART=${3-16}
--
--if [ ! -d /dev/ida ]; then
--	mkdir -p /dev/ida
--fi
--
--C=0; while [ $C -lt $NR_CTLR ]; do
--	MAJ=`expr $C + 72`
--	D=0; while [ $D -lt $NR_VOL ]; do
--		P=0; while [ $P -lt $NR_PART ]; do
--			MIN=`expr $D \* 16 + $P`
--			if [ $P -eq 0 ]; then
--				mknod /dev/ida/c${C}d${D} b $MAJ $MIN
--			else
--				mknod /dev/ida/c${C}d${D}p${P} b $MAJ $MIN
--			fi
--			P=`expr $P + 1`
--		done
--		D=`expr $D + 1`
--	done
--	C=`expr $C + 1`
--done
+Signed-off-by: Bob Tracy <rct@frus.com>
+
+-- 
+-----------------------------------------------------------------------
+Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
+rct@frus.com
+-----------------------------------------------------------------------
+
+--ELM77937822-4994-0_
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: attachment; filename=patch09_sym53c500
+
+--- linux/drivers/scsi/pcmcia/sym53c500_cs.c.orig	Wed Jul  7 07:24:21 2004
++++ linux/drivers/scsi/pcmcia/sym53c500_cs.c	Wed Oct 27 22:21:20 2004
+@@ -85,7 +85,7 @@
+ module_param(pc_debug, int, 0);
+ #define DEBUG(n, args...) if (pc_debug>(n)) printk(KERN_DEBUG args)
+ static char *version =
+-"sym53c500_cs.c 0.9b 2004/05/10 (Bob Tracy)";
++"sym53c500_cs.c 0.9c 2004/10/27 (Bob Tracy)";
+ #else
+ #define DEBUG(n, args...)
+ #endif
+@@ -95,7 +95,7 @@
+ /* Parameters that can be set with 'insmod' */
+ 
+ /* Bit map of interrupts to choose from */
+-static unsigned int irq_mask = 0xdeb8;	/* 3, 6, 7, 9-12, 14, 15 */
++static unsigned int irq_mask = 0xdeb8;	/* 3-5, 7, 9-12, 14, 15 */
+ static int irq_list[4] = { -1 };
+ static int num_irqs = 1;
+ 
+@@ -830,7 +830,7 @@
+ 	data = (struct sym53c500_data *)host->hostdata;
+ 
+ 	if (irq_level > 0) {
+-		if (request_irq(irq_level, SYM53C500_intr, 0, "SYM53C500", host)) {
++		if (request_irq(irq_level, SYM53C500_intr, SA_SHIRQ, "SYM53C500", host)) {
+ 			printk("SYM53C500: unable to allocate IRQ %d\n", irq_level);
+ 			goto err_free_scsi;
+ 		}
+
+--ELM77937822-4994-0_--

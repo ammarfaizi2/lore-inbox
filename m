@@ -1,73 +1,146 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261288AbTCOAno>; Fri, 14 Mar 2003 19:43:44 -0500
+	id <S261296AbTCOAp1>; Fri, 14 Mar 2003 19:45:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261290AbTCOAno>; Fri, 14 Mar 2003 19:43:44 -0500
-Received: from adsl-67-120-62-187.dsl.lsan03.pacbell.net ([67.120.62.187]:10256
-	"EHLO exchange.macrolink.com") by vger.kernel.org with ESMTP
-	id <S261288AbTCOAnm>; Fri, 14 Mar 2003 19:43:42 -0500
-Message-ID: <11E89240C407D311958800A0C9ACF7D1A33DE4@EXCHANGE>
-From: Ed Vance <EdV@macrolink.com>
-To: "'Adam J. Richter'" <adam@yggdrasil.com>
-Cc: rmk@arm.linux.org.uk, driver@jpl.nasa.gov, dwmw2@infradead.org,
-       linux-kernel@vger.kernel.org
-Subject: RE: devfs + PCI serial card = no extra serial ports
-Date: Fri, 14 Mar 2003 16:54:32 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S261297AbTCOAp1>; Fri, 14 Mar 2003 19:45:27 -0500
+Received: from fluent2.pyramid.net ([206.100.220.213]:60824 "EHLO
+	fluent2.pyramid.net") by vger.kernel.org with ESMTP
+	id <S261296AbTCOApZ>; Fri, 14 Mar 2003 19:45:25 -0500
+X-Not-Legal-Opinion: IANAL I am not a lawyer
+X-For-Entertainment-Purposes-Only: True
+Message-Id: <5.2.0.9.0.20030314161225.01da3150@fluent2.pyramid.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Fri, 14 Mar 2003 16:56:10 -0800
+To: "Stephen C. Tweedie" <sct@redhat.com>, Pavel Machek <pavel@suse.cz>
+From: Stephen Satchell <list@fluent2.pyramid.net>
+Subject: Re: Never ever use word BitKeeper if Larry does not like you
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1047658281.2566.101.camel@sisko.scot.redhat.com>
+References: <20030314151455.GB8937@work.bitmover.com>
+ <20030314105132.GB14270@atrey.karlin.mff.cuni.cz>
+ <20030314115055.GR1211@marowsky-bree.de>
+ <20030314144347.GA8937@work.bitmover.com>
+ <1047658249.29595.34.camel@irongate.swansea.linux.org.uk>
+ <20030314151455.GB8937@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 14, 2003 at 4:03 PM, Adam J. Richter wrote:
-> On Fri, 14 Mar 2003, Russell King wrote:
-> >On Fri, Mar 14, 2003 at 12:28:47PM -0800, Adam J. Richter wrote:
-> >> There was tangential mention in that thread
-> >> of a "/proc/serialdev" interface, but nobody really identified any
-> >> real benefit to it over the existing "uart: unknown" system.
-> 
-> >There is one benefit, which would be to get rid of some of the yucky
-> >mess we currently have surrounding the implementation of stuff which
-> >changes the port base address/irq.
-> 
-> >Currently, we have to check that we're the only user, shutdown, tweak
-> >stuff, hope it all goes to plan, and start stuff back up again.  If
-> >something fails, we have to pray we can go back to the original setup
-> >without stuff breaking.  If that fails, we mark the port "unknown".
-> 
-> >All of this would be a lot simpler if we didn't have the 
-> port actually
-> >open at the time we change these parameters.  We could just lock the
-> >port against opens, check no one was using it, tweak the settings,
-> >and release the port.  If the changes fail, just report the failure.
-> 
-> 	When I filter out prejudicial terminology like "yucky mess",
-> "pray", "just", etc., I don't see a convincing explanation of how one
-> approach is going to result in a lower line count, fewer branches,
-> smaller kernel footprint, faster execution, new capabilities or any
-> other relevant measure that I can think of in comparison to the
-> existing approach.
-> 
-> [ snip ]
+At 04:11 PM 3/14/03 +0000, Stephen C. Tweedie wrote:
+> > Let's try a little simple substitution since you seem to be needing coffee
+> > this morning:
+> >
+> >     "Red Cap: a proprietary Red Hat clone"
+> >     "The goal of this system is to produce a system compatible with Red 
+> Hat"
+> >
+> > Go run those statements by your lawyers, Alan, and then please report
+> > what they said back here.
+>
+>I just did, and they said just what I'd expect from common sense.  A
+>compatibility claim is, in principle, just fine.
+>
+>Specifically, any attempt to pass off something that didn't come from
+>Red Hat as an official Red Hat product was verboten; but
+>
+>         I would distinguish this from someone who is promoting their own
+>         product, let's call it BillyBob's Linux, and who makes a claim
+>         that it is "compatible with Red Hat Linux."  So long as the
+>         compatibility statement is not used prominently in the
+>         advertising of the product and so long as the statement is, in
+>         fact, true, this would likely constitute a fair use of our mark,
+>         roughly along the lines of comparative advertising.
 
-Hi Adam,
+Disclaimer:  I am not a lawyer in any country.
 
-Oh, but he _did_ give you information about such things. You filtered out 
-the real message. Allow me to expand the macros ...
+I think, fellow Stephen, you are missing the point.  The example includes a 
+trade name, "Red Cap" as the trademark for the new system.  Now, I am not a 
+lawyer but I have been exposed to some of the seamer side of trademark 
+disputes, and "Red Cap" may well fail the trademark confusion test as not 
+being sufficiently different from the original trademark to avoid a person 
+from mistaking "Red Cap" for "Red Hat".  The same, I assert, is true for 
+"KitBeeper" and "BitKeeper".
 
-yucky mess = referenced area has an unnecessarily complex control 
-             structure. (more branches & code, slower ...) 
+To take Mr. McVoy's example and show how to distance the new trademark from 
+the old one, let's look at your company name and Larry's straw man, "Red 
+Hat."  Using that trusty writer's tool, the Thesaurus, we can come up with 
+some less confusing new trademarks:
 
-just = fundamental simplification of the algorithm. (less code and 
-       branching needed because less to do, smaller, faster ...)
+      Scarlet Cap
+      Crimson Chapeau (I like this one because of the alliteration)
+      Cherry Beanie
+      Blood Crown
+      Firehat
+      Ruby Headdress
+      Siena Skimmer
 
-hope, pray = referenced area can generate complex errors that cannot 
-       be handled efficiently due to architectural limitations.
-       (more local error handling code and branching, bigger, slower ...)
+just to name a few.
 
-expert opinion != prejudicial speech. 
-Read it again. You'll get the hang of it  :-)
+So, what could be done for a working title of a project that is "compatible 
+with BitKeeper(tm)" that would not fail the confusion test?
 
-Cheers,
-Ed
+      Column A
+      -------------
+      Code
+      Codex
+      Opus
+      Root
+      Stem
+      Matrix
+      Nibble
+      Byte (dangerous, as it could lead to a confusion claim)
+      Two
+      Twovalue
+
+      Column B
+      -------------
+      Safe
+      Fortress
+      Holder
+      Bastion
+      Post
+      Bank
+      Stronghold
+      Arranger
+      Recorder
+      Matrix (repeated here as a possible second word)
+      Web
+
+So, Pavel, take one from Column A, and one from Column B, and you have 
+candidate trademark names for your BitKeeper workalike, if you want to do 
+that much of a stretch.
+
+I also through out these possibilities:  NBK  (Not Bit Keeper), NBKsafe, 
+SourceNBK, CodeNBK, ByteNBK, and so forth.  To further drive the joke 
+"inside" try NBic, SourceNBic, and so forth.  (I don't recall the pen 
+company selling source control software, so the only claim that the Bic 
+company sould make is trademark dilution -- your lawyer would best 
+determine if that is a possibility.)
+
+To take it to the absurd, call your clone AJ or CL; it worked for Kubric 
+with the HAL 9000 in the movie, with IBM building much of the facade and 
+even allowing the use of its trademark typeface.
+
+The third option is to forget the nonsense of building on the BitKeeper 
+name and come up with a name that best describes the functionality of what 
+you are doing, or (common) use the initials of the primary developers or 
+investors.
+
+Interestingly enough, there was a discussion on a private mailing list I 
+subscribe to that was discussing the shortcoming of CVS and other source 
+management tools.   I don't recall enough of the discussion to inject it 
+here; many of the participants on that list also read LKML, so they could 
+chime in with their ideas themselves.  Try to think of real-life projects, 
+and how your source repository can simplify jobs commonly encountered when 
+trying to maintain a product.
+
+I'll shut up now.
+
+Satch
+
+--
+X -> unknown; Spurt -> drip of water under pressure
+Expert -> X-Spurt -> Unknown drip under pressure.
+==> Looking for work; see http://www.satchell.net/resumes 
+

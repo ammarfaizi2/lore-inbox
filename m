@@ -1,50 +1,26 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316113AbSGGQoo>; Sun, 7 Jul 2002 12:44:44 -0400
+	id <S316135AbSGGQvr>; Sun, 7 Jul 2002 12:51:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316135AbSGGQon>; Sun, 7 Jul 2002 12:44:43 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:25768 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id <S316113AbSGGQon>; Sun, 7 Jul 2002 12:44:43 -0400
-Date: Sun, 7 Jul 2002 18:47:07 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Thunder from the hill <thunder@ngforever.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <B.Zolnierkiewicz@elka.pw.edu.pl>
-Subject: Re: IDE 96 and __ata_end_request()
-In-Reply-To: <Pine.LNX.4.44.0207061734500.10105-100000@hawkeye.luckynet.adm>
-Message-ID: <Pine.SOL.4.30.0207071843430.1945-100000@mion.elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316161AbSGGQvq>; Sun, 7 Jul 2002 12:51:46 -0400
+Received: from ns.suse.de ([213.95.15.193]:35333 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S316135AbSGGQvq>;
+	Sun, 7 Jul 2002 12:51:46 -0400
+To: Matthew Wilcox <willy@debian.org>
+Cc: linux-kernel@vger.kernel.org, jmorris@intercode.com.au
+Subject: Re: [PATCH] simplify networking fcntl
+References: <20020707171555.L27706@parcelfarce.linux.theplanet.co.uk.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 07 Jul 2002 18:54:22 +0200
+In-Reply-To: Matthew Wilcox's message of "7 Jul 2002 18:18:30 +0200"
+Message-ID: <p73d6tzwkap.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Sat, 6 Jul 2002, Thunder from the hill wrote:
+I believe James Morris did this (clean up network fcntl) already in a more 
+complex patchkit that also cleans up the SIGIO/SIGURG sending. 
+Perhaps you coordinate with him.
 
-> Hi,
->
-> Just a small question about IDE 96: in __ata_end_request(), we do
->
-> 	spin_lock_irqsave(ch->lock, flags);
->
-> 	BUG_ON(!(rq->flags & REQ_STARTED));
->
-> Shouldn't we rather flip these two, or much rather move
-> spin_lock_irqsave() even more down, below
->
-> 	if (!nr_secs)
-> 		nr_secs = rq->hard_cur_sectors;
->
-> since it hasn't got any use to hold a spin lock until the udma_enable &
-> co.? However, I'd at least move it below the BUG_ON().
->
-> 							Regards,
-> 							Thunder
-
-We can move spin_lock_irqsave() down, below if (!nr_secs), thanks.
-
-Regards
---
-Bartlomiej
-
+-Andi

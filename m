@@ -1,39 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263062AbTC0P6d>; Thu, 27 Mar 2003 10:58:33 -0500
+	id <S263152AbTC0P7A>; Thu, 27 Mar 2003 10:59:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263116AbTC0P6d>; Thu, 27 Mar 2003 10:58:33 -0500
-Received: from cathy.bmts.com ([216.183.128.202]:34240 "EHLO cathy.bmts.com")
-	by vger.kernel.org with ESMTP id <S263062AbTC0P6c>;
-	Thu, 27 Mar 2003 10:58:32 -0500
-Date: Thu, 27 Mar 2003 11:09:43 -0500
-From: Mike Houston <mikeserv@bmts.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Much better framebuffer fixes.
-Message-Id: <20030327110943.703c7894.mikeserv@bmts.com>
-In-Reply-To: <3E82CB28.8020001@aitel.hist.no>
-References: <Pine.LNX.4.44.0303270017180.25001-100000@phoenix.infradead.org>
-	<3E82CB28.8020001@aitel.hist.no>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S263232AbTC0P6v>; Thu, 27 Mar 2003 10:58:51 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:42468 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S263152AbTC0P6t>;
+	Thu, 27 Mar 2003 10:58:49 -0500
+Date: Thu, 27 Mar 2003 08:06:27 -0800 (PST)
+Message-Id: <20030327.080627.71980411.davem@redhat.com>
+To: shmulik.hen@intel.com
+Cc: bonding-devel@lists.sourceforge.net,
+       bonding-announce@lists.sourceforge.net, linux-net@vger.kernel.org,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: [Bonding][patch] Adding Transmit load balancing mode to bonding
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0303271705580.7106-100000@jrslxjul4.npdj.intel.com>
+References: <Pine.LNX.4.44.0303271705580.7106-100000@jrslxjul4.npdj.intel.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Mar 2003 10:58:00 +0100
-Helge Hafting <helgehaf@aitel.hist.no> wrote:
+   From: shmulik.hen@intel.com
+   Date: Thu, 27 Mar 2003 17:38:02 +0200 (IST)
 
-> The lilo approach:
-> append="video=radeonfb:1280x1024-24@60"
-> This seems to do nothing.  I get the same low resolution as
-> plain 2.5.66, which looks bad as it don't match the flat screen resolution.
->
+   Balancing is connection oriented (e.g. by IPv4 destination address)
+   so packet order is always kept.
 
-I just got a new box a few weeks ago and after building my kernel, struggled for an hour until I did a google search and found some other sod who was doing the same thing as me. It's not "radeonfb:" it's simply "radeon:"
-
-This is the mode I use
-
-append = "video=radeon:1024x768-8@85"
-
-Grogan
+You could also key off of the destination/source port as well for
+UDP/TCP/SCTP.  Have you experimented with this?

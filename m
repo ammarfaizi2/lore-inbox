@@ -1,68 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269163AbUJFJal@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269164AbUJFJgl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269163AbUJFJal (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 05:30:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269164AbUJFJal
+	id S269164AbUJFJgl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 05:36:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269166AbUJFJgl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 05:30:41 -0400
-Received: from web52903.mail.yahoo.com ([206.190.39.180]:54149 "HELO
-	web52903.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S269163AbUJFJai (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 05:30:38 -0400
-Message-ID: <20041006093038.55680.qmail@web52903.mail.yahoo.com>
-Date: Wed, 6 Oct 2004 10:30:38 +0100 (BST)
-From: Ankit Jain <ankitjain1580@yahoo.com>
-Subject: /proc/iomem
-To: linux <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
+	Wed, 6 Oct 2004 05:36:41 -0400
+Received: from colino.net ([213.41.131.56]:51961 "EHLO paperstreet.colino.net")
+	by vger.kernel.org with ESMTP id S269164AbUJFJgj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 05:36:39 -0400
+Date: Wed, 6 Oct 2004 11:35:41 +0200
+From: Colin Leroy <colin@colino.net>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       "David S.Miller" <davem@davemloft.net>
+Subject: Re: Netconsole & sungem: hang when link down
+Message-ID: <20041006113541.5d395ffa@pirandello>
+In-Reply-To: <1097053738.16741.58.camel@gaston>
+References: <20041006083954.0abefe57@pirandello>
+	<1097050605.21132.17.camel@gaston>
+	<20041006104251.29dcd38c@pirandello>
+	<1097053738.16741.58.camel@gaston>
+X-Mailer: Sylpheed-Claws 0.9.12cvs122.1 (GTK+ 2.4.0; i686-redhat-linux-gnu)
+X-Face: Fy:*XpRna1/tz}cJ@O'0^:qYs:8b[Rg`*8,+o^[fI?<%5LeB,Xz8ZJK[r7V0hBs8G)*&C+XA0qHoR=LoTohe@7X5K$A-@cN6n~~J/]+{[)E4h'lK$13WQf$.R+Pi;E09tk&{t|;~dakRD%CLHrk6m!?gA,5|Sb=fJ=>[9#n1Bu8?VngkVM4{'^'V_qgdA.8yn3)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi
+On 06 Oct 2004 at 19h10, Benjamin Herrenschmidt wrote:
 
-i am not able to understand why memory area is divided
-like this?
+Hi, 
 
-[root@Ankit root]# cat /proc/iomem
-00000000-0009fbff : System RAM
-0009fc00-0009ffff : reserved
-000a0000-000bffff : Video RAM area
-000c0000-000c7fff : Video ROM
-000f0000-000fffff : System ROM
-00100000-077effff : System RAM
-  00100000-00250d5b : Kernel code
-  00250d5c-0034ac43 : Kernel data
-077f0000-077f2fff : ACPI Non-volatile Storage
-077f3000-077fffff : ACPI Tables
-10000000-100003ff : Intel Corp. 82801DB ICH4 IDE
-e0000000-e7ffffff : Intel Corp. 82845G/GL
-[Brookdale-G] Chipset Integrated Graph
-ics Device
-e8000000-ebffffff : Intel Corp. 82845G/GL
-[Brookdale-G] Chipset Host Bridge
-ed000000-ed0003ff : MYSON Technology Inc SURECOM
-EP-320X-S 100/10M Ethernet PCI
-Adapter
-  ed000000-ed0003ff : #?@?n?@
-ee000000-ee07ffff : Intel Corp. 82845G/GL
-[Brookdale-G] Chipset Integrated Graph
-ics Device
-ee080000-ee0803ff : Intel Corp. 82801DB USB EHCI
-Controller
-  ee080000-ee0803ff : ehci-hcd
-ee081000-ee0811ff : Intel Corp. 82801DB AC'97 Audio
-  ee081000-ee0811ff : ich_audio MMBAR
-ee082000-ee0820ff : Intel Corp. 82801DB AC'97 Audio
-  ee082000-ee0820ff : ich_audio MBBAR
-fec00000-ffffffff : reserved
+> Hrm... we have some sort of spinlock debugging, at least on ppc64...
+> BTW, did you have SMP or PREEMPT ? If none of these, then you should
+> not see any spin deadlock...
 
-thanks
+No, in fact. You're right...
+Indeed, if there was a deadlock, it would also happen when cable is
+plugged in, wouldn't it ? (as sungem outputs "Link is up at xxx..." or
+something when correctly initialized).
 
-ankit
+> The solution is to look at the code though and find what's wrong :)
 
-________________________________________________________________________
-Yahoo! Messenger - Communicate instantly..."Ping" 
-your friends today! Download Messenger Now 
-http://uk.messenger.yahoo.com/download/index.html
+I'll try. 
+The called method in the driver when calling 
+  dev_change_flags(ndev, ndev->flags | IFF_UP) from netpoll
+is
+  gem_open(), if I'm not mistaken?
+
+Could some kind of infinite loop happen within gem_link_timer, maybe ?
+
+-- 
+Colin

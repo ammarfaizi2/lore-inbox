@@ -1,55 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268900AbRG0RSL>; Fri, 27 Jul 2001 13:18:11 -0400
+	id <S268008AbRG0RVt>; Fri, 27 Jul 2001 13:21:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268894AbRG0RSB>; Fri, 27 Jul 2001 13:18:01 -0400
-Received: from congress199.linuxsymposium.org ([209.151.18.199]:37637 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S268885AbRG0RRv>;
-	Fri, 27 Jul 2001 13:17:51 -0400
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200107271715.f6RHFea24226@lynx.adilger.int>
-Subject: Re: Strane remount behaviour with ext3-2.4-0.9.4
-To: sean@uncarved.com (Sean Hunter)
-Date: Fri, 27 Jul 2001 11:15:39 -0600 (MDT)
-Cc: ext3-users@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20010727104049.B6311@uncarved.com> from "Sean Hunter" at Jul 27, 2001 10:40:49 AM
-X-Mailer: ELM [version 2.5 PL0pre8]
+	id <S268883AbRG0RVj>; Fri, 27 Jul 2001 13:21:39 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:16139 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S268008AbRG0RVc>; Fri, 27 Jul 2001 13:21:32 -0400
+Message-ID: <3B61A4A5.41E7B891@zip.com.au>
+Date: Sat, 28 Jul 2001 03:28:05 +1000
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Hans Reiser <reiser@namesys.com>
+CC: Joshua Schmidlkofer <menion@srci.iwpsd.org>,
+        kernel <linux-kernel@vger.kernel.org>, Chris Mason <mason@suse.com>,
+        "Gryaznova E." <grev@namesys.botik.ru>,
+        "Vladimir V. Saveliev" <monstr@namesys.com>
+Subject: Re: ReiserFS / 2.4.6 / Data Corruption
+In-Reply-To: <Pine.LNX.4.33.0107271515200.10139-100000@devel.blackstar.nl>,
+					<Pine.LNX.4.33.0107271515200.10139-100000@devel.blackstar.nl> <0107270818120A.06707@widmers.oce.srci.oce.int> <3B619956.6AA072F9@zip.com.au> <3B619D63.9989F9F@namesys.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Sean writes:
-> servers.  Since the server in question is a farily security-sensitive box, my
-> /usr partition is mounted read only except when I remount rw to install
-> packages.
-
-If it is a security-sensitive box, you need to at least use data=ordered or
-data=journal.  Using data=writeback allows the possibility that after a crash
-one user might be able to read data from deleted files of another user (note
-that reiserfs currently only runs the equivalent of data=writeback).
-
-> When I try to remount it r/w I get a log message saying:
-> Jul 27 09:54:29 henry kernel: EXT3-fs: cannot change data mode on remount
+Hans Reiser wrote:
 > 
-> ...even if I give the full mount option list (including data=writeback) with
-> the remount instruction.
+> Andrew, can you do this such that there is no disruption of our
+> disk format, and make a mount option
+> out of it, and probably we should use this patch....
 
-You _could_ leave out the data=writeback from /etc/fstab (default is ordered),
-and you will be able to remount OK.  Also, Andrew made a patch which allowed
-you to specify the data= mode on remount, as long it is the same. 
+I'll defer to Chris :)
 
-> I can, however, remount it as ext2 read-write, but when I try to remount as
-> ext3 (even read only) I get the same problem.
+There's no disruption to disk format - it just simulates
+the user typing `sync' at the right time.  I think the
+concept is sound, and I'm sure Chris can find a more efficient
+way...
 
-You can't change filesystem types via remount (ext2 and ext3 are different
-filesystem drivers).  In the future, you might be able to use the ext3
-driver to mount a filesystem in totally unjournaled (ext2) mode.
 
-Cheers, Andreas
--- 
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+> After you make a mount option out of it, grev will benchmark
+> it for us using the usual suite of benchmarks.
+> 
+
+Ordered-data is a funny thing.  Under heavy loads it tends
+to make a significant throughput difference - on ext3 it 
+almost halves throughput wrt writeback mode.
+
+But this by no means indicates that writes are half as slow;
+what happens is that metadata-intensive workloads fill the
+journal up quickly, so the `sync' happens more frequently.
+Under normal workloads, or less metadata-intense workloads
+the difference is very small.
+
+During testing of that little patch I noted that the 
+disk went crunch every thirty seconds or so, which is good.
+Presumably the reiserfs journal is larger, or more space-efficient.
+
+-

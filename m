@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317188AbSFWXFp>; Sun, 23 Jun 2002 19:05:45 -0400
+	id <S317189AbSFWXVD>; Sun, 23 Jun 2002 19:21:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317189AbSFWXFo>; Sun, 23 Jun 2002 19:05:44 -0400
-Received: from khms.westfalen.de ([62.153.201.243]:29633 "EHLO
-	khms.westfalen.de") by vger.kernel.org with ESMTP
-	id <S317188AbSFWXFo>; Sun, 23 Jun 2002 19:05:44 -0400
-Date: 24 Jun 2002 00:56:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-cc: lm@bitmover.com
-Message-ID: <8RVhG6aHw-B@khms.westfalen.de>
-In-Reply-To: <20020622122656.W23670@work.bitmover.com>
-Subject: Re: latest linus-2.5 BK broken
-X-Mailer: CrossPoint v3.12d.kh9 R/C435
+	id <S317192AbSFWXVC>; Sun, 23 Jun 2002 19:21:02 -0400
+Received: from adsl-64-166-85-224.dsl.sntc01.pacbell.net ([64.166.85.224]:28420
+	"EHLO mastika.lnxw.com") by vger.kernel.org with ESMTP
+	id <S317189AbSFWXVC>; Sun, 23 Jun 2002 19:21:02 -0400
+Date: Sun, 23 Jun 2002 16:19:27 -0700 (PDT)
+From: Petko Manolov <petkan@lnxw.com>
+To: Rudmer van Dijk <rvandijk@science.uva.nl>
+cc: Kai Germaschewski <kai-germaschewski@uiowa.edu>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: kbuild fixes and more
+In-Reply-To: <20020623201514Z317110-22020+9309@vger.kernel.org>
+Message-ID: <Pine.LNX.4.44.0206231610370.575-100000@mastika.lnxw.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-References: <m1lm97rx16.fsf@frodo.biederman.org> <m1r8j1rwbp.fsf@frodo.biederman.org> <20020621105055.D13973@work.bitmover.com> <m1lm97rx16.fsf@frodo.biederman.org> <20020622122656.W23670@work.bitmover.com>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-lm@bitmover.com (Larry McVoy)  wrote on 22.06.02 in <20020622122656.W23670@work.bitmover.com>:
+On Sun, 23 Jun 2002, Rudmer van Dijk wrote:
 
-> Just out of curiousity, have you actually ever worked on a fine grain
-> threaded OS?  One that scales to at least 32 processors?  Solaris?  IRIX?
-> Others?  It makes a difference, if you've been there, your perspective is
+> On Sunday 23 June 2002 20:39, Kai Germaschewski wrote:
+> >
+> > bk pull http://linux-isdn.bkbits.net/linux-2.5.make
+[snip]
+> patching it against 2.5.24 (starting from 2.5.13 and patched up to) gives the
+> same failed hunk as with 2.5.24-dj1
 
-IIRC, you said that your proposed system should have one oslet per about 4  
-CPUs. And I see many people claiming that current Linux locking is aimed  
-at being good with about 4 CPUs.
+Applies cleanly against latest Linus' BK release.  And this time i
+finally got 2.5.24 to compile.  Haven't given it a try yet though, but it
+looks much better than the vanilla 2.5.24...
 
-Maybe I'm dense, but it seems to me that means current Linux locking is  
-aimed at exactly the spot where you argue it should be aimed *anyway*.
 
-What am I not seeing?
+		Petko
 
-MfG Kai

@@ -1,63 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264330AbUEINce@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264344AbUEIOKH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264330AbUEINce (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 May 2004 09:32:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264332AbUEINce
+	id S264344AbUEIOKH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 May 2004 10:10:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264345AbUEIOKG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 May 2004 09:32:34 -0400
-Received: from colin2.muc.de ([193.149.48.15]:53001 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S264330AbUEINcc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 May 2004 09:32:32 -0400
-Date: 9 May 2004 15:32:31 +0200
-Date: Sun, 9 May 2004 15:32:31 +0200
-From: Andi Kleen <ak@muc.de>
-To: Andy Lutomirski <luto@myrealbox.com>
-Cc: "R. J. Wysocki" <rjwysocki@sisk.pl>, Andrew Morton <akpm@osdl.org>,
-       rusty@rustcorp.com.au, ak@muc.de, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-rc3-mm2
-Message-ID: <20040509133231.GA25195@colin2.muc.de>
-References: <fa.gcf87gs.1sjkoj6@ifi.uio.no> <fa.freqmjk.11j6bhe@ifi.uio.no> <409D3507.2030203@myrealbox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 9 May 2004 10:10:06 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:4621 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S264344AbUEIOKB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 May 2004 10:10:01 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [ANNOUNCEMENT PATCH COW] proof of concept impementation of cowlinks
+Date: Sun, 9 May 2004 17:09:37 +0300
+User-Agent: KMail/1.5.4
+Cc: =?iso-8859-1?q?J=F6rn=20Engel?= <joern@wohnheim.fh-wedel.de>,
+       linux-kernel@vger.kernel.org, Jamie Lokier <jamie@shareable.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+References: <20040506131731.GA7930@wohnheim.fh-wedel.de> <200405081645.06969.vda@port.imtp.ilyichevsk.odessa.ua> <20040508221017.GA29255@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20040508221017.GA29255@atrey.karlin.mff.cuni.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <409D3507.2030203@myrealbox.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200405091709.37518.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 08, 2004 at 12:29:11PM -0700, Andy Lutomirski wrote:
-> R. J. Wysocki wrote:
-> >On Saturday 08 of May 2004 13:31, Andrew Morton wrote:
-> >
-> >>"R. J. Wysocki" <rjwysocki@sisk.pl> wrote:
-> >>
-> >>>Sute, it's like that:
-> >>>
-> >>>kernel /boot/vmlinuz-2.6.6-rc3-mm2 root=/dev/sdb3 vga=792 hdc=ide-scsi
-> >>>console=ttyS0,115200 console=tty0
-> >>
-> >>Please try `console=ttyS0'.
-> >
-> >
-> >I have.  It does not help. :-(
-> >
-> >Still, reversing the Move-saved_command_line-to-init-mainc.patch _does_ 
-> >help, even with the above command line.  I guess it's an x86_64-specific 
-> >issue.
-> 
-> I had the same problem (serial console was broken on -mm on x86_64).  I 
-> switched to i386, did 'make oldconfig', and rebuild, and it worked.  I 
-> think this was 2.6.5-mm1.
-> 
-> Sorry I can't test it now -- I plan on sticking with 32 bit for a while 
-> longer.
+On Sunday 09 May 2004 01:10, Pavel Machek wrote:
+> Hi!
+>
+> > That is probably unfixable now, but you can avoid making similar
+> > error. Provide is_cowlinked(fd1,fd2) syscall. Pity you will
+> > have to use different inode numbers for cowlinks (due to tar/cp),
+> > and this won't fly:
+>
+> is_cowlinked does not fly, either. For n files, you have to do O(n^2)
+> calls to find those that are linked.
 
-It is all the fault of Move-saved_command_line-to-init-mainc.patch
-which unfortunately has been in -mm* for some time.
+Hm, let me think about it. diff does not need to check all permutations,
+it checks only those two which it needs to compare.
 
-It simply breaks all boot arguments on x86-64.
+IMHO "inodes done right" is something like this: if inode numbers are
+different, then files are not hardlinked/cowlinked. If they are the same,
+check is_hardlinked(a,b) or is_cowlinked(a,b) to find out.
 
-Just get rid of that and the console is fine. Or use mainline.
+This beats O(n^2) argument.
 
--Andi
+But this is non-POSIX, would not be accepted.
+
+I don't know how to handle this now. Introducing cow-inode number
+with semantic "cowino1==cowino2 => files are cowlinked" is
+ugly and won't deal with per-block cow. Sooner or later someone
+will want to have per block cow. Think about cow'ing multi-gigabyte
+database files for checkpointing/backup purposes...
+
+> You want get_cowlinked_id which can return -1 "I do not know".
+
+Is this the same to my "cow-inode number" concept above?
+--
+vda
+

@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275447AbRJAThw>; Mon, 1 Oct 2001 15:37:52 -0400
+	id <S275421AbRJATjc>; Mon, 1 Oct 2001 15:39:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275434AbRJAThm>; Mon, 1 Oct 2001 15:37:42 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:20496 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S275421AbRJAThh>; Mon, 1 Oct 2001 15:37:37 -0400
-Subject: Re: VM: 2.4.10 vs. 2.4.10-ac2 and qsort()
-To: riel@conectiva.com.br (Rik van Riel)
-Date: Mon, 1 Oct 2001 20:42:27 +0100 (BST)
-Cc: lenstra@tiscalinet.it (Lorenzo Allegrucci), linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com (Linus Torvalds)
-In-Reply-To: <Pine.LNX.4.33L.0110011604310.4835-100000@imladris.rielhome.conectiva> from "Rik van Riel" at Oct 01, 2001 04:23:44 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15o8xP-0002H3-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S275434AbRJATjW>; Mon, 1 Oct 2001 15:39:22 -0400
+Received: from post.aecom.yu.edu ([129.98.1.4]:6552 "EHLO post.aecom.yu.edu")
+	by vger.kernel.org with ESMTP id <S275421AbRJATjP>;
+	Mon, 1 Oct 2001 15:39:15 -0400
+Mime-Version: 1.0
+Message-Id: <a05100310b7de4e632992@[129.98.91.150]>
+Date: Mon, 1 Oct 2001 15:39:36 -0400
+To: linux-kernel@vger.kernel.org
+From: Maurice Volaski <mvolaski@aecom.yu.edu>
+Subject: [HANG] Checking root filesystem and then...
+Cc: hch@ns.caldera.de
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm not sure either, since qsort doesn't really have much
-> locality of reference but just walks all over the place.
+Running on a Netfinity x340 box (single PIII, ServRAID card and 
+Adaptec 29160LP card, boot disk is ext2 and is attached to the 
+ServRAID card), a stock 2.4.10 kernel gets to the point of "Checking 
+root filesystem" and the system simply stops dead in its tracks.
 
-qsort can be made to perform reasonably well providing you try to cache
-colour the objects you sort and try to use prefetches a bit. 
+It stops at the line initlog -c "fsck -T -a $fsckoptions /" If I 
+remove the "initlog", it still stops. If I remove the "fsck", it 
+stops at the next line (mount -n -o remount, rw /)!
 
-> I wonder how eg. merge sort would perform ...
- 
-Generally better but thats seperate to the VM issues.
+I have systematically tried a number of different kernels and have 
+discovered that
 
-> One thing which could make 2.4.10 faster for this single case
-> is the fact that it doesn't keep any page aging info, so IO
-> clustering won't be confused by the process accessing its
-> pages ;)
+2.4.10-pre5 works
+2.4.10-pre6 hangs
 
-I don't think that is too unusual a case. If the smarter vm is making poorer
-I/O clustering decisions it wants investigating
+2.4.9-ac7 works
+2.4.9-ac8 hangs
+
+How many others are seeing this behavior?
+
+Does anyone recognize something that changed in these kernels that 
+could be responsible? The only thing I notice in common in the change 
+logs are references to gendisk. (I am not sure how that could be 
+responsible as the boot disk is a SCSI disk managed the ServRAID 
+driver.)
+
+Does anyone have any idea how this could be further investigated?
+-- 
+
+Maurice Volaski, mvolaski@aecom.yu.edu
+Computing Support, Rose F. Kennedy Center
+Albert Einstein College of Medicine of Yeshiva University

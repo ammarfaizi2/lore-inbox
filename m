@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275266AbTHAScB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 14:32:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275267AbTHAScB
+	id S275268AbTHAS1J (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 14:27:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275272AbTHAS1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 14:32:01 -0400
-Received: from imap.gmx.net ([213.165.64.20]:3474 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S275266AbTHASb7 (ORCPT
+	Fri, 1 Aug 2003 14:27:09 -0400
+Received: from lug.gage.org ([66.92.48.36]:48904 "EHLO lug.gage.org")
+	by vger.kernel.org with ESMTP id S275268AbTHAS1G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 14:31:59 -0400
-Date: Fri, 1 Aug 2003 20:20:33 +0200
-From: Dominik Brugger <ml.dominik83@gmx.net>
-To: Dominik Brugger <ml.dominik83@gmx.net>
-Cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: OHCI problems with suspend/resume
-Message-Id: <20030801202033.18df44da.ml.dominik83@gmx.net>
-In-Reply-To: <20030725095222.21a2632e.ml.dominik83@gmx.net>
-References: <20030723220805.GA278@elf.ucw.cz>
-	<20030724143731.5fe40b4e.ml.dominik83@gmx.net>
-	<20030724224600.GB430@elf.ucw.cz>
-	<20030725095222.21a2632e.ml.dominik83@gmx.net>
-X-Mailer: Sylpheed version 0.9.0claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 1 Aug 2003 14:27:06 -0400
+Date: Fri, 1 Aug 2003 11:27:04 -0700
+From: jeff <jeff-lk@gerard.st>
+To: linux-kernel@vger.kernel.org
+Cc: andre@linux-ide.org, torvalds@osdl.org
+Subject: [PATCH, trivial] dmesg ambiguity: CD/DVD
+Message-ID: <20030801182704.GS15405@gage.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello again,
+hi-
 
-> I will try S4 lateron.
+i just spent too long barking up the wrong tree, wondering why i
+couldn't read DVD+R discs in a read-only drive that look like this in dmesg:
 
-After resuming from S4 uhci_hcd works fine (in opposition to S3 under exactly the same circumstances).
-USB support was completely compiled into kernel and not as modules (therefore no unloading before suspend was done).
+% dmesg | grep hdc                                       ~
+    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:pio
+    hdc: Lite-On LTN486S 48x Max, ATAPI CD/DVD-ROM drive
+                                        ^^^^^^^^^^
+    hdc: attached ide-cdrom driver.
+    hdc: ATAPI 48X CD-ROM drive, 120kB Cache, UDMA(33)
 
-Interesting:
+why was i having trouble? because this drive does not read DVD-ROMs! now
+i know to ignore the second line and pay attention to the last one, but
+really, let us fix this ambiguity. "CD/DVD" seems commonly used to refer
+to drives which read both formats- let's change this to "optical disc"
+or "CD and/or DVD" for clarity. patchette follows. 
 
-uhci_hcd wakes up again before power down.
+jeff
 
-Devices Resumed
-Devices Resumed
-uhci-hcd 0000:00:11.2: resume
-uhci-hcd 0000:00:11.2: can't resume, not suspended!
 
-(now using 2.6.0-test2-mm2)
-
--Dominik Brugger
+--- linux-2.4.21.orig/drivers/ide/ide-probe.c   2003-08-01 10:55:56.000000000 -0700
++++ linux-2.4.21/drivers/ide/ide-probe.c        2003-08-01 10:58:08.000000000 -0700
+@@ -215,7 +215,7 @@
+                                        break;
+                                }
+ #endif
+-                               printk ("CD/DVD-ROM");
++                               printk ("optical disc");
+                                break;
+                        case ide_tape:
+                                printk ("TAPE");

@@ -1,65 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269049AbRG3SB3>; Mon, 30 Jul 2001 14:01:29 -0400
+	id <S269058AbRG3SAs>; Mon, 30 Jul 2001 14:00:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269048AbRG3SBT>; Mon, 30 Jul 2001 14:01:19 -0400
-Received: from www.wen-online.de ([212.223.88.39]:51719 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S269049AbRG3SBD>;
-	Mon, 30 Jul 2001 14:01:03 -0400
-Date: Mon, 30 Jul 2001 20:00:57 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-cc: Ignacio Vazquez-Abrams <ignacio@openservices.net>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Test mail
-In-Reply-To: <200107301722.f6UHM3A205344@saturn.cs.uml.edu>
-Message-ID: <Pine.LNX.4.33.0107301955080.666-100000@mikeg.weiden.de>
+	id <S269049AbRG3SAk>; Mon, 30 Jul 2001 14:00:40 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:5 "EHLO
+	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S269048AbRG3SAc>; Mon, 30 Jul 2001 14:00:32 -0400
+Date: Mon, 30 Jul 2001 13:59:04 -0400
+From: Chris Mason <mason@suse.com>
+To: Lawrence Greenfield <leg+@andrew.cmu.edu>,
+        Rik van Riel <riel@conectiva.com.br>, Chris Wedgwood <cw@f00f.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        "Patrick J. LoPresti" <patl@cag.lcs.mit.edu>
+Subject: Re: ext3-2.4-0.9.4
+Message-ID: <464190000.996515944@tiny>
+In-Reply-To: <200107301749.f6UHnCHE001961@acap-dev.nas.cmu.edu>
+X-Mailer: Mulberry/2.0.8 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Mon, 30 Jul 2001, Albert D. Cahalan wrote:
 
-> Ignacio Vazquez-Ab writes:
-> > On Mon, 30 Jul 2001, christophe barbé wrote:
->
-> >> Would it not be simple and effective to filter out mail produced by
-> >> Outlook?
-> >> It sounds to me the equivalent of RBL & co.
-> >> RBL filter out mail from open relay used to spam us.
-> >> NoOutlook filter out mail from poor software/OS used to propagate viruses.
-> >>
-> >> I guess that 100% of incomming viruses in lkml come from a Outlook mailer.
-> >> And for the last two ones I'm sure.
-> >>
-> >> Christophe
-> >
-> > Um, that's just a little (LITTLE?!?) draconian/elitist. How about
-> > putting in a handler that renames EXEs attachments and EXEs in
-> > compressed files to something a little less executable?
-> >
-> > Don't get me wrong. I'm no fan of Outlook or OE, but you
-> > can't just step on people who use them.
->
-> This is a lot less draconian/elitist than banning ISPs. People
-> seldom have a choice between multiple ISPs that offer affordable
-> high-speed connections. Consider yourself lucky if both DSL and
-> cable modem service are available and affordable in your area.
->
-> Banning Outlook isn't so bad. Assuming you are stuck with Windows,
-> you still have many choices. Netscape/Mozilla and Eudora would be
-> the obvious choices. I think you can get pine. Emacs has been
-> ported to Windows, so you have the rmail/gnus stuff. Surely you
-> can tolerate at least one of these many choices.
 
-Why bother?  The _occasional_ spam slips through the filters.  I don't
-see any real difference if some weenie slips me a plain spam or a spam
-with an impotent attachment I'm not going to look at anyway.  It all
-costs me the same.. one 'D'+download cost.
+On Monday, July 30, 2001 01:49:12 PM -0400 Lawrence Greenfield
+<leg+@andrew.cmu.edu> wrote:
 
-	-Mike
+>    Date: Tue, 31 Jul 2001 05:38:13 +1200
+>    From: Chris Wedgwood <cw@f00f.org>
+> 
+>    On Mon, Jul 30, 2001 at 02:25:51PM -0300, Rik van Riel wrote:
+> 
+>        Note that this is very different from the "link() should be
+>        synchronous()" mantra we've been hearing over the last days.
+> 
+>        These fsync() semantics make lots of sense to me, I'm all
+>        for it.
+> 
+>    And what if the file has hundreds or thousands of links? How do we
+>    cleanly keep track of all those?
+> 
+> You don't have to keep track of all of them, just the uncommitted
+> ones. 
+
+Well, the idea is to get it done in the VFS layer.  reiserfs, ext3, and
+probably the other journaled filesystems could keep track of the last
+transacation and inode was involved with, making the softupdate style
+fsync(file) to commit a rename easy.
+
+But, ext2 and the normal filesystems don't have it quite so good.
+
+-chris
+
 

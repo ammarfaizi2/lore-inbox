@@ -1,71 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318918AbSICUsD>; Tue, 3 Sep 2002 16:48:03 -0400
+	id <S318919AbSICUvj>; Tue, 3 Sep 2002 16:51:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318919AbSICUsD>; Tue, 3 Sep 2002 16:48:03 -0400
-Received: from port326.ds1-brh.adsl.cybercity.dk ([217.157.160.207]:46381 "EHLO
-	mail.jaquet.dk") by vger.kernel.org with ESMTP id <S318918AbSICUsC>;
-	Tue, 3 Sep 2002 16:48:02 -0400
-Date: Tue, 3 Sep 2002 22:52:29 +0200
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: linux-kernel@vger.kernel.org
-Subject: __func__ in 2.5.33?
-Message-ID: <20020903225229.A24108@jaquet.dk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="EeQfGwPcQSOJBaQU"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-PGP-Key: http://www.jaquet.dk/rasmus/pubkey.asc
-X-PGP-Fingerprint: 925A 8E4B 6D63 1C22 BFB9  29CF 9592 4049 9E9E 26CE
+	id <S318923AbSICUvi>; Tue, 3 Sep 2002 16:51:38 -0400
+Received: from pD9E23EAA.dip.t-dialin.net ([217.226.62.170]:53889 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S318919AbSICUvh>; Tue, 3 Sep 2002 16:51:37 -0400
+Date: Tue, 3 Sep 2002 14:55:52 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Hacksaw <hacksaw@hacksaw.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH - change to blkdev->queue calling triggers BUG in md.c
+In-Reply-To: <1031085908.21439.17.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0209031448000.3373-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---EeQfGwPcQSOJBaQU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
 Hi,
 
-I trying to compile the SX driver for the 2.5.33 kernel, I got a
-lot of warnings looking like (this is from a test program, not
-the driver itself)
+On 3 Sep 2002, Alan Cox wrote:
+> And what about all the firmware that needs PC partition tables ?
 
-test.c: In function `main':
-test.c:6: called object is not a function
-test.c:6: parse error before string constant
+As mentioned, they should really consider going away. It's currently a bit 
+crappy all over, but we might learn from that.
 
-This seems to stem from the recent __FUNCTION__ vs. __func__
-change in kernel.h and the SX driver's use of __FUNCTION__ in the
-following construct
+> They won't be going away in a hurry
 
-#define func_enter() sx_dprintk (SX_DEBUG_FLOW, "sx: enter " __FUNCTION__ "\n")
+Not too quickly, but they will. Maybe even before the apocalypse.
 
-My gcc (vers. 2.96) does not accept the above when __FUNCTION__ is
-#defined to be (__func__). I likes __func__ well enough, though.
+> > You can't get that with partition tables either. And by the way, we 
+> > succeeded doing that at Magdeburg. Pull out the power supply, batteries, 
+> > etc., then run away.
+> 
+> Why not - you can journal partition updates too. There are systems out
+> there that do it, even ones that do cluster safe partition management on
+> the fly.
 
-So I guess my question is whether I should change the above define,
-and if so, to what, or if __FUNCTION__ should be defined to something
-else?
+That didn't help when they told us the water would come. We've put the 
+disks into bags and unplugged the supply.
 
-BTW, it was my impression that the kernel would continue
-with __FUNCTION__? Maybe I missed something....
+And if you meant why not use journaled partition updates on raid -- I 
+still don't see how this could be any good without complicating things. 
+Maybe you can enlighten me?
 
-Regards,
-  Rasmus
+> If you want to do partitions in user space and play with the idea the
+> LVM2 code is very clean, very nice and already provides you with
+> everything needed to do it nicely.
 
---EeQfGwPcQSOJBaQU
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+LVM2 is not the kind of thing I'd want to use on my big bad mainframe. It 
+may be feasible, but it doesn't have that smell. And where to plug all 
+those disks?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+			Thunder
+-- 
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
 
-iD8DBQE9dSEMlZJASZ6eJs4RArWaAJ0XHVCapvWCBJGaN5iydbXrD8EvqACeJa4G
-y4KjnRGgPf6erw3+Lab2rOI=
-=U+uB
------END PGP SIGNATURE-----
-
---EeQfGwPcQSOJBaQU--

@@ -1,79 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262721AbUKLXrs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262713AbUKLXrt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262721AbUKLXrs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 18:47:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262713AbUKLXqw
+	id S262713AbUKLXrt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 18:47:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262712AbUKLXqk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 18:46:52 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:1021 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262683AbUKLX0v convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 18:26:51 -0500
-Subject: Re: [PATCH] I2C fixes for 2.6.10-rc1
-In-Reply-To: <11003020053782@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Fri, 12 Nov 2004 15:26:45 -0800
-Message-Id: <11003020051927@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+	Fri, 12 Nov 2004 18:46:40 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:49025 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S262722AbUKLX1q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Nov 2004 18:27:46 -0500
+Message-Id: <200411122326.iACNQSEn006943@gue01.inform.pucp.edu.pe>
+To: Dave Jones <davej@redhat.com>, Hugh Dickins <hugh@veritas.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] WTF is VLI? 
+In-Reply-To: Message from Dave Jones <davej@redhat.com> 
+   of "Thu, 11 Nov 2004 16:10:50 CDT." <20041111211050.GC32275@redhat.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
+Date: Fri, 12 Nov 2004 20:26:28 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2095, 2004/11/12 13:20:15-08:00, khali@linux-fr.org
+Dave Jones <davej@redhat.com> said:
+> On Thu, Nov 11, 2004 at 09:05:11PM +0000, Hugh Dickins wrote:
+>  > What is this "VLI" that 2.6.9 started putting after the taint string
+>  > in i386 oopses?  Vick Library Index?  Vineyard Leadership Institute?
+> 
+> "Variable length instructions".  I think newer ksymoops looks
+> for this tag and does something magical when doing disassembly.
 
-[PATCH] I2C: Missing newlines in debug messages
-
-As discussed on IRC, this simple patch fixes broken debug messages
-missing their trailing newlines. I just applied something similar to
-CVS, and will prepare patches for 2.4 as well.
-
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
-
-
- drivers/i2c/i2c-core.c          |    2 +-
- drivers/i2c/i2c-dev.c           |    2 +-
- drivers/i2c/i2c-sensor-detect.c |    2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
-
-
-diff -Nru a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
---- a/drivers/i2c/i2c-core.c	2004-11-12 15:22:38 -08:00
-+++ b/drivers/i2c/i2c-core.c	2004-11-12 15:22:38 -08:00
-@@ -760,7 +760,7 @@
- 			if (addr == address_data->normal_i2c[i]) {
- 				found = 1;
- 				dev_dbg(&adapter->dev, "found normal i2c entry for adapter %d, "
--					"addr %02x", adap_id,addr);
-+					"addr %02x\n", adap_id, addr);
- 			}
- 		}
- 
-diff -Nru a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
---- a/drivers/i2c/i2c-dev.c	2004-11-12 15:22:38 -08:00
-+++ b/drivers/i2c/i2c-dev.c	2004-11-12 15:22:38 -08:00
-@@ -539,7 +539,7 @@
- out_unreg_chrdev:
- 	unregister_chrdev(I2C_MAJOR, "i2c");
- out:
--	printk(KERN_ERR "%s: Driver Initialisation failed", __FILE__);
-+	printk(KERN_ERR "%s: Driver Initialisation failed\n", __FILE__);
- 	return res;
- }
- 
-diff -Nru a/drivers/i2c/i2c-sensor-detect.c b/drivers/i2c/i2c-sensor-detect.c
---- a/drivers/i2c/i2c-sensor-detect.c	2004-11-12 15:22:38 -08:00
-+++ b/drivers/i2c/i2c-sensor-detect.c	2004-11-12 15:22:38 -08:00
-@@ -115,7 +115,7 @@
- 			for (i = 0; !found && (normal_i2c[i] != I2C_CLIENT_END); i += 1) {
- 				if (addr == normal_i2c[i]) {
- 					found = 1;
--					dev_dbg(&adapter->dev, "found normal i2c entry for adapter %d, addr %02x", adapter_id, addr);
-+					dev_dbg(&adapter->dev, "found normal i2c entry for adapter %d, addr %02x\n", adapter_id, addr);
- 				}
- 			}
- 		}
-
+Huh? Either an architecture has them (i386) or doesn't (RISCs). 
+Or am I seriously misunderstanding here?
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

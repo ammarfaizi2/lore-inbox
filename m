@@ -1,47 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262782AbVDAPfE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262766AbVDAPik@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262782AbVDAPfE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 10:35:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262778AbVDAPeX
+	id S262766AbVDAPik (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 10:38:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262775AbVDAPfo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 10:34:23 -0500
-Received: from mail.fh-wedel.de ([213.39.232.198]:5052 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S262773AbVDAPd4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 10:33:56 -0500
-Date: Fri, 1 Apr 2005 17:33:47 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: "Artem B. Bityuckiy" <dedekind@infradead.org>
-Cc: David Woodhouse <dwmw2@infradead.org>,
-       "Artem B. Bityuckiy" <dedekind@yandex.ru>,
-       Herbert Xu <herbert@gondor.apana.org.au>, linux-kernel@vger.kernel.org,
-       linux-crypto@vger.kernel.org
-Subject: Re: [RFC] CryptoAPI & Compression
-Message-ID: <20050401153347.GA16835@wohnheim.fh-wedel.de>
-References: <E1DGxa7-0000GH-00@gondolin.me.apana.org.au> <Pine.LNX.4.58.0504011534460.9305@phoenix.infradead.org> <1112366647.3899.66.camel@localhost.localdomain> <424D6175.8000700@yandex.ru> <1112367926.3899.70.camel@localhost.localdomain> <Pine.LNX.4.58.0504011622350.9305@phoenix.infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.58.0504011622350.9305@phoenix.infradead.org>
-User-Agent: Mutt/1.3.28i
+	Fri, 1 Apr 2005 10:35:44 -0500
+Received: from alog0177.analogic.com ([208.224.220.192]:34963 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262766AbVDAPeO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 10:34:14 -0500
+Date: Fri, 1 Apr 2005 10:33:43 -0500 (EST)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: dtor_core@ameritech.net
+cc: Renate Meijer <kleuske@xs4all.nl>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] : remove unreliable, unused and unmainained arch from
+ kernel.
+In-Reply-To: <d120d500050401072423259b6d@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0504011032120.13348@chaos.analogic.com>
+References: <11123574931907@2ka.mipt.ru> <Pine.LNX.4.61.0504010805130.12910@chaos.analogic.com>
+ <f3db21ceb79616110118e303fe9a5db2@xs4all.nl> <Pine.LNX.4.61.0504011001550.13262@chaos.analogic.com>
+ <d120d500050401072423259b6d@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 April 2005 16:22:50 +0100, Artem B. Bityuckiy wrote:
-> 
-> Another question, does JFFSx *really* need the peaces of a 4K page to be 
-> independently uncompressable? It it wouldn't be required, we would achieve 
-> better compression if we have saved the zstream state. :-) But it is too 
-> late to change things at least for JFFS2.
+On Fri, 1 Apr 2005, Dmitry Torokhov wrote:
 
-Absolutely.  You can argue that 4KiB is too small and 8|16|32|64|...
-would be much better, yielding in better compression ratio.  But
-having to read and uncompress the whole file when appending a few
-bytes is utter madness.
+> On Apr 1, 2005 10:16 AM, Richard B. Johnson <linux-os@analogic.com> wrote:
+>> On Fri, 1 Apr 2005, Renate Meijer wrote:
+>>
+>>>
+>>> On Apr 1, 2005, at 3:09 PM, linux-os wrote:
+>>>
+>>>>
+>>>> [PATCH snipped]
+>>>>
+>>>> Cruel joke. Now 80 percent of the Intel clones won't boot.
+>>>> Those are the ones that run industry, you know, the stuff that
+>>>> is necessary to earn money.
+>>>>
+>>>> Without i386 support, you don't have any embedded systems. You
+>>>> need to use the garbage Motorola CPUs and the proprietary
+>>>> operating systems in embedded stuff.
+>>>
+>>> Have you checked your calender yet?
+>>>
+>> I'm quite aware of the date and time, thank you. The 'i386 architecture
+>> is the Intel-like stuff that doesn't have all the newer gee-whiz
+>> things that are of little value in the embedded area.
+> ...
+>> So, basically, you guys think you can single-handedly
+>> remove Linux from the embedded market and re-do it just
+>> for servers? Or are you going to leave some capability
+>> for desk-tops, too?
+>
+> Please check the calendar again. Don't worry about the year part,
+> concentrate on the month and day... ;)
+>
+> -- 
+> Dmitry
+>
+Ahhhhhhhhhhhhhhh!   ..... **** APRIL Fool-I-am-one ****
 
-Jörn
 
--- 
-I don't understand it. Nobody does.
--- Richard P. Feynman
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

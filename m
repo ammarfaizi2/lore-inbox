@@ -1,17 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262289AbSJ0Fcp>; Sun, 27 Oct 2002 01:32:45 -0400
+	id <S262290AbSJ0Fgq>; Sun, 27 Oct 2002 01:36:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262290AbSJ0Fcp>; Sun, 27 Oct 2002 01:32:45 -0400
-Received: from whitsun.whitsunday.net.au ([203.25.188.10]:27407 "EHLO
+	id <S262291AbSJ0Fgp>; Sun, 27 Oct 2002 01:36:45 -0400
+Received: from whitsun.whitsunday.net.au ([203.25.188.10]:29967 "EHLO
 	mail1.whitsunday.net.au") by vger.kernel.org with ESMTP
-	id <S262289AbSJ0Fco> convert rfc822-to-8bit; Sun, 27 Oct 2002 01:32:44 -0400
+	id <S262290AbSJ0Fgp> convert rfc822-to-8bit; Sun, 27 Oct 2002 01:36:45 -0400
 From: John W Fort <johnf@whitsunday.net.au>
-To: patmans@us.ibm.com
-Cc: andmike@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: SCSI host changes, multi-path crap
-Date: Sun, 27 Oct 2002 15:39:59 +1000
-Message-ID: <jqumrucl0cu7i9vtr186d05difvcipdk0l@4ax.com>
+To: linux-kernel@vger.kernel.org
+Subject: IBM's  SCSI proposed canges from Patrick Mansfield
+Date: Sun, 27 Oct 2002 15:44:09 +1000
+Message-ID: <t5vmrug7q4t33c8rl3f7h2jaqv97evt950@4ax.com>
 X-Mailer: Forte Agent 1.92/32.572
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii

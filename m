@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271626AbTGQX2g (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 19:28:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271629AbTGQX2g
+	id S271636AbTGQXeV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 19:34:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271638AbTGQXeV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 19:28:36 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:28859 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S271626AbTGQX2e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 19:28:34 -0400
-Subject: info leak -- padded struct copied to user
-From: Albert Cahalan <albert@users.sf.net>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: akpm@digeo.com, Linus Torvalds <torvalds@osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1058484872.733.25.camel@cube>
+	Thu, 17 Jul 2003 19:34:21 -0400
+Received: from uucp.cistron.nl ([62.216.30.38]:33032 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S271636AbTGQXeU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 19:34:20 -0400
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: [PATCH] print_dev_t for 2.6.0-test1-mm
+Date: Thu, 17 Jul 2003 23:49:15 +0000 (UTC)
+Organization: Cistron Group
+Message-ID: <bf7clr$ang$1@news.cistron.nl>
+References: <20030716184609.GA1913@kroah.com> <20030718002451.A2569@pclin040.win.tue.nl> <20030717224307.GF19891@ca-server1.us.oracle.com> <20030718011115.A2600@pclin040.win.tue.nl>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 17 Jul 2003 19:34:32 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1058485755 10992 62.216.29.200 (17 Jul 2003 23:49:15 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's not OK to leak bits of the kernel stack.
-(timy security flaw) I found this with -Wpadded.
+In article <20030718011115.A2600@pclin040.win.tue.nl>,
+Andries Brouwer  <aebr@win.tue.nl> wrote:
+>On Thu, Jul 17, 2003 at 03:43:08PM -0700, Joel Becker wrote:
+>> On Fri, Jul 18, 2003 at 12:24:51AM +0200, Andries Brouwer wrote:
+>> > Premise: some filesystems or archives store 32 bits.
+>> > Conclusion: we must be able to handle that.
+>> > This is unrelated to the kernel, unrelated to system calls,
+>> > it is related to <sys/sysmacros.h>.
+>> 
+>> 	How does linux handle that today?  IIRC, it ignores the high
+>> 16bits and treats that 32bit number as 8:8.  That is what happens today,
+>> for every filesystem, whether it stores 32 or 16 bits.
+>> 	Why expand that?  We can continue to treat 32bit numbers (eg,
+>> from NFSv2) as 16bit numbers.
+>
+>:-) A surprising question.
+>Why expand that?
+>Because we would like to use more than 16 bits in device numbers.
 
-diff -Naurd old/fs/stat.c new/fs/stat.c
---- old/fs/stat.c	2003-07-17 18:25:20.000000000 -0400
-+++ new/fs/stat.c	2003-07-17 18:27:47.000000000 -0400
-@@ -123,6 +123,7 @@
- 	SET_OLDSTAT_UID(tmp, stat->uid);
- 	SET_OLDSTAT_GID(tmp, stat->gid);
- 	tmp.st_rdev = stat->rdev;
-+	tmp.__pad_16bit = 0;  /* don't leak kernel stack data! */
- #if BITS_PER_LONG == 32
- 	if (stat->size > MAX_NON_LFS)
- 		return -EOVERFLOW;
-diff -Naurd old/include/asm-i386/stat.h new/include/asm-i386/stat.h
---- old/include/asm-i386/stat.h	2003-06-26 17:50:47.000000000 -0400
-+++ new/include/asm-i386/stat.h	2003-07-17 18:23:01.000000000 -0400
-@@ -9,6 +9,7 @@
- 	unsigned short st_uid;
- 	unsigned short st_gid;
- 	unsigned short st_rdev;
-+	unsigned short __pad_16bit;
- 	unsigned long  st_size;
- 	unsigned long  st_atime;
- 	unsigned long  st_mtime;
+But why do you need a 32bit interface to the kernel when a
+32:32 interface exists? Userland can translate 32 bit major/minor
+into 32:32 to the kernel, if a 64 bits syscall exists, right 
+CAse in point: mknod64()
 
+Same goes for filesystems. A 32 bit on-disk rdev doesn't need to
+be handled by the rest of the kernel. The filesystem driver just
+needs to translate it to 32 major 32 minor for the rest of the
+kernel.
 
+Mike.
 

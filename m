@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266524AbUBLScw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 13:32:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266529AbUBLScw
+	id S266538AbUBLSv1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 13:51:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266540AbUBLSv0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 13:32:52 -0500
-Received: from fed1mtao08.cox.net ([68.6.19.123]:19638 "EHLO
-	fed1mtao08.cox.net") by vger.kernel.org with ESMTP id S266524AbUBLScu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 13:32:50 -0500
-Date: Thu, 12 Feb 2004 11:32:47 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Andi Kleen <ak@suse.de>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][6/6] A different KGDB stub
-Message-ID: <20040212183247.GR19676@smtp.west.cox.net>
-References: <20040212000408.GG19676@smtp.west.cox.net.suse.lists.linux.kernel> <p73wu6syf0n.fsf@verdi.suse.de>
+	Thu, 12 Feb 2004 13:51:26 -0500
+Received: from gate.in-addr.de ([212.8.193.158]:20391 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S266538AbUBLSuu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 13:50:50 -0500
+Date: Thu, 12 Feb 2004 19:51:45 +0100
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Joe Thornber <thornber@redhat.com>
+Cc: Linux Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: dm core patches
+Message-ID: <20040212185145.GY21298@marowsky-bree.de>
+References: <20040210163548.GC27507@reti> <20040211101659.GF3427@marowsky-bree.de> <20040211103541.GW27507@reti>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <p73wu6syf0n.fsf@verdi.suse.de>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040211103541.GW27507@reti>
+User-Agent: Mutt/1.4.1i
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 12, 2004 at 07:43:04AM +0100, Andi Kleen wrote:
+On 2004-02-11T10:35:41,
+   Joe Thornber <thornber@redhat.com> said:
 
-> Tom Rini <trini@kernel.crashing.org> writes:
-[snip]
-> > --- a/include/asm-x86_64/processor.h	Wed Feb 11 15:42:06 2004
-> > +++ b/include/asm-x86_64/processor.h	Wed Feb 11 15:42:06 2004
-> > @@ -252,6 +252,7 @@
-> >  	unsigned long	*io_bitmap_ptr;
-> >  /* cached TLS descriptors. */
-> >  	u64 tls_array[GDT_ENTRY_TLS_ENTRIES];
-> > +	void		*debuggerinfo;
-> >  };
-> 
-> This should not be needed
+> > when will you be submitting the DM multipath personality?
+> Not for a bit, it's still changing too much as I find more out about
+> the hardware (see the dm-devel@redhat.com list).
 
-OK.  Unless there is a difference in this respect on i386 vs x86_64 in
-2.6.3-rc2-mm1, this is needed for the thread support which is in this
-version, but not the -mm version.  OTOH, if there is a cleaner way of
-doing this, and there indeed might be (I need to sit down and re-read
-some of the previous threads), I'm all ears, not tied to doing it that
-way, etc, etc.
+I checked the archives, but I couldn't find anything really 'in flux'.
+Your priority based approach seems just fine to me.
+
+What is still missing? This is really a killer feature for 2.6. Any help
+I can offer?
+
+
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
 
 -- 
-Tom Rini
-http://gate.crashing.org/~trini/
+High Availability & Clustering	      \ ever tried. ever failed. no matter.
+SUSE Labs			      | try again. fail again. fail better.
+Research & Development, SUSE LINUX AG \ 	-- Samuel Beckett
+

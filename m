@@ -1,47 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263180AbVCXTlm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261305AbVCXTtt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263180AbVCXTlm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 14:41:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262656AbVCXTlE
+	id S261305AbVCXTtt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 14:49:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261487AbVCXTts
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 14:41:04 -0500
-Received: from mail.parknet.co.jp ([210.171.160.6]:24337 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S263180AbVCXTj4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 14:39:56 -0500
-To: John Richard Moser <nigelenki@comcast.net>
-Cc: ubuntu-devel <ubuntu-devel@lists.ubuntu.com>, linux-kernel@vger.kernel.org
-Subject: Re: vfat broken in 2.6.10?
-References: <4241E3EA.4080501@comcast.net>
-	<87fyyl3war.fsf@devron.myhome.or.jp> <42430C26.6000603@comcast.net>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Fri, 25 Mar 2005 04:39:42 +0900
-In-Reply-To: <42430C26.6000603@comcast.net> (John Richard Moser's message of
- "Thu, 24 Mar 2005 13:51:18 -0500")
-Message-ID: <87psxokf41.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
+	Thu, 24 Mar 2005 14:49:48 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:24452 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261305AbVCXTrx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 14:47:53 -0500
+Date: Thu, 24 Mar 2005 20:47:47 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Tommy Reynolds <Tommy.Reynolds@MegaCoder.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Squashfs without ./..
+In-Reply-To: <20050324133628.196a4c41.Tommy.Reynolds@MegaCoder.com>
+Message-ID: <Pine.LNX.4.61.0503242047000.8883@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.61.0503221645560.25571@yvahk01.tjqt.qr>
+ <Pine.LNX.4.62.0503221656310.2683@dragon.hyggekrogen.localhost>
+ <200503231740.09572.maillist@zuco.org> <Pine.LNX.4.61.0503231829570.1481@yvahk01.tjqt.qr>
+ <20050323174925.GA3272@zero> <Pine.LNX.4.62.0503241855350.18295@numbat.sonytel.be>
+ <20050324133628.196a4c41.Tommy.Reynolds@MegaCoder.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Richard Moser <nigelenki@comcast.net> writes:
+>> > There's probably a number of apps that skip the first two dirents, instead
+>> > of checking for the dot dirs.
+>> Yep, check `-noleaf' in find(1)
+>Then it is broken in several ways.  
+>First, file systems are not required to implement ".." (only "." is
+>magical, ".." is a courtesy).  
 
-> I would really, but I haven't mastered creating debian packages yet; on
-> Gentoo I just wrote ebuilds whenever I wanted to test something, then
-> uninstalled it if it broke.  Maybe someone else can do it. . . .
+Heh, what would happen if .. disappeared? Would `cd ..` become impossible 
+(even if it is a shell builtin, it probably stat()s for ..)?
 
-dosfstools is simple, so you don't need to install it....
 
-    $ mkdir test
-    $ cd test
-    $ wget http://user.parknet.co.jp/hirofumi/tmp/fatfsprogs.tar.bz2
-    $ tar xjf fatfsprogs.tar.bz2 
-    $ cd fatfsprogs/dosfstools-2.10/
-    $ make
-    $ ./dosfsck/dosfsck /dev/test_device
-      [...]
-    $ cd ../../..
-    $ rm -rf test
+Jan Engelhardt
 -- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

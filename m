@@ -1,100 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264692AbTFQMDw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 08:03:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264695AbTFQMDv
+	id S264700AbTFQMHC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 08:07:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264701AbTFQMHC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 08:03:51 -0400
-Received: from conure.mail.pas.earthlink.net ([207.217.120.54]:22684 "EHLO
-	conure.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id S264692AbTFQMDq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 08:03:46 -0400
-Message-ID: <3EEF0770.4030903@winux.com>
-Date: Tue, 17 Jun 2003 08:20:00 -0400
-From: Larry Auton <lkml@winux.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
+	Tue, 17 Jun 2003 08:07:02 -0400
+Received: from as4-1-7.has.s.bonet.se ([217.215.31.238]:63380 "EHLO
+	K-7.stesmi.com") by vger.kernel.org with ESMTP id S264700AbTFQMG7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 08:06:59 -0400
+Message-ID: <3EEF07B0.4070509@stesmi.com>
+Date: Tue, 17 Jun 2003 14:21:04 +0200
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
+To: Collen <collen@hermanjordan.nl>
 CC: linux-kernel@vger.kernel.org
-Subject: Re: direct i/o problem with 2.4.21
-References: <16110.17820.740483.866151@eagle.skarven.net> <20030617005916.GP1571@dualathlon.random>
-In-Reply-To: <20030617005916.GP1571@dualathlon.random>
+Subject: Re: trying to use a 2.4.18 module in 2.5.71
+References: <5.2.0.9.0.20030617140233.00b8bd70@pop.kennisnet.nl>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-RAVMilter-Version: 8.4.2(snapshot 20021217) (K-7.stesmi.com)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-> On Mon, Jun 16, 2003 at 06:33:00PM -0400, Larry Auton wrote:
+Collen wrote:
+> g'day just wandering if some one can help me out here...
 > 
->>>Message-ID: <16107.26375.67524.817817@nv.winux.com>
->>>Date:   Sat, 14 Jun 2003 14:18:47 -0400
->>>To:     linux-kernel@vger.kernel.org
->>>From:   Larry Auton <lkml@winux.com>
->>>Subject: direct i/o problem with 2.4.20 and 2.4.21rc7
->>>
->>>I have an application that requires direct i/o to thousands of files.
->>>On 2.4.19 the open's would eventually fail (at around 7200 files).
->>>On 2.4.20 and 2.4.21rc7 the machine hangs.
->>>
->>>Here's a sample program to do the deed:
->>>
->>>    wget http://www.skarven.net/lda/crashme.c
->>>    cc -o crashme crashme.c     # compile it
->>>    ./crashme 4000              # OK
->>>    ./crashme 9999              # CRASH
->>>
->>>It's a little obfuscated to eliminate the need for root privileges to
->>>mess with rlimit. It simply opens a bunch of files with O_DIRECT and,
->>>when enough files are open, the system will hang.
->>>
->>>The system hangs when '/proc/slabinfo' reports that 'kiobuf' reaches 
->>>just over 7230 active objects. I don't believe that this problem is
->>>specific to any particular file system as the failure occurs when
->>>using both ext2 and reiserfs.
->>>
->>>Larry Auton
->>
->>The hang I reported on 2.4.21rc7 persists in the released version 2.4.21.
+> i'm trying to use a module from a 2.4.18 kernel
+> it's for my promise fasttrack s150 tx4 sata cart..
 > 
+> now i updated to kernel 2.5.71 and installed the module init tools
+> copyed the ft3xx.o from 2.4.18 to 2.5.71, made a new initrd
 > 
-> can you try to reproduce with 2.4.21rc8aa1? (you can apply my full patch
-> to 21 final too of course since rc8 is the same as final) The fix for
-> this that also fixes the performance problem with rawio from the same
-> file but multiple fd is already in tree since several months, we should
-> push it into mainline ASAP. The basic idea of the patch that moves the
-> bh allocation flood down to the slab to take advantage of a shared
-> shrinkable cache was developed at intel AFIK.
+> but it keeps bugging around, i get a "invalid module format"
 > 
-> the single patch is this but I doubt it would apply cleanly as 90% of
-> the other patches:
+> i built-in all the loadable module support options (incl. module version 
+> support)
 > 
-> 	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.21rc8aa1/9996_kiobuf-slab-1
-> 
-> so you can make a quick test with the full 2.4.21rc8aa1.gz applied.
-> 
-> as for the hang, that's because the vm in mainline probably isn't
-> capable of returning -ENOMEM from syscalls under a zone normal shortage
-> (previously it wouldn't touch the vm side because it used vmalloc that
-> returns -ENOMEM w/o entering the VM). With the vm in my tree you
-> shouldn't experience hangs even w/o the fix for the kiobuf bh flood
-> allocation patch applied.
-> 
-> Andrea
+> but i can't get the module loaded..
+> annyone anny idea ??
 
-Problem solved.  I after applying patch
+Usually the fact that it's for 2.4.18 should ring a bell.
 
-http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.21rc8aa1.bz2 
+You can't use modules across versions and definately not across minors.
 
-
-to the vanilla linux-2.4.21, both the "crashme" program and my genuine 
-application run as intended.  The machine is stable.  Here's a line from 
-/proc/slabinfo showing the small, well-managed kiobuf allocation:
-
-kiobuf 168 168 68 3 3 1 : 168 168 3 0 0 : 252 126 : 756227 6 756230 0
-
-This state reflects my application using direct i/o to over 8300 files.
-
-Well done!  Many thanks.
+// Stefan
 

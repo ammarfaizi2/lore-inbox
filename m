@@ -1,68 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273751AbRI0SCF>; Thu, 27 Sep 2001 14:02:05 -0400
+	id <S273754AbRI0SFZ>; Thu, 27 Sep 2001 14:05:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273754AbRI0SBz>; Thu, 27 Sep 2001 14:01:55 -0400
-Received: from c2.e0bed1.client.atlantech.net ([209.190.224.194]:26374 "EHLO
-	crb.crb-web.com") by vger.kernel.org with ESMTP id <S273751AbRI0SBw>;
-	Thu, 27 Sep 2001 14:01:52 -0400
-Date: Thu, 27 Sep 2001 14:12:38 -0500
-From: Wayne Cuddy <wcuddy@crb-web.com>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Synchronization Techniques in 2.2 Kernel
-Message-ID: <20010927141238.E5125@crb-web.com>
-Mime-Version: 1.0
+	id <S273755AbRI0SFP>; Thu, 27 Sep 2001 14:05:15 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:50951 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S273754AbRI0SFG>; Thu, 27 Sep 2001 14:05:06 -0400
+Message-ID: <3BB36A6A.B0736CA2@zip.com.au>
+Date: Thu, 27 Sep 2001 11:05:30 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-ac12 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: ookhoi@dds.nl
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [patch] netconsole - log kernel messages over the network. 2.4.10.
+In-Reply-To: <20010927171818.H774@humilis>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am working on a custom driver for a project at work.  We are working with
-Debian 2.2, the code is compiled as a module.  At this time I am not able to
-switch our project to the 2.4.x kernels so I require a solution using 2.2.x.
+Ookhoi wrote:
+> 
+> Hi All,
+> 
+> Ingo was not aware of the sourceforge project, and suggested me to
+> resend my reply to lkml. Does the patch work for you guys? Do I do
+> something wrong? That would be more than possible. :-)
+> 
+> ...
+> cuddle:~# uname -a
+> Linux cuddle 2.4.9-ac15 #1 Thu Sep 27 13:54:51 CEST 2001 i686 unknown
+> cuddle:~# insmod netconsole dev=eth0 target_ip=0x0a604875 source_port=6666 target_port=5555
+> Using /lib/modules/2.4.9-ac15/kernel/drivers/net/netconsole.o
+> /lib/modules/2.4.9-ac15/kernel/drivers/net/netconsole.o: init_module: Operation not permitted
+> Hint: insmod errors can be caused by incorrect module parameters, including invalid IO or IRQ parameters
 
-The driver has the capability to control many cards at once.  It is written
-such that when the read system call is invoked data available on any card is
-returned, so we don't use a separate file descriptor for each card.
-
-I believe I have a "race condition" in the drivers read method when blocking
-I/O is used and there is no data in the DMA buffers.  Here is some very basic
-pseudo code for the driver's read method:
-
-driver_read()
-{
-	start_card = x;
-	
-	while(1)
-	{
-		if(card_has_data(x))
-			return data;
-
-		x = next_card(x);
-		
-		if(start_card == x)
-		{
-			/* none of the cards has any data, sleep
-			 * on a wait queue */
-			interruptible_sleep_on.....
-		}
-	}
-}
-
-After the device performs the DMA it will wake the driver via the interrupt
-handler.  The problem is how to handle the situation where the driver checks a
-card for data, no data is available and it moves on to the next card.  While
-checking the rest of the cards data may arrive on the 1st card, the interrupt
-handler will fire and complete before the driver goes to sleep on the wait
-queue.
-
-If I understand wait_queues correctly the process has to be sleeping before a
-wake_up call will have any effect (I.E. they are not queued).  Can this be
-worked around with semaphores or some other method?  I am open to ideas here.
-
-Any and all help is appreciated.
-
-Wayne
+If you're not using the eepro100 driver, then an insmod of the
+netconsole driver will fail:
 
 
++       if (!ndev->poll_controller) {
++               printk(KERN_ERR "netconsole: %s's network driver does not implement netlogging yet, aborting.\n", dev);
++               return -1;
++       }
+
+Maybe that message is in your logs somewhere?
+
+Take a look at the poll_controller() implementation in the eepro100
+part of Ingo's patch - it's dead simple.
+
+What we need is for a bunch of people to implement poll_controller()
+for *their* ethernet driver and contribute the tested diffs
+back to Ingo.
+
+-

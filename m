@@ -1,309 +1,418 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263575AbTJCBAY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Oct 2003 21:00:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263574AbTJCBAY
+	id S263572AbTJCBR3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Oct 2003 21:17:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263574AbTJCBR2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Oct 2003 21:00:24 -0400
-Received: from GOL139579-1.gw.connect.com.au ([203.63.118.157]:38032 "EHLO
-	goldweb.com.au") by vger.kernel.org with ESMTP id S263575AbTJCBAC
+	Thu, 2 Oct 2003 21:17:28 -0400
+Received: from mailhub2.midco.net ([24.220.0.34]:58041 "EHLO
+	mailhub2.midco.net") by vger.kernel.org with ESMTP id S263572AbTJCBRT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Oct 2003 21:00:02 -0400
-Message-ID: <1065141139.3f7cc393b9e22@dubai.stillhq.com>
-Date: Fri,  3 Oct 2003 10:32:19 +1000
-From: Michael Still <mikal@stillhq.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [Patch] Documentation tweaks to remove build errors
+	Thu, 2 Oct 2003 21:17:19 -0400
+Message-ID: <3F7CCEB8.8040803@spe.midco.net>
+Date: Thu, 02 Oct 2003 19:19:52 -0600
+From: AG <agroz@spe.midco.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="-MOQ10651411395a95514a6ea1f54c4c0b37b546c85eab"
-User-Agent: Internet Messaging Program (IMP) 3.2.1
-X-Originating-IP: 203.17.68.210
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test5 & test6 cd burning/scheduler/ide-scsi.c bug
+X-Enigmail-Version: 0.76.4.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is in MIME format.
+Hi 
 
----MOQ10651411395a95514a6ea1f54c4c0b37b546c85eab
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+ This is my first bug submission, so please have patience with my noobness :)
+
+Here goes:
+
+ Kernel test5 and test6 appear to have a bug which prevents at least 
+some systems from burning CDs correctly. It manifests itself in kernel 
+lockups (requiring a hard reset) in test6 and burner application lockups 
+in test5 on x86 hardware.
+
+ Hardware in both instances is different; burners were tested in 
+Windows, BeOS and in kernels 2.4.20 and 2.4.22 and everything was found 
+to work correctly, so it's not likely to be a hardware bug.  One system 
+is using ext3 and a 24x burner (the      system), the other system is 
+using reiserfs and a 4x HP CD-Writer+ 8200a (the Duron system).
+
+  The 24x system under test5 showed k3b, Gtoaster and cdrecord all 
+locking up at random points during the burn and the system required a 
+reboot for the drive to work again;; under test6 the system locked up 
+entirely requiring a hard reset.
+
+  The system with the 4x burner was upgraded from test3 and hardlocks 
+every time during the burn. The cdwriter appeared to be alive, showing a 
+red light when the eject button was pushed, indicating that the tray was 
+locked as it should be.
+
+  Neither system under test6 would respond to any commands and required 
+hard resets.
+
+  Under kernels 2.4.20, 2.4.22 and 2.6.0-test3 the same installations 
+will burn cds with no difficulties.
+
+  The 24x system using k3b showed a wildly varying buffer value during 
+the burn, which is unusual.
+
+ A search of the lkml archives revealed nothing relevant to our 
+knowledge.  After some discussion and testing we were able to obtain a 
+log showing the crash, which is below.
+
+  -------
+ Crash log which shows the ide-scsi.c BUG at line 493;
+
+/crash log from machine with 24x burner
+
+Sep 30 22:09:53 sdchomelinux kernel: hdd: irq timeout: status=0xd0 { Busy }
+Sep 30 22:09:53 sdchomelinux kernel: hdd: DMA disabled
+Sep 30 22:09:53 sdchomelinux kernel: ide-scsi: abort called for 5687
+Sep 30 22:09:53 sdchomelinux kernel: Debug: sleeping function called 
+from invalid context at include/asm/semaphore.h:119
+Sep 30 22:09:53 sdchomelinux kernel: in_atomic():1, irqs_disabled():1
+Sep 30 22:09:53 sdchomelinux kernel: Call Trace:
+Sep 30 22:09:53 sdchomelinux kernel:  [<c0117a9a>] __might_sleep+0x9c/0xb6
+Sep 30 22:09:53 sdchomelinux kernel:  [<c0274d5d>] scsi_sleep+0x6c/0x89
+Sep 30 22:09:53 sdchomelinux kernel:  [<c0274cdd>] scsi_sleep_done+0x0/0x14
+Sep 30 22:09:53 sdchomelinux kernel:  [<d886c859>] 
+idescsi_abort+0xee/0xf7 [ide_scsi]
+Sep 30 22:09:53 sdchomelinux kernel:  [<c027460c>] 
+scsi_try_to_abort_cmd+0x65/0x80
+Sep 30 22:09:53 sdchomelinux kernel:  [<c0274732>] 
+scsi_eh_abort_cmds+0x40/0x74
+Sep 30 22:09:53 sdchomelinux kernel:  [<c0275159>] scsi_unjam_host+0xa5/0xcb
+Sep 30 22:09:53 sdchomelinux kernel:  [<c027525f>] 
+scsi_error_handler+0xe0/0x11c
+Sep 30 22:09:53 sdchomelinux kernel:  [<c027517f>] 
+scsi_error_handler+0x0/0x11c
+Sep 30 22:09:53 sdchomelinux kernel:  [<c0107345>] 
+kernel_thread_helper+0x5/0xb
+Sep 30 22:09:53 sdchomelinux kernel:
+Sep 30 22:09:53 sdchomelinux kernel: bad: scheduling while atomic!
+Sep 30 22:09:53 sdchomelinux kernel: Call Trace:
+Sep 30 22:09:53 sdchomelinux kernel:  [<c0116661>] schedule+0x58c/0x591
+Sep 30 22:09:53 sdchomelinux kernel:  [<c011a5a0>] printk+0x11d/0x17b
+Sep 30 22:09:53 sdchomelinux kernel:  [<c01081c2>] __down+0x91/0x107
+Sep 30 22:09:53 sdchomelinux kernel:  [<c01166b6>] 
+default_wake_function+0x0/0x2e
+Sep 30 22:09:53 sdchomelinux kernel:  [<c01098b9>] dump_stack+0x1e/0x22
+Sep 30 22:09:53 sdchomelinux kernel:  [<c01083eb>] __down_failed+0xb/0x14
+Sep 30 22:09:53 sdchomelinux kernel:  [<c02754bf>] 
+.text.lock.scsi_error+0x37/0x48
+Sep 30 22:09:53 sdchomelinux kernel:  [<c0274cdd>] scsi_sleep_done+0x0/0x14
+Sep 30 22:09:53 sdchomelinux kernel:  [<d886c859>] 
+idescsi_abort+0xee/0xf7 [ide_scsi]
+Sep 30 22:09:53 sdchomelinux kernel:  [<c027460c>] 
+scsi_try_to_abort_cmd+0x65/0x80
+Sep 30 22:09:53 sdchomelinux kernel:  [<c0274732>] 
+scsi_eh_abort_cmds+0x40/0x74
+Sep 30 22:09:53 sdchomelinux kernel:  [<c0275159>] scsi_unjam_host+0xa5/0xcb
+Sep 30 22:09:53 sdchomelinux kernel:  [<c027525f>] 
+scsi_error_handler+0xe0/0x11c
+Sep 30 22:09:53 sdchomelinux kernel:  [<c027517f>] 
+scsi_error_handler+0x0/0x11c
+Sep 30 22:09:53 sdchomelinux kernel:  [<c0107345>] 
+kernel_thread_helper+0x5/0xb
+Sep 30 22:09:53 sdchomelinux kernel:
+Sep 30 22:09:53 sdchomelinux kernel: hdd: ATAPI reset complete
+Sep 30 22:09:53 sdchomelinux kernel: hdd: irq timeout: status=0xc0 { Busy }
+Sep 30 22:09:53 sdchomelinux kernel: hdd: ATAPI reset complete
+Sep 30 22:09:53 sdchomelinux kernel: hdd: irq timeout: status=0xc0 { Busy }
+Sep 30 22:09:55 sdchomelinux kernel: ide-scsi: reset called for 5687
+
+Sep 30 22:09:55 sdchomelinux kernel: ------------[ cut here ]------------
+Sep 30 22:09:55 sdchomelinux kernel: kernel BUG at 
+drivers/scsi/ide-scsi.c:493!
+Sep 30 22:09:55 sdchomelinux kernel: invalid operand: 0000 [#1]
+Sep 30 22:09:55 sdchomelinux kernel: CPU:    0
+Sep 30 22:09:55 sdchomelinux kernel: EIP:    0060:[<d886ba9c>]    Not 
+tainted
+Sep 30 22:09:55 sdchomelinux kernel: EFLAGS: 00010286
+Sep 30 22:09:55 sdchomelinux kernel: EIP is at 
+idescsi_transfer_pc+0x9c/0x120 [ide_scsi]
+Sep 30 22:09:55 sdchomelinux kernel: eax: c025fc53   ebx: c047eafc   
+ecx: 72c79a8e   edx: 00000172
+Sep 30 22:09:55 sdchomelinux kernel: esi: cfa1fb80   edi: d7687ba4   
+ebp: d789fdf4   esp: d789fdd0
+Sep 30 22:09:55 sdchomelinux kernel: ds: 007b   es: 007b   ss: 0068
+
+Sep 30 22:09:55 sdchomelinux kernel: Process scsi_eh_1 (pid: 2369, 
+threadinfo=d789e000 task=d78a1900)
+Sep 30 22:09:55 sdchomelinux kernel: Stack: 00000172 c047eafc 00000008 
+00000080 0000001e d7687ba4 c047eafc d6f9b580
+Sep 30 22:09:55 sdchomelinux kernel:        00000000 d789fe20 c025c38b 
+c047eafc cfa1fb80 00000000 00000000 0000001e
+Sep 30 22:09:55 sdchomelinux kernel:        0000000f d6f9b580 c047eafc 
+c047e8bc d789fe50 c025c685 c047eafc d6f9b580
+Sep 30 22:09:55 sdchomelinux kernel: Call Trace:
+Sep 30 22:09:55 sdchomelinux kernel:  [<c025c38b>] start_request+0x179/0x27b
+Sep 30 22:09:55 sdchomelinux kernel:  [<c025c685>] 
+ide_do_request+0x1d5/0x34e
+Sep 30 22:09:55 sdchomelinux kernel:  [<c0248a7e>] 
+__elv_add_request+0x27/0x38
+Sep 30 22:09:55 sdchomelinux kernel:  [<c025ce66>] 
+ide_do_drive_cmd+0xd0/0x132
+Sep 30 22:09:55 sdchomelinux kernel:  [<c01166e0>] 
+default_wake_function+0x2a/0x2e
+Sep 30 22:09:55 sdchomelinux kernel:  [<d886c31c>] 
+idescsi_queue+0x1e1/0x630 [ide_scsi]
+Sep 30 22:09:55 sdchomelinux kernel:  [<c02742c2>] 
+scsi_send_eh_cmnd+0xa7/0x189
+Sep 30 22:09:55 sdchomelinux kernel:  [<c02741d1>] scsi_eh_done+0x0/0x4a
+Sep 30 22:09:55 sdchomelinux kernel:  [<c02741b0>] 
+scsi_eh_times_out+0x0/0x21
+Sep 30 22:09:55 sdchomelinux kernel:  [<c02746bb>] scsi_eh_tur+0x94/0xcb
+Sep 30 22:09:55 sdchomelinux kernel:  [<c027493e>] 
+scsi_eh_bus_device_reset+0x145/0x177
+Sep 30 22:09:55 sdchomelinux kernel:  [<c02746c5>] scsi_eh_tur+0x9e/0xcb
+Sep 30 22:09:55 sdchomelinux kernel:  [<c0274ff8>] 
+scsi_eh_ready_devs+0x28/0x74
+Sep 30 22:09:55 sdchomelinux kernel:  [<c0275176>] scsi_unjam_host+0xc2/0xcb
+Sep 30 22:09:55 sdchomelinux kernel:  [<c027525f>] 
+scsi_error_handler+0xe0/0x11c
+Sep 30 22:09:55 sdchomelinux kernel:  [<c027517f>] 
+scsi_error_handler+0x0/0x11c
+Sep 30 22:09:55 sdchomelinux kernel:  [<c0107345>] 
+kernel_thread_helper+0x5/0xb
+Sep 30 22:09:55 sdchomelinux kernel:
+Sep 30 22:09:55 sdchomelinux kernel: Code: 0f 0b ed 01 69 cf 86 d8 8b 56 
+38 a1 00 9d 3c c0 89 d1 29 c1
+Sep 30 22:09:55 sdchomelinux kernel:  hdd: ATAPI reset complete
+
+/end log
+
+------
+
+An IRC log of our conversation in which we discovered this is available.
+
+ No workarounds as of yet or other info.
+ 
+DarkHills and Cyber Daemon of #cola on infrared.oftc.net
+
+contact email:  agroz@spe.midco.net 
+
+Info section:
+
+Kernel versions: 2.6.0-test5 and 2.6.0-test6
+Processors: Duron 1200 and P4 1.5GHz
+Modules loaded: Duron system:
+                      system:
+/proc/ioports:
+        Duron
+
+bash-2.05b# cat /proc/ioports
+0000-001f : dma1
+0020-0021 : pic1
+0040-005f : timer
+0060-006f : keyboard
+0080-008f : dma page reg
+00a0-00a1 : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0170-0177 : ide1
+01f0-01f7 : ide0
+02f8-02ff : serial
+0330-0331 : MPU401 UART
+0376-0376 : ide1
+0378-037a : parport0
+037b-037f : parport0
+0388-0389 : OPL2/3 (left)
+038a-038b : OPL2/3 (right)
+03c0-03df : vga+
+03f6-03f6 : ide0
+03f8-03ff : serial
+0cf8-0cff : PCI conf1
+4000-40ff : 0000:00:07.4
+5000-500f : 0000:00:07.4
+6000-607f : 0000:00:07.4
+d000-d00f : 0000:00:07.1
+  d000-d007 : ide0
+  d008-d00f : ide1
+d400-d41f : 0000:00:07.2
+  d400-d41f : uhci-hcd
+d800-d81f : 0000:00:07.3
+  d800-d81f : uhci-hcd
+dc00-dcff : 0000:00:0f.0
+  dc00-dcff : 8139too
+e000-e0ff : 0000:00:11.0
+  e000-e0ff : CMI8738
 
 
-Hello.
+            P4:
+stephen@sdchomelinux stephen $ cat /proc/ioports 
+0000-001f : dma1
+0020-0021 : pic1
+0040-005f : timer
+0060-006f : keyboard
+0070-0077 : rtc
+0080-008f : dma page reg
+00a0-00a1 : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0170-0177 : ide1
+01f0-01f7 : ide0
+02f8-02ff : serial
+0376-0376 : ide1
+0378-037a : parport0
+037b-037f : parport0
+03c0-03df : vga+
+03f6-03f6 : ide0
+03f8-03ff : serial
+0500-050f : 0000:00:1f.3
+0cf8-0cff : PCI conf1
+c000-c01f : 0000:02:03.0
+  c000-c01f : ne2k-pci
+c400-c4ff : 0000:02:04.0
+  c400-c4ff : 8139too
+d000-d01f : 0000:00:1f.2
+  d000-d01f : uhci-hcd
+d800-d81f : 0000:00:1f.4
+  d800-d81f : uhci-hcd
+f000-f00f : 0000:00:1f.1
+  f000-f007 : ide0
+  f008-f00f : ide1
 
-This is a forward port of my previous patch to cset-20031002_1507.
-
-Please apply.
-
-Cheers,
-Mikal
-
--- 
-
-Michael Still (mikal@stillhq.com) | "All my life I've had one dream,
-http://www.stillhq.com            |  to achieve my many goals"
-UTC + 10                          |    -- Homer Simpson
 
 
--------------------------------------------------
-This mail sent through IMP: http://horde.org/imp/
 
----MOQ10651411395a95514a6ea1f54c4c0b37b546c85eab
-Content-Type: application/octet-stream; name="mandocs_tweaks-mega-001-002-f005"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="mandocs_tweaks-mega-001-002-f005"
+/proc/iomem:
 
-ZGlmZiAtTnVyIGxpbnV4LTIuNi4wLXRlc3Q2LWNzZXQtMjAwMzEwMDJfMTUwNy9hcmNoL2kzODYv
-a2VybmVsL21jYS5jIGxpbnV4LTIuNi4wLXRlc3Q2LWNzZXQtMjAwMzEwMDJfMTUwNy1tYW5kb2Nz
-X3R3ZWFrcy1tZWdhLTAwMS0wMDItZjAwNS9hcmNoL2kzODYva2VybmVsL21jYS5jCi0tLSBsaW51
-eC0yLjYuMC10ZXN0Ni1jc2V0LTIwMDMxMDAyXzE1MDcvYXJjaC9pMzg2L2tlcm5lbC9tY2EuYwky
-MDAzLTEwLTAzIDA5OjMwOjM4LjAwMDAwMDAwMCArMTAwMAorKysgbGludXgtMi42LjAtdGVzdDYt
-Y3NldC0yMDAzMTAwMl8xNTA3LW1hbmRvY3NfdHdlYWtzLW1lZ2EtMDAxLTAwMi1mMDA1L2FyY2gv
-aTM4Ni9rZXJuZWwvbWNhLmMJMjAwMy0xMC0wMyAwOTo0MDoxMC4wMDAwMDAwMDAgKzEwMDAKQEAg
-LTEzMiw3ICsxMzIsOSBAQAogI2RlZmluZSBNQ0FfU1RBTkRBUkRfUkVTT1VSQ0VTCShzaXplb2Yo
-bWNhX3N0YW5kYXJkX3Jlc291cmNlcykvc2l6ZW9mKHN0cnVjdCByZXNvdXJjZSkpCiAKIC8qKgot
-ICoJbWNhX3JlYWRfcG9zIC0gcmVhZCB0aGUgUE9TIHJlZ2lzdGVycyBpbnRvIGEgbWVtb3J5IGJ1
-ZmZlcgorICoJbWNhX3JlYWRfYW5kX3N0b3JlX3BvcyAtIHJlYWQgdGhlIFBPUyByZWdpc3RlcnMg
-aW50byBhIG1lbW9yeSBidWZmZXIKKyAqICAgICAgQHBvczogYSBjaGFyIHBvaW50ZXIgdG8gOCBi
-eXRlcywgY29udGFpbnMgdGhlIFBPUyByZWdpc3RlciB2YWx1ZSBvbgorICogICAgICAgICAgICBz
-dWNjZXNzZnVsIHJldHVybgogICoKICAqCVJldHVybnMgMSBpZiBhIGNhcmQgYWN0dWFsbHkgZXhp
-c3RzIChpLmUuIHRoZSBwb3MgaXNuJ3QKICAqCWFsbCAweGZmKSBvciAwIG90aGVyd2lzZQpkaWZm
-IC1OdXIgbGludXgtMi42LjAtdGVzdDYtY3NldC0yMDAzMTAwMl8xNTA3L2RyaXZlcnMvYmxvY2sv
-bGxfcndfYmxrLmMgbGludXgtMi42LjAtdGVzdDYtY3NldC0yMDAzMTAwMl8xNTA3LW1hbmRvY3Nf
-dHdlYWtzLW1lZ2EtMDAxLTAwMi1mMDA1L2RyaXZlcnMvYmxvY2svbGxfcndfYmxrLmMKLS0tIGxp
-bnV4LTIuNi4wLXRlc3Q2LWNzZXQtMjAwMzEwMDJfMTUwNy9kcml2ZXJzL2Jsb2NrL2xsX3J3X2Js
-ay5jCTIwMDMtMTAtMDMgMDk6MzI6MDYuMDAwMDAwMDAwICsxMDAwCisrKyBsaW51eC0yLjYuMC10
-ZXN0Ni1jc2V0LTIwMDMxMDAyXzE1MDctbWFuZG9jc190d2Vha3MtbWVnYS0wMDEtMDAyLWYwMDUv
-ZHJpdmVycy9ibG9jay9sbF9yd19ibGsuYwkyMDAzLTEwLTAzIDA5OjQwOjEwLjAwMDAwMDAwMCAr
-MTAwMApAQCAtMTE5LDcgKzExOSw3IEBACiAKIC8qKgogICogYmxrX2dldF9iYWNraW5nX2Rldl9p
-bmZvIC0gZ2V0IHRoZSBhZGRyZXNzIG9mIGEgcXVldWUncyBiYWNraW5nX2Rldl9pbmZvCi0gKiBA
-ZGV2OglkZXZpY2UKKyAqIEBiZGV2OglkZXZpY2UKICAqCiAgKiBMb2NhdGVzIHRoZSBwYXNzZWQg
-ZGV2aWNlJ3MgcmVxdWVzdCBxdWV1ZSBhbmQgcmV0dXJucyB0aGUgYWRkcmVzcyBvZiBpdHMKICAq
-IGJhY2tpbmdfZGV2X2luZm8KQEAgLTQxNCw4ICs0MTQsOCBAQAogCiAvKioKICAqIGJsa19xdWV1
-ZV9kbWFfYWxpZ25tZW50IC0gc2V0IGRtYSBsZW5ndGggYW5kIG1lbW9yeSBhbGlnbm1lbnQKLSAq
-IEBxOiAgdGhlIHJlcXVlc3QgcXVldWUgZm9yIHRoZSBkZXZpY2UKLSAqIEBkbWFfbWFzazogIGFs
-aWdubWVudCBtYXNrCisgKiBAcTogICAgIHRoZSByZXF1ZXN0IHF1ZXVlIGZvciB0aGUgZGV2aWNl
-CisgKiBAbWFzazogIGFsaWdubWVudCBtYXNrCiAgKgogICogZGVzY3JpcHRpb246CiAgKiAgICBz
-ZXQgcmVxdWlyZWQgbWVtb3J5IGFuZCBsZW5ndGggYWxpZ21lbnQgZm9yIGRpcmVjdCBkbWEgdHJh
-bnNhY3Rpb25zLgpAQCAtMTE1Miw3ICsxMTUyLDcgQEAKIAogLyoqCiAgKiBibGtfcnVuX3F1ZXVl
-IC0gcnVuIGEgc2luZ2xlIGRldmljZSBxdWV1ZQotICogQHEJVGhlIHF1ZXVlIHRvIHJ1bgorICog
-QHE6CVRoZSBxdWV1ZSB0byBydW4KICAqLwogdm9pZCBibGtfcnVuX3F1ZXVlKHN0cnVjdCByZXF1
-ZXN0X3F1ZXVlICpxKQogewpkaWZmIC1OdXIgbGludXgtMi42LjAtdGVzdDYtY3NldC0yMDAzMTAw
-Ml8xNTA3L2RyaXZlcnMvcGNpL3BjaS5jIGxpbnV4LTIuNi4wLXRlc3Q2LWNzZXQtMjAwMzEwMDJf
-MTUwNy1tYW5kb2NzX3R3ZWFrcy1tZWdhLTAwMS0wMDItZjAwNS9kcml2ZXJzL3BjaS9wY2kuYwot
-LS0gbGludXgtMi42LjAtdGVzdDYtY3NldC0yMDAzMTAwMl8xNTA3L2RyaXZlcnMvcGNpL3BjaS5j
-CTIwMDMtMTAtMDMgMDk6MzA6MTAuMDAwMDAwMDAwICsxMDAwCisrKyBsaW51eC0yLjYuMC10ZXN0
-Ni1jc2V0LTIwMDMxMDAyXzE1MDctbWFuZG9jc190d2Vha3MtbWVnYS0wMDEtMDAyLWYwMDUvZHJp
-dmVycy9wY2kvcGNpLmMJMjAwMy0xMC0wMyAwOTo0MDoxMC4wMDAwMDAwMDAgKzEwMDAKQEAgLTEy
-NiwxMSArMTI2LDEzIEBACiAKIC8qKgogICogcGNpX2J1c19maW5kX2NhcGFiaWxpdHkgLSBxdWVy
-eSBmb3IgZGV2aWNlcycgY2FwYWJpbGl0aWVzIAotICogQGRldjogUENJIGRldmljZSB0byBxdWVy
-eQotICogQGNhcDogY2FwYWJpbGl0eSBjb2RlCisgKiBAYnVzOiAgIHRoZSBQQ0kgYnVzIHRvIHF1
-ZXJ5CisgKiBAZGV2Zm46IFBDSSBkZXZpY2UgdG8gcXVlcnkKKyAqIEBjYXA6ICAgY2FwYWJpbGl0
-eSBjb2RlCiAgKgogICogTGlrZSBwY2lfZmluZF9jYXBhYmlsaXR5KCkgYnV0IHdvcmtzIGZvciBw
-Y2kgZGV2aWNlcyB0aGF0IGRvIG5vdCBoYXZlIGEKICAqIHBjaV9kZXYgc3RydWN0dXJlIHNldCB1
-cCB5ZXQuIAorICoKICAqIFJldHVybnMgdGhlIGFkZHJlc3Mgb2YgdGhlIHJlcXVlc3RlZCBjYXBh
-YmlsaXR5IHN0cnVjdHVyZSB3aXRoaW4gdGhlCiAgKiBkZXZpY2UncyBQQ0kgY29uZmlndXJhdGlv
-biBzcGFjZSBvciAwIGluIGNhc2UgdGhlIGRldmljZSBkb2VzIG5vdAogICogc3VwcG9ydCBpdC4K
-ZGlmZiAtTnVyIGxpbnV4LTIuNi4wLXRlc3Q2LWNzZXQtMjAwMzEwMDJfMTUwNy9kcml2ZXJzL3Nl
-cmlhbC84MjUwLmMgbGludXgtMi42LjAtdGVzdDYtY3NldC0yMDAzMTAwMl8xNTA3LW1hbmRvY3Nf
-dHdlYWtzLW1lZ2EtMDAxLTAwMi1mMDA1L2RyaXZlcnMvc2VyaWFsLzgyNTAuYwotLS0gbGludXgt
-Mi42LjAtdGVzdDYtY3NldC0yMDAzMTAwMl8xNTA3L2RyaXZlcnMvc2VyaWFsLzgyNTAuYwkyMDAz
-LTEwLTAzIDA5OjMyOjA4LjAwMDAwMDAwMCArMTAwMAorKysgbGludXgtMi42LjAtdGVzdDYtY3Nl
-dC0yMDAzMTAwMl8xNTA3LW1hbmRvY3NfdHdlYWtzLW1lZ2EtMDAxLTAwMi1mMDA1L2RyaXZlcnMv
-c2VyaWFsLzgyNTAuYwkyMDAzLTEwLTAzIDA5OjQwOjEwLjAwMDAwMDAwMCArMTAwMApAQCAtMjEx
-MSw3ICsyMTExLDggQEAKIAogLyoqCiAgKglzZXJpYWw4MjUwX3N1c3BlbmRfcG9ydCAtIHN1c3Bl
-bmQgb25lIHNlcmlhbCBwb3J0Ci0gKglAbGluZTogc2VyaWFsIGxpbmUgbnVtYmVyCisgKglAbGlu
-ZTogIHNlcmlhbCBsaW5lIG51bWJlcgorICogICAgICBAbGV2ZWw6IHRoZSBsZXZlbCBvZiBwb3J0
-IHN1c3BlbnNpb24sIGFzIHBlciB1YXJ0X3N1c3BlbmRfcG9ydAogICoKICAqCVN1c3BlbmQgb25l
-IHNlcmlhbCBwb3J0LgogICovCkBAIC0yMTIyLDcgKzIxMjMsOCBAQAogCiAvKioKICAqCXNlcmlh
-bDgyNTBfcmVzdW1lX3BvcnQgLSByZXN1bWUgb25lIHNlcmlhbCBwb3J0Ci0gKglAbGluZTogc2Vy
-aWFsIGxpbmUgbnVtYmVyCisgKglAbGluZTogIHNlcmlhbCBsaW5lIG51bWJlcgorICogICAgICBA
-bGV2ZWw6IHRoZSBsZXZlbCBvZiBwb3J0IHJlc3VtcHRpb24sIGFzIHBlciB1YXJ0X3Jlc3VtZV9w
-b3J0CiAgKgogICoJUmVzdW1lIG9uZSBzZXJpYWwgcG9ydC4KICAqLwpkaWZmIC1OdXIgbGludXgt
-Mi42LjAtdGVzdDYtY3NldC0yMDAzMTAwMl8xNTA3L2RyaXZlcnMvc2VyaWFsL3NlcmlhbF9jb3Jl
-LmMgbGludXgtMi42LjAtdGVzdDYtY3NldC0yMDAzMTAwMl8xNTA3LW1hbmRvY3NfdHdlYWtzLW1l
-Z2EtMDAxLTAwMi1mMDA1L2RyaXZlcnMvc2VyaWFsL3NlcmlhbF9jb3JlLmMKLS0tIGxpbnV4LTIu
-Ni4wLXRlc3Q2LWNzZXQtMjAwMzEwMDJfMTUwNy9kcml2ZXJzL3NlcmlhbC9zZXJpYWxfY29yZS5j
-CTIwMDMtMTAtMDMgMDk6MzA6MTcuMDAwMDAwMDAwICsxMDAwCisrKyBsaW51eC0yLjYuMC10ZXN0
-Ni1jc2V0LTIwMDMxMDAyXzE1MDctbWFuZG9jc190d2Vha3MtbWVnYS0wMDEtMDAyLWYwMDUvZHJp
-dmVycy9zZXJpYWwvc2VyaWFsX2NvcmUuYwkyMDAzLTEwLTAzIDA5OjQwOjEwLjAwMDAwMDAwMCAr
-MTAwMApAQCAtMjYzLDkgKzI2Myw5IEBACiAKIC8qKgogICoJdWFydF91cGRhdGVfdGltZW91dCAt
-IHVwZGF0ZSBwZXItcG9ydCBGSUZPIHRpbWVvdXQuCi0gKglAcG9ydDogdWFydF9wb3J0IHN0cnVj
-dHVyZSBkZXNjcmliaW5nIHRoZSBwb3J0LgorICoJQHBvcnQ6ICB1YXJ0X3BvcnQgc3RydWN0dXJl
-IGRlc2NyaWJpbmcgdGhlIHBvcnQKICAqCUBjZmxhZzogdGVybWlvcyBjZmxhZyB2YWx1ZQotICoJ
-QHF1b3Q6IHVhcnQgY2xvY2sgZGl2aXNvciBxdW90aWVudAorICoJQGJhdWQ6ICBzcGVlZCBvZiB0
-aGUgcG9ydAogICoKICAqCVNldCB0aGUgcG9ydCBGSUZPIHRpbWVvdXQgdmFsdWUuICBUaGUgQGNm
-bGFnIHZhbHVlIHNob3VsZAogICoJcmVmbGVjdCB0aGUgYWN0dWFsIGhhcmR3YXJlIHNldHRpbmdz
-LgpkaWZmIC1OdXIgbGludXgtMi42LjAtdGVzdDYtY3NldC0yMDAzMTAwMl8xNTA3L2ZzL2RldmZz
-L2Jhc2UuYyBsaW51eC0yLjYuMC10ZXN0Ni1jc2V0LTIwMDMxMDAyXzE1MDctbWFuZG9jc190d2Vh
-a3MtbWVnYS0wMDEtMDAyLWYwMDUvZnMvZGV2ZnMvYmFzZS5jCi0tLSBsaW51eC0yLjYuMC10ZXN0
-Ni1jc2V0LTIwMDMxMDAyXzE1MDcvZnMvZGV2ZnMvYmFzZS5jCTIwMDMtMTAtMDMgMDk6MzE6MjEu
-MDAwMDAwMDAwICsxMDAwCisrKyBsaW51eC0yLjYuMC10ZXN0Ni1jc2V0LTIwMDMxMDAyXzE1MDct
-bWFuZG9jc190d2Vha3MtbWVnYS0wMDEtMDAyLWYwMDUvZnMvZGV2ZnMvYmFzZS5jCTIwMDMtMTAt
-MDMgMDk6NDA6MTAuMDAwMDAwMDAwICsxMDAwCkBAIC05NzMsOCArOTczLDkgQEAKIAogLyoqCiAg
-KglfZGV2ZnNfYWxsb2NfZW50cnkgLSBBbGxvY2F0ZSBhIGRldmZzIGVudHJ5LgotICoJQG5hbWU6
-ICBUaGUgbmFtZSBvZiB0aGUgZW50cnkuCi0gKglAbmFtZWxlbjogIFRoZSBudW1iZXIgb2YgY2hh
-cmFjdGVycyBpbiBAbmFtZS4KKyAqCUBuYW1lOiAgICAgdGhlIG5hbWUgb2YgdGhlIGVudHJ5Cisg
-KglAbmFtZWxlbjogIHRoZSBudW1iZXIgb2YgY2hhcmFjdGVycyBpbiBAbmFtZQorICogICAgICBA
-bW9kZTogICAgIHRoZSBtb2RlIGZvciB0aGUgZW50cnkKICAqCiAgKiAgQWxsb2NhdGUgYSBkZXZm
-cyBlbnRyeSBhbmQgcmV0dXJucyBhIHBvaW50ZXIgdG8gdGhlIGVudHJ5IG9uIHN1Y2Nlc3MsIGVs
-c2UKICAqICAgJU5VTEwuCmRpZmYgLU51ciBsaW51eC0yLjYuMC10ZXN0Ni1jc2V0LTIwMDMxMDAy
-XzE1MDcvZnMvaW5vZGUuYyBsaW51eC0yLjYuMC10ZXN0Ni1jc2V0LTIwMDMxMDAyXzE1MDctbWFu
-ZG9jc190d2Vha3MtbWVnYS0wMDEtMDAyLWYwMDUvZnMvaW5vZGUuYwotLS0gbGludXgtMi42LjAt
-dGVzdDYtY3NldC0yMDAzMTAwMl8xNTA3L2ZzL2lub2RlLmMJMjAwMy0xMC0wMyAwOTozMjoxMS4w
-MDAwMDAwMDAgKzEwMDAKKysrIGxpbnV4LTIuNi4wLXRlc3Q2LWNzZXQtMjAwMzEwMDJfMTUwNy1t
-YW5kb2NzX3R3ZWFrcy1tZWdhLTAwMS0wMDItZjAwNS9mcy9pbm9kZS5jCTIwMDMtMTAtMDMgMDk6
-NDA6MTAuMDAwMDAwMDAwICsxMDAwCkBAIC0yNTUsNiArMjU1LDkgQEAKIEVYUE9SVF9TWU1CT0wo
-Y2xlYXJfaW5vZGUpOwogCiAvKgorICogZGlzcG9zZV9saXN0IC0gZGlzcG9zZSBvZiB0aGUgY29u
-dGVudHMgb2YgYSBsb2NhbCBsaXN0CisgKiBAaGVhZDogdGhlIGhlYWQgb2YgdGhlIGxpc3QgdG8g
-ZnJlZQorICoKICAqIERpc3Bvc2UtbGlzdCBnZXRzIGEgbG9jYWwgbGlzdCB3aXRoIGxvY2FsIGlu
-b2RlcyBpbiBpdCwgc28gaXQgZG9lc24ndAogICogbmVlZCB0byB3b3JyeSBhYm91dCBsaXN0IGNv
-cnJ1cHRpb24gYW5kIFNNUCBsb2Nrcy4KICAqLwpAQCAtNzM5LDExICs3NDIsMTEgQEAKIC8qKgog
-ICogaWZpbmQgLSBpbnRlcm5hbCBmdW5jdGlvbiwgeW91IHdhbnQgaWxvb2t1cDUoKSBvciBpZ2V0
-NSgpLgogICogQHNiOgkJc3VwZXIgYmxvY2sgb2YgZmlsZSBzeXN0ZW0gdG8gc2VhcmNoCi0gKiBA
-aGFzaHZhbDoJaGFzaCB2YWx1ZSAodXN1YWxseSBpbm9kZSBudW1iZXIpIHRvIHNlYXJjaCBmb3IK
-KyAqIEBoZWFkOiAgICAgICB0aGUgaGVhZCBvZiB0aGUgbGlzdCB0byBzZWFyY2gKICAqIEB0ZXN0
-OgljYWxsYmFjayB1c2VkIGZvciBjb21wYXJpc29ucyBiZXR3ZWVuIGlub2RlcwogICogQGRhdGE6
-CW9wYXF1ZSBkYXRhIHBvaW50ZXIgdG8gcGFzcyB0byBAdGVzdAogICoKLSAqIGlmaW5kKCkgc2Vh
-cmNoZXMgZm9yIHRoZSBpbm9kZSBzcGVjaWZpZWQgYnkgQGhhc2h2YWwgYW5kIEBkYXRhIGluIHRo
-ZSBpbm9kZQorICogaWZpbmQoKSBzZWFyY2hlcyBmb3IgdGhlIGlub2RlIHNwZWNpZmllZCBieSBA
-ZGF0YSBpbiB0aGUgaW5vZGUKICAqIGNhY2hlLiBUaGlzIGlzIGEgZ2VuZXJhbGl6ZWQgdmVyc2lv
-biBvZiBpZmluZF9mYXN0KCkgZm9yIGZpbGUgc3lzdGVtcyB3aGVyZQogICogdGhlIGlub2RlIG51
-bWJlciBpcyBub3Qgc3VmZmljaWVudCBmb3IgdW5pcXVlIGlkZW50aWZpY2F0aW9uIG9mIGFuIGlu
-b2RlLgogICoKQEAgLTc3NSw2ICs3NzgsNyBAQAogLyoqCiAgKiBpZmluZF9mYXN0IC0gaW50ZXJu
-YWwgZnVuY3Rpb24sIHlvdSB3YW50IGlsb29rdXAoKSBvciBpZ2V0KCkuCiAgKiBAc2I6CQlzdXBl
-ciBibG9jayBvZiBmaWxlIHN5c3RlbSB0byBzZWFyY2gKKyAqIEBoZWFkOiAgICAgICBoZWFkIG9m
-IHRoZSBsaXN0IHRvIHNlYXJjaAogICogQGlubzoJaW5vZGUgbnVtYmVyIHRvIHNlYXJjaCBmb3IK
-ICAqCiAgKiBpZmluZF9mYXN0KCkgc2VhcmNoZXMgZm9yIHRoZSBpbm9kZSBAaW5vIGluIHRoZSBp
-bm9kZSBjYWNoZS4gVGhpcyBpcyBmb3IKZGlmZiAtTnVyIGxpbnV4LTIuNi4wLXRlc3Q2LWNzZXQt
-MjAwMzEwMDJfMTUwNy9mcy9sb2Nrcy5jIGxpbnV4LTIuNi4wLXRlc3Q2LWNzZXQtMjAwMzEwMDJf
-MTUwNy1tYW5kb2NzX3R3ZWFrcy1tZWdhLTAwMS0wMDItZjAwNS9mcy9sb2Nrcy5jCi0tLSBsaW51
-eC0yLjYuMC10ZXN0Ni1jc2V0LTIwMDMxMDAyXzE1MDcvZnMvbG9ja3MuYwkyMDAzLTEwLTAzIDA5
-OjMxOjIzLjAwMDAwMDAwMCArMTAwMAorKysgbGludXgtMi42LjAtdGVzdDYtY3NldC0yMDAzMTAw
-Ml8xNTA3LW1hbmRvY3NfdHdlYWtzLW1lZ2EtMDAxLTAwMi1mMDA1L2ZzL2xvY2tzLmMJMjAwMy0x
-MC0wMyAwOTo0MDoxMC4wMDAwMDAwMDAgKzEwMDAKQEAgLTkyOCwxMCArOTI4LDEwIEBACiAgKiBs
-b2Nrc19tYW5kYXRvcnlfYXJlYSAtIENoZWNrIGZvciBhIGNvbmZsaWN0aW5nIGxvY2sKICAqIEBy
-ZWFkX3dyaXRlOiAlRkxPQ0tfVkVSSUZZX1dSSVRFIGZvciBleGNsdXNpdmUgYWNjZXNzLCAlRkxP
-Q0tfVkVSSUZZX1JFQUQKICAqCQlmb3Igc2hhcmVkCi0gKiBAaW5vZGU6IHRoZSBmaWxlIHRvIGNo
-ZWNrCi0gKiBAZmlsZTogaG93IHRoZSBmaWxlIHdhcyBvcGVuZWQgKGlmIGl0IHdhcykKLSAqIEBv
-ZmZzZXQ6IHN0YXJ0IG9mIGFyZWEgdG8gY2hlY2sKLSAqIEBjb3VudDogbGVuZ3RoIG9mIGFyZWEg
-dG8gY2hlY2sKKyAqIEBpbm9kZTogICAgICB0aGUgZmlsZSB0byBjaGVjaworICogQGZpbHA6ICAg
-ICAgIGhvdyB0aGUgZmlsZSB3YXMgb3BlbmVkIChpZiBpdCB3YXMpCisgKiBAb2Zmc2V0OiAgICAg
-c3RhcnQgb2YgYXJlYSB0byBjaGVjaworICogQGNvdW50OiAgICAgIGxlbmd0aCBvZiBhcmVhIHRv
-IGNoZWNrCiAgKgogICogU2VhcmNoZXMgdGhlIGlub2RlJ3MgbGlzdCBvZiBsb2NrcyB0byBmaW5k
-IGFueSBQT1NJWCBsb2NrcyB3aGljaCBjb25mbGljdC4KICAqIFRoaXMgZnVuY3Rpb24gaXMgY2Fs
-bGVkIGZyb20gbG9ja3NfdmVyaWZ5X2FyZWEoKSBhbmQKQEAgLTExMTksNiArMTExOSw3IEBACiAv
-KioKICAqCWxlYXNlX2dldF9tdGltZQogICoJQGlub2RlOiB0aGUgaW5vZGUKKyAqICAgICAgQHRp
-bWU6ICBwb2ludGVyIHRvIGEgdGltZXNwZWMgd2hpY2ggd2lsbCBjb250YWluIHRoZSBsYXN0IG1v
-ZGlmaWVkIHRpbWUKICAqCiAgKiBUaGlzIGlzIHRvIGZvcmNlIE5GUyBjbGllbnRzIHRvIGZsdXNo
-IHRoZWlyIGNhY2hlcyBmb3IgZmlsZXMgd2l0aAogICogZXhjbHVzaXZlIGxlYXNlcy4gIFRoZSBq
-dXN0aWZpY2F0aW9uIGlzIHRoYXQgaWYgc29tZW9uZSBoYXMgYW4KQEAgLTE3MjYsNiArMTcyNyw3
-IEBACiAKIC8qKgogICoJcG9zaXhfdW5ibG9ja19sb2NrIC0gc3RvcCB3YWl0aW5nIGZvciBhIGZp
-bGUgbG9jaworICogICAgICBAZmlscDogICBob3cgdGhlIGZpbGUgd2FzIG9wZW5lZAogICoJQHdh
-aXRlcjogdGhlIGxvY2sgd2hpY2ggd2FzIHdhaXRpbmcKICAqCiAgKglsb2NrZCBuZWVkcyB0byBi
-bG9jayB3YWl0aW5nIGZvciBsb2Nrcy4KZGlmZiAtTnVyIGxpbnV4LTIuNi4wLXRlc3Q2LWNzZXQt
-MjAwMzEwMDJfMTUwNy9mcy9zdXBlci5jIGxpbnV4LTIuNi4wLXRlc3Q2LWNzZXQtMjAwMzEwMDJf
-MTUwNy1tYW5kb2NzX3R3ZWFrcy1tZWdhLTAwMS0wMDItZjAwNS9mcy9zdXBlci5jCi0tLSBsaW51
-eC0yLjYuMC10ZXN0Ni1jc2V0LTIwMDMxMDAyXzE1MDcvZnMvc3VwZXIuYwkyMDAzLTEwLTAzIDA5
-OjMyOjExLjAwMDAwMDAwMCArMTAwMAorKysgbGludXgtMi42LjAtdGVzdDYtY3NldC0yMDAzMTAw
-Ml8xNTA3LW1hbmRvY3NfdHdlYWtzLW1lZ2EtMDAxLTAwMi1mMDA1L2ZzL3N1cGVyLmMJMjAwMy0x
-MC0wMyAwOTo0MDoxMC4wMDAwMDAwMDAgKzEwMDAKQEAgLTEzOCw4ICsxMzgsOCBAQAogRVhQT1JU
-X1NZTUJPTChkZWFjdGl2YXRlX3N1cGVyKTsKIAogLyoqCi0gKglncmFiX3N1cGVyCS0gYWNxdWly
-ZSBhbiBhY3RpdmUgcmVmZXJlbmNlCi0gKglAcwktIHJlZmVyZW5jZSB3ZSBhcmUgdHJ5aW5nIHRv
-IG1ha2UgYWN0aXZlCisgKglncmFiX3N1cGVyIC0gYWNxdWlyZSBhbiBhY3RpdmUgcmVmZXJlbmNl
-CisgKglAczogcmVmZXJlbmNlIHdlIGFyZSB0cnlpbmcgdG8gbWFrZSBhY3RpdmUKICAqCiAgKglU
-cmllcyB0byBhY3F1aXJlIGFuIGFjdGl2ZSByZWZlcmVuY2UuICBncmFiX3N1cGVyKCkgaXMgdXNl
-ZCB3aGVuIHdlCiAgKiAJaGFkIGp1c3QgZm91bmQgYSBzdXBlcmJsb2NrIGluIHN1cGVyX2Jsb2Nr
-cyBvciBmc190eXBlLT5mc19zdXBlcnMKQEAgLTM2OCw4ICszNjgsOCBAQAogfQogCiAvKioKLSAq
-CWdldF9zdXBlcgktCWdldCB0aGUgc3VwZXJibG9jayBvZiBhIGRldmljZQotICoJQGRldjogZGV2
-aWNlIHRvIGdldCB0aGUgc3VwZXJibG9jayBmb3IKKyAqCWdldF9zdXBlciAtIGdldCB0aGUgc3Vw
-ZXJibG9jayBvZiBhIGRldmljZQorICoJQGJkZXY6IGRldmljZSB0byBnZXQgdGhlIHN1cGVyYmxv
-Y2sgZm9yCiAgKgkKICAqCVNjYW5zIHRoZSBzdXBlcmJsb2NrIGxpc3QgYW5kIGZpbmRzIHRoZSBz
-dXBlcmJsb2NrIG9mIHRoZSBmaWxlIHN5c3RlbQogICoJbW91bnRlZCBvbiB0aGUgZGV2aWNlIGdp
-dmVuLiAlTlVMTCBpcyByZXR1cm5lZCBpZiBubyBtYXRjaCBpcyBmb3VuZC4KQEAgLTQ2MSwxMCAr
-NDYxLDExIEBACiB9CiAKIC8qKgotICoJZG9fcmVtb3VudF9zYgktCWFza3MgZmlsZXN5c3RlbSB0
-byBjaGFuZ2UgbW91bnQgb3B0aW9ucy4KKyAqCWRvX3JlbW91bnRfc2IgLSBhc2tzIGZpbGVzeXN0
-ZW0gdG8gY2hhbmdlIG1vdW50IG9wdGlvbnMuCiAgKglAc2I6CXN1cGVyYmxvY2sgaW4gcXVlc3Rp
-b24KICAqCUBmbGFnczoJbnVtZXJpYyBwYXJ0IG9mIG9wdGlvbnMKICAqCUBkYXRhOgl0aGUgcmVz
-dCBvZiBvcHRpb25zCisgKiAgICAgIEBmb3JjZTogd2hldGhlciBvciBub3QgdG8gZm9yY2UgdGhl
-IGNoYW5nZQogICoKICAqCUFsdGVycyB0aGUgbW91bnQgb3B0aW9ucyBvZiBhIG1vdW50ZWQgZmls
-ZSBzeXN0ZW0uCiAgKi8KZGlmZiAtTnVyIGxpbnV4LTIuNi4wLXRlc3Q2LWNzZXQtMjAwMzEwMDJf
-MTUwNy9pbmNsdWRlL2xpbnV4L2xpc3QuaCBsaW51eC0yLjYuMC10ZXN0Ni1jc2V0LTIwMDMxMDAy
-XzE1MDctbWFuZG9jc190d2Vha3MtbWVnYS0wMDEtMDAyLWYwMDUvaW5jbHVkZS9saW51eC9saXN0
-LmgKLS0tIGxpbnV4LTIuNi4wLXRlc3Q2LWNzZXQtMjAwMzEwMDJfMTUwNy9pbmNsdWRlL2xpbnV4
-L2xpc3QuaAkyMDAzLTEwLTAzIDA5OjMyOjEyLjAwMDAwMDAwMCArMTAwMAorKysgbGludXgtMi42
-LjAtdGVzdDYtY3NldC0yMDAzMTAwMl8xNTA3LW1hbmRvY3NfdHdlYWtzLW1lZ2EtMDAxLTAwMi1m
-MDA1L2luY2x1ZGUvbGludXgvbGlzdC5oCTIwMDMtMTAtMDMgMDk6NDA6MTAuMDAwMDAwMDAwICsx
-MDAwCkBAIC00NDksNyArNDQ5LDcgQEAKIAogLyoqCiAgKiBobGlzdF9kZWxfcmN1IC0gZGVsZXRl
-cyBlbnRyeSBmcm9tIGhhc2ggbGlzdCB3aXRob3V0IHJlLWluaXRpYWxpemF0aW9uCi0gKiBAZW50
-cnk6IHRoZSBlbGVtZW50IHRvIGRlbGV0ZSBmcm9tIHRoZSBoYXNoIGxpc3QuCisgKiBAbjogdGhl
-IGVsZW1lbnQgdG8gZGVsZXRlIGZyb20gdGhlIGhhc2ggbGlzdC4KICAqCiAgKiBOb3RlOiBsaXN0
-X3VuaGFzaGVkKCkgb24gZW50cnkgZG9lcyBub3QgcmV0dXJuIHRydWUgYWZ0ZXIgdGhpcywgCiAg
-KiB0aGUgZW50cnkgaXMgaW4gYW4gdW5kZWZpbmVkIHN0YXRlLiBJdCBpcyB1c2VmdWwgZm9yIFJD
-VSBiYXNlZApkaWZmIC1OdXIgbGludXgtMi42LjAtdGVzdDYtY3NldC0yMDAzMTAwMl8xNTA3L2lu
-Y2x1ZGUvbGludXgvc2tidWZmLmggbGludXgtMi42LjAtdGVzdDYtY3NldC0yMDAzMTAwMl8xNTA3
-LW1hbmRvY3NfdHdlYWtzLW1lZ2EtMDAxLTAwMi1mMDA1L2luY2x1ZGUvbGludXgvc2tidWZmLmgK
-LS0tIGxpbnV4LTIuNi4wLXRlc3Q2LWNzZXQtMjAwMzEwMDJfMTUwNy9pbmNsdWRlL2xpbnV4L3Nr
-YnVmZi5oCTIwMDMtMTAtMDMgMDk6MzE6MjYuMDAwMDAwMDAwICsxMDAwCisrKyBsaW51eC0yLjYu
-MC10ZXN0Ni1jc2V0LTIwMDMxMDAyXzE1MDctbWFuZG9jc190d2Vha3MtbWVnYS0wMDEtMDAyLWYw
-MDUvaW5jbHVkZS9saW51eC9za2J1ZmYuaAkyMDAzLTEwLTAzIDA5OjQwOjEwLjAwMDAwMDAwMCAr
-MTAwMApAQCAtMTUyLDYgKzE1Miw3IEBACiAgKglAc2s6IFNvY2tldCB3ZSBhcmUgb3duZWQgYnkK
-ICAqCUBzdGFtcDogVGltZSB3ZSBhcnJpdmVkCiAgKglAZGV2OiBEZXZpY2Ugd2UgYXJyaXZlZCBv
-bi9hcmUgbGVhdmluZyBieQorICogICAgICBAcmVhbF9kZXY6IFRoZSByZWFsIGRldmljZSB3ZSBh
-cmUgdXNpbmcKICAqCUBoOiBUcmFuc3BvcnQgbGF5ZXIgaGVhZGVyCiAgKglAbmg6IE5ldHdvcmsg
-bGF5ZXIgaGVhZGVyCiAgKglAbWFjOiBMaW5rIGxheWVyIGhlYWRlcgpAQCAtMTc5LDYgKzE4MCw3
-IEBACiAgKglAbmZjdDogQXNzb2NpYXRlZCBjb25uZWN0aW9uLCBpZiBhbnkKICAqCUBuZl9kZWJ1
-ZzogTmV0ZmlsdGVyIGRlYnVnZ2luZwogICoJQG5mX2JyaWRnZTogU2F2ZWQgZGF0YSBhYm91dCBh
-IGJyaWRnZWQgZnJhbWUgLSBzZWUgYnJfbmV0ZmlsdGVyLmMKKyAqICAgICAgQHByaXZhdGU6IERh
-dGEgd2hpY2ggaXMgcHJpdmF0ZSB0byB0aGUgSElQUEkgaW1wbGVtZW50YXRpb24KICAqCUB0Y19p
-bmRleDogVHJhZmZpYyBjb250cm9sIGluZGV4CiAgKi8KIApkaWZmIC1OdXIgbGludXgtMi42LjAt
-dGVzdDYtY3NldC0yMDAzMTAwMl8xNTA3L2tlcm5lbC9rbW9kLmMgbGludXgtMi42LjAtdGVzdDYt
-Y3NldC0yMDAzMTAwMl8xNTA3LW1hbmRvY3NfdHdlYWtzLW1lZ2EtMDAxLTAwMi1mMDA1L2tlcm5l
-bC9rbW9kLmMKLS0tIGxpbnV4LTIuNi4wLXRlc3Q2LWNzZXQtMjAwMzEwMDJfMTUwNy9rZXJuZWwv
-a21vZC5jCTIwMDMtMTAtMDMgMDk6MzE6NTkuMDAwMDAwMDAwICsxMDAwCisrKyBsaW51eC0yLjYu
-MC10ZXN0Ni1jc2V0LTIwMDMxMDAyXzE1MDctbWFuZG9jc190d2Vha3MtbWVnYS0wMDEtMDAyLWYw
-MDUva2VybmVsL2ttb2QuYwkyMDAzLTEwLTAzIDA5OjQwOjEwLjAwMDAwMDAwMCArMTAwMApAQCAt
-NDcsNyArNDcsOCBAQAogCiAvKioKICAqIHJlcXVlc3RfbW9kdWxlIC0gdHJ5IHRvIGxvYWQgYSBr
-ZXJuZWwgbW9kdWxlCi0gKiBAbW9kdWxlX25hbWU6IE5hbWUgb2YgbW9kdWxlCisgKiBAZm10OiAg
-ICAgcHJpbnRmIHN0eWxlIGZvcm1hdCBzdHJpbmcgZm9yIHRoZSBuYW1lIG9mIHRoZSBtb2R1bGUK
-KyAqIEB2YXJhcmdzOiBhcmd1ZW1lbnRzIGFzIHNwZWNpZmllZCBpbiB0aGUgZm9ybWF0IHN0cmlu
-ZwogICoKICAqIExvYWQgYSBtb2R1bGUgdXNpbmcgdGhlIHVzZXIgbW9kZSBtb2R1bGUgbG9hZGVy
-LiBUaGUgZnVuY3Rpb24gcmV0dXJucwogICogemVybyBvbiBzdWNjZXNzIG9yIGEgbmVnYXRpdmUg
-ZXJybm8gY29kZSBvbiBmYWlsdXJlLiBOb3RlIHRoYXQgYQpkaWZmIC1OdXIgbGludXgtMi42LjAt
-dGVzdDYtY3NldC0yMDAzMTAwMl8xNTA3L21tL3NsYWIuYyBsaW51eC0yLjYuMC10ZXN0Ni1jc2V0
-LTIwMDMxMDAyXzE1MDctbWFuZG9jc190d2Vha3MtbWVnYS0wMDEtMDAyLWYwMDUvbW0vc2xhYi5j
-Ci0tLSBsaW51eC0yLjYuMC10ZXN0Ni1jc2V0LTIwMDMxMDAyXzE1MDcvbW0vc2xhYi5jCTIwMDMt
-MTAtMDMgMDk6MzI6MDQuMDAwMDAwMDAwICsxMDAwCisrKyBsaW51eC0yLjYuMC10ZXN0Ni1jc2V0
-LTIwMDMxMDAyXzE1MDctbWFuZG9jc190d2Vha3MtbWVnYS0wMDEtMDAyLWYwMDUvbW0vc2xhYi5j
-CTIwMDMtMTAtMDMgMDk6NDA6MTAuMDAwMDAwMDAwICsxMDAwCkBAIC0yNjc1LDggKzI2NzUsOCBA
-QAogICogc2xhYmluZm9fd3JpdGUgLSBUdW5pbmcgZm9yIHRoZSBzbGFiIGFsbG9jYXRvcgogICog
-QGZpbGU6IHVudXNlZAogICogQGJ1ZmZlcjogdXNlciBidWZmZXIKLSAqIEBjb3VudDogZGF0YSBs
-ZW4KLSAqIEBkYXRhOiB1bnVzZWQKKyAqIEBjb3VudDogZGF0YSBsZW5ndGgKKyAqIEBwcG9zOiB1
-bnVzZWQKICAqLwogc3NpemVfdCBzbGFiaW5mb193cml0ZShzdHJ1Y3QgZmlsZSAqZmlsZSwgY29u
-c3QgY2hhciBfX3VzZXIgKmJ1ZmZlciwKIAkJCQlzaXplX3QgY291bnQsIGxvZmZfdCAqcHBvcykK
-ZGlmZiAtTnVyIGxpbnV4LTIuNi4wLXRlc3Q2LWNzZXQtMjAwMzEwMDJfMTUwNy9uZXQvY29yZS9k
-ZXYuYyBsaW51eC0yLjYuMC10ZXN0Ni1jc2V0LTIwMDMxMDAyXzE1MDctbWFuZG9jc190d2Vha3Mt
-bWVnYS0wMDEtMDAyLWYwMDUvbmV0L2NvcmUvZGV2LmMKLS0tIGxpbnV4LTIuNi4wLXRlc3Q2LWNz
-ZXQtMjAwMzEwMDJfMTUwNy9uZXQvY29yZS9kZXYuYwkyMDAzLTEwLTAzIDA5OjMyOjEyLjAwMDAw
-MDAwMCArMTAwMAorKysgbGludXgtMi42LjAtdGVzdDYtY3NldC0yMDAzMTAwMl8xNTA3LW1hbmRv
-Y3NfdHdlYWtzLW1lZ2EtMDAxLTAwMi1mMDA1L25ldC9jb3JlL2Rldi5jCTIwMDMtMTAtMDMgMDk6
-NDA6MTAuMDAwMDAwMDAwICsxMDAwCkBAIC05MTUsNiArOTE1LDggQEAKIAogLyoqCiAgKgljYWxs
-X25ldGRldmljZV9ub3RpZmllcnMgLSBjYWxsIGFsbCBuZXR3b3JrIG5vdGlmaWVyIGJsb2Nrcwor
-ICogICAgICBAdmFsOiB2YWx1ZSBwYXNzZWQgdW5tb2RpZmllZCB0byBub3RpZmllciBmdW5jdGlv
-bgorICogICAgICBAdjogICBwb2ludGVyIHBhc3NlZCB1bm1vZGlmaWVkIHRvIG5vdGlmaWVyIGZ1
-bmN0aW9uCiAgKgogICoJQ2FsbCBhbGwgbmV0d29yayBub3RpZmllciBibG9ja3MuICBQYXJhbWV0
-ZXJzIGFuZCByZXR1cm4gdmFsdWUKICAqCWFyZSBhcyBmb3Igbm90aWZpZXJfY2FsbF9jaGFpbigp
-LgpkaWZmIC1OdXIgbGludXgtMi42LjAtdGVzdDYtY3NldC0yMDAzMTAwMl8xNTA3L3NvdW5kL29z
-cy92aWE4MmN4eHhfYXVkaW8uYyBsaW51eC0yLjYuMC10ZXN0Ni1jc2V0LTIwMDMxMDAyXzE1MDct
-bWFuZG9jc190d2Vha3MtbWVnYS0wMDEtMDAyLWYwMDUvc291bmQvb3NzL3ZpYTgyY3h4eF9hdWRp
-by5jCi0tLSBsaW51eC0yLjYuMC10ZXN0Ni1jc2V0LTIwMDMxMDAyXzE1MDcvc291bmQvb3NzL3Zp
-YTgyY3h4eF9hdWRpby5jCTIwMDMtMTAtMDMgMDk6MzE6NTYuMDAwMDAwMDAwICsxMDAwCisrKyBs
-aW51eC0yLjYuMC10ZXN0Ni1jc2V0LTIwMDMxMDAyXzE1MDctbWFuZG9jc190d2Vha3MtbWVnYS0w
-MDEtMDAyLWYwMDUvc291bmQvb3NzL3ZpYTgyY3h4eF9hdWRpby5jCTIwMDMtMTAtMDMgMDk6NDA6
-MTAuMDAwMDAwMDAwICsxMDAwCkBAIC0xODQ0LDYgKzE4NDQsNyBAQAogCiAvKioKICAqCXZpYV9p
-bnRyX2NoYW5uZWwgLSBoYW5kbGUgYW4gaW50ZXJydXB0IGZvciBhIHNpbmdsZSBjaGFubmVsCisg
-KiAgICAgIEBjYXJkOiB1bnVzZWQKICAqCUBjaGFuOiBoYW5kbGUgaW50ZXJydXB0IGZvciB0aGlz
-IGNoYW5uZWwKICAqCiAgKglUaGlzIGlzIHRoZSAibWVhdCIgb2YgdGhlIGludGVycnVwdCBoYW5k
-bGVyLAo=
+        Duron
 
----MOQ10651411395a95514a6ea1f54c4c0b37b546c85eab--
+bash-2.05b# cat /proc/iomem
+00000000-0009fbff : System RAM
+0009fc00-0009ffff : reserved
+000a0000-000bffff : Video RAM area
+000c0000-000c7fff : Video ROM
+000f0000-000fffff : System ROM
+00100000-1ffeffff : System RAM
+  00100000-0037e9b2 : Kernel code
+  0037e9b3-004590ff : Kernel data
+1fff0000-1fff2fff : ACPI Non-volatile Storage
+1fff3000-1fffffff : ACPI Tables
+d0000000-d7ffffff : PCI Bus #01
+  d0000000-d7ffffff : 0000:01:00.0
+    d0000000-d1ffffff : rivafb
+d8000000-dbffffff : 0000:00:00.0
+dc000000-ddffffff : PCI Bus #01
+  dc000000-dcffffff : 0000:01:00.0
+    dc000000-dcffffff : rivafb
+df000000-df0000ff : 0000:00:0f.0
+  df000000-df0000ff : 8139too
+df001000-df001fff : 0000:00:10.0
+df002000-df002fff : 0000:00:10.1
+ffff0000-ffffffff : reserved
+
+
+            P4:
+stephen@sdchomelinux stephen $ cat /proc/iomem
+00000000-0009fbff : System RAM
+0009fc00-0009ffff : reserved
+000a0000-000bffff : Video RAM area
+000c0000-000c7fff : Video ROM
+000f0000-000fffff : System ROM
+00100000-17feffff : System RAM
+  00100000-003693dc : Kernel code
+  003693dd-0044857f : Kernel data
+17ff0000-17ff2fff : ACPI Non-volatile Storage
+17ff3000-17ffffff : ACPI Tables
+e0000000-e3ffffff : 0000:00:00.0
+e4000000-ebffffff : PCI Bus #01
+  e4000000-e7ffffff : 0000:01:00.0
+  e8000000-e807ffff : 0000:01:00.0
+ec000000-edffffff : PCI Bus #01
+  ec000000-ecffffff : 0000:01:00.0
+ef000000-ef0fffff : 0000:02:01.0
+ef100000-ef1000ff : 0000:02:04.0
+  ef100000-ef1000ff : 8139too
+ef101000-ef101fff : 0000:02:01.0
+fec00000-fec00fff : reserved
+fee00000-fee00fff : reserved
+ffb00000-ffffffff : reserved
+
+
+
+
+PCI info:        Duron
+
+lspci not installed
+
+            P4:
+lspci not installed
+
+
+
+
+/proc/scsi/scsi    Duron
+
+bash-2.05b# cat /proc/scsi/scsi
+Attached devices:
+Host: scsi0 Channel: 00 Id: 00 Lun: 00
+  Vendor: HP       Model: CD-Writer+ 8200a Rev: 1.0f
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+
+
+            P4:
+sdchomelinux root # cat /proc/scsi/scsi 
+Attached devices:
+Host: scsi0 Channel: 00 Id: 00 Lun: 00
+  Vendor:          Model: DVD-ROM          Rev: 2.00
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+Host: scsi1 Channel: 00 Id: 00 Lun: 00
+  Vendor: TDK      Model: CDRW241040B      Rev: 57S4
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+
+
+ver_linux script results:
+
+    Duron
+
+Linux AMDbox 2.6.0-test6 #2 Sun Sep 28 15:31:35 MDT 2003 i686 AMD 
+Athlon(tm) Processor AuthenticAMD GNU/Linux
+
+Gnu C                  3.2.3
+Gnu make               3.80
+util-linux             2.11z
+mount                  2.11z
+e2fsprogs              1.33
+reiserfsprogs          3.6.8
+Linux C Library        2.3.2
+Dynamic linker (ldd)   2.3.2
+Procps                 3.1.9
+Net-tools              1.60
+Kbd                    1.06
+Sh-utils               2.0.15
+Modules Loaded         se401 videodev ide_scsi nvidia 8139too mii crc32 
+sg sr_mod sd_mod scsi_mod
+
+
+    P4:
+Linux sdchomelinux 2.6.0-test6 #2 Tue Sep 30 21:44:42 CDT 2003 i686 Intel(R) Pentium(R) 4 CPU 1.50GHz GenuineIntel GNU/Linux
+ 
+Gnu C                  3.2.3
+Gnu make               3.80
+util-linux             2.11z
+mount                  2.11z
+e2fsprogs              1.33
+Linux C Library        2.3.2
+Dynamic linker (ldd)   2.3.2
+Procps                 3.1.9
+Net-tools              1.60
+Kbd                    1.06
+Sh-utils               5.0
+Modules Loaded         ipt_TOS ipt_MASQUERADE ipt_REJECT ipt_LOG ipt_state ip_nat_irc ip_nat_ftp ip_conntrack_irc ip_conntrack_ftp ipt_multiport ipt_conntrack iptable_filter iptable_mangle iptable_nat ip_conntrack ip_tables rtc joydev 8139too mii ne2k_pci 8390 crc32 ide_scsi sr_mod
+
+
+
+
+Duron environment is KDE 3.1.2
+P4 environment is Fluxbox 0.1.14
+-----------------------------------------
+*end cut and paste section*
+
+

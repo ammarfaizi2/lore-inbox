@@ -1,99 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318714AbSICJAV>; Tue, 3 Sep 2002 05:00:21 -0400
+	id <S318742AbSICJTs>; Tue, 3 Sep 2002 05:19:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318720AbSICJAV>; Tue, 3 Sep 2002 05:00:21 -0400
-Received: from na.sdn.net.za ([66.8.40.138]:22797 "EHLO riva.fashaf.co.za")
-	by vger.kernel.org with ESMTP id <S318714AbSICJAU>;
-	Tue, 3 Sep 2002 05:00:20 -0400
-From: mk@fashaf.co.za
-Date: Tue, 3 Sep 2002 11:05:00 +0200
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.18 Kernel Panics related to Netfilter/iptables
-Message-ID: <20020903090500.GB8824@fashaf.co.za>
-References: <20020902082156.GA28503@fashaf.co.za> <20020903125517.4decaeb9.rusty@rustcorp.com.au>
+	id <S318743AbSICJTs>; Tue, 3 Sep 2002 05:19:48 -0400
+Received: from vitelus.com ([64.81.243.207]:6151 "EHLO vitelus.com")
+	by vger.kernel.org with ESMTP id <S318742AbSICJTr>;
+	Tue, 3 Sep 2002 05:19:47 -0400
+Date: Tue, 3 Sep 2002 02:24:19 -0700
+From: Aaron Lehmann <aaronl@vitelus.com>
+To: linux-kernel@vger.kernel.org
+Subject: ext3 throughput woes on certain (possibly heavily fragmented) files
+Message-ID: <20020903092419.GA5643@vitelus.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="RASg3xLB4tUQ4RcS"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020903125517.4decaeb9.rusty@rustcorp.com.au>
-X-Operating-System: Linux 2.4.18-3
-X-Editor: VIM - Vi IMproved 6.1 (http://www.vim.org/)
-X-Crypto: gpg (GnuPG) 1.0.7 (http://www.gnupg.org/)
-X-GPG-Key-ID: AA91CF25
-X-GPG-Key-Fingerprint: 8D0B F1A3 5296 6CBC 7509  05B0 F3B8 CEF2 AA91 CF25
-X-What-Happen: somebody set up us the bomb.
 User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This pretty much sums it up:
 
---RASg3xLB4tUQ4RcS
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+[aaronl@vitelus:~]$ time cat mail/debian-legal > /dev/null
+cat mail/debian-legal > /dev/null  0.00s user 0.02s system 0% cpu 5.565 total
+[aaronl@vitelus:~]$ ls -l mail/debian-legal
+-rw-------    1 aaronl   mail      7893525 Sep  3 00:42 mail/debian-legal
+[aaronl@vitelus:~]$ time cat /usr/src/linux-2.4.18.tar.bz2 > /dev/null
+cat /usr/src/linux-2.4.18.tar.bz2 > /dev/null  0.00s user 0.10s system 16% cpu 0.616 total
+[aaronl@vitelus:~]$ ls -l /usr/src/linux-2.4.18.tar.bz2 
+-rw-r--r--    1 aaronl   aaronl   24161675 Apr 14 11:53
 
-> On Mon, 2 Sep 2002 10:21:56 +0200
-> >=20
-> > One of my machines running kernel 2.4.18 is getting kernel panics inter=
-mittently (30minutes to 4/5 hours).=20
-> >=20
-> > from the logs I believe is the culprit:
-> >=20
-> > kernel: LIST_DELETE: ip_conntrack_core.c:165 `&ct->tuplehash[IP_CT_DIR_=
-REPLY]'(c6c78e44) not in &ip_conntrack_hash [hash_conntrack(&ct->tuplehash[=
-IP_CT_DIR_REPLY].tuple)].
->=20
-> This problem has been plaguing us for a while.  You're using gcc 2.96, wh=
-ich is interesting.
->=20
-> What connection tracking/NAT modules have you got?
-ipt_LOG ipt_limit ipt_state iptable_filter ipt_MASQUERADE iptable_nat
+Both files were AFAIK not in any cache, and they are on the same
+partition.
 
->  What kind of traffic are you getting? (eg. are you getting IRC traffic? =
- FTP traffic?).
-There is nothing really to hectic that is using NAT as most of the traffic =
-goes via a proxy. I'd say the only things that use NAT would be services th=
-at dont support an http proxy, kazaa,edonkey,SMTP,pop.
-The following ports are NAT'ed 25 22 80 (not really used) 9034 59651 4661 4=
-662
+My current uninformed theory is that this is caused by fragmentation,
+since the linux tarball was downloaded all at once but the mailbox I'm
+comparing it to has 1695 messages, each of which having been appended
+seperately to the file. All of my mailboxes exhibit similarly awful
+performance.
 
-This is the NAT part the gateway config:
-$IPTABLES -t nat -A POSTROUTING -o $WAN -j MASQUERADE
-$IPTABLES -A FORWARD -i $LAN -j ACCEPT
-$IPTABLES -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
-$IPTABLES -A FORWARD -m limit --limit 3/minute --limit-burst 3 -j LOG --log=
--level DEBUG --log-prefix "IPT FORWARD packet died: "
+Do any other filesystems handle this type of thing more gracefully? Is
+there room for improvement in ext3? Is there any way I can test my
+theory by seeing how fragmented a certain inode is? What can I do to
+avoid extensive fragmentation, if it is truely the cause of my issue?
 
-Traffic is pretty low in general. If there is any other information i can g=
-ive you please let me know.
+I'm running 2.4.20-pre5, but this is not a recently-introduced problem.
 
-Regards
-Merritt
->=20
-> I really want to chase this down, but I've yet to find the cause.
->=20
-> Rusty.
-> --=20
->    there are those who do and those who hang on and you don't see too
->    many doers quoting their contemporaries.  -- Larry McVoy
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
---RASg3xLB4tUQ4RcS
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9dHs887jO8qqRzyURAvmfAJ0YTtaKZ+TLLSRsu/k6IY51jvjH/ACggs/c
-hs98Y1WNfvmCHB8iE9th/oQ=
-=23Yb
------END PGP SIGNATURE-----
-
---RASg3xLB4tUQ4RcS--
+The disk is IDE - nothing fancy, WDC WD200BB-18CAA0. IDE controller is
+ServerWorks CSB5. However, I've had this problem consistantly on
+previous hardware.

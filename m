@@ -1,60 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287177AbSATV0L>; Sun, 20 Jan 2002 16:26:11 -0500
+	id <S287863AbSATV3B>; Sun, 20 Jan 2002 16:29:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287189AbSATVZw>; Sun, 20 Jan 2002 16:25:52 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:17425 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S287177AbSATVZc>;
-	Sun, 20 Jan 2002 16:25:32 -0500
-Date: Sun, 20 Jan 2002 19:24:57 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Shawn <spstarr@sh0n.net>, <linux-kernel@vger.kernel.org>,
-        Josh MacDonald <jmacd@CS.Berkeley.EDU>
-Subject: Re: Possible Idea with filesystem buffering.
-In-Reply-To: <3C4B3370.7020303@namesys.com>
-Message-ID: <Pine.LNX.4.33L.0201201924020.32617-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S287833AbSATV2x>; Sun, 20 Jan 2002 16:28:53 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:37130 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S287279AbSATV2s>; Sun, 20 Jan 2002 16:28:48 -0500
+Message-ID: <3C4B35AB.4040801@namesys.com>
+Date: Mon, 21 Jan 2002 00:24:59 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+CC: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: Possible Idea with filesystem buffering.
+In-Reply-To: <Pine.LNX.4.33.0201201247270.6499-100000@coffee.psychology.mcmaster.ca>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Jan 2002, Hans Reiser wrote:
-> Rik van Riel wrote:
-> >On Sun, 20 Jan 2002, Hans Reiser wrote:
+Mark Hahn wrote:
 
-> >Agreed on these points, but you really HAVE TO work towards
-> >flushing the page ->writepage() gets called for.
-> >
-> >Think about your typical PC, with memory in ZONE_DMA,
-> >ZONE_NORMAL and ZONE_HIGHMEM. If we are short on DMA pages
-> >we will end up calling ->writepage() on a DMA page.
-> >
-> >If the filesystem ends up writing completely unrelated pages
-> >and marking the DMA page in question referenced the VM will
-> >go in a loop until the filesystem finally gets around to
-> >making a page in the (small) DMA zone freeable ...
+>On Sun, 20 Jan 2002, Hans Reiser wrote:
 >
-> This is a bug in VM design, yes?  It should signal that it needs the
-> particular page written, which probnably means that it should use
-> writepage only when it needs that particular page written,
+>>Write clustering is one thing it achieves.   When we flush a slum, the 
+>>
+>
+>sure, that's fine.  when the VM tells you to write a page,
+>you're free to write *more*, but you certainly must give back
+>that particular page.  afaicr, this was the conclusion 
+>of the long-ago thread that you're referring to.
+>
+>regards, mark hahn.
+>
+>
+>
+This is bad for use with internal nodes.  It simplifies version 4 a 
+bunch to assume that if a node is in cache, its parent is also.  Not 
+sure what to do about it, maybe we need to copy the node.  Surely we 
+don't want to copy it unless it is a DMA related page cleaning.
 
-That is exactly what the VM does.
+Hans
 
-> and should otherwise check to see if the filesystem supports something
-> like pressure_fs_cache(), yes?
-
-That's incompatible with the concept of memory zones.
-
-regards,
-
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
 

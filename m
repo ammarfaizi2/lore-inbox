@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132511AbRDWW7M>; Mon, 23 Apr 2001 18:59:12 -0400
+	id <S132536AbRDWW7M>; Mon, 23 Apr 2001 18:59:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132516AbRDWW7B>; Mon, 23 Apr 2001 18:59:01 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:37382 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S132535AbRDWW6V>;
-	Mon, 23 Apr 2001 18:58:21 -0400
-Date: Tue, 24 Apr 2001 00:58:09 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-Cc: linux-kernel@vger.kernel.org, jmerkey@timpanogas.org
-Subject: Re: NWFS broken on 2.4.3 -- someone removed WRITERAW
-Message-ID: <20010424005809.Y9357@suse.de>
-In-Reply-To: <20010423163725.C1131@vger.timpanogas.org>
+	id <S132511AbRDWW7A>; Mon, 23 Apr 2001 18:59:00 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:18449 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S132516AbRDWW5m>;
+	Mon, 23 Apr 2001 18:57:42 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH 2.4.4.3: 3rdparty driver support for kbuild 
+In-Reply-To: Your message of "Sun, 15 Apr 2001 05:25:24 EDT."
+             <3AD96904.9274E46C@mandrakesoft.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010423163725.C1131@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Mon, Apr 23, 2001 at 04:37:25PM -0600
+Date: Tue, 24 Apr 2001 08:57:36 +1000
+Message-ID: <12679.988066656@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 23 2001, Jeff V. Merkey wrote:
-> 
-> 
-> Hey guys,
-> 
-> Whomever removed WRITERAW has broken NWFS.  WRITE requests call
-> _refile_buffer() after the I/O request and take my locally created 
-> buffer heads and munge them back into the linux buffer cache, causing
-> massive memory corruption in the system.  These buffers don't belong 
-> in Linus' buffer cache, they are owned by my LRU and ll_rw_block 
-> should not be blindly filing them back into the buffer cache.
-> 
-> Please put something back in to allow me to write without the buffer
-> heads always getting filed into Linus' buffer cache.  This has 
-> broken NWFS on 2.4.3 and above.
+On Sun, 15 Apr 2001 05:25:24 -0400, 
+Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
+>The attached patch, against kernel 2.4.4-pre3, adds a feature I call
+>"3rd-party support."
 
-	bh->b_end_io = my_end_io_handler;
-	submit_bh(WRITE, bh);
+Already covered by my 2.5 makefile rewrite[1] which has explicit
+support for third party kernel source.  Shadow trees are designed
+specifically to handle this problem.  I don't see the point of adding a
+script which will only be used in 2.4, especially when the vendors
+would have to change their tarball format for 2.5 formats.
 
-Be a happy camper.
+(3) The kernel is constructed from multiple source trees and built in a
+    separate object tree.
 
--- 
-Jens Axboe
+    As for (2) you have a separate object directory for each set of
+    config options.  But instead of manually building a single source
+    tree from various patches, the patch sets are kept separate and
+    kbuild 2.5 logically constructs a single kernel source tree from
+    the various source trees.  This is called a shadow tree system
+    because the patch sets shadow the main kernel source tree.
+
+[1] http://sourceforge.net/projects/kbuild
+
 

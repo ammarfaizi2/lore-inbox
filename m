@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135842AbREIDhJ>; Tue, 8 May 2001 23:37:09 -0400
+	id <S135852AbREIDwD>; Tue, 8 May 2001 23:52:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135852AbREIDg7>; Tue, 8 May 2001 23:36:59 -0400
-Received: from turnover.lancs.ac.uk ([148.88.17.220]:13046 "EHLO
-	helium.chromatix.org.uk") by vger.kernel.org with ESMTP
-	id <S135842AbREIDgv>; Tue, 8 May 2001 23:36:51 -0400
-Message-Id: <l03130306b71e6b954848@[192.168.239.105]>
-In-Reply-To: <m14xJmW-001QgaC@mozart>
-In-Reply-To: Your message of "Sun, 06 May 2001 21:55:26 MST."            
- <15094.10942.592911.70443@pizda.ninka.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Wed, 9 May 2001 04:36:24 +0100
-To: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org
-From: Jonathan Morton <chromi@cyberspace.org>
-Subject: Re: page_launder() bug
+	id <S135853AbREIDvw>; Tue, 8 May 2001 23:51:52 -0400
+Received: from mx3.sac.fedex.com ([199.81.208.11]:12818 "EHLO
+	mx3.sac.fedex.com") by vger.kernel.org with ESMTP
+	id <S135852AbREIDvm>; Tue, 8 May 2001 23:51:42 -0400
+Date: Tue, 8 May 2001 19:48:26 -0700 (PDT)
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+X-X-Sender: <root@speech.corp.fedex.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: nfs warning: mount version older than kernel
+Message-ID: <Pine.LNX.4.33.0105081947130.7618-100000@speech.corp.fedex.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->That said, anyone who doesn't understand the former should probably
->get some more C experience before commenting on others' code...
 
-I understood it, but it looked very much like a typo.
+Where can I get the latest "mount" ?
 
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
-big-mail: chromatix@penguinpowered.com
-uni-mail: j.d.morton@lancaster.ac.uk
+# mount -t nfs lo:/ /mnt
+NFS: NFSv3 not supported.
+nfs warning: mount version older than kernel
 
-The key to knowledge is not to rely on people to teach you it.
+#mount --version
+mount: mount-2.11a
 
-Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
 
------BEGIN GEEK CODE BLOCK-----
-Version 3.12
-GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
-PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
------END GEEK CODE BLOCK-----
-
+Thanks,
+Jeff
+[ jchua@fedex.com ]
 

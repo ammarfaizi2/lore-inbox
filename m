@@ -1,36 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265326AbSJXGPg>; Thu, 24 Oct 2002 02:15:36 -0400
+	id <S265327AbSJXGTg>; Thu, 24 Oct 2002 02:19:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265327AbSJXGPf>; Thu, 24 Oct 2002 02:15:35 -0400
-Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:29454 "EHLO
-	mx2.cypherpunks.ca") by vger.kernel.org with ESMTP
-	id <S265326AbSJXGPf>; Thu, 24 Oct 2002 02:15:35 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@mozart.cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: One for the Security Guru's
-Date: 24 Oct 2002 06:04:05 GMT
-Organization: University of California, Berkeley
-Distribution: isaac
-Message-ID: <ap82gl$2jh$1@abraham.cs.berkeley.edu>
-References: <20021023130251.GF25422@rdlg.net>
-NNTP-Posting-Host: mozart.cs.berkeley.edu
-X-Trace: abraham.cs.berkeley.edu 1035439445 2673 128.32.153.211 (24 Oct 2002 06:04:05 GMT)
-X-Complaints-To: news@abraham.cs.berkeley.edu
-NNTP-Posting-Date: 24 Oct 2002 06:04:05 GMT
-X-Newsreader: trn 4.0-test74 (May 26, 2000)
-Originator: daw@mozart.cs.berkeley.edu (David Wagner)
+	id <S265328AbSJXGTg>; Thu, 24 Oct 2002 02:19:36 -0400
+Received: from lmail.actcom.co.il ([192.114.47.13]:48015 "EHLO
+	lmail.actcom.co.il") by vger.kernel.org with ESMTP
+	id <S265327AbSJXGTf>; Thu, 24 Oct 2002 02:19:35 -0400
+Subject: Re: over&out (Re: feature request - why not make netif_rx() a
+	pointer?)
+From: Gilad Ben-Yossef <gilad@benyossef.com>
+To: jw schultz <jw@pegasys.ws>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021023225916.GA6395@pegasys.ws>
+References: <20021023003959.GA23155@bougret.hpl.hp.com>
+	<004c01c27a99$927b8a30$800a140a@SLNW2K> <3DB6AC40.20007@nortelnetworks.com>
+	<008b01c27ab0$760be900$800a140a@SLNW2K>  <20021023225916.GA6395@pegasys.ws>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 24 Oct 2002 08:25:43 +0200
+Message-Id: <1035440743.9164.24.camel@gby.benyossef.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert L. Harris wrote:
->  The consultants aparantly told the company admins that kernel modules
->were a massive security hole and extremely easy targets for root kits.
+On Thu, 2002-10-24 at 00:59, jw schultz wrote:
 
-They were blowing smoke.  Once the attacker has root on your machine,
-you're toast, whether or not you have loadable modules enabled.  The right
-defense is to prevent attackers from getting root on your machine; the
-consultant's recommendations are probably not the best way to spend your
-time and energy.
+> There would be little objection to their posting these
+> irrelevant modifications here.  The GPL only requires that
+> they be made available.  Stick them somewhere on your web
+> site with an obscure link pointing to them.
+
+<nitpick>
+
+IANAL but AFAIK the GPL V2 requires you to either distribute the
+source/patch together with the binary or include a *written* obligation
+valid for three years to supply the sources to any thrid party.
+
+So, for example, if you disribute the binary on a CD, or some embedded
+device, sticking the patch somewhere on your web site with an obscure
+link pointing to them is technicaly a violation of the GPL.
+
+But as I said, this is just nitpicking... :-)
+
+</nitpick>
+
+-- 
+Gilad Ben-Yossef <gilad@benyossef.com>
+http://benyossef.com
+
+ "Geeks rock bands cool name #8192: RAID against the machine"
+

@@ -1,91 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262518AbVBXWab@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262519AbVBXWdY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262518AbVBXWab (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 17:30:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262519AbVBXWab
+	id S262519AbVBXWdY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 17:33:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262521AbVBXWdY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 17:30:31 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:43231 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262518AbVBXWaG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 17:30:06 -0500
-Message-ID: <421E55E5.3010404@austin.ibm.com>
-Date: Thu, 24 Feb 2005 16:32:05 -0600
-From: Steven Pratt <slpratt@austin.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Thu, 24 Feb 2005 17:33:24 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:61394 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S262519AbVBXWdH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 17:33:07 -0500
+Date: Thu, 24 Feb 2005 22:32:18 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Andi Kleen <ak@suse.de>, "David S. Miller" <davem@davemloft.net>,
+       benh@kernel.crashing.org, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] page table iterators
+In-Reply-To: <421E4E27.20004@yahoo.com.au>
+Message-ID: <Pine.LNX.4.61.0502242224070.14886@goblin.wat.veritas.com>
+References: <4214A1EC.4070102@yahoo.com.au> <4214A437.8050900@yahoo.com.au> 
+    <20050217194336.GA8314@wotan.suse.de> <1108680578.5665.14.camel@gaston> 
+    <20050217230342.GA3115@wotan.suse.de> 
+    <20050217153031.011f873f.davem@davemloft.net> 
+    <20050217235719.GB31591@wotan.suse.de> <4218840D.6030203@yahoo.com.au> 
+    <Pine.LNX.4.61.0502210619290.7925@goblin.wat.veritas.com> 
+    <421B0163.3050802@yahoo.com.au> 
+    <Pine.LNX.4.61.0502230136240.5772@goblin.wat.veritas.com> 
+    <421D1737.1050501@yahoo.com.au> 
+    <Pine.LNX.4.61.0502240457350.5427@goblin.wat.veritas.com> 
+    <1109224777.5177.33.camel@npiggin-nld.site> 
+    <Pine.LNX.4.61.0502241143001.6630@goblin.wat.veritas.com> 
+    <421E4E27.20004@yahoo.com.au>
 MIME-Version: 1.0
-To: Ram <linuxram@us.ibm.com>
-CC: Oleg Nesterov <oleg@tv-sign.ru>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 4/4][RESEND] readahead: cleanup	blockable_page_cache_readahead()
-References: <421E2CE9.8B5E4DE7@tv-sign.ru> <1109271683.6140.120.camel@localhost>
-In-Reply-To: <1109271683.6140.120.camel@localhost>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ram wrote:
+On Fri, 25 Feb 2005, Nick Piggin wrote:
+> Hugh Dickins wrote:
+> > 
+> > Has anyone _ever_ seen a p??_ERROR message?  I'm inclined to just
+> > put three functions into mm/memory.c to do the p??_ERROR and p??_clear,
+> > but that way the __FILE__ and __LINE__ will always come out the same.
+> > I think if it ever proves a problem, we'd just add in a dump_stack.
+> 
+> I think a function is the most sensible. And a good idea, it should
+> reduce the icache pressure in the loops (although gcc does seem to
+> do a pretty good job of moving unlikely()s away from the fastpath).
 
->Andrew, 
->	I have verified the patches against my standard benchmarks
->	and did not see any bad effects.
->
->	Also I have reviewd the patch and it looked clean and correct.
->
->RP
->  
->
+At one stage I was adding unlikelies to all the p??_bads, then it
+seemed more sensible to hide that in a new macro (which of course
+must do the none and bad tests inline, before going off to the function).
 
-I have not had a chance to benchmark, but visual inspection looks good.
+David's response confirms that __FILE__,__LINE__ shouldn't be an issue.
 
-Steve
+> I think at the point these things get detected, there is little use
+> for having a dump_stack. But we may as well add one anyway if it is
+> an out of line function?
 
->On Thu, 2005-02-24 at 11:37, Oleg Nesterov wrote:
->  
->
->>I think that do_page_cache_readahead() can be inlined
->>in blockable_page_cache_readahead(), this makes the
->>code a bit more readable in my opinion.
->>
->>Also makes check_ra_success() static inline.
->>
->>Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
->>
->>--- 2.6.11-rc5/mm/readahead.c~	2005-01-29 15:51:04.000000000 +0300
->>+++ 2.6.11-rc5/mm/readahead.c	2005-01-29 16:37:05.000000000 +0300
->>@@ -348,8 +348,8 @@ int force_page_cache_readahead(struct ad
->>  * readahead isn't helping.
->>  *
->>  */
->>-int check_ra_success(struct file_ra_state *ra, unsigned long nr_to_read,
->>-				 unsigned long actual)
->>+static inline int check_ra_success(struct file_ra_state *ra,
->>+			unsigned long nr_to_read, unsigned long actual)
->> {
->> 	if (actual == 0) {
->> 		ra->cache_hit += nr_to_read;
->>@@ -394,15 +394,11 @@ blockable_page_cache_readahead(struct ad
->> {
->> 	int actual;
->> 
->>-	if (block) {
->>-		actual = __do_page_cache_readahead(mapping, filp,
->>-						offset, nr_to_read);
->>-	} else {
->>-		actual = do_page_cache_readahead(mapping, filp,
->>-						offset, nr_to_read);
->>-		if (actual == -1)
->>-			return 0;
->>-	}
->>+	if (!block && bdi_read_congested(mapping->backing_dev_info))
->>+		return 0;
->>+
->>+	actual = __do_page_cache_readahead(mapping, filp, offset, nr_to_read);
->>+
->> 	return check_ra_success(ra, nr_to_read, actual);
->> }
->>    
->>
+We could at little cost.  But I think if these messages come up at all,
+they're likely to come up in clumps, where the backtrace won't actually
+be giving any interesting info, and the quantity of them be a nuisance
+itself.  I'd rather leave it to the next person who gets the error and
+wants the backtrace to add it.
 
+Hugh

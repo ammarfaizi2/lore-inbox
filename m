@@ -1,73 +1,186 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261824AbVBXF7o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261825AbVBXGGq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261824AbVBXF7o (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 00:59:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbVBXF7o
+	id S261825AbVBXGGq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 01:06:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbVBXGGq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 00:59:44 -0500
-Received: from smtp018.mail.yahoo.com ([216.136.174.115]:37292 "HELO
-	smtp018.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261824AbVBXF7m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 00:59:42 -0500
-Subject: Re: [PATCH 2/2] page table iterators
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andi Kleen <ak@suse.de>, "David S. Miller" <davem@davemloft.net>,
-       benh@kernel.crashing.org, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0502240457350.5427@goblin.wat.veritas.com>
-References: <4214A1EC.4070102@yahoo.com.au> <4214A437.8050900@yahoo.com.au>
-	 <20050217194336.GA8314@wotan.suse.de> <1108680578.5665.14.camel@gaston>
-	 <20050217230342.GA3115@wotan.suse.de>
-	 <20050217153031.011f873f.davem@davemloft.net>
-	 <20050217235719.GB31591@wotan.suse.de> <4218840D.6030203@yahoo.com.au>
-	 <Pine.LNX.4.61.0502210619290.7925@goblin.wat.veritas.com>
-	 <421B0163.3050802@yahoo.com.au>
-	 <Pine.LNX.4.61.0502230136240.5772@goblin.wat.veritas.com>
-	 <421D1737.1050501@yahoo.com.au>
-	 <Pine.LNX.4.61.0502240457350.5427@goblin.wat.veritas.com>
-Content-Type: text/plain
-Date: Thu, 24 Feb 2005 16:59:37 +1100
-Message-Id: <1109224777.5177.33.camel@npiggin-nld.site>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 24 Feb 2005 01:06:46 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:64484 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261825AbVBXGG3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 01:06:29 -0500
+Date: Wed, 23 Feb 2005 22:04:09 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
+cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andi Kleen <ak@muc.de>,
+       hugh@veritas.com, linux-mm@kvack.org, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, benh@kernel.crashing.org
+Subject: A Proposal for an MMU abstraction layer
+In-Reply-To: <Pine.LNX.4.58.0502161646490.11394@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.58.0502232201430.8664@schroedinger.engr.sgi.com>
+References: <41E5B7AD.40304@yahoo.com.au>  <Pine.LNX.4.58.0501121552170.12669@schroedinger.engr.sgi.com>
+  <41E5BC60.3090309@yahoo.com.au>  <Pine.LNX.4.58.0501121611590.12872@schroedinger.engr.sgi.com>
+  <20050113031807.GA97340@muc.de>  <Pine.LNX.4.58.0501130907050.18742@schroedinger.engr.sgi.com>
+  <20050113180205.GA17600@muc.de>  <Pine.LNX.4.58.0501131701150.21743@schroedinger.engr.sgi.com>
+  <20050114043944.GB41559@muc.de>  <Pine.LNX.4.58.0501140838240.27382@schroedinger.engr.sgi.com>
+  <20050114170140.GB4634@muc.de>  <Pine.LNX.4.58.0501281233560.19266@schroedinger.engr.sgi.com>
+  <Pine.LNX.4.58.0501281237010.19266@schroedinger.engr.sgi.com> 
+ <41FF00CE.8060904@yahoo.com.au>  <Pine.LNX.4.58.0502011047330.3205@schroedinger.engr.sgi.com>
+ <1107304296.5131.13.camel@npiggin-nld.site>
+ <Pine.LNX.4.58.0502161646490.11394@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-02-24 at 05:12 +0000, Hugh Dickins wrote:
-> On Thu, 24 Feb 2005, Nick Piggin wrote:
+1. Rationale
+============
 
-> > OK after sleeping on it, I'm warming to your way.
-> > 
-> > I don't think it makes something like David's modifications any
-> > easier, but mine didn't go a long way to that end either. And
-> > being a more incremental approach gives us more room to move in
-> > future (for example, maybe toward something that really *will*
-> > accommodate the bitmap walking code nicely).
-> 
-> I'll take a quick look at David's today.
-> Just so long as we don't make them harder.
-> 
+Currently the Linux kernel implements a hierachical page table utilizing 4
+layers. Architectures that have less layers may cause the kernel to not
+generate code for certain layers. However, there are other means for mmu
+to describe page tables to the system. For example the Itanium (and other
+CPUs) support hashed page table structures or linear page tables. IA64 has
+to simulate the hierachical layers through its linear page tables and
+implements the higher layers in software.
 
-No, I think we may want to move to something better abstracted:
-it makes things sufficiently complex that you wouldn't want to
-have it open coded everywhere.
+Moreover, different architectures have different means of implementing
+huge page table entries. On IA32 this is realized by omitting the lower
+layer entries and providing single PMD entry replacing 512/1024 PTE
+entries. On IA64 a PTE entry is used for that purpose. Other architecture
+realize huge page table entries through groups of PTE entries. There are
+hooks for each of these methods in the kernel. Moreover the way of
+handling huge pages is not like other pages but they are managed through a
+file system. Only one size of huge pages is supported. It would be much
+better if huge pages would be handled more like regular pages and also to
+have support for multiple page sizes (which then may lead to support
+variable page sizes in the VM).
 
-But no, you're not making it harder than the present situation.
+It would be best to hide these implementation differences in an mmu
+abstraction layer. Various architectures could then implement their own
+way of representing page table entries. We would provide a legacy 4 layer,
+3 layer and 2 layer implementation that would take care of the existing
+implementations. These generic implementations can then be taken by an
+architecture and emendedto provide the huge page table entries in way
+fitting for that architecture. For IA64 and otherplatforms that allow
+alternate ways of maintaining translations, we could avoid maintaining a
+hierachical table.
 
-> > So I'd be pretty happy for you to queue this up with Andrew for
-> > 2.6.12. Anyone else?
-> 
-> Oh, okay, thanks.  You weren't very happy with p??_limit(addr, end),
-> and good naming is important to me.  I didn't care for your tentative
-> p??_span or p??_span_end.  Would p??_end be better?  p??_enda would
-> be fun for one of them...
-> 
+There are a couple of additional features for page tables that then could
+also be worked into that abstraction layer:
 
-pud_addr_end?
+A. Global translation entries.
+B. Variable page size.
+C. Use a transactional scheme to allow a variety of synchronization
+schemes.
 
+Early idea for an mmu abstraction layer API
+===========================================
 
+Three new opaque types:
 
-http://mobile.yahoo.com.au - Yahoo! Mobile
-- Check & compose your email via SMS on your Telstra or Vodafone mobile.
+mmu_entry_t
+mmu_translation_set_t
+mmu_transaction_t
+
+*mmu_entry_t* replaces the existing pte_t and has roughly the same features.
+However, mmu_entry_t describes a translation of a logical address to a
+physical address in general. This means that the mmu_entry_t must be able
+to represent all possible mappings including mappings for huge pages and
+pages of various sizes if these features are supported by the method of
+handling page tables. If statistics need to be kept about entries then this
+entry will also contain a number to indicate what counter to update when
+inserting or deleting this type of entry [spare bits may be used for this
+purpose]
+
+*mmu_translation_set_t* represents a virtual address space for a process and is essentially
+a set of mmu_entry_t's plus additional management information that may be necessary to
+manage an address space.
+
+*mmu_transaction_t* allows to perform transactions on translation entries and maintains the
+state of a transaction. The state information allows to undo changes or commit them in
+a way that must appear to be atomic to any other access in the system.
+
+Operations on mmu_translation_set_t
+-----------------------------------
+
+void mmu_new_translation_set(struct mmu_translation_set_t *t);
+	Generates an empty translation set
+
+void mmu_dup_translation_set(struct mmu_translation_set_t *t, struct mmu_translation_set *t);
+	Generates a duplicate of a translation set
+
+void mmu_remove_translation_set(struct mmu_translation_set *t);
+	Removes a translation set
+
+void mmu_clear_range(struct mmu_translation_set_t *t, unsigned long start, unsigned long end);
+	Wipe out a range of addresses in the translation set
+
+void mmu_copy_range(struct mmu_translation_set *dest, struct
+mmu_translation_set_t *src, unsinged long dest_start, unsigned long src_start, unsigned long
+length);
+
+These functions are not implemented for the period in which old and new
+schemes are coexisting since this would require a major change to mm_struct.
+
+Transactional operations
+------------------------
+
+void mmu_transaction(struct mmu_transaction_t *ta, struct mmu_translation_set_t *tr);
+	Begin a transaction
+
+For the coexistence period this is implemented as
+
+	mmu_transaction(struct mmu_transaction_t , struct mm_struct *mm,
+		struct vm_are_struct *);
+
+void mmu_commit(struct mmu_transaction_t);
+	Commit changes done
+
+void mmu_forget(struct mmu_transaction_t);
+	Undo changes undone
+
+struct mmu_entry_t mmu_find(struct mmu_transaction_t *ta, unsigned long address);
+	Find mmu entry and make this the current entry
+
+void mmu_update(struct mmu_transaction_t *ta, mmu_entry_t entry);
+	Update the current entry
+
+void mmu_add(struct mmu_transaction_t *ta, mmu_entry_t entry, unsigned long address);
+	Add a new translation entry
+
+void mmu_remove(struct mmu_transaction_t *ta);
+	Remove current translation entry
+
+Operations on mmu_entry_t
+-------------------------
+The same as for pte_t now. Additional
+
+struct mmu_entry mkglobal(struct mmu_entry)
+	Define an entry to be global (valid for all translation sets)
+
+struct mmu_entry mksize(struct mmu_entry entry, unsigned order)
+	Set the page size in an entry to order.
+
+struct mmu_entry mkcount(struct mmu_entry entry, unsigned long counter)
+	Adding and removing this entry must lead to an update of the specified
+	counter.
+
+Not for coexistence period.
+
+Statistics
+----------
+
+void mmu_stats(struct mmu_translation_set, unsigned long *entries,
+	unsigned long *size_in_pages, unsigned long *counters[]);
+
+Not for coexistence period.
+
+Scanning through mmu entries
+----------------------------
+
+void mmu_scan(struct mmu_translation_set_t *t, unsigned long start,
+	unsigned long end,
+	mmu_entry_t (*func)(struct mmu_entry_t, void *private),
+	void *private);

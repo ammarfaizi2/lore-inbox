@@ -1,28 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290206AbSBFHeA>; Wed, 6 Feb 2002 02:34:00 -0500
+	id <S290213AbSBFHdu>; Wed, 6 Feb 2002 02:33:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290192AbSBFHdu>; Wed, 6 Feb 2002 02:33:50 -0500
-Received: from m-207-88-46-241.missing.com ([207.88.46.241]:24468 "EHLO
-	ash.penguinppc.org") by vger.kernel.org with ESMTP
-	id <S290185AbSBFHdg>; Wed, 6 Feb 2002 02:33:36 -0500
-Date: Tue, 5 Feb 2002 23:33:34 -0800 (PST)
-From: "Jeramy B. Smith" <jeramy@penguinppc.org>
-To: linux-kernel@vger.kernel.org
-Subject: RE: linux-2.5.4-pre1 - bitkeeper testing
-Message-ID: <Pine.LNX.4.44.0202052328470.32146-100000@ash.penguinppc.org>
+	id <S290192AbSBFHdb>; Wed, 6 Feb 2002 02:33:31 -0500
+Received: from mailout09.sul.t-online.com ([194.25.134.84]:1973 "EHLO
+	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S290185AbSBFHdZ>; Wed, 6 Feb 2002 02:33:25 -0500
+Message-ID: <XFMail.20020206083210.R.Oehler@GDAmbH.com>
+X-Mailer: XFMail 1.5.0 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <E16YCdv-0002ru-00@the-village.bc.nu>
+Date: Wed, 06 Feb 2002 08:32:10 +0100 (MET)
+From: Ralf Oehler <R.Oehler@GDAmbH.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: one-line-patch against SCSI-Read-Error-BUG()
+Cc: <axboe@kernel.org (Jens Axboe)>, <andrea@suse.de (Andrea Arcangeli)>,
+        linux-kernel@vger.kernel.org, <linux-scsi@vger.kernel.org (Scsi)>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Firstly, IANAFSN (I am not a Free Software Nazi) but there is this
-new GPL decentralized version control program called arch that is small
-and fits in well with the Unix way of using other small utils.
 
-When you get weird Bk errors because Larry changes the Open Logging stuff
-for the umpteenth time which forces you to upgrade to keep using Bk,
-just remember we told you so.
+On 05-Feb-2002 Alan Cox wrote:
+|   > Since at least kernel 2.4.16 there is a BUG() in pci.h,
+|   > that crashes the kernel on any attempt to read a SCSI-Sector
+|   > from an erased MO-Medium and on any attempt to read
+|   > a sector from a SCSI-disk, which returns "Read-Error".
+|    
+|    Adaptec aic7xxx card ?
 
--jeramy b smith
+Yes. And I only have Adaptecs...    
 
+ --------------------------------------------------------------------------
+|  Ralf Oehler                          
+|                                       
+|  GDA - Gesellschaft fuer Digitale                              _/
+|        Archivierungstechnik mbH & CoKG                        _/
+|  Ein Unternehmen der Bechtle AG               #/_/_/_/ _/_/_/_/ _/_/_/_/
+|                                              _/    _/ _/    _/       _/
+|  E-Mail:      R.Oehler@GDAmbH.com           _/    _/ _/    _/ _/    _/
+|  Tel.:        +49 6182-9271-23             _/_/_/_/ _/_/_/#/ _/_/_/#/
+|  Fax.:        +49 6182-25035                    _/
+|  Mail:        GDA, Bensbruchstraﬂe 11,   _/_/_/_/
+|               D-63533 Mainhausen      
+|  HTTP:        www.GDAmbH.com         
+ --------------------------------------------------------------------------
+
+time is a funny concept

@@ -1,38 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262402AbSITMbI>; Fri, 20 Sep 2002 08:31:08 -0400
+	id <S262483AbSITMlm>; Fri, 20 Sep 2002 08:41:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262468AbSITMbH>; Fri, 20 Sep 2002 08:31:07 -0400
-Received: from smtp.intrex.net ([209.42.192.250]:58121 "EHLO intrex.net")
-	by vger.kernel.org with ESMTP id <S262402AbSITMbH>;
-	Fri, 20 Sep 2002 08:31:07 -0400
-Date: Fri, 20 Sep 2002 08:37:36 -0400
-From: jlnance@intrex.net
-To: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
-Message-ID: <20020920083736.B1280@tricia.dyndns.org>
-References: <3D8A6EC1.1010809@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3D8A6EC1.1010809@redhat.com>; from drepper@redhat.com on Thu, Sep 19, 2002 at 05:41:37PM -0700
-X-Declude-Sender: jlnance@intrex.net [216.181.42.97]
+	id <S262518AbSITMlm>; Fri, 20 Sep 2002 08:41:42 -0400
+Received: from wiprom2mx1.wipro.com ([203.197.164.41]:24787 "EHLO
+	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
+	id <S262483AbSITMlm>; Fri, 20 Sep 2002 08:41:42 -0400
+Date: Fri, 20 Sep 2002 18:33:48 +0530 (IST)
+From: "Hanumanthu. H" <hanumanthu.hanok@wipro.com>
+To: <linux-kernel@vger.kernel.org>
+cc: <jw@pegasys.ws>
+Subject: RE:  [patch] generic-pidhash-2.5.36-D4, BK-curr
+Message-ID: <Pine.LNX.4.33.0209201830310.2730-100000@ccvsbarc.wipro.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 19, 2002 at 05:41:37PM -0700, Ulrich Drepper wrote:
+Let me first say thanks to jw schultz <jw@pegasys.ws>
+who suggested this idea already (as a modification to
+one of my earlier proposal). It is good that someone
+finally did not wait till someone stands-up asks for it
+(well, I did not wait, I was busy in doing my earning
+work :-)).
 
-> We are pleased to announce the first publically available source
-> release of a new POSIX thread library for Linux.  As part of the
-> continuous effort to improve Linux's capabilities as a client, server,
-> and computing platform Red Hat sponsored the development of this
-> completely new implementation of a POSIX thread library, called Native
-> POSIX Thread Library, NPTL.
 
-Is this related to the thread library work that IBM was doing
-or was this independently developed?
-
-Thanks,
-
-Jim

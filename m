@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315419AbSGYPwy>; Thu, 25 Jul 2002 11:52:54 -0400
+	id <S314596AbSGYQAE>; Thu, 25 Jul 2002 12:00:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315420AbSGYPwy>; Thu, 25 Jul 2002 11:52:54 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:61191 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S315419AbSGYPwx>; Thu, 25 Jul 2002 11:52:53 -0400
-Date: Thu, 25 Jul 2002 08:57:09 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alexander Viro <viro@math.psu.edu>
-cc: Matt_Domsch@Dell.com, <Andries.Brouwer@cwi.nl>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: 2.5.28 and partitions
-In-Reply-To: <Pine.GSO.4.21.0207250739390.17037-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.44.0207250855030.4966-100000@home.transmeta.com>
+	id <S314811AbSGYQAE>; Thu, 25 Jul 2002 12:00:04 -0400
+Received: from 212.Red-80-35-44.pooles.rima-tde.net ([80.35.44.212]:3712 "EHLO
+	DervishD.pleyades.net") by vger.kernel.org with ESMTP
+	id <S314596AbSGYQAE>; Thu, 25 Jul 2002 12:00:04 -0400
+Date: Thu, 25 Jul 2002 18:09:37 +0200
+Organization: Pleyades
+To: bhards@bigpond.net.au, linux-kernel@vger.kernel.org, hpa@zytor.com
+Subject: Re: Header files and the kernel ABI
+Message-ID: <3D4022C1.mail9Z311T4P@viadomus.com>
+References: <aho5ql$9ja$1@cesium.transmeta.com>
+ <200207252308.00656.bhards@bigpond.net.au>
+In-Reply-To: <200207252308.00656.bhards@bigpond.net.au>
+User-Agent: nail 9.31 6/18/02
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+From: DervishD <raul@pleyades.net>
+Reply-To: DervishD <raul@pleyades.net>
+X-Mailer: DervishD TWiSTiNG Mailer
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    Hi Brad & HPA :)
 
+>> already-established __kernel_ namespace, and of course __s* and __u*
+>> could be used for specific types.
+>I like it (having just argued for it), except for the __s* and __u*.
+[...]
+>Please, let us agree that the ABI definition should use standard
+>types wherever possible.
 
-On Thu, 25 Jul 2002, Alexander Viro wrote:>
-> On Wed, 24 Jul 2002, Linus Torvalds wrote:
-> > Right now that means that 16TB really is a hard limit for at least some
-> > device access on a 32-bit machine with a 4kB page-size (yes, you could
-> > make a filesystem that is bigger, but you very fundamentally cannot make
-> > individual files larger than 16TB).
->
-> ITYM "8Tb" - indices are signed, IIRC.  OTOH, it's not 2^31 * PAGE_SIZE -
-> it's 2^31 * PAGE_CACHE_SIZE, which can be bigger.
+    I think so. Moreover, any user-space developer should be familiar
+with them and anyone may even use the standard ones by mistake, so
+it's better to get them equal and be standard.
 
-Hmm. The index really should be unsigned, but obviously there could be
-sign errors.
-
-The stupid BSD approach of putting metadata in negative offsets is just
-that - stupid. Under Linux the people who do that just have another
-address space for metadata.
-
-Your PAGE_CACHE_SIZE vs PAGE_SIZE thing is true, but separating the two
-out is going to be less than pleasant in practice, methinks.
-
-		Linus
-
+    Raúl

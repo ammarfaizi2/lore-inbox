@@ -1,49 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262130AbVCPJAr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262294AbVCPJF1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262130AbVCPJAr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 04:00:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262293AbVCPJAr
+	id S262294AbVCPJF1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 04:05:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262296AbVCPJF1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 04:00:47 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:41351 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262130AbVCPJAn (ORCPT
+	Wed, 16 Mar 2005 04:05:27 -0500
+Received: from ozlabs.org ([203.10.76.45]:15277 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262294AbVCPJFW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 04:00:43 -0500
-Date: Wed, 16 Mar 2005 10:00:24 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Christoph Lameter <christoph@lameter.com>, linux-kernel@vger.kernel.org,
-       Shai Fultheim <Shai@Scalex86.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 2/2] del_timer_sync: proof of concept
-Message-ID: <20050316090024.GB11582@elte.hu>
-References: <4231E959.141F7D85@tv-sign.ru> <Pine.LNX.4.58.0503111254270.25992@server.graphe.net> <42371941.CCBAB134@tv-sign.ru>
+	Wed, 16 Mar 2005 04:05:22 -0500
+Subject: Re: dereferencing module-internal pointer in
+	scripts/mod/file2alias.c
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Dominik Brodowski <linux@dominikbrodowski.net>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050308070522.GA5435@isilmar.linta.de>
+References: <20050308070522.GA5435@isilmar.linta.de>
+Content-Type: text/plain
+Date: Tue, 15 Mar 2005 02:36:40 +1100
+Message-Id: <1110814600.17013.16.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42371941.CCBAB134@tv-sign.ru>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2005-03-08 at 08:05 +0100, Dominik Brodowski wrote:
+> Hi,
+> 
+> Is there any feasible way to dereference a pointer inside
+> __mod_*_device_table which points to a string? 
 
-* Oleg Nesterov <oleg@tv-sign.ru> wrote:
+No, because we would basically need to perform relocations to do so.
+That is why arrays are used in the current structures.
 
-> New rules:
-> 	->_base &  1	: is timer pending
-> 	->_base & ~1	: timer's base
+Rusty.
+-- 
+A bad analogy is like a leaky screwdriver -- Richard Braakman
 
-how would it look like if we had a separate timer->pending field after
-all? Would it be faster/cleaner?
-
-(we dont need to keep them small _that_ bad - if there's a good reason
-we should rather add a clean new field than to encode two fields into
-one field and complicate the code.)
-
-	Ingo

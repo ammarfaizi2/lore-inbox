@@ -1,57 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265537AbUGAOnL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265701AbUGAOsb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265537AbUGAOnL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 10:43:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265693AbUGAOnL
+	id S265701AbUGAOsb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 10:48:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265743AbUGAOsb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 10:43:11 -0400
-Received: from lakermmtao11.cox.net ([68.230.240.28]:58758 "EHLO
-	lakermmtao11.cox.net") by vger.kernel.org with ESMTP
-	id S265537AbUGAOnG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 10:43:06 -0400
-In-Reply-To: <20040701123941.GC4187@mail.shareable.org>
-References: <20040630024434.GA25064@mail.shareable.org> <20040630033841.GC21066@holomorphy.com> <20040701032606.GA1564@mail.shareable.org> <00345FCC-CB11-11D8-947A-000393ACC76E@mac.com> <20040701041158.GE1564@mail.shareable.org> <736E7483-CB1B-11D8-947A-000393ACC76E@mac.com> <20040701123941.GC4187@mail.shareable.org>
-Mime-Version: 1.0 (Apple Message framework v618)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <F64265B6-CB6C-11D8-947A-000393ACC76E@mac.com>
+	Thu, 1 Jul 2004 10:48:31 -0400
+Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:50912 "EHLO
+	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S265701AbUGAOs2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jul 2004 10:48:28 -0400
+Message-ID: <40E42374.8060407@pacbell.net>
+Date: Thu, 01 Jul 2004 07:45:08 -0700
+From: David Brownell <david-b@pacbell.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en, fr
+MIME-Version: 1.0
+To: James Bottomley <James.Bottomley@steeleye.com>
+CC: Ian Molton <spyro@f2s.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       tony@atomide.com, jamey.hicks@hp.com, joshua@joshuawise.com,
+       Russell King <rmk@arm.linux.org.uk>
+Subject: Re: [RFC] on-chip coherent memory API for DMA
+References: <1088518868.1862.18.camel@mulgrave> 	<40E41BE1.1010003@pacbell.net> <1088692004.1887.8.camel@mulgrave>
+In-Reply-To: <1088692004.1887.8.camel@mulgrave>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Michael Kerrisk <michael.kerrisk@gmx.net>, linux-kernel@vger.kernel.org
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [OT] Testing PROT_NONE and other protections, and a surprise
-Date: Thu, 1 Jul 2004 10:43:05 -0400
-To: Jamie Lokier <jamie@shareable.org>
-X-Mailer: Apple Mail (2.618)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jul 01, 2004, at 08:39, Jamie Lokier wrote:
-> The error code is -1, aka. MAP_FAILED.
-Oops!  I guess I was just lucky that part didn't fail :-D  On the other 
-hand, it
-couldn't legally return 0 anyway, could it?  That would have been a 
-slightly
-more sensible error code, IMHO, anyway, but it probably came from some
-silly standard somewhere.
+James Bottomley wrote:
+> On Thu, 2004-07-01 at 09:12, David Brownell wrote:
+> 
+>>The API looked OK except this part didn't make sense to me, since
+>>as I understand things dma_alloc_coherent() is guaranteed to have
+>>the DMA_MEMORY_MAP semantics at all times ... the CPU virtual address
+>>returned may always be directly written.  That's certainly how all
+>>the code I've seen using dma_alloc_coherent() works.
+> 
+> 
+>>It'd make more sense if the routine were "dma_declare_memory()", and
+>>DMA_MEMORY_MAP meant it was OK to return from dma_alloc_coherent(),
+>>while DMA_MEMORY_IO meant the dma_alloc_coherent() would always fail.
+> 
+> 
+> You need an allocator paired with IO memory.  If the driver allows for
+> DMA_MEMORY_IO then it's not unreasonable to expect it to have such
+> memory returned by dma_alloc_coherent() rather than adding yet another
+> allocator API.
 
->> I'll probably go file a bug with Apple now :-D
->
-> It might be a generic *BSD bug (for whatever value of * is used by 
-> MacOS X).
->
-> That would be interesting to know -- anyone here running *BSD on PPC
-> or any other architecture to test?
->
-> Of course it's an Apple bug as well :)
+Seems unreasonable to me, unless there's also an API to change
+the mode of the dma_alloc_coherent() memory from the normal
+"CPU can read/write as usual" to the exotic "need to use special
+memory accessors".  (And another to report what mode the API is
+in at the current moment.)
 
-Apple's BSD derivative came out of the main tree several years ago, and 
-it
-wasn't really maintained for a few years, so it missed out on a lot of 
-bug
-fixes and such.  They've tried to catch up on a lot of that and been 
-mildly
-successful, but it still has a ways to go.
+And I don't like modal APIs like that, which is why it'd make
+more sense to me to have a new allocator API for this new
+kind of DMA memory.  (Which IS for that IBM processor, yes?)
 
-Cheers,
-Kyle Moffett
+Alternatively, modify dma_alloc_coherent() to say what kind
+of address it must return.  Since this is a "generic" DMA
+API, the caller of dma_alloc_coherent() shouldn't need to be
+guessing how they may actually use the memory returned.
+That new "must guess" requirement will break some code...
+
+
+>>Also in terms of implementation, I noticed that if there's a
+>>dev->dma_mem, the GFP_* flags are ignored.  For __GFP_NOFAIL
+>>that seems buglike, but not critical.  (Just looked at x86.)
+>>Might be worth just passing the flags down so that behavior
+>>can be upgraded later.
+> 
+> 
+> Actually, there's no point respecting the flags for the on chip region. 
+> Either the memory is there or it isn't.  If it isn't there, then you
+> either fall through to the ordinary allocator (where the flags are
+> respected) or fail if the DMA_MEMORY_EXCLUSIVE flag was specified.
+
+So -- you're saying it's not a bug that a __GFP_NOFAIL|__GFP_WAIT
+allocation be able to fail?  Curious.  I'd have thought the API
+was clear about that.  Allocating 128 MB from a 1 MB region must
+of course fail, but allocating one page just needs a wait/wakeup.
+
+- Dave
+
 

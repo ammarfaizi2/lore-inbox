@@ -1,41 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286102AbRLIAUF>; Sat, 8 Dec 2001 19:20:05 -0500
+	id <S286103AbRLIAWz>; Sat, 8 Dec 2001 19:22:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286103AbRLIATz>; Sat, 8 Dec 2001 19:19:55 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:8205 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S286102AbRLIATs>; Sat, 8 Dec 2001 19:19:48 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: File copy system call proposal
-Date: 8 Dec 2001 16:19:26 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9uuame$ssu$1@cesium.transmeta.com>
-In-Reply-To: <1007782956.355.2.camel@quinn.rcn.nmt.edu> <9us387$poh$1@cesium.transmeta.com> <1007791439.355.7.camel@quinn.rcn.nmt.edu> <E16Chyk-0000zH-00@starship.berlin>
+	id <S286104AbRLIAWp>; Sat, 8 Dec 2001 19:22:45 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:12043 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S286103AbRLIAW2>; Sat, 8 Dec 2001 19:22:28 -0500
+Subject: Re: Linux 2.4.17-pre5
+To: rusty@rustcorp.com.au (Rusty Russell)
+Date: Sun, 9 Dec 2001 00:31:13 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), anton@samba.org, davej@suse.de,
+        marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
+In-Reply-To: <20011208214631.75573e9a.rusty@rustcorp.com.au> from "Rusty Russell" at Dec 08, 2001 09:46:31 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16Crs9-0003Gc-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <E16Chyk-0000zH-00@starship.berlin>
-By author:    Daniel Phillips <phillips@bonn-fries.net>
-In newsgroup: linux.dev.kernel
-> 
-> There's some merit to this idea.  As Peter pointed out, an in-kernel cp isn't 
-> needed: mmap+write does the job.  The question is, how to avoid the 
-> copy_from_user and double caching of data?
-> 
+> The sched.c change is also useless (ie. only harmful).  Anton and I looked at
+> adapting the scheduler for hyperthreading, but it looks like the recent 
+> changes have had the side effect of making hyperthreading + the current
 
-One thing that one could do for an in-kernel copy is to extend
-sendfile() to support any kind of file descriptor.  That'd be a very
-clean way to do it.
+I trust Intels own labs over you on this one. In fact there is still 
+additional work to do to get mm pairing per chip not per cpu unit. Thats
+intels patch based on intels work. I suspect they know what their chip
+needs.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+Alan

@@ -1,40 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282969AbRLDJKf>; Tue, 4 Dec 2001 04:10:35 -0500
+	id <S282939AbRLDJR0>; Tue, 4 Dec 2001 04:17:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282968AbRLDJKZ>; Tue, 4 Dec 2001 04:10:25 -0500
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:49895
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S282943AbRLDJKO>; Tue, 4 Dec 2001 04:10:14 -0500
-Date: Tue, 4 Dec 2001 10:10:07 +0100
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: mehul radheshyam choube <m_choube@eudoramail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: curious to know about linux internals(kernel
-Message-ID: <20011204101006.E823@jaquet.dk>
-In-Reply-To: <PNKAIKBEDBEIEAAA@shared1-mail.whowhere.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <PNKAIKBEDBEIEAAA@shared1-mail.whowhere.com>; from m_choube@eudoramail.com on Tue, Dec 04, 2001 at 02:34:47PM +0530
+	id <S282943AbRLDJRP>; Tue, 4 Dec 2001 04:17:15 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:8387 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S282939AbRLDJQ6>; Tue, 4 Dec 2001 04:16:58 -0500
+Date: Tue, 4 Dec 2001 11:20:57 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: <zwane@netfinity.realnet.co.sz>
+To: <computerguy8@hotmail.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: RE: Problem with adaptec 2100S under Redhat Linux 7.1 on Tyan S2460
+Message-ID: <Pine.LNX.4.33.0112041114430.23651-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 04, 2001 at 02:34:47PM +0530, mehul radheshyam choube wrote:
-> hi guys,
-> 
->      i am new to linux (before this worked on windows)
->     
->      i am interested to know about kernel.
->  
->      i don't with which documents or books will give a through knowledge about linux kernel
-> 
+I have a 2100S installed as a root device on RH7.1. In order to get it
+working i used Adaptec's i2o driver instead of the generic one, to do this
+i compiled a custom kernel and dropped it into the RH bootdisks, the
+kernel i used was 2.4.10-ac11. I wrote an article for Linux Gazette on how
+to do this (http://www.linuxgazette.com/issue73/mwaikambo.html)
 
-Look at http://www.kernelnewbies.org
+HTH,
+	Zwane Mwaikambo
 
--- 
-        Rasmus(rasmus@jaquet.dk)
 
-Genius may have its limitations, but stupidity is not thus handicapped. 
-  -- Elbert Hubbard 

@@ -1,61 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317471AbSGONF6>; Mon, 15 Jul 2002 09:05:58 -0400
+	id <S317472AbSGONIP>; Mon, 15 Jul 2002 09:08:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317472AbSGONF5>; Mon, 15 Jul 2002 09:05:57 -0400
-Received: from mailhub.fokus.gmd.de ([193.174.154.14]:33499 "EHLO
-	mailhub.fokus.gmd.de") by vger.kernel.org with ESMTP
-	id <S317471AbSGONF4>; Mon, 15 Jul 2002 09:05:56 -0400
-Date: Mon, 15 Jul 2002 15:07:13 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.gmd.de>
-Message-Id: <200207151307.g6FD7DJ1020676@burner.fokus.gmd.de>
-To: Richard.Zidlicky@stud.informatik.uni-erlangen.de, schilling@fokus.gmd.de
-Cc: andersen@codepoet.org, linux-kernel@vger.kernel.org
-Subject: Re: IDE/ATAPI in 2.5
+	id <S317480AbSGONIO>; Mon, 15 Jul 2002 09:08:14 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:30471 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S317472AbSGONIN>; Mon, 15 Jul 2002 09:08:13 -0400
+Date: Mon, 15 Jul 2002 14:10:59 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] make spin_is_locked use an explicit signed char case
+Message-ID: <20020715141059.A13659@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
->From: Richard Zidlicky <Richard.Zidlicky@stud.informatik.uni-erlangen.de>
-
->> >There is another problem, with your scsi transport library you
->> >are bypassing normal Linux devices. Try
->> >  mount /dev/scd0 /mnt
->> >  cdrecord -dev 0,0,0 -blank=fast
->> >  ls -al /mnt
->> 
->> >Nice? It certainly isn't the fault of Linux if you choose to
->> >bypass normal device usage and it can be very annoying not
->> >only for beginners.
->> 
->> It is not a fault of cdrecord either.
-
->A cure would be nice and I don't see what the kernel could do
->to solve this problem as long as cdrecord insists on talking
->to the SCSI bus directly.
-
->If nothing else, cdrecord manpage
-> - should make a big fat warning about it
-> - should stop claiming that it is safe to suid cdrecord
-
->The potential for breakage is huge, people run automounters on CD's,
->file managers may try to mount the CD without asking the user.
-
-The bad news is that it seems that the automounters are part of the GUIs and 
-not well enough documented. There should be:
-
--	Something like the Solaris volume manager that is part of the base OS 
-	and kernel folks should forbid GUI folks to add such tasks to the GUI
-
--	The volume manager should have a documented interface that allows 
-	programs like e.g. cdrecord to gain exclusive access to a CD drive.
-
-Then the problem above could be solved.
+This is a trivial patch from the XFS tree and allows to use spinlock
+debugging with code that is compiled with -funsigned-char.  XFS itself
+shouldn't need -funsigned-char anymore, but doing the right thing in
+spinlock.h doesn't cost anything.
 
 
-Jörg
-
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.gmd.de		(work) chars I am J"org Schilling
- URL:  http://www.fokus.gmd.de/usr/schilling   ftp://ftp.fokus.gmd.de/pub/unix
+--- linux/include/asm-i386/spinlock.h~	Sun Jun 23 21:38:01 2002
++++ linux/include/asm-i386/spinlock.h	Tue Jun 18 15:10:28 2002
+@@ -39,7 +39,7 @@
+  * We make no fairness assumptions. They have a cost.
+  */
+ 
+-#define spin_is_locked(x)	(*(volatile char *)(&(x)->lock) <= 0)
++#define spin_is_locked(x)	(*(volatile signed char *)(&(x)->lock) <= 0)
+ #define spin_unlock_wait(x)	do { barrier(); } while(spin_is_locked(x))
+ 
+ #define spin_lock_string \

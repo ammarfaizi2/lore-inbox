@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262960AbUDAQ3O (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 11:29:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262963AbUDAQ3O
+	id S262966AbUDAQbg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 11:31:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262471AbUDAQbY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 11:29:14 -0500
-Received: from ecbull20.frec.bull.fr ([129.183.4.3]:13725 "EHLO
-	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S262960AbUDAQ3N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 11:29:13 -0500
-Message-ID: <406C43A4.E29F92FB@nospam.org>
-Date: Thu, 01 Apr 2004 18:30:28 +0200
-From: Zoltan Menyhart <Zoltan.Menyhart_AT_bull.net@nospam.org>
-Reply-To: Zoltan.Menyhart@bull.net
-Organization: Bull S.A.
-X-Mailer: Mozilla 4.78 [en] (X11; U; AIX 4.3)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: To kunmap_atomic or not to kunmap_atomic ?
-References: <Pine.LNX.4.58.0404010734020.18465@build.arklinux.oregonstate.edu>
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+	Thu, 1 Apr 2004 11:31:24 -0500
+Received: from mail.shareable.org ([81.29.64.88]:14229 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S262260AbUDAQbS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 11:31:18 -0500
+Date: Thu, 1 Apr 2004 17:30:47 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Albert Cahalan <albert@users.sourceforge.net>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, Peter Williams <peterw@aurema.com>,
+       ak@muc.de, Richard.Curnow@superh.com, aeb@cwi.nl,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: finding out the value of HZ from userspace
+Message-ID: <20040401163047.GD25502@mail.shareable.org>
+References: <1079453698.2255.661.camel@cube> <20040320095627.GC2803@devserv.devel.redhat.com> <1079794457.2255.745.camel@cube> <405CDA9C.6090109@aurema.com> <20040331134009.76ca3b6d.rddunlap@osdl.org> <1080776817.2233.2326.camel@cube> <20040401155420.GB25502@mail.shareable.org> <20040401160132.GB13294@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040401160132.GB13294@devserv.devel.redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I can see a couple of functions, like
+Arjan van de Ven wrote:
+> HZ doesn't mean nothing, esp when we go to a tickless kernel...
 
-static inline struct mm_struct * ptep_to_mm(pte_t * ptep)
-{
-	struct page * page = kmap_atomic_to_page(ptep);
-	return (struct mm_struct *) page->mapping;
-}
+As explained several times in this thread, HZ is meaningful because it
+affects the rounding in select/poll/epoll/setitimer.  A few userspace
+programs with low jitter soft-RT timing requirements need to
+compensate for that rounding and/or deliberately synchronise
+themselves with the tick.
 
-in "rmap.?" without invoking "kunmap_atomic()".
-Is it intentional?
-What if for an architecture "kunmap_atomic()" is not a no-op ?
-Thanks,
+Such programs can determine HZ experimentally and lock onto the tick
+in the manner of a PLL, but it would be nice to simply be able to
+have the value, to reduce the number of control variables.
 
-Zoltan Menyhart
+When we go to a tickless kernel and offer high-resolution timers to
+userspace, then it will be irrelevant.  Until then, or if the kernel
+goes tickless but limits the resolution of timers for efficiency, the
+value of HZ is still relevant.
+
+Not to get irritatingly back to the subject of this thread or
+anything, but...  is the value of HZ reported to userspace anywhere?
+
+Thanks :)
+-- Jamie

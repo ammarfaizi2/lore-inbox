@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263462AbTL3BmU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 20:42:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264290AbTL3BmU
+	id S264326AbTL3BiL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 20:38:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264333AbTL3BiL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 20:42:20 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:11219 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263462AbTL3BmS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 20:42:18 -0500
-Date: Tue, 30 Dec 2003 01:40:11 +0000
-From: Dave Jones <davej@redhat.com>
-To: Martin Schlemmer <azarah@nosferatu.za.org>
-Cc: Thomas Molina <tmolina@cablespeed.com>, Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Mon, 29 Dec 2003 20:38:11 -0500
+Received: from [24.35.117.106] ([24.35.117.106]:3723 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S264326AbTL3BiJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 20:38:09 -0500
+Date: Mon, 29 Dec 2003 20:37:53 -0500 (EST)
+From: Thomas Molina <tmolina@cablespeed.com>
+X-X-Sender: tmolina@localhost.localdomain
+To: Roger Luethi <rl@hellgate.ch>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: 2.6.0 performance problems
-Message-ID: <20031230014011.GB30369@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Martin Schlemmer <azarah@nosferatu.za.org>,
-	Thomas Molina <tmolina@cablespeed.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0312291647410.5288@localhost.localdomain> <Pine.LNX.4.58.0312291420370.1586@home.osdl.org> <Pine.LNX.4.58.0312291803420.5835@localhost.localdomain> <1072741422.25741.67.camel@nosferatu.lan> <Pine.LNX.4.58.0312291913270.5835@localhost.localdomain> <20031230012715.GA30369@redhat.com> <1072748264.25741.79.camel@nosferatu.lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1072748264.25741.79.camel@nosferatu.lan>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20031230012551.GA6226@k3.hellgate.ch>
+Message-ID: <Pine.LNX.4.58.0312292031450.6227@localhost.localdomain>
+References: <Pine.LNX.4.58.0312291647410.5288@localhost.localdomain>
+ <20031230012551.GA6226@k3.hellgate.ch>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 30, 2003 at 03:37:44AM +0200, Martin Schlemmer wrote:
+On Tue, 30 Dec 2003, Roger Luethi wrote:
 
- > > It's not uncommon for a laptop to have a hard disk which supports
- > > higher DMA modes than what the IDE chipset supports.
- > > My aging Intel 440BX based VAIO has a disk in the same configuration
- > > as yours, supports udma4, but chipset only goes up to udma2.
- > Right, or as somebody else pointed out, it might not be a 80-pin cable.
- > 
- > Lets rephrase - does it also run in udma2 mode with 2.4 ?
+> I bet this is just yet another instance of a problem we've been
+> discussing on lkml and linux-mm for several months now (although Linus
+> asking for DMA presumably means it's not as well known as I thought
+> it was).
+> 
+> Basically, when you need to resort to paging for getting work done on
+> 2.6 you're screwed. Your bk export takes a lot more memory than you
+> have RAM in your machine, right?
 
-Yes, because the chipset is not capable of >udma2.
-
-		Dave
-
--- 
- Dave Jones     http://www.codemonkey.org.uk
+Right.  I have 120MB RAM and 256MB swap partition.  That corresponds to 
+the 85 to 90 percent top says I am spending in iowait.

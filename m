@@ -1,64 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264750AbUGSHmh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264781AbUGSHsb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264750AbUGSHmh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jul 2004 03:42:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264781AbUGSHmg
+	id S264781AbUGSHsb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jul 2004 03:48:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264782AbUGSHsb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jul 2004 03:42:36 -0400
-Received: from big.switch.gts.cz ([195.39.57.241]:2717 "EHLO big.switch.gts.cz")
-	by vger.kernel.org with ESMTP id S264750AbUGSHmf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jul 2004 03:42:35 -0400
-Date: Mon, 19 Jul 2004 09:42:31 +0200
-From: Petr Cisar <pc@big.switch.gts.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8-rc1 and before: IO-APIC + DRI + RTL8139 = Disabling Ethernet IRQ
-Message-ID: <20040719074231.GA11015@big.switch.gts.cz>
-Reply-To: Petr Cisar <pc@gts.cz>
-References: <40F4635C.3090003@reolight.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <40F4635C.3090003@reolight.net>
-User-Agent: Mutt/1.5.3i
+	Mon, 19 Jul 2004 03:48:31 -0400
+Received: from smtp106.mail.sc5.yahoo.com ([66.163.169.226]:7847 "HELO
+	smtp106.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S264781AbUGSHsa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jul 2004 03:48:30 -0400
+Message-ID: <40FB7CC9.4060302@yahoo.com.au>
+Date: Mon, 19 Jul 2004 17:48:25 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040707 Debian/1.7-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Klaus Dittrich <kladit@t-online.de>
+CC: linux mailing-list <linux-kernel@vger.kernel.org>
+Subject: Re: rsync out of memory 2.6.8-rc2
+References: <20040718215201.GA840@xeon2.local.here>
+In-Reply-To: <20040718215201.GA840@xeon2.local.here>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have the same problems with ATI Radeon 128. It occurs with when X (4.4) dies after using DRI. I tried with kernels 2.6.4 to 2.6.7 and the behaviour is identical.
+Klaus Dittrich wrote:
+> rsync-2.6.2 of a large disc using 2.6.8-rc2 (I also tried 2.6.7-bk14)
+> stops with "kernel: Out of Memory: Killed process xxxx" messages
+> during filelist gathering.
+> 
+> When this happens only 1.4 GB out of 2 GB RAM and no swap is used.
+> 
+> No problems with kernel 2.6.7.
+> (Peak RAM usage during filelist gathering was 1.8 GB, no swap)
+> 
 
-It looks like it forgets to disable the interrupts in the video card. Commenting the DRI module out from XF86Config keeps it from happening. I don't have much expeirience with this stuff, so I can't tell whether the problem is in the X system or in the kernel driver.
+Hi Klaus,
+What arguments are you running rsync with? Also, how many files, and
+how large are they?
 
-Petr
-
-> 
-> When loading as a module or into kernel, when DRM is loading, I cannot
-> use my network.
-> 
-> Here is a part of the dmesg:
-> 
-> [drm] Loading R200 Microcode
-> irq 19: nobody cared!
->  [<c010732a>] __report_bad_irq+0x2a/0x8b
->  [<c0107414>] note_interrupt+0x6f/0x9f
->  [<c0107732>] do_IRQ+0x161/0x192
->  [<c0105a00>] common_interrupt+0x18/0x20
-> handlers:
-> [<c0245383>] (rtl8139_interrupt+0x0/0x207)
-> Disabling IRQ #19
-> 
-> For the moment I can disabling IO-ACPI, but I'm thinking to change my
-> processor with an processor w/HT. So IO-ACPI is enabling by default.
-> 
-> How solve that ?
-> 
-> Thanks in advance,
-> 
-> -- 
-> Auzanneau Grégory
-> GPG 0x99137BEE
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Thanks
+Nick

@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135549AbREITZt>; Wed, 9 May 2001 15:25:49 -0400
+	id <S135609AbREIT17>; Wed, 9 May 2001 15:27:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135296AbREITZj>; Wed, 9 May 2001 15:25:39 -0400
-Received: from ncc1701.cistron.net ([195.64.68.38]:9742 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP
-	id <S135498AbREITZc>; Wed, 9 May 2001 15:25:32 -0400
-From: dth@trinity.hoho.nl (Danny ter Haar)
-Subject: Re: 2.4.4-ac[356]: network (8139too) related crashes
-Date: Wed, 9 May 2001 19:25:38 +0000 (UTC)
-Organization: Holland Hosting
-Message-ID: <9dc5ji$qj0$1@voyager.cistron.net>
-In-Reply-To: <200105091321.f49DLbp06900@hal.astr.lu.lv>
-X-Trace: voyager.cistron.net 989436338 27232 195.64.82.84 (9 May 2001 19:25:38 GMT)
-X-Complaints-To: abuse@cistron.nl
-To: linux-kernel@vger.kernel.org
+	id <S135613AbREIT1z>; Wed, 9 May 2001 15:27:55 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:18826 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S135609AbREIT11>;
+	Wed, 9 May 2001 15:27:27 -0400
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15097.39445.646189.834699@pizda.ninka.net>
+Date: Wed, 9 May 2001 12:27:17 -0700 (PDT)
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: David Brownell <david-b@pacbell.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>, johannes@erdfelt.com,
+        rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: pci_pool_free from IRQ
+In-Reply-To: <20010509143020.A22522@devserv.devel.redhat.com>
+In-Reply-To: <200105082108.f48L8X1154536@saturn.cs.uml.edu>
+	<E14xFD5-0000hh-00@the-village.bc.nu>
+	<15096.27479.707679.544048@pizda.ninka.net>
+	<050701c0d80f$8f876ca0$6800000a@brownell.org>
+	<15096.38109.228916.621891@pizda.ninka.net>
+	<20010509143020.A22522@devserv.devel.redhat.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andris Pavenis  <pavenis@latnet.lv> wrote:
->With kernels 2.4.4-ac[356] I'm getting system freezing on FTP transfer after 
->some time. I'm trying to upload about 6.5Mb file using MC (transfer speed
-> about 300-1000Kb/s). With these kernel versions I'm getting random total 
->freezing system (no any kernel error messages, no reaction to keyboard,
-> no response to ping from other machine). The same seems to happen also 
->when transfer speed is slower (I left wget downloading many files 2 nights
-> and both times system was hanged in morning)
 
-I have similar problems on my sony vaio laptop (pcmcia ethernet
-card that works with the 8139too driver)
-I send detailed info to Jeff & Alan weeks ago.
+Pete Zaitcev writes:
+ > A fix in pci remove does not fix regular processing.
 
->Kernel 2.4.3-ac3 seems to be Ok.
+I see.  Here is where I was confused.
 
-Problems started with the change in 2.4.3-ac7.
-So up to 2.4.3-ac6 it's fine.
-
->PS. I'm not subscribed to kernel mailing list
-If you post it here, read it here!
-
-
-Danny
-
--- 
-Holland Hosting
-www.hoho.nl      info@hoho.nl
-
+Later,
+David S. Miller
+davem@redhat.com

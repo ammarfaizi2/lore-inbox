@@ -1,46 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265195AbUJVRZU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267294AbUJVRZT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265195AbUJVRZU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 13:25:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266547AbUJVRVl
+	id S267294AbUJVRZT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 13:25:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265195AbUJVRVg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 13:21:41 -0400
-Received: from mail-relay-1.tiscali.it ([213.205.33.41]:30621 "EHLO
-	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
-	id S266517AbUJVROa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 13:14:30 -0400
-Date: Fri, 22 Oct 2004 19:15:28 +0200
-From: Andrea Arcangeli <andrea@novell.com>
-To: Jesse Barnes <jbarnes@sgi.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: ZONE_PADDING wastes 4 bytes of the new cacheline
-Message-ID: <20041022171528.GL14325@dualathlon.random>
-References: <20041021011714.GQ24619@dualathlon.random> <200410212155.52264.jbarnes@sgi.com> <417880C3.4000807@yahoo.com.au> <200410212249.36535.jbarnes@sgi.com>
+	Fri, 22 Oct 2004 13:21:36 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:9680 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S266547AbUJVROe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 13:14:34 -0400
+Date: Fri, 22 Oct 2004 12:14:26 -0500
+From: Greg Edwards <edwardsg@sgi.com>
+To: linux-kernel@vger.kernel.org
+Subject: [patch] increase max LOG_BUF_SHIFT value
+Message-ID: <20041022171425.GN3887@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200410212249.36535.jbarnes@sgi.com>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 21, 2004 at 10:49:36PM -0500, Jesse Barnes wrote:
-> On Thursday, October 21, 2004 10:38 pm, Nick Piggin wrote:
-> > That problem shouldn't exist any more, so your one zone per node (?)
-> > NUMA systems, incremental min won't have any effect at all.
-> 
-> Well, it used to affect us, since as the allocator iterated over nodes, the 
-> incremental min would increase, and so by the time we hit the 3rd or so node, 
-> we were leaving quite a bit of memory unused.  I just don't want to return to 
-> the bad old days.
+We've run into problems at 512p with the kernel log buffer wrapping and
+overwriting some of the early boot output.  This is with a
+CONFIG_LOG_BUF_SHIFT value of 20 (1MB).  The patch below just bumps the
+max possible setting to 21 (2MB).
 
-yes, but all you care about is to turn off the incremental min, you
-don't really care about lowmem_reserved, because you don't have floppies
-that do ZONE_DMA allocations on ia64, x86-64 would oom-kill tasks just
-because insmod floppy.o was running (and this is one of the showstopper
-bugs in my queue, I had to disable forced the oom killer to workaroaund
-it, apparently the vm can then later on free some page after many loops
-despite without swap enabled).
+Signed-off-by: Greg Edwards <edwardsg@sgi.com>
+
+Regards,
+Greg Edwards
+
+
+ Kconfig |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+Index: work-26-bk/init/Kconfig
+===================================================================
+--- work-26-bk.orig/init/Kconfig	2004-10-21 15:38:25.000000000 -0500
++++ work-26-bk/init/Kconfig	2004-10-22 11:54:55.000000000 -0500
+@@ -171,7 +171,7 @@ config AUDITSYSCALL
+ 
+ config LOG_BUF_SHIFT
+ 	int "Kernel log buffer size (16 => 64KB, 17 => 128KB)" if DEBUG_KERNEL
+-	range 12 20
++	range 12 21
+ 	default 17 if ARCH_S390
+ 	default 16 if X86_NUMAQ || IA64
+ 	default 15 if SMP

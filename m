@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264255AbUF1Wb4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265144AbUF1WkW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264255AbUF1Wb4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 18:31:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265270AbUF1Wb4
+	id S265144AbUF1WkW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 18:40:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265267AbUF1WkW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 18:31:56 -0400
-Received: from host-65-117-135-105.timesys.com ([65.117.135.105]:17119 "EHLO
-	yoda.timesys") by vger.kernel.org with ESMTP id S264255AbUF1Wbe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 18:31:34 -0400
-Date: Mon, 28 Jun 2004 18:31:21 -0400
+	Mon, 28 Jun 2004 18:40:22 -0400
+Received: from stat1.steeleye.com ([65.114.3.130]:13028 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S265144AbUF1WkS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 18:40:18 -0400
+Subject: Re: PATCH] dma_get_required_mask()
+From: James Bottomley <James.Bottomley@steeleye.com>
 To: "David S. Miller" <davem@redhat.com>
-Cc: Scott Wood <scott@timesys.com>, oliver@neukum.org, zaitcev@redhat.com,
-       greg@kroah.com, arjanv@redhat.com, jgarzik@redhat.com,
-       tburke@redhat.com, linux-kernel@vger.kernel.org,
-       stern@rowland.harvard.edu, mdharm-usb@one-eyed-alien.net,
-       david-b@pacbell.net
-Subject: Re: drivers/block/ub.c
-Message-ID: <20040628223121.GA5811@yoda.timesys>
-References: <20040626130645.55be13ce@lembas.zaitcev.lan> <20040628141517.GA4311@yoda.timesys> <20040628132531.036281b0.davem@redhat.com> <200406282257.11026.oliver@neukum.org> <20040628140343.572a0944.davem@redhat.com> <20040628211857.GA5508@yoda.timesys> <20040628152208.20fe97f1.davem@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040628152839.23178136.davem@redhat.com>
+References: <1088457050.2004.40.camel@mulgrave> 
+	<20040628152839.23178136.davem@redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 28 Jun 2004 17:40:06 -0500
+Message-Id: <1088462407.2003.54.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040628152208.20fe97f1.davem@redhat.com>
-User-Agent: Mutt/1.5.4i
-From: Scott Wood <scott@timesys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 28, 2004 at 03:22:08PM -0700, David S. Miller wrote:
-> On Mon, 28 Jun 2004 17:18:57 -0400
-> Scott Wood <scott@timesys.com> wrote:
-> > As long as bar is not packed, why shouldn't the beginning of bar.b be
-> > aligned?
-> 
-> No!  bar.b starts at offset 1 byte.  That's how this stuff works.
+On Mon, 2004-06-28 at 17:28, David S. Miller wrote:
+> Maybe you should tweak the default implementation such that
+> something reasonable happens on 64-bit platforms that
+> define dma_addr_t as a 32-bit quantity. :-)
 
-That may be how it does work, but why is that how it *should* work?
-If I want bar packed, I'll specify it as packed.  There's no reason
-to keep this behavior with a nopadding attribute, as it would be a
-new attribute with no existing code to break.
+Actually, the default implementation should work on these platforms
+too.  Since it's impossible to set a mask over 32 bits, then the best
+dma_get_required_mask() will do is return a full spread of 32 bits,
+since the memory mask is anded with the current dma mask.
 
-The important thing is that the offsets within the packed/nopadding
-struct are exactly as specified, and padding the first element
-doesn't change that.
+James
 
--Scott
+

@@ -1,73 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272068AbTHDTTG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 15:19:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272135AbTHDTTG
+	id S272145AbTHDTHb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 15:07:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272152AbTHDTHb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 15:19:06 -0400
-Received: from ns.suse.de ([213.95.15.193]:6406 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S272068AbTHDTTC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 15:19:02 -0400
-To: "H. J. Lu" <hjl@lucon.org>
-Cc: davidm@hpl.hp.com, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: milstone reached: ia64 linux builds out of Linus' tree
-References: <200308041737.h74HbdCf015443@napali.hpl.hp.com>
-	<20030804175308.GB16804@lucon.org> <20030804180015.GA543@sgi.com>
-	<20030804181033.GA17265@lucon.org> <20030804185231.GA532@sgi.com>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: Yow!  I like my new DENTIST...
-Date: Mon, 04 Aug 2003 21:18:57 +0200
-In-Reply-To: <20030804185231.GA532@sgi.com> (Jesse Barnes's message of "Mon,
- 4 Aug 2003 11:52:31 -0700")
-Message-ID: <jesmohfcym.fsf@sykes.suse.de>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
+	Mon, 4 Aug 2003 15:07:31 -0400
+Received: from lindsey.linux-systeme.com ([80.190.48.67]:14355 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S272145AbTHDTHa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 15:07:30 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: [PATCH] O11int for interactivity
+Date: Mon, 4 Aug 2003 21:06:51 +0200
+User-Agent: KMail/1.5.3
+Cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+References: <200307301038.49869.kernel@kolivas.org> <20030802225513.GE32488@holomorphy.com> <200308030119.47474.m.c.p@wolk-project.de>
+In-Reply-To: <200308030119.47474.m.c.p@wolk-project.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308042106.51676.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jbarnes@sgi.com (Jesse Barnes) writes:
+On Sunday 03 August 2003 01:19, Marc-Christian Petersen wrote:
 
-|> diff -Nru a/fs/xfs/linux/xfs_vfs.h b/fs/xfs/linux/xfs_vfs.h
-|> --- a/fs/xfs/linux/xfs_vfs.h	Wed Jul 16 12:10:39 2003
-|> +++ b/fs/xfs/linux/xfs_vfs.h	Wed Jul 16 12:10:39 2003
-|> @@ -44,8 +44,8 @@
-|>  
-|>  typedef struct vfs {
-|>  	u_int			vfs_flag;	/* flags */
-|> -	fsid_t			vfs_fsid;	/* file system ID */
-|> -	fsid_t			*vfs_altfsid;	/* An ID fixed for life of FS */
-|> +	__kernel_fsid_t			vfs_fsid;	/* file system ID */
-|> +	__kernel_fsid_t			*vfs_altfsid;	/* An ID fixed for life of FS */
-|>  	bhv_head_t		vfs_bh;		/* head of vfs behavior chain */
-|>  	struct super_block	*vfs_super;	/* Linux superblock structure */
-|>  	struct task_struct	*vfs_sync_task;
+Hi William,
 
-Alternatively you could use this patch (following the other
-architectures):
+> > I actually wanted it from a kernel that behaved pathologically so I can
+> > tell what issue it is.
+> aah, ic. OK. Compiling 2.6.0-test2 mainline now.
+sorry, I compiled it but during the compilation I had to go. Had some private 
+problems :-( ... It will take some time (within this week) to get all these 
+numbers.
 
---- linux-2.5.73/include/asm-ia64/statfs.h.~1~	2003-06-22 20:32:55.000000000 +0200
-+++ linux-2.5.73/include/asm-ia64/statfs.h	2003-07-01 16:14:44.000000000 +0200
-@@ -6,6 +6,11 @@
-  * Copyright (C) 1998, 1999 David Mosberger-Tang <davidm@hpl.hp.com>
-  */
- 
-+#ifndef __KERNEL_STRICT_NAMES
-+# include <linux/types.h>
-+typedef __kernel_fsid_t	fsid_t;
-+#endif
-+
- /*
-  * This is ugly --- we're already 64-bit, so just duplicate the definitions
-  */
+Sorry for the delay.
 
-Andreas.
+ciao, Marc
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."

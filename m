@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268286AbRH0UGw>; Mon, 27 Aug 2001 16:06:52 -0400
+	id <S268570AbRH0UJa>; Mon, 27 Aug 2001 16:09:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268432AbRH0UGl>; Mon, 27 Aug 2001 16:06:41 -0400
-Received: from ulima.unil.ch ([130.223.144.143]:33411 "EHLO ulima.unil.ch")
-	by vger.kernel.org with ESMTP id <S268286AbRH0UG1>;
-	Mon, 27 Aug 2001 16:06:27 -0400
-Date: Mon, 27 Aug 2001 22:06:37 +0200
-From: Gregoire Favre <greg@ulima.unil.ch>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.9-ac2
-Message-ID: <20010827220637.A9096@ulima.unil.ch>
-In-Reply-To: <20010827181915.A16554@lightning.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010827181915.A16554@lightning.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.19i
+	id <S268432AbRH0UJU>; Mon, 27 Aug 2001 16:09:20 -0400
+Received: from ns.cablesurf.de ([195.206.131.193]:40699 "EHLO ns.cablesurf.de")
+	by vger.kernel.org with ESMTP id <S268570AbRH0UJG>;
+	Mon, 27 Aug 2001 16:09:06 -0400
+Message-Id: <200108272019.WAA20893@ns.cablesurf.de>
+Content-Type: text/plain; charset=US-ASCII
+From: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Daniel Phillips <phillips@bonn-fries.net>
+Subject: Re: [resent PATCH] Re: very slow parallel read performance
+Date: Mon, 27 Aug 2001 22:09:25 +0200
+X-Mailer: KMail [version 1.3]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33L.0108241600410.31410-100000@duckman.distro.conectiva> <20010827185803Z16034-32384+632@humbolt.nl.linux.org> <200108271955.f7RJtia19506@vindaloo.ras.ucalgary.ca>
+In-Reply-To: <200108271955.f7RJtia19506@vindaloo.ras.ucalgary.ca>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 27, 2001 at 06:19:15PM +0100, Alan Cox wrote:
-> 
-> 	ftp://ftp.kernel.org/pub/linux/kernel/people/alan/linux-2.4/
-> 
-> 		 Intermediate diffs are available from
-> 			http://www.bzimage.org
-> 
-> *
-> *	Experimental release.
-> *
-> *	This is just for resychronizing the mips merge with the mips 
-> *	folks. It isnt worth running over -ac1.
+Am Montag, 27. August 2001 21:55 schrieb Richard Gooch:
+> Daniel Phillips writes:
+> > The quesion is, how do you know you're streaming?  Some files are
+> > read/written many times and some files are accessed randomly.  I'm
+> > trying to avoid penalizing these admittedly rarer, but still
+> > important cases.
+>
+> I wonder if we're trying to do the impossible: an algorithm that works
+> great for very different workloads, without hints from the process.
 
-So, emu10k1 won't also compile?
->From 2.4.9-ac1:
+For streaming we should be able to detect consecutive reads.
+If it's not that easy could we not measure hit/miss ratios ?
 
-make[2]: Entering directory `/usr/src/linux/drivers/sound'
-ld -m elf_i386 -r -o soundcore.o sound_core.o sound_firmware.o
-ld -m elf_i386 -r -o sound.o dev_table.o soundcard.o sound_syms.o
-audio.o audio_syms.o dmabuf.o midi_syms.o midi_synth.o midibuf.o
-sequencer.o sequencer_syms.o sound_timer.o sys_timer.o
-make -C emu10k1 modules
-make[3]: Entering directory `/usr/src/linux/drivers/sound/emu10k1'
-make[3]: *** No rule to make target `emu_wrapper.h', needed by
-`hwaccess.h'.  Stop.
-make[3]: Leaving directory `/usr/src/linux/drivers/sound/emu10k1'
-make[2]: *** [_modsubdir_emu10k1] Error 2
-make[2]: Leaving directory `/usr/src/linux/drivers/sound'
-make[1]: *** [_modsubdir_sound] Error 2
-make[1]: Leaving directory `/usr/src/linux/drivers'
-make: *** [_mod_drivers] Error 2
+> Shouldn't we encourage use of madvise(2) more? And if needed, add
+> O_DROPBEHIND and similar flags for open(2).
 
-Thanks,
+For symmetry rather fadvise. Besides usage patterns may change.
 
-	Greg
-________________________________________________________________
-http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
+	Regards
+		Oliver

@@ -1,54 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316786AbSHGDw6>; Tue, 6 Aug 2002 23:52:58 -0400
+	id <S316789AbSHGDzu>; Tue, 6 Aug 2002 23:55:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316789AbSHGDw6>; Tue, 6 Aug 2002 23:52:58 -0400
-Received: from ool-182fa350.dyn.optonline.net ([24.47.163.80]:58497 "EHLO
-	nikolas.hn.org") by vger.kernel.org with ESMTP id <S316786AbSHGDw6>;
-	Tue, 6 Aug 2002 23:52:58 -0400
-Date: Tue, 6 Aug 2002 23:56:23 -0400
-From: Nick Orlov <nick.orlov@mail.ru>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] pdc20265 problem.
-Message-ID: <20020807035623.GA3411@nikolas.hn.org>
-Mail-Followup-To: Bill Davidsen <davidsen@tmr.com>,
-	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <20020806043304.GA8272@nikolas.hn.org> <Pine.LNX.3.96.1020806230434.9964C-100000@gatekeeper.tmr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.96.1020806230434.9964C-100000@gatekeeper.tmr.com>
-User-Agent: Mutt/1.4i
+	id <S316822AbSHGDzu>; Tue, 6 Aug 2002 23:55:50 -0400
+Received: from primalhost.com ([66.250.104.143]:44009 "EHLO primalhost.com")
+	by vger.kernel.org with ESMTP id <S316789AbSHGDzt>;
+	Tue, 6 Aug 2002 23:55:49 -0400
+Message-ID: <007701c23dc6$d26fb3b0$1e2efea9@steveuyfdnjo6s>
+From: "Steve" <steve@primalhost.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Using Poll 
+Date: Wed, 7 Aug 2002 13:59:22 +1000
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 06, 2002 at 11:09:14PM -0400, Bill Davidsen wrote:
-> 
-> > 2. on most hardware, pdc20xxx is really additional controller.
-> 
-> That's the problem, most not all. No matter what we assume it will be
-> wrong part of the time.
+Hey,
+        I recentally enquried about the FD Limit Size.. and how to enlarge
+it.. I was told to use the poll system instead.. How Do i use this Poll
+System?
 
-Agreed.
-
-> 
-> > 3. if we put pdc20265 in "onboard" list on some hardware (mine for example)
-> > pdc20265 is assigned to ide0/1 (even if it's really ide2/3)
-> 
-> Does this matter as long as we can force it to be where we want? 
-
-But wouldn't it be a cleaner solution if we will have _compile_ time
-option that by default is turned on in order to handle rare cases,
-and _can_ be turned off in order to handle _most_ cases without any
-boot-time options?
-
-
--- 
-With best wishes,
-	Nick Orlov.
+/Steve
 

@@ -1,34 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261351AbTJCW0i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 18:26:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbTJCW0i
+	id S261276AbTJCW2r (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 18:28:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbTJCW2r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 18:26:38 -0400
-Received: from relay1.eltel.net ([195.209.236.38]:61901 "EHLO relay1.eltel.net")
-	by vger.kernel.org with ESMTP id S261351AbTJCW0h (ORCPT
+	Fri, 3 Oct 2003 18:28:47 -0400
+Received: from twix.hotpop.com ([204.57.55.70]:3764 "EHLO twix.hotpop.com")
+	by vger.kernel.org with ESMTP id S261276AbTJCW2p (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 18:26:37 -0400
-Date: Sat, 4 Oct 2003 02:27:28 +0400
-From: Andrew Zabolotny <zap@homelink.ru>
-To: linux-kernel@vger.kernel.org
-Subject: A bug (and a fix) in usbserial.c, kernel 2.4.22
-Message-Id: <20031004022728.0ff068e1.zap@homelink.ru>
-Organization: home
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: #%`a@cSvZ:n@M%n/to$C^!{JE%'%7_0xb("Hr%7Z0LDKO7?w=m~CU#d@-.2yO<l^giDz{>9
- epB|2@pe{%4[Q3pw""FeqiT6rOc>+8|ED/6=Eh/4l3Ru>qRC]ef%ojRz;GQb=uqI<yb'yaIIzq^NlL
- rf<gnIz)JE/7:KmSsR[wN`b\l8:z%^[gNq#d1\QSuya1(
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 3 Oct 2003 18:28:45 -0400
+Message-ID: <3F7DF75D.8040007@hotpop.com>
+Date: Sat, 04 Oct 2003 03:55:33 +0530
+From: dacin <dacin@hotpop.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030818
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Harold Martin <cocoadev@earthlink.net>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6-test6 not powering down
+References: <1065219390.1717.17.camel@silver>
+In-Reply-To: <1065219390.1717.17.camel@silver>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-oops, sorry, I was a little wrong. Line 1408 shouldn't be removed but
-rather moved before the line that sets port->tty to NULL (e.g. line
-559).
+Hi,
+    Do you have __acpi__ or __apm__ support enabled in your configuration...
 
---
-Greetings,
-   Andrew
+
+regards
+<dacodecz>
+
+Harold Martin wrote:
+
+>Hi,
+>I'm running a PIII system and now when it reaches "Power down." in it's
+>shutdown sequence the machine doesn't shut off like it did under 2.4.
+>I'm not sure what info would be useful in finding out the cause so just
+>ask me. Or maybe I'm just screwing option up, which isn't entirely
+>unheard of... ;)
+>Thanks for your help,
+>Harold
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
+
+
+

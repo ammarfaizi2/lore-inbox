@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317924AbSHHTx6>; Thu, 8 Aug 2002 15:53:58 -0400
+	id <S317917AbSHHTx0>; Thu, 8 Aug 2002 15:53:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317922AbSHHTxz>; Thu, 8 Aug 2002 15:53:55 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:47342 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S317918AbSHHTxw>;
-	Thu, 8 Aug 2002 15:53:52 -0400
-Message-ID: <3D52CD0B.AF8C5068@mvista.com>
-Date: Thu, 08 Aug 2002 12:56:59 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: john stultz <johnstul@us.ibm.com>
-CC: marcelo <marcelo@conectiva.com.br>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [TRIVIAL][PATCH] cpu_has_tsc cleanup
-References: <1028765030.22918.166.camel@cog>
+	id <S317918AbSHHTx0>; Thu, 8 Aug 2002 15:53:26 -0400
+Received: from ns1.weccusa.org ([207.1.28.170]:9201 "EHLO trabajo")
+	by vger.kernel.org with ESMTP id <S317917AbSHHTxZ>;
+	Thu, 8 Aug 2002 15:53:25 -0400
+Date: Thu, 8 Aug 2002 14:56:58 -0500
+From: "Bryan K. Walton" <thisisnotmyid@tds.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Mark Hahn <hahn@physics.mcmaster.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: problems with 1gb ddr memory sticks on linux
+Message-ID: <20020808195658.GO16225@weccusa.org>
+References: <20020808160456.GI16225@weccusa.org> <1028828840.28883.43.camel@irongate.swansea.linux.org.uk> <20020808163952.GJ16225@weccusa.org> <1028836012.28883.61.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <1028836012.28883.61.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john stultz wrote:
-> 
-> Marcelo,
-> 
-> Here is a trivial cleanup patch that replaces:
->         test_bit(X86_FEATURE_TSC, &boot_cpu_data.x86_capability)
-> w/ the cpu_has_tsc macro.
-> 
-> I believe this was originally by Brian Gerst for 2.5
-> 
-This patch has a problem in the TSC not defined case in that
-it access the PIT with out taking the required
-locks.         spin_lock_irq(&i8253_lock) is used to protect
-the PIT...
+Many thanks to Alan, Mark, and everyone else who offered advice on fixing my
+problem with my bios and large memory sticks.  I rewrote the /proc/mtrr
+and everything is speedy now!
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+Thank you!
+Bryan
+
+On Thu, 2002-08-08 at 19:40, Mark Hahn wrote:
+> > echo "base=0x00000000 size=0x60000000 type=write-back" >/proc/mtrr
+ 
+> > 
+> > should override the BIOS setting and make your machine speed up.
+> 
+> don't mtrrs still have to be a power of two in size?
+> ie, he'd need two for 1024+256...
+
+You are correct he should add one starting at 0 for 1Gb and one at 1Gb
+for 256Mb - my error.

@@ -1,40 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262047AbSIYSOu>; Wed, 25 Sep 2002 14:14:50 -0400
+	id <S262048AbSIYSQn>; Wed, 25 Sep 2002 14:16:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262048AbSIYSOu>; Wed, 25 Sep 2002 14:14:50 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:1355 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S262047AbSIYSOt>; Wed, 25 Sep 2002 14:14:49 -0400
-Date: Wed, 25 Sep 2002 14:19:46 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, andre@linux-ide.org,
-       linux-kernel@vger.kernel.org, axboe@suse.de, alan@lxorguk.ukuu.org.uk
-Subject: Re: [PATCH] fix ide-iops for big endian archs
-Message-ID: <20020925141946.A14230@devserv.devel.redhat.com>
-References: <mailman.1032957359.10217.linux-kernel2news@redhat.com>
+	id <S262049AbSIYSQn>; Wed, 25 Sep 2002 14:16:43 -0400
+Received: from jstevenson.plus.com ([212.159.71.212]:13095 "EHLO
+	alpha.stev.org") by vger.kernel.org with ESMTP id <S262048AbSIYSQm>;
+	Wed, 25 Sep 2002 14:16:42 -0400
+Subject: Re: 2.4.19: oops in ide-scsi
+From: James Stevenson <james@stev.org>
+To: Philippe Troin <phil@fifi.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <87adm6kofe.fsf@ceramic.fifi.org>
+References: <87n0q8tcs8.fsf@ceramic.fifi.org>
+	<1032891985.2035.1.camel@god.stev.org> <87smzzksri.fsf@ceramic.fifi.org>
+	<1032903706.2445.4.camel@god.stev.org>  <87adm6kofe.fsf@ceramic.fifi.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 25 Sep 2002 19:18:15 +0100
+Message-Id: <1032977895.1676.0.camel@god.stev.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <mailman.1032957359.10217.linux-kernel2news@redhat.com>; from zaitcev@redhat.com on Wed, Sep 25, 2002 at 02:32:23PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>
-> Date: Wed, 25 Sep 2002 14:32:23 +0200
+Hi
 
-> Curently in 2.5 (afaik in -ac too), the ide-iops "s" routines used
-> to transfer datas in/out the data port are incorrect for big endian
-> machines. They are implemented with a loop of inw/outw which are
-> byteswapping, but a fifo transfer like that mustn't be swapped.
+then i belive there are other possible problems which may by
+just as bad
 
-Dunno about ppc, but sparc works just fine as it is in 2.4.
-When was the last time you examined include/asm-sparc/ide.h?
+On Wed, 2002-09-25 at 17:46, Philippe Troin wrote:
+> James Stevenson <james@stev.org> writes:
+> 
+> > On Tue, 2002-09-24 at 22:00, Philippe Troin wrote:
+> > > James Stevenson <james@stev.org> writes:
+> > > 
+> > > > Hi
+> > > > 
+> > > > i am glad somebody else sees the same crash as me the
+> > > > request Q gets set to NULL for some reson then tries to
+> > > > increment a stats counter in the null pointer.
+> > > > i know what the bug is i just dont know how to fix it :>
+> > > 
+> > > I'm not sure which Q you're talking about.
+> > > Is that rq (in idescsi_pc_intr())?
+> > 
+> > the crash happens on
+> > 
+> > if (status & ERR_STAT)
+> > 	rq->errors++;
+> > 
+> > because 
+> > struct request *rq = pc->rq;
+> > is NULL
+> 
+> Have you tried changing it to:
+> 
+>         if (status & ERR_STAT && rq)
+>         	rq->errors++;
+> 
+> The code is going to return anyways, and rq is only used here on this
+> path.
+> 
+> BTW, can you reproduce the oops at will? I can't :-(
+> 
+> Phil.
 
-IDE uses ide_insw instead of plain insw specifically to
-resolve this kind of issue, and you are trying to defeat
-the mechanism designed to help you. I smell a fish here.
 
--- Pete

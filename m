@@ -1,66 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261393AbSJEBC6>; Fri, 4 Oct 2002 21:02:58 -0400
+	id <S261585AbSJEBIM>; Fri, 4 Oct 2002 21:08:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261585AbSJEBC6>; Fri, 4 Oct 2002 21:02:58 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:53633 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S261393AbSJEBC5>;
-	Fri, 4 Oct 2002 21:02:57 -0400
-Message-ID: <3D9E3B65.5070901@colorfullife.com>
-Date: Sat, 05 Oct 2002 03:07:49 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
-X-Accept-Language: en, de
+	id <S261704AbSJEBIM>; Fri, 4 Oct 2002 21:08:12 -0400
+Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:39755 "EHLO
+	nakedeye.aparity.com") by vger.kernel.org with ESMTP
+	id <S261585AbSJEBIL>; Fri, 4 Oct 2002 21:08:11 -0400
+Date: Fri, 4 Oct 2002 18:22:08 -0700 (PDT)
+From: "Matt D. Robinson" <yakker@aparity.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] LKCD for 2.5.40
+In-Reply-To: <Pine.LNX.4.33L2.0210041625400.20655-100000@dragon.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.44.0210041820030.10168-100000@nakedeye.aparity.com>
 MIME-Version: 1.0
-To: akpm@digeo.com, linux-kernel@vger.kernel.org
-CC: mbligh@aracnet.com
-Subject: [PATCH] patch-slab-split-07-inline
-Content-Type: multipart/mixed;
- boundary="------------080109050801090306040403"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080109050801090306040403
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Fri, 4 Oct 2002, Randy.Dunlap wrote:
+|>On Fri, 4 Oct 2002, Matt D. Robinson wrote:
+|>| These are the patches (9 in all) for the Linux Kernel Crash Dump
+|>| modifications for 2.5.  This allows crash dumps to be built as a
+|>| module in the kernel and also includes a breakdown of a few of the
+|>| changes needed in the kernel.  The current version will allow for
+|>| block dumping, and has the ability to readily integrate network
+|>| dumping (a la Red Hat).
+|>
+|>Hi Matt,
+|>
+|>I have a few comments.
+|>
+|>| Please accept these patches or provide feedback on how we can
+|>| modify them for acceptance.  Thanks,
+|>
+|>Who do you want to accept these patches?
+|>If it's Linus, you should send them to him.
 
-part 7:
-- remove inline from the cache poison checks: the functions are not 
-performance critical.
+They're on the way (or will be later tonight after putting in
+your requested changes).
 
---
-	Manfred
+|>Documentation/SubmittingPatches doesn't say so, but lately it's
+|>become quite common and desirable to use diffstat output above
+|>patches to summarize the files modified and how much they are
+|>modified.
 
+Okay, can do.
 
---------------080109050801090306040403
-Content-Type: text/plain;
- name="patch-slab-split-07-inline"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-slab-split-07-inline"
+|>Instead of replying to other patches separately, I'll add a few
+|>comments here.
+|>
+|>CONFIG_DUMP:  I'd prefer to see something a little bit more descriptive,
+|>like CONFIG_CRASH_DUMP or CONFIG_DUMP_KERNEL.  Yes, this is minor.
+|>(BTW, I don't like the shortness of CONFIG_TRACE for LTT either.  :)
 
---- 2.5/mm/slab.c	Sat Oct  5 02:55:52 2002
-+++ build-2.5/mm/slab.c	Sat Oct  5 03:05:27 2002
-@@ -688,7 +688,7 @@
- }
- 
- #if DEBUG
--static inline void poison_obj (kmem_cache_t *cachep, void *addr)
-+static void poison_obj (kmem_cache_t *cachep, void *addr)
- {
- 	int size = cachep->objsize;
- 	if (cachep->flags & SLAB_RED_ZONE) {
-@@ -699,7 +699,7 @@
- 	*(unsigned char *)(addr+size-1) = POISON_END;
- }
- 
--static inline int check_poison_obj (kmem_cache_t *cachep, void *addr)
-+static int check_poison_obj (kmem_cache_t *cachep, void *addr)
- {
- 	int size = cachep->objsize;
- 	void *end;
+That's a fairly easy change.  CONFIG_CRASH_DUMP is better over
+the long run.  I'll preface all the CONFIG_??* values.  It really
+doesn't matter one way or the other to me.
 
---------------080109050801090306040403--
+|>Why are all of the dump_init() and secondary init functions
+|>_not_ marked as __init ?
+|>
+|>You shouldn't need to call dump_init() explicitly since you use
+|>module_init(dump_init);
+|>Oh, I see, you call dump_init() for built-into-kernel but use
+|>#ifdef MODULE
+|>to surround lots of MODULE_xyz() lines.
+|>You shouldn't surround the MODULE_xyz() lines like that,
+|>they should always be present for MODULE or not,
+|>and you should just use the module_init(dump_init) always to
+|>initialize.
 
+Okay, simple enough to fix.
+
+Thanks, Randy, I'll start incorporating those for Linus.
+
+--Matt
 

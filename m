@@ -1,59 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262955AbTFTL5c (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 07:57:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263011AbTFTL5c
+	id S263011AbTFTMBl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 08:01:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263056AbTFTMBl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 07:57:32 -0400
-Received: from fep06-0.kolumbus.fi ([193.229.0.57]:62204 "EHLO
-	fep06-app.kolumbus.fi") by vger.kernel.org with ESMTP
-	id S262955AbTFTL53 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 07:57:29 -0400
-Date: Fri, 20 Jun 2003 15:11:29 +0300 (EEST)
-From: Kai Makisara <Kai.Makisara@kolumbus.fi>
-X-X-Sender: makisara@kai.makisara.local
-To: Bob Tracy <rct@gherkin.frus.com>
-cc: linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: 2.5.72: SCSI tape error handling
-In-Reply-To: <20030619213635.AD2874F01@gherkin.frus.com>
-Message-ID: <Pine.LNX.4.52.0306201505210.755@kai.makisara.local>
-References: <20030619213635.AD2874F01@gherkin.frus.com>
+	Fri, 20 Jun 2003 08:01:41 -0400
+Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:18680 "EHLO
+	tabby.cats.internal") by vger.kernel.org with ESMTP id S263011AbTFTMBk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 08:01:40 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Jesse Pollard <jesse@cats-chateau.net>
+To: Erik Hensema <erik@hensema.net>, linux-kernel@vger.kernel.org
+Subject: Re: Troll Tech [was RE: Sco vs. IBM]
+Date: Fri, 20 Jun 2003 07:15:17 -0500
+X-Mailer: KMail [version 1.2]
+References: <170EBA504C3AD511A3FE00508BB89A920234CD34@exnanycmbx4.ipc.com> <03061914300200.25966@tabby> <slrnbf46kv.lbe.erik@bender.home.hensema.net>
+In-Reply-To: <slrnbf46kv.lbe.erik@bender.home.hensema.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <03062007151700.27242@tabby>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Jun 2003, Bob Tracy wrote:
-
-> I was trying to do the responsible thing and back up my system today
-> (for the first time in too many weeks :-)), and got the following
-> errors in syslog about 15 minutes into the process:
+On Thursday 19 June 2003 15:18, Erik Hensema wrote:
+> Jesse Pollard (jesse@cats-chateau.net) wrote:
 >
-> Jun 19 09:55:04 gherkin kernel: st0: Error with sense data: Info fld=0x3ba, Deferred stst0: sense key Medium Error
-> Jun 19 09:55:04 gherkin kernel: Additional sense: Write append position error
-> Jun 19 09:55:04 gherkin kernel: st0: Error with sense data: Current stst0: sense key Medium Error
-> Jun 19 09:55:04 gherkin kernel: Additional sense: Write append position error
-> Jun 19 09:55:04 gherkin kernel: st0: Error with sense data: Current stst0: sense key Medium Error
-> Jun 19 09:55:04 gherkin kernel: Additional sense: Write append position error
-> (... ad infinitum for the next three hours -- backup was unattended.
-> There were no error messages of any kind on the console.)
+[snip]
 >
-st does not currently return error for any write problems except when at
-EOT. The following one-liner fixes the bug (probably mangled by my mail
-client):
+> > I've used both.. and believe me, AIX doesn't work ANYTHING like System V.
+> > no virtualization (disks), no partitioning (systems), no distributed
+> > operations, minimal networking, no Power support... (this was a 202e
+> > prototype at the time I believe...
+>
+> Doesn't matter. SCO claims that relatively tiny portions of their unix were
+> copied into Linux.
 
---- linux-2.5.72-bk2/drivers/scsi/st.c	2003-06-19 20:43:38.000000000 +0300
-+++ linux-2.5.72-bk2-km/drivers/scsi/st.c	2003-06-20 14:56:44.000000000 +0300
-@@ -1555,6 +1555,7 @@
- 				}
- 			} else {
- 				filp->f_pos -= do_count;
-+				count += do_count;
- 				STps->drv_block = (-1);		/* Too cautious? */
- 				retval = (-EIO);
- 			}
+Or is it the other way...
 
-Thanks for the report.
+Since the "tiny portions" were (reportedly) not supplied with dates, how does
+one know which way any copying may have been done?
 
--- 
-Kai
+This ends up with Mark Twains reponse to the senator who took offense when
+told "I have a book with every word of your speech in it...".
+
+The senator was sent a copy of a dictionary.

@@ -1,87 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266613AbUIIR4k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266486AbUIIRlH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266613AbUIIR4k (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 13:56:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266511AbUIIRl6
+	id S266486AbUIIRlH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 13:41:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266366AbUIIRg5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 13:41:58 -0400
-Received: from imr2.ericy.com ([198.24.6.3]:27290 "EHLO imr2.ericy.com")
-	by vger.kernel.org with ESMTP id S266534AbUIIRkN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 13:40:13 -0400
-Message-ID: <41409378.5060908@ericsson.com>
-Date: Thu, 09 Sep 2004 13:31:36 -0400
-From: Makan Pourzandi <Makan.Pourzandi@ericsson.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chris Wright <chrisw@osdl.org>
-CC: linux-kernel@vger.kernel.org,
-       Axelle Apvrille <axelle.apvrille@trusted-logic.fr>, serue@us.ibm.com,
-       david.gordon@ericsson.com, gaspoucho@yahoo.com
-Subject: Re: [ANNOUNCE] Release Digsig 1.3.1: kernel module for run-time authentication
- of binaries
-References: <41407CF6.2020808@ericsson.com> <20040909092457.L1973@build.pdx.osdl.net>
-In-Reply-To: <20040909092457.L1973@build.pdx.osdl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 9 Sep 2004 13:36:57 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:29099 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S266488AbUIIRbS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 13:31:18 -0400
+Subject: Re: The Serial Layer
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Theodore Ts'o" <tytso@mit.edu>
+Cc: arjanv@redhat.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040909125705.GA5658@thunk.org>
+References: <1094582980.9750.12.camel@localhost.localdomain>
+	 <1094587598.2801.24.camel@laptop.fenrus.com>
+	 <1094584456.9745.14.camel@localhost.localdomain>
+	 <20040909125705.GA5658@thunk.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1094747324.14623.49.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 09 Sep 2004 17:28:46 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Chris,
+On Iau, 2004-09-09 at 13:57, Theodore Ts'o wrote:
+> Calling ldisc.receive_buf directly() should be OK as long as you're
+> not in an interrupt handler.  (For example the comtrol driver polls in
+> a timer bottom-half, so it's OK to call ldisc.receive_buf).
+> Unfortunately, some drivers don't quite follow the rules.
 
-Chris Wright wrote:
-> * Makan Pourzandi (Makan.Pourzandi@ericsson.com) wrote:
->>
->>DSI development team would like to announce the release 1.3.1 of digsig.
-...
->>
->>Changes from Digsig release 0.2 announced in this mailing list:
->>================================================================
->>
->>     - the verification of signatures for the shared binaries has been
->>     added.
->>     - added support for caching of signatures
->>     - added documentation for digsig
->>     - added support for revoked signatures
->>     - support to avoid vulnerability for rewrite of shared
->>     libraries
-> 
-> 
-> Could you elaborate on this one?
+If the driver calls ldisc->receive_buf it means it bypasses the
+TTY_DONT_FLIP locking used by the n_tty driver. Am I missing something
+here.
 
-We realized that when a shared library is opened by a binary it can 
-still be modified. To solve the problem, we block the write access to 
-the shared binary while it is loaded.
+> The hangup handling needs to be completely redone, so that we don't
+> force serial drivers to do a completely shutdown of the port in an
+> interrupt context.  If the drivers are careful, it can be safe, but
+> it's too hard to handle hangup correctly.  
 
-> 
-> 
->>     - use sysfs to connect to the module instead of the char device
->>     - code clean up, and some bug fixes
->>
->>Future works
->>=============
->>
->>     - improving the caching and revocation: it is currently tested
->>       and will be sent out soon after stability testing
-> 
-> 
-> Should be helpful enough to cache result until thing's opened for
-> writing, or is that what you're doing now?
-> 
+Most of that I think comes out in the wash with the ldisc locking. 
+Once the driver uses tty_ldisc_ref() it'll get NULL back in the case
+where the hangup raced the driver. I'm also no longer dropping back
+to N_TTY in the hangup path. I couldn't see any reason this was
+neccessary since the release will clean it up anyway ?
 
-This is what we're doing now, but we need to implement a hash table to 
-accelerate the lookup for the signatures.
-
-Regards,
-Makan
-
-> thanks,
-> -chris
-
--- 
-
-Makan Pourzandi, Open Systems Lab
-Ericsson Research, Montreal, Canada
-*This email does not represent or express the opinions of Ericsson Inc.*
+Alan
 

@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281499AbRKHJ0B>; Thu, 8 Nov 2001 04:26:01 -0500
+	id <S281493AbRKHJ2v>; Thu, 8 Nov 2001 04:28:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281494AbRKHJZx>; Thu, 8 Nov 2001 04:25:53 -0500
-Received: from david.siemens.de ([192.35.17.14]:49397 "EHLO david.siemens.de")
-	by vger.kernel.org with ESMTP id <S281506AbRKHJZk>;
-	Thu, 8 Nov 2001 04:25:40 -0500
-Message-ID: <3BEA4F90.678EF402@infineon.com>
-Date: Thu, 08 Nov 2001 10:25:36 +0100
-From: Philipp Boerker <philipp.boerker@infineon.com>
-Reply-To: philipp.boerker@infineon.com
-X-Mailer: Mozilla 4.78 [en] (X11; U; SunOS 5.7 sun4u)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S281486AbRKHJ2l>; Thu, 8 Nov 2001 04:28:41 -0500
+Received: from dire.bris.ac.uk ([137.222.10.60]:15327 "EHLO dire.bris.ac.uk")
+	by vger.kernel.org with ESMTP id <S281491AbRKHJ2g>;
+	Thu, 8 Nov 2001 04:28:36 -0500
+Date: Thu, 8 Nov 2001 09:28:08 +0000 (GMT)
+From: Matt <madmatt@bits.bris.ac.uk>
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.14 does not compile without SMP
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: My 3c980 is misdetected
+Message-ID: <Pine.LNX.4.21.0111080916480.20023-100000@bits.bris.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+More NIC-related queries,
 
-Hi all,
+Under the 2.4.13 kernel, the 3c59x.o driver misdetects my 3c980 as a 3c982
+(the dual port version of what I assume is the same card):
 
-I have several problems with the 2.4.14 (and I know about
-the loop.o-fix already ;).
+3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
+00:09.0: 3Com PCI 3c982 Dual Port Server Cyclone at 0xdc00. Vers LK1.1.16
 
-It is normal behaviour that AMP does not work when SMP
-is activated. That's why I don't want any SMP stuff on
-my laptop which would be unnecessary anyway. But 
-deactivating the SMP option causes the compilation to 
-fail:
+Here is the output of lspci -v:
 
-In file included from ksyms.c:17:
-/usr/src/linux-2.4.14/include/linux/kernel_stat.h: 
-In function `kstat_irqs':
-/usr/src/linux-2.4.14/include/linux/kernel_stat.h:48: 
-`smp_num_cpus' undeclared (first use in this function)
+00:09.0 Ethernet controller: 3Com Corporation: Unknown device 9805 (rev 78)
+        Subsystem: 3Com Corporation: Unknown device 1000
+        Flags: bus master, medium devsel, latency 32, IRQ 10
+        I/O ports at dc00 [size=128]
+        Memory at db000000 (32-bit, non-prefetchable) [size=128]
+        Expansion ROM at <unassigned> [disabled] [size=128K]
+        Capabilities: [dc] Power Management version 2
 
+It all seems to work fine, but I was wondering if this might cause a
+hiccup anywhere? 2.2.19 identified my card correctly, and I have some
+earlier 3c980 models in another box still running 2.2.19, which get
+detected correctly too:
 
-Do I make something wrong? I replaced smp_num_cpus with 0
-since this seemed to make sense to me as I have a single
-processor machine. The compile continued but aborted with
-another error...
+00:0a.0 Class 0200: 10b7:9800
+        Subsystem: 10b7:9800
+        Flags: bus master, medium devsel, latency 32, IRQ 17
+        I/O ports at d880
+        Memory at efffaf80 (32-bit, non-prefetchable)
+        Expansion ROM at effc0000 [disabled]
+        Capabilities: [dc] Power Management version 1
 
+Cheers
 
+Matt
 -- 
-Philipp Boerker   -   Mixed-signals ICs Design Engineer
-Infineon Technologies AG, COM ANS, MchB/KU II, R.910906
-Rosenheimer Str. 116                     81669 Muenchen
-phone: +49 89 234 54 725         fax: +49 89 234 85 664
+"Phase plasma rifle in a forty-watt range?"
+"Only what you see on the shelves, buddy."
+

@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312380AbSDTWGV>; Sat, 20 Apr 2002 18:06:21 -0400
+	id <S313175AbSDTWHv>; Sat, 20 Apr 2002 18:07:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313016AbSDTWGU>; Sat, 20 Apr 2002 18:06:20 -0400
-Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:59922
-	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
-	id <S312380AbSDTWGU>; Sat, 20 Apr 2002 18:06:20 -0400
-Message-Id: <5.1.0.14.2.20020420175004.00aa9288@whisper.qrpff.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sat, 20 Apr 2002 18:00:36 -0400
-To: linux-kernel@vger.kernel.org
-From: Stevie O <stevie@qrpff.net>
-Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-In-Reply-To: <E16yfW9-0000aZ-00@starship>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S313181AbSDTWHu>; Sat, 20 Apr 2002 18:07:50 -0400
+Received: from www.wotug.org ([194.106.52.201]:9734 "EHLO
+	gatemaster.ivimey.org") by vger.kernel.org with ESMTP
+	id <S313175AbSDTWHt>; Sat, 20 Apr 2002 18:07:49 -0400
+Date: Sat, 20 Apr 2002 23:12:38 +0100 (BST)
+From: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
+To: Andrew Morton <akpm@zip.com.au>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.19pre7aa1
+In-Reply-To: <3CC1C38F.37D1F8C2@zip.com.au>
+Message-ID: <Pine.LNX.4.33.0204202310360.21635-100000@sharra.ivimey.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- From what I can see, this is the situation:
+On Sat, 20 Apr 2002, Andrew Morton wrote:
 
-Daniel is now bothered by the presence of BK documentation in the Linux kernel tree. Therefore, he submitted a patch to remove this documentation.
+>[1] Can we please not that term?  A "flush" is something which you
+>    do to a "dunny" after taking a "crap". [2]
+>
+>    Caches are either "written back" or are "invalidated".  Nothing
+>    else.
 
-Just about everybody else involved in this thread accuses him of censorship, for attempting to restrict the dissemination of ideas. I do not know whether all of these people use BK; all I know is the "censorship" claim, on the basis that he is restricting the dissemination of information.
+I would agree with this: until a couple of years ago, I wasn't even aware that 
+there were two options here: now I know, but I'm sure others don't.
 
-I ask this: What if, instead of Daniel removing this documentation change, Linus himself did the patch?
+>[2] And a "sync" is something which you wash your hands in after the
+>    "flush".
+
+Well, actually the thing you wash in is a "sink". The term "sync" comes from 
+synchronise (or -ize in American).
 
 
-2600 asserted that source code is speech, with the DeCSS case. I doubt EVERYONE here agrees with that, but I do agree that source code is a very precise form of communcating ideas...
-
-
-(1) If I were to write a driver, and submit it for inclusion with the mainline kernel, would Linus be "censoring" me if he did not include my patch?
-
-And here is a better reason:
-
-(2) If I had such a driver included in mainline, and that driver broke in the 2.5 series -- due to, say, BIO changes, VFS changes, procfs changes, DMA changes, PCI subsystem changes, you get the idea -- and as a result, Linus chose to remove it from mainline, he's restricting the dissemination of my ideas (driver).  Does that mean he is censoring me?
-
---
-
-Stevie-O
-
-*This sig was deleted for violating the DMCA.*
+Ruth
 

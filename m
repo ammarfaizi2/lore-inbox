@@ -1,70 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267471AbTGHP0i (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 11:26:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267473AbTGHP0i
+	id S267457AbTGHP1o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 11:27:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267461AbTGHP1o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 11:26:38 -0400
-Received: from www4.mail.lycos.com ([209.202.220.170]:2881 "HELO lycos.com")
-	by vger.kernel.org with SMTP id S267471AbTGHP0h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 11:26:37 -0400
-To: "Kernel" <linux-kernel@vger.kernel.org>,
-       "Jan-Benedict Glaw" <jbglaw@lug-owl.de>
-Date: Tue, 08 Jul 2003 22:40:53 +0700
-From: "Tace  " <tace@lycos.com>
-Message-ID: <JGJMIEHJHFNACGAA@mailcity.com>
+	Tue, 8 Jul 2003 11:27:44 -0400
+Received: from mail.cpt.sahara.co.za ([196.41.29.142]:50414 "EHLO
+	workshop.saharact.lan") by vger.kernel.org with ESMTP
+	id S267457AbTGHP1l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 11:27:41 -0400
+Subject: Re: [PATCH] 2.5.74 boot logo
+From: Martin Schlemmer <azarah@gentoo.org>
+To: Bob Tracy <rct@gherkin.frus.com>
+Cc: KML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030708153028.61A304F11@gherkin.frus.com>
+References: <20030708153028.61A304F11@gherkin.frus.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1057678961.5499.433.camel@workshop.saharacpt.lan>
 Mime-Version: 1.0
-X-Sent-Mail: off
-Reply-To: tace@lycos.com
-X-Mailer: MailCity Service
-X-Priority: 3
-Subject: Re: Linksys gpl code [OT]
-X-Sender-Ip: 202.156.2.218
-Organization: Lycos Mail  (http://www.mail.lycos.com:80)
-Content-Type: text/plain; charset=us-ascii
-Content-Language: en
+X-Mailer: Ximian Evolution 1.2.3- 
+Date: 08 Jul 2003 17:42:41 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-  does anyone know what kind of assembly code the linksys gpl code compiles to? i.e. ARM?
+On Tue, 2003-07-08 at 17:30, Bob Tracy wrote:
+> Wouldn't look too good for this to be broken when 2.6 hits the
+> streets :-).  The fix is trivial, and has been necessary since
+> 2.5.70 at least (nearly two months ago).
+> 
+> --- orig/drivers/video/cfbimgblt.c	Mon May  5 17:39:49 2003
+> +++ linux/drivers/video/cfbimgblt.c	Tue May 13 23:53:23 2003
+> @@ -325,7 +325,7 @@
+>  		else 
+>  			slow_imageblit(image, p, dst1, fgcolor, bgcolor,
+>  					start_index, pitch_index);
+> -	} else if (image->depth == bpp) 
+> +	} else if (image->depth <= bpp) 
+>  		color_imageblit(image, p, dst1, start_index, pitch_index);
+>  }
+>  
 
---------- Original Message ---------
+This has been fixed in James Simmons's tree, of which you can
+get the latest 'snapshot' here:
 
-DATE: Tue, 8 Jul 2003 16:45:10 
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Kernel <linux-kernel@vger.kernel.org>
-Cc: 
+  http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
 
->On Tue, 2003-07-08 12:30:58 +0100, Matthew Hall <matt@ecsc.co.uk>
->wrote in message <1057663858.3959.41.camel@miyazaki>:
->> Hi lkml,
->> 	I don't know if anyone's noticed, but Linksys have opened up and
->> released their code.
->> 
->> http://www.linksys.com/support/gpl.asp
->> 
->> Don't know if it satisfies the gpl; i'm currently downloading the stuff
->> to see what's different from the release sources.
->
->I downloaded that kernel.tgz and diff'ed it out - it's a *hugh* patch
->removing tons of comments and #if 0 ... #endif parts. That makes it
->more complicated to find the "interesting" parts for us, but also it
->will get hard for them to ever port that changes over to 2.4.current...
->
->MfG, JBG
->
->-- 
->   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
->   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
->    fuer einen Freien Staat voll Freier Bürger" | im Internet! |   im Irak!
->      ret = do_actions((curr | FREE_SPEECH) & ~(IRAQ_WAR_2 | DRM | TCPA));
->
+They will be merged when the fbdev guys think its of good enough
+quality *I think (tm)*.
 
 
+Regards,
 
-____________________________________________________________
-Get advanced SPAM filtering on Webmail or POP Mail ... Get Lycos Mail!
-http://login.mail.lycos.com/r/referral?aid=27005
+-- 
+Martin Schlemmer
+
+

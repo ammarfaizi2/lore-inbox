@@ -1,70 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312160AbSCRBck>; Sun, 17 Mar 2002 20:32:40 -0500
+	id <S312158AbSCRBa7>; Sun, 17 Mar 2002 20:30:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312162AbSCRBc3>; Sun, 17 Mar 2002 20:32:29 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:522 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S312160AbSCRBcP>; Sun, 17 Mar 2002 20:32:15 -0500
-Date: Sun, 17 Mar 2002 17:31:10 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Davide Libenzi <davidel@xmailserver.org>
-cc: Rik van Riel <riel@conectiva.com.br>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
-In-Reply-To: <Pine.LNX.4.44.0203171709000.7378-100000@blue1.dev.mcafeelabs.com>
-Message-ID: <Pine.LNX.4.33.0203171720330.14135-100000@home.transmeta.com>
+	id <S312160AbSCRBat>; Sun, 17 Mar 2002 20:30:49 -0500
+Received: from lmail.actcom.co.il ([192.114.47.13]:3456 "EHLO
+	lmail.actcom.co.il") by vger.kernel.org with ESMTP
+	id <S312158AbSCRBaf>; Sun, 17 Mar 2002 20:30:35 -0500
+Message-Id: <200203180130.g2I1Ui729376@lmail.actcom.co.il>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Itai Nahshon <nahshon@actcom.co.il>
+Reply-To: nahshon@actcom.co.il
+To: linux-kernel@vger.kernel.org
+Subject: OT: "real" letters [Was: 10.31 second kernel compile]
+Date: Mon, 18 Mar 2002 03:30:32 +0200
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <E16mfGE-00034P-00@the-village.bc.nu>
+In-Reply-To: <E16mfGE-00034P-00@the-village.bc.nu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > Hey, careful there! Those English speakers stole that name from German,
+> > and in German those umlauts are real letters, too. Incidentally, my ae is
+> > next to the '# key ...
 
+There are many ways to count "real" letters. Eg., Hebrew (my
+native lang.) counts just 22 but there are 27 glyphs and many
+combinations with points (Nikkud) and accents. The Spanish count
+27 letters in their alphabet (ñ is a real letter) while the Brazilians
+count only 23 (the 26 English letters minus K,W and Y). Some
+east-Asian languages haven't finished the count yet (or never
+have started)...
 
-On Sun, 17 Mar 2002, Davide Libenzi wrote:
->
-> What's the reason that would make more convenient for us, upon receiving a
-> request to map a NNN MB file, to map it using 4Kb pages instead of 4MB ones ?
+> There are still a couple of places you can legitimaely use an ae symbol in
+> English. It's not quite dead yet 8)
 
-Ehh.. Let me count the ways:
- - reliably allocation of 4MB of contiguous data
- - graceful fallback when you need to start paging
- - sane coherency with somebody who mapped the same file/segment in a much
-   smaller chunk
+The only example that I've seen in English texts is use of ï as in "naïve".
 
-Guyes, 4MB pages are always going to be a special case. There's no sane
-way to make them automatic, for the simple reason that they are USELESS
-for "normal" work, and they have tons of problems that are quite
-fundamental and just aren't going away and cannot be worked around.
+I know that ä is used in German and in other languages but if I see
+a text that contains a double-ä or 3 ä in one word that's almost certainly
+Finnish...
 
-The only sane way to use 4MB segments is:
-
- - the application does a special system call (or special flag to mmap)
-   saying that it wants a big page and doesn't care about coherency with
-   anybody else that didn't set the flag (and realize that that probably
-   includes things like read/write)
-
- - the machine has sufficiently enough memory that the user can be allowed
-   to _lock_ the area down, so that you don't have to worry about
-   swapping out that thing in 4M pieces. (This of course implies that
-   per-user memory counters have to work too, or we have to limit it by
-   default with a rlimit or something to zero).
-
-In short, very much a special case.
-
-(There are two reasons you don't want to handle paging on 4M chunks: (a)
-they may be wonderful for IO throughput, but they are horrible for latency
-for other people and (b) you now have basically just a few bits of usage
-information for 4M worth of memory, as opposed to a finer granularity view
-of which parts are actually _used_).
-
-Once you can count on having memory sizes in the hundreds of Gigs, and
-disk throughput speeds in the hundreds of megs a second, and ther are
-enough of these machines to _matter_ (and reliably 64-bit address spaces
-so that virtual fragmentation doesn't matter), we might make 4MB the
-regular mapping entity.
-
-That's probably at least a decade away.
-
-		Linus
-
+-- Itai

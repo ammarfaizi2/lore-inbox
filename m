@@ -1,249 +1,127 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266939AbTBXSL0>; Mon, 24 Feb 2003 13:11:26 -0500
+	id <S267335AbTBXSL3>; Mon, 24 Feb 2003 13:11:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267329AbTBXSKe>; Mon, 24 Feb 2003 13:10:34 -0500
-Received: from d06lmsgate-6.uk.ibm.com ([194.196.100.252]:30889 "EHLO
+	id <S266907AbTBXSK7>; Mon, 24 Feb 2003 13:10:59 -0500
+Received: from d06lmsgate-6.uk.ibm.com ([194.196.100.252]:31913 "EHLO
 	d06lmsgate-6.uk.ibm.com") by vger.kernel.org with ESMTP
-	id <S265773AbTBXSKK> convert rfc822-to-8bit; Mon, 24 Feb 2003 13:10:10 -0500
+	id <S266939AbTBXSKK> convert rfc822-to-8bit; Mon, 24 Feb 2003 13:10:10 -0500
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Organization: IBM Deutschland GmbH
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] s390 (4/13): dasd block device driver.
-Date: Mon, 24 Feb 2003 19:08:53 +0100
+Subject: [PATCH] s390 (5/13): documentation.
+Date: Mon, 24 Feb 2003 19:09:30 +0100
 User-Agent: KMail/1.5
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Message-Id: <200302241908.53888.schwidefsky@de.ibm.com>
+Message-Id: <200302241909.30435.schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-updates for s390 dasd driver
+minor changes to s390 documentation
 
-Some problems have been found in the dasd error handling code, they
-are fixed by the update to dasd_3990_erp.c.
-
-Dasd is one of only two remaining drivers that use the null 
-elevator instead of iosched. Appearantly, the null elevator
-has some bitrot and can result in random data loss. For now,
-we just don't use it.
-
-diff -urN linux-2.5.62/drivers/s390/block/dasd.c linux-2.5.62-s390/drivers/s390/block/dasd.c
---- linux-2.5.62/drivers/s390/block/dasd.c	Mon Feb 24 18:17:44 2003
-+++ linux-2.5.62-s390/drivers/s390/block/dasd.c	Mon Feb 24 18:23:59 2003
-@@ -7,7 +7,7 @@
-  * Bugreports.to..: <Linux390@de.ibm.com>
-  * (C) IBM Corporation, IBM Deutschland Entwicklung GmbH, 1999-2001
-  *
-- * $Revision: 1.71 $
-+ * $Revision: 1.74 $
-  *
-  * History of changes (starts July 2000)
-  * 11/09/00 complete redesign after code review
-@@ -1656,17 +1656,20 @@
- 	device->request_queue = kmalloc(sizeof (request_queue_t), GFP_KERNEL);
- 	if (device->request_queue == NULL)
- 		return -ENOMEM;
-+	memset(device->request_queue, 0, sizeof(request_queue_t));
- 	device->request_queue->queuedata = device;
- 	rc = blk_init_queue(device->request_queue, do_dasd_request,
- 			    &device->request_queue_lock);
- 	if (rc)
- 		return rc;
-+#if 0
- 	elevator_exit(device->request_queue);
- 	rc = elevator_init(device->request_queue, &elevator_noop);
- 	if (rc) {
- 		blk_cleanup_queue(device->request_queue);
- 		return rc;
- 	}
-+#endif
- 	blk_queue_hardsect_size(device->request_queue, device->bp_block);
- 	max = device->discipline->max_blocks << device->s2b_shift;
- 	blk_queue_max_sectors(device->request_queue, max);
-diff -urN linux-2.5.62/drivers/s390/block/dasd_3990_erp.c linux-2.5.62-s390/drivers/s390/block/dasd_3990_erp.c
---- linux-2.5.62/drivers/s390/block/dasd_3990_erp.c	Mon Feb 17 23:56:50 2003
-+++ linux-2.5.62-s390/drivers/s390/block/dasd_3990_erp.c	Mon Feb 24 18:23:59 2003
-@@ -5,7 +5,7 @@
-  * Bugreports.to..: <Linux390@de.ibm.com>
-  * (C) IBM Corporation, IBM Deutschland Entwicklung GmbH, 2000, 2001
-  *
-- * $Revision: 1.19 $
-+ * $Revision: 1.20 $
-  *
-  * History of changes:
-  * 05/14/01 fixed PL030160GTO (BUG() in erp_action_5)
-@@ -454,7 +454,7 @@
+diff -urN linux-2.5.62/Documentation/s390/driver-model.txt linux-2.5.62-s390/Documentation/s390/driver-model.txt
+--- linux-2.5.62/Documentation/s390/driver-model.txt	Mon Feb 17 23:55:49 2003
++++ linux-2.5.62-s390/Documentation/s390/driver-model.txt	Mon Feb 24 18:24:08 2003
+@@ -51,13 +51,10 @@
  
- 	} else {
+ This is done in several steps.
  
--		if (sense[25] & 0x1D) {	/* state change pending */
-+		if (sense[25] == 0x1D) {	/* state change pending */
+-a. Some drivers need several ccw devices to make up one device. This drivers
+-   provide a 'chaining' interface (driver dependend) which allows to specify
+-   which ccw devices form a device.
+-b. Each driver provides one or more parameter interfaces where parameters can
++a. Each driver can provide one or more parameter interfaces where parameters can
+    be specified. These interfaces are also in the driver's responsibility.
+-c. After a. and b. have been performed, if neccessary, the device is finally
+-   brought up via the 'online' interface.
++b. After a. has been performed, if neccessary, the device is finally brought up
++   via the 'online' interface.
  
- 			DEV_MESSAGE(KERN_INFO, device, "%s",
- 				    "waiting for state change pending " "int");
-@@ -464,6 +464,10 @@
- 		} else {
  
- 			/* no state change pending - retry */
-+			DEV_MESSAGE (KERN_INFO, device, 
-+				     "redriving request immediately, "
-+				     "%d retries left", 
-+				     erp->retries);
- 			erp->status = DASD_CQR_QUEUED;
- 		}
- 	}
-@@ -2273,27 +2277,41 @@
- {
+ 1.2 Writing a driver for ccw devices
+@@ -84,7 +81,6 @@
+ 	struct ccw_device_id *ids;	
+ 	int (*probe) (struct ccw_device *); 
+ 	int (*remove) (struct ccw_device *);
+-	void (*release) (struct ccw_driver *); 
+ 	int (*set_online) (struct ccw_device *);
+ 	int (*set_offline) (struct ccw_device *);
+ 	struct device_driver driver;
+@@ -170,38 +166,56 @@
+ information about the interrupt from the irb parameter.
  
- 	dasd_device_t *device = cqr->device;
-+	struct ccw1 *ccw;
  
- 	/* allocate additional request block */
- 	dasd_ccw_req_t *erp;
+-2. System devices
+------------------
++1.3 ccwgroup devices
++--------------------
++
++The ccwgroup mechanism is designed to handle devices consisting of multiple ccw
++devices, like lcs or ctc.
++
++The ccw driver provides a 'group' attribute. Piping bus ids of ccw devices to
++this attributes creates a ccwgroup device consisting of these ccw devices (if
++possible). This ccwgroup device can be set online or offline just like a normal
++ccw device.
  
--	erp = dasd_alloc_erp_request((char *) &cqr->magic, 1, 0, cqr->device);
-+	erp = dasd_alloc_erp_request((char *) &cqr->magic, 2, 0, cqr->device);
- 	if (IS_ERR(erp)) {
--		DEV_MESSAGE(KERN_ERR, device, "%s",
--			    "Unable to allocate ERP request");
--		cqr->status = DASD_CQR_FAILED;
-+                if (cqr->retries <= 0) {
-+		        DEV_MESSAGE(KERN_ERR, device, "%s",
-+				    "Unable to allocate ERP request");
-+			cqr->status = DASD_CQR_FAILED;
-+                        cqr->stopclk = get_clock ();
-+		} else {
-+                        DEV_MESSAGE (KERN_ERR, device,
-+                                     "Unable to allocate ERP request "
-+				     "(%i retries left)",
-+                                     cqr->retries);
-+			dasd_set_timer(device, (HZ << 3));
-+                }
- 		return cqr;
- 	}
+-2.1 Channel paths
++To implement a ccwgroup driver, please refer to include/asm/ccwgroup.h. Keep in
++mind that most drivers will need to implement both a ccwgroup and a ccw driver
++(unless you have a meta ccw driver, like cu3088 for lcs and ctc).
++
++
++2. Channel paths
+ -----------------
  
- 	/* initialize request with default TIC to current ERP/CQR */
--	erp->cpaddr->cmd_code = CCW_CMD_TIC;
--	erp->cpaddr->cda = (long) (cqr->cpaddr);
-+	ccw = erp->cpaddr;
-+	ccw->cmd_code = CCW_CMD_NOOP;
-+	ccw->flags = CCW_FLAG_CC;
-+	ccw++;
-+	ccw->cmd_code = CCW_CMD_TIC;
-+	ccw->cda      = (long)(cqr->cpaddr);
- 	erp->function = dasd_3990_erp_add_erp;
--	erp->refers = cqr;
--	erp->device = cqr->device;
--	erp->magic = cqr->magic;
--	erp->expires = 0;
--	erp->retries = 256;
-+	erp->refers   = cqr;
-+	erp->device   = cqr->device;
-+	erp->magic    = cqr->magic;
-+	erp->expires  = 0;
-+	erp->retries  = 256;
+-Every channel path is represented under sys/ as channel_path<nr>. (Unfortunately,
+-<nr> is in decimal, which may look unfamiliar.)
++Channel paths show up, like subchannels, under the channel subsystem root (css0)
++and are called 'chp<chpid>'. They have no driver and do not belong to any bus.
  
- 	erp->status = DASD_CQR_FILLED;
+ status - Can be 'online', 'logically offline' or 'n/a'.
+ 	 Piping 'on' or 'off' sets the chpid logically online/offline.
  
-@@ -2362,7 +2380,7 @@
- 	}
  
- 	/* check sense data; byte 0-2,25,27 */
--	if (!((strncmp(cqr1->dstat->ecw, cqr2->dstat->ecw, 3) == 0) &&
-+	if (!((memcmp (cqr1->dstat->ecw, cqr2->dstat->ecw, 3) == 0) &&
- 	      (cqr1->dstat->ecw[27] == cqr2->dstat->ecw[27]) &&
- 	      (cqr1->dstat->ecw[25] == cqr2->dstat->ecw[25]))) {
+-2.2 xpram 
+----------
++3. System devices
++-----------------
  
-@@ -2549,7 +2567,7 @@
+-xpram shows up under sys/ as 'xpram'.
++Note: cpus may yet be added here.
  
- 	if (erp->retries > 0) {
++3.1 xpram 
++---------
  
--		char *sense = erp->dstat->ecw;
-+		char *sense = erp->refers->dstat->ecw;
+-3. 'Legacy' devices
+--------------------
++xpram shows up under sys/ as 'xpram'.
  
- 		/* check for special retries */
- 		if (erp->function == dasd_3990_erp_action_4) {
-@@ -2680,35 +2698,9 @@
- 		dasd_log_ccw(erp, 1, cpa);
+-The 'legacy' bus is for devices not detected, but specified by the user.
  
- 	/* enqueue added ERP request */
--	if ((erp != cqr) && (erp->status == DASD_CQR_FILLED)) {
-+	if (erp->status == DASD_CQR_FILLED) {
- 		erp->status = DASD_CQR_QUEUED;
- 		list_add(&erp->list, &device->ccw_queue);
--	} else {
--		if ((erp->status == DASD_CQR_FILLED) || (erp != cqr)) {
--			/* something strange happened - log the error and throw a BUG() */
--			DEV_MESSAGE(KERN_ERR, device, "%s",
--				    "Problems with ERP chain!!! BUG");
++4. Other devices
++----------------
+ 
+-3.1 Netiucv
++4.1 Netiucv
+ -----------
+ 
+-Netiucv connections show up under legacy/ as "netiucv<ifnum>". The interface
+-number is assigned sequentially at module load.
 -
--			/* print current erp_chain */
--			DEV_MESSAGE(KERN_DEBUG, device, "%s",
--				    "ERP chain at END of ERP-ACTION");
--			{
--				dasd_ccw_req_t *temp_erp = NULL;
--				for (temp_erp = erp;
--				     temp_erp != NULL;
--				     temp_erp = temp_erp->refers) {
--
--					DEV_MESSAGE(KERN_DEBUG, device,
--						    "	   erp %p (function %p)"
--						    " refers to %p",
--						    temp_erp,
--						    temp_erp->function,
--						    temp_erp->refers);
--				}
--			}
--			BUG();
--		}
--
- 	}
+-user			  - the user the connection goes to.
++The netiucv driver creates an attribute 'connection' under
++bus/iucv/drivers/NETIUCV. Piping to this attibute creates a new netiucv
++connection to the specified host.
++
++Netiucv connections show up under devices/iucv/ as "netiucv<ifnum>". The interface
++number is assigned sequentially to the connections defined via the 'connection'
++attribute. 'name' shows the connection partner.
  
- 	return erp;
-diff -urN linux-2.5.62/drivers/s390/block/dasd_eckd.c linux-2.5.62-s390/drivers/s390/block/dasd_eckd.c
---- linux-2.5.62/drivers/s390/block/dasd_eckd.c	Mon Feb 17 23:55:49 2003
-+++ linux-2.5.62-s390/drivers/s390/block/dasd_eckd.c	Mon Feb 24 18:23:59 2003
-@@ -7,7 +7,7 @@
-  * Bugreports.to..: <Linux390@de.ibm.com>
-  * (C) IBM Corporation, IBM Deutschland Entwicklung GmbH, 1999,2000
-  *
-- * $Revision: 1.35 $
-+ * $Revision: 1.36 $
-  *
-  * History of changes (starts July 2000)
-  * 07/11/00 Enabled rotational position sensing
-diff -urN linux-2.5.62/drivers/s390/block/dasd_ioctl.c linux-2.5.62-s390/drivers/s390/block/dasd_ioctl.c
---- linux-2.5.62/drivers/s390/block/dasd_ioctl.c	Mon Feb 17 23:56:17 2003
-+++ linux-2.5.62-s390/drivers/s390/block/dasd_ioctl.c	Mon Feb 24 18:23:59 2003
-@@ -111,7 +111,7 @@
- 		ioctl = list_entry(l, dasd_ioctl_list_t, list);
- 		if (ioctl->no == no) {
- 			/* Found a matching ioctl. Call it. */
--			if (try_module_get(ioctl->owner) != 0)
-+			if (!try_module_get(ioctl->owner))
- 				continue;
- 			rc = ioctl->handler(bdev, no, data);
- 			module_put(ioctl->owner);
-@@ -263,7 +263,7 @@
- 	if (!capable(CAP_SYS_ADMIN))
- 		return -EACCES;
- 
--	device = = bdev->bd_disk->private_data;
-+	device = bdev->bd_disk->private_data;
- 	if (device == NULL)
- 		return -ENODEV;
- 
-@@ -279,7 +279,7 @@
- {
- 	dasd_device_t *device;
- 
--	device = = bdev->bd_disk->private_data;
-+	device = bdev->bd_disk->private_data;
- 	if (device == NULL)
- 		return -ENODEV;
- 
+ buffer			  - maximum buffer size.
+ 			    Pipe to it to change buffer size.
 

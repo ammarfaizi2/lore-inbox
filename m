@@ -1,47 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266607AbUBDVm2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 16:42:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266608AbUBDVjo
+	id S266614AbUBDVeO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 16:34:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266576AbUBDVbD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 16:39:44 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:16768 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S266607AbUBDVi2
+	Wed, 4 Feb 2004 16:31:03 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:16256 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S266575AbUBDVaW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 16:38:28 -0500
-Date: Wed, 4 Feb 2004 16:39:07 -0500 (EST)
+	Wed, 4 Feb 2004 16:30:22 -0500
+Date: Wed, 4 Feb 2004 16:30:57 -0500 (EST)
 From: "Richard B. Johnson" <root@chaos.analogic.com>
 X-X-Sender: root@chaos
 Reply-To: root@chaos.analogic.com
-To: "Randazzo, Michael" <RANDAZZO@ddc-web.com>
-cc: "'Valdis.Kletnieks@vt.edu'" <Valdis.Kletnieks@vt.edu>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: Kernel 2.x POSIX Compliance/Conformance... 
-In-Reply-To: <89760D3F308BD41183B000508BAFAC4104B16F39@DDCNYNTD>
-Message-ID: <Pine.LNX.4.53.0402041631470.3277@chaos>
-References: <89760D3F308BD41183B000508BAFAC4104B16F39@DDCNYNTD>
+To: Oliver Dain <odain2@mindspring.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: proper place for devfs_register_chrdev with pci_module_init
+In-Reply-To: <18852317.1075926209540.JavaMail.root@wamui01.slb.atl.earthlink.net>
+Message-ID: <Pine.LNX.4.53.0402041616230.3277@chaos>
+References: <18852317.1075926209540.JavaMail.root@wamui01.slb.atl.earthlink.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Feb 2004, Randazzo, Michael wrote:
+On Wed, 4 Feb 2004, Oliver Dain wrote:
 
-> ok...I think I get it....
+> I'm writing a char driver for a PCI card.  Looking at examples of such things I've found that most have a module_init like this:
 >
-> I can't use any of the posix functions in
-> device drivers (modules).....is this correct?
+> int foo_init(void)
+> {
+> 	/* stuff... */
+> 	devfs_register_chrdev(...);
+> 	/* more stuff... */
+> 	pci_module_init(...);
+> }
 >
-> M.
+> This seems strange to me.  The devfs_register_chrdev call will register
+> the module and cause it to be held in memory even if the associated
+> PCI device isn't present on the system.  It seems like a better way
+> to do this is to have the init method just call pci_module_init(...)
+> and then in that method, after the PCI device has been initialized, call
+> devfs_register_chrdev to associate the driver with the device.  That way
+> the kernel can unload the module if no such device is present, but if
+> the device is present (or if one appears via hotplug) the module will
+> be loaded and can then register itself.  Will this work?  Is there a
+> reason people don't do this?
+>
 
-You cannot ever use any 'C' runtime library functions in your
-modules. This means you cannot use open(), close(), read(),
-write(), lseek(), etc. However, the kernel has some of its
-own POSIX-compliant functions like memset(), memcpy(), strcpy(),
-etc. You can look in ../linux-nn.nn/lib or look through the
-headers to see what's available. There are semaphones and
-other locking mechanisms available for use in the kernel
-which, I recall, was your first inquiry.
+First! Fix your mailer. There wasn't a '\n' in the entire bunch
+of text above. Unix/Linux people use the [Enter] key and don't
+just auto-warp around the screen.
+
+> I'm not subscribed to the LKML so please CC me on any responses.
+>
+> Thanks,
+> Oliver
+
+Well the "standard way" to start up a module is to allocate
+resources for the module (like RAM), then register the module.
+
+Then if the device isn't found, it's unregistered and the resources
+freed. If the code to which you refer doesn't free its resources,
+including unregistering if the device isn't found, then it's a bug.
+
+Otherwise it doesn't make any difference. You can certainly probe
+the PCI bus for your device first, and if it isn't found, you just
+return -ENODEV or whatever. It's entirely up to you.
+
+What is important is to make sure that you free any resources
+that you acquired (like address space) if you decide not to
+install the module. This makes it so you can write the module,
+debug it, and add functionality without ever having to re-boot.
 
 Cheers,
 Dick Johnson

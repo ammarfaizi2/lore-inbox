@@ -1,44 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262647AbREVQky>; Tue, 22 May 2001 12:40:54 -0400
+	id <S262640AbREVQjo>; Tue, 22 May 2001 12:39:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262633AbREVQko>; Tue, 22 May 2001 12:40:44 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:25995 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S262629AbREVQk2>;
-	Tue, 22 May 2001 12:40:28 -0400
-Date: Tue, 22 May 2001 12:40:26 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Jean-Marc Saffroy <saffroy@ri.silicomp.fr>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [Q] [VFS] i_mapping vs. i_data ?
-In-Reply-To: <Pine.LNX.4.31.0105221813030.29327-100000@sisley.ri.silicomp.fr>
-Message-ID: <Pine.GSO.4.21.0105221234350.15685-100000@weyl.math.psu.edu>
+	id <S262625AbREVQjf>; Tue, 22 May 2001 12:39:35 -0400
+Received: from smtp.storageapps.com ([63.101.83.13]:24329 "HELO
+	sa-bwmail1.storageapps.com") by vger.kernel.org with SMTP
+	id <S262626AbREVQjY>; Tue, 22 May 2001 12:39:24 -0400
+Message-ID: <23D04BDBA646D411BDDD00D0B774B539029639F9@SA-BWMAIL1>
+From: "Christian, Chip" <chip.christian@storageapps.com>
+To: modica@sgi.com, Rogier Wolff <R.E.Wolff@BitWizard.nl>
+Cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
+        "Brent D. Norris" <brent@biglinux.tccw.wku.edu>,
+        "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-net@vger.kernel.org, linux-scsi@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-hams@vger.kernel.org,
+        linux-ppp@vger.kernel.org
+Subject: RE: ECN is on!
+Date: Tue, 22 May 2001 12:39:21 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Not to mention, not everyone on the list runs their own mailservers.
+
+-----Original Message-----
+From: Steve Modica [mailto:modica@sgi.com]
+Sent: Tuesday, May 22, 2001 12:28
+To: Rogier Wolff
+Cc: Richard Gooch; Brent D. Norris; David S. Miller;
+linux-kernel@vger.kernel.org; linux-net@vger.kernel.org;
+linux-scsi@vger.kernel.org; linux-fsdevel@vger.kernel.org;
+linux-hams@vger.kernel.org; linux-ppp@vger.kernel.org
+Subject: Re: ECN is on!
 
 
-On Tue, 22 May 2001, Jean-Marc Saffroy wrote:
-
-> Hello,
+Rogier Wolff wrote:
+> The "we'll turn it on in February" warning is worth NOTHING in this
+> situation: February comes and goes. March comes and goes. Everybody
+> who read the warning will think: Ok, so I must be fine.
 > 
-> I have the following question for VFS gurus here:
+> A warning of the form: "ECN will go on as soon as this message clears
+> the queues" would've been useful, as thousands (hundreds?) suddenly get
+> nothing anymore.
 > 
-> In the inode struct, an address_space (i_data) and a pointer to an
-> address_space (i_mapping) are defined, and it looks like i_mapping is
-> always a reference to the inode's i_data (except in coda_open). Then what
-> is the difference of meaning between these two ?
 
-i_data is "pages read/written by this inode"
-i_mapping is "whom should I ask for pages?"
+I agree with this line of thinking.  The various academics studying
+geology have been warning California about "The Big One" for years now,
+and no one seems to care anymore.  
 
-IOW, everything outside of individual filesystems should use the latter.
-They are same if (and only if) inode owns the data. CODA (or anything that
-caches data on a local fs) will have i_mapping pointing to the i_data of
-inode it caches into. Ditto for block devices if/when they go into pagecache -
-we should associate pagecache with struct block_device, since we can have
-many inodes with the same major:minor. IOW, ->i_mapping should be pointing
-to the same place for all of them.
+I don't think anyone's being lazy and I certainly don't have the
+information to comment on the size of their butts.  So I'd rather just
+assume they were working very hard on other things (like getting TPC-H
+benchmarks to run!)
 
+Steve
+
+-- 
+Steve Modica
+Manager - Networking Drivers Group
+"Give a man a fish, and he will eat for a day, hit him with a fish and
+he leaves you alone" - me
+-
+To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
+the body of a message to majordomo@vger.kernel.org

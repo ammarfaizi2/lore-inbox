@@ -1,36 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267381AbUHDTSx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267383AbUHDTV0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267381AbUHDTSx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 15:18:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267383AbUHDTSx
+	id S267383AbUHDTV0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 15:21:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267385AbUHDTV0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 15:18:53 -0400
-Received: from havoc.gtf.org ([216.162.42.101]:45260 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S267381AbUHDTSw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 15:18:52 -0400
-Date: Wed, 4 Aug 2004 15:18:50 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Andi Kleen <ak@muc.de>
-Cc: "David S. Miller" <davem@redhat.com>, axboe@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: block layer sg, bsg
-Message-ID: <20040804191850.GA19224@havoc.gtf.org>
-References: <2ppN4-1wi-11@gated-at.bofh.it> <2pvps-5xO-33@gated-at.bofh.it> <2pvz2-5Lf-19@gated-at.bofh.it> <2pwbQ-68b-43@gated-at.bofh.it> <m33c32ke3f.fsf@averell.firstfloor.org>
+	Wed, 4 Aug 2004 15:21:26 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:7556 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S267383AbUHDTVZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 15:21:25 -0400
+Subject: SCHED_BATCH and SCHED_BATCH numbering
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: kernel@kolivas.org, Andrew Morton OSDL <akpm@osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1091638227.1232.1750.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m33c32ke3f.fsf@averell.firstfloor.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 04 Aug 2004 12:50:28 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 04, 2004 at 07:28:04PM +0200, Andi Kleen wrote:
-> So please never pass any structures with read/write/netlink.
+Are these going to be numbered consecutively, or might
+they better be done like the task state? SCHED_FIFO is
+in fact already treated this way in one place. One might
+want to test values this way:
 
-Sorry...  This is pretty much a given IMO.
+if(foo & (SCHED_ISO|SCHED_RR|SCHED_FIFO))  ...
 
-	Jeff
+(leaving aside SCHED_OTHER==0, or just translate
+that single value for the ABI)
 
+I'd like to see these get permenant allocations
+soon, even if the code doesn't go into the kernel.
+This is because user-space needs to know the values.
 
 

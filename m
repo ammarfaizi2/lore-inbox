@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135522AbRDSC1c>; Wed, 18 Apr 2001 22:27:32 -0400
+	id <S135521AbRDSCrr>; Wed, 18 Apr 2001 22:47:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135523AbRDSC1V>; Wed, 18 Apr 2001 22:27:21 -0400
-Received: from smtp1.cern.ch ([137.138.128.38]:59396 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S135521AbRDSC1Q>;
-	Wed, 18 Apr 2001 22:27:16 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: jgarzik@mandrakesoft.com (Jeff Garzik), modica@sgi.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Proposal for a new PCI function call
-In-Reply-To: <E14nrdT-0001po-00@the-village.bc.nu>
-From: Jes Sorensen <Jes.Sorensen@cern.ch>
-Date: 19 Apr 2001 04:27:04 +0200
-In-Reply-To: Alan Cox's message of "Fri, 13 Apr 2001 01:40:25 +0100 (BST)"
-Message-ID: <d31yqpzksn.fsf@lxplus015.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+	id <S135526AbRDSCrh>; Wed, 18 Apr 2001 22:47:37 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:35343 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S135521AbRDSCrT>;
+	Wed, 18 Apr 2001 22:47:19 -0400
+Date: Wed, 18 Apr 2001 23:45:27 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Daniel Phillips <phillips@nl.linux.org>
+Cc: linux-kernel@vger.kernel.org, adilger@turbolinux.com,
+        ext2-devel@lists.sourceforge.net
+Subject: Re: Ext2 Directory Index - Delete Performance
+In-Reply-To: <20010419002757Z92249-1659+3@humbolt.nl.linux.org>
+Message-ID: <Pine.LNX.4.21.0104182343240.1685-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Alan" == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+On Thu, 19 Apr 2001, Daniel Phillips wrote:
 
->> Introducing a new function that takes bit flags as arguments might
->> be better?
+> OK, now I know what's happening, the next question is, what should be
+> dones about it.  If anything.
 
-Alan> pci_set_dma_mask_bits() ? So you could do
+[ discovered by alexey on #kernelnewbies ]
 
-Alan> pci_set_dma_mask_bits(pdev, 64);
+One thing we should do is make sure the buffer cache code sets
+the referenced bit on pages, so we don't recycle buffer cache
+pages early.
 
-Alan> We want everything to go through pci_set_dma_mask... type
-Alan> functions either way so that we can and the mask with upstream
-Alan> bridges when we hit address range limits in some peoples
-Alan> hardware
+This should leave more space for the buffercache and lead to us
+reclaiming the (now unused) space in the dentry cache instead...
 
-Looks good to me
+regards,
 
-Jes
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
+

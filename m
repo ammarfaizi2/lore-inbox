@@ -1,89 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270986AbTG1G3h (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 02:29:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270995AbTG1G3g
+	id S272608AbTG1Gjf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 02:39:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272668AbTG1Gjf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 02:29:36 -0400
-Received: from xcin.phys.ntu.edu.tw ([140.112.101.186]:22147 "EHLO
-	xcin.phys.ntu.edu.tw") by vger.kernel.org with ESMTP
-	id S270986AbTG1G3X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 02:29:23 -0400
-From: Tung-Han Hsieh <thhsieh@xcin.phys.ntu.edu.tw>
-Date: Mon, 28 Jul 2003 14:44:28 +0800
-To: linux-kernel@vger.kernel.org
-Cc: jamagallon@able.es
-Subject: malloc problem to allocate very large blocks
-Message-ID: <20030728064428.GA32138@xcin>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=big5
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	Mon, 28 Jul 2003 02:39:35 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:41476
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S272608AbTG1Gje (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 02:39:34 -0400
+Date: Sun, 27 Jul 2003 23:45:16 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Mike Galbraith <efault@gmx.de>
+cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] sched-2.6.0-test1-G6, interactivity changes
+In-Reply-To: <5.2.1.1.2.20030728065857.01bc9708@pop.gmx.net>
+Message-ID: <Pine.LNX.4.10.10307272338160.30891-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I am developing applications which requires more than 2GB memory.
-But I found that in my Linux system the malloc() cannot allocate
-more than 2GB memory. Here is the details of my system:
+On Mon, 28 Jul 2003, Mike Galbraith wrote:
 
-CPU:    Pentium 4 2.53 GHz
-RAM:    2 GB
-Swap:   512 MB
-OS:	Debian-3.0 stable
-Kernel: 2.4.20
-gcc:	2.95.4 20011002
-glibc:  2.2.5-6
+> At 09:18 PM 7/27/2003 +0200, Felipe Alfaro Solana wrote:
+> >On Sun, 2003-07-27 at 15:40, Ingo Molnar wrote:
+> > > my latest scheduler patchset can be found at:
+> > >
+> > >       redhat.com/~mingo/O(1)-scheduler/sched-2.6.0-test1-G6
+> > >
+> > > this version takes a shot at more scheduling fairness - i'd be interested
+> > > how it works out for others.
+> >
+> >This -G6 patch is fantastic, even without nicing the X server. I didn't
+> >even need to tweak any kernel scheduler knob to adjust for maximum
+> >smoothness on my desktop. Response times are impressive, even under
+> >heavy load. Great!
+> 
+> Can you try the following please?
+> 
+> This one I just noticed:
+> 1.  start top.
+> 2.  start dd if=/dev/zero | dd of=/dev/null
+> 3.  wiggle a window very briefly.
+> Here, X becomes extremely jerky, and I think this is due to two 
+> things.  One, X uses it's sleep_avg very quickly, and expires.  Two, the 
+> piped dd now is highly interactive due to the ns resolution clock (uhoh).
 
-In theory, in a 32-bits machine the maximum allocatable memory
-is up to 4GB. But in the following very simple testing program:
+What kind of LAME test is this?  If "X becomes extremely jerky" ?
 
-=====================================================================
-#include <stdio.h>
-#include <stdlib.h>
+Sheesh, somebody come up with a build class solution.
 
-main()
-{
-    size_t l;
-    char *s1=NULL, *s2=NULL;
+CONFIG_SERVER
+CONFIG_WORKSTATION
+CONGIG_IAMAGEEKWHOPLAYSGAMES
+CONFIG_GENERIC_LAMER
 
-    l = 1024*1024*1024;
+Determining quality of the scheduler based on how a mouse responds is ...
 
-    s1 = malloc(l);
-    s2 = malloc(l);
-    if (! s1) printf("s1 malloc failed\n");
-    if (! s2) printf("s2 malloc failed\n");
-}
-=====================================================================
+Sorry but this is just laughable, emperical subjective determination
+based on a random hardware combinations for QA/QC for a test?
 
-only the block for s1 can be allocated. Further, if I change the
-program to
+Don't bother replying cause last thing I want to know is why.
 
-=====================================================================
-#include <stdio.h>
-#include <stdlib.h>
+-a
 
-main()
-{
-    size_t l;
-    char *s1=NULL;
-
-    l = 2*1024*1024*1024;
-
-    s1 = malloc(l);
-    if (! s1) printf("s1 malloc failed\n");
-}
-=====================================================================
-
-the gcc complier complain to me that "foo.c:9: warning: integer overflow
-in expression" during the compilation (I use: "gcc foo.c" to compile it),
-and the block for s1 cannot be allocated at all. I am wondering if there
-is any way to overcome the 2GB limit.
-
-Thank you very much for your reply in advance.
-
-
-Best Regards,
-
-T.H.Hsieh

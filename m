@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316594AbSFDMVO>; Tue, 4 Jun 2002 08:21:14 -0400
+	id <S316342AbSFDMXP>; Tue, 4 Jun 2002 08:23:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316342AbSFDMVN>; Tue, 4 Jun 2002 08:21:13 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:58564 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S316594AbSFDMVM>;
-	Tue, 4 Jun 2002 08:21:12 -0400
-Date: Tue, 4 Jun 2002 14:21:05 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: Mike Black <mblack@csihq.com>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.20 RAID5 compile error
-Message-ID: <20020604122105.GB1105@suse.de>
-In-Reply-To: <04cf01c20b2d$96097030$f6de11cc@black> <20020604115132.GZ1105@suse.de> <15612.43734.121255.771451@notabene.cse.unsw.edu.au> <20020604115842.GA5143@suse.de> <15612.44897.858819.455679@notabene.cse.unsw.edu.au>
-Mime-Version: 1.0
+	id <S316598AbSFDMXO>; Tue, 4 Jun 2002 08:23:14 -0400
+Received: from pat.uio.no ([129.240.130.16]:20632 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S316342AbSFDMXN>;
+	Tue, 4 Jun 2002 08:23:13 -0400
+To: Matthias Welk <welk@fokus.gmd.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: nfs slowdown since 2.5.4
+In-Reply-To: <200206041253.44446.welk@fokus.gmd.de>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 04 Jun 2002 14:23:07 +0200
+Message-ID: <shsg0032pxw.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 04 2002, Neil Brown wrote:
-> On Tuesday June 4, axboe@suse.de wrote:
-> > 
-> > What changes did you have in mind?
-> 
-> http://www.cse.unsw.edu.au/~neilb/patches/linux-devel/2.5.20/patch-A-NewPlug
-> 
-> Is what I had against 2.5.20.  A quick look at the mail that you sent
-> with improvements suggest that I can be even less intrusive..  But it
-> will have to wait until tomorrow (my time).
+>>>>> " " == Matthias Welk <welk@fokus.gmd.de> writes:
 
-Ah ok, I see what you have in mind. Right now you are completely
-mimicking the tq_struct setup -- any reason a simple q->plug_fn is not
-enough? Do you ever need anything else than the queue passed in with the
-plug? Wrt umem, it seems you could keep 'card' in the queuedata. Same
-for raid5 and conf.
+     > Hi, since 2.5.4 I noticed a big slowdown in nfs.  It seems that
+     > this is related to the changes in the nfs-lookup code, because
+     > now most traffic via nfs is for lookup- and getattr-calls as
+     > you can see in the attached tcpdump log.  I'v also attached a
+     > log of nfsstat, which shows this problem too.
 
--- 
-Jens Axboe
+Tough... Those extra checks are needed in order to ensure data cache
+correctness on file open().
 
+If you think you don't need them because the files that you are
+reading are known never to change on the server, you can try mounting
+with the 'nocto' mount option.
+
+Cheers,
+  Trond

@@ -1,60 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262196AbTINJcL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Sep 2003 05:32:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262200AbTINJcL
+	id S262204AbTINJfv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Sep 2003 05:35:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262342AbTINJfv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Sep 2003 05:32:11 -0400
-Received: from sullivan.realtime.net ([205.238.132.76]:2577 "EHLO
-	sullivan.realtime.net") by vger.kernel.org with ESMTP
-	id S262196AbTINJcI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Sep 2003 05:32:08 -0400
-Date: Sun, 14 Sep 2003 04:32:01 -0500 (CDT)
-Message-Id: <200309140932.h8E9W1An062395@sullivan.realtime.net>
-Subject: Re: [linux-2.4.0-test5] swsusp w/o swap fail...
-To: Andi Kleen <ak@suse.de>
-From: Milton Miller <miltonm@bga.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030913072327.GA23992@wotan.suse.de>
+	Sun, 14 Sep 2003 05:35:51 -0400
+Received: from deadlock.et.tudelft.nl ([130.161.36.93]:17374 "EHLO
+	deadlock.et.tudelft.nl") by vger.kernel.org with ESMTP
+	id S262204AbTINJft convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Sep 2003 05:35:49 -0400
+Date: Sun, 14 Sep 2003 11:35:46 +0200 (CEST)
+From: =?ISO-8859-1?Q?Dani=EBl_Mantione?= <daniel@deadlock.et.tudelft.nl>
+To: Meelis Roos <mroos@linux.ee>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: atyfb still broken on 2.4.23-pre4 (on sparc64)
+In-Reply-To: <Pine.GSO.4.44.0309141155480.22863-100000@math.ut.ee>
+Message-ID: <Pine.LNX.4.44.0309141117030.15181-100000@deadlock.et.tudelft.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat Sep 13 2003 - 02:24:36 EST, Andi Kleen wrote:
-> On Fri, Sep 12, 2003 at 10:49:29PM -0500, Milton Miller wrote:
-> > ... Rather than say ACPI_SLEEP also enables SWAP, how about having
-> > X86_64 pick up a change made to x86, and compile suspend.c on CONFIG_PM.
-> >
-> > Andi, can you test this?
-> 
-> That won't work. suspend won't compile without suspend_asm
-> 
+On Sun, 14 Sep 2003, Meelis Roos wrote:
 
-Care to expand?   suspend_asm.S calls into suspend.c, but I don't
-see the converse.   I checked i386 and it compiles, and don't see
-how x86_64 will break.
+> The update to atyfb to add LCD support breaks sparc64. I tried with
+> -pre3, this broke (details below). Patched it with the updated
+> atyfb_base thing but it didn't change anything.
 
-===== drivers/acpi/Kconfig 1.20 vs edited =====
---- 1.20/drivers/acpi/Kconfig	Sat Aug 23 06:07:34 2003
-+++ edited/drivers/acpi/Kconfig	Fri Sep 12 22:28:08 2003
-@@ -69,7 +69,6 @@
- 	bool "Sleep States (EXPERIMENTAL)"
- 	depends on X86 && ACPI
- 	depends on EXPERIMENTAL && PM
--	select SOFTWARE_SUSPEND
- 	default y
- 	---help---
- 	  This option adds support for ACPI suspend states. 
-===== arch/x86_64/kernel/Makefile 1.23 vs edited =====
---- 1.23/arch/x86_64/kernel/Makefile	Mon Aug 18 13:16:59 2003
-+++ edited/arch/x86_64/kernel/Makefile	Fri Sep 12 22:28:56 2003
-@@ -16,7 +16,8 @@
- obj-$(CONFIG_SMP)	+= smp.o smpboot.o trampoline.o
- obj-$(CONFIG_X86_LOCAL_APIC)	+= apic.o  nmi.o
- obj-$(CONFIG_X86_IO_APIC)	+= io_apic.o mpparse.o
--obj-$(CONFIG_SOFTWARE_SUSPEND)	+= suspend.o suspend_asm.o
-+obj-$(CONFIG_PM)	+= suspend.o
-+obj-$(CONFIG_SOFTWARE_SUSPEND)	+= suspend_asm.o
- obj-$(CONFIG_EARLY_PRINTK)    += early_printk.o
- obj-$(CONFIG_GART_IOMMU) += pci-gart.o aperture.o
- obj-$(CONFIG_DUMMY_IOMMU) += pci-nommu.o pci-dma.o
+Ok. The sparc code has not been modified; something weird is going on. (By
+the way, the Sparc code could use some design improvement, as a special
+exception, the Sparc does backcalculation and it is hacky implemented).
+
+> Here is dmesg - the important bit is the bracketed current code value -
+> bug in ksymoops probably. Note the invalid pixel width line before the
+> oops. The pix_width in question comes from
+> pix_width = crtc->gen_cntl & CRTC_PIX_WIDTH_MASK;
+
+What is the default video mode on your sparc? Could the value that is
+read be CRTC_PIX_WIDTH_4BPP or CRTC_PIX_WIDTH_16BPP? (Atyfb does only
+support 8, 15, 24 and 32 bpp)
+
+The code that calls aty_crtc_to_var has been changed a bit to accomodate
+lcd mode calculations. It could be that it is called while the default
+video mode on sparc is still active. This should not harm, since the
+display is set to 640x480, 8bpp afterwards.
+
+> So it seems it breaks on a division at the code 82704002.
+>
+> Search throught atyfb_init disassembly show it to be the second division
+> of 3 in atyfb_init. This correnponds to the line
+>
+> T = 2 * Q * R / M;
+>
+> in atyfb_base.c, line 2668. M gets its value as
+> M = pll_regs[2];
+> a couple of lines above.
+
+Ok, pll register 2 is PLL_REV_DIV (perhaps this code should use the
+constants). It cannot be zero, otherwise the chip will malfunction.
+So I think it must be because of a malfunction of aty_ld_pll.
+
+> Here I get stuck - maybe pll_regs points to a wrong value...
+
+Quite likely. I'm going to send you a few modifications, we'll see if they
+do something.
+
+Daniël
 

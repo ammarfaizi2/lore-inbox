@@ -1,117 +1,185 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316589AbSFFFbo>; Thu, 6 Jun 2002 01:31:44 -0400
+	id <S316747AbSFFGYw>; Thu, 6 Jun 2002 02:24:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316822AbSFFFbn>; Thu, 6 Jun 2002 01:31:43 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:38053 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S316589AbSFFFbm>;
-	Thu, 6 Jun 2002 01:31:42 -0400
-Date: Thu, 6 Jun 2002 07:31:23 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: Mike Black <mblack@csihq.com>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.20 RAID5 compile error
-Message-ID: <20020606053123.GN16600@suse.de>
-In-Reply-To: <20020604115132.GZ1105@suse.de> <15612.43734.121255.771451@notabene.cse.unsw.edu.au> <20020604115842.GA5143@suse.de> <15612.44897.858819.455679@notabene.cse.unsw.edu.au> <20020604122105.GB1105@suse.de> <20020604123205.GD1105@suse.de> <20020604123856.GE1105@suse.de> <15613.26250.675556.878683@notabene.cse.unsw.edu.au> <20020605101315.GY1105@suse.de> <15614.53205.986092.882909@notabene.cse.unsw.edu.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S316763AbSFFGYv>; Thu, 6 Jun 2002 02:24:51 -0400
+Received: from ali.com.tw ([210.67.80.34]:36073 "EHLO ali.com.tw")
+	by vger.kernel.org with ESMTP id <S316747AbSFFGYt>;
+	Thu, 6 Jun 2002 02:24:49 -0400
+From: lei_hu@ali.com.tw
+Subject: [PATCH] update for ALi Audio Driver (0.14.10)
+To: alan@redhat.com
+Cc: linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com
+X-Mailer: Lotus Notes R5.0 (Intl) 30 March 1999
+Message-ID: <OF7057B5B9.A6CA3C3B-ON48256BD0.0020BE4E@ali.com.tw>
+Date: Thu, 6 Jun 2002 14:27:16 +0800
+X-MIMETrack: Serialize by Router on TWALINS2/ALI_TPE/ACER(Release 5.0.8 |June 18, 2001) at
+ 2002/06/07 02:20:41 PM
+MIME-Version: 1.0
+Content-type: multipart/mixed; 
+	Boundary="0__=48256BD00020BE4E8f9e8a93df938690918c48256BD00020BE4E"
 Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 06 2002, Neil Brown wrote:
-> > > In ll_rw_blk.c we change blk_plug_device to avoid the check for
-> > > the queue being empty as this may not be well define for
-> > > umem/raid5.  Instead, blk_plug_device is not called when
-> > > the queue is not empty (which is mostly wasn' anyway).
-> > 
-> > I left it that way on purpose, and yes I did see you changed that in the
-> > previous patch as well. I think it's a bit of a mess to have both
-> > blk_plug_device and blk_plug_queue. Without looking at it, I have no
-> > idea which does what?! blk_queue_empty() will always be true for
-> > make_request_fn type drivers, so no change is necessary there.
-> 
-> I'm not pushing the blk_plug_device vs blk_plug_queue distinction.
-> 
-> It is just that I think the current blk_plug_device is wrong...  let
-> me try to show you why..
-> 
-> First, look where it is called, in __make_request (which I always
-> thought should be spelt "elevator_make_request") - note that this is
-> the ONLY place that it is called other than the calls that have just
-> been introduced in md and umem - :
-> 
-> 
-> 	if (blk_queue_empty(q) || bio_barrier(bio)) {
-> 		blk_plug_device(q);
-> 		goto get_rq;
-> 	}
-> 
-> Which says "if the queue is empty or this is a barrier bio, then
-> plug the queue and go an make a request, skipping the merging".
-> 
-> One then wonders why you would want to plug the queue for a barrier
-> bio.  The queue-empty bit makes sense, but not the barrier bit...
+--0__=48256BD00020BE4E8f9e8a93df938690918c48256BD00020BE4E
+Content-type: text/plain; charset=us-ascii
 
-No for the barrier bit we need not do the plugging, we just need to skip
-the merge step and go directly to grabbing a new request. However if the
-queue is indeed empty, then we do need to plug it. See?
+Dear all
+ I rewrite the part to read/write registers of the audio codec  for Ali 5451
+Audio Driver.
+ Best Regards
 
-> Ok, lets see exactly what blk_plug_device(q) does by (mentally)
-> inlining it:
-> 
-> 	if (blk_queue_empty(q) || bio_barrier(bio)) {
-> 
-> 		if (!elv_queue_empty(q))
-> 			goto return;
-> 
-> 			if (!blk_queue_plugged(q)) {
-> 				spin_lock(&blk_plug_lock);
-> 				list_add_tail(&q->plug_list, &blk_plug_list);
-> 				spin_unlock(&blk_plug_lock);
-> 			}
-> 	return:
-> 		goto get_rq;
-> 	}
-> 
-> So we are actually plugging it if it isn't already plugged (makes
-> sense) and elv_queue_empty, and blk_queue_empty ... or bio_barrier.
-> I wander what those two differnt *_queue_empty functions are .....
-> looks in blkdev.h.. Oh, they are the same.
+ Lei Hu
+ Information about update:
+ Updated files:     trident.c
+ Location:          drivers/sound
+ Driver Version:    0.14.10
+ Kernel Version:    2.4.18
+ Attach Patch file:
+(See attached file: patch)
+--0__=48256BD00020BE4E8f9e8a93df938690918c48256BD00020BE4E
+Content-type: application/octet-stream; 
+	name="patch"
+Content-Disposition: attachment; filename="patch"
+Content-transfer-encoding: base64
 
-Oh agreed, I'll get rid of one of them.
+LS0tIGRyaXZlcnMvc291bmQvdHJpZGVudC5jLm9yaWcJVGh1IEp1biAgNiAxMzowNzozMCAyMDAy
+CisrKyBkcml2ZXJzL3NvdW5kL3RyaWRlbnQuYwlUaHUgSnVuICA2IDEzOjU5OjU5IDIwMDIKQEAg
+LTM2LDYgKzM2LDkgQEAKICAqCUZvdW5kYXRpb24sIEluYy4sIDY3NSBNYXNzIEF2ZSwgQ2FtYnJp
+ZGdlLCBNQSAwMjEzOSwgVVNBLgogICoKICAqICBIaXN0b3J5CisgKiAgdjAuMTQuMTAKKyAqICAg
+ICAgSnVuZSA2IDIwMDIgTGVpIEh1IDxMZWlfaHVAYWxpLmNvbS50dz4KKyAqICAgICAgcmV3cml0
+ZSB0aGUgcGFydCB0byByZWFkL3dyaXRlIHJlZ2lzdGVycyBvZiBhdWRpbyBjb2RlYyBmb3IgQWxp
+NTQ1MSAKICAqICB2MC4xNC45ZAogICogIAlPY3RvYmVyIDggMjAwMSBBcm5hbGRvIENhcnZhbGhv
+IGRlIE1lbG8gPGFjbWVAY29uZWN0aXZhLmNvbS5icj4KICAqCXVzZSBzZXRfY3VycmVudF9zdGF0
+ZSwgcHJvcGVybHkgcmVsZWFzZSByZXNvdXJjZXMgb24gZmFpbHVyZSBpbgpAQCAtNDYsNyArNDks
+NyBAQAogICoJdGhpcyBjaGlwIGlzIG9mdGVuIGZvdW5kIGluIHNldHRvcCBib3hlcyAoY29tYmlu
+ZWQgdmlkZW8rYXVkaW8pCiAgKiAgdjAuMTQuOWIKICAqCVN3aXRjaCB0byBzdGF0aWMgaW5saW5l
+IG5vdCBleHRlcm4gaW5saW5lIChnY2MgMykKLSAqICB2MC4xNC45YQorICogIHYwLjE0LjlhIAog
+ICoJQXVnIDYgMjAwMSBBbGFuIENveAogICoJMC4xNC45IGNyYXNoZWQgb24gcm1tb2QgZHVlIHRv
+IGEgdGltZXIvYmggbGVmdCBydW5uaW5nLiBTaW1wbGlmaWVkCiAgKgl0aGUgZXhpc3RpbmcgbG9n
+aWMgKHRoZSBCSCBkb2VzbnQgaGVscCBhcyBhYzk3IGlzIGxvY2tfaXJxc2F2ZSkKQEAgLTE4MCw3
+ICsxODMsNyBAQAogCiAjaW5jbHVkZSA8bGludXgvcG0uaD4KIAotI2RlZmluZSBEUklWRVJfVkVS
+U0lPTiAiMC4xNC45ZCIKKyNkZWZpbmUgRFJJVkVSX1ZFUlNJT04gIjAuMTQuMTAiCiAKIC8qIG1h
+Z2ljIG51bWJlcnMgdG8gcHJvdGVjdCBvdXIgZGF0YSBzdHJ1Y3R1cmVzICovCiAjZGVmaW5lIFRS
+SURFTlRfQ0FSRF9NQUdJQwkweDUwNzI2OTZFIC8qICJQcmluIiAqLwpAQCAtMjg2OCw2MiArMjg3
+MSw4MCBAQAogCXJldHVybiAoKHUxNikgKGRhdGEgPj4gMTYpKTsKIH0KIAotLyogV3JpdGUgQUM5
+NyBjb2RlYyByZWdpc3RlcnMgZm9yIEFMaSovCi1zdGF0aWMgdm9pZCBhbGlfYWM5N19zZXQoc3Ry
+dWN0IHRyaWRlbnRfY2FyZCAqY2FyZCwgaW50IHNlY29uZGFyeSwgdTggcmVnLCB1MTYgdmFsKQor
+LyogcmV3cml0ZSBhYzk3IHJlYWQgYW5kIHdyaXRlIG1peGVyIHJlZ2lzdGVyIGJ5IGh1bGVpIGZv
+ciBBTEkqLworc3RhdGljIGludCBhY3F1aXJlY29kZWNhY2Nlc3Moc3RydWN0IHRyaWRlbnRfY2Fy
+ZCAqIGNhcmQgKQogewotCXVuc2lnbmVkIGludCBhZGRyZXNzLCBtYXNrOwotCXVuc2lnbmVkIGlu
+dCB3Q291bnQxID0gMHhmZmZmOwotCXVuc2lnbmVkIGludCB3Q291bnQyPSAweGZmZmY7Ci0JdW5z
+aWduZWQgbG9uZyBjaGsxLCBjaGsyOwotCXVuc2lnbmVkIGxvbmcgZmxhZ3M7Ci0JdTMyIGRhdGE7
+CisJdTE2IHdzZW1hbWFzaz0weDYwMDA7IC8qIGJpdCAxNC4uMTMgKi8KKwl1MTYgd3NlbWFiaXRz
+OworICAgICAgICB1MTYgd2NvbnRyb2wgOworCWludCBibG9jayA9MDsKKwlpbnQgbmNvdW50ID0y
+NTsKKwl3aGlsZSgxKQorCXsKKwkJIHdjb250cm9sPWludyhUUklEX1JFRyhjYXJkLCAgQUxJX0FD
+OTdfV1JJVEUpKTsKKyAgICAgICAgICAgICAgICAgd3NlbWFiaXRzPSh3Y29udHJvbCkgJiB3c2Vt
+YW1hc2s7CiAKLQlkYXRhID0gKCh1MzIpIHZhbCkgPDwgMTY7CisJCSBpZih3c2VtYWJpdHM9PTB4
+NDAwMCkKKwkJCSByZXR1cm4gMTsgLyogMHg0MDAwIGlzIGF1ZGlvICx0aGVuIHN1Y2Nlc3MgKi8K
+KwkJIGlmKG5jb3VudC0tPDApCisJCQkgYnJlYWs7CisgICAgICAgICBpZih3c2VtYWJpdHM9PTAp
+CisJCSB7Cit1bmxvY2s6CisgICAgICAgICAgb3V0bCgoKHUzMikod2NvbnRyb2wgJiAweDFlZmYp
+fDB4MDAwMDQwMDApLCBUUklEX1JFRyhjYXJkLCBBTElfQUM5N19XUklURSkpOworICAgICAgICAg
+IGNvbnRpbnVlOworCQkgfQorCQkgdWRlbGF5KDIwKTsKIAotCWlmKCFjYXJkKQotCQlCVUcoKTsK
+LQkJCi0JYWRkcmVzcyA9IEFMSV9BQzk3X1dSSVRFOwotCW1hc2sgPSBBTElfQUM5N19XUklURV9B
+Q1RJT04gfCBBTElfQUM5N19BVURJT19CVVNZOwotCWlmIChzZWNvbmRhcnkpCi0JCW1hc2sgfD0g
+QUxJX0FDOTdfU0VDT05EQVJZOwotCWlmIChjYXJkLT5yZXZpc2lvbiA9PSBBTElfNTQ1MV9WMDIp
+Ci0JCW1hc2sgfD0gQUxJX0FDOTdfV1JJVEVfTUlYRVJfUkVHSVNURVI7Ci0JCQotCXNwaW5fbG9j
+a19pcnFzYXZlKCZjYXJkLT5sb2NrLCBmbGFncyk7Ci0Jd2hpbGUgKHdDb3VudDEtLSkgewotCQlp
+ZiAoKGludyhUUklEX1JFRyhjYXJkLCBhZGRyZXNzKSkgJiBBTElfQUM5N19CVVNZX1dSSVRFKSA9
+PSAwKSB7Ci0JCQlkYXRhIHw9IChtYXNrIHwgKHJlZyAmIEFDOTdfUkVHX0FERFIpKTsKLQkJCQot
+CQkJY2hrMSA9IGlubChUUklEX1JFRyhjYXJkLCAgQUxJX1NUSU1FUikpOwotCQkJY2hrMiA9IGlu
+bChUUklEX1JFRyhjYXJkLCAgQUxJX1NUSU1FUikpOwotCQkJd2hpbGUgKHdDb3VudDItLSAmJiAo
+Y2hrMSA9PSBjaGsyKSkKLQkJCQljaGsyID0gaW5sKFRSSURfUkVHKGNhcmQsICBBTElfU1RJTUVS
+KSk7Ci0JCQlpZiAod0NvdW50MiA9PSAwKSB7Ci0JCQkJc3Bpbl91bmxvY2tfaXJxcmVzdG9yZSgm
+Y2FyZC0+bG9jaywgZmxhZ3MpOwotCQkJCXJldHVybjsKLQkJCX0KLQkJCW91dGwoZGF0YSwgVFJJ
+RF9SRUcoY2FyZCwgYWRkcmVzcykpOwkvL3dyaXRlIQotCQkJc3Bpbl91bmxvY2tfaXJxcmVzdG9y
+ZSgmY2FyZC0+bG9jaywgZmxhZ3MpOwotCQkJcmV0dXJuOwkvL3N1Y2Nlc3MKLQkJfQotCQlpbnco
+VFJJRF9SRUcoY2FyZCwgYWRkcmVzcykpOwkvL3dhaXQgZm9yIGEgcmVhZCBjeWNsZQogCX0KKwlp
+ZighYmxvY2spCisJeworCQlwcmludGsoImFjY2Vzc2NvZGVjc2VtYXBob3JlIDogdHJ5IHVubG9j
+ayBcbiIpOworCQlibG9jaz0xOworZ290byB1bmxvY2s7CisJfQorCXByaW50aygiYWNjZXNzY29k
+ZWNzZW1hcGhvcmUgOmZhaWxcbiIpOworCXJldHVybiAwOworfQogCi0JcHJpbnRrKEtFUk5fRVJS
+ICJhbGk6IEFDOTcgQ09ERUMgd3JpdGUgdGltZWQgb3V0LlxuIik7Ci0Jc3Bpbl91bmxvY2tfaXJx
+cmVzdG9yZSgmY2FyZC0+bG9jaywgZmxhZ3MpOwotCXJldHVybjsKK3N0YXRpYyB2b2lkIHJlbGVh
+c2Vjb2RlY2FjY2VzcyhzdHJ1Y3QgdHJpZGVudF9jYXJkICogY2FyZCApCit7IAorCXVuc2lnbmVk
+IGxvbmcgd2NvbnRyb2w7CisJd2NvbnRyb2w9aW5sKFRSSURfUkVHKGNhcmQsICBBTElfQUM5N19X
+UklURSkpOworCW91dGwoKHdjb250cm9sICYgMHhmZmZmMWVmZiksVFJJRF9SRUcoY2FyZCwgQUxJ
+X0FDOTdfV1JJVEUpKTsKIH0KIAorc3RhdGljIGludCB3YWl0Zm9yc3RpbWVydGljayhzdHJ1Y3Qg
+dHJpZGVudF9jYXJkICogY2FyZCApCit7Cit1bnNpZ25lZCBsb25nIGNoazEsIGNoazI7Cit1bnNp
+Z25lZCBpbnQgd2NvdW50PSAweGZmZmY7CitjaGsxID0gaW5sKFRSSURfUkVHKGNhcmQsICBBTElf
+U1RJTUVSKSk7CisKK3doaWxlKDEpCit7CisJY2hrMiA9IGlubChUUklEX1JFRyhjYXJkLCAgQUxJ
+X1NUSU1FUikpOworCWlmKCAod2NvdW50ID4gMCApJiYgY2hrMSE9Y2hrMikKKwkJcmV0dXJuIDE7
+CisJaWYod2NvdW50IDw9IDApCisJCWJyZWFrOworICAgICB1ZGVsYXkoNTApOworCit9Citwcmlu
+dGsoIiB3YWl0Zm9yc3RpbWVydGljayA6QklUX0NMSyBpcyBkZWFkIFxuIik7CityZXR1cm4gMDsK
+K30KKworCisKKwogLyogUmVhZCBBQzk3IGNvZGVjIHJlZ2lzdGVycyBmb3IgQUxpKi8KIHN0YXRp
+YyB1MTYgYWxpX2FjOTdfZ2V0KHN0cnVjdCB0cmlkZW50X2NhcmQgKmNhcmQsIGludCBzZWNvbmRh
+cnksIHU4IHJlZykKIHsKIAl1bnNpZ25lZCBpbnQgYWRkcmVzcywgbWFzazsKLSAgICAgICAgdW5z
+aWduZWQgaW50IHdDb3VudDEgPSAweGZmZmY7Ci0gICAgICAgIHVuc2lnbmVkIGludCB3Q291bnQy
+PSAweGZmZmY7Ci0gICAgICAgIHVuc2lnbmVkIGxvbmcgY2hrMSwgY2hrMjsKLQl1bnNpZ25lZCBs
+b25nIGZsYWdzOworCXVuc2lnbmVkIGludCBuY291bnQ7CisgICAgICAgIHVuc2lnbmVkIGxvbmcg
+YXVkX3JlZzsKIAl1MzIgZGF0YTsKKyAgICAgICAgdTE2IHdjb250cm9sOwogCiAJaWYoIWNhcmQp
+CiAJCUJVRygpOwpAQCAtMjkzNSwzNyArMjk1NiwxMjYgQEAKIAltYXNrID0gQUxJX0FDOTdfUkVB
+RF9BQ1RJT04gfCBBTElfQUM5N19BVURJT19CVVNZOwogCWlmIChzZWNvbmRhcnkpCiAJCW1hc2sg
+fD0gQUxJX0FDOTdfU0VDT05EQVJZOworICAgIAorCQkKKwkKKyAgIAorICAgIGlmKCAhYWNxdWly
+ZWNvZGVjYWNjZXNzKGNhcmQpKQorICAgIHsKKwkJcHJpbnRrKCIgYWNjZXNzIGNvZGVjIGZhaWwg
+XG4iKTsKKworICAgIH0KKyAgICAgIAorCXdjb250cm9sPWludyhUUklEX1JFRyhjYXJkLCBBTElf
+QUM5N19XUklURSkpOworCXdjb250cm9sICY9MHhmZTAwOworCXdjb250cm9sIHw9KDB4ODAwMHxy
+ZWcpOworCW91dHcod2NvbnRyb2wsVFJJRF9SRUcoY2FyZCwgIEFMSV9BQzk3X1dSSVRFKSk7CisK
+KworICAgIAogCi0Jc3Bpbl9sb2NrX2lycXNhdmUoJmNhcmQtPmxvY2ssIGZsYWdzKTsKIAlkYXRh
+ID0gKG1hc2sgfCAocmVnICYgQUM5N19SRUdfQUREUikpOwotCXdoaWxlICh3Q291bnQxLS0pIHsK
+LQkJaWYgKChpbncoVFJJRF9SRUcoY2FyZCwgYWRkcmVzcykpICYgQUxJX0FDOTdfQlVTWV9SRUFE
+KSA9PSAwKSB7Ci0JCQljaGsxID0gaW5sKFRSSURfUkVHKGNhcmQsICBBTElfU1RJTUVSKSk7Ci0J
+CQljaGsyID0gaW5sKFRSSURfUkVHKGNhcmQsICBBTElfU1RJTUVSKSk7Ci0JCQl3aGlsZSAod0Nv
+dW50Mi0tICYmIChjaGsxID09IGNoazIpKQotCQkJCWNoazIgPSBpbmwoVFJJRF9SRUcoY2FyZCwg
+IEFMSV9TVElNRVIpKTsKLQkJCWlmICh3Q291bnQyID09IDApIHsKLQkJCQlwcmludGsoS0VSTl9F
+UlIgImFsaTogQUM5NyBDT0RFQyByZWFkIHRpbWVkIG91dC5cbiIpOwotCQkJCXNwaW5fdW5sb2Nr
+X2lycXJlc3RvcmUoJmNhcmQtPmxvY2ssIGZsYWdzKTsKLQkJCQlyZXR1cm4gMDsKLQkJCX0KLQkJ
+CW91dGwoZGF0YSwgVFJJRF9SRUcoY2FyZCwgYWRkcmVzcykpOwkvL3JlYWQhCi0JCQl3Q291bnQy
+ID0gMHhmZmZmOwotCQkJd2hpbGUgKHdDb3VudDItLSkgewotCQkJCWlmICgoaW53KFRSSURfUkVH
+KGNhcmQsIGFkZHJlc3MpKSAmIEFMSV9BQzk3X0JVU1lfUkVBRCkgPT0gMCkgewotCQkJCQlkYXRh
+ID0gaW5sKFRSSURfUkVHKGNhcmQsIGFkZHJlc3MpKTsKLQkJCQkJc3Bpbl91bmxvY2tfaXJxcmVz
+dG9yZSgmY2FyZC0+bG9jaywgZmxhZ3MpOwotCQkJCQlyZXR1cm4gKCh1MTYpIChkYXRhID4+IDE2
+KSk7Ci0JCQkJfQotCQkJfQotCQl9Ci0JCWludyhUUklEX1JFRyhjYXJkLCBhZGRyZXNzKSk7CS8v
+d2FpdCBhIHJlYWQgY3ljbGUKKwkKKwlpZighd2FpdGZvcnN0aW1lcnRpY2soY2FyZCkpCisJewor
+CQkJCXByaW50aygiIEJJVF9DTE9DSyBpcyBkZWFkIFxuIik7CisJCQkJZ290byBsOwogCX0KLQlz
+cGluX3VubG9ja19pcnFyZXN0b3JlKCZjYXJkLT5sb2NrLCBmbGFncyk7CisgICAgICAgICAgICAg
+CisJdWRlbGF5KDIwKTsJCQorCisJCQluY291bnQ9MTA7CisKKwkJCXdoaWxlKDEpIAorCQkJewor
+ICAgICAgICAgICAgaWYgKChpbncoVFJJRF9SRUcoY2FyZCxBTElfQUM5N19XUklURSkpICYgQUxJ
+X0FDOTdfQlVTWV9SRUFEKSAhPSAwKQorCQkJIGJyZWFrOworCQkJaWYobmNvdW50IDw9MCkKKwkJ
+CQlicmVhazsKKwkJCWlmKG5jb3VudC0tPT0xKQorCQkJeworCQkJCXByaW50aygiYWxpX2FjOTdf
+cmVhZCA6dHJ5IGNsZWFyIGJ1c3kgZmxhZ1xuIik7CisgICAgICAgICAgICAgICAgYXVkX3JlZyA9
+IGlubChUUklEX1JFRyhjYXJkLCAgQUxJX0FDOTdfV1JJVEUpKTsKKyAgICAgICAgICAgICAgICBv
+dXRsKChhdWRfcmVnICYgMHhmZmZmN2ZmZiksIFRSSURfUkVHKGNhcmQsIEFMSV9BQzk3X1dSSVRF
+KSk7CisJCQl9CisJCQl1ZGVsYXkoMTApOworCQkJfQorCisJICAgZGF0YSA9IGlubChUUklEX1JF
+RyhjYXJkLCBhZGRyZXNzKSk7CisJCQkJCQorCSAgIHJldHVybiAoKHUxNikgKGRhdGEgPj4gMTYp
+KTsKKwkJCQorCQorbDogIAorCXJlbGVhc2Vjb2RlY2FjY2VzcyhjYXJkKTsKIAlwcmludGsoS0VS
+Tl9FUlIgImFsaTogQUM5NyBDT0RFQyByZWFkIHRpbWVkIG91dC5cbiIpOwogCXJldHVybiAwOwog
+fQogCisKKy8qIFdyaXRlIEFDOTcgY29kZWMgcmVnaXN0ZXJzIGZvciBodWxlaSovCitzdGF0aWMg
+dm9pZCBhbGlfYWM5N19zZXQoc3RydWN0IHRyaWRlbnRfY2FyZCAqY2FyZCwgaW50IHNlY29uZGFy
+eSwgdTggcmVnLCB1MTYgdmFsKQoreworCXVuc2lnbmVkIGludCBhZGRyZXNzLCBtYXNrOworCXVu
+c2lnbmVkIGludCBuY291bnQ7CisJdTMyIGRhdGE7CisgICAgICAgIHUxNiB3Y29udHJvbDsKKwor
+CWRhdGEgPSAoKHUzMikgdmFsKSA8PCAxNjsKKworCWlmKCFjYXJkKQorCQlCVUcoKTsKKwkJCisJ
+YWRkcmVzcyA9IEFMSV9BQzk3X1dSSVRFOworCW1hc2sgPSBBTElfQUM5N19XUklURV9BQ1RJT04g
+fCBBTElfQUM5N19BVURJT19CVVNZOworCWlmIChzZWNvbmRhcnkpCisJCW1hc2sgfD0gQUxJX0FD
+OTdfU0VDT05EQVJZOworCWlmIChjYXJkLT5yZXZpc2lvbiA9PSBBTElfNTQ1MV9WMDIpCisJCW1h
+c2sgfD0gQUxJX0FDOTdfV1JJVEVfTUlYRVJfUkVHSVNURVI7CisJCQorICAgCisJCisgICAgICAg
+IGlmKCFhY3F1aXJlY29kZWNhY2Nlc3MoY2FyZCkpICAgICAgCisJcHJpbnRrKCJhY2Nlc3MgY29k
+ZWMgZmFpbCBcbiIpOworCQkJCisJCQorCisgICAgICB3Y29udHJvbCA9IGludyhUUklEX1JFRyhj
+YXJkLCBBTElfQUM5N19XUklURSkpOworICAgICAgd2NvbnRyb2wgJj0weGZmMDA7CisgICAgICB3
+Y29udHJvbCB8PSgweDgxMDB8cmVnKTsvKiBiaXQgOD0xOiAoYWxpMTUzNSApcmVzZXJ2ZWQgL2Fs
+aTE1MzUrIHdyaXRlICovCisgICAgICBvdXRsKCggZGF0YSB8d2NvbnRyb2wpLCBUUklEX1JFRyhj
+YXJkLEFMSV9BQzk3X1dSSVRFICkpOworCisgICAgICAgIGlmKCF3YWl0Zm9yc3RpbWVydGljayhj
+YXJkKSkKKwl7CisJCQkJcHJpbnRrKCIgQklUX0NMT0NLIGlzIGRlYWQgXG4iKTsKKwkJCQlnb3Rv
+IGwxOworCX0KKworICAgICAgICBuY291bnQgPSAxMDsKKwkgd2hpbGUoMSkKKwkJICB7CisKKwkJ
+CSAgd2NvbnRyb2wgPSBpbncoVFJJRF9SRUcoY2FyZCwgQUxJX0FDOTdfV1JJVEUpKTsKKwkJCSAg
+aWYoIXdjb250cm9sICYgMHg4MDAwKQorCQkJCSAgYnJlYWs7CisJCQkgIGlmKG5jb3VudCA8PTAp
+CisJCQkJICBicmVhazsKKwkJCSAgaWYobmNvdW50LS09PTEpCisJCQkgIHsKKwkJCQkgIHByaW50
+aygiIGFsaV9hYzk3X3NldCA6dHJ5IGNsZWFyIGJ1c3kgZmxhZyEhXG4iKTsKKyAgICAgICAgICAg
+ICAgICAgIG91dHcod2NvbnRyb2wgJiAweDdmZmYsIFRSSURfUkVHKGNhcmQsIEFMSV9BQzk3X1dS
+SVRFKSk7CisJCQkgIH0KKwkJCSAgdWRlbGF5KDEwKTsKKwkJICB9CisKK2wxOgorCQkgIHJlbGVh
+c2Vjb2RlY2FjY2VzcyhjYXJkKTsKKwkJICByZXR1cm47Cit9CisKKworCisKIHN0YXRpYyB2b2lk
+IGFsaV9lbmFibGVfc3BlY2lhbF9jaGFubmVsKHN0cnVjdCB0cmlkZW50X3N0YXRlICpzdGF0KQog
+ewogCXN0cnVjdCB0cmlkZW50X2NhcmQgKmNhcmQgPSBzdGF0LT5jYXJkOwo=
 
-> So we can simplify this a bit:
-> 
-> 	If (the_queue_is_empty(q)) {
-> 		plug_if_not_plugged(q);
-> 		goto get_rq;
-> 	}
-> 	if (bio_barrier(bio)) {
-> 	   /* we know the queue is not empty, so avoid that check and 
-> 	      simply don't plug */
-> 	   goto get_rq;
->         }
-> 
-> Now that makes sense.  The answer to the question "why would you want
-> to plug the queue for a barrier bio?" is that you don't.
-
-The answer is that you don't want to plug it anymore than what you do
-for a regular request, but see what I wrote above.
-
-> This is how I came to the change the I suggested.  The current code is
-> confusing, and testing elv_queue_empty in blk_plug_device is really a
-> layering violation.
-> 
-> You are correct from a operational sense when you say that "no change
-> is necessary there" (providing the queue_head is initialised, which it
-> is by blk_init_queue via elevator_init, but isn't by
-> blk_queue_make_request) but I don't think you are correct from an
-> abstractional purity perspective.
-
-Alright you've convinced me about that part. Will you send me the
-updated patch?
-
--- 
-Jens Axboe
+--0__=48256BD00020BE4E8f9e8a93df938690918c48256BD00020BE4E--
 

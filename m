@@ -1,53 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261648AbVCAUjG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262070AbVCAUql@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261648AbVCAUjG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 15:39:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262001AbVCAUiP
+	id S262070AbVCAUql (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 15:46:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbVCAUql
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 15:38:15 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:35806 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261648AbVCAUfd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 15:35:33 -0500
-Subject: Re: Network speed Linux-2.6.10
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ben Greear <greearb@candelatech.com>
-Cc: linux-os@analogic.com, Linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <4224D0F5.4050400@candelatech.com>
-References: <Pine.LNX.4.61.0503011426180.578@chaos.analogic.com>
-	 <4224CE98.2060204@candelatech.com> <1109708691.14272.8.camel@mindpipe>
-	 <4224D0F5.4050400@candelatech.com>
-Content-Type: text/plain
-Date: Tue, 01 Mar 2005 15:35:31 -0500
-Message-Id: <1109709331.17405.2.camel@mindpipe>
+	Tue, 1 Mar 2005 15:46:41 -0500
+Received: from mail.kroah.org ([69.55.234.183]:21447 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262070AbVCAUqA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 15:46:00 -0500
+Date: Tue, 1 Mar 2005 12:45:11 -0800
+From: Greg KH <greg@kroah.com>
+To: Valdis.Kletnieks@vt.edu, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc5-mm1
+Message-ID: <20050301204509.GH23484@kroah.com>
+References: <20050301012741.1d791cd2.akpm@osdl.org> <200503011336.j21DaaqC008164@turing-police.cc.vt.edu> <20050301135529.A1940@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050301135529.A1940@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-03-01 at 12:30 -0800, Ben Greear wrote:
-> Lee Revell wrote:
-> > On Tue, 2005-03-01 at 12:20 -0800, Ben Greear wrote:
+On Tue, Mar 01, 2005 at 01:55:29PM +0000, Russell King wrote:
+> On Tue, Mar 01, 2005 at 08:36:36AM -0500, Valdis.Kletnieks@vt.edu wrote:
+> > On Tue, 01 Mar 2005 01:27:41 PST, Andrew Morton said:
+> > > 
+> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc5/2.6.11-rc5-mm1/
 > > 
-> >>What happens if you just don't muck with the NIC and let it auto-negotiate
-> >>on it's own?
+> > > - A pcmcia update which obsoletes cardmgr (although cardmgr still works) and
+> > >   makes pcmcia work more like regular hotpluggable devices.  See the
+> > >   changelong in pcmcia-dont-send-eject-request-events-to-userspace.patch for
+> > >   details.
 > > 
+> > This is still showing the same 'cs: unable to map card memory!' issue on my
+> > Dell laptop.  Backing out bk-pci.patch makes it work again.
 > > 
-> > This can be asking for trouble too (auto negotiation is often buggy).
-> > What if you hard set them both to 100/full?
+> > For what it's worth, the hotplug system wasn't able to initialize the wireless
+> > card (TrueMobile 1150) at boot - still needed cardmgr to get it started up.
+> > But that might just me being an idiot...
 > 
-> I have not noticed any buggy autonegotiation with the e100 driver in several
-> years...
+> It's probably a clash between the PCI updates and the PCMCIA updates.
 > 
+> The PCI updates change the prototype of a helper function for 
+> pci_bus_alloc_resource(), but don't touch the actual helper function
+> in PCMCIA.
+> 
+> This means that the PCI update is actually broken - if it's merged as
+> is into Linus' tree, PCMCIA will break there as well.
+> 
+> Can whoever did the PCI update please resolve this mismatch.  Moreover,
+> if 2.6.11 appears, please do not merge the PCI updates until this has
+> been resolved.  Thanks.
 
-Sorry, I misread the post.  He tried this.
+Andrew had a stale bk-pci tree in his local copy, and that is where that
+change came from.  It will not show up in the next -mm release, and will
+not be sent to Linus until after I have fixed up the _whole_ tree.
 
-I was under the impression this was due to inconsistent implementation
-of autonegotiation in hardware.  When I was an ISP sysadmin we had this
-problem with various devices (Cisco switches, Linux and BSD/OS
-machines).  A device would get power cycled and one side would come up
-100/full, the other 100/half.   We ended up hard setting everything.
+So sorry for the inconvience.
 
-Lee
+thakns,
 
+greg k-h

@@ -1,78 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262545AbSI0RTq>; Fri, 27 Sep 2002 13:19:46 -0400
+	id <S262247AbSI0REq>; Fri, 27 Sep 2002 13:04:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262546AbSI0RTq>; Fri, 27 Sep 2002 13:19:46 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:65432 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S262545AbSI0RTn>;
-	Fri, 27 Sep 2002 13:19:43 -0400
-Message-ID: <3D949468.4010202@colorfullife.com>
-Date: Fri, 27 Sep 2002 19:24:56 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Ed Tomlinson <tomlins@cam.org>
-CC: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch 3/4] slab reclaim balancing
-References: <3D931608.3040702@colorfullife.com> <3D9372D3.3000908@colorfullife.com> <3D937E87.D387F358@digeo.com> <200209262041.11227.tomlins@cam.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262527AbSI0REq>; Fri, 27 Sep 2002 13:04:46 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:65238 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262247AbSI0REo>;
+	Fri, 27 Sep 2002 13:04:44 -0400
+Date: Fri, 27 Sep 2002 22:44:24 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>, Andrew Morton <akpm@digeo.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+Subject: Re: 2.5.38-mm3
+Message-ID: <20020927224424.A28529@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20020927152833.D25021@in.ibm.com> <502559422.1033113869@[10.10.2.3]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <502559422.1033113869@[10.10.2.3]>; from mbligh@aracnet.com on Fri, Sep 27, 2002 at 08:04:31AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed Tomlinson wrote:
->
-> There is no dispute that in some cases it will be slower from a slab perspective.  As
-> Andrew and you have discussed there are things that can be done to speed things 
-> up.  Is not the question really, "Are the vm and slab faster together when slab pages 
-> are freed asap?"
+On Fri, Sep 27, 2002 at 08:04:31AM -0700, Martin J. Bligh wrote:
+> >> > What application were you all running ?
 > 
+> Kernel compile on NUMA-Q looks like this:
+> 
+> 125673 total
+> 82183 default_idle
+> 2288 d_lookup
+> 1921 vm_enough_memory
+> 1883 __generic_copy_from_user
+> 1566 file_read_actor
+> 1381 .text.lock.file_table           <-------------
 
-Some caches are quite bursty - what about the 2 kB generic cache that is 
-used for the MTU sized socket buffers? With interrupt mitigation 
-enabled, I'd expect that a GigE nic could allocate a few dozend 2kb 
-objects in every interrupt, and I don't think it's the right approach to 
-  effectively disable the cache in slab.c for such loads.
+More likely, this is contention for the files_lock. Do you have any 
+lockmeter data ?  That should give us more information. If so,
+the files_struct_rcu isn't likely to help.
 
-I do not have many data points, but in a netbench run on 4-way Xeon, 
-kmem_cache_free is called 5 million times/minute, and additional 4 
-million calls to kfree - I agree that _reap right now is bad, but IMHO 
-it's questionable if the fix should be inside the hot-path of the allocator.
+> 1168 find_get_page
+> 1116 get_empty_filp
+> 
+> Presumably that's the same thing? Interestingly, if I look back at 
+> previous results, I see it's about twice the cost in -mm as it is 
+> in mainline, not sure why ... at least against 2.5.37 virgin it was.
 
-What about this approach:
+Not sure why it shows up more in -mm, but likely because -mm has
+lot less contention on other locks like dcache_lock.
 
-* enable batching even on UP, with a LIFO array in front of the lists.
+> 
+> > Please try running the files_struct_rcu patch where fget() is lockfree
+> > and let me know what you see.
+> 
+> Will do ... if you tell me where it is ;-)
 
-* After flushing a batch back into the lists, the number of free objects 
-in the lists is calculated. If freeable pages exist and the number 
-exceeds a target, then the freeable pages above the target are returned 
-to the page buddy.
-* The target of freeable pages is increased by kmem_cache_grow - if we 
-had to get another page from gfp, then our own cache was too small.
+Oh, the usual place -
+http://sourceforge.net/project/showfiles.php?group_id=8875&release_id=112473
+I wish sourceforge FRS continued to allow direct links to patches.
 
-Since the test for the number of freeable objects only happens after 
-batching, i.e. in the worst case once for every 30 kmem_cache_free 
-calls, it doesn't matter if it's a bit expensive.
-
-Open problems:
-
-* What about cache with large objects (>PAGE_SIZE, e.g. the bio 
-MAX_PAGES object, or the 16 kb socket buffers used over loopback)? Right 
-now, they are not cached in the per-cpu arrays, to reduce the memory 
-pressure. If the list processing becomes slower, we would slow down 
-these slab users. But OTHO if you memcpy 16 kB, then a few cycles in 
-kmalloc probably won't matter much.
-
-* Where to flush the per-cpu caches? On a 16-way system, they can 
-contain up to 4000 objects, for each cache. Right now that happens in 
-kmem_cache_reap(). One flush per second would be enough, just to avoid 
-that on lightly loaded slabs, objects remain forever in the per-cpu 
-arrays and prevent pages from becoming freeable.
-
-* where is the freeable pages limit decreased?
-
-
---
-	Manfred
-
+Thanks
+-- 
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

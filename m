@@ -1,75 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264693AbUFSVBU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262451AbUFSVAf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264693AbUFSVBU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 17:01:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264686AbUFSVBU
+	id S262451AbUFSVAf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 17:00:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264692AbUFSVAe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 17:01:20 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:8942 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S264693AbUFSVBA (ORCPT
+	Sat, 19 Jun 2004 17:00:34 -0400
+Received: from pop.gmx.de ([213.165.64.20]:12778 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262451AbUFSVAU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 17:01:00 -0400
-Date: Sat, 19 Jun 2004 22:59:20 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@osdl.org>
-Cc: Rik van Riel <riel@redhat.com>, dev@opensound.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Stop the Linux kernel madness
-Message-ID: <20040619205920.GP28927@marowsky-bree.de>
-References: <20040618082708.GD12881@suse.de> <Pine.LNX.4.44.0406181037180.8065-100000@chimarrao.boston.redhat.com> <20040618135136.45581da7.akpm@osdl.org> <20040618211757.GD7404@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040618211757.GD7404@suse.de>
-X-Ctuhulu: HASTUR
-User-Agent: Mutt/1.5.6i
+	Sat, 19 Jun 2004 17:00:20 -0400
+X-Authenticated: #4512188
+Message-ID: <40D4A962.7030508@gmx.de>
+Date: Sat, 19 Jun 2004 23:00:18 +0200
+From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
+User-Agent: Mozilla Thunderbird 0.7 (X11/20040618)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>
+CC: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>, axboe@suse.de
+Subject: Re: 2.6.7-ck1, cfq ionice?
+References: <200406162122.51430.kernel@kolivas.org>
+In-Reply-To: <200406162122.51430.kernel@kolivas.org>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2004-06-18T23:17:57,
-   Jens Axboe <axboe@suse.de> said:
+So,
 
-> > Problem is, what happens if vendor X ships a feature and that feature is
-> > deemed unacceptable for the kernel.org kernel?
-> Very good question, as these features/patches are often the ones that
-> are ugliest and the hardest to maintain. Or the ones that make you
-> slightly source incompatible with mainline, which is always ugly.
+I have been using 2.6.7-ck1 for a few days now and must say it is simply 
+*great*. Everything is working as it should, but only better. :-) Even 
+ut2004 seems to be much smoother using staircase, some people reported 
+15% more fps (I haven't measured), but it runs as smooth as ut2003 did 
+previously with Nick's scheduler (before the O(1) scheduler was updated 
+to its current state in mm).
 
-I'm afraid that to a certain and hopefully very limitted extend that's
-why the distributors need to pay kernel maintainers themselves... *sigh*
-I fear the answer is called "business reason", and this time it affects
-the kernel, the next time someone does it with gcc, glibc or whatever.
+The only thing left, which is a major pain for me, is disk i/o. Once it 
+starts performance goes down, I think even more with staircase than with 
+Nick's but this could be due to faster feel of staircase in general...
 
-All engineering can do is to kick back as hard as possible and support
-eachother by publically kicking back when someone else is forced to do
-it - so they can run to their management and complain "see what kind of
-bad publicity that gave us!" and hopefully make them at least raise the
-bar (& price) of doing it next time ;-)
+Example: When I do a emerge rsync in gentoo a tree consisting of nearly 
+9000 files gets synced and a cache is built which causes a lot of random 
+access on hd. So when I try to use thunderbird mailer at the same time, 
+it act like a snail now due to concurrent disk access.
 
-> > But we then need to do it all again in 2.8.x.  It's hard to see how to fix
-> > this apart from either merging everything into the main tree or dropping
-> > things from vendor trees.  Or waiting for someone to come up with an
-> > acceptable form of whatever it is the patch does.
-> Wish I had an answer for that. Things can and do get dropped from vendor
-> trees, doesn't cover all cases naturally.
+As I understood the cfq ionice part would solve this issue. I never 
+tried it, as I think I never had a kernel containing it (and never had 
+such a desperate need for it :-). Reading your changelog, it is not 
+included anymore in ck1. So should I beg Jens Axboe for a rediff or new 
+patch or how to get this piece inside? I think it is the only thing left 
+for the next to perfect desktop experience I ever had.
 
-The "waiting for someone.*does." approach before merging into mainline
-is the only sane answer IMHO; merging a patch in a vendor kernel should
-ultimately lead to that, or at least I'm very convinced that's our goal.
+Cheers,
 
-It's not _always_ reached of course, in which case either a feature is
-obsoleted, a migration to a different implementation of said feature
-needed for customers, or one gets (grudgingly) to carry the patch until
-the next major lifecycle change. And 2.4 was hopefully the very height
-of those cases and we are settling down again.
-
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
--- 
-High Availability & Clustering	      \ ever tried. ever failed. no matter.
-SUSE Labs			      | try again. fail again. fail better.
-Research & Development, SUSE LINUX AG \ 	-- Samuel Beckett
-
+Prakash

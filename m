@@ -1,43 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287148AbSAGV1m>; Mon, 7 Jan 2002 16:27:42 -0500
+	id <S287163AbSAGVdC>; Mon, 7 Jan 2002 16:33:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287139AbSAGV1d>; Mon, 7 Jan 2002 16:27:33 -0500
-Received: from ns.caldera.de ([212.34.180.1]:6867 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S287148AbSAGV1U>;
-	Mon, 7 Jan 2002 16:27:20 -0500
-Date: Mon, 7 Jan 2002 22:25:42 +0100
-Message-Id: <200201072125.g07LPgE02318@ns.caldera.de>
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: abramo@alsa-project.org (Abramo Bagnara)
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jaroslav Kysela <perex@suse.cz>,
-        sound-hackers@zabbo.net, linux-sound@vger.rutgers.edu,
-        linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [s-h] Re: ALSA patch for 2.5.2pre9 kernel
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <3C39E6A0.34A88990@alsa-project.org>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.13 (i686))
+	id <S287161AbSAGVcx>; Mon, 7 Jan 2002 16:32:53 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42252 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S287155AbSAGVco>;
+	Mon, 7 Jan 2002 16:32:44 -0500
+Message-ID: <3C3A13F8.33BABD62@mandrakesoft.com>
+Date: Mon, 07 Jan 2002 16:32:40 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18pre1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Daniel Phillips <phillips@bonn-fries.net>
+CC: torvalds@transmeta.com, viro@math.psu.edu, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+Subject: Re: PATCH 2.5.2.9: ext2 unbork fs.h (part 1/7)
+In-Reply-To: <20020107132121.241311F6A@gtf.org> <E16NcLw-0001R9-00@starship.berlin>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3C39E6A0.34A88990@alsa-project.org> you wrote:
-> If you want to keep top level cleaner and avoid proliferation of entries
-> we might have:
->
-> subsys/sound
-> subsys/sound/drivers
-> subsys/net
-> subsys/net/drivers
+Daniel Phillips wrote:
+> 
+> On January 7, 2002 04:19 pm, Daniel Phillips wrote:
+> >   - You are dreferencing a pointer, and have two allocations for every
+> >     inode instead of one.
+> 
+> Oh no, you only have one allocator, and you have the filesystem do it, with
+> per-sb methods.  Why is this better than having the VFS do it?  Does this
+> imply you might have different sized inodes with different mounts of the same
+> filesystem?
+> 
+> The per-fs cost with my variant is: 4-8 bytes per filesystem, period.  No
+> methods needed, and the object management code doesn't get replicated through
+> all the filesystems.
 
-And what part of the kernel is no subsystem?
-Your subsystem directory is superflous.
+Having the VFS allocate objects by passing in object sizes in structs is
+ugly to the extreme.  So I have similar objections as Al here.
 
-If, for some reason, we want to move all code in the kernel around
-we should do it once and in a planned mannor.
+The API change as I have implemented things is more flexible.  Having
+the fs perform the kmem cache allocation for its inodes is much more
+clean than your version IMHO, and one of the big reasons why I did
+things this way.  If you dislike the size of ext2_alloc_inode some of
+that code can probably go into a helper macro/function.
 
-Randomly introducing new and shiny naming schemes sucks.  badly.
 
-	Christoph
+> Also, having the inode point at itself is a little, hmm, 'what's wrong with
+> this picture', don't you think?
+
+I am very much interested in a better solution...  I could not figure
+out how to get a private pointer from a struct inode*, without using a
+nasty OFFSET_OF macro or a pointer to self as I implemented.
+
+	Jeff
+
 
 -- 
-Of course it doesn't work. We've performed a software upgrade.
+Jeff Garzik      | Alternate titles for LOTR:
+Building 1024    | Fast Times at Uruk-Hai
+MandrakeSoft     | The Took, the Elf, His Daughter and Her Lover
+                 | Samwise Gamgee: International Hobbit of Mystery

@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261320AbTCOIFN>; Sat, 15 Mar 2003 03:05:13 -0500
+	id <S261327AbTCOIIx>; Sat, 15 Mar 2003 03:08:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261323AbTCOIFN>; Sat, 15 Mar 2003 03:05:13 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:2434 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S261320AbTCOIFK>;
-	Sat, 15 Mar 2003 03:05:10 -0500
-Date: Sat, 15 Mar 2003 09:15:58 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>
-Subject: Re: 2.5.64-mm6: oops in elv_remove_request
-Message-ID: <20030315081558.GK791@suse.de>
-References: <20030313175454.GP836@suse.de> <1047578690.1322.17.camel@ixodes.goop.org> <20030313190247.GQ836@suse.de> <1047633884.1147.3.camel@ixodes.goop.org> <20030314104219.GA791@suse.de> <1047637870.1147.27.camel@ixodes.goop.org> <20030314113732.GC791@suse.de> <1047664774.25536.47.camel@ixodes.goop.org> <20030314180716.GZ791@suse.de> <1047680345.1508.2.camel@ixodes.goop.org>
-Mime-Version: 1.0
+	id <S261328AbTCOIIw>; Sat, 15 Mar 2003 03:08:52 -0500
+Received: from mako.theneteffect.com ([63.97.58.10]:23824 "EHLO
+	mako.theneteffect.com") by vger.kernel.org with ESMTP
+	id <S261327AbTCOIIw>; Sat, 15 Mar 2003 03:08:52 -0500
+From: Mitch Adair <mitch@theneteffect.com>
+Message-Id: <200303150819.h2F8JfW15921@mako.theneteffect.com>
+Subject: Re: [PATCH] update filesystems config. menu
+To: randy.dunlap@verizon.net (Randy.Dunlap)
+Date: Sat, 15 Mar 2003 02:19:40 -0600 (CST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <no.id> from "Randy.Dunlap" at Mar 14, 2003 11:45:48 PM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1047680345.1508.2.camel@ixodes.goop.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 14 2003, Jeremy Fitzhardinge wrote:
-> On Fri, 2003-03-14 at 10:07, Jens Axboe wrote:
-> > > Ejecting and reinserting the disc seems to restore things:
-> > 
-> > Really weird, I can't reproduce here at all. My drive gives the correct
-> > result no matter if it's empty or loaded. Results are repeatable, too.
-> > DMA or PIO, didn't matter.
-> > 
-> > > Notice the "version" and "response format" fields have changed.
-> > 
-> > Yeah, something is really screwed. Hmmm, let spend a bit of time with
-> > this problem...
-> 
-> I just double-checked, and everything behaves as expected with ide-scsi.
+> +config EXT2_FS
+> +	tristate "Second extended fs support"
 
-I can reliably crash the box with SG_IO -> ide-cd here, so I'm hoping
-there's a connection. Need to move it to a box where nmi watchdog
-actually works...
+[...]
 
--- 
-Jens Axboe
+> +	  module will be called ext2.  Be aware however that the file system
+> +	  of your root partition (the one containing the directory /) cannot
+> +	  be compiled as a module, and so this could be dangerous.  Most
+> +	  everyone wants to say Y here.
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+I seem to recall if you say Y to ext2 and Y to ext3 and your root is on ext3
+then it's likely to be mounted as ext2 unless you set rootfstype=...
+The ext3 help comment also warns you should set it to Y, so people with
+root ext3 are likely to get a surprise if they follow both help.  Would it
+be better to say something like "if your root partition is extX you almost
+certainly want to say Y here"?  Or warn about the rootfstype issue maybe?
 
+	M

@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262041AbTJXHmS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 03:42:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbTJXHmS
+	id S262055AbTJXHse (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 03:48:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbTJXHse
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 03:42:18 -0400
-Received: from iv.ro ([194.105.28.94]:65440 "HELO iv.ro") by vger.kernel.org
-	with SMTP id S262041AbTJXHmR (ORCPT
+	Fri, 24 Oct 2003 03:48:34 -0400
+Received: from gprs146-220.eurotel.cz ([160.218.146.220]:36225 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262055AbTJXHsd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 03:42:17 -0400
-Date: Fri, 24 Oct 2003 10:28:42 +0300
-From: Jani Monoses <jani@iv.ro>
-To: Knut Petersen <Knut_Petersen@t-online.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: tridentfb 2.6.0* broken for VIA integrated graphics core on
- EPIA Mini-ITX boards
-Message-Id: <20031024102842.4ecc2bf7.jani@iv.ro>
-In-Reply-To: <3F98D3E6.60202@t-online.de>
-References: <3F98D3E6.60202@t-online.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 24 Oct 2003 03:48:33 -0400
+Date: Fri, 24 Oct 2003 09:48:11 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: George Anzinger <george@mvista.com>
+Cc: John stultz <johnstul@us.ibm.com>, Patrick Mochel <mochel@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [pm] fix time after suspend-to-*
+Message-ID: <20031024074811.GA1519@elf.ucw.cz>
+References: <20031022233306.GA6461@elf.ucw.cz> <1066866741.1114.71.camel@cog.beaverton.ibm.com> <20031023081750.GB854@openzaurus.ucw.cz> <3F9838B4.5010401@mvista.com> <1066942532.1119.98.camel@cog.beaverton.ibm.com> <3F985FB0.1070901@mvista.com> <1066955396.1122.133.camel@cog.beaverton.ibm.com> <3F988A0B.4010803@mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F988A0B.4010803@mvista.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Oct 2003 09:25:26 +0200
-Knut Petersen <Knut_Petersen@t-online.de> wrote:
+Hi!
 
-> Oct 24 08:25:24 linux kernel: tridentfb: Trident framebuffer 
-> 0.7.8-NEWAPI initializing
-> Oct 24 08:25:24 linux kernel: tridentfb: framebuffer size = 8192 Kb
-> Oct 24 08:25:24 linux kernel: tridentfb: 0000:01:00.0 board found
-> Oct 24 08:25:24 linux kernel: tridentfb: probe of 0000:01:00.0 failed 
-> with error -22
+> The request can be on the wall clock or on clock_monotonic.  Still, we went 
+> round and round about how a tick on one should be a tick on the other.  My 
+> understanding is that the pm_timer was put in the ACPIC to handle this, but 
+> then I don't know how far down power is going, nor for how long.  I would 
+> think at some point the discontinuity would be large enough that one would 
+> want some user service to run and "fix" all the broken time assumptions.  
+> Some sort of a soft reboot that would kick the ntp code, cron and so on, 
+> much as is done at boot.
 
-that's EINVAL and it's returned from two places in trident_pci_probe. I
-suspect that find_mode does not return a valid mode. Could you look at
-that function and put some more outputs...
-The driver works for me in 2.6.0-test8
+Well, it is well possible that discontinuity is days (it usually is 8
+hours for me -- I suspend-to-disk before going to sleep), and nothing
+prevents you from suspending machine for half a year.
 
-Jani
+								Pavel
+
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

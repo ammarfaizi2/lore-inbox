@@ -1,50 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262198AbTL2Ab7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Dec 2003 19:31:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262280AbTL2Ab7
+	id S262181AbTL2A23 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Dec 2003 19:28:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262186AbTL2A23
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Dec 2003 19:31:59 -0500
-Received: from holomorphy.com ([199.26.172.102]:46003 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262198AbTL2Ab6 (ORCPT
+	Sun, 28 Dec 2003 19:28:29 -0500
+Received: from mx1.it.wmich.edu ([141.218.1.89]:64128 "EHLO mx1.it.wmich.edu")
+	by vger.kernel.org with ESMTP id S262181AbTL2A21 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Dec 2003 19:31:58 -0500
-Date: Sun, 28 Dec 2003 16:31:50 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: mfedyk@matchmail.com, Matt Mackall <mpm@selenic.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] 2.6.0-tiny1 tree for small systems
-Message-ID: <20031229003150.GS22443@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	mfedyk@matchmail.com, Matt Mackall <mpm@selenic.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <20031227215606.GO18208@waste.org> <20031228235417.GB1882@matchmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031228235417.GB1882@matchmail.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Sun, 28 Dec 2003 19:28:27 -0500
+Message-ID: <3FEF7528.1000301@wmich.edu>
+Date: Sun, 28 Dec 2003 19:28:24 -0500
+From: Ed Sweetman <ed.sweetman@wmich.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Samuel Flory <sflory@rackable.com>
+CC: Joshua Kwan <joshk@triplehelix.org>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Can't eject a previously mounted CD?
+References: <20031226081535.GB12871@triplehelix.org> <20031226103427.GB11127@ucw.cz> <20031226194457.GC12871@triplehelix.org> <3FEC91FA.1050705@rackable.com> <20031226202700.GD12871@triplehelix.org> <3FEF7359.9050900@rackable.com>
+In-Reply-To: <3FEF7359.9050900@rackable.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 27, 2003 at 03:56:06PM -0600, Matt Mackall wrote:
->> This is the second release of the -tiny kernel tree. The aim of this
->> tree is to collect patches that reduce kernel disk and memory
->> footprint as well as tools for working on small systems. Target users
->> are things like embedded systems, small or legacy desktop folks, and
->> handhelds.
->> Latest release includes:
->>  - "make checkstack" to find largest stack users
+Samuel Flory wrote:
+> Joshua Kwan wrote:
+> 
+>> On Fri, Dec 26, 2003 at 11:54:34AM -0800, Samuel Flory wrote:
+>>
+>>>  What does fuser -kv /mnt/cdrom claim?
+>>
+>>
+>>
+>> It's /cdrom here. I tried it on both /cdrom and /dev/cdrom after
+>> unmounting it, and the output was blank.
+>>
+>> While mounted, here was the output:
+>>
+>>                      USER        PID ACCESS COMMAND
+>> /cdrom               root     kernel mount  /cdrom
+>> No automatic removal. Please use  umount /cdrom
+>>
+>> I guess that doesn't say much though...
+>>
+> 
+>   It does seem to imply that the cdrom is still mounted, or that 
+> something thinks it's still mounted.
 
-On Sun, Dec 28, 2003 at 03:54:17PM -0800, Mike Fedyk wrote:
-> Maybe wli will be interested in this one since he has some stack shrinking
-> patches in his tree...
 
-I'm already following this in general. I contributed a number of fixes
-I've done for the 4K stack code over time at the time mpm originally
-put -tiny together, though I think he's rearranged various things (e.g.
-re-split the thing into 3 pieces) I can't be arsed to deal with.
+I dont believe this unable to eject problem has anything to do with 
+anything thinking it's mounted.
 
+famd upon load seems to cause this error.
+end_request: I/O error, dev hdc, sector 0
 
--- wli
+That's my cdrom.  Perhaps the kernel has a bug in the code dealing with 
+an access to the cdrom where no media is mounted and/or loaded.  Either 
+way, this is at boot and seems to be a kernel bug initiated by FAM. At 
+least the version distributed with debian-unstable.  I dont use gnome (i 
+do have some gnome programs installed to test on) and the error message 
+was reported soon after the loading of FAM.
+

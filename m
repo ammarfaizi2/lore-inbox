@@ -1,56 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266679AbUHZBWg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266613AbUHZB1x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266679AbUHZBWg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 21:22:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266613AbUHZBWg
+	id S266613AbUHZB1x (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 21:27:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266648AbUHZB1x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 21:22:36 -0400
-Received: from dp.samba.org ([66.70.73.150]:52958 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S266543AbUHZBWc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 21:22:32 -0400
-Date: Wed, 25 Aug 2004 18:22:30 -0700
-From: Jeremy Allison <jra@samba.org>
-To: Nicholas Miell <nmiell@gmail.com>
-Cc: Wichert Akkerman <wichert@wiggy.net>, Jeremy Allison <jra@samba.org>,
-       Andrew Morton <akpm@osdl.org>, Spam <spam@tnonline.net>,
-       torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040826012230.GA19957@jeremy1>
-Reply-To: Jeremy Allison <jra@samba.org>
-References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com> <20040825152805.45a1ce64.akpm@osdl.org> <112698263.20040826005146@tnonline.net> <Pine.LNX.4.58.0408251555070.17766@ppc970.osdl.org> <1453698131.20040826011935@tnonline.net> <20040825163225.4441cfdd.akpm@osdl.org> <20040825233739.GP10907@legion.cup.hp.com> <20040825234629.GF2612@wiggy.net> <1093480940.2748.35.camel@entropy>
+	Wed, 25 Aug 2004 21:27:53 -0400
+Received: from berrymount.xs4all.nl ([82.92.47.16]:31584 "EHLO
+	verdi.et.tudelft.nl") by vger.kernel.org with ESMTP id S266613AbUHZB1w
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 21:27:52 -0400
+Date: Thu, 26 Aug 2004 03:27:48 +0200
+From: Rob van Nieuwkerk <robn@berrymount.nl>
+To: Rob van Nieuwkerk <robn@berrymount.nl>
+Cc: nemosoft@smcc.demon.nl, linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.6.8 pwc patches and counterpatches
+Message-Id: <20040826032748.6ad60a28.robn@berrymount.nl>
+In-Reply-To: <20040826025545.716b6c59.robn@berrymount.nl>
+References: <1092793392.17286.75.camel@localhost>
+	<1092845135.8044.22.camel@localhost>
+	<20040823221028.GB4694@kroah.com>
+	<200408250058.24845@smcc.demon.nl>
+	<20040826025545.716b6c59.robn@berrymount.nl>
+Organization: Berrymount Automation B.V.
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+X-URL: http://www.berrymount.nl/
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1093480940.2748.35.camel@entropy>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 25, 2004 at 05:42:21PM -0700, Nicholas Miell wrote:
-> 
-> Anything that currently stores a file's metadata in another file really
-> wants this right now. Things like image thumbnails, document summaries,
-> digital signatures, etc.
+On Thu, 26 Aug 2004 02:55:45 +0200
+Rob van Nieuwkerk <robn@berrymount.nl> wrote:
 
-Which is exactly how Windows apps have started to use streams.
+> There are some severe bugs in either your Philips webcam driver, the
+> USB stack or the combination of both, resulting in a "dead" camera
+> within a second of use in some situations.  This can only be fixed by
+> a power cycle  (reported to you several times btw).
+  ^^^^^^^^^^^^^
 
-> As to how to do it, I think the Solaris interface is reasonably decent.
-> The overview is at http://docs.sun.com/db/doc/816-0220/6m6nkorp9?a=view
+I mean "reboot" !
 
-I agree. This is an interface Samba can live with I think. I
-was thinking of implementing it anyway, just so I could piss
-off the Linux kernel developers by saying "oh if you need proper
-Windows semantics on Samba you have to use an advanced OS like
-Solaris, Linux doesn't cut it" :-) :-).
-
-> The only real problem I have with their design is the calling them
-> attributes and using "at" everywhere. 
-
-Yep - they're different from xattrs. The easiest way to remember
-this is that file streams are seekable and get a fd, xattrs aren't
-and don't :-).
-
-Jeremy.
+	greetings,
+	Rob van Nieuwkerk

@@ -1,71 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265001AbTGBNtg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 09:49:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265002AbTGBNtg
+	id S265007AbTGBN7Z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 09:59:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265008AbTGBN7Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 09:49:36 -0400
-Received: from Mail1.kontent.de ([81.88.34.36]:53734 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S265001AbTGBNtf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 09:49:35 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: ranty@debian.org, Manuel Estrada Sainz <ranty-bulk@ranty.pantax.net>,
-       Oliver Neukum <neukum@fachschaft.cup.uni-muenchen.de>
-Subject: Re: orinoco_usb Request For Comments
-Date: Wed, 2 Jul 2003 16:02:47 +0200
-User-Agent: KMail/1.5.1
-Cc: LKML <linux-kernel@vger.kernel.org>, orinoco-usb-devel@ranty.pantax.net
-References: <20030626205811.GA25783@ranty.pantax.net> <Pine.LNX.4.53.0306271213350.5135@fachschaft.cup.uni-muenchen.de> <20030702101747.GA4137@ranty.pantax.net>
-In-Reply-To: <20030702101747.GA4137@ranty.pantax.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Jul 2003 09:59:25 -0400
+Received: from 24-216-225-11.charter.com ([24.216.225.11]:4997 "EHLO
+	wally.rdlg.net") by vger.kernel.org with ESMTP id S265007AbTGBN7W
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 09:59:22 -0400
+Date: Wed, 2 Jul 2003 10:13:45 -0400
+From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: gcc 2.95.4 vs gcc 3.3 ?
+Message-ID: <20030702141345.GD13653@rdlg.net>
+Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="IDYEmSnFhs3mNXr+"
 Content-Disposition: inline
-Message-Id: <200307021602.47534.oliver@neukum.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mittwoch, 2. Juli 2003 12:17 schrieb Manuel Estrada Sainz:
-> On Fri, Jun 27, 2003 at 12:15:04PM +0200, Oliver Neukum wrote:
-> > 
-> > 
-> > On Fri, 27 Jun 2003, Manuel Estrada Sainz wrote:
-> > 
-> > > On Thu, Jun 26, 2003 at 11:41:18PM +0200, Oliver Neukum wrote:
-> > > > 		/* We don't like racing :) */
-> > > > 		ctx->outurb->transfer_flags &= ~URB_ASYNC_UNLINK;
-> > > > 		usb_unlink_urb(ctx->outurb);
-> > > > 		del_timer_sync(&ctx->timer);
-> > > >
-> > > > But neither do we like sleeping in interrupt. You can't simply unset the flag
-> > > > if somebody else may be needing it.
-> > > >
-> > > > More when I am rested :-)
-> > >
-> > >  How about the attached patch, not pretty, but it should work.
-> > 
-> > It is much too ugly. Please use a struct completion or a waitqueue.
->  
->  How about this?
-> 
->  The other choice is to just wait on the completion unconditionally and
->  let timers expire on their own if needed.
->  
->  That would probably be more robust, and waiting a few extra seconds on
->  module removal (which would just happen when the card hangs) is
->  probably OK.  What do you think?
 
-You also need this code path on hotunplugging.
-Please take out the test for EINPROGRESS and examine the return
-value of usb_unlink_urb() to decide whether you have to wait.
- 
->  PS: Ideas on how to make the PCMCIA vs. USB integration (specially the
->  locking) cleaner would be very, very welcomed. 
+--IDYEmSnFhs3mNXr+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I know too little about the PCMCIA cards. Sorry.
 
-	Regards
-		Oliver
 
+  I'm trying to compile the 2.4.21-ac3 kernel for some work machines.
+One of the users is insisting on gcc 3.3 to compile.  Reading the
+web page on www.kernel.org this is recomended against.
+
+  Perchance is this old news, is the 3.3 compiled kernel going to kill
+something or anything that should be related to users or any bosses?
+
+Robert
+
+
+:wq!
+---------------------------------------------------------------------------
+Robert L. Harris                     | GPG Key ID: E344DA3B
+                                         @ x-hkp://pgp.mit.edu=20
+DISCLAIMER:
+      These are MY OPINIONS ALONE.  I speak for no-one else.
+
+Diagnosis: witzelsucht  =09
+
+IPv6 =3D robert@ipv6.rdlg.net	http://ipv6.rdlg.net
+IPv4 =3D robert@mail.rdlg.net	http://www.rdlg.net
+
+--IDYEmSnFhs3mNXr+
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/AuiZ8+1vMONE2jsRAmDwAJwNAF1yUo3i9P8OUpX3cfal3illdQCfdaeK
+WVHY3/95CmrTwAE2MUMiMqM=
+=Wyre
+-----END PGP SIGNATURE-----
+
+--IDYEmSnFhs3mNXr+--

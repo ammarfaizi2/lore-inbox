@@ -1,96 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261793AbVCHG3M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261542AbVCHGbl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261793AbVCHG3M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 01:29:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261792AbVCHG3M
+	id S261542AbVCHGbl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 01:31:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbVCHGbl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 01:29:12 -0500
-Received: from gizmo12bw.bigpond.com ([144.140.70.43]:28068 "HELO
-	gizmo12bw.bigpond.com") by vger.kernel.org with SMTP
-	id S261796AbVCHG3D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 01:29:03 -0500
-Message-ID: <422D4628.8060203@bigpond.net.au>
-Date: Tue, 08 Mar 2005 17:28:56 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+	Tue, 8 Mar 2005 01:31:41 -0500
+Received: from ns1.lanforge.com ([66.165.47.210]:60069 "EHLO www.lanforge.com")
+	by vger.kernel.org with ESMTP id S261542AbVCHGaj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 01:30:39 -0500
+Message-ID: <422D468C.7060900@candelatech.com>
+Date: Mon, 07 Mar 2005 22:30:36 -0800
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041020
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>,
-       paul@linuxaudiosystems.com, joq@io.com, cfriesen@nortelnetworks.com,
-       chrisw@osdl.org, hch@infradead.org, rlrevell@joe-job.com,
-       arjanv@redhat.com, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-References: <20050112185258.GG2940@waste.org> <200501122116.j0CLGK3K022477@localhost.localdomain> <20050307195020.510a1ceb.akpm@osdl.org> <20050308043349.GG3120@waste.org> <20050307204044.23e34019.akpm@osdl.org> <422D3AB2.9020409@bigpond.net.au> <20050308054931.GA20200@elte.hu>
-In-Reply-To: <20050308054931.GA20200@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: Christian Schmid <webmaster@rapidforum.com>, linux-kernel@vger.kernel.org
+Subject: Re: BUG: Slowdown on 3000 socket-machines tracked down
+References: <4229E805.3050105@rapidforum.com> <422BAAC6.6040705@candelatech.com> <422BB548.1020906@rapidforum.com> <422BC303.9060907@candelatech.com> <422BE33D.5080904@yahoo.com.au> <422C1D57.9040708@candelatech.com> <422C1EC0.8050106@yahoo.com.au>
+In-Reply-To: <422C1EC0.8050106@yahoo.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Peter Williams <pwil3058@bigpond.net.au> wrote:
+Nick Piggin wrote:
+> Ben Greear wrote:
 > 
-> 
->>I don't object to rlimits per se and I think that they are useful but
->>not as a sole solution to this problem.  Being able to give a task
->>preferential treatment is a permissions issue and should be solved as
->>one.
+>> Nick Piggin wrote:
 >>
->>Having RT cpu usage limits on tasks is a useful tool to have when
->>granting normal users the privilege of running tasks as RT tasks so
->>that you can limit the damage that they can do BUT the presence of a
->>limit on a task is not a very good criterion for granting that
->>privilege.
+>>> Ben Greear wrote:
+>>>
 > 
+>>> In that case, writing the network only test would help to confirm the
+>>> problem is not a networking one - so not useless by any means.
+>>
+>>
+>>
+>> It's not trivial to write something like this :)
+>>
+>> I'll be using something I already have.  If I can't reproduce the 
+>> problem,
+>> then perhaps it is due to sendfile and someone can write a customized
+>> test.  The main reason I offered is because people are ignoring the
+>> bug report for the most part and asking for a test case.  I may be able
+>> to offer an independent verification of the problem which might convince
+>> someone to write up a dedicated test case...
+>>
 > 
-> i think you are talking about my rlimit patch (the 'RT CPU limit' patch)
-> - but that one is not in discussion here.
+> OK, no that sounds good, please do make the test case.
 > 
-> what is being discussed currently is the other rlimit patch (from Chris
-> Wright and Matt Mackall) which implements a simple rlimit ceiling for
-> the RT (and nice) priorities a task can set. The rlimit defaults to 0,
-> meaning no change in behavior by default. A value of 50 means RT
-> priority levels 1-50 are allowed. A value of 100 means all 99 privilege
-> levels from 1 to 99 are allowed. CAP_SYS_NICE is blanket permission.
-> It's all pretty finegrained and and it's a quite straightforward
-> extension of what we have today.
+> I have actually been following up with Christian regarding
+> the disk IO / memory management side of things but the thread
+> has gone offline for some reason :\
 
-OK.  My misunderstanding.
+Initial test setup:  two machines, running connections between them.
+Mostly asymetric (about 50Mbps in one direction,
+GigE in the other).  Each connection is trying some random rate between 128kbps
+and 3Mbps in one direction, and 1kbps in the other direction.
 
-But the patch you describe still seems a little loose to me in that it 
-doesn't control both which users AND which programs they can run. 
-Although I suppose that can be managed by suitable setting of file 
-permissions?
+Sending machine is dual 3.0Ghz xeons, 1MB cache, HT, and emt64 (running 32-bit
+kernel & user space though). 1GB of RAM
 
-Also I presume that root privileges are needed to set the rlimits which 
-means that the program has to be setuid root or run from a setuid root 
-wrapper.  In the first of these cases the program will be running for a 
-(hopefully) short while with way more privilege than it needs.  This is 
-why I'm attracted to mechanisms that allow programs to be given a subset 
-of root's privileges and only for specified users.
+Receiving machine is dual 2.8Ghz xeons, 512 MB cache, HT, 32-bit.  2GB of RAM
+(but only 850Mbps of low memory of course...saw the thing OOM kill me with 1GB of
+free high memory :( )
 
-I would be nice to have a solution to this particular problem that fits 
-in with such a generalized "granular" privilege mechanism (when/if such 
-a mechanism becomes available in the future) rather than a quirky fix 
-that is specific to this problem and doesn't generalize well to similar 
-problems when they arise in the future.  However, I agree with your 
-opinion that granting CAP_SYS_NICE is dangerous without some limit on 
-the priority levels is dangerous and think that a generalized "granular" 
-privilege mechanism would need to include such restrictions.
 
-> The patch does not attempt to do any
-> "damage control" of abuse caused by RT tasks, and is hence much simpler
-> than my patch or Con's SCHED_ISO patch. ("damage control" could be done
-> from userspace anyway)
+Zero latency:
 
-Yes.  In kernel "damage control" is an optional extra not a necessity 
-with this solution.  Not so sure about with the RT LSB solution though.
+2000 TCP connections:  When I first start, I see errors indicating I'm out of low
+         memory..but it quickly recovers.  Probably because my program takes a small
+         bit of time before it starts reading the sockets.
+         986Mbps of ethernet traffic (counting all ethernet headers)
 
-Peter
+3000 TCP connections:  Same memory issue
+         986Mbps of ethernet traffic, about 82kpps
+
+4000 TCP connections:  Had to drop max_backlog to 5000 from 10000 to keep
+         the machine from going OOM and killing my traffic generator (on
+         the receiving side).
+	986Mbps of ethernet traffic
+
+I will work on some numbers with latency tomorrow (had to stop and
+re-write some of my code to better handle managing the 8000 endpoints
+that 4000 connections requires!)
+
+I think we can assume that the problem is either related to latency,
+or sendfile, since 4000 connections with no latency rocks along just
+fine...
+
+Ben
+
 -- 
-Peter Williams                                   pwil3058@bigpond.net.au
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce

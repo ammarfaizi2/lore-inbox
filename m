@@ -1,38 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262552AbULDRSE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262559AbULDRYy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262552AbULDRSE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Dec 2004 12:18:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262559AbULDRSE
+	id S262559AbULDRYy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Dec 2004 12:24:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262560AbULDRYy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Dec 2004 12:18:04 -0500
-Received: from linaeum.absolutedigital.net ([63.87.232.45]:53147 "EHLO
-	linaeum.absolutedigital.net") by vger.kernel.org with ESMTP
-	id S262552AbULDRSC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Dec 2004 12:18:02 -0500
-Date: Sat, 4 Dec 2004 12:18:03 -0500 (EST)
-From: Cal Peake <cp@absolutedigital.net>
-To: Mark McPherson <mark@mahonia.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Linux 2.6.9-ac13
-In-Reply-To: <1102096309.10714.1.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61.0412041210210.20333@linaeum.absolutedigital.net>
-References: <1102096309.10714.1.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 4 Dec 2004 12:24:54 -0500
+Received: from main.gmane.org ([80.91.229.2]:55761 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262559AbULDRYx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Dec 2004 12:24:53 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Ari Pollak <aripollak@gmail.com>
+Subject: Re: Linux 2.6.10-rc3
+Date: Sat, 04 Dec 2004 12:24:57 -0500
+Message-ID: <cosrt1$j67$1@sea.gmane.org>
+References: <Pine.LNX.4.58.0412031611460.22796@ppc970.osdl.org>	<pan.2004.12.04.09.06.09.707940@nn7.de> <87oeha6lj1.fsf@sycorax.lbl.gov>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: atlantis.ccs.neu.edu
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+X-Accept-Language: en-us, en
+In-Reply-To: <87oeha6lj1.fsf@sycorax.lbl.gov>
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 4 Dec 2004, Mark McPherson wrote:
+Alex Romosan wrote:
+> well, it's still more than my thinkpad which doesn't want to wake up
+> from sleep anymore.
 
-> Here, at least, bzdiff tells me that the .bz2 patches for -ac12 and 
-> -ac13 are identical. And the byte counts in Alan's directory seem to be 
-> the same for these files. Could it be that the -ac12 patch set was 
-> inadvertently assembled and released again as -ac13?
-
-Alan, Mark's right. -ac12 and -ac13 are identical on kernel.org. My 
-appologies on my earlier comment, I didn't even think to examine the patch 
-more closely.
-
--- Cal
+My thinkpad will resume fine if I remove the intel8x0 and intel8x0m ALSA 
+modules before going into suspend - works with both APM and ACPI, though 
+I don't really use ACPI suspend because the battery drains like crazy.
 

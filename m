@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264549AbUAATIy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 14:08:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264557AbUAATIy
+	id S264540AbUAATe4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 14:34:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264542AbUAATe4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 14:08:54 -0500
-Received: from smtp2.clear.net.nz ([203.97.37.27]:46285 "EHLO
-	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S264549AbUAATIx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 14:08:53 -0500
-Date: Fri, 02 Jan 2004 08:07:03 +1300
-From: Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: Re: How to avoid 'lost interrupt' messages post-resume?
-In-reply-to: <1072939036.768.39.camel@gaston>
-To: benh@kernel.crashing.org
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <1072984022.22058.3.camel@laptop-linux>
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.4.4-8mdk
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-References: <1072932095.6722.22.camel@laptop-linux>
- <1072939036.768.39.camel@gaston>
+	Thu, 1 Jan 2004 14:34:56 -0500
+Received: from fw.osdl.org ([65.172.181.6]:2183 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264540AbUAATez (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jan 2004 14:34:55 -0500
+Date: Thu, 1 Jan 2004 11:34:46 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Juergen Hasch <lkml@elbonia.de>
+cc: Srihari Vijayaraghavan <harisri@bigpond.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.1-rc1 compile error
+In-Reply-To: <200401011026.00520.lkml@elbonia.de>
+Message-ID: <Pine.LNX.4.58.0401011133050.2065@home.osdl.org>
+References: <200401010109.12005.harisri@bigpond.com> <200401011026.00520.lkml@elbonia.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for the reply.
 
-I'll look into that area some more.
 
-Regards,
+On Thu, 1 Jan 2004, Juergen Hasch wrote:
+> 
+> Linus introduced this function a few weeks ago. I used the patch below to move 
+> the function from kernel/irq.c to pci/irq.c, but he will probably fix it
+> himself soon.
 
-Nigel
+I'd much rather have x86-64 have their own version. I would prefer to keep
+the irq knowledge in the irq layer. Eventually that irq layer will get
+unified, but for now I do _not_ want some random PCI file to know about
+irq handler internal data structures.
 
-On Thu, 2004-01-01 at 21:09, Benjamin Herrenschmidt wrote:
-> You probably had a pending IDE request or something like that... IDE
-> in 2.4.x doesn't quite have the infrastructure to deal properly with
-> suspend & resume...
-
--- 
-My work on Software Suspend is graciously brought to you by
-LinuxFund.org.
-
+		Linus

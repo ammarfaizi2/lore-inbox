@@ -1,123 +1,140 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263018AbTKESBO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Nov 2003 13:01:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263019AbTKESBO
+	id S262986AbTKESIR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Nov 2003 13:08:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263076AbTKESIR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Nov 2003 13:01:14 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:8934 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S263018AbTKESBI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Nov 2003 13:01:08 -0500
-Date: Wed, 5 Nov 2003 19:00:35 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Matt <dirtbird@ntlworld.com>,
-       herbert@gondor.apana.org.au,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [MOUSE] Alias for /dev/psaux
-Message-ID: <20031105180035.GB27922@ucw.cz>
-References: <20031105170217.GA27752@ucw.cz> <Pine.LNX.4.44.0311050920080.11208-100000@home.osdl.org>
+	Wed, 5 Nov 2003 13:08:17 -0500
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:18341 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S262986AbTKESIN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Nov 2003 13:08:13 -0500
+Date: Wed, 5 Nov 2003 19:08:10 +0100
+To: linux-kernel@vger.kernel.org
+Cc: linux-archs@vger.kernel.org
+Subject: [PATCH] compat syscalls for sys_io_...
+Message-ID: <20031105180810.GA2691@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0311050920080.11208-100000@home.osdl.org>
 User-Agent: Mutt/1.5.4i
+From: Thomas Spatzier <tspat@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 05, 2003 at 09:36:28AM -0800, Linus Torvalds wrote:
+I've implemented compat wrapper functions for the sys_io... set of
+system calls for 32 bit emulation on s390. I think, these
+wrapper functions will also be needed by architectures other than s390
+(I found implementations for ppc64 and x86_64; compat_io_setup is
+heavily based on the ppc64 implementation);
+therefore I think they should be put into fs/compat.c.
+Please verify/comment on the patch below. AFAICS they should do across
+archs.
+
+Regards,
+Thomas.
 
 
-> The alternative approach is to _not_ try to autodetect and leave it in a
-> sane default state - or at least leaving the detection to a minimum, but
-> having sane ways of letting the user set the thing.
-
-Would sysfs be a sane enough way?
-
-> As an example, the old psaux driver allowed the user to _send_ to the
-> mouse, not just receive. That made it possible for user mode to autodetect
-> the mouse, and set the settings. The input-mode mouse driver totally drops
-> that feature - which forces the kernel to get it right.
-> 
-> That's a very fragile design: making feedback impossible means that you
-> have to always get it right - which in turn tends to be fundamentally
-> impossible (ie new mice etc). And right now we force the user to make the
-> choice at _boot_ time, which means that the installer can't even ask the
-> user.
-
-I agree here.
-
-In the original design I assumed the PS/2 hardware is sane enough to be
-(auto)detectable. Most other hardware is, so why not PS/2 mice? It has
-become obvious that there are many caveats and many broken devices (most
-notably KVMs and notebook transparent mux chips) in the equation.
-
-I still would prefer to have the autodetect be enabled, because it works
-for 99% of the cases and allow to set the mouse protocol manually
-(either boot time or via sysfs) for the troublesome cases.
-
-If psmouse.o is a module, the installer of course can ask the user. 
-
-> Also, some of the autodetect code is less intrusive. For example, if the
-> mouse driver decides it's a Logitech mouse, it will have set the
-> resolution down to zero, but it will have left the reporting rate at the
-> default.
-
-Originally, the psmouse code set all the resolution/rate/scaling to sane
-values after the detection was run. It does that only conditionally now,
-which causes a lot of problems with the intrusiveness of the probing.
-
-There are four approaches:
-	1) Kill some of the probes (but having the MS one is needed for 80% of mice)
-	2) Get the values from the mouse and restore them after probing
-	3) Set the mouse to sane values like before
-	4) detect -> reset -> initialize
-
-IMO sane values are
-	* 80 samples/sec
-		+ interactive enough, about the same as the refresh rate
-		  of the monitor - you never can actually see a smoother
-		  movement than your monitor HZ
-		+ slow enough that old hardware doesn't choke
-
-	* 400 dpi
-		+ simply the default. 99% USB mice are 400 dpi by
-		  default, and PS/2 mice at least 90%
-
-	* 1:1 scaling
-		+ has anyone ever changed this one?
-
-Nevertheless, we probably cannot stop at least two of these three groups
-of people from complaining:
-
-	* 2.5.* users will see erratic movement of their X cursor if
-	  they set mouse acceleration to insane values, because 200
-          samples/sec rate used through 2.5 effectively disabled
-	  mouse acceleration.
-
-	* 2.4 users will see mouse 'slowdown', because 2.4 default 
-	  (or better the HW default) is 60 samples/sec (thus the
-	  speed when acceleration kicks in goes up 1.33x)
-
-	* 2.4 users who have set up different speed/res/scale values
-	  in XF86Config, because those are ignored in 2.6
-
-> In contrast, an unrecognized mouse will have gone through the intellimouse
-> test, which will have set the rate down to 80 (in addition to having the
-> resolution set down to the lowest setting by the Logitech detect code). So
-> now some mice get even _worse_ behaviour. Or at least different.
-
-Agreed, this is simply WRONG. We need to have the mouse set to defined
-speed/resolution/scaling after we probe. Options listed above.
-
-> Right now we can't make big changes, but it would be good to think about 
-> the issues.
-> 
-> And we could make the defaults a bit nicer and less likely to screw up.
-> 
-> 		Linus
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+diff -urN linux-2.6.0-test9/fs/compat.c linux-2.6.0-test9-compat-aio/fs/compat.c
+--- linux-2.6.0-test9/fs/compat.c	2003-09-29 13:30:29.000000000 +0200
++++ linux-2.6.0-test9-compat-aio/fs/compat.c	2003-11-05 18:57:43.000000000 +0100
+@@ -554,3 +554,88 @@
+ 	return compat_sys_fcntl64(fd, cmd, arg);
+ }
+ 
++/* posix aio functions: sys_io_... */
++extern asmlinkage long
++sys_io_setup(unsigned, aio_context_t *ctx);
++
++asmlinkage long
++sys32_io_setup(unsigned nr_events, compat_aio_context_t *ctx)
++{
++	aio_context_t kctx;
++	mm_segment_t old_fs;
++	long ret;
++
++	// ctx points to 4 byte area (u32) in userspace !
++	ret = get_user(kctx, ctx);
++	if (ret)
++		goto out;
++	old_fs = get_fs();
++	set_fs(KERNEL_DS);
++	ret = sys_io_setup(nr_events, &kctx);
++	set_fs(old_fs);
++	if (!ret)
++		ret = put_user(kctx, ctx);
++out:
++	return ret;
++}
++
++extern asmlinkage long
++sys_io_getevents(aio_context_t,long,long,struct io_event *,struct timespec *);
++
++asmlinkage long
++sys32_io_getevents(compat_aio_context_t ctx_id, long min_nr, long nr,
++		struct io_event *events,
++		struct compat_timespec *timeout)
++{
++	struct timespec ktimeout;
++	struct timespec *usr_timeout;
++	long ret;
++
++	ret = -EFAULT;
++	if ( get_compat_timespec(&ktimeout, timeout) )
++		goto out;
++	usr_timeout = compat_alloc_user_space(sizeof(*usr_timeout));
++	if ( copy_to_user(usr_timeout, &ktimeout, sizeof(ktimeout)) )
++		goto out;
++	ret = sys_io_getevents(ctx_id, min_nr, nr, events, usr_timeout);
++out:
++	return ret;
++}
++
++extern asmlinkage long
++sys_io_submit(aio_context_t, long, struct iocb __user **);
++
++static inline long
++get_64bit_user_ptr_array(long nr, u32 *ptr32, u64 *ptr64)
++{
++	u32 uptr;
++	long ret;
++
++	ret = -EFAULT;
++	int i;
++	for (i = 0; i < nr; ++i) {
++		if ( get_user(uptr, ptr32 + i) )
++			goto out;
++		if ( put_user((u64)compat_ptr(uptr), ptr64 + i) )
++			goto out;
++	}
++	ret = 0;
++out:
++	return ret;
++}
++
++asmlinkage long
++sys32_io_submit(compat_aio_context_t ctx_id, long nr, u32 *iocb)
++{
++	struct iocb **iocb64; //array of 64bit pointers in user space
++	long ret;
++
++	//alloc 64 bit pointer array in user space
++	iocb64 = compat_alloc_user_space(nr*sizeof(*iocb64));
++	ret = get_64bit_user_ptr_array(nr, (u32 *)iocb, (u64 *)iocb64);
++	if (ret)
++		goto out;
++	ret = sys_io_submit(ctx_id, nr, iocb64);
++out:
++	return ret;
++}
+diff -urN linux-2.6.0-test9/include/linux/compat.h linux-2.6.0-test9-compat-aio/include/linux/compat.h
+--- linux-2.6.0-test9/include/linux/compat.h	2003-10-09 19:19:51.000000000 +0200
++++ linux-2.6.0-test9-compat-aio/include/linux/compat.h	2003-11-04 15:46:54.000000000 +0100
+@@ -97,5 +97,7 @@
+ 	char		d_name[256];
+ };
+ 
++typedef unsigned int compat_aio_context_t;
++
+ #endif /* CONFIG_COMPAT */
+ #endif /* _LINUX_COMPAT_H */

@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265953AbUBKQxN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 11:53:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265954AbUBKQxN
+	id S265939AbUBKQs6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 11:48:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265941AbUBKQs6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 11:53:13 -0500
-Received: from ahriman.bucharest.roedu.net ([141.85.128.71]:29907 "EHLO
-	ahriman.bucharest.roedu.net") by vger.kernel.org with ESMTP
-	id S265953AbUBKQwK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 11:52:10 -0500
-Date: Wed, 11 Feb 2004 18:53:48 +0200 (EET)
-From: Mihai RUSU <dizzy@roedu.net>
-X-X-Sender: dizzy@ahriman.bucharest.roedu.net
-To: Larry McVoy <lm@bitmover.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: reiserfs for bkbits.net?
-In-Reply-To: <200402111523.i1BFNnOq020225@work.bitmover.com>
-Message-ID: <Pine.LNX.4.58L0.0402111849240.22898@ahriman.bucharest.roedu.net>
-References: <200402111523.i1BFNnOq020225@work.bitmover.com>
+	Wed, 11 Feb 2004 11:48:58 -0500
+Received: from dictum-ext.geekmail.cc ([204.239.179.245]:20958 "EHLO
+	mailer01.geekmail.cc") by vger.kernel.org with ESMTP
+	id S265939AbUBKQsz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 11:48:55 -0500
+Message-ID: <402A5CEC.2030603@swapped.cc>
+Date: Wed, 11 Feb 2004 08:48:44 -0800
+From: Alex Pankratov <ap@swapped.cc>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andi Kleen <ak@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [2.6] [2/2] hlist: remove IFs from hlist functions
+References: <4029CB7E.4030003@swapped.cc.suse.lists.linux.kernel>	<4029CF24.1070307@osdl.org.suse.lists.linux.kernel>	<4029D2D5.7070504@swapped.cc.suse.lists.linux.kernel> <p73y8ra5721.fsf@nielsen.suse.de>
+In-Reply-To: <p73y8ra5721.fsf@nielsen.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Hi Larry
+Andi Kleen wrote:
 
-On Wed, 11 Feb 2004, Larry McVoy wrote:
+> Alex Pankratov <ap@swapped.cc> writes:
+> 
+>>
+>>No, because its 'pprev' field *is* getting modified.
+> 
+> I didn't notice this before, sorry. But this could end up 
+> being a scalability problem on big SMP systems. Even though
+> the cache line of this is never read it will bounce all the
+> time between all CPUs using hlists and add considerably 
+> latency and cross node traffic. Remember Linux is supposed
+> to run well on 128 CPU machines now.
 
-> We're moving openlogging back to our offices and I'm experimenting with 
-> filesystems to see what gives the best performance for BK usage.  Reiserfs
-> looks pretty good and I'm wondering if anyone knows any reasons that we
-> shouldn't use it for bkbits.net.  Also, would it help if the journal was
-> on a different disk?  Most of the bkbits traffic is read so I doubt it.
+That's a bit above my head. How does this potential latency
+compare to the speed up due to not having CMPs ? My cycle
+counting skills are a bit dusty :)
 
-I dont have much reiserfs experience on production systems so I cannot say
-anything about its stability. However, about the external journal
-question, my bonnie++ tests (which I would recommend you do them yourself)
-showed not much increase in speed than with internal journal, than say,
-xfs with internal or external (but the reiserfs values where much better
-in general, at least in the many small files test).
+> 
+> Maybe you can make it UP only, but I'm still not sure it's 
+> worth it.
+> 
 
-As you said because its mostly read() that shouldnt matter. Dont forget 
-noatime mount option :).
-
-- -- 
-Mihai RUSU                                    Email: dizzy@roedu.net
-GPG : http://dizzy.roedu.net/dizzy-gpg.txt    WWW: http://dizzy.roedu.net
-                       "Linux is obsolete" -- AST
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFAKl4dPZzOzrZY/1QRAiAEAJ9xvPJ6o0F/m+Lxba581dyqGkZh7ACgj65e
-G/ND//hn9QLij39pGdgvkR0=
-=49A6
------END PGP SIGNATURE-----
+Sorry, I didn't the 'UP' part.

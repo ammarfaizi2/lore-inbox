@@ -1,46 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265273AbUBIRYM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 12:24:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265276AbUBIRYM
+	id S265275AbUBIRlm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 12:41:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265277AbUBIRll
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 12:24:12 -0500
-Received: from terminus.zytor.com ([63.209.29.3]:17559 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S265273AbUBIRYK
+	Mon, 9 Feb 2004 12:41:41 -0500
+Received: from medusa.csi-inc.com ([204.17.222.19]:53376 "EHLO
+	medusa.csi-inc.com") by vger.kernel.org with ESMTP id S265275AbUBIRli
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 12:24:10 -0500
-Message-ID: <4027C22E.2030409@zytor.com>
-Date: Mon, 09 Feb 2004 09:23:58 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20040105
-X-Accept-Language: en, sv, es, fr
+	Mon, 9 Feb 2004 12:41:38 -0500
+Message-ID: <0a3901c3ef33$f7b52400$c8de11cc@black>
+From: "Mike Black" <mblack@csi-inc.com>
+To: "Andries Brouwer" <aebr@win.tue.nl>, "Alex Davis" <alex14641@yahoo.com>
+Cc: <linux-kernel@vger.kernel.org>
+References: <20040206212205.46151.qmail@web40501.mail.yahoo.com> <20040206223708.A2992@pclin040.win.tue.nl>
+Subject: Re: Issues with linux-2.6.2
+Date: Mon, 9 Feb 2004 12:41:37 -0500
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Miquel van Smoorenburg <miquels@cistron.nl>, linux-kernel@vger.kernel.org
-Subject: Re: Does anyone still care about BSD ptys?
-References: <c07c67$vrs$1@terminus.zytor.com.suse.lists.linux.kernel>	<c07i5r$ctq$1@news.cistron.nl.suse.lists.linux.kernel>	<20040209100940.GF21151@parcelfarce.linux.theplanet.co.uk.suse.lists.linux.kernel>	<20040209104729.GA19401@traveler.cistron.net.suse.lists.linux.kernel> <p73u120jor1.fsf@verdi.suse.de>
-In-Reply-To: <p73u120jor1.fsf@verdi.suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> Miquel van Smoorenburg <miquels@cistron.nl> writes:
-> 
->>Well, nothing really, but removing BSD style support in the 2.6 series
->>now will break existing installations. Doing it in 2.7 would be fine.
-> 
-> It will still break existing installations even in 2.7.  And breaking
-> early user space is especially nasty to recover from.  Somehow I
-> cannot believe keeping them around for compatibility is a unduly
-> burden. Please don't remove them.
-> 
+So what's the fix?
+I'm trying to recompile util-linux-2.12 on Linux 2.6.2 and getting the same error as Alex.
+I'm using linux-libc-headers-2.6.1.3 -- but they don't bother to say how to install them (and I assume they will work for Linux
+2.6.2).
+And all this is to try and get rid of the "mount version older than kernel" message.
 
-It's quite possible that their existence block sanitizing the pty code, 
-or more specifically, the pty support in the generic tty code.  I'll see 
-what I can do about it; it's possible it'll just fall out nicely in the 
-end, but I really have no desire to jump through hoops to preserve what 
-is a fundamentally broken legancy interface.
+I suppose there's a jolly good reason for splitting the headers but it seems to just present more opportunity to hork things up.
 
-	-hpa
+----- Original Message ----- 
+From: "Andries Brouwer" <aebr@win.tue.nl>
+To: "Alex Davis" <alex14641@yahoo.com>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Friday, February 06, 2004 4:37 PM
+Subject: Re: Issues with linux-2.6.2
+
+
+> On Fri, Feb 06, 2004 at 01:22:05PM -0800, Alex Davis wrote:
+>
+> > I have a few issues with 2.6.2. Ths first issue is when upgrading from 2.4, I had to create
+> > the symlinks:
+> >
+> >    ln -s /usr/include/asm /usr/src/linux/include/asm-i386
+> >    ln -s /usr/include/asm-generic /usr/src/linux/include/asm-generic
+> >
+> > This requirement was not mentioned in any documentation I could find.
+>
+> No, because it is wrong. A very unwise thing to do.
+>
+> > The second issue is when trying to build util-linux-2.11z I get the following error:
+> >
+> > cc -pipe -O2 -mcpu=i486 -fomit-frame-pointer -I../lib -Wall -Wmissing-prototypes
+> > -Wstrict-prototypes -I/usr/include/ncurses -DNCH=0   -D_FILE_OFFSET_BITS=64 -DSBINDIR=\"/sbin\"
+> > -DUSRSBINDIR=\"/usr/sbin\" -DLOGDIR=\"/var/log\" -DVARPATH=\"/var\"
+> > -DLOCALEDIR=\"/usr/share/locale\" -O2  -s  blockdev.c   -o blockdev
+> > blockdev.c:70: error: parse error before '[' token
+> > blockdev.c:70: error: initializer element is not constant
+>
+> And this is your punishment.
+>
+> Andries
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

@@ -1,79 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317649AbSGaCnv>; Tue, 30 Jul 2002 22:43:51 -0400
+	id <S317661AbSGaCtT>; Tue, 30 Jul 2002 22:49:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317658AbSGaCnu>; Tue, 30 Jul 2002 22:43:50 -0400
-Received: from sunny.pacific.net.au ([203.25.148.40]:45530 "EHLO
-	sunny.pacific.net.au") by vger.kernel.org with ESMTP
-	id <S317649AbSGaCnu>; Tue, 30 Jul 2002 22:43:50 -0400
-From: "David Luyer" <david@luyer.net>
-To: <linux-kernel@vger.kernel.org>
-Cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
-Subject: Linux 2.4.19ac3rc3 on IBM x330/x340 SMP - "ps" time skew
-Date: Wed, 31 Jul 2002 12:46:59 +1000
-Message-ID: <013c01c2383c$8b2d4bf0$638317d2@pacific.net.au>
+	id <S317660AbSGaCtT>; Tue, 30 Jul 2002 22:49:19 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:46349 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S317661AbSGaCtS>; Tue, 30 Jul 2002 22:49:18 -0400
+Date: Tue, 30 Jul 2002 22:46:55 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Jakob Oestergaard <jakob@unthought.net>
+cc: Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: RAID problems
+In-Reply-To: <20020730175505.GI11129@unthought.net>
+Message-ID: <Pine.LNX.3.96.1020730223102.6974A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In Linux 2.4.19ac3rc3 on IBM x330/x340 SMP systems we're seeing this:
+On Tue, 30 Jul 2002, Jakob Oestergaard wrote:
 
-luyer@praxis8:~$ ps auxwww | tail -1
-luyer     1025  0.0  0.0  1276  352 pts/2    S    Aug06   0:00 tail -1
-luyer@praxis8:~$ date
-Wed Jul 31 12:35:16 EST 2002
+> On Tue, Jul 30, 2002 at 01:25:37PM -0400, Bill Davidsen wrote:
 
-luyer@praxis8:~$ cat /proc/$$/stat
-1053 (bash) S 1052 1053 1053 34818 1056 0 99 56 294 99 1 0 0 0 15 0 0 0
-49574810 2244608 316 4294
-967295 134512640 134997952 3221225056 3221224264 1074760249 0 65536
-3686404 1266761467 3222376853
- 0 0 17 0
-luyer@praxis8:~$ cat /proc/uptime
-495803.96 481602.41
-luyer@praxis8:~$ cat /proc/stat
-cpu  1570707 3 1853018 95737544
-cpu0 685268 1 876356 48019011
-cpu1 885439 2 976662 47718533
-page 1720960 27277642
-swap 25 534
-intr 244887271 49580636 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-1742620 0 16 16 193563981 0
- 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-0 0 0 0 0 0 0 0 0 0 0 0
-0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-0 0 0 0 0 0 0 0 0 0 0 0 0
- 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-0 0 0 0 0 0 0 0 0 0 0 0
-0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-0 0 0 0 0 0 0 0 0 0 0 0 0
-disk_io: (8,0):(988585,67688,1019318,920897,8472052)
-(8,1):(1832129,206174,2422602,1625955,460832
-32)
-ctxt 81010049
-btime 1027587797
-processes 98440
+> > Why does no one seem surprised that one drive failed and the system marked
+> > four bad instead of using the spare in the first place? That's a more
+> > interesting question.
+> 
+> As stated in the above URL (no shit, really!), this can happen for
+> example if some device hangs the SCSI bus.
 
-Note the time skew in the "ps" output (the clock time is correct).
+I think you misread my comment, it was not "why doesn't the documentation
+say this" but rather "why does software RAID have this problem?" I know
+this can happen in theory, but it seems that the docs imply that this
+isn't a surprise in practice. I've been running systems with SCSI RAID and
+hardware controllers since 1989 (or maybe 1990), I've got EMC and HDS
+boxes, aaraid and ipc controllers, Promise and CMC(??) on system boards,
+and a number of systems running software RAID. And of all the drive
+failures I've had, exactly one had more than one drive fail, and that was
+in a power {something} issue which took out multiple drives and system
+boards on many systems. 
 
-This is happening on all ten IBM x330/x340's we're running this in SMP
-on this kernel.
+I just surprised that the software RAID doesn't have better luck with
+this, I don't see any magic other than maybe a bus reset the firmware
+would be doing, and I'm wondering why this seems to be common with Linux.
+Or am I misreading the frequency with which it happens?
+ 
+> Did *anyone* read that section ?!?   ;)
+> 
+> If someone feels the explanation there could be better, please just send
+> the better explanation to me and it will get in.  Really, this section
+> is one of the few sections that I did *not* update in the HOWTO, because
+> I really felt that it was still both adequate (since no-one has demanded
+> elaboration) and correct.
 
-We have fourteen Intel ISP 2150 servers running UP with IO-APIC on SMP
-motherboards which are not experiencing this issue.
+Thye words are clear, I'm surprised at the behaviour. Yes, I know that's
+not your thing.
 
-David.
---
-David Luyer                                     Phone:   +61 3 9674 7525
-Network Development Manager    P A C I F I C    Fax:     +61 3 9699 8693
-Pacific Internet (Australia)  I N T E R N E T   Mobile:  +61 4 1111 BYTE
-http://www.pacific.net.au/                      NASDAQ:  PCNTF
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

@@ -1,36 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281917AbRKUSmt>; Wed, 21 Nov 2001 13:42:49 -0500
+	id <S281945AbRKUSrs>; Wed, 21 Nov 2001 13:47:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281932AbRKUSmi>; Wed, 21 Nov 2001 13:42:38 -0500
-Received: from amsfep15-int.chello.nl ([213.46.243.27]:6423 "EHLO
-	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
-	id <S281451AbRKUSmb>; Wed, 21 Nov 2001 13:42:31 -0500
-Date: Wed, 21 Nov 2001 19:42:23 +0100
-From: Jeroen Vreeken <pe1rxq@amsat.org>
-To: linux-kernel@vger.kernel.org
-Cc: linux-hams <linux-hams@vger.kernel.org>, tomi.manninen@hut.fi,
-        dg2fef@afthd.tu-darmstadt.de
-Subject: Re: [PATCH] Using sock_orphan in ax25 and netrom
-Message-ID: <20011121194223.A1187@jeroen.pe1rxq.ampr.org>
-In-Reply-To: <20011120154610.A189@jeroen.pe1rxq.ampr.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20011120154610.A189@jeroen.pe1rxq.ampr.org>; from pe1rxq@amsat.org on Tue, Nov 20, 2001 at 15:46:10 +0100
-X-Mailer: Balsa 1.1.0
+	id <S281944AbRKUSri>; Wed, 21 Nov 2001 13:47:38 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:33008 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S281932AbRKUSrZ>; Wed, 21 Nov 2001 13:47:25 -0500
+Message-ID: <3BFBF6A4.6F1472C6@mvista.com>
+Date: Wed, 21 Nov 2001 10:47:00 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Memory allocation question
+In-Reply-To: <E165uQj-0007V2-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Appearantly my patch from yesterday was a bit premature...
+Alan Cox wrote:
+> 
+> > size chuncks.  Currently I am using kmalloc() to allocate a page at a
+> > time.  I don't want to have to worry about mapping/unmapping etc.  I
+> 
+> Use get_free_page() to get page sized chunks
 
-It looks like the ax25 and netrom stack do some magic with the dead sockets
-that is not compatible with sock_orphan. I will try and see if I can track
-them down.
+What about __get_free_page() ?  I don't need or want the clear page
+(performance issues).
 
-The result is that at the moment the only way to make ax25 stable in 2.4.x
-is to add the sk->dead check in my first patch.
+And then to return the page, free_page() ?
 
-Jeroen
-
-
+-- 
+George           george@mvista.com
+High-res-timers: http://sourceforge.net/projects/high-res-timers/
+Real time sched: http://sourceforge.net/projects/rtsched/

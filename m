@@ -1,187 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263628AbTIIHE1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 03:04:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263730AbTIIHE1
+	id S263935AbTIIHEa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 03:04:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263730AbTIIHEa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 03:04:27 -0400
-Received: from dyn-ctb-203-221-72-196.webone.com.au ([203.221.72.196]:9990
-	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
-	id S263628AbTIIHEW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 03:04:30 -0400
+Received: from angband.namesys.com ([212.16.7.85]:12491 "EHLO
+	angband.namesys.com") by vger.kernel.org with ESMTP id S263935AbTIIHEW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 9 Sep 2003 03:04:22 -0400
-Message-ID: <3F5D7B6A.70703@cyberone.com.au>
-Date: Tue, 09 Sep 2003 17:04:10 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Dave Olien <dmo@osdl.org>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: Badness in as_completed_request warning
-References: <20030908164802.GA13441@osdl.org> <3F5D4BC9.6020708@cyberone.com.au> <20030909061214.GA15840@osdl.org>
-In-Reply-To: <20030909061214.GA15840@osdl.org>
-Content-Type: multipart/mixed;
- boundary="------------000202090703040707020506"
+Date: Tue, 9 Sep 2003 11:04:21 +0400
+From: Oleg Drokin <green@namesys.com>
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>, Hans Reiser <reiser@namesys.com>,
+       linux-kernel@vger.kernel.org, Nikita Danilov <god@namesys.com>
+Subject: Re: First impressions of reiserfs4
+Message-ID: <20030909070421.GJ10487@namesys.com>
+References: <3F50D986.6080707@namesys.com> <20030831191419.A23940@bitwizard.nl> <20030908081206.GA17718@namesys.com> <20030908105639.B26722@bitwizard.nl> <20030908090826.GB10487@namesys.com> <20030908113304.A28123@bitwizard.nl> <20030908094825.GD10487@namesys.com> <20030908120531.A28937@bitwizard.nl> <20030908101704.GE10487@namesys.com> <20030908222457.GB17441@matchmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030908222457.GB17441@matchmail.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000202090703040707020506
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hello!
 
+On Mon, Sep 08, 2003 at 03:24:57PM -0700, Mike Fedyk wrote:
+> > You only can have as many inodes as number of blocks on the fs (at least that's the limit imposed on you
+> > by mke2fs).
+> True, but not exactly.  Each file will need one block to store even one byte
+> on ext2/3.  But your inode tables have about 1/4-1/2 the number of inode entries to
+> blocks.  This can be changed at mkfs time though.
 
+Yes, I know this. But my experiments quickly shown that if you ask mkfs to create inode tables with
+free inodes that exceed blocks count for the device, then mkfs will only create as much free inodes
+as there are free blocks on the device (I was needing that when I experimented with 60 millions files
+on ext2/reiserfs/xfs and stuff and I only had 20G partition.)
 
-Dave Olien wrote:
+> Hmm, take ext3 with htree, reiser3 & reiser4 (choose the block size 1k, 2k or 4k) with
 
->On Tue, Sep 09, 2003 at 01:40:57PM +1000, Nick Piggin wrote:
->
->>Hi Dave,
->>Can you try 2.6.0-test5 with the following patch please. Thanks
->>
->>
->
->I applied this patch, and gave it a shot.  It seems to have made things
->worse.  Instead of the warnings occurring only at the end of the mkfs
->runs, they now occur pretty much constantly, and it finally ends
->with an Bug_On.  Attached is the console output.  There are 20 
->occurrances of Badness in as-iosched.c line 1020.  There is one
->occurrance of Badness in as-iosched.c line 1025.  The Bug_On() is in
->as-iosched.c line 1243.
->
->Console output is attached.
->
+reiser4 does not have support for blocksize different from page size for now (sigh, same old problems
+we finally solved for reiser3 recently).
 
-Thanks Dave,
-Can you try this one? I can't reproduce the problem here as I don't have
-enough disks unfortunately. Thanks
+> tail merging off, 1k files per directory and all files the same size as
+> block size with 40M files.  How would the table look as far as space effency
 
-Nick
+Hm. I will probably try this once.
+For reiserfs:
+I can tell you that 60M+ empty files (cannot remember exact number, but I still have the script to create those)
+took ~5.5G of space. Then 60M * 4k is 240G, all these blocks are referenced by leafnodes, ~1000 pointers fits into one node,
+so we will spend ~245M for block pointers (extra 5 because there are more layers of indirections).
 
---------------000202090703040707020506
-Content-Type: text/plain;
- name="as-warn-fix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="as-warn-fix.patch"
+> look comparing them?  For that matter, how do JFS & XFS compare?
 
- linux-2.6-npiggin/drivers/block/as-iosched.c |   60 +++++++++++++++++++--------
- 1 files changed, 43 insertions(+), 17 deletions(-)
+Unfortunatelly I never had the patience to wait until XFS creates 60M files. Have not tried jfs.
 
-diff -puN drivers/block/as-iosched.c~as-warn-fix drivers/block/as-iosched.c
---- linux-2.6/drivers/block/as-iosched.c~as-warn-fix	2003-09-09 17:02:41.000000000 +1000
-+++ linux-2.6-npiggin/drivers/block/as-iosched.c	2003-09-09 17:02:41.000000000 +1000
-@@ -373,7 +373,7 @@ static void as_move_to_dispatch(struct a
-  * direct IO, then move the alias to the dispatch list and then add the
-  * request.
-  */
--static void as_add_arq_rb(struct as_data *ad, struct as_rq *arq)
-+static int as_add_arq_rb(struct as_data *ad, struct as_rq *arq)
- {
- 	struct as_rq *alias;
- 	struct request *rq = arq->request;
-@@ -381,10 +381,20 @@ static void as_add_arq_rb(struct as_data
- 	arq->rb_key = rq_rb_key(rq);
- 
- 	/* This can be caused by direct IO */
-+#if 0
- 	while ((alias = __as_add_arq_rb(ad, arq)))
- 		as_move_to_dispatch(ad, alias);
-+#endif
-+	if ((alias = __as_add_arq_rb(ad, arq))) {
-+		arq->state = AS_RQ_NEW;
-+		list_add_tail(&arq->request->queuelist,
-+				&alias->request->queuelist);
-+
-+		return 1;
-+	}
- 
- 	rb_insert_color(&arq->rb_node, ARQ_RB_ROOT(ad, arq));
-+	return 0;
- }
- 
- static inline void as_del_arq_rb(struct as_data *ad, struct as_rq *arq)
-@@ -1131,7 +1141,21 @@ static void as_move_to_dispatch(struct a
- 	 * take it off the sort and fifo list, add to dispatch queue
- 	 */
- 	as_remove_queued_request(ad->q, arq->request);
-+
-+	for (;;) {
-+		struct list_head *alias = &arq->request->queuelist;
-+
-+		if (!list_empty(alias)) {
-+			struct request *rq;
-+			rq = list_entry_rq(alias->next);
-+			list_del(&rq->queuelist);
-+			list_add_tail(&rq->queuelist, ad->dispatch);
-+		} else
-+			break;
-+	}
-+
- 	list_add_tail(&arq->request->queuelist, ad->dispatch);
-+
- 	if (arq->io_context && arq->io_context->aic)
- 		atomic_inc(&arq->io_context->aic->nr_dispatched);
- 
-@@ -1303,22 +1327,22 @@ static void as_add_request(struct as_dat
- 		arq->is_sync = 0;
- 	data_dir = arq->is_sync;
- 
--	arq->io_context = as_get_io_context();
-+	if (!as_add_arq_rb(ad, arq)) {
-+		arq->io_context = as_get_io_context();
- 
--	if (arq->io_context) {
--		atomic_inc(&arq->io_context->aic->nr_queued);
--		as_update_iohist(arq->io_context->aic, arq->request);
--	}
--
--	as_add_arq_rb(ad, arq);
-+		if (arq->io_context) {
-+			atomic_inc(&arq->io_context->aic->nr_queued);
-+			as_update_iohist(arq->io_context->aic, arq->request);
-+		}
- 
--	/*
--	 * set expire time (only used for reads) and add to fifo list
--	 */
--	arq->expires = jiffies + ad->fifo_expire[data_dir];
--	list_add_tail(&arq->fifo, &ad->fifo_list[data_dir]);
--	arq->state = AS_RQ_QUEUED;
--	as_update_arq(ad, arq); /* keep state machine up to date */
-+		/*
-+		 * set expire time (only used for reads) and add to fifo list
-+		 */
-+		arq->expires = jiffies + ad->fifo_expire[data_dir];
-+		list_add_tail(&arq->fifo, &ad->fifo_list[data_dir]);
-+		arq->state = AS_RQ_QUEUED;
-+		as_update_arq(ad, arq); /* keep state machine up to date */
-+	}
- }
- 
- /*
-@@ -1495,7 +1519,8 @@ static void as_merged_request(request_qu
- 	 */
- 	if (rq_rb_key(req) != arq->rb_key) {
- 		as_del_arq_rb(ad, arq);
--		as_add_arq_rb(ad, arq);
-+		if (as_add_arq_rb(ad, arq))
-+			WARN_ON(1);
- 		/*
- 		 * Note! At this stage of this and the next function, our next
- 		 * request may not be optimal - eg the request may have "grown"
-@@ -1526,7 +1551,8 @@ as_merged_requests(request_queue_t *q, s
- 
- 	if (rq_rb_key(req) != arq->rb_key) {
- 		as_del_arq_rb(ad, arq);
--		as_add_arq_rb(ad, arq);
-+		if (as_add_arq_rb(ad, arq))
-+			WARN_ON(1);
- 	}
- 
- 	/*
-
-_
-
---------------000202090703040707020506--
-
+Bye,
+    Oleg

@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262477AbULOTxa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262455AbULOUBN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262477AbULOTxa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 14:53:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262474AbULOTxG
+	id S262455AbULOUBN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 15:01:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262476AbULOUBN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 14:53:06 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:16375 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262473AbULOTsQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 14:48:16 -0500
-Date: Wed, 15 Dec 2004 13:48:12 -0600
+	Wed, 15 Dec 2004 15:01:13 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:1944 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262455AbULOUAI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 15:00:08 -0500
+Date: Wed, 15 Dec 2004 14:00:05 -0600
 From: "Serge E. Hallyn" <serue@us.ibm.com>
 To: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
        Stephen Smalley <sds@epoch.ncsc.mil>, James Morris <jmorris@redhat.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Properly split capset_check+capset_set
-Message-ID: <20041215194812.GA3080@IBM-BWN8ZTBWA01.austin.ibm.com>
+Subject: [PATCH] Split bprm_apply_creds into two functions
+Message-ID: <20041215200005.GB3080@IBM-BWN8ZTBWA01.austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,197 +23,309 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In kernel/capability.c, capset_check verifies whether or not the
-destination process is permitted to undergo the capability change,
-while capset_set (1) checks the permission of current to set the
-destination process' capability and (2) performs the change.
+The security_bprm_apply_creds() function is called from
+fs/exec.c:compute_creds() under task_lock(current).  SELinux must
+perform some work which is unsafe in that context, and therefore
+explicitly drops the task_lock, does the work, and re-acquires the
+task_lock.  This is unsafe if other security modules are stacked after
+SELinux, as their bprm_apply_creds assumes that the 'unsafe' variable is
+still meaningful, that is, that the task_lock has not been dropped.
 
-As Stephen Smalley pointed out, the cap_capset_check code is redundant
-with what is hardcoded in kernel/capability.c:sys_capset().  On the
-other hand, because the security_capset_set hook is responsible for
-doing both an authorization check and doing the actual change,
-(particularly, in the case of a cap_set_all or cap_set_pg), when
-stacking security modules, the first module may complete the
-capset_set before the second module refuses permission.
-
-The attached patch (against 2.6.10-rc3-mm1 w/ ioctl patch) removes the
-redundant cap_capset_check hook and moves the security_capset_check
-call to just before security_capset_set.  The selinux_capset_set hook
-now simply sets the capability (through its secondary), while
-selinux_capset_check checks the authorization permission.
+The attached patch splits bprm_apply_creds into two functions,
+bprm_apply_creds and bprm_final_setup, where final_setup is called right
+after the task_lock has been dropped.
 
 thanks,
 -serge
 
 Signed-off-by: Serge Hallyn <serue@us.ibm.com>
 
+Index: linux-2.6.10-rc3-mm1/fs/exec.c
+===================================================================
+--- linux-2.6.10-rc3-mm1.orig/fs/exec.c	2004-12-13 15:56:15.000000000 -0600
++++ linux-2.6.10-rc3-mm1/fs/exec.c	2004-12-13 17:57:35.071345712 -0600
+@@ -962,6 +962,7 @@ void compute_creds(struct linux_binprm *
+ 	unsafe = unsafe_exec(current);
+ 	security_bprm_apply_creds(bprm, unsafe);
+ 	task_unlock(current);
++	security_bprm_final_setup(bprm);
+ }
+ 
+ EXPORT_SYMBOL(compute_creds);
 Index: linux-2.6.10-rc3-mm1/include/linux/security.h
 ===================================================================
---- linux-2.6.10-rc3-mm1.orig/include/linux/security.h	2004-12-13 12:17:35.000000000 -0600
-+++ linux-2.6.10-rc3-mm1/include/linux/security.h	2004-12-13 17:57:41.053436296 -0600
-@@ -41,7 +41,6 @@ extern int cap_capable (struct task_stru
- extern int cap_settime (struct timespec *ts, struct timezone *tz);
- extern int cap_ptrace (struct task_struct *parent, struct task_struct *child);
- extern int cap_capget (struct task_struct *target, kernel_cap_t *effective, kernel_cap_t *inheritable, kernel_cap_t *permitted);
--extern int cap_capset_check (struct task_struct *target, kernel_cap_t *effective, kernel_cap_t *inheritable, kernel_cap_t *permitted);
- extern void cap_capset_set (struct task_struct *target, kernel_cap_t *effective, kernel_cap_t *inheritable, kernel_cap_t *permitted);
- extern int cap_bprm_set_security (struct linux_binprm *bprm);
- extern void cap_bprm_apply_creds (struct linux_binprm *bprm, int unsafe);
-@@ -1943,7 +1942,7 @@ static inline int security_capset_check 
- 					 kernel_cap_t *inheritable,
- 					 kernel_cap_t *permitted)
+--- linux-2.6.10-rc3-mm1.orig/include/linux/security.h	2004-12-13 15:57:05.000000000 -0600
++++ linux-2.6.10-rc3-mm1/include/linux/security.h	2004-12-13 17:57:35.133336288 -0600
+@@ -115,6 +115,11 @@ struct swap_info_struct;
+  *	bprm_apply_creds is called under task_lock.  @unsafe indicates various
+  *	reasons why it may be unsafe to change security state.
+  *	@bprm contains the linux_binprm structure.
++ * @bprm_final_setup:
++ *	Runs after bprm_apply_creds with the task_lock dropped, so that
++ *	functions which cannot be called safely under the task_list can
++ *	be used.
++ *	@bprm contains the linux_binprm structure.
+  * @bprm_set_security:
+  *	Save security information in the bprm->security field, typically based
+  *	on information about the bprm->file, for later use by the apply_creds
+@@ -1046,6 +1051,7 @@ struct security_operations {
+ 	int (*bprm_alloc_security) (struct linux_binprm * bprm);
+ 	void (*bprm_free_security) (struct linux_binprm * bprm);
+ 	void (*bprm_apply_creds) (struct linux_binprm * bprm, int unsafe);
++	void (*bprm_final_setup) (struct linux_binprm * bprm);
+ 	int (*bprm_set_security) (struct linux_binprm * bprm);
+ 	int (*bprm_check_security) (struct linux_binprm * bprm);
+ 	int (*bprm_secureexec) (struct linux_binprm * bprm);
+@@ -1319,6 +1325,10 @@ static inline void security_bprm_apply_c
  {
--	return cap_capset_check (target, effective, inheritable, permitted);
-+	return 0;
+ 	security_ops->bprm_apply_creds (bprm, unsafe);
+ }
++static inline void security_bprm_final_setup (struct linux_binprm *bprm)
++{
++	security_ops->bprm_final_setup (bprm);
++}
+ static inline int security_bprm_set (struct linux_binprm *bprm)
+ {
+ 	return security_ops->bprm_set_security (bprm);
+@@ -2001,6 +2011,11 @@ static inline void security_bprm_apply_c
+ 	cap_bprm_apply_creds (bprm, unsafe);
  }
  
- static inline void security_capset_set (struct task_struct *target,
-Index: linux-2.6.10-rc3-mm1/kernel/capability.c
++static inline void security_bprm_final_setup (struct linux_binprm *bprm)
++{ 
++	return;
++}
++
+ static inline int security_bprm_set (struct linux_binprm *bprm)
+ {
+ 	return cap_bprm_set_security (bprm);
+Index: linux-2.6.10-rc3-mm1/security/dummy.c
 ===================================================================
---- linux-2.6.10-rc3-mm1.orig/kernel/capability.c	2004-12-13 12:17:36.000000000 -0600
-+++ linux-2.6.10-rc3-mm1/kernel/capability.c	2004-12-13 12:18:40.000000000 -0600
-@@ -93,8 +93,12 @@ static inline void cap_set_pg(int pgrp, 
- 
- 	do_each_task_pid(pgrp, PIDTYPE_PGID, g) {
- 		target = g;
--		while_each_thread(g, target)
--			security_capset_set(target, effective, inheritable, permitted);
-+		while_each_thread(g, target) {
-+			if (!security_capset_check(target, effective,
-+					inheritable, permitted))
-+				security_capset_set(target, effective,
-+					inheritable, permitted);
-+		}
- 	} while_each_task_pid(pgrp, PIDTYPE_PGID, g);
+--- linux-2.6.10-rc3-mm1.orig/security/dummy.c	2004-12-13 15:56:15.000000000 -0600
++++ linux-2.6.10-rc3-mm1/security/dummy.c	2004-12-13 17:57:35.194327016 -0600
+@@ -201,6 +201,11 @@ static void dummy_bprm_apply_creds (stru
+ 	current->sgid = current->egid = current->fsgid = bprm->e_gid;
  }
  
-@@ -111,6 +115,9 @@ static inline void cap_set_all(kernel_ca
-      do_each_thread(g, target) {
-              if (target == current || target->pid == 1)
-                      continue;
-+	     if (security_capset_check(target, effective, inheritable,
-+				permitted))
-+		     continue;
- 	     security_capset_set(target, effective, inheritable, permitted);
-      } while_each_thread(g, target);
- }
-@@ -169,9 +176,6 @@ asmlinkage long sys_capset(cap_user_head
- 
-      ret = -EPERM;
- 
--     if (security_capset_check(target, &effective, &inheritable, &permitted))
--	     goto out;
--
-      if (!cap_issubset(inheritable, cap_combine(target->cap_inheritable,
-                        current->cap_permitted)))
-              goto out;
-@@ -196,7 +200,10 @@ asmlinkage long sys_capset(cap_user_head
-              else            /* all procs in process group */
-                      cap_set_pg(-pid, &effective, &inheritable, &permitted);
-      } else {
--	     security_capset_set(target, &effective, &inheritable, &permitted);
-+	     if (!security_capset_check(target, &effective, &inheritable,
-+				&permitted))
-+		     security_capset_set(target, &effective, &inheritable,
-+					&permitted);
-      }
- 
- out:
-Index: linux-2.6.10-rc3-mm1/security/capability.c
-===================================================================
---- linux-2.6.10-rc3-mm1.orig/security/capability.c	2004-12-13 15:56:16.000000000 -0600
-+++ linux-2.6.10-rc3-mm1/security/capability.c	2004-12-13 17:57:41.084431584 -0600
-@@ -27,7 +27,6 @@
- static struct security_operations capability_ops = {
- 	.ptrace =			cap_ptrace,
- 	.capget =			cap_capget,
--	.capset_check =			cap_capset_check,
- 	.capset_set =			cap_capset_set,
- 	.capable =			cap_capable,
- 	.settime =			cap_settime,
-Index: linux-2.6.10-rc3-mm1/security/commoncap.c
-===================================================================
---- linux-2.6.10-rc3-mm1.orig/security/commoncap.c	2004-12-13 12:17:36.000000000 -0600
-+++ linux-2.6.10-rc3-mm1/security/commoncap.c	2004-12-13 12:18:40.000000000 -0600
-@@ -75,32 +75,6 @@ int cap_capget (struct task_struct *targ
++static void dummy_bprm_final_setup (struct linux_binprm *bprm)
++{
++	return;
++}
++
+ static int dummy_bprm_set_security (struct linux_binprm *bprm)
+ {
  	return 0;
- }
- 
--int cap_capset_check (struct task_struct *target, kernel_cap_t *effective,
--		      kernel_cap_t *inheritable, kernel_cap_t *permitted)
--{
--	/* Derived from kernel/capability.c:sys_capset. */
--	/* verify restrictions on target's new Inheritable set */
--	if (!cap_issubset (*inheritable,
--			   cap_combine (target->cap_inheritable,
--					current->cap_permitted))) {
--		return -EPERM;
--	}
--
--	/* verify restrictions on target's new Permitted set */
--	if (!cap_issubset (*permitted,
--			   cap_combine (target->cap_permitted,
--					current->cap_permitted))) {
--		return -EPERM;
--	}
--
--	/* verify the _new_Effective_ is a subset of the _new_Permitted_ */
--	if (!cap_issubset (*effective, *permitted)) {
--		return -EPERM;
--	}
--
--	return 0;
--}
--
- void cap_capset_set (struct task_struct *target, kernel_cap_t *effective,
- 		     kernel_cap_t *inheritable, kernel_cap_t *permitted)
- {
-@@ -406,7 +380,6 @@ EXPORT_SYMBOL(cap_capable);
- EXPORT_SYMBOL(cap_settime);
- EXPORT_SYMBOL(cap_ptrace);
- EXPORT_SYMBOL(cap_capget);
--EXPORT_SYMBOL(cap_capset_check);
- EXPORT_SYMBOL(cap_capset_set);
- EXPORT_SYMBOL(cap_bprm_set_security);
- EXPORT_SYMBOL(cap_bprm_apply_creds);
-Index: linux-2.6.10-rc3-mm1/security/root_plug.c
-===================================================================
---- linux-2.6.10-rc3-mm1.orig/security/root_plug.c	2004-10-18 16:55:28.000000000 -0500
-+++ linux-2.6.10-rc3-mm1/security/root_plug.c	2004-12-13 17:57:41.085431432 -0600
-@@ -86,7 +86,6 @@ static struct security_operations rootpl
- 	/* Use the capability functions for some of the hooks */
- 	.ptrace =			cap_ptrace,
- 	.capget =			cap_capget,
--	.capset_check =			cap_capset_check,
- 	.capset_set =			cap_capset_set,
- 	.capable =			cap_capable,
- 
+@@ -921,6 +926,7 @@ void security_fixup_ops (struct security
+ 	set_to_dummy_if_null(ops, bprm_alloc_security);
+ 	set_to_dummy_if_null(ops, bprm_free_security);
+ 	set_to_dummy_if_null(ops, bprm_apply_creds);
++	set_to_dummy_if_null(ops, bprm_final_setup);
+ 	set_to_dummy_if_null(ops, bprm_set_security);
+ 	set_to_dummy_if_null(ops, bprm_check_security);
+ 	set_to_dummy_if_null(ops, bprm_secureexec);
 Index: linux-2.6.10-rc3-mm1/security/selinux/hooks.c
 ===================================================================
---- linux-2.6.10-rc3-mm1.orig/security/selinux/hooks.c	2004-12-13 12:17:36.000000000 -0600
-+++ linux-2.6.10-rc3-mm1/security/selinux/hooks.c	2004-12-13 17:57:38.456831040 -0600
-@@ -1393,24 +1393,12 @@ static int selinux_capget(struct task_st
- static int selinux_capset_check(struct task_struct *target, kernel_cap_t *effective,
-                                 kernel_cap_t *inheritable, kernel_cap_t *permitted)
- {
--	int error;
--
--	error = secondary_ops->capset_check(target, effective, inheritable, permitted);
--	if (error)
--		return error;
--
- 	return task_has_perm(current, target, PROCESS__SETCAP);
- }
+--- linux-2.6.10-rc3-mm1.orig/security/selinux/hooks.c	2004-12-13 15:56:15.000000000 -0600
++++ linux-2.6.10-rc3-mm1/security/selinux/hooks.c	2004-12-13 17:57:27.544489968 -0600
+@@ -1804,10 +1804,7 @@ static void selinux_bprm_apply_creds(str
+ 	struct task_security_struct *tsec;
+ 	struct bprm_security_struct *bsec;
+ 	u32 sid;
+-	struct av_decision avd;
+-	struct itimerval itimer;
+-	struct rlimit *rlim, *initrlim;
+-	int rc, i;
++	int rc;
  
- static void selinux_capset_set(struct task_struct *target, kernel_cap_t *effective,
-                                kernel_cap_t *inheritable, kernel_cap_t *permitted)
- {
--	int error;
--
--	error = task_has_perm(current, target, PROCESS__SETCAP);
--	if (error)
+ 	secondary_ops->bprm_apply_creds(bprm, unsafe);
+ 
+@@ -1817,91 +1814,99 @@ static void selinux_bprm_apply_creds(str
+ 	sid = bsec->sid;
+ 
+ 	tsec->osid = tsec->sid;
++	tsec->unsafe = 0;
+ 	if (tsec->sid != sid) {
+ 		/* Check for shared state.  If not ok, leave SID
+ 		   unchanged and kill. */
+ 		if (unsafe & LSM_UNSAFE_SHARE) {
+-			rc = avc_has_perm_noaudit(tsec->sid, sid,
+-					  SECCLASS_PROCESS, PROCESS__SHARE, &avd);
++			rc = avc_has_perm(tsec->sid, sid, SECCLASS_PROCESS,
++					PROCESS__SHARE, NULL);
+ 			if (rc) {
+-				task_unlock(current);
+-				avc_audit(tsec->sid, sid, SECCLASS_PROCESS,
+-				    PROCESS__SHARE, &avd, rc, NULL);
+-				force_sig_specific(SIGKILL, current);
+-				goto lock_out;
++				tsec->unsafe = 1;
++				return;
+ 			}
+ 		}
+ 
+ 		/* Check for ptracing, and update the task SID if ok.
+ 		   Otherwise, leave SID unchanged and kill. */
+ 		if (unsafe & (LSM_UNSAFE_PTRACE | LSM_UNSAFE_PTRACE_CAP)) {
+-			rc = avc_has_perm_noaudit(tsec->ptrace_sid, sid,
+-					  SECCLASS_PROCESS, PROCESS__PTRACE, &avd);
+-			if (!rc)
+-				tsec->sid = sid;
+-			task_unlock(current);
+-			avc_audit(tsec->ptrace_sid, sid, SECCLASS_PROCESS,
+-				  PROCESS__PTRACE, &avd, rc, NULL);
++			rc = avc_has_perm(tsec->ptrace_sid, sid,
++					  SECCLASS_PROCESS, PROCESS__PTRACE,
++					  NULL);
+ 			if (rc) {
+-				force_sig_specific(SIGKILL, current);
+-				goto lock_out;
++				tsec->unsafe = 1;
++				return;
+ 			}
+-		} else {
+-			tsec->sid = sid;
+-			task_unlock(current);
+ 		}
++		tsec->sid = sid;
++	}
++}
+ 
+-		/* Close files for which the new task SID is not authorized. */
+-		flush_unauthorized_files(current->files);
++/*
++ * called after apply_creds without the task lock held
++ */
++static void selinux_bprm_final_setup(struct linux_binprm *bprm)
++{
++	struct task_security_struct *tsec;
++	struct rlimit *rlim, *initrlim;
++	struct itimerval itimer;
++	int rc, i;
+ 
+-		/* Check whether the new SID can inherit signal state
+-		   from the old SID.  If not, clear itimers to avoid
+-		   subsequent signal generation and flush and unblock
+-		   signals. This must occur _after_ the task SID has
+-                  been updated so that any kill done after the flush
+-                  will be checked against the new SID. */
+-		rc = avc_has_perm(tsec->osid, tsec->sid, SECCLASS_PROCESS,
+-				  PROCESS__SIGINH, NULL);
+-		if (rc) {
+-			memset(&itimer, 0, sizeof itimer);
+-			for (i = 0; i < 3; i++)
+-				do_setitimer(i, &itimer, NULL);
+-			flush_signals(current);
+-			spin_lock_irq(&current->sighand->siglock);
+-			flush_signal_handlers(current, 1);
+-			sigemptyset(&current->blocked);
+-			recalc_sigpending();
+-			spin_unlock_irq(&current->sighand->siglock);
+-		}
++	tsec = current->security;
+ 
+-		/* Check whether the new SID can inherit resource limits
+-		   from the old SID.  If not, reset all soft limits to
+-		   the lower of the current task's hard limit and the init
+-		   task's soft limit.  Note that the setting of hard limits 
+-		   (even to lower them) can be controlled by the setrlimit 
+-		   check. The inclusion of the init task's soft limit into
+-	           the computation is to avoid resetting soft limits higher
+-		   than the default soft limit for cases where the default
+-		   is lower than the hard limit, e.g. RLIMIT_CORE or 
+-		   RLIMIT_STACK.*/
+-		rc = avc_has_perm(tsec->osid, tsec->sid, SECCLASS_PROCESS,
+-				  PROCESS__RLIMITINH, NULL);
+-		if (rc) {
+-			for (i = 0; i < RLIM_NLIMITS; i++) {
+-				rlim = current->signal->rlim + i;
+-				initrlim = init_task.signal->rlim+i;
+-				rlim->rlim_cur = min(rlim->rlim_max,initrlim->rlim_cur);
+-			}
+-		}
++	if (tsec->unsafe) {
++		force_sig_specific(SIGKILL, current);
++		return;
++	}
++	if (tsec->osid == tsec->sid)
++		return;
+ 
+-		/* Wake up the parent if it is waiting so that it can
+-		   recheck wait permission to the new task SID. */
+-		wake_up_interruptible(&current->parent->signal->wait_chldexit);
++	/* Close files for which the new task SID is not authorized. */
++	flush_unauthorized_files(current->files);
+ 
+-lock_out:
+-		task_lock(current);
 -		return;
--
- 	secondary_ops->capset_set(target, effective, inheritable, permitted);
++	/* Check whether the new SID can inherit signal state
++	   from the old SID.  If not, clear itimers to avoid
++	   subsequent signal generation and flush and unblock
++	   signals. This must occur _after_ the task SID has
++	  been updated so that any kill done after the flush
++	  will be checked against the new SID. */
++	rc = avc_has_perm(tsec->osid, tsec->sid, SECCLASS_PROCESS,
++			  PROCESS__SIGINH, NULL);
++	if (rc) {
++		memset(&itimer, 0, sizeof itimer);
++		for (i = 0; i < 3; i++)
++			do_setitimer(i, &itimer, NULL);
++		flush_signals(current);
++		spin_lock_irq(&current->sighand->siglock);
++		flush_signal_handlers(current, 1);
++		sigemptyset(&current->blocked);
++		recalc_sigpending();
++		spin_unlock_irq(&current->sighand->siglock);
++	}
++
++	/* Check whether the new SID can inherit resource limits
++	   from the old SID.  If not, reset all soft limits to
++	   the lower of the current task's hard limit and the init
++	   task's soft limit.  Note that the setting of hard limits 
++	   (even to lower them) can be controlled by the setrlimit 
++	   check. The inclusion of the init task's soft limit into
++	   the computation is to avoid resetting soft limits higher
++	   than the default soft limit for cases where the default
++	   is lower than the hard limit, e.g. RLIMIT_CORE or 
++	   RLIMIT_STACK.*/
++	rc = avc_has_perm(tsec->osid, tsec->sid, SECCLASS_PROCESS,
++			  PROCESS__RLIMITINH, NULL);
++	if (rc) {
++		for (i = 0; i < RLIM_NLIMITS; i++) {
++			rlim = current->signal->rlim + i;
++			initrlim = init_task.signal->rlim+i;
++			rlim->rlim_cur = min(rlim->rlim_max,initrlim->rlim_cur);
++		}
+ 	}
++
++	/* Wake up the parent if it is waiting so that it can
++	   recheck wait permission to the new task SID. */
++	wake_up_interruptible(&current->parent->signal->wait_chldexit);
  }
  
+ /* superblock security operations */
+@@ -4229,6 +4234,7 @@ struct security_operations selinux_ops =
+ 	.bprm_alloc_security =		selinux_bprm_alloc_security,
+ 	.bprm_free_security =		selinux_bprm_free_security,
+ 	.bprm_apply_creds =		selinux_bprm_apply_creds,
++	.bprm_final_setup =		selinux_bprm_final_setup,
+ 	.bprm_set_security =		selinux_bprm_set_security,
+ 	.bprm_check_security =		selinux_bprm_check_security,
+ 	.bprm_secureexec =		selinux_bprm_secureexec,
+Index: linux-2.6.10-rc3-mm1/security/selinux/include/objsec.h
+===================================================================
+--- linux-2.6.10-rc3-mm1.orig/security/selinux/include/objsec.h	2004-12-13 15:56:15.000000000 -0600
++++ linux-2.6.10-rc3-mm1/security/selinux/include/objsec.h	2004-12-13 17:57:27.573485560 -0600
+@@ -34,6 +34,12 @@ struct task_security_struct {
+ 	u32 exec_sid;        /* exec SID */
+ 	u32 create_sid;      /* fscreate SID */
+ 	u32 ptrace_sid;      /* SID of ptrace parent */
++
++	/*
++	 * used to share failure information from bprm_apply_creds()
++	 * to bprm_final_setup().
++	 */
++	char unsafe;
+ };
+ 
+ struct inode_security_struct {

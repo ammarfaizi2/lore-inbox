@@ -1,71 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261720AbTIGXrX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 19:47:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbTIGXrX
+	id S261712AbTIHAKJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 20:10:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261737AbTIHAKJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 19:47:23 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:2403 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261720AbTIGXrW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 19:47:22 -0400
-To: Larry McVoy <lm@bitmover.com>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, "Brown, Len" <len.brown@intel.com>,
-       Giuliano Pochini <pochini@shiny.it>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Scaling noise
-References: <20030903181550.GR4306@holomorphy.com>
-	<1062613931.19982.26.camel@dhcp23.swansea.linux.org.uk>
-	<20030903194658.GC1715@holomorphy.com> <105370000.1062622139@flay>
-	<20030903212119.GX4306@holomorphy.com> <115070000.1062624541@flay>
-	<20030903215135.GY4306@holomorphy.com> <116940000.1062625566@flay>
-	<20030904010653.GD5227@work.bitmover.com>
-	<m11xusnvqc.fsf@ebiederm.dsl.xmission.com>
-	<20030907230729.GA19380@work.bitmover.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 07 Sep 2003 17:47:04 -0600
-In-Reply-To: <20030907230729.GA19380@work.bitmover.com>
-Message-ID: <m1wuckma9z.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 7 Sep 2003 20:10:09 -0400
+Received: from main.gmane.org ([80.91.224.249]:1167 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261712AbTIHAKD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Sep 2003 20:10:03 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?ISO-8859-1?Q?Sven_K=F6hler?= <skoehler@upb.de>
+Subject: [blockdevices/NBD] huge read/write-operations are splitted by the
+ kernel
+Date: Mon, 08 Sep 2003 02:02:30 +0200
+Message-ID: <bjgh6a$82o$1@sea.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030906
+X-Accept-Language: en-us, en
+X-Enigmail-Version: 0.76.4.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy <lm@bitmover.com> writes:
+Hi,
 
-> On Sun, Sep 07, 2003 at 03:18:19PM -0600, Eric W. Biederman wrote:
-> > Larry McVoy <lm@bitmover.com> writes:
-> > 
-> > > Here's a thought.  Maybe the next kernel summit needs to have a CC cluster
-> > > BOF or whatever.  I'd be happy to show up, describe what it is that I see
-> > > and have you all try and poke holes in it.  If the net result was that you
-> > > walked away with the same picture in your head that I have that would be
-> > > cool.  Heck, I'll sponser it and buy beer and food if you like.
-> > 
-> > Larry CC clusters are an idiotic development target.
-> 
-> What a nice way to start a technical conversation.
-> 
-> *PLONK* on two counts: you're wrong and you're rude.  Next contestant please.
+i discussed a problem of the NBD-protocl with Pavel Machek. The problem 
+i saw is that there is no maximum for the length field in the requests 
+that the NBD kernel module sends to the NBD server. Well, this length 
+field is the length field from the read/write-operation that the kernel 
+delegates to the blockdevice-implementation.
+I did some tests tests like
+   dd if=dev/nbd/0 of=/dev/null bs=10M
+and our NBD-server implementation printed out the length field of each 
+reqeust. There was a very regular pattern like
+   0x1fc00 (127KB)
+   0x00400 (1KB)
+   0x1fc00
+   0x00400
+   ...
+Well, can anybody explain that to me?
+(why so "little" 1KB requests? but that's not important)
 
-Ok. I will keep building clusters and the code that makes them work, and you can dream.
+Well, i also tested
+   dd if=dev/nbd/0 of=/dev/null bs=1
+which means that the device will be read in chunks of 1byte.
+The result was the same: 127KB, 1KB, 127KB, 1KB...
 
-I backed up my assertion, and can do even better. 
+I guess the caching layer is inbetween, and will devide the huge 10MB 
+requests into smaller 127KB ones, as well as joining the small 1byte 
+requests by using read-ahead i guess.
+Perhaps you could tell me how i can turn off caching. Than i will test 
+again without the cache.
 
-I have already built a 2304 cpu machine and am working on a 2900+ cpu
-machine.  
+The thing i want to know is, if there is any part of the kernel that 
+gaarantees that a read/write requests will not be bigger that a certain 
+value. If there is no such upper limit, the NBD itself would need to 
+split things up which might become a complicated task. This task need to 
+be done, because it can become very difficult for the NBD server to 
+handle huge values, and one huge requests will block all other pending 
+small ones due to limitations of the NBD protocol.
 
-The software stack and that part of the idea are reasonable but your
-target hardware is just plain rare, and expensive.  
+Thx
+   Sven
 
-If you don't get the commodity OS on commodity hardware thing, I'm sorry.
 
-The thing is for all of your talk of Dell, Dell doesn't make the hardware you
-need for a CC cluster.  And because the cc NUMA interface requires a
-manufacturer to make chips, and boards, I have a hard time seeing 
-cc NUMA hardware being a commodity any time soon.
-
-Eric

@@ -1,45 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130685AbRCTUOd>; Tue, 20 Mar 2001 15:14:33 -0500
+	id <S130660AbRCTUMW>; Tue, 20 Mar 2001 15:12:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130733AbRCTUOX>; Tue, 20 Mar 2001 15:14:23 -0500
-Received: from mx.interplus.ro ([193.231.252.3]:4624 "EHLO mx.interplus.ro")
-	by vger.kernel.org with ESMTP id <S130685AbRCTUOO>;
-	Tue, 20 Mar 2001 15:14:14 -0500
-Message-ID: <3AB7BA02.9E29FF4B@interplus.ro>
-Date: Tue, 20 Mar 2001 22:13:54 +0200
-From: Mircea Ciocan <mirceac@interplus.ro>
-Organization: Home Office
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-ac18 i686)
-X-Accept-Language: ro, en
+	id <S130685AbRCTUMM>; Tue, 20 Mar 2001 15:12:12 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:14529 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S130660AbRCTUL7>;
+	Tue, 20 Mar 2001 15:11:59 -0500
+Date: Tue, 20 Mar 2001 15:09:36 -0500 (EST)
+From: Richard A Nelson <cowboy@vnet.ibm.com>
+X-X-Sender: <cowboy@badlands.lexington.ibm.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: IP ROUTE and multi-path route splitting
+Message-ID: <Pine.LNX.4.33.0103201432590.15434-100000@badlands.lexington.ibm.com>
+X-No-Markup: yes
+x-No-ProductLinks: yes
+x-No-Archive: yes
 MIME-Version: 1.0
-To: georg@redwave.net
-CC: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Problems with SCSI controller !!!
-In-Reply-To: <Pine.LNX.4.05.10103202024310.4053-100000@callisto.of.borg>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-		Hello everybody,
+I've got two tokenring cards and I'd like to play with multi-path route
+splitting across the interfaces (unfortunately, both are on the same
+ring and subnet, so I doubt I'll see big improvements, but I'm only playing
+anyway).
 
-	This is a message on behalf of a friend that is not subscribed to list:
+kernel = 2.4.2-ac20
 
-	It's about an ASUS board that has this ncr53-1010 dual 160 SCSI
-controller (sym53c1010).
-	On both latest kernels (2.2.18ac19 AND 2.4.2ac18) the log and console
-is filled with that:
+$ ip -V
+ip utility, iproute2-ss001007
 
-	sym53c1010-33-0: unable to abort current chip operation.
-	sym53c1010-33-0: Downloading SCSI SCRIPTS.
-	sym53c8xx_reset: pid=0 reset_flags=2 ...
+$ ip addr show tr0
+5: tr0: <BROADCAST,MULTICAST,UP> mtu 2000 qdisc pfifo_fast qlen 100
+   link/[800] 40:00:de:ad:be:ef brd ff:ff:ff:ff:ff:ff
+   inet 9.51.81.11/21 brd 9.51.87.255 scope link tr0
+   inet6 fe80::4000:dead:beef/10 scope link
+   inet6 fe80::4200:deff:fead:beef/10 scope link
 
-	and the controller suddenly blocks and the system have be restarted.
+$ ip addr show tr1
+6: tr1: <BROADCAST,MULTICAST,UP> mtu 2000 qdisc pfifo_fast qlen 100
+    link/[800] 00:06:29:b0:59:63 brd ff:ff:ff:ff:ff:ff
+    inet 9.51.81.9/21 brd 9.51.87.255 scope link tr1
+    inet6 fe80::206:29ff:feb0:5963/10 scope link
+    inet6 fe80::6:29b0:5963/10 scope link
 
-	Do someone know the meaning of this messages and what's matter, do you
-want more details and what else ???
+$ ip route show dev tr0
+9.51.80.0/21  proto kernel  scope link  src 9.51.81.11
+multicast 224.0.0.0/4  scope host  src 9.51.81.11
+default via 9.51.80.1  src 9.51.81.11  metric 1
 
-			Regards,
-			
-			Mircea C.
+$ ip route show dev tr1
+9.51.80.0/21  proto kernel  scope link  src 9.51.81.9
+
+If I change the default route thusly:
+$ ip route add default metric 1 src 9.51.81.11 \
+	nexthop via 9.51.80.1 dev tr0 nexthop via 9.51.80.1 dev tr1
+
+Then things work fine, incomming requests are processed as normal, but
+it appears that outgoing requests are always sent via dev tr0
+
+If I leave off the src argument, then incomming smtp sessions to dev tr0
+(9.51.81.11) are not properly handled - I'm guessing because the src address
+could be that dev tr1 (9.51.81.9).
+of tr1
+
+What am I misunderstanding...  What I was trying to achieve was:
+ *) Incomming requests are handled on whatever interface the're received on
+ *) Outgoing requests are handled on either interface
+
+Is this more than can be done via ip route ?
+-- 
+Rick Nelson
+Life'll kill ya                         -- Warren Zevon
+Then you'll be dead                     -- Life'll kill ya
+

@@ -1,70 +1,113 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280537AbRKXX6f>; Sat, 24 Nov 2001 18:58:35 -0500
+	id <S280563AbRKYAQQ>; Sat, 24 Nov 2001 19:16:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280531AbRKXX6Z>; Sat, 24 Nov 2001 18:58:25 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:24593 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S280537AbRKXX6M>;
-	Sat, 24 Nov 2001 18:58:12 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Christoph Hellwig <hch@ns.caldera.de>
-Cc: linux-kernel@vger.kernel.org, kaih@khms.westfalen.de
-Subject: Re: is 2.4.15 really available at www.kernel.org? 
-In-Reply-To: Your message of "Sat, 24 Nov 2001 14:56:18 BST."
-             <200111241356.fAODuIb30257@ns.caldera.de> 
+	id <S280583AbRKYAQI>; Sat, 24 Nov 2001 19:16:08 -0500
+Received: from mail-smtp.uvsc.edu ([161.28.224.157]:54621 "HELO
+	MAIL-SMTP.uvsc.edu") by vger.kernel.org with SMTP
+	id <S280563AbRKYAPx> convert rfc822-to-8bit; Sat, 24 Nov 2001 19:15:53 -0500
+Message-Id: <sbffd600.008@MAIL-SMTP.uvsc.edu>
+X-Mailer: Novell GroupWise Internet Agent 5.5.4.1
+Date: Sat, 24 Nov 2001 17:16:46 -0700
+From: "Tyler BIRD" <birdty@uvsc.edu>
+To: <jeff_l@iprimus.com.au>, <linux-kernel@vger.kernel.org>
+Subject: Re: Problems booting linux kernel
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 25 Nov 2001 10:57:59 +1100
-Message-ID: <9705.1006646279@ocs3.intra.ocs.com.au>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 24 Nov 2001 14:56:18 +0100, 
-Christoph Hellwig <hch@ns.caldera.de> wrote:
->In article <2450.1006608941@ocs3.intra.ocs.com.au> you wrote:
->> kbuild 2.5 has standard support for running user specific install
->> scripts after installing the bootable kernel and modules.  That is, the
->> "update my bootloader" phase can be automated and will propagate from
->> one .config to the next when you make oldconfig.
->
->Never 2.4 kernels already try to excecute ~/bin/installkernel in the
->'make install' pass on i386.
+The kernel panics because it's unable to mount the root filesystem
+which you have said is on the /dev/hdb2 partition
 
-I know.  kbuild 2.5 goes further and gives the user a choice about
-(a) whether to run a script on install and (b) what the script name is,
-instead of hard coding it.
+Check out the BootDisk Howto
 
->Together with the above "~/bin/installkernel" option I put my kernels always
->into /lib/modules/<version>/vmlinux so I can find them easily (IMHO this
->should be default in 2.5)
+It appears that end_request is returning an error code which means
+that the disk device driver can't access the disk.  
 
-Architecture dependent.  In kbuild 2.5 for most architectures the
-default location for the kernel, System.map and .config is in
-/lib/modules.
+When you re-run lilo with your new configuration
+there should be something simmilar to
 
-string 'Where to install the kernel' CONFIG_INSTALL_KERNEL_NAME "/lib/modules/KERNELRELEASE/vmlinuz"
-bool 'Install System.map' CONFIG_INSTALL_SYSTEM_MAP
-if [ "$CONFIG_INSTALL_SYSTEM_MAP" = "y" ]; then
-  string '  Where to install System.map' CONFIG_INSTALL_SYSTEM_MAP_NAME "/lib/modules/KERNELRELEASE/System.map"
-fi
-bool 'Install .config' CONFIG_INSTALL_CONFIG
-if [ "$CONFIG_INSTALL_CONFIG" = "y" ]; then
-  string '  Where to install .config' CONFIG_INSTALL_CONFIG_NAME "/lib/modules/KERNELRELEASE/.config"
-fi
+name=New Linux
+root=/dev/hdb2
+image=/boot/bzImage
 
-Users with special requirements (old BIOS, small /lib etc.) can
-configure their install to put the kernel where they like.  At least
-one architecture (ia64) mandates that bootable images live in a
-separate partition, the firmware on ia64 requires this, so the default
-for vmlinuz is different.
+you also might want to install lilo
+on your new master drive.  
+boot=/dev/hdb
+so you can make sure that hdb is recognized as
+the new master IDE Drive
 
-string 'Where to install the kernel' CONFIG_INSTALL_KERNEL_NAME "/boot/efi/vmlinuz-KERNELRELEASE"
+you might also want to set the ramdisk work
+which contains the major minor numbers of the root device
+to boot from with rdev
 
->so even lilo-using people could write simple
->scripts to add all kernels present in /lib/modules/ to their config.
->This does of course make the path '/lib/modules/' grossly misnamed, maybe
->we could change it into /kernel in 2.5 :)
+rdev /boot/bzImage /dev/hdb2
+this would configure the compressed kernel
+on /dev/hda? in the file /boot/bzImage to try to mount the
+root filesystem from /dev/hdb2
+your slave hard disk.  So thus I believe you wouldn't even have
+to change jumpers this way and keep lilo on 
+your old disk boot sector.
 
-I was tempted, but the number of things that would break ... shudder.
+Tyler
+
+>>> Jeff <jeff_l@iprimus.com.au> 11/23/01 08:52PM >>>
+Greetings,
+	I have two eide hard drives arranged as master and slave on my primary
+ide controller.  The 20G seagate is the master and it has LILO as the 
+bootloader.  This drive also has an old RH 6.1 install on it that I hardly
+use.  A 30G quantum is the slave and it has linux that I built from sources.  
+This latter drive and OS is the one I use mostly.  
+	Now I want to configure the 30G drive as the master and I want to use
+the 20G (current master) for other things.
+
+	My 30G drive has a / (root) partition (currently /dev/hdb2) and a /boot 
+partition (currently /dev/hdb1).  I couldn't get LILO to start properly when I
+installed it on my 30G drive so I've switched to GRUB.  (I'll switch back to 
+LILO if need be and I get good advice.)   I can get GRUB to start my kernel 
+but my kernel panics when trying to mount file systems.  Here is a transcript 
+of the kernel output:
+
+attempt to access beyond end of device
+03:42: rw=0, want=1, liimt=1
+EXT2-fs: unable to read superblock
+FAT: bogus logical sector size 0
+FAT: bogus logical sector size 0
+attempt to access beyond end of device
+03:42: rw=0, want=33, limit=1
+isofs_read_super: bread failed, dev=03:42, iso_blknum=16, block=32
+Kernel panic: VFS: Unable to mount root fs on 03:42
+
+When I switch everything back to the way it was this kernel can be started 
+without a problem.
+
+In switching the drives' master/slave status around I have (of course) done 
+the following:
+* changed jumper settings on both drives
+* edited /etc/fstab on the 30G drive (the one I want to boot as master).
+* modified the bios settings (got bios to autodetect drives in new
+  configuration).
+
+Why does my kernel panic?  How do I fix the problem so that I can boot the 
+linux kernel on my 30G drive when the drive is configured as master instead 
+of slave?
+
+Please help,
+		Jeff
+    
+-- 
+===============================================================================
+I never saw a wild thing
+sorry for itself.
+A small bird will drop frozen dead from a bough
+without ever having felt sorry for itself.
+	-- "Self-Pity" by David Herbert Lawrence (1885-1930)
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org 
+More majordomo info at  http://vger.kernel.org/majordomo-info.html 
+Please read the FAQ at  http://www.tux.org/lkml/
 

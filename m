@@ -1,60 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289600AbSAPWWT>; Wed, 16 Jan 2002 17:22:19 -0500
+	id <S289945AbSAPWiW>; Wed, 16 Jan 2002 17:38:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289859AbSAPWWK>; Wed, 16 Jan 2002 17:22:10 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:51329 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S289861AbSAPWV6>; Wed, 16 Jan 2002 17:21:58 -0500
-Date: Wed, 16 Jan 2002 17:23:42 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Mark Zealey <mark@zealos.org>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: floating point exception
-In-Reply-To: <20020116221247.GA3769@itsolve.co.uk>
-Message-ID: <Pine.LNX.3.95.1020116172116.15534A-100000@chaos.analogic.com>
+	id <S290009AbSAPWiM>; Wed, 16 Jan 2002 17:38:12 -0500
+Received: from mccammon.ucsd.edu ([132.239.16.211]:52898 "EHLO
+	mccammon.ucsd.edu") by vger.kernel.org with ESMTP
+	id <S289945AbSAPWiB>; Wed, 16 Jan 2002 17:38:01 -0500
+Date: Wed, 16 Jan 2002 14:38:41 -0800 (PST)
+From: Alexei Podtelezhnikov <apodtele@mccammon.ucsd.edu>
+X-X-Sender: apodtele@chemcca18.ucsd.edu
+To: linux-kernel@vger.kernel.org
+Subject: [o(1) sched J0] higher priority smaller timeslices, in fact
+Message-ID: <Pine.LNX.4.44.0201161412140.3787-100000@chemcca18.ucsd.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Jan 2002, Mark Zealey wrote:
 
-> On Wed, Jan 16, 2002 at 05:05:55PM -0500, Richard B. Johnson wrote:
-> 
-> >     for(;;)
-> >     {
-> >         srand(seed); 
-            ^^^^^^^^^^^^^^^^
+The comment and the actual macros are inconsistent.
+positive number * (19-n) is a decreasing function of n!
 
-> >         z = x;
-> >         for(i = 0; i < MAX_FLOAT; i++)
-> >             *z++ = cos((double) rand());
-> >         srand(seed);
-            ^^^^^^^^^^^^^
++ * The higher a process's priority, the bigger timeslices
++ * it gets during one round of execution. But even the lowest
++ * priority process gets MIN_TIMESLICE worth of execution time.
++ */
 
-> >         z = y;
-> >         for(i = 0; i < MAX_FLOAT; i++)
-> >             *z++ = cos((double) rand());
-> >         if(memcmp(x, y, MAX_FLOAT * sizeof(double)))
-> >             break;
-> >         seed = rand();
-> 
-> Um, maybe I'm not reading this properly.. why are you randing, doing 1 set and
-> then using different random values for the other set ?
+-#define NICE_TO_TIMESLICE(n)   (MIN_TIMESLICE + \
+-	((MAX_TIMESLICE - MIN_TIMESLICE) * (19 - (n))) / 39)
++#define NICE_TO_TIMESLICE(n) (MIN_TIMESLICE + \
++	((MAX_TIMESLICE - MIN_TIMESLICE) * (19-(n))) / 39)
 
-I am NOT. I am setting the seed BACK to whatever it was for the first
-set with srand(seed). After the compare, I change the seed.
+I still suggest a different set as faster and more readable at least to 
+me. Just two operations instead of 4!
 
+#define NICE_TO_TIMESLICE(n) (((n)+21)*(HZ/10))  // should be positive!
+#define MAX_TIMESLICE  NICE_TO_TIMESLICE(19)
+#define MIN_TIMESLICE  NICE_TO_TIMESLICE(-20)
 
-Cheers,
-Dick Johnson
+with later tweaking done in the function, like (((n)+22)*(HZ/25)) instead.
 
-Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
+Alexei
 

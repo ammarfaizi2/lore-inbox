@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264806AbSKUVL0>; Thu, 21 Nov 2002 16:11:26 -0500
+	id <S264885AbSKUVRO>; Thu, 21 Nov 2002 16:17:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264797AbSKUVL0>; Thu, 21 Nov 2002 16:11:26 -0500
-Received: from mg03.austin.ibm.com ([192.35.232.20]:63986 "EHLO
-	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S264788AbSKUVLZ>; Thu, 21 Nov 2002 16:11:25 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Kevin Corry <corryk@us.ibm.com>
-Organization: IBM
-To: Steven Dake <sdake@mvista.com>, Doug Ledford <dledford@redhat.com>
-Subject: Re: RFC - new raid superblock layout for md driver
-Date: Thu, 21 Nov 2002 14:35:59 -0600
-X-Mailer: KMail [version 1.2]
-Cc: Joel Becker <Joel.Becker@oracle.com>, Neil Brown <neilb@cse.unsw.edu.au>,
-       linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
-References: <15835.2798.613940.614361@notabene.cse.unsw.edu.au> <20021121203829.GH14063@redhat.com> <3DDD46E0.9040909@mvista.com>
-In-Reply-To: <3DDD46E0.9040909@mvista.com>
+	id <S264886AbSKUVRO>; Thu, 21 Nov 2002 16:17:14 -0500
+Received: from ahriman.Bucharest.roedu.net ([141.85.128.71]:12977 "HELO
+	ahriman.bucharest.roedu.net") by vger.kernel.org with SMTP
+	id <S264885AbSKUVRN>; Thu, 21 Nov 2002 16:17:13 -0500
+Date: Thu, 21 Nov 2002 23:41:35 +0200 (EET)
+From: Mihai RUSU <dizzy@roedu.net>
+X-X-Sender: <dizzy@ahriman.bucharest.roedu.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: strange kernel message
+Message-ID: <Pine.LNX.4.33.0211212338380.5481-100000@ahriman.bucharest.roedu.net>
 MIME-Version: 1.0
-Message-Id: <02112114355903.06518@boiler>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 21 November 2002 14:49, Steven Dake wrote:
-> Doug,
->
-> Yup this would be ideal and I think this is what EVMS tries to do,
-> although I haven't tried it.
+Hi guys
 
-This is indeed what EVMS's new design does. It has user-space plugins that 
-understand a variety of on-disk-metadata formats. There are plugins for LVM 
-volumes, for MD RAID devices, for partitions, as well as others. The plugins 
-communicate with the MD driver to activate MD devices, and with the 
-device-mapper driver to activate other devices.
+I'm getting the following "strange" message in my kernel logs. Probably
+nothing serious but I would like to know what could be the cause.
 
-As for whether DM and MD kernel drivers should be merged: I imagine it could 
-be done, since DM already has support for easily adding new modules, but I 
-don't see any overwhelming reason to merge them right now. I'm sure it will 
-be discussed more when 2.7 comes out. For now they seem to work fine as 
-separate drivers doing what each specializes in. All the integration issues 
-that have been brought up can usually be dealt with in user-space.
+/sbin/lspci
+00:00.0 Host bridge: Relience Computer CNB20HE (rev 23)
+00:00.1 Host bridge: Relience Computer CNB20HE (rev 01)
+00:00.2 Host bridge: Relience Computer: Unknown device 0006 (rev 01)
+00:00.3 Host bridge: Relience Computer: Unknown device 0006 (rev 01)
 
--- 
-Kevin Corry
-corryk@us.ibm.com
-http://evms.sourceforge.net/
+message:
+Uhhuh. NMI received for unknown reason 31.
+Dazed and confused, but trying to continue
+Do you have a strange power saving mode enabled?
+
+Does anyone knows what is reason 31 NMI for my chipset ?
+
+Thanks
+
+----------------------------
+Mihai RUSU
+

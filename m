@@ -1,56 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261356AbSKGSAh>; Thu, 7 Nov 2002 13:00:37 -0500
+	id <S261360AbSKGSNO>; Thu, 7 Nov 2002 13:13:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261363AbSKGSAh>; Thu, 7 Nov 2002 13:00:37 -0500
-Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:27899 "EHLO
-	www.kroptech.com") by vger.kernel.org with ESMTP id <S261356AbSKGSAh>;
-	Thu, 7 Nov 2002 13:00:37 -0500
-Date: Thu, 7 Nov 2002 13:07:09 -0500
-From: Adam Kropelin <akropel1@rochester.rr.com>
-To: MdkDev <mdkdev@starman.ee>
-Cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
-Subject: Re: 2.5.46: ide-cd cdrecord success report
-Message-ID: <20021107180709.GB18866@www.kroptech.com>
-References: <32851.62.65.205.175.1036691341.squirrel@webmail.starman.ee>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <32851.62.65.205.175.1036691341.squirrel@webmail.starman.ee>
-User-Agent: Mutt/1.3.28i
+	id <S261364AbSKGSNO>; Thu, 7 Nov 2002 13:13:14 -0500
+Received: from bothawui.bothan.net ([66.92.184.160]:20689 "HELO
+	bothawui.bothan.net") by vger.kernel.org with SMTP
+	id <S261360AbSKGSNN>; Thu, 7 Nov 2002 13:13:13 -0500
+Date: Thu, 7 Nov 2002 10:19:49 -0800 (PST)
+From: Drew Hess <dhess@bothan.net>
+To: linux-kernel@vger.kernel.org
+Subject: Querying mm's from a module
+Message-ID: <Pine.LNX.4.21.0211071011310.11645-100000@bothawui.bothan.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 07, 2002 at 07:49:01PM +0200, MdkDev wrote:
-> 
-> Decided to replicate Adam Kropelins CD burning test (burn cd while
-> executing 'dd if=/dev/zero of=foo bs=1M'). Didn't have any problems - I
-> burned 323 MB ISO image while running the aforementioned dd command.
-> cdrecord reported:Track 01:  323 of  323 MB written (fifo 100%) [buf  99%]   4.2x.
-> Track 01: Total bytes read/written: 339247104/339247104 (165648 sectors).
-> Writing  time:  566.244s
-> Average write speed   4.0x.
-> Min drive buffer fill was 99%
-> Fixating...
-> Fixating time:   77.859s
-> cdrecord: fifo had 5344 puts and 5344 gets.
-> cdrecord: fifo was 0 times empty and 5186 times full, min fill was 92%.
-> 
-> File foo contained 7363 1 MB records.
-> 
-> Hardware:
-> CPU - AMD XP 2100+
-> RAM - 512 MB
-> MB - MSI KT3 Ultra3 (VIA KT333 chipset)
-> HDD - 2 IBM Deskstar IDE disks (using integrated RAID controller PDC 20276
-> as an ordinary ATA133 controller)CD burner - LiteOn LTR-16101B
 
-Thanks, this is good information. Was the destination for the 'dd' and
-the source CD image on the same drive? What filesystem were you using? 
+I asked this on kernelnewbies but got no response.  Hopefully someone on
+lkml can educate me.
 
-I notice you used a 4x writer...I'll try lowering my write speed to 4x
-and see if that makes a difference. I'll also see if I can rig up an
-IDE disk instead of SCSI.
+I have a module that wants to query a task's mm.  I'm developing this
+module for 2.4.18+ kernels.  I tried to implement this using fine-grained
+locking ala fs/proc/array.c.  In the following code, mem is a struct that
+contains the pid of the task I want to query, and a vmsize field where
+total_vm is stored (in kbytes, which explains the shifting):
 
---Adam
+        /* version 1 */
+	struct task_struct * task;
+	struct mm_struct * mm;
+
+	read_lock (&tasklist_lock);
+	task = find_task_by_pid (mem->pid);
+	if (task)
+		get_task_struct (task);
+	read_unlock (&tasklist_lock);
+	if (!task)
+		return -EINVAL;
+	
+	task_lock (task);
+	mm = task->mm;
+
+	if (mm)
+		atomic_inc (&mm->mm_users);
+	task_unlock (task);
+	free_task_struct (task);
+	if (!mm)
+		return -EINVAL;
+
+	down_read (&mm->mmap_sem);
+	mem->vmsize = mm->total_vm << (PAGE_SHIFT-10);
+	up_read (&mm->mmap_sem);
+	mmput (mm);
+
+Unfortunately, it looks like mmput isn't exported to module space.
+
+If I change the code to use just the tasklist_lock, like this:
+
+        /* version 2 */
+        int ret;
+	struct task_struct * task;
+	struct mm_struct * mm;
+
+        ret = -EINVAL;
+	read_lock (&tasklist_lock);
+	task = find_task_by_pid (mem->pid);
+	if (!task)
+		goto out;
+	
+	mm = task->mm;
+
+	if (!mm)
+	        goto out;
+	mem->vmsize = mm->total_vm << (PAGE_SHIFT-10);
+        ret = 0;
+
+out:
+	read_unlock (&tasklist_lock);
+	return ret;
+
+
+will this work?  What prevents mm from going away while I'm holding
+tasklist_lock?  Version 2 of my code is based on mm/oom_kill.c, so I'd
+expect it to be safe, but glancing at do_exit and __exit_mm, I can't see
+what prevents the following execution on an SMP machine, where p1 is
+running my module (or oom_kill) and p2 is running do_exit():
+
+        p1: mm = task->mm;
+	p2: __exit_mm (tsk); <-- assume tsk is the same task that p1 is
+	                         examining.
+                             <-- after __exit_mm's mmput, mm may have been
+			         deallocated
+	p1: mem->vmsize = mm->total_vm << (PAGE_SHIFT-10);
+	                     <-- boom, if mm was deallocated by
+			         __exit_mm on p2
+
+
+Looks to me like anyone who's trying to do something with mm should be
+doing a task_lock + atomic_inc(mm->mm_users) + task_unlock + mmput(mm)
+sequence, but that doesn't appear to be the case in mm/oom_kill.c.  And it
+doesn't look like tasklist_lock is held when do_exit calls __exit_mm, so I
+don't understand how oom_kill is safe. What am I missing?
+
+
+thanks!
+-dwh-
+
+
+
 

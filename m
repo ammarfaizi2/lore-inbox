@@ -1,55 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278293AbRJSDyX>; Thu, 18 Oct 2001 23:54:23 -0400
+	id <S278189AbRJSDtD>; Thu, 18 Oct 2001 23:49:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278294AbRJSDyN>; Thu, 18 Oct 2001 23:54:13 -0400
-Received: from mailhost.nmt.edu ([129.138.4.52]:4103 "EHLO mailhost.nmt.edu")
-	by vger.kernel.org with ESMTP id <S278293AbRJSDyC>;
-	Thu, 18 Oct 2001 23:54:02 -0400
-Date: Thu, 18 Oct 2001 21:54:30 -0600
-From: Val Henson <val@nmt.edu>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
+	id <S278285AbRJSDsy>; Thu, 18 Oct 2001 23:48:54 -0400
+Received: from mail.wave.co.nz ([203.96.216.11]:56376 "EHLO mail.wave.co.nz")
+	by vger.kernel.org with ESMTP id <S278189AbRJSDsr>;
+	Thu, 18 Oct 2001 23:48:47 -0400
+Date: Fri, 19 Oct 2001 16:49:16 +1300
+From: Mark van Walraven <markv@wave.co.nz>
+To: hanhbkernel <hanhbkernel@yahoo.com.cn>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Yellowfin bug fix for Symbios cards
-Message-ID: <20011018215429.A18593@boardwalk>
-In-Reply-To: <20011018210416.D17208@boardwalk> <3BCF9FDD.D6586538@mandrakesoft.com>
+Subject: Re: initrd problem of 2.4.10
+Message-ID: <20011019164916.C596@mail.wave.co.nz>
+Mail-Followup-To: hanhbkernel <hanhbkernel@yahoo.com.cn>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011019141926.B596@mail.wave.co.nz> <20011019033955.43057.qmail@web15005.mail.bjs.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3BCF9FDD.D6586538@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Thu, Oct 18, 2001 at 11:37:01PM -0400
-Favorite-Color: Polka dot
+X-Mailer: Mutt 0.95.3i
+In-Reply-To: <20011019033955.43057.qmail@web15005.mail.bjs.yahoo.com>; from hanhbkernel on Fri, Oct 19, 2001 at 11:39:55AM +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 18, 2001 at 11:37:01PM -0400, Jeff Garzik wrote:
-> Val Henson wrote:
-> > Long version: Reading the MAC address from the EEPROM didn't work on
-> > the Symbios card, so I turned on the IsGigabit flag to read it
-> > correctly.  This also forces full-duplex on, which is wrong.  So I
-> > added a flag controlling only the MAC address reading behavior and
-> > turned off the IsGigabit flag for Symbios cards.
-> 
-> Thanks, applied.
-> 
-> Any idea where the MAC address comes from on the Symbios card?
+On Fri, Oct 19, 2001 at 11:39:55AM +0800, hanhbkernel wrote:
+> thanks for your help but I have checked /lib/ld-* in
+> the initrd.the permission is right.please give me more
+> help 
 
-I believe our bootloader (Smon) initializes the MAC address.
+What command line arguments do you pass to linux, and in what order?
 
-> Standard net driver policy is to read the MAC address from the original
-> source at probe time, typically EEPROM but sometimes in a boot PROM,
-> firmware console memory, or cardbus CIS.  It is generally preferred to
-> -not- read the MAC address from the card registers unless you absolutely
-> have to, since card's copy of the MAC address is easily changeable or
-> corrupted by rebooting from Windows into Linux or similar things (MacOS
-> into Linux).
+I presume your initrd has /bin/sh?  What happens if boot with init=/bin/sh?
 
-Hm, good point.  I should figure out why read_eeprom isn't working and
-fix that instead.  Maybe the driver should be changed to attempt to
-read the MAC from the eeprom and then read from the registers if that
-fails, instead of relying on flags.
-
-By the way, the only other OS that runs on our hardware is VxWorks,
-and possibly a few of the more obscure RTOS's...
-
--VAL
+Mark.

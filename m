@@ -1,53 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264456AbTDYVCz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 17:02:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263997AbTDYVCL
+	id S263997AbTDYVEO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 17:04:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263989AbTDYVEO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 17:02:11 -0400
-Received: from 015.atlasinternet.net ([212.9.93.15]:48356 "EHLO
-	antoli.gallimedina.net") by vger.kernel.org with ESMTP
-	id S264309AbTDYVCD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 17:02:03 -0400
-From: Ricardo Galli <gallir@uib.es>
-Organization: UIB
-To: linux-kernel@vger.kernel.org
-Subject: BUG: 2.5.68 uhci: host controlled halted and then kills the kernel
-Date: Fri, 25 Apr 2003 23:14:13 +0200
-User-Agent: KMail/1.5.1
+	Fri, 25 Apr 2003 17:04:14 -0400
+Received: from freeside.toyota.com ([63.87.74.7]:21158 "EHLO
+	freeside.toyota.com") by vger.kernel.org with ESMTP id S264309AbTDYVDp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 17:03:45 -0400
+Message-ID: <3EA9A584.7080808@tmsusa.com>
+Date: Fri, 25 Apr 2003 14:15:48 -0700
+From: jjs <jjs@tmsusa.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+To: linux kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@digeo.com>
+Subject: Fixed (Was: 2.5.68-mm2+e100=trouble)
+References: <3EA97735.8070005@tmsusa.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304252314.13085.gallir@uib.es>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, again me :-(
+2.5.68-mm2+e100 are now happy together -
 
-Playing aroung with the mouse, I've got the following error:
+Thanks to Andrew Morton for the fix:
 
-usb 1-1: USB disconnect, address 2
-drivers/usb/host/uhci-hcd.c: 8800: host controller halted. very bad
-                                                           ^^^^^^^^
-hub 1-0:0: debounce: port 1: delay 100ms stable 4 status 0x301
-...
+delete the __init from the definition of apply_alternatives()
 
-
-The USB didn't wok anymore, then I stopped hotplug and the system died 
-just after the message "Stopping hotplug subsystem" appeared in the 
-konsole.
-
-It's the same Dell Latitude X200.
-
-BTW, the usb mouse doesn't work with ohci, altough the modules are loaded.
-
-Also, the previously reported "psmouse.c: Lost synchronization" errors 
-disappear by using /dev/input/mouse[01] instead of /dev/psaux and 
-/dev/input/mice.
+Joe
 
 
 
--- 
-  ricardo galli       GPG id C8114D34

@@ -1,59 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbUDZWbP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261468AbUDZWi6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261169AbUDZWbP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 18:31:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbUDZWbP
+	id S261468AbUDZWi6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 18:38:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbUDZWi6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 18:31:15 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:58804 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261169AbUDZWbN (ORCPT
+	Mon, 26 Apr 2004 18:38:58 -0400
+Received: from [80.72.36.106] ([80.72.36.106]:30081 "EHLO alpha.polcom.net")
+	by vger.kernel.org with ESMTP id S261468AbUDZWi5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 18:31:13 -0400
-Subject: Re: sched_domains and Stream benchmark
-From: Darren Hart <dvhltc@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Andi Kleen <ak@muc.de>
-In-Reply-To: <m3r7uitr1r.fsf@averell.firstfloor.org>
-References: <1N7xQ-7fh-29@gated-at.bofh.it>
-	 <m3r7uitr1r.fsf@averell.firstfloor.org>
-Content-Type: text/plain
-Message-Id: <1083018633.3070.8.camel@farah>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 26 Apr 2004 15:30:34 -0700
-Content-Transfer-Encoding: 7bit
+	Mon, 26 Apr 2004 18:38:57 -0400
+Date: Tue, 27 Apr 2004 00:38:53 +0200 (CEST)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>, raven@themaw.net
+Subject: Re: 2.6.6-rc2-bk3 (and earlier?) mount problem (?)
+In-Reply-To: <Pine.LNX.4.58.0404261510230.19703@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.58.0404270034110.4469@alpha.polcom.net>
+References: <20040426013944.49a105a8.akpm@osdl.org>
+ <Pine.LNX.4.58.0404270105200.2304@donald.themaw.net>
+ <Pine.LNX.4.58.0404261917120.24825@alpha.polcom.net>
+ <Pine.LNX.4.58.0404261102280.19703@ppc970.osdl.org>
+ <Pine.LNX.4.58.0404262350450.3003@alpha.polcom.net>
+ <Pine.LNX.4.58.0404261510230.19703@ppc970.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-04-20 at 11:58, Andi Kleen wrote:
-> Darren Hart <dvhltc@us.ibm.com> writes:
-> 
-> > Andi,
-> >
-> > You have mentioned the stream benchmark when reporting on the
-> > performance of the Opteron NUMA sched-domains scheduler.  I am trying to
-> > reproduce your results and am struggling with the benchmark.  Can you
-> > rpovide the details of the tests you ran.  Namely your compiler
-> > settings, compile command line, and your value of N.  Also I didn't see
-> > how to specify the number of threads to run, how did you specify that? 
-> > I have a 4 way 1.4 GHz 1MB cache opteron machine with 7 GB of RAM.
-> 
-> I didn't actually compile them myself; someone sent me executables
-> compiled with the PGI compiler.  Maybe your compiler has a different
-> runtime and behaves differently? 
-> 
-> You can find them and my test script that tests everything in 
-> ftp://ftp.suse.com/pub/people/ak/bench/stream.tar.gz
+On Mon, 26 Apr 2004, Linus Torvalds wrote:
+> Try turning off MD first. Then quota, and if neither of those matters, 
+> start tuning off the individual filesystem drivers (reiser, xfs).
 
-Thanks Andi,
+Yes, when I turned off MD and DM it started to work. Thanks. Can I help 
+more to track the problem down? (I currently have no MD or DM volumes in 
+my system - I just wanted to start experimenting with them...)
 
-I noticed your binary ran with N=2000000 which is only sufficient for a
-2 proc 1 MB cache opteron box according to the documentation on the
-stream faq.  I also noticed wide variation in results (25% or so) when
-running with 4 threads on a 4 proc opteron on linux-2.6.5-mm5.  Can you
-provide me with the specs of the system you ran your tests on?
 
-Thanks,
-
-Darren
+Grzegorz Kulewski
 

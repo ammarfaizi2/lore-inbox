@@ -1,43 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130317AbRDFBJl>; Thu, 5 Apr 2001 21:09:41 -0400
+	id <S130485AbRDFBrq>; Thu, 5 Apr 2001 21:47:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130448AbRDFBJb>; Thu, 5 Apr 2001 21:09:31 -0400
-Received: from 24.68.61.66.on.wave.home.com ([24.68.61.66]:11280 "HELO
-	sh0n.net") by vger.kernel.org with SMTP id <S130317AbRDFBJY>;
-	Thu, 5 Apr 2001 21:09:24 -0400
-Date: Thu, 5 Apr 2001 21:08:43 -0400 (EDT)
-From: Shawn Starr <spstarr@sh0n.net>
-To: Jeff Chua <jeffchua@silk.corp.fedex.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: gcc-2.95.3
-In-Reply-To: <Pine.LNX.4.33.0104060847200.965-100000@boston.corp.fedex.com>
-Message-ID: <Pine.LNX.4.30.0104052108390.17272-100000@coredump.sh0n.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130507AbRDFBrg>; Thu, 5 Apr 2001 21:47:36 -0400
+Received: from vp175062.reshsg.uci.edu ([128.195.175.62]:54800 "EHLO
+	moisil.dev.hydraweb.com") by vger.kernel.org with ESMTP
+	id <S130485AbRDFBrR>; Thu, 5 Apr 2001 21:47:17 -0400
+Date: Thu, 5 Apr 2001 18:46:34 -0700
+Message-Id: <200104060146.f361kYm22348@moisil.dev.hydraweb.com>
+From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
+To: Andrew Daviel <advax@triumf.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: syslog insmod please!
+In-Reply-To: <Pine.LNX.4.30.0104051751410.20174-100000@andrew.triumf.ca>
+User-Agent: tin/1.5.7-20001104 ("Paradise Regained") (UNIX) (Linux/2.2.19 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 5 Apr 2001 17:57:48 -0700 (PDT), Andrew Daviel <andrew@andrew.triumf.ca> wrote:
 
-You should be ok :)
+> Is there a good reason why insmod should not call syslog() to log
+> any module that gets installed ? 
 
-On Fri, 6 Apr 2001, Jeff Chua wrote:
+Simple: you'll have quite a bit of a problem if you are trying to insmod
+the module with support for AF_UNIX sockets. :-)
 
->
-> Does anybody have bad experience with gcc-2.95.3?
->
-> I'm using gcc-2.95.2 with linux 2.4.3 and have no problem with it.
->
->
-> Thanks,
-> Jeff
-> [ jchua@fedex.com ]
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
+Ion
 
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.

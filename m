@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263414AbTDMKRa (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 06:17:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263415AbTDMKR3 (for <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Apr 2003 06:17:29 -0400
-Received: from smtp.hccnet.nl ([62.251.0.13]:34978 "EHLO smtp.hccnet.nl")
-	by vger.kernel.org with ESMTP id S263414AbTDMKR3 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Apr 2003 06:17:29 -0400
-Message-ID: <3E993C54.40805@hccnet.nl>
-Date: Sun, 13 Apr 2003 12:30:44 +0200
-From: Gert Vervoort <gert.vervoort@hccnet.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
+	id S262685AbTDMKde (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 06:33:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263416AbTDMKde (for <rfc822;linux-kernel-outgoing>);
+	Sun, 13 Apr 2003 06:33:34 -0400
+Received: from c-97a870d5.037-69-73746f23.cust.bredbandsbolaget.se ([213.112.168.151]:27520
+	"EHLO zaphod.guide") by vger.kernel.org with ESMTP id S262685AbTDMKdd (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Apr 2003 06:33:33 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: >=2.5.66 compiling errors on Alpha
+References: <3E98117F.8090705@g-house.de>
+	<1050213058.15082.0.camel@rth.ninka.net>
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: 13 Apr 2003 12:45:52 +0200
+In-Reply-To: <1050213058.15082.0.camel@rth.ninka.net>
+Message-ID: <yw1xfzomd6an.fsf@zaphod.guide>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Portable Code)
 MIME-Version: 1.0
-To: Robert Love <rml@tech9.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.67: ppa driver & preempt == oops
-References: <3E982AAC.3060606@hccnet.nl> <1050172083.2291.459.camel@localhost>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->
->I guess you don't see these without kernel preemption?
->  
->
-I've not tried that for 2.5.67, but with previous 2.5 versions I had no 
-problems when I disabled the ppa driver or preemption.
+"David S. Miller" <davem@redhat.com> writes:
 
->These are not errors, just warnings.  Most likely you only see them when
->CONFIG_PREEMPT is enabled, because otherwise the kernel cannot detect
->them.  But they still happen.
->
->Does anything go wrong?  Or just these errors?
->  
->
+> > do you need further infos to debug this?
+> > compiling a kernel on this machine is very slow, i think i can't take 
+> > the "BUG-HUNTING" approach.
+> 
+> The Alpha folks need to fix their definition of cond_syscall().
+> Copying over the asm-i386/*.h definition will probably "just work".
 
-With 2.5.67 it is just these messages, the system continues working. 
-Because of these messages I've not tried if the zip-driver functions 
-properly.
+That won't work.  There have been two (equivalent) patches posted to
+this list recently.  Will someone pick them up?
 
-  Gert
-
-
+-- 
+Måns Rullgård
+mru@users.sf.net

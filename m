@@ -1,53 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbUHUXiP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbUHUXnL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261232AbUHUXiP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 19:38:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbUHUXiP
+	id S261239AbUHUXnL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 19:43:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbUHUXnL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 19:38:15 -0400
-Received: from fw.osdl.org ([65.172.181.6]:44942 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261232AbUHUXiN (ORCPT
+	Sat, 21 Aug 2004 19:43:11 -0400
+Received: from main.gmane.org ([80.91.224.249]:58282 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261239AbUHUXnE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 19:38:13 -0400
-Date: Sat, 21 Aug 2004 16:36:28 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: John Levon <levon@movementarian.org>
-Cc: oprofile-list@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       jbarnes@sgi.com, anton@samba.org, phil.el@wanadoo.fr
-Subject: Re: [PATCH] improve OProfile on many-way systems
-Message-Id: <20040821163628.10cfa049.akpm@osdl.org>
-In-Reply-To: <20040821232206.GC20175@compsoc.man.ac.uk>
-References: <20040821192630.GA9501@compsoc.man.ac.uk>
-	<20040821135833.6b1774a8.akpm@osdl.org>
-	<20040821232206.GC20175@compsoc.man.ac.uk>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 21 Aug 2004 19:43:04 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Stefan Seyfried <seife@suse.de>
+Subject: Re: [PATCH] make swsusp produce nicer screen output
+Date: Sun, 22 Aug 2004 01:42:46 +0200
+Message-ID: <4127DDF6.2030500@suse.de>
+References: <20040820152317.GA7118@linux.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+Cc: erik@rigtorp.com
+X-Gmane-NNTP-Posting-Host: c3b3c4c9.dial.de.easynet.net
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040503)
+X-Accept-Language: en-us, en
+In-Reply-To: <20040820152317.GA7118@linux.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Levon <levon@movementarian.org> wrote:
->
->  > how do we know when it has had sufficient testing for its swim upstream?
+Hi,
+
+Erik Rigtorp wrote:
+> Hi!
 > 
->  I thought one of the points of the mm tree was to give things some
->  testing first.
+> I made a small patch that makes swsusp produce a bit nicer screen output,
+> it's still a little rough though.
 
-Well yes, but it's not magic.
+generally not a bad idea, but....
 
-Before merging up a large patch which was lightly tested by its developer
-I'd like to now that it was beaten on in an organised manner.  I am not
-aware of anyone performing regression tests againt oprofile in any kernel,
-let alone -mm.
+> diff -Nru linux-2.6.8.1-mm2/kernel/power/swsusp.c linux-2.6.8.1-mm2-erkki/kernel/power/swsusp.c
+> --- linux-2.6.8.1-mm2/kernel/power/swsusp.c	2004-08-20 17:10:58.000000000 +0200
+> +++ linux-2.6.8.1-mm2-erkki/kernel/power/swsusp.c	2004-08-20 16:13:29.000000000 +0200
+> @@ -296,15 +296,16 @@
+>  {
+>  	int error = 0;
+>  	int i;
+> -
+> -	printk( "Writing data to swap (%d pages): ", nr_copy_pages );
+> +	int mod = nr_copy_pages / 100;
+> +	
+> +	printk( "Writing data to swap (%d pages):     ", nr_copy_pages );
+>  	for (i = 0; i < nr_copy_pages && !error; i++) {
+> -		if (!(i%100))
+> -			printk( "." );
+> +		if (!(i%mod))
+> +			printk( "\b\b\b\b%3d%%", i / mod );
 
-One of my mental checkpoints before sending a patch to Linus is "has this
-been sufficiently tested".  I don't know how to answer that in this case.
+what will happen here if nr_copy_pages < 100?
 
-In fact I don't know how to answer that in a _lot_ of cases, but if I know
-that people are using the feature in anger and we're sufficiently early in
-the 2.6.x cycle then I'll assume that regressions will be picked up.  But
-again, I'm not confident that oprofile is getting sufficiently frequent use
-for this to apply.
+>  		error = write_page((pagedir_nosave+i)->address,
+>  					  &((pagedir_nosave+i)->swap_address));
+>  	}
+> -	printk(" %d Pages done.\n",i);
+> +	printk("\b\b\b\bdone\n");
+>  	return error;
+>  }
+>  
+> @@ -1150,14 +1151,15 @@
+>  	struct pbe * p;
+>  	int error;
+>  	int i;
+> -
+> +	int mod = nr_copy_pages / 100;
+> +	
+>  	if ((error = swsusp_pagedir_relocate()))
+>  		return error;
+>  
+> -	printk( "Reading image data (%d pages): ", nr_copy_pages );
+> +	printk( "Reading image data (%d pages):     ", nr_copy_pages );
+>  	for(i = 0, p = pagedir_nosave; i < nr_copy_pages && !error; i++, p++) {
+> -		if (!(i%100))
+> -			printk( "." );
+> +		if (!(i%mod))
+> +			printk( "\b\b\b\b%3d%%", i / mod );
 
-Anyway.  My question was mainly a prod in the antonward direction ;)
+...and here...
+
+>  		error = bio_read_page(swp_offset(p->swap_address),
+>  				  (void *)p->address);
+>  	}
+
+  Stefan
+

@@ -1,98 +1,279 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264571AbUEDSOS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264551AbUEDSTg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264571AbUEDSOS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 14:14:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264564AbUEDSOS
+	id S264551AbUEDSTg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 14:19:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264572AbUEDSTg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 14:14:18 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:50360 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264551AbUEDSOO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 14:14:14 -0400
-Message-ID: <4097DD64.5080708@watson.ibm.com>
-Date: Tue, 04 May 2004 14:13:56 -0400
-From: Hubertus Franke <frankeh@watson.ibm.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5b) Gecko/20030901 Thunderbird/0.2
+	Tue, 4 May 2004 14:19:36 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56540 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264551AbUEDST1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 14:19:27 -0400
+Message-ID: <4097DEA2.7000808@pobox.com>
+Date: Tue, 04 May 2004 14:19:14 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-CC: Christoph Hellwig <hch@infradead.org>,
-       Shailabh Nagar <nagar@watson.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       ckrm-tech <ckrm-tech@lists.sourceforge.net>
-Subject: Re: [ckrm-tech] Re: [RFC] Revised CKRM release
-References: <4090BBF1.6080801@watson.ibm.com> <20040430174117.A13372@infradead.org> <20040504172941.GD11346@logos.cnet>
-In-Reply-To: <20040504172941.GD11346@logos.cnet>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Markus Lidel <Markus.Lidel@shadowconnect.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/5] I2O subsystem fixing and cleanup for 2.6 - i2o-passthru.patch
+References: <40916621.50509@shadowconnect.com>
+In-Reply-To: <40916621.50509@shadowconnect.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
-
->On Fri, Apr 30, 2004 at 05:41:18PM +0100, Christoph Hellwig wrote:
+Markus Lidel wrote:
+> 
+> ------------------------------------------------------------------------
+> 
+> --- a/drivers/message/i2o/i2o_config.c  2004-02-18 04:59:26.000000000 +0100
+> +++ b/drivers/message/i2o/i2o_config.c  2004-03-03 17:14:38.035056342 +0100
+> @@ -21,6 +21,8 @@
+>   *		Added event managmenet support
+>   *	Alan Cox <alan@redhat.com>:
+>   *		2.4 rewrite ported to 2.5
+> + *	Markus Lidel <Markus.Lidel@shadowconnect.com>:
+> + *		Added pass-thru support for Adaptec's raidutils
+>   *
+>   * This program is free software; you can redistribute it and/or
+>   * modify it under the terms of the GNU General Public License
+> @@ -50,6 +52,11 @@
 >  
->
->>>The basic concepts and motivation of CKRM remain the same as described
->>>in the overview at http://ckrm.sf.net. Privileged users can define
->>>classes consisting of groups of kernel objects (currently tasks and
->>>sockets) and specify shares for these classes. Resource controllers,
->>>which are independent of each other, can regulate and monitor the
->>>resources consumed by classes e.g the CPU controller will control the
->>>CPU time received by a class etc. Optional classification engines,
->>>implemented as kernel modules, can assist in the automatic
->>>classification of the kernel objects (tasks/sockets currently) into
->>>classes.
->>>      
->>>
->>I'd still love to see practical problems this thing is solving.  It's
->>a few thousand lines of code, not written to linux style guidelines,
->>sometimes particularly obsfucated with callbacks all over the place.
->>
->>I'd hate to see this in the kernel unless there's a very strong need
->>for it and no way to solve it at a nicer layer of abstraction, e.g.
->>userland virtual machines ala uml/umlinux.
->>    
->>
->
->I have been reading CKRM docs this week and I think something which provides the 
->same functionality is required for v2.7.
->
->I haven't read the code yet, though. It probably should be converted to 
->"linux style" and simplified whenever possible.
->
->Right now our resource-limit infrastructure is very basic and limited. CKRM 
->provides advanced/fine grained resource management.
->
+>  #define MODINC(x,y) ((x) = ((x) + 1) % (y))
 >  
->
-Marcelo, that was the intention, namely resource management within a 
-single OS image for
-a variety of workload.  The unit of resource management is a flexible 
-resource classes.
-At the current time we have mainly focused on the infrastructure and 
-have not spent the
-cycles to forward port our previous schedulers.
-Those schedulers were mainly meant to be a starting discussion point to 
-start thinking how
-these schedulers are to be written in a matter that they are acceptable 
-to the mainline, i.e.
-no or minimal additional overhead, preserving existing heuristics, etc. etc.
+> +struct sg_simple_element {
+> +	u32  flag_count;
+> +	u32 addr_bus;
+> +};
 
-As for your subsequent message on the classification engine.
-The classification engine is optional. If configured it is also called 
-along
-various kernel events, such as fork, exec, exit ... Rather than throwing 
-this into userspace,
-we compromised on putting this into a loadable module.
-
-The new RCFS (Resource Control FileSystem) brings a generic, expandable 
-interface to the table.
-Let us know what other questions you have ....
-
--- Hubertus
+if this is truly the structure, then S/G to a 64-bit address looks 
+impossible.
 
 
+>  struct i2o_cfg_info
+>  {
+>  	struct file* fp;
+> @@ -76,6 +83,7 @@
+>  static int ioctl_validate(unsigned long); 
+>  static int ioctl_evt_reg(unsigned long, struct file *);
+>  static int ioctl_evt_get(unsigned long, struct file *);
+> +static int ioctl_passthru(unsigned long);
+>  static int cfg_fasync(int, struct file*, int);
+>  
+>  /*
+> @@ -257,6 +265,10 @@
+>  			ret = ioctl_evt_get(arg, fp);
+>  			break;
+>  
+> +		case I2OPASSTHRU:
+> +			ret = ioctl_passthru(arg);
+> +			break;
+> +
+>  		default:
+>  			ret = -EINVAL;
+>  	}
+> @@ -828,6 +840,157 @@
+>  	return 0;
+>  }
+>  
+> +static int ioctl_passthru(unsigned long arg)
+> +{
+> +	struct i2o_cmd_passthru *cmd = (struct i2o_cmd_passthru *) arg;
+> +	struct i2o_controller *c;
+> +	u32 msg[MSG_FRAME_SIZE];
+> +	u32 *user_msg = (u32*)cmd->msg;
+> +	u32 *reply = NULL;
+> +	u32 *user_reply = NULL;
+> +	u32 size = 0;
+> +	u32 reply_size = 0;
+> +	u32 rcode = 0;
+> +	ulong sg_list[SG_TABLESIZE];
+> +	u32 sg_offset = 0;
+> +	u32 sg_count = 0;
+> +	int sg_index = 0;
+> +	u32 i = 0;
+> +	ulong p = 0;
+> +
+> +	c = i2o_find_controller(cmd->iop);
+> +	if(!c)
+> +                return -ENXIO;
+> +
+> +	memset(&msg, 0, MSG_FRAME_SIZE*4);
+> +	if(get_user(size, &user_msg[0]))
+> +		return -EFAULT;
+> +	size = size>>16;
+> +
+> +	user_reply = &user_msg[size];
+> +	if(size > MSG_FRAME_SIZE)
+> +		return -EFAULT;
+> +	size *= 4; // Convert to bytes
+> +                                              
+> +	/* Copy in the user's I2O command */
+> +	if(copy_from_user((void*)msg, (void*)user_msg, size))
+> +		return -EFAULT;
+> +	get_user(reply_size, &user_reply[0]);
 
+unchecked return val?
+
+
+> +	reply_size = reply_size>>16;
+> +	reply = kmalloc(REPLY_FRAME_SIZE*4, GFP_KERNEL);
+> +	if(!reply) {
+> +		printk(KERN_WARNING"%s: Could not allocate reply buffer\n",c->name);
+> +		return -ENOMEM;
+> +	}
+
+> +	memset(reply, 0, REPLY_FRAME_SIZE*4);
+> +	sg_offset = (msg[0]>>4)&0x0f;
+> +	msg[2] = (u32)i2o_cfg_context;
+> +	msg[3] = (u32)reply;
+
+when filling in message, you should probably be using cpu_to_le32()
+
+
+> +	memset(sg_list,0, sizeof(sg_list[0])*SG_TABLESIZE);
+> +	if(sg_offset) {
+> +		// TODO 64bit fix
+> +		struct sg_simple_element *sg = (struct sg_simple_element*) (msg+sg_offset);
+> +		sg_count = (size - sg_offset*4) / sizeof(struct sg_simple_element);
+
+You're de-refencing based on a userland-supplied value, without checking 
+the bounds of the variable for proper range.
+
+
+> +		if (sg_count > SG_TABLESIZE) {
+> +			printk(KERN_DEBUG"%s:IOCTL SG List too large (%u)\n", c->name,sg_count);
+> +			kfree (reply);
+> +			return -EINVAL;
+> +		}
+> +
+> +		for(i = 0; i < sg_count; i++) {
+> +			int sg_size;
+> +
+> +			if (!(sg[i].flag_count & 0x10000000 /*I2O_SGL_FLAGS_SIMPLE_ADDRESS_ELEMENT*/)) {
+> +				printk(KERN_DEBUG"%s:Bad SG element %d - not simple (%x)\n",c->name,i,  sg[i].flag_count);
+> +				rcode = -EINVAL;
+> +				goto cleanup;
+> +			}
+> +			sg_size = sg[i].flag_count & 0xffffff;
+> +			/* Allocate memory for the transfer */
+> +			p = (ulong)kmalloc(sg_size, GFP_KERNEL);
+> +			if (!p) {
+> +				printk(KERN_DEBUG"%s: Could not allocate SG buffer - size = %d buffer number %d of %d\n", c->name,sg_size,i,sg_count);
+> +				rcode = -ENOMEM;
+> +				goto cleanup;
+> +			}
+> +			sg_list[sg_index++] = p; // sglist indexed with input frame, not our internal frame.
+> +			/* Copy in the user's SG buffer if necessary */
+> +			if(sg[i].flag_count & 0x04000000 /*I2O_SGL_FLAGS_DIR*/) {
+> +				// TODO 64bit fix
+> +			        if (copy_from_user((void*)p,(void*)sg[i].addr_bus, sg_size)) {
+> +					printk(KERN_DEBUG"%s: Could not copy SG buf %d FROM user\n",c->name,i);
+> +					rcode = -EFAULT;
+> +					goto cleanup;
+> +				}
+> +			}
+> +			//TODO 64bit fix
+> +			sg[i].addr_bus = (u32)virt_to_bus((void*)p);
+> +		}
+> +	}
+> +
+> +	rcode = i2o_post_wait(c, msg, size, 60);
+> +	if(rcode)
+> +		goto cleanup;
+> +
+> +	if(sg_offset) {
+> +		/* Copy back the Scatter Gather buffers back to user space */
+> +		u32 j;
+> +		// TODO 64bit fix
+> +		struct sg_simple_element* sg;
+> +		int sg_size;
+> +										                                                                                
+> +		// re-acquire the original message to handle correctly the sg copy operation
+> +		memset(&msg, 0, MSG_FRAME_SIZE*4);
+> +		// get user msg size in u32s
+> +		if (get_user(size, &user_msg[0])) {
+> +			rcode = -EFAULT;
+> +			goto cleanup;
+> +		}
+> +		size = size>>16;
+> +		size *= 4;
+> +		/* Copy in the user's I2O command */
+> +		if (copy_from_user ((void*)msg, (void*)user_msg, size)) {
+> +			rcode = -EFAULT;
+> +			goto cleanup;
+> +		}
+> +		sg_count = (size - sg_offset*4) / sizeof(struct sg_simple_element);
+> +
+> +		 // TODO 64bit fix
+> +		sg = (struct sg_simple_element*)(msg + sg_offset);
+> +		for (j = 0; j < sg_count; j++) {
+> +			/* Copy out the SG list to user's buffer if necessary */
+> +			if (!(sg[j].flag_count & 0x4000000 /*I2O_SGL_FLAGS_DIR*/)) {
+> +				sg_size = sg[j].flag_count & 0xffffff;
+> +				// TODO 64bit fix
+> +				if (copy_to_user((void*)sg[j].addr_bus,(void*)sg_list[j], sg_size)) {
+> +					printk(KERN_WARNING"%s: Could not copy %lx TO user %x\n",c->name, sg_list[j], sg[j].addr_bus);
+> +					rcode = -EFAULT;
+> +					goto cleanup;
+> +				}
+> +			}
+> +		}
+> +	}
+> +	
+> +	/* Copy back the reply to user space */
+> +        if (reply_size) {
+> +		// we wrote our own values for context - now restore the user supplied ones
+> +		if(copy_from_user(reply+2, user_msg+2, sizeof(u32)*2)) {
+> +			printk(KERN_WARNING"%s: Could not copy message context FROM user\n",c->name);
+> +			rcode = -EFAULT;
+> +		}
+> +		if(copy_to_user(user_reply, reply, reply_size)) {
+> +			printk(KERN_WARNING"%s: Could not copy reply TO user\n",c->name);
+> +			rcode = -EFAULT;
+> +		}
+> +	}
+> +
+> +cleanup:
+> +	kfree(reply);
+> +	i2o_unlock_controller(c);
+> +	return rcode;
+> +}		
+> +
+>  static int cfg_open(struct inode *inode, struct file *file)
+>  {
+>  	struct i2o_cfg_info *tmp = 
+> --- a/include/linux/i2o.h   2004-03-01 23:18:47.000000000 +0100
+> +++ b/include/linux/i2o.h   2004-03-03 17:36:20.129361237 +0100
+> @@ -621,6 +640,8 @@
+>  #define HOST_TID		1
+>  
+>  #define MSG_FRAME_SIZE		64	/* i2o_scsi assumes >= 32 */
+> +#define REPLY_FRAME_SIZE	17
+> +#define SG_TABLESIZE		30
+>  #define NMBR_MSG_FRAMES		128
+>  
+>  #define MSG_POOL_SIZE		(MSG_FRAME_SIZE*NMBR_MSG_FRAMES*sizeof(u32))
+> --- a/include/linux/i2o-dev.h   2004-03-01 23:18:47.000000000 +0100
+> +++ b/include/linux/i2o-dev.h   2004-03-03 17:36:20.129361237 +0100
+> @@ -41,7 +41,15 @@
+>  #define I2OHTML 		_IOWR(I2O_MAGIC_NUMBER,9,struct i2o_html)
+>  #define I2OEVTREG		_IOW(I2O_MAGIC_NUMBER,10,struct i2o_evt_id)
+>  #define I2OEVTGET		_IOR(I2O_MAGIC_NUMBER,11,struct i2o_evt_info)
+> +#define I2OPASSTHRU		_IOR(I2O_MAGIC_NUMBER,12,struct i2o_cmd_passthru)
+>  
+> +struct i2o_cmd_passthru
+> +{
+> +	void *msg;		/* message */
+> +	int iop;		/* number of the I2O controller, to which the
+> +				   message should go to */
+> +};
+> +
+>  struct i2o_cmd_hrtlct
+>  {
+>  	unsigned int iop;	/* IOP unit number */
 
 

@@ -1,195 +1,101 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316373AbSETVJR>; Mon, 20 May 2002 17:09:17 -0400
+	id <S316380AbSETVPb>; Mon, 20 May 2002 17:15:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316379AbSETVJQ>; Mon, 20 May 2002 17:09:16 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:60145 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S316373AbSETVJO>; Mon, 20 May 2002 17:09:14 -0400
-Subject: [PATCH] 2.4-ac: more scheduler updates (1/3)
-From: Robert Love <rml@tech9.net>
-To: alan@lxorguk.ukuu.org.uk
-Cc: linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed; boundary="=-aoOlZndTrRYLYpoXaAkU"
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 20 May 2002 14:08:39 -0700
-Message-Id: <1021928919.925.314.camel@sinai>
+	id <S316382AbSETVPa>; Mon, 20 May 2002 17:15:30 -0400
+Received: from [212.42.230.145] ([212.42.230.145]:17581 "EHLO
+	pomo.hostsharing.net") by vger.kernel.org with ESMTP
+	id <S316380AbSETVP3>; Mon, 20 May 2002 17:15:29 -0400
+Date: Mon, 20 May 2002 23:15:26 +0200
+From: Michael Hoennig <michael@hostsharing.net>
+To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Cc: pollard@tomcat.admin.navo.hpc.mil, linux-kernel@vger.kernel.org
+Subject: Re: suid bit on directories
+Message-Id: <20020520231526.12e24b48.michael@hostsharing.net>
+In-Reply-To: <200205201928.OAA13328@tomcat.admin.navo.hpc.mil>
+Organization: http://www.hostsharing.net
+X-Mailer: Sylpheed version 0.7.4claws (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Jesse,
 
---=-aoOlZndTrRYLYpoXaAkU
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+> > of course not, but many features have to be used carefully, like the
+> > suid bit on files too!
+> 
+> That CAN be audited. Putting a suid on a directory CAN'T.
 
-Alan,
+Of course it can. You can easily list all files with this flag set.
 
-I promise these are the last of them :)
+> > I don't want to make the bahaviour or a suid bit on directories the
+> > default! I just would like it as a mount option, or even something
+> > which you have to compile into the kernel.
+> 
+> Once mounted/compiled in you have lost control.
 
-This patch does some remaining cleanup and optimization.  I choose not
-to send these as individual diffs because they are simple. 
-Specifically:
+How do you come to that conclusion? Even if it were the case: I don't
+force you to use this mount option.
 
-	- move sched_find_first_bit from mmu_context.h to bitops.h
-	  as in 2.5.  Why it was ever in mmu_context.h is beyond me.
-	- remove the RUN_CHILD_FIRST cruft from kernel/fork.c.
-	  Pretty clear this works great; we do not need the ifdefs.
-	- Add comments to top of kernel/sched.c to briefly explain
-	  new scheduler design, give credit, and update copyright.
-	- set_cpus_allowed optimization from Mike Kravetz: we do not
-	  need to invoke the migration_thread's if the task is not
-	  running; just update task->cpu.
+> > Why do you ignore my example? In my example the use who runs the
+> > webserver owns all the files, that is wrong. With the suid bit on
+> > directories, this could be fixed. 
+> 
+> That is NOT wrong. The files belong to the server. Not a user. I've been
+> running a server that way for years.
 
-Patch is against 2.4.19-pre8-ac5, please apply.
+Files can only belong to users, not to server processes.
 
-	Robert Love
+> And ANY user can put files into YOUR directory. Even files you don't
+> want there. AND you can't tell who did it.
+
+Nope. Only httpd and the user who should onw the files (the User of the
+VirtualHost) can reach the directory in my case. Nobody else can even
+reach it.
+
+> Remember - with this facility any penetration of of a server suddenly
+> becomes a penetration of every user with such a directory.
+
+With the rights of wwwrun/httpd you can do more damange in this case than
+with the rights of one user. In this case that are  special accounts for
+running CGIs etc. 
+
+> > > How are you going to control it?
+> > 
+> > Only the owner of the directories can set this flag. There is nothing
+> > to control. 
+> 
+> Ah - so I can put files into your directory, and suddenly they are owned
+> by you. 
+
+You would not even reach this directory. That is assured because it is
+child of a dir owned by me:httpd which is child of a directory owned by
+httpd:mygroup - in neither case rights for others.
+
+> Also remember what happens when a hard link is created in the
+> directory... The file changes ownership. That will then change the owner
+> of ANY file on the filesystem. I believe this can happen with sgid
+> directories too
+
+good point to pay attention to, but you are wrong
 
 
---=-aoOlZndTrRYLYpoXaAkU
-Content-Disposition: attachment; filename=sched-cleanups-rml-2.4.19-pre8-ac5-1.patch
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/x-patch; name=sched-cleanups-rml-2.4.19-pre8-ac5-1.patch;
-	charset=ISO-8859-15
+> > You don't! You just let it to the users to give access to there files
+> > to whomever you want. My case is similar.
+> 
+> NOT the same situation. The OWNER of the file gives ACCESS to files. 
 
-diff -urN linux-2.4.19-pre8-ac5/include/asm-i386/bitops.h linux/include/asm=
--i386/bitops.h
---- linux-2.4.19-pre8-ac5/include/asm-i386/bitops.h	Mon May 20 13:45:58 200=
-2
-+++ linux/include/asm-i386/bitops.h	Mon May 20 13:52:06 2002
-@@ -6,6 +6,7 @@
-  */
-=20
- #include <linux/config.h>
-+#include <linux/compiler.h>
-=20
- /*
-  * These have to be done with inline assembly: that way the bit-setting
-@@ -421,6 +422,25 @@
-=20
- #ifdef __KERNEL__
-=20
-+/*
-+ * Every architecture must define this function. It's the fastest
-+ * way of searching a 140-bit bitmap where the first 100 bits are
-+ * unlikely to be set. It's guaranteed that at least one of the 140
-+ * bits is cleared.
-+ */
-+static inline int sched_find_first_bit(unsigned long *b)
-+{
-+	if (unlikely(b[0]))
-+		return __ffs(b[0]);
-+	if (unlikely(b[1]))
-+		return __ffs(b[1]) + 32;
-+	if (unlikely(b[2]))
-+		return __ffs(b[2]) + 64;
-+	if (b[3])
-+		return __ffs(b[3]) + 96;
-+	return __ffs(b[4]) + 128;
-+}
-+
- /**
-  * ffs - find first bit set
-  * @x: the word to search
-diff -urN linux-2.4.19-pre8-ac5/include/asm-i386/mmu_context.h linux/includ=
-e/asm-i386/mmu_context.h
---- linux-2.4.19-pre8-ac5/include/asm-i386/mmu_context.h	Mon May 20 13:45:5=
-8 2002
-+++ linux/include/asm-i386/mmu_context.h	Mon May 20 13:52:06 2002
-@@ -7,25 +7,6 @@
- #include <asm/pgalloc.h>
-=20
- /*
-- * Every architecture must define this function. It's the fastest
-- * way of searching a 140-bit bitmap where the first 100 bits are
-- * unlikely to be set. It's guaranteed that at least one of the 140
-- * bits is cleared.
-- */
--static inline int sched_find_first_bit(unsigned long *b)
--{
--	if (unlikely(b[0]))
--		return __ffs(b[0]);
--	if (unlikely(b[1]))
--		return __ffs(b[1]) + 32;
--	if (unlikely(b[2]))
--		return __ffs(b[2]) + 64;
--	if (b[3])
--		return __ffs(b[3]) + 96;
--	return __ffs(b[4]) + 128;
--}
--
--/*
-  * possibly do the LDT unload here?
-  */
- #define destroy_context(mm)		do { } while(0)
-diff -urN linux-2.4.19-pre8-ac5/kernel/fork.c linux/kernel/fork.c
---- linux-2.4.19-pre8-ac5/kernel/fork.c	Mon May 20 13:45:54 2002
-+++ linux/kernel/fork.c	Mon May 20 13:52:06 2002
-@@ -770,24 +770,16 @@
-=20
- 	if (p->ptrace & PT_PTRACED)
- 		send_sig(SIGSTOP, p, 1);
--
--#define RUN_CHILD_FIRST 1
--#if RUN_CHILD_FIRST
- 	wake_up_forked_process(p);	/* do this last */
--#else
--	wake_up_process(p);		/* do this last */
--#endif
- 	++total_forks;
- 	if (clone_flags & CLONE_VFORK)
- 		wait_for_completion(&vfork);
--#if RUN_CHILD_FIRST
- 	else
- 		/*
- 		 * Let the child process run first, to avoid most of the
- 		 * COW overhead when the child exec()s afterwards.
- 		 */
- 		current->need_resched =3D 1;
--#endif
-=20
- fork_out:
- 	return retval;
-diff -urN linux-2.4.19-pre8-ac5/kernel/sched.c linux/kernel/sched.c
---- linux-2.4.19-pre8-ac5/kernel/sched.c	Mon May 20 13:45:54 2002
-+++ linux/kernel/sched.c	Mon May 20 13:52:06 2002
-@@ -3,13 +3,17 @@
-  *
-  *  Kernel scheduler and related syscalls
-  *
-- *  Copyright (C) 1991, 1992  Linus Torvalds
-+ *  Copyright (C) 1991-2002  Linus Torvalds
-  *
-  *  1996-12-23  Modified by Dave Grothe to fix bugs in semaphores and
-  *              make semaphores SMP safe
-  *  1998-11-19	Implemented schedule_timeout() and related stuff
-  *		by Andrea Arcangeli
-- *  1998-12-28  Implemented better SMP scheduling by Ingo Molnar
-+ *  2002-01-04	New ultra-scalable O(1) scheduler by Ingo Molnar:
-+ *  		hybrid priority-list and round-robin design with
-+ *  		an array-switch method of distributing timeslices
-+ *  		and per-CPU runqueues.  Additional code by Davide
-+ *  		Libenzi, Robert Love, and Rusty Russel.
-  */
-=20
- #include <linux/mm.h>
-@@ -1530,6 +1534,16 @@
- 		task_rq_unlock(rq, &flags);
- 		return;
- 	}
-+
-+	/*
-+	 * If the task is not on a runqueue, then it is safe to
-+	 * simply update the task's cpu field.
-+	 */
-+	if (!p->array) {
-+		p->cpu =3D __ffs(p->cpus_allowed);
-+		task_rq_unlock(rq, &flags);
-+		return;
-+	}
-=20
- 	init_MUTEX_LOCKED(&req.sem);
- 	req.task =3D p;
+I coudl set up a cronjob which copies the files in the directories and
+deletes the originals. It's the same, just delayed.
 
---=-aoOlZndTrRYLYpoXaAkU--
+Anyway, when I find time in the next weeks, I will try this patch and post
+it.  I will do it as a mount option.  Nobody is forced to use it ;-)
 
+	Michael
+
+-- 
+Hostsharing eG / c/o Michael Hönnig / Boytinstr. 10 / D-22143 Hamburg
+phone:+49/40/67581419 / mobile:+49/177/3787491 / fax:++49/40/67581426
+http://www.hostsharing.net ---> Webhosting Spielregeln selbst gemacht

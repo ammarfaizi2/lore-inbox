@@ -1,65 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131406AbRAAN0Q>; Mon, 1 Jan 2001 08:26:16 -0500
+	id <S131839AbRAAODz>; Mon, 1 Jan 2001 09:03:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131515AbRAAN0G>; Mon, 1 Jan 2001 08:26:06 -0500
-Received: from baldur.fh-brandenburg.de ([195.37.0.5]:10392 "HELO
-	baldur.fh-brandenburg.de") by vger.kernel.org with SMTP
-	id <S131406AbRAANZ4>; Mon, 1 Jan 2001 08:25:56 -0500
-Date: Mon, 1 Jan 2001 13:44:09 +0100 (MET)
-From: Roman Zippel <zippel@fh-brandenburg.de>
-To: Alexander Viro <viro@math.psu.edu>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Daniel Phillips <phillips@innominate.de>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Generic deferred file writing
-In-Reply-To: <Pine.GSO.4.21.0012312220290.7648-100000@weyl.math.psu.edu>
-Message-ID: <Pine.GSO.4.10.10101011119240.10093-100000@zeus.fh-brandenburg.de>
+	id <S131813AbRAAODp>; Mon, 1 Jan 2001 09:03:45 -0500
+Received: from oracle.clara.net ([195.8.69.94]:22281 "EHLO oracle.clara.net")
+	by vger.kernel.org with ESMTP id <S131751AbRAAODk>;
+	Mon, 1 Jan 2001 09:03:40 -0500
+Date: Mon, 1 Jan 2001 13:30:08 +0000 (GMT)
+From: Dave Gilbert <gilbertd@treblig.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.0-prerel-ac1: Looking good on Alpha
+Message-ID: <Pine.LNX.4.10.10101011317180.898-100000@tardis.home.dave>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
+  2.4.0-prerelease with the Alan Cox new-year-special ac1 patches is
+looking good for me on Alpha (LX164).
 
-On Sun, 31 Dec 2000, Alexander Viro wrote:
+  My standard build went just fine; so I decided to push it; I've built in
+IPv6, a load of USB stuff, SCSI stuff, and a load of other stuff; loaded
+them all as modules, all loaded OK and unloaded OK - haven't actually
+stressed any of it.
 
-> Reread the original thread. GFP_BUFFER protects us from buffer cache
-> allocations triggering pageouts. It has nothing to the deadlock scenario
-> that would come from grabbing ->i_sem on pageout.
+Just two (1 and a half?) problems:
 
-I don't want to grab i_sem. It was a very, very early idea... :)
+   1) When doing make modules_install:
 
-> Sheesh... "Complexity" of ext2_get_block() (down to the ext2_new_block()
-> calls) is really, really not a problem. Normally it just gives you the
-> straightforward path. All unrolls are for contention cases and they
-> are precisely what we have to do there.
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.0-prerelease-ac1/kernel/drivers/usb/storage/usb-storage.o
+depmod:   init_task_union
 
-Maybe complexity is the wrong word, of course the logic in there is
-straight forward (once one understood it :) ).
-Let me ask it differently and it's now only about indirect block handling.
-Is it possible to use a per-inode-indirect-block-semaphore?
-The reason for the question is, that I maybe see a different sort of
-contention here - live locks. I don't mind that getting of resources and
-rechecking if everything went well. The problem is how much resources you
-need to get (and to release, if something failed). Somewhere is always a
-point, where two threads can't make any progress or one thread can stall
-the progress of a second.
-To get back to ext2_get_block: IMO such a scenario could happen in the
-double or triple indirect block case, when two or more threads try to
-allocate/truncate a block here. Maybe my concerns are baseless, but I'd
-just like to know, that there isn't a possibility for a DOS attack here.
-(BTW that's what I mean with complexity, it's less the logical complexity,
-it's more the "runtime complexity").
+   2) When I tried to play an audio CD this morning I got:
 
-The other reason for the question is that I'm currently overwork the block
-handling in affs, especially the extended block handling, where I'm
-implementing a new extended block cache, where I would pretty much prefer
-to use a semaphore to protect it. Although I could do it probably without
-the semaphore and use a spinlock+rechecking, but it would keep it so much
-simpler. (I can post more details about this part on fsdevel if needed /
-wanted.)
+Jan  1 12:55:48 tardis kernel: hdb: irq timeout: status=0xd0 { Busy }
+Jan  1 12:55:54 tardis kernel: hdb: ATAPI reset complete
+Jan  1 12:56:04 tardis kernel: hdb: irq timeout: status=0xc0 { Busy }
+Jan  1 12:56:10 tardis kernel: hdb: ATAPI reset complete
+Jan  1 12:56:20 tardis kernel: hdb: irq timeout: status=0xc0 { Busy }
+Jan  1 12:56:20 tardis kernel: end_request: I/O error, dev 03:40 (hdb),
+sector 0
+Jan  1 12:56:20 tardis kernel: hdb: status timeout: status=0xc0 { Busy }
+Jan  1 12:56:20 tardis kernel: hdb: drive not ready for command
+Jan  1 12:56:27 tardis kernel: hdb: ATAPI reset complete
 
-bye, Roman
+Ejected the CD, put it back in and its fine, so I actually suspect the
+drive was just having a bad day but its best just to list there was the
+problem. (This on a CMD646 on the motherboard).
+
+Dave
+
+-- 
+ ---------------- Have a happy GNU millennium! ----------------------   
+/ Dr. David Alan Gilbert      | Running GNU/Linux on       |  Happy  \ 
+\   gro.gilbert @ treblig.org |  Alpha, x86, ARM and SPARC |  In Hex /
+ \ ___________________________|___ http://www.treblig.org  |________/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315539AbSFYQDP>; Tue, 25 Jun 2002 12:03:15 -0400
+	id <S315540AbSFYQGt>; Tue, 25 Jun 2002 12:06:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315540AbSFYQDO>; Tue, 25 Jun 2002 12:03:14 -0400
-Received: from d12lmsgate.de.ibm.com ([195.212.91.199]:4852 "EHLO
-	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S315539AbSFYQDO> convert rfc822-to-8bit; Tue, 25 Jun 2002 12:03:14 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Organization: IBM Deutschland GmbH
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.5.24: auto_fs.h typo.
-Date: Tue, 25 Jun 2002 17:59:34 +0200
-X-Mailer: KMail [version 1.4]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200206251759.34690.schwidefsky@de.ibm.com>
+	id <S315547AbSFYQGs>; Tue, 25 Jun 2002 12:06:48 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:63132
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S315540AbSFYQGr>; Tue, 25 Jun 2002 12:06:47 -0400
+Date: Tue, 25 Jun 2002 09:06:44 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH/RFC 2.4.19-rc1] Fix dependancies on keybdev.o
+Message-ID: <20020625160644.GP3489@opus.bloom.county>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
-my last patch for include/linux/auto_fs.h contained a typo that removed the
-trailing underscores from __x86_64__.
+Right now drivers/input/keybdev.o depends on drivers/char/keyboard.o for
+handle_scancode, keyboard_tasklet and kbd_ledfunc.  However, compiling
+drivers/char/keyboard.o isn't quite straight forward, as we have:
+ifndef CONFIG_SUN_KEYBOARD
+  obj-$(CONFIG_VT) += keyboard.o $(KEYMAP) $(KEYBD)
+else
+  obj-$(CONFIG_PCI) += keyboard.o $(KEYMAP)
+endif
+in drivers/char/Makefile
 
-blue skies,
-  Martin.
+To attempt to work around this, I've come up with the following patch
+for drivers/input/Config.in.  Comments?
 
-diff -urN linux-2.5.24/include/linux/auto_fs.h linux-2.5.24-s390/include/linux/auto_fs.h
---- linux-2.5.24/include/linux/auto_fs.h	Fri Jun 21 00:53:40 2002
-+++ linux-2.5.24-s390/include/linux/auto_fs.h	Fri Jun 21 14:46:59 2002
-@@ -45,7 +45,7 @@
-  * If so, 32-bit user-space code should be backwards compatible.
-  */
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/
+
+===== drivers/input/Config.in 1.2 vs edited =====
+--- 1.2/drivers/input/Config.in	Tue Feb  5 00:45:17 2002
++++ edited/drivers/input/Config.in	Tue Jun 25 08:58:41 2002
+@@ -6,7 +6,12 @@
+ comment 'Input core support'
  
--#if defined(__sparc__) || defined(__mips__) || defined(__x86_64) \
-+#if defined(__sparc__) || defined(__mips__) || defined(__x86_64__) \
-  || defined(__powerpc__) || defined(__s390__)
- typedef unsigned int autofs_wqt_t;
- #else
-
+ tristate 'Input core support' CONFIG_INPUT
+-dep_tristate '  Keyboard support' CONFIG_INPUT_KEYBDEV $CONFIG_INPUT
++if [ "$CONFIG_SUN_KEYBOARD" = "y" -a "$CONFIG_PCI" = "y"]; then
++   define_bool CONFIG_SUN_CAN_INPUT_KEYBDEV y
++fi
++if [ "$CONFIG_VT" = "y" -o "$CONFIG_SUN_CAN_INPUT_KEYBDEV" = "y" ]; then
++   dep_tristate '  Keyboard support' CONFIG_INPUT_KEYBDEV $CONFIG_INPUT
++fi
+ dep_tristate '  Mouse support' CONFIG_INPUT_MOUSEDEV $CONFIG_INPUT
+ if [ "$CONFIG_INPUT_MOUSEDEV" != "n" ]; then
+    int '   Horizontal screen resolution' CONFIG_INPUT_MOUSEDEV_SCREEN_X 1024

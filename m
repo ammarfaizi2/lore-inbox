@@ -1,61 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261166AbTENHzQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 03:55:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261175AbTENHzQ
+	id S261190AbTENH6P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 03:58:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbTENH6O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 03:55:16 -0400
-Received: from 12-234-34-139.client.attbi.com ([12.234.34.139]:36340 "EHLO
-	heavens.murgatroid.com") by vger.kernel.org with ESMTP
-	id S261166AbTENHzP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 03:55:15 -0400
-Date: Wed, 14 May 2003 01:08:02 -0700
-From: Christopher Hoover <ch@murgatroid.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com, ch@murgatroid.com
-Subject: Re: [PATCH] 2.5.68: Don't include SCSI block ioctls on non-scsi systems
-Message-ID: <20030514010801.A4080@heavens.murgatroid.com>
-References: <20030513202710.A32666@heavens.murgatroid.com> <20030514065752.A647@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030514065752.A647@infradead.org>; from hch@infradead.org on Wed, May 14, 2003 at 06:57:52AM +0100
+	Wed, 14 May 2003 03:58:14 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:28591 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S261190AbTENH6L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 03:58:11 -0400
+Date: Wed, 14 May 2003 10:09:46 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Dave Jones <davej@codemonkey.org.uk>, Andrew Morton <akpm@digeo.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6 must-fix list, v2
+In-Reply-To: <20030514004332.I15172@flint.arm.linux.org.uk>
+Message-ID: <Pine.GSO.4.21.0305141005420.13491-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 14, 2003 at 06:57:52AM +0100, Christoph Hellwig wrote:
-> On Tue, May 13, 2003 at 08:29:20PM -0700, Christopher Hoover wrote:
-> > Unless I'm missing something, there doesn't seem to be a good reason
-> > for the block system to include SCSI ioctls unless there's a SCSI
-> > block device (CONFIG_BLK_DEV_SD) in the system.
+On Wed, 14 May 2003, Russell King wrote:
+> - I think we need a generic RTC driver (which is backed by real RTCs).
+>   Integrator-based stuff has a 32-bit 1Hz counter RTC with alarm, as
+>   has the SA11xx, and probably PXA.  There's another implementation
+>   for the RiscPC and ARM26 stuff.  I'd rather not see 4 implementations
+>   of the RTC userspace API, but one common implementation so that stuff
+>   gets done in a consistent way.
 > 
-> That's broken.  You can use them on ide, sd and sr currently.
+>   We postponed this at the beginning of 2.4 until 2.5 happened.  We're
+>   now at 2.5, and I'm about to add at least one more (the Integrator
+>   implementation.)  This isn't sane imo.
 
-OK, let's try that again.
+What about adding the periodic counter and alarm support to
+drivers/char/genrtc.c? Genrtc is used on m68k, PA-RISC, PPC, MIPS (private
+tree), and even on ia32.
 
+Gr{oetje,eeting}s,
 
-diff -X /home/ch/src/dontdiff.txt -Naurp linux-2.5.69.orig/drivers/block/Kconfig linux-2.5.69/drivers/block/Kconfig
---- linux-2.5.69.orig/drivers/block/Kconfig	2003-05-04 16:53:08.000000000 -0700
-+++ linux-2.5.69/drivers/block/Kconfig	2003-05-14 00:58:36.000000000 -0700
-@@ -348,3 +348,6 @@ config LBD
- 
- endmenu
- 
-+config SCSI_IOCTL
-+       bool
-+       default y if IDE||SCSI
-diff -X /home/ch/src/dontdiff.txt -Naurp linux-2.5.69.orig/drivers/block/Makefile linux-2.5.69/drivers/block/Makefile
---- linux-2.5.69.orig/drivers/block/Makefile	2003-05-04 16:53:37.000000000 -0700
-+++ linux-2.5.69/drivers/block/Makefile	2003-05-14 00:58:50.000000000 -0700
-@@ -8,7 +8,9 @@
- # In the future, some of these should be built conditionally.
- #
- 
--obj-y	:= elevator.o ll_rw_blk.o ioctl.o genhd.o scsi_ioctl.o deadline-iosched.o
-+obj-y	:= elevator.o ll_rw_blk.o ioctl.o genhd.o deadline-iosched.o
-+
-+obj-$(CONFIG_SCSI_IOCTL)	+= scsi_ioctl.o 
- 
- obj-$(CONFIG_MAC_FLOPPY)	+= swim3.o
- obj-$(CONFIG_BLK_DEV_FD)	+= floppy.o
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

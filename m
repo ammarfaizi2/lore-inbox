@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262107AbULaPXX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262108AbULaPXp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262107AbULaPXX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 10:23:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262108AbULaPXX
+	id S262108AbULaPXp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 10:23:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262111AbULaPXp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 10:23:23 -0500
-Received: from web51507.mail.yahoo.com ([206.190.38.199]:45200 "HELO
-	web51507.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262107AbULaPXT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 10:23:19 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=hB4H9NWjQXxxAsOITU0ElvXI2ZqMDdC6KufDNkoFsHtESX1Oid5ce/dpR+Jmzv3A2l21bB97FHYndcsc7FPE/QJbF3L7/BiQUWi+QXw/xe04HBqUKhk6mHHL4a+hVIJajX6351h+aOm6lcmoQEWldtjm5zWU7SPY4C+FDLPti5U=  ;
-Message-ID: <20041231152319.46687.qmail@web51507.mail.yahoo.com>
-Date: Fri, 31 Dec 2004 07:23:19 -0800 (PST)
-From: Park Lee <parklee_sel@yahoo.com>
-Subject: Issue on ip_route_output_key() and ip_route_output_flow()
-To: netdev@oss.sgi.com
-Cc: linux-kernel@vger.kernel.org, Linus.Torvalds@helsinki.fi,
-       gw4pts@gw4pts.ampr.org, bir7@leland.Stanford.Edu, kuznet@ms2.inr.ac.ru,
-       waltje@uWalt.NL.Mugnet.ORG
+	Fri, 31 Dec 2004 10:23:45 -0500
+Received: from cantor.suse.de ([195.135.220.2]:56997 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262108AbULaPXn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 10:23:43 -0500
+To: Soeren Sonnenburg <kernel@nn7.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] 2.6.10-rc3 snd-powermac crash
+References: <1103389648.5967.7.camel@gaston>
+	<pan.2004.12.21.07.53.37.708238@nn7.de>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: ..  I think I'd better go back to my DESK and toy with
+ a few common MISAPPREHENSIONS...
+Date: Fri, 31 Dec 2004 16:23:35 +0100
+In-Reply-To: <pan.2004.12.21.07.53.37.708238@nn7.de> (Soeren Sonnenburg's
+ message of "Tue, 21 Dec 2004 08:53:41 +0100")
+Message-ID: <jezmzuo5jc.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-  In /usr/src/linux/net/ipv4/route.c, there are two
-functions, one is ip_route_output_key(), the other is
-ip_route_output_flow(). Would you please tell me what
-circumstances those two function are used for? and
-What the difference between the two functions is? 
-  As for ip_route_output_key() here, what is the
-meaning of the "_key" in its name?
+Soeren Sonnenburg <kernel@nn7.de> writes:
 
-  Thank you.
+> I also get the very same oops - though very rarely - with pbbuttons and
+> kernel 2.6.9 on my 1GHz-pbook 15"
 
+I have been using ALSA on my G3 iBook already for a long time and never
+saw this.  I didn't try 2.6.10 yet, though.
 
-=====
-Best Regards,
-Park Lee
+Andreas.
 
-
-		
-__________________________________ 
-Do you Yahoo!? 
-All your favorites on one personal page – Try My Yahoo!
-http://my.yahoo.com 
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

@@ -1,31 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280368AbRKEInJ>; Mon, 5 Nov 2001 03:43:09 -0500
+	id <S280372AbRKEInu>; Mon, 5 Nov 2001 03:43:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280372AbRKEIm7>; Mon, 5 Nov 2001 03:42:59 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:8461 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S280368AbRKEImr>; Mon, 5 Nov 2001 03:42:47 -0500
-Subject: Re: APM/ACPI
-To: elanthis@awesomeplay.com (Sean Middleditch)
-Date: Mon, 5 Nov 2001 08:49:20 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        smiddle@twp.ypsilanti.mi.us (Sean Middleditch),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <1004928598.1969.1.camel@stargrazer> from "Sean Middleditch" at Nov 04, 2001 09:49:58 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S280373AbRKEInj>; Mon, 5 Nov 2001 03:43:39 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:23052 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S280372AbRKEInY>; Mon, 5 Nov 2001 03:43:24 -0500
+Message-ID: <3BE64FE3.DBEF8E21@zip.com.au>
+Date: Mon, 05 Nov 2001 00:37:55 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Robert Love <rml@tech9.net>
+CC: Zwane Mwaikambo <zwane@linux.realnet.co.sz>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.13-ac5-preempt, overflow in cached memory stat?
+In-Reply-To: <Pine.LNX.4.33.0111051019080.6741-100000@netfinity.realnet.co.sz>,
+		<Pine.LNX.4.33.0111051019080.6741-100000@netfinity.realnet.co.sz> <1004948146.806.4.camel@phantasy>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E160fRY-0004gW-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Erg, hrm.  In 2.4.13 (Debian version, Linux tree I think) I enabled
-> ACPI, disabled APM.  The latop locks up when the base ACPI support is
-> loaded.
+Robert Love wrote:
 > 
-> How should I go about debugging this?  I want this working.
+> > PS I know you keep hearing this, but that preempt patch makes for some
+> > damn smooth interactive performance ;)
+> 
+> I can't hear it enough :)
+> 
 
-Send the apm maintainer list a report (see MAINTAINERS)
+umm...  Look.  Sorry.  But I don't see any theoretical reason
+why interactivity should be noticeably different from the
+little patch at
+
+http://www.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.14pre7aa2/00_lowlatency-fixes-2
+
+and I did some quantitative testing a week or so back which
+bears this out.  With either patch, worst-case latencies
+are very rare, and very bad.   Usual latencies are excellent.
+
+Is there any reason why preempt should be noticeably better than
+that little patch?  If it is, then where on earth are the
+problematic commonly-occuring, long-running, lock-free code paths?
+
+-

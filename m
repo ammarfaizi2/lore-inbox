@@ -1,46 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261968AbVBJDXN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262011AbVBJD3d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261968AbVBJDXN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 22:23:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbVBJDXN
+	id S262011AbVBJD3d (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 22:29:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262014AbVBJD3d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 22:23:13 -0500
-Received: from ozlabs.org ([203.10.76.45]:22197 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261968AbVBJDXK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 22:23:10 -0500
-Date: Thu, 10 Feb 2005 14:23:05 +1100
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: orinoco-devel@lists.sourceforge.net, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [0/8] orinoco driver updates
-Message-ID: <20050210032305.GF5324@localhost.localdomain>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	orinoco-devel@lists.sourceforge.net, netdev@oss.sgi.com,
-	linux-kernel@vger.kernel.org
-References: <20050112052352.GA30426@localhost.localdomain> <4200316F.7030401@pobox.com> <20050210025333.GE5324@localhost.localdomain> <420ACFDC.9060500@pobox.com>
+	Wed, 9 Feb 2005 22:29:33 -0500
+Received: from almesberger.net ([63.105.73.238]:29715 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S262011AbVBJD3b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Feb 2005 22:29:31 -0500
+Date: Thu, 10 Feb 2005 00:28:32 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Paul Jackson <pj@sgi.com>, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 9/8] lib/sort: turn off self-test
+Message-ID: <20050210002832.D25338@almesberger.net>
+References: <20050131074400.GL2891@waste.org> <20050131035742.1434944c.pj@sgi.com> <20050131170344.GP2891@waste.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <420ACFDC.9060500@pobox.com>
-User-Agent: Mutt/1.5.6+20040523i
+In-Reply-To: <20050131170344.GP2891@waste.org>; from mpm@selenic.com on Mon, Jan 31, 2005 at 09:03:44AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 09, 2005 at 10:07:08PM -0500, Jeff Garzik wrote:
-> David Gibson wrote:
-> >I'm now not entirely clear on whether you want patches against the
-> >netdev bk, or against Linus bk/snapshots.
-> 
-> 
-> Please send diff'd against vanilla Linus upstream.
+Matt Mackall wrote:
+> It's a nice self-contained unit test.
 
-Ok, in that case do you want me to resend the things which are in
-netdev but not vanilla?
+By the way, I think it would be useful if there was a more
+formalized frame for such unit tests, so that they could be used
+in automated kernel testing.
+
+To avoid false positives when grepping through the code, perhaps
+such tests could be placed in separate files, using a different
+extension, e.g. .ct for ".c test", or in some "test" directory.
+(That is, in case they're distributed along with the kernel code,
+which, IMHO, would help to avoid code drift.)
+
+Just an idea ...
+
+- Werner
 
 -- 
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist.  NOT _the_ _other_ _way_
-				| _around_!
-http://www.ozlabs.org/people/dgibson
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

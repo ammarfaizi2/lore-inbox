@@ -1,32 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268713AbTBZLQm>; Wed, 26 Feb 2003 06:16:42 -0500
+	id <S268714AbTBZLU2>; Wed, 26 Feb 2003 06:20:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268714AbTBZLQm>; Wed, 26 Feb 2003 06:16:42 -0500
-Received: from packet.digeo.com ([12.110.80.53]:41927 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S268713AbTBZLQm>;
-	Wed, 26 Feb 2003 06:16:42 -0500
-Date: Wed, 26 Feb 2003 03:27:27 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Thomas Schlichter <schlicht@uni-mannheim.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.5] add missing global_flush_tlb() after
- change_page_attr() calls
-Message-Id: <20030226032727.69686001.akpm@digeo.com>
-In-Reply-To: <200302261217.29084.schlicht@uni-mannheim.de>
-References: <200302261217.29084.schlicht@uni-mannheim.de>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S268715AbTBZLU1>; Wed, 26 Feb 2003 06:20:27 -0500
+Received: from kestrel.vispa.uk.net ([62.24.228.12]:21766 "EHLO
+	kestrel.vispa.uk.net") by vger.kernel.org with ESMTP
+	id <S268714AbTBZLU1>; Wed, 26 Feb 2003 06:20:27 -0500
+Message-ID: <3E5CA55E.7080607@walrond.org>
+Date: Wed, 26 Feb 2003 11:30:38 +0000
+From: Andrew Walrond <andrew@walrond.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: /proc/cpuinfo shows only 2 processors on dual P4-Xeon system
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 26 Feb 2003 11:26:52.0383 (UTC) FILETIME=[F5CBD6F0:01C2DD89]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Schlichter <schlicht@uni-mannheim.de> wrote:
->
-> 
-> P.S.: I sent this patch on friday yet, but I think friday is a bad day for 
-> sending patches... ;-)
+...with latest 2.5.63+ bk kernel. Is this correct?
 
-Your patch was merged on Monday :)
+2.4 kernel shows 4 processors.
+
+Andrew Walrond
+

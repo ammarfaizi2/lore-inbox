@@ -1,74 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261688AbVAaHMZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261893AbVAaHVG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261688AbVAaHMZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 02:12:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbVAaHMZ
+	id S261893AbVAaHVG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 02:21:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261896AbVAaHVG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 02:12:25 -0500
-Received: from gate.crashing.org ([63.228.1.57]:49053 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261688AbVAaHMT (ORCPT
+	Mon, 31 Jan 2005 02:21:06 -0500
+Received: from smtp.cs.aau.dk ([130.225.194.6]:40396 "EHLO smtp.cs.aau.dk")
+	by vger.kernel.org with ESMTP id S261893AbVAaHVB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 02:12:19 -0500
-Subject: Re: Fw: Re: 2.6.11-rc2-mm2
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Sean Neakums <sneakums@zork.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050129163117.1626d404.akpm@osdl.org>
-References: <20050129163117.1626d404.akpm@osdl.org>
-Content-Type: text/plain
-Date: Mon, 31 Jan 2005 18:11:50 +1100
-Message-Id: <1107155510.5905.2.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+	Mon, 31 Jan 2005 02:21:01 -0500
+Message-ID: <41FDDCA3.7090701@cs.aau.dk>
+Date: Mon, 31 Jan 2005 08:22:11 +0100
+From: Emmanuel Fleury <fleury@cs.aau.dk>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [Watchdog] alim7101_wdt problem on 2.6.10
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-01-29 at 16:31 -0800, Andrew Morton wrote:
-> help!
-> 
-> Begin forwarded message:
-> 
-> Date: Sat, 29 Jan 2005 23:56:23 +0000
-> From: Sean Neakums <sneakums@zork.net>
-> To: Andrew Morton <akpm@osdl.org>
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: 2.6.11-rc2-mm2
-> 
-> 
-> Sean Neakums <sneakums@zork.net> writes:
-> 
-> > On a PowerBook (PowerBook5.4), when snd_powermac is modprobed during
-> > the boot, I get the following.  After similar messages for a few more
-> > modules, the machine seems wedged.
-> 
-> Brice Goglin's patch fixes this.
-> 
-> However, when I modprobe radeonfb I get:
-> 
-> Jan 29 23:38:16 briny kernel: PCI: Unable to reserve mem region #1:8000000@b8000000 for device 0000:00:10.0
-> Jan 29 23:38:16 briny kernel: radeonfb: probe of 0000:00:10.0 failed with error -16
-> 
-> Not sure if this is expected or not on this platform.
-> 
-> With radeonfb built-in (my current working configuration with 2.6.9)
-> the screen clears and the machine seems to hang early in the boot.
+Hi,
 
-So, I did more tests. As I wrote previously, it's normal that radeonfb
-as a module doesn't work when offb is in the kernel, we don't quite have
-an infrastructure to deal with driver "replacement" yet.
+I have a Vaio C1MZX and in the lspci I saw this line:
+0000:00:11.0 Non-VGA unclassified device: ALi Corporation M7101 Power
+Management Controller [PMU]
 
-It seems -mm2 definitely has some problems regarding loading of modules,
-it pretty much fails loading all of them for me with some
-kobject_register errors, I haven't really found out what was up, but
-then, I didn't have much time neither.
+So, I assumed it was a watchdog and I compiled with the option:
+CONFIG_ALIM7101_WDT=m
 
-radeonfb built-in operations seem to be ok on my PowerBook3,5 (ATI M9
-based), I'll try on a PowerBook5,4 (same as yours) tomorrow hopefully.
+But, when I do: modprobe alim7101_wdt
 
-Does the machine hang with the screen completely cleared ? Do you see
-the penguin logo ? Did you try just using pmac_defconfig ?
+I get the following error message:
 
-Ben.
+Jan 30 00:58:21 hermes vmunix: alim7101_wdt: Steve Hill
+<steve@navaho.co.uk>.
+Jan 30 00:58:21 hermes vmunix: alim7101_wdt: ALi 1543 South-Bridge does
+not have the correct revision number (???1001?) - WDT
+not set
 
+What did I do wrong ?
+
+If some patches need to be tried out, I volunteer. :)
+
+Thanks in advance for you reply
+-- 
+Emmanuel Fleury
+
+Computer Science Department, |  Office: B1-201
+Aalborg University,          |  Phone:  +45 96 35 72 23
+Fredriks Bajersvej 7E,       |  Fax:    +45 98 15 98 89
+9220 Aalborg East, Denmark   |  Email:  fleury@cs.aau.dk
 

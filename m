@@ -1,54 +1,206 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132103AbRACC64>; Tue, 2 Jan 2001 21:58:56 -0500
+	id <S130012AbRACDNa>; Tue, 2 Jan 2001 22:13:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132099AbRACC6k>; Tue, 2 Jan 2001 21:58:40 -0500
-Received: from lithium.nac.net ([64.21.52.68]:40453 "HELO lithium.nac.net")
-	by vger.kernel.org with SMTP id <S130012AbRACC6a>;
-	Tue, 2 Jan 2001 21:58:30 -0500
-Date: Tue, 2 Jan 2001 21:28:01 -0500
+	id <S132072AbRACDNU>; Tue, 2 Jan 2001 22:13:20 -0500
+Received: from [139.102.15.42] ([139.102.15.42]:41117 "EHLO
+	online.indstate.edu") by vger.kernel.org with ESMTP
+	id <S130012AbRACDNN>; Tue, 2 Jan 2001 22:13:13 -0500
+From: "Rich Baum" <baumr1@coral.indstate.edu>
 To: linux-kernel@vger.kernel.org
-Subject: 2.2.19pre3's VM is great :)
-Message-ID: <20010102212800.A1250@debian>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-From: <tcm@nac.net>
+Date: Tue, 2 Jan 2001 21:41:53 -0500
+MIME-Version: 1.0
+Content-type: Multipart/Mixed; boundary=Message-Boundary-28755
+Subject: [PATCH] Remove more compile warnings from 2.4.0-prerelease
+Reply-to: richbaum@acm.org
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>
+Message-ID: <3A524B21.12234.E0700A@localhost>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I originally sent this message to Andrea Archelangi, but he felt I
-should also send it here. 2.2.19pre3 is great!
 
-Note that I'm not subscribed to the list - please replies to me and the
-list if you would? Thanks :)
+--Message-Boundary-28755
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 
-	You may remember me from an earlier e-mail asking where to find
-the VM patch for 2.2.18 - well, I took a gander at 2.2.19pre3's fixes
-due to your nudging, and boy am I happy with it. The VM - or at least
-whatever controls the swapping in and out of processes - is REALLY
-improved. I used to abuse the heck out of my swap whenever I'd run
-mozilla, but now the swap barely takes up anything even when I'm
-compiling something and using mozilla. (This is a 54MB memory available
-machine with 100MB of swap) Boot speed has also increased somewhat as
-well, although I've not really taken the time to figure out the
-improvement in times... Just so you know, I've noticed the same style of
-improvements - some INCREDIBLY noticable - on my 486 dx 50 with 16MB of
-ram and 100MB of swap. It used to page out just about everything it
-could to swap even when it had plenty of real memory to play with,
-mainly because it seemed stupid and would cache around 4-6MB of stuff in
-the ram. Now it does caching much less and actually USES the ram for
-programs. (still uses 2MB or less of mem for caching, and this changes
-quite a bit depending on what it's up to, but) Whee! That certaintly
-makes a tremendous difference.
+Here's my patch again since Alan didn't get it.
 
-Felt you could use a 'this works great' story, I know if I was you I'd
-want one once in a while since you proboably get more bug reports than
-anything. :)
 
-Tim
 
+
+
+--Message-Boundary-28755
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Text from file 'rb2.patch'
+
+diff -urN linux/drivers/i2c/i2c-pcf8584.h rb/drivers/i2c/i2c-pcf8584.h
+--- linux/drivers/i2c/i2c-pcf8584.h	Fri Jan 28 22:36:23 2000
++++ rb/drivers/i2c/i2c-pcf8584.h	Tue Jan  2 16:47:36 2001
+@@ -75,4 +75,4 @@
+ #define I2C_PCF_INTREG	I2C_PCF_ES2
+ #define I2C_PCF_CLKREG	I2C_PCF_ES1
+ 
+-#endif I2C_PCF8584_H
++#endif /* I2C_PCF8584_H */
+diff -urN linux/drivers/i2o/i2o_lan.c rb/drivers/i2o/i2o_lan.c
+--- linux/drivers/i2o/i2o_lan.c	Mon Dec 11 15:39:44 2000
++++ rb/drivers/i2o/i2o_lan.c	Tue Jan  2 16:48:01 2001
+@@ -938,7 +938,7 @@
+ 	spin_unlock_irq(&priv->tx_lock);
+ 	return 0;
+ }
+-#endif CONFIG_NET_FC
++#endif /* CONFIG_NET_FC */
+ 
+ /*
+  * i2o_lan_packet_send(): Send a packet as is, including the MAC header.
+diff -urN linux/drivers/isdn/hisax/hisax.h rb/drivers/isdn/hisax/hisax.h
+--- linux/drivers/isdn/hisax/hisax.h	Tue Jan  2 10:34:53 2001
++++ rb/drivers/isdn/hisax/hisax.h	Tue Jan  2 16:51:34 2001
+@@ -126,13 +126,13 @@
+   #define l3dss1_process
+   #include "l3dss1.h" 
+   #undef  l3dss1_process
+-#endif CONFIG_HISAX_EURO
++#endif /* CONFIG_HISAX_EURO */
+ 
+ #ifdef CONFIG_HISAX_NI1
+   #define l3ni1_process
+   #include "l3ni1.h" 
+   #undef  l3ni1_process
+-#endif CONFIG_HISAX_NI1
++#endif /* CONFIG_HISAX_NI1 */
+ 
+ #define MAX_DFRAME_LEN	260
+ #define MAX_DFRAME_LEN_L1	300
+@@ -318,10 +318,10 @@
+ 	 { u_char uuuu; /* only as dummy */
+ #ifdef CONFIG_HISAX_EURO
+            dss1_stk_priv dss1; /* private dss1 data */
+-#endif CONFIG_HISAX_EURO              
++#endif /* CONFIG_HISAX_EURO */             
+ #ifdef CONFIG_HISAX_NI1
+            ni1_stk_priv ni1; /* private ni1 data */
+-#endif CONFIG_HISAX_NI1              
++#endif /* CONFIG_HISAX_NI1 */            
+ 	 } prot;
+ };
+ 
+@@ -342,10 +342,10 @@
+ 	 { u_char uuuu; /* only when euro not defined, avoiding empty union */
+ #ifdef CONFIG_HISAX_EURO 
+            dss1_proc_priv dss1; /* private dss1 data */
+-#endif CONFIG_HISAX_EURO            
++#endif /* CONFIG_HISAX_EURO */           
+ #ifdef CONFIG_HISAX_NI1
+            ni1_proc_priv ni1; /* private ni1 data */
+-#endif CONFIG_HISAX_NI1              
++#endif /* CONFIG_HISAX_NI1 */             
+ 	 } prot;
+ };
+ 
+diff -urN linux/drivers/isdn/isdn_common.c rb/drivers/isdn/isdn_common.c
+--- linux/drivers/isdn/isdn_common.c	Tue Jan  2 10:34:53 2001
++++ rb/drivers/isdn/isdn_common.c	Tue Jan  2 16:50:02 2001
+@@ -41,7 +41,7 @@
+ #endif
+ #ifdef CONFIG_ISDN_DIVERSION
+ #include <linux/isdn_divertif.h>
+-#endif CONFIG_ISDN_DIVERSION
++#endif /* CONFIG_ISDN_DIVERSION */
+ #include "isdn_v110.h"
+ #include "isdn_cards.h"
+ #include <linux/devfs_fs_kernel.h>
+@@ -69,7 +69,7 @@
+ 
+ #ifdef CONFIG_ISDN_DIVERSION
+ isdn_divert_if *divert_if; /* interface to diversion module */
+-#endif CONFIG_ISDN_DIVERSION
++#endif /* CONFIG_ISDN_DIVERSION */
+ 
+ 
+ static int isdn_writebuf_stub(int, int, const u_char *, int, int);
+@@ -519,7 +519,7 @@
+                                          if (divert_if)
+                  	                  if ((retval = divert_if->stat_callback(c))) 
+ 					    return(retval); /* processed */
+-#endif CONFIG_ISDN_DIVERSION                        
++#endif /* CONFIG_ISDN_DIVERSION */                       
+ 					if ((!retval) && (dev->drv[di]->flags & DRV_FLAG_REJBUS)) {
+ 						/* No tty responding */
+ 						cmd.driver = di;
+@@ -592,7 +592,7 @@
+ #ifdef CONFIG_ISDN_DIVERSION
+                         if (divert_if)
+                          divert_if->stat_callback(c); 
+-#endif CONFIG_ISDN_DIVERSION
++#endif /* CONFIG_ISDN_DIVERSION */
+ 			break;
+ 		case ISDN_STAT_DISPLAY:
+ #ifdef ISDN_DEBUG_STATCALLB
+@@ -602,7 +602,7 @@
+ #ifdef CONFIG_ISDN_DIVERSION
+                         if (divert_if)
+                          divert_if->stat_callback(c); 
+-#endif CONFIG_ISDN_DIVERSION
++#endif /* CONFIG_ISDN_DIVERSION */
+ 			break;
+ 		case ISDN_STAT_DCONN:
+ 			if (i < 0)
+@@ -644,7 +644,7 @@
+ #ifdef CONFIG_ISDN_DIVERSION
+                         if (divert_if)
+                          divert_if->stat_callback(c); 
+-#endif CONFIG_ISDN_DIVERSION
++#endif /* CONFIG_ISDN_DIVERSION */
+ 			break;
+ 			break;
+ 		case ISDN_STAT_BCONN:
+@@ -773,7 +773,7 @@
+ 	        case ISDN_STAT_REDIR:
+                         if (divert_if)
+                           return(divert_if->stat_callback(c));
+-#endif CONFIG_ISDN_DIVERSION
++#endif /* CONFIG_ISDN_DIVERSION */
+ 		default:
+ 			return -1;
+ 	}
+@@ -2167,7 +2167,7 @@
+ 
+ EXPORT_SYMBOL(DIVERT_REG_NAME);
+ 
+-#endif CONFIG_ISDN_DIVERSION
++#endif /* CONFIG_ISDN_DIVERSION */
+ 
+ 
+ EXPORT_SYMBOL(register_isdn);
+diff -urN linux/include/linux/802_11.h rb/include/linux/802_11.h
+--- linux/include/linux/802_11.h	Mon Dec 11 16:00:51 2000
++++ rb/include/linux/802_11.h	Tue Jan  2 16:52:22 2001
+@@ -188,4 +188,5 @@
+ }
+ 
+ 
+-#endif
+\ No newline at end of file
++#endif
++
+diff -urN linux/include/linux/nubus.h rb/include/linux/nubus.h
+--- linux/include/linux/nubus.h	Sat Sep  4 15:10:30 1999
++++ rb/include/linux/nubus.h	Tue Jan  2 16:52:59 2001
+@@ -319,4 +319,4 @@
+ 	return (void *)(0xF0000000|(slot<<24));
+ }
+ 
+-#endif LINUX_NUBUS_H
++#endif /* LINUX_NUBUS_H */
+
+
+--Message-Boundary-28755--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,58 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263297AbSJGVJ5>; Mon, 7 Oct 2002 17:09:57 -0400
+	id <S263472AbSJGVvt>; Mon, 7 Oct 2002 17:51:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263299AbSJGVJ5>; Mon, 7 Oct 2002 17:09:57 -0400
-Received: from smtp808.mail.sc5.yahoo.com ([66.163.168.187]:5135 "HELO
-	smtp808.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id <S263297AbSJGVJ4>; Mon, 7 Oct 2002 17:09:56 -0400
-From: "Joseph D. Wagner" <wagnerjd@prodigy.net>
-To: "'Andreas Bergen'" <andreas.bergen@online.de>
-Cc: "Linux Kernel Development List" <linux-kernel@vger.kernel.org>
-Subject: RE: Kernel-oops
-Date: Mon, 7 Oct 2002 16:15:24 -0500
-Message-ID: <001201c26e46$ad838940$6942f4d1@joe>
+	id <S263475AbSJGVvs>; Mon, 7 Oct 2002 17:51:48 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:28689 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S263472AbSJGVur>; Mon, 7 Oct 2002 17:50:47 -0400
+Date: Mon, 7 Oct 2002 14:55:42 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Daniel Phillips <phillips@arcor.de>
+cc: Andrew Morton <akpm@digeo.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       Oliver Neukum <oliver@neukum.name>, Rob Landley <landley@trommello.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not
+ 3.0 -  (NUMA))
+In-Reply-To: <E17yfFL-0003v9-00@starship>
+Message-ID: <Pine.LNX.4.33.0210071455070.1337-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4024
-In-Reply-To: <20021007145416.GA4695@erde.erde.bergen>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's just my best guess, but I'd say there's something wrong with your
-modules.
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Andreas Bergen
-Sent: Monday, October 07, 2002 9:54 AM
-To: linux-kernel@vger.kernel.org
-Subject: Kernel-oops
+On Mon, 7 Oct 2002, Daniel Phillips wrote:
+> > 
+> > Sure. The mey is:
+>             ^^^ <---- "bet" ?
 
-Dear kernel-developers,
+Yeah. What the heck happened to my fingers?
 
-recently I get quite a lot of kernel oopses. Before 2.4.17 my system
-ran very stable but since upgrading to 2.4.18 and still with 2.4.19 I
-get an oops every few days.
-
-Can you help me with these? Do you need any additional information?
-
-Attached is the output of ksymoops.
-
-Thanks a lot in advance
-yours
-  Andreas Bergen
-
--- 
-Andreas Bergen
-E-Mail: andreas.bergen@online.de
-PGP-Key on keyservers.
-"Freuet euch in dem Herrn allewege, und abermals sage ich: Freuet euch!"
-Phi 4,4
+		Linus "spastic" Torvalds
 

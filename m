@@ -1,70 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286339AbSAAXEt>; Tue, 1 Jan 2002 18:04:49 -0500
+	id <S286331AbSAAXDj>; Tue, 1 Jan 2002 18:03:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286337AbSAAXEk>; Tue, 1 Jan 2002 18:04:40 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64528 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S286342AbSAAXEa>;
-	Tue, 1 Jan 2002 18:04:30 -0500
-Message-ID: <3C32407A.BB44CBCE@mandrakesoft.com>
-Date: Tue, 01 Jan 2002 18:04:26 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-pre8 i686)
-X-Accept-Language: en
+	id <S286342AbSAAXDa>; Tue, 1 Jan 2002 18:03:30 -0500
+Received: from [217.9.226.246] ([217.9.226.246]:19073 "HELO
+	merlin.xternal.fadata.bg") by vger.kernel.org with SMTP
+	id <S286325AbSAAXDR>; Tue, 1 Jan 2002 18:03:17 -0500
+To: linux-kernel@vger.kernel.org
+Cc: gcc@gcc.gnu.org, linuxppc-dev@lists.linuxppc.org
+Subject: [PATCH] C undefined behavior fix
+From: Momchil Velikov <velco@fadata.bg>
+Date: 02 Jan 2002 01:03:25 +0200
+Message-ID: <87g05py8qq.fsf@fadata.bg>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Trond Myklebust <trond.myklebust@fys.uio.no>,
-        Neil Brown <neilb@cse.unsw.edu.au>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: [PATCH] Re: NFS "dev_t" issues..
-In-Reply-To: <Pine.LNX.4.33.0201011402560.13397-100000@penguin.transmeta.com>
-Content-Type: multipart/mixed;
- boundary="------------0856575C10236C44BC9D1619"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------0856575C10236C44BC9D1619
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+[Cc: to gcc list, in case someone wants to argue about standards]
 
-Linus,
+The appended patch fix incorrect code, which interferes badly with
+optimizations in GCC 3.0.4 and GCC 3.1.
 
-What do you think about the attached simple patch, making the cookie
-size more explicit?
+The GCC tries to replace the strcpy from a constant string source with
+a memcpy, since the length is know at compile time.
 
-I was looking at fixing up reiserfs, which already has 32-bit storage
-for dev_t on-disk, and the following change came to mind.
+Thus 
+   strcpy (dst, "abcdef" + 2)
+gives
+   memcpy (dst, "abcdef" + 2, 5)
 
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
---------------0856575C10236C44BC9D1619
-Content-Type: text/plain; charset=us-ascii;
- name="kdev.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="kdev.patch"
+However, GCC does not handle the case, when the above offset (2) is
+not within the bounds of the string, which result in undefined
+behavior according to ANSI/ISO C99.
 
-Index: include/linux/kdev_t.h
-===================================================================
-RCS file: /cvsroot/gkernel/linux_2_5/include/linux/kdev_t.h,v
-retrieving revision 1.2
-diff -u -r1.2 kdev_t.h
---- include/linux/kdev_t.h	2002/01/01 22:41:11	1.2
-+++ include/linux/kdev_t.h	2002/01/01 23:02:10
-@@ -86,7 +86,7 @@
-  * internal equality comparisons and for things
-  * like NFS filehandle conversion.
-  */
--static inline unsigned int kdev_val(kdev_t dev)
-+static inline u32 kdev_val(kdev_t dev)
- {
- 	return dev.value;
- }
+The error is that
+   strcpy (namep, "linux,phandle" + 0xc0000000);
+gets emitted as
+   memcpy (namep, "linux,phandle" + 0xc0000000, 14 - 0xc0000000);
 
---------------0856575C10236C44BC9D1619--
+Regards,
+-velco
 
+--- 1.3/arch/ppc/kernel/prom.c	Wed Dec 26 18:27:54 2001
++++ edited/arch/ppc/kernel/prom.c	Tue Jan  1 22:53:23 2002
+@@ -997,7 +997,7 @@
+ 		prev_propp = &pp->next;
+ 		namep = (char *) (pp + 1);
+ 		pp->name = PTRUNRELOC(namep);
+-		strcpy(namep, RELOC("linux,phandle"));
++		memcpy (namep, RELOC("linux,phandle"), sizeof("linux,phandle"));
+ 		mem_start = ALIGN((unsigned long)namep + strlen(namep) + 1);
+ 		pp->value = (unsigned char *) PTRUNRELOC(&np->node);
+ 		pp->length = sizeof(np->node);

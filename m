@@ -1,42 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262440AbVAKUKo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262571AbVAKUUL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262440AbVAKUKo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 15:10:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262614AbVAKUKE
+	id S262571AbVAKUUL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 15:20:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262577AbVAKUUL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 15:10:04 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:17107 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262480AbVAKUJh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 15:09:37 -0500
-Subject: Re: New Linux System time proposal
-From: john stultz <johnstul@us.ibm.com>
-To: linux-os@analogic.com
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0501110930280.26281@chaos.analogic.com>
-References: <Pine.LNX.4.61.0501110930280.26281@chaos.analogic.com>
-Content-Type: text/plain
-Date: Tue, 11 Jan 2005 12:09:27 -0800
-Message-Id: <1105474167.4152.7.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+	Tue, 11 Jan 2005 15:20:11 -0500
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:21912 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S262571AbVAKUUB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 15:20:01 -0500
+Message-ID: <41E434B4.9020903@nortelnetworks.com>
+Date: Tue, 11 Jan 2005 14:19:00 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Jack O'Quin" <joq@io.com>
+CC: Matt Mackall <mpm@selenic.com>, Chris Wright <chrisw@osdl.org>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Lee Revell <rlrevell@joe-job.com>, paul@linuxaudiosystems.com,
+       arjanv@redhat.com, mingo@elte.hu, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+References: <200501071620.j07GKrIa018718@localhost.localdomain>	<1105132348.20278.88.camel@krustophenia.net>	<20050107134941.11cecbfc.akpm@osdl.org>	<20050107221059.GA17392@infradead.org>	<20050107142920.K2357@build.pdx.osdl.net>	<87mzvkxxck.fsf@sulphur.joq.us> <20050110212019.GG2995@waste.org>	<87d5wc9gx1.fsf@sulphur.joq.us> <20050111195010.GU2940@waste.org> <871xcr3fjc.fsf@sulphur.joq.us>
+In-Reply-To: <871xcr3fjc.fsf@sulphur.joq.us>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-01-11 at 09:31 -0500, linux-os wrote:
-> I think that Linux time should be re-thought and done over once and
-> for all. 
+Jack O'Quin wrote:
+> Matt Mackall <mpm@selenic.com> writes:
 
-I agree, and I've been working on this for awhile. 
+>>Thankfully a buffer underrun is no more fatal for pro audio than a
+>>broken guitar string. CDs skip, DATs glitch, XLR cables flake out,
+>>circuit breakers trip, amps clip, Powerbooks crash, and the show goes
+>>on. I've done more than enough stage tech to know it's a huge pain in
+>>the ass, but let's stop pretending we require absolute perfection,
+>>please.
 
-You can find an outdated summery of my ideas here:
-http://lwn.net/Articles/100665/
+> In _practice_, Ingo's patches are considerably better than what you
+> seem to consider "good enough for mere audio work".
 
-And as soon as I get ppc64 booting I'll be sending out a new release of
-the code. 
+I don't see anywere that Matt was criticising Ingo's work.  He just said 
+that it wasn't hard realtime--which is true.
 
-thanks
--john
+A hard realtime system will *guarantee* that the deadlines will be met, 
+*no matter what*.  It makes all kinds of other sacrifices to do it, and 
+it makes additional demands on the application designer as well.
 
+I don't think Ingo would claim that his patches make Linux a hard RT 
+operating system.
 
+Chris

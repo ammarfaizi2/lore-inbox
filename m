@@ -1,72 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262579AbVCJAzI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262142AbVCJAzH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262579AbVCJAzI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 19:55:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262444AbVCJAp1
+	id S262142AbVCJAzH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 19:55:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262658AbVCJAx2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 19:45:27 -0500
-Received: from mail.kroah.org ([69.55.234.183]:54431 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262626AbVCJAma convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 19:42:30 -0500
-Cc: kay.sievers@vrfy.org
-Subject: [PATCH] usb: class driver pass dev_t to the class core
-In-Reply-To: <1110414881502@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Wed, 9 Mar 2005 16:34:42 -0800
-Message-Id: <11104148822712@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
+	Wed, 9 Mar 2005 19:53:28 -0500
+Received: from mail.kroah.org ([69.55.234.183]:60063 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262635AbVCJAmf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 19:42:35 -0500
+Date: Wed, 9 Mar 2005 16:18:12 -0800
 From: Greg KH <greg@kroah.com>
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [BK PATCH] AOE fixes for 2.6.11
+Message-ID: <20050310001812.GA31984@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2042, 2005/03/09 09:51:30-08:00, kay.sievers@vrfy.org
+Hi,
 
-[PATCH] usb: class driver pass dev_t to the class core
+Here are some AOE driver fixes and documentation updates.  These have
+all been in the -mm releases for a while.
 
-Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+Please pull from:  bk://kernel.bkbits.net/gregkh/linux/2.6.11/aoe
+
+Individual patches will follow, sent to the linux-kernel list.
+
+thanks,
+
+greg k-h
+
+ Documentation/aoe/aoe.txt         |   13 +++++++++---
+ Documentation/aoe/status.sh       |    7 ++++--
+ Documentation/aoe/udev-install.sh |   36 ++++++++++++++++++++++++++++-----
+ Documentation/aoe/udev.txt        |   23 +++++++++++++++++++++
+ drivers/block/aoe/aoe.h           |    1 
+ drivers/block/aoe/aoechr.c        |   41 ++------------------------------------
+ drivers/block/aoe/aoecmd.c        |    8 ++++---
+ 7 files changed, 77 insertions(+), 52 deletions(-)
+-----
 
 
- drivers/usb/core/file.c |    9 +--------
- 1 files changed, 1 insertion(+), 8 deletions(-)
+Alexander Nyberg:
+  o AoE warning on 64-bit archs
 
-
-diff -Nru a/drivers/usb/core/file.c b/drivers/usb/core/file.c
---- a/drivers/usb/core/file.c	2005-03-09 16:29:34 -08:00
-+++ b/drivers/usb/core/file.c	2005-03-09 16:29:34 -08:00
-@@ -107,13 +107,6 @@
- 	unregister_chrdev(USB_MAJOR, "usb");
- }
- 
--static ssize_t show_dev(struct class_device *class_dev, char *buf)
--{
--	int minor = (int)(long)class_get_devdata(class_dev);
--	return print_dev_t(buf, MKDEV(USB_MAJOR, minor));
--}
--static CLASS_DEVICE_ATTR(dev, S_IRUGO, show_dev, NULL);
--
- /**
-  * usb_register_dev - register a USB device, and ask for a minor number
-  * @intf: pointer to the usb_interface that is being registered
-@@ -184,6 +177,7 @@
- 	class_dev = kmalloc(sizeof(*class_dev), GFP_KERNEL);
- 	if (class_dev) {
- 		memset(class_dev, 0x00, sizeof(struct class_device));
-+		class_dev->devt = MKDEV(USB_MAJOR, minor);
- 		class_dev->class = &usb_class;
- 		class_dev->dev = &intf->dev;
- 
-@@ -195,7 +189,6 @@
- 		snprintf(class_dev->class_id, BUS_ID_SIZE, "%s", temp);
- 		class_set_devdata(class_dev, (void *)(long)intf->minor);
- 		class_device_register(class_dev);
--		class_device_create_file(class_dev, &class_device_attr_dev);
- 		intf->class_dev = class_dev;
- 	}
- exit:
+Ed L. Cashin:
+  o aoe: drivers/block/aoe/aoechr.c cleanups
+  o aoe status.sh: handle sysfs not in /etc/mtab
+  o aoe: fail IO on disk errors
+  o aoe: update documentation for udev users
+  o aoe: add documentation for udev users
 

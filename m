@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266071AbTLIPpR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 10:45:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266072AbTLIPpR
+	id S266139AbTLIQW7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 11:22:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266143AbTLIQW6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 10:45:17 -0500
-Received: from terminus.zytor.com ([63.209.29.3]:45028 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S266071AbTLIPpO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 10:45:14 -0500
-Message-ID: <3FD5ED77.6070505@zytor.com>
-Date: Tue, 09 Dec 2003 07:42:47 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030630
-X-Accept-Language: en, sv, es, fr
+	Tue, 9 Dec 2003 11:22:58 -0500
+Received: from fw.osdl.org ([65.172.181.6]:59580 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266139AbTLIQW5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 11:22:57 -0500
+Date: Tue, 9 Dec 2003 08:22:44 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jani Vaarala <flame@pygmyprojects.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test11, PCMCIA,, Cirrus CL  6729 bridge not working
+In-Reply-To: <20031209082544.60005.qmail@nuoli.com>
+Message-ID: <Pine.LNX.4.58.0312090814210.19936@home.osdl.org>
+References: <20031209082544.60005.qmail@nuoli.com>
 MIME-Version: 1.0
-To: Arnd Bergmann <arnd@arndb.de>
-CC: Linus Torvalds <torvalds@osdl.org>, Jamie Lokier <jamie@shareable.org>,
-       Nikita Danilov <Nikita@Namesys.COM>, linux-kernel@vger.kernel.org
-Subject: Re: const versus __attribute__((const))
-References: <200312081646.42191.arnd@arndb.de> <Pine.LNX.4.58.0312082321470.18255@home.osdl.org> <3FD57C77.4000403@zytor.com> <200312091256.47414.arnd@arndb.de>
-In-Reply-To: <200312091256.47414.arnd@arndb.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnd Bergmann wrote:
-> 
-> For reference, both gcc-3.3 and gcc-3.4 (snapshot) give produce the same assembly 
-> as gcc-3.2 for your code, but give this warning:
-> 
-> test.c:6: warning: use of memory input without lvalue in asm operand 1 is deprecated
-> test.c:7: warning: use of memory input without lvalue in asm operand 1 is deprecated
-> 
 
-In some ways, this is rather unfortunate, too.  What it really means is 
-that the gcc "m" constraint is overloaded; it would have been better if 
-they would have created a new modifier (say "*") for "must be lvalue."
 
-	-hpa
+On Tue, 9 Dec 2003, Jani Vaarala wrote:
+>
+> It is a PCI-to-PCMCIA bridge based on Cirrus Logic CL 6729 (rev 07).
 
+Whee. Those are getting rare.
+
+Anyway, it really looks like it's a _PCMCIA_ bridge, not a cardbus one, so
+you can forget about the yenta module. Basically, "yenta" is for the newer
+32-bit-capable Cardbus bridges (which do have an i82365 compatible legacy
+mode), and i82365 is for the old legacy-_only_ 16-bit PCMCIA bridges.
+
+It should be an i82365-compatible chip (they almost always are - it's
+either yenta or i82365 in the normal case, and the others are for some
+really odd-ball things or non-PC-compatibles).
+
+It looks like you tried every single module _except_ for the i82365.
+
+Give that one a whirl. Just "modprobe i82365"
+
+		Linus

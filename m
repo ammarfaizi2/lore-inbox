@@ -1,43 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288946AbSBDMcZ>; Mon, 4 Feb 2002 07:32:25 -0500
+	id <S288954AbSBDMeF>; Mon, 4 Feb 2002 07:34:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288949AbSBDMcS>; Mon, 4 Feb 2002 07:32:18 -0500
-Received: from host213-121-105-236.in-addr.btopenworld.com ([213.121.105.236]:43874
-	"HELO mail.dark.lan") by vger.kernel.org with SMTP
-	id <S288946AbSBDMb5>; Mon, 4 Feb 2002 07:31:57 -0500
-Subject: Re: How to crash a system and take a dump?
-From: Gianni Tedesco <gianni@ecsc.co.uk>
-To: sathish jayapalan <sathish_jayapalan@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020204112621.31480.qmail@web14805.mail.yahoo.com>
-In-Reply-To: <20020204112621.31480.qmail@web14805.mail.yahoo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 04 Feb 2002 12:31:55 +0000
-Message-Id: <1012825915.30112.4.camel@lemsip>
+	id <S288953AbSBDMd4>; Mon, 4 Feb 2002 07:33:56 -0500
+Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:23207 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S288950AbSBDMdj>; Mon, 4 Feb 2002 07:33:39 -0500
+Date: Mon, 4 Feb 2002 07:33:28 -0500
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Ed Tomlinson <tomlins@cam.org>
+Cc: linux-kernel@vger.kernel.org, arjanv@redhat.com
+Subject: Re: [PATCH] improving O(1)-J9 in heavily threaded situations
+Message-ID: <20020204073328.A1179@devserv.devel.redhat.com>
+In-Reply-To: <20020204123247.22C3E9000@oscar.casa.dyndns.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020204123247.22C3E9000@oscar.casa.dyndns.org>; from tomlins@cam.org on Mon, Feb 04, 2002 at 07:32:46AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-02-04 at 11:26, sathish jayapalan wrote:
-> Hi,
-> I have a doubt. I know that linux kernel doesn't crash
-> so easily. Is there any way to panic the system? Can I
-> go to the source area and insert/modify a variable in
-> kernel code so that the kernel references a null
-> pointer and crashes while running the kernel compiled
-> with this variable. My aim is to learn crash dump
-> analysis with 'Lcrash tool". Please help me out with
-> this.
+On Mon, Feb 04, 2002 at 07:32:46AM -0500, Ed Tomlinson wrote:
+> > sharing the same Thread Group ID would be a very obvious quantity to
+> > check,
+> > and would very much show the indication of the application author.
+> 
+> I Tried this.  Looks like not all (many?) apps actually use this.
 
-Im not sure about the Lcrash tool, but core dumps can be obtained from
-the kernel at any time simply by reading /proc/kcore.
-
-Hope that helps.
-
--- 
-// Gianni Tedesco <gianni@ecsc.co.uk>
-80% of all email is a figment of procmails imagination.
-
+would be a case of fixing those apps imo

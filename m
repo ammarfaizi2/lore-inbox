@@ -1,96 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263626AbUILWgV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263540AbUILWmx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263626AbUILWgV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 18:36:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263540AbUILWgV
+	id S263540AbUILWmx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 18:42:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263743AbUILWmw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 18:36:21 -0400
-Received: from pD9E7454A.dip0.t-ipconnect.de ([217.231.69.74]:21379 "EHLO
-	achilles.nass-vogt.home") by vger.kernel.org with ESMTP
-	id S263626AbUILWfz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 18:35:55 -0400
-From: Hans-Frieder Vogt <hfvogt@arcor.de>
-Reply-To: hfvogt@arcor.de
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.9-rc1-bk11+ and 2.6.9-rc1-mm3,4 r8169: freeze during boot (FIX included)
-Date: Mon, 13 Sep 2004 00:35:50 +0200
-User-Agent: KMail/1.7
+	Sun, 12 Sep 2004 18:42:52 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:23985 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S263540AbUILWmu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 18:42:50 -0400
+Date: Sun, 12 Sep 2004 23:42:45 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jon Smirl <jonsmirl@gmail.com>,
+       Felix =?ISO-8859-1?Q?K=FChling?= <fxkuehl@gmx.de>,
+       DRI Devel <dri-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: radeon-pre-2
+In-Reply-To: <1094912726.21157.52.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0409122319550.20080@skynet>
+References: <E3389AF2-0272-11D9-A8D1-000A95F07A7A@fs.ei.tum.de> 
+ <Pine.LNX.4.58.0409100209100.32064@skynet>  <9e47339104090919015b5b5a4d@mail.gmail.com>
+  <20040910153135.4310c13a.felix@trabant>  <9e47339104091008115b821912@mail.gmail.com>
+  <1094829278.17801.18.camel@localhost.localdomain>  <9e4733910409100937126dc0e7@mail.gmail.com>
+  <1094832031.17883.1.camel@localhost.localdomain>  <9e47339104091010221f03ec06@mail.gmail.com>
+  <1094835846.17932.11.camel@localhost.localdomain>  <9e47339104091011402e8341d0@mail.gmail.com>
+  <Pine.LNX.4.58.0409102254250.13921@skynet>  <1094853588.18235.12.camel@localhost.localdomain>
+  <Pine.LNX.4.58.0409110137590.26651@skynet> <1094912726.21157.52.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409130035.50823.hfvogt@arcor.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>
+> > Alan, I agree with how you want to proceed with this, and keep things
+> > stable, but anything short of a single card-specific driver looking after
+> > the registers and DMA queueing and locking is going to have deficiencies
+> > and the DRM has a better basis than the fb drivers,
+>
+> "I want to own it, mine mine". Pathetic really isn't it. The FB writers
+> I've no doubt think they should own it and their code is better too.
+> They also support a lot more hardware than you do of course, and on
+> platforms that DRI doesn't support.
 
-2.6.9-rc1-bk11 introduced a patch for the Realtek 8169 network chip driver, 
-that leads to a freeze of my system during bootup.
-My system:
-Athlon 64, VIA K8T800 chipset, RTL8110S-32 (equiv. to RTL8169), running in 
-64bit mode
+I actually don't give a rats arse who owns it, this isn't a them and us
+despite these rather obvious attempts to make it so.. this is a who writes
+the code and does the design and at the moment I'm seeing you and Jon with
+differing view points, and I'm trying to get both sides to figure out what
+needs to be done, I'll gladly review any changes for the drm but saying
+it's a DRI vs kernel is a very small minded view that I don't really care
+for..
 
-no unusual messages are on the console prior to the freeze.
+The worst things that will happen for all concerened is this:
+Jon does all this work on a merged solution outside the kernel, and it
+works well, and the X team decide to do a decent X on mesa-solo on Jons
+super-DRM, now the super-DRM gets pushed via the X tree and distributions
+start relasing kernels with it merged into it and it never goes into the
+main tree... it won't matter, RH/SuSE/whomever will want to pick up the
+new features for the *enhanced user experience* and people will give out
+about not being able to use Linus's kernels and it'll be a bit of a big
+mess sort of like when the DRM came out first... now I think X is
+probably the only project that can push this sort of change without
+kernel developer consent, I personally would rather this didn't happen,
 
-I traced the problem back to the patch which was introduced in 2.6.9-rc1-bk11 
-and is also part of 2.6.9-rc1-mm3 and -mm4:
---- a/drivers/net/r8169.c       2004-07-02 11:51:44 -07:00
-+++ b/drivers/net/r8169.c       2004-08-31 00:15:35 -07:00
-@@ -983,7 +983,7 @@
+I think yourself and Linus's ideas for a locking scheme look good, I also
+know they won't please Jon too much as he can see where the potential
+ineffecienes with saving/restore card state on driver swap are, especailly
+on running fbcon and X on a dual-head card with different users.
 
-        tp->cp_cmd = PCIMulRW | RxChkSum;
-
--       if ((sizeof(dma_addr_t) > 32) &&
-+       if ((sizeof(dma_addr_t) > 4) &&
-            !pci_set_dma_mask(pdev, DMA_64BIT_MASK))
-                tp->cp_cmd |= PCIDAC;
-        else {
-
-which now, on my 64bit-system, enables DAC. For whatever reason this freezes 
-my system (I do not understand why, because the r8169 seems to understand DAC 
-according to the available documentation, perhaps a VIA K8T800 bug?).
-Until somebody comes up with a proper solution for this problem, I suggest as 
-a work-around to introduce a parameter so that the DAC can be simply 
-unselected if necessary, as outlined in the patch below.
-
-Thanks for any suggestions as to what the problem might be.
-Hans-Frieder
-
---- linux-2.6.9-rc1-mm4.orig/drivers/net/r8169.c 2004-09-08 15:43:31.525119800 
-+0200
-+++ linux-2.6.9-rc1-mm4/drivers/net/r8169.c 2004-09-11 12:54:53.910456828 
-+0200
-@@ -167,6 +167,7 @@
- MODULE_DEVICE_TABLE(pci, rtl8169_pci_tbl);
- 
- static int rx_copybreak = 200;
-+static int use_dac = 1;
- 
- enum RTL8169_registers {
-  MAC0 = 0,  /* Ethernet hardware address. */
-@@ -398,6 +399,8 @@
- MODULE_DESCRIPTION("RealTek RTL-8169 Gigabit Ethernet driver");
- MODULE_PARM(media, "1-" __MODULE_STRING(MAX_UNITS) "i");
- MODULE_PARM(rx_copybreak, "i");
-+MODULE_PARM(use_dac, "i");
-+MODULE_PARM_DESC(use_dac, "Use DAC addressing for DMA transfers on 64bit 
-machines");
- MODULE_LICENSE("GPL");
- 
- static int rtl8169_open(struct net_device *dev);
-@@ -1152,7 +1155,7 @@
- 
-  dev->features |= NETIF_F_HW_VLAN_TX | NETIF_F_HW_VLAN_RX;
- 
-- if ((sizeof(dma_addr_t) > 4) && !pci_set_dma_mask(pdev, DMA_64BIT_MASK)) {
-+ if ((sizeof(dma_addr_t) > 4) && use_dac && !pci_set_dma_mask(pdev, 
-DMA_64BIT_MASK)) {
-   tp->cp_cmd |= PCIDAC;
-   dev->features |= NETIF_F_HIGHDMA;
-  } else {
+Dave.
 
 -- 
---
-Hans-Frieder Vogt                 e-mail: hfvogt (at) arcor (dot) de
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+pam_smb / Linux DECstation / Linux VAX / ILUG person
+

@@ -1,46 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262584AbVA1S73@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262731AbVA1TDo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262584AbVA1S73 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 13:59:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262731AbVA1S4U
+	id S262731AbVA1TDo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 14:03:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261524AbVA1TAZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 13:56:20 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:40159 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262718AbVA1SyY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 13:54:24 -0500
-Date: Fri, 28 Jan 2005 19:53:56 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: George Anzinger <george@mvista.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>,
-       Doug Niehaus <niehaus@ittc.ku.edu>,
-       Benedikt Spranger <bene@linutronix.de>
-Subject: Re: High resolution timers and BH processing on -RT
-Message-ID: <20050128185356.GD25164@elte.hu>
-References: <1106871192.21196.152.camel@tglx.tec.linutronix.de> <20050128044301.GD29751@elte.hu> <1106900411.21196.181.camel@tglx.tec.linutronix.de> <20050128082439.GA3984@elte.hu> <1106901013.21196.194.camel@tglx.tec.linutronix.de> <20050128084725.GB5004@elte.hu> <41FA85A7.4000805@mvista.com>
+	Fri, 28 Jan 2005 14:00:25 -0500
+Received: from vds-320151.amen-pro.com ([62.193.204.86]:20109 "EHLO
+	vds-320151.amen-pro.com") by vger.kernel.org with ESMTP
+	id S262463AbVA1S7L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 13:59:11 -0500
+Subject: Re: [PATCH] OpenBSD Networking-related randomization port
+From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
+	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: netdev@oss.sgi.com,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Chris Wright <chrisw@osdl.org>, netdev@oss.sgi.com
+In-Reply-To: <20050128105217.1dc5ef42@dxpl.pdx.osdl.net>
+References: <1106932637.3778.92.camel@localhost.localdomain>
+	 <20050128100229.5c0e4ea1@dxpl.pdx.osdl.net>
+	 <1106937110.3864.5.camel@localhost.localdomain>
+	 <20050128105217.1dc5ef42@dxpl.pdx.osdl.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-BcuLv7mz/04R3Q0MGGaK"
+Date: Fri, 28 Jan 2005 19:58:37 +0100
+Message-Id: <1106938717.3864.18.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41FA85A7.4000805@mvista.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* George Anzinger <george@mvista.com> wrote:
+--=-BcuLv7mz/04R3Q0MGGaK
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-> The primary thing needed for this is a simple and quick way to switch
-> a tasks priority, both from outside and from the task itself.
+El vie, 28-01-2005 a las 10:52 -0800, Stephen Hemminger escribi=F3:
+> On Fri, 28 Jan 2005 19:31:50 +0100
+> When I did the port randomization patch the benchmark that was most impac=
+ted
+> was LMBENCH.  The biggest change was in the communications latency result=
+s.
+>=20
+> If you want, you can sign up for a free access to OSDL test machines
+> and use STP to run lmbench and easily get before/after results.
+>=20
+> 1. Go to osdl.org and get associate account http://osdl.org/join_form
+>=20
+> 2. Submit patch to Patch Lifecycle Manager http://osdl.org/plm-cgi/plm
+>=20
+> 3. Choose test to run Scalable Test Platform (STP)=20
+> http://osdl.org/lab_activities/kernel_testing/stp/
 
-check out sched.c's mutex_setprio(p, prio) and mutex_getprio(p), which
-is used by the PI code in kernel/rt.c. It's pretty robust and heavily
-used.
+OK, many thanks.
+Haven't noticed that (maybe 'cos I'm new in kernel hacking ;) )
 
-	Ingo
+I will submit there the new patch ASAP.
+
+Cheers,
+--=20
+Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org>=20
+[1024D/6F2B2DEC] & [2048g/9AE91A22][http://tuxedo-es.org]
+
+--=-BcuLv7mz/04R3Q0MGGaK
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
+	digitalmente
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBB+otdDcEopW8rLewRAjBzAJ0d1Y8YNgM6bdc9CMipUhB/XoZmugCeOLNW
+Z/bRa/Fe6nIowhi53+4o2mQ=
+=qoMI
+-----END PGP SIGNATURE-----
+
+--=-BcuLv7mz/04R3Q0MGGaK--
+

@@ -1,61 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267661AbTAHC0H>; Tue, 7 Jan 2003 21:26:07 -0500
+	id <S267677AbTAHCjI>; Tue, 7 Jan 2003 21:39:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267662AbTAHC0H>; Tue, 7 Jan 2003 21:26:07 -0500
-Received: from adsl-67-114-192-42.dsl.pltn13.pacbell.net ([67.114.192.42]:57628
-	"EHLO mx1.corp.rackable.com") by vger.kernel.org with ESMTP
-	id <S267661AbTAHC0G>; Tue, 7 Jan 2003 21:26:06 -0500
-Message-ID: <3E1B8E2B.9060200@rackable.com>
-Date: Tue, 07 Jan 2003 18:34:19 -0800
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+	id <S267680AbTAHCjI>; Tue, 7 Jan 2003 21:39:08 -0500
+Received: from barry.mail.mindspring.net ([207.69.200.25]:54823 "EHLO
+	barry.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S267677AbTAHCjH>; Tue, 7 Jan 2003 21:39:07 -0500
+Message-ID: <3E1B917C.2090709@emageon.com>
+Date: Tue, 07 Jan 2003 20:48:28 -0600
+From: Brian Tinsley <btinsley@emageon.com>
+Organization: Emageon
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Walt H <waltabbyh@mindspring.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Question for Marcelo
-References: <3E1AFA70.4070200@mindspring.com>
+To: Brian Gerst <bgerst@didntduck.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: long stalls
+References: <3E1B73F3.2070604@emageon.com> <3E1B907F.60008@didntduck.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 Jan 2003 02:34:40.0264 (UTC) FILETIME=[7E876880:01C2B6BE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Walt H wrote:
+Thanks for the reply!
 
-> Hi Marcelo,
+I thought highmem I/O was addressed in 2.4.20? Am I off-base here?
+
+I actually just built a 2.4.20 kernel with highmem debugging turned on. 
+We'll see if anything pops up.
+
+
+Brian Gerst wrote:
+
+> Brian Tinsley wrote:
 >
-> I was just wondering if support for the Adaptec 79xx had been added to 
-> 2.4.21-pre? I have a server with the dual channel 7902 support on 
-> board, that so far appears to be working OK. It's using 2.4.20 with 
-> the driver patched in from Adaptec's site. I found an earlier mail 
-> from you stating that it would be added during the 2.4.20-pre cycle. 
-> Are there problems with the driver I should be aware of? Thanks,
+>> We have been having terrible problems with long stalls, meaning from a
+>> couple of minutes to an hour, happening when filesystem I/O load gets
+>> high. The system time as reported by vmstat or sar will increase up to
+>> 99% and as it spreads to each procesor, the system becomes completely
+>> unresponsive (except that it responds to pings just fine -
+>> interesting!). When the system finally returns to the world of the
+>> living, the only evidence that something bad has happened is the runtime
+>> for kswapd is abnormally high. I have seen this happen with the stock
+>> 2.4.17, 2.4.19, and 2.4.20 kernels on SMP PIII and PIV machines (either
+>> 4GB or 8GB RAM, all SCSI disks, dual GigE NICs). I've searched the lkml
+>> archives and google and have found several similar postings, but there
+>> is never an explanation or resolution. Any help would be *very* much
+>> appreciated! If any info from the system in question is desired, I will
+>> be glad to provide it.
+>>
+>>
+>>
+> With 4GB of memory you are likely boucing I/O requests to low memory. 
+> This has been fixed in 2.5.  I do not know if a backport exists for 2.4.
 >
-> -Walt
->
-> PS. Please CC me in any replies, as I'm not subscribed to the list. 
-> Thanks.
+> -- 
+>                 Brian Gerst
 
-  I believe that he would prefer that it get tested in the ac tree 1st. 
- Alan seemed receptive to including it, but he's not doing much with the 
-2.4 ac kernel any more.
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=104106449418263&w=2
-
-
-PS- All you really need to do to update the driver is delete 
-drivers/scsi/aic7xxx, and replace it with the newer driver from Gibbs 
-site.  Recompile and you are done.
-http://people.freebsd.org/~gibbs/linux/SRC/
-aic79xx-linux-2.4-20021230-tar.gz
 
 -- 
-There is no such thing as obsolete hardware.
-Merely hardware that other people don't want.
-(The Second Rule of Hardware Acquisition)
-Sam Flory  <sflory@rackable.com>
+
+-[========================]-
+-[      Brian Tinsley     ]-
+-[ Chief Systems Engineer ]-
+-[        Emageon         ]-
+-[========================]-
 
 
 

@@ -1,89 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317066AbSHVUoF>; Thu, 22 Aug 2002 16:44:05 -0400
+	id <S317264AbSHVUxT>; Thu, 22 Aug 2002 16:53:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317263AbSHVUoD>; Thu, 22 Aug 2002 16:44:03 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:40410 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S317066AbSHVUoC>; Thu, 22 Aug 2002 16:44:02 -0400
-Message-ID: <3D654D6F.1050701@us.ibm.com>
-Date: Thu, 22 Aug 2002 13:45:35 -0700
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-Organization: IBM LTC
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: en-us, en
+	id <S317329AbSHVUxT>; Thu, 22 Aug 2002 16:53:19 -0400
+Received: from ida.rowland.org ([192.131.102.52]:50180 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id <S317264AbSHVUxS>;
+	Thu, 22 Aug 2002 16:53:18 -0400
+Date: Thu, 22 Aug 2002 16:57:27 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: <stern@ida.rowland.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Andries Brouwer <aebr@win.tue.nl>, Dave Jones <davej@suse.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Patch for PC keyboard driver's autorepeat-rate handling
+In-Reply-To: <20020822193743.GA5448@win.tue.nl>
+Message-ID: <Pine.LNX.4.33L2.0208221651370.1306-100000@ida.rowland.org>
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       Martin Bligh <mjbligh@us.ibm.com>, Andrea Arcangeli <andrea@suse.de>,
-       Michael Hohnbaum <hohnbaum@us.ibm.com>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-Subject: Re: [Lse-tech] [patch] Simple Topology API v0.3 (2/2)
-References: <3D65383B.9030406@us.ibm.com> <20020822202412.B30036@infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph,
-	I've had some comments/flames about that...  One of the better suggestions that 
-I've heard so far is to change it to a /proc interface.  I'll probably do that 
-today and resent the userspace patch.  If you (or anyone) has better 
-suggestions, I'm definitely all ears (or eyes, I suppose ;)!
+I checked the source tree for the stock m68k port.  The only systems that
+implement the KDKBDRATE ioctl are the amiga and atari ports, and they both
+do it in accordance with the documentation and the kbdrate program (and
+the patch I submitted earlier).
 
-Cheers!
+The relevant routines are drivers/char/amikeyb.c:amiga_kbdrate() and
+arch/m68k/atari/atakeyb.c:atari_kbdrate().
 
--Matt
-
-Christoph Hellwig wrote:
-> On Thu, Aug 22, 2002 at 12:15:07PM -0700, Matthew Dobson wrote:
-> 
->>diff -Nur linux-2.5.27-vanilla/kernel/sys.c linux-2.5.27-api/kernel/sys.c
->>--- linux-2.5.27-vanilla/kernel/sys.c	Sat Jul 20 12:11:07 2002
->>+++ linux-2.5.27-api/kernel/sys.c	Wed Jul 24 17:33:41 2002
->>@@ -20,6 +20,7 @@
->> #include <linux/device.h>
->> #include <linux/times.h>
->> #include <linux/security.h>
->>+#include <linux/topology.h>
->> 
->> #include <asm/uaccess.h>
->> #include <asm/io.h>
->>@@ -1236,6 +1237,31 @@
->> 	mask = xchg(&current->fs->umask, mask & S_IRWXUGO);
->> 	return mask;
->> }
->>+
->>+asmlinkage long sys_check_topology(int convert_type, int to_convert)
->>+{
->>+	int ret = 0;
->>+
->>+	switch (convert_type) {
->>+		case CPU_TO_NODE:
->>+			ret = cpu_to_node(to_convert);
->>+			break;
->>+		case MEMBLK_TO_NODE:
->>+			ret = memblk_to_node(to_convert);
->>+			break;
->>+		case NODE_TO_NODE:
->>+			ret = node_to_node(to_convert);
->>+			break;
->>+		case NODE_TO_CPU:
->>+			ret = node_to_cpu(to_convert);
->>+			break;
->>+		case NODE_TO_MEMBLK:
->>+			ret = node_to_memblk(to_convert);
->>+			break;
->>+	}
->>+
->>+	return (long)ret;
->>+}
-> 
-> 
-> You don't consider this a proper syscall API, do you?
-> 
-> 
-
+Alan Stern
 

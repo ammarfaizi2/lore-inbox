@@ -1,112 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266186AbSKTORv>; Wed, 20 Nov 2002 09:17:51 -0500
+	id <S266128AbSKTOWe>; Wed, 20 Nov 2002 09:22:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266191AbSKTORv>; Wed, 20 Nov 2002 09:17:51 -0500
-Received: from pop018pub.verizon.net ([206.46.170.212]:43172 "EHLO
-	pop018.verizon.net") by vger.kernel.org with ESMTP
-	id <S266186AbSKTORg>; Wed, 20 Nov 2002 09:17:36 -0500
-Message-ID: <3DDB9B23.9030001@lemur.sytes.net>
-Date: Wed, 20 Nov 2002 09:24:35 -0500
-From: Mathias Kretschmer <mathias@lemur.sytes.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en, zh-tw
+	id <S266200AbSKTOWe>; Wed, 20 Nov 2002 09:22:34 -0500
+Received: from boxer.fnal.gov ([131.225.80.86]:41359 "EHLO boxer.fnal.gov")
+	by vger.kernel.org with ESMTP id <S266128AbSKTOWd>;
+	Wed, 20 Nov 2002 09:22:33 -0500
+Date: Wed, 20 Nov 2002 08:28:35 -0600 (CST)
+From: Steven Timm <timm@fnal.gov>
+To: Manish Lachwani <manish@Zambeel.com>
+cc: "'Barry K. Nathan'" <barryn@pobox.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: AMD 760MPX dma_intr: error=0x40 { UncorrectableError }
+In-Reply-To: <233C89823A37714D95B1A891DE3BCE5202AB195D@xch-a.win.zambeel.com>
+Message-ID: <Pine.LNX.4.31.0211200828090.12125-100000@boxer.fnal.gov>
 MIME-Version: 1.0
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: Recognize Tualatin cache size in 2.4.x
-References: <3DDAE846.6080503@lemur.sytes.net> <20021120131502.GA1768@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH LOGIN at pop018.verizon.net from [151.198.132.245] at Wed, 20 Nov 2002 08:24:35 -0600
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> On Tue, Nov 19, 2002 at 08:41:26PM -0500, Mathias Kretschmer wrote:
->  > I just patched my 2.4.20rc2 kernel. Now, it reports
->  > 512K cache for my 2 Tualatin 1.26 GHz CPUs.
->  > 
->  > 'time make -j4 bzImage' went down from 3:30 to 3:04.
->  > Not too bad.
-> 
-> That is quite an impressive gain.  The patch I sent Marcelo which
-> also fixes up a problem with some tualatins and adds P4 trace cache
-> support is at..
-> 
-> ftp.kernel.org/pub/linux/kernel/people/davej/patches/2.4/2.4.20/descriptors.diff
-> 
-> As you have tualatins can you try with the above patch and make sure
-> theres no regressions there ?
+Any idea how to reduce the acoustic mode from performance to quiet?
+Nothing in the seagate tools as far as I can tell.
 
-Hi Dave,
+Steve
 
-Here are the results. I've upgraded to gcc-3.2.1 yesterday evening.
-Hence, we can not compare to the results from yesterday.
-The ones below are new:
 
-2.4.20rc2+small-patch (ran it three times with very similar results):
-265.05user 16.66system 2:43.09elapsed 172%CPU (0avgtext+0avgdata 
-0maxresident)k
-0inputs+0outputs (621129major+1391627minor)pagefaults 0swaps
+------------------------------------------------------------------
+Steven C. Timm (630) 840-8525  timm@fnal.gov  http://home.fnal.gov/~timm/
+Fermilab Computing Division/Operating Systems Support
+Scientific Computing Support Group--Computing Farms Operations
 
-2.4.20rc2-descriptors.diff (also run three times):
-302.60user 16.95system 2:43.39elapsed 195%CPU (0avgtext+0avgdata 
-0maxresident)k
-0inputs+0outputs (621129major+1390848minor)pagefaults 0swaps
+On Tue, 19 Nov 2002, Manish Lachwani wrote:
 
-Pretty much the same result - within the tolerance.
-%CPU is up quite a bit.
-
-Also, my optimization options are '-Os -march=pentium3'.
-
-The machine was idle but still in multi-user mode. If
-you need more precise results, I could do that over the weekend.
-
-Cheers,
-
-Mathias
-
----
-
- > cat /proc/cpuinfo
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 11
-model name      : Intel(R) Pentium(R) III CPU family      1266MHz
-stepping        : 1
-cpu MHz         : 1280.932
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge 
-mca cmov pat pse36 mmx fxsr sse
-bogomips        : 2555.90
-
-processor       : 1
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 11
-model name      : Intel(R) Pentium(R) III CPU family      1266MHz
-stepping        : 1
-cpu MHz         : 1280.932
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge 
-mca cmov pat pse36 mmx fxsr sse
-bogomips        : 2555.90
+> Basically, I could also control the temperature of the seagate drives by
+> operating them in quiet mode. If the acoustic levels are regulated, then the
+> power consumption and heat generated also reduces. I did not notice any
+> performance degradation. Seagate is shipped with the performance mode
+> acoustic level. So, reduce it to quiet mode and see if the temperature is
+> reduced
+>
+> -----Original Message-----
+> From: Barry K. Nathan [mailto:barryn@pobox.com]
+> Sent: Tuesday, November 19, 2002 7:48 PM
+> To: Manish Lachwani
+> Cc: 'Steven Timm'; linux-kernel@vger.kernel.org
+> Subject: Re: AMD 760MPX dma_intr: error=0x40 { UncorrectableError }
+>
+>
+> On Tue, Nov 19, 2002 at 04:08:22PM -0800, Manish Lachwani wrote:
+> > I have seen this errors on Seagate ST380021A 80 GB drive on a large scale
+> in
+> > our storage systems that make use of 3ware controllers. Seagate claims the
+> > following reasons:
+> >
+> > 1. Weak Power supply
+> > 2. tempeature and heat
+> > 3. vibration
+>
+> You might want to pay particular attention to #2. See below.
+>
+> > Although, the maxtor 160 GB drives do not show such problems at all. Such
+> > problems can be eliminated though. From the SMART data, get the bad
+> sectors
+> > and remap them by writing to the raw device. Those pending sectors will
+> get
+> > remapped. However, the problems will persist with these drives. In our
+> > boxes, the operating temperature is abt 55 C ...
+>
+> Unless they're really really new, the 160GB Maxtor drives are 5400RPM
+> so they put out far less heat. (The fact that the Maxtors are ball-bearing,
+> vs. the Seagates' fluid bearings, also helps in this regard --
+> fluid-bearing drives tend to dissipate more heat.)
+>
+> 55 C is technically within the Seagate specs, but it's arguably a bit on
+> the high side. If possible, it might be interesting to bring it the
+> temperature down several degrees and see if the reliability improves.
+>
+> -Barry K. Nathan <bnathan@math.uci.edu>
+>
 

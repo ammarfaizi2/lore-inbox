@@ -1,21 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311888AbSCOBLn>; Thu, 14 Mar 2002 20:11:43 -0500
+	id <S311890AbSCOBSx>; Thu, 14 Mar 2002 20:18:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311890AbSCOBLc>; Thu, 14 Mar 2002 20:11:32 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:48049 "EHLO
+	id <S311891AbSCOBSo>; Thu, 14 Mar 2002 20:18:44 -0500
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:52147 "EHLO
 	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S311888AbSCOBLX>; Thu, 14 Mar 2002 20:11:23 -0500
-Message-ID: <3C914A18.261B6A25@us.ibm.com>
-Date: Thu, 14 Mar 2002 17:10:48 -0800
+	id <S311890AbSCOBS3>; Thu, 14 Mar 2002 20:18:29 -0500
+Message-ID: <3C914BC3.2B05C62E@us.ibm.com>
+Date: Thu, 14 Mar 2002 17:17:55 -0800
 From: Larry Kessler <kessler@us.ibm.com>
 X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Brian Beattie <alchemy@us.ibm.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH-RFC] POSIX Event Logging, kernel 2.5.6 & 2.4.18
-In-Reply-To: <3C8FF7C7.5CA133B0@us.ibm.com> <1016135141.26466.22.camel@w-beattie1>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -63,12 +61,11 @@ how to somehow get more information out of printk without asking kernel
 maintainers to use a different API.  Specifically, we thought about 
 renaming the printk() function and creating a printk macro.  In the
 printk macro you would collect source file name, line number and
-function
-name (and maybe some other useful info), and then call the renamed
-printk function with the original message plus the additional stuff
-(actually we were thinking call posix_log_write() with the orig.
-message+
-addl. info and call the renamed printk with just the original message).
+function name (and maybe some other useful info), and then call the
+renamed printk function with the original message plus the additional
+stuff (actually we were thinking call posix_log_write() with the orig.
+message+addl. info and call the renamed printk with just the original
+message).
 
 Is this the sort of thing you had in mind ?
 

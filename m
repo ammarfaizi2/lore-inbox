@@ -1,62 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281620AbRKUGUW>; Wed, 21 Nov 2001 01:20:22 -0500
+	id <S281621AbRKUGWd>; Wed, 21 Nov 2001 01:22:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281621AbRKUGUM>; Wed, 21 Nov 2001 01:20:12 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:57963 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S281620AbRKUGUD>; Wed, 21 Nov 2001 01:20:03 -0500
-To: Linus Torvalds <torvalds@transmeta.com>, <linux-mm@kvack.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: 2.4.14 + Bug in swap_out.
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 20 Nov 2001 23:01:06 -0700
-Message-ID: <m1vgg41x3x.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S281623AbRKUGWX>; Wed, 21 Nov 2001 01:22:23 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:56975 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S281621AbRKUGWM>;
+	Wed, 21 Nov 2001 01:22:12 -0500
+Date: Tue, 20 Nov 2001 22:22:03 -0800 (PST)
+Message-Id: <20011120.222203.58448986.davem@redhat.com>
+To: jmerkey@vger.timpanogas.org
+Cc: linux-kernel@vger.kernel.org, jmerkey@timpanogas.org
+Subject: Re: [VM/MEMORY-SICKNESS] 2.4.15-pre7 kmem_cache_create invalid
+ opcode
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20011121001639.A813@vger.timpanogas.org>
+In-Reply-To: <20011121001639.A813@vger.timpanogas.org>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In swap_out we have the following code:
 
-	spin_lock(&mmlist_lock);
-	mm = swap_mm;
-	while (mm->swap_address == TASK_SIZE || mm == &init_mm) {
-		mm->swap_address = 0;
-		mm = list_entry(mm->mmlist.next, struct mm_struct, mmlist);
-		if (mm == swap_mm)
-			goto empty;
-		swap_mm = mm;
-	}
+Your code is violating one of the assertions in
+kmem_cache_create(), check the BUG(); calls in
+mm/slab.c:kmem_cache_create() to try and figure out
+which one you are firing off.
 
-	/* Make sure the mm doesn't disappear when we drop the lock.. */
-	atomic_inc(&mm->mm_users);
-	spin_unlock(&mmlist_lock);
+Probably either you are trying to send it debug flags
+but CONFIG_SLAB_DEBUG is not defined _OR_ you are trying
+to create the same SLAB cache twice (forgetting to destroy
+it on module unload perhaps)?
 
-	nr_pages = swap_out_mm(mm, nr_pages, &counter, classzone);
-
-	mmput(mm);
-
-
-And looking in fork.c mmput under with right circumstances becomes.
-kmem_cache_free(mm_cachep, (mm)))
-
-So it appears that there is nothing that keeps the mm_struct that
-swap_mm points to as being valid. 
-
-I guess the easy fix would be to increment the count on swap_mm,
-and then do an mmput we assign something else to the value of swap_mm.  But
-I don't know if that is what we want.
-
-Thoughts?
-
-Eric
-
-
-
-
-
-
-
-
+Slab if fine, it's your code which is busted :)

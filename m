@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289500AbSAONq2>; Tue, 15 Jan 2002 08:46:28 -0500
+	id <S289507AbSAONrU>; Tue, 15 Jan 2002 08:47:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289507AbSAONqS>; Tue, 15 Jan 2002 08:46:18 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:16400 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S289500AbSAONqK>; Tue, 15 Jan 2002 08:46:10 -0500
-Date: Tue, 15 Jan 2002 13:57:56 +0000
-From: Alan Cox <alan@aunt-tillie.org>
-To: Giacomo Catenazzi <cate@debian.org>
-Cc: "T. A." <tkhoadfdsaf@hotmail.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        esr@thyrsus.com
-Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
-Message-ID: <20020115135756.A19738@lightning.swansea.linux.org.uk>
-Mail-Followup-To: Alan Cox <alan@aunt-tillie.org>,
-	Giacomo Catenazzi <cate@debian.org>,
-	"T. A." <tkhoadfdsaf@hotmail.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	esr@thyrsus.com
-In-Reply-To: <fa.fslncfv.r6o11i@ifi.uio.no> <fa.hqe5uev.c60cjs@ifi.uio.no> <3C4427F6.3010703@debian.org>
+	id <S289549AbSAONrJ>; Tue, 15 Jan 2002 08:47:09 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:29708 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S289507AbSAONrA>;
+	Tue, 15 Jan 2002 08:47:00 -0500
+Date: Tue, 15 Jan 2002 14:46:52 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Gerd Knorr <kraxel@bytesex.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Memory problem with bttv driver
+Message-Id: <20020115144652.46d9ee18.skraw@ithnet.com>
+In-Reply-To: <20020115142017.D8191@bytesex.org>
+In-Reply-To: <20020114210039.180c0438.skraw@ithnet.com>
+	<E16QETz-0002yD-00@the-village.bc.nu>
+	<20020115004205.A12407@werewolf.able.es>
+	<slrna480cv.68d.kraxel@bytesex.org>
+	<20020115121424.10bb89b2.skraw@ithnet.com>
+	<20020115142017.D8191@bytesex.org>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C4427F6.3010703@debian.org>; from cate@debian.org on Tue, Jan 15, 2002 at 02:00:38PM +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 15, 2002 at 02:00:38PM +0100, Giacomo Catenazzi wrote:
-> How many people try new kernel with the wrong CPU configuration?
-> (and mornally user know the name of own CPU, with netcards this is
-> more difficult).
+On Tue, 15 Jan 2002 14:20:17 +0100
+Gerd Knorr <kraxel@bytesex.org> wrote:
 
-All of us get the CPU wrong. By using modules however I don't have to guess
-the PCI devices. My system already did that. I just need the configurator
-to hit M a lot and to work out which root devices are for the initrd.
+> On Tue, Jan 15, 2002 at 12:14:24PM +0100, Stephan von Krawczynski wrote:
+> > On 15 Jan 2002 10:17:03 GMT
+> > Gerd Knorr <kraxel@bytesex.org> wrote:
+> > 
+> > > MM wise it shouldn't make a difference whenever you are using 0.7.83 or
+> > > 0.7.88 (I've mailed 0.7.88 patches to macelo for 2.4.18 btw).  The 0.8.x
+> > > versions have a complete different way to do the memory management.
+> > 
+> > No vmallocs?
+> 
+> Yes.  Instead of remapping vmalloced kernel memory it gives you shared
+> anonymous pages, then does zerocopy DMA using kiobufs.  You may run in
+> trouble with >4GB machines.
 
-The code for that exists
+Interesting.
+What's the problem on > 4GB ?
 
-> PCI, USB and ISAPNP detection works well.
-> ISA is a further step.
-> I will send Eric the new detections and database for new probes (for ISA
-> and others) drivers. So I hope also the ISA thread will end.
-
-I suspect ISA is a dead loss - but again build all the modules, the user
-system already has the right ones to load configured.
-
-Alan
+Regards,
+Stephan
 

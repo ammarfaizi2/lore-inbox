@@ -1,31 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264362AbTGBS36 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 14:29:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264368AbTGBS35
+	id S264363AbTGBSiD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 14:38:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264368AbTGBSiD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 14:29:57 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:31113 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S264362AbTGBS34 (ORCPT
+	Wed, 2 Jul 2003 14:38:03 -0400
+Received: from bay8-f25.bay8.hotmail.com ([64.4.27.25]:42764 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id S264363AbTGBSiB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 14:29:56 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Wed, 2 Jul 2003 20:44:18 +0200 (MEST)
-Message-Id: <UTC200307021844.h62IiIQ19914.aeb@smtp.cwi.nl>
-To: Andries.Brouwer@cwi.nl, akpm@digeo.com
-Subject: Re: [PATCH] cryptoloop
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+	Wed, 2 Jul 2003 14:38:01 -0400
+X-Originating-IP: [63.144.164.60]
+X-Originating-Email: [gpc01532@hotmail.com]
+From: "G. C." <gpc01532@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: gpc01532@hotmail.com
+Subject: Any Driver Support for AMCC nP3400?
+Date: Wed, 02 Jul 2003 14:52:25 -0400
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY8-F25jJxWY5pCxlI0001f274@hotmail.com>
+X-OriginalArrivalTime: 02 Jul 2003 18:52:26.0392 (UTC) FILETIME=[148E6180:01C340CB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-akpm:
+Dear Sir or Madam,
 
-> You'll note that loop.c goes from (page/offset/len) to (addr/len),
-> and this transfer function then immediately goes from (addr,len)
-> to (page/offset/len). That's rather silly ..
+Is there anyone developed or ported ACCC network processor nP3400 driver to 
+LINUX GPL code or some non-GPL loadable driver for LINUX?
 
-Changing that would kill all existing modules that use the loop device.
+Thanks,
 
-Maybe nobody cares. Then we can do so in a subsequent patch.
+GC
 
-Andries
+_________________________________________________________________
+Help STOP SPAM with the new MSN 8 and get 2 months FREE*  
+http://join.msn.com/?page=features/junkmail
+

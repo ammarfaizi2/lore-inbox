@@ -1,87 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267748AbUHWUbu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267497AbUHWUmT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267748AbUHWUbu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 16:31:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267772AbUHWUZc
+	id S267497AbUHWUmT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 16:42:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267786AbUHWUj5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 16:25:32 -0400
-Received: from ctb-mesg6.saix.net ([196.25.240.78]:61137 "EHLO
-	ctb-mesg6.saix.net") by vger.kernel.org with ESMTP id S266883AbUHWTkx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 15:40:53 -0400
-Subject: Re: [RFC][PATCH] inotify 0.8.1 [u]
-From: "Martin Schlemmer [c]" <azarah@nosferatu.za.org>
-Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
-To: John McCutchan <ttb@tentacle.dhs.org>
-Cc: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
-       nautilus-list@gnome.org, gamin-list@gnome.org, rml@ximian.com,
-       viro@parcelfarce.linux.theplanet.co.uk
-In-Reply-To: <1092889961.31314.3.camel@vertex>
-References: <1092889961.31314.3.camel@vertex>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-jDT5xEv71dxykyt40efr"
-Message-Id: <1093290259.9495.18.camel@nosferatu.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 23 Aug 2004 21:44:19 +0200
+	Mon, 23 Aug 2004 16:39:57 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:40365 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S267760AbUHWUfn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 16:35:43 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: wli@holomorphy.com
+Subject: Re: 2.6.8.1-mm3
+Date: Mon, 23 Aug 2004 11:18:46 -0700
+User-Agent: KMail/1.6.2
+Cc: davidm@hpl.hp.com, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+References: <20040820031919.413d0a95.akpm@osdl.org> <16681.45746.300292.961415@napali.hpl.hp.com> <20040823162735.GB4418@holomorphy.com>
+In-Reply-To: <20040823162735.GB4418@holomorphy.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408231118.46473.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday, August 23, 2004 9:27 am, wli@holomorphy.com wrote:
+> On Mon, Aug 23, 2004 at 02:02:42AM -0700, David Mosberger wrote:
+> > You do realize that q-syscollect [1] can do this better for you
+> > without touching the kernel at all?
+> > [1] http://www.hpl.hp.com/research/linux/q-tools/
+>
+> Never heard of it. Unfortunately, the issue I run into far more
+> frequently than tools not existing is users being unwilling or unable
+> to use them. In fact, it's even a relatively large hassle to get users
+> to boot with /proc/profile enabled regardless of its simplicity. For an
+> issue this common I would prefer that the most basic tools available
+> (i.e. the very few that are near-universal, e.g. readprofile(1) etc.)
+> report callers to spinlock contention by default.
 
---=-jDT5xEv71dxykyt40efr
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, 2004-08-19 at 06:32, John McCutchan wrote:
-
-Hi
-
-> I am resubmitting inotify for comments and review. Inotify has
-> changed drastically from the earlier proposal that Al Viro did not
-> approve of. There is no longer any use of (device number, inode number)
-> pairs. Please give this version of inotify a fresh view.
->=20
-
-I applied this to 2.6.8.1 and most of -mm4's patches - it applied
-cleanly and compiled fine.
-
-I use devicemapper to stripe two 80gb sata drives on intel sata
-controller, using initramfs.
-
-Now when I boot, I see something like:
-
----
-BIOS EDD facility v0.16 2004-Jun-25, 2 devices found
-Freeing unused kernel memory: 264k freed
-inotify device opened
-dm ioctl error or such
----
-
-Which then results in a panic as the dm volumes cannot be setup
-and no / found by kernel.  So basically it seems like inotify
-mess with dm in some way or other - any quick ideas what it
-could be?
-
-I do not have serial console, so if you need a more complete log,
-just let me know from where abouts I should start, and if any
-debugging should be turned on, etc.
-
+q-tools is great and I'd really like to use it, but it would be great if 
+readprofile worked too and reported callers into the contention function.  
+I've already found that q-tools isn't that easy to setup on some machines, 
+whereas readprofile is near universal, so I think there's value in making the 
+latter work reasonably well, while still keeping its simplicity.
 
 Thanks,
-
---=20
-Martin Schlemmer
-
---=-jDT5xEv71dxykyt40efr
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBBKkkTqburzKaJYLYRAi8QAJ0dYykbSwRJxt0y//AE3PCSO0MKDQCfRgdg
-m9m1vuYK9xbMdY2iTRKYPA8=
-=2a+9
------END PGP SIGNATURE-----
-
---=-jDT5xEv71dxykyt40efr--
-
+Jesse

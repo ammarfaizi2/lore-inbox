@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262297AbTEUWnw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 18:43:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbTEUWnw
+	id S262324AbTEUWrH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 18:47:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbTEUWrH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 18:43:52 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:31960 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S262297AbTEUWnv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 18:43:51 -0400
-Date: Wed, 21 May 2003 15:55:16 -0700 (PDT)
-Message-Id: <20030521.155516.41646323.davem@redhat.com>
-To: mbligh@aracnet.com
-Cc: habanero@us.ibm.com, haveblue@us.ibm.com, wli@holomorphy.com,
-       arjanv@redhat.com, pbadari@us.ibm.com, linux-kernel@vger.kernel.org,
-       gh@us.ibm.com, johnstul@us.ibm.com, jamesclv@us.ibm.com, akpm@digeo.com,
-       mannthey@us.ibm.com
-Subject: Re: userspace irq balancer
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <6610000.1053529089@[10.10.2.4]>
-References: <200305200907.41443.habanero@us.ibm.com>
-	<20030520.163833.104040023.davem@redhat.com>
-	<6610000.1053529089@[10.10.2.4]>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 21 May 2003 18:47:07 -0400
+Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:10881
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id S262324AbTEUWrG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 May 2003 18:47:06 -0400
+Date: Wed, 21 May 2003 18:50:08 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Paul Rolland <rol@as2917.net>
+cc: "'Corey Minyard'" <minyard@acm.org>, "" <linux-kernel@vger.kernel.org>
+Subject: Re: e100 latency, cpu cycle saver and e1000...
+In-Reply-To: <011a01c31fa3$725354e0$3f00a8c0@witbe>
+Message-ID: <Pine.LNX.4.50.0305211848130.25777-100000@montezuma.mastecende.com>
+References: <011a01c31fa3$725354e0$3f00a8c0@witbe>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Martin J. Bligh" <mbligh@aracnet.com>
-   Date: Wed, 21 May 2003 07:58:11 -0700
-   
-   Despite whatever political wrangling there is between userspace and
-   kernelspace implementations (and some very valid points about other
-   arches), there is still a dearth of testing, as far as I can see.
+On Wed, 21 May 2003, Paul Rolland wrote:
 
-I've never in my life heard the argument that we kept something
-in the kernel that didn't belong there due to "userland testing".
-That's a bogus argument.
+> Correct, machines are not idle... but 
+>  - they are doing globally the same work,
+>  - this behavior is something I can reproduce test after test, since
+>    I've started this morning...
+> 
+> I started using that because IP1 was exhibiting high latency yesterday
+> 'til I rebooted it, and since it is working quite fine...
+> Of course, I can reboot also IP2, but I'd like to understand why
+> and how to avoid it later...
 
-When I ripped RARP out of the kernel, we didn't immediately have
-a replacement, but one showed up shortly.  So what?
+One thing you can do to reduce packet handling latency (at the cost of 
+CPU) with both the e1000 is drop down the RX Delay Interrupt timers, ditto 
+for the Tx Delay. The hardware delays in increments of 1.024ms
 
-And in this ase we already have Arjan's stuff.  So start testing
-his code instead of whining about keeping the current stuff in
-the tree.
+	Zwane
+-- 
+function.linuxpower.ca

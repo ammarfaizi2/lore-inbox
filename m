@@ -1,41 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265356AbRGBRms>; Mon, 2 Jul 2001 13:42:48 -0400
+	id <S265360AbRGBRuI>; Mon, 2 Jul 2001 13:50:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265360AbRGBRmj>; Mon, 2 Jul 2001 13:42:39 -0400
-Received: from kweetal.tue.nl ([131.155.2.7]:28177 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S265356AbRGBRmT>;
-	Mon, 2 Jul 2001 13:42:19 -0400
-Message-ID: <20010702194212.A400@win.tue.nl>
-Date: Mon, 2 Jul 2001 19:42:12 +0200
-From: Guest section DW <dwguest@win.tue.nl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, kernel@ddx.a2000.nu
-Cc: linux-kernel@vger.kernel.org, enforcer@ddx.a2000.nu (Enforcer)
-Subject: Re: Strange errors in /var/log/messages
-In-Reply-To: <Pine.LNX.4.30.0107021800410.5490-100000@ddx.a2000.nu> <E15H6N5-000663-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <E15H6N5-000663-00@the-village.bc.nu>; from Alan Cox on Mon, Jul 02, 2001 at 05:16:23PM +0100
+	id <S265364AbRGBRt7>; Mon, 2 Jul 2001 13:49:59 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:10511 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265360AbRGBRts>; Mon, 2 Jul 2001 13:49:48 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Uncle Sam Wants YOU!
+Date: 2 Jul 2001 10:49:37 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9hqc7h$b7f$1@cesium.transmeta.com>
+In-Reply-To: <200107021509.KAA52993@tomcat.admin.navo.hpc.mil> <Pine.LNX.4.21.0107021307160.3665-100000@benatar.snurgle.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 02, 2001 at 05:16:23PM +0100, Alan Cox wrote:
+Followup to:  <Pine.LNX.4.21.0107021307160.3665-100000@benatar.snurgle.org>
+By author:    William T Wilson <fluffy@snurgle.org>
+In newsgroup: linux.dev.kernel
+>
+> On Mon, 2 Jul 2001, Jesse Pollard wrote:
+> 
+> > Better re-read the fine print on the "fair-use" statement. BOTH DSL
+> > and Cable, or dialup (New Orleans at least) will disconnect you if you
+> > run ANY unattended operation (if they determine it IS unattended). No
+> 
+> This would take a lot of watching on their part.
+> 
+> My cable company occasionally portscans me, so I blackholed the
+> portscanning machine.  Even before I had done that, though, they never
+> complained about my remote logins.  They only complain if you use
+> excessive bandwidth or if you do anything commercial.
+> 
+> The DSL provider here, when it was still US West, explicitly stated to me
+> (over the phone) that they absolutely did not care what I did with it as
+> long as it was not illegal.  However they would still not give you a
+> static IP address unless you paid them extra money. :}
+> 
 
-> > I'm running RedHat 7.0 with all official RH patches applied. The kernel I
-> > currently run fow a few days is 2.2.19-7.0.8
-> > I run the pre-compiled kernel of RH. Suddenly I the following messages:
-> > 
-> > Jul  2 15:12:16 gateway SERVER[1240]: Dispatch_input: bad request line
-> > 'BBXXXXXXXXXXXXXXXXXX%.176u%3
-> > 00$nsecurity.%301$n%302$n%.192u%303$n\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\22
+When I got Pac*Smell DSL, the installer guy (who seemed to be a
+relatively clueful type) said "and [the contract] says you're not
+allowed to run a server... but who'd know?"
 
-> These are for an application.  Not sure which or why 
+	-hpa
 
-See CERT Advisory CA-2000-22
-	http://www.infowar.com/iwftp/cert/advisories/CA-2000-22.html
-
-  "A popular replacement software package to the BSD lpd printing service
-   called LPRng contains at least one software defect, known as a "format string
-   vulnerability," which may allow remote users to execute arbitrary code on
-   vulnerable systems."
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

@@ -1,48 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281214AbSADRkz>; Fri, 4 Jan 2002 12:40:55 -0500
+	id <S288700AbSADRpz>; Fri, 4 Jan 2002 12:45:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280984AbSADRkq>; Fri, 4 Jan 2002 12:40:46 -0500
-Received: from rj.sgi.com ([204.94.215.100]:12257 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S288695AbSADRkd>;
-	Fri, 4 Jan 2002 12:40:33 -0500
-Subject: [PATCH] BLKGETSIZE64 broken in 2.4.18-pre1, 2.5.2-pre7
-From: Eric Sandeen <sandeen@sgi.com>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com, marcelo@conectiva.com.br
-Content-Type: text/plain
+	id <S281450AbSADRpq>; Fri, 4 Jan 2002 12:45:46 -0500
+Received: from [212.16.7.124] ([212.16.7.124]:15491 "HELO laputa.namesys.com")
+	by vger.kernel.org with SMTP id <S280984AbSADRpb>;
+	Fri, 4 Jan 2002 12:45:31 -0500
+From: Nikita Danilov <Nikita@Namesys.COM>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 04 Jan 2002 11:40:30 -0600
-Message-Id: <1010166030.2576.0.camel@stout.americas.sgi.com>
-Mime-Version: 1.0
+Message-ID: <15413.59311.202564.173759@laputa.namesys.com>
+Date: Fri, 4 Jan 2002 20:34:39 +0300
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Alessandro Suardi <alessandro.suardi@oracle.com>,
+        <linux-kernel@vger.kernel.org>, <andries.brouwer@cwi.nl>
+Subject: Re: 2.5.2-pre7 still missing bits of kdev_t
+In-Reply-To: <Pine.LNX.4.33.0201040845130.5360-100000@penguin.transmeta.com>
+In-Reply-To: <3C355143.8FAC281D@mandrakesoft.com>
+	<Pine.LNX.4.33.0201040845130.5360-100000@penguin.transmeta.com>
+X-Mailer: VM 7.00 under 21.4 (patch 3) "Academic Rigor" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-BLKGETSIZE64 is supposed to return device size in bytes:
+Linus Torvalds writes:
+ > 
+ > On Fri, 4 Jan 2002, Jeff Garzik wrote:
+ > > >
+ > > > Now, if somebody actually has the raw "kdev_t" in their on-disk
+ > > > structures, that's a real problem, but I don't think anybody does.
+ > > > Certainly I didn't see reiserfs do it (but it may well be missing a few
+ > > > "kdev_t_to_nr()" calls)
+ > >
+ > > AFAICS it does:
+ > >
+ > > include/linux/reiserfs.h:
+ > > #define sd_v1_rdev(sdp)         (le32_to_cpu((sdp)->u.sd_rdev))
+ > > #define set_sd_v1_rdev(sdp,v)   ((sdp)->u.sd_rdev = cpu_to_le32(v))
+ > 
+ > Ok, just add the proper conversion functions, ie a "to_kdev_t()" and
+ > "kdev_t_to_nr()".
 
-#define BLKGETSIZE64 _IOR(0x12,114,sizeof(u64)) /* return device size in
-bytes (u64 *arg) */
+Actually, result of sd_v1_rdev() is only passed to init_special_inode()
+which takes int rather than kdev_t.
 
-but in drivers/block/blkpg.c, it's just returning device size/512 as a
-u64 number.
+Isn't this a bit strange, because file system backend has to convert
+kdev_t to u32 on write, but not on read?
 
-This patch should apply to both kernels.
+ > 
+ > 		Linus
 
---- linux/drivers/block/blkpg.c.orig	Fri Jan  4 11:30:37 2002
-+++ linux/drivers/block/blkpg.c	Fri Jan  4 11:31:15 2002
-@@ -247,7 +247,7 @@
- 			if (cmd == BLKGETSIZE)
- 				return put_user((unsigned long)ullval, (unsigned long *)arg);
- 			else
--				return put_user(ullval, (u64 *)arg);
-+				return put_user(ullval << 9, (u64 *)arg);
- #if 0
- 		case BLKRRPART: /* Re-read partition tables */
- 			if (!capable(CAP_SYS_ADMIN)) 
+Nikita.
 
-
--- 
-Eric Sandeen      XFS for Linux     http://oss.sgi.com/projects/xfs
-sandeen@sgi.com   SGI, Inc.
-
+ > 

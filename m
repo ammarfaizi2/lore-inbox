@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284305AbSA2WMe>; Tue, 29 Jan 2002 17:12:34 -0500
+	id <S284180AbSA2WMe>; Tue, 29 Jan 2002 17:12:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284180AbSA2WMZ>; Tue, 29 Jan 2002 17:12:25 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:39125 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S284970AbSA2WLr>; Tue, 29 Jan 2002 17:11:47 -0500
-Message-ID: <3C571DB2.4E0C0436@us.ibm.com>
-Date: Tue, 29 Jan 2002 14:09:54 -0800
-From: Mingming cao <cmm@us.ibm.com>
-Organization: Linux Technology Center
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
+	id <S284300AbSA2WM3>; Tue, 29 Jan 2002 17:12:29 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:61454 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S284732AbSA2WLD>; Tue, 29 Jan 2002 17:11:03 -0500
+Date: Tue, 29 Jan 2002 14:10:10 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Oliver Xymoron <oxymoron@waste.org>
+cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Josh MacDonald <jmacd@CS.Berkeley.EDU>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        <reiserfs-list@namesys.com>, <reiserfs-dev@namesys.com>
+Subject: Re: Note describing poor dcache utilization under high memory pressure
+In-Reply-To: <Pine.LNX.4.44.0201291553150.25443-100000@waste.org>
+Message-ID: <Pine.LNX.4.33.0201291407490.1533-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Could not compile md/raid5.c and md/multipath.c in 2.5.3-pre3
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-While compiling the clean 2.5.3-pre3 kernel I found the
-drivers/md/raid5.c and drivers/md/multipatch.c could not get compiled.
-Here is the compiling error for raid5.c: 
+On Tue, 29 Jan 2002, Oliver Xymoron wrote:
+>
+> The "detached mm" approach should be sufficiently parallel to the
+> read-only page directory entries that the two can use almost the same
+> framework.
 
-......
--D__KERNEL__ -I/home/ming/views/253-pre3/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
--march=i686    -c -o raid5.o raid5.c
-In file included from raid5.c:23:
-/home/ming/views/253-pre3/include/linux/raid/raid5.h:218: parse error
-before `md_wait_queue_head_t'
-/home/ming/views/253-pre3/include/linux/raid/raid5.h:218: warning: no
-semicolon
-at end of struct or union
-/home/ming/views/253-pre3/include/linux/raid/raid5.h:222: parse error
-before `device_lock'
-......
+Yes. I suspect that it can be trivially hidden in just two
+architecture-specific functions, ie something like "detach_pgd(pgd)" and
+"attach_pgd_entry(mm, address)".
 
+>	 The downside is faults on reads in the detached case, but that
+> shouldn't be significantly worse than the original copy, thanks to the
+> large fanout.
 
-This failure also happened for 2.5.2 kernel.  Both of raid5.c and
-multipatch.c use some data structures defined in md_compatible.h, which
-was included in md.h before but does not exist under include/linux/raid
-for now.  Could someone fix this?
+Right. We'd get a few "unnecessary" page faults, but they should be on the
+order of 0.1% of the necessary ones. In fact, with pre-faulting in
+sys_fork(), I wouldn't be surprised if the common case is to not have any
+directory-related page faults at all.
 
+		Linus
 
-
--- 
-Mingming Cao

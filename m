@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261302AbTBSRvK>; Wed, 19 Feb 2003 12:51:10 -0500
+	id <S263326AbTBSR5c>; Wed, 19 Feb 2003 12:57:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261660AbTBSRvK>; Wed, 19 Feb 2003 12:51:10 -0500
-Received: from ashi.footprints.net ([204.239.179.1]:62215 "EHLO
-	ashi.FootPrints.net") by vger.kernel.org with ESMTP
-	id <S261302AbTBSRvJ>; Wed, 19 Feb 2003 12:51:09 -0500
-Date: Wed, 19 Feb 2003 10:01:11 -0800 (PST)
-From: Kaz Kylheku <kaz@ashi.footprints.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: re: openbkweb-0.0
-Message-ID: <Pine.LNX.4.44.0302191000240.8499-100000@ashi.FootPrints.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268956AbTBSR5c>; Wed, 19 Feb 2003 12:57:32 -0500
+Received: from ithilien.qualcomm.com ([129.46.51.59]:29312 "EHLO
+	ithilien.qualcomm.com") by vger.kernel.org with ESMTP
+	id <S263326AbTBSR5b>; Wed, 19 Feb 2003 12:57:31 -0500
+Message-Id: <5.1.0.14.2.20030219094834.0d2123c0@mail1.qualcomm.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 19 Feb 2003 10:03:30 -0800
+To: "David S. Miller" <davem@redhat.com>, rusty@rustcorp.com.au
+From: Max Krasnyansky <maxk@qualcomm.com>
+Subject: Re: [PATCH/RFC] New module refcounting for net_proto_family 
+Cc: kuznet@ms2.inr.ac.ru, jt@bougret.hpl.hp.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20030218.230402.113318233.davem@redhat.com>
+References: <20030219035559.7527A2C079@lists.samba.org>
+ <5.1.0.14.2.20030218101309.048d4288@mail1.qualcomm.com>
+ <20030219035559.7527A2C079@lists.samba.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have developed a version control system based on CVS that supports
-real, mergeable directory structure versioning, and other cool
-features, like symbolic links and simplified branching and merging
-commands (no messing around with CVS tags to track merges).
+At 11:04 PM 2/18/2003, David S. Miller wrote:
+>   From: Rusty Russell <rusty@rustcorp.com.au>
+>   Date: Wed, 19 Feb 2003 14:54:21 +1100
+>   
+>   Firstly, the owner field should probably be in struct proto_ops not
+>   struct socket, where the function pointers are.
+>
+>I think this is one of Alexey's main problems with the patch.
+This is a bit more informative than "oh it's an ugly hack" ;-)
 
-Distributed version control it ain't, but it has a way of importing
-snapshots onto a branch. The importing feature automatically figures
-renames, including tricky cases where files are moved, and symbolic
-links follow them, while being themselves moved or renamed.
+Ok. I got at least three reasons why I think owner field should be in struct 
+socket:
+        - struct proto_ops doesn't exists without struct socket.
+         It cannot be registered or otherwise used on it's own. 
+        - struct sock might inherit (when needed see my explanation about different families)
+        its owner from struct socket. In which case sk_set_owner(sk, socket->ops->owner) doesn't
+        look right.
+        - we might want to protect something else besides socket->ops.
 
-A snapshot doesn't give you the detailed change history of a true
-changeset, but on the plus side, it can be produced by people who
-don't use your version control system.
+None of those reasons are critical. If you guys still feel that ->owner must be in struct 
+proto_ops be that way, I'm ok with it.
 
-Meta-CVS is stable software that just works. It's less than 6000 lines
-of Common Lisp, which uses CVS as a subprocess as necessary, without
-requiring any modifications to that software whatsoever. I have done
-everything possible to create a better version control system without
-starting completely from scratch, and without introducing a great deal
-of risk into an existing system.
+Any other comments ? 
+Alexey, this is the time for you to speak up ;-). Please please. So far I got zero feedback 
+from you. And you are the one who somehow made DaveM radically change his mind :).
 
-CVS still has a few fault-tolerance and performance issues. For
-instance, it would be nice to have atomic commits and faster tagging.
-In the cvs-bug list I propoposed a simple, low-risk design for atomic
-commits, which one of the CVS maintainers is now running with. So we
-may see an atomic CVS before long.
+Thanks
+Max
 

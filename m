@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265608AbTAFOkI>; Mon, 6 Jan 2003 09:40:08 -0500
+	id <S266959AbTAFOwp>; Mon, 6 Jan 2003 09:52:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266041AbTAFOkI>; Mon, 6 Jan 2003 09:40:08 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:16147 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S265608AbTAFOkI>; Mon, 6 Jan 2003 09:40:08 -0500
-Date: Mon, 6 Jan 2003 15:48:43 +0100
-From: Jan Kara <jack@suse.cz>
-To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.54 - quota support
-Message-ID: <20030106144842.GD24714@atrey.karlin.mff.cuni.cz>
-References: <20030106003801.GA522@mail.muni.cz> <3E18E2F0.1F6A47D0@digeo.com> <20030106103656.GA508@mail.muni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030106103656.GA508@mail.muni.cz>
-User-Agent: Mutt/1.3.28i
+	id <S266876AbTAFOwp>; Mon, 6 Jan 2003 09:52:45 -0500
+Received: from ligur.expressz.com ([212.24.178.154]:16776 "EHLO expressz.com")
+	by vger.kernel.org with ESMTP id <S266546AbTAFOwn>;
+	Mon, 6 Jan 2003 09:52:43 -0500
+Date: Mon, 6 Jan 2003 15:59:49 +0100 (CET)
+From: "BODA Karoly jr." <woockie@expressz.com>
+To: James Morris <jmorris@intercode.com.au>
+cc: sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.5.54-sparc64 compile errors
+In-Reply-To: <Mutt.LNX.4.44.0301041126480.19977-100000@blackbird.intercode.com.au>
+Message-ID: <Pine.LNX.3.96.1030106155824.9268B-100000@ligur.expressz.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
+On Sat, 4 Jan 2003, James Morris wrote:
 
-> On Sun, Jan 05, 2003 at 05:59:12PM -0800, Andrew Morton wrote:
-> > grab-n-build quota-3.08 from http://sourceforge.net/projects/linuxquota
-> 
-> $ dpkg -l quota
-> ii  quota          3.08-1
-> 
-> > # quotacheck -F vfsv0 /dev/sde5
-> 
-> this one works ok. quotacheck -m -F vfsv0 / seems to be working
-> 
-> > # quotaon /dev/sde5
-> 
-> quotaon / freezes process if system is up in normal mode. More over any process
-> cannot read nor write to disk after that. sysrq-p shows cpu in idle only.
-  I seems like quotaon (or better quotactl()) waits on some lock
-forever... I'll try to reproduce it but in the mean time can you print
-list of processes, write down a few addresses from the top of the stack
-of quotaon and try to match it in the system.map to function in which
-is process stuck?
+> > WARNING: Error inserting lockd (/lib/modules/2.5.54/kernel/fs/lockd/lockd.ko): Cannot allocate memory
+> > FATAL: Error inserting nfs (/lib/modules/2.5.54/kernel/fs/nfs/nfs.ko): Cannot allocate memory
+> Try Rusty's sh_link patch:
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=104157163822921&w=2
 
-> when init=/bin/sh then it reports no such device.
-  Hmm.. This might be helpful. Thanks.
+	Yes, thank you. It works now :)
 
+mortimer:~# uname -a
+Linux mortimer 2.5.54 #14 Sat Jan 4 01:32:19 CET 2003 sparc64 unknown unknown GNU/Linux
+mortimer:~# lsmod
+Module                  Size  Used by
+nfs                   111288  0
+lockd                  49400  1 nfs
+sunrpc                 92088  2 nfs lockd
 
-> under 2.5.53 and 2.4.20 quotaon works ok. Under 2.5.53 quotaoff / reports some
-> error - no such device or bad ioctl I cannot remember exactly but process does
-> not freeze.
+-- 
+						Woockie
+..."what is there in this world that makes living worthwhile?"
+Death thought about it. "CATS," he said eventually, "CATS ARE NICE."
+			           (Terry Pratchett, Sourcery)
 
-
-						Thanks for report
-								Honza

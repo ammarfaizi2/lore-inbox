@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281848AbRKWBAa>; Thu, 22 Nov 2001 20:00:30 -0500
+	id <S281847AbRKWBEa>; Thu, 22 Nov 2001 20:04:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281847AbRKWBAV>; Thu, 22 Nov 2001 20:00:21 -0500
-Received: from mail.delfi.lt ([213.197.128.86]:14598 "HELO
-	mx-outgoing.delfi.lt") by vger.kernel.org with SMTP
-	id <S281848AbRKWBAE> convert rfc822-to-8bit; Thu, 22 Nov 2001 20:00:04 -0500
-Date: Fri, 23 Nov 2001 02:58:53 +0200 (EET)
-From: Nerijus Baliunas <nerijus@users.sourceforge.net>
-Subject: Re: [PATCH] Documentation/Changes
-To: "=?ISO-8859-1?Q?Fr=E9d=E9ric=20L.=20W.=20Meunier?=" 
-	<0@pervalidus.net>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: INLINE
-In-Reply-To: <20011121022049.GR11449@pervalidus>
-In-Reply-To: <20011121022049.GR11449@pervalidus>
-X-Mailer: Mahogany, 0.64.1 'Sparc', compiled for Linux 2.4.14 i686
-Message-Id: <20011123010003.693398F9AE@mail.delfi.lt>
+	id <S281851AbRKWBEU>; Thu, 22 Nov 2001 20:04:20 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:63472 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S281847AbRKWBEJ>;
+	Thu, 22 Nov 2001 20:04:09 -0500
+Date: Thu, 22 Nov 2001 18:03:20 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Stuart Young <sgy@amc.com.au>
+Cc: linux-kernel@vger.kernel.org, Rob Turk <r.turk@chello.nl>
+Subject: Re: Linux FSCP (Frequently Submitted Compilation Problems)? (was:  Re: Loop.c File !!!!)
+Message-ID: <20011122180320.R1308@lynx.no>
+Mail-Followup-To: Stuart Young <sgy@amc.com.au>,
+	linux-kernel@vger.kernel.org, Rob Turk <r.turk@chello.nl>
+In-Reply-To: <Pine.LNX.4.21.0111202025290.6299-100000@brick> <5.1.0.14.2.20011121082413.00abadd0@pop.gmx.net> <5.1.0.14.0.20011122100929.009ead30@mail.amc.localnet> <9ti8e5$9bl$1@ncc1701.cistron.net> <5.1.0.14.0.20011123105317.00a0c940@mail.amc.localnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <5.1.0.14.0.20011123105317.00a0c940@mail.amc.localnet>; from sgy@amc.com.au on Fri, Nov 23, 2001 at 11:03:02AM +1100
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Nov 2001 00:20:49 -0200 Frédéric L. W. Meunier <0@pervalidus.net> wrote:
+On Nov 23, 2001  11:03 +1100, Stuart Young wrote:
+> >Something along the lines of 'Your kernel failed to build. Check
+> >www.where-ever-the-buglist-is.org for known issues with your kernel. Post 
+> >your problem on the kernel list if this is not a FRB'. Is this something 
+> >that can be done easily?
+> 
+> At the bottom of the file, have ANOTHER link to a generic FAQ about 
+> compilation problems (which covers all the major things like forgetting to 
+> install an assembler, the broken old build stuff, 'make dep' before 
+> compiling modules, etc). The FAQ could be on the kernel mirrors as well 
+> (and I don't see why not, as this is all kernel related, and definitely a 
+> resource that needs to be in more than one place).
 
-FLWM> Hi. I updated several parts of the Documentation/Changes file
-FLWM> (mostly URLs), reformated it to wrap at 72 and also removed all
-FLWM> versions from the URLs, since that usually makes the user
-FLWM> upgrade to a version which isn't the most recent (and
-FLWM> compatible). An exception. GCC includes the full path to
-FLWM> 2.95.3, because 3.0.x isn't the recommended compiler.
+Yes!!!!  Anything to reduce the number of repeat problems reported is
+good in my books.  It might also hold a pointer to Linus' (or Marcello's)
+-pre patch area, with a warning that they are not for everyone.
 
-Why did you rename Gnu C to GNU Compiler Collection? Only C is used
-in kernel compilation, no C++ or fortran. People might think that
-whole "collection" is needed.
-
-Regards,
-Nerijus
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

@@ -1,47 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130105AbQLPWXh>; Sat, 16 Dec 2000 17:23:37 -0500
+	id <S130368AbQLPWY4>; Sat, 16 Dec 2000 17:24:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130128AbQLPWXQ>; Sat, 16 Dec 2000 17:23:16 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:4 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S130107AbQLPWXN>;
-	Sat, 16 Dec 2000 17:23:13 -0500
-Message-ID: <20001215235446.H9506@bug.ucw.cz>
-Date: Fri, 15 Dec 2000 23:54:46 +0100
+	id <S130375AbQLPWYq>; Sat, 16 Dec 2000 17:24:46 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:1796 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S130367AbQLPWYc>;
+	Sat, 16 Dec 2000 17:24:32 -0500
+Message-ID: <20001215233147.E9506@bug.ucw.cz>
+Date: Fri, 15 Dec 2000 23:31:47 +0100
 From: Pavel Machek <pavel@suse.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Re: recursive exports && linux nfs
-In-Reply-To: <20001212103652.A13501@cerebro.laendle>
+To: Heiko.Carstens@de.ibm.com, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CPU attachent and detachment in a running Linux system
+In-Reply-To: <C12569B3.0024DA06.00@d12mta01.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 0.93i
-In-Reply-To: <20001212103652.A13501@cerebro.laendle>; from Marc Lehmann on Tue, Dec 12, 2000 at 10:36:53AM +0100
+In-Reply-To: <C12569B3.0024DA06.00@d12mta01.de.ibm.com>; from Heiko.Carstens@de.ibm.com on Tue, Dec 12, 2000 at 07:42:29AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> I am trying to export the whole filesystem hierarchy on one of my servers
-> (this includes /fs, which is an automounted directory using autofs).
-> 
-> Now I have two problems:
-> 
-> 1) exporting: exportfs does not really exports filesystems that are
->    not present when exportfs is being called (some of my filesystems
->    are only available temporarily). Also, exportfs of course forces the mount
->    of all filesystems that are mountable, which can take considerable time.
-> 
-> 2) using: I can do cd /nfs/fs, but the directoy is always empty, and when I
->    try to step into a subdirectory I always get "No such file or directory".
-> 
-> I am using linux-2.2.18, nfsv3 + nfs-utils-0.2.1.
-> 
-> Thanks a lot for any insights, even if this means "this is not supported"
-> ;)
+> I still wonder what you and other people think about the idea of an
+> interface where the parts of the kernel with per-cpu dependencies should
+> register two functions...
 
-This can't be supported, afaict, because nfs handles have limited
-size.
-
+Why not compile kernel with structeres big enough for 32 processors,
+and then just add CPUs up to the limit without changing anything?
 								Pavel
 -- 
 I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."

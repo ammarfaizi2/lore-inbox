@@ -1,61 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267840AbUIPIXU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267826AbUIPIZX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267840AbUIPIXU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 04:23:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267841AbUIPIXU
+	id S267826AbUIPIZX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 04:25:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267841AbUIPIZX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 04:23:20 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:12994 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S267840AbUIPIXS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 04:23:18 -0400
-Date: Thu, 16 Sep 2004 10:23:08 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linux/m68k <linux-m68k@lists.linux-m68k.org>,
-       Debian GNU/Linux m68k <debian-68k@lists.debian.org>,
-       uClinux list <uclinux-dev@uclinux.org>,
-       GNU Libc Maintainers <debian-glibc@lists.debian.org>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: `new' syscalls for m68k
-In-Reply-To: <Pine.LNX.4.58.0409102250300.24607@anakin>
-Message-ID: <Pine.GSO.4.58.0409161016400.23693@waterleaf.sonytel.be>
-References: <Pine.LNX.4.58.0409102250300.24607@anakin>
+	Thu, 16 Sep 2004 04:25:23 -0400
+Received: from hermine.aitel.hist.no ([158.38.50.15]:60685 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S267826AbUIPIZB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 04:25:01 -0400
+Message-ID: <41494EF7.9030209@hist.no>
+Date: Thu, 16 Sep 2004 10:29:43 +0200
+From: Helge Hafting <helge.hafting@hist.no>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040830)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Timothy Miller <miller@techsource.com>
+CC: Hans Reiser <reiser@namesys.com>, Linus Torvalds <torvalds@osdl.org>,
+       David Masover <ninja@slaphack.com>, Jamie Lokier <jamie@shareable.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
+       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: The argument for fs assistance in handling archives
+References: <20040826150202.GE5733@mail.shareable.org> <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org> <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org> <20040902002431.GN31934@mail.shareable.org> <413694E6.7010606@slaphack.com> <Pine.LNX.4.58.0409012037300.2295@ppc970.osdl.org> <4136A14E.9010303@slaphack.com> <Pine.LNX.4.58.0409012259340.2295@ppc970.osdl.org> <4136C876.5010806@namesys.com> <Pine.LNX.4.58.0409020030220.2295@ppc970.osdl.org> <4136E0B6.4000705@namesys.com> <41487A7A.80107@techsource.com>
+In-Reply-To: <41487A7A.80107@techsource.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Sep 2004, Geert Uytterhoeven wrote:
-> I'm updating the syscall table for m68k...
+Timothy Miller wrote:
+
 >
-> Below is a patch that adds all syscalls that m68k is currently lacking
-> (compared to ia32). However, I'm wondering whether we need all of them:
->   - Are sys_sched_[gs]etaffinity() needed for non-SMP?
->   - I disabled [sg]et_thread_area() since sys_[gs]et_thread_area() are
->     missing. Do we have to implement them, or should we use some other
->     method for Thread Local Storage?
->   - What about sys_vserver()?
->   - What about sys_kexec_load()?
->   - Any others we can/should drop?
+> Hey, you know how device nodes have a bit set, indicating that they're 
+> device nodes and not regular files?  Can a set of such properties be 
+> defined for reiser4 metadata properties?
+>
+> Like a "metadata" bit so you can distinguish (if you wish) between 
+> regular files and metadata objects, and in addition an "archivable 
+> metadata" bit which indicates that the given piece of metadata is not 
+> automatically generated and should be archived during backup (some 
+> manually-generated metadata which does not need to be backed up will 
+> not have this bit set -- perhaps add another flag indicating that it's 
+> not automatic but unnecessary to archive). 
 
-My conclusion (so far). I will:
-  - drop sys_sched_[gs]etaffinity() (no SMP on m68k), and sys_kexec_load()
-  - reserve an entry for sys_vserver()
-  - add waitid() (2.6.9-rc2)
-  - rename p{read,write}64() to p{read,write} (cfr. m68knommu in 2.6.8.1-uc0)
 
-Which leaves us with [sg]et_thread_area(): what do the glibc hackers have in
-mind for TLS on m68k?
+Interesting idea, particularly for autogenerated metadata.  Some 
+metadata, like
+thumbnails and icons might as well be ordinary files though.  (Like some
+icon and want to use it as background bitmap?  Just copy it, because
+it is a plain file.  Or want to use it as clipart - fine, the word processor
+supports bitmap files. . .) 
 
-Thanks!
+This is a case where something is "metadata"  only because it is used as 
+such,
+not because it has to be.  File-as-dir is an interesting concept for 
+such cases,
+because it is convenient to group the "metadata" with the file, have it
+move with the file and so on.  But still have this metadata accessible as
+a file because it isn't all that special.
 
-Gr{oetje,eeting}s,
+Helge Hafting
 
-						Geert
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

@@ -1,45 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268526AbUIPRQD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268215AbUIPRco@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268526AbUIPRQD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 13:16:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268381AbUIPRLr
+	id S268215AbUIPRco (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 13:32:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268334AbUIPRcC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 13:11:47 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:38352 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S268334AbUIPRIa (ORCPT
+	Thu, 16 Sep 2004 13:32:02 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:43497 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268215AbUIPRai (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 13:08:30 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: device driver for the SGI system clock, mmtimer
-Date: Thu, 16 Sep 2004 10:07:36 -0700
-User-Agent: KMail/1.7
-Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, Christoph Lameter <clameter@sgi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Bob Picco <Robert.Picco@hp.com>, venkatesh.pallipadi@intel.com
-References: <200409161003.39258.bjorn.helgaas@hp.com> <200409160909.12840.jbarnes@engr.sgi.com> <1095349940.22739.34.camel@localhost.localdomain>
-In-Reply-To: <1095349940.22739.34.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Sep 2004 13:30:38 -0400
+Date: Thu, 16 Sep 2004 19:30:22 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc2-mm1
+Message-ID: <20040916173022.GA6793@devserv.devel.redhat.com>
+References: <20040916024020.0c88586d.akpm@osdl.org> <200409161345.56131.norberto+linux-kernel@bensa.ath.cx> <1095354962.2698.22.camel@laptop.fenrus.com> <200409161428.10717.norberto+linux-kernel@bensa.ath.cx>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="C7zPtVaVf+AK4Oqc"
 Content-Disposition: inline
-Message-Id: <200409161007.37015.jbarnes@engr.sgi.com>
+In-Reply-To: <200409161428.10717.norberto+linux-kernel@bensa.ath.cx>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, September 16, 2004 8:52 am, Alan Cox wrote:
-> On Iau, 2004-09-16 at 17:09, Jesse Barnes wrote:
-> > I think Christoph already looked at that.  And HPET doesn't provide mmap
-> > functionality, does it?  I.e. allow a userspace program to dereference
-> > the counter register directly?
->
-> It can do but that assumes nothing else is mapped into the same page
-> that would be harmful or reveal information that should not be revealed
-> etc..
 
-And what about the register layout?  mmtimer makes sure that the register is 
-on a page by itself before it allows the mmap, and only exports the counter 
-register itself.  Can hpet do that?
+--C7zPtVaVf+AK4Oqc
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Jesse
+On Thu, Sep 16, 2004 at 02:28:10PM -0300, Norberto Bensa wrote:
+> Arjan van de Ven wrote:
+> > On Thu, 2004-09-16 at 18:45, Norberto Bensa wrote:
+> > > Andrew Morton wrote:
+> > > > +tune-vmalloc-size.patch
+> > >
+> > > This one of course breaks nvidia's binary driver; so nvidia users should
+> > > do a "patch -Rp1" to revert it.
+> >
+> > eh why how ?? what evil stuff is nvidia doing this time ?
+> 
+> On modprobe it says: "__VMALLOC_RESERVE undefined symbol". I'm almost sure is 
+> an #include thing, but since I know near to nothing about the kernel 
+> internals, I prefer to revert the patch.
+
+I would consider it REALLY weird for a module to use detailed vmalloc
+knowledge like this. Does anyone know what they are doing?????
+
+--C7zPtVaVf+AK4Oqc
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFBSc2uxULwo51rQBIRAhpHAJ4/IAFZAKv2bg1+wmcAHyupMUuqPQCfUc9r
+WP+ez5JgOGHzqcgemlsiIe0=
+=n3aZ
+-----END PGP SIGNATURE-----
+
+--C7zPtVaVf+AK4Oqc--

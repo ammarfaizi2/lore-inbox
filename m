@@ -1,82 +1,190 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261988AbULHBrT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261994AbULHBzu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261988AbULHBrT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Dec 2004 20:47:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261994AbULHBrS
+	id S261994AbULHBzu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Dec 2004 20:55:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbULHBzu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Dec 2004 20:47:18 -0500
-Received: from smtp100.mail.sc5.yahoo.com ([216.136.174.138]:28759 "HELO
-	smtp100.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261988AbULHBrN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Dec 2004 20:47:13 -0500
-Subject: Re: Time sliced CFQ io scheduler
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20041208013732.GF16322@dualathlon.random>
-References: <20041202130457.GC10458@suse.de>
-	 <20041202134801.GE10458@suse.de> <20041202114836.6b2e8d3f.akpm@osdl.org>
-	 <20041202195232.GA26695@suse.de> <20041208003736.GD16322@dualathlon.random>
-	 <1102467253.8095.10.camel@npiggin-nld.site>
-	 <20041208013732.GF16322@dualathlon.random>
+	Tue, 7 Dec 2004 20:55:50 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:19906 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261994AbULHBz0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Dec 2004 20:55:26 -0500
+Subject: [RFC] New timeofday proposal (v.A1)
+From: john stultz <johnstul@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: tim@physik3.uni-rostock.de, george@mvista.com,
+       albert@users.sourceforge.net, Ulrich.Windl@rz.uni-regensburg.de,
+       clameter@sgi.com, len.brown@intel.com, linux@dominikbrodowski.de,
+       davidm@hpl.hp.com, ak@suse.de, paulus@samba.org, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, greg kh <greg@kroah.com>,
+       Patricia Gaughen <gone@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
+       Max <amax@us.ibm.com>, mahuja@us.ibm.com
 Content-Type: text/plain
-Date: Wed, 08 Dec 2004 12:47:08 +1100
-Message-Id: <1102470428.8095.29.camel@npiggin-nld.site>
+Message-Id: <1102470914.1281.27.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 07 Dec 2004 17:55:14 -0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-12-08 at 02:37 +0100, Andrea Arcangeli wrote:
-> On Wed, Dec 08, 2004 at 11:54:13AM +1100, Nick Piggin wrote:
-> > That is synch write bandwidth. Yes that seems to be a problem.
-> 
-> It's not just sync write, it's a write in general, blkdev doesn't know
-> if the one waiting is pdflush or some other task. Once this will be
-> fixed I will have to reconsider my opinion of course, but I guess after
+All, 	
+	Once again here is my time of day proposal and code. I've not been able
+to work too much on it since my last release in September, and not much
+has changed in the proposal. However, since I'm doing another code
+release, I figured I'd re-send the design/justification summary for
+context.
 
-Yeah those sorts of dependencies are tricky. I think the best bet is
-to not get _too_ fancy, and try to cover the basics like keeping
-fairness good, and minimising write latency as much as possible.
+New in this code release:
+o Initial x86-64 port
+o Re-worked the timesource structure as suggested by Christoph Lameter.
+		
+Any feedback or comments on this or the following code would be greatly
+appreciated.
+	
+thanks
+-john
 
-> it gets fixed the benefit of "as" on the desktop will as well decrease
-> compared to cfq. The desktop is ok with "as" simply because it's
-> normally optimal to stop writes completely, since there are few apps
-> doing write journaling or heavy writes, and there's normally no
-> contigous read happening in the background. Desktop just needs a
-> temporary peak read max bandwidth when you click on openoffice or
-> similar app (and "as" provides it). But on a mixed server doing some
-> significant read and write (i.e.  somebody downloading the kernel from
-> kernel.org and installing it on some application server) I don't think
-> "as" is general purpose enough. Another example is the multiuser usage
-> with one user reading a big mbox folder in mutt, whole the other user
-> s exiting mutt at the same time. The one exiting will pratically have to
-> wait the first user to finish its read I/O. All I/O becomes sync when it
-> exceeds the max size of the writeback cache.
-> 
+Proposal for an architecture independent time of day implementation.
+-------------------------------------------------------------------
+John Stultz (johnstul@us.ibm.com)
+DRAFT
+Tue Dec  7 15:38:58 PST 2004
 
-AS is surprisingly good when doing concurrent reads and buffered writes.
-The buffered writes don't get starved too badly. Basically, AS just
-ensures a reader will get the chance to play out its entire read batch
-before switching to another reader or a writer.
+Credits:
+	Keith Mannthey:	Aided initial design.
+			Aided greatly to implementation details.
+	George Anzinger: Initial review and corrections.
+	Ulrich Windl: Review and suggestions for clarity.
 
-Buffered writes don't suffer the same problem obviously because the
-disk can can easily be kept fed from cache. Any read vs buffered write
-starvation you see will mainly be due to the /sys tunables that give
-more priority to reads (which isn't a bad idea, generally).
+	Many of the time of day related issues that cropped up in 2.5
+development occurred where a fix or change was made to a number of
+architectures, but missed a few others. Currently every architecture has
+its own set of timekeeping functions that basically do the same thing,
+only using different (or frequently, not so different) types of
+hardware. As hardware has changed, many architectures have had to
+re-engineer their time system to handle multiple time and interrupt
+sources. With little common infrastructure, either each separate
+implementation has its own quirks and bugs, or we end up with a
+reasonable quantity of duplicated code. Additionally the lack of a clear
+time of day interface has led developers to use jiffies, HZ, and the raw
+xtime values to calculate the time of day themselves. This has lead to a
+number of troublesome bugs.
+
+	With the goal to simplify, streamline and consolidate the time-of-day
+infrastructure, I propose the following common implementation across all
+arches. This will allow generic bugs to be fixed once, reduce code
+duplication, and with many architectures sharing the same time source,
+this allows drivers to be written once for multiple architectures.
+Additionally it will better delineate the lines between the timer
+subsystem and the time-of-day subsystem, opening the door for more
+flexible and better timekeeping.
+
+Features of this design:
+========================
+
+o Splits time of day management from timer interrupts:
+	This is necessary for virtualization & tickless systems. It allows us
+to no longer care how often clock_interrupt() is called. Queued, delayed
+or lost interrupts do not affect time keeping (within bounds - ie: the
+time source cannot overflow). This isolates HZ and jiffies to the timer
+subsystem (mostly), as they are frequently and incorrectly used to
+calculate time.
+	Additionally, it allows for dynamic tick interrupts / high-res ticks.
+It avoids the need to interpolate between multiple shoddy time sources,
+and lets us be agnostic to where the periodic interrupts come from
+(cleans up i386 HPET interrupt code).
+
+o Consolidates a large amount of code:
+	Allows for shared times source implementations, such as: i386, x86-64
+and ia64 all use HPET, i386 and x86-64 both have ACPI PM timers, and
+i386 and ia64 both have cyclone counters. Time sources are just drivers!
+
+o Generic algorithms which use time-source drivers chosen at runtime:
+	Drivers are just simple hw accessors functions with no internal state
+needed. They can be loaded and changed while the system is running, like
+normal modules.
+
+o More consistent and readable code:
+	Drop wall_to_monotonic & xtime in favor of a more simple system_time
+and wall_time_offset variables. Where system_time is the monotonically
+increasing nanoseconds since boot time and wall_time_offset is the
+offset added to system_time to calculate time of day.
+
+o Uses nanoseconds as the kernel's base time unit.
+	Rather then doing ugly manipulations to timevals or timespecs, this
+simplifies math, and gives us plenty of room to grow (64bits of
+nanoseconds ~= 584 years).
+
+o Clearly separates the NTP code from the time code:
+	Creates a clean and clear interface, keeping all the NTP related code
+in a single place. Saves brains, normal people shouldn't have to think
+about the in kernel ntp machinery.
 
 
-> "as" is clearly the best for the common case of the very desktop usage
-> (i.e. machine 99.9% idle and without any I/O except when starting an app
-> or saving a file, and the user noticing delay only while waiting the
-> window to open up after he clicked the button).  But I believe cfq is
-> better for a general purpose usage where we cannot assume how the kernel
-> will be used.
+Brief Psudo-code to illustrate the design:
+==========================================
 
-Maybe. CFQ may be a bit closer to a traditional elevator behaviour,
-while AS uses some significantly different concepts which I guess
-aren't as well tested and optimised for.
+Globals:
+--------
+offset_base: timesource cycle value at last call to timeofday_hook()
+system_time: time in ns calculated at last call to timeofday_hook()
+wall_offset: offset to monotonic_clock() to get current time of day
 
+Functions:
+----------
+timeofday_hook()
+	now = timesource_read();		/* read the timesource */
+	ns = cyc2ns(now - offset_base); /* calc nsecs since last call */
+	ntp_ns = ntp_scale(ns);		/* apply ntp scaling */
+	system_time += ntp_ns;		/* add scaled value to system_time */
+	ntp_advance(ns);		/* advance ntp state machine by ns */
+	offset_base = now;		/* set new offset_base */
+
+monotonic_clock()
+	now = timesource_read();	/* read the timesource */
+	ns = cyc2ns(now - offset_base);	/* calculate nsecs since last hook */
+	ntp_ns = ntp_scale(ns);		/* apply ntp scaling */
+	return system_time + ntp_ns; 	/* return system_time and scaled value
+					 */
+
+settimeofday(desired)
+	wall_offset = desired - monotonic_clock(); /* set wall offset */
+
+gettimeofday()
+	return wall_offset + monotonic_clock();	/* return current timeofday */
+
+
+Points I'm glossing over for now:
+====================================================
+
+o Have to convert back to time_val for syscall interface
+
+o ntp_scale(ns):  scales ns by NTP scaling factor
+	- see ntp.c for details
+	- costly, but correct.
+
+o ntp_advance(ns): advances NTP state machine by ns
+	- see ntp.c for details
+
+o What is the cost of throwing around 64bit values for everything?
+	- Do we need an arch specific time structure that varies size
+accordingly?
+
+o Some arches (arm, for example) do not have high res timing hardware
+	- In this case we can have a "jiffies" timesource
+		- cyc2ns(x) =  x*(NSEC_PER_SEC/HZ)
+		- doesn't work for tickless systems
+
+o vsyscalls/userspace gettimeofday()
+	- Still done on a per-arch basis
+		- My earlier arch independent plan won't work
+	- Exporting the full NTP logic is going to be annoying
+
+o suspend/resume
+	- not yet implemented, but shouldn't be hard
+o cpufreq effects
+	- handled in the timesource driver
+	
+Anything else? What am I missing or just being ignorant of?
 

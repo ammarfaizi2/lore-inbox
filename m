@@ -1,66 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261652AbVASJ7m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261651AbVASJ7T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261652AbVASJ7m (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 04:59:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261653AbVASJ7m
+	id S261651AbVASJ7T (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 04:59:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261652AbVASJ7T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 04:59:42 -0500
-Received: from cantor.suse.de ([195.135.220.2]:42696 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261652AbVASJ7g (ORCPT
+	Wed, 19 Jan 2005 04:59:19 -0500
+Received: from darwin.snarc.org ([81.56.210.228]:10369 "EHLO darwin.snarc.org")
+	by vger.kernel.org with ESMTP id S261651AbVASJ7P (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 04:59:36 -0500
-Message-ID: <41EE2F82.3080401@suse.de>
-Date: Wed, 19 Jan 2005 10:59:30 +0100
-From: Hannes Reinecke <hare@suse.de>
-Organization: SuSE Linux AG
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.2) Gecko/20040906
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: dtor_core@ameritech.net
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH 2/2] Remove input_call_hotplug
-References: <41ED2457.1030109@suse.de> <d120d50005011807566ee35b2b@mail.gmail.com>
-In-Reply-To: <d120d50005011807566ee35b2b@mail.gmail.com>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Wed, 19 Jan 2005 04:59:15 -0500
+Date: Wed, 19 Jan 2005 10:59:13 +0100
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] arch/i386/kernel/signal.c: fix err test twice
+Message-ID: <20050119095913.GA4155@snarc.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Email may contain unsmilyfied humor and/or satire.
+User-Agent: Mutt/1.5.6+20040907i
+From: Vincent Hanquez <tab@snarc.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov wrote:
-> Hi,
-> 
-> On Tue, 18 Jan 2005 15:59:35 +0100, Hannes Reinecke <hare@suse.de> wrote:
-> 
->>Implement proper class names for input drivers.
->>
-> 
-> 
-> This patch probably should probably use atomic_inc in case we ever
-> have non-serialized probe functions.
-> 
-True.
+Hi, the following patch:
+	- correct the err variable tested twice when _NSIG_WORDS == 1
+	  (unlikely to happen, but ..)
+	- remove some |= in favor of = because we don't need to 'pack' err
 
-> But the real question is whether we really need class devices have
-> unique names or we could do with inputX thus leaving individual
-> drivers intact and only modifying the input core. As far as I
-> understand userspace should be concerned only with device
-> capabilities, not particular name, besides, it gets PRODUCT string
-> which has all needed data encoded.
-> 
-Indeed. What about using 'phys' (with all '/' replaced by '-') as the 
-class_id? This way we'll retain compability with /proc/bus/input/devices 
-and do not have to touch every single driver.
+Please apply,
 
-Better idea?
+Signed-off-by: Vincent Hanquez <tab@snarc.org>
 
-Cheers,
-
-Hannes
--- 
-Dr. Hannes Reinecke			hare@suse.de
-SuSE Linux AG				S390 & zSeries
-Maxfeldstraße 5				+49 911 74053 688
-90409 Nürnberg				http://www.suse.de
+--- linux-2.6.10/arch/i386/kernel/signal.c.orig	2005-01-14 21:02:13 +0100
++++ linux-2.6.10/arch/i386/kernel/signal.c	2005-01-14 21:05:32 +0100
+@@ -369,20 +369,20 @@
+ 		? current_thread_info()->exec_domain->signal_invmap[sig]
+ 		: sig;
+ 
+-	err |= __put_user(usig, &frame->sig);
++	err = __put_user(usig, &frame->sig);
+ 	if (err)
+ 		goto give_sigsegv;
+ 
+-	err |= setup_sigcontext(&frame->sc, &frame->fpstate, regs, set->sig[0]);
++	err = setup_sigcontext(&frame->sc, &frame->fpstate, regs, set->sig[0]);
+ 	if (err)
+ 		goto give_sigsegv;
+ 
+ 	if (_NSIG_WORDS > 1) {
+-		err |= __copy_to_user(&frame->extramask, &set->sig[1],
++		err = __copy_to_user(&frame->extramask, &set->sig[1],
+ 				      sizeof(frame->extramask));
++		if (err)
++			goto give_sigsegv;
+ 	}
+-	if (err)
+-		goto give_sigsegv;
+ 
+ 	restorer = &__kernel_sigreturn;
+ 	if (ka->sa.sa_flags & SA_RESTORER)

@@ -1,63 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274874AbTGaVZ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 17:25:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274876AbTGaVZ2
+	id S274887AbTGaV2j (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 17:28:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274878AbTGaV2J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 17:25:28 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:45218 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S274874AbTGaVZN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 17:25:13 -0400
-Date: Thu, 31 Jul 2003 23:25:09 +0200 (MEST)
-Message-Id: <200307312125.h6VLP9G6022368@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: vherva@niksula.hut.fi
-Subject: Re: [PATCH] NMI watchdog documentation
-Cc: ak@suse.de, linux-kernel@vger.kernel.org
+	Thu, 31 Jul 2003 17:28:09 -0400
+Received: from AMarseille-201-1-5-189.w217-128.abo.wanadoo.fr ([217.128.250.189]:25127
+	"EHLO gaston") by vger.kernel.org with ESMTP id S274877AbTGaV0c
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 17:26:32 -0400
+Subject: Re: [linux-usb-devel] Re: OHCI problems with suspend/resume
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: David Brownell <david-b@pacbell.net>
+Cc: Pavel Machek <pavel@ucw.cz>, Alan Stern <stern@rowland.harvard.edu>,
+       Dominik Brugger <ml.dominik83@gmx.net>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       linux-usb-devel@lists.sourceforge.net
+In-Reply-To: <3F291857.1030803@pacbell.net>
+References: <Pine.LNX.4.44L0.0307251057300.724-100000@ida.rowland.org>
+	 <1059153629.528.2.camel@gaston> <3F21B3BF.1030104@pacbell.net>
+	 <20030726210123.GD266@elf.ucw.cz> <3F288CAB.6020401@pacbell.net>
+	 <20030731094904.GC464@elf.ucw.cz>  <3F291857.1030803@pacbell.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1059686740.2420.158.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 31 Jul 2003 23:25:41 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Jul 2003 08:44:48 +0300, Ville Herva wrote:
->Uuh, sorry. Is the one below ok by you for submission to Linus and Marcelo?
->
->
->-- v --
->
->v@iki.fi
->
->--- linux/Documentation/nmi_watchdog.txt	Sun Jul 27 19:58:26 2003
->+++ linux~/Documentation/nmi_watchdog.txt	Tue Jul 29 21:08:01 2003
->@@ -1,9 +1,11 @@
+On Thu, 2003-07-31 at 15:23, David Brownell wrote:
+> Pavel Machek wrote:
+> > Hi!
+> > 
+> > 
+> >> - APM uses the pm_*() calls for a vetoable check,
+> >>   never issues SAVE_STATE, then goes POWER_DOWN.
+> > 
+> > 
+> > I remember the reason... SAVE_STATE expects user processes to be
+> > stopped, which is not the case in APM. Perhaps that is easy to fix
+> > these days...
+> > 							Pavel
 > 
->-Is your ix86 system locking up unpredictably? No keyboard activity, just
->+[NMI watchdog is available for x86 and x86-64 architectures]
->+
->+Is your system locking up unpredictably? No keyboard activity, just
-> a frustrating complete hard lockup? Do you want to help us debugging
-> such lockups? If all yes then this document is definitely for you.
 > 
->-On Intel and similar ix86 type hardware there is a feature that enables
->+On many x86/x86-64 type hardware there is a feature that enables
-> us to generate 'watchdog NMI interrupts'.  (NMI: Non Maskable Interrupt
-> which get executed even if the system is otherwise locked up hard).
-> This can be used to debug hard kernel lockups.  By executing periodic
->@@ -20,6 +22,15 @@
-> kernel debugging options, such as Kernel Stack Meter or Kernel Tracer,
-> may implicitly disable the NMI watchdog.]
-> 
->+For x86-64, the needed APIC is always compiled in, and the NMI watchdog is
->+always enabled with I/O-APIC mode (nmi_watchdog=1). Currently, local APIC
->+mode (nmi_watchdog=2) does not work on x86-64.
->+
->+Using local APIC (nmi_watchdog=2) needs the first performance register, so
->+you can't use it for other purposes (such as high precision performance
->+profiling.) However, at least oprofile and the perfctr driver disable the
->+local APIC NMI watchdog automatically.
->+
-> To actually enable the NMI watchdog, use the 'nmi_watchdog=N' boot
-> parameter.  Eg. the relevant lilo.conf entry:
+> That SAVE_STATE restriction doesn't seem to be documented...
 
-Looks Ok to me.
+Because it is plain wrong ;)
 
-/Mikael
+Ben.
+

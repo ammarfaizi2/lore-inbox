@@ -1,39 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263802AbUEXBdM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263804AbUEXBgt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263802AbUEXBdM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 21:33:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263804AbUEXBdL
+	id S263804AbUEXBgt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 21:36:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263800AbUEXBgt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 21:33:11 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:47021 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263802AbUEXBdI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 21:33:08 -0400
-Date: Sun, 23 May 2004 18:33:04 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Phy Prabab <phyprabab@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: 4g/4g for 2.6.6
-Message-ID: <331270000.1085362383@[10.10.2.4]>
-In-Reply-To: <20040523194302.81454.qmail@web90007.mail.scd.yahoo.com>
-References: <20040523194302.81454.qmail@web90007.mail.scd.yahoo.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Sun, 23 May 2004 21:36:49 -0400
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:43905 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id S263804AbUEXBge (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 May 2004 21:36:34 -0400
+Message-Id: <200405240135.i4O1ZLd01238@pincoya.inf.utfsm.cl>
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       vonbrand@inf.utfsm.cl
+Subject: Re: [2.6 =?iso-8859-1?Q?patch=5D=A0mor?= =?iso-8859-1?Q?e?= InterMezzo removal 
+In-reply-to: Your message of "Mon, 24 May 2004 01:44:48 +0200."
+             <20040523234447.GE16099@fs.tum.de> 
+X-mailer: MH [Version 6.8.4]
+X-charset: ISO_8859-1
+Date: Sun, 23 May 2004 21:35:20 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have been researching the 4g patches for kernels. 
-> Seems there was a rift between people over this.  Is
-> there any plan to resume publishing 4g patches for
-> developing kernels?
-> 
-> I am currently trying to get 4g to work with 2.6.6-mm5
-> but of course running into issues,so any help on this
-> would be great!
+Adrian Bunk <bunk@fs.tum.de> said:
+> The patch below removes the MAINTAINERS entry for InterMezzo.
 
-It's in -mjb tree - the update from 2.6.6-rc3 to 2.6.6 should be trivial.
-
-M.
-
+I'd leave it, with a note "Deleted for lack of maintenance" or such.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

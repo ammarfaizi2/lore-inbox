@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272137AbTHDS0F (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 14:26:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272135AbTHDS0A
+	id S272124AbTHDSVU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 14:21:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272125AbTHDSVU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 14:26:00 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:6660 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S272128AbTHDSYR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 14:24:17 -0400
-Subject: Re: [PATCH] O13int for interactivity
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <200308050207.18096.kernel@kolivas.org>
-References: <200308050207.18096.kernel@kolivas.org>
-Content-Type: text/plain
-Message-Id: <1060021454.558.1.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Mon, 04 Aug 2003 20:24:15 +0200
+	Mon, 4 Aug 2003 14:21:20 -0400
+Received: from palrel12.hp.com ([156.153.255.237]:1429 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S272124AbTHDSVF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 14:21:05 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16174.41999.166222.406494@napali.hpl.hp.com>
+Date: Mon, 4 Aug 2003 11:21:03 -0700
+To: "H. J. Lu" <hjl@lucon.org>
+Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: milstone reached: ia64 linux builds out of Linus' tree
+In-Reply-To: <20030804175308.GB16804@lucon.org>
+References: <200308041737.h74HbdCf015443@napali.hpl.hp.com>
+	<20030804175308.GB16804@lucon.org>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-08-04 at 18:07, Con Kolivas wrote:
-> Changes:
-> 
-> Reverted the child penalty to 95 as new changes help this from hurting
-> 
-> Changed the logic behind loss of interactive credits to those that burn off 
-> all their sleep_avg
-> 
-> Now all tasks get proportionately more sleep as their relative bonus drops 
-> off. This has the effect of detecting a change from a cpu burner to an 
-> interactive task more rapidly as in O10. 
+>>>>> On Mon, 4 Aug 2003 10:53:08 -0700, "H. J. Lu" <hjl@lucon.org> said:
 
-Oh, yeah! This is damn good! I've had only a little bit time to try it,
-but I think it rocks. Good work :-)
+  HJ> Does it work on bigsur?
 
+It should, apart from a qla1280.c glitch (see the latest ia64 diff for
+the one-liner to get it to work; Jes Sorensen said he's going to
+cleanup qla1280 for real).
+
+  HJ> Does it support kernel modules?
+
+Sure.  Kernel modules have been working for a while.  You do need
+module-init-tools, of course (Debian has the necessary package in the
+"unstable" tree).
+
+	--david

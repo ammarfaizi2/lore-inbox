@@ -1,48 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264381AbTEaQvg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 May 2003 12:51:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264380AbTEaQvg
+	id S264740AbTEaQyF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 May 2003 12:54:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264746AbTEaQyF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 May 2003 12:51:36 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:14561
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S264386AbTEaQvf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 May 2003 12:51:35 -0400
+	Sat, 31 May 2003 12:54:05 -0400
+Received: from host81-136-217-175.in-addr.btopenworld.com ([81.136.217.175]:6087
+	"EHLO mx.homelinux.com") by vger.kernel.org with ESMTP
+	id S264740AbTEaQyD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 May 2003 12:54:03 -0400
+Date: Sat, 31 May 2003 18:07:24 +0100 (BST)
+From: Mitch@0Bits.COM
+X-X-Sender: mitch@mx.homelinux.com
+Reply-To: Mitch@0Bits.COM
+To: linux-kernel@vger.kernel.org
 Subject: Re: Any experience with Promise PDC20376 and SATA RAID?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-Cc: Andre Hedrick <andre@linux-ide.org>, reid@reidspencer.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-In-Reply-To: <3ED8D709.9060807@gmx.net>
-References: <20030528160001.21400.75235.Mailman@listman.rdu-colo.redhat.com>
-	 <1054139205.1257.11.camel@bashful.x10sys.com>  <3ED8D709.9060807@gmx.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1054397191.27312.11.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 31 May 2003 17:06:32 +0100
+Message-ID: <Pine.LNX.4.53.0305311757390.27375@mx.homelinux.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2003-05-31 at 17:23, Carl-Daniel Hailfinger wrote:
-> Reid Spencer wrote:
-> > I think the kernel doesn't know about the device number (105a:3376 =
-> > PDC20376) since it isn't in the kernel's drivers/pci/pci.ids file
-> > (latest device is 7275 PDC20277)and it doesn't recognize the device when
-> > it processes the IDE devices at boot up. All I get is:
 
-20376 is not currently supported. Promise do have their own GPL driver
-which handles this device as if it were a scsi adapter. In the same way
-that Jeff Garzik has realised we need to go this path for smart SATA 
-stuff so have promise.
+There is no GPL/LGPL support for the promise 20376 Fastrak 133
+controller on Linux at the moment. There is a binary module from
+Promise, but only on 2.4.18 i believe.
 
-Figuring out what to do about all this for 2.4 is on my pending pile
-still - do we merge a minimal support into base 2.4.x as FreeBSD did
-with their support or do we merge a scsi layer driver that can actually
-make use of the command queueing (not neccessarily tagged) on the device
-and/or the hardware XOR engine.
+	http://www.promise.com/support/download/download2_eng.asp?productId=107&category=driver&os=100
+
+I think someone is working on reverse engineering the code for
+stock kernel inclusion.
+
+I've got the same controller on my board, but no use for it
+since i only have 2 disks on the machine which fit nicely on the
+2 onboard IDE controllers in my A7V8X motherboard - though it'd
+be nice to be able to buy and support ATA150 drive speeds.
+
+Cheers
+M
+
+Reid Spencer wrote:
+> I think the kernel doesn't know about the device number (105a:3376 =
+> PDC20376) since it isn't in the kernel's drivers/pci/pci.ids file
+> (latest device is 7275 PDC20277)and it doesn't recognize the device when
+> it processes the IDE devices at boot up. All I get is:
+>
+> ide: Assuming 33MHz system bus speed for PIO modes; override with
+> idebus=xx
+> VP_IDE: IDE controller at PCI slot 00:11.1
+> VP_IDE: chipset revision 6
+> VP_IDE: not 100% native mode: will probe irqs later
+> VP_IDE: VIA vt8235 (rev 00) IDE UDMA133 controller on pci00:11.1
+>     ide0: BM-DMA at 0xa400-0xa407, BIOS settings: hda:DMA, hdb:pio
+>     ide1: BM-DMA at 0xa408-0xa40f, BIOS settings: hdc:DMA, hdd:pio
+> hda: WDC WD400AB-32BVA0, ATA DISK drive
+> blk: queue c03c58e0, I/O limit 4095Mb (mask 0xffffffff)
+> hdc: ATAPI 52X CDROM, ATAPI CD/DVD-ROM drive
+> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+> ide1 at 0x170-0x177,0x376 on irq 15
+> hda: attached ide-disk driver.
+> hda: host protected area => 1
+> hda: 78165360 sectors (40021 MB) w/2048KiB Cache, CHS=4865/255/63,
+> UDMA(100)
+> ide-floppy driver 0.99.newide
+> Partition check:
+>  hda: hda1 hda2 hda3 hda4 < hda5 hda6 hda7 hda8 hda9 >
+> ide-floppy driver 0.99.newide
+>
+> Note that ide2 isn't found even though I specifically gave the ports for
+> it on the "append line" of the boot.  I don't know enough about the
+> IDE/PDC support to be able to add support for this new PDC20376 chip.
+>
+> Anyone out there done this?
+>
+> Reid.
 

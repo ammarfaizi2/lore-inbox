@@ -1,93 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261190AbVBLTgE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261197AbVBLTug@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261190AbVBLTgE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Feb 2005 14:36:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbVBLTgE
+	id S261197AbVBLTug (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Feb 2005 14:50:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbVBLTuf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Feb 2005 14:36:04 -0500
-Received: from mail02.hansenet.de ([213.191.73.62]:51096 "EHLO
-	webmail.hansenet.de") by vger.kernel.org with ESMTP id S261190AbVBLTfx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Feb 2005 14:35:53 -0500
-Message-ID: <420E5AAD.7080206@web.de>
-Date: Sat, 12 Feb 2005 20:36:13 +0100
-From: Marcus Hartig <m.f.h@web.de>
-User-Agent: Mozilla Thunderbird  (X11/20041216)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: How to disable slow agpgart in kernel config?
-References: <420E4812.7000006@web.de> <1108232773.4056.120.camel@localhost.localdomain>
-In-Reply-To: <1108232773.4056.120.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 12 Feb 2005 14:50:35 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43705 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261195AbVBLTuX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Feb 2005 14:50:23 -0500
+Date: Sat, 12 Feb 2005 13:54:26 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Andi Kleen <ak@muc.de>
+Cc: Ray Bryant <raybry@sgi.com>, Ray Bryant <raybry@austin.rr.com>,
+       linux-mm <linux-mm@kvack.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC 2.6.11-rc2-mm2 0/7] mm: manual page migration -- overview
+Message-ID: <20050212155426.GA26714@logos.cnet>
+References: <20050212032535.18524.12046.26397@tomahawk.engr.sgi.com> <m1vf8yf2nu.fsf@muc.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1vf8yf2nu.fsf@muc.de>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
+On Sat, Feb 12, 2005 at 12:17:25PM +0100, Andi Kleen wrote:
+> Ray Bryant <raybry@sgi.com> writes:
+> > set of pages associated with a particular process need to be moved.
+> > The kernel interface that we are proposing is the following:
+> >
+> > page_migrate(pid, va_start, va_end, count, old_nodes, new_nodes);
+> 
+> [Only commenting on the interface, haven't read your patches at all]
+> 
+> This is basically mbind() with MPOL_F_STRICT, except that it has a pid 
+> argument. I assume that's for the benefit of your batch scheduler.
 
-> hmm I wonder.. .could you collect lspci -vxxx settings for the AGP
-> device (lspci -vxxx gives you lots of devices, but only one is relevant)
-> in both cases, maybe the difference between the two shows something
-> useful...
+As far as I understand mbind() is used to set policies to given memory 
+regions, not move memory regions?
 
-Hmmm...only the latency at the VGA card.
+> But it's not clear to me how and why the batch scheduler should know about
+> virtual addresses of different processes anyways. Walking
+> /proc/pid/maps? That's all inherently racy when the process is doing
+> mmap in parallel. The only way I can think of to do this would be to
+> check for changes in maps after a full move and loop, but then you risk
+> livelock.
 
-With AGPGART:
+True. 
 
-01:00.0 VGA compatible controller: nVidia Corporation NV35 [GeForce FX 
-5900] (rev a1) (prog-if 00 [VGA])
-         Flags: bus master, 66Mhz, medium devsel, latency 32, IRQ 5
-         Memory at e0000000 (32-bit, non-prefetchable) [size=16M]
-         Memory at d8000000 (32-bit, prefetchable) [size=128M]
-         Capabilities: [60] Power Management version 2
-         Capabilities: [44] AGP version 3.0
-00: de 10 31 03 07 00 b0 02 a1 00 00 03 00 20 00 00
-10: 00 00 00 e0 08 00 00 d8 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 60 00 00 00 00 00 00 00 05 01 05 01
-40: 00 00 00 00 02 00 30 00 1b 0e 00 1f 00 00 00 00
-50: 01 00 00 00 01 00 00 00 ce d6 23 00 0f 00 00 00
-60: 01 44 02 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+There is no problem, however, if all threads beloging to the process are stopped, 
+as Ray mentions. 
 
-With NV_AGP:
+So, there wont be memory mapping changes happening at the same time. 
 
-01:00.0 VGA compatible controller: nVidia Corporation NV35 [GeForce FX 
-5900] (rev a1) (prog-if 00 [VGA])
-         Flags: bus master, 66Mhz, medium devsel, latency 248, IRQ 5
-         Memory at e0000000 (32-bit, non-prefetchable) [size=16M]
-         Memory at d8000000 (32-bit, prefetchable) [size=128M]
-         Capabilities: [60] Power Management version 2
-         Capabilities: [44] AGP version 3.0
-00: de 10 31 03 07 00 b0 02 a1 00 00 03 00 f8 00 00
-10: 00 00 00 e0 08 00 00 d8 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 60 00 00 00 00 00 00 00 05 01 05 01
-40: 00 00 00 00 02 00 30 00 1b 0e 00 1f 02 43 00 1f
-50: 01 00 00 00 01 00 00 00 ce d6 23 00 0f 00 00 00
-60: 01 44 02 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+Note that the memory migration code which sys_page_migrate() uses moves
+running processes to other memory zones, handling truncate, etc.
 
+> And you cannot also just specify va_start=0, va_end=~0UL because that
+> would make the node arrays grow infinitely. 
+> 
+> Also is there a good use case why the batch scheduler should only
+> move individual areas in a process around, not the full process?
 
-Both complete output: http://www.marcush.de/bench/
+Quoting him:
 
-Greetings,
-Marcus
+"In addition to its use by batch schedulers, we also envision that
+this facility could be used by a program to re-arrange the allocation
+of its own pages on various nodes of the NUMA system, most likely
+to optimize performance of the application during different phases
+of its computation."
+
+Seems doable. 
+
+Are there any good xamples of optimizations that could be made by 
+moving pages around except for NUMA?
+
+Does IRIX has anything similar? 
+
+> I think the only sane way for an external process to move another 
+> around is to do it for the whole process. For that you wouldn't need
+> most of the arguments, but just a simple move_process_vm call,
+> or perhaps just a file in /proc where the new node can be written to.
+
+It seems interesting for a process to move its own vma for optimizations
+reasons?
+
+> There may be an argument to do this for individual 
+> tmpfs/hugetlbfs/sysv shm segments too, but mbind() already supports
+> that (just map them from a different process and change the policy there)
+> 
+> For process use you could just do it in mbind() or perhaps
+> part of the process policy (move page around when touched by process).
+
+Hum, how is that supposed to work ? You want to modify the pagefault handler? 

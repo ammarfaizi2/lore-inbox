@@ -1,33 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315358AbSHMNgf>; Tue, 13 Aug 2002 09:36:35 -0400
+	id <S315415AbSHMNnp>; Tue, 13 Aug 2002 09:43:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315414AbSHMNgf>; Tue, 13 Aug 2002 09:36:35 -0400
-Received: from sex.inr.ac.ru ([193.233.7.165]:18321 "HELO sex.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S315358AbSHMNge>;
-	Tue, 13 Aug 2002 09:36:34 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200208131340.RAA20981@sex.inr.ac.ru>
-Subject: Re: Linux TCP problem while talking to hostme.bkbits.net ?
-To: mroos@cs.ut.ee (Meelis Roos)
-Date: Tue, 13 Aug 2002 17:40:10 +0400 (MSD)
-Cc: davem@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.43.0208131137110.14316-100000@romulus.cs.ut.ee> from "Meelis Roos" at Aug 13, 2 11:40:08 am
-X-Mailer: ELM [version 2.4 PL24]
+	id <S315427AbSHMNnp>; Tue, 13 Aug 2002 09:43:45 -0400
+Received: from [62.70.77.106] ([62.70.77.106]:19086 "EHLO mail.pronto.tv")
+	by vger.kernel.org with ESMTP id <S315415AbSHMNnp> convert rfc822-to-8bit;
+	Tue, 13 Aug 2002 09:43:45 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: ProntoTV AS
+To: Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: O_DIRECT support in ext3?
+Date: Tue, 13 Aug 2002 15:48:36 +0200
+User-Agent: KMail/1.4.1
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200208131548.36267.roy@karlsbakk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+hi all
 
-> Things got stranger. The symptoms started to appear
+playing around with O_DIRECT, I really _can't_ make it work on ext3?
 
-:-) Hey, if we are not going to finish in lunatic asylum we need to do
-something constructive yet. Please, find the place where the packet is dropped.
+why is this?
 
-I do not understand what happens at all. It is surely not a plain
-packet corruption because tcpdump shows correct packet. Hmm... of course,
-provided you make tcpdump on receiving host.
+roy
+-- 
+Roy Sigurd Karlsbakk, Datavaktmester
 
+Computers are like air conditioners.
+They stop working when you open Windows.
 
-Alexey

@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262538AbVAPQ2u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262541AbVAPQqw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262538AbVAPQ2u (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 11:28:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262541AbVAPQ2u
+	id S262541AbVAPQqw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 11:46:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262542AbVAPQqw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 11:28:50 -0500
-Received: from mail.mellanox.co.il ([194.90.237.34]:56737 "EHLO
-	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S262538AbVAPQ2A
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 11:28:00 -0500
-Date: Sun, 16 Jan 2005 18:28:16 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: changing local version requires full rebuild
-Message-ID: <20050116162816.GA4715@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <20050116152242.GA4537@mellanox.co.il> <20050116161622.GC3090@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050116161622.GC3090@mars.ravnborg.org>
-User-Agent: Mutt/1.4.1i
+	Sun, 16 Jan 2005 11:46:52 -0500
+Received: from gannet.scg.man.ac.uk ([130.88.94.110]:38922 "EHLO
+	gannet.scg.man.ac.uk") by vger.kernel.org with ESMTP
+	id S262541AbVAPQqu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jan 2005 11:46:50 -0500
+Message-ID: <41EABBEB.10702@gentoo.org>
+Date: Sun, 16 Jan 2005 19:09:31 +0000
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041209)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Joseph Fannin <jhf@rivenstone.net>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Neil Brown <neilb@cse.unsw.edu.au>,
+       William Park <opengeometry@yahoo.ca>, wli@holomorphy.com
+Subject: Re: 2.6.11-rc1-mm1
+References: <20050114002352.5a038710.akpm@osdl.org> <20050116005930.GA2273@zion.rivenstone.net>
+In-Reply-To: <20050116005930.GA2273@zion.rivenstone.net>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1CqDY8-0007UR-Et*28UbI52X.RA*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
-Quoting r. Sam Ravnborg (sam@ravnborg.org) "Re: changing local version requires full rebuild":
-> On Sun, Jan 16, 2005 at 05:22:42PM +0200, Michael S. Tsirkin wrote:
-> > Hi!
-> > Is it just me, or does changing the local version always require
-> > a full kernel rebuild?
-> > 
-> > If so, I'd like to fix it, since I like copying
-> > my kernel source with --preserve and changing the
-> > local version, then going back to the old version in case of
-> > a crash.
-> > Its important to change the local version to force 
-> > make install and make modules_install to put things in a separate
-> > directory.
+Joseph Fannin wrote:
+> On Fri, Jan 14, 2005 at 12:23:52AM -0800, Andrew Morton wrote:
 > 
-> Just tried it out here.
-> After cp -Ra only a limited part of the kernel rebuilds.
-> o oiu.c in ieee directory - because it dependson the shell script
-> o A number of drivers that include version.h
-> 	- This should be changed so local version does not affect
-> 	  the reast of version.h.
-> o Other stuff that is always build if kernel has changed
+>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc1/2.6.11-rc1-mm1/
 > 
-> Do you use "echo -mylocalver > localversion" to change the local version?
 > 
-> 	Sam
+>>waiting-10s-before-mounting-root-filesystem.patch
+>>  retry mounting the root filesystem at boot time
+> 
+> 
+>     With this patch, initrds seem to get 'skipped'.  I think this is
+> probably the cause for the reports of problems with RAID too.
 
-No, I do makemenuconfig to edit the version. Is that right?
+This seems likely and is probably also the cause of wli's problems mentioned 
+elsewhere in this thread.
 
-mst
+I had overlooked the way that initrd's work in that part of the boot sequence. 
+Will investigate.
+
+Daniel

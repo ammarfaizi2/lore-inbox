@@ -1,79 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262652AbVAPX4x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262620AbVAQAiW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262652AbVAPX4x (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 18:56:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262653AbVAPX4w
+	id S262620AbVAQAiW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 19:38:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262653AbVAQAho
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 18:56:52 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:44754 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S262652AbVAPX4r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 18:56:47 -0500
-From: Ian Wienand <ianw@gelato.unsw.edu.au>
-To: mingo@elte.hu, linux-kernel@vger.kernel.org
-Date: Mon, 17 Jan 2005 10:56:37 +1100
-Subject: Typo in BUILD_LOCK_OPS in spinlock.c causes preempt build failure
-Message-ID: <20050116235637.GD20009@cse.unsw.EDU.AU>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="AbQceqfdZEv+FvjW"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040523i
+	Sun, 16 Jan 2005 19:37:44 -0500
+Received: from mail.dif.dk ([193.138.115.101]:47341 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S262620AbVAQAhc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jan 2005 19:37:32 -0500
+Date: Mon, 17 Jan 2005 01:40:19 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, Dave Jones <davej@redhat.com>
+Subject: [PATCH] Line up CPU caps messages once more
+Message-ID: <Pine.LNX.4.61.0501170127260.2730@dragon.hygekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---AbQceqfdZEv+FvjW
-Content-Type: multipart/mixed; boundary="B4IIlcmfBL/1gGOG"
-Content-Disposition: inline
+A while back I submitted a patch that made the "CPU: After * identify, 
+caps:" messages produced by printk's in arch/i386/kernel/cpu/common.c line 
+up nicely (http://www.ussg.iu.edu/hypermail/linux/kernel/0406.3/0222.html).
+The patch was accepted back then, but recently a new patch  
+http://linux.bkbits.net:8080/linux-2.6/diffs/arch/i386/kernel/cpu/common.c@1.35?nav=index.html|src/|src/arch|src/arch/i386|src/arch/i386/kernel|src/arch/i386/kernel/cpu|hist/arch/i386/kernel/cpu/common.c 
+ broke that nice lineup of the messages again, so here's a patch to 
+restore the visually pleasing printing of those messages (it also adds 
+two comments this time to indicate that the extra spaces are there for a 
+reason).
+Hopefully this will make it back in, it looks so much nicer when stuff 
+lines up like this:
+CPU: After generic identify, caps: 0183f9ff c1c7f9ff 00000000 00000000 00000000 00000000 00000000
+CPU: After vendor identify, caps:  0183f9ff c1c7f9ff 00000000 00000000 00000000 00000000 00000000
+CPU: After all inits, caps:        0183f9ff c1c7f9ff 00000000 00000020 00000000 00000000 00000000
 
 
---B4IIlcmfBL/1gGOG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
-Hi,
-
-Our auto kernel build (http://www.gelato.unsw.edu.au/kerncomp/) was
-dying with preempt turned on with latest BK; BUILD_LOCK_OPS is using a
-spinlock function for a rwlock.
-
-Thanks,
-
--i
-ianw@gelato.unsw.edu.au
-http://www.gelato.unsw.edu.au
-
---B4IIlcmfBL/1gGOG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="spinlock.c.diff"
-
-===== kernel/spinlock.c 1.4 vs edited =====
---- 1.4/kernel/spinlock.c	2005-01-15 11:00:00 +11:00
-+++ edited/kernel/spinlock.c	2005-01-17 10:43:44 +11:00
-@@ -248,7 +248,7 @@
-  */
- BUILD_LOCK_OPS(spin, spinlock_t, spin_is_locked);
- BUILD_LOCK_OPS(read, rwlock_t, rwlock_is_locked);
--BUILD_LOCK_OPS(write, rwlock_t, spin_is_locked);
-+BUILD_LOCK_OPS(write, rwlock_t, rwlock_is_locked);
+diff -up linux-2.6.11-rc1-bk4-orig/arch/i386/kernel/cpu/common.c linux-2.6.11-rc1-bk4/arch/i386/kernel/cpu/common.c
+--- linux-2.6.11-rc1-bk4-orig/arch/i386/kernel/cpu/common.c	2005-01-12 23:26:01.000000000 +0100
++++ linux-2.6.11-rc1-bk4/arch/i386/kernel/cpu/common.c	2005-01-17 01:16:29.000000000 +0100
+@@ -350,7 +350,8 @@ void __init identify_cpu(struct cpuinfo_
+ 	if (this_cpu->c_identify) {
+ 		this_cpu->c_identify(c);
  
- #endif /* CONFIG_PREEMPT */
+-		printk(KERN_DEBUG "CPU: After vendor identify, caps:");
++		/* extra spacing at the end on purpose to line up message with above printk */
++		printk(KERN_DEBUG "CPU: After vendor identify, caps: ");
+ 		for (i = 0; i < NCAPINTS; i++)
+ 			printk(" %08lx", c->x86_capability[i]);
+ 		printk("\n");
+@@ -404,7 +405,8 @@ void __init identify_cpu(struct cpuinfo_
  
+ 	/* Now the feature flags better reflect actual CPU features! */
+ 
+-	printk(KERN_DEBUG "CPU: After all inits, caps:");
++	/* extra spacing at the end on purpose to line up message with above printk */
++	printk(KERN_DEBUG "CPU: After all inits, caps:       ");
+ 	for (i = 0; i < NCAPINTS; i++)
+ 		printk(" %08lx", c->x86_capability[i]);
+ 	printk("\n");
 
---B4IIlcmfBL/1gGOG--
 
---AbQceqfdZEv+FvjW
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFB6v81WDlSU/gp6ecRAjQDAKDnEVOPwADYb9pqRpZeRYo7uCah5ACfaVAh
-YW3uZ41zmVeIzZUTyV2+tFY=
-=sNc4
------END PGP SIGNATURE-----
-
---AbQceqfdZEv+FvjW--

@@ -1,67 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267944AbTBRRmh>; Tue, 18 Feb 2003 12:42:37 -0500
+	id <S267879AbTBRRr2>; Tue, 18 Feb 2003 12:47:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267945AbTBRRmh>; Tue, 18 Feb 2003 12:42:37 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:50158 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S267944AbTBRRmg>;
-	Tue, 18 Feb 2003 12:42:36 -0500
-Message-ID: <3E5272A0.80803@us.ibm.com>
-Date: Tue, 18 Feb 2003 09:51:28 -0800
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
-X-Accept-Language: en
+	id <S267910AbTBRRr2>; Tue, 18 Feb 2003 12:47:28 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:16137 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S267879AbTBRRrE>; Tue, 18 Feb 2003 12:47:04 -0500
+Subject: PATCH: add generic ide iops
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Date: Tue, 18 Feb 2003 17:57:26 +0000 (GMT)
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fix kirq code for clustered mode
-Content-Type: multipart/mixed;
- boundary="------------050604080001000905070301"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E18lBzi-00066W-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050604080001000905070301
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+This abstracts out the mmio copies as PPC at least has better ways to
+this and there are other issues on other platforms. It keeps DaveM happy
+too 8)
 
-The new kirq code breaks clustered apic mode.  This 2-liner fixes it.
-It should compile down to the same thing, unless you're using a
-clustered apic sub-arch.
-
--- 
-Dave Hansen
-haveblue@us.ibm.com
-
---------------050604080001000905070301
-Content-Type: text/plain;
- name="kirq-apicid-fix-2.5.62-2.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="kirq-apicid-fix-2.5.62-2.patch"
-
-diff -ru linux-2.5.62-clean/arch/i386/kernel/io_apic.c linux-2.5.62-kirqfix/arch/i386/kernel/io_apic.c
---- linux-2.5.62-clean/arch/i386/kernel/io_apic.c	Mon Feb 17 14:56:10 2003
-+++ linux-2.5.62-kirqfix/arch/i386/kernel/io_apic.c	Tue Feb 18 09:44:22 2003
-@@ -441,7 +441,7 @@
- 		Dprintk("irq = %d moved to cpu = %d\n", selected_irq, min_loaded);
- 		/* mark for change destination */
- 		spin_lock(&desc->lock);
--		irq_balance_mask[selected_irq] = target_cpu_mask;
-+		irq_balance_mask[selected_irq] = cpu_to_logical_apicid(min_loaded);
- 		spin_unlock(&desc->lock);
- 		/* Since we made a change, come back sooner to 
- 		 * check for more variation.
-@@ -515,7 +515,7 @@
- 	
- 	/* push everything to CPU 0 to give us a starting point.  */
- 	for (i = 0 ; i < NR_IRQS ; i++)
--		irq_balance_mask[i] = 1 << 0;
-+		irq_balance_mask[i] = cpu_to_logical_apicid(0);
- 	for (;;) {
- 		set_current_state(TASK_INTERRUPTIBLE);
- 		time_remaining = schedule_timeout(time_remaining);
-Only in linux-2.5.62-kirqfix/arch/i386/kernel: io_apic.c~
-
---------------050604080001000905070301--
-
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.61/include/asm-generic/ide_iops.h linux-2.5.61-ac2/include/asm-generic/ide_iops.h
+--- linux-2.5.61/include/asm-generic/ide_iops.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.5.61-ac2/include/asm-generic/ide_iops.h	2003-02-18 14:31:01.000000000 +0000
+@@ -0,0 +1,38 @@
++/* Generic I/O and MEMIO string operations.  */
++
++#define __ide_insw	insw
++#define __ide_insl	insl
++#define __ide_outsw	outsw
++#define __ide_outsl	outsl
++
++static __inline__ void __ide_mm_insw(unsigned long port, void *addr, u32 count)
++{
++	while (count--) {
++		*(u16 *)addr = readw(port);
++		addr += 2;
++	}
++}
++
++static __inline__ void __ide_mm_insl(unsigned long port, void *addr, u32 count)
++{
++	while (count--) {
++		*(u32 *)addr = readl(port);
++		addr += 4;
++	}
++}
++
++static __inline__ void __ide_mm_outsw(unsigned long port, void *addr, u32 count)
++{
++	while (count--) {
++		writew(*(u16 *)addr, port);
++		addr += 2;
++	}
++}
++
++static __inline__ void __ide_mm_outsl(unsigned long port, void *addr, u32 count)
++{
++	while (count--) {
++		writel(*(u32 *)addr, port);
++		addr += 4;
++	}
++}

@@ -1,70 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262618AbUCRNbS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 08:31:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262624AbUCRNbS
+	id S262634AbUCRNg0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 08:36:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262626AbUCRNg0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 08:31:18 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:9137 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262618AbUCRNbK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 08:31:10 -0500
-Date: Thu, 18 Mar 2004 14:31:08 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "Peter T. Breuer" <ptb@it.uc3m.es>
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: floppy driver 2.6.3 question
-Message-ID: <20040318133108.GS22234@suse.de>
-References: <20040318122831.GO22234@suse.de> <200403181325.i2IDP4N19962@oboe.it.uc3m.es>
+	Thu, 18 Mar 2004 08:36:26 -0500
+Received: from stat1.steeleye.com ([65.114.3.130]:49367 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S262635AbUCRNgQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 08:36:16 -0500
+Subject: Re: [PATCH] Fix removable USB drive oops
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Greg KH <greg@kroah.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040318005838.GA25884@kroah.com>
+References: <200403141810.i2EIAtK9032222@hera.kernel.org> 
+	<20040318005838.GA25884@kroah.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 18 Mar 2004 08:36:11 -0500
+Message-Id: <1079616973.2021.5.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200403181325.i2IDP4N19962@oboe.it.uc3m.es>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 18 2004, Peter T. Breuer wrote:
-> "Also sprach Jens Axboe:"
-> > > Good idea. rl is inviolate, but I set at least |=REQ_NOMERGE sometimes
-> > > on flags. And I pass ioctl information in fake requests by setting
-> > 
-> > May I ask on what commands you set that bit?
+On Wed, 2004-03-17 at 19:58, Greg KH wrote:
+> Bah, this was my fault, sorry.
 > 
-> I set it on requests I have gotten myself via blk_get_request(..., WRITE,
-> GFP_ATOMIC) and which are destined to be passed onto the drivers request
-> queue and treated by the request function. The request function will
-> know what to do with them. The bit I mention below is also set on them:
+> Here's a patch that should fix this, and prevent you from needing this
+> patch.  Can you verify this?
 
-Ok, sounds fine.
+No, no.  It was Martin's fault: He used a NULL class to indicate that we
+had no transport class.
 
-> > > the bit just beyond the edge of those currently used (__REQ_BITS) to
-> > > indicate its an ioctl and treating it specially in end request. Maybe
-> > > on error I forgot to remove the extra bit before doing put_blk_request
-> > 
-> > Ugh, that sounds like very bad practice... The 'standard' way of doing
-> > something like that is to flag REQ_SPECIAL and put whatever structure
-> > you want in ->special.
-> 
-> Hmm .. I though SPECIAL was "just" to ensure ordering of requests and
-> I went to some lengths to ensure that if I receive a request then we
-> start diverting incoming requests to an alternate queue until we have
-> treated all the requests already on the device queue! Then we ack the
-> special and pass the requests back from the alternate queue. You are
-> telling me that I needn't have bothered since I'm the only one who
-> could generate a special? Owww.
+The registration code in SCSI looks like:
 
-No, ->special is for the driver receiving the request, I don't know what
-kind of bastard driver you are trying to create :-). If you pass it on,
-you cannot use it.
+	if (sdev->transport_classdev.class) {
+		error = class_device_add(&sdev->transport_classdev);
 
-But your code just using the after-last bit is still severly broken, you
-must not play tricks like that.
+i.e. only add the device if we actually have a transport class.  The
+oops was caused because the unregister code was unconditional (i.e.
+unregister a device we never registered in the first place).  The patch
+(among other things) makes it conditional on the
+sdev->transport_classdev.class like the registration.
 
-Actually, sounds like you are attempting to create an io stack at the
-wrong level. Why aren't you just hooking into ->make_request_fn()
-instead? You are in for all sorts of pains doing what you describe
-above.
+James
 
--- 
-Jens Axboe
 

@@ -1,65 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261920AbTIVVff (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 17:35:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbTIVVff
+	id S261178AbTIVVvP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 17:51:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbTIVVvP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 17:35:35 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:26306 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S261980AbTIVVfa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 17:35:30 -0400
-Message-ID: <3F6F6B1B.9040609@nortelnetworks.com>
-Date: Mon, 22 Sep 2003 17:35:23 -0400
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: compiler warnings and syscall macros
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 22 Sep 2003 17:51:15 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:34574 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261178AbTIVVvO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 17:51:14 -0400
+Date: Mon, 22 Sep 2003 16:51:04 -0500
+From: Tommy Reynolds <reynolds@redhat.com>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: compiler warnings and syscall macros
+Message-Id: <20030922165104.29176e94.reynolds@redhat.com>
+In-Reply-To: <3F6F6B1B.9040609@nortelnetworks.com>
+References: <3F6F6B1B.9040609@nortelnetworks.com>
+Organization: Red Hat GLS
+X-Mailer: Sylpheed version 0.9.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$
+ t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl
+ 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Uttered Chris Friesen <cfriesen@nortelnetworks.com>, spoke thus:
 
-I'm trying to figure something out.  For ppc, in asm/unistd.h, 
-__syscall_nr is defined as:
+> Would it hurt anything if I put in an explicit cast, like this?
+> 
+> __sc_ret = (unsigned long) -1;
 
+Why not do the obvious:
 
-#define __syscall_nr(nr, type, name, args...)	\
-	unsigned long __sc_ret, __sc_err;	\
-	{					\
-<snipped for brevity>
-	}					\
-	if (__sc_err & 0x10000000)		\
-	{					\
-		errno = __sc_ret;		\
-		__sc_ret = -1;			\
-	}					\
-	return (type) __sc_ret
+	__sc_ret = -1UL;
 
-
-Whenever I use this in my code, I get compiler warnings about the 
-statment "__sc_ret = -1" since it is assigning a negative value to an 
-unsigned int.
-
-Would it hurt anything if I put in an explicit cast, like this?
-
-__sc_ret = (unsigned long) -1;
-
-This seems to get rid of the warnings, and I can't imagine it hurting 
-anything.
-
-Am I missing something bad here?
-
-
-Chris
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
-
+and use a proper constant?

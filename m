@@ -1,33 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267392AbTBFVSI>; Thu, 6 Feb 2003 16:18:08 -0500
+	id <S267410AbTBFVYm>; Thu, 6 Feb 2003 16:24:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267410AbTBFVSI>; Thu, 6 Feb 2003 16:18:08 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:16801
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267392AbTBFVSH>; Thu, 6 Feb 2003 16:18:07 -0500
-Subject: Re: NAT counting
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Lamont Granquist <lamont@scriptkiddie.org>
-Cc: Stephen Clark <sclark46@earthlink.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030206101319.P14724-100000@coredump.scriptkiddie.org>
-References: <20030206101319.P14724-100000@coredump.scriptkiddie.org>
-Content-Type: text/plain
+	id <S267412AbTBFVYm>; Thu, 6 Feb 2003 16:24:42 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:41991 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S267410AbTBFVYl>;
+	Thu, 6 Feb 2003 16:24:41 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200302062132.h16LWtTn002739@darkstar.example.net>
+Subject: Re: gcc -O2 vs gcc -Os performance
+To: mbligh@aracnet.com (Martin J. Bligh)
+Date: Thu, 6 Feb 2003 21:32:55 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net
+In-Reply-To: <263740000.1044563891@[10.10.2.4]> from "Martin J. Bligh" at Feb 06, 2003 12:38:11 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1044570326.12098.14.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 06 Feb 2003 22:25:27 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-02-06 at 18:14, Lamont Granquist wrote:
-> If anyone is working on fixing this, they'll also need to fix up TCP
-> timestamps and maybe ISNs as well as IPids.
+> >> All done with gcc-2.95.4 (Debian Woody). These machines (16x NUMA-Q) have 
+> >> 700MHz P3 Xeons with 2Mb L2 cache ... -Os might fare better on celeron 
+> >> with a puny cache if someone wants to try that out
+> > 
+> > gcc 3.2 is a lot smarter about -Os and it makes a very big size
+> > difference according to the numbers the from the ACPI guys.
+> > 
+> > Im not sure testing with a gcc from the last millenium is useful 8)
+> 
+> Still no use.
+> /me throws gcc-3.2 in the trash can.
 
-And encrypt all application level traffic very carefully, otherwise things
-like web client headers, ftp context and the like will allow people to 
-estimate some stuff.
+What submodel options are you using?  If you're compiling with
+-march=i386, I wouldn't expect -Os to have much effect.
 
+Note that, of all architectures, GCC is almost certainly most
+efficient on IA-32.  Although I haven't done any benchmarks against
+other compilers on $arch!=IA32, the ones I've seen claim that the
+native compiler generates much better code.
+
+John.

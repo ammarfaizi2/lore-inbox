@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277653AbRKVMMU>; Thu, 22 Nov 2001 07:12:20 -0500
+	id <S277568AbRKVMLU>; Thu, 22 Nov 2001 07:11:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277713AbRKVMMM>; Thu, 22 Nov 2001 07:12:12 -0500
-Received: from ns.caldera.de ([212.34.180.1]:34437 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S277653AbRKVMMC>;
-	Thu, 22 Nov 2001 07:12:02 -0500
-Date: Thu, 22 Nov 2001 13:11:50 +0100
-Message-Id: <200111221211.fAMCBoc15728@ns.caldera.de>
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: oliver@neukum.org (Oliver Neukum)
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alexander Viro <viro@math.psu.edu>,
-        Rick Lindsley <ricklind@us.ibm.com>,
-        "David C. Hansen" <haveblue@us.ibm.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Remove needless BKL from release functions
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <01112211121601.00690@argo>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
+	id <S277653AbRKVMLK>; Thu, 22 Nov 2001 07:11:10 -0500
+Received: from fungus.teststation.com ([212.32.186.211]:42764 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id <S277568AbRKVMLB>; Thu, 22 Nov 2001 07:11:01 -0500
+Date: Thu, 22 Nov 2001 13:10:53 +0100 (CET)
+From: Urban Widmark <urban@teststation.com>
+To: Petr =?ISO-8859-1?Q?Tite=28ra?= <P.Titera@century.cz>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Filesize limit on SMBFS
+In-Reply-To: <3BFCC0EF.5050308@century.cz>
+Message-ID: <Pine.LNX.4.30.0111221305520.4258-100000@cola.teststation.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <01112211121601.00690@argo> you wrote:
-> At least some of the removals in the input tree are probably wrong. You are 
-> introducing a race with deregistering of input devices.
+On Thu, 22 Nov 2001, Petr Tite(ra wrote:
 
-Nope, it's fine to remove it.  Input is racy all over the place and the list
-are modified somewhere else without any locking anyways.
+>     is maximum file size on SMBFS really 2GB? I cannot create file 
+> bigger than that.
 
-	Christoph
+Yes.
 
--- 
-Of course it doesn't work. We've performed a software upgrade.
+I have patches if you want to be my victim^Wtester.
+
+You must be using an NT/2k/XP machine as server, win9x has a 4G limit
+(vfat limit?).
+
+Let me know which 2.4 kernel you are using. And if you don't already run a
+kernel you compiled yourself, please do that first as you must recompile
+to test the patches anyway (smbfs as a module is recommended, then you
+should be able to only rebuild the modules part).
+
+/Urban
+

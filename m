@@ -1,59 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262719AbUCWRQw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 12:16:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262709AbUCWRQw
+	id S262709AbUCWRTh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 12:19:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262728AbUCWRTd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 12:16:52 -0500
-Received: from hoemail1.lucent.com ([192.11.226.161]:5810 "EHLO
-	hoemail1.firewall.lucent.com") by vger.kernel.org with ESMTP
-	id S262719AbUCWRQu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 12:16:50 -0500
+	Tue, 23 Mar 2004 12:19:33 -0500
+Received: from kiuru.kpnet.fi ([193.184.122.21]:3307 "EHLO kiuru.kpnet.fi")
+	by vger.kernel.org with ESMTP id S262709AbUCWRTc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Mar 2004 12:19:32 -0500
+Date: Tue, 23 Mar 2004 19:18:24 +0200 (EET)
+From: =?iso-8859-1?Q?Markus_H=E4stbacka?= <midian@ihme.org>
+X-X-Sender: midian@midi.ihme.net
+To: Jos Hulzink <josh@stack.nl>
+cc: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: OSS: cleanup or throw away
+In-Reply-To: <20040323112305.F52644@toad.stack.nl>
+Message-ID: <20040323191330.W29917@midi.ihme.net>
+References: <200403221955.52767.jos@hulzink.net> <20040322202220.GA13042@mulix.org>
+ <20040323082338.GD23546@lgb.hu> <20040323112305.F52644@toad.stack.nl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16480.28882.388997.71072@gargle.gargle.HOWL>
-Date: Tue, 23 Mar 2004 12:16:02 -0500
-From: "John Stoffel" <stoffel@lucent.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: arch/i386/Kconfig: CONFIG_IRQBALANCE Description
-In-Reply-To: <1079996577.6595.19.camel@bach>
-References: <1079996577.6595.19.camel@bach>
-X-Mailer: VM 7.14 under Emacs 20.6.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 23 Mar 2004, Jos Hulzink wrote:
+> Maybe we should start ditching OSS drivers of cards that are known to work
+> "reasonably well" in ALSA. If someone starts screaming "I need OSS for the
+> ALSA driver contains a bug", that bug might even be located and dealt with
+> much sooner. The ALSA OSS emulation is good enough for user land
+> applications to survive I think, so it's just a matter of driver bugs.
+>
+Not true.
 
-And hey, under 2.6.5-rc2-mm1, it doens't seem to do anything:
+> This way we end with a list of OSS drivers that are not ported yet or that
+> never will be ported.
+>
+> OTOH, I don't know how the big bosses here think about ditching OSS
+> from a stable kernel tree... Can imagine they think it is not done.
+>
+Good idea, then maybe someone will fix the bug that makes ALSA unusable
+for me. (Or maybe it's a feature? O_o)
 
-  > cat /proc/version 
-  Linux version 2.6.5-rc2-mm1 (john@jfsnew) (gcc version 3.3.3 (Debian 20040314)) #3 SMP Sun Mar 21 15:26:27 EST 2004
+I don't describe it here, I've sent a few mails about it, no response, so
+I don't wait for any response this time either, so why bother.
 
-  > zcat /proc/config.gz | grep IRQ
-  CONFIG_IRQBALANCE=y
-  CONFIG_IDEPCI_SHARE_IRQ=y
-
-  > cat /proc/interrupts 
-	     CPU0       CPU1       
-    0:   46272316        487    IO-APIC-edge  timer
-    1:        376          0    IO-APIC-edge  i8042
-    2:          0          0          XT-PIC  cascade
-    4:       4147          1    IO-APIC-edge  serial
-    7:          2          0    IO-APIC-edge  parport0
-    8:          4          0    IO-APIC-edge  rtc
-   11:      95936          1    IO-APIC-edge  Cyclom-Y
-   12:        677          0    IO-APIC-edge  i8042
-   14:         87          0    IO-APIC-edge  ide0
-   16:      46770          3   IO-APIC-level  ide2, ide3, ehci_hcd
-   17:     307832          1   IO-APIC-level  eth0
-   18:     118258          1   IO-APIC-level  aic7xxx, aic7xxx, ohci_hcd
-   19:          0          0   IO-APIC-level  ohci_hcd
-  NMI:          0          0 
-  LOC:   46279245   46279281 
-  ERR:          0
-  MIS:        417
-
-
-John
+	Markus

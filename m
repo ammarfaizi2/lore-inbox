@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266648AbUJGOwp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266901AbUJGOuk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266648AbUJGOwp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 10:52:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264085AbUJGOwp
+	id S266901AbUJGOuk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 10:50:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264085AbUJGOuj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 10:52:45 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:58030 "EHLO
+	Thu, 7 Oct 2004 10:50:39 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:55726 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S266648AbUJGOvk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 10:51:40 -0400
+	id S267186AbUJGOtm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 10:49:42 -0400
 Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 To: Martijn Sipkema <msipkema@sipkema-digital.com>
@@ -30,23 +30,41 @@ References: <Pine.LNX.4.58.0410061616420.22221@eljakim.netsystem.nl>
 	 <001c01c4ac76$fb9fd190$161b14ac@boromir>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1097156929.31753.47.camel@localhost.localdomain>
+Message-Id: <1097156727.31753.44.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 07 Oct 2004 14:48:53 +0100
+Date: Thu, 07 Oct 2004 14:45:30 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-10-07 at 15:07, Martijn Sipkema wrote:
-> > Much can change between the select() and recvmsg - things outside of 
-> > kernel control too, and it's long been known.
-> 
-> There is no change; the current implementation just checks the validity of
-> the data in the recvmsg() call and not during select().
+> Read the standard. The behavious of select() on sockets is explicitely
+> described.
 
-The accept one is documented by Stevens and well known. In the UDP case
-currently we could get precise behaviour - by halving performance of UDP
-applications like video streaming. We probably don't want to  because we
-can respond intelligently to OOM situations by freeing the queue if we
-don't enforce such a silly rule.
+For a strict posix system, but then if we were a strict posix/sus system
+you wouldn't be able to use mmap. Also the kernel doesn't claim to
+implement posix behaviour, it avoids those areas were posix is stupid.
+
+> > POSIX_ME_HARDER? ;)
+> 
+> Would you care to provide any real answers or are you just telling
+> me to shut up because whatever Linux does is good, and not appear
+> unreasonable by adding a ;) ..?
+
+POSIX_ME_HARDER was an environment variable GNU tools used when users
+wanted them to do stupid but posix mandated things instead of sensible
+things. It was later changed to POSIXLY_CORRECT, which lost the point
+somewhat.
+
+> > You really shouldnt assume select state is guaranteed not to change 
+> > by time you get round to doing IO. It's not safe, and not just on 
+> > Linux - whatever POSIX says.
+> 
+> Any sane application would be written for the POSIX API as described
+> in the standard, and a sane kernel should IMHO implement that standard
+> whenever possible.
+
+I doubt that. Sane applications are written to the BSD socket API not
+POSIX 1003.1g draft 6.4 and relatives.
+
+Alan
 

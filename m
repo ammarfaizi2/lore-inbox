@@ -1,54 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262536AbREUXi5>; Mon, 21 May 2001 19:38:57 -0400
+	id <S262545AbREVAWz>; Mon, 21 May 2001 20:22:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262538AbREUXir>; Mon, 21 May 2001 19:38:47 -0400
-Received: from smtp2.Stanford.EDU ([171.64.14.116]:58249 "EHLO
-	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP
-	id <S262536AbREUXib>; Mon, 21 May 2001 19:38:31 -0400
-Message-Id: <5.0.2.1.2.20010521163446.00a85fa0@pxwang.pobox.stanford.edu>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Mon, 21 May 2001 16:38:19 -0700
-To: alan@lxorguk.ukuu.org.uk
-From: Philip Wang <PXWang@stanford.edu>
-Subject: [PATCH] drivers/mtd/mtdchar.c
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        Dawson Engler <engler@cs.Stanford.EDU>
+	id <S262546AbREVAWo>; Mon, 21 May 2001 20:22:44 -0400
+Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:42459 "EHLO
+	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S262545AbREVAWi>; Mon, 21 May 2001 20:22:38 -0400
+Date: Tue, 22 May 2001 02:22:34 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Machek <pavel@suse.cz>,
+        Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Matthew Wilcox <matthew@wil.cx>, Andrew Clausen <clausen@gnu.org>,
+        Ben LaHaise <bcrl@redhat.com>, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
+Message-ID: <20010522022234.T754@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <E151xFO-0000ue-00@the-village.bc.nu> <Pine.GSO.4.21.0105211745490.12245-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.GSO.4.21.0105211745490.12245-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Mon, May 21, 2001 at 05:51:08PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Mon, May 21, 2001 at 05:51:08PM -0400, Alexander Viro wrote:
+> Sure. But we have to do two syscalls only if ioctl has both in- and out-
+> arguments that way. Moreover, we are talking about non-trivial in- arguments.
+> How many of these are in hotspots?
 
-I'm Philip, from Professor Dawson Engler's Meta-Compilation Group at 
-Stanford University.
+ioctl has actually 4 semantics:
 
-There is a bug in mtdchar.c of not freeing memory on error paths.  databuf 
-is allocated but not freed if copy_from_user fails.  The addition I made 
-was to kfree databuf before returning -EFAULT.  Thanks!
+command only
+command + read
+command + write
+command + rw-transaction
 
-Warmly,
+Separating these would be a first step. And yes, I consider each
+of them useful.
 
-Philip
+command only: reset drive
+command + rw-transaction: "dear device please mangle this data"
+   (crypto processors come to mind...)
 
-linux/2.4.4/drivers/mtd/mtdchar.c Fri Feb 9 11:30:23 2001
-+++ mtdchar.c Mon May 21 13:33:02 2001
-@@ -310,9 +310,10 @@
-if (!databuf)
-return -ENOMEM;
+The other two are obviously needed and already accepted by all of
+you.
 
-- if (copy_from_user(databuf, buf.ptr, buf.length))
-- return -EFAULT;
--
-+ if (copy_from_user(databuf, buf.ptr, buf.length)) {
-+ kfree(databuf);
-+ return -EFAULT;
-+ }
-ret = (mtd->write_oob)(mtd, buf.start, buf.length, &retlen,
-databuf);
-
-if (copy_to_user((void *)arg + sizeof(loff_t), &retlen,
-sizeof(ssize_t)))
+Hotspots: crypto hardware or generally DSPs.
 
 
+Regards
+
+Ingo Oeser
+-- 
+To the systems programmer,
+users and applications serve only to provide a test load.

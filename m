@@ -1,49 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316870AbSE1R44>; Tue, 28 May 2002 13:56:56 -0400
+	id <S316872AbSE1SEC>; Tue, 28 May 2002 14:04:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316871AbSE1R4z>; Tue, 28 May 2002 13:56:55 -0400
-Received: from dsl-213-023-038-133.arcor-ip.net ([213.23.38.133]:20361 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S316870AbSE1R4y>;
-	Tue, 28 May 2002 13:56:54 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: "Adam J. Richter" <adam@freya.yggdrasil.com>, alan@lxorguk.ukuu.org.uk
-Subject: Re: business models [was patent stuff]
-Date: Tue, 28 May 2002 19:52:09 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: gilad@benyossef.com, linux-kernel@vger.kernel.org, lm@bitmover.com
-In-Reply-To: <200205281713.KAA22774@freya.yggdrasil.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17Cl8k-0004eq-00@starship>
+	id <S316873AbSE1SEC>; Tue, 28 May 2002 14:04:02 -0400
+Received: from host194.steeleye.com ([216.33.1.194]:36621 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S316872AbSE1SEB>; Tue, 28 May 2002 14:04:01 -0400
+Message-Id: <200205281803.g4SI3vx05013@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Roman Zippel <zippel@linux-m68k.org>
+cc: James Bottomley <James.Bottomley@SteelEye.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: A reply on the RTLinux discussion. 
+In-Reply-To: Message from Roman Zippel <zippel@linux-m68k.org> 
+   of "Tue, 28 May 2002 19:31:01 +0200." <3CF3BED5.6E194618@linux-m68k.org> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 28 May 2002 14:03:57 -0400
+From: James Bottomley <James.Bottomley@SteelEye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 28 May 2002 19:13, Adam J. Richter wrote:
-> Alan Cox responds to Gilad Ben-Yossef about licensing of Linux-based patents:
-> >I don't think you can realistically expect all open source licenses like
-> >the BSD one to be accomodated. Otherwise people would ship binary apps
-> >linked with a BSD licensed libpatent.o/c that was useless to anyone. The
-> >GPL restrictions happen to work very nicely in terms of making a patent
-> >available for free software (or one definition thereof), the BSD license
-> >alas doesn't.
-> 
-> 	You could license all programs that consist entirely of
-> free software.  That way, BSD, LGPL, and MPL software that did
-> not link in proprietary software would be allowed too,
+zippel@linux-m68k.org said:
+> Uh, that's quite a lot of lawyer language, something like this is
+> already difficult to understand in the native language. Could you
+> point me to the relevant section, I misunderstood? I couldn't find it.
 
-That's a good start, but it's not enough.  There remains the question of
-additional restrictions relating to other programs/hardware/whatever.  The 
-Fsmlabs RTLinux patent license is a good example of such additional 
-restrictions.  This license restricts the royalty-free grant to software 
-that is not realtime, or to software that cannot be freely modified.  The
-license does not discriminate on the basis of linking, as the GPL does, but
-rather, on the nature of the application.
+There is no relevant section, I'm afraid.  My basic point is that the only 
+limitation on how a patent holder licenses their patent in the US is likely to 
+come from the US DoJ Antitrust division.  This document lays out the ground 
+rules the US DoJ applies in coming to the conclusion that an antitrust probe 
+is warranted.  If it helps, I don't think the FSMlabs open patent licence 
+would fall foul of any of the DoJ guidelines for instituting an antitrust 
+probe.
 
-While it's an open question whether or not this is a suitable way for
-Fsmlabs to license their patent, it seems clear that similar restrictions
-would be entirely inappropriate for a Linux vendor.
+A summary of the document *from the point of view of a patent holder* only is 
+available in the other document I referred to,
 
--- 
-Daniel
+http://www.whepatent.com/opensource.pdf
+
+Section V. A. Antitrust, which lays out the nine "no-no's" of patent 
+licensing.  Note, the idea is if the patent owner obeys all of the nine 
+"no-no's", they're generally safe from antitrust, but the converse is not 
+necessarily true (you can violate them and still might not be subject to an 
+antitrust probe).
+
+Perhaps, if you want to become more generally familiar with patent law in the 
+US, one of the other internet sites (w.g. http://www.patents.com) may be of 
+help.  Remember, your average patent lawyer charges from $200-$500 an hour.  
+If patent law and its application were easy, we wouldn't be paying those type 
+of rates!
+
+James
+
+

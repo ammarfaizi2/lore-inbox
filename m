@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316544AbSERCPT>; Fri, 17 May 2002 22:15:19 -0400
+	id <S316269AbSERCTm>; Fri, 17 May 2002 22:19:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316627AbSERCPS>; Fri, 17 May 2002 22:15:18 -0400
-Received: from h209-71-227-55.gtconnect.net ([209.71.227.55]:46600 "HELO
-	innerfire.net") by vger.kernel.org with SMTP id <S316544AbSERCPQ>;
-	Fri, 17 May 2002 22:15:16 -0400
-Date: Fri, 17 May 2002 22:12:32 -0400 (EDT)
-From: Gerhard Mack <gmack@innerfire.net>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Keith Owens <kaos@ocs.com.au>, <linux-kernel@vger.kernel.org>
-Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel
-In-Reply-To: <20020518011410.GD29509@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0205172203380.18643-100000@innerfire.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316623AbSERCTm>; Fri, 17 May 2002 22:19:42 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:38161 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S316269AbSERCTl>;
+	Fri, 17 May 2002 22:19:41 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Nicolas Pitre <nico@cam.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel - take 3 
+In-Reply-To: Your message of "Fri, 17 May 2002 22:11:10 -0400."
+             <Pine.LNX.4.44.0205172157540.4117-100000@xanadu.home> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 18 May 2002 12:19:31 +1000
+Message-ID: <15163.1021688371@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 18 May 2002, Andrea Arcangeli wrote:
+On Fri, 17 May 2002 22:11:10 -0400 (EDT), 
+Nicolas Pitre <nico@cam.org> wrote:
+>It just looks like you are failing to obtain guidance from Linus so _maybe_
+>submiting multiple small patches that can be reviewed from within a mailer
+>might be easier for someone who already stated his preferences for that
+>matter.
 
-> you're right if we need a make clean it's because the buildsystem is
-> broken. However one thing that happens all the time to me, is that I
-> change an header like mm.h or sched.h and ~everything needs to be
-> rebuilt then. And since I cannot trust the current buildsystem I need to
-> `make clean` first just in case somebody is getting mm.h included
-> implicitly and fastdep so cannot notice it has to rebuild such object
-> too. But in such case make clean doesn't hurt much because almost
-> everything needs to be rebuilt anyways. Now the only regression I can
-> see is that kbuild was quite slower in compiling the kernel from scrach
-> (so I suspect that for me after editing mm.h it would take more time
-> with kbuild2.5 to reach the vmlinux generation than it took with the old
-> buildsystem after the make clean) Is that the case, or did you improved
-> the performance of kbuild recently?
+You still don't get it.  Read my mail.
 
-recently==a month ago.
-
-
-	Gerhard
-
+ "Before I send you the kbuild 2.5 patch, how do you want to handle it?".
+ 
+I am seeking Linus opinion on the next step, not sending the patch yet.
 
 --
-Gerhard Mack
 
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.
+Those that can, do.  Those that can't, troll on linux-kernel.
 

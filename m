@@ -1,33 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262099AbTJXJT2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 05:19:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262104AbTJXJT2
+	id S262114AbTJXJ1C (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 05:27:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbTJXJ1C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 05:19:28 -0400
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:8372 "EHLO
-	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S262099AbTJXJTZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 05:19:25 -0400
-Message-Id: <5.1.0.14.2.20031024111415.00ae2538@pop.t-online.de>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 24 Oct 2003 11:20:48 +0200
-To: linux-kernel@vger.kernel.org
-From: margitsw@t-online.de (Margit Schubert-While)
-Subject: Error in cmpci.c ?
-Cc: Hubert Mantel <mantel@suse.de>
+	Fri, 24 Oct 2003 05:27:02 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:786 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S262114AbTJXJ07
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Oct 2003 05:26:59 -0400
+Date: Fri, 24 Oct 2003 11:36:35 +0200
+To: Daniel Phillips <phillips@arcor.de>
+Cc: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] ide write barrier support
+Message-ID: <20031024093635.GA22894@hh.idb.hist.no>
+References: <20031013140858.GU1107@suse.de> <200310231822.36023.phillips@arcor.de> <20031023162310.GQ6461@suse.de> <200310231920.39888.phillips@arcor.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
-X-Seen: false
-X-ID: ZwAiUMZcZenWpCX-DAwNuzLTNbTKI8uHkL5-O300aMK7Nu+kTIHx0M
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200310231920.39888.phillips@arcor.de>
+User-Agent: Mutt/1.5.4i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In drivers/sound/cmpci.c (2.4) or sound/oss (2.6) we have a
-fs = get_fs() followed by a set_fs(KERNEL_DS).
-However, I don't see any reset.
-Shouldn't there be a set_fs(fs) somewhere ?
+On Thu, Oct 23, 2003 at 07:20:39PM +0200, Daniel Phillips wrote:
+> These are essentially the same, they both rely on draining the downstream 
+> queues.  But if we could keep the downstream queues full, bus transfers for 
+> post-barrier writes will overlap the media transfers for pre-barrier writes, 
+> which would seem to be worth some extra effort.
+> 
+> To keep the downstream queues full, we must submit write barriers to all the 
+> downstream devices and not wait for completion.  That is, as soon as a 
+> barrier is issued to a given downstream device we can start passing through 
+> post-barrier writes to it.
+> 
+This approach may fail:
 
-Margit
+a. Some pre-barrier writes go to all devices
+b. barrier is sent to all devices
+c. Post-barrier writes go to all devices
+d. drive 1 commits all its pre-barrier writes, then
+   commits its post-barrier writes.
+e. drive 2 is slow and havent done the pre-barrier writes yet
+f. power is lost - leaving inconsistent devices.
 
+The problem is that drive 1 don't know wether drive 2
+did the barrier yet.
 
+Helge Hafting

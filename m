@@ -1,68 +1,155 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266808AbUBQWet (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 17:34:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266695AbUBQWel
+	id S266693AbUBQWaz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 17:30:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266689AbUBQW1Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 17:34:41 -0500
-Received: from gprs159-87.eurotel.cz ([160.218.159.87]:17028 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S266809AbUBQWdj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 17:33:39 -0500
-Date: Tue, 17 Feb 2004 23:33:20 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Carl Thompson <cet@carlthompson.net>
-Cc: vda <vda@port.imtp.ilyichevsk.odessa.ua>, linux-kernel@vger.kernel.org
-Subject: Re: hard lock using combination of devices
-Message-ID: <20040217223319.GB666@elf.ucw.cz>
-References: <20040216214111.jxqg4owg44wwwc84@carlthompson.net> <200402170854.22973.vda@port.imtp.ilyichevsk.odessa.ua> <20040216231401.3ig4kksk4k8g8440@carlthompson.net> <200402171149.49985.vda@port.imtp.ilyichevsk.odessa.ua> <20040217061400.z9r4gss0gsockws4@carlthompson.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040217061400.z9r4gss0gsockws4@carlthompson.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Tue, 17 Feb 2004 17:27:25 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:43686 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S266693AbUBQWYd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 17:24:33 -0500
+Content-Class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_001_01C3F5A4.CA4805B5"
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: Limit hash table size
+Date: Tue, 17 Feb 2004 14:24:21 -0800
+Message-ID: <B05667366EE6204181EABE9C1B1C0EB501F2AADF@scsmsx401.sc.intel.com>
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+Thread-Topic: Limit hash table size
+Thread-Index: AcPsQ7cujdjs5t3+Rja2V3AVpVY36gJXmBgw
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>
+X-OriginalArrivalTime: 17 Feb 2004 22:24:21.0908 (UTC) FILETIME=[CA9AA540:01C3F5A4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+This is a multi-part message in MIME format.
 
-> >>> Your box share IRQs in a big way :)
-> >>
-> >>Your point?
-> >
-> >While shared interrupts can in theory work right,
-> >lots of hardware and/or drivers do not handle
-> >that.
-> 
-> First, the two devices in question are not on the same interrupt.  Second, 
-> it
-> is very difficult in this day in age to build a system without interrupt
-> sharing.  While I agree that it's better to have as few devices sharing as
-> possible, there are simply too many devices in modern systems and too few
-> interrupts.  Interrupt sharing needs to work on modern hardware and needs to
-> work in Linux.  This notebook is pretty typical in its interrupt 
-> distribution
+------_=_NextPart_001_01C3F5A4.CA4805B5
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
->            CPU0       
->   0:   41027968          XT-PIC  timer
->   1:      26061          XT-PIC  i8042
->   2:          0          XT-PIC  cascade
->   8:          1          XT-PIC  rtc
->   9:       2020          XT-PIC  acpi
->  10:    2187181          XT-PIC  yenta, driverloader
->  11:        111          XT-PIC  ALI 5451
->  12:    2399118          XT-PIC  i8042
->  14:     169829          XT-PIC  ide0
->  15:          1          XT-PIC  ide1
-> NMI:          0 
-> LOC:   41036749 
-> ERR:     275764
-> MIS:          0
+OK, here is another revision on top of what has been discussed.  It adds
+4 boot time parameters so user can override default size as needed to
+suite special needs.  I will sent a separate patch for
+kernel-parameters.txt if everyone is OK with this one.
 
-Does that mean you are actually using windows driver for your wireless
-card? At that point ... no wonder it breaks ;-).
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+- Ken
+
+-----Original Message-----
+From: Andrew Morton [mailto:akpm@osdl.org]=20
+Sent: Thursday, February 05, 2004 3:58 PM
+To: Chen, Kenneth W
+Cc: linux-kernel@vger.kernel.org; linux-ia64@vger.kernel.org
+Subject: Re: Limit hash table size
+
+Ken, I remain unhappy with this patch.  If a big box has 500 million
+dentries or inodes in cache (is possible), those hash chains will be
+more
+than 200 entries long on average.  It will be very slow.
+
+We need to do something smarter.  At least, for machines which do not
+have
+the ia64 proliferation-of-zones problem.
+
+Maybe we should leave the sizing of these tables as-is, and add some
+hook
+which allows the architecture to scale them back.
+
+------_=_NextPart_001_01C3F5A4.CA4805B5
+Content-Type: application/octet-stream;
+	name="hash4.patch"
+Content-Transfer-Encoding: base64
+Content-Description: hash4.patch
+Content-Disposition: attachment;
+	filename="hash4.patch"
+
+ZGlmZiAtTnVyIGxpbnV4LTIuNi4zLXJjNC9mcy9kY2FjaGUuYyBsaW51eC0yLjYuMy1yYzQuaGFz
+aC9mcy9kY2FjaGUuYwotLS0gbGludXgtMi42LjMtcmM0L2ZzL2RjYWNoZS5jCTIwMDQtMDItMTYg
+MTg6MjE6NTQuMDAwMDAwMDAwIC0wODAwCisrKyBsaW51eC0yLjYuMy1yYzQuaGFzaC9mcy9kY2Fj
+aGUuYwkyMDA0LTAyLTE3IDE0OjAzOjIxLjAwMDAwMDAwMCAtMDgwMApAQCAtNDksNiArNDksNyBA
+QAogICovCiAjZGVmaW5lIERfSEFTSEJJVFMgICAgIGRfaGFzaF9zaGlmdAogI2RlZmluZSBEX0hB
+U0hNQVNLICAgICBkX2hhc2hfbWFzaworI2RlZmluZSBEX0hBU0hNQVgJKDIqMTAyNCoxMDI0VUwp
+CS8qIG1heCBudW1iZXIgb2YgZW50cmllcyAqLwogCiBzdGF0aWMgdW5zaWduZWQgaW50IGRfaGFz
+aF9tYXNrOwogc3RhdGljIHVuc2lnbmVkIGludCBkX2hhc2hfc2hpZnQ7CkBAIC0xNTMxLDYgKzE1
+MzIsMTYgQEAKIAlyZXR1cm4gaW5vOwogfQogCitzdGF0aWMgX19pbml0ZGF0YSB1bnNpZ25lZCBs
+b25nIGRoYXNoX2VudHJpZXM7CitzdGF0aWMgaW50IF9faW5pdCBzZXRfZGhhc2hfZW50cmllcyhj
+aGFyICpzdHIpCit7CisJaWYgKCFzdHIpCisJCXJldHVybiAwOworCWRoYXNoX2VudHJpZXMgPSBz
+aW1wbGVfc3RydG91bChzdHIsICZzdHIsIDApOworCXJldHVybiAxOworfQorX19zZXR1cCgiZGhh
+c2hfZW50cmllcz0iLCBzZXRfZGhhc2hfZW50cmllcyk7CisKIHN0YXRpYyB2b2lkIF9faW5pdCBk
+Y2FjaGVfaW5pdCh1bnNpZ25lZCBsb25nIG1lbXBhZ2VzKQogewogCXN0cnVjdCBobGlzdF9oZWFk
+ICpkOwpAQCAtMTU1NiwxMSArMTU2NywxNCBAQAogCQogCXNldF9zaHJpbmtlcihERUZBVUxUX1NF
+RUtTLCBzaHJpbmtfZGNhY2hlX21lbW9yeSk7CiAKLSNpZiBQQUdFX1NISUZUIDwgMTMKLQltZW1w
+YWdlcyA+Pj0gKDEzIC0gUEFHRV9TSElGVCk7Ci0jZW5kaWYKLQltZW1wYWdlcyAqPSBzaXplb2Yo
+c3RydWN0IGhsaXN0X2hlYWQpOwotCWZvciAob3JkZXIgPSAwOyAoKDFVTCA8PCBvcmRlcikgPDwg
+UEFHRV9TSElGVCkgPCBtZW1wYWdlczsgb3JkZXIrKykKKwlpZiAoIWRoYXNoX2VudHJpZXMpIHsK
+KwkJZGhhc2hfZW50cmllcyA9IFBBR0VfU0hJRlQgPCAxMyA/CisJCQkJbWVtcGFnZXMgPj4gKDEz
+IC0gUEFHRV9TSElGVCkgOgorCQkJCW1lbXBhZ2VzIDw8IChQQUdFX1NISUZUIC0gMTMpOworCQlk
+aGFzaF9lbnRyaWVzID0gbWluKERfSEFTSE1BWCwgZGhhc2hfZW50cmllcyk7CisJfQorCWRoYXNo
+X2VudHJpZXMgKj0gc2l6ZW9mKHN0cnVjdCBobGlzdF9oZWFkKTsKKwlmb3IgKG9yZGVyID0gMDsg
+KCgxVUwgPDwgb3JkZXIpIDw8IFBBR0VfU0hJRlQpIDwgZGhhc2hfZW50cmllczsgb3JkZXIrKykK
+IAkJOwogCiAJZG8gewpkaWZmIC1OdXIgbGludXgtMi42LjMtcmM0L2ZzL2lub2RlLmMgbGludXgt
+Mi42LjMtcmM0Lmhhc2gvZnMvaW5vZGUuYwotLS0gbGludXgtMi42LjMtcmM0L2ZzL2lub2RlLmMJ
+MjAwNC0wMi0xNiAxODoyMzozNi4wMDAwMDAwMDAgLTA4MDAKKysrIGxpbnV4LTIuNi4zLXJjNC5o
+YXNoL2ZzL2lub2RlLmMJMjAwNC0wMi0xNyAxNDowMzoyMS4wMDAwMDAwMDAgLTA4MDAKQEAgLTUz
+LDYgKzUzLDcgQEAKICAqLwogI2RlZmluZSBJX0hBU0hCSVRTCWlfaGFzaF9zaGlmdAogI2RlZmlu
+ZSBJX0hBU0hNQVNLCWlfaGFzaF9tYXNrCisjZGVmaW5lIElfSEFTSE1BWAkoMioxMDI0KjEwMjRV
+TCkJLyogbWF4IG51bWJlciBvZiBlbnRyaWVzICovCiAKIHN0YXRpYyB1bnNpZ25lZCBpbnQgaV9o
+YXNoX21hc2s7CiBzdGF0aWMgdW5zaWduZWQgaW50IGlfaGFzaF9zaGlmdDsKQEAgLTEzMjcsNiAr
+MTMyOCwxNiBAQAogCQl3YWtlX3VwX2FsbCh3cSk7CiB9CiAKK3N0YXRpYyBfX2luaXRkYXRhIHVu
+c2lnbmVkIGxvbmcgaWhhc2hfZW50cmllczsKK3N0YXRpYyBpbnQgX19pbml0IHNldF9paGFzaF9l
+bnRyaWVzKGNoYXIgKnN0cikKK3sKKwlpZiAoIXN0cikKKwkJcmV0dXJuIDA7CisJaWhhc2hfZW50
+cmllcyA9IHNpbXBsZV9zdHJ0b3VsKHN0ciwgJnN0ciwgMCk7CisJcmV0dXJuIDE7Cit9CitfX3Nl
+dHVwKCJpaGFzaF9lbnRyaWVzPSIsIHNldF9paGFzaF9lbnRyaWVzKTsKKwogLyoKICAqIEluaXRp
+YWxpemUgdGhlIHdhaXRxdWV1ZXMgYW5kIGlub2RlIGhhc2ggdGFibGUuCiAgKi8KQEAgLTEzNDAs
+OSArMTM1MSwxNCBAQAogCWZvciAoaSA9IDA7IGkgPCBBUlJBWV9TSVpFKGlfd2FpdF9xdWV1ZV9o
+ZWFkcyk7IGkrKykKIAkJaW5pdF93YWl0cXVldWVfaGVhZCgmaV93YWl0X3F1ZXVlX2hlYWRzW2ld
+LndxaCk7CiAKLQltZW1wYWdlcyA+Pj0gKDE0IC0gUEFHRV9TSElGVCk7Ci0JbWVtcGFnZXMgKj0g
+c2l6ZW9mKHN0cnVjdCBobGlzdF9oZWFkKTsKLQlmb3IgKG9yZGVyID0gMDsgKCgxVUwgPDwgb3Jk
+ZXIpIDw8IFBBR0VfU0hJRlQpIDwgbWVtcGFnZXM7IG9yZGVyKyspCisJaWYgKCFpaGFzaF9lbnRy
+aWVzKSB7CisJCWloYXNoX2VudHJpZXMgPSBQQUdFX1NISUZUIDwgMTQgPworCQkJCW1lbXBhZ2Vz
+ID4+ICgxNCAtIFBBR0VfU0hJRlQpIDoKKwkJCQltZW1wYWdlcyA8PCAoUEFHRV9TSElGVCAtIDE0
+KTsKKwkJaWhhc2hfZW50cmllcyA9IG1pbihJX0hBU0hNQVgsIGloYXNoX2VudHJpZXMpOworCX0K
+KwlpaGFzaF9lbnRyaWVzICo9IHNpemVvZihzdHJ1Y3QgaGxpc3RfaGVhZCk7CisJZm9yIChvcmRl
+ciA9IDA7ICgoMVVMIDw8IG9yZGVyKSA8PCBQQUdFX1NISUZUKSA8IGloYXNoX2VudHJpZXM7IG9y
+ZGVyKyspCiAJCTsKIAogCWRvIHsKZGlmZiAtTnVyIGxpbnV4LTIuNi4zLXJjNC9uZXQvaXB2NC9y
+b3V0ZS5jIGxpbnV4LTIuNi4zLXJjNC5oYXNoL25ldC9pcHY0L3JvdXRlLmMKLS0tIGxpbnV4LTIu
+Ni4zLXJjNC9uZXQvaXB2NC9yb3V0ZS5jCTIwMDQtMDItMTYgMTg6MjM6MzcuMDAwMDAwMDAwIC0w
+ODAwCisrKyBsaW51eC0yLjYuMy1yYzQuaGFzaC9uZXQvaXB2NC9yb3V0ZS5jCTIwMDQtMDItMTcg
+MTQ6MDM6MjEuMDAwMDAwMDAwIC0wODAwCkBAIC0yNzE3LDYgKzI3MTcsMTYgQEAKICNlbmRpZiAv
+KiBDT05GSUdfUFJPQ19GUyAqLwogI2VuZGlmIC8qIENPTkZJR19ORVRfQ0xTX1JPVVRFICovCiAK
+K3N0YXRpYyBfX2luaXRkYXRhIHVuc2lnbmVkIGxvbmcgcmhhc2hfZW50cmllczsKK3N0YXRpYyBp
+bnQgX19pbml0IHNldF9yaGFzaF9lbnRyaWVzKGNoYXIgKnN0cikKK3sKKwlpZiAoIXN0cikKKwkJ
+cmV0dXJuIDA7CisJcmhhc2hfZW50cmllcyA9IHNpbXBsZV9zdHJ0b3VsKHN0ciwgJnN0ciwgMCk7
+CisJcmV0dXJuIDE7Cit9CitfX3NldHVwKCJyaGFzaF9lbnRyaWVzPSIsIHNldF9yaGFzaF9lbnRy
+aWVzKTsKKwogaW50IF9faW5pdCBpcF9ydF9pbml0KHZvaWQpCiB7CiAJaW50IGksIG9yZGVyLCBn
+b2FsLCByYyA9IDA7CkBAIC0yNzQzLDcgKzI3NTMsMTAgQEAKIAkJcGFuaWMoIklQOiBmYWlsZWQg
+dG8gYWxsb2NhdGUgaXBfZHN0X2NhY2hlXG4iKTsKIAogCWdvYWwgPSBudW1fcGh5c3BhZ2VzID4+
+ICgyNiAtIFBBR0VfU0hJRlQpOwotCisJaWYgKCFyaGFzaF9lbnRyaWVzKQorCQlnb2FsID0gbWlu
+KDEwLCBnb2FsKTsKKwllbHNlCisJCWdvYWwgPSAocmhhc2hfZW50cmllcyAqIHNpemVvZihzdHJ1
+Y3QgcnRfaGFzaF9idWNrZXQpKSA+PiBQQUdFX1NISUZUOwogCWZvciAob3JkZXIgPSAwOyAoMVVM
+IDw8IG9yZGVyKSA8IGdvYWw7IG9yZGVyKyspCiAJCS8qIE5PVEhJTkcgKi87CiAKZGlmZiAtTnVy
+IGxpbnV4LTIuNi4zLXJjNC9uZXQvaXB2NC90Y3AuYyBsaW51eC0yLjYuMy1yYzQuaGFzaC9uZXQv
+aXB2NC90Y3AuYwotLS0gbGludXgtMi42LjMtcmM0L25ldC9pcHY0L3RjcC5jCTIwMDQtMDItMTYg
+MTg6MjI6MDUuMDAwMDAwMDAwIC0wODAwCisrKyBsaW51eC0yLjYuMy1yYzQuaGFzaC9uZXQvaXB2
+NC90Y3AuYwkyMDA0LTAyLTE3IDE0OjAzOjIxLjAwMDAwMDAwMCAtMDgwMApAQCAtMjU3MCw2ICsy
+NTcwLDE2IEBACiBleHRlcm4gdm9pZCBfX3NrYl9jYl90b29fc21hbGxfZm9yX3RjcChpbnQsIGlu
+dCk7CiBleHRlcm4gdm9pZCB0Y3BkaWFnX2luaXQodm9pZCk7CiAKK3N0YXRpYyBfX2luaXRkYXRh
+IHVuc2lnbmVkIGxvbmcgdGhhc2hfZW50cmllczsKK3N0YXRpYyBpbnQgX19pbml0IHNldF90aGFz
+aF9lbnRyaWVzKGNoYXIgKnN0cikKK3sKKwlpZiAoIXN0cikKKwkJcmV0dXJuIDA7CisJdGhhc2hf
+ZW50cmllcyA9IHNpbXBsZV9zdHJ0b3VsKHN0ciwgJnN0ciwgMCk7CisJcmV0dXJuIDE7Cit9Citf
+X3NldHVwKCJ0aGFzaF9lbnRyaWVzPSIsIHNldF90aGFzaF9lbnRyaWVzKTsKKwogdm9pZCBfX2lu
+aXQgdGNwX2luaXQodm9pZCkKIHsKIAlzdHJ1Y3Qgc2tfYnVmZiAqc2tiID0gTlVMTDsKQEAgLTI2
+MTEsNiArMjYyMSwxMCBAQAogCWVsc2UKIAkJZ29hbCA9IG51bV9waHlzcGFnZXMgPj4gKDIzIC0g
+UEFHRV9TSElGVCk7CiAKKwlpZiAoIXRoYXNoX2VudHJpZXMpCisJCWdvYWwgPSBtaW4oMTAsIGdv
+YWwpOworCWVsc2UgCisJCWdvYWwgPSAodGhhc2hfZW50cmllcyAqIHNpemVvZihzdHJ1Y3QgdGNw
+X2VoYXNoX2J1Y2tldCkpID4+IFBBR0VfU0hJRlQ7CiAJZm9yIChvcmRlciA9IDA7ICgxVUwgPDwg
+b3JkZXIpIDwgZ29hbDsgb3JkZXIrKykKIAkJOwogCWRvIHsK
+
+------_=_NextPart_001_01C3F5A4.CA4805B5--

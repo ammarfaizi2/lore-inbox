@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293610AbSBZWCo>; Tue, 26 Feb 2002 17:02:44 -0500
+	id <S293612AbSBZWEd>; Tue, 26 Feb 2002 17:04:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293609AbSBZWCe>; Tue, 26 Feb 2002 17:02:34 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:51695 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S293610AbSBZWCW>;
-	Tue, 26 Feb 2002 17:02:22 -0500
-Date: Tue, 26 Feb 2002 14:02:20 -0800
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [2.5.5 ERROR] Can't compile without NFS
-Message-ID: <20020226140220.A17977@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-In-Reply-To: <20020226120459.A17913@bougret.hpl.hp.com> <15484.787.973914.508508@notabene.cse.unsw.edu.au>
+	id <S293611AbSBZWEX>; Tue, 26 Feb 2002 17:04:23 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:6398
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S293609AbSBZWEQ>; Tue, 26 Feb 2002 17:04:16 -0500
+Date: Tue, 26 Feb 2002 14:04:47 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Rik van Riel <riel@conectiva.com.br>,
+        Martin Dalecki <dalecki@evision-ventures.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: ext3 and undeletion
+Message-ID: <20020226220447.GS4393@matchmail.com>
+Mail-Followup-To: Rik van Riel <riel@conectiva.com.br>,
+	Martin Dalecki <dalecki@evision-ventures.com>,
+	"H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020226171634.GL4393@matchmail.com> <Pine.LNX.4.44L.0202261419240.1413-100000@duckman.distro.conectiva> <20020226173822.GN4393@matchmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <15484.787.973914.508508@notabene.cse.unsw.edu.au>; from neilb@cse.unsw.edu.au on Wed, Feb 27, 2002 at 08:50:11AM +1100
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+In-Reply-To: <20020226173822.GN4393@matchmail.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 27, 2002 at 08:50:11AM +1100, Neil Brown wrote:
-> On Tuesday February 26, jt@bougret.hpl.hp.com wrote:
-> > make[2]: Entering directory `/usr/src/kernel-source-2.5/fs'
-> > gcc -D__KERNEL__ -I/usr/src/kernel-source-2.5/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686   -DKBUILD_BASENAME=filesystems  -DEXPORT_SYMTAB -c filesystems.c
-> > filesystems.c: In function `sys_nfsservctl':
-> > filesystems.c:30: dereferencing pointer to incomplete type
-> > filesystems.c:30: dereferencing pointer to incomplete type
-> > filesystems.c:30: warning: value computed is not used
-> ....
+On Tue, Feb 26, 2002 at 09:38:22AM -0800, Mike Fedyk wrote:
+> On Tue, Feb 26, 2002 at 02:22:31PM -0300, Rik van Riel wrote:
+> > Your idea should work on deletion, when the inode were
+> > about to be destroyed, but ...
+> > 
+> > > It would only call chown/chgrp on the files *inside* the undelete dir,
+> > > and user,group,etc would have to be accounted for in another way.  Am I
+> > > going in the wrong direction?
+> > 
+> > ... of course, there still is the problem of hard links.
+> > 
 > 
-> Yeh... sorry 'bout that.
-> 
-> Patch sent to Linus, but didn't make it into 2.5.6-pre1.
+> I had considered hard links.  Take a look at my another message from me in
+> this thread and see Daniel's response to it.
+>
 
-	That's ok, it was trivial to workaround.
+Correction, that was Andreas Dilger that replied offline, and has been
+posted by me with his permission.
 
-	Jean
+And now the idea of chgrp/chown is out of the question...
+
+Mike

@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264937AbTFCF56 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 01:57:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264940AbTFCF56
+	id S264938AbTFCGMG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 02:12:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264939AbTFCGMG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 01:57:58 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:25548 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S264937AbTFCF55 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 01:57:57 -0400
-Date: Mon, 02 Jun 2003 23:09:29 -0700 (PDT)
-Message-Id: <20030602.230929.23036776.davem@redhat.com>
-To: miles.lane@attbi.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.70-bk7 -- drivers/net/irda/w83977af_ir.ko needs unknown
- symbol setup_dma
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3EDC3B52.6030604@attbi.com>
-References: <3EDBCC44.8000009@attbi.com>
-	<1054612898.9352.3.camel@rth.ninka.net>
-	<3EDC3B52.6030604@attbi.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	Tue, 3 Jun 2003 02:12:06 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:28424 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S264938AbTFCGMF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 02:12:05 -0400
+Date: Tue, 3 Jun 2003 08:25:00 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Marc Heckmann <mh@nadir.org>
+Cc: neilb@cse.unsw.edu.au, marcelo@conectiva.com.br,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21-rc6: softraid anamoly
+Message-ID: <20030603062500.GA10876@alpha.home.local>
+References: <20030603031421.GC1766@nadir.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030603031421.GC1766@nadir.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Miles Lane <miles.lane@attbi.com>
-   Date: Mon, 02 Jun 2003 23:08:18 -0700
+On Mon, Jun 02, 2003 at 11:14:24PM -0400, Marc Heckmann wrote:
+> Hi,
+> 
+> I just installed a vanilla 2.4.21-rc6 smp kernel on a redhat 9 system
+> today. To my surprise, the priority of the raid kernel threads are quite
+> odd:
+ 
+>     9 root     18446744073709551615 -20     0   1 mdrecoveryd
+>    18 root     18446744073709551615 -20     0   0 raid1d
+>    19 root     18446744073709551615 -20     0   0 raid1d
+>    20 root     18446744073709551615 -20     0   0 raid1d
+>    21 root     18446744073709551615 -20     0   0 raid1d
 
-   David S. Miller wrote:
-   > On Mon, 2003-06-02 at 15:14, Miles Lane wrote:
-   > 
-   >>if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.70-bk7; fi
-   >>WARNING: /lib/modules/2.5.70-bk7/kernel/drivers/net/irda/w83977af_ir.ko 
-   >>needs unknown symbol setup_dma
-   > What platform is this?  It needs to set CONFIG_ISA correctly.
-   
-   It's PPC.
- ...   
-   # CONFIG_ISA is not set
-   
-Then it shouldn't allow you to build the w83977af_ir driver.
-CONFIG_ISA=y is necessary for this device.
+Known problem in procps-2.0.11 (sprintf %llu). You should upgrade to 2.0.12 or
+2.0.13, and you'll see -1 here !
+
+Cheers,
+Willy
+

@@ -1,56 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261880AbUFCIr0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261907AbUFCIrQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261880AbUFCIr0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 04:47:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbUFCIr0
+	id S261907AbUFCIrQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 04:47:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261914AbUFCIrP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 04:47:26 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:5519 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261880AbUFCIrX (ORCPT
+	Thu, 3 Jun 2004 04:47:15 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:25788 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261907AbUFCIqf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 04:47:23 -0400
-Subject: Re: [PATCH] Use msleep in meye driver
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Stelian Pop <stelian@popies.net>
-Cc: Daniel Drake <dsd@gentoo.org>, video4linux-list@redhat.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20040603083848.GA3621@crusoe.alcove-fr>
-References: <40BDF8E6.6040601@gentoo.org>
-	 <20040603083848.GA3621@crusoe.alcove-fr>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-E8P2n4J9gS6GQov8QlpM"
-Organization: Red Hat UK
-Message-Id: <1086252437.2709.0.camel@laptop.fenrus.com>
+	Thu, 3 Jun 2004 04:46:35 -0400
+Date: Thu, 3 Jun 2004 10:47:46 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>
+Subject: Re: [announce] [patch] NX (No eXecute) support for x86, 2.6.7-rc2-bk2
+Message-ID: <20040603084746.GA16374@elte.hu>
+References: <20040602205025.GA21555@elte.hu> <1086221461.29390.327.camel@bach>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 03 Jun 2004 10:47:18 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1086221461.29390.327.camel@bach>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-E8P2n4J9gS6GQov8QlpM
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+* Rusty Russell <rusty@rustcorp.com.au> wrote:
 
+> You want to replace the arch-specific module_alloc() function for
+> this. Or even better, reset the NX bit only on executable sections (in
+> the arch-specific module_finalize(), using mod->core_text_size and
+> mod->init_text_size).  No generic changes necessary.
 
-> >From what I see in kernel/timer.c, msleep() cannot be called in
-> interrupt context, so the in_interrupt() test must stay.
+does the .exit.text section have to be taken into account as well? This 
+is the normal section order of x86 .ko objects:
 
-mdelay in irq context is *EVIL* though, and will get all the low latency
-and audio folks very upset...
+  .text
+  .init.text
+  .exit.text
+  .rodata
+  .modinfo
+  .rodata.str1.1
+  .data
+  __obsparm
+  .gnu.linkonce.this_module
+  .comment
+  .gnu_debuglink
 
+we load the module up including the .data section? Or do we load the
+whole thing?
 
---=-E8P2n4J9gS6GQov8QlpM
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAvuWVxULwo51rQBIRAklbAJ4jW2UOOCWpP5FHEwjqF316+gZ27QCgjiZi
-MVMHqisYmFpGKt66T0LVrtU=
-=eeTL
------END PGP SIGNATURE-----
-
---=-E8P2n4J9gS6GQov8QlpM--
-
+	Ingo

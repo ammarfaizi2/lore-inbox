@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311381AbSCNIAk>; Thu, 14 Mar 2002 03:00:40 -0500
+	id <S311554AbSCNIND>; Thu, 14 Mar 2002 03:13:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311395AbSCNIA2>; Thu, 14 Mar 2002 03:00:28 -0500
-Received: from adsl-196-233.cybernet.ch ([212.90.196.233]:49915 "HELO
-	mailphish.drugphish.ch") by vger.kernel.org with SMTP
-	id <S311381AbSCNIAN>; Thu, 14 Mar 2002 03:00:13 -0500
-Message-ID: <3C905894.90407@drugphish.ch>
-Date: Thu, 14 Mar 2002 09:00:20 +0100
-From: Roberto Nibali <ratz@drugphish.ch>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020306
-X-Accept-Language: en-us, en
+	id <S311555AbSCNIMx>; Thu, 14 Mar 2002 03:12:53 -0500
+Received: from smtp-sec1.zid.nextra.de ([212.255.127.204]:30987 "EHLO
+	smtp-sec1.zid.nextra.de") by vger.kernel.org with ESMTP
+	id <S311554AbSCNIMl>; Thu, 14 Mar 2002 03:12:41 -0500
+Date: Thu, 14 Mar 2002 09:12:04 +0100 (CET)
+From: Guennadi Liakhovetski <gl@dsa-ac.de>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: CONFIG_SOUND_GAMEPORT in 2.5
+In-Reply-To: <20020313182054.A31062@ucw.cz>
+Message-ID: <Pine.LNX.4.33.0203140910150.15512-100000@pcgl.dsa-ac.de>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Question about the ide related ioctl's BLK* in 2.5.7-pre1 kernel
-In-Reply-To: <3C9007F5.1000003@drugphish.ch> <3C900A11.55BA4B32@zip.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> They got collaterally damaged in the IDE "cleanup".  The patch at
-> http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.6/dallocbase-10-readahead.patch
-> resurrects them.
+> > drivers/input/gameport/Config.in doesn't seem quite right to me, in
+> > general and for ARM specifically:
+> > if [ "$CONFIG_GAMEPORT" = "m" ]; then
+> > 	define_tristate CONFIG_SOUND_GAMEPORT m
+> > fi
+> > if [ "$CONFIG_GAMEPORT" != "m" ]; then
+> > 	define_tristate CONFIG_SOUND_GAMEPORT y
+> > fi
+> >
+> > Could the maintainer please change this?
+>
+> What's the problem here?
 
-Oh, I see. I've missed that patch of yours. I certainly enjoyed (maybe 
-much to your grief) the comments in the code :).
+The problem is, that if you don't have anything like a sound-card/gameport
+at all, CONFIG_SOUND_GAMEPORT still will be YES. Ok, I didn't check in the
+code, maybe it doesn't add a single byte to the kernel, .config looks a
+bit confusing, doesn't it?
 
-Is GFP_READAHEAD still a wish or did you drop that idea? AFAICS you only 
-addressed the i386 arch with that patch, do you want the specific arch 
-maintainers to clean up their part when your patch is finished?
-
-Cheers,
-Roberto Nibali, ratz
+Thanks
+Guennadi
+---------------------------------
+Guennadi Liakhovetski, Ph.D.
+DSA Daten- und Systemtechnik GmbH
+Pascalstr. 28
+D-52076 Aachen
+Germany
 

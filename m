@@ -1,85 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273002AbTHKSnM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 14:43:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273030AbTHKSmA
+	id S273252AbTHKSzx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 14:55:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273184AbTHKSyt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 14:42:00 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:5649 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S273002AbTHKSlA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 14:41:00 -0400
-Date: Mon, 11 Aug 2003 14:29:09 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: William Lee Irwin III <wli@holomorphy.com>
-Subject: [PATCH][2.6] hugetlbfs - 'recovering' too many blocks on failure
-Message-ID: <Pine.LNX.4.53.0308111422060.26153@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 11 Aug 2003 14:54:49 -0400
+Received: from www.13thfloor.AT ([212.16.59.250]:64188 "EHLO www.13thfloor.at")
+	by vger.kernel.org with ESMTP id S272975AbTHKSxS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 14:53:18 -0400
+Date: Mon, 11 Aug 2003 20:53:27 +0200
+From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
+To: Norbert Preining <preining@logic.at>
+Cc: Andrew Morton <akpm@osdl.org>, gaxt@rogers.com, henrik@fangorn.dk,
+       romieu@fr.zoreil.com, linux-kernel@vger.kernel.org,
+       felipe_alfaro@linuxmail.org, babydr@baby-dragons.com,
+       len.brown@intel.com
+Subject: Re: 2.6.0-test3 cannot mount root fs
+Message-ID: <20030811185326.GB25186@www.13thfloor.at>
+Reply-To: herbert@13thfloor.at
+Mail-Followup-To: Norbert Preining <preining@logic.at>,
+	Andrew Morton <akpm@osdl.org>, gaxt@rogers.com, henrik@fangorn.dk,
+	romieu@fr.zoreil.com, linux-kernel@vger.kernel.org,
+	felipe_alfaro@linuxmail.org, babydr@baby-dragons.com,
+	len.brown@intel.com
+References: <20030809090718.GA10360@gamma.logic.tuwien.ac.at> <20030809130641.A8174@electric-eye.fr.zoreil.com> <20030809090718.GA10360@gamma.logic.tuwien.ac.at> <01a201c35e65$0536ef60$ee52a450@theoden> <3F34D0EA.8040006@rogers.com> <20030810211745.GA5327@gamma.logic.tuwien.ac.at> <20030810154343.351aa69d.akpm@osdl.org> <20030811053437.GA19040@gamma.logic.tuwien.ac.at> <20030811145940.GF4562@www.13thfloor.at> <20030811154009.GE6763@gamma.logic.tuwien.ac.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <20030811154009.GE6763@gamma.logic.tuwien.ac.at>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The code appears to be able to add too many blocks back to 
-sbinfo->free_blocks in the failure path. We first do;
 
-len = vma->vm_end - vma->vm_start;
-sbinfo->free_blocks -= len;
+Hi Norbert!
 
-but then later do;
-len = (vma->vm_end - vma->vma_start) + (vma->vm_pgoff << HPAGE_SHIFT)
+your config seems reasonable to me ...
 
-error:
-sbinfo->free_blocks += len;
+> I tells me all the usual stuff concerning that it finds 
+> the controllers (VIA and HPT) and disks/cdroms, but than 
+> hangs with
+>        cannot mount rootfs "NULL" or hdb1
 
-Index: linux-2.6.0-test3-mm1/fs/hugetlbfs/inode.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.6.0-test3/fs/hugetlbfs/inode.c,v
-retrieving revision 1.2
-diff -u -p -B -r1.2 inode.c
---- linux-2.6.0-test3-mm1/fs/hugetlbfs/inode.c	11 Aug 2003 03:01:07 -0000	1.2
-+++ linux-2.6.0-test3-mm1/fs/hugetlbfs/inode.c	11 Aug 2003 17:44:31 -0000
-@@ -48,7 +48,7 @@ static int hugetlbfs_file_mmap(struct fi
- 	struct inode *inode = file->f_dentry->d_inode;
- 	struct address_space *mapping = inode->i_mapping;
- 	struct hugetlbfs_sb_info *sbinfo = HUGETLBFS_SB(inode->i_sb);
--	loff_t len;
-+	loff_t len, vma_len;
- 	int ret;
- 
- 	if (vma->vm_start & ~HPAGE_MASK)
-@@ -60,11 +60,11 @@ static int hugetlbfs_file_mmap(struct fi
- 	if (vma->vm_end - vma->vm_start < HPAGE_SIZE)
- 		return -EINVAL;
- 
--	len = (loff_t)(vma->vm_end - vma->vm_start);
-+	vma_len = (loff_t)(vma->vm_end - vma->vm_start);
- 	if (sbinfo->free_blocks >= 0) { /* Check if there is any size limit. */
- 		spin_lock(&sbinfo->stat_lock);
--		if ((len >> HPAGE_SHIFT) <= sbinfo->free_blocks) {
--			sbinfo->free_blocks -= (len >> HPAGE_SHIFT);
-+		if ((vma_len >> HPAGE_SHIFT) <= sbinfo->free_blocks) {
-+			sbinfo->free_blocks -= (vma_len >> HPAGE_SHIFT);
- 			spin_unlock(&sbinfo->stat_lock);
- 		} else {
- 			spin_unlock(&sbinfo->stat_lock);
-@@ -78,8 +78,7 @@ static int hugetlbfs_file_mmap(struct fi
- 	vma->vm_flags |= VM_HUGETLB | VM_RESERVED;
- 	vma->vm_ops = &hugetlb_vm_ops;
- 	ret = hugetlb_prefault(mapping, vma);
--	len = (loff_t)(vma->vm_end - vma->vm_start) +
--			((loff_t)vma->vm_pgoff << PAGE_SHIFT);
-+	len = vma_len +	((loff_t)vma->vm_pgoff << PAGE_SHIFT);
- 	if (ret == 0 && inode->i_size < len)
- 		inode->i_size = len;
- 	up(&inode->i_sem);
-@@ -89,7 +88,7 @@ static int hugetlbfs_file_mmap(struct fi
- 	 */
- 	if ((ret != 0) && (sbinfo->free_blocks >= 0)) {
- 		spin_lock(&sbinfo->stat_lock);
--		sbinfo->free_blocks += (len >> HPAGE_SHIFT);
-+		sbinfo->free_blocks += (vma_len >> HPAGE_SHIFT);
- 		spin_unlock(&sbinfo->stat_lock);
- 	}
- 
+AFAIK, there is no such message in 2.6.0-test3 ...
+
+if, on the other hand, the message looks like ...
+
+-----------
+VFS: Cannot open root device "hdb1" or unknown-block(0,0)
+Please append a correct "root=" boot option
+-----------
+
+then this means that "hdb1" was the device given at
+the kenel command line (as root=/dev/hdb1) and the
+'unknown-block(0,0)' is the major/minor the kernel 
+recognized ...
+
+you should pay special attention to the disc/partition
+discovery done by the IDE subsystem ...
+
+-----------
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+hda: max request size: 128KiB
+hda: 65537 sectors (33 MB) w/256KiB Cache, CHS=65/16/63
+hda: hda1 
+hdb: 131074 sectors (67 MB) w/256KiB Cache, CHS=130/16/63
+hdb: hdb1 hdb2 hdb3
+...
+-----------
+
+maybe you could attach a serial console (line)
+and capture the boot process, and report it ...
+
+HTH,
+Herbert
+

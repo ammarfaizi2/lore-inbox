@@ -1,65 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263609AbTLYHEA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Dec 2003 02:04:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263851AbTLYHEA
+	id S263861AbTLYId5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Dec 2003 03:33:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264144AbTLYId5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Dec 2003 02:04:00 -0500
-Received: from fmr99.intel.com ([192.55.52.32]:27856 "EHLO
-	hermes-pilot.fm.intel.com") by vger.kernel.org with ESMTP
-	id S263609AbTLYHD6 convert rfc822-to-8bit (ORCPT
+	Thu, 25 Dec 2003 03:33:57 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:30142 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263861AbTLYId4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Dec 2003 02:03:58 -0500
-Date: Thu, 25 Dec 2003 14:58:14 +0800 (CST)
-From: "Zhu, Yi" <yi.zhu@intel.com>
-X-X-Sender: chuyee@mazda.sh.intel.com
-Reply-To: "Zhu, Yi" <yi.zhu@intel.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix make kernel rpm bug
-In-Reply-To: <3ACA40606221794F80A5670F0AF15F840254C76E@PDSMSX403.ccr.corp.intel.com>
-Message-ID: <Pine.LNX.4.44.0312251254240.16528-100000@mazda.sh.intel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Thu, 25 Dec 2003 03:33:56 -0500
+Date: Thu, 25 Dec 2003 09:33:50 +0100
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Bruce Ferrell <bferrell@baywinds.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: is it possible to have a kernel module with a BSD license?!
+Message-ID: <20031225083348.GB29678@devserv.devel.redhat.com>
+References: <3FE9ADEE.1080103@baywinds.org> <1072282214.5267.0.camel@laptop.fenrus.com> <20031224221114.GB6438@matchmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0ntfKIWw70PvrIHh"
+Content-Disposition: inline
+In-Reply-To: <20031224221114.GB6438@matchmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 25 Dec 2003, Jeff Garzik wrote:
 
-> hmmm, I don't think $(ARCH) makes the rpm --target strings in all
-> cases..
+--0ntfKIWw70PvrIHh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->From rpm man page --target PLATFORM will interpret PLATFORM as
-arch-vendor-os and set %_target, %_target_cpu, %_target_os accordingly.
-In this case only arch is set, so vendor and os will remain as default.
+On Wed, Dec 24, 2003 at 02:11:14PM -0800, Mike Fedyk wrote:
+> > I think you need to look further; the linux kernel portion sure is GPL
+> > ...
+>=20
+> Then the wrapper can be GPL then and the rest BSD?
 
-If you still think it is too implicit, how about change as below? In case
-you want set RPM_VENDOR_OS to something like "-unknown-linux".
+The BSD license is actually GPL compatible so that's perfectly fine....
 
+--0ntfKIWw70PvrIHh
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-@@ -258,6 +258,7 @@
- AWK            = awk
- RPM            := $(shell if [ -x "/usr/bin/rpmbuild" ]; then echo
-rpmbuild; \
-                        else echo rpm; fi)
-+RPM_VENDOR_OS  :=
- GENKSYMS       = scripts/genksyms/genksyms
- DEPMOD         = /sbin/depmod
- KALLSYMS       = scripts/kallsyms
-@@ -872,7 +873,7 @@
-        $(CONFIG_SHELL) $(srctree)/scripts/mkversion >
-$(objtree)/.tmp_version;\
-        mv -f $(objtree)/.tmp_version $(objtree)/.version;
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
--       $(RPM) -ta ../$(KERNELPATH).tar.gz
-+       $(RPM) --target $(ARCH)$(RPM_VENDOR_OS) -ta ../$(KERNELPATH).tar.gz
-        rm ../$(KERNELPATH).tar.gz
+iD8DBQE/6qDrxULwo51rQBIRApglAKCf7JU/UDcACkFy9CzqDvehX33VWgCeOpxW
+ZfsFrZO5RqGw74fYtvfmiAI=
+=6rz9
+-----END PGP SIGNATURE-----
 
- # Brief documentation of the typical targets used
-
-
->         Jeff
-
--yi
-
+--0ntfKIWw70PvrIHh--

@@ -1,73 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbVA2XoJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbVA2Xqd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261605AbVA2XoJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jan 2005 18:44:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261609AbVA2XoI
+	id S261607AbVA2Xqd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jan 2005 18:46:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261609AbVA2Xqd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jan 2005 18:44:08 -0500
-Received: from mail.dif.dk ([193.138.115.101]:44929 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261605AbVA2XmR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jan 2005 18:42:17 -0500
-Date: Sun, 30 Jan 2005 00:45:38 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: "Paul `Rusty' Russell" <rusty@rustcorp.com.au>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] micro optimization in kernel/params.c; don't call
- to_module_kobject before we really have to.
-Message-ID: <Pine.LNX.4.62.0501300024110.2829@dragon.hygekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 29 Jan 2005 18:46:33 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:17168 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261607AbVA2XqZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jan 2005 18:46:25 -0500
+Date: Sun, 30 Jan 2005 00:46:24 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] drivers/cdrom/isp16.c: small cleanups
+Message-ID: <20050129234624.GC3185@stusta.de>
+References: <20050129171108.GB28047@stusta.de> <58cb370e05012909513cc96b17@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <58cb370e05012909513cc96b17@mail.gmail.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jan 29, 2005 at 06:51:25PM +0100, Bartlomiej Zolnierkiewicz wrote:
+> Hi,
+> 
+> On Sat, 29 Jan 2005 18:11:08 +0100, Adrian Bunk <bunk@stusta.de> wrote:
+> > This patch makes the needlessly global function isp16_init static.
+> > 
+> > As a result, it turned out that both this function and some other code
+> > are only required #ifdef MODULE.
+> 
+> Your patch is correct but it is wrong. ;)
+> 
+> #ifdefs around isp16_init() need to be removed as
+> otherwise this driver is not initialized in built-in case.
 
-In kernel/params.c::module_attr_show and 
-kernel/params.c::module_attr_store we call to_module_kobject() and save 
-the result in a local variable right before a conditional statement that 
-does not depend on the call to to_module_kobject() and may cause the 
-function to return. If the function returns before we use the result of 
-to_module_kobject() then the call is just a waste of time. 
-The patch moves the call to to_module_kobject() down just before it is 
-actually used, thus we save a call to the function in a few cases. I doubt 
-this is in any way measurable, but I see no reason to not move the call - 
-it should be an infinitesimal improvement with no ill sideeffects.
-Please consider applying.
+It's somehow initialized via isp16_setup.
 
+> Bartlomiej
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+cu
+Adrian
 
-diff -up linux-2.6.11-rc2-bk7-orig/kernel/params.c linux-2.6.11-rc2-bk7/kernel/params.c
---- linux-2.6.11-rc2-bk7-orig/kernel/params.c	2005-01-29 23:54:53.000000000 +0100
-+++ linux-2.6.11-rc2-bk7/kernel/params.c	2005-01-30 00:27:08.000000000 +0100
-@@ -625,11 +625,12 @@ static ssize_t module_attr_show(struct k
- 	int ret;
- 
- 	attribute = to_module_attr(attr);
--	mk = to_module_kobject(kobj);
- 
- 	if (!attribute->show)
- 		return -EPERM;
- 
-+	mk = to_module_kobject(kobj);
-+
- 	if (!try_module_get(mk->mod))
- 		return -ENODEV;
- 
-@@ -649,11 +650,12 @@ static ssize_t module_attr_store(struct 
- 	int ret;
- 
- 	attribute = to_module_attr(attr);
--	mk = to_module_kobject(kobj);
- 
- 	if (!attribute->store)
- 		return -EPERM;
- 
-+	mk = to_module_kobject(kobj);
-+
- 	if (!try_module_get(mk->mod))
- 		return -ENODEV;
- 
+-- 
 
-
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

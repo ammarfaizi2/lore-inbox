@@ -1,57 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132969AbQKZXha>; Sun, 26 Nov 2000 18:37:30 -0500
+        id <S131728AbQKZXmw>; Sun, 26 Nov 2000 18:42:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S133022AbQKZXhU>; Sun, 26 Nov 2000 18:37:20 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:32528 "EHLO
-        vger.timpanogas.org") by vger.kernel.org with ESMTP
-        id <S132969AbQKZXhF>; Sun, 26 Nov 2000 18:37:05 -0500
-Date: Sun, 26 Nov 2000 17:03:34 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: "Mohammad A. Haque" <mhaque@haque.net>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] modutils 2.3.20 and beyond
-Message-ID: <20001126170334.B1787@vger.timpanogas.org>
-In-Reply-To: <20001126163655.A1637@vger.timpanogas.org> <E140AZB-0002Qh-00@the-village.bc.nu> <20001126164556.B1665@vger.timpanogas.org> <3A21968B.5CDB12BF@haque.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <3A21968B.5CDB12BF@haque.net>; from mhaque@haque.net on Sun, Nov 26, 2000 at 06:02:35PM -0500
+        id <S131930AbQKZXmm>; Sun, 26 Nov 2000 18:42:42 -0500
+Received: from filesrv1.baby-dragons.com ([199.33.245.55]:48912 "EHLO
+        filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+        id <S131728AbQKZXm1>; Sun, 26 Nov 2000 18:42:27 -0500
+Date: Sun, 26 Nov 2000 15:12:15 -0800 (PST)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Paul Jakma <paulj@itg.ie>
+cc: Phil Randal <phil@rebee.clara.co.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: problem with hp C1537A tape drives
+In-Reply-To: <Pine.LNX.4.30.0011261900130.892-100000@rossi.itg.ie>
+Message-ID: <Pine.LNX.4.30.0011261508340.3007-100000@filesrv1.baby-dragons.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 26, 2000 at 06:02:35PM -0500, Mohammad A. Haque wrote:
-> I'd rather have Anaconda changed rather than special casing standard
-> utils to account for distro handling.
 
-Great.  Then tell RedHat to rewrite it without the need for these switches.
-They will say NO.  It's a trivial change, and would save me a lot of hours
-rewriting scripts.  I did it once, but if RedHat has standardized on this
-set of switches, why not add them as alias commands?  It's a trivial 
-patch.
+	Hello Paul & Phil ,  Ouch !,  is this media that loose on the
+	substrate that it leaves that much behind ?  Or is it something
+	else ?  I'd really like to know what the problem is  ,  as I am
+	seriously looking at putting DDS-III & IV 's into my backup
+	schemes .  Tia ,  JimL
 
-Jeff
+On Sun, 26 Nov 2000, Paul Jakma wrote:
+> On Sun, 26 Nov 2000, Phil Randal wrote:
+> > Ah, have you tried cleaning the tape heads?
+> the drive gets a run of a cleaning tape on a weekly basis.
+> > far more frequently than you'd expect.  I've found it needs
+> > two cleaning tape passes to clear this one.
+> uhmmm.... ok. I've now done multiple cleanning runs with multiple
+> cleaning tapes. let's see what happens when i try the amflush.
+> > Cleaning solves a similar problem I get with these drives
+> > and Backup Exec for Netware.
+> and guess what... it's worked for me too. doh! guess once a week is
+> not enough then.
+> apologies to the list my tape cluelessness.
+> > Phil
+> thanks,
+> --paulj
+       +----------------------------------------------------------------+
+       | James   W.   Laferriere | System  Techniques | Give me VMS     |
+       | Network        Engineer | 25416      22nd So |  Give me Linux  |
+       | babydr@baby-dragons.com | DesMoines WA 98198 |   only  on  AXP |
+       +----------------------------------------------------------------+
 
-> 
-> "Jeff V. Merkey" wrote:
-> > 
-> > Anaconda will barf and require over 850+ changes to the scripts without
-> > it.  If you look at the patch, you will note that it's a silent switch
-> > that's only there to avoid a noisy error message from depmod.  It
-> > actually does nothing other than set a flag that also does nothing.
-> > -m simply maps to -F.
-> > 
-> 
-> -- 
-> 
-> =====================================================================
-> Mohammad A. Haque                              http://www.haque.net/ 
->                                                mhaque@haque.net
-> 
->   "Alcohol and calculus don't mix.             Project Lead
->    Don't drink and derive." --Unknown          http://wm.themes.org/
->                                                batmanppc@themes.org
-> =====================================================================
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,66 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262185AbTFDAkA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 20:40:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262257AbTFDAj7
+	id S262221AbTFDAm6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 20:42:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262257AbTFDAm6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 20:39:59 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:18958
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S262185AbTFDAj6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 20:39:58 -0400
-Date: Tue, 3 Jun 2003 17:42:14 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: schmurtz@netcourrier.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: hd?: lost interrupt; at least since 2.4.21-pre7
-In-Reply-To: <wazza.87d6hvij01.fsf@message.id>
-Message-ID: <Pine.LNX.4.10.10306031740390.27756-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	Tue, 3 Jun 2003 20:42:58 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8597 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262221AbTFDAm5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 20:42:57 -0400
+Date: Wed, 4 Jun 2003 01:56:25 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.70 add_disk(disk) re-registering disk->queue->elevator.kobj (bug?!)
+Message-ID: <20030604005625.GF6754@parcelfarce.linux.theplanet.co.uk>
+References: <3EDCEA14.2000407@aros.net> <20030603120717.66012855.akpm@digeo.com> <3EDD3D5F.3010509@aros.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EDD3D5F.3010509@aros.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jun 03, 2003 at 06:29:19PM -0600, Lou Langholtz wrote:
+> Andrew Morton wrote:
+> >The ramdisk driver was recently changed to do exactly this.  From what
+> >you say it appears that nbd needs the same treatment.
 
-Basically somewhere a patch fouled the state machine.
+This is utterly ridiculous.  I realize that sysfs is fashionable, but
+it should reflect the existing logics, not the other way round.
 
-The expiry tripped just as an interrupt happens to be reported from the
-drive.
+Guys, there are very valid reasons to have a queue shared by several
+disks.  E.g. it can very well act as a serialization mechanism - and
+as the matter of fact does in quite a few drivers.
 
-I will need to look at the series of innerdiffs when I get time.
+What the fuck is going on?  It's what, the fifth case when we have
+somebody export something in sysfs, ignore the lifetime rules for
+objects and go "reality doesn't match my theory, too bad for reality"?
 
-On Tue, 3 Jun 2003 schmurtz@netcourrier.com wrote:
-
-> 
-> Hi there
-> 
-> hda: dma_timer_expiry: dma status == 0x64
-> hda: lost interrupt
-> hda: dma_intr: bad DMA status (dma_stat=70)
-> hda: dma_intr: status=0x50 { DriveReady SeekComplete }
-> 
-> I've read a lot of people do suffer from that kind of errors.
-> Especially people using VIA IDE chipset.
-> When using 2.4.21-pre4-aa1 everthing is ok but when I was using .21-pre7 I had to wait
-> a few days before starting to see those errors.
-> I've just tried 2.4.21-pre6. Errors still happen and that a lot faster.
-> 2.4.21-rc2-ac1 was subjected to that kind of errors too.
-> 
-> A few weeks ago, I read people complaining about similar issues.
-> Especially people using Local or IO APIC support on uniprocessors and VIA IDE chipsets.
-> I'm using both local and IO APIC on uniprocessors.
-> 
-> Is there any patch or solution ? I heard disabling acpi may help.
-> 
-> .config /proc/pci et /proc/dmesg are attached to this mail.
-> 
-> My two harddrives are subjected to those errors. Using 2.4.21-pre4-aa1 there is no error.
-> I'm available to do tests.
-> 
-> 
-> 
-> 
-
-Andre Hedrick
-LAD Storage Consulting Group
-
+Linus, could we *please* put a moratorium on use of sysfs unless the
+persons using it had proven that they understand how the objects they
+export are used in the tree?  Enough is enough - we already have netdev
+drivers to deal with and have to do that *now* thanks to blind sysfs
+export.  Now we get random bdev stuff on top of that?  Absofuckinglutely
+marvelous.

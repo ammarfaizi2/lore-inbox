@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279936AbRJ3MOe>; Tue, 30 Oct 2001 07:14:34 -0500
+	id <S279943AbRJ3MRF>; Tue, 30 Oct 2001 07:17:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279938AbRJ3MOY>; Tue, 30 Oct 2001 07:14:24 -0500
-Received: from dns.irisa.fr ([131.254.254.2]:55210 "HELO dns.irisa.fr")
-	by vger.kernel.org with SMTP id <S279936AbRJ3MOP>;
-	Tue, 30 Oct 2001 07:14:15 -0500
-Date: Tue, 30 Oct 2001 13:14:51 +0100
-From: DINH Viet Hoa <Viet-Hoa.Dinh@irisa.fr>
-To: linux-kernel@vger.kernel.org
-Subject: adding syscalls on linux
-Message-Id: <20011030131451.78be5fc2.vdinh@irisa.fr>
-Organization: IRISA
-X-Mailer: Sylpheed version 0.6.4claws12 (GTK+ 1.2.8; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S279941AbRJ3MQy>; Tue, 30 Oct 2001 07:16:54 -0500
+Received: from ns.viventus.no ([195.18.200.139]:63749 "EHLO viventus.no")
+	by vger.kernel.org with ESMTP id <S279938AbRJ3MQr>;
+	Tue, 30 Oct 2001 07:16:47 -0500
+Date: Tue, 30 Oct 2001 13:20:05 +0100 (CET)
+From: Rafael Martinez <rafael@opoint.com>
+X-X-Sender: <rafaelma@gauss.viewpoint.no>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Johan <jo_ni@telia.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Still having problems with eepro100
+In-Reply-To: <E15yXi6-0006Hd-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0110301309090.22220-100000@gauss.viewpoint.no>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When we want to give a the user mode access to a kernel function,
-we have to write a syscall.
+On Tue, 30 Oct 2001, Alan Cox wrote:
 
-But in which case should we :
-- add a syscall in the sys_call_table
-- or add a device and add a fcntl identifier and handle this ?
+> > I have been trying all new kernels + the ac patches but nothing
+> > seems to work. The fun thing is that I only gets this problem
+> > when I am running XFree, is this just a weird coincidence?
+>
+> Possibly not.
+>
+> I have one problem box where you have to disable the kernel ACPI stuff but
+> the XFree case is a new one to me
 
-thanks.
+I have the same problem with this card and I do not use XFree at all in
+my servers
 
--- 
-DINH Viêt Hoà, ingénieur associé, projet PARIS
-IRISA-INRIA, Campus de Beaulieu, 35042 Rennes cedex, France
-Tél: +33 (0) 2 99 84 75 98, Fax: +33 (0) 2 99 84 25 28
+linux-2.4.10-ac12 / 2.4.9 / 2.4.3
+eepro100: wait_for_cmd_done timeout!
+
+Rafael Martinez
+
+

@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262439AbTGAPYL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 11:24:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262489AbTGAPYK
+	id S262489AbTGAPZe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 11:25:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262498AbTGAPZe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 11:24:10 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:51631 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262439AbTGAPYJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 11:24:09 -0400
-Date: Tue, 1 Jul 2003 10:38:27 -0500
-From: linas@austin.ibm.com
-To: linux-kernel@vger.kernel.org
-Subject: panic and timer interrupts?
-Message-ID: <20030701103827.A24070@forte.austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 1 Jul 2003 11:25:34 -0400
+Received: from lindsey.linux-systeme.com ([80.190.48.67]:4612 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S262489AbTGAPYN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 11:24:13 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: kwijibo@zianet.com
+Subject: Re: Kernel 2.5.72 doesn't load up
+Date: Tue, 1 Jul 2003 17:35:05 +0200
+User-Agent: KMail/1.5.2
+Cc: gilson r <gilsonr@highstream.net>, linux-kernel@vger.kernel.org
+References: <200306301655.06221.gilsonr@highstream.net> <200306302301.42046.m.c.p@wolk-project.de> <3F00ACF2.7020709@zianet.com>
+In-Reply-To: <3F00ACF2.7020709@zianet.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Message-Id: <200307011735.05281.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 30 June 2003 23:34, kwijibo@zianet.com wrote:
 
+Hi Steve,
 
-I've got a machine here that just did one of the stranger kernel
-things I've ever seen. Due to some bug, it panic'ed. But then, during
-the panic, it took a timer interrupt, and then handled some network
-interrupts, handled some network data, and seems to maybe even have
-scheduled some user-land processes before getting hoplessly tangled up.
+> Perhaps this option should just be set as default and don't
+> even prompt the user for it during make config/menuconfig/xconfig.
+> 99% of the people probably want this option and for those who
+> don't probably have the smarts to just manually edit the .config and
+> remove it.
+you are reading my mind :)
 
-So, my naive kernel questions as follows: I would have thought that
-interrupts would be disabled during a panic, but I can't find any code
-that does this. Why is this? Is this a bug? Is this intentional?
+ciao, Marc
 
-It got me to thinking about a hang mode I've seen not infrequently
-on PC's: Machine is hung, unresponsive to keyboard, telnet, etc. but
-does reply to pings. I've never bothered to debug those, but now I'm
-wondering if that's a related manifestation.
-
---linas
 

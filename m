@@ -1,79 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261867AbUDSVHm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbUDSVIc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261867AbUDSVHm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 17:07:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261742AbUDSVHm
+	id S261239AbUDSVIc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 17:08:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261742AbUDSVIc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 17:07:42 -0400
-Received: from smtp.sys.beep.pl ([195.245.198.13]:5136 "EHLO maja.beep.pl")
-	by vger.kernel.org with ESMTP id S261884AbUDSVHj convert rfc822-to-8bit
+	Mon, 19 Apr 2004 17:08:32 -0400
+Received: from dh132.citi.umich.edu ([141.211.133.132]:6016 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S261239AbUDSVI1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 17:07:39 -0400
-From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-Organization: SelfOrganizing
-To: Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: build system broken in 2.6.6rc1 for external modules?
-Date: Mon, 19 Apr 2004 23:07:31 +0200
-User-Agent: KMail/1.6.1
-Cc: linux-kernel@vger.kernel.org
-References: <200404191956.53184.arekm@pld-linux.org> <20040419205817.GA2090@mars.ravnborg.org>
-In-Reply-To: <20040419205817.GA2090@mars.ravnborg.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200404192307.31059.arekm@pld-linux.org>
-X-Spam-Score: 0.0 (/)
-X-Spam-Report: Spam detection software, running on the system "maja.beep.pl", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or block
-	similar future email.  If you have any questions, see
-	postmaster@localhost for details.
-	Content preview:  Dnia Monday 19 of April 2004 22:58, Sam Ravnborg
-	 =?ISO-8859-1?Q?=20napisa=B3:?= > There is currently a glitch that requires you to have
-	defined > at least one module in the kernel. net/dummy for example. >
-	When next round of patched are in you will not need to build the full >
-	kernel either. Great but with 2.6.5 kernel (2.6.4, too. previous
-	probably too) I was able to build modules without need to build the
-	full kernel. [...] 
-	Content analysis details:   (0.0 points, 25.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-X-Authenticated-Id: arekm 
+	Mon, 19 Apr 2004 17:08:27 -0400
+Subject: Re: [PATCH 2.6.6rc1-mm1] NFS sysctlized - readahead tunable
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Fabian Frederick <Fabian.Frederick@skynet.be>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1082407753.18853.12.camel@bluerhyme.real3>
+References: <1082407753.18853.12.camel@bluerhyme.real3>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1082408907.3360.14.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 19 Apr 2004 17:08:27 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dnia Monday 19 of April 2004 22:58, Sam Ravnborg napisa³:
+On Mon, 2004-04-19 at 16:49, Fabian Frederick wrote:
+> Trond,
+> 
+> 	Here is a patch to have nfs to sysctl although Maxreadahead is tunable
+> under nfs init only.Do you have an idea and do you think it's acceptable
+> to make it applicable directly i.e. would it be readahead reduction
+> tolerant ?
+> 
+> btw, is this inode.c an issue for V4 ?
+> 
 
-> There is currently a glitch that requires you to have defined
-> at least one module in the kernel. net/dummy for example.
-> When next round of patched are in you will not need to build the full
-> kernel either.
-Great but with 2.6.5 kernel (2.6.4, too. previous probably too) I was able to 
-build modules without need to build the full kernel.
+The lockd module has already registered the name /proc/sys/fs/nfs, so
+your scheme will end up corrupting the sysctl list. Sorting out the
+/proc namespace issue is the main reason why this hasn't been done
+before.
+Personally, I'd prefer renaming the lockd module into
+/proc/sys/fs/lockd, but it will have to be up to Andrew to decide
+whether he wants to allow that during a stable kernel cycle.
 
-> If you do not want (cannot) build the kernel in the $KERNELSRCDIR
-> then you can use:
->
-> cd $KERNELSRCDIR
-> copy config-up ~/build
-> make O=~/build
-This will start building kernel for me! I don't want that. I want only few 
-external modules to be built.
+Also note that putting initializers into a ".h" file is horrible style.
+".h" files should be for forward declarations only.
 
-I'll wait for ,,next round of patches'' anyway.
-
-> cd $MODULEDIR
-> make -C KERNELSRCDIR O=~/build M=$PWD
-not
-make -C KERNELSRCDIR O=~/build M=$PWD modules ?
-
-> Hope this clarifies it.
-> 	Sam
-
-Would be nice if that ended in Documentation/modules.txt for example.
-
--- 
-Arkadiusz Mi¶kiewicz     CS at FoE, Wroclaw University of Technology
-arekm.pld-linux.org, 1024/3DB19BBD, JID: arekm.jabber.org, PLD/Linux
+Cheers,
+  Trond

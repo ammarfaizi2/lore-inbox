@@ -1,117 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265800AbUGMUiC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265840AbUGMUpP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265800AbUGMUiC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 16:38:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265828AbUGMUiC
+	id S265840AbUGMUpP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 16:45:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265871AbUGMUpP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 16:38:02 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:34179 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S265800AbUGMUhr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 16:37:47 -0400
-Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary Kernel
-	Preemption Patch
-From: Lee Revell <rlrevell@joe-job.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-audio-dev@music.columbia.edu, mingo@elte.hu, arjanv@redhat.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20040713022919.67c991db.akpm@osdl.org>
-References: <20040709182638.GA11310@elte.hu>
-	 <20040710222510.0593f4a4.akpm@osdl.org>
-	 <1089673014.10777.42.camel@mindpipe>
-	 <20040712163141.31ef1ad6.akpm@osdl.org>
-	 <1089677823.10777.64.camel@mindpipe>
-	 <20040712174639.38c7cf48.akpm@osdl.org>
-	 <1089687168.10777.126.camel@mindpipe>
-	 <20040712205917.47d1d58b.akpm@osdl.org>
-	 <1089707483.20381.33.camel@mindpipe>
-	 <20040713014316.2ce9181d.akpm@osdl.org>
-	 <1089708818.20381.36.camel@mindpipe>
-	 <20040713020025.7400c648.akpm@osdl.org>
-	 <1089710638.20381.41.camel@mindpipe>
-	 <20040713022919.67c991db.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1089751077.22175.3.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 13 Jul 2004 16:37:57 -0400
-Content-Transfer-Encoding: 7bit
+	Tue, 13 Jul 2004 16:45:15 -0400
+Received: from ms-smtp-04-lbl.southeast.rr.com ([24.25.9.103]:10913 "EHLO
+	ms-smtp-04-eri0.southeast.rr.com") by vger.kernel.org with ESMTP
+	id S265840AbUGMUpD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 16:45:03 -0400
+Message-ID: <40F449BD.2030508@mbio.ncsu.edu>
+Date: Tue, 13 Jul 2004 16:44:45 -0400
+From: Will Beers <whbeers@mbio.ncsu.edu>
+User-Agent: Mozilla Thunderbird 0.7+ (X11/20040623)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Brownell <david-b@pacbell.net>
+CC: Olaf Hering <olh@suse.de>, Gary_Lerhaupt@Dell.com,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Stuart_Hayes@Dell.com
+Subject: Re: [linux-usb-devel] [PATCH] proper bios handoff in ehci-hcd
+References: <FD3BA83843210C4BA9E414B0C56A5E5C07DD91@ausx2kmpc104.aus.amer.dell.com> <40CF0049.2010307@pacbell.net> <20040713180727.GA11583@suse.de> <40F4457F.2010005@pacbell.net>
+In-Reply-To: <40F4457F.2010005@pacbell.net>
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms030202070204090100060309"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-07-13 at 05:29, Andrew Morton wrote:
-> Lee Revell <rlrevell@joe-job.com> wrote:
-> >
-> > On Tue, 2004-07-13 at 05:00, Andrew Morton wrote:
-> > > Lee Revell <rlrevell@joe-job.com> wrote:
-> > > >
-> > > > > framebuffer scrolling inside lock_kernel().  Tricky.  Suggest you use X or
-> > > >  > vgacon.  You can try removing the lock_kernel() calls from do_tty_write(),
-> > > >  > but make sure you're wearing ear protection.
-> > > >  > 
-> > > > 
-> > > >  OK, I figured this was not an easy one.  I can just not do that.
-> > > 
-> > > Why not?  You can certainly try removing those [un]lock_kernel() calls.
-> > > 
-> > 
-> > Maybe I missed something.  What exactly do you mean by 'make sure you're
-> > wearing ear protection'?
-> > 
-> 
-> It might go boom.  If it does screw up, it probably won't be very seriously
-> bad - maybe some display glitches.  Just an experiment.
+This is a cryptographically signed message in MIME format.
 
-Heh, I thought you literally meant it could destroy my speakers.  I have
-a pretty loud amp hooked up to this thing!  I will try that.
+--------------ms030202070204090100060309
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Meanwhile, here are some more XRUS traces from the same test, run
-overnight, without any significant network activity.  I believe updatedb
-may have caused these.  I left out the reiserfs related ones because
-that seems to be a known issue.
+ > though maybe 500 msec is too short a period to wait.
+ > See if 5000 msec helps.
 
-Jul 13 06:22:07 mindpipe kernel:
-Jul 13 06:22:07 mindpipe kernel: ALSA /usr/src/alsa-cvs-1.0.5/alsa-driver/alsa-kernel/core/pcm_lib.c:169: XRUN: pcmC0D0p
-Jul 13 06:22:07 mindpipe kernel:  [__crc_totalram_pages+1387264/5353478] snd_pcm_period_elapsed+0x2ca/0x410 [snd_pcm]
-Jul 13 06:22:07 mindpipe kernel:  [do_pollfd+125/144] do_pollfd+0x7d/0x90
-Jul 13 06:22:07 mindpipe kernel:  [__crc_totalram_pages+1455070/5353478] snd_emu10k1_interrupt+0x3c8/0x480 [snd_emu10k1]
-Jul 13 06:22:07 mindpipe kernel:  [handle_IRQ_event+49/96] handle_IRQ_event+0x31/0x60
-Jul 13 06:22:07 mindpipe kernel:  [do_IRQ+155/352] do_IRQ+0x9b/0x160
-Jul 13 06:22:07 mindpipe kernel:  [common_interrupt+24/32] common_interrupt+0x18/0x20
-Jul 13 06:22:07 mindpipe kernel:
-Jul 13 06:22:07 mindpipe kernel: ALSA /usr/src/alsa-cvs-1.0.5/alsa-driver/alsa-kernel/core/pcm_lib.c:169: XRUN: pcmC0D0p
-Jul 13 06:22:07 mindpipe kernel:  [__crc_totalram_pages+1387264/5353478] snd_pcm_period_elapsed+0x2ca/0x410 [snd_pcm]
-Jul 13 06:22:07 mindpipe kernel:  [__crc_totalram_pages+1455070/5353478] snd_emu10k1_interrupt+0x3c8/0x480 [snd_emu10k1]
-Jul 13 06:22:07 mindpipe kernel:  [handle_IRQ_event+49/96] handle_IRQ_event+0x31/0x60
-Jul 13 06:22:07 mindpipe kernel:  [do_IRQ+155/352] do_IRQ+0x9b/0x160
-Jul 13 06:22:07 mindpipe kernel:  [common_interrupt+24/32] common_interrupt+0x18/0x20
-Jul 13 06:22:07 mindpipe kernel:  [__kmalloc+110/160] __kmalloc+0x6e/0xa0
-Jul 13 06:22:07 mindpipe kernel:  [sys_poll+209/560] sys_poll+0xd1/0x230
-Jul 13 06:22:07 mindpipe kernel:  [__pollwait+0/160] __pollwait+0x0/0xa0
-Jul 13 06:22:07 mindpipe kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-Jul 13 06:22:07 mindpipe kernel:
-Jul 13 06:22:19 mindpipe kernel: ALSA /usr/src/alsa-cvs-1.0.5/alsa-driver/alsa-kernel/core/pcm_lib.c:169: XRUN: pcmC0D0p
-Jul 13 06:22:19 mindpipe kernel:  [__crc_totalram_pages+1387264/5353478] snd_pcm_period_elapsed+0x2ca/0x410 [snd_pcm]
-Jul 13 06:22:19 mindpipe kernel:  [__crc_totalram_pages+1455070/5353478] snd_emu10k1_interrupt+0x3c8/0x480 [snd_emu10k1]
-Jul 13 06:22:19 mindpipe kernel:  [handle_IRQ_event+49/96] handle_IRQ_event+0x31/0x60
-Jul 13 06:22:19 mindpipe kernel:  [do_IRQ+155/352] do_IRQ+0x9b/0x160
-Jul 13 06:22:19 mindpipe kernel:  [common_interrupt+24/32] common_interrupt+0x18/0x20
-Jul 13 06:22:19 mindpipe kernel:
-Jul 13 06:26:13 mindpipe kernel: ALSA /usr/src/alsa-cvs-1.0.5/alsa-driver/alsa-kernel/core/pcm_lib.c:169: XRUN: pcmC0D0p
-Jul 13 06:26:13 mindpipe kernel:  [__crc_totalram_pages+1387264/5353478] snd_pcm_period_elapsed+0x2ca/0x410 [snd_pcm]
-Jul 13 06:26:13 mindpipe kernel:  [__crc_totalram_pages+2260290/5353478] find_attr+0xdc/0x250 [ntfs]
-Jul 13 06:26:13 mindpipe kernel:  [__crc_totalram_pages+1455070/5353478] snd_emu10k1_interrupt+0x3c8/0x480 [snd_emu10k1]
-Jul 13 06:26:13 mindpipe kernel:  [handle_IRQ_event+49/96] handle_IRQ_event+0x31/0x60
-Jul 13 06:26:13 mindpipe kernel:  [do_IRQ+155/352] do_IRQ+0x9b/0x160
-Jul 13 06:26:13 mindpipe kernel:  [common_interrupt+24/32] common_interrupt+0x18/0x20
-Jul 13 06:26:13 mindpipe kernel:  [__crc_totalram_pages+2275930/5353478] ntfs_readdir+0xd24/0xfe0 [ntfs]
-Jul 13 06:26:13 mindpipe kernel:  [filldir64+0/256] filldir64+0x0/0x100
-Jul 13 06:26:13 mindpipe kernel:  [vfs_readdir+133/160] vfs_readdir+0x85/0xa0
-Jul 13 06:26:13 mindpipe kernel:  [filldir64+0/256] filldir64+0x0/0x100
-Jul 13 06:26:13 mindpipe kernel:  [sys_getdents64+102/163] sys_getdents64+0x66/0xa3
-Jul 13 06:26:13 mindpipe kernel:  [filldir64+0/256] filldir64+0x0/0x100
-Jul 13 06:26:13 mindpipe kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-Jul 13 06:26:13 mindpipe kernel:
+I went all the way up to 20000 msec and it still didn't help.  I'm sure 
+it's a bad idea, but removing that whole if-block below it makes it work 
+(which is effectively what switching the and/or did).  I don't know enough 
+about it to judge whether it's correct, but what exactly is it checking for 
+there?
 
-Lee
+-Will
 
+--------------ms030202070204090100060309
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIII+TCC
+AtcwggJAoAMCAQICAwylZTANBgkqhkiG9w0BAQQFADBiMQswCQYDVQQGEwJaQTElMCMGA1UE
+ChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNv
+bmFsIEZyZWVtYWlsIElzc3VpbmcgQ0EwHhcNMDQwNzA4MDY1OTI1WhcNMDUwNzA4MDY1OTI1
+WjBHMR8wHQYDVQQDExZUaGF3dGUgRnJlZW1haWwgTWVtYmVyMSQwIgYJKoZIhvcNAQkBFhV3
+aGJlZXJzQG1iaW8ubmNzdS5lZHUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCw
+5/G6HmtFPp9fK1kCwjNTyx4sN3E/AO9uPXDV48IxqXFi7CANR/BvQMaawTEMEa5XjHoGab6O
+HyvMGvr6csebsBAryt6LmCvTi3py0pNF5KLBaV98AfgFu4AyoJK+hxIM41XyF2BhS6Cfc/iD
+uZuWeWybiUQZLhYVdbU5j928u5ad1jeUqMRNeU7GIC7TOy8lulpugpA9CRocxtNoyibNE7J/
+pbSzZXEMVBrNqdwGlKPd7HEhvK941D5IZEId0xul1p0DjlXkugG8q59kapfDosWHfL987Kni
+FmUwLbOBPOQagsvDeqd3RQQ6UMYq4Qewz1aAjghhQs/xKpkQfr0NAgMBAAGjMjAwMCAGA1Ud
+EQQZMBeBFXdoYmVlcnNAbWJpby5uY3N1LmVkdTAMBgNVHRMBAf8EAjAAMA0GCSqGSIb3DQEB
+BAUAA4GBAEN+A34ZDoOVt4uP6MuH1SLoGsMyjrpdLS5McYTz4GAFafHL1YHSKu5vlofkadBs
+Hdln1Fe9QyMxA+Ycrp42pt3ZzzxqpF/Vfnp7yieXFjcg6Yg4m5pIfwmmKyU13BVbGfWDGasd
+aJ1GpWWvsSDEYLjlWymVz3clCcfAi+yVJl6CMIIC1zCCAkCgAwIBAgIDDKVlMA0GCSqGSIb3
+DQEBBAUAMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3VsdGluZyAoUHR5
+KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNzdWluZyBDQTAe
+Fw0wNDA3MDgwNjU5MjVaFw0wNTA3MDgwNjU5MjVaMEcxHzAdBgNVBAMTFlRoYXd0ZSBGcmVl
+bWFpbCBNZW1iZXIxJDAiBgkqhkiG9w0BCQEWFXdoYmVlcnNAbWJpby5uY3N1LmVkdTCCASIw
+DQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALDn8boea0U+n18rWQLCM1PLHiw3cT8A7249
+cNXjwjGpcWLsIA1H8G9AxprBMQwRrleMegZpvo4fK8wa+vpyx5uwECvK3ouYK9OLenLSk0Xk
+osFpX3wB+AW7gDKgkr6HEgzjVfIXYGFLoJ9z+IO5m5Z5bJuJRBkuFhV1tTmP3by7lp3WN5So
+xE15TsYgLtM7LyW6Wm6CkD0JGhzG02jKJs0Tsn+ltLNlcQxUGs2p3AaUo93scSG8r3jUPkhk
+Qh3TG6XWnQOOVeS6Abyrn2Rql8OixYd8v3zsqeIWZTAts4E85BqCy8N6p3dFBDpQxirhB7DP
+VoCOCGFCz/EqmRB+vQ0CAwEAAaMyMDAwIAYDVR0RBBkwF4EVd2hiZWVyc0BtYmlvLm5jc3Uu
+ZWR1MAwGA1UdEwEB/wQCMAAwDQYJKoZIhvcNAQEEBQADgYEAQ34DfhkOg5W3i4/oy4fVIuga
+wzKOul0tLkxxhPPgYAVp8cvVgdIq7m+Wh+Rp0Gwd2WfUV71DIzED5hyunjam3dnPPGqkX9V+
+envKJ5cWNyDpiDibmkh/CaYrJTXcFVsZ9YMZqx1onUalZa+xIMRguOVbKZXPdyUJx8CL7JUm
+XoIwggM/MIICqKADAgECAgENMA0GCSqGSIb3DQEBBQUAMIHRMQswCQYDVQQGEwJaQTEVMBMG
+A1UECBMMV2VzdGVybiBDYXBlMRIwEAYDVQQHEwlDYXBlIFRvd24xGjAYBgNVBAoTEVRoYXd0
+ZSBDb25zdWx0aW5nMSgwJgYDVQQLEx9DZXJ0aWZpY2F0aW9uIFNlcnZpY2VzIERpdmlzaW9u
+MSQwIgYDVQQDExtUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgQ0ExKzApBgkqhkiG9w0BCQEW
+HHBlcnNvbmFsLWZyZWVtYWlsQHRoYXd0ZS5jb20wHhcNMDMwNzE3MDAwMDAwWhcNMTMwNzE2
+MjM1OTU5WjBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0
+eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVtYWlsIElzc3VpbmcgQ0Ew
+gZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMSmPFVzVftOucqZWh5owHUEcJ3f6f+jHuy9
+zfVb8hp2vX8MOmHyv1HOAdTlUAow1wJjWiyJFXCO3cnwK4Vaqj9xVsuvPAsH5/EfkTYkKhPP
+K9Xzgnc9A74r/rsYPge/QIACZNenprufZdHFKlSFD0gEf6e20TxhBEAeZBlyYLf7AgMBAAGj
+gZQwgZEwEgYDVR0TAQH/BAgwBgEB/wIBADBDBgNVHR8EPDA6MDigNqA0hjJodHRwOi8vY3Js
+LnRoYXd0ZS5jb20vVGhhd3RlUGVyc29uYWxGcmVlbWFpbENBLmNybDALBgNVHQ8EBAMCAQYw
+KQYDVR0RBCIwIKQeMBwxGjAYBgNVBAMTEVByaXZhdGVMYWJlbDItMTM4MA0GCSqGSIb3DQEB
+BQUAA4GBAEiM0VCD6gsuzA2jZqxnD3+vrL7CF6FDlpSdf0whuPg2H6otnzYvwPQcUCCTcDz9
+reFhYsPZOhl+hLGZGwDFGguCdJ4lUJRix9sncVcljd2pnDmOjCBPZV+V2vf3h9bGCE6u9uo0
+5RAaWzVNd+NWIXiC3CEZNd4ksdMdRv9dX2VPMYIDOzCCAzcCAQEwaTBiMQswCQYDVQQGEwJa
+QTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhh
+d3RlIFBlcnNvbmFsIEZyZWVtYWlsIElzc3VpbmcgQ0ECAwylZTAJBgUrDgMCGgUAoIIBpzAY
+BgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0wNDA3MTMyMDQ0NDVa
+MCMGCSqGSIb3DQEJBDEWBBQysU/4YXKikmuUCxb5zpj+41YIozBSBgkqhkiG9w0BCQ8xRTBD
+MAoGCCqGSIb3DQMHMA4GCCqGSIb3DQMCAgIAgDANBggqhkiG9w0DAgIBQDAHBgUrDgMCBzAN
+BggqhkiG9w0DAgIBKDB4BgkrBgEEAYI3EAQxazBpMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQK
+ExxUaGF3dGUgQ29uc3VsdGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29u
+YWwgRnJlZW1haWwgSXNzdWluZyBDQQIDDKVlMHoGCyqGSIb3DQEJEAILMWugaTBiMQswCQYD
+VQQGEwJaQTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UE
+AxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVtYWlsIElzc3VpbmcgQ0ECAwylZTANBgkqhkiG9w0B
+AQEFAASCAQBN0qN3ujjKsmm8+lPnw2BNQ/8VQPJkr2BYuhvlftPF38kWoaah5BxdEHsFnnVS
+LzxDNVX9JQhrtQIrNG9fFaT0skC7bqKf9uwFOOeQUjuVBFG0ja89QT31Bd0ztrywG1J8lJ5N
+jFaEYeuQ+tOBcgoBL0ehaVHX9ot1ynVu8o/UUiNJuPCo0fT2s1P/1dywaWz7jSpb1yHelgxO
+fw2Y433PPGfoBuXN656GxlFnAC8eXqYlQCoGXSHn8TUmprJ6uKMz3r2kVc+hbI7DQ4NyLB7H
+etu5sAl4EmrArGXvUD2x//IUpWxlqEAfflSeGC4qogTyhEqI86xQjGDurMHwdPvHAAAAAAAA
+
+--------------ms030202070204090100060309--

@@ -1,88 +1,63 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314280AbSEMQsX>; Mon, 13 May 2002 12:48:23 -0400
+	id <S314128AbSEMQuQ>; Mon, 13 May 2002 12:50:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314281AbSEMQsW>; Mon, 13 May 2002 12:48:22 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:12051 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S314280AbSEMQsW>; Mon, 13 May 2002 12:48:22 -0400
-Message-ID: <3CDFDF8D.1050204@evision-ventures.com>
-Date: Mon, 13 May 2002 17:45:17 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
+	id <S314282AbSEMQuP>; Mon, 13 May 2002 12:50:15 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:64274 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S314128AbSEMQuO>; Mon, 13 May 2002 12:50:14 -0400
+Date: Mon, 13 May 2002 09:50:01 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: davidm@hpl.hp.com
+cc: Rusty Russell <rusty@rustcorp.com.au>, <engebret@vnet.ibm.com>,
+        <justincarlson@cmu.edu>, <alan@lxorguk.ukuu.org.uk>,
+        <linux-kernel@vger.kernel.org>, <anton@samba.org>, <ak@suse.de>,
+        <paulus@samba.org>
+Subject: Re: Memory Barrier Definitions
+In-Reply-To: <15583.60301.410541.204804@napali.hpl.hp.com>
+Message-ID: <Pine.LNX.4.44.0205130938380.19524-100000@home.transmeta.com>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.15 IDE 62
-In-Reply-To: <Pine.LNX.4.44.0205052046590.1405-100000@home.transmeta.com> <3CDFAEC0.6050403@evision-ventures.com> <20020513134832.GV1106@suse.de> <3CDFB962.5070600@evision-ventures.com> <20020513153802.GB17509@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Jens Axboe napisa?:
-> On Mon, May 13 2002, Martin Dalecki wrote:
-> 
->>Uz.ytkownik Jens Axboe napisa?:
->>
->>>On Mon, May 13 2002, Martin Dalecki wrote:
->>>
->>>
->>>>Mon May 13 12:38:11 CEST 2002 ide-clean-62
->>>>
->>>>- Add missing locking around ide_do_request in do_ide_request().
->>>
->>>
->>>This is broken, do_ide_request() is already called with the request lock
->>>held. tq_disk run -> generic_unplug_device (grab lock) ->
->>>__generic_unplug_device -> do_ide_request(). You just introduced a
->>>deadlock.
->>>
->>>This code would have caused hangs or massive corruption immediately if
->>>ide_lock wasn't ready held there. Not to mention instant spin_unlock
->>>BUG() triggers in queue_command()
->>>
->>
->>Oops. Indeed I see now that the ide_lock is exported to
->>the upper layers above it in ide-probe.c
->>
->>blk_init_queue(q, do_ide_request, &ide_lock);
->>
->>But this is problematic in itself, since it means that
->>we are basically serialiazing between *all* requests
->>on all channels.
-> 
-> 
-> Correct.
-> 
-> 
->>So I think we should have per channel locks on this level
->>right? This is anyway our unit for serialization.
->>(I'm just surprised that blk_init_queue() doesn't
->>provide queue specific locking and relies on exported
->>locks from the drivers...)
-> 
-> 
-> Sure go ahead and fine grain it, I had no time to go that much into
-> detail when ripping out io_request_lock. A drive->lock passed to
-> blk_init_queue would do nicely.
-> 
-> But beware that ide locking is a lot nastier than you think. I saw other
-> irq changes earlier, I just want to make sure that you are _absolutely_
-> certain that these changes are safe??
 
-Well on the channel level they are safe modulo cmd640 and rz1000.
-We can handle them by serializing them on the global lock
-in do_ide_request. Like:
 
-if (ch->drive[0].serialized|| ch->drive[1].serialized)
-    then
-    spin_lock(serialize_lock);
+On Mon, 13 May 2002, David Mosberger wrote:
+>
+>  This would have to be complemented by a set of barrier routines which
+> will achieve the desired ordering on machines that don't have the
+> acquire/release model of ia64 (and on ia64, they would expand into
+> nothing).
 
-The other case are shared PCI irq's between two channel,
-but this case I can easly test on my HPT772 controller card.
+Earth to ia64, earth calling...
 
-You could have observed the hwgroup_t melting down... step by step.
+Until ia64 is a noticeable portion of the installed base, and indeed,
+until it has shown that it can survive at all, we're not going to design
+the Linux SMP memory ordering around that architecture.
+
+If that means that ia64 will have to do strange things and maybe cannot
+take advantage of its strange memory models, that's ok. Because reality
+rules.
+
+We're _not_ going to make up a complicated, big fancy new model. We might
+tweak the current one a bit. And if that means that some architectures get
+heavier barriers than they strictly need, then so be it. There are two
+overriding concerns:
+
+ - sanity: maybe it's better to have one mb() that is a sledgehammer but
+   obvious, than it is to have many subtle variations that are just asking
+   for subtle bugs.
+
+ - x86 _owns_ the market right now, and we're not going to make up
+   barriers that add overhead to x86. We may add barriers that end up
+   being no-op's on x86 (because it is fairly ordered anyway), but
+   basically it should be designed for the _common_ case, not for some
+   odd-ball architecture that has sold machines mostly for test purposes.
+
+The x86 situation is obviously just today. In five or ten years maybe
+everybody agrees that we should follow the ia-64 model, and x86 can do
+strange things that end up being slow.
+
+			Linus
 

@@ -1,71 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261235AbUKEWTa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbUKEWYg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261235AbUKEWTa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 17:19:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbUKEWTa
+	id S261239AbUKEWYg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 17:24:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261237AbUKEWYb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 17:19:30 -0500
-Received: from [62.206.217.67] ([62.206.217.67]:34247 "EHLO kaber.coreworks.de")
-	by vger.kernel.org with ESMTP id S261209AbUKEWTW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 17:19:22 -0500
-Message-ID: <418BFC5C.20201@trash.net>
-Date: Fri, 05 Nov 2004 23:19:08 +0100
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041008 Debian/1.7.3-5
-X-Accept-Language: en
-MIME-Version: 1.0
+	Fri, 5 Nov 2004 17:24:31 -0500
+Received: from marasystems.com ([83.241.133.2]:49133 "EHLO
+	filer.marasystems.com") by vger.kernel.org with ESMTP
+	id S261236AbUKEWYP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 17:24:15 -0500
+Date: Fri, 5 Nov 2004 23:24:05 +0100 (CET)
+From: Henrik Nordstrom <hno@marasystems.com>
 To: Pablo Neira <pablo@eurodev.net>
-CC: Matthias Andree <matthias.andree@gmx.de>, linux-net@vger.kernel.org,
+cc: Patrick McHardy <kaber@trash.net>,
+       Matthias Andree <matthias.andree@gmx.de>, linux-net@vger.kernel.org,
        netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
        "David S. Miller" <davem@redhat.com>,
        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: [BK PATCH] Fix ip_conntrack_amanda data corruption bug that breaks
- amanda dumps
-References: <20041104121522.GA16547@merlin.emma.line.org>	<418A7B0B.7040803@trash.net>	<20041104231734.GA30029@merlin.emma.line.org> <418AC0F2.7020508@trash.net> <418BE156.4020400@eurodev.net>
+Subject: Re: [BK PATCH] Fix ip_conntrack_amanda data corruption bug that
+ breaks amanda dumps
 In-Reply-To: <418BE156.4020400@eurodev.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <Pine.LNX.4.61.0411052320490.2017@filer.marasystems.com>
+References: <20041104121522.GA16547@merlin.emma.line.org> <418A7B0B.7040803@trash.net>
+ <20041104231734.GA30029@merlin.emma.line.org> <418AC0F2.7020508@trash.net>
+ <418BE156.4020400@eurodev.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pablo Neira wrote:
+On Fri, 5 Nov 2004, Pablo Neira wrote:
 
-> Patrick, what about this? this way we save a copy to a buffer for 
-> linear skbs.
->
-> Signed-off-by: Pablo Neira Ayuso <pablo@eurodev.net>
->
->@@ -74,12 +75,17 @@
-> 				 skb->len - dataoff, amanda_buffer);
-> 	BUG_ON(amp == NULL);
-> 	data = amp;
->-	data_limit = amp + skb->len - dataoff;
->-	*data_limit = '\0';
-> 
-> 	/* Search for the CONNECT string */
->-	data = strstr(data, "CONNECT ");
->-	if (!data)
->+	while((data = memchr(data, 'C', skb->len - dataoff)) != NULL) {
->+		if (strncmp(data, "CONNECT ", 8) == 0) {
->  
->
-What if the C is the last byte ? There are also more str* commands below
-that need a terminating 0-byte.
+> Patrick, what about this? this way we save a copy to a buffer for linear 
+> skbs.
+
+You need to make sure you or any of the later string match/extract 
+functions are not reading outside of the skb, after the current data 
+segment.
+
+>From what I could tell this was missing in your proposed change. If the 
+helper sees a packet with a C as last byte it would read past the end of 
+the skb, and without looking at the whole source I see it very likely 
+there is operations on the data further down assuming a null terminated 
+string..
 
 Regards
-Patrick
-
->+			found = 1;
->+			break;
->+		}
->+		data++;
->+	}
->+
->+	if (!found)
-> 		goto out;
-> 	data += strlen("CONNECT ");
-> 
->  
->
-
+Henrik

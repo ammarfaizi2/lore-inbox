@@ -1,38 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263624AbUEKUhR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263644AbUEKUja@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263624AbUEKUhR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 16:37:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263611AbUEKUhQ
+	id S263644AbUEKUja (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 16:39:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263623AbUEKUjM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 16:37:16 -0400
-Received: from alkom.eunet.lv ([194.8.5.86]:56449 "EHLO new.solutions.lv")
-	by vger.kernel.org with ESMTP id S263624AbUEKUg0 (ORCPT
+	Tue, 11 May 2004 16:39:12 -0400
+Received: from mail.gmx.net ([213.165.64.20]:7062 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263626AbUEKUhk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 16:36:26 -0400
-Date: Tue, 11 May 2004 23:36:28 +0300
-From: Dmitry Ivanov <dimss@solutions.lv>
-To: Rene Herman <rene.herman@keyaccess.nl>
-Cc: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>,
-       linux-kernel@vger.kernel.org, B.Zolnierkiewicz@elka.pw.edu.pl,
-       mikeserv@bmts.com
-Subject: Re: linux-2.6.6: ide-disks are shutdown on reboot
-Message-ID: <20040511203628.GA30754@new.solutions.lv>
-References: <20040511142017.1bc39ce1.vmlinuz386@yahoo.com.ar> <40A133BF.90403@keyaccess.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40A133BF.90403@keyaccess.nl>
-User-Agent: Mutt/1.4.2.1i
+	Tue, 11 May 2004 16:37:40 -0400
+X-Authenticated: #20450766
+Date: Tue, 11 May 2004 22:37:32 +0200 (CEST)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: Christoph Hellwig <hch@infradead.org>
+cc: James Bottomley <James.Bottomley@steeleye.com>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCH] SCSI updates for 2.6.6
+In-Reply-To: <20040511210429.A19915@infradead.org>
+Message-ID: <Pine.LNX.4.44.0405112224580.6113-100000@poirot.grange>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 11, 2004 at 10:12:47PM +0200, Rene Herman wrote:
-> +	if (system_state != SYSTEM_RESTART) {
+On Tue, 11 May 2004, Christoph Hellwig wrote:
 
-drivers/ide/ide-disk.c:1707: error: `SYSTEM_RESTART' undeclared
-(first use in this function)
+> On Tue, May 11, 2004 at 02:54:33PM -0500, James Bottomley wrote:
+> > On Tue, 2004-05-11 at 14:29, Guennadi Liakhovetski wrote:
+> > > I hoped the tmscsim 64-bit bugfix would somehow find its way into the
+> > > mainstream after 2.6. Does it still have a chance?
+> >
+> > The DC390 is a maintained driver:
+>
+> Well, I've pinged Kurt as few times on the driver, as did Guennadi.  He
+> never responded although he's quite active on linux-scsi on other issues..
 
-I cannot find definition of SYSTEM_RESTART with grep too.
+...and it is very upsetting. Kurt helped me a lot during the initial
+porting of the driver to 2.6 and I very appreciate his help. I understand
+he is very and very busy and that driver is not top priority / importance,
+but still, I think, it wouldn't hurt anybody if it was reasonably
+supported / maintained. I think I did nothing wrong by proposing a patch,
+and it is just pity if it remains unused. It might (in principle) be
+wrong, and then I would appreciate at least a short explanation.
 
--- 
-I am a viral sig. Please copy me and help me spread. Thank you.
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski
+
+

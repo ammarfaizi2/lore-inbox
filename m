@@ -1,68 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269254AbRH0Vqx>; Mon, 27 Aug 2001 17:46:53 -0400
+	id <S269186AbRH0VqX>; Mon, 27 Aug 2001 17:46:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269223AbRH0Vqo>; Mon, 27 Aug 2001 17:46:44 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:39954 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S269197AbRH0Vqh>; Mon, 27 Aug 2001 17:46:37 -0400
-From: Linus Torvalds <torvalds@transmeta.com>
-Date: Mon, 27 Aug 2001 14:44:01 -0700
-Message-Id: <200108272144.f7RLi1707676@penguin.transmeta.com>
-To: phillips@bonn-fries.net, linux-kernel@vger.kernel.org
-Subject: Re: [resent PATCH] Re: very slow parallel read performance
-Newsgroups: linux.dev.kernel
-In-Reply-To: <20010827203125Z16070-32383+1731@humbolt.nl.linux.org>
-In-Reply-To: <Pine.LNX.4.33L.0108241600410.31410-100000@duckman.distro.conectiva> <20010827185803Z16034-32384+632@humbolt.nl.linux.org> <200108271953.VAA20749@ns.cablesurf.de>
+	id <S269197AbRH0VqN>; Mon, 27 Aug 2001 17:46:13 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:16137 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S269186AbRH0VqC>; Mon, 27 Aug 2001 17:46:02 -0400
+Date: Mon, 27 Aug 2001 17:17:59 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: patch-2.4.10-pre1
+In-Reply-To: <Pine.LNX.4.33.0108271421500.7562-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0108271717110.7131-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010827203125Z16070-32383+1731@humbolt.nl.linux.org> you write:
->On August 27, 2001 09:43 pm, Oliver Neukum wrote:
->> 
->> If we are optimising for streaming (which readahead is made for) dropping 
->> only one page will buy you almost nothing in seek time. You might just as 
->> well drop them all and correct your error in one larger read if necessary.
->> Dropping the oldest page is possibly the worst you can do, as you will need 
->> it soonest.
->
->Yes, good point.  OK, I'll re-examine the dropping logic.  Bear in mind, 
->dropping readahead pages is not supposed to happen frequently under 
->steady-state operation, so it's not that critical what we do here, it's going 
->to be hard to create a load that shows the impact.  The really big benefit 
->comes from not overdoing the readahead in the first place, and not underdoing 
->it either.
 
-Note that the big reason why I did _not_ end up just increasing the
-read-ahead value from 31 to 511 (it was there for a short while) is that
-large read-ahead does not necessarily improve performance AT ALL,
-regardless of memory pressure. 
 
-Why? Because if the IO request queue fills up, the read-ahead actually
-ends up waiting for requests, and ends up being synchronous. Which
-totally destroys the whole point of doing read-ahead in the first place.
-And a large read-ahead only makes this more likely.
+On Mon, 27 Aug 2001, Linus Torvalds wrote:
 
-Also note that doing tons of parallel reads _also_ makes this more
-likely, and actually ends up also mixing the read-ahead streams which is
-exactly what you do not want to do.
+> 
+> On Mon, 27 Aug 2001, Marcelo Tosatti wrote:
+> >
+> > There have been some reports of x-order allocation failures when you where
+> > in Finland. They can be triggered by high IO stress on highmem machines.
+> >
+> > The following patch avoids that by allowing tasks allocating bounce memory
+> > (lowmem) to block on low mem IO, thus applying more "IO pressure" to the
+> > lowmem zone. (the lowmem zone is our "IOable memory" anyway, so...)
+> 
+> I'd much rather set this up by splitting up __GFP_IO into two parts (ie
+> __GFP_IO and __GFP_IO_BOUNCE), and avoiding have "negative" bits in the
+> gfp_mask. That way the bits in gfp_mask always end up increasing things we
+> can do, not ever decreasing them.
+> 
+> Also, your test is really wrong:
+> 
+> 	page->zone != &pgdat_list->node_zones[ZONE_HIGHMEM]
+> 
+> is bogus and assumes MUCH too intimate knowledge of there being only one
+> particular zone that is "highmem" (think NUMA machines where each node may
+> have its own highmem setup). So it SHOULD be something along the lines of
+> 
+> 	#ifdef CONFIG_HIGHMEM
+> 		if (!(gfp_mask & __GFP_HIGHIO) && PageHighMem(page))
+> 			return;
+> 	#endif
+> 
+> inside the write case of sync_page_buffers() (we can, and probably should,
+> still _wait_ for highmem buffers - but whether we do it inside
+> sync_page_buffers() or inside try_to_free_buffers() is probably mostly a
+> matter of taste - I won't argue too much with your choice there).
+> 
+> Other than that, the basic approach looks sane, I would just prefer for
+> the testing and bits to be done more regularly.
 
-The solution to both problems is to make the read-ahead not wait
-synchronously on requests - that way the request allocation itself ends
-up being a partial throttle on memory usage too, so that you actually
-probably end up fixing the problem of memory pressure _too_.
+Great. I really expected you to be grumpy about the implementation :)
 
-This requires that the read-ahead code would start submitting the blocks
-using READA, which in turn requires that the readpage() function get a
-"READ vs READA" argument.  And the ll_rw_block code would obviously have
-to honour the rw_ahead hint and submit_bh() would have to return an
-error code - which it currently doesn't do, but which should be trivial
-to implement. 
+Will implement the idea decently and send you the patch later.
 
-I really think that doing anything else is (a) stupid and (b) wrong.
-Trying to come up with a complex algorithm on how to change read-ahead
-based on memory pressure is just bound to be extremely fragile and have
-strange performance effects. While letting the IO layer throttle the
-read-ahead on its own is the natural and high-performance approach.
-
-		Linus

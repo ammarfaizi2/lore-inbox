@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263375AbRFNQ6q>; Thu, 14 Jun 2001 12:58:46 -0400
+	id <S263395AbRFNRB0>; Thu, 14 Jun 2001 13:01:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263378AbRFNQ6g>; Thu, 14 Jun 2001 12:58:36 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:15064 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S263375AbRFNQ62>;
-	Thu, 14 Jun 2001 12:58:28 -0400
-Message-Id: <200106141657.MAA09198@mailhost.eng.mc.xerox.com>
-To: linux-kernel@vger.kernel.org
-Subject: what's the purpose of SYMBOL_NAME()
-Date: Thu, 14 Jun 2001 12:57:33 -0400
-From: "Marty Leisner" <mleisner@eng.mc.xerox.com>
+	id <S263404AbRFNRBQ>; Thu, 14 Jun 2001 13:01:16 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:37297 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S263395AbRFNRBG>;
+	Thu, 14 Jun 2001 13:01:06 -0400
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15144.60850.545471.763348@pizda.ninka.net>
+Date: Thu, 14 Jun 2001 10:00:34 -0700 (PDT)
+To: Aaron Sethman <androsyn@ratbox.org>
+Cc: John <cmptradm@bigfoot.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.5 kernel on Sparc32
+In-Reply-To: <Pine.LNX.4.33.0106141259580.22582-100000@squeaker.ratbox.org>
+In-Reply-To: <3B142AE0.20A22175@bigfoot.com>
+	<Pine.LNX.4.33.0106141259580.22582-100000@squeaker.ratbox.org>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Aaron Sethman writes:
+ > I've seen the exact same problem when trying to compile for sparc.  I
+ > might try and fix it myself, as it doesn't seemed to be fixed in the vger
+ > cvs tree, or any other patch for that matter.
 
-I'm read Bovet's "Understand the Linux Kernel"
-and looked at the assembly routine setup_idt...
+The problem is that we lack a maintainer for the 32-bit Sparc
+port, and the situation is unlikely change until someone steps
+up to take over maintaining the thing.
 
-I noticed the assembly has SYMBOL_NAME
-(its all over the place).
-
-This is define in include/linux/linkage.h
-
-to just:
-#define SYMBOL_NAME(X) X
-
-(this wasn't in Bovet's book).
-
-What's the purpose?  
-
-marty		mleisner@eng.mc.xerox.com   
-Don't  confuse education with schooling.
-	Milton Friedman to Yogi Berra
+Later,
+David S. Miller
+davem@redhat.com

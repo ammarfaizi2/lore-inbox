@@ -1,84 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265285AbUAPGFm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 01:05:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265288AbUAPGFm
+	id S265306AbUAPGOt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 01:14:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265309AbUAPGOt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 01:05:42 -0500
-Received: from mcgroarty.net ([64.81.147.195]:5249 "EHLO pinkbits.internal")
-	by vger.kernel.org with ESMTP id S265285AbUAPGFk (ORCPT
+	Fri, 16 Jan 2004 01:14:49 -0500
+Received: from fw.osdl.org ([65.172.181.6]:14044 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265306AbUAPGOq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 01:05:40 -0500
-Date: Fri, 16 Jan 2004 00:05:38 -0600
-To: linux-kernel@vger.kernel.org
-Subject: Highpoint 374 and drives recognized, but no drives/channels revealed
-Message-ID: <20040116060538.GC2174@mcgroarty.net>
+	Fri, 16 Jan 2004 01:14:46 -0500
+Date: Thu, 15 Jan 2004 22:14:46 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: James Bottomley <James.Bottomley@steeleye.com>,
+       Andrew Vasquez <andrew.vasquez@qlogic.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] fix qla2xxx build for older gcc's
+Message-Id: <20040115221446.63fdd808.akpm@osdl.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="GRPZ8SYKNexpdSJ7"
-Content-Disposition: inline
-X-Debian-GNU-Linux: Rocks
-From: Brian McGroarty <brian@mcgroarty.net>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---GRPZ8SYKNexpdSJ7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-With 2.6.0, the hpt366 module seems to recognize the 8 drives attached
-to my dual hpt374 controller, however no drives are visible. I should
-have ide2 through ide5.
+drivers/scsi/qla2xxx/qla_def.h:1139: warning: unnamed struct/union that defines no instances
+drivers/scsi/qla2xxx/qla_iocb.c:440: union has no member named `standard'
 
-Have others run into a similar problem?
-
-$ cat /proc/ide/hpt366
-                             HighPoint HPT366/368/370/372/374
-
-Controller: 0
-Chipset: HPT374
---------------- Primary Channel --------------- Secondary Channel --------------
-Enabled:        yes                             yes
-Cable:          ATA-66                          ATA-66
-
---------------- drive0 --------- drive1 ------- drive0 ---------- drive1 -------
-DMA capable:    yes              yes            yes               yes
-Mode:           UDMA             UDMA           UDMA              UDMA
-
-Controller: 1
-Chipset: HPT374
---------------- Primary Channel --------------- Secondary Channel --------------
-Enabled:        yes                             yes
-Cable:          ATA-66                          ATA-33
-
---------------- drive0 --------- drive1 ------- drive0 ---------- drive1 -------
-DMA capable:    yes              yes            yes               yes
-Mode:           UDMA             UDMA           UDMA              UDMA
+Older gcc's don't understand anonymous unions.
 
 
-$ ls -lA /proc/ide
--r--r--r--    1 root     root            0 Jan 15 23:33 drivers
-lrwxrwxrwx    1 root     root            8 Jan 15 23:33 hda -> ide0/hda
-lrwxrwxrwx    1 root     root            8 Jan 15 23:33 hdb -> ide0/hdb
-lrwxrwxrwx    1 root     root            8 Jan 15 23:33 hdc -> ide1/hdc
-lrwxrwxrwx    1 root     root            8 Jan 15 23:33 hdd -> ide1/hdd
--r--r--r--    1 root     root            0 Jan 15 23:33 hpt366
-dr-xr-xr-x    4 root     root            0 Jan 15 23:33 ide0
-dr-xr-xr-x    4 root     root            0 Jan 15 23:33 ide1
--r--r--r--    1 root     root            0 Jan 15 23:33 via
+---
 
---GRPZ8SYKNexpdSJ7
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+ drivers/scsi/qla2xxx/qla_def.h |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+diff -puN drivers/scsi/qla2xxx/qla_def.h~qla2xxx-build-fix drivers/scsi/qla2xxx/qla_def.h
+--- 25/drivers/scsi/qla2xxx/qla_def.h~qla2xxx-build-fix	2004-01-15 22:09:17.000000000 -0800
++++ 25-akpm/drivers/scsi/qla2xxx/qla_def.h	2004-01-15 22:10:28.000000000 -0800
+@@ -1135,8 +1135,8 @@ typedef union {
+ 	uint16_t extended;
+ 	struct {
+ 		uint8_t reserved;
+-		uint8_t standard;;
+-	};
++		uint8_t standard;
++	} id;
+ } target_id_t;
+ 
+ #define SET_TARGET_ID(ha, to, from)			\
+@@ -1144,7 +1144,7 @@ do {							\
+ 	if (HAS_EXTENDED_IDS(ha))			\
+ 		to.extended = cpu_to_le16(from);	\
+ 	else						\
+-		to.standard = (uint8_t)from;		\
++		to.id.standard = (uint8_t)from;		\
+ } while (0)
+ 
+ /*
 
-iD8DBQFAB38y2PBacobwYH4RAq+4AJ4xekTP02jA0QTMHaQoT9BQmDa3dQCfZHhi
-qW7rWA8uPNWuVii9vCPhP2k=
-=45ER
------END PGP SIGNATURE-----
+_
 
---GRPZ8SYKNexpdSJ7--

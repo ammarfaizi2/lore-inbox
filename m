@@ -1,85 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262273AbTHXDFl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 23:05:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263384AbTHXDFl
+	id S263497AbTHXD1d (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 23:27:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263463AbTHXD1d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 23:05:41 -0400
-Received: from ns.aratech.co.kr ([61.34.11.200]:28364 "EHLO ns.aratech.co.kr")
-	by vger.kernel.org with ESMTP id S262273AbTHXDFc (ORCPT
+	Sat, 23 Aug 2003 23:27:33 -0400
+Received: from fw.osdl.org ([65.172.181.6]:35776 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263497AbTHXD10 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 23:05:32 -0400
-Date: Sun, 24 Aug 2003 12:06:51 +0900
-From: TeJun Huh <tejun@aratech.co.kr>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Stephan von Krawczynski <skraw@ithnet.com>, manfred@colorfullife.com,
-       linux-kernel@vger.kernel.org, zwane@linuxpower.ca
-Subject: Re: Possible race condition in i386 global_irq_lock handling.
-Message-ID: <20030824030651.GA13292@atj.dyndns.org>
-References: <3F44FAF3.8020707@colorfullife.com> <20030821172721.GI29612@dualathlon.random> <20030821234824.37497c08.skraw@ithnet.com> <20030822011840.GA14540@atj.dyndns.org> <20030822162546.GQ29612@dualathlon.random>
+	Sat, 23 Aug 2003 23:27:26 -0400
+Date: Sat, 23 Aug 2003 20:29:46 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ronald Bultje <rbultje@ronald.bitfreak.net>
+Cc: trivial@rustcorp.com.au, linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH] 2.6.0-test4: small updates for zoran driver
+Message-Id: <20030823202946.09625532.akpm@osdl.org>
+In-Reply-To: <1061684001.4302.249.camel@localhost.localdomain>
+References: <1061684001.4302.249.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030822162546.GQ29612@dualathlon.random>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Hello Andrea,
+Ronald Bultje <rbultje@ronald.bitfreak.net> wrote:
+>
+> On a related note, I'm not trying to be a pain in the ass by not
+>  inlining patches, but Evolution doesn't seem to like me doing that, so
+>  I'm kind of forced to do it differently.
 
-On Fri, Aug 22, 2003 at 06:25:46PM +0200, Andrea Arcangeli wrote:
-> thanks TeJun,
-> 
-> just one comment
-> 
-> On Fri, Aug 22, 2003 at 10:18:40AM +0900, TeJun Huh wrote:
-> >  3. remove irqs_running() test from synchronize_irq()
-> 
-> I'm not convinced this one is needed. An irq can still run on another
-> cpu but the cli();sti() may execute while it's here:
-> 
-> 	irq running		synchronize_irq()
-> 	--------------		-----------------
-> 	do_IRQ
-> 	handle_IRQ_event
-> 				cli()
-> 				sti()
-> 
-> 	irq_enter -> way too late
-> 
-> in short, doing irqs_running() doesn't seem to weaken the semantics of
-> synchronize_irq() to me.
-> 
-> I think it should be changed this way instead:
-> 
-> void synchronize_irq(void)
-> {
-> 	smp_mb();
-> 	if (irqs_running()) {
-> 		/* Stupid approach */
-> 		cli();
-> 		sti();
-> 	}
-> }
-> 
-> to be sure to read the local irq area after the previous code (the
-> test_and_set_bit of the global_irq_lock of a cli() in your version would
-> achieve the same implicit smp_mb too, so maybe your only point for doing
-> cli()/sti() was to execute the smp_mb before the irqs_running?).  the
-> above version is more finegrined and it looks equivalent to yours.
-> 
-> Andrea
+You're right, it is a pain.  I need to pull each patch down, go back to
+your original email, cut-n-paste the changlog, etc.  For patches-via-email
+I have all that scripted, or course.  Plus nobody will bother reading the
+patches.  
 
- Yes, you're right.  Adding just smp_mb() should guarantee that no cpu
-is executing interrupt handler which may not see memory contents
-modified before synchronize_irq() after synchronize_irq() returns.  I
-think we need some decent comments there. :-)
+I would have done it anyway, but half the URLs you provided go 404.
 
- As now I know that test_and_set_bit() implies memory barrier,
-smb_mb__after_clear_bit() can be removed.  I'll make and post a patch
-which fixes this race and the bh race of the other thread.
+> Is anyone else here using
+>  Evolution to send in patches or is Evolution broken?
 
- Thanks.
+It's broken.  So is mozilla mailnews.
 
--- 
-tejun
+Attachments should be OK.  One patch per email, with a good title and the
+changelog text in the email body.  Nice and easy.
+
+Thanks.

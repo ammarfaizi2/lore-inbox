@@ -1,37 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263315AbTFJPl5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 11:41:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263355AbTFJPl5
+	id S263309AbTFJPrY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 11:47:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263305AbTFJPrY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 11:41:57 -0400
-Received: from web14914.mail.yahoo.com ([216.136.225.241]:55817 "HELO
-	web14914.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263315AbTFJPlw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 11:41:52 -0400
-Message-ID: <20030610155532.35065.qmail@web14914.mail.yahoo.com>
-Date: Tue, 10 Jun 2003 11:55:32 -0400 (EDT)
-From: Michael Zhu <mylinuxk@yahoo.ca>
-Subject: about bdflush
-To: linux-kernel@vger.kernel.org
-Cc: kernelnewbies@nl.linux.org
-MIME-Version: 1.0
+	Tue, 10 Jun 2003 11:47:24 -0400
+Received: from ip68-107-142-198.tc.ph.cox.net ([68.107.142.198]:21124 "EHLO
+	opus.bloom.county") by vger.kernel.org with ESMTP id S263295AbTFJPqg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 11:46:36 -0400
+Date: Tue, 10 Jun 2003 09:00:12 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Dan Kegel <dkegel@ixiacom.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Bug 791] New: motorola sandpoint code does not compile
+Message-ID: <20030610160012.GA828@ip68-0-152-218.tc.ph.cox.net>
+References: <20030609152018.GE28745@ip68-0-152-218.tc.ph.cox.net> <3EE4EEA5.60106@ixiacom.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EE4EEA5.60106@ixiacom.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, guys, I have a small question about
-/proc/sys/vm/bdflush . I am working on a SMP machine.
-The kernel version is 2.4.18. I want to modify the
-content of /proc/sys/vm/bdflush. But once I modify the
-content, it will go back to the default value after I
-reboot the OS. Is there a way by which I can
-permanently change the content of this file? The OS
-keeps the default value in somewhere? 
+On Mon, Jun 09, 2003 at 01:31:33PM -0700, Dan Kegel wrote:
 
-Thanks in advance.
+> Tom Rini wrote:
+> >The Motorola Sandpoint code (along with many other MPC107 based
+> >platforms) is out of date in 2.5.  Is there a way to close this bug and
+> >have it reflect that?
+> 
+> Sure -- just change the name of the bug to "2.5 tree out of date
+> with respect to MPC107 platforms" and add a comment saying
+> where the up to date code is that needs to be merged in.
+> Then leave it open to reflect the fact that the vger tree
+> is out of date for these platforms.
 
+Done.
 
+> Isn't this an example of the eternal struggle between the vger tree and
+> the trees maintained by the ppc, arm, and SH teams?  I don't
 
-______________________________________________________________________ 
-Post your free ad now! http://personals.yahoo.ca
+Nope.  It's a time and waiting for things to settle out in the main tree
+issue.
+
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

@@ -1,48 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276894AbRK1ROz>; Wed, 28 Nov 2001 12:14:55 -0500
+	id <S278450AbRK1RXZ>; Wed, 28 Nov 2001 12:23:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277143AbRK1ROq>; Wed, 28 Nov 2001 12:14:46 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:19144 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S276894AbRK1ROk>;
-	Wed, 28 Nov 2001 12:14:40 -0500
-Date: Wed, 28 Nov 2001 11:14:32 -0600
-From: Dave McCracken <dmccr@us.ibm.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Small bugfix in signal code in exec.c
-Message-ID: <62120000.1006967672@baldur>
-X-Mailer: Mulberry/2.1.0 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S278381AbRK1RXQ>; Wed, 28 Nov 2001 12:23:16 -0500
+Received: from rcum.uni-mb.si ([164.8.2.10]:32267 "EHLO rcum.uni-mb.si")
+	by vger.kernel.org with ESMTP id <S278450AbRK1RXD>;
+	Wed, 28 Nov 2001 12:23:03 -0500
+Date: Wed, 28 Nov 2001 18:22:59 +0100
+From: David Balazic <david.balazic@uni-mb.si>
+Subject: Re: Journaling pointless with today's hard disks?
+To: cw@f00f.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Message-id: <3C051D73.79AA08AB@uni-mb.si>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Chris Wedgwood (cw@f00f.org) wrote :
 
-Here's a small bug, not likely to be hit often, but likely painful if it
-does trigger.
+> On Sat, Nov 24, 2001 at 02:03:11PM +0100, Florian Weimer wrote: 
+> 
+>     When the drive is powered down during a write operation, the 
+>     sector which was being written has got an incorrect checksum 
+>     stored on disk. So far, so good---but if the sector is read 
+>     later, the drive returns a *permanent*, *hard* error, which can 
+>     only be removed by a low-level format (IBM provides a tool for 
+>     it). The drive does not automatically map out such sectors. 
+> 
+> AVOID SUCH DRIVES... I have both Seagate and IBM SCSI drives which a 
+> are hot-swappable in a test machine that I used for testing various 
+> journalling filesystems a while back for reliability. 
+> 
+> Some (many) of those tests involved removed the disk during writes 
+> (literally) and checking the results afterwards.
 
-Dave McCracken
+What do you mean by "removed the disk" ?
 
-======================================================================
-Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
-dmccr@us.ibm.com                                        T/L   678-3059
+- rm /dev/hda ? :-)
+- disconnect the disk from the SCSI or ATA bus ?
+- from the power supply ?
+- both ?
+- something else ?
 
+> 
+> The drives were set not to write-cache (they don't by default, but all 
+> my IDE drives do, so maybe this is a SCSI thing?) 
+> 
+> At no point did I ever see a partial write or corrupted sector; nor 
+> have I seen any appear in the grown table, so as best as I can tell 
+> even under removal with sustain writes there are SOME DRIVES WHERE 
+> THIS ISN'T A PROBLEM. 
+> 
+> Now, since EMC, NetApp, Sun, HP, Compaq, etc. all have products which 
+> presumable depend on this behavior, I don't think it's going to go 
+> away, it perhaps will just become important to know which drives are 
+> brain-damaged and list them so people can avoid them. 
+> 
+> As this will affect the Windows world too consumer pressure will 
+> hopefully rectify this problem. 
+> 
+>   --cw 
+> 
+> P.S. Write-caching in hard-drives is insanely dangerous for 
+>      journalling filesystems and can result in all sorts of nasties. 
+>      I recommend people turn this off in their init scripts (perhaps I 
+>      will send a patch for the kernel to do this on boot, I just 
+>      wonder if it will eat some drives). 
 
--------------------------
-
---- linux-2.4.16/fs/exec.c	Fri Nov  2 19:39:20 2001
-+++ linux-2.4.16/fs/exec.c.new	Wed Nov 28 11:06:25 2001
-@@ -586,7 +586,7 @@
- flush_failed:
- 	spin_lock_irq(&current->sigmask_lock);
- 	if (current->sig != oldsig) {
--		kfree(current->sig);
-+		kmem_cache_free(sigact_cachep, current->sig);
- 		current->sig = oldsig;
- 	}
- 	spin_unlock_irq(&current->sigmask_lock);
-
+-- 
+David Balazic
+--------------
+"Be excellent to each other." - Bill S. Preston, Esq., & "Ted" Theodore Logan
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -1,105 +1,136 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281331AbRKEUum>; Mon, 5 Nov 2001 15:50:42 -0500
+	id <S281328AbRKEUxC>; Mon, 5 Nov 2001 15:53:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281332AbRKEUug>; Mon, 5 Nov 2001 15:50:36 -0500
-Received: from [202.73.165.5] ([202.73.165.5]:384 "EHLO maravillo.q-linux.com")
-	by vger.kernel.org with ESMTP id <S281331AbRKEUu0>;
-	Mon, 5 Nov 2001 15:50:26 -0500
-Date: Tue, 6 Nov 2001 04:50:14 +0800
-From: Mike Maravillo <mike.maravillo@q-linux.com>
-To: linux-kernel@vger.kernel.org
-Cc: mike.maravillo@q-linux.com
-Subject: 2.4.13-ac6: videodev/__release_region oops!
-Message-ID: <20011106045014.A1361@maravillo.q-linux.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: Q Linux Solutions, Inc.
-X-Accepted-File-Formats: ASCII .rtf .ps - *NO* MS Office files please
+	id <S281332AbRKEUwy>; Mon, 5 Nov 2001 15:52:54 -0500
+Received: from mpdr0.detroit.mi.ameritech.net ([206.141.239.206]:24001 "EHLO
+	mailhost.det.ameritech.net") by vger.kernel.org with ESMTP
+	id <S281328AbRKEUws>; Mon, 5 Nov 2001 15:52:48 -0500
+Date: Mon, 5 Nov 2001 15:56:33 -0500 (EST)
+From: volodya@mindspring.com
+Reply-To: volodya@mindspring.com
+To: Gerd Knorr <kraxel@bytesex.org>
+cc: video4linux-list@redhat.com, livid-gatos@linuxvideo.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [V4L] Re: [RFC] alternative kernel multimedia API
+In-Reply-To: <20011105095245.B11001@bytesex.org>
+Message-ID: <Pine.LNX.4.20.0111051544120.3346-100000@node2.localnet.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# lsmod
-Module                  Size  Used by
-tuner                   8368   1  (autoclean)
-bttv                   58864   0  (autoclean)
-videodev                4672   3  (autoclean) [bttv]
-i2c-algo-bit            7008   1  (autoclean) [bttv]
-i2c-core               13440   0  (autoclean) [tuner bttv
-i2c-algo-bit]
-ipchains               31456   0 
-ide-scsi                7808   0 
-scsi_mod               51744   1  [ide-scsi]
-ide-cd                 27248   0 
-cdrom                  28192   0  [ide-cd]
-nls_iso8859-1           2832   4  (autoclean)
-nls_cp437               4352   4  (autoclean)
-vfat                    9520   4  (autoclean)
-fat                    30592   0  (autoclean) [vfat]
-md                     49664   0  (unused)
 
-# lsmod | xargs rmmod
-rmmod: module Module is not loaded
-rmmod: module Size is not loaded
-rmmod: module Used is not loaded
-rmmod: module by is not loaded
-tuner: Device or resource busy
-rmmod: module 8368 is not loaded
-rmmod: module 1 is not loaded
-rmmod: module (autoclean) is not loaded
-xargs: rmmod: terminated by signal 11
 
-Unable to handle kernel paging request at virtual address 80008004
-c0118012
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c0118012>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010286
-eax: 80008000   ebx: c0002014   ecx: 80008000   edx: 80008000
-esi: ec000fff   edi: ec000000   ebp: c5c6d000   esp: c4d3ff50
-ds: 0018   es: 0018   ss: 0018
-Process rmmod (pid: 1289, stackpage=c4d3f000)
-Stack: d0130000 00001000 c1430800 d0129062 c0239ff8 ec000000 00001000 02430800 
-       c1430800 d012dae0 00000000 c01b663e c1430800 d0123000 c5c6d000 d012949a 
-       d012dae0 c011589e d0123000 c5c6d000 00000000 c0114cfc d0123000 00000000 
-Call Trace: [<d0130000>] [<d0129062>] [<d012dae0>] [<c01b663e>] [<d012949a>] 
-   [<d012dae0>] [<c011589e>] [<c0114cfc>] [<c0106dd3>] 
-Code: 8b 42 04 39 f8 77 f0 8b 4a 08 39 f1 72 e9 83 7a 0c 00 78 05 
+On Mon, 5 Nov 2001, Gerd Knorr wrote:
 
->>EIP; c0118012 <__release_region+22/70>   <=====
-Trace; d0130000 <[videodev].bss.end+edc1/24e21>
-Trace; d0129062 <[videodev].bss.end+7e23/24e21>
-Trace; d012dae0 <[videodev].bss.end+c8a1/24e21>
-Trace; c01b663e <pci_unregister_driver+2e/50>
-Trace; d012949a <[videodev].bss.end+825b/24e21>
-Trace; d012dae0 <[videodev].bss.end+c8a1/24e21>
-Trace; c011589e <free_module+1e/b0>
-Trace; c0114cfc <sys_delete_module+11c/1e0>
-Trace; c0106dd3 <system_call+33/40>
-Code;  c0118012 <__release_region+22/70>
-00000000 <_EIP>:
-Code;  c0118012 <__release_region+22/70>   <=====
-   0:   8b 42 04                  mov    0x4(%edx),%eax   <=====
-Code;  c0118015 <__release_region+25/70>
-   3:   39 f8                     cmp    %edi,%eax
-Code;  c0118017 <__release_region+27/70>
-   5:   77 f0                     ja     fffffff7 <_EIP+0xfffffff7> c0118009 <__release_region+19/70>
-Code;  c0118019 <__release_region+29/70>
-   7:   8b 4a 08                  mov    0x8(%edx),%ecx
-Code;  c011801c <__release_region+2c/70>
-   a:   39 f1                     cmp    %esi,%ecx
-Code;  c011801e <__release_region+2e/70>
-   c:   72 e9                     jb     fffffff7 <_EIP+0xfffffff7> c0118009 <__release_region+19/70>
-Code;  c0118020 <__release_region+30/70>
-   e:   83 7a 0c 00               cmpl   $0x0,0xc(%edx)
-Code;  c0118024 <__release_region+34/70>
-  12:   78 05                     js     19 <_EIP+0x19> c011802b <__release_region+3b/70>
+> > > Internal kernel interfaces are another story, they are not fixed and are
+> > > allways subject to change and not limited to v4l.  See the major pci
+> > > subsystem changes from 2.2 => 2.4 for example.  The API visible to the
+> > > application matters, this must stay backward compatible.
+> > 
+> > You are starting to see my point. I want API flexible enough not to
+> > require #ifdef's each time a new feature is added. Driver is an
+> > application in it's own right. While 2.2=>2.4 change is ok, I really
+> > dislike such changes in the _stable_ kernel. 
+> 
+> Bad luck for you.  See Linus comments about binary-only modules +
+> compatibility.  There is simply no way around a ifdef here and there for
+> different kernel versions because a driver IMHO should be maintained for
+> both current stable and current hacker kernels.
 
--- 
- .--.  Michael J. Maravillo                   office://+63.2.894.3592/
-( () ) Q Linux Solutions, Inc.              mobile://+63.917.897.0919/
- `--\\ A Philippine Open Source Solutions Co.  http://www.q-linux.com/
+The change I was talking about has occured someplace between 2.4.2 and
+2.4.9. On the other hand some interface did not change at all - for
+example serial devices /dev/ttySx. I do not see anything too special to
+video capture to warrant constanly changing interfaces.
+
+> 
+> > > I can't see why ioctls don't allow you to experiment.
+> > > 
+> > 
+> > Well, could you add then an ioctl to the current kernel so I can
+> > experiment with it ? I want it in the kernel headers so that the
+> > applications will compile whether or not the driver sourcecode has been
+> > installed. Nothing fancy, just an ioctl number something along
+> > 
+> > #define V4L_VLADIMIR_DERGACHEV_PRIVATE_IOCTL     _IOWR(....)
+> > 
+> > I'll take care of the structs ;)
+> 
+> Why this needs to be in the kernel?  Simply ship a copy of the header
+> file with both application and driver or require the driver being
+> installed to build the application.  Once you've worked out good,
+> working interfaces they can go into the kernel headers.  You don't need
+> that for experimental stuff.
+
+And what am I to do if someone introduces the exact same ioctl number into
+the kernel ? I will get instant breakage. People will start saying: this
+does not work with kernele 2.4.(N+x). So, I'll change the number and will
+get bugreports of the kind "it does not work with 2.4.(N-1-y)". I do not
+want that.
+
+> 
+> > > No, it doesn't.  I never had trouble with xawtv.  I simply shipped a
+> > > private copy of videodev.h with the xawtv tarball (which allowed to
+> > > build it without hassle on 2.0.x systems which had no linux/videodev.h
+> > > yet).
+> > > 
+> > 
+> > Well, if it worked for you - good. I am not going that way,
+> 
+> If you want to put yourself in trouble ...
+> 
+> > the versioning
+> > issues alone are reason enough.
+> 
+> With argument passing using strings instead of structs you have the
+> versioning issues to, they only show up in other ways.  I'd expect it
+> becomes harder to debug because the failures are more subtile.  With a
+> obsolete ioctl struct you likely get back -EINVAL, which is quite
+> obvious if the application does sane error checking.  Or the application
+> doesn't even compile.  Both are IMHO much better than some stange
+
+This is a separate issue.. Just keep in mind that there are plenty of
+applications that ignore return values from ioctl's.
+
+> behaviour at runtime, which is the failure pattern I'd expect with API
+> changes when passing parameters using strings.
+> 
+> > > I doubt this is just a implementation issue.  I don't believe in AI.
+> > > 
+> > 
+> > :)))) There is a thin line between real intellegence and clever
+> > algorithm. My bet is that a clever algorithm will suffice.
+> 
+> I don't believe this until I've seen that working in real live.
+
+This is something I agree with ;) I posted the RFC to get some feedback
+and check whether I missed something important. It does not look this way 
+and the question boiled down to one API versus another. I"ll try
+implementing the ideas from RFC.. Once this is ready I'll post it for
+further discussion.
+
+                 thanks for prompt replies
+
+                                  Vladimir Dergachev
+
+> 
+> > > > I would prefer minimum effort on the part of driver writer ;) At the
+> > > > moment all I see in bttv and my own code for select is looking on some
+> > > > already existing fields. Heck, the code is very similar to what needs to
+> > > > be checked for a blocking/non-blocking read. Why duplicate it ?
+> > > 
+> > > bttv's poll function is very short for exactly this reason.  Basically I
+> > > only have to call poll_wait with the (existing) wait queue which the IRQ
+> > > handler will wake up once the frame capture is finished.
+> > > 
+> > 
+> > Ohh, bttv _is_ good. I only argue against v4l :)
+> 
+> But bttv supports the v4l(2) API.  If bttv can handle the poll without
+> much extra code, what exactly was the point in arguing against the
+> select support defined in the v4l2 API?
+> 
+>   Gerd
+> 
+

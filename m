@@ -1,48 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266478AbTAGVff>; Tue, 7 Jan 2003 16:35:35 -0500
+	id <S266464AbTAGVem>; Tue, 7 Jan 2003 16:34:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267471AbTAGVff>; Tue, 7 Jan 2003 16:35:35 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:16132 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S266478AbTAGVfe>; Tue, 7 Jan 2003 16:35:34 -0500
-Date: Tue, 7 Jan 2003 21:43:06 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Antonino Daplas <adaplas@pol.net>
-cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] [PATCH][FBDEV]: fb_putcs() and fb_setfont()
- methods
-In-Reply-To: <1041717978.1052.23.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0301072139130.17129-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266478AbTAGVem>; Tue, 7 Jan 2003 16:34:42 -0500
+Received: from havoc.daloft.com ([64.213.145.173]:14270 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S266464AbTAGVek>;
+	Tue, 7 Jan 2003 16:34:40 -0500
+Date: Tue, 7 Jan 2003 16:43:15 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: mochel@osdl.org
+Subject: Re: net devices: Get network devices to show up in sysfs.
+Message-ID: <20030107214315.GA23011@gtf.org>
+References: <200301072106.h07L63v29621@hera.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200301072106.h07L63v29621@hera.kernel.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jan 06, 2003 at 07:50:37PM +0000, Linux Kernel Mailing List wrote:
+> ChangeSet 1.838.151.11, 2003/01/06 13:50:37-06:00, mochel@osdl.org
+> 
+> 	net devices: Get network devices to show up in sysfs.
+> 	
+> 	- declare net_subsys, and register during net_dev_init().
+> 	- Add kobject to struct net_device.
+> 	- initialize name and register in register_netdevice().
+> 	- remove in unregister_netdevice().
+> 	
+> diff -Nru a/include/linux/netdevice.h b/include/linux/netdevice.h
+> --- a/include/linux/netdevice.h	Tue Jan  7 13:06:05 2003
+> +++ b/include/linux/netdevice.h	Tue Jan  7 13:06:05 2003
+> @@ -28,6 +28,7 @@
+>  #include <linux/if.h>
+>  #include <linux/if_ether.h>
+>  #include <linux/if_packet.h>
+> +#include <linux/kobject.h>
+>  
+>  #include <asm/atomic.h>
+>  #include <asm/cache.h>
+> @@ -438,6 +439,9 @@
+>  	/* this will get initialized at each interface type init routine */
+>  	struct divert_blk	*divert;
+>  #endif /* CONFIG_NET_DIVERT */
+> +
+> +	/* generic object representation */
+> +	struct kobject kobj;
+>  };
 
-> Personally, that's fine by me since I have no need for those 2
-> extensions.  But please apply the accel_putcs() buffer overrun patch.
+Just curious, is this needed purely for reference counting, or mainly to
+hook into sysfs?  If the former, net devices already have reference
+counting, so I want to make sure kobjects do not run afoul of that.
 
-Applied. 
 
-> BTW, attached is another patch that will change the resolution of the
-> console via tty ioctl TIOCSWINSZ.  I'm not sure if this is the correct
-> solution, but it's the only one I can think of without really adding a
-> lot of extra code.  This is implemented by adding a con_resize() hook to
-> fbcon, so the window size can be changed such as by using:
->
-> stty cols 128 rows 48 (1024x768 with font 8x16)
 
-Yes this is the correct approach.
- 
-> The new window size should also be preserved per console.  Still, there
-> are other fb parameters that can screw up the console (such as changing
-> yres_virtual and bits_per_pixel) but the window size is the most
-> important.
+> +static struct subsystem net_subsys;
+> +
+>  
+>  /*******************************************************************************
+>  
+> @@ -2545,7 +2547,10 @@
+>  	notifier_call_chain(&netdev_chain, NETDEV_REGISTER, dev);
+>  
+>  	net_run_sbin_hotplug(dev, "register");
+> -	ret = 0;
+> +
+> +	snprintf(dev->kobj.name,KOBJ_NAME_LEN,dev->name);
+> +	kobj_set_kset_s(dev,net_subsys);
+> +	ret = kobject_register(&dev->kobj);
 
-Updatevar in fbcon.c should handle yres_virtual properly. The scrolling 
-code needs alot of work. It is a mess. Bits_per_pixel will be trickier to 
-handle. 
+If the return code matters, shouldn't you be checking for its success?
+
+
+> @@ -2671,6 +2676,8 @@
+>  		goto out;
+>  	}
+>  
+> +	kobject_unregister(&dev->kobj);
+> +
+
+...especially if kobject_register failed above
+
+	Jeff
+
+
 

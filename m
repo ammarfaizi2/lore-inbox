@@ -1,60 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266863AbUHRA1m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266854AbUHRAcP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266863AbUHRA1m (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 20:27:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266854AbUHRA1m
+	id S266854AbUHRAcP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 20:32:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268532AbUHRAcP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 20:27:42 -0400
-Received: from gprs214-177.eurotel.cz ([160.218.214.177]:27264 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S268532AbUHRA1b (ORCPT
+	Tue, 17 Aug 2004 20:32:15 -0400
+Received: from stokkie.demon.nl ([82.161.49.184]:51895 "HELO stokkie.net")
+	by vger.kernel.org with SMTP id S266854AbUHRAcL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 20:27:31 -0400
-Date: Wed, 18 Aug 2004 02:27:11 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, mochel@digitalimplant.org,
-       benh@kernel.crashing.org, david-b@pacbell.net
-Subject: Re: [patch] enums to clear suspend-state confusion
-Message-ID: <20040818002711.GD15046@elf.ucw.cz>
-References: <20040812120220.GA30816@elf.ucw.cz> <20040817212510.GA744@elf.ucw.cz> <20040817152742.17d3449d.akpm@osdl.org> <20040817223700.GA15046@elf.ucw.cz> <20040817161245.50dd6b96.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040817161245.50dd6b96.akpm@osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Tue, 17 Aug 2004 20:32:11 -0400
+Date: Wed, 18 Aug 2004 02:32:06 +0200 (CEST)
+From: "Robert M. Stockmann" <stock@stokkie.net>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+cc: Patrick McFarland <diablod3@gmail.com>, Jens Axboe <axboe@suse.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+In-Reply-To: <0E7BAC91-F002-11D8-B893-000393ACC76E@mac.com>
+Message-ID: <Pine.LNX.4.44.0408180220330.16972-100000@hubble.stokkie.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-AntiVirus: scanned for viruses by AMaViS 0.2.2 (ftp://crashrecovery.org/pub/linux/amavis/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, 17 Aug 2004, Kyle Moffett wrote:
 
-> > I can do that... but it will break compilation of every driver in the
-> > tree. I can fix drivers I use and try to fix some more will sed, but
-> > it will be painfull (and pretty big diff, and I'll probably miss some).
+> On Aug 16, 2004, at 09:32, Robert M. Stockmann wrote:
+> > I was surprised to see a SuSE developer advise me to just do the
+> > auto/auto thingy and _hope_ for the best, concerning burning a DVD-R.
+> >
+> > I would like to emphasise, its Open Source what we are discussing here!
 > 
-> That's OK - it's just an hour's work.  I'd be more concerned about
-> irritating people who are maintaining and using out-of-tree drivers.
+> Exactly! If you don't have anything useful to contribute WRT tracking 
+> down
+> a bug or fixing it, then you are expected to quit wasting the time of 
+> those
+> who _do_ have useful information/skills/etc. Jens Axboe has _repeatedly_
+> asked you for your dmesg so he can determine if it's a bug or not, and 
+> you
+> have _repeatedly_ ignored his emails.  Either give us enough information
+> to identify and fix the issue (if any), or shut up and let Jens Axboe 
+> work with
+> people who are willing to provide all necessary information.
 > 
-> Can you remind me why we need _any_ of this?  "enums to clear suspend-state
-> confusion" sounds like something which is very optional.  I'd be opting to
-> go do something else instead ;)
+> Cheers,
+> Kyle Moffett
 
-Okay... currently, we are passing u32 down the drivers. Some pieces
-interpret it as a PCI state, and some pieces interpret it as a system
-state. We really do want system state to go down to the drivers, so
-they can do different thing on reboot vs. just-before-suspend-to-disk
-etc.
+I have had many disappointing try-outs with SuSE in the past, and everytime
+when i think, this SuSE version is the one which will have my iron running
+at warp 12, it fails again, for me that is. Dunno why that is.
 
-Now, Patrick has some plans with device power managment and they
-included something bigger being passed down to the drivers. I wanted
-to prepare for those plans.
+The only thing i mentioned is, that i noticed that the compaq proliant 800,
+2x PIII 500 had problems switching on DMA when booting the the default
+installed kernel, 2.6.5 from SuSE 9.1 , after a vanilla default installation.
 
-I can replace suspend_state_t with enum system_state, but it might
-mean that enum system_state will have to be extended with things like
-RUNTIME_PM_PCI_D0 in future... I guess that's easiest thing to do. It
-solves all the problems we have *now*.
+So i may turn the question around : Is SuSE's techsupport or development
+dep. aware that there are issue's reported about DMA failing to switch on
+when dealing with UDMA DVD writers? As to the machine, the compaq proliant
+800 : its already sold, and sadly doesn't run the SuSE linux version.
 
-								Pavel
+Cheers,
+
+Robert
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Robert M. Stockmann - RHCE
+Network Engineer - UNIX/Linux Specialist
+crashrecovery.org  stock@stokkie.net
+

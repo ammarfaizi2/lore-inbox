@@ -1,42 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267441AbRGTWPn>; Fri, 20 Jul 2001 18:15:43 -0400
+	id <S267446AbRGTWap>; Fri, 20 Jul 2001 18:30:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267431AbRGTWPd>; Fri, 20 Jul 2001 18:15:33 -0400
-Received: from w090.z064003079.san-ca.dsl.cnc.net ([64.3.79.90]:28148 "HELO
-	mail.land-5.com") by vger.kernel.org with SMTP id <S267441AbRGTWPQ>;
-	Fri, 20 Jul 2001 18:15:16 -0400
-Date: Fri, 20 Jul 2001 15:15:32 -0700 (PDT)
-From: jsack <jsack@land-5.com>
-To: Roland Fehrenbacher <r.fehrenbacher@web.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: qlogicfc driver
-In-Reply-To: <01072023015700.01297@zap>
-Message-ID: <Pine.LNX.4.10.10107201512250.1114-100000@jgs.land-5.com>
+	id <S267447AbRGTWag>; Fri, 20 Jul 2001 18:30:36 -0400
+Received: from shell.ca.us.webchat.org ([216.152.64.152]:54517 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S267446AbRGTWa3>; Fri, 20 Jul 2001 18:30:29 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Petru Paler" <ppetru@ppetru.net>, <linux-kernel@vger.kernel.org>
+Subject: RE: Getting destination address for UDP packets
+Date: Fri, 20 Jul 2001 15:30:32 -0700
+Message-ID: <NOEJJDACGOHCKNCOGFOMOEPACJAA.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <20010720145544.D1267@ppetru.net>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2479.0006
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
 
+> I'm working on a program which binds on all the available
+> interfaces (0.0.0.0)
+> and listens for/replies with UDP packets.
 
-On Fri, 20 Jul 2001, Roland Fehrenbacher wrote:
+	You need to bind to each interface *address*.
 
-> > While the controller itself sees all the 3 drives
-> > when booting up, under Linux I am only able to see the LUN 0 drives.
-> 
-> Update to my previous post:
-> 
-> The command 
-> echo "scsi add-single-device 0 0 0 1" > /proc/scsi/scsi
-> makes the LUN 1 device appear, so it seems the problem is with the SCSI 
-> scanning code.
-> 
+> The problem is that I need to send back responses from the same
+> IP address that
+> the query arrived to, and this is not usually happening.
 
+	Right, so bind each port to exactly one IP address.
 
-is "probe all luns" configured in your kernel? 
- (.config: CONFIG_SCSI_MULTI_LUN=y)
+> Example: supposing I have 1.1.1.2 and 1.1.1.3 aliased on the same
+> interface, and
+> a query arrives on 1.1.1.3, it's mandatory that the reply packet
+> goes out from
+> 1.1.1.3.
 
-..jim
+	Then bind one socket to each IP and send the reply from the same socket
+that received it.
+
+> The question is: how do I get (from user space, if possible) the
+> destination
+> IP address of an UDP packet?
+
+	There are actually ways to do this, but the most portable way (and the way
+NTP, bind, and others do it), is to bind to each IP that the program needs
+to listen on.
+
+	DS
 

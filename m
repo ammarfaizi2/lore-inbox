@@ -1,51 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261428AbSJHSdB>; Tue, 8 Oct 2002 14:33:01 -0400
+	id <S261274AbSJHSYl>; Tue, 8 Oct 2002 14:24:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261427AbSJHSdB>; Tue, 8 Oct 2002 14:33:01 -0400
-Received: from packet.digeo.com ([12.110.80.53]:58852 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261426AbSJHSc4>;
-	Tue, 8 Oct 2002 14:32:56 -0400
-Message-ID: <3DA32623.C1126CF1@digeo.com>
-Date: Tue, 08 Oct 2002 11:38:27 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S261299AbSJHSYl>; Tue, 8 Oct 2002 14:24:41 -0400
+Received: from mailf.telia.com ([194.22.194.25]:6646 "EHLO mailf.telia.com")
+	by vger.kernel.org with ESMTP id <S261274AbSJHSYk>;
+	Tue, 8 Oct 2002 14:24:40 -0400
+X-Original-Recipient: linux-kernel@vger.kernel.org
+Date: Tue, 8 Oct 2002 20:30:10 +0200 (CEST)
+From: Peter Osterlund <petero2@telia.com>
+X-X-Sender: petero@p4.localdomain
+To: Greg KH <greg@kroah.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [linux-usb-devel] 2.5.40 panic in uhci-hcd
+In-Reply-To: <20021008181951.GD5239@kroah.com>
+Message-ID: <Pine.LNX.4.44.0210082025570.16233-100000@p4.localdomain>
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: tytso@mit.edu, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net, Ed Tomlinson <tomlins@cam.org>
-Subject: Re: [Ext2-devel] [RFC] [PATCH 1/4] Add extended attributes to ext2/3
-References: <E17yymB-00021j-00@think.thunk.org> <20021008191900.A12912@infradead.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 Oct 2002 18:38:27.0591 (UTC) FILETIME=[E44C4170:01C26EF9]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> 
-> On Tue, Oct 08, 2002 at 02:08:11PM -0400, tytso@mit.edu wrote:
-> >
-> > This is the first of four patches which add extended attribute support
-> > to the ext2 and ext3 filesystems.  It is a port of Andreas Gruenbacher's
-> > patches, which have been well tested and in a number of distributions
-> > (including RH 8, if I'm not mistaken) already.
-> 
-> RH backed it out after the second or third beta due to bugginess..
-> 
-> > This first patch creates a generic interface for registering caches with
-> > the VM subsystem so that they can react appropriately to memory
-> > pressure.
-> 
-> I'd suggest Ed Tomlinson's much saner interface that adds a third callbackj
-> to kmem_cache_t (similar to the Solaris implementation) instead.
-> 
-> Doing this outside slab is not a good idea (and XFS currently does
-> it too - in it's own code which should be replaced with Ed's one)
+On Tue, 8 Oct 2002, Greg KH wrote:
 
-Yup, although that's a fairly minor point in this context..
+> On Tue, Oct 08, 2002 at 08:01:34PM +0200, Peter Osterlund wrote:
+> > On Tue, 8 Oct 2002, Greg KH wrote:
+> > 
+> > > On Sun, Oct 06, 2002 at 02:03:49PM +0200, Peter Osterlund wrote:
+> > > > Sometimes when booting 2.5.40 and my Freecom USB-IDE controller (CDRW)
+> > > > is connected, the kernel panics when trying to initialize the usb
+> > > > subsystem. It happens right after the RH73 boot scripts print out:
+> > > > 
+> > > >         Initializing USB controller (uhci-hcd):  [  OK  ]
+> > > > 
+> > > > In 2.5.39, this happened every time I tried to boot, but in 2.5.40 it
+> > > > seems to happen about 20% of the time.
+> > > 
+> > > Hey, we're getting better :)
+> > > 
+> > > How does 2.5.41 work for you?
+> > 
+> > It seems to be fixed. Thanks.
+> 
+> Heh, that's pretty funny.  There were not any uhci specific fixes in
+> 2.5.41...
+> 
+> Not complaining,
 
-The shrinker callback code is not actually in Linus's kernel
-at present.  I'm kind of sitting on it until I've had time
-to ponder the dirty great lock which Ed added ;)
+Actually, there were. This patch is in 2.5.41.
+
+diff -Nru a/drivers/usb/host/uhci-hcd.c b/drivers/usb/host/uhci-hcd.c
+--- a/drivers/usb/host/uhci-hcd.c       Mon Oct  7 11:25:38 2002
++++ b/drivers/usb/host/uhci-hcd.c       Mon Oct  7 11:25:38 2002
+@@ -2149,14 +2149,14 @@
+        uhci->fl->dma_handle = dma_handle;
+ 
+        uhci->td_pool = pci_pool_create("uhci_td", hcd->pdev,
+-               sizeof(struct uhci_td), 16, 0, GFP_ATOMIC);
++               sizeof(struct uhci_td), 16, 0);
+        if (!uhci->td_pool) {
+                err("unable to create td pci_pool");
+                goto err_create_td_pool;
+        }
+ 
+        uhci->qh_pool = pci_pool_create("uhci_qh", hcd->pdev,
+-               sizeof(struct uhci_qh), 16, 0, GFP_ATOMIC);
++               sizeof(struct uhci_qh), 16, 0);
+        if (!uhci->qh_pool) {
+                err("unable to create qh pci_pool");
+                goto err_create_qh_pool;
+
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340
+

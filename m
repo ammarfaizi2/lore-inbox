@@ -1,36 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262945AbREaBCu>; Wed, 30 May 2001 21:02:50 -0400
+	id <S263001AbREaDMF>; Wed, 30 May 2001 23:12:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262949AbREaBCk>; Wed, 30 May 2001 21:02:40 -0400
-Received: from marine.sonic.net ([208.201.224.37]:2369 "HELO marine.sonic.net")
-	by vger.kernel.org with SMTP id <S262945AbREaBCX>;
-	Wed, 30 May 2001 21:02:23 -0400
-X-envelope-info: <dalgoda@ix.netcom.com>
-Date: Wed, 30 May 2001 18:02:07 -0700
-From: Mike Castle <dalgoda@ix.netcom.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: How to know HZ from userspace?
-Message-ID: <20010530180207.M24802@thune.mrc-home.com>
-Reply-To: Mike Castle <dalgoda@ix.netcom.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <p0510031ab73b43e89d24@[10.128.7.49]>
-User-Agent: Mutt/1.3.18i
+	id <S263002AbREaDLz>; Wed, 30 May 2001 23:11:55 -0400
+Received: from cx595243-c.okc1.ok.home.com ([24.6.27.53]:4230 "EHLO
+	quark.localdomain") by vger.kernel.org with ESMTP
+	id <S263001AbREaDLu>; Wed, 30 May 2001 23:11:50 -0400
+From: Vincent Stemen <linuxkernel@AdvancedResearch.org>
+Date: Wed, 30 May 2001 22:11:00 -0500
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain;
+  charset="US-ASCII"
+Cc: Mike Galbraith <mikeg@wen-online.de>, linux-kernel@vger.kernel.org
+To: Rik van Riel <riel@conectiva.com.br>,
+        Vincent Stemen <linuxkernel@AdvancedResearch.org>
+In-Reply-To: <Pine.LNX.4.21.0105301722510.13062-100000@imladris.rielhome.conectiva>
+In-Reply-To: <Pine.LNX.4.21.0105301722510.13062-100000@imladris.rielhome.conectiva>
+Subject: Re: Plain 2.4.5 VM... (and 2.4.5-ac3)
+MIME-Version: 1.0
+Message-Id: <01053022110000.02370@quark>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 30, 2001 at 05:44:39PM -0700, Jonathan Lundell wrote:
-> Lots. Maybe we oughta have /proc/sysconf/... (there's no reason 
-> sysconf() can't be a library reading /proc).
+On Wednesday 30 May 2001 15:30, Rik van Riel wrote:
+> On Wed, 30 May 2001, Vincent Stemen wrote:
+> > The problem is, that's not true.  These problems are not slipping
+> > through because of lack of testers.  As Alan said, the VM problem has
+> > been lurking, which means that it was known already.
+>
+> Fully agreed, it went through because of a lack of hours
+> per day and the fact that the priority of developers was
+> elsewhere.
+>
+> For me, for example, the priorities have mostly been with
+> bugs that bothered me or that bothered Conectiva's customers.
+>
+> If you _really_ feel this strongly about the bug, you could
+> either try to increase the number of hours a day for all of
 
-You don't mount proc?
+I sure wish I could :-).
 
-mrc
--- 
-     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
-    We are all of us living in the shadow of Manhattan.  -- Watchmen
-fatal ("You are in a maze of twisty compiler features, all different"); -- gcc
+> us or you could talk to my boss about hiring me as a consultant
+> to fix the problem for you on an emergency basis :)
+> The other two alternatives would be either waiting until
+> somebody gets around to fixing the bug or sending in a patch
+> yourself.
+>
+> Trying to piss off developers has adverse effect on all four
+> of the methods above :)
+>
+
+Why should my comments piss anybody off?  I am just trying to point
+out a problem, as I see it, an offer suggestions for improvement.
+Other developers will either agree with me or they wont.
+Contributions are not made only through writing code.  I contribute
+through code, bug reports, ideas, and suggestions.  I would love to
+dive in and try to help fix some of the kernel problems but my hands
+are just to full right now.
+
+My comments are not meant to rush anybody and I am not criticizing how
+long it is taking.  I know everybody is doing everything they can just
+like I am, and they are doing a terrific job.  I am just suggesting a
+modification to the way the kernels are distributed that is more like
+the early versions that I hoped would allow us to maintain a stable
+kernel for distributions and production machines.
+
+- Vincent Stemen
+

@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263640AbUFRXJB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265778AbUFRXO0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263640AbUFRXJB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 19:09:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264965AbUFRXIJ
+	id S265778AbUFRXO0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 19:14:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265781AbUFRXOZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 19:08:09 -0400
-Received: from mailout11.sul.t-online.com ([194.25.134.85]:31109 "EHLO
-	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S264527AbUFRXFN convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 19:05:13 -0400
-From: "Thomas Gleixner" <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-Organization: linutronix
-To: 4Front Technologies <dev@opensound.com>
-Subject: Re: Stop the Linux kernel madness
-Date: Sat, 19 Jun 2004 00:59:27 +0200
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <40D232AD.4020708@opensound.com> <20040618204655.GA4441@mars.ravnborg.org> <40D357CB.8020904@opensound.com>
-In-Reply-To: <40D357CB.8020904@opensound.com>
+	Fri, 18 Jun 2004 19:14:25 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:30107 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S265884AbUFRXNu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 19:13:50 -0400
+Message-ID: <40D3772C.8060709@opensound.com>
+Date: Fri, 18 Jun 2004 16:13:48 -0700
+From: 4Front Technologies <dev@opensound.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7) Gecko/20040616
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-Message-Id: <200406190059.27976.tglx@linutronix.de>
-X-Seen: false
-X-ID: XjI89UZCre1XtUlNB3FxjPZkCJhOCy7hUDIiZexYijYIiOUIbXtq6u@t-dialin.net
+To: Matt Domsch <Matt_Domsch@dell.com>
+CC: Jeff Garzik <jgarzik@pobox.com>, Hannu Savolainen <hannu@opensound.com>,
+       Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
+Subject: Re: Stop the Linux kernel madness
+References: <40D232AD.4020708@opensound.com> <20040618004450.GT12308@parcelfarce.linux.theplanet.co.uk> <40D23EBD.50600@opensound.com> <Pine.LNX.4.58.0406180313350.10292@scrub.local> <40D2464D.2060202@opensound.com> <Pine.LNX.4.58.0406181205500.13079@scrub.local> <Pine.LNX.4.58.0406182006060.20336@zeus.compusonic.fi> <40D3642E.4050509@pobox.com> <20040618222651.GJ19269@lists.us.dell.com>
+In-Reply-To: <20040618222651.GJ19269@lists.us.dell.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 18 June 2004 22:59, 4Front Technologies wrote:
-> The problem is that we had our software working correctly with Linux 2.6.7
-> and when we started to get a flood of support requests from our customers,
+Matt Domsch wrote:
 
-Your customers are your customers and thats your business. And if SUSE is the 
-problem then complain there.
+> 
+> <shameless plug>
+> and we suggest using DKMS for exactly this purpose, until you get your
+> code merged into the kernel.org trees.  http://linux.dell.com/dkms/
+> </shameless plug>
+> 
 
-As I said before: Adjust your tie !
+Hi Matt,
 
--- 
-Thomas
-_____________________________________________________________________
->From slash dot org
-"When customers are visiting, engineers are not allowed to wear ties. 
-That way the customer can tell who is the engineer and who is the 
-salesman (and therefore whom to believe.). Ties cut off blood flow 
-to the brain, making it easier for the salesmen to do their jobs." 
-_____________________________________________________________________
-linutronix - competence in embedded & realtime linux
-http://www.linutronix.de
-mail: tglx@linutronix.de
+Something like this is precisely what's needed for Linux!. Let's hope
+that dkms  gets incorporated into the base Linux kernel environment.
 
+
+
+best regards
+Dev Mazumdar
+-----------------------------------------------------------
+4Front Technologies
+4035 Lafayette Place, Unit F, Culver City, CA 90232, USA.
+Tel: (310) 202 8530		URL: www.opensound.com
+Fax: (310) 202 0496 		Email: info@opensound.com
+-----------------------------------------------------------

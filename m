@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272164AbTHDTMz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 15:12:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272163AbTHDTMy
+	id S272152AbTHDTH5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 15:07:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272153AbTHDTH5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 15:12:54 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:62621 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S272161AbTHDTMw
+	Mon, 4 Aug 2003 15:07:57 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:61341 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S272152AbTHDTHz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 15:12:52 -0400
-Subject: Re: milstone reached: ia64 linux builds out of Linus' tree
+	Mon, 4 Aug 2003 15:07:55 -0400
+Subject: RE: TOE brain dump
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "David S. Miller" <davem@redhat.com>
-Cc: davidm@hpl.hp.com, davidm@napali.hpl.hp.com, linux-ia64@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030804114546.10786f84.davem@redhat.com>
-References: <200308041737.h74HbdCf015443@napali.hpl.hp.com>
-	 <20030804113144.47fcc112.davem@redhat.com>
-	 <16174.43161.252794.244789@napali.hpl.hp.com>
-	 <20030804114546.10786f84.davem@redhat.com>
+To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+Cc: Larry McVoy <lm@bitmover.com>, David Lang <david.lang@digitalinsight.com>,
+       Erik Andersen <andersen@codepoet.org>,
+       Werner Almesberger <werner@almesberger.net>,
+       Jeff Garzik <jgarzik@pobox.com>, netdev@oss.sgi.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Nivedita Singhvi <niv@us.ibm.com>
+In-Reply-To: <A20D5638D741DD4DBAAB80A95012C0AE3A9EB1@orsmsx409.jf.intel.com>
+References: <A20D5638D741DD4DBAAB80A95012C0AE3A9EB1@orsmsx409.jf.intel.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1060024077.719.26.camel@dhcp22.swansea.linux.org.uk>
+Message-Id: <1060023790.723.23.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 04 Aug 2003 20:07:58 +0100
+Date: 04 Aug 2003 20:03:11 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-08-04 at 19:45, David S. Miller wrote:
-> My point was that if some random single monkey like me can keep a
-> loser platform like sparc64 still building in Linus's tree, a group of
-> several trained professionals should be able to fare much better :)
+On Llu, 2003-08-04 at 19:36, Perez-Gonzalez, Inaky wrote:
+> > Why would I want to spend money on some silly offload card when I can get
+> > the whole PC for less than the card?
+> 
+> Because you want to stack 200 of those together in a huge
+> data center interconnecting whatever you want to interconnect
+> and you don't want your maintenance costs to go up to the sky?
 
-Right but ia64 - for better or worse started off as a hideously
-divergent tree that did really stupid things like redefine GFP_DMA. It
-may be that ia64 should have aimed in a different direction from day one
-but having finally ended up in the right place *is* a milestone.
+17cm squared, fanless, network booting. Its not as big a cost as
+you might think, and TOE cards fail too, the difference being that if
+they are now out of production you have a nasty mess on your hands.
 

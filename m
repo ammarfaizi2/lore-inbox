@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267148AbRG2LQ5>; Sun, 29 Jul 2001 07:16:57 -0400
+	id <S267450AbRG2L6o>; Sun, 29 Jul 2001 07:58:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267187AbRG2LQr>; Sun, 29 Jul 2001 07:16:47 -0400
-Received: from ns.caldera.de ([212.34.180.1]:11933 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S267148AbRG2LQi>;
-	Sun, 29 Jul 2001 07:16:38 -0400
-Date: Sun, 29 Jul 2001 13:16:38 +0200
-Message-Id: <200107291116.f6TBGcK13689@ns.caldera.de>
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: kiwiunixman@yahoo.co.nz (Matthew Gardiner)
-Cc: linux-kernel@vger.kernel.org (kernel)
-Subject: Re: ReiserFS / 2.4.6 / Data Corruption
-In-Reply-To: <01072902183404.02683@kiwiunixman.nodomain.nowhere>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
+	id <S267958AbRG2L6e>; Sun, 29 Jul 2001 07:58:34 -0400
+Received: from gip.u-picardie.fr ([193.49.184.17]:25897 "EHLO
+	gip.u-picardie.fr") by vger.kernel.org with ESMTP
+	id <S267450AbRG2L6Z>; Sun, 29 Jul 2001 07:58:25 -0400
+Date: Sun, 29 Jul 2001 13:58:07 +0200
+From: Jean Charles Delepine <delepine@u-picardie.fr>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, debian-devel@lists.debian.org,
+        Herbert Xu <herbert@debian.org>,
+        Manoj Srivastava <srivasta@debian.org>
+Subject: Re: make rpm
+Message-ID: <20010729135807.J8982@u-picardie.fr>
+In-Reply-To: <E15QeJf-0008O8-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E15QeJf-0008O8-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, Jul 29, 2001 at 01:20:19AM +0100
+X-Organization: Jack Daniel - Canal Habituel
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-In article <01072902183404.02683@kiwiunixman.nodomain.nowhere> you wrote:
-> I've noticed that in the menuconfig there is support for the Vertias 
-> Journalling File System. Has there been any push for that to be a "bootable" 
-> filesystem so it can be used for Linux?
+Alan Cox <alan@lxorguk.ukuu.org.uk> écrivait (wrote) :
 
-I don't see any reason wht it shoudn't be bootable, I just haven't tested it
-yet.  If you want to try it, please follow the below steps:
+> I've been meaning to do this one for a while and I now have it working so
+> that with my current -ac kernel working tree I can type
+> 
+> 	make rpm
+> 
+> and out puts kernel-2.4.7ac3-1.i386.rpm
+> 
+> All this took was the pieces below.
+> 
+> Anyone care to knock up a "make dpkg" to go with it ?
 
-1) Get one of these CD-ROM readonly distribution
-2) Copy it over NFS to a UnixWare (or any other x86 System with VxFS)
-3) Make a VxFS system big enough for the distribution
-4) Copy the Distribution on the VxFS filesystem
+Maybe Herbert Xu, the actual developper of the Debian kernel package or 
+Manoj Srivastava, for the Debian Linux kernel package build scripts can
+do that.
 
-And now the difficult part:
+debian-devel, Herbert and Manoj are Cc-ed.
 
-5) Adjust the ondisk dev_t to match Linux's major/minor split instead
-   of SVR4's.  This can either be done by creating (bogus) SVR4 device
-   nodes that are valid Linux ones when read by Linux or by doing this
-   with fsdb after they were created.
+For those cc-ed who don't read linux-kernel, the entire thread can be read on
+http://groups.google.com/groups?hl=en&safe=off&th=228bf616886d8b69,5&seekm=linux.kernel.E15Qeav-0008P4-00%40the-village.bc.nu#p
 
-If you have success with this sppropeach please drop me a mail - I'll add
-it to the freevxfs docs then.
-
-	Christoph
-
+              Jean Charles
 -- 
-Whip me.  Beat me.  Make me maintain AIX.
+Jean Charles Delépine - Équipe Réseaux Télécoms - Université de Picardie

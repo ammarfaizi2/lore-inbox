@@ -1,40 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316456AbSGSO1T>; Fri, 19 Jul 2002 10:27:19 -0400
+	id <S318529AbSGSOdD>; Fri, 19 Jul 2002 10:33:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318527AbSGSO1T>; Fri, 19 Jul 2002 10:27:19 -0400
-Received: from hoemail1.lucent.com ([192.11.226.161]:12703 "EHLO
-	hoemail1.firewall.lucent.com") by vger.kernel.org with ESMTP
-	id <S316456AbSGSO1P>; Fri, 19 Jul 2002 10:27:15 -0400
-From: stoffel@lucent.com
-MIME-Version: 1.0
+	id <S318530AbSGSOdD>; Fri, 19 Jul 2002 10:33:03 -0400
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:2442 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S318529AbSGSOdC>; Fri, 19 Jul 2002 10:33:02 -0400
+Date: Fri, 19 Jul 2002 16:36:02 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: input subsystem config ?
+Message-ID: <20020719143602.GH6490@tahoe.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
+	Vojtech Pavlik <vojtech@suse.cz>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20020717162904.B19935@ucw.cz> <20020717145523.GJ14581@tahoe.alcove-fr> <20020717172235.A20474@ucw.cz> <20020717153336.GK14581@tahoe.alcove-fr> <20020718144130.GB2326@tahoe.alcove-fr> <20020718164536.A30363@ucw.cz> <20020718144838.GC2326@tahoe.alcove-fr> <20020718171531.A30511@ucw.cz> <20020718152829.GD2326@tahoe.alcove-fr> <20020718173132.A30621@ucw.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15672.8817.304792.714541@gargle.gargle.HOWL>
-Date: Fri, 19 Jul 2002 10:30:09 -0400
-To: Doug Ledford <dledford@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.26 : drivers/scsi/BusLogic.c
-In-Reply-To: <20020718192413.A28163@redhat.com>
-References: <200207181700.g6IH03U02415@localhost.localdomain>
-	<20020718192413.A28163@redhat.com>
-X-Mailer: VM 6.95 under Emacs 20.6.1
+Content-Disposition: inline
+In-Reply-To: <20020718173132.A30621@ucw.cz>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jul 18, 2002 at 05:31:32PM +0200, Vojtech Pavlik wrote:
 
-Doug> There are.  I'm currently writing a patch (hopefully a first
-Doug> test version will be out in an hour or so).  It's not quite as
-Doug> easy as it looks at first mainly because this driver supports
-Doug> PCI, EISA, VLB, MCA, and ISA cards :-/
+> > > Ok, that's what I wanted to know - I was wondering whether the mouse
+> > > would simply ignore all control commands. And it doesn't not. It needs
+> > > the commands, 
+[...]
 
-I've got a PCI BusLogic SCSI card at home I've been unable to use for
-a while on 2.4, so I'm really interested in this patch.  
+Ok, I've finally found out what's happenning: in i8042_aux_write()
+you restore the CTR value each time. For some obscure reasons, my
+laptop's controller does not like this at all. Disabling this
+section makes the mouse function perfectly.
 
-Maybe it's time to break out old the EISA, VLB, MCA and ISA support
-into their own modules/sections?  I think the PCI version will be the
-most in demand. 
+Is this CTR restore command really needed ? If it is, we should
+probably add an option like "i8042_noctrrestore=1" to the i8042
+driver...
 
-Thanks though for your work!
+Or maybe you have a better idea...
 
-John
+Stelian.
+
+===== drivers/input/serio/i8042.c 1.5 vs edited =====
+--- 1.5/drivers/input/serio/i8042.c	Sat Jul 13 20:31:00 2002
++++ edited/drivers/input/serio/i8042.c	Fri Jul 19 15:36:09 2002
+@@ -221,12 +221,16 @@
+ 
+ 	retval  = i8042_command(&c, I8042_CMD_AUX_SEND);
+ 
++#if 0
+ /*
+  * Here we restore the CTR value. I don't know why, but i8042's in half-AT
+  * mode tend to trash their CTR when doing the AUX_SEND command.
++ *
++ * However, for some reasons this breaks (at least) my Sony VAIO C1VE
++ * aux interface.
+  */
+-
+ 	retval |= i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR);
++#endif
+ 
+ /*
+  * Make sure the interrupt happens and the character is received even
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

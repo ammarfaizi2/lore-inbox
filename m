@@ -1,143 +1,142 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135810AbREGJvR>; Mon, 7 May 2001 05:51:17 -0400
+	id <S136074AbREGKiY>; Mon, 7 May 2001 06:38:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136072AbREGJvH>; Mon, 7 May 2001 05:51:07 -0400
-Received: from suhkur.cc.ioc.ee ([193.40.251.100]:10394 "EHLO cc.ioc.ee")
-	by vger.kernel.org with ESMTP id <S136069AbREGJut>;
-	Mon, 7 May 2001 05:50:49 -0400
-Date: Mon, 7 May 2001 11:50:46 +0200 (GMT)
-From: Juhan-Peep Ernits <juhan@cc.ioc.ee>
-To: linux-kernel@vger.kernel.org
-Subject: what causes Machine Check exception? revisited (2.2.18)
-Message-ID: <Pine.GSO.4.21.0105071127100.20861-100000@suhkur.cc.ioc.ee>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S136073AbREGKiO>; Mon, 7 May 2001 06:38:14 -0400
+Received: from ns.suse.de ([213.95.15.193]:51468 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S136074AbREGKiF>;
+	Mon, 7 May 2001 06:38:05 -0400
+Date: Mon, 7 May 2001 12:37:09 +0200
+From: Kurt Garloff <garloff@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Andries Brouwer <Andries.Brouwer@cwi.nl>
+Cc: Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: vt.c: unimap changes to (fg_?)console
+Message-ID: <20010507123709.D8052@garloff.suse.de>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Andries Brouwer <Andries.Brouwer@cwi.nl>,
+	Linux kernel list <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="f5QefDQHtn8hx44O"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Operating-System: Linux 2.2.19 i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TUE/NL, SuSE/FRG
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hello!
-
-After searching the archives of the list I found some similar reports
-from September and December 2000 but as far as I understood the cause of
-the error was blamed on the CPU. Is this the most probable case? 
-
-Best regards,
-
-Juhan Ernits
-
-	-- /var/log/kern.log
-
-May  6 06:47:25 market kernel: CPU 0: Machine Check 
-Exception: 0000000000000004
-May  6 06:47:25 market kernel: Bank 4: b200000000040151<0>Kernel
-panic: CPU context corrupt
+--f5QefDQHtn8hx44O
+Content-Type: multipart/mixed; boundary="fwqqG+mf3f7vyBCB"
+Content-Disposition: inline
 
 
-	-- /proc/cpuinfo
+--fwqqG+mf3f7vyBCB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 8
-model name      : Pentium III (Coppermine)
-stepping        : 1
-cpu MHz         : 551.259
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-sep_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov
-pat pse36 mmx fxsr xmm
-bogomips        : 1101.00
+Hi Linus, Alan, Andries,
 
+if you open /dev/tty4 and change the font via ioctl(KDFONTOP), it will be
+applied to the opened console, i.e. tty4. Then you set the corresponding
+unicodemap via PIO_UNIMAPCLR and PIO_UNIMAP ioctls. Those get applied to the
+current foreground console. Which is inconsistent.
 
+Looking at vt.c: vt_ioctl(), the situation is a bit messy: Some ioctls don't
+explicitly specify a tty (probably not needed, as some settings are global),
+some apply to fg_console, some apply to the opened console which is
+((struct vt_struct*)tty->driver_data)->vc_num.
 
-	-- /var/log/dmesg
+I would appreciate, if somebody with more knowledge could have a look and
+check whether this is all correct. At least for the above case, it's not.
+(Andries, I would appreciate if you have a look; you understand much more of
+it than I do.)
 
+I attach a patch to fix the specific problem reported above. It applies to
+both 2.4.4 and 2.2.19. ioctl(PIO_UNIMAP[CLR]) is applied to the opened
+console now instead of fg_console.
+Please apply until somebody comes with a complete vt.c cleanup!
 
-Linux version 2.2.18 (root@market.equitygate.com) (gcc version 2.95.2
-20000220 (Debian GNU/Linux)) #6 Mon Jan 15 15:52:09 EET 2001
-Detected 551259 kHz processor.
-Console: colour VGA+ 80x25
-Calibrating delay loop... 1101.00 BogoMIPS
-Memory: 517620k/524288k available (776k kernel code, 416k reserved, 5440k
-data, 36k init)
-Dentry hash table entries: 65536 (order 7, 512k)
-Buffer cache hash table entries: 524288 (order 9, 2048k)
-Page cache hash table entries: 131072 (order 7, 512k)
-Intel machine check architecture supported.
-Intel machine check reporting enabled on CPU#0.
-256K L2 cache (8 way)
-CPU: L2 Cache: 256K
-CPU: Intel Pentium III (Coppermine) stepping 01
-Checking 386/387 coupling... OK, FPU using exception 16 error reporting.
-Checking 'hlt' instruction... OK.
-POSIX conformance testing by UNIFIX
-mtrr: v1.35a (19990819) Richard Gooch (rgooch@atnf.csiro.au)
-PCI: PCI BIOS revision 2.10 entry at 0xfb2a0
-PCI: Using configuration type 1
-PCI: Probing PCI hardware
-Linux NET4.0 for Linux 2.2
-Based upon Swansea University Computer Society NET3.039
-NET4: Unix domain sockets 1.0 for Linux NET4.0.
-NET4: Linux TCP/IP 1.0 for NET4.0
-IP Protocols: ICMP, UDP, TCP
-TCP: Hash tables configured (ehash 524288 bhash 65536)
-Initializing RT netlink socket
-Starting kswapd v 1.5 
-pty: 2048 Unix98 ptys configured
-Real Time Clock Driver v1.09
-keyboard: Timeout - AT keyboard not present?
-keyboard: Timeout - AT keyboard not present?
-scsi0 : IBM PCI ServeRAID 4.20.20  <ServeRAID 3L>
-scsi : 1 host.
-  Vendor:  IBM      Model:  SERVERAID        Rev:  1.0
-  Type:   Direct-Access                      ANSI SCSI revision: 01
-Detected scsi disk sda at scsi0, channel 0, id 0, lun 0
-  Vendor:  IBM      Model:  SERVERAID        Rev:  1.0
-  Type:   Processor                          ANSI SCSI revision: 01
-scsi : detected 1 SCSI disk total.
-SCSI device sda: hdwr sector= 512 bytes. Sectors= 35860480 [17510 MB]
-[17.5 GB]
-eepro100.c:v1.09j-t 9/29/99 Donald Becker
-http://cesdis.gsfc.nasa.gov/linux/drivers/eepro100.html
-eepro100.c: $Revision: 1.20.2.10 $ 2000/05/31 Modified by Andrey
-V. Savochkin <saw@saw.sw.com.sg> and others
-eepro100.c: VA Linux custom, Dragan Stancevic <visitor@valinux.com>
-2000/11/15
-eth0: Intel PCI EtherExpress Pro100 82557, 00:D0:B7:16:9E:E2, IRQ 11.
-  Receiver lock-up bug exists -- enabling work-around.
-  Board assembly 721383-008, Physical connectors present: RJ45
-  Primary interface chip i82555 PHY #1.
-  General self-test: passed.
-  Serial sub-system self-test: passed.
-  Internal registers self-test: passed.
-  ROM checksum self-test: passed (0x04f4518b).
-eepro100.c:v1.09j-t 9/29/99 Donald Becker
-http://cesdis.gsfc.nasa.gov/linux/drivers/eepro100.html
-eepro100.c: $Revision: 1.20.2.10 $ 2000/05/31 Modified by Andrey
-V. Savochkin <saw@saw.sw.com.sg> and others
-eepro100.c: VA Linux custom, Dragan Stancevic <visitor@valinux.com>
-2000/11/15
-Partition check:
- sda: sda1 sda2 sda3 < sda5 sda6 sda7 sda8 sda9 sda10 sda11 > sda4
-apm: BIOS version 1.2 Flags 0x07 (Driver version 1.13)
-VFS: Mounted root (ext2 filesystem) readonly.
-Freeing unused kernel memory: 36k freed
-Adding Swap: 64004k swap-space (priority -1)
-Adding Swap: 135976k swap-space (priority -2)
-Adding Swap: 135976k swap-space (priority -3)
-Adding Swap: 135976k swap-space (priority -4)
-Adding Swap: 135976k swap-space (priority -5)
+If you want to test yourself: I also have a patch against kbd-1.05
+which allows you to use setfont -c /dev/ttyXX to specify which terminal you
+want to. I already sent it to Andries.
 
+Regards,
+--=20
+Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
+GPG key: See mail header, key servers         Linux kernel development
+SuSE GmbH, Nuernberg, FRG                               SCSI, Security
 
+--fwqqG+mf3f7vyBCB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="unimap_set-244.diff"
+Content-Transfer-Encoding: quoted-printable
 
+--- linux-244.compile/drivers/char/vt.c.orig	Fri Feb  9 20:30:22 2001
++++ linux-244.compile/drivers/char/vt.c	Mon May  7 10:37:25 2001
+@@ -392,7 +392,7 @@
+ }
+=20
+ static inline int=20
+-do_unimap_ioctl(int cmd, struct unimapdesc *user_ud,int perm)
++do_unimap_ioctl(int cmd, struct unimapdesc *user_ud, int perm, unsigned in=
+t console)
+ {
+ 	struct unimapdesc tmp;
+ 	int i =3D 0;=20
+@@ -408,9 +408,11 @@
+ 	case PIO_UNIMAP:
+ 		if (!perm)
+ 			return -EPERM;
+-		return con_set_unimap(fg_console, tmp.entry_ct, tmp.entries);
++		return con_set_unimap(console, tmp.entry_ct, tmp.entries);
+ 	case GIO_UNIMAP:
+-		return con_get_unimap(fg_console, tmp.entry_ct, &(user_ud->entry_ct), tm=
+p.entries);
++		if (!perm && fg_console !=3D console)
++			return -EPERM;
++		return con_get_unimap(console, tmp.entry_ct, &(user_ud->entry_ct), tmp.e=
+ntries);
+ 	}
+ 	return 0;
+ }
+@@ -1029,13 +1031,13 @@
+ 			return -EPERM;
+ 		i =3D copy_from_user(&ui, (void *)arg, sizeof(struct unimapinit));
+ 		if (i) return -EFAULT;
+-		con_clear_unimap(fg_console, &ui);
++		con_clear_unimap(console, &ui);
+ 		return 0;
+ 	      }
+=20
+ 	case PIO_UNIMAP:
+ 	case GIO_UNIMAP:
+-		return do_unimap_ioctl(cmd, (struct unimapdesc *)arg, perm);
++		return do_unimap_ioctl(cmd, (struct unimapdesc *)arg, perm, console);
+=20
+ 	case VT_LOCKSWITCH:
+ 		if (!suser())
 
+--fwqqG+mf3f7vyBCB--
+
+--f5QefDQHtn8hx44O
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.5 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE69nrUxmLh6hyYd04RAs3tAKCdDpUvGDQ7D55/9d6K6IvwjTKg6ACcDx4h
+VxxvYSh/GyoQjXaYPyXLV5E=
+=G8W/
+-----END PGP SIGNATURE-----
+
+--f5QefDQHtn8hx44O--

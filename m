@@ -1,72 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269583AbTGOUD3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 16:03:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269639AbTGOUD2
+	id S269639AbTGOUJh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 16:09:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269641AbTGOUJh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 16:03:28 -0400
-Received: from mail.kroah.org ([65.200.24.183]:58321 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S269583AbTGOUD1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 16:03:27 -0400
-Date: Tue, 15 Jul 2003 13:18:22 -0700
-From: Greg KH <greg@kroah.com>
-To: Andrey Borzenkov <arvidjaar@mail.ru>
+	Tue, 15 Jul 2003 16:09:37 -0400
+Received: from screech.rychter.com ([212.87.11.114]:54458 "EHLO
+	screech.rychter.com") by vger.kernel.org with ESMTP id S269639AbTGOUJg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 16:09:36 -0400
+To: Greg KH <greg@kroah.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6 - sysfs sensor nameing inconsistency
-Message-ID: <20030715201822.GA5040@kroah.com>
-References: <200307152214.38825.arvidjaar@mail.ru>
-Mime-Version: 1.0
+Subject: Re: USB bugs (was: networking bugs and bugme.osdl.org)
+References: <1056755336.5459.16.camel@dhcp22.swansea.linux.org.uk>
+	<20030627.172123.78713883.davem@redhat.com>
+	<1056827972.6295.28.camel@dhcp22.swansea.linux.org.uk>
+	<20030628.150328.74739742.davem@redhat.com>
+	<m2vfu765cx.fsf@tnuctip.rychter.com> <20030713041557.GC2695@kroah.com>
+	<m2isq4etz6.fsf_-_@tnuctip.rychter.com>
+	<20030714230236.GA7195@kroah.com>
+X-Spammers-Please: blackholeme@rychter.com
+From: Jan Rychter <jan@rychter.com>
+Date: Tue, 15 Jul 2003 13:24:57 -0700
+In-Reply-To: <20030714230236.GA7195@kroah.com> (Greg KH's message of "Mon,
+ 14 Jul 2003 16:02:36 -0700")
+Message-ID: <m2fzl7edwm.fsf@tnuctip.rychter.com>
+User-Agent: Gnus/5.1003 (Gnus v5.10.3) XEmacs/21.4 (Rational FORTRAN, linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200307152214.38825.arvidjaar@mail.ru>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 15, 2003 at 10:14:38PM +0400, Andrey Borzenkov wrote:
-> In 2.4 all sensor chip got a subdirectory with name derived from type_name - a 
-> single word describing sensor, like
+>>>>> "Greg" == Greg KH <greg@kroah.com> writes:
+ Greg> On Mon, Jul 14, 2003 at 01:25:33PM -0700, Jan Rychter wrote:
+ >>
+ >> I went ahead and retested all of my known USB problems against
+ >> 2.4.22-pre5. It seems all usb-storage ones are gone, and there is
+ >> only one bluetooth showstopper, fairly simple to reproduce:
+ >>
+ >> 1. boot the machine (using uhci)
+ >> 2. insert a PCI BCM2033-based bluetooth adapter, observe the
+ >>    firmware
+ >> getting loaded, don't actually bring the hci0 interface up,
+ >> 3. remove the adapter, everything looks fine
+ >> 4. try to rmmod uhci and get:
+ >> kmem_cache_destroy: Can't free all objects c12c7b40 uhci: not all
+ >> urb_priv's were freed
 
-And they used sysctl and proc, ugh, ugly :)
+ Greg> Is this reproducable on 2.6.0-test1?  
 
-> adm1021.c:              type_name = "max1617";
-> adm1021.c:              type_name = "max1617a";
-> adm1021.c:              type_name = "adm1021";
-> adm1021.c:              type_name = "adm1023";
-> adm1021.c:              type_name = "thmc10";
-> adm1021.c:              type_name = "lm84";
-> adm1021.c:              type_name = "gl523sm";
-> adm1021.c:              type_name = "mc1066";
-> ...
-> 
-> etc. All user-level configuration (sensors, gkrellm) have been using these 
-> names to match available sensors and configuration data.
-> 
-> In 2.6 sensors appear under /sysfs, type_name no more used and the only 
-> identification available is .../name, but it seems to be arbitrary chosen 
-> like
-> 
-> - single word ("it87") - lm87.c
-> - "name chip" or "name subclient" - most others (lm78.c, wd83781d.c etc)
-> - completely arbitrary shiny description - "Generic LM85", "National LM85-B" 
-> etc in lm85.c
-> 
-> This means, any user program accessing sensors need incompatible changes and 
-> comfiuration cannot be shared between 2.4 and 2.6 without serious redesign 
-> and/or some translation layer.
+I can't reproduce this easily, as I haven't even tried 2.5.* kernels
+yet.
 
-The "translation layer" is libsensors.  libsensors needs to be rewritten
-for 2.6.  The sensors people know this, and it's even detailed on their
-web page.  Any help with this is greatly appreciated.
+ Greg> Does this happen using the usb-uhci driver instead of the uhci
+ Greg> driver?  
 
-> If there are serious reasons to keep current names in "name" - what about 
-> adding extra type_name property that will hold type_name compatible with 2.4, 
-> at least for those drivers that are also available there. This would allow 
-> easily reuse existing sensors configuration.
+I'll check this and report.
 
-Patches to help do this are always welcome :)
+ Greg> And this doesn't cause a failure, right?  Just those messages in
+ Greg> the log?
 
-thanks,
+It is a showstopper, because the resulting corruption (?) breaks
+software suspend. So, use bluetooth once, never suspend again.
 
-greg k-h
+--J.

@@ -1,88 +1,135 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266019AbTFWNkz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 09:40:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266027AbTFWNkz
+	id S266049AbTFWNnT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 09:43:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266042AbTFWNm0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 09:40:55 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:37384 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S266019AbTFWNkw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 09:40:52 -0400
-Date: Mon, 23 Jun 2003 15:54:57 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Cc: Larry McVoy <lm@work.bitmover.com>, David Woodhouse <dwmw2@infradead.org>,
-       Larry McVoy <lm@bitmover.com>,
-       Stephan von Krawczynski <skraw@ithnet.com>, jgarzik@pobox.com,
-       lawrence@the-penguin.otak.com
-Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
-Message-ID: <20030623135457.GF6353@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Larry McVoy <lm@work.bitmover.com>,
-	David Woodhouse <dwmw2@infradead.org>, Larry McVoy <lm@bitmover.com>,
-	Stephan von Krawczynski <skraw@ithnet.com>, jgarzik@pobox.com,
-	lawrence@the-penguin.otak.com
-References: <20030619165916.GA14404@work.bitmover.com> <20030620001217.G6248@almesberger.net> <20030620120910.3f2cb001.skraw@ithnet.com> <20030620142436.GB14404@work.bitmover.com> <20030620143012.GC14404@work.bitmover.com> <20030620163349.GG17563@work.bitmover.com> <20030621142048.2ae63afa.skraw@ithnet.com> <20030621133831.GA10089@work.bitmover.com> <1056358467.29264.41.camel@passion.cambridge.redhat.com> <20030623132231.GC6715@work.bitmover.com>
+	Mon, 23 Jun 2003 09:42:26 -0400
+Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:51835 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S266039AbTFWNlg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 09:41:36 -0400
+Subject: [PATCH] 2.5.73 synclink_cs.c
+From: Paul Fulghum <paulkf@microgate.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: "torvalds@transmeta.com" <torvalds@transmeta.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1056376563.2089.4.camel@diemos>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="xyF51EaUT3XiWnZP"
-Content-Disposition: inline
-In-Reply-To: <20030623132231.GC6715@work.bitmover.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 23 Jun 2003 08:56:04 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---xyF51EaUT3XiWnZP
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Fix arbitration between net open and tty open.
 
-On Mon, 2003-06-23 06:22:31 -0700, Larry McVoy <lm@bitmover.com>
-wrote in message <20030623132231.GC6715@work.bitmover.com>:
-> On Mon, Jun 23, 2003 at 09:54:27AM +0100, David Woodhouse wrote:
-> > The increasing prevalence of Free Software means that the industry is
-> > more and more about _services_ rather than products...
->=20
-> The one flaw in this argument and all of those which say basically "servi=
-ces
-> is the answer" is that it only works if you produce crappy software which
-> needs servicing. =20
+Cleanup missed bits of CUA device removal changes.
 
-Not to upset or insult somebody, but there are thousands of users which
-seem to be completely unable to read. Some are even resistent towards
-learning. Using something, esp complex systems like database servers SCM
-tools et al. actually requires to basically understand them (if you want
-to do your job right).
+Please apply.
 
-=2E..and then, there are those who do installations of complex software.
-Either some admin who's already there can do the setup (and will need a
-week to get it right), or you can do that for him, charging some $$$.
-_But_ the company has got a reliably working installation within hours.
+-- 
+Paul Fulghum, paulkf@microgate.com
+Microgate Corporation, http://www.microgate.com
 
-MfG, JBG
 
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-      ret =3D do_actions((curr | FREE_SPEECH) & ~(IRAQ_WAR_2 | DRM | TCPA));
+--- linux-2.5.72/drivers/char/pcmcia/synclink_cs.c	2003-06-16 08:42:24.000000000 -0500
++++ linux-2.5.72-mg/drivers/char/pcmcia/synclink_cs.c	2003-06-18 10:31:08.000000000 -0500
+@@ -1,7 +1,7 @@
+ /*
+  * linux/drivers/char/pcmcia/synclink_cs.c
+  *
+- * $Id: synclink_cs.c,v 4.10 2003/05/13 16:06:03 paulkf Exp $
++ * $Id: synclink_cs.c,v 4.13 2003/06/18 15:29:32 paulkf Exp $
+  *
+  * Device driver for Microgate SyncLink PC Card
+  * multiprotocol serial adapter.
+@@ -467,7 +467,6 @@
+  * assigned major number. May be forced as module parameter.
+  */
+ static int ttymajor=0;
+-static int cuamajor=0;
+ 
+ static int debug_level = 0;
+ static int maxframe[MAX_DEVICE_COUNT] = {0,};
+@@ -485,7 +484,6 @@
+ 
+ MODULE_PARM(break_on_load,"i");
+ MODULE_PARM(ttymajor,"i");
+-MODULE_PARM(cuamajor,"i");
+ MODULE_PARM(debug_level,"i");
+ MODULE_PARM(maxframe,"1-" __MODULE_STRING(MAX_DEVICE_COUNT) "i");
+ MODULE_PARM(dosyncppp,"1-" __MODULE_STRING(MAX_DEVICE_COUNT) "i");
+@@ -493,7 +491,7 @@
+ MODULE_LICENSE("GPL");
+ 
+ static char *driver_name = "SyncLink PC Card driver";
+-static char *driver_version = "$Revision: 4.10 $";
++static char *driver_version = "$Revision: 4.13 $";
+ 
+ static struct tty_driver *serial_driver;
+ 
+@@ -1290,7 +1288,7 @@
+ 			       (info->serial_signals & SerialSignal_DCD) ? "on" : "off");
+ 		if (info->serial_signals & SerialSignal_DCD)
+ 			wake_up_interruptible(&info->open_wait);
+-		else if (!(info->flags & ASYNC_CALLOUT_NOHUP)) {
++		else {
+ 			if (debug_level >= DEBUG_LEVEL_ISR)
+ 				printk("doing serial hangup...");
+ 			if (info->tty)
+@@ -2538,14 +2536,17 @@
+ {
+ 	MGSLPC_INFO * info = (MGSLPC_INFO *)tty->driver_data;
+ 
+-	if (!info || mgslpc_paranoia_check(info, tty->name, "mgslpc_close"))
++	if (mgslpc_paranoia_check(info, tty->name, "mgslpc_close"))
+ 		return;
+ 	
+ 	if (debug_level >= DEBUG_LEVEL_INFO)
+ 		printk("%s(%d):mgslpc_close(%s) entry, count=%d\n",
+ 			 __FILE__,__LINE__, info->device_name, info->count);
+ 			 
+-	if (!info->count || tty_hung_up_p(filp))
++	if (!info->count)
++		return;
++
++	if (tty_hung_up_p(filp))
+ 		goto cleanup;
+ 			
+ 	if ((tty->count == 1) && (info->count != 1)) {
+@@ -2822,16 +2823,11 @@
+ 	info = mgslpc_device_list;
+ 	while(info && info->line != line)
+ 		info = info->next_device;
+-	if ( !info ){
+-		printk("%s(%d):Can't find specified device on open (line=%d)\n",
+-			__FILE__,__LINE__,line);
++	if (mgslpc_paranoia_check(info, tty->name, "mgslpc_open"))
+ 		return -ENODEV;
+-	}
+ 	
+ 	tty->driver_data = info;
+ 	info->tty = tty;
+-	if (mgslpc_paranoia_check(info, tty->name, "mgslpc_open"))
+-		return -ENODEV;
+ 		
+ 	if (debug_level >= DEBUG_LEVEL_INFO)
+ 		printk("%s(%d):mgslpc_open(%s), old ref count = %d\n",
+@@ -2879,6 +2875,8 @@
+ 	
+ cleanup:			
+ 	if (retval) {
++		if (tty->count == 1)
++			info->tty = 0; /* tty layer will release tty struct */
+ 		if(info->count)
+ 			info->count--;
+ 	}
 
---xyF51EaUT3XiWnZP
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+-- 
+Paul Fulghum, paulkf@microgate.com
+Microgate Corporation, http://www.microgate.com
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
 
-iD8DBQE+9waxHb1edYOZ4bsRAilrAJ9JzdmnEBdMTuZk9ukk92iNnvm2IQCcDbtD
-QO5KDxIQtPK6KQvdt2j8WTA=
-=qnuH
------END PGP SIGNATURE-----
-
---xyF51EaUT3XiWnZP--

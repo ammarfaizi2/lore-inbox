@@ -1,86 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265077AbSJRLhT>; Fri, 18 Oct 2002 07:37:19 -0400
+	id <S265080AbSJRLmL>; Fri, 18 Oct 2002 07:42:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265078AbSJRLhT>; Fri, 18 Oct 2002 07:37:19 -0400
-Received: from taifun.devconsult.de ([212.15.193.29]:21265 "EHLO
-	taifun.devconsult.de") by vger.kernel.org with ESMTP
-	id <S265077AbSJRLhR>; Fri, 18 Oct 2002 07:37:17 -0400
-Date: Fri, 18 Oct 2002 13:43:11 +0200
-From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
-To: Andi Kleen <ak@suse.de>
-Cc: Crispin Cowan <crispin@wirex.com>, hch@infradead.org, greg@kroah.com,
-       torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-       linux-security-module@wirex.com, davem@redhat.com
-Subject: Re: [PATCH] remove sys_security
-Message-ID: <20021018134311.A30059@devcon.net>
-Mail-Followup-To: Andreas Ferber <aferber@techfak.uni-bielefeld.de>,
-	Andi Kleen <ak@suse.de>, Crispin Cowan <crispin@wirex.com>,
-	hch@infradead.org, greg@kroah.com, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org, linux-security-module@wirex.com,
-	davem@redhat.com
-References: <20021017201030.GA384@kroah.com.suse.lists.linux.kernel> <20021017211223.A8095@infradead.org.suse.lists.linux.kernel> <3DAFB260.5000206@wirex.com.suse.lists.linux.kernel> <20021018.000738.05626464.davem@redhat.com.suse.lists.linux.kernel> <3DAFC6E7.9000302@wirex.com.suse.lists.linux.kernel> <p73wuognlox.fsf@oldwotan.suse.de>
-Mime-Version: 1.0
+	id <S265083AbSJRLmL>; Fri, 18 Oct 2002 07:42:11 -0400
+Received: from gateway.ukaea.org.uk ([194.128.63.73]:14205 "EHLO
+	fuspcnjc.culham.ukaea.org.uk") by vger.kernel.org with ESMTP
+	id <S265080AbSJRLmK>; Fri, 18 Oct 2002 07:42:10 -0400
+Message-ID: <3DAFF5C9.807BE885@ukaea.org.uk>
+Date: Fri, 18 Oct 2002 12:51:37 +0100
+From: Neil Conway <nconway.list@ukaea.org.uk>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: rml@tech9.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4: variable HZ
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <p73wuognlox.fsf@oldwotan.suse.de>; from ak@suse.de on Fri, Oct 18, 2002 at 11:25:02AM +0200
-Organization: dev/consulting GmbH
-X-NCC-RegID: de.devcon
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 18, 2002 at 11:25:02AM +0200, Andi Kleen wrote:
-> 
-> The 32bit and the 64bit worlds have different data types. Structure
-> layout are different. To handle this the kernel has an emulation
-> layer that converts the arguments of ioctls and system calls between 
-> 32bit and 64bit.
-> 
-> This emulation layer sits at the 'edge' of the kernel. For example
-> to convert an ioctl it first figures out the ioctl, converts it
-> then reissues the same ioctl internally with 64bit arguments. When
-> the ioctl returns outgoing arguments are converted too as needed.
-> 
-> For this to work all data structures need to be transparent.
-> The emulation layer needs to have a way to figure out what and
-> how to convert without looking at internal state in the kernel.
-> Otherwise it cannot do its job. 
+Hiya...  Nice patch, must try it when I find a few minutes - I think I
+have a few apps that are limited by select/poll behaviour.
 
-Why not let the security module supply the information about the
-struct layout?
+I was looking at your jiffies_to_clock_t() macro, and I notice that it
+will screw up badly if the user chooses a HZ value that isn't a multiple
+of the normal value (e.g. 1000 is OK, 512 isn't).
 
-I'm thinking of something roughly like stdarg.h, e.g.
+How about tweaking the macro a little?  Instead of:
+x / (HZ/USER_HZ)
+you could use:
+(x/HZ*USER_HZ + x%HZ*USER_HZ/HZ)
 
-    #include <linux/user_args.h>
-    
-    user_args args;
+which minimises roundoff error and also won't overflow (at least, it
+won't overflow as long as HZ*USER_HZ doesn't overflow!).
 
-    user_args_start(&args, ptr);
+You could even use both versions of the macro, choosing between them at
+compile time depending on whether or not (HZ % USER_HZ == 0).
 
-where args is some variable where user_args can save internal state
-and ptr is the pointer to the struct from userland (which is
-translated appropriately to a kernel space pointer; maybe also a size
-argument might be handy, so that you can copy the struct from
-userspace memory to kernel memory at once instead of accessing user
-address space for every struct member individually), then
+What do you think?
 
-    struct.longlongmember = user_args_get(&args, long long);
-
-which applies the right alignment, translates 32bit to 64bit etc.
-Due to complexity probably one wants to restrict that to a set of
-common types instead of making it full generic (and e.g. use something
-like user_args_get_longlong() instead of the type argument), but I
-don't think this would be a serious restriction (you can always extend
-it later if you really need another type to get through).
-
-This wouldn't work on an architecture where members following later in
-a struct could affect the alignment of previous members, but are there
-any (sane) architectures around where this is the case? Personally I
-can't think of any reason why one possibly wanted to do that...
-
-Andreas
--- 
-       Andreas Ferber - dev/consulting GmbH - Bielefeld, FRG
-     ---------------------------------------------------------
-         +49 521 1365800 - af@devcon.net - www.devcon.net
+cheers
+Neil
+PS: I'm off-list.

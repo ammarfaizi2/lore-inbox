@@ -1,78 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267314AbUJIThF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267330AbUJITjA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267314AbUJIThF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 15:37:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267324AbUJIThF
+	id S267330AbUJITjA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 15:39:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267327AbUJITjA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 15:37:05 -0400
-Received: from gonzo.webpack.hosteurope.de ([217.115.142.69]:21433 "EHLO
-	gonzo.webpack.hosteurope.de") by vger.kernel.org with ESMTP
-	id S267314AbUJIThA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 15:37:00 -0400
-Date: Sat, 9 Oct 2004 21:38:17 +0000
-From: stefan.eletzhofer@eletztrick.de
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
-Message-ID: <20041009213817.GB25441@tier.local>
-Reply-To: stefan.eletzhofer@eletztrick.de
-Mail-Followup-To: stefan.eletzhofer@eletztrick.de,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <41677E4D.1030403@mvista.com> <416822B7.5050206@opersys.com> <1097346628.1428.11.camel@krustophenia.net> <20041009212614.GA25441@tier.local> <1097350227.1428.41.camel@krustophenia.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 9 Oct 2004 15:39:00 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:39951 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S267334AbUJITip (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 15:38:45 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Ciucioni@netscape.net (Gustavo Solari-Bortolotti),
+       linux-kernel@vger.kernel.org
+Subject: Re: Mouse lock when any keyboard key is pressed at same time mouse moves
+Date: Sat, 9 Oct 2004 22:38:36 +0300
+User-Agent: KMail/1.5.4
+References: <6FCCD038.7E24D4F9.006FAE0F@netscape.net>
+In-Reply-To: <6FCCD038.7E24D4F9.006FAE0F@netscape.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1097350227.1428.41.camel@krustophenia.net>
-Organization: Eletztrick Computing
-User-Agent: Mutt/1.5.6i
-X-HE-MXrcvd: no
+Message-Id: <200410092238.36086.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 09, 2004 at 03:30:27PM -0400, Lee Revell wrote:
-> On Sat, 2004-10-09 at 17:26, stefan.eletzhofer@eletztrick.de wrote:
-> > On Sat, Oct 09, 2004 at 02:30:28PM -0400, Lee Revell wrote:
-> > > On Sat, 2004-10-09 at 13:41, Karim Yaghmour wrote:
-> > > > Sven-Thorsten Dietrich wrote:
-> > > > >     - Voluntary Preemption by Ingo Molnar
-> > > > >     - IRQ thread patches by Scott Wood and Ingo Molnar
-> > > > >     - BKL mutex patch by Ingo Molnar (with MV extensions)
-> > > > >     - PMutex from Germany's Universitaet der Bundeswehr, Munich
-> > > > >     - MontaVista mutex abstraction layer replacing spinlocks with mutexes
-> > > > 
-> > > > To the best of my understanding, this still doesn't provide deterministic
-> > > > hard-real-time performance in Linux.
-> > > 
-> > > Using only the VP+IRQ thread patch, I ran my RT app for 11 million
-> > > cycles yesterday, with a maximum delay of 190 usecs.  How would this not
-> > > satisfy a 200 usec hard RT constraint?
-> > 
-> > I think the keyword here is "deterministic", isn't it?
+On Saturday 09 October 2004 06:28, Gustavo Solari-Bortolotti wrote:
+> I am sorry I don't know who to exactly send this message to, so please bare with me.
+
+Only if you will wrap the long lines ;)
+ 
+> I have noticed a mouse problem since the 2.6.5 kernel release
+(when I actually upgraded from 2.4.X) where the mouse locks up
+every time any key is pressed while the mouse is moving.
+An example of using a key press, while moving the mouse
+would be to hold the ctrl key while moving the mouse to
+make a non linear selected on any window environment.
+ 
+> Here is how to reproduce:
 > 
-> Well, depends what you mean by deterministic.  Some RT apps only require
-> an upper bound on response time.  This is a form of determinism.
+> With any Desktop manager, or virtual console loaded with
+gpm, hold any key while moving the mouse.  The mouse will
+lock up, and not respond.  Only when the numlock key is
+pressed a couple of time (most of the time) the mouse acts
+again.  The first numlock press most of the time will make
+the mouse active, but acting out of wack.  If the first
+numlock press did not bring the mouse back to normal,
+then a second numlock press will bring the mouse back to normal.
 
-Yes. But can you give that upper bound "a priori", that is w/o doing
-measurements with your application?
+Failed to reproduce. It probably happens only to specific
+mouse types or on specific mobos.
 
-Without that I think its impossible to get _guaranteed_ upper
-bounds, regardles of the application running. I think thats what
-"hard real-time" is all about.
-
-Stefan
-
+> Once the mouse comes back to normal, the syslog throws these messages:
 > 
-> Lee 
+> Oct  7 19:51:22 ciucioni kernel: psmouse.c: Wheel Mouse at isa0060/serio1/input0 lost synchronization, throwing 3 bytes away.
+> Oct  7 19:51:22 ciucioni kernel: psmouse.c: Wheel Mouse at isa0060/serio1/input0 lost synchronization, throwing 1 bytes away.
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Below you will find all the information I was able to get as best as I could as asked for by the guidelines.  If anyone has any questions, feel free to email me at the email above.
+[snip]
+> logitec Mousman ps2 mouse
 
--- 
-Stefan Eletzhofer
-InQuant Data GBR
-http://www.inquant.de
-+49 (0) 751 35 44 112 
-+49 (0) 171 23 24 529 (Mobil)
-+49 (0) 751 35 44 115 (FAX)
+VIA mobo here.
+
+Mine is A4Tech optical with two wheels, although I didn't bother
+to configure X to recognize the wheels. I don't need them that much.
+
+dmesg says:
+...
+mice: PS/2 mouse device common for all mice
+input: AT Translated Set 2 keyboard on isa0060/serio0
+input: ImExPS/2 Generic Explorer Mouse on isa0060/serio1
+...
+--
+vda
+

@@ -1,48 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269769AbUJGJcL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269768AbUJGJbh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269769AbUJGJcL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 05:32:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269766AbUJGJbm
+	id S269768AbUJGJbh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 05:31:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269766AbUJGJbh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 05:31:42 -0400
-Received: from mailhub2.uq.edu.au ([130.102.149.128]:263 "EHLO
-	mailhub2.uq.edu.au") by vger.kernel.org with ESMTP id S269769AbUJGJbD
+	Thu, 7 Oct 2004 05:31:37 -0400
+Received: from webapps.arcom.com ([194.200.159.168]:30729 "EHLO
+	webapps.arcom.com") by vger.kernel.org with ESMTP id S269768AbUJGJae
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 05:31:03 -0400
-Message-ID: <41650CAF.1040901@unimail.com.au>
-Date: Thu, 07 Oct 2004 19:30:23 +1000
-From: Fraz <fraz@unimail.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+	Thu, 7 Oct 2004 05:30:34 -0400
+Message-ID: <41650CB9.80608@arcom.com>
+Date: Thu, 07 Oct 2004 10:30:33 +0100
+From: David Vrabel <dvrabel@arcom.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: High pitched noise from laptop: processor.c in linux 2.6
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Hanna Linder <hannal@us.ibm.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6][2/54] arch/i386/pci/acpi.c Use for_each_pci_dev macro
+References: <3740000.1097094228@w-hlinder.beaverton.ibm.com>
+In-Reply-To: <3740000.1097094228@w-hlinder.beaverton.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 Oct 2004 09:35:16.0203 (UTC) FILETIME=[F3DE9BB0:01C4AC50]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I recently upgraded from linux 2.4.27 to 2.6.8.1 and noticed my laptop 
-now makes a high pitch noise while idle. I traced it back to the 
-processor module for acpi. 'rmmod processor' stops the noise. 
+Hanna Linder wrote:
+> 
+> +		for_each_pci_dev(dev);
 
- 
+That semicolon doesn't look right.
 
-Using speed step to turn it down to 733 Mhz makes it a 
-        little quieter and doesn't change the tone. 
+>  			acpi_pci_irq_enable(dev);
 
- 
-
-Is there any way to stop this? I googled around and found it had 
-something to do with idle frequency of 1000 Hz in 2.6 instead of 100Hz 
-in the 2.4 kernel. I couldn't find much else on this. Hunting around the 
-code didn't help much, I don't know C. 
-
- 
-
-The laptop is a Compaq Evo N160 from Dec 2001. The reference in google 
-was to a Centrino laptop with the same problem. I wrote to Dominik 
-Brodowski who suggested posting here.
-
-
-fraz
+David Vrabel

@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263865AbTE0PZk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 11:25:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263866AbTE0PZk
+	id S263858AbTE0PZI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 11:25:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263865AbTE0PZI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 11:25:40 -0400
-Received: from garnet.acns.fsu.edu ([146.201.2.25]:55238 "EHLO
-	garnet.acns.fsu.edu") by vger.kernel.org with ESMTP id S263865AbTE0PZi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 11:25:38 -0400
-Message-ID: <3ED38670.4000108@cox.net>
-Date: Tue, 27 May 2003 11:38:24 -0400
-From: David van Hoose <davidvh@cox.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
+	Tue, 27 May 2003 11:25:08 -0400
+Received: from zork.zork.net ([64.81.246.102]:27880 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id S263858AbTE0PZH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 11:25:07 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.70 compile error
+References: <Pine.LNX.4.44.0305261903330.2164-100000@home.transmeta.com>
+	<200305271048.36495.devilkin-lkml@blindguardian.org>
+	<20030527130515.GH8978@holomorphy.com>
+	<200305271729.49047.devilkin-lkml@blindguardian.org>
+From: Sean Neakums <sneakums@zork.net>
+X-Worst-Pick-Up-Line-Ever: "Hey baby, wanna peer with my leafnode instance?"
+X-Mooix: You can't do that.
+X-Message-Flag: Message text advisory: HYPERLINK PATENT INFRINGEMENT, GRAVE
+ ILL-JUDGEMENT
+X-Mailer: Norman
+X-Groin-Mounted-Steering-Wheel: "Arrrr... it's driving me nuts!"
+X-Gilmore-Girls: http://www.achewood.com/index.php?date=04162003
+X-Alameda: WHY DOESN'T ANYONE KNOW ABOUT ALAMEDA?  IT'S RIGHT NEXT TO
+ OAKLAND!!!
+Organization: The Emadonics Institute
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Date: Tue, 27 May 2003 16:38:20 +0100
+In-Reply-To: <200305271729.49047.devilkin-lkml@blindguardian.org> (devilkin-lkml@blindguardian.org's
+ message of "Tue, 27 May 2003 17:29:48 +0200")
+Message-ID: <6ullwso0wj.fsf@zork.zork.net>
+User-Agent: Gnus/5.1003 (Gnus v5.10.3) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [2.5.70-bk1] Compilation failures ppa.c imm.c
-References: <3ED383E7.6080109@cox.net>
-In-Reply-To: <3ED383E7.6080109@cox.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David van Hoose wrote:
-> There is a compilation error on line 280 of ppa.c.
-> Should
->     if (ppa_hosts[i] == host)
-> Be
->     if ((struct Scsi_Host *)&ppa_hosts[i] == host)
-> ??
+DevilKin-LKML <devilkin-lkml@blindguardian.org> writes:
 
-Actually.. Looking at imm.c, I think that was supposed to be:
-       if (ppa_hosts[i].host == host->host_no)
+> On Tuesday 27 May 2003 15:05, William Lee Irwin III wrote:
+>> I suspect you're attempting to shoot yourself in the foot. .config?
+>
+> Ah, quite. I saw NUMA was activated, and disabling it fixed my
+> problem. Odd though, that it should become active just by doing a
+> 'make oldconfig' with my 2.7.69 config file...
 
-Correct?
+I guess in the future, all boxes are NUMA.
 
--David
-
+-- 
+Sean Neakums - <sneakums@zork.net>

@@ -1,44 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262001AbTICMRe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 08:17:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262002AbTICMRd
+	id S261971AbTICMNP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 08:13:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261977AbTICMNP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 08:17:33 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:62735 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S262001AbTICMRd (ORCPT
+	Wed, 3 Sep 2003 08:13:15 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:30894 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S261971AbTICMNM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 08:17:33 -0400
-Date: Wed, 3 Sep 2003 14:17:12 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-cc: Jamie Lokier <jamie@shareable.org>, Kars de Jong <jongk@linux-m68k.org>,
-       Linux/m68k kernel mailing list 
-	<linux-m68k@lists.linux-m68k.org>,
+	Wed, 3 Sep 2003 08:13:12 -0400
+Date: Wed, 3 Sep 2003 14:13:09 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Linux/m68k kernel mailing list <linux-m68k@lists.linux-m68k.org>,
        Linux Kernel Development <linux-kernel@vger.kernel.org>
 Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
-In-Reply-To: <Pine.GSO.4.21.0309031122460.6985-100000@waterleaf.sonytel.be>
-Message-ID: <Pine.LNX.4.44.0309031407050.20748-100000@serv>
-References: <Pine.GSO.4.21.0309031122460.6985-100000@waterleaf.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20030903121309.GD14376@lug-owl.de>
+Mail-Followup-To: Linux/m68k kernel mailing list <linux-m68k@lists.linux-m68k.org>,
+	Linux Kernel Development <linux-kernel@vger.kernel.org>
+References: <1062535375.3501.11.camel@kars.perseus.home> <Pine.GSO.4.21.0309030958130.6985-100000@waterleaf.sonytel.be>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ccJhwVfaC+fHwTsl"
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0309030958130.6985-100000@waterleaf.sonytel.be>
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Wed, 3 Sep 2003, Geert Uytterhoeven wrote:
+--ccJhwVfaC+fHwTsl
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> > Does the 68020 even _have_ the equivalent of a store buffer?
-> 
-> Good question :-)
-> 
-> After I sent the previous mail, I realized the '030 has 256 bytes I cache and
-> 256 bytes D cache, while the '020 has 256 bytes I cache only.
+On Wed, 2003-09-03 09:59:02 +0200, Geert Uytterhoeven <geert@linux-m68k.org>
+wrote in message <Pine.GSO.4.21.0309030958130.6985-100000@waterleaf.sonytel=
+=2Ebe>:
+> On 2 Sep 2003, Kars de Jong wrote:
+> Now all that's left is the 68030.
 
-BTW the 020/030 caches are VIVT (and also only writethrough), the 040/060 
-caches are PIPT.
+Maybe I get my Amiga 3000 installed these days... I think it has got an
+68030.
 
-bye, Roman
+MfG, JBG
 
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+      ret =3D do_actions((curr | FREE_SPEECH) & ~(IRAQ_WAR_2 | DRM | TCPA));
+
+--ccJhwVfaC+fHwTsl
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/VdrVHb1edYOZ4bsRAik5AJ44dduWkfMOK0AnEVnUWzL9IYbfeQCfRziB
+NI6MmOVZdo9KSMZ3RPA8tmY=
+=wW07
+-----END PGP SIGNATURE-----
+
+--ccJhwVfaC+fHwTsl--

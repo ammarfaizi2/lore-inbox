@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262092AbTJFNoa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 09:44:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262086AbTJFNoW
+	id S262106AbTJFNqm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 09:46:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262108AbTJFNql
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 09:44:22 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11528 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262092AbTJFNnb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 09:43:31 -0400
-Date: Mon, 6 Oct 2003 14:43:28 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Fix sysrq-t free stack output
-Message-ID: <20031006144328.A24910@flint.arm.linux.org.uk>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+	Mon, 6 Oct 2003 09:46:41 -0400
+Received: from imap.gmx.net ([213.165.64.20]:2474 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262106AbTJFNqc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 09:46:32 -0400
+Date: Mon, 6 Oct 2003 15:46:30 +0200 (MEST)
+From: "Daniel Blueman" <daniel.blueman@gmx.net>
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Subject: Re: P4C800E-Dlx: ICH5/S-ATA and Intel Pro onboard network incompatibility ?
+X-Priority: 3 (Normal)
+X-Authenticated: #8973862
+Message-ID: <10570.1065447990@www56.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems that we're attempting to work out the free stack size using two
-unrelated pointers for the lowest address of the stack.  Fix this to use
-the correct pointer.
+I have a Gigabyte GA-8IPE1000MK motherboard with the Intel 865PE memory
+controller and ICH5 IO controller.
 
---- orig/kernel/sched.c	Sun Sep 28 09:55:57 2003
-+++ linux/kernel/sched.c	Mon Oct  6 14:40:37 2003
-@@ -2465,7 +2465,7 @@
- 		unsigned long * n = (unsigned long *) (p->thread_info+1);
- 		while (!*n)
- 			n++;
--		free = (unsigned long) n - (unsigned long)(p+1);
-+		free = (unsigned long) n - (unsigned long)(p->thread_info+1);
- 	}
- 	printk("%5lu %5d %6d ", free, p->pid, p->parent->pid);
- 	if ((relative = eldest_child(p)))
+Exact same problem as mentioned - I need to set my S-ATA drive to
+compatibility mode. Reply to my address if details are required.
 
 -- 
-Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
-      Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
-      maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                      2.6 Serial core
+Daniel J Blueman
+
+NEU FÜR ALLE - GMX MediaCenter - für Fotos, Musik, Dateien...
+Fotoalbum, File Sharing, MMS, Multimedia-Gruß, GMX FotoService
+
+Jetzt kostenlos anmelden unter http://www.gmx.net
+
++++ GMX - die erste Adresse für Mail, Message, More! +++
+

@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315634AbSHAQKj>; Thu, 1 Aug 2002 12:10:39 -0400
+	id <S315631AbSHAQMy>; Thu, 1 Aug 2002 12:12:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315708AbSHAQKj>; Thu, 1 Aug 2002 12:10:39 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:39408 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S315634AbSHAQKi>; Thu, 1 Aug 2002 12:10:38 -0400
-Subject: Re: [rfc] aio-core for 2.5.29 (Re: async-io API registration for
-	2.5.29)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
-       Benjamin LaHaise <bcrl@redhat.com>, Pavel Machek <pavel@elf.ucw.cz>,
-       Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-       linux-aio@kvack.org
-In-Reply-To: <Pine.LNX.4.44.0208010903460.14537-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0208010903460.14537-100000@home.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 01 Aug 2002 18:30:41 +0100
-Message-Id: <1028223041.14865.80.camel@irongate.swansea.linux.org.uk>
+	id <S315708AbSHAQMx>; Thu, 1 Aug 2002 12:12:53 -0400
+Received: from jalon.able.es ([212.97.163.2]:17814 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S315631AbSHAQMt>;
+	Thu, 1 Aug 2002 12:12:49 -0400
+Date: Thu, 1 Aug 2002 18:15:18 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19rc4aa1
+Message-ID: <20020801161518.GA1557@junk.cps.unizar.es>
+References: <20020801055124.GB1132@dualathlon.random> <20020801141703.GT1132@dualathlon.random> <20020801153032.A13003@infradead.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20020801153032.A13003@infradead.org>; from hch@infradead.org on jue, ago 01, 2002 at 16:30:32 +0200
+X-Mailer: Balsa 1.3.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-08-01 at 17:09, Linus Torvalds wrote:
-> However, "jiffies" are not really real time, they are only a "reasonable
-> abstraction thereof", and while they imply ordering ("time_after()" works
-> fine inside the kernel), they do _not_ imply real time.
+
+On 20020801 Christoph Hellwig wrote:
+> On Thu, Aug 01, 2002 at 04:17:03PM +0200, Andrea Arcangeli wrote:
+> > new rc4aa2 with this single fix is coming, if anybody else found any
+> > other problem please let me know ASAP :), thanks.
 > 
-> In other words, there is no way to move from time -> jiffies and back.
+> why don't you merge up to -rc5?
+> 
 
-For a lot of applications like multimedia you actually want a counting
-of time not any relation to real time except that you can tell how many
-ticks elapse a second.
+Until the official version, here is -rc5-aa0-2: rc4-aa1 ported to rc5 and
+with the bigpage fix
 
+http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.19-rc5-jam0/00-rc5-aa0-2.bz2
+
+-- 
+J.A. Magallon                           \                 Software is like sex:
+junk.able.es                             \           It's better when it's free
+Mandrake Linux release 9.0 (Cooker) for i586
+Linux 2.4.19-rc5-jam0 (gcc 3.2 (Mandrake Linux 9.0 3.2-0.2mdk))

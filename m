@@ -1,47 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262365AbSJ2WFk>; Tue, 29 Oct 2002 17:05:40 -0500
+	id <S262374AbSJ2WHR>; Tue, 29 Oct 2002 17:07:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262374AbSJ2WFk>; Tue, 29 Oct 2002 17:05:40 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:55424 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262365AbSJ2WFj>; Tue, 29 Oct 2002 17:05:39 -0500
-Subject: Re: [BK updates] fbdev changes updates.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: James Simmons <jsimmons@infradead.org>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-In-Reply-To: <20021029200838.GA27552@suse.de>
-References: <Pine.LNX.4.33.0210291240170.14451-100000@maxwell.earthlink.net> 
-	<20021029200838.GA27552@suse.de>
-Content-Type: text/plain
+	id <S262380AbSJ2WHR>; Tue, 29 Oct 2002 17:07:17 -0500
+Received: from as4-1-7.has.s.bonet.se ([217.215.31.238]:1921 "EHLO
+	K-7.stesmi.com") by vger.kernel.org with ESMTP id <S262374AbSJ2WHQ>;
+	Tue, 29 Oct 2002 17:07:16 -0500
+Message-ID: <3DBF07EE.50401@stesmi.com>
+Date: Tue, 29 Oct 2002 23:13:02 +0100
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+CC: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
+Subject: Re: OT: DVD-* owners be warned .  Please see inside .
+References: <Pine.LNX.4.44.0210100949270.6366-100000@filesrv1.baby-dragons.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 29 Oct 2002 22:31:04 +0000
-Message-Id: <1035930664.1603.23.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-10-29 at 20:08, Dave Jones wrote:
-> On Tue, Oct 29, 2002 at 12:45:10PM -0800, James Simmons wrote:
->  > The reason for this is we will see in the future embedded ix86
->  > boards with things like i810 framebuffers with NO vga core. In this case
->  > we will need a fbdev driver for a graphical console. Thus the agp code
->  > must be started before the fbdev layer.
+Mr. James W. Laferriere wrote:
+> 	Hello All ,
 > 
-> Can you explain exactly what the agpgart code is doing that needs
-> to be done earlier than framebuffer ? I don't see any reason for this
-> change. There should be no GART mappings until we've booted userspace
-> (except for the case of IOMMU)
+> 	Here we go .  Two differant hardware types to prevent users from
+> 	making private backups of items that they have purchased .  I hope
+> 	that somewhere in the community there is a methodology to
+> 	circumvent this stupidity .
+> 
+> 	Below is a snippet from the URL below this :
+> 
+> 	Why are there two formats? The key reason for the introduction of
+> 	DVD-R for General media is that it contains content protection
+> 	measures that make it physically impossible to make a bit-for-bit
+> 	copies of CSS encrypted entertainment titles.
+> 
+> http://www.pioneerelectronics.com/Pioneer/Files/DVDRMedia-GeneralvsAuthoring.pdf
 
-The i8xx draws the frame buffer memory from AGP as well as the texture
-mappings and other goodies. The practical impact of that is that if you
-want any useful video mode you need AGP initialized first. For UMA video
-devices its an extremely neat way of avoiding pre-allocation of fixed
-size frame buffers before the OS boots
+Thought I'd point out that this is old news. Very old in fact.
+
+This was set when the DVD-R standard was put in place ...
+
+Or actually, shortly thereafter.
+
+At first there was only one standard, DVD-R. Now there are two at
+different wavelengths, DVD For General (cannot copy css encrypted
+things) and DVD-R For Authoring which can but those discs cost a lot 
+more. DVD-R was renamed DVD-R For Authoring.
+
+// Stefan
 
 

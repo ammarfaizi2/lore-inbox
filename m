@@ -1,67 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261763AbUEWKBC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261998AbUEWJ61@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261763AbUEWKBC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 06:01:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262003AbUEWKBC
+	id S261998AbUEWJ61 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 05:58:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262003AbUEWJ60
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 06:01:02 -0400
-Received: from warden3-p.diginsite.com ([208.147.64.186]:11706 "HELO
-	warden3.diginsite.com") by vger.kernel.org with SMTP
-	id S261763AbUEWKA6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 06:00:58 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Christian Borntraeger <linux-kernel@borntraeger.net>
-Cc: linux-kernel@vger.kernel.org, Gergely Czuczy <phoemix@harmless.hu>,
-       itk-sysadm@ppke.hu
-Date: Sun, 23 May 2004 03:00:51 -0700 (PDT)
-X-X-Sender: dlang@dlang.diginsite.com
-Subject: Re: Linux 2.4 VS 2.6 fork VS thread creation time test
-In-Reply-To: <200405231139.44096.linux-kernel@borntraeger.net>
-Message-ID: <Pine.LNX.4.58.0405230247450.8199@dlang.diginsite.com>
-References: <Pine.LNX.4.60.0405230914330.15840@localhost>
- <200405231139.44096.linux-kernel@borntraeger.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 23 May 2004 05:58:26 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:1973 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261998AbUEWJ6Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 May 2004 05:58:24 -0400
+Date: Sun, 23 May 2004 11:58:13 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Christoph Hellwig <hch@lst.de>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: i486 emu in mainline?
+Message-ID: <20040523095813.GA14170@devserv.devel.redhat.com>
+References: <20040522234059.GA3735@infradead.org> <1085296400.2781.2.camel@laptop.fenrus.com> <20040523084415.GB16071@alpha.home.local> <20040523091356.GD5889@devserv.devel.redhat.com> <20040523094853.GA16448@alpha.home.local>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="FL5UXtIhxfXey3p5"
+Content-Disposition: inline
+In-Reply-To: <20040523094853.GA16448@alpha.home.local>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 23 May 2004, Christian Borntraeger wrote:
 
-> Date: Sun, 23 May 2004 11:39:41 +0200
-> From: Christian Borntraeger <linux-kernel@borntraeger.net>
-> To: linux-kernel@vger.kernel.org
-> Cc: Gergely Czuczy <phoemix@harmless.hu>, itk-sysadm@ppke.hu
-> Subject: Re: Linux 2.4 VS 2.6 fork VS thread creation time test
->
-> Gergely Czuczy wrote:
-> > failed. As I told it above all the processes are teminated right after
-> > creation, but there were a lot of defunct processes in the system, and
-> > they were only gone when the parent termineted.
->
-> Have you heard of wait, waitpid and pthread_join?
+--FL5UXtIhxfXey3p5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-there really is some sort of problem with 2.6.6 in this area. I have an
-app that I am trying to stress test on a dual opteron system and under a
-heavy load something goes haywire and the children become zombies. on a
-dual athlon the test manages 2500 forks/sec and can continue forever (Ok,
-I only tested it to 11M forks at full speed :-), but the dual opteron box
-manages 3500 connections/sec for a few thousand connections and then stops
-reaping the children. if I attach strace to the parent at this point the
-logjam is broken and strace shows the wait calls receiving and handleing
-the sigchild
 
-the prarent deals with sigchild by
-handler{
-while ( wait(...) >0);
-signal(SIGCHLD, handler);
-}
+On Sun, May 23, 2004 at 11:48:53AM +0200, Willy Tarreau wrote:
+> On Sun, May 23, 2004 at 11:13:56AM +0200, Arjan van de Ven wrote:
+> > On Sun, May 23, 2004 at 10:44:15AM +0200, Willy Tarreau wrote:
+> > > Hi Arjan,
+> > > 
+> > > On Sun, May 23, 2004 at 09:13:20AM +0200, Arjan van de Ven wrote:
+> > > > on first look it seems to be missing a bunch of get_user() calls and
+> > > > does direct access instead....
+> > > 
+> > > It was intentional for speed purpose. The areas are checked once with
+> > > verify_area() when we need to access memory, then data is copied directly
+> > > from/to memory. I don't think there's any risk, but I can be wrong.
+> > 
+> > it's an oopsable offence; nothing is making sure the memory is actually
+> > present for example.
+> 
+> You mean like when a user does a malloc() and the memory is not physically
+> allocated because not used yet ? or even in case memory has been swapped
+> out ? 
 
-unfortunantly trying to leave strace attached while running the test slows
-it down to ~1200 forks/sec and the problem never forms.
+Well both. Or even a stray invalid userspace pointer.
 
-David Lang
+copy_from_user/get_user will catch the trap the cpu will cause in such a
+case, and the VM will swap in the page, allocate a new page in case of the
+malloc-but-never-used-yet or throw a segmentation fault if the userspace
+pointer is broken.
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+If there is no protection (eg there is no exception handler defined) then
+the kernel will throw an oops since it's an uncaught/unhandled kernel mode
+exception. Obviously copy_from_user/get_user and co have such exception
+handlers defined and will do the expected (right) thing. Direct access does
+not.
+
+
+
+--FL5UXtIhxfXey3p5
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFAsHW1xULwo51rQBIRArnjAJ9ss++9/70om+GpTgwTf2CxG5PB1wCfbxtI
+hzrz8PjXhi3qzUlfVzAcF5w=
+=cant
+-----END PGP SIGNATURE-----
+
+--FL5UXtIhxfXey3p5--

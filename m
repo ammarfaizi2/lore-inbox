@@ -1,63 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290983AbSCTOWP>; Wed, 20 Mar 2002 09:22:15 -0500
+	id <S291531AbSCTO0F>; Wed, 20 Mar 2002 09:26:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311589AbSCTOWF>; Wed, 20 Mar 2002 09:22:05 -0500
-Received: from cm.med.3284844210.kabelnet.net ([195.202.190.178]:59356 "EHLO
-	phobos.hvrlab.org") by vger.kernel.org with ESMTP
-	id <S290983AbSCTOVy>; Wed, 20 Mar 2002 09:21:54 -0500
-Subject: Re: 2.4.19pre3aa2
-From: Herbert Valerio Riedel <hvr@hvrlab.org>
-To: Jari Ruusu <jari.ruusu@pp.inet.fi>
-Cc: Jens Axboe <axboe@suse.de>, Andrea Arcangeli <andrea@suse.de>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3C97C924.A9A256F6@pp.inet.fi>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-1zQJ8Ko0NbVH9NaxO2ZH"
-X-Mailer: Evolution/1.0.2 
-Date: 20 Mar 2002 15:21:25 +0100
-Message-Id: <1016634085.1944.39.camel@janus.txd.hvrlab.org>
-Mime-Version: 1.0
+	id <S292385AbSCTOZz>; Wed, 20 Mar 2002 09:25:55 -0500
+Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:46340 "EHLO
+	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id <S291531AbSCTOZp> convert rfc822-to-8bit; Wed, 20 Mar 2002 09:25:45 -0500
+Content-Class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Hooks for random device entropy generation missing in cpqarray.c 
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+Date: Wed, 20 Mar 2002 08:25:39 -0600
+Message-ID: <A2C35BB97A9A384CA2816D24522A53BB01E88B79@cceexc18.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Hooks for random device entropy generation missing in cpqarray.c 
+thread-index: AcHQE+3jCKc3+fz8Q+idxExCS/YV8QABrKDw
+From: "White, Charles" <Charles.White@COMPAQ.com>
+To: "Manon Goo" <manon@manon.de>, "Arrays" <Arrays@COMPAQ.com>
+Cc: <linux-kernel@vger.kernel.org>, <tytso@MIT.EDU>,
+        =?iso-8859-1?Q?Markus_Schr=F6der?= <schroeder.markus@allianz.de>
+X-OriginalArrivalTime: 20 Mar 2002 14:25:39.0755 (UTC) FILETIME=[1C1EA7B0:01C1D01B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Yes.. I was reported that it some how got dropped from our 2.4 version of the driver.. 
+DON'T add add_interrupt_randomness, just add "| SA_SAMPLE_RANDOM" to the call to request_irq. 
 
---=-1zQJ8Ko0NbVH9NaxO2ZH
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Patch to follow. 
 
-On Wed, 2002-03-20 at 00:26, Jari Ruusu wrote:
-> > > If there is any chance of being merged to mainline kernel, I will fix=
- these
-> > > "hurt the eyes" formatting issues.
-> > I think there is. At least I can safely say there's no chance it will b=
-e
-> > merged if these things aren't fixed. So take your pick :-)
-> OK, I have fixed above mentioned formatting issues. A patch is attached.
 
-...well, you still haven't honored my modest wish of the innocent 2
-#define's and 1 typedef...=20
+-----Original Message-----
+From: Manon Goo [mailto:manon@manon.de]
+Sent: Wednesday, March 20, 2002 7:34 AM
+To: Arrays
+Cc: linux-kernel@vger.kernel.org; tytso@MIT.EDU; Markus Schröder
+Subject: Hooks for random device entropy generation missing in
+cpqarray.c 
 
-regards,
---=20
-Herbert Valerio Riedel       /    Phone: (EUROPE) +43-1-58801-18840
-Email: hvr@hvrlab.org       /    Finger hvr@gnu.org for GnuPG Public Key
-GnuPG Key Fingerprint: 7BB9 2D6C D485 CE64 4748  5F65 4981 E064 883F
-4142
 
---=-1zQJ8Ko0NbVH9NaxO2ZH
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Hi,
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+All hooks for the random ganeration (add_blkdev_randomness() ) are ignored 
+in the cpqarray / ida  driver.
+	Is a patch available ?
+	or an other updated driver ?
+	any hints where to put add_blkdev_randomness() in your driver ?
+	
+	is add_interrupt_randomness() called on an i386 SMP IO-APCI system ?
 
-iD8DBQA8mJrkSYHgZIg/QUIRArswAJwMNtXKP/qVWeuaxEC386hXFnIQQQCfQN9t
-/63Vsi9hk+52e7ZtFj78AaA=
-=I9zp
------END PGP SIGNATURE-----
 
---=-1zQJ8Ko0NbVH9NaxO2ZH--
+Thanks
+Manon
+
+PS: Folks on linux-kernel please CC to manon@manon.de I am not on the list
+
 

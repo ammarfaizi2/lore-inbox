@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261991AbVCTGbg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261564AbVCTGh1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261991AbVCTGbg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Mar 2005 01:31:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261564AbVCTGbe
+	id S261564AbVCTGh1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Mar 2005 01:37:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262019AbVCTGh1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Mar 2005 01:31:34 -0500
-Received: from fire.osdl.org ([65.172.181.4]:13274 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261991AbVCTGbc (ORCPT
+	Sun, 20 Mar 2005 01:37:27 -0500
+Received: from dbl.q-ag.de ([213.172.117.3]:733 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S261564AbVCTGhW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Mar 2005 01:31:32 -0500
-Date: Sat, 19 Mar 2005 22:30:44 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jim Gifford <maillist@jg555.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Build issue current MIPS - RaQ2
-Message-Id: <20050319223044.616935f1.akpm@osdl.org>
-In-Reply-To: <423C7AB5.2010200@jg555.com>
-References: <423C7AB5.2010200@jg555.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 20 Mar 2005 01:37:22 -0500
+Message-ID: <423D19FE.7020902@colorfullife.com>
+Date: Sun, 20 Mar 2005 07:36:46 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.3) Gecko/20041020
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: "Paul E. McKenney" <paulmck@us.ibm.com>, dipankar@in.ibm.com,
+       shemminger@osdl.org, akpm@osdl.org, torvalds@osdl.org,
+       rusty@au1.ibm.com, tgall@us.ibm.com, jim.houston@comcast.net,
+       gh@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: Real-Time Preemption and RCU
+References: <20050318002026.GA2693@us.ibm.com> <20050318091303.GB9188@elte.hu> <20050318092816.GA12032@elte.hu> <423BB299.4010906@colorfullife.com> <20050319162601.GA28958@elte.hu>
+In-Reply-To: <20050319162601.GA28958@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jim Gifford <maillist@jg555.com> wrote:
+Ingo Molnar wrote:
+
+>which precise locking situation do you mean?
 >
->  I have not been able to build kernels since 2.6.9 on my RaQ2 for some 
->  time. I have tried the linux-mips.org port and the current 2.6.11.5 
->  release. I keep getting the same error.
-> 
->    Building modules, stage 2.
->    MODPOST
->  *** Warning: "pci_iounmap" [drivers/net/tulip/tulip.ko] undefined!
->  *** Warning: "pci_iomap" [drivers/net/tulip/tulip.ko] undefined!
+>  
+>
+cpu 1:
+acquire random networking spin_lock_bh()
 
-Does this fix it?
+cpu 2:
+read_lock(&tasklist_lock) from process context
+interrupt. softirq. within softirq: try to acquire the networking lock.
+* spins.
 
---- 25/arch/mips/lib/Makefile~mips-linkage-fix	2005-03-19 22:29:34.000000000 -0800
-+++ 25-akpm/arch/mips/lib/Makefile	2005-03-19 22:30:07.000000000 -0800
-@@ -2,7 +2,9 @@
- # Makefile for MIPS-specific library files..
- #
- 
--lib-y	+= csum_partial_copy.o dec_and_lock.o iomap.o memcpy.o promlib.o \
-+lib-y	+= csum_partial_copy.o dec_and_lock.o memcpy.o promlib.o \
- 	   strlen_user.o strncpy_user.o strnlen_user.o
- 
-+obj-y	+= iomap.o
-+
- EXTRA_AFLAGS := $(CFLAGS)
-_
+cpu 1:
+hardware interrupt
+within hw interrupt: signal delivery. tries to acquire tasklist_lock.
 
+--> deadlock.
+
+--
+    Manfred

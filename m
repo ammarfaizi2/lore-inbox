@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317396AbSFHNUz>; Sat, 8 Jun 2002 09:20:55 -0400
+	id <S317408AbSFHNsY>; Sat, 8 Jun 2002 09:48:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317405AbSFHNUy>; Sat, 8 Jun 2002 09:20:54 -0400
-Received: from pD9E2320A.dip.t-dialin.net ([217.226.50.10]:490 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S317396AbSFHNUx>; Sat, 8 Jun 2002 09:20:53 -0400
-Date: Sat, 8 Jun 2002 07:20:37 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: crimsun@fungus.sh.nu
-cc: Diego Calleja <diegocg@teleline.es>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.19pre10aa2
-In-Reply-To: <20020608053910.B14879@fungus.sh.nu>
-Message-ID: <Pine.LNX.4.44.0206080718420.15675-100000@hawkeye.luckynet.adm>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317407AbSFHNsX>; Sat, 8 Jun 2002 09:48:23 -0400
+Received: from johnsl.lnk.telstra.net ([139.130.12.152]:18442 "HELO
+	ns.higherplane.net") by vger.kernel.org with SMTP
+	id <S317406AbSFHNsV>; Sat, 8 Jun 2002 09:48:21 -0400
+Date: Sat, 8 Jun 2002 23:50:27 +1000
+From: john slee <indigoid@higherplane.net>
+To: Oliver Xymoron <oxymoron@waste.org>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] Adeos nanokernel for Linux kernel
+Message-ID: <20020608135027.GF27429@higherplane.net>
+In-Reply-To: <E17FQzQ-0001T2-00@starship> <Pine.LNX.4.44.0206050800140.2614-100000@waste.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Jun 05, 2002 at 08:51:27AM -0500, Oliver Xymoron wrote:
+> > In the context of an mp3 playback system, worrying about whether the
+> > controls are realtime seems a little excessive.
+> 
+> Perhaps you've never been a DJ..
 
-On Sat, 8 Jun 2002 crimsun@fungus.sh.nu wrote:
-> The url works fine for several, if not most, of the www.us.kernel.org
-> mirrors.
+spot on.  this is why i use a dsp card on my studio workstation; latency
+doesn't change (therefore no clicks/pops) when you move the mouse
+rapidly.  it sticks right on whatever i set it to (13ms on my card, the
+newer ones can do around 1ms)
 
-Yes, it works with some of the us.kernel.org mirrors, but obviously rather 
-sporadically. This leads to the following situations:
+can't say the same for vst (host cpu powered) instruments/effects.
+controller latency DOES matter.
 
-1. I see the link, press enter and get HTTP/1.1 404 Not found.
-2. I see the link, press enter, get the directory, want to download, get a 
-404.
+sadly all the host software for the card needs windows or macos.  linux
+is MUCH better than windows in areas like this, after all the work Sir
+Morton has done to clean up latency.  a thousand blessings upon his
+house :-)
 
-Regards,
-Thunder
+j.
+
 -- 
-ship is leaving right on time	|	Thunder from the hill at ngforever
-empty harbour, wave goodbye	|
-evacuation of the isle		|	free inhabitant not directly
-caveman's paintings drowning	|	belonging anywhere
-
+toyota power: http://indigoid.net/

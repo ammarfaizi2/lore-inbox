@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287319AbSAGWkN>; Mon, 7 Jan 2002 17:40:13 -0500
+	id <S287322AbSAGWwD>; Mon, 7 Jan 2002 17:52:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287320AbSAGWkD>; Mon, 7 Jan 2002 17:40:03 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:44296 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S287319AbSAGWjz>; Mon, 7 Jan 2002 17:39:55 -0500
-Date: Mon, 7 Jan 2002 14:38:45 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Matthew Kirkwood <matthew@hairy.beasts.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFC] Lightweight user-level semaphores
-In-Reply-To: <Pine.LNX.4.33.0201072144110.8813-100000@sphinx.mythic-beasts.com>
-Message-ID: <Pine.LNX.4.33.0201071412110.1064-100000@penguin.transmeta.com>
+	id <S287332AbSAGWvx>; Mon, 7 Jan 2002 17:51:53 -0500
+Received: from kc.hitachisoftware.com ([205.158.62.105]:10982 "HELO
+	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S287322AbSAGWvo>; Mon, 7 Jan 2002 17:51:44 -0500
+Message-ID: <20020107225138.29601.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Rudmer van Dijk" <rudmer@linuxmail.org>
+To: linux-kernel@vger.kernel.org
+Date: Tue, 08 Jan 2002 06:51:38 +0800
+Subject: [PATCH][2.5.2-pre9] fix ramdisk compile failure
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On Mon, 7 Jan 2002, Matthew Kirkwood wrote:
-> >
-> > Yes, I was going to just attach to the vma,
->
-> Wouldn't that have to be an address_space, so separate maps
-> of the same object will use the same count?  Or (not unlikely)
-> am I misunderstanding the way these structures are laid out?
+for some time I was not able to compile a kernel with ramdisk support but with the following patch it works again!
 
-I would just mke the creator be special. The guy who creates the semaphore
-owns it, and if he unmaps it, it's gone.
+rudmer
 
-Note that there are other, potentially cleaner solutions. In particular,
-some people like the "semaphore as file descriptor" approach, and I have
-to say that I think they may be right. Then you just pass the file
-descriptor along as the cookie, and you can do dup()/close() etc on it.
+diff -u arch/i386/kernel/setup.c~ arch/i386/kernel/setup.c
+--- arch/i386/kernel/setup.c~   Mon Jan  7 21:47:51 2002
++++ arch/i386/kernel/setup.c    Mon Jan  7 23:38:45 2002
+@@ -661,6 +661,9 @@
+        unsigned long bootmap_size, low_mem_size;
+        unsigned long start_pfn, max_low_pfn;
+        int i;
++#ifdef CONFIG_BLK_DEV_RAM
++       extern int rd_size, rd_image_start, rd_prompt, rd_doload;
++#endif
+ 
+ #ifdef CONFIG_VISWS
+        visws_get_board_type_and_rev();
+-- 
 
-Mind trying that approach instead? It's not all that far off from your
-current setup, and it would certainly have none of the security
-implications..
+Get your free email from www.linuxmail.org 
 
-		Linus
 
+Powered by Outblaze

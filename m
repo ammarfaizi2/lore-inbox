@@ -1,83 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261317AbUL2Edg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261319AbUL2Ert@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261317AbUL2Edg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Dec 2004 23:33:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbUL2Edg
+	id S261319AbUL2Ert (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Dec 2004 23:47:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261320AbUL2Ert
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Dec 2004 23:33:36 -0500
-Received: from mail.tyan.com ([66.122.195.4]:21009 "EHLO tyanweb.tyan")
-	by vger.kernel.org with ESMTP id S261317AbUL2Ed2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Dec 2004 23:33:28 -0500
-Message-ID: <3174569B9743D511922F00A0C943142307290EEE@TYANWEB>
-From: YhLu <YhLu@tyan.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 256 apic id for amd64
-Date: Tue, 28 Dec 2004 20:43:47 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_000_01C4ED60.FBFE3200"
+	Tue, 28 Dec 2004 23:47:49 -0500
+Received: from wine.ocn.ne.jp ([220.111.47.146]:15041 "EHLO
+	smtp.wine.ocn.ne.jp") by vger.kernel.org with ESMTP id S261319AbUL2Erq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Dec 2004 23:47:46 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Is CAP_SYS_ADMIN checked by every program !?
+From: Tetsuo Handa <from-linux-kernel@i-love.sakura.ne.jp>
+Message-Id: <200412291347.JEH41956.OOtStPFFNMLJVGMYS@i-love.sakura.ne.jp>
+X-Mailer: Winbiff [Version 2.43]
+X-Accept-Language: ja,en
+Date: Wed, 29 Dec 2004 13:47:47 +0900
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
+  Hello.
 
-------_=_NextPart_000_01C4ED60.FBFE3200
-Content-Type: text/plain
+I found a strange behavior with kernel 2.6.9 and later. ( I haven't tested for 2.6.8 and earlier. )
+It seems to me that every program calls capable(CAP_SYS_ADMIN),
+even for programs such as cat(1) sed(1) ls(1).
+My environment is Fedora Core 3.
 
-Can someone who maintains the x86-64 io_apic.c look at my patch about 256
-apic id for amd64?
+The following is the patch for checking.
 
-YH
+----- Start of Patch -----
+*** sched.h.org Sat Dec 25 06:33:59 2004
+--- sched.h     Wed Dec 29 13:00:53 2004
+***************
+*** 870,875 ****
+--- 870,882 ----
+  #else
+  static inline int capable(int cap)
+  {
++       if (cap == CAP_SYS_ADMIN) {
++               static pid_t last_pid = 0;
++               if (current->pid != last_pid) {
++                       printk("euid=%d uid=%d %s %s\n", current->euid, current->uid, cap_raised(current->cap_effective, CAP_SYS_ADMIN) ? "true" : "fa
+lse", current->comm);
++                       last_pid = current->pid;
++               }
++       }
+        if (cap_raised(current->cap_effective, cap)) {
+                current->flags |= PF_SUPERPRIV;
+                return 1;
+----- End of Patch -----
+
+Programs run as root always show "true", and run as non-root always show "false",
+but it's will be OK.
+I can't understand why every program checks for CAP_SYS_ADMIN .
+With 2.4.28 and RedHat 9, no such behavior happens.
+
+Is this normal behavior for 2.6 ?
 
 
-------_=_NextPart_000_01C4ED60.FBFE3200
-Content-Type: application/octet-stream;
-	name="x86_64_ioapic.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="x86_64_ioapic.patch"
 
-diff -uNr linux-2.6.10/arch/x86_64/kernel/io_apic.c =
-linux-2.6.10.new.x86_64/arch/x86_64/kernel/io_apic.c=0A=
---- linux-2.6.10/arch/x86_64/kernel/io_apic.c	2004-12-24 =
-13:34:45.000000000 -0800=0A=
-+++ linux-2.6.10.new.x86_64/arch/x86_64/kernel/io_apic.c	2004-12-28 =
-15:46:35.828076192 -0800=0A=
-@@ -1148,6 +1148,19 @@=0A=
- 	unsigned char old_id;=0A=
- 	unsigned long flags;=0A=
- =0A=
-+        unsigned int max_apic;=0A=
-+        u32 vendor;=0A=
-+=0A=
-+        /* get the max apic */=0A=
-+        vendor =3D read_pci_config(0, 0x18, 0, PCI_VENDOR_ID);=0A=
-+        vendor &=3D 0xffff;=0A=
-+        if(vendor =3D=3D PCI_VENDOR_ID_AMD) { /* AMD */=0A=
-+                max_apic =3D (((read_pci_config(0, 0x18, 0, 0x68)>>17) =
-& 3) =3D=3D 3) ? 0xff : 0xf;=0A=
-+        }=0A=
-+        else { /* intel:  how to find out if intel em64t support 256 =
-apic id? */=0A=
-+                max_apic =3D 0xf;=0A=
-+        }=0A=
-+=0A=
- 	/*=0A=
- 	 * Set the IOAPIC ID to the value stored in the MPC table.=0A=
- 	 */=0A=
-@@ -1160,7 +1173,7 @@=0A=
- 		=0A=
- 		old_id =3D mp_ioapics[apic].mpc_apicid;=0A=
- =0A=
--		if (mp_ioapics[apic].mpc_apicid >=3D 0xf) {=0A=
-+		if (mp_ioapics[apic].mpc_apicid >=3D max_apic) {=0A=
- 			apic_printk(APIC_QUIET,KERN_ERR "BIOS bug, IO-APIC#%d ID is %d in =
-the MPC table!...\n",=0A=
- 				apic, mp_ioapics[apic].mpc_apicid);=0A=
- 			apic_printk(APIC_QUIET,KERN_ERR "... fixing up to %d. (tell your hw =
-vendor)\n",=0A=
+I located .config at http://hp.vector.co.jp/authors/VA022513/tmp/config-2.6.10 .
+(By the way, why not prepare ".config file keeper" like pgp.mit.edu ? I think it can save ML traffic. )
 
-------_=_NextPart_000_01C4ED60.FBFE3200--
+
+
+Regards.
+
+-------
+  Tetsuo Handa

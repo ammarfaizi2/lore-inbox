@@ -1,61 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261323AbUKNRui@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261322AbUKNSNa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261323AbUKNRui (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 12:50:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbUKNRui
+	id S261322AbUKNSNa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 13:13:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbUKNSNa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 12:50:38 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:34754 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261323AbUKNRua (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 12:50:30 -0500
-Date: Sun, 14 Nov 2004 18:50:28 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: mahashakti89 <mahashakti89@wanadoo.fr>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Syscontrol activation = problem on boot
-In-Reply-To: <4197977B.5080400@wanadoo.fr>
-Message-ID: <Pine.LNX.4.53.0411141846150.20107@yvahk01.tjqt.qr>
-References: <4197977B.5080400@wanadoo.fr>
+	Sun, 14 Nov 2004 13:13:30 -0500
+Received: from smtp-out4.blueyonder.co.uk ([195.188.213.7]:507 "EHLO
+	smtp-out4.blueyonder.co.uk") by vger.kernel.org with ESMTP
+	id S261322AbUKNSNY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Nov 2004 13:13:24 -0500
+Message-ID: <4197A037.1020307@blueyonder.co.uk>
+Date: Sun, 14 Nov 2004 18:13:11 +0000
+From: Ross Kendall Axe <ross.axe@blueyonder.co.uk>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+To: netdev@oss.sgi.com
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] linux 2.9.10-rc1: Fix oops in unix_dgram_sendmsg when using
+ SELinux and SOCK_SEQPACKET
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig1A9E7CC68846B315A9689575"
+X-OriginalArrivalTime: 14 Nov 2004 18:13:47.0428 (UTC) FILETIME=[AF4D4E40:01C4CA75]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  Nov 12 19:15:13 ishwara kernel: hdb: read_intr: status=0x59 {
->DriveReady SeekComplete DataRequest Error }
-> > Nov 12 19:15:13 ishwara kernel: hdb: read_intr: error=0x04 {
->DriveStatusError }
-> > Nov 12 19:15:13 ishwara kernel: ide: failed opcode was: unknown
-> > Nov 12 19:15:13 ishwara kernel: end_request: I/O error, dev hdb,
->sector 78172098
-> > Nov 12 19:15:13 ishwara kernel: Buffer I/O error on device hdb5,
->logical block 61785735
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig1A9E7CC68846B315A9689575
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Looks like an old harddisk that does not understand an IDE command.
+With CONFIG_SECURITY_NETWORK=y and CONFIG_SECURITY_SELINUX=y, using
+SOCK_SEQPACKET unix domain sockets causes an oops in the superfluous(?)
+call to security_unix_may_send in sock_dgram_sendmsg. This patch avoids
+making this call for SOCK_SEQPACKET sockets.
 
->it can last two or three minutes and then I have accsess to my
->Gnome Desktop.
 
-Do you think that's normal? I can come up in less than 60 secs. (80x25), so I
-presume boting X does not take much more time than 3 minutes.
-What do you mean by "last"? Does the error message stay there and the box is
-like, idle? No other stuff scrolling through?
+Signed-off-by: Ross Axe <ross.axe@blueyonder.co.uk>
 
->This arrives on a 2.6.7 or 2.6.9 kernel if I try to activate Sysctrl
->in General Setup, if I deactivate it, I have not such error messages ....
 
-Well, error message there or not -- I suspect it to be the hard disk.
-Take it out (i.e. remove IDE cable) and reboot Linux.
-If it takes the same amount of time to bootup, the hard disk is probably fine.
-Ignore the warnings then.
+--- linux-2.6.10-rc1/net/unix/af_unix.c.orig	2004-11-13
+21:04:53.000000000 +0000
++++ linux-2.6.10-rc1/net/unix/af_unix.c	2004-11-13 21:12:23.000000000 +0000
+@@ -1354,9 +1354,11 @@ restart:
+  	if (other->sk_shutdown & RCV_SHUTDOWN)
+  		goto out_unlock;
 
->          and two Maxtor ATA-Harddisks
+-	err = security_unix_may_send(sk->sk_socket, other->sk_socket);
+-	if (err)
+-		goto out_unlock;
++	if (sk->sk_type != SOCK_SEQPACKET) {
++		err = security_unix_may_send(sk->sk_socket, other->sk_socket);
++		if (err)
++			goto out_unlock;
++	}
 
->
+  	if (unix_peer(other) != sk &&
+  	    (skb_queue_len(&other->sk_receive_queue) >
 
-Jan Engelhardt
--- 
-Gesellschaft für Wissenschaftliche Datenverarbeitung
-Am Fassberg, 37077 Göttingen, www.gwdg.de
+
+--------------enig1A9E7CC68846B315A9689575
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBl6A89bR4xmappRARAottAKCamwZt5rm2zbcOBZbZFCN1t3fvJACfUwt8
+BLHOjOb6vwerfpiZgXdI8KM=
+=TIn2
+-----END PGP SIGNATURE-----
+
+--------------enig1A9E7CC68846B315A9689575--

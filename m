@@ -1,258 +1,191 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318333AbSHWFuM>; Fri, 23 Aug 2002 01:50:12 -0400
+	id <S318213AbSHWFz5>; Fri, 23 Aug 2002 01:55:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318356AbSHWFuM>; Fri, 23 Aug 2002 01:50:12 -0400
-Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:8190 "EHLO
+	id <S318225AbSHWFz4>; Fri, 23 Aug 2002 01:55:56 -0400
+Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:11262 "EHLO
 	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
-	id <S318333AbSHWFuH>; Fri, 23 Aug 2002 01:50:07 -0400
+	id <S318213AbSHWFzx>; Fri, 23 Aug 2002 01:55:53 -0400
 From: Peter Chubb <peter@chubb.wattle.id.au>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15717.52741.48805.277541@wombat.chubb.wattle.id.au>
-Date: Fri, 23 Aug 2002 15:54:13 +1000
+Message-ID: <15717.53087.359373.885484@wombat.chubb.wattle.id.au>
+Date: Fri, 23 Aug 2002 15:59:59 +1000
 To: torvalds@transmeta.com
-CC: linux-kernel@vger.kernel.org, neilb@cse.unsw.edu.au
-Subject: Large Block Device patch part 5 of 9
+CC: linux-kernel@vger.kernel.org
+Subject: Large Block Device patch part 8 of 8
 X-Mailer: VM 7.04 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patch fixes the software RAID devices to allow a larger total
-size.
-Individual members of the raid array still have to be less than 2TB.
+
+This patch adds the configuration options for CONFIG_LBD to i386 and
+ppc.
+
+
+It also fixes a couple of things I missed in earlier patches.
+
+(And yes, there are only 8 parts)
 
 # This is a BitKeeper generated patch for the following project:
 # Project Name: Linux kernel tree
 # This patch format is intended for GNU patch command version 2.5 or higher.
 # This patch includes the following deltas:
-#	           ChangeSet	1.512   -> 1.513  
-#	include/linux/raid/md_k.h	1.39    -> 1.40   
-#	include/linux/raid/md.h	1.17    -> 1.18   
-#	  drivers/md/raid5.c	1.38    -> 1.39   
-#	     drivers/md/md.c	1.93    -> 1.94   
-#	 drivers/md/linear.c	1.16    -> 1.17   
-#	  drivers/md/raid0.c	1.14    -> 1.15   
-#	    drivers/md/lvm.c	1.31    -> 1.32   
+#	           ChangeSet	1.515   -> 1.516  
+#	drivers/block/Config.help	1.2     -> 1.3    
+#	include/asm-i386/types.h	1.2     -> 1.3    
+#	drivers/block/Config.in	1.7     -> 1.8    
+#	include/linux/types.h	1.4     -> 1.5    
+#	     fs/affs/inode.c	1.15    -> 1.16   
+#	 fs/reiserfs/super.c	1.52    -> 1.53   
+#	      fs/affs/file.c	1.20    -> 1.21   
+#	include/asm-ppc/types.h	1.4     -> 1.5    
 #
 # The following is the BitKeeper ChangeSet Log
 # --------------------------------------------
-# 02/08/23	peterc@numbat.chubb.wattle.id.au	1.513
-# Allow raid total size to be bigger than 2^32 sectors.
+# 02/08/23	peterc@numbat.chubb.wattle.id.au	1.516
+# The last in the current patch set: enable sector_t larger than 32-bits; and 
+# a few compiler warnings fixed up.
 # --------------------------------------------
 #
-diff -Nru a/drivers/md/linear.c b/drivers/md/linear.c
---- a/drivers/md/linear.c	Fri Aug 23 15:08:33 2002
-+++ b/drivers/md/linear.c	Fri Aug 23 15:08:33 2002
-@@ -72,10 +72,12 @@
- 		goto out;
- 	}
+diff -Nru a/drivers/block/Config.help b/drivers/block/Config.help
+--- a/drivers/block/Config.help	Fri Aug 23 15:43:40 2002
++++ b/drivers/block/Config.help	Fri Aug 23 15:43:40 2002
+@@ -258,3 +258,7 @@
+   supported by this driver, and for further information on the use of
+   this driver.
  
--	nb_zone = conf->nr_zones =
--		md_size[mdidx(mddev)] / conf->smallest->size +
--		((md_size[mdidx(mddev)] % conf->smallest->size) ? 1 : 0);
--  
-+	{
-+		sector_t sz = md_size[mdidx(mddev)];
-+		unsigned round = sector_div(sz, conf->smallest->size);
-+		nb_zone = conf->nr_zones = sz + (round ? 1 : 0);
-+	}
-+			
- 	conf->hash_table = kmalloc (sizeof (struct linear_hash) * nb_zone,
- 					GFP_KERNEL);
- 	if (!conf->hash_table)
-diff -Nru a/drivers/md/lvm.c b/drivers/md/lvm.c
---- a/drivers/md/lvm.c	Fri Aug 23 15:08:33 2002
-+++ b/drivers/md/lvm.c	Fri Aug 23 15:08:33 2002
-@@ -370,7 +370,7 @@
- /* gendisk structures */
- static struct hd_struct lvm_hd_struct[MAX_LV];
- static int lvm_blocksizes[MAX_LV];
--static int lvm_size[MAX_LV];
-+static sector_t lvm_size[MAX_LV];
++CONFIG_LBD
++  Say Y here if you want to attach large (bigger than 2TB) discs to
++  your machine, or if you want to have a raid or loopback device
++  bigger than 2TB.  Otherwise say N.
+diff -Nru a/drivers/block/Config.in b/drivers/block/Config.in
+--- a/drivers/block/Config.in	Fri Aug 23 15:43:40 2002
++++ b/drivers/block/Config.in	Fri Aug 23 15:43:40 2002
+@@ -48,4 +48,7 @@
+ fi
+ dep_bool '  Initial RAM disk (initrd) support' CONFIG_BLK_DEV_INITRD $CONFIG_BLK_DEV_RAM
  
- static struct gendisk lvm_gendisk =
- {
-diff -Nru a/drivers/md/md.c b/drivers/md/md.c
---- a/drivers/md/md.c	Fri Aug 23 15:08:33 2002
-+++ b/drivers/md/md.c	Fri Aug 23 15:08:33 2002
-@@ -111,7 +111,7 @@
- static void md_recover_arrays(void);
- static mdk_thread_t *md_recovery_thread;
++if [ "$CONFIG_X86" = "y" -o "$CONFIG_PPC32" = "y" ]; then
++   bool 'Support for Large Block Devices' CONFIG_LBD
++fi
+ endmenu
+diff -Nru a/fs/affs/file.c b/fs/affs/file.c
+--- a/fs/affs/file.c	Fri Aug 23 15:43:40 2002
++++ b/fs/affs/file.c	Fri Aug 23 15:43:40 2002
+@@ -337,10 +337,11 @@
+ 	struct buffer_head	*ext_bh;
+ 	u32			 ext;
  
--int md_size[MAX_MD_DEVS];
-+sector_t md_size[MAX_MD_DEVS];
+-	pr_debug("AFFS: get_block(%u, %ld)\n", (u32)inode->i_ino, block);
++	pr_debug("AFFS: get_block(%u, %lu)\n", (u32)inode->i_ino, (unsigned long)block);
  
- static struct block_device_operations md_fops;
- static devfs_handle_t devfs_handle;
-@@ -300,35 +300,35 @@
- 	return dname->name;
+-	if (block < 0)
+-		goto err_small;
++
++	if (block > (sector_t)0x7fffffffUL)
++		BUG();
+ 
+ 	if (block >= AFFS_I(inode)->i_blkcnt) {
+ 		if (block > AFFS_I(inode)->i_blkcnt || !create)
+@@ -351,12 +352,12 @@
+ 	//lock cache
+ 	affs_lock_ext(inode);
+ 
+-	ext = block / AFFS_SB(sb)->s_hashsize;
++	ext = (u32)block / AFFS_SB(sb)->s_hashsize;
+ 	block -= ext * AFFS_SB(sb)->s_hashsize;
+ 	ext_bh = affs_get_extblock(inode, ext);
+ 	if (IS_ERR(ext_bh))
+ 		goto err_ext;
+-	map_bh(bh_result, sb, be32_to_cpu(AFFS_BLOCK(sb, ext_bh, block)));
++	map_bh(bh_result, sb, (sector_t)be32_to_cpu(AFFS_BLOCK(sb, ext_bh, block)));
+ 
+ 	if (create) {
+ 		u32 blocknr = affs_alloc_block(inode, ext_bh->b_blocknr);
+@@ -421,7 +422,7 @@
+ 	return cont_prepare_write(page, from, to, affs_get_block,
+ 		&AFFS_I(page->mapping->host)->mmu_private);
  }
- 
--static unsigned int calc_dev_sboffset(struct block_device *bdev)
-+static sector_t calc_dev_sboffset(struct block_device *bdev)
+-static int _affs_bmap(struct address_space *mapping, long block)
++static sector_t _affs_bmap(struct address_space *mapping, sector_t block)
  {
--	unsigned int size = bdev->bd_inode->i_size >> BLOCK_SIZE_BITS;
-+	sector_t size = bdev->bd_inode->i_size >> BLOCK_SIZE_BITS;
- 	return MD_NEW_SIZE_BLOCKS(size);
+ 	return generic_block_bmap(mapping,block,affs_get_block);
  }
- 
--static unsigned int calc_dev_size(struct block_device *bdev, mddev_t *mddev)
-+static sector_t calc_dev_size(struct block_device *bdev, mddev_t *mddev)
- {
--	unsigned int size;
-+	sector_t size;
- 
- 	if (mddev->persistent)
- 		size = calc_dev_sboffset(bdev);
- 	else
- 		size = bdev->bd_inode->i_size >> BLOCK_SIZE_BITS;
- 	if (mddev->chunk_size)
--		size &= ~(mddev->chunk_size/1024 - 1);
-+		size &= ~((sector_t)mddev->chunk_size/1024 - 1);
- 	return size;
- }
- 
--static unsigned int zoned_raid_size(mddev_t *mddev)
-+static sector_t zoned_raid_size(mddev_t *mddev)
- {
--	unsigned int mask;
-+	sector_t mask;
- 	mdk_rdev_t * rdev;
- 	struct list_head *tmp;
- 
- 	/*
- 	 * do size and offset calculations.
- 	 */
--	mask = ~(mddev->chunk_size/1024 - 1);
-+	mask = ~((sector_t)mddev->chunk_size/1024 - 1);
- 
- 	ITERATE_RDEV(mddev,rdev,tmp) {
- 		rdev->size &= mask;
-@@ -418,7 +418,7 @@
- 
- static int read_disk_sb(mdk_rdev_t * rdev)
- {
--	unsigned long sb_offset;
-+	sector_t sb_offset;
- 
- 	if (!rdev->sb) {
- 		MD_BUG();
-@@ -767,7 +767,8 @@
- 
- static int write_disk_sb(mdk_rdev_t * rdev)
- {
--	unsigned long sb_offset, size;
-+	sector_t sb_offset;
-+	sector_t size;
- 
- 	if (!rdev->sb) {
- 		MD_BUG();
-@@ -994,7 +995,7 @@
- {
- 	int err;
- 	mdk_rdev_t *rdev;
--	unsigned int size;
-+	sector_t size;
- 
- 	rdev = (mdk_rdev_t *) kmalloc(sizeof(*rdev), GFP_KERNEL);
- 	if (!rdev) {
-@@ -1949,7 +1950,7 @@
- 
- static int add_new_disk(mddev_t * mddev, mdu_disk_info_t *info)
- {
--	int size;
-+	sector_t size;
- 	mdk_rdev_t *rdev;
- 	dev_t dev;
- 	dev = MKDEV(info->major,info->minor);
-@@ -2439,9 +2440,9 @@
- 		}
- 
- 		default:
--			printk(KERN_WARNING "md: %s(pid %d) used obsolete MD ioctl, "
--			       "upgrade your software to use new ictls.\n",
--			       current->comm, current->pid);
-+			printk(KERN_WARNING "md: %s(pid %d) used obsolete MD ioctl, %x"
-+			       "upgrade your software to use new ioctls.\n",
-+			       current->comm, current->pid, cmd);
- 			err = -EINVAL;
- 			goto abort_unlock;
- 	}
-@@ -2738,7 +2739,8 @@
- static int md_status_read_proc(char *page, char **start, off_t off,
- 			int count, int *eof, void *data)
- {
--	int sz = 0, j, size;
-+	int sz = 0, j;
-+	sector_t size;
- 	struct list_head *tmp, *tmp2;
- 	mdk_rdev_t *rdev;
- 	mddev_t *mddev;
-diff -Nru a/drivers/md/raid0.c b/drivers/md/raid0.c
---- a/drivers/md/raid0.c	Fri Aug 23 15:08:33 2002
-+++ b/drivers/md/raid0.c	Fri Aug 23 15:08:33 2002
-@@ -87,7 +87,7 @@
- 	cnt = 0;
- 	smallest = NULL;
- 	ITERATE_RDEV(mddev, rdev1, tmp1) {
--		int j = rdev1->sb->this_disk.raid_disk;
-+		int j = rdev1->raid_disk;
- 
- 		if (j < 0 || j >= mddev->raid_disks) {
- 			printk("raid0: bad disk number %d - aborting!\n", j);
-diff -Nru a/drivers/md/raid5.c b/drivers/md/raid5.c
---- a/drivers/md/raid5.c	Fri Aug 23 15:08:33 2002
-+++ b/drivers/md/raid5.c	Fri Aug 23 15:08:33 2002
+diff -Nru a/fs/affs/inode.c b/fs/affs/inode.c
+--- a/fs/affs/inode.c	Fri Aug 23 15:43:40 2002
++++ b/fs/affs/inode.c	Fri Aug 23 15:43:40 2002
 @@ -416,7 +416,7 @@
- }
+ 	}
+ 	affs_fix_checksum(sb, bh);
+ 	mark_buffer_dirty_inode(bh, inode);
+-	dentry->d_fsdata = (void *)bh->b_blocknr;
++	dentry->d_fsdata = (void *)(long)bh->b_blocknr;
  
+ 	affs_lock_dir(dir);
+ 	retval = affs_insert_hash(dir, bh);
+diff -Nru a/fs/reiserfs/super.c b/fs/reiserfs/super.c
+--- a/fs/reiserfs/super.c	Fri Aug 23 15:43:40 2002
++++ b/fs/reiserfs/super.c	Fri Aug 23 15:43:40 2002
+@@ -902,7 +902,7 @@
+     ll_rw_block(READ, 1, &(SB_AP_BITMAP(s)[i])) ;
+     wait_on_buffer(SB_AP_BITMAP(s)[i]) ;
+     if (!buffer_uptodate(SB_AP_BITMAP(s)[i])) {
+-      printk("reread_meta_blocks, error reading bitmap block number %d at %ld\n", i, SB_AP_BITMAP(s)[i]->b_blocknr) ;
++      printk("reread_meta_blocks, error reading bitmap block number %d at %lld\n", i, (long long)SB_AP_BITMAP(s)[i]->b_blocknr) ;
+       return 1 ;
+     }
+   }
+diff -Nru a/include/asm-i386/types.h b/include/asm-i386/types.h
+--- a/include/asm-i386/types.h	Fri Aug 23 15:43:40 2002
++++ b/include/asm-i386/types.h	Fri Aug 23 15:43:40 2002
+@@ -52,6 +52,11 @@
+ #endif
+ typedef u64 dma64_addr_t;
  
--static unsigned long compute_blocknr(struct stripe_head *sh, int i);
-+static sector_t compute_blocknr(struct stripe_head *sh, int i);
- 	
- static void raid5_build_block (struct stripe_head *sh, int i)
- {
-diff -Nru a/include/linux/raid/md.h b/include/linux/raid/md.h
---- a/include/linux/raid/md.h	Fri Aug 23 15:08:33 2002
-+++ b/include/linux/raid/md.h	Fri Aug 23 15:08:33 2002
-@@ -60,7 +60,7 @@
- #define MD_MINOR_VERSION                90
- #define MD_PATCHLEVEL_VERSION           0
- 
--extern int md_size[MAX_MD_DEVS];
-+extern sector_t md_size[MAX_MD_DEVS];
- extern struct hd_struct md_hd_struct[MAX_MD_DEVS];
- 
- extern char * partition_name (kdev_t dev);
-diff -Nru a/include/linux/raid/md_k.h b/include/linux/raid/md_k.h
---- a/include/linux/raid/md_k.h	Fri Aug 23 15:08:33 2002
-+++ b/include/linux/raid/md_k.h	Fri Aug 23 15:08:33 2002
-@@ -144,7 +144,7 @@
- {
- 	struct list_head same_set;	/* RAID devices within the same set */
- 
--	unsigned long size;		/* Device size (in blocks) */
-+	sector_t size;			/* Device size (in blocks) */
- 	mddev_t *mddev;			/* RAID array if running */
- 	unsigned long last_events;	/* IO event timestamp */
- 
-@@ -152,7 +152,7 @@
- 
- 	struct page	*sb_page;
- 	mdp_super_t	*sb;
--	unsigned long	sb_offset;
-+	sector_t	sb_offset;
- 
- 	int alias_device;		/* device alias to the same disk */
- 	int faulty;			/* if faulty do not issue IO requests */
-@@ -348,5 +348,5 @@
- 	__wait_disk_event(wq, condition);				\
- } while (0)
- 
--#endif 
++#ifdef CONFIG_LBD
++typedef u64 sector_t;
++#define HAVE_SECTOR_T
 +#endif
++
+ #endif /* __KERNEL__ */
+ 
+ #endif
+diff -Nru a/include/asm-ppc/types.h b/include/asm-ppc/types.h
+--- a/include/asm-ppc/types.h	Fri Aug 23 15:43:40 2002
++++ b/include/asm-ppc/types.h	Fri Aug 23 15:43:40 2002
+@@ -48,6 +48,11 @@
+ typedef u32 dma_addr_t;
+ typedef u64 dma64_addr_t;
+ 
++#ifdef CONFIG_LBD
++typedef u64 sector_t;
++#define HAVE_SECTOR_T
++#endif
++
+ #endif /* __KERNEL__ */
+ 
+ /*
+diff -Nru a/include/linux/types.h b/include/linux/types.h
+--- a/include/linux/types.h	Fri Aug 23 15:43:40 2002
++++ b/include/linux/types.h	Fri Aug 23 15:43:40 2002
+@@ -117,13 +117,11 @@
+ #endif
+ 
+ /*
+- * transition to 64-bit sector_t, possibly making it an option...
++ * The type used for indexing onto a disc or disc partition.
++ * If required, asm/types.h can override it and define
++ * HAVE_SECTOR_T
+  */
+-#undef BLK_64BIT_SECTOR
+-
+-#ifdef BLK_64BIT_SECTOR
+-typedef u64 sector_t;
+-#else
++#ifndef HAVE_SECTOR_T
+ typedef unsigned long sector_t;
+ #endif
  

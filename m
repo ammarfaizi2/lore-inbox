@@ -1,62 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267602AbUHTHq2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267486AbUHTHuQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267602AbUHTHq2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 03:46:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263664AbUHTHq1
+	id S267486AbUHTHuQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 03:50:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263664AbUHTHuQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 03:46:27 -0400
-Received: from acheron.informatik.uni-muenchen.de ([129.187.214.135]:62084
-	"EHLO acheron.informatik.uni-muenchen.de") by vger.kernel.org
-	with ESMTP id S267633AbUHTHqF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 03:46:05 -0400
-Message-ID: <4125AC3B.8060707@bio.ifi.lmu.de>
-Date: Fri, 20 Aug 2004 09:46:03 +0200
-From: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040503)
-X-Accept-Language: en-us, en
+	Fri, 20 Aug 2004 03:50:16 -0400
+Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:42666 "HELO
+	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S267620AbUHTHuD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 03:50:03 -0400
+Message-ID: <4125AD23.4000705@yahoo.com.au>
+Date: Fri, 20 Aug 2004 17:49:55 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, kernel@wildsau.enemy.org,
-       diablod3@gmail.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-References: <200408041233.i74CX93f009939@wildsau.enemy.org>	 <d577e5690408190004368536e9@mail.gmail.com> <4124A024.nail7X62HZNBB@burner>	 <4124BA10.6060602@bio.ifi.lmu.de> <1092925942.28353.5.camel@localhost.localdomain>
-In-Reply-To: <1092925942.28353.5.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+CC: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: Possible dcache BUG
+References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org>	<20040808113930.24ae0273.akpm@osdl.org>	<200408100012.08945.gene.heskett@verizon.net>	<200408102342.12792.gene.heskett@verizon.net>	<Pine.LNX.4.58.0408102044220.1839@ppc970.osdl.org>	<20040810211849.0d556af4@laptop.delusion.de>	<Pine.LNX.4.58.0408102201510.1839@ppc970.osdl.org>	<Pine.LNX.4.58.0408102213250.1839@ppc970.osdl.org>	<20040812180033.62b389db@laptop.delusion.de>	<Pine.LNX.4.58.0408121813190.1839@ppc970.osdl.org>	<20040820000238.55e22081@laptop.delusion.de>	<20040820001154.0a5cf331.akpm@osdl.org> <20040820001905.27a9ff8f@laptop.delusion.de>
+In-Reply-To: <20040820001905.27a9ff8f@laptop.delusion.de>
+Content-Type: multipart/mixed;
+ boundary="------------080305040709020600010403"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Iau, 2004-08-19 at 15:32, Frank Steiner wrote:
+This is a multi-part message in MIME format.
+--------------080305040709020600010403
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Udo A. Steinberg wrote:
+> On Fri, 20 Aug 2004 00:11:54 -0700 Andrew Morton (AM) wrote:
 > 
->>What a stupid claim. When I call cdrecord on SuSE 9.1, I can burn CDs and
->>DVDs as normal user, without root permissions, without suid, without ide-scsi,
->>using /dev/hdc as device.
->>
->>And this just works fine. So where's the problem?
+> AM> "Udo A. Steinberg" <us15@os.inf.tu-dresden.de> wrote:
+> AM> >
+> AM> > I've tried to download 700 MB of data from a digital camera via USB using
+> AM> >  "gphoto2 --get-all-files" and I can repeatedly run my 128 MB box out of
+> AM> >  memory using either Linux 2.4.26 or 2.6.8.1 for that.
+> AM> 
+> AM> whee.  How much swap is online?
 > 
+> Something close to 512 MB.
 > 
-> You can also erase the drive firmware as a user etc. That's the problem.
+> Adding 506512k swap on /dev/hda2.  Priority:-1 extents:1
+> 
+> AM> Not that it matters - you seem to have a bunch of reclaimable pagecache
+> AM> just sitting there.  Very odd.
+> AM> 
+> AM> Could gphoto2 be using mlock?  Does it run as root?
+> 
+> No, gphoto2 was not running as root.
+> 
+> -Udo.
 
-Hmm, but that's not a problem specific to the SuSE versions, is it?
-Joerg was claiming that SuSE release "defective" versions that impact his
-reputation. And I can't see that, because the versions shipped with at least
-7.3, 9.0 and 9.1 just work fine (that's the versions I used).
+Can you reproduce the OOM with the following patch please? Then
+send the output.
 
-The security thing and the problems with 2.6.8.1 keeping users from burning
-(I have my set patched in now to allow users burning again, nor sure if
-it is safe...) is a general issue as far as I understand, and nothing
-SuSE specific.
-Please correct me if I'm wrong!
+Thanks
 
-cu,
-Frank
 
--- 
-Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
-Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
-LMU, Amalienstr. 17           Phone: +49 89 2180-4049
-80333 Muenchen, Germany       Fax:   +49 89 2180-99-4049
+--------------080305040709020600010403
+Content-Type: text/x-patch;
+ name="vm-unreclaimable-debug.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="vm-unreclaimable-debug.patch"
 
+
+
+
+---
+
+ linux-2.6-npiggin/mm/page_alloc.c |    6 +++++-
+ 1 files changed, 5 insertions(+), 1 deletion(-)
+
+diff -puN mm/page_alloc.c~vm-unreclaimable-debug mm/page_alloc.c
+--- linux-2.6/mm/page_alloc.c~vm-unreclaimable-debug	2004-08-20 17:44:45.000000000 +1000
++++ linux-2.6-npiggin/mm/page_alloc.c	2004-08-20 17:48:26.000000000 +1000
+@@ -1182,6 +1182,8 @@ void show_free_areas(void)
+ 			" active:%lukB"
+ 			" inactive:%lukB"
+ 			" present:%lukB"
++			" pages_scanned:%lu"
++			" all_unreclaimable? %s"
+ 			"\n",
+ 			zone->name,
+ 			K(zone->free_pages),
+@@ -1190,7 +1192,9 @@ void show_free_areas(void)
+ 			K(zone->pages_high),
+ 			K(zone->nr_active),
+ 			K(zone->nr_inactive),
+-			K(zone->present_pages)
++			K(zone->present_pages),
++			zone->pages_scanned,
++			(zone->all_unreclaimable ? "yes" : "no")
+ 			);
+ 		printk("protections[]:");
+ 		for (i = 0; i < MAX_NR_ZONES; i++)
+
+_
+
+--------------080305040709020600010403--

@@ -1,35 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266443AbTBCVts>; Mon, 3 Feb 2003 16:49:48 -0500
+	id <S266228AbTBCWAS>; Mon, 3 Feb 2003 17:00:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266564AbTBCVts>; Mon, 3 Feb 2003 16:49:48 -0500
-Received: from ext-nj2gw-1.online-age.net ([216.35.73.163]:33775 "EHLO
-	ext-nj2gw-1.online-age.net") by vger.kernel.org with ESMTP
-	id <S266443AbTBCVtq>; Mon, 3 Feb 2003 16:49:46 -0500
-From: "Daniel Heater" <daniel.heater@gefanuc.com>
-Date: Mon, 3 Feb 2003 15:57:00 -0600
-To: Dhruv Gami <dhruvgami@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: module programming blues
-Message-ID: <20030203215700.GA205@gefhsvrootwitch>
-Mail-Followup-To: heaterd1, Dhruv Gami <dhruvgami@yahoo.com>,
-	linux-kernel@vger.kernel.org
-References: <20030129045633.45161.qmail@web14201.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030129045633.45161.qmail@web14201.mail.yahoo.com>
-User-Agent: Mutt/1.4i
+	id <S266243AbTBCWAS>; Mon, 3 Feb 2003 17:00:18 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:58776 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S266228AbTBCWAR>; Mon, 3 Feb 2003 17:00:17 -0500
+Date: Mon, 3 Feb 2003 17:12:50 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Cameron Goble <cgoble@salud.unm.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: SIS900 module detects two transceivers, picks the wrong one
+In-Reply-To: <se3e7fca.052@salud.unm.edu>
+Message-ID: <Pine.LNX.3.95.1030203170639.7386A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Dhruv Gami (dhruvgami@yahoo.com) wrote:
-> Hello Everyone,
-> 
-> I am trying to develop a kernel module that will read
-> some user input (being given to a file) and perform
-> certain flag settings based on the information dumped
-> in the file.
+On Mon, 3 Feb 2003, Cameron Goble wrote:
 
-Could this task be handled using module parameters instead?
+> Hello,
+> 
+> I am having trouble with the SIS900 driver module v1.08.04. The module
+> installs correctly and does not return an error, but ... well... 
+> 
+> Perhaps dmesg will explain better:
+> 
+> eth0: AMD79C901 HomePNA PHY transceiver found at address 2.
+> eth0: AMD79C901 10BASE-T PHY transceiver found at address 3.
+> eth0: using transceiver found at address 2 as default
+> eth0: SiS 900 PCI Fast Ethernet at 0xec400, IRQ 11, 00:30:67:09:53:81.
+> 
+> So the network interface is a multi-function device, built onto the
+> motherboard. The driver picks the HomePNA transceiver, but I want to use
+> the 10BASE-T transceiver. Is there an option I can pass, or some code I
+> can edit that force the driver to pick the 10BASE-T transceiver at
+> address 3?
+> 
+
+The HomePNA protocol usually uses the exact same kind of wire at
+10BASE-T. It's just wired differently. I don't think you have two
+such connectors on your board.
+
+This looks as though your wire is just connected backwards, i.e.,
+you have a reversed patch-cord.
+
+Are you connected to a Hub? Does the LED on the hub show that
+the wire is connected properly an does the LED on/near the connector on
+your PC show that its connected correctly also?
+
+If you really do have to such connectors, just use eth1 instead of
+eth0, i.e., `ifconfig eth1 ip-address ...`
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
+
 

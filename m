@@ -1,56 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292144AbSBTR7S>; Wed, 20 Feb 2002 12:59:18 -0500
+	id <S292133AbSBTSAF>; Wed, 20 Feb 2002 13:00:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292142AbSBTR7I>; Wed, 20 Feb 2002 12:59:08 -0500
-Received: from petreley.org ([64.170.109.178]:52875 "EHLO petreley.com")
-	by vger.kernel.org with ESMTP id <S292133AbSBTR6s>;
-	Wed, 20 Feb 2002 12:58:48 -0500
-Message-ID: <3C73E3D1.6070206@petreley.com>
-Date: Wed, 20 Feb 2002 09:58:41 -0800
-From: Nicholas Petreley <nicholas@petreley.com>
-Reply-To: nicholas@petreley.com
-Organization: Petreley.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
-MIME-Version: 1.0
+	id <S292142AbSBTR75>; Wed, 20 Feb 2002 12:59:57 -0500
+Received: from mail6.speakeasy.net ([216.254.0.206]:3459 "EHLO
+	mail6.speakeasy.net") by vger.kernel.org with ESMTP
+	id <S292133AbSBTR7s> convert rfc822-to-8bit; Wed, 20 Feb 2002 12:59:48 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Derek Gladding <derek_gladding@altavista.net>
+Reply-To: derek_gladding@altavista.net
 To: linux-kernel@vger.kernel.org
-Subject: Re: NVidia driver with 2.5
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: jiffies rollover, uptime etc.
+Date: Wed, 20 Feb 2002 09:56:50 -0800
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <20020220172052.GA15228@matchmail.com> <Pine.LNX.4.44L.0202201423170.1413-100000@duckman.distro.conectiva> <20020220173216.GC15228@matchmail.com>
+In-Reply-To: <20020220173216.GC15228@matchmail.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020220175953Z292133-890+2997@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 20 February 2002 09:32 am, Mike Fedyk wrote:
+> On Wed, Feb 20, 2002 at 02:24:42PM -0300, Rik van Riel wrote:
+> > On Wed, 20 Feb 2002, Mike Fedyk wrote:
+> > > On Wed, Feb 20, 2002 at 01:36:02PM +0200, Ville Herva wrote:
+> > > > asm-ia64/param.h:# define HZ    1024
+> > > > asm-x86_64/param.h:#define HZ 100
+> > >
+> > > What's the difference between these two architectures?  Intel
+> > > 64bit processor and AMD's upcoming 64bit processor?
+> >
+> > One is a 64 bit extension to a modern superscalar
+> > architecture which has descended from 8 bit machines
+> > over the ages.
+> >
+> > The other is a 3-issue VLIW follow-up to the 2-issue
+> > VLIW i860.
 >
-> Since the nvidia driver is not gpl in the first place, the patch
-> is most likely in violation of nvidia's license already. Maybe they
-> let it go but... if they were mean and evil they could sue the guy
-> who posted the patch in the first place.
-> -
+> Oh, I didn't know that processor was used for more than printers,
+> raid controllers, and similar.
 
-ROFL! Such paranoia!  
+IIRC, the i960 is the printer/controller arch, the i860 was the
+(alleged) "cray-on-a-chip" number cruncher.
 
-I doubt NVidia would sue. It's not just a case of being nice or 
-mean, good or evil.  They have to feel as if the company was damaged 
-in some way by the patch, or make a case that there was the potential 
-for damage. Then they'd have to see if I have enough money to make it 
-worth their while to sue.  If I didn't have enough money (and I don't), 
-they'd evaluate whether I did anything that threatened their IP (such
-as reverse engineering their binary to figure out how to come up with 
-the patch).  Clearly that's not what this patch is all about. 
-
-The only thing left is a "test case" to discourage anyone from messing
-with their source code.  Somehow I just don't get the feeling that 
-they're going to pursue a test case in order to discourage people 
-from helping expand the number of potential customers for their 
-hardware. ;-)
-
-If I'm wrong, then bring on the lawyers!  That would give me LOTs of 
-good column material. 
-
--Nicholas Petreley
-
-
-
-
-
-
+- Derek

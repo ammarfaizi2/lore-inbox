@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129345AbQLKGse>; Mon, 11 Dec 2000 01:48:34 -0500
+	id <S129314AbQLKHED>; Mon, 11 Dec 2000 02:04:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129387AbQLKGsY>; Mon, 11 Dec 2000 01:48:24 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:41229 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129345AbQLKGsH>; Mon, 11 Dec 2000 01:48:07 -0500
-Date: Mon, 11 Dec 2000 00:17:23 -0600
-To: Anthony Barbachan <barbacha@Hinako.AMBusiness.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Unable to compile the 2.2.18 kernel
-Message-ID: <20001211001723.Z6567@cadcamlab.org>
-In-Reply-To: <001f01c06323$db434d00$0ac809c0@hotmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <001f01c06323$db434d00$0ac809c0@hotmail.com>; from barbacha@Hinako.AMBusiness.com on Sun, Dec 10, 2000 at 10:38:41PM -0500
-From: Peter Samuelson <peter@cadcamlab.org>
+	id <S129387AbQLKHDx>; Mon, 11 Dec 2000 02:03:53 -0500
+Received: from pop.gmx.net ([194.221.183.20]:64291 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S129314AbQLKHDo>;
+	Mon, 11 Dec 2000 02:03:44 -0500
+From: Norbert Breun <nbreun@gmx.de>
+Reply-To: nbreun@gmx.de
+Organization: private
+Date: Mon, 11 Dec 2000 07:27:58 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: make modules exits on test12-pre8
+MIME-Version: 1.0
+Message-Id: <00121107275800.01122@nmb>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hallo,
 
-[Anthony Barbachan]
-> I am unable to compile the latest kernel.  I have attached my kernel
-> configuration and a copy of the output of where the compile fails.  I
-> am looking into what is causing the compile failure, but have not
-> been able to figure it out yet.  Still looking though.
+tried to compile test12-pre8 and make modules exits with:
 
-It looks like you overrode the 'CC' make variable, either by editing
-the toplevel Makefile or at the command line.  This works fine in 2.4,
-but in 2.2 you need to pass extra flags to the compiler:
 
-  make zImage CC="/usr/local/gcc-2.7.2.3/bin/gcc -I$(pwd)/include -D__KERNEL__"
+>make[2]: Entering directory `/usr/src/linux-2.4.0.12pre8/fs/smbfs'
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2 
+-fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 
+-march=i586 -DMODULE -DMODVERSIONS -include 
+/usr/src/linux/include/linux/modversions.h -DSMBFS_PARANOIA  -c -o sock.o 
+sock.c
+>sock.c: In function `smb_data_ready':
+>sock.c:166: structure has no member named `next'
+>make[2]: *** [sock.o] Error 1
+>make[2]: Leaving directory `/usr/src/linux-2.4.0.12pre8/fs/smbfs'
+>make[1]: *** [_modsubdir_smbfs] Error 2
+>make[1]: Leaving directory `/usr/src/linux-2.4.0.12pre8/fs'
+>make: *** [_mod_fs] Error 2
 
-...for example.
-
-Peter
+kind regards
+Norbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

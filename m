@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263756AbUDMVWY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Apr 2004 17:22:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263763AbUDMVWY
+	id S263760AbUDMVVi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Apr 2004 17:21:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263761AbUDMVVi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Apr 2004 17:22:24 -0400
-Received: from 80-218-57-148.dclient.hispeed.ch ([80.218.57.148]:64517 "EHLO
-	ritz.dnsalias.org") by vger.kernel.org with ESMTP id S263756AbUDMVWS
+	Tue, 13 Apr 2004 17:21:38 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61384 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263760AbUDMVV2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Apr 2004 17:22:18 -0400
-From: Daniel Ritz <daniel.ritz@gmx.ch>
-Reply-To: daniel.ritz@gmx.ch
-To: Jin Suh <jinssuh@yahoo.com>
-Subject: Re: [2.4.25] PCMCIA PCI: No IRQ for interrupt pin A and failed to allocate shared interrupt
-Date: Tue, 13 Apr 2004 23:17:16 +0200
-User-Agent: KMail/1.5.2
-References: <20040413200634.88036.qmail@web41210.mail.yahoo.com>
-In-Reply-To: <20040413200634.88036.qmail@web41210.mail.yahoo.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
+	Tue, 13 Apr 2004 17:21:28 -0400
+Message-ID: <407C59CA.8070606@pobox.com>
+Date: Tue, 13 Apr 2004 17:21:14 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: "J.A.Magallon" <jamagallon@able.es>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFT] please test the big post-2.6.5 merge
+References: <407C1DD8.5060909@pobox.com> <0FFF7180-8D8F-11D8-BB04-000A9585C204@able.es>
+In-Reply-To: <0FFF7180-8D8F-11D8-BB04-000A9585C204@able.es>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200404132317.16242.daniel.ritz@gmx.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-the problem seems to be very simple: yenta can't get an interrupt 'cos another
-driver has the same interrupt line exclusivley. it's the pc110pad driver.
-deactivate it under
-	Character devices  --->
-		Mice  --->
-			<n> PC110 digitizer pad support
-and yenta get's it's interrupt back :)
-it's a driver for the digitizer pad on the IBM PC110 palmtop. i don't think
-you need it.
+J.A.Magallon wrote:
+> 
+> On 13 abr 2004, at 19:05, Jeff Garzik wrote:
+> 
+>>
+>> The snapshot 2.6.5-bk1 is out, and has a _ton_ of changes in it that have
+> 
+> ...
+> 
+>> * 4K stacks
+> 
+> 
+> Fixed or CONFIG_ ?
+> If fixed, this will make unhappy a _ton_ of users...
 
-your cardbus firewire card will work too, since it shares the interrupt line with
-the cardbus bridge.
 
-rgds
--daniel
++config 4KSTACKS
++       bool "Use 4Kb for kernel stacks instead of 8Kb"
 

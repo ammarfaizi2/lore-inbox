@@ -1,61 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282728AbRLOPbc>; Sat, 15 Dec 2001 10:31:32 -0500
+	id <S282736AbRLOPix>; Sat, 15 Dec 2001 10:38:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282736AbRLOPbX>; Sat, 15 Dec 2001 10:31:23 -0500
-Received: from duteinh.et.tudelft.nl ([130.161.42.1]:15879 "EHLO
-	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S282728AbRLOPbK>; Sat, 15 Dec 2001 10:31:10 -0500
-Date: Sat, 15 Dec 2001 16:31:05 +0100
-From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
-To: Edward Killips <etkillips@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Netfilter Oops more info
-Message-ID: <20011215153104.GB12155@arthur.ubicom.tudelft.nl>
-In-Reply-To: <F62gvjDrzzyCx91MjVM0000410c@hotmail.com>
+	id <S282747AbRLOPin>; Sat, 15 Dec 2001 10:38:43 -0500
+Received: from noodles.codemonkey.org.uk ([62.49.180.5]:28032 "EHLO
+	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id <S282736AbRLOPig>; Sat, 15 Dec 2001 10:38:36 -0500
+Date: Sat, 15 Dec 2001 15:40:29 +0000
+From: Dave Jones <davej@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: reiserfs-dev@namesys.com
+Subject: fsx for Linux showing up reiserfs problem?
+Message-ID: <20011215154029.A3954@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	reiserfs-dev@namesys.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <F62gvjDrzzyCx91MjVM0000410c@hotmail.com>
-User-Agent: Mutt/1.3.24i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 15, 2001 at 10:08:33AM -0500, Edward Killips wrote:
-> I get a netfilter Oops like the one below unless I comment out the 
-> follwoing rule.
-> iptables -t mangle -A PREROUTING -m multiport -p tcp --sport 80,21,23 -j 
-> TOS --set-tos 16
-> 
-> ksymoops 2.4.3 on i586 2.4.17-rc1.  Options used
->     -V (default)
->     -k /proc/ksyms (default)
->     -l /proc/modules (default)
->     -o /lib/modules/2.4.17-rc1/ (default)
->     -m /boot/System.map (specified)
-> 
-> c0216e84
-> *pde = 00000000
-> Oops:  0000
-> CPU: 0
-> EIP: 0010:[c0216e84>] Not tainted
+Hi folks,
+ After reading the article at http://www.kerneltrap.com/article.php?sid=415&mode=thread&order=0
+on the FreeBSD guys finding a bunch of NFS bugs with a stress tool,
+I took a look at fsx and played with it a little under Linux..
 
-Consider upgrading modutils so it's immediately clear that you are
-using binary-only modules.
+The changes to make it work are trivial, and are at
+http://www.codemonkey.org.uk/cruft/fsx-linux.c
+(non-existant include & expected mmap() behaviour differences)
 
-> Trace; d88919e8 <[lt_modem]UART_CopyDteTxData+44/dc>
-                    ^^^^^^^^
-Binary-only module, only the supplier of the module (Lucent, IIRC) can
-help you debug the Oops.
+I've done a few tests on local filesystems, and so far Ext2 & Ext3
+seem to be holding up..
 
+Reiserfs however dies very early into the test..
 
-Erik
+  truncating to largest ever: 0x3f15f
+  READ BAD DATA: offset = 0x1d3d4, size = 0x962f
+  OFFSET  GOOD    BAD     RANGE
+  0x1d3d4 0x177d  0x0000  0x  563
+  operation# (mod 256) for the bad data unknown, check HOLE and EXTEND ops
+
+Options used were ./fsx -c1234 /mnt/test/testfile
+(Although it seems to crash with any -c option)
+
+Looks like an interesting tool, and probably something that should
+be added to testsuites like Cerberus.
+
+regards,
+Dave.
 
 -- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Faculty
-of Information Technology and Systems, Delft University of Technology,
-PO BOX 5031, 2600 GA Delft, The Netherlands  Phone: +31-15-2783635
-Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+| Dave Jones.                    http://www.codemonkey.org.uk
+| SuSE Labs .

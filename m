@@ -1,44 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270818AbRIARMu>; Sat, 1 Sep 2001 13:12:50 -0400
+	id <S270847AbRIAROU>; Sat, 1 Sep 2001 13:14:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270827AbRIARMl>; Sat, 1 Sep 2001 13:12:41 -0400
-Received: from tantalophile.demon.co.uk ([193.237.65.219]:3200 "EHLO
-	kushida.degree2.com") by vger.kernel.org with ESMTP
-	id <S270818AbRIARMc>; Sat, 1 Sep 2001 13:12:32 -0400
-Date: Sat, 1 Sep 2001 16:50:42 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Grover, Andrew" <andrew.grover@intel.com>,
-        "'Russell Coker'" <russell@coker.com.au>,
-        "\"Acpi-linux (E-mail)\"" <acpi@phobos.fachschaften.tu-muenchen.de>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: lilo vs other OS bootloaders was: FreeBSD makes progress
-Message-ID: <20010901165042.B1624@thefinal.cern.ch>
-In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDE0DB@orsmsx35.jf.intel.com> <E15cx6w-00049f-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E15cx6w-00049f-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Aug 31, 2001 at 11:50:02PM +0100
+	id <S270848AbRIAROC>; Sat, 1 Sep 2001 13:14:02 -0400
+Received: from femail25.sdc1.sfba.home.com ([24.254.60.15]:50346 "EHLO
+	femail25.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S270841AbRIARNj>; Sat, 1 Sep 2001 13:13:39 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Nicholas Knight <tegeran@home.com>
+Reply-To: tegeran@home.com
+To: Alexander Viro <viro@math.psu.edu>,
+        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+Subject: Re: [RFD] readonly/read-write semantics
+Date: Sat, 1 Sep 2001 10:13:18 -0700
+X-Mailer: KMail [version 1.2]
+Cc: Bryan Henderson <hbryan@us.ibm.com>, linux-fsdevel@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <Pine.GSO.4.21.0109011226580.18705-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0109011226580.18705-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Message-Id: <01090110131802.00171@c779218-a>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> All the discussion we have has been based on seriously enhancing and
-> expanding the use of the initrd/ramfs layer. Remember we can begin running
-> from ramfs without interrupts, pci bus scans or the like. The things it cant
-> do are - pick a kernel by processor type, pick SMP/non SMP.
+On Saturday 01 September 2001 09:44 am, Alexander Viro wrote:
+> On Sat, 1 Sep 2001, Ingo Oeser wrote:
+> > On Sat, Sep 01, 2001 at 12:23:05AM -0400, Alexander Viro wrote:
+> > > > 2) I'd like to see a readonly mount state defined as "the
+> > > > filesystem will not change.  Period."  Not for system calls in
+> > > > progress, not for cache synchronization, not to set an
+> > > > "unmounted" flag, not for writes that are queued in the device
+> > > > driver or device.  (That last one may stretch feasability, but
+> > > > it's a worthy goal anyway).
+> > >
+> > > It doesn't work.  Think of r/o mounting of remote filesystem.  Do
+> > > you suggest that it should make it impossible to change from other
+> > > clients?
+> >
+> > It's sufficient for local file systems. Or see it this way: The
+> > machine, that mounted it r/o will NOT write to it until it is
+> > mounted r/w again.
+>
+> That's _also_ not true for remote filesystems.  We can mount the same
+> filesystem over NFS again without unmounting the old instance.  Always
+> could.
+>
+> IMO a part of the problem is that we are mixing "I'm not asking that
+> to be writable" with "I won't let you write".  The former belongs
+> to the mounting side, the latter - to filesystem.
 
-The kernel could be chosen by processor type, if you added a "reboot
-into a new kernel" function.
+It's really a band-aid, I seriously doubt anybody is going to claim that 
+it's "perfect".
+The state that he (and I for that matter) want is "This is mounted, we 
+can read from it, but under *NO CIRCUMSTANCES* will we change the 
+filesystem through this mount, ever."
+In addition to the filesystem-stamping-its-foot situation, this could 
+help if someone is testing a new, potentialy unstable driver (filesystem 
+or block device) and wants to stop all writes IMMIEDIATELY so that they 
+can check the data present on that filesystem/device.
 
-It would be rather large for one initramfs, as _all_ of the modules have
-combinations of SMP/non-SMP x i386/486/586/686/athlon/686-PAE versions,
-not just the core kernel.
-
-It may still be a useful function for CDROM or network boots though.
-I.e. initramfs selects an optimised kernel and set of modules to run,
-and replaces the current generic kernel with the optimised one.
-
--- Jamie
+Again, this isn't perfect, but I think it would have many potential uses 
+(filesystem error would probably be the most useful application) and 
+really should have been implimented long ago.

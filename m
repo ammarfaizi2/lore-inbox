@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264574AbUAZRkT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jan 2004 12:40:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264586AbUAZRkT
+	id S264437AbUAZRoH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jan 2004 12:44:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264449AbUAZRoG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jan 2004 12:40:19 -0500
-Received: from gprs40-2.eurotel.cz ([160.218.40.2]:23868 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S264574AbUAZRkP (ORCPT
+	Mon, 26 Jan 2004 12:44:06 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:63930 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S264437AbUAZRoC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jan 2004 12:40:15 -0500
-Date: Mon, 26 Jan 2004 18:39:58 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Max Krasnyansky <maxk@qualcomm.com>
-Subject: Re: Bluetooth USB oopses on unplug (2.6.1)
-Message-ID: <20040126173958.GA310@elf.ucw.cz>
-References: <20040126102041.GA1112@elf.ucw.cz> <1075124726.25442.2.camel@pegasus> <20040126161625.GB227@elf.ucw.cz> <1075136997.25442.99.camel@pegasus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1075136997.25442.99.camel@pegasus>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Mon, 26 Jan 2004 12:44:02 -0500
+Date: Mon, 26 Jan 2004 18:43:56 +0100 (MET)
+Message-Id: <200401261743.i0QHhuxN022892@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: perfctr-devel@lists.sourceforge.net
+Subject: perfctr-2.6.5 released
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Version 2.6.5 of perfctr, the Linux performance
+monitoring counters driver, is now available at the usual
+place: http://www.csd.uu.se/~mikpe/linux/perfctr/
 
-> > I'll have to hand-copy the oops, as machine dies after unplug. Here it
-> > is:
-> > 
-> > Oops: 2
-> > EIP  is at uhci_remov_pending_qhs
-> > Call trace:
-> > 	uhci_irq
-> > 	usb_hcd_irq
-> > 	handle_irq_event
-> > 	do_IRQ
-> > 	common_interrupt_1
-> 
-> as I expected. It is an UHCI host adapter and it looks like the uhci_hcd
-> driver has problems to unlink the ISOC URB's. Look at the LKML and USB
-> mailing lists for similiar post. At the moment I don't know of any patch
-> for it. Sorry.
+Version 2.6.5, 2004-01-26
+- Relaxed and corrected control checks on Pentium 4:
+  * Allow ESCR.CPL_T1 to be non-zero when using global-mode
+    counters on HT processors.
+  * Don't require ESCR.CPL_T0 to be non-zero. CPL_T0==0b00
+    is safe and potentially useful (global counters on HT).
+  * Require CCCR.ACTIVE_THREAD==0b11 on non-HT processors, as
+    documented in the IA32 Volume 3 manual. Old non-HT P4s
+    seem to work Ok for all four values, but this is neither
+    guaranteed nor useful.
+- Per-process counters driver updated for filp->f_mapping
+  change in 2.6.2-rc kernels.
+- Support 2.4.21-9.EL (RHEL3) and 2.4.22-1.2149.nptl (FC1) kernels.
+- Library updates for PowerPC:
+  * Added cpu_type constants for struct perfctr_info.
+  * Decode PVR and define perfctr_info.cpu_type accordingly.
+  * Added event set descriptions for 604/604e/750.
 
-No problem. For the record, it works okay without SCO. Thanks for that.
-									Pavel
-
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+/ Mikael Pettersson

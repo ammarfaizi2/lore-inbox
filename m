@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268727AbTCCTV3>; Mon, 3 Mar 2003 14:21:29 -0500
+	id <S268730AbTCCT05>; Mon, 3 Mar 2003 14:26:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268729AbTCCTV3>; Mon, 3 Mar 2003 14:21:29 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:12972 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S268727AbTCCTV2>;
-	Mon, 3 Mar 2003 14:21:28 -0500
-Date: Mon, 3 Mar 2003 11:26:32 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: hch@infradead.org, andrew@walrond.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.5-bk menuconfig format problem
-Message-Id: <20030303112632.7cb3e4bd.rddunlap@osdl.org>
-In-Reply-To: <20030303192245.GH6946@louise.pinerecords.com>
-References: <3E637196.8030708@walrond.org>
-	<20030303175844.A29121@infradead.org>
-	<20030303184906.GF6946@louise.pinerecords.com>
-	<20030303185337.A30585@infradead.org>
-	<20030303191908.GA3609@mars.ravnborg.org>
-	<20030303192245.GH6946@louise.pinerecords.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S268731AbTCCT04>; Mon, 3 Mar 2003 14:26:56 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:20497 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S268730AbTCCT04>;
+	Mon, 3 Mar 2003 14:26:56 -0500
+Date: Mon, 3 Mar 2003 11:28:08 -0800
+From: Greg KH <greg@kroah.com>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] klibc for 2.5.63
+Message-ID: <20030303192807.GJ16741@kroah.com>
+References: <20030224225659.GD3775@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030224225659.GD3775@kroah.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Mar 2003 20:22:45 +0100
-Tomas Szepe <szepe@pinerecords.com> wrote:
+On Mon, Feb 24, 2003 at 02:56:59PM -0800, Greg KH wrote:
+> Hi,
+> 
+> Here's the klibc addition synced up with the latest 2.5.63 kernel tree.
+> It's the same patches that I sent last time, so I'm not going to repost
+> them here again.
+> 
+> Please pull from:
+> 	bk://kernel.bkbits.net/gregkh/linux/klibc-2.5
 
-| > [sam@ravnborg.org]
-| > 
-| > On Mon, Mar 03, 2003 at 06:53:37PM +0000, Christoph Hellwig wrote:
-| > > Ah, okay :)  I newer use either menuconfig nor xconfig so I can't comment
-| > > on it's placements.  If people who actually do use if feel that it's placed
-| > > wrongly feel free to submit a patch to fix it.
-| > 
-| > The following patch moves it to the menu "Processor type & features"
-| > Right before HIMEM.
-| 
-| Please don't do this.  While HIMEM could still be perceived as a processor
-| (architecture) feature, SWAP certainly doesn't qualify.  We already have
-| enough misplaced options.
+I've resynced again with your latest tree, and added a fix from Kai that
+solved a 'make clean' bug that could show up with klibc.  Could you
+please pull from:
+	bk://kernel.bkbits.net/gregkh/linux/klibc-2.5
 
-Also makes no sense to me in Processor types & features.
+thanks,
 
---
-~Randy
+greg k-h

@@ -1,53 +1,233 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261848AbTDQR5D (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 13:57:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261849AbTDQR5D
+	id S261855AbTDQSDM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 14:03:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbTDQSDM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 13:57:03 -0400
-Received: from enterprise.bidmc.harvard.edu ([134.174.118.50]:9488 "EHLO
-	enterprise.bidmc.harvard.edu") by vger.kernel.org with ESMTP
-	id S261848AbTDQR5C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 13:57:02 -0400
-Subject: Re: How to identify contents of /lib/modules/*
-From: "Kristofer T. Karas" <ktk@enterprise.bidmc.harvard.edu>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, steve.cameron@hp.com
-In-Reply-To: <1050502898.28591.76.camel@dhcp22.swansea.linux.org.uk>
-References: <20030416020059.GA27314@zuul.cca.cpqcorp.net> 
-	<1050502898.28591.76.camel@dhcp22.swansea.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 17 Apr 2003 14:08:45 -0400
-Message-Id: <1050602925.21408.53.camel@pinhead>
+	Thu, 17 Apr 2003 14:03:12 -0400
+Received: from grendel.firewall.com ([66.28.56.41]:7821 "EHLO
+	grendel.firewall.com") by vger.kernel.org with ESMTP
+	id S261855AbTDQSCs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 14:02:48 -0400
+Date: Thu, 17 Apr 2003 20:14:39 +0200
+From: Marek Habersack <grendel@caudium.net>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel BUG with 2.5.67-mm3 and then more
+Message-ID: <20030417181439.GA1510@thanes.org>
+Reply-To: grendel@caudium.net
 Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="TakKZr9L6Hm6aLOc"
+Content-Disposition: inline
+Organization: I just...
+X-GPG-Fingerprint: 0F0B 21EE 7145 AA2A 3BF6  6D29 AB7F 74F4 621F E6EA
+X-message-flag: Outlook - A program to spread viri, but it can do mail too.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-04-16 at 10:21, Alan Cox wrote:
-> if its an rpm based distro
-> 	rpm -qf /lib/modules/[version]/something
-> will tell you which kernel owns the file.
-> 
-> Its a horrible thing to need to do however
 
-I have a worse problem.  :-)   I often run several instances of the
-identically version-numbered kernel, all available from the LILO boot
-menu, each instance having a different .config or perhaps compiled with
-a different gcc.  If each instance wants to share
-/lib/modules/[sameversion]/... then I've got a problem.  Ditto for
-userspace programs compiled against /usr/include/linux and
-/usr/include/asm, where I want the compiled program to correspond very
-closely with the currently running kernel.  So...
+--TakKZr9L6Hm6aLOc
+Content-Type: multipart/mixed; boundary="d6Gm4EdcadzBjdND"
+Content-Disposition: inline
 
-I "fixed" this problem by creating /lib/modules/BootsAs/,
-/usr/include/BootsAs/, etc.  Then, rc.sysinit looks in /proc/cmdline to
-figure out what I typed at LILO, greps through /etc/lilo.conf to find
-the physical /boot/[xyzzy].vmlinux that was booted, and it creates
-symlinks so /lib/modules/[sameversion] -> /lib/modules/BootsAs/[xyzzy]
-and so on.  This is also a win when you have several LILO targets that
-point to the same kernel.
 
-Kris -- running heavily hacked Slackware.
+--d6Gm4EdcadzBjdND
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 
+Hey all,
+
+  The bug occurred during a normal desktop activity (GNOME2, xmms, xemacs,
+galeon, jabber, a few rxvt windows) with no heavy activity at the time. The
+log and the machine config are attached,
+
+TIA,
+
+marek
+
+--d6Gm4EdcadzBjdND
+Content-Type: application/octet-stream
+Content-Disposition: attachment; filename="config-2.5.67-mm3.bz2"
+Content-Transfer-Encoding: base64
+
+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
+
+--d6Gm4EdcadzBjdND
+Content-Type: application/octet-stream
+Content-Disposition: attachment; filename="oops.txt.bz2"
+Content-Transfer-Encoding: base64
+
+QlpoOTFBWSZTWTOMGVMAEbXfgHwQaH//9zulz0q////wYBMdvpQNoY2+3FADpWwwSAAAA7O2
+dbgNOFLWgAAAANBUcZMmTEYmAEyYJkANGEYAhgEkECaARNTTSFGmnqP1AIwIADTIYcZMmTEY
+mAEyYJkANGEYAhgEKhQU9FPTaU9Rp5E00yDTaQNBkNAxAAilKfpJ5J+lANAABoaAAMgaAACp
+IgmQAmiYTFNTykxMGkZqMCPRHqe1JxTcJBJ0OA87NC0LkT7ScKHdn35MwC/TO7fX7aW8fDxr
+fJhSAZamZM4p1pn91vh8/bc3zKFkwontRpReoqova0Wondl0v748ppO2XS8Ky6Wy6Xfjlftt
+2y7Y1QL8D+KWifMyNOzYY8Zem9lkQJhHaGERS7YLtJBtRphmy7t5beLtyrRqkDdIKKjPm+v+
+MYzcK5a8emONSji3btgrcT8Qz9Ep1aIPvBgKma1aSRk6+V4AP4fwc7x/l4NmrNvxeiBt30Jb
+bnLOowMV6s8EF45bbTumlqD7N9S5vG+sz7IEJM5tMXP1YK7eUCEnAuet419vXBjv/OvLZrTD
+O0d5oUBrB1u/iCuatEHlw1mn7zSmuBzuu0GjaF09qx8vDlGfiNphuscC1ndvfpy7Vo2hbNB+
+dqy1n3bLs670rvVqROzWNb7f1m+c9u4J7P0PX0IDLHUdKd4z8SciAHvJt7nPUzmm9q/fU9S7
+lr37HX4TeUVJVVUqCiiqYmKqiJkqYqIIiKGIKqoiYqCCgkkCaCJmCmiqImKmmKmSpiSoip29
+e+xiwbzdrqyRZ1Zziu/3McTaYNgzD/Nlga5Z/FWXdQsXpaxRb1xWRiwM0O9LTH0pudaoCiNq
+ctrh9a6wn6ttK6aiOd3hl7CNntCSaT4vnrc/t5+A7Mo1QyHQa9t15zr9nPl7x3inOnGpz61Z
+y7+R4L28K9St7C3pFtxpCJMGdQaD/STrzgu8GD93qDAa6wwnAjSSukmnKkwkrIIDFLbkVyBy
+tWMKTSaQlt+braXUq0usqm+f+fNh/ozYzicVqmWzNli601UXLDiLkDr5EmAYjCgulghSF1V/
+3kSfxHWhGo5UNDBRQFVh8ESYHVyMDlS4xOBmw0KDaR7Fc1VwwOmTGIHLjIolsOioy3smTMph
+NZ+T1+Pz9vwpnh2bKZ5rRls5Psmnye6rncof1sfeYWU1FUarMbLpULYbJJP3xoSXoakm5gZM
+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
+
+--d6Gm4EdcadzBjdND--
+
+--TakKZr9L6Hm6aLOc
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+nu8Pq3909GIf5uoRAoHZAJ4rJfn+rpxTQyFH61t9tEX7mb7v1wCgh2L4
+WY3tjcCfGWAMAZ/+mwHoSDM=
+=4wXF
+-----END PGP SIGNATURE-----
+
+--TakKZr9L6Hm6aLOc--

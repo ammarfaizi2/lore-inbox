@@ -1,93 +1,209 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270822AbRHNUdd>; Tue, 14 Aug 2001 16:33:33 -0400
+	id <S270815AbRHNUhN>; Tue, 14 Aug 2001 16:37:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270817AbRHNUdZ>; Tue, 14 Aug 2001 16:33:25 -0400
-Received: from albatross.mail.pas.earthlink.net ([207.217.120.120]:40950 "EHLO
-	albatross.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S270822AbRHNUdG>; Tue, 14 Aug 2001 16:33:06 -0400
-Date: Tue, 14 Aug 2001 15:32:55 -0500
-From: J Troy Piper <jtp@dok.org>
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@zip.com.au>,
-        ext3-users@redhat.com
-Subject: [BUG] linux-2.4.7-ac7 Assertion failure in journal_revoke() at revoke.c:307
-Message-ID: <20010814153255.A1377@dok.org>
+	id <S270817AbRHNUhE>; Tue, 14 Aug 2001 16:37:04 -0400
+Received: from mail-ca.legato.com ([137.69.100.7]:60123 "EHLO
+	mail-ca.legato.com") by vger.kernel.org with ESMTP
+	id <S270815AbRHNUgu>; Tue, 14 Aug 2001 16:36:50 -0400
+Subject: Re: ACPI & Promise Ultra 100 IDE-controller?
+From: Alex Hill <alexh@legato.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <03d601c124d5$6cb01e80$c405a33e@brekoo.noip.com>
+In-Reply-To: <03d601c124d5$6cb01e80$c405a33e@brekoo.noip.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12.99 (Preview Release)
+Date: 14 Aug 2001 16:36:55 -0400
+Message-Id: <997821415.3549.18.camel@steam.legato.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="BOKacYhQ+x31HxR3"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have also had problems w/ the same sort of configuration. I am using a
+K6-III on an older Via 100 mb and the Promise Ultra 100 controller is an
+add on card. I found that the the pdc202xx driver has some problems with
+quantum drives, I have always had to patch the driver, adding my quantum
+13.6gb drive's OEM string to the list of quirky drives
+(pdc_quirk_drives[]:line223 of /usr/src/linux-2.4/drivers/ide/pdc202xx.c
+) . There are already a couple of quantum drives on this list. I can't
+figure out if it is the VIA motherboard, the promise card or the quantum
+hd, or a combination of the three that causes the problem.
 
---BOKacYhQ+x31HxR3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On 14 Aug 2001 17:25:33 +0200, Marc Brekoo wrote:
+> Hi all,
+> 
+> I'm having the following problem on my new Athlon-box. Whenever I compile a
+> kernel with ACPI-support, my system just dies when probing the drives
+> connected to the Promise PCI-card. Note that it just dies, no oopses, no
+> messages; the only thing that responds is the reset-button :(
+> 
+> I've tested the same ACPI-enabled kernel without the IDE-controller, and it
+> works just beautifully. I've incuded the dmesg-output from this test-run.
+> 
+> Kernel versions 2.4.7 and 2.4.8-ac2 show the same behaviour.
+> 
+> What could be causing this?
+> 
+> 
+> dmesg-output:
+> 
+> Linux version 2.4.8 (root@athene.brekoo.no-ip.com) (gcc version 2.96
+> 20000731 (Red Hat Linux 7.1 2.96-85)) #3 Tue Aug 14 16:28:02 CEST 2001
+> BIOS-provided physical RAM map:
+>  BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+>  BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+>  BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
+>  BIOS-e820: 0000000000100000 - 000000000fff0000 (usable)
+>  BIOS-e820: 000000000fff0000 - 000000000fff3000 (ACPI NVS)
+>  BIOS-e820: 000000000fff3000 - 0000000010000000 (ACPI data)
+>  BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
+> Scan SMP from c0000000 for 1024 bytes.
+> Scan SMP from c009fc00 for 1024 bytes.
+> Scan SMP from c00f0000 for 65536 bytes.
+> Scan SMP from c009fc00 for 4096 bytes.
+> On node 0 totalpages: 65520
+> zone(0): 4096 pages.
+> zone(1): 61424 pages.
+> zone(2): 0 pages.
+> mapped APIC to ffffe000 (01442000)
+> Kernel command line: auto BOOT_IMAGE=linux ro root=341
+> BOOT_FILE=/boot/new/vmlinuz
+> Initializing CPU#0
+> Detected 1328.052 MHz processor.
+> Console: colour VGA+ 80x25
+> Calibrating delay loop... 2647.65 BogoMIPS
+> Memory: 255424k/262080k available (1062k kernel code, 6268k reserved, 416k
+> data, 204k init, 0k highmem)
+> Dentry-cache hash table entries: 32768 (order: 6, 262144 bytes)
+> Inode-cache hash table entries: 16384 (order: 5, 131072 bytes)
+> Mount-cache hash table entries: 4096 (order: 3, 32768 bytes)
+> Buffer-cache hash table entries: 16384 (order: 4, 65536 bytes)
+> Page-cache hash table entries: 65536 (order: 6, 262144 bytes)
+> CPU: Before vendor init, caps: 0183f9ff c1c7f9ff 00000000, vendor = 2
+> CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+> CPU: L2 Cache: 256K (64 bytes/line)
+> CPU: After vendor init, caps: 0183f9ff c1c7f9ff 00000000 00000000
+> CPU:     After generic, caps: 0183f9ff c1c7f9ff 00000000 00000000
+> CPU:             Common caps: 0183f9ff c1c7f9ff 00000000 00000000
+> CPU: AMD Athlon(tm) processor stepping 04
+> Enabling fast FPU save and restore... done.
+> Checking 'hlt' instruction... OK.
+> POSIX conformance testing by UNIFIX
+> mtrr: v1.40 (20010327) Richard Gooch (rgooch@atnf.csiro.au)
+> mtrr: detected mtrr type: Intel
+> PCI: PCI BIOS revision 2.10 entry at 0xfb160, last bus=1
+> PCI: Using configuration type 1
+> PCI: Probing PCI hardware
+> PCI: Using IRQ router VIA [1106/0686] at 00:07.0
+> Applying VIA southbridge workaround.
+> PCI: Disabling Via external APIC routing
+> isapnp: Scanning for PnP cards...
+> isapnp: No Plug & Play device found
+> Linux NET4.0 for Linux 2.4
+> Based upon Swansea University Computer Society NET3.039
+> Starting kswapd v1.8
+> VFS: Diskquotas version dquot_6.4.0 initialized
+> ACPI: Core Subsystem version [20010615]
+> ACPI: Subsystem enabled
+> ACPI: System firmware supports S0 S1 S4 S5
+> Processor[0]: C0 C1 C2, throttling states: 2
+> Power Button: found
+> Power Button: found
+> Sleep Button: found
+> Winbond Super-IO detection, now testing ports 3F0,370,250,4E,2E ...
+> SMSC Super-IO detection, now testing Ports 2F0, 370 ...
+> parport0: PC-style at 0x378 [PCSPP,EPP]
+> parport0: cpp_daisy: aa5500ff(18)
+> parport0: assign_addrs: aa5500ff(18)
+> parport0: cpp_daisy: aa5500ff(18)
+> parport0: assign_addrs: aa5500ff(18)
+> parport_pc: Via 686A parallel port: io=0x378
+> pty: 256 Unix98 ptys configured
+> Serial driver version 5.05c (2001-07-08) with MANY_PORTS SHARE_IRQ
+> SERIAL_PCI ISAPNP enabled
+> ttyS00 at 0x03f8 (irq = 4) is a 16550A
+> ttyS01 at 0x02f8 (irq = 3) is a 16550A
+> Real Time Clock Driver v1.10d
+> block: 128 slots per queue, batch=16
+> RAMDISK driver initialized: 16 RAM disks of 4096K size 1024 blocksize
+> Uniform Multi-Platform E-IDE driver Revision: 6.31
+> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+> VP_IDE: IDE controller on PCI bus 00 dev 39
+> VP_IDE: chipset revision 6
+> VP_IDE: not 100% native mode: will probe irqs later
+> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+> VP_IDE: VIA vt82c686b (rev 40) IDE UDMA100 controller on pci00:07.1
+>     ide0: BM-DMA at 0xd000-0xd007, BIOS settings: hda:DMA, hdb:DMA
+>     ide1: BM-DMA at 0xd008-0xd00f, BIOS settings: hdc:DMA, hdd:pio
+> hda: Maxtor 34098H4 M, ATA DISK drive
+> hdb: Maxtor 82160D2, ATA DISK drive
+> hdc: QUANTUM Bigfoot TX6.0AT, ATA DISK drive
+> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+> ide1 at 0x170-0x177,0x376 on irq 15
+> hda: 80023104 sectors (40972 MB) w/2048KiB Cache, CHS=4981/255/63, UDMA(100)
+> hdb: 4123980 sectors (2111 MB) w/256KiB Cache, CHS=1022/64/63, UDMA(33)
+> hdc: 11773755 sectors (6028 MB) w/69KiB Cache, CHS=12459/15/63, UDMA(33)
+> Partition check:
+>  hda: hda1 hda2 hda3 < hda5 hda6 > hda4
+>  hdb: hdb1
+>  hdc: hdc1                                        // <==== With the card,
+> system dies here
+> Floppy drive(s): fd0 is 1.44M
+> FDC 0 is a post-1991 82077
+> 8139too Fast Ethernet driver 0.9.18
+> PCI: Found IRQ 11 for device 00:09.0
+> IRQ routing conflict for 00:07.5, have irq 9, want irq 11
+> eth0: RealTek RTL8139 Fast Ethernet at 0xd0806000, 00:50:bf:32:50:b0, IRQ 11
+> eth0:  Identified 8139 chip type 'RTL-8139C'
+> Linux agpgart interface v0.99 (c) Jeff Hartmann
+> agpgart: Maximum main memory to use for agp memory: 203M
+> agpgart: Detected Via Apollo Pro KT133 chipset
+> agpgart: AGP aperture is 64M @ 0xd0000000
+> SCSI subsystem driver Revision: 1.00
+> NET4: Linux TCP/IP 1.0 for NET4.0
+> IP Protocols: ICMP, UDP, TCP, IGMP
+> IP: routing cache hash table of 2048 buckets, 16Kbytes
+> TCP: Hash tables configured (established 16384 bind 16384)
+> NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+> VFS: Mounted root (ext2 filesystem) readonly.
+> Freeing unused kernel memory: 204k freed
+> Adding Swap: 1076344k swap-space (priority -1)
+> usb.c: registered new driver usbdevfs
+> usb.c: registered new driver hub
+> usb-uhci.c: $Revision: 1.259 $ time 16:13:52 Aug 14 2001
+> usb-uhci.c: High bandwidth mode enabled
+> PCI: Found IRQ 9 for device 00:07.2
+> IRQ routing conflict for 00:07.2, have irq 10, want irq 9
+> IRQ routing conflict for 00:07.3, have irq 10, want irq 9
+> usb-uhci.c: USB UHCI at I/O 0xd400, IRQ 10
+> usb-uhci.c: Detected 2 ports
+> usb.c: new USB bus registered, assigned bus number 1
+> hub.c: USB hub found
+> hub.c: 2 ports detected
+> PCI: Found IRQ 9 for device 00:07.3
+> IRQ routing conflict for 00:07.2, have irq 10, want irq 9
+> IRQ routing conflict for 00:07.3, have irq 10, want irq 9
+> usb-uhci.c: USB UHCI at I/O 0xd800, IRQ 10
+> usb-uhci.c: Detected 2 ports
+> hub.c: USB new device connect on bus1/1, assigned device number 2
+> usb.c: new USB bus registered, assigned bus number 2
+> hub.c: USB hub found
+> hub.c: 2 ports detected
+> usb-uhci.c: v1.251:USB Universal Host Controller Interface driver
+> Journalled Block Device driver loaded
+> kjournald starting.  Commit interval 5 seconds
+> EXT3 FS 2.4-0.9.6, 11 Aug 2001 on ide1(22,1), internal journal
+> EXT3-fs: mounted filesystem with ordered data mode.
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Alex Hill
+Programmer Analyst ::  Legato Systems (Canada) Inc.
 
-Greetings all,
 
-I have hit a kernel BUG in revoke.c in kernel 2.4.7-ac7 twice today while 
-attempting to perform the same operation (patching stock 2.4.8 kernel src  
-with "patch -p1 <  patch-2.4.8-ac4").  Syslog entries follow.  Please 
-email me if you want/need my kernel config or any other information.
-
-Thanks,
-jtp
-
-
---BOKacYhQ+x31HxR3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename=BUG
-
-Aug 14 15:11:42 paranoia kernel: Assertion failure in journal_revoke() at revoke.c:307: "!(__builtin_constant_p(BH_Revoked) ? constant_test_bit((BH_Revoked),(&bh->b_state)) : variable_test_bit((BH_Revoked),(&bh->b_state)))"
-Aug 14 15:11:42 paranoia kernel: kernel BUG at revoke.c:307!
-Aug 14 15:11:42 paranoia kernel: invalid operand: 0000
-Aug 14 15:11:42 paranoia kernel: CPU:    0
-Aug 14 15:11:42 paranoia kernel: EIP:    0010:[journal_revoke+220/384]
-Aug 14 15:11:42 paranoia kernel: EIP:    0010:[<c015ebac>]
-Aug 14 15:11:42 paranoia kernel: EFLAGS: 00010286
-Aug 14 15:11:42 paranoia kernel: eax: 0000001c   ebx: c0b5ddc4   ecx: c02e685c   edx: 00001fd9
-Aug 14 15:11:42 paranoia kernel: esi: c35ea000   edi: c0b5ddc4   ebp: 0000000a   esp: c3d53ccc
-Aug 14 15:11:42 paranoia kernel: ds: 0018   es: 0018   ss: 0018
-Aug 14 15:11:42 paranoia kernel: Process patch (pid: 2270, stackpage=c3d53000)
-Aug 14 15:11:42 paranoia kernel: Stack: c028f702 00000133 0000120b c18c8da4 00000000 c2f6a21c c0152b1e c2f6a21c 
-Aug 14 15:11:42 paranoia kernel:        0000120b c0b5ddc4 c3a80ca4 c2c950a4 00000003 00001000 0000120b c18c8eec 
-Aug 14 15:11:42 paranoia kernel:        c2f6a21c c18c8da4 c01545e2 c2f6a21c 00000000 c18c8da4 c0b5ddc4 0000120b 
-Aug 14 15:11:42 paranoia kernel: Call Trace: [ext3_forget+190/288] [ext3_clear_blocks+146/192] [ext3_free_data+179/224] [ext3_truncate+308/960] [truncate_list_pages+441/464] 
-Aug 14 15:11:42 paranoia kernel: Call Trace: [<c0152b1e>] [<c01545e2>] [<c01546c3>] [<c0154994>] [<c01206c9>] 
-Aug 14 15:11:42 paranoia kernel:    [vmtruncate+361/384] [inode_setattr+38/224] [ext3_setattr+151/176] [notify_change+94/288] [do_truncate+107/160] [lookup_hash+66/144] 
-Aug 14 15:11:42 paranoia kernel:    [<c011e8d9>] [<c0142a86>] [<c01553f7>] [<c0142bfe>] [<c012ca3b>] [<c01392e2>] 
-Aug 14 15:11:42 paranoia kernel:    [open_namei+1095/1456] [kmem_cache_free+544/720] [filp_open+52/96] [sys_open+54/176] [system_call+51/64] 
-Aug 14 15:11:42 paranoia kernel:    [<c0139937>] [<c01263b0>] [<c012d944>] [<c012dc46>] [<c0106ce3>] 
-Aug 14 15:11:42 paranoia kernel: 
-Aug 14 15:11:42 paranoia kernel: Code: 0f 0b 58 5a 0f ab 6b 18 b8 0b 00 00 00 0f ab 43 18 85 ff 74 
-Aug 14 15:11:42 paranoia kernel:  <0>Assertion failure in journal_start() at transaction.c:217: "handle->h_transaction->t_journal == journal"
-Aug 14 15:11:42 paranoia kernel: kernel BUG at transaction.c:217!
-Aug 14 15:11:42 paranoia kernel: invalid operand: 0000
-Aug 14 15:11:42 paranoia kernel: CPU:    0
-Aug 14 15:11:42 paranoia kernel: EIP:    0010:[journal_start+97/224]
-Aug 14 15:11:42 paranoia kernel: EIP:    0010:[<c0159ee1>]
-Aug 14 15:11:42 paranoia kernel: EFLAGS: 00010286
-Aug 14 15:11:42 paranoia kernel: eax: 00000021   ebx: c2f6a21c   ecx: c02e685c   edx: 000023ca
-Aug 14 15:11:42 paranoia kernel: esi: c3d52000   edi: c35ffda4   ebp: c35ea200   esp: c3d53a5c
-Aug 14 15:11:42 paranoia kernel: ds: 0018   es: 0018   ss: 0018
-Aug 14 15:11:42 paranoia kernel: Process patch (pid: 2270, stackpage=c3d53000)
-Aug 14 15:11:42 paranoia kernel: Stack: c028d760 000000d9 c2f6a21c c2f6a21c ffffffe2 c35ffda4 c3d53b30 c01555c6 
-Aug 14 15:11:42 paranoia kernel:        c35ea200 00000001 4a494847 4e4d4c4b 5251504f 56555453 c35ffda4 c35f4800 
-Aug 14 15:11:42 paranoia kernel:        00000001 c01412ca c35ffda4 c3d52000 04043000 00000000 c0123437 c35ffda4 
-Aug 14 15:11:42 paranoia kernel: Call Trace: [ext3_dirty_inode+54/192] [__mark_inode_dirty+42/112] [generic_file_write+631/1568] [vgacon_cursor+401/416] [do_acct_process+521/544] 
-Aug 14 15:11:42 paranoia kernel: Call Trace: [<c01555c6>] [<c01412ca>] [<c0123437>] [<c02279c1>] [<c01176e9>] 
-Aug 14 15:11:43 paranoia kernel:    [vt_console_print+764/784] [acct_process+31/48] [do_exit+108/496] [bust_spinlocks+62/80] [die+70/96] [do_invalid_op+0/208] 
-Aug 14 15:11:43 paranoia kernel:    [<c01b073c>] [<c011771f>] [<c0113f9c>] [<c010e29e>] [<c01072b6>] [<c0107600>] 
-Aug 14 15:11:43 paranoia kernel:    [do_invalid_op+191/208] [journal_revoke+220/384] [set_cursor+105/128] [vt_console_print+748/784] [__call_console_drivers+57/80] [call_console_drivers+234/240] 
-Aug 14 15:11:43 paranoia kernel:    [<c01076bf>] [<c015ebac>] [<c01acff9>] [<c01b072c>] [<c01115a9>] [<c011171a>] 
-Aug 14 15:11:43 paranoia kernel:    [error_code+56/64] [journal_revoke+220/384] [ext3_forget+190/288] [ext3_clear_blocks+146/192] [ext3_free_data+179/224] [ext3_truncate+308/960] 
-Aug 14 15:11:43 paranoia kernel:    [<c0106e08>] [<c015ebac>] [<c0152b1e>] [<c01545e2>] [<c01546c3>] [<c0154994>] 
-Aug 14 15:11:43 paranoia kernel:    [truncate_list_pages+441/464] [vmtruncate+361/384] [inode_setattr+38/224] [ext3_setattr+151/176] [notify_change+94/288] [do_truncate+107/160] 
-Aug 14 15:11:43 paranoia kernel:    [<c01206c9>] [<c011e8d9>] [<c0142a86>] [<c01553f7>] [<c0142bfe>] [<c012ca3b>] 
-Aug 14 15:11:43 paranoia kernel:    [lookup_hash+66/144] [open_namei+1095/1456] [kmem_cache_free+544/720] [filp_open+52/96] [sys_open+54/176] [system_call+51/64] 
-Aug 14 15:11:43 paranoia kernel:    [<c01392e2>] [<c0139937>] [<c01263b0>] [<c012d944>] [<c012dc46>] [<c0106ce3>] 
-Aug 14 15:11:43 paranoia kernel: 
-Aug 14 15:11:43 paranoia kernel: Code: 0f 0b 5e 5f 8b 4b 08 89 d8 41 89 4b 08 eb 66 6a 70 6a 10 68 
-
---BOKacYhQ+x31HxR3--

@@ -1,95 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319172AbSHGSn0>; Wed, 7 Aug 2002 14:43:26 -0400
+	id <S318768AbSHGSjx>; Wed, 7 Aug 2002 14:39:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319173AbSHGSn0>; Wed, 7 Aug 2002 14:43:26 -0400
-Received: from mailout07.sul.t-online.com ([194.25.134.83]:44943 "EHLO
-	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S319172AbSHGSnZ>; Wed, 7 Aug 2002 14:43:25 -0400
-Subject: Re: i810 sound broken...
-From: Juergen Sawinski <juergen.sawinski@mpimf-heidelberg.mpg.de>
-To: Doug Ledford <dledford@redhat.com>
-Cc: "linux-kernel@vger" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020807110554.D10872@redhat.com>
-References: <Pine.LNX.4.43.0208051546120.8463-100000@cibs9.sns.it>
-	<1028561325.18478.55.camel@irongate.swansea.linux.org.uk>
-	<1028572739.4406.2.camel@frasier>  <20020807110554.D10872@redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 07 Aug 2002 20:49:08 +0200
-Message-Id: <1028746148.2275.22.camel@voyager>
-Mime-Version: 1.0
+	id <S318769AbSHGSjx>; Wed, 7 Aug 2002 14:39:53 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:22155 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S318768AbSHGSjv>;
+	Wed, 7 Aug 2002 14:39:51 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Wed, 7 Aug 2002 20:43:30 +0200 (MEST)
+Message-Id: <UTC200208071843.g77IhUc20546.aeb@smtp.cwi.nl>
+To: Andries.Brouwer@cwi.nl, mingo@elte.hu
+Subject: Re: [bug, 2.5.29, IDE] partition table corruption?
+Cc: alan@lxorguk.ukuu.org.uk, dalecki@evision.ag, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-08-07 at 17:05, Doug Ledford wrote:
-> On Mon, Aug 05, 2002 at 08:38:52PM +0200, Thomas Munck Steenholdt wrote:
-> > On Mon, 2002-08-05 at 17:28, Alan Cox wrote:
-> > > On Mon, 2002-08-05 at 14:47, venom@sns.it wrote:
-> > > > Still OSS modules for i810 does not work with 2.5 kernels, actually 2.4
-> > > > is fine. No time to switch to alsa (and not interested for now too).
-> > > 
-> > > OSS for 2.5 is someone elses problem. I have no plan to do any work on
-> > > the old OSS drivers for the 2.5 tree or even to submit 2.4 updates into
-> > > 2.5 for it. 
-> > > 
-> > 
-> > So anyway - How should I go about determining the exact problem on my
-> > box... I've had it all along, and I know for a fact that the hardware is
-> > OK... Modules are loaded correctly, but it just does not work!
-> 
-> I'll tell you what you can do.  Grab some ICH docs so you have a list of 
-> the valid regs on the i810 sound chip.  Then, go into i810_audio.c and 
-> write me up a little hack that, at the end of the chip init sequence, 
-> whill dump the state of all the regs on the chip.  Make it smart enough to 
-> know about different regs on different chips (aka, Intel ICH0 and ICH1 
-> will probably have a slightly different reg setup than the ICH2 and 
-> later).  Then, load that driver on your machine and get me that register 
-> dump.  Then, I'll take the patch and apply it here on the i810 machines I 
-> have that do work and get their register dump.  We'll see then where the 
-> differences are.  On the i845 based machine I have at work, where the 
-> sound doesn't work just like you describe, I've isolated the problem down 
-> to the fact that when we start the DMA engine it *immediately* signals 
-> that it has already finished the DMA process and has already stopped again 
-> but it never actually does the DMA.  So, I suspect there is some config 
-> bit somewhere set wrong and the DMA is not taking place as a result (hell, 
-> for all I know, the AC97 link for sound output may be off or something 
-> like that).  Getting a register dump from several busted machines as well 
-> as from some working machines should enable me to solve the problem 
-> relatively easily.  I just haven't had the time to write the patch myself 
-> and do any more work on the thing :-(
+    > The funny thing is, I removed some stuff here in 2.5.30,
+    > so I would understand things immediately if you reported this
+    > about 2.5.30. But for 2.5.29 I do not immediately see why
+    > you would see any changes.
 
-My i845 box seems to only have a tertiary codec (waiting for
-verification from Intel) which is only accesible via DMA. I already
-started to make this work... hope, I can show some code end of the week.
+    2.5.30 breaks as well.
 
-But there's sth. about i810_ac97_get. The ICH4 manual says, reads _must
-not_ cross DWord boundaries. Could there be a problem? 
+    > Did you in the meantime find out what was wrong?
 
-> -- 
->   Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
->          Red Hat, Inc. 
->          1801 Varsity Dr.
->          Raleigh, NC 27606
->   
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-Juergen Sawinski
-Max-Planck-Institute for Medical Research
-Dept. of Biomedical Optics
-Jahnstr. 29
-D-69120 Heidelberg
-Germany
+    nope. I still keep working it around.
 
-Phone:  +49-6221-486-309
-Fax:    +49-6221-486-325
+    > Are things OK in 2.5.28 and wrong in vanilla 2.5.29
+    > with the same version of LILO? (which version?)
 
-priv.
-Phone:  +49-6221-418 848
-Mobile: +49-171-532 5302
+    a fairly standard LILO from RH 7.3: linux-21.4.4-10.
+
+    > Do you use the linear or lba32 options? The fix-table option?
+
+    I use none of these options. I use a very simple setup, a proper /boot 
+    partition, nothing complex or unexpected.
+
+    > What corruption do you see in the partition table?
+
+    nothing in the descriptors that i can tell from looking at fdisk output -
+    but it would be pretty hard to recover the system via a pure rescue CD
+    otherwise.
+
+    > Do you use LVM?
+
+    nope. Plain old IDE, ext3fs, 
+
+    > What happens under 2.5.30?
+
+    the same 'LI' message.
+
+    I'll try Alan's suggestion of adding the 'linear' option.
+    ...
+    this actually did the trick - lilo no more messes up the bootup.
+    So Alan's suspicion is right, there's something wrong about geometries
+    in 2.5-current.
+
+I always like to understand all the details - forgive me if I come
+with further questions.
+
+LILO without "linear" or "lba32" is inherently broken:
+it will talk CHS at boot time to the BIOS and hence needs a geometry
+and install time, and nobody knows the geometry required. So, if
+LILO doesnt break, this is pure coincidence.
+
+Since 2.5.30 many people will have a different geometry, so many
+people will have to find grub or a recent LILO, or add "linear"
+to their old LILO. This is all well understood - I just repeat it
+a few times in the hope that that will reduce the amount of email.
+
+But now you talk about vanilla 2.5.29, and I am surprised.
+Could you send the kernel boot messages concerning that disk
+(dmesg | grep hd) for 2.5.28 and 2.5.29 and 2.5.30?
+
+And you talk about corruption, and I am surprised again.
+Have you verified that there really was a difference?
+Or do you only suspect corruption because LILO has problem?
+(In that case I can assure you that there was no corruption.)
+
+Andries
 

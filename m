@@ -1,72 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262492AbUCCP7y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 10:59:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262502AbUCCP7y
+	id S262506AbUCCQGg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 11:06:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262516AbUCCQGg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 10:59:54 -0500
-Received: from citrine.spiritone.com ([216.99.193.133]:5327 "EHLO
-	citrine.spiritone.com") by vger.kernel.org with ESMTP
-	id S262492AbUCCP7w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 10:59:52 -0500
-Date: Wed, 03 Mar 2004 07:54:39 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-cc: Hugh Dickins <hugh@veritas.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Dave McCracken <dmccr@us.ibm.com>
-Subject: Re: 230-objrmap fixes for 2.6.3-mjb2
-Message-ID: <8030000.1078329278@[10.10.2.4]>
-In-Reply-To: <20040303070933.GB4922@dualathlon.random>
-References: <20040303070933.GB4922@dualathlon.random>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Wed, 3 Mar 2004 11:06:36 -0500
+Received: from fed1mtao02.cox.net ([68.6.19.243]:22933 "EHLO
+	fed1mtao02.cox.net") by vger.kernel.org with ESMTP id S262506AbUCCQGe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 11:06:34 -0500
+Date: Wed, 3 Mar 2004 09:06:33 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: "Amit S. Kale" <amitkale@emsyssoft.com>
+Cc: George Anzinger <george@mvista.com>, Andrew Morton <akpm@osdl.org>,
+       ak@suse.de, pavel@ucw.cz, linux-kernel@vger.kernel.org,
+       piggy@timesys.com
+Subject: Re: kgdb support in vanilla 2.6.2
+Message-ID: <20040303160633.GU20227@smtp.west.cox.net>
+References: <20040204230133.GA8702@elf.ucw.cz.suse.lists.linux.kernel> <20040302132751.255b9807.akpm@osdl.org> <40451E50.4080806@mvista.com> <200403031038.39339.amitkale@emsyssoft.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <200403031038.39339.amitkale@emsyssoft.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Mar 03, 2004 at 10:38:39AM +0530, Amit S. Kale wrote:
+> On Wednesday 03 Mar 2004 5:22 am, George Anzinger wrote:
+> > Andrew Morton wrote:
+> > > George Anzinger <george@mvista.com> wrote:
+> > >> Often it is not clear just why we are in the stub, given that
+> > >>we trap such things as kernel page faults, NMI watchdog, BUG macros and
+> > >> such.
+> > >
+> > > Yes, that can be confusing.  A little printk on the console prior to
+> > > entering the debugger would be nice.
+> >
+> > That assumes that one can do a printk and not run into a lock.  Far better
+> > IMNSHO is to provide a simple way to get it from gdb.  One can then even
+> > provide a gdb macro to print the relevant source line and its surrounds.  I
+> > my lighter moments I call this the comefrom macro :)  In my kgdb it would
+> > look like:
+> >
+> > l * kgdb_info.called_from
+> 
+> How about echoing "Waiting for gdb connection" stright into the serial line 
+> without any encoding? Since gdb won't be connected to the other end, and many 
+> a times a minicom could be running at the other end, it'll give a user an 
+> indication of kgdb being ready.
 
+It's not "GDB is ready" it's "GDB is ready now because ..."
 
---Andrea Arcangeli <andrea@suse.de> wrote (on Wednesday, March 03, 2004 08:09:33 +0100):
-
-> While merging 230-objrmap in my tree I spotted 2 bugs potentially
-> generating random memory corruption and 1 superflous bit that I dropped
-> (mostly for documentation reasons, I like strict and in turn self
-> documenting). Here below the fixes.
-
-Looks good to me, but Dave is more familiar with this stuff ... Dave?
-
-> I'm running some shm swap regression test on this right now and I'll
-> leave it running for a day. In a few hours I will proceed starting
-> dropping the pte_chain from the page sturcture and then I'll test the
-> anon swapout. I will also follow the 6 great-effort anobjrmap posted by
-> Hugh against objrmap while doing that, they're quite old (almost 1 year)
-> but they still apply cleanly by hand so they're useful.
-
-Bill has been keeping that up to date  - he may have some more recent
-changes somewhere?
-
-> About 2.5:1.5 it seems not everybody is happy to lose 512m (and it's not
-> Oracle), but before ruling it out I'd like to get some real life number,
-> to be sure the performance of 2.0^W4:4 are really close (if not
-> "better") than 3:1 as someone said. If we go with 4:4 IMHO at the very
-> least the vgettimeofday backport from x86-64 is a must. In the meantime
-
-John has that going - there's a copy in 2.6.3-mjb1, but it has a problem
-at the moment on some boxes, which he's trying to fix up. I've been 
-pushing for the same thing - fixing the most common syscall will help ;-)
-We're trying to get some numbers here, but have had a small setback with
-some disk problems - should be this week still though.
-
-> I keep going with the rmap removal to fixup the fork  and to get back
-> the 128m of normal zone useful on the 32G boxes. Could be also that new
-> cpus are a lot better at reloading the tlbs from the pagetables dunno,
-> the first numbers I recall about 4:4 predates to 2000 when PII was quite
-> optimal.  I'd only like to see an opteron and a xeon dealing with 4:4.
-
-Makes sense. But why would you want 4:4 on opteron? I'm not sure we care
-about the perf for anyone nutty enough to run a 32 bit kernel there ;-)
-
-M.
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

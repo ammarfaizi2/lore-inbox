@@ -1,102 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263228AbTJUSuk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 14:50:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263254AbTJUSuk
+	id S263232AbTJUSy5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 14:54:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263244AbTJUSy5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 14:50:40 -0400
-Received: from ncircle.nullnet.fi ([62.236.96.207]:25739 "EHLO
-	ncircle.nullnet.fi") by vger.kernel.org with ESMTP id S263228AbTJUSuh
+	Tue, 21 Oct 2003 14:54:57 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:20499 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263232AbTJUSyz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 14:50:37 -0400
-Message-ID: <35640.192.168.9.10.1066762232.squirrel@ncircle.nullnet.fi>
-In-Reply-To: <200310202325.05384.bzolnier@elka.pw.edu.pl>
-References: <001901c39734$8a2c2bb0$0514a8c0@HUSH>
-    <31727.1066684060@www30.gmx.net>
-    <200310202325.05384.bzolnier@elka.pw.edu.pl>
-Date: Tue, 21 Oct 2003 21:50:32 +0300 (EEST)
-Subject: Re: HighPoint 374
-From: "Tomi Orava" <Tomi.Orava@ncircle.nullnet.fi>
-To: "Bartlomiej Zolnierkiewicz" <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: "Svetoslav Slavtchev" <svetljo@gmx.de>,
-       "Carlos Fernandez Sanz" <cfs-lk@nisupu.com>,
-       linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-Importance: Normal
+	Tue, 21 Oct 2003 14:54:55 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: Circular Convolution scheduler
+Date: 21 Oct 2003 18:44:53 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bn3ur5$htf$1@gatekeeper.tmr.com>
+References: <20031016015105.27987.qmail@email.com>
+X-Trace: gatekeeper.tmr.com 1066761893 18351 192.168.12.62 (21 Oct 2003 18:44:53 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <20031016015105.27987.qmail@email.com>,
+Clayton Weaver <cgweav@email.com> wrote:
+| 
+| > Ok, but what is "circular convolution scheduling"?
+| 
+| It was a vague idea that I had for integrating our current,
+| more-or-less distributed system of priority scaling heuristics into a
+| single state model and applying them all at once to a scheduling
+| decision with a single matrix multiply. The motivation would be to
+| engineer out unexpected interactions between different parts of the
+| heuristic analyses that produce unpredicted (and potentially unwanted)
+| behavior in the scheduler.
+| 
+| Ad hoc code is fast, but it depends on implementers being able to model
+| the implied state machine in their imagination, with the implementation
+| of it distributed across various code points in the scheduler. This
+| makes isolated simulation and verification (proof that the scheduler
+| does what we intend it to do) difficult, and we might get farther
+| faster by having an implementation of these scheduling-relevant runtime
+| heuristic analyses that allows us to reliably model scheduler state in
+| the abstract.
+| 
+| I'm not saying that can't be done with the present system, it's just a
+| lot harder to be sure that your model really reflects what is happening
+| at runtime when you start with ad hoc code and try to model it than if
+| you start with a model of a set of state transitions that does what you
+| want and then implement/optimize the model.
+| 
+| As other people have pointed out, runtime scheduler performance is the
+| trump card, and abstract verifiability that a scheduler (with heuristic
+| priority scaling) meets a specified set of state transition constraints
+| is not much help if you can't implement the model with code that
+| performs at least as well as a scheduler with ad-hoc heuristics pasted
+| in "wherever it looked convenient".
+| 
+| (But you are not likely to need to revert stuff very often with a
+| heuristic-enhanced scheduler implemented from a verified formal model,
+| because you aren't guessing what a code change is going to do to the
+| state machine. You already know.)
 
-Ups, hit enter while still writing the message, sorry about that.
+As I noted elsewhere, this depends on the past being a predictor of the
+future. I don't think we will see a major improvement in behaviour until
+disk, CPU, and VM management are all integrated. Given that the
+implementors don't agree on any one part of this I find that unlikely.
+At least the scheduler folks are all civil and acknowledge the good
+points of all work, resulting in progress even thought they are taking
+different approaches. With that model perhaps integration of all
+resource managers would be possible.
 
-Anyway, I just wanted to know if the following error messages
-tell you anything new.
-
-The test was done by copying almost 40GB data simultaneously
-from one RAID1-mirror (disks 1&2 on hpt374) to disks 3&4 on
-hpt374 as well _and_ to disks 1&2 on an external Sil680 PCI-card.
-Kernel version was 2.4.23-pre7.
-
-In my tests the hdparm -m doesn't solve anything.
-The hardware was Epox 8K9A3+ with integrated hpt374-chip.
-Processor is AMD 1.4TB, no overclocking of any kind.
-
-Regards,
-Tomi Orava
----------------------------------------------------------------
-Oct 21 20:15:05 alderan kernel: hdk: drive_cmd: status=0x51 { DriveReady
-SeekComplete Error }
-Oct 21 20:15:05 alderan kernel: hdk: drive_cmd: error=0x04 {
-DriveStatusError }
-Oct 21 20:15:05 alderan kernel: hdk: drive_cmd: status=0x51 { DriveReady
-SeekComplete Error }
-Oct 21 20:15:05 alderan kernel: hdk: drive_cmd: error=0x04 {
-DriveStatusError }
-Oct 21 20:15:17 alderan kernel: hdk: drive_cmd: status=0x51 { DriveReady
-SeekComplete Error }
-Oct 21 20:15:17 alderan kernel: hdk: drive_cmd: error=0x04 {
-DriveStatusError }
-Oct 21 20:22:36 alderan kernel: hdg: set_drive_speed_status: status=0xff {
-Busy }
-Oct 21 20:30:57 alderan kernel: hdi: dma_timer_expiry: dma status == 0x20
-Oct 21 20:30:57 alderan kernel: hdi: timeout waiting for DMA
-Oct 21 20:30:57 alderan kernel: hdi: timeout waiting for DMA
-Oct 21 20:30:57 alderan kernel: hdi: (__ide_dma_test_irq) called while not
-waiting
-Oct 21 20:30:57 alderan kernel: hdi: status error: status=0x58 {
-DriveReady SeekComplete DataRequest }
-Oct 21 20:30:57 alderan kernel:
-Oct 21 20:30:57 alderan kernel: hdi: drive not ready for command
-Oct 21 20:30:57 alderan kernel: hdi: status timeout: status=0xd0 { Busy }
-Oct 21 20:30:57 alderan kernel:
-Oct 21 20:30:57 alderan kernel: hdi: drive not ready for command
-Oct 21 20:30:57 alderan kernel: ide4: reset: success
-Oct 21 20:30:57 alderan kernel: blk: queue c0498a50, I/O limit 4095Mb
-(mask 0xffffffff)
-Oct 21 20:30:57 alderan kernel: hdi: status error: status=0x58 {
-DriveReady SeekComplete DataRequest }
-Oct 21 20:31:01 alderan kernel:
-Oct 21 20:31:10 alderan kernel: hdi: drive not ready for command
-Oct 21 20:31:17 alderan kernel: hdi: dma_timer_expiry: dma status == 0x20
-Oct 21 20:31:20 alderan kernel: hdi: timeout waiting for DMA
-Oct 21 20:31:20 alderan kernel: hdi: timeout waiting for DMA
-Oct 21 20:31:20 alderan kernel: hdi: (__ide_dma_test_irq) called while not
-waiting
-Oct 21 20:31:20 alderan kernel: hdi: status error: status=0x58 {
-DriveReady SeekComplete DataRequest }
-Oct 21 20:31:20 alderan kernel:
-Oct 21 20:31:20 alderan kernel: hdi: drive not ready for command
-Oct 21 20:31:20 alderan kernel: hdi: status timeout: status=0xd0 { Busy }
-Oct 21 20:31:20 alderan kernel:
-Oct 21 20:31:20 alderan kernel: hdi: drive not ready for command
-Oct 21 20:31:20 alderan kernel: ide4: reset: success
-Oct 21 20:32:36 alderan kernel: hdi: lost interrupt
-
+On the other hand... the pissing contest with suspend makes good soap
+opera, but does not seem to have resulted in even one widely functional
+implementation. The phrase "does not play well with others" comes to
+mind.
 
 
 -- 
-Tomi.Orava@ncircle.nullnet.fi
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

@@ -1,56 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262486AbTENTpD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 15:45:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262526AbTENTpC
+	id S261182AbTENT4k (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 15:56:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262042AbTENT4k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 15:45:02 -0400
-Received: from fmr02.intel.com ([192.55.52.25]:9469 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id S262486AbTENTpB convert rfc822-to-8bit (ORCPT
+	Wed, 14 May 2003 15:56:40 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:8882 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261182AbTENT4i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 15:45:01 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
+	Wed, 14 May 2003 15:56:38 -0400
+Date: Wed, 14 May 2003 13:05:08 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+       acme@conectiva.com.br
+Subject: Re: 2.5 qdisc problem
+Message-Id: <20030514130508.4c6ece84.rddunlap@osdl.org>
+In-Reply-To: <20030514.125923.102559449.davem@redhat.com>
+References: <20030514122624.GA20480@babylon.d2dc.net>
+	<20030514125941.GI15261@suse.de>
+	<20030514130838.GJ15261@suse.de>
+	<20030514.125923.102559449.davem@redhat.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: RFC Proposal to enable MSI support in Linux kernel
-Date: Wed, 14 May 2003 12:57:37 -0700
-Message-ID: <3014AAAC8E0930438FD38EBF6DCEB56401E451D2@fmsmsx407.fm.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: RFC Proposal to enable MSI support in Linux kernel
-Thread-Index: AcMaTBBPym4hZIQtS9mzSAFnOQ0xbgAAHDXA
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: "Zwane Mwaikambo" <zwane@linuxpower.ca>,
-       "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-Cc: <linux-kernel@vger.kernel.org>, "Saxena, Sunil" <sunil.saxena@intel.com>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>,
-       "Carbonari, Steven" <steven.carbonari@intel.com>
-X-OriginalArrivalTime: 14 May 2003 19:57:37.0783 (UTC) FILETIME=[11AF8870:01C31A53]
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-That's a good idea, and that's the way we did this (we added MSI support on top of the vector-based indexing). If people are interested in the vector-based indexing (i.e. provide the vector number to device drivers (non-legacy drivers only) instead of IRQ) for some other uses, we would like to discuss possible cleaner implementations.
+On Wed, 14 May 2003 12:59:23 -0700 (PDT) "David S. Miller" <davem@redhat.com> wrote:
 
-Long will post a patch containing the vector-based indexing part only. 
+|    From: Jens Axboe <axboe@suse.de>
+|    Date: Wed, 14 May 2003 15:08:38 +0200
+|    
+|    This half-assed back-out from bk current makes it work here, Arnaldo
+|    could you please fix this??
+| 
+| This is a good clue, thanks for tracking it down this far.
+| I'll help figure out what's wrong, I can reproduce the problem
+| here too.
+| 
+| I believe the problem has something to do with changing when the
+| rtnetlink/netlink init runs, not the socket owner stuff.
 
-Thanks,
-Jun
+Ah, init ordering.  If it involvles initcalls (I see
+./netlink/af_netlink.c:subsys_initcall(netlink_proto_init);),
+you can set initcall_debug=1 on the kernel command line to get a
+list of initcall addresses dumped into the syslog.
+Then you can grep those lines and convert them to names
+using
+  http://www.xenotime.net/linux/scripts/cvrt_initcalls
+which calls
+  http://www.xenotime.net/linux/scripts/ksysmap
 
-> -----Original Message-----
-> From: Zwane Mwaikambo [mailto:zwane@linuxpower.ca]
-> Sent: Wednesday, May 14, 2003 11:58 AM
-> To: Nguyen, Tom L
-> Cc: linux-kernel@vger.kernel.org; Saxena, Sunil; Mallick, Asit K; Nakajima,
-> Jun; Carbonari, Steven
-> Subject: Re: RFC Proposal to enable MSI support in Linux kernel
-> 
-> Is it possible for you to split up the vector based indexing and the MSI
-> support? There are other uses for such an indexing scheme as opposed to
-> irq based.
-> 
-> 	Zwane
-> --
-> function.linuxpower.ca
+if that will help you any.
+--
+~Randy

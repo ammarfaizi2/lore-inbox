@@ -1,54 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132922AbRDUUqu>; Sat, 21 Apr 2001 16:46:50 -0400
+	id <S132512AbRDUUvU>; Sat, 21 Apr 2001 16:51:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132921AbRDUUqm>; Sat, 21 Apr 2001 16:46:42 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:17427 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S132920AbRDUUqb>;
-	Sat, 21 Apr 2001 16:46:31 -0400
-Date: Sat, 21 Apr 2001 16:46:59 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        CML2 <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: Request for comment -- a better attribution system
-Message-ID: <20010421164659.A4704@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Alexander Viro <viro@math.psu.edu>,
-	"Albert D. Cahalan" <acahalan@cs.uml.edu>,
-	CML2 <linux-kernel@vger.kernel.org>,
-	kbuild-devel@lists.sourceforge.net
-In-Reply-To: <200104212023.f3LKN7P188973@saturn.cs.uml.edu> <Pine.GSO.4.21.0104211630130.27021-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.4.21.0104211630130.27021-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Sat, Apr 21, 2001 at 04:34:29PM -0400
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S132503AbRDUUvK>; Sat, 21 Apr 2001 16:51:10 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:49413 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S132512AbRDUUux>;
+	Sat, 21 Apr 2001 16:50:53 -0400
+Date: Sat, 21 Apr 2001 17:45:18 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+Cc: Doug McNaught <doug@wireboard.com>, Miles Lane <miles@megapathdsl.net>,
+        linux-kernel@vger.kernel.org, linux-openlvm@nl.linux.org,
+        linux-lvm@sistina.com
+Subject: Re: [repost] Announce: Linux-OpenLVM mailing list
+In-Reply-To: <20010421015555.L805@mea-ext.zmailer.org>
+Message-ID: <Pine.LNX.4.21.0104211743440.1685-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro <viro@math.psu.edu>:
-> The real problem is that large part of the kernel has no permanent
-> maintainers. Which makes the whole (overdesigned) idea completely moot.
+On Sat, 21 Apr 2001, Matti Aarnio wrote:
 
-One of the problems this `overdesign' can help solve is actually identifying
-the parts that have semi-permanent maintainers, and the parts that don't.
+>   If you are PERL speaker (or can at least comprehend perl's
+>   m(atch) expressions), here is URL to info about it, plus
+>   the actual live running filter-set:
+> 
+>     http://vger.kernel.org/majordomo-info.html
+> 
+>   Go to the end of the page, and you see link for the actual
+>   filter code used at the VGER's Majordomo.
 
-One way to use the meta-information, for example, would be to use it to 
-periodically poll maintainers to find out if they're still active.
+To get the filter set used by NL.linux.org:
 
-Another is to be able to generate reports on exactly how much of the kernel
-is in "Maintained" or "Supported" status.  I think it would be worth 
-making this change just so we could know that.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+cvs -d :pserver:cvs@nl.linux.org:/home/CVS login
+password: cvs
+cvs -d :pserver:cvs@nl.linux.org:/home/CVS checkout spamfilter
 
-What if you were an idiot, and what if you were a member of Congress?
-But I repeat myself.
-        -- Mark Twain
+You can also use the regexps and the script in this CVS tree to
+build your own majordomo.cf automatically whenever new regexps
+get added.
 
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 

@@ -1,35 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271634AbRH0A15>; Sun, 26 Aug 2001 20:27:57 -0400
+	id <S269404AbRH0Bl6>; Sun, 26 Aug 2001 21:41:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271635AbRH0A1r>; Sun, 26 Aug 2001 20:27:47 -0400
-Received: from argo.starforce.com ([216.158.56.82]:18816 "EHLO
-	argo.starforce.com") by vger.kernel.org with ESMTP
-	id <S271634AbRH0A1m>; Sun, 26 Aug 2001 20:27:42 -0400
-Date: Sun, 26 Aug 2001 20:28:03 -0400 (EDT)
-From: Derek Wildstar <dwild@starforce.com>
-To: dman <dsh8290@rit.edu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: tmpfs -- where's the M to R?
-In-Reply-To: <20010826195651.A5295@hudson>
-Message-ID: <Pine.LNX.4.33L2.0108262025590.1097-100000@argo.starforce.com>
+	id <S271579AbRH0Blt>; Sun, 26 Aug 2001 21:41:49 -0400
+Received: from smarty.smart.net ([207.176.80.102]:5648 "EHLO smarty.smart.net")
+	by vger.kernel.org with ESMTP id <S269404AbRH0Blj>;
+	Sun, 26 Aug 2001 21:41:39 -0400
+From: Rick Hohensee <humbubba@smarty.smart.net>
+Message-Id: <200108270203.WAA19775@smarty.smart.net>
+Subject: Re: [resent PATCH] Re: very slow parallel read performance
+To: yodaiken@fsmlabs.com
+Date: Sun, 26 Aug 2001 22:03:54 -0400 (EDT)
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 26 Aug 2001, dman wrote:
+Yodaiken
+I'll have to wait to display more ignorance (on this subject)
+until next week. Off to
+LinuxWorld SF - rushing in where Alan Cox is afraid to go!
 
-> I'm interested in tmpfs for several reasons, one of them is setting up
-> a diskless terminal.  I found a few mentions of tmpfs in the FAQ and a
-> brief mention in the Multi Disk Tuning HOWTO, but I couldn't find any
-> docs on it.  Most of what I read said that there was no tmpfs
-> implementation in Linux, but my config (kernel 2.4.8) says there is.
-> Any pointers to documentation would be appreciated.
+And OT: the Embedded Linux Consortium is considering standards
+for Embedded Linux, as is the Emblix Consortium (Japan), the Open Group,
+and, for all I know, the UN, the NRA, and the Committee for the
+Preservation Welsh Poetry. I'd be
+interested in any suggestions, comments, proposals, or witty remarks
+I could convey to  the first three of  these august organizations.
 
-Look at the help for tmpfs in "make menuconfig", if you highlight it then
-select "help" ... it explains how to mount it and what some of the options
-are.
+moi
+I believe the Committee for the Preservation of Welsh Poetry are pretty
+settled on the -ac tree. Aren't they doing an audio CD of Alan reciting
+the TCP/IP stack sources?
 
--dwild
+You might mention that embedded Linux is in many ways a reenactment of the
+history of Forth, which has many of the same advantages as Linux, foremost
+in embedded being  low (nil) unit-cost. Then there's robustness,
+mutability, completeness...
 
+Rick Hohensee
+                www.
+                           cLIeNUX
+                                          .com
+                                                        humbubba@smart.net

@@ -1,62 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261263AbSJYDqd>; Thu, 24 Oct 2002 23:46:33 -0400
+	id <S261268AbSJYEDP>; Fri, 25 Oct 2002 00:03:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261246AbSJYDqd>; Thu, 24 Oct 2002 23:46:33 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:21920 "EHLO
-	flossy.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S261238AbSJYDqb>; Thu, 24 Oct 2002 23:46:31 -0400
-Date: Thu, 24 Oct 2002 23:53:53 -0400
-From: Doug Ledford <dledford@redhat.com>
-To: Philippe Troin <phil@fifi.org>
-Cc: Hanna Linder <hannal@us.ibm.com>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org, tmolina@cox.net, haveblue@us.ibm.com
-Subject: Re: more aic7xxx boot failure
-Message-ID: <20021025035353.GA3556@redhat.com>
-Mail-Followup-To: Philippe Troin <phil@fifi.org>,
-	Hanna Linder <hannal@us.ibm.com>, linux-kernel@vger.kernel.org,
-	linux-scsi@vger.kernel.org, tmolina@cox.net, haveblue@us.ibm.com
-References: <8800000.1035498319@w-hlinder> <87lm4nxxnj.fsf@ceramic.fifi.org> <16660000.1035501142@w-hlinder> <87hefbxw3d.fsf@ceramic.fifi.org>
+	id <S261273AbSJYEDP>; Fri, 25 Oct 2002 00:03:15 -0400
+Received: from fluent2.pyramid.net ([206.100.220.213]:62213 "EHLO
+	fluent2.pyramid.net") by vger.kernel.org with ESMTP
+	id <S261268AbSJYEDO>; Fri, 25 Oct 2002 00:03:14 -0400
+Message-Id: <5.1.0.14.0.20021024210320.01db0750@fluent2.pyramid.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 24 Oct 2002 21:09:20 -0700
+To: hps@intermeta.de, linux-kernel@vger.kernel.org
+From: Stephen Satchell <list@fluent2.pyramid.net>
+Subject: Re: One for the Security Guru's
+In-Reply-To: <ap8f36$8ge$1@forge.intermeta.de>
+References: <Pine.LNX.3.95.1021023105535.13301A-100000@chaos.analogic.com>
+ <Pine.LNX.4.44.0210231346500.26808-100000@innerfire.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87hefbxw3d.fsf@ceramic.fifi.org>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 24, 2002 at 04:20:38PM -0700, Philippe Troin wrote:
-> Hanna Linder <hannal@us.ibm.com> writes:
-> 
-> > Pending list: 2
-> > Kernel Free SCB list: 1 0
-> > Untagged Q(0): 2
-> > DevQ(0:0:0):0 waiting
-> > qinpos = 0, SCB index = 3
-> > Kernel panic: Loop 1
-> 
-> Had the same problem.
-> 
-> Booted noapic, problem solved...
-> 
-> Now, if the driver could be fixed, that would be nicer...
+At 09:38 AM 10/24/02 +0000, Henning P. Schmiedehausen wrote:
+>So you should've bought a more expensive firewall that offers protocol
+>based forwarding instead of being a simple packet filter.
+>
+>packet filter != firewall. That's the main lie behind most of the
+>"Linux based" firewalls.
+>
+>Get the real thing. Checkpoint. PIX. But that's a little
+>more expensive than "xxx firewall based on Linux".
 
-If noapic solves the problem then the driver isn't where the bug is, it's 
-in the SMP irq table or ACPI irq routing or PCI interrupt routing, but it 
-is *not* the driver.
+OK, I don't advertise that I'm the "know-it-all" when it comes to security, 
+and in the State of Nevada (USA) I'm not allowed to advertise as a 
+"security consultant" without a special license from the Private 
+Investigator's License Board.
 
-I will repeat, if "noapic" ever solves a driver bug, then the problem 
-wasn't a driver bug in the first place!
+I have a firewall running on 2.4.18 (Red Hat 7.3/Valhalla with updates) 
+which is (on an experimental basis) doing port-number-based forwarding to a 
+Web server.  The idea is that the Web server is *not* directly on the 'Net, 
+but is instead  behind a firewall that steers incoming traffic to it on two 
+specific ports:  80 and 443.  (Yes, I installed the slapper on the Web 
+server.)  This was done using IPTABLES.
 
-/me has been listening to people wrongly accuse drivers of IRQ routing 
-bugs for going on three years now, ever since the MP table parsing and 
-IO-APIC code was first put into the linux kernel and now tends to be a bit 
-testy when people make the mistake of calling an IRQ routing bug a driver 
-bug.
+I've also been experimenting with the traffic limiting capabilities, as one 
+co-locate provider offers discounts for guaranteed lower bandwidth 
+utilization, so by limiting the bandwidth using IPTABLES I should be able 
+to cut my co-lo costs to 1/3 of what they would be with "unlimited" bandwidth.
 
--- 
-  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
-         Red Hat, Inc. 
-         1801 Varsity Dr.
-         Raleigh, NC 27606
-  
+I've worked with the PIX, and I don't see what I'm missing in features 
+between the PIX and Linux/IPTABLES.  I'm sure there is something.  Please 
+amplify on your comments.
+

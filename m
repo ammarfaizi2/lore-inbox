@@ -1,38 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269494AbRHLW2v>; Sun, 12 Aug 2001 18:28:51 -0400
+	id <S269506AbRHLWcl>; Sun, 12 Aug 2001 18:32:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269491AbRHLW2b>; Sun, 12 Aug 2001 18:28:31 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:23824 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S269490AbRHLW2Y>; Sun, 12 Aug 2001 18:28:24 -0400
+	id <S269515AbRHLWcb>; Sun, 12 Aug 2001 18:32:31 -0400
+Received: from neon-gw.transmeta.com ([63.209.4.196]:24076 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S269491AbRHLWcS>; Sun, 12 Aug 2001 18:32:18 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
 Subject: Re: Hang problem on Tyan K7 Thunder resolved -- SB Live! heads-up
-To: nerijus@users.sourceforge.net (Nerijus Baliunas)
-Date: Sun, 12 Aug 2001 23:30:36 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), rui.p.m.sousa@clix.pt (Rui Sousa),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <no.id> from "Nerijus Baliunas" at Aug 12, 2001 10:30:39 PM
-X-Mailer: ELM [version 2.5 PL5]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15W3ki-0006JT-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Sun, 12 Aug 2001 22:31:57 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <9l704t$1rp$1@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0108121509310.974-100000@penguin.transmeta.com> <E15W3ZC-0006IC-00@the-village.bc.nu>
+X-Trace: palladium.transmeta.com 997655539 12041 127.0.0.1 (12 Aug 2001 22:32:19 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 12 Aug 2001 22:32:19 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> But later there was a patch from maintainer (Rui Sousa). Besides, there were no
-> updates from maintainers for over a year, so I think "non maintainer" did a good
-> thing - at least maintainers started to send patches finally. Instead of backing out
-> I suggest for maintainers to send more patches...
+In article <E15W3ZC-0006IC-00@the-village.bc.nu>,
+Alan Cox  <alan@lxorguk.ukuu.org.uk> wrote:
+>> The problem with backing it out is that apparently nobody has tried to
+>> really maintain it for a year, and if it gets backed out nobody will even
+>> bother to try to fix it. So I'll let it be for a while, at least.
+>
+>I thought this was a stable kernel tree not 2.5 ?
 
-I've got an even better idea. Its called making major problematic device
-changes and debugging them in _UNSTABLE_ kernel trees - like waiting until
-2.5 starts. Otherwise 2.4 will never be stable.
+Well, considering that the _old_ driver is also not stable and doesn't
+work on all machines, we're really screwed whichever way we turn. 
 
-Its one thing to take something like the early USB in a stable kernel and
-update it because it certainly won't make it worse, and another to update
-an emu10k1 driver that worked with one that doesn't work, needs different
-user tools and locks all SMP boxes.
+If the old driver was a known working one, this would be a no-brainer. 
+As it is, the old driver doesn't work for people _either_ - but they
+probably aren't piping up, because the old driver has been broken
+forever. 
 
-Alan
+So we have a situation that the new driver works better on some
+machines, and the old driver works better on others. The old driver will
+obviously neevr get fixed (we've given it several years now), so the old
+driver is _known_ to be terminally broken. The new driver is a question
+mark in that regard.
+
+So I'd rather give the new driver a chance, and see if people can get it
+fixed.  For example, the oops that people have reported _seems_ to be
+due to initializing the tasklet before actually having initialized all
+the data structures the tasklet depends on.  It may well be that moving
+the two "tasklet_init()"s down two lines would fix it.
+
+		Linus

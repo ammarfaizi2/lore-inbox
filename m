@@ -1,76 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265869AbUAEECh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 23:02:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265874AbUAEECh
+	id S265877AbUAEEEq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 23:04:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265883AbUAEEEp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 23:02:37 -0500
-Received: from fw.osdl.org ([65.172.181.6]:57485 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265869AbUAEECf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 23:02:35 -0500
-Date: Sun, 4 Jan 2004 20:02:20 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: viro@parcelfarce.linux.theplanet.co.uk
-cc: Daniel Jacobowitz <dan@debian.org>, Andries Brouwer <aebr@win.tue.nl>,
-       Rob Love <rml@ximian.com>, rob@landley.net,
-       Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>
-Subject: Re: udev and devfs - The final word
-In-Reply-To: <20040105035037.GD4176@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.58.0401041954010.2162@home.osdl.org>
-References: <20040104000840.A3625@pclin040.win.tue.nl>
- <Pine.LNX.4.58.0401031802420.2162@home.osdl.org> <20040104034934.A3669@pclin040.win.tue.nl>
- <Pine.LNX.4.58.0401031856130.2162@home.osdl.org> <20040104142111.A11279@pclin040.win.tue.nl>
- <Pine.LNX.4.58.0401041302080.2162@home.osdl.org> <20040104230104.A11439@pclin040.win.tue.nl>
- <Pine.LNX.4.58.0401041847370.2162@home.osdl.org> <20040105030737.GA29964@nevyn.them.org>
- <Pine.LNX.4.58.0401041918260.2162@home.osdl.org>
- <20040105035037.GD4176@parcelfarce.linux.theplanet.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 4 Jan 2004 23:04:45 -0500
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:14233 "EHLO
+	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S265877AbUAEEEE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 23:04:04 -0500
+Date: Mon, 5 Jan 2004 04:52:19 +0100
+From: Christophe Saout <christophe@saout.de>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Possibly wrong BIO usage in ide_multwrite
+Message-ID: <20040105035219.GA6393@leto.cs.pocnet.net>
+References: <1072977507.4170.14.camel@leto.cs.pocnet.net> <200401020127.50558.bzolnier@elka.pw.edu.pl> <1073013643.20163.51.camel@leto.cs.pocnet.net> <200401032302.32914.bzolnier@elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200401032302.32914.bzolnier@elka.pw.edu.pl>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Bartlomiej,
+
+I've been playing with the code a bit.
+
+I simple (but not really cleaner) solution to my original problem that
+is minimal invasive is to use an unused field from struct request, in
+this case nr_cbio_segments. It actually really counts the remaining
+segments, only in rq->bio instead of rq->cbio. (The bio_kmap_irq
+in ide_map_buffer prevents us from using anything else than rq->bio to
+walk the request).
+
+This segment count is then used to correctly restore the bi_idx fields
+before ending requests instead of assuming they were zero.
+
+(Well, I just also see that you could probably drop the scratch buffer
+and just copy rq->cbio to rq->bio before ending the request... brrr,
+no, that's just too ugly...)
+
+BTW, what was ide_multwrite expected to return? These if clauses in
+multwrite_intr are never executed.
+
+Please don't shoot me for this proposal.
 
 
-On Mon, 5 Jan 2004 viro@parcelfarce.linux.theplanet.co.uk wrote:
-> 
-> What is _not_ OK, though, is to have folks suddenly see /dev/hda3 changing
-> its device number - then we would break existing setups that worked all
-> along; even if admin can fix the breakage, it's not a good thing to do.
+--- linux.orig/drivers/ide/ide-disk.c	2004-01-04 23:29:01.000000000 +0100
++++ linux/drivers/ide/ide-disk.c	2004-01-04 23:32:32.000000000 +0100
+@@ -279,7 +279,7 @@
+ 			 * all bvecs in this one.
+ 			 */
+ 			if (++bio->bi_idx >= bio->bi_vcnt) {
+-				bio->bi_idx = 0;
++				bio->bi_idx = bio->bi_vcnt - bio->nr_cbio_segments;
+ 				bio = bio->bi_next;
+ 			}
+ 
+@@ -288,7 +288,8 @@
+ 				mcount = 0;
+ 			} else {
+ 				rq->bio = bio;
+-				rq->current_nr_sectors = bio_iovec(bio)->bv_len >> 9;
++				rq->nr_cbio_segments = bio_segments(bio);
++				rq->current_nr_sectors = bio_cur_sectors(bio);
+ 				rq->hard_cur_sectors = rq->current_nr_sectors;
+ 			}
+ 		}
+@@ -312,6 +313,7 @@
+ 	ide_hwgroup_t *hwgroup	= HWGROUP(drive);
+ 	ide_hwif_t *hwif	= HWIF(drive);
+ 	struct request *rq	= &hwgroup->wrq;
++	struct bio *bio		= rq->bio;
+ 	u8 stat;
+ 
+ 	stat = hwif->INB(IDE_STATUS_REG);
+@@ -322,8 +324,10 @@
+ 			 *	of the request
+ 			 */
+ 			if (rq->nr_sectors) {
+-				if (ide_multwrite(drive, drive->mult_count))
++				if (ide_multwrite(drive, drive->mult_count)) {
++					bio->bi_idx = bio->bi_vcnt - bio->nr_cbio_segments;
+ 					return ide_stopped;
++				}
+ 				ide_set_handler(drive, &multwrite_intr, WAIT_CMD, NULL);
+ 				return ide_started;
+ 			}
+@@ -333,6 +337,7 @@
+ 			 *	we can end the original request.
+ 			 */
+ 			if (!rq->nr_sectors) {	/* all done? */
++				bio->bi_idx = bio->bi_vcnt - bio->nr_cbio_segments;
+ 				rq = hwgroup->rq;
+ 				ide_end_request(drive, 1, rq->nr_sectors);
+ 				return ide_stopped;
 
-Ehh, it will actually happen.
-
-If nothing else, things like SATA will end up meaning that the device you 
-were used to seeign as /dev/hdc will suddenly show up as /dev/scd0 
-instead. Just because you changed the cabling while you upgraded to a 
-newer version of your CD-ROM drive.
-
-And the thing is, with fs labels and udev, even "existing systems" really
-shouldn't much care.
-
-Now, we'd probably not want to force the switch, but I do suspect we'll 
-have exactly this as a switch in the "Kernel Debugging Config" section. 
-Where even _common_ things like disks could end up with per-bootup values. 
-Just to verify that every part of the system ends up having it right.
-
-Think of it this way: RedHat not that long ago decided to break with a
-_lot_ of tradition by switching over to UTF-8 as the common text encoring.  
-It broke some _major_ programs in how they dealt with "simple" things like
-keyboard input that had worked for literally _decades_.
-
-And you could switch it off if you really wanted to, but quite frankly, it 
-wasn't even a simple choice in the install. You had to know what you were 
-doing to switch it off.
-
-And the thing is, that is _the_ single thing that cleaned up a lot of 
-remaining problems wrt UTF-8 on Linux. Yes, almost all of them had been 
-solved already, or RH wouldn't have dared do the switch. But to get there 
-all the way, you had to literally force the cut-over.
-
-(Yeah, I'm a bad person, and I personally went back to the C locale,
-because "pine" still doesn't get UTF-8 right, and nobody is apparently
-ever going to fix it. Oh, well. But at least I know I'm doing something
-_wrong_, which in itself is a good thing.).
-
-		Linus

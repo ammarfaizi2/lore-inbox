@@ -1,81 +1,151 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265693AbUANJZa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 04:25:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265692AbUANJYX
+	id S265660AbUANJSj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 04:18:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266080AbUANJSL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 04:24:23 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:33038 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S265294AbUANJWK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 04:22:10 -0500
-Date: Wed, 14 Jan 2004 09:22:05 +0000
-From: "'hch@infradead.org'" <hch@infradead.org>
-To: "Mukker, Atul" <Atulm@lsil.com>
-Cc: "'hch@infradead.org'" <hch@infradead.org>,
-       "'James Bottomley'" <James.Bottomley@SteelEye.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       linux-scsi@vger.kernel.org,
-       "'marcelo.tosatti@cyclades.com'" <marcelo.tosatti@cyclades.com>,
-       Matt_Domsch@dell.com
-Subject: Re: ANNOUNCE: megaraid driver version 2.10.1
-Message-ID: <20040114092205.B28333@infradead.org>
-Mail-Followup-To: "'hch@infradead.org'" <hch@infradead.org>,
-	"Mukker, Atul" <Atulm@lsil.com>,
-	'James Bottomley' <James.Bottomley@SteelEye.com>,
-	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-	linux-scsi@vger.kernel.org,
-	"'marcelo.tosatti@cyclades.com'" <marcelo.tosatti@cyclades.com>,
-	Matt_Domsch@dell.com
-References: <0E3FA95632D6D047BA649F95DAB60E57033BC2C3@exa-atlanta.se.lsil.com>
+	Wed, 14 Jan 2004 04:18:11 -0500
+Received: from pD9E5637F.dip.t-dialin.net ([217.229.99.127]:22912 "EHLO
+	averell.firstfloor.org") by vger.kernel.org with ESMTP
+	id S265660AbUANJPw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 04:15:52 -0500
+Date: Wed, 14 Jan 2004 10:15:43 +0100
+From: Andi Kleen <ak@muc.de>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, jh@suse.cz
+Subject: [PATCH] string fixes for gcc 3.4
+Message-ID: <20040114091543.GA2024@averell>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E57033BC2C3@exa-atlanta.se.lsil.com>; from Atulm@lsil.com on Tue, Jan 13, 2004 at 04:39:12PM -0500
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 13, 2004 at 04:39:12PM -0500, Mukker, Atul wrote:
-> The changes in 2.6.1 are rather extensive, so it would be sometime before
-> kernel 2.6.1 version of megaraid is sync'ed against megaraid-2.10.1. Also,
-> we would like to backport the PCI hotplug changes to 2.4.x kernel megaraid
-> as well.
 
-The problem with backporting is that the 2.4 scsi layer is not hot-plug aware,
-so while you can make the driver detect a newly inserted or removed HBA there's
-no way to tell the SCSI midlayer.
+gcc 3.4 optimizes sprintf(foo,"%s",string) into strcpy. Unfortunately
+that isn't seen by the inliner and linux/i386 has no out-of-line strcpy
+so you end up with a linker error.
 
-> +#ifdef SCSI_HAS_HOST_LOCK
-> +#  if LINUX_VERSION_CODE <= KERNEL_VERSION(2,4,9)
-> +		/* This is the Red Hat AS2.1 kernel */
-> +		adapter->host_lock = &adapter->lock;
-> +		host->lock = adapter->host_lock;
-> +#  elif LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0)
-> +		/* This is the later Red Hat 2.4 kernels */
-> +		adapter->host_lock = &adapter->lock;
-> +		host->host_lock = adapter->host_lock;
-> +#  else
-> +		/* This is the 2.6 and later kernel series */
-> +		adapter->host_lock = &adapter->lock;
-> +		scsi_set_host_lock(&adapter->lock);
-> +#  endif
-> +#else
-> +		/* And this is the remainder of the 2.4 kernel series */
->  		adapter->host_lock = &io_request_lock;
-> +#endif
+This patch adds out of line copies for most string functions to avoid
+this. Actually it doesn't export them to modules yet, that would
+be the next step.
 
-This is horribly ugly, but not your faul.  Any chance you could hide
-it into some macro ala megaraid_set_host_lock(adapter, host).
+BTW In my opinion we shouldn't use inline string functions at all.
+The __builtin_str* in modern gcc are better (I used them very successfully
+on x86-64) and for the bigger functions like strrchr,strtok et.al. it just
+doesn't make any sense to inline them or even code them in assembler.
 
-Also note that in 2.6 scsi_set_host_lock should and could easily be avoided,
-just let your adapter->host_lock point to host->host_lock.
+Also fix the bcopy prototype gcc was complaining about.
 
->  		if((adapter->flag & BOARD_64BIT)&&(sizeof(dma_addr_t) == 8))
-> {
-> -			pci_set_dma_mask(pdev, 0xffffffffffffffff);
-> +			pci_set_dma_mask(pdev, 0xffffffffffffffffULL);
+-Andi
 
-This needs error return checking.  Again this no regression from the previous
-version, could you please fix it in the next update?
-
+diff -u linux-34/lib/string.c-o linux-34/lib/string.c
+--- linux-34/lib/string.c-o	2003-10-25 22:57:15.000000000 +0200
++++ linux-34/lib/string.c	2004-01-13 14:07:33.000000000 +0100
+@@ -18,6 +18,8 @@
+  *                    Matthew Hawkins <matt@mh.dropbear.id.au>
+  * -  Kissed strtok() goodbye
+  */
++
++#define IN_STRING_C 1
+  
+ #include <linux/types.h>
+ #include <linux/string.h>
+@@ -437,12 +439,13 @@
+  * You should not use this function to access IO space, use memcpy_toio()
+  * or memcpy_fromio() instead.
+  */
+-void bcopy(const char * src, char * dest, int count)
++void bcopy(const void * srcp, void * destp, size_t count)
+ {
+-	char *tmp = dest;
++	const char *src = srcp;
++	char *dest = destp;
+ 
+ 	while (count--)
+-		*tmp++ = *src++;
++		*dest++ = *src++;
+ }
+ #endif
+ 
+diff -u linux-34/include/asm-i386/string.h-o linux-34/include/asm-i386/string.h
+--- linux-34/include/asm-i386/string.h-o	2004-01-09 09:27:18.000000000 +0100
++++ linux-34/include/asm-i386/string.h	2004-01-13 14:12:06.000000000 +0100
+@@ -23,7 +23,10 @@
+  *		consider these trivial functions to be PD.
+  */
+ 
+-#define __HAVE_ARCH_STRCPY
++/* AK: in fact I bet it would be better to move this stuff all out of line.
++ */
++#if !defined(IN_STRING_C)
++
+ static inline char * strcpy(char * dest,const char *src)
+ {
+ int d0, d1, d2;
+@@ -37,7 +40,6 @@
+ return dest;
+ }
+ 
+-#define __HAVE_ARCH_STRNCPY
+ static inline char * strncpy(char * dest,const char *src,size_t count)
+ {
+ int d0, d1, d2, d3;
+@@ -56,7 +58,6 @@
+ return dest;
+ }
+ 
+-#define __HAVE_ARCH_STRCAT
+ static inline char * strcat(char * dest,const char * src)
+ {
+ int d0, d1, d2, d3;
+@@ -73,7 +74,6 @@
+ return dest;
+ }
+ 
+-#define __HAVE_ARCH_STRNCAT
+ static inline char * strncat(char * dest,const char * src,size_t count)
+ {
+ int d0, d1, d2, d3;
+@@ -96,7 +96,6 @@
+ return dest;
+ }
+ 
+-#define __HAVE_ARCH_STRCMP
+ static inline int strcmp(const char * cs,const char * ct)
+ {
+ int d0, d1;
+@@ -117,7 +116,6 @@
+ return __res;
+ }
+ 
+-#define __HAVE_ARCH_STRNCMP
+ static inline int strncmp(const char * cs,const char * ct,size_t count)
+ {
+ register int __res;
+@@ -140,7 +138,6 @@
+ return __res;
+ }
+ 
+-#define __HAVE_ARCH_STRCHR
+ static inline char * strchr(const char * s, int c)
+ {
+ int d0;
+@@ -159,7 +156,6 @@
+ return __res;
+ }
+ 
+-#define __HAVE_ARCH_STRRCHR
+ static inline char * strrchr(const char * s, int c)
+ {
+ int d0, d1;
+@@ -176,6 +172,8 @@
+ return __res;
+ }
+ 
++#endif
++
+ #define __HAVE_ARCH_STRLEN
+ static inline size_t strlen(const char * s)
+ {

@@ -1,112 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262635AbVCJBKs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262401AbVCJAzE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262635AbVCJBKs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 20:10:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262658AbVCJBIb
+	id S262401AbVCJAzE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 19:55:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262573AbVCJAub
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 20:08:31 -0500
-Received: from mail.kroah.org ([69.55.234.183]:49055 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262617AbVCJAm1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 19:42:27 -0500
-Cc: Michael.Waychison@Sun.COM
-Subject: [PATCH] driver core: clean driver unload
-In-Reply-To: <11104148831572@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Wed, 9 Mar 2005 16:34:44 -0800
-Message-Id: <11104148843411@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
+	Wed, 9 Mar 2005 19:50:31 -0500
+Received: from mail.kroah.org ([69.55.234.183]:59295 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262633AbVCJAme (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 19:42:34 -0500
+Date: Wed, 9 Mar 2005 16:34:03 -0800
 From: Greg KH <greg@kroah.com>
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [BK PATCH] Driver core and kobject updates for 2.6.11
+Message-ID: <20050310003403.GA32215@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2045, 2005/03/09 09:52:29-08:00, Michael.Waychison@Sun.COM
+Hi,
 
-[PATCH] driver core: clean driver unload
+Here are some driver core and kobject/kref updates for 2.6.11.  They
+have all been in the -mm releases for some time now.  There is also a
+documentation update for the schedule removal feature list.
 
-Get rid of semaphore abuse by converting device_driver->unload_sem
-semaphore to device_driver->unloaded completion.
+Please pull from:  bk://kernel.bkbits.net/gregkh/linux/2.6.11/driver
 
-This should get rid of any confusion as well as save a few bytes in the
-process.
+Individual patches will follow, sent to the linux-kernel list.
 
-Signed-off-by: Mike Waychison <michael.waychison@sun.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+thanks,
+
+greg k-h
+
+ Documentation/feature-removal-schedule.txt |   23 +++++-
+ drivers/base/bus.c                         |    4 -
+ drivers/base/class.c                       |   98 +++++++++++++----------------
+ drivers/base/class_simple.c                |   21 ------
+ drivers/base/driver.c                      |   13 +--
+ drivers/base/map.c                         |   21 ++----
+ drivers/base/platform.c                    |    2 
+ drivers/base/sys.c                         |   39 +++++------
+ drivers/block/floppy.c                     |   19 +----
+ drivers/block/genhd.c                      |   55 ++++++++++------
+ drivers/i2c/i2c-dev.c                      |    9 --
+ drivers/media/video/videodev.c             |   11 ---
+ drivers/usb/core/file.c                    |   64 +++++-------------
+ fs/char_dev.c                              |   26 ++-----
+ include/linux/device.h                     |    5 -
+ include/linux/kobj_map.h                   |    2 
+ include/linux/kobject.h                    |    2 
+ include/linux/kref.h                       |    2 
+ lib/kobject.c                              |   15 ++--
+ lib/kref.c                                 |   11 ++-
+ 20 files changed, 202 insertions(+), 240 deletions(-)
+-----
 
 
- drivers/base/bus.c     |    2 +-
- drivers/base/driver.c  |   13 ++++++-------
- include/linux/device.h |    2 +-
- 3 files changed, 8 insertions(+), 9 deletions(-)
+Arjan van de Ven:
+  o Kobject: remove some unneeded exports
 
+Dominik Brodowski:
+  o cpufreq 2.4 interface removal schedule
 
-diff -Nru a/drivers/base/bus.c b/drivers/base/bus.c
---- a/drivers/base/bus.c	2005-03-09 16:29:14 -08:00
-+++ b/drivers/base/bus.c	2005-03-09 16:29:14 -08:00
-@@ -65,7 +65,7 @@
- static void driver_release(struct kobject * kobj)
- {
- 	struct device_driver * drv = to_driver(kobj);
--	up(&drv->unload_sem);
-+	complete(&drv->unloaded);
- }
- 
- static struct kobj_type ktype_driver = {
-diff -Nru a/drivers/base/driver.c b/drivers/base/driver.c
---- a/drivers/base/driver.c	2005-03-09 16:29:14 -08:00
-+++ b/drivers/base/driver.c	2005-03-09 16:29:14 -08:00
-@@ -79,14 +79,14 @@
-  *	since most of the things we have to do deal with the bus
-  *	structures.
-  *
-- *	The one interesting aspect is that we initialize @drv->unload_sem
-- *	to a locked state here. It will be unlocked when the driver
-- *	reference count reaches 0.
-+ *	The one interesting aspect is that we setup @drv->unloaded
-+ *	as a completion that gets complete when the driver reference
-+ *	count reaches 0.
-  */
- int driver_register(struct device_driver * drv)
- {
- 	INIT_LIST_HEAD(&drv->devices);
--	init_MUTEX_LOCKED(&drv->unload_sem);
-+	init_completion(&drv->unloaded);
- 	return bus_add_driver(drv);
- }
- 
-@@ -97,7 +97,7 @@
-  *
-  *	Again, we pass off most of the work to the bus-level call.
-  *
-- *	Though, once that is done, we attempt to take @drv->unload_sem.
-+ *	Though, once that is done, we wait until @drv->unloaded is completed.
-  *	This will block until the driver refcount reaches 0, and it is
-  *	released. Only modular drivers will call this function, and we
-  *	have to guarantee that it won't complete, letting the driver
-@@ -107,8 +107,7 @@
- void driver_unregister(struct device_driver * drv)
- {
- 	bus_remove_driver(drv);
--	down(&drv->unload_sem);
--	up(&drv->unload_sem);
-+	wait_for_completion(&drv->unloaded);
- }
- 
- /**
-diff -Nru a/include/linux/device.h b/include/linux/device.h
---- a/include/linux/device.h	2005-03-09 16:29:14 -08:00
-+++ b/include/linux/device.h	2005-03-09 16:29:14 -08:00
-@@ -102,7 +102,7 @@
- 	char			* name;
- 	struct bus_type		* bus;
- 
--	struct semaphore	unload_sem;
-+	struct completion	unloaded;
- 	struct kobject		kobj;
- 	struct list_head	devices;
- 
+Greg Kroah-Hartman:
+  o class: add a semaphore to struct class, and use that instead of the subsystem rwsem
+  o sysdev: remove the rwsem usage from this subsystem
+  o sysdev: fix the name of the list of drivers to be a sane name
+  o kmap: remove usage of rwsem from kobj_map
+  o USB: move usb core to use class_simple instead of it's own class functions
+  o kref: make kref_put return if this was the last put call
+  o sysdev: make system_subsys static as no one else needs access to it
+  o kset: make ksets have a spinlock, and use that to lock their lists
+
+Kay Sievers:
+  o floppy.c: pass physical device to device registration
+  o Driver core: add "bus" symlink to class/block devices
+  o videodev: pass dev_t to the class core
+  o i2c: class driver pass dev_t to the class core
+  o usb: class driver pass dev_t to the class core
+  o class_simple: pass dev_t to the class core
+  o block core: export MAJOR/MINOR to the hotplug env
+  o class core: export MAJOR/MINOR to the hotplug env
+
+Mike Waychison:
+  o driver core: clean driver unload
+
+Randy Dunlap:
+  o Add 2.4.x cpufreq /proc and sysctl interface removal feature-removal-schedule
+
+Russell King:
+  o driver core: Separate platform device name from platform device number
 

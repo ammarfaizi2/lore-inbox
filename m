@@ -1,46 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312419AbSDNTHK>; Sun, 14 Apr 2002 15:07:10 -0400
+	id <S312426AbSDNTNw>; Sun, 14 Apr 2002 15:13:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312420AbSDNTHJ>; Sun, 14 Apr 2002 15:07:09 -0400
-Received: from inje.iskon.hr ([213.191.128.16]:12995 "EHLO inje.iskon.hr")
-	by vger.kernel.org with ESMTP id <S312419AbSDNTHI>;
-	Sun, 14 Apr 2002 15:07:08 -0400
-To: Don Dupuis <ddupuissprint@earthlink.net>
-Cc: linux-kernel@vger.kernel.org, "Stephen C. Tweedie" <sct@redhat.com>,
-        Jens Axboe <axboe@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: sard/iostat disk I/O statistics/accounting for 2.5.8-pre3
-In-Reply-To: <dnu1qia3zg.fsf@magla.zg.iskon.hr>
-	<1018578201.4395.22.camel@linux-ath.linux.dev.com>
-Reply-To: zlatko.calusic@iskon.hr
-X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
- i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
- pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
-From: Zlatko Calusic <zlatko.calusic@iskon.hr>
-Date: Sun, 14 Apr 2002 21:06:44 +0200
-Message-ID: <dnit6um75n.fsf@magla.zg.iskon.hr>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Common Lisp,
- i386-debian-linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S312427AbSDNTNv>; Sun, 14 Apr 2002 15:13:51 -0400
+Received: from server0011.freedom2surf.net ([194.106.56.14]:57960 "EHLO
+	server0011.freedom2surf.net") by vger.kernel.org with ESMTP
+	id <S312426AbSDNTNu>; Sun, 14 Apr 2002 15:13:50 -0400
+Date: Sun, 14 Apr 2002 20:21:13 +0100
+From: Ian Molton <spyro@armlinux.org>
+To: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: Re: usb-uhci *BUG*
+Message-Id: <20020414202113.12136578.spyro@armlinux.org>
+In-Reply-To: <3CB9D20C.30000@wanadoo.fr>
+Reply-To: spyro@armlinux.org
+Organization: The dragon roost
+X-Mailer: Sylpheed version 0.7.4cvs5 (GTK+ 1.2.10; )
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Don Dupuis <ddupuissprint@earthlink.net> writes:
+Pierre Rousselet Awoke this dragon, who will now respond:
 
-> I have a program called cspm at http://sourceforge.net/projects/cspm
-> that uses Stephen's sard patches.  This program allows showing stats on
-> all disks, controllers, and on a systemwide basis.  It will show ios,
-> uses, merges, and blocks per second.  This program was written in QT.
-> Please have a look at it and provide some feedback.
->
+> 
+>  The oops doesn't come when the driver is exiting in this case (as the 
+>  patch was for), it "occurs randomly". The problem might be with the usb 
+>  hardware.
 
-After having lots of problems with Qt 3.0, I finally managed to
-install it on my Debian. Then I had to correct one bug in your source
-to get it to compile, and now it just coredumps like it has a problem
-when parsing /proc/partitions (as open() of that file is last thing
-before it dies with segmentation fault).
+>  > Ian Molton wrote:
+>  >>>What were you doing when the BUG() call happened?
+>  >> 
+>  >> surfin' the net ;) it appears to occur randomly - its been fine the
+>  >> whole day today, although less stressed than yesterday.
+> 
+>  What is the motherboard, is it an usb add-on card ?
 
-I would like to try it, but didn't have much luck so far.
--- 
-Zlatko
+Its a VIA based board, and it /is/ an add-on card. its a 4 port OPTi based
+card.
+
+Mobo stuff:
+  Bus  0, device   0, function  0:
+    Host bridge: VIA Technologies, Inc. VT82C597 [Apollo VP3] (rev 4).
+      Master Capable.  Latency=16.  
+      Prefetchable 32 bit memory at 0xe0000000 [0xe07fffff].
+  Bus  0, device   1, function  0:
+    PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo MVP3/Pro133x
+AGP] (rev 0).      Master Capable.  No bursts.  Min Gnt=4.
+
+USB controller:
+  Bus  0, device  10, function  0:
+    USB Controller: OPTi Inc. 82C861 (rev 32).
+      IRQ 10.
+      Master Capable.  Latency=16.  Max Lat=80.
+      Non-prefetchable 32 bit memory at 0xe0800000 [0xe0800fff].
+  Bus  0, device  10, function  1:
+    USB Controller: OPTi Inc. 82C861 (#2) (rev 32).
+      IRQ 12.
+      Master Capable.  Latency=16.  Max Lat=80.
+      Non-prefetchable 32 bit memory at 0xe0801000 [0xe0801fff].

@@ -1,75 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318893AbSHMArW>; Mon, 12 Aug 2002 20:47:22 -0400
+	id <S318894AbSHMAsM>; Mon, 12 Aug 2002 20:48:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318894AbSHMArV>; Mon, 12 Aug 2002 20:47:21 -0400
-Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:5519 "EHLO
-	dad.molina") by vger.kernel.org with ESMTP id <S318893AbSHMArV>;
-	Mon, 12 Aug 2002 20:47:21 -0400
-Date: Mon, 12 Aug 2002 19:44:54 -0500 (CDT)
-From: Thomas Molina <tmolina@cox.net>
-X-X-Sender: tmolina@dad.molina
-To: linux-kernel@vger.kernel.org
-Subject: Re: pte_chain leak in rmap code (2.5.31)
-In-Reply-To: <Pine.LNX.4.44L.0208121119270.23404-100000@imladris.surriel.com>
-Message-ID: <Pine.LNX.4.44.0208121942371.25611-100000@dad.molina>
+	id <S318895AbSHMAsM>; Mon, 12 Aug 2002 20:48:12 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17418 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318894AbSHMAsL>;
+	Mon, 12 Aug 2002 20:48:11 -0400
+Message-ID: <3D5857A4.FE358FA2@zip.com.au>
+Date: Mon, 12 Aug 2002 17:49:40 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Adam Kropelin <akropel1@rochester.rr.com>
+CC: lkml <linux-kernel@vger.kernel.org>, riel@conectiva.com.br
+Subject: Re: [patch 1/21] random fixes
+References: <3D56146B.C3CAB5E1@zip.com.au> <20020811142938.GA681@www.kroptech.com> <3D56A83E.ECF747C6@zip.com.au> <20020812002739.GA778@www.kroptech.com> <3D57406E.D39E9B89@zip.com.au> <20020813002603.GA20817@www.kroptech.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Aug 2002, Rik van Riel wrote:
-
-> On Mon, 12 Aug 2002, Christian Ehrhardt wrote:
+Adam Kropelin wrote:
 > 
-> > Note the strange use of continue and break which both achieve the same!
-> > What was meant to happen (judging from rmap-13c) is that we break
-> > out of the for-Loop once SWAP_FAIL or SWAP_ERROR is returned from
-> > try_to_unmap_one. However, this doesn't happen and a subsequent call
-> > to pte_chain_free will use the wrong value for prev_pc.
+> ...
+> > You can make 2.5 use the 2.4 settings with
+> >
+> > cd /proc/sys/vm
+> > echo 30 > dirty_background_ratio
+> > echo 60 > dirty_async_ratio
+> > echo 70 > dirty_sync_ratio
 > 
-> Excellent hunting!   Thank you!
-> 
-> Your fix should work too, although in my opinion it's a
-> little bit too subtle, so I've changed it into:
-> 
-> 	                                case SWAP_FAIL:
->                                         ret = SWAP_FAIL;
->                                         goto give_up;
->                                 case SWAP_ERROR:
->                                         ret = SWAP_ERROR;
->                                         goto give_up;
->                         }
->                 }
-> give_up:
+> These settings bring -akpm in line with stock 2.5.31, but they are both
+> still slower than 2.4.19 (which itself could do better, I think).
 
-Any chance this is the cause of the following? 
+In that case I'm confounded.  It worked sweetly for me.  Just
 
----------------extract-----------------------
+	wget ftp://other-machine/600-meg-file
 
-Subject:  Re: [patch 1/21] random fixes
-From:     Adam Kropelin <akropel1@rochester.rr.com>
-Date:     2002-08-12 2:54:31
+on a machine booted with mem=160m.  Took 63 seconds over 100bT,
+steady column of writes in vmstat.
 
-FYI, just got this while un-tarring a kernel tree with 
-2.5.31+everything.gz:
-(no nvidia ;)
-
-Date: Sun, 11 Aug 2002 20:40:31 -0700
-From: Andrew Morton <akpm@zip.com.au>
-
-That'll be this one:
-
-                BUG_ON(page->pte.chain != NULL);
-
-we've had a few reports of this dribbling in since rmap went in.  But
-nothing repeatable enough for it to be hunted down.
-
-But we do have a repeatable inconsistency happening with ntpd and
-memory pressure.  That may be related, but in that case it's probably
-related to mlock().
-
-So.  An open bug, alas.
-
-
-
+Which ftp client are you using?  And can you strace it, to see how
+much data it's writing per system call?

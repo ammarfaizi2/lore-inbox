@@ -1,32 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131200AbQKPRtv>; Thu, 16 Nov 2000 12:49:51 -0500
+	id <S131190AbQKPRvb>; Thu, 16 Nov 2000 12:51:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131230AbQKPRtl>; Thu, 16 Nov 2000 12:49:41 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:35388 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131200AbQKPRth>; Thu, 16 Nov 2000 12:49:37 -0500
-Subject: Re: Local root exploit with kmod and modutils > 2.1.121
-To: kuznet@ms2.inr.ac.ru
-Date: Thu, 16 Nov 2000 17:19:45 +0000 (GMT)
-Cc: alan@lxorguk.UKuu.ORG.UK (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <200011161705.UAA03238@ms2.inr.ac.ru> from "kuznet@ms2.inr.ac.ru" at Nov 16, 2000 08:05:05 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S131207AbQKPRvV>; Thu, 16 Nov 2000 12:51:21 -0500
+Received: from tetsuo.zabbo.net ([204.138.55.44]:22029 "HELO tetsuo.zabbo.net")
+	by vger.kernel.org with SMTP id <S131190AbQKPRvR>;
+	Thu, 16 Nov 2000 12:51:17 -0500
+Date: Fri, 17 Nov 2000 01:51:16 -0500
+From: Zach Brown <zab@zabbo.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: sunhme.c patch for new PCI interface (UNTESTED)
+Message-ID: <20001117015116.C16835@tetsuo.zabbo.net>
+In-Reply-To: <200011161213.NAA27334@ns.caldera.de> <200011161222.EAA18278@pizda.ninka.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13wShQ-000860-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.UKuu.ORG.UK>
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <200011161222.EAA18278@pizda.ninka.net>; from davem@redhat.com on Thu, Nov 16, 2000 at 04:22:36AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It checks CAP_SYS_MODULE nowadays.
+On Thu, Nov 16, 2000 at 04:22:36AM -0800, David S. Miller wrote:
+
+> Sure, that sounds nice.
 > 
-> Which does not look good by the way, it is function of request_module(),
-> rather than of caller.
+> Actually, one of the possible "grand plans" for 2.5 is a unified
+> "struct device".  I don't know what will actually happen here.
 
-Only the caller knows if the data is tainted. Thus only the caller can decide
+apologies for pointing out the potentially obvoius, but people might
+want to investigate 'newbus' while brainstorming about this:
 
+http://www.daemonnews.org/200007/newbus-intro.html
+
+-- 
+ zach
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

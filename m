@@ -1,58 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264277AbTLKBcl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 20:32:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264334AbTLKBbh
+	id S264322AbTLKBdV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 20:33:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264303AbTLKBcu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 20:31:37 -0500
-Received: from mail.kroah.org ([65.200.24.183]:63183 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264337AbTLKBaZ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 20:30:25 -0500
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10711061483686@kroah.com>
-Subject: Re: [PATCH] USB Fixes for 2.6.0-test11
-In-Reply-To: <10711061482794@kroah.com>
-From: Greg KH <greg@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Wed, 10 Dec 2003 17:29:08 -0800
-Content-Transfer-Encoding: 7BIT
-To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	Wed, 10 Dec 2003 20:32:50 -0500
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:59310 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S264281AbTLKBb7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 20:31:59 -0500
+Date: Wed, 10 Dec 2003 20:31:40 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Roger Luethi <rl@hellgate.ch>
+cc: William Lee Irwin III <wli@holomorphy.com>,
+       Con Kolivas <kernel@kolivas.org>,
+       Chris Vine <chris@cvine.freeserve.co.uk>,
+       <linux-kernel@vger.kernel.org>, "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: 2.6.0-test9 - poor swap performance on low end machines
+In-Reply-To: <20031210231729.GC28912@k3.hellgate.ch>
+Message-ID: <Pine.LNX.4.44.0312102027001.25222-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1526, 2003/12/10 16:00:53-08:00, arvidjaar@mail.ru
+On Thu, 11 Dec 2003, Roger Luethi wrote:
 
-[PATCH] USB: prevent catch-all USB aliases in modules.alias
+Hmmm, those definitions have changed a little from the
+OS books I read ;))
 
-visor.c defines one empty slot in USB ids table that can be filled in at
-runtime using module parameters. file2alias generates catch-all alias for it:
+> - It is light thrashing when load control has no advantage.
 
-alias usb:v*p*dl*dh*dc*dsc*dp*ic*isc*ip* visor
+This used to be called "no thrashing" ;)
 
-patch adds the same sanity check as in depmod to scripts/file2alias.
+> - It is medium thrashing when using load control is a toss-up. Probably
+>   better throughput, but somewhat higher latency.
 
+This would be when the system load is so high that
+decreasing the multiprocessing level would increase
+system load, but performance would still be within
+acceptable limits (say, 30% of top performance).
 
- scripts/file2alias.c |    7 +++++++
- 1 files changed, 7 insertions(+)
+> - It is heavy thrashing when load control is a winner in both regards.
 
+Heavy thrashing would be "no work gets done by the
+processes in the system, nobody makes good progress".
 
-diff -Nru a/scripts/file2alias.c b/scripts/file2alias.c
---- a/scripts/file2alias.c	Wed Dec 10 16:46:45 2003
-+++ b/scripts/file2alias.c	Wed Dec 10 16:46:45 2003
-@@ -52,6 +52,13 @@
- 	id->bcdDevice_lo = TO_NATIVE(id->bcdDevice_lo);
- 	id->bcdDevice_hi = TO_NATIVE(id->bcdDevice_hi);
- 
-+	/*
-+	 * Some modules (visor) have empty slots as placeholder for
-+	 * run-time specification that results in catch-all alias
-+	 */
-+	if (!(id->idVendor | id->bDeviceClass | id->bInterfaceClass))
-+		return 1;
-+
- 	strcpy(alias, "usb:");
- 	ADD(alias, "v", id->match_flags&USB_DEVICE_ID_MATCH_VENDOR,
- 	    id->idVendor);
+In that case load control is needed to make the system
+survive in a useful way.
+
+> I just made this up. It neatly resolves all arguments about when load
+> control is appropriate. Yeah, so it's a circular definition. Sue me.
+
+Knowing what your definitions are has definately made it
+easier for me to understand your previous mails.
+
+Still, sticking to the textbook definitions might make it
+even easier to talk about things, and compare the plans
+for Linux with what's been done for other OSes.
+
+Also, it would make the job of a load control mechanism
+really easy to define:
+
+	"Prevent the system from thrashing"
+
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 

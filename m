@@ -1,49 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265668AbUFXPkL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265692AbUFXPmg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265668AbUFXPkL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 11:40:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265685AbUFXPkL
+	id S265692AbUFXPmg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 11:42:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265693AbUFXPmg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 11:40:11 -0400
-Received: from styx.suse.cz ([82.119.242.94]:14720 "EHLO shadow.ucw.cz")
-	by vger.kernel.org with ESMTP id S265668AbUFXPkH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 11:40:07 -0400
-Date: Thu, 24 Jun 2004 17:41:27 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: David Eger <eger@havoc.gtf.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: i8042 driver non-determinantly chokes mac on boot
-Message-ID: <20040624154127.GJ731@ucw.cz>
-References: <20040624083910.GA14068@havoc.gtf.org>
+	Thu, 24 Jun 2004 11:42:36 -0400
+Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:33585 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S265692AbUFXPm3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 11:42:29 -0400
+Subject: [PATCH] 2.6.7-bk7 ppp_generic.c get_filter made conditional
+From: Paul Fulghum <paulkf@microgate.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1088091747.2017.2.camel@deimos.microgate.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040624083910.GA14068@havoc.gtf.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 24 Jun 2004 10:42:27 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 24, 2004 at 04:39:10AM -0400, David Eger wrote:
-> Though I'm not sure I even have an i8042 (I'm guessing no, as I run
-> on a Mac) the detection failure path has gone a little wonky in recent
-> kernels.  Half the time it times out with the following (as it ought, 
-> me thinks)
-> 
-> IN from bad port 64 at c01f3100
-> IN from bad port 64 at c01f3100
-> IN from bad port 64 at c01f3100
-> IN from bad port 64 at c01f3100
-> i8042.c: i8042 controller self test timeout.
-> 
-> But the other half of the time it stalls my machine out entirely.
-> Clues?  Want my .config?
-> 
-> I'm running on a Titanium PowerBook3,5.
- 
-I suppose you should disable it, it really has no bussiness running on a
-Mac. Does it write anything when it also crashes?
+Add #ifdef CONFIG_PPP_FILTER around get_filter implementation
+which is only used when this option is enabled. This
+prevents compiler warning (unused function) when
+CONFIG_PPP_FILTER is not defined.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+--
+Paul Fulghum
+paulkf@microgate.com
+
+
+--- linux-2.6.7/drivers/net/ppp_generic.c	2004-06-24 09:41:43.000000000 -0500
++++ linux-2.6.7-mg1/drivers/net/ppp_generic.c	2004-06-24 10:37:22.580842447 -0500
+@@ -494,6 +494,7 @@
+ 	return mask;
+ }
+ 
++#ifdef CONFIG_PPP_FILTER
+ static int get_filter(void __user *arg, struct sock_filter **p)
+ {
+ 	struct sock_fprog uprog;
+@@ -530,6 +531,7 @@
+ 	*p = code;
+ 	return uprog.len;
+ }
++#endif /* CONFIG_PPP_FILTER */
+ 
+ static int ppp_ioctl(struct inode *inode, struct file *file,
+ 		     unsigned int cmd, unsigned long arg)
+
+
+

@@ -1,71 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318085AbSHDEIm>; Sun, 4 Aug 2002 00:08:42 -0400
+	id <S318088AbSHDEYR>; Sun, 4 Aug 2002 00:24:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318088AbSHDEIm>; Sun, 4 Aug 2002 00:08:42 -0400
-Received: from sccrmhc02.attbi.com ([204.127.202.62]:36747 "EHLO
-	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
-	id <S318085AbSHDEIl>; Sun, 4 Aug 2002 00:08:41 -0400
-Message-ID: <3D4CA95C.6070102@u.washington.edu>
-Date: Sat, 03 Aug 2002 21:11:08 -0700
-From: Kolbe Kegel <kolbe@u.washington.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
-X-Accept-Language: es, es-es, en-us, en
-MIME-Version: 1.0
-To: Gary White <gary@netpathway.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19 IDE Partition Check issue
-References: <20020803163708.GHUY23840.mta03-svc.ntlworld.com@[10.137.100.63]> <1028397650.1760.8.camel@irongate.swansea.linux.org.uk> <3D4C5209.67385E8C@netpathway.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S318093AbSHDEYR>; Sun, 4 Aug 2002 00:24:17 -0400
+Received: from mk-smarthost-2.mail.uk.tiscali.com ([212.74.114.38]:20235 "EHLO
+	mk-smarthost-2.mail.uk.tiscali.com") by vger.kernel.org with ESMTP
+	id <S318088AbSHDEYR>; Sun, 4 Aug 2002 00:24:17 -0400
+X-Mailer: exmh version 2.5 07/13/2001 (debian 2.5-1) with nmh-1.0.4+dev
+To: Brian Gerst <bgerst@didntduck.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, John Weber <john.weber@linux.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Toshiba Laptop Support and IRQ Locks 
+In-Reply-To: Message from Brian Gerst <bgerst@didntduck.org> 
+   of "Fri, 02 Aug 2002 15:49:06 EDT." <3D4AE232.6010000@didntduck.org> 
+References: <3D4AAD53.7010008@linux.org> <1028310939.18309.93.camel@irongate.swansea.linux.org.uk> <E17aiHh-00034N-00@jelly.buzzard.org.uk>  <3D4AE232.6010000@didntduck.org> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 04 Aug 2002 05:27:41 +0100
+From: Jonathan Buzzard <jonathan@buzzard.org.uk>
+Message-Id: <E17bCzV-0000Ri-00@jelly.buzzard.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had a similar issue when I was trying to install a new hard drive. 
-this was using 2.4.18, but the boot process would freeze during the 
-partition check. the problem on my end was solved by putting the drive 
-on a different channel... maybe you should see if that allows you to at 
-least boot, not that it helps to actually solve the problem.
 
-Gary White wrote:
 
->Alan I have the same problem Just complied 2.4.10-ac1 and I it did
->not help. I only have a problem if I compile in the ALI M15x3 chipset
->support so I can use DMA. Without DMA the partition check zooms right
->past the 2 Maxtor 120GB drives I am having a problem with.
+bgerst@didntduck.org said:
+> > Two things to bare in mind, Toshiba have yet to do any sort of
+> > multi processor laptop, are extremely unlikely to ever manufacture
+> > one, and to the best of my knowledge the module only loads on Toshiba
+> > laptops. If it loads on anything else it is broken and needs fixing
+> > so it does not.
 >
->Note: I do have an AWARD Bios and have tried the with and without
->Auto-Geometry Resizing support compiled in the kernel.
->
->Oly boots if I don't use DMA and generic controller support.
->
->  
->
->>On Sat, 2002-08-03 at 17:37, alien.ant@ntlworld.com wrote:
->>    
->>
->>>Hi,
->>>
->>>I attempted to upgrade from 2.4.18 to 2.4.19 today but one of machines repeatedly hangs at the "Partition check" on the IDE drives.
->>>
->>>The machine is a Compaq Proliant 800 Pentium III SMP box with a Highpoint 370 IDE controller. I attempted several reboots with the check continually failing. Rebooting back to 2.4.18 removed the problem.
->>>
->>>Searching the archive I note several other people have had this problem with 2.4.19-pre kernels but, as yet, there seems to be no resolution?
->>>
->>>      
->>>
->>Can you try 2.4.19-ac1 once I upload it. That has slightly further
->>updated IDE code and it would useful to know if the same problem occurs
->>
->>-
->>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->>the body of a message to majordomo@vger.kernel.org
->>More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>Please read the FAQ at  http://www.tux.org/lkml/
->>    
->>
->
->  
->
+> What about P4 Hyperthreading? 
+
+The cli() and associated code in the toshiba SMM driver is for laptops
+manufactured prior to 1999. It is not relevant and never will be on
+any laptop with a P4 processor in it. For that matter it is not
+even relevant on a PIII or PII processor. It is strictly Pentiums and
+486's.
+
+JAB.
+
+-- 
+Jonathan A. Buzzard                 Email: jonathan@buzzard.org.uk
+Northumberland, United Kingdom.       Tel: +44(0)1661-832195
 
 

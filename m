@@ -1,61 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265307AbSJRSv4>; Fri, 18 Oct 2002 14:51:56 -0400
+	id <S265617AbSJRSy4>; Fri, 18 Oct 2002 14:54:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265277AbSJRSvg>; Fri, 18 Oct 2002 14:51:36 -0400
-Received: from 12-234-34-139.client.attbi.com ([12.234.34.139]:32760 "EHLO
-	heavens.murgatroid.com") by vger.kernel.org with ESMTP
-	id <S265307AbSJRStK>; Fri, 18 Oct 2002 14:49:10 -0400
-From: "Christopher Hoover" <ch@murgatroid.com>
-To: "'Arnaud Gomes-do-Vale'" <arnaud@glou.org>,
-       "'Thomas Molina'" <tmolina@cox.net>
-Cc: <vojtech@suse.cz>, <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] 2.5.43: Fix for Logitech Wheel Mouse
-Date: Fri, 18 Oct 2002 11:54:57 -0700
-Organization: Murgatroid.Com
-Message-ID: <004601c276d7$dc0bc400$8100000a@bergamot>
+	id <S265319AbSJRSvX>; Fri, 18 Oct 2002 14:51:23 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:22155 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S265350AbSJRSnx>;
+	Fri, 18 Oct 2002 14:43:53 -0400
+Date: Fri, 18 Oct 2002 11:47:40 -0700 (PDT)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: <torvalds@transmeta.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.5.43 IO APIC bit fields
+Message-ID: <Pine.LNX.4.33L2.0210181143280.12841-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-In-Reply-To: <m365vz7fok.fsf@carrosse.in.glou.org>
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-FYI.  I have always had X configured for ImPS/2.  My wheel problem came
-about immediately after booting a 2.5 kernel and using the input layer.
-Before I was running a 2.4 kernel with psaux -- X was handling the mouse
-protocol.
+Hi Linus,
 
--ch
+This patch recognizes & logs 2 more IO APIC bit fields and
+reduces UNEXPECTED IO-APIC traffic.
 
------Original Message-----
-From: arnaud@carrosse.glou.org [mailto:arnaud@carrosse.glou.org] On
-Behalf Of Arnaud Gomes-do-Vale
-Sent: Friday, October 18, 2002 11:42 AM
-To: Thomas Molina
-Cc: Christopher Hoover; vojtech@suse.cz
-Subject: Re: [PATCH] 2.5.43: Fix for Logitech Wheel Mouse
+Has also been acked by Maciej W. Rozycki (macro).
 
+Please apply to 2.5.43.
 
-Thomas Molina <tmolina@cox.net> writes:
-
-> I am also carrying a problem report from Arnaud Gomes-do-Vale with
-this 
-> exact problem.  If this is deemed a proper fix it would probably close
-
-> the other outstanding report.
-
-Oops, I didn't acknowledge Vojtech's fix (that is, configure X for an
-ImPS/2 mouse, not MouseManPlusPS/2). This works for me at least.
-
+Thanks,
 -- 
-Amicalement,
-Arnaud
+~Randy
+
+
+
+--- ./arch/i386/kernel/io_apic.c.2543	Tue Oct 15 20:27:50 2002
++++ ./arch/i386/kernel/io_apic.c	Thu Oct 17 17:43:17 2002
+@@ -856,7 +856,9 @@
+ 	printk(KERN_DEBUG "IO APIC #%d......\n", mp_ioapics[apic].mpc_apicid);
+ 	printk(KERN_DEBUG ".... register #00: %08X\n", *(int *)&reg_00);
+ 	printk(KERN_DEBUG ".......    : physical APIC id: %02X\n", reg_00.ID);
+-	if (reg_00.__reserved_1 || reg_00.__reserved_2)
++	printk(KERN_DEBUG ".......    : Delivery Type: %X\n", reg_00.delivery_type);
++	printk(KERN_DEBUG ".......    : LTS          : %X\n", reg_00.LTS);
++	if (reg_00.__reserved_0 || reg_00.__reserved_1 || reg_00.__reserved_2)
+ 		UNEXPECTED_IO_APIC();
+
+ 	printk(KERN_DEBUG ".... register #01: %08X\n", *(int *)&reg_01);
+--- ./include/asm-i386/io_apic.h.2543	Tue Oct 15 20:28:28 2002
++++ ./include/asm-i386/io_apic.h	Thu Oct 17 17:41:38 2002
+@@ -22,9 +22,12 @@
+  * The structure of the IO-APIC:
+  */
+ struct IO_APIC_reg_00 {
+-	__u32	__reserved_2	: 24,
++	__u32	__reserved_2	: 14,
++		LTS		:  1,
++		delivery_type	:  1,
++		__reserved_1	:  8,
+ 		ID		:  4,
+-		__reserved_1	:  4;
++		__reserved_0	:  4;
+ } __attribute__ ((packed));
+
+ struct IO_APIC_reg_01 {
+
+
+~~
 

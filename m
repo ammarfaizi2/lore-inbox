@@ -1,53 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289042AbSAIWIl>; Wed, 9 Jan 2002 17:08:41 -0500
+	id <S289038AbSAIWHb>; Wed, 9 Jan 2002 17:07:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289044AbSAIWId>; Wed, 9 Jan 2002 17:08:33 -0500
-Received: from fysh.org ([212.47.68.126]:25363 "EHLO bowl.fysh.org")
-	by vger.kernel.org with ESMTP id <S289042AbSAIWIW>;
-	Wed, 9 Jan 2002 17:08:22 -0500
-Date: Wed, 9 Jan 2002 22:08:21 +0000
-From: Athanasius <Athanasius@gurus.tf>
-To: arjan@fenrus.demon.nl
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Athlon XP 1600+ and _mmx_memcpy symbol in modules
-Message-ID: <20020109220821.GJ15688@gurus.tf>
-Mail-Followup-To: Athanasius <Athanasius@gurus.tf>, arjan@fenrus.demon.nl,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020109182224.GI15688@gurus.tf> <m16OO2K-000OVeC@amadeus.home.nl>
+	id <S289042AbSAIWHJ>; Wed, 9 Jan 2002 17:07:09 -0500
+Received: from taifun.devconsult.de ([212.15.193.29]:4613 "EHLO
+	taifun.devconsult.de") by vger.kernel.org with ESMTP
+	id <S289038AbSAIWHH>; Wed, 9 Jan 2002 17:07:07 -0500
+Date: Wed, 9 Jan 2002 23:07:04 +0100
+From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
+To: "Eric S. Raymond" <esr@thyrsus.com>, Doug McNaught <doug@wireboard.com>,
+        linux-kernel@vger.kernel.org, greg@kroah.com, felix-dietlibc@fefe.de
+Subject: Re: initramfs programs (was [RFC] klibc requirements)
+Message-ID: <20020109230704.A25786@devcon.net>
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Doug McNaught <doug@wireboard.com>, linux-kernel@vger.kernel.org,
+	greg@kroah.com, felix-dietlibc@fefe.de
+In-Reply-To: <200201092005.g09K5OL28043@snark.thyrsus.com> <m3n0zn6ysr.fsf@varsoon.denali.to> <20020109154425.A28755@thyrsus.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m16OO2K-000OVeC@amadeus.home.nl>
-User-Agent: Mutt/1.3.24i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020109154425.A28755@thyrsus.com>; from esr@thyrsus.com on Wed, Jan 09, 2002 at 03:44:25PM -0500
+Organization: dev/consulting GmbH
+X-NCC-RegID: de.devcon
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 09, 2002 at 07:05:20PM +0000, arjan@fenrus.demon.nl wrote:
-> In article <20020109182224.GI15688@gurus.tf> you wrote:
-> > Hi,
-> >  I've just upraded from my old PII-400 system to an Athlon XP 1600+
-> > based system so changed from "Pentium-Pro/Celeron/Pentium-II"
-> > (CONFIG_M686) to "Athlon/Duron/K7" (CONFIG_MK7).  In doing so I suddenly
-> > saw a LOT of problems with modules and the symbol _mmx_memcpy being
-> > undefined.
+On Wed, Jan 09, 2002 at 03:44:25PM -0500, Eric S. Raymond wrote:
 > 
-> >  I finally kludged/fixed this by changing line 121 of
-> > arch/i386/kernel/i386_ksyms.c from:
-> 
-> > EXPORT_SYMBOL(_mmx_memcpy);
-> 
-> you forgot to make mrproper ;) (or at least make clean)
-> yes the makefile for modversions is missing a dependency......
+> You're right, I don't need this to be done at kernel level.  I do need it to
+> be done *everywhere*.  I'm not sure how else to guarantee this will happen. 
 
-   I'll recheck with 'make mrproper' as I do always do a 'make clean'
-(and dep for that matter) after changing configuration at all.
+Then add an init script and include installation of it to the
+installation steps of your autoconfigurator (it has to be installed
+anyway). If a distributor packages your program, he will include the
+init script into his package and enable it according to his init
+policy, or write an own init script, if your provided one doesn't
+fit.
 
-thanks,
+That's the way it works for network daemons etc. for years.
 
--Ath
+Andreas
 -- 
-- Athanasius = Athanasius(at)gurus.tf / http://www.clan-lovely.org/~athan/
-                  Finger athan(at)fysh.org for PGP key
-	   "And it's me who is my enemy. Me who beats me up.
-Me who makes the monsters. Me who strips my confidence." Paula Cole - ME
+       Andreas Ferber - dev/consulting GmbH - Bielefeld, FRG
+     ---------------------------------------------------------
+         +49 521 1365800 - af@devcon.net - www.devcon.net

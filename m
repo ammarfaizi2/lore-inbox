@@ -1,53 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317430AbSGOLD3>; Mon, 15 Jul 2002 07:03:29 -0400
+	id <S317432AbSGOLIR>; Mon, 15 Jul 2002 07:08:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317431AbSGOLD2>; Mon, 15 Jul 2002 07:03:28 -0400
-Received: from t2o53p72.telia.com ([62.20.228.192]:54656 "EHLO
-	best.localdomain") by vger.kernel.org with ESMTP id <S317430AbSGOLD2>;
-	Mon, 15 Jul 2002 07:03:28 -0400
-To: "D. Sen" <dsen@homemail.com>
-Cc: linux-kernel@vger.kernel.org,
-       Andreas Bombe <bombe@informatik.tu-muenchen.de>
-Subject: Re: "PCI: Cannot allocate resource region" messages at boot
-References: <3D2EF7F2.1070107@homemail.com>
-From: Peter Osterlund <petero2@telia.com>
-Date: 15 Jul 2002 13:04:59 +0200
-In-Reply-To: <3D2EF7F2.1070107@homemail.com>
-Message-ID: <m28z4dfe04.fsf@best.localdomain>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	id <S317433AbSGOLIQ>; Mon, 15 Jul 2002 07:08:16 -0400
+Received: from web10406.mail.yahoo.com ([216.136.130.98]:35346 "HELO
+	web10406.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S317432AbSGOLIP>; Mon, 15 Jul 2002 07:08:15 -0400
+Message-ID: <20020715111109.48830.qmail@web10406.mail.yahoo.com>
+Date: Mon, 15 Jul 2002 21:11:09 +1000 (EST)
+From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+Subject: Re: Status of DRI modules for i810 with > 2.4.19-pre6
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1026693715.13886.97.camel@irongate.swansea.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"D. Sen" <dsen@homemail.com> writes:
-
-> I am getting these messages during bootup time on an IBM Thinkpad T30:
 > 
-> Jul 11 17:17:24 calliope kernel: PCI: Cannot allocate resource region
-> 0 of device 02:00.0
-> Jul 11 17:17:24 calliope kernel: PCI: Cannot allocate resource region
-> 0 of device 02:00.1
+> Duplicate the problem with a 2.4.19-rc1-ac3 kernel
+> (not one with random
+> pre-empt patches). Then get a traceback. Also be
+> sure to use XFree86 4.2
+> or later
+>  
 
-I had a similar problem on my notebook, but this patch seems to fix
-it:
+The OOPS nolonger happened BUT it is useless as
+XFree86-4.2.0 has problem with dri for i810; in the
+XFree86 log file it says Direct rendering is enabled.
+But run glxinfo shows that no other software can use
+it!. I have searched and found a lot users have the
+same thing. although I am quite sure that I installed
+it properly (rm all old libGl etc...)
 
---- linux/drivers/pcmcia/yenta.c.orig	Mon Jul 15 12:40:54 2002
-+++ linux/drivers/pcmcia/yenta.c	Mon Jul 15 12:40:39 2002
-@@ -736,7 +736,7 @@
- 		return;
- 	}
- 
--	align = size = 4*1024*1024;
-+	align = size = 128*1024;
- 	min = PCIBIOS_MIN_MEM; max = ~0U;
- 	if (type & IORESOURCE_IO) {
- 		align = 1024;
+Go back to XFree86-4.1.0 compile 2.4.19-rc1-ac3 with
+new dri modules; the oop also disappear. (That oops I
+reported last time is with the old dri modules); I
+thought wow it should be fine, but still no luck. run
+glxinfo is fine; but run real application like
+bzflags; bzflags can not run, it hang forever. No
+OOPS, nothing, everything seems to be normal. Have to
+killall -9  bzflag (15 doesn't stop it). Not sure what
+caused this; Go back to use kernel 2.4.18-ck4  
+everything is in order :-)
 
-I have no idea if this is the right thing to do. I found the
-suggestion in an earlier message from Andreas Bombe.
+Regards,
 
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+
+
+=====
+Steve Kieu
+
+http://www.sold.com.au - SOLD.com.au
+- Find yourself a bargain!

@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279580AbRKATFy>; Thu, 1 Nov 2001 14:05:54 -0500
+	id <S279581AbRKATID>; Thu, 1 Nov 2001 14:08:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279581AbRKATFo>; Thu, 1 Nov 2001 14:05:44 -0500
-Received: from wks-40.herta.ronnebyhus.se ([195.17.80.49]:54409 "EHLO
-	wks-40.herta.ronnebyhus.se") by vger.kernel.org with ESMTP
-	id <S279580AbRKATFf>; Thu, 1 Nov 2001 14:05:35 -0500
-Date: Thu, 1 Nov 2001 20:05:29 +0100 (CET)
-From: =?iso-8859-1?Q?Per_Lid=E9n?= <per@fukt.bth.se>
-X-X-Sender: per@wks-40.herta.ronnebyhus.se
-To: linux-kernel@vger.kernel.org
-Subject: Re: "unkillable processes" in linux 2.4.11 to 2.4.14-pre6
-In-Reply-To: <3BE194BB.7090207@softhome.net>
-Message-ID: <Pine.LNX.4.40.0111011959340.3622-100000@wks-40.herta.ronnebyhus.se>
+	id <S279583AbRKATHy>; Thu, 1 Nov 2001 14:07:54 -0500
+Received: from smtp-rt-3.wanadoo.fr ([193.252.19.155]:25484 "EHLO
+	apicra.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S279581AbRKATHo>; Thu, 1 Nov 2001 14:07:44 -0500
+Message-ID: <3BE19CF4.2000305@wanadoo.fr>
+Date: Thu, 01 Nov 2001 20:05:24 +0100
+From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+Organization: Home PC
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Ricardo Martins <thecrown@softhome.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: on exit xterm  totally wrecks linux 2.4.11 to 2.4.14-pre6 (unkillable processes)
+In-Reply-To: <3BE1777F.30705@softhome.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I have the exact same problem and it all started with 2.4.11. All I've
-managed to find out is that it's related to the devfs symlink semaphores.
 
-/Per
+Ricardo Martins wrote:
 
-On Thu, 1 Nov 2001, Ricardo Martins wrote:
 
-> I'm using Linux kernel 2.4.10, and since the fatidic 2.4.11 release ( i
-> tried 2.4.11 (one day :)))) 2.4.12, 2.4.13 and 2.4.14-pre6) I get the
-> same bug on and on (that means I can reproduce the experience and obtain
-> the same results).
->
 > Procedure
-> In X windows (version 4.1.0 compiled from the sources) when writing
-> "exit" in xterm to close the terminal emulator, the window freezes, and
-> from that moment on, every process becomes "unkillable", including xterm
-> and X (ps also freezes), and there's no way to shutdown GNU/Linux in a
+> In X windows (version 4.1.0 compiled from the sources) when writing 
+> "exit" in xterm to close the terminal emulator, the window freezes, and 
+> from that moment on, every process becomes "unkillable", including xterm 
+> and X (ps also freezes), and there's no way to shutdown GNU/Linux in a 
 > sane way (must hit reset or poweroff).
->
-> Environment
-> I used Glibc 2.2.4 and GCC 3.0.1 (tried with 2.95.3, obtained the same
-> results).
->
-> The odd thing is, that with the same configuration, kernel 2.4.10 works
-> just fine, but every other release since then ends up doing the same
-> thing (the system can't maintain integrity after writing "exit" and
-> hiting enter in xterm).
->
-> Please help me, I getting slightly mad with the situation.
->
-> Ricardo Martins
->
+
+
+I can see the problem here with 2.4.13. I don't know if it's kernel 
+related, I'm used using rxvt, never xterm.
+
+It looks like xterm takes the terminal where you started X from.
+
+Are you using devfs ?
+
+
+Pierre
+
+
+-- 
+------------------------------------------------
+  Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+------------------------------------------------
 

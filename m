@@ -1,55 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265217AbTLZTyl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Dec 2003 14:54:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265218AbTLZTyk
+	id S265218AbTLZUFV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Dec 2003 15:05:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265220AbTLZUFV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Dec 2003 14:54:40 -0500
-Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:39787 "EHLO
-	mx.rackable.com") by vger.kernel.org with ESMTP id S265217AbTLZTyj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Dec 2003 14:54:39 -0500
-Message-ID: <3FEC91FA.1050705@rackable.com>
-Date: Fri, 26 Dec 2003 11:54:34 -0800
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
+	Fri, 26 Dec 2003 15:05:21 -0500
+Received: from fw.osdl.org ([65.172.181.6]:38867 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265218AbTLZUFO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Dec 2003 15:05:14 -0500
+Date: Fri, 26 Dec 2003 12:05:09 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: linux@horizon.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: GCC 3.4 Heads-up
+In-Reply-To: <20031226110206.28382.qmail@science.horizon.com>
+Message-ID: <Pine.LNX.4.58.0312261151110.14874@home.osdl.org>
+References: <20031226110206.28382.qmail@science.horizon.com>
 MIME-Version: 1.0
-To: Joshua Kwan <joshk@triplehelix.org>
-CC: linux-kernel mailing list <linux-kernel@vger.kernel.org>, vojtech@suse.cz
-Subject: Re: Can't eject a previously mounted CD?
-References: <20031226081535.GB12871@triplehelix.org> <20031226103427.GB11127@ucw.cz> <20031226194457.GC12871@triplehelix.org>
-In-Reply-To: <20031226194457.GC12871@triplehelix.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 26 Dec 2003 19:54:34.0679 (UTC) FILETIME=[15E79470:01C3CBEA]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joshua Kwan wrote:
-> On Fri, Dec 26, 2003 at 11:34:27AM +0100, Vojtech Pavlik wrote:
-> 
->>If you're using SUSE 9.0 ...
-> 
-> 
-> No, Debian.
-> 
-> The reason I said it was something to do with my motherboard is that
-> I've not experienced this before, even on another motherboard with
-> the original nForce.
-> 
-> Traditionally (as in Windows), the only thing that would keep the CD
-> from being ejected is an ongoing recording session. Of course, in
-> Linux, it just has to be mounted, and that's normal behavior. Just that
-> the drive doesn't want to eject my CD even after unmounting it.
-> Does that mean that this is a userspace problem?
-> 
 
-   What does fuser -kv /mnt/cdrom claim?
 
--- 
-There is no such thing as obsolete hardware.
-Merely hardware that other people don't want.
-(The Second Rule of Hardware Acquisition)
-Sam Flory  <sflory@rackable.com>
+On Fri, 26 Dec 2003 linux@horizon.com wrote:
+> 
+> Applied to integer types, it *is* pretty brain damaged.  But applied to
+> pointer types, it makes a lot more sense.
 
+No it doesn't.
+
+Your example shows all the problems with the thing:
+
+> Or consider the case when the structure doesn't have an explicit size
+> and you have a big case statement for parsing it:
+> 
+> switch (a->type) {
+> 	case BAR:
+> 		process_bar_chunk(((struct bar *)a)++);
+> 		break;
+
+Do you _really_ want to write unportable code for no reason?
+
+This can trivially be done portably and readably by just adding a small 
+bit of verbiage, ie you could have
+
+	#define next_ptr(x,type) (void *)(1+(type *)(x))
+
+and just write
+
+		process_bar_chunk(a);
+		a = next_ptr(a, struct bar);
+
+or similar. Suddenly you can compile your code with any compiler you want 
+to, including one that maybe generates better code than gcc. Including 
+newer versions of gcc.
+
+And suddenly people can look at your code, and understand what it is
+doing, even if they don't know all the gcc extensions. That's _important_.
+
+Some extensions are fairly obvious. I think the "a ? : b" one is pretty
+simple, conceptually (ie you can explain it to even a novice C user
+without there being any confusion). But the "cast as lvalue" definitely
+isn't.
+
+> It's well-defined and has legitimate uses.
+
+It has no legitimate uses. The only upside of it is to avoid typing a few 
+extra characters, but since using macros can make the code more readable 
+anyway, that's not a very good argument.
+
+			Linus

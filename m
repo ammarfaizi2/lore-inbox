@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277386AbRJJT7f>; Wed, 10 Oct 2001 15:59:35 -0400
+	id <S277387AbRJJT7f>; Wed, 10 Oct 2001 15:59:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277387AbRJJT70>; Wed, 10 Oct 2001 15:59:26 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:30971
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S277386AbRJJT7P>; Wed, 10 Oct 2001 15:59:15 -0400
-Date: Wed, 10 Oct 2001 12:59:39 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: "attempt to access beyond end of device" in 2.4.10ac10
-Message-ID: <20011010125939.A524@mikef-linux.matchmail.com>
-Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.NEB.4.40.0110101944350.29038-200000@mimas.fachschaften.tu-muenchen.de>
+	id <S277389AbRJJT7Z>; Wed, 10 Oct 2001 15:59:25 -0400
+Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:51657 "EHLO
+	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S277387AbRJJT7P>; Wed, 10 Oct 2001 15:59:15 -0400
+Subject: Re: APM on a HP Omnibook XE3
+Date: 10 Oct 2001 21:59:41 +0200
+Organization: Chemnitz University of Technology
+Message-ID: <87ofnfb70y.fsf@kosh.ultra.csn.tu-chemnitz.de>
+In-Reply-To: <200108301443355.SM00167@there> <m2elobn7a3.fsf@anano.mitica> <m3sncrh9u8.fsf@giants.mandrakesoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.NEB.4.40.0110101944350.29038-200000@mimas.fachschaften.tu-muenchen.de>
-User-Agent: Mutt/1.3.22i
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Artificial Intelligence)
+To: linux-kernel@vger.kernel.org
+From: Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 10, 2001 at 07:49:45PM +0200, Adrian Bunk wrote:
-> Hi,
-> 
-> I had a crash with 2.4.10-ac10 (the computer was totally frozen - I had to
-> push the reset button). I found the following in syslog:
-> 
-> 
-> Oct 10 19:03:05 r063144 kernel: attempt to access beyond end of device
-> Oct 10 19:03:05 r063144 kernel: 03:06: rw=0, want=2147449990, limit=1959898
+chmouel@mandrakesoft.com (Chmouel Boudjnah) writes:
 
-Did you try earlier kernels with success?  
-Are your partitions setup correctly?
-Which file system(s) was/were on this drive?
-Any idea what was happening at the time?
+> > robert> I have a HP Omnibook XE3 with SuSE Linux 7.2 installed.
+> > robert> Everything works fine except suspend-to-disk.
+> > [...]
+> > robert> Any ideas what I could do?
+> > 
+> > For me Fn+F12 works.
+> > apm -s & apm -S fails.
+> 
+> works only if you have a suspend-on-disk partition.
 
-Mike
+lphdisk can create such a partition for you (or the tool coming on the
+HP CD deleting the entire drive).
+
+
+I have made the experience that hibernation stops to work when GRUB was
+installed into the bootsector. When installing it into the MBR all
+things are fine and Fn+F12 suspends to disk. (I have heard reports
+about a Dell Inspiron 4000, where the opposite situation is the case)
+
+If you have installed the bootloader on hdaX already, you can try to
+overwrite the first 512 byte with \0 (yes; it's a dangerous operation).
+
+
+
+Enrico
+

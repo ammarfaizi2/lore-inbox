@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263628AbTCUOaR>; Fri, 21 Mar 2003 09:30:17 -0500
+	id <S263624AbTCUOjE>; Fri, 21 Mar 2003 09:39:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263629AbTCUOaQ>; Fri, 21 Mar 2003 09:30:16 -0500
-Received: from mail.zmailer.org ([62.240.94.4]:55956 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id <S263628AbTCUOaP>;
-	Fri, 21 Mar 2003 09:30:15 -0500
-Date: Fri, 21 Mar 2003 16:41:15 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: donpaplo <donpaplo@gmx.at>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: please submit me to the mailing-list
-Message-ID: <20030321144115.GW29167@mea-ext.zmailer.org>
-References: <JKEFKJIKDLKMEFLPIJMOIEJLCBAA.donpaplo@gmx.at>
+	id <S263630AbTCUOjE>; Fri, 21 Mar 2003 09:39:04 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:47244 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
+	id <S263624AbTCUOjD>; Fri, 21 Mar 2003 09:39:03 -0500
+X-Envelope-From: news@bytesex.org
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Gerd Knorr <kraxel@bytesex.org>
+Newsgroups: lists.linux.kernel
+Subject: Re: Oops with bttv in latest bk
+Date: 21 Mar 2003 15:57:43 +0100
+Organization: SuSE Labs, Berlin
+Message-ID: <87bs04lqc8.fsf@bytesex.org>
+References: <3E78BB99.3070605@portrix.net> <87he9z7z95.fsf@bytesex.org> <3E796530.2010707@portrix.net> <87znnqmitn.fsf@bytesex.org> <3E79ED9F.1000402@portrix.net> <87y939x1sk.fsf@bytesex.org> <3E7AFD4C.2000205@portrix.net>
+NNTP-Posting-Host: localhost
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <JKEFKJIKDLKMEFLPIJMOIEJLCBAA.donpaplo@gmx.at>
+X-Trace: bytesex.org 1048258663 8418 127.0.0.1 (21 Mar 2003 14:57:43 GMT)
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  If you can't follow published documented way for it, nobody will
-step in to do it for you.
+Jan Dittmer <j.dittmer@portrix.net> writes:
 
-On Fri, Mar 21, 2003 at 03:36:57PM +0100, donpaplo wrote:
-> From:	"donpaplo" <donpaplo@gmx.at>
-> To:	<linux-kernel@vger.kernel.org>
-> Subject: please submit me to the mailing-list
-> Date:	Fri, 21 Mar 2003 15:36:57 +0100
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> >>bttv: driver version 0.9.7 loaded
+> > As it kills the X-Server I guess you are using the X-Servers v4l
+> > module and the Xvideo extention, correct?
+> >
+> yes, using the nv driver. xfree 4.2.1.
+
+Hmm, I can't reproduce that locally.  Pushed my latest bits to
+http://bytesex.org/patches/2.5/
+
+Can you try it again?  If it still oopses for you, can you please load
+the driver with bttv_debug=2 insmod option and mail me that log?
+
+  Gerd
+
+-- 
+/join #zonenkinder

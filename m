@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317176AbSHPIrz>; Fri, 16 Aug 2002 04:47:55 -0400
+	id <S317112AbSHPIrS>; Fri, 16 Aug 2002 04:47:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317169AbSHPIry>; Fri, 16 Aug 2002 04:47:54 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:15860 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S317176AbSHPIrv>; Fri, 16 Aug 2002 04:47:51 -0400
-Date: Fri, 16 Aug 2002 10:51:43 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-cc: Alan Cox <alan@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.20-pre2-ac3
-In-Reply-To: <Pine.LNX.4.44.0208151649030.849-100000@chaos.physics.uiowa.edu>
-Message-ID: <Pine.NEB.4.44.0208161051050.1351-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S317169AbSHPIrS>; Fri, 16 Aug 2002 04:47:18 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:9863 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S317112AbSHPIrR>;
+	Fri, 16 Aug 2002 04:47:17 -0400
+Message-ID: <3D5CBCFC.2090006@us.ibm.com>
+Date: Fri, 16 Aug 2002 01:51:08 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org, "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Subject: Re: [PATCH] add buddyinfo /proc entry
+References: <3D5C6410.1020706@us.ibm.com> <20020816043140.GA2478@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Aug 2002, Kai Germaschewski wrote:
+Greg KH wrote:
+ > On Thu, Aug 15, 2002 at 07:31:44PM -0700, Dave Hansen wrote:
+ >
+ >> Not _another_ proc entry!
+ >
+ > Yes, not another one.  Why not move these to driverfs, where they
+ > belong.
 
-> Well, so I had to dowload and compile gcc 2.95 and reproduce the
-> problem... The following patch fixes it:
->
-> diff -ur linux-2.4.20-pre2/drivers/isdn/hisax/hisax_debug.h linux-2.4.20-pre2.x/drivers/isdn/hisax/hisax_debug.h
-> --- linux-2.4.20-pre2/drivers/isdn/hisax/hisax_debug.h	Thu Aug 15 16:48:25 2002
-> +++ linux-2.4.20-pre2.x/drivers/isdn/hisax/hisax_debug.h	Thu Aug 15
-> 16:48:04 2002
-> @@ -28,7 +28,7 @@
->
->  #define DBG(level, format, arg...) do { \
->  if (level & __debug_variable) \
-> -printk(KERN_DEBUG "%s: " format "\n" , __FUNCTION__, ## arg); \
-> +printk(KERN_DEBUG "%s: " format "\n" , __FUNCTION__ , ## arg); \
->  } while (0)
->
->  #define DBG_PACKET(level,data,count) \
+Could you show us how this particular situation might be laid out in a 
+driverfs/kfs/gregfs tree?
 
-I can confirm that this patch fixes it.
+It's great that you keep suggesting this, but we have another 
+chicken-and-egg problem.
 
-Thanks
-Adrian
+<SOAPBOX>
+The problem with driverfs today is that it isn't worth it for _me_ to
+use it to just get this one, single thing.  If I used driverfs right 
+now, the only thing that I would get out of it would be ... buddyinfo! 
+How is it worth my while to use it on a shared machine where most 
+people probably won't be mounting driverfs, or _want_ it mounted as 
+the default?
+</SOAPBOX>
+
+ > (ignore the driverfs name, it should be called kfs, or some such
+ > thing, as stuff more than driver info should go there, just like
+ > these entries.)
+
+If even its most ardent supporters don't like its name...
 
 -- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
+Dave Hansen
+haveblue@us.ibm.com
 

@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272121AbTHSEOh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 00:14:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275344AbTHSEOh
+	id S275229AbTHSEXx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 00:23:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275304AbTHSEXx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 00:14:37 -0400
-Received: from waste.org ([209.173.204.2]:6575 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S272121AbTHSEOg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 00:14:36 -0400
-Date: Mon, 18 Aug 2003 23:14:04 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, davej@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Debug: sleeping function called from invalid context
-Message-ID: <20030819041404.GI16387@waste.org>
-References: <20030815101856.3eb1e15a.rddunlap@osdl.org> <20030815173246.GB9681@redhat.com> <20030815123053.2f81ec0a.rddunlap@osdl.org> <20030816070652.GG325@waste.org> <20030818140729.2e3b02f2.rddunlap@osdl.org> <20030819001316.GF22433@redhat.com> <20030818171545.5aa630a0.akpm@osdl.org> <32789.4.4.25.4.1061263463.squirrel@www.osdl.org> <20030818203513.393c4a48.akpm@osdl.org>
+	Tue, 19 Aug 2003 00:23:53 -0400
+Received: from tomts17-srv.bellnexxia.net ([209.226.175.71]:16282 "EHLO
+	tomts17-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S275229AbTHSEXw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 00:23:52 -0400
+Subject: Re: scheduler interactivity: timeslice calculation seem wrong
+From: Eric St-Laurent <ericstl34@sympatico.ca>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200308191413.00135.kernel@kolivas.org>
+References: <1061261666.2094.15.camel@orbiter>
+	 <200308191413.00135.kernel@kolivas.org>
+Content-Type: text/plain
+Message-Id: <1061267029.2900.54.camel@orbiter>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030818203513.393c4a48.akpm@osdl.org>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Tue, 19 Aug 2003 00:23:50 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 18, 2003 at 08:35:13PM -0700, Andrew Morton wrote:
-> "Randy.Dunlap" <rddunlap@osdl.org> wrote:
-> >
-> > Debug: sleeping function called with interrupts disabled at
-> >  include/asm/uaccess.h:473
-> 
-> OK, now my vague understanding of what's going on is that the app has
-> chosen to disable local interupts (via iopl()) and has taken a vm86 trap. 
+> You mean this the other way round, no? +nice means more nice.
 
-Are you suggesting that whatever's calling sys_vm86 has disabled
-interrupts beforehand? I don't see why that's necessary at all. The
-vm86 fault handler is called via do_general_protection in any case and
-as such is in_interrupt() by definition. And a vm86 general protection
-fault can be caused by any of cli, sti, pushf, popf, intx, or iret. In
-fact, typical usage of vm86 mode is to setup a call to a 16-bit
-software interrupt handler and return via fault on the iret.
+sure you're right. and i know that timeslices get asssigned based on
+static priority (which is nice value rescaled).
 
-I'm increasingly convinced it's actually broken.
+> For the most part, most tasks start at nice 0 so they pretty much all get the 
+> same size timslices unless they get preempted.  The rest of the discussion 
 
--- 
-Matt Mackall : http://www.selenic.com : of or relating to the moon
+i've read that tasks should start at higher dynamic priority with a
+small timeslice (a priority boost for a starting task) then immediatly
+drop to a lower priority if it use all it's timeslice.
+
+> implemented theory. Changing it up and down by dynamic priority one way and 
+> then the other wasn't helpful when I've tried it previously.
+
+maybe it's because the timeslice calculation is reversed?
+
+

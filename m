@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315819AbSENQaC>; Tue, 14 May 2002 12:30:02 -0400
+	id <S315827AbSENQdM>; Tue, 14 May 2002 12:33:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315820AbSENQaA>; Tue, 14 May 2002 12:30:00 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:61190 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S315819AbSENQ3c>; Tue, 14 May 2002 12:29:32 -0400
-Subject: Re: Kernel deadlock using nbd over acenic driver.
-To: chen_xiangping@emc.com (chen, xiangping)
-Date: Tue, 14 May 2002 17:48:29 +0100 (BST)
-Cc: jes@wildopensource.com ('Jes Sorensen'),
-        Steve@ChyGwyn.com ('Steve Whitehouse'), linux-kernel@vger.kernel.org
-In-Reply-To: <FA2F59D0E55B4B4892EA076FF8704F553D1A52@srgraham.eng.emc.com> from "chen, xiangping" at May 14, 2002 12:07:30 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S315823AbSENQdL>; Tue, 14 May 2002 12:33:11 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:43667 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S315820AbSENQdJ>;
+	Tue, 14 May 2002 12:33:09 -0400
+Date: Tue, 14 May 2002 18:32:41 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Neil Conway <nconway.list@ukaea.org.uk>
+Cc: Martin Dalecki <dalecki@evision-ventures.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.15 IDE 61
+Message-ID: <20020514163241.GR17509@suse.de>
+In-Reply-To: <E177dYp-00083c-00@the-village.bc.nu> <3CE11F90.5070701@evision-ventures.com> <3CE13943.FBD5B1D6@ukaea.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E177fTR-0008I7-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Xiangping> So for gigabit Ethernet driver, what is the optimal mem
-> Xiangping> configuration for performance and reliability?
-> 
-> It depends on your application, number of streams, general usage of
-> the connection etc. There's no perfect-for-all magic number.
+On Tue, May 14 2002, Neil Conway wrote:
+> On the serialisation issue: what does serialisation of the queues with
+> respect to each other mean to you?  I understand it to mean that we
+> won't ever call the request_fn of both queues at the same time - because
+> that's all the actual spinlock buys you.  It does not IIUC mean that you
+> can't get a call to request_fn of one queue while the other queue has
+> lots of requests in it (which are potentially being serviced by DMA). 
 
-The primary constraints are
+Bingo, this is exactly right and makes the point a hell of a lot better
+than I did in my previous mail. Shared locks will only buy you that
+noone fiddles with one list while the other is busy (ie nothing for us).
+To really serialize operations the queue _must_ be shared with whoever
+requires serialiation.
 
-	TCP max window size
-	TCP congestion window size (cwnd)
-	Latency
+If not, the problem will have to be solved at the IDE level, not the
+block level. And that has not looked pretty in the past.
 
-Most of the good discussion on this matter can be found in the ietf
-archives from the window scaling options work, and in part in the RFC's
-that led to
+-- 
+Jens Axboe
 

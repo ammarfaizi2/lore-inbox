@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129184AbRAZKhR>; Fri, 26 Jan 2001 05:37:17 -0500
+	id <S129398AbRAZKiR>; Fri, 26 Jan 2001 05:38:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130758AbRAZKhN>; Fri, 26 Jan 2001 05:37:13 -0500
-Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:41488 "HELO
-	ztxmail03.ztx.compaq.com") by vger.kernel.org with SMTP
-	id <S129184AbRAZKhD>; Fri, 26 Jan 2001 05:37:03 -0500
-Message-ID: <E7D21F6C2128D41199B600508BCF8D54A9AD69@nosexc01.nwo.cpqcorp.net>
-From: "Wahlman, Petter" <Petter.Wahlman@compaq.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Cc: "'Andre Hedrick'" <andre@linux-ide.org>,
-        "'Mark Hahn'" <hahn@coffee.psychology.mcmaster.ca>,
-        "'Andreas Dilger'" <adilger@turbolinux.com>
-Subject: RE: Marking sectors on IDE drives as bad
-Date: Fri, 26 Jan 2001 10:36:41 -0000
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain
+	id <S129523AbRAZKiH>; Fri, 26 Jan 2001 05:38:07 -0500
+Received: from mail.zmailer.org ([194.252.70.162]:50186 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S129398AbRAZKh5>;
+	Fri, 26 Jan 2001 05:37:57 -0500
+Date: Fri, 26 Jan 2001 12:37:49 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: hotmail not dealing with ECN
+Message-ID: <20010126123749.E25659@mea-ext.zmailer.org>
+In-Reply-To: <Pine.LNX.4.21.0101250041440.1498-100000@srv2.ecropolis.com> <94qcvm$9qp$1@cesium.transmeta.com> <14960.54069.369317.517425@pizda.ninka.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <14960.54069.369317.517425@pizda.ninka.net>; from davem@redhat.com on Thu, Jan 25, 2001 at 05:30:29PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The problem still persist, even after marking the respective block with:
-badblocks -n -o /var/log/badblocks,
-and e2fsck -l /var/log/badblocks
+On Thu, Jan 25, 2001 at 05:30:29PM -0800, David S. Miller wrote:
+...
+> Thirdly, it was widely discussed by the ECN reserachers on how to
+> "detect ECN blackholes" sort to speak.  All such schemes suggested
+> we unusable, it is not doable without impacting performance _and_
+> violating existing RFCs.  Basically, you have to ignore a valid TCP
+> reset to deal with some of the ECN holes out there, that is where such
+> workaround attempts become full crap and are unsatisfactory for
+> inclusion in any implementation much less an RFC.  Happily, we got the
+> ECN folks to agree with Alexey and myself on these points.
+> 
+> So turning it off on a per-connection basis is not really an option.
 
-the corrupted block is:
-dumpe2fs -b /dev/hda5
-dumpe2fs 1.19, 13-Jul-2000 for EXT2 FS 0.5b, 95/08/09
-655573
+  But could you nevertheless consider supplying a socket option for it ?
+  By all means default it per sysctl, but allow clearing/setting by
+  program too.
 
-fsck is forced at boot, with the previously mentioned error: 
+... 
+> Later,
+> David S. Miller
+> davem@redhat.com
 
-Jan 26 10:32:37 evil kernel: hda: read_intr: error=0x01 { AddrMarkNotFound
-}, LBAsect=10262250, sector=1311147
-Jan 26 10:32:37 evil kernel: ide0: reset: success
-Jan 26 10:32:37 evil kernel: hda: read_intr: status=0x59 { DriveReady
-SeekComplete DataRequest Error }
-Jan 26 10:32:37 evil kernel: hda: read_intr: error=0x01 { AddrMarkNotFound
-}, LBAsect=10262250, sector=1311147
-Jan 26 10:32:37 evil kernel: end_request: I/O error, dev 03:05 (hda), sector
-1311147
-
-
-
-Petter Wahlman
-
-
+/Matti Aarnio
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

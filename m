@@ -1,50 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131216AbRAJQx6>; Wed, 10 Jan 2001 11:53:58 -0500
+	id <S132477AbRAJQzs>; Wed, 10 Jan 2001 11:55:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132477AbRAJQxj>; Wed, 10 Jan 2001 11:53:39 -0500
-Received: from mx2.srv.hcvlny.cv.net ([167.206.112.45]:50373 "EHLO
-	mx2.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id <S131216AbRAJQxb>; Wed, 10 Jan 2001 11:53:31 -0500
-To: Marco Colombo <marco@esi.it>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] More compile warning fixes for 2.4.0
-In-Reply-To: <Pine.LNX.4.21.0101101619230.16888-100000@Megathlon.ESI>
-From: Alan Shutko <ats@acm.org>
-Date: 10 Jan 2001 11:52:56 -0500
-In-Reply-To: <Pine.LNX.4.21.0101101619230.16888-100000@Megathlon.ESI>
-Message-ID: <874rz7pcwn.fsf@wesley.springies.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.0.95
+	id <S133048AbRAJQzi>; Wed, 10 Jan 2001 11:55:38 -0500
+Received: from cannet.com ([206.156.188.2]:44298 "HELO mail.cannet.com")
+	by vger.kernel.org with SMTP id <S132477AbRAJQzV>;
+	Wed, 10 Jan 2001 11:55:21 -0500
+Message-ID: <008b01c07b26$15069320$7930000a@hcd.net>
+From: "Timothy A. DeWees" <whtdrgn@mail.cannet.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <007801c07b25$1695db20$7930000a@hcd.net>
+Subject: Re: 2.2.18 reboots on high load.
+Date: Wed, 10 Jan 2001 11:55:05 -0500
+Organization: Himebaugh Consulting, Inc.
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="Windows-1252"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marco Colombo <marco@esi.it> writes:
+I should make it clear that there are two hard drives.  One
+1 Gb hard drive, and 1x14 Gb hard drive.  
 
-> But what happens if I delete the stm1 line? We have:
-> 
-> 	case xxx:
-> 		/* fallthrough */
-> 	case yyy:
-> 		stm2;
-> 
-> which is wrong. 
+ 
+----- Original Message ----- 
+From: Timothy A. DeWees 
+To: Linux Kernel 
+Sent: Wednesday, January 10, 2001 11:47 AM
+Subject: 2.2.18 reboots on high load.
 
-AFAIK, that's perfectly correct.  It's only the case where you have a
-label at the end of a block (without a statement following it) where
-it's an error.
 
-In the grammar, a statement must follow a label, but a
-labeled-statement is a type of statement, so you can stack labels as
-much as you want, as long as there's a statement somewhere after them.
+Hello,
 
-That is, assuming I'm reading the standard right (ISO/IEC 9899:1990,
-Section 6.6, 6.6.1).        
+I have a 2.2.18 (with reiserfs patch), running on a Pentium 100
 
--- 
-Alan Shutko <ats@acm.org> - In a variety of flavors!
-Programmers do it bit by bit.
+any time I get high disk writes or reads my system just reboots.
+I have had it up and running with moderate disk activity (telnet
+and small FTP's) for a week; however, when I write alot to the 
+disk (100 Mb plus), the system just reboots.  I am also getting
+kernel panics around every 3-4 times.  I tried writing to the disk
+with Samba, and fith FTP.  I am running proFTP.  Please tell me
+what I need to send you.  I will not that /proc/cpuinfo tells me that
+my processor has a f00f bug?
+
+The system is as follows.
+
+Intel Pentium 100
+32 Mb Ram
+1Gb root partition - 32 Mb swap
+14 Gb reiserfs partition
+
+I am running Samba 2.0.7 and Apache 1.3.14 (with mod-ssl).
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

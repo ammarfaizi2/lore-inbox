@@ -1,93 +1,115 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264180AbTEPSAh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 14:00:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264419AbTEPSAh
+	id S264505AbTEPSHC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 14:07:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264521AbTEPSHC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 14:00:37 -0400
-Received: from [193.10.185.236] ([193.10.185.236]:43018 "HELO
-	smtp.dormnet.his.se") by vger.kernel.org with SMTP id S264180AbTEPSAf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 14:00:35 -0400
-Date: Fri, 16 May 2003 20:10:42 +0200
-From: Andreas Henriksson <andreas@fjortis.info>
-To: Dave Jones <davej@codemonkey.org.uk>,
-       Andreas Henriksson <andreas@fjortis.info>,
-       Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.5.69-mm6
-Message-ID: <20030516181042.GA556@foo>
-References: <20030516015407.2768b570.akpm@digeo.com> <20030516172834.GA9774@foo> <20030516175539.GA16626@suse.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0F1p//8PRICkK4MW"
-Content-Disposition: inline
-In-Reply-To: <20030516175539.GA16626@suse.de>
-X-gpg-key: http://fjortis.info/andreas_henriksson.gpg
-X-gpg-fingerprint: C51F 9B43 4390 95BB A22E  16F2 00EF 6094 449E 0434
-User-Agent: Mutt/1.5.4i
+	Fri, 16 May 2003 14:07:02 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:8191 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S264505AbTEPSHA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 14:07:00 -0400
+Message-ID: <3EC52BC1.7070003@nortelnetworks.com>
+Date: Fri, 16 May 2003 14:19:45 -0400
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: help...where is my memory going?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---0F1p//8PRICkK4MW
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I've got an embedded blade with a powerpc chip and a gig of ram. There are 
+hardly any processes running, but I'm using up 106MB of memory, mostly due to 
+91MB of cache--only one problem, the filesystem is only 27MB.
 
-On Fri, May 16, 2003 at 06:55:39PM +0100, Dave Jones wrote:
-> On Fri, May 16, 2003 at 07:28:34PM +0200, Andreas Henriksson wrote:
->=20
->  > I had to remove "static" from the agp_init-function in
->  > drivers/char/agp/backend.c to get the kernel to link (when building
->  > Intel 810 Framebuffer into the kernel).
->=20
-> wrong fix. nuke the agp_init() call from i810fb
-> note, it still won't actually work. i810fb still fails to init
-> the agpgart for some reason.
-> =20
+I boot it with a normal ramdisk, then create a tmpfs filesystem, copy everything 
+to it, pivot to the new filesystem, chroot, and then clean up the ramdisk with 
+blockdev.  These measurements were made by shutting down most of the default 
+startup processes, then running a tool which chews progressively larger amounts 
+of memory until it gets OOM-killed.  I figure this should result in as much 
+memory as possible being extracted from the buffer/cache.
 
-Ok.. thanks for the quick reply .. I just booted the kernel and noticed
-that the console got stuck (but the it booted fine except from that).
+I can see needing the following:
+27MB filesystem
+a few megs for running processes (data only, tmpfs is execute in place IIRC)
+maybe 10 megs for the kernel?
 
-Though I find this weird:
-The last thing I saw on the console was the detection of hdb and it's
-partitions.... I tried unplugging hdb and it booted just fine...=20
-coinsidence?
+Any ideas what the remaining ~50MB is?
 
-And by the way.... the framebuffer flickers (is that the right word?)
-for me.... It looks like an old TV... (Has done with all the (2.5)
-kernels I've tried).. Is this a known problem and if so is there a
-solution?
-I'm using a TFT monitor and this is my append-line..
-append=3D"video=3Di810fb:xres:1280,yres:1024,bpp:16,hsync1:30,hsync2:82, \
-		vsync1:50,vsync2:75,accel"
-(... if it matters.)
 
->  > I also got unresolved symbols for two modules.
->  > arch/i386/kernel/suspend.ko: enable_sep_cpu, default_ldt, init_tss
->  > arch/i386/kernel/apm.ko: save_processor_state, restore_processor_state
->=20
-> Mikael's patch for these has been posted several times already in the
-> last few days.
->=20
-Ok.. thanks again...
+Here are some program outputs that might be useful:
 
-> 		Dave
+[root@10.40.14.67 tmp]# top
+16 processes: 15 sleeping, 1 running, 0 zombie, 0 stopped
+CPU states:  1.4% user,  4.9% system,  0.1% nice, 93.4% idle
+Mem:  1010480K av,  106148K used,  904332K free,       0K shrd,    1276K buff
+Swap:       0K av,       0K used,       0K free                   91076K cached
 
-Regards,
-Andreas Henriksson
+   PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
+     1 root       4   0   436  436   292 S     0.0  0.0   0:10 init
+     2 root       9   0     0    0     0 SW    0.0  0.0   0:00 keventd
+     3 root      19  19     0    0     0 SWN   0.0  0.0   0:00 ksoftirqd_CPU0
+     4 root       9   0     0    0     0 SW    0.0  0.0   0:01 kswapd
+     5 root       9   0     0    0     0 SW    0.0  0.0   0:00 bdflush
+     6 root       9   0     0    0     0 SW    0.0  0.0   0:00 kupdated
+   353 root       9   0   748  732   432 S     0.0  0.0   0:00 xinetd
+   932 root       9   0   532  532   344 S     0.0  0.0   0:00 crond
+  1018 root       9   0   300  300   172 S     0.0  0.0   0:00 mingetty
+  1143 root       9   0   500  500   308 S     0.0  0.0   0:00 in.telnetd
+  1144 root       9   0  1064 1064   684 S     0.0  0.1   0:00 login
+  1145 mtc        9   0  1424 1424  1024 S     0.0  0.1   0:00 bash
+  1219 root       9   0  1392 1392   160 S     0.0  0.1   0:02 minilogd
+  1445 root      10   0  1128 1128   832 S     0.0  0.1   0:00 su
+  1447 root      14   0  1684 1684  1268 S     0.0  0.1   0:00 bash
+  1456 root      14   0  1192 1192   892 R     0.0  0.1   0:00 top
 
---0F1p//8PRICkK4MW
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+[root@10.40.14.67 tmp]# df -h
+Filesystem            Size  Used Avail Use% Mounted on
+tmpfs                  37M   27M   10M  71% /
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+[root@10.40.14.67 tmp]# cat /proc/meminfo
+         total:    used:    free:  shared: buffers:  cached:
+Mem:  1034731520 108552192 926179328        0  1306624 93261824
+Swap:        0        0        0
+MemTotal:      1010480 kB
+MemFree:        904472 kB
+MemShared:           0 kB
+Buffers:          1276 kB
+Cached:          91076 kB
+SwapCached:          0 kB
+Active:          88664 kB
+Inactive:         7524 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:      1010480 kB
+LowFree:        904472 kB
+SwapTotal:           0 kB
+SwapFree:            0 kB
 
-iD8DBQE+xSmiAO9glESeBDQRAkjlAKCaQ6SN14LoMd356w0ZTczGGo/2LQCeNq6F
-a2WlX5tgLc9TEo5YGVgLRY0=
-=O4s3
------END PGP SIGNATURE-----
+[root@10.40.14.67 tmp]# mount
+tmpfs on / type tmpfs (rw,size=37M)
+proc on /proc type proc (rw)
+devpts on /dev/pts type devpts (rw,mode=0622)
 
---0F1p//8PRICkK4MW--
+[root@10.40.14.67 tmp]# mount -t ext2 /dev/ramdisk /mnt
+mount: wrong fs type, bad option, bad superblock on /dev/ramdisk,
+        or too many mounted file systems
+
+Note: at this last command, the serial console prints:
+
+VFS: Can't find ext2 filesystem on dev ramdisk(1,0).
+
+
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+

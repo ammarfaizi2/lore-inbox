@@ -1,46 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269679AbVBFBXO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265858AbVBFBpb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269679AbVBFBXO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 20:23:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269646AbVBFBXO
+	id S265858AbVBFBpb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 20:45:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265826AbVBFBpb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 20:23:14 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:28338
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S272402AbVBFBWq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 20:22:46 -0500
-Date: Sat, 5 Feb 2005 17:14:39 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: anton@samba.org, okir@suse.de, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] arp_queue: serializing unlink + kfree_skb
-Message-Id: <20050205171439.4e825155.davem@davemloft.net>
-In-Reply-To: <20050204015539.GA9727@gondor.apana.org.au>
-References: <20050131102920.GC4170@suse.de>
-	<E1CvZo6-0001Bz-00@gondolin.me.apana.org.au>
-	<20050203142705.GA11318@krispykreme.ozlabs.ibm.com>
-	<20050203203010.GA7081@gondor.apana.org.au>
-	<20050203141901.5ce04c92.davem@davemloft.net>
-	<20050203235044.GA8422@gondor.apana.org.au>
-	<20050203164922.2627a112.davem@davemloft.net>
-	<20050204012053.GA8949@gondor.apana.org.au>
-	<20050203172357.670c3402.davem@davemloft.net>
-	<20050204015539.GA9727@gondor.apana.org.au>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Sat, 5 Feb 2005 20:45:31 -0500
+Received: from rproxy.gmail.com ([64.233.170.192]:42045 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263696AbVBFBpT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Feb 2005 20:45:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=aG7ijGm69c291FS1PC1X7zcC31D4n5ZN+9KBKel44mDx8Wl7LhImj2q/677OwkfS1AUgm+UXLna5lO8V0BaJAjotDdD5cn71dbgY2qei03GyrPQNFL6aCEp+YpvZdbsCS1ZYOWSN2Ai6XxrFzcJ5JT+4kwyjYFwyeNfrOYQFgo8=
+Message-ID: <9e4733910502051745c25d6f@mail.gmail.com>
+Date: Sat, 5 Feb 2005 20:45:19 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Intel AGP support attaching to wrong PCI IDs
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Feb 2005 12:55:39 +1100
-Herbert Xu <herbert@gondor.apana.org.au> wrote:
+I have an i875 chipset with these two devices:
 
-> OK, here is the patch to do that.  Let's get rid of kfree_skb_fast
-> while we're at it since it's no longer used.
-> 
-> Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+8086:2578 - 00:00.0 Host bridge: Intel Corp. 82875P/E7210 Memory
+Controller Hub (rev 02)
+8086:2579 - 00:01.0 PCI bridge: Intel Corp. 82875P Processor to AGP
+Controller (rev 02)
 
-I've queued this up for 2.6.x and 2.4.x, thanks everyone.
+In the legacy io space thread we are talking about making a device
+driver for host bridges.  The Intel AGP drivers (in my case
+agpgart-intel-mch) are attaching to the PCI IDs of the host bus device
+instead of the AGP bridge. This blocks us from making a host bridge
+driver.
+PCI_DEVICE_ID_INTEL_82875_HB 0x2578
+
+Shouldn't they be attaching to device 0x2579? It looks like all of the
+drivers have this problem and are attaching to the host bus PCI IDs
+instead of the AGP bridge ID.
+
+[root@jonsmirl pci]# cat devices
+0000    80862578        0       ec000008        00000000       
+00000000        00000000        00000000        00000000       
+00000000      04000000 00000000        00000000        00000000       
+00000000        00000000        00000000        agpgart-intel-mch
+0008    80862579        0       00000000        00000000       
+00000000        00000000        00000000        00000000       
+00000000      00000000 00000000        00000000        00000000       
+00000000        00000000        00000000
+
+Am I correct in thinking that in all cases there has to be two PCI
+IDs, one for the host bridge and one for the APG bridge?
+
+-- 
+Jon Smirl
+jonsmirl@gmail.com

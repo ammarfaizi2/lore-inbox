@@ -1,215 +1,156 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264967AbSJRG0G>; Fri, 18 Oct 2002 02:26:06 -0400
+	id <S264990AbSJRGcf>; Fri, 18 Oct 2002 02:32:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264988AbSJRG0G>; Fri, 18 Oct 2002 02:26:06 -0400
-Received: from ns.cinet.co.jp ([210.166.75.130]:25355 "EHLO multi.cinet.co.jp")
-	by vger.kernel.org with ESMTP id <S264967AbSJRG0B>;
-	Fri, 18 Oct 2002 02:26:01 -0400
-Message-ID: <E6D19EE98F00AB4DB465A44FCF3FA46903A306@ns.cinet.co.jp>
-From: Osamu Tomita <tomita@cinet.co.jp>
-To: "'Russell King '" <rmk@arm.linux.org.uk>
-Cc: "'LKML '" <linux-kernel@vger.kernel.org>,
-       "'Linus Torvalds '" <torvalds@transmeta.com>
-Subject: Re: [PATCH][RFC] add support for PC-9800 architecture (20/26) ser
-	ial #1
-Date: Fri, 18 Oct 2002 15:31:46 +0900
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-2022-jp"
+	id <S264991AbSJRGcf>; Fri, 18 Oct 2002 02:32:35 -0400
+Received: from adsl-67-64-81-217.dsl.austtx.swbell.net ([67.64.81.217]:3473
+	"HELO digitalroadkill.net") by vger.kernel.org with SMTP
+	id <S264990AbSJRGcd>; Fri, 18 Oct 2002 02:32:33 -0400
+Subject: Re: Posix capabilities
+From: GrandMasterLee <masterlee@digitalroadkill.net>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org
+In-Reply-To: <200210171322.g9HDME7o024177@pincoya.inf.utfsm.cl>
+References: <200210171322.g9HDME7o024177@pincoya.inf.utfsm.cl>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: Digitalroadkill.net
+Message-Id: <1034923112.10326.18.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.1.2.99 (Preview Release)
+Date: 18 Oct 2002 01:38:33 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for your comment.
-We are *spacially* takeing care of breaking original feature.
-Although after patch applied, If not defined CONFIG_PC9800 we get same
-binaly with before patch appling.
-If does not, It is our *miss-coding*.
+On Thu, 2002-10-17 at 08:22, Horst von Brand wrote:
+> GrandMasterLee <masterlee@digitalroadkill.net> said:
+> > On Wed, 2002-10-16 at 22:26, Theodore Ts'o wrote:
+> 
+> [...]
+> 
+> > > Personally, I'm not so convinced that capabilities are such a great
+> > > idea.  System administrators have a hard enough time keeping 12 bits
+> > > of permissions correct on executable files; with capabilities they
+> > > have to keep track of several hundred bits of capabilties flags, which
+> > > must be set precisely correctly, or the programs will either (a) fail
+> > > to function, or (b) have a gaping huge security hole.  
+> 
+> Nodz.
+> 
+> > While working with LIDS in it's early stages of implementation, and
+> >... 
+> 
+> It is easier on the sysadmin for the people upstream (developers,
+> distributors, ...) to set up stuff sanely in the executable. Sure, a lot of
+> flexibility is lost this way.
 
-Russell King wrote:
-> I strongly recommend _n_o_t_ merging this patch.
-I understand bad reasons.
-I will remove following commented all patches from patchset.
-So, only 2 patches
- - drivers/serial/8250_pnp.c
- - include/asm-i386/serial.h
- are remaining.
+I think the real perspective on this should be that lots of flexibility
+can be lost this way, but not necessarily so that it inherently will be
+lost. I say that because programming with the specification in mind that
+flexibility should be as maintained as possible, while attempting to
+provide the security in a sane and well thought out manner is a better
+vehicle to acceptance. Thus people adopt things which are secure, but
+flexible. 
 
-We have another serial driver for 2.4.
-I want to port this into 2.5.
-But this driver needs "drivers/char/generic-serial.c".
-It seems broken. Is generic-serial.c obsolete?
-Please tell me.
+I respect the *BSD folks for taking a somewhat inverse approach to this
+though, since a lot of flexibility is maintained while security is job
+one.
 
->> --- linux/drivers/serial/Makefile	Wed Oct 16 13:20:41 2002
->> +++ linux98/drivers/serial/Makefile	Wed Oct 16 15:31:48 2002
->> @@ -4,14 +4,18 @@
->>  #  $Id: Makefile,v 1.8 2002/07/21 21:32:30 rmk Exp $
->>  #
->>  
->> -export-objs	:= core.o 8250.o suncore.o
->> +export-objs	:= core.o 8250.o suncore.o serial98.o
->>  
->>  serial-8250-y :=
->>  serial-8250-$(CONFIG_PCI) += 8250_pci.o
->>  serial-8250-$(CONFIG_ISAPNP) += 8250_pnp.o
->>  obj-$(CONFIG_SERIAL_CORE) += core.o
->>  obj-$(CONFIG_SERIAL_21285) += 21285.o
->> +ifneq ($(CONFIG_SERIAL_PC9800),y)
->>  obj-$(CONFIG_SERIAL_8250) += 8250.o $(serial-8250-y)
->> +else
->> +obj-$(CONFIG_SERIAL_8250) += serial98.o $(serial-8250-y)
->> +endif
+> > > This probablem could be solved with some really scary, complex user
+> > > tools (which no one has written yet). 
+> 
+> > Looking at CA Unicenter, they have an ACLs and CAPs product which does
+> > centralized management of those attributes to keep the configs sane
+> > across your environment. Not trying to advertise for them, but the point
+> > is, if a commercial product exists to do this, then it should be highly
+> > possible in the OSS community as well.
+> 
+> Sorry, but I gather the vast mayority of Linux instalations to be
+> single-machine (home use, ...). I have yet to see a hundred-machine setup
+> myself (maximal is some 30 around here),
 
-> If you don't want 8250.c, then don't re-use CONFIG_SERIAL_8250
+I have over 100 linux machines, which could benefit from this sort of
+thing, which is why I mentioned CA eTrust's suite for this purpose. I
+still have unanswered questions to this, but we'll probably give it a
+trial run and see just what it really can/can't do. I'll be taking notes
+of course to see what the OSS community can benefit from this
+methodology. 
 
->> --- linux/drivers/serial/8250_cs.c	Thu Jul 25 06:03:28 2002
->> +++ linux98/drivers/serial/8250_cs.c	Thu Jul 25 15:48:59 2002
->> @@ -307,6 +307,7 @@
->>  	serial.port = port;
->>  	serial.irq = irq;
->>  	serial.flags = ASYNC_SKIP_TEST | ASYNC_SHARE_IRQ;
->> +	serial.baud_base = 230400;
->>  	line = register_serial(&serial);
->>  	if (line < 0) {
->>  		printk(KERN_NOTICE "serial_cs: register_serial() at 0x%04lx,
-"
+>  so this is out of the league of
+> most people anyway. Plus Linux is falling more and more into the hands of
+> the unwashed masses, who have a dificult time remembering not to do
+> everything as root (leave alone fix up permissions).
 
-> This breaks PCMCIA serial support on every other platform that supports
-> PCMCIA serial cards.
+I don't really agree about the unwashed masses bit, though I do
+understand that viewpoint. To really open Linux to the world though, the
+"unwashed masses" should be allowed to have input into something even if
+they don't understand it fully. Their viewpoints and opinions will help
+to fine tune some of the corner cases in the security area, and others
+too. 
 
->> --- linux/include/linux/serial.h	Mon Sep 16 11:18:23 2002
->> +++ linux98/include/linux/serial.h	Mon Sep 16 16:21:38 2002
->> @@ -10,6 +10,8 @@
->>  #ifndef _LINUX_SERIAL_H
->>  #define _LINUX_SERIAL_H
->>  
->> +#include <linux/config.h>
->> +
->>  #ifdef __KERNEL__
->>  #include <asm/page.h>
->>  
->> @@ -75,11 +77,22 @@
->>  #define PORT_16654	11
->>  #define PORT_16850	12
->>  #define PORT_RSA	13	/* RSA-DV II/S card */
->> +#ifndef CONFIG_PC9800
->>  #define PORT_MAX	13
->> +#else
->> +#define PORT_8251	14
->> +#define PORT_8251_19K	15
->> +#define PORT_8251_FIFO	16
->> +#define PORT_8251_VFAST	17
->> +#define PORT_MC16550II	18
->> +#define PORT_MAX	18
->> +#endif
+All that aside, Linux in the enterprise is becoming *very* common. If
+all goes well in our environment, we'll have several 2TB+ DBs in
+production by this time next year.
 
-> Yuck.  Just define the new numbers.  There is no point putting an
-> ifdef around them.
+> > >  Alternatively you could just
+> > > let programs continue to be setuid root....
+>
+> > To make management easy for the admins when I dealt with LIDS and making
+> > it *very* tight, I had to write several wrappers, replace commands, etc
+> > so they ran chrooted automatically, etc. It was a PITA. Cool when it
+> > worked, but it was still a PITA.
+> 
+> But a once-in-the-development PITA, not a once-for-each-installation PITA
 
->> --- linux/include/linux/serialP.h	Tue Oct  8 10:56:20 2002
->> +++ linux98/include/linux/serialP.h	Tue Oct  8 11:01:42 2002
->> @@ -20,6 +20,7 @@
->>   */
->>  
->>  #include <linux/config.h>
->> +#include <linux/version.h>
->>  #include <linux/termios.h>
->>  #include <linux/workqueue.h>
->>  #include <linux/circ_buf.h>
->> @@ -75,6 +76,10 @@
->>  	int		MCR; 	/* Modem control register */
->>  	int		LCR; 	/* Line control register */
->>  	int		ACR;	 /* 16950 Additional Control Reg. */
->> +#ifdef CONFIG_PC9800
->> +	int			cmd8251;
->> +	int			msr8251;
->> +#endif
->>  	unsigned long		event;
->>  	unsigned long		last_active;
->>  	int			line;
+That's not really what I was getting at. The problem is that I had to
+make these things not a PITA for the admins, and it was a PITA, compared
+to an "every day" system, to administer. In a sense all functionality
+was there, but there were many more hoops to jump to do normal
+administration. In a sense, it was re-learning how to administer 100
+boxen, which just got more tedious. 
 
-> I'm deferring comment on this until I've had time to digest your
-> other serial patch.
+The missing piece in this overall security architecture, to make things
+more flexible, or semi-automated, was a distributed(or centralized)
+state management system and repository for all ACLs and CAPs for all
+users and the commands, filesystems, etc, affected. If there'd been
+something like Kerberos on Steroids, thus supporting all ACLs and CAPs
+in an authoritative way, it would've been much easier to configure and
+maintain those configurations. 
 
->> --- linux/include/linux/serial_core.h	Sun Aug 11 10:41:20 2002
->> +++ linux98/include/linux/serial_core.h	Wed Aug 21 16:26:45 2002
->> @@ -37,7 +37,16 @@
->>  #define PORT_16654	11
->>  #define PORT_16850	12
->>  #define PORT_RSA	13
->> +#ifndef CONFIG_PC9800
->>  #define PORT_MAX_8250	13	/* max port ID */
->> +#else
->> +#define PORT_8251	14
->> +#define PORT_8251_19K	15
->> +#define PORT_8251_FIFO	16
->> +#define PORT_8251_VFAST	17
->> +#define PORT_MC16550II	18
->> +#define PORT_MAX_8250	18	/* max port ID */
->> +#endif
->>  
->>  /*
->>   * ARM specific type numbers.  These are not currently guaranteed
+> > > It perhaps only gives you 90% of the benefits of the full-fledged
+> > > capabilities model, but it's much more fool proof, and much easier to
+> > > administer.
+> 
+> > Perhaps exntending the security module to actually have a centralized
+> > host configuration utility, using say AES or diffie-hellman and SSL or
+> > SSH to do the configuration management of this. Centralizing, or
+> > distributing the management of this, but with a decided upon security
+> > architecture is what, imho, will actually make this type of
+> > configuration very useable, and manageable. 
+> 
+> Have you seen any such centralized configuration management in real use?
 
-> Same comments as serial.h
+Yes, as a matter of fact, we rolled our own, but it is still very basic,
+though far more capable than just kickstart.
 
->> --- linux/include/linux/serial_reg.h	Wed May  2 08:05:00 2001
->> +++ linux98/include/linux/serial_reg.h	Fri Aug 17 22:15:12 2001
->> @@ -14,6 +14,8 @@
->>  #ifndef _LINUX_SERIAL_REG_H
->>  #define _LINUX_SERIAL_REG_H
->>  
->> +#include <linux/config.h>
->> +
->>  #define UART_RX	0	/* In:  Receive buffer (DLAB=0) */
->>  #define UART_TX	0	/* Out: Transmit buffer (DLAB=0) */
->>  #define UART_DLL	0	/* Out: Divisor Latch Low (DLAB=1) */
->> @@ -229,6 +231,47 @@
->>  #define UART_TRG_120	0x78
->>  #define UART_TRG_128	0x80
->>  
->> +#ifdef CONFIG_PC9800
->> +
->> +#define RX_8251F	0x130	/* In: Receive buffer */
->> +#define TX_8251F	0x130	/* Out: Transmit buffer */
->> +#define LSR_8251F	0x132	/* In: Line Status Register */
->> +#define MSR_8251F	0x134	/* In: Modem Status Register */
->> +#define IIR_8251F	0x136	/* In: Interrupt ID Register */
->> +#define FCR_8251F	0x138	/* I/O: FIFO Control Register */
->> +#define IER2_8251F	0x138	/* I/O: Interrupt Enable Register */
->> +#define VFAST_8251F	0x13a	/* I/O: VFAST mode Register */
->> +
->> +#define COMMAND_8251F	0x32	/* Out: 8251 Command Resister */
->> +#define IER1_8251F	0x35	/* I/O: Interrupt Enable Register */
->> +#define IER1_8251F_COUT	0x37	/* Out: Interrupt Enable Register */
->> +
->> +#define COMMAND_8251F_DUMMY 0	/* Dummy Command */
->> +#define COMMAND_8251F_RESET 0x40 /* Reset Command */
->> +
->> +#define VFAST_ENABLE	0x80	/* V.Fast mode Enable */
->> +
->> +/* Interrupt Reason */
->> +#define INTR_8251_TXRE	4
->> +#define INTR_8251_TXEE	2
->> +#define INTR_8251_RXRE	1
->> +/* I/O Port */
->> +#define PORT_8251_DATA	0
->> +#define PORT_8251_CMD	2
->> +#define PORT_8251_MOD	2
->> +#define PORT_8251_STS	2
->> +/* status in */
->> +#define STAT_8251_TXRDY	1
->> +#define STAT_8251_RXRDY	2
->> +#define STAT_8251_TXEMP	4
->> +#define STAT_8251_PER	8
->> +#define STAT_8251_OER	16
->> +#define STAT_8251_FER	32
->> +#define STAT_8251_BRK	64
->> +#define STAT_8251_DSR	128
->> +
->> +#endif /* CONFIG_PC9800 */
->> +
+> The nearest we come here is Red Hat's kickstart for configuring the whole
+> Lab (mostly) the same when installing, and that is for only slightly
+> heterogeneous machines that must look the same to users.
 
-> Same comments as serial.h
+Using something like System Imager, or the SystemInstaller suite from
+IBM and Brian Finely, you can couple Kickstart with an image and then
+version that image, with some custom programming around it, very easily.
+You could, take it so far as to even use CVS or something similar, to
+just keep track of changes in a cron'd manner just using a few scripts,
+and have the images update as you please. 
+
+You should look at a combination of Kickstart, Current, and SI. I think
+with a little work on top of all of those pieces, you could easily have
+a free, kick ass configuration management system. (which btw, the SI
+suite is becoming very good at that.)
+
+The real point of all of this rhetoric though, is that CAPs are good,
+ACLs are good, and extended attributes are good. It's just that darn
+administrative bit that becomes a hassle in large environments. 
+
+ --The GrandMaster

@@ -1,68 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264406AbTDXEvE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 00:51:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264411AbTDXEvE
+	id S264391AbTDXEup (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 00:50:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264400AbTDXEup
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 00:51:04 -0400
-Received: from smtp3.cwidc.net ([154.33.63.113]:38386 "EHLO smtp3.cwidc.net")
-	by vger.kernel.org with ESMTP id S264406AbTDXEvB (ORCPT
+	Thu, 24 Apr 2003 00:50:45 -0400
+Received: from unthought.net ([212.97.129.24]:25483 "EHLO mail.unthought.net")
+	by vger.kernel.org with ESMTP id S264391AbTDXEun (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 00:51:01 -0400
-Message-ID: <3EA76FFE.5070007@tequila.co.jp>
-Date: Thu, 24 Apr 2003 14:02:54 +0900
-From: Clemens Schwaighofer <cs@tequila.co.jp>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4a) Gecko/20030401
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Flame Linus to a crisp!
-References: <Pine.LNX.4.44.0304232146020.19326-100000@home.transmeta.com>
-In-Reply-To: <Pine.LNX.4.44.0304232146020.19326-100000@home.transmeta.com>
-X-Enigmail-Version: 0.74.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Thu, 24 Apr 2003 00:50:43 -0400
+Date: Thu, 24 Apr 2003 07:02:49 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Christoph Hellwig <hch@infradead.org>,
+       Stephen Smalley <sds@epoch.ncsc.mil>,
+       Linus Torvalds <torvalds@transmeta.com>, "Ted Ts'o" <tytso@mit.edu>,
+       Andreas Gruenbacher <a.gruenbacher@computer.org>,
+       Stephen Tweedie <sct@redhat.com>, lkml <linux-kernel@vger.kernel.org>,
+       lsm <linux-security-module@wirex.com>
+Subject: Re: [PATCH] Extended Attributes for Security Modules against 2.5.68
+Message-ID: <20030424050249.GC16519@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Christoph Hellwig <hch@infradead.org>,
+	Stephen Smalley <sds@epoch.ncsc.mil>,
+	Linus Torvalds <torvalds@transmeta.com>, Ted Ts'o <tytso@mit.edu>,
+	Andreas Gruenbacher <a.gruenbacher@computer.org>,
+	Stephen Tweedie <sct@redhat.com>,
+	lkml <linux-kernel@vger.kernel.org>,
+	lsm <linux-security-module@wirex.com>
+References: <1051120322.14761.95.camel@moss-huskers.epoch.ncsc.mil> <20030423191749.A4244@infradead.org> <1051122958.14761.110.camel@moss-huskers.epoch.ncsc.mil> <20030423194254.A5295@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030423194254.A5295@infradead.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, Apr 23, 2003 at 07:42:54PM +0100, Christoph Hellwig wrote:
+> On Wed, Apr 23, 2003 at 02:35:59PM -0400, Stephen Smalley wrote:
+> > The idea of using separate attribute names for each security module was
+> > already discussed at length when I posted the original RFC, and I've
+> > already made the case that this is not desirable.  Please see the
+> > earlier discussion.
+> 
+> No.  It's not acceptable that the same ondisk structure has a different
+> meaning depending on loaded modules.  If the xattrs have a different
+> meaning they _must_ have a different name.
 
-Linus Torvalds wrote:
+A .xyz file in my filesystem may mean one thing to application X, and
+another thing to application Y - and quite possibly only application X
+is able to make sense of the information in my .xyz file, even though
+both applications use the .xyz suffix for their files.
 
-If signing something with a public key, makes they GPL, this would be
-ridicolous. I mean, when I use GPL mutt & GPL GnuPG and whatever.
+We accept this ambiguity in file systems.
 
-Point for me is, that with a DRM you could 100% verify that foreign
-module Y is 100% from company Z. Or that binary product F is 100% from
-the company and can be trusted to run here or there.
+(We accept a similar possibility for ambiguity for UDP/TCP ports,
+process names, etc. etc. etc.)
 
-I think the major problem with DRM is the negative vibration it bringts
-with its very stupid use in all kind of Mass Media Music/Movie industry.
-Which is in a kind of ultimate end-of-its-days panic.
+Even if I don't have application X installed, I can still backup and
+restore my .xyz file.   Because the tools use a common interface.
 
-> Because signing is (at least right now) the only way to show that you
-> trust something. And if you can't show that you trust something, you
-can't
-> have any real security.
+Why do extended attributes have to be different?  (And who will maintain
+the authorative registry over allocated xattr names?)
 
-so should we start to sign all our emails? so we know we trust each other?
+In my little mind it makes sense to have security information one
+specific and well defined place.  Then, depending on the kernel security
+model, it can either make sense of the information, or it can not.
 
-- --
-Clemens Schwaighofer - IT Engineer & System Administration
-==========================================================
-Tequila Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
-Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
-http://www.tequila.jp
-==========================================================
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+If I insert a disk with MLS labelled files in a TE system, I cannot
+expect the system to magically enforce the MLS policy - but my tools
+will still work.  I think that sounds beneficial.   In fact, for
+disaster recovery, it sounds pretty damn convenient in my ears.
 
-iD8DBQE+p2/9jBz/yQjBxz8RAtyMAKDUNJHWC3qRBtHgyVsT+S9d+VxeOQCeNMHU
-u5QZX8ds7DS1r8rsYgSsQUw=
-=vZBn
------END PGP SIGNATURE-----
+Tell me what I am missing here, please.
 
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

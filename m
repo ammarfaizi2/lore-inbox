@@ -1,89 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267289AbSLKTQH>; Wed, 11 Dec 2002 14:16:07 -0500
+	id <S267291AbSLKTaV>; Wed, 11 Dec 2002 14:30:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267291AbSLKTQH>; Wed, 11 Dec 2002 14:16:07 -0500
-Received: from ns.aspic.com ([213.193.2.5]:11013 "EHLO off.aspic.com")
-	by vger.kernel.org with ESMTP id <S267289AbSLKTQC>;
-	Wed, 11 Dec 2002 14:16:02 -0500
-Date: Wed, 11 Dec 2002 20:23:42 +0100
-From: Philippe =?ISO-8859-1?B?R3JhbW91bGzp?= 
-	<philippe.gramoulle@mmania.com>
-To: eric lin <fsshl@centurytel.net>
+	id <S267293AbSLKTaV>; Wed, 11 Dec 2002 14:30:21 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:19467
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S267291AbSLKTaU>; Wed, 11 Dec 2002 14:30:20 -0500
+Subject: Re: Destroying processes
+From: Robert Love <rml@tech9.net>
+To: Justin Hibbits <jrh29@po.cwru.edu>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: how do you successful compile or install 2.5.50?
-Message-Id: <20021211202342.5285bbbe.philippe.gramoulle@mmania.com>
-In-Reply-To: <3DF5EC8E.9050603@centurytel.net>
-References: <3DF5EC8E.9050603@centurytel.net>
-Organization: Lycos Europe
-X-Mailer: Sylpheed version 0.8.6claws100 (GTK+ 1.2.10; )
+In-Reply-To: <20021211193049.GH147@lothlorien.cwru.edu>
+References: <20021211190132.GF147@lothlorien.cwru.edu>
+	 <1039634515.833.57.camel@phantasy>
+	 <20021211193049.GH147@lothlorien.cwru.edu>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1039635486.832.86.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 11 Dec 2002 14:38:06 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Dec 2002 06:30:54 -0700
-eric lin <fsshl@centurytel.net> wrote:
+On Wed, 2002-12-11 at 14:30, Justin Hibbits wrote:
 
+> Ok, thanks for clearing that up.  My reasoning for wanting this is because a CD
+> I had mounted with cdfs was screwed up in the mount (file sizes were
+> misreported, etc), and I couldn't umount it, even tho I could eject it with
+> cdrecord -eject.  The umount process then went to sleep (with teh 'D' showing
+> in ps/top), and I couldn't use that drive again until after a reboot.  That's
+> when I got the idea that I should be able to destroy the process completely,
+> annihilating everything with it, destroying any connections it has with the
+> kernel, etc.  I guess it's a bad idea, given your statement :P
 
-You might want to give 2.5.51 a try as i successfully buit it and modules have been working fine
-(you need latest modules tools found here:
+Yah you do not want to be able to kill that hung task.
 
-  | On Tue, 10 Dec 2002 18:04:27 +1100
-  | Rusty Russell <rusty@rustcorp.com.au> wrote:
+At the same time, this is a cdfs so we DO want to fix that. I.e., while
+it is unsafe and not clean to kill a sleeping task, you should never
+need to.  So this bug should be fixed.
 
-  |  Hi all,
-  |  
-  |  	module-init-tools 0.9.3 and the associated RPM
-  |  modutils-2.4.21-7.src.rpm are out.
-  |  
-  |  	http://www.[CC].kernel.org/pub/linux/kernel/people/rusty/modules/
+	Robert Love
 
-Bye
-
-Philippe.
-
-# uname -a
-Linux test 2.5.51 #5 SMP Wed Dec 11 19:05:40 CET 2002 i686 unknown unknown GNU/Linux
-
-# lsmod
-
-Module                  Size  Used by
-dummy                   1720  1
-hid                    21186  0
-sb_lib                 43181  0 [permanent]
-uart401                 8461  1 sb_lib
-sound                  74003  2 sb_lib uart401
-uhci_hcd               27941  0
-usbcore                88471  4 hid uhci_hcd
-nls_utf8                1230  0
-smbfs                  58934  0
-ymfpci                 46876  0
-ac97_codec             11702  1 ymfpci [permanent]
-soundcore               6306  3 sb_lib sound ymfpci
-nfs                   122403  0
-nfsd                  112661  0
-exportfs                4558  1 nfsd [permanent]
-lockd                  58356  2 nfs nfsd
-sunrpc                101860  3 nfs nfsd lockd
-
-
-  |  
-  |     I just wonder how do you successful compile or install that 2.5.50? 
-  |  do you meet error at make modules?  if yes, how do you do ?(modify by 
-  |  yourself or postto author or public waiting for reply?)
-  |  
-  |     highly appreciate your experience on compile or install new kernel 
-  |  especailly experiamental kernel
-  |  
-  |  sincere ERic
-  |  www.linuxspice.com
-  |  linux pc for sale
-  |  
-  |  -
-  |  To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-  |  the body of a message to majordomo@vger.kernel.org
-  |  More majordomo info at  http://vger.kernel.org/majordomo-info.html
-  |  Please read the FAQ at  http://www.tux.org/lkml/
-  |  

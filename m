@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261908AbSLCPSc>; Tue, 3 Dec 2002 10:18:32 -0500
+	id <S261545AbSLCP1z>; Tue, 3 Dec 2002 10:27:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261914AbSLCPSc>; Tue, 3 Dec 2002 10:18:32 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:56736 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261908AbSLCPSb>; Tue, 3 Dec 2002 10:18:31 -0500
-Subject: Re: Pair programming and the linux kernel
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: sbthomas@calpoly.edu
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <H00031c50f335123.1038900728.seurat.artisan.calpoly.edu@MHS>
-References: <H00031c50f335123.1038900728.seurat.artisan.calpoly.edu@MHS>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 03 Dec 2002 16:00:02 +0000
-Message-Id: <1038931202.11439.9.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S261573AbSLCP1z>; Tue, 3 Dec 2002 10:27:55 -0500
+Received: from dux1.tcd.ie ([134.226.1.23]:44551 "HELO dux1.tcd.ie")
+	by vger.kernel.org with SMTP id <S261545AbSLCP1y> convert rfc822-to-8bit;
+	Tue, 3 Dec 2002 10:27:54 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Salman <assembly@gofree.indigo.ie>
+To: linux-kernel@vger.kernel.org
+Subject: device driver modules
+Date: Tue, 3 Dec 2002 15:34:02 +0000
+User-Agent: KMail/1.4.3
+References: <3DECBCA7.2010502@earthlink.net> <3DECC289.2050500@vgertech.com>
+In-Reply-To: <3DECC289.2050500@vgertech.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200212031534.02102.assembly@gofree.indigo.ie>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-12-03 at 07:42, sbthomas@calpoly.edu wrote:
-> Is anyone aware if any significant parts of the Linux kernel have 
-> been "pair-programmed?" Not necessarily the whole XP definition, but 
-> has anyone actually made a point to sit down with someone else and 
-> design a solution to add a feature or fix a bug? I'm doing a paper on 
-> the benefits of using pair programming in operating systems work. Any 
-> other thoughts or questions?
+Hi !
 
-Only two people ? The core kernel code gets read by several more people
-than that it most cases. Drivers is probably more variable, depending on
-how common the device is.
+I'm working with a device driver which comes in 2 modules.
 
-One thing that certainly showed up and is much easier to achieve as well
-as giving extremely good results is documenting other peoples code. The
-documentation process found a lot of driver bugs in Linux and a lot of
-bugs in Gnome code too. Not just developer documentation either - user
-documentation can have the same effect
+One directly talking to the hardware and kernel, and the other sitting on top 
+of it, in user mode providing a nice interface for user applications and etc.
 
+Basically the top layer should directly communicate with bottom layer for any 
+action.
+I'm going through code of top layer, and it never calls the lower layer 
+functions ! a sample code traverses as follows (i used source navigator to go 
+through code)
 
+ConnectRemoteSegment -> kcConnectR -> SISCI_IOCTL -> unixIoctl -> ioctl
+
+all above fucntions are within the top layer code.
+none are even listed in /proc/ksyms
+and the ioctl function simply doesn't exist, not even in kernel source code.
+
+I know i'm missing a major concept here, can someone guide me how to 
+understand what's going on.
+
+Thanks,
+
+Salman

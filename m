@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262486AbTESRX0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 13:23:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262390AbTESRX0
+	id S262390AbTESRZ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 13:25:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262528AbTESRZ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 13:23:26 -0400
-Received: from shell.cyberus.ca ([216.191.236.4]:21008 "EHLO shell.cyberus.ca")
-	by vger.kernel.org with ESMTP id S261994AbTESRXY (ORCPT
+	Mon, 19 May 2003 13:25:58 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:17845 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262390AbTESRZ5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 13:23:24 -0400
-Date: Mon, 19 May 2003 13:36:06 -0400 (EDT)
-From: Jamal Hadi <hadi@shell.cyberus.ca>
-To: "David S. Miller" <davem@redhat.com>
-cc: fw@deneb.enyo.de, linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru,
-       netdev@oss.sgi.com, linux-net@vger.kernel.org
-Subject: Re: Route cache performance under stress
-In-Reply-To: <20030518.023151.77034834.davem@redhat.com>
-Message-ID: <20030519132819.S38814@shell.cyberus.ca>
-References: <87d6iit4g7.fsf@deneb.enyo.de> <20030517.150933.74723581.davem@redhat.com>
- <87iss87gqd.fsf@deneb.enyo.de> <20030518.023151.77034834.davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 19 May 2003 13:25:57 -0400
+Date: Mon, 19 May 2003 10:39:08 -0700
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: And yet another it87 patch.
+Message-ID: <20030519173908.GA25145@kroah.com>
+References: <20030518222150.GA24805@babylon.d2dc.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030518222150.GA24805@babylon.d2dc.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, May 18, 2003 at 06:21:50PM -0400, Zephaniah E. Hull wrote:
+> Trivial, but important.
+> 
+> Somehow in the patching the bk tree somehow got two memset's to clear
+> new_client in it87_detect, normally while this would be bad, it would
+> not be critical.
+> 
+> However one of the two happens BEFORE the variable is set, and thus
+> things go badly.
 
-Florian,
-I actually asked you to run some tests last time you showed up
-on netdev but never heard back. Maybe we can get some results now
-that the complaining is still continuing. Note, we cant just invent
-things because "CISCO is doing it like that". That doesnt cut it.
-What we need is data to substantiate things and then we move from there.
+That's a wierd merge problem, sorry about that.
 
-And oh, i am pretty sure we can beat any of the BSDs forwarding rate.
-Anyone wants a duel, lets meet at the water fountain by the town
-hall at sunrise.
+Applied.
 
-cheers,
-jamal
-
+greg k-h

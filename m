@@ -1,22 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265287AbTLaXmR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 18:42:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265288AbTLaXmQ
+	id S265291AbTLaXqW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 18:46:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265292AbTLaXqW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 18:42:16 -0500
-Received: from fw.osdl.org ([65.172.181.6]:15277 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265287AbTLaXmP (ORCPT
+	Wed, 31 Dec 2003 18:46:22 -0500
+Received: from fw.osdl.org ([65.172.181.6]:7088 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265291AbTLaXqV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 18:42:15 -0500
-Date: Wed, 31 Dec 2003 15:42:39 -0800
+	Wed, 31 Dec 2003 18:46:21 -0500
+Date: Wed, 31 Dec 2003 15:46:48 -0800
 From: Andrew Morton <akpm@osdl.org>
 To: Daniel McNeil <daniel@osdl.org>
 Cc: suparna@in.ibm.com, janetmor@us.ibm.com, pbadari@us.ibm.com,
        linux-aio@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH linux-2.6.1-rc1-mm1] filemap_fdatawait.patch
-Message-Id: <20031231154239.7c4d140e.akpm@osdl.org>
-In-Reply-To: <1072910061.712.67.camel@ibm-c.pdx.osdl.net>
+Subject: Re: [PATCH linux-2.6.1-rc1-mm1] aiodio_fallback_bio_count.patch
+Message-Id: <20031231154648.2af81331.akpm@osdl.org>
+In-Reply-To: <1072910475.712.74.camel@ibm-c.pdx.osdl.net>
 References: <1070907814.707.2.camel@ibm-c.pdx.osdl.net>
 	<1071190292.1937.13.camel@ibm-c.pdx.osdl.net>
 	<1071624314.1826.12.camel@ibm-c.pdx.osdl.net>
@@ -32,6 +32,7 @@ References: <1070907814.707.2.camel@ibm-c.pdx.osdl.net>
 	<20031231025410.699a3317.akpm@osdl.org>
 	<20031231031736.0416808f.akpm@osdl.org>
 	<1072910061.712.67.camel@ibm-c.pdx.osdl.net>
+	<1072910475.712.74.camel@ibm-c.pdx.osdl.net>
 X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -41,31 +42,18 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Daniel McNeil <daniel@osdl.org> wrote:
 >
-> The other potential race in filemap_fdatawait() was that it
-> removed the page from the locked list while waiting for a writeback
-> and if there was a 2nd filemap_fdatawait() running on another cpu,
-> it would not wait for the page being written since it would never see
-> it on the list.
+> This is an update of AIO fallback patch and with the bio_count race
+>  fixed by changing bio_list_lock into bio_lock and using that for all
+>  the bio fields.  I changed bio_count and bios_in_flight from atomics
+>  into int.  They are now proctected by the bio_lock.  I fixed the race,
+>  by in finished_one_bio() by leaving the bio_count at 1 until after the
+>  dio_complete() and then do the bio_count decrement and wakeup holding
+>  the bio_lock.
 
-That would only happen if one thread or the other was not running under
-i_sem.   The only path I see doing that is in generic_file_direct_IO()?
+Sob.  Daniel, please assume that I have an extremely small brain and forget
+things very easily.  And that 2,000 patches have passed under my nose since
+last I contemplated the direct-io code, OK?
 
-> +		/*
-> +		 * If the page is locked, it might be in process of being 
-> +		 * setup for writeback but without PG_writeback set 
-> +		 * and with PG_dirty cleared.
-> +		 * (PG_dirty is cleared BEFORE PG_writeback is set)
-> +		 * So, wait for the PG_locked to clear, then start over.
-> +		 */
-> +		if (PageLocked(page)) {
-> +			page_cache_get(page);
-> +			spin_unlock(&mapping->page_lock);
-> +			wait_on_page_locked(page);
-> +			page_cache_release(page);
-> +			goto restart;
-> +		}
+What bio_count race?
 
-Why is this a problem which needs addressing here?  If some other thread is
-in the process of starting I/O against this page then the page must have
-been clean when this thread ran filemap_fdatawrite()?
-
+And the patch seems to be doing more than your description describes?

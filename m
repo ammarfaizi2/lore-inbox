@@ -1,79 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272299AbRIKGos>; Tue, 11 Sep 2001 02:44:48 -0400
+	id <S272304AbRIKHHU>; Tue, 11 Sep 2001 03:07:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272304AbRIKGoi>; Tue, 11 Sep 2001 02:44:38 -0400
-Received: from sj-msg-core-1.cisco.com ([171.71.163.11]:59545 "EHLO
-	sj-msg-core-1.cisco.com") by vger.kernel.org with ESMTP
-	id <S272299AbRIKGo0>; Tue, 11 Sep 2001 02:44:26 -0400
-Message-ID: <014801c13a8c$7e98f370$2a3147ab@cisco.com>
-From: "Hua Zhong" <hzhong@cisco.com>
-To: "Rik van Riel" <riel@conectiva.com.br>,
-        "Linus Torvalds" <torvalds@transmeta.com>
-Cc: "Daniel Phillips" <phillips@bonn-fries.net>,
-        "Andreas Dilger" <adilger@turbolabs.com>,
-        "Andrea Arcangeli" <andrea@suse.de>,
-        "Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33L.0109102151581.30234-100000@imladris.rielhome.conectiva>
-Subject: Re: linux-2.4.10-pre5
-Date: Mon, 10 Sep 2001 23:39:23 -0700
+	id <S272305AbRIKHHL>; Tue, 11 Sep 2001 03:07:11 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:50436 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S272304AbRIKHGz>; Tue, 11 Sep 2001 03:06:55 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+Date: Tue, 11 Sep 2001 17:06:26 +1000 (EST)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Message-ID: <15261.47090.893483.500877@notabene.cse.unsw.edu.au>
+Cc: Michael Rothwell <rothwell@holly-springs.nc.us>,
+        linux-kernel@vger.kernel.org
+Subject: Re: nfs is stupid ("getfh failed")
+In-Reply-To: message from Jamie Lokier on Friday September 7
+In-Reply-To: <002b01c136e1$3bb36a80$81d4870a@cartman>
+	<20010907025947.E7329@kushida.degree2.com>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's not about the absolute size of meta data..it's about having limited
-cache size.  Whatever you read ahead, as long as it doesn't do good it
-wastes space and pushes (more) useful data out of the cache, and thus what
-you gain in the readahead will be outweighted by further re-reading.
+On Friday September 7, lk@tantalophile.demon.co.uk wrote:
+> Michael Rothwell wrote:
+> > server# tail /var/log/messages
+> > Sep  6 09:37:43 gateway rpc.mountd: authenticated mount request from
+> > 192.168.1.133:933 for /export (/export)
+> > Sep  6 09:37:43 gateway rpc.mountd: getfh failed: Operation not permitted
+> 
+> I'm seeing this message quite often with one Linux 2.4.7 system
+> automounting another.  As long as A has B's filesystem mounted, all is
+> ok.  Then A times out, unmounts, and later wants to remount B's
+> filesystem.  Then, sometimes, I see a message much like yours.
+> 
+> It doesn't seem to need a reboot to cause this problem, and the fix I
+> have found is to kill and restart the NFS server: /etc/init.d/nfs
+> restart.
+> 
+> I have no idea why it happens, or why restarting nfsd or mountd fixes it.
 
-readahead is good, but doing it too aggressively is not.
+Show me your /etc/exports....
 
------ Original Message -----
-From: "Rik van Riel" <riel@conectiva.com.br>
-To: "Linus Torvalds" <torvalds@transmeta.com>
-Cc: "Daniel Phillips" <phillips@bonn-fries.net>; "Andreas Dilger"
-<adilger@turbolabs.com>; "Andrea Arcangeli" <andrea@suse.de>; "Kernel
-Mailing List" <linux-kernel@vger.kernel.org>
-Sent: Monday, September 10, 2001 5:53 PM
-Subject: Re: linux-2.4.10-pre5
+If you export a directory and a subdirectory of that directory - both
+on the same filesysem, you can get this.
+If you export a directory to both an IP address (or subnet) and a
+hostname (or wildcard or netgroup) this can also happen.
 
-
-> On Mon, 10 Sep 2001, Linus Torvalds wrote:
-> > > On September 11, 2001 12:39 am, Rik van Riel wrote:
->
-> > > > This suggests we may want to do agressive readahead on the
-> > > > inode blocks.
->
-> > So it' snot just about preloading. It's also about knowing about access
-> > patterns beforehand - something that the kernel really cannot do.
-> >
-> > Pre-loading your cache always depends on some limited portion of
-> > prescience.
->
-> OTOH, agressively pre-loading metadata should be ok in a lot
-> of cases, because metadata is very small, but wastes about
-> half of our disk time because of the seeks ...
->
-> regards,
->
-> Rik
-> --
-> IA64: a worthy successor to i860.
->
-> http://www.surriel.com/ http://distro.conectiva.com/
->
-> Send all your spam to aardvark@nl.linux.org (spam digging piggy)
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+NeilBrown

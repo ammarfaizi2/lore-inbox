@@ -1,84 +1,150 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262308AbTKVOsX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Nov 2003 09:48:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262310AbTKVOsW
+	id S262291AbTKVOph (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Nov 2003 09:45:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262303AbTKVOph
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Nov 2003 09:48:22 -0500
-Received: from modemcable067.88-70-69.mc.videotron.ca ([69.70.88.67]:35458
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S262308AbTKVOsU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Nov 2003 09:48:20 -0500
-Date: Sat, 22 Nov 2003 09:47:03 -0500 (EST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Remi Colinet <remi.colinet@wanadoo.fr>
-cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test9-mm5 : compile error
-In-Reply-To: <3FBF5C79.5050409@wanadoo.fr>
-Message-ID: <Pine.LNX.4.53.0311220946280.2498@montezuma.fsmlabs.com>
-References: <3FBF5C79.5050409@wanadoo.fr>
+	Sat, 22 Nov 2003 09:45:37 -0500
+Received: from uirapuru.fua.br ([200.129.163.1]:41622 "EHLO uirapuru.fua.br")
+	by vger.kernel.org with ESMTP id S262291AbTKVOpd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Nov 2003 09:45:33 -0500
+Message-ID: <37029.200.212.156.130.1069505102.squirrel@webmail.ufam.edu.br>
+In-Reply-To: <200311220151.51069.gene.heskett@verizon.net>
+References: <3028.200.208.224.8.1069467302.squirrel@webmail.ufam.edu.br>
+    <200311220151.51069.gene.heskett@verizon.net>
+Date: Sat, 22 Nov 2003 10:45:02 -0200 (BRST)
+Subject: Re: [PATCH] detailed physical memory info in fs/proc/task_mmu.c    
+       [2.6.0-test9]
+From: edjard@ufam.edu.br
+To: gene.heskett@verizon.net
+Cc: edjard@ufam.edu.br, linux-kernel@vger.kernel.org, torvalds@osdl.org
+User-Agent: SquirrelMail/1.4.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/mixed;boundary="----=_20031122104502_59042"
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 22 Nov 2003, Remi Colinet wrote:
+------=_20031122104502_59042
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-> arch/i386/oprofile/built-in.o: In function `oprofile_reset_stats':
-> /usr/src/mm/include/asm/bitops.h:251: undefined reference to 
-> `cpu_possible_map'
-> arch/i386/oprofile/built-in.o: In function `oprofile_create_stats_files':
-> /usr/src/mm/include/asm/bitops.h:251: undefined reference to 
-> `cpu_possible_map'
-> make: *** [.tmp_vmlinux1] Error 1
+I think it is this webamail editor. He it goes as attached, sorry about
+that :-(. If it doesn't work I'll send it from a decent terminal.
 
-Index: linux-2.6.0-test9-mm5/arch/i386/kernel/process.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.6.0-test9-mm5/arch/i386/kernel/process.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 process.c
---- linux-2.6.0-test9-mm5/arch/i386/kernel/process.c	21 Nov 2003 20:59:15 -0000	1.1.1.1
-+++ linux-2.6.0-test9-mm5/arch/i386/kernel/process.c	21 Nov 2003 22:20:00 -0000
-@@ -50,6 +50,7 @@
- #include <asm/desc.h>
- #include <asm/tlbflush.h>
- #include <asm/cpu.h>
-+#include <asm/atomic_kmap.h>
- #ifdef CONFIG_MATH_EMULATION
- #include <asm/math_emu.h>
- #endif
-Index: linux-2.6.0-test9-mm5/drivers/oprofile/oprofile_stats.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.6.0-test9-mm5/drivers/oprofile/oprofile_stats.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 oprofile_stats.c
---- linux-2.6.0-test9-mm5/drivers/oprofile/oprofile_stats.c	21 Nov 2003 20:59:40 -0000	1.1.1.1
-+++ linux-2.6.0-test9-mm5/drivers/oprofile/oprofile_stats.c	21 Nov 2003 21:27:44 -0000
-@@ -10,7 +10,8 @@
- #include <linux/oprofile.h>
- #include <linux/cpumask.h>
- #include <linux/threads.h>
-- 
-+#include <linux/smp.h>
-+
- #include "oprofile_stats.h"
- #include "cpu_buffer.h"
-  
-Index: linux-2.6.0-test9-mm5/include/linux/cpumask.h
-===================================================================
-RCS file: /build/cvsroot/linux-2.6.0-test9-mm5/include/linux/cpumask.h,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 cpumask.h
---- linux-2.6.0-test9-mm5/include/linux/cpumask.h	21 Nov 2003 20:59:57 -0000	1.1.1.1
-+++ linux-2.6.0-test9-mm5/include/linux/cpumask.h	21 Nov 2003 21:52:39 -0000
-@@ -39,9 +39,8 @@ typedef unsigned long cpumask_t;
- 
- 
- #ifdef CONFIG_SMP
--
-+#include <asm/smp.h>
- extern cpumask_t cpu_online_map;
--extern cpumask_t cpu_possible_map;
- 
- #define num_online_cpus()		cpus_weight(cpu_online_map)
- #define cpu_online(cpu)			cpu_isset(cpu, cpu_online_map)
+BR,
+
+Edjard
+
+>>Hi,
+>>
+>>The piece of code below gives a richer information
+>>at /proc/PID/status for a process PID.
+>>
+>>BR,
+>>
+>>Edjard
+>
+> Your editors line wrapping function ate the patch.
+>
+> --
+> Cheers, Gene
+> AMD K6-III@500mhz 320M
+> Athlon1600XP@1400mhz  512M
+> 99.27% setiathome rank, not too shabby for a WV hillbilly
+> Yahoo.com attornies please note, additions to this message
+> by Gene Heskett are:
+> Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+------=_20031122104502_59042
+Content-Type: application/octet-stream; name="10LE-PhysicalMem.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="10LE-PhysicalMem.patch"
+
+LS0tIGxpbnV4LTIuNi4wLXRlc3Q5L2ZzL3Byb2MvdGFza19tbXUuYwkyMDAzLTEwLTI1IDE0OjQz
+OjAwLjAwMDAwMDAwMCAtMDQwMAorKysgbGludXgvZnMvcHJvYy90YXNrX21tdS5jCTIwMDMtMTEt
+MjIgMTA6MjY6NTkuMDAwMDAwMDAwIC0wNDAwCkBAIC0zLDQ0ICszLDEwNSBAQAogI2luY2x1ZGUg
+PGxpbnV4L3NlcV9maWxlLmg+CiAjaW5jbHVkZSA8YXNtL3VhY2Nlc3MuaD4KIAorLyoqCisqIEFs
+bGFuIEJlemVycmEgKGFqc2JAZGNjLmZ1YS5icikgJgorKiBNYXVyaWNpbyBMaW4gIChtYXVyaWNp
+b2xpbkBib2wuY29tLmJyKSAmCisqIEVkamFyZCBNb3RhICAgKGVkamFyZEB1ZmFtLmVkdS5icikg
+OiAgIGluY2x1ZGUgYSBwcm9jZXNzIFBJRCBwaHlzaWNhbCBtZW1vcnkgc2l6ZSBhbGxvY2F0aW9u
+CisqICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGluZm8gaW4gdGhlIC9w
+cm9jL1BJRC9zdGF0dXMKKyovCit2b2lkIHBoeXNfc2l6ZV8xMExFKHN0cnVjdCBtbV9zdHJ1Y3Qg
+Km1tLCB1bnNpZ25lZCBsb25nIHN0YXJ0X2FkZHJlc3MsIHVuc2lnbmVkIGxvbmcgZW5kX2FkZHJl
+c3MsIHVuc2lnbmVkIGxvbmcgKnNpemUpIHsKKyAgcGdkX3QgKm15X3BnZDsKKyAgcG1kX3QgKm15
+X3BtZDsKKyAgcHRlX3QgKm15X3B0ZTsKKyAgdW5zaWduZWQgbG9uZyBwYWdlOworCisgIGZvciAo
+cGFnZSA9IHN0YXJ0X2FkZHJlc3M7IHBhZ2UgPCBlbmRfYWRkcmVzczsgcGFnZSArPSBQQUdFX1NJ
+WkUpIHsKKyAgICBteV9wZ2QgPSBwZ2Rfb2Zmc2V0KG1tLCBwYWdlKTsKKyAgICBpZiAocGdkX25v
+bmUoKm15X3BnZCkgfHwgcGdkX2JhZCgqbXlfcGdkKSkgY29udGludWU7CisgICAgbXlfcG1kID0g
+cG1kX29mZnNldChteV9wZ2QsIHBhZ2UpOworICAgIGlmIChwbWRfbm9uZSgqbXlfcG1kKSB8fCBw
+bWRfYmFkKCpteV9wbWQpKSBjb250aW51ZTsKKyAgICBteV9wdGUgPSBwdGVfb2Zmc2V0X21hcCht
+eV9wbWQsIHBhZ2UpOworICAgIGlmIChwdGVfcHJlc2VudCgqbXlfcHRlKSkgeworICAgICAgKnNp
+emUgKz0gUEFHRV9TSVpFOworICAgIH0KKyAgfQorfQorCisvKgordm9pZCBzaGFyZWRfc2l6ZV8x
+MExFKHN0cnVjdCB2bV9hcmVhX3N0cnVjdCAqdm1hLCB1bnNpZ25lZCBsb25nIGxlbiwgdW5zaWdu
+ZWQgbG9uZyAqc2hhcmVkKSB7CisgICBpZiAoaXNfdm1faHVnZXRsYl9wYWdlKHZtYSkpIHsKKyAg
+ICAgIGlmICghKHZtYS0+dm1fZmxhZ3MgJiBWTV9ET05UQ09QWSkpCisJKnNoYXJlZCArPSBsZW47
+CisgICAgfQorICAgIAorICAgIGlmICh2bWEtPnZtX2ZsYWdzICYgVk1fU0hBUkVEIHx8ICFsaXN0
+X2VtcHR5KCZ2bWEtPnNoYXJlZCkpCisgICAgICAqc2hhcmVkICs9IGxlbjsKK30gCisqLworCiBj
+aGFyICp0YXNrX21lbShzdHJ1Y3QgbW1fc3RydWN0ICptbSwgY2hhciAqYnVmZmVyKQogewotCXVu
+c2lnbmVkIGxvbmcgZGF0YSA9IDAsIHN0YWNrID0gMCwgZXhlYyA9IDAsIGxpYiA9IDA7Ci0Jc3Ry
+dWN0IHZtX2FyZWFfc3RydWN0ICp2bWE7Ci0KLQlkb3duX3JlYWQoJm1tLT5tbWFwX3NlbSk7Ci0J
+Zm9yICh2bWEgPSBtbS0+bW1hcDsgdm1hOyB2bWEgPSB2bWEtPnZtX25leHQpIHsKLQkJdW5zaWdu
+ZWQgbG9uZyBsZW4gPSAodm1hLT52bV9lbmQgLSB2bWEtPnZtX3N0YXJ0KSA+PiAxMDsKLQkJaWYg
+KCF2bWEtPnZtX2ZpbGUpIHsKLQkJCWRhdGEgKz0gbGVuOwotCQkJaWYgKHZtYS0+dm1fZmxhZ3Mg
+JiBWTV9HUk9XU0RPV04pCi0JCQkJc3RhY2sgKz0gbGVuOwotCQkJY29udGludWU7Ci0JCX0KLQkJ
+aWYgKHZtYS0+dm1fZmxhZ3MgJiBWTV9XUklURSkKLQkJCWNvbnRpbnVlOwotCQlpZiAodm1hLT52
+bV9mbGFncyAmIFZNX0VYRUMpIHsKLQkJCWV4ZWMgKz0gbGVuOwotCQkJaWYgKHZtYS0+dm1fZmxh
+Z3MgJiBWTV9FWEVDVVRBQkxFKQotCQkJCWNvbnRpbnVlOwotCQkJbGliICs9IGxlbjsKLQkJfQot
+CX0KLQlidWZmZXIgKz0gc3ByaW50ZihidWZmZXIsCi0JCSJWbVNpemU6XHQlOGx1IGtCXG4iCi0J
+CSJWbUxjazpcdCU4bHUga0JcbiIKLQkJIlZtUlNTOlx0JThsdSBrQlxuIgotCQkiVm1EYXRhOlx0
+JThsdSBrQlxuIgotCQkiVm1TdGs6XHQlOGx1IGtCXG4iCi0JCSJWbUV4ZTpcdCU4bHUga0JcbiIK
+LQkJIlZtTGliOlx0JThsdSBrQlxuIiwKLQkJbW0tPnRvdGFsX3ZtIDw8IChQQUdFX1NISUZULTEw
+KSwKLQkJbW0tPmxvY2tlZF92bSA8PCAoUEFHRV9TSElGVC0xMCksCi0JCW1tLT5yc3MgPDwgKFBB
+R0VfU0hJRlQtMTApLAotCQlkYXRhIC0gc3RhY2ssIHN0YWNrLAotCQlleGVjIC0gbGliLCBsaWIp
+OwotCXVwX3JlYWQoJm1tLT5tbWFwX3NlbSk7Ci0JcmV0dXJuIGJ1ZmZlcjsKKyAgdW5zaWduZWQg
+bG9uZyBkYXRhID0gMCwgc3RhY2sgPSAwLCBleGVjID0gMCwgbGliID0gMDsKKyAgdW5zaWduZWQg
+bG9uZyBwaHlzX2RhdGEgPSAwLCBwaHlzX3N0YWNrID0gMCwgcGh5c19leGVjID0gMCwgcGh5c19s
+aWIgPSAwOworICB1bnNpZ25lZCBsb25nIHBoeXNfYnJrID0gMCwgbXlfcnNzPTA7CisgIHN0cnVj
+dCB2bV9hcmVhX3N0cnVjdCAqdm1hOworICBkb3duX3JlYWQoJm1tLT5tbWFwX3NlbSk7CisgIGZv
+ciAodm1hID0gbW0tPm1tYXA7IHZtYTsgdm1hID0gdm1hLT52bV9uZXh0KSB7CisgICAgdW5zaWdu
+ZWQgbG9uZyBsZW4gPSAodm1hLT52bV9lbmQgLSB2bWEtPnZtX3N0YXJ0KSA+PiAxMDsKKyAgICBw
+aHlzX3NpemVfMTBMRShtbSwgdm1hLT52bV9zdGFydCwgdm1hLT52bV9lbmQsICZteV9yc3MpOwor
+ICAgIGlmICghdm1hLT52bV9maWxlKSB7CisgICAgICBwaHlzX3NpemVfMTBMRShtbSwgdm1hLT52
+bV9zdGFydCwgdm1hLT52bV9lbmQsICZwaHlzX2RhdGEpOworICAgICAgaWYgKHZtYS0+dm1fZmxh
+Z3MgJiBWTV9HUk9XU0RPV04pIHsKKwlzdGFjayArPSBsZW47CisJcGh5c19zaXplXzEwTEUobW0s
+IHZtYS0+dm1fc3RhcnQsIHZtYS0+dm1fZW5kLCAmcGh5c19zdGFjayk7CisgICAgICB9CisgICAg
+ICBlbHNlIHsKKwlkYXRhICs9IGxlbjsKKyAgICAgIH0KKyAgICAgIGNvbnRpbnVlOworICAgIH0K
+KworICAgIGlmICh2bWEtPnZtX2ZsYWdzICYgVk1fV1JJVEUpCisgICAgICBjb250aW51ZTsKKwor
+ICAgIGlmICh2bWEtPnZtX2ZsYWdzICYgVk1fRVhFQykgeworICAgICAgZXhlYyArPSBsZW47Cisg
+ICAgICBwaHlzX3NpemVfMTBMRShtbSwgdm1hLT52bV9zdGFydCwgdm1hLT52bV9lbmQsICZwaHlz
+X2V4ZWMpOworICAgICAgaWYgKHZtYS0+dm1fZmxhZ3MgJiBWTV9FWEVDVVRBQkxFKSB7CisJY29u
+dGludWU7CisgICAgICB9CisgICAgICBsaWIgKz0gbGVuOworICAgICAgcGh5c19zaXplXzEwTEUo
+bW0sIHZtYS0+dm1fc3RhcnQsIHZtYS0+dm1fZW5kLCAmcGh5c19saWIpOworICAgIH0KKyAgfQor
+ICBwaHlzX3NpemVfMTBMRShtbSwgbW0tPnN0YXJ0X2JyaywgbW0tPmJyaywgJnBoeXNfYnJrKTsK
+KyAgYnVmZmVyICs9IHNwcmludGYoYnVmZmVyLAorCQkgICAgIlZtU2l6ZTpcdCU4bHUga0JcbiIK
+KwkJICAgICJWbUxjazpcdCU4bHUga0JcbiIKKwkJICAgICJWbVJTUzpcdCU4bHUga0JcbiIKKwkJ
+ICAgICJWbURhdGE6XHQlOGx1IGtCXG4iCisJCSAgICAiUGh5c2ljYWxEYXRhOlx0JThsdSBrQlxu
+IgorCQkgICAgIlZtU3RrOlx0JThsdSBrQlxuIgorCQkgICAgIlBoeXNpY2FsU3RrOlx0JThsdSBr
+QlxuIgorCQkgICAgIlZtRXhlOlx0JThsdSBrQlxuIgorCQkgICAgIlBoeXNpY2FsRXhlOlx0JThs
+dSBrQlxuIgorCQkgICAgIlZtTGliOlx0JThsdSBrQlxuIgorCQkgICAgIlBoeXNpY2FsTGliOlx0
+JThsdSBrQlxuIgorCQkgICAgIlZtSGVhcDogXHQlOGx1IEtCXG4iCisJCSAgICAiUGh5c2ljYWxI
+ZWFwOiBcdCU4bHUgS0JcbiIKKwkJICAgICJNeVJTUzogXHQlOGx1IEtCXG4iLAkJICAgCisJCSAg
+ICBtbS0+dG90YWxfdm0gPDwgKFBBR0VfU0hJRlQtMTApLAorCQkgICAgbW0tPmxvY2tlZF92bSA8
+PCAoUEFHRV9TSElGVC0xMCksCisJCSAgICBtbS0+cnNzIDw8IChQQUdFX1NISUZULTEwKSwKKwkJ
+ICAgIGRhdGEsIChwaHlzX2RhdGEgLSBwaHlzX3N0YWNrKSA+PiAxMCwKKwkJICAgIHN0YWNrLCBw
+aHlzX3N0YWNrID4+IDEwLAorCQkgICAgZXhlYyAtIGxpYiwgKHBoeXNfZXhlYyAtIHBoeXNfbGli
+KSA+PiAxMCwKKwkJICAgIGxpYiwgcGh5c19saWIgPj4gMTAsCisJCSAgICAobW0tPmJyayAtIG1t
+LT5zdGFydF9icmspID4+IDEwLAorCQkgICAgcGh5c19icmsgPj4gMTAsIG15X3JzcyA+PiAxMAor
+CQkgICAgKTsKKyAgdXBfcmVhZCgmbW0tPm1tYXBfc2VtKTsKKyAgcmV0dXJuIGJ1ZmZlcjsKIH0K
+IAogdW5zaWduZWQgbG9uZyB0YXNrX3ZzaXplKHN0cnVjdCBtbV9zdHJ1Y3QgKm1tKQo=
+------=_20031122104502_59042--
+

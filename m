@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131590AbRDJMcb>; Tue, 10 Apr 2001 08:32:31 -0400
+	id <S131625AbRDJMcl>; Tue, 10 Apr 2001 08:32:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131638AbRDJMcW>; Tue, 10 Apr 2001 08:32:22 -0400
-Received: from stm.lbl.gov ([131.243.16.51]:40965 "EHLO stm.lbl.gov")
-	by vger.kernel.org with ESMTP id <S131590AbRDJMcE>;
-	Tue, 10 Apr 2001 08:32:04 -0400
-Date: Tue, 10 Apr 2001 05:31:05 -0700
-From: David Schleef <ds@schleef.org>
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Mark Salisbury <mbs@mc.com>,
+	id <S131638AbRDJMcc>; Tue, 10 Apr 2001 08:32:32 -0400
+Received: from ns.suse.de ([213.95.15.193]:16137 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S131625AbRDJMcT>;
+	Tue, 10 Apr 2001 08:32:19 -0400
+Date: Tue, 10 Apr 2001 14:32:16 +0200
+From: Andi Kleen <ak@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andi Kleen <ak@suse.de>, Mark Salisbury <mbs@mc.com>,
         Jeff Dike <jdike@karaya.com>, schwidefsky@de.ibm.com,
         linux-kernel@vger.kernel.org
 Subject: Re: No 100 HZ timer !
-Message-ID: <20010410053105.B4144@stm.lbl.gov>
-Reply-To: David Schleef <ds@schleef.org>
-In-Reply-To: <20010410044336.A1934@stm.lbl.gov> <Pine.LNX.3.96.1010410135540.17123B-100000@artax.karlin.mff.cuni.cz>
+Message-ID: <20010410143216.A15880@gruyere.muc.suse.de>
+In-Reply-To: <20010410140202.A15114@gruyere.muc.suse.de> <E14mx0K-00049P-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.3.96.1010410135540.17123B-100000@artax.karlin.mff.cuni.cz>; from mikulas@artax.karlin.mff.cuni.cz on Tue, Apr 10, 2001 at 02:04:17PM +0200
+In-Reply-To: <E14mx0K-00049P-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Apr 10, 2001 at 01:12:14PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 10, 2001 at 02:04:17PM +0200, Mikulas Patocka wrote:
-> 
-> Adding and removing timers happens much more frequently than PIT tick, so
-> comparing these times is pointless.
-> 
-> If you have some device and timer protecting it from lockup on buggy
-> hardware, you actually
-> 
-> send request to device
-> add timer
-> 
-> receive interrupt and read reply
-> remove timer
-> 
-> With the curent timer semantics, the cost of add timer and del timer is
-> nearly zero. If you had to reprogram the PIT on each request and reply, it
-> would slow things down. 
-> 
-> Note that you call mod_timer also on each packet received - and in worst
-> case (which may happen), you end up reprogramming the PIT on each packet.
+On Tue, Apr 10, 2001 at 01:12:14PM +0100, Alan Cox wrote:
+> Measure the number of clocks executing a timer interrupt. rdtsc is fast. Now
+> consider the fact that out of this you get KHz or better scheduling 
+> resolution required for games and midi. I'd say it looks good. I agree
 
-This just indicates that the interface needs to be richer -- i.e.,
-such as having a "lazy timer" that means: "wake me up when _at least_
-N ns have elapsed, but there's no hurry."  If waking you up at N ns
-is expensive, then the wakeup is delayed until something else
-interesting happens.
+And measure the number of cycles a gigahertz CPU can do between a 1ms timer.
+And then check how often the typical application executes something like
+gettimeofday.
 
-This is effectively what we have now anyway.  Perhaps the
-current add_timer() should be mapped to lazy timers.
+> the accounting of user/system time needs care to avoid slowing down syscall
+> paths
+
+It's also all interrupts, not only syscalls, and also context switch if you
+want to be accurate.
+
+On modern PC hardware it might be possible to do user/system accounting using
+performance MSRs. They have a bit in the performance counter that allows to
+only account user or system. If you find a count that is near equivalent to
+the cycles you have both: total = rdtsc, user = msr, system = rdtsc-msr.
+At least PPro derived have event 0x16, number of instructions executed, which
+might be good enough when multiplied with a factor if your instruction mix is not 
+too unusual.
+
+Still even with that the more complex checking in add_timer doesn't look too good.
 
 
-
-
-dave...
-
+-Andi

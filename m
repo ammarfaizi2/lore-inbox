@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280889AbRKCABC>; Fri, 2 Nov 2001 19:01:02 -0500
+	id <S280894AbRKCAUD>; Fri, 2 Nov 2001 19:20:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280890AbRKCAAx>; Fri, 2 Nov 2001 19:00:53 -0500
-Received: from druid.if.uj.edu.pl ([149.156.64.221]:3342 "HELO
-	druid.if.uj.edu.pl") by vger.kernel.org with SMTP
-	id <S280889AbRKCAAc>; Fri, 2 Nov 2001 19:00:32 -0500
-Date: Sat, 3 Nov 2001 01:00:28 +0100 (CET)
-From: Maciej Zenczykowski <maze@druid.if.uj.edu.pl>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.12-ac3 floppy module requires 0x3f0-0x3f1 ioports
-Message-ID: <Pine.LNX.4.33.0111030050520.19178-100000@druid.if.uj.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S280895AbRKCATx>; Fri, 2 Nov 2001 19:19:53 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:59666 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S280894AbRKCATh>; Fri, 2 Nov 2001 19:19:37 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: Google's mm problem - not reproduced on 2.4.13
+Date: Sat, 3 Nov 2001 00:16:46 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <9rvd1e$vk$1@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0111021250560.20078-100000@penguin.transmeta.com> <Pine.LNX.4.33.0111021303060.20128-100000@penguin.transmeta.com> <20011102222754.2366f1f5.skraw@ithnet.com>
+X-Trace: palladium.transmeta.com 1004746756 32206 127.0.0.1 (3 Nov 2001 00:19:16 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 3 Nov 2001 00:19:16 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+In article <20011102222754.2366f1f5.skraw@ithnet.com>,
+Stephan von Krawczynski  <skraw@ithnet.com> wrote:
+>
+>> -	/* Don't swap out areas which are locked down */
+>> -	if (vma->vm_flags & (VM_LOCKED|VM_RESERVED))
+>> +	/* Don't swap out areas which are reserved */
+>> +	if (vma->vm_flags & VM_RESERVED)
+>>  		return count;
+>
+>Although I agree what you said about differences of old and new VM, I believe
+>the above was not really what Ben intended to do by mlocking. I mean, you swap
+>them out right now, or not?
 
-Is there any reason why the floppy module requires the ioport range
-0x3f0-0x3f1 in order to load?  On my computer /proc/ioports reports this
-range as used by PnPBIOS PNP0c02, thus the floppy module cannot reserve
-the range 0x3f0-0x3f5 and refuses to load.
+Not. See where I added the VM_LOCKED test - deep down in the page-out
+code it will decide that a VM_LOCKED page is always accessed, and will
+move it to the active list instead of swapping it out.
 
-I have taken a quick look at the port specification of the FDC and have
-found no readon for any access to the 0x3f0 port, I have found a reason
-for accessing the 0x3f1 port - but only on PS/2's.  This ain't a PS/2 so
-that is irrelevant.  Furthermore analysis of the code fails to find any
-place where these two ports would actually be used...
-
-Deciding to take a try at it I changed the floppy module to reserve only
-the 0x3f2-0x3f5 and 0x3f7 ports, recompiled and the module now loads.
-I have not done any tests on it, however copying a diskette via mcopy,
-mdir and plain old mount worked fine.
-
-All in all I would say that at least in my case there is no reason for
-floppy to reserve these two ports - I don't know about other machines
-(especially PS/2's) - but I cannot see any use of them in the source code
-any way.
-
-Questions, Ideas?
-
-Maciej Zenczykowski
-
+		Linus

@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261990AbTCZT4P>; Wed, 26 Mar 2003 14:56:15 -0500
+	id <S262000AbTCZTsC>; Wed, 26 Mar 2003 14:48:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261988AbTCZT4P>; Wed, 26 Mar 2003 14:56:15 -0500
-Received: from phoenix.infradead.org ([195.224.96.167]:36614 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S262001AbTCZTzg>; Wed, 26 Mar 2003 14:55:36 -0500
-Date: Wed, 26 Mar 2003 20:06:47 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com
-Subject: Re: [PATCH] s390 update (3/9): listing & kerntypes.
-Message-ID: <20030326200647.C21308@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Martin Schwidefsky <schwidefsky@de.ibm.com>,
-	linux-kernel@vger.kernel.org, torvalds@transmeta.com
-References: <OF72A4868D.BBBD469B-ONC1256CF5.005A937E@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <OF72A4868D.BBBD469B-ONC1256CF5.005A937E@de.ibm.com>; from schwidefsky@de.ibm.com on Wed, Mar 26, 2003 at 05:32:12PM +0100
+	id <S262126AbTCZTsC>; Wed, 26 Mar 2003 14:48:02 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:54792 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262000AbTCZTr7>; Wed, 26 Mar 2003 14:47:59 -0500
+Date: Wed, 26 Mar 2003 11:57:57 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Dominik Brodowski <linux@brodo.de>
+Subject: Re: [BK PULL] PCMCIA changes
+In-Reply-To: <20030326193427.B8871@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0303261153140.18275-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 26, 2003 at 05:32:12PM +0100, Martin Schwidefsky wrote:
-> 
-> > No.  Either we add Kerntypes to the architecture-independent code (I'm
-> all
-> > for it!) or not at all.  Cludging this into s390-specific code is a very,
-> > very bad idea.
-> Well, even if the Kerntypes gets added to the architecture-independent code
-> we still would need some special s390 includes to get all the types we need.
 
-The patches from the lkcd folks don't seem to need additional includes.
-Please argue with them instead of trying to push such changes through the
-backdoor.
+On Wed, 26 Mar 2003, Russell King wrote:
+> 	bk pull bk://bk.arm.linux.org.uk/linux-2.5-pcmcia
+> 
+> to include PCMCIA changes listed below.  Patches for each cset will
+> follow on LKML.
+
+Pulled.
+
+Russell, since you use BK _and_ you're working on PCMCIA, can you work as 
+the middle man for the patches that Dominik has been sending out? They all 
+look sane, and the "driver services" socket add/remove abstraction in 
+particular looks like something that is needed. I just didn't have time to 
+check them out more deeply and test them.
+
+Dominik?
+
+		Linus
+
 

@@ -1,37 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273544AbRIQIo6>; Mon, 17 Sep 2001 04:44:58 -0400
+	id <S273552AbRIQJJi>; Mon, 17 Sep 2001 05:09:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273549AbRIQIos>; Mon, 17 Sep 2001 04:44:48 -0400
-Received: from hastur.andastra.de ([212.172.44.2]:40972 "HELO mail.andastra.de")
-	by vger.kernel.org with SMTP id <S273544AbRIQIok>;
-	Mon, 17 Sep 2001 04:44:40 -0400
-Date: Mon, 17 Sep 2001 10:45:20 +0200 (CEST)
-From: "S.Benoit" <ben-lists@andastra.de>
-To: Kristian Peters <kristian.peters@korseby.net>
-cc: "Magnus Naeslund(f)" <mag@fbab.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: IBM DTLA IDE Made In Hungary
-In-Reply-To: <3BA5B3A8.5080008@korseby.net>
-Message-ID: <Pine.LNX.4.30L2.0109171039110.19286-100000@intra.andastra.priv>
-X-Cthulu: HASTUR
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S273555AbRIQJJ2>; Mon, 17 Sep 2001 05:09:28 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:24206 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S273525AbRIQJJQ>; Mon, 17 Sep 2001 05:09:16 -0400
+Date: Mon, 17 Sep 2001 14:43:15 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: riel@conectiva.com.br
+Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.10pre7aa1
+Message-ID: <20010917144315.A27941@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Sep 2001, Kristian Peters wrote:
-> I experienced problems with their 40 GB and 75 GB variants. The first one was
-> made in Thaiwan. So it isn't really a matter from where they're coming from.
+In article <Pine.LNX.4.33L.0109161433530.9536-100000@imladris.rielhome.conectiva> you wrote:
+> On Sun, 16 Sep 2001, Andrea Arcangeli wrote:
 
-We have also had a IBM 75GB DTLA go bad here, after running for about 2
-months. The replacement sent by IBM was also bad, while a Maxtor worked.
-This was with FreeBSD and WindowsNT. The guy using the system thinks it's
-maybe a firmware bug, possibly with SMART.
+>> However the issue with keventd and the fact we can get away with a
+>> single per-cpu counter increase in the scheduler fast path made us to
+>> think it's cleaner to just spend such cycle for each schedule rather
+>> than having yet another 8k per cpu wasted and longer taskslists (a
+>> local cpu increase is cheaper than a conditional jump).
 
-/Benno
+> So why don't we put the test+branch inside keventd ?
 
+> wakeup_krcud(void)
+> {
+> 	krcud_wanted = 1;
+> 	wakeup(&keventd);
+> }
+
+> cheers,
+
+> Rik
+> -- 
+
+keventd is not suitable for RCU at all. It can get starved out by RT
+threads and that can result in either memory pressure or performance
+degradation depending on how RCU is being used.
+
+I have a patch that uses a per-cpu quiescent state counter. Cost of 
+this on schedule() path is one per-cpu counter increment. I will
+mail out the patch as soon as I can complete testing Andrea's review
+comments on a bigger SMP box.
+
+Most impartantly :-) it doesn't use kernel threads.
+
+Thanks
+Dipankar
 -- 
-Sebastian Benoit <ben-lists@andastra.de> / Software Engineer
-
-
+Dipankar Sarma  <dipankar@in.ibm.com> Project: http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

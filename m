@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264745AbSKVVUH>; Fri, 22 Nov 2002 16:20:07 -0500
+	id <S265255AbSKVVWl>; Fri, 22 Nov 2002 16:22:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264788AbSKVVUH>; Fri, 22 Nov 2002 16:20:07 -0500
-Received: from holomorphy.com ([66.224.33.161]:46727 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S264745AbSKVVUG>;
-	Fri, 22 Nov 2002 16:20:06 -0500
-Date: Fri, 22 Nov 2002 13:24:19 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "David S. Miller" <davem@redhat.com>
+	id <S265276AbSKVVWl>; Fri, 22 Nov 2002 16:22:41 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:7844 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S265255AbSKVVWk>;
+	Fri, 22 Nov 2002 16:22:40 -0500
+Date: Fri, 22 Nov 2002 13:26:41 -0800 (PST)
+Message-Id: <20021122.132641.64298444.davem@redhat.com>
+To: wli@holomorphy.com
 Cc: linux-kernel@vger.kernel.org, akpm@digeo.com
 Subject: Re: [BK-2.5] [PATCH] bootmem crash fix
-Message-ID: <20021122212419.GY23425@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-	akpm@digeo.com
-References: <200211222005.gAMK5t319194@hera.kernel.org> <20021122.131259.66318468.davem@redhat.com>
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021122212419.GY23425@holomorphy.com>
+References: <200211222005.gAMK5t319194@hera.kernel.org>
+	<20021122.131259.66318468.davem@redhat.com>
+	<20021122212419.GY23425@holomorphy.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021122.131259.66318468.davem@redhat.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 22, 2002 at 01:12:59PM -0800, David S. Miller wrote:
-> __pa(PAGE_OFFSET) is not necessarily the first physical address in
-> the system either.
-> I've never seen this even implied to be the case :-)
-> In any event, it isn't well defined and we should make it
-> so.
+   From: William Lee Irwin III <wli@holomorphy.com>
+   Date: Fri, 22 Nov 2002 13:24:19 -0800
+   
+   Would a first_pfn variable be in order?
+   
+Just some silly "first_possible_paddr" macro would be fine.
 
-Would a first_pfn variable be in order?
+It would even be fine, for now, to put it in mm.h and make it this
+PAGE_OFFSET expression.
 
-
-Bill
+I just hate these expressions that "we know" mean something.

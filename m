@@ -1,65 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265683AbSKKIdY>; Mon, 11 Nov 2002 03:33:24 -0500
+	id <S265978AbSKKIkL>; Mon, 11 Nov 2002 03:40:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265713AbSKKIdY>; Mon, 11 Nov 2002 03:33:24 -0500
-Received: from relay02.rabobank.nl ([145.72.69.21]:28174 "HELO
-	relay02.rabobank.nl") by vger.kernel.org with SMTP
-	id <S265683AbSKKIdX>; Mon, 11 Nov 2002 03:33:23 -0500
-X-Server-Uuid: d32dbd14-b86d-11d3-8c8e-0008c7bba343
-X-Server-Uuid: 91077152-1bde-4e67-8480-731f07dac000
-From: "Heusden van, FJJ (Folkert)" <F.J.J.Heusden@rn.rabobank.nl>
-To: "Linux Kernel Development" <linux-kernel@vger.kernel.org>
-Subject: random PID patch
-Date: Mon, 11 Nov 2002 09:40:03 +0100
+	id <S265982AbSKKIkL>; Mon, 11 Nov 2002 03:40:11 -0500
+Received: from lopsy-lu.misterjones.org ([62.4.18.26]:20153 "EHLO
+	crisis.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
+	id <S265978AbSKKIkK>; Mon, 11 Nov 2002 03:40:10 -0500
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: [PATCH] sysfs stuff for eisa bus [1/3]
+References: <wrpbs4xgke4.fsf@hina.wild-wind.fr.eu.org>
+	<20021110233206.GA3988@win.tue.nl>
+Organization: Metropolis -- Nowhere
+X-Attribution: maz
+X-Baby-1: =?iso-8859-1?q?Lo=EBn?= 12 juin 1996 13:10
+X-Baby-2: None
+X-Love-1: Gone
+X-Love-2: Crazy-Cat
+Reply-to: mzyngier@freesurf.fr
+From: Marc Zyngier <mzyngier@freesurf.fr>
+Date: 11 Nov 2002 09:46:33 +0100
+Message-ID: <wrpwunkfq8m.fsf@hina.wild-wind.fr.eu.org>
+In-Reply-To: <20021110233206.GA3988@win.tue.nl>
 MIME-Version: 1.0
-X-WSS-ID: 11D18F9E879627-470-02
-Content-Type: text/plain; 
- charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-Message-ID: <11D18F9E879627-470@_rabobank.nl_>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>>>>> "Andries" == Andries Brouwer <aebr@win.tue.nl> writes:
 
-I've ported my random-PID-patch from 2.2.19 to 2.4.19.
-It should be downloadable from
-http://www.vanheusden.com/Linux/fp-2.4.19.patch.gz
-(or follow the link from http://www.vanheusden.com/Linux/kernel_patches.php3
-)
+Andries> Is the database not very incomplete?
 
+Well, it is about a thousand entries long, and I beleive it to be
+fairly complete. There weren't *that* many EISA cards produced, anyway
+:-).
 
-Folkert van Heusden
+Andries> What use is a very long and very incomplete list?
 
-p.s.: please send replies through e-mail: I'm not on this list
+A big part of this database contains in fact ISA cards for which an
+EISA config file exists. So it could be trimmed down to 50%, I think.
+I was thinking the database could be useful for ISAPNP (since it uses
+the same IDs).
 
-----------------------------------------------------------------------
-Folkert van Heusden
-Rabobank IBV
-Locatie: UHB212, postadres: UHG439
-Tel:      +31 30 2161262
-Fax:     +31 30 2161922
-e-mail: f.j.j.heusden@rn.rabobank.nl
-----------------------------------------------------------------------
-FTR Computing & Consulting [ www.ftr.nl ]
-e-mail: f.v.heusden@ftr.nl
-----------------------------------------------------------------------
-Prive [ www.vanheusden.com ]
-GSM:    +31-6-41278122
-e-mail: folkert@vanheusden.com
-----------------------------------------------------------------------
+Anyway, I don't really care about this list. It was just an effort to
+mimic what the PCI code did for years, with a database that is 5 times
+bigger, and still growing. At least with EISA, it won't be growing
+that much... :-)
 
+Andries> Just like for USB and PCI it might be more reasonable to
+Andries> have such a list with IDs on a website instead of in the
+Andries> kernel source?
 
-================================================
-De informatie opgenomen in dit bericht kan vertrouwelijk zijn en 
-is uitsluitend bestemd voor de geadresseerde. Indien u dit bericht 
-onterecht ontvangt, wordt u verzocht de inhoud niet te gebruiken en 
-de afzender direct te informeren door het bericht te retourneren. 
-================================================
-The information contained in this message may be confidential 
-and is intended to be exclusively for the addressee. Should you 
-receive this message unintentionally, please do not use the contents 
-herein and notify the sender immediately by return e-mail.
+If people are ready to give up this kind of thing, fair enough :
 
+$ cat /sys/devices/pci0/00\:0c.0/name 
+Digital Equipment Corporation DECchip 21140 [FasterNet]
+$ cat /sys/devices/eisa/00\:05/name 
+3Com EtherLink III Bus Master EISA (3C592) Network Adapter
 
+But once again, the EISA list is not a big deal. I care about the core
+code and the drivers, not the fancy naming. If it has to go, it will.
+
+        M.
+-- 
+Places change, faces change. Life is so very strange.

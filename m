@@ -1,49 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264992AbUFVQMv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264890AbUFVQMJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264992AbUFVQMv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 12:12:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264916AbUFVQMU
+	id S264890AbUFVQMJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 12:12:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264911AbUFVP30
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 12:12:20 -0400
-Received: from gate.crashing.org ([63.228.1.57]:18600 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S265027AbUFVQL5 (ORCPT
+	Tue, 22 Jun 2004 11:29:26 -0400
+Received: from holomorphy.com ([207.189.100.168]:37763 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S264890AbUFVPRM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 12:11:57 -0400
-Subject: Re: sungem - ifconfig eth0 mtu 1300 -> oops
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
-       "David S. Miller" <davem@redhat.com>,
-       Herbert Xu <herbert@gondor.apana.org.au>, kernel@nn7.de,
-       Linux Kernel list <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com
-In-Reply-To: <40D84A9B.8010503@pobox.com>
-References: <20040621141144.119be627.davem@redhat.com>
-	 <40D847E3.2080109@nortelnetworks.com>  <40D84A9B.8010503@pobox.com>
-Content-Type: text/plain
-Message-Id: <1087920212.22687.50.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 22 Jun 2004 11:03:34 -0500
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Jun 2004 11:17:12 -0400
+To: linux-kernel@vger.kernel.org
+From: William Lee Irwin III <wli@holomorphy.com>
+Subject: [profile]: [10/23] ia64 profiling cleanups
+Message-ID: <0406220816.Mb0a5a5a5a1a5a3aKbKb0a3a4a0aHbZaIbJbLb5a3aJbHbXaWaMb2aHb0a1aKbWa15250@holomorphy.com>
+In-Reply-To: <0406220816.0a0a1aMbIbXa5a1aIb1a2aJbYaLbLb5aXaHbZaXaIbXa2aWaJbMbIbZa5a5aZa4a15250@holomorphy.com>
+CC: rddunlap@osdl.org
+Date: Tue, 22 Jun 2004 08:17:09 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-06-22 at 10:04, Jeff Garzik wrote:
-> Chris Friesen wrote:
-> > Just a quick question.  Does the sungem chip support jumbo frames?  I'd 
-> > like to use MTU of 9000 to make large local transfers more efficient, 
-> > but it didn't seem to work last time I checked.
-> 
-> 
-> Are you 100% certain you configured the other side to support jumbo?
-> 
-> Jumbo frames are non-standard, and sometimes require configuring MTU on 
-> the switch or remote network card (if directly connected).
+Convert ia64 to use profiling_on() and profile_tick().
 
-Well, it's not enabled in the driver I think, or at least it wasn't last
-time I looked. Dave told me the chip fifo's are too small to do anything
-useful with jumbo frames.
-
-Ben.
-
-
+Index: prof-2.6.7/arch/ia64/kernel/time.c
+===================================================================
+--- prof-2.6.7.orig/arch/ia64/kernel/time.c	2004-06-15 22:19:01.000000000 -0700
++++ prof-2.6.7/arch/ia64/kernel/time.c	2004-06-22 07:25:51.482336664 -0700
+@@ -19,7 +19,6 @@
+ #include <linux/time.h>
+ #include <linux/interrupt.h>
+ #include <linux/efi.h>
+-#include <linux/profile.h>
+ #include <linux/timex.h>
+ 
+ #include <asm/machvec.h>
+@@ -203,7 +202,7 @@
+ 	if (user_mode(regs))
+ 		return;
+ 
+-	if (!prof_buffer)
++	if (!profiling_on())
+ 		return;
+ 
+ 	ip = instruction_pointer(regs);
+@@ -217,19 +216,8 @@
+ 	 * Only measure the CPUs specified by /proc/irq/prof_cpu_mask.
+ 	 * (default is all CPUs.)
+ 	 */
+-	if (!cpu_isset(smp_processor_id(), prof_cpu_mask))
+-		return;
+-
+-	ip -= (unsigned long) &_stext;
+-	ip >>= prof_shift;
+-	/*
+-	 * Don't ignore out-of-bounds IP values silently,
+-	 * put them into the last histogram slot, so if
+-	 * present, they will show up as a sharp peak.
+-	 */
+-	if (ip > prof_len-1)
+-		ip = prof_len-1;
+-	atomic_inc((atomic_t *)&prof_buffer[ip]);
++	if (cpu_isset(smp_processor_id(), prof_cpu_mask))
++		profile_tick(ip);
+ }
+ 
+ static irqreturn_t

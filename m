@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317821AbSFMUiy>; Thu, 13 Jun 2002 16:38:54 -0400
+	id <S317822AbSFMUjs>; Thu, 13 Jun 2002 16:39:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317822AbSFMUix>; Thu, 13 Jun 2002 16:38:53 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:38122
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S317821AbSFMUix>; Thu, 13 Jun 2002 16:38:53 -0400
-Date: Thu, 13 Jun 2002 13:38:42 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Cc: Paul P Komkoff Jr <i@stingr.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] aic7xxx won't compile w/o PCI at all <- fixed
-Message-ID: <20020613203842.GW13541@opus.bloom.county>
-In-Reply-To: <20020613194636.GA26527@stingr.net> <200206132027.g5DKR4968416@aslan.scsiguy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S317823AbSFMUjr>; Thu, 13 Jun 2002 16:39:47 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:53706 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S317822AbSFMUjo>;
+	Thu, 13 Jun 2002 16:39:44 -0400
+Date: Thu, 13 Jun 2002 22:39:22 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200206132039.WAA03650@harpo.it.uu.se>
+To: nick@octet.spb.ru
+Subject: Re: linux 2.4.19-preX IDE bugs
+Cc: alan@lxorguk.ukuu.org.uk, andre@linux-ide.org,
+        linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 13, 2002 at 02:27:04PM -0600, Justin T. Gibbs wrote:
-> >I know I shouldn't do that
-> >I also know someone should do at least compile on cases which affected by
-> >some patch.
-> 
-> I guess I'm missing some context here.
-> 
-> The patch, on first inspection, appears correct.  Unfortunately, finding
-> machines without PCI busses is getting more and more difficult every day,
-> but I'll add a build case that disables PCI busses so we catch these kinds
-> of failures in the future..
+On Thu, 13 Jun 2002 15:28:13 +0400, Nick Evgeniev wrote:
+>Are you using it in SMP config?
+>
+>> >Agreed. But all what I see is that STABLE Linux kernel DOESN'T has
+>working
+>> >driver for promise controller (including latest ac patches) for SEVERAL
+>> >MONTHS.
+>>
+>> I don't know what your problem with the Promise driver is, but
+>> my experience is the opposite. I have never had any problems with
+>> the 2.4 (or 2.2 + Andre's IDE patch) pdc202xx driver and my
+>> Ultra100 (20267) card, which sits in a 24/7 News server and
 
-Well, without a PCI bus and an onboard aic7xxx controller maybe...
+No, UP (ASUS 440BX board).
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+Instead of blasting out "the driver doesn't work, remove it!" when
+it obviously does work in many cases, you should investigate
+(perhaps through a poll on LKML) which configurations work and
+which ones do not. That may provide enough clues to identify and
+hopefully fix the problem.
+
+/Mikael

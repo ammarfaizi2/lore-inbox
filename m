@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282530AbRLONeZ>; Sat, 15 Dec 2001 08:34:25 -0500
+	id <S282640AbRLONmj>; Sat, 15 Dec 2001 08:42:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282547AbRLONeP>; Sat, 15 Dec 2001 08:34:15 -0500
-Received: from holomorphy.com ([216.36.33.161]:12675 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S282530AbRLONd6>;
-	Sat, 15 Dec 2001 08:33:58 -0500
-Date: Sat, 15 Dec 2001 05:27:55 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Ingo Molnar <mingo@elte.hu>
+	id <S282655AbRLONm3>; Sat, 15 Dec 2001 08:42:29 -0500
+Received: from chabotc.xs4all.nl ([213.84.192.197]:20872 "EHLO
+	chabotc.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S282640AbRLONmO>; Sat, 15 Dec 2001 08:42:14 -0500
+Subject: Re: Unfreeable buffer/cache problem in 2.4.17-rc1 still there
+From: Chris Chabot <chabotc@reviewboard.com>
+To: James Stevenson <mistral@stev.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] bootmem for 2.5
-Message-ID: <20011215052755.A1047@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-In-Reply-To: <20011102140207.V31822@w-wli.des.beaverton.ibm.com> <Pine.LNX.4.33.0112150701180.22884-100000@localhost.localdomain>
+In-Reply-To: <004601c18567$a8be1600$0801a8c0@Stev.org>
+In-Reply-To: <1008419776.6780.0.camel@gandalf.chabotc.com> 
+	<004601c18567$a8be1600$0801a8c0@Stev.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 15 Dec 2001 14:42:10 +0100
+Message-Id: <1008423731.11229.2.camel@gandalf.chabotc.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <Pine.LNX.4.33.0112150701180.22884-100000@localhost.localdomain>; from mingo@elte.hu on Sat, Dec 15, 2001 at 07:05:45AM +0100
-Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Nov 2001, William Irwin wrote:
->> [...] According to testing, this patch appears to save somewhere
->> between 8KB and 2MB on i386 PC's versus the bitmap-based bootmem
->> allocator.
+James Stevenson wrote,
+> does the same thing happen when you do
+> find / -type f -print0 |xargs -0 cat > /dev/null
+<snip>
+> what cronjobs are running at night ?
+> this could be normal because free ram is really a waste
+> so it might as well be used for somthing and whats
+> better than speeding up disk access
+> if things do start to use memory they take it from the free section then
+> the disk cache gets droped and refills the free section.
 
-On Sat, Dec 15, 2001 at 07:05:45AM +0100, Ingo Molnar wrote:
-> exactly where do these savings come from? The bootmem allocator frees its
-> bitmaps in free_all_bootmem().
+I apreciate the effort and sentiment. However if you would look at the
+output of 'free' (originaly attached files), you would notice i am
+talking about free = (available + cache + buffer) and not just
+'available' ;-)
 
-I'm not entirely sure of the reason for the 2MB report, but it is the
-highest of the numbers that came back from #kernelnewbies testers.
+This is a problem i only have on one of the 40 or so servers i manage,
+however the one that has it is my personal gateway & firewall machine,
+so it feels prety sore ;-)
 
-In the common (i386) case, it's microscopic, and it's always a direct
-result of tracking allocations at address granularity as opposed to page
-granularity. The mainline bootmem (which I'm sure you yourself are quite
-familiar with =) tracks allocations at page granularity and maintains
-additional state for the last allocation in order to merge successive
-small allocations. There are other architectures (IA64) where larger
-differences are seen. The small memory savings are a nice side effect,
-but the primary benefit is intended to be less work being needed to
-initialize the allocator.
+There are one or two other people on the list who also had the same
+problem, is it fixed for you guys, or still seeing the same problem? I'm
+having the sneaking suspission this behaviour isnt gone yet.
 
-As a side note, I'm interested in your general opinion regarding the
-code, especially given your prior involvement with this subsystem.
+Anyways, thanks for trying to educate james, however i only wish it was
+that simple ;-)
+
+	-- Chris
 
 
-Thanks,
-Bill

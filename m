@@ -1,162 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133119AbRDLMbw>; Thu, 12 Apr 2001 08:31:52 -0400
+	id <S133116AbRDLMhM>; Thu, 12 Apr 2001 08:37:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133117AbRDLMbn>; Thu, 12 Apr 2001 08:31:43 -0400
-Received: from nl-mail-dmz.cmg-gecis.nl ([195.109.155.100]:30212 "EHLO
-	nl-irelay.cmg.nl") by vger.kernel.org with ESMTP id <S133116AbRDLMbc>;
-	Thu, 12 Apr 2001 08:31:32 -0400
-Message-ID: <B569A4D2254ED2119FE500104BC1D5CD01294156@NL-EIN-MAIL01>
-From: Remko van der Vossen <remko.van.der.vossen@cmg.nl>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: RTC !!
-Date: Thu, 12 Apr 2001 14:33:50 +0200
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S135173AbRDLMhE>; Thu, 12 Apr 2001 08:37:04 -0400
+Received: from freya.yggdrasil.com ([209.249.10.20]:28909 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S133117AbRDLMgv>; Thu, 12 Apr 2001 08:36:51 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Thu, 12 Apr 2001 05:36:49 -0700
+Message-Id: <200104121236.FAA03613@adam.yggdrasil.com>
+To: linux-kernel@vger.kernel.org
+Subject: List of all-zero .data variables in linux-2.4.3 available
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Guys,
+	For anyone who is interested, I have produced a list of all
+of the .data variables that contain all zeroes and could be moved to
+.bss within the kernel and all of the modules (all of the modules
+that we build at Yggdrasil for x86, which is almost all).  These
+are global or static variables that have been declared
 
-Niraj wrote:
-> The RTC interrupt  is programmable from 2 Hz to 8192 Hz, in 
-> powers of 2. So the interrupts that you could get are one
-> of the following:      0.122ms, .244ms, .488ms, .977ms,
-> 1.953ms, 3.906ms, 7.813ms, and so on.    Is there any  
-> workaround , so that i can use RTC for meeting my
-> requirement of an interrupt every 1.666..ms!!  
-> ( I know that i can use UTIME or #define HZ 600, but i want
-> to know if i can use RTC for this purpose )
+	int foo = 0;
 
-It's pretty simple actually, the finest granularity of the 
-RTC interrupt is 0.122 ms, so if you want to use a 600 Hz 
-timer you'd just have to see if that fits...
-1.666/0.122 = 13.656 so it doesn't fit, the best you can do 
-is 1000/(0.122*14) = 585.48 Hz you could implement this 
-pretty simple, just make a counter, and increment this 
-counter every time you receive an interrupt, afther 
-incrementing the counter you simply check to see if it is 14, 
-if so reset it to 0 and call the real interrupt handler... 
-That's the best you can do with a granularity of 0.122 ms, as 
-simple as that...
-Ofcourse this timer would operate at an increasing time 
-difference if you really need a 600Hz timer so it wouldn't be 
-much good...
-The thing you could do is use a timer operating at a 
-frequency of half the allowed tolerance, ie in you case that 
-would be a timer of max 0.4ms (half the frequency is twice 
-the period) so we'd have to use the 0.244 timer here. Now 
-every time you get this interrupt you request the actual time 
-from the RTC and if this time is withing half the duration of 
-your period (0.122 ms in this case) from your targetted time 
-then you call the actual interrupt... You could optimize this 
-just a bit by adding a counter so you don't have to call on 
-the RTC at every interrupt, I think it'd be a bit to costly...
+instead of
 
-So, after this whole probably terribly confusing story I 
-think I'll give a scenario...
+	int foo;	/* = 0 */
 
-here's how it should go:
+	The result is that the .o files are bigger than they have
+to be.  The kernel memory image is not bigger, and gzip shrinks the
+runs of zeroes down to almost nothing, so it does not have a huge effect
+on bootable disks.  Still, it would be nice to save the disk space of
+the approximately 75 kilobytes of zeroes and perhaps squeeze in another
+sector or two when building boot floppies.
 
-inttime expect  diff     action
-t0.000  t0.000  t 0.000  ==> interrupt call
-t0.244  t1.666  t-1.422
-t0.488  t1.666  t-1.178
-t0.732  t1.666  t-0.934
-t0.976  t1.666  t-0.690
-t1.220  t1.666  t-0.446
-t1.464  t1.666  t-0.202
-t1.708  t1.666  t 0.042  ==> interrupt call
-t1.952  t3.333  t-1.381
-t2.196  t3.333  t-1.137
-t2.440  t3.333  t-0.893
-t2.684  t3.333  t-0.649
-t2.928  t3.333  t-0.405
-t3.172  t3.333  t-0.161
-t3.416  t3.333  t 0.083  ==> interrupt call
-t3.660  t5.000  t-1.340
-t3.904  t5.000  t-1.096
-t4.148  t5.000  t-0.852
-t4.392  t5.000  t-0.608
-t4.636  t5.000  t-0.364
-t4.880  t5.000  t-0.120  ==> interrupt call
-t5.124  t6.666  t-1.542
+	I have also included a copy of the program that I wrote to
+find these all-zero .data variables.
 
-you can see that the difference at the point of interrupt 
-trigger slightly increases every interrupt, at a certain 
-point this difference will be more than 0.122 ms and then the 
-interrupt before that one will be actually triggering the 
-interrupt as that one is then closer to the targetted 
-interrupt time, this way you are ensured that the maximum 
-difference between interrupt trigger time and actual time is 
-no more than 0.122 ms. The drawback in a straigtforward 
-implementation of this is that the RTC is accessed every time 
-an interrupt occurs, this can be optimized by adding a timer. 
-I'll demonstrate in the following (pseudo) code:
+	The program and the output are FTPable from
+ftp://ftp.yggdrasil.com/private/adam/linux/zerovars/.  Files with no
+all-zero .data variables are not included in the listing.  If you maintain
+any code in the kernel, you might want to look at the output to see
+how your code stacks up.
 
-
-assumptions:
-  -gettime returns the current time in microseconds
-  -there are bound te be errors in this code as I wrote it off
-   the top of my head
-
-typedef void (*tcb)( void );  //Timer callback function prototype
-
-int32 ttime; //targetted time  (microseconds)
-int32 tfreq; //timer freq      (microseconds)
-int32 ttol;  //timer tolerance (microseconds)
-int32 httf;  //half timer tick frequency (microseconds)
-int32 mtick; //minimum RTC ticks to next timer event
-int32 etick; //elapsed RTC ticks since last timer event
-tcb   tmrcb; //Timer callback function
-
-void rtcinthandler( void ) {
-  //increase etick and check if a possible timer event should
-  //be investigated
-  if (++etick > mtick) {
-    int32 ctime = gettime();
-    //check for a timer event
-    if ((ctime - ttime + httf) < (httf * 2)) {
-      //We've got a winner, reinit variable and call
-      //callback handler
-      etick = 0;
-      //We recalculate ttime to prevent increasing rounding errors
-      ttime = (ctime * tfreq / 1000000 + 1) * 1000000 / tfreq;
-      tmrcb();
-    }
-  }
-}
-
-void inittimer(tcb acallback, int32 atfreq, int32 attol) {
-  int32 tempval;
-  int32 prevttime; //previous targetted time
-  int32 ctime = gettime(); //current time
-
-  /*todo: disable the timer if it was already running*/
-  tfreq = atfreq;
-  ttol = attol;
-  tmrcb = acallback;
-  //this is probably a very difficult way to calculate the
-  //ttf, but at the moment I can't come up with anything
-  //better
-  httf = 0;
-  tempval = ttol / 112
-  while (tempval / 2)
-    httf++;
-  //calculate the targetted time of the next tick..
-  //the next statements may seem weird but if we require
-  //the integer rounding to get the right times...
-  prevttime = ctime * tfreq / 1000000 * 1000000 / tfreq;
-  ttime = (ctime * tfreq / 1000000 + 1) * 1000000 / tfreq;
-  //calculate the elapsed ticks since last ttime
-  etick = (ctime - prevttime + httf) / (httf * 2);
-  /*todo: start the actual timer*/
-}
-
-Bye,
-
-Remko van der Vossen
-CMG Eindhoven
-Remko.van.der.Vossen@cmg.nl
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."

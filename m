@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262418AbUGFBoD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262476AbUGFB4l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262418AbUGFBoD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jul 2004 21:44:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262450AbUGFBoC
+	id S262476AbUGFB4l (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jul 2004 21:56:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262547AbUGFB4l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jul 2004 21:44:02 -0400
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:65058 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S262418AbUGFBoA (ORCPT
+	Mon, 5 Jul 2004 21:56:41 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:26548 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S262476AbUGFB4k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jul 2004 21:44:00 -0400
-Date: Mon, 5 Jul 2004 18:45:46 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Mark Adler <madler@alumni.caltech.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] gcc 3.5 fixes
-Message-Id: <20040705184546.047d743a.pj@sgi.com>
-In-Reply-To: <1C37F9C6-CEEA-11D8-B083-000A95820F30@alumni.caltech.edu>
-References: <2e9is-5YT-1@gated-at.bofh.it>
-	<2e9iu-5YT-5@gated-at.bofh.it>
-	<2ecq2-80i-1@gated-at.bofh.it>
-	<7ab39013.0407042237.40ea9035@posting.google.com>
-	<20040705064010.C9BFB5F7AA@attila.bofh.it>
-	<9FC7DA98-CEA3-11D8-B083-000A95820F30@alumni.caltech.edu>
-	<20040705144436.62544a3d.pj@sgi.com>
-	<1C37F9C6-CEEA-11D8-B083-000A95820F30@alumni.caltech.edu>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 5 Jul 2004 21:56:40 -0400
+Date: Tue, 6 Jul 2004 03:56:20 +0200
+From: Andries Brouwer <Andries.Brouwer@cwi.nl>
+To: Szakacsits Szabolcs <szaka@sienet.hu>
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Andries Brouwer <Andries.Brouwer@cwi.nl>,
+       Andries Brouwer <aebr@win.tue.nl>,
+       "Patrick J. LoPresti" <patl@users.sourceforge.net>, bug-parted@gnu.org,
+       Steffen Winterfeldt <snwint@suse.de>, Thomas Fehr <fehr@suse.de>,
+       linux-kernel@vger.kernel.org, Andrew Clausen <clausen@gnu.org>,
+       buytenh@gnu.org, msw@redhat.com
+Subject: Re: Restoring HDIO_GETGEO semantics for 2.6 (was: Re: [RFC] Restoring HDIO_GETGEO semantics)
+Message-ID: <20040706015620.GA12659@apps.cwi.nl>
+References: <200407052352.51135.bzolnier@elka.pw.edu.pl> <Pine.LNX.4.21.0407060020110.29315-100000@mlf.linux.rulez.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0407060020110.29315-100000@mlf.linux.rulez.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark wrote:
-> It's not about the copyright. 
+On Tue, Jul 06, 2004 at 02:17:47AM +0200, Szakacsits Szabolcs wrote:
+...
 
-So in theory, then, one could change the string:
+We agree about most of the facts, and I am too lazy to quarrel anyway.
+Such a waste of time. But we draw different conclusions.
 
-  inflate 1.1.3 Copyright 1995-1998 Mark Adler
+We discover that the present combination of 2.6 and parted is
+unfortunate. Because of bugs in parted. OK - so lets fix them.
+There is nothing especially difficult there.
 
-to have instead the form:
+You prefer a larger change to the kernel above a smaller change
+to parted, where the change to parted fixes parted, and the change
+to the kernel makes the kernel buggier. I do not.
 
-  inflate 1.1.3 1995-1998 Mark Adler
+You say that other utilities are affected. Maybe, yes.
+So let us look at them. In the time spent writing all these
+letters we probably could have fixed a few.
 
-Or ... one could just ignore my considerations, since I
-really am not a lawyer ;).
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Andries

@@ -1,90 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267594AbTA3RoW>; Thu, 30 Jan 2003 12:44:22 -0500
+	id <S267599AbTA3Rqa>; Thu, 30 Jan 2003 12:46:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267583AbTA3RoV>; Thu, 30 Jan 2003 12:44:21 -0500
-Received: from postal2.lbl.gov ([131.243.248.26]:24992 "EHLO postal2.lbl.gov")
-	by vger.kernel.org with ESMTP id <S267588AbTA3RoS>;
-	Thu, 30 Jan 2003 12:44:18 -0500
-Message-ID: <3E39669F.20302@lbl.gov>
-Date: Thu, 30 Jan 2003 09:53:35 -0800
-From: Thomas Davis <tadavis@lbl.gov>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021017
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.21-pre4
-References: <Pine.LNX.4.53L.0301290143350.27119@freak.distro.conectiva>	 <3E384D41.9080605@lbl.gov>	 <1043926998.28133.21.camel@irongate.swansea.linux.org.uk>	 <3E395C30.6040903@lbl.gov>	 <1043950661.31674.12.camel@irongate.swansea.linux.org.uk>	 <3E396032.2000503@lbl.gov> <1043951291.31674.17.camel@irongate.swansea.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.53L.0301290143350.27119@freak.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S267602AbTA3Rqa>; Thu, 30 Jan 2003 12:46:30 -0500
+Received: from coral.ocn.ne.jp ([211.6.83.180]:45556 "HELO
+	smtp.coral.ocn.ne.jp") by vger.kernel.org with SMTP
+	id <S267599AbTA3Rq2>; Thu, 30 Jan 2003 12:46:28 -0500
+Date: Fri, 31 Jan 2003 02:55:50 +0900
+From: Bruce Harada <bharada@coral.ocn.ne.jp>
+To: Catalin BOIE <util@ns2.deuroconsult.ro>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem - See attached dmesg dump
+Message-Id: <20030131025550.1c2cf71a.bharada@coral.ocn.ne.jp>
+In-Reply-To: <Pine.LNX.4.33.0301291055450.23988-100000@hosting.rdsbv.ro>
+References: <200301290830.h0T8UKaE002508@eeyore.valparaiso.cl>
+	<Pine.LNX.4.33.0301291055450.23988-100000@hosting.rdsbv.ro>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On Wed, 29 Jan 2003 10:57:09 +0200 (EET)
+Catalin BOIE <util@ns2.deuroconsult.ro> wrote:
 
-> On Thu, 2003-01-30 at 17:26, Thomas Davis wrote:
->
-> >>FM801 is still the card not the codec. Somewhere on the FM801 is a 
-> 48pin AC97 codec,
-> >>it may even vary by card version, much like I have intel i810 audio 
-> with a variety
-> >>of codec devices.
-> >>
-> >
-> >Yes, I agree on that..  I'm just trying to get the name "Forte Media
-> >FM801" instead of "Unknown" to show up in the ac97 list.
->
->
-> Why ? How do you even know the codec is made by forte media ?
->
+> I checked the memory and it's ok.
 
-because the forte driver does this:
+How did you check it? Hint: Get memtest86 and run it continuously for as long
+as you can stand it.
+Linux version: http://public.planetmirror.com/pub/memtest86/memtest86-3.0.tar.gz
+Windows version: http://public.planetmirror.com/pub/memtest86/memt30.zip
 
-[tdavis@lanshark sound]$ grep ac97 forte.c
-#include <linux/ac97_codec.h>
-         spinlock_t              ac97_lock;
-         struct ac97_codec       *ac97;
-  * forte_ac97_wait:
-forte_ac97_wait (struct forte_chip *chip)
-  * forte_ac97_read:
-forte_ac97_read (struct ac97_codec *codec, u8 reg)
-         spin_lock (&chip->ac97_lock);
-         if (forte_ac97_wait (chip)) {
-                 printk (KERN_ERR PFX "ac97_read: Serial bus busy\n");
-         if (forte_ac97_wait (chip)) {
-                 printk (KERN_ERR PFX "ac97_read: Bus busy reading reg 
-0x%x\n",
-                 printk (KERN_ERR PFX "ac97_read: Invalid data port");
-         spin_unlock (&chip->ac97_lock);
-  * forte_ac97_write:
-forte_ac97_write (struct ac97_codec *codec, u8 reg, u16 val)
-         spin_lock (&chip->ac97_lock);
-         if (forte_ac97_wait (chip)) {
-                 printk (KERN_ERR PFX "ac97_write: Serial bus busy\n");
-         if (forte_ac97_wait (chip)) {
-                 printk (KERN_ERR PFX "ac97_write: Bus busy after write\n");
-         spin_unlock (&chip->ac97_lock);
-         file->private_data = chip->ac97;
-         struct ac97_codec *codec = (struct ac97_codec *) 
-file->private_data;
-         if (!create_proc_read_entry("driver/forte/ac97", 0, 0, 
-ac97_read_proc, forte->ac97)) {
-         remove_proc_entry ("driver/forte/ac97", NULL);
-         struct ac97_codec *codec;
-         if ((codec = kmalloc (sizeof (struct ac97_codec), GFP_KERNEL)) 
-== NULL)
-         memset (codec, 0, sizeof (struct ac97_codec));
-         codec->codec_read = forte_ac97_read;
-         codec->codec_write = forte_ac97_write;
-         if (ac97_probe_codec (codec) == 0) {
-         chip->ac97 = codec;
-         spin_lock_init (&chip->ac97_lock);
-         unregister_sound_mixer (chip->ac97->dev_mixer);
+> The computer is new.
 
-ie, it has a ac97 support in the driver, it calls ac97_probe_codec?
+Worst kind - they break more than any other type.
 
-Is that enough or not?
+> The only thing that looks strange is the CPU temperature (68 Celsius).
+> CPU is Athlon XP 1700+
+
+68C is rather high, especially if that's under no load...
+
+> It has a big fan that spins at ~5000 rpm.
+
+Well, that's nice to know anyway. I suggest checking to see if that big fan is
+correctly attached.
 

@@ -1,70 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbUBVMcU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 07:32:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261242AbUBVMcU
+	id S261241AbUBVMpo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 07:45:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261242AbUBVMpo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 07:32:20 -0500
-Received: from smtp2.att.ne.jp ([165.76.15.138]:38854 "EHLO smtp2.att.ne.jp")
-	by vger.kernel.org with ESMTP id S261239AbUBVMcO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 07:32:14 -0500
-Message-ID: <18de01c3f93f$dc6d91d0$b5ee4ca5@DIAMONDLX60>
-From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: UTF-8 filenames
-Date: Sun, 22 Feb 2004 21:30:50 +0900
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Sun, 22 Feb 2004 07:45:44 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21383 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261241AbUBVMpn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Feb 2004 07:45:43 -0500
+Date: Sun, 22 Feb 2004 12:45:41 +0000
+From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Kernel Cross Compiling [update]
+Message-ID: <20040222124541.GA1064@gallifrey>
+References: <20040222035350.GB31813@MAIL.13thfloor.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040222035350.GB31813@MAIL.13thfloor.at>
+X-Chocolate: 70 percent or better cocoa solids preferably
+X-Operating-System: Linux/2.6.3 (i686)
+X-Uptime: 12:38:51 up 13:19,  1 user,  load average: 0.00, 0.28, 0.66
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kernel@mikebell.org wrote:
+* Herbert Poetzl (herbert@13thfloor.at) wrote:
+> 
+> Hi Folks!
+> 
+> Here is an update to the Kernel Cross Compiling thread 
+> I started ten days ago ...
 
-> So then, just about everyone agrees that if you've got a filename with
-> non-ASCII characters, you should pass it to creat() as UTF-8. You have
-> to pass it as something, individual encodings like BIG5 and EUC-JP
-> are unacceptable, and UCS-4's benefits over UTF-8 (simplicity and in
-> VERY rare cases storage size reductions) aren't worth the stuff it
-> breaks. Correct?
+Hi,
+   Quite a while ago I tried going through a similar
+process.   I found at the time the debian toolchain-source
+package helped in this process.
 
-Correct except for the following cases.  Unix users for more than 20 years
-have been creating filenames encoded in EUC-JP or SJIS (yes sadly some Unix
-systems used SJIS).  I don't know how long BIG5 and Korean filenames have
-been supported in Unix but it's probably not much different.  Consider
-converting all your ASCII filenames to UTF-16.  Let everyone share the
-short-term pain for the long-term gain.  When you get everyone to agree on
-UTF-16, it will be ugly, but it will be equal for everyone.
+There is however one thing you seem to have missed - you
+tend to need subtely different versions of gcc and binutils
+for each combination.
 
-By the way, another subthread mentioned that stty puts some stuff in the
-kernel that could be done in user space.  In Unix systems the same is true
-for IMEs, stty options specify the encoding of the output of an IME (e.g.
-EUC-JP or SJIS, which then gets forwarded as input to shells, applications,
-etc.), and whether a single backspace (or whatever character deletion
-character) deletes an entire input character instead of just deleting a
-single byte, etc.  I keep forgetting to see if Linux has the same stty
-options.  I haven't needed to set them with stty because if I need to use a
-different locale then I just open a new terminal emulator window using that
-locale.
+It certainly used to be the case that every architectures
+kernel used to have different known issues in both gcc
+and binutils; and there was a fair amount of 'oh don't
+use that version, it produces broken kernels' with
+different answers for each architecture.
 
-I don't have time even to follow all of this thread, so if anyone has
-questions then CC me personally.  I don't know if I'll have time to answer
-either, but I'll try.
+At one time I tried to make a summary page showing where
+the kernel source and tools are for each architecture;
+but I never kept it upto date.
+(http://www.treblig.org/Linux_kernel_source_finder.html)
 
-> As I see it, there's no way for the kernel to deal with all the legacy
-> filenames out there. There's no way the kernel can magically fix them.
+Dave
 
-That's true.  Some options of mount and some options of stty can be moved to
-user space, but they will always need to be available.
-
-By the way in Windows 98 it's really neat to share a disk folder across the
-network and let clients with different code pages create files.  The host
-where the folder is stored can't even delete some of the files that get
-created.
-
+ -----Open up your eyes, open up your mind, open up your code -------   
+/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
+\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
+ \ _________________________|_____ http://www.treblig.org   |_______/

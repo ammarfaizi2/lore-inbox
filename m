@@ -1,234 +1,146 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265249AbSKZNaA>; Tue, 26 Nov 2002 08:30:00 -0500
+	id <S265270AbSKZNef>; Tue, 26 Nov 2002 08:34:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265270AbSKZNaA>; Tue, 26 Nov 2002 08:30:00 -0500
-Received: from 5-106.ctame701-1.telepar.net.br ([200.193.163.106]:19343 "EHLO
-	5-106.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S265249AbSKZN35>; Tue, 26 Nov 2002 08:29:57 -0500
-Date: Tue, 26 Nov 2002 11:35:27 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: linux-kernel@vger.kernel.org
-cc: linux-mm@kvack.org
-Subject: [PATCH] rmap 15a
-Message-ID: <Pine.LNX.4.44L.0211261134490.4103-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S265402AbSKZNef>; Tue, 26 Nov 2002 08:34:35 -0500
+Received: from smtp.laposte.net ([213.30.181.11]:41168 "EHLO smtp.laposte.net")
+	by vger.kernel.org with ESMTP id <S265270AbSKZNed>;
+	Tue, 26 Nov 2002 08:34:33 -0500
+Date: Tue, 26 Nov 2002 14:41:44 +0100
+Message-Id: <H66RDK$A51F2CB58537836203238D57286D3D15@laposte.net>
+Subject: =?iso-8859-1?Q?Re:[PATCH]_[2.4]_AGP_Support_for_VIA_KT400?=
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+X-Sensitivity: 3
+Content-Type: multipart/mixed; boundary="_=__=_XaM3_Boundary.1038318104.2A.329634.42.29009.52.42.101010.20248"
+From: "=?iso-8859-1?Q?Nicolas_Mailhot?=" <nicolas.mailhot@laposte.net>
+To: "=?iso-8859-1?Q?ldelgass?=" <ldelgass@retinalburn.net>
+Cc: "=?iso-8859-1?Q?linux-kernel?=" <linux-kernel@vger.kernel.org>
+Cc: "=?iso-8859-1?Q?marcelo?=" <marcelo@connectiva.com.br>
+Cc: "=?iso-8859-1?Q?alan?=" <alan@lxorguk.ukuu.org.uk>
+Cc: "=?iso-8859-1?Q?jw?=" <jw@tks6.net>
+X-XaM3-API-Version: 3.2 R24 (B47)
+X-type: 0
+X-SenderIP: 194.214.220.17
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The first maintenance release of the 15th version of the reverse
-mapping based VM is now available.
-This is an attempt at making a more robust and flexible VM
-subsystem, while cleaning up a lot of code at the same time.
-The patch is available from:
+--_=__=_XaM3_Boundary.1038318104.2A.329634.42.29009.52.42.101010.20248
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-           http://surriel.com/patches/2.4/2.4.19-rmap15a
-and        http://linuxvm.bkbits.net/
+> Hello,=0D=0A> =0D=0A> Here is a small patch to support agp for the VIA =
+KT400=0D=0Anorthbridge.  It's=0D=0A> against 2.4.20-rc3 and is based on N=
+icolas Mailhot's patch=0D=0Afor 2.5 which=0D=0A> was included in 2.5.49. =
+ It adds the PCI id and registers=0D=0Athe VIA generic=0D=0A> setup routi=
+ne for the chipset.  I've tested it successfully=0D=0Aon a Gigabyte=0D=0A=
+> GA-7VAXP (KT400) with a Radeon 7500 using DRI and various GL=0D=0Aapps/=
+games.  =0D=0A> If this has already been submitted, just ignore it -- but=
+ I=0D=0Ahadn't seen a=0D=0A> patch for 2.4 appear on lkml or the BitKeepe=
+r site yet.=0D=0A> =0D=0A> Nicolas' patch for 2.5 on lkml:=0D=0A>=0D=0Aht=
+tp://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D103786946803970&w=3D2=0D=
+=0A> =0D=0A> Bugzilla entry for 2.5 is here:=0D=0A> http://bugme.osdl.org=
+/show_bug.cgi?id=3D14=0D=0A=0D=0AIn fact I've been cleaning up a bit the =
+2.4 version before=0D=0Asubmitting it -- the entries for other VIA chips =
+are a bit=0D=0Amore convoluted and I suspect the first patch is not as=0D=
+=0Acomplete as it should be. In fact I think I'll post a 2.5=0D=0Afollowu=
+p soon.=0D=0A=0D=0APlease do not apply the first patch and use this one i=
+nstead.=0D=0AI didn't tested it myself (not enough time) but Johannes=0D=0A=
+Winkelmann reports it as ok. It's pretty straightforward=0D=0Aanyway, jus=
+t id lists all over the place.=0D=0A=0D=0ABest regards,=0D=0A=0D=0A-- =0D=
+=0ANicolas Mailhot=0A=0AAcc=E9dez au courrier =E9lectronique de La Poste =
+: www.laposte.net ;=0A3615 LAPOSTENET (0,13 =80/mn) ; t=E9l : 08 92 68 13=
+ 50 (0,34=80/mn)"=0A=0A
+--_=__=_XaM3_Boundary.1038318104.2A.329634.42.29009.52.42.101010.20248
+Content-Type: application/octet-stream;
+	name="kt400-2.4.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="kt400-2.4.patch"
 
+ZGlmZiAtdU5yIGxpbnV4LTIuNC4yMC1yYzMub3JpZy9kcml2ZXJzL2NoYXIvYWdwL2FncGdh
+cnRfYmUuYyBsaW51eC0yLjQuMjAtcmMzL2RyaXZlcnMvY2hhci9hZ3AvYWdwZ2FydF9iZS5j
+DQotLS0gbGludXgtMi40LjIwLXJjMy5vcmlnL2RyaXZlcnMvY2hhci9hZ3AvYWdwZ2FydF9i
+ZS5jCTIwMDItMTEtMjUgMjE6Mjg6MTIuMDAwMDAwMDAwICswMTAwDQorKysgbGludXgtMi40
+LjIwLXJjMy9kcml2ZXJzL2NoYXIvYWdwL2FncGdhcnRfYmUuYwkyMDAyLTExLTI1IDIxOjQ0
+OjIyLjAwMDAwMDAwMCArMDEwMA0KQEAgLTQ3MTQsNiArNDcxNCwxMiBAQA0KIAkJIlZpYSIs
+DQogCQkiQXBvbGxvIFBybyBLVDI2NiIsDQogCQl2aWFfZ2VuZXJpY19zZXR1cCB9LA0KKyAg
+ICAgICAgeyBQQ0lfREVWSUNFX0lEX1ZJQV84Mzc3XzAsDQorCQlQQ0lfVkVORE9SX0lEX1ZJ
+QSwNCisJCVZJQV9BUE9MTE9fS1Q0MDAsDQorCQkiVmlhIiwNCisJCSJBcG9sbG8gUHJvIEtU
+NDAwIiwNCisJCXZpYV9nZW5lcmljX3NldHVwIH0sDQogCXsgMCwNCiAJCVBDSV9WRU5ET1Jf
+SURfVklBLA0KIAkJVklBX0dFTkVSSUMsDQpkaWZmIC11TnIgbGludXgtMi40LjIwLXJjMy5v
+cmlnL2RyaXZlcnMvY2hhci9kcm0vZHJtX2FncHN1cHBvcnQuaCBsaW51eC0yLjQuMjAtcmMz
+L2RyaXZlcnMvY2hhci9kcm0vZHJtX2FncHN1cHBvcnQuaA0KLS0tIGxpbnV4LTIuNC4yMC1y
+YzMub3JpZy9kcml2ZXJzL2NoYXIvZHJtL2RybV9hZ3BzdXBwb3J0LmgJMjAwMi0xMS0yNSAy
+MToyODoxMi4wMDAwMDAwMDAgKzAxMDANCisrKyBsaW51eC0yLjQuMjAtcmMzL2RyaXZlcnMv
+Y2hhci9kcm0vZHJtX2FncHN1cHBvcnQuaAkyMDAyLTExLTI1IDIxOjQzOjU5LjAwMDAwMDAw
+MCArMDEwMA0KQEAgLTI3OSw2ICsyNzksOCBAQA0KIAkJCWJyZWFrOw0KIAkJY2FzZSBWSUFf
+QVBPTExPX0tUMTMzOgloZWFkLT5jaGlwc2V0ID0gIlZJQSBBcG9sbG8gS1QxMzMiOw0KIAkJ
+CWJyZWFrOw0KKwkJY2FzZSBWSUFfQVBPTExPX0tUNDAwOiAgaGVhZC0+Y2hpcHNldCA9ICJW
+SUEgQXBvbGxvIEtUNDAwIjsNCisJCQlicmVhazsNCiAJCWNhc2UgVklBX0FQT0xMT19QUk86
+IAloZWFkLT5jaGlwc2V0ID0gIlZJQSBBcG9sbG8gUHJvIjsNCiAJCQlicmVhazsNCiANCmRp
+ZmYgLXVOciBsaW51eC0yLjQuMjAtcmMzLm9yaWcvZHJpdmVycy9jaGFyL2RybS00LjAvYWdw
+c3VwcG9ydC5jIGxpbnV4LTIuNC4yMC1yYzMvZHJpdmVycy9jaGFyL2RybS00LjAvYWdwc3Vw
+cG9ydC5jDQotLS0gbGludXgtMi40LjIwLXJjMy5vcmlnL2RyaXZlcnMvY2hhci9kcm0tNC4w
+L2FncHN1cHBvcnQuYwkyMDAyLTAyLTI1IDIwOjM3OjU3LjAwMDAwMDAwMCArMDEwMA0KKysr
+IGxpbnV4LTIuNC4yMC1yYzMvZHJpdmVycy9jaGFyL2RybS00LjAvYWdwc3VwcG9ydC5jCTIw
+MDItMTEtMjUgMjE6NDQ6NTMuMDAwMDAwMDAwICswMTAwDQpAQCAtMjc1LDYgKzI3NSw4IEBA
+DQogCQkJYnJlYWs7DQogCQljYXNlIFZJQV9BUE9MTE9fS1QxMzM6CWhlYWQtPmNoaXBzZXQg
+PSAiVklBIEFwb2xsbyBLVDEzMyI7IA0KIAkJCWJyZWFrOw0KKwkJY2FzZSBWSUFfQVBPTExP
+X0tUNDAwOiAgaGVhZC0+Y2hpcHNldCA9ICJWSUEgQXBvbGxvIEtUNDAwIjsNCisJCQlicmVh
+azsNCiAjZW5kaWYNCiANCiAJCWNhc2UgVklBX0FQT0xMT19QUk86IAloZWFkLT5jaGlwc2V0
+ID0gIlZJQSBBcG9sbG8gUHJvIjsNCmRpZmYgLXVOciBsaW51eC0yLjQuMjAtcmMzLm9yaWcv
+ZHJpdmVycy9wY2kvcGNpLmlkcyBsaW51eC0yLjQuMjAtcmMzL2RyaXZlcnMvcGNpL3BjaS5p
+ZHMNCi0tLSBsaW51eC0yLjQuMjAtcmMzLm9yaWcvZHJpdmVycy9wY2kvcGNpLmlkcwkyMDAy
+LTExLTI1IDIxOjI4OjE1LjAwMDAwMDAwMCArMDEwMA0KKysrIGxpbnV4LTIuNC4yMC1yYzMv
+ZHJpdmVycy9wY2kvcGNpLmlkcwkyMDAyLTExLTI1IDIzOjI1OjUzLjAwMDAwMDAwMCArMDEw
+MA0KQEAgLTU4Miw2ICs1ODIsNyBAQA0KIAk2MDAzICBDUyA0NjE0LzIyLzI0IFtDcnlzdGFs
+Q2xlYXIgU291bmRGdXNpb24gQXVkaW8gQWNjZWxlcmF0b3JdDQogCQkxMDEzIDQyODAgIENy
+eXN0YWwgU291bmRGdXNpb24gUENJIEF1ZGlvIEFjY2VsZXJhdG9yDQogCQkxNjgxIDAwNTAg
+IEhlcmN1bGVzIEdhbWUgVGhlYXRlciBYUA0KKwkJMTY4MSBhMDExICBIZXJjdWxlcyBGb3J0
+aXNzaW1vIElJSSA3LjENCiAJNjAwNCAgQ1MgNDYxNC8yMi8yNCBbQ3J5c3RhbENsZWFyIFNv
+dW5kRnVzaW9uIEF1ZGlvIEFjY2VsZXJhdG9yXQ0KIAk2MDA1ICBDcnlzdGFsIENTNDI4MSBQ
+Q0kgQXVkaW8NCiAJCTEwMTMgNDI4MSAgQ3J5c3RhbCBDUzQyODEgUENJIEF1ZGlvDQpAQCAt
+MjY3OCw2ICsyNjc5LDcgQEANCiAJMDUwNSAgVlQ4MkM1MDUNCiAJMDU2MSAgVlQ4MkM1NjEN
+CiAJMDU3MSAgVlQ4MkM1ODZCIFBJUEMgQnVzIE1hc3RlciBJREUNCisJCTE0NTggNTAwMiBH
+QS03VkFYIE1haW5ib2FyZA0KIAkwNTc2ICBWVDgyQzU3NiAzViBbQXBvbGxvIE1hc3Rlcl0N
+CiAJMDU4NSAgVlQ4MkM1ODVWUCBbQXBvbGxvIFZQMS9WUFhdDQogCTA1ODYgIFZUODJDNTg2
+L0EvQiBQQ0ktdG8tSVNBIFtBcG9sbG8gVlBdDQpAQCAtMjcyNiw2ICsyNzI4LDcgQEANCiAJ
+CTE0NjIgMzA5MSAgTVMtNjMwOSBPbmJvYXJkIEF1ZGlvDQogCQkxNWRkIDc2MDkgIE9uYm9h
+cmQgQXVkaW8NCiAJMzA1OSAgVlQ4MjMzIEFDOTcgQXVkaW8gQ29udHJvbGxlcg0KKwkJMTQ1
+OCBhMDAyICBHQS03VkFYIE9uYm9hcmQgQXVkaW8gKFJlYWx0ZWsgQUxDNjUwKSANCiAJMzA2
+NSAgVlQ2MTAyIFtSaGluZS1JSV0NCiAJCTExODYgMTQwMCAgREZFLTUzMFRYIHJldiBBDQog
+CQkxMTg2IDE0MDEgIERGRS01MzBUWCByZXYgQg0KQEAgLTI3MzksNiArMjc0Miw3IEBADQog
+CTMxMDIgIFZUODY2MiBIb3N0IEJyaWRnZQ0KIAkzMTAzICBWVDg2MTUgSG9zdCBCcmlkZ2UN
+CiAJMzEwNCAgVVNCIDIuMA0KKwkJMTQ1OCA1MDA0ICBHQS03VkFYIE1haW5ib2FyZA0KIAkz
+MTA5ICBWVDgyMzNDIFBDSSB0byBJU0EgQnJpZGdlDQogCTMxMTIgIFZUODM2MSBbS0xFMTMz
+XSBIb3N0IEJyaWRnZQ0KIAkzMTI4ICBWVDg3NTMgW1A0WDI2NiBBR1BdDQpAQCAtMjc0Nyw2
+ICsyNzUxLDkgQEANCiAJMzE0OCAgUDRNMjY2IEhvc3QgQnJpZGdlDQogCTMxNTYgIFAvS04y
+NjYgSG9zdCBCcmlkZ2UNCiAJMzE3NyAgVlQ4MjMzQSBJU0EgQnJpZGdlDQorCQkxNDU4IDUw
+MDEgR0EtN1ZBWCBNYWluYm9hcmQNCisJMzE4OSAgVlQ4Mzc3IFtLVDQwMCBBR1BdIEhvc3Qg
+QnJpZGdlDQorCQkxNDU4IDUwMDAgR0EtN1ZBWCBNYWluYm9hcmQNCiAJNTAzMCAgVlQ4MkM1
+OTYgQUNQSSBbQXBvbGxvIFBST10NCiAJNjEwMCAgVlQ4NUMxMDBBIFtSaGluZSBJSV0NCiAJ
+ODIzMSAgVlQ4MjMxIFtQQ0ktdG8tSVNBIEJyaWRnZV0NCkBAIC0yNzY3LDYgKzI3NzQsNyBA
+QA0KIAliMTAyICBWVDgzNjIgQUdQIEJyaWRnZQ0KIAliMTAzICBWVDg2MTUgQUdQIEJyaWRn
+ZQ0KIAliMTEyICBWVDgzNjEgW0tMRTEzM10gQUdQIEJyaWRnZQ0KKwliMTY4ICBWVDgyMzUg
+UENJIEJyaWRnZQ0KIDExMDcgIFN0cmF0dXMgQ29tcHV0ZXJzDQogCTA1NzYgIFZJQSBWVDgy
+QzU3ME1WIFtBcG9sbG9dIChXcm9uZyB2ZW5kb3IgSUQhKQ0KIDExMDggIFByb3Rlb24sIElu
+Yy4NCmRpZmYgLXVOciBsaW51eC0yLjQuMjAtcmMzLm9yaWcvaW5jbHVkZS9saW51eC9wY2lf
+aWRzLmggbGludXgtMi40LjIwLXJjMy9pbmNsdWRlL2xpbnV4L3BjaV9pZHMuaA0KLS0tIGxp
+bnV4LTIuNC4yMC1yYzMub3JpZy9pbmNsdWRlL2xpbnV4L3BjaV9pZHMuaAkyMDAyLTExLTI1
+IDIxOjI4OjIzLjAwMDAwMDAwMCArMDEwMA0KKysrIGxpbnV4LTIuNC4yMC1yYzMvaW5jbHVk
+ZS9saW51eC9wY2lfaWRzLmgJMjAwMi0xMS0yNSAyMzozMjoyNi4wMDAwMDAwMDAgKzAxMDAN
+CkBAIC05ODYsNyArOTg2LDggQEANCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURfVklBXzgyMzND
+XzAJMHgzMTA5DQogI2RlZmluZSBQQ0lfREVWSUNFX0lEX1ZJQV84MzYxCQkweDMxMTINCiAj
+ZGVmaW5lIFBDSV9ERVZJQ0VfSURfVklBXzgyMzNBCQkweDMxNDcNCisjZGVmaW5lIFBDSV9E
+RVZJQ0VfSURfVklBXzgzNzdfMAkweDMxODkNCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURfVklB
+Xzg2QzEwMEEJMHg2MTAwDQogI2RlZmluZSBQQ0lfREVWSUNFX0lEX1ZJQV84MjMxCQkweDgy
+MzENCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURfVklBXzgyMzFfNAkweDgyMzUNCi0tLSBsaW51
+eC0yLjQuMjAtcmMzL2luY2x1ZGUvbGludXgvYWdwX2JhY2tlbmQuaC5vcmlnCTIwMDItMTEt
+MjYgMTA6MDk6MDkuMDAwMDAwMDAwICswMTAwDQorKysgbGludXgtMi40LjIwLXJjMy9pbmNs
+dWRlL2xpbnV4L2FncF9iYWNrZW5kLmgJMjAwMi0xMS0yNiAxMDowOTo0MC4wMDAwMDAwMDAg
+KzAxMDANCkBAIC02MCw2ICs2MCw3IEBADQogCVZJQV9BUE9MTE9fUFJPLA0KIAlWSUFfQVBP
+TExPX0tYMTMzLA0KIAlWSUFfQVBPTExPX0tUMTMzLA0KKwlWSUFfQVBPTExPX0tUNDAwLA0K
+IAlTSVNfR0VORVJJQywNCiAJQU1EX0dFTkVSSUMsDQogCUFNRF9JUk9OR0FURSw=
 
-My big TODO items for a next release are:
-  - backport speedups from 2.5
-  - pte-highmem
-
-rmap 15a:
-  - more agressive freeing for higher order allocations   (me)
-  - export __find_pagecache_page, find_get_page define    (me, Cristoph, Arjan)
-  - make memory statistics SMP safe again                 (me)
-  - make page aging slow down again when needed           (Andrew Morton)
-  - first stab at fine-tuning arjan's O(1) VM             (me)
-  - split active list in cache / working set              (me)
-  - fix SMP locking in arjan's O(1) VM                    (me)
-rmap 15:
-  - small code cleanups and spelling fixes for O(1) VM    (me)
-  - O(1) page launder, O(1) page aging                    (Arjan van de Ven)
-  - resync code with -ac (12 small patches)               (me)
-rmap 14c:
-  - fold page_over_rsslimit() into page_referenced()      (me)
-  - 2.5 backport: get pte_chains from the slab cache      (William Lee Irwin)
-  - remove dead code from page_launder_zone()             (me)
-  - make OOM detection a bit more agressive               (me)
-rmap 14b:
-  - don't unmap pages not in pagecache (ext3 & reiser)    (Andrew Morton, me)
-  - clean up mark_page_accessed a bit                     (me)
-  - Alpha NUMA fix for Ingo's per-cpu pages               (Flávio Leitner, me)
-  - remove explicit low latency schedule zap_page_range   (Robert Love)
-  - fix OOM stuff for good, hopefully                     (me)
-rmap 14a:
-  - Ingo Molnar's per-cpu pages (SMP speedup)             (Christoph Hellwig)
-  - fix SMP bug in page_launder_zone (rmap14 only)        (Arjan van de Ven)
-  - semicolon day, fix typo in rmap.c w/ DEBUG_RMAP       (Craig Kulesa)
-  - remove unneeded pte_chain_unlock/lock pair vmscan.c   (Craig Kulesa)
-  - low latency zap_page_range also without preempt       (Arjan van de Ven)
-  - do some throughput tuning for kswapd/page_launder     (me)
-  - don't allocate swap space for pages we're not writing (me)
-rmap 14:
-  - get rid of stalls during swapping, hopefully          (me)
-  - low latency zap_page_range                            (Robert Love)
-rmap 13c:
-  - add wmb() to wakeup_memwaiters                        (Arjan van de Ven)
-  - remap_pmd_range now calls pte_alloc with full address (Paul Mackerras)
-  - #ifdef out pte_chain_lock/unlock on UP machines       (Andrew Morton)
-  - un-BUG() truncate_complete_page, the race is expected (Andrew Morton, me)
-  - remove NUMA changes from rmap13a                      (Christoph Hellwig)
-rmap 13b:
-  - prevent PF_MEMALLOC recursion for higher order allocs (Arjan van de Ven, me)
-  - fix small SMP race, PG_lru                            (Hugh Dickins)
-rmap 13a:
-  - NUMA changes for page_address                         (Samuel Ortiz)
-  - replace vm.freepages with simpler kswapd_minfree      (Christoph Hellwig)
-rmap 13:
-  - rename touch_page to mark_page_accessed and uninline  (Christoph Hellwig)
-  - NUMA bugfix for __alloc_pages                         (William Irwin)
-  - kill __find_page                                      (Christoph Hellwig)
-  - make pte_chain_freelist per zone                      (William Irwin)
-  - protect pte_chains by per-page lock bit               (William Irwin)
-  - minor code cleanups                                   (me)
-rmap 12i:
-  - slab cleanup                                          (Christoph Hellwig)
-  - remove references to compiler.h from mm/*             (me)
-  - move rmap to marcelo's bk tree                        (me)
-  - minor cleanups                                        (me)
-rmap 12h:
-  - hopefully fix OOM detection algorithm                 (me)
-  - drop pte quicklist in anticipation of pte-highmem     (me)
-  - replace andrea's highmem emulation by ingo's one      (me)
-  - improve rss limit checking                            (Nick Piggin)
-rmap 12g:
-  - port to armv architecture                             (David Woodhouse)
-  - NUMA fix to zone_table initialisation                 (Samuel Ortiz)
-  - remove init_page_count                                (David Miller)
-rmap 12f:
-  - for_each_pgdat macro                                  (William Lee Irwin)
-  - put back EXPORT(__find_get_page) for modular rd       (me)
-  - make bdflush and kswapd actually start queued disk IO (me)
-rmap 12e
-  - RSS limit fix, the limit can be 0 for some reason     (me)
-  - clean up for_each_zone define to not need pgdata_t    (William Lee Irwin)
-  - fix i810_dma bug introduced with page->wait removal   (William Lee Irwin)
-rmap 12d:
-  - fix compiler warning in rmap.c                        (Roger Larsson)
-  - read latency improvement   (read-latency2)            (Andrew Morton)
-rmap 12c:
-  - fix small balancing bug in page_launder_zone          (Nick Piggin)
-  - wakeup_kswapd / wakeup_memwaiters code fix            (Arjan van de Ven)
-  - improve RSS limit enforcement                         (me)
-rmap 12b:
-  - highmem emulation (for debugging purposes)            (Andrea Arcangeli)
-  - ulimit RSS enforcement when memory gets tight         (me)
-  - sparc64 page->virtual quickfix                        (Greg Procunier)
-rmap 12a:
-  - fix the compile warning in buffer.c                   (me)
-  - fix divide-by-zero on highmem initialisation  DOH!    (me)
-  - remove the pgd quicklist (suspicious ...)             (DaveM, me)
-rmap 12:
-  - keep some extra free memory on large machines         (Arjan van de Ven, me)
-  - higher-order allocation bugfix                        (Adrian Drzewiecki)
-  - nr_free_buffer_pages() returns inactive + free mem    (me)
-  - pages from unused objects directly to inactive_clean  (me)
-  - use fast pte quicklists on non-pae machines           (Andrea Arcangeli)
-  - remove sleep_on from wakeup_kswapd                    (Arjan van de Ven)
-  - page waitqueue cleanup                                (Christoph Hellwig)
-rmap 11c:
-  - oom_kill race locking fix                             (Andres Salomon)
-  - elevator improvement                                  (Andrew Morton)
-  - dirty buffer writeout speedup (hopefully ;))          (me)
-  - small documentation updates                           (me)
-  - page_launder() never does synchronous IO, kswapd
-    and the processes calling it sleep on higher level    (me)
-  - deadlock fix in touch_page()                          (me)
-rmap 11b:
-  - added low latency reschedule points in vmscan.c       (me)
-  - make i810_dma.c include mm_inline.h too               (William Lee Irwin)
-  - wake up kswapd sleeper tasks on OOM kill so the
-    killed task can continue on its way out               (me)
-  - tune page allocation sleep point a little             (me)
-rmap 11a:
-  - don't let refill_inactive() progress count for OOM    (me)
-  - after an OOM kill, wait 5 seconds for the next kill   (me)
-  - agpgart_be fix for hashed waitqueues                  (William Lee Irwin)
-rmap 11:
-  - fix stupid logic inversion bug in wakeup_kswapd()     (Andrew Morton)
-  - fix it again in the morning                           (me)
-  - add #ifdef BROKEN_PPC_PTE_ALLOC_ONE to rmap.h, it
-    seems PPC calls pte_alloc() before mem_map[] init     (me)
-  - disable the debugging code in rmap.c ... the code
-    is working and people are running benchmarks          (me)
-  - let the slab cache shrink functions return a value
-    to help prevent early OOM killing                     (Ed Tomlinson)
-  - also, don't call the OOM code if we have enough
-    free pages                                            (me)
-  - move the call to lru_cache_del into __free_pages_ok   (Ben LaHaise)
-  - replace the per-page waitqueue with a hashed
-    waitqueue, reduces size of struct page from 64
-    bytes to 52 bytes (48 bytes on non-highmem machines)  (William Lee Irwin)
-rmap 10:
-  - fix the livelock for real (yeah right), turned out
-    to be a stupid bug in page_launder_zone()             (me)
-  - to make sure the VM subsystem doesn't monopolise
-    the CPU, let kswapd and some apps sleep a bit under
-    heavy stress situations                               (me)
-  - let __GFP_HIGH allocations dig a little bit deeper
-    into the free page pool, the SCSI layer seems fragile (me)
-rmap 9:
-  - improve comments all over the place                   (Michael Cohen)
-  - don't panic if page_remove_rmap() cannot find the
-    rmap in question, it's possible that the memory was
-    PG_reserved and belonging to a driver, but the driver
-    exited and cleared the PG_reserved bit                (me)
-  - fix the VM livelock by replacing > by >= in a few
-    critical places in the pageout code                   (me)
-  - treat the reclaiming of an inactive_clean page like
-    allocating a new page, calling try_to_free_pages()
-    and/or fixup_freespace() if required                  (me)
-  - when low on memory, don't make things worse by
-    doing swapin_readahead                                (me)
-rmap 8:
-  - add ANY_ZONE to the balancing functions to improve
-    kswapd's balancing a bit                              (me)
-  - regularize some of the maximum loop bounds in
-    vmscan.c for cosmetic purposes                        (William Lee Irwin)
-  - move page_address() to architecture-independent
-    code, now the removal of page->virtual is portable    (William Lee Irwin)
-  - speed up free_area_init_core() by doing a single
-    pass over the pages and not using atomic ops          (William Lee Irwin)
-  - documented the buddy allocator in page_alloc.c        (William Lee Irwin)
-rmap 7:
-  - clean up and document vmscan.c                        (me)
-  - reduce size of page struct, part one                  (William Lee Irwin)
-  - add rmap.h for other archs (untested, not for ARM)    (me)
-rmap 6:
-  - make the active and inactive_dirty list per zone,
-    this is finally possible because we can free pages
-    based on their physical address                       (William Lee Irwin)
-  - cleaned up William's code a bit                       (me)
-  - turn some defines into inlines and move those to
-    mm_inline.h (the includes are a mess ...)             (me)
-  - improve the VM balancing a bit                        (me)
-  - add back inactive_target to /proc/meminfo             (me)
-rmap 5:
-  - fixed recursive buglet, introduced by directly
-    editing the patch for making rmap 4 ;)))              (me)
-rmap 4:
-  - look at the referenced bits in page tables            (me)
-rmap 3:
-  - forgot one FASTCALL definition                        (me)
-rmap 2:
-  - teach try_to_unmap_one() about mremap()               (me)
-  - don't assign swap space to pages with buffers         (me)
-  - make the rmap.c functions FASTCALL / inline           (me)
-rmap 1:
-  - fix the swap leak in rmap 0                           (Dave McCracken)
-rmap 0:
-  - port of reverse mapping VM to 2.4.16                  (me)
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://guru.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+--_=__=_XaM3_Boundary.1038318104.2A.329634.42.29009.52.42.101010.20248--
 

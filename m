@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281012AbRKTKWv>; Tue, 20 Nov 2001 05:22:51 -0500
+	id <S281007AbRKTKTa>; Tue, 20 Nov 2001 05:19:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281015AbRKTKWl>; Tue, 20 Nov 2001 05:22:41 -0500
-Received: from web10407.mail.yahoo.com ([216.136.130.99]:4872 "HELO
-	web10407.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S281012AbRKTKWd>; Tue, 20 Nov 2001 05:22:33 -0500
-Message-ID: <20011120102232.69226.qmail@web10407.mail.yahoo.com>
-Date: Tue, 20 Nov 2001 21:22:32 +1100 (EST)
-From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
-Subject: Re: Strange HD light with 2.2.19
-To: kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3BFA0E1F.4010708@wanadoo.fr>
+	id <S281009AbRKTKTV>; Tue, 20 Nov 2001 05:19:21 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:5309 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S281007AbRKTKTQ>;
+	Tue, 20 Nov 2001 05:19:16 -0500
+Date: Tue, 20 Nov 2001 05:19:12 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: more fun with procfs (netfilter) 
+In-Reply-To: <E165z5s-0000SM-00@wagner>
+Message-ID: <Pine.GSO.4.21.0111200407430.21912-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+
+On Tue, 20 Nov 2001, Rusty Russell wrote:
+
+> In message <Pine.GSO.4.21.0111190156140.17210-100000@weyl.math.psu.edu> you wri
+> te:
+> > Reason: netfilter procfs files try to fit entire records into the user
+> > buffer.  Do a read shorter than record size and you've got zero.  And
+> > read() returning 0 means you-know-what...
 > 
-> is there a difference in disk performance running
-> 2.4 and
-> 2.2 on this machine ?
-
-I did not perform any test ; but I _feel_that_ it is
-the same or almost the same. I prefer 2.2.19 for that
-machine as this one has only 16Mb RAM; and 2.4.12-ac2
-is thrashing to death when only running netscape, but
-2.2.19 is fine.
-
-> i think 2.2 isn't properly setting the DMA mode of
-> the PIIX3, you might want to try something like
-> hdparm -c3 -d1 /dev/hda
-
-I will try tomorow when my friend is online ; we are
-100Km away ... :-)
-
-
-> or something like that.
-> of course, if it breaks anything, it's not my fault
-> (please do a "man hdparm" first...)
+> Yes.  Don't do this.
 > 
-> François
+> Hope that helps,
 
+That's nice, but...
 
-=====
-S.KIEU
+% awk '/ESTABLISHED/{print $5}' /proc/net/ip_conntrack| wc -l
+26
+% grep ESTABLISHED /proc/net/ip_conntrack| wc -l
+56
+%
 
-http://shopping.yahoo.com.au - Yahoo! Shopping
-- Get organised for Christmas early this year!
+- IOW, awk (both gawk and mawk) loses everything past the first 4Kb.
+And yes, it's a real-world example (there was more than $5 and it was
+followed by sed(1), but that doesn't affect the result - lost lines).
+
+So the list of "don't do this" is a bit longer than just reading it
+from shell.
+

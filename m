@@ -1,60 +1,153 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271423AbTGQLKN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 07:10:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271422AbTGQLKN
+	id S271429AbTGQLJl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 07:09:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271430AbTGQLJl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 07:10:13 -0400
-Received: from lakemtao01.cox.net ([68.1.17.244]:29174 "EHLO
-	lakemtao01.cox.net") by vger.kernel.org with ESMTP id S271430AbTGQLKD
+	Thu, 17 Jul 2003 07:09:41 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:18567 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S271429AbTGQLJ0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 07:10:03 -0400
-Date: Thu, 17 Jul 2003 07:25:36 -0400
-From: Wil Reichert <wilreichert@yahoo.com>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.6.0-test1 snd-ice1724 module OOPS
-Message-Id: <20030717072536.49057dc7.wilreichert@yahoo.com>
-In-Reply-To: <s5hr84pzdu1.wl@alsa2.suse.de>
-References: <20030716115156.2b5a1992.wilreichert@yahoo.com>
-	<s5hr84pzdu1.wl@alsa2.suse.de>
-Organization: NA
-X-Mailer: Sylpheed version 0.9.3claws (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 17 Jul 2003 07:09:26 -0400
+Date: Thu, 17 Jul 2003 07:25:39 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Willy Tarreau <willy@w.ods.org>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.20 RTC Timer bug
+In-Reply-To: <20030716211805.GB643@alpha.home.local>
+Message-ID: <Pine.LNX.4.53.0307170709080.682@chaos>
+References: <Pine.LNX.4.53.0307161626240.30604@chaos> <20030716211805.GB643@alpha.home.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, the module loads fine now.
+On Wed, 16 Jul 2003, Willy Tarreau wrote:
 
-I have a couple of questions regarding this card (M-Audio Revolution 7.1) and ALSA if you'll humour me.
+> Dick,
+>
+> 0x71 is the DATA register ! The thing that modifies what you read from it
+> is the RTC clock itself, because seconds are stored at index 0x00 IIRC, which
+> is often assumed if you read without writing.
+>
+> maybe it's time to go to bed ? :-)
+>
+> Cheers,
+> Willy
 
-A) Does the driver support more than 2 channels of sound?  I've had no luck getting output out of anything but the analog front channel.
+It's so easy to kill the messenger instead of finding the problem.
+Most modern RTC emulations will return 0xff when you read the index
+register at 0x70 because it's a write-only register. Therefore, to
+discover what it has been set to, one must read the data register at
+0x71. If it increments at one second intervals from 0 to 59 (BCD) ,
+(you change the "%d" to "%x" to read BCD within that range), then
+the index register has left at 0. This is okay except that the
+time may get trashed upon power off.
 
-B) Instead of the typical <Master> <PCM> <Line> etc channels in alsamixer I have DAC[1-7], with the front left & right channel being <DAC> and <DAC1>.  Is this normal?
+In machines tested here, running linux-2.4.20, the value read from
+0x71 increments from 0 to 99 with a few missing codes in-between so
+it's not possible to guess what it's been set to, maybe the
+'B' register (status), then something else. That something else
+is the killer.
 
-C) mplayer (http://www.mplayerhq.hu) compiled with alsa support will detect the card but fails a snd_pcm_hw_params_set_format call.  It will work fine via OSS emulation however.  The same build of mplayer works fine via alsa with other cards, tho.  Is this a driver problem, a hardware limitation, or a problem in mplayer?
-
-Thanks.
-
-Wil 
-
-
-On Thu, 17 Jul 2003 11:45:26 +0200
-Takashi Iwai <tiwai@suse.de> wrote:
-
-> At Wed, 16 Jul 2003 11:51:56 -0400,
-> Wil Reichert wrote:
-> > 
-> > I get the following OOPS when loading the snd-ice1724 module for my Envy 24HT card.  Works fine if I build all the alsa code straight into the kernel.
-> > 
-> 
-> does the attached patch fix the problem?
-> 
-> -- 
-> Takashi Iwai <tiwai@suse.de>		SuSE Linux AG - www.suse.de
-> ALSA Developer				ALSA Project - www.alsa-project.org
-> 
+When the power fails, most all systems running Linux will fail to
+restart because of CMOS corruption. You can easily check. Run linux,
+`init 1`, dismount drives, then pull the plug. Don't use the
+front panel power switch because, again, modern power supplies
+protect devices during 'normal' shutdown by using the reset
+circuitry.
 
 
+If you use the same motherboard, but leave it is CMOS setup so
+Linux isn't running, you can pull the plug and never cause
+corruption.
+
+
+>
+> On Wed, Jul 16, 2003 at 04:31:15PM -0400, Richard B. Johnson wrote:
+> >
+> > #if 0
+> >
+> > In Linux 2.4.20, some rogue is incrementing the value
+> > in register 0x71 at about 1 second intervals!  This
+> > port is the index register for the CMOS timer chip
+> > and it must be left alone when the chip is not being
+> > accessed and it must be left at an unused offset,
+> > typically 0xff, after access. This is to prevent
+> > destruction of CMOS data during the power-down
+> > transient.
+> >
+> > This code clearly shows that somebody is mucking with
+> > this chip. Here, I have reviewed the only drivers
+> > installed, SCSI and network, and have not found anybody
+> > messing with this chip so I think it must be something
+> > in the kernel proper. The numbers increase at 1 second
+> > intervals from 0 to 89 and then restart. This shows that
+> > it is not residual from the system clock code that will
+> > read only the timer registers.
+> >
+> > These are the only modules installed...
+> >
+> > Module                  Size  Used by
+> > ipchains               41400   7
+> > 3c59x                  28224   1  (autoclean)
+> > nls_cp437               4376   4  (autoclean)
+> > BusLogic               35768   7
+> > sd_mod                 10184  14
+> > scsi_mod               54572   2  [BusLogic sd_mod]
+> >
+> > This running of the CMOS timer index register is the
+> > reason why the CMOS checksum and parameters are being
+> > lost on several systems that run 2.4.20. If any of
+> > these system are turned off when the index register
+> > points to checksummed data, the byte at that location
+> > will get smashed to whatever is on the bus when the
+> > power fails. To non-believers, note that the chip-select
+> > goes low to enable ... and that's what a power failure
+> > does ... goes low, while internally, the chip still has
+> > power from its battery.
+> >
+> > #endif
+> >
+> > #include <stdio.h>
+> >
+> > __inline__ int inb()
+> > {
+> > 	register int eax = 0;
+> > 	__asm__ volatile ("inb	$0x71, %%al" : "=eax" (eax));
+> > 	return eax;
+> > }
+> >
+> > extern int iopl(int);
+> > extern int usleep(int);
+> >
+> > int main()
+> > {
+> >     iopl(3);
+> >
+> >     for(;;)
+> >     {
+> >         printf("%d\n", inb());
+> >         usleep(100000);
+> >     }
+> > }
+> >
+> >
+> > Cheers,
+> > Dick Johnson
+> > Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+> >             Note 96.3% of all statistics are fiction.
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.

@@ -1,76 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262329AbUKDRqJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262333AbUKDRum@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262329AbUKDRqJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 12:46:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262327AbUKDRou
+	id S262333AbUKDRum (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 12:50:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262339AbUKDRtX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 12:44:50 -0500
-Received: from mail.kroah.org ([69.55.234.183]:24722 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262317AbUKDRnD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 12:43:03 -0500
-Date: Thu, 4 Nov 2004 09:39:19 -0800
-From: Greg KH <greg@kroah.com>
-To: "Kilau, Scott" <Scott_Kilau@digi.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Germano <germano.barreiro@cyclades.com>, linux-kernel@vger.kernel.org
-Subject: Re: patch for sysfs in the cyclades driver
-Message-ID: <20041104173918.GB16389@kroah.com>
-References: <71A17D6448EC0140B44BCEB8CD0DA36E04B9D824@minimail.digi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <71A17D6448EC0140B44BCEB8CD0DA36E04B9D824@minimail.digi.com>
-User-Agent: Mutt/1.5.6i
+	Thu, 4 Nov 2004 12:49:23 -0500
+Received: from zamok.crans.org ([138.231.136.6]:27101 "EHLO zamok.crans.org")
+	by vger.kernel.org with ESMTP id S262327AbUKDRqV convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 12:46:21 -0500
+To: linux-os@analogic.com
+Cc: Giuseppe Bilotta <bilotta78@hotpop.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.6.9 won't allow a write to a NTFS file-system.
+References: <Pine.LNX.4.61.0411041054370.4818@chaos.analogic.com>
+	<MPG.1bf47baa1b621da0989706@news.gmane.org>
+	<Pine.LNX.4.61.0411041158010.5193@chaos.analogic.com>
+From: Mathieu Segaud <matt@minas-morgul.org>
+Date: Thu, 04 Nov 2004 18:46:21 +0100
+In-Reply-To: <Pine.LNX.4.61.0411041158010.5193@chaos.analogic.com>
+	(linux-os@chaos.analogic.com's message of "Thu, 4 Nov 2004 12:09:47
+	-0500 (EST)")
+Message-ID: <87is8l7biq.fsf@barad-dur.crans.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 04, 2004 at 10:40:26AM -0600, Kilau, Scott wrote:
-> > From: Marcelo Tosatti
-> > The problem was class_simple only contains the "dev" attribute. You
-> can't
-> > add other attributes to it.
-> 
-> Ah, that changes everything.
+linux-os <linux-os@chaos.analogic.com> disait dernièrement que :
 
-No, you can add attributes to it, I just don't think the pointer is
-accessable for a tty driver to be able to find the thing.  Need to go
-look at the code again to verify this or not.
+> On Thu, 4 Nov 2004, Giuseppe Bilotta wrote:
+>
 
-> The entire reason Germano and I were chasing down this option,
-> was so we could export various "tty" statistic files out to below
-> each respective tty name in /sys/class/tty 
-> 
-> If its currently not possible to add more attributes to the simple
-> class,
-> then we are probably going down the wrong avenue here, at least for now.
+> Huh? Are we talking about the same thing?
 
-No, that's the proper way to go.
+yes
 
-> Greg,
-> I know you are a very busy person...
-> Is making a "tty class" even in the cards for 2.6, or is it scheduled
-> for 2.7+ ?
+> I'm talking about
+> the NTFS that Windows/NT and later versions puts on its
+> file-systems. I use an USB external disk with my M$ Laptop
+> and I have always been able to transfer data to/from
+> my machines using that drive. Now I can't. The drive it
+> writable under M$, but I can't even delete anything
+> (no permission for root) under Linux.
 
-It's scheduled for whenever someone gets around to doing it :)
+Taken from kernel help in *config:
+"The only supported operation is overwriting existing files, without changing
+the file length. No file or directory creation, deletion or renaming is
+possible..."
 
-As there is no 2.7 tree, nor is there going to be, why not do it right
-now?  I'd gladly take patches that do this, and I don't think they would
-be all that big at all.
+Best,
 
-> Germano,
-> I still hate doing it, and I know it is against the "1 value per file in
-> sys" rule,
-> but for now I think exporting the values to the "card" directory with
-> each file 
-> containing the value as a list of ports, 1 per line, might be the best
-> option
-> to work with here, at least until the "tty class" gets developed.
+Mathieu
 
-No, I will not allow that to go into the kernel tree, sorry.  Just
-export the tty class pointer in the proper structure, and you should be
-fine.
+-- 
+<WeirdArms> erikm: bugger alan cox on a chip, I want alan cox in a book ;)
 
-thanks,
+	- Adam Wiggins on #kernelnewbies
 
-greg k-h

@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261978AbTCHAVw>; Fri, 7 Mar 2003 19:21:52 -0500
+	id <S261944AbTCHATF>; Fri, 7 Mar 2003 19:19:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261980AbTCHAVw>; Fri, 7 Mar 2003 19:21:52 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:40964 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261978AbTCHAVt>; Fri, 7 Mar 2003 19:21:49 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: CREDITS update
-Date: 7 Mar 2003 16:31:57 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <b4bdlt$d94$1@cesium.transmeta.com>
-References: <1047087092.24435.0.camel@irongate.swansea.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+	id <S261962AbTCHATF>; Fri, 7 Mar 2003 19:19:05 -0500
+Received: from almesberger.net ([63.105.73.239]:60420 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id <S261944AbTCHATE>; Fri, 7 Mar 2003 19:19:04 -0500
+Date: Fri, 7 Mar 2003 21:29:25 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Dave Jones <davej@codemonkey.org.uk>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Benjamin LaHaise <bcrl@redhat.com>, Dan Kegel <dank@kegel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Those ruddy punctuation fixes
+Message-ID: <20030307212925.S2791@almesberger.net>
+References: <3E684737.7080704@kegel.com> <20030307121723.B3204@redhat.com> <1047078959.23697.12.camel@irongate.swansea.linux.org.uk> <20030308005241.GA24077@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030308005241.GA24077@suse.de>; from davej@codemonkey.org.uk on Fri, Mar 07, 2003 at 11:52:47PM -0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <1047087092.24435.0.camel@irongate.swansea.linux.org.uk>
-By author:    Alan Cox <alan@lxorguk.ukuu.org.uk>
-In newsgroup: linux.dev.kernel
->
-> --- CREDITS~	2003-03-08 01:23:52.000000000 +0000
-> +++ CREDITS	2003-03-08 01:23:52.000000000 +0000
-> @@ -2703,6 +2703,7 @@
->  W: http://www.samba.org/netfilter
->  D: Ruggedly handsome.
->  D: netfilter, ipchains with Michael Neuling.
-> +D: Linux keynote delivery specialist.
->  S: 52 Moore St
->  S: Turner ACT 2612
->  S: Australia
-> 
+Dave Jones wrote:
+> Spelling fixes aren't going to get us to 2.6.0 any faster.
 
-ROTFLMAO :)
+One problem with spelling fixes is that there's never a good
+moment, nor a good procedure to do them.
 
-	-hpa
+> There are _dozens_ of known problems, and I'll take patches
+> fixing real problems over spelling fixes any day.
+
+I guess it would be nice if Linus would give some advance warning
+when he's going to accept speelnig fixes. That way, people with
+"real work" could schedule a few weeks at the beach, while the
+spelling police does its grisly job.
+
+Of course, we all know that this will never happen ;-)
+
+- Werner
+
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

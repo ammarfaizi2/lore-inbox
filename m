@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310711AbSCHHTT>; Fri, 8 Mar 2002 02:19:19 -0500
+	id <S310713AbSCHHig>; Fri, 8 Mar 2002 02:38:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310712AbSCHHTL>; Fri, 8 Mar 2002 02:19:11 -0500
-Received: from kiruna.synopsys.com ([204.176.20.18]:45512 "HELO
-	kiruna.synopsys.com") by vger.kernel.org with SMTP
-	id <S310711AbSCHHSy>; Fri, 8 Mar 2002 02:18:54 -0500
-Date: Fri, 8 Mar 2002 08:16:23 +0100
+	id <S310714AbSCHHi0>; Fri, 8 Mar 2002 02:38:26 -0500
+Received: from boden.synopsys.com ([204.176.20.19]:43993 "HELO
+	boden.synopsys.com") by vger.kernel.org with SMTP
+	id <S310713AbSCHHiS>; Fri, 8 Mar 2002 02:38:18 -0500
+Date: Fri, 8 Mar 2002 08:37:58 +0100
 From: Alex Riesen <Alexander.Riesen@synopsys.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: lkml@goofy.gr05.synopsys.com
-Subject: Re: 2.4.2-SMP: problem locking nfs files mounted on HPUX (ENOLCK)
-Message-ID: <20020308081623.B2750@riesen-pc.gr05.synopsys.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel SCM: When does CVS fall down where it REALLY matters?
+Message-ID: <20020308083758.A4573@riesen-pc.gr05.synopsys.com>
 Reply-To: Alexander.Riesen@synopsys.com
-In-Reply-To: <20020307180608.A2750@riesen-pc.gr05.synopsys.com> <shslmd4jhrc.fsf@charged.uio.no>
+Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3C87FD12.8060800@greshamstorage.com> <Pine.LNX.4.44L.0203072057510.2181-100000@imladris.surriel.com> <3C880541.E04EFAB3@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <shslmd4jhrc.fsf@charged.uio.no>
+In-Reply-To: <3C880541.E04EFAB3@zip.com.au>
 User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 07, 2002 at 08:32:39PM +0100, Trond Myklebust wrote:
-> >>>>> " " == Alex Riesen <Alexander.Riesen@synopsys.com> writes:
+On Thu, Mar 07, 2002 at 04:26:41PM -0800, Andrew Morton wrote:
+...
 > 
->      > Hi, all i'm trying to lock a file using advisory locks.  The
->      > file is on the filesystem exported by a linux machine (RH 6.2,
->      > 2.4.2-SMP). The filesystem is mounted on HP-UX B.11.00 (HP-UX
->      > host1 B.11.00 A 9000/785 2011306912 two-user license).  Right
->      > now i cannot try this with the newer kernels.
+> Current tkdiff is in fact very good at this.  So integration
+> with that may suit.
 > 
->      > The following simple program fails with ENOLCK.
+> The problem I find is that I often want to take (file1+patch) -> file2,
+> when I don't have file1.  But merge tools want to take (file1|file2) -> file3.
+> I haven't seen a graphical tool which helps you to wiggle a patch into
+> a file.
 > 
-> HP clients require the 'insecure_locks' option to be set in the RedHat
-> server's /etc/exports file.
-> 
-
-Thank you, we are trying this.
+Try vimdiff/gvimdiff from VIM 6.0. I think it does pretty good that job
+(wiggle... what a word :)
 -alex
+

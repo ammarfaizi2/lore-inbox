@@ -1,64 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262259AbVAEGJY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262262AbVAEGTj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262259AbVAEGJY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 01:09:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262261AbVAEGJY
+	id S262262AbVAEGTj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 01:19:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262265AbVAEGTj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 01:09:24 -0500
-Received: from rproxy.gmail.com ([64.233.170.207]:61034 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262259AbVAEGJT (ORCPT
+	Wed, 5 Jan 2005 01:19:39 -0500
+Received: from main.gmane.org ([80.91.229.2]:64673 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262262AbVAEGTi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 01:09:19 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=PEGQoydnuKXcuaCjiCJA9bGAT7iLEEf3dI4r9ZvhVg42fWopJaad0pg7TitC5/saSTHwnwIgm7+BTS/Uf0N922ya5XJRjE0XC6MH3MXk2GXI/TwFUkFCdDIr+x84MUKpbWnx4isSJx8KSNpEm6CEsTDMPqHXd7T/UuoQYbpVP5Y=
-Message-ID: <cce9e37e05010422096eb0a103@mail.gmail.com>
-Date: Wed, 5 Jan 2005 06:09:19 +0000
-From: Phil Lougher <phil.lougher@gmail.com>
-Reply-To: Phil Lougher <phil.lougher@gmail.com>
-To: selvakumar nagendran <kernelselva@yahoo.com>
-Subject: Re: Linked list demo
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050105055150.5079.qmail@web60609.mail.yahoo.com>
+	Wed, 5 Jan 2005 01:19:38 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+Subject: Re: starting with 2.7
+Date: Wed, 05 Jan 2005 11:20:49 +0500
+Message-ID: <crg0ti$aes$1@sea.gmane.org>
+References: <200501032059.j03KxOEB004666@laptop11.inf.utfsm.cl> <0F9DCB4E-5DD1-11D9-892B-000D9352858E@mac.com> <Pine.LNX.4.61.0501031648300.25392@chimarrao.boston.redhat.com> <5B2E0ED4-5DD3-11D9-892B-000D9352858E@mac.com> <20050103221441.GA26732@infradead.org> <20050104054649.GC7048@alpha.home.local> <20050104063622.GB26051@parcelfarce.linux.theplanet.co.uk> <9F909072-5E3A-11D9-A816-000D9352858E@mac.com> <Pine.LNX.4.61.0501040735410.25392@chimarrao.boston.redhat.com> <85546E06-5E50-11D9-A816-000D9352858E@mac.com> <20050104200912.GA22075@alpha.home.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050105055150.5079.qmail@web60609.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: inet.ycc.ru
+User-Agent: KNode/0.8.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Jan 2005 21:51:50 -0800 (PST), selvakumar nagendran
-<kernelselva@yahoo.com> wrote:
-> Hello,
->    I came to know from the book 'Linux kernel
-> development' by Robert M Love that the kernel provides
-> it's own linked list implementation. He has also given
-> the relevant interfaces. But with that I am not able
-> to understand the concepts. Can anyone send me a
-> worked out example of the linked list possibly a
-> simpler one?
+Willy Tarreau wrote:
 
-Personally if you can't understand the concepts of the linked list
-implementation from the book then you shouldn't really be programming
-at the kernel level...  As far as examples of code goes, grep the
-kernel source.  There's sure to be lots of examples there :-)
+> Anyway, when you manage your own distribution, you have no other solution
+> than reading lkml daily (better: continuously) to grab the required fixes
+> and apply them to your local tree. If you feel that sometime you won't be
+> able to do the backport, either you can ask on lkml, people are often
+> willing to help, or you need to rely on other people's work (read distro
+> kernels).
 
-Phillip
+I agree to rely on other people's work, but not _random_ distro kernels. The
+reason is that distros usually both fix bugs and test new features on their
+users.
 
+What's needed is an equivalent of linux-libc-headers: a vendor-neutral
+generally-accepted kernel usable as-is in most cases.
 
-> 
-> Thanks,
-> selva
-> 
-> __________________________________
-> Do you Yahoo!?
-> Meet the all-new My Yahoo! - Try it today!
-> http://my.yahoo.com
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+-- 
+Alexander E. Patrakov
+

@@ -1,53 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261798AbTCQRcP>; Mon, 17 Mar 2003 12:32:15 -0500
+	id <S261803AbTCQRdR>; Mon, 17 Mar 2003 12:33:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261802AbTCQRcP>; Mon, 17 Mar 2003 12:32:15 -0500
-Received: from mx01.nexgo.de ([151.189.8.96]:3271 "EHLO mx01.nexgo.de")
-	by vger.kernel.org with ESMTP id <S261798AbTCQRcM>;
-	Mon, 17 Mar 2003 12:32:12 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Larry McVoy <lm@bitmover.com>, Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
-Date: Mon, 17 Mar 2003 18:46:43 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Andrea Arcangeli <andrea@suse.de>, Nicolas Pitre <nico@cam.org>,
-       Ben Collins <bcollins@debian.org>, lkml <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0303161341520.5348-100000@xanadu.home> <Pine.LNX.4.44.0303170104080.5042-100000@serv> <20030317013555.GA26273@work.bitmover.com>
-In-Reply-To: <20030317013555.GA26273@work.bitmover.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20030317174304.EC6FC3D268@mx01.nexgo.de>
+	id <S261812AbTCQRdQ>; Mon, 17 Mar 2003 12:33:16 -0500
+Received: from dp.samba.org ([66.70.73.150]:32475 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S261803AbTCQRdL>;
+	Mon, 17 Mar 2003 12:33:11 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: Roman Zippel <zippel@linux-m68k.org>,
+       Werner Almesberger <wa@almesberger.net>
+Cc: Greg KH <greg@kroah.com>, Oliver Neukum <oliver@neukum.name>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: PCI driver module unload race? 
+In-reply-to: Your message of "Tue, 11 Mar 2003 09:27:27 MDT."
+             <Pine.LNX.4.33.0303110916540.1003-100000@localhost.localdomain> 
+Date: Mon, 17 Mar 2003 00:05:51 +1100
+Message-Id: <20030317174406.9ABE42C26D@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon 17 Mar 03 02:35, Larry McVoy wrote:
-> On Mon, Mar 17, 2003 at 02:18:03AM +0100, Roman Zippel wrote:
-> > Well, this wasn't the deal. Larry doesn't own the data, he can't say that
-> > you only get all the data, if you use bk.
->
-> Perhaps you can explain the benefits to BitMover of this "deal".  If you
-> are going to say that we get tons of marketing and sales from the free
-> use of BK, forget about it.  Sales in this product space are made at
-> the CEO/CTO/VP level and I can assure you they don't read this mailing
-> list, they don't read slashdot, and if they did they would view what
-> we are doing as too risky.  I tend to agree with them.
->
-> So what's the part of the "deal" that benefits BitMover?
+In message <Pine.LNX.4.33.0303110916540.1003-100000@localhost.localdomain> you 
+write:
+> The driver has an unload_sem that is locked until the driver's refcount 
+> goes to 0. When it does, it's unlocked. A driver_unregister() call will 
+> try and take this semaphore while unregistering, meaning it will block 
+> until outstanding references go away. 
 
-Let me reinsert the essential part of Roman's message that was 
-censo^H^H^Homitted:
+That sounds like an odd way of doing it.  More normal would be either
+a rw lock of some kind (ie. always hold read when calling through
+functions), or if recursion is a worry, a lock, an atomic reference
+count, and a "who is waiting for it to be unloaded" task ptr.  As one
+example, see net/core/netfilter.c: nf_unregister_hook uses a br_lock,
+nf_unregister_sockopt uses the refcount approach.
 
-On Mon 17 Mar 03 02:18, Roman Zippel wrote:
-> you only get all the data, if you use bk. One of the arguments for the
-> move to bk was that the format was open and the data wasn't locked in.
+Any way it's done, the effect is the same: deregisteration sleeps
+until the object is unused.
 
-Being seen to keep the promise would be the benefit to BitMover.  Personally, 
-I no longer hold any hope of that - the migration to increasingly proprietary 
-formats and secret/patented protcols will be inexorable.  Hence, no more 
-flaming, just doing.
+> I don't particularly love it, but it's simple enough and it works.  
+> Ideally, we'd have one reference count and this wouldn't be an issue.  
+> However, with the evolution of the driver core and the module core in 2.5,
+> these details haven't had a chance to be worked. I hope in 2.7, we can
+> achieve more unification between the two. 
 
-Regards,
+Unfortunately, I think that will require changing every module *and*
+every registration function, and noone has produced a reasonable model
+which has the "unload only if noone is using the module" semantics
+(which requires atomic "deactivation" of interfaces, like
+try_module_get).
 
-Daniel
+Currently, if you go for a full dynamic interface (ie. can be
+unregistered and structures destroyed at any time, not just on module
+unload), you don't have a race, but you don't bump module refcounts
+which users expect (ie. module appears "unused" and hangs on rmmod),
+which can be a problem depending on the interface (mainly whether the
+rmmod hang would be infinite).
+
+If you just use a module pointer and try_module_get, the interface
+can't be safely used in *general* (Werner's "unregister_xxx then
+kfree(xxx)" problem), but as long as the lifetime of the objects are
+tied to module lifetime (as many are), it works.
+
+Yes, this means some code has to do both.  But it's simple, doesn't
+significantly effect code using the interface, and is easy to rip out
+when Something Better comes along.
+
+> Greg, and Rusty, are right. Dealing with this is a PITA, and I think will 
+> always be. I'm willing to take the Nancy Reagan platform, too. 
+
+And another reason that I like the "easy to remove" nature of
+try_module_get, for all its flaws.
+
+Cheers,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

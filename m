@@ -1,59 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263747AbTKFULI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 15:11:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263792AbTKFULI
+	id S263832AbTKFUFi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 15:05:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263834AbTKFUFi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 15:11:08 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:30633 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S263747AbTKFULE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 15:11:04 -0500
-Date: Thu, 6 Nov 2003 12:05:48 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: azarah@gentoo.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.21-rc1: byteorder.h breaks with __STRICT_ANSI__
- defined (trivial)
-Message-Id: <20031106120548.097ccc7c.davem@redhat.com>
-In-Reply-To: <1068149368.12287.331.camel@nosferatu.lan>
-References: <1068140199.12287.246.camel@nosferatu.lan>
-	<20031106093746.5cc8066e.davem@redhat.com>
-	<1068143563.12287.264.camel@nosferatu.lan>
-	<1068144179.12287.283.camel@nosferatu.lan>
-	<20031106113716.7382e5d2.davem@redhat.com>
-	<1068149368.12287.331.camel@nosferatu.lan>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 6 Nov 2003 15:05:38 -0500
+Received: from out004pub.verizon.net ([206.46.170.142]:25340 "EHLO
+	out004.verizon.net") by vger.kernel.org with ESMTP id S263832AbTKFUFb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Nov 2003 15:05:31 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: None that appears to be detectable by casual observers
+To: Valdis.Kletnieks@vt.edu
+Subject: Re: load 2.4.x binary only module on 2.6
+Date: Thu, 6 Nov 2003 15:05:28 -0500
+User-Agent: KMail/1.5.1
+Cc: viro@parcelfarce.linux.theplanet.co.uk, Marcel Lanz <marcel.lanz@ds9.ch>,
+       linux-kernel@vger.kernel.org
+References: <20031106153004.GA30008@ds9.ch> <200311061433.12555.gene.heskett@verizon.net> <200311061952.hA6Jq9HG004043@turing-police.cc.vt.edu>
+In-Reply-To: <200311061952.hA6Jq9HG004043@turing-police.cc.vt.edu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200311061505.28953.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out004.verizon.net from [151.205.62.77] at Thu, 6 Nov 2003 14:05:29 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 06 Nov 2003 22:09:29 +0200
-Martin Schlemmer <azarah@gentoo.org> wrote:
+On Thursday 06 November 2003 14:52, Valdis.Kletnieks@vt.edu wrote:
+>On Thu, 06 Nov 2003 14:33:12 EST, Gene Heskett said:
+>> I've got minions 4496 here, so how did you make it work?  I had to
+>> revert to the kernel driver nv which doesn't do as much, but is
+>> easily 100000% more stable.
+>
+>Got NVidia's tarball, did the --extract-only thing, applied
+>the Minion patch, 'cp Makefile.kbuild Makefile', reboot to the
+>-mm2 kernel, 'cd src/NVdia<mumble>/usr/src/nv && make'.
+>
+>Actually, I've just had to do the 'make' for the last umpteen kernel
+>revs - the Makefile dates back to Aug 4, and Sep 5 I had to apply a
+>2-line fix to nv-linux.h.
+>
+>Not sure if the nv driver could be more stable - the last time I was
+>able to tickle the NVidia code into crashing either XFree86 or the
+> kernel was back in the 2.5.6* time frame.
 
-> On Thu, 2003-11-06 at 21:37, David S. Miller wrote:
-> > Let's say that you end up using some inline function
-> > that takes u32 arguments, and internally it uses
-> > u64 types to speed up the calculation or make it more
-> > accurate or something like that.
-> 
-> So basically only in cases where the stuff in byteorder.h
-> was not inlined ... ?
+Very very easily done.  ctrl-alt-f2 to a shell.  It may, or may not 
+work.  crtl-alt-f7 back to X=locked up "tighter than Ft Knox" 
+computer, reset button or power button is all that works.
 
-No, exactly in the cases where it _IS_ inlined.  Imagine
-this:
+-- 
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.27% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
 
-static inline u32 swab_foo(u32 a, u32 b)
-{
-	u64 tmp = ((u64)a<<32) | ((u64)b);
-	u32 retval;
-
-	retval = compute(tmp);
-
-	return retval;
-}
-
-If that's in a kernel header somewhere, and you build with -ansi,
-you lose.

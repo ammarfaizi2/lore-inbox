@@ -1,50 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265054AbRFVS3D>; Fri, 22 Jun 2001 14:29:03 -0400
+	id <S265364AbRFVS0c>; Fri, 22 Jun 2001 14:26:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265034AbRFVS2x>; Fri, 22 Jun 2001 14:28:53 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:56524 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S265408AbRFVS2n>;
-	Fri, 22 Jun 2001 14:28:43 -0400
-Message-ID: <3B338E4E.D1FDD74D@mandrakesoft.com>
-Date: Fri, 22 Jun 2001 14:28:30 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre3 i686)
-X-Accept-Language: en
+	id <S265408AbRFVS0W>; Fri, 22 Jun 2001 14:26:22 -0400
+Received: from calhoun.ci.minneapolis.mn.us ([170.159.4.8]:36484 "EHLO
+	calhoun.ci.minneapolis.mn.us") by vger.kernel.org with ESMTP
+	id <S265364AbRFVS0E>; Fri, 22 Jun 2001 14:26:04 -0400
+Message-ID: <8672A0FE7478D311B75300805FA7F84E45BCD0@200cidtc.ci.minneapolis.mn.us>
+From: "Comfort, Dan  W" <Dan.Comfort@ci.minneapolis.mn.us>
+To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: RE: For comment: draft BIOS use document for the kernel
+Date: Fri, 22 Jun 2001 13:25:42 -0500
 MIME-Version: 1.0
-To: "Jhon H. Caicedo O." <jhcaiced@osso.org.co>
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: AMD756 PCI IRQ Routing Patch 0.2.0
-In-Reply-To: <3B3343E6.122965AC@osso.org.co>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jhon H. Caicedo O." wrote:
-> This is an updated version of the patch for AMD756 PCI IRQ Routing,
-> the changes are to use the read/write_config_nybble functions,
-> this makes the code shorter.
+Typo?
 
-Looks much better, thanks!
-
-> +       printk(KERN_INFO "AMD756: dev %04x:%04x, router pirq : %d get irq : %2d\n",
-> +               dev->vendor, dev->device, pirq, irq);
-[...]
-> +       printk(KERN_INFO "AMD756: dev %04x:%04x, router pirq : %d SET irq : %2d\n",
-> +               dev->vendor, dev->device, pirq, irq);
-
-None of the other PCI IRQ routines print out IRQ routing messages, so
-these shouldn't either.  I assume this is debugging code?
-
-Further, the printks are potentially misleading, because pirq_amd756_get
-might not receive a valid irq, if 'pirq' is greater than 4.
-
-	Jeff
-
-
--- 
-Jeff Garzik      | Andre the Giant has a posse.
-Building 1024    |
-MandrakeSoft     |
+> If the E820 call fails then the INT 15 AX=0xE801 service is called and the
+> results are sanity checked. In particular the code zeroes the CX/DX return
+> 
+> values in order to detect BIOS implementations that do not set them 
+> usable memory data. It also handles older BIOSes that return AX/BX but not
+> AX/BX data.
+> 
+> 
+	  /set them usable/set the usable/ 

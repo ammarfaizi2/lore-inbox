@@ -1,41 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262179AbVCIS2x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262161AbVCIScz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262179AbVCIS2x (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 13:28:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262181AbVCIS2w
+	id S262161AbVCIScz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 13:32:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262257AbVCIScs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 13:28:52 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:43402 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262179AbVCISZS
+	Wed, 9 Mar 2005 13:32:48 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:44426 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262237AbVCISbf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 13:25:18 -0500
-Subject: Re: [PATCH] remove dead cyrix/centaur mtrr init code
+	Wed, 9 Mar 2005 13:31:35 -0500
+Subject: PATCH: 2.6.11-ac2
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0503090908260.2530@ppc970.osdl.org>
-References: <200503081937.j28Jb4Vd020597@hera.kernel.org>
-	 <1110387326.28860.199.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0503090908260.2530@ppc970.osdl.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1110392606.28860.220.camel@localhost.localdomain>
+Message-Id: <1110392991.3072.222.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 09 Mar 2005 18:23:27 +0000
+Date: Wed, 09 Mar 2005 18:29:52 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2005-03-09 at 17:09, Linus Torvalds wrote:
-> On Wed, 9 Mar 2005, Alan Cox wrote:
-> > 
-> > This patch was discussed previously and declared incorrect.
-> 
-> Well, it was also declared as a "don't care" by Dave, I think, by virtue 
-> of nobody having ever complained.
 
-And in further discussion people produced the relevant CPU's. Its a
-performance hit (30% on winchip). 
+2.6.11-ac2
+o	Merge 2.6.11.2					(Greg Kroah-Hartmann)
+	including epoll error handling			(Georgi Guninski)
+	| Theoretically security
+o	Fix a couple of pwc warnings			(Alan Cox)
+o	Ressurect epca driver				(Alan Cox)
 
-Alan
+2.6.11-ac1
+o	Fix jbd race in ext3				(Stephen Tweedie)
+
+Carried over from 2.6.10-ac
+
+Security
+o	AF_ROSE security hole fix - still missing from base
+o	Bridge failure to check kmalloc argument overflow
+
+Functionality
+o	PWC USB camera driver
+o	Working ULI526X support (added to base in .11 but broken)
+o	ATP88x support
+o	Intelligent misrouted IRQ handlers
+o	Fix PCI boxes that take minutes IDE probing
+o	Remove bogus confusing XFree86 keyboard message
+o	Support fibre AMD pcnet32
+o	Runtime configurable clock
+	| So you can run laptops usefully. Set 100Hz to fix
+	| the power drain, clock sliding and other problems
+	| 1000Hz causes
+o	Fix token ring locking so token ring can be used again
+o	x86_64/32 cross build fixes
+o	NetROM locking fixes (so NetROM actually works!)
+o	SUID dumpable support
+o	Don't log pointless CD messages
+o	Minimal stallion driver functionality
+o	IDE from 2.6-ac
+
+Misc
+o	Correct LANANA URL
+
 

@@ -1,55 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278400AbRJMUgn>; Sat, 13 Oct 2001 16:36:43 -0400
+	id <S278403AbRJMUix>; Sat, 13 Oct 2001 16:38:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278403AbRJMUg2>; Sat, 13 Oct 2001 16:36:28 -0400
-Received: from sushi.toad.net ([162.33.130.105]:41360 "EHLO sushi.toad.net")
-	by vger.kernel.org with ESMTP id <S278400AbRJMUgQ>;
-	Sat, 13 Oct 2001 16:36:16 -0400
-Subject: Re: Kernel 2.4.12 parport module compile error in ieee1284_ops.c
-From: Thomas Hood <jdthood@mail.com>
+	id <S278405AbRJMUif>; Sat, 13 Oct 2001 16:38:35 -0400
+Received: from dfw-smtpout4.email.verio.net ([129.250.36.44]:1158 "EHLO
+	dfw-smtpout4.email.verio.net") by vger.kernel.org with ESMTP
+	id <S278403AbRJMUiW>; Sat, 13 Oct 2001 16:38:22 -0400
+Message-ID: <3BC8A65D.246AAC0B@bigfoot.com>
+Date: Sat, 13 Oct 2001 13:38:53 -0700
+From: Tim Moore <timothymoore@bigfoot.com>
+Organization: Yoyodyne Propulsion Systems, Inc.
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.20p10i i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
+Subject: Re: Development Setups
+In-Reply-To: <20011005041759.OPDP14306.femail26.sdc1.sfba.home.com@there>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.15 (Preview Release)
-Date: 13 Oct 2001 16:36:06 -0400
-Message-Id: <1003005368.764.41.camel@thanatos>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a known issue.  Look in the mailing list
-archives for more information.  E.g.,
+> I was thinking of starting with a modern machine for developing/compiling on,
+> and then older machine(s) for testing.  This way I would not risk losing data
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=100289285615710&w=2
+I use the 'fast/slow' model for app server development.  The fastest
+machine is used to build kernels for the slower test machine(s)
+regardless of architecture or latest/greatest hardware.  Most results
+can be scaled once you understand interactions.  NFS w no_root_squash is
+useful provided a secure LAN.
 
+rgds,
+tim.
 --
-Thomas Hood
-
---- original message ---
-Hi
-
-Compiling IEEE1284 in the parport module produces the following errors:
-
-ieee1284_ops.c: In function `ecp_forward_to_reverse':
-ieee1284_ops.c:365: `IEEE1284_PH_DIR_UNKNOWN' undeclared (first use in
-this function)
-ieee1284_ops.c:365: (Each undeclared identifier is reported only once
-ieee1284_ops.c:365: for each function it appears in.)
-ieee1284_ops.c: In function `ecp_reverse_to_forward':
-ieee1284_ops.c:397: `IEEE1284_PH_DIR_UNKNOWN' undeclared (first use in
-this function)
-make[2]: *** [ieee1284_ops.o] Error 1
-
-I search for IEEE1284_PH_DIR_UNKNOWN in all headers. It doesn't exist.
-In linux/parport.h i can find IEEE1284_PH_ECP_DIR_UNKNOWN which is what
-I think it should be.
-
-Can someone confirm this??
-
-TIA
-
-John
-
-
-

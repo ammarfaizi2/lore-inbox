@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318274AbSIBLNc>; Mon, 2 Sep 2002 07:13:32 -0400
+	id <S317851AbSIBLYl>; Mon, 2 Sep 2002 07:24:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318278AbSIBLNc>; Mon, 2 Sep 2002 07:13:32 -0400
-Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:17415 "EHLO
-	tom.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S318274AbSIBLNb>; Mon, 2 Sep 2002 07:13:31 -0400
-Date: Mon, 2 Sep 2002 12:54:33 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Molbo <molbo@inbox.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: how get dentry cache to swap
-Message-ID: <20020902125433.H781@nightmaster.csn.tu-chemnitz.de>
-References: <882173015.20020902130938@inbox.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <882173015.20020902130938@inbox.ru>; from molbo@inbox.ru on Mon, Sep 02, 2002 at 01:09:38PM +0400
+	id <S318016AbSIBLYk>; Mon, 2 Sep 2002 07:24:40 -0400
+Received: from mx0.gmx.de ([213.165.64.100]:7581 "HELO mx0.gmx.net")
+	by vger.kernel.org with SMTP id <S317851AbSIBLYk>;
+	Mon, 2 Sep 2002 07:24:40 -0400
+Date: Mon, 2 Sep 2002 13:29:05 +0200 (MEST)
+From: Michael Kerrisk <m.kerrisk@gmx.net>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: bulb@vagabond.cybernet.cz, bulb@cimice.maxinet.cz,
+       linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+References: <20020827144421.5ebec0e4.sfr@canb.auug.org.au>
+Subject: Re: Question about leases
+X-Priority: 3 (Normal)
+X-Authenticated-Sender: #0005657596@gmx.net
+X-Authenticated-IP: [194.230.165.150]
+Message-ID: <24161.1030966145@www61.gmx.net>
+X-Mailer: WWW-Mail 1.5 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 02, 2002 at 01:09:38PM +0400, Molbo wrote:
-> if I try to create on tmpfs 100k nodes, this kills all my free 25Mb
-> Ram.
-> question is can be dentry cache made swap cachable
+> On Tue, 27 Aug 2002 14:35:17 +1000 Stephen Rothwell <sfr@canb.auug.org.au>
+> wrote:
+> >
+> > On Tue, 27 Aug 2002 03:06:16 +0200 Jan Hudec <bulb@cimice.maxinet.cz>
+> wrote:
+> > >
+> > > Please can anyone throw a bit light on file leases (fcntl F_SETLEASE
+> > > command) or at least point me to some documentation? I can't find any.
+> > 
+> > There isn't any (except maybe the talk I gave at Linux Kongress
+> > last year (http://www.canb.auug.org.au/~sfr/idle.html).
 
-Yes, by providing a real inode-like entity in swap.
+Not quite true.  I wrote some additions to the fcntl(2) manual page
+describing leases.  Download a recent copy of the man pages from tldp.org.
 
-This is overkill. Use a real file system for your use case. 
-I think tmpfs is not suited for your need.
+Cheers
 
-Tmpfs is for machines where hitting swap is unlikely but
-possible. So creating all temporary FS structures in memory only
-makes sense. 
+Michael
 
-For your use case it doesn't make sense and you should use a
-normal file system that writes out all its state, if memory gets
-thight (or the state is getting too old).
-
-Regards
-
-Ingo Oeser
 -- 
-Science is what we can tell a computer. Art is everything else. --- D.E.Knuth
+GMX - Die Kommunikationsplattform im Internet.
+http://www.gmx.net
+

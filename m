@@ -1,204 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269260AbUJVX7u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269218AbUJWABr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269260AbUJVX7u (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 19:59:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269261AbUJVXir
+	id S269218AbUJWABr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 20:01:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269309AbUJWAA2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 19:38:47 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:24752 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S269260AbUJVXhC (ORCPT
+	Fri, 22 Oct 2004 20:00:28 -0400
+Received: from holomorphy.com ([207.189.100.168]:15815 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S269291AbUJVXnL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 19:37:02 -0400
-Subject: [patch] scheduler: active_load_balance fixes
-From: Darren Hart <dvhltc@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Matt Dobson <colpatch@us.ibm.com>, Martin J Bligh <mbligh@aracnet.com>,
-       Rick Lindsley <ricklind@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Nick Piggin <piggin@cyberone.com.au>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 22 Oct 2004 16:36:13 -0700
-Message-Id: <1098488173.2854.13.camel@farah.beaverton.ibm.com>
+	Fri, 22 Oct 2004 19:43:11 -0400
+Date: Fri, 22 Oct 2004 16:43:01 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Espen Fjellv?r Olsen <espenfjo@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: My thoughts on the "new development model"
+Message-ID: <20041022234301.GG17038@holomorphy.com>
+References: <7aaed09104102213032c0d7415@mail.gmail.com> <7aaed09104102214521e90c27c@mail.gmail.com> <1098485905.1440.11.camel@krustophenia.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1098485905.1440.11.camel@krustophenia.net>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch against the latest mm fixes several problems with
-active_load_balance().
+On Fri, Oct 22, 2004 at 06:58:24PM -0400, Lee Revell wrote:
+> My $0.02:
+> Part of the reasoning behind the new development model is that if you
+> want a stable kernel, there are many vendors who will give you one.  The
+> new dev model is partially driven by vendors and developers desire to
+> get their features into mainline quicker.  There is an inherent
+> stability cost associated with this, but the price is only paid by users
+> who want stability AND the latest kernel.org kernel.  The big players
+> all seem to agree that the new development model better suits users and
+> their own needs.  The distros are in a better position to determine what
+> constitutes a stable kernel anyway, they have millions of users to test
+> on.  Let the vendors AND the kernel hackers do what they are each best
+> at.
 
-Rather than starting with the highest allowable domain (SD_LOAD_BALANCE
-is still set) and depending on the order of the cpu groups, we start at
-the lowest domain and work up until we find a suitable CPU or run out of
-options (SD_LOAD_BALANCE is no longer set).  This is a more robust
-approach as it is more explicit and not subject to the construction
-order of the cpu groups.
-
-We move the test for busiest_rq->nr_running <=1 into the domain loop so
-we don't continue to try and move tasks when there are none left to
-move.  This new logic (testing for nr_running in the domain loop) should
-make the busiest_rq==target_rq condition really impossible, so we have
-replaced the graceful continue on fail with a BUG_ON. (Bjorn Helgaas,
-please confirm)
-
-We eliminate the exclusion of the busiest_cpu's group from the pool of
-available groups to push to as it is the ideal group to push to, even if
-not very likely to be available.  Note that by removing the test for
-group==busy_group and allowing it to also be tested for suitability, the
-running time is nearly the same.
-
-We no longer force the destination CPU to be in a group of completely
-idle CPUs, nor to be the last in that group.
+I don't entirely follow these sorts of discussion, but this vaguely
+disagrees with what I've heard in some nitpicky way. I believe it goes
+something along the lines of absorbing more distro content on the
+grounds that some of the larger variances of distro kernels have been
+detrimental in the past or some such.
 
 
-Signed-off-by: Darren Hart <dvhltc@us.ibm.com>
----
+On Fri, Oct 22, 2004 at 06:58:24PM -0400, Lee Revell wrote:
+> We need to continue the rapid pace of development because although Linux
+> rules in the small to mid server arena there are other areas where MS
+> and Apple are clearly ahead.  If you want to make an omelette you have
+> to break some eggs...
 
-sched.c |  123 +++++++++++++++++++++++++++++++++++-----------------------------
- 1 files changed, 69 insertions(+), 54 deletions(-)
+This is clearly economics and HCI; I'll refrain from comment myself but
+hope someone knowledgable there chimes in, as this likely needs
+qualification.
 
 
-diff -purN -X /home/mbligh/.diff.exclude /home/linux/views/linux-2.6.9-mm1/kernel/sched.c 2.6.9-mm1-active_balance/kernel/sched.c
---- /home/linux/views/linux-2.6.9-mm1/kernel/sched.c	2004-10-22 11:21:46.000000000 -0700
-+++ 2.6.9-mm1-active_balance/kernel/sched.c	2004-10-22 12:08:49.000000000 -0700
-@@ -2062,70 +2062,85 @@ static inline void idle_balance(int this
- 	}
- }
- 
-+#ifdef CONFIG_SCHED_SMT
-+static int cpu_and_siblings_are_idle(int cpu)
-+{
-+	int sib;
-+	for_each_cpu_mask(sib, cpu_sibling_map[cpu]) {
-+		if (idle_cpu(sib))
-+			continue;
-+		return 0;
-+	}
-+
-+	return 1;
-+}
-+#else
-+#define cpu_and_siblings_are_idle(A) idle_cpu(A)
-+#endif
-+
-+
- /*
-- * active_load_balance is run by migration threads. It pushes a running
-- * task off the cpu. It can be required to correctly have at least 1 task
-- * running on each physical CPU where possible, and not have a physical /
-- * logical imbalance.
-+ * active_load_balance is run by migration threads. It pushes running tasks
-+ * off the busiest CPU onto idle CPUs. It requires at least 1 task to be
-+ * running on each physical CPU where possible, and avoids physical /
-+ * logical imbalances.
-  *
-- * Called with busiest locked.
-+ * Called with busiest_rq locked.
-  */
--static void active_load_balance(runqueue_t *busiest, int busiest_cpu)
-+static void active_load_balance(runqueue_t *busiest_rq, int busiest_cpu)
- {
- 	struct sched_domain *sd;
--	struct sched_group *group, *busy_group;
--	int i;
--
--	schedstat_inc(busiest, alb_cnt);
--	if (busiest->nr_running <= 1)
--		return;
--
--	for_each_domain(busiest_cpu, sd)
--		if (cpu_isset(busiest->push_cpu, sd->span))
--			break;
--	if (!sd)
--		return;
--
--	group = sd->groups;
--	while (!cpu_isset(busiest_cpu, group->cpumask))
--		group = group->next;
--	busy_group = group;
-+	struct sched_group *cpu_group;
-+	cpumask_t visited_cpus;
- 
--	group = sd->groups;
--	do {
--		runqueue_t *rq;
--		int push_cpu = 0;
--
--		if (group == busy_group)
--			goto next_group;
-+	schedstat_inc(busiest_rq, alb_cnt);
-+	/*
-+	 * Search for suitable CPUs to push tasks to in successively higher
-+	 * domains with SD_LOAD_BALANCE set.
-+	 */ 
-+	visited_cpus = CPU_MASK_NONE;
-+	for_each_domain(busiest_cpu, sd) {
-+		if (!(sd->flags & SD_LOAD_BALANCE) || busiest_rq->nr_running <= 1) 
-+			break; /* no more domains to search or no more tasks to move */
-+
-+		cpu_group = sd->groups;
-+		do { /* sched_groups should either use list_heads or be merged into the domains structure */
-+			int cpu, target_cpu = -1;
-+			runqueue_t *target_rq;
-+
-+			for_each_cpu_mask(cpu, cpu_group->cpumask) {
-+				if (cpu_isset(cpu, visited_cpus) || cpu == busiest_cpu || 
-+				    !cpu_and_siblings_are_idle(cpu)) {
-+					cpu_set(cpu, visited_cpus);
-+					continue;
-+				}
-+				target_cpu = cpu;
-+				break;
-+			}
-+			if (target_cpu == -1)
-+				goto next_group; /* failed to find a suitable target cpu in this domain */
- 
--		for_each_cpu_mask(i, group->cpumask) {
--			if (!idle_cpu(i))
--				goto next_group;
--			push_cpu = i;
--		}
-+			target_rq = cpu_rq(target_cpu);
- 
--		rq = cpu_rq(push_cpu);
-+			/*
-+			 * This condition is "impossible", if it occurs we need to fix it
-+			 * Reported by Bjorn Helgaas on a 128-cpu setup.
-+			 */
-+			BUG_ON(busiest_rq == target_rq);
- 
--		/*
--		 * This condition is "impossible", but since load
--		 * balancing is inherently a bit racy and statistical,
--		 * it can trigger.. Reported by Bjorn Helgaas on a
--		 * 128-cpu setup.
--		 */
--		if (unlikely(busiest == rq))
--			goto next_group;
--		double_lock_balance(busiest, rq);
--		if (move_tasks(rq, push_cpu, busiest, 1, sd, SCHED_IDLE)) {
--			schedstat_inc(busiest, alb_lost);
--			schedstat_inc(rq, alb_gained);
--		} else {
--			schedstat_inc(busiest, alb_failed);
--		}
--		spin_unlock(&rq->lock);
-+			/* move a task from busiest_rq to target_rq */
-+			double_lock_balance(busiest_rq, target_rq);
-+			if (move_tasks(target_rq, target_cpu, busiest_rq, 1, sd, SCHED_IDLE)) {
-+				schedstat_inc(busiest_rq, alb_lost);
-+				schedstat_inc(target_rq, alb_gained);
-+			} else {
-+				schedstat_inc(busiest_rq, alb_failed);
-+			}
-+			spin_unlock(&target_rq->lock);
- next_group:
--		group = group->next;
--	} while (group != sd->groups);
-+			cpu_group = cpu_group->next;
-+		} while (cpu_group != sd->groups && busiest_rq->nr_running > 1);
-+	}
- }
- 
- /*
-
+-- wli

@@ -1,118 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263875AbUGFNkZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263865AbUGFNmH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263875AbUGFNkZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 09:40:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263865AbUGFNkZ
+	id S263865AbUGFNmH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 09:42:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263881AbUGFNmH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 09:40:25 -0400
-Received: from relay01a.clb.oleane.net ([213.56.31.145]:13958 "EHLO
-	relay01a.clb.oleane.net") by vger.kernel.org with ESMTP
-	id S263881AbUGFNkU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 09:40:20 -0400
-Message-ID: <40EAABC2.8060703@eve-team.com>
-Date: Tue, 06 Jul 2004 15:40:18 +0200
-From: Frederic Dumoulin <frederic_dumoulin@eve-team.com>
-Organization: EVE
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: Frederic Dumoulin <frederic_dumoulin@eve-team.com>
-Subject: PCI device driver
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 6 Jul 2004 09:42:07 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:7840 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263865AbUGFNl7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jul 2004 09:41:59 -0400
+Date: Tue, 6 Jul 2004 08:41:16 -0500
+From: Jake Moilanen <moilanen@austin.ibm.com>
+To: Paul Mackerras <paulus@samba.org>, linas@austin.ibm.com
+Cc: linuxppc64-dev@lists.linuxppc.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [2.6] PPC64: log firmware errors during boot.
+Message-Id: <20040706084116.11ab7988.moilanen@austin.ibm.com>
+In-Reply-To: <16610.39955.554139.858593@cargo.ozlabs.ibm.com>
+References: <20040629191046.Q21634@forte.austin.ibm.com>
+	<16610.39955.554139.858593@cargo.ozlabs.ibm.com>
+Organization: LTC
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I've got several questions about PCI device driver (some of them have
-nothing to do with kernel, but one never knows, maybe somone can help
-me or give me the address of the right mailing list):
+> > Firmware can report errors at any time, and not atypically during boot.
+> > However, these reports were being discarded until th rtasd comes up,
+> > which occurs fairly late in the boot cycle.  As a result, firmware
+> > errors during boot were being silently ignored.
 
+Linas, the main consumer of error-log is events coming in from
+event-scan.  We don't call event-scan until rtasd is up (eg they are
+queued in FW until we call event-scan).  The only events I see us
+missing are epow events, eeh? and anything coming from check-exception. 
+epow is set up pretty late as well, and I don't think we even support
+check-exception on 2.6.  eeh might be an issue.
 
+> 
+> > This patch at least gets them printk'ed so that at least they show
+> > up in boot.msg/syslog.  There are two other logging mechanisms,
+> > nvram and rtas, that I didn't touch because I don't understand
+> > the reprecussions.  In particular, nvram logging isn't enabled
+> > until late in the boot ... but what's the point of nvram logging
+> > if not to catch messages that occured very early in boot ??
+> 
+> Indeed.
+> 
+> As for printk'ing the errors, it is annoying and it seems of somewhat
+> dubious benefit to me, given that it is just incomprehensible hex
+> numbers that can go on and on.  There has to be a better way.  Putting
+> it in nvram seems like a better option to me.  I don't know of any
+> reason why we can't use nvram quite early on.
+> 
 
-1) In my driver, I allocate memory for the dma.
+Paul,
 
-What are the difference between the following methods :
-     * kmalloc (PAGE_SIZE, GFP_KERNEL | GFP_ATOMIC | GFP_DMA)
-     * __get_dma_pages (GFP_KERNEL | GFP_ATOMIC | GFP_DMA, 1)
-     * pci_alloc_consistent (pci_device, PAGE_SIZE, &buffer_phys)
+We can initialize nvram very early, but we shouldn't discard an event
+stored in nvram until rtasd is up and can pull the event out as it might
+have been the error that took the system down on the previous boot.
 
-On the performance point of view, is there any difference between
-consistent and streaming DMA mappings?
+We could probably start rtasd up a little earlier, but I'm not sure it
+buys us that much.
 
-
-
-2) I'd like to have information about the master write latency.
-
-When I launch a master write access, I'm doing a software polling on
-the PC memory in order to know when the data is present. I measure
-this time with the RDTSC Pentium instruction and it give me about 1.3
-us, with an oscilloscope I can see that the data "leave" the PCI after
-only 0.550us!
-
-Where is my data during those 0.7us?
-How can I reduce this latency?
-
-How can I use the function "ioremap_nocache"? (I can't see any difference with ioremap)
-
-
-
-3) I'd like to have information about the use of the CACHE_LINE_SIZE
-register.
-
-When this register is used?
-     only when using master write and invalidate commands
-     or also in slave read / write accesses
-
-I'm trying to increase the performance of my slave read accesses
-I try to force the CACHE_LINE_SIZE register with
-$ setpci -v -s 02:0a.0 CACHE_LINE_SIZE
-02:0a.0:0c = 00
-$ setpci -v -s 02:0a.0 CACHE_LINE_SIZE=10
-02:0a.0:0c 10
-$ setpci -v -s 02:0a.0 CACHE_LINE_SIZE
-02:0a.0:0c = 00
-
-
-I've got the same problem with the COMMAND register when I try to set
-the FAST_BACK_TO_BACK bit, or the PREFETCH bit in the BASE_ADDRESS_0
-register.
-
-
-How can I overwrite the configuration set by the PCI board?
-(I cannot configurate all the PCI registers in my IP)
-
-
-
-4) I try to modify the Memory Type Range Register.
-
-I use the /proc/mtrr system file :
-$ echo "base=0xfd000000 size=0x01000000 type=write-combining" >>
-/proc/mtrr
-$ cat /proc/mtrr
-reg00: base=0x00000000 (   0MB), size= 256MB: write-back, count=1
-reg01: base=0x10000000 ( 256MB), size= 128MB: write-back, count=1
-reg02: base=0x18000000 ( 384MB), size=   1MB: write-back, count=1
-reg03: base=0x18000000 ( 384MB), size=   1MB: uncachable, count=1
-reg04: base=0xfd000000 (4048MB), size=  16MB: write-combining, count=1
-
-If I re-do the same operation, count=2
-What is the use of "count"? The speed doesn't seem to be increased if count = 1 or 2.
-
-Which type is the best for simple memory slave read / write and master
-write accesses?
-
-I don't know how to have the longest burst as possible in slave read?
-
-
-
-
-Thanks for your help
-
-Best regards
-
-
-
-Frederic
+Thanks,
+Jake

@@ -1,92 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261330AbVCFHcx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261329AbVCFHxj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261330AbVCFHcx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 02:32:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbVCFHcw
+	id S261329AbVCFHxj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 02:53:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261331AbVCFHxj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 02:32:52 -0500
-Received: from tron.kn.vutbr.cz ([147.229.191.152]:29445 "EHLO
-	tron.kn.vutbr.cz") by vger.kernel.org with ESMTP id S261330AbVCFHce
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 02:32:34 -0500
-Date: Sun, 6 Mar 2005 08:32:22 +0100 (CET)
-From: Daniel Rozsnyo <daniel@rozsnyo.com>
-X-X-Sender: daniel@a03-0431e.kn.vutbr.cz
-To: Linus Torvalds <torvalds@ppc970.osdl.org>
-cc: linux-kernel@vger.kernel.org, Daniel Rozsnyo <rozsnyo@kn.vutbr.cz>
-Subject: [PATCH] i386: remove extra spaces from cpu model id
-Message-ID: <Pine.LNX.4.62.0503060824410.18717@a03-0431e.kn.vutbr.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-Spam-Flag: NO
-X-Spam-Report: Spam detection software, running on the system "tron.kn.vutbr.cz", has
-  identified this incoming email as possible spam.  The original message
-  has been attached to this so you can view it (if it isn't spam) or block
-  similar future email.  If you have any questions, see
-  the administrator of that system for details.
-  ____
-  Content analysis details:   (-4.0 points, 6.0 required)
-  ____
-   pts rule name              description
-  ---- ---------------------- --------------------------------------------
-   0.9 DATE_MISSING           Missing Date: header
-  -4.9 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-                              [score: 0.0000]
-  ____
+	Sun, 6 Mar 2005 02:53:39 -0500
+Received: from main.gmane.org ([80.91.229.2]:6869 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S261329AbVCFHxh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Mar 2005 02:53:37 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Andres Salomon <dilinger@voxel.net>
+Subject: Re: RFD: Kernel release numbering
+Date: Sun, 06 Mar 2005 02:53:26 -0500
+Message-ID: <pan.2005.03.06.07.53.24.672203@voxel.net>
+References: <Pine.LNX.4.58.0503021710430.25732@ppc970.osdl.org> <20050303081958.GA29524@kroah.com> <4226CCFE.2090506@pobox.com> <20050303090106.GC29955@kroah.com> <4226D655.2040902@pobox.com> <20050303021506.137ce222.akpm@osdl.org> <20050303170759.GA17742@ti64.telemetry-investments.com> <20050303193358.GA29371@redhat.com> <20050303203808.GA10408@ti64.telemetry-investments.com> <42278194.7020409@pobox.com> <20050303221503.GS4608@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: cpe-24-194-62-26.nycap.res.rr.com
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
+X-Gmane-MailScanner: Found to be clean
+X-Gmane-MailScanner: Found to be clean
+X-Gmane-MailScanner-SpamScore: ss
+X-MailScanner-From: glk-linux-kernel@m.gmane.org
+X-MailScanner-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Removes extra spaces which separate the frequency string from the cpu model id 
-itself (noticable e.g. on Intel Tualatin processors in /proc/cpuinfo)
+On Thu, 03 Mar 2005 23:15:03 +0100, Adrian Bunk wrote:
 
-Signed-off-by: Daniel Rozsnyo <daniel@rozsnyo.com>
+> On Thu, Mar 03, 2005 at 04:28:52PM -0500, Jeff Garzik wrote:
+>> Bill Rugolsky Jr. wrote:
+>> >I've watched you periodically announce "hey, I'm doing an update for
+>> >FC3/FC2, please test" on the mail list, and a handful of people go test.
+>> >If we could convince many of the the less risk-averse but lazy users to
+>> >grab kernels automatically from updates/3/testing/ or updates/3/unstable/
+>> >as part of "yum update", and have a way to manage the plethora of (even
+>> >daily) kernel updates by removing old unused kernels, then we'd only
+>> >have to convince them *once* to set up their YUM repos, and then get them
+>> >to poweroff or reboot [or use a Xen domain] occasionally. :-)
+>> 
+>> 
+>> Tangent:  I would like to see requests-for-testing for FC kernels on LKML.
+>> 
+>> If people announce -ac/-as/-aa/-ck/etc. kernels on LKML, why not distro 
+>> kernels?
+> 
+> Debian unstable currently contains only for kernel 2.6.8 (which is AFAIK 
+> still the main kernel in Debian unstable although there are also 2.6.10 
+> sources and 2.6.10 kernel images on some architectures) for eight 
+> different architectures - many of them containing or depending on their 
+> own patches.
+> 
 
----
+There's also no other (suitable) place to announce kernel trees.  Debian
+kernels get announced on various debian-related lists; I'd imagine FC
+kernels have the same thing.  The only place to announce non-distro trees
+is lkml (and I've had requests for an -as specific announce list, I
+haven't haven't found the time to get something going).
 
-diff -urN linux-2.6.11.orig/arch/i386/kernel/cpu/common.c linux-2.6.11/arch/i386/kernel/cpu/common.c
---- linux-2.6.11.orig/arch/i386/kernel/cpu/common.c	2005-03-02 08:37:47.000000000 +0100
-+++ linux-2.6.11/arch/i386/kernel/cpu/common.c	2005-03-06 07:46:16.000000000 +0100
-@@ -59,7 +59,7 @@
-  int __init get_model_name(struct cpuinfo_x86 *c)
-  {
-  	unsigned int *v;
--	char *p, *q;
-+	char *src, *dst;
 
-  	if (cpuid_eax(0x80000000) < 0x80000004)
-  		return 0;
-@@ -71,17 +71,25 @@
-  	c->x86_model_id[48] = 0;
-
-  	/* Intel chips right-justify this string for some dumb reason;
--	   undo that brain damage */
--	p = q = &c->x86_model_id[0];
--	while ( *p == ' ' )
--	     p++;
--	if ( p != q ) {
--	     while ( *p )
--		  *q++ = *p++;
--	     while ( q <= &c->x86_model_id[48] )
--		  *q++ = '\0';	/* Zero-pad the rest */
-+	   undo that, and also remove multiple spaces from the middle */
-+	src = dst = &c->x86_model_id[0];
-+
-+	while ( *src == ' ' )			/* find the start */
-+		src++;
-+
-+	while ( *src ) {
-+		*dst++ = *src++;
-+		if ( *src == ' ' ) {		/* first space: copy */
-+			*dst++ = *src++;
-+		}
-+		while ( *src == ' ' ) {		/* next spaces: skip */
-+			src++;
-+		}
-  	}
-
-+	while ( dst <= &c->x86_model_id[48] )
-+		*dst++ = '\0';			/* zero-pad the rest */
-+
-  	return 1;
-  }
 

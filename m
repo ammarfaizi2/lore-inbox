@@ -1,57 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262016AbTD2OPA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 10:15:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262017AbTD2OO7
+	id S262017AbTD2OPx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 10:15:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262020AbTD2OPx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 10:14:59 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:15251
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S262016AbTD2OO6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 10:14:58 -0400
-Subject: RE: Broadcom BCM4306/BCM2050  support
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Martin List-Petersen <martin@list-petersen.dk>, bas.mevissen@hetnet.nl,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1051614381.21135.5.camel@rth.ninka.net>
-References: <1051596982.3eae18b640303@roadrunner.hulpsystems.net>
-	 <1051614381.21135.5.camel@rth.ninka.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1051622911.18198.23.camel@dhcp22.swansea.linux.org.uk>
+	Tue, 29 Apr 2003 10:15:53 -0400
+Received: from h214n1fls32o988.telia.com ([62.20.176.214]:30990 "EHLO
+	sirius.nix.badanka.com") by vger.kernel.org with ESMTP
+	id S262017AbTD2OPt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 10:15:49 -0400
+Message-Id: <200304291427.h3TERpZq031934@sirius.nix.badanka.com>
+Date: Tue, 29 Apr 2003 16:27:51 +0200
+From: Henrik Persson <nix@socialism.nu>
+To: Timothy Miller <miller@techsource.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
+In-Reply-To: <3EAE8A5F.8000408@techsource.com>
+References: <fa.ivrgub8.1ci079c@ifi.uio.no>
+	<20030427183553.GA955879@hiwaay.net>
+	<20030427185037.GA23581@work.bitmover.com>
+	<3EAE8A5F.8000408@techsource.com>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 29 Apr 2003 14:28:33 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-04-29 at 12:06, David S. Miller wrote:
-> Don't expect specs or opensource drivers for any of these pieces
-> of hardware until these vendors figure out a way to hide the frequency
-> programming interface.
+On Tue, 29 Apr 2003 10:21:19 -0400
+Timothy Miller <miller@techsource.com> wrote:
 
-People are already cracking the windows interfaces on them
+> I have known a lot of incredibly creative people who have never shared 
+> their ideas with anyone because they feared others would steal their 
+> ideas and not give credit where it's due.  Maybe you think they're crazy
+> 
+> for thinking that way, but evidence abounds that that sort of thing 
+> happens all the time.  It's very sad that so many brilliant ideas have 
+> never been shared with the world.  What do the "information wants to be 
+> free" people have to say to those people who know they're going to be 
+> ripped off if they open their mouths?
 
-> The only halfway plausible idea I've seen is to not document the
-> frequency programming registers, and users get a "region" key file that
-> has opaque register values to program into the appropriate registers.
-> The file is per-region (one for US, Germany, etc.)and the wireless
-> kernel driver reads in this file to do the frequency programming.
+Newton had a lot of rather unique ideas he never published.. But in his
+time no one did own information. ;)
 
-I talked to one vendor about this stuff and fingers crossed we will see
-open drivers except for the radio module. In the longer term I suspect
-vendors will move to signed register sets, so you can load "US 802.11g"
-but you can't load "police frequency, full power"
+And to those people who are so terribly afraid of being "ripped-off" I can
+only say that every poet, every programmer, every human being is a theif
+in that sense. If they are afraid that other people will take their ideas
+and make money of it - just put it under the GPL? ;)
 
-> So don't blame the vendors on this one, several of them would love
-> to publish drivers public for their cards, but simply cannot with
-> upsetting federal regulators.
+Could you be a bit more elaborative when it comes to the term "ripped
+off"?
 
-And non US ones too. The fact people are already abusing the technology
-suggests that they will be forced to go the crypted settings route for
-next generation hardware anyway.
-
-Alan
-
+-- 
+Henrik Persson  nix@socialism.nu  http://nix.badanka.com
+PGP-key: http://nix.badanka.com/pgp  PGP-KeyID: 0x43B68116  

@@ -1,303 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267346AbUBSPMP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 10:12:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267385AbUBSPJ3
+	id S267301AbUBSPMV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 10:12:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267306AbUBSO64
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 10:09:29 -0500
-Received: from verein.lst.de ([212.34.189.10]:63706 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S267297AbUBSPFP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 10:05:15 -0500
-Date: Thu, 19 Feb 2004 16:05:10 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: scherr@net4you.at
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix module reference counting in zoran driver
-Message-ID: <20040219150510.GA29687@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch>, scherr@net4you.at,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 19 Feb 2004 09:58:56 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:58340 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S267305AbUBSOzm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 09:55:42 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] IDE update for 2.6.3 (7/9)
+Date: Thu, 19 Feb 2004 15:59:02 +0100
+User-Agent: KMail/1.5.3
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -3.849 () BAYES_00,DOMAIN_BODY
+Message-Id: <200402191559.02022.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Take a reference before calling into the module and release it after
-we're done.  Also remove the useless (and wrong) refcounting in
-videocodec - symbols from this module are used by other modules if
-we call into those functions so it can't be unloaded anyway.
 
-We really need to add a debug check to tip all those
-try_module_get(THIS_MODULE) callers..
+[IDE] remove dead/unfinished taskfile version of ide_cmd_ioctl()
 
+ linux-2.6.3-root/drivers/ide/ide-taskfile.c |   65 ----------------------------
+ 1 files changed, 65 deletions(-)
 
---- 1.3/drivers/media/video/videocodec.c	Thu Feb 19 04:42:41 2004
-+++ edited/drivers/media/video/videocodec.c	Wed Feb 18 03:45:29 2004
-@@ -108,13 +108,17 @@
- 		if ((master->flags & h->codec->flags) == master->flags) {
- 			dprintk(4, "videocodec_attach: try '%s'\n",
- 				h->codec->name);
-+
-+			if (!try_module_get(h->codec->owner))
-+				return NULL;
-+
- 			codec =
- 			    kmalloc(sizeof(struct videocodec), GFP_KERNEL);
- 			if (!codec) {
- 				dprintk(1,
- 					KERN_ERR
- 					"videocodec_attach: no mem\n");
--				return NULL;
-+				goto out_module_put;
- 			}
- 			memcpy(codec, h->codec, sizeof(struct videocodec));
- 
-@@ -132,26 +136,12 @@
- 					dprintk(1,
- 						KERN_ERR
- 						"videocodec_attach: no memory\n");
--					kfree(codec);
--					return NULL;
-+					goto out_kfree;
- 				}
- 				memset(ptr, 0,
- 				       sizeof(struct attached_list));
- 				ptr->codec = codec;
- 
--#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
--				MOD_INC_USE_COUNT;
--#else
--				if (!try_module_get(THIS_MODULE)) {
--					dprintk(1,
--						KERN_ERR
--						"videocodec: failed to increment usecount\n");
--					kfree(codec);
--					kfree(ptr);
--					return NULL;
--				}
--#endif
+diff -puN drivers/ide/ide-taskfile.c~ide_cmd_ioctl drivers/ide/ide-taskfile.c
+--- linux-2.6.3/drivers/ide/ide-taskfile.c~ide_cmd_ioctl	2004-02-19 02:11:21.212111024 +0100
++++ linux-2.6.3-root/drivers/ide/ide-taskfile.c	2004-02-19 02:11:21.218110112 +0100
+@@ -1669,7 +1669,6 @@ EXPORT_SYMBOL(ide_wait_cmd);
+  */
+ int ide_cmd_ioctl (ide_drive_t *drive, unsigned int cmd, unsigned long arg)
+ {
+-#if 1
+ 	int err = 0;
+ 	u8 args[4], *argbuf = args;
+ 	u8 xfer_rate = 0;
+@@ -1720,70 +1719,6 @@ abort:
+ 	if (argsize > 4)
+ 		kfree(argbuf);
+ 	return err;
 -
- 				a = h->list;
- 				if (!a) {
- 					h->list = ptr;
-@@ -177,6 +167,12 @@
- 
- 	dprintk(1, KERN_ERR "videocodec_attach: no codec found!\n");
- 	return NULL;
-+
-+ out_module_put:
-+	module_put(h->codec->owner);
-+ out_kfree:
-+	kfree(codec);
-+	return NULL;
- }
- 
- int
-@@ -228,16 +224,10 @@
- 					dprintk(4,
- 						"videocodec: delete middle\n");
- 				}
-+				module_put(a->codec->owner);
- 				kfree(a->codec);
- 				kfree(a);
- 				h->attached -= 1;
--
--#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
--				MOD_DEC_USE_COUNT;
 -#else
--				module_put(THIS_MODULE);
--#endif
 -
- 				return 0;
- 			}
- 			prev = a;
-@@ -274,18 +264,6 @@
- 	memset(ptr, 0, sizeof(struct codec_list));
- 	ptr->codec = codec;
- 
--#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
--	MOD_INC_USE_COUNT;
--#else
--	if (!try_module_get(THIS_MODULE)) {
--		dprintk(1,
--			KERN_ERR
--			"videocodec: failed to increment module count\n");
--		kfree(ptr);
--		return -ENODEV;
+-	int err = -EIO;
+-	u8 args[4], *argbuf = args;
+-	u8 xfer_rate = 0;
+-	int argsize = 0;
+-	ide_task_t tfargs;
+-
+-	if (NULL == (void *) arg) {
+-		struct request rq;
+-		ide_init_drive_cmd(&rq);
+-		return ide_do_drive_cmd(drive, &rq, ide_wait);
 -	}
--#endif
 -
- 	if (!h) {
- 		codeclist_top = ptr;
- 		dprintk(4, "videocodec: hooked in as first element\n");
-@@ -342,13 +320,6 @@
- 					"videocodec: delete middle element\n");
- 			}
- 			kfree(h);
+-	if (copy_from_user(args, (void *)arg, 4))
+-		return -EFAULT;
 -
--#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
--			MOD_DEC_USE_COUNT;
--#else
--			module_put(THIS_MODULE);
--#endif
+-	memset(&tfargs, 0, sizeof(ide_task_t));
+-	tfargs.tfRegister[IDE_FEATURE_OFFSET] = args[2];
+-	tfargs.tfRegister[IDE_NSECTOR_OFFSET] = args[3];
+-	tfargs.tfRegister[IDE_SECTOR_OFFSET]  = args[1];
+-	tfargs.tfRegister[IDE_LCYL_OFFSET]    = 0x00;
+-	tfargs.tfRegister[IDE_HCYL_OFFSET]    = 0x00;
+-	tfargs.tfRegister[IDE_SELECT_OFFSET]  = 0x00;
+-	tfargs.tfRegister[IDE_COMMAND_OFFSET] = args[0];
 -
- 			return 0;
- 		}
- 		prev = h;
-===== drivers/media/video/videocodec.h 1.1 vs edited =====
---- 1.1/drivers/media/video/videocodec.h	Wed Aug 20 23:29:31 2003
-+++ edited/drivers/media/video/videocodec.h	Wed Feb 18 03:45:29 2004
-@@ -249,6 +249,7 @@
- };
- 
- struct videocodec {
-+	struct module *owner;
- 	/* -- filled in by slave device during register -- */
- 	char name[32];
- 	unsigned long magic;	/* may be used for client<->master attaching */
-===== drivers/media/video/zr36016.c 1.1 vs edited =====
---- 1.1/drivers/media/video/zr36016.c	Wed Aug 20 23:29:31 2003
-+++ edited/drivers/media/video/zr36016.c	Wed Feb 18 03:45:29 2004
-@@ -422,12 +422,6 @@
- 		codec->data = NULL;
- 
- 		zr36016_codecs--;
--#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
--		MOD_DEC_USE_COUNT;
--#else
--		module_put(THIS_MODULE);
--#endif
--
- 		return 0;
- 	}
- 
-@@ -470,19 +464,6 @@
- 	ptr->num = zr36016_codecs++;
- 	ptr->codec = codec;
- 
--#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
--	MOD_INC_USE_COUNT;
--#else
--	if (!try_module_get(THIS_MODULE)) {
--		dprintk(1,
--			KERN_ERR
--			"zr36016: failed to increase module use count\n");
--		kfree(ptr);
--		zr36016_codecs--;
--		return -ENODEV;
+-	if (args[3]) {
+-		argsize = (SECTOR_WORDS * 4 * args[3]);
+-		argbuf = kmalloc(argsize, GFP_KERNEL);
+-		if (argbuf == NULL)
+-			return -ENOMEM;
 -	}
--#endif
 -
- 	//testing
- 	res = zr36016_basic_test(ptr);
- 	if (res < 0) {
-@@ -504,6 +485,7 @@
- }
- 
- static const struct videocodec zr36016_codec = {
-+	.owner = THIS_MODULE,
- 	.name = "zr36016",
- 	.magic = 0L,		// magic not used
- 	.flags =
-===== drivers/media/video/zr36050.c 1.1 vs edited =====
---- 1.1/drivers/media/video/zr36050.c	Wed Aug 20 23:29:31 2003
-+++ edited/drivers/media/video/zr36050.c	Wed Feb 18 03:45:29 2004
-@@ -737,12 +737,6 @@
- 		codec->data = NULL;
- 
- 		zr36050_codecs--;
--#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
--		MOD_DEC_USE_COUNT;
--#else
--		module_put(THIS_MODULE);
--#endif
--
- 		return 0;
- 	}
- 
-@@ -785,19 +779,6 @@
- 	ptr->num = zr36050_codecs++;
- 	ptr->codec = codec;
- 
--#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
--	MOD_INC_USE_COUNT;
--#else
--	if (!try_module_get(THIS_MODULE)) {
--		dprintk(1,
--			KERN_ERR
--			"zr36050: failed to increase module use count\n");
--		kfree(ptr);
--		zr36050_codecs--;
--		return -ENODEV;
+-	if (set_transfer(drive, &tfargs)) {
+-		xfer_rate = args[1];
+-		if (ide_ata66_check(drive, &tfargs))
+-			goto abort;
 -	}
--#endif
 -
- 	//testing
- 	res = zr36050_basic_test(ptr);
- 	if (res < 0) {
-@@ -826,6 +807,7 @@
- }
- 
- static const struct videocodec zr36050_codec = {
-+	.owner = THIS_MODULE,
- 	.name = "zr36050",
- 	.magic = 0L,		// magic not used
- 	.flags =
-===== drivers/media/video/zr36060.c 1.1 vs edited =====
---- 1.1/drivers/media/video/zr36060.c	Wed Aug 20 23:29:31 2003
-+++ edited/drivers/media/video/zr36060.c	Wed Feb 18 03:45:29 2004
-@@ -868,12 +868,6 @@
- 		codec->data = NULL;
- 
- 		zr36060_codecs--;
--#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
--		MOD_DEC_USE_COUNT;
--#else
--		module_put(THIS_MODULE);
--#endif
+-	tfargs.command_type = ide_cmd_type_parser(&tfargs);
+-	err = ide_raw_taskfile(drive, &tfargs, argbuf);
 -
- 		return 0;
- 	}
- 
-@@ -916,19 +910,6 @@
- 	ptr->num = zr36060_codecs++;
- 	ptr->codec = codec;
- 
--#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
--	MOD_INC_USE_COUNT;
--#else
--	if (!try_module_get(THIS_MODULE)) {
--		dprintk(1,
--			KERN_ERR
--			"zr36060: failed to increase module use count\n");
--		kfree(ptr);
--		zr36060_codecs--;
--		return -ENODEV;
+-	if (!err && xfer_rate) {
+-		/* active-retuning-calls future */
+-		ide_set_xfer_rate(driver, xfer_rate);
+-		ide_driveid_update(drive);
 -	}
--#endif
+-abort:
+-	args[0] = tfargs.tfRegister[IDE_COMMAND_OFFSET];
+-	args[1] = tfargs.tfRegister[IDE_FEATURE_OFFSET];
+-	args[2] = tfargs.tfRegister[IDE_NSECTOR_OFFSET];
+-	args[3] = 0;
 -
- 	//testing
- 	res = zr36060_basic_test(ptr);
- 	if (res < 0) {
-@@ -958,6 +939,7 @@
+-	if (copy_to_user((void *)arg, argbuf, 4))
+-		err = -EFAULT;
+-	if (argbuf != NULL) {
+-		if (copy_to_user((void *)arg, argbuf + 4, argsize))
+-			err = -EFAULT;
+-		kfree(argbuf);
+-	}
+-	return err;
+-
+-#endif
  }
  
- static const struct videocodec zr36060_codec = {
-+	.owner = THIS_MODULE,
- 	.name = "zr36060",
- 	.magic = 0L,		// magic not used
- 	.flags =
-===== drivers/scsi/megaraid.c 1.59 vs edited =====
---- 1.59/drivers/scsi/megaraid.c	Fri Jan 23 06:37:03 2004
-+++ edited/drivers/scsi/megaraid.c	Wed Feb 18 03:45:29 2004
-@@ -4614,6 +4614,7 @@
- }
- 
- static struct scsi_host_template megaraid_template = {
-+	.module				= THIS_MODULE,
- 	.name				= "MegaRAID",
- 	.proc_name			= "megaraid",
- 	.info				= megaraid_info,
+ EXPORT_SYMBOL(ide_cmd_ioctl);
+
+_
+

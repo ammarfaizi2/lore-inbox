@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261668AbUCQPyL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Mar 2004 10:54:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261644AbUCQPyL
+	id S261460AbUCQQPb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Mar 2004 11:15:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbUCQQPb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Mar 2004 10:54:11 -0500
-Received: from fmr11.intel.com ([192.55.52.31]:48581 "EHLO
-	fmsfmr004.fm.intel.com") by vger.kernel.org with ESMTP
-	id S261668AbUCQPyJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Mar 2004 10:54:09 -0500
-Subject: Re: idle Athlon with IOAPIC is 10C warmer since 2.6.3-bk1
-From: Len Brown <len.brown@intel.com>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Cc: Thomas Schlichter <thomas.schlichter@web.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <A6974D8E5F98D511BB910002A50A6647615F571D@hdsmsx402.hd.intel.com>
-References: <A6974D8E5F98D511BB910002A50A6647615F571D@hdsmsx402.hd.intel.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1079538829.2560.56.camel@dhcppc4>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 17 Mar 2004 10:53:49 -0500
-Content-Transfer-Encoding: 7bit
+	Wed, 17 Mar 2004 11:15:31 -0500
+Received: from mta06bw.bigpond.com ([144.135.24.156]:28138 "EHLO
+	mta06bw.bigpond.com") by vger.kernel.org with ESMTP id S261460AbUCQQPa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Mar 2004 11:15:30 -0500
+Date: Wed, 17 Mar 2004 16:39:49 +0100
+From: sood101 <sood101@telstra.com>
+Subject: HELP!
+To: sood101@telstra.com
+Message-id: <ca026c8e6e.c8e6eca026@email.bigpond.com>
+MIME-version: 1.0
+X-Mailer: iPlanet Messenger Express 5.2 HotFix 1.14 (built Oct 10 2003)
+Content-type: text/plain; charset=us-ascii
+Content-language: en
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Look in /proc/acpi/processor/CPU0/power
-and see if the usage for the higher C-state numbers
-is different between the two kernels.
 
-Higher c-states save more power.
 
-cheers,
--Len
+Dear Friend.
+As you read this, I don't want you to feel sorry for me, because, I believe everyone will die someday. My name is Alwani M. Sood, a merchant in Dubai, in the U.A.E.I have been diagnosed with Esophageal cancer .It has defiled all forms of medical treatment, and right now I have only about a few months to live, according to medical experts. 
 
+I have not particularly lived my life so well, as I never really cared for anyone(not even myself)but my business. Though I am very rich, I was never generous, I was always hostile to people and only focused on my business as that was the only thing I cared for. But now I regret all this as I now know that there is more to life than just wanting to have or make all the money in the world.
+I believe when God gives me a second chance to come to this world I would live my life a different way from how I have lived it. Now that God has called me, I have willed and given most of my property and assets to my immediate and extended family members as well as a few close friends. 
+I want God to be merciful to me and accept my soul so, I have decided to give alms to charity organizations, as I want this to be one of the last good deeds I do on earth. So far, I have distributed money to some charity organizations in the U.A.E, Algeria and Malaysia. Now that my health has deteriorated so badly, I cannot do this myself anymore. I once asked members of my family to close one of my accounts and distribute the money which I have there to charity organization in Bulgaria and Pakistan, they refused and kept the money to themselves. Hence, I do not trust them anymore, as they seem not to be contended with what I have left for them. 
+The last of my money which no one knows of is the huge cash deposit of twenty two million dollars $22,000,000,that I have with finance/Security Company abroad. I will want you to help me collect this deposit and dispatched it to charity organizations. 
+I have set aside 20% for you for your time and patience.please send a reply through this email address with your full contact information for more private and confidential communication.Please reply to my private email address:(alwani101sood@netscape.net)
+God be with you.
+
+Alwani M. Sood.
+
+
+
+----------------
+Powered by telstra.com
+                                                                      
 

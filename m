@@ -1,35 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314556AbSEMWvl>; Mon, 13 May 2002 18:51:41 -0400
+	id <S314559AbSEMW5Y>; Mon, 13 May 2002 18:57:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314557AbSEMWvk>; Mon, 13 May 2002 18:51:40 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:53915 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S314556AbSEMWvk>; Mon, 13 May 2002 18:51:40 -0400
-Date: Mon, 13 May 2002 17:50:37 -0500 (CDT)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Ulrich Weigand <weigand@immd1.informatik.uni-erlangen.de>
-cc: zaitcev@redhat.com, <linux-kernel@vger.kernel.org>
-Subject: Re: Strange s390 code in 2.4.19-pre8
-In-Reply-To: <200205132242.AAA11464@faui1a.informatik.uni-erlangen.de>
-Message-ID: <Pine.LNX.4.44.0205131747290.19498-100000@chaos.physics.uiowa.edu>
+	id <S314583AbSEMW5X>; Mon, 13 May 2002 18:57:23 -0400
+Received: from web10402.mail.yahoo.com ([216.136.130.94]:58403 "HELO
+	web10402.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S314559AbSEMW5W>; Mon, 13 May 2002 18:57:22 -0400
+Message-ID: <20020513225722.38379.qmail@web10402.mail.yahoo.com>
+Date: Tue, 14 May 2002 08:57:22 +1000 (EST)
+From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+Subject: Re: OOPS 2.4.19-pre7-ac4 (Was: strange things in kernel 2.4.19-pre7-ac4 + preempt patch)
+To: vda@port.imtp.ilyichevsk.odessa.ua, kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200205131412.g4DECHY06608@Port.imtp.ilyichevsk.odessa.ua>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 May 2002, Ulrich Weigand wrote:
+> 
+> When no one answers on lkml to your oops report, you
+> have basically the only choice: start looking at
+> stack trace
+> yourself, insert printks here and there, recompile
+> and give it a try.
+> 
+> In other words, the source is with you. You *can* do
+> it.
 
-> As it is not possible to configure the ISDN fsm.o into a s390
-> build (and there is in fact no ISDN hardware for S/390 ;-/),
-> how can there be any conflict?
+I consider myself much less experienced in C
+programming than any of you guys, (just graduated :-)
+) so first test and problem report , hope it helps
+others; but when no one come up with a solution, I
+*will* try....
 
-The version strings for export symbols are generated at "make dep" time, 
-which iterates over all subdirectories (well, only arch/$ARCH, but all 
-the rest) without caring about config options. So generating symbols will 
-conflict if $ARCH == s390.
+thanks for your advice,
 
---Kai
+> vda 
 
+=====
+Steve Kieu
 
+http://messenger.yahoo.com.au - Yahoo! Messenger
+- A great way to communicate long-distance for FREE!

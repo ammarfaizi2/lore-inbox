@@ -1,104 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261366AbSJYLXN>; Fri, 25 Oct 2002 07:23:13 -0400
+	id <S261367AbSJYLoJ>; Fri, 25 Oct 2002 07:44:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261367AbSJYLXN>; Fri, 25 Oct 2002 07:23:13 -0400
-Received: from hazard.jcu.cz ([160.217.1.6]:42120 "EHLO hazard.jcu.cz")
-	by vger.kernel.org with ESMTP id <S261366AbSJYLXL>;
-	Fri, 25 Oct 2002 07:23:11 -0400
-Date: Fri, 25 Oct 2002 13:29:23 +0200
-From: Jan Marek <linux@hazard.jcu.cz>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [linux@hazard.jcu.cz: Re: [miniPATCH][RFC] Compilation fixes in the 2.5.44]
-Message-ID: <20021025112923.GB1073@hazard.jcu.cz>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="YiEDa0DAkWCtVeE4"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S261368AbSJYLoI>; Fri, 25 Oct 2002 07:44:08 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:44784 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S261367AbSJYLoH>; Fri, 25 Oct 2002 07:44:07 -0400
+Date: Fri, 25 Oct 2002 13:50:17 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Slavcho Nikolov <snikolov@okena.com>
+cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: over&out (Re: feature request - why not make netif_rx() a
+ pointer?)
+In-Reply-To: <008b01c27ab0$760be900$800a140a@SLNW2K>
+Message-ID: <Pine.NEB.4.44.0210251324570.14144-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 23 Oct 2002, Slavcho Nikolov wrote:
 
---YiEDa0DAkWCtVeE4
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+>...
+> Yes, many companies from time to time feed smaller or larger contributions
+> back into the community.
+> But they don't usually release *all* their modifications because they just
+> might be irrelevant to everyone but a small niche of enterprise users.
 
-Hallo l-k,
+It might be that a modification isn't of big interest for the majority of
+users but:
+- It might be interesting for people working in similar niches.
+- E.g. several development boards are supported in the MIPS port in the
+  standard Linux kernel. The niche of people using them isn't very big but
+  this doesn't prevent the inclusion into the main kernel.
 
-I resend my answer to l-k too...
+> | If you want to replace the messaging code, make a GPL'd kernel patch and
+> | make it available to your clients (of course they can then publish it
+> | all over the place if they so desire).  If those terms are not
+> | acceptable, there's always BSD.
+>
+> It doesn't quite work that way. Big name distributors (e.g. Suse, Redhat)
+> usually supply
+> and support big customers with Linux distributions. Third parties usually
+> supply modules.
+> Integration of the two is demanded by the customer, so it's not our choice
+> to
+> use BSD or ask the end users that our patches be applied and their kernels
+> recompiled.
+> Certainly patches can be rolled out but it's a costly proposition
+> (especially to customers)
+> and requires a level of expertise and commitment on the part of the
+> customers that
+> may not be available.
 
-Jan Marek
+But this doesn't prevent you from releasing the source code of your module
+under the terms of the GPL.
 
---YiEDa0DAkWCtVeE4
-Content-Type: message/rfc822
-Content-Disposition: inline
+> Nearly every storage or networking startup that uses Linux (hundreds of them
+> exist)
+> has tried to find hooks into the filesystems or network stacks, within the
+> constraints
+> of  modules and GPL. It isn't always easy to insert oneself where we want
+> but they have found interesting solutions and work-arounds whether or not on
+> the
+> legal grounds are shaky.
 
-Date: Fri, 25 Oct 2002 12:15:19 +0200
-From: Jan Marek <linux@hazard.jcu.cz>
-To: Andrey Panin <pazke@orbita1.ru>
-Subject: Re: [miniPATCH][RFC] Compilation fixes in the 2.5.44
-Message-ID: <20021025101518.GA1073@hazard.jcu.cz>
-References: <20021025062809.GA7522@hazard.jcu.cz> <200210250651.g9P6pnp14035@Port.imtp.ilyichevsk.odessa.ua> <20021025080157.GA311@pazke.ipt>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021025080157.GA311@pazke.ipt>
-User-Agent: Mutt/1.4i
+The legal grounds become more shaky as soon as you consider that court
+decisions might be different in different countries. If someone wants to
+sue you he might have the possibility to choose between different
+countries where he wants to sue you...  8)
 
-Hallo l-k,
+> All I said was that it's good to make life easier for these startups.
+> S.N.
 
-On Fri, Oct 25, 2002 at 12:01:57PM +0400, Andrey Panin wrote:
-> On Fri, Oct 25, 2002 at 09:44:21AM -0200, Denis Vlasenko wrote:
-> > On 25 October 2002 04:28, Jan Marek wrote:
-> > > Hallo l-k,
-> > >
-> > > I'm beginner in the kernel hacking (or fixing ;-))).
-> > >
-> > > I have small patch, which is fixing some compilation errors (I'm
-> > > using gcc-2.95.4-17 from Debian sid).
-> > >
-> > > The first chunk fixed this warning:
-> > >
-> > > arch/i386/kernel/irq.c: In function `do_IRQ':
-> > > arch/i386/kernel/irq.c:331: warning: unused variable `esp'
-> > >
-> > > I move declaration of variable esp to the #ifdef blok, where it is
-> > > using...
-> > 
-> > 
-> >         unsigned int status;
-> > -       long esp;
-> >  
-> >         irq_enter();
-> >  
-> >  #ifdef CONFIG_DEBUG_STACKOVERFLOW
-> >         /* Debugging check for stack overflow: is there less than 1KB free? */
-> > +       long esp;
-> > 
-> > Most C compilers don't allow you to mix declarations and code.
-> > This is allowed only in new C standards. But GCC 3 seems to cope,
-> > so it's probably fine for new kernels.
-> 
-> This fragment must be fixed, look at Documentation/Changes:
+cu
+Adrian
 
-gcc-2.95.4-17 on my Debian works fine on that and without any
-messages... You can try it, if you have other version of compiler...
-
-> 
-> "The recommended compiler for the kernel is gcc 2.95.x (x >= 3)"
-> 
-> Best regards.
->  
-> -- 
-> Andrey Panin            | Embedded systems software developer
-> pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
-
-Sincerely
-Jan Marek
 -- 
-Ing. Jan Marek
-University of South Bohemia
-Academic Computer Centre
-Phone: +420-38-7772080
 
---YiEDa0DAkWCtVeE4--
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+
+

@@ -1,125 +1,191 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318435AbSGaS3t>; Wed, 31 Jul 2002 14:29:49 -0400
+	id <S318439AbSGaSdR>; Wed, 31 Jul 2002 14:33:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318436AbSGaS3t>; Wed, 31 Jul 2002 14:29:49 -0400
-Received: from sb0-cf9a4971.dsl.impulse.net ([207.154.73.113]:56330 "EHLO
-	madrabbit.org") by vger.kernel.org with ESMTP id <S318435AbSGaS3s>;
-	Wed, 31 Jul 2002 14:29:48 -0400
-Subject: [PATCH] Guarantee APM power status change notifications
-From: Ray Lee <ray-lk@madrabbit.org>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: cort@fsmlabs.com, alan@lxorguk.ukuu.org.uk
-In-Reply-To: <20020726201721.B6370@cort.fsmlabs.com>
-References: <1027726949.2691.68.camel@orca> 
-	<20020726201721.B6370@cort.fsmlabs.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 31 Jul 2002 11:33:10 -0700
-Message-Id: <1028140392.1771.66.camel@orca>
+	id <S318440AbSGaSdR>; Wed, 31 Jul 2002 14:33:17 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:63495 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S318439AbSGaSdO>;
+	Wed, 31 Jul 2002 14:33:14 -0400
+Date: Wed, 31 Jul 2002 11:35:08 -0700
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, rgooch@atnf.csiro.au
+Subject: Re: [BK PATCH] devfs cleanups for 2.5.29 - take 2
+Message-ID: <20020731183508.GB21793@kroah.com>
+References: <20020731183358.GA21793@kroah.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020731183358.GA21793@kroah.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Wed, 03 Jul 2002 17:31:40 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+And here's the additional patch that I made on top of the previous two I
+sent to the list yesterday:
 
-Below is a rework of Cort Dougan's APM patch of last Thursday and
-Friday. As a reminder, the issue is that some laptops, notably Vaios,
-don't send notification when the power status changes to AC or to
-on-battery. The below patch fixes this such that it always just works.
 
-There are three cases. First, the BIOS doesn't send any notifications;
-this is fixed. Second, the BIOS sends notifications. In this case, the
-code notes that, and disables the workaround. Third, the BIOS sends
-notifications, but somehow we managed to notice the power change before
-the BIOS could tell us. This seems highly unlikely, but what the heck,
-it could theoretically happen. In that case, we disable the workaround,
-and drop the notification that the BIOS generated, as we already sent it
-onward up the call chain.
-
-The rework was for a couple of small reasons. First, Cort's patch was
-against 2.4.16, and 2.4.18 changed a few things in apm.c. Second, this
-pushes the specifics of the workaround down to the get_event() routine,
-which exists pretty much solely as an abstraction point between the
-actual BIOS call (apm_get_event()) and the event dispatch function
-(check_events()). Lastly, I see no need to do dmi matching. The code can
-be structured to always do the right thing, so that's what we do.
-
-I'm on the road from Thursday to Monday, and won't be reading email, but
-comments are welcome. The patch is pretty darn straight-forward, though.
-
-Please consider for the next -ac patch, and 2.4.20-preX. Actual patch
-generated against 2.4.19-rc3-ac5.
-
-Ray Lee
-
-diff -NurX /usr/src/dontdiff linux-2.4.19-rc3-ac5/arch/i386/kernel/apm.c linux-2.4.19-rc3-ac5-apm-fixes/arch/i386/kernel/apm.c
---- linux-2.4.19-rc3-ac5/arch/i386/kernel/apm.c	2002-07-31 11:27:39.000000000 -0700
-+++ linux-2.4.19-rc3-ac5-apm-fixes/arch/i386/kernel/apm.c	2002-07-31 11:30:19.000000000 -0700
-@@ -385,6 +385,7 @@
- static int			ignore_sys_suspend;
- static int			ignore_normal_resume;
- static int			bounce_interval = DEFAULT_BOUNCE_INTERVAL;
-+static u_short			last_power_status;
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.545   -> 1.546  
+#	     fs/devfs/base.c	1.47    -> 1.48   
+#	        fs/devices.c	1.8     -> 1.9    
+#	include/linux/devfs_fs_kernel.h	1.14    -> 1.15   
+#	      fs/block_dev.c	1.76    -> 1.77   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/07/30	greg@kroah.com	1.546
+# Remove the devfs_should* functions I added, and replace them with one devfs_only() call
+# 
+# This now explains what is really going on much better than before.
+# --------------------------------------------
+#
+diff -Nru a/fs/block_dev.c b/fs/block_dev.c
+--- a/fs/block_dev.c	Wed Jul 31 11:23:15 2002
++++ b/fs/block_dev.c	Wed Jul 31 11:23:15 2002
+@@ -453,7 +453,7 @@
  
- #ifdef CONFIG_APM_RTC_IS_GMT
- #	define	clock_cmos_diff	0
-@@ -1239,17 +1240,46 @@
- 	int		error;
- 	apm_event_t	event;
- 	apm_eventinfo_t	info;
--
-+	static u_short	power_event_workaround_enabled = 1;
- 	static int notified;
+ int register_blkdev(unsigned int major, const char * name, struct block_device_operations *bdops)
+ {
+-	if (devfs_should_register_blkdev())
++	if (devfs_only())
+ 		return 0;
+ 	if (major == 0) {
+ 		for (major = MAX_BLKDEV-1; major > 0; major--) {
+@@ -476,7 +476,7 @@
  
- 	/* we don't use the eventinfo */
- 	error = apm_get_event(&event, &info);
--	if (error == APM_SUCCESS)
-+	if (error == APM_SUCCESS) {
-+		/* if BIOS reports power changes, disable workaround */
-+		if (event == APM_POWER_STATUS_CHANGE) {
-+			/* check to see if we jumped the gun and reported a
-+			 * power change event that the BIOS would have (and
-+			 * just did) on its own. If so, drop the duplicate.
-+			 */
-+			if (power_event_workaround_enabled)
-+				event=get_event();
-+			power_event_workaround_enabled = 0;
-+		}
- 		return event;
-+	}
+ int unregister_blkdev(unsigned int major, const char * name)
+ {
+-	if (devfs_should_unregister_blkdev())
++	if (devfs_only())
+ 		return 0;
+ 	if (major >= MAX_BLKDEV)
+ 		return -EINVAL;
+diff -Nru a/fs/devfs/base.c b/fs/devfs/base.c
+--- a/fs/devfs/base.c	Wed Jul 31 11:23:15 2002
++++ b/fs/devfs/base.c	Wed Jul 31 11:23:15 2002
+@@ -2228,59 +2228,17 @@
  
- 	if ((error != APM_NO_EVENTS) && (notified++ == 0))
- 		apm_error("get_event", error);
  
-+	/*
-+	 * Sony Vaios don't seem to want to notify us about AC line power
-+	 * status changes.  So for those and any others like them, we keep
-+	 * track of it by hand and emulate it here.
-+	 */
-+	if (power_event_workaround_enabled) {
-+		u_short status, bat, life;
-+		error = apm_get_power_status(&status, &bat, &life);
-+		if (error == APM_SUCCESS) {
-+			if ((status ^ last_power_status) & 0xff00) {
-+				/* fake an APM_POWER_STATUS_CHANGE event */
-+				last_power_status = status;
-+				return APM_POWER_STATUS_CHANGE;
-+			}
-+		} else 
-+			power_event_workaround_enabled=0;
-+	}
-+
- 	return 0;
+ /**
+- *	devfs_should_register_chrdev - should we register a conventional character driver.
++ *	devfs_only - returns if "devfs=only" is a boot option
+  *
+- *	If "devfs=only" this function will return -1, otherwise 0 is returned.
++ *	If "devfs=only" this function will return 1, otherwise 0 is returned.
+  */
+-int devfs_should_register_chrdev (void)
++int devfs_only (void)
+ {
+     if (boot_options & OPTION_ONLY)
+-	    return -1;
++	    return 1;
+     return 0;
  }
  
-@@ -1758,6 +1788,7 @@
- #if defined(CONFIG_APM_DISPLAY_BLANK) && defined(CONFIG_VT)
- 		console_blank_hook = apm_console_blank;
- #endif
-+		apm_get_power_status(&last_power_status, &cx, &dx);
- 		apm_mainloop();
- #if defined(CONFIG_APM_DISPLAY_BLANK) && defined(CONFIG_VT)
- 		console_blank_hook = NULL;
-
+-
+-/**
+- *	devfs_should_register_blkdev - should we register a conventional block driver.
+- *
+- *	If the "devfs=only" option was provided at boot time, this function will
+- *	return -1, otherwise 0 is returned.
+- */
+-
+-int devfs_should_register_blkdev (void)
+-{
+-    if (boot_options & OPTION_ONLY)
+-	    return -1;
+-    return 0;
+-}
+-
+-
+-/**
+- *	devfs_should_unregister_chrdev - should we unregister a conventional character driver.
+- *
+- *	If "devfs=only" this function will return -1, otherwise 0 is returned
+- */
+-int devfs_should_unregister_chrdev (void)
+-{
+-    if (boot_options & OPTION_ONLY)
+-	    return -1;
+-    return 0;
+-}
+-
+-
+-/**
+- *	devfs_should_unregister_blkdev - should we unregister a conventional block driver.
+- *
+- *	If the "devfs=only" option was provided at boot time, this function will
+- *	return -1, otherwise 0 is returned.
+- */
+-
+-int devfs_should_unregister_blkdev (void)
+-{
+-    if (boot_options & OPTION_ONLY)
+-	    return -1;
+-    return 0;
+-}
+ 
+ /**
+  *	devfs_setup - Process kernel boot options.
+diff -Nru a/fs/devices.c b/fs/devices.c
+--- a/fs/devices.c	Wed Jul 31 11:23:15 2002
++++ b/fs/devices.c	Wed Jul 31 11:23:15 2002
+@@ -98,7 +98,7 @@
+ 
+ int register_chrdev(unsigned int major, const char * name, struct file_operations *fops)
+ {
+-	if (devfs_should_register_chrdev())
++	if (devfs_only())
+ 		return 0;
+ 	if (major == 0) {
+ 		write_lock(&chrdevs_lock);
+@@ -128,7 +128,7 @@
+ 
+ int unregister_chrdev(unsigned int major, const char * name)
+ {
+-	if (devfs_should_register_chrdev())
++	if (devfs_only())
+ 		return 0;
+ 	if (major >= MAX_CHRDEV)
+ 		return -EINVAL;
+diff -Nru a/include/linux/devfs_fs_kernel.h b/include/linux/devfs_fs_kernel.h
+--- a/include/linux/devfs_fs_kernel.h	Wed Jul 31 11:23:15 2002
++++ b/include/linux/devfs_fs_kernel.h	Wed Jul 31 11:23:15 2002
+@@ -94,10 +94,7 @@
+ extern void devfs_auto_unregister (devfs_handle_t master,devfs_handle_t slave);
+ extern devfs_handle_t devfs_get_unregister_slave (devfs_handle_t master);
+ extern const char *devfs_get_name (devfs_handle_t de, unsigned int *namelen);
+-extern int devfs_should_register_chrdev (void);
+-extern int devfs_should_register_blkdev (void);
+-extern int devfs_should_unregister_chrdev (void);
+-extern int devfs_should_unregister_blkdev (void);
++extern int devfs_only (void);
+ 
+ extern void devfs_register_tape (devfs_handle_t de);
+ extern void devfs_register_series (devfs_handle_t dir, const char *format,
+@@ -237,19 +234,7 @@
+ {
+     return NULL;
+ }
+-static inline int devfs_should_register_chrdev (void)
+-{
+-    return 0;
+-}
+-static inline int devfs_should_register_blkdev (void)
+-{
+-    return 0;
+-}
+-static inline int devfs_should_unregister_chrdev (void)
+-{
+-    return 0;
+-}
+-static inline int devfs_should_unregister_blkdev (void)
++static inline int devfs_only (void)
+ {
+     return 0;
+ }

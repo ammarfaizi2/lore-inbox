@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263009AbTCSL1T>; Wed, 19 Mar 2003 06:27:19 -0500
+	id <S262990AbTCSLlN>; Wed, 19 Mar 2003 06:41:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263010AbTCSL1T>; Wed, 19 Mar 2003 06:27:19 -0500
-Received: from nessie.weebeastie.net ([61.8.7.205]:61333 "EHLO
-	nessie.weebeastie.net") by vger.kernel.org with ESMTP
-	id <S263009AbTCSL1S>; Wed, 19 Mar 2003 06:27:18 -0500
-Date: Wed, 19 Mar 2003 22:37:56 +1100
-From: CaT <cat@zip.com.au>
-To: linux-kernel@vger.kernel.org
-Cc: sct@redhat.com, akpm@zip.com.au, adilger@clusterfs.com
-Subject: 2.5.65: ext3 journal recover slow and hangs
-Message-ID: <20030319113752.GA505@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262991AbTCSLlN>; Wed, 19 Mar 2003 06:41:13 -0500
+Received: from relay.uni-heidelberg.de ([129.206.100.212]:10729 "EHLO
+	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
+	id <S262990AbTCSLlM>; Wed, 19 Mar 2003 06:41:12 -0500
+From: Bernd Schubert <bernd-schubert@web.de>
+To: Oleg Drokin <green@namesys.com>
+Subject: Re: kernel nfsd
+Date: Wed, 19 Mar 2003 12:51:46 +0100
+User-Agent: KMail/1.5
+Cc: Stephan von Krawczynski <skraw@ithnet.com>, trond.myklebust@fys.uio.no,
+       linux-kernel@vger.kernel.org, neilb@cse.unsw.edu.au
+References: <20030318155731.1f60a55a.skraw@ithnet.com> <200303181828.59940.bernd-schubert@web.de> <20030319094342.J1091@namesys.com>
+In-Reply-To: <20030319094342.J1091@namesys.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+Message-Id: <200303191251.47023.bernd-schubert@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Noticed something as my system was recovering from constant crashes
-under 2.5.65. The journal recovery for my partitions is very, very slow
-with nary a HD write during the recover. On one partition the system
-hung twice. There was no message or anything. The cursor just turned off
-and no typing, alt+sysrq or ctrl+alt+del would register.
+On Wednesday 19 March 2003 07:43, Oleg Drokin wrote:
+> Hello!
+>
+> On Tue, Mar 18, 2003 at 06:28:59PM +0100, Bernd Schubert wrote:
+> > we also sometimes see those messages. In our case it seems to appears
+> > rather often for the local/share/perl directory of our /usr/local
+> > directory: nfsd-fh: found a name that I didn't expect: share/perl
+>
+> Do you also use reiserfs for your /usr/local filesystem?
+>
 
-I am currently running under 2.5.64 and the journal recovery went as
-normal.
+Yes of course, otherwise I wouldn't have replied to this thread.
 
--- 
-"Other countries of course, bear the same risk. But there's no doubt his
-hatred is mainly directed at us. After all this is the guy who tried to
-kill my dad."
-        - George W. Bush Jr, 'President' of Regime of the United States
-          September 26, 2002 (from a political fundraiser in Houston, Texas)
+Best regards,
+	Bernd

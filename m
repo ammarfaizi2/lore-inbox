@@ -1,69 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264443AbUJHUik@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264704AbUJHUoi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264443AbUJHUik (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 16:38:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264648AbUJHUik
+	id S264704AbUJHUoi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 16:44:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264726AbUJHUoh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 16:38:40 -0400
-Received: from mailwasher.lanl.gov ([192.65.95.54]:382 "EHLO
-	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
-	id S264443AbUJHUiK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 16:38:10 -0400
-Date: Fri, 8 Oct 2004 14:38:06 -0600 (MDT)
-From: "Ronald G. Minnich" <rminnich@lanl.gov>
-X-X-Sender: rminnich@linux.site
-To: Greg KH <greg@kroah.com>
-cc: openib-general@openib.org, linux-kernel@vger.kernel.org
-Subject: Re: [openib-general] InfiniBand incompatible with the Linux kernel?
-In-Reply-To: <20041008202247.GA9653@kroah.com>
-Message-ID: <Pine.LNX.4.58.0410081428230.9700@linux.site>
-References: <20041008202247.GA9653@kroah.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-PMX-Version: 4.6.0.99824
-X-PMX-Version: 4.6.0.99824
+	Fri, 8 Oct 2004 16:44:37 -0400
+Received: from pristine.overt.org ([69.59.183.228]:64425 "EHLO
+	pristine.saidi.cx") by vger.kernel.org with ESMTP id S264704AbUJHUof
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 16:44:35 -0400
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Transfer-Encoding: 7bit
+Message-Id: <B00811E6-196A-11D9-8001-000A95AF0DA8@umich.edu>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+To: linux-kernel@vger.kernel.org
+From: Ali Saidi <saidi@umich.edu>
+Subject: [PATCH] Alpha - cpu mask fix-ups broke SMP DP264 machines in 2.6.8
+Date: Fri, 8 Oct 2004 16:43:19 -0400
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The cpu mask fix-ups in 2.6.8 broke SMP kernels booting on a DP264. 
+Instead of not setting the DIM for cpus that did not exit, the patch 
+inadvertently doesn't set the DIM for CPUs that do exist. Thus no 
+device interrupts get to the cpu.
+
+Thanks,
+
+Ali
 
 
-On Fri, 8 Oct 2004, Greg KH wrote:
+--- linux-2.6.8.1.orig/arch/alpha/kernel/sys_dp264.c    2004-10-08 
+15:51:26.000000000 -0400
++++ linux-2.6.8.1.fix/arch/alpha/kernel/sys_dp264.c     2004-10-08 
+15:58:07.000000000 -0400
+@@ -71,10 +71,10 @@
+         dim1 = &cchip->dim1.csr;
+         dim2 = &cchip->dim2.csr;
+         dim3 = &cchip->dim3.csr;
+-       if (cpu_possible(0)) dim0 = &dummy;
+-       if (cpu_possible(1)) dim1 = &dummy;
+-       if (cpu_possible(2)) dim2 = &dummy;
+-       if (cpu_possible(3)) dim3 = &dummy;
++       if (!cpu_possible(0)) dim0 = &dummy;
++       if (!cpu_possible(1)) dim1 = &dummy;
++       if (!cpu_possible(2)) dim2 = &dummy;
++       if (!cpu_possible(3)) dim3 = &dummy;
 
-> 	If someone downloads the spec without joining the IBTA, and
-> 	proceeds to use the spec for an implementation of the IBTA spec,
-> 	that person (company) runs the risk of being a target of patent
-> 	infringement claims by IBTA members.
+         *dim0 = mask0;
+         *dim1 = mask1;
 
-Another solid reason to write infiniband off. I keep hoping that the IB 
-vendor crowd will stop shooting themselves in the head with such 
-regularity, and they just won't. They just keep increasing the size of the 
-bore. 
-
-Infiniband can now be spelled a few different ways, "I2O" and "ATM" come 
-to mind, except that "ATM" was less unsuccessful in its lifetime than IB 
-has been so far. 
-
-> 	In justification for this position people say that they are just
-> 	trying to get more people to join the IBTA because they need the
-> 	dues, which by coincidence are $9500 per year, and point out
-> 	that some other commonly used specs are similarly made available
-> 	for steep prices. I don't know one way or the other about that
-> 	but this sounds a lot like the reason that we all gave ourselves
-> 	for NOT including SDP in the kernel[1].
-
-> So, OpenIB group, how to you plan to address this issue?  Do you all
-> have a position as to how you think your code base can be accepted into
-> the main kernel tree given these recent events?
-
-Well, we non-vendors have no power, and it appears the vendors are 
-determined to kill IB. 
-
-This is all very discouraging. A lot of people at the Labs put a lot of
-work into the Infiniband openib effort, including getting money to support
-the software development, and it looks like we're not going to get very
-far if these rules stick. I am going to renew my search for non-IB
-solutions, I guess. It's hard to recommend this interconnect when IBTA
-takes this kind of action.
-
-
-ron

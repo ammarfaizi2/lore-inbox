@@ -1,60 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262613AbUCHQc3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 11:32:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262687AbUCHQc3
+	id S262690AbUCHQf5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 11:35:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262691AbUCHQf5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 11:32:29 -0500
-Received: from svr44.ehostpros.com ([66.98.192.92]:19100 "EHLO
-	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S262613AbUCHQc1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 11:32:27 -0500
-From: "Amit S. Kale" <amitkale@emsyssoft.com>
-Organization: EmSysSoft
-To: Tom Rini <trini@kernel.crashing.org>
-Subject: Re: kgdb for mainline kernel: core-lite [patch 1/3]
-Date: Mon, 8 Mar 2004 22:02:12 +0530
-User-Agent: KMail/1.5
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       george@mvista.com, pavel@ucw.cz
-References: <200403081504.30840.amitkale@emsyssoft.com> <200403081650.18641.amitkale@emsyssoft.com> <20040308152214.GE15065@smtp.west.cox.net>
-In-Reply-To: <20040308152214.GE15065@smtp.west.cox.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 8 Mar 2004 11:35:57 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:10963 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S262690AbUCHQfx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Mar 2004 11:35:53 -0500
+Date: Mon, 8 Mar 2004 17:35:52 +0100
+From: Jan Kara <jack@suse.cz>
+To: Juan Pablo Abuyeres <jpabuyer@tecnoera.com>
+Cc: Damian =?iso-8859-2?Q?Wojs=B3aw?= <damian.wojslaw@eltekenergy.pl>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.3 + reiser + quota support
+Message-ID: <20040308163552.GA17574@atrey.karlin.mff.cuni.cz>
+References: <Pine.LNX.4.44.0403051232470.3537-100000@118.eltek> <1078497744.27546.7.camel@blackbird.tecnoera.com> <20040308143612.GA19628@atrey.karlin.mff.cuni.cz> <1078762136.5333.25.camel@blackbird.tecnoera.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-Message-Id: <200403082202.12822.amitkale@emsyssoft.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - emsyssoft.com
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1078762136.5333.25.camel@blackbird.tecnoera.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 08 Mar 2004 8:52 pm, Tom Rini wrote:
-> On Mon, Mar 08, 2004 at 04:50:18PM +0530, Amit S. Kale wrote:
-> > On Monday 08 Mar 2004 4:37 pm, Andrew Morton wrote:
-> > > "Amit S. Kale" <amitkale@emsyssoft.com> wrote:
->
-> [snip]
->
-> > > >  If you consider it an absolutely must, we can do something so that
-> > > > the dirty part is kept away and info threads almost always works.
-> > >
-> > > Yes, I'd consider `info threads' support a must-have.  I'm rather
-> > > surprised that others do not?
-> >
-> > Present threads support code changes calling convention of do_IRQ. Most
-> > believe that to be an absolute no.
->
-> I believe that George's version does something totally different, with
-> some macros at compile time (and binutils support, I _think_) to not
-> have to change do_IRQ.
+> On Mon, 2004-03-08 at 11:36, Jan Kara wrote:
+> > > On Fri, 2004-03-05 at 08:33, Damian Wojs³aw wrote:
+> > > > > [root@test mnt]#
+> > > > > and /var/log/messages says:
+> > > > > Mar  4 19:15:46 test kernel: reiserfs_getopt: unknown option "usrquota"
+> > > > 
+> > > > 	If I remember correclty, reiserfs needs an additional patch to
+> > > > support quota. I know this patch exists for 2.4.X kernels.
+> > > 
+> > > Yes, patches to support quota exist for 2.4.x kernels, because 2.4.x is
+> > > not supposed to support quota for reiserfs in the vanilla distribution.
+> > > Those patches are at
+> > > ftp://ftp.suse.com/pub/people/mason/patches/reiserfs/quota-2.4
+> > > and work fine.
+> > > 
+> > > But kernel 2.6.x is supposed to support quota for ext2, ext3 _and_
+> > > reiserfs without any patch. So I am doing something wrong (I hope), or
+> > > there is a bug around here.
+> >   Actually the text in Configure is a bit misleading. In 2.6 you also
+> > need an additional patch for ReiserFS. Chris Mason created it a few days
+> > ago so it might be available at his FTP..
+> > 								Honza
+> 
+> that would be it
+> ftp://ftp.suse.com/pub/people/mason/patches/data-logging/experimental/2.6.3
+> 
+> Thanks!
+> 
+> ps: how much should I be intimidated by that "experimental" directory
+> name?
+  Because the patch was created a few days ago it is not very widely
+tested (I mean tested in the real environment..)... That is the reason
+why it is in experimental (at least I'd guess :)).
 
-OOPS! Present code doesn't change calling convention of do_IRQ. I changed that 
-some time ago.
+								Honza
 
--Amit
-
+-- 
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

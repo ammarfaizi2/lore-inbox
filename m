@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274668AbRITWBJ>; Thu, 20 Sep 2001 18:01:09 -0400
+	id <S274500AbRITWAT>; Thu, 20 Sep 2001 18:00:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274667AbRITWBB>; Thu, 20 Sep 2001 18:01:01 -0400
-Received: from mclean.mail.mindspring.net ([207.69.200.57]:44579 "EHLO
-	mclean.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S274590AbRITWAv>; Thu, 20 Sep 2001 18:00:51 -0400
-Subject: Re: [PATCH] Preemption Latency Measurement Tool
-From: Robert Love <rml@tech9.net>
-To: Tobias Diedrich <ranma@gmx.at>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010920220121.A18683@router.ranmachan.dyndns.org>
-In-Reply-To: <1000939458.3853.17.camel@phantasy> 
-	<20010920220121.A18683@router.ranmachan.dyndns.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Evolution-Format: text/plain
-X-Mailer: Evolution/0.13.99+cvs.2001.09.19.21.54 (Preview Release)
-Date: 20 Sep 2001 18:01:15 -0400
-Message-Id: <1001023279.6048.224.camel@phantasy>
+	id <S274590AbRITWAK>; Thu, 20 Sep 2001 18:00:10 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:19081 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S274500AbRITWAB>;
+	Thu, 20 Sep 2001 18:00:01 -0400
+Date: Thu, 20 Sep 2001 14:59:48 -0700 (PDT)
+Message-Id: <20010920.145948.27781583.davem@redhat.com>
+To: kuznet@ms2.inr.ac.ru
+Cc: matthias.andree@stud.uni-dortmund.de, linux-kernel@vger.kernel.org
+Subject: Re: Proposed patch to devinet.c to make SIOCGIF* more compatible
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200109071657.UAA31210@ms2.inr.ac.ru>
+In-Reply-To: <20010907183245.A9192@emma1.emma.line.org>
+	<200109071657.UAA31210@ms2.inr.ac.ru>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2001-09-20 at 16:01, Tobias Diedrich wrote:
-> Should the patch work with SMP systems ?
-> Here is what I get:
+   From: kuznet@ms2.inr.ac.ru
+   Date: Fri, 7 Sep 2001 20:57:10 +0400 (MSK DST)
 
-I never thought that it shouldn't, but upon thinking about it maybe it
-won't :)
+   > I have a patch that I sent to Linux-Kernel yesterday and that I'd like
+   > your comment on.
+   
+   Ack. It is right.
 
-You are the second person reporting those all-the-same latency values. 
-I think the SMP locks are being reported wrongly by the patch.  I will
-take a look at it.
+I cannot find this patch in the archives, can someone forward it to me
+so I may apply it?  Thanks.
 
-Thanks
-
--- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
-
+Later,
+David S. Miller
+davem@redhat.com

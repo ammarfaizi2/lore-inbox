@@ -1,48 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264788AbUF1FnY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264723AbUF1FnZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264788AbUF1FnY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 01:43:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264727AbUF1Fmx
+	id S264723AbUF1FnZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 01:43:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264728AbUF1Fmg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 01:42:53 -0400
-Received: from [66.46.38.88] ([66.46.38.88]:9222 "HELO
-	ecommerce-consulting.net.au") by vger.kernel.org with SMTP
-	id S264774AbUF1Fjc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 01:39:32 -0400
-Message-ID: <9cc801c45cd3$9c57240d$cbb4ff81@ecommerce-consulting.net.au>
-From: "Yolanda Bush" <yolanda.bush_ey@oltenia.ro>
-To: linux-kernel@vger.kernel.org
-Subject: Lose 19%, powerful weightloss now available where you are.
-Date: Mon, 28 Jun 2004 02:46:21 -0300
+	Mon, 28 Jun 2004 01:42:36 -0400
+Received: from smtp813.mail.sc5.yahoo.com ([66.163.170.83]:14458 "HELO
+	smtp813.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S264723AbUF1F0g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 01:26:36 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: [PATCH 18/19] add driver_find
+Date: Mon, 28 Jun 2004 00:26:33 -0500
+User-Agent: KMail/1.6.2
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <200406280008.21465.dtor_core@ameritech.net> <200406280024.53717.dtor_core@ameritech.net> <200406280025.54154.dtor_core@ameritech.net>
+In-Reply-To: <200406280025.54154.dtor_core@ameritech.net>
 MIME-Version: 1.0
+Content-Disposition: inline
 Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406280026.35503.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, I have a special offer for you...
-WANT TO LOSE WEIGHT?
-The most powerful weightloss is now available
-without prescription. All natural Adipren720
-100% Money Back Guarantée!
-- Lose up to 19% Total Body Weight.
-- Loss of 20-35% abdominal Fat.
-- Up to 300% more Weight Loss while dieting.
-- Increase metabolic rate by 76.9% without Exercise.
-- Reduction of 40-70% overall Fat under skin.
-- Suppresses appetite for sugar.
-- Burns calorized fat.
-- Boost your Confidence level and Self Esteem.
-Get the facts about all-natural Adipren720 <http://www.1adipren.com/>
+
+===================================================================
+
+
+ChangeSet@1.1792, 2004-06-27 20:49:01-05:00, dtor_core@ameritech.net
+  Driver core: add driver_find helper to find a driver by its name
+  
+  Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+
+
+ drivers/base/driver.c  |   16 ++++++++++++++++
+ include/linux/device.h |    1 +
+ 2 files changed, 17 insertions(+)
+
+
+===================================================================
 
 
 
----- system information ----
-exchanged January behaviors another reports Produces Document culturally
-
-script associate read images Relationship managing associate Force 
-report lesser Discussion B: parsing Australia usage Unlike 
-report their Membership xml:lang model correlate Preferences review 
-Use set resources expected no place data use 
-
+diff -Nru a/drivers/base/driver.c b/drivers/base/driver.c
+--- a/drivers/base/driver.c	2004-06-27 21:24:06 -05:00
++++ b/drivers/base/driver.c	2004-06-27 21:24:06 -05:00
+@@ -111,10 +111,26 @@
+ 	up(&drv->unload_sem);
+ }
+ 
++/**
++ *	driver_find - find driver on a given bus by its name.
++ *	@name:	name of the driver.
++ *	@bus:	bus to seatch for the driver
++ */
++
++struct device_driver *driver_find(const char *name, struct bus_type *bus)
++{
++	struct kobject *k = kset_find_obj(&bus->drivers, name);
++	if (k)
++		return to_drv(k);
++	return NULL;
++}
++
++
+ EXPORT_SYMBOL(driver_register);
+ EXPORT_SYMBOL(driver_unregister);
+ EXPORT_SYMBOL(get_driver);
+ EXPORT_SYMBOL(put_driver);
++EXPORT_SYMBOL(driver_find);
+ 
+ EXPORT_SYMBOL(driver_create_file);
+ EXPORT_SYMBOL(driver_remove_file);
+diff -Nru a/include/linux/device.h b/include/linux/device.h
+--- a/include/linux/device.h	2004-06-27 21:24:06 -05:00
++++ b/include/linux/device.h	2004-06-27 21:24:06 -05:00
+@@ -120,6 +120,7 @@
+ 
+ extern struct device_driver * get_driver(struct device_driver * drv);
+ extern void put_driver(struct device_driver * drv);
++extern struct device_driver *driver_find(const char *name, struct bus_type *bus);
+ 
+ 
+ /* driverfs interface for exporting driver attributes */

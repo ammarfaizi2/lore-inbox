@@ -1,61 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263652AbTKDFGP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Nov 2003 00:06:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263660AbTKDFGP
+	id S263669AbTKDF0L (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Nov 2003 00:26:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263680AbTKDF0L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Nov 2003 00:06:15 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:12283 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S263652AbTKDFGO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Nov 2003 00:06:14 -0500
-Subject: [patch] ppc64 configure option fix
-From: Robert Love <rml@mvista.com>
-To: linux-kernel@vger.kernel.org
-Cc: anton@au.ibm.com
-Content-Type: text/plain
-Message-Id: <1067922350.17109.41.camel@localhost>
+	Tue, 4 Nov 2003 00:26:11 -0500
+Received: from [212.175.3.205] ([212.175.3.205]:58984 "HELO toti.net")
+	by vger.kernel.org with SMTP id S263669AbTKDF0J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Nov 2003 00:26:09 -0500
+From: =?ISO-8859-1?Q?=20=22KaravnalaD=FCnyaT?=
+	  =?ISO-8859-1?Q?uru/TourByCarava?= =?ISO-8859-1?Q?n=22?= 
+	 <evileye@toti.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Dunya Turuna Karavan  =?ISO-8859-1?Q?=20Arkada=FE=FD/Looking?= for a Caravan Mate For travel
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 04 Nov 2003 00:05:51 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="ISO-8859-9"
+Date: Tue, 4 Nov 2003 07:31:13 +0200
+Content-Transfer-Encoding: 8bit
+Message-Id: <S263669AbTKDF0J/20031104052609Z+27137@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Anton.
+Karavan ile Bir "DdünyaTuru" yapmayý planlýyorum.
+Hayalim olan bu Planý birlikte gerçekleþtirmek üzere:
+Bu turu hayal edebilecek kadar hayalgucu, 
+Kalkýþýp baþarabilecek kadar cesareti, 
+Zorluklarýný göðüsleyebilecek kadar enerjisi, 
+Bunu yapabilecek kadar zamaný
+"Can Dost" kavramýna inancý 
+ve 
+bu turun masraflarýný paylaþacak kadar parasý olan, 
+Araba kullanabilen,ehliyet sahibi Sigara Ýçmeyen bir 
+arkadaþ arýyorum. Eðer seni aradýðýmý düþünüyorsan 
+lutfen Mail ile temas kur ve telefon numaraný yaz. 
 
-arch/ppc64/Kconfig's entry for CONFIG_PREEMPT is missing the description
-after the "bool" statement, so the entry does not show up.
+Benimle ilgili Çok kýsa Bilgi: 
+1969 Doðumlu/Erkek/Ýstanbul
+Born 1969/Male/istanbul 
+-----------------------------------------------------
+Bu mail ile verdiðim rahatsýzlýktan dolayý özür deilerim.
+Ýlk ve son kez Gönderdim.
 
-Also, the help description mentions a restriction that is not [any
-longer] true.
-
-Patch against 2.6.0-test9.
-
-	Robert Love
-
-
- arch/ppc64/Kconfig |    5 +----
- 1 files changed, 1 insertion(+), 4 deletions(-)
-
-diff -urN linux-2.6.0-test9/arch/ppc64/Kconfig linux/arch/ppc64/Kconfig
---- linux-2.6.0-test9/arch/ppc64/Kconfig	2003-10-25 14:43:47.000000000 -0400
-+++ linux/arch/ppc64/Kconfig	2003-11-03 23:53:54.000000000 -0500
-@@ -113,14 +113,11 @@
- 	depends on DISCONTIGMEM
- 
- config PREEMPT
--	bool
-+	bool "Preemptible Kernel"
- 	help
- 	  This option reduces the latency of the kernel when reacting to
- 	  real-time or interactive events by allowing a low priority process to
- 	  be preempted even if it is in kernel mode executing a system call.
--	  Unfortunately the kernel code has some race conditions if both
--	  CONFIG_SMP and CONFIG_PREEMPT are enabled, so this option is
--	  currently disabled if you are building an SMP kernel.
- 
- 	  Say Y here if you are building a kernel for a desktop, embedded
- 	  or real-time system.  Say N if you are unsure.
-
-
+i'm sorry because i disturbed you. I have sent it the 
+first and the Last time. i'll never send another. it's meaning is
+"i'm searching a caravan mate who want to travel all the world
+by a caravan."  if you want to contact to me please send an 
+e-mail to evileye@toti.net with your phone number.

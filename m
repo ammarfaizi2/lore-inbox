@@ -1,94 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262327AbSJKC6j>; Thu, 10 Oct 2002 22:58:39 -0400
+	id <S262216AbSJKDnD>; Thu, 10 Oct 2002 23:43:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262328AbSJKC6j>; Thu, 10 Oct 2002 22:58:39 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:25607 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S262327AbSJKC6i>;
-	Thu, 10 Oct 2002 22:58:38 -0400
-Date: Thu, 10 Oct 2002 23:04:24 -0400 (EDT)
-Message-Id: <200210110304.g9B34OT359438@saturn.cs.uml.edu>
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-To: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] procps 3.0.1
+	id <S262328AbSJKDnC>; Thu, 10 Oct 2002 23:43:02 -0400
+Received: from pacific.moreton.com.au ([203.143.238.4]:53440 "EHLO
+	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
+	id <S262216AbSJKDnB>; Thu, 10 Oct 2002 23:43:01 -0400
+Message-ID: <3DA64A79.6020401@snapgear.com>
+Date: Fri, 11 Oct 2002 13:50:17 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+CC: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH]: linux-2.5.41uc1 (MMU-less support)
+References: <3DA5A42F.6030001@snapgear.com> <20021010171816.A21468@infradead.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi All,
 
-Contrary to popular belief, procps is maintained.
-Craig Small, Jim Warner, and I have kept it up to date
-for several years now. Now I see that keeping a low
-profile is really bad, so here goes...
+Heres a tivial mm (MMU-less) patch that cleans up many of
+the "#ifdef COFNIG_MMU" littered all over the mm/* files.
+The Makefile now chooses which files to compile appropriately.
 
-Changes that you may be unaware of and/or need:
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.41uc2-mm.patch.gz
 
-top:    windows, color, sort any field, 2.5.xx kernel support
-sysctl: supports the VLAN interfaces
-ps:     runs 2x faster than procps-2.x.x did
-vmstat: 2.5.xx kernel support
+This leaves the following files as the only ones with
+conditionals:
 
-Get it here:
-http://procps.sf.net/
+   mm/filemap.c
+   mm/mmap.c
+   mm/page_alloc.c
+   mm/page_io.c
+   mm/slab.c
+   mm/swap_state.c
+   mm/swapfile.c
+   mm/vmscan.c
 
-We use procps-feedback@lists.sf.net for feedback
-and procps-news@lists.sf.net for announcements.
+I have a patch from Christoph that will take care of much
+of the swap stuff still to apply.
 
----------- full change listing ----------
+Regards
+Greg
 
-Version 3.0.1
 
-sysctl handles net/ipv4/conf/eth1.0123/tag (VLAN interface)
-sysctl handles net.ipv4.conf.eth1/0123.tag (VLAN interface)
-"ps" is now about 2x faster than in procps-2.x.x
-"ps -F" now documented
-w works in KOI8-R locale
-vmstat documentation update
-"skill -n blah blah blah" lets you test options
-simple "make && make install" now
 
-Version 3.0.0
+> On Fri, Oct 11, 2002 at 02:00:47AM +1000, Greg Ungerer wrote:
+> 
+>>Hi All,
+>>
+>>An updated uClinux patch is available at:
+>>
+>>http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.41uc1.patch.gz
+>>
+>>This one has the long awaited merge of the mmnommu and mm directories.
+>>Went pretty smoothly really. The patches are not too bad, but there is
+>>still some cleaning to do. A couple of files are still heavily #ifdef'ed
+>>(like mm/mmap.c, mm/swap_state.c and mm/swapfile.c) but I think these
+>>can ironed out a bit.
 
-new top, with optional: color, windowing, SMP stats
-designed to support Linux 2.0 through 2.5.41 and beyond
-runs faster
-more "it crashes" bugs fixed
-top shows IO-wait time
-vmstat can show active/inactive memory stats
-real-time info supported in ps
-correct "ps -o size" and "ps --sort size"
-reduced memory usage for ps
-allow large PIDs to be specified
-SELINUX support is just a recompile away
-the "F" column shrank, so "ps -l" has more command name room
-64-bit time reduces the overflow problem
-support S/390, IA-64 emulator, and user-mode Linux
-oldps is gone
-configure script -- use "make -f Makefile.noam" as a backup
-"w" program better at determining what a user is doing
-more stable
-code at http://procps.sf.net/ now (SourceForge)
-uptime give help if you use invalid chars
-/proc/tty/drivers correctly parsed. (Thanks russell*AT*coker.com.au)
 
-Prior changes, seen in Debian:
 
-more stable
-runs faster
--F format option
-better error reporting in ps for unknown format specifiers
-BSD's sysctl options -b and -X
-top displays well on large-memory systems
-old BSD-style select-by-PID ("ps l$$")
-15-character user names
-ps 'f' ASCII art forest fixed
-add SIGSYS on i386
-top reports real RSS value
-large-memory systems work
-minimal ps program for embedded systems (minimal.c)
-BSD personality process selection fixed
-support locale (French) with ',' and '.' mixed up
-new maintainers
-pgrep program
-includes the "kill" and "nice" programs
-don't chop non-tty ps output at 80 columns
--------------------------------------------------------
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
+825 Stanley St,                                  FAX:    +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+

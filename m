@@ -1,65 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264739AbSKEJvu>; Tue, 5 Nov 2002 04:51:50 -0500
+	id <S264746AbSKEJyw>; Tue, 5 Nov 2002 04:54:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264740AbSKEJvu>; Tue, 5 Nov 2002 04:51:50 -0500
-Received: from hazard.jcu.cz ([160.217.1.6]:35746 "EHLO hazard.jcu.cz")
-	by vger.kernel.org with ESMTP id <S264739AbSKEJvt>;
-	Tue, 5 Nov 2002 04:51:49 -0500
-Date: Tue, 5 Nov 2002 10:57:46 +0100
-From: Jan Marek <linux@hazard.jcu.cz>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: [miniPATCH] 2.5.46: fix do_timer.h
-Message-ID: <20021105095746.GA22948@hazard.jcu.cz>
+	id <S264747AbSKEJyw>; Tue, 5 Nov 2002 04:54:52 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:42132 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S264746AbSKEJyu>; Tue, 5 Nov 2002 04:54:50 -0500
+Subject: Re: Troubles with Sony PCG-C1MHP (crusoe based and ALIM 1533
+	drivers)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Manuel Serrano <Manuel.Serrano@sophia.inria.fr>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       cjtsai@ali.com.tw, Andre Hedrick <andre@linux-ide.org>
+In-Reply-To: <20021105090419.7c1282fa.Manuel.Serrano@sophia.inria.fr>
+References: <20021104114912.7c1282fa.Manuel.Serrano@sophia.inria.fr>
+	<1036414247.1113.3.camel@irongate.swansea.linux.org.uk> 
+	<20021105090419.7c1282fa.Manuel.Serrano@sophia.inria.fr>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 05 Nov 2002 10:23:14 +0000
+Message-Id: <1036491794.4827.7.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="Q68bSM7Ycu6FN28Q"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2002-11-05 at 08:20, Manuel Serrano wrote:
+> I'm sorry to keep bothering all of you with this problem. I have tried
+> a new version of the kernel (2.4.20-pre10-ac2) and I'm afraid that it does
+> not fix the problem. I'm now able to compile and boot a kernel using the
+> specific IDE driver but I'm still enable to enable the DMA on the disk.
 
---Q68bSM7Ycu6FN28Q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+This is all useful info
 
-Hallo,
 
-attached patch fix this compiler warning:
+> ALI15X3: simplex device with no drives: DMA disabled
+> ide0: ALI15X3 Bus-Master DMA disabled (BIOS)
 
-In file included from arch/i386/kernel/timers/timer_pit.c:16:
-arch/i386/mach-generic/do_timer.h: In function `do_timer_interrupt_hook':
-arch/i386/mach-generic/do_timer.h:26: warning: implicit declaration of
-function `smp_local_timer_interrupt'
 
-This problem was in 2.5.4[4-6] kernels...
+You hit one of the other bugs the -ac code introduced - whoops. This one
+is the main reason I've not yet pushed it to Marcelo. I still have to
+fix the probing code so that we don't make a decision based upon what
+drives are present before probing the drives
 
-Please apply...
-
-Sincerely
-Jan Marek
--- 
-Ing. Jan Marek
-University of South Bohemia
-Academic Computer Centre
-Phone: +420-38-7772080
-
---Q68bSM7Ycu6FN28Q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="do_timer.patch"
-
-diff -urN linux-2.5.44/arch/i386/mach-generic/do_timer.h linux-2.5.44-new/arch/i386/mach-generic/do_timer.h
---- linux-2.5.44/arch/i386/mach-generic/do_timer.h	2002-10-19 06:02:30.000000000 +0200
-+++ linux-2.5.44-new/arch/i386/mach-generic/do_timer.h	2002-10-24 20:09:31.000000000 +0200
-@@ -1,5 +1,7 @@
- /* defines for inline arch setup functions */
- 
-+#include <asm/apic.h>
-+
- /**
-  * do_timer_interrupt_hook - hook into timer tick
-  * @regs:	standard registers from interrupt
-
---Q68bSM7Ycu6FN28Q--

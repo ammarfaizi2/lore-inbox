@@ -1,61 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264909AbSJVSm6>; Tue, 22 Oct 2002 14:42:58 -0400
+	id <S264902AbSJVSkv>; Tue, 22 Oct 2002 14:40:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262126AbSJVSl1>; Tue, 22 Oct 2002 14:41:27 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:56283 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S264895AbSJVSlD>; Tue, 22 Oct 2002 14:41:03 -0400
-Date: Tue, 22 Oct 2002 16:10:02 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Jan Kasprzak <kas@informatics.muni.cz>, <linux-kernel@vger.kernel.org>,
-       <hch@infradead.org>
-Subject: Re: 2.4.20-pre11 /proc/partitions read
-In-Reply-To: <20021022184034.GA26585@win.tue.nl>
-Message-ID: <Pine.LNX.4.44L.0210221609260.7060-100000@freak.distro.conectiva>
+	id <S264903AbSJVSkv>; Tue, 22 Oct 2002 14:40:51 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:46524 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S264902AbSJVSkp>;
+	Tue, 22 Oct 2002 14:40:45 -0400
+To: Andrew Morton <akpm@digeo.com>
+cc: Rik van Riel <riel@conectiva.com.br>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Bill Davidsen <davidsen@tmr.com>, Dave McCracken <dmccr@us.ibm.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Reply-To: Gerrit Huizenga <gh@us.ibm.com>
+From: Gerrit Huizenga <gh@us.ibm.com>
+Subject: Re: [PATCH 2.5.43-mm2] New shared page table patch 
+In-reply-to: Your message of Tue, 22 Oct 2002 10:09:47 PDT.
+             <3DB5865B.4462537F@digeo.com> 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <6644.1035312307.1@us.ibm.com>
+Date: Tue, 22 Oct 2002 11:45:11 -0700
+Message-Id: <E18441g-0001jW-00@w-gerrit2>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In message <3DB5865B.4462537F@digeo.com>, > : Andrew Morton writes:
+> Rik van Riel wrote:
+> > 
+> > ...
+> > In short, we really really want shared page tables.
+> 
+> Or large pages.  I confess to being a little perplexed as to
+> why we're pursuing both.
 
+Large pages benefit the performance of large applications which
+explicity take advantage of them (at least today - maybe in the
+future, large pages will be automagically handed out to those that
+can use them).  And, as a side effect, they reduce KVA overhead.
+Oh, and at the moment, they are non-pageable, e.g. permanently stuck
+in memory.
 
-On Tue, 22 Oct 2002, Andries Brouwer wrote:
+On the other hand, shared page tables benefit any application that
+shares data, including those that haven't been trained to roll over
+and beg for large pages.  Shared page tables are already showing large
+space savings with at least one database.
 
-> On Tue, Oct 22, 2002 at 04:19:57PM +0200, Jan Kasprzak wrote:
->
-> > 	I.e. if you read the /proc/partitions in single read() call,
-> > it gets read OK. However, if you read() with smaller-sized blocks,
-> > you get the truncated contents.
->
-> Having statistics in /proc/partitions leads to such problems.
-> Make sure you do not ask for them.
->
-> --- Documentation/Configure.help~       Mon Oct 14 01:12:13 2002
-> +++ Documentation/Configure.help        Tue Oct 22 20:30:39 2002
-> @@ -561,6 +561,8 @@
->
->    This is required for the full functionality of sar(8) and interesting
->    if you want to do performance tuning, by tweaking the elevator, e.g.
-> +  On the other hand, it will cause random and mysterious failures for
-> +  fdisk, mount and other programs reading /proc/partitions.
->
->    If unsure, say N.
->
->
-> (this is about CONFIG_BLK_STATS).
->
-> Andries
->
->
-> [I still do not understand how hch can want to add this cruft to
-> /proc/partitions, and how marcelo can accept it.
-> If some vendor made this mistake, why force it on the rest of
-> the world? It is bad for RedHat users, and worse for all others.]
-
-Its not forced behaviour. Its a config option and its defaulted to off.
-
-Some people want it.
-
+gerrit

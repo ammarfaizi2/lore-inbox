@@ -1,62 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265421AbTGKU4J (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 16:56:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266774AbTGKU4J
+	id S265574AbTGKUzd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 16:55:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265421AbTGKUzd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 16:56:09 -0400
-Received: from catv-d5dea48a.bp11catv.broadband.hu ([213.222.164.138]:28676
-	"EHLO domesticus.fery-local.hu") by vger.kernel.org with ESMTP
-	id S265421AbTGKUzh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 16:55:37 -0400
-Message-ID: <3F0F27B6.9B7DAAE2@engard.hu>
-Date: Fri, 11 Jul 2003 23:10:14 +0200
-From: Ferenc Engard <ferenc@engard.hu>
-X-Mailer: Mozilla 4.79 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
+	Fri, 11 Jul 2003 16:55:33 -0400
+Received: from pat.uio.no ([129.240.130.16]:10942 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S265574AbTGKUz2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 16:55:28 -0400
 MIME-Version: 1.0
-To: Keyser Soze <keyser_soze2u@yahoo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Geode GX1, video acceleration -> crash
-References: <20030711181025.14633.qmail@web10001.mail.yahoo.com>
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16143.10146.718830.585351@charged.uio.no>
+Date: Fri, 11 Jul 2003 23:09:54 +0200
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.22-pre5
+In-Reply-To: <Pine.LNX.4.55L.0307111752060.5537@freak.distro.conectiva>
+References: <Pine.LNX.4.55L.0307111705090.5422@freak.distro.conectiva>
+	<shsu19siyru.fsf@charged.uio.no>
+	<Pine.LNX.4.55L.0307111752060.5537@freak.distro.conectiva>
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
+X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keyser Soze wrote:
-> 
-> > But the real problem is, that I wanted to benchmark
-> > the system while the scrolling continues, and issued
-> > a dd if=/dev/mem of=/dev/null bs=1024 count=32768
-> > command. For the second go, the system freezed like
-> > a good refrigerator. No kernel panic, nothing, just
-> > freezed.
-> 
-> Try turning off ide dma and see if that helps.  You
-> will lose very little by turning off udma on this
-> system and I'll bet you end up being more stable.
+>>>>> " " == Marcelo Tosatti <marcelo@conectiva.com.br> writes:
 
-I will try it on Monday, as the eval board is in my workplace. What is
-the connection between ide dma, memory read and the hw video accel? The
-ide dma setting alters the way /dev/mem is read? :-O
+    >> Is there still any chance for the NFS O_DIRECT support to make
+    >> it?
 
-I had a feeling that maybe it is a dma-related problem, but I do not
-know what does 'dd if=/dev/mem......' _really_ do. It uses a dma
-channel? The GX1 manual do not mention that the bitblk engine use up
-dma; in fact, I do think that it is a serious design error that using
-the bitlbk engine alters the way the memory can be used (except memory
-bandwith usage, naturally). 
+     > I guess the best way of doing so would be adding ->direct_io2
+     > and KERNEL24_HAS_ODIRECT_2 define.
 
-Anyway, if it solves the problem, I must understand why happened this
-error. The product will be a medical bedside monitor; so it is not
-enough that it is now _more_ stable, I have to know the origin of the
-problem.
+That is what the last patch I sent you does (also sent to l-k). Should
+I resend?
 
-I can tell you more on Monday,
-Circum
-
-PS: The system will run from flash (on IDE controller), so I suspect
-that it will be a _real big_ slowdown if in the last product I have to
-turn of the dma, but hopefully there will be no gigabytes of data...
-
+Cheers,
+  Trond

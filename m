@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268434AbTBNPcC>; Fri, 14 Feb 2003 10:32:02 -0500
+	id <S268432AbTBNPgz>; Fri, 14 Feb 2003 10:36:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268432AbTBNPcC>; Fri, 14 Feb 2003 10:32:02 -0500
-Received: from griffon.mipsys.com ([217.167.51.129]:61429 "EHLO
-	zion.wanadoo.fr") by vger.kernel.org with ESMTP id <S268434AbTBNPcC>;
-	Fri, 14 Feb 2003 10:32:02 -0500
-Subject: Re: 2.4.21-pre4: PDC ide driver problems with shared interrupts
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Edward King <edk@cendatsys.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3E4D0029.5090005@cendatsys.com>
-References: <7b263321.0302140626.2ddb7980@posting.google.com>
-	 <3E4D0029.5090005@cendatsys.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1045237300.540.43.camel@zion.wanadoo.fr>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 14 Feb 2003 16:41:50 +0100
+	id <S268437AbTBNPgy>; Fri, 14 Feb 2003 10:36:54 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:60094 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S268432AbTBNPgy>;
+	Fri, 14 Feb 2003 10:36:54 -0500
+Date: Fri, 14 Feb 2003 16:45:40 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Larry McVoy <lm@bitmover.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       David Lang <david.lang@digitalinsight.com>,
+       "Matthew D. Pitts" <mpitts@suite224.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: openbkweb-0.0
+In-Reply-To: <20030214153039.GB3188@work.bitmover.com>
+Message-ID: <Pine.GSO.4.21.0302141642370.3517-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-02-14 at 15:41, Edward King wrote:
+On Fri, 14 Feb 2003, Larry McVoy wrote:
+> I'm more than a little disgusted by this thread and the attitude of some
+> in it.  It's all well and good to whine about the BK license, but before
+> you do, how about quantifying the amount of good it has done for the 
+> kernel development process over the last year?  All sorts of people have
+> pointed out that things are going a lot better, perhaps you want to take
+> that into consideration before you decide to yank this particular chain.
 
-> Just wanted to jump in here -- I'm setting up a box using two PDC20268
-> controllers for a 4 drive software raid.  The system locks on heavy
-> disk activity only if dma is active.
-> 
-> I was watching this thread and put in the patch to remove the
-> "drive->waiting_for_dma++;" line.  I still get lockups and the message
-> on the console is:
-> 
-> hdg: dma_timer_expiry: dma status == 0x21
-> hde: dma_timer_expiry: dma status == 0x21
-> hdg: timeout waiting for DMA
-> PDC202XX: Secondary channel reset
-> hdg: timeout waiting for DMA
-> hdg: (__ide_dma_test_irq) called while not waiting
-> hdg: status error: status = 0x58 { DriveReady SeekComplete DataRequest
+Indeed. Linus' patch-dropping-rate has declined a lot since he started using
+BK, making life easier for maintainers, and people started to write better
+changelogs, making lifer easier for whoever wants to follow kernel development.
 
-The above error is a different problem. Before trying to track it
-down, I'd strongly suggest that you first check if it still happens
-with the latest 2.4.21-pre4-acX from kernel.org
+Kudos, Larry!
 
+Gr{oetje,eeting}s,
 
-Ben.
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

@@ -1,139 +1,599 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129393AbRCLHRy>; Mon, 12 Mar 2001 02:17:54 -0500
+	id <S129359AbRCLHFN>; Mon, 12 Mar 2001 02:05:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129408AbRCLHRo>; Mon, 12 Mar 2001 02:17:44 -0500
-Received: from isc4.tn.cornell.edu ([128.84.242.21]:21391 "EHLO
-	isc4.tn.cornell.edu") by vger.kernel.org with ESMTP
-	id <S129393AbRCLHRh>; Mon, 12 Mar 2001 02:17:37 -0500
-Date: Mon, 12 Mar 2001 02:16:31 -0500 (EST)
-From: "Donald J. Barry" <don@astro.cornell.edu>
-Message-Id: <200103120716.CAA24465@isc4.tn.cornell.edu>
+	id <S129363AbRCLHFE>; Mon, 12 Mar 2001 02:05:04 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:40200 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S129359AbRCLHEv>;
+	Mon, 12 Mar 2001 02:04:51 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
 To: linux-kernel@vger.kernel.org
+Cc: elenstev@mesatop.com, kbuild-devel@lists.sourceforge.net
+Subject: Rename all derived CONFIG variables
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 12 Mar 2001 18:03:22 +1100
+Message-ID: <20736.984380602@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Odd problem: Guaranteed Oops on my "pathological file system" (a monster ext2)
+In 2.4.2-ac18 there are 130 CONFIG options that are always derived from
+other options, the user has no control over them.  It is useful for the
+kernel build process to know which variables are derived and which
+variables the user can control.  There are also 6 CONFIG options that
+are not used anywhere.
 
-System: Athlon tbird 1100 MHz 
-	GA 79X motherboard (with the notorious VIA kt133 chipset) 
-        this problem with a very minimal 2.4.2 install except with
-        Pavlich's v4.3 via82cxxx.c driver (same problem with 2.4.2
-        stock driver), also same problems problems also seen with
-        RedHat's rawhide 2.4.2-0.1.25 (and 0.1.19)
-        
-I had corruption problems before, slowly knocked away by upgrading
-mb bios to current and using less aggressive disk parameters.  Now
-running: 
-/dev/hda: (and hdb and hde, my 3 drives)
- multcount    =  0 (off)
- I/O support  =  0 (default 16-bit)
- unmaskirq    =  0 (off)
- using_dma    =  1 (on)
- keepsettings =  0 (off)
- nowerr       =  0 (off)
- readonly     =  0 (off)
- readahead    =  8 (on)
- geometry     = 7473/255/63, sectors = 120064896, start = 0
+ftp://ftp.ocs.com.au/pub/2.4.2-ac18-config_derived.gz
 
-(and I just reproduced the oops even with DMA entirely off on these three
-drives).
+is a 583,904 byte (unzipped) 114,291 (gzipped) patch which removes the
+unused variables and renames the 130 derived variables from CONFIG_FOO
+to CONFIG_FOO_DERIVED.  The affected variables are :-
 
-My "pathological file system" is a three physical partition lvm volume,
-nonstriped, just a simple concretion, containing an e2fs 180G volume.  
-But some of the directories have many thousands of files (ugh) of 
-considerable length (40-60 characters, in many cases).
+Removed.  There were a couple more that could have been removed because
+nothing checks them, but they identify architecture types in .config
+and are useful for bug reporting.
 
-Just doing a "du -s *" in the top level will create the oops, quite
-reliably.  Sometimes fscking the system after a reboot will oops it also.
+CONFIG_ABSTRACT_CONSOLE
+CONFIG_ACPI_INTERPRETER
+CONFIG_CACHE_LINE_SHIFT
+CONFIG_FB_CONSOLE
+CONFIG_PCMCIA_SCSICARD
+CONFIG_PERCPU_IRQ
 
-It's a new system and has been a royal pain in the three days I've had it.
+Renamed to _DERIVED.
 
-More problems with the vaunted VIA chips? (the AmiBios isn't terribly
-configurable but I've got all the parameters set at their conservative
-end -- this is for a spacecraft data server in our lab here, and I'd
-sort of like the thing to be stable -- not an auspicious beginning so far.
+CONFIG_ALPHA_APECS
+CONFIG_ALPHA_BROKEN_IRQ_MASK
+CONFIG_ALPHA_CIA
+CONFIG_ALPHA_EISA
+CONFIG_ALPHA_EV4
+CONFIG_ALPHA_EV5
+CONFIG_ALPHA_EV6
+CONFIG_ALPHA_EV6
+CONFIG_ALPHA_IRONGATE
+CONFIG_ALPHA_LCA
+CONFIG_ALPHA_MCPCIA
+CONFIG_ALPHA_POLARIS
+CONFIG_ALPHA_PYXIS
+CONFIG_ALPHA_T2
+CONFIG_ALPHA_TSUNAMI
+CONFIG_ARC32
+CONFIG_ARC64
+CONFIG_ARCH_ACORN
+CONFIG_ARCH_EBSA285
+CONFIG_ARCH_S390
+CONFIG_ARCH_S390X
+CONFIG_ARC_MEMORY
+CONFIG_ARM
+CONFIG_ATM_FORE200E
+CONFIG_BLK_DEV_COMMERIAL
+CONFIG_BLK_DEV_HD
+CONFIG_BLK_DEV_IDEDISK_VENDOR
+CONFIG_BLK_DEV_IDEDMA
+CONFIG_BLK_DEV_IDE_MODES
+CONFIG_BOARD_SCACHE
+CONFIG_BOOT_ELF32
+CONFIG_BOOT_ELF64
+CONFIG_BUS_I2C
+CONFIG_COBALT_27
+CONFIG_COBALT_LCD
+CONFIG_COHERENT_IO
+CONFIG_CPU_26
+CONFIG_CPU_32
+CONFIG_CPU_32v3
+CONFIG_CPU_32v4
+CONFIG_CPU_SH3
+CONFIG_CPU_SH4
+CONFIG_CRIS_LOW_MAP
+CONFIG_DMASOUND
+CONFIG_DMA_NONPCI
+CONFIG_DMA_NONPCI_DERIVED
+CONFIG_DUMMY_CONSOLE
+CONFIG_FBCON_STI
+CONFIG_FB_APOLLO
+CONFIG_FB_G364
+CONFIG_FB_HP300
+CONFIG_FB_MAC
+CONFIG_FB_Q40
+CONFIG_FOOTBRIDGE
+CONFIG_FOOTBRIDGE_ADDIN
+CONFIG_FOOTBRIDGE_HOST
+CONFIG_FUSION_BOOT
+CONFIG_HAVE_DEC_LOCK
+CONFIG_IA64
+CONFIG_IA64_BRL_EMU
+CONFIG_IDEDMA_AUTO
+CONFIG_IP_NF_NAT_FTP
+CONFIG_IP_NF_NAT_NEEDED
+CONFIG_ISA
+CONFIG_ISA_DMA
+CONFIG_ISDN_CAPI_CAPIFS
+CONFIG_ITANIUM
+CONFIG_KBDMOUSE
+CONFIG_LOCKD
+CONFIG_LOCKD_V4
+CONFIG_M68K_L2_CACHE
+CONFIG_MACH_SPECIFIC
+CONFIG_MAC_HID
+CONFIG_MIPS_JAZZ
+CONFIG_MSNDCLAS_HAVE_BOOT
+CONFIG_MSNDPIN_HAVE_BOOT
+CONFIG_MTD_AMDSTD
+CONFIG_MTD_DOCPROBE
+CONFIG_MTD_JEDEC
+CONFIG_NET_CLS_ROUTE
+CONFIG_NLS
+CONFIG_NUBUS
+CONFIG_PARIDE_PARPORT
+CONFIG_PCI_BIOS
+CONFIG_PCI_CONSOLE
+CONFIG_PCI_DIRECT
+CONFIG_PCMCIA_CHRDEV
+CONFIG_PCMCIA_NETCARD
+CONFIG_PC_KEYB
+CONFIG_PC_KEYMAP
+CONFIG_PPC
+CONFIG_PPC64BRIDGE
+CONFIG_QL_ISP_A64
+CONFIG_RPCMOUSE
+CONFIG_SA1111
+CONFIG_SBUS
+CONFIG_SBUSCHAR
+CONFIG_SGI
+CONFIG_SH_HP600
+CONFIG_SH_RTC
+CONFIG_SMB_NLS
+CONFIG_SPARC32
+CONFIG_SPARC64
+CONFIG_SUNRPC
+CONFIG_SUN_AUXIO
+CONFIG_SUN_CONSOLE
+CONFIG_SUN_IO
+CONFIG_SUN_SERIAL
+CONFIG_SUPERH
+CONFIG_TQM8xxL
+CONFIG_UID16
+CONFIG_X86
+CONFIG_X86_ALIGNMENT_16
+CONFIG_X86_BSWAP
+CONFIG_X86_CMPXCHG
+CONFIG_X86_GOOD_APIC
+CONFIG_X86_INVLPG
+CONFIG_X86_IO_APIC
+CONFIG_X86_L1_CACHE_SHIFT
+CONFIG_X86_LOCAL_APIC
+CONFIG_X86_PAE
+CONFIG_X86_PGE
+CONFIG_X86_POPAD_OK
+CONFIG_X86_TSC
+CONFIG_X86_USE_3DNOW
+CONFIG_X86_USE_PPRO_CHECKSUM
+CONFIG_X86_USE_STRING_486
+CONFIG_X86_VISWS_APIC
+CONFIG_X86_WP_WORKS_OK
+CONFIG_ZFT_COMPRESSOR
 
-Cheers,  Don Barry, 
-SIRTF/IRS Science Team,
-Cornell Astronomy
-(please cc to don@astro.cornell.edu any messages to the list)
+The patch hits these files.
 
-----ksymoops follows
+Documentation/Configure.help
+Documentation/kbuild/config-language.txt
+Documentation/kbuild/makefiles.txt
+Makefile
+arch/alpha/Makefile
+arch/alpha/config.in
+arch/alpha/defconfig
+arch/alpha/kernel/Makefile
+arch/alpha/kernel/alpha_ksyms.c
+arch/alpha/kernel/irq_alpha.c
+arch/alpha/kernel/irq_i8259.c
+arch/alpha/kernel/process.c
+arch/alpha/kernel/setup.c
+arch/alpha/lib/Makefile
+arch/arm/Makefile
+arch/arm/boot/Makefile
+arch/arm/boot/compressed/Makefile
+arch/arm/config.in
+arch/arm/def-configs/a5k
+arch/arm/def-configs/assabet
+arch/arm/def-configs/brutus
+arch/arm/def-configs/cerf
+arch/arm/def-configs/clps7500
+arch/arm/def-configs/ebsa110
+arch/arm/def-configs/empeg
+arch/arm/def-configs/footbridge
+arch/arm/def-configs/graphicsclient
+arch/arm/def-configs/integrator
+arch/arm/def-configs/lart
+arch/arm/def-configs/lusl7200
+arch/arm/def-configs/neponset
+arch/arm/def-configs/pangolin
+arch/arm/def-configs/rpc
+arch/arm/def-configs/shark
+arch/arm/def-configs/sherman
+arch/arm/def-configs/victor
+arch/arm/defconfig
+arch/arm/kernel/Makefile
+arch/arm/kernel/arch.c
+arch/arm/kernel/armksyms.c
+arch/arm/kernel/bios32.c
+arch/arm/kernel/debug-armv.S
+arch/arm/kernel/dma-footbridge.c
+arch/arm/kernel/ecard.c
+arch/arm/kernel/entry-armv.S
+arch/arm/kernel/fiq.c
+arch/arm/kernel/irq.c
+arch/arm/kernel/process.c
+arch/arm/kernel/semaphore.c
+arch/arm/kernel/setup.c
+arch/arm/kernel/signal.c
+arch/arm/kernel/traps.c
+arch/arm/lib/Makefile
+arch/arm/lib/backtrace.S
+arch/arm/lib/csumpartialcopyuser.S
+arch/arm/lib/ecard.S
+arch/arm/lib/io-acorn.S
+arch/arm/mach-footbridge/Makefile
+arch/arm/mach-footbridge/arch.c
+arch/arm/mach-sa1100/hw.c
+arch/arm/mach-shark/dma.c
+arch/arm/mm/Makefile
+arch/arm/mm/fault-common.c
+arch/arm/mm/init.c
+arch/arm/mm/mm-footbridge.c
+arch/arm/nwfpe/Makefile
+arch/arm/nwfpe/fpmodule.h
+arch/arm/tools/getconstants.c
+arch/cris/config.in
+arch/cris/defconfig
+arch/cris/drivers/Config.in
+arch/cris/drivers/axisflashmap.c
+arch/cris/drivers/ide.c
+arch/cris/kernel/head.S
+arch/cris/mm/init.c
+arch/i386/config.in
+arch/i386/defconfig
+arch/i386/kernel/Makefile
+arch/i386/kernel/apic.c
+arch/i386/kernel/entry.S
+arch/i386/kernel/head.S
+arch/i386/kernel/i386_ksyms.c
+arch/i386/kernel/i8259.c
+arch/i386/kernel/irq.c
+arch/i386/kernel/mpparse.c
+arch/i386/kernel/pci-irq.c
+arch/i386/kernel/pci-pc.c
+arch/i386/kernel/setup.c
+arch/i386/kernel/time.c
+arch/i386/kernel/traps.c
+arch/i386/lib/Makefile
+arch/i386/lib/checksum.S
+arch/i386/lib/memcpy.c
+arch/i386/mm/init.c
+arch/ia64/config.in
+arch/ia64/defconfig
+arch/ia64/kernel/Makefile
+arch/ia64/kernel/head.S
+arch/ia64/kernel/irq.c
+arch/ia64/kernel/ivt.S
+arch/ia64/kernel/setup.c
+arch/ia64/kernel/traps.c
+arch/m68k/amiga/config.c
+arch/m68k/apollo/config.c
+arch/m68k/atari/config.c
+arch/m68k/config.in
+arch/m68k/defconfig
+arch/m68k/hp300/config.c
+arch/m68k/kernel/setup.c
+arch/m68k/mm/memory.c
+arch/mips/Makefile
+arch/mips/config.in
+arch/mips/defconfig
+arch/mips/defconfig-cobalt
+arch/mips/defconfig-decstation
+arch/mips/defconfig-ip22
+arch/mips/defconfig-orion
+arch/mips/defconfig-rm200
+arch/mips/kernel/mips_ksyms.c
+arch/mips/kernel/setup.c
+arch/mips/lib/Makefile
+arch/mips/mm/init.c
+arch/mips64/Makefile
+arch/mips64/arc/Makefile
+arch/mips64/arc/memory.c
+arch/mips64/config.in
+arch/mips64/defconfig
+arch/mips64/defconfig-ip22
+arch/mips64/defconfig-ip27
+arch/mips64/kernel/head.S
+arch/mips64/kernel/mips64_ksyms.c
+arch/parisc/config.common
+arch/parisc/defconfig
+arch/parisc/kernel/ccio-dma.c
+arch/parisc/kernel/parisc_ksyms.c
+arch/parisc/kernel/setup.c
+arch/ppc/Makefile
+arch/ppc/boot/Makefile
+arch/ppc/chrpboot/Makefile
+arch/ppc/coffboot/Makefile
+arch/ppc/config.in
+arch/ppc/configs/IVMS8_defconfig
+arch/ppc/configs/SM850_defconfig
+arch/ppc/configs/SPD823TS_defconfig
+arch/ppc/configs/TQM823L_defconfig
+arch/ppc/configs/TQM850L_defconfig
+arch/ppc/configs/TQM860L_defconfig
+arch/ppc/configs/apus_defconfig
+arch/ppc/configs/bseip_defconfig
+arch/ppc/configs/common_defconfig
+arch/ppc/configs/est8260_defconfig
+arch/ppc/configs/ibmchrp_defconfig
+arch/ppc/configs/mbx_defconfig
+arch/ppc/configs/oak_defconfig
+arch/ppc/configs/power3_defconfig
+arch/ppc/configs/rpxcllf_defconfig
+arch/ppc/configs/rpxlite_defconfig
+arch/ppc/configs/walnut_defconfig
+arch/ppc/defconfig
+arch/ppc/kernel/Makefile
+arch/ppc/kernel/chrp_pci.c
+arch/ppc/kernel/chrp_setup.c
+arch/ppc/kernel/hashtable.S
+arch/ppc/kernel/head.S
+arch/ppc/kernel/misc.S
+arch/ppc/kernel/pmac_setup.c
+arch/ppc/kernel/ppc_asm.h
+arch/ppc/kernel/ppc_ksyms.c
+arch/ppc/kernel/prom.c
+arch/ppc/kernel/setup.c
+arch/ppc/lib/string.S
+arch/ppc/mm/init.c
+arch/ppc/xmon/xmon.c
+arch/s390/config.in
+arch/s390/defconfig
+arch/s390/kernel/debug.c
+arch/s390x/config.in
+arch/s390x/defconfig
+arch/s390x/kernel/debug.c
+arch/sh/Makefile
+arch/sh/config.in
+arch/sh/defconfig
+arch/sh/kernel/Makefile
+arch/sh/kernel/setup.c
+arch/sparc/config.in
+arch/sparc/defconfig
+arch/sparc/kernel/Makefile
+arch/sparc/kernel/devices.c
+arch/sparc/kernel/ebus.c
+arch/sparc/kernel/ioport.c
+arch/sparc/kernel/process.c
+arch/sparc/kernel/setup.c
+arch/sparc/kernel/sparc_ksyms.c
+arch/sparc/mm/io-unit.c
+arch/sparc/mm/iommu.c
+arch/sparc/mm/srmmu.c
+arch/sparc/mm/sun4c.c
+arch/sparc/prom/misc.c
+arch/sparc64/config.in
+arch/sparc64/defconfig
+arch/sparc64/kernel/ebus.c
+arch/sparc64/kernel/head.S
+arch/sparc64/kernel/process.c
+arch/sparc64/kernel/setup.c
+arch/sparc64/kernel/sparc64_ksyms.c
+arch/sparc64/mm/init.c
+arch/sparc64/prom/misc.c
+drivers/Makefile
+drivers/acorn/char/Makefile
+drivers/acorn/char/keyb_arc.c
+drivers/atm/Config.in
+drivers/atm/Makefile
+drivers/atm/atmdev_init.c
+drivers/block/Config.in
+drivers/block/Makefile
+drivers/block/genhd.c
+drivers/block/ll_rw_blk.c
+drivers/block/paride/Config.in
+drivers/block/rd.c
+drivers/char/Config.in
+drivers/char/Makefile
+drivers/char/cyclades.c
+drivers/char/ftape/Config.in
+drivers/char/ftape/Makefile
+drivers/char/ftape/zftape/zftape-init.c
+drivers/char/joystick/analog.c
+drivers/char/misc.c
+drivers/char/pcmcia/Config.in
+drivers/ide/Config.in
+drivers/ide/Makefile
+drivers/ide/aec62xx.c
+drivers/ide/alim15x3.c
+drivers/ide/amd7409.c
+drivers/ide/cmd64x.c
+drivers/ide/cs5530.c
+drivers/ide/cy82c693.c
+drivers/ide/hpt34x.c
+drivers/ide/hpt366.c
+drivers/ide/ide-cd.c
+drivers/ide/ide-disk.c
+drivers/ide/ide-features.c
+drivers/ide/ide-floppy.c
+drivers/ide/ide-pci.c
+drivers/ide/ide-probe.c
+drivers/ide/ide-tape.c
+drivers/ide/ide.c
+drivers/ide/ide_modes.h
+drivers/ide/ns87415.c
+drivers/ide/osb4.c
+drivers/ide/pdc202xx.c
+drivers/ide/piix.c
+drivers/ide/sis5513.c
+drivers/ide/slc90e66.c
+drivers/ide/trm290.c
+drivers/ide/via82cxxx.c
+drivers/input/keybdev.c
+drivers/isdn/Config.in
+drivers/isdn/avmb1/Makefile
+drivers/isdn/avmb1/capi.c
+drivers/macintosh/Makefile
+drivers/macintosh/adb.c
+drivers/macintosh/mac_hid.c
+drivers/macintosh/mac_keyb.c
+drivers/macintosh/via-cuda.c
+drivers/media/video/Config.in
+drivers/media/video/Makefile
+drivers/message/fusion/Config.in
+drivers/mtd/Config.in
+drivers/mtd/Makefile
+drivers/net/Config.in
+drivers/net/Makefile
+drivers/net/acenic.c
+drivers/net/acenic.h
+drivers/net/arcnet/Config.in
+drivers/net/de4x5.c
+drivers/net/pcmcia/Config.in
+drivers/net/sunhme.c
+drivers/net/sunhme.h
+drivers/net/tokenring/Config.in
+drivers/net/wan/Config.in
+drivers/parport/Config.in
+drivers/pci/Makefile
+drivers/pcmcia/cs.c
+drivers/pcmcia/i82365.c
+drivers/pcmcia/rsrc_mgr.c
+drivers/s390/Config.in
+drivers/s390/block/xpram.c
+drivers/s390/idals.c
+drivers/s390/misc/chandev.c
+drivers/s390/s390io.c
+drivers/sbus/Makefile
+drivers/sbus/audio/Config.in
+drivers/sbus/sbus.c
+drivers/scsi/Config.in
+drivers/scsi/Makefile
+drivers/scsi/pcmcia/Config.in
+drivers/scsi/qlogicisp.c
+drivers/scsi/scsi.h
+drivers/scsi/sd.c
+drivers/sound/Config.in
+drivers/sound/Makefile
+drivers/sound/dmasound/Config.in
+drivers/sound/dmasound/Makefile
+drivers/sound/msnd_pinnacle.c
+drivers/video/Config.in
+drivers/video/Makefile
+drivers/video/aty/atyfb_base.c
+drivers/video/aty128fb.c
+drivers/video/cyber2000fb.c
+drivers/video/fbmem.c
+drivers/video/font_acorn_8x8.c
+drivers/video/imsttfb.c
+drivers/video/matrox/matroxfb_base.c
+drivers/video/matrox/matroxfb_base.h
+drivers/video/promcon.c
+drivers/video/vgacon.c
+fs/Config.in
+fs/Makefile
+fs/lockd/Makefile
+fs/lockd/svc.c
+fs/lockd/svclock.c
+fs/lockd/svcproc.c
+fs/lockd/svcsubs.c
+fs/lockd/xdr.c
+fs/ncpfs/ioctl.c
+fs/nls/Config.in
+fs/partitions/Config.in
+fs/partitions/mac.c
+fs/proc/array.c
+fs/proc/proc_misc.c
+fs/stat.c
+include/asm-alpha/cache.h
+include/asm-alpha/core_cia.h
+include/asm-alpha/io.h
+include/asm-alpha/mmu_context.h
+include/asm-alpha/pgalloc.h
+include/asm-alpha/pgtable.h
+include/asm-alpha/system.h
+include/asm-arm/arch-ebsa285/memory.h
+include/asm-arm/arch-sa1100/hardware.h
+include/asm-arm/arch-sa1100/irq.h
+include/asm-arm/arch-sa1100/irqs.h
+include/asm-arm/hardware/dec21285.h
+include/asm-arm/proc-fns.h
+include/asm-cris/page.h
+include/asm-cris/pgtable.h
+include/asm-cris/processor.h
+include/asm-i386/apic.h
+include/asm-i386/bugs.h
+include/asm-i386/byteorder.h
+include/asm-i386/cache.h
+include/asm-i386/cobalt.h
+include/asm-i386/fixmap.h
+include/asm-i386/highmem.h
+include/asm-i386/io_apic.h
+include/asm-i386/irq.h
+include/asm-i386/lithium.h
+include/asm-i386/page.h
+include/asm-i386/pgalloc.h
+include/asm-i386/pgtable.h
+include/asm-i386/processor.h
+include/asm-i386/smp.h
+include/asm-i386/string-486.h
+include/asm-i386/string.h
+include/asm-i386/system.h
+include/asm-i386/timex.h
+include/asm-i386/uaccess.h
+include/asm-ia64/delay.h
+include/asm-mips/arc/types.h
+include/asm-mips/pci.h
+include/asm-mips/serial.h
+include/asm-mips64/arc/types.h
+include/asm-mips64/bcache.h
+include/asm-mips64/io.h
+include/asm-mips64/pci.h
+include/asm-mips64/sgiarcs.h
+include/asm-parisc/io.h
+include/asm-ppc/cache.h
+include/asm-ppc/mmu.h
+include/asm-ppc/mpc8xx.h
+include/asm-ppc/processor.h
+include/asm-ppc/prom.h
+include/asm-ppc/tqm8xx.h
+include/asm-s390/idals.h
+include/asm-s390/irq.h
+include/asm-s390x/idals.h
+include/asm-s390x/irq.h
+include/asm-sh/io.h
+include/asm-sh/machvec.h
+include/linux/blk.h
+include/linux/highuid.h
+include/linux/ide.h
+include/linux/kernel_stat.h
+include/linux/linkage.h
+include/linux/lockd/lockd.h
+include/linux/lockd/nlm.h
+include/linux/lvm.h
+include/linux/netfilter_ipv4/ip_conntrack.h
+include/linux/types.h
+include/net/dst.h
+include/net/ip_fib.h
+include/net/pkt_sched.h
+include/net/profile.h
+init/main.c
+kernel/Makefile
+kernel/ksyms.c
+kernel/panic.c
+kernel/sched.c
+kernel/softirq.c
+kernel/sysctl.c
+lib/Makefile
+net/Makefile
+net/ipv4/fib_rules.c
+net/ipv4/fib_semantics.c
+net/ipv4/ip_input.c
+net/ipv4/netfilter/Config.in
+net/ipv4/netfilter/Makefile
+net/ipv4/route.c
+net/ipv6/route.c
+net/sched/Config.in
 
-ksymoops 2.3.4 on i686 2.4.2.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.2/ (default)
-     -m /usr/src/linux/System.map (default)
-
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
-
-Warning (compare_maps): ksyms_base symbol __blk_get_queue_R__ver___blk_get_queue not found in System.map.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol blk_cleanup_queue_R__ver_blk_cleanup_queue not found in System.map.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol blk_get_queue_R__ver_blk_get_queue not found in System.map.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol blk_init_queue_R__ver_blk_init_queue not found in System.map.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol blk_queue_headactive_R__ver_blk_queue_headactive not found in System.map.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol blk_queue_make_request_R__ver_blk_queue_make_request not found in System.map.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol blk_queue_pluggable_R__ver_blk_queue_pluggable not found in System.map.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol blkdev_release_request_R__ver_blkdev_release_request not found in System.map.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol end_that_request_first_R__ver_end_that_request_first not found in System.map.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol end_that_request_last_R__ver_end_that_request_last not found in System.map.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol generic_make_request_R__ver_generic_make_request not found in System.map.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol generic_unplug_device_R__ver_generic_unplug_device not found in System.map.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol io_request_lock_R__ver_io_request_lock not found in System.map.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol queued_sectors_R__ver_queued_sectors not found in System.map.  Ignoring ksyms_base entry
-Unable to handle kernel paging request at virtual address 003dde2f
-c014196b
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c014196b>]
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010207
-eax: cffd9188   ebx: 003dde0f   ecx: 0000000e   edx: 006d0225
-esi: 003dde0f   edi: 00000000   ebp: cffd9188   esp: ce419eb8
-ds: 0018   es: 0018   ss: 0018
-Process du (pid: 902, stackpage=ce419000)
-Stack: 006d0225 00000000 006d0225 ce885c00 c0141d87 ce885c00 006d0225 cffd9188 
-       00000000 00000000 006d0225 c7024340 c70b6300 c70b635c cffd9188 c01506cb 
-       ce885c00 006d0225 00000000 00000000 fffffff4 c7024340 c70b6300 c70af5c8 
-Call Trace: [<c0141d87>] [<c01506cb>] [<c01385d3>] [<c0138d57>] [<c013833b>] [<c013938c>] [<c0136236>] 
-       [<c012dfd3>] [<c0108f47>] 
-Code: 39 53 20 75 24 8b 54 24 14 39 93 8c 00 00 00 75 18 85 ff 74 
-
->>EIP; c014196b <find_inode+1b/60>   <=====
-Trace; c0141d87 <iget4+47/e0>
-Trace; c01506cb <ext2_lookup+5b/90>
-Trace; c01385d3 <real_lookup+53/c0>
-Trace; c0138d57 <path_walk+5b7/820>
-Trace; c013833b <getname+5b/a0>
-Trace; c013938c <__user_walk+3c/60>
-Trace; c0136236 <sys_lstat64+16/70>
-Trace; c012dfd3 <sys_close+43/60>
-Trace; c0108f47 <system_call+33/38>
-Code;  c014196b <find_inode+1b/60>
-00000000 <_EIP>:
-Code;  c014196b <find_inode+1b/60>   <=====
-   0:   39 53 20                  cmp    %edx,0x20(%ebx)   <=====
-Code;  c014196e <find_inode+1e/60>
-   3:   75 24                     jne    29 <_EIP+0x29> c0141994 <find_inode+44/60>
-Code;  c0141970 <find_inode+20/60>
-   5:   8b 54 24 14               mov    0x14(%esp,1),%edx
-Code;  c0141974 <find_inode+24/60>
-   9:   39 93 8c 00 00 00         cmp    %edx,0x8c(%ebx)
-Code;  c014197a <find_inode+2a/60>
-   f:   75 18                     jne    29 <_EIP+0x29> c0141994 <find_inode+44/60>
-Code;  c014197c <find_inode+2c/60>
-  11:   85 ff                     test   %edi,%edi
-Code;  c014197e <find_inode+2e/60>
-  13:   74 00                     je     15 <_EIP+0x15> c0141980 <find_inode+30/60>
-
-
-15 warnings issued.  Results may not be reliable.

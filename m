@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129309AbRBYObj>; Sun, 25 Feb 2001 09:31:39 -0500
+	id <S129324AbRBYOlM>; Sun, 25 Feb 2001 09:41:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129304AbRBYOba>; Sun, 25 Feb 2001 09:31:30 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:64774 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129299AbRBYObY>; Sun, 25 Feb 2001 09:31:24 -0500
+	id <S129313AbRBYOlD>; Sun, 25 Feb 2001 09:41:03 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:50507
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S129305AbRBYOkv>; Sun, 25 Feb 2001 09:40:51 -0500
+Date: Sun, 25 Feb 2001 15:40:43 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] s/isa//g in drivers/scsi/g_NCR5380.c and some cleanup (242)
-To: rasmus@jaquet.dk (Rasmus Andersen)
-Date: Sun, 25 Feb 2001 14:34:28 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-scsi@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20010225151930.C764@jaquet.dk> from "Rasmus Andersen" at Feb 25, 2001 03:19:30 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+Message-ID: <20010225154043.D764@jaquet.dk>
+In-Reply-To: <20010225151930.C764@jaquet.dk> <E14X2Fq-0003Ai-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14X2Fq-0003Ai-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E14X2Fq-0003Ai-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, Feb 25, 2001 at 02:34:28PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Looking at the define of NCR_5380_write
 > 
-> #define NCR5380_write(reg, value) isa_writeb(NCR5380_map_name + +NCR53C400_mem_base + (reg), value)
+> Im running PIO. However while I agree with that one Im dubious about the
+> inverts on the memcpy_*io bits
 > 
-> followed by an use of NCR5380_write
-> 
->     NCR5380_write(C400_CONTROL_STATUS_REG, CSR_BASE | CSR_TRANS_DIR);
-> 
-> I doubt that it is not the intention to write CSR_BASE | CSR_TRANS_DIR
-> at the offset C400_CONTROL_STATUS_REG. But note that this argument
-> swap only is in the code produced by -DCONFIG_SCSI_G_NCR5380_MEM.
-> Perhaps you use CONFIG_SCSI_G_NCR5380_PORT? Otherwise I must admit
-> that I have been had...
 
-Im running PIO. However while I agree with that one Im dubious about the
-inverts on the memcpy_*io bits
+I am sorry but have I inverted the arguments to the memcpy_*io calls?
+Or are you referring to something other than the arguments here?
+-- 
+        Rasmus(rasmus@jaquet.dk)
 
-Alan
-
+"Science is like sex: sometimes something useful comes out, but that 
+is not the reason we are doing it" -- Richard Feynman 

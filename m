@@ -1,134 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131563AbREIUeI>; Wed, 9 May 2001 16:34:08 -0400
+	id <S132057AbREIUwx>; Wed, 9 May 2001 16:52:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131949AbREIUd5>; Wed, 9 May 2001 16:33:57 -0400
-Received: from Sarah.SomeSites.com ([208.44.57.7]:55557 "HELO
-	MoveAlong.SomeSites.com") by vger.kernel.org with SMTP
-	id <S131563AbREIUdm>; Wed, 9 May 2001 16:33:42 -0400
-Message-ID: <000b01c0d8c7$57495890$0100a8c0@SomeSites.com>
-From: "James Turinsky (LKML)" <lkml@SomeSites.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Unable to re-enable DMA after DMA timeout (why?)
-Date: Wed, 9 May 2001 16:33:41 -0400
+	id <S132318AbREIUwd>; Wed, 9 May 2001 16:52:33 -0400
+Received: from fencepost.gnu.org ([199.232.76.164]:15378 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP
+	id <S132057AbREIUwV>; Wed, 9 May 2001 16:52:21 -0400
+Date: Wed, 9 May 2001 16:52:24 -0400 (EDT)
+From: Pavel Roskin <proski@gnu.org>
+X-X-Sender: <proski@fonzie.nine.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Pete Zaitcev <zaitcev@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Patch to make ymfpci legacy address 16 bits
+In-Reply-To: <3AF9A726.BF819B30@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.33.0105091627440.5113-100000@fonzie.nine.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is what happens after several days running with either the kernel
-activating DMA or activating it manually (hdparm -d1 /dev/hda) in at
-least
-2.4.2 through 2.4.5-ac5:
+Hi, Jeff!
 
-hda: timeout waiting for DMA
-ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-hda: irq timeout: status=0x80 { Busy }
-hda: DMA disabled
-ide0: reset: success
+Thanks for your very (!!!) fast response :-)
 
-Issuing hdparm -d1 /dev/hda at this point causes a short period of
-system unresponsiveness which ends with the following:
+> > http://www.red-bean.com/~proski/linux/ymfpci_pm.diff
+>
+> Why not use pci_driver::{suspend,resume} ?
 
-hda: timeout waiting for DMA
-ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-hda: irq timeout: status=0x50 { DriveReady SeekComplete }
-hda: timeout waiting for DMA
-ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-hda: irq timeout: status=0x50 { DriveReady SeekComplete }
-hda: timeout waiting for DMA
-ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-hda: irq timeout: status=0x50 { DriveReady SeekComplete }
-hda: timeout waiting for DMA
-ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-hda: irq timeout: status=0x50 { DriveReady SeekComplete }
-hda: DMA disabled
-ide0: reset: success
+I'm just a bit conservative. There are several drivers that don't use this
+mechanism, notably trident and maestro. Do you think it's safe to switch
+all sound drivers to the mechanism you are proposing?
 
-Here is the drive info:
+I'm worried about a comment in maestro.c:
 
-hdparm -iI /dev/hda
+                /*
+                 * we'd also like to find out about
+                 * power level changes because some biosen
+                 * do mean things to the maestro when they
+                 * change their power state.
+                 */
 
-/dev/hda:
+If we switch to pci_driver::{suspend,resume}, will it ever be possible to
+add support for any messages other than PM_SUSPEND and PM_RESUME? Probably
+yes, but only in the PCI driver dispatches them.
 
- Model=IBM-DTTA-371010, FwRev=T77OA73A, SerialNo=WL0WLF36394
- Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=34
- BuffType=DualPortCache, BuffSize=465kB, MaxMultSect=16, MultSect=off
- CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=19746720
- IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes: pio0 pio1 pio2 pio3 pio4
- DMA modes: sdma0 sdma1 sdma2 mdma0 mdma1 mdma2 udma0 udma1 *udma2
- AdvancedPM=no
- Drive Supports : ATA/ATAPI-4 T13 1153D revision 17 : ATA-1 ATA-2 ATA-3
-ATA-4
+By the way, I don't like the way how pm_unregister_all() is used in
+several sound drivers. If a unit is removed its power manager callback
+remains registered until the module is unloaded.
 
+> In ACPI land the kernel should save and restore the PCI device config
+> space and the PCI bus config space.  It is probably that similar is
+> necessary under APM.
 
- Model=BI-MTDAT3-1710 0                        , FwRev=7TO77AA3,
-SerialNo=
-  W 0LLW3F3649
- Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=34
- BuffType=DualPortCache, BuffSize=465kB, MaxMultSect=16, MultSect=off
- CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=19746720
- IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes: pio0 pio1 pio2 pio3 pio4
- DMA modes: sdma0 sdma1 sdma2 mdma0 mdma1 *mdma2 udma0 udma1 udma2
- AdvancedPM=no
- Drive Supports : ATA/ATAPI-4 T13 1153D revision 17 : ATA-1 ATA-2 ATA-3
-ATA-4
+I have never seen any sound driver doing that. I also know that PCI
+settings are saved by some BIOSes on some hardware.
 
-Here is the controller info:
+I'm sorry if I put it wrong. Perhaps I should have added a few IMHO.
 
-00:11.0 Unknown mass storage controller: Promise Technology, Inc. 20262
-(rev 01)
-        Subsystem: Promise Technology, Inc.: Unknown device 4d33
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 64
-        Interrupt: pin A routed to IRQ 11
-        Region 0: I/O ports at f4f0 [size=8]
-        Region 1: I/O ports at fc88 [size=4]
-        Region 2: I/O ports at f4f8 [size=8]
-        Region 3: I/O ports at fc8c [size=4]
-        Region 4: I/O ports at fcc0 [size=64]
-        Region 5: Memory at fcfe0000 (32-bit, non-prefetchable)
-[size=128K]
-        Expansion ROM at <unassigned> [disabled] [size=64K]
-        Capabilities: [58] Power Management version 1
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+PS. The 0x20 bit in 0x40 is not set if I load CVS ALSA drivers, even if I
+set it before loading the driver. It's a problem with the kernel driver
+only and should be fixed IMHO.
 
-I also see this on the onboard controller
-
-00:00.0 Host bridge: Intel Corporation 430VX - 82437VX TVX [Triton VX]
-(rev 02)
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort+ >SERR- <PERR-
-        Latency: 32
-
-00:07.1 IDE interface: Intel Corporation 82371SB PIIX3 IDE
-[Natoma/Triton II] (prog-if 80 [Master])
-        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 64
-        Region 4: I/O ports at fc90 [size=16]
-
-I distinctly remember being able to re-enable DMA after the DMA timeout
-in 2.2.x. What gives?
-
-
+-- 
+Regards,
+Pavel Roskin
 

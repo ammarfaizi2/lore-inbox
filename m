@@ -1,57 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262530AbVCXOvH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262502AbVCXO71@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262530AbVCXOvH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 09:51:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262548AbVCXOvH
+	id S262502AbVCXO71 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 09:59:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262517AbVCXO71
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 09:51:07 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:33413 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S262509AbVCXOvA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 09:51:00 -0500
-Date: Thu, 24 Mar 2005 08:50:50 -0600
-From: Michael Raymond <mraymond@sgi.com>
-To: Ashok Raj <ashok.raj@intel.com>
-Cc: "Luck, Tony" <tony.luck@intel.com>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] User Level Interrupts
-Message-ID: <20050324085047.F110444@goliath.americas.sgi.com>
-References: <20050323103832.A108873@goliath.americas.sgi.com> <20050323145738.A29828@unix-os.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20050323145738.A29828@unix-os.sc.intel.com>; from ashok.raj@intel.com on Wed, Mar 23, 2005 at 02:57:39PM -0800
+	Thu, 24 Mar 2005 09:59:27 -0500
+Received: from geode.he.net ([216.218.230.98]:37132 "HELO noserose.net")
+	by vger.kernel.org with SMTP id S262502AbVCXO7V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 09:59:21 -0500
+From: ecashin@noserose.net
+Message-Id: <1111676358.20123@geode.he.net>
+Date: Thu, 24 Mar 2005 06:59:18 -0800
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.11] aoe [1/12]: remove too-low cap on minor number
+References: <87mztbi79d.fsf@coraid.com> <20050317234641.GA7091@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    I did the test you suggested.  The turning-on and turning-off appeared
-to work but our SN Hub ASIC still sent interrupts to the specific CPU.
-    I looked at my code again and from your description of Hotplug I do not
-see any conflicts.
-    		  				Thanks,
-    		  					Michael
 
-On Wed, Mar 23, 2005 at 02:57:39PM -0800, Ashok Raj wrote:
-> Hi Michael
-> 
-> have you thought about how this infrastructure would play well with 
-> existing CPU hotplug code for ia64?
-> 
-> Once you return to user mode via the iret, is it possible that user mode
-> thread could get switched due to a pending cpu quiese attempt to remove
-> a cpu? (Current cpu removal code would bring the entire system to knees
-> by scheduling a high priority thread and looping with intr disabled, until the
-> target cpu is removed)
-> 
-> the cpu removal code would also attempt to migrate user process to another cpu,
-> retarget interrupts to another existing cpu etc. I havent tested the hotplug
-> code on sgi boxes so far. (only tested on some hp boxes by Alex Williamson
-> and on tiger4 boxes so far)
-> 
-> Cheers,
-> ashok
+remove too-low cap on minor number
+
+Signed-off-by: Ed L. Cashin <ecashin@coraid.com>
+
+diff -uprN a/drivers/block/aoe/aoe.h b/drivers/block/aoe/aoe.h
+--- a/drivers/block/aoe/aoe.h	2005-03-10 11:59:55.000000000 -0500
++++ b/drivers/block/aoe/aoe.h	2005-03-10 12:19:04.000000000 -0500
+@@ -2,9 +2,14 @@
+ #define VERSION "5"
+ #define AOE_MAJOR 152
+ #define DEVICE_NAME "aoe"
++
++/* set AOE_PARTITIONS to 1 to use whole-disks only
++ * default is 16, which is 15 partitions plus the whole disk
++ */
+ #ifndef AOE_PARTITIONS
+ #define AOE_PARTITIONS 16
+ #endif
++
+ #define SYSMINOR(aoemajor, aoeminor) ((aoemajor) * 10 + (aoeminor))
+ #define AOEMAJOR(sysminor) ((sysminor) / 10)
+ #define AOEMINOR(sysminor) ((sysminor) % 10)
+diff -uprN a/drivers/block/aoe/aoecmd.c b/drivers/block/aoe/aoecmd.c
+--- a/drivers/block/aoe/aoecmd.c	2005-03-10 11:59:55.000000000 -0500
++++ b/drivers/block/aoe/aoecmd.c	2005-03-10 12:19:04.000000000 -0500
+@@ -577,7 +577,7 @@ aoecmd_cfg_rsp(struct sk_buff *skb)
+ 	struct aoe_cfghdr *ch;
+ 	ulong flags, bufcnt, sysminor, aoemajor;
+ 	struct sk_buff *sl;
+-	enum { MAXFRAMES = 8, MAXSYSMINOR = 255 };
++	enum { MAXFRAMES = 8 };
+ 
+ 	h = (struct aoe_hdr *) skb->mac.raw;
+ 	ch = (struct aoe_cfghdr *) (h+1);
+@@ -594,9 +594,10 @@ aoecmd_cfg_rsp(struct sk_buff *skb)
+ 	}
+ 
+ 	sysminor = SYSMINOR(aoemajor, h->minor);
+-	if (sysminor > MAXSYSMINOR) {
+-		printk(KERN_INFO "aoe: aoecmd_cfg_rsp: sysminor %ld too "
+-			"large\n", sysminor);
++	if (sysminor * AOE_PARTITIONS + AOE_PARTITIONS > MINORMASK) {
++		printk(KERN_INFO
++			"aoe: e%ld.%d: minor number too large\n", 
++			aoemajor, (int) h->minor);
+ 		return;
+ 	}
+ 
+
 
 -- 
-Michael A. Raymond              Office: (651) 683-3434
-Core OS Group                   Real-Time System Software
+  Ed L. Cashin <ecashin@coraid.com>

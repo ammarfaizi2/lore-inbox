@@ -1,58 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263989AbRFJHKF>; Sun, 10 Jun 2001 03:10:05 -0400
+	id <S264503AbRFJHa3>; Sun, 10 Jun 2001 03:30:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264503AbRFJHJp>; Sun, 10 Jun 2001 03:09:45 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:54733 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id <S263989AbRFJHJd>; Sun, 10 Jun 2001 03:09:33 -0400
-Date: Sun, 10 Jun 2001 16:09:14 +0900
-Message-ID: <66e4zu91.wl@bardioc.open.nm.fujitsu.co.jp>
-From: Tachino Nobuhiro <tachino@open.nm.fujitsu.co.jp>
-To: alexey.vyskubov@nokia.com (Alexey Vyskubov)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VFS bug? Trying to free free buffer
-In-Reply-To: <20010608164254.A936@Hews1193nrc>
-In-Reply-To: <20010608164254.A936@Hews1193nrc>
-User-Agent: Wanderlust/2.5.8 (Smooth) EMY/1.13.9 () SLIM/1.14.7
- (=?ISO-2022-JP?B?GyRCPHIwZjpMTD4bKEI=?=) APEL/10.3 MULE XEmacs/21.2
- (beta46) (Urania) (i586-kondara-linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S264504AbRFJHaT>; Sun, 10 Jun 2001 03:30:19 -0400
+Received: from firewall.ocs.com.au ([203.34.97.9]:22769 "EHLO ocs4.ocs-net")
+	by vger.kernel.org with ESMTP id <S264503AbRFJHaN>;
+	Sun, 10 Jun 2001 03:30:13 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Frank Davis <fdavis112@juno.com>
+cc: Mr Miles T Lane <miles_lane@yahoo.com>, Gergely Madarasz <gorgo@itc.hu>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.5-ac12 -- Unresolved symbols in drivers/net/wan/comx.o -- "proc_get_inode" 
+In-Reply-To: Your message of "Sun, 10 Jun 2001 03:12:06 -0400."
+             <388621635.992157131964.JavaMail.root@web395-wra.mail.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 10 Jun 2001 17:30:27 +1000
+Message-ID: <13137.992158227@ocs4.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 10 Jun 2001 03:12:06 -0400 (EDT), 
+Frank Davis <fdavis112@juno.com> wrote:
+>   It appears that fs/proc/inode.o (where proc_get_inode() is defined)
+>is not being included when comx.o is built . Keith, I'm not too familar
+>the build's dependencies process to know if drivers/net/wan/Makefile
+>should be modified or another build file.
 
-Hello,
+One long line of 255 characters reformatted for readability.  Also your
+mailer appended Miles's original text without any attribution and
+without quoting it, making it look as though you (Frank Davis) wrote
+the bug report.  You need a better mailer for linux-kernel.  Having
+got that off my chest (and added attribution and quoting) ...
 
-At Fri, 8 Jun 2001 16:42:54 +0300,
-Alexey Vyskubov wrote:
-> 
-> Hello.
-> 
-> Kernel 2.4.5.
-> 
-> $ sudo mount -o iocharset=garbage /dev/cdrom /cdrom
-> 
-> VFS: brelse: Trying to free free buffer
+>Miles T Lane wrote
+>>find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i
+>>-r ln -sf ../{} pcmcia
+>>if [ -r System.map ]; then /sbin/depmod -ae -F
+>>System.map  2.4.5-ac12; fi
+>>depmod: *** Unresolved symbols in
+>>/lib/modules/2.4.5-ac12/kernel/drivers/net/wan/comx.o
+>>depmod: 	proc_get_inode
 
-  I think this is the ISOFS's bug. If invalid iocharset is specified
-as a mount option, isofs_read_super() tries to free the buffer_head twice.
+fs/proc/inode.c is included, it is a fundamental part of /proc.  The
+problem is that proc_get_inode is not listed as an exported symbol.
+Interesting that nobody else has reported this, proc_get_inode has
+never been exported in the 2.4 series and comx.c has not changed in
+this area either, looks like nobody else has tried to run comx as a
+module.
 
-  This patch may help.
-
-
-
-diff -r -u -N linux.org/fs/isofs/inode.c linux/fs/isofs/inode.c
---- linux.org/fs/isofs/inode.c	Sun Jun 10 14:23:02 2001
-+++ linux/fs/isofs/inode.c	Sun Jun 10 15:10:38 2001
-@@ -744,7 +744,7 @@
- 		if (! s->u.isofs_sb.s_nls_iocharset) {
- 			/* Fail only if explicit charset specified */
- 			if (opt.iocharset)
--				goto out_freebh;
-+				goto out_unlock;
- 			s->u.isofs_sb.s_nls_iocharset = load_nls_default();
- 		}
- 	}
+The obvious fix is to add EXPORT_SYMBOL(proc_get_inode) to
+fs/proc/root.c but I am not sure that the obvious fix is the correct
+one.  All the other uses of proc_get_inode are in the proc system,
+should another subsystem be delving into proc internals?  I'm going to
+bounce this one to the proc and comx maintainers to let them decide
+amongst themselves.  Hmmm, no official proc maintainer so it's off to
+l-k for this mail.
 

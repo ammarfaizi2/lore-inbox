@@ -1,287 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129082AbQJaNkh>; Tue, 31 Oct 2000 08:40:37 -0500
+	id <S129942AbQJaNzw>; Tue, 31 Oct 2000 08:55:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129408AbQJaNk2>; Tue, 31 Oct 2000 08:40:28 -0500
-Received: from imladris.infradead.org ([194.205.184.45]:41996 "EHLO
-	infradead.org") by vger.kernel.org with ESMTP id <S129082AbQJaNkO>;
-	Tue, 31 Oct 2000 08:40:14 -0500
-Date: Tue, 31 Oct 2000 13:38:56 +0000 (GMT)
-From: Riley Williams <rhw@MemAlpha.CX>
-To: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.2.X patch query (with initial PATCH against 2.2.17)
-In-Reply-To: <200010310229.e9V2TCF29473@sleipnir.valparaiso.cl>
-Message-ID: <Pine.LNX.4.10.10010311249050.31668-200000@infradead.org>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-842912328-2008390836-972999536=:31668"
+	id <S129892AbQJaNzm>; Tue, 31 Oct 2000 08:55:42 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:35338 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S129942AbQJaNz0>; Tue, 31 Oct 2000 08:55:26 -0500
+Date: Tue, 31 Oct 2000 07:55:06 -0600
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Keith Owens <kaos@ocs.com.au>, Christoph Hellwig <hch@ns.caldera.de>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
+Subject: Re: test10-pre7
+Message-ID: <20001031075506.B1041@wire.cadcamlab.org>
+In-Reply-To: <13675.972956952@ocs3.ocs-net> <Pine.LNX.4.10.10010301856330.6384-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10010301856330.6384-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Oct 30, 2000 at 06:58:38PM -0800
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
 
----842912328-2008390836-972999536=:31668
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+  [kaos]
+> > It still does not document the only real link order constraint in
+> > USB.  The almost complete lack of documentation on which link
+> > orders are required and which are historical is extremely annoying
+> > and _must_ be fixed, instead we just propagate the problem.
 
-Hi Horst.
+[Linus]
+> We can add a comment to the Makefile. That's trivial.
 
- >> Before I go any further with this, I would like to ask a few
- >> questions relating to it:
+True.
 
- >> 1. Is there any likelihood of this making it into the official
- >>    kernel, or am I just wasting my time?
+The thing that Keith's patch does is flush these things out into the
+open.  By using LINK_FIRST/LINK_LAST, we declare that "these are the
+known issues" -- and then the rest of the objects are reordered, and if
+something breaks, we track it down and add it to LINK_FIRST.
 
- > Depends, I'd say... perhaps after a long shakeout and much use.
+That way these things *will* get documented eventually.  I have very
+little hope that they otherwise will, since some ordering requirements
+may have already been lost to the mists of time.
 
-Fair enough - I'd expect that much...
+Obviously, "flushing issues out into the open" is not 2.4 material,
+which is why Keith's patch does *not* reorder unless you explicitly
+declare a LINK_FIRST line -- i.e. only drivers/usb/Makefile is affected
+at the moment.  The plan has been to change that behavior in 2.5.
 
- >> 2. Would I be right in thinking it's too late for either the
- >>    2.2 or 2.4 kernels ???
+> What's not trivial, and what I WANT DONE is to make sure that _when_
+> somebody wants to maintain link ordering, he can do so in an easy and
+> obvious way. Not with Yet Another Hack.
 
- > No way.
+One man's hack is another man's clean design ... but I concede the
+point that LINK_FIRST is a hack, because I respect your judgment.
+However, I still maintain that it is a less ugly hack than any
+alternatives I've seen for preventing/removing duplicate object files
+in link lines (see my last mail).
 
-Good...
+A few months ago I actually tried to write a make function (yes, GNU
+make has these!) to remove duplicates while not sorting, but GNU make
+doesn't seem to support the necessary iteration/(tail-)recursion
+features.  (Surprising, considering GNU's overall LISP-ish worldview.)
 
-I've included a patch against 2.2.17 that deals with all of the
-existing files and implements a version of this facility that just
-prints "(Not yet implemented)" into the SysLog. The final version will
-basically consist of this patch with the printk("Not yet implemeted")
-replaced by a call to the routine to actually perform the dump, plus a
-new file kernel/dumplog.c containing the said routine.
-
-Note that this patch tweaks ALL of the current architecture config.in
-files to replace the CONFIG_MAGIC_SYSRQ definition with a command to
-include the new arch/sysrq.in file at that point, and all the options
-relating to SYSRQ are in this new file instead.
-
- >> 5. I was wondering about providing some means of selecting
- >>    whether to dump to /dev/fd0 or /dev/fd1 (or others if
- >>    present). What would be your opinion on this?
-
- > Keep it as simple as possible. I'd leave the option open if not
- > hard, but not implement it at all at first.
-
-OK. Initially, I'll look at dropping it strictly to /dev/fd0 and leave
-the /dev/fd1 code until later.
-
- >> 6. A while back, I developed a high-level floppy formatter
- >>    that produces a non-standard DOS-compatible format that
- >>    allows 1436k of data on a 1440k floppy, and produced a
- >>    bash script that would produce disks formatted in this
- >>    format.
-
- >>    My current plans are for SYSRQ-D to raw write direct to
- >>    /dev/fd0 and effectively reformat the disks in this
- >>    format, dropping the log file thereon in the process. I
- >>    don't plan on doing the low-level format, just the
- >>    high-level one.
-
- > KISS, again. What use is a non-standard 1436Kb DOS format when
- > writing at most 1Mb?
-
-The said floppy formatter also works with other capacity disks, and
-always minimises the system overhead for the disk size.
-
-Also, part of my plan was to check that the disk is already in this
-non-standard format, and refuse to dump if not. This would ensure that
-doing so didn't overwrite somebody's master boot disk by accident, as
-such disks will not normally be in this non-standard format.
-
- > I'd just dump it raw to /dev/fd0, whoever wants to read it later
- > will have all kinds of tools at hand.
-
- > Remember:
-
- > - Bloat
-
-That's one reason why I was glad to note the error in the comments in
-kernel/printk.c that I sent a patch to correct last week - this patch
-will be MUCH simpler as a result.
-
- > - This will have to work even in a thoroughly hosed system to be
- >   of any use
-
-It's for precicely that reason that I'm working on it.
-
-Best wishes from Riley.
-
----842912328-2008390836-972999536=:31668
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="dumplog.diff"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.10.10010311338560.31668@infradead.org>
-Content-Description: 
-Content-Disposition: attachment; filename="dumplog.diff"
-
-LS0tIGxpbnV4LTIuMi4xNy9hcmNoL2FscGhhL2NvbmZpZy5pbn4JTW9uIFNl
-cCAgNCAxODozOToxNiAyMDAwDQorKysgbGludXgtMi4yLjE3L2FyY2gvYWxw
-aGEvY29uZmlnLmluCVR1ZSBPY3QgMzEgMTM6MTg6NTcgMjAwMA0KQEAgLTI5
-OSw4ICsyOTksNyBAQA0KIGlmIFsgIiRDT05GSUdfRVhQRVJJTUVOVEFMIiA9
-ICJ5IiBdOyB0aGVuDQogICB0cmlzdGF0ZSAnS2VybmVsIEZQIHNvZnR3YXJl
-IGNvbXBsZXRpb24nIENPTkZJR19NQVRIRU1VDQogZWxzZQ0KICAgZGVmaW5l
-X2Jvb2wgQ09ORklHX01BVEhFTVUgeQ0KIGZpDQotDQotYm9vbCAnTWFnaWMg
-U3lzUnEga2V5JyBDT05GSUdfTUFHSUNfU1lTUlENCitzb3VyY2UgLi4vc3lz
-cnEuaW4NCiBlbmRtZW51DQotLS0gbGludXgtMi4yLjE3L2FyY2gvYXJtL2Nv
-bmZpZy5pbn4JV2VkIEp1biAgNyAyMjoyNjo0MiAyMDAwDQorKysgbGludXgt
-Mi4yLjE3L2FyY2gvYXJtL2NvbmZpZy5pbglUdWUgT2N0IDMxIDEzOjE5OjEx
-IDIwMDANCkBAIC0yMTQsNyArMjE0LDcgQEANCiBtYWlubWVudV9vcHRpb24g
-bmV4dF9jb21tZW50DQogY29tbWVudCAnS2VybmVsIGhhY2tpbmcnDQogDQog
-Ym9vbCAnRGVidWcga2VybmVsIGVycm9ycycgQ09ORklHX0RFQlVHX0VSUk9S
-Uw0KICNib29sICdEZWJ1ZyBrbWFsbG9jL2tmcmVlJyBDT05GSUdfREVCVUdf
-TUFMTE9DDQotYm9vbCAnTWFnaWMgU3lzUnEga2V5JyBDT05GSUdfTUFHSUNf
-U1lTUlENCitzb3VyY2UgLi4vc3lzcnEuaW4NCiBlbmRtZW51DQotLS0gbGlu
-dXgtMi4yLjE3L2FyY2gvaTM4Ni9jb25maWcuaW5+CU1vbiBTZXAgIDQgMTg6
-Mzk6MTYgMjAwMA0KKysrIGxpbnV4LTIuMi4xNy9hcmNoL2kzODYvY29uZmln
-LmluCVR1ZSBPY3QgMzEgMTM6Mjk6MDMgMjAwMA0KQEAgLTIwNCw4ICsyMDQs
-NyBAQA0KIA0KIG1haW5tZW51X29wdGlvbiBuZXh0X2NvbW1lbnQNCiBjb21t
-ZW50ICdLZXJuZWwgaGFja2luZycNCiANCiAjYm9vbCAnRGVidWcga21hbGxv
-Yy9rZnJlZScgQ09ORklHX0RFQlVHX01BTExPQw0KLWJvb2wgJ01hZ2ljIFN5
-c1JxIGtleScgQ09ORklHX01BR0lDX1NZU1JRDQorc291cmNlIC4uL3N5c3Jx
-LmluDQogZW5kbWVudQ0KLQ0KLS0tIGxpbnV4LTIuMi4xNy9hcmNoL202OGsv
-Y29uZmlnLmlufglXZWQgSnVuICA3IDIyOjI2OjQyIDIwMDANCisrKyBsaW51
-eC0yLjIuMTcvYXJjaC9tNjhrL2NvbmZpZy5pbglUdWUgT2N0IDMxIDEzOjE5
-OjI3IDIwMDANCkBAIC00NDgsOCArNDQ4LDggQEANCiANCiBtYWlubWVudV9v
-cHRpb24gbmV4dF9jb21tZW50DQogY29tbWVudCAnS2VybmVsIGhhY2tpbmcn
-DQogDQogI2Jvb2wgJ0RlYnVnIGttYWxsb2Mva2ZyZWUnIENPTkZJR19ERUJV
-R19NQUxMT0MNCi1ib29sICdNYWdpYyBTeXNScSBrZXknIENPTkZJR19NQUdJ
-Q19TWVNSUQ0KK3NvdXJjZSAuLi9zeXNycS5pbg0KIGJvb2wgJ1JlbW90ZSBk
-ZWJ1Z2dpbmcgc3VwcG9ydCcgQ09ORklHX0tHREINCiBlbmRtZW51DQotLS0g
-bGludXgtMi4yLjE3L2FyY2gvbWlwcy9jb25maWcuaW5+CVdlZCBKdW4gIDcg
-MjI6MjY6NDIgMjAwMA0KKysrIGxpbnV4LTIuMi4xNy9hcmNoL21pcHMvY29u
-ZmlnLmluCVR1ZSBPY3QgMzEgMTM6MTk6NDIgMjAwMA0KQEAgLTMwMyw3ICsz
-MDMsNyBAQA0KICAgYm9vbCAnIEJ1aWxkIGZwIGV4ZWNwdGlvbiBoYW5kbGVy
-IG1vZHVsZScgQ09ORklHX01JUFNfRlBFX01PRFVMRQ0KIGZpDQogaWYgWyAi
-JENPTkZJR19TRVJJQUwiID0gInkiIF07IHRoZW4NCiAgIGJvb2wgJ1JlbW90
-ZSBHREIga2VybmVsIGRlYnVnZ2luZycgQ09ORklHX1JFTU9URV9ERUJVRw0K
-IGZpDQotYm9vbCAnTWFnaWMgU3lzUnEga2V5JyBDT05GSUdfTUFHSUNfU1lT
-UlENCitzb3VyY2UgLi4vc3lzcnEuaW4NCiBlbmRtZW51DQotLS0gbGludXgt
-Mi4yLjE3L2FyY2gvcHBjL2NvbmZpZy5pbn4JTW9uIFNlcCAgNCAxODozOTox
-NiAyMDAwDQorKysgbGludXgtMi4yLjE3L2FyY2gvcHBjL2NvbmZpZy5pbglU
-dWUgT2N0IDMxIDEzOjIwOjAxIDIwMDANCkBAIC0xOTUsOSArMTk1LDkgQEAN
-CiBlbmRtZW51DQogDQogbWFpbm1lbnVfb3B0aW9uIG5leHRfY29tbWVudA0K
-IGNvbW1lbnQgJ0tlcm5lbCBoYWNraW5nJw0KIA0KLWJvb2wgJ01hZ2ljIFN5
-c1JxIGtleScgQ09ORklHX01BR0lDX1NZU1JRDQorc291cmNlIC4uL3N5c3Jx
-LmluDQogYm9vbCAnSW5jbHVkZSBrZ2RiIGtlcm5lbCBkZWJ1Z2dlcicgQ09O
-RklHX0tHREINCiBib29sICdJbmNsdWRlIHhtb24ga2VybmVsIGRlYnVnZ2Vy
-JyBDT05GSUdfWE1PTg0KIGVuZG1lbnUNCi0tLSBsaW51eC0yLjIuMTcvYXJj
-aC9zMzkwL2NvbmZpZy5pbn4JV2VkIEp1biAgNyAyMjoyNjo0MiAyMDAwDQor
-KysgbGludXgtMi4yLjE3L2FyY2gvczM5MC9jb25maWcuaW4JVHVlIE9jdCAz
-MSAxMzoyMDozMCAyMDAwDQpAQCAtNjYsOCArNjYsOSBAQA0KICAgaW50ICcg
-UHJvZmlsZSBzaGlmdCBjb3VudCcgQ09ORklHX1BST0ZJTEVfU0hJRlQgMg0K
-IGZpDQogaWYgWyAiJENPTkZJR19DVEMiID0gInkiIF07IHRoZW4NCiAgIGJv
-b2wgJ1JlbW90ZSBHREIga2VybmVsIGRlYnVnZ2luZycgQ09ORklHX1JFTU9U
-RV9ERUJVRw0KIGZpDQotIyB0aGlzIGRvZXMgbm90IHdvcmsuIGJvb2wgJ01h
-Z2ljIFN5c1JxIGtleScgQ09ORklHX01BR0lDX1NZU1JRDQorIyMjIyMgdGhp
-cyBkb2VzIG5vdCB3b3JrLg0KKyMgc291cmNlIC4uL3N5c3JxLmluDQorIyMj
-IyMNCiBlbmRtZW51DQotDQotLS0gbGludXgtMi4yLjE3L2FyY2gvc3BhcmMv
-Y29uZmlnLmlufglXZWQgSnVuICA3IDIyOjI2OjQyIDIwMDANCisrKyBsaW51
-eC0yLjIuMTcvYXJjaC9zcGFyYy9jb25maWcuaW4JVHVlIE9jdCAzMSAxMzoy
-MDo0MyAyMDAwDQpAQCAtMjE5LDggKzIxOSw3IEBADQogZW5kbWVudQ0KIA0K
-IG1haW5tZW51X29wdGlvbiBuZXh0X2NvbW1lbnQNCiBjb21tZW50ICdLZXJu
-ZWwgaGFja2luZycNCiANCi1ib29sICdNYWdpYyBTeXNScSBrZXknIENPTkZJ
-R19NQUdJQ19TWVNSUQ0KK3NvdXJjZSAuLi9zeXNycS5pbg0KIGVuZG1lbnUN
-Ci0NCi0tLSBsaW51eC0yLjIuMTcvYXJjaC9zcGFyYzY0L2NvbmZpZy5pbn4J
-TW9uIFNlcCAgNCAxODozOToxNiAyMDAwDQorKysgbGludXgtMi4yLjE3L2Fy
-Y2gvc3BhcmM2NC9jb25maWcuaW4JVHVlIE9jdCAzMSAxMzoyMTowMiAyMDAw
-DQpAQCAtMjgyLDggKzI4Miw4IEBADQogZW5kbWVudQ0KIA0KIG1haW5tZW51
-X29wdGlvbiBuZXh0X2NvbW1lbnQNCiBjb21tZW50ICdLZXJuZWwgaGFja2lu
-ZycNCiANCi1ib29sICdNYWdpYyBTeXNScSBrZXknIENPTkZJR19NQUdJQ19T
-WVNSUQ0KK3NvdXJjZSAuLi9zeXNycS5pbg0KICNib29sICdFQ2FjaGUgZmx1
-c2ggdHJhcCBzdXBwb3J0IGF0IHRhIDB4NzInIENPTkZJR19FQ19GTFVTSF9U
-UkFQDQogZW5kbWVudQ0KLS0tIGxpbnV4LTIuMi4xNy9hcmNoL3N5c3JxLmlu
-fglUaHUgSmFuICAxIDAxOjAwOjAwIDE5NzANCisrKyBsaW51eC0yLjIuMTcv
-YXJjaC9zeXNycS5pbglUdWUgT2N0IDMxIDEzOjIzOjUyIDIwMDANCkBAIC0w
-LDAgKzEsMjIgQEANCisjDQorIyBGb3IgYSBkZXNjcmlwdGlvbiBvZiB0aGUg
-c3ludGF4IG9mIHRoaXMgY29uZmlndXJhdGlvbiBmaWxlLA0KKyMgc2VlIERv
-Y3VtZW50YXRpb24va2J1aWxkL2NvbmZpZy1sYW5ndWFnZS50eHQuDQorIw0K
-KyMgVGhpcyBzZWN0aW9uIGlzIGluY2x1ZGVkIGZyb20gdGhlIHZhcmlvdXMg
-YXJjaC1kZXBlbmRhbnQNCisjIGNvbmZpZy5pbiBmaWxlcywgYW5kIHByb3Zp
-ZGVzIHRoZSBjb21tb24gU3lzUnEgb3B0aW9ucy4NCisjIFRoaXMgZW5zdXJl
-cyB0aGF0IHRoZXNlIG9wdGlvbnMgaGF2ZSBhIGNvbW1vbiBkZXNjcmlwdGlv
-bi4NCisjDQorYm9vbCAnTWFnaWMgU3lzUnEga2V5JyBDT05GSUdfTUFHSUNf
-U1lTUlENCitpZiBbICIkQ09ORklHX01BR0lDX1NZU1JRIiA9ICJ5IiAtYSAi
-JENPTkZJR19FWFBFUklNRU5UQUwiID0gInkiIF07IHRoZW4NCisgICAgYm9v
-bCAnICBFbmFibGUgZHVtcCBvZiBzeXNsb2cgdG8gZmxvcHB5IChFWFBFUklN
-RU5UQUwpJyBDT05GSUdfTUFHSUNfU1lTUlFfRFVNUExPRw0KKyAgICBpZiBb
-ICIkQ09ORklHX01BR0lDX1NZU1JRX0RVTVBMT0ciID0gInkiIF07IHRoZW4N
-CisJY2hvaWNlICcgICAgU3lzTG9nIGJ1ZmZlciBzaXplJwkJCVwNCisJCSIg
-MzJrIENPTkZJR19NQUdJQ19TWVNSUV9MT0dfMzJLCVwNCisJCSAgNjRrIENP
-TkZJR19NQUdJQ19TWVNSUV9MT0dfNjRLCVwNCisJCSAxMjhrIENPTkZJR19N
-QUdJQ19TWVNSUV9MT0dfMTI4SwlcDQorCQkgMjU2ayBDT05GSUdfTUFHSUNf
-U1lTUlFfTE9HXzI1NksJXA0KKwkJIDUxMmsgQ09ORklHX01BR0lDX1NZU1JR
-X0xPR181MTJLCVwNCisJCTEwMjRrIENPTkZJR19NQUdJQ19TWVNSUV9MT0df
-MU0JCVwNCisJCTIwNDhrIENPTkZJR19NQUdJQ19TWVNSUV9MT0dfMk0iIDMy
-aw0KKyAgICBmaQ0KK2ZpDQotLS0gbGludXgtMi4yLjE3L0RvY3VtZW50YXRp
-b24vQ29uZmlndXJlLmhlbHB+CU1vbiBTZXAgIDQgMTg6Mzk6MTUgMjAwMA0K
-KysrIGxpbnV4LTIuMi4xNy9Eb2N1bWVudGF0aW9uL0NvbmZpZ3VyZS5oZWxw
-CVR1ZSBPY3QgMzEgMTM6MjY6NDMgMjAwMA0KQEAgLTEwMzk3LDEwICsxMDM5
-NywxNyBAQA0KICAgaW1tZWRpYXRlbHkgb3IgZHVtcCBzb21lIHN0YXR1cyBp
-bmZvcm1hdGlvbikuIFRoaXMgaXMgYWNjb21wbGlzaGVkDQogICBieSBwcmVz
-c2luZyB2YXJpb3VzIGtleXMgd2hpbGUgaG9sZGluZyBTeXNScSAoQWx0K1By
-aW50U2NyZWVuKS4gVGhlDQogICBrZXlzIGFyZSBkb2N1bWVudGVkIGluIERv
-Y3VtZW50YXRpb24vc3lzcnEudHh0LiBEb24ndCBzYXkgWSB1bmxlc3MNCiAg
-IHlvdSByZWFsbHkga25vdyB3aGF0IHRoaXMgaGFjayBkb2VzLg0KIA0KK1N5
-c3RlbSBSZXF1ZXN0IGZhY2lsaXR5IHRvIGR1bXAgdGhlIFN5c0xvZyB0byAv
-ZGV2L2ZkMA0KK0NPTkZJR19NQUdJQ19TWVNSUV9EVU1QTE9HDQorICBJZiB5
-b3Ugc2F5IFkgaGVyZSwgeW91IHdpbGwgaGF2ZSB0aGUgYWJpbGl0eSB0byBk
-dW1wIHRoYXQgcGFydCBvZg0KKyAgdGhlIHN5c3RlbSBsb2cgdGhhdCBpcyBz
-dGlsbCBpbiB0aGUga2VybmVsIGJ1ZmZlciBhcmVhIHRvIHRoZSBkaXNjDQor
-ICBpbiAvZGV2L2ZkMCB3aGljaCB3aWxsIG5vcm1hbGx5IGdpdmUgeW91IHRo
-ZSBhYmlsaXR5IHRvIGNhcHR1cmUgdGhlDQorICBrZXJuZWwgcGFuaWMgbWVz
-c2FnZXMgdGhhdCBub3JtYWxseSByZXN1bHQgaW4gYSBzeXN0ZW0gbG9ja3Vw
-Lg0KKw0KIElTRE4gc3Vic3lzdGVtDQogQ09ORklHX0lTRE4NCiAgIElTRE4g
-KCJJbnRlZ3JhdGVkIFNlcnZpY2VzIERpZ2l0YWwgTmV0d29ya3MiLCBjYWxs
-ZWQgUk5JUyBpbiBGcmFuY2UpDQogICBpcyBhIHNwZWNpYWwgdHlwZSBvZiBm
-dWxseSBkaWdpdGFsIHRlbGVwaG9uZSBzZXJ2aWNlOyBpdCdzIG1vc3RseQ0K
-ICAgdXNlZCB0byBjb25uZWN0IHRvIHlvdXIgSW50ZXJuZXQgc2VydmljZSBw
-cm92aWRlciAod2l0aCBTTElQIG9yDQotLS0gbGludXgtMi4yLjE3L2RyaXZl
-cnMvY2hhci9zeXNycS5jfglUaHUgTWF5ICA0IDAxOjE2OjM5IDIwMDANCisr
-KyBsaW51eC0yLjIuMTcvZHJpdmVycy9jaGFyL3N5c3JxLmMJVHVlIE9jdCAz
-MSAxMzoxMTozNSAyMDAwDQpAQCAtMTMxLDE2ICsxMzEsMjUgQEANCiAJY2Fz
-ZSAnbCc6CQkJCQkgICAgLyogTCAtLSBraWxsIGFsbCBwcm9jZXNzZXMgaW5j
-bHVkaW5nIGluaXQgKi8NCiAJCXByaW50aygiS2lsbCBBTEwgVGFza3MgKGV2
-ZW4gaW5pdClcbiIpOw0KIAkJc2VuZF9zaWdfYWxsKFNJR0tJTEwsIDEpOw0K
-IAkJb3JpZ19sb2dfbGV2ZWwgPSA4Ow0KIAkJYnJlYWs7DQorI2lmZGVmIENP
-TkZJR19NQUdJQ19TWVNSUV9EVU1QTE9HDQorCWNhc2UgJ2QnOgkJCQkJICAg
-IC8qIEQgLS0gZHVtcCBzeXNsb2cgdG8gL2Rldi9mZDAgKi8NCisJCXByaW50
-aygiRHVtcCBTeXNMb2cgdG8gL2Rldi9mZDBcbiIpOw0KKwkJcHJpbnRrKCIo
-Tm90IHlldCBpbXBsZW1lbnRlZClcbiIpOw0KKwkJYnJlYWs7DQorI2VuZGlm
-DQogCWRlZmF1bHQ6CQkJCQkgICAgLyogVW5rbm93bjogaGVscCAqLw0KIAkJ
-aWYgKGtiZCkNCiAJCQlwcmludGsoInVuUmF3ICIpOw0KICNpZmRlZiBDT05G
-SUdfVlQNCiAJCWlmICh0dHkpDQogCQkJcHJpbnRrKCJzYUsgIik7DQorI2Vu
-ZGlmDQorI2lmZGVmIENPTkZJR19NQUdJQ19TWVNSUV9EVU1QTE9HDQorCQlw
-cmludGsoIkR1bXAgIik7DQogI2VuZGlmDQogCQlwcmludGsoIkJvb3QgIik7
-DQogCQlpZiAoc3lzcnFfcG93ZXJfb2ZmKQ0KIAkJCXByaW50aygiT2ZmICIp
-Ow0KIAkJcHJpbnRrKCJTeW5jIFVubW91bnQgc2hvd1BjIHNob3dUYXNrcyBz
-aG93TWVtIGxvZ2xldmVsMC04IHRFcm0ga0lsbCBraWxsYWxMXG4iKTsNCi0t
-LSBsaW51eC0yLjIuMTcva2VybmVsL3ByaW50ay5jfglTYXQgT2N0IDI4IDEw
-OjAxOjIwIDIwMDANCisrKyBsaW51eC0yLjIuMTcva2VybmVsL3ByaW50ay5j
-CVR1ZSBPY3QgMzEgMTM6MTU6MDEgMjAwMA0KQEAgLTIwLDExICsyMCwzNiBA
-QA0KICNpbmNsdWRlIDxsaW51eC9jb25zb2xlLmg+DQogI2luY2x1ZGUgPGxp
-bnV4L2luaXQuaD4NCiANCiAjaW5jbHVkZSA8YXNtL3VhY2Nlc3MuaD4NCiAN
-Ci0jZGVmaW5lIExPR19CVUZfTEVOCSgxNjM4NCkNCisjaWZuZGVmIENPTkZJ
-R19NQUdJQ19TWVNSUV9EVU1QTE9HDQorIwlkZWZpbmUgTE9HX0JVRl9MRU4J
-KDE2ICogMTAyNCkNCisjZWxzZQ0KKyMgICAgaWZkZWYgQ09ORklHX01BR0lD
-X1NZU1JRX0xPR18zMksNCisjCWRlZmluZSBMT0dfQlVGX0xFTgkoMzIgKiAx
-MDI0KQ0KKyMgICAgZW5kaWYNCisjICAgIGlmZGVmIENPTkZJR19NQUdJQ19T
-WVNSUV9MT0dfNjRLDQorIwlkZWZpbmUgTE9HX0JVRl9MRU4JKDY0ICogMTAy
-NCkNCisjICAgIGVuZGlmDQorIyAgICBpZmRlZiBDT05GSUdfTUFHSUNfU1lT
-UlFfTE9HXzEyOEsNCisjCWRlZmluZSBMT0dfQlVGX0xFTgkoMTI4ICogMTAy
-NCkNCisjICAgIGVuZGlmDQorIyAgICBpZmRlZiBDT05GSUdfTUFHSUNfU1lT
-UlFfTE9HXzI1NksNCisjCWRlZmluZSBMT0dfQlVGX0xFTgkoMjU2ICogMTAy
-NCkNCisjICAgIGVuZGlmDQorIyAgICBpZmRlZiBDT05GSUdfTUFHSUNfU1lT
-UlFfTE9HXzUxMksNCisjCWRlZmluZSBMT0dfQlVGX0xFTgkoNTEyICogMTAy
-NCkNCisjICAgIGVuZGlmDQorIyAgICBpZmRlZiBDT05GSUdfTUFHSUNfU1lT
-UlFfTE9HXzFNDQorIwlkZWZpbmUgTE9HX0JVRl9MRU4JKDEgKiAxMDI0ICog
-MTAyNCkNCisjICAgIGVuZGlmDQorIyAgICBpZmRlZiBDT05GSUdfTUFHSUNf
-U1lTUlFfTE9HXzJNDQorIwlkZWZpbmUgTE9HX0JVRl9MRU4JKDIgKiAxMDI0
-ICogMTAyNCkNCisjICAgIGVuZGlmDQorI2VuZGlmDQorDQogI2RlZmluZSBM
-T0dfQlVGX01BU0sJKExPR19CVUZfTEVOLTEpDQogDQogc3RhdGljIGNoYXIg
-YnVmWzEwMjRdOw0KIA0KIC8qIHByaW50aydzIHdpdGhvdXQgYSBsb2dsZXZl
-bCB1c2UgdGhpcy4uICovDQo=
----842912328-2008390836-972999536=:31668--
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

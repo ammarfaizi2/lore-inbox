@@ -1,69 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263578AbTJQSIG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 14:08:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263577AbTJQSIG
+	id S263494AbTJQScQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 14:32:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263583AbTJQScQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 14:08:06 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:12169 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263578AbTJQSIB (ORCPT
+	Fri, 17 Oct 2003 14:32:16 -0400
+Received: from mail.kroah.org ([65.200.24.183]:27032 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263494AbTJQScO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 14:08:01 -0400
-Date: Fri, 17 Oct 2003 20:08:01 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Mudama, Eric" <eric_mudama@Maxtor.com>
-Cc: "'Greg Stark'" <gsstark@mit.edu>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ide write barrier support
-Message-ID: <20031017180801.GC8230@suse.de>
-References: <785F348679A4D5119A0C009027DE33C105CDB2DD@mcoexc04.mlm.maxtor.com>
+	Fri, 17 Oct 2003 14:32:14 -0400
+Date: Fri, 17 Oct 2003 11:27:54 -0700
+From: Greg KH <greg@kroah.com>
+To: clemens@dwf.com
+Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       reg@orion.dwf.com
+Subject: Re: [ANNOUNCE] udev 003 release
+Message-ID: <20031017182754.GA10714@kroah.com>
+References: <20031017055652.GA7712@kroah.com> <200310171757.h9HHvGiY006997@orion.dwf.com> <20031017181923.GA10649@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <785F348679A4D5119A0C009027DE33C105CDB2DD@mcoexc04.mlm.maxtor.com>
-X-OS: Linux 2.4.22aa1-axboe i686
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <20031017181923.GA10649@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 17 2003, Mudama, Eric wrote:
+On Fri, Oct 17, 2003 at 11:19:23AM -0700, Greg KH wrote:
 > 
-> 
-> > -----Original Message-----
-> > From: Jens Axboe [mailto:axboe@suse.de]
-> >
-> > Yes that would be very nice, but unfortunately I think FUA in ATA got
-> > defined as not implying ordering (the FUA write would typically go
-> > straight to disk, ahead of any in-cache dirty data). Which 
-> > makes it less
-> > useful, imo.
-> 
-> None of the TCQ/FUA components of the spec mention ordering.  According to
-> the "letter" of the specification, if you issue two queued writes for the
-> same LBA, the drive has the choice of which one to do first and which one to
-> put on the media first, which is totally broken in common sense land.
-> 
-> Luckilly, us drive guys are a bit smarter (if only a bit)...
+> Ah, yeah, udev seg faults right now for partitions.  Let me try to track
+> down the bug, give me a bit of time...
 
-Some of you? :)
+Here's a patch that fixes the partition logic for me.  Sorry about this, I
+need to make sure to test partitions more next time.
 
-> If you issue a FUA write for data already in cache, and you put the FUA
-> write onto the media, there's no problem if you discard the cached data that
-> you were going to write.
-> 
-> In drives with a unified cache, they'll always be consistent provided the
-> overlapping interface transfers happen in the same order they were
-> issued.... this is common sense.
-> 
-> However, you're right in that non-overlapping cached write data may stay in
-> cache a long time, which potentially gives you a very large time hole in
-> which your FUA'd data is on the media and your user data is still hangin' in
-> the breeze prior to a flush on a very busy drive.
+thanks again for testing this.
 
-That's why for IDE I prefer handling it in software. Let the queue drain,
-issue a barrier write, and continue. That works, regardless of drive
-firmware implementations. As long as the spec doesn't make it explicit
-what happens, there's no way I can rely on it.
+greg k-h
 
-Jens
+# fix segfaults when dealing with partitions.
 
+diff -Nru a/udev-add.c b/udev-add.c
+--- a/udev-add.c	Fri Oct 17 11:26:37 2003
++++ b/udev-add.c	Fri Oct 17 11:26:37 2003
+@@ -169,13 +169,13 @@
+ 	}
+ 	memset(&dbdev, 0, sizeof(dbdev));
+ 	strncpy(dbdev.name, attr.name, NAME_SIZE);
+-	strncpy(dbdev.sysfs_path, class_dev->sysdevice->directory->path,
+-		PATH_SIZE);
++	if (class_dev->sysdevice) {
++		strncpy(dbdev.sysfs_path, class_dev->sysdevice->directory->path, PATH_SIZE);
++		strncpy(dbdev.bus_id, class_dev->sysdevice->bus_id, ID_SIZE);
++	}
+ 	strncpy(dbdev.class_dev_name, class_dev->name, NAME_SIZE);
+-	if ((sysfs_get_name_from_path(subsystem, dbdev.class_name, NAME_SIZE))
+-	    != 0)
++	if ((sysfs_get_name_from_path(subsystem, dbdev.class_name, NAME_SIZE)) != 0)
+ 		strcpy(dbdev.class_name, "unkown");
+-	strncpy(dbdev.bus_id, class_dev->sysdevice->bus_id, ID_SIZE);
+ 	strcpy(dbdev.bus_name, "unknown");
+ 	if (class_dev->driver != NULL)
+ 		strncpy(dbdev.driver, class_dev->driver->name, NAME_SIZE);

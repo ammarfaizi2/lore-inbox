@@ -1,75 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129573AbQL0P5w>; Wed, 27 Dec 2000 10:57:52 -0500
+	id <S129610AbQL0QGE>; Wed, 27 Dec 2000 11:06:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129664AbQL0P5n>; Wed, 27 Dec 2000 10:57:43 -0500
-Received: from jalon.able.es ([212.97.163.2]:36544 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S129573AbQL0P53>;
-	Wed, 27 Dec 2000 10:57:29 -0500
-Date: Wed, 27 Dec 2000 16:26:55 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Semaphores slow???
-Message-ID: <20001227162655.A783@werewolf.able.es>
-In-Reply-To: <200012271415.PAA18730@cave.bitwizard.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <200012271415.PAA18730@cave.bitwizard.nl>; from R.E.Wolff@BitWizard.nl on Wed, Dec 27, 2000 at 15:15:35 +0100
-X-Mailer: Balsa 1.0.1
+	id <S129664AbQL0QFz>; Wed, 27 Dec 2000 11:05:55 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:42418 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S129610AbQL0QFj>; Wed, 27 Dec 2000 11:05:39 -0500
+To: Dave Gilbert <gilbertd@treblig.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [Patch] shmmin behaviour back to 2.2 behaviour
+In-Reply-To: <Pine.LNX.4.10.10012271156200.2753-100000@tardis.home.dave>
+From: Christoph Rohland <cr@sap.com>
+In-Reply-To: <Pine.LNX.4.10.10012271156200.2753-100000@tardis.home.dave>
+Message-ID: <m3r92tancw.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Capitol Reef)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: 27 Dec 2000 16:37:15 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dave Gilbert <gilbertd@treblig.org> writes:
 
-On 2000.12.27 Rogier Wolff wrote:
-> We have a typical semaphore application that has a producer and a
-> consumer.
-> 
-> Without the semaphores we are limited by the rest of the stuff to
-> 10000 times around the loop per second. That's good.
-> 
-> When we put the "push the semaphore" call in there, the rate drops to
-> around 8000 per second. I'm not happy about that, but ok. When we add
-> the "wait for bufferspace" semaphore wait in there, the rate drops to
-> 4000 per second. This is way too low.
-> 
+>   I think I've come to the conclusion that Xine does not in the case
+> I've found, rely on this - it is a separate bug related to Xv
+> telling xine that it needs 0 bytes.
 
-Look (s==write_sem, bs==write_buffer_sem):
+Yes, but this bug did not show on 2.2. It simply failed in shmget.
 
-cons        prod
-====================
-            wait(bs)
-post(bs)    
-wait(s)     <wake>
-            <work>
-            post(s)
-<wake>      wait(bs)
-<work>
-post(bs)    
-wait(s)     <wake>
-            <work>
-            post(s)
-<wake>      wait(bs)
-<work>
-post(bs)    
-wait(s)     <wake>
-.................
+Probably it makes more sense to fail on creation of zero byte segments
+and getting existing ones with zero length being legal... (The latter
+is needed). That's what the patch does.
 
-So there is no way that <work> can be done at the same time on
-producer and consumer. So if you measure the loops per sec of the
-producer (for example), in 'free run' you get 10k, in synchro run
-with consumer you have just the half, because really prod and cons
-are running sequentially, one after the other.
-
-You need to thighten the mutexed zone for the thing to work in parallel
-in an efficient way.
-
--- 
-J.A. Magallon                                         $> cd pub
-mailto:jamagallon@able.es                             $> more beer
-
-Linux werewolf 2.2.19-pre3-aa3 #3 SMP Wed Dec 27 10:25:32 CET 2000 i686
+Greetings
+                Christoph
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

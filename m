@@ -1,100 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268204AbUIBLY5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268224AbUIBL2Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268204AbUIBLY5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 07:24:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268214AbUIBLY5
+	id S268224AbUIBL2Q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 07:28:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268214AbUIBL2Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 07:24:57 -0400
-Received: from gwout.thalesgroup.com ([195.101.39.227]:21008 "EHLO
-	GWOUT.thalesgroup.com") by vger.kernel.org with ESMTP
-	id S268204AbUIBLYh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 07:24:37 -0400
-Message-ID: <413702EE.2000309@fr.thalesgroup.com>
-Date: Thu, 02 Sep 2004 13:24:30 +0200
-From: "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>
-Reply-To: pierre-olivier.gaillard@fr.thalesgroup.com
-Organization: Thales Air Defence
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q6 - network is no longer
- smooth
-References: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com> <20040830192131.GA12249@elte.hu> <4135C12B.6050208@fr.thalesgroup.com> <20040901130518.GA10060@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Sep 2004 07:28:16 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:61829 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S268224AbUIBL1w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 07:27:52 -0400
+Date: Thu, 2 Sep 2004 13:28:56 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q6 - network is no longer smooth
+Message-ID: <20040902112856.GA5377@elte.hu>
+References: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com> <20040830192131.GA12249@elte.hu> <4135C12B.6050208@fr.thalesgroup.com> <20040901130518.GA10060@elte.hu> <413702EE.2000309@fr.thalesgroup.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <413702EE.2000309@fr.thalesgroup.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I just tried with Q6 and the network behaviour seems odd :
-  - my ssh connection freezes a bit,
-  - communication between the two PCs sharing the GigE connection is difficult 
-to start :
-13:17:37.965962 arp who-has djerba-gig tell canopus-gig
-13:17:37.966220 IP djerba-gig > canopus-gig: udp
-13:17:37.966230 IP djerba-gig > canopus-gig: udp
-13:17:37.966313 IP djerba-gig > canopus-gig: udp
-13:17:38.965906 arp who-has djerba-gig tell canopus-gig
-13:17:38.966040 IP djerba-gig > canopus-gig: udp
-This is strange since canopus is the one with Q6
-  - ping does not start for a moment since all packets are RX-ERROR, then they 
-start being received.
+* P.O. Gaillard <pierre-olivier.gaillard@fr.thalesgroup.com> wrote:
 
-Here is the output of ethtool -S eth1
+> Hello,
+> 
+> I just tried with Q6 and the network behaviour seems odd :
+>  - my ssh connection freezes a bit,
+>  - communication between the two PCs sharing the GigE connection is 
+>  difficult to start :
 
-NIC statistics:
-      rx_packets: 581
-      tx_packets: 552
-      rx_bytes: 545746
-      tx_bytes: 66508
-      rx_errors: 112950
-      tx_errors: 0
-      rx_dropped: 90
-      tx_dropped: 0
-      multicast: 0
-      collisions: 0
-      rx_length_errors: 0
-      rx_over_errors: 0
-      rx_crc_errors: 0
-      rx_frame_errors: 0
-      rx_fifo_errors: 112860
-      rx_missed_errors: 112860
-      tx_aborted_errors: 0
-      tx_carrier_errors: 0
-      tx_fifo_errors: 0
-      tx_heartbeat_errors: 0
-      tx_window_errors: 0
-      tx_abort_late_coll: 0
-      tx_deferred_ok: 0
-      tx_single_coll_ok: 0
-      tx_multi_coll_ok: 0
-      rx_long_length_errors: 0
-      rx_short_length_errors: 0
-      rx_align_errors: 0
-      tx_tcp_seg_good: 0
-      tx_tcp_seg_failed: 0
-      rx_flow_control_xon: 0
-      rx_flow_control_xoff: 0
-      tx_flow_control_xon: 45
-      tx_flow_control_xoff: 112905
-      rx_long_byte_count: 545746
-      rx_csum_offload_good: 1
-      rx_csum_offload_errors: 0
+please try the -Q9 patch i just released, and if you still see any
+problems does the following:
 
+    echo 300 > /proc/sys/net/core/netdev_backlog_granularity
 
-I rebooted with Q5 (+ netdev_max_backlog=32) and everything was fine. Is there 
-anything I can do to make my report more useful for you ?
+help?
 
-	
-
-	P.O. Gaillard
-
-
-
-
-
-
-
+	Ingo

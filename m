@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266650AbUBGGkh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 01:40:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266667AbUBGGkg
+	id S266492AbUBGHKZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 02:10:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266667AbUBGHKZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 01:40:36 -0500
-Received: from smtp-out6.xs4all.nl ([194.109.24.7]:48145 "EHLO
-	smtp-out6.xs4all.nl") by vger.kernel.org with ESMTP id S266650AbUBGGkc
+	Sat, 7 Feb 2004 02:10:25 -0500
+Received: from rrcs-sw-24-153-196-99.biz.rr.com ([24.153.196.99]:8065 "EHLO
+	yoda.dummynet") by vger.kernel.org with ESMTP id S266492AbUBGHKY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 01:40:32 -0500
-Date: Sat, 7 Feb 2004 07:40:27 +0100
-From: Jurriaan on adsl-gate <thunder7@xs4all.nl>
+	Sat, 7 Feb 2004 02:10:24 -0500
+Date: Sat, 7 Feb 2004 01:10:23 -0600
+From: Dan Hopper <ku4nf@austin.rr.com>
 To: linux-kernel@vger.kernel.org
-Cc: vojtech@suse.cz
-Subject: Keyboard on ... reports too many keys pressed
-Message-ID: <20040207064027.GA20495@gates.of.nowhere>
-Reply-To: thunder7@xs4all.nl
+Subject: Promise PDC20378 PATA support?
+Message-ID: <20040207071023.GA2304@yoda.dummynet>
+Mail-Followup-To: Dan Hopper <ku4nf@austin.rr.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,20 +23,17 @@ User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On my laptop, I get a lot of
+Hi,
 
-Keyboard on ... reports too many keys pressed.
+Has anyone had any luck getting PATA working on Promise PDC20378
+controllers in a 2.6.x kernel?  As far as I can determine from
+looking at the drivers and at 2-month old postings to linux-kernel,
+the sata_promise driver only handles the two SATA ports and not the
+PATA port.  The Promise-supplied TX2plus driver works (with PATA
+support) for 2.4.x but hasn't been updated for 2.6.x.
 
-That may well be the case, I use my normal hands on a small
-laptop-keyboard.
-Why is that message printed? There nothing I can do about pressing
-multiple keys by accident, so I don't think it's useful.
+I fear the answer is still no, but I hate being limited to only 4
+PATA devices when I've got 5 sitting in there :)
 
-It does, however, frequently mess up the commandline, which leads to big
-frustration.
-
-Couldn't this be wrapped in #ifdef ATKBD_DEBUG or something? Is it
-really necessary to see this message?
-
-Good luck,
-Jurriaan
+Thanks,
+Dan Hopper

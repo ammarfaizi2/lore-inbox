@@ -1,39 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261683AbTJ0M3W (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 07:29:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261684AbTJ0M3V
+	id S261687AbTJ0Muo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 07:50:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261696AbTJ0Muo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 07:29:21 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:41663 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S261683AbTJ0M3T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 07:29:19 -0500
-Date: Mon, 27 Oct 2003 04:22:58 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: Andi Kleen <ak@suse.de>
-Cc: ak@muc.de, simon.roscic@chello.at, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com
-Subject: Re: [2.6.0-test8/9] ethertap oops
-Message-Id: <20031027042258.21446129.davem@redhat.com>
-In-Reply-To: <20031027122635.GB16013@wotan.suse.de>
-References: <L1fo.3gb.9@gated-at.bofh.it>
-	<m3ekwz7h3z.fsf@averell.firstfloor.org>
-	<20031026234828.2cb1f746.davem@redhat.com>
-	<20031027122635.GB16013@wotan.suse.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 27 Oct 2003 07:50:44 -0500
+Received: from totor.bouissou.net ([82.67.27.165]:52875 "EHLO
+	totor.bouissou.net") by vger.kernel.org with ESMTP id S261687AbTJ0Mun
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Oct 2003 07:50:43 -0500
+Content-Type: text/plain;
+  charset="iso-8859-2"
+From: Michel Bouissou <michel@bouissou.net>
+Organization: Completely disorganized
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: Patch for Promise PDC20276
+Date: Mon, 27 Oct 2003 13:50:41 +0100
+User-Agent: KMail/1.4.3
+Cc: abrutschy@xylon.de, linux-kernel@vger.kernel.org
+References: <200310271009.13054@totor.bouissou.net> <200310271049.15348@totor.bouissou.net> <200310271102.36476.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200310271102.36476.bzolnier@elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200310271350.41631@totor.bouissou.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Oct 2003 13:26:35 +0100
-Andi Kleen <ak@suse.de> wrote:
+Le Lundi 27 Octobre 2003 11:02, Bartlomiej Zolnierkiewicz a écrit :
+>
+> > Uh. I may have misunderstood, but I understood that using this option
+> > would activate the controller's hardware RAID feature, which I don't
+> > want.
+>
+> Quite opposite, it makes Linux use controller even if it was marked by BIOS
+> as disabled (for RAID purposes).
 
-> I don't know if it actually fixed the bug, I did not test it
-> (sorry, should have stated that in the original mail)
-> But at least it should printk now instead of crashing.
+So the Configure.help help text associated with this option is definitely 
+unclear (I would say: misleading) because it barely says (in kernel 2.4.22):
 
-Ok, it's still an improvement over the blind dereferencing
-it does not.
+<<<<<
+Special FastTrak Feature
+CONFIG_PDC202XX_FORCE
+  For FastTrak enable overriding BIOS.
+>>>>>
+
+And I understood this as meaning <<enable the "FastTrak" RAID feature 
+regardless of what BIOS says>>
+
+Hmmmm...
+
+-- 
+Michel Bouissou <michel@bouissou.net> OpenPGP ID 0xDDE8AC6E

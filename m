@@ -1,59 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261822AbVCUPMZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261248AbVCUPSy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261822AbVCUPMZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 10:12:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261820AbVCUPMY
+	id S261248AbVCUPSy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 10:18:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbVCUPSy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 10:12:24 -0500
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:13544 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S261324AbVCUPJ7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 10:09:59 -0500
-Date: Mon, 21 Mar 2005 16:09:54 +0100
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>, Luc Saillard <luc@saillard.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: pwc driver in -mm kernels
-Message-ID: <20050321150954.GD14614@gamma.logic.tuwien.ac.at>
-References: <20050319130424.GB3316@gamma.logic.tuwien.ac.at> <1111416966.14877.26.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1111416966.14877.26.camel@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
-From: Norbert Preining <preining@logic.at>
+	Mon, 21 Mar 2005 10:18:54 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:65204 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S261248AbVCUPSw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 10:18:52 -0500
+Date: Mon, 21 Mar 2005 16:18:22 +0100 (MET)
+Message-Id: <200503211518.j2LFIMP6021847@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: akpm@osdl.org, paulus@samba.org
+Subject: [PATCH][2.6.12-rc1] fix gcc4 compile error in ppc64 paca.h
+Cc: linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Mär 2005, Alan Cox wrote:
-> I pushed the tested one as a starting point. May have been the wrong
-> decision but it's my fault if so
+Compiling 2.6.12-rc1 or 2.6.12-rc1-mm1 for ppc64 with gcc4
+fails with:
 
-Ah ok. I checked the differences between the versions but there are too
-many `none-standard' changes, i.e. kernel-language changes (statics,
-inlines, __) etc so that I cannot submit a patch for the new version.
+In file included from include/asm/spinlock.h:20,
+                 from include/linux/spinlock.h:43,
+                 from include/linux/signal.h:5,
+                 from arch/ppc64/kernel/asm-offsets.c:17:
+include/asm/paca.h:25: error: array type has incomplete element type
+make[1]: *** [arch/ppc64/kernel/asm-offsets.s] Error 1
+make: *** [arch/ppc64/kernel/asm-offsets.s] Error 2
 
-The good thing about the one on Luc's page it that it includes sysfs
-support for several parameters and some more device ids.
+This is an array-of-incomplete-type error.
+Fix: move array decl to after the struct decl.
 
-Best wishes
+Signed-off-by: Mikael Pettersson <mikpe@csd.uu.se>
 
-Norbert
-
--------------------------------------------------------------------------------
-Norbert Preining <preining AT logic DOT at>                 Università di Siena
-sip:preining@at43.tuwien.ac.at                             +43 (0) 59966-690018
-gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
--------------------------------------------------------------------------------
-`We've got to find out what people want from fire, how
-they relate to it, what sort of image it has for them.'
-The crowd were tense. They were expecting something
-wonderful from Ford.
-`Stick it up your nose,' he said.
-`Which is precisely the sort of thing we need to know,'
-insisted the girl, `Do people want fire that can be fitted
-nasally?'
-                 --- Ford "debating" what to do with fire with a marketing
-                 --- girl.
-                 --- Douglas Adams, The Hitchhikers Guide to the Galaxy
+--- linux-2.6.12-rc1/include/asm-ppc64/paca.h.~1~	2005-03-02 19:24:19.000000000 +0100
++++ linux-2.6.12-rc1/include/asm-ppc64/paca.h	2005-03-21 15:29:26.000000000 +0100
+@@ -22,7 +22,6 @@
+ #include	<asm/iSeries/ItLpRegSave.h>
+ #include	<asm/mmu.h>
+ 
+-extern struct paca_struct paca[];
+ register struct paca_struct *local_paca asm("r13");
+ #define get_paca()	local_paca
+ 
+@@ -115,4 +114,6 @@ struct paca_struct {
+ #endif
+ };
+ 
++extern struct paca_struct paca[];
++
+ #endif /* _PPC64_PACA_H */

@@ -1,78 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261271AbSKBPE5>; Sat, 2 Nov 2002 10:04:57 -0500
+	id <S261277AbSKBPTS>; Sat, 2 Nov 2002 10:19:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261274AbSKBPE4>; Sat, 2 Nov 2002 10:04:56 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5636 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261271AbSKBPEw>;
-	Sat, 2 Nov 2002 10:04:52 -0500
-Date: Sat, 2 Nov 2002 15:11:21 +0000
-From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.45 build failures
-Message-ID: <20021102151121.GA731@gallifrey>
+	id <S261284AbSKBPTS>; Sat, 2 Nov 2002 10:19:18 -0500
+Received: from f11.sea2.hotmail.com ([207.68.165.11]:18963 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S261277AbSKBPTN>;
+	Sat, 2 Nov 2002 10:19:13 -0500
+X-Originating-IP: [193.153.107.137]
+From: "Pedro A ARANDA" <paaguti@hotmail.com>
+To: Riley@Williams.Name
+Cc: Linux-Kernel@vger.kernel.org
+Subject: Patch: allow booting from 21 sectors/track (1722K) floppies
+Date: Sat, 02 Nov 2002 15:25:38 +0000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Chocolate: 70 percent or better cocoa solids preferably
-X-Operating-System: Linux/2.4.18 (i686)
-X-Uptime: 14:56:29 up  3:14,  1 user,  load average: 0.55, 0.45, 0.22
+Content-Type: text/plain; format=flowed
+Message-ID: <F11clDyGz2stY3Uyn3p00000ebd@hotmail.com>
+X-OriginalArrivalTime: 02 Nov 2002 15:25:38.0624 (UTC) FILETIME=[18FBBC00:01C28284]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(On x86 Debian/sid)
+Hi,
 
-1) Device mapper:
- gcc -Wp,-MD,drivers/md/.dm-ioctl.o.d -D__KERNEL__ -Iinclude -Wall
- -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
- -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
- -march=i686 -malign-functions=4 -Iarch/i386/mach-generic -nostdinc
- -iwithprefix include    -DKBUILD_BASENAME=dm_ioctl   -c -o
- drivers/md/dm-ioctl.o drivers/md/dm-ioctl.c
- drivers/md/dm-ioctl.c: In function `create':
- drivers/md/dm-ioctl.c:588: incompatible type for argument 1 of
- `set_device_ro'
- drivers/md/dm-ioctl.c: In function `reload':
- drivers/md/dm-ioctl.c:874: incompatible type for argument 1 of
- `set_device_ro'
- make[2]: *** [drivers/md/dm-ioctl.o] Error 1
- make[1]: *** [drivers/md] Error 2
- make: *** [drivers] Error 2
+this simple patch will allow booting from 21 sectors/track floppies.
+With all things growing at the pace they are, making bootdisks,
+rescue disks, and small distributions is getting a lot harder. With
+this small patch, I've been able to boot from floppies formatted at
+82 tracks, 21 sectors/track, which gives 1722K space. These nearly
+300K really make a difference.
 
-2) NFSv4 server
+The patch was tested and generated against a 2.4.19 kernel.
 
-fs/nfsd/nfs4proc.c: In function `nfsd4_write':
-fs/nfsd/nfs4proc.c:484: warning: passing arg 4 of `nfsd_write' from
-incompatible pointer type
-fs/nfsd/nfs4proc.c:484: warning: passing arg 6 of `nfsd_write' makes
-integer from pointer without a cast
-fs/nfsd/nfs4proc.c:484: too few arguments to function `nfsd_write'
-fs/nfsd/nfs4proc.c: In function `nfsd4_proc_compound':
-fs/nfsd/nfs4proc.c:568: structure has no member named `rq_resbuf'
-fs/nfsd/nfs4proc.c:569: structure has no member named `rq_resbuf'
-fs/nfsd/nfs4proc.c:569: structure has no member named `rq_resbuf'
-make[2]: *** [fs/nfsd/nfs4proc.o] Error 1
+Cheers,
+Pedro A. Aranda Gutiérrez
+paaguti@hotmail.com
 
-(Niggle: NFSv4 server support is hidden until you select v3 support,
-unlike v4 client support).
+--------------------------------------
 
-3) Niggles in qconf
+--- arch/i386/boot/bootsect.S.orig     2002-11-02 16:10:06.000000000 +0100
++++ arch/i386/boot/bootsect.S  2002-11-02 16:10:06.000000000 +0100
+@@ -407,7 +407,11 @@
+        ret
 
-I like qconf a lot more than the old tk based xconfig - but I do have a
-few niggles:
-  a) The window starts very small
-	b) In split window mode, the arrows in the right hand window don't
-	seem to always work right.  For example in Bus options->support for
-	hot pluggable.  When I click on the 'PCMCIA/CardBus support' arrow
-	the right hand window contents are replaced with just the
-	PCMCIA/Cardbus enabling rather than expanding in the existing list. In
-	addition there appears to be no way to get the standard Bus Option
-	right screen back without selecting something else in the left hand
-	pane and then selecting Bus options again.
+sectors:       .word 0
+-disksizes:     .byte 36, 18, 15, 9
++#
++# paaguti@hotmail.com: try 21 sectors too for fd01722 et.al.
++#   02-Nov-2002
++#
++disksizes:     .byte 36, 21, 18, 15, 9
+msg1:          .byte 13, 10
+                .ascii "Loading"
 
-Dave
- ---------------- Have a happy GNU millennium! ----------------------   
-/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
-\ gro.gilbert @ treblig.org | MIPS,x86,ARM, SPARC and HP-PA | In Hex /
- \ _________________________|_____ http://www.treblig.org   |_______/
+
+
+
+
+
+_________________________________________________________________
+Protect your PC - get McAfee.com VirusScan Online 
+http://clinic.mcafee.com/clinic/ibuy/campaign.asp?cid=3963
+

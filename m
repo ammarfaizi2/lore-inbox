@@ -1,27 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269961AbRHJSEg>; Fri, 10 Aug 2001 14:04:36 -0400
+	id <S269963AbRHJSLQ>; Fri, 10 Aug 2001 14:11:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269962AbRHJSEZ>; Fri, 10 Aug 2001 14:04:25 -0400
-Received: from clavin.efn.org ([206.163.176.10]:7374 "EHLO clavin.efn.org")
-	by vger.kernel.org with ESMTP id <S269961AbRHJSES>;
-	Fri, 10 Aug 2001 14:04:18 -0400
-From: Steve VanDevender <stevev@efn.org>
-MIME-Version: 1.0
+	id <S269964AbRHJSLG>; Fri, 10 Aug 2001 14:11:06 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:30857
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S269963AbRHJSK4>; Fri, 10 Aug 2001 14:10:56 -0400
+Date: Fri, 10 Aug 2001 11:10:44 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Christian Borntraeger <CBORNTRA@de.ibm.com>, ext3-users@redhat.com,
+        linux-kernel@vger.kernel.org, Carsten Otte <COTTE@de.ibm.com>
+Subject: Re: BUG: Assertion failure with ext3-0.95 for 2.4.7
+Message-ID: <20010810111044.G31136@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <OF5E574EE5.AF3B6F6F-ONC1256AA2.0026D8D3@de.ibm.com> <3B72DD66.A6F65247@zip.com.au>, <3B72DD66.A6F65247@zip.com.au> <20010810104450.F31136@cpe-24-221-152-185.az.sprintbbd.net> <3B74235F.8F6943D9@zip.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15220.8730.355699.436735@tzadkiel.efn.org>
-Date: Fri, 10 Aug 2001 11:04:10 -0700
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Writes to mounted devices containing file-systems.
-In-Reply-To: <Pine.LNX.3.95.1010810075750.10479A-100000@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.3.95.1010810075750.10479A-100000@chaos.analogic.com>
-X-Mailer: VM 6.95 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Content-Disposition: inline
+In-Reply-To: <3B74235F.8F6943D9@zip.com.au>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson writes:
- > 	"Linux is insecure..."
+On Fri, Aug 10, 2001 at 11:09:35AM -0700, Andrew Morton wrote:
+> Tom Rini wrote:
+> > 
+> > With this patch my first oops seems to have gone away.  I'm repeating
+> > the test again, but dbench'ing 2,4,8,16,32 and then 64 (until disk
+> > space ran out) worked this time.
+> 
+> Thanks, Tom and Christian.
+> 
+> Yup, it's definitely a bug and the fix will be in 0.9.6 (in fact the way
+> things are looking at present it'll be the only substantive change in
+> 0.9.6).
+> 
+> If it's possible, could you please also test journalled data mode?
 
-In today's world of Code Red and Sircam, anyone who still believes
-Windows is more secure than UNIX or Linux is beyond saving.
+Sure.  It'll take me a bit longer for that tho (I've gotta get my
+spare ppc box happily booting 2.4 off the disk first..)
+
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

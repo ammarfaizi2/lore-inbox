@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129040AbQJ3QGw>; Mon, 30 Oct 2000 11:06:52 -0500
+	id <S129066AbQJ3Q3l>; Mon, 30 Oct 2000 11:29:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129133AbQJ3QGe>; Mon, 30 Oct 2000 11:06:34 -0500
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:6163 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S129040AbQJ3QG2>; Mon, 30 Oct 2000 11:06:28 -0500
-Date: Mon, 30 Oct 2000 16:06:25 +0000 (GMT)
-From: John Levon <moz@compsoc.man.ac.uk>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
+	id <S129068AbQJ3Q3c>; Mon, 30 Oct 2000 11:29:32 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:4868 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129066AbQJ3Q3V>; Mon, 30 Oct 2000 11:29:21 -0500
+Date: Mon, 30 Oct 2000 11:28:19 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Tigran Aivazian <tigran@veritas.com>
 cc: Linux kernel <linux-kernel@vger.kernel.org>
 Subject: Re: kmalloc() allocation.
-In-Reply-To: <Pine.LNX.3.95.1001030104956.735A-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.21.0010301605380.14174-100000@mrworry.compsoc.man.ac.uk>
+In-Reply-To: <Pine.LNX.4.21.0010301602240.2383-100000@saturn.homenet>
+Message-ID: <Pine.LNX.3.95.1001030112739.1186B-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Oct 2000, Richard B. Johnson wrote:
+On Mon, 30 Oct 2000, Tigran Aivazian wrote:
 
+> Hi Dick,
 > 
-> Hello,
-> How much memory would it be reasonable for kmalloc() to be able
-> to allocate to a module?
+> Sorry, I thought you knew this already :) The maximum for kmalloc is 128K
+> and is defined in mm/slab.c. It is trivial to "enhance" slab.c to support
+> more but it is in practice not very useful because requesting too much
+> physically-contiguous (which kmalloc is all about) memory is impossible
+> except at very early stages after boot (due to obvious fragmentation).
 > 
-> Oct 30 10:48:31 chaos kernel: kmalloc: Size (524288) too large 
+> So, if you don't need physically contiguous (and fast) allocations perhaps
+> you could make use of vmalloc()/vfree() instead? There must be also some
+> "exotic" allocation APIs like bootmem but I know nothing of them so I stop
+> here.
 > 
-> Using Version 2.2.17, I can't allocate more than 64k!  I need
-> to allocate at least 1/2 megabyte and preferably more (like 2 megabytes).
+> Regards,
+> Tigran
 > 
-> There are 256 megabytes of SDRAM available. I don't think it's
-> reasonable that a 1/2 megabyte allocation would fail, especially
-> since it's the first module being installed.
 > 
-> The attempt to allocate is memory of type GFP_KERNEL.
 
-Why do you need physically-contiguous memory ? Can you not just use
-vmalloc()/vfree()
+Okay. Looks like I need a linked-list so I can use noncontiguous memory.
 
-john
 
--- 
-"It's not that the suggestions are not good ideas.  That problem is that
- committees cannot say no to good ideas, while the one thing that matters
- above all in any design task is saying no to almost everything." 
-	- Vern Schryver 
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.2.17 on an i686 machine (801.18 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,76 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275278AbRJVLaj>; Mon, 22 Oct 2001 07:30:39 -0400
+	id <S278727AbRJVLd3>; Mon, 22 Oct 2001 07:33:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278727AbRJVLa3>; Mon, 22 Oct 2001 07:30:29 -0400
-Received: from finch-post-11.mail.demon.net ([194.217.242.39]:2825 "EHLO
-	finch-post-11.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S275278AbRJVLaT>; Mon, 22 Oct 2001 07:30:19 -0400
-Message-ID: <hwHwJtbLMA17Ew7i@wookie.demon.co.uk>
-Date: Mon, 22 Oct 2001 12:29:15 +0100
-Cc: linux-kernel@vger.kernel.org
-From: John Beardmore <wookie@wookie.demon.co.uk>
-Subject: Re: ISDN cards and SMP
-In-Reply-To: <NPHLGxZPH$07EwlQ@wookie.demon.co.uk> <4947.1003748210@redhat.com>
-In-Reply-To: <4947.1003748210@redhat.com>
+	id <S278722AbRJVLdT>; Mon, 22 Oct 2001 07:33:19 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:22712 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S278727AbRJVLdJ>;
+	Mon, 22 Oct 2001 07:33:09 -0400
+Date: Mon, 22 Oct 2001 07:33:37 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Keith Owens <kaos@ocs.com.au>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] binfmt_misc.c, kernel-2.4.12 
+In-Reply-To: <25634.1003749468@ocs3.intra.ocs.com.au>
+Message-ID: <Pine.GSO.4.21.0110220724120.2294-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;charset=us-ascii;format=flowed
-User-Agent: Turnpike/6.00-U (<F7naP4S4l2F1q+EHsIexcg5ozp>)
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <4947.1003748210@redhat.com>, David Woodhouse 
-<dwmw2@infradead.org> writes
->wookie@wookie.demon.co.uk said:
-
->>  This works fine with a single processor kernel, but the module fails
->> to load with a kernel compiled for SMP.
->
->> I gather this is true for all the Isdn4Linux drivers, though as I have
->> a three processor machine, this is a real pain !
->
->The HiSax driver should be fine -
-
-This is hisax.  What version are you using ?  Maybe it's been sorted in 
-the last year or so ?
 
 
-> I use it 100% of the time (or at least
->100% of the time we have power to the house) on my SMP box at home,
+On Mon, 22 Oct 2001, Keith Owens wrote:
 
-:)   !
+> >MODULES_BLKDEV(), MODULE_LDISC(), etc. would be trivial wrappers around that.
+> 
+> Everything is a device and can be handled by the hotplug project.  It
+> is really a cunning plan by David Brownell and Greg Kroah-Hartman to
+> own the entire device subsystem ;).
 
+No-go - we need that for filesystems.  But that's a separate story - if
+MODULE_CONF() is there life already becomes much easier.
+ 
+> >Looks like the thing you mentioned would make quite a few people happy.
+> >Might be worth doing in 2.4...
+> 
+> Please, no more 2.4 changes.  Let Linus get 2.4 stable, fork 2.5 so we
+> can break it on a daily basis then backport to 2.4 when it works.
 
-> without
->trouble. I see no reason why the other drivers would have problems.
-
-OK, but I've been told by other people that there are problems and this 
-is consistent with my experience of this release.
-
-
->If you're having problem with modules loading, there's probably a
->compilation problem.
-
-It seems odd that that the module compiles and links OK, and loads into 
-a uniprocessor kernel if it's broken in any way.  Or can it be broken in 
-some subtle SMP specific way ?
-
-
-> If you're using a distro kernel, check it's installed
->properly.
-
-I've built it from the sources that shipped with RH 6.2 using the GUI 
-tool to specify SMP support.  I think it's installed properly in as far 
-as all three CPUs get used once its installed.  Very cute !  Roll over 
-NT etc !
+I suspect that in this case s/2.5/2.4-ac/ might be a possibility.  Since
+we are talking about defaults, nothing is going to break if file simply
+doesn't exist.  So teaching modprobe to handle it if it's there would
+be a compatible change and would allow testing the kernel side of that
+stuff.  Alan?
 
 
-> If you're building your own, rebuild it and the modules.
-
-I can do, but I'd like to know what to do differently first.
-
-
-Cheers, J/.
--- 
-John Beardmore

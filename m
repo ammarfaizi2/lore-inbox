@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284944AbRLUXw7>; Fri, 21 Dec 2001 18:52:59 -0500
+	id <S285110AbRLVAH5>; Fri, 21 Dec 2001 19:07:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284979AbRLUXwt>; Fri, 21 Dec 2001 18:52:49 -0500
-Received: from swan.mail.pas.earthlink.net ([207.217.120.123]:32230 "EHLO
-	swan.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S284944AbRLUXwb>; Fri, 21 Dec 2001 18:52:31 -0500
-Date: Fri, 21 Dec 2001 18:55:38 -0500
-To: Jens Axboe <axboe@kernel.org>
-Cc: rwhron@earthlink.net, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.2-pre1 dbench 32 hangs in vmstat "b" state
-Message-ID: <20011221185538.A131@earthlink.net>
-In-Reply-To: <20011221091104.A120@earthlink.net> <20011221154654.E811@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011221154654.E811@suse.de>; from axboe@kernel.org on Fri, Dec 21, 2001 at 03:46:54PM +0100
-From: rwhron@earthlink.net
+	id <S284979AbRLVAHr>; Fri, 21 Dec 2001 19:07:47 -0500
+Received: from waste.org ([209.173.204.2]:62863 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S285588AbRLVAHi>;
+	Fri, 21 Dec 2001 19:07:38 -0500
+Date: Fri, 21 Dec 2001 18:07:20 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Benjamin LaHaise <bcrl@redhat.com>
+cc: Chris Wedgwood <cw@f00f.org>, Rik van Riel <riel@conectiva.com.br>,
+        "Eric S. Raymond" <esr@thyrsus.com>,
+        David Garfield <garfield@irving.iisd.sra.com>,
+        Linux Anonymous List <linux-kernel@vger.kernel.org>
+Subject: Re: Configure.help editorial policy
+In-Reply-To: <20011221161030.L15926@redhat.com>
+Message-ID: <Pine.LNX.4.43.0112211803150.26909-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ok, please try something for me. In drivers/block/elevator.c, comment
-> out this block:
+On Fri, 21 Dec 2001, Benjamin LaHaise wrote:
 
-After commenting the block of code, make clean, etc, I rebooted and ran 
-the dbench 32, 128 scripty.  It completed dbench 32 again, but dbench
-128 hung again.  I could quit some tools.  df, ps, wouldn't return
-and didn't listen to <ctrl c>.
+> On Sat, Dec 22, 2001 at 10:00:17AM +1300, Chris Wedgwood wrote:
+> > But what Rik points out shows that right now there is ambiguity
+> > BECAUSE OF LACK OF STANDARDIZATION --- because GB is vague at the very
+> > best, disk manufactures get to claim nice marketing numbers.
+>
+> GiB is not a useful standard because NOBODY USES IT.  When it's in
+> common use, then consider applying it to the kernel, but please,
+> not before then.
 
-> Loop back highmem issue is different, I'll take a look at that later.
-> I'll be pretty unresponsive over christmas, though.
-> 
-> Jens Axboe
+To summarize: don't use it widely until it's widely used.
 
-Enjoy the holidays!
+Let's apply that standard to aio, shall we? :P
 
 -- 
-Randy Hron
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 

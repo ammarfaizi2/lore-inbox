@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282700AbRK0BEY>; Mon, 26 Nov 2001 20:04:24 -0500
+	id <S282703AbRK0BFo>; Mon, 26 Nov 2001 20:05:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282701AbRK0BEO>; Mon, 26 Nov 2001 20:04:14 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:11014
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S282700AbRK0BEK>; Mon, 26 Nov 2001 20:04:10 -0500
-Date: Mon, 26 Nov 2001 17:02:04 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Patrick McFarland <unknown@panax.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.16-pre1
-In-Reply-To: <20011126194732.D242@localhost>
-Message-ID: <Pine.LNX.4.10.10111261656150.9508-100000@master.linux-ide.org>
+	id <S282702AbRK0BFh>; Mon, 26 Nov 2001 20:05:37 -0500
+Received: from mauve.demon.co.uk ([158.152.209.66]:5761 "EHLO
+	mauve.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S282703AbRK0BFX>; Mon, 26 Nov 2001 20:05:23 -0500
+From: Ian Stirling <root@mauve.demon.co.uk>
+Message-Id: <200111270101.BAA01290@mauve.demon.co.uk>
+Subject: Re: Journaling pointless with today's hard disks?
+To: jlundell@pobox.com (Jonathan Lundell)
+Date: Tue, 27 Nov 2001 01:01:19 +0000 (GMT)
+Cc: nitrax@giron.wox.org (Martin Eriksson),
+        xioborg@yahoo.com (Steve Brueggeman), linux-kernel@vger.kernel.org
+In-Reply-To: <p05100301b82887aff497@[207.213.214.37]> from "Jonathan Lundell" at Nov 26, 2001 04:18:15 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> 
+> At 12:49 AM +0100 11/27/01, Martin Eriksson wrote:
+> >I sure think the drives could afford the teeny-weeny cost of a power failure
+<snip>
+> converter, which is expensive. If you simply detect a drop in dc 
+> power, there simply isn't enough margin to reliably write a block.
+> 
+> Years (many years) back, Diablo had a short-lived model (400, IIRC) 
+> that had an interesting twist on this. On a power failure, the 
+> spinning disk (this was in the days of 14" platters, so plenty of 
+> energy) drove the spindle motor as a generator, providing power to 
+> the drive electronics for several seconds before it spun down to 
+> below operating speed.
 
-Patrick,
-
-Word of advise kind sir -- by asbestos or get thicker skin.
-In the past I was one of the absolute worst BLOW-TORCH carries here,
-so just learn to live and let live....
-
-Also w/ an name like "Patrick McFarland" you should be an equal
-opportunity asre kicker!  Red-n-Green to make Black-n-Blue!
-
-Cheers,
-
-Andre Hedrick
-CEO/President, LAD Storage Consulting Group
-Linux ATA Development
-Linux Disk Certification Project
-
+I have a (IIRC) elantec databook from 1985 or so, that I've found chips in
+disks from the MFM/RLL PC era. 
+These are motor driver chips aimed at PCs, which support generation 
+using the motor.

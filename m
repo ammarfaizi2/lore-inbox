@@ -1,79 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266160AbUALM2w (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 07:28:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266161AbUALM2w
+	id S266122AbUALMcn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 07:32:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266135AbUALMcn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 07:28:52 -0500
-Received: from gizmo09bw.bigpond.com ([144.140.70.19]:12706 "HELO
-	gizmo09bw.bigpond.com") by vger.kernel.org with SMTP
-	id S266160AbUALM2t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 07:28:49 -0500
-From: Srihari Vijayaraghavan <harisri@bigpond.com>
-Subject: [PROBLEM] ip_conntrack_ftp module oops under 2.6.1-mm2
-Date: Mon, 12 Jan 2004 23:29:38 +1100
-User-Agent: KMail/1.5.4
-MIME-Version: 1.0
-Content-Disposition: inline
+	Mon, 12 Jan 2004 07:32:43 -0500
+Received: from mail.physik.uni-muenchen.de ([192.54.42.129]:43923 "EHLO
+	mail.physik.uni-muenchen.de") by vger.kernel.org with ESMTP
+	id S266122AbUALMcl convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 07:32:41 -0500
+Date: Mon, 12 Jan 2004 13:32:30 +0100 (CET)
+From: "Andreas K. Huettel" <Andreas.Huettel@Physik.Uni-Muenchen.DE>
+Reply-To: "Andreas K. Huettel" <mail@akhuettel.de>
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200401122329.38659.harisri@bigpond.com>
+Subject: meaning of "fh_verify: no root_squashed access at ..."???
+Message-ID: <Pine.LNX.4.58.0401121325220.26479@ankogel.cip.physik.uni-muenchen.de>
+X-Information: My public GPG key can be obtained at http://www.akhuettel.de/
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Executing
-"modprobe ip_conntrack_ftp" causes this oops:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-ip_conntrack version 2.1 (3968 buckets, 31744 max) - 300 bytes per conntrack
-Module len 7233 truncated
-Unable to handle kernel NULL pointer dereference at virtual address 00000004
- printing eip:
-c0135e10
-*pde = 00000000
-Oops: 0002 [#1]
-PREEMPT
-CPU:    0
-EIP:    0060:[<c0135e10>]    Not tainted VLI
-EFLAGS: 00010003
-EIP is at sys_init_module+0xb0/0x230
-eax: 00000004   ebx: 08074958   ecx: c13773c8   edx: df9b7c44
-esi: d62c8000   edi: 00000000   ebp: c0300178   esp: d62c9fa4
-ds: 007b   es: 007b   ss: 0068
-Process modprobe (pid: 1220, threadinfo=d62c8000 task=d7371300)
-Stack: 08074958 00001c41 08074088 08074958 00000002 08053670 d62c8000 c02beb96
-       08074958 00001c41 08074088 00000002 08053670 bfffe5b0 00000080 0000007b
-       0000007b 00000080 ffffd41a 00000073 00000287 bfffe5b0 0000007b
-Call Trace:
- [<c02beb96>] sysenter_past_esp+0x43/0x65
 
-Code: ff 89 c7 76 16 89 e9 ff 05 78 01 30 c0 0f 8e 14 07 00 00 89 c2 eb 8e 8d 
-74 26 00 fa ff 46 14 8b 15 88 01 30 c0 8d 40 04 89 42 04 <89> 57 04 c7 40 04 
-88 01 30 c0 a3 88 01 30 c0 fb 8b 46 08 ff 4e
- <6>note: modprobe[1220] exited with preempt_count 1
-bad: scheduling while atomic!
-Call Trace:
- [<c011c0b5>] schedule+0x5a5/0x5b0
- [<c0145ba3>] unmap_page_range+0x43/0x70
- [<c0145d84>] unmap_vmas+0x1b4/0x210
- [<c0149aeb>] exit_mmap+0x7b/0x190
- [<c011dba9>] mmput+0x79/0xf0
- [<c0121bc2>] do_exit+0x152/0x410
- [<c0119f00>] do_page_fault+0x0/0x50c
- [<c010b7d9>] die+0xf9/0x100
- [<c011a0de>] do_page_fault+0x1de/0x50c
- [<c014f787>] vfree+0x27/0x40
- [<c0135411>] load_module+0xe1/0xa30
- [<c0119f00>] do_page_fault+0x0/0x50c
- [<c02bed97>] error_code+0x2f/0x38
- [<c0135e10>] sys_init_module+0xb0/0x230
- [<c02beb96>] sysenter_past_esp+0x43/0x65
+dear developers, 
 
-OTOH it loads and works great in 2.6.1. Please feel free to ask for more 
-information.
+could you please give me some hint what exactly the syslog message
 
-Thanks
-Hari
-harisri@bigpond.com
+kernel: fh_verify: no root_squashed access at ...
+
+means, and when it is triggered? (googling was unsuccessful.)
+
+Naturally it has something to do with an nfs-client accessing something as
+local root on a root_squash share, but what's the details? I am not versed 
+enough in kernel structures to make sense of nfsfh.c ...
+
+please cc me as I am not no the list.
+
+thank you, andreas
+
+PS. the kernel is "2.4.21-166" as distributed by suse (update for suse
+90).
+
+PPS. thank you all for the great work!
+
+
+- ---------------------------------------------------------------------
+Dipl.-Phys. Andreas K. Huettel          tel. +49 89 2180 3349 (univ.)
+Sektion Physik der LMU                  fax  +49 89 2180 3182 (univ.)
+LS Prof. J.P. Kotthaus                                 huettel@lmu.de
+Geschwister-Scholl-Platz 1                          mail@akhuettel.de
+80539 Muenchen                 andreas.huettel@physik.uni-muenchen.de
+Germany                             http://www.akhuettel.de/research/
+- ---------------------------------------------------------------------
+Privat:  Andreas K. Huettel, Enhuberstraﬂe 5, 80333 Muenchen, Germany
+- ---------------------------------------------------------------------
+Please use GNUPG or PGP for signed and encrypted email. My public key
+can be found at  http://www.akhuettel.de/pgp_key.html
+
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFAApPkL+gLs3iH94cRAt+KAJ909b+B1SdJebSFd8vpIQgZcdUthgCeNr+J
+S8v4jewq6sVMPG12p9bteC8=
+=rmQT
+-----END PGP SIGNATURE-----
 

@@ -1,65 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265943AbUBJUBq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 15:01:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266014AbUBJUBq
+	id S263448AbUBJULw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 15:11:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265173AbUBJULP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 15:01:46 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:12817 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S265943AbUBJUBn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 15:01:43 -0500
-Message-ID: <4029398D.4010705@tmr.com>
-Date: Tue, 10 Feb 2004 15:05:33 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: wrlk@riede.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6.3-rc1] ide-scsi burning broken
-References: <1nwBu-35x-11@gated-at.bofh.it>
-In-Reply-To: <1nwBu-35x-11@gated-at.bofh.it>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Tue, 10 Feb 2004 15:11:15 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:896 "EHLO shadow.ucw.cz")
+	by vger.kernel.org with ESMTP id S264477AbUBJULE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 15:11:04 -0500
+Date: Tue, 10 Feb 2004 21:11:02 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: tabris <tabris@tabris.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: console/gpm mouse breakage 2.6.3-rc1-mm1
+Message-ID: <20040210201102.GB261@ucw.cz>
+References: <200402100605.25115.tabris@tabris.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200402100605.25115.tabris@tabris.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willem Riede wrote:
-> On Mon, 09 Feb 2004 20:10:37 +0200, Markus Hästbacka wrote:
->                 
+On Tue, Feb 10, 2004 at 06:05:19AM -0500, tabris wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
->>Hi list,
->>I was going to burn a cd earlier today, and I noticed it wont work in
->>2.6.3-rc1, k3b (the burning software) just freezed in 'D' state, and
->>after a moment I got something like this in my dmesg:
->>/dec/sr0 drive not ready!
->>/dec/sr0 drive not ready!
->>/dec/sr0 drive not ready!
->>[x1000]
->>So I guess the ide-scsi patches broke up things.
->>
->>The burning in 2.6.1-mm4 works fine.
->>
->>I know I should use ide-cd whatever, but I've always done it with
->>ide-scsi and I wont easily change that.
+> 	just went to 2.6.3 this morning due to frustrations with my PDC20265 causing 
+> lockups... hoping that 2.6 solves this problem...
 > 
->                 
-> I doubt that changes in ide-scsi caused this, you just ran out of luck :-(
-> Since you're not supposed to use ide-scsi for cd writing (as you admit
-> knowing), nobody is going to help you with this problem...
+> 	and now i'm having trouble where gpm doesn't work right... cilcks don't 
+> register as a click event. Yes, it works fine in X (using GPM in repeater 
+> mode, -R raw. the old hack I used to allow X to use both mice, as well as 
+> eliminating the gpm crashes every couple times I switched btwn X and console 
+> mode.)
+> 
+> instead I get characters echoed to my terminal
+> left click: Q
+> right click: W
+> middle click: E (plus some control character... i haven't tried a capture and 
+> hexdump yet)
+> 
+> 	also, my PS/2 mouse (MS IMPS/2) no longer works. from any /dev node I've 
+> tried.
 
-I think CD burning is like the canary in the coal mine, if it stops 
-working something is broken. It may be "better" to burn with ide-cd, in 
-some hope of avoiding overhead which is small beyond measurement for 
-data CDs on most systems, but it should work, and the fact that it has 
-stopped working probably indicates something has changed which will 
-later rise up to bite us with IDE tape, or MO, or avoiding ide-floppy 
-for ZIP, or whatever.
-
-If you think of it as a test program for the interface it matches 
-reality better, except that many people cross boot between 2.4 and 2.5, 
-don't want to build using Joreg's odd idea of header files, and 
-generally use this interface for production use.
+This is very interesting. Can you post your /proc/bus/input/devices and
+dmesg?
 
 -- 
-bill davidsen, TMR
+Vojtech Pavlik
+SuSE Labs, SuSE CR

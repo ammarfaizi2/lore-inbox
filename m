@@ -1,66 +1,120 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312610AbSDFPCQ>; Sat, 6 Apr 2002 10:02:16 -0500
+	id <S314145AbSDFLDQ>; Sat, 6 Apr 2002 06:03:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312813AbSDFPCP>; Sat, 6 Apr 2002 10:02:15 -0500
-Received: from [194.46.8.33] ([194.46.8.33]:773 "EHLO angusbay.vnl.com")
-	by vger.kernel.org with ESMTP id <S312610AbSDFPCO>;
-	Sat, 6 Apr 2002 10:02:14 -0500
-Date: Sat, 6 Apr 2002 16:15:31 +0100
-From: Dale Amon <amon@vnl.com>
-To: linux-kernel@vger.kernel.org
-Subject: make install bug?
-Message-ID: <20020406151531.GK17144@vnl.com>
-Mail-Followup-To: Dale Amon <amon@vnl.com>, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux, the choice of a GNU generation
+	id <S314157AbSDFLDP>; Sat, 6 Apr 2002 06:03:15 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:42500 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S314145AbSDFLDP>; Sat, 6 Apr 2002 06:03:15 -0500
+Message-ID: <3CAEE365.4020301@namesys.com>
+Date: Sat, 06 Apr 2002 16:00:37 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020310
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Larry McVoy <lm@bitmover.com>
+CC: reiserfs-dev@namesys.com, linux-kernel@vger.kernel.org,
+        flx <flx@namesys.com>
+Subject: Re: ReiserFS Bug Fixes 3 of 6 (Please apply all 6)
+In-Reply-To: <200204052027.g35KRc002869@bitshadow.namesys.com> <Pine.LNX.4.33.0204051347500.1746-100000@penguin.transmeta.com> <20020405171001.C6087@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When building kernels for my servers I have always done this:
+I am confused, the bk patches look like they have normal patches at the 
+top of them.  Does he just need to use patch -p1 or is there a deeper 
+screwiness to these patches that he refers to?
 
-	make INSTALL_MOD_PATH=/usr/src/<target-hostname> modules_install
+We did this because my security/sysadmin specialist (flx) is not 
+enthusiastic about having a semi-closed source network service offering 
+process running on the machine which holds our source code and website 
+without any IP filters guarding it.  Especially when it is as 
+complicated as a version control system needs to be.
 
-to dump all the modules into an easily tarballable directory 
-to be scp'd to the target host.
+We were planning on setting up a clone for non-Namesys users outside our 
+firewall, but we need for Linus's access to be just as secure as ours. 
+ I am not sure what to do, let's see what flx says.
 
-However for some reason today it's tried to do a depmod on the 
-kernel building machine:
+Hans
 
-make -C  arch/i386/lib modules_install
-make[1]: Entering directory `/VNetLinux/linux-2.4.18/arch/i386/lib'
-make[1]: Nothing to be done for `modules_install'.
-make[1]: Leaving directory `/VNetLinux/linux-2.4.18/arch/i386/lib'
-cd /VNetLinux/scout/lib/modules/2.4.18; \
-mkdir -p pcmcia; \
-find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{} pcmcia
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map -b /VNetLinux/scout -r 2.4.18; fi
-depmod: *** Unresolved symbols in /VNetLinux/scout/lib/modules/2.4.18/pcmcia/3c575_cb.o
-depmod:         pcibios_read_config_byte
-depmod:         pcibios_write_config_word
-depmod:         pcibios_read_config_dword
-depmod:         pcibios_write_config_byte
-depmod:         pcibios_write_config_dword
-depmod:         pcibios_read_config_word
-depmod: *** Unresolved symbols in /VNetLinux/scout/lib/modules/2.4.18/pcmcia/aha152x_cs.o
-depmod:         print_msg
-depmod:         scsi_command_size
-depmod:         scsi_unregister_module
-depmod:         scsicam_bios_param
-	And so forth....
+PS for Larry (Persons not interested in licensing issues should not read 
+further)
+
+Keeping source code secret is the worst part of the proprietary model. 
+ It prevents knowledge from accumulating, and it is an abuse of the 
+original intention of copyright law, which was to encourage people to 
+not keep knowledge secret.  I know that piracy has caused you to keep 
+the source code secret, but piracy is a problem for all software (even 
+GPL software, as proprietary software vendors frequently steal it). 
+ Please don't let a few bad experiences lead you down the trade secret 
+route that copyright and patent laws were designed to let us escape from.
+
+Secret source code is a form of social lockout, and avoiding that 
+lockout is the civil rights issue of our day.  This will only become 
+more and more important in the coming generations, as our shadows in 
+cyberspace become more solid, and firmer in their replication of our 
+evils.  Lockout of programs, and of persons who modify programs, is 
+going to be the most important civil rights issue of your lifetime.  Are 
+you sure you are standing where you want to stand on that issue?
+
+Another model you might consider, one which would probably make you more 
+money, make us happier, and better avoid "freeloaders", would be to make 
+bitkeeper free for use with free software only.  This would be rather 
+similar to what I use for reiserfs, which is free for use with free 
+operating systems only, and available for a fee for all others.  It 
+allows you to "do unto others as they would do unto you" (The Reiser 
+Rule ;-) ).
+
+Hans
 
 
-I'm not sure why this started happening, but it isn't nice
-behavior at all. I'd call it a bug as I can't imagine why
-I'd want a depmod to occur on the build machine.
 
-Have I managed to tickle something that should not be 
-happening?
+Larry McVoy wrote:
 
-
+>On Fri, Apr 05, 2002 at 01:48:30PM -0800, Linus Torvalds wrote:
+>
+>>On Sat, 6 Apr 2002, Hans Reiser wrote:
+>>
+>>>This changeset is to fix several reiserfs problems which can be
+>>>fixed in non-intrusive way.
+>>>
+>>Please don't use bk patches, they have turned out to be pretty much 
+>>unusable.
+>>
+>
+>I suspect that the problem is that BK won't let you accept a patch unless
+>the receiving repository has the parent of the patch.  In other words,
+>this won't work:
+>
+>	bk clone bk://linux.bkbits.net/linux-2.5
+>	<make some changes>
+>	bk commit (or bk citool)	# creates changeset 1.800
+>	<make some changes>
+>	bk commit (or bk citool)	# creates changeset 1.801
+>
+>	# Now you want to send the second patch to Linus so you do a:
+>	bk send -r+ - | mail linux-kernel@vger.kernel.org
+>
+>That will fail when Linus tries to accept the patch, because he doesn't
+>have your 1.800.
+>
+>The easiest thing is to do what he suggests:
+>
+>>Either make a (controlled) bk tree available for pulling, or just use 
+>>old-fashioned patches.
+>>
+>
+>and if you want to go the "tree for pulling", you can either point him at
+>a BK url you maintain, or you are welcome to go grab resierfs.bkbits.net
+>and stash it there.  See http://www.bitkeeper.com/Hosted.html for information
+>on how to set up a project here.
+>
+>At some point, we'll package up the whole bkbits.net infrastructure as an
+>installable RPM (not the project data, the infrastructure), and you'll be
+>able to do this at resierfs.bkbits.kernel.org or something like that, but
+>right now we're just too overworked to do so.
+>
 
 
 

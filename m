@@ -1,712 +1,1261 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266627AbTBCOqn>; Mon, 3 Feb 2003 09:46:43 -0500
+	id <S266552AbTBCOtO>; Mon, 3 Feb 2003 09:49:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266702AbTBCOqY>; Mon, 3 Feb 2003 09:46:24 -0500
-Received: from d12lmsgate-4.de.ibm.com ([194.196.100.237]:36295 "EHLO
-	d12lmsgate-4.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S266627AbTBCOoE>; Mon, 3 Feb 2003 09:44:04 -0500
+	id <S266712AbTBCOsR>; Mon, 3 Feb 2003 09:48:17 -0500
+Received: from d12lmsgate-5.de.ibm.com ([194.196.100.238]:31628 "EHLO
+	d12lmsgate-5.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S266552AbTBCOoN>; Mon, 3 Feb 2003 09:44:13 -0500
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Organization: IBM Deutschland GmbH
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] s390 fixes (10/12).
-Date: Mon, 3 Feb 2003 15:50:23 +0100
+Subject: [PATCH] s390 fixes (7/12).
+Date: Mon, 3 Feb 2003 15:49:32 +0100
 User-Agent: KMail/1.5
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200302031550.23872.schwidefsky@de.ibm.com>
+Message-Id: <200302031549.32520.schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-updates for s390 scsi support
-
-- remove bogus header file
-- add a definition for free_dma() to make scsi.c work
-diff -urN linux-2.5.59/include/asm-s390/dma.h 
-linux-2.5.59-s390/include/asm-s390/dma.h
---- linux-2.5.59/include/asm-s390/dma.h	Fri Jan 17 03:22:42 2003
-+++ linux-2.5.59-s390/include/asm-s390/dma.h	Mon Feb  3 15:16:16 2003
-@@ -13,4 +13,6 @@
+clean up the IUCV driver
+diff -urN linux-2.5.59/drivers/s390/net/netiucv.c 
+linux-2.5.59-s390/drivers/s390/net/netiucv.c
+--- linux-2.5.59/drivers/s390/net/netiucv.c	Fri Jan 17 03:22:17 2003
++++ linux-2.5.59-s390/drivers/s390/net/netiucv.c	Mon Feb  3 15:09:32 2003
+@@ -1,5 +1,5 @@
+ /*
+- * $Id: netiucv.c,v 1.12 2002/11/26 16:00:54 mschwide Exp $
++ * $Id: netiucv.c,v 1.15 2003/01/17 13:46:14 cohuck Exp $
+  *
+  * IUCV network driver
+  *
+@@ -30,7 +30,7 @@
+  * along with this program; if not, write to the Free Software
+  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  *
+- * RELEASE-TAG: IUCV network driver $Revision: 1.12 $
++ * RELEASE-TAG: IUCV network driver $Revision: 1.15 $
+  *
+  */
  
- #define MAX_DMA_ADDRESS         0x80000000
+@@ -65,25 +65,15 @@
  
-+#define free_dma(x)
+ #undef DEBUG
+ 
+-#ifdef MODULE
+ MODULE_AUTHOR
+     ("(C) 2001 IBM Corporation by Fritz Elfert (felfert@millenux.com)");
+ MODULE_DESCRIPTION ("Linux for S/390 IUCV network driver");
+-MODULE_PARM (iucv, "1s");
+-MODULE_PARM_DESC (iucv,
+-		  "Specify the initial remote userids for iucv0 .. iucvn:\n"
+-		  "iucv=userid0:userid1:...:useridN");
+-#endif
+-
+-static char *iucv = "";
+-
+-typedef struct net_device net_device;
+ 
+ 
+ /**
+  * Per connection profiling data
+  */
+-typedef struct connection_profile_t {
++struct connection_profile {
+ 	unsigned long maxmulti;
+ 	unsigned long maxcqueue;
+ 	unsigned long doios_single;
+@@ -91,56 +81,76 @@
+ 	unsigned long txlen;
+ 	unsigned long tx_time;
+ 	struct timespec send_stamp;
+-} connection_profile;
++};
+ 
+ /**
+  * Representation of one iucv connection
+  */
+-typedef struct iucv_connection_t {
+-	struct iucv_connection_t *next;
+-	iucv_handle_t            handle;
+-	__u16                    pathid;
+-	struct sk_buff           *rx_buff;
+-	struct sk_buff           *tx_buff;
+-	struct sk_buff_head      collect_queue;
+-	spinlock_t               collect_lock;
+-	int                      collect_len;
+-	int                      max_buffsize;
+-	int                      flags;
+-	fsm_timer                timer;
+-	int                      retry;
+-	fsm_instance             *fsm;
+-	net_device               *netdev;
+-	connection_profile       prof;
+-	char                     userid[9];
+-} iucv_connection;
++struct iucv_connection {
++	struct iucv_connection    *next;
++	iucv_handle_t             handle;
++	__u16                     pathid;
++	struct sk_buff            *rx_buff;
++	struct sk_buff            *tx_buff;
++	struct sk_buff_head       collect_queue;
++	spinlock_t                collect_lock;
++	int                       collect_len;
++	int                       max_buffsize;
++	int                       flags;
++	fsm_timer                 timer;
++	int                       retry;
++	fsm_instance              *fsm;
++	struct net_device         *netdev;
++	struct connection_profile prof;
++	char                      userid[9];
++};
+ 
+ #define CONN_FLAGS_BUFSIZE_CHANGED 1
+ 
+ /**
+  * Linked list of all connection structs.
+  */
+-static iucv_connection *connections;
++static struct iucv_connection *connections;
 +
- #endif /* _ASM_DMA_H */
-diff -urN linux-2.5.59/include/asm-s390/fsf.h 
-linux-2.5.59-s390/include/asm-s390/fsf.h
---- linux-2.5.59/include/asm-s390/fsf.h	Fri Jan 17 03:22:45 2003
-+++ linux-2.5.59-s390/include/asm-s390/fsf.h	Thu Jan  1 01:00:00 1970
-@@ -1,326 +0,0 @@
--/*
-- * header file for FCP adapter driver for IBM eServer zSeries
-- *
-- * Authors:
-- *      Martin Peschke <mpeschke@de.ibm.com>
-- *      Raimund Schroeder <raimund.schroeder@de.ibm.com>
-- *      Aron Zeh <arzeh@de.ibm.com>
-- *      Wolfgang Taphorn <taphorn@de.ibm.com>
-- *
-- * Copyright (C) 2002 IBM Entwicklung GmbH, IBM Corporation
-- */
--
--#ifndef FSF_H
--#define FSF_H
--
--#define FSF_QTCB_VERSION1			0x00000001
--#define FSF_QTCB_CURRENT_VERSION		FSF_QTCB_VERSION1
--
--/* FSF commands */
--#define	FSF_QTCB_FCP_CMND			0x00000001
--#define	FSF_QTCB_ABORT_FCP_CMND			0x00000002
--#define	FSF_QTCB_OPEN_PORT_WITH_DID		0x00000005
--#define	FSF_QTCB_OPEN_LUN			0x00000006
--#define	FSF_QTCB_CLOSE_LUN			0x00000007
--#define	FSF_QTCB_CLOSE_PORT			0x00000008
--#define	FSF_QTCB_CLOSE_PHYSICAL_PORT		0x00000009
--#define	FSF_QTCB_SEND_ELS			0x0000000B
--#define	FSF_QTCB_SEND_GENERIC			0x0000000C
--#define	FSF_QTCB_EXCHANGE_CONFIG_DATA		0x0000000D
--
--/* FSF QTCB types */
--#define FSF_IO_COMMAND				0x00000001
--#define FSF_SUPPORT_COMMAND			0x00000002
--#define FSF_CONFIG_COMMAND			0x00000003
--
--/* association between FSF command and FSF QTCB type */
--u32 fsf_qtcb_type[] = {
--	[ FSF_QTCB_FCP_CMND ]			= FSF_IO_COMMAND,
--	[ FSF_QTCB_ABORT_FCP_CMND ]		= FSF_SUPPORT_COMMAND,
--	[ FSF_QTCB_OPEN_PORT_WITH_DID ] 	= FSF_SUPPORT_COMMAND,
--	[ FSF_QTCB_OPEN_LUN ]			= FSF_SUPPORT_COMMAND,
--	[ FSF_QTCB_CLOSE_LUN ]			= FSF_SUPPORT_COMMAND,
--	[ FSF_QTCB_CLOSE_PORT ]			= FSF_SUPPORT_COMMAND,
--	[ FSF_QTCB_CLOSE_PHYSICAL_PORT ]	= FSF_SUPPORT_COMMAND,
--	[ FSF_QTCB_SEND_ELS ]			= FSF_SUPPORT_COMMAND,
--	[ FSF_QTCB_SEND_GENERIC ]		= FSF_SUPPORT_COMMAND,
--	[ FSF_QTCB_EXCHANGE_CONFIG_DATA ]	= FSF_CONFIG_COMMAND
--};
--
--/* FSF protocol stati */
--#define FSF_PROT_GOOD				0x00000001
--#define FSF_PROT_QTCB_VERSION_ERROR		0x00000010
--#define FSF_PROT_SEQ_NUMB_ERROR			0x00000020
--#define FSF_PROT_UNSUPP_QTCB_TYPE		0x00000040
--#define FSF_PROT_HOST_CONNECTION_INITIALIZING	0x00000080
--#define FSF_PROT_FSF_STATUS_PRESENTED		0x00000100
--#define FSF_PROT_DUPLICATE_REQUEST_ID		0x00000200
--#define FSF_PROT_LINK_DOWN                      0x00000400
--#define FSF_PROT_REEST_QUEUE                    0x00000800
--#define FSF_PROT_ERROR_STATE			0x01000000
--
--/* FSF stati */
--#define FSF_GOOD				0x00000000
--#define FSF_PORT_ALREADY_OPEN			0x00000001
--#define FSF_LUN_ALREADY_OPEN			0x00000002
--#define FSF_PORT_HANDLE_NOT_VALID		0x00000003
--#define FSF_LUN_HANDLE_NOT_VALID		0x00000004
--#define FSF_HANDLE_MISMATCH			0x00000005
--#define FSF_SERVICE_CLASS_NOT_SUPPORTED		0x00000006
--#define FSF_FCPLUN_NOT_VALID			0x00000009
--//#define FSF_ACCESS_DENIED			0x00000010
--#define FSF_ACCESS_TYPE_NOT_VALID		0x00000011
--#define FSF_LUN_IN_USE				0x00000012
--#define FSF_COMMAND_ABORTED_ULP			0x00000020
--#define FSF_COMMAND_ABORTED_ADAPTER		0x00000021
--#define FSF_FCP_COMMAND_DOES_NOT_EXIST		0x00000022
--#define FSF_DIRECTION_INDICATOR_NOT_VALID	0x00000030
--#define FSF_INBOUND_DATA_LENGTH_NOT_VALID	0x00000031	/* FIXME: obsolete? */
--#define FSF_OUTBOUND_DATA_LENGTH_NOT_VALID	0x00000032	/* FIXME: obsolete? */
--#define FSF_CMND_LENGTH_NOT_VALID		0x00000033
--#define FSF_MAXIMUM_NUMBER_OF_PORTS_EXCEEDED	0x00000040
--#define FSF_MAXIMUM_NUMBER_OF_LUNS_EXCEEDED	0x00000041
--#define FSF_REQUEST_BUF_NOT_VALID		0x00000042
--#define FSF_RESPONSE_BUF_NOT_VALID		0x00000043
--#define FSF_ELS_COMMAND_REJECTED		0x00000050
--#define FSF_GENERIC_COMMAND_REJECTED		0x00000051
--//#define FSF_AUTHORIZATION_FAILURE		0x00000053
--#define FSF_PORT_BOXED				0x00000059
--//#define FSF_LUN_BOXED				0x0000005A
--#define FSF_ADAPTER_STATUS_AVAILABLE		0x000000AD
--#define FSF_FCP_RSP_AVAILABLE			0x000000AF
--#define FSF_UNKNOWN_COMMAND			0x000000E2
--//#define FSF_ERROR				0x000000FF 
--
--/* FSF status qualifier, recommendations */
--#define FSF_SQ_NO_RECOM				0x00
--#define FSF_SQ_FCP_RSP_AVAILABLE		0x01
--#define FSF_SQ_RETRY_IF_POSSIBLE		0x02
--#define FSF_SQ_ULP_DEPENDENT_ERP_REQUIRED	0x03
--#define FSF_SQ_INVOKE_LINK_TEST_PROCEDURE	0x04
--#define FSF_SQ_ULP_PROGRAMMING_ERROR		0x05
--#define FSF_SQ_COMMAND_ABORTED			0x06
--#define FSF_SQ_NO_RETRY_POSSIBLE		0x07
--
--/* FSF status qualifier (most significant 4 bytes), local link down */
--#define FSF_PSQ_LINK_NOLIGHT			0x00000004
--#define FSF_PSQ_LINK_WRAPPLUG			0x00000008
--#define FSF_PSQ_LINK_NOFCP			0x00000010
--
--/* payload size in status read buffer */
--#define FSF_STATUS_READ_PAYLOAD_SIZE		4032
--
--/* status types in status read buffer */
--#define FSF_STATUS_READ_PORT_CLOSED		0x00000001
--#define FSF_STATUS_READ_INCOMING_ELS		0x00000002
--#define FSF_STATUS_READ_BIT_ERROR_THRESHOLD	0x00000004
--#define FSF_STATUS_READ_LINK_DOWN		0x00000005	/* FIXME: really? */
--#define FSF_STATUS_READ_LINK_UP          	0x00000006
--
--/* status subtypes in status read buffer */
--#define FSF_STATUS_READ_SUB_CLOSE_PHYS_PORT	0x00000001
--#define FSF_STATUS_READ_SUB_ERROR_PORT		0x00000002
--
--/* topologie that is detected by the adapter */
--#define FSF_TOPO_ERROR				0x00000000
--#define FSF_TOPO_P2P				0x00000001
--#define FSF_TOPO_FABRIC				0x00000002
--#define FSF_TOPO_AL				0x00000003
--#define FSF_TOPO_FABRIC_VIRT			0x00000004
--
--/* data direction for FCP commands */
--#define FSF_DATADIR_WRITE			0x00000001
--#define FSF_DATADIR_READ			0x00000002
--#define FSF_DATADIR_READ_WRITE			0x00000003
--#define FSF_DATADIR_CMND			0x00000004
--
--/* fc service class */
--#define FSF_CLASS_1				0x00000001
--#define FSF_CLASS_2				0x00000002
--#define FSF_CLASS_3				0x00000003
--
--struct fsf_queue_designator;
--struct fsf_status_read_buffer;
--struct fsf_port_closed_payload;
--struct fsf_bit_error_payload;
--union fsf_prot_status_qual;
--struct fsf_qual_version_error;
--struct fsf_qual_sequence_error;
--struct fsf_qtcb_prefix;
--struct fsf_qtcb_header;
--struct fsf_qtcb_bottom_config;
--struct fsf_qtcb_bottom_support;
--struct fsf_qtcb_bottom_io;
--union fsf_qtcb_bottom;
--
--typedef struct fsf_queue_designator {
--	u8			cssid;
--	u8			chpid;
--	u8			hla;
--	u8			ua;
--	u32			res1;
--} __attribute__ ((packed)) fsf_queue_designator_t;
--
--typedef struct fsf_port_closed_payload {
--	fsf_queue_designator_t	queue_designator;
--	u32			port_handle;
--} __attribute__ ((packed)) fsf_port_closed_payload_t;
--
--typedef struct fsf_bit_error_payload {
--	u32			res1;
--	u32			link_failure_error_count;
--	u32			loss_of_sync_error_count;
--	u32			loss_of_signal_error_count;
--	u32			primitive_sequence_error_count;
--	u32			invalid_transmission_word_error_count;
--	u32			crc_error_count;
--	u32			primitive_sequence_event_timeout_count;
--	u32			elastic_buffer_overrun_error_count;
--	u32			fcal_arbitration_timeout_count;
--	u32			advertised_receive_b2b_credit;
--	u32			current_receive_b2b_credit;
--	u32			advertised_transmit_b2b_credit;
--	u32			current_transmit_b2b_credit;
--} __attribute__ ((packed)) fsf_bit_error_payload_t;
--
--typedef struct fsf_status_read_buffer {
--        u32			status_type;
--        u32			status_subtype;
--        u32			length;
--        u32			res1;
--        fsf_queue_designator_t	queue_designator;
--        u32			d_id;
--        u32			class;
--        u64			fcp_lun;
--        u8			res3[24];
--        u8			payload[FSF_STATUS_READ_PAYLOAD_SIZE];
--} __attribute__ ((packed)) fsf_status_read_buffer_t;
--
--typedef struct fsf_qual_version_error {
--	u32			fsf_version;
--	u32			res1[3];
--} __attribute__ ((packed)) fsf_qual_version_error_t;
--
--typedef struct fsf_qual_sequence_error {
--	u32			exp_req_seq_no;
--	u32			res1[3];
--} __attribute__ ((packed)) fsf_qual_sequence_error_t;
--
--typedef struct fsf_qual_locallink_error {
--	u32			code;
--	u32			res1[3];
--} __attribute__ ((packed)) fsf_qual_locallink_error_t;
--
--typedef union fsf_prot_status_qual {
--	fsf_qual_version_error_t	version_error;
--	fsf_qual_sequence_error_t	sequence_error;
--	fsf_qual_locallink_error_t	locallink_error;
--} __attribute__ ((packed)) fsf_prot_status_qual_t;
--
--typedef struct fsf_qtcb_prefix {
--	u64			req_id;
--	u32			qtcb_version;
--	u32			ulp_info;
--	u32			qtcb_type;
--	u32			req_seq_no;
--	u32			prot_status;
--	fsf_prot_status_qual_t	prot_status_qual;
--	u8			res1[20];
--} __attribute__ ((packed)) fsf_qtcb_prefix_t;
--
--typedef struct fsf_qtcb_header {
--	u64			req_handle;
--	u32			fsf_command;
--	u32			res1;
--	u32			port_handle;
--	u32			lun_handle;
--	u32			res2;
--	u32			fsf_status;
--	u32			fsf_status_qual[4];
--//	fsf_status_qual_t	fsf_status_qual;	FIXME: define union
--	u8			res3[28];
--	u16			log_start;
--	u16			log_length;
--	u8			res4[16];
--} __attribute__ ((packed)) fsf_qtcb_header_t;
--
--typedef u64 fsf_wwn_t;
--
--typedef struct fsf_nport_serv_param {
--	u8			common_serv_param[16];
--	fsf_wwn_t		wwpn;
--	fsf_wwn_t		wwnn;
--	u8			class1_serv_param[16];
--	u8			class2_serv_param[16];
--	u8			class3_serv_param[16];
--	u8			class4_serv_param[16];
--	u8			vendor_version_level[16];
--	u8			res1[16];
--} __attribute__ ((packed)) fsf_nport_serv_param_t;
--
--typedef struct fsf_plogi {
--	u32			code;
--	fsf_nport_serv_param_t	serv_param;
--} __attribute__ ((packed)) fsf_plogi_t;
--
--#define FSF_FCP_CMND_SIZE	288
--#define FSF_FCP_RSP_SIZE	128
--
--typedef struct fsf_qtcb_bottom_io {
--	u32			data_direction;
--	u32			service_class;
--	u8			res1[8];
--	u32			fcp_cmnd_length;
--	u8			res2[12];
--	u8			fcp_cmnd[FSF_FCP_CMND_SIZE];
--	u8			fcp_rsp[FSF_FCP_RSP_SIZE];
--	u8			res3[64];
--} __attribute__ ((packed)) fsf_qtcb_bottom_io_t;
--
--typedef struct fsf_qtcb_bottom_support {
--	u8			res1[16];
--	u32			d_id;
--	u32			res2;
--	u64			fcp_lun;
--	u64			res3;
--	u64			req_handle;
--	u32			service_class;
--	u8			res4[3];
--	u8			timeout;
--	u8			res5[184];
--	u32			els1_length;
--	u32			els2_length;
--	u64			res6;
--	u8			els[256];
--} __attribute__ ((packed)) fsf_qtcb_bottom_support_t;
--
--typedef struct fsf_qtcb_bottom_config {
--	u32			lic_version;
--	u32			res1;
--	u32			high_qtcb_version;
--	u32			low_qtcb_version;
--	u32			max_qtcb_size;
--	u8			res2[12];
--	u32			fc_topology;
--	u32			fc_link_speed;
--	u32			adapter_type;
--	u32			peer_d_id;
--	u8			res3[12];
--	u32			s_id;
--	fsf_nport_serv_param_t	nport_serv_param;
--	u8			res4[320];
--} __attribute__ ((packed)) fsf_qtcb_bottom_config_t;
--
--typedef union fsf_qtcb_bottom {
--	fsf_qtcb_bottom_io_t		io;
--	fsf_qtcb_bottom_support_t	support;
--	fsf_qtcb_bottom_config_t	config;
--} fsf_qtcb_bottom_t;
--
--typedef struct fsf_qtcb {
--	fsf_qtcb_prefix_t	prefix;
--	fsf_qtcb_header_t	header;
--	fsf_qtcb_bottom_t	bottom;
--} __attribute__ ((packed)) fsf_qtcb_t;
--
--#endif	/* FSF_H */
-diff -urN linux-2.5.59/include/asm-s390x/dma.h 
-linux-2.5.59-s390/include/asm-s390x/dma.h
---- linux-2.5.59/include/asm-s390x/dma.h	Fri Jan 17 03:22:01 2003
-+++ linux-2.5.59-s390/include/asm-s390x/dma.h	Mon Feb  3 15:16:16 2003
-@@ -13,4 +13,6 @@
-    We use the existing DMA zone mechanism to handle this. */
- #define MAX_DMA_ADDRESS         0x80000000
- 
-+#define free_dma(x)
++/* Keep track of interfaces. */
++static int ifno;
 +
- #endif /* _ASM_DMA_H */
-diff -urN linux-2.5.59/include/asm-s390x/fsf.h 
-linux-2.5.59-s390/include/asm-s390x/fsf.h
---- linux-2.5.59/include/asm-s390x/fsf.h	Fri Jan 17 03:22:01 2003
-+++ linux-2.5.59-s390/include/asm-s390x/fsf.h	Thu Jan  1 01:00:00 1970
-@@ -1,326 +0,0 @@
--/*
-- * header file for FCP adapter driver for IBM eServer zSeries
-- *
-- * Authors:
-- *      Martin Peschke <mpeschke@de.ibm.com>
-- *      Raimund Schroeder <raimund.schroeder@de.ibm.com>
-- *      Aron Zeh <arzeh@de.ibm.com>
-- *      Wolfgang Taphorn <taphorn@de.ibm.com>
-- *
-- * Copyright (C) 2002 IBM Entwicklung GmbH, IBM Corporation
-- */
++static int
++iucv_bus_match (struct device *dev, struct device_driver *drv)
++{
++	return 0;
++}
++
++/* Hm - move to iucv.c and export? - CH */
++static struct bus_type iucv_bus = {
++	.name = "iucv",
++	.match = iucv_bus_match,
++};	
++
++static struct device iucv_root = {
++	.name   = "IUCV",
++	.bus_id = "iucv",
++};
+ 
+ /**
+  * Representation of event-data for the
+  * connection state machine.
+  */
+-typedef struct iucv_event_t {
+-	iucv_connection *conn;
+-	void            *data;
+-} iucv_event;
++struct iucv_event {
++	struct iucv_connection *conn;
++	void                   *data;
++};
+ 
+ /**
+  * Private part of the network device structure
+  */
+-typedef struct netiucv_priv_t {
++struct netiucv_priv {
+ 	struct net_device_stats stats;
+ 	unsigned long           tbusy;
+ 	fsm_instance            *fsm;
+-        iucv_connection         *conn;
+-	struct platform_device  pldev;
+-} netiucv_priv;
++        struct iucv_connection  *conn;
++	struct device           dev;
++};
+ 
+ /**
+  * Link level header for a packet.
+@@ -161,16 +171,16 @@
+  * Compatibility macros for busy handling
+  * of network devices.
+  */
+-static __inline__ void netiucv_clear_busy(net_device *dev)
++static __inline__ void netiucv_clear_busy(struct net_device *dev)
+ {
+-	clear_bit(0, &(((netiucv_priv *)dev->priv)->tbusy));
++	clear_bit(0, &(((struct netiucv_priv *)dev->priv)->tbusy));
+ 	netif_wake_queue(dev);
+ }
+ 
+-static __inline__ int netiucv_test_and_set_busy(net_device *dev)
++static __inline__ int netiucv_test_and_set_busy(struct net_device *dev)
+ {
+ 	netif_stop_queue(dev);
+-	return test_and_set_bit(0, &((netiucv_priv *)dev->priv)->tbusy);
++	return test_and_set_bit(0, &((struct netiucv_priv *)dev->priv)->tbusy);
+ }
+ 
+ #define SET_DEVICE_START(device, value)
+@@ -387,8 +397,8 @@
+ static void
+ netiucv_callback_rx(iucv_MessagePending *eib, void *pgm_data)
+ {
+-	iucv_connection *conn = (iucv_connection *)pgm_data;
+-	iucv_event ev;
++	struct iucv_connection *conn = (struct iucv_connection *)pgm_data;
++	struct iucv_event ev;
+ 
+ 	ev.conn = conn;
+ 	ev.data = (void *)eib;
+@@ -399,8 +409,8 @@
+ static void
+ netiucv_callback_txdone(iucv_MessageComplete *eib, void *pgm_data)
+ {
+-	iucv_connection *conn = (iucv_connection *)pgm_data;
+-	iucv_event ev;
++	struct iucv_connection *conn = (struct iucv_connection *)pgm_data;
++	struct iucv_event ev;
+ 
+ 	ev.conn = conn;
+ 	ev.data = (void *)eib;
+@@ -410,8 +420,8 @@
+ static void
+ netiucv_callback_connack(iucv_ConnectionComplete *eib, void *pgm_data)
+ {
+-	iucv_connection *conn = (iucv_connection *)pgm_data;
+-	iucv_event ev;
++	struct iucv_connection *conn = (struct iucv_connection *)pgm_data;
++	struct iucv_event ev;
+ 
+ 	ev.conn = conn;
+ 	ev.data = (void *)eib;
+@@ -421,8 +431,8 @@
+ static void
+ netiucv_callback_connreq(iucv_ConnectionPending *eib, void *pgm_data)
+ {
+-	iucv_connection *conn = (iucv_connection *)pgm_data;
+-	iucv_event ev;
++	struct iucv_connection *conn = (struct iucv_connection *)pgm_data;
++	struct iucv_event ev;
+ 
+ 	ev.conn = conn;
+ 	ev.data = (void *)eib;
+@@ -432,8 +442,8 @@
+ static void
+ netiucv_callback_connrej(iucv_ConnectionSevered *eib, void *pgm_data)
+ {
+-	iucv_connection *conn = (iucv_connection *)pgm_data;
+-	iucv_event ev;
++	struct iucv_connection *conn = (struct iucv_connection *)pgm_data;
++	struct iucv_event ev;
+ 
+ 	ev.conn = conn;
+ 	ev.data = (void *)eib;
+@@ -443,8 +453,8 @@
+ static void
+ netiucv_callback_connsusp(iucv_ConnectionQuiesced *eib, void *pgm_data)
+ {
+-	iucv_connection *conn = (iucv_connection *)pgm_data;
+-	iucv_event ev;
++	struct iucv_connection *conn = (struct iucv_connection *)pgm_data;
++	struct iucv_event ev;
+ 
+ 	ev.conn = conn;
+ 	ev.data = (void *)eib;
+@@ -454,8 +464,8 @@
+ static void
+ netiucv_callback_connres(iucv_ConnectionResumed *eib, void *pgm_data)
+ {
+-	iucv_connection *conn = (iucv_connection *)pgm_data;
+-	iucv_event ev;
++	struct iucv_connection *conn = (struct iucv_connection *)pgm_data;
++	struct iucv_event ev;
+ 
+ 	ev.conn = conn;
+ 	ev.data = (void *)eib;
+@@ -494,10 +504,10 @@
+  */
+ //static __inline__ void
+ static void
+-netiucv_unpack_skb(iucv_connection *conn, struct sk_buff *pskb)
++netiucv_unpack_skb(struct iucv_connection *conn, struct sk_buff *pskb)
+ {
+-	net_device     *dev = conn->netdev;
+-	netiucv_priv   *privptr = (netiucv_priv *)dev->priv;
++	struct net_device     *dev = conn->netdev;
++	struct netiucv_priv   *privptr = (struct netiucv_priv *)dev->priv;
+ 	__u16          offset = 0;
+ 
+ 	skb_put(pskb, NETIUCV_HDRLEN);
+@@ -518,7 +528,8 @@
+ 		header->next -= NETIUCV_HDRLEN;
+ 		if (skb_tailroom(pskb) < header->next) {
+ 			printk(KERN_WARNING
+-			       "%s: Illegal next field in iucv header: %d > %d\n",
++			       "%s: Illegal next field in iucv header: "
++			       "%d > %d\n",
+ 			       dev->name, header->next, skb_tailroom(pskb));
+ 			return;
+ 		}
+@@ -549,17 +560,16 @@
+ static void
+ conn_action_rx(fsm_instance *fi, int event, void *arg)
+ {
+-	iucv_event *ev = (iucv_event *)arg;
+-	iucv_connection *conn = ev->conn;
++	struct iucv_event *ev = (struct iucv_event *)arg;
++	struct iucv_connection *conn = ev->conn;
+ 	iucv_MessagePending *eib = (iucv_MessagePending *)ev->data;
+-	netiucv_priv *privptr = (netiucv_priv *)conn->netdev->priv;
++	struct netiucv_priv *privptr = (struct netiucv_priv *)conn->netdev->priv;
+ 
+ 	__u16 msglen = eib->ln1msg2.ipbfln1f;
+ 	int rc;
+ 
+-#ifdef DEBUG
+-	printk(KERN_DEBUG "%s() called\n", __FUNCTION__);
+-#endif
++	pr_debug(KERN_DEBUG "%s() called\n", __FUNCTION__);
++
+ 	if (!conn->netdev) {
+ 		/* FRITZ: How to tell iucv LL to drop the msg? */
+ 		printk(KERN_WARNING
+@@ -585,10 +595,10 @@
+ static void
+ conn_action_txdone(fsm_instance *fi, int event, void *arg)
+ {
+-	iucv_event *ev = (iucv_event *)arg;
+-	iucv_connection *conn = ev->conn;
++	struct iucv_event *ev = (struct iucv_event *)arg;
++	struct iucv_connection *conn = ev->conn;
+ 	iucv_MessageComplete *eib = (iucv_MessageComplete *)ev->data;
+-	netiucv_priv *privptr = NULL;
++	struct netiucv_priv *privptr = NULL;
+ 			         /* Shut up, gcc! skb is always below 2G. */
+ 	struct sk_buff *skb = (struct sk_buff *)(unsigned long)eib->ipmsgtag;
+ 	__u32 txbytes = 0;
+@@ -597,12 +607,11 @@
+ 	unsigned long saveflags;
+ 	ll_header header;
+ 
+-#ifdef DEBUG
+-	printk(KERN_DEBUG "%s() called\n", __FUNCTION__);
+-#endif
++	pr_debug(KERN_DEBUG "%s() called\n", __FUNCTION__);
++
+ 	fsm_deltimer(&conn->timer);
+ 	if (conn && conn->netdev && conn->netdev->priv)
+-		privptr = (netiucv_priv *)conn->netdev->priv;
++		privptr = (struct netiucv_priv *)conn->netdev->priv;
+ 	if (skb) {
+ 		if (privptr) {
+ 			privptr->stats.tx_packets++;
+@@ -663,18 +672,17 @@
+ static void
+ conn_action_connaccept(fsm_instance *fi, int event, void *arg)
+ {
+-	iucv_event *ev = (iucv_event *)arg;
+-	iucv_connection *conn = ev->conn;
++	struct iucv_event *ev = (struct iucv_event *)arg;
++	struct iucv_connection *conn = ev->conn;
+ 	iucv_ConnectionPending *eib = (iucv_ConnectionPending *)ev->data;
+-	net_device *netdev = conn->netdev;
+-	netiucv_priv *privptr = (netiucv_priv *)netdev->priv;
++	struct net_device *netdev = conn->netdev;
++	struct netiucv_priv *privptr = (struct netiucv_priv *)netdev->priv;
+ 	int rc;
+ 	__u16 msglimit;
+ 	__u8 udata[16];
+ 
+-#ifdef DEBUG
+-	printk(KERN_DEBUG "%s() called\n", __FUNCTION__);
+-#endif
++	pr_debug(KERN_DEBUG "%s() called\n", __FUNCTION__);
++
+ 	rc = iucv_accept(eib->ippathid, NETIUCV_QUEUELEN_DEFAULT, udata, 0,
+ 			 conn->handle, conn, NULL, &msglimit);
+ 	if (rc != 0) {
+@@ -692,29 +700,27 @@
+ static void
+ conn_action_connreject(fsm_instance *fi, int event, void *arg)
+ {
+-	iucv_event *ev = (iucv_event *)arg;
+-	// iucv_connection *conn = ev->conn;
++	struct iucv_event *ev = (struct iucv_event *)arg;
++	// struct iucv_connection *conn = ev->conn;
+ 	iucv_ConnectionPending *eib = (iucv_ConnectionPending *)ev->data;
+ 	__u8 udata[16];
+ 
+-#ifdef DEBUG
+-	printk(KERN_DEBUG "%s() called\n", __FUNCTION__);
+-#endif
++	pr_debug(KERN_DEBUG "%s() called\n", __FUNCTION__);
++
+ 	iucv_sever(eib->ippathid, udata);
+ }
+ 
+ static void
+ conn_action_connack(fsm_instance *fi, int event, void *arg)
+ {
+-	iucv_event *ev = (iucv_event *)arg;
+-	iucv_connection *conn = ev->conn;
++	struct iucv_event *ev = (struct iucv_event *)arg;
++	struct iucv_connection *conn = ev->conn;
+ 	iucv_ConnectionComplete *eib = (iucv_ConnectionComplete *)ev->data;
+-	net_device *netdev = conn->netdev;
+-	netiucv_priv *privptr = (netiucv_priv *)netdev->priv;
++	struct net_device *netdev = conn->netdev;
++	struct netiucv_priv *privptr = (struct netiucv_priv *)netdev->priv;
++
++	pr_debug(KERN_DEBUG "%s() called\n", __FUNCTION__);
+ 
+-#ifdef DEBUG
+-	printk(KERN_DEBUG "%s() called\n", __FUNCTION__);
+-#endif
+ 	fsm_newstate(fi, CONN_STATE_IDLE);
+ 	conn->pathid = eib->ippathid;
+ 	netdev->tx_queue_len = eib->ipmsglim;
+@@ -724,16 +730,15 @@
+ static void
+ conn_action_connsever(fsm_instance *fi, int event, void *arg)
+ {
+-	iucv_event *ev = (iucv_event *)arg;
+-	iucv_connection *conn = ev->conn;
++	struct iucv_event *ev = (struct iucv_event *)arg;
++	struct iucv_connection *conn = ev->conn;
+ 	// iucv_ConnectionSevered *eib = (iucv_ConnectionSevered *)ev->data;
+-	net_device *netdev = conn->netdev;
+-	netiucv_priv *privptr = (netiucv_priv *)netdev->priv;
++	struct net_device *netdev = conn->netdev;
++	struct netiucv_priv *privptr = (struct netiucv_priv *)netdev->priv;
+ 	int state = fsm_getstate(fi);
+ 
+-#ifdef DEBUG
+-	printk(KERN_DEBUG "%s() called\n", __FUNCTION__);
+-#endif
++	pr_debug(KERN_DEBUG "%s() called\n", __FUNCTION__);
++
+ 	switch (state) {
+ 		case CONN_STATE_IDLE:
+ 		case CONN_STATE_TX:
+@@ -751,14 +756,13 @@
+ static void
+ conn_action_start(fsm_instance *fi, int event, void *arg)
+ {
+-	iucv_event *ev = (iucv_event *)arg;
+-	iucv_connection *conn = ev->conn;
++	struct iucv_event *ev = (struct iucv_event *)arg;
++	struct iucv_connection *conn = ev->conn;
+ 
+ 	int rc;
+ 
+-#ifdef DEBUG
+-	printk(KERN_DEBUG "%s() called\n", __FUNCTION__);
+-#endif
++	pr_debug(KERN_DEBUG "%s() called\n", __FUNCTION__);
++
+ 	if (conn->handle == 0) {
+ 		conn->handle =
+ 			iucv_register_program(iucvMagic, conn->userid, mask,
+@@ -769,15 +773,14 @@
+ 			conn->handle = 0;
+ 			return;
+ 		}
+-#ifdef DEBUG
+-		printk(KERN_DEBUG "%s('%s'): registered successfully\n",
+-		       conn->netdev->name, conn->userid);
+-#endif
+-	}
+-#ifdef DEBUG
+-	printk(KERN_DEBUG "%s('%s'): connecting ...\n",
+-	       conn->netdev->name, conn->userid);
+-#endif
++
++		pr_debug(KERN_DEBUG "%s('%s'): registered successfully\n",
++			 conn->netdev->name, conn->userid);
++	}
++
++	pr_debug(KERN_DEBUG "%s('%s'): connecting ...\n",
++		 conn->netdev->name, conn->userid);
++
+ 	rc = iucv_connect(&(conn->pathid), NETIUCV_QUEUELEN_DEFAULT, iucvMagic,
+ 			  conn->userid, iucv_host, 0, NULL, NULL, conn->handle,
+ 			  conn);
+@@ -843,14 +846,13 @@
+ static void
+ conn_action_stop(fsm_instance *fi, int event, void *arg)
+ {
+-	iucv_event *ev = (iucv_event *)arg;
+-	iucv_connection *conn = ev->conn;
+-	net_device *netdev = conn->netdev;
+-	netiucv_priv *privptr = (netiucv_priv *)netdev->priv;
 -
--#ifndef FSF_H
--#define FSF_H
+-#ifdef DEBUG
+-	printk(KERN_DEBUG "%s() called\n", __FUNCTION__);
+-#endif
++	struct iucv_event *ev = (struct iucv_event *)arg;
++	struct iucv_connection *conn = ev->conn;
++	struct net_device *netdev = conn->netdev;
++	struct netiucv_priv *privptr = (struct netiucv_priv *)netdev->priv;
++
++	pr_debug(KERN_DEBUG "%s() called\n", __FUNCTION__);
++
+ 	fsm_newstate(fi, CONN_STATE_STOPPED);
+ 	netiucv_purge_skb_queue(&conn->collect_queue);
+ 	if (conn->handle)
+@@ -862,9 +864,9 @@
+ static void
+ conn_action_inval(fsm_instance *fi, int event, void *arg)
+ {
+-	iucv_event *ev = (iucv_event *)arg;
+-	iucv_connection *conn = ev->conn;
+-	net_device *netdev = conn->netdev;
++	struct iucv_event *ev = (struct iucv_event *)arg;
++	struct iucv_connection *conn = ev->conn;
++	struct net_device *netdev = conn->netdev;
+ 
+ 	printk(KERN_WARNING
+ 	       "%s: Cannot connect without username\n",
+@@ -913,18 +915,17 @@
+  *
+  * @param fi    An instance of an interface statemachine.
+  * @param event The event, just happened.
+- * @param arg   Generic pointer, casted from net_device * upon call.
++ * @param arg   Generic pointer, casted from struct net_device * upon call.
+  */
+ static void
+ dev_action_start(fsm_instance *fi, int event, void *arg)
+ {
+-	net_device   *dev = (net_device *)arg;
+-	netiucv_priv *privptr = dev->priv;
+-	iucv_event   ev;
 -
--#define FSF_QTCB_VERSION1			0x00000001
--#define FSF_QTCB_CURRENT_VERSION		FSF_QTCB_VERSION1
+-#ifdef DEBUG
+-	printk(KERN_DEBUG "%s() called\n", __FUNCTION__);
+-#endif
++	struct net_device   *dev = (struct net_device *)arg;
++	struct netiucv_priv *privptr = dev->priv;
++	struct iucv_event   ev;
++
++	pr_debug(KERN_DEBUG "%s() called\n", __FUNCTION__);
++
+ 	ev.conn = privptr->conn;
+ 	fsm_newstate(fi, DEV_STATE_STARTWAIT);
+ 	fsm_event(privptr->conn->fsm, CONN_EVENT_START, &ev);
+@@ -935,18 +936,17 @@
+  *
+  * @param fi    An instance of an interface statemachine.
+  * @param event The event, just happened.
+- * @param arg   Generic pointer, casted from net_device * upon call.
++ * @param arg   Generic pointer, casted from struct net_device * upon call.
+  */
+ static void
+ dev_action_stop(fsm_instance *fi, int event, void *arg)
+ {
+-	net_device   *dev = (net_device *)arg;
+-	netiucv_priv *privptr = dev->priv;
+-	iucv_event   ev;
 -
--/* FSF commands */
--#define	FSF_QTCB_FCP_CMND			0x00000001
--#define	FSF_QTCB_ABORT_FCP_CMND			0x00000002
--#define	FSF_QTCB_OPEN_PORT_WITH_DID		0x00000005
--#define	FSF_QTCB_OPEN_LUN			0x00000006
--#define	FSF_QTCB_CLOSE_LUN			0x00000007
--#define	FSF_QTCB_CLOSE_PORT			0x00000008
--#define	FSF_QTCB_CLOSE_PHYSICAL_PORT		0x00000009
--#define	FSF_QTCB_SEND_ELS			0x0000000B
--#define	FSF_QTCB_SEND_GENERIC			0x0000000C
--#define	FSF_QTCB_EXCHANGE_CONFIG_DATA		0x0000000D
+-#ifdef DEBUG
+-	printk(KERN_DEBUG "%s() called\n", __FUNCTION__);
+-#endif
++	struct net_device   *dev = (struct net_device *)arg;
++	struct netiucv_priv *privptr = dev->priv;
++	struct iucv_event   ev;
++
++	pr_debug(KERN_DEBUG "%s() called\n", __FUNCTION__);
++
+ 	ev.conn = privptr->conn;
+ 
+ 	fsm_newstate(fi, DEV_STATE_STOPWAIT);
+@@ -959,16 +959,15 @@
+  *
+  * @param fi    An instance of an interface statemachine.
+  * @param event The event, just happened.
+- * @param arg   Generic pointer, casted from net_device * upon call.
++ * @param arg   Generic pointer, casted from struct net_device * upon call.
+  */
+ static void
+ dev_action_connup(fsm_instance *fi, int event, void *arg)
+ {
+-	net_device   *dev = (net_device *)arg;
++	struct net_device   *dev = (struct net_device *)arg;
++
++	pr_debug(KERN_DEBUG "%s() called\n", __FUNCTION__);
+ 
+-#ifdef DEBUG
+-	printk(KERN_DEBUG "%s() called\n", __FUNCTION__);
+-#endif
+ 	switch (fsm_getstate(fi)) {
+ 		case DEV_STATE_STARTWAIT:
+ 			fsm_newstate(fi, DEV_STATE_RUNNING);
+@@ -990,18 +989,17 @@
+  *
+  * @param fi    An instance of an interface statemachine.
+  * @param event The event, just happened.
+- * @param arg   Generic pointer, casted from net_device * upon call.
++ * @param arg   Generic pointer, casted from struct net_device * upon call.
+  */
+ static void
+ dev_action_conndown(fsm_instance *fi, int event, void *arg)
+ {
+-	net_device   *dev = (net_device *)arg;
+-	netiucv_priv *privptr = dev->priv;
+-	iucv_event   ev;
 -
--/* FSF QTCB types */
--#define FSF_IO_COMMAND				0x00000001
--#define FSF_SUPPORT_COMMAND			0x00000002
--#define FSF_CONFIG_COMMAND			0x00000003
+-#ifdef DEBUG
+-	printk(KERN_DEBUG "%s() called\n", __FUNCTION__);
+-#endif
++	struct net_device   *dev = (struct net_device *)arg;
++	struct netiucv_priv *privptr = dev->priv;
++	struct iucv_event   ev;
++
++	pr_debug(KERN_DEBUG "%s() called\n", __FUNCTION__);
++
+ 	switch (fsm_getstate(fi)) {
+ 		case DEV_STATE_RUNNING:
+ 			fsm_newstate(fi, DEV_STATE_STARTWAIT);
+@@ -1045,7 +1043,7 @@
+  * @return 0 on success, -ERRNO on failure. (Never fails.)
+  */
+ static int
+-netiucv_transmit_skb(iucv_connection *conn, struct sk_buff *skb) {
++netiucv_transmit_skb(struct iucv_connection *conn, struct sk_buff *skb) {
+ 	unsigned long saveflags;
+ 	ll_header header;
+ 	int       rc = 0;
+@@ -1141,10 +1139,10 @@
+  * @return 0 on success, -ERRNO on failure. (Never fails.)
+  */
+ static int
+-netiucv_open(net_device *dev) {
++netiucv_open(struct net_device *dev) {
+ 	MOD_INC_USE_COUNT;
+ 	SET_DEVICE_START(dev, 1);
+-	fsm_event(((netiucv_priv *)dev->priv)->fsm, DEV_EVENT_START, dev);
++	fsm_event(((struct netiucv_priv *)dev->priv)->fsm, DEV_EVENT_START, dev);
+ 	return 0;
+ }
+ 
+@@ -1157,9 +1155,9 @@
+  * @return 0 on success, -ERRNO on failure. (Never fails.)
+  */
+ static int
+-netiucv_close(net_device *dev) {
++netiucv_close(struct net_device *dev) {
+ 	SET_DEVICE_START(dev, 0);
+-	fsm_event(((netiucv_priv *)dev->priv)->fsm, DEV_EVENT_STOP, dev);
++	fsm_event(((struct netiucv_priv *)dev->priv)->fsm, DEV_EVENT_STOP, dev);
+ 	MOD_DEC_USE_COUNT;
+ 	return 0;
+ }
+@@ -1175,10 +1173,10 @@
+  *         Note: If we return !0, then the packet is free'd by
+  *               the generic network layer.
+  */
+-static int netiucv_tx(struct sk_buff *skb, net_device *dev)
++static int netiucv_tx(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	int          rc = 0;
+-	netiucv_priv *privptr = (netiucv_priv *)dev->priv;
++	struct netiucv_priv *privptr = (struct netiucv_priv *)dev->priv;
+ 
+ 	/**
+ 	 * Some sanity checks ...
+@@ -1230,9 +1228,9 @@
+  * @return Pointer to stats struct of this interface.
+  */
+ static struct net_device_stats *
+-netiucv_stats (net_device * dev)
++netiucv_stats (struct net_device * dev)
+ {
+-	return &((netiucv_priv *)dev->priv)->stats;
++	return &((struct netiucv_priv *)dev->priv)->stats;
+ }
+ 
+ /**
+@@ -1245,7 +1243,7 @@
+  *         (valid range is 576 .. NETIUCV_MTU_MAX).
+  */
+ static int
+-netiucv_change_mtu (net_device * dev, int new_mtu)
++netiucv_change_mtu (struct net_device * dev, int new_mtu)
+ {
+ 	if ((new_mtu < 576) || (new_mtu > NETIUCV_MTU_MAX))
+ 		return -EINVAL;
+@@ -1259,65 +1257,19 @@
+ #define CTRL_BUFSIZE 40
+ 
+ static ssize_t
+-user_show (struct device *dev, char *buf)
+-{
+-	netiucv_priv *priv = dev->driver_data;
 -
--/* association between FSF command and FSF QTCB type */
--u32 fsf_qtcb_type[] = {
--	[ FSF_QTCB_FCP_CMND ]			= FSF_IO_COMMAND,
--	[ FSF_QTCB_ABORT_FCP_CMND ]		= FSF_SUPPORT_COMMAND,
--	[ FSF_QTCB_OPEN_PORT_WITH_DID ] 	= FSF_SUPPORT_COMMAND,
--	[ FSF_QTCB_OPEN_LUN ]			= FSF_SUPPORT_COMMAND,
--	[ FSF_QTCB_CLOSE_LUN ]			= FSF_SUPPORT_COMMAND,
--	[ FSF_QTCB_CLOSE_PORT ]			= FSF_SUPPORT_COMMAND,
--	[ FSF_QTCB_CLOSE_PHYSICAL_PORT ]	= FSF_SUPPORT_COMMAND,
--	[ FSF_QTCB_SEND_ELS ]			= FSF_SUPPORT_COMMAND,
--	[ FSF_QTCB_SEND_GENERIC ]		= FSF_SUPPORT_COMMAND,
--	[ FSF_QTCB_EXCHANGE_CONFIG_DATA ]	= FSF_CONFIG_COMMAND
--};
+-	return snprintf(buf, PAGE_SIZE, "%s\n", 
+-			netiucv_printname(priv->conn->userid));
+-}
 -
--/* FSF protocol stati */
--#define FSF_PROT_GOOD				0x00000001
--#define FSF_PROT_QTCB_VERSION_ERROR		0x00000010
--#define FSF_PROT_SEQ_NUMB_ERROR			0x00000020
--#define FSF_PROT_UNSUPP_QTCB_TYPE		0x00000040
--#define FSF_PROT_HOST_CONNECTION_INITIALIZING	0x00000080
--#define FSF_PROT_FSF_STATUS_PRESENTED		0x00000100
--#define FSF_PROT_DUPLICATE_REQUEST_ID		0x00000200
--#define FSF_PROT_LINK_DOWN                      0x00000400
--#define FSF_PROT_REEST_QUEUE                    0x00000800
--#define FSF_PROT_ERROR_STATE			0x01000000
+-static ssize_t
+-user_write (struct device *dev, const char *buf, size_t count)
+-{
+-	netiucv_priv *priv = dev->driver_data;
+-	struct net_device *ndev = container_of((void *)priv, struct net_device, 
+priv);
+-	int          i;
+-	char         *p;
+-	char         tmp[CTRL_BUFSIZE];
+-	char         user[9];
 -
--/* FSF stati */
--#define FSF_GOOD				0x00000000
--#define FSF_PORT_ALREADY_OPEN			0x00000001
--#define FSF_LUN_ALREADY_OPEN			0x00000002
--#define FSF_PORT_HANDLE_NOT_VALID		0x00000003
--#define FSF_LUN_HANDLE_NOT_VALID		0x00000004
--#define FSF_HANDLE_MISMATCH			0x00000005
--#define FSF_SERVICE_CLASS_NOT_SUPPORTED		0x00000006
--#define FSF_FCPLUN_NOT_VALID			0x00000009
--//#define FSF_ACCESS_DENIED			0x00000010
--#define FSF_ACCESS_TYPE_NOT_VALID		0x00000011
--#define FSF_LUN_IN_USE				0x00000012
--#define FSF_COMMAND_ABORTED_ULP			0x00000020
--#define FSF_COMMAND_ABORTED_ADAPTER		0x00000021
--#define FSF_FCP_COMMAND_DOES_NOT_EXIST		0x00000022
--#define FSF_DIRECTION_INDICATOR_NOT_VALID	0x00000030
--#define FSF_INBOUND_DATA_LENGTH_NOT_VALID	0x00000031	/* FIXME: obsolete? */
--#define FSF_OUTBOUND_DATA_LENGTH_NOT_VALID	0x00000032	/* FIXME: obsolete? */
--#define FSF_CMND_LENGTH_NOT_VALID		0x00000033
--#define FSF_MAXIMUM_NUMBER_OF_PORTS_EXCEEDED	0x00000040
--#define FSF_MAXIMUM_NUMBER_OF_LUNS_EXCEEDED	0x00000041
--#define FSF_REQUEST_BUF_NOT_VALID		0x00000042
--#define FSF_RESPONSE_BUF_NOT_VALID		0x00000043
--#define FSF_ELS_COMMAND_REJECTED		0x00000050
--#define FSF_GENERIC_COMMAND_REJECTED		0x00000051
--//#define FSF_AUTHORIZATION_FAILURE		0x00000053
--#define FSF_PORT_BOXED				0x00000059
--//#define FSF_LUN_BOXED				0x0000005A
--#define FSF_ADAPTER_STATUS_AVAILABLE		0x000000AD
--#define FSF_FCP_RSP_AVAILABLE			0x000000AF
--#define FSF_UNKNOWN_COMMAND			0x000000E2
--//#define FSF_ERROR				0x000000FF 
+-	if (count >= 39)
+-		return -EINVAL;
 -
--/* FSF status qualifier, recommendations */
--#define FSF_SQ_NO_RECOM				0x00
--#define FSF_SQ_FCP_RSP_AVAILABLE		0x01
--#define FSF_SQ_RETRY_IF_POSSIBLE		0x02
--#define FSF_SQ_ULP_DEPENDENT_ERP_REQUIRED	0x03
--#define FSF_SQ_INVOKE_LINK_TEST_PROCEDURE	0x04
--#define FSF_SQ_ULP_PROGRAMMING_ERROR		0x05
--#define FSF_SQ_COMMAND_ABORTED			0x06
--#define FSF_SQ_NO_RETRY_POSSIBLE		0x07
+-	if (copy_from_user(tmp, buf, count))
+-		return -EFAULT;
+-	tmp[count+1] = '\0';
 -
--/* FSF status qualifier (most significant 4 bytes), local link down */
--#define FSF_PSQ_LINK_NOLIGHT			0x00000004
--#define FSF_PSQ_LINK_WRAPPLUG			0x00000008
--#define FSF_PSQ_LINK_NOFCP			0x00000010
+-	memset(user, ' ', sizeof(user));
+-	user[8] = '\0';
+-	for (p = tmp, i = 0; *p && (!isspace(*p)); p++) {
+-		if (i > 7)
+-			return -EINVAL;
+-		user[i++] = *p;
+-	}
 -
--/* payload size in status read buffer */
--#define FSF_STATUS_READ_PAYLOAD_SIZE		4032
+-	if (memcmp(user, priv->conn->userid, 8) != 0) {
+-		/* username changed */
+-		if (ndev->flags & IFF_RUNNING)
+-			return -EBUSY;
+-	}
+-	memcpy(priv->conn->userid, user, 9);
+-	return count;
 -
--/* status types in status read buffer */
--#define FSF_STATUS_READ_PORT_CLOSED		0x00000001
--#define FSF_STATUS_READ_INCOMING_ELS		0x00000002
--#define FSF_STATUS_READ_BIT_ERROR_THRESHOLD	0x00000004
--#define FSF_STATUS_READ_LINK_DOWN		0x00000005	/* FIXME: really? */
--#define FSF_STATUS_READ_LINK_UP          	0x00000006
+-}
 -
--/* status subtypes in status read buffer */
--#define FSF_STATUS_READ_SUB_CLOSE_PHYS_PORT	0x00000001
--#define FSF_STATUS_READ_SUB_ERROR_PORT		0x00000002
+-static DEVICE_ATTR(user, 0644, user_show, user_write);
 -
--/* topologie that is detected by the adapter */
--#define FSF_TOPO_ERROR				0x00000000
--#define FSF_TOPO_P2P				0x00000001
--#define FSF_TOPO_FABRIC				0x00000002
--#define FSF_TOPO_AL				0x00000003
--#define FSF_TOPO_FABRIC_VIRT			0x00000004
+-static ssize_t
+ buffer_show (struct device *dev, char *buf)
+ {
+-	netiucv_priv *priv = dev->driver_data;
++	struct netiucv_priv *priv = dev->driver_data;
+ 
+-	return sprintf(buf, "%d\n", 
+-		       priv->conn->max_buffsize);
++	return sprintf(buf, "%d\n", priv->conn->max_buffsize);
+ }
+ 
+ static ssize_t
+ buffer_write (struct device *dev, const char *buf, size_t count)
+ {
+-	netiucv_priv *priv = dev->driver_data;
+-	struct net_device *ndev = container_of((void *)priv, struct net_device, 
+priv);
++	struct netiucv_priv *priv = dev->driver_data;
++	struct net_device *ndev =
++		container_of((void *)priv, struct net_device, priv);
+ 	char         *e;
+ 	int          bs1;
+ 	char         tmp[CTRL_BUFSIZE];
+@@ -1354,10 +1306,9 @@
+ static ssize_t
+ dev_fsm_show (struct device *dev, char *buf)
+ {
+-	netiucv_priv *priv = dev->driver_data;
++	struct netiucv_priv *priv = dev->driver_data;
+ 	
+-	return snprintf(buf, PAGE_SIZE, "%s\n",
+-			fsm_getstate_str(priv->fsm));
++	return sprintf(buf, "%s\n", fsm_getstate_str(priv->fsm));
+ }
+ 
+ static DEVICE_ATTR(device_fsm_state, 0444, dev_fsm_show, NULL);
+@@ -1365,10 +1316,9 @@
+ static ssize_t
+ conn_fsm_show (struct device *dev, char *buf)
+ {
+-	netiucv_priv *priv = dev->driver_data;
++	struct netiucv_priv *priv = dev->driver_data;
+ 	
+-	return snprintf(buf, PAGE_SIZE, "%s\n",
+-			fsm_getstate_str(priv->conn->fsm));
++	return sprintf(buf, "%s\n", fsm_getstate_str(priv->conn->fsm));
+ }
+ 
+ static DEVICE_ATTR(connection_fsm_state, 0444, conn_fsm_show, NULL);
+@@ -1376,7 +1326,7 @@
+ static ssize_t
+ maxmulti_show (struct device *dev, char *buf)
+ {
+-	netiucv_priv *priv = dev->driver_data;
++	struct netiucv_priv *priv = dev->driver_data;
+ 	
+ 	return sprintf(buf, "%ld\n", priv->conn->prof.maxmulti);
+ }
+@@ -1384,7 +1334,7 @@
+ static ssize_t
+ maxmulti_write (struct device *dev, const char *buf, size_t count)
+ {
+-	netiucv_priv *priv = dev->driver_data;
++	struct netiucv_priv *priv = dev->driver_data;
+ 	
+ 	priv->conn->prof.maxmulti = 0;
+ 	return count;
+@@ -1395,7 +1345,7 @@
+ static ssize_t
+ maxcq_show (struct device *dev, char *buf)
+ {
+-	netiucv_priv *priv = dev->driver_data;
++	struct netiucv_priv *priv = dev->driver_data;
+ 	
+ 	return sprintf(buf, "%ld\n", priv->conn->prof.maxcqueue);
+ }
+@@ -1403,7 +1353,7 @@
+ static ssize_t
+ maxcq_write (struct device *dev, const char *buf, size_t count)
+ {
+-	netiucv_priv *priv = dev->driver_data;
++	struct netiucv_priv *priv = dev->driver_data;
+ 	
+ 	priv->conn->prof.maxcqueue = 0;
+ 	return count;
+@@ -1414,7 +1364,7 @@
+ static ssize_t
+ sdoio_show (struct device *dev, char *buf)
+ {
+-	netiucv_priv *priv = dev->driver_data;
++	struct netiucv_priv *priv = dev->driver_data;
+ 	
+ 	return sprintf(buf, "%ld\n", priv->conn->prof.doios_single);
+ }
+@@ -1422,7 +1372,7 @@
+ static ssize_t
+ sdoio_write (struct device *dev, const char *buf, size_t count)
+ {
+-	netiucv_priv *priv = dev->driver_data;
++	struct netiucv_priv *priv = dev->driver_data;
+ 	
+ 	priv->conn->prof.doios_single = 0;
+ 	return count;
+@@ -1433,7 +1383,7 @@
+ static ssize_t
+ mdoio_show (struct device *dev, char *buf)
+ {
+-	netiucv_priv *priv = dev->driver_data;
++	struct netiucv_priv *priv = dev->driver_data;
+ 	
+ 	return sprintf(buf, "%ld\n", priv->conn->prof.doios_multi);
+ }
+@@ -1441,7 +1391,7 @@
+ static ssize_t
+ mdoio_write (struct device *dev, const char *buf, size_t count)
+ {
+-	netiucv_priv *priv = dev->driver_data;
++	struct netiucv_priv *priv = dev->driver_data;
+ 	
+ 	priv->conn->prof.doios_multi = 0;
+ 	return count;
+@@ -1452,7 +1402,7 @@
+ static ssize_t
+ txlen_show (struct device *dev, char *buf)
+ {
+-	netiucv_priv *priv = dev->driver_data;
++	struct netiucv_priv *priv = dev->driver_data;
+ 	
+ 	return sprintf(buf, "%ld\n", priv->conn->prof.txlen);
+ }
+@@ -1460,7 +1410,7 @@
+ static ssize_t
+ txlen_write (struct device *dev, const char *buf, size_t count)
+ {
+-	netiucv_priv *priv = dev->driver_data;
++	struct netiucv_priv *priv = dev->driver_data;
+ 	
+ 	priv->conn->prof.txlen = 0;
+ 	return count;
+@@ -1471,7 +1421,7 @@
+ static ssize_t
+ txtime_show (struct device *dev, char *buf)
+ {
+-	netiucv_priv *priv = dev->driver_data;
++	struct netiucv_priv *priv = dev->driver_data;
+ 	
+ 	return sprintf(buf, "%ld\n", priv->conn->prof.tx_time);
+ }
+@@ -1479,7 +1429,7 @@
+ static ssize_t
+ txtime_write (struct device *dev, const char *buf, size_t count)
+ {
+-	netiucv_priv *priv = dev->driver_data;
++	struct netiucv_priv *priv = dev->driver_data;
+ 	
+ 	priv->conn->prof.tx_time = 0;
+ 	return count;
+@@ -1492,8 +1442,7 @@
+ {
+ 	int ret = 0;
+ 
+-	if ((ret = device_create_file(dev, &dev_attr_user)) ||
+-	    (ret = device_create_file(dev, &dev_attr_buffer)) ||
++	if ((ret = device_create_file(dev, &dev_attr_buffer)) ||
+ 	    (ret = device_create_file(dev, &dev_attr_device_fsm_state)) ||
+ 	    (ret = device_create_file(dev, &dev_attr_connection_fsm_state)) ||
+ 	    (ret = device_create_file(dev, &dev_attr_max_tx_buffer_used)) ||
+@@ -1510,7 +1459,6 @@
+ 		device_remove_file(dev, &dev_attr_connection_fsm_state);
+ 		device_remove_file(dev, &dev_attr_device_fsm_state);
+ 		device_remove_file(dev, &dev_attr_buffer);
+-		device_remove_file(dev, &dev_attr_user);
+ 	}
+ 	return ret;
+ }
+@@ -1518,53 +1466,53 @@
+ static int
+ netiucv_register_device(struct net_device *ndev, int ifno)
+ {
+-	netiucv_priv *priv = ndev->priv;
+-	struct platform_device *pldev = &priv->pldev;
++	struct netiucv_priv *priv = ndev->priv;
++	struct device *dev = &priv->dev;
+ 	int ret;
+ 	char *str = "netiucv";
+ 
+-	snprintf(pldev->dev.name, DEVICE_NAME_SIZE, 
+-		 "%s%x", str, ifno);
+-	pldev->name = str;
+-	pldev->id = ifno;
++	snprintf(dev->name, DEVICE_NAME_SIZE, "%s", priv->conn->userid);
++	snprintf(dev->bus_id, BUS_ID_SIZE, "%s%x", str, ifno);
++	dev->bus = &iucv_bus;
++	dev->parent = &iucv_root;
+ 
+-	ret = platform_device_register(pldev);
++	ret = device_register(dev);
+ 
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = netiucv_add_files(&pldev->dev);
++	ret = netiucv_add_files(dev);
+ 
+ 	if (ret) 
+-		platform_device_unregister(pldev);
++		device_unregister(dev);
+ 	else
+-		pldev->dev.driver_data = priv;
++		dev->driver_data = priv;
+ 	return ret;
+ }
+ 
+-#ifdef MODULE
+ static void
+ netiucv_unregister_device(struct net_device *ndev)
+ {
+-	netiucv_priv *priv = (netiucv_priv*)ndev->priv;
+-	struct platform_device *pldev = &priv->pldev;
++	struct netiucv_priv *priv = (struct netiucv_priv*)ndev->priv;
++	struct device *dev = &priv->dev;
+ 	
+-	platform_device_unregister(pldev);
++	device_unregister(dev);
+ }
+-#endif
+ 
+ /**
+  * Allocate and initialize a new connection structure.
+  * Add it to the list of connections;
+  */
+-static iucv_connection *
+-netiucv_new_connection(net_device *dev, char *username)
++static struct iucv_connection *
++netiucv_new_connection(struct net_device *dev, char *username)
+ {
+-	iucv_connection **clist = &connections;
+-	iucv_connection *conn =
+-		(iucv_connection *)kmalloc(sizeof(iucv_connection), GFP_KERNEL);
++	struct iucv_connection **clist = &connections;
++	struct iucv_connection *conn =
++		(struct iucv_connection *)
++		kmalloc(sizeof(struct iucv_connection), GFP_KERNEL);
++
+ 	if (conn) {
+-		memset(conn, 0, sizeof(iucv_connection));
++		memset(conn, 0, sizeof(struct iucv_connection));
+ 		skb_queue_head_init(&conn->collect_queue);
+ 		conn->max_buffsize = NETIUCV_BUFSIZE_DEFAULT;
+ 		conn->netdev = dev;
+@@ -1609,9 +1557,9 @@
+  * list of connections.
+  */
+ static void
+-netiucv_remove_connection(iucv_connection *conn)
++netiucv_remove_connection(struct iucv_connection *conn)
+ {
+-	iucv_connection **clist = &connections;
++	struct iucv_connection **clist = &connections;
+ 
+ 	if (conn == NULL)
+ 		return;
+@@ -1635,26 +1583,26 @@
+ /**
+  * Allocate and initialize everything of a net device.
+  */
+-static net_device *
++static struct net_device *
+ netiucv_init_netdevice(int ifno, char *username)
+ {
+-	netiucv_priv *privptr;
++	struct netiucv_priv *privptr;
+ 	int          priv_size;
+ 
+-	net_device *dev = kmalloc(sizeof(net_device), GFP_KERNEL);
++	struct net_device *dev = kmalloc(sizeof(struct net_device), GFP_KERNEL);
+ 	if (!dev)
+ 		return NULL;
+-	memset(dev, 0, sizeof(net_device));
++	memset(dev, 0, sizeof(struct net_device));
+ 	sprintf(dev->name, "iucv%d", ifno);
+ 
+-	priv_size = sizeof(netiucv_priv);
++	priv_size = sizeof(struct netiucv_priv);
+ 	dev->priv = kmalloc(priv_size, GFP_KERNEL);
+ 	if (dev->priv == NULL) {
+ 		kfree(dev);
+ 		return NULL;
+ 	}
+         memset(dev->priv, 0, priv_size);
+-        privptr = (netiucv_priv *)dev->priv;
++        privptr = (struct netiucv_priv *)dev->priv;
+ 	privptr->fsm = init_fsm("netiucvdev", dev_state_names,
+ 				dev_event_names, NR_DEV_STATES, NR_DEV_EVENTS,
+ 				dev_fsm, DEV_FSM_LEN, GFP_KERNEL);
+@@ -1691,14 +1639,14 @@
+  * Allocate and initialize everything of a net device.
+  */
+ static void
+-netiucv_free_netdevice(net_device *dev)
++netiucv_free_netdevice(struct net_device *dev)
+ {
+-	netiucv_priv *privptr;
++	struct netiucv_priv *privptr;
+ 
+ 	if (!dev)
+ 		return;
+ 
+-	privptr = (netiucv_priv *)dev->priv;
++	privptr = (struct netiucv_priv *)dev->priv;
+ 	if (privptr) {
+ 		if (privptr->conn)
+ 			netiucv_remove_connection(privptr->conn);
+@@ -1709,10 +1657,67 @@
+ 	kfree(dev);
+ }
+ 
++static ssize_t
++conn_write(struct device_driver *drv, const char *buf, size_t count)
++{
++	char *p;
++	char username[10];
++	int i;
++	struct net_device *dev;
++
++	if (count>9) {
++		printk(KERN_WARNING
++		       "netiucv: username too long (%d)!\n", (int)count);
++		return -EINVAL;
++	}
++
++	for (i=0, p=(char *)buf; i<8 && *p; i++, p++) {
++		if (isalnum(*p))
++			username[i]= *p;
++		else if (*p == '\n') {
++			/* trailing lf, grr */
++			break;
++		} else {
++			printk(KERN_WARNING
++			       "netiucv: Invalid character in username!\n");
++			return -EINVAL;
++		}
++	}
++	while (i<9)
++		username[i++] = ' ';
++	username[9] = '\0';
++	dev = netiucv_init_netdevice(ifno, username);
++	if (!dev) {
++		printk(KERN_WARNING
++		       "netiucv: Could not allocate network device structure "
++		       "for user '%s'\n", netiucv_printname(username));
++		return -ENODEV;
++	}
++	
++	if (register_netdev(dev)) {
++		printk(KERN_WARNING
++		       "netiucv: Could not register '%s'\n", dev->name);
++		netiucv_free_netdevice(dev);
++		return -ENODEV;
++	}
++	printk(KERN_INFO "%s: '%s'\n", dev->name, netiucv_printname(username));
++	netiucv_register_device(dev, ifno);
++	ifno++;
++	
++	return count;
++}
++
++DRIVER_ATTR(connection, 0200, NULL, conn_write);
++
++static struct device_driver netiucv_driver = {
++	.name = "NETIUCV",
++	.bus  = &iucv_bus,
++};
++
+ static void
+ netiucv_banner(void)
+ {
+-	char vbuf[] = "$Revision: 1.12 $";
++	char vbuf[] = "$Revision: 1.15 $";
+ 	char *version = vbuf;
+ 
+ 	if ((version = strchr(version, ':'))) {
+@@ -1724,101 +1729,65 @@
+ 	printk(KERN_INFO "NETIUCV driver Version%s initialized\n", version);
+ }
+ 
+-#ifndef MODULE
+-static int __init
+-iucv_setup(char *param)
+-{
+-	/**
+-	* We do not parse parameters here because at the time of
+-	* calling iucv_setup(), the kernel does not yet have
+-	* memory management running. We delay this until probing
+-	* is called.
+-	*/
+-	iucv = param;
+-	return 1;
+-}
 -
--/* data direction for FCP commands */
--#define FSF_DATADIR_WRITE			0x00000001
--#define FSF_DATADIR_READ			0x00000002
--#define FSF_DATADIR_READ_WRITE			0x00000003
--#define FSF_DATADIR_CMND			0x00000004
+-__setup ("iucv=", iucv_setup);
 -
--/* fc service class */
--#define FSF_CLASS_1				0x00000001
--#define FSF_CLASS_2				0x00000002
--#define FSF_CLASS_3				0x00000003
+-#else
 -
--struct fsf_queue_designator;
--struct fsf_status_read_buffer;
--struct fsf_port_closed_payload;
--struct fsf_bit_error_payload;
--union fsf_prot_status_qual;
--struct fsf_qual_version_error;
--struct fsf_qual_sequence_error;
--struct fsf_qtcb_prefix;
--struct fsf_qtcb_header;
--struct fsf_qtcb_bottom_config;
--struct fsf_qtcb_bottom_support;
--struct fsf_qtcb_bottom_io;
--union fsf_qtcb_bottom;
+ static void __exit
+ netiucv_exit(void)
+ {
+ 	while (connections) {
+-		net_device *dev = connections->netdev;
++		struct net_device *dev = connections->netdev;
+ 		unregister_netdev(dev);
+ 		netiucv_unregister_device(dev);
+ 		netiucv_free_netdevice(dev);
+ 	}
+ 
++	driver_remove_file(&netiucv_driver, &driver_attr_connection);
++	driver_unregister(&netiucv_driver);
++	bus_unregister(&iucv_bus);
++
+ 	printk(KERN_INFO "NETIUCV driver unloaded\n");
+ 	return;
+ }
+ 
+-module_exit(netiucv_exit);
+-#endif
 -
--typedef struct fsf_queue_designator {
--	u8			cssid;
--	u8			chpid;
--	u8			hla;
--	u8			ua;
--	u32			res1;
--} __attribute__ ((packed)) fsf_queue_designator_t;
--
--typedef struct fsf_port_closed_payload {
--	fsf_queue_designator_t	queue_designator;
--	u32			port_handle;
--} __attribute__ ((packed)) fsf_port_closed_payload_t;
--
--typedef struct fsf_bit_error_payload {
--	u32			res1;
--	u32			link_failure_error_count;
--	u32			loss_of_sync_error_count;
--	u32			loss_of_signal_error_count;
--	u32			primitive_sequence_error_count;
--	u32			invalid_transmission_word_error_count;
--	u32			crc_error_count;
--	u32			primitive_sequence_event_timeout_count;
--	u32			elastic_buffer_overrun_error_count;
--	u32			fcal_arbitration_timeout_count;
--	u32			advertised_receive_b2b_credit;
--	u32			current_receive_b2b_credit;
--	u32			advertised_transmit_b2b_credit;
--	u32			current_transmit_b2b_credit;
--} __attribute__ ((packed)) fsf_bit_error_payload_t;
--
--typedef struct fsf_status_read_buffer {
--        u32			status_type;
--        u32			status_subtype;
--        u32			length;
--        u32			res1;
--        fsf_queue_designator_t	queue_designator;
--        u32			d_id;
--        u32			class;
--        u64			fcp_lun;
--        u8			res3[24];
--        u8			payload[FSF_STATUS_READ_PAYLOAD_SIZE];
--} __attribute__ ((packed)) fsf_status_read_buffer_t;
--
--typedef struct fsf_qual_version_error {
--	u32			fsf_version;
--	u32			res1[3];
--} __attribute__ ((packed)) fsf_qual_version_error_t;
--
--typedef struct fsf_qual_sequence_error {
--	u32			exp_req_seq_no;
--	u32			res1[3];
--} __attribute__ ((packed)) fsf_qual_sequence_error_t;
--
--typedef struct fsf_qual_locallink_error {
--	u32			code;
--	u32			res1[3];
--} __attribute__ ((packed)) fsf_qual_locallink_error_t;
--
--typedef union fsf_prot_status_qual {
--	fsf_qual_version_error_t	version_error;
--	fsf_qual_sequence_error_t	sequence_error;
--	fsf_qual_locallink_error_t	locallink_error;
--} __attribute__ ((packed)) fsf_prot_status_qual_t;
--
--typedef struct fsf_qtcb_prefix {
--	u64			req_id;
--	u32			qtcb_version;
--	u32			ulp_info;
--	u32			qtcb_type;
--	u32			req_seq_no;
--	u32			prot_status;
--	fsf_prot_status_qual_t	prot_status_qual;
--	u8			res1[20];
--} __attribute__ ((packed)) fsf_qtcb_prefix_t;
--
--typedef struct fsf_qtcb_header {
--	u64			req_handle;
--	u32			fsf_command;
--	u32			res1;
--	u32			port_handle;
--	u32			lun_handle;
--	u32			res2;
--	u32			fsf_status;
--	u32			fsf_status_qual[4];
--//	fsf_status_qual_t	fsf_status_qual;	FIXME: define union
--	u8			res3[28];
--	u16			log_start;
--	u16			log_length;
--	u8			res4[16];
--} __attribute__ ((packed)) fsf_qtcb_header_t;
--
--typedef u64 fsf_wwn_t;
--
--typedef struct fsf_nport_serv_param {
--	u8			common_serv_param[16];
--	fsf_wwn_t		wwpn;
--	fsf_wwn_t		wwnn;
--	u8			class1_serv_param[16];
--	u8			class2_serv_param[16];
--	u8			class3_serv_param[16];
--	u8			class4_serv_param[16];
--	u8			vendor_version_level[16];
--	u8			res1[16];
--} __attribute__ ((packed)) fsf_nport_serv_param_t;
--
--typedef struct fsf_plogi {
--	u32			code;
--	fsf_nport_serv_param_t	serv_param;
--} __attribute__ ((packed)) fsf_plogi_t;
--
--#define FSF_FCP_CMND_SIZE	288
--#define FSF_FCP_RSP_SIZE	128
--
--typedef struct fsf_qtcb_bottom_io {
--	u32			data_direction;
--	u32			service_class;
--	u8			res1[8];
--	u32			fcp_cmnd_length;
--	u8			res2[12];
--	u8			fcp_cmnd[FSF_FCP_CMND_SIZE];
--	u8			fcp_rsp[FSF_FCP_RSP_SIZE];
--	u8			res3[64];
--} __attribute__ ((packed)) fsf_qtcb_bottom_io_t;
--
--typedef struct fsf_qtcb_bottom_support {
--	u8			res1[16];
--	u32			d_id;
--	u32			res2;
--	u64			fcp_lun;
--	u64			res3;
--	u64			req_handle;
--	u32			service_class;
--	u8			res4[3];
--	u8			timeout;
--	u8			res5[184];
--	u32			els1_length;
--	u32			els2_length;
--	u64			res6;
--	u8			els[256];
--} __attribute__ ((packed)) fsf_qtcb_bottom_support_t;
--
--typedef struct fsf_qtcb_bottom_config {
--	u32			lic_version;
--	u32			res1;
--	u32			high_qtcb_version;
--	u32			low_qtcb_version;
--	u32			max_qtcb_size;
--	u8			res2[12];
--	u32			fc_topology;
--	u32			fc_link_speed;
--	u32			adapter_type;
--	u32			peer_d_id;
--	u8			res3[12];
--	u32			s_id;
--	fsf_nport_serv_param_t	nport_serv_param;
--	u8			res4[320];
--} __attribute__ ((packed)) fsf_qtcb_bottom_config_t;
--
--typedef union fsf_qtcb_bottom {
--	fsf_qtcb_bottom_io_t		io;
--	fsf_qtcb_bottom_support_t	support;
--	fsf_qtcb_bottom_config_t	config;
--} fsf_qtcb_bottom_t;
--
--typedef struct fsf_qtcb {
--	fsf_qtcb_prefix_t	prefix;
--	fsf_qtcb_header_t	header;
--	fsf_qtcb_bottom_t	bottom;
--} __attribute__ ((packed)) fsf_qtcb_t;
--
--#endif	/* FSF_H */
+ static int __init
+ netiucv_init(void)
+ {
+-	char *p = iucv;
+-	int ifno = 0;
+-	int i = 0;
+-	char username[10];
++	int ret;
++	
++	/* Move the bus stuff to iucv.c? - CH */
++	ret = bus_register(&iucv_bus);
++	if (ret != 0) {
++		printk(KERN_ERR "NETIUCV: failed to register bus.\n");
++		return ret;
++	}
+ 
+-	while (p) {
+-		if (isalnum(*p)) {
+-			username[i++] = *p++;
+-			username[i] = '\0';
+-			if (i > 8) {
+-				printk(KERN_WARNING
+-				       "netiucv: Invalid user name '%s'\n",
+-				       username);
+-				while (*p && (*p != ':') && (*p != ','))
+-					p++;
+-			}
+-		} else {
+-			if (*p && (*p != ':') && (*p != ',')) {
+-				printk(KERN_WARNING
+-				       "netiucv: Invalid delimiter '%c'\n",
+-				       *p);
+-				while (*p && (*p != ':') && (*p != ','))
+-					p++;
+-			} else {
+-				if (i) {
+-					net_device *dev;
++	ret = driver_register(&netiucv_driver);
++	if (ret != 0) {
++		printk(KERN_ERR "NETIUCV: failed to register driver.\n");
++		bus_unregister(&iucv_bus);
++		return ret;
++	}
+ 
+-					while (i < 9)
+-						username[i++] = ' ';
+-					username[9] = '\0';
+-					dev = netiucv_init_netdevice(ifno,
+-								     username);
+-					if (!dev)
+-						printk(KERN_WARNING
+-						       "netiucv: Could not allocate network device structure for user 
+'%s'\n", netiucv_printname(username));
+-					else {
+-						if (register_netdev(dev)) {
+-							printk(KERN_WARNING
+-							       "netiucv: Could not register '%s'\n", dev->name);
+-							netiucv_free_netdevice(dev);
+-						} else {
+-							printk(KERN_INFO "%s: '%s'\n", dev->name, 
+netiucv_printname(username));
+-							netiucv_register_device(dev, ifno);
+-							ifno++;
+-						}
+-					}						
+-				}
+-				if (!(*p))
+-					break;
+-				i = 0;
+-				p++;
+-			}
+-		}
++	ret = device_register(&iucv_root);
++	if (ret != 0) {
++		printk(KERN_ERR "NETIUCV: failed to register iucv root.\n");
++		driver_unregister(&netiucv_driver);
++		bus_unregister(&iucv_bus);
++		return ret;
+ 	}
+-	netiucv_banner();
+-	return 0;
+-}
+ 
++	/* Add entry for specifying connections. */
++	ret = driver_create_file(&netiucv_driver, &driver_attr_connection);
++
++	if (ret == 0)
++		netiucv_banner();
++	else {
++		printk(KERN_ERR "NETIUCV: failed to add driver attribute.\n");
++		device_unregister(&iucv_root);
++		driver_unregister(&netiucv_driver);
++		bus_unregister(&iucv_bus);
++	}
++	return ret;
++}
++	
+ module_init(netiucv_init);
++module_exit(netiucv_exit);
+ MODULE_LICENSE("GPL");
 

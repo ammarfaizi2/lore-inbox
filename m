@@ -1,31 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262682AbRFTV3u>; Wed, 20 Jun 2001 17:29:50 -0400
+	id <S263433AbRFTVdA>; Wed, 20 Jun 2001 17:33:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263288AbRFTV3k>; Wed, 20 Jun 2001 17:29:40 -0400
-Received: from hq2.fsmlabs.com ([209.155.42.199]:56335 "HELO hq2.fsmlabs.com")
-	by vger.kernel.org with SMTP id <S262682AbRFTV33>;
-	Wed, 20 Jun 2001 17:29:29 -0400
-Date: Wed, 20 Jun 2001 15:26:04 -0600
-From: Victor Yodaiken <yodaiken@fsmlabs.com>
-To: David Schwartz <davids@webmaster.com>
-Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: Why use threads ( was: Alan Cox quote?)
-Message-ID: <20010620152604.B32617@hq2>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <NCBBLIEPOCNJOAEKBEAKAENCPPAA.davids@webmaster.com>
-User-Agent: Mutt/1.3.18i
-Organization: FSM Labs
+	id <S264631AbRFTVcl>; Wed, 20 Jun 2001 17:32:41 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:12700 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S263433AbRFTVcb>;
+	Wed, 20 Jun 2001 17:32:31 -0400
+Date: Wed, 20 Jun 2001 23:31:49 +0200 (MET DST)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200106202131.XAA337370.aeb@vlet.cwi.nl>
+To: Andries.Brouwer@cwi.nl, viro@math.psu.edu
+Subject: Re: [PATCH] remove null register_disk
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 20, 2001 at 02:01:16PM -0700, David Schwartz wrote:
-> 	It's very hard to use processes for this purpose. Consider, for example, a
-> web server. You don't want to use one process for each client because that
-> would limit your scalability (16,000 clients would become difficult, and
-> with threads it's trivial). You don't want to use one thread for each client
+> We will need register_disk().
+> Reinserting it into the right places in 2.5 is a unnecessary PITA.
 
-How is it trivial? How do you debug a 16,000 thread application?
+(i) today this is dead code
+(ii) I am slowly restructuring all blockdev code, mainly with
+the purpose of freeing partition code from the bowels of the
+various drivers. In the process register_disk()
+changes prototype, and grok_partitions() disappears.
+For example, patch 06 that I made an hour or so ago
+deletes the "minors" parameter of both. What, if anything,
+will be reinserted later will be rather different from what
+is there today. Indeed, these cdrom drivers do not need a
+register_disk().
+
+Andries
 

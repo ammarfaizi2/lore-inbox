@@ -1,78 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132773AbRAQLFT>; Wed, 17 Jan 2001 06:05:19 -0500
+	id <S132795AbRAQLFU>; Wed, 17 Jan 2001 06:05:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132795AbRAQLFK>; Wed, 17 Jan 2001 06:05:10 -0500
-Received: from rcum.uni-mb.si ([164.8.2.10]:65296 "EHLO rcum.uni-mb.si")
-	by vger.kernel.org with ESMTP id <S132773AbRAQLEv>;
-	Wed, 17 Jan 2001 06:04:51 -0500
-Date: Wed, 17 Jan 2001 12:04:41 +0100
-From: David Balazic <david.balazic@uni-mb.si>
-Subject: RE: Linux not adhering to BIOS Drive boot order?
-To: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
-Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>
-Message-id: <3A657C49.8D556099@uni-mb.si>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.75 [en] (WinNT; U)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
+	id <S132796AbRAQLFK>; Wed, 17 Jan 2001 06:05:10 -0500
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:53777 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S132795AbRAQLE7>; Wed, 17 Jan 2001 06:04:59 -0500
+Message-ID: <3A657C56.E0EFFF4D@t-online.de>
+Date: Wed, 17 Jan 2001 12:04:54 +0100
+From: Jeffrey.Rose@t-online.de (Jeffrey Rose)
+Organization: http://ChristForge.SourceForge.net/
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
 X-Accept-Language: en
+MIME-Version: 1.0
+To: Christian Gennerat <christian.gennerat@vz.cit.alcatel.fr>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0 config breaks /dev/fd0* major/minor ? *not* Fixed
+In-Reply-To: <3A656749.ACF3F01A@t-online.de> <3A6567CF.E10FDEBD@mandrakesoft.com> <3A657537.F4A64F78@vz.cit.alcatel.fr>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dr. Kelsey Hudson (kernel@blackhole.compendium-tech.com) wrote :
->    On Tue, 16 Jan 2001, Venkatesh Ramamurthy wrote:
->           
->    > [Venkatesh Ramamurthy] Dont you think that mounting and booting 
->    > based on disk label names is better, then relying on device nodes which can 
->    > change when a new card is added?. The existing patch for 2.2.xx is quite 
->    > small and it does not bloat the kernel too much either. I think we can port 
->    > it for 2.4.XX with ease.In my words it is worth the effort 
->           
->    Of course that would be better. The only complaint I have with such a
->    system is that of backwards compatibility...as long as the legacy device
->    names are still supported i would have no problem with it at all.
+Christian Gennerat wrote:
+> 
+> Jeff Garzik a écrit :
+> 
+> > Jeffrey Rose wrote:
+> > > I get a wrong major/minor reported when attempting
+> > > to mount /dev/fd0 ...
+> >
+> > Sounds like it can't find the floppy driver, for whatever reason...
+> >
+> 
+> I have seen this message, new with 2.4.0-2mdk
+> (before I have 2.4.0-0.15mdk)
+> but only on one PC.
+> I have 2 PC, with same hardware, same PCMCIA config
+> 
+> The first have mandrake 7.2 Odissey, and the modules
+> floppy and floppy_cs are loaded, and /mnt/floppy is mounted
+> modutils-2.4.1-1mdk
+> 
+> The second have mandrake 7.1 Helium, and the modules
+> fail during init. and I have this message:
+> 'mount: /dev/fd0 has wrong major or minor number'
+> modutils-2.3.21-2mdk (the last rpm-3)
+> 
+> I have copied the files of modutils-2.4.1-1mdk,
+> and created 2 sym.links:
+> # ls -l /lib/modules/2.4.0-2mdk/pcmcia/
+> total 0
+> lrwxrwxrwx    1 root     root           29 jan 10 22:09 ds.o -> ../kernel/drivers/pcmcia/ds.o
+> lrwxrwxrwx    1 root     root           32 jan 17 11:30 floppy.o -> ../kernel/drivers/block/floppy.o
+> lrwxrwxrwx    1 root     root           35 jan 17 11:30 floppy_cs.o -> ../kernel/drivers/block/floppy_cs.o
+> and now, it works!
 
-Yes, legacy names are supported. It is 100% backward compatible.
-As far as I know ( I'm the author of the patch )
+I am not using pcmcia, as this is a desktop with ISDN (Fritz! PCI ISDN
+card), but I only get more verbose error messages with the
+/dev/fd0CompaQ :
 
->                     
->    however, this brings up an interesting question: what happens if two disks
->    (presumably from two different machines) have the same disk label?
+#> mount /dev/fd0CompaQ /mnt/floppy
+#> floppy0: sector not found: track 0, head 0, sector 3, size 2
+#> floppy0: sector not found: track 0, head 0, sector 3, size 2 
+#> end_request: I/O error, dev 02:04 (floppy), sector 2
+#> /dev/fd0CompaQ: Input/output error
+#> mount: /dev/fd0CompaQ has wrong major or minor number
 
-The first one found will be used. You are dependent on the ordering,
-only in this special case, while before you were depending on ordering
-every time.
+I will attempt a recompile with floppy as a module (as RH 2.2.16-22 did
+... /lib/modules/2.2.16-22/block/ide-floppy.o), and see if
+'ide-floppy.o' and the new 2.4.1 modutils will help resolve this problem
+(unless my sad Compaq Presario 5000 BIOS IRQ setup is to blame :-(
 
-> what
->    happens then? for instance, i have several linux machines both at my
->    workplace and my home. if for some reason one of these machines dies due
->    to hardware failure and i want to get stuff off the drives, i put the disk
->    containing the /home partition on the failed machine into a working
->    machine and reboot. What /home gets mounted then? the original /home or
->    the new one from the dead machine? (and don't say end users wouldn't
->    possibly do that... if they are adding hardware into their systems this is
->    by no means beyond their capabilities)
->   at least with physical device nodes i can say 'computer, you will mount  
->    this partition on this mountpoint!' and be done with it.
+Cheers,
 
-You can still do this, nothing is preventing you from it.
-If you have /home in your fstab by its label, then you must
-change this before you insert the other disk. Possibilities :
-( to change in /etc/fstab)
- - use UUID instead of volume-label -> no conflicts ever
- - temporarily relabel your /home
- - temporarily use a device node
-
->    
->    so tell me then, how would one discern between two partitions with the
->    same label?   
-
+Jeff
 -- 
-David Balazic
---------------
-"Be excellent to each other." - Bill & Ted
-- - - - - - - - - - - - - - - - - - - - - -
+<Jeffrey.Rose@t-online.de>
+KEYSERVER=wwwkeys.de.pgp.net
+SEARCH STRING=Jeffrey Rose
+KEYID=6AD04244
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

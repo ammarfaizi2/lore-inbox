@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261352AbVALUZU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261386AbVALUyS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261352AbVALUZU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 15:25:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261402AbVALUYa
+	id S261386AbVALUyS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 15:54:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261391AbVALUtn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 15:24:30 -0500
-Received: from waste.org ([216.27.176.166]:37349 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261352AbVALURY (ORCPT
+	Wed, 12 Jan 2005 15:49:43 -0500
+Received: from gprs214-252.eurotel.cz ([160.218.214.252]:44172 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261437AbVALUqI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 15:17:24 -0500
-Date: Wed, 12 Jan 2005 12:16:56 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: David Lang <dlang@digitalinsight.com>, Jesper Juhl <juhl-lkml@dif.dk>,
-       Andries Brouwer <aebr@win.tue.nl>, "Barry K. Nathan" <barryn@pobox.com>,
-       Linus Torvalds <torvalds@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Lukasz Trabinski <lukasz@wsisiz.edu.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] make uselib configurable (was Re: uselib()  & 2.6.X?)
-Message-ID: <20050112201656.GK2995@waste.org>
-References: <20050111235907.GG2760@pclin040.win.tue.nl> <Pine.LNX.4.61.0501120203510.2912@dragon.hygekrogen.localhost> <Pine.LNX.4.60.0501111714450.18921@dlang.diginsite.com> <20050111223641.GA27100@logos.cnet>
+	Wed, 12 Jan 2005 15:46:08 -0500
+Date: Wed, 12 Jan 2005 21:45:50 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.10-mm2: swsusp problem with resuming on batteries (AMD64)
+Message-ID: <20050112204550.GD1408@elf.ucw.cz>
+References: <200501112220.53011.rjw@sisk.pl> <200501112233.01113.rjw@sisk.pl> <20050111215537.GE1802@elf.ucw.cz> <200501121824.05848.rjw@sisk.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050111223641.GA27100@logos.cnet>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <200501121824.05848.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 11, 2005 at 08:36:41PM -0200, Marcelo Tosatti wrote:
-> > >>There are more ancient system calls, like old_stat and oldolduname.
-> > >>Do we want separate options for each system call that is obsoleted?
-> > >>
-> > >IMO, no, we do not.
+Hi!
+
+> > > > Forcing machine to 800MHz before suspend may do the trick, too.
+> > > 
+> > > How can I do this?
 > > 
-> > how about something like the embedded, experimental, and broken options. 
-> > that way normal users can disable all of them at a stroke, people who need 
-> > them can add them in.
+> > echo "0%44%44%powersave" > /proc/cpufreq if you have that interface
+> > enabled. Or simply turn off CONFIG_CPUFREQ in config.
 > 
-> Thats just not an option - you would have zillions of config options. 
-> 
-> Moreover this is a system call, and the system call interface is one of the few 
-> supposed to be stable. You shouldnt simply assume that "no one will ever use sys_uselib()" - 
-> there might be programs out there who use it.
-> 
-> I agree with Andries.
+> I turned off CONFIG_CPUFREQ and it helped.  Still, cpufreq is a neat feature 
+> and I'd like to keep it in the kernel. :-)
 
-In -tiny, I've added config options for disabling _many_ syscalls (but
-not this one). They all go under EMBEDDED. And then I changed the
-description of EMBEDDED to imply that changing anything takes you into
-nonstandard, unsupported territory.
-
+Yes, uh, what you have to do is add suspend/resume routines to
+cpufreq. Always force it to lowest frequency in
+device_suspend()... and force it to rescan AC/battery status before
+going to higher frequency.
+								Pavel
 -- 
-Mathematics is the supreme nostalgia of our time.
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

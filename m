@@ -1,32 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269712AbRHMCIi>; Sun, 12 Aug 2001 22:08:38 -0400
+	id <S269726AbRHMCU7>; Sun, 12 Aug 2001 22:20:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269728AbRHMCI2>; Sun, 12 Aug 2001 22:08:28 -0400
-Received: from mailb.telia.com ([194.22.194.6]:19972 "EHLO mailb.telia.com")
-	by vger.kernel.org with ESMTP id <S269712AbRHMCIL>;
-	Sun, 12 Aug 2001 22:08:11 -0400
-Date: Mon, 13 Aug 2001 04:05:55 +0200
-From: =?iso-8859-1?Q?Andr=E9?= Dahlqvist <andre.dahlqvist@telia.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: __alloc_pages: 3-order allocation failed.
-Message-ID: <20010813040555.A5263@telia.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20010812025810.A2972@telia.com> <Pine.LNX.4.21.0108122132290.18092-100000@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.21.0108122132290.18092-100000@freak.distro.conectiva>
-User-Agent: Mutt/1.3.20i
+	id <S269731AbRHMCUj>; Sun, 12 Aug 2001 22:20:39 -0400
+Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:9736 "EHLO
+	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
+	id <S269728AbRHMCUj>; Sun, 12 Aug 2001 22:20:39 -0400
+Date: Mon, 13 Aug 2001 02:20:50 +0000 (GMT)
+From: Mark Hahn <hahn@physics.mcmaster.ca>
+To: Frank Jacobberger <f1j@xmission.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: UDMA 5
+In-Reply-To: <3B77361B.6020302@xmission.com>
+Message-ID: <Pine.LNX.4.10.10108130218380.7720-100000@coffee.psychology.mcmaster.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
+> Where is kernel development with respect to ATA 100
+> IDE drives?
 
-> Are you using SCSI? 
+they have worked fine for a long time.
 
-Sort of: I'm using SCSI-emulation for my IDE cd-burner.
--- 
+> The only param idebus=xx takes is 66... are
+> there plans to go to 100?
 
-André Dahlqvist <andre.dahlqvist@telia.com>
+that's not what the switch means.  instead, it gives the base clock
+for the controller, which should normally be 33.  it does *not* tell 
+the controller to run the *channel* at 100; in fact, idebus=66
+should result in *halving* the performance of your disks...
+

@@ -1,59 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265540AbTFMVgy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 17:36:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265544AbTFMVgu
+	id S265537AbTFMVfl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 17:35:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265540AbTFMVfl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 17:36:50 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:36838 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S265540AbTFMVfz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 17:35:55 -0400
-Date: Fri, 13 Jun 2003 22:49:44 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: OverrideX <overridex@punkass.com>, vojtech@suse.cz
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.70 hangs on boot
-Message-ID: <20030613214944.GA10406@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	OverrideX <overridex@punkass.com>, vojtech@suse.cz,
-	linux-kernel@vger.kernel.org
-References: <1055466518.29294.10.camel@nazgul>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1055466518.29294.10.camel@nazgul>
-User-Agent: Mutt/1.5.4i
+	Fri, 13 Jun 2003 17:35:41 -0400
+Received: from s161-184-77-200.ab.hsia.telus.net ([161.184.77.200]:33162 "EHLO
+	cafe.hardrock.org") by vger.kernel.org with ESMTP id S265537AbTFMVfk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 17:35:40 -0400
+Date: Fri, 13 Jun 2003 15:49:24 -0600 (MDT)
+From: James Bourne <jbourne@hardrock.org>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+cc: "Randy.Dunlap" <rddunlap@osdl.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.21-uv1 patch released
+In-Reply-To: <15860000.1055532759@caspian.scsiguy.com>
+Message-ID: <Pine.LNX.4.44.0306131542570.24382-100000@cafe.hardrock.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 12, 2003 at 09:08:39PM -0400, OverrideX wrote:
- > Hi all, 
- > 
- > I've tried 2.5.70, 2.5.70-mm8 and 2.5.70-bk17.  All of them hang while
- > booting, the last message they display is "Uncompressing Linux... Ok,
- > booting the kernel." then they just sit blank and boot no further.  I've
- > booted previous 2.5.x kernels on this system, the last I had used was
- > 2.5.63. My Hardware and other info is below, .config is attached. Is
- > anyone else experiencing this problem?  Is there any other information I
- > can provide to help debuging?  Please cc me any replies as my mailbox
- > can't take the full brunt of this mailing list, thanks -Dan
+On Fri, 13 Jun 2003, Justin T. Gibbs wrote:
 
-Ugh, what a mess. Take a look at http://www.codemonkey.org.uk/post-halloween-2.5.txt
-You'll notice that your .config doesn't contain most of those in the
-'gotchas' section that it suggests you make sure you have.
+> The BK send file for 2.4.X should go in clean and since it includes
+> all of the revision history is much preferable to any patch.
 
-The root cause of this is that you have CONFIG_INPUT=m.
+Thanks.  I've turned the 20030603.tar.gz file into a patch and added it to
+the updates patch I host to allow people a single point to download errata
+for the 2.4.21 kernel.
 
-CONFIG_VT only shows up if you have CONFIG_INPUT=y.
-With it set to =m a whole bunch of options never ever show up in the
-configuration.
+Unfortunately I have never used BK nor have I any intention at this point,
+so I hope the tar ball will reflect the same information.  I have included a
+pointer to the SRC directory for people to follow as well.
 
-This really wants fixing badly. The source of this problem seems to be
-people taking 2.4 configs (where CONFIG_INPUT=m was fine), and it all
-going pear-shaped when people make oldconfig.  I'm aware of the problems
-that oldconfig can't override variables set in .config, so how about 
-just renaming CONFIG_INPUT to something else ?
+Regards
+James Bourne
 
-		Dave
+> 
+> --
+> Justin
+> 
+
+-- 
+James Bourne                  | Email:            jbourne@hardrock.org          
+Unix Systems Administrator    | WWW:           http://www.hardrock.org
+Custom Unix Programming       | Linux:  The choice of a GNU generation
+----------------------------------------------------------------------
+ "All you need's an occasional kick in the philosophy." Frank Herbert  
 

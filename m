@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263858AbTFDTAL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 15:00:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263859AbTFDTAL
+	id S263837AbTFDSvl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 14:51:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263847AbTFDSvk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 15:00:11 -0400
-Received: from pfaff1.Stanford.EDU ([128.12.189.154]:33161 "EHLO
-	pfaff.Stanford.EDU") by vger.kernel.org with ESMTP id S263858AbTFDTAK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 15:00:10 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [2.5] Non-blocking write can block
-References: <20030604172026$296c@gated-at.bofh.it>
-	<20030604175013$3a4d@gated-at.bofh.it>
-Reply-To: blp@cs.stanford.edu
-From: Ben Pfaff <blp@cs.stanford.edu>
-Date: 04 Jun 2003 12:13:37 -0700
-In-Reply-To: <20030604175013$3a4d@gated-at.bofh.it>
-Message-ID: <87smqp8xlq.fsf@pfaff.Stanford.EDU>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	Wed, 4 Jun 2003 14:51:40 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:21978 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263837AbTFDSvg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 14:51:36 -0400
+Date: Wed, 4 Jun 2003 12:06:29 -0700
+From: Greg KH <greg@kroah.com>
+To: Margit Schubert-While <margitsw@t-online.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: I2C/Sensors 2.5.70
+Message-ID: <20030604190629.GA6632@kroah.com>
+References: <5.1.0.14.2.20030604163948.00af3d28@pop.t-online.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5.1.0.14.2.20030604163948.00af3d28@pop.t-online.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> writes:
+On Wed, Jun 04, 2003 at 04:51:30PM +0200, Margit Schubert-While wrote:
+> Is anybody looking at getting $Subject working ?
 
-> On Wed, 4 Jun 2003, Hua Zhong wrote:
-> >
-> > We ran into this problem here in an embedded environment. It causes
-> > syslogd to hang and when this happens, everybody who talks to syslogd
-> > hangs. Which means you may not even be able to login. In the end we used
-> > exactly the same fix which seems to work.
-> > 
-> > I am curious to know the correct fix.
-> 
-> [ First off: your embedded syslog problem is fixed by making sure that
->   syslog doesn't try to write to a tty that somebody else might be
->   blocked. In other words, to me it sounds like a "well, don't do that
->   then" schenario, rather than a real kernel problem. ]
+Works for me :)
 
-One day I managed to keep myself from logging in or su'ing or
-doing a number of things that needed the log for a quite a while
-by accidentally hitting Scroll Lock on a console that syslog was
-set up to log to.  I suppose the answer is "don't do that" but it
-was a mysterious problem for several minutes that day.
--- 
-"Let others praise ancient times; I am glad I was born in these."
---Ovid (43 BC-18 AD)
+> At the moment i2c-sensor.c never gets compiled which is bad as
+> it contains i2c_detect needed by all the sensors.
+
+What is your .config?  Are you sure you have selected a i2c chip driver?
+
+> And (assuming sensors works) where does the sensor info(fan, temp etc.)
+> get put?
+
+In sysfs.  Look at Documentation/i2c/sysfs-interface for more
+information on the different files and values.
+
+thanks,
+
+greg k-h

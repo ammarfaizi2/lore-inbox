@@ -1,157 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262000AbTEGAJ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 20:09:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262060AbTEGAJ7
+	id S262060AbTEGAKN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 20:10:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262073AbTEGAKN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 20:09:59 -0400
-Received: from [66.186.193.1] ([66.186.193.1]:27396 "HELO
-	unix113.hosting-network.com") by vger.kernel.org with SMTP
-	id S262000AbTEGAJv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 20:09:51 -0400
-X-Comments: BlackMail headers - Mail to abuse@featureprice.com to report spam.
-X-Authenticated-Connect: 64.122.104.99
-X-Authenticated-Timestamp: 20:27:29(EDT) on May 06, 2003
-X-HELO-From: [10.134.0.76]
-X-Mail-From: <thoffman@arnor.net>
-X-Sender-IP-Address: 64.122.104.99
-Subject: DRI crash with 2.5.69, mga, Red Hat 9
-From: Torrey Hoffman <thoffman@arnor.net>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1052266697.1250.15.camel@torrey.et.myrio.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 06 May 2003 17:18:17 -0700
+	Tue, 6 May 2003 20:10:13 -0400
+Received: from mail.gmx.de ([213.165.64.20]:60103 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262060AbTEGAKH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 20:10:07 -0400
+Message-ID: <3EB851B3.6050804@gmx.net>
+Date: Wed, 07 May 2003 02:22:11 +0200
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Bill Davidsen <davidsen@tmr.com>
+CC: Chris Friesen <cfriesen@nortelnetworks.com>, linux-kernel@vger.kernel.org
+Subject: Re: [2.5.68] Scalability issues
+References: <Pine.LNX.3.96.1030506142904.9452D-100000@gatekeeper.tmr.com>
+In-Reply-To: <Pine.LNX.3.96.1030506142904.9452D-100000@gatekeeper.tmr.com>
+X-Enigmail-Version: 0.71.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This might actually be an X or Matrox driver bug, but anyway...
+Bill Davidsen wrote:
+> On Mon, 5 May 2003, Chris Friesen wrote:
+> 
+> 
+>>Felix von Leitner wrote:
+>>
+>>>Thus spake David S. Miller (davem@redhat.com):
+>>
+>>>>Either reproduce without the nvidia module loaded, or take
+>>>>your report to nvidia.
+>>>
+>>>Thank you for this stunning display of unprofessionalism and zealotry.
+>>>People like you keep free software alive.
+>>
+>>He may not have put it as politely as you would like, but there really is no way 
+>>to debug a problem in a kernel which has been tainted by binary-only drivers. 
+>>That driver could have done literally anything to the kernel on loading.
+> 
+> There's no need to be rude in any case, particularly after the OP reposted
+> a not tainted oops which had been through ksymoops and didn't get any help
+> anyway. Why be nasty about the format of a question you're not answering
+> even after it's been asked again in the preferred format?
 
-I saw that some DRI fixes went in to 2.5.69 so I decided to give it a
-shot.  glxgears ran great, but the second gl screensaver I tried locked
-up the machine hard.
+Because the OP violated the lkml FAQ section 1.18:
+All problems discovered whilst such a module is loaded must be reported
+to the vendor of that module, /not/ the Linux kernel hackers and the
+linux-kernel mailing list. [...] "oops" reports marked as tainted are of
+no use to the kernel developers and will be ignored.
 
-(I haven't been able to get DRI-accelerated rendering working with other
-kernels either.)
+Davem just restated this fact with the same admittedly strong wording.
+Felix von Leitner accused him of unprofessionalism and zealotry. That is
+what I would call an offence.
 
-The last message in the system log was:
-[drm:mga_dma_clear] *ERROR* mga_dma_clear called without lock held
+> It's a shame that some people seem to think that lots of hard work
+> entitles them to be rude and condescending, while really important
+> contributors like Alan Cox, Ingo and akpm can be polite and helpful, even
+> when they are correcting someone or disagreeing on an approach to a
+> problem.
 
-The hardware is a P3 733 Mhz with 640 MB of RDRAM on an Intel 820
-chipset, with a Matrox MGA 200 video card.  It's running Red Hat 9.0 and
-the X 4.3.0 and drivers that come with that distribution.
+It's even more shocking if a user insults a kernel developer and expects
+this developer (or one of his peers) to actually take care of the
+problem. wli chose to investigate the report anyway, something not to be
+taken for granted.
 
-The "busyspheres" screensaver running in the XScreensaver preview window
-is what killed it, after running glxgears and the biof screensaver. 
-"busyspheres" and "biof" are part of the "Really Slick Screensavers",
-available from reallyslick.com
+Hey, if I insulted Al Viro I'd never expect him to help me (respond,
+point out mistakes etc.) anymore. Besides that, Al saved me from diving
+into floppy.c, for which I'm still thankful.
 
-A snippet from the kernel dmesg log:
-
-Linux agpgart interface v0.100 (c) Dave Jones
-agpgart: Detected Intel i820 chipset
-agpgart: Maximum main memory to use for agp memory: 564M
-agpgart: AGP aperture is 64M @ 0xf8000000
-[drm] Initialized mga 3.1.0 20021029 on minor 0
-
-And some perhaps-useful bits from the XFree86 log:
-
-(--) PCI:*(1:0:0) Matrox Graphics, Inc. MGA G200 AGP rev 3, Mem @
-0xf5000000/24, 0xf4800000/14, 0xf4000000/23
-
-(II) LoadModule: "dri"
-(II) Loading /usr/X11R6/lib/modules/extensions/libdri.a
-(II) Module dri: vendor="The XFree86 Project"
-        compiled for 4.3.0, module version = 1.0.0
-        ABI class: XFree86 Server Extension, version 0.2
-(II) Loading sub module "drm"
-(II) LoadModule: "drm"
-(II) Loading /usr/X11R6/lib/modules/linux/libdrm.a
-(II) Module drm: vendor="The XFree86 Project"
-        compiled for 4.3.0, module version = 1.0.0
-        ABI class: XFree86 Server Extension, version 0.2
-(II) Loading extension XFree86-DRI
-
-
-(II) LoadModule: "mga"
-(II) Loading /usr/X11R6/lib/modules/drivers/mga_drv.o
-(II) Module mga: vendor="The XFree86 Project"
-        compiled for 4.3.0, module version = 1.1.0
-        Module class: XFree86 Video Driver
-        ABI class: XFree86 Video Driver, version 0.6
-
-(II) MGA: driver for Matrox chipsets: mga2064w, mga1064sg, mga2164w,
-        mga2164w AGP, mgag100, mgag100 PCI, mgag200, mgag200 PCI,
-mgag400,
-        mgag550
-(II) Primary Device is: PCI 01:00:0
-(--) Assigning device section with no busID to primary device
-(--) Chipset mgag200 found
-
-(--) MGA(0): Chipset: "mgag200"
-(**) MGA(0): Depth 16, (--) framebuffer bpp 16
-(==) MGA(0): RGB weight 565
-(==) MGA(0): Using AGP 1x mode
-(--) MGA(0): Linear framebuffer at 0xF5000000
-(--) MGA(0): MMIO registers at 0xF4800000
-(--) MGA(0): Pseudo-DMA transfer window at 0xF4000000
-(==) MGA(0): BIOS at 0xC0000
-(--) MGA(0): Video BIOS info block at offset 0x07AC0
-(--) MGA(0): Found and verified enhanced Video BIOS info block
-(II) MGA(0): MGABios.RamdacType = 0x0
-(==) MGA(0): Write-combining range (0xf5000000,0x1000000)
-(--) MGA(0): VideoRAM: 8192 kByte
-
-(==) MGA(0): Default visual is TrueColor
-(II) MGA(0): [drm] bpp: 16 depth: 16
-(II) MGA(0): [drm] Sarea 2200+664: 2864
-drmOpenDevice: minor is 0
-drmOpenDevice: node name is /dev/dri/card0
-drmOpenDevice: open result is 8, (OK)
-drmOpenDevice: minor is 0
-drmOpenDevice: node name is /dev/dri/card0
-drmOpenDevice: open result is 8, (OK)
-drmOpenDevice: minor is 0
-drmOpenDevice: node name is /dev/dri/card0
-drmOpenDevice: open result is 8, (OK)
-drmGetBusid returned ''
-(II) MGA(0): [drm] created "mga" driver at busid "PCI:1:0:0"
-(II) MGA(0): [drm] added 8192 byte SAREA at 0xe88be000
-(II) MGA(0): [drm] mapped SAREA 0xe88be000 to 0x4002b000
-(II) MGA(0): [drm] framebuffer handle = 0xf5000000
-(II) MGA(0): [drm] added 1 reserved context for kernel
-(II) MGA(0): [agp] Mode 0x1f000201 [AGP 0x8086/0x2501; Card
-0x102b/0x0521]
-(II) MGA(0): [drm] Disabling AGP 2x PLL encoding
-(II) MGA(0): [agp] 12288 kB allocated with handle 0x00000000
-(II) MGA(0): [agp] WARP microcode handle = 0xf8000000
-(II) MGA(0): [agp] WARP microcode mapped at 0x410e7000
-(II) MGA(0): [agp] Primary DMA handle = 0xf8008000
-(II) MGA(0): [agp] Primary DMA mapped at 0x410ef000
-(II) MGA(0): [agp] DMA buffers handle = 0xf8108000
-(II) MGA(0): [agp] DMA buffers mapped at 0x411ef000
-(II) MGA(0): [drm] Added 128 65536 byte DMA buffers
-(II) MGA(0): [agp] agpTexture handle = 0xf8908000
-(II) MGA(0): [agp] agpTexture size: 2816 kb
-(II) MGA(0): [drm] Registers handle = 0xf4800000
-(II) MGA(0): [drm] Status handle = 0xe90d7000
-(II) MGA(0): [agp] Status page mapped at 0x419ef000
-(II) MGA(0): [dri] visual configs initialized
-(II) MGA(0): Memory manager initialized to (0,0) (1024,1535)
-(II) MGA(0): Largest offscreen area available: 1024 x 767
-(II) MGA(0): Reserved back buffer at offset 0x300000
-(II) MGA(0): Reserved depth buffer at offset 0x480000
-(II) MGA(0): Reserved 2048 kb for textures at offset 0x600000
-(II) MGA(0): Using XFree86 Acceleration Architecture (XAA)
-
-I'd love it if I could get accelerated graphics running on this machine,
-but so far no luck.  If more information would be helpful I'd be happy
-to test and debug...
+Chris: Just a heads up - you may get private hate mail from Peter
+"Firefly" Lund like I did because you pointed out a mistake of the OP.
+So be warned about it.
 
 
--- 
-Torrey Hoffman <thoffman@arnor.net>
+Carl-Daniel
 

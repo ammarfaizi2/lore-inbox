@@ -1,75 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261268AbVCWUlD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261961AbVCWUlB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261268AbVCWUlD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 15:41:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261269AbVCWUiI
+	id S261961AbVCWUlB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 15:41:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261268AbVCWUi0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 15:38:08 -0500
-Received: from mailhub.lss.emc.com ([168.159.2.31]:6552 "EHLO
-	mailhub.lss.emc.com") by vger.kernel.org with ESMTP id S261268AbVCWUgj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 15:36:39 -0500
-From: Brett Russ <russb@emc.com>
-To: jgarzik@pobox.com
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-User-Agent: lksp 0.3
+	Wed, 23 Mar 2005 15:38:26 -0500
+Received: from fire.osdl.org ([65.172.181.4]:50341 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262909AbVCWUhP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 15:37:15 -0500
+Date: Wed, 23 Mar 2005 12:36:41 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Airlie <airlied@gmail.com>
+Cc: covici@ccs.covici.com, linux-kernel@vger.kernel.org,
+       benh@kernel.crashing.org, airlied@linux.ie
+Subject: Re: X not working with Radeon 9200 under 2.6.11
+Message-Id: <20050323123641.65ab0c91.akpm@osdl.org>
+In-Reply-To: <21d7e9970503231150263cfc5e@mail.gmail.com>
+References: <16937.54786.986183.491118@ccs.covici.com>
+	<20050321145301.3511c097.akpm@osdl.org>
+	<16959.25374.535872.507486@ccs.covici.com>
+	<20050321162214.71483708.akpm@osdl.org>
+	<21d7e9970503231150263cfc5e@mail.gmail.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Subject: [PATCH libata-dev-2.6 00/03] libata: scsi error handling improvements
-Message-ID: <20050323203514.D62A1893@lns1032.lss.emc.com>
-References: <20050317221753.0D09D0D9@lns1032.lss.emc.com> <4240FAB9.5040200@pobox.com>
-In-Reply-To: <4240FAB9.5040200@pobox.com>
-Date: Wed, 23 Mar 2005 15:36:29 -0500 (EST)
-X-PMX-Version: 4.7.1.128075, Antispam-Engine: 2.0.3.0, Antispam-Data: 2005.3.23.11
-X-PerlMx-Spam: Gauge=, SPAM=7%, Reasons='__CT 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __SANE_MSGID 0'
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-These patches are a resubmit of patch 5/5 of the first series
-submitted 2005-03-17.  Jeff requested that the single patch be split
-into a suggested 3 smaller patches; the results are below.  I also
-took this opportunity to further clean up the changes.
+Dave Airlie <airlied@gmail.com> wrote:
+>
+> > 
+>  > It's a bit sad that xfree _used_ to work (2.6.9?) and now it doesn't work,
+>  > and the fix is to switch to the x.org server.
+>  > 
+>  > Do we know what changed to cause this?  Was it deliberate?
+> 
+>  If I was a guessing man and I am due to lack of time.. I'd say the
+>  address space layout changes ..
 
-[ Start of patch descriptions ]
+Ow.  I never saw any such reports.
 
-01_libata_libata-whitespace.patch
-	: whitespace updates
+It should be pretty easy to test that: do
 
-	This patch adjusts some whitespace to bring the format of
-	libata-scsi.c to a consistent state.
+	echo 1 > /proc/sys/vm/legacy_va_layout
 
-02_libata_ata_dump_status.patch
-	: create/use ata_dump_status()
-
-	This patch introduces the ata_dump_status() function, which
-	for now is called from ata_to_sense_error() only.
-
-03_libata_rework-cc-generation.patch
-	: rework check condition handling
-
-	This patch refactors the check condition creation within
-	libata.  Changes include:
-
-	- ata_to_sense_error() now *only* performs the translation
-          from an ATA status/error register combination to a SCSI
-          SK/ASC/ASCQ combination.  Additionally, the translation is
-          logged at level KERNEL_ERR and any untranslatable combos are
-          logged at level KERNEL_WARNING.
-
-	- ata_dump_status() is modified to take a taskfile struct as
-          argument in preparation for a future patch which will add
-          proper display of the failing location (LBA or CHS)
-
-	- created ata_gen_fixed_sense() to generate a fixed length CC
-          sense block.
-
-	- ata_pass_thru_cc() has been renamed to
-          ata_gen_ata_desc_sense() to fit the naming convention
-          mentioned above.  Its guts were changed a bit as well.
-
-	- ata_scsi_qc_complete() has been modified to fix a bug where
-          ATA_12/16 commands would not generate a sense block on
-          error.  Other changes made here as well, including the call
-          to ata_dump_status().
-
-[ End of patch descriptions ]
+before starting X.
 

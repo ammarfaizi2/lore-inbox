@@ -1,45 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270183AbTGZQ1a (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 12:27:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270185AbTGZQ1a
+	id S270388AbTGZQa5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 12:30:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270189AbTGZQa5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 12:27:30 -0400
-Received: from dm4-160.slc.aros.net ([66.219.220.160]:9860 "EHLO cyprus")
-	by vger.kernel.org with ESMTP id S270183AbTGZQ13 (ORCPT
+	Sat, 26 Jul 2003 12:30:57 -0400
+Received: from fw.osdl.org ([65.172.181.6]:40905 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270429AbTGZQaw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 12:27:29 -0400
-Message-ID: <3F22AF7E.1080601@aros.net>
-Date: Sat, 26 Jul 2003 10:42:38 -0600
-From: Lou Langholtz <ldl@aros.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       LKML <linux-kernel@vger.kernel.org>, mingo@elte.hu
-Subject: Re: Ingo Molnar and Con Kolivas 2.6 scheduler patches
-References: <1059211833.576.13.camel@teapot.felipe-alfaro.com> <200307261142.43277.m.c.p@wolk-project.de> <200307270047.54349.kernel@kolivas.org>
-In-Reply-To: <200307270047.54349.kernel@kolivas.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 26 Jul 2003 12:30:52 -0400
+Date: Sat, 26 Jul 2003 09:43:17 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Does sysfs really provides persistent hardware path to devices?
+Message-Id: <20030726094317.7976a350.rddunlap@osdl.org>
+In-Reply-To: <200307262036.13989.arvidjaar@mail.ru>
+References: <200307262036.13989.arvidjaar@mail.ru>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
+On Sat, 26 Jul 2003 20:36:13 +0400 Andrey Borzenkov <arvidjaar@mail.ru> wrote:
 
->. . .
->Actually this is not strange to me. It has become obvious that the problems 
->with interactivity that have evolved in 2.5 are not scheduler related. Just 
->try plugging in all the old 2.4 O(1) scheduler settings into the current 
->scheduler and you will see that it still performs badly. What exactly is the 
->cause is a mystery but seems to be more a combination of factors with a 
->careful look at the way the vm behaves being part of that. . . .
->
-Any chance that the problem may be due to the block layer system (and 
-block driver(s)) getting more cycles than it should? Particularly with 
-the out-of-band like work queue scheduling? That would at least explain 
-the scheduling oddities I'm seeing with 2.6.0-test1 after a minute of so 
-of intense I/O.
+| 
+| As far as I can tell sysfs device names include logical bus numbers which 
+| means, if hardware is added or removed it is possible names do change.
+|  
+| Example:
+| 
+| /sys/devices/pci0000:00/0000:00:1f.4/usb2/2-2/2-2.1/2-2.1:0/host1/1:0:0:0
+| 
+| PCI part reflects bus number. Now this example is trivial in that it is 
+| integrated USB controller so it is unlikely to ever change its number - but 
+| if it were external controller (and even worse with PCI-to-PCI bridge) it is 
+| likely that adding extra card would shift all numbers.
+| 
+| And USB part of name starts with logical USB bus number i.e. it is obvious 
+| that adding one more USB adapter will definitely change it.
+| 
+| So apparently I cannot rely on sysfs to get reliable persistent information 
+| about physical location of devices.
+| 
+| the point is - I want to create aliases that would point to specific slots. 
+| I.e. when I plug USB memory stick in upper slot on front panel I'd like to 
+| always create the same device alias for it.
 
+You'll probably get a barrage of replies...
+
+You want udev + namedev, userspace naming policy.  See the recent
+udev announcements from Greg Kroah-Hartman.
+
+udev/namedev use sysfs device tree info to apply device naming policy.
+
+>From Greg's version 0.2 announcement:
+<quotes>
+kernel.org/pub/linux/utils/kernel/hotplug/udev-0.2.tar.gz
+
+There's a BitKeeper tree of the latest stuff available at:
+	bk://kernel.bkbits.net/gregkh/udev/
+
+I've also placed the slides from my OLS talk up at:
+	http://www.kroah.com/linux/talks/ols_2003_udev_talk/
+
+The paper which attempts to explain the background of udev, what it
+does, and where it is going is at:
+	http://archive.linuxsymposium.org/ols2003/Proceedings/All-Reprints/Reprint-Kroah-Hartman-OLS2003.pdf
+</selected quotes>
+
+There's more in the announcment email.  This is still early code,
+so there's much more to be done on it, but the demo yesterday looked
+very good.
+
+--
+~Randy
+| http://developer.osdl.org/rddunlap/ | http://www.xenotime.net/linux/ |
+For Linux-2.6:
+http://www.codemonkey.org.uk/post-halloween-2.5.txt
+  or http://lwn.net/Articles/39901/
+http://www.kernel.org/pub/linux/kernel/people/rusty/modules/

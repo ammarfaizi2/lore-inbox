@@ -1,70 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261273AbVAMR4U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261335AbVAMR7R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261273AbVAMR4U (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 12:56:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbVAMRzi
+	id S261335AbVAMR7R (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 12:59:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbVAMR5J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 12:55:38 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:3036 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261278AbVAMRxw (ORCPT
+	Thu, 13 Jan 2005 12:57:09 -0500
+Received: from mail.enyo.de ([212.9.189.167]:11409 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id S261247AbVAMRxB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 12:53:52 -0500
-Date: Thu, 13 Jan 2005 09:53:39 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, jtk@us.ibm.com, wtaber@us.ibm.com,
-       pbadari@us.ibm.com, markv@us.ibm.com, gregkh@us.ibm.com,
-       tytso@us.ibm.com, suparna@in.ibm.com
-Subject: Re: [PATCH] fs: Restore files_lock and set_fs_root exports
-Message-ID: <20050113175339.GE1269@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20050106190538.GB1618@us.ibm.com> <1105039259.4468.9.camel@laptopd505.fenrus.org> <20050106201531.GJ1292@us.ibm.com> <20050106203258.GN26051@parcelfarce.linux.theplanet.co.uk> <20050106210408.GM1292@us.ibm.com> <20050106212417.GQ26051@parcelfarce.linux.theplanet.co.uk> <20050107010119.GS1292@us.ibm.com> <20050113025157.GA2849@us.ibm.com> <1105601758.6031.6.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
+	Thu, 13 Jan 2005 12:53:01 -0500
+From: Florian Weimer <fw@deneb.enyo.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: thoughts on kernel security issues
+References: <20050112094807.K24171@build.pdx.osdl.net>
+	<Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org>
+	<20050112185133.GA10687@kroah.com>
+	<Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org>
+	<20050112161227.GF32024@logos.cnet>
+	<Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org>
+	<20050112174203.GA691@logos.cnet>
+	<1105627541.4624.24.camel@localhost.localdomain>
+Date: Thu, 13 Jan 2005 18:52:56 +0100
+In-Reply-To: <1105627541.4624.24.camel@localhost.localdomain> (Alan Cox's
+	message of "Thu, 13 Jan 2005 15:36:27 +0000")
+Message-ID: <87vfa1gqrr.fsf@deneb.enyo.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1105601758.6031.6.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 13, 2005 at 08:35:58AM +0100, Arjan van de Ven wrote:
-> On Wed, 2005-01-12 at 18:51 -0800, Paul E. McKenney wrote:
-> > On Thu, Jan 06, 2005 at 05:01:19PM -0800, Paul E. McKenney wrote:
-> > > On Thu, Jan 06, 2005 at 09:24:17PM +0000, Al Viro wrote:
-> > > > "Use recursive bindings instead of trying to take over the entire mount tree
-> > > > and mirroring it within your fs code.  And do that explicitly from userland".
-> > > 
-> > > Thank you for the pointer!  By this, you mean do mount operations in
-> > > conjunction with namespaces, right?
-> > > 
-> > > I will follow up with more detail as I learn more.  The current issue
-> > > seems to be with removeable devices.  Their users want to be accessing
-> > > a particular version, but still see a memory stick that was subsequently
-> > > mounted outside of the view.  Straightforward use of mounts and namespaces
-> > > would prevent the memory stick from being visible to users that were
-> > > already in view.
-> > 
-> > OK, after much thrashing, here is what the ClearCase users need.
-> > Sorry for the length -- the first few paragraphs gives the flavor of
-> > it and the rest goes into more detail with examples.
-> > 
-> > Thoughts?
-> > 
-> 
-> Interesting; so clearcase mvfs currently extends the linux VFS to do all
-> this.... It would be very interesting to get these extensions to linux
-> posted on this mailing list in patch form, since it could well be a nice
-> generic enhancement of linux. (Assuming Al doesn't go WTF over the code
-> of course :-)
+* Alan Cox:
 
-Just given the interfaces it makes use of, I would guess that Al would
-more than go WTF over the current code.  Most would probably say that the
-current code does not extend Linux VFS, but rather subverts it.  Plus it
-was written by people without any history of Linux-kernel development,
-so one would anticipate much heartburn over style and usage issues.  ;-)
+> We cannot do this without the reporters permission. Often we get
+> material that even the list isn't allowed to directly see only by
+> contacting the relevant bodies directly as well. The list then just
+> serves as a "foo should have told you about issue X" notification.
+>
+> If you are setting up the list also make sure its entirely encrypted
+> after the previous sniffing incident.
 
-All that aside, if you really really want to see it, I will see what I
-can do about getting it to you.
+Others have had made good use of symmetric encryption with OpenPGP
+(the CAST5 cipher seems most interoperable).  New symmetric keys are
+distributed twice per year, using the participants OpenPGP public
+keys.
 
-							Thanx, Paul
+(There are also various implementations of reencrypting mailing lists,
+but they cannot ensure end-to-end encryption.)

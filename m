@@ -1,64 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272132AbTGYO4x (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 10:56:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272135AbTGYO4x
+	id S272135AbTGYO5L (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 10:57:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272136AbTGYO5L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 10:56:53 -0400
-Received: from smtp-105-friday.noc.nerim.net ([62.4.17.105]:43015 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S272132AbTGYO4t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 10:56:49 -0400
-To: Larry McVoy <lm@work.bitmover.com>
-Cc: Jesse Pollard <jesse@cats-chateau.net>, Larry McVoy <lm@bitmover.com>,
-       Leandro Guimar?es Faria Corsetti Dutra 
-	<lgcdutra@terra.com.br>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Switching to the OSL License, in a dual way.
-Mail-Copies-To: nobody
-References: <pan.2003.07.24.18.06.06.546220@terra.com.br>
-	<pan.2003.07.24.21.05.40.969654@terra.com.br>
-	<20030724215744.GA7777@work.bitmover.com> <03072508173301.16381@tabby>
-	<20030725145534.GB13840@work.bitmover.com>
-From: kilobug@freesurf.fr (=?iso-8859-1?q?Ga=EBl_Le_Mignot?=)
-Organization: HurdFr - http://hurdfr.org
-X-PGP-Fingerprint: 1F2C 9804 7505 79DF 95E6 7323 B66B F67B 7103 C5DA
-Date: Fri, 25 Jul 2003 17:15:33 +0200
-In-Reply-To: <20030725145534.GB13840@work.bitmover.com> (Larry McVoy's
- message of "Fri, 25 Jul 2003 07:55:34 -0700")
-Message-ID: <plopm3oeziy6wa.fsf@drizzt.kilobug.org>
-User-Agent: Gnus/5.1003 (Gnus v5.10.3) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 25 Jul 2003 10:57:11 -0400
+Received: from h80ad26ab.async.vt.edu ([128.173.38.171]:8066 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S272135AbTGYO5F (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 10:57:05 -0400
+Message-Id: <200307251512.h6PFCD9g004415@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Duncan Sands <baldrick@wanadoo.fr>
+Cc: koraq@xs4all.nl, linux-kernel@vger.kernel.org
+Subject: Re: [2.4.22-pre7] speedtouch.o unresolved symbols 
+In-Reply-To: Your message of "Fri, 25 Jul 2003 16:43:31 +0200."
+             <200307251643.32003.baldrick@wanadoo.fr> 
+From: Valdis.Kletnieks@vt.edu
+References: <20030724202048.GA16411@spearhead> <200307250855.24218.baldrick@wanadoo.fr> <200307251426.h6PEQs9g003992@turing-police.cc.vt.edu>
+            <200307251643.32003.baldrick@wanadoo.fr>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1752085672P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Fri, 25 Jul 2003 11:12:13 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- >> Nonesense. If the business no longer has the licence to use BK (for
- >> whatever reason) then it no longer has access to the data. Now to
- >> get access to the data you must reverse engineer BK...
+--==_Exmh_1752085672P
+Content-Type: text/plain; charset=us-ascii
 
- > Oh, I see, you violate our license, your license is revoked, and
- > now you have the write to reverse engineer BK?  Show me the law which 
- > says that is true.
+On Fri, 25 Jul 2003 16:43:31 +0200, Duncan Sands said:
 
-I was working  on a project during  my free time using BK,  and then I
-get employed  by a company  contributing to Subversion. My  license is
-then void, but I want to be  able to still use the files and servers I
-used before. Reverse is allowed, and moral, in this case.
+> From drivers/usb/Config.in
+> 
+>    if [ "$CONFIG_ATM" = "y" -o "$CONFIG_ATM" = "m" ]; then
+>       dep_tristate '  Alcatel Speedtouch USB support' CONFIG_USB_SPEEDTOUCH $CONFIG_ATM $CONFIG_USB
+>    fi
+> 
+> Now the question is: why is this not enough?
 
- > BK has a command that will take a BK tree and produce pure SCCS files,
- > there is even a GNU SCCS clone so tell me again you need to go poking
- > around in BK?
+Hmm.. I don't have a 22-pre7 tree handy, what's the relevant reference in
+drivers/usb/Makefile look like?  I'm guessing a missing 'ifeq' or
+obj-$(CONFIG_mumble) in there, so speedtch.o gets build even if the
+required flags aren't set?
 
-Without any lose of data and meta-data ?
-And still, my license being void, how could I do that ?
+Other possibility is a missing EXPORT_SYMBOL() that's horquing things up
+if you have CONFIG_ATM=m rather than y? (Yes, I know it's a 'bool' in net/Config.in,
+doesn't mean you can't get an 'm' in there anyhow. ;)
 
-(of course, I am not in this  case - I'll never be crazy enough to use
-a non-free software to store my data).
+--==_Exmh_1752085672P
+Content-Type: application/pgp-signature
 
--- 
-Gael Le Mignot "Kilobug" - kilobug@nerim.net - http://kilobug.free.fr
-GSM         : 06.71.47.18.22 (in France)   ICQ UIN   : 7299959
-Fingerprint : 1F2C 9804 7505 79DF 95E6 7323 B66B F67B 7103 C5DA
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-Member of HurdFr: http://hurdfr.org - The GNU Hurd: http://hurd.gnu.org
+iD8DBQE/IUjNcC3lWbTT17ARAoZWAKDBMXat8FpXjp02DKoDkjDNtpr/FQCcDx1G
+UUhfnuoDG5SX+XmUt3NqYwM=
+=OyGy
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1752085672P--

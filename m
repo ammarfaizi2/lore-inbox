@@ -1,63 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267385AbSLEVM2>; Thu, 5 Dec 2002 16:12:28 -0500
+	id <S267457AbSLEVJ7>; Thu, 5 Dec 2002 16:09:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267393AbSLEVEE>; Thu, 5 Dec 2002 16:04:04 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:4868 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S267385AbSLEU5z>;
-	Thu, 5 Dec 2002 15:57:55 -0500
-Date: Thu, 5 Dec 2002 18:06:40 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Grover, Andrew" <andrew.grover@intel.com>
-Cc: "'Arjan van de Ven'" <arjanv@redhat.com>, marcelo@conectiva.com.br,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] ACPI updates
-Message-ID: <20021205170640.GA731@elf.ucw.cz>
-References: <EDC461A30AC4D511ADE10002A5072CAD04C7A56D@orsmsx119.jf.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <EDC461A30AC4D511ADE10002A5072CAD04C7A56D@orsmsx119.jf.intel.com>
-User-Agent: Mutt/1.4i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S267455AbSLEVJN>; Thu, 5 Dec 2002 16:09:13 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:21767 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267429AbSLEVI7>; Thu, 5 Dec 2002 16:08:59 -0500
+Message-ID: <3DEFC1E8.6070408@zytor.com>
+Date: Thu, 05 Dec 2002 13:15:20 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021119
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Large block device patch, part 1 of 9
+References: <p73u1l7qbxs.fsf@oldwotan.suse.de> <Pine.LNX.4.44.0209030113420.12861-100000@kiwi.transmeta.com> <asgsir$p18$1@cesium.transmeta.com> <20021205105817.GC127@elf.ucw.cz>
+In-Reply-To: <20021205105817.GC127@elf.ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Pavel Machek wrote:
+>>
+>>While we're talking about printk()... is there any reason *not* to
+>>rename it printf()?
+> 
+> I believe printf() is good idea. I put printk() into userland programs
+> too many times now, and used printf() too many times from kernel.
+ >
 
-> > From: Arjan van de Ven [mailto:arjanv@redhat.com] 
-> > > Is your concern with the code, or the cmdline option? We 
-> > could certainly
-> > 
-> > the code, not so much the commandline option (that one is not used
-> > in practice), but actually my biggest concern is that you 
-> > break existing
-> > setups, or at least change it more than needed. There is ZERO need to
-> > remove the existing working (and lean) code, even though your 
-> > code might
-> > also be able to do the same. It means people suddenly need to 
-> > change all
-> > kinds of config options, it's different code so will work slightly
-> > different... unifying 2.5 is nice and all but there's no need for that
-> > here since both implementations can coexist trivially (as the 
-> > United Linux
-> > kernel shows)
-> 
-> Well maybe that's what we should do - use the UnitedLinux ACPI patch (which
-> iirc is based on fairly recent ACPI code, and presumably minimizes
-> ACPI-related breakage) and then proceed incrementally from there?
-> 
-> Sound OK? Marcelo? UL folks?
-> 
-> Regards -- Andy
-> 
-> PS probably involve some work breaking out the ACPI stuff from the UL patch
-> as a whole, or maybe (???) the UL people already have it broken out?
+The only reason I can think of *not* to call it printf() is that you may 
+want to do something for userspace testing like:
 
-I guess it will be better if you push acpi patch without killing those
-backup solutions. Extractign blacklist from UL might be worth it,
-through.
-									Pavel
--- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+#define printk(X, Y...) fprintf(stderr, X, ## Y)
+
+	-hpa
+
+

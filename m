@@ -1,79 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265319AbUBFCjS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 21:39:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265335AbUBFCjS
+	id S265335AbUBFCkj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 21:40:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265373AbUBFCkj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 21:39:18 -0500
-Received: from relay01.roc.ny.frontiernet.net ([66.133.131.34]:18076 "EHLO
-	relay01.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
-	id S265319AbUBFCjN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 21:39:13 -0500
-Message-ID: <4021AC9F.4090408@xfs.org>
-Date: Wed, 04 Feb 2004 20:38:23 -0600
-From: Steve Lord <lord@xfs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
+	Thu, 5 Feb 2004 21:40:39 -0500
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:47048 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S265335AbUBFCke (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 21:40:34 -0500
+Date: Thu, 5 Feb 2004 21:40:31 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: =?koi8-r?Q?=22?=Good Oleg=?koi8-r?Q?=22=20?= 
+	<olecom.gnu-linux@mail.ru>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG]: kernel BUG at mm/swapfile.c:806! (2.6)
+In-Reply-To: <E1AouoU-000Fke-00.olecom-gnu-linux-mail-ru@f6.mail.ru>
+Message-ID: <Pine.LNX.4.44.0402052139160.8446-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       kenneth.w.chen@intel.com
-Subject: Re: Limit hash table size
-References: <B05667366EE6204181EABE9C1B1C0EB5802441@scsmsx401.sc.intel.com.suse.lists.linux.kernel>	<20040205155813.726041bd.akpm@osdl.org.suse.lists.linux.kernel> <p73isilkm4x.fsf@verdi.suse.de>
-In-Reply-To: <p73isilkm4x.fsf@verdi.suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> Andrew Morton <akpm@osdl.org> writes:
-> 
-> 
->>Ken, I remain unhappy with this patch.  If a big box has 500 million
->>dentries or inodes in cache (is possible), those hash chains will be more
->>than 200 entries long on average.  It will be very slow.
-> 
-> 
-> How about limiting the global size of the dcache in this case ? 
-> 
-> I cannot imagine a workload where it would make sense to ever cache 
-> 500 million dentries. It just risks to keep the whole file system
-> after an updatedb in memory on a big box, which is not necessarily
-> good use of the memory.
-> 
-> Limiting the number of dentries would keep the hash chains at a 
-> reasonable length too and somewhat bound the worst case CPU 
-> use for cache misses and search time in cache lookups.
-> 
+On Fri, 6 Feb 2004, [koi8-r] "Good Oleg[koi8-r] "  wrote:
 
-This is not directly on the topic of hash chain length but related.
+> Feb  6 02:26:27 gluon kernel: ------------[ cut here ]------------
+> Feb  6 02:26:27 gluon kernel: kernel BUG at mm/swapfile.c:806!
+> Feb  6 02:26:27 gluon kernel: invalid operand: 0000 [#1]
+> Feb  6 02:26:27 gluon kernel: CPU:    0
+> Feb  6 02:26:27 gluon kernel: EIP:    0060:[<c015c7c4>]    Tainted: PFS
+                                                                      ^^^
+> Feb  6 02:26:27 gluon kernel: EFLAGS: 00010246
+> Feb  6 02:26:27 gluon kernel: EIP is at map_swap_page+0x34/0x60
 
-I have seen some dire cases with the dcache, SGI had some boxes with
-millions of files out there, and every night a cron job would come
-along and suck them all into memory. Resources got tight at some point,
-and as more inodes and dentries were being read in, the try to free
-pages path was continually getting called. There was always something
-in filesystem cache which could get freed, and the inodes and dentries
-kept getting more and more of the memory.
+Can you reproduce the problem without proprietary drivers loaded ?
 
-The fact that directory dcache entries are hard to get rid of because
-they have children and the directory dcache entries pinned pages in
-the cache meant that even if you could persuade the system to run a
-prune_dcache, it did not free much of the memory.
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 
-Some sort of scheme where instead of a memory allocate for a new dcache
-first attempting to push out file contents, it first attempted to prune
-a few old dcache entries instead might go a long way in this area.
 
-Now if there was some way of knowing in advance what a new dcache entry
-would be for (directory or leaf node), at least they could be seperated
-into distinct caches - but that would take some work I suspect. How
-you balance between getting fresh pages and reclaiming old dentries
-is the hard part.
-
-Hmm, looks like Pavel maybe just hit something along these lines... see
-
-'2.6.2 extremely unresponsive after rsync backup'
-
-Steve

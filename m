@@ -1,47 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266907AbSLDEuU>; Tue, 3 Dec 2002 23:50:20 -0500
+	id <S266916AbSLDFCv>; Wed, 4 Dec 2002 00:02:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266908AbSLDEuU>; Tue, 3 Dec 2002 23:50:20 -0500
-Received: from dp.samba.org ([66.70.73.150]:50061 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S266907AbSLDEuT>;
-	Tue, 3 Dec 2002 23:50:19 -0500
-Date: Wed, 4 Dec 2002 15:54:20 +1100
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: peterc@gelato.unsw.edu.au, linux-kernel@vger.kernel.org
-Subject: Re: Ejecting an orinoco card causes hang
-Message-ID: <20021204045420.GI1564@zax.zax>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Russell King <rmk@arm.linux.org.uk>, peterc@gelato.unsw.edu.au,
-	linux-kernel@vger.kernel.org
-References: <15797.63740.520358.783516@wombat.chubb.wattle.id.au> <20021023085501.A22736@flint.arm.linux.org.uk>
+	id <S266915AbSLDFCu>; Wed, 4 Dec 2002 00:02:50 -0500
+Received: from mail.webmaster.com ([216.152.64.131]:49881 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S266911AbSLDFCu> convert rfc822-to-8bit; Wed, 4 Dec 2002 00:02:50 -0500
+From: David Schwartz <davids@webmaster.com>
+To: <andrew@erlenstar.demon.co.uk>
+CC: <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.63 (1077) - Licensed Version
+Date: Tue, 3 Dec 2002 21:10:20 -0800
+In-Reply-To: <871y4yidx3.fsf@erlenstar.demon.co.uk>
+Subject: Re: bincancels in linux.kernel
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021023085501.A22736@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset="euc-kr"
+Content-Transfer-Encoding: 8BIT
+Message-ID: <20021204051021.AAA23886@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 23, 2002 at 08:55:02AM +0100, Russell King wrote:
-> On Wed, Oct 23, 2002 at 11:18:52AM +1000, peterc@gelato.unsw.edu.au wrote:
-> > 4.  Transferring lots of data causes the link to collapse, and the
-> >     logs to fill up with `eth0: Error -110 writing Tx descriptor to
-> >     BAP' messages
-> 
-> I see type of behaviour this with an Orinoco Silver card while trying to
-> set the mode/essid.  I took the wvlan_cs code from my RH7.2 box and dropped
-> it into 2.5 - seems to work (although how reliable it is I don't know yet;
-> I need to get something for this card to talk to.)
 
-Sadly, I'm still battling this particular problem.  However, I have
-just fixed a bug which could cause hangs on eject.  It's in the
-"testing" version at
-http://www.ozlabs.org/people/dgibson/dldwd/testing.
+On 04 Dec 2002 04:52:24 +0000, Andrew Gierth wrote:
+>>>>>> "David" == David Schwartz <davids@webmaster.com> writes:
 
--- 
-David Gibson			| For every complex problem there is a
-david@gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson
+>David>         Spam is bad, but suppressing useful legitimate content
+>David> because of unsophisticated spam-checking algorithms
+
+>this is nothing to do with spam; that's not the only form of abuse that
+>exists.
+
+	My arguments apply equal well to all forms of abuse.
+
+>Perhaps you also missed the point from my first message that a) I don't
+>intentionally receive the linux.* groups and therefore had not previously
+>needed to consider whether they were getting binaries and b) that I stopped
+>as soon as this was drawn to my attention. (I did already have in place
+>exemptions for all the generally-known binaries hierarchies.)
+
+	No, I caught those points. However, you cut the comments I was responding to 
+and then pretended that I was responding to your actions. You said:
+
+>well, I would have to disagree (even if you don't think that binaries
+>coming via the mailing list would be a problem, there is still the
+>question of binaries posted via news - and the recent levels of abuse
+>in comp.binaries.*.d, rec.*, vmsnet.* etc. suggests that there are
+>plenty of people who are happy to post binaries anywhere they can
+>regardless of the real purpose of a group)
+
+	And *that* is what I was responding to.
+
+	DS
+
+

@@ -1,31 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281805AbRLGOzD>; Fri, 7 Dec 2001 09:55:03 -0500
+	id <S281797AbRLGOyx>; Fri, 7 Dec 2001 09:54:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281795AbRLGOyy>; Fri, 7 Dec 2001 09:54:54 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:65285 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S281780AbRLGOyj>;
-	Fri, 7 Dec 2001 09:54:39 -0500
-Date: Fri, 7 Dec 2001 15:54:31 +0100
+	id <S281795AbRLGOyh>; Fri, 7 Dec 2001 09:54:37 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:63749 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S281780AbRLGOxJ>;
+	Fri, 7 Dec 2001 09:53:09 -0500
+Date: Fri, 7 Dec 2001 15:51:07 +0100
 From: Jens Axboe <axboe@suse.de>
-To: rwhron@earthlink.net
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: Oops on 2.5.1-pre6 doing mkreiserfs on loop device
-Message-ID: <20011207145431.GI12017@suse.de>
-In-Reply-To: <20011206233759.A173@earthlink.net> <20011207144836.GF12017@suse.de>
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>, linux-kernel@vger.kernel.org
+Subject: Re: new bio: compile fix for alpha
+Message-ID: <20011207145107.GG12017@suse.de>
+In-Reply-To: <20011129165456.A13610@jurassic.park.msu.ru> <20011129152339.M10601@suse.de> <20011206204330.A608@jurassic.park.msu.ru> <20011206182318.GI4996@suse.de> <20011206113941.B22810@vger.timpanogas.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20011207144836.GF12017@suse.de>
+In-Reply-To: <20011206113941.B22810@vger.timpanogas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 07 2001, Jens Axboe wrote:
-> +	bio_for_each_segment(bvec, bio, i) {
-> +		org_vec = &bio_orig->bi_io_vec[0];
-                                               ^
+On Thu, Dec 06 2001, Jeff V. Merkey wrote:
+> 
+> Jens,
+> 
+> This interface is totally cool and much appreciated.  I am 
+> nearly done getting the page cache mapped into NWFS.  I am 
+> waiting for the bugs to settle down, I still see some issues
+> with the AHA1512 drivers, but IDE works great and is 
+> really fast.
 
-argh, that should read 'i' and not '0' of course.
+Great, glad to hear it. There will be "issues" for a while :-)
 
 -- 
 Jens Axboe

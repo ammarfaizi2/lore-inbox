@@ -1,58 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261427AbTC0WEQ>; Thu, 27 Mar 2003 17:04:16 -0500
+	id <S261404AbTC0WBI>; Thu, 27 Mar 2003 17:01:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261424AbTC0WEB>; Thu, 27 Mar 2003 17:04:01 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:50661 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S261412AbTC0WDD>; Thu, 27 Mar 2003 17:03:03 -0500
-Date: Thu, 27 Mar 2003 23:14:11 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: YOKOTA Hiroshi <yokota@netlab.is.tsukuba.ac.jp>,
-       GOTO Masanori <gotom@debian.or.jp>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] fix nsp32.c .text.exit error
-Message-ID: <20030327221410.GE24744@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	id <S261406AbTC0WBI>; Thu, 27 Mar 2003 17:01:08 -0500
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:50184 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S261404AbTC0WBI>; Thu, 27 Mar 2003 17:01:08 -0500
+Date: Thu, 27 Mar 2003 23:12:16 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Andries.Brouwer@cwi.nl
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 64-bit kdev_t - just for playing
+In-Reply-To: <UTC200303272027.h2RKRbf27546.aeb@smtp.cwi.nl>
+Message-ID: <Pine.LNX.4.44.0303272245490.5042-100000@serv>
+References: <UTC200303272027.h2RKRbf27546.aeb@smtp.cwi.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-In drivers/scsi/nsp32.c the function nsp32_remove is __devexit but the
-pointer to it isn't __devexit_p resulting in a .text.exit compile error 
-if !CONFIG_HOTPLUG.
+On Thu, 27 Mar 2003 Andries.Brouwer@cwi.nl wrote:
 
-The following patch is needed:
+You must have overlooked some of my questions:
 
---- linux-2.4.21-pre6-full-nohotplug/drivers/scsi/nsp32.c.old	2003-03-27 22:35:04.000000000 +0100
-+++ linux-2.4.21-pre6-full-nohotplug/drivers/scsi/nsp32.c	2003-03-27 22:36:14.000000000 +0100
-@@ -2125,7 +2125,7 @@
- 	.name =		"nsp32",
- 	.id_table =	nsp32_pci_table,
- 	.probe =	nsp32_probe,
--	.remove =	nsp32_remove,
-+	.remove =	__devexit_p(nsp32_remove),
- #ifdef CONFIG_PM
- /*	.suspend =	nsp32_suspend,*/
- /*	.resume =	nsp32_resume,*/
+How are these disks registered and how will the dev_t number look like?
+How will the user know about these numbers?
+Who creates these device entries (user or daemon)?
 
+> > How is backward compatibility done, so that I can still boot a 2.4 kernel?
+> 
+> Old device numbers remain valid, so all changes are completely
+> transparent.
 
-This patch applies against 2.4.21-pre6 and 2.5.66. I've tested the 
-compilation with 2.4.21-pre6.
+SCSI has multiple majors, disks 0-15 are at major 8, disks 16-31 are at 
+65, ...., disks 112-127 are at major 71. Will this stay the same? Where 
+are the disk 128-xxx?
+Can I have now more than 15 partitions?
 
-
-Please apply
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+bye, Roman
 

@@ -1,83 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261756AbUDEKax (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 06:30:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261778AbUDEKax
+	id S261728AbUDEKfw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 06:35:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261795AbUDEKfw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 06:30:53 -0400
-Received: from fiberbit.xs4all.nl ([213.84.224.214]:4769 "EHLO
-	fiberbit.xs4all.nl") by vger.kernel.org with ESMTP id S261756AbUDEKaX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 06:30:23 -0400
-Date: Mon, 5 Apr 2004 12:30:08 +0200
-From: Marco Roeland <marco.roeland@xs4all.nl>
-To: James Vega <vega_james@lycos.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: fat32 all upper-case filename problem
-Message-ID: <20040405103008.GB12373@localhost>
-References: <4070910E.7020808@lycos.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <4070910E.7020808@lycos.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Mon, 5 Apr 2004 06:35:52 -0400
+Received: from wsp.xs4all.nl ([80.126.33.14]:9600 "EHLO wsprwl.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261728AbUDEKfn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 06:35:43 -0400
+Message-ID: <4071367B.2060103@xs4all.nl>
+Date: Mon, 05 Apr 2004 12:35:39 +0200
+From: Ruud Linders <rkmp@xs4all.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040121
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.x kernels and ttyS45 for 6 serial ports ?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday April 4th 2004 James Vega wrote:
 
-> I've run across an interesting problem with creating all upper-case 
-> files/direcotries on fat32 partitions.  After creating a file in all 
-> upper-case, I can access it for a short time using either the all 
-> upper-case name or the all lower-case name.  After a short amount of time 
-> (or a umount/mount), I can only access the file via the all lower-case 
-> name.  I'm currently using kernel 2.6.4, but I've been seeing this since at 
-> least November of last year.
-> 
-> Example:
- 
-You forgot a 'ls /usbdrive' *before* the 'touch'. Now we don't know
-whether it was empty before. We'll assume so.
+Some time ago I reported that serial ports numbering on 2.5.x/2.6.x
+was rather weird when used with a 4-serial port PCI card and 2
+standard onboard serial ports.
+I got devices ttyS0/1/14/15/2/3 or something.
 
-> debil% touch /usbdrive/CASE
-> debil% ls /usbdrive
-> case
+Now checking this on 2.6.5 it got more confusing, I now have with
+total of 6 serial ports a device number ttyS45 !?
 
-This suggests that you've mounted your usbdrive (vfat probably?)
-_specifically_ with the option to force lowercase filenames. The default
-is to preserve the case of the filename (to the filename *should* be CASE here)
-and to see both names as equals.
+The way this device numbering seems to work is that many device names
+are reserved in include/asm/serial.h for devices like fourport/boca/hub6.
+Anything else (=all PCI cards?) gets a number still unassigned.
 
-Another possibility is that there *was* already a file called 'case' and
-that the actual writing of the 'CASE' file in the directory is postponed
-until some sort of 'sync' operation. This also would need a
-specific 'case-sensitive' mount option.
+Note that eg. the SCSI disk equivalent of this strategy would be to
+reserver eg. sda-sde for IBM disks and other brands start
+numbering at sdf !
 
-> debil% ls /usbdrive/CASE
-> /usbdrive/CASE
-> debil% ls /usbdrive/case
-> /usbdrive/case
+Attached patch 'fixes' this for me, been using it for past
+6 months or so.
 
-The above normally can only happen if there really are *two* files, one
-name 'case' and the other 'CASE'. So a case sensitive filesystem.
+Regards,
+         Ruud Linders
 
-> debil% umount /usbdrive && mount /usbdrive
-> debil% ls /usbdrive/case
-> /usbdrive/case
-> debil% ls /usbdrive/CASE
-> ls: /usbdrive/CASE: No such file or directory
+__
 
-Looks like you have mounted the thing with case-sensitiviy *and* forcing
-lowercase filenames always. Either there is a bug in the combination,
-or perhaps there is a bug in that the uppercase name is cached for some
-time in VFS until the lowercase name is reread from the usbdrive?
+Dmesg from 2.6.5
+================
+Serial: 8250/16550 driver $Revision: 1.90 $ 48 ports, IRQ sharing enabled
+ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
+ttyS14 at I/O 0xb800 (irq = 21) is a 16550A
+ttyS15 at I/O 0xb808 (irq = 21) is a 16550A
+ttyS44 at I/O 0xb810 (irq = 21) is a 16550A
+ttyS45 at I/O 0xb818 (irq = 21) is a 16550A
 
-When you test this please be very careful to reproduce every start and
-end condition *exactly*. <Bad pun alert> It's very easy to look at
-Heisenbugs here, with all these virtual filenames in case space. </Bad
-pun alert>
+Applied this patch on stock 2.6.5
+=================================
+--- serial_core.c.ORIG  2004-03-19 18:29:20.000000000 +0100
++++ serial_core.c       2004-04-05 12:32:33.000000000 +0200
+@@ -2306,17 +2306,6 @@
+                         return &drv->state[i];
 
-In practice I'd suggest using default mount options, except perhaps the
-'uid=', 'gid=' and 'umask='.
--- 
-Marco Roeland
+         /*
+-        * We didn't find a matching entry, so look for the first
+-        * free entry.  We look for one which hasn't been previously
+-        * used (indicated by zero iobase).
+-        */
+-       for (i = 0; i < drv->nr; i++)
+-               if (drv->state[i].port->type == PORT_UNKNOWN &&
+-                   drv->state[i].port->iobase == 0 &&
+-                   drv->state[i].count == 0)
+-                       return &drv->state[i];
+-
+-       /*
+          * That also failed.  Last resort is to find any currently
+          * entry which doesn't have a real port associated with it.
+          */
+
+
+And now I get this more logical numbering
+=========================================
+Serial: 8250/16550 driver $Revision: 1.90 $ 48 ports, IRQ sharing enabled
+ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
+ttyS2 at I/O 0xb800 (irq = 21) is a 16550A
+ttyS3 at I/O 0xb808 (irq = 21) is a 16550A
+ttyS4 at I/O 0xb810 (irq = 21) is a 16550A
+ttyS5 at I/O 0xb818 (irq = 21) is a 16550A
+

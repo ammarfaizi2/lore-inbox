@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130773AbRCEXbc>; Mon, 5 Mar 2001 18:31:32 -0500
+	id <S130780AbRCEXhq>; Mon, 5 Mar 2001 18:37:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130774AbRCEXbW>; Mon, 5 Mar 2001 18:31:22 -0500
-Received: from jalon.able.es ([212.97.163.2]:32408 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S130773AbRCEXbJ>;
-	Mon, 5 Mar 2001 18:31:09 -0500
-Date: Tue, 6 Mar 2001 00:30:56 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Sergey Kubushin <ksi@cyberbills.com>
-Cc: "J . A . Magallon" <jamagallon@able.es>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.2ac12
-Message-ID: <20010306003056.C1136@werewolf.able.es>
-In-Reply-To: <20010305235629.A1136@werewolf.able.es> <Pine.LNX.4.31ksi3.0103051507140.12620-100000@nomad.cyberbills.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.31ksi3.0103051507140.12620-100000@nomad.cyberbills.com>; from ksi@cyberbills.com on Tue, Mar 06, 2001 at 00:13:24 +0100
-X-Mailer: Balsa 1.1.2
+	id <S130778AbRCEXhh>; Mon, 5 Mar 2001 18:37:37 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:20702 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S130777AbRCEXhW>;
+	Mon, 5 Mar 2001 18:37:22 -0500
+Message-ID: <3AA4232D.B0175ADC@mandrakesoft.com>
+Date: Mon, 05 Mar 2001 18:37:17 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: glouis@dynamicro.on.ca
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>
+Subject: Re: 3c509 2.4.2-ac12 compilation fails
+In-Reply-To: <20010305181408.A1075@athame.dynamicro.on.ca>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greg Louis wrote:
+> gcc -D__KERNEL__ -I/usr/src/linux-2.4.2ac12/include -Wall
+> -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe
+> -march=i686    -c -o 3c509.o 3c509.c
+> 3c509.c: In function 'el3_probe':
+> 3c509.c:330: structure has no member named 'name'
 
-On 03.06 Sergey Kubushin wrote:
-> On Mon, 5 Mar 2001, J . A . Magallon wrote:
-> 
-> > What that line does is to build a tool (aicasm) to generate the ucode
-> > that
-> > is built into the kernel (afaik, it is a kind of assembler from a
-> > language
-> > to AIC sequencer code). That is, the tool uses db1 (as mkdep.c uses
-> > glibc)
-> > but once you have generated the sequencer instructions, that is what is
-> > built
-> > into the kernel, not the tool (aicasm).
-> 
-> It's very nice... Now one should have not only special kgcc to build the
-> kernel, but also the obsolete library with all the development stuff
-> installed... Is it sane?
-> 
+hrm, I wonder if a patch got dropped before I sent it to Alan.  It not
+only compiles locally, but works on my router at home :)  
 
-What I dunno is why the h... is needed to rebuild the code everytime you build
-a kernel. Just ship the ucode and remove the aicasm subtree from kernel.
-Perhaps mrproper makes things too clean, and just should leave there the
-sequencer code.
+> --- drivers/net/3c509.c~        Mon Mar  5 17:41:37 2001
+> +++ drivers/net/3c509.c Mon Mar  5 17:52:57 2001
+> @@ -326,8 +326,8 @@
+>                                 return -EBUSY;
+>                         irq = idev->irq_resource[0].start;
+>                         if (el3_debug > 3)
+> -                               printk ("ISAPnP reports %s at i/o 0x%x, irq %d\n",
+> -                                       el3_isapnp_adapters[i].name, ioaddr, irq);
+> +                               printk ("ISAPnP reports %d at i/o 0x%x, irq %d\n",
+> +                                       el3_isapnp_adapters[i].card_device, ioaddr, 
+
+That should be s/name/driver_data/...
+
+/me begins to download and merge ac12...
 
 -- 
-J.A. Magallon                                                      $> cd pub
-mailto:jamagallon@able.es                                          $> more beer
-
-Linux werewolf 2.4.2-ac11 #1 SMP Sat Mar 3 22:18:57 CET 2001 i686
-
+Jeff Garzik       | "You see, in this world there's two kinds of
+Building 1024     |  people, my friend: Those with loaded guns
+MandrakeSoft      |  and those who dig. You dig."  --Blondie

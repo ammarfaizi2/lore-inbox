@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315783AbSEDGp2>; Sat, 4 May 2002 02:45:28 -0400
+	id <S315428AbSEDHKt>; Sat, 4 May 2002 03:10:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315784AbSEDGp1>; Sat, 4 May 2002 02:45:27 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:39880 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S315783AbSEDGp0>;
-	Sat, 4 May 2002 02:45:26 -0400
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15571.33592.365558.215598@argo.ozlabs.ibm.com>
-Date: Sat, 4 May 2002 16:44:08 +1000 (EST)
-To: Keith Owens <kaos@ocs.com.au>
+	id <S315784AbSEDHKs>; Sat, 4 May 2002 03:10:48 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:61023 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S315428AbSEDHKs>; Sat, 4 May 2002 03:10:48 -0400
+Date: Sat, 4 May 2002 09:09:29 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel 
-In-Reply-To: <11028.1020422524@ocs3.intra.ocs.com.au>
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+Subject: Re: 2.4.19pre8aa1 & vm-34: blkmtd.c compile failure
+Message-ID: <20020504090929.J1396@dualathlon.random>
+In-Reply-To: <20020503203738.E1396@dualathlon.random> <3CD32A4A.D8E86725@eyal.emu.id.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens writes:
+On Sat, May 04, 2002 at 10:24:42AM +1000, Eyal Lebedinsky wrote:
+> Andrea Arcangeli wrote:
+> > 
+> > Full patchkit:
+> > http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19pre8aa1.gz
+> 
+> 'struct kiobuf' does not have a member 'blocks', used in two places.
+> 
+> Should it use 'kio_blocks'?
 
-> Coding a special case to work out if the existing global makefile can
-> be reused is horribly error prone.  And it would take just as long as
-> rebuilding the global makefile from scratch.
+yes. What are the two places?
 
-I seriously doubt that last statement.  Building the global makefile
-takes about 20 seconds on the box I compile on.  On a kernel tree
-without object files I can read all the files in the kernel tree in
-about 0.8 seconds, and I can calculate an md5sum of every file in 3.2
-seconds.  I can do an md5sum of all the Makefile.in's in 0.1 seconds.
-This is with pp_makefile* compiled with -O2 -DNDEBUG=1.
+thanks also for the other patch.
 
-Paul.
+Andrea

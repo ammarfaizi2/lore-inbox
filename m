@@ -1,76 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261490AbVB0RyQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261469AbVB0R7j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261490AbVB0RyQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 12:54:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261469AbVB0RxC
+	id S261469AbVB0R7j (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 12:59:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261466AbVB0R6n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 12:53:02 -0500
-Received: from armagnac.ifi.unizh.ch ([130.60.75.72]:5058 "EHLO
-	albatross.madduck.net") by vger.kernel.org with ESMTP
-	id S261466AbVB0RnS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 12:43:18 -0500
-Date: Sun, 27 Feb 2005 18:43:09 +0100
-From: martin f krafft <madduck@madduck.net>
-To: Pavel Machek <pavel@suse.cz>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp logic error?
-Message-ID: <20050227174309.GA27265@piper.madduck.net>
-Mail-Followup-To: Pavel Machek <pavel@suse.cz>,
-	linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20050208203950.GA21623@cirrus.madduck.net> <20050226153905.GA8108@localhost.localdomain> <20050227170428.GI1441@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="BXVAT5kNtrzKuDFl"
+	Sun, 27 Feb 2005 12:58:43 -0500
+Received: from mx2.mail.ru ([194.67.23.122]:41556 "EHLO mx2.mail.ru")
+	by vger.kernel.org with ESMTP id S261469AbVB0R5A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Feb 2005 12:57:00 -0500
+From: Alexey Dobriyan <adobriyan@mail.ru>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: Build failure of drivers/usb/gadget/ether.c
+Date: Sun, 27 Feb 2005 20:57:08 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <200502272021.54173.adobriyan@mail.ru> <20050227173726.GE6148@stusta.de>
+In-Reply-To: <20050227173726.GE6148@stusta.de>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20050227170428.GI1441@elf.ucw.cz>
-X-OS: Debian GNU/Linux 3.1 kernel 2.6.10-9-amd64-k8 x86_64
-X-Mailer: Mutt 1.5.6+20040907i (CVS)
-X-Motto: Keep the good times rollin'
-X-Subliminal-Message: debian/rules!
-X-Spamtrap: madduck.bogus@madduck.net
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200502272057.08122.adobriyan@mail.ru>
+X-Spam: Not detected
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sunday 27 February 2005 19:37, Adrian Bunk wrote:
+> On Sun, Feb 27, 2005 at 08:21:54PM +0200, Alexey Dobriyan wrote:
+> 
+> > FYI, allyesconfig on sparc gives:
+> > 
+> >   CC      drivers/usb/gadget/ether.o
+> > drivers/usb/gadget/ether.c: In function `eth_bind':
+> > drivers/usb/gadget/ether.c:2418: error: `control_intf' undeclared (first use in this function)
+> > drivers/usb/gadget/ether.c:2418: error: (Each undeclared identifier is reported only once
+> > drivers/usb/gadget/ether.c:2418: error: for each function it appears in.)
+> > make[3]: *** [drivers/usb/gadget/ether.o] Error 1
+> 
+> You didn't mention which kernel version you are using and didn't send 
+> your .config .
+> 
+> But this looks like an issue already fixed in Greg's tree.
+> Can you confirm it's fixed in 2.6.11-rc4-mm1?
 
---BXVAT5kNtrzKuDFl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Indeed fixed.
 
-also sprach Pavel Machek <pavel@suse.cz> [2005.02.27.1804 +0100]:
-> Ugh, too late, I already forgot what went wrong for you. Anyway
-> try reading Documentation/power/swsusp.txt and/or going to
-> 2.6.11-rc4. If that does not help, debug with printk :-).
-
-I already did the first two. I will try 2.6.11-rc4 now.
-
-Please check my first post, if you have the time:
-
-  http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D110789536921510&w=3D2
-
---=20
-martin;              (greetings from the heart of the sun.)
-  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
-=20
-invalid/expired pgp subkeys? use subkeys.pgp.net as keyserver!
-spamtraps: madduck.bogus@madduck.net
-=20
-"it always takes longer than you expect, even when
- you take into account hofstadter's law."
-                                                 -- douglas hofstadter
-
---BXVAT5kNtrzKuDFl
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQFCIgatIgvIgzMMSnURAj2/AKDNmzKYbTBScw5thnhrQG3nY2jJlgCg6yhU
-ytR07+pJaNLIqX/e3ViYUK4=
-=Skp9
------END PGP SIGNATURE-----
-
---BXVAT5kNtrzKuDFl--
+	Alexey

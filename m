@@ -1,59 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263847AbUFFRZX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263842AbUFFRb2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263847AbUFFRZX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 13:25:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263851AbUFFRZX
+	id S263842AbUFFRb2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 13:31:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263851AbUFFRb2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 13:25:23 -0400
-Received: from fw.osdl.org ([65.172.181.6]:51648 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263847AbUFFRZS (ORCPT
+	Sun, 6 Jun 2004 13:31:28 -0400
+Received: from tag.witbe.net ([81.88.96.48]:59586 "EHLO tag.witbe.net")
+	by vger.kernel.org with ESMTP id S263842AbUFFRb0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 13:25:18 -0400
-Date: Sun, 6 Jun 2004 10:20:48 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Yury Umanets <torque@ukrpost.net>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.6 memory allocation checks in
- cs46xx_dsp_proc_register_scb_desc()
-Message-Id: <20040606102048.1b05c172.rddunlap@osdl.org>
-In-Reply-To: <1086537990.2793.68.camel@firefly>
-References: <1086537990.2793.68.camel@firefly>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 6 Jun 2004 13:31:26 -0400
+Message-Id: <200406061731.i56HVOX28240@tag.witbe.net>
+Reply-To: <rol@as2917.net>
+From: "Paul Rolland" <rol@as2917.net>
+To: "'Patrick J. LoPresti'" <patl@users.sourceforge.net>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: clone() <-> getpid() bug in 2.6?
+Date: Sun, 6 Jun 2004 19:31:16 +0200
+Organization: AS2917
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: <s5g4qpo4p40.fsf@patl=users.sf.net>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Thread-Index: AcRL6sYHN4zTnRupRS+HFtllhASiYAAAL3/Q
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 06 Jun 2004 19:06:42 +0300 Yury Umanets wrote:
+> > I though this was a job for mktemp and co.
+> 
+> Sure, if you want to create a unique filename on a local unshared
+> disk.
 
-| Adds memory allocation checks in cs46xx_dsp_proc_register_scb_desc()
-| 
-|  ./linux-2.6.6-modified/sound/pci/cs46xx/dsp_spos_scb_lib.c |    3 +++
-|  1 files changed, 3 insertions(+)
-| 
-| diff -rupN ./linux-2.6.6/sound/pci/cs46xx/dsp_spos_scb_lib.c
-| ./linux-2.6.6-modified/sound/pci/cs46xx/dsp_spos_scb_lib.c
-| --- ./linux-2.6.6/sound/pci/cs46xx/dsp_spos_scb_lib.c	Mon May 10
-| 05:33:20 2004
-| +++ ./linux-2.6.6-modified/sound/pci/cs46xx/dsp_spos_scb_lib.c	Wed Jun 
-| 2 14:57:41 2004
-| @@ -246,6 +246,9 @@ void cs46xx_dsp_proc_register_scb_desc (
-|  		if ((entry = snd_info_create_card_entry(ins->snd_card, scb->scb_name,
-|  							ins->proc_dsp_dir)) != NULL) {
-|  			scb_info = kmalloc(sizeof(proc_scb_info_t), GFP_KERNEL);
-| +			if (!scb_info)
-| +				return;
-| +                                
-|  			scb_info->chip = chip;
-|  			scb_info->scb_desc = scb;
-|        
+Right.
+ 
+> But suppose you want a unique filename on a partition which might be
+> NFS-mounted with multiple concurrent writers.  Oh, and the year is
+> 1997.  Still want to use mktemp?
 
-This seems to be missing some other cleanup on the failure path,
-like it does below in the same function:
+Probably not...
 
-				snd_info_free_entry(entry);
+> Bernstein decided to name each file:
+> 
+>     <time>.<PID>.<fully-qualified-domain-name>
+> 
+> This approach makes three assumptions.  First, that the time does not
+> repeat.  Second, that the FQDN is unique.  Third, that the time
+> changes (i.e., one second elapses) before a PID is reused on the local
+> system.  Subject to these assumptions, this is a perfectly reliable,
+> very efficient, lock-free way to create unique file names.
+> 
+> Can you do better?
+Not sure it's the best place to run a contest...
+However, I could have used something like :
+<FQDN>.<time-up-to-usec>.<random-number>
 
---
-~Randy
+But this is biased because I know I must find an answer with <PID> :-)
+
+> Sure, Bernstein's code is an unmaintainable nightmare.  But his
+> designs and implementations are usually pretty sound.  The last
+> release of qmail was in 1998, and we still use it where I work.  Six
+> years with zero crashes, zero dropped messages, and zero security
+> holes is not a trivial track record for an MTA.
+
+One point for him.
+
+Paul
+
+

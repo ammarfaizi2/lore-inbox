@@ -1,31 +1,25 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282062AbRLOJLk>; Sat, 15 Dec 2001 04:11:40 -0500
+	id <S282081AbRLOJTw>; Sat, 15 Dec 2001 04:19:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282064AbRLOJLa>; Sat, 15 Dec 2001 04:11:30 -0500
-Received: from smtp2.mail.idir.net ([209.242.64.158]:56338 "EHLO
-	smtp2.idir.net") by vger.kernel.org with ESMTP id <S282062AbRLOJLT>;
-	Sat, 15 Dec 2001 04:11:19 -0500
-From: "Edward Killips" <ekillips@skyenet.net>
-To: <linux-kernel@vger.kernel.org>
+	id <S282067AbRLOJTm>; Sat, 15 Dec 2001 04:19:42 -0500
+Received: from f124.law7.hotmail.com ([216.33.237.124]:35088 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S282064AbRLOJTg>;
+	Sat, 15 Dec 2001 04:19:36 -0500
+X-Originating-IP: [216.117.88.55]
+From: "Edward Killips" <etkillips@hotmail.com>
+To: linux-kernel@vger.kernel.org
 Subject: RE: Oops - 2.4.17rc1 (with iptables 2.4.6)
-Date: Sat, 15 Dec 2001 04:02:50 -0500
-Message-ID: <HDEPLLEDCLIFHEIOKJGFIEHJCNAA.ekillips@skyenet.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <20011215005641.A810@china.patternbook.com>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Date: Sat, 15 Dec 2001 04:19:30 -0500
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F124NFg6pgiBy7rJsre00003f39@hotmail.com>
+X-OriginalArrivalTime: 15 Dec 2001 09:19:31.0010 (UTC) FILETIME=[9A405A20:01C18549]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just upgraded to rc1 and get the following oops in with the netfilter
-code.
+I get the following oops after upgrading to rc1
+
 
 ksymoops 2.4.3 on i586 2.4.17-rc1.  Options used
      -V (default)
@@ -43,16 +37,16 @@ EFLAGS: 00010202
 eax: 00000000 ebx: 5a5a5a5a ecx: 00000000 eds: 00000010
 esi: 00000010 edi: d43de084 ebp: 00000000 esp: c02bfe58
 ds: 0018 es: 0018 ss: 0018
-Stack: 00000000 00000000 d43de084 00000000 d6968814 d43de084 00000000
+Stack: 00000000 00000000 d43de084 00000000 d6968814 d43de084 00000000 
 c02193ca
-       d43de084 5a5a5a5a 5a5a5a5a 00000050 00000000 00000000 c02193a0
+       d43de084 5a5a5a5a 5a5a5a5a 00000050 00000000 00000000 c02193a0 
 c020f696
-       c032f240 00000000 00000000 00000000 c02193a0 c020f6c8 d43de084
+       c032f240 00000000 00000000 00000000 c02193a0 c020f6c8 d43de084 
 00000000
 Call Trace: [<c02193a0>] [<d88919e9>] [<c020f696>] [<c01293a0>] [<c020f6c8>]
-[<c01291f9>] [<c02193a0>] [<d88919e9>] [<c020a1d8>] [<c011902b>]
+[<c01291f9>] [<c02193a0>] [<d88919e9>] [<c020a1d8>] [<c011902b>] 
 [<co118f40>]
-[<c0118d6c>] [<c0108681>] [<c01053c0>] [<c01053c0>] [<c01053e3>]
+[<c0118d6c>] [<c0108681>] [<c01053c0>] [<c01053c0>] [<c01053e3>] 
 [<c010544e>]
 [<c0105000>]
 Code: 8b 78 3c 89 d8 89 da 25 f0 f0 f0 f0 81 e2 0f 0f 0f 0f c1 e8
@@ -92,6 +86,7 @@ Code;  00000012 Before first symbol
 
 <0>Kernel panic: Aiee, Killing interrupt handler!
 
+
 -----Original Message-----
 From: linux-kernel-owner@vger.kernel.org
 [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Whit Blauvelt
@@ -117,4 +112,7 @@ To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html
 Please read the FAQ at  http://www.tux.org/lkml/
+
+_________________________________________________________________
+Send and receive Hotmail on your mobile device: http://mobile.msn.com
 

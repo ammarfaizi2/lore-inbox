@@ -1,191 +1,325 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264122AbUDBRSi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 12:18:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264121AbUDBRSi
+	id S264119AbUDBR0s (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 12:26:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264133AbUDBR0s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 12:18:38 -0500
-Received: from atlrel8.hp.com ([156.153.255.206]:62169 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S264116AbUDBRSO (ORCPT
+	Fri, 2 Apr 2004 12:26:48 -0500
+Received: from mail.fh-wedel.de ([213.39.232.194]:18620 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S264119AbUDBR0i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 12:18:14 -0500
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+	Fri, 2 Apr 2004 12:26:38 -0500
+Date: Fri, 2 Apr 2004 19:26:42 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] early serial console support (updated ia64 part)
-Date: Fri, 2 Apr 2004 10:18:11 -0700
-User-Agent: KMail/1.6.1
-Cc: linux-ia64@vger.kernel.org, Russell King <rmk@arm.linux.org.uk>
-References: <200404011458.04264.bjorn.helgaas@hp.com> <200404011524.43700.bjorn.helgaas@hp.com>
-In-Reply-To: <200404011524.43700.bjorn.helgaas@hp.com>
-MIME-Version: 1.0
+Subject: [PATCH COW] generic_sendpage
+Message-ID: <20040402172642.GA26140@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200404021018.11557.bjorn.helgaas@hp.com>
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's an update to the ia64 part of my early serial console patch.
-The only change is to supply BASE_BAUD * 16 as the uartclk for
-the COM1 port.
+Ugly, but working.  With this piece, doing breaking cowlinks in-kernel
+should be pretty simple.
 
+Jörn
 
-Changelog text:
+-- 
+Schrödinger's cat is <BLINK>not</BLINK> dead.
+-- Illiad
 
-This updates ia64 to use the early serial console support.
+o Add sendfile() support for file targets to normal mm/filemap.c.
+o Have ext[23] use that support.
 
-The benefits to ia64 are:
-    - /dev/ttyS<N> naming is now independent of any EFI console
-      configuration or "console=" arguments.
-    - Serial console can work a little earlier because it no longer
-      depends on ACPI for interrupt registration.
-    - It probably works early enough to obsolete the EARLY_PRINTK
-      stuff.
+ fs/ext2/file.c     |    1 
+ fs/ext3/file.c     |    1 
+ include/linux/fs.h |    1 
+ mm/filemap.c       |  216 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 219 insertions(+)
 
-"console=serial" means use the first device described in the HCDP (or
-COM1 at I/O port 0x3f8 if no HCDP) as the early and normal console.
-The baud rate is obtained from the HCDP or probed from the UART if
-not specified.
-
-"console=ttyS<N>" means use ttyS<N> as the console.  There will be no
-early console.  The baud rate must be specified unless it is 9600.
-
-Gotchas:
-    - Old kernels don't understand "console=serial", so elilo.conf
-      changes are needed if you want an early console.
-    - Old kernels named ttyS devices in different orders, depending on
-      which one was selected as the EFI console device, so you may
-      need to add or change a getty entry in /etc/inittab.
-
-For example, a machine with a built-in serial port plus an MP might
-have these ports:
-
-			        old, EFI	old, EFI	new, EFI
-		   MMIO		console		console		console
-		  address	on builtin	on MP		anywhere
-		----------	---------	--------	--------
-    builtin	0xff5e0000	ttyS0		ttyS1		ttyS0
-    MP UPS	0xf8031000	ttyS1		ttyS2		ttyS1
-    MP Console	0xf8030000	ttyS2		ttyS0		ttyS2
-    MP 2	0xf8030010	ttyS3		ttyS3		ttyS3
-    MP 3	0xf8030038	ttyS4		ttyS4		ttyS4
-
-If you're using the MP console port (the port labelled "console" on
-the 3-headed cable), it used to be /dev/ttyS0, but is now /dev/ttyS2.
-
-Troubleshooting:
-    - No kernel output after "Uncompressing Linux... done":
-	-> You're using an MP port as the console and specified
-	   "console=ttyS0".  This port is now named something else.
-	   Use "console=serial" instead.
-	-> Multiple UARTs selected as EFI console devices, and you're
-	   looking at the wrong one.  Make sure only one UART is
-	   selected (use the Boot Manager "Boot option maintenance"
-	   menu).
-
-    - Long pause (60+ seconds) between "Uncompressing Linux... done"
-      and start of kernel output:
-	-> No early console, probably because you used "console=ttyS0".
-	   Replace it with "console=serial".
-
-    - Kernel and init script output is fine, but no "login:" prompt:
-	-> Missing getty entry in /etc/inittab.  Add the appropriate
-	   entry based on the kernel "Starting serial console on
-	   ttyS<N>" message.
-
-    - "login:" prompt, but can't login as root:
-	-> Add entry to /etc/securetty for console tty.
-
-
-===== arch/ia64/kernel/setup.c 1.70 vs edited =====
---- 1.70/arch/ia64/kernel/setup.c	Wed Mar 17 05:46:59 2004
-+++ edited/arch/ia64/kernel/setup.c	Fri Apr  2 09:42:47 2004
-@@ -263,20 +263,35 @@
+--- linux-2.6.4je/include/linux/fs.h~breaklink	2004-03-28 21:53:52.000000000 +0200
++++ linux-2.6.4je/include/linux/fs.h	2004-03-30 09:02:13.000000000 +0200
+@@ -1329,6 +1329,7 @@
+ ssize_t generic_file_write_nolock(struct file *file, const struct iovec *iov,
+ 				unsigned long nr_segs, loff_t *ppos);
+ extern ssize_t generic_file_sendfile(struct file *, loff_t *, size_t, read_actor_t, void __user *);
++extern ssize_t generic_file_sendpage(struct file *, struct page *, int, size_t, loff_t *, int);
+ extern void do_generic_mapping_read(struct address_space *, struct file_ra_state *, struct file *,
+ 				    loff_t *, read_descriptor_t *, read_actor_t);
+ extern void
+--- linux-2.6.4je/mm/filemap.c~breaklink	2004-03-28 21:52:10.000000000 +0200
++++ linux-2.6.4je/mm/filemap.c	2004-03-29 19:02:55.000000000 +0200
+@@ -896,6 +896,31 @@
+ 	return written;
+ }
  
- #ifdef CONFIG_SERIAL_8250_CONSOLE
- static void __init
--setup_serial_legacy (void)
-+setup_serial_legacy (char *cmdline)
++/* FIXME: It would be as simple as this, if we had a (void __user*) to write.
++ * We already have a kernel buffer, so it should be even simpler, right? ;)
++ *
++ * Yes, sorta.  After duplicating the complete path of generic_file_write(),
++ * at least some special cases could be removed, so the copy is simpler than
++ * the original.  But it remains a copy, so overall complexity increases.
++ */
++static ssize_t
++generic_kernel_file_write(struct file *, const char *, size_t, loff_t *);
++
++ssize_t generic_file_sendpage(struct file *file, struct page *page,
++		int offset, size_t size, loff_t *ppos, int more)
++{
++	ssize_t ret;
++	char *kaddr;
++
++	kaddr = kmap(page);
++	ret = generic_kernel_file_write(file, kaddr + offset, size, ppos);
++	kunmap(page);
++
++	return ret;
++}
++
++EXPORT_SYMBOL(generic_file_sendpage);
++
+ ssize_t generic_file_sendfile(struct file *in_file, loff_t *ppos,
+ 			 size_t count, read_actor_t actor, void __user *target)
  {
-+	static char buf[32];
-+	char *options, *space;
- 	struct uart_port port;
--	unsigned int i, iobase[] = {0x3f8, 0x2f8};
+@@ -1553,6 +1578,19 @@
+ 	return bytes - left;
+ }
  
--	printk(KERN_INFO "Registering legacy COM ports for serial console\n");
-+	if (!strstr(cmdline, "console=serial"))
-+		return;
++static inline size_t
++filemap_copy_from_kernel(struct page *page, unsigned long offset,
++			 const char *buf, unsigned bytes)
++{
++	char *kaddr;
++
++	kaddr = kmap(page);
++	memcpy(kaddr + offset, buf, bytes);
++	kunmap(page);
++
++	return bytes;
++}
++
+ static size_t
+ __filemap_copy_from_user_iovec(char *vaddr, 
+ 			const struct iovec *iov, size_t base, size_t bytes)
+@@ -1907,6 +1945,155 @@
+ 
+ EXPORT_SYMBOL(generic_file_aio_write_nolock);
+ 
++/*
++ * TODO:
++ * This largely tries to copy generic_file_aio_write_nolock(), although it
++ * doesn't have to be nearly as generic.  A real cleanup should either
++ * merge this into generic_file_aio_write_nolock() as well or keep it special
++ * and remove as much code as possible.
++ */
++static ssize_t
++generic_kernel_file_aio_write_nolock(struct kiocb *iocb, const struct iovec*iov,
++				     unsigned long nr_segs, loff_t *ppos)
++{
++	struct file *file = iocb->ki_filp;
++	struct address_space * mapping = file->f_mapping;
++	struct address_space_operations *a_ops = mapping->a_ops;
++	size_t ocount;		/* original count */
++	size_t count;		/* after file limit checks */
++	struct inode 	*inode = mapping->host;
++	long		status = 0;
++	loff_t		pos;
++	struct page	*page;
++	struct page	*cached_page = NULL;
++	const int	isblk = S_ISBLK(inode->i_mode);
++	ssize_t		written;
++	ssize_t		err;
++	size_t		bytes;
++	struct pagevec	lru_pvec;
++	const struct iovec *cur_iov = iov; /* current iovec */
++	size_t		iov_base = 0;	   /* offset in the current iovec */
++	unsigned long	seg;
++	char		*buf;
++
++	ocount = 0;
++	for (seg = 0; seg < nr_segs; seg++) {
++		const struct iovec *iv = &iov[seg];
++
++		/*
++		 * If any segment has a negative length, or the cumulative
++		 * length ever wraps negative then return -EINVAL.
++		 */
++		ocount += iv->iov_len;
++		if (unlikely((ssize_t)(ocount|iv->iov_len) < 0))
++			return -EINVAL;
++	}
++
++	count = ocount;
++	pos = *ppos;
++	pagevec_init(&lru_pvec, 0);
++
++	/* We can write back this queue in page reclaim */
++	current->backing_dev_info = mapping->backing_dev_info;
++	written = 0;
++
++	err = generic_write_checks(file, &pos, &count, isblk);
++	if (err)
++		goto out;
++
++
++	if (count == 0)
++		goto out;
++
++	remove_suid(file->f_dentry);
++	inode_update_time(inode, 1);
++
++	/* There is no sane reason to use O_DIRECT */
++	BUG_ON(file->f_flags & O_DIRECT);
++
++	buf = (char *)iov->iov_base;
++	do {
++		unsigned long index;
++		unsigned long offset;
++		size_t copied;
++
++		offset = (pos & (PAGE_CACHE_SIZE -1)); /* Within page */
++		index = pos >> PAGE_CACHE_SHIFT;
++		bytes = PAGE_CACHE_SIZE - offset;
++		if (bytes > count)
++			bytes = count;
++
++		page = __grab_cache_page(mapping,index,&cached_page,&lru_pvec);
++		if (!page) {
++			status = -ENOMEM;
++			break;
++		}
++
++		status = a_ops->prepare_write(file, page, offset, offset+bytes);
++		if (unlikely(status)) {
++			loff_t isize = i_size_read(inode);
++			/*
++			 * prepare_write() may have instantiated a few blocks
++			 * outside i_size.  Trim these off again.
++			 */
++			unlock_page(page);
++			page_cache_release(page);
++			if (pos + bytes > isize)
++				vmtruncate(inode, isize);
++			break;
++		}
++
++		BUG_ON(nr_segs != 1);
++		copied = filemap_copy_from_kernel(page, offset, buf, bytes);
++
++		flush_dcache_page(page);
++		status = a_ops->commit_write(file, page, offset, offset+bytes);
++		if (likely(copied > 0)) {
++			if (!status)
++				status = copied;
++
++			if (status >= 0) {
++				written += status;
++				count -= status;
++				pos += status;
++				buf += status;
++				if (unlikely(nr_segs > 1))
++					filemap_set_next_iovec(&cur_iov,
++							&iov_base, status);
++			}
++		}
++		if (unlikely(copied != bytes))
++			if (status >= 0)
++				status = -EFAULT;
++		unlock_page(page);
++		mark_page_accessed(page);
++		page_cache_release(page);
++		if (status < 0)
++			break;
++		balance_dirty_pages_ratelimited(mapping);
++		cond_resched();
++	} while (count);
++	*ppos = pos;
++
++	if (cached_page)
++		page_cache_release(cached_page);
 +
 +	/*
-+	 * We have no idea where the console UART is, but the
-+	 * user explicitly requested it, so assume it's COM1.
++	 * For now, when the user asks for O_SYNC, we'll actually give O_DSYNC
 +	 */
- 	memset(&port, 0, sizeof(port));
- 	port.iotype = SERIAL_IO_PORT;
-+	port.iobase = 0x3f8;
- 	port.uartclk = BASE_BAUD * 16;
--	for (i = 0; i < ARRAY_SIZE(iobase); i++) {
--		port.line = i;
--		port.iobase = iobase[i];
--		early_serial_setup(&port);
-+
-+	options = strstr(cmdline, "console=serial,");
-+	if (options) {
-+		options += 15;	// strlen("console=serial,")
-+		strlcpy(buf, options, sizeof(buf));
-+		space = strchr(buf, ' ');
-+		if (space)
-+			*space = 0;
-+		options = buf;
- 	}
-+
-+	serial8250_early_console_setup(&port, options);
- }
- #endif
- 
-@@ -297,6 +312,17 @@
- 	machvec_init(acpi_get_sysname());
- #endif
- 
-+#ifdef CONFIG_SERIAL_8250_CONSOLE
-+#ifdef CONFIG_SERIAL_8250_HCDP
-+	if (efi.hcdp) {
-+		extern void setup_hcdp_console(void *, char *);
-+		setup_hcdp_console(efi.hcdp, *cmdline_p);
++	if (status >= 0) {
++		if ((file->f_flags & O_SYNC) || IS_SYNC(inode))
++			status = generic_osync_inode(inode, mapping,
++					OSYNC_METADATA|OSYNC_DATA);
 +	}
-+#endif
-+	if (!efi.hcdp)
-+		setup_serial_legacy(*cmdline_p);
-+#endif
++	
++	err = written ? written : status;
++out:
++	pagevec_lru_add(&lru_pvec);
++	current->backing_dev_info = 0;
++	return err;
++}
 +
- #ifdef CONFIG_ACPI_BOOT
- 	/* Initialize the ACPI boot-time table parser */
- 	acpi_table_init();
-@@ -322,26 +348,6 @@
+ ssize_t
+ generic_file_write_nolock(struct file *file, const struct iovec *iov,
+ 				unsigned long nr_segs, loff_t *ppos)
+@@ -1921,6 +2108,20 @@
+ 	return ret;
+ }
  
- #ifdef CONFIG_ACPI_BOOT
- 	acpi_boot_init();
--#endif
--#ifdef CONFIG_SERIAL_8250_CONSOLE
--#ifdef CONFIG_SERIAL_8250_HCDP
--	if (efi.hcdp) {
--		void setup_serial_hcdp(void *);
--		setup_serial_hcdp(efi.hcdp);
--	}
--#endif
--	/*
--	 * Without HCDP, we won't discover any serial ports until the serial driver looks
--	 * in the ACPI namespace.  If ACPI claims there are some legacy devices, register
--	 * the legacy COM ports so serial console works earlier.  This is slightly dangerous
--	 * because we don't *really* know whether there's anything there, but we hope that
--	 * all new boxes will implement HCDP.
--	 */
--	{
--		extern unsigned char acpi_legacy_devices;
--		if (!efi.hcdp && acpi_legacy_devices)
--			setup_serial_legacy();
--	}
- #endif
++static ssize_t
++generic_kernel_file_write_nolock(struct file *file, const struct iovec *iov,
++				 unsigned long nr_segs, loff_t *ppos)
++{
++	struct kiocb kiocb;
++	ssize_t ret;
++
++	init_sync_kiocb(&kiocb, file);
++	ret = generic_kernel_file_aio_write_nolock(&kiocb, iov, nr_segs, ppos);
++	if (ret == -EIOCBQUEUED)
++		ret = wait_on_sync_kiocb(&kiocb);
++	return ret;
++}
++
+ EXPORT_SYMBOL(generic_file_write_nolock);
  
- #ifdef CONFIG_VT
+ ssize_t generic_file_aio_write(struct kiocb *iocb, const char __user *buf,
+@@ -1959,6 +2160,21 @@
+ 
+ EXPORT_SYMBOL(generic_file_write);
+ 
++static ssize_t generic_kernel_file_write(struct file *file, const char *buf,
++					 size_t count, loff_t *ppos)
++{
++	struct inode	*inode = file->f_mapping->host;
++	ssize_t		err;
++	struct iovec local_iov = {.iov_base = (void __user *)buf,
++				  .iov_len = count };
++
++	down(&inode->i_sem);
++	err = generic_kernel_file_write_nolock(file, &local_iov, 1, ppos);
++	up(&inode->i_sem);
++
++	return err;
++}
++
+ ssize_t generic_file_readv(struct file *filp, const struct iovec *iov,
+ 			unsigned long nr_segs, loff_t *ppos)
+ {
+--- linux-2.6.4je/fs/ext2/file.c~breaklink	2004-01-09 07:59:26.000000000 +0100
++++ linux-2.6.4je/fs/ext2/file.c	2004-03-30 08:55:47.000000000 +0200
+@@ -53,6 +53,7 @@
+ 	.readv		= generic_file_readv,
+ 	.writev		= generic_file_writev,
+ 	.sendfile	= generic_file_sendfile,
++	.sendpage	= generic_file_sendpage,
+ };
+ 
+ struct inode_operations ext2_file_inode_operations = {
+--- linux-2.6.4je/fs/ext3/file.c~breaklink	2004-01-09 08:00:04.000000000 +0100
++++ linux-2.6.4je/fs/ext3/file.c	2004-04-01 00:59:26.000000000 +0200
+@@ -127,6 +127,7 @@
+ 	.release	= ext3_release_file,
+ 	.fsync		= ext3_sync_file,
+ 	.sendfile	= generic_file_sendfile,
++	.sendpage	= generic_file_sendpage,
+ };
+ 
+ struct inode_operations ext3_file_inode_operations = {

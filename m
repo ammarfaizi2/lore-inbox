@@ -1,70 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267957AbUIJWKp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267971AbUIJWLb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267957AbUIJWKp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 18:10:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267971AbUIJWKp
+	id S267971AbUIJWLb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 18:11:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267973AbUIJWLa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 18:10:45 -0400
-Received: from open.hands.com ([195.224.53.39]:27789 "EHLO open.hands.com")
-	by vger.kernel.org with ESMTP id S267957AbUIJWKn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 18:10:43 -0400
-Date: Fri, 10 Sep 2004 23:21:55 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: linux-kernel@vger.kernel.org
-Subject: CMedia CM9739 - sneaked in via some cheap via motherboards
-Message-ID: <20040910222155.GA19158@lkcl.net>
+	Fri, 10 Sep 2004 18:11:30 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:2089 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S267971AbUIJWL1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 18:11:27 -0400
+Date: Sat, 11 Sep 2004 00:11:29 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Christoph Hellwig <hch@waste.org>, sam@ravnborg.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] read EXTRAVERSION from file
+Message-ID: <20040910221129.GC11338@mars.ravnborg.org>
+Mail-Followup-To: Matt Mackall <mpm@selenic.com>,
+	Christoph Hellwig <hch@waste.org>, sam@ravnborg.org,
+	linux-kernel@vger.kernel.org
+References: <20040830151405.GA18836@lst.de> <20040910215353.GO5414@waste.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=unknown-8bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-hands-com-MailScanner-SpamScore: s
-X-MailScanner-From: lkcl@lkcl.net
+In-Reply-To: <20040910215353.GO5414@waste.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-okay.
+On Fri, Sep 10, 2004 at 04:53:53PM -0500, Matt Mackall wrote:
+> On Mon, Aug 30, 2004 at 05:14:05PM +0200, Christoph Hellwig wrote:
+> > The're an very interesting patch in the Debian tree still from the time
+> > where Herbert Xu mentioned it, it allows creating a file .extraversion
+> > in the toplevel kernel directory and the Makefile will set EXTRAVERSION
+> > to it's contents.  This has the nice advantage of keeping an
+> > extraversion pre-tree instead of having to patch the Makefile and
+> > getting rejects everytime you pull a new tree (or BK refuses to touch
+> > the Makefile).
+> > 
+> > The only thing I'm not fully comfortable is the .extraversion name, I
+> > think I'd prefer a user-visible name.
+> > 
+> > Any other comments on this one?
+> 
+> (catching up)
+> 
+> Consider this approach as a more flexible alternative:
+> 
+> http://groups.google.com/groups?q=oxymoron+patch+names&hl=en&lr=&ie=UTF-8&selm=fa.jif8l5v.1b049jd%40ifi.uio.no&rnum=1
 
-some of the cheapest and yet not nastiest motherboards are beginning
-to become available, in the UK for £12 (KM400 chipsets) www.ebuyer.com.
+Did something remotely similar.
+Name the file localversion* and it will be in KERNELRELEASE.
 
-some of these contain CMedia CM9739 sound chips which are _supposed_ to
-be AC97.
-
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0302.3/1283.html
-
-... except the present (2.6.7) kernel code doesn't work.
-
-it _almost_ works - it just doesn't recognise the PCM slider.
-alsamixer can't set PCM
-kmix and kamix don't even _show_ PCM.
-
-which ain't much cop, really, cos no PCM means "no sound matey".
-
-so!
-
-with these chipsets likely to become more prevalent (trust me
-on this) and CMedia having an OSS AC97 driver [which according to above
-by alan differs from the linux one]...
-
-... anyone want to have a go at helping me get this to work,
-at proxy?
-
-if so, what sort of information should i provide?
-
-i can get lspci's, listings of /proc/asound contents, i'm even
-reasonably incompetent (viz. "not enough fear") at hacking
-bits of kernel code.
-
-
--- 
---
-Truth, honesty and respect are rare commodities that all spring from
-the same well: Love.  If you love yourself and everyone and everything
-around you, funnily and coincidentally enough, life gets a lot better.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
-
+	Sam

@@ -1,65 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262777AbULQJKv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262775AbULQJ1A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262777AbULQJKv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 04:10:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262775AbULQJKv
+	id S262775AbULQJ1A (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 04:27:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262778AbULQJ1A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 04:10:51 -0500
-Received: from piglet.wetlettuce.com ([82.68.149.69]:21120 "EHLO
-	piglet.wetlettuce.com") by vger.kernel.org with ESMTP
-	id S262777AbULQJKo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 04:10:44 -0500
-Message-ID: <34721.192.102.214.6.1103274614.squirrel@webmail.wetlettuce.com>
-Date: Fri, 17 Dec 2004 09:10:14 -0000 (GMT)
-Subject: Re: Lockup with 2.6.9-ac15 related to netconsole
-From: "Mark Broadbent" <markb@wetlettuce.com>
-To: <mpm@selenic.com>
-In-Reply-To: <20041216211024.GK2767@waste.org>
-References: <59719.192.102.214.6.1103214002.squirrel@webmail.wetlettuce.com>
-        <20041216211024.GK2767@waste.org>
-X-Priority: 3
-Importance: Normal
-X-MSMail-Priority: Normal
-Cc: <linux-kernel@vger.kernel.org>
-Reply-To: markb@wetlettuce.com
-X-Mailer: SquirrelMail (version 1.2.6)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MailScanner: Mail is clear of Viree
+	Fri, 17 Dec 2004 04:27:00 -0500
+Received: from gprs215-223.eurotel.cz ([160.218.215.223]:8327 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262775AbULQJ06 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Dec 2004 04:26:58 -0500
+Date: Fri, 17 Dec 2004 10:26:42 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: Michael Frank <mhf@berlios.de>,
+       SoftwareSuspend Development 
+	<softwaresuspend-devel@lists.berlios.de>,
+       Patrick Mochel <mochel@digitalimplant.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [SoftwareSuspend-devel] 2.6 Suspend PM issues
+Message-ID: <20041217092642.GH25573@elf.ucw.cz>
+References: <200412171315.50463.mhf@berlios.de> <1103263067.19280.4.camel@desktop.cunninghams>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1103263067.19280.4.camel@desktop.cunninghams>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-Matt Mackall said:
-> On Thu, Dec 16, 2004 at 04:20:02PM -0000, Mark Broadbent wrote:
->> Hi,
->>
->> I'm having problem using ethereal/tcpdump in conjunction with the
->> netconsole (built as a module).  If the netconsole is loaded and I try
->> to launch tcpdump on the same interface as the netconsole is
->> transmitting I get a hard lock-up.  The following commands can
->> consistently do this: # tcpdump -i eth0
->> eth0: Promiscuous Mode Entered
->> <... normal output ...>
->> ^C
->> # modprobe netconsole
->> # tcpdump -i eth0
->> eth0: Promiscuous Mode Entered
->> <4>NMI Watchdog detected LOCKUP
->
-> Joy. Can you try it on your other interface to see if it's
-> driver-specific?
+> > By what was discussed wrt ALSA issue I gather that you still resume _all_ 
+> > drivers after doing the atomic copy?
+> > 
+> > As explained earlier this year, if this is the case, it is firstly 
+> > unacceptable as it will result in loss of data in many applications and 
+> > secondly very clumsy.
+> > 
+> > Example With 2.4 OK, with 2.6 It would fail:
+> > A datalogger connected to a seral port of a notebook in the field. Data 
+> > transfer in progress which can be put on hold bo lowering RTS (HW handshake) 
+> > but _cannot_ be restarted. Battery low, must suspend to change battery, upon 
+> > resume transfer can continue.
+> > 
+> > Will this be taken care of?
 
-Tried using eth1 which is using the r8169 but it doesn't support polling. 
-I also tried with 2.6.10-rc3-bk10 but it still doesn't support polling. 
-Also it still locks up using eth0 (the tulip driver) with 2.6.10-rc3-bk10.
-Thanks
-Mark
+Driver will get enough info in its resume routine ("hey, it is resume,
+but it is only resume after atomic copy"), so it can ignore the resume
+if it really needs to.
 
+But this is 2.6.11 material.
+								Pavel
 -- 
-Mark Broadbent <markb@wetlettuce.com>
-Web: http://www.wetlettuce.com
-
-
-
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,285 +1,283 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274814AbRIUUPJ>; Fri, 21 Sep 2001 16:15:09 -0400
+	id <S274815AbRIUUSJ>; Fri, 21 Sep 2001 16:18:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274810AbRIUUOu>; Fri, 21 Sep 2001 16:14:50 -0400
-Received: from atlrel2.hp.com ([156.153.255.202]:17125 "HELO atlrel2.hp.com")
-	by vger.kernel.org with SMTP id <S274814AbRIUUOk>;
-	Fri, 21 Sep 2001 16:14:40 -0400
-Message-ID: <F341E03C8ED6D311805E00902761278C04728F82@xfc04.fc.hp.com>
-From: "HABBINGA,ERIK (HP-Loveland,ex1)" <erik_habbinga@hp.com>
-To: "HABBINGA,ERIK (HP-Loveland,ex1)" <erik_habbinga@hp.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: major VM suckage with 2.4.10pre12 and 2.4.10pre13 and highmem, we
-	 will help test
-Date: Fri, 21 Sep 2001 16:15:01 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S274810AbRIUUSE>; Fri, 21 Sep 2001 16:18:04 -0400
+Received: from mail.zmailer.org ([194.252.70.162]:43793 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S274815AbRIUURx>;
+	Fri, 21 Sep 2001 16:17:53 -0400
+Date: Fri, 21 Sep 2001 23:18:05 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: bdnelson@austin.rr.com, mjustice@austin.rr.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Systems falsely rejecting email as POSSIBLE SPAM...
+Message-ID: <20010921231805.P11046@mea-ext.zmailer.org>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="xmQNNkfJFyghCYbI"
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kernel 2.4.10pre13 did not help our NFS SPEC testing on a machine with 4GB
-RAM.  Refer to my previous message about those results:
-http://lists.insecure.org/linux-kernel/2001/Sep/3036.html
 
-In a nutshell, kswapd starts grabbing 99% of the CPU for long stretches in
-time, which causes us to drop NFS RPC connections, which causes performance
-to suck.
+--xmQNNkfJFyghCYbI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-We have access to a few machines with lots of memory (4-8GB), and we are
-more than willing to test any patches the community can provide to help
-solve this problem.  It appears that some of the VM coders don't have access
-to highmem machines.  We can help you if you let us.
+Really,
 
-We hoped that the following patch would help with the 0-order allocation
-failure message that we see, but we discovered that it has been included in
-2.4.10-pre13: http://lists.insecure.org/linux-kernel/2001/Sep/3044.html
-Sep 21 12:48:10 catdog1 kernel: __alloc_pages: 3-order allocation failed
-(gfp=0x20/0) from c012e1e2
-Sep 21 12:48:10 catdog1 kernel: __alloc_pages: 3-order allocation failed
-(gfp=0x20/0) from c012e1e2
-Sep 21 12:48:10 catdog1 kernel: __alloc_pages: 2-order allocation failed
-(gfp=0x20/0) from c012e1e2
-Sep 21 12:48:10 catdog1 kernel: __alloc_pages: 3-order allocation failed
-(gfp=0x20/0) from c012e1e2
-Sep 21 12:48:10 catdog1 kernel: __alloc_pages: 3-order allocation failed
-(gfp=0x20/0) from c012e1e2
-Sep 21 12:48:10 catdog1 kernel: __alloc_pages: 2-order allocation failed
-(gfp=0x20/0) from c012e1e2
-Sep 21 12:48:10 catdog1 kernel: __alloc_pages: 1-order allocation failed
-(gfp=0x20/0) from c012e1e2
-Sep 21 12:48:10 catdog1 kernel: __alloc_pages: 0-order allocation failed
-(gfp=0x20/0) from c012e1e2
+  These "system rejects the message because it smells of spam"
+are a sign of sysadmin stupidity.
 
-(there's plenty more where these came from on the 2.4.10-pre13 run)
+I am entirely happy if (occasionally slipping thru) REAL SPAM is rejected,
+but these POSSIBLE SPAM rejects are really ...
 
-Hardware:
-- 4 processors, 4GB ram
-- 45 fibre channel drives, set up in hardware RAID 0/1
-- 2 direct Gigabit Ethernet connections between SPEC SFS prime client and
-system under test
-- reiserfs
-- all NFS filesystems exported with sync,no_wdelay to insure O_SYNC writes
-to storage
-- NFS v3 UDP
-- LVM
-- linux-2.4.10-pre13
+Various variants of this very same stupidity seems to be spreading
+along with resulting weakening reliability of email.
 
-The spec results consist of the following data (only the first three numbers
-are significant for this discussion)
-- load.  The load the SPEC prime client will try to get out of the system
-under test.  Measured in I/O's per second (IOPS).
-- throughput.  The load seen from the system under test.  Measured in IOPS
-- response time.  Measured in milliseconds
-- total operations
-- elapsed time.  Measured in seconds
-- NFS version. 2 or 3
-- Protocol. UDP (U) or TCP (T)
-- file set size in megabytes
-- number of clients
-- number of SPEC SFS processes
-- biod reads
-- biod writes
-- SPEC SFS version
+It is beginning to look like the cures are worse than the sickness
+in itself.
 
-"INVALID" means that too many (> 1%) of the RPC calls between the SPEC prime
-client and the system under test failed.  This is not a good thing
 
-SPEC results before 2.4.10-pre13 test stopped:
-            500     600     1.2   180047  300 3 U    5070624   1 48  2  2
-2.0
-           1000     992     1.4   297584  300 3 U   10141248   1 48  2  2
-2.0
-INVALID    1500     637    32.5   190544  299 3 U   15210624   1 48  2  2
-2.0
+One of these weeks I plan to start composing a document titled
+"ways to decrease your email system reliability"  covering these
+ill-constructed anti-spam measures, and many other topics...
 
-SPEC results before 2.4.10-pre12 test stopped:
-            500     497     1.2   149134  300 3 U    5070624   1 48  2  2
-2.0
-           1000    1001     1.5   299153  299 3 U   10141248   1 48  2  2
-2.0
-           1500    1587     6.9   476068  300 3 U   15210624   1 48  2  2
-2.0
-INVALID    2000     795    24.5   237732  299 3 U   20281248   1 48  2  2
-2.0
+  /Matti Aarnio  -- co-postmaster of vger.kernel.org
 
-2.4.7 Results (only first three numbers shown, test continues fine for many
-more tests)
-            500     497     1.2   149206  300 3 U    5070624   1 48  2  2
-2.0
-           1000    1005     1.5   300503  299 3 U   10141248   1 48  2  2
-2.0
-           1500    1502     1.3   449232  299 3 U   15210624   1 48  2  2
-2.0
+--xmQNNkfJFyghCYbI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-With 2.4.7 kernel, the test runs much longer, and INVALID is never seen.
-That large jump in response time on the 1500 IOPS run is also not seen with
-2.4.7 kernel
+Received: from vger.kernel.org ([IPv6:::ffff:199.183.24.194]:18663 "EHLO
+	vger.kernel.org" smtp-auth: <none> TLS-CIPHER: <none> TLS-PEER: <none>)
+	by mail.zmailer.org with ESMTP id <S2802305AbRIUUEg>;
+	Fri, 21 Sep 2001 23:04:36 +0300
+Received: ("??"@vger.kernel.org) by vger.kernel.org id <S274806AbRIUUEB>;
+	Fri, 21 Sep 2001 16:04:01 -0400
+To:	linux-kernel-owner@vger.kernel.org
+From:	The Post Office <postmaster@vger.kernel.org>
+Sender:	mailer-daemon@vger.kernel.org
+Subject: Delivery reports about your email [FAILED(2)]
+MIME-Version: 1.0
+Content-Type: multipart/report; report-type=delivery-status;
+	boundary="S274806AbRIUUEB=_/vger.kernel.org"
+Message-Id: <20010921200409Z274806-761+11204@vger.kernel.org>
+Date:	Fri, 21 Sep 2001 16:04:01 -0400
+Return-Path: <>
+X-Envelope-To: <mea+vger.redhat.com@zmailer.org> (uid 99)
+X-Orcpt: rfc822;postoffice
 
-The top screens from interesting parts of the latest NFS test are included
-below.  I'm willing to try any patches (or measurement tools, within reason)
-anyone wants to provide to solve this problem.
+This is MULTIPART/REPORT structured message as defined at RFC 1894.
 
-Erik Habbinga
-Hewlett Packard
+Ask your email client software vendor, when will they support this
+report format by showing its formal part in your preferred language.
 
-12:33pm  up 48 min,  2 users,  load average: 8.59, 6.52, 4.77
-220 processes: 218 sleeping, 2 running, 0 zombie, 0 stopped
-CPU0 states:  0.0% user, 80.5% system,  0.1% nice, 18.4% idle
-CPU1 states:  0.0% user, 83.3% system,  0.0% nice, 16.1% idle
-CPU2 states:  0.2% user, 80.5% system,  0.2% nice, 18.1% idle
-CPU3 states:  0.0% user, 79.4% system,  0.0% nice, 20.1% idle
-Mem:  3924176K av, 3918500K used,    5676K free,       0K shrd,   96220K
-buff
-Swap: 1043900K av,       0K used, 1043900K free                 3322056K
-cached
-  PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
-    7 root      19   0     0    0     0 SW   53.1  0.0   0:54 kswapd
-    9 root      12   0     0    0     0 DW   30.3  0.0   3:48 kupdated
-  320 root      10   0     0    0     0 SW    7.0  0.0   0:24 nfsd
-  335 root       9   0     0    0     0 SW    5.3  0.0   0:24 nfsd
-  352 root       9   0     0    0     0 SW    4.8  0.0   0:23 nfsd
-  554 root      17   0  1080 1080   768 R     4.8  0.0   1:12 top
-  392 root       9   0     0    0     0 SW    4.6  0.0   0:24 nfsd
-  391 root       9   0     0    0     0 SW    4.4  0.0   0:25 nfsd
-  325 root       9   0     0    0     0 DW    4.0  0.0   0:24 nfsd
-  359 root       9   0     0    0     0 SW    3.7  0.0   0:24 nfsd
-  293 root       9   0     0    0     0 SW    3.5  0.0   0:25 nfsd
-  361 root       9   0     0    0     0 SW    3.5  0.0   0:23 nfsd
-  374 root       9   0     0    0     0 SW    3.5  0.0   0:24 nfsd
-  327 root      10   0     0    0     0 SW    3.1  0.0   0:23 nfsd
-  388 root       9   0     0    0     0 SW    3.1  0.0   0:23 nfsd
- 12:33pm  up 48 min,  2 users,  load average: 8.39, 6.51, 4.78
-220 processes: 217 sleeping, 3 running, 0 zombie, 0 stopped
-CPU0 states:  0.0% user, 81.2% system,  0.0% nice, 18.3% idle
-CPU1 states:  0.0% user, 82.3% system,  0.1% nice, 17.0% idle
-CPU2 states:  0.0% user, 86.0% system,  0.0% nice, 13.5% idle
-CPU3 states:  0.2% user, 86.2% system,  0.0% nice, 13.1% idle
-Mem:  3924176K av, 3918436K used,    5740K free,       0K shrd,   96396K
-buff
-Swap: 1043900K av,       0K used, 1043900K free                 3321192K
-cached
-  PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
-    7 root      17   0     0    0     0 RW   56.3  0.0   0:57 kswapd
-    9 root       9   0     0    0     0 DW   25.1  0.0   3:50 kupdated
-  294 root       9   0     0    0     0 SW    5.6  0.0   0:24 nfsd
-  303 root       9   0     0    0     0 SW    4.5  0.0   0:24 nfsd
-  334 root       9   0     0    0     0 SW    4.3  0.0   0:23 nfsd
-  312 root       9   0     0    0     0 SW    4.1  0.0   0:25 nfsd
-  308 root       9   0     0    0     0 SW    3.9  0.0   0:24 nfsd
-  403 root       9   0     0    0     0 SW    3.9  0.0   0:24 nfsd
-  554 root      15   0  1080 1080   768 R     3.9  0.0   1:12 top
-  302 root       9   0     0    0     0 SW    3.7  0.0   0:24 nfsd
-  412 root       9   0     0    0     0 SW    3.7  0.0   0:23 nfsd
-  310 root       9   0     0    0     0 SW    3.6  0.0   0:24 nfsd
-  404 root       9   0     0    0     0 SW    3.6  0.0   0:24 nfsd
-  340 root       9   0     0    0     0 SW    3.4  0.0   0:24 nfsd
-  295 root       9   0     0    0     0 SW    3.2  0.0   0:24 nfsd
-12:33pm  up 48 min,  2 users,  load average: 8.68, 6.60, 4.81
-220 processes: 214 sleeping, 6 running, 0 zombie, 0 stopped
-CPU0 states:  0.0% user, 94.0% system,  0.1% nice,  5.5% idle
-CPU1 states:  0.0% user, 94.0% system,  0.2% nice,  5.4% idle
-CPU2 states:  0.0% user, 94.0% system,  0.0% nice,  5.6% idle
-CPU3 states:  0.1% user, 93.4% system,  0.0% nice,  6.1% idle
-Mem:  3924176K av, 3919232K used,    4944K free,       0K shrd,   96472K
-buff
-Swap: 1043900K av,       0K used, 1043900K free                 3321548K
-cached
-  PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
-    7 root      15   0     0    0     0 RW   59.6  0.0   1:01 kswapd
-    9 root      12   0     0    0     0 DW   22.5  0.0   3:51 kupdated
-  554 root      12   0  1080 1080   768 R    19.4  0.0   1:14 top
-  325 root       9   0     0    0     0 SW    4.3  0.0   0:25 nfsd
-  361 root       9   0     0    0     0 SW    4.1  0.0   0:24 nfsd
-  336 root       9   0     0    0     0 DW    3.8  0.0   0:24 nfsd
-  394 root       9   0     0    0     0 SW    3.6  0.0   0:24 nfsd
-  302 root       9   0     0    0     0 SW    3.4  0.0   0:25 nfsd
-  370 root       9   0     0    0     0 SW    3.4  0.0   0:24 nfsd
-  311 root      10   0     0    0     0 SW    3.3  0.0   0:24 nfsd
-  412 root       9   0     0    0     0 SW    3.3  0.0   0:23 nfsd
-  368 root       9   0     0    0     0 SW    3.1  0.0   0:24 nfsd
-  371 root       9   0     0    0     0 SW    3.1  0.0   0:25 nfsd
-  375 root       9   0     0    0     0 SW    3.1  0.0   0:24 nfsd
-  397 root       9   0     0    0     0 SW    3.1  0.0   0:24 nfsd
-12:33pm  up 48 min,  2 users,  load average: 8.87, 6.71, 4.87
-220 processes: 215 sleeping, 5 running, 0 zombie, 0 stopped
-CPU0 states:  0.0% user, 94.6% system,  0.1% nice,  5.0% idle
-CPU1 states:  0.0% user, 94.1% system,  0.0% nice,  5.6% idle
-CPU2 states:  0.0% user, 93.5% system,  0.4% nice,  5.5% idle
-CPU3 states:  1.4% user, 93.4% system,  0.0% nice,  4.5% idle
-Mem:  3924176K av, 3919148K used,    5028K free,       0K shrd,   96268K
-buff
-Swap: 1043900K av,       0K used, 1043900K free                 3321116K
-cached
-  PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
-    7 root      14   0     0    0     0 RW   81.3  0.0   1:07 kswapd
-  554 root      18   0  1080 1080   768 R    23.8  0.0   1:15 top
-    9 root       9   0     0    0     0 DW   22.0  0.0   3:53 kupdated
-  326 root       9   0     0    0     0 SW    4.6  0.0   0:23 nfsd
-  351 root      10   0     0    0     0 SW    4.3  0.0   0:24 nfsd
-  374 root       9   0     0    0     0 SW    4.3  0.0   0:25 nfsd
-  289 root       9   0     0    0     0 SW    4.2  0.0   0:24 nfsd
-  331 root       9   0     0    0     0 RW    3.7  0.0   0:25 nfsd
-  406 root       9   0     0    0     0 SW    3.7  0.0   0:25 nfsd
-  397 root       9   0     0    0     0 SW    3.5  0.0   0:25 nfsd
-  332 root       9   0     0    0     0 SW    3.4  0.0   0:24 nfsd
-  353 root       9   0     0    0     0 SW    3.3  0.0   0:25 nfsd
-  346 root       9   0     0    0     0 SW    3.1  0.0   0:25 nfsd
-  402 root       9   0     0    0     0 SW    3.1  0.0   0:25 nfsd
-  412 root      10   0     0    0     0 SW    3.1  0.0   0:24 nfsd
-12:33pm  up 49 min,  2 users,  load average: 8.88, 6.75, 4.89
-220 processes: 214 sleeping, 6 running, 0 zombie, 0 stopped
-CPU0 states:  0.1% user, 98.3% system,  0.3% nice,  0.6% idle
-CPU1 states:  0.0% user, 98.1% system,  0.0% nice,  1.5% idle
-CPU2 states:  0.0% user, 99.1% system,  0.0% nice,  0.5% idle
-CPU3 states:  0.0% user, 97.3% system,  0.1% nice,  2.2% idle
-Mem:  3924176K av, 3918888K used,    5288K free,       0K shrd,   96076K
-buff
-Swap: 1043900K av,       0K used, 1043900K free                 3320648K
-cached
-  PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
-    7 root      18   0     0    0     0 RW   99.9  0.0   1:14 kswapd
-    9 root       9   0     0    0     0 RW   18.0  0.0   3:54 kupdated
-  554 root      19   0  1080 1080   768 R    17.6  0.0   1:17 top
-  410 root       9   0     0    0     0 SW    3.8  0.0   0:24 nfsd
-  289 root       9   0     0    0     0 SW    3.7  0.0   0:24 nfsd
-  295 root       9   0     0    0     0 DW    3.7  0.0   0:24 nfsd
-  342 root       9   0     0    0     0 SW    3.7  0.0   0:24 nfsd
-  401 root       9   0     0    0     0 SW    3.7  0.0   0:24 nfsd
-  369 root       9   0     0    0     0 SW    3.5  0.0   0:25 nfsd
-  396 root       9   0     0    0     0 SW    3.5  0.0   0:24 nfsd
-  322 root       9   0     0    0     0 SW    3.4  0.0   0:24 nfsd
-  361 root       9   0     0    0     0 SW    3.2  0.0   0:24 nfsd
-  291 root       9   0     0    0     0 SW    3.1  0.0   0:25 nfsd
-  301 root       9   0     0    0     0 SW    3.1  0.0   0:24 nfsd
-  318 root       9   0     0    0     0 SW    3.1  0.0   0:24 nfsd
-12:33pm  up 49 min,  2 users,  load average: 8.73, 6.75, 4.90
-220 processes: 216 sleeping, 4 running, 0 zombie, 0 stopped
-CPU0 states:  0.1% user, 99.1% system,  0.1% nice,  0.3% idle
-CPU1 states:  2.0% user, 97.4% system,  0.1% nice,  0.1% idle
-CPU2 states:  0.1% user, 99.4% system,  0.0% nice,  0.1% idle
-CPU3 states:  0.0% user, 99.5% system,  0.1% nice,  0.0% idle
-Mem:  3924176K av, 3919156K used,    5020K free,       0K shrd,   96028K
-buff
-Swap: 1043900K av,       0K used, 1043900K free                 3320772K
-cached
-  PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
-    7 root      17   0     0    0     0 RW   99.9  0.0   1:21 kswapd
-    9 root       9   0     0    0     0 DW   24.3  0.0   3:56 kupdated
-  554 root      19   0  1080 1080   768 R    17.3  0.0   1:18 top
-  388 root       9   0     0    0     0 SW    4.9  0.0   0:24 nfsd
-  415 root       9   0     0    0     0 SW    4.9  0.0   0:25 nfsd
-  381 root       9   0     0    0     0 SW    4.7  0.0   0:24 nfsd
-  398 root       9   0     0    0     0 DW    4.3  0.0   0:24 nfsd
-  396 root       9   0     0    0     0 SW    4.1  0.0   0:25 nfsd
-  341 root       9   0     0    0     0 SW    4.0  0.0   0:25 nfsd
-  401 root       9   0     0    0     0 SW    4.0  0.0   0:25 nfsd
-  294 root       9   0     0    0     0 SW    3.8  0.0   0:25 nfsd
-  347 root       9   0     0    0     0 SW    3.2  0.0   0:25 nfsd
-  352 root       9   0     0    0     0 SW    3.2  0.0   0:24 nfsd
-  303 root       9   0     0    0     0 SW    3.1  0.0   0:24 nfsd
-  402 root       9   0     0    0     0 SW    3.1  0.0   0:25 nfsd
+--S274806AbRIUUEB=_/vger.kernel.org
+Content-Type: text/plain
 
-...and this contiues for quite awhile...
+This is a collection of reports about email delivery
+process concerning a message you originated.
+
+Some explanations/translations for these reports
+can be found at:
+      http://www.zmailer.org/reports.html
+
+Generic VGER note:  Joining/leaving VGER's lists thru server:
+			majordomo@vger.kernel.org
+
+FAILED:
+  Original Recipient:
+    rfc822;bdnelson@austin.rr.com
+  Control data:
+    smtp austin.rr.com bdnelson@austin.rr.com 99
+  Diagnostic texts:
+...\
+    <<- MAIL From:<linux-kernel-owner@vger.kernel.org> BODY=8BITMIME SIZE=2885
+    ->> 250 2.1.0 <linux-kernel-owner@vger.kernel.org>... Sender ok
+    <<- RCPT To:<mjustice@austin.rr.com> NOTIFY=FAILURE ORCPT=rfc822;mjustice@austin.rr.com
+    ->> 250 2.1.5 <mjustice@austin.rr.com>... Recipient ok
+    <<- DATA
+    ->> 354 Enter mail, end with "." on a line by itself
+    <<- .
+    ->> 553 5.0.0 Possible Spam
+FAILED:
+  Original Recipient:
+    rfc822;mjustice@austin.rr.com
+  Control data:
+    smtp austin.rr.com mjustice@austin.rr.com 99
+  Diagnostic texts:
+...\
+    <<- MAIL From:<linux-kernel-owner@vger.kernel.org> BODY=8BITMIME SIZE=2885
+    ->> 250 2.1.0 <linux-kernel-owner@vger.kernel.org>... Sender ok
+    <<- RCPT To:<mjustice@austin.rr.com> NOTIFY=FAILURE ORCPT=rfc822;mjustice@austin.rr.com
+    ->> 250 2.1.5 <mjustice@austin.rr.com>... Recipient ok
+    <<- DATA
+    ->> 354 Enter mail, end with "." on a line by itself
+    <<- .
+    ->> 553 5.0.0 Possible Spam
+
+Following is a copy of MESSAGE/DELIVERY-STATUS format section below.
+It is copied here in case your email client is unable to show it to you.
+The information here below is in  Internet Standard  format designed to
+assist automatic, and accurate presentation and usage of said information.
+In case you need human assistance from the Postmaster(s) of the system which
+sent you this report, please include this information in your question!
+
+    Virtually Yours,
+        Automatic Email Delivery Software
+
+Reporting-MTA: dns; vger.kernel.org
+Arrival-Date: Fri, 21 Sep 2001 15:47:39 -0400
+Local-Spool-ID: S274798AbRIUTrj
+
+Original-Recipient: rfc822;bdnelson@austin.rr.com
+Final-Recipient: RFC822;bdnelson@austin.rr.com
+Action: failed
+Status: 5.0.0
+Diagnostic-Code: smtp; 553 (Possible Spam)
+Remote-MTA: dns; txmx02.mgw.rr.com (24.93.35.223|25|199.183.24.194|54328)
+Last-Attempt-Date: Fri, 21 Sep 2001 15:51:02 -0400
+X-ZTAID: smtp[22478]
+
+Original-Recipient: rfc822;mjustice@austin.rr.com
+Final-Recipient: RFC822;mjustice@austin.rr.com
+Action: failed
+Status: 5.0.0
+Diagnostic-Code: smtp; 553 (Possible Spam)
+Remote-MTA: dns; txmx02.mgw.rr.com (24.93.35.223|25|199.183.24.194|54328)
+Last-Attempt-Date: Fri, 21 Sep 2001 15:51:02 -0400
+X-ZTAID: smtp[22478]
+
+
+Following is copy of the message headers. Original message content may
+be in subsequent parts of this MESSAGE/DELIVERY-STATUS structure.
+
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+	id <S274798AbRIUTrj>; Fri, 21 Sep 2001 15:47:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org
+	id <S274799AbRIUTr3>; Fri, 21 Sep 2001 15:47:29 -0400
+Received: from c007-h015.c007.snv.cp.net ([209.228.33.222]:28899 "HELO
+	c007.snv.cp.net") by vger.kernel.org with SMTP id <S274798AbRIUTrS>;
+	Fri, 21 Sep 2001 15:47:18 -0400
+Received: (cpmta 3394 invoked from network); 21 Sep 2001 12:47:36 -0700
+Received: from 208-186-44-038.elimm.quik.com (HELO distributopia.com) (208.186.44.38)
+  by smtp.distributopia.com (209.228.33.222) with SMTP; 21 Sep 2001 12:47:36 -0700
+X-Sent:	21 Sep 2001 19:47:36 GMT
+Message-ID: <3BAB9790.8DB400C@distributopia.com>
+Date:	Fri, 21 Sep 2001 14:40:00 -0500
+From:	"Christopher K. St. John" <cks@distributopia.com>
+X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.0.36 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To:	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: /dev/yapoll : Re: [PATCH] /dev/epoll update ...
+In-Reply-To: <XFMail.20010921114539.davidel@xmailserver.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Sender:	linux-kernel-owner@vger.kernel.org
+Precedence: bulk
+X-Mailing-List:	linux-kernel@vger.kernel.org
+
+
+--S274806AbRIUUEB=_/vger.kernel.org
+Content-Type: message/delivery-status
+
+Reporting-MTA: dns; vger.kernel.org
+Arrival-Date: Fri, 21 Sep 2001 15:47:39 -0400
+Local-Spool-ID: S274798AbRIUTrj
+
+Original-Recipient: rfc822;bdnelson@austin.rr.com
+Final-Recipient: RFC822;bdnelson@austin.rr.com
+Action: failed
+Status: 5.0.0
+Diagnostic-Code: smtp; 553 (Possible Spam)
+Remote-MTA: dns; txmx02.mgw.rr.com (24.93.35.223|25|199.183.24.194|54328)
+Last-Attempt-Date: Fri, 21 Sep 2001 15:51:02 -0400
+X-ZTAID: smtp[22478]
+
+Original-Recipient: rfc822;mjustice@austin.rr.com
+Final-Recipient: RFC822;mjustice@austin.rr.com
+Action: failed
+Status: 5.0.0
+Diagnostic-Code: smtp; 553 (Possible Spam)
+Remote-MTA: dns; txmx02.mgw.rr.com (24.93.35.223|25|199.183.24.194|54328)
+Last-Attempt-Date: Fri, 21 Sep 2001 15:51:02 -0400
+X-ZTAID: smtp[22478]
+
+--S274806AbRIUUEB=_/vger.kernel.org
+Content-Type: message/rfc822
+
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+	id <S274798AbRIUTrj>; Fri, 21 Sep 2001 15:47:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org
+	id <S274799AbRIUTr3>; Fri, 21 Sep 2001 15:47:29 -0400
+Received: from c007-h015.c007.snv.cp.net ([209.228.33.222]:28899 "HELO
+	c007.snv.cp.net") by vger.kernel.org with SMTP id <S274798AbRIUTrS>;
+	Fri, 21 Sep 2001 15:47:18 -0400
+Received: (cpmta 3394 invoked from network); 21 Sep 2001 12:47:36 -0700
+Received: from 208-186-44-038.elimm.quik.com (HELO distributopia.com) (208.186.44.38)
+  by smtp.distributopia.com (209.228.33.222) with SMTP; 21 Sep 2001 12:47:36 -0700
+X-Sent:	21 Sep 2001 19:47:36 GMT
+Message-ID: <3BAB9790.8DB400C@distributopia.com>
+Date:	Fri, 21 Sep 2001 14:40:00 -0500
+From:	"Christopher K. St. John" <cks@distributopia.com>
+X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.0.36 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To:	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: /dev/yapoll : Re: [PATCH] /dev/epoll update ...
+In-Reply-To: <XFMail.20010921114539.davidel@xmailserver.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Sender:	linux-kernel-owner@vger.kernel.org
+Precedence: bulk
+X-Mailing-List:	linux-kernel@vger.kernel.org
+
+Davide Libenzi wrote:
+> 
+> Instead of requesting /dev/epoll changes to make it
+> something that is not born for, i think that the /dev/poll
+> patch can be improved in a significant way.
+>
+
+ I think there's agreement that Davide doesn't want
+to change his /dev/epoll code.
+
+ So, as an experiment, I'm modifying /dev/epoll to
+more closely match the interface described in:
+
+  http://citeseer.nj.nec.com/banga99measuring.html
+
+ The paper describes in detail an event based
+notification mechanism for determining which fd's are
+ready for processing. Linux-/dev/poll is, and 
+/dev/epoll appears to be, a variant of the mechanism
+described in the paper.
+
+ To save further pointless argument, I'm calling the
+experiment "/dev/yapoll". 
+
+ Specifically, I've added code to return the initial
+state of the fd's as they are added to the interest
+list. It seems to work ok so far, but I'll be doing
+some benchmarking this weekend. I will post a patch
+if no problems turn up.
+
+ Davide seems to think it would be better to start
+with the Linux-/dev/poll patch, but I disagree
+(/dev/epoll itself appears to be based on the
+Linux-/dev/poll code) I guess I'll soon find out if
+he was right.
+
+
+-- 
+Christopher St. John cks@distributopia.com
+DistribuTopia http://www.distributopia.com
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+--S274806AbRIUUEB=_/vger.kernel.org--
+
+--xmQNNkfJFyghCYbI--

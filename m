@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263580AbTEIXig (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 19:38:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263582AbTEIXig
+	id S263579AbTEIXhH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 19:37:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263580AbTEIXhH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 19:38:36 -0400
-Received: from port-212-202-185-50.reverse.qdsl-home.de ([212.202.185.50]:32135
-	"EHLO gw.localnet") by vger.kernel.org with ESMTP id S263580AbTEIXif
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 19:38:35 -0400
-Message-ID: <3EBC3E94.5020000@trash.net>
-Date: Sat, 10 May 2003 01:49:40 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030430 Debian/1.3-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: chas williams <chas@locutus.cmf.nrl.navy.mil>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix kfree(skb) in iphase driver
-References: <200305092310.h49NAnGi011053@locutus.cmf.nrl.navy.mil>
-In-Reply-To: <200305092310.h49NAnGi011053@locutus.cmf.nrl.navy.mil>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 9 May 2003 19:37:07 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:9931 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263579AbTEIXhG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 19:37:06 -0400
+Date: Fri, 9 May 2003 16:51:42 -0700
+From: Greg KH <greg@kroah.com>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [BK PATCH] Driver core changes for 2.5.69
+Message-ID: <20030509235142.GA3506@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+Here are three small changesets that fix up some stuff in the driver
+class code.  They do the following:
+	- restore back the driver link in the sysfs class representation
+	  that I removed based on my previous class changes.
+	- fix the cpu frequency code to work properly again (I messed up
+	  when porting it to the new class code.)
+	- remove an unneeded line in the class code.
 
-chas williams wrote:
+Please pull from:  bk://kernel.bkbits.net/gregkh/linux/class-2.5
 
->In message <3EBAD2F1.9090802@trash.net>,Patrick McHardy writes:
->  
->
->>This patch fixes a kfree(skb) in the iphase driver.
->>    
->>
->
->what release is this against?
->
+thanks,
 
-2.4.21-rc1 couple of changesets before -rc2, still applies.
+greg k-h
 
-Patrick
+ drivers/base/class.c |   18 +++++++++++++++++-
+ include/linux/cpu.h  |    1 +
+ kernel/cpufreq.c     |    2 ++
+ 3 files changed, 20 insertions(+), 1 deletion(-)
+-----
+
+Greg Kroah-Hartman:
+  o driver core: remove unneeded line in class code
+  o driver core: Add driver symlink to class devices in sysfs
+
+Jonathan Corbet:
+  o cpufreq class fix
 

@@ -1,137 +1,427 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261317AbSKZWAX>; Tue, 26 Nov 2002 17:00:23 -0500
+	id <S261337AbSKZWFE>; Tue, 26 Nov 2002 17:05:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261318AbSKZWAX>; Tue, 26 Nov 2002 17:00:23 -0500
-Received: from imap.laposte.net ([213.30.181.7]:52102 "EHLO smtp.laposte.net")
-	by vger.kernel.org with ESMTP id <S261317AbSKZWAV>;
-	Tue, 26 Nov 2002 17:00:21 -0500
-Subject: [PATCH] [2.5] Via KT400 agp support II (cosmetic)
-From: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <Alan@redhat.com>, Dave Jones <davej@codemonkey.org.uk>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1037869042.5728.16.camel@ulysse.olympe.o2t>
-References: <1037869042.5728.16.camel@ulysse.olympe.o2t>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-mysIAGfa0RYBJX9O4fxb"
-Organization: 
-Message-Id: <1038348412.1075.7.camel@rousalka>
+	id <S261339AbSKZWFE>; Tue, 26 Nov 2002 17:05:04 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:57617 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261337AbSKZWE6>;
+	Tue, 26 Nov 2002 17:04:58 -0500
+Date: Tue, 26 Nov 2002 14:04:23 -0800
+From: Greg KH <greg@kroah.com>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, linux-security-module@wirex.com
+Subject: [BK PATCH] LSM changes for 2.5.49
+Message-ID: <20021126220423.GB613@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 (1.2.0-3) 
-Date: 26 Nov 2002 23:06:52 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a resend of my previous series of LSM patches for 2.5.43 that
+change the way the LSM hooks operate (now they can be compiled away into
+nothing).  This was proposed by Dave Miller, and he seems to like these
+changes.I've also added the sys_security patch from Christoph Hellwig as
+everyone agrees that the idea of sys_security is good, but the current
+implementation sucks.
 
---=-mysIAGfa0RYBJX9O4fxb
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Please pull from:
+	bk://lsm.bkbits.net/linus-2.5
 
-Hi,
+thanks,
 
-	This little patch adds some cosmetic changes to the one that went in
-mainline (found when I did the 2.4 port) :=20
-- corrects the drm startup message so it doesn't print unknown chip for
-the kt400
-- adds a bunch of ids to the pci database (started with the kt400, ended
-with all unreferenced chips on my box)
+greg k-h
 
-	This is purely cosmetic ; the necessary part to get the kt400 was in
-the first patch. Anyway this is nice to have.
+ Documentation/DocBook/lsm.tmpl    |   23 
+ arch/alpha/kernel/systbls.S       |    4 
+ arch/arm/kernel/calls.S           |    4 
+ arch/arm/kernel/ptrace.c          |    6 
+ arch/i386/kernel/entry.S          |    4 
+ arch/i386/kernel/ptrace.c         |    6 
+ arch/ia64/kernel/entry.S          |    4 
+ arch/ia64/kernel/ptrace.c         |    6 
+ arch/ppc/kernel/misc.S            |    5 
+ arch/ppc/kernel/ptrace.c          |    6 
+ arch/ppc64/kernel/misc.S          |    5 
+ arch/ppc64/kernel/ptrace.c        |    6 
+ arch/ppc64/kernel/ptrace32.c      |    6 
+ arch/ppc64/kernel/sys_ppc32.c     |   16 
+ arch/s390/kernel/entry.S          |    4 
+ arch/s390/kernel/ptrace.c         |    6 
+ arch/s390x/kernel/entry.S         |    4 
+ arch/s390x/kernel/ptrace.c        |    8 
+ arch/sparc/kernel/ptrace.c        |   15 
+ arch/sparc/kernel/systbls.S       |    4 
+ arch/sparc64/kernel/ptrace.c      |   15 
+ arch/sparc64/kernel/sys_sparc32.c |   21 
+ arch/sparc64/kernel/systbls.S     |    8 
+ arch/um/kernel/ptrace.c           |    3 
+ arch/um/kernel/sys_call_table.c   |    4 
+ arch/x86_64/kernel/ptrace.c       |    6 
+ drivers/base/fs/class.c           |    2 
+ drivers/base/fs/intf.c            |    2 
+ drivers/pnp/interface.c           |    1 
+ fs/attr.c                         |   10 
+ fs/dquot.c                        |    8 
+ fs/exec.c                         |   32 -
+ fs/fcntl.c                        |   11 
+ fs/file_table.c                   |   18 
+ fs/inode.c                        |   12 
+ fs/ioctl.c                        |    3 
+ fs/locks.c                        |   26 
+ fs/namei.c                        |  116 +---
+ fs/namespace.c                    |   46 -
+ fs/nfsd/export.c                  |    1 
+ fs/open.c                         |    9 
+ fs/proc/base.c                    |    9 
+ fs/quota.c                        |    2 
+ fs/read_write.c                   |   18 
+ fs/readdir.c                      |    4 
+ fs/stat.c                         |   12 
+ fs/super.c                        |   18 
+ fs/xattr.c                        |   14 
+ include/asm-alpha/unistd.h        |    4 
+ include/asm-arm/unistd.h          |    2 
+ include/asm-cris/unistd.h         |    2 
+ include/asm-i386/unistd.h         |    4 
+ include/asm-ia64/unistd.h         |    4 
+ include/asm-ppc/unistd.h          |    4 
+ include/asm-ppc64/unistd.h        |    4 
+ include/asm-s390/unistd.h         |    8 
+ include/asm-s390x/unistd.h        |    8 
+ include/asm-sparc/unistd.h        |    4 
+ include/asm-sparc64/unistd.h      |    4 
+ include/asm-x86_64/unistd.h       |    3 
+ include/linux/sched.h             |   40 -
+ include/linux/security.h          | 1050 +++++++++++++++++++++++++++++++++++++-
+ init/do_mounts.c                  |    9 
+ ipc/msg.c                         |   14 
+ ipc/sem.c                         |   14 
+ ipc/shm.c                         |   14 
+ ipc/util.c                        |    4 
+ kernel/acct.c                     |    4 
+ kernel/capability.c               |   22 
+ kernel/exit.c                     |   18 
+ kernel/fork.c                     |   28 -
+ kernel/kmod.c                     |    6 
+ kernel/ptrace.c                   |   73 ++
+ kernel/sched.c                    |   45 -
+ kernel/signal.c                   |    8 
+ kernel/sys.c                      |  146 +----
+ kernel/uid16.c                    |    3 
+ mm/mmap.c                         |    9 
+ mm/mprotect.c                     |    6 
+ net/core/scm.c                    |    3 
+ net/decnet/af_decnet.c            |    4 
+ net/unix/af_unix.c                |    1 
+ security/Config.help              |    7 
+ security/Config.in                |    2 
+ security/Kconfig                  |   15 
+ security/Makefile                 |   10 
+ security/capability.c             |  658 ++++++++++++-----------
+ security/dummy.c                  |   14 
+ security/security.c               |   18 
+ 89 files changed, 1899 insertions(+), 970 deletions(-)
+-----
 
-	Please apply,
+ChangeSet@1.892, 2002-11-26 11:29:49-08:00, greg@kroah.com
+  Merge kroah.com:/home/greg/linux/BK/bleeding_edge-2.5
+  into kroah.com:/home/greg/linux/BK/lsm-2.5
 
-diff -uNr linux-2.5.49-bk1.orig/drivers/char/drm/drm_agpsupport.h
-linux-2.5.49-bk1/drivers/char/drm/drm_agpsupport.h
---- linux-2.5.49-bk1.orig/drivers/char/drm/drm_agpsupport.h	2002-11-22
-22:40:12.000000000 +0100
-+++ linux-2.5.49-bk1/drivers/char/drm/drm_agpsupport.h	2002-11-26
-22:27:52.000000000 +0100
-@@ -286,9 +286,11 @@
- 			break;
- 		case VIA_APOLLO_KT133:	head->chipset =3D "VIA Apollo KT133";
- 			break;
--
-+		case VIA_APOLLO_KT400:  head->chipset =3D "VIA Apollo KT400";
-+			break;
- 		case VIA_APOLLO_PRO: 	head->chipset =3D "VIA Apollo Pro";
- 			break;
-+
- 		case SIS_GENERIC:	head->chipset =3D "SiS";           break;
- 		case AMD_GENERIC:	head->chipset =3D "AMD";           break;
- 		case AMD_IRONGATE:	head->chipset =3D "AMD Irongate";  break;
-diff -uNr linux-2.5.49-bk1.orig/drivers/pci/pci.ids
-linux-2.5.49-bk1/drivers/pci/pci.ids
---- linux-2.5.49-bk1.orig/drivers/pci/pci.ids	2002-11-26
-22:15:27.000000000 +0100
-+++ linux-2.5.49-bk1/drivers/pci/pci.ids	2002-11-26 22:25:45.000000000
-+0100
-@@ -582,6 +582,7 @@
- 	6003  CS 4614/22/24 [CrystalClear SoundFusion Audio Accelerator]
- 		1013 4280  Crystal SoundFusion PCI Audio Accelerator
- 		1681 0050  Hercules Game Theater XP
-+		1681 a011  Hercules Fortissimo III 7.1
- 	6004  CS 4614/22/24 [CrystalClear SoundFusion Audio Accelerator]
- 	6005  Crystal CS4281 PCI Audio
- 		1013 4281  Crystal CS4281 PCI Audio
-@@ -2687,6 +2688,7 @@
- 	0505  VT82C505
- 	0561  VT82C561
- 	0571  VT82C586B PIPC Bus Master IDE
-+		1458 5002 GA-7VAX Mainboard
- 	0576  VT82C576 3V [Apollo Master]
- 	0585  VT82C585VP [Apollo VP1/VPX]
- 	0586  VT82C586/A/B PCI-to-ISA [Apollo VP]
-@@ -2735,6 +2737,7 @@
- 		1462 3091  MS-6309 Onboard Audio
- 		15dd 7609  Onboard Audio
- 	3059  VT8233 AC97 Audio Controller
-+		1458 a002  GA-7VAX Onboard Audio (Realtek ALC650)
- 	3065  VT6102 [Rhine-II]
- 		1186 1400  DFE-530TX rev A
- 		1186 1401  DFE-530TX rev B
-@@ -2748,6 +2751,7 @@
- 	3102  VT8662 Host Bridge
- 	3103  VT8615 Host Bridge
- 	3104  USB 2.0
-+		1458 5004  GA-7VAX Mainboard
- 	3109  VT8233C PCI to ISA Bridge
- 	3112  VT8361 [KLE133] Host Bridge
- 	3128  VT8753 [P4X266 AGP]
-@@ -2756,6 +2760,9 @@
- 	3148  P4M266 Host Bridge
- 	3156  P/KN266 Host Bridge
- 	3177  VT8233A ISA Bridge
-+		1458 5001 GA-7VAX Mainboard
-+	3189  VT8377 [KT400 AGP] Host Bridge
-+		1458 5000 GA-7VAX Mainboard
- 	5030  VT82C596 ACPI [Apollo PRO]
- 	6100  VT85C100A [Rhine II]
- 	8231  VT8231 [PCI-to-ISA Bridge]
-@@ -2776,6 +2783,7 @@
- 	b102  VT8362 AGP Bridge
- 	b103  VT8615 AGP Bridge
- 	b112  VT8361 [KLE133] AGP Bridge
-+	b168  VT8235 PCI Bridge
- 1107  Stratus Computers
- 	0576  VIA VT82C570MV [Apollo] (Wrong vendor ID!)
- 1108  Proteon, Inc.
+ arch/ppc/kernel/misc.S |    1 +
+ fs/file_table.c        |    6 +++---
+ fs/proc/base.c         |    3 ++-
+ include/linux/sched.h  |   10 ++++++----
+ init/do_mounts.c       |    3 ++-
+ kernel/exit.c          |    6 +++---
+ kernel/fork.c          |    7 +++----
+ kernel/sched.c         |   15 +++++----------
+ kernel/sys.c           |   48 +++++++++++++++++-------------------------------
+ 9 files changed, 42 insertions(+), 57 deletions(-)
+------
 
---=20
-Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
+ChangeSet@1.842.44.4, 2002-11-25 20:10:47-08:00, greg@kroah.com
+  LSM: put CONFIG_SECURITY back into the Kconfig file (was lost in the merge)
 
---=-mysIAGfa0RYBJX9O4fxb
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Ceci est une partie de message
-	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
+ security/Kconfig |   15 +++++++++++++--
+ 1 files changed, 13 insertions(+), 2 deletions(-)
+------
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+ChangeSet@1.842.44.3, 2002-11-25 20:09:46-08:00, greg@kroah.com
+  LSM: Move the definition of capable() into sched.h if CONFIG_SECURITY is set to help
+  make the #include nightmare more managable.
 
-iD8DBQA94/B8I2bVKDsp8g0RAlQ1AKDFhXM/KOdHM4fgGwilVgOr32fwugCgktVJ
-8639OAwi8ZmFzGD22x8OFkk=
-=Enx7
------END PGP SIGNATURE-----
+ include/linux/sched.h    |    6 ++++--
+ include/linux/security.h |    1 -
+ 2 files changed, 4 insertions(+), 3 deletions(-)
+------
 
---=-mysIAGfa0RYBJX9O4fxb--
+ChangeSet@1.842.44.2, 2002-11-25 19:57:47-08:00, greg@kroah.com
+  LSM: fix up some needed header file #includes
+
+ drivers/pnp/interface.c |    1 +
+ fs/nfsd/export.c        |    1 +
+ net/unix/af_unix.c      |    1 +
+ 3 files changed, 3 insertions(+)
+------
+
+ChangeSet@1.842.44.1, 2002-11-24 15:31:02-08:00, greg@kroah.com
+  Merge
+
+ arch/alpha/kernel/systbls.S       |    2 
+ arch/arm/kernel/calls.S           |    2 
+ arch/arm/kernel/ptrace.c          |    3 
+ arch/i386/kernel/entry.S          |    2 
+ arch/i386/kernel/ptrace.c         |    3 
+ arch/ia64/kernel/entry.S          |    2 
+ arch/ia64/kernel/ptrace.c         |    3 
+ arch/ppc/kernel/misc.S            |    2 
+ arch/ppc/kernel/ptrace.c          |    3 
+ arch/ppc64/kernel/misc.S          |    1 
+ arch/ppc64/kernel/ptrace.c        |    3 
+ arch/ppc64/kernel/ptrace32.c      |    3 
+ arch/s390/kernel/entry.S          |    2 
+ arch/s390/kernel/ptrace.c         |    3 
+ arch/s390x/kernel/entry.S         |    2 
+ arch/s390x/kernel/ptrace.c        |    4 
+ arch/sparc/kernel/ptrace.c        |   12 +
+ arch/sparc/kernel/systbls.S       |    2 
+ arch/sparc64/kernel/ptrace.c      |   12 +
+ arch/sparc64/kernel/sys_sparc32.c |    7 
+ arch/sparc64/kernel/systbls.S     |    4 
+ arch/um/kernel/sys_call_table.c   |    2 
+ arch/x86_64/kernel/ptrace.c       |    3 
+ fs/attr.c                         |    5 
+ fs/dquot.c                        |    4 
+ fs/exec.c                         |   16 -
+ fs/file_table.c                   |    6 
+ fs/inode.c                        |    6 
+ fs/locks.c                        |   13 -
+ fs/namei.c                        |   58 ++----
+ fs/namespace.c                    |   23 +-
+ fs/open.c                         |    3 
+ fs/proc/base.c                    |    3 
+ fs/read_write.c                   |    6 
+ fs/stat.c                         |    6 
+ fs/super.c                        |    6 
+ include/asm-alpha/unistd.h        |    2 
+ include/asm-i386/unistd.h         |    2 
+ include/asm-ia64/unistd.h         |    2 
+ include/asm-ppc/unistd.h          |    2 
+ include/asm-ppc64/unistd.h        |    2 
+ include/asm-s390/unistd.h         |    4 
+ include/asm-s390x/unistd.h        |    4 
+ include/asm-sparc/unistd.h        |    2 
+ include/asm-sparc64/unistd.h      |    2 
+ include/linux/sched.h             |    8 
+ init/do_mounts.c                  |    3 
+ ipc/msg.c                         |    7 
+ ipc/sem.c                         |    7 
+ ipc/shm.c                         |    7 
+ ipc/util.c                        |    2 
+ kernel/capability.c               |   11 -
+ kernel/exit.c                     |    6 
+ kernel/fork.c                     |    7 
+ kernel/kmod.c                     |    3 
+ kernel/ptrace.c                   |   69 ++++++++
+ kernel/sched.c                    |   15 -
+ kernel/signal.c                   |    4 
+ kernel/sys.c                      |   48 ++---
+ mm/mmap.c                         |    3 
+ mm/mprotect.c                     |    3 
+ security/capability.c             |  323 +++++++++++++++++++-------------------
+ security/dummy.c                  |    7 
+ 63 files changed, 409 insertions(+), 383 deletions(-)
+------
+
+ChangeSet@1.786.99.3, 2002-10-29 15:02:47-08:00, greg@kroah.com
+  LSM: remove last remanants of sys_security missed by last patch.
+
+ kernel/sys.c          |    1 -
+ security/capability.c |    7 -------
+ 2 files changed, 8 deletions(-)
+------
+
+ChangeSet@1.786.99.2, 2002-10-29 14:04:23-08:00, hch@infradead.org
+  [PATCH] remove sys_security
+  
+  I've been auditing the LSM stuff a bit more..
+  
+  They have registered an implemented a syscall, sys_security
+  that does nothing but switch into the individual modules
+  based on the first argument, i.e. it's ioctl() switching
+  on the security module instead of device node.  Yuck.
+  
+  Patch below removes it (no intree users), maybe selinux/etc
+  folks should send their actual syscall for review instead..
+
+ Documentation/DocBook/lsm.tmpl  |   23 -----------------------
+ arch/alpha/kernel/systbls.S     |    2 +-
+ arch/arm/kernel/calls.S         |    2 +-
+ arch/i386/kernel/entry.S        |    2 +-
+ arch/ia64/kernel/entry.S        |    2 +-
+ arch/ppc/kernel/misc.S          |    2 +-
+ arch/ppc64/kernel/misc.S        |    4 ++--
+ arch/s390/kernel/entry.S        |    2 +-
+ arch/s390x/kernel/entry.S       |    2 +-
+ arch/sparc/kernel/systbls.S     |    2 +-
+ arch/sparc64/kernel/systbls.S   |    4 ++--
+ arch/um/kernel/sys_call_table.c |    2 --
+ include/asm-alpha/unistd.h      |    2 +-
+ include/asm-arm/unistd.h        |    2 +-
+ include/asm-cris/unistd.h       |    2 +-
+ include/asm-i386/unistd.h       |    2 +-
+ include/asm-ia64/unistd.h       |    2 +-
+ include/asm-ppc/unistd.h        |    2 +-
+ include/asm-ppc64/unistd.h      |    2 +-
+ include/asm-s390/unistd.h       |    4 +++-
+ include/asm-s390x/unistd.h      |    4 +++-
+ include/asm-sparc/unistd.h      |    2 +-
+ include/asm-sparc64/unistd.h    |    2 +-
+ include/asm-x86_64/unistd.h     |    3 +--
+ include/linux/security.h        |   17 -----------------
+ security/dummy.c                |    7 -------
+ security/security.c             |   18 ------------------
+ 27 files changed, 28 insertions(+), 92 deletions(-)
+------
+
+ChangeSet@1.786.99.1, 2002-10-29 13:30:34-08:00, greg@kroah.com
+  Merge kroah.com:/home/greg/linux/BK/bleeding_edge-2.5
+  into kroah.com:/home/greg/linux/BK/lsm-2.5
+
+ fs/open.c     |    3 +--
+ fs/super.c    |    6 +++---
+ kernel/fork.c |    7 +++----
+ mm/mmap.c     |    3 +--
+ 4 files changed, 8 insertions(+), 11 deletions(-)
+------
+
+ChangeSet@1.786.71.1, 2002-10-25 14:52:30-07:00, greg@kroah.com
+  Merge kroah.com:/home/greg/linux/BK/bleeding_edge-2.5
+  into kroah.com:/home/greg/linux/BK/lsm-2.5
+
+ arch/ppc64/kernel/sys_ppc32.c     |    8 ++++----
+ arch/sparc64/kernel/sys_sparc32.c |    7 +++----
+ include/linux/sched.h             |    8 ++++----
+ net/decnet/af_decnet.c            |    2 +-
+ 4 files changed, 12 insertions(+), 13 deletions(-)
+------
+
+ChangeSet@1.786.16.6, 2002-10-17 14:08:43-07:00, greg@kroah.com
+  LSM: convert over the remaining security calls to the new format.
+
+ ipc/msg.c              |    7 +++----
+ ipc/sem.c              |    7 +++----
+ ipc/shm.c              |    7 +++----
+ ipc/util.c             |    2 +-
+ kernel/acct.c          |    3 +--
+ kernel/capability.c    |   10 +++++-----
+ kernel/exit.c          |    6 +++---
+ kernel/fork.c          |    7 +++----
+ kernel/kmod.c          |    2 +-
+ kernel/sched.c         |   15 +++++----------
+ kernel/signal.c        |    3 +--
+ kernel/sys.c           |   49 ++++++++++++++++++-------------------------------
+ kernel/uid16.c         |    3 +--
+ net/decnet/af_decnet.c |    2 +-
+ 14 files changed, 49 insertions(+), 74 deletions(-)
+------
+
+ChangeSet@1.786.16.5, 2002-10-17 14:06:57-07:00, greg@kroah.com
+  LSM: change all of the VFS related security calls to the new format.
+
+ fs/attr.c        |    5 +---
+ fs/dquot.c       |    3 --
+ fs/fcntl.c       |   11 +++-------
+ fs/file_table.c  |    6 ++---
+ fs/inode.c       |    6 ++---
+ fs/ioctl.c       |    3 --
+ fs/locks.c       |   12 +++--------
+ fs/namei.c       |   58 +++++++++++++++++++++----------------------------------
+ fs/namespace.c   |   22 ++++++++------------
+ fs/open.c        |    3 --
+ fs/proc/base.c   |    2 -
+ fs/quota.c       |    2 -
+ fs/read_write.c  |   12 +++--------
+ fs/readdir.c     |    3 --
+ fs/stat.c        |    6 +----
+ fs/super.c       |    4 +--
+ fs/xattr.c       |   13 +++---------
+ init/do_mounts.c |    2 -
+ mm/mmap.c        |    3 --
+ mm/mprotect.c    |    3 --
+ net/core/scm.c   |    3 --
+ 21 files changed, 70 insertions(+), 112 deletions(-)
+------
+
+ChangeSet@1.786.16.4, 2002-10-17 14:05:48-07:00, greg@kroah.com
+  LSM: change all security bprm related calls to the new format.
+
+ arch/ppc64/kernel/sys_ppc32.c     |    7 +++----
+ arch/sparc64/kernel/sys_sparc32.c |    7 +++----
+ fs/exec.c                         |   15 ++++++---------
+ 3 files changed, 12 insertions(+), 17 deletions(-)
+------
+
+ChangeSet@1.786.16.3, 2002-10-17 14:04:04-07:00, greg@kroah.com
+  LSM: change all usages of security_ops->ptrace() to security_ptrace()
+
+ arch/arm/kernel/ptrace.c     |    3 +--
+ arch/i386/kernel/ptrace.c    |    3 +--
+ arch/ia64/kernel/ptrace.c    |    3 +--
+ arch/ppc/kernel/ptrace.c     |    3 +--
+ arch/ppc64/kernel/ptrace.c   |    3 +--
+ arch/ppc64/kernel/ptrace32.c |    3 +--
+ arch/s390/kernel/ptrace.c    |    3 +--
+ arch/s390x/kernel/ptrace.c   |    3 +--
+ arch/sparc/kernel/ptrace.c   |    3 +--
+ arch/sparc64/kernel/ptrace.c |    3 +--
+ arch/um/kernel/ptrace.c      |    3 +--
+ arch/x86_64/kernel/ptrace.c  |    3 +--
+ kernel/ptrace.c              |    3 +--
+ 13 files changed, 13 insertions(+), 26 deletions(-)
+------
+
+ChangeSet@1.786.16.2, 2002-10-17 13:47:59-07:00, greg@kroah.com
+  LSM:  Create CONFIG_SECURITY and disable it by default for now.
+  
+  This allows the security hooks to be compiled away into nothingness if CONFIG_SECURITY
+  is disabled.  When disabled, the default capabilities functionality is preserved.
+  When enabled, security modules are allowed to be loaded.
+
+ include/linux/sched.h    |    8 
+ include/linux/security.h | 1032 ++++++++++++++++++++++++++++++++++++++++++++++-
+ security/Config.help     |    7 
+ security/Config.in       |    2 
+ security/Makefile        |   10 
+ security/capability.c    |  328 +++++++-------
+ 6 files changed, 1216 insertions(+), 171 deletions(-)
+------
+
+ChangeSet@1.786.16.1, 2002-10-17 13:16:54-07:00, greg@kroah.com
+  LSM: add #include <linux/security.h> to a lot of files as they all have security calls in them.
+  
+  This is needed for the next patches that change the way the security calls work.
+
+ arch/ppc64/kernel/sys_ppc32.c |    1 +
+ arch/s390x/kernel/ptrace.c    |    1 +
+ drivers/base/fs/class.c       |    2 ++
+ drivers/base/fs/intf.c        |    2 ++
+ fs/dquot.c                    |    1 +
+ fs/exec.c                     |    1 +
+ fs/locks.c                    |    1 +
+ fs/namespace.c                |    1 +
+ fs/proc/base.c                |    1 +
+ fs/readdir.c                  |    1 +
+ fs/super.c                    |    2 +-
+ fs/xattr.c                    |    1 +
+ init/do_mounts.c              |    1 +
+ kernel/acct.c                 |    1 +
+ kernel/capability.c           |    1 +
+ kernel/kmod.c                 |    1 +
+ kernel/ptrace.c               |    1 +
+ kernel/signal.c               |    1 +
+ 18 files changed, 20 insertions(+), 1 deletion(-)
+------
 

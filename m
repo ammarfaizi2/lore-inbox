@@ -1,98 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132213AbQKDBGJ>; Fri, 3 Nov 2000 20:06:09 -0500
+	id <S132311AbQKDBHt>; Fri, 3 Nov 2000 20:07:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132296AbQKDBF7>; Fri, 3 Nov 2000 20:05:59 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:39687 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S132213AbQKDBFw>;
-	Fri, 3 Nov 2000 20:05:52 -0500
-Message-ID: <3A0360CB.F534D043@mandrakesoft.com>
-Date: Fri, 03 Nov 2000 20:05:15 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18pre18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: linux-2.4.0-test9
-In-Reply-To: <Pine.LNX.3.95.1001103175055.612A-100000@chaos.analogic.com>
+	id <S132284AbQKDBHj>; Fri, 3 Nov 2000 20:07:39 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:32548 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S131880AbQKDBH2>; Fri, 3 Nov 2000 20:07:28 -0500
+Date: Sat, 4 Nov 2000 02:07:09 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Gareth Hughes <gareth@valinux.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, dledford@redhat.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: SETFPXREGS fix
+Message-ID: <20001104020709.D32767@athlon.random>
+In-Reply-To: <20001103174105.C857@athlon.random> <3A034F28.5DB994F4@valinux.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3A034F28.5DB994F4@valinux.com>; from gareth@valinux.com on Sat, Nov 04, 2000 at 10:50:00AM +1100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" wrote:
-> I have, again, tried to use a new kernel. It is linux-2.4.0-test9
-> Apparently a newer version was just put up while downloading this
-> one. This is possible because it took a day to download it );
+On Sat, Nov 04, 2000 at 10:50:00AM +1100, Gareth Hughes wrote:
+> 	if ( HAVE_FXSR ) {
+> 		if ( __copy_from_user( &tsk->thread.i387.fxsave, (void *)buf,
+> 					sizeof(struct user_fxsr_struct) ) )
+> 			return -EFAULT;
+> 		/* bit 6 and 31-16 must be zero for security reasons */
+> 		tsk->thread.i387.fxsave.mxcsr &= 0x0000ffbf;
+> 		return 0;
+> 	}
 
-If you could download patch-2.4.0-test10, and try out test10-final, that
-would be awesome...
+The above doesn't fix the security problem. Put the last byte of the userspace
+structure on an unmapped page and it will return -EFAULT lefting the invalid
+mxcsr value that will corrupt the FPU again.
 
+The right version of the above is just in linux mailbox.
 
-> (3)      With the new kernel, I can't access screen memory anymore. When
-> testing software drivers for hardware that I don't have, I usually use
-> the screen-regen buffer to emulate the shared memory window.
-> 
-> Here is a snippet of code:
-> 
-> //    info->mem = 0xb8000     what they actually are
-> //    info->mem_len = 0x4000
-> 
->     if((info->vxi_iomem = ioremap(info->mem, info->mem_len)) == NULL)
->     {
->         printk(KERN_ALERT "%s: Can't allocate shared memory\n", devname);
->         (void)unregister_chrdev(info->major, info->dev);
->         kfree(info->tmp_buf);
->         kfree(info);
->         return -ENOMEM;
->     }
->     info->vxi_base   = (UNIV *) bus_to_virt(UL info->vxi_iomem);
->     ||||||||||||||
->     This pointer should point to the beginning of the screen buffer.
->     It always has before.
-> 
-> When accessing this from a module, I get;
-> Unable to handle kernel paging requist at virtual address 800b8304.
+The reason I did it more complex at first is because I wanted to go safe,
+I wasn't sure if somebody could SIGCONT the traced task while we was copying
+the data so introducing a race where it was still possible to exploit
+the bug; but as Linus pointed out to me the loop in do_signal prevents that, so
+we can do only one large copy and then fixup (fixing up also in the -EFAULT
+case of course).
 
-bug 1) ioremap returns a cookie, not a bus address.  therefore, calling
-ioremap output to bus_to_virt is incorrect.
-
-bug 2) what are you doing with vxi_base?  I don't have the rest of your
-code here, but I'm willing to bet that you are directly de-referencing
-memory, instead of using {read,write}[bwl] / memcpy_{to,from}io.  Read
-linux/Documentation/IO-mapping.txt for more info.
-
-
-> (4)     More name-space polution. Somebody added another macro called
->         get_page(). When, if ever, will we start using the good-old
->         convention of defining macros in upper-case?
-> 
->         The name-space polution has really gotten out-of-hand. You
->         can't write code using ordinary symbol names anymore. You
->         need to make variables have names like:
-> 
->         int LoopCounterForOutSideLoop;
->         char *UserInputAndOutputBufferForWednesday;
-> 
->         This is NotGood(tm)
-
-I guess it should probably have been named "page_get"?  I looked through
-'nm vmlinux' output at the public symbols, and there are definitely a
-ton of them.
-
-Though it is definitely C convention that macros are in all uppercase
-(gcc is good about this), the kernel has never really been good about
-that...
-
-	Jeff
-
-
--- 
-Jeff Garzik             | Dinner is ready when
-Building 1024           | the smoke alarm goes off.
-MandrakeSoft            |	-/usr/games/fortune
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

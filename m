@@ -1,58 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271752AbRHWBFA>; Wed, 22 Aug 2001 21:05:00 -0400
+	id <S272054AbRHWBEk>; Wed, 22 Aug 2001 21:04:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272051AbRHWBEv>; Wed, 22 Aug 2001 21:04:51 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:30987 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S271752AbRHWBEb>; Wed, 22 Aug 2001 21:04:31 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: Memory Problem in 2.4.9 ?
-Date: Thu, 23 Aug 2001 03:11:09 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: tommy@teatime.com.tw, Linux Kernel <linux-kernel@vger.kernel.org>,
-        Ben LaHaise <bcrl@redhat.com>
-In-Reply-To: <Pine.LNX.4.21.0108221604300.2685-100000@freak.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.21.0108221604300.2685-100000@freak.distro.conectiva>
+	id <S272051AbRHWBEa>; Wed, 22 Aug 2001 21:04:30 -0400
+Received: from beppo.feral.com ([192.67.166.79]:62737 "EHLO beppo.feral.com")
+	by vger.kernel.org with ESMTP id <S271752AbRHWBES>;
+	Wed, 22 Aug 2001 21:04:18 -0400
+Date: Wed, 22 Aug 2001 18:03:40 -0700 (PDT)
+From: Matthew Jacob <mjacob@feral.com>
+Reply-To: <mjacob@feral.com>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+cc: "David S. Miller" <davem@redhat.com>, <groudier@free.fr>, <axboe@suse.de>,
+        <skraw@ithnet.com>, <phillips@bonn-fries.net>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: With Daniel Phillips Patch 
+In-Reply-To: <200108230055.f7N0tLY20934@aslan.scsiguy.com>
+Message-ID: <20010822180322.N3087-100000@wonky.feral.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010823010444Z16129-32383+926@humbolt.nl.linux.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On August 22, 2001 09:05 pm, Marcelo Tosatti wrote:
-> On Wed, 22 Aug 2001, Daniel Phillips wrote:
-> > What can we do right now?  We could always just comment out the alloc failed 
-> > message.  The result will be a lot of busy waiting on dirty page writeout 
-> > which will work but it will keep us from focussing on the question: how did 
-> > we get so short of bounce buffers?  Well, maybe we are submitting too much IO 
-> > without intelligent throttling (/me waves at Ben).  That sounds like the 
-> > place to attack first.
-> 
-> We can just wait on the writeout of lowmem buffers at page_launder()
-> (which will not cause IO buffering since we are doing lowmem IO, duh), and
-> then we are done.
-> 
-> Take a look at the patch I posted before (__GFP_NOBOUNCE). 
 
-A little light reading for a Wednesday afternoon ;-)
+What guys writing SBus drivers? I mean, other than the NetBSD folks?
 
-Nice hack, way to go.  So this will wait synchronously in try_to_free_buffers
-if we have to go around twice in alloc_bounce_page or alloc_bounce_bh (the
-latter eventually resulting in a page_alloc from kmem_cache grow).
 
-What does SLAB_LEVEL_MASK do?  Did you find out by hitting the BUG when you
-tried the patch?  Anyway, it needs a comment.
+On Wed, 22 Aug 2001, Justin T. Gibbs wrote:
 
-I had in mind a completely different approach to try, using a semaphore to
-count bounce buffers, and block when they run out.  Your patch fits the
-pattern of the current busy-waiting strategy much better.  It's the right
-thing to do.
-
-OK, race you to the next bug ;-)
-
---
-Daniel
+> >   From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+> >   Date: Wed, 22 Aug 2001 18:01:40 -0600
+> >
+> >   It is opaque and should be able to represent all dma (or I would prefer
+> >   bus) addresses in the system.  The examples I've seen where people
+> >   assume it to be 32bits in size are, well, broken.
+> >
+> >It is the type to be used for 32-bit SAC based DMA.
+> >DMA-mapping.txt is pretty clear about this.
+>
+> Then it is poorly named.  How about "pci_dma32_t".  Or better yet,
+> uint32_t.  How do the guys writing SBUS drivers like the fact that
+> all of this mapping stuff is so PCI centric?
+>
+> --
+> Justin
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

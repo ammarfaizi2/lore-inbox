@@ -1,63 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261745AbVAIUbt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261754AbVAIUdl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261745AbVAIUbt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 15:31:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbVAIUbt
+	id S261754AbVAIUdl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 15:33:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261759AbVAIUdj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 15:31:49 -0500
-Received: from gprs215-59.eurotel.cz ([160.218.215.59]:48266 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261745AbVAIUbr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 15:31:47 -0500
-Date: Sun, 9 Jan 2005 21:26:08 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Erik Mouw <erik@harddisk-recovery.com>
-Cc: Miles Bader <miles@gnu.org>, Adrian Bunk <bunk@stusta.de>,
-       Domen Puncer <domen@coderock.org>, lkml <linux-kernel@vger.kernel.org>,
-       Russell King <rmk@arm.linux.org.uk>
-Subject: Re: [patch] maintainers: remove moderated arm list
-Message-ID: <20050109202608.GA4423@elf.ucw.cz>
-References: <20041225170825.GA31577@nd47.coderock.org> <20041225172155.A26504@flint.arm.linux.org.uk> <20050103175438.GL2980@stusta.de> <buosm5hwn5u.fsf@mctpc71.ucom.lsi.nec.co.jp> <20050104101843.GB26584@harddisk-recovery.com>
+	Sun, 9 Jan 2005 15:33:39 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:19462 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S261754AbVAIUd0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jan 2005 15:33:26 -0500
+Subject: Re: removing bcopy... because it's half broken
+From: Arjan van de Ven <arjan@infradead.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Richard Henderson <rth@twiddle.net>
+In-Reply-To: <Pine.LNX.4.58.0501091213000.2339@ppc970.osdl.org>
+References: <20050109192305.GA7476@infradead.org>
+	 <Pine.LNX.4.58.0501091213000.2339@ppc970.osdl.org>
+Content-Type: text/plain
+Date: Sun, 09 Jan 2005 21:33:19 +0100
+Message-Id: <1105302799.4173.58.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050104101843.GB26584@harddisk-recovery.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > Sounds great, but _every single time_ I've ever gotten one of those
-> > "your message is awaiting moderation" messages from such a list, it's
-> > inevitably followed a few hours/days later by a "your message has been
-> > rejected" message.  In every case, the message I sent was definitely a
-> > no-brainer to allow, so I can only guess that either the moderation
-> > system is broken, or the moderators are.
+On Sun, 2005-01-09 at 12:19 -0800, Linus Torvalds wrote:
 > 
-> It's not about sanity, it's about abiding the law (the UK Data
-> Protection Act, in this particular case). As Russell King explained in
-> this thread, there are such things as real life and politicians that
-> make privacy laws.
+> On Sun, 9 Jan 2005, Arjan van de Ven wrote:
+> >
+> > Instead of fixing this inconsistency, I decided to remove it entirely,
+> > explicit memcpy() and memmove() are prefered anyway (welcome to the 1990's)
+> > and nothing in the kernel is using these functions, so this saves code size
+> > as well for everyone.
 > 
-> On the linux-arm* lists, we make no difference in intention: if you're
-> not subscribed, it means you didn't agree to your messages being
-> publicly archived (i.e.: you didn't agree to your privacy being
-> violated), and to avoid legal hassles later on, we can't accept your
-> post.
-> 
-> The legal hassles I'm talking about are not a theoretical thing, there
-> have been successful requests from posters to have their messages
-> removed from other mailing lists archives in the past. Yes, I know
-> that's stupid, and yes, I know a mailing list maintainer can't do
-> anything against other people archiving his list, but the law says
-> otherwise.
 
-What about allowing all messages with X-Okay-to-archive: yes header
-even without subscription?
-								Pavel
+> Gcc _used_ to have a target-specific "do I use bcopy or memcpy" setting,
+> and I just don't know if that is still true. I also don't know if it
+> affected any other platforms than alpha (I would assume that it matched
+> "target has BSD heritage", and that would likely mean HP-UX too)
 
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+actually I think that is called -ffreestanding, and 
+ChangeSet 1.2088, 2005/01/04 21:29:33-08:00, bunk@stusta.de
+added that to the compiler flags in your tree ....
+
+
+

@@ -1,80 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264261AbUDNPZn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 11:25:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264267AbUDNPZn
+	id S264267AbUDNP0Z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 11:26:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264268AbUDNP0Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 11:25:43 -0400
-Received: from p4.ensae.fr ([195.6.240.202]:63676 "EHLO pc809.ensae.fr")
-	by vger.kernel.org with ESMTP id S264261AbUDNPZd convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 11:25:33 -0400
-From: Guillaume =?iso-8859-15?q?Lac=F4te?= <Guillaume@Lacote.name>
-Reply-To: Guillaume@Lacote.name
-Organization: Guillaume@Lacote.name
-To: Pascal Schmidt <der.eremit@email.de>
-Subject: Re: Using compression before encryption in device-mapper
-Date: Wed, 14 Apr 2004 17:25:31 +0200
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org
-References: <1KykU-4VD-17@gated-at.bofh.it> <1KTfJ-5gK-25@gated-at.bofh.it> <E1BDluf-00007s-PB@localhost>
-In-Reply-To: <E1BDluf-00007s-PB@localhost>
+	Wed, 14 Apr 2004 11:26:24 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:3215 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S264267AbUDNP0L convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Apr 2004 11:26:11 -0400
+Message-ID: <407D5756.6030604@grupopie.com>
+Date: Wed, 14 Apr 2004 16:23:02 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: GrupoPIE
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+To: Guillaume@Lacote.name
+Cc: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       linux-kernel@vger.kernel.org, Linux@glacote.com
+Subject: Re: Using compression before encryption in device-mapper
+References: <200404131744.40098.Guillaume@Lacote.name> <200404141202.07021.Guillaume@Lacote.name> <407D3231.2080605@grupopie.com> <200404141602.43695.Guillaume@Lacote.name>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200404141725.31660.Guillaume@Lacote.name>
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.25.0.2; VDF: 6.25.0.12; host: bipbip)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le Mercredi 14 Avril 2004 17:02, Pascal Schmidt a écrit :
-> On Wed, 14 Apr 2004 16:10:20 +0200, you wrote in linux.kernel:
-> > Actually (see my reply to Timothy Miller) I really want to do
-> > "compression" even if it does not reduce space: it is a matter of growing
-> > the per-bit entropy rather than to gain space (see
-> > http://jsam.sourceforge.net).
->
-> How is the per-bit entropy higher when the same amount of data (and
-> thus entropy on that data) is sometimes contained in *more* bits?
->
-> I can see the argument if data is really compressed, because then more
-> bits than would normally fit into, say, a sector, contribute to the
-> entropy of the final sector.
-You are perfectly right. If I recall correctly from Paul Li and Ming Vitanyi, 
-An Introduction to Kolmogorv Complexity, then the minimum length of an 
-encoding (e.g. a static two-pass Huffman encoding) is equal to the total 
-entropy of the text, or one more than that (this is also asymptotically equal 
-to the Kolmogorov complexity of the text). In particular the static encoding 
-can not be longer than the original text.
+Guillaume Lacôte wrote:
 
-However I do _not_ want to have any form of meta-data, dictionnary, etc. Thus 
-I need to use dynamic encoding, were the huffman tree is dynamically updated 
-(both while compressing or while decompressing) as characters are 
-read/written. The problem is that the encoding "evolves" and in particular it 
-can be (and usually is) worse than the static encoding.
+>...
+> Actually (see my reply to Timothy Miller) I really want to do "compression" 
+> even if it does not reduce space: it is a matter of growing the per-bit 
+> entropy rather than to gain space (see http://jsam.sourceforge.net). Moreover 
+> I do not want to use sophisticated algorithms (in order to be able to compute 
+> plain text random distributions that ensure that the compressed distributions 
+> will be uniform, which is very difficult with for e.g zlib; in particular 
+> having any kind of "meta-data", "signatures" or "dictionnary" is a no-go for 
+> me). See details at the end of this post.
 
-J. S. Vitter showed that the dynamic algorithm by Faller, Gallager and Knuth 
-can use twice more bytes plus one bit per byte than the optimal static 
-Huffman encoding. On the other hand J. S. Vitter discusses  dynamic algorithm 
-that uses only one more bit per byte in the worst case when compared to the 
-static encoding.
 
-You are right that in this very case, the per-bit entropy will be
-(1 - 1/(1+1/8) ) ~ 12% lower than in the original text. The point is that this 
-case (which has nothing to do with the case where a text can be well 
-compressed or not, this is the worst _relative_ performance of dynamic versus 
-static encoding) does not happen "too often".
+Point taken
 
-Note that I wish to prepend random bytes followed by the block of real text 
-before compressing and ciphering, so as to make the distribution of huffman 
-trees uniform. The ultimate goal being to let no other solution to an 
-attacker than to brute force test all possible keys. An indirect consequence 
-on this is that the probability of being in the "poor dynamic performance" 
-case does not depend on the data itself (but on the random drawing).
 
-I hope that I made things clearer and that I didn't make any mistake (please 
-feel free to correct me).
+> ...
+> 
+>>A while ago I started working on a proof of concept kind of thing, that was
+>>a network block device server that compressed the data sent to it.
+>>
+> Would it be possible for you to point me to the relevant material ?
+> 
 
-Guillaume.
+
+I just need to tidy it up a little :)
+
+Maybe I can publish it tomorrow or something like that.
+
+
+>....
+
+>>2 - The compression layer should report a large block size upwards, and use
+>>a little block size downwards, so that compression is as efficient as
+>>possible. Good results are obtained with a 32kB / 512 byte ratio. This can
+>>cause extra read-modify-write cycles upwards.
+>>
+> I failed to understand; could you provide me with more details please ?
+> 
+
+
+If we are to compress on a block basis, the bigger the block the higher the 
+compression ratio we'll be able to achieve (using zlib, for instance). However, 
+data sent to the actual block device will have to go in blocks itself.
+
+For instance, if we compress a 32kB block and it only needs 8980 bytes to be 
+stored, we need 18 512byte blocks to store it. On average, we will lose 1/2 of 
+the actual block size per "upper level" block size bytes of data. In a 32kB/512 
+byte ratio, we would lose on average 256 bytes per 32kb of data ~ 0.8% (which is 
+more than acceptable).
+
+
+>>...
+> As I said earlier I my point is definetely not to gain space, but to grow the 
+> "per-bit entropy". I really want to encode my data even if this grows its 
+> length, as is done in http://jsam.sourceforge.net . My final goal is the 
+> following: for each plain block first draw a chunk of random bytes, and then 
+> compresse both the random bytes followed by the plain data with a dynamic 
+> huffman encoding. The random bytes are _not_ drawn uniformly, but rather so 
+> that the distribution on huffman trees (and thus on encodings) is uniform. 
+> This ensures (?) that an attacker really has not other solution to decipher 
+> the data than brute-force: each and every key is possible, and more 
+> precisely, each and every key is equi-probable.
+
+
+Ok, we are definitely fighting different wars here.
+
+Anyway, I'll try to gather what I did with the network block device server and 
+place it somewhere where you can look at it. It will probably help you do some 
+tests, too. Because it is a block device in "user space", it is much simpler to 
+develop and test different approaches, and gather some results, before trying 
+things inside the kernel.
+
+If you want to start now, just go to:
+
+http://nbd.sourceforge.net/
+
+and download the source for the network block device server. My server is 
+probably more complex than the original, because of all the metadata handling.
+
+I hope this helps,
+
+-- 
+Paulo Marques - www.grupopie.com
+"In a world without walls and fences who needs windows and gates?"
 

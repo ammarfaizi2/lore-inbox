@@ -1,61 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287545AbSBDTzw>; Mon, 4 Feb 2002 14:55:52 -0500
+	id <S287908AbSBDT5w>; Mon, 4 Feb 2002 14:57:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287699AbSBDTzo>; Mon, 4 Feb 2002 14:55:44 -0500
-Received: from ua0d5hel.dial.kolumbus.fi ([62.248.132.0]:7978 "EHLO
-	porkkala.uworld.dyndns.org") by vger.kernel.org with ESMTP
-	id <S287545AbSBDTzf>; Mon, 4 Feb 2002 14:55:35 -0500
-Message-ID: <3C5EE691.1E7C2ADF@kolumbus.fi>
-Date: Mon, 04 Feb 2002 21:52:49 +0200
-From: Jussi Laako <jussi.laako@kolumbus.fi>
-X-Mailer: Mozilla 4.79 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: mingo@elte.hu
-CC: Ed Tomlinson <tomlins@cam.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] improving O(1)-J9 in heavily threaded situations
-In-Reply-To: <Pine.LNX.4.33.0202040137070.19391-100000@localhost.localdomain>
+	id <S287895AbSBDT5j>; Mon, 4 Feb 2002 14:57:39 -0500
+Received: from air-2.osdl.org ([65.201.151.6]:35968 "EHLO doc.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S287863AbSBDT5S>;
+	Mon, 4 Feb 2002 14:57:18 -0500
+Date: Mon, 4 Feb 2002 11:57:16 -0800
+From: Bob Miller <rem@osdl.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.5.3 Can't use spin_lock_* with wait_queue_head_t object.
+Message-ID: <20020204115716.B12734@doc.pdx.osdl.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> 
-> 'response' in terms of interactive latencies should be good, yes.
-> 
-> 'response' in terms of relative CPU time given to CPU hogs and 
-> interactive tasks wont be as 'good' as with the old scheduler. (ie. CPU 
-> hogs *will* be punished harder - this is what is needed for good 
-> interactivity after all.) So if you see that some of your interactive 
+[PATCH] 2.5.3 Can't use spin_lock_* with wait_queue_head_t object.
 
-How about priority inheritance? When interactive task relies heavily on
-output from CPU hog?
+There is code in sched.c that uses the spin_lock_* interfaces to acquire and
+release the lock in the wait_queue_head_t embedded in the struct completion.
 
-My application uses three tier architecture where is low HAL layer reading
-audio from soundcard which is compressed and sent (TCP) to distributor
-process which decompresses the audio and distributes (UNIX/LOCAL) it to
-clients. Distributor's clients are the CPU hogs doing various processing
-tasks to the signal and then sending (TCP) the results to the very thin user
-interface.
+This is wrong and causes the system to OPPs on startup when compiled with
+wait.h:USE_RW_WAIT_QUEUE_SPINLOCK set to 1.  The patch below changes the
+spin_lock_* calls to wq_write_lock_*.
 
-Now the user interface can take some CPU time and is considered to be
-interactive. But if that leads to starvation of CPU hog processing tasks it
-leads to unusable output on user interface because starvation leads to
-losing blocks of data in distributor process.
-
-HAL and distributor are running as SCHED_FIFO, but CPU hog processing tasks
-are dynamically fork()/exec()'d and run on default priority (not as root).
-So I should nice user interfaces to 15+?
-
-App can be found from: http://hasas.sf.net
-
-
-	- Jussi Laako
 
 -- 
-PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
-Available at PGP keyservers
+Bob Miller					Email: rem@osdl.org
+Open Software Development Lab			Phone: 503.626.2455 Ext. 17
 
+
+diff -ru linux.2.5.3-orig/include/linux/wait.h linux.2.5.3/include/linux/wait.h
+--- linux.2.5.3-orig/include/linux/wait.h	Mon Feb  4 11:23:12 2002
++++ linux.2.5.3/include/linux/wait.h	Mon Feb  4 11:00:14 2002
+@@ -45,6 +45,7 @@
+ # define wq_read_unlock read_unlock
+ # define wq_write_lock_irq write_lock_irq
+ # define wq_write_lock_irqsave write_lock_irqsave
++# define wq_write_unlock_irq write_unlock_irq
+ # define wq_write_unlock_irqrestore write_unlock_irqrestore
+ # define wq_write_unlock write_unlock
+ #else
+@@ -57,6 +58,7 @@
+ # define wq_read_unlock_irqrestore spin_unlock_irqrestore
+ # define wq_write_lock_irq spin_lock_irq
+ # define wq_write_lock_irqsave spin_lock_irqsave
++# define wq_write_unlock_irq spin_unlock_irq
+ # define wq_write_unlock_irqrestore spin_unlock_irqrestore
+ # define wq_write_unlock spin_unlock
+ #endif
+Only in linux.2.5.3-orig/include/linux: wait.h.orig
+diff -ru linux.2.5.3-orig/kernel/sched.c linux.2.5.3/kernel/sched.c
+--- linux.2.5.3-orig/kernel/sched.c	Mon Jan 28 15:12:47 2002
++++ linux.2.5.3/kernel/sched.c	Mon Feb  4 10:42:05 2002
+@@ -757,15 +757,15 @@
+ {
+ 	unsigned long flags;
+ 
+-	spin_lock_irqsave(&x->wait.lock, flags);
++	wq_write_lock_irqsave(&x->wait.lock, flags);
+ 	x->done++;
+ 	__wake_up_common(&x->wait, TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE, 1, 0);
+-	spin_unlock_irqrestore(&x->wait.lock, flags);
++	wq_write_unlock_irqrestore(&x->wait.lock, flags);
+ }
+ 
+ void wait_for_completion(struct completion *x)
+ {
+-	spin_lock_irq(&x->wait.lock);
++	wq_write_lock_irq(&x->wait.lock);
+ 	if (!x->done) {
+ 		DECLARE_WAITQUEUE(wait, current);
+ 
+@@ -773,14 +773,14 @@
+ 		__add_wait_queue_tail(&x->wait, &wait);
+ 		do {
+ 			__set_current_state(TASK_UNINTERRUPTIBLE);
+-			spin_unlock_irq(&x->wait.lock);
++			wq_write_unlock_irq(&x->wait.lock);
+ 			schedule();
+-			spin_lock_irq(&x->wait.lock);
++			wq_write_lock_irq(&x->wait.lock);
+ 		} while (!x->done);
+ 		__remove_wait_queue(&x->wait, &wait);
+ 	}
+ 	x->done--;
+-	spin_unlock_irq(&x->wait.lock);
++	wq_write_unlock_irq(&x->wait.lock);
+ }
+ 
+ #define	SLEEP_ON_VAR				\

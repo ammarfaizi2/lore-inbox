@@ -1,27 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262461AbRE0VzN>; Sun, 27 May 2001 17:55:13 -0400
+	id <S262468AbRE0V4x>; Sun, 27 May 2001 17:56:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262468AbRE0VzD>; Sun, 27 May 2001 17:55:03 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:41230 "EHLO
+	id <S262470AbRE0V4n>; Sun, 27 May 2001 17:56:43 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:42766 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262461AbRE0Vyp>; Sun, 27 May 2001 17:54:45 -0400
-Subject: Re: Overkeen CDROM disk-change messages
+	id <S262468AbRE0V40>; Sun, 27 May 2001 17:56:26 -0400
+Subject: Re: Hard lockup switching to X from vc; Matrox G400 AGP
 To: rankinc@pacbell.net (Chris Rankin)
-Date: Sun, 27 May 2001 22:52:21 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <200105272131.f4RLV1P09622@wellhouse.underworld> from "Chris Rankin" at May 27, 2001 02:31:00 PM
+Date: Sun, 27 May 2001 22:53:56 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200105272147.f4RLlv300461@twopit.underworld> from "Chris Rankin" at May 27, 2001 02:47:57 PM
 X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E1548ST-0002Og-00@the-village.bc.nu>
+Message-Id: <E1548U0-0002Ou-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What's "magicdev"? I am not running GNOME or KDE. In fact, I wasn't
-> even running X at the time but had xmcd putting its display on another
-> machine over the local network.
+> out the Matrox-supplied mga_drv.o and mga_hal_drv.o modules and
+> replace them with the ones from the standard X 4.03 distribution, but
+> these are userspace objects and shouldn't be capable of bringing the
+> kernel down. (Like I said, the machine can't even be pinged.)
 
-Then I guess it was xmcd continually opening/failing
+Not really. The matrox code and X server run priviledged and bang on hardware
+directly. Its quite easily an X11 bug. Nice to know the free software one
+works better than the vendors 8)
+

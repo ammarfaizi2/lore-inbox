@@ -1,54 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262001AbTD0Xa5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Apr 2003 19:30:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262024AbTD0Xa5
+	id S262024AbTD0Xlf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Apr 2003 19:41:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262047AbTD0Xlf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Apr 2003 19:30:57 -0400
-Received: from 81-1-65-35.homechoice.co.uk ([81.1.65.35]:24081 "HELO
-	sc-outsmtp1.homechoice.co.uk") by vger.kernel.org with SMTP
-	id S262001AbTD0Xa4 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Apr 2003 19:30:56 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Adrian McMenamin <adrian@mcmen.demon.co.uk>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Filesystem: vmufs
-Date: Mon, 28 Apr 2003 00:43:00 +0100
-User-Agent: KMail/1.4.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200304280043.00778.adrian@mcmen.demon.co.uk>
+	Sun, 27 Apr 2003 19:41:35 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:55185 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S262024AbTD0Xle
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Apr 2003 19:41:34 -0400
+Date: Sun, 27 Apr 2003 16:53:45 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Matthew Kirkwood <matthew@hairy.beasts.org>
+Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
+Message-ID: <20030427235345.GN23068@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Matthew Kirkwood <matthew@hairy.beasts.org>,
+	Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+References: <20030427185037.GA23581@work.bitmover.com> <Pine.LNX.4.33.0304272346080.15035-100000@sphinx.mythic-beasts.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0304272346080.15035-100000@sphinx.mythic-beasts.com>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=0.5, required 4.5,
+	DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am writing a filesystem driver for the Sega Dreamcast Virtual Memory Unit 
-(vmu) for 2.4 and have:
+On Sun, Apr 27, 2003 at 11:51:58PM +0100, Matthew Kirkwood wrote:
+> On Sun, 27 Apr 2003, Larry McVoy wrote:
+> 
+> Please excuse the aggressive trimming, but I don't think I'm
+> affecting the intent of your works.
 
-* Got read (in every way afaics) to work fine
-* Added ability to delete files
-* Added ability to copy a file on top of an existing file
-(see the cvs for the project if you need to know more - follow the link off 
-http://linuxdc.net)
+I agree, what you did is fine, great in fact.  Thanks.
 
+> >     1) Corporations are threatened when people copy their content and/or
+> >        products.
+> 
+> I think that the word "copy" may be a significant cause
+> of artificial disagreement here.  I, for one, find it just
+> as misleading as "free" (is it as-in-beer or as-in-speech?).
+> 
+> Larry -- would you be willing, in future postings of this
+> nature, to distinguish "duplicate" and "reimplement"?
 
-But, I cannot work out how to add the ability to, say, mv a file:
+A very good point, you're right.  And it's worse because I use "copying"
+to mean two different things depending on context.
 
-mv /somedirectory/ext2file /mnt/vmu/ext2file
+To clarify: in general, when I'm talking about copying, what I mean depends
+on whether I'm talking about content or software programs.  For content,
+copying means the act of generating a new copy of the content (copying 
+mp3 files via Napster like services, for example).  For programs, which
+is usually what I'm talking about, I mean the act of sitting down and 
+trying to make a new program which does the same thing as the old program.
 
-or
-
-cp /somedirectory/ext2file /mnt/vmu/ext2file
-
-
-What calls do I need to implement to ensure that these two command actually 
-work (at present they fail reporting that /mnt/vmu/ext2file does not exist).
-
-
-Sorry to add to the traffic on this list but googling and various newsgroup 
-searches have failed to tuen up the answers I need and the souce is very 
-complicated.
-
-Adrian McMenamin
-adrian@mcmen.demon.co.uk
+I think some people may think that I mean redistribution when I say
+copying and I almost never am talking about that.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

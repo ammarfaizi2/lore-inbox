@@ -1,95 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266200AbUAHTei (ORCPT <rfc822;willy@w.ods.org>);
+	id S265960AbUAHTei (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 8 Jan 2004 14:34:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266180AbUAHTeX
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266200AbUAHTeg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 14:34:23 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:18893 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266085AbUAHTcu (ORCPT
+	Thu, 8 Jan 2004 14:34:36 -0500
+Received: from pat.uio.no ([129.240.130.16]:439 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S265960AbUAHTcp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 14:32:50 -0500
-Date: Fri, 9 Jan 2004 01:03:23 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>,
-       Paul McKenney <paul.mckenney@us.ibm.com>
-Subject: Re: [patch] RCU for low latency [1/2]
-Message-ID: <20040108193323.GF4321@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20040108114851.GA5128@in.ibm.com> <20040108114958.GB5128@in.ibm.com> <3FFD7340.7050209@cyberone.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FFD7340.7050209@cyberone.com.au>
-User-Agent: Mutt/1.4.1i
+	Thu, 8 Jan 2004 14:32:45 -0500
+Message-ID: <33128.141.211.133.197.1073590355.squirrel@webmail.uio.no>
+Date: Thu, 8 Jan 2004 20:32:35 +0100 (CET)
+Subject: Re: [autofs] [RFC] Towards a Modern Autofs
+From: <trond.myklebust@fys.uio.no>
+To: <viro@parcelfarce.linux.theplanet.co.uk>, <linux-kernel@vger.kernel.org>
+X-Priority: 3
+Importance: Normal
+Cc: <raven@themaw.net>, <hpa@zytor.com>, <Michael.Waychison@sun.com>,
+       <thockin@Sun.COM>
+X-Mailer: SquirrelMail (version 1.2.11 - UIO)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=-4.74, required 12,
+	BAYES_00 -4.90, NO_REAL_NAME 0.16)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 09, 2004 at 02:12:00AM +1100, Nick Piggin wrote:
-> Dipankar Sarma wrote:
-> 
-> >Provide a rq_has_rt_task() interface to detect runqueues with
-> >real time priority tasks. Useful for RCU optimizations.
-> >
-> 
-> Can you make rq_has_rt_task the slow path? Adding things like this
-> can actually be noticable on microbenchmarks (eg. pipe based ctx
-> switching). Its probably cache artifacts that I see, but it wouldn't
-> hurt to keep the scheduler as tight as possible.
-> 
-> I think this should cover it.
-> 
-> int rq_has_rt_task(int cpu)
-> {
-> 	runqueue_t *rq = cpu_rq(cpu);
-> 	return (sched_find_first_bit(rq->active) < MAX_RT_PRIO);
-> }
-> 
-> Any good?
+På to , 08/01/2004 klokka 13:31, skreiv
+viro@parcelfarce.linux.theplanet.co.uk:
 
-Much better, except, well, rq->active->bitmap. Here is the new
-rq_has_rt_task() patch.
+> Special vfsmount mounted somewhere; has no superblock associated with
+> it; attempt to step on it triggers event; normal result of that event
+> is to get a normal mount on top of it, at which point usual chaining
+> logics will make sure that we don't see the trap until it's uncovered
+> by removal of covering filesystem.  Trap (and everything mounted on
+> it, etc.) can be removed by normal lazy umount.
+>
+> Basically, it's a single-point analog of autofs done entirely in VFS.
+> The job of automounter is to maintain the traps and react to events.
 
-Thanks
-Dipankar
+What if the trap is set by the filesystem? I'm thinking about AFS
+volumes and NFSv4 migration events here.
+
+Both these need something that goes beyond the current autofs "daemon
+waiting on top of a single trap" thinking.
+
+In the NFSv4 migration case we can be walking down the filesystem patch
+and enter a directory where we are basically told by the server that
+"this volume has been moved" and are given a list of replicated
+servername/pathname fields. Those then need to be interpreted in
+userland by means of an upcall of some sort, and the new volume needs to
+be mounted.
+
+Neither autofs3 nor autofs4 can currently help us do this, because we
+don't a priori have a complete list of directories on which to start a
+bunch of "automount" daemons (and it wouldn't help anyway since a server
+failover event etc. might cause the list to change).
+
+Setting up our own traps, however, and then doing the upcall by means of
+an exec & an "intelligent" mount program (as Mike & co. propose) OTOH,
+would very much simplify matters, since that allows us to do simple
+string parameter passing from the kernel to direct how the mount is to
+be set up.
+It still leaves the final policy decisions of which server to mount &
+where in userland.
+
+Finally, because the upcall is done in the user's own context, you avoid
+the whole problem of automounter credentials that are a constant plague
+to all those daemon-based implementations when working in an environment
+where you have strong authentication.
+If anyone wants evidence of how broken the whole daemon thing is, then see
+the workarounds that had to be made in RFC-2623 to disable strong
+authentication for GETATTR etc. on the NFSv2/v3 mount point.
+
+Cheers,
+  Trond
 
 
 
-Provide a rq_has_rt_task() interface to detect runqueues with
-real time priority tasks. Useful for RCU optimizations.
 
-
- include/linux/sched.h |    1 +
- kernel/sched.c        |    6 ++++++
- 2 files changed, 7 insertions(+)
-
-diff -puN kernel/sched.c~rq-has-rt-task kernel/sched.c
---- linux-2.6.0-smprcu/kernel/sched.c~rq-has-rt-task	2004-01-08 23:16:02.000000000 +0530
-+++ linux-2.6.0-smprcu-dipankar/kernel/sched.c	2004-01-08 23:36:03.000000000 +0530
-@@ -338,6 +338,12 @@ static inline void enqueue_task(struct t
- 	p->array = array;
- }
- 
-+int rq_has_rt_task(int cpu)
-+{
-+        runqueue_t *rq = cpu_rq(cpu);
-+        return (sched_find_first_bit(rq->active->bitmap) < MAX_RT_PRIO);
-+}
-+
- /*
-  * effective_prio - return the priority that is based on the static
-  * priority but is modified by bonuses/penalties.
-diff -puN include/linux/sched.h~rq-has-rt-task include/linux/sched.h
---- linux-2.6.0-smprcu/include/linux/sched.h~rq-has-rt-task	2004-01-08 23:36:27.000000000 +0530
-+++ linux-2.6.0-smprcu-dipankar/include/linux/sched.h	2004-01-08 23:36:52.000000000 +0530
-@@ -525,6 +525,7 @@ extern int task_prio(task_t *p);
- extern int task_nice(task_t *p);
- extern int task_curr(task_t *p);
- extern int idle_cpu(int cpu);
-+extern int rq_has_rt_task(int cpu);
- 
- void yield(void);
- 
-
-_

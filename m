@@ -1,49 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135909AbRDTNOc>; Fri, 20 Apr 2001 09:14:32 -0400
+	id <S135910AbRDTNTc>; Fri, 20 Apr 2001 09:19:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135910AbRDTNOX>; Fri, 20 Apr 2001 09:14:23 -0400
-Received: from nat-pool.corp.redhat.com ([199.183.24.200]:30754 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S135909AbRDTNOL>; Fri, 20 Apr 2001 09:14:11 -0400
-Date: Fri, 20 Apr 2001 13:13:57 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org, Stephen Tweedie <sct@redhat.com>
-Subject: Re: RFC: pageable kernel-segments
-Message-ID: <20010420131357.B1444@redhat.com>
-In-Reply-To: <27525795B28BD311B28D00500481B7601F11D9@ftrs1.intranet.ftr.nl> <9bi53d$5n6$1@cesium.transmeta.com>
+	id <S135911AbRDTNTX>; Fri, 20 Apr 2001 09:19:23 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:6928 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S135910AbRDTNTG>;
+	Fri, 20 Apr 2001 09:19:06 -0400
+Date: Fri, 20 Apr 2001 09:18:34 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Matthew Wilcox <willy@ldl.fc.hp.com>, linux-kernel@vger.kernel.org,
+        parisc-linux@parisc-linux.org
+Subject: Re: [parisc-linux] Re: OK, let's try cleaning up another nit. Is anyone paying attention?
+Message-ID: <20010420091834.A5102@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Matthew Wilcox <willy@ldl.fc.hp.com>, linux-kernel@vger.kernel.org,
+	parisc-linux@parisc-linux.org
+In-Reply-To: <20010419230009.A32500@thyrsus.com> <E14qaeC-0001DZ-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <9bi53d$5n6$1@cesium.transmeta.com>; from hpa@zytor.com on Tue, Apr 17, 2001 at 12:21:17PM -0700
+In-Reply-To: <E14qaeC-0001DZ-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Apr 20, 2001 at 02:08:25PM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Tue, Apr 17, 2001 at 12:21:17PM -0700, H. Peter Anvin wrote:
-
-> > Certain parts of drivers could get the __pageable prefix or so
-> > (like the __init parts of drivers which get removed) for letting
-> > the paging-code know that it can be discared if memory-pressure
-> > demands it.
+Alan Cox <alan@lxorguk.ukuu.org.uk>:
+> > What is the right procedure for doing changes like this?  Is "don't
+> > touch that tree" a permanent condition, or am I going to get a chance
+> > to clean up the global CONFIG_ namespace after your next merge-down?
 > 
-> VMS does this.  It at least used to have a great tendency to crash
-> itself, because it swapped out something that was called from a driver
-> that was called by the swapper -- resulting in deadlock.  You need
-> iron discipline for this to work right in all circumstances.
+> Feeding arch related stuff to the architecture maintainers.
 
-Actually, VMS doesn't do this, precisely because it is so hard to get
-right.  VMS has both paged and non-paged pools for dynamically
-allocated kernel memory, but the kernel code itself is non-pageable.  
+I shall attempt it.
 
-The big problem with such pageable memory isn't really device driver
-deadlocks --- the easy rule which makes that work is simply never to
-use paged pool from a driver which might be involved in swapping. :)
-Even more tricky is the handling of kernel locking --- you cannot
-access any paged memory with a spinlock held unless you have pinned
-the pages in core beforehand.
+> > That's the main thing I'm after right now -- I want to cut down on
+> > the false positives in my orphaned-symbol reports so that the actual
+> > bugs will stand out.
+> 
+> Teach it to read a 'symbolstoignore' file.
 
---Stephen
+Someone else has already pointed out that this is not a solution that will
+scale well.  It would substitute a continuing management headache for the
+cleanup that's really needed.  In fact I'm reluctant to do this even for 
+cases where it's clearly legitimate (CONFIG_BOOM, CONFIG_BOGUS :-)) partly
+because later on it might provide an excuse for people not to do the cleanup.
+
+> Part of the problem you are hitting right now is that most
+> architectures are not yet fully in sync with 2.4 nor likely to all
+> be for another few iterations.
+
+Understood.  I'll do what I can in the architecture-independent code, then.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+
+"Boys who own legal firearms have much lower rates of delinquency and
+drug use and are even slightly less delinquent than nonowners of guns."
+	-- U.S. Department of Justice, National Institute of
+	   Justice, Office of Juvenile Justice and Delinquency Prevention,
+	   NCJ-143454, "Urban Delinquency and Substance Abuse," August 1995.

@@ -1,52 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264643AbSKIFGQ>; Sat, 9 Nov 2002 00:06:16 -0500
+	id <S264646AbSKIFPN>; Sat, 9 Nov 2002 00:15:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264645AbSKIFGP>; Sat, 9 Nov 2002 00:06:15 -0500
-Received: from c17928.thoms1.vic.optusnet.com.au ([210.49.249.29]:22656 "EHLO
-	laptop.localdomain") by vger.kernel.org with ESMTP
-	id <S264643AbSKIFGP> convert rfc822-to-8bit; Sat, 9 Nov 2002 00:06:15 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Con Kolivas <conman@kolivas.net>
-To: Andrew Morton <akpm@digeo.com>
-Subject: Re: [BENCHMARK] 2.4.{18,19{-ck9},20rc1{-aa1}} with contest
-Date: Sat, 9 Nov 2002 16:12:07 +1100
-User-Agent: KMail/1.4.3
-Cc: Jens Axboe <axboe@suse.de>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       marcelo@conectiva.com.br, Andrea Arcangeli <andrea@suse.de>
-References: <200211091300.32127.conman@kolivas.net> <200211091426.54403.conman@kolivas.net> <3DCC8BCB.F5E39AB7@digeo.com>
-In-Reply-To: <3DCC8BCB.F5E39AB7@digeo.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200211091612.08718.conman@kolivas.net>
+	id <S264647AbSKIFPN>; Sat, 9 Nov 2002 00:15:13 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31243 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S264646AbSKIFPM>;
+	Sat, 9 Nov 2002 00:15:12 -0500
+Date: Sat, 9 Nov 2002 05:21:50 +0000
+From: Matthew Wilcox <willy@debian.org>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: willy@debian.org, andmike@us.ibm.com, hch@lst.de,
+       James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org,
+       mochel@osdl.org, parisc-linux@lists.parisc-linux.org
+Subject: Re: [parisc-linux] Untested port of parisc_device to generic device interface
+Message-ID: <20021109052150.T12011@parcelfarce.linux.theplanet.co.uk>
+References: <200211090451.UAA26160@baldur.yggdrasil.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200211090451.UAA26160@baldur.yggdrasil.com>; from adam@yggdrasil.com on Fri, Nov 08, 2002 at 08:51:28PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, Nov 08, 2002 at 08:51:28PM -0800, Adam J. Richter wrote:
+> My patch is a net deletion of 57 lines and will allow simplification
+> of parisc DMA allocation.
 
+57 lines of clean elegant code, replacing them with overly generic ugly
+code and bloated data structures.  struct device is a round 256 bytes
+on x86.  more on 64-bit architectures.
 
->hrm.  In that case I'll shut up with the speculating.
+> in.  parisc can use the generic driver API without getting fat.
 
-Please dont stop speculating. I and many others rely on someone like yourself 
-who is more likely to understand what is going on to comment. I can't expect 
-you to know exactly what goes into every patchset out there. Your input has 
-been invaluable and most of the drive for my benchmarking.
+no.  it can't.
 
->You're showing a big shift in behaviour between 2.4.19 and 2.4.20-rc1.
->Maybe it doesn't translate to worsened interactivity.  Needs more
->testing and anaysis.
+> Problems specific to the generic device API can be incrementally
+> improved and nobody is treating it as set in stone.  I think the
+> generic device API is close enough already so that it's worth porting
+> to, even if future clean-ups will then require some small changes to
+> the code that is ported to it.
 
-Sounds fair enough. My resources are exhausted though. Someone else have any 
-thoughts?
+Everyone's saying "ra!  ra!  generic device model!" without asking
+what the cost is.  Don't you think it's reasonable that _as the most
+common device type_, struct device should be able to support PCI in a
+clean manner?  Don't you think that the fact that it fails to do so is
+a problem?  Don't you look at the locks sprinkled all over the struct
+device system and wonder what they're all _for_?
 
-Con
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
+Don't get me wrong.  I want a generic device model.  But I think it's
+clear the current one has failed to show anything more than eye candy.
+Perhaps it's time to start over, with something small and sane -- maybe
+kobject (it's not quite what we need, but it's close).  Put one of those
+in struct pci_dev.  Remove duplicate fields.  Now maybe grow kobject a
+little, or perhaps start a new struct with a kobject as its first member.
 
-iD8DBQE9zJknF6dfvkL3i1gRAnHLAKCRuTqBfxqX582puVwQ/hBb0T0R1QCePyws
-0N9uKoKVY/M22gses+MkEnE=
-=UvJP
------END PGP SIGNATURE-----
+And, for gods sake, don't fuck it up by integrating it with USB too early
+in the game.  Let's get it right for PCI, maybe some other internal busses
+(i'm gagging to write an EISA subsystem ;-).  SCSI is more interesting
+than USB.  Above all, don't fall into the trap of "It's a bus and it
+has devices on it, therefore it must be a part of devicefs".
 
+*sigh*.  halloween was a week ago.
+
+-- 
+Revolutions do not require corporate support.

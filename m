@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316993AbSF0WFl>; Thu, 27 Jun 2002 18:05:41 -0400
+	id <S316982AbSF0WHf>; Thu, 27 Jun 2002 18:07:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316994AbSF0WFk>; Thu, 27 Jun 2002 18:05:40 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:28333 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S316993AbSF0WFj>;
-	Thu, 27 Jun 2002 18:05:39 -0400
-Date: Thu, 27 Jun 2002 15:50:55 -0600 (MDT)
-From: "Hurwitz Justin W." <hurwitz@lanl.gov>
-To: Nivedita Singhvi <niv@us.ibm.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: zero-copy networking & a performance drop
-In-Reply-To: <Pine.LNX.4.33.0206271248260.13115-100000@w-nivedita2.des.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.44.0206271545220.17078-100000@alvie-mail.lanl.gov>
+	id <S316994AbSF0WHe>; Thu, 27 Jun 2002 18:07:34 -0400
+Received: from sex.inr.ac.ru ([193.233.7.165]:13961 "HELO sex.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S316982AbSF0WHd>;
+	Thu, 27 Jun 2002 18:07:33 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200206272207.CAA16913@sex.inr.ac.ru>
+Subject: Re: Fragment flooding in 2.4.x/2.5.x
+To: trond.myklebust@fys.uio.no (Trond Myklebust)
+Date: Fri, 28 Jun 2002 02:07:45 +0400 (MSD)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200206272245.45505.trond.myklebust@fys.uio.no> from "Trond Myklebust" at Jun 27, 2 10:45:45 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Jun 2002, Nivedita Singhvi wrote:
+Hello!
 
-[ snip ]
+> Are you seriously saying that all 'right' user applications should be testing 
+> the socket buffer congestion before sending a non-blocking UDP message rather 
+> than just testing sendmsg() for an EWOULDBLOCK return value???
 
-> That said, rx has been slower than sends in most of our testing
-> too. 
+I am saying absolutely seriously that there is nothing more stupid
+than preparation of skbs only to drop them and to return you EAGAIN.
+_Nothing_, do you hear this?
 
-Is this a documented/explained phemomenon? Or are you and I the only 
-people experiencing it? Do we have any idea as to its cause (or is it 
-inherent architecturally)? 
+Repeating the third time in hope you eventually read the mail to the end:
 
-Cheers,
---Gus
+>>>Better way exists. Just use forced sock_wmalloc instead of
+>>>sock_alloc_send_skb on non-blocking send of all the fragments
+>>>but the first.
 
 
+And, yes, until this is done, I have to be serious when saying
+that any application using nonblocking sockets have to use select()
+or even SIOCOUTQ. Your patch does not change anything in this.
+
+Alexey

@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265305AbUAPKlv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 05:41:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265309AbUAPKlv
+	id S265362AbUAPKra (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 05:47:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265366AbUAPKra
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 05:41:51 -0500
-Received: from gprs178-245.eurotel.cz ([160.218.178.245]:53376 "EHLO
-	midnight.ucw.cz") by vger.kernel.org with ESMTP id S265305AbUAPKlu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 05:41:50 -0500
-Date: Fri, 16 Jan 2004 11:41:30 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: David Monro <davidm@amberdata.demon.co.uk>,
-       John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org
-Subject: Re: handling an oddball PS/2 keyboard (w/ patch)
-Message-ID: <20040116104130.GA6431@ucw.cz>
-References: <3FEA5044.5090106@amberdata.demon.co.uk> <20031225063936.GA15560@win.tue.nl> <200312251316.hBPDG7LT000163@81-2-122-30.bradfords.org.uk> <3FEAFDF3.80008@amberdata.demon.co.uk> <3FEB972B.4010406@amberdata.demon.co.uk> <20031226102210.GA11127@ucw.cz> <20031226235843.GA15973@win.tue.nl>
+	Fri, 16 Jan 2004 05:47:30 -0500
+Received: from gprs214-224.eurotel.cz ([160.218.214.224]:18816 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S265362AbUAPKr2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 05:47:28 -0500
+Date: Fri, 16 Jan 2004 11:47:18 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+Cc: rml@ximian.com, linux-kernel@vger.kernel.org
+Subject: Re: Laptops & CPU frequency
+Message-ID: <20040116104718.GA10217@elf.ucw.cz>
+References: <20040111025623.GA19890@ncsu.edu> <20040111025623.GA19890@ncsu.edu> <1073791061.1663.77.camel@localhost> <E1Afj2b-0004QN-00@chiark.greenend.org.uk> <E1Afj2b-0004QN-00@chiark.greenend.org.uk> <1073841200.1153.0.camel@localhost> <E1AfjdT-0008OH-00@chiark.greenend.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031226235843.GA15973@win.tue.nl>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <E1AfjdT-0008OH-00@chiark.greenend.org.uk>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 27, 2003 at 12:58:43AM +0100, Andries Brouwer wrote:
+Hi!
 
-> On Fri, Dec 26, 2003 at 11:22:10AM +0100, Vojtech Pavlik wrote:
+> >No - if the laptop changes speed on its own, using a system that Linux
+> >does not understand, then Linux won't know about the change,
+> >/proc/cpuinfo will not be updated, and stuff won't go too good.
 > 
-> > This is intentional. Set 3 was never meant to be translated.
-> 
-> In fact it is just the opposite. Set 3 was designed to be translated.
-> Look at the translated codes:
-> Q (10), W (11), E (12), R (13), T (14), Y (15), U (16), I (17), O (18), P (19).
-> Completely regular.
-> Now look at the untranslated codes:
-> Q (15), W (1d), E (24), R (2d), T (2c), Y (35), U (3c), I (43), O (44), P (4d).
-> Messy.
+> Is there any realistic way of noticing this sort of change?
 
-Not at all. If you draw the whole keyboard, you can see the underlying
-matrix of the Set3 codes.
+You can detect that tsc runs at wrong speed from timer interrupt.
 
-And most importantly, there are more than a few set3 keyboards which have
-scancodes which cannot be translated safely (either > 0x80 or codes like
-0x7e).
+								pavel
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

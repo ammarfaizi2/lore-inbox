@@ -1,98 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286602AbRLUVsm>; Fri, 21 Dec 2001 16:48:42 -0500
+	id <S286607AbRLUVsW>; Fri, 21 Dec 2001 16:48:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286603AbRLUVsd>; Fri, 21 Dec 2001 16:48:33 -0500
-Received: from pop.gmx.net ([213.165.64.20]:37731 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S286606AbRLUVsT>;
-	Fri, 21 Dec 2001 16:48:19 -0500
-From: Hans-Christian Armingeon <linux.johnny@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: link errors with CONFIG_SERIAL_ACPI enabled
-Date: Fri, 21 Dec 2001 23:48:54 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20011221204458Z286550-18284+5821@vger.kernel.org>
-In-Reply-To: <20011221204458Z286550-18284+5821@vger.kernel.org>
+	id <S286603AbRLUVsM>; Fri, 21 Dec 2001 16:48:12 -0500
+Received: from mta13n.bluewin.ch ([195.186.1.206]:7729 "EHLO mta13n.bluewin.ch")
+	by vger.kernel.org with ESMTP id <S286595AbRLUVr6>;
+	Fri, 21 Dec 2001 16:47:58 -0500
+Message-ID: <3C234CC100020E25@mta13n.bluewin.ch> (added by
+	    postmaster@bluewin.ch)
+From: "Per Jessen" <per@computer.org>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Date: Fri, 21 Dec 2001 20:55:52 +0100
+Reply-To: "Per Jessen" <per@computer.org>
+X-Mailer: PMMail 98 Professional (2.01.1600) For Windows 95 (4.0.1212)
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_I1UPQXULLZPA0L3TKBPR"
-Message-Id: <20011221214826Z286606-18285+3968@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in	Configure.help.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 21 Dec 2001 11:43:40 -0600, Bob Glamm wrote:
 
---------------Boundary-00=_I1UPQXULLZPA0L3TKBPR
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-
-Am Freitag, 21. Dezember 2001 22:45 schrieb Hans-Christian Armingeon:
-> Hi folks,
-> I noticed, that every time I switch on CONFIG_SERIAL_ACPI as a Module, I
-> get some linker errors when make bzImage tries to link the bzImage
-> together. I don't have the exact output at hands, but I'll reproduce it if
-> needed.
-here it comes
+>On Fri, Dec 21, 2001 at 03:48:22PM +0000, Mike Jagdis wrote:
+[snip]
+>> Go look up "SI binary prefix" and "SI prefix" on Google. You might
+>> not _like_ the binary prefixes (I don't either) but they're what's
+>> been standardized and they're unambiguous. It does no good to claim
+>> that it's enough that *you* know what you mean. This isn't Alice in
+>> Wonderland (you can look that reference up in your spare time :-) ).
 >
-> Johnny
+>SI standards have been around for years.  Yet many mechanical
+>engineers in the US still use English units.  Convention and
+>economics dictate that they do so; any change in this field is quite
+>slow.
 
---------------Boundary-00=_I1UPQXULLZPA0L3TKBPR
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="linux-errors"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="linux-errors"
+Did the US ever go metric ? Europe (minus the UK of course) did, and rarely
+looked back. AFAIK (please correct me), the US never went metric. Don't they
+still use Fahrenheit and all that weird stuff ?
+Oh, and btw - those non-metric units are not "English units", but "Imperial units", 
+if you want to picky :-) 
 
-bWFrZSBhbGxfdGFyZ2V0cwptYWtlWzJdOiBFbnRlcmluZyBkaXJlY3RvcnkgYC91c3Ivc3JjL2xp
-bnV4LTIuNC4xNy9hcmNoL2kzODYvbGliJwpnY2MgLURfX0FTU0VNQkxZX18gLURfX0tFUk5FTF9f
-IC1JL3Vzci9zcmMvbGludXgtMi40LjE3L2luY2x1ZGUgLWMgY2hlY2tzdW0uUyAtbyBjaGVja3N1
-bS5vCmdjYyAtRF9fS0VSTkVMX18gLUkvdXNyL3NyYy9saW51eC0yLjQuMTcvaW5jbHVkZSAtV2Fs
-bCAtV3N0cmljdC1wcm90b3R5cGVzIC1Xbm8tdHJpZ3JhcGhzIC1PMiAtZm9taXQtZnJhbWUtcG9p
-bnRlciAtZm5vLXN0cmljdC1hbGlhc2luZyAtZm5vLWNvbW1vbiAtcGlwZSAtbXByZWZlcnJlZC1z
-dGFjay1ib3VuZGFyeT0yIC1tYXJjaD1pMzg2ICAgIC1jIC1vIG9sZC1jaGVja3N1bS5vIG9sZC1j
-aGVja3N1bS5jCmdjYyAtRF9fS0VSTkVMX18gLUkvdXNyL3NyYy9saW51eC0yLjQuMTcvaW5jbHVk
-ZSAtV2FsbCAtV3N0cmljdC1wcm90b3R5cGVzIC1Xbm8tdHJpZ3JhcGhzIC1PMiAtZm9taXQtZnJh
-bWUtcG9pbnRlciAtZm5vLXN0cmljdC1hbGlhc2luZyAtZm5vLWNvbW1vbiAtcGlwZSAtbXByZWZl
-cnJlZC1zdGFjay1ib3VuZGFyeT0yIC1tYXJjaD1pMzg2ICAgIC1jIC1vIGRlbGF5Lm8gZGVsYXku
-YwpnY2MgLURfX0tFUk5FTF9fIC1JL3Vzci9zcmMvbGludXgtMi40LjE3L2luY2x1ZGUgLVdhbGwg
-LVdzdHJpY3QtcHJvdG90eXBlcyAtV25vLXRyaWdyYXBocyAtTzIgLWZvbWl0LWZyYW1lLXBvaW50
-ZXIgLWZuby1zdHJpY3QtYWxpYXNpbmcgLWZuby1jb21tb24gLXBpcGUgLW1wcmVmZXJyZWQtc3Rh
-Y2stYm91bmRhcnk9MiAtbWFyY2g9aTM4NiAgICAtYyAtbyB1c2VyY29weS5vIHVzZXJjb3B5LmMK
-Z2NjIC1EX19BU1NFTUJMWV9fIC1EX19LRVJORUxfXyAtSS91c3Ivc3JjL2xpbnV4LTIuNC4xNy9p
-bmNsdWRlIC1jIGdldHVzZXIuUyAtbwpnZXR1c2VyLm8KZ2NjIC1EX19LRVJORUxfXyAtSS91c3Iv
-c3JjL2xpbnV4LTIuNC4xNy9pbmNsdWRlIC1XYWxsIC1Xc3RyaWN0LXByb3RvdHlwZXMgLVduby10
-cmlncmFwaHMgLU8yIC1mb21pdC1mcmFtZS1wb2ludGVyIC1mbm8tc3RyaWN0LWFsaWFzaW5nIC1m
-bm8tY29tbW9uIC1waXBlIC1tcHJlZmVycmVkLXN0YWNrLWJvdW5kYXJ5PTIgLW1hcmNoPWkzODYg
-ICAgLWMgLW8gbWVtY3B5Lm8gbWVtY3B5LmMKZ2NjIC1EX19LRVJORUxfXyAtSS91c3Ivc3JjL2xp
-bnV4LTIuNC4xNy9pbmNsdWRlIC1XYWxsIC1Xc3RyaWN0LXByb3RvdHlwZXMgLVduby10cmlncmFw
-aHMgLU8yIC1mb21pdC1mcmFtZS1wb2ludGVyIC1mbm8tc3RyaWN0LWFsaWFzaW5nIC1mbm8tY29t
-bW9uIC1waXBlIC1tcHJlZmVycmVkLXN0YWNrLWJvdW5kYXJ5PTIgLW1hcmNoPWkzODYgICAgLWMg
-LW8gc3Ryc3RyLm8gc3Ryc3RyLmMKZ2NjIC1EX19LRVJORUxfXyAtSS91c3Ivc3JjL2xpbnV4LTIu
-NC4xNy9pbmNsdWRlIC1XYWxsIC1Xc3RyaWN0LXByb3RvdHlwZXMgLVduby10cmlncmFwaHMgLU8y
-IC1mb21pdC1mcmFtZS1wb2ludGVyIC1mbm8tc3RyaWN0LWFsaWFzaW5nIC1mbm8tY29tbW9uIC1w
-aXBlIC1tcHJlZmVycmVkLXN0YWNrLWJvdW5kYXJ5PTIgLW1hcmNoPWkzODYgICAgLWMgLW8gaW9k
-ZWJ1Zy5vIGlvZGVidWcuYwpybSAtZiBsaWIuYQphciAgcmNzIGxpYi5hIGNoZWNrc3VtLm8gb2xk
-LWNoZWNrc3VtLm8gZGVsYXkubyB1c2VyY29weS5vIGdldHVzZXIubyBtZW1jcHkubyBzdHJzdHIu
-byBpb2RlYnVnLm8KbWFrZVsyXTogTGVhdmluZyBkaXJlY3RvcnkgYC91c3Ivc3JjL2xpbnV4LTIu
-NC4xNy9hcmNoL2kzODYvbGliJwptYWtlWzFdOiBMZWF2aW5nIGRpcmVjdG9yeSBgL3Vzci9zcmMv
-bGludXgtMi40LjE3L2FyY2gvaTM4Ni9saWInCmxkIC1tIGVsZl9pMzg2IC1UIC91c3Ivc3JjL2xp
-bnV4LTIuNC4xNy9hcmNoL2kzODYvdm1saW51eC5sZHMgLWUgc3RleHQgYXJjaC9pMzg2L2tlcm5l
-bC9oZWFkLm8gYXJjaC9pMzg2L2tlcm5lbC9pbml0X3Rhc2subyBpbml0L21haW4ubyBpbml0L3Zl
-cnNpb24ubyBcCiAgICAgICAgLS1zdGFydC1ncm91cCBcCiAgICAgICAgYXJjaC9pMzg2L2tlcm5l
-bC9rZXJuZWwubyBhcmNoL2kzODYvbW0vbW0ubyBrZXJuZWwva2VybmVsLm8gbW0vbW0ubyBmcy9m
-cy5vIGlwYy9pcGMubyBcCiAgICAgICAgIGRyaXZlcnMvYWNwaS9hY3BpLm8gZHJpdmVycy9jaGFy
-L2NoYXIubyBkcml2ZXJzL2Jsb2NrL2Jsb2NrLm8gZHJpdmVycy9taXNjL21pc2MubyBkcml2ZXJz
-L25ldC9uZXQubyBkcml2ZXJzL21lZGlhL21lZGlhLm8gZHJpdmVycy9jaGFyL2RybS9kcm0ubyBk
-cml2ZXJzL25ldC9mYy9mYy5vIGRyaXZlcnMvbmV0L2FwcGxldGFsay9hcHBsZXRhbGsubyBkcml2
-ZXJzL2Nkcm9tL2RyaXZlci5vIGRyaXZlcnMvcGNpL2RyaXZlci5vIGRyaXZlcnMvbmV0L3BjbWNp
-YS9wY21jaWFfbmV0Lm8gZHJpdmVycy9uZXQvd2lyZWxlc3Mvd2lyZWxlc3NfbmV0Lm8KZHJpdmVy
-cy92aWRlby92aWRlby5vIGRyaXZlcnMvbmV0L2hhbXJhZGlvL2hhbXJhZGlvLm8gZHJpdmVycy9t
-ZC9tZGRldi5vIFwKICAgICAgICBuZXQvbmV0d29yay5vIFwKICAgICAgICAvdXNyL3NyYy9saW51
-eC0yLjQuMTcvYXJjaC9pMzg2L2xpYi9saWIuYSAvdXNyL3NyYy9saW51eC0yLjQuMTcvbGliL2xp
-Yi5hIC91c3Ivc3JjL2xpbnV4LTIuNC4xNy9hcmNoL2kzODYvbGliL2xpYi5hIFwKICAgICAgICAt
-LWVuZC1ncm91cCBcCiAgICAgICAgLW8gdm1saW51eApkcml2ZXJzL2NoYXIvY2hhci5vOiBJbiBm
-dW5jdGlvbiBgc2V0dXBfc2VyaWFsX2FjcGknOgpkcml2ZXJzL2NoYXIvY2hhci5vKC50ZXh0Lmlu
-aXQrMHhmOGQpOiB1bmRlZmluZWQgcmVmZXJlbmNlIHRvIGBlYXJseV9zZXJpYWxfc2V0dXAnCm1h
-a2U6ICoqKiBbdm1saW51eF0gRXJyb3IgMQo=
+>
+>Somehow I expect that the same convention and economics factors will
+>also dominate the argument over prefixes for bits of information
+>in this field for years to come as well.
 
---------------Boundary-00=_I1UPQXULLZPA0L3TKBPR--
+That I agree with - although I suspect manufacturers increasing will go for
+the IEC standards - I used to work for StorageTek where an argument just like
+this went on about 2 years ago - the IEC side won. Generally the hardware
+people were all for IEC, and the software side less so.
+
+
+rgds,
+Per Jessen, Zurich
+
+regards,
+Per Jessen, Zurich
+http://www.enidan.com - home of the J1 serial console.
+
+Windows 2001: "I'm sorry Dave ...  I'm afraid I can't do that."
+
+

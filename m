@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263903AbRFHO3h>; Fri, 8 Jun 2001 10:29:37 -0400
+	id <S263799AbRFHOe2>; Fri, 8 Jun 2001 10:34:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263966AbRFHO32>; Fri, 8 Jun 2001 10:29:28 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:34052 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S263965AbRFHO3X>; Fri, 8 Jun 2001 10:29:23 -0400
-Date: Fri, 8 Jun 2001 18:16:12 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Cc: Tom Vier <tmv5@home.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [patch] Re: Linux 2.4.5-ac6
-Message-ID: <20010608181612.A561@jurassic.park.msu.ru>
-In-Reply-To: <20010607212015.A17908@jurassic.park.msu.ru> <Pine.GSO.3.96.1010607193120.16852B-100000@delta.ds2.pg.gda.pl>
-Mime-Version: 1.0
+	id <S263967AbRFHOeS>; Fri, 8 Jun 2001 10:34:18 -0400
+Received: from [151.17.201.167] ([151.17.201.167]:50554 "EHLO proxy.teamfab.it")
+	by vger.kernel.org with ESMTP id <S263799AbRFHOeB>;
+	Fri, 8 Jun 2001 10:34:01 -0400
+Message-ID: <3B20E1B2.C2198491@teamfab.it>
+Date: Fri, 08 Jun 2001 16:31:14 +0200
+From: Luca Montecchiani <luca.montecchiani@teamfab.it>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19-i586-SMP-modular i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: m.luca@iname.com, tytso@mit.edu
+Subject: [PATCH] Support Timedia/Sunix/Exsys PCI card problem in Serial 5.0.5 / 
+ Kernel 2.4.xx
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.3.96.1010607193120.16852B-100000@delta.ds2.pg.gda.pl>; from macro@ds2.pg.gda.pl on Thu, Jun 07, 2001 at 08:28:04PM +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 07, 2001 at 08:28:04PM +0200, Maciej W. Rozycki wrote:
->  DU seems to map as low as possible, it would seem.
+Hi!
 
-Yes, I've just checked, starting at 64K...
+I've found a bug in the serial driver 5.0.5, the problem is
+that the Sunix pci 4port serial card wasn't correctly detected.
 
->  Maybe we could just
-> do the same for OSF/1 binaries by setting TASK_UNMAPPED_BASE
-> appropriately? 
+I'm using the serial 5.0.5 serial driver on a vanilla 2.2.19 kernel.
 
-No. I've changed in load_aout_binary() set_personality(PER_LINUX) to
-set_personality(PER_LINUX_32BIT), and now I have another error.
-You will laugh, but...
+Searching the web I've found this changes that looks wrong :
 
-$ netscape
-665:/usr/lib/netscape/netscape-communicator: : Fatal Error: mmap available address is not larger than requested
+http://www.linuxhq.com/kernel/v2.3/patch/patch-2.4.0-test7/linux_drivers_char_serial.c.html
 
-This happens after
-mmap(0x7fdc8000, 40960, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x40018000
+here the obvious patch that made it work again here on 2.2.19 kernel.
+Should be applied also on 2.4.x :
 
-And note, this is the message from loader, not from netscape itself.
-So I think my second patch is an easiest solution for now.
-Look, compared with the code in Linus' tree:
-- it doesn't add any overhead in general case (addr == 0);
-- if the specified address is too high and we can't find a free
-  area above it, we just continue search from TASK_UNMAPPED_BASE
-  as usual; 
-- if address is too low, extra cost is only compare and taken branch.
-I think it's clean enough.
+--- serial.c.ori        Fri Jun  8 16:12:16 2001
++++ serial.c    Fri Jun  8 16:12:30 2001
+@@ -4178,7 +4178,7 @@
+        for (i=0; timedia_data[i].num; i++) {
+                ids = timedia_data[i].ids;
+                for (j=0; ids[j]; j++) {
+-                       if (pci_get_subvendor(dev) == ids[j]) {
++                       if (pci_get_subdevice(dev) == ids[j]) {
+                                board->num_ports = timedia_data[i].num;
+                                return 0;
+                        }
 
-Ivan.
+ciao,
+luca

@@ -1,48 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315919AbSENRhA>; Tue, 14 May 2002 13:37:00 -0400
+	id <S315920AbSENRiS>; Tue, 14 May 2002 13:38:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315920AbSENRg7>; Tue, 14 May 2002 13:36:59 -0400
-Received: from [168.159.40.71] ([168.159.40.71]:33032 "EHLO
-	srexchimc2.lss.emc.com") by vger.kernel.org with ESMTP
-	id <S315919AbSENRg6>; Tue, 14 May 2002 13:36:58 -0400
-Message-ID: <FA2F59D0E55B4B4892EA076FF8704F553D1A54@srgraham.eng.emc.com>
-From: "chen, xiangping" <chen_xiangping@emc.com>
-To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
-Cc: jes@wildopensource.com, Steve@ChyGwyn.com, linux-kernel@vger.kernel.org
-Subject: RE: Kernel deadlock using nbd over acenic driver.
-Date: Tue, 14 May 2002 13:36:49 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S315921AbSENRiS>; Tue, 14 May 2002 13:38:18 -0400
+Received: from skunk.directfb.org ([212.84.236.169]:386 "EHLO
+	skunk.directfb.org") by vger.kernel.org with ESMTP
+	id <S315920AbSENRiQ>; Tue, 14 May 2002 13:38:16 -0400
+Date: Tue, 14 May 2002 19:37:14 +0200
+From: Denis Oliver Kropp <dok@directfb.org>
+To: Marc-Christian Petersen <mcp@linux-systeme.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: any1 have a clue?
+Message-ID: <20020514173714.GA903@skunk.convergence.de>
+Reply-To: Denis Oliver Kropp <dok@directfb.org>
+In-Reply-To: <200205141916.51818.mcp@linux-systeme.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-But ... It seems that there is no direct way to adjust the tcp max 
-window size in Linux kernel.
-
------Original Message-----
-From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
-Sent: Tuesday, May 14, 2002 12:48 PM
-To: chen, xiangping
-Cc: jes@wildopensource.com; Steve@ChyGwyn.com;
-linux-kernel@vger.kernel.org
-Subject: Re: Kernel deadlock using nbd over acenic driver.
-
-
-> Xiangping> So for gigabit Ethernet driver, what is the optimal mem
-> Xiangping> configuration for performance and reliability?
+Quoting Marc-Christian Petersen (mcp@linux-systeme.de):
+> Hi there :-)
 > 
-> It depends on your application, number of streams, general usage of
-> the connection etc. There's no perfect-for-all magic number.
+> anyone have a clue what "disabled" is in 2.4.18 tree?
+> I want to integrate the vmwarefb driver posted on this list for 2.4.19pre8 
+> into 2.4.18 ... Or does anyone test this on 2.4.19pre8 with the same problem?
+> 
+> cc  -D__KERNEL__ -I/usr/src/linux-2.4.18/include  -Wall -Wstrict-prototypes 
+> -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
+> -Wno-unused -pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE  
+> -DKBUILD_BASENAME=vmwarefb  -c -o vmwarefb.o vmwarefb.c
+> vmwarefb.c: In function `init_module':
+> vmwarefb.c:1513: `disabled' undeclared (first use in this function)
+> vmwarefb.c:1513: (Each undeclared identifier is reported only once
+> vmwarefb.c:1513: for each function it appears in.)
+> make[3]: *** [vmwarefb.o] Error 1
+> make[3]: Leaving directory `/usr/src/linux-2.4.18/drivers/video/vmware'
+> make[2]: *** [_modsubdir_vmware] Error 2
+> make[2]: Leaving directory `/usr/src/linux-2.4.18/drivers/video'
+> make[1]: *** [_modsubdir_video] Error 2
+> make[1]: Leaving directory `/usr/src/linux-2.4.18/drivers'
+> make: *** [_mod_drivers] Error 2
 
-The primary constraints are
+Sorry, I didn't check if the module version compiles.
+'disabled' is a static integer in the driver. It seems that
+the module parameter definitions should be after its declaration.
 
-	TCP max window size
-	TCP congestion window size (cwnd)
-	Latency
+-- 
+Best regards,
+  Denis Oliver Kropp
 
-Most of the good discussion on this matter can be found in the ietf
-archives from the window scaling options work, and in part in the RFC's
-that led to
+.------------------------------------------.
+| DirectFB - Hardware accelerated graphics |
+| http://www.directfb.org/                 |
+"------------------------------------------"
+
+                            Convergence GmbH

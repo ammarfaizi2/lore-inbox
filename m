@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262519AbVAUVeU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262511AbVAUVgu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262519AbVAUVeU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 16:34:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262514AbVAUVch
+	id S262511AbVAUVgu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 16:36:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262521AbVAUVgu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 16:32:37 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:15260 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262517AbVAUVb4 (ORCPT
+	Fri, 21 Jan 2005 16:36:50 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:17566 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262511AbVAUVgb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 16:31:56 -0500
-Date: Fri, 21 Jan 2005 13:31:46 -0800
-Message-Id: <200501212131.j0LLVkJ8013886@magilla.sf.frob.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 21 Jan 2005 16:36:31 -0500
+Subject: Re: Fix ea-in-inode default ACL creation
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Andreas Gruenbacher <agruen@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Tridgell <tridge@osdl.org>,
+       Andreas Dilger <adilger@clusterfs.com>, Alex Tomas <alex@clusterfs.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <1106245344.15959.13.camel@winden.suse.de>
+References: <1106245344.15959.13.camel@winden.suse.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Ingo Molnar <mingo@elte.hu>
-X-Fcc: ~/Mail/linus
-Cc: Andrea Arcangeli <andrea@cpushare.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: seccomp for 2.6.11-rc1-bk8
-In-Reply-To: Ingo Molnar's message of  Friday, 21 January 2005 13:55:58 +0100 <20050121125558.GA5596@elte.hu>
-X-Zippy-Says: I have accepted Provolone into my life!
+Message-Id: <1106343376.1989.437.camel@sisko.sctweedie.blueyonder.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Fri, 21 Jan 2005 21:36:16 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> maybe this could even be fit into existing ptrace semantics, without any
-> need for PTRACE_ATTACH_JAIL. What we need is to catch the case where a
-> ptraced child is running (i.e. the signal_wake_up() has already been
-> done, and the parent is waiting for the child to stop again), and the
-> ptrace parent is killed unexpectedly.  Would it be a correct fix to just
-> unconditionally stop the child in this case (and leave it hanging in
-> such a state)? Or to kill it right away?
+Hi,
 
-That's the same as the case of the debugger dying or being killed by hand.
-When gdb has a bug, people want to be able to kill it and get on with using
-their program, not have their program always be killed too.
+On Thu, 2005-01-20 at 18:22, Andreas Gruenbacher wrote:
 
-If you add this feature, it makes most sense IMHO to use PTRACE_SETOPTIONS
-as the way to request it.  
+> When a new inode is created, ext3_new_inode sets the EXT3_STATE_NEW
+> flag, which tells ext3_do_update_inode to zero out the inode before
+> filling in the inode's data. When a file is created in a directory with
+> a default acl, the new inode inherits the directory's default acl; this
+> generates attributes. The attributes are created before
+> ext3_do_update_inode is called to write out the inode. In case of
+> in-inode attributes, the new inode's attributes are written, and then
+> zeroed out again by ext3_do_update_inode. Bad thing.
+> 
+> Fix this by recognizing the EXT3_STATE_NEW case in
+> ext3_xattr_set_handle, and zeroing out the inode there already when
+> necessary.
 
+Ugh.  It feels horrible to have to do this, but we _do_ want to clear
+the raw inode, and we only want to do it once, and we have to do it on
+first access to the on-disk structures.  I can't see an easy way round
+it that doesn't add more overhead.
 
-Thanks,
-Roland
+Looks reasonable to me.
+
+--Stephen
+

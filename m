@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313113AbSHVQJd>; Thu, 22 Aug 2002 12:09:33 -0400
+	id <S313743AbSHVQ0I>; Thu, 22 Aug 2002 12:26:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313563AbSHVQJd>; Thu, 22 Aug 2002 12:09:33 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:7014 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S313113AbSHVQJc>; Thu, 22 Aug 2002 12:09:32 -0400
-Date: Thu, 22 Aug 2002 18:15:05 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       Benjamin LaHaise <bcrl@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Chris Friesen <cfriesen@nortelnetworks.com>,
-       Pavel Machek <pavel@elf.ucw.cz>, linux-kernel@vger.kernel.org,
-       linux-aio@kvack.org
-Subject: Re: aio-core why not using SuS? [Re: [rfc] aio-core for 2.5.29 (Re: async-io API registration for 2.5.29)]
-Message-ID: <20020822161505.GR1117@dualathlon.random>
-References: <2159880183.1029535922@[10.10.2.3]> <Pine.LNX.4.44.0208170953190.3062-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0208170953190.3062-100000@home.transmeta.com>
-User-Agent: Mutt/1.3.27i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S313867AbSHVQ0H>; Thu, 22 Aug 2002 12:26:07 -0400
+Received: from mail.hometree.net ([212.34.181.120]:2745 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S313743AbSHVQ0H>; Thu, 22 Aug 2002 12:26:07 -0400
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: unknown
+Date: Thu, 22 Aug 2002 16:30:15 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <ak33in$umh$1@forge.intermeta.de>
+References: <180577A42806D61189D30008C7E632E87939F8@boca213a.boca.ssc.siemens.com> <20020819.142811.53489570.davem@redhat.com>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1030033815 14779 212.34.181.4 (22 Aug 2002 16:30:15 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Thu, 22 Aug 2002 16:30:15 +0000 (UTC)
+X-Copyright: (C) 1996-2002 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 17, 2002 at 10:02:23AM -0700, Linus Torvalds wrote:
-> So to make this work, you'd have to have:
->  - architecture-specific hacks
->  - realize that not all architectures can do it at all, so the places that 
->    depend on this would have to have some abstraction that makes it go 
->    away when not needed.
->  - fix up lazy TLB switching (conditionally on the hack).
-> 
-> It just sounds really messy to me.
+"David S. Miller" <davem@redhat.com> writes:
 
-Indeed. Assuming this is an hack under a CONFIG_X86_NUMA_HACK hardwired
-for certain config options and certain architecture, the tlb flushing
-across threads sounds the worst part in particular because it's an x86.
+>   From: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
+>   Date: Mon, 19 Aug 2002 17:29:26 -0400
 
-Andrea
+>   Are there any plans to do an SCTP (RFC 2960) implementation for Linux?
+>   Please CC me directly on any responses.
+>   
+>It's done, I'm going to merge it in the next week or so
+>into 2.5.x  Search the list archives for the SCTP project
+>site as I don't have the URL handy.
+
+http://www.sctp.de/
+
+	Regards
+		Henning
+
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

@@ -1,37 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264173AbRFFVk6>; Wed, 6 Jun 2001 17:40:58 -0400
+	id <S264174AbRFFVmS>; Wed, 6 Jun 2001 17:42:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264174AbRFFVki>; Wed, 6 Jun 2001 17:40:38 -0400
-Received: from network.admin.crestech.ca ([132.251.1.3]:26375 "EHLO
-	mailhub.CRESTech.ca") by vger.kernel.org with ESMTP
-	id <S264173AbRFFVkb>; Wed, 6 Jun 2001 17:40:31 -0400
-Date: Wed, 6 Jun 2001 17:40:28 -0400 (EDT)
-From: Kipp Cannon <kipp@sgl.crestech.ca>
-To: linux-kernel@vger.kernel.org
-Subject: Re: temperature standard - global config option?
-In-Reply-To: <9fm4sc$ggd$1@cesium.transmeta.com>
-Message-ID: <Pine.GSO.4.05.10106061721140.27215-100000@s3.sgl.crestech.ca>
+	id <S264179AbRFFVmI>; Wed, 6 Jun 2001 17:42:08 -0400
+Received: from gateway.penguincomputing.com ([63.143.102.194]:33518 "EHLO
+	inside.penguincomputing.com") by vger.kernel.org with ESMTP
+	id <S264174AbRFFVl7>; Wed, 6 Jun 2001 17:41:59 -0400
+Message-ID: <3B1EA3A3.7A2C4144@penguincomputing.com>
+Date: Wed, 06 Jun 2001 14:41:55 -0700
+From: Philip Pokorny <ppokorny@penguincomputing.com>
+Organization: Penguin Computing
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.16-3 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, mingo@redhat.com, torvalds@transmeta.com
+Subject: [PATCH] timer vector printed inconsistently
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+When trying to debug a recent problem with some interrupt routing,
+I found the output to be confusing...  The TIMER vector is
+printed with %d, but when the APIC tables are printed, the vector
+is printed using %02X.  This was particularly confusing in this case
+because the TIMER vector was 49d (0x31) and vector 0x49 was
+assigned to a different APIC pin.
 
-It seems that a lot of people are agreeing that the unit should be a
-multiple of 1 kelvin but to my eyes there are two camps and I just want to
-make sure that everyone's being clear with their notation.
+The following patch causes the TIMER vector to be printed the same
+way as the vectors in the APIC table (See line 786 of my io_apic.c)
 
-If the kernel tells me the temperature is 1 (one) what should that mean?  
-If it's spitting out 0.1*<temperature in K> as people are claiming the
-ACPI stuff does then 1 means 10 kelvin or 1 dekakelvin, not a
-                                            ^^^^
-decikelvin as other people are saying they would prefer to see used.  Or
-are people being braindamaged and by "0.1*K" they mean that ACPI spits out
-10*<temperature in K>?  Which would then mean that everyone does agree
-afterall that the unit should be a decikelvin although they don't
-necessarily know what multiplication means :-).
+I'm not a subscriber of the kernel mailing list, so please CC my on
+any replies.
 
-							-Kipp
+--- arch/i386/kernel/io_apic.c.orig	Tue Jun  5 17:30:12 2001
++++ arch/i386/kernel/io_apic.c	Tue Jun  5 17:34:38 2001
+@@ -1489,7 +1489,7 @@
+ 	pin1 = find_isa_irq_pin(0, mp_INT);
+ 	pin2 = find_isa_irq_pin(0, mp_ExtINT);
+ 
+-	printk(KERN_INFO "..TIMER: vector=%d pin1=%d pin2=%d\n", vector, pin1, pin2);
++	printk(KERN_INFO "..TIMER: vector=%02X pin1=%d pin2=%d\n", vector, pin1, pin2);
+ 
+ 	if (pin1 != -1) {
+ 		/*
 
+-- 
+Philip Pokorny, Senior Engineer
+http://www.penguincomputing.com
+
+Penguin Computing - The World's Most Reliable Linux Systems

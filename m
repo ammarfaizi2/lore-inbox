@@ -1,60 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316088AbSEQMuG>; Fri, 17 May 2002 08:50:06 -0400
+	id <S316214AbSEQMzz>; Fri, 17 May 2002 08:55:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316209AbSEQMuF>; Fri, 17 May 2002 08:50:05 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:63872 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S316088AbSEQMuE>; Fri, 17 May 2002 08:50:04 -0400
-Date: Fri, 17 May 2002 08:51:14 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: "'Roger Luethi'" <rl@hellgate.ch>
-cc: Shing Chuang <ShingChuang@via.com.tw>,
-        Urban Widmark <urban@teststation.com>,
-        "Ivan G." <ivangurdiev@linuxfreemail.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org,
-        AJ Jiang <AJJiang@via.com.tw>
-Subject: Re: [PATCH] #2 VIA Rhine stalls: TxAbort handling
-In-Reply-To: <20020517001534.GA3632@k3.hellgate.ch>
-Message-ID: <Pine.LNX.3.95.1020517084216.4475A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316215AbSEQMzy>; Fri, 17 May 2002 08:55:54 -0400
+Received: from slip-202-135-75-243.ca.au.prserv.net ([202.135.75.243]:21385
+	"EHLO wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S316214AbSEQMzx>; Fri, 17 May 2002 08:55:53 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: AUDIT: copy_from_user is a deathtrap. 
+In-Reply-To: Your message of "Fri, 17 May 2002 13:58:53 +0100."
+             <E178hJt-0006Rb-00@the-village.bc.nu> 
+Date: Fri, 17 May 2002 22:58:08 +1000
+Message-Id: <E178hJU-0002GS-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 May 2002, 'Roger Luethi' wrote:
-
-> > I think one has to <somehow> find that the chip has halted besides
-> > the current way (noticing that it can't transmit anymore). I don't
+In message <E178hJt-0006Rb-00@the-village.bc.nu> you write:
+> > No, the 400+ are all of form:
+> > 
+> > 	/* of course this returns 0 or -EFAULT! */
+> > 	return copy_from_user(xxx);
 > 
-> There seems to be a misunderstanding. We already get an interrupt and a
-> status to indicate what kind of problem occured. Thanks to Shing's recent
-> posting we even have confirmed information about what events stop the Tx
-> engine. _Plus_ there is a bit flag TXON in a chip status register which
-> indicates whether the Tx engine is active.
->
-[SNIPPED...]
-> 
-> > In the chip-halted work-around that everybody seems to use now,
-> > reprogram it from scratch. The last program operation being to remove
-> > loop-back. I don't even know if this chip can be set to loop-back,
-> > though, so the whole idea may be moot.
-> 
-> It can be set to loopback, but I'm not keen on having my chip reprogrammed
-> by every traffic burst (excessive collisions -> abort). Is that really the
-> fashion of the year now?
+> So lets verify and fix them. Post the list to the kenrel janitors
 
-Well, maybe the fashion of the day. Do `grep karound *.c` in
-../linux/drivers/net and see all the 'workarounds' that exist for
-chip problems. Some of the problems are induced by the coding and
-most are real hardware problems.
+Again, like we did 12 months ago you mean?
 
+We could do that, or, we could fix the actual problem, which is the
+HUGE FUCKING BEARTRAP WHICH CATCHES EVERY SINGLE NEW PROGRAMMER ON THE
+WAY THROUGH.
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
-
+Not fixing earlier was criminal, not fixing it today is insane.
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

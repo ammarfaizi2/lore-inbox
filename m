@@ -1,80 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319119AbSHMW5O>; Tue, 13 Aug 2002 18:57:14 -0400
+	id <S319140AbSHMXIF>; Tue, 13 Aug 2002 19:08:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319081AbSHMW4l>; Tue, 13 Aug 2002 18:56:41 -0400
-Received: from berzerk.gpcc.itd.umich.edu ([141.211.2.162]:33421 "EHLO
-	berzerk.gpcc.itd.umich.edu") by vger.kernel.org with ESMTP
-	id <S319101AbSHMWzA>; Tue, 13 Aug 2002 18:55:00 -0400
-Date: Tue, 13 Aug 2002 18:58:49 -0400 (EDT)
+	id <S319106AbSHMXHQ>; Tue, 13 Aug 2002 19:07:16 -0400
+Received: from donkeykong.gpcc.itd.umich.edu ([141.211.2.163]:4605 "EHLO
+	donkeykong.gpcc.itd.umich.edu") by vger.kernel.org with ESMTP
+	id <S319140AbSHMXGy>; Tue, 13 Aug 2002 19:06:54 -0400
+Date: Tue, 13 Aug 2002 19:10:42 -0400 (EDT)
 From: "Kendrick M. Smith" <kmsmith@umich.edu>
 X-X-Sender: kmsmith@rastan.gpcc.itd.umich.edu
 To: linux-kernel@vger.kernel.org, <nfs@lists.sourceforge.net>
-Subject: patch 07/38: CLIENT: change inode to dentry in ->setattr() nfs_rpc_op
-Message-ID: <Pine.SOL.4.44.0208131858300.25942-100000@rastan.gpcc.itd.umich.edu>
+Subject: patch 33/38: SERVER: new argument to nfsd_access()
+Message-ID: <Pine.SOL.4.44.0208131910200.25942-100000@rastan.gpcc.itd.umich.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patch changes the interface of the ->setattr() nfs_rpc_op
-so that its first argument is a dentry instead of an inode.
+NFSv4 defines a new field in the ACCESS response: a bitmap to indicate
+which access bits requested by the client are "supported", i.e. meaningful
+for the object in question.
 
-[Explanation: The dentry is required because in NFSv4, we may
- need to OPEN the file before doing the SETATTR.  (This is
- required if the file size is changed as part of the setattr.)
- Opening the file requires making use of the containing
- directory's inode.]
+This patch adds a new parameter @supported to nfsd_access(), so that
+nfsd_access() can set the value of this bitmap.
 
---- old/include/linux/nfs_xdr.h	Mon Jul 29 22:54:08 2002
-+++ new/include/linux/nfs_xdr.h	Mon Jul 29 13:50:30 2002
-@@ -296,7 +296,7 @@ struct nfs_rpc_ops {
- 	int	(*getroot) (struct nfs_server *, struct nfs_fh *,
- 			    struct nfs_fattr *);
- 	int	(*getattr) (struct inode *, struct nfs_fattr *);
--	int	(*setattr) (struct inode *, struct nfs_fattr *,
-+	int	(*setattr) (struct dentry *, struct nfs_fattr *,
- 			    struct iattr *);
- 	int	(*lookup)  (struct inode *, struct qstr *,
- 			    struct nfs_fh *, struct nfs_fattr *);
---- old/fs/nfs/inode.c	Wed Jul 24 16:03:30 2002
-+++ new/fs/nfs/inode.c	Mon Jul 29 14:49:53 2002
-@@ -768,7 +768,7 @@ printk("nfs_setattr: revalidate failed,
- 	if (error)
- 		goto out;
+--- old/include/linux/nfsd/nfsd.h	Fri Aug  9 10:02:59 2002
++++ new/include/linux/nfsd/nfsd.h	Fri Aug  9 09:57:45 2002
+@@ -86,7 +92,7 @@ int		nfsd_create(struct svc_rqst *, stru
+ 				char *name, int len, struct iattr *attrs,
+ 				int type, dev_t rdev, struct svc_fh *res);
+ #ifdef CONFIG_NFSD_V3
+-int		nfsd_access(struct svc_rqst *, struct svc_fh *, u32 *);
++int		nfsd_access(struct svc_rqst *, struct svc_fh *, u32 *, u32 *);
+ int		nfsd_create_v3(struct svc_rqst *, struct svc_fh *,
+ 				char *name, int len, struct iattr *attrs,
+ 				struct svc_fh *res, int createmode,
+--- old/fs/nfsd/vfs.c	Fri Aug  9 10:02:59 2002
++++ new/fs/nfsd/vfs.c	Fri Aug  9 09:32:36 2002
+@@ -348,12 +348,12 @@ static struct accessmap	nfs3_anyaccess[]
+ };
 
--	error = NFS_PROTO(inode)->setattr(inode, &fattr, attr);
-+	error = NFS_PROTO(inode)->setattr(dentry, &fattr, attr);
- 	if (error)
- 		goto out;
- 	/*
---- old/fs/nfs/proc.c	Mon Jul 29 22:54:08 2002
-+++ new/fs/nfs/proc.c	Mon Jul 29 14:11:48 2002
-@@ -78,9 +78,10 @@ nfs_proc_getattr(struct inode *inode, st
+ int
+-nfsd_access(struct svc_rqst *rqstp, struct svc_fh *fhp, u32 *access)
++nfsd_access(struct svc_rqst *rqstp, struct svc_fh *fhp, u32 *access, u32 *supported)
+ {
+ 	struct accessmap	*map;
+ 	struct svc_export	*export;
+ 	struct dentry		*dentry;
+-	u32			query, result = 0;
++	u32			query, result = 0, sresult = 0;
+ 	unsigned int		error;
+
+ 	error = fh_verify(rqstp, fhp, 0, MAY_NOP);
+@@ -375,6 +375,9 @@ nfsd_access(struct svc_rqst *rqstp, stru
+ 	for  (; map->access; map++) {
+ 		if (map->access & query) {
+ 			unsigned int err2;
++
++			sresult |= map->access;
++
+ 			err2 = nfsd_permission(export, dentry, map->how);
+ 			switch (err2) {
+ 			case nfs_ok:
+@@ -395,6 +398,8 @@ nfsd_access(struct svc_rqst *rqstp, stru
+ 		}
+ 	}
+ 	*access = result;
++	if (supported)
++		*supported = sresult;
+
+  out:
+ 	return error;
+--- old/fs/nfsd/nfs3proc.c	Fri Aug  9 10:02:59 2002
++++ new/fs/nfsd/nfs3proc.c	Wed Aug  7 11:58:49 2002
+@@ -134,7 +134,7 @@ nfsd3_proc_access(struct svc_rqst *rqstp
+
+ 	fh_copy(&resp->fh, &argp->fh);
+ 	resp->access = argp->access;
+-	nfserr = nfsd_access(rqstp, &resp->fh, &resp->access);
++	nfserr = nfsd_access(rqstp, &resp->fh, &resp->access, NULL);
+ 	RETURN_STATUS(nfserr);
  }
 
- static int
--nfs_proc_setattr(struct inode *inode, struct nfs_fattr *fattr,
-+nfs_proc_setattr(struct dentry *dentry, struct nfs_fattr *fattr,
- 		 struct iattr *sattr)
- {
-+	struct inode *inode = dentry->d_inode;
- 	struct nfs_sattrargs	arg = {
- 		fh:	NFS_FH(inode),
- 		sattr:	sattr
---- old/fs/nfs/nfs3proc.c	Mon Jul 29 22:54:08 2002
-+++ new/fs/nfs/nfs3proc.c	Mon Jul 29 14:11:56 2002
-@@ -86,9 +86,10 @@ nfs3_proc_getattr(struct inode *inode, s
- }
-
- static int
--nfs3_proc_setattr(struct inode *inode, struct nfs_fattr *fattr,
-+nfs3_proc_setattr(struct dentry *dentry, struct nfs_fattr *fattr,
- 			struct iattr *sattr)
- {
-+	struct inode *inode = dentry->d_inode;
- 	struct nfs3_sattrargs	arg = {
- 		fh:		NFS_FH(inode),
- 		sattr:		sattr,
 

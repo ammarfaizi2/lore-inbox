@@ -1,60 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265265AbTLRTVn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 14:21:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265268AbTLRTVn
+	id S265289AbTLRTRc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 14:17:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265290AbTLRTRc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 14:21:43 -0500
-Received: from mtaw6.prodigy.net ([64.164.98.56]:47529 "EHLO mtaw6.prodigy.net")
-	by vger.kernel.org with ESMTP id S265265AbTLRTVk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 14:21:40 -0500
-Date: Thu, 18 Dec 2003 11:21:32 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: "Ronny V. Vindenes" <s864@ii.uib.no>
-Cc: linux-kernel@vger.kernel.org, Rik van Riel <riel@redhat.com>
-Subject: Re: [PATCH 2.4 Rmap] Add Inactive to /proc/meminfo was: Mem: and Swap: lines in /proc/meminfo
-Message-ID: <20031218192132.GE6438@matchmail.com>
-Mail-Followup-To: "Ronny V. Vindenes" <s864@ii.uib.no>,
-	linux-kernel@vger.kernel.org, Rik van Riel <riel@redhat.com>
-References: <11HNp-oH-19@gated-at.bofh.it> <11I6J-UO-15@gated-at.bofh.it> <13yZr-2nX-23@gated-at.bofh.it> <m3llpannhf.fsf@terminal124.gozu.lan>
+	Thu, 18 Dec 2003 14:17:32 -0500
+Received: from AGrenoble-101-1-2-161.w193-253.abo.wanadoo.fr ([193.253.227.161]:63449
+	"EHLO awak") by vger.kernel.org with ESMTP id S265289AbTLRTRa convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Dec 2003 14:17:30 -0500
+Subject: Re: Linux Device Drivers 3rd Edition
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Kendrick Hamilton <hamilton@sedsystems.ca>
+Cc: uClinux development list <uclinux-dev@uclinux.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3FE1F516.8070100@sedsystems.ca>
+References: <3FE1F516.8070100@sedsystems.ca>
+Content-Type: text/plain; charset=iso-8859-15
+Message-Id: <1071775411.8189.314.camel@bip.parateam.prv>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m3llpannhf.fsf@terminal124.gozu.lan>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 18 Dec 2003 20:23:31 +0100
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 18, 2003 at 04:40:12PM +0100, Ronny V. Vindenes wrote:
-> Mike Fedyk <mfedyk@matchmail.com> writes:
-> > +		K(nr_inactive_dirty_pages()) + K(nr_inactive_dirty_pages())
->                               ^^^^^  
-> Shouldn't that be nr_inactive_clean_pages() ? now it's 2*dirty + laundry
+Le jeu 18/12/2003 à 19:42, Kendrick Hamilton a écrit :
+> Please CC response to hamilton@sedsystems.ca
 > 
+> Does anybody know if there will be a third edition of Linux Device 
+> Drivers covering the 2.6 Kernel, or are the differences for a character 
+> device small enough that it is not needed?
 
-Yes, good catch.  Thanks
+I dunno for the book, but the author wrote the guide "Porting device
+drivers to the 2.6 kernel" http://lwn.net/Articles/driver-porting/ --
+excellent, as always.
 
-> > +			+ K(nr_inactive_laundry_pages()),
+	Xav
 
-How's this?
-
---- proc_misc.c.orig	2003-12-16 17:03:45.000000000 -0800
-+++ proc_misc.c	2003-12-16 17:04:28.000000000 -0800
-@@ -189,6 +189,7 @@
- 		"Active:       %8u kB\n"
- 		"ActiveAnon:   %8u kB\n"
- 		"ActiveCache:  %8u kB\n"
-+		"Inactive:     %8u kB\n"
- 		"Inact_dirty:  %8u kB\n"
- 		"Inact_laundry:%8u kB\n"
- 		"Inact_clean:  %8u kB\n"
-@@ -208,6 +209,8 @@
- 		K(nr_active_anon_pages()) + K(nr_active_cache_pages()),
- 		K(nr_active_anon_pages()),
- 		K(nr_active_cache_pages()),
-+		K(nr_inactive_dirty_pages()) + K(nr_inactive_laundry_pages())
-+			+ K(nr_inactive_clean_pages()),
- 		K(nr_inactive_dirty_pages()),
- 		K(nr_inactive_laundry_pages()),
- 		K(nr_inactive_clean_pages()),

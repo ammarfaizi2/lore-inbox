@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271456AbTGQNEa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 09:04:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271457AbTGQNEa
+	id S271457AbTGQNFZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 09:05:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271458AbTGQNFZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 09:04:30 -0400
-Received: from pat.uio.no ([129.240.130.16]:43771 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S271456AbTGQNE3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 09:04:29 -0400
-To: nbensa@yahoo.com
-Cc: Jeff Garzik <jgarzik@pobox.com>, Max Valdez <maxvalde@fis.unam.mx>,
-       kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6 sound drivers?
-References: <20030716225826.GP2412@rdlg.net>
-	<1058383534.5432.33.camel@garaged.homeip.net>
-	<3F15F63E.1060602@pobox.com> <200307162318.27081.nbensa@gmx.net>
-From: Terje Kvernes <terjekv@math.uio.no>
-Organization: The friends of mr. Tux
-X-URL: http://terje.kvernes.no/
-Date: Thu, 17 Jul 2003 15:19:00 +0200
-In-Reply-To: <200307162318.27081.nbensa@gmx.net> (Norberto BENSA's message
- of "Wed, 16 Jul 2003 23:18:24 -0300")
-Message-ID: <wxx7k6h8f5n.fsf@nommo.uio.no>
-User-Agent: Gnus/5.1001 (Gnus v5.10.1) Emacs/21.1 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
+	Thu, 17 Jul 2003 09:05:25 -0400
+Received: from pa186.opole.sdi.tpnet.pl ([213.76.204.186]:6644 "EHLO
+	uran.deimos.one.pl") by vger.kernel.org with ESMTP id S271457AbTGQNFT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 09:05:19 -0400
+Date: Thu, 17 Jul 2003 15:20:26 +0200
+From: Damian Kolkowski <deimos@deimos.one.pl>
+To: "Andrew S. Johnson" <andy@asjohnson.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: DRM, radeon, and X 4.3
+Message-ID: <20030717132025.GA899@deimos.one.pl>
+References: <200307170539.25702.andy@asjohnson.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200307170539.25702.andy@asjohnson.com>
+User-Agent: Mutt/1.4.1i
+X-Age: 23 (1980.09.27 - libra)
+X-Girl: one will be enough!
+X-IM: JID:dEiMoS_DK@jabber.org ICQ:59367544 GG:88988
+X-Operating-System: Slackware GNU/Linux, kernel 2.4.22-pre6, up 3 min
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Norberto BENSA <nbensa@gmx.net> writes:
+On Thu, Jul 17, 2003 at 05:39:25AM -0500, Andrew S. Johnson wrote:
+> There is something X doesn't like.  How do I fix this?
 
-> Jeff Garzik wrote:
->
-> > ALSA supports emu10k1.
-> 
-> How well? 
+Simply download the:
 
-  very well.
-
-> Last time I've checked ALSA, it didn't support bass and treble,
-> that's why I'm using OSS (emu10k1)
-
-  I have treble and base support on my emu10k1 via ALSA.
+http://visualisation.tudelft.nl/~cpbotha/files/dri_resume/\
+radeon-cpbotha-20030405-linux.DRI.i386.tar.bz2
 
 -- 
-Terje
+# Damian *dEiMoS* Ko³kowski # http://deimos.one.pl/ #

@@ -1,52 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266243AbUF0FDj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266244AbUF0FE7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266243AbUF0FDj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jun 2004 01:03:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266244AbUF0FDi
+	id S266244AbUF0FE7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jun 2004 01:04:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266247AbUF0FE6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jun 2004 01:03:38 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:37826 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S266243AbUF0FDh convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jun 2004 01:03:37 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: Andries Brouwer <aebr@win.tue.nl>
+	Sun, 27 Jun 2004 01:04:58 -0400
+Received: from mail.kroah.org ([65.200.24.183]:7050 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266244AbUF0FEw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jun 2004 01:04:52 -0400
+Date: Sat, 26 Jun 2004 22:02:01 -0700
+From: Greg KH <greg@kroah.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, arjanv@redhat.com, jgarzik@redhat.com,
+       tburke@redhat.com, linux-kernel@vger.kernel.org,
+       mdharm-usb@one-eyed-alien.net, david-b@pacbell.net, oliver@neukum.org
 Subject: Re: drivers/block/ub.c
-Date: Sun, 27 Jun 2004 07:04:36 +0200
-User-Agent: KMail/1.6.2
-Cc: Pete Zaitcev <zaitcev@redhat.com>, greg@kroah.com, arjanv@redhat.com,
-       jgarzik@redhat.com, tburke@redhat.com, linux-kernel@vger.kernel.org,
-       stern@rowland.harvard.edu, mdharm-usb@one-eyed-alien.net,
-       david-b@pacbell.net
-References: <20040626130645.55be13ce@lembas.zaitcev.lan> <200406270059.04436.oliver@neukum.org> <20040626230801.GF5526@pclin040.win.tue.nl>
-In-Reply-To: <20040626230801.GF5526@pclin040.win.tue.nl>
-MIME-Version: 1.0
+Message-ID: <20040627050201.GA24788@kroah.com>
+References: <20040626130645.55be13ce@lembas.zaitcev.lan> <Pine.LNX.4.44L0.0406262356110.30028-100000@netrider.rowland.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200406270704.36063.oliver@neukum.org>
+In-Reply-To: <Pine.LNX.4.44L0.0406262356110.30028-100000@netrider.rowland.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Sonntag, 27. Juni 2004 01:08 schrieb Andries Brouwer:
-> >> Yes, we have macros. Using those macros would not at all be an improvement here.
-> > 
-> > How do you arrive at that unusual conclusion?
-> 
-> The above writes clearly and simply what one wants.
-> I expect that you propose writing
-> 
->         *((u32 *)(cmd->cdb + 2)) = cpu_to_be32(block);
-> 
-> or some similar unspeakable ugliness.
-> If you had something else in mind, please reveal what.
+On Sun, Jun 27, 2004 at 12:05:22AM -0400, Alan Stern wrote:
+> It look like you are targeting ub for Linux 2.4.  Do you intend to use it 
+> with 2.6?  An important difference between the two kernel versions is that 
+> in 2.6 we do not try to make devices persistent across disconnections by 
+> recognizing some type of unique ID.
 
-That "ugliness" has the unspeakable advantage of producing sane code
-on big endian architectures.
-If you want eye candy, then go and use a structured data type rather
-than an array of bytes.
+The patch was against 2.6.7.  Why do you think this is for 2.4?
 
-	Regards
-		Oliver
-
+greg k-h

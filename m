@@ -1,23 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136554AbRD3X6w>; Mon, 30 Apr 2001 19:58:52 -0400
+	id <S135174AbREAAXX>; Mon, 30 Apr 2001 20:23:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136555AbRD3X6m>; Mon, 30 Apr 2001 19:58:42 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:21637 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S136554AbRD3X60>;
-	Mon, 30 Apr 2001 19:58:26 -0400
-Date: Tue, 1 May 2001 01:58:23 +0200 (MET DST)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200104302358.BAA48605.aeb@vlet.cwi.nl>
-To: hpa@zytor.com, linux-kernel@vger.kernel.org
-Subject: Re: iso9660 maintainer?
+	id <S132556AbREAAXN>; Mon, 30 Apr 2001 20:23:13 -0400
+Received: from juicer24.bigpond.com ([139.134.6.34]:5319 "EHLO
+	mailin3.email.bigpond.com") by vger.kernel.org with ESMTP
+	id <S129245AbREAAXA>; Mon, 30 Apr 2001 20:23:00 -0400
+Date: Tue, 1 May 2001 00:23:14 +1000
+From: Brett <brett@macfeegles.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: CML2 doesn't like my .config
+Message-ID: <Pine.LNX.4.21.0105010018440.16099-100000@tae-bo.generica.dyndns.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is there someone who considers himself maintainer of the iso9660
-> filesystem these days?
 
-Not me. But recently and not so recently I fixed some stuff in that area.
-If you have problems I am certainly willing to look at them.
+Hey,
 
-Andries
+Just gave CLM2 (1.3.3) a go with linux-2.4.3-ac14
+
+Results:
+
+ISA=y (deduced from X86)
+This configuration violates the following constraints:
+'((NET_PCMCIA <= PCMCIA) and (NET_PCMCIA <= NET_ETHERNET))'
+
+erm... OK.
+Relevant bits of .config
+
+# egrep CONFIG_PCMCIA\|NET_PCMCIA\|NET_ETHERNET .config
+CONFIG_PCMCIA=y
+# CONFIG_NET_ETHERNET is not set
+CONFIG_NET_PCMCIA=y
+# CONFIG_PCMCIA_3C589 is not set
+# CONFIG_PCMCIA_3C574 is not set
+# CONFIG_PCMCIA_FMVJ18X is not set
+# CONFIG_PCMCIA_PCNET is not set
+# CONFIG_PCMCIA_NMCLAN is not set
+# CONFIG_PCMCIA_SMC91C92 is not set
+CONFIG_PCMCIA_XIRC2PS=m
+# CONFIG_PCMCIA_IBMTR is not set
+# CONFIG_NET_PCMCIA_RADIO is not set
+# CONFIG_PCMCIA_SERIAL_CS is not set
+
+Is this really a problem ???
+I gather its saying "you have support for a pcmcia network card, but not
+for pcmcia" (which i do) ... and "you have support for a pcmcia network
+card, but not for ethernet (quite true).
+
+This .config has worked fine for me for countless kernels.  Do i _really_
+need to manually put in ethernet support ... I just assumed that didn't
+cover pcmcia, as it has its own section in the network device screen.
+
+More .config available on request.
+
+Machine is a Toshiba 100CS lappy.  No PCI bus, and a xircom ceIIps pcmcia
+10baseT card.
+
+thanks,
+
+	/ Brett
+

@@ -1,37 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316600AbSGGWfG>; Sun, 7 Jul 2002 18:35:06 -0400
+	id <S316601AbSGGWlM>; Sun, 7 Jul 2002 18:41:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316601AbSGGWfE>; Sun, 7 Jul 2002 18:35:04 -0400
-Received: from naur.csee.wvu.edu ([157.182.194.28]:15847 "EHLO
-	naur.csee.wvu.edu") by vger.kernel.org with ESMTP
-	id <S316600AbSGGWeo>; Sun, 7 Jul 2002 18:34:44 -0400
-Subject: Reg. segmentation fault on sparc with gcc-3.0 (ld)
-From: Shanti Katta <katta@csee.wvu.edu>
-To: sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 07 Jul 2002 18:43:13 -0400
-Message-Id: <1026081797.7057.10.camel@indus>
-Mime-Version: 1.0
+	id <S316604AbSGGWlL>; Sun, 7 Jul 2002 18:41:11 -0400
+Received: from imailg1.svr.pol.co.uk ([195.92.195.179]:63840 "EHLO
+	imailg1.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S316601AbSGGWlK>; Sun, 7 Jul 2002 18:41:10 -0400
+Posted-Date: Sun, 7 Jul 2002 22:43:46 GMT
+Date: Sun, 7 Jul 2002 23:43:45 +0100 (BST)
+From: Riley Williams <rhw@InfraDead.Org>
+Reply-To: Riley Williams <rhw@InfraDead.Org>
+To: Fabio Massimo Di Nitto <fabbione@fabbione.net>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.19pre10 DevFS + LVM OOPS
+In-Reply-To: <3D28839A.4090709@fabbione.net>
+Message-ID: <Pine.LNX.4.21.0207072338030.9595-100000@Consulate.UFP.CX>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-When I try to compile user-mode-linux on UltraSparc-I, I get the
-following error message during linking:
+Hi Fabio.
 
-gcc-3.0 -o mk_task mk_task_user.o mk_task_kern.o
-collect2: ld terminated with signal 11 [Segmentation fault], core dumped
+> this happend creating a new a lv with the command lvcreate -L512M
+> -ntest system It did 3 times in a row then it worked again. What was
+> strange is that I was in one dir and unfortunalty I don't remember
+> which and it was crashing. I changed dir and then it was working. In
+> the first instance I didn't thought about taking notes but atleast I
+> have a full trace (the machine didn't hang or reboot... it is still
+> alive 100%).
 
-I could not get any help regarding this error on the web. Is it because
-of some sparc 32/64 oddities or it has something to do with the
-compiler?
+This may be completely off-track but I've seen it cause wierd problems
+in the past, so worth checking - was the directory you were in when the
+machine crashed one that still existed as far as the file system was
+concerned?
 
-Any pointers will be appreciated
+To test this, try the following...
 
-Thank you,
--Regards
--Shanti
+	# cd /tmp
+	# mkdir X
+	# cd X
+	# mv ../X ../Y
+	# cd `pwd`
+	bash: /tmp/X: No such file or directory
+	#
+
+...and then perform the test. As far as the test is concerned, the
+current directory is /tmp/X but, as shown above, the file system reports
+that the said directory doesn't exist, and it's not hard to work out
+that you're actually in /tmp/Y instead.
+
+Best wishes from Riley.
 

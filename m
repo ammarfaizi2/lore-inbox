@@ -1,80 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263213AbSJHO0a>; Tue, 8 Oct 2002 10:26:30 -0400
+	id <S261460AbSJHOeK>; Tue, 8 Oct 2002 10:34:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263211AbSJHO0a>; Tue, 8 Oct 2002 10:26:30 -0400
-Received: from aneto.able.es ([212.97.163.22]:5760 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id <S263213AbSJHO01>;
-	Tue, 8 Oct 2002 10:26:27 -0400
-Date: Tue, 8 Oct 2002 16:31:45 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: procps-list@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] procps 2.0.10
-Message-ID: <20021008143145.GA1560@werewolf.able.es>
-References: <Pine.LNX.4.44L.0210081034360.1909-100000@duckman.distro.conectiva>
+	id <S261462AbSJHOeJ>; Tue, 8 Oct 2002 10:34:09 -0400
+Received: from fed1mtao04.cox.net ([68.6.19.241]:28305 "EHLO
+	fed1mtao04.cox.net") by vger.kernel.org with ESMTP
+	id <S261460AbSJHOeC>; Tue, 8 Oct 2002 10:34:02 -0400
+Date: Tue, 8 Oct 2002 08:04:45 -0700
+From: Matt Porter <porter@cox.net>
+To: Rob Landley <landley@trommello.org>
+Cc: Matt Porter <porter@cox.net>, "David S. Miller" <davem@redhat.com>,
+       giduru@yahoo.com, andre@linux-ide.org, linux-kernel@vger.kernel.org
+Subject: Re: The end of embedded Linux?
+Message-ID: <20021008080445.B21266@home.com>
+References: <Pine.LNX.4.10.10210051252130.21833-100000@master.linux-ide.org> <20021007214053.36F16622@merlin.webofficenow.com> <20021007162048.A19216@home.com> <20021008005030.C0DDF630@merlin.webofficenow.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.44L.0210081034360.1909-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Tue, Oct 08, 2002 at 15:35:40 +0200
-X-Mailer: Balsa 1.4.1
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20021008005030.C0DDF630@merlin.webofficenow.com>; from landley@trommello.org on Mon, Oct 07, 2002 at 03:50:43PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Oct 07, 2002 at 03:50:43PM -0400, Rob Landley wrote:
+> On Monday 07 October 2002 07:20 pm, Matt Porter wrote:
+> >
+> > > Or they could play in the source code if their needs are sufficiently
+> > > unusual, which more or less by definition they will be in this case.  No
+> > > matter how thorough you are here, there will be things they want to tweak
+> > > (or would if they knew about them) that there is no config option for. 
+> > > "make menuconfig" is not a complete replacement for knowing C in all
+> > > cases.
+> >
+> > True, but there are a number of people out there who want to do say
+> > a kernel port to XYZ custom board.  They learn some basic kernel
+> > knowledge, but we can't expect them to be a guru of everything to
+> > get some work done.
+> 
+> Another very real option here is Documentation/tinykernel.txt.  (Possibly 
+> even going so far as a brief mention of uclibc and busybox/tinylogin, but 
+> mostly just about choping down the kernel for embedding in nosehair trimmers 
+> and electric toothbrushes and such.)
 
-On 2002.10.08 Rik van Riel wrote:
->		Procps 2.0.10
->		8 Oct 2002
->
->
->Procps is the package containing various system monitoring tools, like
->ps, top, vmstat, free, kill, sysctl, uptime and more.  After a long
->period of inactivity procps maintenance is active again and suggestions,
->bugreports and patches are always welcome on the procps list.
->
->The plan is to release a procps 2.1.0 around the time the 2.6.0 kernel
->comes out, with regular releases until then. Code cleanups and all kinds
->of enhancements are welcome.
->
->
->You can download procps 2.0.10 from:
->
->	http://surriel.com/procps/procps-2.0.10.tar.bz2
+I don't see these as mutually exclusive.  Documentation falls out of
+date because it is often not maintained with the code.  This would
+certainly be the case of a file detailing means to tweak a wide
+array of settings in the kernel.
 
-This makes CPU percentages stay aligned in column when some of them
-reach 100%:
+Having the settings controlled somewhere in the kernel forces the
+settings to not be broken as we move forward.  This is the same
+simple reason we all try to get our drivers and board ports in
+the kernel proper (as being discussed elsewhere in this thread).
+I believe some finer grained controls (less than 8000 hopefully)
+coupled with some basic docs pointing out where they can be configured,
+a description of some of the more interesting ones, and mentioning some
+non-kernel tools would be quite appropriate.
 
---- top.c.orig	2002-10-08 15:28:10.000000000 +0200
-+++ top.c	2002-10-08 16:18:59.000000000 +0200
-@@ -1700,8 +1700,8 @@
- 								    cpu_mapping
- 								    [i];
- 							printf
--							    ("CPU%d states: %2d%s%-d%% user, %2d%s%-d%% system,"
--							     " %2d%s%-d%% nice, %2d%s%-d%% iowait, %2d%s%-d%% idle",
-+							    ("CPU%d: %3d%s%-d%% user, %3d%s%-d%% system,"
-+							     " %3d%s%-d%% nice, %3d%s%-d%% iowait, %3d%s%-d%% idle",
- 							     cpumap,
- 							     trimzero(u_ticks - u_ticks_o [i] + n_ticks - n_ticks_o [i]) * 100 / t_ticks,
- 							     decimal_point,
-
-It also kills the 'states' part, things are beginning to spread past 80
-columns...is it very important ?
-
-I am gettin also strange outputs sometimes, with a ton of digits in decimal
-parts. Sample before my patch:
-
-CPU0 states:  0,0% user,  0,6% system,  0,0% nice,  4,1070653% iowait,  0,109% idle
-CPU1 states:  0,1% user,  0,1% system,  0,0% nice,  4,1070653% iowait,  0,113% idle
-
-And after:
-
-CPU0:   0,12% user,   0,5% system,   0,0% nice,  99,1357% iowait,   0,489% idle
-CPU1:   0,13% user,   0,15% system,   0,0% nice,  99,1357% iowait,   0,478% idle
-
+Regards,
 -- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.0 (dolphin) for i586
-Linux 2.4.20-pre9-jam1 (gcc 3.2 (Mandrake Linux 9.0 3.2-1mdk))
+Matt Porter
+porter@cox.net
+This is Linux Country. On a quiet night, you can hear Windows reboot.

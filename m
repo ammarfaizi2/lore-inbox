@@ -1,72 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287874AbSAPVVt>; Wed, 16 Jan 2002 16:21:49 -0500
+	id <S287886AbSAPVYk>; Wed, 16 Jan 2002 16:24:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287676AbSAPVUZ>; Wed, 16 Jan 2002 16:20:25 -0500
-Received: from UX3.SP.CS.CMU.EDU ([128.2.198.103]:38260 "HELO
-	ux3.sp.cs.cmu.edu") by vger.kernel.org with SMTP id <S287874AbSAPVT3>;
-	Wed, 16 Jan 2002 16:19:29 -0500
-Subject: Re: [PATCH] I3 sched tweaks...
-From: Justin Carlson <justincarlson@cmu.edu>
-To: Robert Love <rml@tech9.net>
-Cc: mingo@elte.hu, Rusty Russell <rusty@rustcorp.com.au>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1011215440.814.82.camel@phantasy>
-In-Reply-To: <Pine.LNX.4.33.0201162343290.18971-100000@localhost.localdomain> 
-	<1011215440.814.82.camel@phantasy>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-vP/TQ6GOqKKDDhDdkzHT"
-X-Mailer: Evolution/0.99.2 (Preview Release)
-Date: 16 Jan 2002 16:19:05 -0500
-Message-Id: <1011215946.314.14.camel@gs256.sp.cs.cmu.edu>
-Mime-Version: 1.0
+	id <S287881AbSAPVXX>; Wed, 16 Jan 2002 16:23:23 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:45697 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S287676AbSAPVV6>; Wed, 16 Jan 2002 16:21:58 -0500
+Date: Wed, 16 Jan 2002 16:23:09 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Christian Thalinger <e9625286@student.tuwien.ac.at>
+cc: Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
+        linux-kernel <linux-kernel@vger.kernel.org>, davej@suse.de
+Subject: Re: floating point exception
+In-Reply-To: <1011212807.507.3.camel@sector17.home.at>
+Message-ID: <Pine.LNX.3.95.1020116161110.15035A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 16 Jan 2002, Christian Thalinger wrote:
 
---=-vP/TQ6GOqKKDDhDdkzHT
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> On Wed, 2002-01-16 at 15:32, Zwane Mwaikambo wrote:
+> > Can you also reproduce _without_ loading NVdriver, just to make everybody 
+> > happy.
+> > 
+> > Thanks,
+> > 	Zwane Mwaikambo
+> > 
+> 
+> Sure, same breakdown. Maybe it's really an dual athlon xp issue as dave
+> jones mentioned. But shouldn't this also occur when i trigger a floating
+> point exception myself? Is there a way to check which floating point
+> exception was raised by the seti client?
+> 
+> Regards.
+> 
 
-On Wed, 2002-01-16 at 16:10, Robert Love wrote:
-> On Wed, 2002-01-16 at 17:46, Ingo Molnar wrote:
->=20
-> > we pass pointers across functions regularly, even if the pointer could =
-be
-> > calculated within the function. We do this in the timer code too. It's
-> > slightly cheaper to pass an already existing (calculated) 'current'
-> > pointer over to another function, instead of calculating it once more i=
-n
-> > that function. This will be especially true once we make 'current' a ti=
-ny
-> > bit more expensive (Alan's kernel stack coloring rewrite will do that i
-> > think, it will be one more instruction to get 'current'.)
->=20
-> Maybe we should benchmark it?  It is very easy to calculate current.
->=20
-> Certainly I see the benefit if we start coloring the pointer (it adds 2
-> instructions I believe) but let's make sure it is worth passing another
-> 32-bit argument.  It could very well be, schedule_tick is called
-> enough...
+Maybe you can run it off from gdb? Or `strace` it to a file? Usually
+these things are caused by invalid 'C' runtime libraries, either
+corrupt, "installed by just making a sim-link to something that
+was presumed to be close to what the application was compiled with",
+or an error in mem-mapping.
 
-Don't forget that, in non-x86 land, current tends to be just kept in a=20
-register.  No computations required.  Certainly passing it around on,
-e.g. mips is a clear loss.
-
--Justin
+Another very-real possibility is that somebody used floating-point
+within the kernel thus corrupting  the `seti` FPU state. You can
+check this out by making a program that does lots of FP calculations,
+perhaps the sine of a large number of values. You put the results
+into one array. Then you do the exact same thing with the results
+put into another array.  Then just `memcmp` the arrays! You run
+this in a loop for an hour. If the kernel is mucking with your FPU,
+it will certainly show.
 
 
---=-vP/TQ6GOqKKDDhDdkzHT
-Content-Type: application/pgp-signature
+Cheers,
+Dick Johnson
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
 
-iD8DBQA8Re5J47Lg4cGgb74RAkitAKDFhR51z42UJEtDYiZ/IMpQMLfajwCgtptp
-YTfsmlvv+N6o+KzWjYA9qzo=
-=bFaK
------END PGP SIGNATURE-----
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
 
---=-vP/TQ6GOqKKDDhDdkzHT--
 

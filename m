@@ -1,46 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268857AbUHZNEG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268864AbUHZNKK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268857AbUHZNEG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 09:04:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268870AbUHZND3
+	id S268864AbUHZNKK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 09:10:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268977AbUHZNJ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 09:03:29 -0400
-Received: from webapps.arcom.com ([194.200.159.168]:63759 "EHLO
-	webapps.arcom.com") by vger.kernel.org with ESMTP id S268857AbUHZMyH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 08:54:07 -0400
-Subject: Build error with recent BK and O=
-From: Ian Campbell <icampbell@arcom.com>
-To: sam@ravnborg.org
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: Arcom Control Systems
-Message-Id: <1093524839.12997.11.camel@icampbell-debian>
+	Thu, 26 Aug 2004 09:09:28 -0400
+Received: from verein.lst.de ([213.95.11.210]:47830 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S269006AbUHZNH1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 09:07:27 -0400
+Date: Thu, 26 Aug 2004 15:07:18 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: Christophe Saout <christophe@saout.de>
+Cc: Christoph Hellwig <hch@lst.de>, Andrew Morton <akpm@osdl.org>,
+       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, flx@namesys.com, torvalds@osdl.org,
+       reiserfs-list@namesys.com
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040826130718.GB820@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
+	Christophe Saout <christophe@saout.de>,
+	Andrew Morton <akpm@osdl.org>, Hans Reiser <reiser@namesys.com>,
+	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+	flx@namesys.com, torvalds@osdl.org, reiserfs-list@namesys.com
+References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com> <20040825152805.45a1ce64.akpm@osdl.org> <412D9FE6.9050307@namesys.com> <20040826014542.4bfe7cc3.akpm@osdl.org> <1093522729.9004.40.camel@leto.cs.pocnet.net> <20040826124929.GA542@lst.de> <1093525234.9004.55.camel@leto.cs.pocnet.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 26 Aug 2004 13:53:59 +0100
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 26 Aug 2004 12:57:03.0343 (UTC) FILETIME=[2EF00FF0:01C48B6C]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1093525234.9004.55.camel@leto.cs.pocnet.net>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Sam,
+On Thu, Aug 26, 2004 at 03:00:34PM +0200, Christophe Saout wrote:
+> Am Donnerstag, den 26.08.2004, 14:49 +0200 schrieb Christoph Hellwig:
+> 
+> > Now that part is interesting from the how to sell it to non-Linux users
+> > POV, but not for the linux kernel.
+> 
+> Why? The question was what these plugins are exactly. This is the
+> answer.
 
-When building an x86 kernel from a BK tree from a few hours ago with
-O=../build-2.6-gx1 I got the following error:
+I explained it below..
 
-  ccache gcc -Wp,-MD,arch/i386/boot/tools/.build.d -Iarch/i386/boot -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -I/home/icampbell/devel/kernel/i386/linux-2.6-bk/include -Iinclude -I/home/icampbell/devel/kernel/i386/linux-2.6-bk/include2 -Iinclude2  -I/home/icampbell/devel/kernel/i386/linux-2.6-bk/include  -o arch/i386/boot/tools/build /home/icampbell/devel/kernel/i386/linux-2.6-bk/arch/i386/boot/tools/build.c
-cc1: No such file or directory: opening dependency file arch/i386/boot/tools/.build.d
+> > > *And* there are plugins which are users of the "reiser4 client API" and
+> > > implement the actual VFS methods.
+> > 
+> > Here comes the problem.  All the access checking/race avoidance/loop
+> > creation avoiced, in short the posix+extension semantics are implemented
+> > in the Linux VFS layer.  If you want to allow a second access method
+> > (e.g. Hans' pet syscall) you'd have to duplicate all VFS functioanlity
+> > inside reiser4.
+> 
+> Are you actually listening? If you implement a filesystem there's a
+> place where you have to implement the Linux VFS methods. I'm talking
+> about inode_operations and these things. This has nothing to do with
+> doing anything outside the Linux VFS. And I'm not talking about these
+> metas either. These really don't belong inside the filesystem.
 
-Doing "mkdir ../build-2.6-gx1/arch/i386/boot/tools" allowed the build to
-continue. It smells like a problem with the hostprogs-y = tools/build in
-arch/i386/boot/Makefile not coping with the subdirectory, but I don't
-know much about kbuild myself.
+as I wrote in this mail this absolutely _does_ belong in the filesystem,
+it's a major part of it and isn't easily separatable.
 
-Ian.
--- 
-Ian Campbell, Senior Design Engineer
-                                        Web: http://www.arcom.com
-Arcom, Clifton Road, 			Direct: +44 (0)1223 403 465
-Cambridge CB1 7EA, United Kingdom	Phone:  +44 (0)1223 411 200
+> > So if you want to provide an additional API you'll have to go through
+> > the VFS to get it right - ergo a plugin architecture for upper plugins
+> > is worthless.
+> 
+> See, you didn't listen. ;-)
+> 
+> The reiser4 core doesn't know about inodes, directories or files. It's
+> the glue code between the VFS and the storage layer that does. It's
+> implemented as a plugin. This has nothing to do with semantic
+> enhancements yet. These should be removed for now and made a 2.7 topic.
+
+Oh yes, it is.  As soon as you use different access methods on an
+overlapping set of objects you see exactly the problems I described.
+
+If they don't overlap there's no point for the plugins to start with,
+you'll better turn the core into a library that can be used by different
+projects then.
 

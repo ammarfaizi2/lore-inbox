@@ -1,59 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265011AbSJWOSi>; Wed, 23 Oct 2002 10:18:38 -0400
+	id <S265026AbSJWOXZ>; Wed, 23 Oct 2002 10:23:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265016AbSJWOSi>; Wed, 23 Oct 2002 10:18:38 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:1833 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S265011AbSJWOSh>; Wed, 23 Oct 2002 10:18:37 -0400
-Date: Wed, 23 Oct 2002 16:23:42 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@zip.com.au>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [patch] generic nonlinear mappings, 2.5.44-mm2-D0
-Message-ID: <20021023142342.GC1912@dualathlon.random>
-References: <20021023115026.GB30182@dualathlon.random> <Pine.LNX.4.44.0210231618150.10431-100000@localhost.localdomain>
+	id <S265025AbSJWOWv>; Wed, 23 Oct 2002 10:22:51 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:25853 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S265022AbSJWOWR>;
+	Wed, 23 Oct 2002 10:22:17 -0400
+Date: Wed, 23 Oct 2002 20:01:53 +0530
+From: Ravikiran G Thirumalai <kiran@in.ibm.com>
+To: akpm@digeo.com
+Cc: linux-kernel@vger.kernel.org, dipankar@in.ibm.com
+Subject: Re: [patch] kstat cleanup
+Message-ID: <20021023200153.B32662@in.ibm.com>
+References: <20021022194111.A27878@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0210231618150.10431-100000@localhost.localdomain>
-User-Agent: Mutt/1.3.27i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20021022194111.A27878@in.ibm.com>; from kiran@in.ibm.com on Tue, Oct 22, 2002 at 07:41:11PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 23, 2002 at 04:20:30PM +0200, Ingo Molnar wrote:
+Hi Andrew,
+Here is the kstat cleanup patch set with all the arch changes.
+Applies neatly on mm-3.  I am mailing the url since both the patches
+exceed 40k limit by  900 bytes  :).  The first patch is for
+generic+i386 changes, the second patch is for arch specific changes
+for all other archs. Tested well on a PIII 4 way.
+ 
+Patches can be found at:
+http://osdn.dl.sourceforge.net/sourceforge/lse/kstat-2.5.44-mm3-2.patch
+and
+http://osdn.dl.sourceforge.net/sourceforge/lse/kstat-arch-2.5.44-mm3.patch
+ 
+Thanks,
+Kiran
+
+On Tue, Oct 22, 2002 at 07:41:11PM +0530, Ravikiran G Thirumalai wrote:
+> Hi Andrew,
+> Here's the kstat cleanup you'd suggested sometime ago.
+> I have used Rusty's per_cpu infrastructure for the stats now.
+> Here're the changes in short.
 > 
-> On Wed, 23 Oct 2002, Andrea Arcangeli wrote:
+> 1. Break out disk stats from kernel_stat and move disk stat to blkdev.h
+> 2. Group cpu stat in kernel_stat and make them "per_cpu" instead of
+>    the NR_CPUS array
+> 3. Remove EXPORT_SYMBOL(kstat) from ksyms.c (as I noticed that no module is
+>    using kstat)
 > 
-> > it's not another vma tree, furthmore another vma tree indexed by the
-> > hole size wouldn't be able to defragment and it would find the best fit
-> > not the first fit on the left.
-> 
-> what i was talking about was a hole-tree indexed by the hole start
-
-yes an hole tree.
-
-> address, not a vma tree indexed by the hole size. (the later is pretty
-
-indexed by the hole start address? then it's still O(N), then your quick
-cache for the first hole would not be much different. I above meant hole
-size, then it would be O(log(N)), but it wouldn't defragment anymore.
-
-> pointless.) And even this solution still has to search the tree linearly
-> for a matching hole.
-
-exactly, it's still O(N).
-
-The final solution needed isn't a plain tree, it needs modifications to
-the rbtree code to make the data structure more powerful, that will
-provide that info in O(log(N)) without an additional tree and starting
-from the left (i.e. it won't alter the retval of get_unmapped_area, just
-its speed).  the design is just finished for some time, what's left is
-to implement it and it isn't trivial ;).
-
-Anyways this O(log(N)) complexity improvement is needed anyways, old
-applications will be still around in particular when they will find they
-don't need special API to work fast.
-
-Andrea
+> The foll patch is tested on a 4 way PIII xeon. This patch has changes
+> for i386 files (+ arch independent changes)(.. it'll break other archs).  
+> I am in the process of changing other archs.  Patch for the same to follow 
+> soon. In the meanwhile, do let me know if the patch is ok by you. Patch
+> applies neatly on 2.5..44-mm2

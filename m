@@ -1,52 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261613AbTISPYh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 11:24:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261614AbTISPYh
+	id S261600AbTISPfW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 11:35:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbTISPfW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 11:24:37 -0400
-Received: from hank-fep7-0.inet.fi ([194.251.242.202]:45472 "EHLO
-	fep07.tmt.tele.fi") by vger.kernel.org with ESMTP id S261613AbTISPYf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 11:24:35 -0400
-Message-ID: <3F6B1FAF.89C9F5F4@pp.inet.fi>
-Date: Fri, 19 Sep 2003 18:24:31 +0300
-From: Jari Ruusu <jari.ruusu@pp.inet.fi>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.2.20aa1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Kovacs Gabor <kgabor@BOLYAI1.ELTE.HU>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Loop device and smbmount: I/O error
-References: <1063914356.1639.34.camel@warp>
-Content-Type: text/plain; charset=us-ascii
+	Fri, 19 Sep 2003 11:35:22 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:50354 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261600AbTISPfT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Sep 2003 11:35:19 -0400
+Subject: Re: [PATCH] Altix console driver
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jesse Barnes <jbarnes@sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, pfg@sgi.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030919152118.GA2121@sgi.com>
+References: <20030917222414.GA25931@sgi.com>
+	 <20030917152139.42a1ce20.akpm@osdl.org>
+	 <1063886970.15957.13.camel@dhcp23.swansea.linux.org.uk>
+	 <20030919152118.GA2121@sgi.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1063985618.18723.19.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-6) 
+Date: Fri, 19 Sep 2003 16:33:39 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kovacs Gabor wrote:
-> I've tried to mount an ext2 filesystem image (ca. 1GB) stored on a WIN
-> computer via the loop device under 2.4.22:
-> 
-> (Initially the file scratch2.img is filled with 0s.)
-> 
-> #smbmount //win02/scratch /pro -o username=sambadisk,workgroup=MYDOMAIN
-> #losetup /dev/loop0 /pro/scratch2.img
-> #mke2fs /dev/loop0
-> #mount /dev/loop0 /scratch -t ext2
-> 
-> #cp -r linux-2.4.22 /scratch
-> cp: cannot create directory `/scratch/linux-2.4.22/drivers/video/sis':
-> Input/output error
-> cp: cannot create directory `/scratch/linux-2.4.22/drivers/video/aty':
-> Input/output error
+On Gwe, 2003-09-19 at 16:21, Jesse Barnes wrote:
+> Well, according to the FSF our extra clauses are compatible with the GPL
+> and LGPL.  See http://oss.sgi.com/projects/GenInfo/NoticeExplan/.  If
+> you still disagree then we'll have to try to find another solution.
 
-This bug should be fixed in loop-AES version of loop, here:
+I think I need to discuss this with Eben, it certainly seems a problem
+to me but he's the legal expert so I want to find out his view first.
 
-http://loop-aes.sourceforge.net/loop-AES/loop-AES-v1.7e.tar.bz2
-
-Can you try again with that version?
-
-Regards,
-Jari Ruusu <jari.ruusu@pp.inet.fi>
 

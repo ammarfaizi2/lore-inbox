@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129290AbRCENaq>; Mon, 5 Mar 2001 08:30:46 -0500
+	id <S129281AbRCENaF>; Mon, 5 Mar 2001 08:30:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129283AbRCENa0>; Mon, 5 Mar 2001 08:30:26 -0500
-Received: from ns.caldera.de ([212.34.180.1]:24073 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S129282AbRCENaW>;
-	Mon, 5 Mar 2001 08:30:22 -0500
-Date: Mon, 5 Mar 2001 14:30:08 +0100
-Message-Id: <200103051330.OAA31295@ns.caldera.de>
-From: Christoph Hellwig <hch@caldera.de>
-To: Matt_Domsch@Dell.com
-Cc: R.E.Wolff@BitWizard.nl, fluffy@snurgle.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.4 and 2GB swap partition limit
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <CDF99E351003D311A8B0009027457F1403BF9E09@ausxmrr501.us.dell.com>
-User-Agent: tin/1.4.1-19991201 ("Polish") (UNIX) (Linux/2.2.14 (i686))
+	id <S129282AbRCEN3z>; Mon, 5 Mar 2001 08:29:55 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:9858 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129281AbRCEN3l>; Mon, 5 Mar 2001 08:29:41 -0500
+Date: Mon, 5 Mar 2001 08:29:23 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Possible CPU time reporting V2.4.1
+Message-ID: <Pine.LNX.3.95.1010305082152.8615A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Matt,
+Hello,
 
-In article <CDF99E351003D311A8B0009027457F1403BF9E09@ausxmrr501.us.dell.com> you wrote:
-> My concern is that if there continues to be a 2GB swap partition/file size
-> limitation, and you can have (as currently #defined) 8 swap partitions,
-> you're limited to 16GB swap, which then follows a max of 8GB RAM.  We'd like
-> to sell servers with 32GB or 64GB RAM to customers who request such for
-> their applications.  Such customers generally have no problem purchasing
-> additional disks to be used for swap, likely on a hardware RAID controller.
+The following program:
 
-dou you actually want to page that high memory?  These high memory
-configurations are usually used by databases and other huge applications
-that have their own memory management.
+main()
+{
+    for(;;)
+        sleep(1);
+}
 
-Other UNIX versions, e.g. the UnixWare with dshm have implemented special
-memory pools (in this case dshm) to give unswappable memory to this
-applications.  While I don't like such implementations with fixed memory
-pools it might be a good idea to have a MAP_DEDICATED flags to mmap
-(/dev/zero) to allocate non-aged and thus non-paged memory.
+should use very little CPU time. When it is first started, it doesn't
+show anything being used. However, run this over a weekend! It will
+show up in `top` as consuming 100% of the CPU time after a few days.
 
-To not make the system unusable by allocating too much of this memory
-allocation might need a special capability and/or a dynamic limit of
-allocatable unaged memory (sysctl?).
+The machine seems as lively as ever so it's likely not using any
+significant CPU time. It's probably some reporting/accounting problem.
 
-	Christoph
+I have tried this now on two 2.4.1 machines. Both are Pentium III,
+600 MHz (coppermine), SMP.
 
--- 
-Of course it doesn't work. We've performed a software upgrade.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
+

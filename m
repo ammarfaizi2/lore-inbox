@@ -1,52 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282514AbRKZU6B>; Mon, 26 Nov 2001 15:58:01 -0500
+	id <S282523AbRKZVBC>; Mon, 26 Nov 2001 16:01:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282500AbRKZU55>; Mon, 26 Nov 2001 15:57:57 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:20425 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S282514AbRKZU4V>;
-	Mon, 26 Nov 2001 15:56:21 -0500
-Date: Mon, 26 Nov 2001 21:55:47 +0100
+	id <S282521AbRKZU7R>; Mon, 26 Nov 2001 15:59:17 -0500
+Received: from khan.acc.umu.se ([130.239.18.139]:25289 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S282500AbRKZU6b>;
+	Mon, 26 Nov 2001 15:58:31 -0500
+Date: Mon, 26 Nov 2001 21:58:28 +0100
 From: David Weinehall <tao@acc.umu.se>
-To: junio@siamese.dhis.twinsun.com
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, "H. Peter Anvin" <hpa@zytor.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Release Policy [was: Linux 2.4.16  ]
-Message-ID: <20011126215547.O5770@khan.acc.umu.se>
-In-Reply-To: <Pine.LNX.4.21.0111261524560.13976-100000@freak.distro.conectiva> <7v1yil1d2x.fsf@siamese.dhis.twinsun.com>
+To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [ANNOUNCEMENT] Linux 2.0.40-pre3
+Message-ID: <20011126215828.P5770@khan.acc.umu.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.4i
-In-Reply-To: <7v1yil1d2x.fsf@siamese.dhis.twinsun.com>; from junio@siamese.dhis.twinsun.com on Mon, Nov 26, 2001 at 12:39:34PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 26, 2001 at 12:39:34PM -0800, junio@siamese.dhis.twinsun.com wrote:
-> >>>>> "MT" == Marcelo Tosatti <marcelo@conectiva.com.br> writes:
-> 
-> MT> On Mon, 26 Nov 2001, H. Peter Anvin wrote:
-> >> Consistency is a Very Good Thing[TM] (says the one who tries to teach
-> >> scripts to understand the naming.)  The advantage with the -rc naming is
-> >> that it avoids the -pre5, -pre6, -pre-final, -pre-final-really,
-> >> -pre-final-really-i-mean-it-this-time phenomenon when the release
-> >> candidate wasn't quite worthy, you just go -rc1, -rc2, -rc3.  There is no
-> >> shame in needing more than one release candidate.
-> 
-> MT> Agreed. I stick with the -rc naming convention for 2.4+... 
-> 
-> (This is a request to maintainers of three stable trees).
-> 
-> While we are on the topic, could you also coordinate to keep the
-> EXTRAVERSION strings consistent?  2.4.X-preN uses "-preN" but
-> 2.2.X-preN uses "preN" without leading "-".
-
-I'm using "-preN" with a leading "-", and will probably continue
-doing so.
+Here comes another one. Unless I receive some more patches, the next
+patch will be the first release-candidate for v2.0.40
 
 
-Regards: David
+2.0.40pre3
+
+o	Fix typo in sched.c			(Tim Sutherland)
+	| this time for real; I applied this
+	| patch to the wrong kernel-tree last
+	| time, hence the reject
+o	IDE probe patch for some ATAPI drives	(Geert Van der Plas)
+
+
+2.0.40pre2
+
+o	Make pci2000 compile			(Joseph Martin)
+o	Use KERNELRELEASE in module		(me)
+	installpath as well
+o	Removed unused variable in		(me)
+	ext2/super.c
+o	Fixed warning in ext2/dir.c		(me)
+o	Fix a blunder of my own in		(me)
+	arch/kernel/i386/traps.c
+o	Fix typo in sched.c			(Tim Sutherland)
+o	Fix bug in mkdep.c			(Tim Sutherland)
+o	Fix bug in autoirq.c			(Michael Deutschmann)
+o	Add allocation debugging code		(Michael Deutschmann)
+o	Fix bugs in the math-emu code		(Bill Metzenthen,
+						 Michael Deutschmann)
+
+
+2.0.40pre1
+
+o	Fixed the ordering of			(Philipp Rumpf)
+	watchdog initialising, to make sure
+	hardware watchdogs takes precedence
+	over the softdog driver
+o	Fix the CREDITS-entry for		(Kai Petzke)
+	Kai Petzke
+o	Updated the MAINTAINERS-file a little	(me)
+o	Fix "dumpable"-race			(Solar Designer)
+o	Fix theoretical exploit in printk	(Solar Designer)
+o	Backported checkconfig.pl,		(me)
+	checkhelp.pl and checkincludes.pl
+	from v2.4
+o	Backported support for tags and		(me)
+	TAGS
+o	Added an extra-version entry to		(me)
+	the version#, to keep track of
+	the prepatches etc.
+o	Fix all occurences of			(me)
+	#endif BLABLA type; don't forget
+	that it should be /* BLABLA */ !!!
+
+
+/David
   _                                                                 _
  // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
 //  Maintainer of the v2.0 kernel   //  Dance across the winter sky //

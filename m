@@ -1,53 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269630AbTGJWBq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 18:01:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269628AbTGJV71
+	id S269650AbTGJWJn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 18:09:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269652AbTGJWJm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 17:59:27 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:260 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S269635AbTGJV54 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 17:57:56 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Style question: Should one check for NULL pointers?
-Date: 10 Jul 2003 15:12:02 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <bekobi$g6l$1@cesium.transmeta.com>
-References: <Pine.LNX.4.44L0.0307101606060.22398-100000@netrider.rowland.org> <3F0DD21B.5010408@inet.com>
+	Thu, 10 Jul 2003 18:09:42 -0400
+Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:334 "EHLO
+	mx.rackable.com") by vger.kernel.org with ESMTP id S269650AbTGJWIK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 18:08:10 -0400
+Message-ID: <3F0DE61B.1020207@rackable.com>
+Date: Thu, 10 Jul 2003 15:18:03 -0700
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+To: Chad Kitching <CKitching@powerlandcomputers.com>
+CC: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Steven Dake <sdake@mvista.com>, linux-kernel@vger.kernel.org,
+       andre@linux-ide.org, frankt@promise.com
+Subject: Re: IDE/Promise 20276 FastTrack RAID Doesn't work in 2.4.21, patchattached
+ to fix
+References: <18DFD6B776308241A200853F3F83D507279B@pl6w2kex.lan.powerlandcomputers.com>
+In-Reply-To: <18DFD6B776308241A200853F3F83D507279B@pl6w2kex.lan.powerlandcomputers.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 10 Jul 2003 22:22:50.0639 (UTC) FILETIME=[CC7F99F0:01C34731]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <3F0DD21B.5010408@inet.com>
-By author:    Eli Carter <eli.carter@inet.com>
-In newsgroup: linux.dev.kernel
+Chad Kitching wrote:
+
+>I don't know.  That seemed to have changed the option from merely mystifying to down right confusing.  By that wording, does that feature override it into being a plain IDE controller, or an IDE RAID controller?  The new name seems to imply the former, while the mentions of ataraid suggest the latter.
 >
-> Alan Stern wrote:
-> [snip]
-> > Ultimately this comes down to a question of style and taste.  This 
-> > particular issue is not addressed in Documentation/CodingStyle so I'm 
-> > raising it here.  My personal preference is for code that means what it 
-> > says; if a pointer is checked it should be because there is a genuine 
-> > possibility that the pointer _is_ NULL.  I see no reason for pure 
-> > paranoia, particularly if it's not commented as such.
-> > 
-> > Comments, anyone?
-> 
-> BUG_ON() perhaps?
-> 
+>Despite the grammatical errors, pdc202xx.c's comments perhaps describe it better.
+>* Linux kernel will misunderstand FastTrak ATA-RAID series as Ultra
+>* IDE Controller, UNLESS you enable "CONFIG_PDC202XX_FORCE"
+>* That's you can use FastTrak ATA-RAID controllers as IDE controllers.
+>  
+>
 
-BUG_ON() is largely redundant if you would have a null pointer
-reference anyway.
+  I stopped reading the comments as they made my brain hurt more than 
+reading the ide driver code;-)
 
-	-hpa
+>If this is true, may I suggest something more along the lines of:
+>
+>Ignore FastTrak BIOS and configure controller for RAID
+>CONFIG_PDC202XX_FORCE
+>  Forces the driver to use the ATA-RAID capabilities, overriding the
+>  BIOS configuration of the controller. Do not enable if you are
+>  using Promise's binary module.  This option is compatible with the 
+>  ataraid driver.
+>
+
+  This is completely wrong in my experience.  In many configs linux's 
+ide driver will ignore the controller entirely without  
+CONFIG_PDC202XX_FORCE.  In these cases you can't use the disk as either 
+ide disks, or ataraid disks.  (Keep in mind you can access the raw disk 
+even if ataraid is loaded.)  This seems to be true of the enbedded 
+promise controllers found on intel and tyan boards.  A few newer intel 
+boards will allow you to toggle between ataraid, and ide modes in the 
+bios.  In this case you don't need CONFIG_PDC202XX_FORCE to see the drives.
+
+>
+>If the Linux driver has the same limitation in regards to using CD-ROM drives on the controller while it's in RAID mode as the Windows drivers do, it may be useful to mention the fact that the option is incompatible with CD-ROM drives attached to the controller.
+>
+>Of course, maybe it means the complete opposite, and I'm reading everything wrong, in which case, there are some comments you may want to fix, too.
+>
+>-----Original Message-----
+>From: Samuel Flory
+>Sent: July 10, 2003 4:11 PM
+>Subject: Re: IDE/Promise 20276 FastTrack RAID Doesn't work in 2.4.21,
+>patchattached to fix
+>
+>
+>Bartlomiej Zolnierkiewicz wrote:
+>
+>  
+>
+>>Hi,
+>>
+>>Do you have "Special FastTrak Feature" enabled?
+>>    
+>>
+>  
+>Can we change the option to something that makes sense.  I get the 
+>feeling no one understands what it does at 1st glance.  This is the 2nd 
+>time I've seen a patch like this. 
+>  
+>
+
+
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-If you send me mail in HTML format I will assume it's spam.
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+Once you have their hardware. Never give it back.
+(The First Rule of Hardware Acquisition)
+Sam Flory  <sflory@rackable.com>
+
+

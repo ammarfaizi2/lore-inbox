@@ -1,50 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268899AbUI2TkI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268902AbUI2Tln@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268899AbUI2TkI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 15:40:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268854AbUI2Thu
+	id S268902AbUI2Tln (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 15:41:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268890AbUI2TlB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 15:37:50 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:52683 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S267703AbUI2TgQ (ORCPT
+	Wed, 29 Sep 2004 15:41:01 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:2011 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268900AbUI2TkC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 15:36:16 -0400
-Date: Wed, 29 Sep 2004 12:34:47 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: George Anzinger <george@mvista.com>
-cc: Ulrich Drepper <drepper@redhat.com>, johnstul@us.ibm.com,
-       Ulrich.Windl@rz.uni-regensburg.de, jbarnes@sgi.com,
-       linux-kernel@vger.kernel.org, libc-alpha@sources.redhat.com
-Subject: Re: Posix compliant CLOCK_PROCESS/THREAD_CPUTIME_ID V4
-In-Reply-To: <415B0C9E.5060000@mvista.com>
-Message-ID: <Pine.LNX.4.58.0409291233500.25905@schroedinger.engr.sgi.com>
-References: <B6E8046E1E28D34EB815A11AC8CA312902CD3264@mtv-atc-605e--n.corp.sgi.com>
- <Pine.LNX.4.58.0409240508560.5706@schroedinger.engr.sgi.com>
- <4154F349.1090408@redhat.com> <Pine.LNX.4.58.0409242253080.13099@schroedinger.engr.sgi.com>
- <41550B77.1070604@redhat.com> <B6E8046E1E28D34EB815A11AC8CA312902CD327E@mtv-atc-605e--n.corp.sgi.com>
- <Pine.LNX.4.58.0409271344220.32308@schroedinger.engr.sgi.com>
- <4159B920.3040802@redhat.com> <Pine.LNX.4.58.0409282017340.18604@schroedinger.engr.sgi.com>
- <415AF4C3.1040808@mvista.com> <Pine.LNX.4.58.0409291054230.25276@schroedinger.engr.sgi.com>
- <415B0C9E.5060000@mvista.com>
+	Wed, 29 Sep 2004 15:40:02 -0400
+Message-ID: <415B0F85.3090808@redhat.com>
+Date: Wed, 29 Sep 2004 15:39:49 -0400
+From: Neil Horman <nhorman@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0; hi, Mom) Gecko/20020604 Netscape/7.01
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Miller, Mike (OS Dev)" <mike.miller@hp.com>
+CC: mikem@beardog.cca.cpqcorp.net, marcelo.tosatti@cyclades.com,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       "Baker, Brian (ISS - Houston)" <brian.b@hp.com>
+Subject: Re: patch so cciss stats are collected in /proc/stat
+References: <D4CFB69C345C394284E4B78B876C1CF107DBFE1A@cceexc23.americas.cpqcorp.net>
+In-Reply-To: <D4CFB69C345C394284E4B78B876C1CF107DBFE1A@cceexc23.americas.cpqcorp.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Sep 2004, George Anzinger wrote:
+Miller, Mike (OS Dev) wrote:
+>>mike.miller@hp.com wrote:
+>>
+>>>Currently cciss statistics are not collected in /proc/stat. 
+>>
+>>This patch
+>>
+>>>bumps DK_MAX_MAJOR to 111 to fix that. This has been a 
+>>
+>>common complaint
+>>
+>>>by customers wishing to gather info about cciss devices.
+>>>Please consider this for inclusion. Applies to 2.4.28-pre3.
+>>>
+>>>Thanks,
+>>>mikem
+>>>
+>>
+>>--------------------------------------------------------------
+>>-----------------
+>>
+>>>diff -burNp lx2428-pre1.orig/include/linux/kernel_stat.h 
+>>
+>>lx2428-pre1/include/linux/kernel_stat.h
+>>
+>>>--- lx2428-pre1.orig/include/linux/kernel_stat.h	
+>>
+>>2004-08-23 15:41:43.640300000 -0500
+>>
+>>>+++ lx2428-pre1/include/linux/kernel_stat.h	2004-08-23 
+>>
+>>15:43:07.097613064 -0500
+>>
+>>>@@ -12,7 +12,7 @@
+>>>  * used by rstatd/perfmeter
+>>>  */
+>>> 
+>>>-#define DK_MAX_MAJOR 16
+>>>+#define DK_MAX_MAJOR 111
+>>> #define DK_MAX_DISK 16
+>>> 
+>>> struct kernel_stat {
+>>>-
+>>>To unsubscribe from this list: send the line "unsubscribe 
+>>
+>>linux-kernel" in
+>>
+>>>the body of a message to majordomo@vger.kernel.org
+>>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>>Please read the FAQ at  http://www.tux.org/lkml/
+>>
+>>The answer to this is to use the latest sysstat tools.  the latest 
+>>version of iostat, sar, etc draw information out of /proc/partitions 
+>>rather than out of /proc/stat.  Or are you using some other 
+>>home rolled 
+>>tool in this case?
+>>
+>>Neil
+> 
+> 
+> It's customers that are doing this. I think some of them are using their own tools. Others are probably using whatever comes on their distro.
+> 
+> mikem
+> 
+They should probably upgrade their tools, be they from the distro or 
+their own (It was my understanding that /proc/stat was depricated and 
+going to be removed in the not-to-distant future).
 
-> > So restrict timer_create to CLOCK_REALTIME and CLOCK_MONOTONIC? Is it
-> > necessary to be able to derive a timer from a timer derives from those
-> > two?
-> >
-> > something like the following (just inlined for the discussion ...)?
->
-> NO.  This is handled through the dispatch table (as set up when you register the
-> clock).  You just supply a timer_create() function that returns the right error.
->   Likewise, attempts to use clock_nanosleep().  The issue with clock_nanosleep,
-> however, is that it, at this time, is not sent through the dispatch table.  This
-> should be changed to, again call the same error function.
+Neil
 
-Ok. I gotta look at this again.
+> 
+>>-- 
+>>/***************************************************
+>>  *Neil Horman
+>>  *Software Engineer
+>>  *Red Hat, Inc.
+>>  *nhorman@redhat.com
+>>  *gpg keyid: 1024D / 0x92A74FA1
+>>  *http://pgp.mit.edu
+>>  ***************************************************/
+> 
+> 
 
+
+-- 
+/***************************************************
+  *Neil Horman
+  *Software Engineer
+  *Red Hat, Inc.
+  *nhorman@redhat.com
+  *gpg keyid: 1024D / 0x92A74FA1
+  *http://pgp.mit.edu
+  ***************************************************/

@@ -1,38 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbVBLTXq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261188AbVBLTXn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261189AbVBLTXq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Feb 2005 14:23:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbVBLTXp
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Feb 2005 14:23:45 -0500
-Received: from wproxy.gmail.com ([64.233.184.195]:38288 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261189AbVBLTXn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S261188AbVBLTXn (ORCPT <rfc822;willy@w.ods.org>);
 	Sat, 12 Feb 2005 14:23:43 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=HxXtcGzHdWxyRh++Qrrkt+DkWntL8YpoLdA8+eRa8KwFZfrV0wMEjVix/xNtyagYPIoLz4PasslsHAkT8toFBN3rrUUVOV2LTnJJchGYRmnQY9q6+GT7q5tG2S7CZsY99L1tXoPJ+NyjtSRK4Mu9dm8EhujP7U7IpGM2qDd6wJM=
-Message-ID: <f396da08050212112363a4b5cf@mail.gmail.com>
-Date: Sat, 12 Feb 2005 21:23:43 +0200
-From: Margus Eha <margus.eha@gmail.com>
-Reply-To: Margus Eha <margus.eha@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: bttv: tuner: i2c i/o error: rc == -121 (should be 4)
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261189AbVBLTXm
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Sat, 12 Feb 2005 14:23:42 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:61584
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261188AbVBLTXl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Feb 2005 14:23:41 -0500
+Date: Sat, 12 Feb 2005 11:22:03 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org,
+       herbert@gondor.apana.org.au
+Subject: Re: [2.4.30-pre1] Sparc SMP build fixes
+Message-Id: <20050212112203.3232d444.davem@davemloft.net>
+In-Reply-To: <20050212101349.GA22759@alpha.home.local>
+References: <20050212101349.GA22759@alpha.home.local>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tv card works but i can't change channel. Something goes wrong in tuner.c
-when tvtime program tries to change frequency. In /var/log/messages i can find
-tuner: i2c i/o error: rc == -121 (should be 4). 
+On Sat, 12 Feb 2005 11:13:49 +0100
+Willy Tarreau <willy@w.ods.org> wrote:
 
-Las working version i tried was 2.6.11-rc2
-Both 2.6.11-rc3-mm1 and Both 2.6.11-rc3-mm2 are not working.
+> The recent addition of an smp_rmb() in kfree_skb() by Herbert Xu
+> broke SMP builds on sparc and sparc64, but it's not Herbert's fault,
+> it's because of a few extra semi-colons in system.h for both archs.
 
-If kernel conf is needed i can send.
+I pushed this independantly to Marcelo yesterday, he just hasn't
+pulled it in yet.
 
-
-Margus
+Sit tight :-)

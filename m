@@ -1,113 +1,330 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263775AbUA3VO0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 16:14:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263909AbUA3VO0
+	id S263836AbUA3VFo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 16:05:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263723AbUA3VFo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 16:14:26 -0500
-Received: from nwkea-mail-1.sun.com ([192.18.42.13]:36746 "EHLO
-	nwkea-mail-1.sun.com") by vger.kernel.org with ESMTP
-	id S263775AbUA3VOX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 16:14:23 -0500
-Date: Fri, 30 Jan 2004 13:12:56 -0800
-From: Tim Hockin <thockin@sun.com>
+	Fri, 30 Jan 2004 16:05:44 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:28136 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263836AbUA3VFR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jan 2004 16:05:17 -0500
+Date: Fri, 30 Jan 2004 13:04:44 -0800
+From: Patrick Mansfield <patmans@us.ibm.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: arjanv@redhat.com, thomas.schlichter@web.de, thoffman@arnor.net,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.2-rc2-mm2
-Message-ID: <20040130211256.GZ9155@sun.com>
-Reply-To: thockin@sun.com
-References: <20040130014108.09c964fd.akpm@osdl.org> <1075489136.5995.30.camel@moria.arnor.net> <200401302007.26333.thomas.schlichter@web.de> <1075490624.4272.7.camel@laptop.fenrus.com> <20040130114701.18aec4e8.akpm@osdl.org> <20040130201731.GY9155@sun.com> <20040130123301.70009427.akpm@osdl.org>
+Cc: colpatch@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] missing export of cpu_2_node
+Message-ID: <20040130130444.A12828@beaverton.ibm.com>
+References: <20040130122036.A12659@beaverton.ibm.com> <20040130123738.344975d1.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040130123301.70009427.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040130123738.344975d1.akpm@osdl.org>; from akpm@osdl.org on Fri, Jan 30, 2004 at 12:37:38PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 30, 2004 at 12:33:01PM -0800, Andrew Morton wrote:
-> static long do_setgroups(int gidsetsize, gid_t __user *user_grouplist,
-> 			gid_t *kern_grouplist)
-> {
-> }
-
-> asmlinkage long sys_setgroups(int gidsetsize, gid_t __user *grouplist)
-> {
-> 	return do_setgroups(gidsetsize, grouplist, NULL);
-> }
+On Fri, Jan 30, 2004 at 12:37:38PM -0800, Andrew Morton wrote:
+> Patrick Mansfield <patmans@us.ibm.com> wrote:
+> >
+> > While compiling on a NUMAQ with st as a module, cpu_2_node comes up as
+> > undefined:
+> > 
+> > WARNING: /lib/modules/2.6.2-rc2/kernel/drivers/scsi/st.ko needs unknown symbol cpu_2_node
 > 
-> long kern_setgroups(int gidsetsize, gid_t *grouplist)
-> {
-> 	return do_setgroups(gidsetsize, NULL, grouplist);
-> }
+> I'm curious to know why st.o needs cpu_to_node().  I can't make it do it
+> here.  Can you check the cpp output and enlighten me?
 
-I guess that works.  It saves a bit of duplicate code at the cost of said
-grubbiness.  Is that really preferred over a parallel to sys_setgroups():
-	int kern_setgroups(int gidsetsize, gid_t *grouplist)
-or simpler:
+st.c usees alloc_pages(). include/linux/gfp.h:
 
-nfsd code:
-	/* build up the array of SVC_CRED_NGROUPS */
-	group_info = groups_alloc(SVC_CRED_NGROUPS);
-	/* error check */
-	/* copy local array into group_info */
-	retval = set_current_groups(group_info);
-	/* error check */
+#define alloc_pages(gfp_mask, order) \
+                alloc_pages_node(numa_node_id(), gfp_mask, order)
 
-The nfsd code does not need to check CAP_SETGID or > NGROUPS_MAX, really.
-Interestingly, nfsd_setuser returns void, so any error checking is moot.
-Bad news, there.
+And in include/linux/mmzone.h:
 
-set_current_groups() was extracted so that any place in kernel that needs to
-set the groups can do so properly.  I suggest that I just clean it up as
-that, or add a kern_setgroups() that encapsulates the above.  It will be
-about 12 lines of code.
+#define numa_node_id()          (cpu_to_node(smp_processor_id()))
 
-In fact, here is a rough cut (would need a coupel exported syms, too).  The
-lack of any way to handle errors bothers me.  printk and fail?  yeesh.
+And asm-i386/topology.h has:
+
+static inline int cpu_to_node(int cpu)
+{
+        return cpu_2_node[cpu];
+}
+
+Also, here is my .config, maybe CONFIG_X86_NUMAQ must also be set to hit it?
+
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+
+CONFIG_EXPERIMENTAL=y
+CONFIG_BROKEN=y
+CONFIG_BROKEN_ON_SMP=y
+
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_LOG_BUF_SHIFT=16
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+CONFIG_KALLSYMS=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_MODULE_FORCE_UNLOAD=y
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_KMOD=y
+
+CONFIG_X86_NUMAQ=y
+CONFIG_MPENTIUMIII=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_HPET_TIMER=y
+CONFIG_SMP=y
+CONFIG_NR_CPUS=32
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_CPUID=y
+CONFIG_HIGHMEM64G=y
+CONFIG_HIGHMEM=y
+CONFIG_X86_PAE=y
+CONFIG_NUMA=y
+CONFIG_DISCONTIGMEM=y
+CONFIG_HAVE_ARCH_BOOTMEM_NODE=y
+CONFIG_HIGHPTE=y
+CONFIG_HAVE_DEC_LOCK=y
 
 
-===== fs/nfsd/auth.c 1.3 vs edited =====
---- 1.3/fs/nfsd/auth.c	Thu Jan 29 13:40:50 2004
-+++ edited/fs/nfsd/auth.c	Fri Jan 30 13:11:21 2004
-@@ -10,15 +10,14 @@
- #include <linux/sunrpc/svcauth.h>
- #include <linux/nfsd/nfsd.h>
- 
--extern asmlinkage long sys_setgroups(int gidsetsize, gid_t *grouplist);
--
- #define	CAP_NFSD_MASK (CAP_FS_MASK|CAP_TO_MASK(CAP_SYS_RESOURCE))
- void
- nfsd_setuser(struct svc_rqst *rqstp, struct svc_export *exp)
- {
- 	struct svc_cred	*cred = &rqstp->rq_cred;
--	int		i;
-+	int		i, j;
- 	gid_t		groups[SVC_CRED_NGROUPS];
-+	struct group_info *group_info;
- 
- 	if (exp->ex_flags & NFSEXP_ALLSQUASH) {
- 		cred->cr_uid = exp->ex_anon_uid;
-@@ -48,7 +47,12 @@
- 			break;
- 		groups[i] = group;
- 	}
--	sys_setgroups(i, groups);
-+	group_info = groups_alloc(i);
-+	/* should be error checking, but we can't return ENOMEM! */
-+	for (j = 0; j < i; j++)
-+		GROUP_AT(group_info, j) = groups[j];
-+	if (set_current_groups(group_info))
-+		put_group_info(group_info);
- 
- 	if ((cred->cr_uid)) {
- 		cap_t(current->cap_effective) &= ~CAP_NFSD_MASK;
+CONFIG_ACPI_BOOT=y
+
+
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_LEGACY_PROC=y
+CONFIG_PCI_NAMES=y
+CONFIG_ISA=y
+CONFIG_HOTPLUG=y
+
+CONFIG_PCMCIA_PROBE=y
+
+
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_MISC=y
 
 
 
--- 
-Tim Hockin
-Sun Microsystems, Linux Software Engineering
-thockin@sun.com
-All opinions are my own, not Sun's
+
+
+CONFIG_PNP=y
+
+
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=y
+CONFIG_LBD=y
+
+
+CONFIG_SCSI=y
+CONFIG_SCSI_PROC_FS=y
+
+CONFIG_BLK_DEV_SD=y
+CONFIG_CHR_DEV_ST=m
+CONFIG_BLK_DEV_SR=m
+CONFIG_CHR_DEV_SG=m
+
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_REPORT_LUNS=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_LOGGING=y
+
+CONFIG_SCSI_AIC7XXX=y
+CONFIG_AIC7XXX_CMDS_PER_DEVICE=32
+CONFIG_AIC7XXX_RESET_DELAY_MS=15000
+CONFIG_AIC7XXX_DEBUG_ENABLE=y
+CONFIG_AIC7XXX_DEBUG_MASK=0
+CONFIG_AIC7XXX_REG_PRETTY_PRINT=y
+CONFIG_SCSI_EATA_PIO=m
+CONFIG_SCSI_QLOGIC_ISP=y
+CONFIG_SCSI_QLA2XXX_CONFIG=y
+CONFIG_SCSI_QLA2XXX=m
+CONFIG_SCSI_QLA23XX=m
+CONFIG_SCSI_DEBUG=m
+
+
+CONFIG_MD=y
+CONFIG_BLK_DEV_MD=y
+CONFIG_MD_LINEAR=y
+CONFIG_MD_RAID0=y
+CONFIG_MD_RAID1=y
+CONFIG_MD_RAID5=y
+CONFIG_MD_MULTIPATH=y
+CONFIG_BLK_DEV_DM=y
+CONFIG_DM_IOCTL_V4=y
+
+
+CONFIG_IEEE1394=m
+
+
+
+CONFIG_IEEE1394_OHCI1394=m
+
+CONFIG_IEEE1394_SBP2=m
+
+
+CONFIG_NET=y
+
+CONFIG_PACKET=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+
+CONFIG_IPV6_SCTP__=y
+
+
+CONFIG_NETDEVICES=y
+
+CONFIG_DUMMY=m
+
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=y
+
+CONFIG_NET_TULIP=y
+CONFIG_TULIP=y
+CONFIG_TULIP_MWI=y
+CONFIG_TULIP_MMIO=y
+CONFIG_NET_PCI=y
+CONFIG_ADAPTEC_STARFIRE=y
+
+
+
+
+
+
+
+
+
+
+
+CONFIG_INPUT=y
+
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_SERIO_SERPORT=y
+
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_MOUSE_SERIAL=y
+
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_CONSOLE=y
+CONFIG_SERIAL_8250_NR_UARTS=4
+
+CONFIG_SERIAL_CORE=y
+CONFIG_SERIAL_CORE_CONSOLE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+
+
+
+
+CONFIG_RAW_DRIVER=y
+CONFIG_MAX_RAW_DEVS=256
+
+
+
+
+CONFIG_VIDEO_SELECT=y
+
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+
+
+CONFIG_USB=m
+CONFIG_USB_DEBUG=y
+
+CONFIG_USB_DEVICEFS=y
+
+CONFIG_USB_EHCI_HCD=m
+CONFIG_USB_OHCI_HCD=m
+CONFIG_USB_UHCI_HCD=m
+
+CONFIG_USB_STORAGE=m
+CONFIG_USB_STORAGE_DEBUG=y
+
+
+
+
+
+
+
+
+
+
+
+CONFIG_EXT2_FS=y
+CONFIG_EXT3_FS=y
+CONFIG_EXT3_FS_XATTR=y
+CONFIG_JBD=y
+CONFIG_FS_MBCACHE=y
+
+CONFIG_ISO9660_FS=y
+
+
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_DEVPTS_FS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+
+
+
+CONFIG_MSDOS_PARTITION=y
+
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+
+CONFIG_PROFILING=y
+CONFIG_OPROFILE=y
+
+CONFIG_DEBUG_KERNEL=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+
+
+
+CONFIG_CRC32=y
+CONFIG_X86_SMP=y
+CONFIG_X86_HT=y
+CONFIG_X86_BIOS_REBOOT=y
+CONFIG_X86_TRAMPOLINE=y
+CONFIG_PC=y

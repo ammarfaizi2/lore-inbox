@@ -1,71 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263159AbUFWW0q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263062AbUFWWey@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263159AbUFWW0q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 18:26:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbUFWWVH
+	id S263062AbUFWWey (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 18:34:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263041AbUFWWd7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 18:21:07 -0400
-Received: from mail2.asahi-net.or.jp ([202.224.39.198]:11898 "EHLO
-	mail.asahi-net.or.jp") by vger.kernel.org with ESMTP
-	id S261763AbUFWWSv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 18:18:51 -0400
-Message-ID: <40DA01C1.2030102@ThinRope.net>
-Date: Thu, 24 Jun 2004 07:18:41 +0900
-From: Kalin KOZHUHAROV <kalin@ThinRope.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040121
-X-Accept-Language: bg, en, ja, ru, de
-MIME-Version: 1.0
-To: David Eger <eger@havoc.gtf.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Alphabet of kernel source
-References: <20040623140628.3f1abfe9@lembas.zaitcev.lan> <20040623214653.GA29728@havoc.gtf.org>
-In-Reply-To: <20040623214653.GA29728@havoc.gtf.org>
-X-Enigmail-Version: 0.83.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Jun 2004 18:33:59 -0400
+Received: from holomorphy.com ([207.189.100.168]:49541 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S263555AbUFWWbs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 18:31:48 -0400
+Date: Wed, 23 Jun 2004 15:31:46 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [oom]: [0/4] fix OOM deadlock running OAST
+Message-ID: <20040623223146.GG1552@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <0406231407.HbLbJbXaHbKbWa5aJb1a4aKb0a3aKb1a0a2aMbMbYa3aLbMb3aJbWaJbXaMbLb1a342@holomorphy.com> <20040623151659.70333c6d.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040623151659.70333c6d.akpm@osdl.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Eger wrote:
-> I started a thread a while ago (2.6.3/2.6.4) where I submitted some
-> patches to UTF-8ifying the kernel sources.  Basically, most of the
-> kernel is ASCII (98.4% of the files).  The rest are mostly ISO-Latin-1,
-> with the rare bit of Japanese (in a couple of charsets) and some just
-> random bytes in some of the Documentation/...
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>> While running OAST to test 2.6's maximum client capacity, the kernel
+>> deadlocked instead of properly OOM'ing. The obvious cause was the
+>> line if (nr_swap_pages > 0) in out_of_memory(), which fails to account
+>> for pinned allocations. This can't simply be removed.
 
-The "problem" is contributor names, although having everything in plain ASCII is resonable, I guess.
+On Wed, Jun 23, 2004 at 03:16:59PM -0700, Andrew Morton wrote:
+> It all seems like rather a lot of fuss.
+> It should be the case that zone->all_unreclaimable is set by the time this
+> happens.  Did you consider feeding that into the oom-killing decision
+> instead?
 
-> http://www.yak.net/random/linux-2.6.4-utf8-cleanup-auto.diff
-A lot of names and some art supposed to be ASCII.
+The vast majority of all this are the couhters for reporting, which have
+no effect on functionality. The actual functional effect is achieved by
+two aspects: (a) passing __GFP_WIRED to __alloc_pages() and (b) passing
+__GFP_WIRED to out_of_memory(), which informs it not to perform the test
+if (nr_swap_pages > 0). I also made the small addition of removing wired
+pagecache from the LRU lists, which is performance, not correctness.
 
-> http://www.yak.net/random/linux-2.6.4-utf8-cleanup-cstrings2utf8.diff
-Some degree symbols and microseconds... and names.
-I remember having problems with lm-sensors trying to print degrees, how did they fight the problem?
+I'll resend with all reporting/counters and LRU bits ripped out if needed.
 
-> http://www.yak.net/random/linux-2.6.4-utf8-cleanup-jp.diff
-Ok, this Japanese is only in the comments.
-I can translate that in no time and fix this diff.
-WTF is arch/v850/ ?
-I guess you had some kind of script, can you try it on vanilla 2.6.7, plesae, and post results.
 
-> http://www.yak.net/random/linux-2.6.4-utf8-cleanup-wrong.diff
-There are a few microseconds written properly, but may commonly by typed as us, or just don't use abbr.
-
-> It's sorta difficult to do non-ASCII patches over email because
-> the kernel developers like reading their mail in mutt, and don't 
-> like attachments (the only sane ways to send non 7-bit clean data:
-> 8-bit MIME: tagged and bagged or uuencoded)
-> 
-> Further, you confuse the hell out of vi if you have any trash (8bit data
-> in another charset) in a file that's supposed to be UTF-8.  i.e. don't
-> think you're going to be able to look at a charset changing patch in
-> anything.
-Totally agree, although I use Mozilla Mail (and sometimes mutt).
-
-Kalin.
-
--- 
-||///_ o  *****************************
-||//'_/>     WWW: http://ThinRope.net/
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-- wli

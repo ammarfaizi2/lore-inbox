@@ -1,38 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292883AbSBVOsg>; Fri, 22 Feb 2002 09:48:36 -0500
+	id <S292886AbSBVPB5>; Fri, 22 Feb 2002 10:01:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292884AbSBVOs0>; Fri, 22 Feb 2002 09:48:26 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:19978 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S292883AbSBVOsJ>; Fri, 22 Feb 2002 09:48:09 -0500
-Message-ID: <3C765A02.7040302@evision-ventures.com>
-Date: Fri, 22 Feb 2002 15:47:30 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us, pl
+	id <S292887AbSBVPBs>; Fri, 22 Feb 2002 10:01:48 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26377 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292886AbSBVPBi>;
+	Fri, 22 Feb 2002 10:01:38 -0500
+Message-ID: <3C765D50.D4A1D2D0@mandrakesoft.com>
+Date: Fri, 22 Feb 2002 10:01:36 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-CC: Gadi Oxman <gadio@netvision.net.il>,
+To: Martin Dalecki <dalecki@evision-ventures.com>
+CC: Vojtech Pavlik <vojtech@suse.cz>, Gadi Oxman <gadio@netvision.net.il>,
         Linus Torvalds <torvalds@transmeta.com>,
         Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] 2.5.5-pre1 IDE cleanup 9
-In-Reply-To: <Pine.LNX.4.33.0202131434350.21395-100000@home.transmeta.com> <3C723B15.2030409@evision-ventures.com> <00a201c1bb8d$90dd2740$0300a8c0@lemon> <3C764B7C.2000609@evision-ventures.com> <20020222150323.A5530@suse.cz> <3C7652B6.1040008@evision-ventures.com> <20020222153806.A5783@suse.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+In-Reply-To: <Pine.LNX.4.33.0202131434350.21395-100000@home.transmeta.com> <3C723B15.2030409@evision-ventures.com> <00a201c1bb8d$90dd2740$0300a8c0@lemon> <3C764B7C.2000609@evision-ventures.com> <20020222150323.A5530@suse.cz> <3C7652B6.1040008@evision-ventures.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
+Martin Dalecki wrote:
+> Will do soon. But now I don't have it at hand, it's on my home system
+> unfortunately and I would like to finish some other minor things there
+> as well. I mean basically the macro games showing that somebody didn't
+> understand C pointer semantics found at places like:
+> 
+> #ifdef CONFIG_BLK_DEV_ALI15X3
+> extern unsigned int pci_init_ali15x3(struct pci_dev *, const char *);
+> ...
+> #define PCI_ALI15X3     &pci_init_ali15x3
+> #else
+> ...
+> #define PCI_ALI15X3     NULL
+> #endif
+> 
+> This should rather look like:
+> 
+> #ifdef CONFIG_BLK_DEV_ALI15X3
+> extern unsigned int pci_init_ali15x3(struct pci_dev *);
+> #else
+> #define pci_init_ali15x3        NULL
+> #endif
 
-> I don't think so. If needed we can make some generic IDE_QUIRK_XXX
-> defines which then the chipset drivers can use where applicable, passing
-> them to the generic code.
+For what the code is trying to accomplish, the code is correct.
 
-I just noticed that you are *right*. I'm going over the whole recognized
-PCI device list anyway, so I will just add a flag field to the struct 
-ide_pci_device_s. There are at least fortunately not more then 32
-different quirk types ;-).
-And then the whole she-bag can be really pushed down to the
-particular chipset setup file indeed.
+I agree the above change is also correct... probably the author wanted
+to reduce the size of the -huge- data table where PCI_ALI15X3 symbol is
+used.
 
+
+> And be replaces entierly by register_chipset(...) blah blah or
+> therlike ;-) as well as module initialization lists.
+
+When we have "modprobe piix4_ide" loading the IDE subsystem, you are
+correct.
+
+IDE is currently driven by an inward->outward setup of module
+initialization, which is fundamentally the opposite of what we want,
+which is chipset_drvr -> core initialization.
+
+	Jeff
+
+
+
+-- 
+Jeff Garzik      | "UNIX enhancements aren't."
+Building 1024    |           -- says /usr/games/fortune
+MandrakeSoft     |

@@ -1,65 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261744AbUCVFtm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 00:49:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261752AbUCVFtm
+	id S261745AbUCVFz6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 00:55:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbUCVFz6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 00:49:42 -0500
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:5828 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S261744AbUCVFtk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 00:49:40 -0500
-Date: Mon, 22 Mar 2004 00:49:46 -0500 (EST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Eric Valette <eric.valette@free.fr>
-Cc: akpm@osdl.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.5-rc2-mm1 does not boot. 2.6.5-rc1-mm2 + small fix from
- axboe was fine
-In-Reply-To: <405E1993.4050907@free.fr>
-Message-ID: <Pine.LNX.4.58.0403220048160.28727@montezuma.fsmlabs.com>
-References: <405DFA02.8090504@free.fr> <Pine.LNX.4.58.0403211555110.28727@montezuma.fsmlabs.com>
- <405E1993.4050907@free.fr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 22 Mar 2004 00:55:58 -0500
+Received: from pfepa.post.tele.dk ([195.41.46.235]:62802 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S261745AbUCVFz5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 00:55:57 -0500
+Date: Mon, 22 Mar 2004 06:56:17 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Michael Still <mikal@stillhq.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Makefile dependancies: scripts depending on configured kernel?
+Message-ID: <20040322055617.GA2250@mars.ravnborg.org>
+Mail-Followup-To: Michael Still <mikal@stillhq.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <405E1427.6080309@stillhq.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <405E1427.6080309@stillhq.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 21 Mar 2004, Eric Valette wrote:
+On Mon, Mar 22, 2004 at 09:16:07AM +1100, Michael Still wrote:
+> 
+> Hey,
+> 
+> the top level Makefile specifies that the scripts depend on the kernel 
+> being configured before the scripts can be built:
+> 
+> scripts: scripts_basic include/config/MARKER
+> 	$(Q)$(MAKE) $(build)=$(@)
+> 
+> I think that this is probably a problem, because it means people can't 
+> build any of the documentation targets without having configured the kernel.
 
-> > How about the following patch?
->
-> OK this time, I used the correct original file, applied your patch. But
-> it does not help. This time it freeze immediately after :
-> Freeing unused kernel memory: 216k freed.
->
-> Thanks anyway for the suggestion and sorry for the mistake on using the
-> wrong version of init/main.c (after partially reverse applying the
-> possible incorrect patch).
+The dependency for docs is (now) wrong.
+It should be:
+# Documentation targets
+# ---------------------------------------------------------------------------
+%docs: scripts_basic FORCE
+        $(Q)$(MAKE) $(build)=Documentation/DocBook $@
 
-The patch actually fixed a bug i thought you were hitting;
+docproc is the only binary used by Documentation/Docbook, and it is already
+placed in scripts_basic.
 
-Freeing 1nunedlketo lamdlo y:r3elkpfgeeg
-equest at virtual address c06c22a0
- printing eip:
-c06c22a0
-*pde = 00757027
-Oops: 0000 [#1]
-PREEMPT SMP DEBUG_PAGEALLOC
-CPU:    1
-EIP:    0060:[<c06c22a0>]    Not tainted VLI
-EFLAGS: 00010213   (2.6.5-rc2-mm1)
-EIP is at prepare_namespace+0x0/0xd0
-eax: 00000002   ebx: 00000000   ecx: c060b2c0   edx: c060b300
-esi: 00000001   edi: 00000000   ebp: dff8ffec   esp: dff8ffd4
-ds: 007b   es: 007b   ss: 0068
-Process swapper (pid: 1, threadinfo=dff8f000 task=dff1fa50)
-Stack: c0103235 00000000 00000000 0000007b c0103170 00000000 00000000 c01051f5
-       00000000 00000000 00000000
-Call Trace:
- [<c0103235>] init+0xc5/0x190
- [<c0103170>] init+0x0/0x190
- [<c01051f5>] kernel_thread_helper+0x5/0x10
+Trivial - so I will include this in some other kbuild patch
+I'm preparing.
 
-Code:  Bad EIP value.
- <0>Kernel panic: Attempted to kill init!
+> Do any of the scripts actually depend on a configured kernel to build? 
+Yes, several of the ninaries do so. Among others empty.o.
 
+> How can I verify that none of them need a configured kernel? Commenting 
+> out the dependancy didn't break anything.
+Test a bit more, and you will see they are indeed needed.
+Note, some archs other than i386 have a bit different requirements
+because thay do not use an asm-offsett.h file.
+
+	Sam

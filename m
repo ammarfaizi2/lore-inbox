@@ -1,58 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262371AbTEBOe4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 10:34:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262928AbTEBOe4
+	id S263182AbTEBVqA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 17:46:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263183AbTEBVqA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 10:34:56 -0400
-Received: from mailrelay1.lanl.gov ([128.165.4.101]:60074 "EHLO
-	mailrelay1.lanl.gov") by vger.kernel.org with ESMTP id S262371AbTEBOez
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 10:34:55 -0400
-Subject: Re: 2.5.68-mm4
-From: Steven Cole <elenstev@mesatop.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-In-Reply-To: <20030502020149.1ec3e54f.akpm@digeo.com>
-References: <20030502020149.1ec3e54f.akpm@digeo.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1051886748.2166.20.camel@spc9.esa.lanl.gov>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
-Date: 02 May 2003 08:45:48 -0600
+	Fri, 2 May 2003 17:46:00 -0400
+Received: from mail.gmx.net ([213.165.64.20]:30031 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263182AbTEBVp7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 May 2003 17:45:59 -0400
+Message-ID: <3EB2E9F7.9000708@gmx.net>
+Date: Fri, 02 May 2003 23:58:15 +0200
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: "Javi Pardo (DAKOTA)" <dakota@dakotabcn.net>
+CC: Andre Hedrick <andre@linux-ide.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ataraid-list@redhat.com
+Subject: Re: promise NEITHER IDE PORT ENABLED
+References: <040101c308df$452110f0$3200000a@dakotapiv> <3EA683A8.8040303@gmx.net> <036f01c30ff0$d2197fc0$3200000a@dakotapiv>
+In-Reply-To: <036f01c30ff0$d2197fc0$3200000a@dakotapiv>
+X-Enigmail-Version: 0.71.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-05-02 at 03:01, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.68/2.5.68-mm4/
-> 
-> . Much reworking of the disk IO scheduler patches due to the updated
->   dynamic-disk-request-allocation patch.  No real functional changes here.
-> 
-> . Included the `kexec' patch - load Linux from Linux.  Various people want
->   this for various reasons.  I like the idea of going from a login prompt to
->   "Calibrating delay loop" in 0.5 seconds.
-> 
->   I tried it on four machines and it worked with small glitches on three of
->   them, and wedged up the fourth.  So if it is to proceed this code needs
->   help with testing and careful bug reporting please.
-> 
->   There's a femto-HOWTO in the patch itself, reproduced here:
-> 
-> 
-> 
-> - enable kexec in config, build, install.
-> 
-> - grab kexec-tools from
-> 
-> 	http://www.osdl.org/archive/andyp/kexec/2.5.68/
-> 
-The andyp directory seems to be missing.  I found kexec-tools-1.8 here:
-http://www.xmission.com/~ebiederm/files/kexec/
+Andre, Alan,
 
-Is that the latest version?
+could you please take a look at this? I thought the IDE code in
+2.4.21-rc1 is able to force enable the ports of a promise controller.
 
-Steven
+Javi Pardo (DAKOTA) wrote:
+> 
+> i am probed with the kernel 2.4.21-rc1 and the result is... NEITHER IDE..  
+> my Motheboard is Tyan Tiger 200T wit Dual processor and promise integrated and only works with the original kernel of RH 8
+> 
+>Carl-Daniel Hailfinger wrote:
+> 
+>>Javi Pardo (DAKOTA) wrote:
+>>
+>>>Hello
+>>>I am Installed RH 8 with standard kernel 2.4.18
+>>>i am downloaded the kernel 2.4.20 from kernel.org and i am problem with Promise 
+>>
+>>Could you please test 2.4.21-rc1? It has newer IDE and could help.
+>>
+>>
+>>>PDC20267: Neither ide ports enabled in bios
+>>>
+>>>the motheboard is the tyan Tiger200T, this model have promise ATA100 inside
+>>>
+>>>i am selected this options in the kernel
+>>
+>>The options look good, but 2.4.20 has some Promise IDE flaws which could
+>>cause your problem.
+>>
+>>
+>>>CONFIG_BLK_DEV_PDC202XX=y
+>>># CONFIG_PDC202XX_BURST is not set
+>>>CONFIG_PDC202XX_FORCE=y
+>>>CONFIG_BLK_DEV_VIA82CXXX=y
+>>># CONFIG_IDE_CHIPSETS is not set
+>>>CONFIG_IDEDMA_AUTO=y
+>>># CONFIG_IDEDMA_IVB is not set
+>>># CONFIG_DMA_NONPCI is not set
+>>>CONFIG_BLK_DEV_IDE_MODES=y
+>>>CONFIG_BLK_DEV_ATARAID=y
+>>>CONFIG_BLK_DEV_ATARAID_PDC=y
+>>># CONFIG_BLK_DEV_ATARAID_HPT is not set
+>>>
+>>>I need help, i am read this list and the option CONFIG_PDC202XX_FORCE=y is the solution, but no work.. why?
+>>
+>>Please try 2.4.21-rc1 and report back to this list.
+>>
+
+Thanks,
+Carl-Daniel
 

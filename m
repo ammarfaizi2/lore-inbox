@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131478AbRBASwB>; Thu, 1 Feb 2001 13:52:01 -0500
+	id <S129071AbRBASwl>; Thu, 1 Feb 2001 13:52:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131578AbRBASvl>; Thu, 1 Feb 2001 13:51:41 -0500
-Received: from mx3out.umbc.edu ([130.85.253.53]:1443 "EHLO mx3out.umbc.edu")
-	by vger.kernel.org with ESMTP id <S131536AbRBASvj>;
-	Thu, 1 Feb 2001 13:51:39 -0500
-Date: Thu, 1 Feb 2001 13:51:35 -0500
-From: John Jasen <jjasen1@umbc.edu>
-X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
-To: Peter Samuelson <peter@cadcamlab.org>
-cc: "Michael J. Dikkema" <mjd@moot.ca>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.1 - can't read root fs (devfs maybe?)
-In-Reply-To: <20010201114848.A4161@cadcamlab.org>
-Message-ID: <Pine.SGI.4.31L.02.0102011349410.71788-100000@irix2.gl.umbc.edu>
+	id <S131514AbRBASwb>; Thu, 1 Feb 2001 13:52:31 -0500
+Received: from dryline-fw.wireless-sys.com ([216.126.67.45]:33054 "EHLO
+	dryline-fw.wireless-sys.com") by vger.kernel.org with ESMTP
+	id <S131543AbRBASwR>; Thu, 1 Feb 2001 13:52:17 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14969.45148.886179.74191@somanetworks.com>
+Date: Thu, 1 Feb 2001 13:52:12 -0500 (EST)
+From: "Georg Nikodym" <georgn@somanetworks.com>
+To: hiren_mehta@agilent.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: problem with devfsd compilation
+In-Reply-To: <FEEBE78C8360D411ACFD00D0B747797188097A@xsj02.sjs.agilent.com>
+In-Reply-To: <FEEBE78C8360D411ACFD00D0B747797188097A@xsj02.sjs.agilent.com>
+X-Mailer: VM 6.75 under 21.2  (beta40) "Persephone" XEmacs Lucid
+Reply-To: georgn@somanetworks.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Feb 2001, Peter Samuelson wrote:
+>>>>> "hm" == hiren mehta <hiren_mehta@agilent.com> writes:
 
->   [Michael J. Dikkema]
-> > > I went from 2.4.0 to 2.4.1 and was surprised that either the root
-> > > filesystem wasn't mounted, or it couldn't be read. I'm using devfs.. I'm
-> > > thinking there might have been a change with regards to the devfs
-> > > tree.. is the legacy /dev/hda1 still /dev/discs/disc0/part1?
-> > >
-> > > I can't even get a shell with init=/bin/bash..
->
-> [John Jasen]
-> > Sounds like a lack of devfsd, which handles backwards compatibility
-> > for /dev entries.
->
-> devfsd does not start up until after the root filesystem is mounted, so
-> that's not it.
+ hm> Hi, I am trying to compile devfsd on my system running RedHat
+ hm> linux 7.0 (kernel 2.2.16-22). I get the error "RTLD_NEXT"
+ hm> undefined. I am not sure where this symbol is defined. Is there
+ hm> anything that I am missing on my system.
 
-Errrr .... upon careful reading of the devfs/devfsd documentation, you'll
-find that it says to put /sbin/devfsd /dev in amongst the first lines in
-rc.sysinit.
+Oh yeah, here's the two other things I forgot.
 
-In looking through rc.sysinit, / is not mounted rw until much later.
+The install target of the devfsd GNUmakefile attempts to copy the
+devfsd.8 man page into /usr/man/man8 which doesn't exist.  RH7 has
+its man pages in /usr/share/man though you might prefer
+/usr/local/man, whatever.  I just changed the GNUmakefile.
 
---
--- John E. Jasen (jjasen1@umbc.edu)
--- In theory, theory and practise are the same. In practise, they aren't.
+Also, RH7's /etc/rc.sysinit can already start devfsd automatically
+with the following line:
 
+    [ -e /dev/.devfsd -a -x /sbin/devfsd ] && /sbin/devfsd /dev
+
+So, all you have to do is create an empty file /dev/.devfsd
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

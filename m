@@ -1,91 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265655AbUA1ISz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 03:18:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265806AbUA1ISz
+	id S265806AbUA1Ifj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 03:35:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265869AbUA1Ifj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 03:18:55 -0500
-Received: from adsl-67-124-158-125.dsl.pltn13.pacbell.net ([67.124.158.125]:23730
-	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
-	id S265655AbUA1ISx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 03:18:53 -0500
-Date: Wed, 28 Jan 2004 00:18:51 -0800
-To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: ALSA noise (was: Re: 2.6.2-rc2-mm1)
-Message-ID: <20040128081851.GA11391@triplehelix.org>
-Mail-Followup-To: joshk@triplehelix.org,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org
+	Wed, 28 Jan 2004 03:35:39 -0500
+Received: from cc15467-a.groni1.gr.home.nl ([217.120.147.78]:34750 "HELO
+	boetes.org") by vger.kernel.org with SMTP id S265806AbUA1Ifh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 03:35:37 -0500
+Date: Wed, 28 Jan 2004 09:36:23 +0100
+From: Han Boetes <han@mijncomputer.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.2-rc2-mm1
+Message-ID: <20040128083645.GI2650@boetes.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 References: <20040127233402.6f5d3497.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="G4iJoqBmSsgzjUCe"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <20040127233402.6f5d3497.akpm@osdl.org>
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: joshk@triplehelix.org (Joshua Kwan)
+X-GPG-Key: http://www.xs4all.nl/~hanb/keys/Han_pubkey.gpg
+X-GPG-Fingerprint: EB66 D194 AB3F 4C57 49EF 6795 44AE E0D8 3F38 7301
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---G4iJoqBmSsgzjUCe
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hmmm my build breaks with:
 
-On Tue, Jan 27, 2004 at 11:34:02PM -0800, Andrew Morton wrote:
-> - Various fixes.  Nothing stands out.
+  LD      .tmp_vmlinux1
+arch/i386/kernel/built-in.o(.init.text+0x1342): In function `setup_memory':
+: undefined reference to `find_smp_config'
+arch/i386/kernel/built-in.o(.entry.text+0xb11): In function `vic_sys_interrupt':
+: undefined reference to `smp_vic_sys_interrupt'
+arch/i386/kernel/built-in.o(.entry.text+0xb35): In function `vic_cmn_interrupt':
+: undefined reference to `smp_vic_cmn_interrupt'
+arch/i386/kernel/built-in.o(.entry.text+0xb59): In function `vic_cpi_interrupt':
+: undefined reference to `smp_vic_cpi_interrupt'
+arch/i386/kernel/built-in.o(.entry.text+0xb7d): In function `qic_timer_interrupt':
+: undefined reference to `smp_qic_timer_interrupt'
+arch/i386/kernel/built-in.o(.entry.text+0xba1): In function `qic_invalidate_interrupt':
+: undefined reference to `smp_qic_invalidate_interrupt'
+arch/i386/kernel/built-in.o(.entry.text+0xbc5): In function `qic_reschedule_interrupt':
+: undefined reference to `smp_qic_reschedule_interrupt'
+arch/i386/kernel/built-in.o(.entry.text+0xbe9): In function `qic_enable_irq_interrupt':
+: undefined reference to `smp_qic_enable_irq_interrupt'
+arch/i386/kernel/built-in.o(.entry.text+0xc0d): In function `qic_call_function_interrupt':
+: undefined reference to `smp_qic_call_function_interrupt'
+arch/i386/mach-voyager/built-in.o(.text+0x1bd): In function `voyager_power_off':
+: undefined reference to `voyager_cat_power_off'
+arch/i386/mach-voyager/built-in.o(.text+0x3e6): In function `check_from_kernel':
+: undefined reference to `voyager_status'
+arch/i386/mach-voyager/built-in.o(.text+0x425): In function `check_continuing_condition':
+: undefined reference to `voyager_status'
+arch/i386/mach-voyager/built-in.o(.text+0x448): In function `check_continuing_condition':
+: undefined reference to `voyager_cat_psi'
+arch/i386/mach-voyager/built-in.o(.text+0x523): In function `thread':
+: undefined reference to `voyager_status'
+arch/i386/mach-voyager/built-in.o(.text+0x56b): In function `thread':
+: undefined reference to `voyager_status'
 
-This doesn't have quite as much to do with -mm as it probably should,
-but this high pitched noise + random static on ALSA playback happens
-on all of my machines that use intel8x0 PAST 2.6.1-rc1-mm2. (That is,
-2.6.1-rc2 stock has the bug, onwards until this release 2.6.2-rc2-mm1.)
 
-As I've repeated a few times on a few threads on LKML, this involves:
-1) a high pitched whining type noise when the system is *NOT* under load
-   which goes away if the CPU usage is at ~100%.
-2) lots of annoying pops of static during wave playback (hurts my ears.)
 
-I'm not so bold as to try to figure what changed between 2.6.1-rc1-mm2
-and 2.6.1-rc2 stock that could have caused this. Can anyone offer
-pointers on how to tackle this bug? I don't wish to be stuck with such
-an old kernel in the heat of 2.6 stable release development :)
-
-Hoping for a quick resolution for this bug. Other people have noticed it
-as well...
-
---=20
-Joshua Kwan
-
---G4iJoqBmSsgzjUCe
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iQIVAwUBQBdwaqOILr94RG8mAQJ7KQ/9GllCf0XBvPtjN6G4/h6PU6zQcjT967XS
-BcvQ12M2f7Ov43nzKIkZOdf2prC6xk8xtlbl5mFcimeSl2I3T/SbnjfBLxFeuUHW
-Me/EJauG/my0bHDAJioln6TtW4PKrVyF7msc4NKj6eNbkxGYvrNIXHrS6zIz9MCt
-x3S46uebLQA8Cw5KAMsuxCLqP1gr8RXlZf/6gbt+w/4nmuUb1lU9oovm2sZBkN+c
-vPTmdpjqYgeFesO3BT3nfQlw9dR6nspCUNgelkoUWMR/82V4AEAPSBGrGkncU1z1
-a6T2nDkMnk4XZaBUFSPRc3eKU8URT7a0Dxc5EknSu+S9EL2/1gqqpNzJvt0ko+Ei
-K5MWglFiaM1pJ6I/JHGj0u5AZNYRehwUoqux8/wCv2o5nSUu7FT/V3jBCgJ7VpTQ
-ddYbLZkULFPqEEGDSd5mBJw2dxcKBySv6oXJfZ3piJiTM+0ofU/xTRsrKIB8F17P
-jDpzWFBshqDOTwkSnBn1KMXDN/vLW9oL8Z7nzbC0dvN412oGvDY8f9tYDuCP8Tl6
-Ub5wVFpGg7rnUHtmWlQ9E9ExsDflHzR3oGZaQofhpm7OlAVtftOVWtgPWG393odx
-gM5jN03VmOQ2n1glyTuvoFpqoXtRvh6rvC+UiTHrcsx4vdhUMdAWVhA4wTejRp0k
-4v7dQIPn7qk=
-=ETGT
------END PGP SIGNATURE-----
-
---G4iJoqBmSsgzjUCe--
+# Han

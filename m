@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266952AbTBCWaq>; Mon, 3 Feb 2003 17:30:46 -0500
+	id <S267038AbTBCWfZ>; Mon, 3 Feb 2003 17:35:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266953AbTBCWaq>; Mon, 3 Feb 2003 17:30:46 -0500
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:57478 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S266952AbTBCWap>; Mon, 3 Feb 2003 17:30:45 -0500
-Date: Mon, 3 Feb 2003 16:40:13 -0600 (CST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Konrad Eisele <eiselekd@web.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Customflags for cmd_objcopy
-In-Reply-To: <200302031605.h13G5nO30068@mailgate5.cinetic.de>
-Message-ID: <Pine.LNX.4.44.0302031639120.32421-100000@chaos.physics.uiowa.edu>
+	id <S267042AbTBCWfZ>; Mon, 3 Feb 2003 17:35:25 -0500
+Received: from web9901.mail.yahoo.com ([216.136.129.36]:14226 "HELO
+	web9901.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S267038AbTBCWfX>; Mon, 3 Feb 2003 17:35:23 -0500
+Message-ID: <20030203224455.84628.qmail@web9901.mail.yahoo.com>
+Date: Mon, 3 Feb 2003 14:44:55 -0800 (PST)
+From: Akram Abou-Emara <akram485@yahoo.com>
+Subject: Kernel Threads questiona on 2.4
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Feb 2003, Konrad Eisele wrote:
+Hi All,
 
-> like with cmd_ld in scripts/Makefile.lib having possibility to add 
-> customflags with cmk_objcopy would be nice. When building a ROMKernel
-> I'd like to use:
-> OBJCOPYFLAGS_rompiggydata := --remove-section=.text
-> OBJCOPYFLAGS_$(MODEL)piggytext := --only-section=.text
+I have a couple of questions:
 
-Makes sense. Could you send your $(if_changed ) thing as patch, too? And 
-possibly for all if_changed_*? (Privately will do)
+Do kernel threads get preempted? Or do they have to
+give up the CPU on their own? 
 
---Kai
+Are there any rules for what scheduling policies and
+priority a kernel thread can have?
+reparent_to_init()sets the scheduling policy to
+SCHED_OTHER. Do you see a problem with changing the
+scheduling policy to  SCHED_FIFO?
 
+Thanks,
+Akram
 
+__________________________________________________
+Do you Yahoo!?
+Yahoo! Mail Plus - Powerful. Affordable. Sign up now.
+http://mailplus.yahoo.com

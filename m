@@ -1,127 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262099AbSJFRVC>; Sun, 6 Oct 2002 13:21:02 -0400
+	id <S261955AbSJFR0J>; Sun, 6 Oct 2002 13:26:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262078AbSJFRUv>; Sun, 6 Oct 2002 13:20:51 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:55044 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262099AbSJFRRk>; Sun, 6 Oct 2002 13:17:40 -0400
-Subject: PATCH: 2.5.40 Fix stupid scsi setup bug in 53c406, fix addressing
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Date: Sun, 6 Oct 2002 18:14:35 +0100 (BST)
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17yEzE-0001sk-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S261724AbSJFRZU>; Sun, 6 Oct 2002 13:25:20 -0400
+Received: from adsl-212-59-30-243.takas.lt ([212.59.30.243]:7926 "EHLO
+	mg.homelinux.net") by vger.kernel.org with ESMTP id <S262151AbSJFRVt>;
+	Sun, 6 Oct 2002 13:21:49 -0400
+Date: Sun, 6 Oct 2002 19:26:59 +0200
+From: Marius Gedminas <mgedmin@centras.lt>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Ext3 documentation
+Message-ID: <20021006172659.GA21270@gintaras>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20021002085713.GA23086@darwin.crans.org> <Pine.LNX.4.33L2.0210020915400.14122-100000@dragon.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="J2SCkAp4GZ/dPZZf"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33L2.0210020915400.14122-100000@dragon.pdx.osdl.net>
+User-Agent: Mutt/1.4i
+X-Message-Flag: If you do not see this message correctly, stop using Outlook.
+X-GPG-Fingerprint: 8121 AD32 F00A 8094 748A  6CD0 9157 445D E7A6 D78F
+X-GPG-Key: http://ice.dammit.lt/~mgedmin/mg-pgp-key.txt
+X-URL: http://ice.dammit.lt/~mgedmin/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.2.5.40/drivers/scsi/NCR53c406a.c linux.2.5.40-ac5/drivers/scsi/NCR53c406a.c
---- linux.2.5.40/drivers/scsi/NCR53c406a.c	2002-10-02 21:32:55.000000000 +0100
-+++ linux.2.5.40-ac5/drivers/scsi/NCR53c406a.c	2002-10-04 16:07:01.000000000 +0100
-@@ -459,7 +459,7 @@
- 
- int  __init 
- NCR53c406a_detect(Scsi_Host_Template * tpnt){
--    struct Scsi_Host *shpnt;
-+    struct Scsi_Host *shpnt = NULL;
- #ifndef PORT_BASE
-     int i;
- #endif
-@@ -535,11 +535,20 @@
- #endif
-     
-     DEB(printk("NCR53c406a: using port_base %x\n", port_base));
-+
-+    tpnt->present = 1;
-+    tpnt->proc_name = "NCR53c406a";
-+    
-+    shpnt = scsi_register(tpnt, 0);
-+    if (!shpnt) {
-+            printk("NCR53c406a: Unable to register host, giving up.\n");
-+            goto err_release;
-+    }
-     
-     if(irq_level > 0) {
-         if(request_irq(irq_level, do_NCR53c406a_intr, 0, "NCR53c406a", shpnt)){
-             printk("NCR53c406a: unable to allocate IRQ %d\n", irq_level);
--            goto err_release;
-+            goto err_free_scsi;
-         }
-         tpnt->can_queue = 1;
-         DEB(printk("NCR53c406a: allocated IRQ %d\n", irq_level));
-@@ -549,32 +558,24 @@
-         DEB(printk("NCR53c406a: No interrupts detected\n"));
- #if USE_DMA
-         printk("NCR53c406a: No interrupts found and DMA mode defined. Giving up.\n");
--        goto err_release;
-+        goto err_free_scsi;
- #endif /* USE_DMA */
-     }
-     else {
-         DEB(printk("NCR53c406a: Shouldn't get here!\n"));
--        goto err_free_irq;
-+        goto err_free_scsi;
-     }
-     
- #if USE_DMA
-     dma_chan = DMA_CHAN;
-     if(request_dma(dma_chan, "NCR53c406a") != 0){
-         printk("NCR53c406a: unable to allocate DMA channel %d\n", dma_chan);
--        goto err_release;
-+        goto err_free_irq;
-     }
-     
-     DEB(printk("Allocated DMA channel %d\n", dma_chan));
- #endif /* USE_DMA */
-     
--    tpnt->present = 1;
--    tpnt->proc_name = "NCR53c406a";
--    
--    shpnt = scsi_register(tpnt, 0);
--    if (!shpnt) {
--            printk("NCR53c406a: Unable to register host, giving up.\n");
--            goto err_free_dma;
--    }
-     shpnt->irq = irq_level;
-     shpnt->io_port = port_base;
-     shpnt->n_io_port = 0x10;
-@@ -592,13 +593,13 @@
-     
-     return (tpnt->present);
- 
--
-- err_free_dma:
- #if USE_DMA
--    free_dma(dma_chan);
--#endif
-  err_free_irq:
--    free_irq(irq_level, do_NCR53c406a_intr);
-+    if(irq_level)
-+    	free_irq(irq_level, shpnt);
-+#endif    	
-+ err_free_scsi:
-+    scsi_unregister(shpnt);
-  err_release:
-     release_region(port_base, 0x10);
-     return 0;
-@@ -896,7 +897,7 @@
-                 sgcount = current_SC->use_sg;
-                 sglist = current_SC->request_buffer;
-                 while( sgcount-- ) {
--                    NCR53c406a_pio_write(sglist->address, sglist->length);
-+                    NCR53c406a_pio_write(page_address(sglist->page) + sglist->offset, sglist->length);
-                     sglist++;
-                 }
-             }
-@@ -925,7 +926,7 @@
-                 sgcount = current_SC->use_sg;
-                 sglist = current_SC->request_buffer;
-                 while( sgcount-- ) {
--                    NCR53c406a_pio_read(sglist->address, sglist->length);
-+                    NCR53c406a_pio_read(page_address(sglist->page) + sglist->offset, sglist->length);
-                     sglist++;
-                 }
-             }
+
+--J2SCkAp4GZ/dPZZf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, Oct 02, 2002 at 09:17:00AM -0700, Randy.Dunlap wrote:
+> On Wed, 2 Oct 2002, Vincent Hanquez wrote:
+>=20
+> | Here a (small) documentation for ext3 filesystem.
+> | it seem now correct/accurate. report me any problem/bugs
+> |
+> | It can be merge in 2.4/2.5 kernel I think. feedback appreciated.
+>=20
+> Here are a few typo corrections for you.  My correction lines
+> begin with '#'.
+
+I found a couple more.
+
+> jounal=3Dupdate		Update the ext3 file system's journal to the
+> 			current format.
+
+'jounal'?
+
+> bsddf 		(*)	Make 'df' act like BSD.
+> minixdf			Make 'df' act like Minix.
+
+A couple of additional lines for clueless users (like me) would be
+nice.
+
+> errors=3Dremount-ro(*)	Remount the filesystem read-only on an error.
+> errors=3Dcontinue		Keep going on a filesystem error.
+> errors=3Dpanic		Panic and halt the machine if an error occurs.
+
+mount(8) claims the default is set in the superblock.  (It certainly
+wasn't remount-ro when I mountend an ext3 fs on 2.4.18.)
+
+
+Marius Gedminas
+--=20
+The IQ of the group is the lowest IQ of a member of
+the group divided by the number of people in the group.
+
+--J2SCkAp4GZ/dPZZf
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQE9oHJjkVdEXeem148RAs4GAJ9SWu6cOYrbOQIEM8R4PscsBNpDHACglAVW
+DJ3O4Qnk4vxDuJxAUaMQybc=
+=vhMi
+-----END PGP SIGNATURE-----
+
+--J2SCkAp4GZ/dPZZf--

@@ -1,37 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269491AbRHCRXC>; Fri, 3 Aug 2001 13:23:02 -0400
+	id <S269489AbRHCRYm>; Fri, 3 Aug 2001 13:24:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269505AbRHCRWx>; Fri, 3 Aug 2001 13:22:53 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:57357 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S269482AbRHCRWe>;
-	Fri, 3 Aug 2001 13:22:34 -0400
-Message-Id: <200108022231.CAA00375@mops.inr.ac.ru>
-Subject: Re: [PATCH] Inbound Connection Control mechanism: Prioritized Accept
-To: samudrala@us.ibm.com (Sridhar Samudrala)
-Date: Fri, 3 Aug 2001 02:31:51 +0400 (MSD)
-Cc: kuznet@ms2.inr.ac.ru, thiemo@sics.se, dmfreim@us.ibm.com, hadi@cybeus.ca,
-        linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-        diffserv-general@lists.sourceforge.net, rusty@rustcorp.com.au
-In-Reply-To: <Pine.LNX.4.21.0108020956320.25553-100000@w-sridhar2.des.sequent.com> from "Sridhar Samudrala" at Aug 2, 1 10:17:11 am
-From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S269482AbRHCRWy>; Fri, 3 Aug 2001 13:22:54 -0400
+Received: from isimail.interactivesi.com ([207.8.4.3]:62468 "HELO
+	dinero.interactivesi.com") by vger.kernel.org with SMTP
+	id <S269506AbRHCRWi>; Fri, 3 Aug 2001 13:22:38 -0400
+Message-ID: <01fa01c11c41$51462cd0$bef7020a@mammon>
+From: "Jeremy Linton" <jlinton@interactivesi.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Free memory starvation in a zone?
+Date: Fri, 3 Aug 2001 12:25:35 -0500
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+In kreclaimd() there is a nice loop that looks like
 
-> This looks like an elegant way of prioritizing without penalizing low priority
-> connections in the absence of high priority ones.
-> There may be an issue with sockets in accept queue which have received data.
-> Is it OK to move a socket which has already received some data back to SYN-RECV 
-> state and expect the data to be resent?
+ for(i = 0; i < MAX_NR_ZONES; i++) {
+    zone_t *zone = pgdat->node_zones + i;
+    if (!zone->size)
+        continue;
 
-No, if you ACKed it. 500msec is maximum... Not so big number.
+    while (zone->free_pages < zone->pages_low) {
+        struct page * page;
+        page = reclaim_page(zone);
+        if (!page)
+            break;
+        __free_page(page);
+    }
+}
 
-But inside 500msec there are no problems with HTTP, where this ACK is
-better to maximally delay to piggyback to reply in any case.
+I was playing around with the page age algorithm when i noticed that it
+appears that the machine will get into a state where the inner loop _NEVER_
+exits the current zone because applications running in that zone are eating
+the memory as fast as it is being freed up. I imaging that this could be
+causing some pretty serious problems since the other zone's pages will only
+get recleaimed during a page alloc. Maybe there should be a max number of
+pages that can be reclaimed out of any given zone to force this loop to
+break? Something like 5 or 10% of the zone?
 
-Alexey
+Any comments?
+
+
+BTW: I started playing with the page age system when I noticed that it
+wasn't very evenly distributed. All the pages in a  tend to fall into one or
+two age groups pretty close to PAGE_AGE_START with a significant number of
+them often below PAGE_AGE_START.
+
+
+
+
+
+
 

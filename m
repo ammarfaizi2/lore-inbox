@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318706AbSG0G0K>; Sat, 27 Jul 2002 02:26:10 -0400
+	id <S318709AbSG0Gpb>; Sat, 27 Jul 2002 02:45:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318707AbSG0G0K>; Sat, 27 Jul 2002 02:26:10 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:3258 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S318706AbSG0G0K>;
-	Sat, 27 Jul 2002 02:26:10 -0400
-Date: Sat, 27 Jul 2002 02:29:26 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Federico Ferreres <fferreres@ojf.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Funding GPL projects or funding the GPL?
-In-Reply-To: <1027749079.2133.59.camel@fede>
-Message-ID: <Pine.GSO.4.21.0207270214570.23484-100000@weyl.math.psu.edu>
+	id <S318710AbSG0Gpb>; Sat, 27 Jul 2002 02:45:31 -0400
+Received: from ja.mac.ssi.bg ([212.95.166.194]:15364 "EHLO u.domain.uli")
+	by vger.kernel.org with ESMTP id <S318709AbSG0Gpb>;
+	Sat, 27 Jul 2002 02:45:31 -0400
+Date: Sat, 27 Jul 2002 09:49:03 +0000 (GMT)
+From: Julian Anastasov <ja@ssi.bg>
+X-X-Sender: ja@u.domain.uli
+To: Bhavesh_P_Davda <bhaveshd@earth.dr.avaya.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.4.18 IPv4/devinet enhancements for down'ing interfaces
+Message-ID: <Pine.LNX.4.44.0207270943001.1170-100000@u.domain.uli>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+	Hello,
 
-On 27 Jul 2002, Federico Ferreres wrote:
+Bhavesh_P_Davda wrote:
 
-> The fGPL scheme means you pay $10, and you get code in exchange. The
-> developer receiving the funds either buys food, a computer, a book, or
-> maybe even uses it for a nice trip with his/her family after their hard
-> work is done. Let me know when you find the pyramid!
+> However, a simple "ifconfig eth0 192.11.13.15 netmask 255.255.255.192 up",
+> followed by an "ifconfig eth0 down" still leaves FIB rules in place for
+> the 192.11.13.15 address, so that an ARP request that arrives on, say eth1
+> for 192.11.13.15 would result in a response being generated from eth1 for
+> the old 192.11.13.15 address that was on eth0, even though eth0 is down.
+>
+> There are a couple of ways that  one can get around this problem:
 
-Sigh...  That stops working at the same point where pyramid does - when
-number of recepients becomes a sufficiently large fraction of all potential
-participants.  It is not sustainable.
+You can also solve it with ip:
 
-Simple math: Debian got several thousand developers.  Most of the packages
-contain both contributions from said developers and stuff from upstream.
-By very conservative estimates it's tens of thousands.  If your $10 is
-per package update - it's impossible to pay.  _Really_ impossible - on a
-reasonable system it will easily amount to $50 _daily_.  If it's $10 per
-year - count the number of installations and look how much it will give
-for one developer.
+ip addr del 192.11.13.15/26 dev eth0
 
-It won't work for the same reason why pyramids are unsustainable - when
-you have too many recepients, both go to hell.  And there _is_ too many
-for that to work.
+ifconfig does not delete the last remaining primary address
+
+Regards
+
+--
+Julian Anastasov <ja@ssi.bg>
 

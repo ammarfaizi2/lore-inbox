@@ -1,103 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262878AbUKYBK3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262890AbUKYBMx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262878AbUKYBK3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 20:10:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262885AbUKYBK2
+	id S262890AbUKYBMx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 20:12:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262885AbUKYBKp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 20:10:28 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:13709 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S262878AbUKYBIl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 20:08:41 -0500
-Subject: Re: Suspend 2 merge: 31/51: Export tlb flushing
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: "Martin J. Bligh" <mbligh@aracnet.com>
+	Wed, 24 Nov 2004 20:10:45 -0500
+Received: from over.ny.us.ibm.com ([32.97.182.111]:42723 "EHLO
+	over.ny.us.ibm.com") by vger.kernel.org with ESMTP id S262884AbUKYBJi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 20:09:38 -0500
+Subject: Re: Suspend 2 merge: 14/51: Disable page alloc failure message
+	when suspending
+From: Dave Hansen <haveblue@us.ibm.com>
+To: ncunningham@linuxmail.org
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <181630000.1101310366@[10.10.2.4]>
+In-Reply-To: <1101330362.3895.24.camel@desktop.cunninghams>
 References: <1101292194.5805.180.camel@desktop.cunninghams>
-	 <1101297506.5805.314.camel@desktop.cunninghams>
-	 <181630000.1101310366@[10.10.2.4]>
+	 <1101294838.5805.245.camel@desktop.cunninghams>
+	 <1101312041.8940.45.camel@localhost>
+	 <1101330362.3895.24.camel@desktop.cunninghams>
 Content-Type: text/plain
-Message-Id: <1101330297.3895.22.camel@desktop.cunninghams>
+Message-Id: <1101335142.8940.429.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 25 Nov 2004 08:04:58 +1100
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 24 Nov 2004 14:25:43 -0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-On Thu, 2004-11-25 at 02:32, Martin J. Bligh wrote:
-> --Nigel Cunningham <ncunningham@linuxmail.org> wrote (on Wednesday, November 24, 2004 23:59:50 +1100):
+On Wed, 2004-11-24 at 13:06, Nigel Cunningham wrote:
+> On Thu, 2004-11-25 at 03:00, Dave Hansen wrote:
+> > Following Documentation/SubmittingPatches, please submit patches made
+> > with "diff -urp":
+> > 
+> >        -p  --show-c-function
+> >               Show which C function each change is in.
+> > 
+> > Otherwise, it's a lot harder to figure out what you're modifying.
 > 
-> > This patch adds a do_flush_tlb_all function that does the
-> > SMP-appropriate thing for suspend after the image is restored.
-> 
-> Is software suspend only designed for i386, or is that the only arch that 
-> didn't have such a function already? Seems like too low a level to be 
-> exporting to me.
+> Okay; thanks. I wont go redoing all of the patches now, but are there
+> specific ones you'd like to see?
 
-There's lowlevel code for x86 and ppc at the moment, more arch specific
-code can be added. This function is used from the x86 restoration of the
-original kernel (arch/i386/power/suspend2.c).
+I'd just add it to whatever scripts you use to publish patches and do it
+that way from now on for all of them.
 
-Regards,
-
-Nigel
-
-> M.
->  
-> > diff -ruN 818-tlb-flushing-functions-old/arch/i386/kernel/smp.c 818-tlb-flushing-functions-new/arch/i386/kernel/smp.c
-> > --- 818-tlb-flushing-functions-old/arch/i386/kernel/smp.c	2004-11-06 09:27:19.225681536 +1100
-> > +++ 818-tlb-flushing-functions-new/arch/i386/kernel/smp.c	2004-11-04 16:27:41.000000000 +1100
-> > @@ -476,7 +476,7 @@
-> >  	preempt_enable();
-> >  }
-> >  
-> > -static void do_flush_tlb_all(void* info)
-> > +void do_flush_tlb_all(void* info)
-> >  {
-> >  	unsigned long cpu = smp_processor_id();
-> >  
-> > diff -ruN 818-tlb-flushing-functions-old/include/asm-i386/tlbflush.h 818-tlb-flushing-functions-new/include/asm-i386/tlbflush.h
-> > --- 818-tlb-flushing-functions-old/include/asm-i386/tlbflush.h	2004-11-03 21:55:01.000000000 +1100
-> > +++ 818-tlb-flushing-functions-new/include/asm-i386/tlbflush.h	2004-11-04 16:27:41.000000000 +1100
-> > @@ -82,6 +82,7 @@
-> >  #define flush_tlb() __flush_tlb()
-> >  #define flush_tlb_all() __flush_tlb_all()
-> >  #define local_flush_tlb() __flush_tlb()
-> > +#define local_flush_tlb_all() __flush_tlb_all();
-> >  
-> >  static inline void flush_tlb_mm(struct mm_struct *mm)
-> >  {
-> > @@ -114,6 +115,10 @@
-> >  extern void flush_tlb_current_task(void);
-> >  extern void flush_tlb_mm(struct mm_struct *);
-> >  extern void flush_tlb_page(struct vm_area_struct *, unsigned long);
-> > +extern void do_flush_tlb_all(void * info);
-> > +
-> > +#define local_flush_tlb_all() \
-> > +	do_flush_tlb_all(NULL);
-> >  
-> >  #define flush_tlb()	flush_tlb_current_task()
-> >  
-> > 
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> > 
--- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-You see, at just the right time, when we were still powerless, Christ
-died for the ungodly.		-- Romans 5:6
+-- Dave
 

@@ -1,67 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317782AbSGPIFy>; Tue, 16 Jul 2002 04:05:54 -0400
+	id <S317799AbSGPIIX>; Tue, 16 Jul 2002 04:08:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317783AbSGPIFx>; Tue, 16 Jul 2002 04:05:53 -0400
-Received: from avtodor.gorny.ru ([212.164.99.171]:22026 "EHLO mail.ruad")
-	by vger.kernel.org with ESMTP id <S317782AbSGPIFw>;
-	Tue, 16 Jul 2002 04:05:52 -0400
-Date: Tue, 16 Jul 2002 15:08:17 +0700
-From: Sokolov Sergei <s_sokolov@avtodor.gorny.ru>
-X-Mailer: The Bat! (v1.60c) Personal
-Reply-To: Sokolov Sergei <s_sokolov@avtodor.gorny.ru>
-X-Priority: 3 (Normal)
-Message-ID: <9320413493.20020716150817@avtodor.gorny.ru>
-To: linux-kernel@vger.kernel.org
-Subject: kernel BUG at buffer.c:549
+	id <S317801AbSGPIIW>; Tue, 16 Jul 2002 04:08:22 -0400
+Received: from mail3.ucc.ie ([143.239.128.103]:17159 "EHLO mail3.ucc.ie")
+	by vger.kernel.org with ESMTP id <S317799AbSGPIIU>;
+	Tue, 16 Jul 2002 04:08:20 -0400
+Message-ID: <9FBB394A25826C46B2C6F0EBDAD42755018E6E37@xch2.ucc.ie>
+From: "O'Riordan, Kevin" <K.ORiordan@ucc.ie>
+To: "'Roger Luethi '" <rl@hellgate.ch>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: [rl@hellgate.ch: [PATCH] #8 VIA Rhine (stalls, stats, backoff
+	, clean up)]
+Date: Tue, 16 Jul 2002 09:11:01 +0100
 MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on mail/Gorno-Altaiavtodor(Release 5.0.9a |January 7, 2002) at
- 16.07.2002 15:08:15,
-	Serialize by Router on mail/Gorno-Altaiavtodor(Release 5.0.9a |January 7, 2002) at
- 16.07.2002 15:08:25,
-	Serialize complete at 16.07.2002 15:08:25
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
-I have linux kernel 2.4.19-rc1 with xfs enabled.
-RedHat 7.2:
-Linux version 2.4.19-rc1-xfs (gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release))
+Have tested this patch against 2.4.19-rc1 on a via rhine-II chip. Seems to
+work fine with no ill effects. No longer getting timeout errors, or problem
+where chip refuses to reset.
+Have been testing with downloading several large ISOs.
+ 
+From: Roger Luethi <rl@hellgate.ch>
+Subject: [PATCH] #8 VIA Rhine (stalls, stats, backoff, clean up)
+To: linux-kernel@vger.kernel.org
+Cc: Urban Widmark <urban@teststation.com>,
+	Jeff Garzik <jgarzik@mandrakesoft.com>
+Date:	Mon, 15 Jul 2002 15:36:15 +0200
+User-Agent: Mutt/1.3.27i
+X-Mailing-List:	linux-kernel@vger.kernel.org
 
-My xfs partitions locates on /dev/ataraid devices (Promise FastTrak Tx4),
-Two mirror on   four disks "Seagate Barracuda IV 80GB".
+This patch is a more comprehensive and cleaned up version of earlier VIA
+Rhine patches I posted in May. It should be self-explanatory. The change
+summary reads:
 
-I have two problems:
+- show confused chip where to continue after Tx error; this is known to
+fix
+  at least some (hopefully all) of the infamous Rhine stalls under load
 
-1) [root@ws188 linux-2.4.19-rc1-xfs]# mkfs.xfs /dev/ataraid/d1p2
-   mkfs.xfs: warning - cannot set blocksize on block device /dev/ataraid/d1p2: Invalid argument
+- location of collision counter is chip specific (underflow counter,
+too)
 
-2)When I copying files between partitions, I receive message.
+- allow selecting backoff algorithm -- added new module parameter;
+  this is a trade-off; higher performance typically means many aborts
+due
+  to excessive collisions and performance degradation for other users.
+  Default comes from EEPROM and depends on the card.
 
-Jul 12 17:01:19 ws188 kernel: kernel BUG at buffer.c:549!
-Jul 12 17:01:19 ws188 kernel: invalid operand: 0000
-Jul 12 17:01:19 ws188 kernel: CPU:    0
-Jul 12 17:01:19 ws188 kernel: EIP:    0010:[__insert_into_lru_list+37/112]    Not tainted
-Jul 12 17:01:19 ws188 kernel: EIP:    0010:[<c012f335>]    Not tainted
-Jul 12 17:01:19 ws188 kernel: EFLAGS: 00010206
-Jul 12 17:01:19 ws188 kernel: eax: 00000000   ebx: 00000008   ecx: d6e297c0   edx: c02ec594
-Jul 12 17:01:19 ws188 kernel: esi: 00000002   edi: 00001000   ebp: 00000000   esp: df0ebe18
-Jul 12 17:01:19 ws188 kernel: ds: 0018   es: 0018   ss: 0018
-Jul 12 17:01:19 ws188 kernel: Process mc (pid: 872, stackpage=df0eb000)
-Jul 12 17:01:19 ws188 kernel: Stack: 00000002 d6e297c0 c012fb64 d6e297c0 00000002 d6e297c0 00001000 c012fb7a
-Jul 12 17:01:19 ws188 kernel:        d6e297c0 c01305a5 d6e297c0 00000000 d09b22c0 484cc000 00000000 d6e297c0
-Jul 12 17:01:19 ws188 kernel:        c0130c56 d09b22c0 c10acf20 00000000 00001000 00001000 00001000 00000000
-Jul 12 17:01:19 ws188 kernel: Call Trace: [__refile_buffer+84/96] [refile_buffer+10/16] [__block_commit_write+
-117/192] [generic_commit_write+54/96] [pagebuf_generic_file_write+613/768]
-Jul 12 17:01:19 ws188 kernel: Call Trace: [<c012fb64>] [<c012fb7a>] [<c01305a5>] [<c0130c56>] [<c01cea75>]
-Jul 12 17:01:19 ws188 kernel:    [xfs_write+1032/1808] [linvfs_pb_bmap+0/208] [linvfs_write+812/864] [sys_writ
-e+150/240] [system_call+51/56]
-Jul 12 17:01:19 ws188 kernel:    [<c01d44a8>] [<c01d30b0>] [<c01cfe5c>] [<c012e026>] [<c01089bb>]
-Jul 12 17:01:19 ws188 kernel:
-Jul 12 17:01:19 ws188 kernel: Code: 0f 0b 25 02 60 9e 26 c0 8b 02 85 c0 75 07 89 0a 89 49 24 8b  
+- cosmetic cleanups
+
+Note: Testing on several cards seems to indicate that waiting for the
+chip
+before restarting the Tx engine is pointless; in the rare case where the
+flag is not down by the time the driver is ready to restart, it will
+stay
+up forever, but restarting the Tx engine immediately still works.
+
+Beware: It seems that in certain cases, the interrupt status the driver
+relies on for error handling is wrong. In those cases, only the
+respective
+buffer descriptor carries the correct error information. Should this
+turn
+out to be a problem in real life, the error handling handling can be
+moved
+into via_rhine_rx(), or the correct error code can be passed to
+via_rhine_error() alternatively.
+
+Some changes in the statistics section are tentative. They are coded
+according to the specs, and they assume that the old code worked for the
+VT86C100A, and that all chips but the VT86C100A work like the VT6102,
+for
+which the changes have been tested. FWIW, some counters work with the
+VT6102 for the first time with this patch (it's not as if anybody cared,
+or
+the broken counters wouldn't have gone unnoticed for such a long time).
+
+The patch is against the latest version in Jeff's public tree. It is
+most
+definitely an improvement for many Rhine users and should not create any
+problems. Unless somebody finds bugs, I don't intend to release a new
+version anytime soon.
+
+Roger
+
+----- End forwarded message -----
 
 -- 
-Sergei Sokolov
-
+Expenditures rise to meet income.
+ <<via-rhine.c.8.patch>> 

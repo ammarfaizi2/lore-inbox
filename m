@@ -1,28 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131482AbQK2OhP>; Wed, 29 Nov 2000 09:37:15 -0500
+        id <S131524AbQK2OjO>; Wed, 29 Nov 2000 09:39:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131532AbQK2OhE>; Wed, 29 Nov 2000 09:37:04 -0500
-Received: from 213-123-77-81.btconnect.com ([213.123.77.81]:57604 "EHLO
-        penguin.homenet") by vger.kernel.org with ESMTP id <S131482AbQK2Og7>;
-        Wed, 29 Nov 2000 09:36:59 -0500
-Date: Wed, 29 Nov 2000 14:08:26 +0000 (GMT)
+        id <S131532AbQK2Oiy>; Wed, 29 Nov 2000 09:38:54 -0500
+Received: from 213-123-77-81.btconnect.com ([213.123.77.81]:59652 "EHLO
+        penguin.homenet") by vger.kernel.org with ESMTP id <S131524AbQK2Oir>;
+        Wed, 29 Nov 2000 09:38:47 -0500
+Date: Wed, 29 Nov 2000 14:10:16 +0000 (GMT)
 From: Tigran Aivazian <tigran@veritas.com>
-To: Peter Samuelson <peter@cadcamlab.org>
-cc: David Hinds <dhinds@valinux.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] removal of "static foo = 0" from drivers/ide (test11)
-In-Reply-To: <14885.3093.502426.711124@wire.cadcamlab.org>
-Message-ID: <Pine.LNX.4.21.0011291407540.974-100000@penguin.homenet>
+To: Andries.Brouwer@cwi.nl
+cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: corruption
+In-Reply-To: <UTC200011291344.OAA150800.aeb@aak.cwi.nl>
+Message-ID: <Pine.LNX.4.21.0011291408470.974-100000@penguin.homenet>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Nov 2000, Peter Samuelson wrote:
-> It would probably also be reasonable to document it and provide an
-> option to switch it off.
+On Wed, 29 Nov 2000 Andries.Brouwer@cwi.nl wrote:
 
-yes, that is perfectly fine by me. Now, who is going to do the _work_? :)
+> I just tried 2.4.0test12pre3, which has Jens' fix,
+> and no corruption to be seen. Will test a bit more,
+> but perhaps this did it.
+> 
+
+I have also been testing very hard on the SMP (4xXeon/6G) machine with
+test12-pre3 and also cannot reproduce the problem. This is a SCSI-only
+machine and I don't know what Jens' fix is and whether it is applicable or
+not.
 
 Regards,
 Tigran

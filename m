@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269015AbTBWWp4>; Sun, 23 Feb 2003 17:45:56 -0500
+	id <S269026AbTBWWvD>; Sun, 23 Feb 2003 17:51:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269016AbTBWWp4>; Sun, 23 Feb 2003 17:45:56 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:33664
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S269015AbTBWWpz>; Sun, 23 Feb 2003 17:45:55 -0500
-Subject: Re: Minutes from Feb 21 LSE Call
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Xavier Bestel <xavier.bestel@free.fr>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <16920000.1046033458@[10.10.2.4]>
-References: <E18moa2-0005cP-00@w-gerrit2>
-	 <Pine.LNX.4.44.0302222354310.8609-100000@dlang.diginsite.com>
-	 <20030223082036.GI10411@holomorphy.com>
-	 <b3b6oa$bsj$1@penguin.transmeta.com>
-	 <1046031687.2140.32.camel@bip.localdomain.fake>
-	 <16920000.1046033458@[10.10.2.4]>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+	id <S269027AbTBWWvD>; Sun, 23 Feb 2003 17:51:03 -0500
+Received: from dodge.jordet.nu ([217.13.8.142]:30615 "EHLO dodge.hybel")
+	by vger.kernel.org with ESMTP id <S269026AbTBWWvC>;
+	Sun, 23 Feb 2003 17:51:02 -0500
+Subject: Re: High load with 2.5.x
+From: Stian Jordet <liste@jordet.nu>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030223215811.GJ10411@holomorphy.com>
+References: <1046036480.29501.5.camel@chevrolet.hybel>
+	 <20030223215811.GJ10411@holomorphy.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Organization: 
-Message-Id: <1046044629.2210.3.camel@irongate.swansea.linux.org.uk>
+Message-Id: <1046041270.687.6.camel@chevrolet.hybel>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 23 Feb 2003 23:57:09 +0000
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 24 Feb 2003 00:01:11 +0100
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-02-23 at 20:50, Martin J. Bligh wrote:
-> >> And the baroque instruction encoding on the x86 is actually a _good_
-> >> thing: it's a rather dense encoding, which means that you win on icache. 
-> >> It's a bit hard to decode, but who cares? Existing chips do well at
-> >> decoding, and thanks to the icache win they tend to perform better - and
-> >> they load faster too (which is important - you can make your CPU have
-> >> big caches, but _nothing_ saves you from the cold-cache costs). 
-> > 
-> > Next step: hardware gzip ?
+søn, 2003-02-23 kl. 22:58 skrev William Lee Irwin III:
+> On Sun, Feb 23, 2003 at 10:41:21PM +0100, Stian Jordet wrote:
+> > I have the last 2.5.x kernels experienced a high load while idle. 1.00
+> > mostly. I have dual cpu, and it isn't really bothering me. But I do not
+> > experience this with 2.4.x kernels. I do not remember when this started,
+> > but since noone else complains, I just want to ask how can I find out
+> > what is making my load so high?
 > 
-> They did that already ... IBM were demonstrating such a thing a couple of
-> years ago. Don't see it helping with icache though, as it unpacks between
-> memory and the processory, IIRC.
+> top(1) should report cpu time consumers.
 
-I saw the L2/L3 compressed cache thing, and I thought "doh!", and I watched and
-I've not seen it for a long time. What happened to it ?
+But it didn't. But as others have replied to me off-list, processes in D
+state make the loadaverage high. My problem was [kIrDAd]. Compiling
+kernel without irda actually solved several problems. So now I'm just
+happy :) Thanks :)
+
+Regards,
+Stian
 

@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268466AbTBOAbN>; Fri, 14 Feb 2003 19:31:13 -0500
+	id <S268488AbTBOAdZ>; Fri, 14 Feb 2003 19:33:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268475AbTBOAbN>; Fri, 14 Feb 2003 19:31:13 -0500
-Received: from packet.digeo.com ([12.110.80.53]:61317 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S268466AbTBOAbM>;
-	Fri, 14 Feb 2003 19:31:12 -0500
-Date: Fri, 14 Feb 2003 16:39:18 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Siim Vahtre <siim@pld.ttu.ee>
+	id <S268489AbTBOAdZ>; Fri, 14 Feb 2003 19:33:25 -0500
+Received: from bjl1.jlokier.co.uk ([81.29.64.88]:3712 "EHLO bjl1.jlokier.co.uk")
+	by vger.kernel.org with ESMTP id <S268488AbTBOAdY>;
+	Fri, 14 Feb 2003 19:33:24 -0500
+Date: Sat, 15 Feb 2003 00:45:18 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Larry McVoy <lm@bitmover.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: swap never cleaned up
-Message-Id: <20030214163918.15a7209f.akpm@digeo.com>
-In-Reply-To: <Pine.SOL.4.31.0302150140440.28624-100000@pitsa.pld.ttu.ee>
-References: <Pine.SOL.4.31.0302150140440.28624-100000@pitsa.pld.ttu.ee>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Subject: Re: openbkweb-0.0
+Message-ID: <20030215004518.GC4333@bjl1.jlokier.co.uk>
+References: <20030206021029.GW19678@dualathlon.random> <20030213024751.GA14016@bjl1.jlokier.co.uk> <Pine.LNX.4.50L.0302130946541.21354-100000@imladris.surriel.com> <20030213161337.GA9654@work.bitmover.com> <20030213211127.GG20159@fs.tum.de> <20030213220522.GA11214@work.bitmover.com> <20030213225621.GA17508@bjl1.jlokier.co.uk> <20030214203151.GL20159@fs.tum.de> <20030214234517.GA4333@bjl1.jlokier.co.uk> <20030214235724.GA24139@work.bitmover.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Feb 2003 00:40:48.0520 (UTC) FILETIME=[E2308080:01C2D48A]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030214235724.GA24139@work.bitmover.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Siim Vahtre <siim@pld.ttu.ee> wrote:
->
-> Hi.
+Larry McVoy wrote:
+> But nobody seems willing to stand up and say "well, maybe if we hadn't been
+> stealing all this music these laws might not have come into existence".
 > 
-> Since moving from 2.5.59 to 2.5.60 I've noticed some strange
-> behaviour with swap managment. For some unknown reason the
-> swapspace starts to fill up but it will NEVER get freed.
-> Hence, it is first time in my life when I actually see swap
-> used more than 20M on this computer!
+> I'll leave you to make the BitKeeper connection, I'm sure you are smart
+> enough to do so.
 
-Everything seems OK here, from a quick swap and tmpfs test.
+On this we agree.  Point well made!
 
-Is it possible that some application is leaking memory, and that
-swapoff causes it to be oom-killed?
+The best thing for all may be a huge whip round to pay Bitmover enough
+for them to be _happy_ to open the protocol.
 
-Take a careful look at the process listing, see if some process is using a
-lot of memory.  Also the contents of /proc/meminfo.  And see if you can work
-out what operation is causing this.
+Anyone want to start a fund?  I offer to donate US$100 (and that's 2
+weeks income for me ATM).
 
-Thanks.
+-- Jamie

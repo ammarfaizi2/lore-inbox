@@ -1,64 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135493AbRBETHi>; Mon, 5 Feb 2001 14:07:38 -0500
+	id <S135377AbRBETH2>; Mon, 5 Feb 2001 14:07:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135573AbRBETHa>; Mon, 5 Feb 2001 14:07:30 -0500
-Received: from anchor-post-31.mail.demon.net ([194.217.242.89]:65295 "EHLO
-	anchor-post-31.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S129044AbRBETHT>; Mon, 5 Feb 2001 14:07:19 -0500
-Date: Mon, 5 Feb 2001 19:05:27 +0000
-To: linux-kernel@vger.kernel.org
-Subject: VIA silent disk corruption - patch
-Message-ID: <20010205190527.A314@colonel-panic.com>
-Mail-Followup-To: pdh, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	id <S135493AbRBETHU>; Mon, 5 Feb 2001 14:07:20 -0500
+Received: from mail.valinux.com ([198.186.202.175]:42257 "EHLO
+	mail.valinux.com") by vger.kernel.org with ESMTP id <S135377AbRBETHD>;
+	Mon, 5 Feb 2001 14:07:03 -0500
+Message-ID: <3A7EF9CF.8C5EE1C@valinux.com>
+Date: Mon, 05 Feb 2001 11:06:55 -0800
+From: Samuel Flory <sflory@valinux.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18pre11-va1.7smp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Dirk Mueller <dmuell@gmx.net>
+CC: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
+Subject: Re: [reiserfs-list] NFS and reiserfs
+In-Reply-To: <3A7E40D1.DBCC16E9@cpgen.cpg.com.au> <20010205124808.A18579@rotes20.wohnheim.uni-kl.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-From: Peter Horton <pdh@colonel-panic.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Okay, looks like this fixes it (for me anyways).
+Dirk Mueller wrote:
+> 
+> On Mon, 05 Feb 2001, Grahame Jordan wrote:
+> 
+> > Should I convert all of my NFS filesystems to ext2 or is there another
+> > option?
+> 
+> If you use kernel 2.4.x: there are patches for NFS support.
+> 
 
-Thanks to Mark Hahn and Andre for their help with this problem.
+  You can also try the rpms below.  They seem to work for me, but your
+results may vary.  If you really want to be able to gracefully recover
+you need to force sync on all of your exports.
 
-P.
+http://ftp.valinux.com/pub/people/flory/2.4.1/
 
 
---- linux-2.4.1/arch/i386/kernel/pci-pc.c	Thu Jun 22 15:17:16 2000
-+++ linux-2.4.1-bm-fix/arch/i386/kernel/pci-pc.c	Mon Feb  5 18:37:35 2001
-@@ -924,6 +924,22 @@
- 	pcibios_max_latency = 32;
- }
- 
-+static void __init pci_fixup_vt8363(struct pci_dev *d)
-+{
-+	/*
-+	 *  VIA VT8363 host bridge has broken feature 'PCI Master Read
-+	 *  Caching'. It caches more than is good for it, sometimes
-+	 *  serving the bus master with stale data. Some BIOSes enable
-+	 *  it by default, so we disable it.
-+	 */
-+	u8 tmp;
-+	pci_read_config_byte(d, 0x70, &tmp);
-+	if(tmp & 4) {
-+		printk("PCI: Bus master read caching disabled\n");
-+		pci_write_config_byte(d, 0x70, tmp & ~4);
-+	}
-+}
-+
- struct pci_fixup pcibios_fixups[] = {
- 	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82451NX,	pci_fixup_i450nx },
- 	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82454GX,	pci_fixup_i450gx },
-@@ -936,6 +952,7 @@
- 	{ PCI_FIXUP_HEADER,	PCI_ANY_ID,		PCI_ANY_ID,			pci_fixup_ide_bases },
- 	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_5597,		pci_fixup_latency },
- 	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_5598,		pci_fixup_latency },
-+	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_8363_0,	pci_fixup_vt8363 },
- 	{ 0 }
- };
- 
+The patch is here:
+ftp://ftp.namesys.com/pub/reiserfs-for-2.4/linux-2.4.0-reiserfs-3.6.25-nfs.diff
+
+-- 
+Solving people's computer problems always
+requires more hardware be given to you.
+(The Second Rule of Hardware Acquisition)
+Samuel J. Flory  <sam@valinux.com>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

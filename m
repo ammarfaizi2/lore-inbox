@@ -1,82 +1,141 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129069AbQJaW5w>; Tue, 31 Oct 2000 17:57:52 -0500
+	id <S130096AbQJaW6W>; Tue, 31 Oct 2000 17:58:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129696AbQJaW5m>; Tue, 31 Oct 2000 17:57:42 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:28939 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129069AbQJaW5f>; Tue, 31 Oct 2000 17:57:35 -0500
-Message-ID: <39FF4D7A.EF00E94A@timpanogas.org>
-Date: Tue, 31 Oct 2000 15:53:46 -0700
-From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Organization: TRG, Inc.
-X-Mailer: Mozilla 4.7 [en] (WinNT; I)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-CC: Paul Menage <pmenage@ensim.com>, Rik van Riel <riel@conectiva.com.br>,
-        linux-kernel@vger.kernel.org
+	id <S130093AbQJaW6R>; Tue, 31 Oct 2000 17:58:17 -0500
+Received: from warden.digitalinsight.com ([208.29.163.2]:5070 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S129696AbQJaW6F>; Tue, 31 Oct 2000 17:58:05 -0500
+From: David Lang <david.lang@digitalinsight.com>
+To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Cc: linux-kernel@vger.kernel.org
+Date: Tue, 31 Oct 2000 14:44:44 -0800 (PST)
 Subject: Re: 2.2.18Pre Lan Performance Rocks!
-In-Reply-To: <E13qj56-0003h9-00@pmenage-dt.ensim.com> <39FF3D53.C46EB1A8@timpanogas.org> <20001031140534.A22819@work.bitmover.com> <39FF4488.83B6C1CE@timpanogas.org> <20001031142733.A23516@work.bitmover.com> <39FF49C8.475C2EA7@timpanogas.org> <20001031144907.B23516@work.bitmover.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <39FF4B99.1746E06E@timpanogas.org>
+Message-ID: <Pine.LNX.4.21.0010311442120.6447-100000@dlang.diginsite.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
 
+Jeff, one other thing. Linux is not x86 hand-crafted assembler, it's
+capable of running on many platforms. are you planning on giving up this 
+capability or hand crafting the kernel for each chip?
 
-Larry McVoy wrote:
+Linux on x86 is nice (and I do use it a lot) but one of the things that
+makes it so useful is that when you do outgrow what youcan do on a x86
+platform you cna move to a more powerful platform without having to change
+to a different OS.
+
+ David Lang
+
+On Tue, 31 Oct 2000,
+Jeff V. Merkey wrote:
+
+> Date: Tue, 31 Oct 2000 15:45:45 -0700
+> From: Jeff V. Merkey <jmerkey@timpanogas.org>
+> To: Andi Kleen <ak@suse.de>, mingo@elte.hu, Pavel Machek <pavel@suse.cz>,
+>      linux-kernel@vger.kernel.org
+> Subject: Re: 2.2.18Pre Lan Performance Rocks!
 > 
-> On Tue, Oct 31, 2000 at 03:38:00PM -0700, Jeff V. Merkey wrote:
-> > Larry McVoy wrote:
-> > > On Tue, Oct 31, 2000 at 03:15:37PM -0700, Jeff V. Merkey wrote:
-> > > > The quality of the networking code in Linux is quite excellent.  There's
-> > > > some scaling problems relative to NetWare.  We are firmly committed to
-> > > > getting something out with a Linux code base and NetWare metrics.  Love
-> > > > to have your help.
+> 
+> 
+> One more optimization it has.  NetWare never "calls" functions in the
+> kernel.  There's a template of register assignments in between kernel
+> modules that's very strict (esi contains a WTD head, edi has the target
+> thread, etc.) and all function calls are jumps in a linear space. 
+> layout of all functions are 16 bytes aligned for speed, and all
+> arguments in kernel are passed via registers.  It's a level of
+> optimization no C compiler does -- all of it was done by hand, and most
+> function s in fast paths are layed out in 512 byte chunks to increases
+> speed.  Stack memory activity in the NetWare kernel is almost
+> non-existent in almost all of the "fast paths"
+> 
+> Jeff
+> 
+> "Jeff V. Merkey" wrote:
+> > 
+> > A "context" is usually assued to be a "stack".  The simplest of all
+> > context switches
+> > is:
+> > 
+> >    mov    x, esp
+> >    mov    esp, y
+> > 
+> > A context switch can be as short as two instructions, or as big as a TSS
+> > with CR3 hardware switching,
+> > 
+> > i.e.
+> > 
+> >    ltr    ax
+> >    jmp    task_gate
+> > 
+> > (500 clocks later)
+> > 
+> >    ts->eip gets exec'd
+> > 
+> > you can also have a context switch that does an int X where X is a gate
+> > or TSS.
+> > 
+> > you can also have a context switch (like linux) that does
+> > 
+> >     mov    x, esp
+> >     mov    esp, y
+> >     mov    z, CR3
+> >     mov    CR3, w
+> > 
+> > etc.
+> > 
+> > In NetWare, a context switch is an in-line assembly language macro that
+> > is 2 instructions long for a stack switch and 4 instructions for a CR3
+> > reload -- this is a lot shorter than Linux.
+> > Only EBX, EBP, ESI, and EDI are saved and this is never done in the
+> > kernel, but is a natural
+> > affect of the Watcom C compiler.  There's also strict rules about
+> > register assignments that re enforced between assembler modules in
+> > NetWare to reduce the overhead of a context switch.  The code path is
+> > very complex in NetWare, and priorities and all this stuff exists, but
+> > these code paths are segragated so these types of checks only happen
+> > once in a while and check a pre-calc'd "scoreboard" that is read only
+> > across processors and updated and recal'd by a timer every 18 ticks.
+> > 
+> > Jeff
+> > 
+> > 
+> > 
+> > Andi Kleen wrote:
 > > >
-> > > Jeff, I'm a little concerned with some of your statements.  Netware may
-> > > be the greatest thing since sliced bread, but it isn't a full operating
-> > > system, so comparing it to Linux is sort of meaningless.
-> >
-> > It's makes more money in a week than Linux has ever made.
+> > > On Tue, Oct 31, 2000 at 02:52:11PM -0700, Jeff V. Merkey wrote:
+> > > > The numbers don't lie.  You know where the code is.  You notice that
+> > > > there is a version of
+> > > > the kernel hand coded in assembly language.  You'l also noticed that
+> > > > it's SMP and takes ZERO LOCKS during context switching, in fact, most of
+> > > > the design is completely lockless.
+> > >
+> > > I suspect most of the confusion in this thread comes because you seem to
+> > > use a different definition of context switch than Ingo and others. Could
+> > > you explain what you exactly mean with a context switch ?
+> > >
+> > > -Andi
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 > 
-> And the relevance of that to this conversation is exactly what?
-> 
-> > A context switch in anoperating system context in it's simplest for is
-> >
-> > mov    x, esp
-> > mov    esp, y
-> >
-> > > and you can support all that and get user to user context switches in a
->                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> > Apology accepted.
-> 
-> No apology was extended.  
 
-hipocrite.
+-----BEGIN PGP SIGNATURE-----
+Version: PGP 6.5.2
 
-You're spouting nonsense.  User to user means
-> process A in VM 1 switching to process B in VM 2.  I'm sorry, Mr Merkey,
-> but a
-> 
->         mov    x, esp
->         mov    esp, y
-> 
-> doesn't begin to approach a user to user context switch.  Please go learn
-> what a user to user context switch is.  Then come back when you can do
-> one of those in a few cycles.
-
-You have angry fingers (one of my problems).   You don't need a user
-context switch for kernel paths in a NOS kernel.  In NetWare, user
-context switches are done in gates in the GDT with TSS descriptors, not
-in kernel fast paths with LAN I/O, which isn't what I was talking about. 
-
-Jeff
-
-> --
-> ---
-> Larry McVoy              lm at bitmover.com           http://www.bitmover.com/lm
+iQEVAwUBOf9LYj7msCGEppcbAQFdZQgAocWtMwnNmmLnfSS+cGHZd8V0IFfmoVb7
+fDRoNWMmOzU5g5W8aAudQFqGpGqizBR8/AA9ziqHRfKxwoo5/nuHtEMDpfw0nV5e
+ghsd7qtzv1kTk0l5zp6bN2qPlGgs7Ke72od10X6pTGDyuUDQK71YNQ9UUcCv8GEO
+2PpPOnCHw3atuQ0hetMNcFfIdvvslTB2+pcVzYxWWGhCYIeWreF8w1qf8XDYQil9
+Ih22vmu69LP03RwXkFioikVSK8F8m+31DUBA67exN+R4qXy8+U5ZtyPQ+onIeguh
+SnADBNjGjWK2mPyLNSVyAwH6EsIaGzk1QJ5hYULzVFi4zVl3pyRi8w==
+=91LL
+-----END PGP SIGNATURE-----
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

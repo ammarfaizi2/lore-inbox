@@ -1,444 +1,547 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264214AbTHWM3P (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 08:29:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264191AbTHWM3N
+	id S264203AbTHWMfV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 08:35:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264409AbTHWMfU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 08:29:13 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:16364 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S262623AbTHWMXe (ORCPT
+	Sat, 23 Aug 2003 08:35:20 -0400
+Received: from smtp2.att.ne.jp ([165.76.15.138]:8881 "EHLO smtp2.att.ne.jp")
+	by vger.kernel.org with ESMTP id S264203AbTHWMdj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 08:23:34 -0400
-Date: Sat, 23 Aug 2003 14:23:26 +0200 (MEST)
-Message-Id: <200308231223.h7NCNQ5p017957@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: benh@kernel.crashing.org
-Subject: [PATCH] 2.6.0-test4 PowerMac floppy driver fixes
-Cc: linux-kernel@vger.kernel.org, linuxppc-devel@lists.linuxppc.org,
-       paulus@samba.org
+	Sat, 23 Aug 2003 08:33:39 -0400
+Message-ID: <003601c36972$a6835940$78ee4ca5@DIAMONDLX60>
+From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
+To: "Vojtech Pavlik" <vojtech@suse.cz>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, "Greg KH" <greg@kroah.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Andries Brouwer" <aebr@win.tue.nl>
+References: <138e01c364ab$15b6c2b0$1aee4ca5@DIAMONDLX60> <1061141113.21878.76.camel@dhcp23.swansea.linux.org.uk> <151801c36577$10e4f5a0$1aee4ca5@DIAMONDLX60> <20030818110026.GA29405@ucw.cz>
+Subject: Re: Trying to run 2.6.0-test3
+Date: Sat, 23 Aug 2003 21:29:53 +0900
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The PowerMac floppy driver (swim3) is seriously broken in 2.6:
-it doesn't compile, it isn't initialized, and it lacks Paul Mackerras'
-2.4 kernel swim3 fixes from March 29 this year.
+"Vojtech Pavlik" <vojtech@suse.cz> replied to me with the program evtest.c.
 
-Below is an update to 2.6.0-test4's swim3.c which fixes these issues.
-I've been using this since early 2.5.7x with no problems.
+> > Hirofumi Ogawa posted a patch for the yen-sign pipe key on 2003.07.23
+> > for test1 but his patch still didn't get into test3.
+>
+> It will get into 2.6 sooner or later.
+>
+> > On a PS/2 keyboard that
+> > seems to be the only key with any problem.
+> >
+> > Yesterday when I finally tried a USB keyboard and found that the
+> > backslash underbar has the same problem, maybe I was the first person to
+> > even try a Japanese USB keyboard in 2.6, and maybe no one at all tried
+> > some number of 2.5 series kernels.
+>
+> If you can find out what input event the key generates (using the evtest
+> program attached), then please tell me, and I'll fix in the same way as
+> the yen key was fixed.
+>
+> > As mentioned, usually I can only spend one day a week
+> > testing 2.6.
 
-/Mikael
+For this test, I used a laptop with a built-in emulated PS/2 keyboard and
+mouse, and plugged in a USB keyboard.  I do not dare yet to try 2.6.0-testN
+on a small-size desktop which depends entirely on USB.  The small-size
+desktop provides BIOS emulation of a PS/2 keyboard from boot until the OS
+detects USB devices.  It does not provide any emulation of an i8042 chip.
+(Windows NT4 blue-screens if I forget to disable its i8042 driver.)  It
+does not have PS/2 ports.
 
-diff -ruN linux-2.6.0-test4/drivers/block/swim3.c linux-2.6.0-test4.swim3-fixes/drivers/block/swim3.c
---- linux-2.6.0-test4/drivers/block/swim3.c	2003-08-09 11:54:06.000000000 +0200
-+++ linux-2.6.0-test4.swim3-fixes/drivers/block/swim3.c	2003-08-23 13:09:25.000000000 +0200
-@@ -24,7 +24,10 @@
- #include <linux/delay.h>
- #include <linux/fd.h>
- #include <linux/ioctl.h>
-+#include <linux/blkdev.h>
- #include <linux/devfs_fs_kernel.h>
-+#include <linux/interrupt.h>
-+#include <linux/module.h>
- #include <asm/io.h>
- #include <asm/dbdma.h>
- #include <asm/prom.h>
-@@ -144,7 +147,7 @@
- #define RELAX		3	/* also eject in progress */
- #define READ_DATA_0	4
- #define TWOMEG_DRIVE	5
--#define SINGLE_SIDED	6
-+#define SINGLE_SIDED	6	/* drive or diskette is 4MB type? */
- #define DRIVE_PRESENT	7
- #define DISK_IN		8
- #define WRITE_PROT	9
-@@ -184,6 +187,7 @@
- 	int	req_sector;	/* sector number ditto */
- 	int	scount;		/* # sectors we're transferring at present */
- 	int	retries;
-+	int	settle_time;
- 	int	secpercyl;	/* disk geometry information */
- 	int	secpertrack;
- 	int	total_secs;
-@@ -232,8 +236,9 @@
- static void act(struct floppy_state *fs);
- static void scan_timeout(unsigned long data);
- static void seek_timeout(unsigned long data);
-+static void settle_timeout(unsigned long data);
- static void xfer_timeout(unsigned long data);
--static void swim3_interrupt(int irq, void *dev_id, struct pt_regs *regs);
-+static irqreturn_t swim3_interrupt(int irq, void *dev_id, struct pt_regs *regs);
- /*static void fd_dma_interrupt(int irq, void *dev_id, struct pt_regs *regs);*/
- static int grab_drive(struct floppy_state *fs, enum swim_state state,
- 		      int interruptible);
-@@ -274,7 +279,6 @@
- 	udelay(2);
- 	out_8(&sw->select, sw->select & ~LSTRB);
- 	udelay(1);
--	out_8(&sw->select, RELAX);
- }
- 
- static int swim3_readbit(struct floppy_state *fs, int bit)
-@@ -283,9 +287,8 @@
- 	int stat;
- 
- 	swim3_select(fs, bit);
--	udelay(10);
-+	udelay(1);
- 	stat = in_8(&sw->status);
--	out_8(&sw->select, RELAX);
- 	return (stat & DATA) == 0;
- }
- 
-@@ -374,13 +377,13 @@
- static inline void scan_track(struct floppy_state *fs)
- {
- 	volatile struct swim3 *sw = fs->swim3;
--	int xx;
- 
- 	swim3_select(fs, READ_DATA_0);
--	xx = sw->intr;		/* clear SEEN_SECTOR bit */
-+	in_8(&sw->intr);		/* clear SEEN_SECTOR bit */
-+	in_8(&sw->error);
-+	out_8(&sw->intr_enable, SEEN_SECTOR);
- 	out_8(&sw->control_bis, DO_ACTION);
- 	/* enable intr when track found */
--	out_8(&sw->intr_enable, ERROR_INTR | SEEN_SECTOR);
- 	set_timeout(fs, HZ, scan_timeout);	/* enable timeout */
- }
- 
-@@ -395,12 +398,14 @@
- 		swim3_action(fs, SEEK_NEGATIVE);
- 		sw->nseek = -n;
- 	}
--	fs->expect_cyl = (fs->cur_cyl > 0)? fs->cur_cyl + n: -1;
-+	fs->expect_cyl = (fs->cur_cyl >= 0)? fs->cur_cyl + n: -1;
- 	swim3_select(fs, STEP);
--	out_8(&sw->control_bis, DO_SEEK);
-+	in_8(&sw->error);
- 	/* enable intr when seek finished */
--	out_8(&sw->intr_enable, ERROR_INTR | SEEK_DONE);
--	set_timeout(fs, HZ/2, seek_timeout);	/* enable timeout */
-+	out_8(&sw->intr_enable, SEEK_DONE);
-+	out_8(&sw->control_bis, DO_SEEK);
-+	set_timeout(fs, 3*HZ, seek_timeout);	/* enable timeout */
-+	fs->settle_time = 0;
- }
- 
- static inline void init_dma(struct dbdma_cmd *cp, int cmd,
-@@ -448,18 +453,21 @@
- 	}
- 	++cp;
- 	out_le16(&cp->command, DBDMA_STOP);
-+	out_8(&sw->control_bic, DO_ACTION | WRITE_SECTORS);
-+	in_8(&sw->error);
-+	out_8(&sw->control_bic, DO_ACTION | WRITE_SECTORS);
-+	if (rq_data_dir(fd_req) == WRITE)
-+		out_8(&sw->control_bis, WRITE_SECTORS);
-+	in_8(&sw->intr);
- 	out_le32(&dr->control, (RUN << 16) | RUN);
--	out_8(&sw->control_bis,
--	      (rq_data_dir(fd_req) == WRITE? WRITE_SECTORS: 0) | DO_ACTION);
- 	/* enable intr when transfer complete */
--	out_8(&sw->intr_enable, ERROR_INTR | TRANSFER_DONE);
-+	out_8(&sw->intr_enable, TRANSFER_DONE);
-+	out_8(&sw->control_bis, DO_ACTION);
- 	set_timeout(fs, 2*HZ, xfer_timeout);	/* enable timeout */
- }
- 
- static void act(struct floppy_state *fs)
- {
--	volatile struct swim3 *sw = fs->swim3;
--
- 	for (;;) {
- 		switch (fs->state) {
- 		case idle:
-@@ -492,20 +500,10 @@
- 			return;
- 
- 		case settling:
--			/* wait for SEEK_COMPLETE to become true */
--			swim3_select(fs, SEEK_COMPLETE);
--			udelay(10);
--			out_8(&sw->intr_enable, ERROR_INTR | DATA_CHANGED);
--			in_8(&sw->intr);	/* clear DATA_CHANGED */
--			if (in_8(&sw->status) & DATA) {
--				/* seek_complete is not yet true */
--				set_timeout(fs, HZ/2, seek_timeout);
--				return;
--			}
--			out_8(&sw->intr_enable, 0);
--			in_8(&sw->intr);
--			fs->state = locating;
--			break;
-+			/* check for SEEK_COMPLETE after 30ms */
-+			fs->settle_time = (HZ + 32) / 33;
-+			set_timeout(fs, fs->settle_time, settle_timeout);
-+			return;
- 
- 		case do_transfer:
- 			if (fs->cur_cyl != fs->req_cyl) {
-@@ -537,7 +535,7 @@
- 	volatile struct swim3 *sw = fs->swim3;
- 
- 	fs->timeout_pending = 0;
--	out_8(&sw->control_bic, DO_ACTION);
-+	out_8(&sw->control_bic, DO_ACTION | WRITE_SECTORS);
- 	out_8(&sw->select, RELAX);
- 	out_8(&sw->intr_enable, 0);
- 	fs->cur_cyl = -1;
-@@ -557,20 +555,34 @@
- 	volatile struct swim3 *sw = fs->swim3;
- 
- 	fs->timeout_pending = 0;
--	if (fs->state == settling) {
--		printk(KERN_ERR "swim3: MSI sel=%x ctrl=%x stat=%x intr=%x ie=%x\n",
--		       sw->select, sw->control, sw->status, sw->intr, sw->intr_enable);
--	}
- 	out_8(&sw->control_bic, DO_SEEK);
- 	out_8(&sw->select, RELAX);
- 	out_8(&sw->intr_enable, 0);
--	if (fs->state == settling && swim3_readbit(fs, SEEK_COMPLETE)) {
--		/* printk(KERN_DEBUG "swim3: missed settling interrupt\n"); */
-+	printk(KERN_ERR "swim3: seek timeout\n");
-+	end_request(fd_req, 0);
-+	fs->state = idle;
-+	start_request(fs);
-+}
-+
-+static void settle_timeout(unsigned long data)
-+{
-+	struct floppy_state *fs = (struct floppy_state *) data;
-+	volatile struct swim3 *sw = fs->swim3;
-+
-+	fs->timeout_pending = 0;
-+	if (swim3_readbit(fs, SEEK_COMPLETE)) {
-+		out_8(&sw->select, RELAX);
- 		fs->state = locating;
- 		act(fs);
- 		return;
- 	}
--	printk(KERN_ERR "swim3: seek timeout\n");
-+	out_8(&sw->select, RELAX);
-+	if (fs->settle_time < 2*HZ) {
-+		++fs->settle_time;
-+		set_timeout(fs, 1, settle_timeout);
-+		return;
-+	}
-+	printk(KERN_ERR "swim3: seek settle timeout\n");
- 	end_request(fd_req, 0);
- 	fs->state = idle;
- 	start_request(fs);
-@@ -583,9 +595,13 @@
- 	struct dbdma_regs *dr = fs->dma;
- 	struct dbdma_cmd *cp = fs->dma_cmd;
- 	unsigned long s;
-+	int n;
- 
- 	fs->timeout_pending = 0;
- 	st_le32(&dr->control, RUN << 16);
-+	/* We must wait a bit for dbdma to stop */
-+	for (n = 0; (in_le32(&dr->status) & ACTIVE) && n < 1000; n++)
-+		udelay(1);
- 	out_8(&sw->intr_enable, 0);
- 	out_8(&sw->control_bic, WRITE_SECTORS | DO_ACTION);
- 	out_8(&sw->select, RELAX);
-@@ -604,7 +620,7 @@
- 	start_request(fs);
- }
- 
--static void swim3_interrupt(int irq, void *dev_id, struct pt_regs *regs)
-+static irqreturn_t swim3_interrupt(int irq, void *dev_id, struct pt_regs *regs)
- {
- 	struct floppy_state *fs = (struct floppy_state *) dev_id;
- 	volatile struct swim3 *sw = fs->swim3;
-@@ -613,18 +629,15 @@
- 	struct dbdma_regs *dr;
- 	struct dbdma_cmd *cp;
- 
--	err = in_8(&sw->error);
- 	intr = in_8(&sw->intr);
--#if 0
--	printk("swim3 intr state=%d intr=%x err=%x\n", fs->state, intr, err);
--#endif
-+	err = (intr & ERROR_INTR)? in_8(&sw->error): 0;
- 	if ((intr & ERROR_INTR) && fs->state != do_transfer)
- 		printk(KERN_ERR "swim3_interrupt, state=%d, dir=%lx, intr=%x, err=%x\n",
- 		       fs->state, rq_data_dir(fd_req), intr, err);
- 	switch (fs->state) {
- 	case locating:
- 		if (intr & SEEN_SECTOR) {
--			out_8(&sw->control_bic, DO_ACTION);
-+			out_8(&sw->control_bic, DO_ACTION | WRITE_SECTORS);
- 			out_8(&sw->select, RELAX);
- 			out_8(&sw->intr_enable, 0);
- 			del_timer(&fs->timeout);
-@@ -674,19 +687,33 @@
- 	case do_transfer:
- 		if ((intr & (ERROR_INTR | TRANSFER_DONE)) == 0)
- 			break;
--		dr = fs->dma;
--		cp = fs->dma_cmd;
--		/* We must wait a bit for dbdma to complete */
--		for (n=0; (in_le32(&dr->status) & ACTIVE) && n < 1000; n++)
--			udelay(10);
--		DBDMA_DO_STOP(dr);
- 		out_8(&sw->intr_enable, 0);
- 		out_8(&sw->control_bic, WRITE_SECTORS | DO_ACTION);
- 		out_8(&sw->select, RELAX);
- 		del_timer(&fs->timeout);
- 		fs->timeout_pending = 0;
-+		dr = fs->dma;
-+		cp = fs->dma_cmd;
- 		if (rq_data_dir(fd_req) == WRITE)
- 			++cp;
-+		/*
-+		 * Check that the main data transfer has finished.
-+		 * On writing, the swim3 sometimes doesn't use
-+		 * up all the bytes of the postamble, so we can still
-+		 * see DMA active here.  That doesn't matter as long
-+		 * as all the sector data has been transferred.
-+		 */
-+		if ((intr & ERROR_INTR) == 0 && cp->xfer_status == 0) {
-+			/* wait a little while for DMA to complete */
-+			for (n = 0; n < 100; ++n) {
-+				if (cp->xfer_status != 0)
-+					break;
-+				udelay(1);
-+				barrier();
-+			}
-+		}
-+		/* turn off DMA */
-+		out_le32(&dr->control, (RUN | PAUSE) << 16);
- 		stat = ld_le16(&cp->xfer_status);
- 		resid = ld_le16(&cp->res_count);
- 		if (intr & ERROR_INTR) {
-@@ -742,6 +769,7 @@
- 	default:
- 		printk(KERN_ERR "swim3: don't know what to do in state %d\n", fs->state);
- 	}
-+	return IRQ_HANDLED;
- }
- 
- /*
-@@ -793,16 +821,19 @@
- 	if (err)
- 		return err;
- 	swim3_action(fs, EJECT);
--	for (n = 2*HZ; n > 0; --n) {
--		if (swim3_readbit(fs, RELAX))
--			break;
-+	for (n = 20; n > 0; --n) {
- 		if (signal_pending(current)) {
- 			err = -EINTR;
- 			break;
- 		}
-+		swim3_select(fs, RELAX);
- 		current->state = TASK_INTERRUPTIBLE;
- 		schedule_timeout(1);
-+		if (swim3_readbit(fs, DISK_IN) == 0)
-+			break;
- 	}
-+	swim3_select(fs, RELAX);
-+	udelay(150);
- 	fs->ejected = 1;
- 	release_drive(fs);
- 	return err;
-@@ -847,29 +878,31 @@
- 	if (fs->ref_count == 0) {
- 		if (fs->media_bay && check_media_bay(fs->media_bay, MB_FD))
- 			return -ENXIO;
--		out_8(&sw->mode, 0x95);
--		out_8(&sw->control_bic, 0xff);
- 		out_8(&sw->setup, S_IBM_DRIVE | S_FCLK_DIV2);
-+		out_8(&sw->control_bic, 0xff);
-+		out_8(&sw->mode, 0x95);
- 		udelay(10);
- 		out_8(&sw->intr_enable, 0);
- 		out_8(&sw->control_bis, DRIVE_ENABLE | INTR_ENABLE);
- 		swim3_action(fs, MOTOR_ON);
- 		fs->write_prot = -1;
- 		fs->cur_cyl = -1;
--		for (n = HZ; n > 0; --n) {
--			if (swim3_readbit(fs, SEEK_COMPLETE))
-+		for (n = 0; n < 2 * HZ; ++n) {
-+			if (n >= HZ/30 && swim3_readbit(fs, SEEK_COMPLETE))
- 				break;
- 			if (signal_pending(current)) {
- 				err = -EINTR;
- 				break;
- 			}
-+			swim3_select(fs, RELAX);
- 			current->state = TASK_INTERRUPTIBLE;
- 			schedule_timeout(1);
- 		}
- 		if (err == 0 && (swim3_readbit(fs, SEEK_COMPLETE) == 0
- 				 || swim3_readbit(fs, DISK_IN) == 0))
- 			err = -ENXIO;
--		swim3_action(fs, 9);
-+		swim3_action(fs, SETMFM);
-+		swim3_select(fs, RELAX);
- 
- 	} else if (fs->ref_count == -1 || filp->f_flags & O_EXCL)
- 		return -EBUSY;
-@@ -892,6 +925,7 @@
- 		if (fs->ref_count == 0) {
- 			swim3_action(fs, MOTOR_OFF);
- 			out_8(&sw->control_bic, DRIVE_ENABLE | INTR_ENABLE);
-+			swim3_select(fs, RELAX);
- 		}
- 		return err;
- 	}
-@@ -911,6 +945,7 @@
- 	if (fs->ref_count > 0 && --fs->ref_count == 0) {
- 		swim3_action(fs, MOTOR_OFF);
- 		out_8(&sw->control_bic, 0xff);
-+		swim3_select(fs, RELAX);
- 	}
- 	return 0;
- }
-@@ -933,15 +968,17 @@
- 	sw = fs->swim3;
- 	grab_drive(fs, revalidating, 0);
- 	out_8(&sw->intr_enable, 0);
--	out_8(&sw->control_bis, DRIVE_ENABLE | INTR_ENABLE);
--	swim3_action(fs, MOTOR_ON);
-+	out_8(&sw->control_bis, DRIVE_ENABLE);
-+	swim3_action(fs, MOTOR_ON);	/* necessary? */
- 	fs->write_prot = -1;
- 	fs->cur_cyl = -1;
-+	mdelay(1);
- 	for (n = HZ; n > 0; --n) {
- 		if (swim3_readbit(fs, SEEK_COMPLETE))
- 			break;
- 		if (signal_pending(current))
- 			break;
-+		swim3_select(fs, RELAX);
- 		current->state = TASK_INTERRUPTIBLE;
- 		schedule_timeout(1);
- 	}
-@@ -951,17 +988,14 @@
- 		swim3_action(fs, MOTOR_OFF);
- 	else {
- 		fs->ejected = 0;
--		swim3_action(fs, 9);
-+		swim3_action(fs, SETMFM);
- 	}
-+	swim3_select(fs, RELAX);
- 
- 	release_drive(fs);
- 	return ret;
- }
- 
--static void floppy_off(unsigned int nr)
--{
--}
--
- static struct block_device_operations floppy_fops = {
- 	.open		= floppy_open,
- 	.release	= floppy_release,
-@@ -1104,3 +1138,5 @@
- 	
- 	return 0;
- }
-+
-+module_init(swim3_init)
+Back to the laptop used in this test.  Since the built-in emulated PS/2
+keyboard had some "?" events, I ran evtest on all devices.  Sorry this
+is still 2.6.0-test3.  I wanted to finish this test before experimenting
+with 2.6.0-test4.  I already patched the 2.6.0-test3 keyboard map, so the
+yen-sign pipe key produces input in both X11 and text consoles.  The USB
+problem is with the yen-sign or-bar key, which seems to produce events
+properly, and which produces correct input under X11, but produces no
+input to a plain text console.  I wonder what needs patching for this.
+
+In a plain text console, in the built-in emulated PS/2 keyboard, both the
+yen-sign or-bar and backslash underbar keys are working because of the
+patch.  But in the USB keyboard, the yen-sign or-bar key is working while
+the backslash underbar key yields no input.
+
+First, here are results of running evtest under X11.
+
+The emulated PS/2 mouse looks fine.
+
+ndiamond@diamondpana:~/linux-pavlik-evtest> evtest /dev/input/event0
+Input driver version is 1.0.0
+Input device ID: bus 0x11 vendor 0x2 product 0x1 version 0x29
+Input device name: "PS/2 Logitech Mouse"
+Supported events:
+  Event type 0 (Reset)
+    Event code 0 (Reset)
+    Event code 1 (Key)
+    Event code 2 (Relative)
+  Event type 1 (Key)
+    Event code 272 (LeftBtn)
+    Event code 273 (RightBtn)
+    Event code 275 (SideBtn)
+  Event type 2 (Relative)
+    Event code 0 (X)
+    Event code 1 (Y)
+Testing ... (interrupt to exit)
+Event: time 1061637735.598896, type 2 (Relative), code 1 (Y), value 1
+Event: time 1061637735.598936, type 0 (Reset), code 0 (Reset), value 0
+[...]
+Event: time 1061637735.634618, type 2 (Relative), code 0 (X), value 1
+Event: time 1061637735.634657, type 0 (Reset), code 0 (Reset), value 0
+[...]
+Event: time 1061637737.663347, type 1 (Key), code 273 (RightBtn), value 1
+Event: time 1061637737.663390, type 0 (Reset), code 0 (Reset), value 0
+Event: time 1061637737.806503, type 1 (Key), code 273 (RightBtn), value 0
+Event: time 1061637737.806543, type 0 (Reset), code 0 (Reset), value 0
+Event: time 1061637739.053020, type 1 (Key), code 272 (LeftBtn), value 1
+Event: time 1061637739.053068, type 0 (Reset), code 0 (Reset), value 0
+Event: time 1061637739.144967, type 1 (Key), code 272 (LeftBtn), value 0
+Event: time 1061637739.145016, type 0 (Reset), code 0 (Reset), value 0
+
+Here is the emulated PS/2 keyboard.  I did not try all keys.  In fact I
+cannot try a number of keys which appear in the list but don't exist.
+I did try the ones which are frequently mishandled, yen-sign or-bar and
+backslash underbar.
+
+ndiamond@diamondpana:~/linux-pavlik-evtest> evtest /dev/input/event1
+Input driver version is 1.0.0
+Input device ID: bus 0x11 vendor 0x1 product 0x2 version 0xab02
+Input device name: "AT Set 2 keyboard"
+Supported events:
+  Event type 0 (Reset)
+    Event code 0 (Reset)
+    Event code 1 (Key)
+    Event code 17 (LED)
+    Event code 20 (Repeat)
+  Event type 1 (Key)
+    Event code 1 (Esc)
+    Event code 2 (1)
+    Event code 3 (2)
+    Event code 4 (3)
+    Event code 5 (4)
+    Event code 6 (5)
+    Event code 7 (6)
+    Event code 8 (7)
+    Event code 9 (8)
+    Event code 10 (9)
+    Event code 11 (0)
+    Event code 12 (Minus)
+    Event code 13 (Equal)
+    Event code 14 (Backspace)
+    Event code 15 (Tab)
+    Event code 16 (Q)
+    Event code 17 (W)
+    Event code 18 (E)
+    Event code 19 (R)
+    Event code 20 (T)
+    Event code 21 (Y)
+    Event code 22 (U)
+    Event code 23 (I)
+    Event code 24 (O)
+    Event code 25 (P)
+    Event code 26 (LeftBrace)
+    Event code 27 (RightBrace)
+    Event code 28 (Enter)
+    Event code 29 (LeftControl)
+    Event code 30 (A)
+    Event code 31 (S)
+    Event code 32 (D)
+    Event code 33 (F)
+    Event code 34 (G)
+    Event code 35 (H)
+    Event code 36 (J)
+    Event code 37 (K)
+    Event code 38 (L)
+    Event code 39 (Semicolon)
+    Event code 40 (Apostrophe)
+    Event code 41 (Grave)
+    Event code 42 (LeftShift)
+    Event code 43 (BackSlash)
+    Event code 44 (Z)
+    Event code 45 (X)
+    Event code 46 (C)
+    Event code 47 (V)
+    Event code 48 (B)
+    Event code 49 (N)
+    Event code 50 (M)
+    Event code 51 (Comma)
+    Event code 52 (Dot)
+    Event code 53 (Slash)
+    Event code 54 (RightShift)
+    Event code 55 (KPAsterisk)
+    Event code 56 (LeftAlt)
+    Event code 57 (Space)
+    Event code 58 (CapsLock)
+    Event code 59 (F1)
+    Event code 60 (F2)
+    Event code 61 (F3)
+    Event code 62 (F4)
+    Event code 63 (F5)
+    Event code 64 (F6)
+    Event code 65 (F7)
+    Event code 66 (F8)
+    Event code 67 (F9)
+    Event code 68 (F10)
+    Event code 69 (NumLock)
+    Event code 70 (ScrollLock)
+    Event code 71 (KP7)
+    Event code 72 (KP8)
+    Event code 73 (KP9)
+    Event code 74 (KPMinus)
+    Event code 75 (KP4)
+    Event code 76 (KP5)
+    Event code 77 (KP6)
+    Event code 78 (KPPlus)
+    Event code 79 (KP1)
+    Event code 80 (KP2)
+    Event code 81 (KP3)
+    Event code 82 (KP0)
+    Event code 83 (KPDot)
+    Event code 85 (F13)
+    Event code 86 (102nd)
+    Event code 87 (F11)
+    Event code 88 (F12)
+    Event code 89 (F14)
+    Event code 90 (F15)
+    Event code 91 (F16)
+    Event code 92 (F17)
+    Event code 93 (F18)
+    Event code 94 (F19)
+    Event code 95 (F20)
+    Event code 96 (KPEnter)
+    Event code 97 (RightCtrl)
+    Event code 98 (KPSlash)
+    Event code 99 (SysRq)
+    Event code 100 (RightAlt)
+    Event code 102 (Home)
+    Event code 103 (Up)
+    Event code 104 (PageUp)
+    Event code 105 (Left)
+    Event code 106 (Right)
+    Event code 107 (End)
+    Event code 108 (Down)
+    Event code 109 (PageDown)
+    Event code 110 (Insert)
+    Event code 111 (Delete)
+    Event code 112 (Macro)
+    Event code 113 (Mute)
+    Event code 114 (VolumeDown)
+    Event code 115 (VolumeUp)
+    Event code 116 (Power)
+    Event code 118 (KPPlusMinus)
+    Event code 119 (Pause)
+    Event code 120 (F21)
+    Event code 121 (F22)
+    Event code 122 (F23)
+    Event code 123 (F24)
+    Event code 125 (LeftMeta)
+    Event code 126 (RightMeta)
+    Event code 127 (Compose)
+    Event code 128 (Stop)
+    Event code 133 (Copy)
+    Event code 137 (Cut)
+    Event code 138 (Help)
+    Event code 140 (Calc)
+    Event code 142 (Sleep)
+    Event code 143 (WakeUp)
+    Event code 144 (File)
+    Event code 147 (X-fer)
+    Event code 150 (WWW)
+    Event code 151 (MSDOS)
+    Event code 152 (Coffee)
+    Event code 153 (Direction)
+    Event code 155 (Mail)
+    Event code 156 (Bookmarks)
+    Event code 157 (Computer)
+    Event code 158 (Back)
+    Event code 159 (Forward)
+    Event code 160 (CloseCD)
+    Event code 163 (NextSong)
+    Event code 164 (PlayPause)
+    Event code 165 (PreviousSong)
+    Event code 166 (StopCD)
+    Event code 167 (Record)
+    Event code 168 (Rewind)
+    Event code 173 (Refresh)
+    Event code 174 (Exit)
+    Event code 182 (International2)
+    Event code 183 (International3)
+    Event code 217 (?)
+    Event code 226 (?)
+  Event type 17 (LED)
+    Event code 0 (NumLock)
+    Event code 1 (CapsLock)
+    Event code 2 (ScrollLock)
+  Event type 20 (Repeat)
+
+[Here is yen-sign or-bar:]
+Event: time 1061638812.315540, type 1 (Key), code 183 (International3), value 1
+Event: time 1061638812.315548, type 0 (Reset), code 0 (Reset), value 0
+\Event: time 1061638812.467647, type 1 (Key), code 183 (International3), value 0
+Event: time 1061638812.467655, type 0 (Reset), code 0 (Reset), value 0
+Event: time 1061638813.909474, type 1 (Key), code 42 (LeftShift), value 1
+Event: time 1061638813.909482, type 0 (Reset), code 0 (Reset), value 0
+Event: time 1061638814.159276, type 1 (Key), code 42 (LeftShift), value 2
+Event: time 1061638814.159286, type 0 (Reset), code 0 (Reset), value 0
+Event: time 1061638814.189239, type 1 (Key), code 42 (LeftShift), value 2
+Event: time 1061638814.189246, type 0 (Reset), code 0 (Reset), value 0
+Event: time 1061638814.209031, type 1 (Key), code 183 (International3), value 1
+Event: time 1061638814.209039, type 0 (Reset), code 0 (Reset), value 0
+|Event: time 1061638814.361093, type 1 (Key), code 183 (International3), value 0
+Event: time 1061638814.361102, type 0 (Reset), code 0 (Reset), value 0
+Event: time 1061638814.706204, type 1 (Key), code 42 (LeftShift), value 0
+Event: time 1061638814.706211, type 0 (Reset), code 0 (Reset), value 0
+
+[Here is backslash underbar:]
+Event: time 1061638897.294886, type 1 (Key), code 89 (F14), value 1
+Event: time 1061638897.294894, type 0 (Reset), code 0 (Reset), value 0
+\Event: time 1061638897.416553, type 1 (Key), code 89 (F14), value 0
+Event: time 1061638897.416560, type 0 (Reset), code 0 (Reset), value 0
+Event: time 1061638898.462432, type 1 (Key), code 42 (LeftShift), value 1
+Event: time 1061638898.462440, type 0 (Reset), code 0 (Reset), value 0
+Event: time 1061638898.650346, type 1 (Key), code 89 (F14), value 1
+Event: time 1061638898.650354, type 0 (Reset), code 0 (Reset), value 0
+_Event: time 1061638898.761825, type 1 (Key), code 89 (F14), value 0
+Event: time 1061638898.761833, type 0 (Reset), code 0 (Reset), value 0
+Event: time 1061638899.046039, type 1 (Key), code 42 (LeftShift), value 0
+Event: time 1061638899.046051, type 0 (Reset), code 0 (Reset), value 0
+
+Here is the external USB keyboard.  I did not try all keys.  In fact I
+cannot try a number of keys which appear in the list but don't exist.
+(Though the keyboard which I sent to Mike Fabian might really have some
+of these, among its ton of funny extra buttons.)  I did try the ones
+which are frequently mishandled, yen-sign or-bar and backslash underbar.  
+
+ndiamond@diamondpana:~/linux-pavlik-evtest> evtest /dev/input/event2
+Input driver version is 1.0.0
+Input device ID: bus 0x3 vendor 0x409 product 0x14 version 0x100
+Input device name: "NEC 109 JPN USB KBD/M"
+Supported events:
+  Event type 0 (Reset)
+    Event code 0 (Reset)
+    Event code 1 (Key)
+    Event code 17 (LED)
+    Event code 20 (Repeat)
+  Event type 1 (Key)
+    Event code 1 (Esc)
+    Event code 2 (1)
+    Event code 3 (2)
+    Event code 4 (3)
+    Event code 5 (4)
+    Event code 6 (5)
+    Event code 7 (6)
+    Event code 8 (7)
+    Event code 9 (8)
+    Event code 10 (9)
+    Event code 11 (0)
+    Event code 12 (Minus)
+    Event code 13 (Equal)
+    Event code 14 (Backspace)
+    Event code 15 (Tab)
+    Event code 16 (Q)
+    Event code 17 (W)
+    Event code 18 (E)
+    Event code 19 (R)
+    Event code 20 (T)
+    Event code 21 (Y)
+    Event code 22 (U)
+    Event code 23 (I)
+    Event code 24 (O)
+    Event code 25 (P)
+    Event code 26 (LeftBrace)
+    Event code 27 (RightBrace)
+    Event code 28 (Enter)
+    Event code 29 (LeftControl)
+    Event code 30 (A)
+    Event code 31 (S)
+    Event code 32 (D)
+    Event code 33 (F)
+    Event code 34 (G)
+    Event code 35 (H)
+    Event code 36 (J)
+    Event code 37 (K)
+    Event code 38 (L)
+    Event code 39 (Semicolon)
+    Event code 40 (Apostrophe)
+    Event code 41 (Grave)
+    Event code 42 (LeftShift)
+    Event code 43 (BackSlash)
+    Event code 44 (Z)
+    Event code 45 (X)
+    Event code 46 (C)
+    Event code 47 (V)
+    Event code 48 (B)
+    Event code 49 (N)
+    Event code 50 (M)
+    Event code 51 (Comma)
+    Event code 52 (Dot)
+    Event code 53 (Slash)
+    Event code 54 (RightShift)
+    Event code 55 (KPAsterisk)
+    Event code 56 (LeftAlt)
+    Event code 57 (Space)
+    Event code 58 (CapsLock)
+    Event code 59 (F1)
+    Event code 60 (F2)
+    Event code 61 (F3)
+    Event code 62 (F4)
+    Event code 63 (F5)
+    Event code 64 (F6)
+    Event code 65 (F7)
+    Event code 66 (F8)
+    Event code 67 (F9)
+    Event code 68 (F10)
+    Event code 69 (NumLock)
+    Event code 70 (ScrollLock)
+    Event code 71 (KP7)
+    Event code 72 (KP8)
+    Event code 73 (KP9)
+    Event code 74 (KPMinus)
+    Event code 75 (KP4)
+    Event code 76 (KP5)
+    Event code 77 (KP6)
+    Event code 78 (KPPlus)
+    Event code 79 (KP1)
+    Event code 80 (KP2)
+    Event code 81 (KP3)
+    Event code 82 (KP0)
+    Event code 83 (KPDot)
+    Event code 84 (103rd)
+    Event code 85 (F13)
+    Event code 86 (102nd)
+    Event code 87 (F11)
+    Event code 88 (F12)
+    Event code 89 (F14)
+    Event code 90 (F15)
+    Event code 91 (F16)
+    Event code 92 (F17)
+    Event code 93 (F18)
+    Event code 94 (F19)
+    Event code 95 (F20)
+    Event code 96 (KPEnter)
+    Event code 97 (RightCtrl)
+    Event code 98 (KPSlash)
+    Event code 99 (SysRq)
+    Event code 100 (RightAlt)
+    Event code 102 (Home)
+    Event code 103 (Up)
+    Event code 104 (PageUp)
+    Event code 105 (Left)
+    Event code 106 (Right)
+    Event code 107 (End)
+    Event code 108 (Down)
+    Event code 109 (PageDown)
+    Event code 110 (Insert)
+    Event code 111 (Delete)
+    Event code 113 (Mute)
+    Event code 114 (VolumeDown)
+    Event code 115 (VolumeUp)
+    Event code 116 (Power)
+    Event code 117 (KPEqual)
+    Event code 119 (Pause)
+    Event code 120 (F21)
+    Event code 121 (F22)
+    Event code 122 (F23)
+    Event code 123 (F24)
+    Event code 124 (KPComma)
+    Event code 125 (LeftMeta)
+    Event code 126 (RightMeta)
+    Event code 127 (Compose)
+    Event code 128 (Stop)
+    Event code 129 (Again)
+    Event code 130 (Props)
+    Event code 131 (Undo)
+    Event code 132 (Front)
+    Event code 133 (Copy)
+    Event code 134 (Open)
+    Event code 135 (Paste)
+    Event code 136 (Find)
+    Event code 137 (Cut)
+    Event code 138 (Help)
+    Event code 140 (Calc)
+    Event code 142 (Sleep)
+    Event code 150 (WWW)
+    Event code 152 (Coffee)
+    Event code 158 (Back)
+    Event code 159 (Forward)
+    Event code 161 (EjectCD)
+    Event code 163 (NextSong)
+    Event code 164 (PlayPause)
+    Event code 165 (PreviousSong)
+    Event code 166 (StopCD)
+    Event code 173 (Refresh)
+    Event code 176 (Edit)
+    Event code 177 (ScrollUp)
+    Event code 178 (ScrollDown)
+    Event code 181 (International1)
+    Event code 182 (International2)
+    Event code 183 (International3)
+    Event code 184 (International4)
+    Event code 185 (International5)
+    Event code 186 (International6)
+    Event code 187 (International7)
+    Event code 188 (International8)
+    Event code 189 (International9)
+    Event code 190 (Language1)
+    Event code 191 (Language2)
+    Event code 192 (Language3)
+    Event code 193 (Language4)
+    Event code 194 (Language5)
+    Event code 195 (Language6)
+    Event code 196 (Language7)
+    Event code 197 (Language8)
+    Event code 198 (Language9)
+    Event code 240 (?)
+  Event type 17 (LED)
+    Event code 0 (NumLock)
+    Event code 1 (CapsLock)
+    Event code 2 (ScrollLock)
+  Event type 20 (Repeat)
+Testing ... (interrupt to exit)
+
+[Here is yen-sign or-bar:]
+Event: time 1061639164.238590, type 1 (Key), code 183 (International3), value 1
+Event: time 1061639164.238602, type 0 (Reset), code 0 (Reset), value 0
+Event: time 1061639164.318573, type 1 (Key), code 183 (International3), value 0
+Event: time 1061639164.318584, type 0 (Reset), code 0 (Reset), value 0
+Event: time 1061639168.837822, type 1 (Key), code 54 (RightShift), value 1
+Event: time 1061639168.837838, type 0 (Reset), code 0 (Reset), value 0
+Event: time 1061639169.087280, type 1 (Key), code 54 (RightShift), value 2
+Event: time 1061639169.087291, type 0 (Reset), code 0 (Reset), value 0
+Event: time 1061639169.117272, type 1 (Key), code 54 (RightShift), value 2
+Event: time 1061639169.117279, type 0 (Reset), code 0 (Reset), value 0
+Event: time 1061639169.125757, type 1 (Key), code 183 (International3), value 1
+Event: time 1061639169.125768, type 0 (Reset), code 0 (Reset), value 0
+Event: time 1061639169.237759, type 1 (Key), code 183 (International3), value 0
+Event: time 1061639169.237772, type 0 (Reset), code 0 (Reset), value 0
+Event: time 1061639169.477720, type 1 (Key), code 54 (RightShift), value 0
+Event: time 1061639169.477736, type 0 (Reset), code 0 (Reset), value 0
+
+[Here is backslash underbar:]
+Event: time 1061639230.403570, type 1 (Key), code 181 (International1), value 1
+Event: time 1061639230.403585, type 0 (Reset), code 0 (Reset), value 0
+Event: time 1061639230.499543, type 1 (Key), code 181 (International1), value 0
+Event: time 1061639230.499556, type 0 (Reset), code 0 (Reset), value 0
+Event: time 1061639231.275459, type 1 (Key), code 54 (RightShift), value 1
+Event: time 1061639231.275483, type 0 (Reset), code 0 (Reset), value 0
+Event: time 1061639231.419385, type 1 (Key), code 181 (International1), value 1
+Event: time 1061639231.419396, type 0 (Reset), code 0 (Reset), value 0
+Event: time 1061639231.491366, type 1 (Key), code 181 (International1), value 0
+Event: time 1061639231.491379, type 0 (Reset), code 0 (Reset), value 0
+Event: time 1061639231.691448, type 1 (Key), code 54 (RightShift), value 0
+Event: time 1061639231.691467, type 0 (Reset), code 0 (Reset), value 0
+
+Next I switched to a text-mode console and tested the same two keyboards.
+The key codes seem to be the same.
+

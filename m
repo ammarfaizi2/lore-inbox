@@ -1,112 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265976AbTFWKEv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 06:04:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265977AbTFWKEv
+	id S265975AbTFWKDv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 06:03:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265976AbTFWKDv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 06:04:51 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:21517 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S265976AbTFWKEk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 06:04:40 -0400
-Subject: Re: O(1) scheduler & interactivity improvements
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <3EF6B5D4.10501@aitel.hist.no>
-References: <1056298069.601.18.camel@teapot.felipe-alfaro.com>
-	 <3EF6B5D4.10501@aitel.hist.no>
-Content-Type: text/plain
-Message-Id: <1056363509.587.13.camel@teapot.felipe-alfaro.com>
+	Mon, 23 Jun 2003 06:03:51 -0400
+Received: from nuit.ca ([66.11.160.83]:36779 "EHLO smtp.nuit.ca")
+	by vger.kernel.org with ESMTP id S265975AbTFWKDs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 06:03:48 -0400
+Date: Mon, 23 Jun 2003 10:17:51 +0000
+To: linux-kernel@vger.kernel.org
+Subject: problems patching XFS against current benh
+Message-ID: <20030623101751.GD2102@nuit.ca>
+Reply-To: simon@nuit.ca
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 23 Jun 2003 12:18:29 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="nmemrqcdn5VTmUEE"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
+From: simon raven <simon@nuit.ca>
+X-SA-Exim-Mail-From: simon@nuit.ca
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-06-23 at 10:09, Helge Hafting wrote:
-> Felipe Alfaro Solana wrote:
-> > As someone said before in the list, a process should be marked
-> > "interactive" based on the fact that it's receiving user input, 
-> 
-> This is almost impossible to get right, except for a few very special
-> cases like a single user working at the console.  Unix is supposed to
-> do much better than that - the user logging in via a serial port,
-> (or more commonly these days, via the network) should get exactly
-> the same responsiveness as that console user.
-> 
-> Further, we may (sometimes) know that some devices is connected
-> to a human.  But how about that script reading one disk file
-> and writing to another?  Is it some cron job, did it start
-> from some GUI menu with a user eagerly waiting for it to finish?
-> Or did the user switch to the workd processor because he
-> knows the script will take "forever"?
 
-Maybe I have different a different idea of what "interactive" should be.
-For me, an interactive process should have nearly-realtime response
-times to user events. For example, if I click on a link in my web
-browser's window, I want almost an immediate response:I want the process
-to acknowledge the event, although it could be impossible to perform it
-due to network latency, etc.
+--nmemrqcdn5VTmUEE
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
 
-Currently, 2.5 kernels don't have a good "interactive" kernel, if we
-stick to the previous definition of "interactive". I can easily starve
-processes (XMMS) and moving windows around the screen do feel jerky and
-laggy at best when the machine is loaded. For a normal desktop usage, I
-prefer all my intensive tasks to start releasing more CPU cycles so
-moving a window around the desktop feels completely smooth (sorry to
-say, as Windows does). The same applies to repainting, or even launching
-a new process.
 
-> 
-> 
-> > for example, key strokes, mouse movements or any events received from any
-> > input device, not based on its CPU usage. I think applications like XMMS
-> > or mplayer shouldn't be considered interactive (at least, not until they
-> > start interacting with user), 
 
-> The're interactive if the user is staring at / listening to the output.
+--nmemrqcdn5VTmUEE
+Content-Type: message/rfc822
+Content-Disposition: inline
 
-Or the user is feeding events to it, for example, by dragging a window,
-clicking the mouse or pressing keys. If a process has received user
-input in the past, ir's pretty probable that the process is an
-interactive one.
+Date: Mon, 23 Jun 2003 04:54:06 +0000
+To: linux-kernel-digest@lists.us.dell.com
+Subject: problems patching XFS against current benh
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=iso-8859-15
 
-I don't consider compiling the kernel an interactive process as it's
-done almost automatically without any user intervention. XMMS is not a
-complete interactive application as it spends most of the time decoding
-and playing sound.
+In file included from /usr/src/kernel_benh/include/linux/modversions.h:166,
+                 from /usr/src/kernel_benh/include/linux/module.h:21,
+                 from exec_domain.c:14:
+/usr/src/kernel_benh/include/linux/modules/ksyms.ver:387:1: warning: "__ver_mark_page_accessed" redefined
+In file included from /usr/src/kernel_benh/include/linux/modversions.h:100,
+                 from /usr/src/kernel_benh/include/linux/module.h:21,
+                 from exec_domain.c:14:
+/usr/src/kernel_benh/include/linux/modules/filemap.ver:7:1: warning: this is the location of the previous definition
 
-> Use a multithreaded word processor and you'll get exactly this behaviour,
-> with the current system.  See above.
 
-I agree. The word processor example was a bad one. Most word processors
-are multithreaded.
+------
 
-> > For terminal based, interactive applications (like pine, vi, and
-> > company), which are connected to tty devices, a user input event could
-> > make the scheduler boost the process priority for a brief time (and
-> > then, reduce the priority in a nearly quadratic fashion until reaching
-> > it's original, or a lower, priority) to give it a better response time
-> > and increase the interactive feeling.
-> > 
-> This works already, because the app slept waiting for that keystroke.
+i get this when i've patched current XFS patches (the new ones from today (22-06-2003)) onto benh recent rsync.
 
-So then, why I can easily starve the X11 server (which should be marked
-interactive), Evolution or OpenOffice simply by running "while true; do
-a=2; done". Why don't they get an increased priority boost to stop the
-from behaving so jerky?
+in include/linux/sysctl.h, two resources (?) want a VM_ set to 14:
 
-> > by increasing the target process priority (it normally runs as root)?
-> > Should the window manager increase the priority of the process which
-> > owns the current foreground, active window? Solaris seems to work this
-> 
-> It can't without that X protocol change, for the "foreground process",
-> the "window manager" and the "X server" may all be running on three
-> different machines.
+1 =>        VM_HEAP_STACK_GAP=14,   /* int: page gap between heap and stack */
+2 =>        VM_PAGEBUF=14,          /* struct: Control pagebuf parameters */
+        VM_LAPTOP_MODE=15,
+        VM_BLOCK_DUMP=16,
 
-That's what is said at course SA-400 Solaris 8 Tuning from the Solaris
-Official Curriculum. In fact, it works when working locally on a Solaris
-8 or 9 machine.
+number 1 is from benh, and number 2 is from XFS. i need both - benh's for some drivers for my hardware, and XFS 
+because most of my FSes are XFS. 
 
+i get the same error above, even though i set VM_PAGEBUF to say 17 or 18
+manually, and there's only one EXPORT_SYMBOL(mark_page_accessed) in
+ksyms.h. in ksyms.ver and filemap.ver, the version symbols end up being
+different (as can be seen from the above pasting). i tried twice to
+change the filemap.ver number to the one that's given in ksyms.ver, and
+the when the kernel image builds, it fails. 
+
+i'm at rope's end right now, i don't know what to do. oh yeh, and i did
+try on vanilla 2.4.21, and it gives me similar errors about "__ver*"
+being redefined.
+
+eric
+
+-- 
+UNIX is user friendly, it's just picky about who its friends are.          
+-------------------------------------------------------------------
+ ,''`.   http://www.debian.org/  | http://www.nuit.ca/           
+ : :' :  Debian GNU/Linux        | http://simonraven.nuit.ca/    
+ `. `'                           | PGP key ID: 6169 BE0C 0891 A038    
+  `-                             | 
+
+--nmemrqcdn5VTmUEE--

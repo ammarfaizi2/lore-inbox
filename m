@@ -1,53 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317422AbSGOKmm>; Mon, 15 Jul 2002 06:42:42 -0400
+	id <S317426AbSGOKr4>; Mon, 15 Jul 2002 06:47:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317423AbSGOKml>; Mon, 15 Jul 2002 06:42:41 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:53254 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S317422AbSGOKml>; Mon, 15 Jul 2002 06:42:41 -0400
-Date: Mon, 15 Jul 2002 06:39:30 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: dean-list-linux-kernel@arctic.org, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BUG?] unwanted proxy arp in 2.4.19-pre10
-In-Reply-To: <20020714.224517.45499035.davem@redhat.com>
-Message-ID: <Pine.LNX.3.96.1020715062707.23142A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317427AbSGOKrz>; Mon, 15 Jul 2002 06:47:55 -0400
+Received: from mail.zmailer.org ([62.240.94.4]:29584 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id <S317426AbSGOKry>;
+	Mon, 15 Jul 2002 06:47:54 -0400
+Date: Mon, 15 Jul 2002 13:50:43 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Manik Raina <manik@cisco.com>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH, 2.5] : Adding counters to BSD process accounting
+Message-ID: <20020715135043.Q28720@mea-ext.zmailer.org>
+References: <Pine.GSO.4.44.0207151154460.23890-100000@cbin2-xdm1.cisco.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.44.0207151154460.23890-100000@cbin2-xdm1.cisco.com>; from manik@cisco.com on Mon, Jul 15, 2002 at 11:57:39AM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Jul 2002, David S. Miller wrote:
-
->    From: Bill Davidsen <davidsen@tmr.com>
->    Date: Sun, 14 Jul 2002 21:39:12 -0400 (EDT)
+On Mon, Jul 15, 2002 at 11:57:39AM +0530, Manik Raina wrote:
+> This  patch  keeps account of the number of bytes read/written by a
+> process in it's lifetime.
 > 
->    Clearly FAQ means frequently asked, not answered. I can't find the
->    appropriate patch, clearly some people regard allowing source routing to
->    be a benefit.
->     
-> Source routing exists in every single 2.4.x kernel every released.
-> What are you talking about?  There is no patch to speak of, it's
-> already there.
+> This may be a  good estimate of how IO bound a process is.
+> This change is integrated with the BSD process accounting feature. Please
+> review the changes and if you're ok with it, please apply to the 2.5 tree.
 
-Um, many people who are being probed from the Internet would like very
-much to NOT have it there, certainly by default. And would like to send an
-arp request and in return get a valid mac address.
+  Do have a deeper look into how the BSD ACCT works.
 
-I totally miss why anyone would consider this behaviouracceptable, much
-less desirable. Perhaps you or someone could explain why either accepting
-source routing or sending out invalid arp responses are desirable at all,
-much less as default behaviour. One is a security hole, the other brings
-the network group to the door with arpwatch output.
+  Throwing in couple 8-byte scalars isn't quite right thing.
+  The  pacct  file format (record size!) will change with this thing.
 
-After some hours of reading the google results I see lots of questions, a
-few dubious workarounds, and zero people claiming that it's a good thing
-to work that way. 
+  There exist already fields:
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+        comp_t    ac_io;          /* Accounting Chars Transferred */
+        comp_t    ac_rw;          /* Accounting Blocks Read or Written */
 
+  Those are encoded with zero...
+
+
+  If you comp_t encode the read/write data, you will be able to
+  squeeze it into the reserved alignment bytes: ac_pad[].
+
+  Well, that encoding counts up to 16 GB, only, but is better than 
+  nothing.   The normal encoding routine handles "unsigned long"
+  input value, not  __u64,  thus you would need to write a new
+  encoder too.    Reading the existing  encode_comp_t()  shows,
+  that its coder has mixed up EXPSIZE and EXPBASE concepts.
+
+
+/* 
+ *  comp_t is a 16-bit "floating" point number with a 3-bit base 8
+ *  exponent and a 13-bit fraction. See linux/kernel/acct.c for the
+ *  specific encoding system used.
+ */
+
+typedef __u16   comp_t;
+
+
+  With 13 bits, the maximum fraction is thus  2^14 -1 = 16383
+  With 3 bits, and base  8 the maximum exponent is:  8^7 =   2M
+  With 3 bits, and base 16 the maximum exponent is: 16^7 = 256M
+
+  Combined:
+    Base8:  0 thru   16 GigaCounts  with 10-13 bit precission
+    Base16: 0 thru 4096 GigaCounts  with  9-13 bit precission
+
+
+> thanks,
+> Manik
+...
+
+/Matti Aarnio

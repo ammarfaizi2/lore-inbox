@@ -1,56 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263856AbUCZHwv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 02:52:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263925AbUCZHwv
+	id S264033AbUCZIHy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 03:07:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264034AbUCZIHy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 02:52:51 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:161
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S263856AbUCZHwu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 02:52:50 -0500
-Date: Fri, 26 Mar 2004 08:53:43 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Rajesh Venkatasubramanian <vrajesh@umich.edu>
-Cc: akpm@osdl.org, torvalds@osdl.org, hugh@veritas.com, mbligh@aracnet.com,
-       riel@redhat.com, mingo@elte.hu, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity fix
-Message-ID: <20040326075343.GB12484@dualathlon.random>
-References: <Pine.LNX.4.44.0403150527400.28579-100000@localhost.localdomain> <Pine.GSO.4.58.0403211634350.10248@azure.engin.umich.edu> <20040325225919.GL20019@dualathlon.random> <Pine.GSO.4.58.0403252258170.4298@azure.engin.umich.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.58.0403252258170.4298@azure.engin.umich.edu>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Fri, 26 Mar 2004 03:07:54 -0500
+Received: from sea2-dav24.sea2.hotmail.com ([207.68.164.81]:11 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S264033AbUCZIHw convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Mar 2004 03:07:52 -0500
+X-Originating-IP: [80.204.235.254]
+X-Originating-Email: [pupilla@hotmail.com]
+From: "Marco Berizzi" <pupilla@hotmail.com>
+To: "Chris Friesen" <cfriesen@nortelnetworks.com>
+Cc: <linux-kernel@vger.kernel.org>
+References: <DAV6695HfqR77bieLYC00007982@hotmail.com> <40632922.7080804@nortelnetworks.com>
+Subject: Re: proxy arp behaviour
+Date: Fri, 26 Mar 2004 09:07:18 +0100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1123
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1123
+Message-ID: <Sea2-DAV24tRc0JFaTi00010373@hotmail.com>
+X-OriginalArrivalTime: 26 Mar 2004 08:07:24.0957 (UTC) FILETIME=[5F690CD0:01C41309]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 25, 2004 at 11:06:50PM -0500, Rajesh Venkatasubramanian wrote:
-> 
-> Hi Andrea,
-> 
-> I am yet to look at the new -aa you released. A small change is
-> required below. Currently, I cannot generate a patch. Sorry. Please
-> fix it by hand. Thanks.
-> 
-> >
-> > -	list_for_each_entry(vma, list, shared) {
-> > +	vma = __vma_prio_tree_first(root, &iter, h_pgoff, h_pgoff);
-> 
-> This should be:
-> 	vma = __vma_prio_tree_first(root, &iter, h_pgoff, ULONG_MAX);
-> 
-> > +	while (vma) {
-> >  		unsigned long h_vm_pgoff;
-> [snip]
-> > +		vma = __vma_prio_tree_next(vma, root, &iter, h_pgoff, h_pgoff);
-> >  	}
-> 
-> and here it should be:
-> 		vma = __vma_prio_tree_next(vma, root, &iter,
-> 						h_pgoff, ULONG_MAX);
+Chris Friesen wrote:
 
-I was missing all vmas with vm_start starting after h_pgoff.  Thanks.
+> Marco Berizzi wrote:
+> 
+> > eth1 configuration is here:
+> > 
+> > ifconfig eth1 10.77.77.1 broadcast 10.77.77.3 netmask 255.255.255.252
+> > ip route del 10.77.77.0/30 dev eth1
+> > ip route add 172.17.1.0/24 dev eth1
+> > 
+> > echo 1 > /proc/sys/net/ipv4/conf/eth1/proxy_arp
+> > 
+> > Hosts connected to eth1 are all 172.17.1.0/24.
+> > The linux box is now replying to arp requests
+> > that are sent by 172.17.1.0/24 hosts on the eth1
+> > network segment.
+> 
+> Arp requests for what IP addresses?
+
+The linux box is replying to arp requests for 172.17.1.0/24, sent
+by 172.17.1.0/24 systems (windoze 2000 and Linux 2.4.25).

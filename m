@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267771AbRGQEmz>; Tue, 17 Jul 2001 00:42:55 -0400
+	id <S264663AbRGQFgB>; Tue, 17 Jul 2001 01:36:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267772AbRGQEmp>; Tue, 17 Jul 2001 00:42:45 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:29966 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267771AbRGQEmf>; Tue, 17 Jul 2001 00:42:35 -0400
-From: Linus Torvalds <torvalds@transmeta.com>
-Date: Mon, 16 Jul 2001 21:41:56 -0700
-Message-Id: <200107170441.f6H4fux15702@penguin.transmeta.com>
-To: tachino@open.nm.fujitsu.co.jp, linux-kernel@vger.kernel.org
-Subject: Re: [BUG 2.4.6] PPID of a process is set to itself
-Newsgroups: linux.dev.kernel
-In-Reply-To: <k818gp7s.wl@nisaaru.open.nm.fujitsu.co.jp>
+	id <S265003AbRGQFfw>; Tue, 17 Jul 2001 01:35:52 -0400
+Received: from pc245.edi.nunet.net ([199.249.165.245]:1532 "EHLO
+	syzygy.sourcelight.com") by vger.kernel.org with ESMTP
+	id <S264663AbRGQFfj>; Tue, 17 Jul 2001 01:35:39 -0400
+Date: Tue, 17 Jul 2001 00:35:35 -0500
+From: Henry Cejtin <henry@sourcelight.com>
+Message-Id: <200107170535.f6H5ZZt20785@syzygy.sourcelight.com>
+To: linux-kernel@vger.kernel.org
+Subject: race in getrusage()
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <k818gp7s.wl@nisaaru.open.nm.fujitsu.co.jp> you write:
->
->When I am playing with clone system call, I found the case the cloned process
->becomes the zombie which is not reaped because the PPID of the process is
->set to itself. The test program are following.
+Sorry for sending this bug report out to this broad an audience, but there is
+an old bug in getrusage() (it  has  been  there  since  at  least  2.2.5  and
+probably way before that and is still in 2.4.6).  Depending on the cleverness
+of the C compiler, when you do
+    getrusage(RUSAGE_SELF, &rbuf)
+you can get one of the following:
 
-Heh.
+    A rbuf.ru_stime which is 1 second too small.  (In  particular,  1  second
+        smaller than you got from a previous call in the same process.)
+    rbuf.ru_stime.tv_usec = 10^6 (i.e., larger than should be possible).
 
->Following patch fixes the bug, but I don't know this is correct. Can
->someone please explain me why in forget_original_parent(), the parent of
->processes in a thread group is set to another process in the thread
->group?
+The  bug  is  caused  by  the  fact  that in kernel/sys.c, in the getrusage()
+function, the p->times.tms_stime might change  while  the  code  is  running.
+Since  it  isn't marked as being volatile, if the compiler optimizes the code
+by  subtracting  the  r.ru_stime.tv_sec  *  HZ  from   a   second   load   of
+p->times.tms_stime  then  you  get the r.ru_stime.tv_usec set to 10^6.  If it
+reloads p->times.tms_stime then you get the lost second.  I  have  seen  both
+behaviors,  depending  on the compiler being used.  In particular, the kernel
+distributed with Red Hat 7.1 shows the lost second phenomenon, and  the  10^6
+value for ru_stime.tv_usec on Red Hat 6.0's kernel.
 
-The point with "CLONE_THREAD" is to create a sibling that is a more
-"traditional" thread in the sense that it is more identical to the
-original clonee - sharing the same thread group etc, so that we can
-implement full POSIX pthreads semantics.
+The fix is to just load p->times.tms_stime into a local variable and then use
+the local copy for setting both the tv_sec and tv_usec fields of  r.ru_stime.
 
-HOWEVER, the bug you hit is because CLONE_THREAD also implies
-CLONE_PARENT, and the fork() code didn't actually enforce this. So
-instead of your patch, we just should not allow the parent and the child
-to be in the same thread group. Suggested real patch appended. Does this
-fix it for you too?
+Only  r.ru_stime  is  vulnerable since the process is in a system call at the
+time.
 
-Thanks,
+Note, to force the compiler to  actually  fetch  p->times.tms_stime,  and  to
+fetch it only once, requires something like this:
+    clock_t tmp;
 
-		Linus
-
-------
---- linux-orig/kernel/fork.c	Mon Apr 30 22:23:29 2001
-+++ linux/kernel/fork.c	Mon Jul 16 21:38:11 2001
-@@ -604,7 +604,7 @@
- 	p->run_list.next = NULL;
- 	p->run_list.prev = NULL;
- 
--	if ((clone_flags & CLONE_VFORK) || !(clone_flags & CLONE_PARENT)) {
-+	if ((clone_flags & CLONE_VFORK) || !(clone_flags & (CLONE_PARENT | CLONE_THREAD))) {
- 		p->p_opptr = current;
- 		if (!(p->ptrace & PT_PTRACED))
- 			p->p_pptr = current;
-
+    tmp = *(volatile clock_t *)&p->times.tms_stime;
+    r.ru_utime.tv_sec = CT_TO_SECS(tmp);
+    r.ru_utime.tv_usec = CT_TO_USECS(tmp);
+otherwise  the  compiler is quite free to ignore the load and to simply fetch
+p->times.tms_stime twice.

@@ -1,176 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268505AbUJUNrU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270655AbUJUNwT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268505AbUJUNrU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 09:47:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265331AbUJUNoT
+	id S270655AbUJUNwT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 09:52:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267362AbUJUNtE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 09:44:19 -0400
-Received: from fep02fe.ttnet.net.tr ([212.156.4.132]:35801 "EHLO
-	fep02.ttnet.net.tr") by vger.kernel.org with ESMTP id S270350AbUJUNk5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 09:40:57 -0400
-Message-ID: <4177BBFD.5090300@ttnet.net.tr>
-Date: Thu, 21 Oct 2004 16:39:09 +0300
-From: "O.Sezer" <sezeroz@ttnet.net.tr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.3) Gecko/20041003
-X-Accept-Language: tr, en-us, en
-MIME-Version: 1.0
-To: andrea@novell.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Memory leak in 2.4.27 kernel, using mmap raw packet sockets
-Content-Type: multipart/mixed;
-	boundary="------------040109060707070505020407"
-X-ESAFE-STATUS: Mail clean
-X-ESAFE-DETAILS: Clean
+	Thu, 21 Oct 2004 09:49:04 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:34256 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S268733AbUJUNrW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 09:47:22 -0400
+Date: Thu, 21 Oct 2004 15:41:56 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Rui Nuno Capela <rncbc@rncbc.org>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
+Message-ID: <20041021134156.GA30791@elte.hu>
+References: <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <30690.195.245.190.93.1098349976.squirrel@195.245.190.93> <21840.195.245.190.94.1098363807.squirrel@195.245.190.94>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <21840.195.245.190.94.1098363807.squirrel@195.245.190.94>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040109060707070505020407
-Content-Type: text/plain;
-	charset=us-ascii;
-	format=flowed
-Content-Transfer-Encoding: 7bit
 
-Andrea Arcangeli  wrote:
->> > > That isnt sufficient. Consider anything else taking a reference to the
->> > > page and the refcount going negative. 
->> > 
->> > You mean not going negative? The problem here as I understand here is 
->> > we dont release the count if the PageReserved is set, but we should.
->> 
->> Drivers like the OSS audio drivers move page between Reserved and 
->> unreserved. The count can thus be corrupted.
+* Rui Nuno Capela <rncbc@rncbc.org> wrote:
+
+> The fact is jackd -R (realtime mode; SCHED_FIFO) hosing the system,
+> and thats exposed as soon as some jack audio client application enters
+> into the chain.
 > 
-> the PG_reserved goes away after VM_IO, so forbidding pages with
-> PG_reserved of vmas with VM_IO isn't any different as far as I can tell,
-> and since PG_reserved is the real offender sure we shouldn't leave a
-> check in get_user_pages that explicitly do something if the page is
-> reserved, since if the page is reserved at that point we'd need to
-> return -EFAULT or BUG_ON.
-> 
-> Adding the VM_IO patch on top of this is sure a good idea.
-> 
-> --- sles/mm/memory.c.~1~	2004-10-19 19:34:10.264335488 +0200
-> +++ sles/mm/memory.c	2004-10-19 19:58:47.403776160 +0200
-> @@ -806,7 +806,7 @@ int get_user_pages(struct task_struct *t
->  			}
->  			if (pages) {
->  				pages[i] = get_page_map(map);
-> -				if (!pages[i]) {
-> +				if (!pages[i] || PageReserved(pages[i])) {
->  					spin_unlock(&mm->page_table_lock);
->  					while (i--)
->  						page_cache_release(pages[i]);
-> @@ -814,8 +814,7 @@ int get_user_pages(struct task_struct *t
->  					goto out;
->  				}
->  				flush_dcache_page(pages[i]);
-> -				if (!PageReserved(pages[i]))
-> -					page_cache_get(pages[i]);
-> +				page_cache_get(pages[i]);
->  			}
->  			if (vmas)
->  				vmas[i] = vma;
-> 
-> My version of the fix for 2.4 is this, but this fixes as well an issue
-> with the zeropage and it's on top of some other fix for COW corruption
-> in 2.4 not yet fixed in mainline 2.4. Since 2.4 never checked
-> PageReserved like 2.6 does in get_user_pages, 2.4 as worse can suffer a
-> memleak.
-> 
-> --- sles/include/linux/mm.h.~1~	2004-10-18 10:20:53.391823696 +0200
-> +++ sles/include/linux/mm.h	2004-10-18 10:47:10.861011928 +0200
-> @@ -533,9 +533,8 @@ extern void unpin_pte_page(struct page *
->  
->  static inline void put_user_page_pte_pin(struct page * page)
->  {
-> -	if (PagePinned(page))
-> -		/* must run before put_page, put_page may free the page */
-> -		unpin_pte_page(page);
-> +	/* must run before put_page, put_page may free the page */
-> +	unpin_pte_page(page);
->  
->  	put_page(page);
->  }
-> --- sles/mm/memory.c.~1~	2004-10-18 10:20:54.947587184 +0200
-> +++ sles/mm/memory.c	2004-10-18 10:47:49.822088944 +0200
-> @@ -530,7 +530,11 @@ void __wait_on_pte_pinned_page(struct pa
->  
->  void unpin_pte_page(struct page *page)
->  {
-> -	wait_queue_head_t *waitqueue = page_waitqueue(page);
-> +	wait_queue_head_t *waitqueue;
-> +
-> +	if (!PagePinned(page))
-> +		return;
-> +	waitqueue = page_waitqueue(page);
->  	if (unlikely(!TestClearPagePinned(page)))
->  		BUG();
->  	smp_mb__after_clear_bit(); 
-> @@ -598,17 +602,21 @@ int __get_user_pages(struct task_struct 
->  				 */
->  				if (!map)
->  					goto bad_page;
-> -				page_cache_get(map);
-> -				if (pte_pin && unlikely(TestSetPagePinned(map))) {
-> -					/* fail if this is a duplicate physical page in this kiovec */
-> -					int i2 = i;
-> -					while (i2--)
-> -						if (map == pages[i2]) {
-> -							put_page(map);
-> -							goto bad_page;
-> -						}
-> -					/* hold a reference on "map" so we can wait on it */
-> -					goto pte_pin_collision;
-> +				if (map != ZERO_PAGE(start)) {
-> +					if (PageReserved(map))
-> +						goto bad_page;
-> +					page_cache_get(map);
-> +					if (pte_pin && unlikely(TestSetPagePinned(map))) {
-> +						/* fail if this is a duplicate physical page in this kiovec */
-> +						int i2 = i;
-> +						while (i2--)
-> +							if (map == pages[i2]) {
-> +								put_page(map);
-> +								goto bad_page;
-> +							}
-> +						/* hold a reference on "map" so we can wait on it */
-> +						goto pte_pin_collision;
-> +					}
->  				}
->  				pages[i] = map;
->  			}
+> Running jackd non-realtime (SCHED_OTHER) does not expose this problem,
+> so I think it's a scheduling related one.
 
-I can't find to which suse kernel these patch(es) apply. I assume
-your first one comes down to the attached one-liner for vanilla-2.4,
-can you confirm?
-For your second: I think it needs your 9999_z-get_user_pages_pte_pin-1
-patch applied beforehand?. Without that patch, are there any problems
-to be fixed? Can you post patches for vanilla kernels, please?
+i tried to pole jackd a little bit (just using things like
+jack_freewheel and jack_impulse_grabber - i dont even know what they 
+do), and got jackd into some sort of userspace loop:
 
-Regards,
-Ozkan Sezer
+  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+ 2558 root      16   0 27900 1852 2152 S 97.8  0.8   2:36.38 jackd
 
+attaching gdb to it shows:
 
---------------040109060707070505020407
-Content-Type: text/plain;
-	name="2.4_memory.c-PageReserved.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
-	filename="2.4_memory.c-PageReserved.diff"
+ Loaded symbols for /usr/local/lib/jack/jack_oss.so
+ 0xffffe410 in ?? ()
+ (gdb) bt
+ #0  0xffffe410 in ?? ()
+ #1  0xbffff7f8 in ?? ()
+ #2  0x00000a67 in ?? ()
+ #3  0x00000000 in ?? ()
+ #4  0x4db8adf8 in pthread_join () from /lib/tls/libpthread.so.0
+ #5  0xb77d6e66 in oss_driver_stop (driver=0x8055938) at  oss_driver.c:696
+ #6  0x0804ba03 in jack_engine_delete (engine=0x805c308) at  engine.c:2466
+ #7  0x0804ade7 in main (argc=3, argv=0xbffffb44) at jackd.c:207
+ (gdb)
 
---- 2.4/mm/memory.c.BAK	2004-10-20 11:49:35.000000000 +0300
-+++ 2.4/mm/memory.c	2004-10-21 10:43:01.000000000 +0300
-@@ -499,7 +499,7 @@
- 				/* FIXME: call the correct function,
- 				 * depending on the type of the found page
- 				 */
--				if (!pages[i])
-+				if (!pages[i] || PageReserved(pages[i]))
- 					goto bad_page;
- 				page_cache_get(pages[i]);
- 			}
+it's looping somewhere in the pthread code, and it does no system-calls
+at all and thus no scheduling as well.
 
+i dont know much about jackit, and it could easily be that something in
+this kernel broke its interaction with pthread, but it seems to me that
+this loop is in userspace and is only 'fatal' if the looping thread runs
+at SCHED_FIFO priority. Could someone with more jackit experience try to
+figure out what's going on here?
 
---------------040109060707070505020407--
+	Ingo

@@ -1,79 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263722AbTDTV7n (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Apr 2003 17:59:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263723AbTDTV7n
+	id S263740AbTDTWXI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 18:23:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263741AbTDTWXI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Apr 2003 17:59:43 -0400
-Received: from siaag1ab.compuserve.com ([149.174.40.4]:63410 "EHLO
-	siaag1ab.compuserve.com") by vger.kernel.org with ESMTP
-	id S263722AbTDTV7m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Apr 2003 17:59:42 -0400
-Date: Sun, 20 Apr 2003 18:06:51 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: [PATCH] 2.5.68 Fix IO_APIC IRQ assignment bug
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-ID: <200304201811_MC3-1-3537-1648@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+	Sun, 20 Apr 2003 18:23:08 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64171 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263740AbTDTWXH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Apr 2003 18:23:07 -0400
+Date: Sun, 20 Apr 2003 23:35:08 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Andries.Brouwer@cwi.nl
+Cc: aebr@win.tue.nl, linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [CFT] more kdev_t-ectomy
+Message-ID: <20030420223508.GK10374@parcelfarce.linux.theplanet.co.uk>
+References: <UTC200304202158.h3KLwIu10935.aeb@smtp.cwi.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <UTC200304202158.h3KLwIu10935.aeb@smtp.cwi.nl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
- Looks like the fix for the "ran out of interrupt sources" panic
-has a problem.  It will eventually assign a device the same IRQ
-number as the first system vector, i.e. the local APIC timer.
-I think this will fix it:
-
-
---- a/arch/i386/kernel/io_apic.c
-+++ b/arch/i386/kernel/io_apic.c
-@ -1117,7 +1117,7 @
- 	if (current_vector == SYSCALL_VECTOR)
- 		goto next;
+On Sun, Apr 20, 2003 at 11:58:18PM +0200, Andries.Brouwer@cwi.nl wrote:
  
--	if (current_vector > FIRST_SYSTEM_VECTOR) {
-+	if (current_vector >= FIRST_SYSTEM_VECTOR) {
- 		offset = (offset + 1) & 7;
- 		current_vector = FIRST_DEVICE_VECTOR + offset;
- 	}
+> [Now that we are talking anyway, let me ask about something.
+> You wrote blk_register_region so that subregions override
+> superregions. At the bottom there is the full region.
+> Was this just a general good idea, or do you have definite
+> applications in mind? I ask this mostly because the hash
 
+A lot of them.  Consider, e.g., ide code.  Or any other driver with
+subdrivers - anything that can't be just done by blind "here's device
+number, that's enough to know what should be loaded".
 
- I found this while trying to forward-port my .66 patch to make
-the redirect table look like this:
+In case of ide we have regions corresponding to hwifs (== IDE cables)
+and each of them can carry up to two devices.  We can see that 22:43
+is to be handled by IDE, no problems with that.  But then we get to
+decide whether it's ide-disk or ide-cd or ide-floppy.  IDE code knows
+what is needed - it had probed devices already and it knows that
+master on that cable is a disk.  So attempt to open that sucker
+should refer to IDE code, which, in turn, should know that we need
+to load a high-level driver (ide-disk.o).  After that we have a
+normal range (64 numbers) for master.  But not necessary for slave -
+if it is an ide-cd, we still might have no driver loaded.
 
+We could play splitting these ranges and merging them (i.e. original range
+shrinks and subrange is added as the first-level one), but that gets very
+nasty when you try to get it right (you need to merge these suckers during
+cleanup, etc.)
+ 
+> and that is OK for regions with constant major.
+> For multimajor regions a hash does not work very well, and
+> a tree looks better.]
 
- NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:   
- 00 001 01  0    0    0   0   0    1    1    E7     <== timer at level E
- 01 001 01  0    0    0   0   0    1    1    30     <== start at 30, not 31
- 02 000 00  1    0    0   0   0    0    0    00
- 03 001 01  0    0    0   0   0    1    1    38
- 04 001 01  0    0    0   0   0    1    1    40
- 05 001 01  0    0    0   0   0    1    1    48
- 06 001 01  0    0    0   0   0    1    1    50
- 07 001 01  0    0    0   0   0    1    1    58
- 08 001 01  0    0    0   0   0    1    1    60
- 09 001 01  0    0    0   0   0    1    1    68
- 0a 001 01  0    0    0   0   0    1    1    70
- 0b 001 01  0    0    0   0   0    1    1    78
- 0c 001 01  0    0    0   0   0    1    1    88     <== only one device at 8
- 0d 001 01  0    0    0   0   0    1    1    90
- 0e 001 01  0    0    0   0   0    1    1    98
- 0f 000 00  1    0    0   0   0    0    0    00
- 10 001 01  1    1    0   1   0    1    1    A0
- 11 001 01  1    1    0   1   0    1    1    A8
- 12 001 01  1    1    0   1   0    1    1    B0
- 13 001 01  1    1    0   1   0    1    1    B8
- 14 001 01  0    0    0   0   0    1    1    C0
- 15 000 00  1    0    0   0   0    0    0    00
- 16 000 00  1    0    0   0   0    0    0    00
- 17 000 00  1    0    0   0   0    0    0    00
-
-
-
-------
- Chuck
+Tree certainly looks better.  I'd played with route cache code (after
+all, that's exactly the same problem), but it looked like an overkill.
+I'm porting genhd.c code for character devices, if that will show up
+in profiles we'll always be able to optimize that stuff.  It is fairly
+isolated, so changes of lookup data structures should not affect anything
+else.

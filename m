@@ -1,50 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265357AbUATI7J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 03:59:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265363AbUATI7J
+	id S265317AbUATIul (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 03:50:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265329AbUATIuk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 03:59:09 -0500
-Received: from vega.digitel2002.hu ([213.163.0.181]:47059 "HELO lgb.hu")
-	by vger.kernel.org with SMTP id S265357AbUATI65 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 03:58:57 -0500
-Date: Tue, 20 Jan 2004 09:58:53 +0100
-From: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
-To: Travis Morgan <lkml@bigfiber.net>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ALSA vs. OSS
-Message-ID: <20040120085853.GC11143@vega.digitel2002.hu>
-Reply-To: lgb@lgb.hu
-References: <1074532714.16759.4.camel@midux> <microsoft-free.87vfn7bzi1.fsf@eicq.dnsalias.org> <1074536486.5955.412.camel@castle.bigfiber.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1074536486.5955.412.camel@castle.bigfiber.net>
-X-Operating-System: vega Linux 2.6.1 i686
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Tue, 20 Jan 2004 03:50:40 -0500
+Received: from mail-10.iinet.net.au ([203.59.3.42]:30621 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S265317AbUATIuY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 03:50:24 -0500
+Message-ID: <400CEBA9.20706@cyberone.com.au>
+Date: Tue, 20 Jan 2004 19:49:45 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Stefan Smietanowski <stesmi@stesmi.com>
+CC: Tim Hockin <thockin@hockin.org>, Rusty Russell <rusty@au1.ibm.com>,
+       vatsa@in.ibm.com, linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       akpm@osdl.org, rml@tech9.net
+Subject: Re: CPU Hotplug: Hotplug Script And SIGPWR
+References: <20040116174446.A2820@in.ibm.com> <20040120060027.91CC717DE5@ozlabs.au.ibm.com> <20040120063316.GA9736@hockin.org> <400CCE2F.2060502@cyberone.com.au> <20040120065207.GA10993@hockin.org> <400CD4B5.6020507@cyberone.com.au> <20040120073032.GB12638@hockin.org> <400CDCA1.5070200@cyberone.com.au> <20040120075409.GA13897@hockin.org> <400CE354.8060300@cyberone.com.au> <400CE9A6.90208@stesmi.com>
+In-Reply-To: <400CE9A6.90208@stesmi.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 19, 2004 at 11:21:26AM -0700, Travis Morgan wrote:
-> So far I sort of tend to agree with you on OSS being better.
 
-Please. This is a minor point, the important part is hidden from an average
-user, that ALSA is modularized, supports SMP, multiple sound cards etc etc,
-so it is much better structured than OSS/Free. Of course some DRIVER is in
-better/worse in ALSA than in OSS/Free. But it's a minor point, the main
-advantage is the whole structure of the sound layer Linux has, which is much
-more better with ALSA than with OSS/Free. The base structure is the hard
-work, porting drivers from eg OSS/Free or enhance it in ALSA can be minor
-work. Also, user base of OSS/Free is MUCH larger than ALSA's just because
-ALSA _was_ a separated project till now, so maybe features provided towards
-users are not so clean than in the case of OSS/Free which was the part of
-kernel since ages. But I think this is exactly the reason OSS/Free and ALSA
-are available in paralell for a while, so developers have got time to
-do something.
 
-It's like when 'new operating system' is described after its GUI in the m$
-world, while it's not a major point when speaking about an OS ;-)
+Stefan Smietanowski wrote:
 
-- Gábor (larta'H)
+> Hi.
+>
+>>> We have a conflict of priority here.  If an RT task is affined to 
+>>> CPU A and
+>>> CPU A gets yanked out, what do we do?
+>>>
+>>> Obviously the RT task can't keep running as it was.  It was affined 
+>>> to A.
+>>> Maybe for a good reason.  I see we have a few choices here:
+>>>
+>>> * re-affine it automatically, thereby silently undoing the explicit
+>>>  affinity.
+>>> * violate it's RT scheduling by not running it until it has been 
+>>> re-affined
+>>>  or CPU A returns to the pool/
+>>>
+>>> Sending it a SIGPWR means you have to run it on a different CPU that 
+>>> it was
+>>> affined to, which is already a violation.
+>>>
+>>
+>> At least the task has the option to handle the problem.
+>
+>
+> Why not make a flag that handles that choice explicitly.
+>
+> If the task sets the affinity itself the default is to
+> re-affine it if the cpu gets yanked but if the task wants to
+> be suspended until the CPU reappears it can set a flag for
+> that to happen if the CPU is yanked.
+>
+> If we have a program that can start another program on a
+> specific CPU then that program can dictate how the task
+> should respond by setting the flag the same way
+> as the task would if the task would be the one selecting
+> a specific CPU. Doesn't that fix the problem?
+
+
+Well I'll admit it would usually be more flexible if you freeze
+the process and run hotplug scripts to handle cpu affinity.
+
+Unfortunately it introduces unfixable robustness and realtime
+problems by design.
+
+

@@ -1,55 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263225AbTIATbe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 15:31:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263203AbTIATbe
+	id S263241AbTIATgj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 15:36:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263203AbTIATgY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 15:31:34 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:62657 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S263241AbTIATb3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 15:31:29 -0400
-Date: Mon, 1 Sep 2003 21:31:28 +0200
-From: Jan Kara <jack@suse.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, viro@math.psu.edu
-Subject: Re: [BUG] mtime&ctime updated when it should not
-Message-ID: <20030901193128.GA26983@atrey.karlin.mff.cuni.cz>
-References: <20030901181113.GA15672@atrey.karlin.mff.cuni.cz> <20030901121807.29119055.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030901121807.29119055.akpm@osdl.org>
-User-Agent: Mutt/1.3.28i
+	Mon, 1 Sep 2003 15:36:24 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:47344 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S263238AbTIATgU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 15:36:20 -0400
+Date: Mon, 1 Sep 2003 21:36:10 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Antonio Vargas <wind@cocodriloo.com>
+cc: Ian Kumlien <pomac@vapor.com>, Robert Love <rml@tech9.net>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [SHED] Questions.
+In-Reply-To: <20030901142128.GB2359@wind.cocodriloo.com>
+Message-ID: <Pine.GSO.4.21.0309012129510.5831-100000@waterleaf.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Jan Kara <jack@suse.cz> wrote:
-> >
-> >   Hello,
+On Mon, 1 Sep 2003, Antonio Vargas wrote:
+> On Mon, Sep 01, 2003 at 02:00:09AM +0200, Ian Kumlien wrote:
+> > On Mon, 2003-09-01 at 01:41, Robert Love wrote:
+> > > On Sun, 2003-08-31 at 18:41, Ian Kumlien wrote:
+> Ian, I came from Amiga to Linux many moons ago, and their target are
+> very different... on Amiga, the mouse pointer is drawn as a hardware
+> sprite (same as an C64 or an arcade machine), and the mouse
+> movement counters are handled in hardware too, so your mouse pointer
+> can't _EVER_ get laggy.
+
+That's not completely true...
+
+The hardware keeps track of the mouse counter (but may overflow).
+The mouse counters are checked periodically (in an interrupt, IIRC) and the
+sprite position is updated.
+
+So there's no real difference from a hardware point of view between Amiga
+mouse/sprite hardware and PCs with PS/2 or serial mice and hardware cursors.
+Both mouse counters and serial buffers can overflow, though ;-)
+
+> Geert, perhaps you could tell us how linux music playing feels
+> for a desktop m68k machine? 
+
+Last time I tried it was worse than AmigaOS.
+
+> [ I'm CCing you since you are the only one from the m68k port    
+>   which I can see posting on a regular basis.]
+
+What about Roman Zippel? And you can always try the linux-m68k list ;-)
+
+> > > Agreed.  But at the same time, not every "interactive" task should be
+> > > real-time.  In fact, nearly all should not.  I do not want my text
+> > > editor or mailer to be RT, for example.
 > > 
-> >   one user pointed my attention to the fact that when the write fails
-> > (for example when the user quota is exceeded) the modification time is
-> > still updated (the problem appears both in 2.4 and 2.6). According to
-> > SUSv3 that should not happen because the specification says that mtime
-> > and ctime should be marked for update upon a successful completition
-> > of a write (not that it would forbid updating the times in other cases
-> > but I find it at least a bit nonintuitive).
-> 
-> hrm.  Doesn't sound super-important.  But..
-  I agree that it is a minor problem...
+> > Well, there is latency and there is latency. To take the AmigaOS
+> > example. Voyager, a webbrowser for AmigaOS uses MUI (a fully dynamic gui
+> > with weighted(prioritized) sections) and renders images. It's responsive
+> > even on a 40mhz 68040 using Executive with the feedback scheduler.
 
-> >   The easiest fix would be probably to "backup" the times at the
-> > beginning of the write and restore the original values when the write
-> > fails (simply not updating the times would require more surgery because
-> > for example vmtruncate() is called when the write fails and it also
-> > updates the times).
-> >   So should I write the patch or is the current behaviour considered
-> > correct?
-> 
-> Isn't this sufficient?
-  I think it is not (I tried exactly the same patch but it didn't work)
-- the problem is that vmtruncate() is called when prepare_write() fails
-and this function also updates mtime and ctime.
+The biggest part of the responsiveness comes from the cheap context switching.
+Not needing a MMU can have its advantages... Plus there's no demand paging or
+swapping to wait for.
 
-								Honza
+That's also the reason why you can have higher serial speed under AmigaOS than
+under Linux/m68k: a serial port with a 1-byte buffer needs fast and cheap
+context switching.
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

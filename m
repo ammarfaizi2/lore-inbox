@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262532AbVCPG0Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262535AbVCPGcP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262532AbVCPG0Q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 01:26:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262533AbVCPG0Q
+	id S262535AbVCPGcP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 01:32:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262533AbVCPGcP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 01:26:16 -0500
-Received: from bay1-f30.bay1.hotmail.com ([65.54.245.30]:20625 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S262532AbVCPG0K
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 01:26:10 -0500
-Message-ID: <BAY1-F30FB0E8DB70222E858FD4EDC480@phx.gbl>
-X-Originating-IP: [128.107.253.39]
-X-Originating-Email: [sheshv@hotmail.com]
-Reply-To: sheshu@email.com
-From: "Sheshadrivasan B" <sheshv@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: linux 2.4.20 internationalization question
-Date: Wed, 16 Mar 2005 06:26:09 +0000
+	Wed, 16 Mar 2005 01:32:15 -0500
+Received: from fire.osdl.org ([65.172.181.4]:478 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262535AbVCPGcI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 01:32:08 -0500
+Date: Tue, 15 Mar 2005 22:31:43 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org, Leo Li <leoli@freescale.com>,
+       Alexandre Bastos <alebas@televes.com>,
+       "Balasaygun, Oray (Oray)" <oray@lucent.com>
+Subject: Re: [PATCH] ppc32: Update 8260_io/fcc_enet.c to function again
+Message-Id: <20050315223143.229275b6.akpm@osdl.org>
+In-Reply-To: <20050315182537.GW8345@smtp.west.cox.net>
+References: <20050315182537.GW8345@smtp.west.cox.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 16 Mar 2005 06:26:09.0411 (UTC) FILETIME=[0ABF8D30:01C529F1]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Does the Linux kernel 2.4.20 support internationalization ?
+Tom Rini <trini@kernel.crashing.org> wrote:
+>
+> There's too many things in here that've sat too long (I'd been hoping to
+>  just delete the driver, but that hasn't happened yet, so).  A cobbled
+>  together list of changes is:
+> 
+>  - Update MDIO support for workqueues.
+>  - Make use of <linux/mii.h>
+>  - Add RPX6 support.
+>  - Comment out set_multicast_list (broken).
+>  - Rework tx_ring stuff so we have tx_free, not tx_Full/n_pkts.
+>  - Other PHY updates/fixes.
+>  - Leo Li: Rework FCC clock configuration, make it easier.
+>  - 2.4 : VLAN header room, other misc bits.
+>  - Kill MII_REG_NNN in favor of defines from <linux/mii.h>
+>  - DM9161 PHY support (2.4, Myself & alebas@televes.com)
+>  - PQ2ADS and PQ2FADS support bits (Myself & alebas@televes.com
+> 
+>  From: Leo Li <leoli@freescale.com>
+>  Signed-off-by: Tom Rini <trini@kernel.crashing.org>
+>  Signed-off-by: Alexandre Bastos <alebas@televes.com>
 
-If not what are the patches needed to specifically support 
-internationalization for CJK locales
-on linux terminals and serial consoles ?
+That's unfortunate - Oray sent a patch in just a few days ago which also
+fixes up this driver.  See
 
-I have been thro Markus Kuhn's UTF-8 & Linux article that points to some 
-patches for the
-keyboard driver. It also points to this linux console tools project which I 
-understand is some
-rearchitecture of tty and keyboard drivers. But I am not sure if the linux 
-kernel 2.4.20 uses
-these ?
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11/2.6.11-mm3/broken-out/ppc-8260-fcc-ethernet-driver-cannot-read-lxt971-phy-id.patch
 
-I would appreciate if some one could help me in this regard as to what needs 
-to be done
-if at all ?
-
-Ofcourse, I am a newbie to the kernel and am not familiar with it.
-Thanks,
-Shesh.
-
-
+What should we do?

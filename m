@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313576AbSDRP2P>; Thu, 18 Apr 2002 11:28:15 -0400
+	id <S314376AbSDRPjL>; Thu, 18 Apr 2002 11:39:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314149AbSDRP2O>; Thu, 18 Apr 2002 11:28:14 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:32263 "HELO mx.in-addr.de")
-	by vger.kernel.org with SMTP id <S313576AbSDRP2O>;
-	Thu, 18 Apr 2002 11:28:14 -0400
-Date: Thu, 18 Apr 2002 17:27:58 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
+	id <S314377AbSDRPjK>; Thu, 18 Apr 2002 11:39:10 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:11529 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S314376AbSDRPjJ>;
+	Thu, 18 Apr 2002 11:39:09 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Versioning File Systems?
-Message-ID: <20020418172758.Q4498@marowsky-bree.de>
-In-Reply-To: <20020418110558.A16135@borg.org> <20020418082025.N2710@work.bitmover.com>
+Subject: Re: [RFC] 2.5.8 sort kernel tables 
+In-Reply-To: Your message of "Thu, 18 Apr 2002 23:02:11 +1000."
+             <15550.50131.489249.256007@nanango.paulus.ozlabs.org> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.22.1i
-X-Ctuhulu: HASTUR
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 19 Apr 2002 01:38:59 +1000
+Message-ID: <3112.1019144339@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2002-04-18T08:20:25,
-   Larry McVoy <lm@bitmover.com> said:
+On Thu, 18 Apr 2002 23:02:11 +1000 (EST), 
+Paul Mackerras <paulus@samba.org> wrote:
+>We already sort the kernel exception table on PPC using an insertion
+>sort.  We have chrp, pmac, prep sections as well as init, which is why
+>we had to do that.
 
-> It's certainly a fun space, file system hacking is always fun.  There
-> doesn't seem to be a good match between file system operations and
-> SCM operations, especially stuff like checkin.  write != checkin.
-> But you can handle that with
+Good, I will pinch that code and use it on all architectures.
 
-Either that, or heuristics - file not written to / opened for writing in x
-minutes -> commit.
+>BTW, do you have any valid examples of use of copy_to/from_user or
+>get/put_user in an init section?
 
-That would actually be pretty interesting because it might also allow you to
-back out editor screwups ;-)
+No, I was using those functions as an example.  The problem is
+__ex_table, there is other code that uses __ex_table besides
+copy_to_user.  It is quite legal for an arch setup routine to use a
+.fixup/__ex_table wrapper around code that might fail on some platforms
+and to have that setup routine marked __init.
 
-However, deducing change sets is more difficult.
+For example, arm #defines get8_unaligned_check which uses __ex_table.
+__get_qspan_pci_config in ppc also uses __ex_table.  Use of any of
+these macros (and others) in an __init section will generate unsorted
+tables.  One table has already broken because of out of order text
+sections.  Other tables may be broken, depending on what __init code an
+architecture uses.
 
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
--- 
-Immortality is an adequate definition of high availability for me.
-	--- Gregory F. Pfister
+The real nasty is that we do not know if the table is broken until an
+exception table entry is used and we fail to find an entry because the
+table is not sorted.  Some exception table entries will work, others
+will not, but there is no mechanism to test if the table is valid, we
+blindly assume that it is.  It is far safer to sort the tables at boot
+time than to hope that they are always sorted.
 

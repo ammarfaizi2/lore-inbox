@@ -1,87 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316845AbSFVSfa>; Sat, 22 Jun 2002 14:35:30 -0400
+	id <S316851AbSFVSpP>; Sat, 22 Jun 2002 14:45:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316846AbSFVSf3>; Sat, 22 Jun 2002 14:35:29 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:50800 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S316845AbSFVSf2>; Sat, 22 Jun 2002 14:35:28 -0400
-To: Larry McVoy <lm@bitmover.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Cort Dougan <cort@fsmlabs.com>,
-       Benjamin LaHaise <bcrl@redhat.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, Robert Love <rml@tech9.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: latest linus-2.5 BK broken
-References: <Pine.LNX.4.44.0206201003500.8225-100000@home.transmeta.com>
-	<m1r8j1rwbp.fsf@frodo.biederman.org>
-	<20020621105055.D13973@work.bitmover.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 22 Jun 2002 12:25:09 -0600
-In-Reply-To: <20020621105055.D13973@work.bitmover.com>
-Message-ID: <m1lm97rx16.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S316863AbSFVSpO>; Sat, 22 Jun 2002 14:45:14 -0400
+Received: from elixir.e.kth.se ([130.237.48.5]:43787 "EHLO elixir.e.kth.se")
+	by vger.kernel.org with ESMTP id <S316851AbSFVSpO>;
+	Sat, 22 Jun 2002 14:45:14 -0400
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [FREEZE] 2.4.19-pre10 + Promise ATA100 tx2 ver 2.20
+References: <3D14C06F.6010906@fabbione.net>
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: 22 Jun 2002 20:45:14 +0200
+In-Reply-To: Fabio Massimo Di Nitto's message of "Sat, 22 Jun 2002 20:22:39 +0200"
+Message-ID: <yw1xwusrkv9h.fsf@gladiusit.e.kth.se>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy <lm@bitmover.com> writes:
+Fabio Massimo Di Nitto <fabbione@fabbione.net> writes:
 
-> On Fri, Jun 21, 2002 at 12:15:54AM -0600, Eric W. Biederman wrote:
-> > I think Larry's perspective is interesting and if the common cluster
-> > software gets working well enough I might even try it.  But until a
-> > big SMP becomes commodity I don't see the point.
+> Hi all,
+>             probably was already discussed (I hope not).
 > 
-> The real point is that multi threading screws up your kernel.  All the Linux
-> hackers are going through the learning curve on threading and think I'm an
-> alarmist or a nut.  After Linux works on a 64 way box, I suspect that the
-> majority of them will secretly admit that threading does screw up the kernel
-> but at that point it's far too late.
+> I get a really bad freeze when there's heavy writing over the 2 x
+> 120GB WD disks.
+> 
+> reading seems to be ok.
+> 
+> Since Im really not an expert in setting up IDE stuff the only things
+> I can say is that
+> 
+> there's no OOPS or error or nothing on the screen/log.
+> 
+> The freeze is reproducible both with 2.4.19-pre10 and 2.4.18.
+> In my config I have tryed with/without DMA/Promise special options and
+> different combinations
 
-I don't see a argument that locks that get to fine grained are not an
-issue.  However even traditional version of single cpu unix are multi
-threaded.  The locking in a multi cpu design just makes that explicit.
+Those have no effect in 2.4.19-pre10 and a few earlier pres; I don't
+remember the exact number.
 
-And the only really nasty place to get locks is when you get a
-noticeable number of them in your device drivers.  With the core code
-you can fix it without out worrying about killing the OS.
- 
-> The current approach is a lot like western medicine.  Wait until the
-> cancer shows up and then make an effort to get rid of it.  My suggested
-> approach is to take steps to make sure the cancer never gets here in
-> the first place.  It's proactive rather than reactive.  And the reason
-> I harp on this is that I'm positive (and history supports me 100%)
-> that the reactive approach doesn't work, you'll be stuck with it,
-> there is no way to "fix" it other than starting over with a new kernel.
-> Then we get to repeat this whole discussion in 15 years with one of the
-> Linux veterans trying to explain to the NewOS guys that multi threading
-> really isn't as cool as it sounds and they should try this other
-> approach.
+> of them with no results.
+> 
+> I will be glad to offer more info and help if someone can kindly tell
+> me how to debug
+> 
+> this. If it's needed I can consider providing access to the machine.
 
-Proactive don't add a lock unless you can really justify that you need
-it.  That is well suited to open source code review type practices,
-and it appears to be what we are doing now.  And if you don't add
-locks you certainly don't get into a lock tangle.
+Does the machine recover from the freeze or do you have to reboot?
 
-As for 100% history supported all I see is that evolution of code,
-as it dynamically gathers the requirements instead of magically
-knowing them does much better than design as a long term 
-strategy.  Of course you design the parts you can see but every has a
-limited ability to see the future.
-
-To specifics, I don't see the point of OSlets on a single cpu that is
-hyper threaded.  Traditional threading appears to make more sense to
-me.  Similarly I don't see the point in the 2-4 cpu range.
-
-Given that there are some scales when you don't want/need more than
-one kernel, who has a machine where OSlets start to pay off?  They
-don't exist in commodity hardware, so being proactive now looks
-stupid.
-
-The only practical course I see is to work on solutions that work on
-clusters of commodity machines.  At least any one who wants one can
-get one.  If you can produce a single system image, the big iron guys
-can tweak the startup routing and run that on their giant NUMA or SMP
-machines.
-
-Eric
+-- 
+Måns Rullgård
+mru@users.sf.net

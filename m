@@ -1,58 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317257AbSHTTaL>; Tue, 20 Aug 2002 15:30:11 -0400
+	id <S317258AbSHTTtp>; Tue, 20 Aug 2002 15:49:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317258AbSHTTaL>; Tue, 20 Aug 2002 15:30:11 -0400
-Received: from waste.org ([209.173.204.2]:44011 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S317257AbSHTTaK>;
-	Tue, 20 Aug 2002 15:30:10 -0400
-Date: Tue, 20 Aug 2002 14:34:09 -0500
-From: Oliver Xymoron <oxymoron@waste.org>
-To: johan.adolfsson@axis.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Improved add_timer_randomness for __CRIS__ (instead of rdtsc())
-Message-ID: <20020820193408.GG19225@waste.org>
-References: <01a301c2482c$51a00e40$b9b270d5@homeip.net> <20020820140346.GC19225@waste.org> <03f401c24867$2d5260c0$b9b270d5@homeip.net> <20020820170601.GD19225@waste.org> <050b01c2486f$c6701880$b9b270d5@homeip.net> <20020820180257.GF19225@waste.org> <05da01c2487e$b2321120$b9b270d5@homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <05da01c2487e$b2321120$b9b270d5@homeip.net>
-User-Agent: Mutt/1.3.28i
+	id <S317264AbSHTTto>; Tue, 20 Aug 2002 15:49:44 -0400
+Received: from ext-ch1gw-3.online-age.net ([216.34.191.37]:1446 "EHLO
+	ext-ch1gw-3.online-age.net") by vger.kernel.org with ESMTP
+	id <S317258AbSHTTtn> convert rfc822-to-8bit; Tue, 20 Aug 2002 15:49:43 -0400
+Message-ID: <A9713061F01AD411B0F700D0B746CA6802FC1464@vacho6misge.cho.ge.com>
+From: "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>
+To: "'Padraig Brady'" <padraig.brady@corvil.com>
+Cc: "'Linux Kernel'" <linux-kernel@vger.kernel.org>,
+       "'andre@linux-ide.org'" <andre@linux-ide.org>,
+       "Warner, Bill (IndSys, GEFanuc, VMIC)" <Bill.Warner@gefanuc.com>
+Subject: RE: IDE-flash device and hard disk on same controller
+Date: Tue, 20 Aug 2002 15:52:05 -0400
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2655.55)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 20, 2002 at 09:20:50PM +0200, johan.adolfsson@axis.com wrote:
-> > > > Perhaps something like:
-> > > > 
-> > > > speed=get_timestamp_khz;
-> > > > lowbits=get_hires_timestamp();
-> > > 
-> > > But isn't the "num ^= high;" a way to improve the randomness
-> > > and the high value doesn't really need to be linear to the time?
+> Heater, Daniel (IndSys, GEFanuc, VMIC) wrote:
+> > The IDE driver, file ide-probe.c currently contains this 
+> test do prevent
+> > hard drives and IDE-flash devices (ex CompactFlash) from 
+> co-existing on the
+> > same IDE controller. 
 > > 
-> > No, the high order bits aren't very interesting at all. Don't worry
-> > about that bit, it's just cuteness.
+> >         /*
+> >          * Prevent long system lockup probing later for non-existant
+> >          * slave drive if the hwif is actually a flash 
+> memory card of some
+> > variety:
+> >          */
+> >         if (drive_is_flashcard(drive)) {
+> >                 ide_drive_t *mate =
+> > &HWIF(drive)->drives[1^drive->select.b.unit];
+> >                 if (!mate->ata_flash) {
+> >                         mate->present = 0;
+> >                         mate->noprobe = 1;
+> >                 }
+> >         }
+> > 
+> > This test's assumption that a spinning hard drive cannot 
+> coexist on the same
+> > controller as an IDE-flash device is incorrect.  I have a 
+> working setup with
+> > such a configuration.  I don't think that the IDE subsystem 
+> should punish
+> > everyone because _some_ hardware cannot tolerate this configuration.
+> > 
+> > One solution may be to remove this test from the IDE 
+> subsystem and force
+> > users with buggy hardware to explicitly  disable probing 
+> for a second
+> > device.  I think the parameters hdx=none or hdx=noprobe 
+> should work for
+> > them.
+> > 
+> > Comments??
 > 
-> ok:-)
-> But if the the timestamp doesn't have to be entirely accurate
-> the name should perhaps reflect that, since at least on the cris arch
-> you can save some cycles if you can accept a glitch now and then.
+> Mentioned several times (and there is a workaround), see:
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=100446144028502&w=2
+> 
+> I really think some of the default CF logic is bogus.
+> 
+> Pádraig.
+> 
 
-Describe this glitch again? Bear in mind that resolution is a very
-different matter than accuracy. Jiffies are not accurate in any
-absolute sense, but they are monotonic. And unless you've got
-interrupts shut off, even get_cycles can only giving you the time
-when it stores the timestamp in the register, which may have little to
-do with the time the next instruction that uses it executes.
 
-> We want to be able to separate it from similar functions used
-> for high-res timers etc. which need a more accurate function.
+OK. hdc=flash works where hdc=hard drive and hdd=CompactFlash.
 
-Bear in mind that most arches won't have this sort of difficulty so in
-the bigger picture, this might be overkill. Put a comment next to the
-generic function that says "might not be accurate" and when a user of
-the interface comes along that actually cares about accuracy, the
-situation can be reevaluated.
+Thanks Padraig.
 
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 
+I guess it's 6 of one, half-dozen the other, but telling the kernel that my
+hard drive is a flash drive just makes me feel squidgy!  I'm still inclined
+to suggest that the test that _prevents_ hard drive + CF configuration is no
+longer appropriate now that _some_ (most??) hardware vendors have figured
+out how to get ide-flash devices to work without "hanging" when no second
+device is present. Users with incompatible hardware can still prevent the
+long system hang by using hdx=none.
+
+I also used this workaround (hdb=flash) to configure a system with hda=flash
+and hdb=cdrom.  This seems to work also.  Are there any side effects to
+telling the kernel that the hard drive or cdrom is a flash device (such as
+marking it removable or not marking it removable)?

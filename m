@@ -1,46 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262732AbVAQIOw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262736AbVAQIQa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262732AbVAQIOw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 03:14:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262726AbVAQINs
+	id S262736AbVAQIQa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 03:16:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262726AbVAQIPH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 03:13:48 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:24333 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261634AbVAQINi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 03:13:38 -0500
-Date: Mon, 17 Jan 2005 09:13:34 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Marco van Wieringen <mvw@planets.elm.net>, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] kernel/acct.c: make a function static
-Message-ID: <20050117081334.GZ4274@stusta.de>
+	Mon, 17 Jan 2005 03:15:07 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:21260 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S262730AbVAQIOu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 03:14:50 -0500
+Subject: Re: permissions of /proc/tty/driver
+From: Arjan van de Ven <arjan@infradead.org>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Thomas Viehmann <tv@beamnet.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050116222658.GA22364@lst.de>
+References: <41E80535.1060309@beamnet.de> <20050116120436.GA13906@lst.de>
+	 <1105908524.12196.13.camel@localhost.localdomain>
+	 <20050116222658.GA22364@lst.de>
+Content-Type: text/plain
+Date: Mon, 17 Jan 2005 09:14:36 +0100
+Message-Id: <1105949676.6304.50.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes a needlessly global function static.
+On Sun, 2005-01-16 at 23:26 +0100, Christoph Hellwig wrote:
+> On Sun, Jan 16, 2005 at 09:11:03PM +0000, Alan Cox wrote:
+> > On Sul, 2005-01-16 at 12:04, Christoph Hellwig wrote:
+> > > > (where /proc/tty/driver/serial is mentioned as leaking sensitive 
+> > > > information), to me the contents of usbserial look innocent enough.
+> > > > Do you have any hints on what might be a good solution?
+> > > 
+> > > The permissions on the directory look indeed too strict to me.  It might
+> > > be better to just use strict permissions on /proc/tty/driver/serial
+> > > indeed.
+> > 
+> > The file containts transmit and receive byte counts, which means you can
+> > both measure intercharacter delay and character count. Thats a big help
+> > to password guessers
+> 
+> I know.  But that doesn't explain why we don't keep strict permissions
+> only on that file but on the directory.
+
+ls -la on the file gives you the size maybe ?
 
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
----
-
-This patch was already sent on:
-- 12 Dec 2004
-
---- linux-2.6.10-rc2-mm4-full/kernel/acct.c.old	2004-12-12 02:39:22.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/kernel/acct.c	2004-12-12 02:39:30.000000000 +0100
-@@ -170,7 +170,7 @@
-  *
-  * NOTE: acct_globals.lock MUST be held on entry and exit.
-  */
--void acct_file_reopen(struct file *file)
-+static void acct_file_reopen(struct file *file)
- {
- 	struct file *old_acct = NULL;
- 
 

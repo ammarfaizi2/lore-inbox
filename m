@@ -1,61 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281883AbRKWEPR>; Thu, 22 Nov 2001 23:15:17 -0500
+	id <S281885AbRKWET1>; Thu, 22 Nov 2001 23:19:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281882AbRKWEPH>; Thu, 22 Nov 2001 23:15:07 -0500
-Received: from mx5.sac.fedex.com ([199.81.194.37]:23305 "EHLO
-	mx5.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S281881AbRKWEO5>; Thu, 22 Nov 2001 23:14:57 -0500
-Date: Fri, 23 Nov 2001 12:14:43 +0800 (SGT)
-From: Jeff Chua <jeffchua@silk.corp.fedex.com>
-X-X-Sender: root@boston.corp.fedex.com
-To: Shaya Potter <spotter@cs.columbia.edu>
-cc: Jeff Chua <jchua@fedex.com>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Thinkpad t21 hard lockup when left overnight
-In-Reply-To: <1006483403.10497.2.camel@zaphod>
-Message-ID: <Pine.LNX.4.42.0111231154580.16590-100000@boston.corp.fedex.com>
-MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 11/23/2001
- 12:14:53 PM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 11/23/2001
- 12:14:55 PM,
-	Serialize complete at 11/23/2001 12:14:55 PM
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281886AbRKWETR>; Thu, 22 Nov 2001 23:19:17 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:56817 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S281885AbRKWETI>;
+	Thu, 22 Nov 2001 23:19:08 -0500
+Date: Thu, 22 Nov 2001 21:18:27 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: "Garst R. Reese" <reese@isn.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: e2fsck-1.25 problem
+Message-ID: <20011122211827.T1308@lynx.no>
+Mail-Followup-To: "Garst R. Reese" <reese@isn.net>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3BFDBB15.AD778DA4@isn.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <3BFDBB15.AD778DA4@isn.net>; from reese@isn.net on Thu, Nov 22, 2001 at 10:57:25PM -0400
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Nov 22, 2001  22:57 -0400, Garst R. Reese wrote:
+> I got the latest, 1.25 and installed it before booting 2.4.15pre6.
+> make check said all was fine. But, when I rebooted some messages sailed
+> by about not being able to load shared libraries and libgcc_s.so.1 and
+> fsck said something about errors in the fs and REBOOT NOW. Very scary
+> always.
 
+I take it you did a normal ./configure; make; make install?  I am running
+1.25 without any problems.
 
-On 22 Nov 2001, Shaya Potter wrote:
+> I booted up a recovery disk and ran e2fsck-1.10 on both of the relevant
+> devices and with -f and all was well. I rebooted back to 2.4.14 and got
+> the same messages flying by. Nothing of the sort in dmesg or the logs.
 
-> /usr/sbin/apmd -P /etc/apm/apmd_proxy
+e2fsck wouldn't log anything in dmesg or in syslog.  It would be helpful
+to see what the exact messages are.  Note also, that e2fsck 1.10 is
+_very_ old (released 4.5 years ago), so it is entirely possible that
+your fs has problems in it that it could not detect, but the newer e2fsck
+does find.
 
-What version of apmd? My says "apmd version 3.0final"
+I would suggest booting from a recovery disk with a statically linked
+e2fsck 1.25, and then run it under "script" so you get a log of all
+the output.  Post it here.
 
-You might want to call IBM to check if there's a more recent bios upgrade
-that you can get. Check for T21 at the IBM site below ...
-
- http://www.pc.ibm.com/support?lang=en_US&page=brand&brand=IBM+ThinkPad
-
-Look for T21 under the device driver file matrices.
-
-(Fix) Hang up occurs when suspend/resume is done on a ThinkPad
-with HDD adapter without a hard disk drive in the ultrabay 2000.
-(Fix) ACPI compatible Linux hangs up at boot timing.
-
-My /usr/src/linux/.config ...
-
-# CONFIG_ACPI is not set
-CONFIG_APM=m
-# CONFIG_APM_IGNORE_USER_SUSPEND is not set
-CONFIG_APM_DO_ENABLE=y
-CONFIG_APM_CPU_IDLE=y
-# CONFIG_APM_DISPLAY_BLANK is not set
-# CONFIG_APM_RTC_IS_GMT is not set
-# CONFIG_APM_ALLOW_INTS is not set
-# CONFIG_APM_REAL_MODE_POWER_OFF is not set
-
-I don't know whether the above will help or not, but it's worth a try.
-
-Jeff
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

@@ -1,39 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261337AbVCREOk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261327AbVCREXc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261337AbVCREOk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 23:14:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261339AbVCRELP
+	id S261327AbVCREXc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 23:23:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbVCREXc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 23:11:15 -0500
-Received: from fire.osdl.org ([65.172.181.4]:18104 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261460AbVCREJh (ORCPT
+	Thu, 17 Mar 2005 23:23:32 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:49624 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261327AbVCREX2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 23:09:37 -0500
-Date: Thu, 17 Mar 2005 20:09:07 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Ju, Seokmann" <sju@lsil.com>
-Cc: James.Bottomley@SteelEye.com, sju@lsil.com, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: [ANNOUNCE][PATCH] drivers/scsi/megaraid/megaraid_{mm,mbox}
-Message-Id: <20050317200907.54e979e9.akpm@osdl.org>
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E5703662772@exa-atlanta>
-References: <0E3FA95632D6D047BA649F95DAB60E5703662772@exa-atlanta>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 17 Mar 2005 23:23:28 -0500
+Date: Thu, 17 Mar 2005 23:23:10 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Paul Mackerras <paulus@samba.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Keir Fraser <Keir.Fraser@cl.cam.ac.uk>,
+       Jesse Barnes <jbarnes@engr.sgi.com>, akpm@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ian.Pratt@cl.cam.ac.uk, kurt@garloff.de, Christian.Limpach@cl.cam.ac.uk
+Subject: Re: [PATCH] Xen/i386 cleanups - AGP bus/phys cleanups
+In-Reply-To: <16954.7656.838769.483631@cargo.ozlabs.ibm.com>
+Message-ID: <Pine.LNX.4.61.0503172321001.8711@chimarrao.boston.redhat.com>
+References: <E1DBX0o-0000sV-00@mta1.cl.cam.ac.uk> <16952.41973.751326.592933@cargo.ozlabs.ibm.com>
+ <200503161406.01788.jbarnes@engr.sgi.com> <29ab1884ee5724e9efcfe43f14d13376@cl.cam.ac.uk>
+ <16953.20279.77584.501222@cargo.ozlabs.ibm.com> <1111067594.1213.27.camel@localhost.localdomain>
+ <16954.7656.838769.483631@cargo.ozlabs.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Ju, Seokmann" <sju@lsil.com> wrote:
->
-> Here, I'm sending another patch that has
->  fix for this issue.
+On Fri, 18 Mar 2005, Paul Mackerras wrote:
 
-It is still wordwrapped.
+> However, the idea of having phys_to_agp/agp_to_phys (or 
+> virt_to_agp/agp_to_virt) sounds like it wouldn't be too much effort, if 
+> it would help Xen.
 
-Please fix you email client, email the patch to yourself, ensure that the
-result still applies, then resend it with a full description.
+It would be absolutely trivial.  On most architectures you would have:
 
-Thanks.
+#define virt_to_agp  virt_to_phys
+#define agp_to_virt  phys_to_virt
 
+On Xen you would have:
+
+#define virt_to_agp  virt_to_bus
+#define agp_to_virt  bus_to_virt
+
+Or, more likely, defined to arbitrary_machine_to_phys
+or whatever it was called ;)
+
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312998AbSEHLNl>; Wed, 8 May 2002 07:13:41 -0400
+	id <S313128AbSEHLrp>; Wed, 8 May 2002 07:47:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313019AbSEHLNk>; Wed, 8 May 2002 07:13:40 -0400
-Received: from smtp-out-4.wanadoo.fr ([193.252.19.23]:11649 "EHLO
-	mel-rto4.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S312998AbSEHLNj>; Wed, 8 May 2002 07:13:39 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Bjorn Wesen <bjorn.wesen@axis.com>,
-        Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Paul Mackerras <paulus@samba.org>, Linus Torvalds <torvalds@transmeta.com>,
+	id <S313131AbSEHLro>; Wed, 8 May 2002 07:47:44 -0400
+Received: from ns.suse.de ([213.95.15.193]:32779 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S313128AbSEHLrm>;
+	Wed, 8 May 2002 07:47:42 -0400
+Date: Wed, 8 May 2002 13:47:42 +0200
+From: Dave Jones <davej@suse.de>
+To: Anton Altaparmakov <aia21@cantab.net>
+Cc: Martin Dalecki <dalecki@evision-ventures.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
         Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] IDE 58
-Date: Wed, 8 May 2002 13:12:56 +0200
-Message-Id: <20020508111256.27246@smtp.wanadoo.fr>
-X-Mailer: CTM PowerMail 3.1.2 F <http://www.ctmdev.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH] 2.5.14 IDE 57
+Message-ID: <20020508134741.B17402@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Anton Altaparmakov <aia21@cantab.net>,
+	Martin Dalecki <dalecki@evision-ventures.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <5.1.0.14.2.20020507151627.02390bd0@pop.cus.cam.ac.uk> <5.1.0.14.2.20020507144123.022ae2f0@pop.cus.cam.ac.uk> <Pine.LNX.4.44.0205052046590.1405-100000@home.transmeta.com> <5.1.0.14.2.20020507140736.022aed90@pop.cus.cam.ac.uk> <3CD7C9F1.2000407@evision-ventures.com> <5.1.0.14.2.20020507144123.022ae2f0@pop.cus.cam.ac.uk> <20020507160825.S22215@suse.de> <5.1.0.14.2.20020507151627.02390bd0@pop.cus.cam.ac.uk> <20020507185151.A12134@suse.de> <5.1.0.14.2.20020508043035.028a7110@pop.cus.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(resent, I had the date screwed up previously, sorry about the
-inconvenience).
+On Wed, May 08, 2002 at 04:38:31AM +0100, Anton Altaparmakov wrote:
+ > >http://www.codemonkey.org.uk/cruft/ide-info-0.0.5-dj.tar.gz
+ > Ok, will get that. Someone else emailed me a url and I tried that earlier 
+ > on (ages ago it seems) it said version 0.0.4
 
->I don't see why all IDE-interfaces in the world have to be I/O-mapped just 
->because the first PC implementations used that. Sure it was an extended 
->ISA-bus but the ISA bus is long gone and we don't all run PC's anymore 
->either.
->
->So the simple abstraction we need to hit IDE-bus registers is a macro or 
->inline, instead of a call of an I/O-primitive. It was too much work to 
->abstract this when I inserted the CRIS-arch IDE-driver in the first place 
->so I found a workaround but now seems like a better time..
+I don't think 0.0.5 actually hit the streets, I just named it that as
+this one contained something or other I did (can't remember what exactly
+diff will tell you) that I was intended to send to the author for 0.0.5
+ 
+ > Certainly it bears no resemblance to what /proc/ide/via
+ > has to say and it certainly bears no resemblance to 
+ > reality... )-:
 
-No, not a macro. There are cases where you want different access methods
-on the same machine. For example, pmacs can have the "mac-io" (ide-pmac)
-controller, which is MMIO based, _and_ a PCI-based legacy IDE controller
-using inx/outx like IOs. (A typical example is the Blue&White G3 who has
-both on the motherboard).
+Likely it needs an update for the newer VIA chipsets, as this code is
+~2 years old.  What it does do however, is proove that this doesn't need
+to be done in kernel space.
 
-Ultimately, you want the hwif (or what it becomes in 2.5) provide a set
-of functions for accessing taskfile registers and doing the PIO data
-stream read/writes (that is replace inb/outb and insw/outsw).
+    Dave.
 
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

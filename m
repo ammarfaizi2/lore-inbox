@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270571AbRHITsr>; Thu, 9 Aug 2001 15:48:47 -0400
+	id <S270575AbRHITx5>; Thu, 9 Aug 2001 15:53:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270570AbRHITsh>; Thu, 9 Aug 2001 15:48:37 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:23048 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S270574AbRHITse>; Thu, 9 Aug 2001 15:48:34 -0400
-Subject: Re: Linux 2.4.7-ac10
-To: eiki.hjartarson@wanadoo.dk
-Date: Thu, 9 Aug 2001 20:50:21 +0100 (BST)
-Cc: laughing@shared-source.org (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <20010809214645.A510@pluto.home> from "Eirikur Hjartarson" at Aug 09, 2001 09:46:45 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S270574AbRHITxr>; Thu, 9 Aug 2001 15:53:47 -0400
+Received: from h131s117a129n47.user.nortelnetworks.com ([47.129.117.131]:10901
+	"HELO pcard0ks.ca.nortel.com") by vger.kernel.org with SMTP
+	id <S270579AbRHITxf>; Thu, 9 Aug 2001 15:53:35 -0400
+Message-ID: <3B72EA75.6B06013B@nortelnetworks.com>
+Date: Thu, 09 Aug 2001 15:54:29 -0400
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Stuart Duncan <sety@perth.wni.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ARP's frustrating behavior
+In-Reply-To: <5.1.0.14.0.20010808094513.00ab72c8@mailhost> <5.1.0.14.0.20010808103510.00aafbb0@mailhost>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15Uvoz-0007xI-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, Aug 08, 2001 at 07:51:34PM +0100, Alan Cox wrote:
-> > ...
-> > o	Fix a bug in access() checks on X_OK with	(Christoph Hellwig)
-> > 	DAC ovveride
+Stuart Duncan wrote:
 > 
-> root can no longer execute files it does not have access to, e.g.
+> >Evidently, this is considered a feature.  However, to turn it off:
+> >echo 1 > /proc/sys/net/ipv4/conf/all/arp_filter
+> 
+> I've tried this and it doesn't work.  I understand that arp_filter uses
+> routing tables to determine which interfaces should respond to ARP
+> queries.  In my case, both interfaces are on the same network.
 
-Ok thats not quite correct behaviour.
+Interesting.  This works fine on 2.2.17.  It actually uses the ip address to
+network device mapping, so that a NIC won't respond to arp requests for
+addresses that are not assigned to that NIC.
 
-> pluto -# ls -l /sbin/getty
-> -r-x------    1 bin      bin         32784 Aug  8 06:54 /sbin/getty
-> pluto -# /sbin/getty
-> bash: /sbin/getty: Permission denied
-> pluto -# chmod go+rx /sbin/getty
 
-Right. The DAC stuff needs a bit of a different approach then
+-- 
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

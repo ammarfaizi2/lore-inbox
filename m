@@ -1,49 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263142AbUDLWhR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Apr 2004 18:37:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263151AbUDLWhR
+	id S263140AbUDLWfg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Apr 2004 18:35:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263146AbUDLWfg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 18:37:17 -0400
-Received: from linux-bt.org ([217.160.111.169]:55014 "EHLO mail.holtmann.net")
-	by vger.kernel.org with ESMTP id S263148AbUDLWhP (ORCPT
+	Mon, 12 Apr 2004 18:35:36 -0400
+Received: from [68.184.155.122] ([68.184.155.122]:25813 "EHLO wally.rdlg.net")
+	by vger.kernel.org with ESMTP id S263140AbUDLWfe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 18:37:15 -0400
-Subject: Re: 2.6.5-mm4 (hci_usb module unloading oops)
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Greg KH <greg@kroah.com>
-Cc: Martin Hermanowski <martin@mh57.de>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040412220353.GC23692@kroah.com>
-References: <20040410200551.31866667.akpm@osdl.org>
-	 <20040412101911.GA3823@mh57.de>  <20040412220353.GC23692@kroah.com>
-Content-Type: text/plain
-Message-Id: <1081809404.8634.24.camel@pegasus>
+	Mon, 12 Apr 2004 18:35:34 -0400
+Date: Mon, 12 Apr 2004 18:35:09 -0400
+From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Quickcam Cordless and 2.6?
+Message-ID: <20040412223509.GK1686@rdlg.net>
+Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 13 Apr 2004 00:36:45 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="KIbT1ud6duwZIwNL"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
 
-> > I get an oops when I try to unload the hci_usb module.
-> 
-> {sigh}  I'm hating that driver right now...
-> 
-> There are a number of pending bluetooth patches for that driver that fix
-> a number of different bugs, so I'm leary of trying to see if this is a
-> different one or not at this point in time.  Care to apply all of the
-> bluetooth patches and if this still happens, can you report it to the
-> linux-usb-devel and bluez-devel mailing lists?
-
-about what pending Bluetooth patches are you talking? There is one from
-Alan in 2.6.5-mh3 that should fix this problem and I already sent it
-along with my other fixes (not USB related) to Dave.
-
-Regards
-
-Marcel
+--KIbT1ud6duwZIwNL
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
 
+
+Anyone know if this will work with Linux and 2.6.5?  Any idea what driver?
+
+Logitech Quickcam Cordless
+http://www.logitech.com/index.cfm/products/details/US/EN,CRID=4,contentid=6312,detail=2
+
+
+:wq!
+---------------------------------------------------------------------------
+Robert L. Harris                     | GPG Key ID: E344DA3B
+                                         @ x-hkp://pgp.mit.edu
+DISCLAIMER:
+      These are MY OPINIONS ALONE.  I speak for no-one else.
+
+With Dreams To Be A King First One Should Be A Man
+					- Manowar
+
+
+--KIbT1ud6duwZIwNL
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAexmd8+1vMONE2jsRApHMAKCo5Y9lLc3ht1/ktfn+IspENg/fDwCcDZYS
+yy/lXI0MK8iHLoVuFhunBrs=
+=ElEF
+-----END PGP SIGNATURE-----
+
+--KIbT1ud6duwZIwNL--

@@ -1,43 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262785AbUK0CCv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262761AbUK0CCv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262785AbUK0CCv (ORCPT <rfc822;willy@w.ods.org>);
+	id S262761AbUK0CCv (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 26 Nov 2004 21:02:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262977AbUKZTiC
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263029AbUK0Bod
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 14:38:02 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:55234 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261223AbUKZT0B (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:26:01 -0500
-Date: Thu, 25 Nov 2004 19:36:14 -0500
-From: Dorn Hetzel <kernel@dorn.hetzel.org>
-To: Francois Romieu <romieu@fr.zoreil.com>
-Cc: Dorn Hetzel <kernel@dorn.hetzel.org>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, jgarzik@pobox.com
-Subject: Re: r8169.c
-Message-ID: <20041126003614.GA5441@lilah.hetzel.org>
-References: <20041119162920.GA26836@lilah.hetzel.org> <20041119201203.GA13522@electric-eye.fr.zoreil.com> <20041120003754.GA32133@lilah.hetzel.org> <20041120002946.GA18059@electric-eye.fr.zoreil.com> <20041122181307.GA3625@lilah.hetzel.org> <20041123144901.GA19005@lilah.hetzel.org> <20041123194740.GA32210@electric-eye.fr.zoreil.com> <20041125220233.GA23850@lilah.hetzel.org> <20041125205411.GA3204@electric-eye.fr.zoreil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041125205411.GA3204@electric-eye.fr.zoreil.com>
-User-Agent: Mutt/1.4i
+	Fri, 26 Nov 2004 20:44:33 -0500
+Received: from h151_115.u.wavenet.pl ([217.79.151.115]:61079 "EHLO
+	alpha.polcom.net") by vger.kernel.org with ESMTP id S261902AbUK0Blm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 20:41:42 -0500
+Date: Sat, 27 Nov 2004 02:41:34 +0100 (CET)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: Tomas Carnecky <tom@dbservice.com>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, hch@infradead.org,
+       matthew@wil.cx, dwmw2@infradead.org, aoliva@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
+In-Reply-To: <41A7D814.6060900@dbservice.com>
+Message-ID: <Pine.LNX.4.60.0411270234520.13348@alpha.polcom.net>
+References: <19865.1101395592@redhat.com> <Pine.LNX.4.60.0411270049520.29718@alpha.polcom.net>
+ <41A7D814.6060900@dbservice.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 27 Nov 2004, Tomas Carnecky wrote:
 
-It did *build* well enough not to blow up the kernel build with 2.95.4,
-it just failed in use...
+> Grzegorz Kulewski wrote:
+>> On Thu, 25 Nov 2004, David Howells wrote:
+>> 
+>>> (b) Make kernel file #include the user file.
+>> 
+>> 
+>> Does kernel really need to include user headers? When it is definition
+>> of some const then it should be defined in one file (to be sure it has
+>> only one definition).
+>
+> You have do define a interface between the kernel and the userspace..
+> you either include kernel headers from userspace (with a lot of __KERNEL__ in 
+> them) or you make separate headers with the definitions and include them in 
+> both kernel and userspace (better).
+> BTW, these are not userspace headers like the ones in /usr/include, those are 
+> just special headers preparated so that they can be included both from the 
+> kernel and userspace.
 
-On Thu, Nov 25, 2004 at 09:54:11PM +0100, Francois Romieu wrote:
-> Dorn Hetzel <kernel@dorn.hetzel.org> :
-> [...]
-> > I went ahead and remotely rebuilt using gcc 2.95.4 and upon reboot it
-> > worked long enough to ssh in and then it failed.  So it sounds like the
-> > version of gcc DOES make a difference :)
-> 
-> Ok, I'll have to audit the driver for the typical inline assembler +
-> arithmetic ops which 2.95.x dislikes.
-> 
-> --
-> Ueimor
+Ok, so maybe do it in this way:
+1. common headers (included by 2. and 3.)
+2. kernel headers (things only for kernel + included 1.)
+3. userspace headers (things only for userspace + included 1.)
+
+This way we will have no ifdefs, one definition per thing, user code in 
+userspace and kernel code in kernelspace only.
+
+
+>> But user headers may have some compatibility hacks
+>> that kernel do not need (and even maybe does not want) to have.
+>
+> About the compatibility hacks.. now it's time to remove them, together with 
+> this change. I don't think this will happen before 2.7/2.8 and until then all 
+> should have changed their code.
+> If you announce these changes soon enough and the developers have enough time 
+> to change their code, I don't see any problems.
+> Maybe you also could wrap these definitions in some #ifdef's and mark them as 
+> deprecated and write somewhere that they'll be removed in the next stable 
+> tree (2.8). So you could check if a library compiles with the new headers or 
+> if it still uses some old definitions.
+
+Are you talking about breaking userspace (API and ABI) compatibility? And 
+possibly breaking compatibility with older versions of standards? I do not 
+think it could happen. (Well at least not for common widely-used APIs).
+
+Instead we can place such userspace only hacks in 3.
+
+
+Thanks,
+
+Grzegorz Kulewski
+

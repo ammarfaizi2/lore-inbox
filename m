@@ -1,57 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261662AbULTVv0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261651AbULTVtw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261662AbULTVv0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 16:51:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261663AbULTVv0
+	id S261651AbULTVtw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 16:49:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261662AbULTVtv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 16:51:26 -0500
-Received: from out008pub.verizon.net ([206.46.170.108]:22008 "EHLO
-	out008.verizon.net") by vger.kernel.org with ESMTP id S261662AbULTVvS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 16:51:18 -0500
-Message-ID: <41C7496B.4000401@verizon.net>
-Date: Mon, 20 Dec 2004 16:51:39 -0500
-From: Jim Nelson <james4765@verizon.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: kernel-janitors@lists.osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Subject: Re: [PATCH] pcxx: replace cli()/sti() with	spin_lock_irqsave()/spin_unlock_irqrestore()
-References: <20041217223426.11143.44338.87156@localhost.localdomain>	 <1103554747.30268.24.camel@localhost.localdomain> <1103574222.31479.12.camel@localhost.localdomain>
-In-Reply-To: <1103574222.31479.12.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 20 Dec 2004 16:49:51 -0500
+Received: from wproxy.gmail.com ([64.233.184.200]:31714 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261651AbULTVth (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 16:49:37 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=uDazYfFVS3ZWlnBWci46pWrIS8pJzA2NvSroS2WCZzyEo34RTPp1xmm8FS0FuW7JKvmic3FarS2z+vqIblURmkqX2puMRAY1k+JR7ZT6XzT6Bp41WYFLUrxveKv/SDt7TSQcwe4z3Jsy+5sxf5wWYb60CSOOgv8E3ZsnR4LlKPQ=
+Message-ID: <e2e1047f04122013493f5b0151@mail.gmail.com>
+Date: Mon, 20 Dec 2004 21:49:35 +0000
+From: girish wadhwani <girish.wadh@gmail.com>
+Reply-To: girish wadhwani <girish.wadh@gmail.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: [2.6 patch] ieee1394_core.c: remove unneeded EXPORT_SYMBOL's
+Cc: Adrian Bunk <bunk@stusta.de>,
+       Arne Caspari <arnem@informatik.uni-bremen.de>, bcollins@debian.org,
+       linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <1103576759.1252.93.camel@krustophenia.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at out008.verizon.net from [209.158.220.243] at Mon, 20 Dec 2004 15:51:17 -0600
+References: <20041220015320.GO21288@stusta.de>
+	 <41C694E0.8010609@informatik.uni-bremen.de>
+	 <20041220175156.GW21288@stusta.de>
+	 <1103576759.1252.93.camel@krustophenia.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Llu, 2004-12-20 at 14:59, Alan Cox wrote:
+> Please, can't you just hold off on breaking the ieee1394 API at all for
+> now?  Currently there are no supported IEEE-1394 audio devices.  This is
+> a big deal as most new pro audio interfaces are IEEE-1394 devices.
+> There are a few under development, see http://freebob.sf.net.  But they
+> don't work yet.  If you rip out half the API you will make it that much
+> harder for these developers, by requiring them to be kernel hackers as
+> well as driver writers.
 > 
->>On Gwe, 2004-12-17 at 22:34, James Nelson wrote:
->>
->>>-	save_flags(flags);
->>>-	cli();
->>>+	spin_lock_irqsave(&pcxx_lock, flags);
->>> 	del_timer_sync(&pcxx_timer);
->>
->>Not safe if the lock is grabbed by the timer between the lock and the
->>irqsave as it will spin on another cpu and the timer delete will never
->>finish.
-> 
-> 
-> Error between brain and keyboard
-> 
-> Between the lock and the timer_delete of course
-> 
+> How about waiting until there is _one_ IEEE-1394 audio driver in the
+> tree before breaking the API?
 
-Right.
+I don't think the symbols are an issue for the Freebob project.
+Atleast, not right now. The code doesn't use the symbols. Most of the
+driver is intended to be in userspace anyways.
+Moreover, if you are going to break in the interface, you might as
+well do it before the driver
+is written rather than after.
 
-Go ahead and ignore that set of cli()/sti() patches - I'll have to take them a 
-little slower, checking for potential deadlocks and other nastiness.
+Just my 2c.
 
-I'll try again in a week or so - gotta finish "The Design of the Unix Operating 
-System" first.  Love early Xmas presents from my aunt, the mainframe systems 
-programmer... :)
+-Girish   
+> Lee
+> 
+> 
+> -------------------------------------------------------
+> SF email is sponsored by - The IT Product Guide
+> Read honest & candid reviews on hundreds of IT Products from real users.
+> Discover which products truly live up to the hype. Start reading now.
+> http://productguide.itmanagersjournal.com/
+> _______________________________________________
+> mailing list linux1394-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/linux1394-devel
+>

@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287997AbSAHMfx>; Tue, 8 Jan 2002 07:35:53 -0500
+	id <S288006AbSAHMjX>; Tue, 8 Jan 2002 07:39:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287995AbSAHMfn>; Tue, 8 Jan 2002 07:35:43 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:56744 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S287997AbSAHMfc>;
-	Tue, 8 Jan 2002 07:35:32 -0500
-Date: Tue, 8 Jan 2002 15:32:55 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
+	id <S288005AbSAHMjP>; Tue, 8 Jan 2002 07:39:15 -0500
+Received: from [203.124.139.197] ([203.124.139.197]:5637 "EHLO
+	pcsmail.patni.com") by vger.kernel.org with ESMTP
+	id <S288001AbSAHMi7>; Tue, 8 Jan 2002 07:38:59 -0500
+Reply-To: <chandrasekhar.nagaraj@patni.com>
+From: "Chandrasekhar" <chandrasekhar.nagaraj@patni.com>
 To: <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Anton Blanchard <anton@samba.org>,
-        Davide Libenzi <davidel@xmailserver.org>
-Subject: [patch] O(1) scheduler, -E1, 2.5.2-pre10, 2.4.17
-In-Reply-To: <20020108113251.GB20897@krispykreme>
-Message-ID: <Pine.LNX.4.33.0201081503250.6793-100000@localhost.localdomain>
+Subject: Problem with network
+Date: Tue, 8 Jan 2002 18:23:48 +0530
+Message-ID: <NFBBJJFKOKJEMFAEIPPJCEAHCBAA.chandrasekhar.nagaraj@patni.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-this is the latest update of the O(1) scheduler:
 
-	http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.5.2-pre10-E1.patch
+Hi,
 
-        http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.4.17-E1.patch
 
-now that Linus has put the -D2 patch into the 2.5.2-pre10 kernel, the
-2.5.2-pre10-E1 patch has become quite small :-)
+We are facing a problem regarding the network communication.
+System: Linux Kernel 2.4.7 with rmk2 and np1 patch on Assabet board.
+Problem: After setting all the required and necessary network parameters and
+running the utlility ifconfig we get the following error message
+SIOCSIFHWADDR: Device or resource busy
+But the IP Address, Netmask and Broadcast addressess are properly set.
+After this if we run ftp we get the following error message
+ftp: NETDEV WATCHDOG: eth0 timeout
+We tried increasing the timeout period but in vain.
 
-The patch compiles, boots & works just fine on my UP/SMP boxes.
+Pls Suggest
 
-Changes since -D2:
+Regards
+Chandrasekhar
 
- - make rq->bitmap big-endian safe. (Anton Blanchard)
-
- - documented and cleaned up the load estimator bits, no functional
-   changes apart from small speedups.
-
- - do init_idle() before starting up the init thread, this removes a race
-   where we'd run the init thread on CPU#0 before init_idle() has been
-   called.
-
-	Ingo
 

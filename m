@@ -1,38 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261173AbULWHlJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbULWHwk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261173AbULWHlJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Dec 2004 02:41:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261174AbULWHlJ
+	id S261174AbULWHwk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Dec 2004 02:52:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261175AbULWHwk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Dec 2004 02:41:09 -0500
-Received: from smtp-vbr12.xs4all.nl ([194.109.24.32]:45579 "EHLO
-	smtp-vbr12.xs4all.nl") by vger.kernel.org with ESMTP
-	id S261173AbULWHlG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Dec 2004 02:41:06 -0500
-Date: Thu, 23 Dec 2004 08:41:05 +0100 (CET)
-From: Erik Oomen <erik.oomen@ctc.nl>
-X-X-Sender: ooer@merlot
+	Thu, 23 Dec 2004 02:52:40 -0500
+Received: from em.njupt.edu.cn ([202.119.230.11]:3203 "HELO njupt.edu.cn")
+	by vger.kernel.org with SMTP id S261174AbULWHwj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Dec 2004 02:52:39 -0500
+Message-ID: <303791597.15361@njupt.edu.cn>
+X-WebMAIL-MUA: [10.10.136.115]
+From: "Zhenyu Wu" <y030729@njupt.edu.cn>
 To: linux-kernel@vger.kernel.org
-Subject: Re: kswapd cpu-eating FIXED by Andrew's patch!
-In-Reply-To: <3eflN-5Dx-23@gated-at.bofh.it>
-Message-ID: <Pine.LNX.4.58.0412230839220.7232@merlot>
-References: <3eflN-5Dx-23@gated-at.bofh.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Date: Thu, 23 Dec 2004 16:46:37 +0800
+Reply-To: "Zhenyu Wu" <y030729@njupt.edu.cn>
+X-Priority: 3
+Subject: Kernel BUG at slab.c:1128!
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Dec 2004, Mikhail Ramendik wrote:
+when i am going to add some code in the linux kernel source code, i meet such
+questions:
 
-> On another matter, Andrew Morton posted this patch:
->
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=110357628419245&w=2
->
-> Rik hinted that it could be the cause of the CPU eating problem. I have
-> applied it (to 2.6.10-rc3 with token-disable and vm-throttling already
-> applied), and - BINGO! No noticeable kswapd CPU load at all!
+kernel BUG at slab.c: 1128
 
-I can confirm this, fixed my kswapd CPU load as well.
+Kernel panic: Aiee, killing interrupt handler!
+In interrupt handler -not syncing.
 
-Erik.
+Reading from slab.c 1128, there is a check -in_interrupt(), have called some
+fuctions in the interrupt handler?
+But i just use "Kmalloc" to allocate some memory, is it the matter?
+
 

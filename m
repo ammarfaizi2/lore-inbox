@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264247AbSIVNyU>; Sun, 22 Sep 2002 09:54:20 -0400
+	id <S264256AbSIVOxr>; Sun, 22 Sep 2002 10:53:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264251AbSIVNyU>; Sun, 22 Sep 2002 09:54:20 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:28422 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S264247AbSIVNyT>; Sun, 22 Sep 2002 09:54:19 -0400
-Date: Sun, 22 Sep 2002 09:38:52 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Bill Huey <billh@gnuppy.monkey.org>
-cc: Ingo Molnar <mingo@elte.hu>, Ulrich Drepper <drepper@redhat.com>,
+	id <S264258AbSIVOxr>; Sun, 22 Sep 2002 10:53:47 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:25997 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S264256AbSIVOxq>; Sun, 22 Sep 2002 10:53:46 -0400
+Date: Sun, 22 Sep 2002 07:57:05 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Erich Focht <efocht@ess.nec.de>,
        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
-In-Reply-To: <20020920215029.GB1527@gnuppy.monkey.org>
-Message-ID: <Pine.LNX.3.96.1020922093417.6569A-100000@gatekeeper.tmr.com>
+cc: LSE <lse-tech@lists.sourceforge.net>, Ingo Molnar <mingo@elte.hu>,
+       Michael Hohnbaum <hohnbaum@us.ibm.com>
+Subject: Re: [Lse-tech] [PATCH 1/2] node affine NUMA scheduler
+Message-ID: <70114038.1032681424@[10.10.2.3]>
+In-Reply-To: <200209221245.30798.efocht@ess.nec.de>
+References: <200209221245.30798.efocht@ess.nec.de>
+X-Mailer: Mulberry/2.1.2 (Win32)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Sep 2002, Bill Huey wrote:
-
-
-> Don't remember off hand, but it's like to be several times a second which is
-> often enough to be a problem especially on large systems with high load.
+> OK, I see your point and I agree that numa_node_is() should be similar to
+> smp_processor_id(). I'll change the alloc_pages instead.
 > 
-> The JVM with incremental GC is being targetted for media oriented tasks
-> using the new NIO, 3d library, etc... slowness in safepoints would cripple it
-> for these tasks. It's a critical item and not easily address by the current
-> 1:1 model.
+> Do you think it makes sense to get memory from the homenode only for
+> user processes? Many kernel threads have currently the wrong homenode,
+> for some of them it's unclear which homenode they should have...
 
-Could you comment on how whell this works (or not) with linuxthreads,
-Solaris, and NGPT? I realize you probably haven't had time to look at NPTL
-yet. If an N:M model is really better for your application you might be
-able to just run NGPT.
+Well yes ... if you can keep things pretty much on their home nodes.
+That means some sort of algorithm for updating it, which may be fairly
+complex (and doesn't currently seem to work, but maybe that's just 
+because I only have 1 pool)
+ 
+> There is an alternative idea (we discussed this at OLS with Andrea, maybe
+> you remember): allocate memory from the current node and keep statistics
+> on where it is allocated. Determine the homenode from this (from time to
+> time) and schedule accordingly. This eliminates the initial load balancing
+> and leaves it all to the scheduler, but has the drawback that memory can
+> be somewhat scattered across the nodes. Any comments?
 
-Since preempt threads seem a problem, cound a dedicated machine run w/o
-preempt? I assume when you say "high load" that you would be talking a
-server, where performance is critical.
+Well, that's a lot simpler. Things should end up running on their home
+node, and thus will allocate pages from their home node, so it should
+be self-re-enforcing. The algorithm for the home node is then implicitly
+worked out from the scheduler itself, and its actions, so it's one less
+set of stuff to write. Would suggest we do this at first, to keep things
+as simple as possible so you have something mergeable.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+M.
 

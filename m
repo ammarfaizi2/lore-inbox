@@ -1,276 +1,129 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262246AbTENNzB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 09:55:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262249AbTENNzB
+	id S262251AbTENNzl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 09:55:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262254AbTENNzl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 09:55:01 -0400
-Received: from www01.ies.inet6.fr ([62.210.153.201]:29830 "EHLO
-	smtp.ies.inet6.fr") by vger.kernel.org with ESMTP id S262246AbTENNyx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 09:54:53 -0400
-Message-ID: <3EC24DA6.8030908@inet6.fr>
-Date: Wed, 14 May 2003 16:07:34 +0200
-From: Lionel Bouton <Lionel.Bouton@inet6.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030314
-X-Accept-Language: en-us, en
+	Wed, 14 May 2003 09:55:41 -0400
+Received: from ms-smtp-03.southeast.rr.com ([24.93.67.84]:55214 "EHLO
+	ms-smtp-03.southeast.rr.com") by vger.kernel.org with ESMTP
+	id S262251AbTENNze (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 09:55:34 -0400
+From: Boris Kurktchiev <techstuff@gmx.net>
+Reply-To: techstuff@gmx.net
+To: vda@port.imtp.ilyichevsk.odessa.ua, linux-kernel@vger.kernel.org
+Subject: Re: Posible memory leak!?
+Date: Wed, 14 May 2003 10:12:53 -0400
+User-Agent: KMail/1.5.1
+References: <200305131415.37244.techstuff@gmx.net> <200305140650.h4E6oCu04880@Port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200305140650.h4E6oCu04880@Port.imtp.ilyichevsk.odessa.ua>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: [SiS IDE patch] various fixes
-Content-Type: multipart/mixed;
- boundary="------------020206060205090805070105"
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200305141012.53779.techstuff@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020206060205090805070105
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+> 09:51:53  up 16:40,  1 user,  load average: 0.02, 0.02, 0.00
+> 56 processes: 55 sleeping, 1 running, 0 zombie, 0 stopped
+> CPU states:  0.2% user,  0.4% system,  0.0% nice,  0.0% iowait, 99.3% idle
+> Mem:   124616k av,  114444k used,   10172k free,       0k shrd,       4k
+> buff 53088k active,              46836k inactive
+> Swap:   76792k av,    1804k used,   74988k free                   53632k
+> cached
+>
+> Can you show "top b n1" (unabridged) and "cat /proc/meminfo", "cat
+> /proc/slabinfo" of the "swap usage shoot up to 95%" event?
 
-Hi,
+heh this is very interesting.... top b n1 reports this:
+top - 10:08:24 up 16:36,  2 users,  load average: 0.16, 0.19, 0.08
+Tasks:  62 total,   1 running,  60 sleeping,   0 stopped,   1 zombie
+Cpu(s):  12.3% user,   5.1% system,   0.0% nice,  82.6% idle
+Mem:    385904k total,   381572k used,     4332k free,   137244k buffers
+Swap:   128512k total,    20012k used,   108500k free,   126168k cached
 
-here's a patch against 2.4.21-rc2-ac1 (applies cleanly on 2.4.21-rc2, 
-should do it on 2.4.21-rc2-ac2 too) which brings the following to the 
-SiS IDE driver :
+while gkrellm reports that my RAM used is 95MB. now this is interesting....
 
-- support for SiS655,
-- support for SiS630S/ET UDMA5 mode,
-- corrected /proc/ide/sis output for ATA133 chipsets (drives' positions
-were swapped),
-- use of pci_read_config_byte() instead of direct pci poking for SiS962+ 
-detection,
+here is the /proc/meminfo:
+        total:    used:    free:  shared: buffers:  cached:
+Mem:  395165696 389582848  5582848        0 141422592 138055680
+Swap: 131596288 20623360 110972928
+MemTotal:       385904 kB
+MemFree:          5452 kB
+MemShared:           0 kB
+Buffers:        138108 kB
+Cached:         127324 kB
+SwapCached:       7496 kB
+Active:         181268 kB
+Inactive:       132244 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:       385904 kB
+LowFree:          5452 kB
+SwapTotal:      128512 kB
+SwapFree:       108372 kB
 
-I didn't have any bugreport since its post 2 days ago on linux-kernel 
-and to two users needing these corrections.
+and here is /proc/slabinfo:
+slabinfo - version: 1.1
+kmem_cache            57     72    108    2    2    1
+ip_conntrack           3     24    320    1    2    1
+tcp_tw_bucket          0     30    128    0    1    1
+tcp_bind_bucket        4    112     32    1    1    1
+tcp_open_request       0      0     64    0    0    1
+inet_peer_cache        0      0     64    0    0    1
+ip_fib_hash           14    112     32    1    1    1
+ip_dst_cache          30     40    192    2    2    1
+arp_cache              3     30    128    1    1    1
+urb_priv               3     59     64    1    1    1
+blkdev_requests     1024   1050    128   35   35    1
+dnotify_cache        125    169     20    1    1    1
+file_lock_cache        7     42     92    1    1    1
+fasync_cache           1    202     16    1    1    1
+uid_cache              1    112     32    1    1    1
+skbuff_head_cache    128    220    192   11   11    1
+sock                 117    145    768   26   29    1
+sigqueue               0     29    132    0    1    1
+kiobuf                 0      0     64    0    0    1
+cdev_cache            19     59     64    1    1    1
+bdev_cache             6     59     64    1    1    1
+mnt_cache             19     59     64    1    1    1
+inode_cache        45164  59479    512 8497 8497    1
+dentry_cache       20481  62910    128 2097 2097    1
+filp                1262   1290    128   43   43    1
+names_cache            0      2   4096    0    2    1
+buffer_head        94915  97440    128 3248 3248    1
+mm_struct             47     60    192    3    3    1
+vm_area_struct      2479   2910    128   90   97    1
+fs_cache              46     59     64    1    1    1
+files_cache           46     54    448    6    6    1
+signal_act            51     57   1344   18   19    1
+size-131072(DMA)       0      0 131072    0    0   32
+size-131072            0      0 131072    0    0   32
+size-65536(DMA)        0      0  65536    0    0   16
+size-65536             2      2  65536    2    2   16
+size-32768(DMA)        0      0  32768    0    0    8
+size-32768             4      4  32768    4    4    8
+size-16384(DMA)        0      0  16384    0    0    4
+size-16384             9     11  16384    9   11    4
+size-8192(DMA)         0      0   8192    0    0    2
+size-8192              5     20   8192    5   20    2
+size-4096(DMA)         0      0   4096    0    0    1
+size-4096             79     95   4096   79   95    1
+size-2048(DMA)         0      0   2048    0    0    1
+size-2048             10     14   2048    5    7    1
+size-1024(DMA)         0      0   1024    0    0    1
+size-1024             70     96   1024   18   24    1
+size-512(DMA)          0      0    512    0    0    1
+size-512              65     80    512   10   10    1
+size-256(DMA)          0      0    256    0    0    1
+size-256              49     75    256    4    5    1
+size-128(DMA)          2     30    128    1    1    1
+size-128             883    930    128   30   31    1
+size-64(DMA)           0      0     64    0    0    1
+size-64             2791   2891     64   49   49    1
+size-32(DMA)          36     59     64    1    1    1
+size-32              414    472     64    8    8    1
 
-Please consider applying,
-
--- 
-Lionel Bouton - inet6
----------------------------------------------------------------------
-o Siege social: 51, rue de Verdun - 92158 Suresnes
-/ _ __ _ Acces Bureaux: 33 rue Benoit Malon - 92150 Suresnes
-/ /\ /_ / /_ France
-\/ \/_ / /_/ Tel. +33 (0) 1 41 44 85 36
-Inetsys S.A. Fax +33 (0) 1 46 97 20 10
-
-
-
---------------020206060205090805070105
-Content-Type: text/plain;
- name="sis.patch.20030512_1ac"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sis.patch.20030512_1ac"
-
-diff -urN -X dontdiff --exclude=tmp_include_depends linux-2.4.21-rc2-ac1/drivers/ide/pci/sis5513.c linux-2.4.21-rc2-ac1-sis5513/drivers/ide/pci/sis5513.c
---- linux-2.4.21-rc2-ac1/drivers/ide/pci/sis5513.c	2003-05-12 00:10:19.000000000 +0200
-+++ linux-2.4.21-rc2-ac1-sis5513/drivers/ide/pci/sis5513.c	2003-05-12 15:49:54.000000000 +0200
-@@ -161,9 +161,10 @@
- 	{ "SiS748",	PCI_DEVICE_ID_SI_748,	ATA_133,	0 },
- 	{ "SiS746",	PCI_DEVICE_ID_SI_746,	ATA_133,	0 },
- 	{ "SiS745",	PCI_DEVICE_ID_SI_745,	ATA_133,	0 },
--	{ "SiS740",	PCI_DEVICE_ID_SI_740,	ATA_100,	0 },
-+	{ "SiS740",	PCI_DEVICE_ID_SI_740,	ATA_133,	0 },
- 	{ "SiS735",	PCI_DEVICE_ID_SI_735,	ATA_100,	SIS5513_LATENCY },
- 	{ "SiS730",	PCI_DEVICE_ID_SI_730,	ATA_100a,	SIS5513_LATENCY },
-+	{ "SiS655",	PCI_DEVICE_ID_SI_655,	ATA_133,	0 },
- 	{ "SiS652",	PCI_DEVICE_ID_SI_652,	ATA_133,	0 },
- 	{ "SiS651",	PCI_DEVICE_ID_SI_651,	ATA_133,	0 },
- 	{ "SiS650",	PCI_DEVICE_ID_SI_650,	ATA_133,	0 },
-@@ -257,8 +258,8 @@
- static char* chipset_capability[] = {
- 	"ATA", "ATA 16",
- 	"ATA 33", "ATA 66",
--	"ATA 100", "ATA 100",
--	"ATA 133", "ATA 133"
-+	"ATA 100 (1st gen)", "ATA 100 (2nd gen)",
-+	"ATA 133 (1st gen)", "ATA 133 (2nd gen)"
- };
- 
- #if defined(DISPLAY_SIS_TIMINGS) && defined(CONFIG_PROC_FS)
-@@ -331,8 +332,8 @@
- 			// Configuration space remapped to 0x70
- 			drive_pci = 0x70;
- 		}
--		pci_read_config_dword(bmide_dev, (unsigned long)drive_pci+8*pos, &regdw0);
--		pci_read_config_dword(bmide_dev, (unsigned long)drive_pci+8*pos+4, &regdw1);
-+		pci_read_config_dword(bmide_dev, (unsigned long)drive_pci+4*pos, &regdw0);
-+		pci_read_config_dword(bmide_dev, (unsigned long)drive_pci+4*pos+8, &regdw1);
- 		p += sprintf(p, "Drive %d:\n", pos);
- 	}
- 
-@@ -357,8 +358,7 @@
- 			case ATA_100a:	p += sprintf(p, cycle_time[(reg01 & 0x70) >> 4]); break;
- 			case ATA_100:
- 			case ATA_133a:	p += sprintf(p, cycle_time[reg01 & 0x0F]); break;
--			case ATA_133:
--			default:	p += sprintf(p, "133+ ?"); break;
-+			default:	p += sprintf(p, "?"); break;
- 		}
- 		p += sprintf(p, " \t UDMA Cycle Time    ");
- 		switch(chipset_family) {
-@@ -367,42 +367,39 @@
- 			case ATA_100a:	p += sprintf(p, cycle_time[(reg11 & 0x70) >> 4]); break;
- 			case ATA_100:
- 			case ATA_133a:  p += sprintf(p, cycle_time[reg11 & 0x0F]); break;
--			case ATA_133:
--			default:	p += sprintf(p, "133+ ?"); break;
-+			default:	p += sprintf(p, "?"); break;
- 		}
- 		p += sprintf(p, "\n");
- 	}
- 
-+	if (chipset_family < ATA_133) { /* else case TODO */
- /* Data Active */
--	p += sprintf(p, "                Data Active Time   ");
--	switch(chipset_family) {
--		case ATA_00:
--		case ATA_16: /* confirmed */
--		case ATA_33:
--		case ATA_66:
--		case ATA_100a: p += sprintf(p, active_time[reg01 & 0x07]); break;
--		case ATA_100:
--		case ATA_133a: p += sprintf(p, active_time[(reg00 & 0x70) >> 4]); break;
--		case ATA_133:
--		default: p += sprintf(p, "133+ ?"); break;
--	}
--	p += sprintf(p, " \t Data Active Time   ");
--	switch(chipset_family) {
--		case ATA_00:
--		case ATA_16:
--		case ATA_33:
--		case ATA_66:
--		case ATA_100a: p += sprintf(p, active_time[reg11 & 0x07]); break;
--		case ATA_100:
--		case ATA_133a: p += sprintf(p, active_time[(reg10 & 0x70) >> 4]); break;
--		case ATA_133:
--		default: p += sprintf(p, "133+ ?"); break;
--	}
--	p += sprintf(p, "\n");
-+		p += sprintf(p, "                Data Active Time   ");
-+		switch(chipset_family) {
-+			case ATA_00:
-+			case ATA_16: /* confirmed */
-+			case ATA_33:
-+			case ATA_66:
-+			case ATA_100a: p += sprintf(p, active_time[reg01 & 0x07]); break;
-+			case ATA_100:
-+			case ATA_133a: p += sprintf(p, active_time[(reg00 & 0x70) >> 4]); break;
-+			default: p += sprintf(p, "?"); break;
-+		}
-+		p += sprintf(p, " \t Data Active Time   ");
-+		switch(chipset_family) {
-+			case ATA_00:
-+			case ATA_16:
-+			case ATA_33:
-+			case ATA_66:
-+			case ATA_100a: p += sprintf(p, active_time[reg11 & 0x07]); break;
-+			case ATA_100:
-+			case ATA_133a: p += sprintf(p, active_time[(reg10 & 0x70) >> 4]); break;
-+			default: p += sprintf(p, "?"); break;
-+		}
-+		p += sprintf(p, "\n");
- 
- /* Data Recovery */
- 	/* warning: may need (reg&0x07) for pre ATA66 chips */
--	if (chipset_family < ATA_133) {
- 		p += sprintf(p, "                Data Recovery Time %s \t Data Recovery Time %s\n",
- 			     recovery_time[reg00 & 0x0f], recovery_time[reg10 & 0x0f]);
- 	}
-@@ -430,7 +427,6 @@
- 
- 	p += sprintf(p, "\nSiS 5513 ");
- 	switch(chipset_family) {
--		case ATA_00: p += sprintf(p, "Unknown???"); break;
- 		case ATA_16: p += sprintf(p, "DMA 16"); break;
- 		case ATA_33: p += sprintf(p, "Ultra 33"); break;
- 		case ATA_66: p += sprintf(p, "Ultra 66"); break;
-@@ -867,6 +863,19 @@
- 	return sis5513_config_drive_xfer_rate(drive);
- }
- 
-+/* Helper function used at init time
-+ * returns a PCI device revision ID
-+ * (used to detect different IDE controller versions)
-+ */
-+static u8 __init devfn_rev(int device, int function)
-+{
-+	u8 revision;
-+	/* Find device */
-+	struct pci_dev* dev = pci_find_slot(0,PCI_DEVFN(device,function));
-+	pci_read_config_byte(dev, PCI_REVISION_ID, &revision);
-+	return revision;
-+}
-+
- /* Chip detection and general config */
- static unsigned int __init init_chipset_sis5513 (struct pci_dev *dev, const char *name)
- {
-@@ -887,26 +896,24 @@
- 		/* check 100/133 chipset family */
- 		if (chipset_family == ATA_133) {
- 			u32 reg54h;
--			u16 reg02h;
-+			u16 devid;
- 			pci_read_config_dword(dev, 0x54, &reg54h);
-+			/* SiS962 and above report 0x5518 dev id if high bit is cleared */
- 			pci_write_config_dword(dev, 0x54, (reg54h & 0x7fffffff));
--			pci_read_config_word(dev, 0x02, &reg02h);
-+			pci_read_config_word(dev, 0x02, &devid);
-+			/* restore register 0x54 */
- 			pci_write_config_dword(dev, 0x54, reg54h);
-+
- 			/* devid 5518 here means SiS962 or later
--			   which supports ATA133 */
--			if (reg02h != 0x5518) {
-+			   which supports ATA133.
-+			   These are refered by chipset_family = ATA133
-+			*/
-+			if (devid != 0x5518) {
- 				u8 reg49h;
--				unsigned long sbrev;
- 				/* SiS961 family */
--
--		/*
--		 * FIXME !!! GAK!!!!!!!!!! PCI DIRECT POKING 
--		 */
--				outl(0x80001008, 0x0cf8);
--				sbrev = inl(0x0cfc);
--
- 				pci_read_config_byte(dev, 0x49, &reg49h);
--				if (((sbrev & 0xff) == 0x10) && (reg49h & 0x80))
-+				/* check isa bridge device rev id */
-+				if (((devfn_rev(2,0) & 0xff) == 0x10) && (reg49h & 0x80))
- 					chipset_family = ATA_133a;
- 				else
- 					chipset_family = ATA_100;
-@@ -924,6 +931,14 @@
- 			u8 latency = (chipset_family == ATA_100)? 0x80 : 0x10; /* Lacking specs */
- 			pci_write_config_byte(dev, PCI_LATENCY_TIMER, latency);
- 		}
-+
-+		/* Special case for SiS630 : 630S/ET is ATA_100a */
-+		if (SiSHostChipInfo[i].host_id == PCI_DEVICE_ID_SI_630) {
-+			/* check host device rev id */
-+			if (devfn_rev(0,0) >= 0x30) {
-+				chipset_family = ATA_100a;
-+			}
-+		}
- 	}
- 
- 	/* Make general config ops here
-diff -urN -X dontdiff --exclude=tmp_include_depends linux-2.4.21-rc2-ac1/include/linux/pci_ids.h linux-2.4.21-rc2-ac1-sis5513/include/linux/pci_ids.h
---- linux-2.4.21-rc2-ac1/include/linux/pci_ids.h	2003-05-12 00:12:32.000000000 +0200
-+++ linux-2.4.21-rc2-ac1-sis5513/include/linux/pci_ids.h	2003-05-12 00:35:40.000000000 +0200
-@@ -501,6 +501,7 @@
- #define PCI_DEVICE_ID_SI_650		0x0650
- #define PCI_DEVICE_ID_SI_651		0x0651
- #define PCI_DEVICE_ID_SI_652		0x0652
-+#define PCI_DEVICE_ID_SI_655		0x0655
- #define PCI_DEVICE_ID_SI_730		0x0730
- #define PCI_DEVICE_ID_SI_630_VGA	0x6300
- #define PCI_DEVICE_ID_SI_730_VGA	0x7300
-
---------------020206060205090805070105--
 

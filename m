@@ -1,103 +1,91 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315525AbSFCUuf>; Mon, 3 Jun 2002 16:50:35 -0400
+	id <S315528AbSFCUvB>; Mon, 3 Jun 2002 16:51:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315528AbSFCUue>; Mon, 3 Jun 2002 16:50:34 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:54284 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S315525AbSFCUue>; Mon, 3 Jun 2002 16:50:34 -0400
-Date: Mon, 3 Jun 2002 22:50:37 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: "Grover, Andrew" <andrew.grover@intel.com>
-Cc: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Fix suspend-to-RAM in 2.5.20
-Message-ID: <20020603205036.GD28911@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <59885C5E3098D511AD690002A5072D3C02AB7ECB@orsmsx111.jf.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S315529AbSFCUvA>; Mon, 3 Jun 2002 16:51:00 -0400
+Received: from smtp-dom.radiant.net ([66.163.205.65]:53171 "HELO
+	smtp-auth1.radiant.net") by vger.kernel.org with SMTP
+	id <S315528AbSFCUu7>; Mon, 3 Jun 2002 16:50:59 -0400
+Message-ID: <004301c20b41$696c9a20$0100007f@localdomain.wni.com.wirelessnetworksinc.com>
+From: "Herman Oosthuysen" <Herman@WirelessNetworksInc.com>
+To: "Larry McVoy" <lm@bitmover.com>, "Matti Aarnio" <matti.aarnio@zmailer.org>
+Cc: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <61DB42B180EAB34E9D28346C11535A783A7801@nocmail101.ma.tmpw.net> <20020603220046.D18899@mea-ext.zmailer.org> <20020603120653.C4940@work.bitmover.com>
+Subject: Re: please kindly get back to me
+Date: Mon, 3 Jun 2002 14:58:28 -0600
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2615.200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+I have confirmed with the Canadian CRTC, that we have no explicit laws or
+regulations for the control of spam and that the CRTC has no plans to get
+involved, even though they have the legal authority to do so.  Basically,
+they gave me the go ahead to retaliate against spammers, since neither spam
+nor anti-spam is regulated.
 
-> Please keep the ifdefs in place in acpi/system.c. It's marked broken for a
-> reason until I have a chance to look at it.
+There are various procmail recipes for the control of spam.  The trick is to
+create general purpose recipes that are not tied to specific
+spammers/messages.  The Spambouncer is a set of recipes that will generate a
+reply message to spam and I am doing something similar on my own site.  If I
+receive spam, I send it back.  If everybody would do that, then it might
+have some effect.
 
-I tried to fix it. I believe I'll have it working within 30 minutes
-with followup patch. Well, so it was less than 30 ;-).
+What we really need however, is active anti-spamming.  We need system that
+will subscribe them to each other's mailing lists on an ongoing basis.  If
+they like spam so much, then they can send it to each other.  I have started
+to do this by collecting the e-mail addresses of spammers.  I then put them
+in invisible mailto: links on my web site for spammer spiders to harvest.
 
-> Also -- what's the point of moving obviously ACPI-specific code into
-> suspend.c, instead of leaving it in acpi.c?
+A while ago, AOL returned all spam in batches back to the originators,
+causing their servers to crash.  A spammer sued, and AOL won.
 
-The code is also suspend-specific, and suspend-to-disk will have very
-similar function in very near future.
+If anyone is interested in starting Yet Another Procmail Spambouncer, then
+you can count me in.
 
-Here's followup patch that makes it work. Notice freeze_processes() --
-if you don't do that you risk data corruption. Please apply,
-								Pavel
-
---- linux-swsusp.linus/arch/i386/kernel/suspend.c	Mon Jun  3 19:01:07 2002
-+++ linux-swsusp/arch/i386/kernel/suspend.c	Mon Jun  3 22:35:15 2002
-@@ -41,5 +41,6 @@
- 		return;
- 	}
- acpi_sleep_done:
-+	acpi_restore_register_state();
- 	restore_processor_context();
- }
---- linux-swsusp.linus/drivers/acpi/system.c	Mon Jun  3 18:57:34 2002
-+++ linux-swsusp/drivers/acpi/system.c	Mon Jun  3 22:42:25 2002
-@@ -267,25 +267,15 @@
- 	switch (state)
- 	{
- 	case ACPI_STATE_S1:
--		/* do nothing */
-+		barrier();
-+		status = acpi_enter_sleep_state(state);
- 		break;
- 
- 	case ACPI_STATE_S2:
- 	case ACPI_STATE_S3:
--		save_processor_context();
--		/* TODO: this is horribly broken, fix it */
--		/* TODO: inline this function in acpi_suspend,or something. */
-+		do_suspend_lowlevel(0);
- 		break;
- 	}
--
--	barrier();
--	status = acpi_enter_sleep_state(state);
--
--acpi_sleep_done:
--
--	restore_processor_context();
--	fix_processor_context();
--
- 	restore_flags(flags);
- 
- 	return status;
-@@ -307,6 +297,8 @@
- 	if (state < ACPI_STATE_S1 || state > ACPI_STATE_S5)
- 		return AE_ERROR;
- 
-+	freeze_processes();		/* device_suspend needs processes to be stopped */
-+
- 	/* do we have a wakeup address for S2 and S3? */
- 	if (state == ACPI_STATE_S2 || state == ACPI_STATE_S3) {
- 		if (!acpi_wakeup_address)
-@@ -339,6 +331,7 @@
- 
- 	/* reset firmware waking vector */
- 	acpi_set_firmware_waking_vector((ACPI_PHYSICAL_ADDRESS) 0);
-+	thaw_processes();
- 
- 	return status;
- }
+Cheers,
+--
+Herman Oosthuysen
+Herman@WirelessNetworksInc.com
+Suite 300, #3016, 5th Ave NE,
+Calgary, Alberta, T2A 6K4, Canada
+Phone: (403) 569-5687, Fax: (403) 235-3965
+----- Original Message -----
+From: Larry McVoy <lm@bitmover.com>
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+Cc: Holzrichter, Bruce <bruce.holzrichter@monster.com>;
+<linux-kernel@vger.kernel.org>
+Sent: Monday, June 03, 2002 1:06 PM
+Subject: Re: please kindly get back to me
 
 
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+> On Mon, Jun 03, 2002 at 10:00:46PM +0300, Matti Aarnio wrote:
+> >   Anti-spam technology really needs constant evolution, as those
+> >   spammers do evolve themselves...
+>
+> If ever there was something which was screaming for an open source
+project,
+> it's spam filtering.  It seems like every major mailing list has someone
+> like Matti, working really hard on a thankless task, but losing out under
+> the tide of new spam every day.  Seems to me if there was a public
+repository
+> (sourceforge, bkbits, whatever) with a collection of procmail filters
+which
+> have been shown to work correctly, that would be a win.
+> --
+> ---
+> Larry McVoy            lm at bitmover.com
+http://www.bitmover.com/lm
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269770AbRHYQia>; Sat, 25 Aug 2001 12:38:30 -0400
+	id <S269787AbRHYQlK>; Sat, 25 Aug 2001 12:41:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269763AbRHYQiU>; Sat, 25 Aug 2001 12:38:20 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:65038 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S269770AbRHYQiB>; Sat, 25 Aug 2001 12:38:01 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
+	id <S269778AbRHYQlA>; Sat, 25 Aug 2001 12:41:00 -0400
+Received: from islay.mach.uni-karlsruhe.de ([129.13.162.92]:10672 "EHLO
+	mailout.plan9.de") by vger.kernel.org with ESMTP id <S269763AbRHYQkw>;
+	Sat, 25 Aug 2001 12:40:52 -0400
+Date: Sat, 25 Aug 2001 18:41:00 +0200
+From: <pcg@goof.com ( Marc) (A.) (Lehmann )>
 To: Rik van Riel <riel@conectiva.com.br>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
+        linux-kernel@vger.kernel.org
 Subject: Re: [resent PATCH] Re: very slow parallel read performance
-Date: Sat, 25 Aug 2001 18:43:29 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
-        "Marc A. Lehmann" <pcg@goof.com>, <linux-kernel@vger.kernel.org>,
-        <oesi@plan9.de>
-In-Reply-To: <Pine.LNX.4.33L.0108251249510.5646-100000@imladris.rielhome.conectiva>
-In-Reply-To: <Pine.LNX.4.33L.0108251249510.5646-100000@imladris.rielhome.conectiva>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010825163648Z16186-32383+1334@humbolt.nl.linux.org>
+Message-ID: <20010825184100.M773@cerebro.laendle>
+Mail-Followup-To: Rik van Riel <riel@conectiva.com.br>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010825182815.K773@cerebro.laendle> <Pine.LNX.4.33L.0108251333360.5646-100000@imladris.rielhome.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33L.0108251333360.5646-100000@imladris.rielhome.conectiva>
+X-Operating-System: Linux version 2.4.8-ac8 (root@cerebro) (gcc version 3.0.1) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On August 25, 2001 05:50 pm, Rik van Riel wrote:
-> On Sat, 25 Aug 2001, Daniel Phillips wrote:
-> 
-> > > True, it's just an issue of performance and heavily used
-> > > servers falling over under load, nothing as serious as
-> > > data corruption or system instability.
-> >
-> > If your server is falling over under load, this is not the reason.
-> 
-> I bet your opinion will be changed the moment you see a system
-> get close to falling over exactly because of this.
-> 
-> Remember NL.linux.org a few weeks back, where a difference of
-> 10 FTP users more or less was the difference between a system
-> load of 3 and a system load of 250 ?  ;)
+On Sat, Aug 25, 2001 at 01:34:36PM -0300, Rik van Riel <riel@conectiva.com.br> wrote:
+> That wouldn't have made a big difference in this case, except that
+> one process doing readahead window thrashing with its own readahead
+> data would have fallen over even worse ...
 
-Well, lets look into that then.  Surely you hit the wall at some point, no 
-matter which replacement policy you use.  How many simultaneous downloads can 
-you handle with 2.4.7 vs 2.4.8?
+I don't know that case, but in my case, one process thrashing it's
+read-ahead window is twice as fats as 16 processes doing so ;)
 
---
-Daniel
+I wother wether these problems can be fixed at all, with all these
+different situations where the vm behaves totally different in (seemingly)
+similar cases.
+
+-- 
+      -----==-                                             |
+      ----==-- _                                           |
+      ---==---(_)__  __ ____  __       Marc Lehmann      +--
+      --==---/ / _ \/ // /\ \/ /       pcg@goof.com      |e|
+      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
+    The choice of a GNU generation                       |
+                                                         |

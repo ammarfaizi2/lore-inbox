@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267490AbUIOU41@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267382AbUIOUnK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267490AbUIOU41 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 16:56:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267427AbUIOUzC
+	id S267382AbUIOUnK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 16:43:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267411AbUIOUlY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 16:55:02 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:37315 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S267424AbUIOUuT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 16:50:19 -0400
-Subject: Re: [patch] kernel sysfs events layer
-From: Robert Love <rml@novell.com>
-To: Tim Hockin <thockin@hockin.org>
-Cc: Greg KH <greg@kroah.com>, Kay Sievers <kay.sievers@vrfy.org>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20040915204754.GA19625@hockin.org>
-References: <20040913144553.GA10620@vrfy.org>
-	 <20040915000753.GA24125@kroah.com> <1095211167.20763.2.camel@localhost>
-	 <20040915034455.GB30747@kroah.com> <20040915194018.GC24131@kroah.com>
-	 <1095279043.23385.102.camel@betsy.boston.ximian.com>
-	 <20040915202234.GA18242@hockin.org>
-	 <1095279985.23385.104.camel@betsy.boston.ximian.com>
-	 <20040915203133.GA18812@hockin.org>
-	 <1095280414.23385.108.camel@betsy.boston.ximian.com>
-	 <20040915204754.GA19625@hockin.org>
-Content-Type: text/plain
-Date: Wed, 15 Sep 2004 16:49:18 -0400
-Message-Id: <1095281358.23385.109.camel@betsy.boston.ximian.com>
+	Wed, 15 Sep 2004 16:41:24 -0400
+Received: from holomorphy.com ([207.189.100.168]:58014 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S267413AbUIOUko (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 16:40:44 -0400
+Date: Wed, 15 Sep 2004 13:40:19 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Lee Revell <rlrevell@joe-job.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Robert Love <rml@ximian.com>, Andrea Arcangeli <andrea@novell.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] sched: fix scheduling latencies for !PREEMPT kernels
+Message-ID: <20040915204019.GW9106@holomorphy.com>
+References: <1095185103.23385.1.camel@betsy.boston.ximian.com> <20040914185212.GY9106@holomorphy.com> <1095188569.23385.11.camel@betsy.boston.ximian.com> <20040914192104.GB9106@holomorphy.com> <1095189593.16988.72.camel@localhost.localdomain> <1095207749.2406.36.camel@krustophenia.net> <20040915014610.GG9106@holomorphy.com> <1095213644.2406.90.camel@krustophenia.net> <20040915023611.GH9106@holomorphy.com> <41484558.6060301@namesys.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.94.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41484558.6060301@namesys.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-09-15 at 13:47 -0700, Tim Hockin wrote:
+On Wed, Sep 15, 2004 at 06:36:24AM -0700, Hans Reiser wrote:
+> Why bother?  It is V3, it should be left undisturbed except for 
+> bugfixes.  Please, spend your efforts on reducing V4 latency and 
+> measuring whether it fails to scale to multiple processors.  That would 
+> be very useful to me if someone helped with that.  V4 has the 
+> architecture for doing such things well, but there are always accidental 
+> bottlenecks that testing can discover, and I am sure we will have a 
+> handful of things preventing us from scaling well that are not hard to 
+> fix.  It would be nice to fix those......
+> The hard stuff for scalability, the locking of the tree, we did that.  
+> We just haven't tested and evaluated and refined like we need to in V4.
 
-> Are you not sending it with some specific device as the source?  Or is it
-> just coming from some abstract root kobject?
-
-It comes the the physical device.
-
-Is there really a specific issue that you are seeing?
-
-	Robert Love
+It's not for scalability; it's for cleaning up the users, which are
+universally buggy. My suggestion above would not, in fact, make reiser3
+any more scalable; it would merely isolate the locking semantics it
+couldn't live without into its own internals.
 
 
+-- wli

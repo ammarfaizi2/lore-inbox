@@ -1,67 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262730AbVCDCJc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262791AbVCDCOG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262730AbVCDCJc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 21:09:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262786AbVCDCGh
+	id S262791AbVCDCOG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 21:14:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262804AbVCDCFu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 21:06:37 -0500
-Received: from locomotive.csh.rit.edu ([129.21.60.149]:61481 "EHLO
-	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
-	id S262730AbVCDBob (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 20:44:31 -0500
-Message-ID: <4227BE1E.7070601@suse.com>
-Date: Thu, 03 Mar 2005 20:47:10 -0500
-From: Jeff Mahoney <jeffm@suse.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Thu, 3 Mar 2005 21:05:50 -0500
+Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:10147 "EHLO
+	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S262791AbVCDCBm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 21:01:42 -0500
+From: David Brownell <david-b@pacbell.net>
+To: linux-pm@lists.osdl.org
+Subject: Re: [linux-pm] [PATCH] Custom power states for non-ACPI systems
+Date: Thu, 3 Mar 2005 18:01:24 -0800
+User-Agent: KMail/1.7.1
+Cc: Pavel Machek <pavel@ucw.cz>, Todd Poynor <tpoynor@mvista.com>,
+       linux-kernel@vger.kernel.org
+References: <20050302020306.GA5724@slurryseal.ddns.mvista.com> <422659B1.9090608@mvista.com> <20050303145522.GA3485@openzaurus.ucw.cz>
+In-Reply-To: <20050303145522.GA3485@openzaurus.ucw.cz>
 MIME-Version: 1.0
-To: Jeffrey Mahoney <jeffm@suse.com>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Stephen Smalley <sds@epoch.ncsc.mil>, Chris Wright <chrisw@osdl.org>
-Subject: Re: [PATCH 1/4] vfs: adds the S_PRIVATE flag and adds use to security
-References: <20050301153717.GB18215@locomotive.unixthugs.org>
-In-Reply-To: <20050301153717.GB18215@locomotive.unixthugs.org>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Bogosity: No, tests=bogofilter, spamicity=0.000000, version=0.92.2
+Content-Disposition: inline
+Message-Id: <200503031801.25231.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thursday 03 March 2005 6:55 am, Pavel Machek wrote:
+> Hi!
+> 
+> > In most of the cases I'm thinking of, it wouldn't be a user 
+> > requesting a state but rather software (say, a cell phone 
+> > progressively entering lower power states due to inactivity).  I 
+> > haven't noticed a platform with more than 3 low-power modes so far, 
+> 
+> Are not your power states more like cpu power states?
 
-Jeffrey Mahoney wrote:
-> This patch adds an S_PRIVATE flag to inode->i_flags to mark an inode as
-> filesystem-internal. As such, it should be excepted from the security
-> infrastructure to allow the filesystem to perform its own access control.
+For System-on-Chip devices it can be a fine line.  Maybe six
+of the most important devices (including CPU) are in a low
+power state, but some others are still active.
 
-> @@ -1459,12 +1469,16 @@ static inline void security_inode_post_l
->  					     struct inode *dir,
->  					     struct dentry *new_dentry)
->  {
-> +	if (unlikely (IS_PRIVATE (new_dentry->d_inode)))
-> +		return;
->  	security_ops->inode_post_link (old_dentry, dir, new_dentry);
->  }
->  
 
-Internal testing has shown that this operation will cause an Oops on
-NFS. The assumption that a link operation will return an instantiated
-dentry is invalid, and thus new_dentry->d_inode will be NULL on NFS
-filesystems. I'll send out a revised version later this evening.
+> These are expected to be system states, and sleeping system
+> does not take calls, etc...
 
-- -Jeff
+Pavel, remember that great big "wakeup" shaped hole in the
+current PM framework... ?  Even ACPI sleep states support
+wakeup mechanisms, although not well under Linux (yet).
 
-- --
-Jeff Mahoney
-SuSE Labs
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+One way a sleeping system could take a call is if some
+external chip raised a wakeup-enabled IRQ to wake up the
+system.  And if going from deep sleep to normal operational
+state has a low cost, why shouldn't the system routinely
+enter deep sleep instead of going to CPU idle state?
 
-iD8DBQFCJ74eLPWxlyuTD7IRAg3zAJ4w5ThhGVHoTNKf+4TyqwU/NtRUvACfWnje
-EIiFuTZPWZq245g/9xrkZLA=
-=hTpo
------END PGP SIGNATURE-----
+It's certainly the case that connecting the USB device
+to a host can un-gate that peripheral's 48 MHz clock and
+wake the system up from deep sleep.
+
+- Dave

@@ -1,74 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262135AbVAYU6K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262155AbVAYVCz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262135AbVAYU6K (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 15:58:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262132AbVAYUzy
+	id S262155AbVAYVCz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 16:02:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262141AbVAYVCb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 15:55:54 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:36107 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S262117AbVAYUyd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 15:54:33 -0500
-Message-Id: <200501252053.j0PKr3G4022890@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: John Richard Moser <nigelenki@comcast.net>
-Cc: dtor_core@ameritech.net, Linus Torvalds <torvalds@osdl.org>,
-       Bill Davidsen <davidsen@tmr.com>,
-       Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       Christoph Hellwig <hch@infradead.org>, Dave Jones <davej@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
-       Greg KH <greg@kroah.com>, chrisw@osdl.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: thoughts on kernel security issues 
-In-Reply-To: Your message of "Tue, 25 Jan 2005 14:56:13 EST."
-             <41F6A45D.1000804@comcast.net> 
-From: Valdis.Kletnieks@vt.edu
-References: <1106157152.6310.171.camel@laptopd505.fenrus.org> <200501191947.j0JJlf3j024206@turing-police.cc.vt.edu> <41F6604B.4090905@tmr.com> <Pine.LNX.4.58.0501250741210.2342@ppc970.osdl.org> <41F6816D.1020306@tmr.com> <41F68975.8010405@comcast.net> <Pine.LNX.4.58.0501251025510.2342@ppc970.osdl.org> <41F691D6.8040803@comcast.net> <d120d50005012510571d77338d@mail.gmail.com>
-            <41F6A45D.1000804@comcast.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1106686383_3966P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 25 Jan 2005 15:53:03 -0500
+	Tue, 25 Jan 2005 16:02:31 -0500
+Received: from mail-in-04.arcor-online.net ([151.189.21.44]:43222 "EHLO
+	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
+	id S262150AbVAYVCL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 16:02:11 -0500
+From: Bodo Eggert <7eggert@gmx.de>
+Subject: Re: Complex logging in the kernel
+To: John Richard Moser <nigelenki@comcast.net>, linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Tue, 25 Jan 2005 22:01:56 +0100
+References: <fa.ch6lht1.iie1hh@ifi.uio.no>
+User-Agent: KNode/0.7.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+Message-Id: <E1CtXoz-0000pB-JD@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1106686383_3966P
-Content-Type: text/plain; charset=us-ascii
+John Richard Moser <nigelenki@comcast.net> wrote:
 
-On Tue, 25 Jan 2005 14:56:13 EST, John Richard Moser said:
+> What systems exist for complex logging and security auditing in the kernel?
+> 
+> For example, let's say I wanted to register my specific code (i.e. a
+> security module) to log, and adjust to log level N.  I also want another
+> module to log at log level L, which is lower than N.  I want to print
+> logs at log level N..+2 and below to the console, but silently log all
+> log messages >N+2 to the syslog.
 
-> This puts pressure on the attacker; he has to find a bug, write an
-> exploit, and find an opportunity to use it before a patch is written and
-> applied to fix the exploit.  If say 80% of exploits are suddenly
-> non-exploitable, then he's left with mostly very short windows that are
-> far and few, and thus may be beyond his level of UNION(task->skill,
-> task->luck) in many cases.
+The priority level can be adjusted using the printk sysctl.
 
-Correct.
-
-
-> If you can circumvent protection A by simply using attack B* to disable
-> protection A to do more interesting attack A*, then protection A is
-> smoke and mirrors. 
-
-You however missed an important case here.  If attack B is outside 
-UNTION(task->skill,  task->luck) protection A is *NOT* smoke-and-mirrors.
-
-And for the *vast* majority of attackers, if they have a canned exploit for
-A and it doesn't work, they'll be stuck because B is outside their ability.
-
---==_Exmh_1106686383_3966P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFB9rGvcC3lWbTT17ARAkkKAKCUOiUBcuk97bnhKopkS7BlRz947gCgor5l
-8TwYtwhumkigdu85g9xG6/o=
-=oI50
------END PGP SIGNATURE-----
-
---==_Exmh_1106686383_3966P--
+See Documentation/sysctl/kernel.txt for details.

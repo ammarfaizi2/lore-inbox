@@ -1,43 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261153AbTFNV13 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jun 2003 17:27:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbTFNV13
+	id S261161AbTFNVpO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jun 2003 17:45:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261168AbTFNVpO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jun 2003 17:27:29 -0400
-Received: from vana.vc.cvut.cz ([147.32.240.58]:24963 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id S261153AbTFNV13 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jun 2003 17:27:29 -0400
-Date: Sat, 14 Jun 2003 23:41:14 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: Ryan Underwood <nemesis-lists@icequake.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: mga dualhead console + gpm = instant reboot
-Message-ID: <20030614214114.GE2776@vana.vc.cvut.cz>
-References: <20030614014212.GC1010@dbz.icequake.net>
+	Sat, 14 Jun 2003 17:45:14 -0400
+Received: from smtp101.mail.sc5.yahoo.com ([216.136.174.139]:61011 "HELO
+	smtp101.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261161AbTFNVpL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jun 2003 17:45:11 -0400
+Subject: Re: linux-2.4.21 released
+From: =?ISO-8859-1?Q?Ram=F3n?= Rey =?UTF-8?Q?Vicente?=
+	 =?UTF-8?Q?=F3=AE=A0=92?= <retes_simbad@yahoo.es>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030614233527.08831e2a.diegocg@teleline.es>
+References: <200306131453.h5DErX47015940@hera.kernel.org>
+	 <20030613165628.GE28609@in-ws-001.cid-net.de>
+	 <20030613172226.GB9339@merlin.emma.line.org>
+	 <20030613182924.A32241@infradead.org>
+	 <20030614233527.08831e2a.diegocg@teleline.es>
+Content-Type: text/plain; charset=ISO-8859-15
+Message-Id: <1055627935.4965.6.camel@debian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030614014212.GC1010@dbz.icequake.net>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 14 Jun 2003 23:58:58 +0200
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 13, 2003 at 08:42:12PM -0500, Ryan Underwood wrote:
-> Hello,
+El s?, 14-06-2003 a las 23:35, Diego Calleja García escribió:
+> On Fri, 13 Jun 2003 18:29:24 +0100
+> Christoph Hellwig <hch@infradead.org> wrote:
 > 
-> I run the mga dualhead console.  It works ok for the most part (some
-> strange behavior on the second head happens that can be noticed in e.g.
-> lynx when the cursor is blinking).  However, if I move the gpm mouse on
-> the first head, switch to a console on the second head, move gpm mouse
-> again, then switch back to a console on the first head, moving the mouse
-> thereafter results in an instant reboot of the system.
+> > On Fri, Jun 13, 2003 at 07:22:26PM +0200, Matthias Andree wrote:
+> > > I'd add "XFS merge" to the list:
+> > 
+> > I'll start feeding the few remaining core changes to Marcelo now,
+> > the actual filesystem then is just yet another driver that could
+> > be merged any time :)
 > 
-> Since there does not appear to be any kernel panic or oops, I am at a
-> loss how to track the problem down.  Any ideas?
+> Just a small suggestion: Why not ALSA?
+> I mean, 2.5 is there for new things, indeed. But alsa are drivers (ie: it
+> shouldnt affect core code and you haven't to use them if you don't want) ,
+> and after all it's one of those things that lots of people have to add (a
+> lot of times manually and lots of people doesn't want to know how to patch
+> a kernel; although all distros ship it).
 
-Kernel version? And if it is 2.4.x, did you boot with
-'video=scrollback:0' ? If not, then please do so...
-								Petr
- 
+I think 2.4.x series are stable versions, but on the past we saw how new
+code was added to the linux stable tree if that code wasn't invasive.
+
+ALSA have many advantages and improved coded compared with OSS, and
+could add support for a few new devices. I think ALSA is an interesting
+thing now, when ALSA seems very stable.
+-- 
+/================================================\
+| Ramón Rey Vicente <ramon.rey at hispalinux.es> |
+|                                                |
+| Jabber ID <rreylinux at jabber.org>            |
+|                                                |
+| Public GPG Key http://pgp.escomposlinux.org    |
+|                                                |
+| GLiSa http://glisa.hispalinux.es               |
+\================================================/
+

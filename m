@@ -1,63 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262622AbRFEKhO>; Tue, 5 Jun 2001 06:37:14 -0400
+	id <S262094AbRFEKde>; Tue, 5 Jun 2001 06:33:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262630AbRFEKhE>; Tue, 5 Jun 2001 06:37:04 -0400
-Received: from s7n18.hfx.eastlink.ca ([24.222.7.18]:3468 "EHLO fop.ns.ca")
-	by vger.kernel.org with ESMTP id <S262629AbRFEKgx>;
-	Tue, 5 Jun 2001 06:36:53 -0400
-Date: Tue, 5 Jun 2001 07:36:39 -0300 (ADT)
-From: Steve Bromwich <kernel@fop.ns.ca>
-To: Andreas Hartmann <andihartmann@freenet.de>
-cc: Kernel-Mailingliste <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4.5] Mysterious behaviour of pppd at 56K modem
-In-Reply-To: <01060510102500.09957@athlon>
-Message-ID: <Pine.LNX.4.10.10106050724140.29115-100000@chizz.foppity.org>
+	id <S262090AbRFEKdY>; Tue, 5 Jun 2001 06:33:24 -0400
+Received: from www.wen-online.de ([212.223.88.39]:6149 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S262094AbRFEKdG>;
+	Tue, 5 Jun 2001 06:33:06 -0400
+Date: Tue, 5 Jun 2001 12:32:35 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: Zlatko Calusic <zlatko.calusic@iskon.hr>,
+        lkml <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: Re: Comment on patch to remove nr_async_pages limit
+In-Reply-To: <Pine.LNX.4.21.0106050307250.2846-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.33.0106051140270.1227-100000@mikeg.weiden.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Jun 2001, Andreas Hartmann wrote:
+On Tue, 5 Jun 2001, Marcelo Tosatti wrote:
 
-> The speed of the incoming data is always swinging between 5.9kB and 4.4kB. 
-> Why? I didn't have this problem with Kernel 2.2.x (with the same 
-> pppd-versions).
+> On Tue, 5 Jun 2001, Mike Galbraith wrote:
+>
+> > On Mon, 4 Jun 2001, Marcelo Tosatti wrote:
+> >
+> > > Zlatko,
+> > >
+> > > I've read your patch to remove nr_async_pages limit while reading an
+> > > archive on the web. (I have to figure out why lkml is not being delivered
+> > > correctly to me...)
+> > >
+> > > Quoting your message:
+> > >
+> > > "That artificial limit hurts both swap out and swap in path as it
+> > > introduces synchronization points (and/or weakens swapin readahead),
+> > > which I think are not necessary."
+> > >
+> > > If we are under low memory, we cannot simply writeout a whole bunch of
+> > > swap data. Remember the writeout operations will potentially allocate
+> > > buffer_head's for the swapcache pages before doing real IO, which takes
+> > > _more memory_: OOM deadlock.
+> >
+> > What's the point of creating swapcache pages, and then avoiding doing
+> > the IO until it becomes _dangerous_ to do so?
+>
+> Its not dangerous to do the IO. Now it _is_ dangerous to do the IO without
+> having any sane limit on the amount of data being written out at the same
+> time.
 
-Well, I'm not seeing the same thing here with 2.4, but I can give you some
-general bits and pieces to look at:
+Yes.  If we start writing out sooner, we aren't stuck with pushing a
+ton of IO all at once and can use prudent limits.  Not only because of
+potential allocation problems, but because our situation is changing
+rapidly so small corrections done often is more precise than whopping
+big ones can be.
 
-* Check ATI6 after disconnect to make sure it's not bit errors (make sure
-your comms package doesn't do ATZ on startup or it'll wipe the ATI6 stats)
-* Force the mtu to 1500 in your /etc/ppp/options file. Note that this will
-stomp on interactive traffic.
-* Make sure your modem is well initialised; run minicom or similar, set
-the baud rate to 115200, and do ATZ\nAT&F1&W
-* Try setting low latency on your serial port, eg, setserial /dev/ttyS0
-low_latency
+> > That's what we're doing right now.  This is a problem because we
+> > guarantee it will become one.
+>
+> Its not really about swapcache pages --- its about anonymous memory.
 
-> Neverthless, the overallspeed seems to be equal to kernel 2.2.x (about 
-> 5.1kB/s) - but not slower; it even could be faster. But I think, the speed 
-> could be much higher, if it wouldn't swing as much.
+(swapcache is the biggest pain in the butt for the portion of the spetrum
+I'm hammering on though)
 
-If you're measuring this with pppstats, bear in mind that if you have a
-packet that's half transferred when pppstats does its calculation, that
-packet is included in the next second's stats (or so it appears to me).
+> If you're memory is full of anonymous data, you have to push some of this
+> data to disk. (conceptually it does not really matter if its swapcache or
+> not, think about anonymous memory)
+>
+> > We guarantee that the pagecache will become almost pure swapcache by
+> > delaying the writeout so long that everything else is consumed.
+>
+> Exactly. And when we reach a low watermark of memory, we start writting
+> out the anonymous memory.
+>
+> > In experiments, speeding swapcache pages on their way helps.  Special
+> > handling (swapcache bean counting) also helps. (was _really ugly_ code..
+> > putting them on a seperate list would be a lot easier on the stomach:)
+>
+> I agree that the current way of limiting on-flight swapout can be changed
+> to perform better.
+>
+> Removing the amount of data being written to disk when we have a memory
+> shortage is not nice.
 
-> I'm using pppd 2.4.0b or 2.4.1. My modem (USR Sportster Message +) is 
-> connected with 115200 Baud (56000 tested but doesn't work properly), the 
-> connect to my provider is 50,6kB/s.
+Here, that doesn't make any real difference.  We can have too many pages
+completing IO too late or too few.. problem is that they start coming
+out of the pipe too late.  I'd rather see my poor disk saturated than
+partly idle when my box is choking on dirtclods ;-)
 
-USR modems don't set the serial interface rate to the connection rate.
-They also only use standard transfer speeds such as 300, 2400, 4800, 9600,
-19200, 38400, 57600, 115200, and the newer ones support speeds such as
-230400 and up. This is based on my experience working with the UK code
-back in the mid 90's (pre-3com takeover), though, so it may have changed
-since then.
-
-You might also want to confirm packet throughput with another utility (eg,
-iptraf) and see what that says. Also try tcpdumping a connection and see
-if there's any packets being lost.
-
-Cheers, Steve
+	-Mike
 

@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274289AbRIYAlP>; Mon, 24 Sep 2001 20:41:15 -0400
+	id <S274288AbRIYAkp>; Mon, 24 Sep 2001 20:40:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274292AbRIYAlH>; Mon, 24 Sep 2001 20:41:07 -0400
-Received: from ns.marxmeier.com ([194.64.71.4]:38670 "EHLO e35.marxmeier.com")
-	by vger.kernel.org with ESMTP id <S274289AbRIYAk4>;
-	Mon, 24 Sep 2001 20:40:56 -0400
-Message-ID: <3BAFD2B0.CD8193DB@marxmeier.com>
-Date: Tue, 25 Sep 2001 02:41:20 +0200
-From: Michael Marxmeier <mike@marxmeier.com>
-Organization: Marxmeier Software AG
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.14 i686)
-X-Accept-Language: en
+	id <S274289AbRIYAkf>; Mon, 24 Sep 2001 20:40:35 -0400
+Received: from anime.net ([63.172.78.150]:32524 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S274288AbRIYAkR>;
+	Mon, 24 Sep 2001 20:40:17 -0400
+Date: Mon, 24 Sep 2001 17:40:39 -0700 (PDT)
+From: Dan Hollis <goemon@anime.net>
+To: Michael Rothwell <rothwell@holly-springs.nc.us>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] New Anti-Terrorism Law makes "hacking" punishable by life
+ in prison
+In-Reply-To: <1001378096.1430.13.camel@gromit.house>
+Message-ID: <Pine.LNX.4.30.0109241738300.16371-100000@anime.net>
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH] cpia.c (2.4.9-ac)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My CPIA based camera ceased working with 2.4.9-ac9. The patch 
-below corrects a small thinko (still present with ac15).
+On 24 Sep 2001, Michael Rothwell wrote:
+> I wonder if I could be put in jail next week because of all that stupid
+> cuecat stuff I was involved in?
 
---- cpia.c.orig	Tue Sep 25 01:52:08 2001
-+++ cpia.c	Tue Sep 25 01:52:33 2001
-@@ -2871,7 +2871,7 @@
- 
- 		/* set video size */
- 		video_size = match_videosize(vm.width, vm.height);
--		if (cam->video_size < 0) {
-+		if (video_size < 0) {
- 			retval = -EINVAL;
- 			break;
- 		}
+The "WEP crack" fallout will be interesting to watch also.
 
+In theory under the new law anyone whos computer was infected by
+nimda/codered could be imprisoned for life -- the new law says nothing
+about intent. So basically we would have a few million microsoft windows
+users serving life sentences...
 
-Michael
+-Dan
 
 -- 
-Michael Marxmeier           Marxmeier Software AG
-E-Mail: mike@marxmeier.com  Besenbruchstrasse 9
-Phone : +49 202 2431440     42285 Wuppertal, Germany
-Fax   : +49 202 2431420     http://www.marxmeier.com/
+[-] Omae no subete no kichi wa ore no mono da. [-]
+

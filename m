@@ -1,37 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130201AbRBMN7Z>; Tue, 13 Feb 2001 08:59:25 -0500
+	id <S131025AbRBMOAZ>; Tue, 13 Feb 2001 09:00:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131025AbRBMN7P>; Tue, 13 Feb 2001 08:59:15 -0500
-Received: from grunt.ksu.ksu.edu ([129.130.12.17]:25270 "EHLO
-	mailhub.cns.ksu.edu") by vger.kernel.org with ESMTP
-	id <S130201AbRBMN7F>; Tue, 13 Feb 2001 08:59:05 -0500
-Date: Tue, 13 Feb 2001 07:58:56 -0600 (CST)
-From: Matt Stegman <mas9483@ksu.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: gzipped executables
-In-Reply-To: <20010213130949.A472@nightmaster.csn.tu-chemnitz.de>
-Message-ID: <Pine.GSO.4.21L.0102130758280.4752-100000@unix2.cc.ksu.edu>
+	id <S131618AbRBMOAP>; Tue, 13 Feb 2001 09:00:15 -0500
+Received: from green.csi.cam.ac.uk ([131.111.8.57]:43703 "EHLO
+	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S131025AbRBMN76>; Tue, 13 Feb 2001 08:59:58 -0500
+Date: Tue, 13 Feb 2001 13:56:37 +0000 (GMT)
+From: James Sutherland <jas88@cam.ac.uk>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "H. Peter Anvin" <hpa@transmeta.com>,
+        timw@splhi.com, Werner Almesberger <Werner.Almesberger@epfl.ch>,
+        linux-kernel@vger.kernel.org
+Subject: Re: LILO and serial speeds over 9600
+In-Reply-To: <200102131255.f1DCt6p02149@flint.arm.linux.org.uk>
+Message-ID: <Pine.SOL.4.21.0102131353420.15407-100000@green.csi.cam.ac.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, 13 Feb 2001, Russell King wrote:
 
-Anything in 2.4 isn't an option right now.  I'm using, and am really happy
-with, the ext3 journalling patch.  I'm not planning on a 2.4 upgrade until
-ext3 has been ported.  Damn shame I don't have the skill to do that
-myself...
+> James Sutherland writes:
+> > If the kernel starts spewing data faster than you can send it to the far
+> > end, either the data gets dropped, or you block the kernel. Having the
+> > kernel hang waiting to send a printk to the far end seems like a bad
+> > situation...
+> 
+> It can actually be useful.  Why?  Lets take a real life example: the
+> recent IDE multi-sector write bug.
+> 
+> In that specific case, I was logging through one 115200 baud serial port
+> the swapin activity (in do_swap_page), the swap out activity (in
+> try_to_swap_out), as well as every IDE request down to individual buffers
+> as they were written to/read from the drive.  This produces a rather a
+> lot of data, far faster than a 115200 baud serial port can send it.
+> 
+> The ability then to run scripts which can interpret the data and
+> pick out errors (eg, we swap in data that is different from the data
+> that was swapped out) was invaluable for tracking down the problem.
+> 
+> Had messages been dropped, this would not have been possible or would
+> have indicated false errors.  Blocking the kernel while debug stuff
+> was sent was far more preferable to loosing messages in this case.
+> I would imagine that that is also true for the majority of cases as
+> well.
 
-ext2 compression would be great. First off, though, I'm already using the
-ext3 patch.  Would ext2 compression be compatible, and take effect for
-ext3 (ext3 support is a separate option in the kernel from ext2)?  Also, I
-can't even get to the ext2 compression page
-http://e2compr.memalpha.cx/e2compr/.
+OK, in this particular case you need to log EVERYTHING for diagnostic
+purposes. In most cases, though, I'd rather have some messages dropped
+than have the machine slow to a crawl...
 
-UPX looks interesting; I'll have to check it out in depth.  Thanks, all!
+Would you be OK with a "blocking netconsole" option, to provide this
+behavious where needed? If it's the default, I bet the next Mindcraft
+tests will be run with verbose logging on a 9600bps link :-)
 
-      -Matt
+Most people wouldn't need/want this, but I can see it would be
+useful: giving the user this choice seems a better option. Also, losses on
+a 10 or 100 Mbit/sec Ethernet connection will be rather less likely than
+they could on a serial link!
 
+
+James.
 

@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262911AbRE1CYc>; Sun, 27 May 2001 22:24:32 -0400
+	id <S262915AbRE1C1M>; Sun, 27 May 2001 22:27:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262912AbRE1CYW>; Sun, 27 May 2001 22:24:22 -0400
-Received: from lpce020.lss.emc.com ([168.159.62.20]:772 "EHLO
-	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S262911AbRE1CYF>; Sun, 27 May 2001 22:24:05 -0400
-Date: Sun, 27 May 2001 09:21:50 -0400
-Message-Id: <200105271321.f4RDLoM00342@mobilix.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: "Akash Jain" <aki.jain@stanford.edu>
-Cc: <torvalds@transmeta.com>, <alan@lxorguk.ukuu.org.uk>,
-        <linux-kernel@vger.kernel.org>, <su.class.cs99q@nntp.stanford.edu>
-Subject: Re: [PATCH] fs/devfs/base.c
-In-Reply-To: <GLEPIDKFGKPCBDLKDHEAAELGDDAA.aki.jain@stanford.edu>
-In-Reply-To: <GLEPIDKFGKPCBDLKDHEAAELGDDAA.aki.jain@stanford.edu>
+	id <S262914AbRE1C1C>; Sun, 27 May 2001 22:27:02 -0400
+Received: from mail.alphalink.com.au ([203.24.205.7]:10032 "EHLO
+	mail.alphalink.com.au") by vger.kernel.org with ESMTP
+	id <S262912AbRE1C0t>; Sun, 27 May 2001 22:26:49 -0400
+Message-ID: <3B11B99F.A8870F68@alphalink.com.au>
+Date: Mon, 28 May 2001 12:36:15 +1000
+From: Greg Banks <gnb@alphalink.com.au>
+X-Mailer: Mozilla 4.07 [en] (X11; I; Linux 2.2.1 i586)
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Pavel Machek <pavel@suse.cz>,
+        Jaswinder Singh <jaswinder.singh@3disystems.com>,
+        CML2 <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] Configure.help entries wanted
+In-Reply-To: <E154BTG-0002aM-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Akash Jain writes:
-> hello,
+Alan Cox wrote:
 > 
-> in fs/devfs/base.c,
-> the struct devfsd_notify_struct is approx 1056 bytes, allocating it
-> on a stack of 8k seems unreasonable.  here we simply move it to the
-> heap, i don't think it is a _must_ be on stack type thing
+> >   Their co-operation came not from a spirit of enlightment but
+> > because this was a commercial venture to port Linux to the box
+> > to replace WinCE.  You can buy these with Linux now.
+> 
+> Including open source drivers for their touchscreen ?
 
-I absolutely don't want this patch applied. It's bogus. It is entirely
-safe to alloc 1 kB on the stack in this code, since it has a short and
-well-controlled code path from syscall entry to the function. This is
-not some function that can be called from some random place in the
-kernel and thus has a random call path.
+  I believe so, but I only write the stuff.  We'll know for
+sure when somebody actually buys one ;-)
 
-Using the stack is much faster than calling kmalloc() and it also
-doesn't add to system memory pressure. That's why I did it this way in
-the first place. Further, it's much safer to use the stack, since the
-memory is freed automatically. Thus, there's less scope for
-introducing errors.
-
-Please fix your checker to deal with this class of functions which
-have a well-defined call path. I'd suggest looking at the total stack
-allocations from syscall entry point all the way to the end function.
-Ideally, you'd trace the call path to every function, but of course
-that may be computationally infeasible. Hopefully it's feasible to do
-this for any function which has a stack allocation which exceeds some
-threshold.
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+Greg.
+-- 
+If it's a choice between being a paranoid, hyper-suspicious global
+village idiot, or a gullible, mega-trusting sheep, I don't look
+good in mint sauce.                      - jd, slashdot, 11Feb2000.

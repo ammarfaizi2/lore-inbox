@@ -1,48 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265172AbSJaDoK>; Wed, 30 Oct 2002 22:44:10 -0500
+	id <S265173AbSJaDsx>; Wed, 30 Oct 2002 22:48:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265173AbSJaDoJ>; Wed, 30 Oct 2002 22:44:09 -0500
-Received: from web1.elbnet.com ([65.209.12.165]:16568 "EHLO web1.elbnet.com")
-	by vger.kernel.org with ESMTP id <S265172AbSJaDoJ>;
-	Wed, 30 Oct 2002 22:44:09 -0500
-Date: Wed, 30 Oct 2002 22:36:39 -0500
-From: Bob Billson <reb@bhive.dhs.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: lkc 1.2: make xmenu error
-Message-ID: <20021031033639.GA6386@etain.bhive.dhs.org>
-References: <20021030223843.GF4186@etain.bhive.dhs.org> <Pine.LNX.4.44.0210302355150.13257-100000@serv>
+	id <S265175AbSJaDsw>; Wed, 30 Oct 2002 22:48:52 -0500
+Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:59660 "EHLO
+	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
+	id <S265173AbSJaDsv>; Wed, 30 Oct 2002 22:48:51 -0500
+Date: Thu, 31 Oct 2002 12:55:15 +0900 (JST)
+Message-Id: <20021031.125515.108721967.yoshfuji@linux-ipv6.org>
+To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Cc: davem@redhat.com, kuznet@ms2.inr.ac.ru, usagi@linux-ipv6.org
+Subject: Re: [PATCH] IPv6: Privacy Extensions for Stateless Address
+ Autoconfiguration in IPv6
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <20021031.124459.66300488.yoshfuji@linux-ipv6.org>
+References: <20021031.124459.66300488.yoshfuji@linux-ipv6.org>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: ,!^C1nUj;HDn\o}#MDnZW<|oj*]iIB/>/Rj|xZ=D=hBIY#)lQ,$n#kJvDg7at|p;w0^8&4_
+ OS17ezZP7m/LlFJYPF}FdcGx!,qBM:w{Ub2#M8_@n^nYT%?u+bwTsqni(z5
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.44.0210302355150.13257-100000@serv>
-User-Agent: Mutt/1.4i
-Organization: Hopeless... my honeybees are more organized.
-X-Moon: The Moon is Waning Crescent (29% of Full)
-X-Uptime: 22:24:48 up 1 day,  7:15,  4 users,  load average: 1.89, 1.81, 1.64
-X-GPG-Key: http://bhive.dhs.org/gpgkey.html
+Content-Type: Text/Plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 30, 2002 at 11:58:46PM +0100, Roman Zippel penned:
-> > This is on a Debian (testing tree) box with the libqt3-dev package
-> > installed.  moc is there, just not in /usr/share/qt/bin:
-> > 
-> > [reb@etain]:~/kernel/linux-2.5.44$ whereis moc
-> > moc: /usr/bin/moc /usr/share/man/man1/moc.1.gz
-> 
-> Debian creates symlinks in /usr/share/qt/bin, which point to /usr/bin, so 
-> this should work (at least it does here :) ). How does your 
-> /usr/share/qt/bin look like?
+In article <20021031.124459.66300488.yoshfuji@linux-ipv6.org> (at Thu, 31 Oct 2002 12:44:59 +0900 (JST)), YOSHIFUJI Hideaki / $B5HF#1QL@(B <yoshfuji@linux-ipv6.org> says:
 
-Doh!  There were no symlinks.  I reinstalled the package and magically
-they appeared.   So ...umm... never mind that bug report. :)
+> Credit: YOSHIFUJI Hideaki / USAGI Project <yoshfuji@linux-ipv6.org>
 
-     thanks... bob
+Oops, I've forgot to credit myself in the source.
+Please apply on top of the patch.
+
+Index: net/ipv6/addrconf.c
+===================================================================
+RCS file: /cvsroot/usagi/usagi-backport/linux25/net/ipv6/addrconf.c,v
+retrieving revision 1.1.1.4.6.1
+retrieving revision 1.1.1.4.6.2
+diff -u -r1.1.1.4.6.1 -r1.1.1.4.6.2
+--- net/ipv6/addrconf.c	30 Oct 2002 18:15:04 -0000	1.1.1.4.6.1
++++ net/ipv6/addrconf.c	31 Oct 2002 03:50:36 -0000	1.1.1.4.6.2
+@@ -28,6 +28,8 @@
+  *						packets.
+  *	YOSHIFUJI Hideaki @USAGI	:	improved accuracy of
+  *						address validation timer.
++ *	YOSHIFUJI Hideaki @USAGI	:	Privacy Extensions (RFC3041)
++ *						support.
+  */
+ 
+ #include <linux/config.h>
+
 -- 
- bob billson        email: reb@bhive.dhs.org          ham: kc2wz    /)
-                           reb@elbnet.com             beekeeper  -8|||}
- "Níl aon tinteán mar do thinteán féin." --Dorothy    Linux geek    \)
- [ GPG key: http://bhive.dhs.org/gpgkey.html ]
+Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
+GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

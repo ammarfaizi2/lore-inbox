@@ -1,38 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279824AbRKFRIL>; Tue, 6 Nov 2001 12:08:11 -0500
+	id <S279891AbRKFRLo>; Tue, 6 Nov 2001 12:11:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279788AbRKFRIC>; Tue, 6 Nov 2001 12:08:02 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:14857 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S279824AbRKFRHz>; Tue, 6 Nov 2001 12:07:55 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: Using %cr2 to reference "current"
-Date: Tue, 6 Nov 2001 17:04:24 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <9s956o$24b$1@penguin.transmeta.com>
-In-Reply-To: <9s82rl$k51$1@cesium.transmeta.com> <E1613vx-00005r-00@the-village.bc.nu>
-X-Trace: palladium.transmeta.com 1005066444 31922 127.0.0.1 (6 Nov 2001 17:07:24 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 6 Nov 2001 17:07:24 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S280210AbRKFRLh>; Tue, 6 Nov 2001 12:11:37 -0500
+Received: from 216-21-153-1.ip.van.radiant.net ([216.21.153.1]:14350 "HELO
+	innerfire.net") by vger.kernel.org with SMTP id <S279917AbRKFRKr>;
+	Tue, 6 Nov 2001 12:10:47 -0500
+Date: Tue, 6 Nov 2001 09:13:17 -0800 (PST)
+From: Gerhard Mack <gmack@innerfire.net>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+cc: dalecki@evision.ag, Alexander Viro <viro@math.psu.edu>,
+        Jakob =?iso-8859-1?Q?=D8stergaard?= <jakob@unthought.net>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+        John Levon <moz@compsoc.man.ac.uk>, linux-kernel@vger.kernel.org,
+        Daniel Phillips <phillips@bonn-fries.net>, Tim Jansen <tim@tjansen.de>
+Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
+In-Reply-To: <200111052300.fA5N0RO341591@saturn.cs.uml.edu>
+Message-ID: <Pine.LNX.4.10.10111060909540.22229-100000@innerfire.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <E1613vx-00005r-00@the-village.bc.nu>,
-Alan Cox  <alan@lxorguk.ukuu.org.uk> wrote:
->
->It may be. Likewise its not clear if %cr2 should hold current or a cpu ident
->pointer (so you dont reload on switch of task). This needs more
->benchmarking. Its in current -ac to verify the theory is correct not the
->tuning.
+On Mon, 5 Nov 2001, Albert D. Cahalan wrote:
 
-We pretty much know the _theory_ is not correct, just by virtue of
-depending on non-architected behaviour.  The only thing -ac can do is
-test whether it works in practice.  Which is a totally different thing. 
+> You wrote:
+> > Alexander Viro wrote:
+> >> On Mon, 5 Nov 2001, Martin Dalecki wrote:
+> >>> "Albert D. Cahalan" wrote:
+> >>>
+> >>> Every BASTARD out there telling the world, that parsing ASCII formatted
+> >>> files
+> >>
+> >> What was your username, again?
+> >
+> > root, with uid != 0 and on a masquaraded host, who cares?
+> 
+> I think the point is that it looks like to attributed your own
+> words to me. Your post didn't quote anything from me, but it
+> started off as follows:
+> 
+> --------------------------------------
+> "Albert D. Cahalan" wrote:
+> 
+> Every BASTARD out there telling the world, that parsing ASCII formatted
+> --------------------------------------
+> 
+> Well, I didn't write that or anything else in your post.
+> 
 
-Especially on x86 chips.
+Actually Al Viro's reply makes a lot more sense if your familiar with:
+http://bofh.ntk.net/bastard.html
 
-		Linus
+	Gerhard
+
+
+--
+Gerhard Mack
+
+gmack@innerfire.net
+
+<>< As a computer I find your faith in technology amusing.
+

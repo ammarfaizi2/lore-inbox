@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269713AbUJGFqB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269711AbUJGFuc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269713AbUJGFqB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 01:46:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269710AbUJGFoH
+	id S269711AbUJGFuc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 01:50:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269714AbUJGFub
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 01:44:07 -0400
-Received: from havoc.gtf.org ([69.28.190.101]:56750 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S267291AbUJGFn7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 01:43:59 -0400
-Date: Thu, 7 Oct 2004 01:43:57 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Why no linux-2.6.8.2? (was Re: new dev model)
-Message-ID: <20041007054357.GA23022@havoc.gtf.org>
-References: <200410070134_MC3-1-8BA9-A215@compuserve.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200410070134_MC3-1-8BA9-A215@compuserve.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 7 Oct 2004 01:50:31 -0400
+Received: from pumpkin.explorerforum.com ([209.209.36.42]:50130 "EHLO
+	pumpkin.explorerforum.com") by vger.kernel.org with ESMTP
+	id S269711AbUJGFqn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 01:46:43 -0400
+Message-ID: <4164D81F.9090808@lbl.gov>
+Date: Wed, 06 Oct 2004 22:46:07 -0700
+From: Thomas Davis <tadavis@lbl.gov>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>, Linus Torvalds <torvalds@osdl.org>,
+       netdev@oss.sgi.com, Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+       Corey Thomas <corey@world.std.com>
+Subject: Re: Raylink/WebGear testing - ray_cs.c iomem bug?
+References: <Pine.LNX.4.58.0410061032410.8290@ppc970.osdl.org> <41644492.1000400@pobox.com> <41646AD5.1070800@lbl.gov>
+In-Reply-To: <41646AD5.1070800@lbl.gov>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.3.9 (pumpkin.explorerforum.com [209.209.36.42]); Wed, 06 Oct 2004 22:59:48 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 07, 2004 at 01:31:39AM -0400, Chuck Ebbert wrote:
-> Why has linux 2.6.8 been abandoned at version 2.6.8.1?
+Thomas Davis wrote:
+> Jeff Garzik wrote:
 > 
-> There exist fixes that could go into 2.6.8.2:
+>> I'm not aware of anyone with ray_cs hardware, alas...
+>>
 > 
->         process start time doesn't match system time
->         FDDI frame doesn't allow 802.3 hwtype
->         NFS server using XFS filesystem on SMP machine oopses
+> I do believe I still have two of these squirreled away someplace..  Let 
+> me check and see later tonight.
 > 
-> I'm sure there are more...
-> 
-> So why is 2.6.8.1 a "dead branch?"
 
-Since it's in BitKeeper, it's not dead, it's just sleeping...
+Got two of them.  I can do a plug test, but I only one pcmcia slot to play with them.
 
-$ bk clone -ql -rv2.6.8.1 linux-2.6 linux-2.6.8-branch
-$ cpcset <cset> linux-2.6 linux-2.6.8-branch
-$ # repeat for each <cset> to apply
-$ cd linux-2.6.8-branch
-$ bk vi Makefile	# bump version
-$ bk tag v2.6.8.2
-$ # release 2.6.8.2 ...
+If anyone wants them, email me an address and I'll ship them to you.
 
+Also, what version of linux kernel is this patch against?  2.6.9-rc3?
+
+thomas

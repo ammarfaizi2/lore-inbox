@@ -1,76 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316599AbSIAJkI>; Sun, 1 Sep 2002 05:40:08 -0400
+	id <S315437AbSIAJic>; Sun, 1 Sep 2002 05:38:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316601AbSIAJkI>; Sun, 1 Sep 2002 05:40:08 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:31753 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S316599AbSIAJkH>; Sun, 1 Sep 2002 05:40:07 -0400
-Date: Sun, 1 Sep 2002 11:44:16 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
-       aurora-sparc-devel@linuxpower.org, reiserfs-dev@namesys.com,
-       linuxjfs@us.ibm.com
-Subject: Re: [PATCH] sparc32: wrong type of nlink_t
-Message-ID: <20020901094416.GF32122@louise.pinerecords.com>
-References: <20020901085524.GB32122@louise.pinerecords.com> <20020901.015204.124081360.davem@redhat.com>
+	id <S316599AbSIAJic>; Sun, 1 Sep 2002 05:38:32 -0400
+Received: from colin.muc.de ([193.149.48.1]:62731 "HELO colin.muc.de")
+	by vger.kernel.org with SMTP id <S315437AbSIAJib>;
+	Sun, 1 Sep 2002 05:38:31 -0400
+Message-ID: <20020901114242.21242@colin.muc.de>
+Date: Sun, 1 Sep 2002 11:42:42 +0200
+From: Andi Kleen <ak@muc.de>
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       Paul.Russell@rustcorp.com.au
+Subject: [PATCH] Fix RELOC_HIDE miscompilation
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020901.015204.124081360.davem@redhat.com>
-User-Agent: Mutt/1.4i
-X-OS: GNU/Linux 2.4.20-pre1/sparc SMP
-X-Uptime: 5 days, 8:49
+X-Mailer: Mutt 0.88e
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->    From: Tomas Szepe <szepe@pinerecords.com>
->    Date: Sun, 1 Sep 2002 10:55:24 +0200
-> 
->    Against 2.4.20-pre5 - fix up the type of nlink_t. This makes jfs and
->    reiserfs stop complaining about comparisons always turning up false
->    due to limited range of data type.
-> 
-> If you change this, you change the types exported to userspace
-> which will break everything.
 
-Right.  Here's a corresponding reiserfs/jfs fix, then.  I've checked the
-constants aren't used for anything else except nlink overflow alerts.
+[resend due to mailer problems]
 
-T.
+RELOC_HIDE got miscompiled on gcc3.1/x86-64 in the access to softirq.c's per 
+cpu variables.  This patch fixes the problem.
 
+Clearly to hide the relocation the addition needs to be done after the 
+value obfuscation, not before.
 
-diff -urN linux-2.4.20-pre5/fs/jfs/jfs_filsys.h linux-2.4.20-pre5.n/fs/jfs/jfs_filsys.h
---- linux-2.4.20-pre5/fs/jfs/jfs_filsys.h	2002-09-01 11:31:44.000000000 +0200
-+++ linux-2.4.20-pre5.n/fs/jfs/jfs_filsys.h	2002-09-01 11:30:13.000000000 +0200
-@@ -125,7 +125,8 @@
- #define MAXBLOCKSIZE		4096
- #define	MAXFILESIZE		((s64)1 << 52)
- 
--#define JFS_LINK_MAX		65535	/* nlink_t is unsigned short */
-+/* the shortest nlink_t there is is sparc's signed short */
-+#define JFS_LINK_MAX		32767
- 
- /* Minimum number of bytes supported for a JFS partition */
- #define MINJFS			(0x1000000)
-diff -urN linux-2.4.20-pre5/include/linux/reiserfs_fs.h linux-2.4.20-pre5.n/include/linux/reiserfs_fs.h
---- linux-2.4.20-pre5/include/linux/reiserfs_fs.h	2002-09-01 11:31:45.000000000 +0200
-+++ linux-2.4.20-pre5.n/include/linux/reiserfs_fs.h	2002-09-01 11:23:30.000000000 +0200
-@@ -1185,10 +1185,12 @@
- #define MAX_B_NUM  MAX_UL_INT
- #define MAX_FC_NUM MAX_US_INT
- 
--
--/* the purpose is to detect overflow of an unsigned short */
--#define REISERFS_LINK_MAX (MAX_US_INT - 1000)
--
-+/* the original purpose was to detect a possible overflow
-+ * of an unsigned short nlink_t. However, there are archs
-+ * that only provide a signed short nlink_t, so this will
-+ * have to start ringing a wee bit earlier.
-+ */
-+#define REISERFS_LINK_MAX (0x7fff - 1000)
- 
- /* The following defines are used in reiserfs_insert_item and reiserfs_append_item  */
- #define REISERFS_KERNEL_MEM		0	/* reiserfs kernel memory mode	*/
+I don't know if it triggers on other architectures (x86-64 is especially 
+stressf here because it has negative kernel addresses), but seems like the 
+right thing to do.
+
+Also does the arithmetic in unsigned long to avoid undue assumptions of the 
+comp for pointers.
+
+-Andi
+
+--- linux/include/linux/compiler.h-o	Sun Apr 14 21:18:44 2002
++++ linux/include/linux/compiler.h	Sun Sep  1 02:52:31 2002
+@@ -16,7 +16,7 @@
+ /* This macro obfuscates arithmetic on a variable address so that gcc
+    shouldn't recognize the original var, and make assumptions about it */
+ #define RELOC_HIDE(ptr, off)					\
+-  ({ __typeof__(ptr) __ptr;					\
+-    __asm__ ("" : "=g"(__ptr) : "0"((void *)(ptr) + (off)));	\
+-    __ptr; })
++  ({ unsigned long __ptr;					\
++    __asm__ ("" : "=g"(__ptr) : "0"(ptr));		\
++    (typeof(ptr)) (__ptr + (off)); })
+ #endif /* __LINUX_COMPILER_H */

@@ -1,35 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270745AbTG0LKp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 07:10:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270746AbTG0LKo
+	id S270732AbTG0LRW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 07:17:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270737AbTG0LRW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 07:10:44 -0400
-Received: from louise.pinerecords.com ([213.168.176.16]:22750 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S270745AbTG0LKi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 07:10:38 -0400
-Date: Sun, 27 Jul 2003 13:25:40 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [TRIVIAL] kill surplus menu in IDE Kconfig
-Message-ID: <20030727112540.GA23812@louise.pinerecords.com>
-References: <20030726200059.GC16160@louise.pinerecords.com> <1059303700.12758.7.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1059303700.12758.7.camel@dhcp22.swansea.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+	Sun, 27 Jul 2003 07:17:22 -0400
+Received: from galaxy.lunarpages.com ([64.235.234.165]:23961 "EHLO
+	galaxy.lunarpages.com") by vger.kernel.org with ESMTP
+	id S270732AbTG0LRV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 07:17:21 -0400
+Message-ID: <3F23BC1D.7070804@genebrew.com>
+Date: Sun, 27 Jul 2003 07:48:45 -0400
+From: Rahul Karnik <rahul@genebrew.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030706
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew de Quincey <adq_dvb@lidskialf.net>
+CC: Marcelo Penna Guerra <eu@marcelopenna.org>,
+       lkml <linux-kernel@vger.kernel.org>, Laurens <masterpe@xs4all.nl>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH] nvidia nforce 1.0-261 nvnet for kernel 2.5
+References: <200307262309.20074.adq_dvb@lidskialf.net> <200307262326.49638.eu@marcelopenna.org> <3F236A4A.2090302@genebrew.com> <200307271222.13649.adq_dvb@lidskialf.net>
+In-Reply-To: <200307271222.13649.adq_dvb@lidskialf.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - galaxy.lunarpages.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - genebrew.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [alan@lxorguk.ukuu.org.uk]
-> 
-> Not terribly accurate. It saves a lot more than 13K these days for one 8)
+Andrew de Quincey wrote:
 
-I'm not sure I understand what you mean.  Is there a problem with the patch?
+> Ah, so THATS who they licensed it from. I didn't think nividia would go to the 
+> bother of designing their own ethernet hardware.
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
+Actually, this is not certain, but it is one of the guesses. So far, 
+Nforce2 = AMD IDE + Intel sound + <unknown> ethernet.
+
+-Rahul
+

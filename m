@@ -1,51 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129674AbRAaXPW>; Wed, 31 Jan 2001 18:15:22 -0500
+	id <S129672AbRAaXTC>; Wed, 31 Jan 2001 18:19:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129677AbRAaXPM>; Wed, 31 Jan 2001 18:15:12 -0500
-Received: from Huntington-Beach.Blue-Labs.org ([208.179.0.198]:33125 "EHLO
-	Huntington-Beach.Blue-Labs.org") by vger.kernel.org with ESMTP
-	id <S129672AbRAaXO6>; Wed, 31 Jan 2001 18:14:58 -0500
-Message-ID: <3A789C65.8DA529CD@linux.com>
-Date: Wed, 31 Jan 2001 15:14:45 -0800
-From: David Ford <david@linux.com>
-Organization: Blue Labs Software
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre11 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-CC: "Jeremy M. Dolan" <jmd@foozle.turbogeek.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] doc update/fixes for sysrq.txt
-In-Reply-To: <E14O1eB-0002nv-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
+	id <S129676AbRAaXSw>; Wed, 31 Jan 2001 18:18:52 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:28642 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S129672AbRAaXSf>;
+	Wed, 31 Jan 2001 18:18:35 -0500
+Date: Thu, 1 Feb 2001 00:18:27 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200101312318.AAA18543@harpo.it.uu.se>
+To: jhigham@bigsky.net, linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18 - failed to exec /sbin/modprobe -s -k binfmt-464c
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On Wed, 31 Jan 2001 14:17:56 -0700, Josh Higham wrote:
 
-> > > AFAIK, this hasn't ever been true.  I have never had to specifically
-> > > enable it at run time.
-> >
-> > I was suspicious of that in the old doc but thought I'd leave it in...
-> > Should have asked for feedback on it, but you caught it anyway, thanks!
-> >
-> > Here's a patch against the first that simply removes the lines.
+>I tried compiling a 2.2.18 kernel, and when I reboot I get
 >
-> Its true in 2.2
+>failed to exec /sbin/modprobe -s -k binfmt-464c
 
-At what point in 2.2 did it become true?  I rarely used 2.2, I went from 2.1
-to 2.3 and I don't recall having to ever enable it.  Once it was compiled in
-it was on.
+Reconfigure with CONFIG_BINFMT_ELF=y and your kernel will work again.
 
--d
-
---
-  There is a natural aristocracy among men. The grounds of this are virtue and talents. Thomas Jefferson
-  The good thing about standards is that there are so many to choose from. Andrew S. Tanenbaum
-
-
-
+/Mikael
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

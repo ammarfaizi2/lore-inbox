@@ -1,69 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261470AbTDBECG>; Tue, 1 Apr 2003 23:02:06 -0500
+	id <S261491AbTDBEGT>; Tue, 1 Apr 2003 23:06:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261491AbTDBECG>; Tue, 1 Apr 2003 23:02:06 -0500
-Received: from ns.conceptual.net.au ([203.190.192.15]:30933 "EHLO
-	conceptual.net.au") by vger.kernel.org with ESMTP
-	id <S261470AbTDBECF>; Tue, 1 Apr 2003 23:02:05 -0500
-Message-ID: <3E8A6298.8060600@seme.com.au>
-Date: Wed, 02 Apr 2003 12:10:00 +0800
-From: Brad Campbell <brad@seme.com.au>
-User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)
-X-Accept-Language: en-us, en
+	id <S261501AbTDBEGT>; Tue, 1 Apr 2003 23:06:19 -0500
+Received: from [65.39.167.210] ([65.39.167.210]:45317 "HELO innerfire.net")
+	by vger.kernel.org with SMTP id <S261491AbTDBEGS>;
+	Tue, 1 Apr 2003 23:06:18 -0500
+Date: Tue, 1 Apr 2003 23:17:42 -0500 (EST)
+From: Gerhard Mack <gmack@innerfire.net>
+To: Larry McVoy <lm@bitmover.com>
+cc: xombi@accessus.net, <linux-kernel@vger.kernel.org>
+Subject: Re: A more balanced view of user priviliges
+In-Reply-To: <20030402030954.GA18055@work.bitmover.com>
+Message-ID: <Pine.LNX.4.44.0304012314020.9477-100000@innerfire.net>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: via-rhine problem on EPIAV-1Ghz 2.4.21-pre6
-References: <3E88FA24.7040406@seme.com.au> <20030401042734.GA21273@gtf.org> <3E89171A.8010506@seme.com.au> <20030401185258.GC3736@arthur.home>
-In-Reply-To: <20030401185258.GC3736@arthur.home>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-SFilter: 
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Mouw wrote:
+On Tue, 1 Apr 2003, Larry McVoy wrote:
+> On Tue, Apr 01, 2003 at 09:12:39PM -0600, xombi@accessus.net wrote:
+> > On Tue, 1 Apr 2003, "Linus Torvalds" wrote:
+> > > I've always tried to keep our work separate from religious and political
+> > > influences, however I also feel that incorporating suggestions from all
+> > > categories of users is part of what makes Linux, and Open Source in
+> > > general, so great.
+> >
+> > Is there some way to use procmail on vger to filter out these pathetic
+> > fakes?
+>
+> I doubt it but I have to agree with you, this year has been lame, nobody
+> has stepped forward with a really good April Fool's posting.  Come on,
+> people, you can do better.  There are still a few hours left.
+>
 
-> 
-> Here's the 2.5 driver backported to 2.4.20, it solved my timeout
-> problems (with thanks to Roger Luethi). Don't know if the "noapic"
-> option is still necessary, but it won't hurt anyway.
-> 
-> 
-> Erik
-Yup, Roger sent me the file directly (Many thanks Roger!)
-It solved the timeout propblems, I do get these however.
+It's not been as bad as some years .. there has been no flood of lame
+"Linus has sold Linux to MS" etc posts (that got lame the 12th and 13th
+times they were posted.
 
-Not that they cause any hiccups in throughput.
+Personally I'm holding off until I can think of somethig better than my
+last one but I've nothing to top the Linux pacemaker project that I did a
+couple of years ago.
 
-eth0: Tx descriptor write-back race.
-eth0: Tx descriptor write-back race.
-eth0: Tx descriptor write-back race.
-eth0: Transmit error, Tx status 00008800.
-eth0: Transmitter underrun, Tx threshold now 40.
-eth0: Tx descriptor write-back race.
-eth0: Transmit error, Tx status 00008800.
-eth0: Transmitter underrun, Tx threshold now 60.
-eth0: Tx descriptor write-back race.
-eth0: Tx descriptor write-back race.
-eth0: Tx descriptor write-back race.
-eth0: Tx descriptor write-back race.
-eth0: Tx descriptor write-back race.
-eth0: Tx descriptor write-back race.
-eth0: Tx descriptor write-back race.
-eth0: Tx descriptor write-back race.
-eth0: Tx descriptor write-back race.
-eth0: Tx descriptor write-back race.
-eth0: Tx descriptor write-back race.
-eth0: Tx descriptor write-back race.
-eth0: Tx descriptor write-back race.
-eth0: Tx descriptor write-back race.
+	Gerhard
+
+PS I really wish I hadn't lost the drive the replies went to .. they were
+hillarious.
 
 
--- 
-Brad....
-  /"\
-  \ /     ASCII RIBBON CAMPAIGN
-   X      AGAINST HTML MAIL
-  / \
+--
+Gerhard Mack
+
+gmack@innerfire.net
+
+<>< As a computer I find your faith in technology amusing.
 

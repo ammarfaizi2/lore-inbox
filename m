@@ -1,74 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132626AbRDGKPS>; Sat, 7 Apr 2001 06:15:18 -0400
+	id <S132627AbRDGLIQ>; Sat, 7 Apr 2001 07:08:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132627AbRDGKPA>; Sat, 7 Apr 2001 06:15:00 -0400
-Received: from lacrosse.corp.redhat.com ([207.175.42.154]:62454 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S132626AbRDGKOr>; Sat, 7 Apr 2001 06:14:47 -0400
-Date: Sat, 7 Apr 2001 11:14:19 +0100
-From: Tim Waugh <twaugh@redhat.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Michael Reinelt <reinelt@eunet.at>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Multi-function PCI devices
-Message-ID: <20010407111419.B530@redhat.com>
-In-Reply-To: <3ACECA8F.FEC9439@eunet.at> <3ACED679.7E334234@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="z6Eq5LdranGa6ru8"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3ACED679.7E334234@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Sat, Apr 07, 2001 at 04:57:29AM -0400
+	id <S132628AbRDGLIH>; Sat, 7 Apr 2001 07:08:07 -0400
+Received: from fwns2d.raleigh.ibm.com ([204.146.167.236]:26892 "EHLO
+	fwns2.raleigh.ibm.com") by vger.kernel.org with ESMTP
+	id <S132627AbRDGLHx>; Sat, 7 Apr 2001 07:07:53 -0400
+Message-ID: <3ACEF4AE.DBCDDD@raleigh.ibm.com>
+Date: Sat, 07 Apr 2001 12:06:22 +0100
+From: Christopher Turcksin <turcksin@raleigh.ibm.com>
+Organization: IBM Global Services AMS Design & Development
+X-Mailer: Mozilla 4.75 [en] (Win98; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Proper way to release binary driver?
+In-Reply-To: <EFC879D09684D211B9C20060972035B1D46A39@exchange2ca.sv.dialogic.com> <m1g0fnwoo0.fsf@frodo.biederman.org> <3ACDE5C5.CEB65D4A@raleigh.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
---z6Eq5LdranGa6ru8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Sat, Apr 07, 2001 at 04:57:29AM -0400, Jeff Garzik wrote:
 
-> Where is this patch available?  I haven't heard of an extension to the
-> pci id tables, so I wonder if it's really in the queue for the official
-> kernel.
+I would like to thank everybody who replied to my question yesterday.
+There were a lot of good suggestions and examples for me to go and look
+at.
 
-It is.  <URL:http://people.redhat.com/twaugh/patches/>  The
-'extension' is just 'more entries', AFAIR.
+The conclusion we had come to between ourselves here was already very
+similar to most things suggested, but we were running into some smaller
+problems that would make our release too difficult to use for most
+customers.
 
-> > I'm afraid this is not a bug, but a design issue, and will be hard to
-> > solve. Maybe we need a flag for such devices which allows it to be
-> > claimed ba more thean one driver?
->=20
-> Not so hard.
+And ofcourse, I have no realised that it is not enough to simply release
+your code under GPL. You need to tie in with the real kernel as soon as
+you can.
 
-*sigh* Jeff, when I spoke to you about this last year you said
- 'tough', or words to that effect. :-(
+Thanks again all for your help.
 
-> There is no need to register more than one driver per PCI device -- just
-> create a PCI driver whose probe routine registers serial and parallel,
-> and whose remove routine unregisters same.
 
-*cough* modularity *cough*
+-- 
+bfn,
+wabbit
 
-Wnat to show us some elegant code that does that?
+IBM Global Services, UK AMS in Greenock, Scotland.
 
-Tim.
-*/
-
---z6Eq5LdranGa6ru8
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6zuh6ONXnILZ4yVIRAkWfAJ94AtMUGzhwusuXJAOVm3Y2ocQNQQCfXY0k
-DrDsrWXWz4MOAAeEyc67s6U=
-=+Vz7
------END PGP SIGNATURE-----
-
---z6Eq5LdranGa6ru8--
+	" To err is human, but to really foul things up requires the root
+password. "

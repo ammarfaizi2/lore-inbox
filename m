@@ -1,52 +1,124 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132757AbRDXWPq>; Tue, 24 Apr 2001 18:15:46 -0400
+	id <S132756AbRDXWRg>; Tue, 24 Apr 2001 18:17:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132756AbRDXWPf>; Tue, 24 Apr 2001 18:15:35 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:65023 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S132752AbRDXWPb>;
-	Tue, 24 Apr 2001 18:15:31 -0400
-Date: Tue, 24 Apr 2001 15:15:08 -0700
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: jt@hpl.hp.com, Linus Torvalds <torvalds@transmeta.com>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        David Gibson <david@gibson.dropbear.id.au>
-Subject: Re: orinoco_cs & IrDA
-Message-ID: <20010424151508.C31898@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-In-Reply-To: <20010424113920.B31666@bougret.hpl.hp.com> <E14s8mc-0002n9-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E14s8mc-0002n9-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Apr 24, 2001 at 08:47:30PM +0100
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	id <S132859AbRDXWR3>; Tue, 24 Apr 2001 18:17:29 -0400
+Received: from mx.ma.nma.ne.jp ([61.125.128.21]:33192 "HELO mx.ma.nma.ne.jp")
+	by vger.kernel.org with SMTP id <S132756AbRDXWQp>;
+	Tue, 24 Apr 2001 18:16:45 -0400
+Message-ID: <3AE5FB1B.BFF09D8@ma.nma.ne.jp>
+Date: Wed, 25 Apr 2001 07:15:55 +0900
+From: Masaki Tsuji <jammasa@ma.nma.ne.jp>
+X-Mailer: Mozilla 4.75 [ja] (Windows NT 5.0; U)
+X-Accept-Language: ja
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Can't read SCSI TAPE
+In-Reply-To: <Pine.LNX.3.95.1010424123227.15270A-100000@chaos.analogic.com>
+Content-Type: text/plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 24, 2001 at 08:47:30PM +0100, Alan Cox wrote:
-> > patch (without feedback), whereas Alan picked it up (if I remember
-> > correctly it was included in his 'patch-2.4.2-ac28').
-> > 	So now, what should I do with the rest of my updates and the
-> > new one that have accumulated since ? Should I wait until you grab the
-> > first patch from Alan's tree ? Should I send the new patches directly
-> > to Alan so that he can accumulate a monster patch ? Should I just
-> > accumulate the patches on my web page ?
+Dears,
+
+"Richard B. Johnson" wrote:
 > 
-> Im happy to accumulate them but please send them to Linus too. I tend not to
-> submit stuff on to Linus where there is an active maintainer and assume the
-> maintainer will do it when ready.
+> Hmmm...
+> 
+> Masaki Tsuji <jammasa@ma.nma.ne.jp>
+>                       ^^^^^^^^^^^^ ____ This address
+> 
+> ... was the address that did the CA-2000-17 attack on one of
+> our machines a few weeks ago.
+> 
+> This is not an accusation, only an observation. You might
+> want to tell your network administrator. Sombody at your
+> site may be hacking systems.
 
-	Oups ! Big mea culpa ! Apologies.
-	While trying to compile my kernel, I've just realised the the
-patch I've downloaded wasn't complete. My browser cut it in the middle
-claiming that it was 100% complete.
-	Downloaded the patch again (patch-2.4.4-pre6), checked that it
-was complete, my patch is in. Oups ! Do I feel stupid...
+We're very sorry!
 
-	Apologies to everybody... Sorry for the confusion...
+Probabry it's 10th or 11th Apr, isn't it?
+I was attacked too, but from outside.
 
-	Jean
+I asked my network administrator about that on 13th Apr, and catched reason.
+They said that their network equipments had some probrems, and fixed it.
+
+
+> SCSI tape problems or your kind are usually caused by a different
+> tape compression being used during record and playback. You should
+> try to use `mt` to set the compression to something you like
+> before you record, and the same compression when you play back
+> the tape.
+
+I tried compression option, but It doesn't work well.
+
+I tried ...
+
+No.1
+# mt datcompression 1
+... write
+# mt datcompression 1
+... read
+
+No.2
+# mt datcompression 0
+... write
+# mt datcompression 1
+... read
+
+No.3
+# mt datcompression 1
+... write
+# mt datcompression 0
+... read
+
+No.4
+# mt datcompression 0
+... write
+# mt datcompression 0
+... read
+
+, but can't
+
+'datcompression' isn't correct option ?
+
+
+> You can use `cat` and `od` to read/write from a tape before you
+> waste a lot file time with `tar`. You can even do:
+> 
+>                 ls >/dev/tape
+>                  .... takes a lot of time..
+> 
+>                 cat /dev/tape  # Read back.
+> 
+> Blocking/deblocking is done in the driver so you can treat it as
+> a "slow-to-start" FIFO.
+
+I tried, and got error message...
+
+-----------------------------------
+# ls >/dev/tape
+st0: Write not multiple of tape block size.   <----- ???
+ls: write error: Input/output error
+#
+-----------------------------------
+# cat /dev/tape
+[inclemental-] Tue Apr 24 03: ......          <----- looks like good!
+#
+-----------------------------------
+
+Something wrong?
+
+
+
+Thanks, for your help.
+
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+Masaki Tsuji

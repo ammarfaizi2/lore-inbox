@@ -1,2665 +1,2921 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263614AbTDNSOW (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 14:14:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263630AbTDNSOV (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 14:14:21 -0400
-Received: from d12lmsgate-4.de.ibm.com ([194.196.100.237]:3016 "EHLO
-	d12lmsgate-4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S263614AbTDNRpm (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 13:45:42 -0400
+	id S263610AbTDNSIG (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 14:08:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263652AbTDNSIF (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 14:08:05 -0400
+Received: from d12lmsgate.de.ibm.com ([194.196.100.234]:55273 "EHLO
+	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
+	id S263610AbTDNRpl (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 13:45:41 -0400
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Organization: IBM Deutschland GmbH
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] s390 (15/16): s390/s390x unification - part 6.
-Date: Mon, 14 Apr 2003 19:54:14 +0200
+Subject: [PATCH] s390 (16/16): s390/s390x unification - part 7.
+Date: Mon, 14 Apr 2003 19:56:19 +0200
 User-Agent: KMail/1.5.1
 MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200304141954.35473.schwidefsky@de.ibm.com>
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304141954.14854.schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Merge s390x and s390 to one architecture.
 
 diffstat:
- bitops.h      |  732 +++++++++++++++++++++++++++++++++++++++++++---------------
- byteorder.h   |   55 ++++
- ccwdev.h      |   10 
- checksum.h    |   73 +++++
- compat.h      |  122 +++++++++
- div64.h       |   13 -
- ebcdic.h      |    4 
- elf.h         |   27 ++
- fcntl.h       |    6 
- gdb-stub.h    |   22 -
- idals.h       |   14 -
- io.h          |    9 
- ipc.h         |    1 
- ipcbuf.h      |    2 
- lowcore.h     |  144 ++++++++++-
- mmu_context.h |    8 
- module.h      |    5 
- msgbuf.h      |    6 
- page.h        |   69 +++++
- pgalloc.h     |   53 ++++
- pgtable.h     |  249 +++++++++++++++++--
- 21 files changed, 1370 insertions(+), 254 deletions(-)
+ posix_types.h |   47 ++-
+ processor.h   |  162 +++++++++---
+ ptrace.h      |  234 +++++++++++++-----
+ qdio.h        |    4 
+ rwsem.h       |   81 ++++++
+ sembuf.h      |    6 
+ setup.h       |   24 +
+ shmbuf.h      |    8 
+ sigcontext.h  |   21 +
+ signal.h      |    6 
+ sigp.h        |   28 ++
+ smp.h         |    4 
+ spinlock.h    |  100 +++++++
+ stat.h        |   30 ++
+ statfs.h      |   13 +
+ string.h      |   53 +++-
+ system.h      |  102 +++++++-
+ thread_info.h |   28 +-
+ tlbflush.h    |   12 
+ types.h       |   28 +-
+ uaccess.h     |  734 +++++++++++++++++++++++++++++++---------------------------
+ unistd.h      |  109 +++++++-
+ 22 files changed, 1331 insertions(+), 503 deletions(-)
 
-diff -urN linux-2.5.67/include/asm-s390/bitops.h linux-2.5.67-s390/include/asm-s390/bitops.h
---- linux-2.5.67/include/asm-s390/bitops.h	Mon Apr 14 19:11:36 2003
-+++ linux-2.5.67-s390/include/asm-s390/bitops.h	Mon Apr 14 19:11:58 2003
-@@ -15,6 +15,7 @@
- #include <linux/config.h>
- 
- /*
-+ * 32 bit bitops format:
-  * bit 0 is the LSB of *addr; bit 31 is the MSB of *addr;
-  * bit 32 is the LSB of *(addr+4). That combined with the
-  * big endian byte order on S390 give the following bit
-@@ -28,6 +29,25 @@
-  * in the architecture independent code bits operations
-  * of the form "flags |= (1 << bitnr)" are used INTERMIXED
-  * with operation of the form "set_bit(bitnr, flags)".
-+ *
-+ * 64 bit bitops format:
-+ * bit 0 is the LSB of *addr; bit 63 is the MSB of *addr;
-+ * bit 64 is the LSB of *(addr+8). That combined with the
-+ * big endian byte order on S390 give the following bit
-+ * order in memory:
-+ *    3f 3e 3d 3c 3b 3a 39 38 37 36 35 34 33 32 31 30
-+ *    2f 2e 2d 2c 2b 2a 29 28 27 26 25 24 23 22 21 20
-+ *    1f 1e 1d 1c 1b 1a 19 18 17 16 15 14 13 12 11 10
-+ *    0f 0e 0d 0c 0b 0a 09 08 07 06 05 04 03 02 01 00
-+ * after that follows the next long with bit numbers
-+ *    7f 7e 7d 7c 7b 7a 79 78 77 76 75 74 73 72 71 70
-+ *    6f 6e 6d 6c 6b 6a 69 68 67 66 65 64 63 62 61 60
-+ *    5f 5e 5d 5c 5b 5a 59 58 57 56 55 54 53 52 51 50
-+ *    4f 4e 4d 4c 4b 4a 49 48 47 46 45 44 43 42 41 40
-+ * The reason for this bit ordering is the fact that
-+ * in the architecture independent code bits operations
-+ * of the form "flags |= (1 << bitnr)" are used INTERMIXED
-+ * with operation of the form "set_bit(bitnr, flags)".
+diff -urN linux-2.5.67/include/asm-s390/posix_types.h linux-2.5.67-s390/include/asm-s390/posix_types.h
+--- linux-2.5.67/include/asm-s390/posix_types.h	Mon Apr 14 19:11:45 2003
++++ linux-2.5.67-s390/include/asm-s390/posix_types.h	Mon Apr 14 19:11:59 2003
+@@ -15,18 +15,9 @@
+  * assume GCC is being used.
   */
  
- /* set ALIGN_CS to 1 if the SMP safe bit operations should
-@@ -49,106 +69,126 @@
- extern const char _zb_findmap[];
- extern const char _sb_findmap[];
- 
+-typedef unsigned short  __kernel_dev_t;
+-typedef unsigned long   __kernel_ino_t;
+-typedef unsigned short  __kernel_mode_t;
+-typedef unsigned short  __kernel_nlink_t;
+ typedef long            __kernel_off_t;
+ typedef int             __kernel_pid_t;
+-typedef unsigned short  __kernel_ipc_pid_t;
+-typedef unsigned short  __kernel_uid_t;
+-typedef unsigned short  __kernel_gid_t;
+ typedef unsigned long   __kernel_size_t;
+-typedef int             __kernel_ssize_t;
+-typedef int             __kernel_ptrdiff_t;
+ typedef long            __kernel_time_t;
+ typedef long            __kernel_suseconds_t;
+ typedef long            __kernel_clock_t;
+@@ -36,15 +27,45 @@
+ typedef char *          __kernel_caddr_t;
+ typedef unsigned short	__kernel_uid16_t;
+ typedef unsigned short	__kernel_gid16_t;
++
++#ifdef __GNUC__
++typedef long long       __kernel_loff_t;
++#endif
++
 +#ifndef __s390x__
 +
-+#define __BITOPS_ALIGN		3
-+#define __BITOPS_WORDSIZE	32
-+#define __BITOPS_OR		"or"
-+#define __BITOPS_AND		"nr"
-+#define __BITOPS_XOR		"xr"
++typedef unsigned short  __kernel_dev_t;
++typedef unsigned long   __kernel_ino_t;
++typedef unsigned short  __kernel_mode_t;
++typedef unsigned short  __kernel_nlink_t;
++typedef unsigned short  __kernel_ipc_pid_t;
++typedef unsigned short  __kernel_uid_t;
++typedef unsigned short  __kernel_gid_t;
++typedef int             __kernel_ssize_t;
++typedef int             __kernel_ptrdiff_t;
+ typedef unsigned int	__kernel_uid32_t;
+ typedef unsigned int	__kernel_gid32_t;
+-
+ typedef unsigned short	__kernel_old_uid_t;
+ typedef unsigned short	__kernel_old_gid_t;
+ 
+-#ifdef __GNUC__
+-typedef long long       __kernel_loff_t;
+-#endif
++#else /* __s390x__ */
 +
-+#define __BITOPS_LOOP(__old, __new, __addr, __val, __op_string)		\
-+	__asm__ __volatile__("   l   %0,0(%4)\n"			\
-+			     "0: lr  %1,%0\n"				\
-+			     __op_string "  %1,%3\n"			\
-+			     "   cs  %0,%1,0(%4)\n"			\
-+			     "   jl  0b"				\
-+			     : "=&d" (__old), "=&d" (__new),	       	\
-+			       "=m" (*(unsigned long *) __addr)		\
-+			     : "d" (__val), "a" (__addr),		\
-+			       "m" (*(unsigned long *) __addr) : "cc" );
++typedef unsigned int    __kernel_dev_t;
++typedef unsigned int    __kernel_ino_t;
++typedef unsigned int    __kernel_mode_t;
++typedef unsigned int    __kernel_nlink_t;
++typedef int             __kernel_ipc_pid_t;
++typedef unsigned int    __kernel_uid_t;
++typedef unsigned int    __kernel_gid_t;
++typedef long            __kernel_ssize_t;
++typedef long            __kernel_ptrdiff_t;
++typedef unsigned long   __kernel_sigset_t;      /* at least 32 bits */
++typedef __kernel_uid_t __kernel_old_uid_t;
++typedef __kernel_gid_t __kernel_old_gid_t;
++typedef __kernel_uid_t __kernel_uid32_t;
++typedef __kernel_gid_t __kernel_gid32_t;
++
++#endif /* __s390x__ */
+ 
+ typedef struct {
+ #if defined(__KERNEL__) || defined(__USE_ALL)
+diff -urN linux-2.5.67/include/asm-s390/processor.h linux-2.5.67-s390/include/asm-s390/processor.h
+--- linux-2.5.67/include/asm-s390/processor.h	Mon Apr 14 19:11:45 2003
++++ linux-2.5.67-s390/include/asm-s390/processor.h	Mon Apr 14 19:11:59 2003
+@@ -44,6 +44,9 @@
+         __u16    cpu_nr;
+         unsigned long loops_per_jiffy;
+         unsigned long *pgd_quick;
++#ifdef __s390x__
++        unsigned long *pmd_quick;
++#endif /* __s390x__ */
+         unsigned long *pte_quick;
+         unsigned long pgtable_cache_sz;
+ };
+@@ -54,58 +57,90 @@
+ extern struct task_struct *last_task_used_math;
+ 
+ /*
+- * User space process size: 2GB (default).
++ * User space process size: 2GB for 31 bit, 4TB for 64 bit.
+  */
+-#define TASK_SIZE       (0x80000000)
+-/* This decides where the kernel will search for a free chunk of vm
+- * space during mmap's.
+- */
+-#define TASK_UNMAPPED_BASE      (TASK_SIZE / 2)
++#ifndef __s390x__
++
++# define TASK_SIZE		(0x80000000UL)
++# define TASK_UNMAPPED_BASE	(TASK_SIZE / 2)
 +
 +#else /* __s390x__ */
 +
-+#define __BITOPS_ALIGN		7
-+#define __BITOPS_WORDSIZE	64
-+#define __BITOPS_OR		"ogr"
-+#define __BITOPS_AND		"ngr"
-+#define __BITOPS_XOR		"xgr"
-+
-+#define __BITOPS_LOOP(__old, __new, __addr, __val, __op_string)		\
-+	__asm__ __volatile__("   lg  %0,0(%4)\n"			\
-+			     "0: lgr %1,%0\n"				\
-+			     __op_string "  %1,%3\n"			\
-+			     "   csg %0,%1,0(%4)\n"			\
-+			     "   jl  0b"				\
-+			     : "=&d" (__old), "=&d" (__new),	       	\
-+			       "=m" (*(unsigned long *) __addr)		\
-+			     : "d" (__val), "a" (__addr),		\
-+			       "m" (*(unsigned long *) __addr) : "cc" );
++# define TASK_SIZE		(0x20000000000UL)
++# define TASK31_SIZE		(0x80000000UL)
++# define TASK_UNMAPPED_BASE	(test_thread_flag(TIF_31BIT) ? \
++					(TASK31_SIZE / 2) : (TASK_SIZE / 2))
 +
 +#endif /* __s390x__ */
-+
- #ifdef CONFIG_SMP
- /*
-  * SMP safe set_bit routine based on compare and swap (CS)
-  */
--static inline void set_bit_cs(int nr, volatile unsigned long *ptr)
-+static inline void set_bit_cs(unsigned long nr, volatile unsigned long *ptr)
- {
-         unsigned long addr, old, new, mask;
  
- 	addr = (unsigned long) ptr;
- #if ALIGN_CS == 1
--	nr += (addr & 3) << 3;		/* add alignment to bit number */
--	addr ^= addr & 3;		/* align address to 4 */
-+	nr += (addr & __BITOPS_ALIGN) << 3;    /* add alignment to bit number */
-+	addr ^= addr & __BITOPS_ALIGN;	       /* align address to 8 */
- #endif
--	addr += (nr ^ (nr & 31)) >> 3;	/* calculate address for CS */
--	mask = 1UL << (nr & 31);	/* make OR mask */
--	asm volatile(
--		"   l   %0,0(%4)\n"
--		"0: lr  %1,%0\n"
--		"   or  %1,%3\n"
--		"   cs  %0,%1,0(%4)\n"
--		"   jl  0b"
--		: "=&d" (old), "=&d" (new), "+m" (*(unsigned int *) addr)
--		: "d" (mask), "a" (addr) 
--		: "cc" );
-+	/* calculate address for CS */
-+	addr += (nr ^ (nr & (__BITOPS_WORDSIZE - 1))) >> 3;
-+	/* make OR mask */
-+	mask = 1UL << (nr & (__BITOPS_WORDSIZE - 1));
-+	/* Do the atomic update. */
-+	__BITOPS_LOOP(old, new, addr, mask, __BITOPS_OR);
- }
+ typedef struct {
+         __u32 ar4;
+ } mm_segment_t;
  
- /*
-  * SMP safe clear_bit routine based on compare and swap (CS)
-  */
--static inline void clear_bit_cs(int nr, volatile unsigned long *ptr)
-+static inline void clear_bit_cs(unsigned long nr, volatile unsigned long *ptr)
- {
-         unsigned long addr, old, new, mask;
- 
- 	addr = (unsigned long) ptr;
- #if ALIGN_CS == 1
--	nr += (addr & 3) << 3;		/* add alignment to bit number */
--	addr ^= addr & 3;		/* align address to 4 */
-+	nr += (addr & __BITOPS_ALIGN) << 3;    /* add alignment to bit number */
-+	addr ^= addr & __BITOPS_ALIGN;	       /* align address to 8 */
- #endif
--	addr += (nr ^ (nr & 31)) >> 3;	/* calculate address for CS */
--	mask = ~(1UL << (nr & 31));	/* make AND mask */
--	asm volatile(
--		"   l   %0,0(%4)\n"
--		"0: lr  %1,%0\n"
--		"   nr  %1,%3\n"
--		"   cs  %0,%1,0(%4)\n"
--		"   jl  0b"
--		: "=&d" (old), "=&d" (new), "+m" (*(unsigned int *) addr)
--		: "d" (mask), "a" (addr) 
--		: "cc" );
-+	/* calculate address for CS */
-+	addr += (nr ^ (nr & (__BITOPS_WORDSIZE - 1))) >> 3;
-+	/* make AND mask */
-+	mask = ~(1UL << (nr & (__BITOPS_WORDSIZE - 1)));
-+	/* Do the atomic update. */
-+	__BITOPS_LOOP(old, new, addr, mask, __BITOPS_AND);
- }
- 
- /*
-  * SMP safe change_bit routine based on compare and swap (CS)
-  */
--static inline void change_bit_cs(int nr, volatile unsigned long *ptr)
-+static inline void change_bit_cs(unsigned long nr, volatile unsigned long *ptr)
- {
-         unsigned long addr, old, new, mask;
- 
- 	addr = (unsigned long) ptr;
- #if ALIGN_CS == 1
--	nr += (addr & 3) << 3;		/* add alignment to bit number */
--	addr ^= addr & 3;		/* align address to 4 */
-+	nr += (addr & __BITOPS_ALIGN) << 3;    /* add alignment to bit number */
-+	addr ^= addr & __BITOPS_ALIGN;	       /* align address to 8 */
- #endif
--	addr += (nr ^ (nr & 31)) >> 3;	/* calculate address for CS */
--	mask = 1UL << (nr & 31);	/* make XOR mask */
--	asm volatile(
--		"   l   %0,0(%4)\n"
--		"0: lr  %1,%0\n"
--		"   xr  %1,%3\n"
--		"   cs  %0,%1,0(%4)\n"
--		"   jl  0b"
--		: "=&d" (old), "=&d" (new), "+m" (*(unsigned int *) addr)
--		: "d" (mask), "a" (addr) 
--		: "cc" );
-+	/* calculate address for CS */
-+	addr += (nr ^ (nr & (__BITOPS_WORDSIZE - 1))) >> 3;
-+	/* make XOR mask */
-+	mask = 1UL << (nr & (__BITOPS_WORDSIZE - 1));
-+	/* Do the atomic update. */
-+	__BITOPS_LOOP(old, new, addr, mask, __BITOPS_XOR);
- }
- 
- /*
-  * SMP safe test_and_set_bit routine based on compare and swap (CS)
-  */
- static inline int
--test_and_set_bit_cs(int nr, volatile unsigned long *ptr)
-+test_and_set_bit_cs(unsigned long nr, volatile unsigned long *ptr)
- {
-         unsigned long addr, old, new, mask;
- 
- 	addr = (unsigned long) ptr;
- #if ALIGN_CS == 1
--	addr ^= addr & 3;		/* align address to 4 */
--	nr += (addr & 3) << 3;		/* add alignment to bit number */
-+	nr += (addr & __BITOPS_ALIGN) << 3;    /* add alignment to bit number */
-+	addr ^= addr & __BITOPS_ALIGN;	       /* align address to 8 */
- #endif
--	addr += (nr ^ (nr & 31)) >> 3;	/* calculate address for CS */
--	mask = 1UL << (nr & 31);	/* make OR/test mask */
--	asm volatile(
--		"   l   %0,0(%4)\n"
--		"0: lr  %1,%0\n"
--		"   or  %1,%3\n"
--		"   cs  %0,%1,0(%4)\n"
--		"   jl  0b"
--		: "=&d" (old), "=&d" (new), "+m" (*(unsigned int *) addr)
--		: "d" (mask), "a" (addr) 
--		: "cc" );
-+	/* calculate address for CS */
-+	addr += (nr ^ (nr & (__BITOPS_WORDSIZE - 1))) >> 3;
-+	/* make OR/test mask */
-+	mask = 1UL << (nr & (__BITOPS_WORDSIZE - 1));
-+	/* Do the atomic update. */
-+	__BITOPS_LOOP(old, new, addr, mask, __BITOPS_OR);
- 	return (old & mask) != 0;
- }
- 
-@@ -156,26 +196,21 @@
-  * SMP safe test_and_clear_bit routine based on compare and swap (CS)
-  */
- static inline int
--test_and_clear_bit_cs(int nr, volatile unsigned long *ptr)
-+test_and_clear_bit_cs(unsigned long nr, volatile unsigned long *ptr)
- {
-         unsigned long addr, old, new, mask;
- 
- 	addr = (unsigned long) ptr;
- #if ALIGN_CS == 1
--	nr += (addr & 3) << 3;		/* add alignment to bit number */
--	addr ^= addr & 3;		/* align address to 4 */
-+	nr += (addr & __BITOPS_ALIGN) << 3;    /* add alignment to bit number */
-+	addr ^= addr & __BITOPS_ALIGN;	       /* align address to 8 */
- #endif
--	addr += (nr ^ (nr & 31)) >> 3;	/* calculate address for CS */
--	mask = ~(1UL << (nr & 31));	/* make AND mask */
--	asm volatile(
--		"   l   %0,0(%4)\n"
--		"0: lr  %1,%0\n"
--		"   nr  %1,%3\n"
--		"   cs  %0,%1,0(%4)\n"
--		"   jl  0b"
--		: "=&d" (old), "=&d" (new), "+m" (*(unsigned int *) addr)
--		: "d" (mask), "a" (addr) 
--		: "cc" );
-+	/* calculate address for CS */
-+	addr += (nr ^ (nr & (__BITOPS_WORDSIZE - 1))) >> 3;
-+	/* make AND/test mask */
-+	mask = ~(1UL << (nr & (__BITOPS_WORDSIZE - 1)));
-+	/* Do the atomic update. */
-+	__BITOPS_LOOP(old, new, addr, mask, __BITOPS_AND);
- 	return (old ^ new) != 0;
- }
- 
-@@ -183,26 +218,21 @@
-  * SMP safe test_and_change_bit routine based on compare and swap (CS) 
-  */
- static inline int
--test_and_change_bit_cs(int nr, volatile unsigned long *ptr)
-+test_and_change_bit_cs(unsigned long nr, volatile unsigned long *ptr)
- {
-         unsigned long addr, old, new, mask;
- 
- 	addr = (unsigned long) ptr;
- #if ALIGN_CS == 1
--	nr += (addr & 3) << 3;		/* add alignment to bit number */
--	addr ^= addr & 3;		/* align address to 4 */
-+	nr += (addr & __BITOPS_ALIGN) << 3;  /* add alignment to bit number */
-+	addr ^= addr & __BITOPS_ALIGN;	     /* align address to 8 */
- #endif
--	addr += (nr ^ (nr & 31)) >> 3;	/* calculate address for CS */
--	mask = 1UL << (nr & 31);	/* make XOR mask */
--	asm volatile(
--		"   l   %0,0(%4)\n"
--		"0: lr  %1,%0\n"
--		"   xr  %1,%3\n"
--		"   cs  %0,%1,0(%4)\n"
--		"   jl  0b"
--		: "=&d" (old), "=&d" (new), "+m" (*(unsigned int *) addr)
--		: "d" (mask), "a" (addr) 
--		: "cc" );
-+	/* calculate address for CS */
-+	addr += (nr ^ (nr & (__BITOPS_WORDSIZE - 1))) >> 3;
-+	/* make XOR/test mask */
-+	mask = 1UL << (nr & (__BITOPS_WORDSIZE - 1));
-+	/* Do the atomic update. */
-+	__BITOPS_LOOP(old, new, addr, mask, __BITOPS_XOR);
- 	return (old & mask) != 0;
- }
- #endif /* CONFIG_SMP */
-@@ -210,55 +240,55 @@
- /*
-  * fast, non-SMP set_bit routine
-  */
--static inline void __set_bit(int nr, volatile unsigned long *ptr)
-+static inline void __set_bit(unsigned long nr, volatile unsigned long *ptr)
- {
- 	unsigned long addr;
- 
--	addr = (unsigned long) ptr + ((nr ^ 24) >> 3);
-+	addr = (unsigned long) ptr + ((nr ^ (__BITOPS_WORDSIZE - 8)) >> 3);
-         asm volatile("oc 0(1,%1),0(%2)"
--		     : "+m" (*(char *) addr)
--		     : "a" (addr), "a" (_oi_bitmap + (nr & 7))
--		     : "cc" );
-+		     : "=m" (*(char *) addr)
-+		     : "a" (addr), "a" (_oi_bitmap + (nr & 7)),
-+		       "m" (*(char *) addr) : "cc" );
- }
- 
- static inline void 
--__constant_set_bit(const int nr, volatile unsigned long *ptr)
-+__constant_set_bit(const unsigned long nr, volatile unsigned long *ptr)
- {
- 	unsigned long addr;
- 
--	addr = ((unsigned long) ptr) + ((nr >> 3) ^ 3);
-+	addr = ((unsigned long) ptr) + ((nr ^ (__BITOPS_WORDSIZE - 8)) >> 3);
- 	switch (nr&7) {
- 	case 0:
--		asm volatile ("oi 0(%1),0x01"
--			      : "+m" (*(char *) addr) : "a" (addr) : "cc" );
-+		asm volatile ("oi 0(%1),0x01" : "=m" (*(char *) addr)
-+			      : "a" (addr), "m" (*(char *) addr) : "cc" );
- 		break;
- 	case 1:
--		asm volatile ("oi 0(%1),0x02"
--			      : "+m" (*(char *) addr) : "a" (addr) : "cc" );
-+		asm volatile ("oi 0(%1),0x02" : "=m" (*(char *) addr)
-+			      : "a" (addr), "m" (*(char *) addr) : "cc" );
- 		break;
- 	case 2:
--		asm volatile ("oi 0(%1),0x04" 
--			      : "+m" (*(char *) addr) : "a" (addr) : "cc" );
-+		asm volatile ("oi 0(%1),0x04" : "=m" (*(char *) addr)
-+			      : "a" (addr), "m" (*(char *) addr) : "cc" );
- 		break;
- 	case 3:
--		asm volatile ("oi 0(%1),0x08" 
--			      : "+m" (*(char *) addr) : "a" (addr) : "cc" );
-+		asm volatile ("oi 0(%1),0x08" : "=m" (*(char *) addr)
-+			      : "a" (addr), "m" (*(char *) addr) : "cc" );
- 		break;
- 	case 4:
--		asm volatile ("oi 0(%1),0x10" 
--			      : "+m" (*(char *) addr) : "a" (addr) : "cc" );
-+		asm volatile ("oi 0(%1),0x10" : "=m" (*(char *) addr)
-+			      : "a" (addr), "m" (*(char *) addr) : "cc" );
- 		break;
- 	case 5:
--		asm volatile ("oi 0(%1),0x20" 
--			      : "+m" (*(char *) addr) : "a" (addr) : "cc" );
-+		asm volatile ("oi 0(%1),0x20" : "=m" (*(char *) addr)
-+			      : "a" (addr), "m" (*(char *) addr) : "cc" );
- 		break;
- 	case 6:
--		asm volatile ("oi 0(%1),0x40" 
--			      : "+m" (*(char *) addr) : "a" (addr) : "cc" );
-+		asm volatile ("oi 0(%1),0x40" : "=m" (*(char *) addr)
-+			      : "a" (addr), "m" (*(char *) addr) : "cc" );
- 		break;
- 	case 7:
--		asm volatile ("oi 0(%1),0x80" 
--			      : "+m" (*(char *) addr) : "a" (addr) : "cc" );
-+		asm volatile ("oi 0(%1),0x80" : "=m" (*(char *) addr)
-+			      : "a" (addr), "m" (*(char *) addr) : "cc" );
- 		break;
- 	}
- }
-@@ -272,55 +302,55 @@
-  * fast, non-SMP clear_bit routine
-  */
- static inline void 
--__clear_bit(int nr, volatile unsigned long *ptr)
-+__clear_bit(unsigned long nr, volatile unsigned long *ptr)
- {
- 	unsigned long addr;
- 
--	addr = (unsigned long) ptr + ((nr ^ 24) >> 3);
-+	addr = (unsigned long) ptr + ((nr ^ (__BITOPS_WORDSIZE - 8)) >> 3);
-         asm volatile("nc 0(1,%1),0(%2)"
--		     : "+m" (*(char *) addr)
--		     : "a" (addr), "a" (_ni_bitmap + (nr & 7))
--		     : "cc" );
-+		     : "=m" (*(char *) addr)
-+		     : "a" (addr), "a" (_ni_bitmap + (nr & 7)),
-+		       "m" (*(char *) addr) : "cc" );
- }
- 
- static inline void 
--__constant_clear_bit(const int nr, volatile unsigned long *ptr)
-+__constant_clear_bit(const unsigned long nr, volatile unsigned long *ptr)
- {
- 	unsigned long addr;
- 
--	addr = ((unsigned long) ptr) + ((nr >> 3) ^ 3);
-+	addr = ((unsigned long) ptr) + ((nr ^ (__BITOPS_WORDSIZE - 8)) >> 3);
- 	switch (nr&7) {
- 	case 0:
--		asm volatile ("ni 0(%1),0xFE"
--			      : "+m" (*(char *) addr) : "a" (addr) : "cc" );
-+		asm volatile ("ni 0(%1),0xFE" : "=m" (*(char *) addr)
-+			      : "a" (addr), "m" (*(char *) addr) : "cc" );
- 		break;
- 	case 1:
--		asm volatile ("ni 0(%1),0xFD" 
--			      : "+m" (*(char *) addr) : "a" (addr) : "cc" );
-+		asm volatile ("ni 0(%1),0xFD": "=m" (*(char *) addr)
-+			      : "a" (addr), "m" (*(char *) addr) : "cc" );
- 		break;
- 	case 2:
--		asm volatile ("ni 0(%1),0xFB" 
--			      : "+m" (*(char *) addr) : "a" (addr) : "cc" );
-+		asm volatile ("ni 0(%1),0xFB" : "=m" (*(char *) addr)
-+			      : "a" (addr), "m" (*(char *) addr) : "cc" );
- 		break;
- 	case 3:
--		asm volatile ("ni 0(%1),0xF7" 
--			      : "+m" (*(char *) addr) : "a" (addr) : "cc" );
-+		asm volatile ("ni 0(%1),0xF7" : "=m" (*(char *) addr)
-+			      : "a" (addr), "m" (*(char *) addr) : "cc" );
- 		break;
- 	case 4:
--		asm volatile ("ni 0(%1),0xEF" 
--			      : "+m" (*(char *) addr) : "a" (addr) : "cc" );
-+		asm volatile ("ni 0(%1),0xEF" : "=m" (*(char *) addr)
-+			      : "a" (addr), "m" (*(char *) addr) : "cc" );
- 		break;
- 	case 5:
--		asm volatile ("ni 0(%1),0xDF" 
--			      : "+m" (*(char *) addr) : "a" (addr) : "cc" );
-+		asm volatile ("ni 0(%1),0xDF" : "=m" (*(char *) addr)
-+			      : "a" (addr), "m" (*(char *) addr) : "cc" );
- 		break;
- 	case 6:
--		asm volatile ("ni 0(%1),0xBF" 
--			      : "+m" (*(char *) addr) : "a" (addr) : "cc" );
-+		asm volatile ("ni 0(%1),0xBF" : "=m" (*(char *) addr)
-+			      : "a" (addr), "m" (*(char *) addr) : "cc" );
- 		break;
- 	case 7:
--		asm volatile ("ni 0(%1),0x7F" 
--			      : "+m" (*(char *) addr) : "a" (addr) : "cc" );
-+		asm volatile ("ni 0(%1),0x7F" : "=m" (*(char *) addr)
-+			      : "a" (addr), "m" (*(char *) addr) : "cc" );
- 		break;
- 	}
- }
-@@ -333,55 +363,55 @@
- /* 
-  * fast, non-SMP change_bit routine 
-  */
--static inline void __change_bit(int nr, volatile unsigned long *ptr)
-+static inline void __change_bit(unsigned long nr, volatile unsigned long *ptr)
- {
- 	unsigned long addr;
- 
--	addr = (unsigned long) ptr + ((nr ^ 24) >> 3);
-+	addr = (unsigned long) ptr + ((nr ^ (__BITOPS_WORDSIZE - 8)) >> 3);
-         asm volatile("xc 0(1,%1),0(%2)"
--		     : "+m" (*(char *) addr)
--		     : "a" (addr), "a" (_oi_bitmap + (nr & 7))
--		     : "cc" );
-+		     :  "=m" (*(char *) addr)
-+		     : "a" (addr), "a" (_oi_bitmap + (nr & 7)),
-+		       "m" (*(char *) addr) : "cc" );
- }
- 
- static inline void 
--__constant_change_bit(const int nr, volatile unsigned long *ptr) 
-+__constant_change_bit(const unsigned long nr, volatile unsigned long *ptr) 
- {
- 	unsigned long addr;
- 
--	addr = ((unsigned long) ptr) + ((nr >> 3) ^ 3);
-+	addr = ((unsigned long) ptr) + ((nr ^ (__BITOPS_WORDSIZE - 8)) >> 3);
- 	switch (nr&7) {
- 	case 0:
--		asm volatile ("xi 0(%1),0x01" 
--			      : "+m" (*(char *) addr) : "a" (addr) : "cc" );
-+		asm volatile ("xi 0(%1),0x01" : "=m" (*(char *) addr)
-+			      : "a" (addr), "m" (*(char *) addr) : "cc" );
- 		break;
- 	case 1:
--		asm volatile ("xi 0(%1),0x02" 
--			      : "+m" (*(char *) addr) : "a" (addr) : "cc" );
-+		asm volatile ("xi 0(%1),0x02" : "=m" (*(char *) addr)
-+			      : "a" (addr), "m" (*(char *) addr) : "cc" );
- 		break;
- 	case 2:
--		asm volatile ("xi 0(%1),0x04" 
--			      : "+m" (*(char *) addr) : "a" (addr) : "cc" );
-+		asm volatile ("xi 0(%1),0x04" : "=m" (*(char *) addr)
-+			      : "a" (addr), "m" (*(char *) addr) : "cc" );
- 		break;
- 	case 3:
--		asm volatile ("xi 0(%1),0x08" 
--			      : "+m" (*(char *) addr) : "a" (addr) : "cc" );
-+		asm volatile ("xi 0(%1),0x08" : "=m" (*(char *) addr)
-+			      : "a" (addr), "m" (*(char *) addr) : "cc" );
- 		break;
- 	case 4:
--		asm volatile ("xi 0(%1),0x10" 
--			      : "+m" (*(char *) addr) : "a" (addr) : "cc" );
-+		asm volatile ("xi 0(%1),0x10" : "=m" (*(char *) addr)
-+			      : "a" (addr), "m" (*(char *) addr) : "cc" );
- 		break;
- 	case 5:
--		asm volatile ("xi 0(%1),0x20" 
--			      : "+m" (*(char *) addr) : "a" (addr) : "cc" );
-+		asm volatile ("xi 0(%1),0x20" : "=m" (*(char *) addr)
-+			      : "a" (addr), "m" (*(char *) addr) : "cc" );
- 		break;
- 	case 6:
--		asm volatile ("xi 0(%1),0x40" 
--			      : "+m" (*(char *) addr) : "a" (addr) : "cc" );
-+		asm volatile ("xi 0(%1),0x40" : "=m" (*(char *) addr)
-+			      : "a" (addr), "m" (*(char *) addr) : "cc" );
- 		break;
- 	case 7:
--		asm volatile ("xi 0(%1),0x80" 
--			      : "+m" (*(char *) addr) : "a" (addr) : "cc" );
-+		asm volatile ("xi 0(%1),0x80" : "=m" (*(char *) addr)
-+			      : "a" (addr), "m" (*(char *) addr) : "cc" );
- 		break;
- 	}
- }
-@@ -395,17 +425,17 @@
-  * fast, non-SMP test_and_set_bit routine
-  */
- static inline int
--test_and_set_bit_simple(int nr, volatile unsigned long *ptr)
-+test_and_set_bit_simple(unsigned long nr, volatile unsigned long *ptr)
- {
- 	unsigned long addr;
- 	unsigned char ch;
- 
--	addr = (unsigned long) ptr + ((nr ^ 24) >> 3);
-+	addr = (unsigned long) ptr + ((nr ^ (__BITOPS_WORDSIZE - 8)) >> 3);
- 	ch = *(unsigned char *) addr;
-         asm volatile("oc 0(1,%1),0(%2)"
--		     : "+m" (*(char *) addr)
--		     : "a" (addr), "a" (_oi_bitmap + (nr & 7))
--		     : "cc" );
-+		     : "=m" (*(char *) addr)
-+		     : "a" (addr), "a" (_oi_bitmap + (nr & 7)),
-+		       "m" (*(char *) addr) : "cc" );
- 	return (ch >> (nr & 7)) & 1;
- }
- #define __test_and_set_bit(X,Y)		test_and_set_bit_simple(X,Y)
-@@ -414,17 +444,17 @@
-  * fast, non-SMP test_and_clear_bit routine
-  */
- static inline int
--test_and_clear_bit_simple(int nr, volatile unsigned long *ptr)
-+test_and_clear_bit_simple(unsigned long nr, volatile unsigned long *ptr)
- {
- 	unsigned long addr;
- 	unsigned char ch;
- 
--	addr = (unsigned long) ptr + ((nr ^ 24) >> 3);
-+	addr = (unsigned long) ptr + ((nr ^ (__BITOPS_WORDSIZE - 8)) >> 3);
- 	ch = *(unsigned char *) addr;
-         asm volatile("nc 0(1,%1),0(%2)"
--		     : "+m" (*(char *) addr)
--		     : "a" (addr), "a" (_ni_bitmap + (nr & 7))
--		     : "cc" );
-+		     : "=m" (*(char *) addr)
-+		     : "a" (addr), "a" (_ni_bitmap + (nr & 7)),
-+		       "m" (*(char *) addr) : "cc" );
- 	return (ch >> (nr & 7)) & 1;
- }
- #define __test_and_clear_bit(X,Y)	test_and_clear_bit_simple(X,Y)
-@@ -433,17 +463,17 @@
-  * fast, non-SMP test_and_change_bit routine
-  */
- static inline int
--test_and_change_bit_simple(int nr, volatile unsigned long *ptr)
-+test_and_change_bit_simple(unsigned long nr, volatile unsigned long *ptr)
- {
- 	unsigned long addr;
- 	unsigned char ch;
- 
--	addr = (unsigned long) ptr + ((nr ^ 24) >> 3);
-+	addr = (unsigned long) ptr + ((nr ^ (__BITOPS_WORDSIZE - 8)) >> 3);
- 	ch = *(unsigned char *) addr;
-         asm volatile("xc 0(1,%1),0(%2)"
--		     : "+m" (*(char *) addr)
--		     : "a" (addr), "a" (_oi_bitmap + (nr & 7))
--		     : "cc" );
-+		     : "=m" (*(char *) addr)
-+		     : "a" (addr), "a" (_oi_bitmap + (nr & 7)),
-+		       "m" (*(char *) addr) : "cc" );
- 	return (ch >> (nr & 7)) & 1;
- }
- #define __test_and_change_bit(X,Y)	test_and_change_bit_simple(X,Y)
-@@ -469,19 +499,20 @@
-  * This routine doesn't need to be atomic.
-  */
- 
--static inline int __test_bit(int nr, const volatile unsigned long *ptr)
-+static inline int __test_bit(unsigned long nr, const volatile unsigned long *ptr)
- {
- 	unsigned long addr;
- 	unsigned char ch;
- 
--	addr = (unsigned long) ptr + ((nr ^ 24) >> 3);
-+	addr = (unsigned long) ptr + ((nr ^ (__BITOPS_WORDSIZE - 8)) >> 3);
- 	ch = *(unsigned char *) addr;
- 	return (ch >> (nr & 7)) & 1;
- }
- 
- static inline int 
--__constant_test_bit(int nr, const volatile unsigned long * addr) {
--    return (((volatile char *) addr)[(nr>>3)^3] & (1<<(nr&7))) != 0;
-+__constant_test_bit(unsigned long nr, const volatile unsigned long *addr) {
-+    return (((volatile char *) addr)
-+	    [(nr^(__BITOPS_WORDSIZE-8))>>3] & (1<<(nr&7)));
- }
- 
- #define test_bit(nr,addr) \
-@@ -489,6 +520,8 @@
-  __constant_test_bit((nr),(addr)) : \
-  __test_bit((nr),(addr)) )
- 
-+#ifndef __s390x__
-+
- /*
-  * Find-bit routines..
-  */
-@@ -701,6 +734,245 @@
-         return result;
- }
- 
-+#else /* __s390x__ */
-+
+-/* if you change the thread_struct structure, you must
+- * update the _TSS_* defines in entry.S
 +/*
-+ * Find-bit routines..
-+ */
-+static inline unsigned long
-+find_first_zero_bit(unsigned long * addr, unsigned long size)
-+{
-+        unsigned long res, cmp, count;
-+
-+        if (!size)
-+                return 0;
-+        __asm__("   lghi  %1,-1\n"
-+                "   lgr   %2,%3\n"
-+                "   slgr  %0,%0\n"
-+                "   aghi  %2,63\n"
-+                "   srlg  %2,%2,6\n"
-+                "0: cg    %1,0(%0,%4)\n"
-+                "   jne   1f\n"
-+                "   aghi  %0,8\n"
-+                "   brct  %2,0b\n"
-+                "   lgr   %0,%3\n"
-+                "   j     5f\n"
-+                "1: lg    %2,0(%0,%4)\n"
-+                "   sllg  %0,%0,3\n"
-+                "   clr   %2,%1\n"
-+		"   jne   2f\n"
-+		"   aghi  %0,32\n"
-+                "   srlg  %2,%2,32\n"
-+		"2: lghi  %1,0xff\n"
-+                "   tmll  %2,0xffff\n"
-+                "   jno   3f\n"
-+                "   aghi  %0,16\n"
-+                "   srl   %2,16\n"
-+                "3: tmll  %2,0x00ff\n"
-+                "   jno   4f\n"
-+                "   aghi  %0,8\n"
-+                "   srl   %2,8\n"
-+                "4: ngr   %2,%1\n"
-+                "   ic    %2,0(%2,%5)\n"
-+                "   algr  %0,%2\n"
-+                "5:"
-+                : "=&a" (res), "=&d" (cmp), "=&a" (count)
-+		: "a" (size), "a" (addr), "a" (&_zb_findmap) : "cc" );
-+        return (res < size) ? res : size;
-+}
-+
-+static inline unsigned long
-+find_first_bit(unsigned long * addr, unsigned long size)
-+{
-+        unsigned long res, cmp, count;
-+
-+        if (!size)
-+                return 0;
-+        __asm__("   slgr  %1,%1\n"
-+                "   lgr   %2,%3\n"
-+                "   slgr  %0,%0\n"
-+                "   aghi  %2,63\n"
-+                "   srlg  %2,%2,6\n"
-+                "0: cg    %1,0(%0,%4)\n"
-+                "   jne   1f\n"
-+                "   aghi  %0,8\n"
-+                "   brct  %2,0b\n"
-+                "   lgr   %0,%3\n"
-+                "   j     5f\n"
-+                "1: lg    %2,0(%0,%4)\n"
-+                "   sllg  %0,%0,3\n"
-+                "   clr   %2,%1\n"
-+		"   jne   2f\n"
-+		"   aghi  %0,32\n"
-+                "   srlg  %2,%2,32\n"
-+		"2: lghi  %1,0xff\n"
-+                "   tmll  %2,0xffff\n"
-+                "   jnz   3f\n"
-+                "   aghi  %0,16\n"
-+                "   srl   %2,16\n"
-+                "3: tmll  %2,0x00ff\n"
-+                "   jnz   4f\n"
-+                "   aghi  %0,8\n"
-+                "   srl   %2,8\n"
-+                "4: ngr   %2,%1\n"
-+                "   ic    %2,0(%2,%5)\n"
-+                "   algr  %0,%2\n"
-+                "5:"
-+                : "=&a" (res), "=&d" (cmp), "=&a" (count)
-+		: "a" (size), "a" (addr), "a" (&_sb_findmap) : "cc" );
-+        return (res < size) ? res : size;
-+}
-+
-+static inline unsigned long
-+find_next_zero_bit (unsigned long * addr, unsigned long size, unsigned long offset)
-+{
-+        unsigned long * p = ((unsigned long *) addr) + (offset >> 6);
-+        unsigned long bitvec, reg;
-+        unsigned long set, bit = offset & 63, res;
-+
-+        if (bit) {
-+                /*
-+                 * Look for zero in first word
-+                 */
-+                bitvec = (*p) >> bit;
-+                __asm__("   lhi  %2,-1\n"
-+                        "   slgr %0,%0\n"
-+                        "   clr  %1,%2\n"
-+                        "   jne  0f\n"
-+                        "   aghi %0,32\n"
-+                        "   srlg %1,%1,32\n"
-+			"0: lghi %2,0xff\n"
-+                        "   tmll %1,0xffff\n"
-+                        "   jno  1f\n"
-+                        "   aghi %0,16\n"
-+                        "   srlg %1,%1,16\n"
-+                        "1: tmll %1,0x00ff\n"
-+                        "   jno  2f\n"
-+                        "   aghi %0,8\n"
-+                        "   srlg %1,%1,8\n"
-+                        "2: ngr  %1,%2\n"
-+                        "   ic   %1,0(%1,%3)\n"
-+                        "   algr %0,%1"
-+                        : "=&d" (set), "+a" (bitvec), "=&d" (reg)
-+                        : "a" (&_zb_findmap) : "cc" );
-+                if (set < (64 - bit))
-+                        return set + offset;
-+                offset += 64 - bit;
-+                p++;
-+        }
-+        /*
-+         * No zero yet, search remaining full words for a zero
-+         */
-+        res = find_first_zero_bit (p, size - 64 * (p - (unsigned long *) addr));
-+        return (offset + res);
-+}
-+
-+static inline unsigned long
-+find_next_bit (unsigned long * addr, unsigned long size, unsigned long offset)
-+{
-+        unsigned long * p = ((unsigned long *) addr) + (offset >> 6);
-+        unsigned long bitvec, reg;
-+        unsigned long set, bit = offset & 63, res;
-+
-+        if (bit) {
-+                /*
-+                 * Look for zero in first word
-+                 */
-+                bitvec = (*p) >> bit;
-+                __asm__("   slgr %0,%0\n"
-+                        "   ltr  %1,%1\n"
-+                        "   jnz  0f\n"
-+                        "   aghi %0,32\n"
-+                        "   srlg %1,%1,32\n"
-+			"0: lghi %2,0xff\n"
-+                        "   tmll %1,0xffff\n"
-+                        "   jnz  1f\n"
-+                        "   aghi %0,16\n"
-+                        "   srlg %1,%1,16\n"
-+                        "1: tmll %1,0x00ff\n"
-+                        "   jnz  2f\n"
-+                        "   aghi %0,8\n"
-+                        "   srlg %1,%1,8\n"
-+                        "2: ngr  %1,%2\n"
-+                        "   ic   %1,0(%1,%3)\n"
-+                        "   algr %0,%1"
-+                        : "=&d" (set), "+a" (bitvec), "=&d" (reg)
-+                        : "a" (&_sb_findmap) : "cc" );
-+                if (set < (64 - bit))
-+                        return set + offset;
-+                offset += 64 - bit;
-+                p++;
-+        }
-+        /*
-+         * No set bit yet, search remaining full words for a bit
-+         */
-+        res = find_first_bit (p, size - 64 * (p - (unsigned long *) addr));
-+        return (offset + res);
-+}
-+
-+/*
-+ * ffz = Find First Zero in word. Undefined if no zero exists,
-+ * so code should check against ~0UL first..
-+ */
-+static inline unsigned long ffz(unsigned long word)
-+{
-+	unsigned long reg, result;
-+
-+        __asm__("   lhi  %2,-1\n"
-+                "   slgr %0,%0\n"
-+                "   clr  %1,%2\n"
-+                "   jne  0f\n"
-+                "   aghi %0,32\n"
-+                "   srlg %1,%1,32\n"
-+                "0: lghi %2,0xff\n"
-+                "   tmll %1,0xffff\n"
-+                "   jno  1f\n"
-+                "   aghi %0,16\n"
-+                "   srlg %1,%1,16\n"
-+                "1: tmll %1,0x00ff\n"
-+                "   jno  2f\n"
-+                "   aghi %0,8\n"
-+                "   srlg %1,%1,8\n"
-+                "2: ngr  %1,%2\n"
-+                "   ic   %1,0(%1,%3)\n"
-+                "   algr %0,%1"
-+                : "=&d" (result), "+a" (word), "=&d" (reg)
-+                : "a" (&_zb_findmap) : "cc" );
-+        return result;
-+}
-+
-+/*
-+ * __ffs = find first bit in word. Undefined if no bit exists,
-+ * so code should check against 0UL first..
-+ */
-+static inline unsigned long __ffs (unsigned long word)
-+{
-+        unsigned long reg, result;
-+
-+        __asm__("   slgr %0,%0\n"
-+                "   ltr  %1,%1\n"
-+                "   jnz  0f\n"
-+                "   aghi %0,32\n"
-+                "   srlg %1,%1,32\n"
-+                "0: lghi %2,0xff\n"
-+                "   tmll %1,0xffff\n"
-+                "   jnz  1f\n"
-+                "   aghi %0,16\n"
-+                "   srlg %1,%1,16\n"
-+                "1: tmll %1,0x00ff\n"
-+                "   jnz  2f\n"
-+                "   aghi %0,8\n"
-+                "   srlg %1,%1,8\n"
-+                "2: ngr  %1,%2\n"
-+                "   ic   %1,0(%1,%3)\n"
-+                "   algr %0,%1"
-+                : "=&d" (result), "+a" (word), "=&d" (reg)
-+                : "a" (&_sb_findmap) : "cc" );
-+        return result;
-+}
-+
-+#endif /* __s390x__ */
-+
- /*
-  * Every architecture must define this function. It's the fastest
-  * way of searching a 140-bit bitmap where the first 100 bits are
-@@ -717,7 +989,6 @@
-  * the libc and compiler builtin ffs routines, therefore
-  * differs in spirit from the above ffz (man ffs).
++ * Thread structure
   */
 -
- extern inline int ffs (int x)
- {
-         int r = 1;
-@@ -785,7 +1056,14 @@
-  * hweightN: returns the hamming weight (i.e. the number
-  * of bits set) of a N-bit word
-  */
--
-+#define hweight64(x)						\
-+({								\
-+	unsigned long __x = (x);				\
-+	unsigned int __w;					\
-+	__w = generic_hweight32((unsigned int) __x);		\
-+	__w += generic_hweight32((unsigned int) (__x>>32));	\
-+	__w;							\
-+})
- #define hweight32(x) generic_hweight32(x)
- #define hweight16(x) generic_hweight16(x)
- #define hweight8(x) generic_hweight8(x)
-@@ -804,15 +1082,17 @@
-  */
+-struct thread_struct
+- {
++struct thread_struct {
+ 	s390_fp_regs fp_regs;
+-        __u32   ar2;                   /* kernel access register 2         */
+-        __u32   ar4;                   /* kernel access register 4         */
+-        __u32   ksp;                   /* kernel stack pointer             */
+-        __u32   user_seg;              /* HSTD                             */
+-        __u32   error_code;            /* error-code of last prog-excep.   */
+-        __u32   prot_addr;             /* address of protection-excep.     */
+-        __u32   trap_no;
+-        per_struct per_info;/* Must be aligned on an 4 byte boundary*/
++	unsigned int ar2;		/* kernel access register 2         */
++        unsigned int ar4;               /* kernel access register 4         */
++        unsigned long ksp;              /* kernel stack pointer             */
++        unsigned long user_seg;         /* HSTD                             */
++        unsigned long prot_addr;        /* address of protection-excep.     */
++        unsigned int error_code;        /* error-code of last prog-excep.   */
++        unsigned int trap_no;
++        per_struct per_info;
+ 	/* Used to give failing instruction back to user for ieee exceptions */
+-	addr_t  ieee_instruction_pointer; 
++	unsigned long ieee_instruction_pointer; 
+         /* pfault_wait is used to block the process on a pfault event */
+-	addr_t  pfault_wait;
++	unsigned long pfault_wait;
+ };
  
- #define ext2_set_bit(nr, addr)       \
--	test_and_set_bit((nr)^24, (unsigned long *)addr)
-+	test_and_set_bit((nr)^(__BITOPS_WORDSIZE - 8), (unsigned long *)addr)
- #define ext2_set_bit_atomic(lock, nr, addr)       \
--	        test_and_set_bit((nr)^24, (unsigned long *)addr)
-+	test_and_set_bit((nr)^(__BITOPS_WORDSIZE - 8), (unsigned long *)addr)
- #define ext2_clear_bit(nr, addr)     \
--	test_and_clear_bit((nr)^24, (unsigned long *)addr)
-+	test_and_clear_bit((nr)^(__BITOPS_WORDSIZE - 8), (unsigned long *)addr)
- #define ext2_clear_bit_atomic(lock, nr, addr)     \
--	        test_and_clear_bit((nr)^24, (unsigned long *)addr)
-+	test_and_clear_bit((nr)^(__BITOPS_WORDSIZE - 8), (unsigned long *)addr)
- #define ext2_test_bit(nr, addr)      \
--	test_bit((nr)^24, (unsigned long *)addr)
-+	test_bit((nr)^(__BITOPS_WORDSIZE - 8), (unsigned long *)addr)
-+
+ typedef struct thread_struct thread_struct;
+ 
+-#define INIT_THREAD {{0,{{0},{0},{0},{0},{0},{0},{0},{0},{0},{0}, \
+-			    {0},{0},{0},{0},{0},{0}}},            \
+-                     0, 0,                                        \
+-                    sizeof(init_stack) + (__u32) &init_stack,     \
+-              (__pa((__u32) &swapper_pg_dir[0]) + _SEGMENT_TABLE),\
+-                     0,0,0,                                       \
+-                     (per_struct) {{{{0,}}},0,0,0,0,{{0,}}},      \
+-                     0, 0                                         \
+-}
 +#ifndef __s390x__
- 
- static inline int 
- ext2_find_first_zero_bit(void *vaddr, unsigned size)
-@@ -897,6 +1177,100 @@
-         return (p - addr) * 32 + res;
- }
- 
++# define __SWAPPER_PG_DIR __pa(&swapper_pg_dir[0]) + _SEGMENT_TABLE
 +#else /* __s390x__ */
-+
-+static inline unsigned long
-+ext2_find_first_zero_bit(void *vaddr, unsigned long size)
-+{
-+        unsigned long res, cmp, count;
-+
-+        if (!size)
-+                return 0;
-+        __asm__("   lghi  %1,-1\n"
-+                "   lgr   %2,%3\n"
-+                "   aghi  %2,63\n"
-+                "   srlg  %2,%2,6\n"
-+                "   slgr  %0,%0\n"
-+                "0: clg   %1,0(%0,%4)\n"
-+                "   jne   1f\n"
-+                "   aghi  %0,8\n"
-+                "   brct  %2,0b\n"
-+                "   lgr   %0,%3\n"
-+                "   j     5f\n"
-+                "1: cl    %1,0(%0,%4)\n"
-+		"   jne   2f\n"
-+		"   aghi  %0,4\n"
-+		"2: l     %2,0(%0,%4)\n"
-+                "   sllg  %0,%0,3\n"
-+                "   aghi  %0,24\n"
-+                "   lghi  %1,0xff\n"
-+                "   tmlh  %2,0xffff\n"
-+                "   jo    3f\n"
-+                "   aghi  %0,-16\n"
-+                "   srl   %2,16\n"
-+                "3: tmll  %2,0xff00\n"
-+                "   jo    4f\n"
-+                "   aghi  %0,-8\n"
-+                "   srl   %2,8\n"
-+                "4: ngr   %2,%1\n"
-+                "   ic    %2,0(%2,%5)\n"
-+                "   algr  %0,%2\n"
-+                "5:"
-+                : "=&a" (res), "=&d" (cmp), "=&a" (count)
-+		: "a" (size), "a" (vaddr), "a" (&_zb_findmap) : "cc" );
-+        return (res < size) ? res : size;
-+}
-+
-+static inline unsigned long
-+ext2_find_next_zero_bit(void *vaddr, unsigned long size, unsigned long offset)
-+{
-+        unsigned long *addr = vaddr;
-+        unsigned long *p = addr + (offset >> 6);
-+        unsigned long word, reg;
-+        unsigned long bit = offset & 63UL, res;
-+
-+        if (offset >= size)
-+                return size;
-+
-+        if (bit) {
-+                __asm__("   lrvg %0,%1" /* load reversed, neat instruction */
-+                        : "=a" (word) : "m" (*p) );
-+                word >>= bit;
-+                res = bit;
-+                /* Look for zero in first 8 byte word */
-+                __asm__("   lghi %2,0xff\n"
-+			"   tmll %1,0xffff\n"
-+			"   jno  2f\n"
-+			"   ahi  %0,16\n"
-+			"   srlg %1,%1,16\n"
-+                	"0: tmll %1,0xffff\n"
-+                        "   jno  2f\n"
-+                        "   ahi  %0,16\n"
-+                        "   srlg %1,%1,16\n"
-+                        "1: tmll %1,0xffff\n"
-+                        "   jno  2f\n"
-+                        "   ahi  %0,16\n"
-+                        "   srl  %1,16\n"
-+                        "2: tmll %1,0x00ff\n"
-+                	"   jno  3f\n"
-+                	"   ahi  %0,8\n"
-+                	"   srl  %1,8\n"
-+                	"3: ngr  %1,%2\n"
-+                	"   ic   %1,0(%1,%3)\n"
-+                	"   alr  %0,%1"
-+                	: "+&d" (res), "+a" (word), "=&d" (reg)
-+                  	: "a" (&_zb_findmap) : "cc" );
-+                if (res < 64)
-+			return (p - addr)*64 + res;
-+                p++;
-+        }
-+        /* No zero yet, search remaining full bytes for a zero */
-+        res = ext2_find_first_zero_bit (p, size - 64 * (p - addr));
-+        return (p - addr) * 64 + res;
-+}
-+
++# define __SWAPPER_PG_DIR __pa(&swapper_pg_dir[0]) + _REGION_TABLE
 +#endif /* __s390x__ */
 +
- /* Bitmap functions for the minix filesystem.  */
- /* FIXME !!! */
- #define minix_test_and_set_bit(nr,addr) test_and_set_bit(nr,addr)
-diff -urN linux-2.5.67/include/asm-s390/byteorder.h linux-2.5.67-s390/include/asm-s390/byteorder.h
---- linux-2.5.67/include/asm-s390/byteorder.h	Mon Apr  7 19:33:01 2003
-+++ linux-2.5.67-s390/include/asm-s390/byteorder.h	Mon Apr 14 19:11:58 2003
-@@ -13,22 +13,63 @@
- 
- #ifdef __GNUC__
- 
-+#ifdef __s390x__
-+static __inline__ __const__ __u64 ___arch__swab64p(__u64 *x)
-+{
-+	__u64 result;
++#define INIT_THREAD {{0,{{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},	       \
++			    {0},{0},{0},{0},{0},{0}}},			       \
++		     0, 0,						       \
++		     sizeof(init_stack) + (unsigned long) &init_stack,	       \
++		     __SWAPPER_PG_DIR,					       \
++		     0,0,0,						       \
++		     (per_struct) {{{{0,}}},0,0,0,0,{{0,}}},		       \
++		     0, 0						       \
++} 
 +
-+	__asm__ __volatile__ (
-+		"   lrvg %0,%1"
-+		: "=d" (result) : "m" (*x) );
-+	return result;
-+}
-+
-+static __inline__ __const__ __u64 ___arch__swab64(__u64 x)
-+{
-+	__u64 result;
-+
-+	__asm__ __volatile__ (
-+		"   lrvgr %0,%1"
-+		: "=d" (result) : "d" (x) );
-+	return result;
-+}
-+
-+static __inline__ void ___arch__swab64s(__u64 *x)
-+{
-+	*x = ___arch__swab64p(x);
-+}
-+#endif /* __s390x__ */
-+
- static __inline__ __const__ __u32 ___arch__swab32p(__u32 *x)
- {
- 	__u32 result;
- 	
- 	__asm__ __volatile__ (
-+#ifndef __s390x__
- 		"        icm   %0,8,3(%1)\n"
- 		"        icm   %0,4,2(%1)\n"
- 		"        icm   %0,2,1(%1)\n"
- 		"        ic    %0,0(%1)"
- 		: "=&d" (result) : "a" (x) : "cc" );
-+#else /* __s390x__ */
-+		"   lrv  %0,%1"
-+		: "=d" (result) : "m" (*x) );
-+#endif /* __s390x__ */
- 	return result;
- }
- 
- static __inline__ __const__ __u32 ___arch__swab32(__u32 x)
- {
-+#ifndef __s390x__
- 	return ___arch__swab32p(&x);
-+#else /* __s390x__ */
-+	__u32 result;
-+	
-+	__asm__ __volatile__ (
-+		"   lrvr  %0,%1"
-+		: "=d" (result) : "d" (x) );
-+	return result;
-+#endif /* __s390x__ */
- }
- 
- static __inline__ void ___arch__swab32s(__u32 *x)
-@@ -41,9 +82,14 @@
- 	__u16 result;
- 	
- 	__asm__ __volatile__ (
-+#ifndef __s390x__
- 		"        icm   %0,2,1(%1)\n"
- 		"        ic    %0,0(%1)\n"
- 		: "=&d" (result) : "a" (x) : "cc" );
-+#else /* __s390x__ */
-+		"   lrvh %0,%1"
-+		: "=d" (result) : "m" (*x) );
-+#endif /* __s390x__ */
- 	return result;
- }
- 
-@@ -57,6 +103,11 @@
- 	*x = ___arch__swab16p(x);
- }
- 
-+#ifdef __s390x__
-+#define __arch__swab64(x) ___arch__swab64(x)
-+#define __arch__swab64p(x) ___arch__swab64p(x)
-+#define __arch__swab64s(x) ___arch__swab64s(x)
-+#endif /* __s390x__ */
- #define __arch__swab32(x) ___arch__swab32(x)
- #define __arch__swab16(x) ___arch__swab16(x)
- #define __arch__swab32p(x) ___arch__swab32p(x)
-@@ -64,10 +115,14 @@
- #define __arch__swab32s(x) ___arch__swab32s(x)
- #define __arch__swab16s(x) ___arch__swab16s(x)
- 
-+#ifndef __s390x__
- #if !defined(__STRICT_ANSI__) || defined(__KERNEL__)
- #  define __BYTEORDER_HAS_U64__
- #  define __SWAB_64_THRU_32__
- #endif
-+#else /* __s390x__ */
-+#define __BYTEORDER_HAS_U64__
-+#endif /* __s390x__ */
- 
- #endif /* __GNUC__ */
- 
-diff -urN linux-2.5.67/include/asm-s390/ccwdev.h linux-2.5.67-s390/include/asm-s390/ccwdev.h
---- linux-2.5.67/include/asm-s390/ccwdev.h	Mon Apr  7 19:32:27 2003
-+++ linux-2.5.67-s390/include/asm-s390/ccwdev.h	Mon Apr 14 19:11:58 2003
-@@ -157,6 +157,16 @@
-  */
- extern int ccw_device_start(struct ccw_device *, struct ccw1 *,
- 			    unsigned long, __u8, unsigned long);
 +/*
-+ * ccw_device_start_timeout()
-+ *
-+ * This function notifies the device driver if the channel program has not
-+ * completed during the specified time. If a timeout occurs, the channel
-+ * program is terminated via xsch(), hsch() or csch().
++ * Do necessary setup to start up a new thread.
 + */
-+extern int ccw_device_start_timeout(struct ccw_device *, struct ccw1 *,
-+				    unsigned long, __u8, unsigned long, int);
++#ifndef __s390x__
+ 
+-/* need to define ... */
+ #define start_thread(regs, new_psw, new_stackp) do {            \
+         regs->psw.mask  = PSW_USER_BITS;                        \
+-        regs->psw.addr  = new_psw | PSW_ADDR_AMODE31;           \
++        regs->psw.addr  = new_psw | PSW_ADDR_AMODE;             \
+         regs->gprs[15]  = new_stackp ;                          \
+ } while (0)
+ 
++#else /* __s390x__ */
 +
- extern int ccw_device_resume(struct ccw_device *);
- extern int ccw_device_halt(struct ccw_device *, unsigned long);
- extern int ccw_device_clear(struct ccw_device *, unsigned long);
-diff -urN linux-2.5.67/include/asm-s390/checksum.h linux-2.5.67-s390/include/asm-s390/checksum.h
---- linux-2.5.67/include/asm-s390/checksum.h	Mon Apr  7 19:30:34 2003
-+++ linux-2.5.67-s390/include/asm-s390/checksum.h	Mon Apr 14 19:11:58 2003
-@@ -30,17 +30,29 @@
- static inline unsigned int
- csum_partial(const unsigned char * buff, int len, unsigned int sum)
++#define start_thread(regs, new_psw, new_stackp) do {            \
++        regs->psw.mask  = PSW_USER_BITS;                        \
++        regs->psw.addr  = new_psw;                              \
++        regs->gprs[15]  = new_stackp;                           \
++} while (0)
++
++#define start_thread31(regs, new_psw, new_stackp) do {          \
++	regs->psw.mask  = PSW_USER32_BITS;			\
++        regs->psw.addr  = new_psw;                              \
++        regs->gprs[15]  = new_stackp;                           \
++} while (0)
++
++#endif /* __s390x__ */
++
+ /* Forward declaration, a strange C thing */
+ struct task_struct;
+ struct mm_struct;
+@@ -129,14 +164,19 @@
+ 
+ unsigned long get_wchan(struct task_struct *p);
+ #define __KSTK_PTREGS(tsk) ((struct pt_regs *) \
+-        (((addr_t) tsk->thread_info + THREAD_SIZE - sizeof(struct pt_regs)) & -8L))
++        (((unsigned long) tsk->thread_info + THREAD_SIZE - sizeof(struct pt_regs)) & -8L))
+ #define KSTK_EIP(tsk)	(__KSTK_PTREGS(tsk)->psw.addr)
+ #define KSTK_ESP(tsk)	(__KSTK_PTREGS(tsk)->gprs[15])
+ 
+ /*
+  * Give up the time slice of the virtual PU.
+  */
+-#define cpu_relax()	asm volatile ("diag 0,0,68" : : : "memory")
++#ifndef __s390x__
++# define cpu_relax()	asm volatile ("diag 0,0,68" : : : "memory")
++#else /* __s390x__ */
++# define cpu_relax() \
++	asm volatile ("ex 0,%0" : : "i" (__LC_DIAG44_OPCODE) : "memory")
++#endif /* __s390x__ */
+ 
+ /*
+  * Set PSW mask to specified value, while leaving the
+@@ -150,13 +190,22 @@
+ 	psw_t psw;
+ 	psw.mask = mask;
+ 
++#ifndef __s390x__
+ 	asm volatile (
+ 		"    basr %0,0\n"
+ 		"0:  ahi  %0,1f-0b\n"
+-		"    st   %0,4(%1)\n"
++		"    st	  %0,4(%1)\n"
+ 		"    lpsw 0(%1)\n"
+ 		"1:"
+ 		: "=&d" (addr) : "a" (&psw) : "memory", "cc" );
++#else /* __s390x__ */
++	asm volatile (
++		"    larl  %0,1f\n"
++		"    stg   %0,8(%1)\n"
++		"    lpswe 0(%1)\n"
++		"1:"
++		: "=&d" (addr) : "a" (&psw) : "memory", "cc" );
++#endif /* __s390x__ */
+ }
+  
+ /*
+@@ -169,6 +218,7 @@
+ 
+ 	wait_psw.mask = PSW_BASE_BITS | PSW_MASK_IO | PSW_MASK_EXT |
+ 		PSW_MASK_MCHECK | PSW_MASK_WAIT;
++#ifndef __s390x__
+ 	asm volatile (
+ 		"    basr %0,0\n"
+ 		"0:  la   %0,1f-0b(%0)\n"
+@@ -177,6 +227,14 @@
+ 		"    lpsw 0(%1)\n"
+ 		"1:"
+ 		: "=&a" (reg) : "a" (&wait_psw) : "memory", "cc" );
++#else /* __s390x__ */
++	asm volatile (
++		"    larl  %0,0f\n"
++		"    stg   %0,8(%1)\n"
++		"    lpswe 0(%1)\n"
++		"0:"
++		: "=&a" (reg) : "a" (&wait_psw) : "memory", "cc" );
++#endif /* __s390x__ */
+ }
+ 
+ /*
+@@ -196,7 +254,7 @@
+          * Store status and then load disabled wait psw,
+          * the processor is dead afterwards
+          */
+-
++#ifndef __s390x__
+         asm volatile ("    stctl 0,0,0(%1)\n"
+                       "    ni    0(%1),0xef\n" /* switch off protection */
+                       "    lctl  0,0,0(%1)\n"
+@@ -213,6 +271,38 @@
+                       "    oi    0(%1),0x10\n" /* fake protection bit */
+                       "    lpsw 0(%0)"
+                       : : "a" (dw_psw), "a" (&ctl_buf) : "cc" );
++#else /* __s390x__ */
++        asm volatile ("    stctg 0,0,0(%1)\n"
++                      "    ni    4(%1),0xef\n" /* switch off protection */
++                      "    lctlg 0,0,0(%1)\n"
++                      "    lghi  1,0x1000\n"
++                      "    stpt  0x328(1)\n"      /* store timer */
++                      "    stckc 0x330(1)\n"      /* store clock comparator */
++                      "    stpx  0x318(1)\n"      /* store prefix register */
++                      "    stam  0,15,0x340(1)\n" /* store access registers */
++                      "    stfpc 0x31c(1)\n"      /* store fpu control */
++                      "    std   0,0x200(1)\n"    /* store f0 */
++                      "    std   1,0x208(1)\n"    /* store f1 */
++                      "    std   2,0x210(1)\n"    /* store f2 */
++                      "    std   3,0x218(1)\n"    /* store f3 */
++                      "    std   4,0x220(1)\n"    /* store f4 */
++                      "    std   5,0x228(1)\n"    /* store f5 */
++                      "    std   6,0x230(1)\n"    /* store f6 */
++                      "    std   7,0x238(1)\n"    /* store f7 */
++                      "    std   8,0x240(1)\n"    /* store f8 */
++                      "    std   9,0x248(1)\n"    /* store f9 */
++                      "    std   10,0x250(1)\n"   /* store f10 */
++                      "    std   11,0x258(1)\n"   /* store f11 */
++                      "    std   12,0x260(1)\n"   /* store f12 */
++                      "    std   13,0x268(1)\n"   /* store f13 */
++                      "    std   14,0x270(1)\n"   /* store f14 */
++                      "    std   15,0x278(1)\n"   /* store f15 */
++                      "    stmg  0,15,0x280(1)\n" /* store general registers */
++                      "    stctg 0,15,0x380(1)\n" /* store control registers */
++                      "    oi    0x384(1),0x10\n" /* fake protection bit */
++                      "    lpswe 0(%0)"
++                      : : "a" (dw_psw), "a" (&ctl_buf) : "cc", "0", "1");
++#endif /* __s390x__ */
+ }
+ 
+ #endif
+diff -urN linux-2.5.67/include/asm-s390/ptrace.h linux-2.5.67-s390/include/asm-s390/ptrace.h
+--- linux-2.5.67/include/asm-s390/ptrace.h	Mon Apr  7 19:32:16 2003
++++ linux-2.5.67-s390/include/asm-s390/ptrace.h	Mon Apr 14 19:11:59 2003
+@@ -13,6 +13,8 @@
+  * Offsets in the user_regs_struct. They are used for the ptrace
+  * system call and in entry.S
+  */
++#ifndef __s390x__
++
+ #define PT_PSWMASK  0x00
+ #define PT_PSWADDR  0x04
+ #define PT_GPR0     0x08
+@@ -92,18 +94,89 @@
+ #define PT_LASTOFF  PT_IEEE_IP
+ #define PT_ENDREGS  0x140-1
+ 
++#define GPR_SIZE	4
++#define CR_SIZE		4
++
++#define STACK_FRAME_OVERHEAD	96	/* size of minimum stack frame */
++
++#else /* __s390x__ */
++
++#define PT_PSWMASK  0x00
++#define PT_PSWADDR  0x08
++#define PT_GPR0     0x10
++#define PT_GPR1     0x18
++#define PT_GPR2     0x20
++#define PT_GPR3     0x28
++#define PT_GPR4     0x30
++#define PT_GPR5     0x38
++#define PT_GPR6     0x40
++#define PT_GPR7     0x48
++#define PT_GPR8     0x50
++#define PT_GPR9     0x58
++#define PT_GPR10    0x60
++#define PT_GPR11    0x68
++#define PT_GPR12    0x70
++#define PT_GPR13    0x78
++#define PT_GPR14    0x80
++#define PT_GPR15    0x88
++#define PT_ACR0     0x90
++#define PT_ACR1     0x94
++#define PT_ACR2     0x98
++#define PT_ACR3     0x9C
++#define PT_ACR4	    0xA0
++#define PT_ACR5	    0xA4
++#define PT_ACR6	    0xA8
++#define PT_ACR7	    0xAC
++#define PT_ACR8	    0xB0
++#define PT_ACR9	    0xB4
++#define PT_ACR10    0xB8
++#define PT_ACR11    0xBC
++#define PT_ACR12    0xC0
++#define PT_ACR13    0xC4
++#define PT_ACR14    0xC8
++#define PT_ACR15    0xCC
++#define PT_ORIGGPR2 0xD0
++#define PT_FPC	    0xD8
++#define PT_FPR0     0xE0
++#define PT_FPR1     0xE8
++#define PT_FPR2     0xF0
++#define PT_FPR3     0xF8
++#define PT_FPR4     0x100
++#define PT_FPR5     0x108
++#define PT_FPR6     0x110
++#define PT_FPR7     0x118
++#define PT_FPR8     0x120
++#define PT_FPR9     0x128
++#define PT_FPR10    0x130
++#define PT_FPR11    0x138
++#define PT_FPR12    0x140
++#define PT_FPR13    0x148
++#define PT_FPR14    0x150
++#define PT_FPR15    0x158
++#define PT_CR_9     0x160
++#define PT_CR_10    0x168
++#define PT_CR_11    0x170
++#define PT_IEEE_IP  0x1A8
++#define PT_LASTOFF  PT_IEEE_IP
++#define PT_ENDREGS  0x1B0-1
++
++#define GPR_SIZE	8
++#define CR_SIZE		8
++
++#define STACK_FRAME_OVERHEAD    160      /* size of minimum stack frame */
++
++#endif /* __s390x__ */
++
+ #define NUM_GPRS	16
+ #define NUM_FPRS	16
+ #define NUM_CRS		16
+ #define NUM_ACRS	16
+-#define GPR_SIZE	4
++
+ #define FPR_SIZE	8
+ #define FPC_SIZE	4
+ #define FPC_PAD_SIZE	4 /* gcc insists on aligning the fpregs */
+-#define CR_SIZE		4
+ #define ACR_SIZE	4
+ 
+-#define STACK_FRAME_OVERHEAD	96	/* size of minimum stack frame */
+ 
+ #define PTRACE_OLDSETOPTIONS         21
+ 
+@@ -113,13 +186,39 @@
+ #include <linux/types.h>
+ #include <asm/setup.h>
+ 
++typedef union
++{
++	float   f;
++	double  d;
++        __u64   ui;
++	struct
++	{
++		__u32 hi;
++		__u32 lo;
++	} fp;
++} freg_t;
++
++typedef struct
++{
++	__u32   fpc;
++	freg_t  fprs[NUM_FPRS];              
++} s390_fp_regs;
++
++#define FPC_EXCEPTION_MASK      0xF8000000
++#define FPC_FLAGS_MASK          0x00F80000
++#define FPC_DXC_MASK            0x0000FF00
++#define FPC_RM_MASK             0x00000003
++#define FPC_VALID_MASK          0xF8F8FF03
++
+ /* this typedef defines how a Program Status Word looks like */
+ typedef struct 
  {
--	register_pair rp;
+-        __u32   mask;
+-        __u32   addr;
++        unsigned long mask;
++        unsigned long addr;
+ } __attribute__ ((aligned(8))) psw_t;
+ 
++#ifndef __s390x__
++
+ #define PSW_MASK_PER		0x40000000UL
+ #define PSW_MASK_DAT		0x04000000UL
+ #define PSW_MASK_IO		0x02000000UL
+@@ -132,7 +231,7 @@
+ #define PSW_MASK_CC		0x00003000UL
+ #define PSW_MASK_PM		0x00000F00UL
+ 
+-#define PSW_ADDR_AMODE31	0x80000000UL
++#define PSW_ADDR_AMODE		0x80000000UL
+ #define PSW_ADDR_INSN		0x7FFFFFFFUL
+ 
+ #define PSW_BASE_BITS		0x00080000UL
+@@ -142,34 +241,41 @@
+ #define PSW_ASC_SECONDARY	0x00008000UL
+ #define PSW_ASC_HOME		0x0000C000UL
+ 
+-#define PSW_KERNEL_BITS	(PSW_BASE_BITS | PSW_MASK_DAT | PSW_ASC_PRIMARY)
+-#define PSW_USER_BITS	(PSW_BASE_BITS | PSW_MASK_DAT | PSW_ASC_HOME | \
++#else /* __s390x__ */
++
++#define PSW_MASK_PER		0x4000000000000000UL
++#define PSW_MASK_DAT		0x0400000000000000UL
++#define PSW_MASK_IO		0x0200000000000000UL
++#define PSW_MASK_EXT		0x0100000000000000UL
++#define PSW_MASK_KEY		0x00F0000000000000UL
++#define PSW_MASK_MCHECK		0x0004000000000000UL
++#define PSW_MASK_WAIT		0x0002000000000000UL
++#define PSW_MASK_PSTATE		0x0001000000000000UL
++#define PSW_MASK_ASC		0x0000C00000000000UL
++#define PSW_MASK_CC		0x0000300000000000UL
++#define PSW_MASK_PM		0x00000F0000000000UL
++
++#define PSW_ADDR_AMODE		0x0000000000000000UL
++#define PSW_ADDR_INSN		0xFFFFFFFFFFFFFFFFUL
++
++#define PSW_BASE_BITS		0x0000000180000000UL
++#define PSW_BASE32_BITS		0x0000000080000000UL
++
++#define PSW_ASC_PRIMARY		0x0000000000000000UL
++#define PSW_ASC_ACCREG		0x0000400000000000UL
++#define PSW_ASC_SECONDARY	0x0000800000000000UL
++#define PSW_ASC_HOME		0x0000C00000000000UL
++
++#define PSW_USER32_BITS (PSW_BASE32_BITS | PSW_MASK_DAT | PSW_ASC_HOME | \
+ 			 PSW_MASK_IO | PSW_MASK_EXT | PSW_MASK_MCHECK | \
+ 			 PSW_MASK_PSTATE)
+ 
+-typedef union
+-{
+-	float   f;
+-	double  d;
+-        __u64   ui;
+-	struct
+-	{
+-		__u32 hi;
+-		__u32 lo;
+-	} fp;
+-} freg_t;
++#endif /* __s390x__ */
+ 
+-typedef struct
+-{
+-	__u32   fpc;
+-	freg_t  fprs[NUM_FPRS];              
+-} s390_fp_regs;
+-
+-#define FPC_EXCEPTION_MASK      0xF8000000
+-#define FPC_FLAGS_MASK          0x00F80000
+-#define FPC_DXC_MASK            0x0000FF00
+-#define FPC_RM_MASK             0x00000003
+-#define FPC_VALID_MASK          0xF8F8FF03
++#define PSW_KERNEL_BITS	(PSW_BASE_BITS | PSW_MASK_DAT | PSW_ASC_PRIMARY)
++#define PSW_USER_BITS	(PSW_BASE_BITS | PSW_MASK_DAT | PSW_ASC_HOME | \
++			 PSW_MASK_IO | PSW_MASK_EXT | PSW_MASK_MCHECK | \
++			 PSW_MASK_PSTATE)
+ 
+ /*
+  * The first entries in pt_regs and user_regs_struct
+@@ -180,9 +286,9 @@
+ typedef struct
+ {
+ 	psw_t psw;
+-	__u32 gprs[NUM_GPRS];
+-	__u32 acrs[NUM_ACRS];
+-	__u32 orig_gpr2;
++	unsigned long gprs[NUM_GPRS];
++	unsigned int  acrs[NUM_ACRS];
++	unsigned long orig_gpr2;
+ } s390_regs;
+ 
+ /*
+@@ -192,24 +298,27 @@
+ struct pt_regs 
+ {
+ 	psw_t psw;
+-	__u32 gprs[NUM_GPRS];
+-	__u32 acrs[NUM_ACRS];
+-	__u32 orig_gpr2;
+-	__u32 trap;
+-};
++	unsigned long gprs[NUM_GPRS];
++	unsigned int  acrs[NUM_ACRS];
++	unsigned long orig_gpr2;
++	unsigned int  trap;
++} __attribute__ ((packed));
+ 
+ /*
+  * Now for the program event recording (trace) definitions.
+  */
+ typedef struct
+ {
+-	__u32 cr[3];
++	unsigned long cr[3];
+ } per_cr_words;
+ 
+-#define PER_EM_MASK 0xE8000000
++#define PER_EM_MASK 0xE8000000UL
+ 
+ typedef	struct
+ {
++#ifdef __s390x__
++	unsigned                       : 32;
++#endif /* __s390x__ */
+ 	unsigned em_branching          : 1;
+ 	unsigned em_instruction_fetch  : 1;
  	/*
- 	 * Experiments with ethernet and slip connections show that buf
- 	 * is aligned on either a 2-byte or 4-byte boundary.
+@@ -224,33 +333,34 @@
+ 	unsigned                       : 1;
+ 	unsigned storage_alt_space_ctl : 1;
+ 	unsigned                       : 21;
+-	addr_t   starting_addr;
+-	addr_t   ending_addr;
++	unsigned long starting_addr;
++	unsigned long ending_addr;
+ } per_cr_bits;
+ 
+ typedef struct
+ {
+-	__u16          perc_atmid;          /* 0x096 */
+-	__u32          address;             /* 0x098 */
+-	__u8           access_id;           /* 0x0a1 */
++	unsigned short perc_atmid;
++	unsigned long address;
++	unsigned char access_id;
+ } per_lowcore_words;
+ 
+ typedef struct
+ {
+-	unsigned perc_branching          : 1; /* 0x096 */
++	unsigned perc_branching          : 1;
+ 	unsigned perc_instruction_fetch  : 1;
+ 	unsigned perc_storage_alteration : 1;
+ 	unsigned perc_gpr_alt_unused     : 1;
+ 	unsigned perc_store_real_address : 1;
+-	unsigned                         : 4;
++	unsigned                         : 3;
++	unsigned atmid_psw_bit_31        : 1;
+ 	unsigned atmid_validity_bit      : 1;
+ 	unsigned atmid_psw_bit_32        : 1;
+ 	unsigned atmid_psw_bit_5         : 1;
+ 	unsigned atmid_psw_bit_16        : 1;
+ 	unsigned atmid_psw_bit_17        : 1;
+ 	unsigned si                      : 2;
+-	addr_t   address;                     /* 0x098 */
+-	unsigned                         : 4; /* 0x0a1 */
++	unsigned long address;
++	unsigned                         : 4;
+ 	unsigned access_id               : 4;
+ } per_lowcore_bits;
+ 
+@@ -272,8 +382,8 @@
+ 	 * These addresses are copied into cr10 & cr11 if single
+ 	 * stepping is switched off
  	 */
-+#ifndef __s390x__
-+	register_pair rp;
-+
- 	rp.subreg.even = (unsigned long) buff;
- 	rp.subreg.odd = (unsigned long) len;
- 	__asm__ __volatile__ (
- 		"0:  cksm %0,%1\n"	/* do checksum on longs */
- 		"    jo   0b\n"
- 		: "+&d" (sum), "+&a" (rp) : : "cc" );
-+#else /* __s390x__ */
-+        __asm__ __volatile__ (
-+                "    lgr  2,%1\n"    /* address in gpr 2 */
-+                "    lgfr 3,%2\n"    /* length in gpr 3 */
-+                "0:  cksm %0,2\n"    /* do checksum on longs */
-+                "    jo   0b\n"
-+                : "+&d" (sum)
-+                : "d" (buff), "d" (len)
-+                : "cc", "2", "3" );
-+#endif /* __s390x__ */
- 	return sum;
- }
+-	__u32     starting_addr;
+-	__u32     ending_addr;
++	unsigned long starting_addr;
++	unsigned long ending_addr;
+ 	union {
+ 		per_lowcore_words words;
+ 		per_lowcore_bits  bits;
+@@ -282,9 +392,9 @@
  
-@@ -50,6 +62,7 @@
- static inline unsigned int 
- csum_partial_inline(const unsigned char * buff, int len, unsigned int sum)
+ typedef struct
  {
-+#ifndef __s390x__
- 	register_pair rp;
+-	__u32  len;
+-	addr_t kernel_addr;
+-	addr_t process_addr;
++	unsigned int  len;
++	unsigned long kernel_addr;
++	unsigned long process_addr;
+ } ptrace_area;
  
- 	rp.subreg.even = (unsigned long) buff;
-@@ -58,6 +71,16 @@
- 		"0:  cksm %0,%1\n"    /* do checksum on longs */
- 		"    jo   0b\n"
-                 : "+&d" (sum), "+&a" (rp) : : "cc" );
-+#else /* __s390x__ */
-+	__asm__ __volatile__ (
-+		"    lgr  2,%1\n"    /* address in gpr 2 */
-+		"    lgfr 3,%2\n"    /* length in gpr 3 */
-+		"0:  cksm %0,2\n"    /* do checksum on longs */
-+		"    jo   0b\n"
-+                : "+&d" (sum)
-+		: "d" (buff), "d" (len)
-+                : "cc", "2", "3" );
-+#endif /* __s390x__ */
- 	return sum;
- }
- 
-@@ -100,6 +123,7 @@
- static inline unsigned short
- csum_fold(unsigned int sum)
- {
-+#ifndef __s390x__
- 	register_pair rp;
- 
- 	__asm__ __volatile__ (
-@@ -110,6 +134,16 @@
- 		"    alr  %0,%1\n"   /* %0 = H+L+C L+H */
- 		"    srl  %0,16\n"   /* %0 = H+L+C */
- 		: "+&d" (sum), "=d" (rp) : : "cc" );
-+#else /* __s390x__ */
-+	__asm__ __volatile__ (
-+		"    sr   3,3\n"   /* %0 = H*65536 + L */
-+		"    lr   2,%0\n"  /* %0 = H L, R2/R3 = H L / 0 0 */
-+		"    srdl 2,16\n"  /* %0 = H L, R2/R3 = 0 H / L 0 */
-+		"    alr  2,3\n"   /* %0 = H L, R2/R3 = L H / L 0 */
-+		"    alr  %0,2\n"  /* %0 = H+L+C L+H */
-+                "    srl  %0,16\n" /* %0 = H+L+C */
-+		: "+&d" (sum) : : "cc", "2", "3");
-+#endif /* __s390x__ */
- 	return ((unsigned short) ~sum);
- }
- 
-@@ -121,8 +155,9 @@
- static inline unsigned short
- ip_fast_csum(unsigned char *iph, unsigned int ihl)
- {
--	register_pair rp;
- 	unsigned long sum;
-+#ifndef __s390x__
-+	register_pair rp;
- 
- 	rp.subreg.even = (unsigned long) iph;
- 	rp.subreg.odd = (unsigned long) ihl*4;
-@@ -131,6 +166,17 @@
-                 "0:  cksm %0,%1\n"   /* do checksum on longs */
-                 "    jo   0b\n"
-                 : "=&d" (sum), "+&a" (rp) : : "cc" );
-+#else /* __s390x__ */
-+        __asm__ __volatile__ (
-+		"    slgr %0,%0\n"   /* set sum to zero */
-+                "    lgr  2,%1\n"    /* address in gpr 2 */
-+                "    lgfr 3,%2\n"    /* length in gpr 3 */
-+                "0:  cksm %0,2\n"    /* do checksum on ints */
-+                "    jo   0b\n"
-+                : "=&d" (sum)
-+                : "d" (iph), "d" (ihl*4)
-+                : "cc", "2", "3" );
-+#endif /* __s390x__ */
-         return csum_fold(sum);
- }
- 
-@@ -143,6 +189,7 @@
-                    unsigned short len, unsigned short proto,
-                    unsigned int sum)
- {
-+#ifndef __s390x__
- 	__asm__ __volatile__ (
-                 "    alr   %0,%1\n"  /* sum += saddr */
-                 "    brc   12,0f\n"
-@@ -163,6 +210,28 @@
- 		: "+&d" (sum)
- 		: "d" (((unsigned int) len<<16) + (unsigned int) proto)
- 		: "cc" );
-+#else /* __s390x__ */
-+	__asm__ __volatile__ (
-+                "    lgfr  %0,%0\n"
-+                "    algr  %0,%1\n"  /* sum += saddr */
-+                "    brc   12,0f\n"
-+		"    aghi  %0,1\n"   /* add carry */
-+		"0:  algr  %0,%2\n"  /* sum += daddr */
-+                "    brc   12,1f\n"
-+                "    aghi  %0,1\n"   /* add carry */
-+		"1:  algfr %0,%3\n"  /* sum += (len<<16) + proto */
-+		"    brc   12,2f\n"
-+		"    aghi  %0,1\n"   /* add carry */
-+		"2:  srlg  0,%0,32\n"
-+                "    alr   %0,0\n"   /* fold to 32 bits */
-+                "    brc   12,3f\n"
-+                "    ahi   %0,1\n"   /* add carry */
-+                "3:  llgfr %0,%0"
-+		: "+&d" (sum)
-+		: "d" (saddr), "d" (daddr),
-+		  "d" (((unsigned int) len<<16) + (unsigned int) proto)
-+		: "cc", "0" );
-+#endif /* __s390x__ */
- 	return sum;
- }
- 
-diff -urN linux-2.5.67/include/asm-s390/compat.h linux-2.5.67-s390/include/asm-s390/compat.h
---- linux-2.5.67/include/asm-s390/compat.h	Thu Jan  1 01:00:00 1970
-+++ linux-2.5.67-s390/include/asm-s390/compat.h	Mon Apr 14 19:11:58 2003
-@@ -0,0 +1,122 @@
-+#ifndef _ASM_S390X_COMPAT_H
-+#define _ASM_S390X_COMPAT_H
-+/*
-+ * Architecture specific compatibility types
-+ */
-+#include <linux/types.h>
-+
-+#define COMPAT_USER_HZ	100
-+
-+typedef u32		compat_size_t;
-+typedef s32		compat_ssize_t;
-+typedef s32		compat_time_t;
-+typedef s32		compat_clock_t;
-+typedef s32		compat_pid_t;
-+typedef u16		compat_uid_t;
-+typedef u16		compat_gid_t;
-+typedef u16		compat_mode_t;
-+typedef u32		compat_ino_t;
-+typedef u16		compat_dev_t;
-+typedef s32		compat_off_t;
-+typedef s64		compat_loff_t;
-+typedef u16		compat_nlink_t;
-+typedef u16		compat_ipc_pid_t;
-+typedef s32		compat_daddr_t;
-+typedef u32		compat_caddr_t;
-+typedef __kernel_fsid_t	compat_fsid_t;
-+
-+typedef s32		compat_int_t;
-+typedef s32		compat_long_t;
-+typedef u32		compat_uint_t;
-+typedef u32		compat_ulong_t;
-+
-+struct compat_timespec {
-+	compat_time_t	tv_sec;
-+	s32		tv_nsec;
-+};
-+
-+struct compat_timeval {
-+	compat_time_t	tv_sec;
-+	s32		tv_usec;
-+};
-+
-+struct compat_stat {
-+	compat_dev_t	st_dev;
-+	u16		__pad1;
-+	compat_ino_t	st_ino;
-+	compat_mode_t	st_mode;
-+	compat_nlink_t	st_nlink;
-+	compat_uid_t	st_uid;
-+	compat_gid_t	st_gid;
-+	compat_dev_t	st_rdev;
-+	u16		__pad2;
-+	u32		st_size;
-+	u32		st_blksize;
-+	u32		st_blocks;
-+	u32		st_atime;
-+	u32		st_atime_nsec;
-+	u32		st_mtime;
-+	u32		st_mtime_nsec;
-+	u32		st_ctime;
-+	u32		st_ctime_nsec;
-+	u32		__unused4;
-+	u32		__unused5;
-+};
-+
-+struct compat_flock {
-+	short		l_type;
-+	short		l_whence;
-+	compat_off_t	l_start;
-+	compat_off_t	l_len;
-+	compat_pid_t	l_pid;
-+};
-+
-+#define F_GETLK64       12
-+#define F_SETLK64       13
-+#define F_SETLKW64      14    
-+
-+struct compat_flock64 {
-+	short		l_type;
-+	short		l_whence;
-+	compat_loff_t	l_start;
-+	compat_loff_t	l_len;
-+	compat_pid_t	l_pid;
-+};
-+
-+struct compat_statfs {
-+	s32		f_type;
-+	s32		f_bsize;
-+	s32		f_blocks;
-+	s32		f_bfree;
-+	s32		f_bavail;
-+	s32		f_files;
-+	s32		f_ffree;
-+	compat_fsid_t	f_fsid;
-+	s32		f_namelen;
-+	s32		f_spare[6];
-+};
-+
-+typedef u32		compat_old_sigset_t;	/* at least 32 bits */
-+
-+#define _COMPAT_NSIG		64
-+#define _COMPAT_NSIG_BPW	32
-+
-+typedef u32		compat_sigset_word;
-+
-+#define COMPAT_OFF_T_MAX	0x7fffffff
-+#define COMPAT_LOFF_T_MAX	0x7fffffffffffffffL
-+
-+/*
-+ * A pointer passed in from user mode. This should not
-+ * be used for syscall parameters, just declare them
-+ * as pointers because the syscall entry code will have
-+ * appropriately comverted them already.
-+ */
-+typedef	u32		compat_uptr_t;
-+
-+static inline void *compat_ptr(compat_uptr_t uptr)
-+{
-+	return (void *)(unsigned long)(uptr & 0x7fffffffUL);
-+}
-+
-+#endif /* _ASM_S390X_COMPAT_H */
-diff -urN linux-2.5.67/include/asm-s390/div64.h linux-2.5.67-s390/include/asm-s390/div64.h
---- linux-2.5.67/include/asm-s390/div64.h	Mon Apr  7 19:31:55 2003
-+++ linux-2.5.67-s390/include/asm-s390/div64.h	Mon Apr 14 19:11:58 2003
-@@ -1,8 +1,9 @@
- #ifndef __S390_DIV64
- #define __S390_DIV64
- 
-+#ifndef __s390x__
-+
- /* for do_div "base" needs to be smaller than 2^31-1 */
-- 
- #define do_div(n, base) ({                                      \
- 	unsigned long long __n = (n);				\
- 	unsigned long __r;					\
-@@ -41,4 +42,14 @@
-         __r;                                                    \
- })
- 
-+#else /* __s390x__ */
-+
-+#define do_div(n,base) ({ \
-+int __res; \
-+__res = ((unsigned long) n) % (unsigned) base; \
-+n = ((unsigned long) n) / (unsigned) base; \
-+__res; })
-+
-+#endif /* __s390x__ */
-+
- #endif
-diff -urN linux-2.5.67/include/asm-s390/ebcdic.h linux-2.5.67-s390/include/asm-s390/ebcdic.h
---- linux-2.5.67/include/asm-s390/ebcdic.h	Mon Apr  7 19:31:09 2003
-+++ linux-2.5.67-s390/include/asm-s390/ebcdic.h	Mon Apr 14 19:11:58 2003
-@@ -21,8 +21,8 @@
- extern __u8 _ebc_tolower[]; /* EBCDIC -> lowercase */
- extern __u8 _ebc_toupper[]; /* EBCDIC -> uppercase */
- 
--extern __inline__ 
--void codepage_convert(const __u8 *codepage, volatile __u8 * addr, int nr)
-+extern __inline__ void
-+codepage_convert(const __u8 *codepage, volatile __u8 * addr, unsigned long nr)
- {
- 	if (nr-- <= 0)
- 		return;
-diff -urN linux-2.5.67/include/asm-s390/elf.h linux-2.5.67-s390/include/asm-s390/elf.h
---- linux-2.5.67/include/asm-s390/elf.h	Mon Apr  7 19:32:48 2003
-+++ linux-2.5.67-s390/include/asm-s390/elf.h	Mon Apr 14 19:11:58 2003
-@@ -23,7 +23,11 @@
  /*
-  * These are used to set parameters in the core dumps.
-  */
-+#ifndef __s390x__
- #define ELF_CLASS	ELFCLASS32
-+#else /* __s390x__ */
-+#define ELF_CLASS	ELFCLASS64
-+#endif /* __s390x__ */
- #define ELF_DATA	ELFDATA2MSB
- #define ELF_ARCH	EM_S390
+@@ -313,9 +423,9 @@
  
-@@ -36,8 +40,16 @@
+ typedef struct
+ {
+-	addr_t           lowaddr;
+-	addr_t           hiaddr;
+-	ptprot_flags     prot;
++	unsigned long lowaddr;
++	unsigned long hiaddr;
++	ptprot_flags prot;
+ } ptprot_area;                     
  
- /* For SVR4/S390 the function pointer to be registered with `atexit` is
-    passed in R14. */
-+#ifndef __s390x__
- #define ELF_PLAT_INIT(_r, load_addr) \
- 	_r->gprs[14] = 0
-+#else /* __s390x__ */
-+#define ELF_PLAT_INIT(_r, load_addr) \
-+	do { \
-+	_r->gprs[14] = 0; \
-+	clear_thread_flag(TIF_31BIT); \
-+	} while(0)
-+#endif /* __s390x__ */
- 
- #define USE_ELF_CORE_DUMP
- #define ELF_EXEC_PAGESIZE	4096
-@@ -47,9 +59,13 @@
-    the loader.  We need to make sure that it is out of the way of the program
-    that it will "exec", and that there is sufficient room for the brk.  */
- 
-+#ifndef __s390x__
- #define ELF_ET_DYN_BASE         ((TASK_SIZE & 0x80000000) \
-                                 ? TASK_SIZE / 3 * 2 \
-                                 : 2 * TASK_SIZE / 3)
-+#else /* __s390x__ */
-+#define ELF_ET_DYN_BASE         (TASK_SIZE / 3 * 2)
-+#endif /* __s390x__ */
- 
- /* Wow, the "main" arch needs arch dependent functions too.. :) */
- 
-@@ -76,7 +92,18 @@
- #define ELF_PLATFORM (NULL)
+ /* Sequence of bytes for breakpoint illegal instruction.  */
+@@ -331,9 +441,9 @@
+ struct user_regs_struct
+ {
+ 	psw_t psw;
+-	__u32 gprs[NUM_GPRS];
+-	__u32 acrs[NUM_ACRS];
+-	__u32 orig_gpr2;
++	unsigned long gprs[NUM_GPRS];
++	unsigned int  acrs[NUM_ACRS];
++	unsigned long orig_gpr2;
+ 	s390_fp_regs fp_regs;
+ 	/*
+ 	 * These per registers are in here so that gdb can modify them
+@@ -341,13 +451,13 @@
+ 	 * watchpoints. This is the way intel does it.
+ 	 */
+ 	per_struct per_info;
+-	addr_t  ieee_instruction_pointer; 
++	unsigned long ieee_instruction_pointer; 
+ 	/* Used to give failing instruction back to user for ieee exceptions */
+ };
  
  #ifdef __KERNEL__
+ #define user_mode(regs) (((regs)->psw.mask & PSW_MASK_PSTATE) != 0)
+-#define instruction_pointer(regs) ((regs)->psw.addr & PSW_MASK_INSN)
++#define instruction_pointer(regs) ((regs)->psw.addr & PSW_ADDR_INSN)
+ extern void show_regs(struct pt_regs * regs);
+ #endif
+ 
+diff -urN linux-2.5.67/include/asm-s390/qdio.h linux-2.5.67-s390/include/asm-s390/qdio.h
+--- linux-2.5.67/include/asm-s390/qdio.h	Mon Apr  7 19:30:44 2003
++++ linux-2.5.67-s390/include/asm-s390/qdio.h	Mon Apr 14 19:11:59 2003
+@@ -20,9 +20,9 @@
+ 
+ #define QDIO_NAME "qdio "
+ 
+-#ifndef CONFIG_ARCH_S390X
 +#ifndef __s390x__
- #define SET_PERSONALITY(ex, ibcs2) set_personality((ibcs2)?PER_SVR4:PER_LINUX)
-+#else /* __s390x__ */
-+#define SET_PERSONALITY(ex, ibcs2)			\
-+do {							\
-+	if (ibcs2)					\
-+		set_personality(PER_SVR4);		\
-+	else if (current->personality != PER_LINUX32)	\
-+		set_personality(PER_LINUX);		\
-+	clear_thread_flag(TIF_31BIT);			\
-+} while (0)
+ #define QDIO_32_BIT
+-#endif /* CONFIG_ARCH_S390X */
 +#endif /* __s390x__ */
- #endif
  
- #endif
-diff -urN linux-2.5.67/include/asm-s390/fcntl.h linux-2.5.67-s390/include/asm-s390/fcntl.h
---- linux-2.5.67/include/asm-s390/fcntl.h	Mon Apr  7 19:30:33 2003
-+++ linux-2.5.67-s390/include/asm-s390/fcntl.h	Mon Apr 14 19:11:58 2003
-@@ -42,10 +42,11 @@
- #define F_SETSIG	10	/*  for sockets. */
- #define F_GETSIG	11	/*  for sockets. */
- 
-+#ifndef __s390x__
- #define F_GETLK64	12	/*  using 'struct flock64' */
- #define F_SETLK64	13
- #define F_SETLKW64	14
--                               
-+#endif /* ! __s390x__ */
- 
- /* for F_[GET|SET]FL */
- #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
-@@ -82,6 +83,7 @@
- 	pid_t l_pid;
+ /**** CONSTANTS, that are relied on without using these symbols *****/
+ #define QDIO_MAX_QUEUES_PER_IRQ 32 /* used in width of unsigned int */
+diff -urN linux-2.5.67/include/asm-s390/rwsem.h linux-2.5.67-s390/include/asm-s390/rwsem.h
+--- linux-2.5.67/include/asm-s390/rwsem.h	Mon Apr  7 19:31:18 2003
++++ linux-2.5.67-s390/include/asm-s390/rwsem.h	Mon Apr 14 19:11:59 2003
+@@ -63,10 +63,17 @@
+ 	struct list_head	wait_list;
  };
  
 +#ifndef __s390x__
- struct flock64 {
- 	short  l_type;
- 	short  l_whence;
-@@ -89,6 +91,6 @@
- 	loff_t l_len;
- 	pid_t  l_pid;
- };
--
-+#endif
- #define F_LINUX_SPECIFIC_BASE	1024
- #endif
-diff -urN linux-2.5.67/include/asm-s390/gdb-stub.h linux-2.5.67-s390/include/asm-s390/gdb-stub.h
---- linux-2.5.67/include/asm-s390/gdb-stub.h	Mon Apr  7 19:31:56 2003
-+++ linux-2.5.67-s390/include/asm-s390/gdb-stub.h	Thu Jan  1 01:00:00 1970
-@@ -1,22 +0,0 @@
--/*
-- *  include/asm-s390/gdb-stub.h
-- *
-- *  S390 version
-- *    Copyright (C) 1999 IBM Deutschland Entwicklung GmbH, IBM Corporation
-- *    Author(s): Denis Joseph Barrow (djbarrow@de.ibm.com,barrow_dj@yahoo.com)
-- */
--
--#ifndef __S390_GDB_STUB__
--#define __S390_GDB_STUB__
--#include <linux/config.h>
--#if CONFIG_REMOTE_DEBUG
--#include <asm/ptrace.h>
--extern int    gdb_stub_initialised;
--extern void gdb_stub_handle_exception(struct gdb_pt_regs *regs,int sigval);
--struct net_device;
--extern struct net_device *gdb_dev;
--void gdb_do_timers(void);
--extern int putDebugChar(char c);    /* write a single character      */
--extern char getDebugChar(void);     /* read and return a single char */
--#endif
--#endif
-diff -urN linux-2.5.67/include/asm-s390/idals.h linux-2.5.67-s390/include/asm-s390/idals.h
---- linux-2.5.67/include/asm-s390/idals.h	Mon Apr  7 19:30:40 2003
-+++ linux-2.5.67-s390/include/asm-s390/idals.h	Mon Apr 14 19:11:58 2003
-@@ -21,7 +21,7 @@
- #include <asm/cio.h>
- #include <asm/uaccess.h>
- 
--#ifdef CONFIG_ARCH_S390X
-+#ifdef __s390x__
- #define IDA_SIZE_LOG 12 /* 11 for 2k , 12 for 4k */
- #else
- #define IDA_SIZE_LOG 11 /* 11 for 2k , 12 for 4k */
-@@ -34,7 +34,7 @@
- static inline int
- idal_is_needed(void *vaddr, unsigned int length)
- {
--#if defined(CONFIG_ARCH_S390X)
-+#ifdef __s390x__
- 	return ((__pa(vaddr) + length) >> 31) != 0;
- #else
- 	return 0;
-@@ -48,7 +48,7 @@
- static inline unsigned int
- idal_nr_words(void *vaddr, unsigned int length)
- {
--#if defined(CONFIG_ARCH_S390X)
-+#ifdef __s390x__
- 	if (idal_is_needed(vaddr, length))
- 		return ((__pa(vaddr) & (IDA_BLOCK_SIZE-1)) + length + 
- 			(IDA_BLOCK_SIZE-1)) >> IDA_SIZE_LOG;
-@@ -62,7 +62,7 @@
- static inline unsigned long *
- idal_create_words(unsigned long *idaws, void *vaddr, unsigned int length)
- {
--#if defined(CONFIG_ARCH_S390X)
-+#ifdef __s390x__
- 	unsigned long paddr;
- 	unsigned int cidaw;
- 
-@@ -86,7 +86,7 @@
- static inline int
- set_normalized_cda(struct ccw1 * ccw, void *vaddr)
- {
--#if defined (CONFIG_ARCH_S390X)
-+#ifdef __s390x__
- 	unsigned int nridaws;
- 	unsigned long *idal;
- 
-@@ -113,7 +113,7 @@
- static inline void
- clear_normalized_cda(struct ccw1 * ccw)
- {
--#if defined(CONFIG_ARCH_S390X)
-+#ifdef __s390x__
- 	if (ccw->flags & CCW_FLAG_IDA) {
- 		kfree((void *)(unsigned long) ccw->cda);
- 		ccw->flags &= ~CCW_FLAG_IDA;
-@@ -190,7 +190,7 @@
- static inline int
- __idal_buffer_is_needed(struct idal_buffer *ib)
- {
--#ifdef CONFIG_ARCH_S390X
-+#ifdef __s390x__
- 	return ib->size > (4096ul << ib->page_order) ||
- 		idal_is_needed(ib->data[0], ib->size);
- #else
-diff -urN linux-2.5.67/include/asm-s390/io.h linux-2.5.67-s390/include/asm-s390/io.h
---- linux-2.5.67/include/asm-s390/io.h	Mon Apr  7 19:31:56 2003
-+++ linux-2.5.67-s390/include/asm-s390/io.h	Mon Apr 14 19:11:58 2003
-@@ -27,9 +27,16 @@
- extern inline unsigned long virt_to_phys(volatile void * address)
- {
- 	unsigned long real_address;
--	__asm__ ("   lra    %0,0(%1)\n"
-+	__asm__ (
-+#ifndef __s390x__
-+		 "   lra    %0,0(%1)\n"
-                  "   jz     0f\n"
-                  "   sr     %0,%0\n"
+ #define RWSEM_UNLOCKED_VALUE	0x00000000
+ #define RWSEM_ACTIVE_BIAS	0x00000001
+ #define RWSEM_ACTIVE_MASK	0x0000ffff
+ #define RWSEM_WAITING_BIAS	(-0x00010000)
 +#else /* __s390x__ */
-+		 "   lrag   %0,0(%1)\n"
-+                 "   jz     0f\n"
-+                 "   slgr   %0,%0\n"
++#define RWSEM_UNLOCKED_VALUE	0x0000000000000000L
++#define RWSEM_ACTIVE_BIAS	0x0000000000000001L
++#define RWSEM_ACTIVE_MASK	0x00000000ffffffffL
++#define RWSEM_WAITING_BIAS	(-0x0000000100000000L)
 +#endif /* __s390x__ */
-                  "0:"
-                  : "=a" (real_address) : "a" (address) : "cc" );
-         return real_address;
-diff -urN linux-2.5.67/include/asm-s390/ipc.h linux-2.5.67-s390/include/asm-s390/ipc.h
---- linux-2.5.67/include/asm-s390/ipc.h	Mon Apr  7 19:32:54 2003
-+++ linux-2.5.67-s390/include/asm-s390/ipc.h	Mon Apr 14 19:11:58 2003
-@@ -22,6 +22,7 @@
- #define SEMOP		 1
- #define SEMGET		 2
- #define SEMCTL		 3
-+#define SEMTIMEDOP	 4
- #define MSGSND		11
- #define MSGRCV		12
- #define MSGGET		13
-diff -urN linux-2.5.67/include/asm-s390/ipcbuf.h linux-2.5.67-s390/include/asm-s390/ipcbuf.h
---- linux-2.5.67/include/asm-s390/ipcbuf.h	Mon Apr  7 19:31:15 2003
-+++ linux-2.5.67-s390/include/asm-s390/ipcbuf.h	Mon Apr 14 19:11:58 2003
-@@ -21,7 +21,9 @@
- 	__kernel_mode_t		mode;
- 	unsigned short		__pad1;
- 	unsigned short		seq;
-+#ifndef __s390x__
- 	unsigned short		__pad2;
-+#endif /* ! __s390x__ */
- 	unsigned long		__unused1;
- 	unsigned long		__unused2;
- };
-diff -urN linux-2.5.67/include/asm-s390/lowcore.h linux-2.5.67-s390/include/asm-s390/lowcore.h
---- linux-2.5.67/include/asm-s390/lowcore.h	Mon Apr  7 19:31:19 2003
-+++ linux-2.5.67-s390/include/asm-s390/lowcore.h	Mon Apr 14 19:11:58 2003
-@@ -11,6 +11,7 @@
- #ifndef _ASM_S390_LOWCORE_H
- #define _ASM_S390_LOWCORE_H
+ #define RWSEM_ACTIVE_READ_BIAS	RWSEM_ACTIVE_BIAS
+ #define RWSEM_ACTIVE_WRITE_BIAS	(RWSEM_WAITING_BIAS + RWSEM_ACTIVE_BIAS)
  
-+#ifndef __s390x__
- #define __LC_EXT_OLD_PSW                0x018
- #define __LC_SVC_OLD_PSW                0x020
- #define __LC_PGM_OLD_PSW                0x028
-@@ -21,43 +22,76 @@
- #define __LC_PGM_NEW_PSW                0x068
- #define __LC_MCK_NEW_PSW                0x070
- #define __LC_IO_NEW_PSW                 0x078
-+#else /* !__s390x__ */
-+#define __LC_EXT_OLD_PSW                0x0130
-+#define __LC_SVC_OLD_PSW                0x0140
-+#define __LC_PGM_OLD_PSW                0x0150
-+#define __LC_MCK_OLD_PSW                0x0160
-+#define __LC_IO_OLD_PSW                 0x0170
-+#define __LC_EXT_NEW_PSW                0x01b0
-+#define __LC_SVC_NEW_PSW                0x01c0
-+#define __LC_PGM_NEW_PSW                0x01d0
-+#define __LC_MCK_NEW_PSW                0x01e0
-+#define __LC_IO_NEW_PSW                 0x01f0
-+#endif /* !__s390x__ */
-+
- #define __LC_EXT_PARAMS                 0x080
- #define __LC_CPU_ADDRESS                0x084
- #define __LC_EXT_INT_CODE               0x086
--#define __LC_SVC_INT_CODE               0x08B
-+
-+#define __LC_SVC_ILC                    0x088
-+#define __LC_SVC_INT_CODE               0x08A
- #define __LC_PGM_ILC                    0x08C
- #define __LC_PGM_INT_CODE               0x08E
--#define __LC_TRANS_EXC_ADDR             0x090
-+
- #define __LC_SUBCHANNEL_ID              0x0B8
- #define __LC_SUBCHANNEL_NR              0x0BA
- #define __LC_IO_INT_PARM                0x0BC
- #define __LC_IO_INT_WORD                0x0C0
- #define __LC_MCCK_CODE                  0x0E8
--#define __LC_AREGS_SAVE_AREA            0x120
--#define __LC_CREGS_SAVE_AREA            0x1C0
+@@ -94,11 +101,19 @@
+ 	signed long old, new;
  
- #define __LC_RETURN_PSW                 0x200
--#define __LC_IRB			0x208
-+
-+#define __LC_IRB			0x210
-+
-+#define __LC_DIAG44_OPCODE		0x250
- 
- #define __LC_SAVE_AREA                  0xC00
-+
+ 	__asm__ __volatile__(
 +#ifndef __s390x__
- #define __LC_KERNEL_STACK               0xC40
- #define __LC_ASYNC_STACK                0xC44
- #define __LC_CPUID                      0xC60
- #define __LC_CPUADDR                    0xC68
- #define __LC_IPLDEV                     0xC7C
--
- #define __LC_JIFFY_TIMER		0xC80
+ 		"   l    %0,0(%2)\n"
+ 		"0: lr   %1,%0\n"
+ 		"   ahi  %1,%3\n"
+ 		"   cs   %0,%1,0(%2)\n"
+ 		"   jl   0b"
 +#else /* __s390x__ */
-+#define __LC_KERNEL_STACK               0xD40
-+#define __LC_ASYNC_STACK                0xD48
-+#define __LC_CPUID                      0xD90
-+#define __LC_CPUADDR                    0xD98
-+#define __LC_IPLDEV                     0xDB8
-+#define __LC_JIFFY_TIMER		0xDC0
++		"   lg   %0,0(%2)\n"
++		"0: lgr  %1,%0\n"
++		"   aghi %1,%3\n"
++		"   csg  %0,%1,0(%2)\n"
++		"   jl   0b"
 +#endif /* __s390x__ */
+                 : "=&d" (old), "=&d" (new)
+ 		: "a" (&sem->count), "i" (RWSEM_ACTIVE_READ_BIAS)
+ 		: "cc", "memory" );
+@@ -114,6 +129,7 @@
+ 	signed long old, new;
  
- #define __LC_PANIC_MAGIC                0xE00
- 
+ 	__asm__ __volatile__(
 +#ifndef __s390x__
- #define __LC_PFAULT_INTPARM             0x080
-+#define __LC_AREGS_SAVE_AREA            0x120
-+#define __LC_CREGS_SAVE_AREA            0x1C0
+ 		"   l    %0,0(%2)\n"
+ 		"0: ltr  %1,%0\n"
+ 		"   jm   1f\n"
+@@ -121,6 +137,15 @@
+ 		"   cs   %0,%1,0(%2)\n"
+ 		"   jl   0b\n"
+ 		"1:"
 +#else /* __s390x__ */
-+#define __LC_PFAULT_INTPARM             0x11B8
-+#define __LC_AREGS_SAVE_AREA            0x1340
-+#define __LC_CREGS_SAVE_AREA            0x1380
++		"   lg   %0,0(%2)\n"
++		"0: ltgr %1,%0\n"
++		"   jm   1f\n"
++		"   aghi %1,%3\n"
++		"   csg  %0,%1,0(%2)\n"
++		"   jl   0b\n"
++		"1:"
 +#endif /* __s390x__ */
+                 : "=&d" (old), "=&d" (new)
+ 		: "a" (&sem->count), "i" (RWSEM_ACTIVE_READ_BIAS)
+ 		: "cc", "memory" );
+@@ -136,11 +161,19 @@
  
- #ifndef __ASSEMBLY__
- 
- #include <linux/config.h>
-+#include <asm/processor.h>
- #include <linux/types.h>
- #include <asm/atomic.h>
--#include <asm/processor.h>
- #include <asm/sigp.h>
- 
- void restart_int_handler(void);
-@@ -69,6 +103,7 @@
- 
- struct _lowcore
- {
+ 	tmp = RWSEM_ACTIVE_WRITE_BIAS;
+ 	__asm__ __volatile__(
 +#ifndef __s390x__
-         /* prefix area: defined by architecture */
- 	psw_t        restart_psw;              /* 0x000 */
- 	__u32        ccw2[4];                  /* 0x008 */
-@@ -142,6 +177,101 @@
- 
-         /* Align to the top 1k of prefix area */
- 	__u8         pad12[0x1000-0xe04];      /* 0xe04 */
-+#else /* !__s390x__ */
-+        /* prefix area: defined by architecture */
-+	__u32        ccw1[2];                  /* 0x000 */
-+	__u32        ccw2[4];                  /* 0x008 */
-+	__u8         pad1[0x80-0x18];          /* 0x018 */
-+	__u32        ext_params;               /* 0x080 */
-+	__u16        cpu_addr;                 /* 0x084 */
-+	__u16        ext_int_code;             /* 0x086 */
-+        __u16        svc_ilc;                  /* 0x088 */
-+        __u16        svc_code;                 /* 0x08a */
-+        __u16        pgm_ilc;                  /* 0x08c */
-+        __u16        pgm_code;                 /* 0x08e */
-+	__u32        data_exc_code;            /* 0x090 */
-+	__u16        mon_class_num;            /* 0x094 */
-+	__u16        per_perc_atmid;           /* 0x096 */
-+	addr_t       per_address;              /* 0x098 */
-+	__u8         exc_access_id;            /* 0x0a0 */
-+	__u8         per_access_id;            /* 0x0a1 */
-+	__u8         op_access_id;             /* 0x0a2 */
-+	__u8         ar_access_id;             /* 0x0a3 */
-+	__u8         pad2[0xA8-0xA4];          /* 0x0a4 */
-+	addr_t       trans_exc_code;           /* 0x0A0 */
-+	addr_t       monitor_code;             /* 0x09c */
-+	__u16        subchannel_id;            /* 0x0b8 */
-+	__u16        subchannel_nr;            /* 0x0ba */
-+	__u32        io_int_parm;              /* 0x0bc */
-+	__u32        io_int_word;              /* 0x0c0 */
-+	__u8         pad3[0xc8-0xc4];          /* 0x0c4 */
-+	__u32        stfl_fac_list;            /* 0x0c8 */
-+	__u8         pad4[0xe8-0xcc];          /* 0x0cc */
-+	__u32        mcck_interruption_code[2]; /* 0x0e8 */
-+	__u8         pad5[0xf4-0xf0];          /* 0x0f0 */
-+	__u32        external_damage_code;     /* 0x0f4 */
-+	addr_t       failing_storage_address;  /* 0x0f8 */
-+	__u8         pad6[0x120-0x100];        /* 0x100 */
-+	psw_t        restart_old_psw;          /* 0x120 */
-+	psw_t        external_old_psw;         /* 0x130 */
-+	psw_t        svc_old_psw;              /* 0x140 */
-+	psw_t        program_old_psw;          /* 0x150 */
-+	psw_t        mcck_old_psw;             /* 0x160 */
-+	psw_t        io_old_psw;               /* 0x170 */
-+	__u8         pad7[0x1a0-0x180];        /* 0x180 */
-+	psw_t        restart_psw;              /* 0x1a0 */
-+	psw_t        external_new_psw;         /* 0x1b0 */
-+	psw_t        svc_new_psw;              /* 0x1c0 */
-+	psw_t        program_new_psw;          /* 0x1d0 */
-+	psw_t        mcck_new_psw;             /* 0x1e0 */
-+	psw_t        io_new_psw;               /* 0x1f0 */
-+        psw_t        return_psw;               /* 0x200 */
-+	__u8	     irb[64];		       /* 0x210 */
-+	__u32        diag44_opcode;            /* 0x250 */
-+        __u8         pad8[0xc00-0x254];        /* 0x254 */
-+        /* System info area */
-+	__u64        save_area[16];            /* 0xc00 */
-+        __u8         pad9[0xd40-0xc80];        /* 0xc80 */
-+ 	__u64        kernel_stack;             /* 0xd40 */
-+	__u64        async_stack;              /* 0xd48 */
-+	/* entry.S sensitive area start */
-+	__u8         pad10[0xd80-0xd50];       /* 0xd64 */
-+	struct       cpuinfo_S390 cpu_data;    /* 0xd80 */
-+	__u32        ipl_device;               /* 0xdb8 */
-+	__u32        pad11;                    /* 0xdbc */
-+	/* entry.S sensitive area end */
-+
-+        /* SMP info area: defined by DJB */
-+        __u64        jiffy_timer;              /* 0xdc0 */
-+	__u64        ext_call_fast;            /* 0xdc8 */
-+        __u8         pad12[0xe00-0xdd0];       /* 0xdd0 */
-+
-+        /* 0xe00 is used as indicator for dump tools */
-+        /* whether the kernel died with panic() or not */
-+        __u32        panic_magic;              /* 0xe00 */
-+
-+	__u8         pad13[0x1200-0xe04];      /* 0xe04 */
-+
-+        /* System info area */ 
-+
-+	__u64        floating_pt_save_area[16]; /* 0x1200 */
-+	__u64        gpregs_save_area[16];      /* 0x1280 */
-+	__u32        st_status_fixed_logout[4]; /* 0x1300 */
-+	__u8         pad14[0x1318-0x1310];      /* 0x1310 */
-+	__u32        prefixreg_save_area;       /* 0x1318 */
-+	__u32        fpt_creg_save_area;        /* 0x131c */
-+	__u8         pad15[0x1324-0x1320];      /* 0x1320 */
-+	__u32        tod_progreg_save_area;     /* 0x1324 */
-+	__u32        cpu_timer_save_area[2];    /* 0x1328 */
-+	__u32        clock_comp_save_area[2];   /* 0x1330 */
-+	__u8         pad16[0x1340-0x1338];      /* 0x1338 */ 
-+	__u32        access_regs_save_area[16]; /* 0x1340 */ 
-+	__u64        cregs_save_area[16];       /* 0x1380 */
-+
-+	/* align to the top of the prefix area */
-+
-+	__u8         pad17[0x2000-0x1400];      /* 0x1400 */
-+#endif /* !__s390x__ */
- } __attribute__((packed)); /* End structure*/
- 
- #define S390_lowcore (*((struct _lowcore *) 0))
-diff -urN linux-2.5.67/include/asm-s390/mmu_context.h linux-2.5.67-s390/include/asm-s390/mmu_context.h
---- linux-2.5.67/include/asm-s390/mmu_context.h	Mon Apr  7 19:31:14 2003
-+++ linux-2.5.67-s390/include/asm-s390/mmu_context.h	Mon Apr 14 19:11:58 2003
-@@ -27,12 +27,20 @@
-         unsigned long pgd;
- 
-         if (prev != next) {
-+#ifndef __s390x__
- 	        pgd = (__pa(next->pgd)&PAGE_MASK) | 
-                       (_SEGMENT_TABLE|USER_STD_MASK);
-                 /* Load page tables */
-                 asm volatile("    lctl  7,7,%0\n"   /* secondary space */
-                              "    lctl  13,13,%0\n" /* home space */
-                              : : "m" (pgd) );
+ 		"   l    %0,0(%2)\n"
+ 		"0: lr   %1,%0\n"
+ 		"   a    %1,%3\n"
+ 		"   cs   %0,%1,0(%2)\n"
+ 		"   jl   0b"
 +#else /* __s390x__ */
-+                pgd = (__pa(next->pgd)&PAGE_MASK) | (_REGION_TABLE|USER_STD_MASK);
-+                /* Load page tables */
-+                asm volatile("    lctlg 7,7,%0\n"   /* secondary space */
-+                             "    lctlg 13,13,%0\n" /* home space */
-+                             : : "m" (pgd) );
++		"   lg   %0,0(%2)\n"
++		"0: lgr  %1,%0\n"
++		"   ag   %1,%3\n"
++		"   csg  %0,%1,0(%2)\n"
++		"   jl   0b"
 +#endif /* __s390x__ */
-         }
- 	set_bit(cpu, &next->cpu_vm_mask);
- }
-diff -urN linux-2.5.67/include/asm-s390/module.h linux-2.5.67-s390/include/asm-s390/module.h
---- linux-2.5.67/include/asm-s390/module.h	Mon Apr  7 19:30:33 2003
-+++ linux-2.5.67-s390/include/asm-s390/module.h	Mon Apr 14 19:11:58 2003
-@@ -28,7 +28,7 @@
- 	struct mod_arch_syminfo *syminfo;
- };
+                 : "=&d" (old), "=&d" (new)
+ 		: "a" (&sem->count), "m" (tmp)
+ 		: "cc", "memory" );
+@@ -156,11 +189,19 @@
+ 	signed long old;
  
--#ifdef CONFIG_ARCH_S390X
-+#ifdef __s390x__
- #define ElfW(x) Elf64_ ## x
- #define ELFW(x) ELF64_ ## x
- #else
-@@ -36,8 +36,11 @@
- #define ELFW(x) ELF32_ ## x
- #endif
+ 	__asm__ __volatile__(
++#ifndef __s390x__
+ 		"   l    %0,0(%1)\n"
+ 		"0: ltr  %0,%0\n"
+ 		"   jnz  1f\n"
+ 		"   cs   %0,%2,0(%1)\n"
+ 		"   jl   0b\n"
++#else /* __s390x__ */
++		"   lg   %0,0(%1)\n"
++		"0: ltgr %0,%0\n"
++		"   jnz  1f\n"
++		"   csg  %0,%2,0(%1)\n"
++		"   jl   0b\n"
++#endif /* __s390x__ */
+ 		"1:"
+                 : "=&d" (old)
+ 		: "a" (&sem->count), "d" (RWSEM_ACTIVE_WRITE_BIAS)
+@@ -176,11 +217,19 @@
+ 	signed long old, new;
  
-+#define Elf_Addr ElfW(Addr)
-+#define Elf_Rela ElfW(Rela)
- #define Elf_Shdr ElfW(Shdr)
- #define Elf_Sym ElfW(Sym)
- #define Elf_Ehdr ElfW(Ehdr)
-+#define ELF_R_SYM ELFW(R_SYM)
- #define ELF_R_TYPE ELFW(R_TYPE)
- #endif /* _ASM_S390_MODULE_H */
-diff -urN linux-2.5.67/include/asm-s390/msgbuf.h linux-2.5.67-s390/include/asm-s390/msgbuf.h
---- linux-2.5.67/include/asm-s390/msgbuf.h	Mon Apr  7 19:31:43 2003
-+++ linux-2.5.67-s390/include/asm-s390/msgbuf.h	Mon Apr 14 19:11:58 2003
-@@ -14,11 +14,17 @@
- struct msqid64_ds {
- 	struct ipc64_perm msg_perm;
- 	__kernel_time_t msg_stime;	/* last msgsnd time */
+ 	__asm__ __volatile__(
++#ifndef __s390x__
+ 		"   l    %0,0(%2)\n"
+ 		"0: lr   %1,%0\n"
+ 		"   ahi  %1,%3\n"
+ 		"   cs   %0,%1,0(%2)\n"
+ 		"   jl   0b"
++#else /* __s390x__ */
++		"   lg   %0,0(%2)\n"
++		"0: lgr  %1,%0\n"
++		"   aghi %1,%3\n"
++		"   csg  %0,%1,0(%2)\n"
++		"   jl   0b"
++#endif /* __s390x__ */
+                 : "=&d" (old), "=&d" (new)
+ 		: "a" (&sem->count), "i" (-RWSEM_ACTIVE_READ_BIAS)
+ 		: "cc", "memory" );
+@@ -198,11 +247,19 @@
+ 
+ 	tmp = -RWSEM_ACTIVE_WRITE_BIAS;
+ 	__asm__ __volatile__(
++#ifndef __s390x__
+ 		"   l    %0,0(%2)\n"
+ 		"0: lr   %1,%0\n"
+ 		"   a    %1,%3\n"
+ 		"   cs   %0,%1,0(%2)\n"
+ 		"   jl   0b"
++#else /* __s390x__ */
++		"   lg   %0,0(%2)\n"
++		"0: lgr  %1,%0\n"
++		"   ag   %1,%3\n"
++		"   csg  %0,%1,0(%2)\n"
++		"   jl   0b"
++#endif /* __s390x__ */
+                 : "=&d" (old), "=&d" (new)
+ 		: "a" (&sem->count), "m" (tmp)
+ 		: "cc", "memory" );
+@@ -220,11 +277,19 @@
+ 
+ 	tmp = -RWSEM_WAITING_BIAS;
+ 	__asm__ __volatile__(
++#ifndef __s390x__
+ 		"   l    %0,0(%2)\n"
+ 		"0: lr   %1,%0\n"
+ 		"   a    %1,%3\n"
+ 		"   cs   %0,%1,0(%2)\n"
+ 		"   jl   0b"
++#else /* __s390x__ */
++		"   lg   %0,0(%2)\n"
++		"0: lgr  %1,%0\n"
++		"   ag   %1,%3\n"
++		"   csg  %0,%1,0(%2)\n"
++		"   jl   0b"
++#endif /* __s390x__ */
+                 : "=&d" (old), "=&d" (new)
+ 		: "a" (&sem->count), "m" (tmp)
+ 		: "cc", "memory" );
+@@ -240,11 +305,19 @@
+ 	signed long old, new;
+ 
+ 	__asm__ __volatile__(
++#ifndef __s390x__
+ 		"   l    %0,0(%2)\n"
+ 		"0: lr   %1,%0\n"
+ 		"   ar   %1,%3\n"
+ 		"   cs   %0,%1,0(%2)\n"
+ 		"   jl   0b"
++#else /* __s390x__ */
++		"   lg   %0,0(%2)\n"
++		"0: lgr  %1,%0\n"
++		"   agr  %1,%3\n"
++		"   csg  %0,%1,0(%2)\n"
++		"   jl   0b"
++#endif /* __s390x__ */
+                 : "=&d" (old), "=&d" (new)
+ 		: "a" (&sem->count), "d" (delta)
+ 		: "cc", "memory" );
+@@ -258,11 +331,19 @@
+ 	signed long old, new;
+ 
+ 	__asm__ __volatile__(
++#ifndef __s390x__
+ 		"   l    %0,0(%2)\n"
+ 		"0: lr   %1,%0\n"
+ 		"   ar   %1,%3\n"
+ 		"   cs   %0,%1,0(%2)\n"
+ 		"   jl   0b"
++#else /* __s390x__ */
++		"   lg   %0,0(%2)\n"
++		"0: lgr  %1,%0\n"
++		"   agr  %1,%3\n"
++		"   csg  %0,%1,0(%2)\n"
++		"   jl   0b"
++#endif /* __s390x__ */
+                 : "=&d" (old), "=&d" (new)
+ 		: "a" (&sem->count), "d" (delta)
+ 		: "cc", "memory" );
+diff -urN linux-2.5.67/include/asm-s390/sembuf.h linux-2.5.67-s390/include/asm-s390/sembuf.h
+--- linux-2.5.67/include/asm-s390/sembuf.h	Mon Apr  7 19:31:41 2003
++++ linux-2.5.67-s390/include/asm-s390/sembuf.h	Mon Apr 14 19:11:59 2003
+@@ -7,16 +7,20 @@
+  * between kernel and user space.
+  *
+  * Pad space is left for:
+- * - 64-bit time_t to solve y2038 problem
++ * - 64-bit time_t to solve y2038 problem (for !__s390x__)
+  * - 2 miscellaneous 32-bit values
+  */
+ 
+ struct semid64_ds {
+ 	struct ipc64_perm sem_perm;		/* permissions .. see ipc.h */
+ 	__kernel_time_t	sem_otime;		/* last semop time */
 +#ifndef __s390x__
  	unsigned long	__unused1;
 +#endif /* ! __s390x__ */
- 	__kernel_time_t msg_rtime;	/* last msgrcv time */
+ 	__kernel_time_t	sem_ctime;		/* last change time */
 +#ifndef __s390x__
  	unsigned long	__unused2;
 +#endif /* ! __s390x__ */
- 	__kernel_time_t msg_ctime;	/* last change time */
-+#ifndef __s390x__
+ 	unsigned long	sem_nsems;		/* no. of semaphores in array */
  	unsigned long	__unused3;
+ 	unsigned long	__unused4;
+diff -urN linux-2.5.67/include/asm-s390/setup.h linux-2.5.67-s390/include/asm-s390/setup.h
+--- linux-2.5.67/include/asm-s390/setup.h	Mon Apr  7 19:32:48 2003
++++ linux-2.5.67-s390/include/asm-s390/setup.h	Mon Apr 14 19:11:59 2003
+@@ -15,9 +15,15 @@
+ 
+ #ifndef __ASSEMBLY__
+ 
++#ifndef __s390x__
+ #define IPL_DEVICE        (*(unsigned long *)  (0x10404))
+ #define INITRD_START      (*(unsigned long *)  (0x1040C))
+ #define INITRD_SIZE       (*(unsigned long *)  (0x10414))
++#else /* __s390x__ */
++#define IPL_DEVICE        (*(unsigned long *)  (0x10400))
++#define INITRD_START      (*(unsigned long *)  (0x10408))
++#define INITRD_SIZE       (*(unsigned long *)  (0x10410))
++#endif /* __s390x__ */
+ #define COMMAND_LINE      ((char *)            (0x10480))
+ 
+ /*
+@@ -26,10 +32,18 @@
+ extern unsigned long machine_flags;
+ 
+ #define MACHINE_IS_VM		(machine_flags & 1)
+-#define MACHINE_HAS_IEEE	(machine_flags & 2)
+ #define MACHINE_IS_P390		(machine_flags & 4)
+-#define MACHINE_HAS_CSP		(machine_flags & 8)
+ #define MACHINE_HAS_MVPG	(machine_flags & 16)
++#define MACHINE_HAS_DIAG44	(machine_flags & 32)
++
++#ifndef __s390x__
++#define MACHINE_HAS_IEEE	(machine_flags & 2)
++#define MACHINE_HAS_CSP		(machine_flags & 8)
++#else /* __s390x__ */
++#define MACHINE_HAS_IEEE	(1)
++#define MACHINE_HAS_CSP		(1)
++#endif /* __s390x__ */
++
+ 
+ #define MACHINE_HAS_SCLP	(!MACHINE_IS_P390)
+ 
+@@ -50,9 +64,15 @@
+ 
+ #else 
+ 
++#ifndef __s390x__
+ #define IPL_DEVICE        0x10404
+ #define INITRD_START      0x1040C
+ #define INITRD_SIZE       0x10414
++#else /* __s390x__ */
++#define IPL_DEVICE        0x10400
++#define INITRD_START      0x10408
++#define INITRD_SIZE       0x10410
++#endif /* __s390x__ */
+ #define COMMAND_LINE      0x10480
+ 
+ #endif
+diff -urN linux-2.5.67/include/asm-s390/shmbuf.h linux-2.5.67-s390/include/asm-s390/shmbuf.h
+--- linux-2.5.67/include/asm-s390/shmbuf.h	Mon Apr  7 19:33:02 2003
++++ linux-2.5.67-s390/include/asm-s390/shmbuf.h	Mon Apr 14 19:11:59 2003
+@@ -7,7 +7,7 @@
+  * between kernel and user space.
+  *
+  * Pad space is left for:
+- * - 64-bit time_t to solve y2038 problem
++ * - 64-bit time_t to solve y2038 problem (for !__s390x__)
+  * - 2 miscellaneous 32-bit values
+  */
+ 
+@@ -15,11 +15,17 @@
+ 	struct ipc64_perm	shm_perm;	/* operation perms */
+ 	size_t			shm_segsz;	/* size of segment (bytes) */
+ 	__kernel_time_t		shm_atime;	/* last attach time */
++#ifndef __s390x__
+ 	unsigned long		__unused1;
 +#endif /* ! __s390x__ */
- 	unsigned long  msg_cbytes;	/* current number of bytes on queue */
- 	unsigned long  msg_qnum;	/* number of messages in queue */
- 	unsigned long  msg_qbytes;	/* max number of bytes on queue */
-diff -urN linux-2.5.67/include/asm-s390/page.h linux-2.5.67-s390/include/asm-s390/page.h
---- linux-2.5.67/include/asm-s390/page.h	Mon Apr  7 19:30:44 2003
-+++ linux-2.5.67-s390/include/asm-s390/page.h	Mon Apr 14 19:11:58 2003
-@@ -20,6 +20,8 @@
- #ifdef __KERNEL__
- #ifndef __ASSEMBLY__
+ 	__kernel_time_t		shm_dtime;	/* last detach time */
++#ifndef __s390x__
+ 	unsigned long		__unused2;
++#endif /* ! __s390x__ */
+ 	__kernel_time_t		shm_ctime;	/* last change time */
++#ifndef __s390x__
+ 	unsigned long		__unused3;
++#endif /* ! __s390x__ */
+ 	__kernel_pid_t		shm_cpid;	/* pid of creator */
+ 	__kernel_pid_t		shm_lpid;	/* pid of last operator */
+ 	unsigned long		shm_nattch;	/* no. of current attaches */
+diff -urN linux-2.5.67/include/asm-s390/sigcontext.h linux-2.5.67-s390/include/asm-s390/sigcontext.h
+--- linux-2.5.67/include/asm-s390/sigcontext.h	Mon Apr  7 19:31:51 2003
++++ linux-2.5.67-s390/include/asm-s390/sigcontext.h	Mon Apr 14 19:11:59 2003
+@@ -12,13 +12,24 @@
+ #define __NUM_FPRS 16
+ #define __NUM_ACRS 16
  
+-/*
+-  Has to be at least _NSIG_WORDS from asm/signal.h
+- */
+-#define _SIGCONTEXT_NSIG      64
+-#define _SIGCONTEXT_NSIG_BPW  32
 +#ifndef __s390x__
 +
- static inline void clear_page(void *page)
- {
- 	register_pair rp;
-@@ -59,6 +61,48 @@
- 			      : "memory" );
- }
- 
++/* Has to be at least _NSIG_WORDS from asm/signal.h */
++#define _SIGCONTEXT_NSIG	64
++#define _SIGCONTEXT_NSIG_BPW	32
+ /* Size of stack frame allocated when calling signal handler. */
+ #define __SIGNAL_FRAMESIZE	96
++
 +#else /* __s390x__ */
 +
-+static inline void clear_page(void *page)
-+{
-+        asm volatile ("   lgr  2,%0\n"
-+                      "   lghi 3,4096\n"
-+                      "   slgr 1,1\n"
-+                      "   mvcl 2,0"
-+                      : : "a" ((void *) (page))
-+		      : "memory", "cc", "1", "2", "3" );
-+}
-+
-+static inline void copy_page(void *to, void *from)
-+{
-+        if (MACHINE_HAS_MVPG)
-+		asm volatile ("   sgr  0,0\n"
-+			      "   mvpg %0,%1"
-+			      : : "a" ((void *)(to)), "a" ((void *)(from))
-+			      : "memory", "cc", "0" );
-+	else
-+		asm volatile ("   mvc  0(256,%0),0(%1)\n"
-+			      "   mvc  256(256,%0),256(%1)\n"
-+			      "   mvc  512(256,%0),512(%1)\n"
-+			      "   mvc  768(256,%0),768(%1)\n"
-+			      "   mvc  1024(256,%0),1024(%1)\n"
-+			      "   mvc  1280(256,%0),1280(%1)\n"
-+			      "   mvc  1536(256,%0),1536(%1)\n"
-+			      "   mvc  1792(256,%0),1792(%1)\n"
-+			      "   mvc  2048(256,%0),2048(%1)\n"
-+			      "   mvc  2304(256,%0),2304(%1)\n"
-+			      "   mvc  2560(256,%0),2560(%1)\n"
-+			      "   mvc  2816(256,%0),2816(%1)\n"
-+			      "   mvc  3072(256,%0),3072(%1)\n"
-+			      "   mvc  3328(256,%0),3328(%1)\n"
-+			      "   mvc  3584(256,%0),3584(%1)\n"
-+			      "   mvc  3840(256,%0),3840(%1)\n"
-+			      : : "a"((void *)(to)),"a"((void *)(from)) 
-+			      : "memory" );
-+}
++/* Has to be at least _NSIG_WORDS from asm/signal.h */
++#define _SIGCONTEXT_NSIG	64
++#define _SIGCONTEXT_NSIG_BPW	64 
++/* Size of stack frame allocated when calling signal handler. */
++#define __SIGNAL_FRAMESIZE	160
 +
 +#endif /* __s390x__ */
 +
- #define clear_user_page(page, vaddr, pg)	clear_page(page)
- #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
+ #define _SIGCONTEXT_NSIG_WORDS	(_SIGCONTEXT_NSIG / _SIGCONTEXT_NSIG_BPW)
+ #define _SIGMASK_COPY_SIZE	(sizeof(unsigned long)*_SIGCONTEXT_NSIG_WORDS)
  
-@@ -79,7 +123,15 @@
- /*
-  * These are used to make use of C type-checking..
+diff -urN linux-2.5.67/include/asm-s390/signal.h linux-2.5.67-s390/include/asm-s390/signal.h
+--- linux-2.5.67/include/asm-s390/signal.h	Mon Apr 14 19:11:45 2003
++++ linux-2.5.67-s390/include/asm-s390/signal.h	Mon Apr 14 19:11:59 2003
+@@ -171,9 +171,15 @@
+           __sighandler_t _sa_handler;
+           void (*_sa_sigaction)(int, struct siginfo *, void *);
+         } _u;
++#ifndef __s390x__ /* lovely */
+         sigset_t sa_mask;
+         unsigned long sa_flags;
+         void (*sa_restorer)(void);
++#else  /* __s390x__ */
++        unsigned long sa_flags;
++        void (*sa_restorer)(void);
++	sigset_t sa_mask;
++#endif /* __s390x__ */
+ };
+ 
+ #define sa_handler      _u._sa_handler
+diff -urN linux-2.5.67/include/asm-s390/sigp.h linux-2.5.67-s390/include/asm-s390/sigp.h
+--- linux-2.5.67/include/asm-s390/sigp.h	Mon Apr  7 19:31:23 2003
++++ linux-2.5.67-s390/include/asm-s390/sigp.h	Mon Apr 14 19:11:59 2003
+@@ -72,10 +72,17 @@
+ 	sigp_ccode ccode;
+ 
+ 	__asm__ __volatile__(
++#ifndef __s390x__
+ 		"    sr     1,1\n"        /* parameter=0 in gpr 1 */
+ 		"    sigp   1,%1,0(%2)\n"
+ 		"    ipm    %0\n"
+ 		"    srl    %0,28\n"
++#else /* __s390x__ */
++		"    sgr    1,1\n"        /* parameter=0 in gpr 1 */
++		"    sigp   1,%1,0(%2)\n"
++		"    ipm    %0\n"
++		"    srl    %0,28"
++#endif /* __s390x__ */
+ 		: "=d" (ccode)
+ 		: "d" (__cpu_logical_map[cpu_addr]), "a" (order_code)
+ 		: "cc" , "memory", "1" );
+@@ -86,15 +93,23 @@
+  * Signal processor with parameter
   */
-+
-+typedef struct { unsigned long pgprot; } pgprot_t;
- typedef struct { unsigned long pte; } pte_t;
-+
-+#define pte_val(x)      ((x).pte)
-+#define pgprot_val(x)   ((x).pgprot)
-+
-+#ifndef __s390x__
-+
- typedef struct { unsigned long pmd; } pmd_t;
- typedef struct {
-         unsigned long pgd0;
-@@ -87,12 +139,23 @@
-         unsigned long pgd2;
-         unsigned long pgd3;
-         } pgd_t;
--typedef struct { unsigned long pgprot; } pgprot_t;
- 
--#define pte_val(x)      ((x).pte)
- #define pmd_val(x)      ((x).pmd)
- #define pgd_val(x)      ((x).pgd0)
--#define pgprot_val(x)   ((x).pgprot)
-+
-+#else /* __s390x__ */
-+
-+typedef struct { 
-+        unsigned long pmd0;
-+        unsigned long pmd1; 
-+        } pmd_t;
-+typedef struct { unsigned long pgd; } pgd_t;
-+
-+#define pmd_val(x)      ((x).pmd0)
-+#define pmd_val1(x)     ((x).pmd1)
-+#define pgd_val(x)      ((x).pgd)
-+
-+#endif /* __s390x__ */
- 
- #define __pte(x)        ((pte_t) { (x) } )
- #define __pmd(x)        ((pmd_t) { (x) } )
-diff -urN linux-2.5.67/include/asm-s390/pgalloc.h linux-2.5.67-s390/include/asm-s390/pgalloc.h
---- linux-2.5.67/include/asm-s390/pgalloc.h	Mon Apr  7 19:31:51 2003
-+++ linux-2.5.67-s390/include/asm-s390/pgalloc.h	Mon Apr 14 19:11:58 2003
-@@ -1,5 +1,5 @@
- /*
-- *  include/asm-s390/bugs.h
-+ *  include/asm-s390/pgalloc.h
-  *
-  *  S390 version
-  *    Copyright (C) 1999,2000 IBM Deutschland Entwicklung GmbH, IBM Corporation
-@@ -32,35 +32,79 @@
- 	pgd_t *pgd;
- 	int i;
- 
-+#ifndef __s390x__
- 	pgd = (pgd_t *) __get_free_pages(GFP_KERNEL,1);
-         if (pgd != NULL)
- 		for (i = 0; i < USER_PTRS_PER_PGD; i++)
- 			pmd_clear(pmd_offset(pgd + i, i*PGDIR_SIZE));
-+#else /* __s390x__ */
-+	pgd = (pgd_t *) __get_free_pages(GFP_KERNEL,2);
-+        if (pgd != NULL)
-+		for (i = 0; i < PTRS_PER_PGD; i++)
-+			pgd_clear(pgd + i);
-+#endif /* __s390x__ */
- 	return pgd;
- }
- 
- static inline void pgd_free(pgd_t *pgd)
+ extern __inline__ sigp_ccode
+-signal_processor_p(__u32 parameter,__u16 cpu_addr,sigp_order_code order_code)
++signal_processor_p(unsigned long parameter,__u16 cpu_addr,
++		   sigp_order_code order_code)
  {
+ 	sigp_ccode ccode;
+ 	
+ 	__asm__ __volatile__(
 +#ifndef __s390x__
-         free_pages((unsigned long) pgd, 1);
+ 		"    lr     1,%1\n"       /* parameter in gpr 1 */
+ 		"    sigp   1,%2,0(%3)\n"
+ 		"    ipm    %0\n"
+ 		"    srl    %0,28\n"
 +#else /* __s390x__ */
-+        free_pages((unsigned long) pgd, 2);
++		"    lgr    1,%1\n"       /* parameter in gpr 1 */
++		"    sigp   1,%2,0(%3)\n"
++		"    ipm    %0\n"
++		"    srl    %0,28\n"
 +#endif /* __s390x__ */
- }
- 
-+#ifndef __s390x__
- /*
-  * page middle directory allocation/free routines.
-- * We don't use pmd cache, so these are dummy routines. This
-+ * We use pmd cache only on s390x, so these are dummy routines. This
-  * code never triggers because the pgd will always be present.
+ 		: "=d" (ccode)
+ 		: "d" (parameter), "d" (__cpu_logical_map[cpu_addr]),
+                   "a" (order_code)
+@@ -106,18 +121,27 @@
+  * Signal processor with parameter and return status
   */
- #define pmd_alloc_one(mm,address)       ({ BUG(); ((pmd_t *)2); })
- #define pmd_free(x)                     do { } while (0)
- #define __pmd_free_tlb(tlb,x)		do { } while (0)
- #define pgd_populate(mm, pmd, pte)      BUG()
+ extern __inline__ sigp_ccode
+-signal_processor_ps(__u32 *statusptr, __u32 parameter,
++signal_processor_ps(__u32 *statusptr, unsigned long parameter,
+ 		    __u16 cpu_addr, sigp_order_code order_code)
+ {
+ 	sigp_ccode ccode;
+ 	
+ 	__asm__ __volatile__(
++#ifndef __s390x__
+ 		"    sr     2,2\n"        /* clear status so it doesn't contain rubbish if not saved. */
+ 		"    lr     3,%2\n"       /* parameter in gpr 3 */
+ 		"    sigp   2,%3,0(%4)\n"
+ 		"    st     2,%1\n"
+ 		"    ipm    %0\n"
+ 		"    srl    %0,28\n"
 +#else /* __s390x__ */
-+static inline pmd_t * pmd_alloc_one(struct mm_struct *mm, unsigned long vmaddr)
-+{
-+	pmd_t *pmd;
-+        int i;
-+
-+	pmd = (pmd_t *) __get_free_pages(GFP_KERNEL, 2);
-+	if (pmd != NULL) {
-+		for (i=0; i < PTRS_PER_PMD; i++)
-+			pmd_clear(pmd+i);
-+	}
-+	return pmd;
-+}
-+
-+static inline void pmd_free (pmd_t *pmd)
-+{
-+	free_pages((unsigned long) pmd, 2);
-+}
-+
-+#define __pmd_free_tlb(tlb,pmd) pmd_free(pmd)
-+
-+static inline void pgd_populate(struct mm_struct *mm, pgd_t *pgd, pmd_t *pmd)
-+{
-+	pgd_val(*pgd) = _PGD_ENTRY | __pa(pmd);
-+}
-+
++		"    sgr    2,2\n"        /* clear status so it doesn't contain rubbish if not saved. */
++		"    lgr    3,%2\n"       /* parameter in gpr 3 */
++		"    sigp   2,%3,0(%4)\n"
++		"    stg    2,%1\n"
++		"    ipm    %0\n"
++		"    srl    %0,28\n"
 +#endif /* __s390x__ */
+ 		: "=d" (ccode), "=m" (*statusptr)
+ 		: "d" (parameter), "d" (__cpu_logical_map[cpu_addr]),
+                   "a" (order_code)
+diff -urN linux-2.5.67/include/asm-s390/smp.h linux-2.5.67-s390/include/asm-s390/smp.h
+--- linux-2.5.67/include/asm-s390/smp.h	Mon Apr  7 19:31:20 2003
++++ linux-2.5.67-s390/include/asm-s390/smp.h	Mon Apr 14 19:11:59 2003
+@@ -52,7 +52,11 @@
  
- static inline void 
- pmd_populate_kernel(struct mm_struct *mm, pmd_t *pmd, pte_t *pte)
+ extern inline unsigned int num_online_cpus(void)
  {
 +#ifndef __s390x__
- 	pmd_val(pmd[0]) = _PAGE_TABLE + __pa(pte);
- 	pmd_val(pmd[1]) = _PAGE_TABLE + __pa(pte+256);
- 	pmd_val(pmd[2]) = _PAGE_TABLE + __pa(pte+512);
- 	pmd_val(pmd[3]) = _PAGE_TABLE + __pa(pte+768);
+ 	return hweight32(cpu_online_map);
 +#else /* __s390x__ */
-+	pmd_val(*pmd) = _PMD_ENTRY + __pa(pte);
-+	pmd_val1(*pmd) = _PMD_ENTRY + __pa(pte+256);
++	return hweight64(cpu_online_map);
 +#endif /* __s390x__ */
  }
  
- static inline void
-@@ -122,11 +166,16 @@
-                                     unsigned long address, pte_t *ptep)
- {
- 	pte_t pte = *ptep;
-+#ifndef __s390x__
- 	if (!(pte_val(pte) & _PAGE_INVALID)) {
- 		/* S390 has 1mb segments, we are emulating 4MB segments */
- 		pte_t *pto = (pte_t *) (((unsigned long) ptep) & 0x7ffffc00);
- 		__asm__ __volatile__ ("ipte %0,%1" : : "a" (pto), "a" (address));
- 	}
-+#else /* __s390x__ */
-+	if (!(pte_val(pte) & _PAGE_INVALID)) 
-+		__asm__ __volatile__ ("ipte %0,%1" : : "a" (ptep), "a" (address));
-+#endif /* __s390x__ */
- 	pte_clear(ptep);
- 	return pte;
- }
-diff -urN linux-2.5.67/include/asm-s390/pgtable.h linux-2.5.67-s390/include/asm-s390/pgtable.h
---- linux-2.5.67/include/asm-s390/pgtable.h	Mon Apr 14 19:11:45 2003
-+++ linux-2.5.67-s390/include/asm-s390/pgtable.h	Mon Apr 14 19:11:58 2003
-@@ -14,10 +14,12 @@
- #define _ASM_S390_PGTABLE_H
+ extern inline int any_online_cpu(unsigned int mask)
+diff -urN linux-2.5.67/include/asm-s390/spinlock.h linux-2.5.67-s390/include/asm-s390/spinlock.h
+--- linux-2.5.67/include/asm-s390/spinlock.h	Mon Apr 14 19:11:45 2003
++++ linux-2.5.67-s390/include/asm-s390/spinlock.h	Mon Apr 14 19:11:59 2003
+@@ -11,6 +11,22 @@
+ #ifndef __ASM_SPINLOCK_H
+ #define __ASM_SPINLOCK_H
  
- /*
-- * The Linux memory management assumes a three-level page table setup. On
-- * the S390, we use that, but "fold" the mid level into the top-level page
-- * table, so that we physically have the same two-level page table as the
-- * S390 mmu expects.
-+ * The Linux memory management assumes a three-level page table setup. For
-+ * s390 31 bit we "fold" the mid level into the top-level page table, so
-+ * that we physically have the same two-level page table as the s390 mmu
-+ * expects in 31 bit mode. For s390 64 bit we use three of the five levels
-+ * the hardware provides (region first and region second tables are not
-+ * used).
-  *
-  * The "pgd_xxx()" functions are trivial for a folded two-level
-  * setup: the pgd is never bad, and a pmd always exists (as it's folded
-@@ -50,13 +52,18 @@
- /*
-  * PMD_SHIFT determines the size of the area a second-level page
-  * table can map
-+ * PGDIR_SHIFT determines what a third-level page table entry can map
-  */
--#define PMD_SHIFT       22
-+#ifndef __s390x__
-+# define PMD_SHIFT	22
-+# define PGDIR_SHIFT	22
-+#else /* __s390x__ */
-+# define PMD_SHIFT	21
-+# define PGDIR_SHIFT	31
-+#endif /* __s390x__ */
-+
- #define PMD_SIZE        (1UL << PMD_SHIFT)
- #define PMD_MASK        (~(PMD_SIZE-1))
--
--/* PGDIR_SHIFT determines what a third-level page table entry can map */
--#define PGDIR_SHIFT     22
- #define PGDIR_SIZE      (1UL << PGDIR_SHIFT)
- #define PGDIR_MASK      (~(PGDIR_SIZE-1))
- 
-@@ -66,24 +73,37 @@
-  * for S390 segment-table entries are combined to one PGD
-  * that leads to 1024 pte per pgd
-  */
--#define PTRS_PER_PTE    1024
--#define PTRS_PER_PMD    1
--#define PTRS_PER_PGD    512
-+#ifndef __s390x__
-+# define PTRS_PER_PTE    1024
-+# define PTRS_PER_PMD    1
-+# define PTRS_PER_PGD    512
-+#else /* __s390x__ */
-+# define PTRS_PER_PTE    512
-+# define PTRS_PER_PMD    1024
-+# define PTRS_PER_PGD    2048
-+#endif /* __s390x__ */
- 
- /*
-  * pgd entries used up by user/kernel:
-  */
--#define USER_PTRS_PER_PGD  512
--#define USER_PGD_PTRS      512
--#define KERNEL_PGD_PTRS    512
--#define FIRST_USER_PGD_NR  0
-+#ifndef __s390x__
-+# define USER_PTRS_PER_PGD  512
-+# define USER_PGD_PTRS      512
-+# define KERNEL_PGD_PTRS    512
-+# define FIRST_USER_PGD_NR  0
-+#else /* __s390x__ */
-+# define USER_PTRS_PER_PGD  2048
-+# define USER_PGD_PTRS      2048
-+# define KERNEL_PGD_PTRS    2048
-+# define FIRST_USER_PGD_NR  0
-+#endif /* __s390x__ */
- 
- #define pte_ERROR(e) \
--	printk("%s:%d: bad pte %08lx.\n", __FILE__, __LINE__, pte_val(e))
-+	printk("%s:%d: bad pte %p.\n", __FILE__, __LINE__, (void *) pte_val(e))
- #define pmd_ERROR(e) \
--	printk("%s:%d: bad pmd %08lx.\n", __FILE__, __LINE__, pmd_val(e))
-+	printk("%s:%d: bad pmd %p.\n", __FILE__, __LINE__, (void *) pmd_val(e))
- #define pgd_ERROR(e) \
--	printk("%s:%d: bad pgd %08lx.\n", __FILE__, __LINE__, pgd_val(e))
-+	printk("%s:%d: bad pgd %p.\n", __FILE__, __LINE__, (void *) pgd_val(e))
- 
- #ifndef __ASSEMBLY__
- /*
-@@ -98,11 +118,15 @@
- #define VMALLOC_START   (((unsigned long) high_memory + VMALLOC_OFFSET) \
- 			 & ~(VMALLOC_OFFSET-1))
- #define VMALLOC_VMADDR(x) ((unsigned long)(x))
--#define VMALLOC_END     (0x7fffffffL)
-+#ifndef __s390x__
-+# define VMALLOC_END     (0x7fffffffL)
-+#else /* __s390x__ */
-+# define VMALLOC_END     (0x40000000000L)
-+#endif /* __s390x__ */
- 
- 
- /*
-- * A pagetable entry of S390 has following format:
-+ * A 31 bit pagetable entry of S390 has following format:
-  *  |   PFRA          |    |  OS  |
-  * 0                   0IP0
-  * 00000000001111111111222222222233
-@@ -111,7 +135,7 @@
-  * I Page-Invalid Bit:    Page is not available for address-translation
-  * P Page-Protection Bit: Store access not possible for page
-  *
-- * A segmenttable entry of S390 has following format:
-+ * A 31 bit segmenttable entry of S390 has following format:
-  *  |   P-table origin      |  |PTL
-  * 0                         IC
-  * 00000000001111111111222222222233
-@@ -121,7 +145,7 @@
-  * C Common-Segment Bit:     Segment is not private (PoP 3-30)
-  * PTL Page-Table-Length:    Page-table length (PTL+1*16 entries -> up to 256)
-  *
-- * The segmenttable origin of S390 has following format:
-+ * The 31 bit segmenttable origin of S390 has following format:
-  *
-  *  |S-table origin   |     | STL |
-  * X                   **GPS
-@@ -134,6 +158,46 @@
-  * S Storage-Alteration:
-  * STL Segment-Table-Length:  Segment-table length (STL+1*16 entries -> up to 2048)
-  *
-+ * A 64 bit pagetable entry of S390 has following format:
-+ * |                     PFRA                         |0IP0|  OS  |
-+ * 0000000000111111111122222222223333333333444444444455555555556666
-+ * 0123456789012345678901234567890123456789012345678901234567890123
-+ *
-+ * I Page-Invalid Bit:    Page is not available for address-translation
-+ * P Page-Protection Bit: Store access not possible for page
-+ *
-+ * A 64 bit segmenttable entry of S390 has following format:
-+ * |        P-table origin                              |      TT
-+ * 0000000000111111111122222222223333333333444444444455555555556666
-+ * 0123456789012345678901234567890123456789012345678901234567890123
-+ *
-+ * I Segment-Invalid Bit:    Segment is not available for address-translation
-+ * C Common-Segment Bit:     Segment is not private (PoP 3-30)
-+ * P Page-Protection Bit: Store access not possible for page
-+ * TT Type 00
-+ *
-+ * A 64 bit region table entry of S390 has following format:
-+ * |        S-table origin                             |   TF  TTTL
-+ * 0000000000111111111122222222223333333333444444444455555555556666
-+ * 0123456789012345678901234567890123456789012345678901234567890123
-+ *
-+ * I Segment-Invalid Bit:    Segment is not available for address-translation
-+ * TT Type 01
-+ * TF
-+ * TL Table lenght
-+ *
-+ * The 64 bit regiontable origin of S390 has following format:
-+ * |      region table origon                          |       DTTL
-+ * 0000000000111111111122222222223333333333444444444455555555556666
-+ * 0123456789012345678901234567890123456789012345678901234567890123
-+ *
-+ * X Space-Switch event:
-+ * G Segment-Invalid Bit:  
-+ * P Private-Space Bit:    
-+ * S Storage-Alteration:
-+ * R Real space
-+ * TL Table-Length:
-+ *
-  * A storage key has the following format:
-  * | ACC |F|R|C|0|
-  *  0   3 4 5 6 7
-@@ -158,6 +222,8 @@
- #define _PAGE_INVALID_SWAP	0x200
- #define _PAGE_INVALID_FILE	0x201
- 
-+#ifndef __s390x__
-+
- /* Bits in the segment table entry */
- #define _PAGE_TABLE_LEN 0xf            /* only full page-tables            */
- #define _PAGE_TABLE_COM 0x10           /* common page-table                */
-@@ -186,6 +252,32 @@
- 
- #define USER_STD_MASK	0x00000080UL
- 
-+#else /* __s390x__ */
-+
-+/* Bits in the segment table entry */
-+#define _PMD_ENTRY_INV   0x20          /* invalid segment table entry      */
-+#define _PMD_ENTRY       0x00        
-+
-+/* Bits in the region third table entry */
-+#define _PGD_ENTRY_INV   0x20          /* invalid region table entry       */
-+#define _PGD_ENTRY       0x07
-+
++#ifdef __s390x__
 +/*
-+ * User and kernel page directory
++ * Grmph, take care of %&#! user space programs that include
++ * asm/spinlock.h. The diagnose is only available in kernel
++ * context.
 + */
-+#define _REGION_THIRD       0x4
-+#define _REGION_THIRD_LEN   0x3 
-+#define _REGION_TABLE       (_REGION_THIRD|_REGION_THIRD_LEN|0x40|0x100)
-+#define _KERN_REGION_TABLE  (_REGION_THIRD|_REGION_THIRD_LEN)
-+
-+#define USER_STD_MASK           0x0000000000000080UL
-+
-+/* Bits in the storage key */
-+#define _PAGE_CHANGED    0x02          /* HW changed bit                   */
-+#define _PAGE_REFERENCED 0x04          /* HW referenced bit                */
-+
++#ifdef __KERNEL__
++#include <asm/lowcore.h>
++#define __DIAG44_INSN "ex"
++#define __DIAG44_OPERAND __LC_DIAG44_OPCODE
++#else
++#define __DIAG44_INSN "#"
++#define __DIAG44_OPERAND 0
++#endif
 +#endif /* __s390x__ */
 +
  /*
-  * No mapping available
+  * Simple spin lock operations.  There are two variants, one clears IRQ's
+  * on the local processor, one does not.
+@@ -19,8 +35,13 @@
   */
-@@ -195,7 +287,7 @@
- #define PAGE_RO_PRIVATE	  __pgprot(_PAGE_RO|_PAGE_ISCLEAN)
- #define PAGE_COPY	  __pgprot(_PAGE_RO|_PAGE_ISCLEAN)
- #define PAGE_SHARED	  __pgprot(0)
--#define PAGE_KERNEL	  __pgprot(0)
-+#define PAGE_KERNEL	  __pgprot(_PAGE_ISCLEAN)
  
- /*
-  * The S390 can't do page protection for execute, and considers that the
-@@ -243,6 +335,8 @@
- /*
-  * pgd/pmd/pte query functions
-  */
+ typedef struct {
 +#ifndef __s390x__
-+
- extern inline int pgd_present(pgd_t pgd) { return 1; }
- extern inline int pgd_none(pgd_t pgd)    { return 0; }
- extern inline int pgd_bad(pgd_t pgd)     { return 0; }
-@@ -254,6 +348,40 @@
- 	return (pmd_val(pmd) & (~PAGE_MASK & ~_PAGE_TABLE_INV)) != _PAGE_TABLE;
+ 	volatile unsigned long lock;
+ } spinlock_t;
++#else /* __s390x__ */
++	volatile unsigned int lock;
++} __attribute__ ((aligned (4))) spinlock_t;
++#endif /* __s390x__ */
+ 
+ #define SPIN_LOCK_UNLOCKED (spinlock_t) { 0 }
+ #define spin_lock_init(lp) do { (lp)->lock = 0; } while(0)
+@@ -29,6 +50,7 @@
+ 
+ extern inline void _raw_spin_lock(spinlock_t *lp)
+ {
++#ifndef __s390x__
+ 	unsigned int reg1, reg2;
+         __asm__ __volatile("    bras  %0,1f\n"
+                            "0:  diag  0,0,68\n"
+@@ -37,11 +59,26 @@
+                            "    jl    0b\n"
+                            : "=&d" (reg1), "=&d" (reg2), "+m" (lp->lock)
+ 			   : "a" (&lp->lock) : "cc" );
++#else /* __s390x__ */
++	unsigned long reg1, reg2;
++        __asm__ __volatile("    bras  %1,1f\n"
++                           "0:  " __DIAG44_INSN " 0,%4\n"
++                           "1:  slr   %0,%0\n"
++                           "    cs    %0,%1,0(%3)\n"
++                           "    jl    0b\n"
++                           : "=&d" (reg1), "=&d" (reg2), "+m" (lp->lock)
++                           : "a" (&lp->lock), "i" (__DIAG44_OPERAND)
++			   : "cc" );
++#endif /* __s390x__ */
  }
+ 
+ extern inline int _raw_spin_trylock(spinlock_t *lp)
+ {
++#ifndef __s390x__
+ 	unsigned long result, reg;
++#else /* __s390x__ */
++	unsigned int result, reg;
++#endif /* __s390x__ */
+ 	__asm__ __volatile("    slr   %0,%0\n"
+ 			   "    basr  %1,0\n"
+ 			   "0:  cs    %0,%1,0(%3)"
+@@ -80,6 +117,7 @@
+ 
+ #define rwlock_is_locked(x) ((x)->lock != 0)
+ 
++#ifndef __s390x__
+ #define _raw_read_lock(rw)   \
+         asm volatile("   l     2,0(%1)\n"   \
+                      "   j     1f\n"     \
+@@ -90,7 +128,21 @@
+                      "   jl    0b"       \
+                      : "+m" ((rw)->lock) : "a" (&(rw)->lock) \
+ 		     : "2", "3", "cc" )
++#else /* __s390x__ */
++#define _raw_read_lock(rw)   \
++        asm volatile("   lg    2,0(%1)\n"   \
++                     "   j     1f\n"     \
++                     "0: " __DIAG44_INSN " 0,%2\n" \
++                     "1: nihh  2,0x7fff\n" /* clear high (=write) bit */ \
++                     "   la    3,1(2)\n"   /* one more reader */  \
++                     "   csg   2,3,0(%1)\n" /* try to write new value */ \
++                     "   jl    0b"       \
++                     : "+m" ((rw)->lock) \
++		     : "a" (&(rw)->lock), "i" (__DIAG44_OPERAND) \
++		     : "2", "3", "cc" )
++#endif /* __s390x__ */
+ 
++#ifndef __s390x__
+ #define _raw_read_unlock(rw) \
+         asm volatile("   l     2,0(%1)\n"   \
+                      "   j     1f\n"     \
+@@ -101,7 +153,21 @@
+                      "   jl    0b"       \
+                      : "+m" ((rw)->lock) : "a" (&(rw)->lock) \
+ 		     : "2", "3", "cc" )
++#else /* __s390x__ */
++#define _raw_read_unlock(rw) \
++        asm volatile("   lg    2,0(%1)\n"   \
++                     "   j     1f\n"     \
++                     "0: " __DIAG44_INSN " 0,%2\n" \
++                     "1: lgr   3,2\n"    \
++                     "   bctgr 3,0\n"    /* one less reader */ \
++                     "   csg   2,3,0(%1)\n" \
++                     "   jl    0b"       \
++                     : "+m" ((rw)->lock) \
++		     : "a" (&(rw)->lock), "i" (__DIAG44_OPERAND) \
++		     : "2", "3", "cc" )
++#endif /* __s390x__ */
+ 
++#ifndef __s390x__
+ #define _raw_write_lock(rw) \
+         asm volatile("   lhi   3,1\n"    \
+                      "   sll   3,31\n"    /* new lock value = 0x80000000 */ \
+@@ -112,7 +178,20 @@
+                      "   jl    0b"       \
+                      : "+m" ((rw)->lock) : "a" (&(rw)->lock) \
+ 		     : "2", "3", "cc" )
++#else /* __s390x__ */
++#define _raw_write_lock(rw) \
++        asm volatile("   llihh 3,0x8000\n" /* new lock value = 0x80...0 */ \
++                     "   j     1f\n"       \
++                     "0: " __DIAG44_INSN " 0,%2\n"   \
++                     "1: slgr  2,2\n"      /* old lock value must be 0 */ \
++                     "   csg   2,3,0(%1)\n" \
++                     "   jl    0b"         \
++                     : "+m" ((rw)->lock) \
++		     : "a" (&(rw)->lock), "i" (__DIAG44_OPERAND) \
++		     : "2", "3", "cc" )
++#endif /* __s390x__ */
+ 
++#ifndef __s390x__
+ #define _raw_write_unlock(rw) \
+         asm volatile("   slr   3,3\n"     /* new lock value = 0 */ \
+                      "   j     1f\n"     \
+@@ -123,15 +202,34 @@
+                      "   jl    0b"       \
+                      : "+m" ((rw)->lock) : "a" (&(rw)->lock) \
+ 		     : "2", "3", "cc" )
++#else /* __s390x__ */
++#define _raw_write_unlock(rw) \
++        asm volatile("   slgr  3,3\n"      /* new lock value = 0 */ \
++                     "   j     1f\n"       \
++                     "0: " __DIAG44_INSN " 0,%2\n"   \
++                     "1: llihh 2,0x8000\n" /* old lock value must be 0x8..0 */\
++                     "   csg   2,3,0(%1)\n"   \
++                     "   jl    0b"         \
++                     : "+m" ((rw)->lock) \
++		     : "a" (&(rw)->lock), "i" (__DIAG44_OPERAND) \
++		     : "2", "3", "cc" )
++#endif /* __s390x__ */
+ 
+ extern inline int _raw_write_trylock(rwlock_t *rw)
+ {
+ 	unsigned int result, reg;
+ 	
+-	__asm__ __volatile__("   lhi  %0,1\n"
++	__asm__ __volatile__(
++#ifndef __s390x__
++			     "   lhi  %0,1\n"
+ 			     "   sll  %0,31\n"
+ 			     "   basr %1,0\n"
+ 			     "0: cs   %0,%1,0(%3)\n"
++#else /* __s390x__ */
++			     "   llihh %0,0x8000\n"
++			     "   basr  %1,0\n"
++			     "0: csg %0,%1,0(%3)\n"
++#endif /* __s390x__ */
+ 			     : "=&d" (result), "=&d" (reg), "+m" (rw->lock)
+ 			     : "a" (&rw->lock) : "cc" );
+ 	return !result;
+diff -urN linux-2.5.67/include/asm-s390/stat.h linux-2.5.67-s390/include/asm-s390/stat.h
+--- linux-2.5.67/include/asm-s390/stat.h	Mon Apr  7 19:32:51 2003
++++ linux-2.5.67-s390/include/asm-s390/stat.h	Mon Apr 14 19:11:59 2003
+@@ -9,6 +9,7 @@
+ #ifndef _S390_STAT_H
+ #define _S390_STAT_H
+ 
++#ifndef __s390x__
+ struct __old_kernel_stat {
+         unsigned short st_dev;
+         unsigned short st_ino;
+@@ -46,8 +47,6 @@
+         unsigned long  __unused5;
+ };
+ 
+-#define STAT_HAVE_NSEC 1
+-
+ /* This matches struct stat64 in glibc2.1, hence the absolutely
+  * insane amounts of padding around dev_t's.
+  */
+@@ -76,4 +75,31 @@
+         unsigned long long	st_ino;
+ };
  
 +#else /* __s390x__ */
 +
-+extern inline int pgd_present(pgd_t pgd)
-+{
-+	return (pgd_val(pgd) & ~PAGE_MASK) == _PGD_ENTRY;
-+}
-+
-+extern inline int pgd_none(pgd_t pgd)
-+{
-+	return pgd_val(pgd) & _PGD_ENTRY_INV;
-+}
-+
-+extern inline int pgd_bad(pgd_t pgd)
-+{
-+	return (pgd_val(pgd) & (~PAGE_MASK & ~_PGD_ENTRY_INV)) != _PGD_ENTRY;
-+}
-+
-+extern inline int pmd_present(pmd_t pmd)
-+{
-+	return (pmd_val(pmd) & ~PAGE_MASK) == _PMD_ENTRY;
-+}
-+
-+extern inline int pmd_none(pmd_t pmd)
-+{
-+	return pmd_val(pmd) & _PMD_ENTRY_INV;
-+}
-+
-+extern inline int pmd_bad(pmd_t pmd)
-+{
-+	return (pmd_val(pmd) & (~PAGE_MASK & ~_PMD_ENTRY_INV)) != _PMD_ENTRY;
-+}
++struct stat {
++        unsigned long  st_dev;
++        unsigned long  st_ino;
++        unsigned long  st_nlink;
++        unsigned int   st_mode;
++        unsigned int   st_uid;
++        unsigned int   st_gid;
++        unsigned int   __pad1;
++        unsigned long  st_rdev;
++        unsigned long  st_size;
++        unsigned long  st_atime;
++	unsigned long  st_atime_nsec;
++        unsigned long  st_mtime;
++	unsigned long  st_mtime_nsec;
++        unsigned long  st_ctime;
++	unsigned long  st_ctime_nsec;
++        unsigned long  st_blksize;
++        long           st_blocks;
++        unsigned long  __unused[3];
++};
 +
 +#endif /* __s390x__ */
 +
- extern inline int pte_none(pte_t pte)
- {
- 	return (pte_val(pte) & _PAGE_INVALID_MASK) == _PAGE_INVALID_EMPTY;
-@@ -302,6 +430,9 @@
- /*
-  * pgd/pmd/pte modification functions
-  */
++#define STAT_HAVE_NSEC 1
 +
-+#ifndef __s390x__
-+
- extern inline void pgd_clear(pgd_t * pgdp)      { }
+ #endif
+diff -urN linux-2.5.67/include/asm-s390/statfs.h linux-2.5.67-s390/include/asm-s390/statfs.h
+--- linux-2.5.67/include/asm-s390/statfs.h	Mon Apr  7 19:32:56 2003
++++ linux-2.5.67-s390/include/asm-s390/statfs.h	Mon Apr 14 19:11:59 2003
+@@ -18,6 +18,7 @@
+ #endif
  
- extern inline void pmd_clear(pmd_t * pmdp)
-@@ -312,6 +443,21 @@
- 	pmd_val(pmdp[3]) = _PAGE_TABLE_INV;
+ struct statfs {
++#ifndef __s390x__
+ 	long f_type;
+ 	long f_bsize;
+ 	long f_blocks;
+@@ -28,6 +29,18 @@
+ 	__kernel_fsid_t f_fsid;
+ 	long f_namelen;
+ 	long f_spare[6];
++#else /* __s390x__ */
++	int  f_type;
++	int  f_bsize;
++	long f_blocks;
++	long f_bfree;
++	long f_bavail;
++	long f_files;
++	long f_ffree;
++	__kernel_fsid_t f_fsid;
++	int  f_namelen;
++	int  f_spare[6];
++#endif /* __s390x__ */
+ };
+ 
+ #endif
+diff -urN linux-2.5.67/include/asm-s390/string.h linux-2.5.67-s390/include/asm-s390/string.h
+--- linux-2.5.67/include/asm-s390/string.h	Mon Apr  7 19:33:03 2003
++++ linux-2.5.67-s390/include/asm-s390/string.h	Mon Apr 14 19:11:59 2003
+@@ -49,13 +49,24 @@
+ {
+     void *ptr;
+ 
+-    __asm__ __volatile__ ("   lr    0,%2\n"
++    __asm__ __volatile__ (
++#ifndef __s390x__
++                          "   lr    0,%2\n"
+                           "   lr    1,%1\n"
+                           "   la    %0,0(%3,%1)\n"
+                           "0: srst  %0,1\n"
+                           "   jo    0b\n"
+                           "   brc   13,1f\n"
+                           "   slr   %0,%0\n"
++#else /* __s390x__ */
++                          "   lgr   0,%2\n"
++                          "   lgr   1,%1\n"
++                          "   la    %0,0(%3,%1)\n"
++                          "0: srst  %0,1\n"
++                          "   jo    0b\n"
++                          "   brc   13,1f\n"
++                          "   slgr  %0,%0\n"
++#endif /* __s390x__ */
+                           "1:"
+                           : "=&a" (ptr) : "a" (cs), "d" (c), "d" (count)
+                           : "cc", "0", "1" );
+@@ -66,9 +77,16 @@
+ {
+     char *tmp = dest;
+ 
+-    __asm__ __volatile__ ("   sr    0,0\n"
++    __asm__ __volatile__ (
++#ifndef __s390x__
++                          "   sr    0,0\n"
+                           "0: mvst  %0,%1\n"
+                           "   jo    0b"
++#else /* __s390x__ */
++                          "   slgr  0,0\n"
++                          "0: mvst  %0,%1\n"
++                          "   jo    0b"
++#endif /* __s390x__ */
+                           : "+&a" (dest), "+&a" (src) :
+                           : "cc", "memory", "0" );
+     return tmp;
+@@ -78,12 +96,22 @@
+ {
+     size_t len;
+ 
+-    __asm__ __volatile__ ("   sr    0,0\n"
++    __asm__ __volatile__ (
++#ifndef __s390x__
++                          "   sr    0,0\n"
+                           "   lr    %0,%1\n"
+                           "0: srst  0,%0\n"
+                           "   jo    0b\n"
+                           "   lr    %0,0\n"
+                           "   sr    %0,%1"
++#else /* __s390x__ */
++                          "   slgr  0,0\n"
++                          "   lgr   %0,%1\n"
++                          "0: srst  0,%0\n"
++                          "   jo    0b\n"
++                          "   lgr   %0,0\n"
++                          "   sgr   %0,%1"
++#endif /* __s390x__ */
+                           : "=&a" (len) : "a" (s) 
+                           : "cc", "0" );
+     return len;
+@@ -93,25 +121,30 @@
+ {
+     char *tmp = dest;
+ 
+-    __asm__ __volatile__ ("   sr    0,0\n"
++    __asm__ __volatile__ (
++#ifndef __s390x__
++                          "   sr    0,0\n"
+                           "0: srst  0,%0\n"
+                           "   jo    0b\n"
+                           "   lr    %0,0\n"
+                           "   sr    0,0\n"
+                           "1: mvst  %0,%1\n"
+                           "   jo    1b"
++#else /* __s390x__ */
++                          "   slgr  0,0\n"
++                          "0: srst  0,%0\n"
++                          "   jo    0b\n"
++                          "   lgr   %0,0\n"
++                          "   slgr  0,0\n"
++                          "1: mvst  %0,%1\n"
++                          "   jo    1b"
++#endif /* __s390x__ */
+                           : "+&a" (dest), "+&a" (src) :
+                           : "cc", "memory", "0" );
+     return tmp;
  }
  
+ extern void *alloca(size_t);
+-
+ #endif /* __KERNEL__ */
+ 
+ #endif /* __S390_STRING_H_ */
+-
+-
+-
+-
+-
+diff -urN linux-2.5.67/include/asm-s390/system.h linux-2.5.67-s390/include/asm-s390/system.h
+--- linux-2.5.67/include/asm-s390/system.h	Mon Apr 14 19:11:45 2003
++++ linux-2.5.67-s390/include/asm-s390/system.h	Mon Apr 14 19:11:59 2003
+@@ -23,6 +23,15 @@
+ 
+ extern struct task_struct *resume(void *, void *);
+ 
++#ifdef __s390x__
++#define __FLAG_SHIFT 56
++extern void __misaligned_u16(void);
++extern void __misaligned_u32(void);
++extern void __misaligned_u64(void);
 +#else /* __s390x__ */
-+
-+extern inline void pgd_clear(pgd_t * pgdp)
-+{
-+	pgd_val(*pgdp) = _PGD_ENTRY_INV | _PGD_ENTRY;
-+}
-+
-+extern inline void pmd_clear(pmd_t * pmdp)
-+{
-+	pmd_val(*pmdp) = _PMD_ENTRY_INV | _PMD_ENTRY;
-+	pmd_val1(*pmdp) = _PMD_ENTRY_INV | _PMD_ENTRY;
-+}
-+
++#define __FLAG_SHIFT 24
 +#endif /* __s390x__ */
 +
- extern inline void pte_clear(pte_t *ptep)
+ static inline void save_fp_regs(s390_fp_regs *fpregs)
  {
- 	pte_val(*ptep) = _PAGE_INVALID_EMPTY;
-@@ -460,6 +606,18 @@
- 	__pte;                                                            \
+ 	asm volatile (
+@@ -88,7 +97,7 @@
+ #define nop() __asm__ __volatile__ ("nop")
+ 
+ #define xchg(ptr,x) \
+-  ((__typeof__(*(ptr)))__xchg((unsigned long)(x),(ptr),sizeof(*(ptr))))
++  ((__typeof__(*(ptr)))__xchg((unsigned long)(x),(void *)(ptr),sizeof(*(ptr))))
+ 
+ static inline unsigned long __xchg(unsigned long x, void * ptr, int size)
+ {
+@@ -137,6 +146,17 @@
+ 			: "memory", "cc", "0" );
+ 		x = old;
+ 		break;
++#ifdef __s390x__
++	case 8:
++		asm volatile (
++			"    lg  %0,0(%2)\n"
++			"0:  csg %0,%1,0(%2)\n"
++			"    jl  0b\n"
++			: "=&d" (old) : "d" (x), "a" (ptr)
++			: "memory", "cc", "0" );
++		x = old;
++		break;
++#endif /* __s390x__ */
+         }
+         return x;
+ }
+@@ -208,6 +228,14 @@
+ 			: "=&d" (prev) : "0" (old), "d" (new), "a" (ptr)
+ 			: "memory", "cc" );
+ 		return prev;
++#ifdef __s390x__
++	case 8:
++		asm volatile (
++			"    csg %0,%2,0(%3)\n"
++			: "=&d" (prev) : "0" (old), "d" (new), "a" (ptr)
++			: "memory", "cc" );
++		return prev;
++#endif /* __s390x__ */
+         }
+         return old;
+ }
+@@ -241,15 +269,15 @@
+ 
+ /* interrupt control.. */
+ #define local_irq_enable() ({ \
+-        __u8 __dummy; \
++        unsigned long  __dummy; \
+         __asm__ __volatile__ ( \
+                 "stosm 0(%1),0x03" : "=m" (__dummy) : "a" (&__dummy) ); \
+         })
+ 
+ #define local_irq_disable() ({ \
+-        __u32 __flags; \
++        unsigned long __flags; \
+         __asm__ __volatile__ ( \
+-                "stnsm 0(%1),0xFC" : "=m" (__flags) : "a" (&__flags) ); \
++                "stnsm 0(%1),0xfc" : "=m" (__flags) : "a" (&__flags) ); \
+         __flags; \
+         })
+ 
+@@ -263,9 +291,70 @@
+ ({					\
+ 	unsigned long flags;		\
+ 	local_save_flags(flags);	\
+-        !((flags >> 24) & 3);		\
++        !((flags >> __FLAG_SHIFT) & 3);	\
  })
  
 +#ifdef __s390x__
 +
-+#define pfn_pmd(pfn, pgprot)                                              \
-+({                                                                        \
-+	pgprot_t __pgprot = (pgprot);                                     \
-+	unsigned long __physpage = __pa((pfn) << PAGE_SHIFT);             \
-+	pmd_t __pmd = __pmd(__physpage + pgprot_val(__pgprot));           \
-+	__pmd;                                                            \
++#define __load_psw(psw) \
++        __asm__ __volatile__("lpswe 0(%0)" : : "a" (&psw) : "cc" );
++
++#define __ctl_load(array, low, high) ({ \
++	__asm__ __volatile__ ( \
++		"   la    1,%0\n" \
++		"   bras  2,0f\n" \
++                "   lctlg 0,0,0(1)\n" \
++		"0: ex    %1,0(2)" \
++		: : "m" (array), "a" (((low)<<4)+(high)) : "1", "2" ); \
++	})
++
++#define __ctl_store(array, low, high) ({ \
++	__asm__ __volatile__ ( \
++		"   la    1,%0\n" \
++		"   bras  2,0f\n" \
++		"   stctg 0,0,0(1)\n" \
++		"0: ex    %1,0(2)" \
++		: "=m" (array) : "a" (((low)<<4)+(high)): "1", "2" ); \
++	})
++
++#define __ctl_set_bit(cr, bit) ({ \
++        __u8 __dummy[24]; \
++        __asm__ __volatile__ ( \
++                "    la    1,%0\n"       /* align to 8 byte */ \
++                "    aghi  1,7\n" \
++                "    nill  1,0xfff8\n" \
++                "    bras  2,0f\n"       /* skip indirect insns */ \
++                "    stctg 0,0,0(1)\n" \
++                "    lctlg 0,0,0(1)\n" \
++                "0:  ex    %1,0(2)\n"    /* execute stctl */ \
++                "    lg    0,0(1)\n" \
++                "    ogr   0,%2\n"       /* set the bit */ \
++                "    stg   0,0(1)\n" \
++                "1:  ex    %1,6(2)"      /* execute lctl */ \
++                : "=m" (__dummy) : "a" (cr*17), "a" (1L<<(bit)) \
++                : "cc", "0", "1", "2"); \
++        })
++
++#define __ctl_clear_bit(cr, bit) ({ \
++        __u8 __dummy[24]; \
++        __asm__ __volatile__ ( \
++                "    la    1,%0\n"       /* align to 8 byte */ \
++                "    aghi  1,7\n" \
++                "    nill  1,0xfff8\n" \
++                "    bras  2,0f\n"       /* skip indirect insns */ \
++                "    stctg 0,0,0(1)\n" \
++                "    lctlg 0,0,0(1)\n" \
++                "0:  ex    %1,0(2)\n"    /* execute stctl */ \
++                "    lg    0,0(1)\n" \
++                "    ngr   0,%2\n"       /* set the bit */ \
++                "    stg   0,0(1)\n" \
++                "1:  ex    %1,6(2)"      /* execute lctl */ \
++                : "=m" (__dummy) : "a" (cr*17), "a" (~(1L<<(bit))) \
++                : "cc", "0", "1", "2"); \
++        })
++
++#else /* __s390x__ */
++
+ #define __load_psw(psw) \
+ 	__asm__ __volatile__("lpsw 0(%0)" : : "a" (&psw) : "cc" );
+ 
+@@ -273,7 +362,7 @@
+ 	__asm__ __volatile__ ( \
+ 		"   la    1,%0\n" \
+ 		"   bras  2,0f\n" \
+-                "   lctl  0,0,0(1)\n" \
++                "   lctl 0,0,0(1)\n" \
+ 		"0: ex    %1,0(2)" \
+ 		: : "m" (array), "a" (((low)<<4)+(high)) : "1", "2" ); \
+ 	})
+@@ -324,6 +413,7 @@
+                 : "=m" (__dummy) : "a" (cr*17), "a" (~(1<<(bit))) \
+                 : "cc", "0", "1", "2"); \
+         })
++#endif /* __s390x__ */
+ 
+ /* For spinlocks etc */
+ #define local_irq_save(x)	((x) = local_irq_disable())
+diff -urN linux-2.5.67/include/asm-s390/thread_info.h linux-2.5.67-s390/include/asm-s390/thread_info.h
+--- linux-2.5.67/include/asm-s390/thread_info.h	Mon Apr  7 19:31:57 2003
++++ linux-2.5.67-s390/include/asm-s390/thread_info.h	Mon Apr 14 19:11:59 2003
+@@ -13,6 +13,7 @@
+ 
+ #ifndef __ASSEMBLY__
+ #include <asm/processor.h>
++#include <asm/lowcore.h>
+ 
+ /*
+  * low level task data that entry.S needs immediate access to
+@@ -46,27 +47,36 @@
+ #define init_thread_info	(init_thread_union.thread_info)
+ #define init_stack		(init_thread_union.stack)
+ 
++/*
++ * Size of kernel stack for each process
++ */
++#ifndef __s390x__
++#define THREAD_ORDER 1
++#define ASYNC_ORDER  1
++#else /* __s390x__ */
++#define THREAD_ORDER 2
++#define ASYNC_ORDER  2
++#endif /* __s390x__ */
++
++#define THREAD_SIZE (PAGE_SIZE << THREAD_ORDER)
++#define ASYNC_SIZE  (PAGE_SIZE << ASYNC_ORDER)
++
+ /* how to get the thread information struct from C */
+ static inline struct thread_info *current_thread_info(void)
+ {
+-	return (struct thread_info *)((*(unsigned long *) 0xc40)-8192);
++	return (struct thread_info *)((*(unsigned long *) __LC_KERNEL_STACK)-THREAD_SIZE);
+ }
+ 
+ /* thread information allocation */
+ #define alloc_thread_info() ((struct thread_info *) \
+-	__get_free_pages(GFP_KERNEL,1))
+-#define free_thread_info(ti) free_pages((unsigned long) (ti), 1)
++	__get_free_pages(GFP_KERNEL,THREAD_ORDER))
++#define free_thread_info(ti) free_pages((unsigned long) (ti),THREAD_ORDER)
+ #define get_thread_info(ti) get_task_struct((ti)->task)
+ #define put_thread_info(ti) put_task_struct((ti)->task)
+ 
+ #endif
+ 
+ /*
+- * Size of kernel stack for each process
+- */
+-#define THREAD_SIZE (2*PAGE_SIZE)
+-
+-/*
+  * thread information flags bit numbers
+  */
+ #define TIF_SYSCALL_TRACE	0	/* syscall trace active */
+@@ -77,6 +87,7 @@
+ #define TIF_USEDFPU		16	/* FPU was used by this task this quantum (SMP) */
+ #define TIF_POLLING_NRFLAG	17	/* true if poll_idle() is polling 
+ 					   TIF_NEED_RESCHED */
++#define TIF_31BIT		18	/* 32bit process */ 
+ 
+ #define _TIF_SYSCALL_TRACE	(1<<TIF_SYSCALL_TRACE)
+ #define _TIF_NOTIFY_RESUME	(1<<TIF_NOTIFY_RESUME)
+@@ -85,6 +96,7 @@
+ #define _TIF_RESTART_SVC	(1<<TIF_RESTART_SVC)
+ #define _TIF_USEDFPU		(1<<TIF_USEDFPU)
+ #define _TIF_POLLING_NRFLAG	(1<<TIF_POLLING_NRFLAG)
++#define _TIF_31BIT		(1<<TIF_31BIT)
+ 
+ #endif /* __KERNEL__ */
+ 
+diff -urN linux-2.5.67/include/asm-s390/tlbflush.h linux-2.5.67-s390/include/asm-s390/tlbflush.h
+--- linux-2.5.67/include/asm-s390/tlbflush.h	Mon Apr  7 19:32:57 2003
++++ linux-2.5.67-s390/include/asm-s390/tlbflush.h	Mon Apr 14 19:11:59 2003
+@@ -28,7 +28,6 @@
+ #define local_flush_tlb() \
+ do {  __asm__ __volatile__("ptlb": : :"memory"); } while (0)
+ 
+-
+ #ifndef CONFIG_SMP
+ 
+ /*
+@@ -70,7 +69,13 @@
+ 
+ static inline void global_flush_tlb(void)
+ {
+-	if (MACHINE_HAS_CSP) {
++#ifndef __s390x__
++	if (!MACHINE_HAS_CSP) {
++		smp_ptlb_all();
++		return;
++	}
++#endif /* __s390x__ */
++	{
+ 		long dummy = 0;
+ 		__asm__ __volatile__ (
+ 			"    la   4,1(%0)\n"
+@@ -78,8 +83,7 @@
+ 			"    slr  3,3\n"
+ 			"    csp  2,4"
+ 			: : "a" (&dummy) : "cc", "2", "3", "4" );
+-	} else
+-		smp_ptlb_all();
++	}
+ }
+ 
+ /*
+diff -urN linux-2.5.67/include/asm-s390/types.h linux-2.5.67-s390/include/asm-s390/types.h
+--- linux-2.5.67/include/asm-s390/types.h	Mon Apr  7 19:31:22 2003
++++ linux-2.5.67-s390/include/asm-s390/types.h	Mon Apr 14 19:11:59 2003
+@@ -27,15 +27,21 @@
+ typedef __signed__ int __s32;
+ typedef unsigned int __u32;
+ 
++#ifndef __s390x__
+ #if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+ typedef __signed__ long long __s64;
+ typedef unsigned long long __u64;
+ #endif
++#else /* __s390x__ */
++typedef __signed__ long __s64;
++typedef unsigned long __u64;
++#endif
++
+ /* A address type so that arithmetic can be done on it & it can be upgraded to
+    64 bit when necessary 
+ */
+-typedef __u32  addr_t; 
+-typedef __s32  saddr_t;
++typedef unsigned long addr_t; 
++typedef __signed__ long saddr_t;
+ 
+ #endif /* __ASSEMBLY__ */
+ 
+@@ -44,7 +50,11 @@
+  */
+ #ifdef __KERNEL__
+ 
++#ifndef __s390x__
+ #define BITS_PER_LONG 32
++#else
++#define BITS_PER_LONG 64
++#endif
+ 
+ #ifndef __ASSEMBLY__
+ 
+@@ -57,11 +67,17 @@
+ typedef signed int s32;
+ typedef unsigned int u32;
+ 
++#ifndef __s390x__
+ typedef signed long long s64;
+ typedef unsigned long long u64;
++#else /* __s390x__ */
++typedef signed long s64;
++typedef unsigned  long u64;
++#endif /* __s390x__ */
+ 
+ typedef u32 dma_addr_t;
+ 
++#ifndef __s390x__
+ typedef union {
+ 	unsigned long long pair;
+ 	struct {
+@@ -75,7 +91,7 @@
+ #define HAVE_SECTOR_T
+ #endif
+ 
+-#endif /* __ASSEMBLY__ */
+-
+-#endif                                 /* __KERNEL__                       */
+-#endif
++#endif /* ! __s390x__   */
++#endif /* __ASSEMBLY__  */
++#endif /* __KERNEL__    */
++#endif /* _S390_TYPES_H */
+diff -urN linux-2.5.67/include/asm-s390/uaccess.h linux-2.5.67-s390/include/asm-s390/uaccess.h
+--- linux-2.5.67/include/asm-s390/uaccess.h	Mon Apr  7 19:30:44 2003
++++ linux-2.5.67-s390/include/asm-s390/uaccess.h	Mon Apr 14 19:11:59 2003
+@@ -72,284 +72,261 @@
+ };
+ 
+ /*
+- * These are the main single-value transfer routines.  They automatically
+- * use the right size if we just have the right pointer type.
++ * Standard fixup section for uaccess inline functions.
++ * local label 0: is the fault point
++ * local label 1: is the return point
++ * %0 is the error variable
++ * %3 is the error value -EFAULT
+  */
+-
+-extern inline int __put_user_asm_8(void *x, void *ptr)
+-{
+-        int err;
+-
+-        __asm__ __volatile__ (  "   sr    %0,%0\n"
+-				"   lr    2,%1\n"
+-				"   lr    4,%2\n"
+-                                "   sacf  512\n"
+-                                "0: mvc   0(8,4),0(2)\n"
+-                                "   sacf  0\n"
+-				"1:\n"
+-				".section .fixup,\"ax\"\n"
+-				"2: sacf  0\n"
+-				"   lhi   %0,%h3\n"
+-				"   bras  4,3f\n"
+-				"   .long 1b\n"
+-				"3: l     4,0(4)\n"
+-				"   br    4\n"
+-				".previous\n"
+-				".section __ex_table,\"a\"\n"
+-				"   .align 4\n"
+-				"   .long  0b,2b\n"
+-				".previous"
+-                                : "=&d" (err)
+-                                : "d" (x), "d" (ptr), "K" (-EFAULT)
+-                                : "cc", "2", "4" );
+-        return err;
+-}
+-
+-extern inline int __put_user_asm_4(__u32 x, void *ptr)
+-{
+-        int err;
+-
+-        __asm__ __volatile__ (  "   sr    %0,%0\n"
+-				"   lr    4,%2\n"
+-                                "   sacf  512\n"
+-                                "0: st    %1,0(4)\n"
+-                                "   sacf  0\n"
+-				"1:\n"
+-				".section .fixup,\"ax\"\n"
+-				"2: sacf  0\n"
+-				"   lhi   %0,%h3\n"
+-				"   bras  4,3f\n"
+-				"   .long 1b\n"
+-				"3: l     4,0(4)\n"
+-				"   br    4\n"
+-				".previous\n"
+-				".section __ex_table,\"a\"\n"
+-				"   .align 4\n"
+-				"   .long  0b,2b\n"
+-				".previous"
+-                                : "=&d" (err)
+-                                : "d" (x), "d" (ptr), "K" (-EFAULT)
+-                                : "cc", "4" );
+-        return err;
+-}
+-
+-extern inline int __put_user_asm_2(__u16 x, void *ptr)
+-{
+-        int err;
+-
+-        __asm__ __volatile__ (  "   sr    %0,%0\n"
+-				"   lr    4,%2\n"
+-                                "   sacf  512\n"
+-                                "0: sth   %1,0(4)\n"
+-                                "   sacf  0\n"
+-				"1:\n"
+-				".section .fixup,\"ax\"\n"
+-				"2: sacf  0\n"
+-				"   lhi   %0,%h3\n"
+-				"   bras  4,3f\n"
+-				"   .long 1b\n"
+-				"3: l     4,0(4)\n"
+-				"   br    4\n"
+-				".previous\n"
+-				".section __ex_table,\"a\"\n"
+-				"   .align 4\n"
+-				"   .long  0b,2b\n"
+-				".previous"
+-                                : "=&d" (err)
+-                                : "d" (x), "d" (ptr), "K" (-EFAULT)
+-                                : "cc", "4" );
+-        return err;
+-}
+-
+-extern inline int __put_user_asm_1(__u8 x, void *ptr)
+-{
+-        int err;
+-
+-        __asm__ __volatile__ (  "   sr    %0,%0\n"
+-				"   lr    4,%2\n"
+-                                "   sacf  512\n"
+-                                "0: stc   %1,0(4)\n"
+-                                "   sacf  0\n"
+-				"1:\n"
+-				".section .fixup,\"ax\"\n"
+-				"2: sacf  0\n"
+-				"   lhi   %0,%h3\n"
+-				"   bras  4,3f\n"
+-				"   .long 1b\n"
+-				"3: l     4,0(4)\n"
+-				"   br    4\n"
+-				".previous\n"
+-				".section __ex_table,\"a\"\n"
+-				"   .align 4\n"
+-				"   .long  0b,2b\n"
+-				".previous"
+-                                : "=&d" (err)
+-                                : "d" (x), "d" (ptr), "K" (-EFAULT)
+-                                : "cc", "4" );
+-        return err;
+-}
++#ifndef __s390x__
++#define __uaccess_fixup \
++	".section .fixup,\"ax\"\n"	\
++	"8: sacf  0\n"			\
++	"   lhi	  %0,%h3\n"		\
++	"   bras  4,9f\n"		\
++	"   .long 1b\n"			\
++	"9: l	  4,0(4)\n"		\
++	"   br	  4\n"			\
++	".previous\n"			\
++	".section __ex_table,\"a\"\n"	\
++	"   .align 4\n"			\
++	"   .long  0b,8b\n"		\
++	".previous"
++#else /* __s390x__ */
++#define __uaccess_fixup \
++	".section .fixup,\"ax\"\n"	\
++	"9: sacf  0\n"			\
++	"   lhi	  %0,%h3\n"		\
++	"   jg	  1b\n"			\
++	".previous\n"			\
++	".section __ex_table,\"a\"\n"	\
++	"   .align 8\n"			\
++	"   .quad  0b,9b\n"		\
++	".previous"
++#endif /* __s390x__ */
+ 
+ /*
+- * (u8)(u32) ... autsch, but that the only way we can suppress the
+- * warnings when compiling binfmt_elf.c
++ * These are the main single-value transfer routines.  They automatically
++ * use the right size if we just have the right pointer type.
+  */
+-#define __put_user(x, ptr)                                      \
+-({                                                              \
+-        __typeof__(*(ptr)) __x = (x);                           \
+-        int __pu_err;                                           \
+-        switch (sizeof (*(ptr))) {                              \
+-        case 1:                                                 \
+-                __pu_err = __put_user_asm_1((__u8)(__u32) __x,  \
+-                                            ptr);               \
+-                break;                                          \
+-        case 2:                                                 \
+-                __pu_err = __put_user_asm_2((__u16)(__u32) __x, \
+-                                            ptr);               \
+-                break;                                          \
+-        case 4:                                                 \
+-                __pu_err = __put_user_asm_4((__u32) __x,        \
+-                                            ptr);               \
+-                break;                                          \
+-        case 8:                                                 \
+-                __pu_err = __put_user_asm_8(&__x, ptr);         \
+-                break;                                          \
+-        default:                                                \
+-                __pu_err = __put_user_bad();                    \
+-                break;                                          \
+-         }                                                      \
+-        __pu_err;                                               \
++#ifndef __s390x__
++
++#define __put_user_asm_8(x, ptr, err) \
++({								\
++	__asm__ __volatile__ (					\
++		"   sr	  %0,%0\n"				\
++		"   la	  2,%2\n"				\
++		"   la	  4,%1\n"				\
++		"   sacf  512\n"				\
++		"0: mvc	  0(8,4),0(2)\n"			\
++		"   sacf  0\n"					\
++		"1:\n"						\
++		__uaccess_fixup					\
++		: "=&d" (err)					\
++		: "m" (*(__u64*)(ptr)), "m" (x), "K" (-EFAULT)	\
++		: "cc", "2", "4" );				\
++})
++
++#else /* __s390x__ */
++
++#define __put_user_asm_8(x, ptr, err) \
++({								\
++	__asm__ __volatile__ (					\
++		"   sr	  %0,%0\n"				\
++		"   la	  4,%1\n"				\
++		"   sacf  512\n"				\
++		"0: stg	  %2,0(4)\n"				\
++		"   sacf  0\n"					\
++		"1:\n"						\
++		__uaccess_fixup					\
++		: "=&d" (err)					\
++		: "m" (*(__u64*)(ptr)), "d" (x), "K" (-EFAULT)	\
++		: "cc", "4" );					\
 +})
 +
 +#endif /* __s390x__ */
 +
- #define pte_pfn(x) (pte_val(x) >> PAGE_SHIFT)
- #define pte_page(x) pfn_to_page(pte_pfn(x))
- 
-@@ -476,12 +634,23 @@
- /* to find an entry in a kernel page-table-directory */
- #define pgd_offset_k(address) pgd_offset(&init_mm, address)
- 
-+#ifndef __s390x__
++#define __put_user_asm_4(x, ptr, err) \
++({								\
++	__asm__ __volatile__ (					\
++		"   sr	  %0,%0\n"				\
++		"   la	  4,%1\n"				\
++		"   sacf  512\n"				\
++		"0: st	  %2,0(4)\n"				\
++		"   sacf  0\n"					\
++		"1:\n"						\
++		__uaccess_fixup					\
++		: "=&d" (err)					\
++		: "m" (*(__u32*)(ptr)), "d" (x), "K" (-EFAULT)	\
++		: "cc", "4" );					\
++})
 +
- /* Find an entry in the second-level page table.. */
- extern inline pmd_t * pmd_offset(pgd_t * dir, unsigned long address)
- {
-         return (pmd_t *) dir;
- }
++#define __put_user_asm_2(x, ptr, err) \
++({								\
++	__asm__ __volatile__ (					\
++		"   sr	  %0,%0\n"				\
++		"   la	  4,%1\n"				\
++		"   sacf  512\n"				\
++		"0: sth	  %2,0(4)\n"				\
++		"   sacf  0\n"					\
++		"1:\n"						\
++		__uaccess_fixup					\
++		: "=&d" (err)					\
++		: "m" (*(__u16*)(ptr)), "d" (x), "K" (-EFAULT)	\
++		: "cc", "4" );					\
++})
++
++#define __put_user_asm_1(x, ptr, err) \
++({								\
++	__asm__ __volatile__ (					\
++		"   sr	  %0,%0\n"				\
++		"   la	  4,%1\n"				\
++		"   sacf  512\n"				\
++		"0: stc	  %2,0(4)\n"				\
++		"   sacf  0\n"					\
++		"1:\n"						\
++		__uaccess_fixup					\
++		: "=&d" (err)					\
++		: "m" (*(__u8*)(ptr)), "d" (x),	"K" (-EFAULT)	\
++		: "cc", "4" );					\
++})
++
++#define __put_user(x, ptr) \
++({								\
++	__typeof__(*(ptr)) __x = (x);				\
++	int __pu_err;						\
++	switch (sizeof (*(ptr))) {				\
++	case 1:							\
++		__put_user_asm_1(__x, ptr, __pu_err);		\
++		break;						\
++	case 2:							\
++		__put_user_asm_2(__x, ptr, __pu_err);		\
++		break;						\
++	case 4:							\
++		__put_user_asm_4(__x, ptr, __pu_err);		\
++		break;						\
++	case 8:							\
++		__put_user_asm_8(__x, ptr, __pu_err);		\
++		break;						\
++	default:						\
++		__pu_err = __put_user_bad();			\
++		break;						\
++	 }							\
++	__pu_err;						\
+ })
  
+ #define put_user(x, ptr) __put_user(x, ptr)
+ 
+ extern int __put_user_bad(void);
+ 
+-#define __get_user_asm_8(x, ptr, err)                                      \
+-({                                                                         \
+-        __asm__ __volatile__ (  "   sr    %1,%1\n"                         \
+-				"   la    2,%0\n"			   \
+-                                "   la    4,%2\n"                          \
+-                                "   sacf  512\n"                           \
+-                                "0: mvc   0(8,2),0(4)\n"                   \
+-                                "   sacf  0\n"                             \
+-                                "1:\n"                                     \
+-                                ".section .fixup,\"ax\"\n"                 \
+-                                "2: sacf  0\n"                             \
+-                                "   lhi   %1,%h3\n"                        \
+-                                "   bras  4,3f\n"                          \
+-                                "   .long 1b\n"                            \
+-                                "3: l     4,0(4)\n"                        \
+-                                "   br    4\n"                             \
+-                                ".previous\n"                              \
+-                                ".section __ex_table,\"a\"\n"              \
+-                                "   .align 4\n"                            \
+-                                "   .long 0b,2b\n"                         \
+-                                ".previous"                                \
+-                                : "=m" (x) , "=&d" (err)                   \
+-                                : "m" (*(const __u64*)(ptr)),"K" (-EFAULT) \
+-                                : "cc", "2", "4" );                        \
+-})
+-
+-#define __get_user_asm_4(x, ptr, err)                                      \
+-({                                                                         \
+-        __asm__ __volatile__ (  "   sr    %1,%1\n"                         \
+-                                "   la    4,%2\n"                          \
+-                                "   sacf  512\n"                           \
+-                                "0: l     %0,0(4)\n"                       \
+-                                "   sacf  0\n"                             \
+-                                "1:\n"                                     \
+-                                ".section .fixup,\"ax\"\n"                 \
+-                                "2: sacf  0\n"                             \
+-                                "   lhi   %1,%h3\n"                        \
+-                                "   bras  4,3f\n"                          \
+-                                "   .long 1b\n"                            \
+-                                "3: l     4,0(4)\n"                        \
+-                                "   br    4\n"                             \
+-                                ".previous\n"                              \
+-                                ".section __ex_table,\"a\"\n"              \
+-                                "   .align 4\n"                            \
+-                                "   .long 0b,2b\n"                         \
+-                                ".previous"                                \
+-                                : "=d" (x) , "=&d" (err)                   \
+-                                : "m" (*(const __u32*)(ptr)),"K" (-EFAULT) \
+-                                : "cc", "4" );                             \
+-})
+-
+-#define __get_user_asm_2(x, ptr, err)                                      \
+-({                                                                         \
+-        __asm__ __volatile__ (  "   sr    %1,%1\n"                         \
+-                                "   la    4,%2\n"                          \
+-                                "   sacf  512\n"                           \
+-                                "0: lh    %0,0(4)\n"                       \
+-                                "   sacf  0\n"                             \
+-                                "1:\n"                                     \
+-                                ".section .fixup,\"ax\"\n"                 \
+-                                "2: sacf  0\n"                             \
+-                                "   lhi   %1,%h3\n"                        \
+-                                "   bras  4,3f\n"                          \
+-                                "   .long 1b\n"                            \
+-                                "3: l     4,0(4)\n"                        \
+-                                "   br    4\n"                             \
+-                                ".previous\n"                              \
+-                                ".section __ex_table,\"a\"\n"              \
+-                                "   .align 4\n"                            \
+-                                "   .long 0b,2b\n"                         \
+-                                ".previous"                                \
+-                                : "=d" (x) , "=&d" (err)                   \
+-                                : "m" (*(const __u16*)(ptr)),"K" (-EFAULT) \
+-                                : "cc", "4" );                             \
+-})
+-
+-#define __get_user_asm_1(x, ptr, err)                                     \
+-({                                                                        \
+-        __asm__ __volatile__ (  "   sr    %1,%1\n"                        \
+-                                "   la    4,%2\n"                         \
+-                                "   sr    %0,%0\n"                        \
+-                                "   sacf  512\n"                          \
+-                                "0: ic    %0,0(4)\n"                      \
+-                                "   sacf  0\n"                            \
+-                                "1:\n"                                    \
+-                                ".section .fixup,\"ax\"\n"                \
+-                                "2: sacf  0\n"                            \
+-                                "   lhi   %1,%h3\n"                       \
+-                                "   bras  4,3f\n"                         \
+-                                "   .long 1b\n"                           \
+-                                "3: l     4,0(4)\n"                       \
+-                                "   br    4\n"                            \
+-                                ".previous\n"                             \
+-                                ".section __ex_table,\"a\"\n"             \
+-                                "   .align 4\n"                           \
+-                                "   .long 0b,2b\n"                        \
+-                                ".previous"                               \
+-                                : "=d" (x) , "=&d" (err)                  \
+-                                : "m" (*(const __u8*)(ptr)),"K" (-EFAULT) \
+-                                : "cc", "4" );                            \
+-})
++#ifndef __s390x__
+ 
+-#define __get_user(x, ptr)                                      \
+-({                                                              \
+-        __typeof__(*(ptr)) __x;                                 \
+-        int __gu_err;                                           \
+-        switch (sizeof(*(ptr))) {                               \
+-        case 1:                                                 \
+-                __get_user_asm_1(__x, ptr, __gu_err);           \
+-                break;                                          \
+-        case 2:                                                 \
+-                __get_user_asm_2(__x, ptr, __gu_err);           \
+-                break;                                          \
+-        case 4:                                                 \
+-                __get_user_asm_4(__x, ptr, __gu_err);           \
+-                break;                                          \
+-        case 8:                                                 \
+-                __get_user_asm_8(__x, ptr, __gu_err);           \
+-                break;                                          \
+-        default:                                                \
+-                __x = 0;                                        \
+-                __gu_err = __get_user_bad();                    \
+-                break;                                          \
+-        }                                                       \
+-        (x) = __x;                                              \
+-        __gu_err;                                               \
++#define __get_user_asm_8(x, ptr, err) \
++({								\
++	__asm__ __volatile__ (					\
++		"   sr	  %0,%0\n"				\
++		"   la	  2,%1\n"				\
++		"   la	  4,%2\n"				\
++		"   sacf  512\n"				\
++		"0: mvc	  0(8,2),0(4)\n"			\
++		"   sacf  0\n"					\
++		"1:\n"						\
++		__uaccess_fixup					\
++		: "=&d" (err), "=m" (x)				\
++		: "m" (*(const __u64*)(ptr)),"K" (-EFAULT)	\
++		: "cc", "2", "4" );				\
++})
++
 +#else /* __s390x__ */
 +
-+/* Find an entry in the second-level page table.. */
-+#define pmd_index(address) (((address) >> PMD_SHIFT) & (PTRS_PER_PMD-1))
-+#define pmd_offset(dir,addr) \
-+	((pmd_t *) pgd_page_kernel(*(dir)) + pmd_index(addr))
++#define __get_user_asm_8(x, ptr, err) \
++({								\
++	__asm__ __volatile__ (					\
++		"   sr	  %0,%0\n"				\
++		"   la	  4,%2\n"				\
++		"   sacf  512\n"				\
++		"0: lg	  %1,0(4)\n"				\
++		"   sacf  0\n"					\
++		"1:\n"						\
++		__uaccess_fixup					\
++		: "=&d" (err), "=d" (x)				\
++		: "m" (*(const __u64*)(ptr)),"K" (-EFAULT)	\
++		: "cc", "4" );					\
++})
 +
 +#endif /* __s390x__ */
 +
- /* Find an entry in the third-level page table.. */
- #define pte_index(address) (((address) >> PAGE_SHIFT) & (PTRS_PER_PTE-1))
- #define pte_offset_kernel(pmd, address) \
-@@ -492,6 +661,7 @@
- #define pte_unmap_nested(pte) do { } while (0)
++
++#define __get_user_asm_4(x, ptr, err) \
++({								\
++	__asm__ __volatile__ (					\
++		"   sr	  %0,%0\n"				\
++		"   la	  4,%2\n"				\
++		"   sacf  512\n"				\
++		"0: l	  %1,0(4)\n"				\
++		"   sacf  0\n"					\
++		"1:\n"						\
++		__uaccess_fixup					\
++		: "=&d" (err), "=d" (x)				\
++		: "m" (*(const __u32*)(ptr)),"K" (-EFAULT)	\
++		: "cc", "4" );					\
++})
++
++#define __get_user_asm_2(x, ptr, err) \
++({								\
++	__asm__ __volatile__ (					\
++		"   sr	  %0,%0\n"				\
++		"   la	  4,%2\n"				\
++		"   sacf  512\n"				\
++		"0: lh	  %1,0(4)\n"				\
++		"   sacf  0\n"					\
++		"1:\n"						\
++		__uaccess_fixup					\
++		: "=&d" (err), "=d" (x)				\
++		: "m" (*(const __u16*)(ptr)),"K" (-EFAULT)	\
++		: "cc", "4" );					\
++})
++
++#define __get_user_asm_1(x, ptr, err) \
++({								\
++	__asm__ __volatile__ (					\
++		"   sr	  %0,%0\n"				\
++		"   la	  4,%2\n"				\
++		"   sr	  %1,%1\n"				\
++		"   sacf  512\n"				\
++		"0: ic	  %1,0(4)\n"				\
++		"   sacf  0\n"					\
++		"1:\n"						\
++		__uaccess_fixup					\
++		: "=&d" (err), "=d" (x)				\
++		: "m" (*(const __u8*)(ptr)),"K" (-EFAULT)	\
++		: "cc", "4" );					\
++})
++
++#define __get_user(x, ptr)					\
++({								\
++	__typeof__(*(ptr)) __x;					\
++	int __gu_err;						\
++	switch (sizeof(*(ptr))) {				\
++	case 1:							\
++		__get_user_asm_1(__x, ptr, __gu_err);		\
++		break;						\
++	case 2:							\
++		__get_user_asm_2(__x, ptr, __gu_err);		\
++		break;						\
++	case 4:							\
++		__get_user_asm_4(__x, ptr, __gu_err);		\
++		break;						\
++	case 8:							\
++		__get_user_asm_8(__x, ptr, __gu_err);		\
++		break;						\
++	default:						\
++		__x = 0;					\
++		__gu_err = __get_user_bad();			\
++		break;						\
++	}							\
++	(x) = __x;						\
++	__gu_err;						\
+ })
+ 
+ #define get_user(x, ptr) __get_user(x, ptr)
+@@ -357,7 +334,8 @@
+ extern int __get_user_bad(void);
  
  /*
-+ * 31 bit swap entry format:
-  * A page-table entry has some bits we have to treat in a special way.
-  * Bits 0, 20 and bit 23 have to be zero, otherwise an specification
-  * exception will occur instead of a page translation exception. The
-@@ -507,17 +677,38 @@
-  * 0|     offset      |0110|type |0
-  * 00000000001111111111222222222233
-  * 01234567890123456789012345678901
-+ *
-+ * 64 bit swap entry format:
-+ * A page-table entry has some bits we have to treat in a special way.
-+ * Bits 52 and bit 55 have to be zero, otherwise an specification
-+ * exception will occur instead of a page translation exception. The
-+ * specifiation exception has the bad habit not to store necessary
-+ * information in the lowcore.
-+ * Bit 53 and bit 54 are the page invalid bit and the page protection
-+ * bit. We set both to indicate a swapped page.
-+ * Bit 63 is used as the software page present bit. If a page is
-+ * swapped this obviously has to be zero.
-+ * This leaves the bits 0-51 and bits 56-62 to store type and offset.
-+ * We use the 7 bits from 56-62 for the type and the 52 bits from 0-51
-+ * for the offset.
-+ * |                     offset                       |0110|type |0
-+ * 0000000000111111111122222222223333333333444444444455555555556666
-+ * 0123456789012345678901234567890123456789012345678901234567890123
+- * access register are set up, that 4 points to secondary (user) , 2 to primary (kernel)
++ * access register are set up, that 4 points to secondary (user),
++ * 2 to primary (kernel)
   */
- extern inline pte_t mk_swap_pte(unsigned long type, unsigned long offset)
- {
- 	pte_t pte;
- 	pte_val(pte) = (type << 1) | (offset << 12) | _PAGE_INVALID_SWAP;
+ 
+ extern long __copy_to_user_asm(const void *from, long n, const void *to);
+@@ -402,42 +380,81 @@
+  * Copy a null terminated string from userspace.
+  */
+ 
 +#ifndef __s390x__
- 	pte_val(pte) &= 0x7ffff6fe;  /* better to be paranoid */
-+#else /* __s390x__ */
-+	pte_val(pte) &= 0xfffffffffffff6fe;  /* better to be paranoid */
-+#endif /* __s390x__ */
- 	return pte;
++
+ static inline long
+ __strncpy_from_user(char *dst, const char *src, long count)
+ {
+         int len;
+-        __asm__ __volatile__ (  "   slr   %0,%0\n"
+-				"   lr    2,%1\n"
+-                                "   lr    4,%2\n"
+-                                "   slr   3,3\n"
+-                                "   sacf  512\n"
+-                                "0: ic    3,0(%0,4)\n"
+-                                "1: stc   3,0(%0,2)\n"
+-                                "   ltr   3,3\n"
+-                                "   jz    2f\n"
+-                                "   ahi   %0,1\n"
+-                                "   clr   %0,%3\n"
+-                                "   jl    0b\n"
+-                                "2: sacf  0\n"
+-				".section .fixup,\"ax\"\n"
+-                                "3: lhi   %0,%h4\n"
+-				"   basr  3,0\n"
+-                                "   l     3,4f-.(3)\n"
+-                                "   br    3\n"
+-				"4: .long 2b\n"
+-				".previous\n"
+-				".section __ex_table,\"a\"\n"
+-				"   .align 4\n"
+-				"   .long  0b,3b\n"
+-                                "   .long  1b,3b\n"
+-				".previous"
+-                                : "=&a" (len)
+-                                : "a" (dst), "d" (src), "d" (count),
+-                                  "K" (-EFAULT)
+-                                : "2", "3", "4", "memory", "cc" );
+-        return len;
++        __asm__ __volatile__ (
++		"   slr   %0,%0\n"
++		"   lr    2,%1\n"
++                "   lr    4,%2\n"
++                "   slr   3,3\n"
++                "   sacf  512\n"
++		"0: ic	  3,0(%0,4)\n"
++		"1: stc	  3,0(%0,2)\n"
++		"   ltr	  3,3\n"
++		"   jz	  2f\n"
++		"   ahi	  %0,1\n"
++		"   clr	  %0,%3\n"
++		"   jl	  0b\n"
++		"2: sacf  0\n"
++		".section .fixup,\"ax\"\n"
++		"3: lhi	  %0,%h4\n"
++		"   basr  3,0\n"
++		"   l	  3,4f-.(3)\n"
++		"   br	  3\n"
++		"4: .long 2b\n"
++		".previous\n"
++		".section __ex_table,\"a\"\n"
++		"   .align 4\n"
++		"   .long  0b,3b\n"
++		"   .long  1b,3b\n"
++		".previous"
++		: "=&a" (len)
++		: "a" (dst), "d" (src), "d" (count), "K" (-EFAULT)
++		: "2", "3", "4", "memory", "cc" );
++	return len;
  }
  
- #define __swp_type(entry)	(((entry).val >> 1) & 0x3f)
--#define __swp_offset(entry)	(((entry).val >> 12) & 0x7FFFF )
-+#define __swp_offset(entry)	((entry).val >> 12)
- #define __swp_entry(type,offset) ((swp_entry_t) { pte_val(mk_swap_pte((type),(offset))) })
- 
- #define __pte_to_swp_entry(pte)	((swp_entry_t) { pte_val(pte) })
-@@ -525,7 +716,11 @@
- 
- typedef pte_t *pte_addr_t;
- 
--#define PTE_FILE_MAX_BITS	26
-+#ifndef __s390x__
-+# define PTE_FILE_MAX_BITS	26
 +#else /* __s390x__ */
-+# define PTE_FILE_MAX_BITS	59
-+#endif /* __s390x__ */
- 
- #define pte_to_pgoff(__pte) \
- 	((((__pte).pte >> 12) << 7) + (((__pte).pte >> 1) & 0x7f))
-@@ -543,5 +738,9 @@
-  */
- #define pgtable_cache_init()	do { } while (0)
- 
-+#ifdef __s390x__
-+# define HAVE_ARCH_UNMAPPED_AREA
++
++static inline long
++__strncpy_from_user(char *dst, const char *src, long count)
++{
++	long len;
++	__asm__ __volatile__ (
++		"   slgr  %0,%0\n"
++		"   lgr	  2,%1\n"
++		"   lgr	  4,%2\n"
++		"   slr	  3,3\n"
++		"   sacf  512\n"
++		"0: ic	  3,0(%0,4)\n"
++		"1: stc	  3,0(%0,2)\n"
++		"   ltr	  3,3\n"
++		"   jz	  2f\n"
++		"   aghi  %0,1\n"
++		"   cgr	  %0,%3\n"
++		"   jl	  0b\n"
++		"2: sacf  0\n"
++		".section .fixup,\"ax\"\n"
++		"3: lghi  %0,%h4\n"
++		"   jg	  2b\n"	 
++		".previous\n"
++		".section __ex_table,\"a\"\n"
++		"   .align 8\n"
++		"   .quad  0b,3b\n"
++		"   .quad  1b,3b\n"
++		".previous"
++		: "=&a" (len)
++		: "a"  (dst), "d" (src), "d" (count), "K" (-EFAULT)
++		: "cc", "2" ,"3", "4" );
++	return len;
++}
++
 +#endif /* __s390x__ */
 +
- #endif /* _S390_PAGE_H */
+ static inline long
+ strncpy_from_user(char *dst, const char *src, long count)
+ {
+@@ -453,35 +470,92 @@
+  *
+  * Return 0 for error
+  */
++#ifndef __s390x__
++
++static inline unsigned long
++strnlen_user(const char * src, unsigned long n)
++{
++	__asm__ __volatile__ (
++		"   alr   %0,%1\n"
++		"   slr   0,0\n"
++		"   lr    4,%1\n"
++		"   sacf  512\n"
++		"0: srst  %0,4\n"
++		"   jo    0b\n"
++		"   slr   %0,%1\n"
++		"   ahi   %0,1\n"
++		"   sacf  0\n"
++		"1:\n"
++		".section .fixup,\"ax\"\n"
++		"2: sacf  0\n"
++		"   slr   %0,%0\n"
++		"   bras  4,3f\n"
++		"   .long 1b\n"
++		"3: l     4,0(4)\n"
++		"   br    4\n"
++		".previous\n"
++		".section __ex_table,\"a\"\n"
++		"  .align 4\n"
++		"  .long  0b,2b\n"
++		".previous"
++		: "+&a" (n) : "d" (src)
++		: "cc", "0", "4" );
++	return n;
++}
++
++#else /* __s390x__ */
++
+ static inline unsigned long
+ strnlen_user(const char * src, unsigned long n)
+ {
+-	__asm__ __volatile__ ("   alr   %0,%1\n"
+-			      "   slr   0,0\n"
+-			      "   lr    4,%1\n"
+-			      "   sacf  512\n"
+-			      "0: srst  %0,4\n"
+-			      "   jo    0b\n"
+-			      "   slr   %0,%1\n"
+-			      "   ahi   %0,1\n"
+-			      "   sacf  0\n"
+-                              "1:\n"
+-                              ".section .fixup,\"ax\"\n"
+-                              "2: sacf  0\n"
+-                              "   slr   %0,%0\n"
+-                              "   bras  4,3f\n"
+-                              "   .long 1b\n"
+-                              "3: l     4,0(4)\n"
+-                              "   br    4\n"
+-                              ".previous\n"
+-			      ".section __ex_table,\"a\"\n"
+-			      "   .align 4\n"
+-			      "   .long  0b,2b\n"
+-			      ".previous"
+-			      : "+&a" (n) : "d" (src)
+-			      : "cc", "0", "4" );
+-        return n;
++#if 0
++	__asm__ __volatile__ (
++		"   algr  %0,%1\n"
++		"   slgr  0,0\n"
++		"   lgr	  4,%1\n"
++		"   sacf  512\n"
++		"0: srst  %0,4\n"
++		"   jo	0b\n"
++		"   slgr  %0,%1\n"
++		"   aghi  %0,1\n"
++		"1: sacf  0\n"
++		".section .fixup,\"ax\"\n"
++		"2: slgr  %0,%0\n"
++		"   jg	  1b\n"
++		".previous\n"
++		".section __ex_table,\"a\"\n"
++		"  .align 8\n"
++		"  .quad  0b,2b\n"
++		".previous"
++		: "+&a" (n) : "d" (src)
++		: "cc", "0", "4" );
++#else
++	__asm__ __volatile__ (
++		"   lgr	  4,%1\n"
++		"   sacf  512\n"
++		"0: cli   0(4),0x00\n"
++		"   la    4,1(4)\n"
++		"   je    1f\n"
++		"   brctg %0,0b\n"
++		"1: lgr	  %0,4\n"
++		"   slgr  %0,%1\n"
++		"2: sacf  0\n"
++		".section .fixup,\"ax\"\n"
++		"3: slgr  %0,%0\n"
++		"   jg    2b\n"  
++		".previous\n"
++		".section __ex_table,\"a\"\n"
++		"  .align 8\n"
++		"  .quad  0b,3b\n"
++		".previous"
++		: "+&a" (n) : "d" (src)
++		: "cc", "4" );
++#endif
++	return n;
+ }
++
++#endif /* __s390x__ */
++
+ #define strlen_user(str) strnlen_user(str, ~0UL)
  
+ /*
+@@ -490,18 +564,18 @@
+ 
+ extern long __clear_user_asm(void *to, long n);
+ 
+-#define __clear_user(to, n)                                     \
+-({                                                              \
+-        __clear_user_asm(to, n);                                \
++#define __clear_user(to, n)					\
++({								\
++	__clear_user_asm(to, n);				\
+ })
+ 
+ static inline unsigned long
+ clear_user(void *to, unsigned long n)
+ {
+-        if (access_ok(VERIFY_WRITE, to, n))
+-                n = __clear_user(to, n);
+-        return n;
++	if (access_ok(VERIFY_WRITE, to, n))
++		n = __clear_user(to, n);
++	return n;
+ }
+ 
+ 
+-#endif                                 /* _S390_UACCESS_H                  */
++#endif				       /* _S390_UACCESS_H		   */
+diff -urN linux-2.5.67/include/asm-s390/unistd.h linux-2.5.67-s390/include/asm-s390/unistd.h
+--- linux-2.5.67/include/asm-s390/unistd.h	Mon Apr 14 19:11:50 2003
++++ linux-2.5.67-s390/include/asm-s390/unistd.h	Mon Apr 14 19:11:59 2003
+@@ -261,6 +261,91 @@
+ 
+ #define NR_syscalls 263
+ 
++/* 
++ * There are some system calls that are not present on 64 bit, some
++ * have a different name although they do the same (e.g. __NR_chown32
++ * is __NR_chown on 64 bit).
++ */
++#ifdef __s390x__
++#undef  __NR_time
++#undef  __NR_lchown
++#undef  __NR_setuid
++#undef  __NR_getuid
++#undef  __NR_stime
++#undef  __NR_setgid
++#undef  __NR_getgid
++#undef  __NR_geteuid
++#undef  __NR_getegid
++#undef  __NR_setreuid
++#undef  __NR_setregid
++#undef  __NR_getrlimit
++#undef  __NR_getgroups
++#undef  __NR_setgroups
++#undef  __NR_fchown
++#undef  __NR_ioperm
++#undef  __NR_setfsuid
++#undef  __NR_setfsgid
++#undef  __NR__llseek
++#undef  __NR__newselect
++#undef  __NR_setresuid
++#undef  __NR_getresuid
++#undef  __NR_setresgid
++#undef  __NR_getresgid
++#undef  __NR_chown
++#undef  __NR_ugetrlimit
++#undef  __NR_mmap2
++#undef  __NR_truncate64
++#undef  __NR_ftruncate64
++#undef  __NR_stat64
++#undef  __NR_lstat64
++#undef  __NR_fstat64
++#undef  __NR_lchown32
++#undef  __NR_getuid32
++#undef  __NR_getgid32
++#undef  __NR_geteuid32
++#undef  __NR_getegid32
++#undef  __NR_setreuid32
++#undef  __NR_setregid32
++#undef  __NR_getgroups32
++#undef  __NR_setgroups32
++#undef  __NR_fchown32
++#undef  __NR_setresuid32
++#undef  __NR_getresuid32
++#undef  __NR_setresgid32
++#undef  __NR_getresgid32
++#undef  __NR_chown32
++#undef  __NR_setuid32
++#undef  __NR_setgid32
++#undef  __NR_setfsuid32
++#undef  __NR_setfsgid32
++#undef  __NR_getdents64
++#undef  __NR_fcntl64
++#undef  __NR_sendfile64
++
++#define __NR_select		142
++#define __NR_getrlimit		191	/* SuS compliant getrlimit */
++#define __NR_lchown  		198
++#define __NR_getuid  		199
++#define __NR_getgid  		200
++#define __NR_geteuid  		201
++#define __NR_getegid  		202
++#define __NR_setreuid  		203
++#define __NR_setregid  		204
++#define __NR_getgroups  	205
++#define __NR_setgroups  	206
++#define __NR_fchown  		207
++#define __NR_setresuid  	208
++#define __NR_getresuid  	209
++#define __NR_setresgid  	210
++#define __NR_getresgid  	211
++#define __NR_chown  		212
++#define __NR_setuid  		213
++#define __NR_setgid  		214
++#define __NR_setfsuid  		215
++#define __NR_setfsgid  		216
++
++#endif
++
+ /* user-visible error numbers are in the range -1 - -122: see <asm-s390/errno.h> */
+ 
+ #define __syscall_return(type, res)			     \
+@@ -279,10 +364,10 @@
+ 	register long __svcres asm("2");		     \
+ 	long __res;					     \
+ 	__asm__ __volatile__ (				     \
+-		"    .if %b1 < 256\n"			     \
++		"    .if %1 < 256\n"			     \
+ 		"    svc %b1\n"				     \
+ 		"    .else\n"				     \
+-		"    lhi %%r1,%b1\n"			     \
++		"    la  %%r1,%1\n"			     \
+ 		"    svc 0\n"				     \
+ 		"    .endif"				     \
+ 		: "=d" (__svcres)			     \
+@@ -298,10 +383,10 @@
+ 	register long __svcres asm("2");		     \
+ 	long __res;					     \
+ 	__asm__ __volatile__ (				     \
+-		"    .if %b1 < 256\n"			     \
++		"    .if %1 < 256\n"			     \
+ 		"    svc %b1\n"				     \
+ 		"    .else\n"				     \
+-		"    lhi %%r1,%b1\n"			     \
++		"    la  %%r1,%1\n"			     \
+ 		"    svc 0\n"				     \
+ 		"    .endif"				     \
+ 		: "=d" (__svcres)			     \
+@@ -319,10 +404,10 @@
+ 	register long __svcres asm("2");		     \
+ 	long __res;					     \
+ 	__asm__ __volatile__ (				     \
+-		"    .if %b1 < 256\n"			     \
++		"    .if %1 < 256\n"			     \
+ 		"    svc %b1\n"				     \
+ 		"    .else\n"				     \
+-		"    lhi %%r1,%b1\n"			     \
++		"    la %%r1,%1\n"			     \
+ 		"    svc 0\n"				     \
+ 		"    .endif"				     \
+ 		: "=d" (__svcres)			     \
+@@ -342,10 +427,10 @@
+ 	register long __svcres asm("2");		     \
+ 	long __res;					     \
+ 	__asm__ __volatile__ (				     \
+-		"    .if %b1 < 256\n"			     \
++		"    .if %1 < 256\n"			     \
+ 		"    svc %b1\n"				     \
+ 		"    .else\n"				     \
+-		"    lhi %%r1,%b1\n"			     \
++		"    la  %%r1,%1\n"			     \
+ 		"    svc 0\n"				     \
+ 		"    .endif"				     \
+ 		: "=d" (__svcres)			     \
+@@ -368,10 +453,10 @@
+ 	register long __svcres asm("2");		     \
+ 	long __res;					     \
+ 	__asm__ __volatile__ (				     \
+-		"    .if %b1 < 256\n"			     \
++		"    .if %1 < 256\n"			     \
+ 		"    svc %b1\n"				     \
+ 		"    .else\n"				     \
+-		"    lhi %%r1,%b1\n"			     \
++		"    la  %%r1,%1\n"			     \
+ 		"    svc 0\n"				     \
+ 		"    .endif"				     \
+ 		: "=d" (__svcres)			     \
+@@ -397,10 +482,10 @@
+ 	register long __svcres asm("2");		     \
+ 	long __res;					     \
+ 	__asm__ __volatile__ (				     \
+-		"    .if %b1 < 256\n"			     \
++		"    .if %1 < 256\n"			     \
+ 		"    svc %b1\n"				     \
+ 		"    .else\n"				     \
+-		"    lhi %%r1,%b1\n"			     \
++		"    la  %%r1,%1\n"			     \
+ 		"    svc 0\n"				     \
+ 		"    .endif"				     \
+ 		: "=d" (__svcres)			     \
 

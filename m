@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315893AbSGARWv>; Mon, 1 Jul 2002 13:22:51 -0400
+	id <S315921AbSGARYo>; Mon, 1 Jul 2002 13:24:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315919AbSGARWu>; Mon, 1 Jul 2002 13:22:50 -0400
-Received: from mole.bio.cam.ac.uk ([131.111.36.9]:50757 "EHLO
-	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S315893AbSGARWt>; Mon, 1 Jul 2002 13:22:49 -0400
-Message-Id: <5.1.0.14.2.20020701181959.041d0070@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 01 Jul 2002 18:26:02 +0100
-To: Ralph Corderoy <ralph@inputplus.co.uk>
-From: Anton Altaparmakov <aia21@cantab.net>
-Subject: Re: Happy Hacking Keyboard Lite Mk 2 USB Problems with 2.4.18. 
-Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200207011647.g61GlNx14474@blake.inputplus.co.uk>
-References: <Message from Pete Zaitcev <zaitcev@redhat.com>
- <200207011516.g61FGnP20648@devserv.devel.redhat.com>
+	id <S315928AbSGARYn>; Mon, 1 Jul 2002 13:24:43 -0400
+Received: from smtp02.web.de ([217.72.192.151]:39440 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id <S315921AbSGARYl>;
+	Mon, 1 Jul 2002 13:24:41 -0400
+Date: Mon, 1 Jul 2002 19:26:59 +0200
+From: Timo Benk <t_benk@web.de>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Timo Benk <t_benk@web.de>
+Subject: allocate memory in userspace
+Message-ID: <20020701172659.GA4431@toshiba>
+Reply-To: Timo Benk <t_benk@web.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 17:47 01/07/02, Ralph Corderoy wrote:
->What I'd like to see, if both hid.o and usbkbd.o can handle a keyboard,
->is that hid.o gets the job.  Then usbkbd.o can stay in config.in and be
->built just in case it's needed.
+Hi,
 
-usbkbd.o is never needed when hid.o is present unless I have misunderstood 
-something.
+I am a kernel newbie and i am writing a module. I 
+need to allocate some memory in userspace because
+i want to access syscalls like open(), lstat() etc.
+I need to call these methods in the kernel, and in
+my special case there is no other way, but i 
+do not want to reimplement all the syscalls.
 
-> > > I'll try and use hid.o instead, usbkbd.o was just picked by this Red
-> > > Hat 7.2 system on adding the keyboard.
-> >
-> > Do up2date and be happy: usbkbd.o was removed from Red Hat kernels
-> > somewhere in erratas.
->
->Ah, OK, thanks.  Unfortunately, I've already moved onto 2.4.18 built
->from source due to some of my other needs.
+I read that it should be possible, but i cannot
+find any example or recipe on how to do it.
+It should work with do_mmap() and fd=-1 and
+MAP_ANON, but i jusst can't get it to work.
 
-In that case just reconfigure your kernel not to include usbkbd and use hid 
-instead, recompile, and be happy.
+Do you now any working example, or a good reference
+for the do_mmap() call? 
 
-Best regards,
+Thanks in advance,
 
-         Anton
-
+-timo
 
 -- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+gpg key fingerprint = 6832 C8EC D823 4059 0CD1  6FBF 9383 7DBD 109E 98DC
 

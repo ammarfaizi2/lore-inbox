@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266911AbRGYLIy>; Wed, 25 Jul 2001 07:08:54 -0400
+	id <S266919AbRGYLMo>; Wed, 25 Jul 2001 07:12:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266919AbRGYLIo>; Wed, 25 Jul 2001 07:08:44 -0400
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:15364 "EHLO
-	mailout04.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S266911AbRGYLIe>; Wed, 25 Jul 2001 07:08:34 -0400
-Message-ID: <3B5EA8F8.D8C0EDE7@t-online.de>
-Date: Wed, 25 Jul 2001 13:09:44 +0200
-From: Gunther.Mayer@t-online.de (Gunther Mayer)
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.6-ac5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-CC: Nico Schottelius <nicos@pcsystems.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ps2/ new data for mouse protocol (fwd msg attached)
-In-Reply-To: <3B5DB12D.2B9C205E@pcsystems.de> <20010725012334.L23404@arthur.ubicom.tudelft.nl>
+	id <S268556AbRGYLMe>; Wed, 25 Jul 2001 07:12:34 -0400
+Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:17677 "EHLO
+	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S266919AbRGYLMU>; Wed, 25 Jul 2001 07:12:20 -0400
+Date: Wed, 25 Jul 2001 12:12:16 +0100
+From: "Robert J.Dunlop" <rjd@xyzzy.clara.co.uk>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Barry Wu <wqb123@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: about serial console problem
+Message-ID: <20010725121216.A2481@xyzzy.clara.co.uk>
+In-Reply-To: <20010723065212.31153.qmail@web13901.mail.yahoo.com> <m17kwyhyuz.fsf@frodo.biederman.org> <20010724232909.A27546@xyzzy.clara.co.uk> <m1r8v5gzm1.fsf@frodo.biederman.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <m1r8v5gzm1.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Wed, Jul 25, 2001 at 02:52:06AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Erik Mouw wrote:
+On Wed, Jul 25,  Eric W. Biederman wrote:
+> "Robert J.Dunlop" <rjd@xyzzy.clara.co.uk> writes:
+> > Actually more and more have been implementing
+> > it as we go through 2.4.x, depends when your particular driver got caught.
 > 
-> On Tue, Jul 24, 2001 at 07:32:29PM +0200, Nico Schottelius wrote:
-> > Have a look into the attached email before reading mine, please.
-> >
-> > Is it possible to find out about what those bytes are ?
-> > And is it possible to intergrate the support for other
-> > 3 bytes into the Linux kernel ?
-> 
-> So they put information about four buttons in six bytes and call that
-> proprietary? ROFL! How hard can it be? I think it will be fairly
-> straight forward to reverse engineer the format, it can't be rocket
-> science.
+> Do you know the history on how/why ~CREAD support started showing in
+> in the linux kernels.  I'd like to understand what is going on.
 
-No need for this, just read the public available documentation !
+Sorry! I've red herringed you here. Most drivers were fixed way back in
+2.2.x or before. From the Changelog we have:
 
-Proprietary != Secret.
+  Fri Nov  8 20:19:50 1996  Theodore Ts'o  <tytso@rsts-11.mit.edu>
+    * serial.c (change_speed): Add support for CREAD, as required by POSIX
 
-However, some mouse secrets from various sources I hacked in here: http://home.t-online.de/home/gunther.mayer/gm_psauxprint-0.01.c
+I just happed to notice the late change on a couple of third party drivers
+and jumped to the wrong conclusion.
+
+-- 
+        Bob Dunlop                      FarSite Communications
+        rjd@xyzzy.clara.co.uk           bob.dunlop@farsite.co.uk
+        www.xyzzy.clara.co.uk           www.farsite.co.uk

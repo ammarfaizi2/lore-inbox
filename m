@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262570AbTJXTqK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 15:46:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262572AbTJXTqK
+	id S262567AbTJXTqH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 15:46:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262572AbTJXTqH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 15:46:10 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:16902 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S262570AbTJXTqE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Oct 2003 15:46:07 -0400
+Received: from nagatino-gw.corbina.net ([195.14.53.90]:52719 "EHLO gw.home.net")
+	by vger.kernel.org with ESMTP id S262567AbTJXTqE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 24 Oct 2003 15:46:04 -0400
-Date: Fri, 24 Oct 2003 23:45:05 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Jon Smirl <jonsmirl@yahoo.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Jeff Garzik <jgarzik@pobox.com>, Eric Anholt <eta@lclark.edu>,
-       kronos@kronoz.cjb.net,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-fbdev-devel@lists.sourceforge.net,
-       dri-devel <dri-devel@lists.sourceforge.net>
-Subject: Re: [Dri-devel] Re: [Linux-fbdev-devel] DRM and pci_driver conversion
-Message-ID: <20031024234505.B2362@jurassic.park.msu.ru>
-References: <Pine.LNX.4.44.0310241051450.8177-100000@home.osdl.org> <20031024183405.36600.qmail@web14915.mail.yahoo.com>
+Date: Fri, 24 Oct 2003 23:50:06 +0400
+From: Alex Tomas <alex@clusterfs.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] fix against sym53c8xx v.2
+Message-Id: <20031024235006.34e00c2e.alex@clusterfs.com>
+Organization: CFS
+X-Mailer: Sylpheed version 0.9.6claws (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20031024183405.36600.qmail@web14915.mail.yahoo.com>; from jonsmirl@yahoo.com on Fri, Oct 24, 2003 at 11:34:04AM -0700
+Content-Type: multipart/mixed;
+ boundary="Multipart=_Fri__24_Oct_2003_23_50_06_+0400_46tOmKWZ450tBH0V"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 24, 2003 at 11:34:04AM -0700, Jon Smirl wrote:
-> PCI ROM enabale/disable has come up before on LKML. Russell made this comment
-> about making the code more portable.
-> 
-> --- Russell King <rmk@arm.linux.org.uk> wrote:
-> > You should use pcibios_resource_to_bus() to convert a resource to a
-> > representation suitable for a BAR.
+This is a multi-part message in MIME format.
 
-pci_assign_resource() does call pcibios_resource_to_bus(),
-so Linus' proposal will work correctly as it is.
+--Multipart=_Fri__24_Oct_2003_23_50_06_+0400_46tOmKWZ450tBH0V
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Ivan.
+hi!
+
+without following patch I couldn't get 160MB from my disk.
+removed line restores previous clocking value (0 in my case).
+so, driver thinks disk isn't DT-capable ...
+
+with best regards, Alex
+
+--Multipart=_Fri__24_Oct_2003_23_50_06_+0400_46tOmKWZ450tBH0V
+Content-Type: application/octet-stream;
+ name="sym53c8xx2-160-fix.patch"
+Content-Disposition: attachment;
+ filename="sym53c8xx2-160-fix.patch"
+Content-Transfer-Encoding: base64
+
+SW5kZXg6IGxpbnV4LTIuNi4wLXRlc3Q3L2RyaXZlcnMvc2NzaS9zeW01M2M4eHhfMi9zeW1fbWlz
+Yy5jCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT0KLS0tIGxpbnV4LTIuNi4wLXRlc3Q3Lm9yaWcvZHJpdmVycy9zY3NpL3N5
+bTUzYzh4eF8yL3N5bV9taXNjLmMJMjAwMy0xMC0yNCAyMzozNTozNy4wMDAwMDAwMDAgKzA0MDAK
+KysrIGxpbnV4LTIuNi4wLXRlc3Q3L2RyaXZlcnMvc2NzaS9zeW01M2M4eHhfMi9zeW1fbWlzYy5j
+CTIwMDMtMTAtMjQgMjM6Mzc6MDYuMDAwMDAwMDAwICswNDAwCkBAIC0zMjgsNyArMzI4LDYgQEAK
+IAkgICAgdHAtPmlucV9ieXRlNTYgICE9IGlucV9ieXRlNTYpIHsKIAkJdHAtPmlucV92ZXJzaW9u
+ID0gaW5xX3ZlcnNpb247CiAJCXRwLT5pbnFfYnl0ZTcgICA9IGlucV9ieXRlNzsKLQkJdHAtPmlu
+cV9ieXRlNTYgID0gaW5xX2J5dGU1NjsKIAkJcmV0dXJuIDE7CiAJfQogCXJldHVybiAwOwo=
+
+--Multipart=_Fri__24_Oct_2003_23_50_06_+0400_46tOmKWZ450tBH0V--

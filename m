@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129406AbQLMUgy>; Wed, 13 Dec 2000 15:36:54 -0500
+	id <S129777AbQLMUul>; Wed, 13 Dec 2000 15:50:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129525AbQLMUgo>; Wed, 13 Dec 2000 15:36:44 -0500
-Received: from u-code.de ([207.159.137.250]:42477 "EHLO u-code.de")
-	by vger.kernel.org with ESMTP id <S129406AbQLMUgJ>;
-	Wed, 13 Dec 2000 15:36:09 -0500
-From: Eckhard Jokisch <e.jokisch@u-code.de>
-Reply-To: e.jokisch@u-code.de
-To: linux-kernel@vger.kernel.org
-Subject: Re: [me to]2.4.0-test12 randomly hangs up
-Date: Wed, 13 Dec 2000 21:07:23 +0000
-X-Mailer: KMail [version 1.1.61]
-Content-Type: text/plain; charset=US-ASCII
+	id <S130113AbQLMUub>; Wed, 13 Dec 2000 15:50:31 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:40464 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129777AbQLMUuQ>; Wed, 13 Dec 2000 15:50:16 -0500
+Date: Wed, 13 Dec 2000 12:19:19 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Mike Galbraith <mikeg@wen-online.de>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Signal 11 - the continuing saga
+In-Reply-To: <Pine.LNX.4.10.10012131131090.19837-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.10.10012131213160.802-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Message-Id: <00121321070701.22766@eckhard>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mit, 13 Dez 2000, Jani Monoses wrote:
-> Mine too did this 15 minutes ago.Just moving the mouse around in X and
-> suddenly complete freeze.No response to ping either.Such a thing didn't
-> happen for a long time to me.The only thing I've changed since test11 is
-> compiling fb+fbvesa in.
 
-I made similar experience but it also involved 2.2.18 in combination with
-KDE2.0 and ALSA.
-The machine "hung" but worked heavily on the HD and after about one hour it
-worked abain at least on the console.
-One thing I found was the current CVS from ALSA seems to have a bug.
+On Wed, 13 Dec 2000, Linus Torvalds wrote:
+> 
+> Hint: "ptep_mkdirty()".
 
-Another thing is tha the 8139too driver prodices
-Dec 13 12:34:09 eckhard kernel: eth0: Abnormal interrupt, status 00000006.
-Dec 13 12:34:19 eckhard kernel: eth0: Abnormal interrupt, status 00000002.
-Dec 13 12:34:44 eckhard last message repeated 7 times
-Dec 13 12:35:50 eckhard last message repeated 16 times
-Dec 13 12:36:23 eckhard last message repeated 4 times
-Dec 13 12:37:49 eckhard last message repeated 15 times
-Dec 13 12:38:21 eckhard last message repeated 7 times
-Dec 13 12:38:22 eckhard kernel: eth0: Abnormal interrupt, status 00000006.
-Dec 13 12:38:24 eckhard kernel: eth0: Abnormal interrupt, status 00000002.
+In case you wonder why the bug was so insidious, what this caused was two
+separate problems, both of them able to cause SIGSGV's. 
 
-in /var/log/messages and the machine is getting very slow then.
-This is even worse when compiled as a module.
-With rlt8139 driver this does not happen. The chip is 8139A.
+One: we didn't mark the page table entry dirty like we were supposed to.
 
-Eckhard Jokisch
+Two: by making it writable, we also made the page shared, even if it
+wasn't supposed to be shared (so when the next process wrote to the page,
+if the swap page was shared with somebody else, the changes would show up
+even in the process that _didn't_ write to it).
 
--------------------------------------------------------
+And "ptep_mkdirty()" is only used by swapoff, so nothing else would show
+this. Which was why it hadn't been immediately obvious that anything was
+broken.
+
+		Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,58 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262078AbTHTRMO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 13:12:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbTHTRMO
+	id S262051AbTHTRB4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 13:01:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbTHTRBp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 13:12:14 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:50586 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S262080AbTHTRLI (ORCPT
+	Wed, 20 Aug 2003 13:01:45 -0400
+Received: from main.gmane.org ([80.91.224.249]:50653 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262051AbTHTRAJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 13:11:08 -0400
-Date: Wed, 20 Aug 2003 10:00:44 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: dang@fprintf.net, alan@lxorguk.ukuu.org.uk, richard@aspectgroup.co.uk,
-       skraw@ithnet.com, willy@w.ods.org, carlosev@newipnet.com,
-       lamont@scriptkiddie.org, bloemsaa@xs4all.nl, marcelo@conectiva.com.br,
-       netdev@oss.sgi.com, linux-net@vger.kernel.org, layes@loran.com,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
-Message-Id: <20030820100044.3127d612.davem@redhat.com>
-In-Reply-To: <Pine.LNX.3.96.1030820123600.14414I-100000@gatekeeper.tmr.com>
-References: <1061320363.3744.14.camel@athena.fprintf.net>
-	<Pine.LNX.3.96.1030820123600.14414I-100000@gatekeeper.tmr.com>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+	Wed, 20 Aug 2003 13:00:09 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: how to turn off, or to clear read cache?
+Date: Wed, 20 Aug 2003 18:57:15 +0200
+Message-ID: <yw1xptj0b72s.fsf@users.sourceforge.net>
+References: <200308201322.h7KDMQga000797@81-2-122-30.bradfords.org.uk> <3F437646.4050107@gamic.com>
+ <yw1x8ypocv63.fsf@users.sourceforge.net>
+ <20030820164949.GA5613@lsd.di.uminho.pt>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:HZREoTZDqOXGARKik0xFyltByow=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Aug 2003 12:49:14 -0400 (EDT)
-Bill Davidsen <davidsen@tmr.com> wrote:
+Luciano Miguel Ferreira Rocha <luciano@lsd.di.uminho.pt> writes:
 
-> On 19 Aug 2003, Daniel Gryniewicz wrote:
-> 
-> I have been asking for a similar thing as well, David mentioned some
-> things that would break, but I believe they break if you use source
-> routing, so that seems not to be a real objection.
+>> >>> I need to make some performance tests. I need to switch off or to
+>> >>> clear read cache, so that consequent reading of the same file will
+>> >>> take the same amount of time.
+>> >>>
+>> >>>Is there an easy way to do it, without rebuilding the kernel?
+>> >> Unmount and remount the filesystem.
+>> >
+>> >
+>> > Would
+>> >
+>> > # mount -o remount
+>> >
+>> > do the job?
+>> 
+>> no
+>
+> What about dd if=/dev/hda bs=8M count=$(awk '/MemTotal/ { printf "%d", $2/4096 }' /proc/meminfo) ?
+>
+> Will it clear the cache?
 
-It's not about source routing.  It's about failover and being
-able to use ARP on interfaces which don't have addresses assigned
-to them yet.
+It will probably clear some cache to make room for cache from hda.
 
-> I find it interesting that we can't change networking because a few
-> complex systems would have to be reconfigured, but we *can* change modules
-> which requires config changes on probably 90% of all systems (commercial
-> distributions).
+perl -e '@f[0..100000000]=0'
 
-Decisions about Networking will always be in a different domain
-because the way one behaves has effects upon other systems not
-just the local one.
+will do it faster.
 
-BTW, another thing which makes the source address selection for
-outgoing ARPs a real touchy area is the following.  Some weird
-configurations actually respond with different ARP answers based upon
-the source address in the ARP request.  You can ask Julian Anastasov
-about such (arguably pathological) setups.
+-- 
+Måns Rullgård
+mru@users.sf.net
+

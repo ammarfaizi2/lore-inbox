@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261993AbUKVJDj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261996AbUKVJGF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261993AbUKVJDj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 04:03:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261996AbUKVJDi
+	id S261996AbUKVJGF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 04:06:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbUKVJGE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 04:03:38 -0500
-Received: from math.ut.ee ([193.40.5.125]:13513 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id S261993AbUKVJDf (ORCPT
+	Mon, 22 Nov 2004 04:06:04 -0500
+Received: from math.ut.ee ([193.40.5.125]:22990 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S261996AbUKVJF0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 04:03:35 -0500
-Date: Mon, 22 Nov 2004 10:39:45 +0200 (EET)
-From: Meelis Roos <mroos@ut.ee>
+	Mon, 22 Nov 2004 04:05:26 -0500
+Date: Mon, 22 Nov 2004 10:42:49 +0200 (EET)
+From: Meelis Roos <mroos@linux.ee>
 To: Li Shaohua <shaohua.li@intel.com>
 cc: matthieu castet <castet.matthieu@free.fr>,
        Linux Kernel list <linux-kernel@vger.kernel.org>,
@@ -18,7 +18,7 @@ cc: matthieu castet <castet.matthieu@free.fr>,
        Ville =?ISO-8859-1?Q?Syrj=E4l=E4?= <syrjala@sci.fi>
 Subject: Re: [PATCH] smsc-ircc2: Add PnP support.
 In-Reply-To: <1101086961.2940.7.camel@sli10-desk.sh.intel.com>
-Message-ID: <Pine.SOC.4.61.0411221038330.28550@math.ut.ee>
+Message-ID: <Pine.SOC.4.61.0411221040310.28550@math.ut.ee>
 References: <E1CVAfT-0002n9-Rn@rhn.tartu-labor> <419E16E5.1000601@free.fr> 
  <419E17FF.1000503@free.fr> <Pine.SOC.4.61.0411191822030.9059@math.ut.ee> 
  <419E2D2B.4020804@free.fr> <Pine.SOC.4.61.0411191934070.29328@math.ut.ee> 
@@ -34,9 +34,8 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 > Adam, I think a boot option (such as pnpacpi=off) is required. Users
 > possibly want to use pnpbios or BIOS is buggy.
 
-Yes, agreed. Right now just using ACPI turns pnpbios off, it probably 
-should be using pnpacpi that turns pnpbios off. And turning pnpacpi off 
-should be made possible.
+Additionally, I see more pnp devices with pnpbios (16) than with pnpbios 
+(13). Is this normal?
 
 -- 
-Meelis Roos (mroos@ut.ee)      http://www.cs.ut.ee/~mroos/
+Meelis Roos (mroos@linux.ee)

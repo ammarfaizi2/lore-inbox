@@ -1,91 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262582AbRFBOfq>; Sat, 2 Jun 2001 10:35:46 -0400
+	id <S262588AbRFBOvV>; Sat, 2 Jun 2001 10:51:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262583AbRFBOfg>; Sat, 2 Jun 2001 10:35:36 -0400
-Received: from pop.gmx.net ([194.221.183.20]:31413 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S262582AbRFBOfZ>;
-	Sat, 2 Jun 2001 10:35:25 -0400
-Date: Sat, 2 Jun 2001 16:35:18 +0200
-From: Jonas Diemer <diemer@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: VIA timer bugfix, patch for 2.4.5
-Message-Id: <20010602163518.090988d8.diemer@gmx.de>
-X-Mailer: Sylpheed version 0.4.66 (GTK+ 1.2.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S262589AbRFBOvM>; Sat, 2 Jun 2001 10:51:12 -0400
+Received: from shell.cyberus.ca ([209.195.95.7]:50818 "EHLO shell.cyberus.ca")
+	by vger.kernel.org with ESMTP id <S262588AbRFBOu5>;
+	Sat, 2 Jun 2001 10:50:57 -0400
+Date: Sat, 2 Jun 2001 10:49:01 -0400 (EDT)
+From: jamal <hadi@cyberus.ca>
+To: Bogdan Costescu <bogdan.costescu@iwr.uni-heidelberg.de>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Pete Zaitcev <zaitcev@redhat.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        <netdev@oss.sgi.com>
+Subject: Re: [PATCH] support for Cobalt Networks (x86 only) systems (forrealthis
+In-Reply-To: <Pine.LNX.4.33.0106011620340.18082-100000@kenzo.iwr.uni-heidelberg.de>
+Message-ID: <Pine.GSO.4.30.0106011357000.11540-100000@shell.cyberus.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-I have compiled a little patch that contains the VIA timer bugfix (from the ac kernel). the patch is against linus' 2.4.5 kernel. I have compiled and ran the patched kernel sucessfully.
-
-the only changes made by this patch are done to linux/arch/i386/kernel/timer.c
-
-I would like to have this patch applied to linus' kernel tree (so that it comes in 2.4.6), because alan's kernel has USB problems on my machine.
 
 
-Here's the patch:
+On Fri, 1 Jun 2001, Bogdan Costescu wrote:
 
---- arch/i386/kernel/time.c.orig	Sat Jun  2 16:06:59 2001
-+++ arch/i386/kernel/time.c	Sat Jun  2 16:07:20 2001
-@@ -178,6 +178,15 @@
-  	jiffies_t = jiffies;
- 
- 	count |= inb_p(0x40) << 8;
-+	
-+        /* VIA686a test code... reset the latch if count > max + 1 */
-+        if (count > LATCH) {
-+                outb_p(0x34, 0x43);
-+                outb_p(LATCH & 0xff, 0x40);
-+                outb(LATCH >> 8, 0x40);
-+                count = LATCH - 1;
-+        }
-+	
- 	spin_unlock(&i8253_lock);
- 
- 	/*
-@@ -413,7 +422,7 @@
- 	if (!user_mode(regs))
- 		x86_do_profile(regs->eip);
- #else
--	if (!smp_found_config)
-+	if (!using_apic_timer)
- 		smp_local_timer_interrupt(regs);
- #endif
- 
-@@ -492,6 +501,24 @@
- 
- 		count = inb_p(0x40);    /* read the latched count */
- 		count |= inb(0x40) << 8;
-+		
-+
-+                /* VIA686a test code... reset the latch if count > max */
-+                if (count > LATCH-1) {
-+                        static int last_whine;
-+                        outb_p(0x34, 0x43);   
-+                        outb_p(LATCH & 0xff, 0x40);
-+                        outb(LATCH >> 8, 0x40);
-+                        count = LATCH - 1;
-+                        if(time_after(jiffies, last_whine))
-+                        {
-+                                printk(KERN_WARNING "probable hardware bug: clock timer configuration lost - probably a VIA686a motherboard.\n");
-+                                printk(KERN_WARNING "probable hardware bug: restoring chip configuration.\n");
-+                                last_whine = jiffies + HZ;
-+                        }                       
-+                }                               
-+
-+		
- 		spin_unlock(&i8253_lock);
- 
- 		count = ((LATCH-1) - count) * TICK_SIZE;
+> On Fri, 1 Jun 2001, jamal wrote:
+>
+> > One idea i have been toying with is to maintain hysteris or threshold of
+> > some form in dev_watchdog;
+>
+> AFAIK, dev_watchdog is right now used only for Tx (if I'm wrong, please
+> correct me!). So how do you sense link loss if you expect only high Rx
+> traffic ?
+>
 
---end of patch---
+Good question. Makes me think. Thoughts further below.
 
-This is my first patch, i hope it is ok. i followed the instructions in Documentation/SubmittingPatches to create it.
+> > example: if watchdog timer expires threshold times, you declare the link
+> > dead and send netif_carrier_off netlink message.
+> > On recovery, you send  netif_carrier_on
+>
+> I assume that you mean "on recovery" as in "first succesful hard_start_xmit".
+>
 
-- Jonas
+right.
 
-PS: please CC me any reply, i haven't registered to the mailinglist.
+> > Assumption:
+> > If the tx path is blocked, more than likely the link is down.
+>
+> Yes, but is this a good approximation ? I'm not saying that it's not, I'm
+> merely asking for counter-arguments.
+
+It is an indirect approximation. Note that if the system data is very
+asymetrical as in the case you pointed out, notification will take a long
+long time. You need a plan B. Still, the tx watchdogs are a good source of
+fault detection in the case of non-availabilty of MII detection and even
+with the presence of MII.
+
+I hate making this more complex than it should be:
+
+Since we already have a messaging system within the kernel and
+user<->kernel space aka "netlink" -- one could easily add a protocol in
+user space which "dynamically heartbeats" the devices. Control should come
+from user space; it would be a great idea to avoid ioctls.
+
+"Dynamic" in the above sense means trying to totaly avoid making it a
+synchronous poll. The poll rate is a function of how many packets go out
+that device per average measurement time. Basically, the period that the
+user space app dumps "hello" netlink packets to the kernel is a variable.
+
+cheers,
+jamal
+
+

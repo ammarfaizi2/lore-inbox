@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135264AbRDWOrv>; Mon, 23 Apr 2001 10:47:51 -0400
+	id <S135266AbRDWOtV>; Mon, 23 Apr 2001 10:49:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135266AbRDWOrd>; Mon, 23 Apr 2001 10:47:33 -0400
-Received: from ns.snowman.net ([63.80.4.34]:54276 "EHLO ns.snowman.net")
-	by vger.kernel.org with ESMTP id <S135264AbRDWOrA>;
-	Mon, 23 Apr 2001 10:47:00 -0400
-Date: Mon, 23 Apr 2001 10:46:15 -0400 (EDT)
-From: <nick@snowman.net>
-To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-cc: Bram Smout <bram@ba.be>, linux-kernel@vger.kernel.org
-Subject: Re: SGI Visual Workstation Support
-In-Reply-To: <20010423164013.K2615@arthur.ubicom.tudelft.nl>
-Message-ID: <Pine.LNX.4.21.0104231046010.9607-100000@ns>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135267AbRDWOtC>; Mon, 23 Apr 2001 10:49:02 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54544 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S135266AbRDWOsd>;
+	Mon, 23 Apr 2001 10:48:33 -0400
+Date: Mon, 23 Apr 2001 15:48:21 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: mythos <papadako@csd.uoc.gr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Can't compile 2.4.3 with agcc
+Message-ID: <20010423154821.A26340@flint.arm.linux.org.uk>
+In-Reply-To: <Pine.GSO.4.33.0104231611090.15682-100000@iridanos.csd.uch.gr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.4.33.0104231611090.15682-100000@iridanos.csd.uch.gr>; from papadako@csd.uoc.gr on Mon, Apr 23, 2001 at 04:13:47PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is documantation available for the VW?
-	Nick
+On Mon, Apr 23, 2001 at 04:13:47PM +0300, mythos wrote:
+> Using gcc version pgcc-2.95.3 19991024 (AthlonGCC-0.0.3ex3.1)
+> I can't compile 2.4.3.I get the follow message:
+> 
+> init/main.o: In function `check_fpu':
+> init/main.o(.text.init+0x65): undefined reference to
+> `__buggy_fxsr_alignment'
+> make: *** [vmlinux] Error 1
+> 
+> Can anyone help me?
 
-On Mon, 23 Apr 2001, Erik Mouw wrote:
+This is a FAQ!  (sorry, but I don't know if it is in a FAQ or not).
 
-> On Mon, Apr 23, 2001 at 10:12:14PM +0200, Bram Smout wrote:
-> > If I try to compile a 2.4.x (0-3) kernel for my SGI 540 Workstation and I
-> > enable SGI Virtual Workstation support (under general setup) the compilation
-> > stops with the error "kernel.o: In function 'enable_irq' etc...".
-> > 
-> > Previous kernels, such as 2.2.19 compile without any problem (same options).
-> > Anyone a idea of what's wrong ?
-> 
-> Bit rot. Nobody actually has a SGI VW, so it's currently not
-> maintained.
-> 
-> 
-> Erik
-> 
-> -- 
-> J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-> of Electrical Engineering, Faculty of Information Technology and Systems,
-> Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-> Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-> WWW: http://www-ict.its.tudelft.nl/~erik/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+IIRC, you can't use pgcc to compile linux kernels.
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

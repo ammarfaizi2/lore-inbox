@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269418AbRGaSvV>; Tue, 31 Jul 2001 14:51:21 -0400
+	id <S269405AbRGaSyv>; Tue, 31 Jul 2001 14:54:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269414AbRGaSvL>; Tue, 31 Jul 2001 14:51:11 -0400
-Received: from [62.116.8.197] ([62.116.8.197]:53124 "HELO
-	ghanima.endorphin.org") by vger.kernel.org with SMTP
-	id <S269424AbRGaSu6>; Tue, 31 Jul 2001 14:50:58 -0400
-Date: Tue, 31 Jul 2001 20:51:01 +0200
-From: clemens <therapy@endorphin.org>
-To: kuznet@ms2.inr.ac.ru
-Cc: Pekka Savola <pekkas@netcore.fi>, therapy@endorphin.org,
-        netdev@oss.sgi.com, linux-kernel@vger.kernel.org, davem@redhat.com
-Subject: Re: missing icmp errors for udp packets
-Message-ID: <20010731205101.B8211@ghanima.endorphin.org>
-In-Reply-To: <200107311833.WAA09598@ms2.inr.ac.ru>
-Mime-Version: 1.0
+	id <S269429AbRGaSyd>; Tue, 31 Jul 2001 14:54:33 -0400
+Received: from mikonos.cyclades.com.br ([200.230.227.67]:9490 "EHLO
+	firewall.cyclades.com.br") by vger.kernel.org with ESMTP
+	id <S269405AbRGaSy2>; Tue, 31 Jul 2001 14:54:28 -0400
+Message-ID: <3B66FD74.B7F17B54@cyclades.com>
+Date: Tue, 31 Jul 2001 15:48:20 -0300
+From: "Estevao A. Andrade" <estevao@cyclades.com>
+Reply-To: estevao@cyclades.com.br
+Organization: Cyclades Brasil
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: CLNP
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200107311833.WAA09598@ms2.inr.ac.ru>
-User-Agent: Mutt/1.3.18i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Tue, Jul 31, 2001 at 10:33:56PM +0400, kuznet@ms2.inr.ac.ru wrote:
-> Hello!
-> 
-> > If you reboot the computer, the _first_ ping/scan attempt will not return
-> > icmp dest unreachable.
-> Hmm... how fast after reboot?
-
-your patch will not prevent the first ping to empty the token bucket,
-because burst is still 0, which is larger than dst->rate_token, and since
-XRLIM_BURST_FACTOR times the timeout (which is 6*0=0 in that case) is the
-token maximum, it will be truncated to 0, causing the following packets (if
-in time) to be dropped.
-
-clemens
+Hi all,
 
 
+I'm looking for an implementation of CLNP (Connectionless Network
+Protocol). It is related to the network layer in the OSI model
+(equivalent to IP layer).
+I am also looking for IS-IS and ES-IS routing protocolos.
+My first idea is to grab all contributions, understand its complexity,
+and propose a feasible implementation.
+The related standards are ISO 10589, 8473, 9542.
+Any comments will be very appreciated.
+
+
+Regards,
+
+Estevao Andrade
+SW Engineer

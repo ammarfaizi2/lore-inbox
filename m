@@ -1,75 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263014AbTLIWwd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 17:52:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263125AbTLIWwd
+	id S262118AbTLIWyN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 17:54:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262397AbTLIWyN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 17:52:33 -0500
-Received: from mail.cs.tu-berlin.de ([130.149.17.13]:4998 "EHLO
-	mail.cs.tu-berlin.de") by vger.kernel.org with ESMTP
-	id S263014AbTLIWwb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 17:52:31 -0500
-Date: Tue, 9 Dec 2003 23:47:18 +0100 (MET)
-From: Peter Daum <gator@cs.tu-berlin.de>
-Reply-To: Peter Daum <gator@cs.tu-berlin.de>
-To: <linux-kernel@vger.kernel.org>
-cc: <linux-atm-general@lists.sourceforge.net>
-Subject: Re: 2.4.22 with CONFIG_M686: networking broken
-Message-ID: <Pine.LNX.4.30.0312092344360.17719-100000@swamp.bayern.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 9 Dec 2003 17:54:13 -0500
+Received: from smtp-out1.blueyonder.co.uk ([195.188.213.4]:47218 "EHLO
+	smtp-out1.blueyonder.co.uk") by vger.kernel.org with ESMTP
+	id S262118AbTLIWyJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 17:54:09 -0500
+Date: Tue, 9 Dec 2003 22:53:30 +0000
+From: Ciaran McCreesh <ciaranm@gentoo.org>
+To: marcelo.tosatti@cyclades.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Device-mapper submission for 2.4
+Message-Id: <20031209225330.030716b3.ciaranm@gentoo.org>
+In-Reply-To: <20031209170249.GB30286@ti19.telemetry-investments.com>
+References: <20031209134551.GG472@reti>
+	<Pine.LNX.4.44.0312091206490.1289-100000@logos.cnet>
+	<20031209170249.GB30286@ti19.telemetry-investments.com>
+X-Mailer: Sylpheed version 0.9.0claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="=.2FcsKKZIGcN8ld"
+X-OriginalArrivalTime: 09 Dec 2003 22:54:16.0895 (UTC) FILETIME=[5F956CF0:01C3BEA7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+--=.2FcsKKZIGcN8ld
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-... the same bug is still present in kernel version 2.4.23.
-As I know meanwhile, it only occurs on ATM/LANE network connections.
+On Tue, 9 Dec 2003 12:02:50 -0500 "Bill Rugolsky Jr."
+<brugolsky@telemetry-investments.com> wrote:
+| On Tue, Dec 09, 2003 at 12:10:06PM -0200, Marcelo Tosatti wrote:
+| > As far as I know, we already have the similar functionality in 2.4
+| > with LVM. Device mapper provides the same functionality but in a
+| > much cleaner way. Is that right?
+| 
+| Yes.
+|  
+| And migration of root-on-LVM users to 2.6 will be *greatly* helped if
+| users can get LVM2/DM working on 2.4 (by upgrading
+| lvm/initscripts/mkinitrd), and then move to 2.6.
 
-For more details about the problem, see the threads on
+Agreed. Early 2.6test kernels had serious keyboard issues on my laptop,
+and the effort of switching backwards and forwards between LVM1 and 2
+has put me off trying again on that box. If I could run 2.4 with LVM2
+easily without having to worry about yet another manual kernel patch I'd
+be a lot more inclined to do testing.
 
-"2.4.22 with CONFIG_M686: networking broken"
-http://testing.lkml.org/slashdot.php?mid=330251
-
-and
-
-"[2.4 patch] fix CONFIG_X86_L1_CACHE_SHIFT"
-http://testing.lkml.org/slashdot.php?mid=331650
-
-Regards,
-               Peter Daum
-
-In article <Pine.LNX.4.30.0309031227100.10173-100000@swamp.bayern.net> I
-wrote:
-
-> It seems, like kernel version 2.4.22 introduced some weird bug,
-> that causes all kinds of network malfunctions, when the kernel is
-> compiled with "CONFIG_M686".
-
-> I am sorry, that I can't come up with a clearer error
-> description, but the whole issue is pretty mysterious: there is
-> no actual error occurring, but some networking functionality is so
-> slow that it's for all practical purposes useless. The best test
-> cases I could find are:
-
-> - getting a file via ftp (e.g. wget ftp://...): Data rate over a
->   normally fast network connection is ~ 200 bytes /second, the
->   connection soon dies with a timeout
-
-> - writing to a SMB share (provided, that samba is running on the
->   machine) is awfully slow and eventually aborted (Windows
->   complains about "network congestion")
->   reading via SMB works as usual ...
-
-> I upgraded the kernel on a bunch of machines - on most of them, I
-> had to immediately go back to the previous kernel because there
-> were obvious problems; some machines, however, worked perfectly
-> normal with the new kernel.
-
-> I tried lots of different options until I eventually found out,
-> that the single setting that makes all the difference is the
-> processor type: Independently of any other settings, all kernels
-> with "CONFIG_M686" exhibit these problems; when I change this to
-> "CONFIG_MPENTIUM4" and recompile, everything seems to work.
+-- 
+Ciaran McCreesh
+Mail:    ciaranm at gentoo.org
+Web:     http://dev.gentoo.org/~ciaranm
 
 
+
+--=.2FcsKKZIGcN8ld
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/1lJx96zL6DUtXhERAsr3AKDKy8LvTsQuQWEwKCbpRKyvndoKAgCfcYZj
+FWB6JlDq7TgZ15aWfW7a6FI=
+=KUG6
+-----END PGP SIGNATURE-----
+
+--=.2FcsKKZIGcN8ld--

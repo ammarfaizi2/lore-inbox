@@ -1,104 +1,156 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262046AbTCVGnW>; Sat, 22 Mar 2003 01:43:22 -0500
+	id <S262047AbTCVHAK>; Sat, 22 Mar 2003 02:00:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262047AbTCVGnV>; Sat, 22 Mar 2003 01:43:21 -0500
-Received: from out002pub.verizon.net ([206.46.170.141]:40068 "EHLO
-	out002.verizon.net") by vger.kernel.org with ESMTP
-	id <S262046AbTCVGnS>; Sat, 22 Mar 2003 01:43:18 -0500
-Message-ID: <3E7C0808.75B95FB7@verizon.net>
-Date: Fri, 21 Mar 2003 22:51:52 -0800
-From: "Randy.Dunlap" <randy.dunlap@verizon.net>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.65 i686)
-X-Accept-Language: en
+	id <S262048AbTCVHAK>; Sat, 22 Mar 2003 02:00:10 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:34733 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S262047AbTCVHAH>; Sat, 22 Mar 2003 02:00:07 -0500
+Date: Fri, 21 Mar 2003 23:11:00 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@digeo.com>, Alex Tomas <bzzz@tmi.comex.ru>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: SDET runs on ext3
+Message-ID: <353100000.1048317060@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com, leo@netlabs.net
-Subject: [PATCH] reduce stack in cdrom/optcd.c
-Content-Type: multipart/mixed;
- boundary="------------1075FE351E48CFE76A68482B"
-X-Authentication-Info: Submitted using SMTP AUTH at out002.verizon.net from [4.64.238.61] at Sat, 22 Mar 2003 00:54:16 -0600
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------1075FE351E48CFE76A68482B
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+For anyone who might doubt that ext3 doesn't scale ;-)
+Run on 16x NUMA-Q w/16GB of RAM.
 
-Hi,
+DISCLAIMER: SPEC(tm) and the benchmark name SDET(tm) are registered
+trademarks of the Standard Performance Evaluation Corporation. This 
+benchmarking was performed for research purposes only, and the run results
+are non-compliant and not-comparable with any published results.
 
-This reduces stack usage in drivers/cdrom/optcd.c by
-dynamically allocating a large (> 2 KB) buffer.
+Results are shown as percentages of the first set displayed
 
-Patch is to 2.5.65.  Please apply.
+SDET 1  (see disclaimer)
+                           Throughput    Std. Dev
+              2.5.65-mjb1       100.0%         1.4%
+         2.5.65-mjb1-ext3        96.0%         1.5%
 
-~Randy
---------------1075FE351E48CFE76A68482B
-Content-Type: text/plain; charset=us-ascii;
- name="optcdrom-stack.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="optcdrom-stack.patch"
+SDET 2  (see disclaimer)
+                           Throughput    Std. Dev
+              2.5.65-mjb1       100.0%         2.6%
+         2.5.65-mjb1-ext3        80.9%         3.6%
 
-patch_name:	optcdrom-stack.patch
-patch_version:	2003-03-21.22:31:24
-author:		Randy.Dunlap <rddunlap@osdl.org>
-description:	reduce stack usage in drivers/cdrom/optcd::cdromread()
-product:	Linux
-product_versions: 2.5.65
-changelog:	kmalloc() the large buffer
-maintainer:	Leo Spiekman <leo@netlabs.net>
-diffstat:	=
- drivers/cdrom/optcd.c |   22 +++++++++++++++++-----
- 1 files changed, 17 insertions(+), 5 deletions(-)
+SDET 4  (see disclaimer)
+                           Throughput    Std. Dev
+              2.5.65-mjb1       100.0%         0.9%
+         2.5.65-mjb1-ext3        55.2%        11.0%
+
+SDET 8  (see disclaimer)
+                           Throughput    Std. Dev
+              2.5.65-mjb1       100.0%         0.5%
+         2.5.65-mjb1-ext3        33.0%        14.2%
+
+SDET 16  (see disclaimer)
+                           Throughput    Std. Dev
+              2.5.65-mjb1       100.0%         0.3%
+         2.5.65-mjb1-ext3        19.8%         1.7%
+
+SDET 32  (see disclaimer)
+                           Throughput    Std. Dev
+              2.5.65-mjb1       100.0%         0.3%
+         2.5.65-mjb1-ext3        16.6%         1.7%
+
+SDET 64  (see disclaimer)
+                           Throughput    Std. Dev
+              2.5.65-mjb1       100.0%         0.6%
+         2.5.65-mjb1-ext3        11.2%         1.2%
+
+SDET 128  (see disclaimer)
+                           Throughput    Std. Dev
+              2.5.65-mjb1       100.0%         0.2%
+         2.5.65-mjb1-ext3        12.8%         3.0%
+
+profile w/ ext2 from SDET 128
+
+1547 unmap_all_pages
+1265 page_remove_rmap
+1256 atomic_dec_and_lock
+1218 copy_page_range
+1179 d_lookup
+1166 .text.lock.dec_and_lock
+979 vfs_read
+844 page_add_rmap
+794 .text.lock.dcache
+764 find_get_page
+737 follow_mount
+724 .text.lock.namei
+701 __copy_to_user_ll
+678 path_lookup
+401 __down
+358 do_wp_page
+334 do_anonymous_page
+324 remove_shared_vm_struct
+315 path_release
+303 __fput
+291 copy_mm
+283 schedule
+277 pte_alloc_one
+262 proc_pid_stat
+257 do_no_page
+253 kmem_cache_free
+253 file_move
+245 release_pages
+245 copy_process
+238 vfs_write
+238 link_path_walk
+229 do_page_fault
+226 .text.lock.base
+219 __find_get_block
+214 d_alloc
+202 free_hot_cold_page
 
 
-diff -Naur ./drivers/cdrom/optcd.c%CDROM ./drivers/cdrom/optcd.c
---- ./drivers/cdrom/optcd.c%CDROM	Mon Mar 17 13:43:49 2003
-+++ ./drivers/cdrom/optcd.c	Fri Mar 21 22:30:08 2003
-@@ -1600,13 +1600,17 @@
- 
- static int cdromread(unsigned long arg, int blocksize, int cmd)
- {
--	int status;
-+	int status, ret = 0;
- 	struct cdrom_msf msf;
--	char buf[CD_FRAMESIZE_RAWER];
-+	char *buf;
- 
- 	if (copy_from_user(&msf, (void *) arg, sizeof msf))
- 		return -EFAULT;
- 
-+	buf = kmalloc(CD_FRAMESIZE_RAWER, GFP_KERNEL);
-+	if (!buf)
-+		return -ENOMEM;
-+
- 	bin2bcd(&msf);
- 	msf.cdmsf_min1 = 0;
- 	msf.cdmsf_sec1 = 0;
-@@ -1615,11 +1619,19 @@
- 
- 	DEBUG((DEBUG_VFS, "read cmd status 0x%x", status));
- 
--	if (!sleep_flag_low(FL_DTEN, SLEEP_TIMEOUT))
--		return -EIO;
-+	if (!sleep_flag_low(FL_DTEN, SLEEP_TIMEOUT)) {
-+		ret = -EIO;
-+		goto cdr_free;
-+	}
-+
- 	fetch_data(buf, blocksize);
- 
--	return copy_to_user((void *)arg, &buf, blocksize) ? -EFAULT : 0;
-+	if (copy_to_user((void *)arg, &buf, blocksize))
-+		ret = -EFAULT;
-+
-+cdr_free:
-+	kfree(buf);
-+	return ret;
- }
- 
- 
+profile w/ ext3 from SDET 128
 
---------------1075FE351E48CFE76A68482B--
+44940 .text.lock.inode
+6051 .text.lock.namei
+5663 .text.lock.sched
+4804 .text.lock.attr
+1684 ext3_prepare_write
+1082 unmap_all_pages
+952 .text.lock.dir
+938 page_remove_rmap
+915 ext3_commit_write
+904 copy_page_range
+903 .text.lock.sem
+759 __down
+730 schedule
+634 d_lookup
+605 page_add_rmap
+545 find_get_page
+539 .text.lock.base
+465 __copy_to_user_ll
+451 .text.lock.ioctl
+417 journal_add_journal_head
+417 __blk_queue_bounce
+392 inode_change_ok
+367 ext3_setattr
+362 do_anonymous_page
+352 ext3_dirty_inode
+347 __wake_up
+336 do_wp_page
+334 start_this_handle
+267 atomic_dec_and_lock
+260 __find_get_block
+255 do_get_write_access
+248 do_no_page
+238 ext3_get_block_handle
+236 path_lookup
+222 kmap_atomic
+222 ext3_get_inode_loc
+217 remove_shared_vm_struct
+211 do_page_fault
+202 __mark_inode_dirty
+201 vfs_read
+201 pte_alloc_one
 

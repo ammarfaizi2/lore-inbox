@@ -1,48 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281841AbRLQS2s>; Mon, 17 Dec 2001 13:28:48 -0500
+	id <S281877AbRLQSd2>; Mon, 17 Dec 2001 13:33:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281854AbRLQS2i>; Mon, 17 Dec 2001 13:28:38 -0500
-Received: from sushi.toad.net ([162.33.130.105]:14043 "EHLO sushi.toad.net")
-	by vger.kernel.org with ESMTP id <S281841AbRLQS2S>;
-	Mon, 17 Dec 2001 13:28:18 -0500
-Subject: APM driver patch summary
-From: Thomas Hood <jdthood@mail.com>
-To: sfr@canb.auug.org.au
+	id <S281895AbRLQSdS>; Mon, 17 Dec 2001 13:33:18 -0500
+Received: from www.jazzhouse.org ([216.254.75.62]:19460 "EHLO
+	free.transpect.com") by vger.kernel.org with ESMTP
+	id <S281877AbRLQSdH>; Mon, 17 Dec 2001 13:33:07 -0500
+Date: Mon, 17 Dec 2001 13:29:59 -0500
+From: Whit Blauvelt <whit@transpect.com>
+To: safemode <safemode@speakeasy.net>
 Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 17 Dec 2001 13:28:13 -0500
-Message-Id: <1008613695.4859.84.camel@thanatos>
+Subject: Re: Oops - 2.4.17rc1
+Message-ID: <20011217132959.A2096@free.transpect.com>
+In-Reply-To: <20011215005641.A810@china.patternbook.com> <1008396931.17483.0.camel@psuedomode>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1008396931.17483.0.camel@psuedomode>; from safemode@speakeasy.net on Sat, Dec 15, 2001 at 01:15:30AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen:
+On Sat, Dec 15, 2001 at 01:15:30AM -0500, safemode wrote:
+> iptables comes with 2.4.x, why are you patching it against it?
 
-A number of patches to the APM driver have been submitted to
-lkml recently.  To summarize, these are (Did I miss any?):
+Well, meant to type iptables 1.2.4 - well actually you need to run iptables'
+install routine to properly make the utilities - it doesn't patch anything
+that isn't already in the kernel, so if the kernel's up to 1.2.4, the oops
+came from some other problem.
 
-Notify listener of suspend before notifying driver  (Russell King)
-    http://marc.theaimsgroup.com/?l=linux-kernel&m=100819765228734&w=2
-Fix idle handling                                   (Andreas Steinmetz)
-    http://marc.theaimsgroup.com/?l=linux-kernel&m=100754277600661&w=2
-Control apm idle calling by runtime parameter       (Andrej Borsenkow)
-    http://marc.theaimsgroup.com/?l=linux-kernel&m=100852862320955&w=2
+Subsequently I've gone to using some of the experimental patches against
+2.4.16, which does require patching. No problem so far with that kernel.
+That oops was against the scock 2.4.17rc1 version.
 
-Each of these changes is required, IMHO.  However, the Russell King
-patch probably won't apply without modifications.  Also, it needs to
-be modified so that it will send a resume event to listeners in case
-a driver rejects a suspend event that listeners have already
-processed.  I think that this change should wait for 2.5, improvement
-though it be, because it changes the behavior of the apm driver in
-a significant way.
-
-The other patches ought to apply cleanly to 2.4.17 and are independent
-of Russell's changes, so ought to go into 2.4.18-pre, I think.  Can
-you get them ready for Marcelo?
-
-Cheers
-Thomas Hood
-
+Whit
+> 
+> On Sat, 2001-12-15 at 00:56, Whit Blauvelt wrote:
+> > Turns out it didn't leave a trace in the logs, but had a hard Oops less than
+> > an hour into running this on a box that's been rock-solid stable for a
+> > couple years, most recently running 2.2.19. 
+> > 
+> > Sorry I didn't hand copy the Oops screen - no time for that. Back to 2.2.19.
+> > So this isn't so useful a report, except maybe to caution going beyond the
+> > "rc" stage too soon on this one, just in case.
+> > 
+> > The iptables patch applied to it was just with the standard features,
+> > nothing experimental.
+> > 
+> > Whit
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> > 

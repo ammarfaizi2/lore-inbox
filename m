@@ -1,87 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129257AbQK3WMj>; Thu, 30 Nov 2000 17:12:39 -0500
+	id <S129267AbQK3WN3>; Thu, 30 Nov 2000 17:13:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129267AbQK3WM3>; Thu, 30 Nov 2000 17:12:29 -0500
-Received: from sanrafael.dti2.net ([195.57.112.5]:32269 "EHLO dti2.net")
-	by vger.kernel.org with ESMTP id <S129257AbQK3WMZ>;
-	Thu, 30 Nov 2000 17:12:25 -0500
-Message-ID: <06c601c05b16$745cf0b0$067039c3@cintasverdes>
-From: "Jorge Boncompte \(DTI2\)" <jorge@dti2.net>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <20001017000243Z129097-28851+2964@vger.kernel.org> <20001017115350.E9732@garloff.etpnet.phys.tue.nl>
-Subject: RE: OnStream DI-30 with ide-tape version 1.16f problems
-Date: Thu, 30 Nov 2000 22:42:36 +0100
-Organization: DTI2 - Desarrollo de la Tecnología de las Comunicaciones
+	id <S130252AbQK3WNT>; Thu, 30 Nov 2000 17:13:19 -0500
+Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:43527 "HELO
+	ztxmail03.ztx.compaq.com") by vger.kernel.org with SMTP
+	id <S130229AbQK3WNI>; Thu, 30 Nov 2000 17:13:08 -0500
+Message-ID: <22F662CDC53ED411B65700805F31DE1C135911@exccop-01.dmo.cpqcorp.net>
+From: "Mathiasen, Torben" <Torben.Mathiasen@COMPAQ.COM>
+To: "Rival, Frank" <FRIVAL@ZK3.DEC.COM>,
+        "Ezolt, Phillip" <ezolt@perf.zko.dec.com>
+Cc: ink@jurassic.park.msu.ru, rth@twiddle.net, axp-list@redhat.com,
+        "Estabrook, Jay" <jestabro@pdgsrv.mro.cpqcorp.net>,
+        linux-kernel@vger.kernel.org, clinux@ZK3.DEC.COM,
+        wcarr@perf.zko.dec.com
+Subject: RE: Alpha SCSI error on 2.4.0-test11
+Date: Thu, 30 Nov 2000 21:42:27 -0000
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    I have the same problem, and yes I have a medium inserted. What can I
-do?
-
-    Regards.
-
-    -Jorge
-
-P.D.    Debian 2.2 (+ some updates from woody to complaint 2.4 series of
-kernels)
-            2.4.0.test11 + reiserfs
-            Tyan K7 VIA + CMD649
-            Same tape drive and same revision of firmware. (primary in the
-second channel of the motherboard)
-
-==============================================================
-Jorge Boncompte - Técnico de sistemas
-DTI2 - Desarrollo de la Tecnología de las Comunicaciones
---------------------------------------------------------------
-C/ Abogado Enriquez Barrios, 5   14004 CORDOBA (SPAIN)
-Tlf: +34 957 761395 / FAX: +34 957 450380
---------------------------------------------------------------
-jorge@dti2.net _-_-_-_-_-_-_-_-_-_-_-_-_-_ http://www.dti2.net
-==============================================================
-Without wicker a basket cannot be done.
-==============================================================
-
------ Mensaje original -----
-De: "Kurt Garloff" <garloff@suse.de>
-Para: "Noel Burton-Krahn" <noel@burton-krahn.com>
-CC: <andre@suse.com>; <linux-kernel@vger.kernel.org>
-Enviado: martes, 17 de octubre de 2000 10:53
-Asunto: Re: OnStream DI-30 with ide-tape version 1.16f problems
-
-On Mon, Oct 16, 2000 at 04:51:48PM -0700, Noel Burton-Krahn wrote:
-> mt -f /dev/nht0 status
->
->     /dev/nht0: Device or resource busy
->
-> tail /var/log/messages
->
->     kernel: ide-tape: hdd <-> ht0: OnStream DI-30 rev 1.08
->     kernel: ide-tape: hdd <-> ht0: 990KBps, 64*32kB buffer, 10208kB
-pipeline, 60ms tDSC
->     kernel: ide-tape: ht0: I/O error, pc =  0, key =  2, asc = 3a, ascq =
-0
-
-MEDIUM NOT PRESENT.
-
->     kernel: ide-tape: ht0: drive not ready
-
-Did you insert a medium?
+Its probaly due to the semaphore changes that went in to test11 by
+Richard Henderson. scsi_wait_req will grab one on entry. Did test10
+work for you on Alpha?
 
 Regards,
---
-Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
-GPG key: See mail header, key servers         Linux kernel development
-SuSE GmbH, Nuernberg, FRG                               SCSI, Security
 
+Torben Mathiasen
+
+> -----Original Message-----
+> From: Rival, Frank 
+> Sent: 30. november 2000 21:37
+> To: Ezolt, Phillip
+> Cc: ink@jurassic.park.msu.ru; rth@twiddle.net; axp-list@redhat.com;
+> Estabrook, Jay; linux-kernel@vger.kernel.org; clinux@zk3.dec.com;
+> wcarr@perf.zko.dec.com
+> Subject: Re: Alpha SCSI error on 2.4.0-test11
+> 
+> 
+> Hi Phil,
+> 
+> Phillip Ezolt wrote:
+> 
+> > Hi All,
+> > 
+> > Qlogic SCSI support seems broken on 2.4.0-test11 on a Miata 
+> (Digital Personal WorkStation 600au).
+> > 
+> > When starting up, we get a machine check after initialing 
+> the qlogic SCSI code. 
+> > 
+> > Using the Alpha kgdb, we figured out that the code is dying 
+> in scsi_wait_request().
+> 
+> Wow, I'm impressed!  I didn't realize that kgdb worked on 
+> Alpha...Were 
+> you using the remote kgdb?  (You can answer me offline to save 
+> bandwidth.)  This would be a _huge_ help in trying to figure 
+> out why my 
+> Wildfire^WGS160 is crashing with the DISCONTIGMEM code that I 
+> stole from 
+> Jay and have been hacking on.
+> 
+> Speaking of that system, it has two QLogic adapters in it 
+> (both 1040Bs, 
+> like the Miata), and they are working just fine under 2.4.0-test11 
+> (obviously, without my changes ;).  It looks like it's probably the 
+> platform code that's busted.  I can't remember...are those Pyxis or 
+> CIA?  Anyway, could this have something to do with the PCI & 
+> PCI bridge 
+> work that Richard and Ivan just submitted?
+> 
+> - Pete
+> 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

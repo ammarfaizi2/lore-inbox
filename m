@@ -1,53 +1,84 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S153981AbPGTLYi>; Tue, 20 Jul 1999 07:24:38 -0400
-Received: by vger.rutgers.edu id <S153929AbPGTLYT>; Tue, 20 Jul 1999 07:24:19 -0400
-Received: from pa239.warszawa.ppp.tpnet.pl ([212.160.52.239]:49199 "HELO olaf") by vger.rutgers.edu with SMTP id <S153856AbPGTLXt>; Tue, 20 Jul 1999 07:23:49 -0400
-Message-ID: <37945BBB.711FAFA5@geocities.com>
-Date: Tue, 20 Jul 1999 13:21:31 +0200
-From: Artur Skawina <skawina@geocities.com>
-X-Mailer: Mozilla 3.04 (X11; U; Linux 2.3.5as i686)
-MIME-Version: 1.0
-To: Kurt Garloff <garloff@suse.de>
-CC: linux-kernel@vger.rutgers.edu, Harald Koerfgen <Harald.Koerfgen@home.ivm.de>
-Subject: Re: [RFC] increasing and masquerading HZ
-References: <3793EDBB.6B7D7E12@geocities.com> <19990720105551.C9486@bari.suse.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Received: by vger.rutgers.edu via listexpand id <S154050AbPGTK30>; Tue, 20 Jul 1999 06:29:26 -0400
+Received: by vger.rutgers.edu id <S154079AbPGTK02>; Tue, 20 Jul 1999 06:26:28 -0400
+Received: from Cantor.suse.de ([194.112.123.193]:2164 "HELO Cantor.suse.de") by vger.rutgers.edu with SMTP id <S154093AbPGTKZN>; Tue, 20 Jul 1999 06:25:13 -0400
+Date: Tue, 20 Jul 1999 12:25:06 +0200
+From: Kurt Garloff <garloff@suse.de>
+To: SuSE Kernel Developers <kernel@suse.de>, Linux kernel list <linux-kernel@vger.rutgers.edu>
+Subject: [PATCH] 2210 Make w/o /usr/include/linux
+Message-ID: <19990720122506.A21397@bari.suse.de>
+Mail-Followup-To: SuSE Kernel Developers <kernel@suse.de>, Linux kernel list <linux-kernel@vger.rutgers.edu>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary=IiVenqGWf+H9Y6IX; micalg=pgp-md5; protocol="application/pgp-signature"
+X-Mailer: Mutt 0.95.4i
+X-Operating-System: Linux 2.2.10 i686
+X-PGP-Info: on http://www.garloff.de/kurt/pgp.public.key.kurt.home.asc
+X-PGP-Version: 2.6.3i
+X-PGP-Key: 1024/CEFC9215
+X-PGP-Fingerprint: 92 00 AC 56 59 50 13 83  3C 18 6F 1B 25 A0 3A 5F
+Organization: =?iso-8859-1?Q?SuSE_GmbH=2C_N=FCrnberg=2C_FRG?=
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Kurt Garloff wrote:
-> 
 
-> Without looking into details, I saw a place, where I did HZ conversion where
-
-i did that conversion after doing the math, to avoid doing it twice, iirc.
+--IiVenqGWf+H9Y6IX
+Content-Type: multipart/mixed; boundary=zhXaljGHf11kAtnf
 
 
-> You may want to merge your patch with one from
->  Harald Koerfgen <Harald.Koerfgen@home.ivm.de>
-> on
->  ftp://ftp.linux.sgi.com/pub/linux/mips/test/hz_patch.gz
-> 
-> He mailed me about necessary changes for his MIPS work. I did not yet find
-> time to answer him, but maybe you can contact him and get the changes merged.
+--zhXaljGHf11kAtnf
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-except the mips-only change, the only thing missing is one #include "param.h".
- 
+Hi,
 
-> Basically, independance of userspace from the internal HZ is good. This is
+if a link from /usr/include/linux to=20
+/usr/src/where_ever/your/kernel/tree/actually/is/include/linux
+is missing, you're in trouble for compiling some userspace apps.
 
-yes, it's a requirement. There are still a few issues left:
+However, the kernel compilation should not depend on it.
 
-o stability - the machine i tried this on locked up hard while running
-  a kernel with this patch. It's otherwise rock solid... Hmm, was there
-  a known (scheduling) bug in 2.3.5 that could get triggered by a big HZ?
-  Will try to reproduce...
-o the ip routing sysctls (i'd rather not touch these)
-o /proc/net/tcp and friends (look at the "netstat -to" output...),
-   this one will be easy to fix.
+But the scripts/split-include does at the moment.H
+Attached a patch to fix it.
 
-artur
+--=20
+Kurt Garloff  <garloff@suse.de>           SuSE GmbH, N=FCrnberg, FRG
+Linux kernel development;      SCSI drivers: tmscsim(DC390), DC395
 
+--zhXaljGHf11kAtnf
+Content-Type: text/plain; charset=us-ascii
+Content-Description: 2210-ipath.diff
+Content-Disposition: attachment; filename=2210-ipath
+Content-Transfer-Encoding: quoted-printable
+
+--- linux-2.2.10.SuSE/Makefile~	Tue Jul 20 01:44:26 1999
++++ linux-2.2.10.SuSE/Makefile	Tue Jul 20 12:05:57 1999
+@@ -466,7 +466,7 @@
+ #
+=20
+ scripts/mkdep: scripts/mkdep.c
+-	$(HOSTCC) $(HOSTCFLAGS) -o scripts/mkdep scripts/mkdep.c
++	$(HOSTCC) $(HOSTCFLAGS) -I$(HPATH) -o scripts/mkdep scripts/mkdep.c
+=20
+ scripts/split-include: scripts/split-include.c
+-	$(HOSTCC) $(HOSTCFLAGS) -o scripts/split-include scripts/split-include.c
++	$(HOSTCC) $(HOSTCFLAGS) -I$(HPATH) -o scripts/split-include scripts/split=
+-include.c
+
+--zhXaljGHf11kAtnf--
+
+--IiVenqGWf+H9Y6IX
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: 2.6.3i
+
+iQCVAwUBN5ROghaQN/7O/JIVAQEUdQP+LIQJjQRPpFGJXqanJN1nrCDEKX2AEVJp
+Ycax1+70UWJMph9xxoW+FCArBMUJxGbX5c7Ad/WYqINLE7CO2QR52fUavLj0/vYi
+iGg3SlpoaqnFTKwNWuGhseNrEaAdMkSpBtF1Xqo9VlBHySvYbi658EnJDFqy/efE
+WT6RAfHSlKs=
+=pAva
+-----END PGP SIGNATURE-----
+
+--IiVenqGWf+H9Y6IX--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

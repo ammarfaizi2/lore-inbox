@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267874AbTGLROw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 13:14:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267981AbTGLROv
+	id S267981AbTGLRXy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 13:23:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268000AbTGLRXy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 13:14:51 -0400
-Received: from ip212-226-133-178.adsl.kpnqwest.fi ([212.226.133.178]:59609
-	"EHLO jumper") by vger.kernel.org with ESMTP id S267874AbTGLROv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 13:14:51 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: hang with pcmcia wlan card
-References: <87fzldxcf5.fsf@jumper.lonesom.pp.fi>
-	<873chbyasi.fsf@jumper.lonesom.pp.fi>
-	<20030712173039.A17432@flint.arm.linux.org.uk>
-	<20030712164855.GB2133@gmx.de>
-From: Jaakko Niemi <liiwi@lonesom.pp.fi>
-Date: Sat, 12 Jul 2003 20:30:25 +0300
-In-Reply-To: <20030712164855.GB2133@gmx.de> (Wiktor Wodecki's message of
- "Sat, 12 Jul 2003 18:48:55 +0200")
-Message-ID: <87y8z3wt3i.fsf@jumper.lonesom.pp.fi>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
+	Sat, 12 Jul 2003 13:23:54 -0400
+Received: from blackbird.intercode.com.au ([203.32.101.10]:40714 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id S267981AbTGLRXx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 13:23:53 -0400
+Date: Sun, 13 Jul 2003 03:38:16 +1000 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: Christoph Hellwig <hch@infradead.org>
+cc: Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5 'what to expect'
+In-Reply-To: <20030711181002.B28202@infradead.org>
+Message-ID: <Mutt.LNX.4.44.0307130337120.25105-100000@excalibur.intercode.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wiktor Wodecki <wodecki@gmx.de> writes:
+On Fri, 11 Jul 2003, Christoph Hellwig wrote:
 
-> well, at least it is this changeset for me (same problem)
->
->> --- linux-2.5.73-bk1/drivers/pcmcia/ti113x.h  2003-06-22 11:32:41.000000000 -0700
->> +++ linux-2.5.73-bk2/drivers/pcmcia/ti113x.h  2003-06-24 13:06:59.000000000 -0700
+> On Sat, Jul 12, 2003 at 01:43:15AM +1000, James Morris wrote:
+> > On Fri, 11 Jul 2003, Dave Jones wrote:
+> > 
+> > >  Use the KAME tools port on
+> > >   ftp://ftp.inr.ac.ru/ip-routing/iputils-ss021109-try.tar.bz2
+> > 
+> > The above is deprecated for ipsec, use the ipsec-tools stuff mentioned 
+> > below.
+> 
+> Or the OpenBSD isakpmd or Herbert's patched freeswan userland, or..
 
- Yes, confirmed. Backing off this makes things work again.
+Yes, but I meant specifically the ipsec tools (e.g. setkey) which were 
+initially in iptuils, can now be found updated and maintained in 
+ipsec-tools.
 
-                      --j
+
+- James
+-- 
+James Morris
+<jmorris@intercode.com.au>
+

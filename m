@@ -1,1588 +1,543 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317851AbSFMVxW>; Thu, 13 Jun 2002 17:53:22 -0400
+	id <S317879AbSFMWI6>; Thu, 13 Jun 2002 18:08:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317858AbSFMVxW>; Thu, 13 Jun 2002 17:53:22 -0400
-Received: from psmtp2.dnsg.net ([193.168.128.42]:31399 "HELO psmtp2.dnsg.net")
-	by vger.kernel.org with SMTP id <S317851AbSFMVvg>;
-	Thu, 13 Jun 2002 17:51:36 -0400
-Subject: [PATCH][2.5.21]new xpram driver (was [REVERT] 2.5.21 s390/block/xpram.c)
-To: linux-kernel@vger.kernel.org
-Date: Fri, 14 Jun 2002 01:41:40 +0200 (CEST)
-CC: torvalds@transmeta.com
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S317880AbSFMWI5>; Thu, 13 Jun 2002 18:08:57 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:34745 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S317879AbSFMWIw>;
+	Thu, 13 Jun 2002 18:08:52 -0400
+Date: Fri, 14 Jun 2002 00:06:04 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: mingo@elte.hu
+To: Robert Love <rml@tech9.net>
+Cc: Mike Kravetz <kravetz@us.ibm.com>, Linus Torvalds <torvalds@transmeta.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: [patch] current scheduler bits #4, 2.5.21
+In-Reply-To: <1024003595.4799.102.camel@sinai>
+Message-ID: <Pine.LNX.4.44.0206140000370.17136-100000@e2>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17IeE5-00009t-00@skybase>
-From: Martin Schwidefsky <martin.schwidefsky@debitel.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->During the course of the patch-2.5.21 I noticed the
->following attached chunk, which resurrect hardsects array in the
->affected code. This is of course entierly bogous.
->Please revert this chunk, since it's most propably just
->a merge error on behalf of the Big Blue.
->
->Oh well oh well...
 
-Oh, sorry. I didn't noticed that someone else removed hardsecs from the
-xpram driver. I looked at the xpram code to repair the damage and ended
-up with a rewrite. Its now half the size and uses a make_request function
-instead of a full blown request queue. Much better, don't you think?
+On 13 Jun 2002, Robert Love wrote:
 
-blue skies,
-  Martin.
+> This is not working for me.  I am getting intermittent hard locks -
+> seems we are taking a hard fall with interrupts off.  Smelt like the
+> preemption optimization, so I removed it and all is well...
 
-diff -urN linux-2.5.21/drivers/s390/block/xpram.c linux-2.5.21-s390/drivers/s390/block/xpram.c
---- linux-2.5.21/drivers/s390/block/xpram.c	Sun Jun  9 07:31:13 2002
-+++ linux-2.5.21-s390/drivers/s390/block/xpram.c	Thu Jun 13 17:08:23 2002
-@@ -1,4 +1,3 @@
--
- /*
-  * Xpram.c -- the S/390 expanded memory RAM-disk
-  *           
-@@ -8,14 +7,11 @@
-  *
-  * Author of XPRAM specific coding: Reinhard Buendgen
-  *                                  buendgen@de.ibm.com
-+ * Rewrite for 2.5: Martin Schwidefsky <schwidefsky@de.ibm.com>
-  *
-  * External interfaces:
-  *   Interfaces to linux kernel
-- *        xpram_setup: read kernel parameters   (see init/main.c)
-- *        xpram_init:  initialize device driver (see drivers/block/ll_rw_blk.c)
-- *   Module interfaces
-- *        init_module
-- *        cleanup_module
-+ *        xpram_setup: read kernel parameters
-  *   Device specific file operations
-  *        xpram_iotcl
-  *        xpram_open
-@@ -26,121 +22,54 @@
-  *    (with different minors). The partitioning set up can be
-  *    set by kernel or module parameters (int devs & int sizes[])
-  *
-- *    module parameters: devs= and sizes=
-- *    kernel parameters: xpram_parts=
-- *      note: I did not succeed in parsing numbers 
-- *            for module parameters of type string "s" ?!?
-- *
-- * Other kenel files/modules affected(gerp for "xpram" or "XPRAM":
-- *    drivers/s390/Config.in
-- *    drivers/s390/block/Makefile
-- *    include/linux/blk.h
-- *    include/linux/major.h
-- *    init/main.c
-- *    drivers/block//ll_rw_blk.c
-- *
-- *
-  * Potential future improvements:
-- *   request clustering: first coding started not yet tested or integrated
-- *                       I doubt that it really pays off 
-  *   generic hard disk support to replace ad-hoc partitioning
-- *
-- * Tested with 2.2.14 (under VM)
-  */
+okay, i agree that it's dangerous.
+
+> ...which is fine, because I do not entirely trust this and it is really
+> not worth it to save just an inc and a dec.
+
+oh, we've been through bigger pain before, just to save single
+instructions :)
+
+but in this case it makes those codepaths really volatile - and
+spin_lock/spin_unlock can cause an unexpected preemption. Especially on
+architectures that implement smp_send_reschedule() via the SMP call
+function, which in turn uses a spinlock, this approach poses real
+immediate problems.
+
+I've attached my current tree against 2.5.21, it has this optimization
+removed. [i kept the spinlock.h enhancements, they might come handy in
+less complex scenarios.]
+
+	Ingo
+
+diff -rNu linux-2.5.21-final/arch/i386/kernel/entry.S linux/arch/i386/kernel/entry.S
+--- linux-2.5.21-final/arch/i386/kernel/entry.S	Sun Jun  9 07:28:19 2002
++++ linux/arch/i386/kernel/entry.S	Fri Jun 14 00:00:16 2002
+@@ -193,6 +193,7 @@
  
--#ifdef MODULE
--#  ifndef __KERNEL__
--#    define __KERNEL__
--#  endif
--#  define __NO_VERSION__ /* don't define kernel_version in module.h */
--#endif /* MODULE */
--
- #include <linux/module.h>
- #include <linux/version.h>
-+#include <linux/ctype.h>  /* isdigit, isxdigit */
-+#include <linux/errno.h>
-+#include <linux/init.h>
-+#include <linux/slab.h>
-+#include <linux/blk.h>
-+#include <linux/blkpg.h>
-+#include <linux/hdreg.h>  /* HDIO_GETGEO */
-+#include <asm/uaccess.h>
+ ENTRY(ret_from_fork)
+ #if CONFIG_SMP || CONFIG_PREEMPT
++	# NOTE: this function takes a parameter but it's unused on x86.
+ 	call schedule_tail
+ #endif
+ 	GET_THREAD_INFO(%ebx)
+diff -rNu linux-2.5.21-final/fs/pipe.c linux/fs/pipe.c
+--- linux-2.5.21-final/fs/pipe.c	Sun Jun  9 07:26:29 2002
++++ linux/fs/pipe.c	Thu Jun 13 23:59:56 2002
+@@ -119,7 +119,7 @@
+ 		 * writers synchronously that there is more
+ 		 * room.
+ 		 */
+-		wake_up_interruptible(PIPE_WAIT(*inode));
++		wake_up_interruptible_sync(PIPE_WAIT(*inode));
+  		kill_fasync(PIPE_FASYNC_WRITERS(*inode), SIGIO, POLL_OUT);
+ 		if (!PIPE_EMPTY(*inode))
+ 			BUG();
+@@ -219,7 +219,7 @@
+ 			 * is going to give up this CPU, so it doesnt have
+ 			 * to do idle reschedules.
+ 			 */
+-			wake_up_interruptible(PIPE_WAIT(*inode));
++			wake_up_interruptible_sync(PIPE_WAIT(*inode));
+  			kill_fasync(PIPE_FASYNC_READERS(*inode), SIGIO, POLL_IN);
+ 			PIPE_WAITING_WRITERS(*inode)++;
+ 			pipe_wait(inode);
+diff -rNu linux-2.5.21-final/include/asm-i386/system.h linux/include/asm-i386/system.h
+--- linux-2.5.21-final/include/asm-i386/system.h	Sun Jun  9 07:26:29 2002
++++ linux/include/asm-i386/system.h	Fri Jun 14 00:00:16 2002
+@@ -11,9 +11,12 @@
+ struct task_struct;	/* one of the stranger aspects of C forward declarations.. */
+ extern void FASTCALL(__switch_to(struct task_struct *prev, struct task_struct *next));
  
- #ifdef MODULE
- char kernel_version [] = UTS_RELEASE;
+-#define prepare_to_switch()	do { } while(0)
++#define prepare_arch_schedule(prev)		do { } while(0)
++#define finish_arch_schedule(prev)		do { } while(0)
++#define prepare_arch_switch(rq)			do { } while(0)
++#define finish_arch_switch(rq)			spin_unlock_irq(&(rq)->lock)
+ 
+-#define switch_to(prev,next) do {					\
++#define switch_to(prev,next,last) do {					\
+ 	asm volatile("pushl %%esi\n\t"					\
+ 		     "pushl %%edi\n\t"					\
+ 		     "pushl %%ebp\n\t"					\
+diff -rNu linux-2.5.21-final/include/linux/sched.h linux/include/linux/sched.h
+--- linux-2.5.21-final/include/linux/sched.h	Sun Jun  9 07:27:21 2002
++++ linux/include/linux/sched.h	Thu Jun 13 23:59:56 2002
+@@ -491,6 +491,7 @@
+ extern unsigned long prof_shift;
+ 
+ extern void FASTCALL(__wake_up(wait_queue_head_t *q, unsigned int mode, int nr));
++extern void FASTCALL(__wake_up_sync(wait_queue_head_t *q, unsigned int mode, int nr));
+ extern void FASTCALL(sleep_on(wait_queue_head_t *q));
+ extern long FASTCALL(sleep_on_timeout(wait_queue_head_t *q,
+ 				      signed long timeout));
+@@ -507,6 +508,11 @@
+ #define wake_up_interruptible(x)	__wake_up((x),TASK_INTERRUPTIBLE, 1)
+ #define wake_up_interruptible_nr(x, nr)	__wake_up((x),TASK_INTERRUPTIBLE, nr)
+ #define wake_up_interruptible_all(x)	__wake_up((x),TASK_INTERRUPTIBLE, 0)
++#ifdef CONFIG_SMP
++#define wake_up_interruptible_sync(x)   __wake_up_sync((x),TASK_INTERRUPTIBLE, 1)
++#else
++#define wake_up_interruptible_sync(x)   __wake_up((x),TASK_INTERRUPTIBLE, 1)
++#endif
+ asmlinkage long sys_wait4(pid_t pid,unsigned int * stat_addr, int options, struct rusage * ru);
+ 
+ extern int in_group_p(gid_t);
+diff -rNu linux-2.5.21-final/include/linux/spinlock.h linux/include/linux/spinlock.h
+--- linux-2.5.21-final/include/linux/spinlock.h	Sun Jun  9 07:30:01 2002
++++ linux/include/linux/spinlock.h	Fri Jun 14 00:00:09 2002
+@@ -26,6 +26,7 @@
+ #define write_lock_bh(lock)			do { local_bh_disable();         write_lock(lock); } while (0)
+ 
+ #define spin_unlock_irqrestore(lock, flags)	do { spin_unlock(lock);  local_irq_restore(flags); } while (0)
++#define _raw_spin_unlock_irqrestore(lock, flags) do { _raw_spin_unlock(lock);  local_irq_restore(flags); } while (0)
+ #define spin_unlock_irq(lock)			do { spin_unlock(lock);  local_irq_enable();       } while (0)
+ #define spin_unlock_bh(lock)			do { spin_unlock(lock);  local_bh_enable();        } while (0)
+ 
+@@ -183,6 +184,12 @@
+ 		preempt_schedule(); \
+ } while (0)
+ 
++#define preempt_check_resched() \
++do { \
++	if (unlikely(test_thread_flag(TIF_NEED_RESCHED))) \
++		preempt_schedule(); \
++} while (0)
++
+ #define spin_lock(lock)	\
+ do { \
+ 	preempt_disable(); \
+@@ -197,6 +204,12 @@
+ 	preempt_enable(); \
+ } while (0)
+ 
++#define spin_unlock_no_resched(lock) \
++do { \
++	_raw_spin_unlock(lock); \
++	preempt_enable_no_resched(); \
++} while (0)
++
+ #define read_lock(lock)		({preempt_disable(); _raw_read_lock(lock);})
+ #define read_unlock(lock)	({_raw_read_unlock(lock); preempt_enable();})
+ #define write_lock(lock)	({preempt_disable(); _raw_write_lock(lock);})
+@@ -206,20 +219,22 @@
+ 
+ #else
+ 
+-#define preempt_get_count()	(0)
+-#define preempt_disable()	do { } while (0)
++#define preempt_get_count()		(0)
++#define preempt_disable()		do { } while (0)
+ #define preempt_enable_no_resched()	do {} while(0)
+-#define preempt_enable()	do { } while (0)
++#define preempt_enable()		do { } while (0)
++#define preempt_check_resched()		do { } while (0)
+ 
+-#define spin_lock(lock)		_raw_spin_lock(lock)
+-#define spin_trylock(lock)	_raw_spin_trylock(lock)
+-#define spin_unlock(lock)	_raw_spin_unlock(lock)
+-
+-#define read_lock(lock)		_raw_read_lock(lock)
+-#define read_unlock(lock)	_raw_read_unlock(lock)
+-#define write_lock(lock)	_raw_write_lock(lock)
+-#define write_unlock(lock)	_raw_write_unlock(lock)
+-#define write_trylock(lock)	_raw_write_trylock(lock)
++#define spin_lock(lock)			_raw_spin_lock(lock)
++#define spin_trylock(lock)		_raw_spin_trylock(lock)
++#define spin_unlock(lock)		_raw_spin_unlock(lock)
++#define spin_unlock_no_resched(lock)	_raw_spin_unlock(lock)
++
++#define read_lock(lock)			_raw_read_lock(lock)
++#define read_unlock(lock)		_raw_read_unlock(lock)
++#define write_lock(lock)		_raw_write_lock(lock)
++#define write_unlock(lock)		_raw_write_unlock(lock)
++#define write_trylock(lock)		_raw_write_trylock(lock)
  #endif
  
--#include <linux/config.h>
--#include <linux/init.h>
--#include <linux/sched.h>
--#include <linux/kernel.h> /* printk() */
--#include <linux/slab.h> /* kmalloc() */
--#include <linux/devfs_fs_kernel.h>
--#include <linux/fs.h>     /* everything... */
--#include <linux/errno.h>  /* error codes */
--#include <linux/timer.h>
--#include <linux/types.h>  /* size_t */
--#include <linux/ctype.h>  /* isdigit, isxdigit */
--#include <linux/fcntl.h>  /* O_ACCMODE */
--#include <linux/hdreg.h>  /* HDIO_GETGEO */
--
--#include <asm/system.h>   /* cli(), *_flags */
--#include <asm/uaccess.h>  /* put_user */
--
--#define MAJOR_NR xpram_major /* force definitions on in blk.h */
--int xpram_major;   /* must be declared before including blk.h */
--devfs_handle_t xpram_devfs_handle;
--
--#define DEVICE_NR(device) MINOR(device)   /* xpram has no partition bits */
--#define DEVICE_NAME "xpram"               /* name for messaging */
--#define DEVICE_INTR xpram_intrptr         /* pointer to the bottom half */
--#define DEVICE_NO_RANDOM                  /* no entropy to contribute */
--#define DEVICE_OFF(d)                     /* do-nothing */
--
--#include <linux/blk.h>
--
--#include "xpram.h"        /* local definitions */
--
--__setup("xpram_parts=", xpram_setup);
--
--/*
--   define the debug levels:
--   - 0 No debugging output to console or syslog
--   - 1 Log internal errors to syslog, ignore check conditions 
--   - 2 Log internal errors and check conditions to syslog
--   - 3 Log internal errors to console, log check conditions to syslog
--   - 4 Log internal errors and check conditions to console
--   - 5 panic on internal errors, log check conditions to console
--   - 6 panic on both, internal errors and check conditions
-- */
--#define XPRAM_DEBUG 4
--
--#define PRINTK_HEADER XPRAM_NAME
--
--#if XPRAM_DEBUG > 0
--#define PRINT_DEBUG(x...) printk ( KERN_DEBUG PRINTK_HEADER "debug:" x )
--#define PRINT_INFO(x...) printk ( KERN_INFO PRINTK_HEADER "info:" x )
--#define PRINT_WARN(x...) printk ( KERN_WARNING PRINTK_HEADER "warning:" x )
--#define PRINT_ERR(x...) printk ( KERN_ERR PRINTK_HEADER "error:" x )
--#define PRINT_FATAL(x...) panic ( PRINTK_HEADER "panic:"x )
--#else
--#define PRINT_DEBUG(x...) printk ( KERN_DEBUG PRINTK_HEADER "debug:"  x )
--#define PRINT_INFO(x...) printk ( KERN_DEBUG PRINTK_HEADER "info:" x )
--#define PRINT_WARN(x...) printk ( KERN_DEBUG PRINTK_HEADER "warning:" x )
--#define PRINT_ERR(x...) printk ( KERN_DEBUG PRINTK_HEADER "error:" x )
--#define PRINT_FATAL(x...) printk ( KERN_DEBUG PRINTK_HEADER "panic:" x )
--#endif
-+#define XPRAM_NAME	"xpram"
-+#define XPRAM_DEVICE_NAME_PREFIX "slram" /* Prefix device name for major 35 */
-+#define XPRAM_DEVS	1	/* one partition */
-+#define XPRAM_MAX_DEVS	32	/* maximal number of devices (partitions) */
-+
-+#define PRINT_DEBUG(x...)	printk(KERN_DEBUG XPRAM_NAME " debug:" x)
-+#define PRINT_INFO(x...)	printk(KERN_INFO XPRAM_NAME " info:" x)
-+#define PRINT_WARN(x...)	printk(KERN_WARNING XPRAM_NAME " warning:" x)
-+#define PRINT_ERR(x...)		printk(KERN_ERR XPRAM_NAME " error:" x)
-+#define PRINT_FATAL(x...)	panic(PRINTK_HEADER "panic:" x)
-+
-+typedef struct {
-+	unsigned long  size;	       /* size of xpram segment in pages */
-+	unsigned long  offset;         /* start page of xpram segment */
-+	char           device_name[16];
-+	devfs_handle_t devfs_entry;
-+} xpram_device_t;
-+
-+static xpram_device_t xpram_devices[XPRAM_MAX_DEVS];
-+static unsigned long xpram_sizes[XPRAM_MAX_DEVS];
-+static unsigned long xpram_pages;
-+static int xpram_devs;
-+static devfs_handle_t xpram_devfs_handle;
- 
- /*
-- * Non-prefixed symbols are static. They are meant to be assigned at
-- * load time. Prefixed symbols are not static, so they can be used in
-- * debugging. They are hidden anyways by register_symtab() unless
-- * XPRAM_DEBUG is defined.
-+ * Parameter parsing functions.
-  */
--
--static int major    = XPRAM_MAJOR;
--static int devs     = XPRAM_DEVS;
--static int sizes[XPRAM_MAX_DEVS] = { 0, };
--static int blksize  = XPRAM_BLKSIZE;
--static int hardsect = XPRAM_HARDSECT;
--
--int xpram_devs;
--int xpram_blksize, xpram_hardsect;
--int xpram_mem_avail = 0;
--unsigned long xpram_sizes[XPRAM_MAX_DEVS];
--
-+static int devs = XPRAM_DEVS;
-+static unsigned long sizes[XPRAM_MAX_DEVS] = { 0, };
- 
- MODULE_PARM(devs,"i");
- MODULE_PARM(sizes,"1-" __MODULE_STRING(XPRAM_MAX_DEVS) "i"); 
-@@ -153,511 +82,308 @@
- 		 "remaining space on the expanded strorage not "
- 		 "claimed by explicit sizes\n");
- 
--
--
--/* The following items are obtained through kmalloc() in init_module() */
--
--Xpram_Dev *xpram_devices = NULL;
--int *xpram_hardsects = NULL;
--int *xpram_offsets = NULL;   /* partition offsets */
--
--#define MIN(x,y) ((x) < (y) ? (x) : (y))
--#define MAX(x,y) ((x) > (y) ? (x) : (y))
--
--/* 
-- *              compute nearest multiple of 4 , argument must be non-negative
-- *              the macros used depends on XPRAM_KB_IN_PG = 4 
-- */
--
--#define NEXT4(x) ((x & 0x3) ? (x+4-(x &0x3)) : (x))   /* increment if needed */
--#define LAST4(x) ((x & 0x3) ? (x-4+(x & 0x3)) : (x))  /* decrement if needed */
--
--#if 0               /* this is probably not faster than the previous code */
--#define NEXT4(x)   ((((x-1)>>2)>>2)+4)             /* increment if needed */
--#define LAST4(x)   (((x+3)>>2)<<2)                 /* decrement if needed */
--#endif
--
--/* integer formats */
--#define XPRAM_INVALF -1    /* invalid     */
--#define XPRAM_HEXF    0    /* hexadecimal */
--#define XPRAM_DECF    1    /* decimal     */
--
--/* 
-- *    parsing operations (needed for kernel parameter parsing)
-- */
--
--/* -------------------------------------------------------------------------
-- * sets the string pointer after the next comma 
-- *
-- * argument:    strptr pointer to string
-- * side effect: strptr points to endof string or to position of the next 
-- *              comma 
-- * ------------------------------------------------------------------------*/
--static void
--xpram_scan_to_next_comma (char **strptr)
--{
--	while ( ((**strptr) != ',') && (**strptr) )
--		(*strptr)++;
--}
--
--/* -------------------------------------------------------------------------
-- * interpret character as hex-digit
-+#ifndef MODULE
-+/*
-+ * Parses the kernel parameters given in the kernel parameter line.
-+ * The expected format is
-+ *           <number_of_partitions>[","<partition_size>]*
-+ * where
-+ *           devices is a positive integer that initializes xpram_devs
-+ *           each size is a non-negative integer possibly followed by a
-+ *           magnitude (k,K,m,M,g,G), the list of sizes initialises
-+ *           xpram_sizes
-  *
-- * argument: c charcter
-- * result: c interpreted as hex-digit
-- * note: can be used to read digits for any base <= 16
-- * ------------------------------------------------------------------------*/
--static int
--xpram_get_hexdigit (char c)
--{
--	if ((c >= '0') && (c <= '9'))
--		return c - '0';
--	if ((c >= 'a') && (c <= 'f'))
--		return c + 10 - 'a';
--	if ((c >= 'A') && (c <= 'F'))
--		return c + 10 - 'A';
--	return -1;
--}
--
--/*--------------------------------------------------------------------------
-- * Check format of unsigned integer
-+ * Arguments
-+ *           str: substring of kernel parameter line that contains xprams
-+ *                kernel parameters.
-  *
-- * Argument: strptr pointer to string 
-- * result:   -1 if strptr does not start with a digit 
-- *                (does not start an integer)
-- *           0  if strptr starts a positive hex-integer with "0x" 
-- *           1  if strptr start a positive decimal integer
-+ * Result    0 on success, -EINVAL else -- only for Version > 2.3
-  *
-- * side effect: if strptr start a positive hex-integer then strptr is
-- *              set to the character after the "0x"
-- *-------------------------------------------------------------------------*/
--static int
--xpram_int_format(char **strptr)
-+ * Side effects
-+ *           the global variabls devs is set to the value of
-+ *           <number_of_partitions> and sizes[i] is set to the i-th
-+ *           partition size (if provided). A parsing error of a value
-+ *           results in this value being set to -EINVAL.
-+ */
-+int xpram_setup (char *str)
- {
--	if ( !isdigit(**strptr) )
--		return XPRAM_INVALF;
--	if ( (**strptr == '0') 
--	     && ( (*((*strptr)+1) == 'x') || (*((*strptr) +1) == 'X') ) 
--	     && isdigit(*((*strptr)+3)) ) {
--		*strptr=(*strptr)+2;
--		return XPRAM_HEXF;
--	} else return XPRAM_DECF;
--}
--
--/*--------------------------------------------------------------------------
-- * Read non-negative decimal integer
-- *
-- * Argument: strptr pointer to string starting with a non-negative integer
-- *           in decimal format
-- * result:   the value of theinitial integer pointed to by strptr
-- *
-- * side effect: strptr is set to the first character following the integer
-- *-------------------------------------------------------------------------*/
-+	char *cp;
-+	int i;
- 
--static int
--xpram_read_decint (char ** strptr)
--{
--	int res=0;
--	while ( isdigit(**strptr) ) {
--		res = (res*10) + xpram_get_hexdigit(**strptr);
--		(*strptr)++;
--	}
--	return res;
-+	devs = simple_strtoul(str, &cp, 10);
-+	if (cp <= str)
-+		return 0;
-+	for (i = 0; (i < devs) && (*cp++ == ','); i++) {
-+		sizes[i] = simple_strtoul(cp, &cp, 10);
-+		if (*cp == 'g' || *cp == 'G') {
-+			sizes[i] <<= 20;
-+			cp++;
-+		} else if (*cp == 'm' || *cp == 'M') {
-+			sizes[i] <<= 10;
-+			cp++;
-+		} else if (*cp == 'k' || *cp == 'K')
-+			cp++;
-+		while (isspace(*cp)) cp++;
-+	}
-+	if (*cp == ',' && i >= devs)
-+		PRINT_WARN("partition sizes list has too many entries.\n");
-+	else if (*cp != 0)
-+		PRINT_WARN("ignored '%s' at end of parameter string.\n", cp);
-+	return 1;
- }
- 
--/*--------------------------------------------------------------------------
-- * Read non-negative hex-integer
-- *
-- * Argument: strptr pointer to string starting with a non-negative integer
-- *           in hexformat (without "0x" prefix)
-- * result:   the value of the initial integer pointed to by strptr
-- *
-- * side effect: strptr is set to the first character following the integer
-- *-------------------------------------------------------------------------*/
-+__setup("xpram_parts=", xpram_setup);
+ /* "lock on reference count zero" */
+diff -rNu linux-2.5.21-final/kernel/ksyms.c linux/kernel/ksyms.c
+--- linux-2.5.21-final/kernel/ksyms.c	Sun Jun  9 07:26:33 2002
++++ linux/kernel/ksyms.c	Thu Jun 13 23:59:56 2002
+@@ -457,6 +457,9 @@
+ /* process management */
+ EXPORT_SYMBOL(complete_and_exit);
+ EXPORT_SYMBOL(__wake_up);
++#if CONFIG_SMP
++EXPORT_SYMBOL_GPL(__wake_up_sync); /* internal use only */
 +#endif
+ EXPORT_SYMBOL(wake_up_process);
+ EXPORT_SYMBOL(sleep_on);
+ EXPORT_SYMBOL(sleep_on_timeout);
+diff -rNu linux-2.5.21-final/kernel/sched.c linux/kernel/sched.c
+--- linux-2.5.21-final/kernel/sched.c	Sun Jun  9 07:28:13 2002
++++ linux/kernel/sched.c	Fri Jun 14 00:00:21 2002
+@@ -135,7 +135,6 @@
+  */
+ struct runqueue {
+ 	spinlock_t lock;
+-	spinlock_t frozen;
+ 	unsigned long nr_running, nr_switches, expired_timestamp;
+ 	signed long nr_uninterruptible;
+ 	task_t *curr, *idle;
+@@ -153,17 +152,21 @@
+ #define cpu_curr(cpu)		(cpu_rq(cpu)->curr)
+ #define rt_task(p)		((p)->prio < MAX_RT_PRIO)
  
--static int
--xpram_read_hexint (char ** strptr)
--{
--	int res=0;
--	while ( isxdigit(**strptr) ) {
--		res = (res<<4) + xpram_get_hexdigit(**strptr);
--		(*strptr)++;
--	}
--	return res;
 +/*
-+ * Copy expanded memory page (4kB) into main memory                  
-+ * Arguments                                                         
-+ *           page_addr:    address of target page                    
-+ *           xpage_index:  index of expandeded memory page           
-+ * Return value                                                      
-+ *           0:            if operation succeeds
-+ *           -EIO:         if pgin failed
-+ *           -ENXIO:       if xpram has vanished
++ * task_rq_lock - lock the runqueue a given task resides on and disable
++ * interrupts.  Note the ordering: we can safely lookup the task_rq without
++ * explicitly disabling preemption.
 + */
-+int xpram_page_in (unsigned long page_addr, unsigned long xpage_index)
+ static inline runqueue_t *task_rq_lock(task_t *p, unsigned long *flags)
+ {
+ 	struct runqueue *rq;
+ 
+ repeat_lock_task:
+-	preempt_disable();
++	local_irq_save(*flags);
+ 	rq = task_rq(p);
+-	spin_lock_irqsave(&rq->lock, *flags);
++	spin_lock(&rq->lock);
+ 	if (unlikely(rq != task_rq(p))) {
+ 		spin_unlock_irqrestore(&rq->lock, *flags);
+-		preempt_enable();
+ 		goto repeat_lock_task;
+ 	}
+ 	return rq;
+@@ -172,7 +175,23 @@
+ static inline void task_rq_unlock(runqueue_t *rq, unsigned long *flags)
+ {
+ 	spin_unlock_irqrestore(&rq->lock, *flags);
+-	preempt_enable();
++}
++
++/*
++ * rq_lock - lock a given runqueue and disable interrupts.
++ */
++static inline runqueue_t *rq_lock(runqueue_t *rq)
 +{
-+	int cc;
++	local_irq_disable();
++	rq = this_rq();
++	spin_lock(&rq->lock);
++	return rq;
++}
 +
-+	__asm__ __volatile(
-+		"   lhi   %0,2\n"  /* return unused cc 2 if pgin traps */
-+		"   .insn rre,0xb22e0000,%1,%2\n"  /* pgin %1,%2 */
-+                "0: ipm   %0\n"
-+		"   srl   %0,28\n"
-+		"1:\n"
-+#ifndef CONFIG_ARCH_S390X
-+		".section __ex_table,\"a\"\n"
-+		"   .align 4\n"
-+		"   .long  0b,1b\n"
-+		".previous"
-+#else
-+                ".section __ex_table,\"a\"\n"
-+                "   .align 8\n"
-+                "   .quad 0b,2b\n"
-+                ".previous"
-+#endif
-+		: "=&d" (cc) 
-+		: "a" (__pa(page_addr)), "a" (xpage_index) 
-+		: "cc" );
-+	if (cc == 3)
-+		return -ENXIO;
-+	if (cc == 2) {
-+		PRINT_ERR("expanded storage lost!\n");
-+		return -ENXIO;
-+	}
-+	if (cc == 1) {
-+		PRINT_ERR("page in failed for page index %ld.\n",
-+			  xpage_index);
-+		return -EIO;
-+	}
-+	return 0;
- }
--/*--------------------------------------------------------------------------
-- * Read non-negative integer
-- *
-- * Argument: strptr pointer to string starting with a non-negative integer
--             (either in decimal- or in hex-format
-- * result:   the value of the initial integer pointed to by strptr
-- *           in case of a parsing error the result is -EINVAL
-- *
-- * side effect: strptr is set to the first character following the integer
-- *-------------------------------------------------------------------------*/
- 
--static int
--xpram_read_int (char ** strptr)
-+/*
-+ * Copy a 4kB page of main memory to an expanded memory page          
-+ * Arguments                                                          
-+ *           page_addr:    address of source page                     
-+ *           xpage_index:  index of expandeded memory page            
-+ * Return value                                                       
-+ *           0:            if operation succeeds
-+ *           -EIO:         if pgout failed
-+ *           -ENXIO:       if xpram has vanished
-+ */
-+long xpram_page_out (unsigned long page_addr, unsigned long xpage_index)
- {
--	switch (  xpram_int_format(strptr) ) {
--	case XPRAM_INVALF: return -EINVAL;
--	case XPRAM_HEXF:   return xpram_read_hexint(strptr);
--	case XPRAM_DECF:   return xpram_read_decint(strptr);
--	default: return -EINVAL;
--	}
--}
-+	int cc;
- 
--/*--------------------------------------------------------------------------
-- * Read size
-- *
-- * Argument: strptr pointer to string starting with a non-negative integer
-- *           followed optionally by a size modifier:
-- *             k or K for kilo (default),
-- *             m or M for mega
-- *             g or G for giga
-- * result:   the value of the initial integer pointed to by strptr
-- *           multiplied by the modifier value devided by 1024
-- *           in case of a parsing error the result is -EINVAL
-- *
-- * side effect: strptr is set to the first character following the size
-- *-------------------------------------------------------------------------*/
--
--static int
--xpram_read_size (char ** strptr)
--{
--	int res;
--  
--	res=xpram_read_int(strptr);
--	if ( res < 0 )return res;
--	switch ( **strptr ) {
--	case 'g':
--	case 'G': res=res*1024;
--	case 'm':
--	case 'M': res=res*1024;
--	case 'k' :
--	case 'K' : (* strptr)++;
-+	__asm__ __volatile(
-+		"   lhi   %0,2\n"  /* return unused cc 2 if pgout traps */
-+		"   .insn rre,0xb22f0000,%1,%2\n"  /* pgout %1,%2 */
-+                "0: ipm   %0\n"
-+		"   srl   %0,28\n"
-+		"1:\n"
-+#ifndef CONFIG_ARCH_S390X
-+		".section __ex_table,\"a\"\n"
-+		"   .align 4\n"
-+		"   .long  0b,1b\n"
-+		".previous"
-+#else
-+                ".section __ex_table,\"a\"\n"
-+                "   .align 8\n"
-+                "   .quad 0b,2b\n"
-+                ".previous"
-+#endif
-+		: "=&d" (cc) 
-+		: "a" (__pa(page_addr)), "a" (xpage_index) 
-+		: "cc" );
-+	if (cc == 3)
-+		return -ENXIO;
-+	if (cc == 2) {
-+		PRINT_ERR("expanded storage lost!\n");
-+		return -ENXIO;
- 	}
--  
--	return res;
--}
--
--
--/*--------------------------------------------------------------------------
-- * Read tail of comma separated size list  ",i1,i2,...,in"
-- *
-- * Arguments:strptr pointer to string. It is assumed that the string has
-- *                  the format (","<size>)*
-- *           maxl integer describing the maximal number of elements in the
--                  list pointed to by strptr, max must be > 0.
-- *           ilist array of dimension >= maxl of integers to be modified
-- *
-- * result:   -EINVAL if the list is longer than maxl
-- *           0 otherwise
-- *
-- * side effects: for j=1,...,n ilist[ij] is set to the value of ij if it is
-- *               a valid non-negative integer and to -EINVAL otherwise
-- *               if no comma is found where it is expected an entry in
-- *               ilist is set to -EINVAL
-- *-------------------------------------------------------------------------*/
--static int
--xpram_read_size_list_tail (char ** strptr, int maxl, int * ilist)
--{ 
--	int i=0;
--	char *str = *strptr;
--	int res=0;
--
--	while ( (*str == ',') && (i < maxl) ) {
--		str++;      
--		ilist[i] = xpram_read_size(&str);
--		if ( ilist[i] == -EINVAL ) {
--			xpram_scan_to_next_comma(&str);
--			res = -EINVAL;
--		}
--		i++;
-+	if (cc == 1) {
-+		PRINT_ERR("page out failed for page index %ld.\n",
-+			  xpage_index);
-+		return -EIO;
- 	}
--	return res;
--#if 0  /* be lenient about trailing stuff */
--	if ( *str != 0 && *str != ' ' ) {
--		ilist[MAX(i-1,0)] = -EINVAL;
--		return -EINVAL;
--	} else return 0;
--#endif
-+	return 0;
- }
- 
--
- /*
-- *   expanded memory operations
-+ * Check if xpram is available.
-  */
--
--
--/*--------------------------------------------------------------------*/
--/* Copy expanded memory page (4kB) into main memory                   */
--/* Arguments                                                          */
--/*           page_addr:    address of target page                     */
--/*           xpage_index:  index of expandeded memory page            */
--/* Return value                                                       */
--/*           0:            if operation succeeds                      */
--/*           non-0:       otherwise                                   */
--/*--------------------------------------------------------------------*/
--long xpram_page_in (unsigned long page_addr, unsigned long xpage_index)
-+int xpram_present(void)
- {
--	int cc=0;
--	unsigned long real_page_addr = __pa(page_addr);
--#ifndef CONFIG_ARCH_S390X
--	__asm__ __volatile__ (
--		"   lr  1,%1         \n"   /* r1 = real_page_addr            */
--		"   lr  2,%2         \n"   /* r2 = xpage_index               */
--		"   .long 0xb22e0012 \n"   /* pgin r1,r2                     */
--		/* copy page from expanded memory */
--		"0: ipm  %0          \n"   /* save status (cc & program mask */
--		"   srl  %0,28       \n"   /* cc into least significant bits */
--                "1:                  \n"   /* we are done                    */
--                ".section .fixup,\"ax\"\n" /* start of fix up section        */
--                "2: lhi    %0,2      \n"   /* return unused condition code 2 */
--                "   bras 1,3f        \n"   /* safe label 1: in r1 and goto 3 */
--                "   .long 1b         \n"   /* literal containing label 1     */
--                "3: l    1,0(1)      \n"   /* load label 1 address into r1   */
--                "   br   1           \n"   /* goto label 1 (across sections) */
--                ".previous           \n"   /* back in text section           */
--                ".section __ex_table,\"a\"\n" /* start __extable             */
--                "   .align 4         \n"
--                "   .long 0b,2b      \n"   /* failure point 0, fixup code 2  */
--                ".previous           \n"
--		: "=d" (cc) : "d" (real_page_addr), "d" (xpage_index) : "cc", "1", "2"
--		);
--#else /* CONFIG_ARCH_S390X */
--	__asm__ __volatile__ (
--		"   lgr  1,%1        \n"   /* r1 = real_page_addr            */
--		"   lgr  2,%2        \n"   /* r2 = xpage_index               */
--		"   .long 0xb22e0012 \n"   /* pgin r1,r2                     */
--		/* copy page from expanded memory */
--		"0: ipm  %0          \n"   /* save status (cc & program mask */
--		"   srl  %0,28       \n"   /* cc into least significant bits */
--                "1:                  \n"   /* we are done                    */
--                ".section .fixup,\"ax\"\n" /* start of fix up section        */
--                "2: lghi %0,2        \n"   /* return unused condition code 2 */
--                "   jg   1b          \n"   /* goto label 1 above             */
--                ".previous           \n"   /* back in text section           */
--                ".section __ex_table,\"a\"\n" /* start __extable             */
--                "   .align 8         \n"
--                "   .quad 0b,2b      \n"   /* failure point 0, fixup code 2  */
--                ".previous           \n"
--		: "=d" (cc) : "d" (real_page_addr), "d" (xpage_index) : "cc", "1", "2"
--		);
--#endif /* CONFIG_ARCH_S390X */
--	switch (cc) {
--	case 0: return 0;
--	case 1: return -EIO;
--        case 2: return -ENXIO;
--	case 3: return -ENXIO;
--	default: return -EIO;  /* should not happen */
--	};
--}
-+	unsigned long mem_page;
-+	int rc;
- 
--/*--------------------------------------------------------------------*/
--/* Copy a 4kB page of main memory to an expanded memory page          */
--/* Arguments                                                          */
--/*           page_addr:    address of source page                     */
--/*           xpage_index:  index of expandeded memory page            */
--/* Return value                                                       */
--/*           0:            if operation succeeds                      */
--/*           non-0:        otherwise                                  */
--/*--------------------------------------------------------------------*/
--long xpram_page_out (unsigned long page_addr, unsigned long xpage_index)
--{
--	int cc=0;
--	unsigned long real_page_addr = __pa(page_addr);
--#ifndef CONFIG_ARCH_S390X
--	__asm__ __volatile__ (
--		"  lr  1,%1        \n"   /* r1 = mem_page                  */
--		"  lr  2,%2        \n"   /* r2 = rpi                       */
--		" .long 0xb22f0012 \n"   /* pgout r1,r2                    */
--                                /* copy page from expanded memory */
--		"0: ipm  %0        \n"   /* save status (cc & program mask */
--                " srl  %0,28       \n"   /* cc into least significant bits */
--                "1:                  \n"   /* we are done                    */
--                ".section .fixup,\"ax\"\n" /* start of fix up section        */
--                "2: lhi   %0,2       \n"   /* return unused condition code 2 */
--                "   bras 1,3f        \n"   /* safe label 1: in r1 and goto 3 */
--                "   .long 1b         \n"   /* literal containing label 1     */
--                "3: l    1,0(1)      \n"   /* load label 1 address into r1   */
--                "   br   1           \n"   /* goto label 1 (across sections) */
--                ".previous           \n"   /* back in text section           */
--                ".section __ex_table,\"a\"\n" /* start __extable             */
--                "   .align 4         \n"
--                "   .long 0b,2b      \n"   /* failure point 0, fixup code 2  */
--                ".previous           \n"
--		: "=d" (cc) : "d" (real_page_addr), "d" (xpage_index) : "cc", "1", "2"
--		);
--#else /* CONFIG_ARCH_S390X */
--	__asm__ __volatile__ (
--		"  lgr  1,%1       \n"   /* r1 = mem_page                  */
--		"  lgr  2,%2       \n"   /* r2 = rpi                       */
--		" .long 0xb22f0012 \n"   /* pgout r1,r2                    */
--                                         /* copy page from expanded memory */
--		"0: ipm  %0        \n"   /* save status (cc & program mask */
--                "  srl  %0,28      \n"   /* cc into least significant bits */
--                "1:                \n"   /* we are done                    */
--                ".section .fixup,\"ax\"\n" /* start of fix up section      */
--                "2: lghi %0,2      \n"   /* return unused condition code 2 */
--                "   jg   1b        \n"   /* goto label 1 above             */
--                ".previous         \n"   /* back in text section           */
--                ".section __ex_table,\"a\"\n" /* start __extable           */
--                "   .align 8       \n"
--                "   .quad 0b,2b    \n"   /* failure point 0, fixup code 2  */
--                ".previous         \n"
--		: "=d" (cc) : "d" (real_page_addr), "d" (xpage_index) : "cc", "1", "2"
--		);
--#endif  /* CONFIG_ARCH_S390X */
--	switch (cc) {
--	case 0: return 0;
--	case 1: return -EIO;
--        case 2: { PRINT_ERR("expanded storage lost!\n"); return -ENXIO; }
--	case 3: return -ENXIO;
--	default: return -EIO;  /* should not happen */
--        }
-+	mem_page = (unsigned long) __get_free_page(GFP_KERNEL);
-+	rc = xpram_page_in(mem_page, 0);
-+	free_page(mem_page);
-+	return rc ? -ENXIO : 0;
- }
- 
--/*--------------------------------------------------------------------*/
--/* Measure expanded memory                                            */
--/* Return value                                                       */
--/*           size of expanded memory in kB (must be a multipe of 4)   */
--/*--------------------------------------------------------------------*/
--int xpram_size(void)
-+/*
-+ * Return index of the last available xpram page.
-+ */
-+unsigned long xpram_highest_page_index(void)
- {
--	int cc=0;  
--        unsigned long base=0;
--	unsigned long po, pi, rpi;   /* page index order, page index */
--
--	unsigned long mem_page = __get_free_page(GFP_KERNEL);
--
--	/* for po=0,1,2,... try to move in page number base+(2^po)-1 */
--	pi=1;   
--	for (po=0; po <= 32; po++) { /* pi = 2^po */
--		cc=xpram_page_in(mem_page,base+pi-1);
--		if ( cc ) break;
--		pi <<= 1;  
--	}
--	if ( cc && (po < 31 ) ) {
--                pi >>=1;
--		base += pi;
--		pi >>=1;
--		for ( ; pi > 0; pi >>= 1) {
--			rpi = pi - 1;
--			cc=xpram_page_in(mem_page,base+rpi);
--			if ( !cc ) base += pi;
--		}
-+	unsigned long page_index, add_bit;
-+	unsigned long mem_page;
-+
-+	mem_page = (unsigned long) __get_free_page(GFP_KERNEL);
-+
-+	page_index = 0;
-+	add_bit = 1ULL << (sizeof(unsigned long)*8 - 1);
-+	while (add_bit > 0) {
-+		if (xpram_page_in(mem_page, page_index | add_bit) == 0)
-+			page_index |= add_bit;
-+		add_bit >>= 1;
- 	}
--	
-+
- 	free_page (mem_page);
- 
--	if ( cc && (po < 31) ) 
--		return (XPRAM_KB_IN_PG * base);
--	else          /* return maximal value possible */
--		return INT_MAX;
-+	return page_index;
++static inline void rq_unlock(runqueue_t *rq)
++{
++	spin_unlock(&rq->lock);
++	local_irq_enable();
  }
  
  /*
-- * Open and close
-+ * Block device make request function.
+@@ -284,9 +303,15 @@
+ repeat:
+ 	preempt_disable();
+ 	rq = task_rq(p);
+-	while (unlikely(rq->curr == p)) {
++	if (unlikely(rq->curr == p)) {
+ 		cpu_relax();
+-		barrier();
++		/*
++		 * enable/disable preemption just to make this
++		 * a preemption point - we are busy-waiting
++		 * anyway.
++		 */
++		preempt_enable();
++		goto repeat;
+ 	}
+ 	rq = task_rq_lock(p, &flags);
+ 	if (unlikely(rq->curr == p)) {
+@@ -322,40 +347,50 @@
+  * "current->state = TASK_RUNNING" to mark yourself runnable
+  * without the overhead of this.
   */
--
--int xpram_open (struct inode *inode, struct file *filp)
-+static int xpram_make_request(request_queue_t *q, struct bio *bio)
+-static int try_to_wake_up(task_t * p)
++static int try_to_wake_up(task_t * p, int sync)
  {
--	Xpram_Dev *dev; /* device information */
--	int num = MINOR(inode->i_rdev);
--
--
--	if (num >= xpram_devs) return -ENODEV;
--	dev = xpram_devices + num;
-+	xpram_device_t *xdev;
-+	struct bio_vec *bvec;
-+	unsigned long index;
-+	unsigned long page_addr;
-+	unsigned long bytes;
-+	int i;
+ 	unsigned long flags;
+ 	int success = 0;
+ 	long old_state;
+ 	runqueue_t *rq;
  
--	PRINT_DEBUG("calling xpram_open for device %d\n",num);
--        PRINT_DEBUG("  size %dkB, name %s, usage: %d\n", 
--                     dev->size,dev->device_name, atomic_read(&(dev->usage)));
-+	if (minor(to_kdev_t(bio->bi_bdev->bd_dev)) > xpram_devs)
-+		/* No such device. */
-+		goto fail;
-+	xdev = xpram_devices + minor(to_kdev_t(bio->bi_bdev->bd_dev));
-+	if ((bio->bi_sector & 3) != 0 || (bio->bi_size & 4095) != 0)
-+		/* Request is not page-aligned. */
-+		goto fail;
-+	if ((bio->bi_size >> 12) > xdev->size)
-+		/* Request size is no page-aligned. */
-+		goto fail;
-+	index = (bio->bi_sector >> 3) + xdev->offset;
-+	bio_for_each_segment(bvec, bio, i) {
-+		page_addr = (unsigned long)
-+			kmap(bvec->bv_page) + bvec->bv_offset;
-+		bytes = bvec->bv_len;
-+		if ((page_addr & 4095) != 0 || (bytes & 4095) != 0)
-+			/* More paranoia. */
-+			goto fail;
-+		while (bytes > 0) {
-+			if (bio_data_dir(bio) == READ) {
-+				if (xpram_page_in(page_addr, index) != 0)
-+					goto fail;
-+			} else {
-+				if (xpram_page_out(page_addr, index) != 0)
-+					goto fail;
++repeat_lock_task:
+ 	rq = task_rq_lock(p, &flags);
+ 	old_state = p->state;
+-	p->state = TASK_RUNNING;
+ 	if (!p->array) {
++		if (unlikely(sync && (rq->curr != p))) {
++			if (p->thread_info->cpu != smp_processor_id()) {
++				p->thread_info->cpu = smp_processor_id();
++				task_rq_unlock(rq, &flags);
++				goto repeat_lock_task;
 +			}
-+			page_addr += 4096;
-+			bytes -= 4096;
-+			index++;
 +		}
-+	}
-+	set_bit(BIO_UPTODATE, &bio->bi_flags);
-+	bio->bi_end_io(bio);
-+	return 0;
-+fail:
-+	bio_io_error(bio);
-+	return 0;
-+}
- 
--	atomic_inc(&(dev->usage));
--	return 0;          /* success */
-+/*
-+ * The file operations
-+ */
-+int xpram_open (struct inode *inode, struct file *filp)
-+{
-+	if ((!inode) || kdev_none(inode->i_rdev))
-+		return -EINVAL;
-+	if (minor(inode->i_rdev) >= xpram_devs)
-+		return -ENODEV;
-+	return 0;
- }
- 
- int xpram_release (struct inode *inode, struct file *filp)
- {
--	Xpram_Dev *dev = xpram_devices + MINOR(inode->i_rdev);
--
--	PRINT_DEBUG("calling xpram_release for device %d (size %dkB, usage: %d)\n",MINOR(inode->i_rdev) ,dev->size,atomic_read(&(dev->usage)));
--
--	/*
--	 * If the device is closed for the last time, start a timer
--	 * to release RAM in half a minute. The function and argument
--	 * for the timer have been setup in init_module()
--	 */
--	if (!atomic_dec_return(&(dev->usage))) {
--		/* but flush it right now */
--		/* Everything is already flushed by caller -- AV */
--	}
--	return(0);
-+	if ((!inode) || kdev_none(inode->i_rdev))
-+		return -EINVAL;
-+	if (minor(inode->i_rdev) >= xpram_devs)
-+		return -ENODEV;
-+	return 0;
- }
- 
--
--/*
-- * The ioctl() implementation
-- */
--
- int xpram_ioctl (struct inode *inode, struct file *filp,
- 		 unsigned int cmd, unsigned long arg)
- {
--	int err, size;
--	struct hd_geometry *geo = (struct hd_geometry *)arg;
-+	struct hd_geometry *geo;
-+	unsigned long size;
-+	int idx;
- 
--	PRINT_DEBUG("ioctl 0x%x 0x%lx\n", cmd, arg);
--	switch(cmd) {
--
--	case BLKGETSIZE:  /* 0x1260 */
-+	if ((!inode) || kdev_none(inode->i_rdev))
-+		return -EINVAL;
-+	idx = minor(inode->i_rdev);
-+	if (idx >= xpram_devs)
-+		return -ENODEV;
-+	switch (cmd) {
-+	case BLKGETSIZE:
- 		/* Return the device size, expressed in sectors */
--		return put_user( 1024* xpram_sizes[MINOR(inode->i_rdev)]
--                           / XPRAM_SOFTSECT,
--			   (unsigned long *) arg);
--
-+		return put_user(xpram_sizes[idx] << 1, (unsigned long *) arg);
- 	case BLKGETSIZE64:
--		return put_user( (u64)(1024* xpram_sizes[MINOR(inode->i_rdev)]
--                           / XPRAM_SOFTSECT) << 9,
--			   (u64 *) arg);
--
--	case BLKFLSBUF: /* flush, 0x1261 */
--		fsync_bdev(inode->i_bdev);
--		if ( capable(CAP_SYS_ADMIN) )invalidate_bdev(inode->i_bdev, 0);
--		return 0;
--
--	case BLKRRPART: /* re-read partition table: can't do it, 0x1259 */
-+		/* Return the device size, expressed in bytes */
-+		return put_user((u64) xpram_sizes[idx] << 10, (u64 *) arg);
-+	case BLKFLSBUF:
-+		return blk_ioctl(((struct inode *) inode)->i_bdev, cmd, arg);
-+	case BLKRRPART:
-+		/* re-read partition table: can't do it */
- 		return -EINVAL;
--
- 	case HDIO_GETGEO:
- 		/*
- 		 * get geometry: we have to fake one...  trim the size to a
- 		 * multiple of 64 (32k): tell we have 16 sectors, 4 heads,
- 		 * whatever cylinders. Tell also that data starts at sector. 4.
- 		 */
--		size = xpram_mem_avail * 1024 / XPRAM_SOFTSECT;
--		/* size = xpram_mem_avail * 1024 / xpram_hardsect; */
--		size &= ~0x3f; /* multiple of 64 */
--		if (geo==NULL) return -EINVAL;
--                /* 
--                 * err=verify_area_20(VERIFY_WRITE, geo, sizeof(*geo));
--		 * if (err) return err;
--                 */
--
-+		geo = (struct hd_geometry *) arg;
-+		if (geo == NULL)
-+			return -EINVAL;
-+		size = (xpram_pages * 8) & ~0x3f;
- 		put_user(size >> 6, &geo->cylinders);
--		put_user(        4, &geo->heads);
--		put_user(       16, &geo->sectors);
--		put_user(        4, &geo->start);
--
-+		put_user(4, &geo->heads);
-+		put_user(16, &geo->sectors);
-+		put_user(4, &geo->start);
- 		return 0;
-+	default:
-+		return -EINVAL;
+ 		if (old_state == TASK_UNINTERRUPTIBLE)
+ 			rq->nr_uninterruptible--;
+ 		activate_task(p, rq);
++		/*
++		 * If sync is set, a resched_task() is a NOOP
++		 */
+ 		if (p->prio < rq->curr->prio)
+ 			resched_task(rq->curr);
+ 		success = 1;
  	}
--
--	return -EINVAL; /* unknown command */
++	p->state = TASK_RUNNING;
+ 	task_rq_unlock(rq, &flags);
++
+ 	return success;
  }
  
--/*
-- * The file operations
-- */
- struct block_device_operations xpram_devops =
+ int wake_up_process(task_t * p)
  {
- 	owner:   THIS_MODULE,
-@@ -667,432 +393,150 @@
- };
+-	return try_to_wake_up(p);
++	return try_to_wake_up(p, 0);
+ }
+ 
+ void wake_up_forked_process(task_t * p)
+ {
+ 	runqueue_t *rq;
+ 
+-	preempt_disable();
+-	rq = this_rq();
+-	spin_lock_irq(&rq->lock);
++	rq = rq_lock(rq);
+ 
+ 	p->state = TASK_RUNNING;
+ 	if (!rt_task(p)) {
+@@ -371,8 +406,7 @@
+ 	p->thread_info->cpu = smp_processor_id();
+ 	activate_task(p, rq);
+ 
+-	spin_unlock_irq(&rq->lock);
+-	preempt_enable();
++	rq_unlock(rq);
+ }
  
  /*
-- * Block-driver specific functions
-- */
--
--void xpram_request(request_queue_t * queue)
--{
--	Xpram_Dev *device;
--	/*     u8 *ptr;          */
--	/*    int size;          */
--
--	unsigned long page_no;         /* expanded memory page number */
--	unsigned long sects_to_copy;   /* number of sectors to be copied */
--        char * buffer;                 /* local pointer into buffer cache */
--	int dev_no;                    /* device number of request */
--	int fault;                     /* faulty access to expanded memory */
--        struct request * current_req;      /* working request */
--
--	while(1) {
--		if (blk_queue_empty(QUEUE)) {
--			CLEAR_INTR;
--			return;
--		}
--
--		fault=0;
--		current_req = CURRENT;
--		dev_no = DEVICE_NR(current_req->rq_dev);
--		/* Check if the minor number is in range */
--		if ( dev_no > xpram_devs ) {
--			static int count = 0;
--			if (count++ < 5) /* print the message at most five times */
--				PRINT_WARN(" request for unknown device\n");
--			end_request(0);
--			continue;
--		}
--
--		/* pointer to device structure, from the global array */
--		device = xpram_devices + dev_no;   
--		sects_to_copy = current_req->current_nr_sectors;
--                /* does request exceed size of device ? */
--		if ( XPRAM_SEC2KB(sects_to_copy) > xpram_sizes[dev_no] ) {
--			PRINT_WARN(" request past end of device\n");
--			end_request(0);
--			continue;
--		}
--
--                /* Does request start at page boundery? -- paranoia */
--#if 0
--		PRINT_DEBUG(" req %lx, sect %lx, to copy %lx, buf addr %lx\n", (unsigned long) current_req, current_req->sector, sects_to_copy, (unsigned long) current_req->buffer);
--#endif
--                buffer = current_req->buffer;
--#if XPRAM_SEC_IN_PG != 1
--                /* Does request start at an expanded storage page boundery? */
--                if ( current_req->sector &  (XPRAM_SEC_IN_PG - 1) ) {
--			PRINT_WARN(" request does not start at an expanded storage page boundery\n");
--			PRINT_WARN(" referenced sector: %ld\n",current_req->sector);
--			end_request(0);
--			continue;
--		}
--		/* Does request refere to partial expanded storage pages? */
--                if ( sects_to_copy & (XPRAM_SEC_IN_PG - 1) ) {
--			PRINT_WARN(" request referes to a partial expanded storage page\n");
--			end_request(0);
--			continue;
--		}
--#endif /*  XPRAM_SEC_IN_PG != 1 */
--		/* Is request buffer aligned with kernel pages? */
--		if ( ((unsigned long)buffer) & (XPRAM_PGSIZE-1) ) {
--			PRINT_WARN(" request buffer is not aligned with kernel pages\n");
--			end_request(0);
--			continue;
--		}
--
--                /* which page of expanded storage is affected first? */
--		page_no = (xpram_offsets[dev_no] >> XPRAM_KB_IN_PG_ORDER)
--			+ (current_req->sector >> XPRAM_SEC_IN_PG_ORDER); 
--
--#if 0 
--		PRINT_DEBUG("request: %d ( dev %d, copy %d sectors, at page %d ) \n", current_req->cmd,dev_no,sects_to_copy,page_no);
--#endif
--
--		switch(current_req->cmd) {
--		case READ:
--			do {
--				if ( (fault=xpram_page_in((unsigned long)buffer,page_no)) ) {
--					PRINT_WARN("xpram(dev %d): page in failed for page %ld.\n",dev_no,page_no);
--					break;
--				}
--				sects_to_copy -= XPRAM_SEC_IN_PG;
--                                buffer += XPRAM_PGSIZE;
--				page_no++;
--			} while ( sects_to_copy > 0 );
--			break;
--		case WRITE:
--			do {
--				if ( (fault=xpram_page_out((unsigned long)buffer,page_no)) 
--					) {
--					PRINT_WARN("xpram(dev %d): page out failed for page %ld.\n",dev_no,page_no);
--					break;
--				}
--				sects_to_copy -= XPRAM_SEC_IN_PG;
--				buffer += XPRAM_PGSIZE;
--				page_no++;
--			} while ( sects_to_copy > 0 );
--			break;
--		default:
--			/* can't happen */
--			end_request(0);
--			continue;
--		}
--		if ( fault ) end_request(0);
--		else end_request(1); /* success */
--	}
--}
--
--/*
-- *    Kernel interfaces
-+ * Setup xpram_sizes array.
-  */
--
--/*
-- * Parses the kernel parameters given in the kernel parameter line.
-- * The expected format is 
-- *           <number_of_partitions>[","<partition_size>]*
-- * where 
-- *           devices is a positive integer that initializes xpram_devs
-- *           each size is a non-negative integer possibly followed by a
-- *           magnitude (k,K,m,M,g,G), the list of sizes initialises 
-- *           xpram_sizes
-- *
-- * Arguments
-- *           str: substring of kernel parameter line that contains xprams
-- *                kernel parameters. 
-- *           ints: not used -- not in Version > 2.3 any more
-- *
-- * Result    0 on success, -EINVAl else -- only for Version > 2.3
-- *
-- * Side effects
-- *           the global variabls devs is set to the value of 
-- *           <number_of_partitions> and sizes[i] is set to the i-th
-- *           partition size (if provided). A parsing error of a value
-- *           results in this value being set to -EINVAL.
-- */
--int xpram_setup (char *str)
-+int xpram_setup_sizes(unsigned long pages)
+@@ -401,19 +435,18 @@
+ }
+ 
+ #if CONFIG_SMP || CONFIG_PREEMPT
+-asmlinkage void schedule_tail(void)
++asmlinkage void schedule_tail(task_t *prev)
  {
--	devs = xpram_read_int(&str);
--	if ( devs != -EINVAL )
--		if ( xpram_read_size_list_tail(&str,devs,sizes) < 0 ) {
--			PRINT_ERR("error while reading xpram parameters.\n");
--			return -EINVAL;
--		}
--		else
--			return 0;
--	else
--		return -EINVAL;
--}
--
--/*
-- * initialize xpram device driver
-- *
-- * Result: 0 ok
-- *         negative number: negative error code
-- */
-+	unsigned long mem_needed;
-+	unsigned long mem_auto;
-+	int mem_auto_no;
-+	int i;
+-	spin_unlock_irq(&this_rq()->frozen);
++	finish_arch_switch(this_rq());
++	finish_arch_schedule(prev);
+ }
+ #endif
  
--int xpram_init(void)
--{
--	int result, i;
--	int mem_usable;       /* net size of expanded memory */
--	int mem_needed=0;     /* size of expanded memory needed to fullfill
--			       * requirements of non-zero parameters in sizes
--			       */
+-static inline void context_switch(task_t *prev, task_t *next)
++static inline task_t * context_switch(task_t *prev, task_t *next)
+ {
+ 	struct mm_struct *mm = next->mm;
+ 	struct mm_struct *oldmm = prev->active_mm;
+ 
+-	prepare_to_switch();
 -
--	int mem_auto_no=0;    /* number of (implicit) zero parameters in sizes */
--	int mem_auto;         /* automatically determined device size          */
--	int minor_length;     /* store the length of a minor (w/o '\0') */
--        int minor_thresh;     /* threshhold for minor lenght            */
--
--        request_queue_t *q;   /* request queue */
--
--				/*
--				 * Copy the (static) cfg variables to public prefixed ones to allow
--				 * snoozing with a debugger.
--				 */
--
--	xpram_blksize  = blksize;
--	xpram_hardsect = hardsect;
--
--	PRINT_INFO("initializing: %s\n","");
--				/* check arguments */
--	xpram_major    = major;
--	if ( (devs <= 0) || (devs > XPRAM_MAX_DEVS) ) {
-+	/* Check number of devices. */
-+	if (devs <= 0 || devs > XPRAM_MAX_DEVS) {
- 		PRINT_ERR("invalid number %d of devices\n",devs);
--                PRINT_ERR("Giving up xpram\n");
- 		return -EINVAL;
+ 	if (unlikely(!mm)) {
+ 		next->active_mm = oldmm;
+ 		atomic_inc(&oldmm->mm_count);
+@@ -427,7 +460,9 @@
  	}
--	xpram_devs     = devs;
--	for (i=0; i < xpram_devs; i++) {
--		if ( sizes[i] < 0 ) {
--			PRINT_ERR("Invalid partition size %d kB\n",xpram_sizes[i]);
--                        PRINT_ERR("Giving up xpram\n");
--			return -EINVAL;
--		} else {
--		  xpram_sizes[i] = NEXT4(sizes[i]);  /* page align */
--			if ( sizes[i] ) mem_needed += xpram_sizes[i];
--			else mem_auto_no++;
--		}
--	}
-+	xpram_devs = devs;
  
--	PRINT_DEBUG("  major %d \n", xpram_major);
-+	/*
-+	 * Copy sizes array to xpram_sizes and align partition
-+	 * sizes to page boundary.
-+	 */
-+	mem_needed = 0;
-+	mem_auto_no = 0;
-+	for (i = 0; i < xpram_devs; i++) {
-+		xpram_sizes[i] = (sizes[i] + 3) & -4UL;
-+		if (xpram_sizes[i])
-+			mem_needed += xpram_sizes[i];
-+		else
-+			mem_auto_no++;
-+	}
+ 	/* Here we just switch the register state and the stack. */
+-	switch_to(prev, next);
++	switch_to(prev, next, prev);
++
++	return prev;
+ }
+ 
+ unsigned long nr_running(void)
+@@ -773,6 +808,7 @@
+ 	rq = this_rq();
+ 
+ 	release_kernel_lock(prev, smp_processor_id());
++	prepare_arch_schedule(prev);
+ 	prev->sleep_timestamp = jiffies;
+ 	spin_lock_irq(&rq->lock);
+ 
+@@ -828,28 +864,20 @@
+ 	if (likely(prev != next)) {
+ 		rq->nr_switches++;
+ 		rq->curr = next;
+-		spin_lock(&rq->frozen);
+-		spin_unlock(&rq->lock);
+-
+-		context_switch(prev, next);
+-
+-		/*
+-		 * The runqueue pointer might be from another CPU
+-		 * if the new task was last running on a different
+-		 * CPU - thus re-load it.
+-		 */
+-		mb();
 +	
- 	PRINT_INFO("  number of devices (partitions): %d \n", xpram_devs);
--	for (i=0; i < xpram_devs; i++) {
--		if ( sizes[i] )
--			PRINT_INFO("  size of partition %d: %d kB\n", i, xpram_sizes[i]);
-+	for (i = 0; i < xpram_devs; i++) {
-+		if (xpram_sizes[i])
-+			PRINT_INFO("  size of partition %d: %ld kB\n",
-+				   i, xpram_sizes[i]);
- 		else
--			PRINT_INFO("  size of partition %d to be set automatically\n",i);
-+			PRINT_INFO("  size of partition %d to be set "
-+				   "automatically\n",i);
- 	}
--	PRINT_DEBUG("  memory needed (for sized partitions): %d kB\n", mem_needed);
--	PRINT_DEBUG("  partitions to be sized automatically: %d\n", mem_auto_no);
-+	PRINT_DEBUG("  memory needed (for sized partitions): %ld kB\n",
-+		    mem_needed);
-+	PRINT_DEBUG("  partitions to be sized automatically: %d\n",
-+		    mem_auto_no);
++		prepare_arch_switch(rq);
++		prev = context_switch(prev, next);
++		barrier();
+ 		rq = this_rq();
+-		spin_unlock_irq(&rq->frozen);
+-	} else {
++		finish_arch_switch(rq);
++	} else
+ 		spin_unlock_irq(&rq->lock);
+-	}
++	finish_arch_schedule(prev);
  
--#if 0
--				/* Hardsect can't be changed :( */
--                                /* I try it any way. Yet I must distinguish
--                                 * between hardsects (to be changed to 4096)
--                                 * and soft sectors, hard-coded for buffer 
--                                 * sizes within the requests
--                                 */
--	if (hardsect != 512) {
--		PRINT_ERR("Can't change hardsect size\n");
--		hardsect = xpram_hardsect = 512;
-+	if (mem_needed > pages * 4) {
-+		PRINT_ERR("Not enough expanded memory available\n");
-+		return -EINVAL;
- 	}
--#endif
--        PRINT_INFO("  hardsector size: %dB \n",xpram_hardsect);
+ 	reacquire_kernel_lock(current);
+ 	preempt_enable_no_resched();
+ 	if (test_thread_flag(TIF_NEED_RESCHED))
+ 		goto need_resched;
+-	return;
+ }
  
- 	/*
--	 * Register your major, and accept a dynamic number
-+	 * partitioning:
-+	 * xpram_sizes[i] != 0; partition i has size xpram_sizes[i] kB
-+	 * else:             ; all partitions with zero xpram_sizes[i]
-+	 *                     partition equally the remaining space
-+	 */
-+	if (mem_auto_no) {
-+		mem_auto = ((pages - mem_needed / 4) / mem_auto_no) * 4;
-+		PRINT_INFO("  automatically determined "
-+			   "partition size: %ld kB\n", mem_auto);
-+		for (i = 0; i < xpram_devs; i++)
-+			if (xpram_sizes[i] == 0)
-+				xpram_sizes[i] = mem_auto;
-+	}
-+	return 0;
+ #ifdef CONFIG_PREEMPT
+@@ -880,7 +908,7 @@
+  * started to run but is not in state TASK_RUNNING.  try_to_wake_up() returns
+  * zero in this (rare) case, and we handle it by continuing to scan the queue.
+  */
+-static inline void __wake_up_common(wait_queue_head_t *q, unsigned int mode, int nr_exclusive)
++static inline void __wake_up_common(wait_queue_head_t *q, unsigned int mode, int nr_exclusive, int sync)
+ {
+ 	struct list_head *tmp;
+ 	unsigned int state;
+@@ -891,7 +919,7 @@
+ 		curr = list_entry(tmp, wait_queue_t, task_list);
+ 		p = curr->task;
+ 		state = p->state;
+-		if ((state & mode) && try_to_wake_up(p) &&
++		if ((state & mode) && try_to_wake_up(p, sync) &&
+ 			((curr->flags & WQ_FLAG_EXCLUSIVE) && !--nr_exclusive))
+ 				break;
+ 	}
+@@ -905,17 +933,36 @@
+ 		return;
+ 
+ 	spin_lock_irqsave(&q->lock, flags);
+-	__wake_up_common(q, mode, nr_exclusive);
++	__wake_up_common(q, mode, nr_exclusive, 0);
++	spin_unlock_irqrestore(&q->lock, flags);
 +}
 +
-+int xpram_setup_blkdev(void)
++#if CONFIG_SMP
++
++void __wake_up_sync(wait_queue_head_t *q, unsigned int mode, int nr_exclusive)
 +{
-+	request_queue_t *q;
-+	unsigned long offset;
-+	int i, rc;
++	unsigned long flags;
 +
++	if (unlikely(!q))
++		return;
++
++	spin_lock_irqsave(&q->lock, flags);
++	if (likely(nr_exclusive))
++		__wake_up_common(q, mode, nr_exclusive, 1);
++	else
++		__wake_up_common(q, mode, nr_exclusive, 0);
+ 	spin_unlock_irqrestore(&q->lock, flags);
+ }
+ 
++#endif
++ 
+ void complete(struct completion *x)
+ {
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&x->wait.lock, flags);
+ 	x->done++;
+-	__wake_up_common(&x->wait, TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE, 1);
++	__wake_up_common(&x->wait, TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE, 1, 0);
+ 	spin_unlock_irqrestore(&x->wait.lock, flags);
+ }
+ 
+@@ -1342,8 +1389,7 @@
+ 	runqueue_t *rq;
+ 	prio_array_t *array;
+ 
+-	preempt_disable();
+-	rq = this_rq();
++	rq = rq_lock(rq);
+ 
+ 	/*
+ 	 * Decrease the yielding task's priority by one, to avoid
+@@ -1353,7 +1399,6 @@
+ 	 * If priority is already MAX_PRIO-1 then we still
+ 	 * roundrobin the task within the runlist.
+ 	 */
+-	spin_lock_irq(&rq->lock);
+ 	array = current->array;
+ 	/*
+ 	 * If the task has reached maximum priority (or is a RT task)
+@@ -1370,8 +1415,7 @@
+ 		list_add_tail(&current->run_list, array->queue + current->prio);
+ 		__set_bit(current->prio, array->bitmap);
+ 	}
+-	spin_unlock(&rq->lock);
+-	preempt_enable_no_resched();
++	spin_unlock_no_resched(&rq->lock);
+ 
+ 	schedule();
+ 
+@@ -1599,7 +1643,6 @@
+ 		rq->active = rq->arrays;
+ 		rq->expired = rq->arrays + 1;
+ 		spin_lock_init(&rq->lock);
+-		spin_lock_init(&rq->frozen);
+ 		INIT_LIST_HEAD(&rq->migration_queue);
+ 
+ 		for (j = 0; j < 2; j++) {
+@@ -1687,7 +1730,15 @@
+ 		task_rq_unlock(rq, &flags);
+ 		goto out;
+ 	}
+-
 +	/*
-+	 * Register xpram major.
- 	 */
--	result = devfs_register_blkdev(xpram_major, "xpram", &xpram_devops);
--	if (result < 0) {
--		PRINT_ERR("Can't get major %d\n",xpram_major);
--                PRINT_ERR("Giving up xpram\n");
--		return result;
-+	rc = devfs_register_blkdev(XPRAM_MAJOR, XPRAM_NAME, &xpram_devops);
-+	if (rc < 0) {
-+		PRINT_ERR("Can't get xpram major %d\n", XPRAM_MAJOR);
-+		return rc;
- 	}
-+
- 	xpram_devfs_handle = devfs_mk_dir (NULL, "slram", NULL);
--	devfs_register_series (xpram_devfs_handle, "%u", XPRAM_MAX_DEVS,
-+	devfs_register_series (xpram_devfs_handle, "%u", xpram_devs,
- 			       DEVFS_FL_DEFAULT, XPRAM_MAJOR, 0,
- 			       S_IFBLK | S_IRUSR | S_IWUSR,
- 			       &xpram_devops, NULL);
--	if (xpram_major == 0) xpram_major = result; /* dynamic */
--	major = xpram_major; /* Use `major' later on to save typing */
--
--	result = -ENOMEM; /* for the possible errors */
--
--	/*
--	 * measure expanded memory
--	 */
--
--	xpram_mem_avail = xpram_size();
--	if (!xpram_mem_avail) {
--		PRINT_ERR("No or not enough expanded memory available\n");
--                PRINT_ERR("Giving up xpram\n");
--		result = -ENODEV;
--		goto fail_malloc;
--	}
--	PRINT_INFO("  %d kB expanded memory found.\n",xpram_mem_avail );
- 
- 	/*
--	 * Assign the other needed values: request, size, blksize,
--	 * hardsect. All the minor devices feature the same value.
-+	 * Assign the other needed values: make request function, sizes and
-+	 * hardsect size. All the minor devices feature the same value.
- 	 * Note that `xpram' defines all of them to allow testing non-default
- 	 * values. A real device could well avoid setting values in global
- 	 * arrays if it uses the default values.
- 	 */
--
--	q = BLK_DEFAULT_QUEUE(major);
--	blk_init_queue (q, xpram_request);
--
--	/* we want to have XPRAM_UNUSED blocks security buffer between devices */
--	mem_usable=xpram_mem_avail-(XPRAM_UNUSED*(xpram_devs-1));
--	if ( mem_needed > mem_usable ) {
--		PRINT_ERR("Not enough expanded memory available\n");
--                PRINT_ERR("Giving up xpram\n");
--		goto fail_malloc;
--	}
-+	q = BLK_DEFAULT_QUEUE(XPRAM_MAJOR);
-+	blk_queue_make_request(q,xpram_make_request);
-+	blk_queue_hardsect_size(q, 4096);
-+	blk_size[XPRAM_MAJOR] = (void *) xpram_sizes;
- 
- 	/*
--	 * partitioning:
--	 * xpram_sizes[i] != 0; partition i has size xpram_sizes[i] kB
--	 * else:             ; all partitions i with xpram_sizesxpram_size[i] 
--	 *                     partition equally the remaining space
--	 */
--
--	if ( mem_auto_no ) {
--		mem_auto=LAST4((mem_usable-mem_needed)/mem_auto_no);
--		PRINT_INFO("  automatically determined partition size: %d kB\n", mem_auto);
--		for (i=0; i < xpram_devs; i++) 
--			if (xpram_sizes[i] == 0) xpram_sizes[i] = mem_auto;
--	}
--	blk_size[major] = xpram_sizes;
--
--	xpram_offsets = kmalloc(xpram_devs * sizeof(int), GFP_KERNEL);
--	if (!xpram_offsets) {
--		PRINT_ERR("Not enough memory for xpram_offsets\n");
--                PRINT_ERR("Giving up xpram\n");
--		goto fail_malloc;
--	}
--	xpram_offsets[0] = 0;
--	for (i=1; i < xpram_devs; i++) 
--		xpram_offsets[i] = xpram_offsets[i-1] + xpram_sizes[i-1] + XPRAM_UNUSED;
--
--#if 0
--	for (i=0; i < xpram_devs; i++)
--		PRINT_DEBUG(" device(%d) offset = %d kB, size = %d kB\n",i, xpram_offsets[i], xpram_sizes[i]);
--#endif
--
--	xpram_hardsects = kmalloc(xpram_devs * sizeof(int), GFP_KERNEL);
--	if (!xpram_hardsects) {
--		PRINT_ERR("Not enough memory for xpram_hardsects\n");
--                PRINT_ERR("Giving up xpram\n");
--		goto fail_malloc_hardsects;
--	}
--	for (i=0; i < xpram_devs; i++) /* all the same hardsect */
--		xpram_hardsects[i] = xpram_hardsect;
--	hardsect_size[major]=xpram_hardsects;
--   
--	/* 
--	 * allocate the devices -- we can't have them static, as the number
--	 * can be specified at load time
-+	 * Setup device structures.
- 	 */
--
--	xpram_devices = kmalloc(xpram_devs * sizeof (Xpram_Dev), GFP_KERNEL);
--	if (!xpram_devices) {
--		PRINT_ERR("Not enough memory for xpram_devices\n");
--                PRINT_ERR("Giving up xpram\n");
--		goto fail_malloc_devices;
-+	offset = 0;
-+	for (i = 0; i < xpram_devs; i++) {
-+		xpram_devices[i].size = xpram_sizes[i] / 4;
-+		xpram_devices[i].offset = offset;
-+		offset += xpram_devices[i].size;
-+		sprintf(xpram_devices[i].device_name,
-+			XPRAM_DEVICE_NAME_PREFIX "%d", i);
- 	}
--	memset(xpram_devices, 0, xpram_devs * sizeof (Xpram_Dev));
--        minor_length = 1;
--        minor_thresh = 10;
--	for (i=0; i < xpram_devs; i++) {
--		/* data and usage remain zeroed */
--		xpram_devices[i].size = xpram_sizes[i];  /* size in kB not in bytes */
--		atomic_set(&(xpram_devices[i].usage),0);
--                if (i == minor_thresh) {
--		  minor_length++;
--		  minor_thresh *= 10;
--		}
--                xpram_devices[i].device_name = 
--                  kmalloc(1 + strlen(XPRAM_DEVICE_NAME_PREFIX) + minor_length,GFP_KERNEL);
--		if ( xpram_devices[i].device_name == NULL ) {
--		  PRINT_ERR("Not enough memory for xpram_devices[%d].device_name\n",i);
--                  PRINT_ERR("Giving up xpram\n");
--		  goto fail_devfs_register;
--		}
--                sprintf(xpram_devices[i].device_name,XPRAM_DEVICE_NAME_PREFIX "%d",i);
--
--	PRINT_DEBUG("initializing xpram_open for device %d\n",i);
--        PRINT_DEBUG("  size %dkB, name %s, usage: %d\n", 
--                     xpram_devices[i].size,xpram_devices[i].device_name, atomic_read(&(xpram_devices[i].usage)));
--
--#if 0  /* WHY? */
--                xpram_devices[i].devfs_entry =
--		  devfs_register(NULL /* devfs root dir */,
--                                 xpram_devices[i].device_name, 0,
--                                 0 /* flags */,
--				 XPRAM_MAJOR,i,
--                                 0755 /* access mode */,
--				 0 /* uid */, 0 /* gid */,
--                                 &xpram_devops,
--				 (void *) &(xpram_devices[i])
--				 );
--		if ( xpram_devices[i].devfs_entry == NULL ) {
--		  PRINT_ERR("devfs system registry failed\n");
--		  PRINT_ERR("Giving up xpram\n");
--		  goto fail_devfs_register;
--		}
--#endif  /* WHY? */
--				 
--	}
--
--	return 0; /* succeed */
- 
--	/* clean up memory in case of failures */
-- fail_devfs_register:
--        for (i=0; i < xpram_devs; i++) {
--	  if ( xpram_devices[i].device_name )
--	    kfree(xpram_devices[i].device_name);
--	}
--	kfree(xpram_devices);
--	kfree (xpram_offsets);
-- fail_malloc_hardsects:
-- fail_malloc_devices:
--	kfree(xpram_hardsects);
--	hardsect_size[major] = NULL;
-- fail_malloc:
--	/* ???	unregister_chrdev(major, "xpram"); */
--	unregister_blkdev(major, "xpram");
--	return result;
-+	return 0;
- }
- 
- /*
-- * Finally, the module stuff
-+ * Finally, the init/exit functions.
-  */
--
--int init_module(void)
-+void xpram_exit(void)
- {
--	int rc = 0;
--
--	PRINT_INFO ("trying to load module\n");
--	rc = xpram_init ();
--	if (rc == 0) {
--		PRINT_INFO ("Module loaded successfully\n");
--	} else {
--		PRINT_WARN ("Module load returned rc=%d\n", rc);
--	}
--	return rc;
-+	blk_clear(XPRAM_MAJOR);
-+	devfs_unregister_blkdev(XPRAM_MAJOR, "xpram");
-+	devfs_unregister(xpram_devfs_handle);
- }
- 
--void cleanup_module(void)
-+int xpram_init(void)
- {
--	int i;
--
--	/* first of all, reset all the data structures */
--	kfree(hardsect_size[major]);
--	kfree(xpram_offsets);
--	blk_clear(major);
-+	int rc;
- 
--				/* finally, the usual cleanup */
--	devfs_unregister(xpram_devfs_handle);
--	if (devfs_unregister_blkdev(MAJOR_NR, "xpram"))
--		printk(KERN_WARNING "xpram: cannot unregister blkdev\n");
--	kfree(xpram_devices);
-+	/* Find out size of expanded memory. */
-+	if (xpram_present() != 0) {
-+		PRINT_WARN("No expanded memory available\n");
-+		return -ENODEV;
++	 * If the task is not on a runqueue (and not running), then
++	 * it is sufficient to simply update the task's cpu field.
++	 */
++	if (!p->array && (p != rq->curr)) {
++		p->thread_info->cpu = __ffs(p->cpus_allowed);
++		task_rq_unlock(rq, &flags);
++		goto out;
 +	}
-+	xpram_pages = xpram_highest_page_index();
-+	PRINT_INFO("  %li pages expanded memory found (%li KB).\n",
-+		   xpram_pages, xpram_pages*4);
-+	rc = xpram_setup_sizes(xpram_pages);
-+	if (rc)
-+		return rc;
-+	rc = xpram_setup_blkdev();
-+	if (rc)
-+		return rc;
-+	return 0;
- }
-+
-+module_init(xpram_init);
-+module_exit(xpram_exit);
-diff -urN linux-2.5.21/drivers/s390/block/xpram.h linux-2.5.21-s390/drivers/s390/block/xpram.h
---- linux-2.5.21/drivers/s390/block/xpram.h	Sun Jun  9 07:30:00 2002
-+++ linux-2.5.21-s390/drivers/s390/block/xpram.h	Thu Jan  1 01:00:00 1970
-@@ -1,70 +0,0 @@
--
--/*
-- * xpram.h -- definitions for the char module
-- *
-- *********/
--
--
--#include <linux/ioctl.h>
--#include <asm/atomic.h>
--#include <linux/major.h>
--
--/* version dependencies have been confined to a separate file */
--
--/*
-- * Macros to help debugging
-- */
--
--#define XPRAM_NAME "xpram"  /* name of device/module */
--#define XPRAM_DEVICE_NAME_PREFIX "slram" /* Prefix device name for major 35 */
--#define XPRAM_DEVS 1        /* one partition */
--#define XPRAM_RAHEAD 8      /* no real read ahead */
--#define XPRAM_PGSIZE 4096   /* page size of (expanded) mememory pages
--                             * according to S/390 architecture
--                             */
--#define XPRAM_BLKSIZE XPRAM_PGSIZE  /* must be equalt to page size ! */
--#define XPRAM_HARDSECT XPRAM_PGSIZE /* FIXME -- we have to deal with both
--                                     * this hard sect size and in some cases
--                                     * hard coded 512 bytes which I call
--                                     * soft sects:
--                                     */
--#define XPRAM_SOFTSECT 512
--#define XPRAM_MAX_DEVS 32   /* maximal number of devices (partitions) */
--#define XPRAM_MAX_DEVS1 33  /* maximal number of devices (partitions) +1 */
--
--/* The following macros depend on the sizes above */
--
--#define XPRAM_KB_IN_PG 4                     /* 4 kBs per page */
--#define XPRAM_KB_IN_PG_ORDER 2               /* 2^? kBs per page */
--
--/* Eventhough XPRAM_HARDSECT is set to 4k some data structures use hard
-- * coded 512 byte sa sector size
-- */
--#define XPRAM_SEC2KB(x) ((x >> 1) + (x & 1)) /* modifier used to compute size 
--                                                in kB from number of sectors */
--#define XPRAM_SEC_IN_PG 8                    /* 8 sectors per page */
--#define XPRAM_SEC_IN_PG_ORDER 3              /* 2^? sectors per page */
--
--#define XPRAM_UNUSED 40                     /* unused space between devices, 
--                                             * in kB, i.e.
--                                             * must be a multiple of 4
--                                             */
--/*
-- * The xpram device is removable: if it is left closed for more than
-- * half a minute, it is removed. Thus use a usage count and a
-- * kernel timer
-- */
--
--typedef struct Xpram_Dev {
--   int            size;   /* size in KB not in Byte - RB - */
--   atomic_t       usage;
--   char *         device_name;   /* device name prefix in devfs */
--   devfs_handle_t devfs_entry;   /* handle needed to unregister dev from devfs */
--   u8 *data;
--}              Xpram_Dev;
--
--/* 2.2: void xpram_setup (char *, int *); */
--/* begin 2.3 */
--int xpram_setup (char *);
--/* end 2.3 */
--int xpram_init(void);
+ 	init_MUTEX_LOCKED(&req.sem);
+ 	req.task = p;
+ 	list_add(&req.list, &rq->migration_queue);
+

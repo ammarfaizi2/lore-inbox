@@ -1,43 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135176AbRDVChH>; Sat, 21 Apr 2001 22:37:07 -0400
+	id <S135180AbRDVC4w>; Sat, 21 Apr 2001 22:56:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135177AbRDVCg6>; Sat, 21 Apr 2001 22:36:58 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:27402 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S135176AbRDVCgo>;
-	Sat, 21 Apr 2001 22:36:44 -0400
-Date: Sun, 22 Apr 2001 04:36:18 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Daniel Kobras <kobras@tat.physik.uni-tuebingen.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: MO-Drive under 2.4.3
-Message-ID: <20010422043618.C4058@suse.de>
-In-Reply-To: <20010422013738.A520@pelks01.extern.uni-tuebingen.de> <E14r7I2-0004d8-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E14r7I2-0004d8-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, Apr 22, 2001 at 12:59:44AM +0100
+	id <S135181AbRDVC4m>; Sat, 21 Apr 2001 22:56:42 -0400
+Received: from chac.inf.utfsm.cl ([200.1.19.54]:50436 "EHLO chac.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S135180AbRDVC4f>;
+	Sat, 21 Apr 2001 22:56:35 -0400
+Message-Id: <200104220243.f3M2hoB7023581@sleipnir.valparaiso.cl>
+To: "Trever L. Adams" <trever_Adams@bigfoot.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Crash: XFree86 4.0.3 and Kernel 4.0.3 
+In-Reply-To: Message from "Trever L. Adams" <trever_Adams@bigfoot.com> 
+   of "Sat, 21 Apr 2001 12:40:23 -0400." <3AE1B7F7.4000505@bigfoot.com> 
+Date: Sat, 21 Apr 2001 22:43:50 -0400
+From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 22 2001, Alan Cox wrote:
-> > a) Put in lots of bigblock special case code in FAT;
-> > b) teach submit_bh() or generic_make_request() to transparently reblock 
-> >    bhs < hw_blksize and remove most special cases from FAT. Specifically,
-> >    it ought to stop pretending in sb->s_blocksize to use 2k blocks when
-> >    the fs is really tied to 512 byte blocks.
-> > 
-> > I tend to favour b), but which one is more likely to be accepted?
-> 
-> Al Viro suggested c) which was to transparently make it a loopback mount of
-> the raw device and let a loopback layer do the work.
+> I hate to report this again, I saw some reports that it was fixed with 
+> 4.0.3 of XFree86, so I tried XF86 4.0.3 with RedHat 7.1.
 
-... which is basically the same thing, in that we need to support writes
-< hardware block size to devices. This is never going to be an efficient
-mechanism, the read gathering required for a 512b write on a 2048b media
-is scary. Think cd-rw 64kB blocksize for write. Ugh.
+We'll need patches to check on this... our current kernel is just
+2.4.4-pre5
 
+[Couldn't resist]
 -- 
-Jens Axboe
+Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
+Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616
 

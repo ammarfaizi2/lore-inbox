@@ -1,72 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264292AbTIIXj0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 19:39:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265080AbTIIXj0
+	id S264978AbTIIXib (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 19:38:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265005AbTIIXib
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 19:39:26 -0400
-Received: from hstntx01.bsius.com ([64.246.32.38]:5814 "EHLO mx1.bsius.com")
-	by vger.kernel.org with ESMTP id S264292AbTIIXjQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 19:39:16 -0400
-From: "Bill Church" <bill@bsius.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.2x kernel + ICH4 DMA errors
-Date: Tue, 9 Sep 2003 19:39:12 -0400
-Organization: Bayside Solution, Inc.
-Message-ID: <001a01c3772b$92fba410$6900000a@bsi000>
+	Tue, 9 Sep 2003 19:38:31 -0400
+Received: from CPE-203-51-31-218.nsw.bigpond.net.au ([203.51.31.218]:64497
+	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
+	id S264978AbTIIXi3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 19:38:29 -0400
+Message-ID: <3F5E646F.23ECE187@eyal.emu.id.au>
+Date: Wed, 10 Sep 2003 09:38:23 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.22-aa1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4024
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.0-test5: CONFIG_PCMCIA_WL3501 build fails
+References: <Pine.LNX.4.44.0309091009210.17041-100000@home.osdl.org>
+Content-Type: multipart/mixed;
+ boundary="------------65D004434BBDF2A45A65DED1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a GigaByte GA-8IGX with an Intel 845G chipset.
+This is a multi-part message in MIME format.
+--------------65D004434BBDF2A45A65DED1
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Two new Hitachi 180GXP 80G DeskStar drives. Both set as master on two
-ATA/100 channels (/dev/hda and /dev/hdc).
+Linus Torvalds wrote:
+> 
+> On Tue, 9 Sep 2003, Russell King wrote:
+> 
+> > On Tue, Sep 09, 2003 at 10:12:11PM +1000, Eyal Lebedinsky wrote:
+> > > allmodconfig, i386:
+> > >
+> > >   CC [M]  drivers/net/wireless/wl3501_cs.o
+> > > drivers/net/wireless/wl3501_cs.c: In function `wl3501_mgmt_join':
+> > > drivers/net/wireless/wl3501_cs.c:641: unknown field `id' specified in
+> > > initializer
+> >
+> > I notice that this driver uses .foo.bar = baz type initialisers.  These
+> > do not work on gcc 2.95 (and last time I checked, the kernels minimum
+> > compiler version was still 2.95.x)
+> 
+> Yeah, the ".foo.bar = baz" thing should go. Something like the following,
+> but it would be good to have somebody verify that this was all of it and
+> that it actually works.
 
-P4 2.53 Processor at 533FSB
+You should also then patch __FUNCTION__ to comply with 2.95 gcc.
 
-2 Sticks of 512MB Corsair 333MHz DDR Ram
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+--------------65D004434BBDF2A45A65DED1
+Content-Type: text/plain; charset=us-ascii;
+ name="2.6.0-test5.wl3501-2.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="2.6.0-test5.wl3501-2.patch"
 
-My issue:
+--- linux/drivers/net/wireless/wl3501_cs.c.old	Wed Sep 10 09:32:49 2003
++++ linux/drivers/net/wireless/wl3501_cs.c	Wed Sep 10 09:30:49 2003
+@@ -82,7 +82,7 @@
+ MODULE_PARM(pc_debug, "i");
+ #define dprintk(n, format, args...) \
+ 	{ if (pc_debug > (n)) \
+-		printk(KERN_INFO "%s: " format "\n", __FUNCTION__, ##args); }
++		printk(KERN_INFO "%s: " format "\n", __FUNCTION__ , ##args); }
+ #else
+ #define dprintk(n, format, args...)
+ #endif
 
-Started out with Gentoo gs-sources Kernel (2.4.22_pre2-gss). When I
-would boot with both drives connected, /dev/hdc would timeout and hang
-when enumerating the partitions. If I disabled DMA, the system would
-boot with out error. I disabled ACPI also, but that seemed to have no
-effect.
-
-I reverted to the vanilla-sources Kernel (2.4.22) with the same config
-file and experienced the same results. However, /dev/hdc would time out
-several times but no hang. Upon investigation I found that /dev/hda had
-DMA enabled but /dev/hdc had DMA disabled. So with hdparm I enabled dma
-on /dev/hdc and tried some operations on that drive. Just an fdisk
-/dev/hdc produced timeouts. Checking hdparm again on /dev/hdc revealed
-that it was again disabled.
-
-I then tried setting both drives on the same channel, manually setting
-master on one drive and slave on another. Same issues as before. I also
-tried swapping cables and drive positions. Moving /dev/hdc drive to
-/dev/hda and vice-versa.
-
-So I decided to revert to 2.4.20, I experienced the same results as did
-originally (time out on /dev/hdc to lockup).
-
-I then decided to try 2.6.0-test4, same results...
-
-I am using 80 conductor 40 pin ATA-100 cables. And I'm using the PIIXn
-option under ATA/IDE/MFM/RLL support.
-
-Thanks in advance...
-
--Bill
-bill at bsius dot com
+--------------65D004434BBDF2A45A65DED1--
 

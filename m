@@ -1,47 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266940AbTBHBDg>; Fri, 7 Feb 2003 20:03:36 -0500
+	id <S266944AbTBHBJl>; Fri, 7 Feb 2003 20:09:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266944AbTBHBDg>; Fri, 7 Feb 2003 20:03:36 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:44783 "EHLO
-	orion.mvista.com") by vger.kernel.org with ESMTP id <S266940AbTBHBDg>;
-	Fri, 7 Feb 2003 20:03:36 -0500
-Date: Fri, 7 Feb 2003 17:13:16 -0800
-From: Jun Sun <jsun@mvista.com>
+	id <S266948AbTBHBJl>; Fri, 7 Feb 2003 20:09:41 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:47111 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266944AbTBHBJk>; Fri, 7 Feb 2003 20:09:40 -0500
+Date: Sat, 8 Feb 2003 01:19:18 +0000
+From: Russell King <rmk@arm.linux.org.uk>
 To: linux-kernel@vger.kernel.org
-Cc: jsun@mvista.com
-Subject: [2.5 Question] Is TIF_USEDFPU cleared for a new process?
-Message-ID: <20030207171316.B27605@mvista.com>
+Subject: Re: The Linux Kernel and Castle Technology Ltd, UK
+Message-ID: <20030208011918.L30927@flint.arm.linux.org.uk>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20030207153007$386b@gated-at.bofh.it> <wgadh71w2f.fsf@snoeze.glaramara.freeserve.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <wgadh71w2f.fsf@snoeze.glaramara.freeserve.co.uk>; from alan.nospam@glaramara.freeserve.co.uk on Fri, Feb 07, 2003 at 11:59:36PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In 2.4, this flag is cleared in the common code, copy_flags(), 
-when a new process is created.  Not so anymore in 2.5.  I wonder 
-if it ever cleared.
+On Fri, Feb 07, 2003 at 11:59:36PM +0000, Alan J. Wylie wrote:
+> On Fri, 07 Feb 2003 16:30:07 +0100, Russell King <rmk@arm.linux.org.uk> said:
+> > It would appear that Castle Technology Limited, UK, have taken some
+> > of the Linux kernel 2.5 code, and incorporated it into their own
+> > product, "RISC OS",
+> 
+> There is more than one player involved with RISC OS:
+> 
+> Pace Micro, of Saltaire, West Yorkshire
+> 
+> http://www.pace.co.uk/
+> 
+> http://uk.finance.yahoo.com/q?s=PIC.L&d=c&k=c1&a=v&p=s&t=5y&l=on&z=m&q=l
+> 
+> seem to own the Copyright.
+> 
+> And RISCOS Ltd., of Cardiff, Wales 
+> 
+> http://www.riscos.com/
+> 
+> are involved as well.
 
-I looked at the code (2.5.59) a couple of times and can't seem
-to find any place it is cleared for a new process.
+I'd like to point out, however, that Pace sub-license RISC OS.  As
+far as I am aware at present, RISCOS Ltd do not distribute the code
+in question, and neither does Pace Microtechnology Ltd.
 
-Assuming it is not cleared, I am interested in knowing what
-would happen, especially in the following scenario:
+It has come to my attention that some people are trying to implicate
+the above companies in this.
 
-1) the new process is switched on, runs without using any FPU
+I would strongly suggest people do not start to make (unfounded) claims
+against neither RISCOS Ltd nor Pace Microtechnology Ltd unless they
+have proof, in which case such proof should first contact the
+appropriate copyright holders concerned.
 
-2) the new process is switched off.  Because the TIF_USEDFPU
-   is set, it will execute 'fnsave' or 'fxsave'.
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-   a) if FPU is enabled at this moment, we will save bogus FPU
-      contents back into new process's thread structure.
-   b) if FPU is not enabled, we will go through the trap, restore
-      FPU registers from the thread structure, and then save
-      the same value back into the thread structure again.
-
-Either a) or b) is bad.  Is this scenario real or just fictitious?
-
-Please cc your reply to my email address.  Thanks.
-
-Jun

@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289993AbSAKPw2>; Fri, 11 Jan 2002 10:52:28 -0500
+	id <S289995AbSAKPy2>; Fri, 11 Jan 2002 10:54:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289994AbSAKPwS>; Fri, 11 Jan 2002 10:52:18 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:46297 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S289993AbSAKPwF>;
-	Fri, 11 Jan 2002 10:52:05 -0500
-Date: Fri, 11 Jan 2002 18:49:28 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: <linux-kernel@vger.kernel.org>, "David S. Miller" <davem@redhat.com>
-Subject: [patch] O(1) scheduler, -H6
-Message-ID: <Pine.LNX.4.33.0201111803580.4987-100000@localhost.localdomain>
+	id <S289996AbSAKPyS>; Fri, 11 Jan 2002 10:54:18 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:13341 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S289995AbSAKPyN>; Fri, 11 Jan 2002 10:54:13 -0500
+Message-ID: <3C3F0AA0.8030407@redhat.com>
+Date: Fri, 11 Jan 2002 10:54:08 -0500
+From: Doug Ledford <dledford@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020103
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andris Pavenis <pavenis@latnet.lv>
+CC: tom@infosys.tuwien.ac.at, linux-kernel@vger.kernel.org, mozgy@hinet.hr,
+        linux@sigint.cs.purdue.edu
+Subject: Re: i810_audio driver v0.19 still freezes machine
+In-Reply-To: <E16Okz2-0005JM-00@the-village.bc.nu> <200201110742.g0B7gDa16387@hal.astr.lu.lv> <3C3EA5D8.7050206@redhat.com> <200201111147.g0BBl5a01992@hal.astr.lu.lv>
+Content-Type: text/plain; charset=ISO-8859-13; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andris Pavenis wrote:
 
-the -H6 patch is available:
 
-    http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.5.2-pre11-H6.patch
-    http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.4.17-H6.patch
+> Tried. I haven't been able to freeze box after some not very long torturing 
+> with artsd, but there is another new trouble:
+> 
+> For test I'm letting artsd to play some WAV file and after that give some 
+> time for it to close /dev/dsp. After some times there is no more sound and 
+> I'm getting a message that /dev/dsp is busy when trying to restart artsd. 
+> Anyway I can reload i810_audio driver and restart artsd to get sound working 
+> again. 'fuser /dev/dsp' also doesn't show that it is opened
 
-the most important fix is from DaveM, we should not send an IPI to
-ourselves. That fix was the last bug on Sparc boxes it appears.
 
-overall stability status: all the previous bug reports about runtime
-lockups (which happen in -pre11 as well) are fixed in this patchset. The
-only open issue is the boot-time lockup some people are seeing with the
-2.4 patch only (not the 2.5 patch), there is a chance that it's fixed in
-this patch too.
+Actually, as a couple people have pointed out to me, the version on my site 
+was somehow a .19 version.  I've placed the real .20 on my site as of a few 
+  minutes ago, so please try with it (and the real .20 should solve the 
+problem you are related Andris in that it won't allow the driver to accept 
+signals during close, which is why /dev/dsp would quit working for you).
 
-Changes:
 
- - DaveM's the man: check for p->cpu != smp_processor_id() before doing a
-   smp_send_reschedule(p->cpu). Doh!
 
- - task_interactive() test is done properly now - the H5 would mis-detect
-   every nice +19 task as interactive. I'd like to ask everyone who had
-   interactivity problems to re-test under -H6. It's all very smooth on my
-   systems.
 
- - Rusty Russell: add comment to expire_task.
+-- 
 
- - fix main.c in the 2.4.17 patch. (this should fix the bootup-lockups.)
-
-Bug reports, comments, suggestions welcome. (any patch/fix that is not in
--H6 has gone lost in my mailqueue. The influx is rather high.)
-
-	Ingo
+  Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
+       Please check my web site for aic7xxx updates/answers before
+                       e-mailing me about problems
 

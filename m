@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268756AbRG0CQK>; Thu, 26 Jul 2001 22:16:10 -0400
+	id <S268762AbRG0DCJ>; Thu, 26 Jul 2001 23:02:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268757AbRG0CQB>; Thu, 26 Jul 2001 22:16:01 -0400
-Received: from srvr2.telecom.lt ([212.59.0.1]:30672 "EHLO mail.takas.lt")
-	by vger.kernel.org with ESMTP id <S268756AbRG0CPr>;
-	Thu, 26 Jul 2001 22:15:47 -0400
-Message-Id: <200107270215.EAA1376016@mail.takas.lt>
-Date: Fri, 27 Jul 2001 04:15:32 +0200 (EET)
-From: Nerijus Baliunas <nerijus@users.sourceforge.net>
-Subject: Re: Transparent proxies and binding to foreign addresses
-To: Julio Sanchez Fernandez <j_sanchez@stl.es>
-cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-Disposition: INLINE
-In-Reply-To: <m2lmlcakrq.fsf@j-sanchez-p.stl.es>
-In-Reply-To: <m2lmlcakrq.fsf@j-sanchez-p.stl.es>
-X-Mailer: Mahogany, 0.63 'Saugus', compiled for Linux 2.4.7 i686
+	id <S268761AbRG0DCA>; Thu, 26 Jul 2001 23:02:00 -0400
+Received: from [209.226.93.226] ([209.226.93.226]:31992 "EHLO
+	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S268759AbRG0DBt>; Thu, 26 Jul 2001 23:01:49 -0400
+Date: Thu, 26 Jul 2001 23:01:34 -0400
+Message-Id: <200107270301.f6R31Y401074@mobilix.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: aia21@cus.cam.ac.uk (Anton Altaparmakov), linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.7 Add support for Dynamic Disks
+In-Reply-To: <200107262352.f6QNqbf488387@saturn.cs.uml.edu>
+In-Reply-To: <E15Pu2w-0005bt-00@libra.cus.cam.ac.uk>
+	<200107262352.f6QNqbf488387@saturn.cs.uml.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On 25 Jul 2001 21:09:13 +0200 Julio Sanchez Fernandez <j_sanchez@stl.es> wrote:
+Albert D. Cahalan writes:
+> > - Patch adds support for Dynamic Disks which are introduced by Windows
+> > 2000 and are also used by Windows XP, thus allowing people with dual-boot
+> > configurations access to their Windows dynamic disk partitions from Linux.
+> ...
+> > Note that we just do it for all partitions in order. We perform no special
+> > treatment when partitions are part of raid arrays, etc, we just create
+> > each member partition as one device (hdb5, etc), handling raid arrays is
+> > up to future extensions / user space tools / the users to deal with.
+> 
+> Linux has long held an interoperability advantage over UNIX and BSD
+> due to the use of normal PC disk partitions.
+> 
+> Now a new standard is here. We must swallow our pride and accept it,
+> tossing out our old LVM format. It's time to embrace and extend.
 
-JSF> 
-JSF> I have been using transparent proxies on Linux for a long time, very
-JSF> possibly longer than anyone else, since I wrote a extremely crude hack
-JSF> that served me well back 1995.
+I don't see why we can't have both. It's just another partition
+format.
 
-JSF> This mechanism has worked since I originally wrote my kludge up to
-JSF> 2.2.x but, from what I can gather, it does not work anymore in 2.4.x.
+				Regards,
 
-Hello,
-
-I don't know if it is useful for you, but http://www.mcknight.de/jftpgw
-supports transparent proxy for Linux 2.4.x kernel.
-
-BTW, do you know of any port forwarder which works with 2.4 kernel in
-transparent mode? I tried mmtcpfwd and portfwd, but both do not work.
-
-Regards,
-Nerijus
-
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

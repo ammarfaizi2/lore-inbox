@@ -1,35 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267812AbTB1M1P>; Fri, 28 Feb 2003 07:27:15 -0500
+	id <S267844AbTB1Md4>; Fri, 28 Feb 2003 07:33:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267844AbTB1M1P>; Fri, 28 Feb 2003 07:27:15 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:11409
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267812AbTB1M1O>; Fri, 28 Feb 2003 07:27:14 -0500
-Subject: Re: Protecting processes from the OOM killer
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Dan Kegel <dank@kegel.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3E5EB9A8.3010807@kegel.com>
-References: <3E5EB9A8.3010807@kegel.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1046439618.16599.22.camel@irongate.swansea.linux.org.uk>
+	id <S267847AbTB1Mdz>; Fri, 28 Feb 2003 07:33:55 -0500
+Received: from packet.digeo.com ([12.110.80.53]:51608 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267844AbTB1Mdx>;
+	Fri, 28 Feb 2003 07:33:53 -0500
+Date: Fri, 28 Feb 2003 04:44:07 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: "Felipe Alfaro Solana" <felipe_alfaro@linuxmail.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: anticipatory scheduling questions
+Message-Id: <20030228044407.7836e46e.akpm@digeo.com>
+In-Reply-To: <20030228121806.16285.qmail@linuxmail.org>
+References: <20030228121806.16285.qmail@linuxmail.org>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 28 Feb 2003 13:40:19 +0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 28 Feb 2003 12:44:07.0463 (UTC) FILETIME=[15586B70:01C2DF27]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-02-28 at 01:21, Dan Kegel wrote:
-> For a while now, I've been trying to figure out how
-> to make the oom killer not kill important processes.
+"Felipe Alfaro Solana" <felipe_alfaro@linuxmail.org> wrote:
+>
+> I have done benchmark tests with Evolution under the following conditions:
+> (times measured since the reply button is clicked until the message is
+> opened) 
+>  
+> 2.4.20-2.54 -> 9s 
+> 2.5.63-mm1 w/Deadline -> 34s 
+> 2.5.63-mm1 w/AS -> 33s 
 
-How about by not allowing your system to excessively overcommit.
-Everything else is armwaving "works half the time" stuff. By the time
-the OOM kicks in the game is already over. The rlimit one doesnt deal
-with things like fork explosions where you have lots of processes
-all under 1/4 of the rlimit range who cumulatively overcommit. In
-fact you now pick harder on other tasks...
+Well something has gone quite wrong there.   It sounds as if something in
+the 2.5 kernel has broken evolution.
 
+Does this happen every time you reply to a message or just the first time?
+
+And if you reply to a message, then quit evolution, then restart evolution
+then reply to another message, does the same delay happen?
+
+The above tests will eliminate the IO system at least.
+
+If the delay is still there when all the needed datais in pagecache then
+please run `vmstat 1' during the operation and send the part of the trace
+from the period when the delay happens.
+
+I'd suggest that you launch evolution from the command line in an xterm so
+you can watch for any diagnostic messages.
+
+Thanks.

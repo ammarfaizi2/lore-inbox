@@ -1,88 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266034AbSKFTlg>; Wed, 6 Nov 2002 14:41:36 -0500
+	id <S266087AbSKFT6N>; Wed, 6 Nov 2002 14:58:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266027AbSKFTlg>; Wed, 6 Nov 2002 14:41:36 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:24192 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S266034AbSKFTld>; Wed, 6 Nov 2002 14:41:33 -0500
-Date: Wed, 6 Nov 2002 14:48:58 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: "Calin A. Culianu" <calin@ajvar.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: /prod/PID-related proc fs question
-In-Reply-To: <Pine.LNX.4.33L2.0211061403360.5858-100000@rtlab.med.cornell.edu>
-Message-ID: <Pine.LNX.3.95.1021106144738.5400A-100000@chaos.analogic.com>
+	id <S266090AbSKFT6N>; Wed, 6 Nov 2002 14:58:13 -0500
+Received: from packet.digeo.com ([12.110.80.53]:29127 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S266087AbSKFT6M>;
+	Wed, 6 Nov 2002 14:58:12 -0500
+Message-ID: <3DC975DC.77231191@digeo.com>
+Date: Wed, 06 Nov 2002 12:04:44 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+CC: "J.E.J. Bottomley" <James.Bottomley@steeleye.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, jejb@steeleye.com,
+       Rusty Russell <rusty@rustcorp.com.au>, dipankar@in.ibm.com
+Subject: Re: Strange panic as soon as timer interrupts are enabled (recent 2.5)
+References: <3DC9719B.AC139E50@digeo.com> <121150000.1036615519@flay>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 06 Nov 2002 20:04:44.0113 (UTC) FILETIME=[BFB99410:01C285CF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Nov 2002, Calin A. Culianu wrote:
-
+"Martin J. Bligh" wrote:
 > 
-> I just noticed something today that I found odd and I know there must be a
-> good reason for it, but I can't think of what it might be..
+> >> Yes, this caused for me, a completely reliable boot time panic with 2.5.46.
+> >> The problem is that per_cpu areas aren't initiallised until cpu_up is called,
+> >> so a cpu cannot now take an interrupt before cpu_up is called.
+> >
+> > Rusty's da man on this, but I think the fix is to not turn on
+> > the interrupts (at the APIC level) until cpu_up() has called
+> > __cpu_up().  Look at cpu_up():
+> >
+> >         ret = notifier_call_chain(&cpu_chain, CPU_UP_PREPARE, hcpu);
+> >         if (ret == NOTIFY_BAD) {
+> >                 printk("%s: attempt to bring up CPU %u failed\n",
+> >                                 __FUNCTION__, cpu);
+> >                 ret = -EINVAL;
+> >                 goto out_notify;
+> >         }
+> >
+> >         /* Arch-specific enabling code. */
+> >         ret = __cpu_up(cpu);
+> >
+> > The softirq storage is initialised inside the CPU_UP_PREPARE call.
+> > So we're ready for interrupts on that CPU when your architecture's
+> > __cpu_up() is called.  And no sooner than this.
 > 
-> Basically if I am listing the contents of a /proc/PID directory, it seems
-> that the cwd, exe, and root (symlink) entries are invalid unless the
-> process corresponding to PID is a process owned by me, or I am root.  Why
-> is this?
+> All interrupts, or just softints?
 > 
-> Is this feature security related?
-> 
-> If so I can't really think of any security issues that would arise from
-> having that information as a non-priviledged user.
-> 
-> It would seem reasonable to me that users seeing each other's
-> /prod/PID/root and /proc/PID/exe symlinks isn't really much of a security
-> vulnerability.. Plus it would make possible a non-root user to grab
-> statistics on the most popular running binaries, the number of chrooted
-> processes.. etc..  probably trivial statistics but it still would be nice
-> to see if any other instance of an application is running (unless there
-> already is another mechanism for this that I am unaware of).
-> 
-> Anyway any answers appreciated...
-> 
-> -Calin
 
+I don't know.  This sequencing really needs to be thought about
+and written down, else we'll just have an ongoing fiasco trying
+to graft stuff onto it.
 
+In this case I'd say "all interrupts".  The secondary really
+should be 100% dormant until all CPU_UP_PREPARE callouts have
+been run and have returned NOTIFY_OK.
 
-Well you know that you can send a "secret" message
-from one task to another using Morse code?
-
-As a trivial example, I could use a lot of CPU time
-for a second:
-     while(time(NULL) == saved)
-            ;
-
-I could call this a "dash".
-
-Then I could use a tiny bit and call it a "dot":
-    sleep(1);
-
-I could then use a little bit and call it a space:
-    while(time(NULL) == saved)
-        usleep(1);
-
-If another task knew this, and could have access to my
-task's CPU time statistics, I could send messages through
-an "undocumented" or "rogue" channel.
-
-This may seem dumb, and the example is, however there
-are commercial systems out there where you don't want any
-undocumented communications paths between tasks. They
-might be performing stock transactions for competing
-clients, etc. A back-door communications path could
-be used to steal. So, it might not be a good idea to give
-away information that another task doesn't have a "need-to-know".
-
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-   Bush : The Fourth Reich of America
-
-
+At least, that's how I'd have designed it.

@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316067AbSEJQ7y>; Fri, 10 May 2002 12:59:54 -0400
+	id <S316069AbSEJRDA>; Fri, 10 May 2002 13:03:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316069AbSEJQ7x>; Fri, 10 May 2002 12:59:53 -0400
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:8034 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S316067AbSEJQ7w>; Fri, 10 May 2002 12:59:52 -0400
-Date: Fri, 10 May 2002 11:59:49 -0500 (CDT)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200205101659.LAA30191@tomcat.admin.navo.hpc.mil>
-To: davem@redhat.com, pmanuel@myrealbox.com
-Subject: Re: Tcp/ip offload card driver
-In-Reply-To: <20020510.080405.124002004.davem@redhat.com>
-Cc: chen_xiangping@emc.com, linux-kernel@vger.kernel.org
-X-Mailer: [XMailTool v3.1.2b]
+	id <S316070AbSEJRC7>; Fri, 10 May 2002 13:02:59 -0400
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:1492 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S316069AbSEJRC6>; Fri, 10 May 2002 13:02:58 -0400
+Date: Fri, 10 May 2002 19:03:19 +0200 (MET DST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: "David S. Miller" <davem@redhat.com>
+cc: dizzy@roedu.net, linux-kernel@vger.kernel.org
+Subject: Re: mmap, SIGBUS, and handling it
+In-Reply-To: <20020510.084722.124055793.davem@redhat.com>
+Message-ID: <Pine.GSO.3.96.1020510183538.13449A-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@redhat.com>:
->    From: "Pedro M. Rodrigues" <pmanuel@myrealbox.com>
->    Date: Fri, 10 May 2002 17:11:55 +0200
+On Fri, 10 May 2002, David S. Miller wrote:
+
+>     I would expect it to return from the handler with no action, possibly
+>    re-executing the faulting instruction (if the reason was synchronous) and
+>    causing an infinite loop.  For consistency, whether it makes sense, or not
+>    (ditto for SIGSEGV, etc.). 
 > 
->       Actually there is. Think iSCSI. Have a look at this article at 
->    LinuxJournal - http://linuxjournal.com/article.php?sid=4896 .
-> 
-> The Linux networking stack need have no hand in any of the IPv4 done
-> by iSCSI, it can live entirely in the cards firmware and Linux need
-> not know what the transport looks like at all.
-> -
+> If we reexecute the instruction it will take the signal endlessly,
+> forever.  That makes no sense.
 
-Depends on what kind of authentication you also need. I haven't seen anything
-on that. So far as I know (and that is limited right now) iSCSI doesn't
-perform any kind of authentication beyond IP number.
+ It depends on an application.  It certainly shouldn't be the default, but
+a user may choose such an option for some reason.  E.g. for debugging a
+system with an ICE or a similar tool.
 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
+> Next, if we skip the instruation, what should be in the destination
+> register of the load?  There is no reasonable answer.  If you put
+> zero there the program will likely segfault on a NULL pointer
+> dereference.
 
-Any opinions expressed are solely my own.
+ This option is out of question, obviously.
+
+> So my original point I was trying to make, which still stands, is that
+> what is being requested is totally rediculious behavior, trying to
+> ignore a page fault that can't be serviced.
+
+ Why should we enforce policy on a user?  If one wants to ignore such
+signals for whatever reason, let him do that. 
+
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+

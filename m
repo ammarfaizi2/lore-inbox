@@ -1,105 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262602AbUKRBPX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262674AbUKRBKL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262602AbUKRBPX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 20:15:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262692AbUKRBNZ
+	id S262674AbUKRBKL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 20:10:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262657AbUKRBJh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 20:13:25 -0500
-Received: from zamok.crans.org ([138.231.136.6]:51376 "EHLO zamok.crans.org")
-	by vger.kernel.org with ESMTP id S262661AbUKRBLE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 20:11:04 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: Christian Axelsson <smiler@lanil.mine.nu>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6.10-rc2-mm1] OOPS on boot (hotplug related?)
-References: <419BBFD1.7060306@lanil.mine.nu>
-	<20041117145359.4f017ed1.akpm@osdl.org>
-From: Mathieu Segaud <matt@minas-morgul.org>
-Date: Thu, 18 Nov 2004 02:11:00 +0100
-In-Reply-To: <20041117145359.4f017ed1.akpm@osdl.org> (Andrew Morton's message
-	of "Wed, 17 Nov 2004 14:53:59 -0800")
-Message-ID: <87hdno0xnf.fsf@barad-dur.crans.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
+	Wed, 17 Nov 2004 20:09:37 -0500
+Received: from mail1.webmaster.com ([216.152.64.168]:56592 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP id S262673AbUKRBEh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 20:04:37 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <clemens@endorphin.org>
+Subject: RE: GPL version, "at your option"?
+Date: Wed, 17 Nov 2004 17:04:28 -0800
+Message-ID: <MDEHLPKNGKAHNMBLJOLKEEOHPNAA.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <1100614115.16127.16.camel@ghanima>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Importance: Normal
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Wed, 17 Nov 2004 16:40:55 -0800
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Wed, 17 Nov 2004 16:40:59 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
 
-Andrew Morton <akpm@osdl.org> disait derni=E8rement que :
+> As the text says, the licensee can choose the GPL version at his option,
+> and he is likely to choose the one with better conditions. So, newer
+> version can never limit the licensee's right, because he is always free
+> to choose version 2. Therefore, successor versions can only remove
+> limitations.
 
-> Christian Axelsson <smiler@lanil.mine.nu> wrote:
->>
->> I'm getting OOPSes on boot on my laptop. Output is copied by hand and Iv=
-e=20
->> only included the parts that I *think* are useful:
->>=20
->> ...
->> EIP is at get_nonexclusive_access+0x13/0x40
->
-> Yup, seems that reiser4 broke.  I've forwarded a copy of an earlier report
-> to reiserfs-dev@namesys.com.
+	Your logic is totally flawed. Successor versions can certainly add
+limitations.
 
-V. Saveliev provided the right fix shortly after I reported this oops.
+	Consider the following hypothetical, GPL version 3 allows you to relicense
+the code under the FreeBSD license. Someone relicenses Linux (with lots of
+later modification) under the FreeBSD license. Now people who receive the
+binaries from this new stream of Linux are not entitled to the source code.
 
-I attach the patch
+	Not that this would ever happen, of course, but if your question is, "what
+possible harm could it do", the answer is that new limitations could be put
+in the newer licenses and newer code could be released with only the new
+license.
 
-Regards,
+	When Linux opted to apply the GPL to early versions of Linux, he wasn't
+concerned only with protecting that code as it existed at that instant. He
+was creating the framework that shapes the future development of Linux into
+the future. The "at your option" clause could be used to transfer that
+contorl to the FSF.
 
+	Suppose GPL version 3 has no requirement that you make the source
+available. I can then ship Linux without making any source available at all
+by claiming that I'm using that later version at my option.
 
---=-=-=
-Content-Type: text/x-patch
-Content-Disposition: inline; filename=reiser4-context-fix.patch
+	DS
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/11/15 16:23:47+03:00 vs@tribesman.namesys.com 
-#   unix_file_filemap_nopage: missing context creation is added
-# 
-# plugin/file/file.c
-#   2004/11/15 16:23:45+03:00 vs@tribesman.namesys.com +5 -1
-#   unix_file_filemap_nopage: missing context creation is added
-# 
-diff -Nru a/plugin/file/file.c b/plugin/file/file.c
---- a/plugin/file/file.c	2004-11-17 09:36:11 +03:00
-+++ b/plugin/file/file.c	2004-11-17 09:36:11 +03:00
-@@ -1961,8 +1961,10 @@
- {
- 	struct page *page;
- 	struct inode *inode;
--
-+	reiser4_context ctx;
-+	
- 	inode = area->vm_file->f_dentry->d_inode;
-+	init_context(&ctx, inode->i_sb);
- 
- 	/* block filemap_nopage if copy on capture is processing with a node of this file */
- 	down_read(&reiser4_inode_data(inode)->coc_sem);
-@@ -1972,6 +1974,8 @@
- 
- 	drop_nonexclusive_access(unix_file_inode_data(inode));
- 	up_read(&reiser4_inode_data(inode)->coc_sem);
-+
-+	reiser4_exit_context(&ctx);
- 	return page;
- }
- 
-
---=-=-=
-
-
-
--- 
-Lisa R. Nelson wrote:
-> So much for a friendly group.
-
-You really have seen nothing yet :-)
-
-	- Bas Mevissen on linux-kernel
-
---=-=-=--
 

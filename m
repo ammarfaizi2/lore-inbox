@@ -1,107 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261975AbUB2F2P (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Feb 2004 00:28:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261979AbUB2F2O
+	id S261978AbUB2Fkz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Feb 2004 00:40:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261979AbUB2Fky
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Feb 2004 00:28:14 -0500
-Received: from m013-078.nv.iinet.net.au ([203.217.13.78]:22286 "EHLO
-	mail.adixein.com") by vger.kernel.org with ESMTP id S261975AbUB2F2K
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Feb 2004 00:28:10 -0500
-From: "Elliot Mackenzie" <macka@adixein.com>
-To: "'Len Brown'" <len.brown@intel.com>, "'Randy.Dunlap'" <rddunlap@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH]: PROBLEM: Panic booting from USB disk in ioremap.c (line 81)
-Date: Sun, 29 Feb 2004 15:28:55 +1000
-Keywords: macka@adixein.com
-Message-ID: <001101c3fe84$eec59450$4301a8c0@waverunner>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Sun, 29 Feb 2004 00:40:54 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:29910 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261978AbUB2Fkx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Feb 2004 00:40:53 -0500
+Date: Sat, 28 Feb 2004 21:40:46 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: Michael Schlenstedt <Michael-ml-kernel@schlenn.net>
+Cc: linux-kernel@vger.kernel.org, jjciarla@raiz.uncu.edu.ar
+Subject: Re: PROBLEM: /proc/sys/net/ipv4/ip_dynaddr does not work correctly
+Message-Id: <20040228214046.23c31cc2.davem@redhat.com>
+In-Reply-To: <20040215212241.GA2752@schlenn.net>
+References: <20040215212241.GA2752@schlenn.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-In-Reply-To: <1077783113.22401.69.camel@dhcppc4>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kernel-devs:
+On Sun, 15 Feb 2004 22:22:42 +0100
+Michael Schlenstedt <Michael-ml-kernel@schlenn.net> wrote:
 
-This patch simply adds a sanity check to bootflag.c to detect a bad RSDT
-pointer and avoids a kernel panic on boot with some buggy BIOSes.  The
-patch is an "interim" patch, as we believe Len Brown has plans to use
-the ACPI code to manage SBF in future.
+> 
+> [2.] Full description of the problem/report:
+> 
+> I've recognized that the debug-mode ("2") with
+> /proc/sys/net/ipv4/ip_dynaddr does not work correctly. In fact, if I do
+> a "echo 2 > /proc/sys/net/ipv4/ip_dynaddr", nothing happens. There are no
+> messages in the syslog, and there is no function of ip_dynaddr at all.
 
-Initial post:
->We have a problem booting vanilla 2.6.2 and 2.6.3 kernels from a USB
-disk >(Transcend JetFlash, both 128MB USB 2 and 256MB USB 1). During
-what appears >to be PCI device enumeration, we get the following panic:
+It will only print a "debugging message" if the IP address of the system
+changes and a packet is attempted to be sent over a TCP connection, then
+it will print a message looking like:
 
-Len Brown:
->bootflag.c should not use its own private ACPI table parser/mapper --
->this is a bug:
->http://bugme.osdl.org/show_bug.cgi?id=1922
+tcp_v4_rebuild_header(): shifting iner->saddr from x.x.x.x to y.y.y.y
 
-This is an interim patch for anyone that is wrestling with the same
-issue.  
-Thank you to Randy Dunlap for his helpful assistance early in the
-process (and for some of the code below).  
-
-Kind regards,
-Doug Turk and Elliot Mackenzie.
-
-
-========================================================================
-====
---- linux-2.6.3/arch/i386/kernel/bootflag.c	Wed Feb 18 13:59:06 2004
-+++ linux-2.6.3-doug/arch/i386/kernel/bootflag.c	Tue Feb 24
-23:18:51 2004
-@@ -192,22 +192,37 @@
- 	}
- 	if(i>0xFFFE0)
- 		return 0;
--		
--		
-+
- 	rsdt = ioremap(rsdtbase, rsdtlen);
- 	if(rsdt == 0)
- 		return 0;
--		
--	i = readl(rsdt + 4);
-+
-+	/* Check the RSDT signature */
-+	if (memcmp(rsdt, "RSDT", 4))
-+	{
-+		iounmap(rsdt);
-+		printk(KERN_WARNING "SBF: Could not map RSDT: bad
-signature\n");
-+		return 0;
-+	}
-+
- 	
- 	/*
- 	 *	Remap if needed
- 	 */
--	 
-+	i = readl(rsdt + 4);
-+
- 	if(i > rsdtlen)
- 	{
- 		rsdtlen = i;
- 		iounmap(rsdt);
-+		/* Verify that the RSDT length is sane. */
-+		if (rsdtlen > 0x1000) {	/* arbitrary for now */
-+			printk(KERN_ERR "SBF: invalid rsdtlen = 0x%x\n",
-+					rsdtlen);
-+			return 0;
-+		}
-+
- 		rsdt = ioremap(rsdtbase, rsdtlen);
- 		if(rsdt == 0)
- 			return 0;
-
-
+And it in fact does do this.

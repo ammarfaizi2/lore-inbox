@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130900AbRDPQAm>; Mon, 16 Apr 2001 12:00:42 -0400
+	id <S131157AbRDPQAx>; Mon, 16 Apr 2001 12:00:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131158AbRDPQAd>; Mon, 16 Apr 2001 12:00:33 -0400
-Received: from lange.hostnamen.sind-doof.de ([212.15.192.219]:25618 "HELO
-	xena.sind-doof.de") by vger.kernel.org with SMTP id <S130900AbRDPQAZ>;
-	Mon, 16 Apr 2001 12:00:25 -0400
-Date: Mon, 16 Apr 2001 17:49:45 +0200
-From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
-To: Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>
-Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: Let init know user wants to shutdown
-Message-ID: <20010416174945.D29398@kallisto.sind-doof.de>
-Mail-Followup-To: Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>,
-	Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010413002920.C43@(none)> <Pine.LNX.4.31.0104161427400.13558-100000@phobos.fachschaften.tu-muenchen.de>
-Mime-Version: 1.0
+	id <S131205AbRDPQAm>; Mon, 16 Apr 2001 12:00:42 -0400
+Received: from nat-hdqt.valinux.com ([198.186.202.17]:38477 "EHLO
+	macallan.engr.valinux.com") by vger.kernel.org with ESMTP
+	id <S131157AbRDPQAb>; Mon, 16 Apr 2001 12:00:31 -0400
+From: Walt Drummond <drummond@engr.valinux.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.31.0104161427400.13558-100000@phobos.fachschaften.tu-muenchen.de>; from Simon.Richter@phobos.fachschaften.tu-muenchen.de on Mon, Apr 16, 2001 at 02:42:03PM +0200
-X-Operating-System: Debian GNU/Linux (Linux 2.4.3-ac5-int1-nf20010413-dc1 i686)
-X-Disclaimer: Are you really taking me serious?
+Content-Transfer-Encoding: 7bit
+Message-ID: <15067.5912.594118.354056@macallan.engr.valinux.com>
+Date: Mon, 16 Apr 2001 09:00:24 -0700
+To: "Hubertus Franke" <frankeh@us.ibm.com>
+Cc: george anzinger <george@mvista.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        lse-tech@lists.sourceforge.net
+Subject: Re: [Lse-tech] Bug in sys_sched_yield
+In-Reply-To: <OF33FEDED1.EDF6D260-ON85256A2D.006D99DE@pok.ibm.com>
+In-Reply-To: <OF33FEDED1.EDF6D260-ON85256A2D.006D99DE@pok.ibm.com>
+X-Mailer: VM 6.90 under Emacs 20.7.1
+Reply-To: drummond@engr.valinux.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Mon, Apr 16, 2001 at 02:42:03PM +0200, Simon Richter wrote:
+Hubertus Franke writes:
+> I think that all data accesses particularly to __aligned_data
+> should be performed through logical ids. There's a lot of remapping
+> going on, due to the mix of logical and physical IDs.
 > 
-> A power failure is a different thing from a power button press. There are
-> users (me for example) who want to have something different then "init 0"
-> mapped to the power button, for example a sleep state (since my box
-> doesn't have a dedicated sleep button). I doubt there are many people who
-> want something else than a shutdown if the power is out (although I think
-> there will be with suspend-to-disk working, so we might have to change UPS
-> handling here).
+> If indeed the physical numbers are sparse (like we had on a 4x4
+> NUMA system) then indexing doesn't work anyway.
 
-And why not do exactly this with init? Have a look in /etc/inittab:
+This is exactly right.  On IA64, we have to hide the physical
+processor ID (processor bus/local ID pair) completely.  As far as I
+can see, but it's been awhile, so forgive me if I miss one or two,
+IA64 doesn't expose the physical processor ID at all, outside the IPI
+and AP startup code.
 
-% grep power /etc/inittab
-# What to do when the power fails/returns.
-pf::powerwait:/etc/init.d/powerfail start
-pn::powerfailnow:/etc/init.d/powerfail now
-po::powerokwait:/etc/init.d/powerfail stop
+> The right approach to me seems to move everything including p->processor
+> to logical and the few locations where needed otherwise (?) should
+> be moved to have the translation from performed there.
 
-You can shut down your machine there, but you can also have it play a
-cancan on power failure. It is up to your gusto. And now tell me, why
-not choose a similar approach, but instead reinvent the wheel and
-create a completely new mechanism?
+Yep.  If not simply to make the generic kernel code clearer, this will
+also make it easier to support non-linear (NUMA) systems.
 
-Andreas
--- 
-Besides, I think Slackware sounds better than 'Microsoft,' don't you?
-	-- Patrick Volkerding
-
+--Walt

@@ -1,42 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262009AbUCaPpx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 10:45:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262019AbUCaPpx
+	id S262027AbUCaPyU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 10:54:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262042AbUCaPyU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 10:45:53 -0500
-Received: from fed1mtao06.cox.net ([68.6.19.125]:23424 "EHLO
-	fed1mtao06.cox.net") by vger.kernel.org with ESMTP id S262009AbUCaPpw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 10:45:52 -0500
-Date: Wed, 31 Mar 2004 08:45:41 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: "Amit S. Kale" <amitkale@emsyssoft.com>,
-       kgdb-bugreport@lists.sourceforge.net,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Latest kgdb?
-Message-ID: <20040331154541.GH13819@smtp.west.cox.net>
-References: <20040319162009.GE4569@smtp.west.cox.net> <200403242011.26314.amitkale@emsyssoft.com> <20040324154355.GD7126@smtp.west.cox.net> <200403251022.39704.amitkale@emsyssoft.com> <20040325151444.GC13366@smtp.west.cox.net> <20040331152925.GA6205@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040331152925.GA6205@elf.ucw.cz>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Wed, 31 Mar 2004 10:54:20 -0500
+Received: from ida.rowland.org ([192.131.102.52]:11012 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id S262027AbUCaPyS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Mar 2004 10:54:18 -0500
+Date: Wed, 31 Mar 2004 10:54:17 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@ida.rowland.org
+To: Greg KH <greg@kroah.com>
+cc: Andrew Morton <akpm@osdl.org>, <maneesh@in.ibm.com>, <david-b@pacbell.net>,
+       <viro@math.psu.edu>, <linux-usb-devel@lists.sourceforge.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Unregistering interfaces
+In-Reply-To: <20040331003327.GB10262@kroah.com>
+Message-ID: <Pine.LNX.4.44L0.0403311035130.1752-100000@ida.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 31, 2004 at 05:29:25PM +0200, Pavel Machek wrote:
+On Tue, 30 Mar 2004, Greg KH wrote:
 
-> Hi!
+> On Tue, Mar 30, 2004 at 06:56:27PM -0500, Alan Stern wrote:
+> > 
+> > There are two problems to consider:
+> > 
+> >     (1) sysfs retains pointers to kobjects long after they have been
+> > 	unregistered because of the negative dentrys.
 > 
-> Where can I get latest kgdb? The version on kgdb.sf.net is still
-> against 2.6.3, afaics. Or should I forward port it?
+> That is now taken care of with the patch I just sent to Linus by taking
+> out this patch.
 
-CVS is against 2.6.4.  Once 2.6.5 comes out, I'll move it forward again.
-Locally, I've got a series of patches vs 2.6.5-rc3 + some -mm bits for
-Andrew which I hope to post today, but might not make it until tomorrow.
+Yes, and Maneesh is working to replace it with a more suitable approach.
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+> >     (2) khubd blocks when removing configurations.
+> 
+> That was fixed by the patch from you, undoing your previous patch which
+> blocked.
+> 
+> So everyone is happy now, right?  :)
+
+That change was just a temporary fix, never intended as a permanent 
+solution.
+
+Here's a suggestion for a correct solution.  It's a little bit awkward,
+but less so than other ideas I've heard.
+
+Define struct usb_interface_cache to be a subset of struct usb_interface.  
+All it needs to contain is the altsetting pointer and num_altsetting.  
+Within the usb_host_configuration structure add an array of 
+usb_interface_cache pointers in addition to the existing array of 
+usb_interface pointers.
+
+When config.c parses the configuration descriptors, it will create the 
+usb_interface_cache structures instead of creating the usb_interfaces.  
+Things like configuration selection and /proc/bus/usb/devices can get all 
+the information they need from this.
+
+When a configuration is installed, usb_set_configuration() will
+dynamically perform a deep copy of the usb_interface_cache array and store
+the entries in the usb_interface array.  These will be "live" entries,
+containing the struct device and everything else for use by drivers 
+(exactly the same as they do now).
+
+When a configuration is uninstalled, the usb_interface array can be erased
+and the usual kobject cleanup mechanism will delete the deep-copy
+array elements whenever it wants to.  There will be no problems with
+reinstalling the configuration because when that happens, new interfaces
+will be allocated dynamically.  Hence there will be no need for khubd to
+block, no need for changes to sysfs, and then everyone really will be 
+happy! :-)
+
+Although there is extra overhead in doing all the copying, it only happens 
+when configurations are changed.  Furthermore, since we will know in 
+advance the sizes of all the structures to be copied, we will be able to 
+allocate a single memory region to hold all the altsetting and endpoint 
+structures for each interface.
+
+If you think this sounds good, I will start working on it.
+
+Alan Stern
+

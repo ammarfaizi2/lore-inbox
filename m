@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279813AbRJ0Mdw>; Sat, 27 Oct 2001 08:33:52 -0400
+	id <S279814AbRJ0NRC>; Sat, 27 Oct 2001 09:17:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279814AbRJ0Mdp>; Sat, 27 Oct 2001 08:33:45 -0400
-Received: from natpost.webmailer.de ([192.67.198.65]:6651 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S279813AbRJ0Mdg>; Sat, 27 Oct 2001 08:33:36 -0400
-From: Stefan Hoffmeister <lkml.2001@econos.de>
-To: linux-kernel@vger.kernel.org
-Subject: Bandwidth QoS for disks?
-Date: Sat, 27 Oct 2001 14:34:43 +0200
-Organization: Econos
-Message-ID: <9i9lttg9ifdhigh57imv15jhakefk10p9c@4ax.com>
-X-Mailer: Forte Agent 1.8/32.548
-MIME-Version: 1.0
+	id <S279816AbRJ0NQx>; Sat, 27 Oct 2001 09:16:53 -0400
+Received: from app79.hitnet.RWTH-Aachen.DE ([137.226.181.79]:36362 "EHLO
+	moria.gondor.com") by vger.kernel.org with ESMTP id <S279814AbRJ0NQq>;
+	Sat, 27 Oct 2001 09:16:46 -0400
+Date: Sat, 27 Oct 2001 15:17:19 +0200
+From: Jan Niehusmann <jan@gondor.com>
+To: "Bryan O'Sullivan" <bos@serpentine.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VIA KT133 data corruption update
+Message-ID: <20011027151719.A2289@gondor.com>
+In-Reply-To: <1004179736.1615.19.camel@pelerin.serpentine.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <1004179736.1615.19.camel@pelerin.serpentine.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Oct 27, 2001 at 03:48:56AM -0700, Bryan O'Sullivan wrote:
+> After several months of begrudgingly putting up with my ASUS A7V
+> motherboard corrupting roughly 1 byte per 100 million read during
+> moderate to heavy PCI bus activity, I flashed VIA's 1009 BIOS this
+> evening.
 
-Hi,
+Please note that there have been broken versions of the 1009 BIOS
+around. I know one person, and I read from serveral ones, who flashed
+1009 to their A7V and were unable to start the computer afterwards.
+(Hangs before/during POST).
 
-is there anything in the kernel that would allow an application to
-*declare* that it needs disk read (or possibly) write bandwidth of n
-KB/s?
+Apparently ASUS has replaced the broken version with a working one
+without updating the version number. But that's just a guess based on
+recent success stories about 1009.
 
-The kernel would make every attempt to deliver that bandwidth, even
-allowing starvation of other less important clients, except for some
-5-10% headroom for emergency? I realise that the kernel cannot
-*guarantee* that bandwidth, but some kind of priorization scheme would
-help often enough, I guess.
+> I also discovered, of necessity, a halfway manageable process for
+> creating a DOS boot floppy using Windows ME, which Microsoft would
+> apparently prefer was not possible.  I'll reproduce the steps here,
+> since otherwise flashing a new BIOS is likely to be nightmarish for
+> people stuck dual booting into WinME.
 
-I just lost another CD-R due to cron with lots and lots of on-disk
-seeking kicking in, killing all that bandwidth cdrecord needed - and I
-don't have one of these new and fancy burn-proof things (and, yes, I
-should have suspended cron and friends, but I am only human and
-computers are meant to made my life easier).
+As I don't use Windows at all, FreeDOS has proven very useful for 
+flashing the bios. (www.freedos.org)
+But, of course, no guarantees.
 
-Sure, I could instruct cdrecord to increase its own read-ahead cache
-from 4 MB to, say, 128 MB. But read-ahead cache != "QoS" (except for
-volume of data == size of read-ahead cache), only a lame attempt at,
-well, being helpful in an imperfect world.
+Jan
+

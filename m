@@ -1,89 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265732AbUATUbx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 15:31:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265736AbUATUbx
+	id S265776AbUATU1W (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 15:27:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265755AbUATU1W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 15:31:53 -0500
-Received: from c217236.adsl.hansenet.de ([213.39.217.236]:35475 "EHLO
-	sfhq.hn.org") by vger.kernel.org with ESMTP id S265732AbUATUbv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 15:31:51 -0500
-Message-ID: <400D902D.8080607@portrix.net>
-Date: Tue, 20 Jan 2004 21:31:41 +0100
-From: Jan Dittmer <j.dittmer@portrix.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: jlnance@unity.ncsu.edu
-CC: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org,
-       cmp@synopsys.com
-Subject: Re: Awful NFS performance with attached test program
-References: <20040119211649.GA20200@ncsu.edu> <1074549226.1560.59.camel@nidelv.trondhjem.org> <20040120132803.GA2830@ncsu.edu>
-In-Reply-To: <20040120132803.GA2830@ncsu.edu>
-X-Enigmail-Version: 0.82.4.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig4E1D811E9BCC8C031D9B8386"
+	Tue, 20 Jan 2004 15:27:22 -0500
+Received: from quake.mweb.co.za ([196.2.45.85]:39102 "EHLO quake.mweb.co.za")
+	by vger.kernel.org with ESMTP id S265776AbUATU1M (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 15:27:12 -0500
+Date: Tue, 20 Jan 2004 22:27:09 +0200
+From: Bongani Hlope <bonganilinux@mweb.co.za>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux@brodo.de, linux-kernel@vger.kernel.org,
+       john stultz <johnstul@us.ibm.com>
+Subject: Re: limit-timer_pm-printk-storms.patch
+Message-Id: <20040120222709.5e011cd8.bonganilinux@mweb.co.za>
+In-Reply-To: <20040120115751.5e4441bc.akpm@osdl.org>
+References: <20040120212514.43e31237.bonganilinux@mweb.co.za>
+	<20040120115751.5e4441bc.akpm@osdl.org>
+X-Mailer: Sylpheed version 0.9.6claws (GTK+ 1.2.10; i586-mandrake-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Tue__20_Jan_2004_22_27_09_+0200_R4cOWtUGOWzcs314"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig4E1D811E9BCC8C031D9B8386
-Content-Type: text/plain; charset=us-ascii; format=flowed
+--Signature=_Tue__20_Jan_2004_22_27_09_+0200_R4cOWtUGOWzcs314
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
 
-jlnance@unity.ncsu.edu wrote:
-> On Mon, Jan 19, 2004 at 04:53:46PM -0500, Trond Myklebust wrote:
-> 
-> 
->>So you are surprised that writing the same dataset by putting one
->>integer onto each kernel page takes much more time than placing the
->>entire dataset onto just a few kernel pages? 'cos I'm not...
-> 
-> 
-> I must admit that I am.  I could see that it would take somewhat longer
-> because a logicial way for the kernel to implement this would be as a
-> read-modify-write operation.  So a 2X slowdown would not supprise me.
-> But the slowdown is more than 10X, and that does.
-> 
-> Also, for what its worth, Solaris performs like this:
-> 
->     flame> ./a.out 
->     Creating file: 3.886 seconds
->     Updating file: 1.259 seconds
-> 
-> While Linux performs like this:
-> 
->     jesse> ./a.out
->     Creating file: 43.042 seconds
->     Updating file: 555.796 seconds
+On Tue, 20 Jan 2004 11:57:51 -0800
+Andrew Morton <akpm@osdl.org> wrote:
 
-My Client (2.6.1-mm2) against my server (2.6.1-bk6) is significantly faster:
+> Bongani Hlope <bonganilinux@mweb.co.za> wrote:
+> >
+> > This patch has been inspired by the limit-IO-error-printk-storms patch. On my PII when I enable 
+> > CONFIG_X86_PM_TIMER this gets called a lot of times, I guess my VIA chipset is too broken to play with this.
+> > 
+> > <example>
+> > ...
+> > Jan 19 04:21:46 bongani kernel: bad pmtmr read: (15567390, 15567423, 15567393)
+> > Jan 19 04:21:46 bongani kernel: bad pmtmr read: (1746710, 1746719, 1746713)
+> > Jan 19 04:21:47 bongani kernel: bad pmtmr read: (2239982, 2239999, 2239986)
+> 
+> Does the PM timer actually do the right thing once these printk's are
+> suppressed?
+> 
 
-./nfstest
-Creating file: 11.607 seconds
-Updating file: 35.885 seconds
+No this is just to reduce the noise, my /var/log/messages file is about 33M in size
 
-Note the increase of the factor 3 only instead of 10.
-nfs mount options: 
-rw,hard,intr,rsize=8192,wsize=8192,timeo=30,retrans=10,tcp
+> If not, it would be better to recover somehow - presumably by blacklisting
+> this machine or by falling back to a different time source.  Possible?
 
-Thanks,
+I think it is better to blacklist for know because according to the comment on that function
+it is suppose to e workaround for some broken chipsets.
 
-Jan
+ 
+[root@bongani bongani]# lspci
+00:00.0 Host bridge: VIA Technologies, Inc. VT82C693A/694x [Apollo PRO133x] (rev 01)
+00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo MVP3/Pro133x AGP]
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C586/A/B PCI-to-ISA [Apollo VP] (rev 47)
+00:07.1 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT8233/A/C/VT8235 PIPC Bus Master IDE (rev 06)
+00:07.2 USB Controller: VIA Technologies, Inc. USB (rev 02)
+00:07.3 Host bridge: VIA Technologies, Inc. VT82C586B ACPI (rev 10)
+00:09.0 Multimedia audio controller: Ensoniq ES1371 [AudioPCI-97] (rev 07)
+00:0a.0 Multimedia video controller: Brooktree Corporation Bt878 Video Capture (rev 11)
+00:0a.1 Multimedia controller: Brooktree Corporation Bt878 Audio Capture (rev 11)
+01:00.0 VGA compatible controller: nVidia Corporation NV11 [GeForce2 MX/MX 400] (rev b2)
 
---------------enig4E1D811E9BCC8C031D9B8386
+>From dmesg
+
+ACPI: RSDP (v000 VIA691                                    ) @ 0x000f5f70
+ACPI: RSDT (v001 AWARD  AWRDACPI 0x30302e31 AWRD 0x00000000) @ 0x0fff3000
+ACPI: FADT (v001 AWARD  AWRDACPI 0x30302e31 AWRD 0x00000000) @ 0x0fff3040
+ACPI: DSDT (v001  AWARD AWRDACPI 0x00001000 MSFT 0x0100000a) @ 0x00000000
+
+--Signature=_Tue__20_Jan_2004_22_27_09_+0200_R4cOWtUGOWzcs314
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQFADZAtLqMJRclVKIYRAkEQAJ40PjZdQaiEk5R2vgCK7MNpK67EzQCgjjjt
-hB60i2qkE2pwiMxKvfWMjJo=
-=Nnks
+iD8DBQFADY8y+pvEqv8+FEMRArjoAJwPcwx08cdI4jBycFeWPlQbvHjD0gCgkONT
+RNgxAMEhR3bkuzSB27PUe4M=
+=3Fma
 -----END PGP SIGNATURE-----
 
---------------enig4E1D811E9BCC8C031D9B8386--
+--Signature=_Tue__20_Jan_2004_22_27_09_+0200_R4cOWtUGOWzcs314--

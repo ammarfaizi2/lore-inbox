@@ -1,61 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbRALNYh>; Fri, 12 Jan 2001 08:24:37 -0500
+	id <S129733AbRALNhJ>; Fri, 12 Jan 2001 08:37:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131497AbRALNY0>; Fri, 12 Jan 2001 08:24:26 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:30336 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S129183AbRALNYZ>; Fri, 12 Jan 2001 08:24:25 -0500
-Date: Fri, 12 Jan 2001 08:24:01 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Mark Longair <list-reader@ideaworks3d.com>
+	id <S131153AbRALNg7>; Fri, 12 Jan 2001 08:36:59 -0500
+Received: from d14144.upc-d.chello.nl ([213.46.14.144]:37046 "EHLO
+	amadeus.home.nl") by vger.kernel.org with ESMTP id <S129733AbRALNgs>;
+	Fri, 12 Jan 2001 08:36:48 -0500
+Message-Id: <m14H4Nl-000OY9C@amadeus.home.nl>
+Date: Fri, 12 Jan 2001 14:36:41 +0100 (CET)
+From: arjan@fenrus.demon.nl (Arjan van de Ven)
+To: lmb@suse.de (Lars Marowsky-Bree)
+Subject: Re: khttpd beaten by boa
 cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.2.18] outgoing connections getting stuck in SYN_SENT
-In-Reply-To: <14942.21680.175176.177588@starfruit.iwks.multi.local>
-Message-ID: <Pine.LNX.3.95.1010112082036.8086A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Newsgroups: fenrus.linux.kernel
+In-Reply-To: <Pine.LNX.4.21.0101071655090.1110-100000@home.lameter.com> <Pine.LNX.4.21.0101112214040.22231-100000@home.lameter.com> <20010112084259.B441@marowsky-bree.de>
+User-Agent: tin/pre-1.4-981002 ("Phobia") (UNIX) (Linux/2.2.18pre19 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Jan 2001, Mark Longair wrote:
+In article <20010112084259.B441@marowsky-bree.de> you wrote:
+> On 2001-01-11T22:20:56,
+>    Christoph Lameter <christoph@lameter.com> said:
 
-> On Thursday 11 January, Richard B. Johnson wrote ("Re: [2.2.18] outgoing connections getting stuck in SYN_SENT"):
-> [...]
-> > You probably compiled your kernel with "CONFIG_INET_ECN" set.
-> > If so, you need to turn it OFF in /proc/sys/net/...something_ecn.
-> 
-> I don't have an ECN option available in this kernel (2.2.18) - I
-> thought it only appeared in 2.3...
-> 
-> > Many/most/all servers are "not ready for prime time" and will
-> > reject packets that have "strange" bits set.
-> [...]
-> 
-> I compiled in the QoS support - could that possibly cause a similar
-> effect?  I'm not actually using the QoS tools at the moment, but I
-> intend to soon.  I'll post the selected options in my .config if that
-> would be helpful.
-> 
+>> Then we decided to switch persistant connection off... But boa still wins.
+>> 
+>> What is wrong here? I would expect transferates of a 3-4 megabytes over a
+>> localhost interface. The file is certainly in some kind of cache.
 
-I guessed wrong. QoS support should not hurt your ability to establish
-connections. For kicks, it might be advisable to remove any network
-support that you are not using just to see if things improve. It may
-be that something is corrupting your packets (before checksumming), so
-the intended host rejects them.
+> This just goes on to show that khttpd is unnecessary kernel bloat and can be
+> "just as well" handled by a userspace application, minus some rather very
+> special cases which do not justify its inclusion into the main kernel.
 
+Well, this test only shows khttpd does badly for localhost, as it doesn't give
+userspace a fair chance to schedule. It's too bad Christoph didn't test it 
+with the persistent-connections patch that didn't get sent to Linus due to 
+the "no more features" freeze (I don't exactly remember which of the freezes
+though). 
 
-Cheers,
-Dick Johnson
+Regarding wether either khttpd or TuX should be in the kernel: I take it
+that it is your oppinion that neither should be in the kernel. I disagree
+with that and I think having a http-server-engine  (or even a more generic
+file-serving engine) in the kernel can make sense for high-end uses. The
+average desktop-user doesn't profit from it, sure. But that also holds for
+things like hardware-raid or even SCSI. We still want those in though.
 
-Penguin : Linux version 2.4.0 on an i686 machine (799.53 BogoMips).
+Wether TuX or khttpd should be in... well. I agree with DaveM that TuX is 
+certainly the "next and better" generation, and I look forward to working 
+with Ingo and others on it. 
 
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+Greetings,
+ 	Arjan van de Ven
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

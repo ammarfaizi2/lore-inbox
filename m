@@ -1,410 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267079AbTAFO60>; Mon, 6 Jan 2003 09:58:26 -0500
+	id <S266930AbTAFOtC>; Mon, 6 Jan 2003 09:49:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267080AbTAFO60>; Mon, 6 Jan 2003 09:58:26 -0500
-Received: from willow.compass.com.ph ([202.70.96.38]:12040 "EHLO
-	willow.compass.com.ph") by vger.kernel.org with ESMTP
-	id <S267079AbTAFO6T>; Mon, 6 Jan 2003 09:58:19 -0500
-Subject: [RFC][PATCH][FBDEV]: Setting fbcon's windows size
-From: Antonino Daplas <adaplas@pol.net>
-To: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1041864838.955.68.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 06 Jan 2003 22:54:37 +0800
+	id <S266958AbTAFOtC>; Mon, 6 Jan 2003 09:49:02 -0500
+Received: from elin.scali.no ([62.70.89.10]:60680 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S266930AbTAFOtB>;
+	Mon, 6 Jan 2003 09:49:01 -0500
+Date: Mon, 6 Jan 2003 16:00:37 +0100 (CET)
+From: Steffen Persvold <sp@scali.com>
+X-X-Sender: sp@sp-laptop.isdn.scali.no
+To: "David S. Miller" <davem@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: NAPI and tg3
+In-Reply-To: <Pine.LNX.4.44.0301041613350.2946-100000@sp-laptop.isdn.scali.no>
+Message-ID: <Pine.LNX.4.44.0301061538420.15870-100000@sp-laptop.isdn.scali.no>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, 4 Jan 2003, Steffen Persvold wrote:
 
-In 2.5, in contrast with the 2.4 fbdev framework, any changes in the
-fbdev layer will not reflect in the upper console layer, except during
-initialization of fbcon.  So using fbset to change the resolution will
-produce unexpected results. If my understanding is correct, the
-relationship between console and fbdev is now master (console) and slave
-(fbdev).  If this is true, then console changes must become visible to
-fbcon/fbdev.  This is easily accomplished by adding a csw->con_resize()
-hook to fbcon.
+> Hi guys,
+> 
+> I have access to 8 Dell 2650s with onboard Broadcom BCM5701 chips. They 
+> are quipped with Dual 2.4 GHz Xeon processors and 1GB of RAM. I'm running 
+> RedHat 7.3, but with a stock 2.4.20 kernel.
+> 
+> As I understand it the tg3 driver is using NAPI on the 2.4.20 kernel 
+> (dev->poll). I've been experiencing bad performance (low bandwidth) on 
+> cluster applications running with LAM for example, but the problem 
+> manifest itself if you run two bandwidth needy applications in parallel 
+> on two machines (i.e two processes on each machine, one per processor) 
+> using Gbe. 
+> 
+> I've disabled the NAPI mode and went back to the old interrupt method and 
+> this works much better (i.e the bandwidth is now evenly distributed 
+> between the two applications).
+> 
+> What could be the cause of this problem ? Is it NAPI itself (doing RX 
+> under scheduler control) or is it something else (for example lock 
+> contention).
+> 
+> Any ideas ?
 
-<-- BEGIN -->
-diff -Naur linux-2.5.54/drivers/video/console/fbcon.c linux/drivers/video/console/fbcon.c
---- linux-2.5.54/drivers/video/console/fbcon.c	2003-01-04 21:58:47.000000000 +0000
-+++ linux/drivers/video/console/fbcon.c	2003-01-06 13:31:34.000000000 +0000
-@@ -1871,6 +1871,25 @@
- }
- 
+Hi again,
 
-+static int fbcon_resize(struct vc_data *vc, unsigned int width, 
-+			unsigned int height)
-+{
-+	struct display *p = &fb_display[vc->vc_num];
-+	struct fb_info *info = p->fb_info;
-+	struct fb_var_screeninfo var = info->var;
-+	int err;
-+
-+	var.xres = width * vc->vc_font.width;
-+	var.yres = height * vc->vc_font.height;
-+	var.activate = FB_ACTIVATE_NOW;
-+
-+	err = fb_set_var(&var, info);
-+
-+	return (err || info->var.xres/vc->vc_font.width != width ||
-+		info->var.yres/vc->vc_font.height != height) ?
-+		-EINVAL : 0;
-+}
-+
- static int fbcon_switch(struct vc_data *vc)
- {
- 	int unit = vc->vc_num;
-@@ -1920,6 +1939,7 @@
- 
- 	info->currcon = unit;
- 	
-+        fbcon_resize(vc, vc->vc_cols, vc->vc_rows);
- 	update_var(unit, info);
- 	
- 	if (vt_cons[unit]->vc_mode == KD_TEXT)
-@@ -2537,6 +2557,7 @@
- 	.con_invert_region 	= fbcon_invert_region,
- 	.con_screen_pos 	= fbcon_screen_pos,
- 	.con_getxy 		= fbcon_getxy,
-+	.con_resize             = fbcon_resize,
- };
- 
- int __init fb_console_init(void)
+I discovered that if I renice the ksoftirqd processes to level 0, the 
+performance was actually better with the NAPI enabled driver compared to 
+the one without (as was intended my NAPI IIRC). With the default nice 
+level (19) on the ksoftirqd processes, the performance on multithreaded 
+programs was pretty lousy with the NAPI enabled driver.
 
-<-- END -->
+Any reason why the ksoftirqd shouldn't be nice level 0 by default ? Is 
+this already fixed in 2.4.21-pre series ?
 
-The tty/console layer has several ioctl's that will allow changing of
-the console window size (VT_RESIZE, VT_RESIZEX, TIOCSWINSZ, etc). So
-using:
-
-stty cols 128 rows 48
-
-will change the fb resolution to 1024x768 if using an 8x16 font.
-
-One advantage of this approach is that the changes are preserved per
-console (in contrast to using fbset which sets all consoles).
-
-This approach has one major problem though.  In the 2.4 interface, we
-have fbset that basically "assists" fbdev with the changes.  The fbset
-utility will fill up fb_var_screeninfo with correct information such as
-video timings from /etc/fb.modes.  
-
-With the current approach, this "assistance" is gone. When a window size
-change is requested, the fbdev driver is left on its own to find the
-correct timing values for the video mode.  
-
-So, what's needed is a function that calculates timing parameters which
-is generic enough to work with the most common monitors.  One solution
-is to use VESA's GTF (Generalized Timing Formula).  Attached is a patch
-that implements the formula.
-
-The timings generated by GTF are different from the standard VESA
-timings (DMT).  However, it should work for GTF compliant monitors and
-is also specifically formulated to work with older monitors as well. 
-Another advantage is that it can calculate the timings for any video
-mode. It may not work for proprietary displays or TV displays.
-
-One requirement of the GTF is that the monitor specs must be known, ie
-info->monspecs must be valid.  This can be filled up several ways:
-
-1. VBE/DDC and EDID parsing (I see the beginnings of it already in
-fbmon.c)
-
-2. entered as a boot/module option
-
-3. ?ioctl to upload monitor info to fbdev.
-
-(As a side note, should we also add pixclock_min and pixclock_max to
-info->monspecs?).
-
-User-entered timings are always preferred, so these are validated
-first.  If the timings are not valid, then they will be computed. So,
-here are 2 new functions:
-
-1. fb_validate_mode(fb_var_screeninfo *var, fb_info *info)
-
-2. fb_get_mode(u32 refresh, fb_var_screeninfo *var, fb_info *info)
-
-It's in fb_get_mode() where the GTF is implemented.  The 'refresh'
-parameter is optional, and if == 0, the vertical refresh rate will be
-maximized.
-
-Anyway, using fb_get_mode(), I was able to generate working video modes from as low as
-300x300@60 to as high as 1600x1200@85.  I've also experimented with
-unusual modes, such as 1600x480.
-
-Comments?
-
-Tony
-
-diff -Naur linux-2.5.54/drivers/video/modedb.c linux/drivers/video/modedb.c
---- linux-2.5.54/drivers/video/modedb.c	2003-01-06 13:36:08.000000000 +0000
-+++ linux/drivers/video/modedb.c	2003-01-06 13:34:50.000000000 +0000
-@@ -423,4 +423,245 @@
-     return 0;
- }
- 
-+#define FLYBACK                     550
-+#define V_FRONTPORCH                1
-+#define H_OFFSET                    40
-+#define H_SCALEFACTOR               20
-+#define H_BLANKSCALE                128
-+#define H_GRADIENT                  600
-+
-+/**
-+ * fb_get_vblank - get vertical blank time
-+ * @hfreq: horizontal freq
-+ *
-+ * DESCRIPTION:
-+ * vblank = right_margin + vsync_len + left_margin 
-+ *
-+ *    given: right_margin = 1 (V_FRONTPORCH)
-+ *           vsync_len    = 3
-+ *           flyback      = 550
-+ *
-+ *                          flyback * hfreq
-+ *           left_margin  = --------------- - vsync_len
-+ *                           1000000
-+ */
-+static u32 fb_get_vblank(u32 hfreq)
-+{
-+	u32 vblank;
-+
-+	vblank = (hfreq * FLYBACK)/1000; 
-+	vblank = (vblank + 500)/1000;
-+	return (vblank + V_FRONTPORCH);
-+}
-+
-+/** 
-+ * fb_get_hblank - get horizontal blank time
-+ * @hfreq: horizontal freq
-+ * @xres: horizontal resolution in pixels
-+ *
-+ * DESCRIPTION:
-+ *
-+ *           xres * duty_cycle
-+ * hblank = ------------------
-+ *           100 - duty_cycle
-+ *
-+ * duty cycle = percent of htotal assigned to inactive display
-+ * duty cycle = C - (M/Hfreq)
-+ *
-+ * where: C = ((offset - scale factor) * blank_scale)
-+ *            -------------------------------------- + scale factor
-+ *                        256 
-+ *        M = blank_scale * gradient
-+ *
-+ */
-+static u32 fb_get_hblank(u32 hfreq, u32 xres)
-+{
-+	u32 c_val, m_val, duty_cycle, hblank;
-+
-+	c_val = (((H_OFFSET - H_SCALEFACTOR) * H_BLANKSCALE)/256 + 
-+		 H_SCALEFACTOR) * 1000;
-+	m_val = (H_BLANKSCALE * H_GRADIENT)/256;
-+	m_val = (m_val * 1000000)/hfreq;
-+	duty_cycle = c_val - m_val;
-+	hblank = (xres * duty_cycle)/(100000 - duty_cycle);
-+	return (hblank);
-+}
-+
-+/**
-+ * fb_get_hfreq - estimate hsync
-+ * @vfreq: vertical refresh rate
-+ * @yres: vertical resolution
-+ *
-+ * DESCRIPTION:
-+ *
-+ *          (yres + front_port) * vfreq * 1000000
-+ * hfreq = -------------------------------------
-+ *          (1000000 - (vfreq * FLYBACK)
-+ * 
-+ */
-+
-+static u32 fb_get_hfreq(u32 vfreq, u32 yres)
-+{
-+	u32 divisor, hfreq;
-+	
-+	divisor = (1000000 - (vfreq * FLYBACK))/1000;
-+	hfreq = (yres + V_FRONTPORCH) * vfreq  * 1000;
-+	return (hfreq/divisor);
-+}
-+
-+/*
-+ * fb_get_mode - calculates video mode using VESA GTF
-+ * @refresh: if 0, maximize vertical refresh
-+ * @var: pointer to fb_var_screeninfo
-+ * @info: pointer to fb_info
-+ *
-+ * DESCRIPTION:
-+ * Calculates video mode based on monitor specs using VESA GTF. 
-+ * The GTF is best for VESA GTF compliant monitors but is 
-+ * specifically formulated to work for older monitors as well.
-+ *
-+ * If @refresh==0, the function will attempt to maximize the 
-+ * refresh rate, otherwise, it will calculate timings based on
-+ * this value.  However, it's preferable to just clamp 
-+ * info->monspecs.vfmin/vfmax to desired refresh.  
-+ *
-+ * All calculations are based on the VESA GTF Spreadsheet
-+ * available at VESA's public ftp (http://www.vesa.org).
-+ * 
-+ * NOTES:
-+ * The timings generated by the GTF will be different from VESA
-+ * DMT.  It might be a good idea to keep a table of standard
-+ * VESA modes as well.  The GTF may also not work for some displays,
-+ * such as, and especially, analog TV.
-+ *   
-+ * REQUIRES:
-+ * A valid info->monspecs, otherwise 'safe numbers' will be used.
-+ */ 
-+int fb_get_mode(u32 vrefresh, struct fb_var_screeninfo *var, struct fb_info *info)
-+{
-+	u32 htotal = 0, vtotal, hfreq, vfreq = 0, hblank, vblank; 
-+	u32 dclk, interlace = 1, dscan = 1, yres = var->yres, xres = var->xres;
-+	u32 hfmin, hfmax, vfmin, vfmax;
-+
-+	/* 
-+	 * If monspecs are invalid, use values that are enough
-+	 * for 640x480@60
-+	 */
-+	if ((!info->monspecs.hfmax && !info->monspecs.vfmax) ||
-+	    info->monspecs.hfmax < info->monspecs.hfmin ||
-+	    info->monspecs.vfmax < info->monspecs.vfmin) {
-+		hfmin = 29; hfmax = 30;
-+		vfmin = 60; vfmax = 60;
-+	} else {
-+		hfmin = info->monspecs.hfmin;
-+		hfmax = info->monspecs.hfmax;
-+		vfmin = info->monspecs.vfmin;
-+		vfmax = info->monspecs.vfmax;
-+	}
-+
-+	if (var->vmode & FB_VMODE_INTERLACED) { 
-+		yres /= 2;
-+		interlace = 2;
-+	}
-+	if (var->vmode & FB_VMODE_DOUBLE) {
-+		yres *= 2;
-+		dscan = 2;
-+	}
-+
-+	if (vrefresh) {
-+		vfreq = vrefresh;
-+		hfreq = fb_get_hfreq(vfreq, yres);
-+		vblank = fb_get_vblank(hfreq);
-+		vtotal = yres + vblank;
-+	} else {
-+		hfreq = hfmax;
-+		vblank = fb_get_vblank(hfreq);
-+		vtotal = yres + vblank;
-+		vfreq = hfreq/vtotal;
-+		if (vfreq > vfmax) {
-+			vfreq = vfmax;
-+			hfreq = fb_get_hfreq(vfreq, yres);
-+			vblank = fb_get_vblank(hfreq);
-+			vtotal = yres + vblank;
-+		}
-+	} 
-+	
-+	if (vfreq < vfmin || vfreq > vfmax || 
-+	    hfreq < hfmin || hfreq > hfmax)
-+		return -EINVAL;
-+
-+	hblank = fb_get_hblank(hfreq, xres);
-+	htotal = xres + hblank;
-+	dclk = htotal * hfreq;
-+
-+	var->pixclock = KHZ2PICOS(dclk/1000);
-+	var->hsync_len = (htotal * 8)/100;
-+	var->right_margin = (hblank/2) - var->hsync_len;
-+	var->left_margin = hblank - var->right_margin - var->hsync_len;
-+	
-+	var->vsync_len = (3 * interlace)/dscan;
-+	var->lower_margin = (1 * interlace)/dscan;
-+	var->upper_margin = (vblank * interlace)/dscan - 
-+		(var->vsync_len + var->lower_margin);
-+	
-+	return 0;
-+}
-+	
-+/*
-+ * fb_validate_mode - validates var against monitor capabilities
-+ * @var: pointer to fb_var_screeninfo
-+ * @info: pointer to fb_info
-+ *
-+ * DESCRIPTION:
-+ * Validates video mode against monitor capabilities specified in
-+ * info->monspecs.
-+ *
-+ * REQUIRES:
-+ * A valid info->monspecs.
-+ */
-+int fb_validate_mode(struct fb_var_screeninfo *var, struct fb_info *info)
-+{
-+	u32 hfreq, vfreq, htotal, vtotal, pixclock;
-+	u32 hfmin, hfmax, vfmin, vfmax;
-+
-+	/* 
-+	 * If monspecs are invalid, use values that are enough
-+	 * for 640x480@60
-+	 */
-+	if ((!info->monspecs.hfmax && !info->monspecs.vfmax) ||
-+	    info->monspecs.hfmax < info->monspecs.hfmin ||
-+	    info->monspecs.vfmax < info->monspecs.vfmin) {
-+		hfmin = 29; hfmax = 30;
-+		vfmin = 60; vfmax = 60;
-+	} else {
-+		hfmin = info->monspecs.hfmin;
-+		hfmax = info->monspecs.hfmax;
-+		vfmin = info->monspecs.vfmin;
-+		vfmax = info->monspecs.vfmax;
-+	}
-+
-+	if (!var->pixclock)
-+		return -EINVAL;
-+	pixclock = PICOS2KHZ(var->pixclock) * 1000;
-+	   
-+	htotal = var->xres + var->right_margin + var->hsync_len + 
-+		var->left_margin;
-+	vtotal = var->yres + var->lower_margin + var->vsync_len + 
-+		var->upper_margin;
-+
-+	if (var->vmode & FB_VMODE_INTERLACED)
-+		vtotal /= 2;
-+	if (var->vmode & FB_VMODE_DOUBLE)
-+		vtotal *= 2;
-+
-+	hfreq = pixclock/htotal;
-+	vfreq = hfreq/vtotal;
-+
-+	return (vfreq < vfmin || vfreq > vfmax || 
-+		hfreq < hfmin || hfreq > hfmax) ?
-+		-EINVAL : 0;
-+}
-+
- EXPORT_SYMBOL(__fb_try_mode);
-+EXPORT_SYMBOL(fb_get_mode);
-+EXPORT_SYMBOL(fb_validate_mode);
-diff -Naur linux-2.5.54/include/linux/fb.h linux/include/linux/fb.h
---- linux-2.5.54/include/linux/fb.h	2003-01-06 13:36:22.000000000 +0000
-+++ linux/include/linux/fb.h	2003-01-06 13:35:35.000000000 +0000
-@@ -494,6 +494,10 @@
-     u32 vmode;
- };
- 
-+extern int fb_get_mode(u32 refresh, struct fb_var_screeninfo *var,
-+		       struct fb_info *info);
-+extern int fb_validate_mode(struct fb_var_screeninfo *var,
-+			    struct fb_info *info);
- #ifdef MODULE
- static inline int fb_find_mode(struct fb_var_screeninfo *var,
- 			       struct fb_info *info, const char *mode_option,
+Regards,
+ -- 
+  Steffen Persvold   |       Scali AS      
+ mailto:sp@scali.com |  http://www.scali.com
+Tel: (+47) 2262 8950 |   Olaf Helsets vei 6
+Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY
 

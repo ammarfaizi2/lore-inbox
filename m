@@ -1,93 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265113AbTFRKJj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 06:09:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265125AbTFRKJj
+	id S265128AbTFRKLZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 06:11:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265132AbTFRKLY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 06:09:39 -0400
-Received: from imhotep.hursley.ibm.com ([194.196.110.14]:57083 "EHLO
-	tor.trudheim.com") by vger.kernel.org with ESMTP id S265113AbTFRKJf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 06:09:35 -0400
-Subject: Re: How do I make this thing stop laging?  Reboot?  Sounds like 
-	Windows!
-From: Anders Karlsson <anders@trudheim.com>
-To: Karl Vogel <karl.vogel@seagha.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <E19SZ8v-0005Ie-00@relay-1.seagha.com>
-References: <200306172030230870.01C9900F@smtp.comcast.net>
-	 <3EF0214A.3000103@aitel.hist.no>  <E19SZ8v-0005Ie-00@relay-1.seagha.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-nxjZDfVGirzY7xRd2og+"
-Organization: Trudheim Technology Limited
-Message-Id: <1055931810.2285.24.camel@tor.trudheim.com>
+	Wed, 18 Jun 2003 06:11:24 -0400
+Received: from nessie.weebeastie.net ([61.8.7.205]:39309 "EHLO
+	nessie.weebeastie.net") by vger.kernel.org with ESMTP
+	id S265128AbTFRKLV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 06:11:21 -0400
+Date: Wed, 18 Jun 2003 20:26:02 +1000
+From: CaT <cat@zip.com.au>
+To: Pavel Machek <pavel@suse.cz>
+Cc: swsusp@lister.fornax.hu, linux-kernel@vger.kernel.org
+Subject: Re: [FIX, please test] Re: 2.5.70-bk16 - nfs interferes with s4bios suspend
+Message-ID: <20030618102602.GA593@zip.com.au>
+References: <20030613033703.GA526@zip.com.au> <20030615183111.GD315@elf.ucw.cz> <20030616001141.GA364@zip.com.au> <20030616104710.GA12173@atrey.karlin.mff.cuni.cz> <20030618081600.GA484@zip.com.au> <20030618101728.GA203@elf.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 Rubber Turnip www.usr-local-bin.org 
-Date: 18 Jun 2003 11:23:31 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030618101728.GA203@elf.ucw.cz>
+User-Agent: Mutt/1.3.28i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jun 18, 2003 at 12:17:28PM +0200, Pavel Machek wrote:
+> > > Turn it off. You don't want to debug preempt and nfs at the same time.
+> > 
+> > And this is with preempt off:
+> > 
+> > Stopping tasks: XFree86 entered refrigerator
+> > =pdflush entered refrigerator
+> ...
+> > =init entered refrigerator
+> > =procmail entered refrigerator
+> > =|
+> > Freeing memory: .........................|
+> > Syncing disks before copy
+> > Suspending devices
+> > Suspending device c052c48c
+> > Suspending devices
+> > Suspending device c052c48c
+> > suspending: hda ------------[ cut here ]------------
+> > kernel BUG at drivers/ide/ide-disk.c:1110!
+> 
+> Okay, you hit some ide problems, but freezing NFS worked okay. Did you
+> have active NFS mounts at this point?
 
---=-nxjZDfVGirzY7xRd2og+
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Yup. I upgraded to .72 and tried again (using the new taskfile stuff) and
+this time it suspended. On resume though, the framebuffer console wasn't
+really functioning. I had to switch to X and then switch back again before
+it was all groovy.
 
-On Wed, 2003-06-18 at 10:22, Karl Vogel wrote:
-> On 18 Jun 2003, you wrote in linux.kernel:
->=20
-> > rmoser wrote:
-> > [...]
-[...]
-> > Because the problem _is_ unsolvable.  You want the kernel
-> > to go "oh, lots of free memory showed up, lets pull
-> > everything in from swap just in case someone might need it."
->=20
->=20
-> You might want to try Con Kolivas' patches on:
->    http://members.optusnet.com.au/ckolivas/kernel/
->=20
-> More specifically the 'swap prefetch' patch. From this FAQ:
->=20
-> --
-> Swap prefetching? If you have >10% free physical ram and any used swap it=
-=20
-> will start swapping pages back into physical ram. Probably not of real=20
-> benefit but many people like this idea. I have a soft spot for it and lik=
-e=20
-> using it.
-> --
->=20
-> The disadvantage is ofcourse that you will be using up more RAM than is=20
-> really necessary.
+Ponderance: Why did it do a full s/w suspend when I asked for the bios
+to handle it? I have s4bios showing up in /proc/acpi/sleep and the bios
+is set to suspend to disk. I've even got an a0 partition fully formatted
+and it still ignored it all.
 
-Sorry for breaking in, but this is an interesting discussion. :-)
+I was using the following line to activate it:
 
-I find that the Linux VM tend to push things out in to swap-space when
-it does not need it. This is fine. However, I was once told something
-about AIX that has lodged itself in the back of my mind.
+echo 4b >/proc/acpi/sleep
 
-AIX uses (or used to use) the exact same way of reading/writing data
-from/to disk for all I/O. AIX also makes a distinction between code and
-data. If code in RAM is unused, it simply gets flushed. If it is needed
-again at a later time, it is paged in from disk where it was originally
-loaded from. Only dirty data is paged out into swap.
-
-Is it feasible to tweak the Linux VM to behave in the same fashion? If
-Linux already does it this way, I'll just shut up. :)
-
-/A
-
-
---=-nxjZDfVGirzY7xRd2og+
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2-rc1-SuSE (GNU/Linux)
-
-iD8DBQA+8D2iLYywqksgYBoRAilpAJ4srpP3rU+6yYaqMSgFuhueWzekzQCglNyZ
-pJ9tMGhOq71W426BcxekyDI=
-=3n8Z
------END PGP SIGNATURE-----
-
---=-nxjZDfVGirzY7xRd2og+--
-
+-- 
+Martin's distress was in contrast to the bitter satisfaction of some
+of his fellow marines as they surveyed the scene. "The Iraqis are sick
+people and we are the chemotherapy," said Corporal Ryan Dupre. "I am
+starting to hate this country. Wait till I get hold of a friggin' Iraqi.
+No, I won't get hold of one. I'll just kill him."
+	- http://www.informationclearinghouse.info/article2479.htm

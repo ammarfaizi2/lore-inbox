@@ -1,41 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264657AbTA2FWk>; Wed, 29 Jan 2003 00:22:40 -0500
+	id <S264699AbTA2FbY>; Wed, 29 Jan 2003 00:31:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264699AbTA2FWk>; Wed, 29 Jan 2003 00:22:40 -0500
-Received: from platan.vc.cvut.cz ([147.32.240.81]:48275 "EHLO
-	platan.vc.cvut.cz") by vger.kernel.org with ESMTP
-	id <S264657AbTA2FWj>; Wed, 29 Jan 2003 00:22:39 -0500
-Date: Wed, 29 Jan 2003 06:31:59 +0100
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: Anuradha Ratnaweera <ARatnaweera@virtusa.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Where are the matroxfb updates?
-Message-ID: <20030129053159.GA5999@platan.vc.cvut.cz>
-References: <20030129020639.GA10213@aratnaweera.virtusa.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030129020639.GA10213@aratnaweera.virtusa.com>
-User-Agent: Mutt/1.4i
+	id <S264788AbTA2FbY>; Wed, 29 Jan 2003 00:31:24 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:49425 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S264699AbTA2FbX>; Wed, 29 Jan 2003 00:31:23 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: kernel.org frontpage
+Date: 28 Jan 2003 21:40:30 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <b17pge$qba$1@cesium.transmeta.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 29, 2003 at 08:06:39AM +0600, Anuradha Ratnaweera wrote:
-> 
-> I am looking for the matroxfb updates patch that went from -ac to
-> 2.4.21-preX?  Can somebody give me a clue or a pointer?
+Just in case anyone cares :) I have changed the kernel.org frontpage
+from linking to .gz to linking to .bz2 files.  It should now also
+display snapshot releases if they exist.
 
-Easiest is probably doing diff between 2.4.21-pre4 and 2.4.20, and
-then taking only changes in include/linux/matroxfb.h,
-drivers/video/matrox and drivers/video/Config.in... Though I'm
-not sure why you just do not upgrade to 2.4.21-pre4.
-
-You can find older version of these changes at 
-ftp://platan.vc.cvut.cz/pub/linux/matrox-latest, but please note
-that 2.4.21-pre4 is more uptodate than 2.4.x patches at the URL
-above. 2.5.59 patch at URL above is uptodate, but it is not going to
-the kernel, because it is incompatible with other fbdev drivers.
-
-						Petr Vandrovec
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

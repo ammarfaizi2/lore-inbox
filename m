@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261416AbREMQcL>; Sun, 13 May 2001 12:32:11 -0400
+	id <S261420AbREMQfb>; Sun, 13 May 2001 12:35:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261417AbREMQcB>; Sun, 13 May 2001 12:32:01 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:50438 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S261416AbREMQby>; Sun, 13 May 2001 12:31:54 -0400
-Subject: Re: [PATCH] drivers/telephony/phonedev.c (brings this code up to date with Quicknet CVS)
-To: david@blue-labs.org (David Ford)
-Date: Sun, 13 May 2001 17:25:20 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <3AFDD848.3060604@blue-labs.org> from "David Ford" at May 12, 2001 05:41:44 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S261419AbREMQfV>; Sun, 13 May 2001 12:35:21 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:47375 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S261418AbREMQfH>;
+	Sun, 13 May 2001 12:35:07 -0400
+Date: Sun, 13 May 2001 13:34:43 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: page_launder() bug
+In-Reply-To: <15096.42935.213398.64003@pizda.ninka.net>
+Message-ID: <Pine.LNX.4.21.0105131332050.5468-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14yygK-0006fu-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> phonedev.diff is against 2.4.4 and brings the file phonedev.c up to date 
-> with respect to the Quicknet CVS.  Changes are very minor, mostly #if 
-> LINUX_VERSION_CODE matching and structure updates.  Small off by one 
-> fixes and file operation semantics updates.
+On Tue, 8 May 2001, David S. Miller wrote:
+> Marcelo Tosatti writes:
+>  > Ok, this patch implements thet thing and also changes ext2+swap+shm
+>  > writepage operations (so I could test the thing).
+>  > 
+>  > The performance is better with the patch on my restricted swapping tests.
+> 
+> Nice.  Now the only bit left is moving the referenced bit
+> checking and/or state into writepage as well.  This is still
+> part of the plan right?
 
-I intentionally dont keep back compat glue in the mainstream kernel
+Why the hell would we want this ?
 
-> @@ -101,20 +134,25 @@
->  
->  	if (unit != PHONE_UNIT_ANY) {
->  		base = unit;
-> -		end = unit + 1;  /* enter the loop at least one time */
-> +		end = unit;
+If the page is referenced, it should be moved back to the
+active list and should never be a candidate for writeout.
 
-This unfixes a bug too.
+I'm very happy we got rid of the horribly intertwined VM
+code in 2.2 and went to a more separated design in 2.4...
 
-All rejected
+regards,
 
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

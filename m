@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314466AbSDRVkA>; Thu, 18 Apr 2002 17:40:00 -0400
+	id <S314467AbSDRVlH>; Thu, 18 Apr 2002 17:41:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314467AbSDRVj7>; Thu, 18 Apr 2002 17:39:59 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:1161 "EHLO e21.nc.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S314466AbSDRVj7>;
-	Thu, 18 Apr 2002 17:39:59 -0400
-Date: Thu, 18 Apr 2002 15:38:14 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] stop NULL pointer dereference in __alloc_pages
-Message-ID: <1913040000.1019169494@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S314468AbSDRVlG>; Thu, 18 Apr 2002 17:41:06 -0400
+Received: from zero.tech9.net ([209.61.188.187]:13835 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S314467AbSDRVlF>;
+	Thu, 18 Apr 2002 17:41:05 -0400
+Subject: Re: [PATCH] migration thread fix
+From: Robert Love <rml@tech9.net>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Erich Focht <efocht@ess.nec.de>, linux-kernel@vger.kernel.org,
+        Ingo Molnar <mingo@elte.hu>, torvalds@transmeta.com
+In-Reply-To: <20020418212851.GW21206@holomorphy.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 18 Apr 2002 17:41:04 -0400
+Message-Id: <1019166066.5395.99.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This trivial patch will apply to both 2.4.19-pre7 and 2.5.8 with just line 
-offsets. It stops us from following a NULL pointer in classzone in the case 
-where there is a pgdat without a fully populated zone list (ie a node with 
-no ZONE_NORMAL on an ia32 NUMA machine). Without this patch, ia32 
-NUMA machines won't even boot - we dereference the classzone ptr
-a few lines further down (or try to ;-) ).
+On Thu, 2002-04-18 at 17:28, William Lee Irwin III wrote:
+> I have a patch to fix #2 as well. Did you see it? Did you try it?
 
-Please apply ...
+Eric, I am interested in your opinion of wli's patch, too.  I really
+liked his approach.
 
-Thanks,
+You seem to remove a lot of code since, after starting the first thread,
+you rely on set_cpus_allowed and the existing migration_thread to push
+the task to the correct place.  I suppose this will work .. but it may
+depend implicitly on behavior of the migration_threads and load_balance
+(not that the current code doesn't rely on load_balance - it does).
 
-Martin.
+What happens if a migration_thread comes up on a CPU without a migration
+thread and then you call set_cpus_allowed?
 
---- linux-2.4.18-memalloc/mm/page_alloc.c.old	Fri Mar  8 18:21:41 2002
-+++ linux-2.4.18-memalloc/mm/page_alloc.c	Fri Mar  8 18:23:27 2002
-@@ -317,6 +317,8 @@
- 
- 	zone = zonelist->zones;
- 	classzone = *zone;
-+	if (classzone == NULL)
-+		return NULL;
- 	min = 1UL << order;
- 	for (;;) {
- 		zone_t *z = *(zone++);
+I am also curious what causes #1 you mention.  Do you see it in the
+_normal_ code or just with your patch?  I cannot see what we race
+against wrt interrupts ... disabling interrupts, however, would disable
+load_balance and that is a potential pitfall with using
+migration_threads to migrate migration_threads as noted above.
+
+	Robert Love
 

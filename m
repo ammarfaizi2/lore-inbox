@@ -1,69 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261656AbUKSWpl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261629AbUKSWAM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261656AbUKSWpl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 17:45:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261657AbUKSWdh
+	id S261629AbUKSWAM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 17:00:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbUKSVyR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 17:33:37 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:23687 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261669AbUKSWdO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 17:33:14 -0500
-Date: Fri, 19 Nov 2004 15:18:35 -0600
-From: Jack Steiner <steiner@sgi.com>
-To: linux-kernel@vger.kernel.org
-Subject: SLIT and IO-only nodes
-Message-ID: <20041119211835.GA21349@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Fri, 19 Nov 2004 16:54:17 -0500
+Received: from c7ns3.center7.com ([216.250.142.14]:12701 "EHLO
+	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
+	id S261605AbUKSVwD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 16:52:03 -0500
+Message-ID: <419E6E5D.2000709@devicelogics.com>
+Date: Fri, 19 Nov 2004 15:06:21 -0700
+From: "Jeff V. Merkey" <jmerkey@devicelogics.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Jeff V. Merkey" <jmerkey@devicelogics.com>
+Cc: linux-kernel@vger.kernel.org, jmerkey@drdos.com
+Subject: Re: Linux 2.6.9 pktgen module causes INIT process respawning and
+ sickness
+References: <419E6B44.8050505@devicelogics.com>
+In-Reply-To: <419E6B44.8050505@devicelogics.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-An SGI Altix SSI system consists of a collection of nodes connected via a
-high speed interconnect. Nodes come in several flavors:
 
-        - memory, IO and cpus
-        - memory & cpus
-        - memory only
-        - IO only
-        -    (other combinations don't exist yet)
+Additionally, when packets sizes 64, 128, and 256 are selected, pktgen 
+is unable to achieve > 500,000 pps (349,000 only on my system).
+A Smartbits generator can achieve over 1 million pps with 64 byte 
+packets on gigabit.  This is one performance
+issue for this app.  However, at 1500 and 1048 sizes, gigabit saturation 
+is achievable. 
 
-The first 2 types of nodes are typical.
+Jeff
 
-You can think of the last 2 types of nodes as nodes that have been
-partially depopulated.
+Jeff V. Merkey wrote:
 
-We need to describe all these nodes in the SLIT table.
-For example, when allocating memory on a memory-only node,
-knowing the distance to the node is important.
-
-When assigning cpus to service interrupts for IO nodes or when creating
-driver memory structures for devices on IO nodes, it is important
-to use the nearest node that has cpus & memory.
-
-On IA64, memory-only nodes are described in the SRAT, have a proximity
-domain number, NIDs, and appear in the SLIT. (ie., we don't have
-a problem with memory-only nodes).
-
-However, IO-only nodes (AFAICT) cannot be described in the SLIT.
-The SLIT is indexed by proximity_domain_number (PXM).
-Currently, there is no SRAT entry for IO-only nodes. These nodes do not
-appear in the SLIT. It would seem that a new ACPI table is
-needed for IO-only nodes. The SRAT would describe the node & identify
-the IO buses that are attached to the node. I think this would give us 
-what we need.
-
-
-Before I start digging into the ACPI spec, has anyone already addressed
-this problem? Is this the right approach to take to solve the problem?
-
-
--- 
-Thanks
-
-Jack Steiner (steiner@sgi.com)          651-683-5302
-Principal Engineer                      SGI - Silicon Graphics, Inc.
-
+>
+> With pktgen.o configured to send 123MB/S on a gigabit on a system 
+> using pktgen set to the following parms:
+>
+> pgset "odev eth1"
+> pgset "pkt_size 1500"
+> pgset "count 0"
+> pgset "ipg 5000"
+> pgset "src_min 10.0.0.1"
+> pgset "src_max 10.0.0.254"
+> pgset "dst_min 192.168.0.1"
+> pgset "dst_max 192.168.0.254"
+>
+> After 37 hours of continual packet generation into a gigabit 
+> regeneration tap device,
+> the server system console will start to respawn the INIT process about 
+> every 10-12
+> hours of continuous packet generation.
+>
+> As a side note, this module in Linux is extremely useful and the "USE 
+> WITH CAUTION" warnings
+> are certainly will stated.  The performance of this tool is excellent.
+>
+> Jeff
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

@@ -1,83 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268534AbUJPBsa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268532AbUJPBud@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268534AbUJPBsa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 21:48:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268535AbUJPBsa
+	id S268532AbUJPBud (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 21:50:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268535AbUJPBud
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 21:48:30 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:3393 "EHLO
-	pd4mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S268534AbUJPBs1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 21:48:27 -0400
-Date: Fri, 15 Oct 2004 19:46:37 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Tasklet usage?
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <004b01c4b321$f9d75cf0$6601a8c0@northbrook>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-Content-type: text/plain; reply-type=response; charset=iso-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-X-Priority: 3
-X-MSMail-priority: Normal
-References: <fa.dvqma04.n40gos@ifi.uio.no>
+	Fri, 15 Oct 2004 21:50:33 -0400
+Received: from smtp-out.hotpop.com ([38.113.3.51]:11663 "EHLO
+	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S268532AbUJPBuU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 21:50:20 -0400
+From: "Antonino A. Daplas" <adaplas@hotpop.com>
+Reply-To: adaplas@pol.net
+To: linux-fbdev-devel@lists.sourceforge.net, Jon Smirl <jonsmirl@gmail.com>
+Subject: Re: [Linux-fbdev-devel] Generic VESA framebuffer driver and Video card BOOT?
+Date: Sat, 16 Oct 2004 09:50:32 +0800
+User-Agent: KMail/1.5.4
+Cc: Kendall Bennett <kendallb@scitechsoft.com>, linux-kernel@vger.kernel.org,
+       penguinppc-team@lists.penguinppc.org,
+       linux-fbdev-devel@lists.sourceforge.net
+References: <416E6ADC.3007.294DF20D@localhost> <200410160551.40635.adaplas@hotpop.com> <9e47339104101516206c8597d3@mail.gmail.com>
+In-Reply-To: <9e47339104101516206c8597d3@mail.gmail.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200410160946.32644.adaplas@hotpop.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I recently made a similar change for what sounds like a similar piece of 
-hardware (though in our case it was filling a FIFO for output purposes, 
-which cannot be allowed to run empty, when we receive a FIFO-almost-empty 
-interrupt from the device).
-
-The tasklet will not necessarily get run immediately, as other tasklets may 
-be pending on that CPU. You should be able to reduce the likelihood of this 
-happening by using tasklet_hi_schedule instead of tasklet_schedule, that 
-should put it ahead of any network, SCSI, etc. tasklets that may be pending.
-
-Tasklets can only get interrupted by hard interrupts (which as someone 
-mentioned, is pretty much the point of them).
-
-As far as rescheduling the tasklet, I believe if the tasklet hasn't started, 
-it will only execute once regardless of how many times you call 
-tasklet_schedule. If it has already started running, and the tasklet gets 
-scheduled, it will run again once it finishes.
-
-Locking-wise, for any critical regions shared between the hard IRQ handler 
-and either the tasklet or user context, spin_lock_irqsave is what you need. 
-However, critical regions shared only between user context and the tasklet 
-can use spin_lock_bh instead (which disables only bottom-halves and 
-tasklets, not interrupts).
-
-
------ Original Message ----- 
-From: "Pierre Ossman" <drzeus-list@drzeus.cx>
-Newsgroups: fa.linux.kernel
-To: "LKML" <linux-kernel@vger.kernel.org>
-Sent: Friday, October 15, 2004 7:15 AM
-Subject: Tasklet usage?
-
-
-> My driver needs to spend a lot of time inside the interrupt handler 
-> (draining a FIFO). I suspect this might cause problems blocking other 
-> interrupt handlers so I was thinking about moving this into a tasklet.
-> Not being to familiar with tasklets, a few questions pop up.
+On Saturday 16 October 2004 07:20, Jon Smirl wrote:
+> On Sat, 16 Oct 2004 05:51:38 +0800, Antonino A. Daplas
 >
-> * Will a tasklet scheduled from the interrupt handler be executed as soon 
-> as interrupt handling is done?
-> * Can tasklets be preempted?
-> * If a tasklet gets scheduled while running, will it be executed once 
-> more? (Needed if I get another FIFO interrupt while the tasklet is just 
-> exiting).
+> <adaplas@hotpop.com> wrote:
+> > Yes, that is the downside to a userspace solution. How bad will that be?
+> > Note that Jon Smirl is proposing a temporary console driver for early
+> > boot messages until the primary console driver activates.
 >
-> The FIFO is a bit small so time is of the essence. That's why this routine 
-> is in the interrupt handler to begin with.
->
-> Rgds
-> Pierre Ossman
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/ 
+> Does anyone know exactly how big the window is from when a compiled in
+> console activates until one that relies on initramfs loads? I don't
+> think it is very big given that a lot of the early printk's are queued
+> before they are displayed.
+
+There's a log of initialization that goes on between console_init() and
+populate_rootfs().  However, console_init() will only initialize built-in
+consoles (as pointed to by conswitchp) such as vgacon or dummycon.
+However, the framebuffer system initialization does happen after
+populate_rootfs().  
+
+So, at least in the framebuffer perspective, the emulator/video boot may be
+loaded as part of initramfs.
+
+Tony
+
 

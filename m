@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264043AbTKJSG4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 13:06:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264045AbTKJSGz
+	id S263060AbTKJSMy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 13:12:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263972AbTKJSMy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 13:06:55 -0500
-Received: from zero.aec.at ([193.170.194.10]:10764 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S264043AbTKJSGx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 13:06:53 -0500
-To: Adam Litke <agl@us.ibm.com>
+	Mon, 10 Nov 2003 13:12:54 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:60116 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S263060AbTKJSMx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Nov 2003 13:12:53 -0500
+Date: Mon, 10 Nov 2003 19:12:46 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, cltien@cmedia.com.tw,
+       support@cmedia.com.tw
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Smarter stack traces using the frame pointer
-From: Andi Kleen <ak@muc.de>
-Date: Mon, 10 Nov 2003 19:06:03 +0100
-In-Reply-To: <QouH.36G.7@gated-at.bofh.it> (Adam Litke's message of "Mon, 10
- Nov 2003 19:00:15 +0100")
-Message-ID: <m3wua85cac.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.2 (i586-suse-linux)
-References: <OhH5.6Y2.13@gated-at.bofh.it> <QouH.36G.7@gated-at.bofh.it>
-MIME-Version: 1.0
+Subject: [2.4 patch] fix SOUND_CMPCI Configure.help entry
+Message-ID: <20031110181246.GP22185@fs.tum.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam Litke <agl@us.ibm.com> writes:
+Hi,
 
-> -static int kstack_depth_to_print = 24;
-> +static int kstack_depth_to_print = 128;
+the issue below is only a minor documentation fix, but it has confused 
+me when configuring a kernel for such a card.
 
-I would not do that. It makes too much of the oops scroll away.
+The Config.in already contains the correct number.
 
-> +	show_stack_frame((unsigned long) stack, ebp+4);
+Please apply
+Adrian
 
-I think this needs much more sanity checking, otherwise the risk
-of recursive oops etc is too big.
-
-I would always check first if the stack value read from ebp is inside the 
-stack page of the current process. If you're paranoid you could even use 
-__get_user() to catch exceptions.
-
--Andi
+--- linux-2.4.23-pre9-full/Documentation/Configure.help.old	2003-11-10 19:06:29.000000000 +0100
++++ linux-2.4.23-pre9-full/Documentation/Configure.help	2003-11-10 19:07:29.000000000 +0100
+@@ -21391,10 +21391,10 @@
+   DSP 16 card. Enter: 0 for Sony, 1 for Panasonic, 2 for IDE, 4 for no
+   CD-ROM present.
+ 
+-C-Media PCI (CMI8338/8378)
++C-Media PCI (CMI8338/8738)
+ CONFIG_SOUND_CMPCI
+   Say Y or M if you have a PCI sound card using the CMI8338
+-  or the CMI8378 chipset.  Data on these chips are available at
++  or the CMI8738 chipset.  Data on these chips are available at
+   <http://www.cmedia.com.tw/>.
+ 
+   A userspace utility to control some internal registers of these

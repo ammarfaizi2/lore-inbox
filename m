@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131876AbRALUUr>; Fri, 12 Jan 2001 15:20:47 -0500
+	id <S132393AbRALUYh>; Fri, 12 Jan 2001 15:24:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131884AbRALUU1>; Fri, 12 Jan 2001 15:20:27 -0500
-Received: from chiara.elte.hu ([157.181.150.200]:52494 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S131876AbRALUUU>;
-	Fri, 12 Jan 2001 15:20:20 -0500
-Date: Fri, 12 Jan 2001 21:19:53 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Frank de Lange <frank@unternet.org>
-Cc: Manfred Spraul <manfred@colorfullife.com>,
-        Linus Torvalds <torvalds@transmeta.com>, <dwmw2@infradead.org>,
-        <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardwarerelated?
-In-Reply-To: <20010112211638.C26555@unternet.org>
-Message-ID: <Pine.LNX.4.30.0101122117540.2772-100000@e2>
+	id <S132384AbRALUYR>; Fri, 12 Jan 2001 15:24:17 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:36614 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131884AbRALUYQ>; Fri, 12 Jan 2001 15:24:16 -0500
+Message-ID: <3A5F67D4.D096B191@transmeta.com>
+Date: Fri, 12 Jan 2001 12:23:48 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andries.Brouwer@cwi.nl
+CC: ftpadmin@kernel.org, jmd@foozle.turbogeek.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: kernel.org signer broken?
+In-Reply-To: <UTC200101121456.PAA105954.aeb@ark.cwi.nl>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andries.Brouwer@cwi.nl wrote:
+> 
+> > The signature on man-pages-1.34.tar.gz is bad:
+> 
+> Hmm, thought I had corrected that already.
+> Is it correct now?
+> 
+> Andries
 
-On Fri, 12 Jan 2001, Frank de Lange wrote:
+Because an updated signature has the same timestamp and size, it can take
+up to 24 hours for it to hit ftp.kernel.org, and even longer to propagate
+to the mirrors, unfortunately.
 
-> In addition, I patched apic.c (focus cpu enabled)
-> In addition, I patched io_apic ((TARGET_CPUS 0xff)
+	-hpa
 
-please try it with the focus CPU enabling change (we want to enable that
-feature, i only disabled it due to the stuck-ne2k bug), but with
-TARGET_CPUS set to cpu_online_mask. (this later is needed for certain
-crappy BIOSes.)
-
-i believe the ne2k driver change is the key.
-
-> > I have a first idea: we send an EOI to an interrupt that is masked on
-> > the IO apic, perhaps that causes the problems.
->
-> Sound plausible...
-
-does not help. I've tried it (and many other combinations). I did not find
-any direct workaround for this problem. (i tried very hard.)
-
-	Ingo
-
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

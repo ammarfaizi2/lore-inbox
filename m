@@ -1,68 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318058AbSHQSCo>; Sat, 17 Aug 2002 14:02:44 -0400
+	id <S318107AbSHQSGU>; Sat, 17 Aug 2002 14:06:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318059AbSHQSCo>; Sat, 17 Aug 2002 14:02:44 -0400
-Received: from [143.166.83.88] ([143.166.83.88]:53261 "HELO
-	AUSADMMSRR501.aus.amer.dell.com") by vger.kernel.org with SMTP
-	id <S318058AbSHQSCn>; Sat, 17 Aug 2002 14:02:43 -0400
-X-Server-Uuid: ff595059-9672-488a-bf38-b4dee96ef25b
-Message-ID: <20BF5713E14D5B48AA289F72BD372D6821CB73@AUSXMPC122.aus.amer.dell.com>
+	id <S318113AbSHQSGU>; Sat, 17 Aug 2002 14:06:20 -0400
+Received: from ausadmmsps307.aus.amer.dell.com ([143.166.224.102]:18951 "HELO
+	AUSADMMSPS307.aus.amer.dell.com") by vger.kernel.org with SMTP
+	id <S318107AbSHQSGT>; Sat, 17 Aug 2002 14:06:19 -0400
+X-Server-Uuid: 82a6c0aa-b49f-4ad3-8d2c-07dae6b04e32
+Message-ID: <20BF5713E14D5B48AA289F72BD372D6821CB74@AUSXMPC122.aus.amer.dell.com>
 From: Matt_Domsch@Dell.com
-To: bunk@fs.tum.de, marcelo@conectiva.com.br
-cc: linux-kernel@vger.kernel.org, alan@redhat.com
-Subject: [BK PATCH 2.4.x] move asm-ia64/efi.h to linux/efi.h (was RE:
- Lin ux 2.4.20-pre3)
-Date: Sat, 17 Aug 2002 13:06:34 -0500
+To: torvalds@transmeta.com, davej@suse.de
+cc: linux-kernel@vger.kernel.org
+Subject: [BK PATCH 2.5.x] move asm-ia64/efi.h to linux/efi.h
+Date: Sat, 17 Aug 2002 13:10:06 -0500
 MIME-Version: 1.0
 X-Mailer: Internet Mail Service (5.5.2650.21)
-X-WSS-ID: 11404F2773618-01-01
+X-WSS-ID: 11404E0C1476875-01-01
 Content-Type: text/plain; 
- charset=us-ascii
+ charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The compile error in efi.c is still present in -pre3:
-> efi.c: In function `add_gpt_partitions':
-> efi.c:728: `NULL_GUID' undeclared (first use in this function)
+Linus, please apply
+http://domsch.com/linux/patches/ia64/linux-2.5-efihmove.cset
+a BK patch against Linus' current BK tree, which also applies cleanly
+against the IA64 port 2.5.30 test patch posted last Monday.  This moves all
+instances of #include <asm{"",-ia64}/efi.h> to <linux/efi.h>.
 
-> Matt suggested to move include/asm-ia64/efi.h to 
-> include/linux/efi.h. Is
-> it possible to do this before 2.4.20-final?
-
-I sure hope so.  Here's the patch set for 2.4.x which fixes the NULL_GUID
-bug, moves efi.h from include/asm-ia64 to include/linux, and fixes
-efi_guid_unparse.
-
-
-1)
-http://domsch.com/linux/patches/gpt/linux-2.4-gpt-efiguidt.cset
-has been in the IA64 port for a while.  This fixes the endianness issues
-with the efi_guid_t type and adds the NULL_GUID definition needed to compile
-the GPT code.
-
-2)
-http://domsch.com/linux/patches/ia64/linux-2.4-efihmove.cset
-moves include/asm-ia64/efi.h to include/linux/efi.h similar to the 2.5
-patches.  This is needed to allow the GPT code to compile on non-IA64
-platforms too, necessary for the use of really big disks.
-
-3)
-http://domsch.com/linux/patches/gpt/linux-2.4-gpt-efiguidt-unparse.cset
-has been the IA64 port for a while.  This fixes efi_guid_unparse for
-endianness.
+ChangeSet@1.504, 2002-08-13 22:24:31-05:00, Matt_Domsch@dell.com
+  Move include/asm-ia64/efi.h to include/linux/efi.h
+  This is required now that non-ia64 architectures are using EFI code,
+  particularly the EFI GUID Partition Table (GPT) scheme for large disks.
 
 
-These need to be applied in the above order, as #1 touches efi.h,  #2
-touches and moves efi.h, and #3 touches it then too.  #1 and #3 are already
-in the ia64 port tree, but Marcelo and Alan don't have any of these three.
-I've compiled this on x86 against BK-current building in GPT with no
-troubles.
+ b/arch/ia64/hp/common/sba_iommu.c |    2 
+ b/arch/ia64/hp/zx1/hpzx1_misc.c   |    2 
+ b/arch/ia64/kernel/acpi.c         |    2 
+ b/arch/ia64/kernel/efi.c          |    2 
+ b/arch/ia64/kernel/efivars.c      |    2 
+ b/arch/ia64/kernel/fw-emu.c       |    2 
+ b/arch/ia64/kernel/palinfo.c      |    2 
+ b/arch/ia64/kernel/process.c      |    2 
+ b/arch/ia64/kernel/setup.c        |    2 
+ b/arch/ia64/kernel/smp.c          |    2 
+ b/arch/ia64/kernel/smpboot.c      |    2 
+ b/arch/ia64/kernel/time.c         |    2 
+ b/arch/ia64/mm/init.c             |    2 
+ b/arch/ia64/sn/fakeprom/fpmem.c   |    2 
+ b/arch/ia64/sn/fakeprom/fw-emu.c  |    2 
+ b/arch/ia64/sn/io/efi-rtc.c       |    2 
+ b/arch/ia64/sn/kernel/llsc4.c     |    2 
+ b/drivers/acpi/osl.c              |    2 
+ b/drivers/char/efirtc.c           |    2 
+ b/fs/partitions/efi.h             |    6 
+ b/include/asm-ia64/sal.h          |    2 
+ b/include/linux/efi.h             |  284
+++++++++++++++++++++++++++++++++++++++
+ include/asm-ia64/efi.h            |  284
+--------------------------------------
+ 23 files changed, 305 insertions, 309 deletions
+
+
+And please apply
+http://domsch.com/linux/patches/ia64/linux-2.5-efihmove2.cset
+which changes the #ifdef _ASM_IA64_EFI_H to _LINUX_EFI_H test.
+
+ efi.h |    6 +++---
+ 1 files changed, 3 insertions, 3 deletions
+
 
 
 Thanks,
 Matt
+
 --
 Matt Domsch
 Sr. Software Engineer, Lead Engineer, Architect

@@ -1,69 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268270AbTBYTNe>; Tue, 25 Feb 2003 14:13:34 -0500
+	id <S268039AbTBYTX2>; Tue, 25 Feb 2003 14:23:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268272AbTBYTNe>; Tue, 25 Feb 2003 14:13:34 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:38596 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S268270AbTBYTNa>; Tue, 25 Feb 2003 14:13:30 -0500
-Date: Tue, 25 Feb 2003 20:23:39 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Ed Okerson <eokerson@quicknet.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.5 patch] fix compilation of drivers/telephony/ixj.c
-Message-ID: <20030225192339.GR7685@fs.tum.de>
+	id <S268126AbTBYTX2>; Tue, 25 Feb 2003 14:23:28 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:22792 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S268039AbTBYTX1>; Tue, 25 Feb 2003 14:23:27 -0500
+Date: Tue, 25 Feb 2003 20:33:42 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: John Clemens <john@deater.net>
+Cc: Dominik Brodowski <linux@brodo.de>, cpufreq@www.linux.org.uk,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: cpufreq: allow user to specify voltage
+Message-ID: <20030225193341.GA19556@atrey.karlin.mff.cuni.cz>
+References: <20030225190949.GM12028@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.44.0302251419290.12073-100000@pianoman.cluster.toy>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+In-Reply-To: <Pine.LNX.4.44.0302251419290.12073-100000@pianoman.cluster.toy>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-I got the following compile error in 2.5.63:
+> > So I guess adding /sys/bus/system/devices/cpu0/voltage? Should code to
+> > do that be in kernel/cpufreq.c or is it possible to do sysfs from
+> > powernow-k7 [it does not seem easy]?
+>  								Pavel
+> I agree, there shoul dbe a way to add sysfs files from a cpufreq driver
+> module.  I told dave I was looking into overriding the powernow tables,
+> but I can't seem to get enough time away from my day job right now.
+> 
+> for the powernow driver, and the userspace governor, I'd like to export a
+> file "current_setting" or something that contains:
+> 
+> <frequency> <voltage> <fsb? maybe for other drivers>
+> 
+> A write to this file of one, two, or three values would result in changing
+> the frequency to the closest standard table match we have.  Unless, the
+> user specifies an "override" flag as a module parameter.  If the override
+> flag is set, then writing to that file will set the speed and voltage to
+> exactly what you specify (within the min/max hardware limits), and
+> basically ignore the standard BIOS table.
 
-<--  snip  -->
+Actually I think sysfs is trying to get it into one-file-per-value...
 
-...
-  gcc -Wp,-MD,drivers/telephony/.ixj.o.d -D__KERNEL__ -Iinclude -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
--pipe -mpreferred-stack-boundary=2 -march=k6 
--Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include    
--DKBUILD_BASENAME=ixj -DKBUILD_MODNAME=ixj -c -o drivers/telephony/ixj.o 
-drivers/telephony/ixj.c
-drivers/telephony/ixj.c: In function `ixj_probe_isapnp':
-drivers/telephony/ixj.c:7720: too many arguments to function 
-`pnp_activate_dev'
-...
-make[2]: *** [drivers/telephony/ixj.o] Error 1
+...which is going to be problem for writing because it will not be
+able to atomically update different values at once...
 
-<--  snip  -->
-
-
-The following patch fixes it:
-
-
---- linux-2.5.63-notfull/drivers/telephony/ixj.c.old	2003-02-25 19:22:34.000000000 +0100
-+++ linux-2.5.63-notfull/drivers/telephony/ixj.c	2003-02-25 19:23:01.000000000 +0100
-@@ -7717,7 +7717,7 @@
- 				printk("pnp attach failed %d \n", result);
- 				break;
- 			}
--			if (pnp_activate_dev(dev, NULL) < 0) {
-+			if (pnp_activate_dev(dev) < 0) {
- 				printk("pnp activate failed (out of resources?)\n");
- 				pnp_device_detach(dev);
- 				return -ENOMEM;
-
-
-
-cu
-Adrian
-
+Oh and forget module parameter :-).
+									Pavel
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

@@ -1,151 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266308AbUA2Sab (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 13:30:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266317AbUA2Sab
+	id S266295AbUA2Sqb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 13:46:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266304AbUA2Sqb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 13:30:31 -0500
-Received: from wblv-238-222.telkomadsl.co.za ([165.165.238.222]:48002 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S266308AbUA2SaZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 13:30:25 -0500
-Subject: Re: [ANNOUNCE] udev 015 release
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
-To: Greg KH <greg@kroah.com>
-Cc: linux-hotplug-devel@lists.sourceforge.net,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040126215036.GA6906@kroah.com>
-References: <20040126215036.GA6906@kroah.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-wvNxtpymKvzsz4xA8YMt"
-Message-Id: <1075401020.7680.25.camel@nosferatu.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 29 Jan 2004 20:30:20 +0200
+	Thu, 29 Jan 2004 13:46:31 -0500
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:17795 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S266295AbUA2Sq3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jan 2004 13:46:29 -0500
+Date: Thu, 29 Jan 2004 18:55:17 GMT
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200401291855.i0TItHoU001867@81-2-122-30.bradfords.org.uk>
+To: Timothy Miller <miller@techsource.com>
+Cc: chakkerz@optusnet.com.au,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <4019472D.70604@techsource.com>
+References: <4017F2C0.4020001@techsource.com>
+ <200401291211.05461.chakkerz@optusnet.com.au>
+ <40193136.4070607@techsource.com>
+ <200401291629.i0TGTN7S001406@81-2-122-30.bradfords.org.uk>
+ <40193A67.7080308@techsource.com>
+ <200401291718.i0THIgbb001691@81-2-122-30.bradfords.org.uk>
+ <4019472D.70604@techsource.com>
+Subject: Re: [OT] Crazy idea:  Design open-source graphics chip
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > Well, the cost of fabricating depends on the device.  I was basically
+> > thinking of a 68000, an EPROM and a SIMM on a piece of stripboard,
+> > some ribbon cable and a DB-25 connector.
+> > 
+> > Maybe our goals are somewhat different :-)
+> 
+> Very different.  What you're describing is a dumb terminal.
 
---=-wvNxtpymKvzsz4xA8YMt
-Content-Type: multipart/mixed; boundary="=-1AG7uVCRUx3dkVYNHE/u"
+Hardly.  It's nothing like a dumb terminal whatsoever.
 
+It's a simple framebuffer, possibly with line drawing, and box filling
+capabilities.  Nevertheless, it could be used as a general purpose X
+display, for spreadsheets, simple to moderate wordprocessing,
+(I.E. probably not DTP-like applications), status displays for various
+systems, etc.
 
---=-1AG7uVCRUx3dkVYNHE/u
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+So, it does have real world uses.
 
-On Mon, 2004-01-26 at 23:50, Greg KH wrote:
+> What I'm describing is a PC console graphics card that will let someone 
+> play Quake III at a reasonable framerate.
+> 
+> Isn't that what most people want?
 
-I see latest version is very noisy, and although it is a good option
-to have, I think it should be tweakable (and recompiling is not always
-an option if you want some quick debugging).
+In the embedded and server markets, I don't see it being a major
+requirement, actually.
 
-Attached is a simple patch to add a config option to udev.conf to toggle
-logging.
+Just because a standard graphics card is going to do all they want and
+be cheaper to develop, doesn't make it a requirement.
 
+> And the performance disparity between what you're describing and what 
+> I'm describing is enormous!
 
-Thanks,
+Your arguments seem to be based on the fact that fabricating an ASIC
+is out of the budget of most individuals, and that no large company
+would want to develop open source graphics hardware when they can buy
+$15 graphics cards.  That argument is perfectly valid, but it's
+incomplete.
 
---=20
-Martin Schlemmer
+What _is_ within the budget of most interested individuals are things
+like general purpose CPUs, generic video sync generation ICs, SIMMs.
+The parallel port remains far easier to interface to than the PCI bus,
+and can easily provide enough bandwidth for experimenting with simple
+640x480 framebuffer graphics type applications.
 
---=-1AG7uVCRUx3dkVYNHE/u
-Content-Disposition: attachment; filename=udev-015-logging-config-option.patch
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name=udev-015-logging-config-option.patch; charset=UTF-8
+So, we can either do something interesting with the above, or sit
+around discussing how expensive it is to make a graphics card.
 
-LS0tIHVkZXYtMDE1L01ha2VmaWxlCTIwMDQtMDEtMjkgMjA6MDM6NTUuOTIwODQyNzEyICswMjAw
-DQorKysgdWRldi0wMTUubG9nX29wdGlvbi9NYWtlZmlsZQkyMDA0LTAxLTI5IDIwOjIwOjA2Ljc1
-ODI1Mjk5MiArMDIwMA0KQEAgLTIzMiw2ICsyMzIsNyBAQA0KIAlAZWNobyBcI2RlZmluZSBVREVW
-X0NPTkZJR19GSUxFCVwiJChjb25maWdkaXIpXHVkZXYuY29uZlwiID4+ICRADQogCUBlY2hvIFwj
-ZGVmaW5lIFVERVZfUlVMRVNfRklMRQlcIiQoY29uZmlnZGlyKVx1ZGV2LnJ1bGVzXCIgPj4gJEAN
-CiAJQGVjaG8gXCNkZWZpbmUgVURFVl9QRVJNSVNTSU9OX0ZJTEUJXCIkKGNvbmZpZ2RpcilcdWRl
-di5wZXJtaXNzaW9uc1wiID4+ICRADQorCUBlY2hvIFwjZGVmaW5lIFVERVZfTE9HX0RFRkFVTFQg
-XCJ5ZXNcIiA+PiAkQA0KIA0KICMgY29uZmlnIGZpbGVzIGF1dG9tYXRpY2FsbHkgZ2VuZXJhdGVk
-DQogR0VOX0NPTkZJR1MgPQkkKExPQ0FMX0NGR19ESVIpL3VkZXYuY29uZg0KQEAgLTI1MiwxMiAr
-MjUzLDEyIEBADQogCSQoTEQpICQoTERGTEFHUykgLW8gJEAgJChDUlQwKSB1ZGV2aW5mby5vIGxv
-Z2dpbmcubyB1ZGV2X2NvbmZpZy5vIHVkZXZkYi5vICQoU1lTRlMpICQoVERCKSAkKExJQl9PQkpT
-KSAkKEFSQ0hfTElCX09CSlMpDQogCSQoU1RSSVBDTUQpICRADQogDQotJChEQUVNT04pOiB1ZGV2
-ZC5oIHVkZXZkLm8gdWRldmQubyBsb2dnaW5nLm8NCi0JJChMRCkgJChMREZMQUdTKSAtbyAkQCAk
-KENSVDApIHVkZXZkLm8gbG9nZ2luZy5vICQoTElCX09CSlMpICQoQVJDSF9MSUJfT0JKUykNCisk
-KERBRU1PTik6IHVkZXZkLmggdWRldmQubyB1ZGV2ZC5vIHVkZXZfY29uZmlnLm8gbG9nZ2luZy5v
-ICQoU1lTRlMpDQorCSQoTEQpICQoTERGTEFHUykgLW8gJEAgJChDUlQwKSB1ZGV2ZC5vIHVkZXZf
-Y29uZmlnLm8gbG9nZ2luZy5vICQoU1lTRlMpICQoTElCX09CSlMpICQoQVJDSF9MSUJfT0JKUykN
-CiAJJChTVFJJUENNRCkgJEANCiANCi0kKFNFTkRFUik6IHVkZXZkLmggdWRldnNlbmQubyB1ZGV2
-ZC5vIGxvZ2dpbmcubw0KLQkkKExEKSAkKExERkxBR1MpIC1vICRAICQoQ1JUMCkgdWRldnNlbmQu
-byBsb2dnaW5nLm8gJChMSUJfT0JKUykgJChBUkNIX0xJQl9PQkpTKQ0KKyQoU0VOREVSKTogdWRl
-dmQuaCB1ZGV2c2VuZC5vIHVkZXZkLm8gdWRldl9jb25maWcubyBsb2dnaW5nLm8gJChTWVNGUykN
-CisJJChMRCkgJChMREZMQUdTKSAtbyAkQCAkKENSVDApIHVkZXZzZW5kLm8gdWRldl9jb25maWcu
-byBsb2dnaW5nLm8gJChTWVNGUykgJChMSUJfT0JKUykgJChBUkNIX0xJQl9PQkpTKQ0KIAkkKFNU
-UklQQ01EKSAkQA0KIA0KIGNsZWFuOg0KLS0tIHVkZXYtMDE1L2V0Yy91ZGV2L3VkZXYuY29uZi5p
-bgkyMDA0LTAxLTI5IDE5OjU5OjA4LjI5NjU2ODI0OCArMDIwMA0KKysrIHVkZXYtMDE1LmxvZ19v
-cHRpb24vZXRjL3VkZXYvdWRldi5jb25mLmluCTIwMDQtMDEtMjkgMjA6MTU6MDEuODI0NjA5OTUy
-ICswMjAwDQpAQCAtMjksMyArMjksNiBAQA0KICMgICAgICAgICAgICAgICAgIGV4cGxpY2l0IG1h
-dGNoIGluIHRoZSBwZXJtaXNzaW9ucyBmaWxlDQogZGVmYXVsdF9ncm91cD0icm9vdCINCiANCisj
-IHVkZXZfbG9nIC0gc2V0IHRvICJ5ZXMiIGlmIHlvdSB3YW50IGxvZ2dpbmcsIGVsc2UgIm5vIg0K
-K3VkZXZfbG9nPSJ5ZXMiDQorDQotLS0gdWRldi0wMTUvdWRldl9jb25maWcuYwkyMDA0LTAxLTI5
-IDE5OjIwOjM0LjYzNDI5ODM3NiArMDIwMA0KKysrIHVkZXYtMDE1LmxvZ19vcHRpb24vdWRldl9j
-b25maWcuYwkyMDA0LTAxLTI5IDIwOjIyOjQ5Ljc3MTQ3MTIxNiArMDIwMA0KQEAgLTQ4LDYgKzQ4
-LDcgQEAgY2hhciB1ZGV2X2NvbmZpZ19maWxlbmFtZVtQQVRIX01BWCtOQU1FXw0KIGNoYXIgZGVm
-YXVsdF9tb2RlX3N0cltNT0RFX1NJWkVdOw0KIGNoYXIgZGVmYXVsdF9vd25lcl9zdHJbT1dORVJf
-U0laRV07DQogY2hhciBkZWZhdWx0X2dyb3VwX3N0cltHUk9VUF9TSVpFXTsNCitjaGFyIHVkZXZf
-bG9nX3N0cltCT09MX1NJWkVdOw0KIA0KIA0KIHN0YXRpYyB2b2lkIGluaXRfdmFyaWFibGVzKHZv
-aWQpDQpAQCAtNjAsNiArNjEsNyBAQCBzdGF0aWMgdm9pZCBpbml0X3ZhcmlhYmxlcyh2b2lkKQ0K
-IAlzdHJmaWVsZGNweSh1ZGV2X2NvbmZpZ19maWxlbmFtZSwgVURFVl9DT05GSUdfRklMRSk7DQog
-CXN0cmZpZWxkY3B5KHVkZXZfcnVsZXNfZmlsZW5hbWUsIFVERVZfUlVMRVNfRklMRSk7DQogCXN0
-cmZpZWxkY3B5KHVkZXZfcGVybWlzc2lvbnNfZmlsZW5hbWUsIFVERVZfUEVSTUlTU0lPTl9GSUxF
-KTsNCisJc3RyZmllbGRjcHkodWRldl9sb2dfc3RyLCBVREVWX0xPR19ERUZBVUxUKTsNCiB9DQog
-DQogI2RlZmluZSBzZXRfdmFyKF9uYW1lLCBfdmFyKQkJCQlcDQpAQCAtMTU2LDYgKzE1OCw3IEBA
-IHN0YXRpYyBpbnQgcGFyc2VfY29uZmlnX2ZpbGUodm9pZCkNCiAJCXNldF92YXIoImRlZmF1bHRf
-bW9kZSIsIGRlZmF1bHRfbW9kZV9zdHIpOw0KIAkJc2V0X3ZhcigiZGVmYXVsdF9vd25lciIsIGRl
-ZmF1bHRfb3duZXJfc3RyKTsNCiAJCXNldF92YXIoImRlZmF1bHRfZ3JvdXAiLCBkZWZhdWx0X2dy
-b3VwX3N0cik7DQorCQlzZXRfdmFyKCJ1ZGV2X2xvZyIsIHVkZXZfbG9nX3N0cik7DQogCX0NCiAJ
-ZGJnX3BhcnNlKCIlczolZDolWmQ6IGVycm9yIHBhcnNpbmcgJyVzJyIsIHVkZXZfY29uZmlnX2Zp
-bGVuYW1lLA0KIAkJICBsaW5lbm8sIHRlbXAgLSBsaW5lLCB0ZW1wKTsNCkBAIC0xOTEsNiArMTk0
-LDcgQEAgc3RhdGljIHZvaWQgZ2V0X2RpcnModm9pZCkNCiAJZGJnX3BhcnNlKCJ1ZGV2X2RiX2Zp
-bGVuYW1lID0gJXMiLCB1ZGV2X2RiX2ZpbGVuYW1lKTsNCiAJZGJnX3BhcnNlKCJ1ZGV2X3J1bGVz
-X2ZpbGVuYW1lID0gJXMiLCB1ZGV2X3J1bGVzX2ZpbGVuYW1lKTsNCiAJZGJnX3BhcnNlKCJ1ZGV2
-X3Blcm1pc3Npb25zX2ZpbGVuYW1lID0gJXMiLCB1ZGV2X3Blcm1pc3Npb25zX2ZpbGVuYW1lKTsN
-CisJZGJnX3BhcnNlKCJ1ZGV2X2xvZ19zdHIgPSAlcyIsIHVkZXZfbG9nX3N0cik7DQogCXBhcnNl
-X2NvbmZpZ19maWxlKCk7DQogDQogCWRiZ19wYXJzZSgidWRldl9yb290ID0gJXMiLCB1ZGV2X3Jv
-b3QpOw0KQEAgLTE5OCw2ICsyMDIsNyBAQCBzdGF0aWMgdm9pZCBnZXRfZGlycyh2b2lkKQ0KIAlk
-YmdfcGFyc2UoInVkZXZfZGJfZmlsZW5hbWUgPSAlcyIsIHVkZXZfZGJfZmlsZW5hbWUpOw0KIAlk
-YmdfcGFyc2UoInVkZXZfcnVsZXNfZmlsZW5hbWUgPSAlcyIsIHVkZXZfcnVsZXNfZmlsZW5hbWUp
-Ow0KIAlkYmdfcGFyc2UoInVkZXZfcGVybWlzc2lvbnNfZmlsZW5hbWUgPSAlcyIsIHVkZXZfcGVy
-bWlzc2lvbnNfZmlsZW5hbWUpOw0KKwlkYmdfcGFyc2UoInVkZXZfbG9nX3N0ciA9ICVzIiwgdWRl
-dl9sb2dfc3RyKTsNCiB9DQogDQogdm9pZCB1ZGV2X2luaXRfY29uZmlnKHZvaWQpDQotLS0gdWRl
-di0wMTUvbG9nZ2luZy5jCTIwMDQtMDEtMjkgMTk6MjA6NDAuNjczMzgwMjk2ICswMjAwDQorKysg
-dWRldi0wMTUubG9nX29wdGlvbi9sb2dnaW5nLmMJMjAwNC0wMS0yOSAyMDowMjo0MS4zMTYxODQz
-NDQgKzAyMDANCkBAIC0yNiw2ICsyNiw3IEBADQogI2luY2x1ZGUgPHVuaXN0ZC5oPg0KICNpbmNs
-dWRlIDxzeXNsb2cuaD4NCiANCisjaW5jbHVkZSAidWRldi5oIg0KICNpbmNsdWRlICJsb2dnaW5n
-LmgiDQogDQogDQpAQCAtNDcsNiArNDgsOSBAQCBpbnQgbG9nX21lc3NhZ2UoaW50IGxldmVsLCBj
-b25zdCBjaGFyICpmDQogew0KIAl2YV9saXN0CWFyZ3M7DQogDQorCWlmICgwICE9IHN0cm5jbXAo
-dWRldl9sb2dfc3RyLCAieWVzIiwgQk9PTF9TSVpFKSkNCisJCXJldHVybiAwOw0KKw0KIAlpZiAo
-IWxvZ2dpbmdfaW5pdCkNCiAJCWluaXRfbG9nZ2luZygpOw0KIAl2YV9zdGFydChhcmdzLCBmb3Jt
-YXQpOw0KLS0tIHVkZXYtMDE1L3VkZXYuaAkyMDA0LTAxLTI5IDIwOjAwOjQwLjQ3MzU1NTIxNiAr
-MDIwMA0KKysrIHVkZXYtMDE1LmxvZ19vcHRpb24vdWRldi5oCTIwMDQtMDEtMjkgMjA6MDM6MTYu
-MDk0ODk3MTc2ICswMjAwDQpAQCAtMzIsNiArMzIsNyBAQA0KICNkZWZpbmUgT1dORVJfU0laRQkz
-MA0KICNkZWZpbmUgR1JPVVBfU0laRQkzMA0KICNkZWZpbmUgTU9ERV9TSVpFCTgNCisjZGVmaW5l
-IEJPT0xfU0laRQk1DQogDQogc3RydWN0IHVkZXZpY2Ugew0KIAljaGFyIG5hbWVbTkFNRV9TSVpF
-XTsNCkBAIC03Miw1ICs3Myw2IEBAIGV4dGVybiBjaGFyIHVkZXZfcnVsZXNfZmlsZW5hbWVbUEFU
-SF9NQVgNCiBleHRlcm4gY2hhciBkZWZhdWx0X21vZGVfc3RyW01PREVfU0laRV07DQogZXh0ZXJu
-IGNoYXIgZGVmYXVsdF9vd25lcl9zdHJbT1dORVJfU0laRV07DQogZXh0ZXJuIGNoYXIgZGVmYXVs
-dF9ncm91cF9zdHJbR1JPVVBfU0laRV07DQorZXh0ZXJuIGNoYXIgdWRldl9sb2dfc3RyW0JPT0xf
-U0laRV07DQogDQogI2VuZGlmDQo=
+At least it provides a way for us to create the first generation of
+open graphics hardware cheaply, and experiment with various ideas.
 
---=-1AG7uVCRUx3dkVYNHE/u--
+Besides, this is just the first stage - once we have the graphics
+card, we can move on to other things like the 9-track tape drive
+discussed on LKML a while ago:
 
---=-wvNxtpymKvzsz4xA8YMt
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+http://marc.theaimsgroup.com/?l=linux-kernel&m=105128749415083&w=2
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAGVE7qburzKaJYLYRAmkPAJ4hkbfnb54d93KfgGXLbF+PUkMVbACeKPlk
-88A+vNGArBaF5hpK24BHCpc=
-=TU+n
------END PGP SIGNATURE-----
-
---=-wvNxtpymKvzsz4xA8YMt--
-
+John.

@@ -1,57 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264070AbTE0SLc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 14:11:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264050AbTE0SKr
+	id S264086AbTE0STR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 14:19:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264090AbTE0SSH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 14:10:47 -0400
-Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:8660
-	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S264063AbTE0SJ3
+	Tue, 27 May 2003 14:18:07 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:65275 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S264086AbTE0SRz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 14:09:29 -0400
-Date: Tue, 27 May 2003 14:22:41 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
+	Tue, 27 May 2003 14:17:55 -0400
+Subject: Re: Linux 2.5.70
+From: Robert Love <rml@tech9.net>
 To: Ricky Beam <jfbeam@bluetronic.net>
 Cc: Linus Torvalds <torvalds@transmeta.com>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.70
-Message-ID: <20030527182241.GF21744@gtf.org>
-References: <Pine.LNX.4.44.0305271024060.6597-100000@penguin.transmeta.com> <Pine.GSO.4.33.0305271402420.4448-100000@sweetums.bluetronic.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <Pine.GSO.4.33.0305271402420.4448-100000@sweetums.bluetronic.net>
-User-Agent: Mutt/1.3.28i
+References: <Pine.GSO.4.33.0305271402420.4448-100000@sweetums.bluetronic.net>
+Content-Type: text/plain
+Message-Id: <1054060263.16472.10.camel@lettuce>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.3.92 (1.3.92-1) (Preview Release)
+Date: 27 May 2003 11:31:04 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 27, 2003 at 02:09:43PM -0400, Ricky Beam wrote:
-> On Tue, 27 May 2003, Linus Torvalds wrote:
-> >On Tue, 27 May 2003, Ricky Beam wrote:
-> >>
-> >> Count up the number of drivers that haven't been updated to the current
-> >> PCI, hotplug, and modules interfaces.
-> >
-> >Tough. If people don't use them, they don't get supported. It's that easy.
-> ...
-> 
-> Allow me to clarify... I don't mind drivers not working.  I *do* mind
-> drivers emitting hundreds of warnings and errors because dozens of things
-> were changed and no one cared to update everything they broke.  In some
-> cases, fixing things may be simple (eg. someone removed or renamed a field
-> in a struct somewhere) and in others years of work my be required (eg.
-> the new module interface.)
-> 
+On Tue, 2003-05-27 at 11:09, Ricky Beam wrote:
+
 > In my opinion (as it was in the long long ago), everything in a "stable"
 > release should at least compile cleanly -- "working" comes later after
 > users have been conned into using it.
 
-No.  Doing this hides bugs.
+A lot of this will happen in 2.6-pre, prior to 2.6.0, do not worry.
 
-We use the compiler to make bugs and needing-work areas blindingly
-obviously.  Your suggesting we make them less so.
+A final stable release is still a few months off, although as Linus and
+Alan have said even that does not mean perfection. But before 2.6.0 hits
+the streets, 2.6-pre will mature a lot. This is how things work.
 
-	Jeff
-
-
+	Robert Love
 

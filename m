@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269610AbUKAXGK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263198AbUKAXL0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269610AbUKAXGK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 18:06:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S287108AbUKAXGJ
+	id S263198AbUKAXL0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 18:11:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S381277AbUKAXK4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 18:06:09 -0500
-Received: from mail.kroah.org ([69.55.234.183]:932 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S320688AbUKAV7R convert rfc822-to-8bit
+	Mon, 1 Nov 2004 18:10:56 -0500
+Received: from mail.kroah.org ([69.55.234.183]:4516 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S323699AbUKAV7S convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 16:59:17 -0500
+	Mon, 1 Nov 2004 16:59:18 -0500
 X-Donotread: and you are reading this why?
 Subject: Re: [PATCH] Driver Core patches for 2.6.10-rc1
-In-Reply-To: <1099346277177@kroah.com>
+In-Reply-To: <10993462752309@kroah.com>
 X-Patch: quite boring stuff, it's just source code...
-Date: Mon, 1 Nov 2004 13:57:57 -0800
-Message-Id: <10993462772966@kroah.com>
+Date: Mon, 1 Nov 2004 13:57:56 -0800
+Message-Id: <10993462761688@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -23,197 +23,546 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2450, 2004/11/01 13:06:02-08:00, kay.sievers@vrfy.org
+ChangeSet 1.2441, 2004/11/01 13:03:13-08:00, akpm@osdl.org
 
-[PATCH] kobject: fix hotplug bug with seqnum
+[PATCH] sysfs backing store - add sysfs_direct structure
 
-On Sat, Oct 30, 2004 at 04:54:29AM +0200, Kay Sievers wrote:
-> On Sat, Oct 30, 2004 at 02:25:23AM +0200, Kay Sievers wrote:
-> > On Sat, Oct 30, 2004 at 02:00:45AM +0200, Kay Sievers wrote:
-> > > On Fri, Oct 29, 2004 at 06:13:19PM -0500, Greg KH wrote:
-> > > > On Fri, Oct 29, 2004 at 11:28:56PM +0200, Kay Sievers wrote:
-> > > > > > But there might still be a problem.  With this change, the sequence
-> > > > > > number is not sent out the kevent message.  Kay, do you think this is an
-> > > > > > issue?  I don't think we can get netlink messages out of order, right?
-> > > > >
-> > > > > Right, especially not the events with the same DEVPATH, like "remove"
-> > > > > beating an "add". But I'm not sure if the number isn't useful. Whatever
-> > > > > we may do with the hotplug over netlink in the future, we will only have
-> > > > > /sbin/hotplug for the early boot and it may be nice to know, what events
-> > > > > we have already handled...
-> > > > >
-> > > > > > I'll hold off on applying this patch until we figure this out...
-> > > > >
-> > > > > How about just reserving 20 bytes for the number (u64 will never be
-> > > > > more than that), save the pointer to that field, and fill the number in
-> > > > > later?
-> > > >
-> > > > Ah, something like this instead?  I like it, it's even smaller than the
-> > > > previous patch.  Compile tested only...
-> > >
-> > > I like that. How about the following. It will keep the buffer clean from
-> > > random chars, cause the kevent does not have the vector and relies on
-> > > the '\0' to separate the strings from each other.
-> > > I've tested it. The netlink-hotplug message looks like this:
-> > >
-> > > recv(3, "remove@/class/input/mouse2\0ACTION=remove\0DEVPATH=/class/input/mouse2\0SUBSYSTEM=input\0SEQNUM=961                 \0", 1024, 0) = 113
-> >
-> > Hmm, these trailing spaces are just bad, sorry. I'll better pass the
-> > envp array over to send_uevent() and clean up the keys while copying
-> > the env values into the skb buffer. This will make the event payload
-> > more safe too. So your first version looks better.
->
-> How about this? We copy over key by key into the skb buffer and the
-> netlink message can get the envp array without depending on a single
-> continuous buffer.
->
-> The netlink message looks nice like this now:
->
-> recv(3, "
->   add@/devices/pci0000:00/0000:00:1d.1/usb3/3-2/3-2:1.0\0
->   HOME=/\0
->   PATH=/sbin:/bin:/usr/sbin:/usr/bin\0
->   ACTION=add\0
->   DEVPATH=/devices/pci0000:00/0000:00:1d.1/usb3/3-2/3-2:1.0\0
->   SUBSYSTEM=usb\0
->   SEQNUM=991\0
->   DEVICE=/proc/bus/usb/003/008\0
->   PRODUCT=46d/c03e/2000\0
->   TYPE=0/0/0\0
->   INTERFACE=3/1/2\0
-> ", 1024, 0) = 268
+From: Maneesh Soni <maneesh@in.ibm.com>
 
-Here is an improved version that uses skb_put() to fill the skb buffer,
-instead of trimming the buffer to the final size after we've copied over
-all keys.
+o This patch introduces the new sysfs_dirent data structure. The sysfs_dirent
+  is added to the dentry corresponding to each of the element which can be
+  represented in sysfs like, kobject (directory), text or binary attributes
+  (files), attribute groups (directory) and symlinks.
 
+o It uses dentry's d_fsdata field to attach the corresponding sysfs_dirent.
 
-Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
+o The sysfs_dirents are maintained in a tree of all the sysfs entries using the
+  s_children and s_sibling list pointers.
+
+o This patch also changes how we access attributes and kobjects in
+  file_operations from a given dentry, basically introducing one more level of
+  indirection.
+
+o The sysfs_dirents are freed and the sysfs_dirent tree is updated accordingly
+  upon the deletion of corresponding dentry. The sysfs dirents are kept alive
+  as long as there is corresponding dentry around. The are freed when the
+  dentry is finally out of dcache using the ->d_iput() method.
+
+o This also fixes the dentry leaks in case of error paths after sysfs has
+  got a newly alocated (and hashed) dentry from sysfs_get_dentry() by
+  d_drop()'ing the dentry.
+
+Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- lib/kobject_uevent.c |   47 ++++++++++++++++++++++++++++++-----------------
- 1 files changed, 30 insertions(+), 17 deletions(-)
+ fs/sysfs/bin.c        |   14 ++++----
+ fs/sysfs/dir.c        |   84 ++++++++++++++++++++++++++++++++++++++++++++------
+ fs/sysfs/file.c       |   25 ++++++++------
+ fs/sysfs/group.c      |    4 +-
+ fs/sysfs/inode.c      |   10 ++++-
+ fs/sysfs/mount.c      |    8 ++++
+ fs/sysfs/symlink.c    |   39 ++++++++++++++++++++---
+ fs/sysfs/sysfs.h      |   39 +++++++++++++++++++----
+ include/linux/sysfs.h |   19 +++++++++++
+ 9 files changed, 204 insertions(+), 38 deletions(-)
 
 
-diff -Nru a/lib/kobject_uevent.c b/lib/kobject_uevent.c
---- a/lib/kobject_uevent.c	2004-11-01 13:36:12 -08:00
-+++ b/lib/kobject_uevent.c	2004-11-01 13:36:12 -08:00
-@@ -23,6 +23,9 @@
- #include <linux/kobject.h>
- #include <net/sock.h>
- 
-+#define BUFFER_SIZE	1024	/* buffer for the hotplug env */
-+#define NUM_ENVP	32	/* number of env pointers */
-+
- #if defined(CONFIG_KOBJECT_UEVENT) || defined(CONFIG_HOTPLUG)
- static char *action_to_string(enum kobject_action action)
+diff -Nru a/fs/sysfs/bin.c b/fs/sysfs/bin.c
+--- a/fs/sysfs/bin.c	2004-11-01 13:37:18 -08:00
++++ b/fs/sysfs/bin.c	2004-11-01 13:37:18 -08:00
+@@ -160,24 +160,26 @@
  {
-@@ -53,12 +56,11 @@
-  *
-  * @signal: signal name
-  * @obj: object path (kobject)
-- * @buf: buffer used to pass auxiliary data like the hotplug environment
-- * @buflen:
-- * gfp_mask:
-+ * @envp: possible hotplug environment to pass with the message
-+ * @gfp_mask:
-  */
--static int send_uevent(const char *signal, const char *obj, const void *buf,
--			int buflen, int gfp_mask)
-+static int send_uevent(const char *signal, const char *obj,
-+		       char **envp, int gfp_mask)
- {
- 	struct sk_buff *skb;
- 	char *pos;
-@@ -69,16 +71,25 @@
+ 	struct dentry * dentry;
+ 	struct dentry * parent;
++	umode_t mode = (attr->attr.mode & S_IALLUGO) | S_IFREG;
+ 	int error = 0;
  
- 	len = strlen(signal) + 1;
- 	len += strlen(obj) + 1;
--	len += buflen;
+-	if (!kobj || !attr)
+-		return -EINVAL;
++	BUG_ON(!kobj || !kobj->dentry || !attr);
  
--	skb = alloc_skb(len, gfp_mask);
-+	/* allocate buffer with the maximum possible message size */
-+	skb = alloc_skb(len + BUFFER_SIZE, gfp_mask);
- 	if (!skb)
- 		return -ENOMEM;
+ 	parent = kobj->dentry;
  
- 	pos = skb_put(skb, len);
-+	sprintf(pos, "%s@%s", signal, obj);
+ 	down(&parent->d_inode->i_sem);
+ 	dentry = sysfs_get_dentry(parent,attr->attr.name);
+ 	if (!IS_ERR(dentry)) {
+-		dentry->d_fsdata = (void *)attr;
+-		error = sysfs_create(dentry,
+-				     (attr->attr.mode & S_IALLUGO) | S_IFREG,
+-				     NULL);
++		error = sysfs_create(dentry, mode, NULL);
+ 		if (!error) {
+ 			dentry->d_inode->i_size = attr->size;
+ 			dentry->d_inode->i_fop = &bin_fops;
++			error = sysfs_make_dirent(parent->d_fsdata, dentry,
++						  (void *) attr, mode,
++						  SYSFS_KOBJ_BIN_ATTR);
+ 		}
++		if (error)
++			d_drop(dentry);
+ 		dput(dentry);
+ 	} else
+ 		error = PTR_ERR(dentry);
+diff -Nru a/fs/sysfs/dir.c b/fs/sysfs/dir.c
+--- a/fs/sysfs/dir.c	2004-11-01 13:37:18 -08:00
++++ b/fs/sysfs/dir.c	2004-11-01 13:37:18 -08:00
+@@ -12,6 +12,61 @@
  
--	pos += sprintf(pos, "%s@%s", signal, obj) + 1;
--	memcpy(pos, buf, buflen);
-+	/* copy the environment key by key to our continuous buffer */
-+	if (envp) {
-+		int i;
+ DECLARE_RWSEM(sysfs_rename_sem);
+ 
++static void sysfs_d_iput(struct dentry * dentry, struct inode * inode)
++{
++	struct sysfs_dirent * sd = dentry->d_fsdata;
 +
-+		for (i = 2; envp[i]; i++) {
-+			len = strlen(envp[i]) + 1;
-+			pos = skb_put(skb, len);
-+			strcpy(pos, envp[i]);
-+		}
++	if (sd) {
++		BUG_ON(sd->s_dentry != dentry);
++		sd->s_dentry = NULL;
++		release_sysfs_dirent(sd);
 +	}
- 
- 	return netlink_broadcast(uevent_sock, skb, 0, 1, gfp_mask);
- }
-@@ -107,10 +118,10 @@
- 		if (!attrpath)
- 			goto exit;
- 		sprintf(attrpath, "%s/%s", path, attr->name);
--		rc = send_uevent(signal, attrpath, NULL, 0, gfp_mask);
-+		rc = send_uevent(signal, attrpath, NULL, gfp_mask);
- 		kfree(attrpath);
- 	} else {
--		rc = send_uevent(signal, path, NULL, 0, gfp_mask);
-+		rc = send_uevent(signal, path, NULL, gfp_mask);
- 	}
- 
- exit:
-@@ -169,8 +180,6 @@
- u64 hotplug_seqnum;
- static spinlock_t sequence_lock = SPIN_LOCK_UNLOCKED;
- 
--#define BUFFER_SIZE	1024	/* should be enough memory for the env */
--#define NUM_ENVP	32	/* number of env pointers */
- /**
-  * kobject_hotplug - notify userspace by executing /sbin/hotplug
-  *
-@@ -182,6 +191,7 @@
- 	char *argv [3];
- 	char **envp = NULL;
- 	char *buffer = NULL;
-+	char *seq_buff;
- 	char *scratch;
- 	int i = 0;
- 	int retval;
-@@ -258,6 +268,11 @@
- 	envp [i++] = scratch;
- 	scratch += sprintf(scratch, "SUBSYSTEM=%s", name) + 1;
- 
-+	/* reserve space for the sequence,
-+	 * put the real one in after the hotplug call */
-+	envp[i++] = seq_buff = scratch;
-+	scratch += strlen("SEQNUM=18446744073709551616") + 1;
++	iput(inode);
++}
 +
- 	if (hotplug_ops->hotplug) {
- 		/* have the kset specific function add its stuff */
- 		retval = hotplug_ops->hotplug (kset, kobj,
-@@ -273,15 +288,13 @@
- 	spin_lock(&sequence_lock);
- 	seq = ++hotplug_seqnum;
- 	spin_unlock(&sequence_lock);
--
--	envp [i++] = scratch;
--	scratch += sprintf(scratch, "SEQNUM=%lld", (long long)seq) + 1;
-+	sprintf(seq_buff, "SEQNUM=%lld", (long long)seq);
++static struct dentry_operations sysfs_dentry_ops = {
++	.d_iput		= sysfs_d_iput,
++};
++
++/*
++ * Allocates a new sysfs_dirent and links it to the parent sysfs_dirent
++ */
++static struct sysfs_dirent * sysfs_new_dirent(struct sysfs_dirent * parent_sd,
++						void * element)
++{
++	struct sysfs_dirent * sd;
++
++	sd = kmalloc(sizeof(*sd), GFP_KERNEL);
++	if (!sd)
++		return ERR_PTR(-ENOMEM);
++
++	memset(sd, 0, sizeof(*sd));
++	atomic_set(&sd->s_count, 1);
++	INIT_LIST_HEAD(&sd->s_children);
++	list_add(&sd->s_sibling, &parent_sd->s_children);
++	sd->s_element = element;
++
++	return sd;
++}
++
++int sysfs_make_dirent(struct sysfs_dirent * parent_sd, struct dentry * dentry,
++			void * element, umode_t mode, int type)
++{
++	struct sysfs_dirent * sd;
++
++	sd = sysfs_new_dirent(parent_sd, element);
++	if (!sd)
++		return -ENOMEM;
++
++	sd->s_mode = mode;
++	sd->s_type = type;
++	sd->s_dentry = dentry;
++	dentry->d_fsdata = sd;
++	dentry->d_op = &sysfs_dentry_ops;
++
++	return 0;
++}
++
+ static int init_dir(struct inode * inode)
+ {
+ 	inode->i_op = &simple_dir_inode_operations;
+@@ -27,17 +82,20 @@
+ 		      const char * n, struct dentry ** d)
+ {
+ 	int error;
++	umode_t mode = S_IFDIR| S_IRWXU | S_IRUGO | S_IXUGO;
  
- 	pr_debug ("%s: %s %s seq=%lld %s %s %s %s %s\n",
- 		  __FUNCTION__, argv[0], argv[1], (long long)seq,
- 		  envp[0], envp[1], envp[2], envp[3], envp[4]);
+ 	down(&p->d_inode->i_sem);
+ 	*d = sysfs_get_dentry(p,n);
+ 	if (!IS_ERR(*d)) {
+-		error = sysfs_create(*d,
+-					 S_IFDIR| S_IRWXU | S_IRUGO | S_IXUGO,
+-					 init_dir);
++		error = sysfs_create(*d, mode, init_dir);
+ 		if (!error) {
+-			(*d)->d_fsdata = k;
+-			p->d_inode->i_nlink++;
++			error = sysfs_make_dirent(p->d_fsdata, *d, k, mode,
++						SYSFS_DIR);
++			if (!error)
++				p->d_inode->i_nlink++;
+ 		}
++		if (error)
++			d_drop(*d);
+ 		dput(*d);
+ 	} else
+ 		error = PTR_ERR(*d);
+@@ -63,8 +121,7 @@
+ 	struct dentry * parent;
+ 	int error = 0;
  
--	send_uevent(action_string, kobj_path, buffer, scratch - buffer, GFP_KERNEL);
-+	send_uevent(action_string, kobj_path, envp, GFP_KERNEL);
+-	if (!kobj)
+-		return -EINVAL;
++	BUG_ON(!kobj);
  
- 	if (!hotplug_path[0])
- 		goto exit;
+ 	if (kobj->parent)
+ 		parent = kobj->parent->dentry;
+@@ -83,8 +140,12 @@
+ static void remove_dir(struct dentry * d)
+ {
+ 	struct dentry * parent = dget(d->d_parent);
++	struct sysfs_dirent * sd;
++
+ 	down(&parent->d_inode->i_sem);
+ 	d_delete(d);
++	sd = d->d_fsdata;
++ 	list_del_init(&sd->s_sibling);
+ 	if (d->d_inode)
+ 		simple_rmdir(parent->d_inode,d);
+ 
+@@ -130,6 +191,7 @@
+ 		node = node->next;
+ 		pr_debug(" o %s (%d): ",d->d_name.name,atomic_read(&d->d_count));
+ 		if (!d_unhashed(d) && (d->d_inode)) {
++			struct sysfs_dirent * sd = d->d_fsdata;
+ 			d = dget_locked(d);
+ 			pr_debug("removing");
+ 
+@@ -142,8 +204,9 @@
+ 			 * a symlink
+ 			 */
+ 			if (S_ISLNK(d->d_inode->i_mode))
+-				kobject_put(d->d_fsdata);
++				kobject_put(sd->s_element);
+ 			
++			list_del_init(&sd->s_sibling);
+ 			simple_unlink(dentry->d_inode,d);
+ 			dput(d);
+ 			pr_debug(" done\n");
+@@ -184,7 +247,10 @@
+ 			error = kobject_set_name(kobj, "%s", new_name);
+ 			if (!error)
+ 				d_move(kobj->dentry, new_dentry);
+-		}
++			else
++				d_drop(new_dentry);
++		} else
++			error = -EEXIST;
+ 		dput(new_dentry);
+ 	}
+ 	up(&parent->d_inode->i_sem);	
+diff -Nru a/fs/sysfs/file.c b/fs/sysfs/file.c
+--- a/fs/sysfs/file.c	2004-11-01 13:37:18 -08:00
++++ b/fs/sysfs/file.c	2004-11-01 13:37:18 -08:00
+@@ -346,19 +346,22 @@
+ };
+ 
+ 
+-int sysfs_add_file(struct dentry * dir, const struct attribute * attr)
++int sysfs_add_file(struct dentry * dir, const struct attribute * attr, int type)
+ {
+ 	struct dentry * dentry;
+-	int error;
++	struct sysfs_dirent * parent_sd = dir->d_fsdata;
++	umode_t mode = (attr->mode & S_IALLUGO) | S_IFREG;
++	int error = 0;
+ 
+ 	down(&dir->d_inode->i_sem);
+ 	dentry = sysfs_get_dentry(dir,attr->name);
+ 	if (!IS_ERR(dentry)) {
+-		error = sysfs_create(dentry,
+-				     (attr->mode & S_IALLUGO) | S_IFREG,
+-				     init_file);
++		error = sysfs_create(dentry, mode, init_file);
+ 		if (!error)
+-			dentry->d_fsdata = (void *)attr;
++			error = sysfs_make_dirent(parent_sd, dentry,
++						(void *) attr, mode, type);
++		if (error)
++			d_drop(dentry);
+ 		dput(dentry);
+ 	} else
+ 		error = PTR_ERR(dentry);
+@@ -375,9 +378,10 @@
+ 
+ int sysfs_create_file(struct kobject * kobj, const struct attribute * attr)
+ {
+-	if (kobj && attr)
+-		return sysfs_add_file(kobj->dentry,attr);
+-	return -EINVAL;
++	BUG_ON(!kobj || !kobj->dentry || !attr);
++
++	return sysfs_add_file(kobj->dentry, attr, SYSFS_KOBJ_ATTR);
++
+ }
+ 
+ 
+@@ -409,7 +413,8 @@
+ 			 */
+ 			dput(victim);
+ 			res = 0;
+-		}
++		} else
++			d_drop(victim);
+ 		
+ 		/**
+ 		 * Drop the reference acquired from sysfs_get_dentry() above.
+diff -Nru a/fs/sysfs/group.c b/fs/sysfs/group.c
+--- a/fs/sysfs/group.c	2004-11-01 13:37:18 -08:00
++++ b/fs/sysfs/group.c	2004-11-01 13:37:18 -08:00
+@@ -31,7 +31,7 @@
+ 	int error = 0;
+ 
+ 	for (attr = grp->attrs; *attr && !error; attr++) {
+-		error = sysfs_add_file(dir,*attr);
++		error = sysfs_add_file(dir, *attr, SYSFS_KOBJ_ATTR);
+ 	}
+ 	if (error)
+ 		remove_files(dir,grp);
+@@ -44,6 +44,8 @@
+ {
+ 	struct dentry * dir;
+ 	int error;
++
++	BUG_ON(!kobj || !kobj->dentry);
+ 
+ 	if (grp->name) {
+ 		error = sysfs_create_subdir(kobj,grp->name,&dir);
+diff -Nru a/fs/sysfs/inode.c b/fs/sysfs/inode.c
+--- a/fs/sysfs/inode.c	2004-11-01 13:37:18 -08:00
++++ b/fs/sysfs/inode.c	2004-11-01 13:37:18 -08:00
+@@ -11,6 +11,8 @@
+ #include <linux/pagemap.h>
+ #include <linux/namei.h>
+ #include <linux/backing-dev.h>
++#include "sysfs.h"
++
+ extern struct super_block * sysfs_sb;
+ 
+ static struct address_space_operations sysfs_aops = {
+@@ -91,6 +93,7 @@
+ void sysfs_hash_and_remove(struct dentry * dir, const char * name)
+ {
+ 	struct dentry * victim;
++	struct sysfs_dirent * sd;
+ 
+ 	down(&dir->d_inode->i_sem);
+ 	victim = sysfs_get_dentry(dir,name);
+@@ -101,14 +104,17 @@
+ 			pr_debug("sysfs: Removing %s (%d)\n", victim->d_name.name,
+ 				 atomic_read(&victim->d_count));
+ 
++			sd = victim->d_fsdata;
+ 			d_drop(victim);
+ 			/* release the target kobject in case of 
+ 			 * a symlink
+ 			 */
+ 			if (S_ISLNK(victim->d_inode->i_mode))
+-				kobject_put(victim->d_fsdata);
++				kobject_put(sd->s_element);
++			list_del_init(&sd->s_sibling);
+ 			simple_unlink(dir->d_inode,victim);
+-		}
++		} else
++			d_drop(victim);
+ 		/*
+ 		 * Drop reference from sysfs_get_dentry() above.
+ 		 */
+diff -Nru a/fs/sysfs/mount.c b/fs/sysfs/mount.c
+--- a/fs/sysfs/mount.c	2004-11-01 13:37:18 -08:00
++++ b/fs/sysfs/mount.c	2004-11-01 13:37:18 -08:00
+@@ -22,6 +22,13 @@
+ 	.drop_inode	= generic_delete_inode,
+ };
+ 
++struct sysfs_dirent sysfs_root = {
++	.s_sibling	= LIST_HEAD_INIT(sysfs_root.s_sibling),
++	.s_children	= LIST_HEAD_INIT(sysfs_root.s_children),
++	.s_element	= NULL,
++	.s_type		= SYSFS_ROOT,
++};
++
+ static int sysfs_fill_super(struct super_block *sb, void *data, int silent)
+ {
+ 	struct inode *inode;
+@@ -50,6 +57,7 @@
+ 		iput(inode);
+ 		return -ENOMEM;
+ 	}
++	root->d_fsdata = &sysfs_root;
+ 	sb->s_root = root;
+ 	return 0;
+ }
+diff -Nru a/fs/sysfs/symlink.c b/fs/sysfs/symlink.c
+--- a/fs/sysfs/symlink.c	2004-11-01 13:37:18 -08:00
++++ b/fs/sysfs/symlink.c	2004-11-01 13:37:18 -08:00
+@@ -55,6 +55,36 @@
+ 	}
+ }
+ 
++static int sysfs_add_link(struct dentry * dentry, char * name, struct kobject * target)
++{
++	struct sysfs_dirent * parent_sd = dentry->d_parent->d_fsdata;
++	struct sysfs_symlink * sl;
++	int error = 0;
++
++	error = -ENOMEM;
++	sl = kmalloc(sizeof(*sl), GFP_KERNEL);
++	if (!sl)
++		goto exit1;
++
++	sl->link_name = kmalloc(strlen(name) + 1, GFP_KERNEL);
++	if (!sl->link_name)
++		goto exit2;
++
++	strcpy(sl->link_name, name);
++	sl->target_kobj = kobject_get(target);
++
++	error = sysfs_make_dirent(parent_sd, dentry, sl, S_IFLNK|S_IRWXUGO,
++				SYSFS_KOBJ_LINK);
++	if (!error)
++		return 0;
++
++	kfree(sl->link_name);
++exit2:
++	kfree(sl);
++exit1:
++	return error;
++}
++
+ /**
+  *	sysfs_create_link - create symlink between two objects.
+  *	@kobj:	object whose directory we're creating the link in.
+@@ -67,15 +97,16 @@
+ 	struct dentry * d;
+ 	int error = 0;
+ 
++	BUG_ON(!kobj || !kobj->dentry || !name);
++
+ 	down(&dentry->d_inode->i_sem);
+ 	d = sysfs_get_dentry(dentry,name);
+ 	if (!IS_ERR(d)) {
+ 		error = sysfs_create(d, S_IFLNK|S_IRWXUGO, init_symlink);
+ 		if (!error)
+-			/* 
+-			 * associate the link dentry with the target kobject 
+-			 */
+-			d->d_fsdata = kobject_get(target);
++			error = sysfs_add_link(d, name, target);
++		if (error)
++			d_drop(d);
+ 		dput(d);
+ 	} else 
+ 		error = PTR_ERR(d);
+diff -Nru a/fs/sysfs/sysfs.h b/fs/sysfs/sysfs.h
+--- a/fs/sysfs/sysfs.h	2004-11-01 13:37:18 -08:00
++++ b/fs/sysfs/sysfs.h	2004-11-01 13:37:18 -08:00
+@@ -4,9 +4,11 @@
+ extern struct inode * sysfs_new_inode(mode_t mode);
+ extern int sysfs_create(struct dentry *, int mode, int (*init)(struct inode *));
+ 
++extern int sysfs_make_dirent(struct sysfs_dirent *, struct dentry *, void *,
++				umode_t, int);
+ extern struct dentry * sysfs_get_dentry(struct dentry *, const char *);
+ 
+-extern int sysfs_add_file(struct dentry * dir, const struct attribute * attr);
++extern int sysfs_add_file(struct dentry *, const struct attribute *, int);
+ extern void sysfs_hash_and_remove(struct dentry * dir, const char * name);
+ 
+ extern int sysfs_create_subdir(struct kobject *, const char *, struct dentry **);
+@@ -16,19 +18,27 @@
+ extern void sysfs_put_link(struct dentry *, struct nameidata *);
+ extern struct rw_semaphore sysfs_rename_sem;
+ 
++struct sysfs_symlink {
++	char * link_name;
++	struct kobject * target_kobj;
++};
++
+ static inline struct kobject * to_kobj(struct dentry * dentry)
+ {
+-	return ((struct kobject *) dentry->d_fsdata);
++	struct sysfs_dirent * sd = dentry->d_fsdata;
++	return ((struct kobject *) sd->s_element);
+ }
+ 
+ static inline struct attribute * to_attr(struct dentry * dentry)
+ {
+-	return ((struct attribute *) dentry->d_fsdata);
++	struct sysfs_dirent * sd = dentry->d_fsdata;
++	return ((struct attribute *) sd->s_element);
+ }
+ 
+ static inline struct bin_attribute * to_bin_attr(struct dentry * dentry)
+ {
+-	return ((struct bin_attribute *) dentry->d_fsdata);
++	struct sysfs_dirent * sd = dentry->d_fsdata;
++	return ((struct bin_attribute *) sd->s_element);
+ }
+ 
+ static inline struct kobject *sysfs_get_kobject(struct dentry *dentry)
+@@ -36,10 +46,27 @@
+ 	struct kobject * kobj = NULL;
+ 
+ 	spin_lock(&dcache_lock);
+-	if (!d_unhashed(dentry))
+-		kobj = kobject_get(to_kobj(dentry));
++	if (!d_unhashed(dentry)) {
++		struct sysfs_dirent * sd = dentry->d_fsdata;
++		if (sd->s_type & SYSFS_KOBJ_LINK) {
++			struct sysfs_symlink * sl = sd->s_element;
++			kobj = kobject_get(sl->target_kobj);
++		} else
++			kobj = kobject_get(sd->s_element);
++	}
+ 	spin_unlock(&dcache_lock);
+ 
+ 	return kobj;
++}
++
++static inline void release_sysfs_dirent(struct sysfs_dirent * sd)
++{
++	if (sd->s_type & SYSFS_KOBJ_LINK) {
++		struct sysfs_symlink * sl = sd->s_element;
++		kfree(sl->link_name);
++		kobject_put(sl->target_kobj);
++		kfree(sl);
++	}
++	kfree(sd);
+ }
+ 
+diff -Nru a/include/linux/sysfs.h b/include/linux/sysfs.h
+--- a/include/linux/sysfs.h	2004-11-01 13:37:18 -08:00
++++ b/include/linux/sysfs.h	2004-11-01 13:37:18 -08:00
+@@ -9,6 +9,8 @@
+ #ifndef _SYSFS_H_
+ #define _SYSFS_H_
+ 
++#include <asm/atomic.h>
++
+ struct kobject;
+ struct module;
+ 
+@@ -56,6 +58,23 @@
+ 	ssize_t	(*show)(struct kobject *, struct attribute *,char *);
+ 	ssize_t	(*store)(struct kobject *,struct attribute *,const char *, size_t);
+ };
++
++struct sysfs_dirent {
++	atomic_t		s_count;
++	struct list_head	s_sibling;
++	struct list_head	s_children;
++	void 			* s_element;
++	int			s_type;
++	umode_t			s_mode;
++	struct dentry		* s_dentry;
++};
++
++#define SYSFS_ROOT		0x0001
++#define SYSFS_DIR		0x0002
++#define SYSFS_KOBJ_ATTR 	0x0004
++#define SYSFS_KOBJ_BIN_ATTR	0x0008
++#define SYSFS_KOBJ_LINK 	0x0020
++#define SYSFS_NOT_PINNED	(SYSFS_KOBJ_ATTR | SYSFS_KOBJ_BIN_ATTR | SYSFS_KOBJ_LINK)
+ 
+ #ifdef CONFIG_SYSFS
+ 
 

@@ -1,71 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264211AbUESTaa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264263AbUESTeW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264211AbUESTaa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 15:30:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264205AbUESTaa
+	id S264263AbUESTeW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 15:34:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264500AbUESTeV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 15:30:30 -0400
-Received: from wanderer.mr.itd.umich.edu ([141.211.93.146]:20703 "EHLO
-	wanderer.mr.itd.umich.edu") by vger.kernel.org with ESMTP
-	id S264211AbUESTaS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 15:30:18 -0400
-Date: Wed, 19 May 2004 15:30:16 -0400 (EDT)
-From: Rajesh Venkatasubramanian <vrajesh@umich.edu>
-X-X-Sender: vrajesh@rust.engin.umich.edu
-To: Hugh Dickins <hugh@veritas.com>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] rmap 36 mprotect use vma_merge
-In-Reply-To: <1Xl6y-4AC-45@gated-at.bofh.it>
-Message-ID: <Pine.LNX.4.58.0405191515050.16860@rust.engin.umich.edu>
-References: <1Xl6k-4AC-3@gated-at.bofh.it> <1Xl6y-4AC-45@gated-at.bofh.it>
+	Wed, 19 May 2004 15:34:21 -0400
+Received: from phoenix.infradead.org ([213.86.99.234]:50960 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S264263AbUESTeU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 May 2004 15:34:20 -0400
+Date: Wed, 19 May 2004 20:34:14 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: David Eger <eger-dated-1085563931.b5f459@theboonies.us>
+cc: akpm@osdl.org,
+       Linux Frame Buffer Dev 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] FB accel capabilities patch
+In-Reply-To: <Pine.LNX.4.58.0405191118170.4760@rosencrantz.theboonies.us>
+Message-ID: <Pine.LNX.4.44.0405192026290.28783-100000@phoenix.infradead.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hugh,
+> A month or two ago I noticed that the framebuffer console driver doesn't
+> know to do proper framebuffer acceleration in Linux 2.6;  I've implemented
+> a solution Geert suggested where each framebuffer driver advertizes its 
+> hardware capabilities via fb_info->flags.  Please apply to -mm so I can 
+> get wider testing.
+> 
+> The patches are at:
+> 
+> http://www.yak.net/random/fbdev-patches/accel-cap-take2/relative2mainline/
+> 
+> The core of these patches is enabling the use of the following flags:
+> 
+> +/* FBIF = FB_Info.Flags */
+> +#define FBIF_MODULE		0x0001	/* Low-level driver is a module */
 
-A couple of small clarifications.
+Ug. You changed that. Could that remain the same. 
 
->  void vma_adjust(struct vm_area_struct *vma, unsigned long start,
-> -	unsigned long end, pgoff_t pgoff, struct vm_area_struct *next)
-> +	unsigned long end, pgoff_t pgoff, struct vm_area_struct *insert)
-[snip]
-> +	long adjust_next = 0;
-> +	int remove_next = 0;
-> +
-> +	if (next && !insert) {
-[snip]
-> +			BUG_ON(vma->vm_end != next->vm_start);
-> +			adjust_next = end - next->vm_start;
-> +		}
-> +	}
-
-Can adjust_next overflow?  No? I think making adjust_next in
-PAGE_SIZE units will avoid overflow concerns.
-
-[snip]
->  	if (root) {
-> +		if (adjust_next) {
-> +			vma_prio_tree_init(next);
-> +			vma_prio_tree_insert(next, root);
-> +		}
->  		vma_prio_tree_init(vma);
->  		vma_prio_tree_insert(vma, root);
->  		flush_dcache_mmap_unlock(mapping);
->  	}
-
-I think this flush_dcache_mmap_unlock should go down - after
-__insert_vm_struct call - just before page_table_lock unlock.
+I have a patch coming that fixes the mode setting. It changes alot of the 
+core fbcon.c so I will apply your patch to the fbdev-2.5 tree. 
 
 
-> +		__insert_vm_struct(mm, insert);
->  	}
->
->  	spin_unlock(&mm->page_table_lock);
->  	if (mapping)
->  		spin_unlock(&mapping->i_mmap_lock);
-
-Thanks,
-Rajesh

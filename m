@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264908AbSKTKJw>; Wed, 20 Nov 2002 05:09:52 -0500
+	id <S265275AbSKTKSN>; Wed, 20 Nov 2002 05:18:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264983AbSKTKJw>; Wed, 20 Nov 2002 05:09:52 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:44811 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S264908AbSKTKJv>; Wed, 20 Nov 2002 05:09:51 -0500
-Date: Wed, 20 Nov 2002 13:16:29 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] pcibios removal changes for 2.5.48
-Message-ID: <20021120131629.A21139@jurassic.park.msu.ru>
-References: <20021120051702.GB21953@kroah.com> <20021120051751.GC21953@kroah.com> <20021120051820.GD21953@kroah.com>
+	id <S265249AbSKTKSN>; Wed, 20 Nov 2002 05:18:13 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:39637 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S265275AbSKTKSM>;
+	Wed, 20 Nov 2002 05:18:12 -0500
+Date: Wed, 20 Nov 2002 11:25:05 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Robert Love <rml@tech9.net>
+Cc: akpm@digeo.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch] remove magic numbers in block queue initialization
+Message-ID: <20021120102505.GM25830@suse.de>
+References: <1037747198.1252.2259.camel@phantasy> <20021120084401.GH11884@suse.de> <1037787670.1254.3140.camel@phantasy>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20021120051820.GD21953@kroah.com>; from greg@kroah.com on Tue, Nov 19, 2002 at 09:18:20PM -0800
+In-Reply-To: <1037787670.1254.3140.camel@phantasy>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 19, 2002 at 09:18:20PM -0800, Greg KH wrote:
->  #ifdef CONFIG_CARDBUS
->      if (s->state & SOCKET_CARDBUS) {
->  	u_int ptr;
-> -	pcibios_read_config_dword(s->cap.cb_dev->subordinate->number, 0, 0x28, &ptr);
-> +	struct pci_dev *dev = pci_find_slot (s->cap.cb_dev->subordinate->number, 0);
-> +	if (!dev)
-> +	    return CS_BAD_HANDLE;
-> +	pci_read_config_dword(dev, 0x28, &ptr);
->  	tuple->CISOffset = ptr & ~7;
->  	SPACE(tuple->Flags) = (ptr & 7);
->      } else
+On Wed, Nov 20 2002, Robert Love wrote:
+> On Wed, 2002-11-20 at 03:44, Jens Axboe wrote:
+> 
+> > No, please leave these alone, testing is on-going in these parts right
+> > now.
+> 
+> Did you look at the patch?  It just pulls the magic numbers out and uses
+> defines.  Should make testing easier.
 
-pci_find_slot seems to be an overkill. Why not just
--	pcibios_read_config_dword(s->cap.cb_dev->subordinate->number, 0, 0x28, &ptr);
-+	pci_bus_read_config_dword(s->cap.cb_dev->subordinate, 0, 0x28, &ptr);
+Yes I looked at the patch. Considering that the magic numbers are most
+likely going away, it's of no use.
 
-?
+-- 
+Jens Axboe
 
-Ivan.

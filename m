@@ -1,69 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280663AbRKYDFH>; Sat, 24 Nov 2001 22:05:07 -0500
+	id <S280665AbRKYDFs>; Sat, 24 Nov 2001 22:05:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280665AbRKYDE5>; Sat, 24 Nov 2001 22:04:57 -0500
-Received: from otter.mbay.net ([206.40.79.2]:52232 "EHLO otter.mbay.net")
-	by vger.kernel.org with ESMTP id <S280663AbRKYDEl>;
-	Sat, 24 Nov 2001 22:04:41 -0500
-Date: Sat, 24 Nov 2001 19:04:36 -0800 (PST)
-From: John Alvord <jalvo@mbay.net>
-To: Patrick McFarland <unknown@panax.com>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+	id <S280669AbRKYDFj>; Sat, 24 Nov 2001 22:05:39 -0500
+Received: from viper.haque.net ([66.88.179.82]:59523 "EHLO mail.haque.net")
+	by vger.kernel.org with ESMTP id <S280665AbRKYDFd>;
+	Sat, 24 Nov 2001 22:05:33 -0500
+Date: Sat, 24 Nov 2001 22:05:27 -0500
 Subject: Re: Linux 2.4.16-pre1
-In-Reply-To: <20011124205632.C241@localhost>
-Message-ID: <Pine.LNX.4.20.0111241903180.19439-100000@otter.mbay.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v475)
+Cc: war <war@starband.net>, linux-kernel@vger.kernel.org
+To: Patrick McFarland <unknown@panax.com>
+From: "Mohammad A. Haque" <mhaque@haque.net>
+In-Reply-To: <20011124214114.E241@localhost>
+Message-Id: <46FF80FA-E151-11D5-A24C-00306569F1C6@haque.net>
+Content-Transfer-Encoding: 7bit
+X-Mailer: Apple Mail (2.475)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If nothing else, the wart in 2.4.15 will make sure people move to the
-Marcelo Tosatti tree promptly. Not a bad result...
+On Saturday, November 24, 2001, at 09:41 , Patrick McFarland wrote:
 
-john alvord
+> Okay, so it was 14 that had the file loopback bug, and 12 that had the 
+> ieee bug.Those bugs shouldnt have been in there in the first place! 
+> Those are very major potentially show stopping bugs. What If I get up 
+> one day, and I cant print? Or build isos? That sounds minor to you, but 
+> thats a big thing if say, the linux box is a network print server, or, 
+> its the workstation for the guy in the company who builds the iso. And, 
+> no, "use the previous kernel" isnt a good excuse. Because what if you 
+> get hit with bugs back to back? You'll have to go back to some kernel 
+> way way back. Like 2.4.2. The Kernel needs Quality Assurance.
 
-On Sat, 24 Nov 2001, Patrick McFarland wrote:
+Yes, this is a QA problem. But also .. if you're a smart net/system 
+admin, you don't go out installing a just released kernel without 
+letting others bang on it or run it on some test servers. Where I work, 
+I insist the admins wait at least 1-2 weeks before going to the latest 
+release unless there's some huge security fix.
 
-> Heh, speaking about stuff like this, isnt testing suppost to happen to kernels? I mean, in 2.4.14 we had the file loopback problem (_alot_ of people use that module, its great for building iso images and stuff)  and then we have the inode.c bug (which may or may not exist and the fix may or may not actually fix it) then it seems bugs in other sections of the kernel. Whats going on Linus? Stable kernel releases were never this bad before.
-> 
-> On 24-Nov-2001, Linus Torvalds wrote:
-> > 
-> > On Sat, 24 Nov 2001, Marcelo Tosatti wrote:
-> > > >
-> > > > Are these going to appear on the front page of kernel.org?
-> > >
-> > > They have to...
-> > >
-> > > I'm sure hpa will do that as soon as he has time to...
-> > 
-> > I also decided that the suggestion to move the "testing" subdirectory down
-> > to below the kernel that the directory is for is a good idea.
-> > 
-> > So I moved all the 2.5.x testing stuff to kernel/v2.5/testing, leaving the
-> > old kernel/testing directory basically orphaned.
-> > 
-> > Marcelo could either take over the old directory (which will make his
-> > pre-patches show up on kernel.org automatically), or preferably just do
-> > the same thing, and make the v2.4 test patches in v2.4/testing (which will
-> > also require support from the site admin, who is probably overworked as-is
-> > with the RAID failures ;)
-> > 
-> > 			Linus
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> 
-> -- 
-> Patrick "Diablo-D3" McFarland || unknown@panax.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+--
+
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/
+                                                mhaque@haque.net
+
+   "Alcohol and calculus don't mix.             Developer/Project Lead
+    Don't drink and derive." --Unknown          http://www.themes.org/
+                                                batmanppc@themes.org
+=====================================================================
 

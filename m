@@ -1,114 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271757AbRIGL51>; Fri, 7 Sep 2001 07:57:27 -0400
+	id <S272582AbRIGMGs>; Fri, 7 Sep 2001 08:06:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271756AbRIGL5T>; Fri, 7 Sep 2001 07:57:19 -0400
-Received: from itfhep.nlh.no ([128.39.186.139]:40452 "EHLO itfhep.nlh.no")
-	by vger.kernel.org with ESMTP id <S271757AbRIGL5A>;
-	Fri, 7 Sep 2001 07:57:00 -0400
-From: Hans Ekkehard Plesser <hans.plesser@itf.nlh.no>
+	id <S272614AbRIGMGi>; Fri, 7 Sep 2001 08:06:38 -0400
+Received: from nbd.it.uc3m.es ([163.117.139.192]:9732 "EHLO nbd.it.uc3m.es")
+	by vger.kernel.org with ESMTP id <S272582AbRIGMGW>;
+	Fri, 7 Sep 2001 08:06:22 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200109071206.OAA24577@nbd.it.uc3m.es>
+Subject: Re: 2.4.8 NFS Problems
+X-ELM-OSV: (Our standard violations) hdr-charset=US-ASCII
+In-Reply-To: <shsae07md9d.fsf@charged.uio.no> "from Trond Myklebust at Sep 7,
+ 2001 01:49:50 pm"
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: Fri, 7 Sep 2001 14:05:10 +0200 (CEST)
+CC: Mike Black <mblack@csihq.com>, linux-kernel <linux-kernel@vger.kernel.org>
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL89 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-Message-ID: <15256.46615.267860.271814@itfhep.nlh.no>
-Date: Fri, 7 Sep 2001 13:57:11 +0200 (MEST)
-To: linux-kernel@vger.kernel.org
-Subject: Onstream Di30 Tape Drive: Successes and Problems
-CC: gadio@netvision.net.il
-X-Mailer: VM 6.75 under Emacs 20.7.1
-Reply-To: hans.plesser@itf.nlh.no
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"A month of sundays ago Trond Myklebust wrote:"
+> >>>>> " " == Mike Black <mblack@csihq.com> writes:
+> 
+>      > I've been getting random NFS EIO errors for a few months but
+>      > now it's repeatable.  Trying to copy a large file from one
+>      > 2.4.8 SMP box to another is consistently failing (at different
+>      > offsets each time).  This doesn't appear to be a network
+>      > problem as the last comm between the machines looks OK.  By the
+>      > timestamps it appears that a read() is taking too long and
+>      > causing a timeout?
+> 
+> Morale: Don't use soft mounts: they are prone to these things. If you
+> insist on using them, then try playing around with the `timeo' and
 
-Hi!
+Unless you like having all your clients hang when the server happens to
+be rebooted, and like having to go round hunting for them in dark
+recesses in order to try and fool them into unmounting and remounting,
+I'd recommend soft mounts every time!
 
-I would like to report about my successes and remaining problems
-with Onstream Di30 tape drives.  If anyone knows how to solve the
-problems I have incurred, let me know (please mail directly, I am not
-subscribing to this list).   
+> `retrans' mount variables.
 
-My configuration:
+It would be nice if nfs could do the a remount automatically when the
+nfs handle it has goes stale an dit discovers it.  Is that part of v3
+nfs or not?
 
-* Asus CUV4X-D mainboard with 2 PentiumIII Coppermine, 866MHz
-* Internal Onstream Di30 as master on second IDE (/dev/hdc)
-* Kernel 2.4.9
+> Soft mount timeouts are not only due to network problems, but can
+> equally well be due to internal congestion. The rate at which the
+> network can transmit requests is usually (unless you are using
+> Gigabit) way below the rate at which your machine can generate them.
 
-Initial issues:
+But soft mounts at least break nicely and automatically.  And since
+failures are inevitable, I prefer them.
 
-* The 2.4.4-SMP-4GB kernel shipped with SuSE 7.2 did NOT support the
-  Di30 reliably.  mt -f /dev/ht0 status wouldn't work.  The kernel 
-  upgrade helped.
+Come to think of it, why not have an option that does a hard,intr but
+sends a ^C automatically to all referents when a stale handle is detected.
 
-Successes:
-
-* It looks I can now create tar archives at least in rewinding mode
-  (i.e. on /dev/ht0), and can restore that archive (I have tried only
-  one per tape yet).  I backed up ca 13GB uncompressed using tar,
-  restored some 5% of the files, randomly chosen, and ran diff on the
-  result: no errors found!
-
-* The --verify switch for tar does not work.
-
-* I can write to tape in non-rewind mode (/dev/nht0), but I have only
-  been able to restore the first archive stored.
-
-
-Remaining issues:
-
-* Inserting a new tape and doing
-  mt -f /dev/nht0 rewind
-  mt -f /dev/nht0 eod     (or eom)
-  mt -f /dev/nht0 status
-
-  makes status take a very long time, and in the end I get a status
-  report like (note block number -1) 
-
-  drive type = Generic SCSI-2 tape	
-  drive status = 32768
-  sense key error = 0
-  residue count = 0
-  file number = 0
-  block number = -1
-  Tape block size 32768 bytes. Density code 0x0 (default).
-  Soft error count since last status=0
-  General status bits on (1000000):
-
-  and there are lots of error messages in /var/log/messages, like
-
-  kernel: ide-tape: ht0: skipping frame 31, incorrect application signature
-  kernel: ide-tape: ht0: skipping frame 31, incorrect application signature
-  kernel: ide-tape: ht0: skipping frame 32, incorrect application signature
-  kernel: ide-tape: ht0: skipping frame 32, incorrect application signature
-  :
-  :
-  kernel: ide-tape: ht0: skipping frame 1031, incorrect application signature
-  kernel: ide-tape: ht0: skipping frame 1031, incorrect application signature
-  kernel: ide-tape: ht0: couldn't find logical block -1, aborting
-
-
-* Trying to navigate around on a tape with several archives using
-  status, fsf or fsr commands with mt -f /dev/nht0, I got errors like
-
-  kernel: ide-tape: ht0: skipping frame 914, wrt_pass_cntr 1 (expected 2)(logical_blk_num 893)
-  kernel: ide-tape: ht0: skipping frame 914, wrt_pass_cntr 1 (expected 2)(logical_blk_num 893)
-  kernel: ide-tape: ht0: skipping frame 915, wrt_pass_cntr 1 (expected 2)(logical_blk_num 894)
-
-
-* I sometimes get error messages like
-
-  kernel: ide-tape: ht0: I/O error, pc = 2b, key =  2, asc =  4, ascq =  1
-
-
-I hope this info is helpful for further development.  If you want more
-information, please let me know, although I might take a few days to
-get back to you.
-
-Best regards,
-Hans
----------------------------------------------------------------------
-Dr. Hans Ekkehard Plesser             Tel.  :           +47 6494 8832
-Physics Section / ITF                 Fax   :           +47 6494 8810
-Agricultural University of Norway     e-mail: hans.plesser@itf.nlh.no
-N-1432 Ås, Norway		      WWW   :    arken.nlh.no/~itfhep
----------------------------------------------------------------------
+Peter

@@ -1,107 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264318AbUAIV0M (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 16:26:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264323AbUAIV0L
+	id S264442AbUAIVi5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 16:38:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264445AbUAIVi4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 16:26:11 -0500
-Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:60348 "EHLO
-	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S264318AbUAIV0D
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 16:26:03 -0500
-Subject: Re: [PATCH][SELINUX] 2/7 Add netif controls
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Andrew Morton <akpm@osdl.org>
-Cc: James Morris <jmorris@redhat.com>, lkml <linux-kernel@vger.kernel.org>,
-       selinux@tycho.nsa.gov
-In-Reply-To: <20040109125718.5266c3f4.akpm@osdl.org>
-References: <Xine.LNX.4.44.0401091009440.21309@thoron.boston.redhat.com>
-	 <Xine.LNX.4.44.0401091012460.21309-100000@thoron.boston.redhat.com>
-	 <20040109125718.5266c3f4.akpm@osdl.org>
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1073683548.29816.174.camel@moss-spartans.epoch.ncsc.mil>
+	Fri, 9 Jan 2004 16:38:56 -0500
+Received: from fw.osdl.org ([65.172.181.6]:36059 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264442AbUAIViO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 16:38:14 -0500
+Date: Fri, 9 Jan 2004 13:35:18 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Ian Pilcher <i.pilcher@comcast.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sysctl equivalent of "idle=poll"
+Message-Id: <20040109133518.59c44790.rddunlap@osdl.org>
+In-Reply-To: <3FFBA98D.1080901@comcast.net>
+References: <3FFBA98D.1080901@comcast.net>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
-Date: Fri, 09 Jan 2004 16:25:48 -0500
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-01-09 at 15:57, Andrew Morton wrote:
-> The selinux makefiles seem a little unusual.  Can this not use the usual
-> 
-> 	obj-$(CONFIG_FOO) += bar.o
-> 
-> ?
-> 
-> Similarly, security/Makefile uses:
-> 
-> 	ifeq ($(CONFIG_SECURITY_SELINUX),y)
-> 		obj-$(CONFIG_SECURITY_SELINUX)	+= selinux/built-in.o
-> 	endif
-> 
-> why the `ifeq'?
+On Wed, 07 Jan 2004 00:39:09 -0600 Ian Pilcher <i.pilcher@comcast.net> wrote:
 
-Hmm...possible diff below against 2.6.1 for the security and selinux
-makefiles.
+| The previous version of this patch didn't get any response, so on the
+| "no news is good news" theory ... Any comments before I send this off to
+| Marcelo?
+| 
+| This adds a new x86-only sysctl, /proc/sys/kernel/idle_poll, which does
+| basically the same thing as the "idle=poll" boot parameter (except that
+| it can be turned on and off).
+| 
+| This patch does not affect the ability of the APM and/or ACPI subsystems
+| to override the default idle function.  It adds one symbol,
+| pm_idle_poll, to the global namespace.
+| 
+| This patch applies cleanly to 2.4.23, 2.4.24, and 2.4.25-pre4.
 
-Index: linux-2.6/security/Makefile
-===================================================================
-RCS file: /nfshome/pal/CVS/linux-2.6/security/Makefile,v
-retrieving revision 1.1.1.3
-diff -u -r1.1.1.3 Makefile
---- linux-2.6/security/Makefile	29 Sep 2003 13:14:38 -0000	1.1.1.3
-+++ linux-2.6/security/Makefile	9 Jan 2004 21:06:46 -0000
-@@ -12,8 +12,6 @@
- # Object file lists
- obj-$(CONFIG_SECURITY)			+= security.o dummy.o
- # Must precede capability.o in order to stack properly.
--ifeq ($(CONFIG_SECURITY_SELINUX),y)
--	obj-$(CONFIG_SECURITY_SELINUX)	+= selinux/built-in.o
--endif
-+obj-$(CONFIG_SECURITY_SELINUX)		+= selinux/built-in.o
- obj-$(CONFIG_SECURITY_CAPABILITIES)	+= commoncap.o capability.o
- obj-$(CONFIG_SECURITY_ROOTPLUG)		+= commoncap.o root_plug.o
-Index: linux-2.6/security/selinux/Makefile
-===================================================================
-RCS file: /nfshome/pal/CVS/linux-2.6/security/selinux/Makefile,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 Makefile
---- linux-2.6/security/selinux/Makefile	12 Aug 2003 13:05:04 -0000	1.1.1.1
-+++ linux-2.6/security/selinux/Makefile	9 Jan 2004 21:06:08 -0000
-@@ -4,7 +4,9 @@
- 
- obj-$(CONFIG_SECURITY_SELINUX) := selinux.o ss/
- 
--selinux-objs := avc.o hooks.o selinuxfs.o
-+selinux-y := avc.o hooks.o selinuxfs.o
-+
-+selinux-$(CONFIG_SECURITY_NETWORK) += netif.o
- 
- EXTRA_CFLAGS += -Isecurity/selinux/include
- 
-Index: linux-2.6/security/selinux/ss/Makefile
-===================================================================
-RCS file: /nfshome/pal/CVS/linux-2.6/security/selinux/ss/Makefile,v
-retrieving revision 1.1.1.2
-diff -u -r1.1.1.2 Makefile
---- linux-2.6/security/selinux/ss/Makefile	9 Jan 2004 14:24:58 -0000	1.1.1.2
-+++ linux-2.6/security/selinux/ss/Makefile	9 Jan 2004 21:06:15 -0000
-@@ -5,9 +5,7 @@
- EXTRA_CFLAGS += -Isecurity/selinux/include
- obj-y := ss.o
- 
--ss-objs := ebitmap.o hashtab.o symtab.o sidtab.o avtab.o policydb.o services.o
-+ss-y := ebitmap.o hashtab.o symtab.o sidtab.o avtab.o policydb.o services.o
- 
--ifeq ($(CONFIG_SECURITY_SELINUX_MLS),y)
--ss-objs += mls.o
--endif
-+ss-$(CONFIG_SECURITY_SELINUX_MLS) += mls.o
- 
+Hi Ian,
+Sorry for not replying sooner.
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+I don't see any problems with this patch itself, other than its
+justification.
 
+Why is a sysctl needed instead of using idle=X as a boot parameter?
+
+Does this fix a bug/oops that you were having?
+Or does it cover up a bug somewhere?
+
+--
+~Randy
+MOTD:  Always include version info.

@@ -1,29 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279630AbRKATq4>; Thu, 1 Nov 2001 14:46:56 -0500
+	id <S279640AbRKATs4>; Thu, 1 Nov 2001 14:48:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279631AbRKATqo>; Thu, 1 Nov 2001 14:46:44 -0500
-Received: from jive.SoftHome.net ([66.54.152.27]:56720 "EHLO softhome.net")
-	by vger.kernel.org with ESMTP id <S279630AbRKATpu>;
-	Thu, 1 Nov 2001 14:45:50 -0500
-Message-ID: <3BE1A6BF.2010002@softhome.net>
-Date: Thu, 01 Nov 2001 19:47:11 +0000
-From: Ricardo Martins <thecrown@softhome.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en, pt
+	id <S279631AbRKATsr>; Thu, 1 Nov 2001 14:48:47 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:6665 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S279640AbRKATsk>;
+	Thu, 1 Nov 2001 14:48:40 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200111011948.WAA27345@ms2.inr.ac.ru>
+Subject: Re: Bind to protocol with AF_PACKET doesn't work for outgoing packets
+To: ak@suse.de (Andi Kleen)
+Date: Thu, 1 Nov 2001 22:48:13 +0300 (MSK)
+Cc: ak@suse.de, joris@deadlock.et.tudelft.nl, linux-kernel@vger.kernel.org
+In-Reply-To: <20011101202845.A10648@wotan.suse.de> from "Andi Kleen" at Nov 1, 1 08:28:45 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: on exit xterm  totally wrecks linux 2.4.11 to 2.4.14-pre6 (unkillable processes)
-In-Reply-To: <3BE1777F.30705@softhome.net> <3BE1A042.7030806@softhome.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pierre, thanks for the advice.
+Hello!
 
-If the problem is with xterm, it sure kicks "Linux Stability" in the 
-face. Maybe (and I hope) the problem is in devfs.
+> Just to have an symmetric API. Everything else is too ugly to explain 
+> in manpages ;)
 
-Ricardo Martins
+Explaining is easy. Blah-blah-blah... Sockets bound to ETH_P_ALL
+are able to get copy of output packets which is useful f.e.
+for packet sniffers (ref to [libpacp],[tcpdump]). In later kernels
+this can be disabled with option PACKET_NOOUTPUT. When this option
+is not supported user of packet socket bound to ETH_P_ALL has to filter
+output packets at user level checking for pkt_type == PACKET_OUTPUT
+or using an equivalent BPF applet.
 
+
+> That would require changing/breaking PF_PACKET, no? 
+
+No. Ideally the option could be PACKET_GRAB_OUTPUT and be disabled
+by default (for symmetry :-)). But as soon as it was forgotten,
+it has to be enabled by default.
+
+Alexey

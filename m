@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266723AbRGTOAl>; Fri, 20 Jul 2001 10:00:41 -0400
+	id <S266459AbRGTN5K>; Fri, 20 Jul 2001 09:57:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266898AbRGTOAc>; Fri, 20 Jul 2001 10:00:32 -0400
-Received: from thebsh.namesys.com ([212.16.0.238]:28687 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S266723AbRGTOAZ>; Fri, 20 Jul 2001 10:00:25 -0400
-Message-ID: <15192.14679.866099.871164@beta.namesys.com>
-Date: Fri, 20 Jul 2001 17:59:51 +0400
+	id <S266523AbRGTN5A>; Fri, 20 Jul 2001 09:57:00 -0400
+Received: from [216.151.155.121] ([216.151.155.121]:43276 "EHLO
+	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
+	id <S266459AbRGTN4u>; Fri, 20 Jul 2001 09:56:50 -0400
+To: software_iq@TheOffice.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux Kernel 2.2.19 Available Memory Bug
+In-Reply-To: <3B57A9DF.10547.A92B31@localhost>
+From: Doug McNaught <doug@wireboard.com>
+Date: 20 Jul 2001 09:56:36 -0400
+In-Reply-To: "John L. Males"'s message of "Fri, 20 Jul 2001 03:47:43 -0500"
+Message-ID: <m3ofqf66wb.fsf@belphigor.mcnaught.org>
+User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Mailer: VM 6.89 under 21.1 (patch 8) "Bryce Canyon" XEmacs Lucid
-From: Nikita Danilov <NikitaDanilov@Yahoo.COM>
-To: linux-kernel@vger.kernel.org
-Subject: patch to fs/proc/base.c
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hello, 
+"John L. Males" <software_iq@TheOffice.net> writes:
 
-following patch cures oopses in 2.4.7-pre9 when 
-proc_pid_make_inode() is called on task with task->mm == NULL.
+> The bug I am reporting is that when one sets the amount of memory,
+> i.e. 128M, 256M; at the time of booting the 2.2.19 kernel the "Total
+> Memory" as reported by KDE, "free", etc is short by a important
+> amount.  To be more specific I will detail the results of "free"
+> below against the "mem" value passed to the kernel.  Please note for
+> the purposes of this test I always had 256MB or ram (2x128MB)
+> installed in my system.  The BIOS reports total system memory as
+> 262144K.
 
-Linus, please apply, if you haven't got a bunch of equivalent patches
-already, which is doubtful.
+Not really a bug--the "free" report leaves out the memory devoted to
+the kernel, which is unpageable and therefore unavailable to user
+apps. 
 
-Nikita.
-------------------------------------------------------------
---- linux-2.4.7-pre9/fs/proc/base.c    Fri Jul 20 14:57:55 2001
-+++ linux-2.4.7-pre9.patched/fs/proc/base.c     Fri Jul 20 17:03:23 2001
-@@ -670,7 +670,7 @@ static struct inode *proc_pid_make_inode
-        inode->u.proc_i.task = task;
-        inode->i_uid = 0;
-        inode->i_gid = 0;
--       if (ino == PROC_PID_INO || task->mm->dumpable) {
-+       if (ino == PROC_PID_INO || (task->mm && task->mm->dumpable)) {
-                inode->i_uid = task->euid;
-                inode->i_gid = task->egid;
-        }
-------------------------------------------------------------
+-Doug
+-- 
+The rain man gave me two cures; he said jump right in,
+The first was Texas medicine--the second was just railroad gin,
+And like a fool I mixed them, and it strangled up my mind,
+Now people just get uglier, and I got no sense of time...          --Dylan

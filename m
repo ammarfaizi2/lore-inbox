@@ -1,101 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268685AbUIXL37@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268690AbUIXLg0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268685AbUIXL37 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 07:29:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268690AbUIXL37
+	id S268690AbUIXLg0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 07:36:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268693AbUIXLg0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 07:29:59 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:18398 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S268685AbUIXL3z (ORCPT
+	Fri, 24 Sep 2004 07:36:26 -0400
+Received: from zero.aec.at ([193.170.194.10]:22791 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S268690AbUIXLgZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 07:29:55 -0400
-Date: Fri, 24 Sep 2004 13:29:54 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Pawe?? Sikora <pluto@pld-linux.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: unresolved symbol __udivsi3_i4
-Message-ID: <20040924112954.GI22710@lug-owl.de>
-Mail-Followup-To: Geert Uytterhoeven <geert@linux-m68k.org>,
-	Pawe?? Sikora <pluto@pld-linux.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20040924021050.689.qmail@web53608.mail.yahoo.com> <200409240801.57848.pluto@pld-linux.org> <Pine.GSO.4.61.0409241031410.27692@waterleaf.sonytel.be> <20040924105207.GH22710@lug-owl.de> <Pine.GSO.4.61.0409241314530.27692@waterleaf.sonytel.be>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="j/tBPq5EzcXNongx"
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.61.0409241314530.27692@waterleaf.sonytel.be>
-X-Operating-System: Linux mail 2.6.8-rc4 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.6i
+	Fri, 24 Sep 2004 07:36:25 -0400
+To: Suresh Siddha <suresh.b.siddha@intel.com>
+cc: linux-kernel@vger.kernel.org, tom.l.nguyen@intel.com
+Subject: Re: [Patch 1/2] Disable SW irqbalance/irqaffinity for
+ E7520/E7320/E7525
+References: <2HSdY-7dr-3@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Fri, 24 Sep 2004 13:36:16 +0200
+In-Reply-To: <2HSdY-7dr-3@gated-at.bofh.it> (Suresh Siddha's message of
+ "Fri, 24 Sep 2004 09:00:19 +0200")
+Message-ID: <m3mzzf99vz.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Suresh Siddha <suresh.b.siddha@intel.com> writes:
 
---j/tBPq5EzcXNongx
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Set TARGET_CPUS on x86_64 to cpu_online_map. This brings the code inline
+> with x86 mach-default
 
-On Fri, 2004-09-24 13:15:26 +0200, Geert Uytterhoeven <geert@linux-m68k.org>
-wrote in message <Pine.GSO.4.61.0409241314530.27692@waterleaf.sonytel.be>:
-> On Fri, 24 Sep 2004, Jan-Benedict Glaw wrote:
-> > > > > unresolved symbol __udivsi3_i4
-> > > > # objdump -T /lib/libgcc_s.so.1|grep div
-> > > > 000024c0 g    DF .text  00000162  GLIBC_2.0   __divdi3
-> > > > 00002b80 g    DF .text  000001ed  GCC_3.0     __udivmoddi4
-> > > > 00002870 g    DF .text  00000120  GLIBC_2.0   __udivdi3
-> > > >=20
-> > > > you can link module with libgcc.a or fix it.
-> > >=20
-> > > Just add an implementation for __udivsi3_i4 to arch/sh/lib/. They alr=
-eady have
-> > > udivdi3.c over there.
-> >=20
-> > Either that (which I don't like!), or have a try compiling the kernel
->=20
-> Why don't you like that? It's done that way on most architectures.
+And breaks compilation with MSI on. Here's a hackish workaround
+that will probably fail with >64 CPUs.
+Proper fix would be to fix MSI to deal with cpumasks properly
 
-Well, the kernel is (or should be) a freestanding program, so it
-shouldn't use *any* external code (and it doesn't, intentionally).
-We're working hard not linking in libgcc.a (IIRC some archs actually do
-that) (because eg. your compiler was compiled for i686-pc-linux-gnu, you
-want to compile for a real i386 and end up with Pentium-alike code in
-your i386 kernel).
+-Andi
 
-So people started doing freestanding implementations of eg. __udivsi3 in
-their kernel files. But why should they? GCC also could have emitted
-inlined code to do that task, without ever calling an external function
-for that.
+diff -u linux/drivers/pci/msi.c-o linux/drivers/pci/msi.c
+--- linux/drivers/pci/msi.c-o	2004-09-24 13:03:44.000000000 +0200
++++ linux/drivers/pci/msi.c	2004-09-24 13:34:18.000000000 +0200
+@@ -282,7 +282,8 @@
+ 	msi_address->lo_address.u.dest_mode = MSI_DEST_MODE;
+ 	msi_address->lo_address.u.redirection_hint = MSI_REDIRECTION_HINT_MODE;
+ 	msi_address->lo_address.u.dest_id = dest_id;
+-	msi_address->lo_address.value |= (MSI_TARGET_CPU << MSI_TARGET_CPU_SHIFT);
++	/* FIXME: broken for >64 CPUs */
++	msi_address->lo_address.value |= (*cpus_addr(MSI_TARGET_CPU) << MSI_TARGET_CPU_SHIFT);
+ }
+ 
+ static int msi_free_vector(struct pci_dev* dev, int vector, int reassign);
+diff -u linux/include/asm-x86_64/smp.h-o linux/include/asm-x86_64/smp.h
 
-However, this topic has been discussed several times with no real
-resolution, so I guess we won't find a real cool solution this time,
-too.
-
-MfG, JBG (and greetings from Oldenburg!)
-
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Irak! =
-  O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
-
---j/tBPq5EzcXNongx
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBVAUyHb1edYOZ4bsRAnlLAJ4mY7sRWmrFHaVX+JDr5CUoEz31kACffl+q
-X30K6D6uKIB8qE8vuNMqzD4=
-=MmqQ
------END PGP SIGNATURE-----
-
---j/tBPq5EzcXNongx--

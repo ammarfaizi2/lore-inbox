@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261953AbVDCXOq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261956AbVDCXPj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261953AbVDCXOq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 19:14:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261955AbVDCXOq
+	id S261956AbVDCXPj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 19:15:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbVDCXPj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 19:14:46 -0400
-Received: from alpha.polcom.net ([217.79.151.115]:27872 "EHLO alpha.polcom.net")
-	by vger.kernel.org with ESMTP id S261953AbVDCXOp (ORCPT
+	Sun, 3 Apr 2005 19:15:39 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:11722 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261956AbVDCXPe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 19:14:45 -0400
-Date: Mon, 4 Apr 2005 01:17:57 +0200 (CEST)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Dag Arne Osvik <da@osvik.no>
-Cc: Andreas Schwab <schwab@suse.de>, Stephen Rothwell <sfr@canb.auug.org.au>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Use of C99 int types
-In-Reply-To: <425072A4.7080804@osvik.no>
-Message-ID: <Pine.LNX.4.62.0504040109450.11173@alpha.polcom.net>
-References: <424FD9BB.7040100@osvik.no> <20050403220508.712e14ec.sfr@canb.auug.org.au>
- <424FE1D3.9010805@osvik.no> <jezmwgxa5v.fsf@sykes.suse.de> <425072A4.7080804@osvik.no>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sun, 3 Apr 2005 19:15:34 -0400
+Date: Sun, 3 Apr 2005 16:15:22 -0700
+From: Paul Jackson <pj@engr.sgi.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: kenneth.w.chen@intel.com, torvalds@osdl.org, nickpiggin@yahoo.com.au,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] sched: auto-tune migration costs [was: Re: Industry db
+ benchmark result on recent 2.6 kernels]
+Message-Id: <20050403161522.6e83a231.pj@engr.sgi.com>
+In-Reply-To: <20050403142959.GB22798@elte.hu>
+References: <200504020100.j3210fg04870@unix-os.sc.intel.com>
+	<20050402145351.GA11601@elte.hu>
+	<20050402215332.79ff56cc.pj@engr.sgi.com>
+	<20050403070415.GA18893@elte.hu>
+	<20050403043420.212290a8.pj@engr.sgi.com>
+	<20050403142959.GB22798@elte.hu>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Apr 2005, Dag Arne Osvik wrote:
-> (...) And, at least in 
-> theory, long may even provide less than 32 bits.
+Ingo wrote:
+> how close are these numbers to the real worst-case migration costs on 
+> that box? What are the cache sizes and what is their hierarchies?
+>  ...
+> is there any workload that shows the same scheduling related performance 
+> regressions, other than Ken's $1m+ benchmark kit?
 
-Are you sure?
+I'll have to talk to some people Monday and get back to you.
 
-My copy of famous C book by B. W. Kernighan and D. Ritchie says that
-
-sizeof(short) <= sizeof(int) <= sizeof(long)
-
-and
-
-sizeof(short) >= 16,
-sizeof(int) >= 16,
-sizeof(long) >= 32.
-
-The book is about ANSI C not C99 but I think this is still valid.
-
-Am I wrong?
-
-
-Grzegorz Kulewski
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

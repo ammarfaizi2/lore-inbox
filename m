@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311431AbSCSQk1>; Tue, 19 Mar 2002 11:40:27 -0500
+	id <S311433AbSCSQmr>; Tue, 19 Mar 2002 11:42:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311435AbSCSQkR>; Tue, 19 Mar 2002 11:40:17 -0500
-Received: from Expansa.sns.it ([192.167.206.189]:39945 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S311431AbSCSQj6>;
-	Tue, 19 Mar 2002 11:39:58 -0500
-Date: Tue, 19 Mar 2002 17:40:07 +0100 (CET)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: linux-kernel@vger.kernel.org
-Subject: oops at boot with 2.5.7 and i810
-Message-ID: <Pine.LNX.4.44.0203191716170.24700-100000@Expansa.sns.it>
+	id <S311416AbSCSQmh>; Tue, 19 Mar 2002 11:42:37 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:10508 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S311433AbSCSQmZ>; Tue, 19 Mar 2002 11:42:25 -0500
+Date: Tue, 19 Mar 2002 11:40:27 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
+In-Reply-To: <a6qsae$6er$1@penguin.transmeta.com>
+Message-ID: <Pine.LNX.3.96.1020319113558.1772D-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-HI,
+On Thu, 14 Mar 2002, Linus Torvalds wrote:
 
-also with 2.5.7, as with 2.5.6, I have problems at boot.
-I get the usual oops while initialising IDE.
+>  - IBM nomenclature really is broken. They call disks DASD devices, and
+>    they call their hash table a page table, and they just confuse
+>    themselves and everybody else for no good reason.
 
-my ide controller is:
+Actually, no on DASD. DASD = "Direct Access Storage Device" and while disk
+is the most common implementation of that, it is not the only. Like
+Windows is the most common implementation of "operating system," but not
+the only one, thankfully.
 
-00:1f.1 IDE interface: Intel Corporation 82801AA IDE (rev 02) (prog-if 80
-[Master])
-        Subsystem: Intel Corporation 82801AA IDE
-        Flags: bus master, medium devsel, latency 0
-        I/O ports at 2460 [size=16]
+Think drum, solid state storage, optical, etc... all DASD.
 
-unfortunatelly, I do not have even the time to write down oops message,
-but eip is c0135068, but then I do not find a similar entry in system.map
-
-any hint
-
-my rootfs in reiserFS, but i do not even reach the mount ...
-
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

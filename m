@@ -1,77 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264061AbUDFXZS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 19:25:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264072AbUDFXZS
+	id S264066AbUDFX1s (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 19:27:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264071AbUDFX1s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 19:25:18 -0400
-Received: from mail01.hansenet.de ([213.191.73.61]:63428 "EHLO
-	webmail.hansenet.de") by vger.kernel.org with ESMTP id S264061AbUDFXZL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 19:25:11 -0400
-Date: Wed, 7 Apr 2004 01:24:58 +0200
-From: Bjoern Michaelsen <bmichaelsen@gmx.de>
-To: "Hemmann, Volker Armin" <volker.hemmann@heim9.tu-clausthal.de>
-Cc: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: AGP problem SiS 746FX Linux 2.6.5-rc3
-Message-ID: <20040406232458.GC9389@lord.sinclair>
-References: <20040406031949.GA8351@lord.sinclair> <200404070001.35514.volker.hemmann@heim10.tu-clausthal.de> <20040406221403.GB10142@redhat.com> <200404070026.00589.volker.hemmann@heim10.tu-clausthal.de>
+	Tue, 6 Apr 2004 19:27:48 -0400
+Received: from main.gmane.org ([80.91.224.249]:64705 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S264066AbUDFX1p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 19:27:45 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Pasi Savolainen <psavo@iki.fi>
+Subject: Re: High CPU temp on Athlon MP w/ recent 2.6 kernels
+Date: Tue, 6 Apr 2004 23:27:37 +0000 (UTC)
+Message-ID: <slrnc76f79.s2s.psavo@varg.dyndns.org>
+References: <20040406193649.GA13257@sommrey.de> <200404061626.37714.gene.heskett@verizon.net> <20040406204545.GA15946@sommrey.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Md/poaVZ8hnGTzuv"
-Content-Disposition: inline
-In-Reply-To: <200404070026.00589.volker.hemmann@heim10.tu-clausthal.de>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: a11a.mannikko1.ton.tut.fi
+User-Agent: slrn/0.9.8.0 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Joerg Sommrey <jo@sommrey.de>:
+> On Tue, Apr 06, 2004 at 04:26:37PM -0400, Gene Heskett wrote:
+>> 
+>> But join the 70C club, that AMD athlon keeps itself at a medium simmer 
+>> full time.  Mine has been running 67-72C for 3 years now.  Strangly, 
+>> shutting down setiathome doesn't cool it by more than a couple 
+>> degrees C.  And, its got a $50 all copper Glaciator cooler on it, 
+>> heavy heavy heavy.
+>
+> That's not quite my point.  I am not afraid of running my athlons at
+> 70C.  I just don't want to.  With Debian Woody they ran at <40C, which
+> is impressing IMHO.  An upgrade to Sarge raised the temp for about 5K,
+> which is still very cool.  This temperature didn't change when I
+> upgraded to an early 2.6 kernel.  Just after 2.6.3-mm4 there was this
+> jump for 10K that I just do not understand.  It doesn't hurt the athlons
+> but seems unnecessary to me.
 
---Md/poaVZ8hnGTzuv
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+At least on A7M266-D lmsensors read thermal sensors very wrong. I
+haven't got time to contact devs with that, but I do know for sure that
+amd76x_pm really does make cooling calls, even in 2.6.5-rc3-mm3
+(There should be /sys/devices/pci0000\:00/0000\:00\:00.0/C2_cnt file,
+which tells how many times has amd76x_pm really made the disconnection call).
 
-On Wed, Apr 07, 2004 at 12:26:00AM +0200, Hemmann, Volker Armin wrote:
-> If you have more patches you want to get tested, just send them.. with fs=
- or=20
-> ide-patches I would be a lot more reluctant ;o)
-Just to make confusion perfect: my patch lets me work in AGP V3.0
-on SiS 746. Just in case here is the relevant part of my lspci:
+One issue is that from some kernel version amd76x_pm's idle() is called
+upto 3.5x times more often when there's some audio activity. So in
+effect number of calls to default_idle() jumps from 1100Hz to 3800Hz.
+(this is reproducible with 'rhytmbox' -application, but not with xmms.
+AFAIK my xmms uses OSS emulation and rhytmbox is native alsa.)
 
-00:00.0 Host bridge: Silicon Integrated Systems [SiS]: Unknown device 0746 =
-(rev 02)
-	Subsystem: Elitegroup Computer Systems: Unknown device 1808
-	Flags: bus master, medium devsel, latency 0
-	Memory at d0000000 (32-bit, non-prefetchable) [size=3D128M]
-	Capabilities: [c0] AGP version 3.0
+Ahem. Could you actually try:
+echo 3 > /sys/devices/pci0000\:00/0000\:00\:00.0/lazy_idle
 
-01:00.0 VGA compatible controller: nVidia Corporation: Unknown device 0312 =
-(rev a1) (prog-if 00 [VGA])
-	Flags: bus master, 66Mhz, medium devsel, latency 248, IRQ 11
-	Memory at ce000000 (32-bit, non-prefetchable) [size=3D16M]
-	Memory at b0000000 (32-bit, prefetchable) [size=3D256M]
-	Expansion ROM at cfee0000 [disabled] [size=3D128K]
-	Capabilities: [60] Power Management version 2
-	Capabilities: [44] AGP version 3.0
+This could help gaining 5-8°C. HZ changed from 100 to 1000 in 2.6, so
+amd76x_pm old default doesn't apply overly well here. 
 
-this is a ECS L7S7A2 mainboard and a NoName (Manli) GeForce
-FX5600TD 256MB.
-Yours,
---=20
-Bj=F6rn Michaelsen
-pub  1024D/C9E5A256 2003-01-21 Bj=F6rn Michaelsen <bmichaelsen@gmx.de>
-   Key fingerprint =3D D649 8C78 1CB1 23CF 5CCF  CA1A C1B5 BBEC C9E5 A256
+There's some funniness going on with this tunable. It doesn't really
+affect how many times/second we call amd76x_pm.idle(), but rather how
+easily we go into sleep (no sleep if both CPU's aren't idle).
+With lazy_idle at 3 I get bad distortions with bttv card. with 3000 they
+disappear, but so does the thermal throttling :)
 
---Md/poaVZ8hnGTzuv
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+(Sorry for lack of coherence right now)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+-- 
+   Psi -- <http://www.iki.fi/pasi.savolainen>
 
-iD8DBQFAczxKwbW77MnlolYRAt6YAKDG3vwBmiffKlJHLXUEue+M7fSCOACeO2+z
-SJcuquLqw5JNj7DTMbmZnGU=
-=/MUE
------END PGP SIGNATURE-----
-
---Md/poaVZ8hnGTzuv--

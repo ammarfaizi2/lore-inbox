@@ -1,97 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263930AbTLJUql (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 15:46:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263942AbTLJUql
+	id S263942AbTLJUrK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 15:47:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263945AbTLJUrK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 15:46:41 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:63206 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S263930AbTLJUqi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 15:46:38 -0500
-Date: Wed, 10 Dec 2003 21:46:28 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, ralf@linux-mips.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] 2.4.24-pre1: ask for CONFIG_INDYDOG only on mips
-Message-ID: <20031210204628.GA9103@fs.tum.de>
-References: <Pine.LNX.4.44.0312101417080.1546-100000@logos.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+	Wed, 10 Dec 2003 15:47:10 -0500
+Received: from mx2.it.wmich.edu ([141.218.1.94]:42954 "EHLO mx2.it.wmich.edu")
+	by vger.kernel.org with ESMTP id S263942AbTLJUrD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 15:47:03 -0500
+Message-ID: <3FD78645.9090300@wmich.edu>
+Date: Wed, 10 Dec 2003 15:47:01 -0500
+From: Ed Sweetman <ed.sweetman@wmich.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Witukind <witukind@nsbm.kicks-ass.org>
+CC: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
+       linux-kernel@vger.kernel.org
+Subject: Re: udev sysfs docs Re: State of devfs in 2.6?
+References: <200312081536.26022.andrew@walrond.org>	<20031208154256.GV19856@holomorphy.com>	<3FD4CC7B.8050107@nishanet.com>	<20031208233755.GC31370@kroah.com>	<20031209061728.28bfaf0f.witukind@nsbm.kicks-ass.org>	<20031209075619.GA1698@kroah.com>	<1070960433.869.77.camel@nomade>	<20031209090815.GA2681@kroah.com>	<buoiskqfivq.fsf@mcspd15.ucom.lsi.nec.co.jp>	<yw1xd6ayib3f.fsf@kth.se>	<20031210202354.7a3c429a.witukind@nsbm.kicks-ass.org>	<yw1xd6aw4ge3.fsf@kth.se> <20031210212209.7fce7dae.witukind@nsbm.kicks-ass.org>
+In-Reply-To: <20031210212209.7fce7dae.witukind@nsbm.kicks-ass.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.44.0312101417080.1546-100000@logos.cnet>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 10, 2003 at 02:23:14PM -0200, Marcelo Tosatti wrote:
->...
-> Summary of changes from v2.4.23 to v2.4.24-pre1
-> ============================================
->...
-> Ralf Bächle:
->...
->   o MIPS char driver update
->...
-
-This change contains the following bogus change for
-drivers/char/Config.in:
-
-...
-@@ -237,9 +251,6 @@
-    tristate '  Eurotech CPU-1220/1410 Watchdog Timer' CONFIG_EUROTECH_WDT
-    tristate '  IB700 SBC Watchdog Timer' CONFIG_IB700_WDT
-    tristate '  ICP ELectronics Wafer 5823 Watchdog' CONFIG_WAFER_WDT
--   if [ "$CONFIG_SGI_IP22" = "y" ]; then
--      dep_tristate '  Indy/I2 Hardware Watchdog' CONFIG_INDYDOG $CONFIG_SGI_IP22
--   fi
-    tristate '  Intel i810 TCO timer / Watchdog' CONFIG_I810_TCO
-    tristate '  Mixcom Watchdog' CONFIG_MIXCOMWD
-    tristate '  SBC-60XX Watchdog Timer' CONFIG_60XX_WDT
-@@ -256,6 +267,7 @@
-       fi
-    fi
-    tristate '  ZF MachZ Watchdog' CONFIG_MACHZ_WDT
-+   dep_tristate '  Indy/I2 Hardware Watchdog' CONFIG_INDYDOG $CONFIG_SGI_IP22
-    dep_tristate '  AMD 766/768 TCO Timer/Watchdog' CONFIG_AMD7XX_TCO $CONFIG_EXPERIMENTAL
- fi
- endmenu
-...
+Witukind wrote:
+> On Wed, 10 Dec 2003 20:33:24 +0100
+> mru@kth.se (Måns Rullgård) wrote:
+> 
+> 
+>>Witukind <witukind@nsbm.kicks-ass.org> writes:
+>>
+>>
+>>>On Tue, 09 Dec 2003 10:39:32 +0100 mru@kth.se (Måns Rullgård) wrote:
+>>>
+>>>
+>>>>>Is there a specific case for which people want this feature?
+>>>>>Offhand it seems like a slightly odd thing to ask for...
+>>>>
+>>>>I believe the original motivation for module autoloading was to
+>>>
+>>>save> memory by unloading modules when their devices were unused. 
+>>>Loading> them automatically on demand made for less trouble for
+>>>users, who> didn't have to run modprobe manually to use the sound
+>>>card, or> whatever.  This could still be a good thing in embedded
+>>>systems.> 
+>>>
+the biggest advantage from modules is the ability to enable/disable 
+devices with different initialization configurations without rebooting, 
+including the use of devices that aren't present during boot or may be 
+added to a system that cant be put down to reboot. Embedded systems 
+usually do not change, that's just part of being embedded, modules dont 
+really make sense there unless things like filesystems and non-device 
+modules never get used at the same time and memory is limited such that 
+100KB actually matters.
 
 
-A dependency on a possibly undefined variable doesn't work with the 2.4 
-config system, and "make oldconfig" asks me on i386 for CONFIG_INDYDOG.
+>>>I don't see why it wouldn't be a good thing for regular systems
+>>>also. Saving memory is usually a good idea.
 
-The following patch fixes it:
+True, but how about we start being good memory users where it counts the 
+most, like gui's/userspace land and then worry about the sub 1MB usage 
+that kernels exist in.
 
+>>The biggest modules are about 100k.  Saving 100k of 1 GB doesn't
+>>really seem worth any effort.
+> 
+> 
+> I don't have 1 Gb of memory. On my laptop with 16 mb RAM saving 100k is worth
+> the effort.
 
---- linux-2.4.24-pre1-full/drivers/char/Config.in.old	2003-12-10 18:48:40.000000000 +0100
-+++ linux-2.4.24-pre1-full/drivers/char/Config.in	2003-12-10 18:51:15.000000000 +0100
-@@ -267,7 +267,9 @@
-       fi
-    fi
-    tristate '  ZF MachZ Watchdog' CONFIG_MACHZ_WDT
--   dep_tristate '  Indy/I2 Hardware Watchdog' CONFIG_INDYDOG $CONFIG_SGI_IP22
-+   if [ "$CONFIG_SGI_IP22" = "y" ]; then
-+      dep_tristate '  Indy/I2 Hardware Watchdog' CONFIG_INDYDOG $CONFIG_SGI_IP22
-+   fi
-    dep_tristate '  AMD 766/768 TCO Timer/Watchdog' CONFIG_AMD7XX_TCO $CONFIG_EXPERIMENTAL
- fi
- endmenu
-
+Then why do you use a sylpheed, which is gtk instead of something in a 
+terminal that uses much less memory (doesn't require xfree86, which 
+you're probably also using instead of tinyX) and toolkits, pixmaps etc. 
+   Obviously, 100k is not worth _your_ effort.
 
 
-cu
-Adrian
+I'm not saying module use is more memory efficient than not or vice 
+versa, but if memory usage in the 100K range is going to be the only 
+argument for autoloading/unloading of modules then it's really _not_ 
+worth the effort unless someone can give that kind of support without 
+trying.  Your fight for memory efficiency should start where the 
+inefficiency is the largest, and work it's way down, not the other way 
+around.
 
-BTW: Why does this mips patch remove the i386 Mwave support option
-     from drivers/char/Config.in ?
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

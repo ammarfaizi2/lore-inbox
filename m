@@ -1,70 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289752AbSBONmi>; Fri, 15 Feb 2002 08:42:38 -0500
+	id <S289631AbSBONts>; Fri, 15 Feb 2002 08:49:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289735AbSBONma>; Fri, 15 Feb 2002 08:42:30 -0500
-Received: from 216-42-72-167.ppp.netsville.net ([216.42.72.167]:2477 "EHLO
-	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S289685AbSBONmS>; Fri, 15 Feb 2002 08:42:18 -0500
-Date: Fri, 15 Feb 2002 08:41:59 -0500
-From: Chris Mason <mason@suse.com>
-To: James Bottomley <James.Bottomley@steeleye.com>, Jens Axboe <axboe@suse.de>
-cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] queue barrier support
-Message-ID: <3838990000.1013780505@tiny>
-In-Reply-To: <200202131826.g1DIQCT02506@localhost.localdomain>
-In-Reply-To: <200202131826.g1DIQCT02506@localhost.localdomain>
-X-Mailer: Mulberry/2.1.0 (Linux/x86)
+	id <S289735AbSBONti>; Fri, 15 Feb 2002 08:49:38 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:13834 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S289631AbSBONte>; Fri, 15 Feb 2002 08:49:34 -0500
+Date: Fri, 15 Feb 2002 14:49:23 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: <roman@serv>
+To: David Howells <dhowells@redhat.com>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linus Torvalds <torvalds@transmeta.com>, <davidm@hpl.hp.com>,
+        "David S. Miller" <davem@redhat.com>, <anton@samba.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] move task_struct allocation to arch 
+In-Reply-To: <23603.1013777812@warthog.cambridge.redhat.com>
+Message-ID: <Pine.LNX.4.33.0202151439160.1001-100000@serv>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+On Fri, 15 Feb 2002, David Howells wrote:
 
-On Wednesday, February 13, 2002 01:26:12 PM -0500 James Bottomley <James.Bottomley@steeleye.com> wrote:
+> Firstly, in response to me having supplied a patch that made a set of four
+> byte-size values as the status area in the task_struct:
+>
+> | For the future, the biggest thing I'd like to see is actually to make
+> | "work" be a bitmap, because the "bytes are atomic" approach simply isn't
+> | portable anyway, so we might as well make things _explicitly_ atomic and
+> | use bit operations. Otherwise the alpha version of "work" would have to be
+> | four bytes per "bit" of information, which sounds really excessive.
 
-> axboe@suse.de said:
->> ChangeSet@1.297, 2002-02-13 13:42:39+01:00, axboe@burns.home.kernel.dk
->>   Add support for SCSI drivers to indicate support for ordered tags
->>   http://bitmover.com:8888//tmp/v2_logging/athlon.transmeta.com/
->> torvalds-2002020517305 \ 6-16047-c1d11a41ed024864/cset@1.133.114.4?nav=
->> index.html|ChangeSet@-1h
-> 
->> ChangeSet@1.298, 2002-02-13 13:43:04+01:00, axboe@burns.home.kernel.dk
->>   Add ordered tag support to the aic7xxx scsi driver
-> 
-> The rest of the aic7xxx code uses MSG_ORDERED_TASK rather than 
-> MSG_ORDERED_Q_TAG.  You have to scan through the headers to see that these are 
-># defined the same.
+As I mentioned before I more like the byte approach, since atomic bit
+field handling is quite expensive on most architectures, where a simple
+set/clear byte is only one or two instructions, if there is byte
+load/store instruction. So I'd really like to see to leave the decision to
+the architecture, whether to use bit or byte fields.
 
-Jens, my patch from yesterday has this fixed.
+> And then after some discussion:
+>
+> | In particular, there's been all that discussion about cache-coloring the
+> | "struct task_struct", and my personal suggestion for that whole can of
+> | worms is to have the "struct low_level" be in the one low cache-line, and
+> | make it contain a pointer to "struct task_struct" - and just split the two
+> | up completely. Then the low-level asm code would never have to even look
+> | at "task_struct", it would only look at this stuff.
+>
+> (struct low_level became thread_info).
 
-> 
-> A problem (that is probably only an issue for older drives) is that while 
-> technically the standard requires all 3 types of TAG to be supported if tag 
-> queueing is, some drives really only have simple tag support in their 
-> firmware, so you may need to add a blacklist for ordered tags on certain 
-> drives.
+That I can agree with. :)
 
-Yes, this could get sticky.  Does anyone know if other OSes have already
-done this?
-
-> 
-> A further issue is that you haven't added anything to the error recovery code 
-> for this.  If error recovery is activated for the device at the reset level, 
-> all tags will be discarded by the device.  The eh will retry the failing 
-> command and then the other tagged commands will be re-issued from the 
-> scsi_bottom_half_handler (assuming the low level device driver immediately 
-> fails them with DID_RESET) in the order in which the low level driver failed 
-> them.  Thus you have potentially completely messed up the ordering when the 
-> commands all get retried.
-
-I was wondering about this, we would need to change the error handler to 
-fail all the requests after the barrier.  I was hoping the driver
-did this for us ;-)
-
--chris
+bye, Roman
 

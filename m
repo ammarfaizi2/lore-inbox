@@ -1,51 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261337AbTBENqf>; Wed, 5 Feb 2003 08:46:35 -0500
+	id <S261354AbTBEODj>; Wed, 5 Feb 2003 09:03:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261330AbTBENpb>; Wed, 5 Feb 2003 08:45:31 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:2052 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S261295AbTBENp1>;
-	Wed, 5 Feb 2003 08:45:27 -0500
-Date: Wed, 5 Feb 2003 00:28:33 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Compactflash cards dying?
-Message-ID: <20030204232833.GE128@elf.ucw.cz>
-References: <20030202223009.GA344@elf.ucw.cz> <200302040056.02287.roger.larsson@skelleftea.mail.telia.com> <1044317447.27957.63.camel@imladris.demon.co.uk>
+	id <S261356AbTBEODj>; Wed, 5 Feb 2003 09:03:39 -0500
+Received: from phoenix.mvhi.com ([195.224.96.167]:56585 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S261354AbTBEODi>; Wed, 5 Feb 2003 09:03:38 -0500
+Date: Wed, 5 Feb 2003 14:13:08 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Cc: greg@kroah.com, hch@infradead.org, torvalds@transmeta.com,
+       linux-security-module@wirex.com, linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] LSM changes for 2.5.59
+Message-ID: <20030205141308.A20077@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Stephen D. Smalley" <sds@epoch.ncsc.mil>, greg@kroah.com,
+	torvalds@transmeta.com, linux-security-module@wirex.com,
+	linux-kernel@vger.kernel.org
+References: <200302051345.IAA05814@moss-shockers.ncsc.mil>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1044317447.27957.63.camel@imladris.demon.co.uk>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200302051345.IAA05814@moss-shockers.ncsc.mil>; from sds@epoch.ncsc.mil on Wed, Feb 05, 2003 at 08:45:16AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, Feb 05, 2003 at 08:45:16AM -0500, Stephen D. Smalley wrote:
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=104316038729345&w=2 and
+> http://marc.theaimsgroup.com/?l=linux-security-module&m=104316278400987&w=2.
+> At most, a field might be added to the ctl_table structure so that the kernel
+> can provide a hint to security modules as to its view of the sensitivity of
+> a given sysctl variable, but this does not require any change to the sysctl
+> hook interface.
 
-> > > I had compactflash from Apacer (256MB), and it started corrupting data
-> > > in few months, eventually becoming useless and being given back for
-> > > repair. They gave me another one and it is just starting to corrupt
-> > > data.
-> > 
-> > That is very bad... I wonder if you do something that the CF does
-> > not like - like power off while writing (can actually destroy the
-> > disk - read in some newsgroup)
-> 
-> I am led to believe that this is normal for CompactFlash. I seem to
-> recall that the phrase 'bogroll technology' was used by the last person
-> to attempt any serious testing.
-> 
-> It's fine for short-term storage of stuff like digital photos, but don't
-> try using it for long-term storage. Think of it like a floppy disc -- if
-> you have any _important_ data, make sure it's backed up or copied onto
-> at least three of them to avoid loss.
+Of course that needs further changes!
 
-Well, this seems *way* more crappier than floppies. Floppies will not
-fail within five minutes if you only start using them :-(.
-								Pavel
--- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+(a) actually implement that field, and
+(b) change the prototype of the hook to int (*sysctl)(int op, enum sensitivity);
+

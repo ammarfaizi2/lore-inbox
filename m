@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287565AbSBUHlK>; Thu, 21 Feb 2002 02:41:10 -0500
+	id <S287373AbSBUHxe>; Thu, 21 Feb 2002 02:53:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287769AbSBUHlA>; Thu, 21 Feb 2002 02:41:00 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:4318 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S287283AbSBUHku>; Thu, 21 Feb 2002 02:40:50 -0500
-From: Christoph Rohland <cr@sap.com>
-To: "Peter J. Braam" <braam@clusterfs.com>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, phil@off.net
-Subject: Re: tmpfs, NFS, file handles
-In-Reply-To: <20020220094649.X25738@lustre.cfs>
-	<3C73D548.648C5D64@mandrakesoft.com>
-	<20020220122116.C28913@lustre.cfs>
-Organisation: SAP LinuxLab
-Date: Thu, 21 Feb 2002 08:40:21 +0100
-In-Reply-To: <20020220122116.C28913@lustre.cfs> ("Peter J. Braam"'s message
- of "Wed, 20 Feb 2002 12:21:16 -0700")
-Message-ID: <m38z9ns2oq.fsf@linux.wdf.sap-ag.de>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Artificial
- Intelligence, i386-suse-linux)
-MIME-Version: 1.0
+	id <S287769AbSBUHxZ>; Thu, 21 Feb 2002 02:53:25 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:52746 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S287373AbSBUHxQ>;
+	Thu, 21 Feb 2002 02:53:16 -0500
+Date: Thu, 21 Feb 2002 08:52:53 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Carlo Scarfoglio <scarfoglio@arpacoop.it>
+Cc: linux-kernel@vger.kernel.org, "Justin T. Gibbs" <gibbs@scsiguy.com>
+Subject: Re: AIC7XXX 6.2.5 driver
+Message-ID: <20020221075253.GH2654@suse.de>
+In-Reply-To: <3C7424F0.1080802@arpacoop.it>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-SAP: out
-X-SAP: out
-X-SAP: out
-X-SAP: out
+Content-Disposition: inline
+In-Reply-To: <3C7424F0.1080802@arpacoop.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Peter,
+On Wed, Feb 20 2002, Carlo Scarfoglio wrote:
+> When will we see v. 6.2.5 included in the kernel (2.5 and 2.4, I think)?
+> The patch to kernel 2.4.17 is available since January.  It should fix a 
+> kernel panic at boot that has been in the kernel since November at 
+> least. The bug is in AIC7XXX V. 6.2.4.
 
-On Wed, 20 Feb 2002, Peter J. Braam wrote:
-> Between boot cycles NFS could still get confused, that might be
-> helped by setting the initial generation to the system time.
+You should ask Justin whether he has submitted it for inclusion or not.
+I offered to port to 2.5 at least, but heard nothing.
 
-Between boot cycles you loose _all_ tmpfs files. That's what the
-'tmp' in tmpfs talks about ;-)
-
-Greetings
-		Christoph
-
+-- 
+Jens Axboe
 

@@ -1,54 +1,82 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315973AbSEGVUc>; Tue, 7 May 2002 17:20:32 -0400
+	id <S315974AbSEGVWL>; Tue, 7 May 2002 17:22:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315974AbSEGVUb>; Tue, 7 May 2002 17:20:31 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:9633 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S315973AbSEGVUa>;
-	Tue, 7 May 2002 17:20:30 -0400
-Date: Tue, 07 May 2002 14:08:48 -0700 (PDT)
-Message-Id: <20020507.140848.29493830.davem@redhat.com>
-To: zippel@linux-m68k.org
-Cc: thunder@ngforever.de, linux-kernel@vger.kernel.org
-Subject: Re: pfn-Functionset out of order for sparc64 in current Bk tree?
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.21.0205072115360.32715-100000@serv>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S315975AbSEGVWK>; Tue, 7 May 2002 17:22:10 -0400
+Received: from mail-infomine.ucr.edu ([138.23.89.48]:46756 "EHLO
+	mail-infomine.ucr.edu") by vger.kernel.org with ESMTP
+	id <S315974AbSEGVWJ>; Tue, 7 May 2002 17:22:09 -0400
+Date: Tue, 7 May 2002 14:22:01 -0700
+To: Tomasz Rola <rtomek@cis.com.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Can't Burn CDR's On 2.4.19pre8
+Message-ID: <20020507212201.GA12699@mail-infomine.ucr.edu>
+In-Reply-To: <20020507044708.GA31888@mail-infomine.ucr.edu> <Pine.LNX.3.96.1020507222320.2702D-100000@pioneer>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Fnord: +++ath
+X-WebTV-Stationery: Standard; BGColor=black; TextColor=black
+X-Message-Flag: Message text blocked: ADULT LANGUAGE/SITUATIONS
+X-BeenThere: crackmonkey@crackmonkey.org
+From: ruschein@mail-infomine.ucr.edu (Johannes Ruscheinski)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Roman Zippel <zippel@linux-m68k.org>
-   Date: Tue, 7 May 2002 21:22:13 +0200 (CEST)
+Also sprach Tomasz Rola:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> On Mon, 6 May 2002, Johannes Ruscheinski wrote:
+> 
+> > Hi,
+> > 
+> > I don't know whether I have a hardware problem or a kernel problem.  Here's
+> > what I get when I try to dummy burn a data CDR on 2.4.19pre8:
+> > 
+> 
+> Forgive me this insulting question, but have you tried to burn another CD?
+It was a dummy burn.  I didn't realize that the CDR medium mattered here?
+So just to be on the safe side I tried again with a different brand disc
+and had a failure after about 70MiB of data.
+> 
+> ;-)
+> 
+> bye
+> T.
+> 
+> - --
+> ** A C programmer asked whether computer had Buddha's nature.      **
+> ** As the answer, master did "rm -rif" on the programmer's home    **
+> ** directory. And then the C programmer became enlightened...      **
+> **                                                                 **
+> ** Tomasz Rola          mailto:tomasz_rola@bigfoot.com             **
+> 
+> 
+> -----BEGIN PGP SIGNATURE-----
+> Version: PGPfreeware 5.0i for non-commercial use
+> Charset: noconv
+> 
+> iQA/AwUBPNg4EhETUsyL9vbiEQLZRwCeMRukQRaaiCUy8w7BRKyesekljPUAn2u2
+> +1PWRsQ/4EPIp0MwT+evStw+
+> =WFYc
+> -----END PGP SIGNATURE-----
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-   On Tue, 7 May 2002, Thunder from the hill wrote:
-   
-   >  - pte_pfn(x) is declared as
-   >    ((unsigned long)(((x).pte_low >> PAGE_SHIFT)))
-   >    in 2-level pgtable,
-   >    (((x).pte_low >> PAGE_SHIFT) | ((x).pte_high << (32 - PAGE_SHIFT)))
-   >    in 3-level. I suppose 2-level shouldn't exactly match here, how far 
-   >    must the 3-level version be changed in order to fit sparc64? A lot?
-   
-   #define pte_pfn(x) (pte_val(x) >> PAGE_SHIFT)
-   
-   >  - pfn_valid(pfn) is described as ((pfn) < max_mapnr). Suppose this is OK 
-   >    on Sparc64 either?
-   
-   Yes.
-   
-   >  - pfn_pte(page,prot) is defined as
-   >    __pte(((pfn) << PAGE_SHIFT) | pgprot_val(prot))
-   >    How far does this go for Sparc64?
-   
-   #define pfn_pte(pfn,prot) mk_pte_phys(pfn << PAGE_SHIFT, prot)
-   but you should better replace mk_pte_phys completely.
+-- 
+Johannes
+--
+Dr. Johannes Ruscheinski
+EMail:    ruschein_AT_infomine.ucr.edu ***          Linux                  ***
+Location: science library, room G40    *** The Choice Of A GNU Generation! ***
+Phone:    (909) 787-2279
 
-All of this is ignoring the fact that phys_base has to be subtracted
-from any physical address before applying as an index to mem_map on
-sparc64.
-
-I have the correct fixes for sparc64 in my tree and I'll merge it
-all to Linus.
+"He's alive.  He's alive!  Oh, that fellow at RadioShack said I was mad!
+Well, who's mad now?"
+                            -- Montgomery C. Burns

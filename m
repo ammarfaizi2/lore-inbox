@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263172AbTC1WK3>; Fri, 28 Mar 2003 17:10:29 -0500
+	id <S263170AbTC1WQk>; Fri, 28 Mar 2003 17:16:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263173AbTC1WK3>; Fri, 28 Mar 2003 17:10:29 -0500
-Received: from [12.47.58.223] ([12.47.58.223]:39288 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id <S263172AbTC1WK2>; Fri, 28 Mar 2003 17:10:28 -0500
-Date: Fri, 28 Mar 2003 14:21:38 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Craig Dooley <cd5697@albany.edu>
-Cc: linux-kernel@vger.kernel.org, Scott Feldman <scott.feldman@intel.com>
-Subject: Re: e100 Possible bug
-Message-Id: <20030328142138.464e523e.akpm@digeo.com>
-In-Reply-To: <200303280918.06787.cd5697@albany.edu>
-References: <200303280918.06787.cd5697@albany.edu>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S263173AbTC1WQk>; Fri, 28 Mar 2003 17:16:40 -0500
+Received: from inet-mail1.oracle.com ([148.87.2.201]:6644 "EHLO
+	inet-mail1.oracle.com") by vger.kernel.org with ESMTP
+	id <S263170AbTC1WQj>; Fri, 28 Mar 2003 17:16:39 -0500
+Date: Fri, 28 Mar 2003 14:25:25 -0800
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: NICs trading places ?
+Message-ID: <20030328222524.GK32000@ca-server1.us.oracle.com>
+References: <20030328221037.GB25846@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 28 Mar 2003 22:21:38.0571 (UTC) FILETIME=[6694E5B0:01C2F578]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030328221037.GB25846@suse.de>
+X-Burt-Line: Trees are cool.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Craig Dooley <cd5697@albany.edu> wrote:
->
-> Dmesg is filled with errors of slab corruption.  Seems to be e100 related, but 
-> maybe alloc_skb.  Dont know the networking code very well.  
-> 
-> - -Craig
-> 
-> ## Uname ##
-> Linux broken.xlnx-x.net 2.5.66 #1 Thu Mar 27 09:17:40 EST 2003 i686 unknown 
-> unknown GNU/Linux
-> 
-> ## Error ##
-> Slab corruption: start=e739b000, expend=e739b7ff, problemat=e739b012
-> Data: ******************28 A0 00 00 12 B8 39 27 ****EA C5 F0 05 00 00 08 00 00 
-> 00 33 02 ********00 02 B3 46 6E 5D 00 02 B3 46 70 DF 08 00 
-> ***************************************************************************
+On Fri, Mar 28, 2003 at 10:10:37PM +0000, Dave Jones wrote:
+> I just upgraded a box with 2 NICs in it to 2.5.66, and found
+> that what was eth0 in 2.4 is now eth1, and vice versa.
+> Is this phenomenon intentional ? documented ?
+> What caused it to do this ?
 
-There have been about three reports of this, all against e100.  It does seem
-that something in there is altering an skb after it was freed.
+	Is this a Red Hat system?  I encountered the same thing on a
+RHAS system.  Basically, Anaconda had controlled the module load order
+in /etc/modules.conf for 2.4.  Because my network drivers were built in
+in 2.5, they loaded in the order of the compile-in.  This turned out to
+be the reverse order.
+	Swapping eth0 and eth1 in /etc/modules.conf fixed the problem
+for me.  This is not to say it is "Red Hat's fault" or that this is
+entirely the same situation, but I figured this would make a good
+datapoint.
 
+Joel
+
+-- 
+
+"It is not the function of our government to keep the citizen from
+ falling into error; it is the function of the citizen to keep the
+ government from falling into error."
+	- Robert H. Jackson
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

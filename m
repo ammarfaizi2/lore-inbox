@@ -1,118 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287381AbSAUQoW>; Mon, 21 Jan 2002 11:44:22 -0500
+	id <S287388AbSAUQom>; Mon, 21 Jan 2002 11:44:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287401AbSAUQoQ>; Mon, 21 Jan 2002 11:44:16 -0500
-Received: from dsl-213-023-039-080.arcor-ip.net ([213.23.39.80]:46729 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S287381AbSAUQoE>;
-	Mon, 21 Jan 2002 11:44:04 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: yodaiken@fsmlabs.com
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Date: Mon, 21 Jan 2002 17:48:30 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: yodaiken@fsmlabs.com, george anzinger <george@mvista.com>,
-        Momchil Velikov <velco@fadata.bg>,
-        Arjan van de Ven <arjan@fenrus.demon.nl>,
-        Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <E16PZbb-0003i6-00@the-village.bc.nu> <E16SgwP-0001iN-00@starship.berlin> <20020121090602.A13715@hq.fsmlabs.com>
-In-Reply-To: <20020121090602.A13715@hq.fsmlabs.com>
+	id <S287401AbSAUQod>; Mon, 21 Jan 2002 11:44:33 -0500
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:31412 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S287388AbSAUQoZ>; Mon, 21 Jan 2002 11:44:25 -0500
+To: Mike Phillips <phillim2@home.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org,
+        Mike Phillips <phillim@home.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16ShcU-0001ip-00@starship.berlin>
+Subject: Re: [PATCH] IBM Lanstreamer bugfixes
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OFA6159B1C.9D145D7A-ON85256B48.005BBAF9@raleigh.ibm.com>
+From: "Kent E Yoder" <yoder1@us.ibm.com>
+Date: Mon, 21 Jan 2002 10:44:20 -0600
+X-MIMETrack: Serialize by Router on D04NM109/04/M/IBM(Release 5.0.9 |November 16, 2001) at
+ 01/21/2002 11:44:21 AM,
+	Serialize complete at 01/21/2002 11:44:21 AM
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 21, 2002 05:06 pm, yodaiken@fsmlabs.com wrote:
-> On Mon, Jan 21, 2002 at 05:05:01PM +0100, Daniel Phillips wrote:
-> > > I think of "benefit", perhaps naiively, in terms of something that can
-> > > be measured or demonstrated rather than just announced.
-> > 
-> > But you see why asap scheduling improves latency/throughput *in theory*, 
+Mike,
+        Did you tweak the card's PCI config area to fix this problem, or 
+elsewhere?
+
+Kent
+
+
+
+> Kent,
 > 
-> Nope. And I don't even see a relationship between preemption and asap I/O
-> schedulding. What make you think that I/O threads won't be preempted by
-> other threads?
+> We had this on olympic for certain high end IBM boxen. Spent forever
+> trying to trap it as I couldn't emulate the behaviour on my test
+> boxes. We weren't getting correct values from pci reads/write and we
+> were running out of buffers as they weren't getting flushed. The
+> machine wouldn't lock but the adapter would stop tx/rx.
+> 
+> Turned out the pci bridge on the machine itself was causing the
+> problems. Tweaking the pci bus fixed the problem. 
 
-Consider a thread reading from disk in such a way that readahead is no help, 
-i.e., perhaps the disk is fragmented.  At each step the IO thread schedules a 
-read and sleeps until the read completes, then schedules the next one.  At 
-the same time there is a hog in the kernel, or perhaps there is 
-competition from other tasks using the kernel.  In any event, it will 
-frequently transpire that at the time the disk IO completes there is somebody 
-in the kernel.  Without preemption the IO thread has to wait until the kernel 
-hog blocks, hits a scheduling point or exits the kernel.
 
-The result, without preemption, is:
 
-         IO thread      Kernel hog       Disk
-             |              .
-             |--------------.-----------> .
-             .              |             |
-             .              |             |
-             .              |             |
-             .              |             |
-             .              |<------------|
-             .              |             .
-             .              |             .
-             .              |             .
-             .<-------------|             .
-             |--------------.-----------> .
-             .              .             |
-             .              .             |
-             .              |             |
-             .              |             |
-             .              |             |
-             .              |<------------|
-             .              |             .
-             .              |             .
-             .              |             .
-             .<-------------|             .
-             |--------------.-----------> .
-             .              .             |
-             .              .             |
-             .              |             |
-             .              |             |
-             .              |             |
-             .              |<------------|
-             .              |             .
-             .              |             .
-             .              |             .
-             .<-------------|             .
-             .
 
-Whereas with preemption, we have:
 
-         IO thread      Kernel hog       Disk
-             |              .
-             |--------------.-----------> .
-             .              |             |
-             .              |             |
-             .              |             |
-             .              |             |
-             .<-------------|-------------|
-             |--------------.-----------> .
-             .              |             |
-             .              |             |
-             .              |             |
-             .              |             |
-             .<-------------|-------------|
-             |--------------.-----------> .
-             .              |             |
-             .              |             |
-             .              |             |
-             .              |             |
-             .<-------------|-------------|
-             |
-
-The disk and the IO thread are active a higher portion of the time, while the 
-kernel hog gets the same amount of time.  So in this case we have improved 
-both latency and throughput.
-
-Naturally I constructed this case to show the effect most clearly.  There are 
-many possible variations on the above scenario.  It does seem to explain the 
-latency/throughput improvements that have been reported in practice.
-
---
-Daniel

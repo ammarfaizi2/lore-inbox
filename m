@@ -1,46 +1,149 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277975AbRJOCZe>; Sun, 14 Oct 2001 22:25:34 -0400
+	id <S277983AbRJOCig>; Sun, 14 Oct 2001 22:38:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277983AbRJOCZY>; Sun, 14 Oct 2001 22:25:24 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:32245
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S277975AbRJOCZQ>; Sun, 14 Oct 2001 22:25:16 -0400
-Date: Sun, 14 Oct 2001 19:25:42 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Cyrus <cyrus@linuxmail.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Large Storage Devices in Linux.....Kernel level support.....
-Message-ID: <20011014192542.C28547@mikef-linux.matchmail.com>
-Mail-Followup-To: Cyrus <cyrus@linuxmail.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3BC93DCB.20400@linuxmail.org>
+	id <S277985AbRJOCi1>; Sun, 14 Oct 2001 22:38:27 -0400
+Received: from bitmover.com ([192.132.92.2]:6300 "EHLO bitmover.bitmover.com")
+	by vger.kernel.org with ESMTP id <S277983AbRJOCiL>;
+	Sun, 14 Oct 2001 22:38:11 -0400
+Date: Sun, 14 Oct 2001 19:38:44 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: NFS file locking?
+Message-ID: <20011014193844.C13153@work.bitmover.com>
+Mail-Followup-To: Neil Brown <neilb@cse.unsw.edu.au>,
+	Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <200110141811.f9EIB4823631@work.bitmover.com> <15306.9552.673923.69404@notabene.cse.unsw.edu.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BC93DCB.20400@linuxmail.org>
-User-Agent: Mutt/1.3.22i
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <15306.9552.673923.69404@notabene.cse.unsw.edu.au>; from neilb@cse.unsw.edu.au on Mon, Oct 15, 2001 at 09:52:48AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 14, 2001 at 05:24:59PM +1000, Cyrus wrote:
-> hi all,
-> 
-> i've got a setup of 2 hard drives (30GB & 40GB) with an Asus a7m266 mobo 
-> with a VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev 06).
-> 
-> 30GB= fujitsu, 40GB= IBM (both are 7200rpm
-> 
-> i've got my cdrw on /dev/hdc, 30GB=/dev/hda, and 40GB=/dev/hdb...
-> 
-> all works alright for a while, but when i keep my computer turned on for 
-> a couple of days and then reboot. bios sometimes tells me that smart 
-> array (or something) failed with my primary master (30GB) and i should 
-> back-up soon.. next reboot it tells me that pri-master fails.. it's 
-> doing this quite regularly and i don't know how to stop it. i'm running 
+>    Instead of creating a lock file, create a lock symlink.
+>    Have the content of the symlink be something recognisably unique.
+>    e.g. hostname.pid
+>    If the "symlink" syscall succeeds, you have got the lock.
+>    If it fails, issue a readlink and see if the content is what you
+>    tried to create (RPC packet loss and retransmit could have caused
+>    an incorrect failure return).  If it is, you have the lock.
+>    If not, you don't.
 
-Turn off "S.M.A.R.T." in your bios...  Probably under the advanced bios
-config menu.
+OK, tried that too, here's the code.  Doesn't work.  Neither does the
+link approach.  Am I doing something wrong?  It seems to me that I'm
+completely at the mercy of the client NFS implementation - if it caches
+stuff wrong, I'm hosed.  There has to be some cute trick to get past this.
 
-I know that Compaq has a SMART RAID controller, but does anyone know what
-this does?  (I've seen it on old p2 MBs and they didn't have raid...)
+--lm
+
+
+int
+sccs_lockfile(char *lockfile, int seconds)
+{
+	char	*s;
+	char	buf[300];
+	int	n, uslp = 1000, waited = 0;
+
+	s = aprintf("%u %s", getpid(), sccs_gethost());
+	for ( ;; ) {
+		if (symlink(s, lockfile) == 0) return (0);
+		n = readlink(lockfile, buf, sizeof(buf));
+		if (n > 0) {
+			buf[n] = 0;
+			if (streq(s, buf)) return (0);
+		}
+		if (seconds && ((waited / 1000000) >= seconds)) {
+			fprintf(stderr, "timed out waiting for %s\n", lockfile);
+			free(s);
+			return (-1);
+		}
+		usleep(uslp);
+		waited += uslp;
+		if (uslp < 20000) uslp <<= 1;
+	}
+	/* NOTREACHED */
+}
+
+/*
+ * Usage: a.out iterations lockfile
+ */
+int
+main(int ac, char **av)
+{
+	int	i, iter;
+	int	me = getpid();
+
+	unless (ac == 3) return (1);
+	unless ((iter = atoi(av[1])) > 0) return (1);
+	printf("%d starts\n", me);
+	for (i = 1; i <= iter; ++i) {
+		sccs_lockfile(av[2], 0);
+		assert(mine(av[2]));
+		unlink(av[2]);
+		unless (i % 10) printf("%d locked %d times\n", me, i);
+	}
+	printf("%d done\n", me);
+	return (0);
+}
+
+int
+mine(char *file)
+{
+	char	buf[300];
+	char	*s;
+	int	n;
+
+	n = readlink(file, buf, sizeof(buf));
+	if (n > 0) {
+		s = aprintf("%u %s", getpid(), sccs_gethost());
+		buf[n] = 0;
+		n = streq(s, buf);
+		unless (n) fprintf(stderr, "%s != %s\n", s, buf);
+		free(s);
+		return (n);
+	}
+	return (0);
+}
+
+/*
+ * This function works like sprintf(), except it return a
+ * malloc'ed buffer which caller should free when done
+ */
+char *
+aprintf(char *fmt, ...)
+{
+	va_list	ptr;
+	int	rc, size = strlen(fmt) + 64;
+	char	*buf = malloc(size);
+
+	va_start(ptr, fmt);
+	rc = vsnprintf(buf, size, fmt, ptr);
+	va_end(ptr);
+	/*
+	 * On IRIX, it truncates and returns size-1.
+	 * We can't assume that that is OK, even though that might be
+	 * a perfect fit.  We always bump up the size and try again.
+	 * This can rarely lead to an extra alloc that we didn't need,
+	 * but that's tough.
+	 */
+	while ((rc < 0) || (rc >= (size-1))) {
+		size *= 2;
+		free(buf);
+		buf = malloc(size);
+		va_start(ptr, fmt);
+		rc = vsnprintf(buf, size, fmt, ptr);
+		va_end(ptr);
+	}
+	return (buf); /* caller should free */
+}
+
+char	*
+sccs_gethost()
+{
+	static	char	host[256];
+
+	if (gethostname(host, sizeof(host)) == -1) return "?";
+	return (host);
+}

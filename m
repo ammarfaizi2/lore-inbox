@@ -1,44 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263039AbSK0QT1>; Wed, 27 Nov 2002 11:19:27 -0500
+	id <S263326AbSK0Q2Q>; Wed, 27 Nov 2002 11:28:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263291AbSK0QT1>; Wed, 27 Nov 2002 11:19:27 -0500
-Received: from pool-141-153-141-211.mad.east.verizon.net ([141.153.141.211]:24818
-	"EHLO bard.cbnet") by vger.kernel.org with ESMTP id <S263039AbSK0QT1>;
-	Wed, 27 Nov 2002 11:19:27 -0500
-Date: Wed, 27 Nov 2002 11:26:46 -0500 (EST)
-From: PlasmaJohn <lkml@projectplasma.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Device firmware upload question.
-Message-ID: <Pine.LNX.4.21.0211271019450.9537-100000@bard.cbnet>
+	id <S263333AbSK0Q2Q>; Wed, 27 Nov 2002 11:28:16 -0500
+Received: from viefep15-int.chello.at ([213.46.255.19]:44324 "EHLO
+	viefep15-int.chello.at") by vger.kernel.org with ESMTP
+	id <S263326AbSK0Q2P>; Wed, 27 Nov 2002 11:28:15 -0500
+Date: Wed, 27 Nov 2002 17:35:17 +0100 (CET)
+From: =?ISO-8859-2?Q?=C9rsek_L=E1szl=F3?= <erseklaszlo@chello.hu>
+To: linux-kernel@vger.kernel.org
+Subject: corrected [PATCH] rbtree
+Message-ID: <Pine.LNX.4.44.0211271727100.8019-100000@lacos>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Corrected some comments, thanks to Denis Vlasenko. Grep for 'safe'.
 
-I'm writing a device driver for a PCI card[1] that has no flash but requires
-firmware to function.  The firmware in question is quite proprietary and is
-assuredly not GPL compatible.  That said, it's not boot critical, so loading
-the images via userspace would suffice.
+Please refer to this book for reasoning:
 
-I'd like some recommendations on the preferred method of transferring the
-images to the driver from userspace.  My personal preference would be to just
-use cat image.rom > $target where target is either a file in procfs (or sysfs)
-or the /dev entry on an alternate minor[2].  I'd rather not do this via an
-ioctl() as that would require a special loader.
+Cormen - Leiserson - Rivest: Introduction to Algorithms
+1990 MIT
+page 289, RB-DELETE-FIXUP(t,x)
 
-Thanks,
-John
+Laszlo
 
-PS - I'm trying to document enough of the card's interface so that somebody
-else can write the real driver.  My driver is to self check my information and
-to get some driver writing experience.
 
-[1] Hauppauge's WinTV PVR250.
-
-[2] It'll be a V4L2 device, so already the minors are going to be crowded.
-    However, I don't expect (myself) to be running enough cards for it to
-    become an issue.
+--- linux-2.4.19/lib/rbtree.c	Sat Aug  3 02:39:46 2002
++++ linux/lib/rbtree.c	Sun Nov 24 22:59:38 2002
+@@ -159,17 +159,16 @@
+ 				if (!other->rb_right ||
+ 				    other->rb_right->rb_color == RB_BLACK)
+ 				{
+-					register rb_node_t * o_left;
+-					if ((o_left = other->rb_left))
+-						o_left->rb_color = RB_BLACK;
++					/* safe: other->rb_left can't be 0 */
++					other->rb_left->rb_color = RB_BLACK;
+ 					other->rb_color = RB_RED;
+ 					__rb_rotate_right(other, root);
+ 					other = parent->rb_right;
+ 				}
+ 				other->rb_color = parent->rb_color;
+ 				parent->rb_color = RB_BLACK;
+-				if (other->rb_right)
+-					other->rb_right->rb_color = RB_BLACK;
++				/* safe: other->rb_right can't be 0 */
++				other->rb_right->rb_color = RB_BLACK;
+ 				__rb_rotate_left(parent, root);
+ 				node = root->rb_node;
+ 				break;
+@@ -199,17 +198,16 @@
+ 				if (!other->rb_left ||
+ 				    other->rb_left->rb_color == RB_BLACK)
+ 				{
+-					register rb_node_t * o_right;
+-					if ((o_right = other->rb_right))
+-						o_right->rb_color = RB_BLACK;
++					/* safe: other->rb_right can't be 0 */
++					other->rb_right->rb_color = RB_BLACK;
+ 					other->rb_color = RB_RED;
+ 					__rb_rotate_left(other, root);
+ 					other = parent->rb_left;
+ 				}
+ 				other->rb_color = parent->rb_color;
+ 				parent->rb_color = RB_BLACK;
+-				if (other->rb_left)
+-					other->rb_left->rb_color = RB_BLACK;
++				/* safe: other->rb_left can't be 0 */
++				other->rb_left->rb_color = RB_BLACK;
+ 				__rb_rotate_right(parent, root);
+ 				node = root->rb_node;
+ 				break;
 

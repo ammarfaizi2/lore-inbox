@@ -1,50 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289687AbSAJV1n>; Thu, 10 Jan 2002 16:27:43 -0500
+	id <S289689AbSAJV2x>; Thu, 10 Jan 2002 16:28:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289688AbSAJV1d>; Thu, 10 Jan 2002 16:27:33 -0500
-Received: from web14906.mail.yahoo.com ([216.136.225.58]:37388 "HELO
-	web14906.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S289687AbSAJV1U>; Thu, 10 Jan 2002 16:27:20 -0500
-Message-ID: <20020110212718.41819.qmail@web14906.mail.yahoo.com>
-Date: Thu, 10 Jan 2002 16:27:18 -0500 (EST)
-From: Michael Zhu <mylinuxk@yahoo.ca>
-Subject: About block device request function.
+	id <S289688AbSAJV2e>; Thu, 10 Jan 2002 16:28:34 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:51185 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S289689AbSAJV2N>;
+	Thu, 10 Jan 2002 16:28:13 -0500
+Date: Thu, 10 Jan 2002 14:28:04 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
 To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+Subject: Re: eth0: entered promiscuous mode
+Message-ID: <20020110142804.D26688@lynx.adilger.int>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020110205946.GB24838@zhadum.bjavor.d2g.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020110205946.GB24838@zhadum.bjavor.d2g.com>; from jb3@freemail.hu on Thu, Jan 10, 2002 at 09:59:46PM +0100
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, I have a question of the block device request
-function. I use the following sentences to change the
-request function of a block device.
+On Jan 10, 2002  21:59 +0100, Balazs Javor wrote:
+> Can somebody please tell me what the above message means?
 
-spin_lock_irq(&io_request_lock);
+It means that you are running a program like "tcpdump".  If not, it
+may mean that someone has hacked into your system and is running a
+network sniffer to capture passwords on your network.
 
-original_make_request_fn =
-blk_dev[i].request_queue.make_request_fn;
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 
-blk_dev[i].request_queue.make_request_fn =
-kti_make_request_fn;
-
-spin_unlock_irq(&io_request_lock);
-
-"i" is the major number of a block device.
-
-You know blk_dev[] is the global block device array.
-When I use those sentences to change the floppy block
-device's request function, it works. The major number
-of the floppy disk is 2. But when I use the same one
-to change the hard disk's request function, it doesn't
-work. I found that the
-blk_dev[3].request_queue.make_request_fn is NULL. Does
-that mean that the make_request_fn() of the hard disk
-is NULL. I can't believe it. Can anyone give me an
-answer?
-
-Michael
-
-
-______________________________________________________________________ 
-Web-hosting solutions for home and business! http://website.yahoo.ca

@@ -1,69 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267683AbTBLVbs>; Wed, 12 Feb 2003 16:31:48 -0500
+	id <S267699AbTBLVd1>; Wed, 12 Feb 2003 16:33:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267692AbTBLVbs>; Wed, 12 Feb 2003 16:31:48 -0500
-Received: from ams-msg-core-1.cisco.com ([144.254.74.60]:32491 "EHLO
-	ams-msg-core-1.cisco.com") by vger.kernel.org with ESMTP
-	id <S267683AbTBLVbq>; Wed, 12 Feb 2003 16:31:46 -0500
-Date: Wed, 12 Feb 2003 21:41:29 +0000
-From: Derek Fawcus <dfawcus@cisco.com>
+	id <S267701AbTBLVd0>; Wed, 12 Feb 2003 16:33:26 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:23170 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S267699AbTBLVdZ>; Wed, 12 Feb 2003 16:33:25 -0500
+Message-Id: <200302122143.h1CLhApk010133@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6 02/09/2003 with nmh-1.0.4+dev
 To: David Schwartz <davids@webmaster.com>
-Cc: Valdis.Kletnieks@vt.edu,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Monta Vista software license terms
-Message-ID: <20030212214129.C14019@edinburgh.cisco.com>
-References: <200302122046.h1CKkXpk009417@turing-police.cc.vt.edu> <20030212213022.AAA17490@shell.webmaster.com@whenever>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Monta Vista software license terms 
+In-Reply-To: Your message of "Wed, 12 Feb 2003 13:30:21 PST."
+             <20030212213022.AAA17490%shell.webmaster.com@whenever> 
+From: Valdis.Kletnieks@vt.edu
+References: <20030212213022.AAA17490%shell.webmaster.com@whenever>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20030212213022.AAA17490@shell.webmaster.com@whenever>; from davids@webmaster.com on Wed, Feb 12, 2003 at 01:30:21PM -0800
+Content-Type: multipart/signed; boundary="==_Exmh_1058868888P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Wed, 12 Feb 2003 16:43:10 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 12, 2003 at 01:30:21PM -0800, David Schwartz wrote:
-> On Wed, 12 Feb 2003 15:46:33 -0500, Valdis.Kletnieks@vt.edu wrote:
-> >On Wed, 12 Feb 2003 12:18:39 PST, David Schwartz said:
-> 
-> [snip]
-> 
-> >So you don't even get the right to *CREATE* a derivative work unless
-> >it's
-> >explicitly given to you.  So you're back to the GPL (clause 2) -
-> 
-> 	I already addressed this. There is no way to use source code other 
-> than to create derivative works.
+--==_Exmh_1058868888P
+Content-Type: text/plain; charset=us-ascii
 
-  [ ... ]
+On Wed, 12 Feb 2003 13:30:21 PST, David Schwartz said:
 
-> 	As I already explained, you don't need this clause to give you the 
-> right to distribute modified works because this right is the simple 
-> sum of rights you already have.
-> 
-> 	You already have the right to produce derivative works. You already 
+> 	You already have the right to produce derivative works.
+
+No. At least in the US, 17 USC 106 says producing a derivative right is reserved to the
+copyright holder, except for the cases enumerated in 17 USC 107-121.
+
+So if you're producing a derivative work without having gotten the rights
+to do so, you're screwed in the legal sense.
+
+Clause 2 of the GPL gives you the right to produce derivative works *IF*
+you accept the conditions.  Having accepted that clause, you're bound by
+it - that's what makes the GPL work.
+
+Please enumerate what *OTHER* way you are getting the right to produce a
+derivative work, rather than via the GPL clause 2.  (Note that this *could*
+happen, if for instance code is dual-licensed and you are getting the right
+via the other license).
+
+>                                                               You already 
 > have the right to distribute the original work. You already have the 
 > right to distribute the modifications. Your recipient already has the 
 > right to use and possess the original. There is no additional right 
 > to the original work for this section to give you. The right it seeks 
 > to give you is the simple sum of rights you already have.
 
-and I gave you (off list) details of why this fails wrt UK law.
+Note again that two of these rights (distribute the original, distribute
+the modifications) are *NOT* ones you inherently have - you are getting them
+*WITH RESTRICTIONS* on what you can and can't do (see clause 2 again).
 
-16(1)(a) reserves copying,  16(1)(b) reserves redistribution,
-and 16(1)(e) reserves adaption,  together with copying and
-redistributing adaptions.
+> 	"Distributing derived works" is not a specific right under any 
+> copyright law I know of. It's the sum of other rights. You need some 
 
-So taken together they have removed all of the above,  and require that
-one has a licence to do so.
+It's the sum of several rights, one of which is "creating a derived work".
+If you can't legally create a derived work, you can't legally distribute same.
+-- 
+				Valdis Kletnieks
+				Computer Systems Senior Engineer
+				Virginia Tech
 
-Then 50C gives back some limited rights wrt computer programs.  Namely
-that one can make such copies and adaptations as one needs in order to
-use the program.  However,  importantly it does _not_ give back any
-redistribution rights,  so they still require a licence.
 
-This should meet your requirement for a jurisdiction who's law limits
-what your are suggesting.
+--==_Exmh_1058868888P
+Content-Type: application/pgp-signature
 
-Hence to redistribute a program with patches applied needs a licence.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-DF
+iD8DBQE+Sr/ucC3lWbTT17ARApioAJ97/PfcwXqCM4nQgvEMWt4ZO8O7WwCdHywl
+Hdfnya6ndvjxPh3iCayF7NY=
+=q4ap
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1058868888P--

@@ -1,34 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133063AbRBRRZM>; Sun, 18 Feb 2001 12:25:12 -0500
+	id <S132325AbRBRRrn>; Sun, 18 Feb 2001 12:47:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133084AbRBRRZC>; Sun, 18 Feb 2001 12:25:02 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:1041 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S133063AbRBRRYu>;
-	Sun, 18 Feb 2001 12:24:50 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200102181724.UAA24231@ms2.inr.ac.ru>
-Subject: Re: SO_SNDTIMEO: 2.4 kernel bugs
-To: chris@scary.beasts.org (Chris Evans)
-Date: Sun, 18 Feb 2001 20:24:35 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org, davem@redhat.com
-In-Reply-To: <Pine.LNX.4.30.0102172239570.24119-100000@ferret.lmh.ox.ac.uk> from "Chris Evans" at Feb 17, 1 10:46:19 pm
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S132436AbRBRRrW>; Sun, 18 Feb 2001 12:47:22 -0500
+Received: from e56090.upc-e.chello.nl ([213.93.56.90]:15366 "EHLO unternet.org")
+	by vger.kernel.org with ESMTP id <S132325AbRBRRrO>;
+	Sun, 18 Feb 2001 12:47:14 -0500
+Date: Sun, 18 Feb 2001 18:47:08 +0100
+From: Frank de Lange <frank@unternet.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: reiserfs on 2.4.1,2.4.2-pre (with null bytes patch) breaks mozilla compile
+Message-ID: <20010218184708.B27092@unternet.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+> Minor nit, but I'd rather clear it up now. Which distribution you run
+> doesn't matter for debugging. What does matter is that we've got known
+> problems with a given compiler, and that compiler goes by a few different
+> flavors with the same version number. Since there are known problems, if
+> you don't provide the compiler version, I'll ask. If your bug is *really*
+> odd, I might ask a few different ways, just to make sure you give the same
+> answer every time ;-)
 
-> Unfortunately, I discovered a bug with SO_SNDTIMEO/sendfile():
+Well, a nit to a nit... In my experience it surely matters which distribution
+somebody runs, since that tells a lot about the basic system (libc, probable
+compiler, binutils, etc). RH7 is broken in many respects. Since it uses
+glibc-2.2 as well, I usually add the notice that I do NOT run RH7 to messages
+like these where I mention I use glibc-2.2.x, if only to ward off the usual
+'are you running RH7 if yes please upgrade so and so' cycle. Bits and electrons
+are much to precious to waste on
+useless banter like that...
 
-None of the options apply to sendfile(). It is not socket level
-operation. You have to use alarm for it.
-
-BTW, if you have enough fast network, you probably can observe
-that sendfile() is even not interrupted by signals. 8) But this
-is possible to fix at least. BTW the same fix will repair SO_*TIMEO
-partially, i.e. it will timeout after n*timeo, where n is an arbitrary
-number not exceeding size/sndbuf.
-
-Alexey
+Cheers//Frank
+-- 
+  WWWWW      _______________________
+ ## o o\    /     Frank de Lange     \
+ }#   \|   /                          \
+  ##---# _/     <Hacker for Hire>      \
+   ####   \      +31-320-252965        /
+           \    frank@unternet.org    /
+            -------------------------
+ [ "Omnis enim res, quae dando non deficit, dum habetur
+    et non datur, nondum habetur, quomodo habenda est."  ]

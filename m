@@ -1,78 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289218AbSANMdL>; Mon, 14 Jan 2002 07:33:11 -0500
+	id <S289219AbSANMoi>; Mon, 14 Jan 2002 07:44:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289220AbSANMdC>; Mon, 14 Jan 2002 07:33:02 -0500
-Received: from xsmtp.ethz.ch ([129.132.97.6]:62551 "EHLO xfe3.d.ethz.ch")
-	by vger.kernel.org with ESMTP id <S289218AbSANMcv>;
-	Mon, 14 Jan 2002 07:32:51 -0500
-Message-ID: <3C42CF6E.30106@debian.org>
-Date: Mon, 14 Jan 2002 13:30:38 +0100
-From: Giacomo Catenazzi <cate@debian.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20011128 Netscape6/6.2.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Michael Lazarou (ETL)" <Michael.Lazarou@etl.ericsson.se>
-CC: "'esr@thyrsus.com'" <esr@thyrsus.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ISA hardware discovery -- the elegant solution
-In-Reply-To: <fa.r42lgsv.1b5e3p9@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Jan 2002 12:32:49.0505 (UTC) FILETIME=[93E2BD10:01C19CF7]
+	id <S289220AbSANMo2>; Mon, 14 Jan 2002 07:44:28 -0500
+Received: from noodles.codemonkey.org.uk ([62.49.180.5]:42721 "EHLO
+	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id <S289219AbSANMoS>; Mon, 14 Jan 2002 07:44:18 -0500
+Date: Mon, 14 Jan 2002 12:45:41 +0000
+From: Dave Jones <davej@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: mingo@redhat.com
+Subject: slowdown with new scheduler.
+Message-ID: <20020114124541.A32412@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, mingo@redhat.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Ingo,
+ After adding H7 to 2.4.18pre3, I noticed that kernel compiles
+on one of my test boxes got much slower.
+Uniprocessor system (Cyrix 3) building a 2.4.18pre3 tree,
+with the same .config, and a distclean before starting the compile.
 
-Michael Lazarou (ETL) wrote:
+2.4.18pre3        13.38s                       
+2.4.18pre+H7      17.53s
 
->>
->>The kernel's device drivers have, of course, to include probe
->>routines, and those hard-compiled in typically log the presence of
->>their hardware to /var/log/mesg when it loads.  By scanning that
->>file, we in effect get to use those probes.
->>
-> 
-> Doesn't this mean that you would need a fully functional kernel
-> before you get to run the autoconfigurator?
+I see similar slowdown when running H7 on 2.5 on this box.
 
+regards,
+Dave.
 
-Not a problem. Autoconfiguration is made to help configuring
-the kernel, before to compile it. So you need a linux working
-machine (actually you can cross-compile).
-
-Our task is to allow user to compile a kernel, with the
-needed drivers, without the non used drivers.
-
-If you want a good running kernel image:
-   check the kernels in your distribution.
-If you want to compile a general running kernel:
-   use the kernel sources in your distribution (
-   with your distribution's .config), or compile
-   the std kernel with your distribution's .config
-
-If you want a working kernel to boot Linux in your
-
-   old/new/non-x86 machine: check the installation
-   note of your distribution. Use special kernel (from
-   your distribution,...)
-
- 
-
-You see: different task needs different tools.
-Maybe we can merge some problems, but how? why?
-
-[I still have a working version of autoconfigure in
-shell, if some "boot-floppies" people need some
-of our detection.]
-
-But for old ISA cards (and some newer laptop) there is
-only one method to find the right *kernel*:
-boot and try (and changing kernels, parameters,...)
-[check: installation document and internet resources].
-
-We don't want a boot and retry for our configuration,
-so let use the (incomplete) infos from kernel.
-
-	giacomo
-
+-- 
+Dave Jones.                    http://www.codemonkey.org.uk
+SuSE Labs.

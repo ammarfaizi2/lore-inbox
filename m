@@ -1,47 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315461AbSEMBIX>; Sun, 12 May 2002 21:08:23 -0400
+	id <S315459AbSEMBKD>; Sun, 12 May 2002 21:10:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315459AbSEMBIW>; Sun, 12 May 2002 21:08:22 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:48400 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S315461AbSEMBIU>; Sun, 12 May 2002 21:08:20 -0400
-Date: Sun, 12 May 2002 18:08:28 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: wrose@loislaw.com, <linux-kernel@vger.kernel.org>
-Subject: Re: Segfault hidden in list.h
-In-Reply-To: <20020512.175021.50367158.davem@redhat.com>
-Message-ID: <Pine.LNX.4.44.0205121805220.15392-100000@home.transmeta.com>
+	id <S315463AbSEMBKC>; Sun, 12 May 2002 21:10:02 -0400
+Received: from loisexc2.loislaw.com ([12.5.234.240]:13068 "EHLO
+	loisexc2.loislaw.com") by vger.kernel.org with ESMTP
+	id <S315459AbSEMBKA>; Sun, 12 May 2002 21:10:00 -0400
+Message-ID: <4188788C3E1BD411AA60009027E92DFD0962E252@loisexc2.loislaw.com>
+From: "Rose, Billy" <wrose@loislaw.com>
+To: "'Linus Torvalds'" <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: RE: Segfault hidden in list.h
+Date: Sun, 12 May 2002 20:10:03 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I stand corrected. I guess my philosophy is for the long sought after
+"prefect world" example...
 
+Cheers :)
 
-On Sun, 12 May 2002, David S. Miller wrote:
->
->    If the coder doesn't lock his data structures, it doesn't matter _what_
->    order we execute the list modifications in - different architectures will
->    do different thing with inter-CPU memory ordering, and trying to order
->    memory accesses on a source level is futile.
->
-> However, if the list manipulation had some memory barriers
-> added to it...
+Billy Rose 
+wrose@loislaw.com
 
-That would just make _those_ much slower, with some very doubtful end
-results.
-
-Show me numbers, and show me readable source, and show me a proof that the
-memory ordering actually works, and I may consider lockless algorithms
-worthwhile. As it is, they are damn fragile and require more care that I
-personally care to expect out of 99.9% of all programmers.
-
-And I'm sure as hell not going to put any lockless stuff in functions
-meant for "normal human consumption". If we create list macros like that,
-they had better be called "lockless_list_add_be_damn_careful_about_it()"
-rather than "list_add()".
-
-		Linus
-
+> -----Original Message-----
+> From: Linus Torvalds [mailto:torvalds@transmeta.com]
+> Sent: Sunday, May 12, 2002 7:59 PM
+> To: Rose, Billy
+> Cc: Kernel Mailing List
+> Subject: Re: Segfault hidden in list.h
+> 
+> 
+> 
+> 
+> On Sun, 12 May 2002, Rose, Billy wrote:
+> >
+> > If something is accessing the list in reverse at the time 
+> of insertion and
+> > "next->prev = new;" has been executed, there exists a 
+> moment when new->prev
+> 
+> No.
+> 
+> If the coder doesn't lock his data structures, it doesn't 
+> matter _what_
+> order we execute the list modifications in - different 
+> architectures will
+> do different thing with inter-CPU memory ordering, and trying to order
+> memory accesses on a source level is futile.
+> 
+> 		Linus
+> 

@@ -1,41 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261360AbSIZQD0>; Thu, 26 Sep 2002 12:03:26 -0400
+	id <S261352AbSIZQA2>; Thu, 26 Sep 2002 12:00:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261361AbSIZQD0>; Thu, 26 Sep 2002 12:03:26 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:12181 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S261360AbSIZQDF>;
-	Thu, 26 Sep 2002 12:03:05 -0400
-Message-ID: <3D9330ED.4080105@colorfullife.com>
-Date: Thu, 26 Sep 2002 18:08:13 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Dave Jones <davej@codemonkey.org.uk>
-CC: linux-kernel@vger.kernel.org, Jan Kasprzak <kas@informatics.muni.cz>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: AMD 768 erratum 10 (solved: AMD 760MPX DMA lockup)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261353AbSIZQA1>; Thu, 26 Sep 2002 12:00:27 -0400
+Received: from [66.70.28.20] ([66.70.28.20]:56850 "EHLO
+	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
+	id <S261352AbSIZQAZ>; Thu, 26 Sep 2002 12:00:25 -0400
+Date: Thu, 26 Sep 2002 18:14:24 +0200
+From: DervishD <raul@pleyades.net>
+To: immortal1015 <immortal1015@52mail.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: A newbie's question
+Message-ID: <20020926161424.GF47@DervishD>
+References: <20020926144558Z261317-8740+1711@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20020926144558Z261317-8740+1711@vger.kernel.org>
+User-Agent: Mutt/1.4i
+Organization: Pleyades Net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The errata is not PS/2 mouse specific:
-it says that the io apic doesn't implement masking interrupts correctly.
+    Hi unknown :)
 
-Linux uses masking aggressively - disable_irq() is implemented by 
-masking the interrupt in the io apic. I'm surprised that this doesn't 
-cause frequent problems. Perhaps the problem only occurs if an invalid 
-cpu id is written into the target register, as done by Netware?
+> 	rep
+> 	movw
 
-Is someone around with a ne2k-pci card and a AMD-760MPX based system?
+    In my bootsector.S, it's movsw: repeat move (string) by words.
+'movw' is 'mov word size operands'.
 
-Regarding Jan's problem: I'm not sure if his problems are related to 
-this errata. It says that using a PS/2 mouse instead of a serial mouse 
-with Novell Netward avoids the hang during shutdown, probably because 
-then netware doesn't mask the irq.
+> 	jmpi	go,INITSEG
 
---
-	Manfred
+    AFAIK, the correct is 'ljmp': long jump. What kernel sources are
+you seeing?. Old kernels (2.0 and I think that 2.2 too) used as86 to
+do the assembling, and the syntax was like the Intel one, but with
+some differences. Not quite standard, I think.
 
+> /////////////////////////////
+> 1. What assembly language used in boot.s? Intel Asm or AT&T?
+
+    AT&T in new kernels, fully 'assembleable' with GNU as. IMHO is a
+better syntax, but I don't want to feed a troll here ;)
+
+> 2. Where is the definition of operand movw and jmpi?
+> I cant find it in the Intel Manual.
+
+    Of course, there aren't Intel syntax anyway :) I recommend you to
+see the 2.4 sources for reading the assembler part. Moreover, the
+info section for 'GNU as' comments the differences between Intel
+assembly syntax and the AT&T one. This will be of great help.
+
+    In addition to this, I have a document about using GNU as for
+real mode assembly that comments some of these points. But it is
+written in spanish only :((
+
+    Last, the Assembly-HOWTO will cast some light to the issue, too.
+
+    Raúl

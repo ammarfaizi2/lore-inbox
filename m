@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270352AbUJTWIa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269992AbUJTWav@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270352AbUJTWIa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 18:08:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270296AbUJTWHa
+	id S269992AbUJTWav (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 18:30:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270474AbUJTWap
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 18:07:30 -0400
-Received: from phoenix.infradead.org ([81.187.226.98]:38665 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S269013AbUJTWHB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 18:07:01 -0400
-Date: Wed, 20 Oct 2004 23:06:38 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Hanna Linder <hannal@us.ibm.com>, davej@codemonkey.org.uk,
-       kernel-janitors <kernel-janitors@lists.osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, greg@kroah.com
-Subject: Re: [KJ] [RFT 2.6] intel-agp.c: replace pci_find_device with pci_get_device
-Message-ID: <20041020220638.GA26465@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Matthew Wilcox <matthew@wil.cx>, Hanna Linder <hannal@us.ibm.com>,
-	davej@codemonkey.org.uk,
-	kernel-janitors <kernel-janitors@lists.osdl.org>,
-	lkml <linux-kernel@vger.kernel.org>, greg@kroah.com
-References: <17420000.1098298334@w-hlinder.beaverton.ibm.com> <20041020220347.GZ16153@parcelfarce.linux.theplanet.co.uk>
+	Wed, 20 Oct 2004 18:30:45 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:897 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S269992AbUJTW1L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 18:27:11 -0400
+Subject: Re: [RFC] Structural changes for Documentation directory
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Jim Nelson <james4765@verizon.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <4176CFE3.2030306@verizon.net>
+References: <4176CFE3.2030306@verizon.net>
+Content-Type: text/plain
+Message-Id: <1098311012.4989.86.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041020220347.GZ16153@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 21 Oct 2004 08:23:32 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 20, 2004 at 11:03:47PM +0100, Matthew Wilcox wrote:
-> On Wed, Oct 20, 2004 at 11:52:14AM -0700, Hanna Linder wrote:
-> > 
-> > As pci_find_device is going away soon I have converted this file to use
-> > pci_get_device instead. I have compile tested it. If anyone has this hardware
-> > and could test it that would be great.
-> 
-> Should be converted to the pci_driver API.
+Hi.
 
-No.  It's already using the pci_driver API, but the same device can be
-handled differently depending on the presence of another one.  Maybe
-pci_dev_present would fit here.
+On Thu, 2004-10-21 at 06:51, Jim Nelson wrote:
+> I propose changing the structure of the Documentation directory to 
+> reflect the structure of the kernel sources itself.
+
+It seems that people know where to find the source code for whatever
+they're seeking documentation for. If I didn't work on the code, I
+wouldn't look for suspend-to-{disk|ram} under kernel/. I have to admit,
+it's always seemed strange to me, too, that net and sound aren't under
+drivers :>
+
+Nigel
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
+
+Many today claim to be tolerant. True tolerance, however, can cope with others
+being intolerant.
 

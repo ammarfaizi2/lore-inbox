@@ -1,45 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbUBYKHO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 05:07:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261175AbUBYKHN
+	id S261206AbUBYKHu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 05:07:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261175AbUBYKHu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 05:07:13 -0500
-Received: from mailhost.tue.nl ([131.155.2.7]:58127 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S261159AbUBYKHL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 05:07:11 -0500
-Date: Wed, 25 Feb 2004 11:07:07 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Helmut Auer <vdr@helmutauer.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: HELP Re: Keyboard not working under 2.6.2
-Message-ID: <20040225100707.GA3832@pclin040.win.tue.nl>
-References: <403911AD.1030005@helmutauer.de> <403B101D.3070601@helmutauer.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <403B101D.3070601@helmutauer.de>
-User-Agent: Mutt/1.4.1i
-X-Spam-DCC: NIET: mailhost.tue.nl 1080; Body=1 Fuz1=1 Fuz2=1
+	Wed, 25 Feb 2004 05:07:50 -0500
+Received: from mailhost.cs.auc.dk ([130.225.194.6]:35989 "EHLO
+	mailhost.cs.auc.dk") by vger.kernel.org with ESMTP id S261206AbUBYKHp convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 05:07:45 -0500
+Date: Wed, 25 Feb 2004 11:07:41 +0100 (CET)
+From: =?iso-8859-1?Q?Kristian_S=F8rensen?= <ks@cs.auc.dk>
+To: linux-kernel@vger.kernel.org
+cc: umbrella@cs.auc.dk
+Subject: Implement new system call in 2.6
+Message-ID: <Pine.LNX.4.56.0402250933001.648@homer.cs.auc.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 24, 2004 at 09:49:33AM +0100, Helmut Auer wrote:
+Hi all!
 
-> >I am using an Intel810 MoBo with an infrared module/keyboard connected to
-> >an onboard PS/2 connector.
-> >With a 2.4.x kernel I get the message:
-> >No AT keyboard found
-> >but the keyboard works fine.
-> >With a 2.6.2 kernel, I don't get this message, but the keyboard does not
-> >work !!!
-> >Any hints what I can try ? If I connect an USB keyboard, this will 
-> >work, and also if I connect a "normal" PS/2 keyboard to that PS/2 pins.
-> 
-> 
-> Sorry for being impatient, but isn't here anyone who can give me a hint, 
-> or is this the wrong place for this problem ?
+How do I invoke a newly created system call in the 2.6.3 kernel from
+userspace?
 
-Did you get precisely this message: "No AT keyboard found" ?
-Who prints this message? (BIOS, bootloader, kernel? Which bootloader? Which kernel?)
+The call is added it arch/i386/kernel/entry.S and include/asm/unistd.h
+and the call is implemented in a security module called Umbrella(*).
+
+The kernel compiles and boots nicely.
+
+The main problem is now to compile a userspace program that invokes this
+call. The guide for implementing the systemcall at
+http://fossil.wpi.edu/docs/howto_add_systemcall.html
+has been followed, which yields the following userspace program:
+
+// test.h
+#include "/home/snc/linux-2.6.3-umbrella/include/linux/unistd.h"
+_syscall1(int, umbrella_scr, int, arg1);
+
+// test.c
+#include "test.h"
+main() {
+  int test = umbrella_scr(1);
+  printf ("%i\n", test);
+}
+
+When compiling:
+
+gcc -I/home/snc/linux-2.6.3/include test.c
+
+/tmp/ccYYs1zB.o(.text+0x20): In function `umbrella_scr':
+: undefined reference to `errno'
+collect2: ld returned 1 exit status
+
+
+It seems like a little stupid error :-( Does some of you have a solution?
+
+
+
+Thanks in advance and best regards,
+Kristian Sørensen.
+
+
+
+(*) Umbrella is a security project for securing handheld devices. Umbrella
+for implements a combination of process based mandatory access control
+(MAC) and authentication of files. This is implemented on top of the Linux
+Security Modules framework. The MAC scheme is enforced by a set of
+restrictions for each process.
+More information on http://umbrella.sf.net
+
+
+-- 
+Kristian Sørensen <ks@cs.auc.dk>

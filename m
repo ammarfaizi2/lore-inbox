@@ -1,78 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263544AbUAYBp5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 20:45:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263564AbUAYBp5
+	id S263388AbUAYBkg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 20:40:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263452AbUAYBkf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 20:45:57 -0500
-Received: from mo02.iij4u.or.jp ([210.130.0.19]:48101 "EHLO mo02.iij4u.or.jp")
-	by vger.kernel.org with ESMTP id S263544AbUAYBpy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 20:45:54 -0500
-Date: Sun, 25 Jan 2004 10:45:48 +0900
-From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Cc: yuasa@hh.iij4u.or.jp, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.25-pre7
-Message-Id: <20040125104548.55dbd525.yuasa@hh.iij4u.or.jp>
-In-Reply-To: <40131312.ADD37133@eyal.emu.id.au>
-References: <Pine.LNX.4.58L.0401231652020.19820@logos.cnet>
-	<40125540.A33B8AB2@eyal.emu.id.au>
-	<20040125014920.54a786cc.yuasa@hh.iij4u.or.jp>
-	<40131312.ADD37133@eyal.emu.id.au>
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 24 Jan 2004 20:40:35 -0500
+Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:42251 "EHLO
+	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
+	id S263388AbUAYBke (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jan 2004 20:40:34 -0500
+Date: 25 Jan 2004 04:40:53 +0300
+Message-Id: <87hdykerfe.fsf@mtu-net.ru>
+From: Serge Belyshev <33554432@mtu-net.ru>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-reply-to: <20040124101704.3bf3ada2.akpm@osdl.org> (message from Andrew
+	Morton on Sat, 24 Jan 2004 10:17:04 -0800)
+Subject: Re: [PATCH] arch/i386/Makefile,scripts/gcc-version.sh,Makefile small fixes
+References: <87oestsard.fsf@mtu-net.ru> <20040124101704.3bf3ada2.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 25 Jan 2004 11:51:30 +1100
-Eyal Lebedinsky <eyal@eyal.emu.id.au> wrote:
+>> *  Consider adding -fweb option:
+>
+>What does it do?
 
-> Yoichi Yuasa wrote:
-> > >
-> > > There are no it8181fb.* files there.
-> > 
-> > This file comes from a MIPS CVS tree.
-> > 
-> > I have this file.
-> > You can get following.
-> > 
-> > http://www.hh.iij4u.or.jp/~yuasa/linux-vr/v2.4/it8181fb.c
-> 
-> I added it and now get:
-> 
-> gcc -D__KERNEL__ -I/data2/usr/local/src/linux-2.4-pre/include -Wall
-> -Wstrict-pro
-> totypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
-> -fomit-frame-pointer
->  -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4
-> -DMODULE -DM
-> ODVERSIONS -include
-> /data2/usr/local/src/linux-2.4-pre/include/linux/modversions
-> .h  -nostdinc -iwithprefix include -DKBUILD_BASENAME=it8181fb  -c -o
-> it8181fb.o 
-> it8181fb.c
-> it8181fb.c: In function `it8181fb_init':
-> it8181fb.c:1200: `PCI_DEVICE_ID_ITE_IT8181' undeclared (first use in
-> this functi
-> on)
-> it8181fb.c:1200: (Each undeclared identifier is reported only once
-> it8181fb.c:1200: for each function it appears in.)
-> it8181fb.c: At top level:
-> it8181fb.c:162: warning: `fontname' defined but not used
-> make[2]: *** [it8181fb.o] Error 1
-> make[2]: Leaving directory
-> `/data2/usr/local/src/linux-2.4-pre/drivers/video'
-> 
-> So maybe it really is a MIPS only file (I am on x86)?
+>From gcc(1):
 
-I don't know why.
-When the patch was sent, the addition to a header was not sent, either.
+       -fweb
+           Constructs webs as commonly used for register allocation purposes and
+           assign each web individual pseudo register.  This allows our register
+           allocation pass to operate on pseudos directly, but also strengthens
+           several other optimization passes, such as CSE, loop optimizer and
+           trivial dead code remover.  It can, however, make debugging impossible,
+           since variables will no longer stay in a ``home register''.
 
-You can see all about it8181fb's patch.
-
-http://www.hh.iij4u.or.jp/~yuasa/linux-vr/v2.4/it8181fb-v24.diff
-
-Yoichi
+           Enabled at levels -O3.

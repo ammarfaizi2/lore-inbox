@@ -1,30 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318176AbSIBAQt>; Sun, 1 Sep 2002 20:16:49 -0400
+	id <S318182AbSIBATY>; Sun, 1 Sep 2002 20:19:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318182AbSIBAQt>; Sun, 1 Sep 2002 20:16:49 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:58054 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S318176AbSIBAQt>;
-	Sun, 1 Sep 2002 20:16:49 -0400
-Date: Sun, 01 Sep 2002 17:14:51 -0700 (PDT)
-Message-Id: <20020901.171451.22017418.davem@redhat.com>
-To: david-b@pacbell.net
-Cc: zwane@mwaikambo.name, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.5] set pci dma mask for ohci-hcd
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3D72A0E8.4030303@pacbell.net>
-References: <3D72A0E8.4030303@pacbell.net>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S318184AbSIBATY>; Sun, 1 Sep 2002 20:19:24 -0400
+Received: from sccrmhc02.attbi.com ([204.127.202.62]:54168 "EHLO
+	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
+	id <S318182AbSIBATX>; Sun, 1 Sep 2002 20:19:23 -0400
+Subject: 2.5.33 - Unresolved symbols in arch/i386/kernel/apm.o - depmod:
+	cpu_gdt_table
+From: Miles Lane <miles.lane@attbi.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1030926996.839.338.camel@agate.localdomain>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
+Date: 01 Sep 2002 17:36:37 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: David Brownell <david-b@pacbell.net>
-   Date: Sun, 01 Sep 2002 16:21:12 -0700
+CONFIG_M686=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_PPRO_FENCE=y
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_MCE=y
+CONFIG_X86_MCE_P4THERMAL=y
+CONFIG_NOHIGHMEM=y
+CONFIG_MTRR=y
 
-   Last I looked, that value was documented to be the
-   default.
 
-That is correct.
+#
+# ACPI Support
+#
+CONFIG_PM=y
+CONFIG_APM=m
+CONFIG_APM_IGNORE_USER_SUSPEND=y
+CONFIG_APM_DO_ENABLE=y
+CONFIG_APM_CPU_IDLE=y
+CONFIG_APM_DISPLAY_BLANK=y
+CONFIG_APM_ALLOW_INTS=y
+CONFIG_APM_REAL_MODE_POWER_OFF=y
+
+

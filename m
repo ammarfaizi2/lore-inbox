@@ -1,68 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266333AbUJLMcn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbUJLMnc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266333AbUJLMcn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 08:32:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266341AbUJLMcn
+	id S262085AbUJLMnc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 08:43:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261426AbUJLMnc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 08:32:43 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:9179 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S266333AbUJLMcc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 08:32:32 -0400
-Date: Tue, 12 Oct 2004 14:33:19 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Daniel Walker <dwalker@mvista.com>, "K.R. Foley" <kr@cybsft.com>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Wen-chien Jesse Sung <jesse@cola.voip.idv.tw>,
-       Mark_H_Johnson@Raytheon.com
-Subject: Re: [patch] VP-2.6.9-rc4-mm1-T6
-Message-ID: <20041012123318.GA2102@elte.hu>
-References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com> <20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041012091501.GA18562@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 12 Oct 2004 08:43:32 -0400
+Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:16245 "HELO
+	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263540AbUJLMnX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 08:43:23 -0400
+Message-ID: <416BCE4A.7060403@yahoo.com.au>
+Date: Tue, 12 Oct 2004 22:30:02 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: "Ronny V. Vindenes" <s864@ii.uib.no>, ck@vds.kolivas.org,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: CFQ v2 high cpu load fix(?)
+References: <1097579760.4086.27.camel@tentacle125.gozu.lan> <416BBF48.4070102@yahoo.com.au> <20041012121227.GA1754@suse.de>
+In-Reply-To: <20041012121227.GA1754@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jens Axboe wrote:
+> On Tue, Oct 12 2004, Nick Piggin wrote:
+> 
+>>Ronny V. Vindenes wrote:
+>>
+>>>CFQ v2 is much better in a lot of cases, but certain situations trigger
+>>>a cpu load so high it starves the rest of the system thus completely
+>>>ruining the interactive experience. While casually looking at the
+>>>problem, I stumbled upon a patch by Arjan van de Ven sent to lkml on
+>>>sept. 1 (Subject: block fixes). Part of it is already included in the
+>>>CFQ v2 patches and after applying the rest[1] I'm no longer able to
+>>>trigger the problem.
+>>>
+>>>[1] Patch attached against 2.6.9-rc4-ck1 but applies to rc4-mm1 with
+>>>some minor fuzz.
+>>>
+>>>
+>>>
+>>>------------------------------------------------------------------------
+>>>
+>>>--- patches/linux-2.6.9-rc4-ck1/drivers/block/ll_rw_blk.c	2004-10-12 
+>>>12:25:09.798003278 +0200
+>>>+++ linux-2.6.9-rc4-ck1/drivers/block/ll_rw_blk.c	2004-10-12 
+>>>12:25:42.959479479 +0200
+>>>@@ -100,7 +100,7 @@
+>>>		nr = q->nr_requests;
+>>>	q->nr_congestion_on = nr;
+>>>
+>>>-	nr = q->nr_requests - (q->nr_requests / 8) - 1;
+>>>+	nr = q->nr_requests - (q->nr_requests / 8) - (q->nr_requests/16)- 1;
+>>>	if (nr < 1)
+>>>		nr = 1;
+>>>	q->nr_congestion_off = nr;
+>>
+>>
+>>I thought this first hunk looked like a good idea when Arjan sent the
+>>patch. Can you check if it alone helps your problem?
+> 
+> 
+> Yeah agree, it's a good idea to leave a bit of air between congestion on
+> and off. Fully explains the cfq v2 excessive sys time for some
+> workloads, which is extra nice.
+> 
 
-i've uploaded -T7:
+Cool. Can you queue up a patch for when -mm opens again, or shall I?
+I can't imagine it should cause any problems but a bit of testing
+would be wise.
 
-  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-T7
+> 
+>>The second hunk should be basically a noop.
+> 
+> 
+> I don't see what it is trying to achieve, I like the current code
+> better.
+> 
 
-Changes since -T6:
-
-- further stabilization of PREEMPT_REALTIME: fixed the task-reaping
-  problem by moving TASK_ZOMBIE out of p->state and thus completely
-  separating preemption from the child-exit mechanism. This got rid of 
-  the 'Badness in exit.c' warnings on my SMP testbox (and related
-  crashes).
-
-- fixed the _mutex_trylock_bh missing symbol problem reported by K.R. 
-  Foley and Florian Schmidt.
-
-- turned the sysrq lock into a raw spinlock, to enable direct keyboard
-  irqs.
-
-PREEMPT_REALTIME is still experimental, but it's already looking much
-better on my testboxes.
-
-to create a -T7 tree from scratch the patching order is:
-
-   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.8.tar.bz2
- + http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.9-rc4.bz2
- + http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc4/2.6.9-rc4-mm1/2.6.9-rc4-mm1.bz2
- + http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-T7
-
-	Ingo
+I think Arjan may have just misread the code a little bit.

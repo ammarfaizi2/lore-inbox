@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267807AbUIGKQi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267810AbUIGKTI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267807AbUIGKQi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 06:16:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267810AbUIGKQf
+	id S267810AbUIGKTI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 06:19:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267823AbUIGKTI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 06:16:35 -0400
-Received: from web8510.mail.in.yahoo.com ([202.43.219.172]:62633 "HELO
-	web8510.mail.in.yahoo.com") by vger.kernel.org with SMTP
-	id S267807AbUIGKQW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 06:16:22 -0400
-Message-ID: <20040907101615.75005.qmail@web8510.mail.in.yahoo.com>
-Date: Tue, 7 Sep 2004 11:16:15 +0100 (BST)
-From: =?iso-8859-1?q?Dinesh=20Ahuja?= <mdlinux7@yahoo.co.in>
-Subject: Kernel Programming
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 7 Sep 2004 06:19:08 -0400
+Received: from znx208-2-156-007.znyx.com ([208.2.156.7]:32517 "EHLO
+	lotus.znyx.com") by vger.kernel.org with ESMTP id S267810AbUIGKSq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 06:18:46 -0400
+Subject: Re: [PATCH 2.6] watch64: generic variable monitoring system
+From: jamal <hadi@cyberus.ca>
+Reply-To: hadi@cyberus.ca
+To: Jeff Sipek <jeffpc@optonline.net>
+Cc: Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+In-Reply-To: <200409051219.47590.jeffpc@optonline.net>
+References: <200409031307.01240.jeffpc@optonline.net>
+	 <200409031744.32970.jeffpc@optonline.net>
+	 <1094303999.1633.116.camel@jzny.localdomain>
+	 <200409051219.47590.jeffpc@optonline.net>
+Organization: jamalopolis
+Message-Id: <1094460391.1151.26.camel@jzny.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 07 Sep 2004 06:18:11 -0400
+X-MIMETrack: Itemize by SMTP Server on Lotus/Znyx(Release 5.0.11  |July 24, 2002) at 09/07/2004
+ 03:20:09 AM,
+	Serialize by Router on Lotus/Znyx(Release 5.0.11  |July 24, 2002) at 09/07/2004
+ 03:20:16 AM,
+	Serialize complete at 09/07/2004 03:20:16 AM
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have an experience in Solaris and Linux but I have
-never worked on Kernel level Programming. I am very
-keen to learn the Kernel level Programming so that I
-can customize the kernel for my own needs. Could
-anyone suggest me a book which can explain me about
-the Kernel source tree and how to proceed with Kernel
-Programming explaining the source code of kernel in
-detail so that i can get comforable with the Kernel.
 
-I have Kernel 2.6.8 installed on my machine and I am
-interested in learning about futex, work queues and
-NPTL.
+On Sun, 2004-09-05 at 12:19, Jeff Sipek wrote:
+> On Saturday 04 September 2004 09:19, jamal wrote:
+> > I have a feeling this was discussed somewhere(other than netdev) and i
+> > missed it. Why isnt this watch64 being done in user space?
+> 
+> There was a discussion about 64-bit network statistics about a year ago on 
+> lkml.
 
-But when I say man futex, it does not display any
-details about that. Do these functionalities are in
-built in Kernel or I need to install some patch to get
-their support. Is there any book on Programming with
-Kernel 2.6 which could explore the new features
-introduced in this kernel from programming aspects.
+Sorry unsubscribed from lkml since summer of '94. [net related
+discussions should really happen on netdev].
 
-Regards
-Dinesh
+> watch64 is a generic so that anyone in the kernel can use it.
 
-________________________________________________________________________
-Yahoo! India Matrimony: Find your life partner online
-Go to: http://yahoo.shaadi.com/india-matrimony
+Ok - so why does this have to be in the kernel?
+
+cheers,
+jamal
+

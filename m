@@ -1,80 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267485AbUHJRoX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267511AbUHJRoY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267485AbUHJRoX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 13:44:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267534AbUHJRnc
+	id S267511AbUHJRoY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 13:44:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267528AbUHJRnS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 13:43:32 -0400
-Received: from smtp1.bae.co.uk ([20.133.0.6]:54952 "EHLO smtp1.bae.co.uk")
-	by vger.kernel.org with ESMTP id S267485AbUHJRhW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 13:37:22 -0400
-Content-return: allowed
-Date: Tue, 10 Aug 2004 18:45:04 +0100
-From: "Luesley, William" <william.luesley@amsjv.com>
-Subject: Network routing issue
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Message-id: <22CE8E75BE6AD3119A9800508B0FF7E9030BADD0@nmex02.nm.dsx.bae.co.uk>
-MIME-version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-type: text/plain;	charset="iso-8859-1"
+	Tue, 10 Aug 2004 13:43:18 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:8616 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S267547AbUHJRVp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 13:21:45 -0400
+To: Alan Cox <alan@redhat.com>
+Subject: Re: IDE hackery: lock fixes and hotplug controller stuff
+Date: Tue, 10 Aug 2004 19:16:17 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+References: <20040810161911.GA10565@devserv.devel.redhat.com>
+In-Reply-To: <20040810161911.GA10565@devserv.devel.redhat.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200408101916.17489.bzolnier@elka.pw.edu.pl>
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I have two devices setup as follows:
+Hi,
 
+On Tuesday 10 August 2004 18:19, Alan Cox wrote:
+> Apply this patch at your peril. Its a work in progress but my IDE exposure
+> meter is beeping and the sick bucket needs emptying 8)
 
-          A --------------- B
-192.168.1.1                 192.168.1.2
+Could you please split it off on separate patches?
 
+- it is easier for everybody to review and comment them
 
-The machines open a number of TCP and UDP ports with which to communicate.
-In order to help testing, I have been asked to place a third machine between
-these two which will be capable of intercepting and modifying any messages.
-My initial plan was to have a device which could mimic both ends of the
-connection (as I already have code to do this); with each connection being
-on a separate NIC, leading to a setup as shown below:
+- some changes just can't defend themselves when are not
+  the part of the bigger patch
 
-          A ------------ C  C  ---------- B
-192.168.1.1    192.168.1.2  192.168.1.1   192.168.1.2
-                    (eth0)  (eth1)
+> -	Remove unsafe and essentially unfixable proc code for flipping
+> 	between ide-cd and ide-scsi. Its no longer relevant with SG_IO.
 
-The obvious problem with this is that as C implements both ends of the
-interface, any messages it sends are routed internally, rather than being
-sent to the correct host.
+Shouldn't we deprecate it first...?
 
-I thought it would be possible to correct this by specifying the host routes
-using the route command, i.e. setting a route to 192.168.1.1 via device eth0
-and to 192.168.1.2 via eth1, therefore stopping the internal routing from
-occurring. Even with these routes setup, the messages are still routed
-internally.
+> -	Added pci IDE helpers to do hot unplug
 
+Locking for ide_hwifs[] should be added first...
 
-
-Can the route somehow be forced?
-
-If not, is there a way to stop the internal routing, preferably without a
-code change to the kernel (if it is a code change - can someone point me
-towards the file)?
-
-Can I use IP Tables, how?
-
-Or, am I on totally the wrong track?
-
-
-Thanks for peoples time spent reading and looking into this.
-
-
-
-
-
-
-
-********************************************************************
-This email and any attachments are confidential to the intended
-recipient and may also be privileged. If you are not the intended
-recipient please delete it from your system and notify the sender.
-You should not copy it or use it for any purpose nor disclose or
-distribute its contents to any other person.
-********************************************************************
+[ I'm still on vacations but I'm watching what's going on... ]
+Bartlomiej

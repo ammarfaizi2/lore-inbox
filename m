@@ -1,48 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261895AbTELE4L (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 00:56:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbTELE4L
+	id S261901AbTELE52 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 00:57:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbTELE52
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 00:56:11 -0400
-Received: from holomorphy.com ([66.224.33.161]:7087 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S261895AbTELE4L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 00:56:11 -0400
-Date: Sun, 11 May 2003 22:08:40 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Peter Chubb <peter@chubb.wattle.id.au>
-Cc: Robert Love <rml@tech9.net>, Chris Friesen <cfriesen@nortelnetworks.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: how to measure scheduler latency on powerpc?  realfeel doesn't work due to /dev/rtc issues
-Message-ID: <20030512050840.GM8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Peter Chubb <peter@chubb.wattle.id.au>, Robert Love <rml@tech9.net>,
-	Chris Friesen <cfriesen@nortelnetworks.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <493798056@toto.iv> <16063.11081.433006.407544@wombat.chubb.wattle.id.au>
+	Mon, 12 May 2003 00:57:28 -0400
+Received: from dsl-62-3-122-163.zen.co.uk ([62.3.122.163]:55983 "EHLO
+	tor.trudheim.com") by vger.kernel.org with ESMTP id S261901AbTELE50
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 00:57:26 -0400
+Subject: Re: Two RAID1 mirrors are faster than three
+From: Anders Karlsson <anders@trudheim.com>
+To: Clemens Schwaighofer <cs@tequila.co.jp>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <3EBF24A8.1050100@tequila.co.jp>
+References: <200305112212_MC3-1-386B-32BF@compuserve.com>
+	 <3EBF24A8.1050100@tequila.co.jp>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-tDJUR8x8Sg/4shXVllfm"
+Organization: Trudheim Technology Limited
+Message-Id: <1052716203.4100.10.camel@tor.trudheim.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16063.11081.433006.407544@wombat.chubb.wattle.id.au>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.4Rubber Turnip 
+Date: 12 May 2003 06:10:03 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"William" == William Lee Irwin, <William> writes:
-William> Not at all. Just stamp at wakeup and difference when it runs.
+
+--=-tDJUR8x8Sg/4shXVllfm
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, 2003-05-12 at 05:35, Clemens Schwaighofer wrote:
+
+> Why three drives in a Raid1? Raid one is just mirror, or is the third
+> drive like a "hot" replace drive if one of the others fail?
+
+With normal mirroring (one original, one copy) you do have the
+redundancy and the speedboost at reads, but at mirroring with one
+original and two copies (I know AIX does this), you get in to a scenario
+that is quite handy. Say you run a large database in a 24/7 operation.
+You want to back the database up, but you can only get 5-10 minutes
+downtime on it. You then quiesce the database, split off the second copy
+from the mirror, mount that as a separate filesystem and back that up
+while the original with its first copy has already stepped back into
+full use.
+
+Once you finished your backup, you add your split-off copy back to the
+original and primary copy and you are back where you started.
+
+HTH,
+
+/Anders
 
 
-On Mon, May 12, 2003 at 03:04:09PM +1000, Peter Chubb wrote:
-> That then doesn't include interrupt latency.  The nice thing about the
-> amlat tests is that the test predicts when the next interrupt should
-> occur, then measures the time between that prediction and the process
-> running in userspace.  If you just timestamp at wakeup, you miss all
-> the time between interrupt generation and noticing that the process is
-> to wake up.
+--=-tDJUR8x8Sg/4shXVllfm
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Of course. But that is not the scheduler's problem.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2-rc1-SuSE (GNU/Linux)
 
+iD8DBQA+vyyrLYywqksgYBoRAuOYAJ9l1xgp4Mjtyqrsu0k0Md2wHkLINgCg0gVa
+dVe6ZA20T2N66BJ/yMGpgK0=
+=Lvqx
+-----END PGP SIGNATURE-----
 
--- wli
+--=-tDJUR8x8Sg/4shXVllfm--
+

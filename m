@@ -1,92 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261287AbVBGWcP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261269AbVBGWbl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261287AbVBGWcP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 17:32:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261286AbVBGWcO
+	id S261269AbVBGWbl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 17:31:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261286AbVBGWbl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 17:32:14 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:21443 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261287AbVBGWbz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 17:31:55 -0500
-Message-ID: <4207EC54.8010301@netwinder.org>
-Date: Mon, 07 Feb 2005 17:31:48 -0500
-From: Ralph Siemsen <ralphs@netwinder.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041020
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: trivial@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: [PATCH] out-of-tree builds: preserve ARCH and CROSS_COMPILE settings
-Content-Type: multipart/mixed;
- boundary="------------080504060904080000020605"
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <ralphs@netwinder.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 7 Feb 2005 17:31:41 -0500
+Received: from gprs215-244.eurotel.cz ([160.218.215.244]:1408 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261269AbVBGWbY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 17:31:24 -0500
+Date: Mon, 7 Feb 2005 23:11:07 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>
+Subject: 2.6.11-rc3: Kylix application no longer works?
+Message-ID: <20050207221107.GA1369@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080504060904080000020605
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi!
 
-[I am not subscribed, please CC: any replies]
+I have some obscure Kylix application here... It started gets
+misteriously killed in 2.6.11-rc3 and -rc3-mm1...
 
-When you build the 2.6 kernel outside of its source directory, using the 
-O= option like so:
+pavel@amd:~/slovnik/bin$ strace ./Slovnik
+execve("./Slovnik", ["./Slovnik"], [/* 32 vars */]) = 0
++++ killed by SIGKILL +++
+pavel@amd:~/slovnik/bin$ ldd ./Slovnik
+/usr/bin/ldd: line 1:  8759 Killed
+LD_TRACE_LOADED_OBJECTS=1 LD_WARN= LD_BIND_NOW=
+LD_LIBRARY_VERSION=$verify_out LD_VERBOSE= "$file"
+pavel@amd:~/slovnik/bin$
 
-	make -C linux-2.6.10 O=../builddir
+I get this in 2.6.10-rc3:
 
-this conveniently produces a top-level Makefile in "builddir" which can 
-be used to update/clean/rebuild the tree with a simple "make".  It also 
-uses the ".config" file from "builddir", which makes it very convenient 
-for managing multiple builds for different target systems.
+pavel@amd:~/slovnik/bin$ ./Slovnik
+./Slovnik: relocation error: ./Slovnik: undefined symbol:
+initPAnsiStrings
+pavel@amd:~/slovnik/bin$ ldd ./Slovnik
+                libz.so.1 => /usr/lib/libz.so.1 (0xb7fc2000)
+        libX11.so.6 => /usr/X11/lib/libX11.so.6 (0xb7efa000)
+        libpthread.so.0 => /lib/libpthread.so.0 (0xb7ea9000)
+        libdl.so.2 => /lib/libdl.so.2 (0xb7ea6000)
+        libc.so.6 => /lib/libc.so.6 (0xb7d73000)
+        /lib/ld-linux.so.2 => /lib/ld-linux.so.2 (0xb7fea000)
+pavel@amd:~/slovnik/bin$
 
-However if you are cross-compiling, you must also set ARCH and 
-CROSS_COMPILE variables as appropriate.  Unfortunately these settings 
-are not recorded in the generated Makefile in "builddir", so one cannot 
-simply do "make" anymore.
+When I set LD_LIBRARY_PATH right, it will actually work. Any ideas?
 
-The attached patch fixes the script that generates the Makefile, so as 
-to pass ARCH and CROSS_COMPILE settings, only when they are defined. 
-Otherwise behaviour is exactly as it was before.
-
-Since the contents of "builddir" are specific to ARCH and CROSS_COMPILER 
-I see no reason why the values should not become fixed in "builddir".
-
-Signed-off-by: Ralph Siemsen <ralphs@netwinder.org>
-
---------------080504060904080000020605
-Content-Type: text/x-patch;
- name="mkmakefile.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="mkmakefile.patch"
-
-diff -u mkmakefile
---- linux-2.6.10.orig/scripts/mkmakefile	27 Jan 2005 15:53:54 -0000
-+++ linux-2.6.10/scripts/mkmakefile	7 Feb 2005 21:20:19 -0000
-@@ -9,6 +9,8 @@
- # $3 - version
- # $4 - patchlevel
- 
-+test "$ARCH" != "" && ARCH="ARCH=$ARCH"
-+test "$CROSS_COMPILE" != "" && CROSS="CROSS_COMPILE=$CROSS_COMPILE"
- 
- cat << EOF
- # Automatically generated by $0: don't edit
-@@ -22,10 +24,10 @@
- MAKEFLAGS += --no-print-directory
- 
- all:
--	\$(MAKE) -C \$(KERNELSRC) O=\$(KERNELOUTPUT)
-+	\$(MAKE) $ARCH $CROSS -C \$(KERNELSRC) O=\$(KERNELOUTPUT)
- 
- %::
--	\$(MAKE) -C \$(KERNELSRC) O=\$(KERNELOUTPUT) \$@
-+	\$(MAKE) $ARCH $CROSS -C \$(KERNELSRC) O=\$(KERNELOUTPUT) \$@
- 
- EOF
- 
-
---------------080504060904080000020605--
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

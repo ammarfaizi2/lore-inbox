@@ -1,32 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132850AbREEQfB>; Sat, 5 May 2001 12:35:01 -0400
+	id <S132919AbREEQnM>; Sat, 5 May 2001 12:43:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132883AbREEQex>; Sat, 5 May 2001 12:34:53 -0400
-Received: from mako.theneteffect.com ([63.97.58.10]:15633 "EHLO
-	mako.theneteffect.com") by vger.kernel.org with ESMTP
-	id <S132850AbREEQed>; Sat, 5 May 2001 12:34:33 -0400
-From: Mitch Adair <mitch@theneteffect.com>
-Message-Id: <200105051634.LAA02026@mako.theneteffect.com>
-Subject: Re: [PATCH] CPU hot swap for 2.4.3 + s390 support
-To: cw@f00f.org (Chris Wedgwood)
-Date: Sat, 5 May 2001 11:34:16 -0500 (CDT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010506033746.A30690@metastasis.f00f.org> from "Chris Wedgwood" at May 06, 2001 03:37:46 AM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S132934AbREEQnC>; Sat, 5 May 2001 12:43:02 -0400
+Received: from yoda.planetinternet.be ([195.95.30.146]:34322 "EHLO
+	yoda.planetinternet.be") by vger.kernel.org with ESMTP
+	id <S132919AbREEQmv>; Sat, 5 May 2001 12:42:51 -0400
+Date: Sat, 5 May 2001 18:42:22 +0200
+From: Kurt Roeckx <Q@ping.be>
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Athlon possible fixes
+Message-ID: <20010505184222.A26477@ping.be>
+In-Reply-To: <E14vwaq-0000Jk-00@the-village.bc.nu> <200105051626.SAA16651@cave.bitwizard.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 1.0pre2i
+In-Reply-To: <200105051626.SAA16651@cave.bitwizard.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Adding memory probably isn't going to be too hard... but taking
-> existing memory off line is tricky. You have to find some way of
-> finding all the pages that are in use and then dealing with them
-> appropriately, and when some are locked or contain kernel data this
-> would be extremely difficult I should think.
+On Sat, May 05, 2001 at 06:26:30PM +0200, Rogier Wolff wrote:
+> 
+> As all this is trying to avoid bus turnarounds (i.e. switching from
+> reading to writing), wouldn't it be fastest to just trust that the CPU
+> has at least 4k worth of cache? (and hope for the best that we don't
+> get interrupted in the meanwhile).
+> 
+> void copy_page (char *dest, char *source)
+> {
+> 	long *dst = (long *)dest, 
+> 		*src=(long *)source, 
+> 		*end= (long *)(source+PAGE_SIZE);
+> #if 1
+> 	register int  i;
+> 	long t=0;
+> 	static long tt;
+> 
+>   	for (i=0;i<PAGE_SIZE/sizeof (long);i += cache_line_size()/sizeof(long))
+> 	/* Actually the innards of this loop should be:
+> 		(void) from[i];
+> 	   however, the compiler will probably optimize that away. */ 
+>      		t += src[i];
+> 
+> 	tt = t;
+> #endif
+> 	while (src < end)
+> 		*dst++ = *src++;
+> 
+> }
+> 
+> So, this is 15 lines of C, and it'd be interesting to benchmark this
+> against the assembly.
+> 
+> I'm assuming that the "loop variable handling" is not going to
+> influence the overall performance: that would run at 500 - 1000MHz,
+> and around 1 clock cycle (1-2ns) per loop. Set this against the stalls
+> against the memory unit whose output buffer is full, and memory writes
+> that take on the order of 30 ns per 64bits.
 
-Wouldn't that be lot of the same issues as a "swapoff" with some portion of
-that in use?  (except for the kernel data case of course...)
+Can't you use volatile to prevent the compiler from optimizing
+it?
 
-	M
+
+Kurt
+

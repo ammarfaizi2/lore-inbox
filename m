@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318529AbSGaVKV>; Wed, 31 Jul 2002 17:10:21 -0400
+	id <S318505AbSGaVWv>; Wed, 31 Jul 2002 17:22:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318516AbSGaVKV>; Wed, 31 Jul 2002 17:10:21 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:23801 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S318529AbSGaVKU>;
-	Wed, 31 Jul 2002 17:10:20 -0400
-Date: Wed, 31 Jul 2002 17:13:46 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Jan Harkes <jaharkes@cs.cmu.edu>
-cc: "Peter J. Braam" <braam@clusterfs.com>, linux-kernel@vger.kernel.org
-Subject: Re: BIG files & file systems
-In-Reply-To: <20020731210739.GA15492@ravel.coda.cs.cmu.edu>
-Message-ID: <Pine.GSO.4.21.0207311711540.8505-100000@weyl.math.psu.edu>
+	id <S318510AbSGaVWv>; Wed, 31 Jul 2002 17:22:51 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:53776 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S318505AbSGaVWv>; Wed, 31 Jul 2002 17:22:51 -0400
+Date: Wed, 31 Jul 2002 18:25:53 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Andrei Ivanov <andrei.ivanov@ines.ro>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: test
+In-Reply-To: <Pine.LNX.4.44.0207312340440.9782-100000@webdev.ines.ro>
+Message-ID: <Pine.LNX.4.44L.0207311825330.23404-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 31 Jul 2002, Andrei Ivanov wrote:
 
+> Am I still on this list ?
+> Didn't receive any message today... :(
 
-On Wed, 31 Jul 2002, Jan Harkes wrote:
+I guess it's better to ask majordomo@vger.kernel.org instead
+of asking the list ;)
 
-> On Wed, Jul 31, 2002 at 01:16:20PM -0600, Peter J. Braam wrote:
-> > Hi, 
-> > 
-> > I've just been told that some "limitations" of the following kind will
-> > remain:
-> >   page index = unsigned long
-> >   ino_t      = unsigned long
-> 
-> The number of files is not limited by ino_t, just look at the
-> iget5_locked operation in fs/inode.c. It is possible to have your own
-> n-bit file identifier, and simply provide your own comparison function.
-> The ino_t then becomes the 'hash-bucket' in which the actual inode is
-> looked up.
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
 
-You _do_ need unique ->st_ino from stat(2), though - otherwise tar(1)
-and friends will break in all sorts of amusing ways.  And there's
-nothing kernel can do about that - applications expect 32bit st_ino
-(compare them as 32bit values, etc.)
+http://www.surriel.com/		http://distro.conectiva.com/
 

@@ -1,49 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261831AbULLQ07@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262087AbULLQfk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261831AbULLQ07 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Dec 2004 11:26:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262087AbULLQ06
+	id S262087AbULLQfk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Dec 2004 11:35:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262088AbULLQfk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Dec 2004 11:26:58 -0500
-Received: from fsmlabs.com ([168.103.115.128]:54673 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S261831AbULLQ05 (ORCPT
+	Sun, 12 Dec 2004 11:35:40 -0500
+Received: from fsmlabs.com ([168.103.115.128]:6290 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S262087AbULLQfg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Dec 2004 11:26:57 -0500
-Date: Sun, 12 Dec 2004 09:26:29 -0700 (MST)
+	Sun, 12 Dec 2004 11:35:36 -0500
+Date: Sun, 12 Dec 2004 09:35:34 -0700 (MST)
 From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: George Anzinger <george@mvista.com>, Lee Revell <rlrevell@joe-job.com>,
-       dipankar@in.ibm.com, ganzinger@mvista.com,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: RCU question
-In-Reply-To: <41BC0854.4010503@colorfullife.com>
-Message-ID: <Pine.LNX.4.61.0412120656260.14734@montezuma.fsmlabs.com>
-References: <41B8E6F1.4070007@mvista.com> <20041210043102.GC4161@in.ibm.com>
-  <41B9FC3F.50601@mvista.com>  <20041210204003.GC4073@in.ibm.com>
- <1102711532.29919.35.camel@krustophenia.net> <41BA0ECF.1060203@mvista.com>
- <Pine.LNX.4.61.0412101558240.24986@montezuma.fsmlabs.com> <41BA59F6.5010309@mvista.com>
- <Pine.LNX.4.61.0412101943260.1101@montezuma.fsmlabs.com> <41BA698E.8000603@mvista.com>
- <Pine.LNX.4.61.0412110751020.5214@montezuma.fsmlabs.com> <41BB2108.70606@colorfullife.com>
- <41BB25B2.90303@mvista.com> <Pine.LNX.4.61.0412111947280.7847@montezuma.fsmlabs.com>
- <41BC0854.4010503@colorfullife.com>
+To: Rudolf Usselmann <rudi@asics.ws>
+cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: kernel (64bit) 4GB memory support
+In-Reply-To: <1102842902.10322.200.camel@cpu0>
+Message-ID: <Pine.LNX.4.61.0412120934160.14734@montezuma.fsmlabs.com>
+References: <1102752990.17081.160.camel@cpu0>  <41BAC68D.6050303@pobox.com>
+  <1102760002.10824.170.camel@cpu0>  <41BB32A4.2090301@pobox.com> 
+ <1102824735.17081.187.camel@cpu0>  <Pine.LNX.4.61.0412112141180.7847@montezuma.fsmlabs.com>
+  <1102828235.17081.189.camel@cpu0>  <Pine.LNX.4.61.0412120131570.7847@montezuma.fsmlabs.com>
+ <1102842902.10322.200.camel@cpu0>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Dec 2004, Manfred Spraul wrote:
+On Sun, 12 Dec 2004, Rudolf Usselmann wrote:
 
-> Zwane Mwaikambo wrote:
+> ok, un-installed nvidia drivers ...
 > 
-> > "Intel processors don't suppress SMI or NMI after an STI instruction. Since
-> > the INTR suppresion is not preserved across an SMI or NMI handler, this may
-> > result in an INTR being serviced after the STI, which constitutes a
-> > violation of the INTR suppresion.
-> >  
-> Interesting find.
-> It means that our NMI irq return path should check if it points to a hlt
-> instruction and if yes, then increase the saved EIP by one before doing the
-> iretd, right?
+> boot3.log shows a kernel panic as it is starting to run fsck
+> without me involving any user commands.
+> 
+> b004.log - I tried again (after doing a fsck with only 2gb)
+> and again it did not make it to a login prompt.
 
-Yeah that should do it, but then we also have to worry about SMIs, perhaps 
-we could add similar logic to interrupt return path instead?
+Thanks for reproducing that, is there any possible chance you could try 
+2.6.10-rc2-mm4?

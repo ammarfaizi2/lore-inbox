@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266511AbUHIMSr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266509AbUHIMXn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266511AbUHIMSr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 08:18:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266513AbUHIMQp
+	id S266509AbUHIMXn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 08:23:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266522AbUHIMXU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 08:16:45 -0400
-Received: from CPE-65-30-20-102.kc.rr.com ([65.30.20.102]:15237 "EHLO
-	mail.2thebatcave.com") by vger.kernel.org with ESMTP
-	id S266532AbUHIMPp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 08:15:45 -0400
-Message-ID: <37954.192.168.1.12.1092053741.squirrel@192.168.1.12>
-Date: Mon, 9 Aug 2004 07:15:41 -0500 (CDT)
-Subject: uhci-hcd oops with 2.4.27/ intel D845GLVA
-From: "Nick Bartos" <spam99@2thebatcave.com>
-To: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
+	Mon, 9 Aug 2004 08:23:20 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:42126 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S266509AbUHIMWe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 08:22:34 -0400
+Date: Mon, 9 Aug 2004 08:22:28 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: ix86 Atomic ops during DMA...
+Message-ID: <Pine.LNX.4.53.0408090809520.7612@chaos>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I unable to boot due to a kernel oops on my D845GLVA.  This worked fine in
-2.4.26, but with the same (well, except for the new features) config
-2.4.27 does not.
 
-If I disable usb 2.0 support in the kernel or disable the usb 2.0
-controller, then the system will boot fine.  However I would like to be
-able to use the 2.0 controller.
+Hello,
 
-I upgraded the bios on the board to the latest, but no change.
+A piece of hardware needs its interrupt status written back
+to its status register to "clear" interrupts and thus enable
+more.. This is in an uninterruptible ISR. This, of course
+can be readily accomplished by using the standard readl() and
+writel() macros.........but! If a DMA is in progress, a hardware
+debugger shows many milliseconds between the read and the write.
 
-I am not certain how everyone gets all that info captured when the kernel
-crashed, but here is what I wrote down:
+This allows a race condition to exist. So, how do I lock the bus
+during the read and write?  A lock on ix86 locks only the
+next instruction, not the next plus time for another lock
+which appears to be needed.
 
-ehci_hcd 00:1d.7:  Bios handoff failed (104, 1010001)
-unable to handle kernel NULL pointer dereference at virtual address 00000048
+	I need...
 
-...
+	movl (%ebx), %eax	# Read status from register in ebx
+	movl %eax, (%ebx)	# Write it back
 
-kernel panic:  attempted to kill init!
+..to occur together without the bus being taken away by a DMA
+ operation until these two instructions are complete.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
 

@@ -1,50 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317861AbSFSMFB>; Wed, 19 Jun 2002 08:05:01 -0400
+	id <S317872AbSFSMEU>; Wed, 19 Jun 2002 08:04:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317862AbSFSMFA>; Wed, 19 Jun 2002 08:05:00 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:64520 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S317861AbSFSME6>; Wed, 19 Jun 2002 08:04:58 -0400
-Date: Wed, 19 Jun 2002 08:00:33 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Allan Sandfeld Jensen <snowwolf@one2one-networks.com>
-cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Dual Athlon 2000 XP MP nightmare
-In-Reply-To: <200206161429.15653.snowwolf@one2one-networks.com>
-Message-ID: <Pine.LNX.3.96.1020619075514.1119H-100000@gatekeeper.tmr.com>
+	id <S317873AbSFSMET>; Wed, 19 Jun 2002 08:04:19 -0400
+Received: from 205-158-62-93.outblaze.com ([205.158.62.93]:53719 "HELO
+	ws3-3.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S317872AbSFSMES>; Wed, 19 Jun 2002 08:04:18 -0400
+Message-ID: <20020619120414.8473.qmail@email.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Balakrishnan Ananthanarayanan" <balakris_ananth@email.com>
+To: linux-mips@oss.sgi.com, linux-kernel@vger.kernel.org,
+       redhat-list@redhat.com
+Date: Wed, 19 Jun 2002 07:04:14 -0500
+Subject: MIPS - Serial port
+X-Originating-Ip: 202.140.142.131
+X-Originating-Server: ws3-3.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 16 Jun 2002, Allan Sandfeld Jensen wrote:
+Hi all,
 
-> On Sunday 16 June 2002 10:30, Mark Hounschell wrote:
+   Is there anyone who has accessed the serial port of an RM7000 MIPS processor? If u can provide me the code please - or atleast the Serial PORT number of an RM7000 proc. mounted on an EV64120A Galileo Board? 
 
-> > First make sure you have MP cpus NOT XP's. The XP's are not certified by
-> > amd to run SMP. Second, try append="mem=nopentium" in your lilo.conf file.
-> > I have a dual 1900+ MP box and without that I have random lockups also.
-> >
-> BS and FUD! 
-
-What's wrong with this suggestion, from someone who believes it works?
-Other than suggesting that it be hand entered instead of put in lilo?
-Disabling 4M pages is unlikely to solve the problem, but (a) the poster
-has tried it and I bet you haven't, and (b) all the things you suggest
-require hardware action, while a boot option can be done with less effort
-and chance of damage.
-
-What you suggest is more likely to work, but I see no reason not to try
-the simple fix first, with low time and effort budget.
- 
-> First try to remove one processor, and test the motherboard in single CPU 
-> configuration. If you still see crashes replace the motherboard. I also have 
-> a defective Asus A7M266-D. It crashes in any configuration of CPUs, power 
-> supplies and video cards.
+Balakrishnan
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+__________________________________________________________
+Sign-up for your own FREE Personalized E-mail at Mail.com
+http://www.mail.com/?sr=signup
+
+Save up to $160 by signing up for NetZero Platinum Internet service.
+http://www.netzero.net/?refcd=N2P0602NEP8
 

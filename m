@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275320AbRJFR3d>; Sat, 6 Oct 2001 13:29:33 -0400
+	id <S275224AbRJFRXo>; Sat, 6 Oct 2001 13:23:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275336AbRJFR3X>; Sat, 6 Oct 2001 13:29:23 -0400
-Received: from [62.65.17.105] ([62.65.17.105]:27822 "HELO mail.efnet.no")
-	by vger.kernel.org with SMTP id <S275320AbRJFR3U> convert rfc822-to-8bit;
-	Sat, 6 Oct 2001 13:29:20 -0400
-From: "John Fredrik Juell" <isi@efnet.no>
-To: <linux-kernel@vger.kernel.org>
-Subject: Dynamisc Disks under Linux..how..to?
-Date: Sat, 6 Oct 2001 23:27:44 +0200
-Message-ID: <001601c14ead$bd105f00$1d01a8c0@isi>
+	id <S275320AbRJFRXe>; Sat, 6 Oct 2001 13:23:34 -0400
+Received: from smtp3.cern.ch ([137.138.131.164]:5547 "EHLO smtp3.cern.ch")
+	by vger.kernel.org with ESMTP id <S275224AbRJFRXX>;
+	Sat, 6 Oct 2001 13:23:23 -0400
+To: paulus@samba.org
+Cc: "David S. Miller" <davem@redhat.com>,
+        James.Bottomley@HansenPartnership.com, linuxopinion@yahoo.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: how to get virtual address from dma address
+In-Reply-To: <200110032244.f93MiI103485@localhost.localdomain> <d3n136tc48.fsf@lxplus014.cern.ch> <15294.47999.501719.858693@cargo.ozlabs.ibm.com> <20011006.013819.17864926.davem@redhat.com> <15294.63138.941581.771248@cargo.ozlabs.ibm.com>
+From: Jes Sorensen <jes@sunsite.dk>
+Date: 06 Oct 2001 19:23:26 +0200
+In-Reply-To: Paul Mackerras's message of "Sat, 6 Oct 2001 22:18:42 +1000 (EST)"
+Message-ID: <d3adz4u1gx.fsf@lxplus014.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2616
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If I haven't misunderstood completely, you can use the package at
-http://linux-ntfs.sourceforge.net to read LDM information on spanned
-disks under w2k/XP. What is not clear [to me anyways] is;
+>>>>> "Paul" == Paul Mackerras <paulus@samba.org> writes:
 
-a) Is it possible to mount and read/extract the data on a 5-disk w2k
-Dynamic Disks? In case, what commands do I use [commands, options, etc]?
+Paul> David S. Miller writes:
+>> I can not even count on one hand how many people I've helped
+>> converting, who wanted a bus_to_virt() and when I showed them how
+>> to do it with information the device provided already they said "oh
+>> wow, I never would have thought of that".  That process won't
+>> happen as often with the suggested feature.
 
-b) Is there any difference between NTFS 3.0 and NTFS 3.1 in regards to
-handling the file systems and/or commands?
+Paul> Well, let's see if we can come up with a way to achieve this
+Paul> goal as well as the other.
 
-Thanks,
+Paul> I look at all the hash-table stuff in the usb-ohci driver and I
+Paul> think to myself about all the complexity that is there (and I
+Paul> haven't managed to convince myself yet that it is actually
+Paul> SMP-safe) and all the time wasted doing that stuff, when on
+Paul> probably 95% of the machines that use the usb-ohci driver, the
+Paul> hashing stuff is totally unnecessary.  I am talking about
+Paul> powermacs, which don't have an iommu, and where the reverse
+Paul> mapping is as simple as adding a constant.
 
-Johan Fredrik Juell
-isi@efnet.no
+I haven't looked at the ohci driver at all, however doesn't it return
+anything but the dma address? No index, no offset, no nothing? If
+thats the case, someone really needs to go visit the designers with a
+large bat ;-(
 
-
+Jes

@@ -1,46 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261502AbTCOUAj>; Sat, 15 Mar 2003 15:00:39 -0500
+	id <S261503AbTCOUAq>; Sat, 15 Mar 2003 15:00:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261503AbTCOUAj>; Sat, 15 Mar 2003 15:00:39 -0500
-Received: from packet.digeo.com ([12.110.80.53]:37006 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261502AbTCOUAi>;
-	Sat, 15 Mar 2003 15:00:38 -0500
-Date: Sat, 15 Mar 2003 12:11:25 -0800
+	id <S261504AbTCOUAq>; Sat, 15 Mar 2003 15:00:46 -0500
+Received: from packet.digeo.com ([12.110.80.53]:37518 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261503AbTCOUAn>;
+	Sat, 15 Mar 2003 15:00:43 -0500
+Date: Sat, 15 Mar 2003 12:03:43 -0800
 From: Andrew Morton <akpm@digeo.com>
-To: Alex Tomas <bzzz@tmi.comex.ru>
-Cc: bzzz@tmi.comex.ru, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net
-Subject: Re: [PATCH] remove BKL from ext2's readdir
-Message-Id: <20030315121125.48294975.akpm@digeo.com>
-In-Reply-To: <m3wuj0fvls.fsf@lexa.home.net>
-References: <m3vfyluedb.fsf@lexa.home.net>
-	<20030315023614.3e28e67b.akpm@digeo.com>
-	<20030315030322.792fa598.akpm@digeo.com>
-	<m3wuj0fvls.fsf@lexa.home.net>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       Neil Brown <neilb@cse.unsw.edu.au>
+Subject: Re: 2.5.64-mm7 - dies on smp with raid
+Message-Id: <20030315120343.71faf732.akpm@digeo.com>
+In-Reply-To: <3E736505.2000106@aitel.hist.no>
+References: <20030315011758.7098b006.akpm@digeo.com>
+	<3E736505.2000106@aitel.hist.no>
 X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Mar 2003 20:11:11.0731 (UTC) FILETIME=[060D2430:01C2EB2F]
+X-OriginalArrivalTime: 15 Mar 2003 20:03:29.0859 (UTC) FILETIME=[F2C11130:01C2EB2D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Tomas <bzzz@tmi.comex.ru> wrote:
+Helge Hafting <helgehaf@aitel.hist.no> wrote:
 >
-> >>>>> Andrew Morton (AM) writes:
+> mm7 crashed where mm2 works.
+> The machine is a dual celeron with two scsi disks with
+> some raid-1 & raid-0 partitions.
 > 
->  AM> hm, no.  lseek is using the directory's i_sem now, and readdir
->  AM> runs under that too.  So we should be able to remove
->  AM> lock_kernel() from the readdir implementation of all filesystems
->  AM> which are using generic_file_llseek().
+> deadline or anicipatory scheduler does not make a difference.
+> It dies anyway, attempting to kill init.
 > 
-> looks like only coda and ntfs use generic_file_llseek(). other use
-> default_llseek(). what's the reason do not use generic_file_llseek().
-> historical only? or not?
+> Here's what I managed to  write down before the 30 second reboot
+> kicked in:
+> 
+> EIP is at md_wakeup_thread
+> 
+> stack:
+> do_md_run
+> autorun_array
+> autorun_devices
+> autostart_arrays
+> md_ioctl
+> dentry_open
+> kmem_cache_free
+> blkdev_ioctl
+> sys_ioctl
+> init
+> init
+> 
+> This happened during the boot process. The kernel is compiled
+> with gcc 2.95.4 from debian testing. The machine uses devfs
+> 
 
-grep again.
+A lot of md updates went into Linus's tree overnight.  Can you get some more
+details for Neil?
 
-I've made the change to ext2 and ext3.  Other filesystems will require
-some thought to verify that the lock_kernel()s are not protecting
-against some other random codepath.
+Here is a wild guess:
+
+diff -puN drivers/md/md.c~a drivers/md/md.c
+--- 25/drivers/md/md.c~a	2003-03-15 12:02:04.000000000 -0800
++++ 25-akpm/drivers/md/md.c	2003-03-15 12:02:14.000000000 -0800
+@@ -2818,6 +2818,8 @@ int md_thread(void * arg)
+ 
+ void md_wakeup_thread(mdk_thread_t *thread)
+ {
++	if (!thread)
++		return;
+ 	dprintk("md: waking up MD thread %p.\n", thread);
+ 	set_bit(THREAD_WAKEUP, &thread->flags);
+ 	wake_up(&thread->wqueue);
+
+_
+

@@ -1,56 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264133AbTKJWBB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 17:01:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264134AbTKJWBB
+	id S264129AbTKJV6s (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 16:58:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264128AbTKJV6s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 17:01:01 -0500
-Received: from fw.osdl.org ([65.172.181.6]:16294 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264133AbTKJWA7 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 17:00:59 -0500
-Date: Mon, 10 Nov 2003 14:04:51 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: =?ISO-8859-1?B?UmFt824=?= Rey Vicente <ramon.rey@hispalinux.es>
-Cc: linux-kernel@vger.kernel.org, Nick Piggin <piggin@cyberone.com.au>
-Subject: Re: [2.6.0-test9-mm2] Badness in as_put_request at
- drivers/block/as-iosched.c:1783
-Message-Id: <20031110140451.2b5db433.akpm@osdl.org>
-In-Reply-To: <1068500134.2060.3.camel@debian>
-References: <1068500134.2060.3.camel@debian>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 10 Nov 2003 16:58:48 -0500
+Received: from tolkor.sgi.com ([198.149.18.6]:52177 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id S264129AbTKJV6q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Nov 2003 16:58:46 -0500
+Date: Mon, 10 Nov 2003 15:58:44 -0600
+From: Jack Steiner <steiner@sgi.com>
+To: linux-kernel@vger.kernel.org
+Subject: hot cache line due to note_interrupt()
+Message-ID: <20031110215844.GC21632@sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ramón Rey Vicente <ramon.rey@hispalinux.es> wrote:
->
-> Hi.
-> 
-> Trying to scan de ide-scsi devices of my system, I get this
-> 
-> arq->state 4
-> Badness in as_put_request at drivers/block/as-iosched.c:1783
-> Call Trace:
->  [<c01dc908>] as_put_request+0x48/0xa0
->  [<c01d47d3>] elv_put_request+0x13/0x20
->  [<c01d69f2>] __blk_put_request+0x52/0xa0
->  [<c01d6a61>] blk_put_request+0x21/0x40
->  [<c01d9d0e>] sg_io+0x2ee/0x440
->  [<c01da5c0>] scsi_cmd_ioctl+0x3c0/0x480
->  [<c0124b49>] update_process_times+0x29/0x40
->  [<c011949c>] schedule+0x31c/0x620
->  [<d093bb65>] cdrom_ioctl+0x25/0xd60 [cdrom]
->  [<c012eb33>] do_clock_nanosleep+0x1b3/0x300
->  [<c0119800>] default_wake_function+0x0/0x20
->  [<c01d86fa>] blkdev_ioctl+0x7a/0x383
->  [<c01584be>] block_ioctl+0x1e/0x40
->  [<c016158f>] sys_ioctl+0xef/0x260
->  [<c0257c57>] syscall_call+0x7/0xb
 
-It looks to me that a simple set_request()/put_request() will always do
-this.
+I dont know the background on note_interrupt() in arch/ia64/kernel/irq.c, 
+but I had to disable the function on our large systems (IA64).
 
-Nick?
+The function updates a counter in the irq_desc_t table. An entry in this table
+is shared by all cpus that take a specific interrupt #. For most interrupt #'s,
+this is a problem but it is prohibitive for the timer tick on big systems.
+
+Updating the counter causes a cache line to be bounced between
+cpus at a rate of at least HZ*active_cpus. (The number of bus transactions
+is at least 2X higher because the line is first obtained for
+shared usage, then upgraded to modified. In addition, multiple references
+are made to the line for each interrupt. On a big system, it is unlikely that
+a cpu can hold the line for entire time that the interrupt is being
+serviced).
+
+On a 500p system, the system was VERY slowly making forward progres during boot,
+but I didnt have the patience to wait for it finish. After I disabled
+note_interrupt(), I had no problem booting.
+
+Certainly, the problem is much less severe on smaller systems. However, even
+moderate sized systems may see some degradation due to this hot cache line.
+
+
+
+I also verified on a system simulator that the counter in note_interrupt() is the
+only line that is bounced between cpus at a HZ rate on an idle system.
+
+The IPI & reschedule interrupts have a similar problem but at a lower rate.
+
+
+(initialially sent to linux-ia64@vger.kernel.org)
+
+-- 
+Thanks
+
+Jack Steiner (steiner@sgi.com)          651-683-5302
+Principal Engineer                      SGI - Silicon Graphics, Inc.
+
+

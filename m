@@ -1,63 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261508AbTIOT4K (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 15:56:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbTIOT4K
+	id S261488AbTIOTxS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 15:53:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbTIOTxS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 15:56:10 -0400
-Received: from mrout3.yahoo.com ([216.145.54.173]:1287 "EHLO mrout3.yahoo.com")
-	by vger.kernel.org with ESMTP id S261508AbTIOT4H (ORCPT
+	Mon, 15 Sep 2003 15:53:18 -0400
+Received: from amdext2.amd.com ([163.181.251.1]:30680 "EHLO amdext2.amd.com")
+	by vger.kernel.org with ESMTP id S261488AbTIOTxQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 15:56:07 -0400
-Message-ID: <3F661941.3010402@bigfoot.com>
-Date: Mon, 15 Sep 2003 12:55:45 -0700
-From: Erik Steffl <steffl@bigfoot.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i386; en-US; rv:1.3) Gecko/20030312
-X-Accept-Language: en-us, en
+	Mon, 15 Sep 2003 15:53:16 -0400
+Message-ID: <99F2150714F93F448942F9A9F112634C0638B1E3@txexmtae.amd.com>
+From: richard.brunner@amd.com
+To: davidsen@tmr.com
+cc: alan@lxorguk.ukuu.org.uk, zwane@linuxpower.ca,
+       linux-kernel@vger.kernel.org
+Subject: RE: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
+Date: Mon, 15 Sep 2003 14:51:28 -0500
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: SOLVED Re: intel D865PERL and DMA for disks (IDE)?
-References: <3F62628B.5060805@bigfoot.com> <200309130236.14814.bzolnier@elka.pw.edu.pl> <3F626BA9.7040604@bigfoot.com>
-In-Reply-To: <3F626BA9.7040604@bigfoot.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+X-Mailer: Internet Mail Service (5.5.2653.19)
+X-WSS-ID: 1378C7CC402879-01-01
+Content-Type: text/plain;
+ charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Steffl wrote:
-> Bartlomiej Zolnierkiewicz wrote:
-> 
->> On Saturday 13 of September 2003 02:19, Erik Steffl wrote:
-> 
-> ... Intel D965PERL and hdparm -d 1 ...
-> 
->>> CONFIG_BLK_DEV_PIIX=m
->>> CONFIG_SCSI_ATA_PIIX=y
->>
->> You should use CONFIG_BLK_DEV_PIIX=y
->> or load piix module (may not be reliable).
-> 
->   wow:
-> 
-> jojda:/home/erik# modprobe piix
-> Segmentation fault
-> 
->   lsmod | grep piix
-> 
-> piix                    7976   1  (initializing)
-> 
->   rmmod piix
-> 
-> piix: Device or resource busy
-> 
->   I guess I'll try to compile it in. thanks,
+My concern is trying to prevent 
+the flood of emails where someone thinks they built 
+a "standard" kernel only to  discover that they forgot 
+to select the various suboptions
+and it doesn't work on their processor. I'd like
+to simplfy what the majority of folks need to do
+to get a broadly working kernel.
 
-   in addition to the above it _seems_ that trying to modprobe piix 
-caused netstat -ni to freeze (and so e.g. mozilla and evolution stopped 
-working, but not konqueror, pan ...)
+I'd prefer that some set of options "take away"
+rather than "add" features/work-arounds. In the case below,
+I'd prefer a "don't support Athlon Prefetch Errata".
 
-   I changed CONFIG_BLK_DEV_PIIX to y and it's working fine, so far (ide 
-disks use dma).
+I think you can argue that some features are going to 
+be common enough for the majority of users that they
+should be in the "take-away" category.
 
-	erik
+Others are uncommon enough that they fall into
+the "add" category.
+
+If you stick with consistent nomenclature 
+(e.g. add_feature_TBD & sub_default_feature_TBD) 
+and put these options in one common config file, 
+I think the embedded folks and the 
+"optimize every last bit" folks get 
+what they want.
+
+] -Rich ...
+] AMD Fellow
+] richard.brunner at amd com 
+
+> -----Original Message-----
+> From: Bill Davidsen [mailto:davidsen@tmr.com] 
+> Sent: Monday, September 15, 2003 12:16 PM
+> To: Brunner, Richard
+> Cc: alan@lxorguk.ukuu.org.uk; zwane@linuxpower.ca; 
+> linux-kernel@vger.kernel.org
+> Subject: RE: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
+> 
+> 
+> On Mon, 15 Sep 2003 richard.brunner@amd.com wrote:
+> 
+> > I think Alan brought up a very good point. Even if you
+> > use a generic kernel that avoids prefetch use on Athlon
+> > (which I am opposed to), it doesn't solve the problem
+> > of user space programs detecting that the ISA supports
+> > prefetch and using prefetch instructions and hitting the
+> > errata on Athlon.
+> > 
+> > The user space problem worries me more, because the expectation
+> > is that if CPUID says the program can use perfetch, it could
+> > and should regardless of what the kernel decided to do here.
+> > 
+> > Andi's patch solves both the kernel space and the user space
+> > issues in a pretty small footprint.
+> 
+> Clearly AMD would like to avoid having PIV and Athlon 
+> optimized kernels,
+> and to default to adding unnecessary size to the PIV kernel to support
+> errata in the Athlon. But fighting against having a config 
+> which produces
+> a smaller and faster kernel for all non-Athlon users and all 
+> embedded or
+> otherwise size limited users seems to be just a marketing 
+> thing so P4 code
+> will seem to work correctly on Athlon.
+> 
+> Vendors will build a kernel which runs as well as possible on 
+> as many CPUs
+> as possible, but users who build their own kernel want to 
+> build a kernel
+> for a particular config in most cases and should have the 
+> option. There
+> should be a "support Athlon prefetch" option as well, which turns on
+> the fix only when it's needed, just as there is for P4 
+> thermal throttling,
+> F.P. emulation, etc. Why shouldn't this be treated the same 
+> way as other
+> features already in the config menu?
+> 
+> -- 
+> bill davidsen <davidsen@tmr.com>
+>   CTO, TMR Associates, Inc
+> Doing interesting things with little computers since 1979.
+> 
+> 
 

@@ -1,128 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269850AbUJGWIv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269779AbUJGWIx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269850AbUJGWIv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 18:08:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269827AbUJGWIa
+	id S269779AbUJGWIx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 18:08:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269845AbUJGWHg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 18:08:30 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:13969 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S269830AbUJGWFk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 18:05:40 -0400
-Subject: Re: [RFC PATCH] scheduler: Dynamic sched_domains
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Paul Jackson <pj@sgi.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Andrew Morton <akpm@osdl.org>, ckrm-tech@lists.sourceforge.net,
-       LSE Tech <lse-tech@lists.sourceforge.net>,
-       LKML <linux-kernel@vger.kernel.org>, simon.derr@bull.net,
-       frankeh@watson.ibm.com
-In-Reply-To: <4164A664.9040005@yahoo.com.au>
-References: <1097110266.4907.187.camel@arrakis>
-	 <4164A664.9040005@yahoo.com.au>
-Content-Type: text/plain
-Organization: IBM LTC
-Message-Id: <1097186290.17473.13.camel@arrakis>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 07 Oct 2004 14:58:10 -0700
+	Thu, 7 Oct 2004 18:07:36 -0400
+Received: from c7ns3.center7.com ([216.250.142.14]:23245 "EHLO
+	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
+	id S269779AbUJGV7i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 17:59:38 -0400
+Message-ID: <4165B3A0.3090003@drdos.com>
+Date: Thu, 07 Oct 2004 15:22:40 -0600
+From: "Jeff V. Merkey" <jmerkey@drdos.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, jonathan@jonmasters.org,
+       "jmerkey@comcast.net" <jmerkey@comcast.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone
+References: <100120041740.9915.415D967600014EC2000026BB2200758942970A059D0A0306@comcast.net>	 <35fb2e590410011509712b7d1@mail.gmail.com>  <415DD1ED.6030101@drdos.com> <1096738439.25290.13.camel@localhost.localdomain> <41659748.9090906@drdos.com> <4165A5E3.6050602@nortelnetworks.com>
+In-Reply-To: <4165A5E3.6050602@nortelnetworks.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-10-06 at 19:13, Nick Piggin wrote:
-> Matthew Dobson wrote:
-> > This code is in no way complete.  But since I brought it up in the
-> > "cpusets - big numa cpu and memory placement" thread, I figure the code
-> > needs to be posted.
-> > 
-> > The basic idea is as follows:
-> > 
-> > 1) Rip out sched_groups and move them into the sched_domains.
-> > 2) Add some reference counting, and eventually locking, to
-> > sched_domains.
-> > 3) Rewrite & simplify the way sched_domains are built and linked into a
-> > cohesive tree.
-> > 
-> 
-> OK. I'm not sure that I like the direction, but... (I haven't looked
-> too closely at it).
+Chris Friesen wrote:
 
-The patch is made somewhat larger by a lot of variable renaming because
-of the removal of sched_groups.  A lot of s/group/domain/.  The vast
-majority of the changes are in a rewrite of arch_init_sched_domains &
-it's assorted helpers.
+> Jeff V. Merkey wrote:
+>
+>> We offer to kernel.org the sum of $50,000.00 US for a one time
+>> license to the Linux Kernel Source for a single snapshot of
+>> a single Linux version by release number. This offer must be
+>> accepted by **ALL** copyright holders and this snapshot will
+>> subsequently convert the GPL license into a BSD style license
+>> for the code.
+>
+>
+> For an unlimited use license of the linux tree, $50,000 USD is 
+> ludicrously tiny.
 
 
-> > This should allow us to support hotplug more easily, simply removing the
-> > domain belonging to the going-away CPU, rather than throwing away the
-> > whole domain tree and rebuilding from scratch.
-> 
-> Although what we have in -mm now should support CPU hotplug just fine.
-> The hotplug guys really seem not to care how disruptive a hotplug
-> operation is.
+$50,000 per copy -- that's a hell of a pricetag. Windows only goes for 
+$100.00 a copy.
+You guys should be flattered.
 
-I wasn't trying to imply that CPU hotplug isn't supported right now. 
-But it is currently a very disruptive operation, throwing away the
-entire sched_domains & sched_groups tree and then rebuilding it from
-scratch just to remove a single CPU!  I also understand that this is
-supposed to be a rare event (CPU hotplug), but that doesn't mean it
-*has* to be a slow, disruptive event. :)
+Let's see, 10,000 companies x $50,000.00 a pop = $500,000,000 / year in 
+license
+fees. What a deal. 500,000,000 / 300 developers = 1.1 million per year 
+for each of you.
+Sounds like good business to me.
 
+Companies will line up to do this, and what's great is you will still 
+get new licensees every year,
+so long as you keep ahead of the curve with innovation.
 
-> >  This should also allow
-> > us to support multiple, independent (ie: no shared root) domain trees
-> > which will facilitate isolated CPU groups and exclusive domains.  I also
-> 
-> Hmm, what was my word for them... yeah, disjoint. We can do that now,
-> see isolcpus= for a subset of the functionality you want (doing larger
-> exclusive sets would probably just require we run the setup code once
-> for each exclusive set we want to build).
+Jeff
 
-The current code doesn't, to my knowledge support multiple isolated
-domains.  You can set up a single 'isolated' group with boot time
-options, but you can't set up *multiple* isolated groups, nor is there
-the ability to do any partitioning/isolation at runtime.  This was more
-of the motivation for my code than the hotplug simplification.  That was
-more of a side-benefit.
-
-
-> > hope this will allow us to leverage the existing topology infrastructure
-> > to build domains that closely resemble the physical structure of the
-> > machine automagically, thus making supporting interesting NUMA machines
-> > and SMT machines easier.
-> > 
-> > This patch is just a snapshot in the middle of development, so there are
-> > certainly some uglies & bugs that will get fixed.  That said, any
-> > comments about the general design are strongly encouraged.  Heck, any
-> > feedback at all is welcome! :) 
-> > 
-> > Patch against 2.6.9-rc3-mm2.
-> 
-> This is what I did in my first (that nobody ever saw) implementation of
-> sched domains. Ie. no sched_groups, just use sched_domains as the balancing
-> object... I'm not sure this works too well.
-> 
-> For example, your bottom level domain is going to basically be a redundant,
-> single CPU on most topologies, isn't it?
-> 
-> Also, how will you do overlapping domains that SGI want to do (see
-> arch/ia64/kernel/domain.c in -mm kernels)?
-> 
-> node2 wants to balance between node0, node1, itself, node3, node4.
-> node4 wants to balance between node2, node3, itself, node5, node6.
-> etc.
-> 
-> I think your lists will get tangled, no?
-
-Yes.  I have to put my thinking cap on snug, but I don't think my
-version would support this kind of setup.  It sounds, from Jesse's
-follow up to your mail, that this is not a requirement, though.  I'll
-take a closer look at the IA64 code and see if it would be supported or
-if I could make some small changes to support it.
-
-Thanks for the feedback!!
-
--Matt
+>
+> Think of the number of man-years of work invested in the current tree.
+>
+> Chris
+>
+>
 

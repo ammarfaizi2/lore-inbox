@@ -1,58 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261341AbUKSKEc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261338AbUKSKHC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261341AbUKSKEc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 05:04:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261340AbUKSKEO
+	id S261338AbUKSKHC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 05:07:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261337AbUKSKE4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 05:04:14 -0500
-Received: from igel.cyberlink.ch ([62.12.136.3]:15034 "HELO igel.cyberlink.ch")
-	by vger.kernel.org with SMTP id S261339AbUKSKEE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 05:04:04 -0500
-X-Qmail-Scanner-Mail-From: manfred99@gmx.ch via igel
-X-Qmail-Scanner: 1.16 (Clear:. Processed in 0.049817 secs)
-From: Manfred Schwarb <manfred99@gmx.ch>
-To: linux-kernel@vger.kernel.org
-Cc: Tigran Aivazian <tigran@veritas.com>, Manfred Schwarb <manfred99@gmx.ch>
-Message-Id: <20041119100403.32522.90565.83940@tp-meteodat6.cyberlink.ch>
-Subject: [PATCH 2.4.28] backport sigmatch() issue in microcode.c
-Date: Fri, 19 Nov 2004 05:04:04 -0500
+	Fri, 19 Nov 2004 05:04:56 -0500
+Received: from metis.pengutronix.de ([213.252.143.165]:14549 "EHLO
+	metis.pengutronix.de") by vger.kernel.org with ESMTP
+	id S261338AbUKSKDo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 05:03:44 -0500
+Date: Fri, 19 Nov 2004 11:03:35 +0100
+From: Robert Schwebel <robert@schwebel.de>
+To: Greg KH <greg@kroah.com>, linux-hotplug-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] a very tiny /sbin/hotplug
+Message-ID: <20041119100335.GE9764@pengutronix.de>
+References: <20041118231406.GA11239@kroah.com> <20041118234629.GA3046@gate.ebshome.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20041118234629.GA3046@gate.ebshome.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Nov 18, 2004 at 03:46:29PM -0800, Eugene Surovegin wrote:
+> This is probably because embedded people don't use hotplug at all :).
 
-some weeks ago, Tigran Aivazian sent this patch to Marcelo
-in a private email, I am unaware of the reasons why it is not included.
+Not true ;) PTXdist has hotplug support for some time. 
 
-Just for public documentation, here is the 2.6.7 backport of the patch, which
-allows the use of microcode updates also for old Pentium II machines.
-
-Original explanation from Tigran:
-	[PATCH] fix to microcode driver for the old CPUs.
-
-	Here is a patch against Linux 2.6.7 which fixes the sigmatch() macro to
-	work for the relatively old processors as well, which have 'pf == 0'
-	(processor flags as read from MSR 0x17), For example, the processors
-	failing without this patch are Pentium II 300 MHz (Klamath) with
-	family/model/stepping 6/3/4 and 6/3/3.
-
-It works for me.
-Regards,
-Manfred
-
-
---- linux-2.4.28/arch/i386/kernel/microcode.c.orig	2004-09-11 15:30:13.000000000 +0200
-+++ linux-2.4.28/arch/i386/kernel/microcode.c	2004-09-11 16:36:43.000000000 +0200
-@@ -109,7 +109,10 @@
- #define get_datasize(mc) \
- 	(((microcode_t *)mc)->hdr.datasize ? \
- 	 ((microcode_t *)mc)->hdr.datasize : DEFAULT_UCODE_DATASIZE)
--#define sigmatch(s1, s2, p1, p2) (((s1) == (s2)) && ((p1) & (p2)))
-+
-+#define sigmatch(s1, s2, p1, p2) \
-+	(((s1) == (s2)) && (((p1) & (p2)) || (((p1) == 0) && ((p2) == 0))))
-+
- #define exttable_size(et) ((et)->count * EXT_SIGNATURE_SIZE + EXT_HEADER_SIZE)
- 
- /* serialize access to the physical write to MSR 0x79 */
+Robert
+-- 
+ Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de
+ Pengutronix - Linux Solutions for Science and Industry
+   Handelsregister:  Amtsgericht Hildesheim, HRA 2686
+     Hornemannstraﬂe 12,  31137 Hildesheim, Germany
+    Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4

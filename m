@@ -1,63 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbUGEU0E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbUGEU2X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261724AbUGEU0E (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jul 2004 16:26:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbUGEU0C
+	id S261875AbUGEU2X (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jul 2004 16:28:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbUGEU2X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jul 2004 16:26:02 -0400
-Received: from fmr99.intel.com ([192.55.52.32]:11213 "EHLO
-	hermes-pilot.fm.intel.com") by vger.kernel.org with ESMTP
-	id S261724AbUGEUZh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jul 2004 16:25:37 -0400
-Subject: Re: System not booting after acpi_power_off()
-From: Len Brown <len.brown@intel.com>
-To: Joerg Sommrey <jo@sommrey.de>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <A6974D8E5F98D511BB910002A50A6647615FF35A@hdsmsx403.hd.intel.com>
-References: <A6974D8E5F98D511BB910002A50A6647615FF35A@hdsmsx403.hd.intel.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1089059128.15675.77.camel@dhcppc4>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 05 Jul 2004 16:25:28 -0400
-Content-Transfer-Encoding: 7bit
+	Mon, 5 Jul 2004 16:28:23 -0400
+Received: from mout0.freenet.de ([194.97.50.131]:50877 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id S261875AbUGEU2E convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jul 2004 16:28:04 -0400
+From: Michael Buesch <mbuesch@freenet.de>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: explanation of apm_do_idle()
+Date: Mon, 5 Jul 2004 22:27:24 +0200
+User-Agent: KMail/1.6.2
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200407052227.29141.mbuesch@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-06-30 at 16:36, Joerg Sommrey wrote:
-> Hello,
-> 
-> my box behaves a bit strange after "shutdown -h".  The system performs
-> a
-> clean shutdown, but afterwards the front-side power button doesn't
-> power-on anymore.  After turning off power completely for 5 - 10 sec
-> using the power supply's rear-side switch system boots again.  I found
-> a
-> hint that this might be caused by a power supply that doesn't fully
-> conform to ATX 2.01.  Though this might be the real cause of my
-> problem,
-> I'd like to know if there is a workaround.  Shutting down from an
-> older
-> Knoppix-CD (kernel 2.4.20 using apm) works fine, i.e. "front-side
-> power-on" works.  However, with 2.6 running on a SMP box there seems
-> to
-> be no way to poweroff via apm.
-> 
-> Is there a way to let machine_power_off() behave like apm_power_off()
-> on
-> a SMP box?
-> 
-> My system:
-> kernel: 2.6.7-mm1 (same with other 2.4 and 2.6)
-> CPU:    2 x Athlon MP
-> board:  Tyan Tiger MPX (S2466)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-It is possible that you have a Control Method power button
-rather than Fixed Function, and that it is currently disabled
-as a wakeup device.  complete dmesg or output from acpidmp
-would tell.
+Hi,
 
--Len
+What's the purpose of
+	t = jiffies;
+in apm_do_idle()?
+Looks very strange and incorrect to me,
+but I think there's a reason for it.
+Sorry for stealing your time, but I really don't get behind it.
+Thank you!
 
 
+static int apm_do_idle(void)
+{
+	u32	eax;
+
+	if (apm_bios_call_simple(APM_FUNC_IDLE, 0, 0, &eax)) {
+		static unsigned long t;
+
+		/* This always fails on some SMP boards running UP kernels.
+		 * Only report the failure the first 5 times.
+		 */
+		if (++t < 5)
+		{
+			printk(KERN_DEBUG "apm_do_idle failed (%d)\n",
+					(eax >> 8) & 0xff);
+			t = jiffies;
+		}
+		return -1;
+	}
+	clock_slowed = (apm_info.bios.flags & APM_IDLE_SLOWS_CLOCK) != 0;
+	return clock_slowed;
+}
+
+- -- 
+Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFA6bmsFGK1OIvVOP4RAj7tAJ9oogV61ZIy6NfEJK4VPRTDPJ0ZFgCbBlAn
+ahI36YWo83478oVQ9/p1wW4=
+=umcI
+-----END PGP SIGNATURE-----

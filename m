@@ -1,73 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262365AbULOTfA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262450AbULOTfy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262365AbULOTfA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 14:35:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262450AbULOTfA
+	id S262450AbULOTfy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 14:35:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262453AbULOTfy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 14:35:00 -0500
-Received: from mail.mellanox.co.il ([194.90.237.34]:28028 "EHLO
-	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S262365AbULOTe4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 14:34:56 -0500
-Date: Wed, 15 Dec 2004 21:34:58 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Takashi Iwai <tiwai@suse.de>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, pavel@suse.cz, discuss@x86-64.org,
-       gordon.jin@intel.com, alsa-devel <alsa-devel@lists.sourceforge.net>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: unregister_ioctl32_conversion and modules. ioctl32 revisited.
-Message-ID: <20041215193458.GB13539@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <20041215065650.GM27225@wotan.suse.de> <20041215074635.GC11501@mellanox.co.il> <s5hbrcvqv7r.wl@alsa2.suse.de> <1103135460.18982.68.camel@krustophenia.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1103135460.18982.68.camel@krustophenia.net>
-User-Agent: Mutt/1.4.1i
+	Wed, 15 Dec 2004 14:35:54 -0500
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:2691 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S262450AbULOTfp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 14:35:45 -0500
+Message-ID: <41C09244.2030403@comcast.net>
+Date: Wed, 15 Dec 2004 14:36:36 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Montavista Realtime compilation failures
+References: <41BFD327.3000408@comcast.net> <20041215094954.GA19147@infradead.org>
+In-Reply-To: <20041215094954.GA19147@infradead.org>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
-Quoting r. Lee Revell (rlrevell@joe-job.com) "Re: unregister_ioctl32_conversion and modules. ioctl32 revisited.":
-> On Wed, 2004-12-15 at 19:20 +0100, Takashi Iwai wrote:
-> > At Wed, 15 Dec 2004 09:46:35 +0200,
-> > Michael S. Tsirkin wrote:
-> > > 
-> > > There were two additional motivations for my patch:
-> > > 1. Make it possible to avoid the BKL completely by writing
-> > >    an ioctl with proper internal locking.
-> > > 2. As noted by  Juergen Kreileder, the compat hash does not work
-> > >    for ioctls that encode additional information in the command, like this:
-> > > 
-> > > #define EVIOCGBIT(ev,len)  _IOC(_IOC_READ, 'E', 0x20 + ev, len) > > 
-> > I like the idea very well.  Other benifits in addition:
-> > 
-> 
-> How does this all relate to Ingo's ->unlocked_ioctl stuff which is "an
-> official way to do BKL-less ioctls"?
-> 
-> http://lkml.org/lkml/2004/12/14/53
-> 
-> Lee
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-It conflicts :) When I wrote the original patch for 2.6.8.1
-I didnt see the unlocked_ioctl.patch.
+Ahh, alright, sorry.  I remember they announced this stuff to the list,
+so I thought it had reached the general interest of the LKML.
 
-unlocked_ioctl is the same as ioctl_native in my patch, except that
+Christoph Hellwig wrote:
+| On Wed, Dec 15, 2004 at 01:01:11AM -0500, John Richard Moser wrote:
+|
+|>-----BEGIN PGP SIGNED MESSAGE-----
+|>Hash: SHA1
+|>
+|>The MontaVista patches[1] I applied to 2.6.9 are not compiling on
+|>x86_64.  I'm also using a PaX pre-patch, which I don't believe is
+|>interfering; there were collisions with PaX in mm/, but none of those
+|>show here (they were all in .c files, not headers, so they cannot have
+|>an impact here).
+|
+|
+| I think you're much better off complaining to mvista.
+|
 
-1. I added more documentation in several places :)
-   (notably Documentation/filesystems/Locking)
 
-2. I thought it a bit silly to name a function for what
-   it does not do (does not take a lock), and we
-   still need a call for the compat layer.
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
 
-My patch adds another call to enable special handling
-for 32 bit ioctls on 64 bit systems.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-I could look at porting to -rc3-mm1, unless
-we dont want to back unlocked_ioctl.patch off.
-What do people here think?
+iD8DBQFBwJJDhDd4aOud5P8RAt7XAJ9LQMN8aku8f+rhmavV9MEOjH5x3gCfaHXS
+By0aLOAzXPwj2YwrtopKIqQ=
+=9J4g
+-----END PGP SIGNATURE-----
 
-MST

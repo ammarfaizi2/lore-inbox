@@ -1,180 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262330AbTCIBLI>; Sat, 8 Mar 2003 20:11:08 -0500
+	id <S262329AbTCIBKO>; Sat, 8 Mar 2003 20:10:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262332AbTCIBLI>; Sat, 8 Mar 2003 20:11:08 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:59795 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S262330AbTCIBK7>; Sat, 8 Mar 2003 20:10:59 -0500
-Date: Sat, 08 Mar 2003 17:21:26 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: lse-tech <lse-tech@lists.sourceforge.net>
-Subject: 2.5.64-mjb2 (scalability / NUMA patchset)
-Message-ID: <475260000.1047172886@[10.10.2.4]>
-In-Reply-To: <169550000.1046895443@[10.10.2.4]>
-References: <169550000.1046895443@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S262330AbTCIBKO>; Sat, 8 Mar 2003 20:10:14 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:47084 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S262329AbTCIBKN>;
+	Sat, 8 Mar 2003 20:10:13 -0500
+Message-Id: <200303090121.h291LDbx003771@eeyore.valparaiso.cl>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: root@chaos.analogic.com
+Subject: Re: Make ipconfig.c work as a loadable module. 
+In-Reply-To: Your message of "Fri, 07 Mar 2003 11:23:56 CDT."
+             <Pine.LNX.3.95.1030307094333.15013A-100000@chaos> 
+Date: Sat, 08 Mar 2003 22:21:13 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patchset contains mainly scalability and NUMA stuff, and anything 
-else that stops things from irritating me. It's meant to be pretty stable, 
-not so much a testing ground for new stuff.
+"Richard B. Johnson" <root@chaos.analogic.com> said:
 
-I'd be very interested in feedback from anyone willing to test on any 
-platform, however large or small.
+[...]
 
-NOTE - you will have to apply -bk3 before applying this release.
-ftp://ftp.kernel.org/pub/linux/kernel/v2.5/snapshots/patch-2.5.64-bk3.bz2
-ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.5.64/patch-2.5.64-bk3-mjb2.bz2
+> As the kernel changes there are some things that really need to remain.
+> You need to be able to boot from a "floppy" disk.
 
-additional:
+No...
 
-http://www.aracnet.com/~fletch/linux/2.5.59/pidmaps_nodepages
+>                                                   Yes, now-days it's
+> probably not a real floppy, but a BIOS module that emulates a floppy.
+> A lot of people don't realilize that this is how a CD/ROM is booted!
 
-Since 2.5.64-mjb1 (~ = changed, + = added, - = dropped)
+Red Hat 8.0 boots directly from the ISO filesystem, IIUC. Plus "floppy
+booting" mostly means using FreeDOS + syslinux, or even an ext2 floppy with
+lilo or grub. The "floppy booting" discussed here is doing:
 
-Notes:  This is just a merge up on top of the cool new scheduler stuff.
+   dd if=bzImage of=/dev/fd0
 
-Merged with Linus:
+and booting that floppy directly. I really don't remember when I did that
+last time, it must have been at least 5 years ago.
 
-- nfs_fix						Trond Myklebust
-~ sched_tunables					Robert Love
-
-New:
-
-
-Pending:
-scheduler callers profiling (Anton)
-PPC64 NUMA patches (Anton)
-Child runs first (akpm)
-Kexec
-e1000 fixes
-Non-PAE aligned kernel splits (Dave Hansen)
-Update the lost timer ticks code
-Ingo scheduler updates
-
-Present in this patch:
-
-common_physmap					Andy Whitcroft
-	merge physnode_map implementations from numaq and summit
-
-pfn_to_nid_inline				Andy Whitcroft
-	converts the pfn_to_nid macro into an inline
-
-numa_x86_pc					Andy Whitcroft
-	adds basic numa support for flat systems
-
-physnode_map_u8					Andy Whitcroft
-	converts physnode_map array to u8 (save cache polution)
-
-profiling_docs					Martin J. Bligh
-	Basic profiling docs
-
-align_files_lock				Martin J. Bligh
-	Cacheline align files_lock
-
-pfn_valid					Andy Whitcroft
-	fixes up a bug in copy_page_range
-
-doaction					Martin J. Bligh
-	Fix cruel torture of macros and small furry animals in io_apic.c
-
-early_printk					Dave Hansen et al.
-	Allow printk before console_init
-
-confighz					Andrew Morton / Dave Hansen
-	Make HZ a config option of 100 Hz or 1000 Hz
-
-config_page_offset				Dave Hansen / Andrea
-	Make PAGE_OFFSET a config option
-
-vmalloc_stats					Dave Hansen
-	Expose useful vmalloc statistics
-
-numameminfo					Martin Bligh / Keith Mannthey
-	Expose NUMA meminfo information under /proc/meminfo.numa
-
-ingosched					Ingo Molnar
-	Modify NUMA scheduler to have independant tick basis.
-
-schedstat					Rick Lindsley
-	Provide stats about the scheduler under /proc/schedstat
-
-schedstat2					Rick Lindsley
-	Provide more stats about the scheduler under /proc/schedstat
-
-schedstat-scripts				Rick Lindsley
-	Provide some scripts for schedstat analysis under scripts/
-
-sched_tunables					Robert Love
-	Provide tunable parameters for the scheduler (+ NUMA scheduler)
-
-irq_affinity					Martin J. Bligh
-	Workaround for irq_affinity on clustered apic mode systems (eg x440)
-
-cleaner_inodes					Andrew Morton
-	Make noatime filesystems more efficient
-
-partial_objrmap					Dave McCracken
-	Object based rmap for filebacked pages.
-
-objrmap_fix					Dave McCracken
-	Fix detection of anon pages
-
-objrmap_fixes					Dave McCracken / Hugh Dickins
-	Fix up some mapped sizing bugs in objrmap
-
-objrmap_mapcount				Dave McCracken
-	Fix up some mapped sizing bugs in objrmap
-
-kgdb						Andrew Morton / Various People
-	The older version of kgdb, synched with 2.5.54-mm1
-
-noframeptr					Martin Bligh
-	Disable -fomit_frame_pointer
-
-kprobes						Vamsi Krishna S
-	Add kernel probes hooks to the kernel
-
-# dmc_exit					Dave McCracken
-	Speed up the exit path.
-
-# shpte						Dave McCracken
-	Shared pagetables (as a config option)
-
-thread_info_cleanup (4K stacks pt 1)		Dave Hansen / Ben LaHaise
-	Prep work to reduce kernel stacks to 4K
-	
-interrupt_stacks    (4K stacks pt 2)		Dave Hansen / Ben LaHaise
-	Create a per-cpu interrupt stack.
-
-stack_usage_check   (4K stacks pt 3)		Dave Hansen / Ben LaHaise
-	Check for kernel stack overflows.
-
-4k_stack            (4K stacks pt 4)		Dave Hansen
-	Config option to reduce kernel stacks to 4K
-
-fix_kgdb					Dave Hansen
-	Fix interaction between kgdb and 4K stacks
-
-stacks_from_slab				William Lee Irwin
-	Take kernel stacks from the slab cache, not page allocation.
-
-thread_under_page				William Lee Irwin
-	Fix THREAD_SIZE < PAGE_SIZE case
-
-lkcd						LKCD team
-	Linux kernel crash dump support
-
-percpu_loadavg					Martin J. Bligh
-	Provide per-cpu loadaverages, and real load averages
-
--mjb						Martin J. Bligh
-	Add a tag to the makefile
-
+Embedded systems I've seen do strange shenanigans with custom bootloaders
+to get the kernel into RAM, no floppy involved.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,37 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314493AbSDRXZa>; Thu, 18 Apr 2002 19:25:30 -0400
+	id <S314495AbSDRX1F>; Thu, 18 Apr 2002 19:27:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314495AbSDRXZ3>; Thu, 18 Apr 2002 19:25:29 -0400
-Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:15632
-	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
-	id <S314493AbSDRXZ3>; Thu, 18 Apr 2002 19:25:29 -0400
-Message-Id: <5.1.0.14.2.20020418191904.028f1290@whisper.qrpff.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 18 Apr 2002 19:19:47 -0400
-To: Larry McVoy <lm@bitmover.com>, Kent Borg <kentborg@borg.org>
-From: Stevie O <stevie@qrpff.net>
-Subject: Re: Versioning File Systems?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020418082025.N2710@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S314496AbSDRX1E>; Thu, 18 Apr 2002 19:27:04 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:62472 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S314495AbSDRX1D>; Thu, 18 Apr 2002 19:27:03 -0400
+Subject: Re: Bio pool & scsi scatter gather pool usage
+To: peloquin@us.ibm.com (Mark Peloquin)
+Date: Fri, 19 Apr 2002 00:36:32 +0100 (BST)
+Cc: akpm@zip.com.au (Andrew Morton), linux-kernel@vger.kernel.org
+In-Reply-To: <OFCF00F1A4.2665039D-ON85256B9F.006B755C@pok.ibm.com> from "Mark Peloquin" at Apr 18, 2002 05:58:16 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16yLS4-0005vN-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 08:20 AM 4/18/2002 -0700, Larry McVoy wrote:
->It's certainly a fun space, file system hacking is always fun.  There
->doesn't seem to be a good match between file system operations and
->SCM operations, especially stuff like checkin.  write != checkin.
->But you can handle that with
+> Perhaps, but calls are expensive. Repeated calls down stacked block
+> devices will add up. In only the most unusually cases will there
 
-How about
-        fsync(fd) || close(fd) == checkin?
+You don't need to repeatedly query. At bind time you can compute the 
+limit for any device heirarchy and be done with it. 
 
-
-
---
-Stevie-O
-
-Real programmers use COPY CON PROGRAM.EXE
-
+Alan

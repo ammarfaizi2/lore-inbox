@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261181AbUEBElM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261472AbUEBGVq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261181AbUEBElM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 May 2004 00:41:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261443AbUEBElM
+	id S261472AbUEBGVq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 May 2004 02:21:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261611AbUEBGVq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 May 2004 00:41:12 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:50883 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261181AbUEBElB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 May 2004 00:41:01 -0400
-From: "Buddy Lumpkin" <b.lumpkin@comcast.net>
-To: "'Paul Jackson'" <pj@sgi.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Large page support in the Linux Kernel?
-Date: Sat, 1 May 2004 21:45:29 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-Reply-To: <20040501033612.0078b26f.pj@sgi.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-Thread-Index: AcQvZ/8Gcx+u9FwvTfO1rhNHDcs6qQAmEYhA
-Message-Id: <S261181AbUEBElB/20040502044101Z+1560@vger.kernel.org>
+	Sun, 2 May 2004 02:21:46 -0400
+Received: from mail.kroah.org ([65.200.24.183]:44429 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261472AbUEBGVm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 May 2004 02:21:42 -0400
+Date: Sat, 1 May 2004 22:51:44 -0700
+From: Greg KH <greg@kroah.com>
+To: stefan.eletzhofer@eletztrick.de, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] 2.6 I2C epson 8564 RTC chip
+Message-ID: <20040502055144.GE31886@kroah.com>
+References: <20040429120250.GD10867@gonzo.local> <20040501054804.GH21431@kroah.com> <20040501092604.GA23561@gonzo.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040501092604.GA23561@gonzo.local>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yup, this is it. Thanks :)
+On Sat, May 01, 2004 at 11:26:04AM +0200, stefan.eletzhofer@eletztrick.de wrote:
+> On Fri, Apr 30, 2004 at 10:48:04PM -0700, Greg KH wrote:
+> > On Thu, Apr 29, 2004 at 02:02:50PM +0200, stefan.eletzhofer@eletztrick.de wrote:
+> > > +	if ( !buf || !client ) {
+> > 
+> > Can you clean up your exuberant use of spaces in 'if' statements, and
+> > function calls?  It's not the proper kernel style.
+> > 
+> > > +DONE:
+> > 
+> > Lowercase please
+> > 
+> > > +	if ( ret ) {
+> > > +		if ( d ) kfree( d );
+> > 
+> > No need to check a pointer before sending it to kfree.
+> 
+> Ok, that should be it. I've also ran the source through Lindent,
+> which fixed some further things. I've reverted the indention change
+> for labels, though. I think labels should be at level zero, should
+> they?
 
---Buddy
+Looks good, applied, thanks.
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Paul Jackson
-Sent: Saturday, May 01, 2004 3:36 AM
-To: Buddy Lumpkin
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Large page support in the Linux Kernel?
-
-> I was wondering if there is going to be large page support for the linux
-> kernel in the near future.
-
-Do a search in this lkml for "hugetlb",  and read the linux file
-Documentation/vm/hugetlbpage.txt.  Is that what you're looking for?
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
+greg k-h

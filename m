@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265467AbTF1XEk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jun 2003 19:04:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265460AbTF1XEk
+	id S265457AbTF1XFM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jun 2003 19:05:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265456AbTF1XFM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jun 2003 19:04:40 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:19083
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S265455AbTF1XEd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jun 2003 19:04:33 -0400
-Subject: Re: networking bugs and bugme.osdl.org
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "David S. Miller" <davem@redhat.com>
-Cc: greearb@candelatech.com, davidel@xmailserver.org, mbligh@aracnet.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-net@vger.kernel.org, netdev@oss.sgi.com
-In-Reply-To: <20030628.150328.74739742.davem@redhat.com>
-References: <1056755336.5459.16.camel@dhcp22.swansea.linux.org.uk>
-	 <20030627.172123.78713883.davem@redhat.com>
-	 <1056827972.6295.28.camel@dhcp22.swansea.linux.org.uk>
-	 <20030628.150328.74739742.davem@redhat.com>
-Content-Type: text/plain
+	Sat, 28 Jun 2003 19:05:12 -0400
+Received: from host09.ipowerweb.com ([12.129.206.109]:39915 "EHLO
+	host09.ipowerweb.com") by vger.kernel.org with ESMTP
+	id S265460AbTF1XEt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jun 2003 19:04:49 -0400
+Message-ID: <3EFE2231.2050707@libero.it>
+Date: Sun, 29 Jun 2003 01:18:09 +0200
+From: "Luca T." <luca-t@libero.it>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030428
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: /dev/random broken?
+X-Enigmail-Version: 0.73.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1056842138.6753.16.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 29 Jun 2003 00:15:38 +0100
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - host09.ipowerweb.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [0 0]
+X-AntiAbuse: Sender Address Domain - libero.it
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2003-06-28 at 23:03, David S. Miller wrote:
-> Not my problem Alan.  If the user gives a crap about their report
-> mattering, they'll do what I ask them to do.  If users send their
-> report to the wrong place, it will get lost, just like if their
-> cat their report into /dev/null.  I have no reason to feel bad about
-> the information getting lost.
+Hello,
+i am not sure if this is a kernel/module problem but so it seems to me.
+My computer is an AMD 2000+ with an ABIT motherboard, my kernel version 
+is 2.4.21-0.13mdk (but i tried it with 2.4.21-0.18mdk too and it doesn't 
+work either).
 
-You might not care but some of us do. Capturing the data matters for
-lots of things. That you don't have the time to be the filter for that
-info for networking is also fine.
+If i give this command:
+  dd if=/dev/zero of=./xxx bs=1024 count=100
+it will work perfectly. But if i try to do the same reading from 
+/dev/random with this command:
+  dd if=/dev/random of=./xxx bs=1024 count=100
+it will just sit there and stare at me until i move the mouse... and 
+then the program will exit without any error message (i checked in 
+/var/log/messages too and there is no message there either about this).
 
+Is this a bug? If yes... do you have any idea that would help me fix it?
+
+Thank you,
+     Luca
 

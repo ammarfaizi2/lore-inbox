@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263327AbTHVP10 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 11:27:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263554AbTHVP10
+	id S264780AbTHVPXt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 11:23:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264797AbTHVPXt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 11:27:26 -0400
-Received: from havoc.gtf.org ([63.247.75.124]:60332 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S263327AbTHVP1V (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 11:27:21 -0400
-Date: Fri, 22 Aug 2003 11:27:20 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] noapic should depend on ioapic config not local
-Message-ID: <20030822152720.GA31693@gtf.org>
-References: <20030821052140.GA19039@gtf.org> <20030822110920.B639@nightmaster.csn.tu-chemnitz.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030822110920.B639@nightmaster.csn.tu-chemnitz.de>
-User-Agent: Mutt/1.3.28i
+	Fri, 22 Aug 2003 11:23:49 -0400
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:24753 "EHLO
+	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S264780AbTHVPXq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 11:23:46 -0400
+Message-ID: <3F46356A.804@nortelnetworks.com>
+Date: Fri, 22 Aug 2003 11:23:22 -0400
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com
+Subject: help???  trying to trace code path of outgoing udp packet
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 22, 2003 at 11:09:20AM +0200, Ingo Oeser wrote:
-> On Thu, Aug 21, 2003 at 01:21:40AM -0400, Jeff Garzik wrote:
-> > Zwane's comment was correct, it needs to be CONFIG_X86_IO_APIC.
-> 
-> Does this also apply to 2.4.22-rc2?
-> 
-> I must use noapic on my system and 2.4.22 does ignore it, while
-> 2.4.21 doesn't.
 
-Marcelo just pulled a bunch of ACPI fixes, so I would check the latest
-BK, or wait for tonight's BK snapshot.
+I'm trying to figure out the code path taken by an outgoing udp packet, 
+and I'm having a bit of trouble figuring out which functions are called 
+by which function pointers.  The path that I have so far is this:
 
-So, yes, it does apply to 2.4.22-rc2, but the Intel guys may have taken
-care of it already.
+udp_sendmsg          udp.c
+ip_build_xmit        ip_output.c
+output_maybe_reroute ip_output.c   skb->dst->output
+ip_output            ip_output.c
+ip_finish_output     ip_output.c
+ip_finish_output2    ip_output.c   dst->neighbour->output
 
-	Jeff
+Is this correct?  Where does it go from here and how does it eventually 
+end up in the driver?
+
+In the case in question, the network device is the tulip chip and 
+traffic shaping is not enabled, but we do have advanced routing turned on.
+
+Thanks,
+
+Chris
 
 
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

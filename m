@@ -1,47 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265689AbTAXUyf>; Fri, 24 Jan 2003 15:54:35 -0500
+	id <S265675AbTAXUxZ>; Fri, 24 Jan 2003 15:53:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265700AbTAXUyf>; Fri, 24 Jan 2003 15:54:35 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:39660 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S265689AbTAXUye>;
-	Fri, 24 Jan 2003 15:54:34 -0500
-Date: Fri, 24 Jan 2003 12:51:21 -0800 (PST)
-Message-Id: <20030124.125121.78932406.davem@redhat.com>
-To: Jeff.Wiedemeier@hp.com
-Cc: jgarzik@pobox.com, ink@jurassic.park.msu.ru, willy@debian.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 2.5] tg3.c: pci_{save,restore}_extended_state
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030124154635.A4161@dsnt25.mro.cpqcorp.net>
-References: <20030124152453.A4081@dsnt25.mro.cpqcorp.net>
-	<20030124203402.GA4975@gtf.org>
-	<20030124154635.A4161@dsnt25.mro.cpqcorp.net>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S265681AbTAXUxZ>; Fri, 24 Jan 2003 15:53:25 -0500
+Received: from packet.digeo.com ([12.110.80.53]:15578 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265675AbTAXUxX>;
+	Fri, 24 Jan 2003 15:53:23 -0500
+Date: Fri, 24 Jan 2003 13:21:36 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Thomas Schlichter <schlicht@rumms.uni-mannheim.de>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+       schulz@uni-mannheim.de
+Subject: Re: [PATCH] to support hookable flush_tlb* functions
+Message-Id: <20030124132136.765a420d.akpm@digeo.com>
+In-Reply-To: <1043418252.3e314c8d0278a@rumms.uni-mannheim.de>
+References: <1043418252.3e314c8d0278a@rumms.uni-mannheim.de>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 24 Jan 2003 21:02:28.0946 (UTC) FILETIME=[E78F6320:01C2C3EB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Wiedemeier, Jeff" <Jeff.Wiedemeier@hp.com>
-   Date: Fri, 24 Jan 2003 15:46:35 -0500
+Thomas Schlichter <schlicht@rumms.uni-mannheim.de> wrote:
+>
+> Hello,
+> 
+> with this mail I send a patch that allows kernel modules to hook into the
+> different flush_tlb* functions defined in <asm/tlbflush.h> or <asm/pgtable.h> in
+> order to synchronize devices TLBs.
 
-   On Fri, Jan 24, 2003 at 03:34:02PM -0500, Jeff Garzik wrote:
-   > AFAICS, this is a per-driver decision, and needs to be done at the
-   > driver level, in the tg3 driver source.
-   
-   The last sentence in the quote above indicates that it is not intended
-   (by the PCI spec) to be a per-driver decision, but rather a system
-   decision. The messages used are also a per-bus system resource and how
-   an MSI goes from the PCI bus to the rest of the system (i.e. the CPU(s))
-   is implementation dependent.
+Looks sensible enough.
 
-Yes, this is understood.
+A few coding-style nits:
 
-But the tg3 hw designers have decided to do something which makes this
-not possible.
+	+typedef struct tlb_hook_struct {
+	+...
+	+} tlb_hook_t;
 
-So, for tg3's case, it has to become a driver specific decision
-whether to support MSI or not.
+typedefs are unpopular.  Please just use
+
+	struct tlb_hook {
+		...
+	};
+
++static inline void flush_tlb_hook( void )
+
+extraneous whitespace - Linus style is flush_tlb_hook(void)
+
++	while( hook )
+
+	while (hook)
+
++	{
++		if( hook->flush_tlb )
+
+		if (hook->flush_tlb)
+
++			hook->flush_tlb( );
+
+			hook->flush_tlb();
+
+etc...
+
+
+
+The unregister_hook implementation is racy - the hook could be in use on
+another CPU.  That's OK - we have the RCU infrastructure which will allow
+hooks to be torn down safely.  And nice people who can help others who are
+using that code.
+
+> The i386 patch also includes some cleanups by renaming __flush_tlb_* to
+> local_flush_tlb_*.
+
+That makes plenty of sense.
+
+> I hope some time this patches will make it into the kernel sources. (perhaps
+> even into 2.6.x ?)
+
+Well the big questions are: where are the drivers for these devices?  When
+can we expect to see significant demand for these devices?  Will there be
+significant demand across the lifetime of the 2.6 kernel?
+
+BTW, when you say "low latency NICs that will implement direct user space DMA
+transfers to not pinned user pages", what do you mean by "not pinned"?
+

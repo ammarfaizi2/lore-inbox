@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316944AbSE1VRz>; Tue, 28 May 2002 17:17:55 -0400
+	id <S316941AbSE1VTy>; Tue, 28 May 2002 17:19:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316938AbSE1VRy>; Tue, 28 May 2002 17:17:54 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:9737 "EHLO
+	id <S316945AbSE1VTx>; Tue, 28 May 2002 17:19:53 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:16649 "EHLO
 	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S316942AbSE1VRw>; Tue, 28 May 2002 17:17:52 -0400
-Date: Tue, 28 May 2002 23:17:55 +0200
-From: Pavel Machek <pavel@ucw.cz>
+	id <S316941AbSE1VTv>; Tue, 28 May 2002 17:19:51 -0400
+Date: Tue, 28 May 2002 23:19:54 +0200
+From: Pavel Machek <pavel@suse.cz>
 To: fchabaud@free.fr
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] swsusp in 2.4.19-pre8-ac5
-Message-ID: <20020528211755.GC28189@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20020528195546.GC189@elf.ucw.cz> <200205282109.g4SL9on02339@colombe.home.perso>
+Cc: matthias.andree@stud.uni-dortmund.de, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19-pre8-ac5 swsusp panic
+Message-ID: <20020528211954.GD28189@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20020527140111.G35@toy.ucw.cz> <200205282113.g4SLD6n05000@colombe.home.perso>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,71 +22,35 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
+> >> > I tried SysRq-D and finally got a kernel "panic: Request while ide driver
+> >> > is blocked?"
+> >> > 
+> >> > Before that, I saw "waiting for tasks to stop... suspending kreiserfsd",
+> >> > nfsd exiting, "Freeing memory", "Syncing disks beofre copy", then some
+> >> > "Probem while suspending", then some "Resume" and finally the panic.
+> >> > 
+> >> > It may be worth noting that one swap partition is on a SCSI drive, and
+> >> > that my IDE drives were in standby (not idle) mode, i. e. their spindle
+> >> > motors were stopped.
+> >> > 
+> >> 
+> >> AFAIK swap partition under SCSI is not supported for the moment.
 > > 
-> >  			INTERESTING(p);
-> >  			if (p->flags & PF_FROZEN)
-> >  				continue;
-> > -
-> > +			if (p->state == TASK_STOPPED) {	/* this task is a stopped but not frozen one */
-> > +				p->flags |= PF_IOTHREAD;
-> > +				_printk("+");
-> > +				continue;
-> > +			}
-> >  			/* FIXME: smp problem here: we may not access other process' flags
-> >  			   without locking */
-> >  			p->flags |= PF_FREEZE;
+> >  can you elaborate? swsusp ddoes not careif it is scsi on ide and I had it
+> > running on usb-storage device at one point.
+> > 								Pavel
 > > 
-> > Are you sure this is correct? What if someone wakes it just after you
-> > given it PF_IOTHREAD?
 > 
-> Good point. I need to be more precise.
+> Well we haven't the equivalent to ide_disk_(un)suspend. I agree that
+> this should be sufficient to make it work, but SCSI may be a little more
+> difficult to patch.
 
-Yup.
+Yup, right. Right way to do that is using pci power interface. It
+hopefully is strong enough to do that in 2.4, and it will magically
+work in 2.5 too.
 
-> > 
-> > What's the point of all those PRINTS -> __prints changes? I do not
-> > like additional abstractions on the top of printk(). Are they really
-> > neccessary?
-> 
-> Actually I tried to make the process prettier using a dedicated console.
-> The PRINT are for debugging, _print for the dedicated console (can be
-> deactivated using SUSPEND_CONSOLE) and __print are always written
-> (errors messages). The PRINTS PRINTR macros were used to separate
-> suspend and resume machine. It's not necessary but isn't that nicer when
-> you suspend ?
-
-Are not "Suspend : " and "Resume : " superfluous if you have dedicated
-console, anyway?
-
-Why don't you use generic printk() for messages that are printed, always?
-
-> > @@ -1207,11 +1263,12 @@
-> >  	pagedir_order = get_bitmask_order(nr_pgdir_pages);
-> >  
-> >  	error = -ENOMEM;
-> > +	free_page((unsigned long)cur);
-> >  	pagedir_nosave = (suspend_pagedir_t *)__get_free_pages(GFP_ATOMIC, pagedir_order);
-> >  	if(!pagedir_nosave)
-> >  		goto resume_read_error;
-> >  
-> > -	PRINTR( "%sReading pagedir, ", name_resume );
-> > +	PRINTR( "Reading pagedir\n" );
-> >  
-> >  	/* We get pages in reverse order of saving! */
-> >  	error=-EIO;
-> > 
-> > Why freeing it? This system is going to be overwritten, anyway.
-> 
-> I don't like the idea not to free the page as soon as we don't need it
-> any more. Maybe we'll have an error later and try to recover a normal
-> boot in a future version.
-
-Okay, applied.
-
-> What about the CONFIG_SMP restriction ? Is it still pertinent ?
-
-Yes, I'm afraid. If someone wants to donate me SMP pentium, I might
-try to debug that ;-).
+But for that usb-storage, usb already contains pm-related code, so it
+should just work.
 								Pavel
 -- 
 Casualities in World Trade Center: ~3k dead inside the building,

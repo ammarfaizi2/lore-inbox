@@ -1,69 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129408AbQJaOCw>; Tue, 31 Oct 2000 09:02:52 -0500
+	id <S130019AbQJaOQC>; Tue, 31 Oct 2000 09:16:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130019AbQJaOCm>; Tue, 31 Oct 2000 09:02:42 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:34821 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S129408AbQJaOC0>;
-	Tue, 31 Oct 2000 09:02:26 -0500
+	id <S130079AbQJaOPw>; Tue, 31 Oct 2000 09:15:52 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:37381 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S130019AbQJaOPl>;
+	Tue, 31 Oct 2000 09:15:41 -0500
 X-Mailer: exmh version 2.1.1 10/15/1999
 From: Keith Owens <kaos@ocs.com.au>
-To: Russell King <rmk@arm.linux.org.uk>
-cc: torvalds@transmeta.com (Linus Torvalds),
-        jgarzik@mandrakesoft.com (Jeff Garzik),
-        linux-kernel@vger.kernel.org (Kernel Mailing List)
-Subject: Re: test10-pre7 
-In-Reply-To: Your message of "Tue, 31 Oct 2000 09:37:09 -0000."
-             <200010310937.JAA07048@brick.arm.linux.org.uk> 
+To: Petko Manolov <petkan@dce.bg>
+cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: changed section attributes 
+In-Reply-To: Your message of "Tue, 31 Oct 2000 15:54:05 +0200."
+             <39FECEFD.4F70A24F@dce.bg> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 01 Nov 2000 01:02:10 +1100
-Message-ID: <16544.973000930@ocs3.ocs-net>
+Date: Wed, 01 Nov 2000 01:15:32 +1100
+Message-ID: <16848.973001732@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 31 Oct 2000 09:37:09 +0000 (GMT), 
-Russell King <rmk@arm.linux.org.uk> wrote:
->Keith Owens writes:
->> kbuild 2.5 splits link order into three categories.  Those that must
->> come first, in the order they are specified - LINK_FIRST.  Those that
->> must come last, in the order they are specified - LINK_LAST.
->Take the instance where we need to link a.o first, z.o second, f.o third
->and p.o fourth.  How does LINK_FIRST / LINK_LAST guarantee this?
+On Tue, 31 Oct 2000 15:54:05 +0200, 
+Petko Manolov <petkan@dce.bg> wrote:
+>"Warning: Ignoring changed section attributes for .modinfo"
 >
->LINK_FIRST = a.o z.o
->LINK_LAST = f.o p.o
->
->But then what guarantees that 'a.o' will be linked before 'z.o'?
+>Changing the declaration in linux/module.h to ".modinfo,"a""
+>fixed the problem, but i noticed that the author said that
+>"we want .modinfo to not be allocated"
 
-LINK_FIRST is processed in the order it is specified, so a.o will be
-linked before z.o when both are present.  See the patch.
+Historically that was the only way of preventing the .modinfo section
+from being included in modules when they were loaded into the kernel.
+An alternative is to allow .modinfo to be allocated and have modutils
+treat it as non-allocated.  This feature was added to modutils 2.3.19
+on October 22 (bleeding edge toolchains for IA64 are "fun") so anybody
+who is annoyed by the warning messages can apply this patch.
 
->A first/last implementation can *not* specify precisely a link order without
->guaranteeing that the order of the LINK_FIRST *and* the LINK_LAST objects
->is preserved, which incidentally is the same requirement for the obj-y
->implementation.
-
-It is preserved, see the patch.
-
->I don't see what this LINK_FIRST / LINK_LAST gains us other than more
->complexity for zero gain.
-
-The vast majority of objects have no link order dependencies.  You only
-specify LINK_FIRST or LINK_LAST where it is needed and only for the
-small subset of objects that have critical ordering.
-
-There are 82 obj-$(CONFIG_xxx) entries in drivers/scsi.  Which ones
-must be executed first?  Which ones must be executed last?  Why do
-these requirements (if any) exist?  Can I safely change the order of
-any of the driver/scsi entries?  If not, why not?
-
-LINK_FIRST and LINK_LAST serve two purposes.  They self document the
-link order where that order matters.  And they solve the problem of
-multi part objects being linked into the kernel, although that problem
-_may_ have other solutions.  Having documentation makes life easier for
-everybody.  Please do not say that the link order could be documented
-in the existing Makefiles, that method has completely failed to work.
+Index: 0-test10-pre7.1/include/linux/module.h
+--- 0-test10-pre7.1/include/linux/module.h Tue, 31 Oct 2000 08:28:16 +1100 kaos (linux-2.4/W/33_module.h 1.1.2.1.2.1.2.1.2.1.1.1 644)
++++ 0-test10-pre7.1(w)/include/linux/module.h Wed, 01 Nov 2000 01:13:22 +1100 kaos (linux-2.4/W/33_module.h 1.1.2.1.2.1.2.1.2.1.1.1 644)
+@@ -218,11 +218,6 @@
+   MODULE_GENERIC_TABLE(type##_device,name)
+ /* not put to .modinfo section to avoid section type conflicts */
+ 
+-/* The attributes of a section are set the first time the section is
+-   seen; we want .modinfo to not be allocated.  */
+-
+-__asm__(".section .modinfo\n\t.previous");
+-
+ /* Define the module variable, and usage macros.  */
+ extern struct module __this_module;
+ 
+Index: 0-test10-pre7.1/Documentation/Changes
+--- 0-test10-pre7.1/Documentation/Changes Fri, 27 Oct 2000 22:11:48 +1100 kaos (linux-2.4/G/c/25_Changes 1.1.1.4.1.6 644)
++++ 0-test10-pre7.1(w)/Documentation/Changes Wed, 01 Nov 2000 01:13:03 +1100 kaos (linux-2.4/G/c/25_Changes 1.1.1.4.1.6 644)
+@@ -52,7 +52,7 @@
+ o  Gnu make               3.77                    # make --version
+ o  binutils               2.9.1.0.25              # ld -v
+ o  util-linux             2.10o                   # kbdrate -v
+-o  modutils               2.3.18                  # insmod -V
++o  modutils               2.3.19                  # insmod -V
+ o  e2fsprogs              1.19                    # tune2fs --version
+ o  pcmcia-cs              3.1.21                  # cardmgr -V
+ o  PPP                    2.4.0                   # pppd --version
+@@ -284,7 +284,7 @@
+ 
+ Modutils
+ --------
+-o  <ftp://ftp.kernel.org/pub/linux/utils/kernel/modutils/v2.3/modutils-2.3.18.tar.bz2>
++o  <ftp://ftp.kernel.org/pub/linux/utils/kernel/modutils/v2.3/modutils-2.3.19.tar.bz2>
+ 
+ Mkinitrd
+ --------
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

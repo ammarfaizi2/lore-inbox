@@ -1,53 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264482AbTEaWu3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 May 2003 18:50:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264483AbTEaWu3
+	id S264487AbTEaW7k (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 May 2003 18:59:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264489AbTEaW7k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 May 2003 18:50:29 -0400
-Received: from [207.48.83.9] ([207.48.83.9]:55560 "EHLO winds.org")
-	by vger.kernel.org with ESMTP id S264482AbTEaWu2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 May 2003 18:50:28 -0400
-Date: Sat, 31 May 2003 19:00:32 -0400 (EDT)
-From: Byron Stanoszek <gandalf@winds.org>
-To: Mike Fedyk <mfedyk@matchmail.com>
-cc: Alexandre Pereira Nunes <alex@PolesApart.wox.org>,
-       <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.4.21-rc6 ide-scsi bug?
-In-Reply-To: <20030531215638.GC25810@matchmail.com>
-Message-ID: <Pine.LNX.4.44.0305311858370.5395-100000@winds.org>
+	Sat, 31 May 2003 18:59:40 -0400
+Received: from ironbark.bendigo.latrobe.edu.au ([149.144.21.60]:24246 "EHLO
+	ironbark.bendigo.latrobe.edu.au") by vger.kernel.org with ESMTP
+	id S264487AbTEaW7k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 May 2003 18:59:40 -0400
+From: Grant <grant@ironbark.bendigo.latrobe.edu.au>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4 -ac zip ppa --  'mount: /dev/sda4 is not a valid block device'
+Date: Sun, 01 Jun 2003 09:12:58 +1000
+Organization: Scattered
+Reply-To: gcoady@bendigo.net.au
+Message-ID: <dgdidvo52kn1jhpt3dqsitidql172bbj07@4ax.com>
+References: <2j5idv0eh05vpva8tqkd4lc97bbh3dhack@4ax.com>
+In-Reply-To: <2j5idv0eh05vpva8tqkd4lc97bbh3dhack@4ax.com>
+X-Mailer: Forte Agent 1.93/32.576 English (American)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 31 May 2003, Mike Fedyk wrote:
+Hi there,
 
-> On Sat, May 31, 2003 at 03:57:11PM -0400, Byron Stanoszek wrote:
-> > I'm currently using 2.4.20-pre5-ac1 with Andre Hedrick's IDE Patch applied. So,
-> 
-> Do you need this patch?  Why isn't Alan's code enough?
+A followup: kernel 2.4.21-rc6-ac1 also fails to recognise 
+the zip ppa /dev/sda4 as a block device.
 
-Um, no, I just never upgraded my kernel since 2.4.20-pre5-ac1. At that time,
-ide-scsi didn't work in the -ac series, and Andre Hedrick had initially
-released his patches for it to work.
+Cheers,
+Grant.
 
-I recommend sticking with the latest -ac version regardless. :) It has most of
-Andre's patches in anyway, with everything else fixed--except for this one
-problem.
-
- -Byron
-
-> 
-> If Andre isn't sending his patches or Alan hasn't integrated them then maybe
-> Alan has some plans for it.
-> 
-> Also, maybe the patch is incompatible with the latest -ac?
-> 
-
--- 
-Byron Stanoszek                         Ph: (330) 644-3059
-Systems Programmer                      Fax: (330) 644-8110
-Commercial Timesharing Inc.             Email: byron@comtime.com
 

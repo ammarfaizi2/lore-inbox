@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284073AbRLWTjt>; Sun, 23 Dec 2001 14:39:49 -0500
+	id <S284139AbRLWTnA>; Sun, 23 Dec 2001 14:43:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284117AbRLWTjk>; Sun, 23 Dec 2001 14:39:40 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:26968 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S284073AbRLWTj2>; Sun, 23 Dec 2001 14:39:28 -0500
-To: Andreas Gietl <a.gietl@e-admin.de>
-Cc: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: serial console on > 2.4.14
-In-Reply-To: <E16I9Fq-0007yj-00@d101.x-mailer.de>
-	<20011223142331.A27993@flint.arm.linux.org.uk>
-	<E16I9fm-0001wk-00@d101.x-mailer.de>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 23 Dec 2001 12:37:43 -0700
-In-Reply-To: <E16I9fm-0001wk-00@d101.x-mailer.de>
-Message-ID: <m1lmftram0.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S284135AbRLWTmk>; Sun, 23 Dec 2001 14:42:40 -0500
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:272 "HELO mail.pha.ha-vel.cz")
+	by vger.kernel.org with SMTP id <S284133AbRLWTmb>;
+	Sun, 23 Dec 2001 14:42:31 -0500
+Date: Sun, 23 Dec 2001 20:42:27 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: really mason_at_soo_dot_com <lnx-kern@Sophia.soo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.2-pre1 oddness under X
+Message-ID: <20011223204227.A13661@suse.cz>
+In-Reply-To: <20011222164602.A20623@Sophia.soo.com> <3C250835.9010806@wanadoo.fr> <20011223151147.F7438@suse.de> <20011223120825.A22239@Sophia.soo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011223120825.A22239@Sophia.soo.com>; from lnx-kern@Sophia.soo.com on Sun, Dec 23, 2001 at 12:08:25PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Gietl <a.gietl@e-admin.de> writes:
+On Sun, Dec 23, 2001 at 12:08:25PM -0500, really mason_at_soo_dot_com wrote:
+> Yikes, hope not.  But yeps, i'm using IDE drives,
+> ATA100 master and ATA66 slave.  It's a VIA vt8233
+> south bridge.  i also have the FSB overclocked so
+> the PCI bus is running at 37mhz.  That's caused
+> no trouble so far.
 
-> On Sunday 23 December 2001 15:23, Russell King wrote:
-> 
-> This is what stty gives 
-> 
-> speed 38400 baud; rows 0; columns 0; line = 0;
-> intr = ^C; quit = ^\; erase = ^?; kill = ^X; eof = ^D; eol = <undefiniert>; 
-> eol2 = <undefiniert>; start = ^Q; stop = ^S; susp = ^Z; rprnt = ^R; werase = 
-> ^W; lnext = ^V;
-> flush = ^O; min = 1; time = 0;
-> -parenb -parodd cs8 hupcl -cstopb cread -clocal -crtscts
-> -ignbrk -brkint -ignpar -parmrk -inpck -istrip -inlcr -igncr -icrnl -ixon 
-> -ixoff -iuclc -ixany -imaxbel
-> -opost -olcuc -ocrnl -onlcr -onocr -onlret -ofill -ofdel nl0 cr0 tab0 bs0 vt0 
-> ff0
-> -isig -icanon -iexten -echo -echoe -echok -echonl -noflsh -xcase -tostop 
-> -echoprt -echoctl -echoke
-> 
-> 
-> 
-> But if forgot to say that after the startup completed and agetty starts the 
-> console the input works again. It just does not work during the startup. It 
-> works before the startup to go into the bios and it works after the startup.
+And you did tell the VIA ide driver to compensate for the 37MHz, did
+you? ('idebus=37' kernel option)
 
-You almost certainly have an init that is clearing cread.  There are patched
-versions that have this problem fixed.  Apparently cread actually being implemented
-in the kernel serial drivers is new, and only started appearing since 2.4.2.
+> 
+> b
+> 
+> On Sun, Dec 23, 2001 at 03:11:47PM +0100, Jens Axboe wrote:
+> > This sounds like disk corruption, it may be that the -pre1 changes are
+> > partially broken.
+> > 
+> > I'll go take a look. IDE?
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Eric
+-- 
+Vojtech Pavlik
+SuSE Labs

@@ -1,76 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261699AbVAXW3K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261709AbVAXWhm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261699AbVAXW3K (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 17:29:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261684AbVAXW2g
+	id S261709AbVAXWhm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 17:37:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbVAXWhX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 17:28:36 -0500
-Received: from [83.102.214.158] ([83.102.214.158]:16025 "EHLO gw.home.net")
-	by vger.kernel.org with ESMTP id S261668AbVAXWZo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 17:25:44 -0500
-X-Comment-To: "Stephen C. Tweedie"
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Alex Tomas <alex@clusterfs.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       <ext2-devel@lists.sourceforge.net>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [Ext2-devel] [PATCH] JBD: journal_release_buffer()
-References: <m3wtu9v3il.fsf@bzzz.home.net>
-	<1106604342.2103.395.camel@sisko.sctweedie.blueyonder.co.uk>
-From: Alex Tomas <alex@clusterfs.com>
-Organization: HOME
-Date: Tue, 25 Jan 2005 01:24:28 +0300
-In-Reply-To: <1106604342.2103.395.camel@sisko.sctweedie.blueyonder.co.uk> (Stephen
- C. Tweedie's message of "Mon, 24 Jan 2005 22:05:42 +0000")
-Message-ID: <m3brbebh43.fsf@bzzz.home.net>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 24 Jan 2005 17:37:23 -0500
+Received: from mailgate6.usairways.com ([151.193.203.26]:59599 "EHLO
+	mailgate6.usairways.com") by vger.kernel.org with ESMTP
+	id S261606AbVAXWfF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 17:35:05 -0500
+Message-Id: <200501242235.j0OMZ2JK011751@mailgate5.usairways.com>
+Date: Mon, 24 Jan 2005 16:33:46 -0500 (CDT)
+From: US Airways Postmaster <postmaster@usairways.com>
+Reply-To: do_not_reply@usairways.com
+To: <linux-kernel@vger.kernel.org>
+Subject: Disallowed attachment in message
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> Stephen C Tweedie (SCT) writes:
+In order to protect our network from viruses, US Airways prohibits 
+receipt of certain file attachments via email.  The email message  
+described below has been deleted and was not received by the 
+intended recipient.  This is not an indication that the attachment 
+contained a virus.  It is simply a precaution.
 
- >> +	/* return credit back to the handle if it was really spent */
- >> +	if (credits)
- >> +		handle->h_buffer_credits++; 
 
- >> +	jh->b_tcount--;
- >> +	if (jh->b_tcount == 0) {
- >> +		/* 
- >> +		 * this was last reference to the block from the current
- >> +		 * transaction and we'd like to return credit to the
- >> +		 * whole transaction -bzzz
- >> +		 */
- >> +		if (!credits)
- >> +			handle->h_buffer_credits++; 
+To successfully deliver the message, you should first rename the 
+file so that the file extension is changed to ".usa" and then resend 
+the file.  Include instructions to the recipient to rename the file 
+back to its original file extension.
 
- SCT> I think there's a problem here.
 
- SCT> What if:
- SCT>   Process A gets write access, and is the first to do so (*credits=1)
- SCT>   Processes B gets write access (*credits=0)
- SCT>   B modifies the buffer and finishes
- SCT>   A looks again, sees B's modifications, and releases the buffer because
- SCT> it's no use any more.
+Email details:
 
- SCT> Now, B's release didn't return credits.  The bh is part of the
- SCT> transaction and was not released.
-
-hmmm. that's a good catch. so, with this patch A increments h_buffer_credits
-and this one will go to the t_outstanding_credits while the buffer is still
-part of the transaction. indeed, an imbalance.
-
-probably something like the following would be enough?
-
- +	/* return credit back to the handle if it was really spent */
- +	if (credits) {
- +		handle->h_buffer_credits++; 
- +              spin_lock(&handle->h_transaction->t_handle_lock);
- +              handle->h_transaction->t_outstanding_credits++;
- +              spin_lock(&handle->h_transaction->t_handle_lock);
- +      }
-
-thanks, Alex
-
+     Date: Thu, 24 Feb 2005 15:13:35 -0500
+     Sender: <linux-kernel@vger.kernel.org>
+     Recipient: <esavers@usairways.com>
+     Subject: Mail Delivery (failure esavers@usairways.com)
+     Attachment Name: message.scr
+     Attachment Type: Screen Saver
 

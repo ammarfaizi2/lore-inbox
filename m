@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274586AbRJAFli>; Mon, 1 Oct 2001 01:41:38 -0400
+	id <S274603AbRJAFp6>; Mon, 1 Oct 2001 01:45:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274587AbRJAFl2>; Mon, 1 Oct 2001 01:41:28 -0400
-Received: from ookhoi.xs4all.nl ([213.84.114.66]:50309 "EHLO ookhoi.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S274586AbRJAFlW>;
-	Mon, 1 Oct 2001 01:41:22 -0400
-Date: Mon, 1 Oct 2001 07:41:48 +0200
-From: Ookhoi <ookhoi@dds.nl>
-To: Chris Meadors <clubneon@hereintown.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: boot/root floppies in modern times?
-Message-ID: <20011001074148.I9327@humilis>
-Reply-To: ookhoi@dds.nl
-In-Reply-To: <20010930185017.H9327@humilis> <Pine.LNX.4.33.0109301559370.29482-100000@clubneon.clubneon.com>
+	id <S274596AbRJAFps>; Mon, 1 Oct 2001 01:45:48 -0400
+Received: from tisch.mail.mindspring.net ([207.69.200.157]:62218 "EHLO
+	tisch.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S274603AbRJAFpg>; Mon, 1 Oct 2001 01:45:36 -0400
+Subject: Re: [PATCH] (Updated) Preemptible Kernel
+From: Robert Love <rml@tech9.net>
+To: Steve Kieu <haiquy@yahoo.com>
+Cc: kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011001053421.75138.qmail@web10406.mail.yahoo.com>
+In-Reply-To: <20011001053421.75138.qmail@web10406.mail.yahoo.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.14.99+cvs.2001.09.29.08.08 (Preview Release)
+Date: 01 Oct 2001 01:46:15 -0400
+Message-Id: <1001915178.1026.58.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0109301559370.29482-100000@clubneon.clubneon.com>
-User-Agent: Mutt/1.3.19i
-X-Uptime: 20:50:40 up 1 day, 9 min,  9 users,  load average: 0.08, 0.12, 0.05
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So, I ended up where you did, 1 floppy with enough tools to load any
-> other floppy with anything else I need.
+On Mon, 2001-10-01 at 01:34, Steve Kieu wrote:
+> Sorry it seems that your patches has not uploaded yet
+> :-)
 
-:-)
+Hm, check again -- I see them.  I've already gotten emails about them,
+so I guess others do, too :)
 
-> Which brings me to my next stumbling block. The NIC that I have now
-> (got an internal mini-pci one coming next week) is a PC Card. That is
-> something else I've never messed with. I built the driver (3c574) into
-> the kernel, but from what I'm seeing that isn't enough? I also need
-> the pcmcia-cs userland tools? 
+>From http://tech9.net/rml/linux, the patches are at:
 
-No. I have the 3CCFE575CT and with the driver 3c59x build into the
-kernel or as kernel module, I don't need any pcmcia tools. Good thing
-for the single floppy. :-)
+http://tech9.net/rml/linux/patch-rml-2.4.10-ac1-preempt-kernel-1
+http://tech9.net/rml/linux/patch-rml-2.4.11-pre1-preempt-kernel-1
+http://tech9.net/rml/linux/patch-rml-2.4.10-preempt-kernel-5
 
-	Ookhoi
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
+

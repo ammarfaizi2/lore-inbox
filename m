@@ -1,59 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265511AbTF2CHC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jun 2003 22:07:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265520AbTF2CHC
+	id S265521AbTF2CP4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jun 2003 22:15:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265524AbTF2CP4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jun 2003 22:07:02 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:53258
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S265511AbTF2CHA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jun 2003 22:07:00 -0400
-Date: Sat, 28 Jun 2003 19:17:53 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Jan-Benedict Glaw <jbglaw@lug-owl.de>, axboe@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: Testing IDE-TCQ and Taskfile - doesn't work nicely:)
-In-Reply-To: <3EF86019.3090608@pobox.com>
-Message-ID: <Pine.LNX.4.10.10306281917040.1116-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 28 Jun 2003 22:15:56 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:39158 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S265521AbTF2CPz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jun 2003 22:15:55 -0400
+Subject: Re: /dev/random broken?
+From: Robert Love <rml@tech9.net>
+To: Justin Pryzby <justinpryzby@users.sourceforge.net>
+Cc: "Luca T." <luca-t@libero.it>, linux-kernel@vger.kernel.org
+In-Reply-To: <20030629021018.GA26162@andromeda>
+References: <E19WOvK-0001I7-00@andromeda> <20030629021018.GA26162@andromeda>
+Content-Type: text/plain
+Message-Id: <1056853901.1988.3206.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
+Date: 28 Jun 2003 19:31:42 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2003-06-28 at 19:10, Justin Pryzby wrote:
 
-The best rule is to default it off and let the end user enable regardless.
-Thus the default will NEVER encounter the issues seen now.
+> /dev/urandom is what you want; it makes up its own entropy.  /dev/random
+> uses entropy from user input (low order bits I imagine).  I assume that
+> this is how other unixes work, too.
 
-Andre Hedrick
-LAD Storage Consulting Group
+Actually, no. Both device files use entropy from the same location (the
+entropy pool), which is derived from the same sources (various interrupt
+timings and whatnot).
 
-On Tue, 24 Jun 2003, Jeff Garzik wrote:
+The difference between the two is that /dev/random keeps track of the
+inherent entropy in the pool and will block when the entropy grows too
+small. This is done as protection against any possible flaws in the
+one-way hash employed on outgoing data. Theoretically, if someone was
+able to break SHA-1, and they obtained a sufficiently large percentage
+of the output data, they could theoretically determine some theoretical
+state about the entropy pool. To prevent this theoretical attack,
+/dev/random will not return any data while the entropy estimate is not
+positive. This ensures there is enough entropy in the pool such that,
+even if a single attacker has seen all the output thus far, they cannot
+learn of the pool's state.
 
-> Bartlomiej Zolnierkiewicz wrote:
-> > TCQ shouldn't be enabled on hdc, you have two drives on second ide
-> > channel and current TCQ driver design allows only one drive per channel,
-> > so proper fix is to not enable TCQ :-).
-> 
-> 
-> IMO the best rule is "enable TCQ if and only if 100% of the channel 
-> supports TCQ".
-> 
-> So, two drives on the same channel can do TCQ, if and only if they both 
-> support TCQ.  That's a big benefit of bus release, after all, 
-> simultaneously servicing multiple drives.  The device-select and service 
-> interrupt semantics are annoying but doable.
-> 
-> 	Jeff
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Also, as far as other Unix systems, I think /dev/random was first in
+Linux. I know Mac OS X has /dev/random and /dev/urandom, but they both
+behave like Linux's /dev/urandom.
+
+	Robert Love
+
 

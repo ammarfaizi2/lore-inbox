@@ -1,53 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315942AbSIIBbm>; Sun, 8 Sep 2002 21:31:42 -0400
+	id <S315988AbSIIBnW>; Sun, 8 Sep 2002 21:43:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315946AbSIIBbm>; Sun, 8 Sep 2002 21:31:42 -0400
-Received: from [63.209.4.196] ([63.209.4.196]:52750 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S315942AbSIIBbl>; Sun, 8 Sep 2002 21:31:41 -0400
-Date: Sun, 8 Sep 2002 18:36:19 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Anton Altaparmakov <aia21@cantab.net>
-cc: mingo@elte.hu, <linux-kernel@vger.kernel.org>
+	id <S316070AbSIIBnW>; Sun, 8 Sep 2002 21:43:22 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:36768 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S315988AbSIIBnV>;
+	Sun, 8 Sep 2002 21:43:21 -0400
+Date: Mon, 9 Sep 2002 03:53:20 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Anton Altaparmakov <aia21@cantab.net>, <linux-kernel@vger.kernel.org>
 Subject: Re: pinpointed: PANIC caused by dequeue_signal() in current Linus 
  BK tree
-In-Reply-To: <5.1.0.14.2.20020909001700.03fdee00@pop.cus.cam.ac.uk>
-Message-ID: <Pine.LNX.4.44.0209081835260.1401-100000@home.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0209081835260.1401-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0209090342410.6004-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mon, 9 Sep 2002, Anton Altaparmakov wrote:
+On Sun, 8 Sep 2002, Linus Torvalds wrote:
 
-> Hi,
+> 0x5a5a5a5a is the slab poisoning byte, I bet somebody free's the thing,
+> and Ingo and I never noticed because we didn't have slab debugging
+> enabled.
 > 
-> I had a look and the panic actually happens in collect_signal() in here:
-> 
-> static inline int collect_signal(int sig, struct sigpending *list, 
-> siginfo_t *info)
-> {
->          if (sigismember(&list->signal, sig)) {
->                  /* Collect the siginfo appropriate to this signal.  */
->                  struct sigqueue *q, **pp;
->                  pp = &list->head;
->                  while ((q = *pp) != NULL) {
-> q becomes 0x5a5a5a5a  ^^^^^^^^^
->                          if (q->info.si_signo == sig)
-> 0x5a5a5a5a is dereferenced ^^^^^^^^^^^^^^^^
->                                  goto found_it;
->                          pp = &q->next;
->                  }
-> 
-> Hope this helps.
+> Ingo, mind looking at this a bit?
 
-0x5a5a5a5a is the slab poisoning byte, I bet somebody free's the thing, 
-and Ingo and I never noticed because we didn't have slab debugging 
-enabled.
+yes, i'm on it. It could also be the missing initialization of the
+shared-pending queue. Funny - i usually have CONFIG_SLAB_DEBUGGING enabled
+all the time - but not for this patch :-|
 
-Ingo, mind looking at this a bit?
-
-		Linus
+	Ingo
 

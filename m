@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261244AbTD3OHg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 10:07:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbTD3OHg
+	id S262182AbTD3OKV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 10:10:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262185AbTD3OKU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 10:07:36 -0400
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:54740 "EHLO
-	dyn95394153.austin.ibm.com") by vger.kernel.org with ESMTP
-	id S261244AbTD3OHf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 10:07:35 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: viro@parcelfarce.linux.theplanet.co.uk, "Randy.Dunlap" <rddunlap@osdl.org>
-Subject: Re: [PATCH] KernelJanitor: Convert remaining error returns to return -E Linux 2.5.68
-Date: Wed, 30 Apr 2003 09:19:45 -0500
-User-Agent: KMail/1.4.3
-Cc: lkml <linux-kernel@vger.kernel.org>
-References: <20030429161128.3b8c762b.rddunlap@osdl.org> <20030430000236.GS10374@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20030430000236.GS10374@parcelfarce.linux.theplanet.co.uk>
+	Wed, 30 Apr 2003 10:10:20 -0400
+Received: from lopsy-lu.misterjones.org ([62.4.18.26]:55046 "EHLO
+	young-lust.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
+	id S262182AbTD3OKT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 10:10:19 -0400
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Marc Zyngier <mzyngier@freesurf.fr>, rth@twiddle.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Patch] DMA mapping API for Alpha
+References: <20030429150532.A3984@jurassic.park.msu.ru>
+	<Pine.GSO.3.96.1030430140450.1016E-100000@delta.ds2.pg.gda.pl>
+	<20030430141258.GA25076@gtf.org>
+Organization: Metropolis -- Nowhere
+X-Attribution: maz
+Reply-to: mzyngier@freesurf.fr
+From: Marc Zyngier <mzyngier@freesurf.fr>
+Date: 30 Apr 2003 16:18:35 +0200
+Message-ID: <wrpu1cg2hms.fsf@hina.wild-wind.fr.eu.org>
+In-Reply-To: <20030430141258.GA25076@gtf.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200304300919.45404.shaggy@austin.ibm.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 29 April 2003 19:02, viro@parcelfarce.linux.theplanet.co.uk 
-wrote:
+>>>>> "Jeff" == Jeff Garzik <jgarzik@pobox.com> writes:
 
-> 	* ditto for JFS - again, a bunch of functions use positive error
-> values.
+Jeff> On Wed, Apr 30, 2003 at 02:07:17PM +0200, Maciej W. Rozycki wrote:
 
-Yeah, we've changed some of this from the way it was in OS/2, but we 
-haven't gone through everything.  I'll put it on my todo list.
+>> Note that's the only non-PCI Alpha we support right now -- there may be
+>> more such ones in the future. 
 
-Thanks,
-Shaggy
+Jeff> Highly unlikely, I would guess :)
+
+Turbo-channel anyone ? :-))
+
+        M.
 -- 
-David Kleikamp
-IBM Linux Technology Center
-
+Places change, faces change. Life is so very strange.

@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285457AbRLGKa4>; Fri, 7 Dec 2001 05:30:56 -0500
+	id <S285458AbRLGKbQ>; Fri, 7 Dec 2001 05:31:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285459AbRLGKas>; Fri, 7 Dec 2001 05:30:48 -0500
-Received: from pcow034o.blueyonder.co.uk ([195.188.53.122]:18446 "EHLO
-	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S285457AbRLGKac>;
-	Fri, 7 Dec 2001 05:30:32 -0500
-Date: Fri, 7 Dec 2001 10:33:11 +0000
-From: Ian Molton <spyro@armlinux.org>
-To: linux-kernel@vger.kernel.org
-Subject: Bug?
-Message-Id: <20011207103311.386e54fe.spyro@armlinux.org>
-Reply-To: spyro@armlinux.org
-Organization: The dragon roost
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; )
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S285449AbRLGKav>; Fri, 7 Dec 2001 05:30:51 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:1801 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S285458AbRLGKaf>; Fri, 7 Dec 2001 05:30:35 -0500
+Subject: Re: kernel: ldt allocation failed
+To: aia21@cam.ac.uk (Anton Altaparmakov)
+Date: Fri, 7 Dec 2001 10:38:59 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), vkire@pixar.com (Kiril Vidimce),
+        dmaas@dcine.com (Dan Maas),
+        linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <5.1.0.14.2.20011207092244.049f6720@pop.cus.cam.ac.uk> from "Anton Altaparmakov" at Dec 07, 2001 09:45:17 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16CIPD-0005Mi-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+> When the vmalloc() fails, the new_mm->context.segments is set to NULL and 
+> the function returns.
+> 
+> That seems wrong, no? Shouldn't there be a panic() when the allocation 
+> fails at least? Or even better the function should perhaps return an error 
+> code?
+> 
+> Considering there is only one caller (kernel/fork.c::copy_mm()) it would be 
+> easy to modify copy_mm() to handle a returned error code gracefully and 
 
-Havent had time to investigate, but I have seen a locup on the ASUS A7M
-mobo, with a via-rhine (100Mb/se, fdx) ethernet card.
-
-With the ethernet card in one PCI slot, the USB (95% of the time) will
-freeze the system solid when usb-uhci.o is loaded.
-
-Since moving the card to another slot, it seems to works fine.
-
-if anyone suggests 'things to look for' I will have a look (but it isnt my
-box, so it may take time).
-
-For reference, I have a (similar) box with the same CPU and mobo, but
-different cards, and have never seen this (or any similar) lockup.
-
-the mobo in the machine in question has been replaced, and the replacement
-shows the same problem.
+That sounds like an appropriate change.

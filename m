@@ -1,64 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282897AbRK0Tph>; Tue, 27 Nov 2001 14:45:37 -0500
+	id <S282907AbRK0Txs>; Tue, 27 Nov 2001 14:53:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282907AbRK0Tp2>; Tue, 27 Nov 2001 14:45:28 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:12527
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S282897AbRK0TpS>; Tue, 27 Nov 2001 14:45:18 -0500
-Date: Tue, 27 Nov 2001 11:45:11 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Harald Arnesen <gurre@start.no>, linux-kernel@vger.kernel.org
-Subject: Re: Release Policy
-Message-ID: <20011127114511.D9391@mikef-linux.matchmail.com>
-Mail-Followup-To: Keith Owens <kaos@ocs.com.au>,
-	Harald Arnesen <gurre@start.no>, linux-kernel@vger.kernel.org
-In-Reply-To: <873d30r0fv.fsf@basilikum.skogtun.com> <2515.1006856976@ocs3.intra.ocs.com.au>
+	id <S282920AbRK0Tx2>; Tue, 27 Nov 2001 14:53:28 -0500
+Received: from green.csi.cam.ac.uk ([131.111.8.57]:64920 "EHLO
+	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S282907AbRK0TxX>; Tue, 27 Nov 2001 14:53:23 -0500
+Message-Id: <5.1.0.14.2.20011127193412.00acb450@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 27 Nov 2001 19:53:10 +0000
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Absence of PS/2 keyboard causes spurious IRQ7? - Was Re:
+  'spurious 8259A interrupt: IRQ7'
+Cc: martin@jtrix.com (Martin A. Brooks), lkml@patrickburleson.com,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <E168jk1-0001J7-00@the-village.bc.nu>
+In-Reply-To: <1793.10.119.8.1.1006872608.squirrel@extranet.jtrix.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2515.1006856976@ocs3.intra.ocs.com.au>
-User-Agent: Mutt/1.3.23i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 27, 2001 at 09:29:36PM +1100, Keith Owens wrote:
-> On Tue, 27 Nov 2001 11:08:04 +0100, 
-> Harald Arnesen <gurre@start.no> wrote:
-> >Anuradha Ratnaweera <anuradha@gnu.org> writes:
-> >
-> >> How does Marcelo (or Linus or Alan, say) know that the patch
-> >> _really_ came from the subsystem aintainer himself?
-> >
-> >They could reject patches that came without the maintainers GPG or PGP
-> >signature.
-> 
-> Unfortunately the normal GPG/PGP signing changes '-' at start of line
-> to '- -', even with clear text signing, and destroys the patch.  You
-> have to use --not-dash-escaped in GPG, where the man page says:
-> 
-> --not-dash-escaped
->   This  option changes the behavior of cleartext signatures so that
->   they can be used for patch files. You should not send such an armored
->   file via email because all spaces and line endings are hashed too.
->   You can not use this option for data which has 5 dashes at the
->   beginning of a line, patch files don't have this. A special armor
->   header line tells GnuPG about this cleartext signature option.
-> 
+At 15:01 27/11/01, Alan Cox wrote:
+>With IO Apic support included ? If you are using an AMD/VIA combo chipset
+>board that would explain it
 
-Interesting.
+I do use IO Apic on both my machines (one athlon/via kt133, one p4/i845) 
+and as long as I have a PS/2 keyboard attached I NEVER see the spurious 
+interrupt message on either system.
 
-> I don't know if PGP accepts text signed by GPG with --not-dash-escaped
-> nor do I know if there really is a problem with mailing such patches.
-> But the warning above is nasty enough to rule it out.  The only other
-> option for signed patches is uuencode or MIME (with or without
-> compression) and Linus does not like that format.
-> 
+With a USB keyboard instead of a PS/2 keyboard the VIA box but not the i845 
+box starts showing the spurious IRQ7. It appears during boot exactly once 
+(always) and then occasionally during system run time. Usually associated 
+with me loading/unloading the ntfs module during testing.
 
-But we're not dealing with Linus with 2.4 anymore.  Maybe Marcello will
-accept signed compressed patches.  With a few modifications, most MUAs that
-support external processing could be setup to verify the sig, uncompress,
-and view in the message area.
+Also when using the USB keyboard I get keyboard: Timeout - AT keyboard not 
+present?(f4) messages popping up from time to time. Usually accompanied by 
+a spurious IRQ7 message.
 
-MF
+So at least on my VIA box there seems to be a relationship between the lack 
+of PS/2 keyboard and the IRQ7 messages.
+
+Note, with my PS/2 keyboard (before I upgraded to USB one) I never saw 
+either of the above messages.
+
+I recently upgraded the i845 box to USB keyboard as well and while I do see 
+the kyboard: Timeout messages I do not see any spurious interrupts.
+
+Very odd.
+
+Best regards,
+
+         Anton
+
+
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+

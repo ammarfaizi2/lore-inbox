@@ -1,72 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264145AbUARVyN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jan 2004 16:54:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264147AbUARVyN
+	id S263983AbUARVrM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jan 2004 16:47:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263996AbUARVrM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jan 2004 16:54:13 -0500
-Received: from ms-smtp-02-qfe0.nyroc.rr.com ([24.24.2.56]:31979 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S264145AbUARVyL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jan 2004 16:54:11 -0500
-Date: Sun, 18 Jan 2004 16:53:52 -0500
-To: linux-kernel@vger.kernel.org, Natalia Portillo <claunia@terra.es>
-Subject: Re: Bug report on UHCI driver.
-Message-ID: <20040118215352.GA1678@andromeda>
-References: <BAB7DAB2-49F5-11D8-9B47-000393CFF340@terra.es>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="J/dobhs11T7y2rNN"
-Content-Disposition: inline
-In-Reply-To: <BAB7DAB2-49F5-11D8-9B47-000393CFF340@terra.es>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: Justin Pryzby <justinpryzby@users.sourceforge.net>
+	Sun, 18 Jan 2004 16:47:12 -0500
+Received: from red-corpb4-7-68.telnor.net ([200.76.246.68]:55008 "EHLO
+	pubserv01.bajawireless.net") by vger.kernel.org with ESMTP
+	id S263983AbUARVrI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jan 2004 16:47:08 -0500
+Date: Sun, 18 Jan 2004 13:54:56 -0800
+To: David Schwartz <davids@webmaster.com>
+Subject: Re: License question
+Cc: linux-kernel@vger.kernel.org
+References: <MDEHLPKNGKAHNMBLJOLKEEEIJKAA.davids@webmaster.com>
+From: Misshielle Wong <mwl@bajoo.net>
+Content-Type: text/plain; format=flowed; charset=utf-8
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-ID: <opr1zq5urvq5eh14@localhost>
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKEEEIJKAA.davids@webmaster.com>
+User-Agent: Opera7.23/Linux M2 build 518
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi
 
---J/dobhs11T7y2rNN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>
+> 	It doesn't "ask" for anything. It states a license requirement. And 
+> yes, it does restrict rights, it removes your right to remove that 
+> notice. Any license clause that prohibits you from making particular 
+> modifications to the source code is a restriction. The only issue is 
+> whether it's a "further restriction" for purposes of clause 6 of the 
+> GPL. As I read the GPL, a restriction is a "further restriction" if it 
+> is imposed in addition to those stated in the GPL.
+>
 
-I get the same thing while trying to write a driver for a USB webcam.
-The webcam works fine until this happens.  Rebooting doesn't fix the
-problem.
-Justin
+Blah blah blah. You can't remove copyright notices in GPL'ed software 
+either, so it is no additional restriction.
 
-On Sun, Jan 18, 2004 at 08:34:35PM +0000, Natalia Portillo wrote:
-> Dear Kernel Developers.
->=20
-> This is the bug I'm getting with kernels 2.4.20-xfs-r3, 2.4.23-aa1 and=20
-> 2.6.0-test5 (hardware information at bottom).
->=20
-> It seems to be a problem of IRQ conflict.
-> USB works perfectly, but, suddenly, it stops working and dmesg starts=20
-> saying (and doesn't stop until reboot) the following:
-> "drivers/usb/host/uhci-hcd.c: cc00: host controller halted. very bad"
->=20
-> It happens after a random working time. I observed this time is less if=
-=20
-> I remove the nVidia graphics card and substitute it for an 3Dfx one=20
-> (the second one doesn't use an IRQ).
-> It also seems to happen faster in 2.4 kernels.
->=20
-> Regards,
-> Natalia Portillo
-:CLIP:
+>> Summarizing this
+>> license, it ends up like this: "Copyright bla bla bla. Keep 'em goddamn
+>> copyrights and disclaimer or else you have no rights to copy, modify,
+>> sublicense, redistribute, sublicense bla bla bla. Software provided 'as
+>> is'. Clear?"
+>
+> 	Yep, that's what it says.
+>
+>> GPL is ok with that.
+>
+> 	No, GPL is "you may modify however you please". It imposes only a 
+> specific set of restrictions and specifically prohibits the imposition 
+> of additional restrictions. These are *exactly* the type of additional 
+> restrictions the GPL was carefully worded to prohibit!
+>
 
---J/dobhs11T7y2rNN
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+Blah blah blah. Read the GPL section 1 and 2.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+=====
+1. You may copy and distribute verbatim copies of the Program's source 
+code as you receive it, in any medium, provided that you conspicuously and 
+appropriately publish on each copy an appropriate copyright notice and 
+disclaimer of warranty; keep intact all the notices that refer to this 
+License and to the absence of any warranty; and give any other recipients 
+of the Program a copy of this License along with the Program.
 
-iD8DBQFACwBwh7yD3l4ITTYRAgTvAJ9aAbFHxFstzTptBWi4WLHswJM5vgCdE8An
-HX+8vR2BYb1pdDAUhJkthHw=
-=JFtc
------END PGP SIGNATURE-----
+You may charge a fee for the physical act of transferring a copy, and you 
+may at your option offer warranty protection in exchange for a fee.
 
---J/dobhs11T7y2rNN--
+2. You may modify your copy or copies of the Program or any portion of it, 
+thus forming a work based on the Program, and copy and distribute such 
+modifications or work under the terms of Section 1 above, provided that 
+you also meet all of these conditions:
+...
+=====
+
+See? Must keep the appropriate copyright notice and disclaimer of warranty 
+in each copy.
+
+
+
+> 	DS
+>
+>
+>
+
+
+
+-- 
+Using M2, Opera's revolutionary e-mail client: http://www.opera.com/m2/

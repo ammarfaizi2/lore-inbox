@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263009AbTJZJmN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Oct 2003 04:42:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263010AbTJZJmM
+	id S263039AbTJZJtf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Oct 2003 04:49:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263050AbTJZJtb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Oct 2003 04:42:12 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19681 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263009AbTJZJl6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Oct 2003 04:41:58 -0500
-Date: Sun, 26 Oct 2003 09:41:57 +0000
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Andrew Morton <akpm@osdl.org>
-Cc: arekm@pld-linux.org, linux-kernel@vger.kernel.org, jmorris@redhat.com,
-       sds@epoch.ncsc.mil, manfred@colorfullife.com
-Subject: Re: 2.6.0-test9 and sleeping function called from invalid context
-Message-ID: <20031026094157.GV7665@parcelfarce.linux.theplanet.co.uk>
-References: <200310260045.52094.arekm@pld-linux.org> <20031025185055.4d9273ae.akpm@osdl.org> <20031025224950.001b4055.akpm@osdl.org> <20031026082610.GU7665@parcelfarce.linux.theplanet.co.uk> <20031026014153.0fdbd50a.akpm@osdl.org>
+	Sun, 26 Oct 2003 04:49:31 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:15623 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S263039AbTJZJt1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Oct 2003 04:49:27 -0500
+Date: Sun, 26 Oct 2003 10:49:23 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Stephen Smalley <sds@epoch.ncsc.mil>, jmorris@redhat.com,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: 2.6.0-test9: selinux compile error with "make O=..."
+Message-ID: <20031026094923.GA925@mars.ravnborg.org>
+Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>,
+	Stephen Smalley <sds@epoch.ncsc.mil>, jmorris@redhat.com,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Sam Ravnborg <sam@ravnborg.org>
+References: <Pine.LNX.4.44.0310251152410.5764-100000@home.osdl.org> <20031026002209.GD23291@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031026014153.0fdbd50a.akpm@osdl.org>
+In-Reply-To: <20031026002209.GD23291@fs.tum.de>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 26, 2003 at 01:41:53AM -0700, Andrew Morton wrote:
+On Sun, Oct 26, 2003 at 02:22:09AM +0200, Adrian Bunk wrote:
+> The problem comes from the following line in 
+> security/selinux/ss/Makefile:
+>   EXTRA_CFLAGS += -Isecurity/selinux/include -include security/selinux/ss/global.h
 
-> > AFAICS, we can move d_add() right before taking the spinlock.  It's there
-> > to protect the ->proc_dentry assignment.
-> 
-> In which case we don't need to take the lock at all.  Two instances.
+Hi Adrian.
+Known problem that has been reported back to the maintainers about
+one month ago. But they do not seem to care enough to fix it.
 
-Yes, we do.  At least we used to - the other side of that code assumes
-that holding the spinlock is enough to keep ->proc_dentry unchanged.
-And no, I hadn't done the analysis of changes that had come with the
-"task" ugliness.
+The use of "-include" is a bad way to include files. The reader will
+not see that global.h is included at all and will wonder how that
+information get pulled in.
 
-> What protects against concurrent execution of proc_pid_lookup() and
-> proc_task_lookup()?  I think nothing, because one is at /proc/42 and the
-> other is at /proc/41/42; the parent dir inodes are different.  hmm.
->
-> > *However*, I would like to point out that we are holding ->i_sem on the
-> > procfs root at that point, so any blocking code in d_instantiate() would
-> > better be careful to avoid deadlocks if it wants to play with procfs itself -
-> > we are not in a locking-neutral situation here, spinlock or not.
-> 
-> "procfs root", or parent dir??
+Furhtermore the location of the header files under security/include
+is considered bad practice. All headerfiles used from more than one
+directory belongs to include/xxx, in this case include/security.
+Then they can be included using
+#include <security/secuity.h>
 
-For proc_pid_lookup() they are the same.
+Everything are post 2.6.0 material.
+
+	Sam

@@ -1,60 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136211AbRD0Uzc>; Fri, 27 Apr 2001 16:55:32 -0400
+	id <S136213AbRD0U5W>; Fri, 27 Apr 2001 16:57:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136213AbRD0UzW>; Fri, 27 Apr 2001 16:55:22 -0400
-Received: from pneumatic-tube.sgi.com ([204.94.214.22]:48220 "EHLO
-	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
-	id <S136211AbRD0UzK>; Fri, 27 Apr 2001 16:55:10 -0400
-Message-ID: <3AE9DC22.597D94F5@sgi.com>
-Date: Fri, 27 Apr 2001 13:52:50 -0700
-From: LA Walsh <law@sgi.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3 i686)
-X-Accept-Language: en, en-US, en-GB, fr
+	id <S136214AbRD0U5M>; Fri, 27 Apr 2001 16:57:12 -0400
+Received: from zeus.kernel.org ([209.10.41.242]:54241 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S136213AbRD0U5A>;
+	Fri, 27 Apr 2001 16:57:00 -0400
+Message-ID: <3AE9DB3A.7437F7B2@utad.pt>
+Date: Fri, 27 Apr 2001 21:48:58 +0100
+From: Alvaro Lopes <alvieboy@utad.pt>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-CC: Xavier Bestel <xavier.bestel@free.fr>,
-        Goswin Brederlow <goswin.brederlow@student.uni-tuebingen.de>,
-        William T Wilson <fluffy@snurgle.org>, Matt_Domsch@Dell.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4 and 2GB swap partition limit
-In-Reply-To: <200104271113.NAA16761@cave.bitwizard.nl>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, alvieboy@alvie.com,
+        Herbert Xu <herbert@debian.org>
+Subject: i2o_block struct gendisk misinitialization (2.4.3)
+Content-Type: multipart/mixed;
+ boundary="------------F9EED53010E2A92EC3C8DCDB"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rogier Wolff wrote:
+This is a multi-part message in MIME format.
+--------------F9EED53010E2A92EC3C8DCDB
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 
-> > > On Linux any swap adds to the memory pool, so 1xRAM would be
-> > > equivalent to 2xRAM with the old old OS's.
-> >
-> > no more true AFAIK
->
-> I've always been trying to convice people that 2x RAM remains a good
-> rule-of-thumb.
+Hi
 
----
-    Ug.  I like to view swap as "low grade memory" -- i.e. I really
-should spend 99.9% of my time in RAM -- if I spill, then it means
-I'm running too much/too big for my computer and should get more RAM --
-meanwhile, I suffer with performance degradation to remind me I'm really
-exceeding my machine's physical memory capacity.
+i2o_block is not properly initializing its gendisk structure
+(i2o_gendisk) and someone forgot to link it to the gendisk linked list,
+causing i2o hard drives and partitions not to show in /proc/partitions
+(debian installer relies on this to find fdisk'able drives).
 
-    An interesting option (though with less-than-stellar performance
-characteristics) would be a dynamically expanding swapfile.  If you're
-going to be hit with swap penalties, it may be useful to not have to
-pre-reserve something you only hit once in a great while.
+I attached a simple patch to fix it.
 
-    Definitely only for systems where you don't expect to use swap (but
-it could be there for "emergencies" up to some predefined limit or
-available disk space).
+Álvaro Lopes
+--------------F9EED53010E2A92EC3C8DCDB
+Content-Type: text/plain; charset=us-ascii;
+ name="i2o_block_gendisk_patch.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="i2o_block_gendisk_patch.diff"
 
---
-The above thoughts and           | They may have nothing to do with
-writings are my own.             | the opinions of my employer. :-)
-L A Walsh                        | Trust Technology, Core Linux, SGI
-law@sgi.com                      | Voice: (650) 933-5338
+--- linux-2.4.3/drivers/i2o/i2o_block.c	Sat Apr  7 16:42:21 2001
++++ linux/drivers/i2o/i2o_block.c	Fri Apr 27 19:58:41 2001
+@@ -15,6 +15,8 @@
+  * from loop.c. Isn't free software great for reusability 8)
+  *
+  * Fixes/additions:
++ *      Alvaro Lopes:
++ *              Fixed misc gendisk misinitialization
+  *	Steve Ralston:	
+  *		Multiple device handling error fixes,
+  *		Added a queue depth.
+@@ -1675,6 +1677,10 @@
+ 		i2o_remove_handler(&i2o_block_handler);
+ 		return 0;
+ 	}
++
++	i2ob_gendisk.next = gendisk_head;
++	gendisk_head = &i2ob_gendisk;
++	i2ob_gendisk.nr_real = MAX_I2OB;
+ 
+ 	/*
+ 	 *	Finally see what is actually plugged in to our controllers
 
 
+--------------F9EED53010E2A92EC3C8DCDB--
 

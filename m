@@ -1,55 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268357AbUHZKxT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268684AbUHZKz3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268357AbUHZKxT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 06:53:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268650AbUHZKxI
+	id S268684AbUHZKz3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 06:55:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268580AbUHZKzN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 06:53:08 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:9226 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S268580AbUHZKws (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 06:52:48 -0400
-Date: Thu, 26 Aug 2004 11:52:29 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Christian Mayrhuber <christian.mayrhuber@gmx.net>
-Cc: reiserfs-list@namesys.com, Anton Altaparmakov <aia21@cam.ac.uk>,
-       linux-fsdevel@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>
+	Thu, 26 Aug 2004 06:55:13 -0400
+Received: from levante.wiggy.net ([195.85.225.139]:39837 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id S268633AbUHZKyG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 06:54:06 -0400
+Date: Thu, 26 Aug 2004 12:54:05 +0200
+From: Wichert Akkerman <wichert@wiggy.net>
+To: Spam <spam@tnonline.net>
+Cc: Andrew Morton <akpm@osdl.org>, jra@samba.org, torvalds@osdl.org,
+       reiser@namesys.com, hch@lst.de, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, flx@namesys.com,
+       reiserfs-list@namesys.com
 Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040826115229.A18013@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Christian Mayrhuber <christian.mayrhuber@gmx.net>,
-	reiserfs-list@namesys.com, Anton Altaparmakov <aia21@cam.ac.uk>,
-	linux-fsdevel@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>
-References: <20040824202521.GA26705@lst.de> <20040825163225.4441cfdd.akpm@osdl.org> <1093510983.23289.6.camel@imp.csi.cam.ac.uk> <200408261245.47734.christian.mayrhuber@gmx.net>
+Message-ID: <20040826105404.GH2612@wiggy.net>
+Mail-Followup-To: Spam <spam@tnonline.net>, Andrew Morton <akpm@osdl.org>,
+	jra@samba.org, torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
+	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+	flx@namesys.com, reiserfs-list@namesys.com
+References: <20040825152805.45a1ce64.akpm@osdl.org> <112698263.20040826005146@tnonline.net> <Pine.LNX.4.58.0408251555070.17766@ppc970.osdl.org> <1453698131.20040826011935@tnonline.net> <20040825163225.4441cfdd.akpm@osdl.org> <20040825233739.GP10907@legion.cup.hp.com> <20040825234629.GF2612@wiggy.net> <1939276887.20040826114028@tnonline.net> <20040826024956.08b66b46.akpm@osdl.org> <839984491.20040826122025@tnonline.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200408261245.47734.christian.mayrhuber@gmx.net>; from christian.mayrhuber@gmx.net on Thu, Aug 26, 2004 at 12:45:47PM +0200
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <839984491.20040826122025@tnonline.net>
+User-Agent: Mutt/1.5.6+20040523i
+X-SA-Exim-Connect-IP: <locally generated>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 26, 2004 at 12:45:47PM +0200, Christian Mayrhuber wrote:
-> There is the reiser4() syscall which you surely don't want to implement for 
-> other filesystems.
+Previously Spam wrote:
+>   Because  having user space tools and code will make it not work with
+>   everything. Keeping stuff in the kernel should make the new features
+>   transparent to the applications.
 
-Actually a syscall that goes into filesystem code is the last thing we want.
-But it's not in the submission, so let's keep that flame^H^H^H^Hdiscussion
-for later.
+But having it in the kernel has the same problem. If you read the
+Solaris documentation you will see that a bunch of utilties had to
+get a new commandline option to be able to access the metadata and
+a special utility was added for other applications. If you look
+at windows you will see that you need to use a filename like
+<realfilename>:<streamname>:$DATA (which obviously does not work for
+single-character filenames).
 
-> Once there is some experience with this new fancy stuff the dust what
-> is useful/insecure, etc. and what is not will settle and can be condensed
-> into a vfs api.
-> Apps like samba and user scripts will have to be adapted once this is
-> the case, but this should not be to big a problem if this stuff is marked 
-> experimental.
-> 
-> People which want something stable can continue to use xattrs and a
-> magnitude of filesystems for now.
+Ignoring samba for a bit which just needs streams to stay compatible
+with windows I see few reasons for using streams:
 
-Sure, no one stops you from playing around with new semantics.  But please
-don't add them to the linux kernel stable series until we have semantics we
-a) want to stick to for a while and b) actually work.
+* files are more complex these days and tend to include multiple
+  different things: images with thumbnails and exif data, 'office'
+  documents containing both text and images
 
+* standard way to add common metadata to a file which can be used for
+  searching tools (author, copyright, keywords, etc.)
+
+But both can already be done in userland (modern image formats can store
+thumbnails and exif data internally, applications use tar or zip-like
+files for documents, etc.). The metadata part is a lot more complicated
+as well since the behaviour of attributes might need to be complex:
+if I change an image using an application that is not stream-aware, what
+should happen to its thumbnail? 
+
+The only common benefits I can see are standardisation and optimization:
+instead of every file format or application defining a way to specify 
+metadata for a file you get a common API defined by the OS (but you'll
+still need to standardize on attribute names and formats, so plenty of
+room that will still not help), and instead of parsing different files
+or XML streams you can directly access a bit of metadata.
+
+So far I'm not convinced that streams are worth the effort. Not that my
+opinion is all that relevant here, but still :)
+
+Wichert.
+
+-- 
+Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
+http://www.wiggy.net/                   It is hard to make things simple.

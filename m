@@ -1,64 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbVBGQtw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261190AbVBGQwE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261187AbVBGQtw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 11:49:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbVBGQtw
+	id S261190AbVBGQwE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 11:52:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbVBGQwE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 11:49:52 -0500
-Received: from fire.osdl.org ([65.172.181.4]:32747 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261187AbVBGQtu (ORCPT
+	Mon, 7 Feb 2005 11:52:04 -0500
+Received: from rproxy.gmail.com ([64.233.170.201]:41279 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261190AbVBGQvm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 11:49:50 -0500
-Message-ID: <420797DE.6030904@osdl.org>
-Date: Mon, 07 Feb 2005 08:31:26 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Charles-Edouard Ruault <ce@idtect.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: IO port conflict between timer & watchdog on PCISA-C800EV board
- ?
-References: <420734DC.4020900@idtect.com>
-In-Reply-To: <420734DC.4020900@idtect.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 7 Feb 2005 11:51:42 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=LswKc0eIE7dJU81DRvFzg/yCkJAGDqbXFzean3g6SWj58B9W+QpASOokrJ1oUz+QFnYeGwbWG0X7TEkNtlOKOifSMOcwpTblwIQaQOTtZhw46+uRyB5+NZbN+ZnolVcDFpKkM2Zq7cDD4XmM8WRUTd8pbdRl7p60zcMyCma3ysA=
+Message-ID: <d120d50005020708512bb09e0@mail.gmail.com>
+Date: Mon, 7 Feb 2005 11:51:40 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: trelane@digitasaru.net
+Subject: Re: [ATTN: Dmitry Torokhov] About the trackpad and 2.6.11-rc[23] but not -rc1
+Cc: linux-kernel@vger.kernel.org, petero2@telia.com
+In-Reply-To: <20050207154326.GA13539@digitasaru.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <20050207154326.GA13539@digitasaru.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Charles-Edouard Ruault wrote:
-> Hi All,
+On Mon, 7 Feb 2005 09:43:27 -0600, Joseph Pingenot
+<trelane@digitasaru.net> wrote:
+> Hi.
 > 
-> i wrote a driver for the watchdog timer provided by a small form factor 
-> board from IEI ( the PCISA-C800EV : 
-> http://www.iei.com.tw/en/product_IPC.asp?model=PCISA-C800 ).
-> This board has a Via Apollo PLE133 ( VT8601A and VT82C686B ) chipset.
-> The watchdog uses two registers at addresses 0x43 and 0x443, therefore 
-> my driver tries to get bot addresses for its own use calling
-> request_region(0x43, 1, "watchdog" ) and request_region(0x443, 1, 
-> "watchdog").
-> The first call to request 0x43 fails because the address has already 
-> been allocated to the timer ( /proc/ioports shows 0040-005f : timer ).
+> Sorry; I accidentally deleted my email and your response, Dmitry.  :/
+> Anyhow, here is /proc/bus/input/devices
 > 
-> So my questions are :
-> - Why is the generic timer using this address ? isn't it reserving a too 
-> wide portion of IO ports ? Should it be modified for this board ?
-> -  If there's a good reason for the timer to request this address, is  
-> there a clean way to share it with the timer ?
+> $ cat /proc/bus/input/devices
+> I: Bus=0011 Vendor=0001 Product=0001 Version=ab41
+> N: Name="AT Translated Set 2 keyboard"
+> P: Phys=isa0060/serio0/input0
+> H: Handlers=kbd event0
+> B: EV=120013
+> B: KEY=4 2000000 3802078 f840d001 f2ffffdf ffefffff ffffffff fffffffe
+> B: MSC=10
+> B: LED=7
+> 
+> I: Bus=0011 Vendor=0002 Product=0001 Version=0000
+> N: Name="PS/2 Generic Mouse"
+> P: Phys=isa0060/serio1/input0
+> H: Handlers=mouse0 event1
+> B: EV=7
+> B: KEY=70000 0 0 0 0 0 0 0 0
+> B: REL=3
+> 
 
-Missing kernel version.... must be "not the current/latest",
-so early 2.6 or more likely 2.4 (just guessing)?
+Is that with -rc1 or -rc2?
 
-/proc/ioports timer assignments have now been split up like this:
-0040-0043 : timer0
-0050-0053 : timer1
+Anyway, I think Inspiron 8600 has an ALPS touchpad and externded
+support for it just went in in -rc2. I think if you boot with
+psmouse.proto=exps you will get your mouse back (if your psmouse is
+compiled as a module you'll need to add 'options psmouse proto=exps'
+to your /etc/modprobe.conf).
 
-However, port 0x43 is still assigned to timer0, so your request_region
-call will still fail.  What system board timer resource assignments
-should be used for that VIA chipset?  If the chipset timer only needs
-0x40-0x42, e.g., leaving 0x43 available, then it would be possible
-to do some kind of workaround (maybe not real clean, but possible).
+Nonetheless it would be nice to see the data stream from the touchpad
+to see why our ALPS support does not work quite right. Could you
+please try booting with "log_buf_len=131072 i8042.debug=1", and
+working the touchpad a bit. then send me the output of "dmesg -s
+131072" (or just /var/log/messages).
 
+Thanks!
 -- 
-~Randy
+Dmitry
+
+P.S. I am CC-ing Peter Osterlund since he works on Synaptics/ALPS
+driver as well.

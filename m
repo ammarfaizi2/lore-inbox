@@ -1,114 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263986AbUCZJ5Q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 04:57:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263984AbUCZJ5Q
+	id S263994AbUCZKAO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 05:00:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264000AbUCZKAO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 04:57:16 -0500
-Received: from gamemakers.de ([217.160.141.117]:35804 "EHLO www.gamemakers.de")
-	by vger.kernel.org with ESMTP id S263986AbUCZJ5L (ORCPT
+	Fri, 26 Mar 2004 05:00:14 -0500
+Received: from [211.167.76.68] ([211.167.76.68]:59308 "HELO soulinfo.com")
+	by vger.kernel.org with SMTP id S263994AbUCZKAH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 04:57:11 -0500
-Message-ID: <4063FEED.1050503@gamemakers.de>
-Date: Fri, 26 Mar 2004 10:59:09 +0100
-From: =?ISO-8859-1?Q?R=FCdiger_Klaehn?= <rudi@gamemakers.de>
-Reply-To: rudi@lambda-computing.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alexander Larsson <alexl@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC,PATCH] dnotify: enhance or replace?
-References: <4061986E.6020208@gamemakers.de>	 <1080142815.8108.90.camel@localhost.localdomain>	 <4061B41B.30305@gamemakers.de>	 <1080202140.8108.101.camel@localhost.localdomain>	 <4062C63F.6050907@gamemakers.de> <1080219862.8108.138.camel@localhost.localdomain>
-In-Reply-To: <1080219862.8108.138.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Fri, 26 Mar 2004 05:00:07 -0500
+Date: Fri, 26 Mar 2004 17:58:29 +0800
+From: Hugang <hugang@soulinfo.com>
+To: Christoph Hellwig <hch@infradead.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Problem with remap_page_range/mmap
+Message-Id: <20040326175829.083d7e72@localhost>
+In-Reply-To: <20040326094656.A3812@infradead.org>
+References: <20040325234804.GA29507@core.home>
+	<20040326071739.B2637@infradead.org>
+	<20040326093619.GA15965@core.home>
+	<20040326094656.A3812@infradead.org>
+Organization: Beijing Soul
+X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Virus-Checked: Checked
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Larsson wrote:
- > On Thu, 2004-03-25 at 12:45, Rüdiger Klaehn wrote:
- >
- >>I don't know why KDE does this. Probably because of the .desktop files.
- >>  But I can see plenty of reasons to monitor large trees. For example to
- >>keep some kind of metadata consistent with data.
- >>
- >>What is everybodys obsession with file managers anyway? They are the
- >>most *boring* application of an enhanced file change mechanism, and
- >>certainly not the most demanding.
- >
- >
- > I happen to be interested in file managers because I maintain one.
- >
-OK, no offense. I just wanted to make it clear that file managers are
-not the most demanding use case.
+On Fri, 26 Mar 2004 09:46:56 +0000
+Christoph Hellwig <hch@infradead.org> wrote:
 
-[snip]
- >>Want me to code this into my userspace tool to see what I mean? I am
- >>100% certain it can be done as long as you have inode numbers or
- >>something else to uniquely and persistently identify a file (as opposed
- >>to the name of the file). Unfortunately inode numbers are not unique and
- >>persistent on all file systems, but for e.g. ext3 it should be no 
-problem.
- >
- >
- > I'm sure you can look at all the files in the filesystem for a inode,
- > but I hardly think such an expensive operation is useful in practice.
- > Also, such a sweep over the filesystem would be racy and to fix that
- > you'd have to monitor the whole filesystem to catch additions while
- > scanning. And even this is racy, because of possible queue overflows.
- >
-You would get notified if the queue overflows. And as long as you empty
-it often enough, it should not happen. Events are really small, so for a
-reasonably sized queue you would have to try really hard to get it to
-overflow.
+> On Fri, Mar 26, 2004 at 10:36:19AM +0100, Christian Leber wrote:
+> > What would be the good idea? I need at least 8 at least 4MB (2MB are
+> > enough for 2.4) big physical memory pieces for DMA, mapped to
+> > userspace.
+> > 
+> > remap_page_range for ia64.
+> 
+> Put the page structs into an array and return them from ->nopage.  The
+> kernel pagefault code will set up the ptes for you.
+> 
+> Now actually getting 4MB of continguous memory is a different issue..
+> 
+> I'm surprised you actually managed to get the allocation to succeed.
 
- > This gets even more complicated with recursive monitors. If you
- > recursively monitor all of "/dir" you have to look for aliases to all
- > the inodes inside /dir in the rest of the filesystem, and whenever new
- > files show up in /dir you'd have to look for aliases to them too.
- >
- > Also, unless you also monitor mounts and unmounts that sort of changes
- > won't be detected. (Not to mention that mounts can now be per-process.)
- >
-I guess I should just implement it. All this inode stuff would just be
-nessecary if you want to be really sure you detect every change, even
-the ones over hard links. For a file manager it would IMHO be OK just to
-ignore hard links.
+There is more detailed information about make page usable to user space,
+http://www.xml.com/ldd/chapter/book/ch13.html
 
- >
- >> > What if a new alias was created?
- >>
- >>You would get an event. And the new alias would point to the same file.
- >>No problem there.
- >
- >
- > You'd only get an event if you were monitoring the directory where the
- > new alias appeared. This means you have to constantly monitor the whole
- > filesystem to reliably get told about them. Also, of course, in case of
- > a queue overflow while monitoring the whole system you could miss the
- > creation of an alias.
- >
-Yes of course. If you want to catch hard links, you need to watch the
-root, and it is more expensive than just ignoring hard links like the
-current dnotify does. But it *is* possible, and it is not prohibitively
-expensive.
+Hope that's useful.
 
- >
- >>If the file manager insists on redrawing itself each time he gets a
- >>write event, you would get 100% cpu. But such a braindead implementation
- >>should not be blamed on the notification mechanism.
- >
- >
- > If you're monitoring a file due to it being visible (say e.g. the file
- > size) on the screen, you *will* be updating and redrawing it all the
- > time, unless you rate-limit your changes.
-  >
-Yes, but this rate limiting could as well be done in the file manager.
-
-  > Being able to get an event
- > when the file is closed would make this a lot better, because then you
- > can rate-limit heavily, but still get the final result instantly when
- > the download is finished.
- >
-You can have that if you want.
+-- 
+Hu Gang / Steve
+Linux Registered User 204016
+GPG Public Key: http://soulinfo.com/~hugang/hugang.asc

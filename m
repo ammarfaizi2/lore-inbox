@@ -1,42 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261244AbULTIDZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261175AbULTID1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261244AbULTIDZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 03:03:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbULTICe
+	id S261175AbULTID1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 03:03:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261206AbULTICH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 03:02:34 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:23734 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261487AbULTHQg (ORCPT
+	Mon, 20 Dec 2004 03:02:07 -0500
+Received: from gate.crashing.org ([63.228.1.57]:9891 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261491AbULTHJK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 02:16:36 -0500
-Date: Sun, 19 Dec 2004 23:06:03 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: David Brownell <david-b@pacbell.net>
-Cc: linux-usb-devel@lists.sourceforge.net,
-       Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-       "Randy.Dunlap" <rddunlap@osdl.org>, Adrian Bunk <bunk@stusta.de>,
-       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: RFC: [2.6 patch] let BLK_DEV_UB depend on EMBEDDED
-Message-ID: <20041219230603.7956d309@lembas.zaitcev.lan>
-In-Reply-To: <200412192243.06324.david-b@pacbell.net>
-References: <20041220001644.GI21288@stusta.de>
-	<41C65EA0.7020805@osdl.org>
-	<20041220062055.GA22120@one-eyed-alien.net>
-	<200412192243.06324.david-b@pacbell.net>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.14; i386-redhat-linux-gnu)
+	Mon, 20 Dec 2004 02:09:10 -0500
+Subject: /sys/block vs. /sys/class/block
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Cc: Patrick Mochel <mochel@digitalimplant.org>, Jens Axboe <axboe@suse.de>
+Content-Type: text/plain
+Date: Mon, 20 Dec 2004 08:08:52 +0100
+Message-Id: <1103526532.5320.33.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Dec 2004 22:43:05 -0800, David Brownell <david-b@pacbell.net> wrote:
+I'm trying to understand why we have /sys/block instead
+of /sys/class/block, and so far, I haven't found a single good argument
+justifying it... It just messes up the so far logical layout of sysfs
+for no apparent reason.
 
-> It also seems to mean significantly slower access (at high speed)
-> for the most standard devices.  That doesn't seem like a win,
-> though I suspect fixing it should be as simple as switching over
-> to use the USB scatterlist calls (which usb-storage uses) ...
+I also didn't find where /sys/block is created, but that's maybe because
+I didn't search too hard :) So I'm not coming up with a patch yet, but
+unless somebody can convince me it should stay here, I'll do so soon.
 
-They do not allow asynchronous operation, last time I checked.
+If the reason not to fix it is backward compatibility, then that would
+really be a shame we managed already to turn the brand new sysfs into a
+mess with no hope of fixing it... If there is really a problem there,
+maybe we could move it and keep a compat symlink for a few kernel
+revs... ?
 
--- Pete
+Ben.
+
+

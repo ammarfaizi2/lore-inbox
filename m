@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261293AbUBTPjl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 10:39:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261290AbUBTPhs
+	id S261292AbUBTPhb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 10:37:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbUBTPhb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 10:37:48 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:6312 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261293AbUBTPdM (ORCPT
+	Fri, 20 Feb 2004 10:37:31 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:21671 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261292AbUBTPcM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 10:33:12 -0500
-Date: Fri, 20 Feb 2004 15:36:15 +0000
+	Fri, 20 Feb 2004 10:32:12 -0500
+Date: Fri, 20 Feb 2004 15:35:17 +0000
 From: Joe Thornber <thornber@redhat.com>
 To: Joe Thornber <thornber@redhat.com>
 Cc: Andrew Morton <akpm@osdl.org>,
        Linux Mailing List <linux-kernel@vger.kernel.org>
-Subject: [Patch 4/6] dm: default queue limits
-Message-ID: <20040220153615.GR27549@reti>
+Subject: [Patch 3/6] dm: list_for_each_entry audit
+Message-ID: <20040220153517.GQ27549@reti>
 References: <20040220153145.GN27549@reti>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii

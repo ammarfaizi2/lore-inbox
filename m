@@ -1,116 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262705AbTLCXdE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 18:33:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262695AbTLCXcr
+	id S262331AbTLCXW3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 18:22:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262352AbTLCXW3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 18:32:47 -0500
-Received: from mail.scitechsoft.com ([63.195.13.67]:10180 "EHLO
-	mail.scitechsoft.com") by vger.kernel.org with ESMTP
-	id S262687AbTLCXce (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 18:32:34 -0500
-From: "Kendall Bennett" <KendallB@scitechsoft.com>
-Organization: SciTech Software, Inc.
-To: root@chaos.analogic.com
-Date: Wed, 03 Dec 2003 15:33:47 -0800
-MIME-Version: 1.0
-Subject: Re: Linux GPL and binary module exception clause?
-CC: Linux kernel <linux-kernel@vger.kernel.org>
-Message-ID: <3FCE025B.23398.3EBE7C18@localhost>
-References: <3FCDE5CA.2543.3E4EE6AA@localhost>
-In-reply-to: <Pine.LNX.4.53.0312031648390.3725@chaos>
-X-mailer: Pegasus Mail for Windows (v4.02)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+	Wed, 3 Dec 2003 18:22:29 -0500
+Received: from mail003.syd.optusnet.com.au ([211.29.132.144]:18367 "EHLO
+	mail003.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S262331AbTLCXW2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 18:22:28 -0500
+Date: Thu, 4 Dec 2003 10:27:26 +1100
+From: Andrew Clausen <clausen@gnu.org>
+To: Szakacsits Szabolcs <szaka@sienet.hu>
+Cc: Apurva Mehta <apurva@gmx.net>, Andries Brouwer <aebr@win.tue.nl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       bug-parted@gnu.org
+Subject: Re: Disk Geometries reported incorrectly on 2.6.0-testX
+Message-ID: <20031203232726.GC466@gnu.org>
+References: <20031203115404.GE1810@gnu.org> <Pine.LNX.4.21.0312031316550.28298-100000@mlf.linux.rulez.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0312031316550.28298-100000@mlf.linux.rulez.org>
+X-Accept-Language: en,pt
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" <root@chaos.analogic.com> wrote:
-
-> > So does this exception clause exist or not? If not, how can the binary
-> > modules be valid for use under Linux if the source is not made available
-> > under the terms of the GNU GPL?
+On Wed, Dec 03, 2003 at 02:07:06PM +0100, Szakacsits Szabolcs wrote:
+> > Can you elaborate?  Autodetect what?  Autodetect if the BIOS supports LBA?
 > 
-> I'll jump into this fray first stating that it is really great that
-> the CEO of a company that is producing high-performance graphics
-> cards and acceleration software is interested in finding out this
-> information. It seems that some other companies just hack together
-> some general-purpose source-code under GPL and then link it with a
-> secret object file. 
+> Autodetect to boot from the boot controller's miniport driver or using
+> BIOS. It should have been mentioned in one of the Microsoft articles I
+> referred.
 
-Well one of the primary reasons we are interested in researching this is 
-because we are in the process of preparing to release the SciTech SNAP 
-DDK under the GNU GPL license (dual licensed for proprietry developers), 
-and want to understand the ramifications of this approach. I must say I 
-am surprised to see that such a clause does not exist, since binary only 
-modules seem to be pretty abundant in the community.
+I'm totally confused.
 
-Then again the whole 'derived works' clause in the GPL is a huge gray 
-area IMHO, and even just sitting there arguing with myself I can come up 
-with pretty good arguments in both directions for why a binary only 
-module is legal or not. Especially when the only reference to this in the 
-GNU GPL FAQ is about plugins, and they use a really silly distinction 
-about whether a plugin uses fork/exec or not. I mean if you use fork/exec 
-to start the plugin, yet the plugin uses RPC and shared memory to 
-communicate with the main process, that is the same as local procedure 
-calls and local memory IMHO.
+What's a miniport driver?  What is a boot controller?  Do these have
+anything to do with LBA?
 
-> > Lastly I noticed that the few source code modules I looked at to see if
-> > the exception clause was mentioned there, did not contain the usual GNU
-> > GPL preable section at the top of each file. IMHO all files need to have
-> > such a notice attached, or they are not under the GNU GPL (just being in
-> > a ZIP/tar achive with a COPYING file does not place a file under the GNU
-> > GPL). Given all the current legal stuff going on with SCO, I figured
-> > every file would have such a header. In fact some of the files I looked
-> > at didn't even contain a basic copyright notice!!
-> 
-> I have been told by lawyers who do intellectual property law for a
-> living that under US Copyright law, the INSTANT that something is
-> written anywhere in a manner that allows it to be read back, it is
-> protected by the writer's default copyright protection. 
+Also, you say "autodetect"... you mean it is making a decision to use
+some method (not that I understand this).  How does it make the decision?
 
-Yes of course, but if there is no notice in the file, who is the 
-copyright holder? Only the original author knows for sure, and for 
-someone to *use* that file without permission from the original author 
-would be inviting a lawsuit.
+The article doesn't mention "Linear", "LBA", "boot controller" or
+"miniport driver" at all.  (I was looking at
+http://support.microsoft.com/?kbid=98080 - is this the right one?)
 
-> The writer may alter that protection or even assign ownership to
-> something or somebody else, but nobody needs to  put a copyright
-> notice anywhere in text. Now, if you intend to sue, before that
-> suit starts, the text must be registered with the United States
-> Copyright Office. In that case, it still doesn't need a copyright
-> notice or the famous (c) specified by the act. It just needs to be
-> identified by the writer, like: 
-> 
-> File:     TANGO.FOR        Created 12-DEC-1988     John R. Doe
-> 
-> Grin... from my VAX/VMS days.
 
-Right, but there are files in the source code with *nothing* at the top. 
-No copyright header, not notice of who wrote the file, nothing.
+The question I believe I asked was: how does the Windows installation
+software decide whether to use LBA or CHS?  Is this an answer to
+this question?
 
-In my opinion, unless a specific source file has a copyright notice 
-attached to it and specifically says 'you are licensed to use this file 
-under the terms of the GNU GPL - see the COPYING file' etc, then that 
-file is *not* under the GNU GPL. What that means is that I would have 
-zero rights to use that file without direct permission from the author, 
-and realistically should not use it. 
-
-If there are lots of files like that in the Linux kernel, then that means 
-that none of us really have the right to use Linux on our machines! 
-Yikes. Considering that all GNU projects contain this type of header, I 
-have always just assumed the Linux kernel source code would too. 
-Especially now with this SCO debacle going on.
-
-Regards,
-
----
-Kendall Bennett
-Chief Executive Officer
-SciTech Software, Inc.
-Phone: (530) 894 8400
-http://www.scitechsoft.com
-
-~ SciTech SNAP - The future of device driver technology! ~
+Cheers,
+Andrew
 

@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269019AbTBWW62>; Sun, 23 Feb 2003 17:58:28 -0500
+	id <S268989AbTBWXK1>; Sun, 23 Feb 2003 18:10:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269020AbTBWW62>; Sun, 23 Feb 2003 17:58:28 -0500
-Received: from sccrmhc01.attbi.com ([204.127.202.61]:3489 "EHLO
-	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
-	id <S269019AbTBWW6Y>; Sun, 23 Feb 2003 17:58:24 -0500
+	id <S268990AbTBWXK0>; Sun, 23 Feb 2003 18:10:26 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:44416
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S268989AbTBWXK0>; Sun, 23 Feb 2003 18:10:26 -0500
 Subject: Re: Question about Linux signal handling
-From: Albert Cahalan <albert@users.sf.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Albert Cahalan <albert@users.sourceforge.net>
 Cc: Albert Cahalan <albert@users.sourceforge.net>, developer_linux@yahoo.com,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1046043810.2092.0.camel@irongate.swansea.linux.org.uk>
-References: <1046039341.32116.34.camel@cube> 
-	<1046043810.2092.0.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <1046041491.31809.46.camel@cube>
+References: <1046039341.32116.34.camel@cube>
+	 <1046043810.2092.0.camel@irongate.swansea.linux.org.uk>
+	 <1046041491.31809.46.camel@cube>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 23 Feb 2003 18:04:50 -0500
-Message-Id: <1046041491.31809.46.camel@cube>
+Organization: 
+Message-Id: <1046046030.2210.11.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 24 Feb 2003 00:20:31 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-02-23 at 18:43, Alan Cox wrote:
-> On Sun, 2003-02-23 at 22:29, Albert Cahalan wrote:
+On Sun, 2003-02-23 at 23:04, Albert Cahalan wrote:
+> > Firstly BSD didn't get it wrong, things merely diverged
+> > historically after V7 unix.
+> 
+> BSD is wrong for not choosing a different name
+> for the new system call and leaving the old one.
 
->> Yes. This is the behavior of all SysV UNIX systems
->> and Linux kernels. Unfortunately, BSD got it wrong.
->
-> Firstly BSD didn't get it wrong, things merely diverged
-> historically after V7 unix.
+The same is true of System 5. Both of the changes semantics
+from V7 unix.
 
-BSD is wrong for not choosing a different name
-for the new system call and leaving the old one.
-There could have been a signal2() with the new
-behavior. X/Open even did this, with bsd_signal()
-as the name. Breaking compatibility is bad.
+> > glibc has the best of both worlds
+> 
+> Non-default behavior is nearly irrelevant. The default
+> should have matched traditional UNIX and Linux behavior.
 
->> Worse, the glibc developers saw fit to ignore both
->> UNIX history and Linus. They implemented BSD behavior
->> by making signal() use the sigaction system call
->
-> Also wrong. If you read the gcc documentation you can
-> select favouring BSD or SYS5 behaviour at compile time
->
-> glibc has the best of both worlds
+Its all in the docs, and to quote one of the smarter managerial
+people we had in Red Hat "I can only provide the information, I 
+can't make you hear it."
 
-Non-default behavior is nearly irrelevant. The default
-should have matched traditional UNIX and Linux behavior.
-
-The best of both worlds certainly means traditional
-signal() and a bsd_signal(), with a non-default option
-to choose the BSD signal() behavior.
-
+Alan
 

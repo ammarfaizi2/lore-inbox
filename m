@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129532AbRAWSsW>; Tue, 23 Jan 2001 13:48:22 -0500
+	id <S129933AbRAWSsW>; Tue, 23 Jan 2001 13:48:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131240AbRAWSsM>; Tue, 23 Jan 2001 13:48:12 -0500
-Received: from clueserver.org ([206.163.47.224]:50706 "HELO clueserver.org")
-	by vger.kernel.org with SMTP id <S129532AbRAWSsA>;
-	Tue, 23 Jan 2001 13:48:00 -0500
-Date: Tue, 23 Jan 2001 10:58:39 -0800 (PST)
-From: Alan Olsen <alan@clueserver.org>
-To: Helge Hafting <helgehaf@idb.hist.no>
-Cc: Stephen Satchell <satch@fluent-access.com>, linux-kernel@vger.kernel.org
-Subject: Re: [OT?] Coding Style
-In-Reply-To: <3A6D42D5.ED8552D0@idb.hist.no>
-Message-ID: <Pine.LNX.4.10.10101231057510.5928-100000@clueserver.org>
+	id <S129532AbRAWSsM>; Tue, 23 Jan 2001 13:48:12 -0500
+Received: from dryline-fw.wireless-sys.com ([216.126.67.45]:11340 "EHLO
+	dryline-fw.wireless-sys.com") by vger.kernel.org with ESMTP
+	id <S130575AbRAWSok>; Tue, 23 Jan 2001 13:44:40 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14957.53525.932386.251405@somanetworks.com>
+Date: Tue, 23 Jan 2001 13:44:37 -0500 (EST)
+From: "Georg Nikodym" <georgn@somanetworks.com>
+To: "Christopher Friesen" <cfriesen@nortelnetworks.com>
+Cc: georgn@somanetworks.com, Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [OT?] Coding Style
+In-Reply-To: <3A6DC807.1451EB61@nortelnetworks.com>
+In-Reply-To: <28560036253BD41191A10000F8BCBD116BDCCD@zcard00g.ca.nortel.com>
+	<200101231600.LAA24562@mah21awu.cas.org>
+	<14957.44505.115108.445550@somanetworks.com>
+	<3A6DC807.1451EB61@nortelnetworks.com>
+X-Mailer: VM 6.75 under 21.2  (beta40) "Persephone" XEmacs Lucid
+Reply-To: georgn@somanetworks.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Jan 2001, Helge Hafting wrote:
+>>>>> "CF" == Christopher Friesen <cfriesen@nortelnetworks.com> writes:
 
-> Stephen Satchell wrote:
-> 
-> [lots of good advice deleted]
-> > One goal of language designers is to REMOVE the need for comments.  With a
-> > good fourth-generation or fifth-generation language, the need for comments
-> > diminishes to a detailed description of the data sets and any highly
-> > unusual operations or transforms on the data.
-> 
-> This is but a dream.  You can't "design out" the need for comments by
-> approaching natural language.  Try reading a law book and realize that
-> natural language too may be twisted to the extent that it needs
-> extensive comments.  The same goes for any computer language powerful
-> enough to do useful work.
+ CF> This is why the autocompletion of functions and struct members in
+ CF> VC++ is awfully nice...hit the first few unique letters and it
+ CF> will complete the rest of the function for you, then hit tab and
+ CF> keep going.  Is there anything with that functionality under
+ CF> Linux?
 
-Actually using natural language and other such constructs may INCREASE the
-need for comments.
-
-For more examples, see Perl.
-
-alan@ctrl-alt-del.com | Note to AOL users: for a quick shortcut to reply
-Alan Olsen            | to my mail, just hit the ctrl, alt and del keys.
-    "In the future, everything will have its 15 minutes of blame."
-
+Yup.  Emacs users can use the mis-named dynamic abbreviation function
+(daddrev-expand which I have mapped to M-/).
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

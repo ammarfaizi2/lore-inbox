@@ -1,64 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265413AbRF0V1y>; Wed, 27 Jun 2001 17:27:54 -0400
+	id <S265411AbRF0V0y>; Wed, 27 Jun 2001 17:26:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265412AbRF0V1o>; Wed, 27 Jun 2001 17:27:44 -0400
-Received: from mailhost.terra.es ([195.235.113.151]:46630 "EHLO
-	tsmtppp1.teleline.es") by vger.kernel.org with ESMTP
-	id <S265413AbRF0V12>; Wed, 27 Jun 2001 17:27:28 -0400
-Message-ID: <3B3A525E.B321BC5@reymad.com>
-Date: Wed, 27 Jun 2001 23:38:38 +0200
-From: Gonzalo Aguilar <gad@reymad.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: es, en
+	id <S265412AbRF0V0p>; Wed, 27 Jun 2001 17:26:45 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:42898 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S265411AbRF0V0e>;
+	Wed, 27 Jun 2001 17:26:34 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: sched.h problem in 2.4.x and new gcc compilers
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15162.20357.647877.80788@pizda.ninka.net>
+Date: Wed, 27 Jun 2001 14:26:29 -0700 (PDT)
+To: "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: (reposting) how to get DMA'able memory within 4GB on 64-bit machi
+	ne
+In-Reply-To: <FEEBE78C8360D411ACFD00D0B7477971880ACE@xsj02.sjs.agilent.com>
+In-Reply-To: <FEEBE78C8360D411ACFD00D0B7477971880ACE@xsj02.sjs.agilent.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, there is a little problem with some headers and
-new glibs and compilers. Kernel fails to compile and worst
-is the extern declaration in sched.h
 
-Don't if this is a gcc or glib problem (surely gcc) but doesn't
-works...
+MEHTA,HIREN (A-SanJose,ex1) writes:
+ > Is there a way for a driver to ask kernel to
+ > give DMA'able memory within 4GB ? I read about
+ > pci_alloc_consistent(). But I could not find out
+ > whether that guarantees the DMA'able memory to be
+ > within 4GB or not. Is there any other kernel routine
+ > that I should call from Driver to get such a memory ?
 
-The patch is only redeclaring xtime in extern:
+All of the pci_*() DMA allocation/mapping interfaces give you
+32-bit PCI dma addresses.
 
-*************************** cut here ******************************
---- include/linux/sched.h	Wed Jun 27 23:19:04 2001
-+++ include/linux/sched.h~	Thu Jun 21 12:36:26 2001
-@@ -537,7 +537,7 @@
- extern unsigned long volatile jiffies;
- extern unsigned long itimer_ticks;
- extern unsigned long itimer_next;
--extern volatile struct timeval xtime __attribute__ ((aligned (16)));
-+extern struct timeval xtime;
- extern void do_timer(struct pt_regs *);
- 
- extern unsigned int * prof_buffer;
-***************************** cut here ******************************
-
-I made it with the copy that joe editor does, you know the change is:
-
--extern volatile struct timeval xtime __attribute__ ((aligned (16)));
-+extern struct timeval xtime;
-
-There are other problems with multiline string literals all over the
-code
-but this is only a warning... One is this...
-
-/mnt/hd2/src/linux-2.4.5/include/asm/checksum.h:72:30: warning:
-multi-line string literals are deprecated
-
-Hope it helps. It's a ridiculous patch but now it's fixed.
-
-Thanks
--- 
-Gonzalo Aguilar. Madrid, España (Spain) |
-Reymad Studios | gad@reymad.com		|
-Privado        | eshero@airtel.net	|
-----------------------------------------+
+Later,
+David S. Miller
+davem@redhat.com

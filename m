@@ -1,71 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268341AbTBYWhz>; Tue, 25 Feb 2003 17:37:55 -0500
+	id <S268623AbTBYWxU>; Tue, 25 Feb 2003 17:53:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268383AbTBYWhz>; Tue, 25 Feb 2003 17:37:55 -0500
-Received: from [24.77.48.240] ([24.77.48.240]:37680 "EHLO aiinc.aiinc.ca")
-	by vger.kernel.org with ESMTP id <S268341AbTBYWhx>;
-	Tue, 25 Feb 2003 17:37:53 -0500
-Date: Tue, 25 Feb 2003 14:48:11 -0800
-From: Michael Hayes <mike@aiinc.ca>
-Message-Id: <200302252248.h1PMmBC29253@aiinc.aiinc.ca>
-To: linux-kernel@vger.kernel.org
-Subject: [REVISED][PATCH] Spelling fixes for 2.5.63 - couldn't
-Cc: torvalds@transmeta.com
+	id <S268624AbTBYWxU>; Tue, 25 Feb 2003 17:53:20 -0500
+Received: from cs666873-16.austin.rr.com ([66.68.73.16]:59144 "EHLO
+	raptor.int.mccr.org") by vger.kernel.org with ESMTP
+	id <S268623AbTBYWxN>; Tue, 25 Feb 2003 17:53:13 -0500
+Date: Tue, 25 Feb 2003 17:02:54 -0600
+From: Dave McCracken <dmccr@us.ibm.com>
+To: Andrew Morton <akpm@digeo.com>
+cc: zilvinas@gemtek.lt, helgehaf@aitel.hist.no, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: [PATCH 2.5.62-mm3] objrmap fix for X
+Message-ID: <453440000.1046214174@[10.1.1.5]>
+In-Reply-To: <359700000.1046209586@[10.1.1.5]>
+References: <20030223230023.365782f3.akpm@digeo.com>
+ <3E5A0F8D.4010202@aitel.hist.no><20030224121601.2c998cc5.akpm@digeo.com>
+ <20030225094526.GA18857@gemtek.lt><20030225015537.4062825b.akpm@digeo.com>
+ <131360000.1046195828@[10.1.1.5]> <20030225132755.241e85ac.akpm@digeo.com>
+ <359700000.1046209586@[10.1.1.5]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="==========2135142778=========="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Removed changes to comments in .S files -- gcc does not like apostrophes
-in assembler comments.
+--==========2135142778==========
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-This fixes:
-    couldnt -> couldn't (4 occurrences)
 
-diff -ur a/arch/i386/kernel/smpboot.c b/arch/i386/kernel/smpboot.c
---- a/arch/i386/kernel/smpboot.c	Mon Feb 24 11:05:31 2003
-+++ b/arch/i386/kernel/smpboot.c	Tue Feb 25 09:50:50 2003
-@@ -956,7 +956,7 @@
- 	smp_tune_scheduling();
+--On Tuesday, February 25, 2003 15:46:26 -0600 Dave McCracken
+<dmccr@us.ibm.com> wrote:
+
+>> Keep the flag for now, find the escaped page under X, remove the flag
+>> later?
+> 
+> It occurred to me I'm already using (abusing?) the flag for nonlinear
+> pages, so I have to keep it.  I'll chase solutions for X.
+
+Ok, the vm_ops->nopage function is set in drivers like drm and agp.  I
+don't think it's reasonable to require all of them to set PageAnon.  So
+here's a patch that tests the page on do_no_page and sets the flag
+appropriately.
+
+Dave McCracken
+
+--==========2135142778==========
+Content-Type: text/plain; charset=us-ascii; name="objfix-2.5.62-mm3-1.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="objfix-2.5.62-mm3-1.diff"; size=362
+
+--- 2.5.62-mm3/mm/memory.c	2003-02-25 11:40:38.000000000 -0600
++++ 2.5.62-mm3-new/mm/memory.c	2003-02-25 15:54:51.000000000 -0600
+@@ -1325,6 +1325,10 @@
+ 	if (!pte_chain)
+ 		goto oom;
  
++	/* See if nopage returned an anon page */
++	if (!new_page->mapping || PageSwapCache(new_page))
++		SetPageAnon(new_page);
++
  	/*
--	 * If we couldnt find an SMP configuration at boot time,
-+	 * If we couldn't find an SMP configuration at boot time,
- 	 * get out of here now!
+ 	 * Should we do an early C-O-W break?
  	 */
- 	if (!smp_found_config) {
-diff -ur a/arch/x86_64/kernel/smpboot.c b/arch/x86_64/kernel/smpboot.c
---- a/arch/x86_64/kernel/smpboot.c	Mon Feb 24 11:06:02 2003
-+++ b/arch/x86_64/kernel/smpboot.c	Tue Feb 25 09:50:55 2003
-@@ -774,7 +774,7 @@
- 	}
- 
- 	/*
--	 * If we couldnt find an SMP configuration at boot time,
-+	 * If we couldn't find an SMP configuration at boot time,
- 	 * get out of here now!
- 	 */
- 	if (!smp_found_config) {
-diff -ur a/drivers/md/md.c b/drivers/md/md.c
---- a/drivers/md/md.c	Mon Feb 24 11:05:14 2003
-+++ b/drivers/md/md.c	Tue Feb 25 09:50:59 2003
-@@ -2290,7 +2290,7 @@
- 				}
- 				err = set_array_info(mddev, &info);
- 				if (err) {
--					printk(KERN_WARNING "md: couldnt set array info. %d\n", err);
-+					printk(KERN_WARNING "md: couldn't set array info. %d\n", err);
- 					goto abort_unlock;
- 				}
- 			}
-diff -ur a/drivers/usb/media/konicawc.c b/drivers/usb/media/konicawc.c
---- a/drivers/usb/media/konicawc.c	Mon Feb 24 11:05:04 2003
-+++ b/drivers/usb/media/konicawc.c	Tue Feb 25 09:51:01 2003
-@@ -607,7 +607,7 @@
- 	}
- 
- 	if(newsize > MAX_FRAME_SIZE) {
--		DEBUG(1, "couldnt find size %d,%d", x, y);
-+		DEBUG(1, "couldn't find size %d,%d", x, y);
- 		return -EINVAL;
- 	}
- 
+
+--==========2135142778==========--
+

@@ -1,102 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262422AbTKNL5R (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 06:57:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262429AbTKNL5Q
+	id S262449AbTKNMKH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 07:10:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262458AbTKNMKH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 06:57:16 -0500
-Received: from smtp-2.hut.fi ([130.233.228.92]:27844 "EHLO smtp-2.hut.fi")
-	by vger.kernel.org with ESMTP id S262422AbTKNL5O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 06:57:14 -0500
-Date: Fri, 14 Nov 2003 13:56:58 +0200
-From: Pasi Savolainen <pasi.savolainen@hut.fi>
-To: Tony Lindgren <tony@atomide.com>
-Cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
-       clepple@ghz.cc
-Subject: Re: [PATCH] amd76x_pm on 2.6.0-test9 cleanup
-Message-ID: <20031114115658.GD479040@kosh.hut.fi>
-References: <20031104002243.GC1281@atomide.com> <1067971295.11436.66.camel@cog.beaverton.ibm.com> <20031104191504.GB1042@atomide.com> <20031104202104.GA408936@kosh.hut.fi> <20031104205547.GE1042@atomide.com>
+	Fri, 14 Nov 2003 07:10:07 -0500
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:21772 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262449AbTKNMKE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 07:10:04 -0500
+Date: Fri, 14 Nov 2003 12:10:03 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Updating our sn code in 2.6
+Message-ID: <20031114121003.A6397@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	linux-kernel@vger.kernel.org
+References: <20031107102514.A2437@infradead.org> <Pine.SGI.3.96.1031112174709.40512D-100000@fsgi900.americas.sgi.com> <20031113065844.A16234@infradead.org> <20031113164801.GA27268@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031104205547.GE1042@atomide.com>
-User-Agent: Mutt/1.4i
-X-RAVMilter-Version: 8.4.3(snapshot 20030212) (smtp-2.hut.fi)
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20031113164801.GA27268@sgi.com>; from jbarnes@sgi.com on Thu, Nov 13, 2003 at 08:48:01AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Tony Lindgren <tony@atomide.com> [031104 23:00]:
-> * Pasi Savolainen <pasi.savolainen@hut.fi> [031104 12:21]:
-> > * Tony Lindgren <tony@atomide.com> [031104 21:24]:
-> > > * john stultz <johnstul@us.ibm.com> [031104 10:43]:
-> > > > On Mon, 2003-11-03 at 16:22, Tony Lindgren wrote:
-> > > > I've received some reports that this patch causes time problems.
-> > > > 
-> > > > Have those issues been looked into further, or addressed? 
-> > > 
-> > > I've heard of timing problems if it's compiled in, but supposedly they don't
-> > > happen when loaded as module.
-> > 
-> > Not happening since 2.6.0-test9. Don't know what really fixed it, but
-> > they're just not there anymore.
-> 
-> Weird, John, is this true on your S2460 also?
+On Thu, Nov 13, 2003 at 08:48:01AM -0800, Jesse Barnes wrote:
+> Are you sure you want to handle it this way?  I'm not sure the code is
+> very useful in its current state--I think we might be better off
+> downloading an old kernel version for reference and writing new code for
+> drivers/xtalk.
 
-Well I'll be damned. It took 18 days to show up. Though I've been
-riding this baby heavy for about a week.
-So I've gettimeofday() jumping backwards again.
+Well, maybe that would be a better idea.  But if you remove the xbridge
+support please do it as a separate diff so it can be archive easily.
 
-# uname -a
-Linux tienel 2.6.0-test9 #2 SMP Sun Oct 26 14:35:02 EET 2003 i686 GNU/Linux
-
-
-It's this test I'm running (snipped from previous TSC desych
--conversation):
-
-- -
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/time.h>
-
-int main( void )
-{
-        int                     i = 0;
-
-        while( 1 )
-        {
-                struct timeval          start;
-                struct timeval          stop;
-                struct timeval          diff;
-                int                     rc1;
-                int                     rc2;
-
-                if( i++ % 1000000 == 0 )
-                        printf( "% 12d: Iterations so far\n", i );
-
-                rc1 = gettimeofday( &start, 0 );
-                rc2 = gettimeofday( &stop, 0 );
-                timersub( &stop, &start, &diff );
-
-                if( rc1 < 0 || rc2 < 0 )
-                        printf( " %12d: rc1=%d rc2=%d.   Failure!\n",
-                                i,
-                                rc1,
-                                rc2
-                        );
-
-                if( diff.tv_sec >= 0 && diff.tv_usec >= 0 )
-                        continue;
-
-                printf( "% 12d: Time went backwards: %d:%06d\n",
-                        i,
-                        diff.tv_sec,
-                        diff.tv_usec
-                );
-
-        }
-}
-- -
-
--- 
-Psi -- <http://www.iki.fi/pasi.savolainen>

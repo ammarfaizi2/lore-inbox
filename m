@@ -1,35 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317354AbSGVNv2>; Mon, 22 Jul 2002 09:51:28 -0400
+	id <S315372AbSGVAhO>; Sun, 21 Jul 2002 20:37:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317360AbSGVNvB>; Mon, 22 Jul 2002 09:51:01 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:8672 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S317354AbSGVNuq>;
-	Mon, 22 Jul 2002 09:50:46 -0400
-Date: Mon, 22 Jul 2002 15:52:41 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Russell King <rmk@arm.linux.org.uk>,
-       Linus Torvalds <torvalds@transmeta.com>, Robert Love <rml@tech9.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] cli()/sti() cleanup, 2.5.27-A2
-In-Reply-To: <20020722154656.A19039@lst.de>
-Message-ID: <Pine.LNX.4.44.0207221550470.9345-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315388AbSGVAhO>; Sun, 21 Jul 2002 20:37:14 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:52236 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S315372AbSGVAhN>; Sun, 21 Jul 2002 20:37:13 -0400
+Date: Mon, 22 Jul 2002 01:40:18 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Christoph Hellwig <hch@lst.de>,
+       linux-kernel@vger.kernel.org, Robert Love <rml@tech9.net>
+Subject: Re: [patch] "big IRQ lock" removal, 2.5.27-A9
+Message-ID: <20020722014018.A31813@flint.arm.linux.org.uk>
+References: <Pine.LNX.4.44.0207211619480.9993-100000@home.transmeta.com> <Pine.LNX.4.44.0207220224170.4909-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0207220224170.4909-100000@localhost.localdomain>; from mingo@elte.hu on Mon, Jul 22, 2002 at 02:31:16AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jul 22, 2002 at 02:31:16AM +0200, Ingo Molnar wrote:
+> +drivers that want to disable local interrupts (interrupts on the
+> +current CPU), can use the following four macros:
+> +
+> +  __cli(), __sti(), __save_flags(flags), __restore_flags(flags)
 
-we abstracted simple types such as pte_t, pmd_t and pgd_t for one good
-reason: it's 3 *distinct* entities that can be confused quite easily,
-causing subtle VM bugs (eg. for quite some time the x86 arch had 2-level
-paging only, so to have a proper 3-level paging VM we needed these type
-checks).
+Last mail before zzz (hopefully) - what about
+local_irq_{enable,disable,save,restore} ?
 
-i dont sense the same type of urge (and danger of mixup) wrt. the
-interrupt flags.
+With the exception of local_irq_save() which is actually
+local_irq_save_disable(), I find these to be more "descriptive" of
+their function.
 
-	Ingo
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

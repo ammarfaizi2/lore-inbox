@@ -1,86 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266675AbSKHAPb>; Thu, 7 Nov 2002 19:15:31 -0500
+	id <S266676AbSKHAW3>; Thu, 7 Nov 2002 19:22:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266676AbSKHAPb>; Thu, 7 Nov 2002 19:15:31 -0500
-Received: from dhcp024-209-039-058.neo.rr.com ([24.209.39.58]:25216 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id <S266675AbSKHAPa>;
-	Thu, 7 Nov 2002 19:15:30 -0500
-Date: Thu, 7 Nov 2002 19:25:51 +0000
-From: Adam Belay <ambx1@neo.rr.com>
-To: Greg KH <greg@kroah.com>
+	id <S266677AbSKHAW3>; Thu, 7 Nov 2002 19:22:29 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:43269 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266676AbSKHAW3>; Thu, 7 Nov 2002 19:22:29 -0500
+Date: Fri, 8 Nov 2002 00:29:05 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Tom Rini <trini@kernel.crashing.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] pnp.h changes - 2.5.46 (4/6)
-Message-ID: <20021107192551.GB352@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>, Greg KH <greg@kroah.com>,
+Subject: Re: [RFC] Templates and tweaks (for size performance and more)
+Message-ID: <20021108002905.F11437@flint.arm.linux.org.uk>
+Mail-Followup-To: Tom Rini <trini@kernel.crashing.org>,
 	linux-kernel@vger.kernel.org
-References: <20021106210639.GO316@neo.rr.com> <20021107060102.GB26821@kroah.com>
+References: <20021107190910.GC6164@opus.bloom.county> <20021107210304.C11437@flint.arm.linux.org.uk> <20021107220628.GA12151@opus.bloom.county>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021107060102.GB26821@kroah.com>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021107220628.GA12151@opus.bloom.county>; from trini@kernel.crashing.org on Thu, Nov 07, 2002 at 03:06:29PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 06, 2002 at 10:01:02PM -0800, Greg KH wrote:
-> On Wed, Nov 06, 2002 at 09:06:39PM +0000, Adam Belay wrote:
-> >  
-> > +static inline void *pnp_get_drvdata (struct pnp_dev *pdev)
-> > +{
-> > +	return pdev->dev.driver_data;
-> > +}
-> > +
-> > +static inline void pnp_set_drvdata (struct pnp_dev *pdev, void *data)
-> > +{
-> > +	pdev->dev.driver_data = data;
-> > +}
-> > +
-> > +static inline void *pnp_get_protodata (struct pnp_dev *pdev)
-> > +{
-> > +	return pdev->protocol_data;
-> > +}
-> > +
-> > +static inline void pnp_set_protodata (struct pnp_dev *pdev, void *data)
-> > +{
-> > +	pdev->protocol_data = data;
-> > +}
->
-> Any reason for not just using dev_get_drvdata() and dev_set_drvdata() in
-> the drivers?  Or at the least, use them within these functions, that's
-> what they are there for :)
->
-> thanks,
->
-> greg k-h
+On Thu, Nov 07, 2002 at 03:06:29PM -0700, Tom Rini wrote:
+> But having that as one line in arch/arm/Kconfig looks any better?
 
+Actually its supposed to depend on CONFIG_SA1111, not that random
+collection of other symbols.  The following just happened to be a nice
+way to specify it under CML1:
 
-Sure, here's a patch.  I think I'll use them within these functions.
+if [ "$CONFIG_ASSABET_NEPONSET" = "y" -o \
+     "$CONFIG_SA1100_ACCELENT" = "y" -o \
+     "$CONFIG_SA1100_ADSBITSY" = "y" -o \
+     "$CONFIG_SA1100_BADGE4" = "y" -o \
+     "$CONFIG_SA1100_CONSUS" = "y" -o \
+     "$CONFIG_SA1100_GRAPHICSMASTER" = "y" -o \
+     "$CONFIG_SA1100_JORNADA720" = "y" -o \
+     "$CONFIG_SA1100_PFS168" = "y" -o \
+     "$CONFIG_SA1100_PT_SYSTEM3" = "y" -o \
+     "$CONFIG_SA1100_XP860" = "y" ]; then
+   define_bool CONFIG_SA1111 y
+   define_int CONFIG_FORCE_MAX_ZONEORDER 9
+fi
 
-Thanks,
-Adam
+The conversion should've been:
 
+config FORCE_MAX_ZONEORDER
+        int
+        depends on SA1111
+        default "9"
 
+Even so, my original point remains about the dependency between config
+symbols concentrating in one "tweaks" header file leading to the situation
+where you change one symbol and everything rebuilds.
 
-Is this ok?
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-
-
-diff -ur a/include/linux/pnp.h b/include/linux/pnp.h
---- a/include/linux/pnp.h	Wed Nov  6 17:52:11 2002
-+++ b/include/linux/pnp.h	Thu Nov  7 19:19:07 2002
-@@ -75,12 +75,12 @@
-
- static inline void *pnp_get_drvdata (struct pnp_dev *pdev)
- {
--	return pdev->dev.driver_data;
-+	return dev_get_drvdata(&pdev->dev);
- }
-
- static inline void pnp_set_drvdata (struct pnp_dev *pdev, void *data)
- {
--	pdev->dev.driver_data = data;
-+	dev_set_drvdata(&pdev->dev, data);
- }
-
- static inline void *pnp_get_protodata (struct pnp_dev *pdev)

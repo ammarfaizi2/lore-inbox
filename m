@@ -1,42 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316667AbSHBSzh>; Fri, 2 Aug 2002 14:55:37 -0400
+	id <S316750AbSHBTCq>; Fri, 2 Aug 2002 15:02:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316675AbSHBSzh>; Fri, 2 Aug 2002 14:55:37 -0400
-Received: from fachschaft.cup.uni-muenchen.de ([141.84.250.61]:39686 "EHLO
-	fachschaft.cup.uni-muenchen.de") by vger.kernel.org with ESMTP
-	id <S316667AbSHBSzg>; Fri, 2 Aug 2002 14:55:36 -0400
-Message-Id: <200208021858.g72Iwcm03033@fachschaft.cup.uni-muenchen.de>
-Content-Type: text/plain; charset=US-ASCII
-From: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
-To: Kasper Dupont <kasperd@daimi.au.dk>
-Subject: Re: [RFC] Race condition?
-Date: Fri, 2 Aug 2002 20:51:55 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-References: <3D4A8D45.49226E2B@daimi.au.dk> <200208021700.g72H0bm02654@fachschaft.cup.uni-muenchen.de> <3D4ABDBA.35153981@daimi.au.dk>
-In-Reply-To: <3D4ABDBA.35153981@daimi.au.dk>
+	id <S316788AbSHBTCp>; Fri, 2 Aug 2002 15:02:45 -0400
+Received: from ns.escriba.com.br ([200.250.187.130]:5884 "EHLO
+	alexnunes.lab.escriba.com.br") by vger.kernel.org with ESMTP
+	id <S316750AbSHBTCn>; Fri, 2 Aug 2002 15:02:43 -0400
+Message-ID: <3D4AD817.3080200@PolesApart.wox.org>
+Date: Fri, 02 Aug 2002 16:05:59 -0300
+From: "Alexandre P. Nunes" <alex@PolesApart.wox.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
+Subject: Re: some questions using rdtsc in user space
+References: <3D4ABCA3.3020402@PolesApart.wox.org> <3D4ACF11.FD7BB5B5@nortelnetworks.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Freitag, 2. August 2002 19:13 schrieb Kasper Dupont:
-> Oliver Neukum wrote:
-> > Am Freitag, 2. August 2002 15:46 schrieb Kasper Dupont:
-> > > Is there a race condition in this piece of code from do_fork in
-> >
-> > It would seem so. Perhaps the BKL was taken previously.
+Chris Friesen wrote:
+
+>[snip]
 >
-> I guess you are right. Looking closer on the following lines
-> I find a comment stating that nr_threads is protected by the
-> kernel lock, but I don't see a lock_kernel() anywhere in this
-> code. How about the next code using the nr_threads variable,
-> is that safe?
+>>If using rdtsc is a good way, someone knows how do I do some sort of
+>>loop, converting the rdtsc difference (is it in cpu clocks, right?) to
+>>nano/microseconds, and if there could be bad behaviour from this (I
+>>believe there could be some SMP issues, but for now this is irrelavant
+>>for us).
+>>    
+>>
+>
+>You'd be more portable looping on gettimeofday(), which returns back seconds and
+>microseconds.  The disadvantage is that if you change the system time while your
+>program is running you can get screwed.
+>
 
-No, it isn't either.
-In fact you can even lose updates as it isn't atomic_t.
+I guess ntpd would be the evil on this issue, because at least in some 
+machines I have here, it makes minor (sometimes not "that" minor) 
+corrections every half hour or so...
 
-	Regards
-		Oliver
+>
+>If you want to loop on rdtsc (which as you say is often clockspeed, but that is
+>not necessarily exactly what is advertised), then the first thing you need to do
+>is to figure out how fast you're going.  What I usually do is grab a timestamp,
+>sleep for 10 seconds using select(), and grab another timestamp.  Figure out the
+>difference in timestamps, divide by 10, and you get ticks/sec.  If it's close to
+>your advertised clock rate, then round it up to the clock rate for ease of
+>calculation.  As an example, my 550MHz P3 gives 548629000 ticks/sec using this
+>method, so for your purposes I'd round it up to 550000000.
+>
+>Once you have this information, just divide by 5 million to get the number of
+>ticks in 200ns.
+>
+>  
+>
+Ok, that's exactly where I was trying to get to, I'll do some 
+experiments, thank you!
+
+Alexandre
 

@@ -1,61 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261879AbTLHXDY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 18:03:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261885AbTLHXDY
+	id S261947AbTLHWzx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 17:55:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbTLHWzw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 18:03:24 -0500
-Received: from quechua.inka.de ([193.197.184.2]:10456 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S261879AbTLHXDW (ORCPT
+	Mon, 8 Dec 2003 17:55:52 -0500
+Received: from main.gmane.org ([80.91.224.249]:14291 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261947AbTLHWzv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 18:03:22 -0500
-From: Andreas Jellinghaus <aj@dungeon.inka.de>
-Subject: Re: State of devfs in 2.6?
-Date: Tue, 09 Dec 2003 00:04:08 +0100
-User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity. (Debian GNU/Linux))
-Message-Id: <pan.2003.12.08.23.04.07.111640@dungeon.inka.de>
-References: <200312081536.26022.andrew@walrond.org> <20031208154256.GV19856@holomorphy.com>
+	Mon, 8 Dec 2003 17:55:51 -0500
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: PROBLEM: BTTV option not available in make gconfig
+Date: Mon, 08 Dec 2003 23:55:48 +0100
+Message-ID: <yw1xzne2aphn.fsf@kth.se>
+References: <vpq1xrfnd49.fsf@ecrins.imag.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:3hrX7WLmU8poU0a77AF4HAc4+rA=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 08 Dec 2003 15:50:45 +0000, William Lee Irwin III wrote:
-> I would say it's deprecated at the very least. sysfs and udev are
-> supposed to provide equivalent functionality, albeit by a somewhat
-> different mechanism.
+Matthieu Moy <Matthieu.Moy@imag.fr> writes:
 
-huh?
+> I'm upgrading my kernel to 2.6-test9
 
-aj@simulacron:/dev$ find -type c -mount |grep -v pty |wc -l
-    164
-aj@simulacron:/dev$ find -type b |wc -l
-    157
-aj@simulacron:/dev$ find /sys/ -name dev |wc -l
-    250
+Why not -test11 while you're at it?
 
-After ignoring .devfsd we are left with 70 devices missing:
- - 15 floppy devices
- - 5 input/ devices
- - full, kmem, kmsg, mem, null, port, random, urandom, zero
- - printers/0 
- - 5 misc/ devices
- - 12 snd/ devices
- - 5 sound/ devices
- - 18 vcc/ devices
+> The option CONFIG_VIDEO_BT848=m in .config was available in 2.4, but I
+> can't find in  doing a "make gconfig" in the new  version. (This is to
+> manage my Pinnacle PCTV card)
 
-I wouldn't call udev deprecated, unless a newer kernel has the
-essential devices, too. And is there a udev version that can
-do devfs names? last time I checked only lanana names were supported.
+Say Y or M to I2O support.
 
-Some distributions were quite happy to move from /dev and lanana to
-devfs with better names. I doubt everyone will rush to udev with
-lanana names, and re-introducing makedev for devices not represented
-in sysfs doesn't sound very nice either. So 2.8.* might be a nice time
-frame for dropping devfs, or at least give sysfs and udev a few months
-to catch up on the issues mentioned.
-
-Andreas
+-- 
+Måns Rullgård
+mru@kth.se
 

@@ -1,31 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131141AbQLWDFv>; Fri, 22 Dec 2000 22:05:51 -0500
+	id <S131370AbQLWDZ5>; Fri, 22 Dec 2000 22:25:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131570AbQLWDFl>; Fri, 22 Dec 2000 22:05:41 -0500
-Received: from [203.36.158.121] ([203.36.158.121]:18059 "HELO kabuki.eyep.net")
-	by vger.kernel.org with SMTP id <S131141AbQLWDFe>;
-	Fri, 22 Dec 2000 22:05:34 -0500
-To: linux-kernel@vger.kernel.org
-Subject: test13-pre4-ac2 - part of diff fails
-Date: Sat, 23 Dec 2000 13:37:26 +1100
-From: Daniel Stone <daniel@kabuki.eyep.net>
-Message-Id: <20001223030539Z131141-439+5796@vger.kernel.org>
+	id <S131559AbQLWDZs>; Fri, 22 Dec 2000 22:25:48 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:11022 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S131370AbQLWDZd>; Fri, 22 Dec 2000 22:25:33 -0500
+Date: Fri, 22 Dec 2000 23:01:56 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Tim Bell <bhat@trinity.unimelb.edu.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: "kernel bug at buffer.c:765" in 2.4.0-test12
+In-Reply-To: <20001223133302.A8615@trinity.unimelb.edu.au>
+Message-ID: <Pine.LNX.4.21.0012222300050.3502-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get this when patch'ing in test13-pre4-ac2 (with ReiserFS and Netfilter
-patches, none of which touch SMP).
 
-patching file arch/i386/kernel/smp.c
-Reversed (or previously applied) patch detected!  Assume -R? [n] 
-Apply anyway? [n] y
-Hunk #1 FAILED at 278.
-Hunk #2 succeeded at 511 (offset 9 lines).
-1 out of 2 hunks FAILED -- saving rejects to file arch/i386/kernel/smp.c.rej
+On Sat, 23 Dec 2000, Tim Bell wrote:
 
-Works fine if I reverse it and then put it back in. ?
-d
+> Hi,
+> 
+> [1.] One line summary of the problem:    
+> 
+> "kernel bug at buffer.c:765" in 2.4.0-test12
+
+Bug fixed in 2.4.0-test13pre2. 
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

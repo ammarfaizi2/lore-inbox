@@ -1,72 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261993AbTEBJNb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 05:13:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261994AbTEBJNa
+	id S261998AbTEBJ0V (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 05:26:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262000AbTEBJ0V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 05:13:30 -0400
-Received: from moutng.kundenserver.de ([212.227.126.187]:41456 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S261993AbTEBJN3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 05:13:29 -0400
-Date: Fri, 2 May 2003 11:42:36 +0200 (CEST)
-From: Bodo Rzany <bodo@rzany.de>
-X-X-Sender: bo@joel.ro.ibrro.de
-To: viro@parcelfarce.linux.theplanet.co.uk
-cc: Bodo Rzany <bodo@rzany.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: is there small mistake in lib/vsprintf.c of kernel 2.4.20 ?
-In-Reply-To: <20030502090835.GX10374@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.44.0305021131290.493-100000@joel.ro.ibrro.de>
+	Fri, 2 May 2003 05:26:21 -0400
+Received: from t7o53p50.telia.com ([213.64.145.50]:46978 "EHLO
+	best.localdomain") by vger.kernel.org with ESMTP id S261998AbTEBJ0U
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 May 2003 05:26:20 -0400
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] Faster generic_fls
+References: <200305020452_MC3-1-3708-DBEE@compuserve.com>
+From: Peter Osterlund <petero2@telia.com>
+Date: 02 May 2003 11:37:26 +0200
+In-Reply-To: <200305020452_MC3-1-3708-DBEE@compuserve.com>
+Message-ID: <m2isstadux.fsf@best.localdomain>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 May 2003 viro@parcelfarce.linux.theplanet.co.uk wrote:
+Chuck Ebbert <76306.1226@compuserve.com> writes:
 
-> On Fri, May 02, 2003 at 11:06:32AM +0200, Bodo Rzany wrote:
-> > PROBLEM:
-> > 	Hex/Octal decoding with sscanf from kernel library does not work
-> > 	within kernel 2.4.20
-> >
-> > DESCRIPTION:
-> > 	Line 570 in lib/vsprintf.c
-> >
-> > 			14677 11. Okt 2001  vsprintf.c
-> >
-> > 	holds '	base = 10; '
-> >
-> > 	which prevents the real conversion routines ('simple_strtoul' a.s.o.)
-> > 	from decoding numbers from bases other than 10.
->
-> It's not a problem, it's standard-mandated behaviour.
+>   GCC is the strangest combination of utterly brilliant and brain-dead
+> stupid that I've ever seen... I've seen it do tail merges that took
+> my breath away, followed by this:
+> 
+>   mov <mem1>,eax
+>   mov eax,<mem2>
+>   mov <mem1>,eax        ; eax already contains mem1 you stupid compiler
+>   ret
 
-I don't think so. Please read a few lines below:
+Not necessarily if mem2 == mem1 + 2. Consider this code:
 
->
-> >From vsscanf(3):
->        The following conversions are available:
-> ...
->        d      Matches  an  optionally signed decimal integer; the next pointer
->               must be a pointer to int.
-> ...
->        i      Matches an optionally signed integer; the next pointer must be a
->               pointer  to  int.   The  integer is read in base 16 if it begins
->               with `0x' or `0X', in base 8 if it begins with `0', and in  base
->               10  otherwise.   Only characters that correspond to the base are
->               used.
+        #include <string.h>
+        int f(char* a, char* b)
+        {
+            int t;
+            memcpy(&t, a, sizeof(int));
+            memcpy(b, &t, sizeof(int));
+            memcpy(&t, a, sizeof(int));
+            return t;
+        }
 
-If one tries to read an '0xabc' or even '0732' entry in the data buffer,
-sscanf returns '-1'. The problem seems to be that 'sscanf' claims for
-'base=10' every time, and this prevents 'simple_strtoul' (and the other
-conversion routines) from extracting the desired base out of the input
-string (format string declarations works fine, as you stated!).
+"gcc -O2 -Wall -S test.c -fomit-frame-pointer" correctly generates:
 
-> IOW, %d _does_ mean base=10.  base=0 is %i.  That goes both for kernel and
-> userland implementations of scanf family (and for any standard-compliant
-> implementation, for that matter).
+f:
+        movl    4(%esp), %ecx
+        movl    (%ecx), %eax
+        movl    8(%esp), %edx
+        movl    %eax, (%edx)
+        movl    (%ecx), %eax
+        ret
 
-As I can see, 'base=10' is used for all conversions except for '%x' and
-'%o'. If '%i' or '%u' are given, base should be really set to 0, what is
-not the case (it is fixed to 10 instead!).
-
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

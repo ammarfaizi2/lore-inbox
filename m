@@ -1,38 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312364AbSDEIFu>; Fri, 5 Apr 2002 03:05:50 -0500
+	id <S312374AbSDEIJl>; Fri, 5 Apr 2002 03:09:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312370AbSDEIFk>; Fri, 5 Apr 2002 03:05:40 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:5943 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S312364AbSDEIFh>; Fri, 5 Apr 2002 03:05:37 -0500
-To: <robert@schwebel.de>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: moving some boot code out of arch directories
-In-Reply-To: <Pine.LNX.4.33.0204050920180.16178-100000@callisto.local>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 05 Apr 2002 00:59:04 -0700
-Message-ID: <m1ofgypodz.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S312372AbSDEIJa>; Fri, 5 Apr 2002 03:09:30 -0500
+Received: from imag.imag.fr ([129.88.30.1]:54667 "EHLO imag.imag.fr")
+	by vger.kernel.org with ESMTP id <S312370AbSDEIJT>;
+	Fri, 5 Apr 2002 03:09:19 -0500
+Date: Fri, 5 Apr 2002 10:09:15 +0200
+From: Pierre Lombard <pierre.lombard@imag.fr>
+To: Bernd Schubert <bernd-schubert@web.de>
+Cc: Mark Cooke <mpc@star.sr.bham.ac.uk>, linux-kernel@vger.kernel.org
+Subject: Re: time jumps
+Message-ID: <20020405080915.GA1220@sci41.imag.fr>
+Mail-Followup-To: Bernd Schubert <bernd-schubert@web.de>,
+	Mark Cooke <mpc@star.sr.bham.ac.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0203271729290.15451-100000@pc24.sr.bham.ac.uk> <200204031132.g33BW5M28288@fubini.pci.uni-heidelberg.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Schwebel <robert@schwebel.de> writes:
+On Wed, Apr 03, 2002 at 01:32:05PM +0200, Bernd Schubert wrote:
+> after changing from 'CONFIG_X86_TSC=n' to 'CONFIG_X86_TSC=y' the problem 
+> still exists, so I'm going to try some other suggestions.
 
-> On 4 Apr 2002, Eric W. Biederman wrote:
-> > A have some thoughts but nothing to concrete right now.  On every
-> > architecture booting seems to be a completely roll your own solution.
-> > Which I find very annoying.  This one of the reasons I am also working
-> > on general linux booting linux support.  If we could get as far as a
-> > bootloader that works on multiple architectures perhaps we could start
-> > to unify some of these things.
-> 
-> You might want to have a look at PPCboot / ARMboot (the latter one is a
-> recent port to ARM) which seems to be very interesting! Only a port to x86
-> is missing (or, better, a unified project...)
+> On Wednesday 27 March 2002 18:33, Mark Cooke wrote:
+> > There is a hardware bug on some via 686a systems where the RTC appears
+> > automagically change it's programmed value.
+> >
+> > A patch was originally made against 2.4.2, and some version of this
+> > appears to be applied to current kernels (I don't have a vanilla
+> > 2.4.17 to check against).  Look in arch/i386/kernel/time.c for mention
+> > of 686a.
+> >
+> > It appears to only be used if the kernel's not compiled with
+> > CONFIG_X86_TSC though, so if you have that defined you may not see the
+> > problem at all...
 
-Do you have any pointers?
+The workaround below by Vojtech Pavlik has fixed this issue on my
+system (I've a VIA based Abit KT7 and under heavy disk I/O between two
+IDE channels the timer goes mad):
 
-Eric
+  Re: [PATCH] VIA timer fix was removed?
+  From: Vojtech Pavlik (vojtech@suse.cz)
+  Date: Mon Nov 12 2001 - 16:58:32 EST
+
+  http://www.uwsg.iu.edu/hypermail/linux/kernel/0111.1/0951.html
+
+If you see the message in your logs then congratulations: you hit (one
+of) the VIA bug(s) ;)
+
+--
+Best regards,
+  Pierre Lombard

@@ -1,57 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265725AbTABGEE>; Thu, 2 Jan 2003 01:04:04 -0500
+	id <S265711AbTABGGO>; Thu, 2 Jan 2003 01:06:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265754AbTABGEE>; Thu, 2 Jan 2003 01:04:04 -0500
-Received: from codepoet.org ([166.70.99.138]:8417 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S265725AbTABGEC>;
-	Thu, 2 Jan 2003 01:04:02 -0500
-Date: Wed, 1 Jan 2003 23:12:33 -0700
-From: Erik Andersen <andersen@codepoet.org>
-To: Bill Huey <billh@gnuppy.monkey.org>
-Cc: Paul Jakma <paul@clubi.ie>, Rik van Riel <riel@conectiva.com.br>,
-       Hell.Surfers@cwctv.net, linux-kernel@vger.kernel.org, rms@gnu.org
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-Message-ID: <20030102061233.GA20916@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Bill Huey <billh@gnuppy.monkey.org>, Paul Jakma <paul@clubi.ie>,
-	Rik van Riel <riel@conectiva.com.br>, Hell.Surfers@cwctv.net,
-	linux-kernel@vger.kernel.org, rms@gnu.org
-References: <Pine.LNX.4.50L.0301011439540.2429-100000@imladris.surriel.com> <Pine.LNX.4.44.0301012356270.8691-100000@fogarty.jakma.org> <20030102013736.GA2708@gnuppy.monkey.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030102013736.GA2708@gnuppy.monkey.org>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux 2.4.19-rmk2, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+	id <S265754AbTABGGO>; Thu, 2 Jan 2003 01:06:14 -0500
+Received: from smtp-outbound.cwctv.net ([213.104.18.10]:10069 "EHLO
+	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S265711AbTABGGL>;
+	Thu, 2 Jan 2003 01:06:11 -0500
+From: <Hell.Surfers@cwctv.net>
+To: paulj@alphyra.ie, linux-kernel@vger.kernel.org
+Date: Thu, 2 Jan 2003 06:14:09 +0000
+Subject: RE:Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+MIME-Version: 1.0
+X-Mailer: Liberate TVMail 2.6
+Content-Type: multipart/mixed;
+ boundary="1041488049304"
+Message-ID: <0a50d1410060213DTVMAIL4@smtp.cwctv.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed Jan 01, 2003 at 05:37:36PM -0800, Bill Huey wrote:
-> Obviously a GPL rewrite of this would entail a lot of replicated effort
-> and would also depend on things that are incomplete, non-existent and
-> don't have a lot direct interest from the GPL community. 3D isn't a hot
-> commodity in Linux, FreeBSD unlike with dedicated SGI machines (although
-> faded).
 
-Ahh, but replicated effort is something that open source people
-do very well at indeed.  If nvidia provided non-functional GPL
-source code with all the proprietary 3rd party bits ripped out, 
-I would expect a hoard of developers would jump at the chance to
-fixup the non-functional mess, clean it up, reimplement all the
-missing proprietary bits.  I'd bet you $20 US we could have a
-functional driver within 2 weeks.  And have a high quality driver
-roughly equal to their proprietary one within 6 months.  Thats
-the way things work around these parts of the net.  I bought a
-copy of Quake when they GPLd their code to show support.  I
-similarly bought a copy of Quake II after they GPLd their code.
-If Nvidia released their code under the GPL, I'd buy one of their
-cards.  As is, I'm sticking with my ATI card...
+--1041488049304
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
- -Erik
+if libc used compatible headers, they would be derivative....
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+Dean McEwan, If the drugs don't work, [sarcasm] take more...[/sarcasm].
+
+On 	Thu, 2 Jan 2003 01:29:59 +0000 (GMT) 	Paul Jakma <paulj@alphyra.ie> wrote:
+
+--1041488049304
+Content-Type: message/rfc822
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
+	 Thu, 2 Jan 2003 01:29:02 +0000
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+	id <S265277AbTABBWm>; Wed, 1 Jan 2003 20:22:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org
+	id <S265285AbTABBWm>; Wed, 1 Jan 2003 20:22:42 -0500
+Received: from itg-gw.cr008.cwt.esat.net ([193.120.242.226]:37127 "EHLO
+	dunlop.admin.ie.alphyra.com") by vger.kernel.org with ESMTP
+	id <S265277AbTABBWl>; Wed, 1 Jan 2003 20:22:41 -0500
+Received: from localhost (localhost.localdomain [127.0.0.1])
+	by dunlop.admin.ie.alphyra.com (8.12.5/8.12.5) with ESMTP id h021TxZS030272;
+	Thu, 2 Jan 2003 01:29:59 GMT
+Date: Thu, 2 Jan 2003 01:29:59 +0000 (GMT)
+From: Paul Jakma <paulj@alphyra.ie>
+X-X-Sender: paulj@dunlop.admin.ie.alphyra.com
+To: David Lang <david.lang@digitalinsight.com>
+cc: Paul Jakma <paul@clubi.ie>, Rik van Riel <riel@conectiva.com.br>,
+	<Hell.Surfers@cwctv.net>, <linux-kernel@vger.kernel.org>,
+	<rms@gnu.org>
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+In-Reply-To: <Pine.LNX.4.44.0301011706400.21656-100000@dlang.diginsite.com>
+Message-ID: <Pine.LNX.4.44.0301020126060.30005-100000@dunlop.admin.ie.alphyra.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Sender: linux-kernel-owner@vger.kernel.org
+Precedence: bulk
+X-Mailing-List: linux-kernel@vger.kernel.org
+Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
+
+On Wed, 1 Jan 2003, David Lang wrote:
+
+> well libc uses the kernel headers and basicly all userspace programs
+> use libc so that makes oracle a derivitive work of the kernel??????
+
+libc neednt neccessarily use the kernel headers, it needs to use only 
+headers that are compatible. Also, though it might use kernel headers, 
+the headers it provides for other programmes to be compiled against it 
+are not kernel headers.
+
+further, the kernel's licence explicitely exempts the 'normal system 
+calls', and kernel headers describing these can quite arguably be 
+considered to fall within this exemption.
+
+> luckly that's not how things actually work.
+
+unfortunately, its not at all clear.
+
+> David Lang
+
+regards,
+-- 
+Paul Jakma	Sys Admin	Alphyra
+	paulj@alphyra.ie
+Warning: /never/ send email to spam@dishone.st or trap@dishone.st
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+--1041488049304--
+
+

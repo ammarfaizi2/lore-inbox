@@ -1,68 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129065AbRBDCxk>; Sat, 3 Feb 2001 21:53:40 -0500
+	id <S129071AbRBDDCq>; Sat, 3 Feb 2001 22:02:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129071AbRBDCxa>; Sat, 3 Feb 2001 21:53:30 -0500
-Received: from platan.vc.cvut.cz ([147.32.240.81]:28426 "EHLO
-	platan.vc.cvut.cz") by vger.kernel.org with ESMTP
-	id <S129065AbRBDCxZ>; Sat, 3 Feb 2001 21:53:25 -0500
-Date: Sun, 4 Feb 2001 03:52:06 +0100
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: andre@linux-ide.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Promise PDC20265, VIA KT133 and corruption
-Message-ID: <20010204035206.A21747@platan.vc.cvut.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S129303AbRBDDCg>; Sat, 3 Feb 2001 22:02:36 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:26131 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129071AbRBDDC0>; Sat, 3 Feb 2001 22:02:26 -0500
+Date: Sat, 3 Feb 2001 19:02:05 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Shawn.Starr@Home.net, Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PS hanging in 2.4.1 - HAPPENING NOW!!!
+In-Reply-To: <200102040216.SAA09819@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.10.10102031849210.9705-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andre,
-  if you remember, last week I complained that Promise corrupts data
-when I copy them from hdh to hde. Today I did some more experiments
-(running 2.4.1-ac1) and found:
 
-1) Debian sid's 'cmp' prints incorrect offsets when files differ
-   in more than one place if distance > cmp buffer size :-(
-2) When I read data from hdh (UDMA2 Toshiba) sometime last four
-   bytes of 4KB page (== probably last 4 bytes of read request)
-   are not read at all and old contents of page is left here
-   (it happens about once per 20MB read; and in about 1% of
-   these last 8 bytes of page are incorrect).
-   I have no idea whether promise or KT133 is at fault, but
-   it for sure does not happen under Windows...
-3) During write some corruption can happen on either hde (IBM
-   DTLA-307045 running UDMA5) or hdh - it looks like that
-   data are shifted on HDD, as fsck then complains about
-   imagic set, dtime set while inode not deleted and so on,
-   and then it cleaned inodes 178200-178300 from my hde :-(
-   Fortunately they were mostly in old kernel trees,
-   not in current data (except one inode, which was just
-   created by dpkg)
-4) So I compiled kernel without IDE DMA support at all and now
-   everything works at PIO4 without any corruption...
 
-  If anybody has any idea what I should try to get UDMA to
-work under Linux here...
+On Sat, 3 Feb 2001, Shawn.Starr@Home.net wrote:
+>
+>Feb  3 17:57:08 coredump kernel: gnomeicu  S 0000CD17     0  9338      1        (NOTLB)    9340  9332
+>Feb  3 17:57:08 coredump kernel: Call Trace: [search_by_key+203/3232] [search_for_position_by_key+170/916] [make_cpu_key+57/64] [_get_block_create_0+136/1072] [_get_block_create_0+162/1072] [remove_wait_queue+40/48] [__wait_on_buffer+128/140] 
+>Feb  3 17:57:08 coredump kernel:        [<f0000000>] [reiserfs_get_block+158/3408] [search_for_position_by_key+170/916] [search_for_position_by_key+570/916] [make_cpu_key+57/64] [kmem_cache_alloc+75/116] [get_unused_buffer_head+52/144] [create_buffers+96/444] 
+>Feb  3 17:57:08 coredump kernel:        [block_read_full_page+246/552] [add_to_page_cache_unique+202/212] [reiserfs_readpage+15/20] [reiserfs_get_block+0/3408] [read_cluster_nonblocking+258/324] [filemap_nopage+332/1032] [do_no_page+77/192] [handle_mm_fault+232/340] 
+>Feb  3 17:57:08 coredump kernel:        [do_page_fault+312/1020] [do_page_fault+0/1020] [start_request+388/508] [intlat_local_irq_disable+16/20] [ide_do_request+685/752] [schedule+639/964] [remove_wait_queue+40/48] [error_code+52/64] 
+>Feb  3 17:57:09 coredump kernel:        [__generic_copy_from_user+52/60] [opost_block+67/384] [handle_mm_fault+232/340] [add_wait_queue+59/68] [write_chan+365/516] [tty_write+341/448] [write_chan+0/516] [sys_write+143/196] 
+>Feb  3 17:57:09 coredump kernel:        [system_call+62/80] 
 
-lspci:
+Ok, the above seems to be the culprit here.
 
-00:00.0 Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] (rev 02)
-00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP]
-00:04.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 22)
-00:04.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 10)
-00:04.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 10)
-00:04.3 USB Controller: VIA Technologies, Inc. UHCI USB (rev 10)
-00:04.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 30)
-00:0a.0 Multimedia audio controller: Ensoniq ES1371 [AudioPCI-97] (rev 06)
-00:11.0 Unknown mass storage controller: Promise Technology, Inc. 20265 (rev 02)
-01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP (rev 04)
+Note how the thing is in TASK_INTERRUPTIBLE (S) sleep somewhere in the
+reiserfs code..
 
-					Thanks,
-						Petr Vandrovec
-						vandrove@vc.cvut.cz
+Debugging this is slightly harder than I'd like, because the "call trace"
+is really not a trace, but actually just a dump of the stack of everything
+that looks like a kernel address. And a lot of it is crap - stuff left
+over by previous calls that hasn't gotten overwritten and is visible
+because some function has a large stack footprint (lots of local variables
+that end up not being very used and let things show through).
+
+Anyway, what I _think_ is the cleaned-up stacktrace is
+
+	[reiserfs_get_block+158/3408]
+	[reiserfs_readpage+15/20]
+	[read_cluster_nonblocking+258/324]
+	[filemap_nopage+332/1032]
+	[do_no_page+77/192]
+	[handle_mm_fault+232/340]
+	[do_page_fault+312/1020]
+	[error_code+52/64]
+	[__generic_copy_from_user+52/60]
+	[opost_block+67/384]
+	[handle_mm_fault+232/340]
+	[add_wait_queue+59/68]
+	[write_chan+365/516]
+	[tty_write+341/448]   
+	[write_chan+0/516]  
+	[sys_write+143/196]
+	[system_call+62/80]
+
+and what is interesting is that you got a page fault while you were
+copying stuff in to the tty layer. Which happens with TASK_INTERRUPTIBLE
+sleep. Now, the page fault code never clears that, so we enter reiserfs
+still "sleeping", and reiserfs will do a
+
+	if (need_resched(current))
+		schedule();
+
+which won't do what reiserfs _wants_ it to do at all. Because if
+task->state is TASK_INTERRUPTIBLE, the above will go to sleep, not just
+cause a nice reschedule. And we'll be sleeping with the task MM semaphore
+held - only to wake up if somebody were to signal us or something.
+
+If you can re-create this hang, could you please try to add this single
+line to the top of "handle_mm_fault()" in mm/memory.c (after the variable 
+declarations, of course):
+
+	current->state = TASK_RUNNING;
+
+which just means that if we get a page fault while we're half asleep, it
+will be safe to do a schedule() without explicitly setting the process
+running again.
+
+		Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

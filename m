@@ -1,41 +1,82 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315722AbSECVho>; Fri, 3 May 2002 17:37:44 -0400
+	id <S315726AbSECVrn>; Fri, 3 May 2002 17:47:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315724AbSECVhn>; Fri, 3 May 2002 17:37:43 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:60294 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S315722AbSECVhn>; Fri, 3 May 2002 17:37:43 -0400
-Date: Fri, 03 May 2002 15:35:52 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: root@chaos.analogic.com, Jeff Dike <jdike@karaya.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Virtual address space exhaustion (was Discontigmem virt_to_page() ) 
-Message-ID: <222870000.1020465352@flay>
-In-Reply-To: <Pine.LNX.3.95.1020503152328.8539A-100000@chaos.analogic.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S315727AbSECVrm>; Fri, 3 May 2002 17:47:42 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:2057 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S315726AbSECVrl>; Fri, 3 May 2002 17:47:41 -0400
+Date: Fri, 3 May 2002 14:47:14 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Antonino Daplas <adaplas@pol.net>
+cc: fbdev <linux-fbdev-devel@lists.sourceforge.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] Comments on fbgen.c and fbcon-accel.c
+In-Reply-To: <1020419481.724.0.camel@daplas>
+Message-ID: <Pine.LNX.4.10.10205031444260.9732-100000@www.transvirtual.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> No. It's not stupid. Unix defines a kind of operating system that
-> has certain characteristics and/or attributes. Process/kernel shared
-> address space is one of them. It's a name that has historical
-> signifigance.
 
-Yes it is stupid. This is a small implementation detail, and has no
-real importance whatsoever. People have done this in the past
-(Dynix/PTX did it) will do so in the future. Nor does the kernel 
-address space have to be global and shared across all tasks
-as stated earlier in this thread. What makes it Unix is the interface
-it presents to the world, and how it behaves, not the little details
-of how it's implemented inside.
+> I have a few observations on fbgen and fbcon-accel.
 
-M.
+Don't mix fbgen with fbcon-accel. The new gen_* stuff in fbgen.c is meant
+to replace the old fbgen_* stuff. That is why the below doesn't work.
+ 
+> 1.  fbcon_accel_clear_margins may not work correctly with fbgen since
+> fbcon_accel will use the xoffset and yoffset values from info->var.  
+> 
+>     void fbcon_accel_clear_margins(struct vc_data *vc, struct display
+>     *p,
+>     			       int bottom_only)
+>     {
+>     	<<<snip>>> 
+>     
+>     	if (bh) {
+>     		region.dx = info->var.xoffset;
+>                     region.dy = info->var.yoffset + bs;
+>                     region.width  = rs;
+>                     region.height = bh;
+>     		info->fbops->fb_fillrect(info, &region);
+>     	}
+>     }
+> 
+> However fbgen_pan_display updates the xoffset and yoffset in
+> fb_display[con].var. So margins don't get cleared if the driver supports
+> y-panning or y-wrapping.
+> 
+>     int fbgen_pan_display(struct fb_var_screeninfo *var, int con,
+>     		      struct fb_info *info)
+>     {
+>     	<<< snip >>>
+>     
+>         if (con == info->currcon) {
+>     	if (fbhw->pan_display) {
+>     	    if ((err = fbhw->pan_display(var, info2)))
+>     		return err;
+>     	} else
+>     	    return -EINVAL;
+>         }
+>         fb_display[con].var.xoffset = var->xoffset;
+>         fb_display[con].var.yoffset = var->yoffset;
+>     
+>     	<<< snip >>>
+>     }
 
-PS. I've been told Solaris x86 can do 4Gb for each of kernel
-and user space, though I've no first hand experience with that
-OS.
+> 2. Also, fbgen_switch basically just do an fbgen_do_set_var()
+> (decode_var(), followed by set_par()).  This is okay most times, but
+> it's probably better if fbgen_switch also does an encode_fix() since
+> fbcon's drawing functions also rely on fix->line_length.
+
+Most likely that is also broken. I haven't thought about it since I plan
+to make all the old fbgen_* functions go away.
+
+> If an fb_fix_screeninfo is not updated, display corruption occurs when
+> switching to another display with a different pixelformat.
+
+Correct. That is why I require info->fix to be updated when set_par is
+called.
+
+

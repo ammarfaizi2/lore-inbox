@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264956AbSJPIFy>; Wed, 16 Oct 2002 04:05:54 -0400
+	id <S264953AbSJPICi>; Wed, 16 Oct 2002 04:02:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264957AbSJPIFy>; Wed, 16 Oct 2002 04:05:54 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:12499 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S264956AbSJPIFw>;
-	Wed, 16 Oct 2002 04:05:52 -0400
-Date: Wed, 16 Oct 2002 10:23:15 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Martin Wirth <Martin.Wirth@dlr.de>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] futex-2.5.42-A2
-In-Reply-To: <3DAD1C3C.3080001@dlr.de>
-Message-ID: <Pine.LNX.4.44.0210161018210.4683-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264955AbSJPICd>; Wed, 16 Oct 2002 04:02:33 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:21151 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S264953AbSJPICb>; Wed, 16 Oct 2002 04:02:31 -0400
+Date: Wed, 16 Oct 2002 04:07:54 -0400
+From: Jakub Jelinek <jakub@redhat.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@digeo.com>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] mmap-speedup-2.5.42-C3
+Message-ID: <20021016040754.C5659@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <m3bs5vl79h.fsf@averell.firstfloor.org> <Pine.LNX.4.44.0210160957150.4018-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0210160957150.4018-100000@localhost.localdomain>; from mingo@elte.hu on Wed, Oct 16, 2002 at 10:03:52AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Oct 16, 2002 at 10:03:52AM +0200, Ingo Molnar wrote:
+> 
+> On 15 Oct 2002, Andi Kleen wrote:
+> 
+> > When you oprofile KDE startup you notice that a lot of time is spent in
+> > get_unmapped_area too. The reason is that every KDE process links with
+> > 10-20 libraries and ends up with a 40-50 entry /proc/<pid>/maps.
+> 
+> actually, library mappings alone should not cause a slowdown, since we
+> start the search at MAP_UNMAPPED_BASE and most library mappings are below
+> 1GB. But if those libraries use mmap()-ed anonymous RAM that has different
+> protections then the anonymous areas do not get merged and the scanning
+> overhead goes up.
 
-On Wed, 16 Oct 2002, Martin Wirth wrote:
+Libraries mapped by dynamic linker are mapped without MAP_FIXED and unless
+you use prelinking, with 0 virtual address, ie. they all end up above 1GB.
+And 99% of libraries uses different protections, for the read-only and
+read-write segment.
 
->  >	if (__alignof__(int) < sizeof(int)) {
->  > 
-> 	extern void __error_small_int_align();
-
-> I suggested to tighten the above test, because if __alignof__(int) <
-> sizeof(int) the test leads to sporadic user space errors if the futex
-> variable accidentally crosses a page boundary. [...]
-
-i think you misunderstood Rusty's suggestion - what he suggests is to fail
-the kernel compile with a linker error if alignof(int) < sizeof(int). This
-is a pure compile-time thing, it does not relate to the alignment of the
-futex variable in any way.
-
-> Anyway, the test dates back to times when the futex code did atomic
-> operations on the user space variable. But this is gone. The present
-> code only touches users space by get_user which does its on checks. So
-> from the point of keeping the kernel in a sane state we could drop the
-> test completely.
-
-actually, i think it's still important to do the alignment check to
-enforce userspace to use sane alignment. We dont want one futex variable
-out of 1000 potential futex to be misaligned, missed and blamed on the
-kernel.
-
-	Ingo
-
+	Jakub

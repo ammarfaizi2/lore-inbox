@@ -1,84 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281641AbRKPXRE>; Fri, 16 Nov 2001 18:17:04 -0500
+	id <S281643AbRKPXRE>; Fri, 16 Nov 2001 18:17:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281643AbRKPXQ4>; Fri, 16 Nov 2001 18:16:56 -0500
-Received: from mailg.telia.com ([194.22.194.26]:29407 "EHLO mailg.telia.com")
-	by vger.kernel.org with ESMTP id <S281641AbRKPXQp>;
+	id <S281644AbRKPXQz>; Fri, 16 Nov 2001 18:16:55 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:5394 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S281643AbRKPXQp>;
 	Fri, 16 Nov 2001 18:16:45 -0500
-Message-ID: <3BF59DF4.3000105@peope.net>
-Date: Sat, 17 Nov 2001 00:15:00 +0100
-From: Per-Olof Pettersson <lkml.lists@peope.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: compiling 2.4.14 fails in block.o (probably loopback)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Date: Sat, 17 Nov 2001 00:16:27 +0100
+From: Jens Axboe <axboe@suse.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: groudier@free.fr, linux-kernel@vger.kernel.org
+Subject: Re: [patch] block-highmem-all-18
+Message-ID: <20011117001626.H11826@suse.de>
+In-Reply-To: <20011116193057.O1825-100000@gerard> <20011116.135409.118971851.davem@redhat.com> <20011116234555.C11826@suse.de> <20011116.150516.105434270.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011116.150516.105434270.davem@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[1.]
-compiling 2.4.14 fails in block.o (probably loopback)
+On Fri, Nov 16 2001, David S. Miller wrote:
+>    From: Jens Axboe <axboe@suse.de>
+>    Date: Fri, 16 Nov 2001 23:45:55 +0100
+>    
+>    it was introduced before we supported full 64-bit
+>    dma, and should now just be called can_highmem_io or something
+>    similar.
+> 
+> I encourage you to make this change :-)
 
-[2.]
-Compiling fails when enabling loopback-support in block-devices.
-When disabling loopback-support it works.
+Change has been made, I'll roll out -18b once I flush a few more pending
+changes (notably the ULL -> pfn lastdataend change so we can loose
+page_to_phys) :-)
 
-[3.]
-block.o loopback compiling
-
-[4.]
-2.4.14
-
-[7.1.]
-Linux burken 2.4.14 #4 Fri Nov 16 18:30:19 CET 2001 i686 unknown
-
-Gnu C                  2.95.3
-Gnu make               3.79.1
-binutils               2.11
-util-linux             2.10l
-mount                  2.10l
-modutils               2.3.11
-e2fsprogs              1.18
-Linux C Library        2.1.3
-ldd: version 1.9.9
-Procps                 2.0.6
-Net-tools              1.55
-Kbd                    0.99
-Sh-utils               2.0
-Modules Loaded         NVdriver
-
-[X.]
-Output from compile:
-make[1]: Leaving directory `/usr/local/src/linux/arch/i386/lib'
-ld -m elf_i386 -T /usr/local/src/linux/arch/i386/vmlinux.lds -e stext 
-arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o 
-init/version.o \
-         --start-group \
-         arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o 
-mm/mm.o fs/fs.o ipc/ipc.o \
-          drivers/char/char.o drivers/block/block.o drivers/misc/misc.o 
-drivers/net/net.o drivers/media/media.o drivers/char/agp/agp.o 
-drivers/ide/idedriver.o drivers/cdrom/driver.o 
-drivers/sound/sounddrivers.o drivers/pci/driver.o drivers/video/video.o 
-drivers/usb/usbdrv.o drivers/input/inputdrv.o \
-         net/network.o \
-         /usr/local/src/linux/arch/i386/lib/lib.a 
-/usr/local/src/linux/lib/lib.a /usr/local/src/linux/arch/i386/lib/lib.a \
-         --end-group \
-         -o vmlinux
-drivers/block/block.o: In function `lo_send':
-drivers/block/block.o(.text+0x894f): undefined reference to 
-`deactivate_page'
-drivers/block/block.o(.text+0x8999): undefined reference to 
-`deactivate_page'
-make: *** [vmlinux] Error 1
-
-Workaround:
-Do not compile with loopback-support in block-devices.
-
-Best regards
-Per-Olof Pettersson
+-- 
+Jens Axboe
 

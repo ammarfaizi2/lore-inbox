@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277431AbRJVB0s>; Sun, 21 Oct 2001 21:26:48 -0400
+	id <S277419AbRJVBxD>; Sun, 21 Oct 2001 21:53:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277409AbRJVB0i>; Sun, 21 Oct 2001 21:26:38 -0400
-Received: from zero.tech9.net ([209.61.188.187]:2564 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S277440AbRJVB0X>;
-	Sun, 21 Oct 2001 21:26:23 -0400
-Subject: Re: Linux 2.4.12-ac5
-From: Robert Love <rml@tech9.net>
-To: "Udo A. Steinberg" <reality@delusion.de>
-Cc: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
-        laughing@shared-source.org
-In-Reply-To: <3BD3743C.CF87EE89@delusion.de>
-In-Reply-To: <Pine.LNX.4.30.0110220249230.17514-100000@Appserv.suse.de> 
-	<3BD3743C.CF87EE89@delusion.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.16.99+cvs.2001.10.18.15.19 (Preview Release)
-Date: 21 Oct 2001 21:26:58 -0400
-Message-Id: <1003714021.1014.144.camel@phantasy>
+	id <S277440AbRJVBwx>; Sun, 21 Oct 2001 21:52:53 -0400
+Received: from zok.sgi.com ([204.94.215.101]:61607 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S277419AbRJVBwe>;
+	Sun, 21 Oct 2001 21:52:34 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Todd <todd@unm.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 50MB kernel on ia64?? 
+In-Reply-To: Your message of "Sun, 21 Oct 2001 19:00:38 CST."
+             <Pine.A41.4.33.0110211857340.119340-200000@aix10.unm.edu> 
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 22 Oct 2001 11:52:54 +1000
+Message-ID: <19244.1003715574@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2001-10-21 at 21:19, Udo A. Steinberg wrote:
-> Dave Jones wrote:
-> > 
-> > Odd, that part builds fine here. The missing declaration you get is
-> > declared in fixmap.h, which is included from pgalloc.h. Untar a fresh tree,
-> > and reapply the patch.
->
-> Just in order to ensure I'm not insane, could you try building with the
-> following .config file?
+On Sun, 21 Oct 2001 19:00:38 -0600 (MDT), 
+Todd <todd@unm.edu> wrote:
+>i've recently been trying to compile kernels on ia64 platform.  i've
+>resolved some compiler problems (thanks to help here and from redhat) but
+>now i've got another problem:  kernels built with the attached .config (or
+>anything even vaguely similar--this one is for 2.4.7) are around 50MB in
+>size!  morevover, there's no vmlinux or bzImage target in the makefile
+>once ia64 is selected as the architecture.  i've been having problems
+>getting the compiled kernels to boot, but i'm not sure if size is part of
+>the reason.
 
-You aren't crazy, it doesn't build here either.  The problem is that
-fixmap.h only includes those defines if CONFIG_IO_APIC is defined. 
-Well, I don't have use IO_APIC (I am UP) but I do define
-CONFIG_X86_APIC.  So it does not compile.
+The IA64 patch adds -g to CFLAGS.  All the debugging information bloats
+vmlinux.  For the bootable kernel, I run
 
-So, the problem is that acpitable.c assumes you have both CONFIG_IO_APIC
-and CONFIG_X86_APIC declared.  It shouldn't.  Even more important, why
-is my system compiling acpitable.c now?  I don't compile anything to do
-with ACPI.  What needs access to the ACPI tables via Mini-ACPI, now?
+  strip -g vmlinux -o /boot/efi/vmlinux
 
-	Robert Love
+You can boot from the unstripped vmlinux, the IA64 loader ignores the
+debug data.  But the oversized kernels are slower to load and they take
+up a lot of space in /boot/efi.  Don't understand your compile problem,
+  make -j4 modules vmlinux
+works for me in native IA64 mode (not cross compiling).
 

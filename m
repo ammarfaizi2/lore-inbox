@@ -1,47 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264936AbTBGNYl>; Fri, 7 Feb 2003 08:24:41 -0500
+	id <S265094AbTBGNdv>; Fri, 7 Feb 2003 08:33:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265058AbTBGNYl>; Fri, 7 Feb 2003 08:24:41 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:1443
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S264936AbTBGNYl>; Fri, 7 Feb 2003 08:24:41 -0500
-Subject: Re: two x86_64 fixes for 2.4.21-pre3
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Andi Kleen <ak@suse.de>, jt@hpl.hp.com,
-       Mikael Pettersson <mikpe@csd.uu.se>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       discuss@x86-64.org
-In-Reply-To: <20030207105818.GB750@elf.ucw.cz>
-References: <15921.37163.139583.74988@harpo.it.uu.se>
-	 <20030124193721.GA24876@wotan.suse.de>
-	 <15926.60767.451098.218188@harpo.it.uu.se>
-	 <20030128212753.GA29191@wotan.suse.de>
-	 <15927.62893.336010.363817@harpo.it.uu.se>
-	 <20030129162824.GA4773@wotan.suse.de>
-	 <15934.49235.619101.789799@harpo.it.uu.se>
-	 <20030203194923.GA27997@bougret.hpl.hp.com>
-	 <20030203201255.GA32689@wotan.suse.de>  <20030207105818.GB750@elf.ucw.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1044628339.14350.5.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 07 Feb 2003 14:32:20 +0000
+	id <S265099AbTBGNdv>; Fri, 7 Feb 2003 08:33:51 -0500
+Received: from DaVinci.coe.neu.edu ([129.10.32.95]:35775 "EHLO
+	DaVinci.coe.neu.edu") by vger.kernel.org with ESMTP
+	id <S265094AbTBGNdu>; Fri, 7 Feb 2003 08:33:50 -0500
+Date: Fri, 7 Feb 2003 08:43:26 -0500 (EST)
+From: Mauricio Martinez <mauricio@coe.neu.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.4.20 drivers/cdrom/cdu31a.c
+Message-ID: <Pine.GSO.4.33.0302070833310.15863-100000@Amps.coe.neu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-02-07 at 10:58, Pavel Machek wrote:
-> > That is currently done (-EINVAL), but the emulation layer logs an 
-> > warning.
-> 
-> Perhaps we need new error code -EEMULATION with message "not supported
-> within this emulation"?
 
--ENOSYS is the normal return for an unknown syscall. -ENOTTY for an
-invalid ioctl (-EINVAL I think is wrong ?)
+This patch fixes the kernel oops while trying to read a data CD. Thanks to
+Brian Gerst and Faik Uygur for your suggestions.
 
-Alan
+It looks like the variable nblocks must be <= 4 so the read ahead buffer
+size is not exceeded (which is the cause of the oops). Changing its value
+doesn't seem to be the right way, but it makes the device work properly.
+
+Feedback of any sort welcome.
+
+
+--- linux-2.4.20/drivers/cdrom/cdu31a.c.orig	Thu Nov 28 15:53:12 2002
++++ linux-2.4.20/drivers/cdrom/cdu31a.c	Thu Feb  6 20:49:44 2003
+@@ -1361,7 +1361,9 @@
+ 	res_reg[0] = 0;
+ 	res_reg[1] = 0;
+ 	*res_size = 0;
+-	bytesleft = nblocks * 512;
++	/* Make sure that bytesleft doesn't exceed the buffer size */
++	if (nblocks > 4) nblocks = 4;
++	bytesleft = nblocks * 512;
+ 	offset = 0;
+
+ 	/* If the data in the read-ahead does not match the block offset,
+@@ -1384,9 +1386,9 @@
+ 			       readahead_buffer + (2048 -
+ 						   readahead_dataleft),
+ 			       readahead_dataleft);
+-			readahead_dataleft = 0;
+ 			bytesleft -= readahead_dataleft;
+ 			offset += readahead_dataleft;
++			readahead_dataleft = 0;
+ 		} else {
+ 			/* The readahead will fill the whole buffer, get the data
+ 			   and return. */
 

@@ -1,33 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290816AbSBFVYD>; Wed, 6 Feb 2002 16:24:03 -0500
+	id <S290817AbSBFV2Y>; Wed, 6 Feb 2002 16:28:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290817AbSBFVXy>; Wed, 6 Feb 2002 16:23:54 -0500
-Received: from smtp.comcast.net ([24.153.64.2]:64223 "EHLO mtaout03")
-	by vger.kernel.org with ESMTP id <S290816AbSBFVXq>;
-	Wed, 6 Feb 2002 16:23:46 -0500
-Date: Wed, 06 Feb 2002 16:21:50 -0500
-From: Brian <hiryuu@envisiongames.net>
-Subject: Re: =?koi8-r?b?Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/?=
-In-Reply-To: <OF364AD35A.0EC28B68-ON86256B58.000D6156@hometownamerica.net>
-To: linux-kernel@vger.kernel.org
-Message-id: <0GR400G9IRB2XW@mtaout03.icomcast.net>
-MIME-version: 1.0
-X-Mailer: KMail [version 1.3.2]
-Content-type: text/plain; charset=koi8-r
-Content-transfer-encoding: 8BIT
-In-Reply-To: <OF364AD35A.0EC28B68-ON86256B58.000D6156@hometownamerica.net>
+	id <S290818AbSBFV2P>; Wed, 6 Feb 2002 16:28:15 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:25219 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S290817AbSBFV2J>; Wed, 6 Feb 2002 16:28:09 -0500
+Date: Wed, 6 Feb 2002 15:56:43 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: want opinions on possible glitch in 2.4 network error reporting
+In-Reply-To: <3C6192A5.911D5B4F@nortelnetworks.com>
+Message-ID: <Pine.LNX.3.95.1020206154220.29419A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can we get something like 
-	/[\200-\377]{6}/   (6 upper ACSII characters in a row)
-added to the taboo list?
+On Wed, 6 Feb 2002, Chris Friesen wrote:
 
-	-- Brian
+[SNIPPED...]
 
-On Tuesday 05 February 2002 06:48 pm, au_ru@yahoo.com wrote:
-> Для главного бухгалтера.
->
-> Приказ о налоговой и учетной политике на 2002 год (в редакции от 1
->
+
+> 
+> I ran into a somewhat related issue on a 2.2.16 system, where I had an app that
+> was calling sendto() on 217000 packets/sec, even though the wire could only
+> handle about 127000 packets/sec.  I got no errors at all in sendto, even though
+> over a third of the packets were not actually being sent.
+> 
+
+In principle, sendto() will always succeed unless you provided the
+wrong parameters in the function call, or the machines crashes, at
+which time your task won't be there to receive the error code anyway.
+
+Hackers code sendto as:
+	sendto(s,...);
+Professional programmers use:
+	(void)sendto(s,...);
+
+checking the return value is useless.
+
+Note that the man-page specifically states that ENOBUFS can't happen.
+
+You cannot assume that any sendto() data actually gets on the wire, much
+less to its destination. With any user-datagram-protocol, both ends,
+sender and receiver, have to work out what they will do with missing
+packets and packets received out-of-order.
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
+

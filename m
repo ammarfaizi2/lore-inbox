@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261518AbTAaPtp>; Fri, 31 Jan 2003 10:49:45 -0500
+	id <S261523AbTAaPwh>; Fri, 31 Jan 2003 10:52:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261523AbTAaPtp>; Fri, 31 Jan 2003 10:49:45 -0500
-Received: from meg.hrz.tu-chemnitz.de ([134.109.132.57]:35228 "EHLO
-	meg.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S261518AbTAaPto>; Fri, 31 Jan 2003 10:49:44 -0500
-Date: Fri, 31 Jan 2003 16:42:51 +0100
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
-Cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Module alias and device table support.
-Message-ID: <20030131164251.C641@nightmaster.csn.tu-chemnitz.de>
-References: <Pine.LNX.4.44.0301302351550.15587-100000@chaos.physics.uiowa.edu> <200301310941.h0V9fa89002888@eeyore.valparaiso.cl>
-Mime-Version: 1.0
+	id <S261527AbTAaPwh>; Fri, 31 Jan 2003 10:52:37 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:1801 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S261523AbTAaPwh>;
+	Fri, 31 Jan 2003 10:52:37 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200301311601.h0VG159O001744@darkstar.example.net>
+Subject: Re: [PATCH] 2.5.59 morse code panics
+To: szepe@pinerecords.com (Tomas Szepe)
+Date: Fri, 31 Jan 2003 16:01:05 +0000 (GMT)
+Cc: ak@suse.de, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+In-Reply-To: <20030131154141.GH12286@louise.pinerecords.com> from "Tomas Szepe" at Jan 31, 2003 04:41:41 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <200301310941.h0V9fa89002888@eeyore.valparaiso.cl>; from brand@jupiter.cs.uni-dortmund.de on Fri, Jan 31, 2003 at 10:41:36AM +0100
-X-Spam-Score: -3.3 (---)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18edZM-0004EI-00*DZ9i0Lejw2.*
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 31, 2003 at 10:41:36AM +0100, Horst von Brand wrote:
-> I fail to see why a module would have to declare aliases for itself.
-> Aliases are an userspace/after boot problem (i.e., which one is eth0?,
-> etc) Please read the FAQ at  http://www.tux.org/lkml/
+> > Morse is not helpful.
+> 
+> Of course it is
 
-I second this. A module can declare, what it provides (e.g. ethX,
-scsi-host-adapter), but what is loaded for each actual device
-should be decided be be user space (/sbin/hotplug?).
+Especially since a number of Linux developers have ham radio
+experience.
 
-Identification, enumeration and classification is fine in the
-kernel, but assigning actual devices to each driver 
-(e.g. host-adapter-A to a request_module("scsi-host-adapter"))
-should be done by user space, where important.
+> you're just angry that I've left out your original
+> plain_blinking code.
 
-Regards
+Well, there are typically *three* keyboard LEDs...  Why not use one
+the middle one for morse, and outside two for plain blinking?
 
-Ingo Oeser
--- 
-Science is what we can tell a computer. Art is everything else. --- D.E.Knuth
+John.

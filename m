@@ -1,93 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262019AbUEAOq2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262060AbUEAPBj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262019AbUEAOq2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 May 2004 10:46:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262060AbUEAOq2
+	id S262060AbUEAPBj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 May 2004 11:01:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbUEAPBj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 May 2004 10:46:28 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.51]:43710 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S262019AbUEAOqZ (ORCPT
+	Sat, 1 May 2004 11:01:39 -0400
+Received: from colin2.muc.de ([193.149.48.15]:59409 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S262060AbUEAPBh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 May 2004 10:46:25 -0400
-Date: Sat, 1 May 2004 16:46:24 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Alex Lyashkov <shadow@psoft.net>
-Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [ckrm-tech] Re: [RFC] Revised CKRM release
-Message-ID: <20040501144624.GA26495@MAIL.13thfloor.at>
-Mail-Followup-To: Alex Lyashkov <shadow@psoft.net>,
-	Jeff Dike <jdike@addtoit.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <20040430174117.A13372@infradead.org> <Pine.LNX.4.44.0404301502550.6976-100000@chimarrao.boston.redhat.com> <4092AD60.1030809@watson.ibm.com> <200404302217.i3UMHdml004610@ccure.user-mode-linux.org> <20040430234332.GA10569@MAIL.13thfloor.at> <1083391814.8172.8.camel@berloga.shadowland>
+	Sat, 1 May 2004 11:01:37 -0400
+Date: 1 May 2004 17:01:36 +0200
+Date: Sat, 1 May 2004 17:01:36 +0200
+From: Andi Kleen <ak@muc.de>
+To: Michael Brown <mebrown@michaels-house.net>
+Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org,
+       marcelo.tosatti@cyclades.com
+Subject: Re: [PATCH 2.4] add SMBIOS information to /proc/smbios -- UPDATED
+Message-ID: <20040501150136.GA23636@colin2.muc.de>
+References: <1QvX0-A4-29@gated-at.bofh.it> <m3r7u59sok.fsf@averell.firstfloor.org> <1083382204.1203.2971.camel@debian>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1083391814.8172.8.camel@berloga.shadowland>
+In-Reply-To: <1083382204.1203.2971.camel@debian>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 01, 2004 at 09:10:15AM +0300, Alex Lyashkov wrote:
-> ? ???, 01.05.2004, ? 02:43, Herbert Poetzl ?????:
-> > On Fri, Apr 30, 2004 at 06:17:39PM -0400, Jeff Dike wrote:
-> > > nagar@watson.ibm.com said:
-> > > > Jeff, do you have any numbers for UML overhead in 2.6 ? 
-> > > 
-> > > It obviously depends on the workload, but for "normal" things, like kernel
-> > > builds and web serving, it's generally in the 20-30% range.  That can be 
-> > > reduced, since I haven't spent too much time on tuning.  I'm aiming for the
-> > > teens, and I don't think that'll be too hard.
-> > 
-> > hmm, just wanted to mention that linux-vserver has
-> > around 0% overhead and often allows to improve 
-> > performance due to resource sharing ... 
-> > 
-> Herber please not say vserver have - 0 overhead. 
-> it generally wrong.
+> -- This information is, in the very near future, _not_ going to be
+> static anymore. There will be systems that update the information in
+> dynamically during SMIs.
 
-well, I said around 0%, but it's actually a long time
-since we measured that, and I'll schedule some
-tests next week, to see if the overhead is still
-not measureable with 'normal' userspace testing
+That's fine - /dev/mem can handle that too. An user will have to
+poll for changes anyways, so having it it /proc does not have
+any advantages.
 
-> But overhead less than UML is right.
+I would see the sense if there was an interrupt to notify the
+the system of changes, but there isn't ;-)
 
-that is for sure, and it benefits from not having
-everything twice, like inode cache, dentry cache,
-page cache ...
+> 
+> -- SMBIOS consists of two things, the table entry point and the table
+> itself. The table entry point is always in 0xF0000 - 0xFFFFF.
+> Traditionally, the actual table has been here as well. BIOS is running
+> out of space here and future systems are moving this information to high
+> memory. /dev/mem will not allow access to memory above top of system
+> RAM.
 
-best,
-Herbert
+mmap /dev/mem of high memory should work. Did you try it?
+For read/write it would be fairly easy to add, just needs a kmap.
 
-> > basically it's a soft partitioning concept based on 
-> > 'Security Contexts' which allow to create many 
-> > independant Virtual Private Servers (VPS), which
-> > act simultaneously on one box at full speed, sharing
-> > the available hardware resources.
-> > 
-> > see http://linux-vserver.org for details ...
-> > 
-> > best,
-> > Herbert
-> > 
-> > PS: UML and Linux-VServer play together nicely ...
-> > 
-> > > 
-> > > 				Jeff
-> > > 
-> > > -------------------------------------------------------
-> > > This SF.Net email is sponsored by: Oracle 10g
-> > > Get certified on the hottest thing ever to hit the market... Oracle 10g. 
-> > > Take an Oracle 10g class now, and we'll give you the exam FREE. 
-> > > http://ads.osdn.com/?ad_id=3149&alloc_id=8166&op=click
-> > > _______________________________________________
-> > > ckrm-tech mailing list
-> > > https://lists.sourceforge.net/lists/listinfo/ckrm-tech
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> -- 
-> Alex Lyashkov <shadow@psoft.net>
-> PSoft
+> -- Red Hat has a /dev/mem patch in their tree that restricts access to
+> RAM above 1MB. 
+
+That's their breakage.
+
+Clearly it is a useless change anyways because you can easily circumvent
+it by just accessing any bus master hardware in the system.
+
+> This procfs/sysfs driver allows access to smbios information by
+> non-root, non CAP_SYS_RAWIO users. I've had several occasions where I
+> have been bitten by having to be root to read smbios when I did not need
+> root for anything else.
+
+That is what suid root was invented for. It is a fairly nifty mechanism,
+did you ever try it?  I know that some sysadmins try to get away from
+it, but that is clearly misguided because it is not any more dangerous than
+adding more kernel code.
+
+-Andi

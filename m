@@ -1,51 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265300AbRGBOYK>; Mon, 2 Jul 2001 10:24:10 -0400
+	id <S265036AbRGBOn4>; Mon, 2 Jul 2001 10:43:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265302AbRGBOYA>; Mon, 2 Jul 2001 10:24:00 -0400
-Received: from t2.redhat.com ([199.183.24.243]:7410 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S265300AbRGBOX4>; Mon, 2 Jul 2001 10:23:56 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <d3bsn7gftr.fsf@lxplus015.cern.ch> 
-In-Reply-To: <d3bsn7gftr.fsf@lxplus015.cern.ch>  <3652.993803483@warthog.cambridge.redhat.com> 
-To: Jes Sorensen <jes@sunsite.dk>
-Cc: David Howells <dhowells@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org, arjanv@redhat.com
-Subject: Re: [RFC] I/O Access Abstractions 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 02 Jul 2001 15:22:56 +0100
-Message-ID: <3484.994083776@redhat.com>
+	id <S265046AbRGBOnq>; Mon, 2 Jul 2001 10:43:46 -0400
+Received: from [193.120.224.170] ([193.120.224.170]:17812 "EHLO
+	florence.itg.ie") by vger.kernel.org with ESMTP id <S265036AbRGBOnn>;
+	Mon, 2 Jul 2001 10:43:43 -0400
+Date: Mon, 2 Jul 2001 15:43:33 +0100 (IST)
+From: Paul Jakma <paulj@alphyra.ie>
+X-X-Sender: <paulj@rossi.itg.ie>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Daniel Harvey <daniel@amristar.com.au>, <linux-laptop@mobilix.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Linux SLOW on Compaq Armada 110 PIII Speedstep
+In-Reply-To: <3B3F3A1D.FDD32279@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.33.0107021543050.17875-100000@rossi.itg.ie>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 1 Jul 2001, Jeff Garzik wrote:
 
-jes@sunsite.dk said:
->  But it's going to cost for the ones who do not support this. 
+> (BTW, most laptops -do- have a BIOS setup... it's just that many
+> manufacturers hide the normal PC boot screen, where RAM is checked, IDE
+> drives scanned, etc).
 
-You don't need to make it out-of-line for all cases - or indeed in any case
-where it isn't out-of-line already. Some architectures may have only IO
-calls out-of-line (many already do). Some may have MMIO calls out-of-line
-too - some already do that too.
+this is an MS certification requirement iirc.
 
-It would just be nice to have a standard way of doing it, and in particular
-it would be nice to pass the struct resource into the out-of-line functions
-in the case where they _are_ out of line, so that the Iyou/O functions don't
-have to play evil tricks with the numbers they're given to work out which bus
-the caller wanted to talk to.
-
-#ifdef OUT_OF_LINE_MMIO
-#define res_readb(res, adr) (res->access_ops->readb(res, adr)
-#else
-#define res_readb(res, adr) readb(adr)
-#endif
-
-etc.
-
---
-dwmw2
-
+--paulj
 

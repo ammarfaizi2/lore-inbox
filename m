@@ -1,73 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319822AbSIMXM1>; Fri, 13 Sep 2002 19:12:27 -0400
+	id <S319823AbSIMXO4>; Fri, 13 Sep 2002 19:14:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319823AbSIMXM1>; Fri, 13 Sep 2002 19:12:27 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:13954 "EHLO
-	wookie-t23.pdx.osdl.net") by vger.kernel.org with ESMTP
-	id <S319822AbSIMXM0>; Fri, 13 Sep 2002 19:12:26 -0400
-Subject: RE: Killing/balancing processes when overcommited
-From: "Timothy D. Witham" <wookie@osdl.org>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: jimsibley@earthlink.net, linux-kernel@vger.kernel.org,
-       thunder@lightweight.ods.org
-In-Reply-To: <Pine.LNX.4.44L.0209131943390.1857-100000@imladris.surriel.com>
-References: <Pine.LNX.4.44L.0209131943390.1857-100000@imladris.surriel.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 13 Sep 2002 16:12:14 -0700
-Message-Id: <1031958734.1403.249.camel@wookie-t23.pdx.osdl.net>
-Mime-Version: 1.0
+	id <S319824AbSIMXO4>; Fri, 13 Sep 2002 19:14:56 -0400
+Received: from mta5.snfc21.pbi.net ([206.13.28.241]:13493 "EHLO
+	mta5.snfc21.pbi.net") by vger.kernel.org with ESMTP
+	id <S319823AbSIMXOz>; Fri, 13 Sep 2002 19:14:55 -0400
+Date: Fri, 13 Sep 2002 16:20:05 -0700
+From: David Brownell <david-b@pacbell.net>
+Subject: 2.4.20-pre7 USB 2.0 "ehci-hcd" patches
+To: linux-kernel@vger.kernel.org
+Message-id: <3D8272A5.5030405@pacbell.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en, fr
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I thought I'd send the note here as well as to the Linux-USB list.
+Either because I thought the exposure to more folk that may have
+shiny new hardware could be useful, or because I'm a glutton for
+punishment ... I'm not sure yet.
 
-On Fri, 2002-09-13 at 15:44, Rik van Riel wrote:
-> On 13 Sep 2002, Timothy D. Witham wrote:
-> 
-> >   In this case the offense is asking for more memory.  So it is the
-> > process that asks for more memory that goes away.  Again sometimes it
-> > will be an innocent bystander but hopefully it will eventually be the
-> > process that is causing the problem.
-> 
-> If you kill the process that requests memory, the sequence often
-> goes as follows:
-> 
-> 1) memory is exhausted
-> 
-> 2) the network driver can't allocate memory and
->    spits out a message
-> 
-> 3) syslogd and/or klogd get killed
-> 
-> Clearly you want to be a bit smarter about which process to kill.
->   
+The two patches are archived, such as
+
+  http://marc.theaimsgroup.com/?l=linux-usb-devel&m=103195770819572&w=2
+  http://marc.theaimsgroup.com/?l=linux-usb-devel&m=103195884620392&w=2
+
+I won't see LKML followups unless you cc me, but I'll see posts
+on the USB developer's list.
+
+- Dave
 
 
-Right, you need to have a hold back for the kernel/root items to 
-ensure that this sort of thing doesn't happen.
+-------- Original Message --------
+Subject: [linux-usb-devel] [PATCH 2.4.20-pre7 0 of 2] EHCI updates
+Date: Fri, 13 Sep 2002 15:51:11 -0700
+From: David Brownell <david-b@pacbell.net>
+To: linux-usb-devel@lists.sourceforge.net
+
+I'm sending a couple of EHCI related patches out for folk who'd
+like to try this on top of 2.4.20-pre7.
+
+I'd like to see if anyone has any feedback about it before taking
+the next steps to get it into 2.4.20 ... there are improvements,
+but likely some problems could still stand to get fixed.
+
+If you're using EHCI hardware, please try the patches.  Especially if:
+
+- You've had problems before; CardBus should work, and there were
+    a bunch of bugfixes too.
+
+- You're not using a NEC host controller:  Intel (ICH4), VIA
+    (VT6202, VT8235), SIS (962, 963), NForce2, and so on.  If you
+    have a newish motherboard, it may well have USB 2.0 built in.
+
+- You want to use USB 1.1 interrupt transactions through USB 2.0
+    hubs, such as for many HID devices, some Ethernet adapters, some
+    disks, and so on.
+
+The first patch does some minor updates to usbcore, which happens
+to break the current 2.4.20-pre7 ehci-hcd code.
+
+The second patch brings ehci-hcd up to the 2.5.34bk4 level, and
+relies on that first patch.
+
+- Dave
 
 
-> regards,
-> 
-> Rik
-> -- 
-> Bravely reimplemented by the knights who say "NIH".
-> 
-> http://www.surriel.com/		http://distro.conectiva.com/
-> 
-> Spamtraps of the month:  september@surriel.com trac@trac.org
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-Timothy D. Witham - Lab Director - wookie@osdlab.org
-Open Source Development Lab Inc - A non-profit corporation
-15275 SW Koll Parkway - Suite H - Beaverton OR, 97006
-(503)-626-2455 x11 (office)    (503)-702-2871     (cell)
-(503)-626-2436     (fax)
+
+
+
+
 

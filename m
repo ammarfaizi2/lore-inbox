@@ -1,37 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268577AbTGLWSi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 18:18:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268617AbTGLWSi
+	id S268564AbTGLWRX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 18:17:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268567AbTGLWRX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 18:18:38 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:36997 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S268577AbTGLWRb (ORCPT
+	Sat, 12 Jul 2003 18:17:23 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:11396 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S268564AbTGLWRX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 18:17:31 -0400
-Message-Id: <200307121920.h6CJKFZY004864@eeyore.valparaiso.cl>
-To: arjanv@redhat.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.75 
-In-Reply-To: Message from Arjan van de Ven <arjanv@redhat.com> 
-   of "11 Jul 2003 19:03:56 +0200." <1057943036.5806.5.camel@laptop.fenrus.com> 
+	Sat, 12 Jul 2003 18:17:23 -0400
+Message-Id: <200307122128.h6CLSGf1006376@eeyore.valparaiso.cl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       torvalds@osdl.org
+Subject: Re: SECURITY - data leakage due to incorrect strncpy implementation 
+In-Reply-To: Message from Alan Cox <alan@lxorguk.ukuu.org.uk> 
+   of "11 Jul 2003 23:10:24 +0100." <1057961423.20637.68.camel@dhcp22.swansea.linux.org.uk> 
 X-Mailer: MH-E 7.1; nmh 1.0.4; XEmacs 21.4
-Date: Sat, 12 Jul 2003 15:20:15 -0400
+Date: Sat, 12 Jul 2003 17:28:16 -0400
 From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven <arjanv@redhat.com> said:
+Alan Cox <alan@lxorguk.ukuu.org.uk> said:
 
 [...]
 
-> fwiw there are rpms of 2.5.75 that fit in Red Hat Linux 9 (plus updated
-> modutils, initscripts and mkinitrd from rawhide) on
-> http://people.redhat.com/arjanv/2.5
-> for people to play with.
+> 2.5 you have problems all over the place from wrong strlcpy conversions,
+> but those are easy enough to clean up before 2.6.0
 
-Where are the non-kernel files? A kernel RPM on itself is not enough... and
-for me at least ((semi-)regular bk-kernel tester) the least useful.
+Perhaps there should be a strncpy_touser() to make it crystal clear that it
+_can't_ be "optimized" into strlcpy()
 -- 
 Dr. Horst H. von Brand                   User #22616 counter.li.org
 Departamento de Informatica                     Fono: +56 32 654431

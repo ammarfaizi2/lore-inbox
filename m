@@ -1,60 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281735AbRKVUhL>; Thu, 22 Nov 2001 15:37:11 -0500
+	id <S281743AbRKVUkC>; Thu, 22 Nov 2001 15:40:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281738AbRKVUhB>; Thu, 22 Nov 2001 15:37:01 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:3051 "EHLO
-	VL-MS-MR003.sc1.videotron.ca") by vger.kernel.org with ESMTP
-	id <S281735AbRKVUgu>; Thu, 22 Nov 2001 15:36:50 -0500
-To: Vincent Sweeney <v.sweeney@dexterus.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] Bad #define, nonportable C, missing {}
-In-Reply-To: <01112112401703.01961@nemo> <3BFB9FAE.DB9B6003@dexterus.com>
-Mail-Copies-To: nobody
-From: Chris Gray <cgray4@cs.mcgill.ca>
-Date: 22 Nov 2001 15:43:15 -0500
-In-Reply-To: <3BFB9FAE.DB9B6003@dexterus.com>
-Message-ID: <87y9ky35b0.fsf@cs.mcgill.ca>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S281740AbRKVUjn>; Thu, 22 Nov 2001 15:39:43 -0500
+Received: from chunnel.redhat.com ([199.183.24.220]:18159 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S281739AbRKVUjX>; Thu, 22 Nov 2001 15:39:23 -0500
+Date: Thu, 22 Nov 2001 20:39:10 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Tommi Kyntola <kynde@ts.ray.fi>
+Cc: Ryan Cumming <bodnar42@phalynx.dhs.org>, Patrick Mau <mau@oscar.prima.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.4.15-pre6 / EXT3 / ls shows '.journal' on root-fs.
+Message-ID: <20011122203910.D11821@redhat.com>
+In-Reply-To: <E165yGL-00012u-00@localhost> <Pine.LNX.4.33.0111200250560.18953-100000@behemoth.ts.ray.fi>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0111200250560.18953-100000@behemoth.ts.ray.fi>; from kynde@ts.ray.fi on Tue, Nov 20, 2001 at 03:20:52AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Nov 2001, Vincent Sweeney wrote:
->> 
->> drivers/block/paride/pf.c:      if (l==0x20) j--; targ[j]=0;
->> drivers/block/paride/pg.c:      if (l==0x20) j--; targ[j]=0;
->> drivers/block/paride/pt.c:      if (l==0x20) j--; targ[j]=0;
->>     (these files need Lindenting too)
->> ----------
->> Missing {} Either a bug or a very bad style (so bad that I can even
->> imagine that it is NOT a bug). Please double check before applying
->> the patch!  -- vda
-> 
-> C std says IFF you have one expression after the for() then you can
-> omit the {}'s. So this is NOT a bug or bad coding style its just
-> saving some bytes in the source code :)
+Hi,
 
-The point here is that what is written as 
+On Tue, Nov 20, 2001 at 03:20:52AM +0200, Tommi Kyntola wrote:
+ 
+> Minor corrections though, atleast on my 2.4.15-pre6 with tune2fs 1.23
+> the .journal is visible even when created as unmounted.
 
-if(l==0x20) j--; targ[j]=0;
+There is absolutely no code in e2fsprogs to create that file on an
+unmounted filesystem.  The only mention of the ".journal" name in
+e2fsprogs-1.23 is in the code where it opens a regular file with that
+name using normal syscalls to access mounted filesystems.  A
+".journal" file might be an artifact resulting from doing a recursive
+copy from an online-upgraded ext3 filesystem to the new one, though.
 
-is actually
+> Is the 'rm .journal' the way preferred way to "hide" it?
+> Are there any side-effects caused by removal?
+> Could someone shed a little more light on this subject.
+> What would happen if root were to write to it?
 
-if(l==0x20)
-        j--;
-targ[j]=0;
+The .journal is an immutable file.  Root will get -EPERM.
 
-and not the 
+> root@behemoth / # tune2fs -O ^has_journal /dev/hda2
+> tune2fs 1.23, 15-Aug-2001 for EXT2 FS 0.5b, 95/08/09
+> root@behemoth / # mount /tmp
+> root@behemoth / # grep /tmp /etc/mtab
+> /dev/hda2 /tmp ext2 rw 0 0
+> root@behemoth / # umount /tmp
+> root@behemoth / # tune2fs -j /dev/hda2
+> root@behemoth / # ls -la /tmp | grep journal
+> -rw-------    1 root     root      8388608 Oct 23 17:10 .journal
 
-if(l==0x20){
-        j--;
-        targ[j] = 0;
-}
+Just clearing the "has_journal" flag from an online-upgraded
+filesystem won't be enough to delete the .journal file.  
 
-that it appears to be.  I wouldn't like to use 'l' as a variable
-either, but that's just me.
+"dumpe2fs" will tell you what inode the filesystem is actually using
+for the journal: I suspect it won't be using that .journal file.
 
 Cheers,
-Chris
+ Stephen

@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274520AbRJTWIV>; Sat, 20 Oct 2001 18:08:21 -0400
+	id <S274681AbRJTWLv>; Sat, 20 Oct 2001 18:11:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274681AbRJTWIM>; Sat, 20 Oct 2001 18:08:12 -0400
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:14491 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S274520AbRJTWH6>;
-	Sat, 20 Oct 2001 18:07:58 -0400
-Message-ID: <3BD1F5CC.20BF3F20@candelatech.com>
-Date: Sat, 20 Oct 2001 15:08:12 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.12 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Jan Niehusmann <jan@gondor.com>, linux-kernel@vger.kernel.org
-Subject: Re: Input on the Non-GPL Modules
-In-Reply-To: <E15v4Dz-0002VM-00@the-village.bc.nu>
+	id <S274684AbRJTWLm>; Sat, 20 Oct 2001 18:11:42 -0400
+Received: from protactinium.btinternet.com ([194.73.73.176]:52664 "EHLO
+	protactinium") by vger.kernel.org with ESMTP id <S274681AbRJTWL1>;
+	Sat, 20 Oct 2001 18:11:27 -0400
+Date: Sat, 20 Oct 2001 23:11:31 +0000
+To: linux-kernel@vger.kernel.org
+Subject: Compilation of 2.4.0 fails when processing /i386/boot
+Message-ID: <20011020231131.A4560@ubersecksie.co.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
+From: Stuart Luscombe <stuart@ubersecksie.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > What prevents the author of a non-GPL module who needs access to a
-> > GPL-only symbol from writing a small GPLed module which imports the
-> > GPL-only symbol (this is allowed, because the small module is GPL),
-> > and exports a basically identical symbol without the GPL-only
-> > restriction?
-> 
-> The fact that it ends up GPL'd to be linked (legal derivative work sense)
-> to the GPL'd code so you can link it to either but not both at the same time
+I am compiling kernel 2.4.0, and I am getting the following error
+during the 'make install' part of the build:
 
-If you own the copyright to the small shim GPL piece, can anyone else
-take legal action on your part?  If not, then all you have to do is not
-sue yourself for the double linkage and no one else can sue you either....
+ld -m elf_i386 -T /usr/src/linux/arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o \
+        --start-group \
+        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
+        drivers/block/block.o drivers/char/char.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o  drivers/parport/driver.o drivers/char/drm/drm.o drivers/ide/idedriver.o drivers/cdrom/driver.o drivers/sound/sounddrivers.o drivers/pci/driver.o drivers/pnp/pnp.o drivers/video/video.o drivers/usb/usbdrv.o drivers/input/inputdrv.o \
+        net/network.o \
+        /usr/src/linux/arch/i386/lib/lib.a /usr/src/linux/lib/lib.a /usr/src/linux/arch/i386/lib/lib.a \
+        --end-group \
+        -o vmlinux
+nm vmlinux | grep -v '\(compiled\)\|\(\.o$\)\|\( [aUw] \)\|\(\.\.ng$\)\|\(LASH[RL]DI\)' | sort > System.map
+make[1]: Entering directory `/usr/src/linux/arch/i386/boot'
+ld -m elf_i386 -Ttext 0x0 -s -oformat binary bbootsect.o -o bbootsect
+make[1]: Leaving directory `/usr/src/linux/arch/i386/boot'
+ld: cannot open binary: No such file or directory
+make[1]: *** [bbootsect] Error 1
+make: *** [install] Error 2
 
-Ben
+I have checked all assembler packages, and they all seem to be installed.
+I am running Debian sid and all packages are up-to-date.
 
--- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+Can anyone help me with this error?
+
+Thanks in advance
+--
+Stuart

@@ -1,63 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284899AbSADVAY>; Fri, 4 Jan 2002 16:00:24 -0500
+	id <S288768AbSADVDP>; Fri, 4 Jan 2002 16:03:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284970AbSADVAP>; Fri, 4 Jan 2002 16:00:15 -0500
-Received: from t2.redhat.com ([199.183.24.243]:56817 "EHLO
-	dhcp-177.hsv.redhat.com") by vger.kernel.org with ESMTP
-	id <S284933AbSADVAC>; Fri, 4 Jan 2002 16:00:02 -0500
-Date: Fri, 4 Jan 2002 14:59:49 -0600
-From: Tommy Reynolds <reynolds@redhat.com>
-To: "Steffen Persvold" <sp@scali.no>
+	id <S288766AbSADVCz>; Fri, 4 Jan 2002 16:02:55 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:54538 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S288762AbSADVCp>;
+	Fri, 4 Jan 2002 16:02:45 -0500
+Date: Fri, 4 Jan 2002 22:02:40 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: "Phil Oester" <kernel@theoesters.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Short question about the mmap method
-Message-Id: <20020104145949.682d51c4.reynolds@redhat.com>
-In-Reply-To: <3C360FD5.91285F5D@scali.no>
-In-Reply-To: <3C360FD5.91285F5D@scali.no>
-Organization: Red Hat Software, Inc. / Embedded Development
-X-Mailer: Sylpheed version 0.6.6cvs17 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$ t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
+Subject: Re: 1gb RAM + 1gb SWAP + make -j bzImage = OOM
+Message-Id: <20020104220240.233ae66a.skraw@ithnet.com>
+In-Reply-To: <004b01c1955e$ecbc9190$6400a8c0@philxp>
+In-Reply-To: <004b01c1955e$ecbc9190$6400a8c0@philxp>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- boundary="=.bEa.B5jokgb3,D"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.bEa.B5jokgb3,D
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+On Fri, 4 Jan 2002 12:32:27 -0800
+"Phil Oester" <kernel@theoesters.com> wrote:
 
-Uttered "Steffen Persvold" <sp@scali.no>, spoke thus:
-
-> Hi lkml readers,
+> On 2.4.17, I can't make -j bzImage without OOM kicking in.  Relatively
+> light .config here - bzImage compiles to less than 1mb.
 > 
-> I have a question regarding drivers implementing the mmap and nopage methods.
-> In some references I've read that pages in kernel allocated memory (either
-> allocated with kmalloc, vmalloc or__get_free_pages) should be set to reserved
-> (mem_map_reserve or set_bit(PG_reserved, page->flags) before they can be
-> mmap'ed to guarantee that they can't be swapped out. Is this true ?
+> Seems with 1 gb of RAM and swap, the box should be able to handle this
+> (box is dual P3 600 btw).  
+> 
+> Is this unreasonable?  How much RAM should it take to accomplish this???
 
-[kv]malloc memory is _never_ subject to paging and can be mmap'ed with a
-vengeance without resorting to mucking about with marking pages or the like.
+You should give a bit more info on that, especially vmstat and the like.
+I cannot reproduce this. Neither on 1GB/256MB nor on 2GB/256MB RAM/SWAP.
+(P3-1GHz, dual SMP, 2.4.17)
 
-You're working too hard ;-)
-
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- + -- -- -- -- -- -- -- -- -- --
-Tommy Reynolds                               | mailto: <reynolds@redhat.com>
-Red Hat, Inc., Embedded Development Services | Phone:  +1.256.704.9286
-307 Wynn Drive NW, Huntsville, AL 35805 USA  | FAX:    +1.256.837.3839
-Senior Software Developer                    | Mobile: +1.919.641.2923
-
---=.bEa.B5jokgb3,D
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-
-iEYEARECAAYFAjw2F8kACgkQWEn3bOOMcur7ogCfc0lTICsWiXKgrFHEDjrIkCPJ
-YFIAoLCUpzPKgkDHPLoDmxeIGF5mGGIu
-=vKSN
------END PGP SIGNATURE-----
-
---=.bEa.B5jokgb3,D--
+Regards,
+Stephan
 

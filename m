@@ -1,44 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131194AbRC3IcH>; Fri, 30 Mar 2001 03:32:07 -0500
+	id <S131206AbRC3Ii5>; Fri, 30 Mar 2001 03:38:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131206AbRC3Ib5>; Fri, 30 Mar 2001 03:31:57 -0500
-Received: from xerxes.thphy.uni-duesseldorf.de ([134.99.64.10]:63739 "EHLO
-	xerxes.thphy.uni-duesseldorf.de") by vger.kernel.org with ESMTP
-	id <S131194AbRC3Ibo>; Fri, 30 Mar 2001 03:31:44 -0500
-Date: Fri, 30 Mar 2001 10:31:01 +0200 (CEST)
-From: Kai Germaschewski <kai@thphy.uni-duesseldorf.de>
-To: hugang <linuxhappy@etang.com>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [ISDN-ERR]
-In-Reply-To: <20010330100323.791a25c8.linuxhappy@etang.com>
-Message-ID: <Pine.LNX.4.10.10103301027550.19330-100000@chaos.thphy.uni-duesseldorf.de>
+	id <S131224AbRC3Iir>; Fri, 30 Mar 2001 03:38:47 -0500
+Received: from 110-moc-1.acn.waw.pl ([212.76.40.110]:6148 "HELO
+	gateway.softpress.com.pl") by vger.kernel.org with SMTP
+	id <S131206AbRC3Iih>; Fri, 30 Mar 2001 03:38:37 -0500
+Message-ID: <004a01c0b8f4$ec6755a0$0ad1a8c0@softpress.com.pl>
+From: "Andrzej Orchowski" <A.Orchowski@softpress.com.pl>
+To: <linux-kernel@vger.kernel.org>
+Subject: 3c509 driver bug
+Date: Fri, 30 Mar 2001 10:39:24 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+sorry for this non-proffesional way of sending bug report and patch 
+(I'm new to Linux, couldn't find utility to create patch). Fix is based
+upon of the code analysis rather (and obviosly my working environment)
+then 3Com tech docs. Anyway lets start...
 
-On Fri, 30 Mar 2001, hugang wrote:
+1. Bug Summary
+Inproper interface setting in 3Com 509 nic driver 1.16 (2.2)
 
-> Hello all:
-> 	
-> ---------------------------------------
-> OPEN: 10.0.0.2 -> 202.99.16.1 UDP, port: 1024 -> 53
-> ippp0: dialing 1 86310163...
-> isdn: HiSax,ch0 cause: E001B			<--- error !!
-> isdn_net: local hangup ippp0
-> ippp0: Chargesum is 0
-> ---------------------------------------
+2. Bug Description
+Bug exists in 3Com 509 nic driver version 1.16 (2.2) by Donald J. Becker.
+Under some circomstances the nic interface (10BaseT, AUI, BNC) is set
+inproperly usually causing the card to stop working.
+The unwanted and/or strange behaviour occures esspecially with more then
+one 509 nics present.
 
-E001B is an ISDN cause (see "man isdn_cause") it means
-Location: (00) local
-Cause:    (1B) Destination out of order
+Internally the code sets the interface type in if_port variable. It is set
+upon of eeprom value in several places depending on the nic type:
+PnP, ISA, EISA. After if_port assigment code flows to found: label
+in which the different parameters are gathered together (to dev variable)
+to set the nic.
+Unfortunatelly in that place if_port is used condidionally which I believe
+is inherited from previous driver versions.
 
-which most likely indicates a cabling problem on your ISDN line. If you
-need further assistance, contact me privately or ask on
-isdn4linux@listserv.isdn4linux.de, people on l-k don't really care.
+/* Fix is simple enough not to include any attachments. Here it is */
+The line (around #451)
+    dev->if_port = (dev->mem_start & 0x1f) ? dev->mem_start & 3: if_port;
+should be replaced simply with
+    dev->if_port = if_port;
 
---Kai
+3. Keywords
+networking, kernel, 3Com, 3C509, modules, drivers
 
+4. Kernel version
+I checked buggy driver is distributed with kernel version 2.2 and 2.4.2
+(and probably all earlier kernel versions dated after Feb 1998).
+
+Cheers
+Andrzej Orchowski
+andor@softpress.com.pl
+> 
 

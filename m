@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264376AbRFIQ5b>; Sat, 9 Jun 2001 12:57:31 -0400
+	id <S264409AbRFIREc>; Sat, 9 Jun 2001 13:04:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264401AbRFIQ5V>; Sat, 9 Jun 2001 12:57:21 -0400
-Received: from flodhest.stud.ntnu.no ([129.241.56.24]:25768 "EHLO
-	flodhest.stud.ntnu.no") by vger.kernel.org with ESMTP
-	id <S264376AbRFIQ5H>; Sat, 9 Jun 2001 12:57:07 -0400
-Date: Sat, 9 Jun 2001 18:56:24 +0200
-From: =?iso-8859-1?Q?Thomas_Lang=E5s?= <tlan@stud.ntnu.no>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Ed Tomlinson <tomlins@cam.org>, linux-kernel@vger.kernel.org
+	id <S263597AbRFIREW>; Sat, 9 Jun 2001 13:04:22 -0400
+Received: from HSE-MTL-ppp72639.qc.sympatico.ca ([64.229.201.194]:51328 "HELO
+	oscar.casa.dyndns.org") by vger.kernel.org with SMTP
+	id <S264409AbRFIREM>; Sat, 9 Jun 2001 13:04:12 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: Wayne Whitney <whitney@math.berkeley.edu>, kaos@ocs.com.au,
+        Ed Tomlinson <tomlins@cam.org>
 Subject: Re: missing symbol do_softirq in net moduels for pre-2
-Message-ID: <20010609185624.A689@flodhest.stud.ntnu.no>
-Reply-To: tlan@stud.ntnu.no
-In-Reply-To: <01060911075200.00993@oscar> <16339.992103452@ocs4.ocs-net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <16339.992103452@ocs4.ocs-net>; from kaos@ocs.com.au on Sun, Jun 10, 2001 at 02:17:32AM +1000
+Date: Sat, 9 Jun 2001 13:04:10 -0400
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <01060911075200.00993@oscar> <16339.992103452@ocs4.ocs-net> <200106091656.f59Gurx10167@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
+In-Reply-To: <200106091656.f59Gurx10167@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
+MIME-Version: 1.0
+Message-Id: <01060913041000.01756@oscar>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens:
-> >Built -pre2 and noticed most of the modules in net/* are getting
-> >a missing symbol for do_softirq.  
-> http://www.tux.org/lkml/#s8-8
+On Saturday 09 June 2001 12:56, Wayne Whitney wrote:
+> In mailing-lists.linux-kernel, Keith Owens wrote:
+> > On Sat, 9 Jun 2001 Ed Tomlinson <tomlins@cam.org> wrote:
+> > > Built -pre2 and noticed most of the modules in net/* are getting
+> > > a missing symbol for do_softirq.
+> >
+> > http://www.tux.org/lkml/#s8-8
+>
+> Hmm, I don't think this is it--I'm seeing the same thing, and I have
+> tried 'make mrproper'.  All symbols are getting versionated except
+> certain calls to do_softirq() in, e.g., sunrpc.o and the iptables
+> modules.
+>
+> I looked into this, and I believe the problem is due to 2.4.6-pre2's
+> change to the i386 local_bh_enable() macro--the C version has been
+> replaced with an assembly language version that does "call
+> do_doftirq;".  Perhaps this function call from the assembly language
+> version does not get versionated?
 
-I got the same error on -pre1, and tried the info in the link, didn't help:
+In my case its off a clean tree patched with lvm, ide patches, dma timeout
+retry patch and reiserfs fixes.  Did we not have a problem a while back
+in ac with versioned symbols in assembly?
 
-root@test4:/usr/src# depmod -ae
-depmod: *** Unresolved symbols in /lib/modules/2.4.6-pre1/kernel/net/ipv4/netfilter/ip_tables.o
-depmod:         do_softirq
-depmod: *** Unresolved symbols in /lib/modules/2.4.6-pre1/kernel/net/ipv4/netfilter/ipt_LOG.o
-depmod:         do_softirq
-
-Am I missing something in my .config, or is there something else that's
-wrong? Any clues to where I should look?
-
--- 
--Thomas
+Ed Tomlinson

@@ -1,107 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270833AbTGVOX2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 10:23:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270853AbTGVOX1
+	id S270865AbTGVO0S (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 10:26:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270864AbTGVO0S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 10:23:27 -0400
-Received: from www.13thfloor.AT ([212.16.59.250]:28900 "EHLO www.13thfloor.at")
-	by vger.kernel.org with ESMTP id S270833AbTGVOXZ (ORCPT
+	Tue, 22 Jul 2003 10:26:18 -0400
+Received: from palrel12.hp.com ([156.153.255.237]:37327 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S270865AbTGVO0O (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 10:23:25 -0400
-Date: Tue, 22 Jul 2003 16:38:35 +0200
-From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: ROOT NFS fixes ...
-Message-ID: <20030722143835.GC16779@www.13thfloor.at>
-Reply-To: herbert@13thfloor.at
-Mail-Followup-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	lkml <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	Tue, 22 Jul 2003 10:26:14 -0400
+Message-ID: <F341E03C8ED6D311805E00902761278C0D2A2BE3@xfc04.fc.hp.com>
+From: "MIYOSHI,DENNIS (HP-Loveland,ex1)" <dennis.miyoshi@hp.com>
+To: "'Sam Ravnborg'" <sam@ravnborg.org>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: Build fails for ia64 with linux-2.6.0-test1-bk2 with missing 
+	file .
+Date: Tue, 22 Jul 2003 07:41:16 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2655.55)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thanks Sam.  Shouldn't the Makefile take care of this?
 
-Hi Trond!
-
-please have a look at the attached patch, which
-addresses the root=/dev/wossname issue, when ROOT_NFS
-is configured. this is a NFS only issue, and IMHO
-fixes an erroneous behaviour.
-
-if it seems okay to you, please let Marcelo know,
-so he could add this patch to the next -pre kernel
-
-MTIA,
-Herbert
+Dennis E. Miyoshi, PE
+Hendrix Release Manager
+Hewlett-Packard Company
+825 14th Street, S.W.,  MS E-200
+Loveland, CO  80537
+(970) 898-6110
 
 
-------------- NFS ROOT FIX
-
-diff -NurbP --minimal linux-2.4.22-pre7/fs/nfs/nfsroot.c linux-2.4.22-pre7-fix/fs/nfs/nfsroot.c
---- linux-2.4.22-pre7/fs/nfs/nfsroot.c	2003-06-13 16:51:37.000000000 +0200
-+++ linux-2.4.22-pre7-fix/fs/nfs/nfsroot.c	2003-07-21 22:15:12.000000000 +0200
-@@ -305,7 +305,7 @@
-  */
- int __init nfs_root_setup(char *line)
- {
--	ROOT_DEV = MKDEV(UNNAMED_MAJOR, 255);
-+	ROOT_DEV = MKDEV(NFS_MAJOR, NFS_MINOR);
- 	if (line[0] == '/' || line[0] == ',' || (line[0] >= '0' && line[0] <= '9')) {
- 		strncpy(nfs_root_name, line, sizeof(nfs_root_name));
- 		nfs_root_name[sizeof(nfs_root_name)-1] = '\0';
-diff -NurbP --minimal linux-2.4.22-pre7/include/linux/nfs.h linux-2.4.22-pre7-fix/include/linux/nfs.h
---- linux-2.4.22-pre7/include/linux/nfs.h	2000-04-01 18:04:27.000000000 +0200
-+++ linux-2.4.22-pre7-fix/include/linux/nfs.h	2003-07-21 22:13:12.000000000 +0200
-@@ -30,6 +30,9 @@
- #define NFS_MNT_PROGRAM	100005
- #define NFS_MNT_PORT	627
- 
-+#define NFS_MAJOR   	UNNAMED_MAJOR
-+#define NFS_MINOR   	0xff
-+
- /*
-  * NFS stats. The good thing with these values is that NFSv3 errors are
-  * a superset of NFSv2 errors (with the exception of NFSERR_WFLUSH which
-diff -NurbP --minimal linux-2.4.22-pre7/init/do_mounts.c linux-2.4.22-pre7-fix/init/do_mounts.c
---- linux-2.4.22-pre7/init/do_mounts.c	2003-07-19 14:14:31.000000000 +0200
-+++ linux-2.4.22-pre7-fix/init/do_mounts.c	2003-07-21 22:13:12.000000000 +0200
-@@ -88,7 +88,7 @@
- 	const char *name;
- 	const int num;
- } root_dev_names[] __initdata = {
--	{ "nfs",     0x00ff },
-+	{ "nfs",     MKDEV(NFS_MAJOR, NFS_MINOR) },
- 	{ "hda",     0x0300 },
- 	{ "hdb",     0x0340 },
- 	{ "loop",    0x0700 },
-@@ -759,7 +759,8 @@
- static void __init mount_root(void)
- {
- #ifdef CONFIG_ROOT_NFS
--	if (MAJOR(ROOT_DEV) == UNNAMED_MAJOR) {
-+       if (MAJOR(ROOT_DEV) == NFS_MAJOR
-+           && MINOR(ROOT_DEV) == NFS_MINOR) {
- 		if (mount_nfs_root()) {
- 			sys_chdir("/root");
- 			ROOT_DEV = current->fs->pwdmnt->mnt_sb->s_dev;
-diff -NurbP --minimal linux-2.4.22-pre7/net/ipv4/ipconfig.c linux-2.4.22-pre7-fix/net/ipv4/ipconfig.c
---- linux-2.4.22-pre7/net/ipv4/ipconfig.c	2003-07-19 14:14:31.000000000 +0200
-+++ linux-2.4.22-pre7-fix/net/ipv4/ipconfig.c	2003-07-21 22:15:50.000000000 +0200
-@@ -1234,7 +1234,7 @@
- 			 * 				-- Chip
- 			 */
- #ifdef CONFIG_ROOT_NFS
--			if (ROOT_DEV == MKDEV(UNNAMED_MAJOR, 255)) {
-+			if (ROOT_DEV == MKDEV(NFS_MAJOR, NFS_MINOR)) {
- 				printk(KERN_ERR 
- 					"IP-Config: Retrying forever (NFS root)...\n");
- 				goto try_try_again;
+-----Original Message-----
+From: Sam Ravnborg [mailto:sam@ravnborg.org] 
+Sent: Tuesday, July 22, 2003 8:36 AM
+To: MIYOSHI,DENNIS (HP-Loveland,ex1)
+Cc: 'linux-kernel@vger.kernel.org'
+Subject: Re: Build fails for ia64 with linux-2.6.0-test1-bk2 with missing
+file .
 
 
+> Failed with the following:
+>    kernel/profile.c:11:26: asm/sections.h:  No such file or directory
+>    kernel/profile.c: In function `profile_init':
+>    kernel/profile.c:38: `_etext' undeclared (first use in this function)
+>    kernel/profile.c:38: (Each undeclared identifier is reported only once
+>    kernel/profile.c:38: for each function it appears in.)
+>    kernel/profile.c:38: `_stext' undeclared (first use in this function)
+>    make[1]: *** [kernel/profile.o] Error 1
+>    make: *** [kernel] Error 2
+
+cp include/asm-i386/sections.h include/asm-ia64/sections.h should do the
+trick.
+
+	Sam

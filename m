@@ -1,67 +1,105 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316289AbSEOCYm>; Tue, 14 May 2002 22:24:42 -0400
+	id <S316272AbSEOCng>; Tue, 14 May 2002 22:43:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316297AbSEOCYl>; Tue, 14 May 2002 22:24:41 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:46349 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S316289AbSEOCYl>; Tue, 14 May 2002 22:24:41 -0400
-Subject: Re: InfiniBand BOF @ LSM - topics of interest
-To: Tony.P.Lee@nokia.com
-Date: Wed, 15 May 2002 03:35:00 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk, lmb@suse.de, woody@co.intel.com,
-        linux-kernel@vger.kernel.org, zaitcev@redhat.com
-In-Reply-To: <4D7B558499107545BB45044C63822DDE3A206F@mvebe001.NOE.Nokia.com> from "Tony.P.Lee@nokia.com" at May 14, 2002 06:29:11 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S316299AbSEOCnf>; Tue, 14 May 2002 22:43:35 -0400
+Received: from air-2.osdl.org ([65.201.151.6]:6533 "EHLO
+	wookie-laptop.pdx.osdl.net") by vger.kernel.org with ESMTP
+	id <S316272AbSEOCne>; Tue, 14 May 2002 22:43:34 -0400
+Subject: RE: InfiniBand BOF @ LSM - topics of interest
+From: "Timothy D. Witham" <wookie@osdl.org>
+To: "Woodruff, Robert J" <woody@co.intel.com>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org,
+        "'Woodruff, Robert J'" <woody@jf.intel.com>
+In-Reply-To: <D9223EB959A5D511A98F00508B68C20C0BFB7E73@orsmsx108.jf.intel.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <E177od2-0000wp-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 14 May 2002 19:42:26 -0700
+Message-Id: <1021430546.1274.80.camel@wookie-laptop.pdx.osdl.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Good points,  I prefer to see IB as replacement for
-> SCSI, FibreChannel, IDE, with its RDMA, messaging and
+  Anything that I purchase needs to be production level.  But
+I can purchase items that have a delivered pre-production
+unit and a later upgrade.  Of course equipment that isn't
+purchased is a little more open.  But I really can't require
+anybody signing a NDA to use it as I don't have any way
+of tracking that sort of environment. 
 
-Fibrechannel can have congestion control failures. Its not something
-you see badly because scsi timeouts are incredibly conservative (often
-30 seconds for a read or write). They do deal with head of queue blocking
-but thats a tiny bit of it
+Tim
 
-> I don't know if IB over multi-nodes/multi-hops in a WAN like
-> setup works or not.  I like to see network experts like=20
-> yourself try to break that since all the congestion control which
-> is "supposely" done in HW as compare to doing that in software as=20
-> in TCP/IP.  It would be nice to know how solid is the overall=20
-> IB congestion control design in that environment and at=20
-> what point does it break.  =20
+On Tue, 2002-05-14 at 15:15, Woodruff, Robert J wrote:
+> Hi Tim,
+> 
+> Does the OSDL require production H/W  ?
+> I may be able to get my hands on a few early development HCAs,
+> as loaners, till production HCAs are avaialble
+> from HCA vendors. 
+> 
+> woody
+> 
+> 
+> -----Original Message-----
+> From: Timothy D. Witham [mailto:wookie@osdl.org]
+> Sent: Tuesday, May 14, 2002 2:01 PM
+> To: Timothy D. Witham
+> Cc: Pete Zaitcev; linux-kernel@vger.kernel.org; Woodruff, Robert J
+> Subject: Re: InfiniBand BOF @ LSM - topics of interest
+> 
+> 
+>   Should of said.
+> 
+>   I have both IA-32 and IA-64 machines so by purchasing
+> PCI HCA's we can move them around. :-)
+> 
+> Tim
+> 
+> On Tue, 2002-05-14 at 13:33, Timothy D. Witham wrote:
+> >   I have IA-32 and IA-64 machines with PCI HCA's we
+> > can move them around. 
+> > 
+> > Tim
+> > 
+> > On Tue, 2002-05-14 at 13:23, Pete Zaitcev wrote:
+> > > > From: "Timothy D. Witham" <wookie@osdl.org>
+> > > > Date: 14 May 2002 13:09:53 -0700
+> > > 
+> > > >   As an FYI to the group the OSDL has put out a
+> > > > RFQ for equipment to build a IB development environment
+> > > > and I was wondering if any of the possible developers
+> > > > would like to comment on the mix.  
+> > > > 
+> > > > http://www.osdl.org/rfqs/infiniband_dev_env
+> > > 
+> > > Very interesting. Are you going to plug it into Itanic based
+> > > hosts? Obviously, vendors cannot "support" that, but being
+> > > Linux based we should be able to get that running, right?
+> > > 
+> > > -- Pete
+> > -- 
+> > Timothy D. Witham - Lab Director - wookie@osdlab.org
+> > Open Source Development Lab Inc - A non-profit corporation
+> > 15275 SW Koll Parkway - Suite H - Beaverton OR, 97006
+> > (503)-626-2455 x11 (office)    (503)-702-2871     (cell)
+> > (503)-626-2436     (fax)
+> > 
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> -- 
+> Timothy D. Witham - Lab Director - wookie@osdlab.org
+> Open Source Development Lab Inc - A non-profit corporation
+> 15275 SW Koll Parkway - Suite H - Beaverton OR, 97006
+> (503)-626-2455 x11 (office)    (503)-702-2871     (cell)
+> (503)-626-2436     (fax)
+-- 
+Timothy D. Witham - Lab Director - wookie@osdlab.org
+Open Source Development Lab Inc - A non-profit corporation
+15275 SW Koll Parkway - Suite H - Beaverton OR, 97006
+(503)-626-2455 x11 (office)    (503)-702-2871     (cell)
+(503)-626-2436     (fax)
 
-According to folks at Quantum the IB stuff isnt doing 'true' congestion
-control. At the moment its hard to tell since 1.0a doesn't deal with
-congestion management and the 2.0 congestion stuff isnt due out until
-later this year. Even then the Infiniband trade association folks use
-words like "hopefully eliminating the congestion" in their presentation to 
-describe their mechanism.
-
-I've seen no mathematical proofs and no nice answers to the fact that FECN
-has latencies and that the notification assumes the Ack packet with CA set
-doesn't actually get dropped. People seem to model FECN as if the feedback
-was instant whereas the feedback is one round trip on a loaded network if
-the acks get back. For unreliable you end up introducing congestion 
-notifications which I'm also not clear is perfect. I understand folks have
-been doing the maths on this stuff though and it will be interesting to
-see what they conclude
-
-Finally for the centralised congestion manager the IBTA completely wash
-their hands of policy - thats less of a problem as its mostly about telling the
-boss to buy bigger toys.
-
-TCP itself btw has issues over infiniband, stuff like convergence time,
-clocking rates and window management reno style all begin to break down
-at 10Gbit. On the other hand we have to solve those anyway along with other
-upcoming horrors like extreme packet re-ordering.
-
-(oh now I found it - the reference for the great internet congestion
- collapse is
-	ACM computer communications review august 1988)

@@ -1,86 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131466AbRCNRZ5>; Wed, 14 Mar 2001 12:25:57 -0500
+	id <S131476AbRCNR3i>; Wed, 14 Mar 2001 12:29:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131473AbRCNRZh>; Wed, 14 Mar 2001 12:25:37 -0500
-Received: from scl-ims.phoenix.com ([134.122.1.73]:53260 "EHLO
-	scl-ims.phoenix.com") by vger.kernel.org with ESMTP
-	id <S131466AbRCNRZb>; Wed, 14 Mar 2001 12:25:31 -0500
-Message-ID: <D973CF70008ED411B273009027893BA40972A9@irv-exch.phoenix.com>
-From: David Christensen <David_Christensen@Phoenix.com>
-To: "'Stephen Torri'" <s.torri@lancaster.ac.uk>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: RE: ACPI:system description tables not found.
-Date: Wed, 14 Mar 2001 09:24:39 -0800
+	id <S131478AbRCNR32>; Wed, 14 Mar 2001 12:29:28 -0500
+Received: from imladris.infradead.org ([194.205.184.45]:31245 "EHLO
+	infradead.org") by vger.kernel.org with ESMTP id <S131476AbRCNR3G>;
+	Wed, 14 Mar 2001 12:29:06 -0500
+Date: Wed, 14 Mar 2001 17:28:05 +0000 (GMT)
+From: Riley Williams <rhw@MemAlpha.CX>
+To: <Andries.Brouwer@cwi.nl>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>, <seberino@spawar.navy.mil>
+Subject: Re: [PATCH] Improved version reporting
+In-Reply-To: <UTC200103141601.RAA189084.aeb@vlet.cwi.nl>
+Message-ID: <Pine.LNX.4.30.0103141718380.6366-100000@infradead.org>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen,
+Hi Andries.
 
-Your BIOS isn't reporting any ACPI capability.  If it were you would have at
-least two more entries in the e820 output that say ACPI NVS and ACPI
-Reclaim.  Have you been able to install a MS OS and have it recognize ACPI?
-Are there any other BIOS settings that might be related (what about a PnP OS
-setting or something under Power Management)?  You might also check for any
-BIOS updates available from the motherboard manufacturer.
+ >> -o  util-linux             2.10o                   # fdformat --version
+ >> +o  util-linux         #   2.10o        # fdformat --version
 
-Dave
+ > Looking at fdformat to get the util-linux version is perhaps not
+ > the most reliable way - some people have fdformat from fd-utils
+ > or so.
 
------Original Message-----
-From: Stephen Torri [mailto:s.torri@lancaster.ac.uk]
-Sent: Friday, March 09, 2001 1:09 PM
-To: David Christensen
-Cc: Linux Kernel
-Subject: RE: ACPI:system description tables not found.
+{Shrug} That's the command that was in both Documentation/Changes and
+in scripts/ver_linux and I just left what was already there, as shown
+by your quote. Somebody MUCH more knowledgable than me regarding
+kernel requirements can sort that out.
 
+ > Using mount --version would be better - I am not aware of any
+ > other mount distribution.
 
-On Thu, 8 Mar 2001, David Christensen wrote:
+RedHat distribute mount separately from util-linux and I wouldnae be
+surprised if others do the same...
 
-> Stephen,
->
-> Is there a BIOS setup option for enabling ACPI?  Make sure it is enabled.
+ >> +In addition, it is wise to ensure that the following packages are at least
+ >> +at the versions suggested below, although these may not be required,
+ >> +depending on the exact configuration of your system:
+ >> +
+ >> +o  Console Tools      #   0.3.3        # loadkeys -V
+ >> +o  Mount              #   2.10e        # mount --version
 
-The BIOS setup option for ACPI is enabled.
+ > Concerning mount:
+ >
+ > (i) the version mentioned is too old,
 
-> Also attach a copy of the E820 output from dmesg.
+Probably. As stated, that's what's currently installed here, and I
+havenae the foggiest whether any of them need upgrading as there's
+nothing I've been able to find to say what the minimum version is.
 
-Linux version 2.4.2 (root@base.torri.linux) (gcc version egcs-2.91.66
-19990314/Linux (egcs-1.1.2 release)) #2 SMP Mon Feb 26 23:47:16 GMT 2001
+ > (ii) mount is in util-linux.
 
-BIOS-provided physical RAM map:
- BIOS-e820: 000000000009fc00 @ 0000000000000000 (usable)
- BIOS-e820: 0000000000000400 @ 000000000009fc00 (reserved)
- BIOS-e820: 0000000000020000 @ 00000000000e0000 (reserved)
- BIOS-e820: 0000000017f00000 @ 0000000000100000 (usable)
- BIOS-e820: 0000000000001000 @ 00000000fec00000 (reserved)
- BIOS-e820: 0000000000001000 @ 00000000fee00000 (reserved)
- BIOS-e820: 0000000000040000 @ 00000000fffc0000 (reserved)
-Scan SMP from c0000000 for 1024 bytes.
-Scan SMP from c009fc00 for 1024 bytes.
-Scan SMP from c00f0000 for 65536 bytes.
-found SMP MP-table at 000fb4f0
-hm, page 000fb000 reserved twice.
-hm, page 000fc000 reserved twice.
-hm, page 000f2000 reserved twice.
-hm, page 000f3000 reserved twice.
-On node 0 totalpages: 98304
-zone(0): 4096 pages.
-zone(1): 94208 pages.
-zone(2): 0 pages.
+Not on RedHat systems.
 
-Stephen
------------------------------------------------
-Buyer's Guide for a Operating System:
-Don't care to know: Mac
-Don't mind knowing but not too much: Windows
-Hit me! I can take it!: Linux
+ > Conclusion: the mount line should be deleted entirely.
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+Maybe, but that's not for me to decide. Whoever wrote ver_linux
+obviously thought it important.
+
+ > Concerning Console Tools: maybe kbd-1.05 is uniformly better.
+ > I am not aware of any reason to recommend the use of console-tools.
+
+Neither am I. The ver_linux script has lines for determining the
+versions for both Console Tools and Kbd but on EVERY system I've
+tried, including Slackware, RedHat, Debian, Caldera, and SuSE based
+ones, the line for determining Kbd versiondoesnae work. I've just
+included the line that worked, and ignored the Kbd one as I can see no
+point including something that doesnae work.
+
+Best wishes from Riley.
+

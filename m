@@ -1,64 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270929AbTGPPyO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 11:54:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270930AbTGPPyO
+	id S270934AbTGPP5M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 11:57:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270935AbTGPP5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 11:54:14 -0400
-Received: from pgramoul.net2.nerim.net ([80.65.227.234]:18512 "EHLO
-	philou.aspic.com") by vger.kernel.org with ESMTP id S270929AbTGPPyG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 11:54:06 -0400
-Date: Wed, 16 Jul 2003 18:08:55 +0200
-From: Philippe =?ISO-8859-15?Q?Gramoull=E9?= 
-	<philippe.gramoulle@mmania.com>
-To: linux-kernel@vger.kernel.org
-Cc: Linux IEEE 1394 Devel Mailing List 
-	<linux1394-devel@lists.sourceforge.net>
-Subject: 2.6.0-test1-mm1: bad: scheduling while atomic! after removing
- ohci1394 module
-Message-Id: <20030716180855.22d4a4f4.philippe.gramoulle@mmania.com>
-Organization: Lycos Europe
-X-Mailer: Sylpheed version 0.8.11claws141 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 16 Jul 2003 11:57:12 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:29824 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S270934AbTGPP5F (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 11:57:05 -0400
+Message-Id: <200307161611.h6GGBaLf004493@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Georgi Chorbadzhiyski <gf@unixsol.org>
+Cc: linux-kernel@vger.kernel.org, akpm@digeo.com, jsimmons@infradead.org,
+       rubini@vision.unipv.it, vandrove@vc.cvut.cz
+Subject: sysfs file size wierdness (was Re: 2.6-test1-mm1 success, tiny mouse and framebuffer problems 
+In-Reply-To: Your message of "Wed, 16 Jul 2003 17:47:02 +0300."
+             <3F156566.4040206@unixsol.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <3F156566.4040206@unixsol.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; boundary="==_Exmh_1091787264P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Wed, 16 Jul 2003 12:11:36 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+--==_Exmh_1091787264P
+Content-Type: text/plain; charset="us-ascii"
+Content-Id: <4482.1058371896.1@turing-police.cc.vt.edu>
 
-With 2.6.0-test1-mm1, i have the following in my logs after i rmmod'ed the
-ohci1394 module:
+On Wed, 16 Jul 2003 17:47:02 +0300, Georgi Chorbadzhiyski said:
 
-bad: scheduling while atomic!
-Call Trace:
- [<c011c958>] schedule+0x578/0x580
- [<c0108ff2>] copy_thread+0x32/0x250
- [<c011cd0c>] wait_for_completion+0x8c/0xf0
- [<c011c9b0>] default_wake_function+0x0/0x30
- [<c011c9b0>] default_wake_function+0x0/0x30
- [<c012b9e1>] kill_proc_info+0x51/0x80
- [<e0b87665>] nodemgr_remove_host+0x55/0xa0 [ieee1394]
- [<e0b82fba>] highlevel_remove_host+0x8a/0xa0 [ieee1394]
- [<e0b4163d>] ohci1394_pci_remove+0x3d/0x160 [ohci1394]
- [<c018c93e>] sysfs_hash_and_remove+0x4e/0x7c
- [<c022c75b>] pci_device_remove+0x3b/0x40
- [<c0256916>] device_release_driver+0x66/0x70
- [<c025694b>] driver_detach+0x2b/0x40
- [<c0256bae>] bus_remove_driver+0x3e/0x80
- [<c0256fc3>] driver_unregister+0x13/0x2a
- [<c022ca56>] pci_unregister_driver+0x16/0x30
- [<e0b41adf>] ohci1394_cleanup+0xf/0x11 [ohci1394]
- [<c0137d89>] sys_delete_module+0x139/0x170
- [<c014c1e5>] sys_munmap+0x45/0x70
- [<c010b0ab>] syscall_call+0x7/0xb
+> P.S. Every file in sysfs is 4096 bytes, is this normal?
+
+Even better:
+
+# ls -l /sys/devices/system/cpu/cpu0/cpufreq
+total 0
+-r--r--r--    1 root     root         4096 Jul 16 09:59 cpuinfo_max_freq
+-r--r--r--    1 root     root         4096 Jul 16 09:59 cpuinfo_min_freq
+-r--r--r--    1 root     root         4096 Jul 16 09:59 scaling_available_governors
+-r--r--r--    1 root     root         4096 Jul 16 09:59 scaling_driver
+-rw-r--r--    1 root     root         4096 Jul 16 09:59 scaling_governor
+-rw-r--r--    1 root     root         4096 Jul 16 09:59 scaling_max_freq
+-rw-r--r--    1 root     root         4096 Jul 16 09:59 scaling_min_freq
+# cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor 
+performance
+# cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors 
+performance powersave
+# echo powersave >| /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor 
+# ls -l /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor 
+-rw-r--r--    1 root     root            0 Jul 16 09:59 /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+
+Started off as 4096, writing makes it go to zero. ;)
 
 
-Should i worry ?
+--==_Exmh_1091787264P
+Content-Type: application/pgp-signature
 
-Besides that, IEE1394 works fine with my DV camcorder.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-Thanks,
+iD8DBQE/FXk4cC3lWbTT17ARAnS6AKDJbDfV7idXLs7LbTNalZyCOPIVVQCff2n+
+R/8ko91yFzk3Eu2Jpm9cBPk=
+=125G
+-----END PGP SIGNATURE-----
 
-Philippe
+--==_Exmh_1091787264P--

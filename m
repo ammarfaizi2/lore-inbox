@@ -1,45 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261769AbUKANQl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261837AbUKANc0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261769AbUKANQl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 08:16:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261785AbUKANQl
+	id S261837AbUKANc0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 08:32:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261789AbUKANcZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 08:16:41 -0500
-Received: from wine.ocn.ne.jp ([220.111.47.146]:56298 "EHLO
-	smtp.wine.ocn.ne.jp") by vger.kernel.org with ESMTP id S261769AbUKANQe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 08:16:34 -0500
-To: ks@cs.aau.dk, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][2.4 PATCH] A restricted /dev filesystem.
-From: Tetsuo Handa <from-linux-kernel@i-love.sakura.ne.jp>
-References: <200411012114.IIG42981.tSSMNOFVtPMYFGLOJ@i-love.sakura.ne.jp>
-	<200411011343.00513.ks@cs.aau.dk>
-In-Reply-To: <200411011343.00513.ks@cs.aau.dk>
-Message-Id: <200411012216.DJJ13206.JFtSVOLtOSPMNFYGM@i-love.sakura.ne.jp>
-X-Mailer: Winbiff [Version 2.43]
-X-Accept-Language: ja,en
-Date: Mon, 1 Nov 2004 22:16:31 +0900
+	Mon, 1 Nov 2004 08:32:25 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:20933 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S262270AbUKANcP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 08:32:15 -0500
+Date: Mon, 1 Nov 2004 14:32:14 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
+Subject: Re: Map extra keys on compaq evo
+Message-ID: <20041101133214.GE32347@atrey.karlin.mff.cuni.cz>
+References: <20041031213859.GA6742@elf.ucw.cz> <200410312016.08468.dtor_core@ameritech.net> <20041101080306.GA1002@elf.ucw.cz> <20041101093830.GA1145@ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041101093830.GA1145@ucw.cz>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Kristian.
+Hi!
 
-Thank you for your advise.
+> > > > Compaq Evo notebooks seem to use non-standard keycodes for their extra
+> > > > keys. I workaround that quirk with dmi hook.
+> > > > 
+> > > 
+> > > Why don't you just call "setkeycodes" from your init script?
+> > 
+> > In such case I'd need to configure keys at two different places, and
+> > that's ugly. I have to configure these extra keys with "hotkeys"
+> > anyway (input layer does not provide list of keys available, so
+> 
+> It does.
 
-But this is 2.4, which LSM isn't integrated into.
-Also, I have experienced the difficulty of managing SELinux's policy.
-I agree what I want to do can be done with LSM,
-but I want more simpler approach.
+Really? I know input has ability to say that, but at least on arima
+notebook, evtest definitely prints keys that are not there...
 
-Thank you.
+...
+    Event code 128 (Stop)
+    Event code 140 (Calc)
+    Event code 142 (Sleep)
+    Event code 143 (WakeUp)
+    Event code 150 (WWW)
+    Event code 155 (Mail)
+    Event code 156 (Bookmarks)
+    Event code 157 (Computer)
+    Event code 158 (Back)
+    Event code 159 (Forward)
+    Event code 163 (NextSong)
+    Event code 164 (PlayPause)
+    Event code 165 (PreviousSong)
+    Event code 166 (StopCD)
+    Event code 173 (Refresh)
+...
 
-In message <200411011343.00513.ks@cs.aau.dk>
-   "Re: [RFC][2.4 PATCH] A restricted /dev filesystem."
-   "<ks@cs.aau.dk>" wrote:
+With accurate list "hotkeys" could run with no configuration, but I am
+afraid maintaining accurate list of keys for each keyboard is way too
+much work.
+								Pavel
 
-> E.g. these two statements of disallowing creation of hardlinks and regular 
-> files in /dev can easily be implemented as a LSM module (see 
-> include/linux/security.h). (I think) You will need to consider the hooks 
-> inode_create and inode_link only.
+-- 
+Boycott Kodak -- for their patent abuse against Java.

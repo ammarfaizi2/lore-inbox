@@ -1,38 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265585AbTFMXus (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 19:50:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265586AbTFMXus
+	id S265586AbTFMXxc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 19:53:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265588AbTFMXxc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 19:50:48 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:4312 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265585AbTFMXur (ORCPT
+	Fri, 13 Jun 2003 19:53:32 -0400
+Received: from dp.samba.org ([66.70.73.150]:48602 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S265586AbTFMXxb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 19:50:47 -0400
-Date: Fri, 13 Jun 2003 17:03:06 -0700
-From: Greg KH <greg@kroah.com>
-To: Torrey Hoffman <thoffman@arnor.net>
-Cc: ajoshi@kernel.crashing.org, James Simmons <jsimmons@infradead.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [OOPS] 2.5.70-bk15: RadeonFB dies at boot, and is undocumented
-Message-ID: <20030614000306.GA2563@kroah.com>
-References: <1055546532.1256.19.camel@torrey.et.myrio.com>
+	Fri, 13 Jun 2003 19:53:31 -0400
+Date: Sat, 14 Jun 2003 10:03:42 +1000
+From: Anton Blanchard <anton@samba.org>
+To: "Feldman, Scott" <scott.feldman@intel.com>
+Cc: "David S. Miller" <davem@redhat.com>, haveblue@us.ibm.com,
+       hdierks@us.ibm.com, dwg@au1.ibm.com, linux-kernel@vger.kernel.org,
+       milliner@us.ibm.com, ricardoz@us.ibm.com, twichell@us.ibm.com,
+       netdev@oss.sgi.com
+Subject: Re: e1000 performance hack for ppc64 (Power4)
+Message-ID: <20030614000342.GE32097@krispykreme>
+References: <C6F5CF431189FA4CBAEC9E7DD5441E010107D93A@orsmsx402.jf.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1055546532.1256.19.camel@torrey.et.myrio.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <C6F5CF431189FA4CBAEC9E7DD5441E010107D93A@orsmsx402.jf.intel.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 13, 2003 at 04:22:13PM -0700, Torrey Hoffman wrote:
-> With the Radeon framebuffer driver compiled in, 2.5.70-bk15 oopses very
-> early during the boot process.  The oops is visible in text mode but
-> scrolls off the screen.  (I really need to set up a serial console!)
+ 
+> I thought the answer was no, so I double checked with a couple of
+> hardware guys, and the answer is still no.
 
-Try a later -bk version, -bk17 fixes this I think, but to be safe, use
--bk18
+Hi Scott,
 
-thanks,
+Thats a pity, the e100 docs on sourceforge show it can do what we want,
+it would be nice if e1000 had this feature too :)
 
-greg k-h
+4.2.2 Read Align
+
+The Read Align feature is aimed to enhance performance in cache line
+oriented systems. Starting a PCI transaction in these systems on a
+non-cache line aligned address may result in low  performance. To solve
+this performance problem, the controller can be configured to terminate
+Transmit DMA cycles on a cache line boundary, and start the next
+transaction on a cache line aligned address. This  feature is enabled
+when the Read Align Enable bit is set in device Configure command
+(Section 6.4.2.3, "Configure (010b)").
+
+If this bit is set, the device operates as follows:
+
+* When the device is close to running out of resources on the Transmit
+* DMA (in other words, the Transmit FIFO is almost full), it attempts to
+* terminate the read transaction on the nearest cache line boundary when 
+* possible.
+
+* When the arbitration counters feature is enabled (maximum Transmit DMA
+* byte count value is set in configuration space), the device switches
+* to other pending DMAs on cache line boundary only.

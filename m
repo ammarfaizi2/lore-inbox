@@ -1,44 +1,29 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314665AbSDTRFt>; Sat, 20 Apr 2002 13:05:49 -0400
+	id <S312973AbSDTRKR>; Sat, 20 Apr 2002 13:10:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314664AbSDTRFs>; Sat, 20 Apr 2002 13:05:48 -0400
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:45327 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S314665AbSDTRFr>; Sat, 20 Apr 2002 13:05:47 -0400
-Message-ID: <3CC19FD9.1D3F8168@linux-m68k.org>
-Date: Sat, 20 Apr 2002 19:05:29 +0200
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: David Lang <dlang@diginsite.com>
-CC: Jeff Garzik <garzik@havoc.gtf.org>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+	id <S312980AbSDTRKQ>; Sat, 20 Apr 2002 13:10:16 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:40464 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S312973AbSDTRKP>; Sat, 20 Apr 2002 13:10:15 -0400
+Date: Sat, 20 Apr 2002 10:09:53 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: Anton Altaparmakov <aia21@cantab.net>, <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-In-Reply-To: <Pine.LNX.4.44.0204200921000.389-100000@dlang.diginsite.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <E16ybpZ-0000V4-00@starship>
+Message-ID: <Pine.LNX.4.33.0204201006280.11450-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-David Lang wrote:
+On Fri, 19 Apr 2002, Daniel Phillips wrote:
+> 
+> And some have a more difficult one.  So it goes.
 
-> If they start to be tools that are used to submit changes to the kernel
-> then yes they should be included.
+How? 
 
-"start"? People used other source management system already before bk.
+		Linus
 
-> remember that the reason for the bitkeeper documentation is to help people
-> setup a tree that linux (and others) can pull from, not to help people
-> setup their own tree just for them to hack on.
-
-The problem is that this suggest, bk would be the choice for kernel
-development or even usage. They are lots of kernel projects, which use
-cvs, but noone before considered submitting extensive cvs documentation
-into the kernel.
-
-bye, Roman

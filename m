@@ -1,159 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262830AbTFOT5e (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 15:57:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262850AbTFOT5e
+	id S262850AbTFOUM2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 16:12:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262856AbTFOUM2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 15:57:34 -0400
-Received: from smtp.terra.es ([213.4.129.129]:17698 "EHLO tsmtp1.mail.isp")
-	by vger.kernel.org with ESMTP id S262830AbTFOT5b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 15:57:31 -0400
-Date: Sun, 15 Jun 2003 22:02:59 +0200
-From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
+	Sun, 15 Jun 2003 16:12:28 -0400
+Received: from [66.155.158.133] ([66.155.158.133]:44672 "EHLO
+	ns.waumbecmill.com") by vger.kernel.org with ESMTP id S262850AbTFOUM1 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 16:12:27 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: joe briggs <jbriggs@briggsmedia.com>
+Organization: BMS
 To: linux-kernel@vger.kernel.org
-Subject: 2.5.71: Badness in local_bh_enable at kernel/softirq.c:109
-Message-Id: <20030615220259.7160ac14.diegocg@teleline.es>
-X-Mailer: Sylpheed version 0.9.0 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart_Sun__15_Jun_2003_22:02:59_+0200_082af3a0"
+Subject: How can you trace a reiserfs error to the device or filesystem?
+Date: Sun, 15 Jun 2003 17:24:49 -0400
+User-Agent: KMail/1.4.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200306151724.49277.jbriggs@briggsmedia.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+I get reiserfs errors like the ones below from my /var/log/syslog.  Is there a 
+way to tell what device they are coming from?
 
---Multipart_Sun__15_Jun_2003_22:02:59_+0200_082af3a0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 
-Badness in local_bh_enable at kernel/softirq.c:109
-Call Trace:
- [<c0127ac0>] local_bh_enable+0x90/0xa0
- [<d0897ee5>] ppp_async_push+0xe5/0x240 [ppp_async]
- [<d089772e>] ppp_asynctty_wakeup+0x2e/0x60 [ppp_async]
- [<c01f0aa5>] uart_flush_buffer+0xa5/0xf0
- [<c01d2b9e>] do_tty_hangup+0x56e/0x640
- [<c0134d66>] worker_thread+0x226/0x3d0
- [<c01d2630>] do_tty_hangup+0x0/0x640
- [<c011d5e0>] default_wake_function+0x0/0x30
- [<c0109916>] ret_from_fork+0x6/0x14
- [<c011d5e0>] default_wake_function+0x0/0x30
- [<c0134b40>] worker_thread+0x0/0x3d0
- [<c01074e5>] kernel_thread_helper+0x5/0x10
+csi kernel: is_tree_node: node level 35718 does not match expected one 1
+csi kernel: vs-5150: search_by_key: invalid format found in block 9406, Fsck?
+csi kernel: vs-13050: reiserfs_update_sd: i/o failure occurred trying to 
+update [10145 51612 0x0 SD] stat datais_tree_node: node level 35718 does not 
+match the expected one 1 
 
-This happens in a SMP p3 2x800 system, config.gz attached.
-It was triggered (never happened before) using the "wondersharper" from
-lartc.org (which uses tc)
+..
+csi kernel: vs-5657:reiserfs_do_truncate: i/o failure occurred trying to 
+truncate [10145 51612 0xffffffff DIRECT]
 
---Multipart_Sun__15_Jun_2003_22:02:59_+0200_082af3a0
-Content-Type: application/octet-stream;
- name="config.gz"
-Content-Disposition: attachment;
- filename="config.gz"
-Content-Transfer-Encoding: base64
 
-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
-
---Multipart_Sun__15_Jun_2003_22:02:59_+0200_082af3a0--
+-- 
+Joe Briggs
+Briggs Media Systems
+105 Burnsen Ave.
+Manchester NH 01304 USA
+TEL/FAX 603-232-3115 MOBILE 603-493-2386
+www.briggsmedia.com

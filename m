@@ -1,41 +1,108 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286699AbSABEZb>; Tue, 1 Jan 2002 23:25:31 -0500
+	id <S286704AbSABEYv>; Tue, 1 Jan 2002 23:24:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286710AbSABEZW>; Tue, 1 Jan 2002 23:25:22 -0500
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:21919 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S286699AbSABEZG>; Tue, 1 Jan 2002 23:25:06 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Manfred Spraul <manfred@colorfullife.com>
-Date: Wed, 2 Jan 2002 15:26:00 +1100 (EST)
+	id <S286693AbSABEYn>; Tue, 1 Jan 2002 23:24:43 -0500
+Received: from unicef.org.yu ([194.247.200.148]:64764 "EHLO koala.vm")
+	by vger.kernel.org with ESMTP id <S286724AbSABEYa>;
+	Tue, 1 Jan 2002 23:24:30 -0500
+Message-ID: <3C328B5D.2D2205CD@unicef.org.yu>
+Date: Wed, 02 Jan 2002 05:23:57 +0100
+From: Zoran Davidovac <zdavid@unicef.org.yu>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, linux-kernel@vger.kernel.org
+Subject: Re: [BAD!!PATCH] Re: Promise Ultra ATA 133 TX2 support for the 2.2  
+ kernelseries
+X-Priority: 1 (Highest)
+In-Reply-To: <20011231.VlG.50930700@karlsbakk.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15410.35800.154586.201540@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [RFC] event cleanup, part 2
-In-Reply-To: message from Manfred Spraul on Tuesday January 1
-In-Reply-To: <3C32260E.CEADDF59@colorfullife.com>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday January 1, manfred@colorfullife.com wrote:
-> Linus merged the first part of my patches that remove
-> 'event' into 2.5.2-pre3.
-> 
-> Attached is the second patch.
-> 
-> patch 1: remove all event users except readdir().
-> 	Merged.
+I found ERROR :)
 
-Not quite.  ext2 and ext3 (At least) use event to set i_generation to
-a pseudo-random number, and that still seems to be so in 2.5.2-pre6.
-What do you plan to do with that usage of event?
-Possibly replacing it with net_random or similar would be fine.
+IF You look at your patches YOU WILL SEE:
 
-NeilBrown
+Only in linux-2.2.20/drivers/block: README.buddha
+Only in linux-2.2.20/drivers/block: aec62xx.c
+diff -ur linux-2.2.20-vanilla/drivers/block/ali14xx.c
+linux-2.2.20/drivers/bloc
+
+so ERROR is in your patch or exactly at diff line,
+the Only files are *not* in patch !!!
+
+use diff -u -r -N or diff -u -r -P to
+make diff
+
+I send you my patches for 2.2.20 again.
+
+Regards,
+
+ Zoran D.
+
+
+
+Roy Sigurd Karlsbakk wrote:
+> 
+> I can't get any errors... Have you tried again?
+> 
+> Zoran Davidovac (zdavid@unicef.org.yu) wrote*:
+> >
+> >Roy Sigurd Karlsbakk wrote:
+> >>
+> >> > You can find ATA patches in
+> >> >
+> >> > ftp.kernel.org/pub/linux/kernel/people/hedrick/ide-2.2.19
+> >> >
+> >> >  ide.2.2.19.05042001...> 15-May-2001 14:32   185k  Source code patch
+> >> >
+> >> > I am using it long time and it is stable,
+> >> > note you will have to patch k2.2.20 manual
+> >>
+> >> Hi!
+> >>
+> >> In case anyone's interested, I've attached the 2.2.20 patch.
+> >>
+> >> roy
+> >>
+> >> --
+> >> Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+> >>
+> >> Computers are like air conditioners.
+> >> They stop working when you open Windows.
+> >>
+> >>   ------------------------------------------------------------------------
+> >>                           Name: ide-2.2.20.patch.gz
+> >>    ide-2.2.20.patch.gz    Type: APPLICATION/x-gzip
+> >>                       Encoding: BASE64
+> >make[3]: Entering directory
+> >`/usr/src/ide-patch/linux-2.2.20-royATkarlsbakk.netdrivers/block'
+> >make[3]: *** No rule to make target `ide-features.c', needed by
+> >`ll_rw_blk.o'.
+> >Stop.
+> >make[3]: Leaving directory
+> >`/usr/src/ide-patch/linux-2.2.20-royATkarlsbakk.net/rivers/block'
+> >make[2]: *** [first_rule] Error 2
+> >make[2]: Leaving directory
+> >`/usr/src/ide-patch/linux-2.2.20-royATkarlsbakk.net/rivers/block'
+> >make[1]: *** [_subdir_block] Error 2
+> >make[1]: Leaving directory
+> >`/usr/src/ide-patch/linux-2.2.20-royATkarlsbakk.net/rivers'
+> >make: *** [_dir_drivers] Error 2
+> >bash-2.05#
+> >
+> >try to compile it with test config !
+> >
+> >I am attaching you my patches
+> >
+> >ide.2.2.20.12312001.patch.bz2 which are ide.2.2.19.05042001 ported to
+> >2.2.20
+> >ide-udf.2.2.20.12312001.patch.bz2 which are ide.2.2.19.05042001 with udf
+> >patch ported to 2.2.20.
+> >
+> >try to merge your patches into it.
+> >
+> >Zoran

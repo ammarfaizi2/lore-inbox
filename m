@@ -1,34 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276113AbRI1PRa>; Fri, 28 Sep 2001 11:17:30 -0400
+	id <S276116AbRI1PU6>; Fri, 28 Sep 2001 11:20:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276118AbRI1PRV>; Fri, 28 Sep 2001 11:17:21 -0400
-Received: from [195.223.140.107] ([195.223.140.107]:17140 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S276113AbRI1PRE>;
-	Fri, 28 Sep 2001 11:17:04 -0400
-Date: Fri, 28 Sep 2001 17:17:17 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Ben LaHaise <bcrl@redhat.com>
-Subject: Re: [patch] softirq performance fixes, cleanups, 2.4.10.
-Message-ID: <20010928171717.D24922@athlon.random>
-In-Reply-To: <20010928052007.R14277@athlon.random> <Pine.LNX.4.33.0109280919210.1569-100000@localhost.localdomain>
-Mime-Version: 1.0
+	id <S276118AbRI1PUs>; Fri, 28 Sep 2001 11:20:48 -0400
+Received: from hermes.toad.net ([162.33.130.251]:13954 "EHLO hermes.toad.net")
+	by vger.kernel.org with ESMTP id <S276116AbRI1PUk>;
+	Fri, 28 Sep 2001 11:20:40 -0400
+Message-ID: <3BB49543.6A915332@mail.com>
+Date: Fri, 28 Sep 2001 11:20:35 -0400
+From: Thomas Hood <jdthood@mail.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-ac16 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: PnP BIOS + 2.4.9-ac16 = no boot
+In-Reply-To: <3BB48A34.E392B7BC@mail.com> <20010928165122.L21524@come.alcove-fr>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0109280919210.1569-100000@localhost.localdomain>; from mingo@elte.hu on Fri, Sep 28, 2001 at 09:34:52AM +0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 28, 2001 at 09:34:52AM +0200, Ingo Molnar wrote:
-> frankly, i dont understand what your problem is with the looping concept.
+Stelian Pop wrote:
+> It works, kind of.
+> 
+> The only remaining problem is that the DMI scan routines are
+> called _after_ the PnP BIOS scan, so the is_sony_vaio_laptop
+> variable will be always evaluated to 0 in your patch (causing
+> the same hang again).
 
-There is no problem, it's just that I am _curious_ about is the
-"difference" in "numbers" not words. I'm not claiming there is no
-difference of course, obviously there is difference, I expect that.
+This is unfortunate.  :(
 
-Andrea
+Alan:  Does this mean that we will have to use a new CONFIG_
+macro instead of testing is_sony_vaio_laptop?  If so then
+I will submit a new patch with "#ifdef CONFIG_SONY_PNPBIOS"s
+in it and I'll let you futz with the kernel configuration
+files required to set this up.
+
+> After manually changing is_sony_vaio_laptop to 1 the
+> patched kernel boots ok, entries in /proc/bus/pnp are present
+> (not sure how to test if their contents are corect though).
+
+There should be no numerically named entries in /proc/bus/pnp;
+you should see only the "devices" file and the "boot" directory.
+You should see numerically named entries in /proc/bus/pnp/boot
+for each device.
+
+--
+Thomas

@@ -1,67 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261386AbUB1LwU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Feb 2004 06:52:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbUB1LwU
+	id S261796AbUB1MN2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Feb 2004 07:13:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261831AbUB1MN2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Feb 2004 06:52:20 -0500
-Received: from freedom.icomedias.com ([62.99.232.79]:10507 "EHLO
-	freedom.grz.icomedias.com") by vger.kernel.org with ESMTP
-	id S261386AbUB1LwS convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Feb 2004 06:52:18 -0500
-Subject: Re: Network error with Intel E1000 Adapter on update 2.4.25 ==> 2.6.3
-Date: Sat, 28 Feb 2004 12:52:17 +0100
+	Sat, 28 Feb 2004 07:13:28 -0500
+Received: from c10053.upc-c.chello.nl ([212.187.10.53]:41361 "EHLO
+	smurver.fakenet") by vger.kernel.org with ESMTP id S261796AbUB1MN0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Feb 2004 07:13:26 -0500
+Message-ID: <404085EA.2030507@vanE.nl>
+Date: Sat, 28 Feb 2004 13:13:30 +0100
+From: Erik van Engelen <Info@vanE.nl>
+User-Agent: Mozilla Thunderbird 0.5b (Windows/20040201)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <FA095C015271B64E99B197937712FD020B01BD@freedom.grz.icomedias.com>
-X-MS-Has-Attach: 
-Content-class: urn:content-classes:message
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-X-MS-TNEF-Correlator: 
-Thread-Topic: Network error with Intel E1000 Adapter on update 2.4.25 ==> 2.6.3
-Thread-Index: AcP9U0fqhpAdnwOLQviDu+fAro6esQAiQlXw
-From: "Martin Bene" <martin.bene@icomedias.com>
-To: <linux-kernel@vger.kernel.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Errors on 2th ide channel of promise ultra100 tx2
+References: <403F2178.70806@vanE.nl> <Pine.LNX.4.58L.0402271420250.18958@logos.cnet>
+In-Reply-To: <Pine.LNX.4.58L.0402271420250.18958@logos.cnet>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> When trying to update the kernel from 2.4.25 to 2.6.3 I run 
->> into a probelm:
->> While the driver for the onboard Intel E1000 network adapter 
->> loads OK, it
->> doesn't seem to find an interrupt for the interface - ifconfig shows:
->> eth0      Link encap:Ethernet  HWaddr 00:0E:A6:2D:7A:64
->>           BROADCAST MULTICAST  MTU:1500  Metric:1
->>           RX packets:0 errors:0 dropped:0 overruns:0 frame:0
->>           TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
->>           collisions:0 txqueuelen:1000
->>           RX bytes:0 (0.0 b)  TX bytes:0 (0.0 b)
->>           Base address:0x9000 Memory:fc000000-fc020000
->> Board is an Asus PC-DL, Intel 875P Chipset, one Xeon 2.8Ghz 
->> CPU, Onboard
->> e1000 Network interface. Any idea how I can get the onboard 
->> NIC to work?
+Hi,
 
->full output of /var/log/dmesg || dmesg after bootup might help.
+Thanks for the fast reaction.
 
-Some more information: 
+Marcelo Tosatti wrote:
 
-* Update to 2.6.4-rc1 doesn't help, same situation as before.
-* 2.4.25 finds/uses int 18
-* Binary search shows that the problem first appears with 2.6.2-bk1; 2.6.2 works OK.
+> I'm clueless about this, anyway...
+> 
+> On Fri, 27 Feb 2004, Erik van Engelen wrote:
+> 
+> 
+>>Hi,
+>>
+>>I've got a Proliant 2500 running a 2.4.25 kernel. It has 2 pentium pro
+>>CPUs and a smart-2/E disk array on EISA bus from which it boots.
+>>
+>>I added a promise ultra100 tx2 ide cart and put on 3 disks. During boot
+>>i get a couple of errors but everything seems to work ok. When
+>>read/write to a disk on the first ide-channel everything is ok. When i
+>>read/write to a disk on the second ide-channel everything is ok. But
+>>when i try to read/write to both disks at once i get these errors:
+>>
+>>hdh: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+>>hdh: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+> 
+> 
+> Are you using DMA?
+>
+I've tried it with and without DMA. But in both cases i got errors 
+although the were different. I made some changes so i can't post the 
+error with the DMA turned on. I can reverse the changes on Monday and 
+post the errors for you.
 
-Further search shows that it's the e1000 driver update from 5.2.20 to 5.2.30.1 that breaks things for me. copying the older driver into a newer kernel works.
+> 
+> 
+> Can you please save and post the 2.6.3 panic?
+> 
+I'm trying to get a serial line connection working to log the bootlogs. 
+I can make them as well on Monday.
 
-Hmm, changelog states what looks like a possible candidate: 
+I tried to boot with the cpqarray removed from the 2.6.3 kernel. In that 
+case i don't get the errors from the ide devices during the kernel boot 
+so i guess the solution made in the 2.6 according the ide problem is 
+working. Again on Monday i want to try the patch from Erik B. Andersen 
+on the 2.4 kernel. If i understood it all right. I'm not really into 
+kernel hacking etc.
 
-*   o Use pdev->irq rather than netdev->irq in preparation for MSI support.
-
-Final information:
-
-Backing out the pdev->irq <-> netdev->irq changes gives me ifconfig output with the correct interrupt listed; unfortunately, 
-	ifconfig eth0 up 
-still locks the machine, so that doesn't seem to be the only problem.
-
-Bye, Martin
+THX for the help so far..
+Erik van Engelen

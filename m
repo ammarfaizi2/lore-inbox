@@ -1,34 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317456AbSGEOHJ>; Fri, 5 Jul 2002 10:07:09 -0400
+	id <S317455AbSGEOJ7>; Fri, 5 Jul 2002 10:09:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317455AbSGEOHI>; Fri, 5 Jul 2002 10:07:08 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:19979 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S317456AbSGEOHI>; Fri, 5 Jul 2002 10:07:08 -0400
-Date: Fri, 5 Jul 2002 10:15:04 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Nathan Scott <nathans@sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix kdev_val typo
-In-Reply-To: <20020701225136.GB469@frodo>
-Message-ID: <Pine.LNX.4.44.0207051014140.16528-100000@freak.distro.conectiva>
+	id <S317462AbSGEOJ6>; Fri, 5 Jul 2002 10:09:58 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:46347 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317455AbSGEOJ6>;
+	Fri, 5 Jul 2002 10:09:58 -0400
+Subject: Re: Cyrix IRQ routing is wrong?
+To: proski@gnu.org (Pavel Roskin)
+Date: Fri, 5 Jul 2002 15:12:32 +0100 (BST)
+Cc: alan@www.linux.org.uk (Alan Cox), linux-kernel@vger.kernel.org,
+       dhinds@sonic.net (David Hinds), mj@ucw.cz (Martin Mares)
+In-Reply-To: <Pine.LNX.4.44.0207031946230.4282-100000@marabou.research.att.com> from "Pavel Roskin" at Jul 03, 2002 08:02:18 PM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17QTp2-0004Ay-00@www.linux.org.uk>
+From: Alan Cox <alan@www.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> 1) 2.4.17 was using the code I want to restore.  Where was your hanging 
+> box then?
 
-Its already in.
-
-Thanks anyway.
-
-On Tue, 2 Jul 2002, Nathan Scott wrote:
-
-> hi Marcelo,
->
-> There's a missing brace in the kdev_val() 2.5 compatibility macro
-> which someone has added into 2.4.19-rc1, making the macro useless.
-> Here's the trivial fix, in case noone else has sent it along yet.
+Hanging. Thats why I fixed it when Nat Semi documentation for the old cyrix
+appeared
 

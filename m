@@ -1,60 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262194AbULPXaR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262070AbULPXcL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262194AbULPXaR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 18:30:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbULPXaQ
+	id S262070AbULPXcL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 18:32:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbULPXcK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 18:30:16 -0500
-Received: from salazar.rnl.ist.utl.pt ([193.136.164.251]:42719 "EHLO
-	admin.rnl.ist.utl.pt") by vger.kernel.org with ESMTP
-	id S262070AbULPX37 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 18:29:59 -0500
-Message-ID: <41C21A74.8090400@rnl.ist.utl.pt>
-Date: Thu, 16 Dec 2004 23:29:56 +0000
-From: "Pedro Venda (SYSADM)" <pjvenda@rnl.ist.utl.pt>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041209)
+	Thu, 16 Dec 2004 18:32:10 -0500
+Received: from gold.muskoka.com ([216.123.107.5]:9421 "EHLO gold.muskoka.com")
+	by vger.kernel.org with ESMTP id S262070AbULPXb5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 18:31:57 -0500
+Message-ID: <41C21086.7030703@muskoka.com>
+Date: Thu, 16 Dec 2004 17:47:34 -0500
+From: Paul Gortmaker <penguin@muskoka.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030425
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: debugfs in the namespace
-References: <20041216110002.3e0ddf52@lembas.zaitcev.lan> <20041216190835.GE5654@kroah.com>
-In-Reply-To: <20041216190835.GE5654@kroah.com>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.6.9 ide-probe and indentical old disks.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Thu, Dec 16, 2004 at 11:00:02AM -0800, Pete Zaitcev wrote:
-> 
->>Hi Greg,
->>
->>what is the canonic place to mount debugfs: /debug, /debugfs, or anything
->>else? The reason I'm asking is that USBMon has to find it somewhere and
->>I'd really hate to see it varying from distro to distro.
-> 
-> 
-> Hm, in my testing I've been putting it in /dbg, but I don't like vowels :)
-> 
-> Anyway, I don't really know.  /dev/debug/ ?  /proc/debug ?  /debug ?
 
-well, since there is already a /sys, /proc... /debug wouldn't be that bad. 
-perhaps the /.debug is better to keep it simple and away from people's eyes.
+It seems that some old disks don't have a serial number, but ide-probe
+now compares serial numbers to determine if a slave disk is just a
+ghost image of the primary.  This breaks old hardware that has two
+identical model disks which don't report serial numbers.  The fix seems
+as simple as checking for zero length serial numbers before comparing.
 
-regards,
-pedro venda.
+Signed-off-by: Paul Gortmaker <p_gortmaker@yahoo.com>
 
--- 
 
-Pedro João Lopes Venda
-email: pjvenda@rnl.ist.utl.pt
-http://maxwell.rnl.ist.utl.pt
 
-Equipa de Administração de Sistemas
-Rede das Novas Licenciaturas (RNL)
-Instituto Superior Técnico
-http://www.rnl.ist.utl.pt
-http://mega.ist.utl.pt
+--- linux-386/drivers/ide/ide-probe.c~	Mon Oct 18 17:56:33 2004
++++ linux-386/drivers/ide/ide-probe.c	Thu Dec  9 14:15:56 2004
+@@ -740,6 +740,8 @@ static void probe_hwif(ide_hwif_t *hwif)
+ 			if (strcmp(hwif->drives[0].id->model, drive->id->model) == 0 &&
+ 			    /* Don't do this for noprobe or non ATA */
+ 			    strcmp(drive->id->model, "UNKNOWN") &&
++			    /* Or for old drives without a serial # */
++			    strlen(drive->id->serial_no) &&
+ 			    /* And beware of confused Maxtor drives that go "M0000000000"
+ 			      "The SN# is garbage in the ID block..." [Eric] */
+ 			    strncmp(drive->id->serial_no, "M0000000000000000000", 20) &&
+
+
+

@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266583AbRGJPlc>; Tue, 10 Jul 2001 11:41:32 -0400
+	id <S266618AbRGJPvC>; Tue, 10 Jul 2001 11:51:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266591AbRGJPlW>; Tue, 10 Jul 2001 11:41:22 -0400
-Received: from sal.qcc.sk.ca ([198.169.27.3]:25103 "HELO sal.qcc.sk.ca")
-	by vger.kernel.org with SMTP id <S266583AbRGJPlP>;
-	Tue, 10 Jul 2001 11:41:15 -0400
-Date: Tue, 10 Jul 2001 09:41:13 -0600
-From: Charles Cazabon <linux-kernel@discworld.dyndns.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Bogomips Replacement
-Message-ID: <20010710094113.B22905@qcc.sk.ca>
-In-Reply-To: <20010710102935.5b5d6cfb.warthawg@ecpi.com>
+	id <S266621AbRGJPux>; Tue, 10 Jul 2001 11:50:53 -0400
+Received: from weta.f00f.org ([203.167.249.89]:45442 "HELO weta.f00f.org")
+	by vger.kernel.org with SMTP id <S266620AbRGJPup>;
+	Tue, 10 Jul 2001 11:50:45 -0400
+Date: Wed, 11 Jul 2001 03:50:38 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: "Randy.Dunlap" <rddunlap@osdlab.org>
+Cc: Christoph Hellwig <hch@ns.caldera.de>, linux-kernel@vger.kernel.org,
+        hpa@zytor.com
+Subject: Re: How many pentium-3 processors does SMP support?
+Message-ID: <20010711035038.A32188@weta.f00f.org>
+In-Reply-To: <20010711022509.C31966@weta.f00f.org> <3B4B1E91.A7D75608@osdlab.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20010710102935.5b5d6cfb.warthawg@ecpi.com>; from warthawg@ecpi.com on Tue, Jul 10, 2001 at 10:29:35AM -0500
+In-Reply-To: <3B4B1E91.A7D75608@osdlab.org>
+User-Agent: Mutt/1.3.18i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joe Barr <warthawg@ecpi.com> wrote:
+On Tue, Jul 10, 2001 at 08:26:09AM -0700, Randy.Dunlap wrote:
 
-> What I want to do is rip out the bogomips code and replace it with something
-> completely different.  Does anyone know who currently maintains it?  As I
-> recall from the Geek Bowl earlier this year in NYC, nobody really knows what
-> that bogomips stuff does anyway. 
+    I have heard of some IBM/Sequent patches that modify the
+    logical vs. physical APIC addressing scheme to make 16-way
+    systems work.
 
-The bogomips code is used to calibrate a timing loop which is used in various
-drivers and other places.  Where did you get the idea that nobody knows this?
+The Unisys machine is actually four quad-CPU machines with shared
+memory, dynamically configurable and other neat stuff.
 
-Charles
--- 
------------------------------------------------------------------------
-Charles Cazabon                            <linux@discworld.dyndns.org>
-GPL'ed software available at:  http://www.qcc.sk.ca/~charlesc/software/
------------------------------------------------------------------------
+
+
+  --cw
+

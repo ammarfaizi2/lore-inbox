@@ -1,68 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263861AbTEOH6z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 03:58:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263865AbTEOH6z
+	id S263865AbTEOIHJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 04:07:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263866AbTEOIHJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 03:58:55 -0400
-Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:18818
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id S263861AbTEOH6y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 03:58:54 -0400
-Date: Thu, 15 May 2003 04:02:31 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Subject: [PATCH][2.5] VMWare doesn't like sysenter
-Message-ID: <Pine.LNX.4.50.0305150400550.19782-100000@montezuma.mastecende.com>
+	Thu, 15 May 2003 04:07:09 -0400
+Received: from siaag2aa.compuserve.com ([149.174.40.131]:40633 "EHLO
+	siaag2aa.compuserve.com") by vger.kernel.org with ESMTP
+	id S263865AbTEOIHI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 04:07:08 -0400
+Date: Thu, 15 May 2003 04:16:43 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: RE: The disappearing sys_call_table export.
+To: "David Schwartz" <davids@webmaster.com>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+Message-ID: <200305150419_MC3-1-38FE-5583@compuserve.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get a monitor error in VMWare4 with a sysenter syscall enabled kernel, 
-this patch simply disables sysenter based syscalls but doesn't clear the 
-SEP bit in the capabilities.
+David Schwartz wrote:
 
-Index: linux-2.5.69-mm5/arch/i386/kernel/sysenter.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.69/arch/i386/kernel/sysenter.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 sysenter.c
---- linux-2.5.69-mm5/arch/i386/kernel/sysenter.c	6 May 2003 12:20:51 -0000	1.1.1.1
-+++ linux-2.5.69-mm5/arch/i386/kernel/sysenter.c	15 May 2003 07:46:05 -0000
-@@ -20,6 +20,7 @@
- #include <asm/unistd.h>
- 
- extern asmlinkage void sysenter_entry(void);
-+static int nosysenter __initdata;
- 
- /*
-  * Create a per-cpu fake "SEP thread" stack, so that we can
-@@ -51,6 +52,13 @@ void enable_sep_cpu(void *info)
- 	put_cpu();	
- }
- 
-+static int __init do_nosysenter(char *s)
-+{
-+	nosysenter = 1;
-+	return 1;
-+}
-+__setup("nosysenter", do_nosysenter);
-+
- /*
-  * These symbols are defined by vsyscall.o to mark the bounds
-  * of the ELF DSO images included therein.
-@@ -64,7 +72,7 @@ static int __init sysenter_setup(void)
- 
- 	__set_fixmap(FIX_VSYSCALL, __pa(page), PAGE_READONLY);
- 
--	if (!boot_cpu_has(X86_FEATURE_SEP)) {
-+	if (nosysenter || !boot_cpu_has(X86_FEATURE_SEP)) {
- 		memcpy((void *) page,
- 		       &vsyscall_int80_start,
- 		       &vsyscall_int80_end - &vsyscall_int80_start);
+>>   So I think Linux needs these 'fringe' features if it's going to
+>> continue to expand its user base in the face of such stupidity.
+>
+>       I, for one, completely disagree in the strongest way possible. This whole
+> argument style rings entirely hollow with me. I'd much rather say, "We don't
+> do that because it's stupid. We will gladly explain to you why we think it's
+> stupid, what you really want, and how to get that from us."
+>
+>       Deliberately designing in misfeatures so that dumb people will get what
+> they think they want is architectural suicide. I hope Linux never moves in
+> that direction.
 
--- 
-function.linuxpower.ca
+  Don't get me wrong -- I don't think high-security options are misfeatures.
+
+  I'm just trying to say that such options, even if only rarely used,
+are critical to gaining wide acceptance.  Just because dumb people require
+them on their standard OS doesn't mean the features themselves are stupid...
+
+

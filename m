@@ -1,63 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262646AbUKRG6W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262652AbUKRG7x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262646AbUKRG6W (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 01:58:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262654AbUKRG6W
+	id S262652AbUKRG7x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 01:59:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262659AbUKRG7x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 01:58:22 -0500
-Received: from ozlabs.org ([203.10.76.45]:55202 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262646AbUKRG6R (ORCPT
+	Thu, 18 Nov 2004 01:59:53 -0500
+Received: from wproxy.gmail.com ([64.233.184.194]:28074 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262652AbUKRG7I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 01:58:17 -0500
-Date: Thu, 18 Nov 2004 17:56:59 +1100
-From: Anton Blanchard <anton@samba.org>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Six archs are missing atomic_inc_return()
-Message-ID: <20041118065659.GA12007@krispykreme.ozlabs.ibm.com>
-References: <200411180148_MC3-1-8EE2-A85D@compuserve.com>
+	Thu, 18 Nov 2004 01:59:08 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=Oj1bKFMwwdLuctSZqLS6d7Kx/utekrT15tuFRhs7QwZ+3KD8uVeOdPJ1yKPpgEvY2iD/kyx6sztEGrHPUuTT3MGpng/OR2oc93s42mBhyJC56lDGLpUArHA+0ygV6kLkg7yxtuQ0y2UpBO86aUjoLR/hSMOvjuDErfIy3yI7CfU=
+Message-ID: <84144f02041117225920a44e08@mail.gmail.com>
+Date: Thu, 18 Nov 2004 08:59:07 +0200
+From: Pekka Enberg <penberg@gmail.com>
+Reply-To: Pekka Enberg <penberg@gmail.com>
+To: Ian Pratt <ian.pratt@cl.cam.ac.uk>
+Subject: Re: Xen 2.0 VMM patches
+Cc: linux-kernel@vger.kernel.org, keir.fraser@cl.cam.ac.uk,
+       christian.limpach@cl.cam.ac.uk, steven.hand@cl.cam.ac.uk
+In-Reply-To: <E1CUZSs-000502-00@mta1.cl.cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200411180148_MC3-1-8EE2-A85D@compuserve.com>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <E1CUZSs-000502-00@mta1.cl.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
->  Six archs do not have the atomic_inc_return() macro as of 2.6.10-rc2:
-> 
->   cris
->   h8300
->   m32r
->   ppc
->   ppc64
->   s390
+On Wed, 17 Nov 2004 23:43:53 +0000, Ian Pratt <ian.pratt@cl.cam.ac.uk> wrote:
+> Let us know what you think of the patches ;-)
 
-Are you sure?
+So where are they? Please post them to LKML so others don't have to go
+digging around for them.
 
-Anton
-
-$ grep -l atomic_inc_return include/asm-*/atomic.h
-include/asm-alpha/atomic.h
-include/asm-arm26/atomic.h
-include/asm-arm/atomic.h
-include/asm-cris/atomic.h
-include/asm-h8300/atomic.h
-include/asm-i386/atomic.h
-include/asm-ia64/atomic.h
-include/asm-m32r/atomic.h
-include/asm-m68k/atomic.h
-include/asm-m68knommu/atomic.h
-include/asm-mips/atomic.h
-include/asm-parisc/atomic.h
-include/asm-ppc64/atomic.h
-include/asm-ppc/atomic.h
-include/asm-s390/atomic.h
-include/asm-sh64/atomic.h
-include/asm-sh/atomic.h
-include/asm-sparc64/atomic.h
-include/asm-sparc/atomic.h
-include/asm-v850/atomic.h
-include/asm-x86_64/atomic.h
+                            Pekka

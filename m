@@ -1,63 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262772AbUEWMrF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262794AbUEWM6y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262772AbUEWMrF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 08:47:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262768AbUEWMrF
+	id S262794AbUEWM6y (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 08:58:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262802AbUEWM6y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 08:47:05 -0400
-Received: from dirac.phys.uwm.edu ([129.89.57.19]:49794 "EHLO
-	dirac.phys.uwm.edu") by vger.kernel.org with ESMTP id S262772AbUEWMqw
+	Sun, 23 May 2004 08:58:54 -0400
+Received: from 216-54-166-5.gen.twtelecom.net ([216.54.166.5]:42651 "EHLO
+	texas.encore.com") by vger.kernel.org with ESMTP id S262794AbUEWM6w
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 08:46:52 -0400
-Date: Sun, 23 May 2004 07:46:46 -0500 (CDT)
-From: Bruce Allen <ballen@gravity.phys.uwm.edu>
-To: Sebastian <sebastian@expires0604.datenknoten.de>
-cc: "Mario 'BitKoenig' Holbe" <Mario.Holbe@RZ.TU-Ilmenau.DE>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Strange DMA-errors and system hang with SMART (was: ...and system
- hang with Promise 20268)
-In-Reply-To: <1085049301.4485.18.camel@coruscant.datenknoten.de>
-Message-ID: <Pine.GSO.4.21.0405230737040.9783-100000@dirac.phys.uwm.edu>
+	Sun, 23 May 2004 08:58:52 -0400
+Message-ID: <40B0A007.544FFC23@compro.net>
+Date: Sun, 23 May 2004 08:58:47 -0400
+From: Mark Hounschell <markh@compro.net>
+Reply-To: markh@compro.net
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.20-ert i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: mlockall and mmap of IO devices don't mix
+References: <20031003214411.GA25802@rudolph.ccur.com>
+			<40ADE959.822F1C23@compro.net> <20040521191326.58100086.akpm@osdl.org> <40AF2FC4.911DB14B@compro.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Sebastian,
+Mark Hounschell wrote:
+> 
+> Andrew Morton wrote:
+> >
+> > Mark Hounschell <markh@compro.net> wrote:
+> > >
+> > > Joe Korty wrote:
+> > > >
+> > > > 2.6.0-test6: the use of mlockall(2) in a process that has mmap(2)ed
+> > > > the registers of an IO device will hang that process uninterruptibly.
+> > > > The task runs in an infinite loop in get_user_pages(), invoking
+> > > > follow_page() forever.
+> > > >
+> > > > Using binary search I discovered that the problem was introduced
+> > > > in 2.5.14, specifically in ChangeSetKey
+> > > >
+> > > >     zippel@linux-m68k.org|ChangeSet|20020503210330|37095
+> > > >
+> > >
+> > > I know this is an old thread but can anyone tell me if this problem is
+> > > resolved in the current 2.6.6 kernel?
+> > >
+> >
+> > There's an utterly ancient patch in -mm which might fix this.
+> >
+> > http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.6/2.6.6-mm4/broken-out/get_user_pages-handle-VM_IO.patch
+> 
+> Thanks for that. I'll try it.
+> 
+> Mark
 
-Sorry it's taken me so long to reply.  My usual googling of smartmontools
-didn't turn this up because you changed the subject line and started a new
-thread.  You wrote:
+Thank you. That definatly fixed my problem. Is fixing this main line
+WIP? 
 
-> Further, there seems to be a known problem with SMART related to the
-> hard drive that I am using:
-> Device Model:     IC35L040AVER07-0
-
-I hadn't realized until now that the drive is an IBM GXP60.
-
-smartctl is *supposed* to print a warning message for these drives, to
-tell users to look at http://www.geocities.com/dtla_update/index.html#rel
-for pointers to updated firmware for this drive!  What firmware version do
-you have?
-
-If you do smartctl -P showall, you'll see that there is the following
-entry -- but the regular expression doesn't match your drive because of
-the '-0' and '-1' suffix (which usually indicates RAM cache size of the
-disk drive).  I'll do a bit of research and then probably modify the
-smartmontools regular expression to be sure to recognize the drive.
-
-MODEL REGEXP:       IC35L0[12346]0AVER07
-FIRMWARE REGEXP:    .*
-ATTRIBUTE OPTIONS:  None preset; no -v options are required.
-WARNINGS:           IBM Deskstar 60GXP drives may need upgraded SMART
-firmware. Please see http://www.geocities.com/dtla_update/index.html#rel
-
-Meanwhile, what firmware version do you have?  I suggest you upgrade it --
-this may fix the problem.  The final firmware with the SMART fixes seems
-to be A46A.
-
-Cheers,
-	Bruce
-
-
-
+Regards
+Mark

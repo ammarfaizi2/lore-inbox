@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129704AbRA3LSD>; Tue, 30 Jan 2001 06:18:03 -0500
+	id <S129101AbRA3LQX>; Tue, 30 Jan 2001 06:16:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129884AbRA3LRx>; Tue, 30 Jan 2001 06:17:53 -0500
-Received: from f00f.stub.clear.net.nz ([203.167.224.51]:59653 "HELO
-	metastasis.f00f.org") by vger.kernel.org with SMTP
-	id <S129704AbRA3LRj>; Tue, 30 Jan 2001 06:17:39 -0500
-Date: Wed, 31 Jan 2001 00:17:37 +1300
-From: Chris Wedgwood <cw@f00f.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: David Howells <dhowells@redhat.com>, Rasmus Andersen <rasmus@jaquet.dk>,
-        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org
-Subject: Re: [PATCH] guard mm->rss with page_table_lock (241p11)
-Message-ID: <20010131001737.C6620@metastasis.f00f.org>
-In-Reply-To: <rasmus@jaquet.dk> <20010129224311.H603@jaquet.dk> <13240.980842736@warthog.cambridge.redhat.com> <14966.32188.408789.239466@pizda.ninka.net>
+	id <S129759AbRA3LQN>; Tue, 30 Jan 2001 06:16:13 -0500
+Received: from [172.16.18.67] ([172.16.18.67]:29828 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S129704AbRA3LQI>; Tue, 30 Jan 2001 06:16:08 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <Pine.LNX.4.21.0101291018080.5353-100000@ns-01.hislinuxbox.com> 
+In-Reply-To: <Pine.LNX.4.21.0101291018080.5353-100000@ns-01.hislinuxbox.com> 
+To: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
+Cc: John Levon <moz@compsoc.man.ac.uk>, Timur Tabi <ttabi@interactivesi.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Kernel Janitor's TODO list 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <14966.32188.408789.239466@pizda.ninka.net>; from davem@redhat.com on Tue, Jan 30, 2001 at 12:39:24AM -0800
-X-No-Archive: Yes
+Date: Tue, 30 Jan 2001 11:11:27 +0000
+Message-ID: <7085.980853087@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 30, 2001 at 12:39:24AM -0800, David S. Miller wrote:
 
-    Please see older threads about this, it has been discussed to
-    death already (hint: sizeof(atomic_t), sizeof(unsigned long)).
+pgpkeys@hislinuxbox.com said:
+>  Remember, most of you guys have been coding for years, or working on
+> the kernel for years. Some of us don't have that level of expertise,
+> are trying to get it, and feel like we're being told that information
+> is a private domain we aren't allowed in to.
 
-can we not define a macro so architectures that can do do atomically
-inc/dec with unsigned long will? otherwise it uses the spinlock?
+Note that this is _precisely_ the reason I'm advocating the removal of 
+sleep_on(). When I was young and stupid (ok, "younger and stupider") I used 
+sleep_on() in my code. I pondered briefly the fact that I really couldn't 
+convince myself that it was safe, but because it was used in so many other 
+places, I decided I had to be missing something, and used it anyway.
+
+I was wrong. I was copying broken code. And now I want to remove all those 
+bad examples - for the benefit of those who are looking at them now and are 
+tempted to copy them.
+
+--
+dwmw2
 
 
-  --cw
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

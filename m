@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319226AbSH2KEG>; Thu, 29 Aug 2002 06:04:06 -0400
+	id <S319169AbSH2KWC>; Thu, 29 Aug 2002 06:22:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319227AbSH2KEF>; Thu, 29 Aug 2002 06:04:05 -0400
-Received: from swazi.realnet.co.sz ([196.28.7.2]:31145 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S319226AbSH2KEF>; Thu, 29 Aug 2002 06:04:05 -0400
-Date: Thu, 29 Aug 2002 12:23:31 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@linux-box.realnet.co.sz
-To: Cort Dougan <cort@fsmlabs.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Dominik Brodowski <devel@brodo.de>, <cpufreq@www.linux.org.uk>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.5.32] CPU frequency and voltage scaling (0/4)
-In-Reply-To: <20020828124839.F5492@host110.fsmlabs.com>
-Message-ID: <Pine.LNX.4.44.0208291222240.13929-100000@linux-box.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319170AbSH2KWC>; Thu, 29 Aug 2002 06:22:02 -0400
+Received: from natwar.webmailer.de ([192.67.198.70]:33824 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S319169AbSH2KWB>; Thu, 29 Aug 2002 06:22:01 -0400
+Date: Thu, 29 Aug 2002 12:24:07 +0200
+From: Dominik Brodowski <devel@brodo.de>
+To: Steffen Persvold <sp@scali.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Laptops with SpeedStep technology.
+Message-ID: <20020829122407.B990@brodo.de>
+References: <Pine.LNX.4.44.0208291004550.1952-100000@sp-laptop.isdn.scali.no> <19221.1030616464@www25.gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.16i
+In-Reply-To: <19221.1030616464@www25.gmx.net>; from sp@scali.com on Thu, Aug 29, 2002 at 12:21:04PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Aug 2002, Cort Dougan wrote:
+Hi,
 
-> It's even worse for some of the very new P4's that don't have their
-> heatsink seated properly.  They heat up every few minutes and then throttle
-> themselves due to thermal overload.  I think this situation is going to
-> become more and more common, now.  We're at the mercy of every BIOS and
-> micro-code programmer now-a-days.  That situation needs to be improved
-> upon, as well.
+> Recently I got myself a Dell Inspiron 8200 with a Intel P4 Mobile wich has 
+> SpeedStep technology. With power plugged in, this processor runs at 1.6 
+> GHz and with battery only, 1.2 GHz. However I've found that the 
+> /proc/cpuinfo doesn't show this and I was wondering if there were some 
+> patches lying around before I began to look at this on my own.
 
-The P4 clock modulation driver was aware of that condition and in fact the 
-processor would not allow changing the speed in a thermal throttled state 
-anyway.
+Depending on the chipset, cpufreq for 2.5. ( http://www.brodo.de/cpufreq/ )
+should show the correct value in /proc/cpuinfo _and_ offer you the chance to
+control the processor speed. For 2.4., the functionality is offered, but
+/proc/cpuinfo stays the same (yet).
 
-	Zwane
-
--- 
-function.linuxpower.ca
-
+Dominik

@@ -1,44 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319211AbSHNEoP>; Wed, 14 Aug 2002 00:44:15 -0400
+	id <S319210AbSHNEoE>; Wed, 14 Aug 2002 00:44:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319212AbSHNEoP>; Wed, 14 Aug 2002 00:44:15 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:39417 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S319211AbSHNEoO>; Wed, 14 Aug 2002 00:44:14 -0400
-Date: Wed, 14 Aug 2002 00:48:06 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alexander Viro <viro@math.psu.edu>, Andrew Morton <akpm@zip.com.au>,
-       "H. Peter Anvin" <hpa@zytor.com>, lkml <linux-kernel@vger.kernel.org>
+	id <S319211AbSHNEoD>; Wed, 14 Aug 2002 00:44:03 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8208 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S319210AbSHNEoC>;
+	Wed, 14 Aug 2002 00:44:02 -0400
+Message-ID: <3D59E365.B0115D78@zip.com.au>
+Date: Tue, 13 Aug 2002 21:58:13 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Benjamin LaHaise <bcrl@redhat.com>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+       Alexander Viro <viro@math.psu.edu>, "H. Peter Anvin" <hpa@zytor.com>,
+       lkml <linux-kernel@vger.kernel.org>
 Subject: Re: [patch] printk from userspace
-Message-ID: <20020814004806.B16322@redhat.com>
-References: <20020814003505.A16322@redhat.com> <Pine.LNX.4.44.0208132142310.1208-100000@home.transmeta.com>
-Mime-Version: 1.0
+References: <Pine.GSO.4.21.0208140016140.3712-100000@weyl.math.psu.edu> <Pine.LNX.4.44.0208132123500.1208-100000@home.transmeta.com> <20020814003505.A16322@redhat.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0208132142310.1208-100000@home.transmeta.com>; from torvalds@transmeta.com on Tue, Aug 13, 2002 at 09:44:14PM -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 13, 2002 at 09:44:14PM -0700, Linus Torvalds wrote:
-> Actually, anybody who uses stdio on syslog messages should be roasted. 
-> Over the nice romantic glow of red-hot coal, slowly cooking the stupid git 
-> alive.
+Benjamin LaHaise wrote:
+> 
+> ...
+> Something like the following untested code is much better.
 
-If you're logging huge messages, sure, that's just plain Stupid.  But for 
-messages that are smaller than the size of the stdio buffer an fprintf() 
-followed by fflush() gets a single atomic write for most values of libc.
+I agree.  And it worked first time.
 
-> It's not a bug, it's a feature. A syslog message needs to be atomic, which 
-> means that it MUST NOT use the buffering of stdio. 
 
-And that's why we have write(2) on file descriptors.  Having write(2) 
-in the form of syslog(2) makes no sense.  It adds to the mass of abi 
-that needs to be maintained.  Making the mechanism of writing using the 
-existing infrastructure doesn't increase the size of the ABI.
+--- 2.5.31/drivers/char/mem.c~bcrl-printk	Tue Aug 13 21:53:24 2002
++++ 2.5.31-akpm/drivers/char/mem.c	Tue Aug 13 21:53:34 2002
+@@ -579,6 +579,24 @@ static struct file_operations full_fops 
+ 	write:		write_full,
+ };
+ 
++static ssize_t kmsg_write(struct file * file, const char * buf,
++			  size_t count, loff_t *ppos)
++{
++	char tmp[1025];
++
++	if (count > 1024)
++		count = 1024;
++	if (copy_from_user(tmp, buf, count))
++		return -EFAULT;
++	tmp[count] = 0;
++	printk("%s", tmp);
++	return count;
++}
++
++static struct file_operations kmsg_fops = {
++	write:		kmsg_write,
++};
++
+ static int memory_open(struct inode * inode, struct file * filp)
+ {
+ 	switch (minor(inode->i_rdev)) {
+@@ -608,6 +626,9 @@ static int memory_open(struct inode * in
+ 		case 9:
+ 			filp->f_op = &urandom_fops;
+ 			break;
++		case 11:
++			filp->f_op = &kmsg_fops;
++			break;
+ 		default:
+ 			return -ENXIO;
+ 	}
+@@ -634,7 +655,8 @@ void __init memory_devfs_register (void)
+ 	{5, "zero",    S_IRUGO | S_IWUGO,           &zero_fops},
+ 	{7, "full",    S_IRUGO | S_IWUGO,           &full_fops},
+ 	{8, "random",  S_IRUGO | S_IWUSR,           &random_fops},
+-	{9, "urandom", S_IRUGO | S_IWUSR,           &urandom_fops}
++	{9, "urandom", S_IRUGO | S_IWUSR,           &urandom_fops},
++	{11,"kmsg",    S_IRUGO | S_IWUSR,           &kmsg_fops},
+     };
+     int i;
+ 
 
-		-ben
--- 
-"You will be reincarnated as a toad; and you will be much happier."
+.

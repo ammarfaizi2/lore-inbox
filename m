@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261349AbUKSL2Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261356AbUKSLfd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261349AbUKSL2Q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 06:28:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbUKSL2P
+	id S261356AbUKSLfd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 06:35:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261357AbUKSLfd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 06:28:15 -0500
-Received: from mail.euroweb.hu ([193.226.220.4]:16342 "HELO mail.euroweb.hu")
-	by vger.kernel.org with SMTP id S261349AbUKSL2C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 06:28:02 -0500
-To: akpm@osdl.org
-CC: torvalds@osdl.org, hbryan@us.ibm.com, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, pavel@ucw.cz
-In-reply-to: <20041118130601.6ee8bd97.akpm@osdl.org> (message from Andrew
-	Morton on Thu, 18 Nov 2004 13:06:01 -0800)
-Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
-References: <OF28252066.81A6726A-ON88256F50.005D917A-88256F50.005EA7D9@us.ibm.com>
-	<E1CUq57-00043P-00@dorka.pomaz.szeredi.hu>
-	<Pine.LNX.4.58.0411180959450.2222@ppc970.osdl.org>
-	<E1CUquZ-0004Az-00@dorka.pomaz.szeredi.hu>
-	<Pine.LNX.4.58.0411181027070.2222@ppc970.osdl.org>
-	<E1CUrS0-0004Hi-00@dorka.pomaz.szeredi.hu> <20041118130601.6ee8bd97.akpm@osdl.org>
-Message-Id: <E1CV6vf-0006q1-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Fri, 19 Nov 2004 12:27:51 +0100
+	Fri, 19 Nov 2004 06:35:33 -0500
+Received: from baythorne.infradead.org ([81.187.226.107]:47551 "EHLO
+	baythorne.infradead.org") by vger.kernel.org with ESMTP
+	id S261356AbUKSLf3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 06:35:29 -0500
+Subject: Re: [discuss] Re: RFC: let x86_64 no longer define X86
+From: David Woodhouse <dwmw2@infradead.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Adrian Bunk <bunk@stusta.de>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       discuss@x86-64.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20041119103418.GB30441@wotan.suse.de>
+References: <20041119005117.GM4943@stusta.de>
+	 <20041119085132.GB26231@wotan.suse.de> <419DC922.1020809@pobox.com>
+	 <20041119103418.GB30441@wotan.suse.de>
+Content-Type: text/plain
+Message-Id: <1100863700.21273.374.camel@baythorne.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Fri, 19 Nov 2004 11:28:20 +0000
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Grab http://www.zip.com.au/~akpm/linux/patches/stuff/ext3-tools.tar.gz and
-> learn to drive run-bash-shared-mappings.sh.
+On Fri, 2004-11-19 at 11:34 +0100, Andi Kleen wrote:
+> Basically what Paul Menage said. There is a lot of common code,
+> and you would end up writing X86 && X86_64 more often than
+> X86 && !X86_64.
 
-Thanks Andrew, this indeed caused a deadlock.  Strangely the deadlock
-happens much more easily if 'usemem' is not run in parallel with
-'bash-shared-mapping'.
+(assuming you meant the first to be X86 || X86_64)
 
-> > gets a medal
-> 
-> My emedals.com account awaits your contribution ;)
+Can you show some examples? We don't have this for any other
+architecture.
 
-The medal is yours!
+-- 
+dwmw2
 
-Apologies to everyone whom I disbelieved, and thanks for enlightening me.
 
-The solution I'm thinking is along the lines of accounting the number
-of writable pages assigned to FUSE filesystems.  Limiting this should
-solve the deadlock problem.  This would only impact performance for
-shared writable mappings, which are rare anyway.
-
-Thanks,
-Miklos

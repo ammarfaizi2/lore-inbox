@@ -1,44 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311279AbSCTTjg>; Wed, 20 Mar 2002 14:39:36 -0500
+	id <S311259AbSCTTj0>; Wed, 20 Mar 2002 14:39:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293010AbSCTTj0>; Wed, 20 Mar 2002 14:39:26 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57097 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292631AbSCTTjY>;
-	Wed, 20 Mar 2002 14:39:24 -0500
-Message-ID: <3C98E53B.9020807@mandrakesoft.com>
-Date: Wed, 20 Mar 2002 14:38:35 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
-X-Accept-Language: en
+	id <S293010AbSCTTjS>; Wed, 20 Mar 2002 14:39:18 -0500
+Received: from mailsorter.ma.tmpw.net ([63.112.169.25]:46115 "EHLO
+	mailsorter.ma.tmpw.net") by vger.kernel.org with ESMTP
+	id <S292631AbSCTTjJ>; Wed, 20 Mar 2002 14:39:09 -0500
+Message-ID: <61DB42B180EAB34E9D28346C11535A78062DA0@nocmail101.ma.tmpw.net>
+From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
+To: "'Chris Meadors'" <clubneon@hereintown.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: RE: task_struct changes?
+Date: Wed, 20 Mar 2002 14:38:32 -0500
 MIME-Version: 1.0
-To: Andrew Morton <akpm@zip.com.au>
-CC: Adrian Bunk <bunk@fs.tum.de>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: aa-160-lru_release_check
-In-Reply-To: <3C980990.1C6B232A@zip.com.au> <Pine.NEB.4.44.0203201703450.3932-100000@mimas.fachschaften.tu-muenchen.de> <3C98E2E4.A42B13D0@zip.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+p_pptr changed to parent and you could just swap them in the code, 
 
->I hate BUG_ON() :)  It's arse-about so you have to stare at it furiously
->to understand why your kernel still works.
->
->I hope the Nobel committee is reading this mailing list: how
->about assert()?
->
+IE:
+task_struct->p_pptr would become task_struct->parent
 
-I vote 'aye'
+Not sure about the p_opptr, but I bet you'll find the same type of change.  
 
-It's the same thing just in another name.
+I found this on Sparc64 as well, if you grep the 2.5.7 patch file, you
+should be able to find p_opptr pretty quickly, I bet.
 
-I would call it kassert or fixup existing places that use 'assert' 
-first, though.
+Hope this helps..
 
-    Jeff
+Bruce H.
 
-
-
-
+> -----Original Message-----
+> From: Chris Meadors [mailto:clubneon@hereintown.net]
+> Sent: Wednesday, March 20, 2002 2:48 PM
+> To: linux-kernel
+> Subject: task_struct changes?
+> 
+> 
+> I'm trying to update some of the code for the Alpha arch.  
+> Seems that the
+> task_struct struct was changed, but the changes were not 
+> reflected in all
+> the platforms.
+> 
+> These two have nailed me so far:
+> 
+> task_struct->p_opptr
+> 
+> task_struct->p_pptr
+> 
+> 
+> What were they changed to, and is it just a one line fix, or 
+> is it more
+> involved?
+> 
+> -Chris
+> -- 
+> Two penguins were walking on an iceberg.  The first penguin 
+> said to the
+> second, "you look like you are wearing a tuxedo."  The second penguin
+> said, "I might be..."                         --David Lynch, 
+> Twin Peaks
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

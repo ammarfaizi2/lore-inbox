@@ -1,144 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316538AbSGAVyS>; Mon, 1 Jul 2002 17:54:18 -0400
+	id <S316542AbSGAWOO>; Mon, 1 Jul 2002 18:14:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316542AbSGAVyR>; Mon, 1 Jul 2002 17:54:17 -0400
-Received: from niobium.golden.net ([199.166.210.90]:27342 "EHLO
-	niobium.golden.net") by vger.kernel.org with ESMTP
-	id <S316538AbSGAVyP>; Mon, 1 Jul 2002 17:54:15 -0400
-Date: Mon, 1 Jul 2002 17:56:29 -0400
-From: "John L. Males" <jlmales@yahoo.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel 2.2.21 aic7xxx lockup or kernel lockup
-Message-Id: <20020701175629.1134e128.jlmales@yahoo.com>
-In-Reply-To: <20020629160423.2cfc6be7.jlmales@yahoo.com>
-References: <20020629160423.2cfc6be7.jlmales@yahoo.com>
-Reply-To: jlmales@yahoo.com
-Organization: Toronto, Ontario - Canada
-X-Mailer: Sylpheed version 0.7.8 (GTK+ 1.2.10; i586-pc-linux-gnu-Patched-SortRecipient-CustomSMTPAuthNDate)
+	id <S316545AbSGAWON>; Mon, 1 Jul 2002 18:14:13 -0400
+Received: from nextgeneration.speedroad.net ([195.139.232.50]:31110 "HELO
+	nextgeneration.speedroad.net") by vger.kernel.org with SMTP
+	id <S316542AbSGAWON>; Mon, 1 Jul 2002 18:14:13 -0400
+Message-ID: <20020701221651.10653.qmail@nextgeneration.speedroad.net>
+References: <Pine.GSO.4.30.0207012214430.15254-200000@balu>
+In-Reply-To: <Pine.GSO.4.30.0207012214430.15254-200000@balu> 
+From: "Arnvid Karstad" <arnvid@karstad.org>
+To: Pozsar Balazs <pozsy@uhulinux.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: HPT370 + ACPI -> freeze (doesn't boot)
+Date: Tue, 02 Jul 2002 00:16:51 +0200
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- boundary="(joH?j=.KP3EZA?B"
+Content-Type: text/plain; format=flowed; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---(joH?j=.KP3EZA?B
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Hiya, 
 
-Hello,
+Pozsar Balazs writes:
+> I have an abit VP6 mobo with the integrated HPT370 ide-controller.
+> If I enable ACPI support, and I connect any harddisk to the hpt host, my
+> system locks up hard during boot while initializing the drive(s) on the
+> hpt controller (ie. before printing the 'hde:...' line). The hard drive's
+> led remains lit.
 
-***** Please BCC me in on any reply, not CC me.
-Two reasons, I am not on the Mailing List,
-and second I am suffering BIG time with SPAM
-from posting to mailing lists/Newsgroups.
-Instructions on real address at bottom.
-Thanks in advance. *****
+I have a similar system to yours, but I have drives only on the hpt370 
+controller. My system boots, but crashes after 5 to 15 minuttes regardless 
+of usage. (I've posted this to this list on a previous occation.) 
 
-Trying to ask this again please.
+My system is running on dual P3-866 cpu's, but I don't think that this is of 
+any importance to the configuration. I haven't really tried to run any 
+patches. Do you have any similar problems when running a clean 2.4.18? Or 
+does your system only freeze? 
 
+> If I pass the 'acpi=off' option to the kernel, it does boot but obviously
+> I don't have acpi support that way :(.
 
-Regards,
-
-John L. Males
-Willowdale, Ontario
-Canada
-01 July 2002 17:56
-
-On Sat, 29 Jun 2002 16:04:23 -0400
-On (Sat) 2002-06-29 16:04:23 -0400 
-John L. Males wrote in Message-ID:
-20020629160423.2cfc6be7.jlmales@yahoo.com
-
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-From: "John L. Males" <jlmales@yahoo.com>
-Subject: Kernel 2.2.21 aic7xxx lockup or kernel lockup
-Date: Sat, 29 Jun 2002 16:04:23 -0400
-
-> Hello,
-> 
-> **** Please BCC me in on any reply, not CC me.
-> Two reasons, I am not on the Mailing List,
-> and second I am suffering BIG time with SPAM
-> from posting to mailing lists/Newsgroups.
-> Instructions on real address at bottom.
-> Thanks in advance. *****
-> 
-> Could somone advise me what I need to do to obtain the details of a
-> aic7xxx module lockup that happens when using insmod?  I am not sure
-> what would be helpful data to report here and assist in determining
-> what is the problem, beyond the obvious system details?
-> 
-> I am now using kernel 2.2.21, and it is a tad better in terms of not
-> locking up the kernel hard in the different device connected
-> conditions.  The lockup does not always occur, much depends on if
-> something is connected to the 2930 or not.  In all cases with a
-> device connected a hard kernel lockup or module load lockup occur. 
-> In the latter I can ctrl-c or close the xterm to kill the load.  I
-> tried an strace but this appears not to provide any detail, at least
-> in my limited knowledge of the kernel and my techncial read of the
-> strace data.
-> 
-> The 2930 has no problem with seeing the devices.  The devices work
-> just fine as I changed to a BusLogic 930 and both scanner and
-> CDWriter work just fine.  The primary SCSI is a Buslogic 958 that
-> the hard drives boot off.  I was using the 2930 for external and
-> slow devices. The 958 remained in, I just swapped the 2930 for the
-> 930.  The buslogic.o is loaded at boot time from the Initial RAM
-> disk, and there is no compiled in SCSI driver support, all are
-> modules.
-> 
-> I really appreciate if you bcc me in on your reply so I can avoid
-> the big SPAM problems that have been snowballing me lately.
-> 
-> 
-> Regards,
-> 
-> John L. Males
-> Willowdale, Ontario
-> Canada
-> 29 June 2002 16:04
-> 
-
-[snip]
+I haven't tried this. But my system is not exactly freezing, just I cant 
+access the drives anymore. 
 
 
-==================================================================
+> Thanks for any help, I am willing to test any patches!
 
+If u find anything that works, could you send me a note aswell? Since I've 
+been wanting to run Linux on my machine for a while now and my systems seems 
+to preform better when the drives are connected to the HPT370 than the other 
+internal VIA ide controller. Atleast this is the 'general' feeling I have 
+after experimenting with a few things under windows 2000 pro. 
 
-"Boooomer ... Boom Boom, how are you Boom Boom" Boomer 1985 -
-February/2000
+Best regards, 
 
-
-***** Please BCC me in on any reply, not CC me.
-Two reasons, I am not on the Mailing List,
-and second I am suffering BIG time with SPAM
-from posting to mailing lists/Newsgroups.
-Instructions on real address at bottom.
-Thanks in advance. *****
-
-
-Please BCC me by replacing after the "@" as follows:
-TLD =         The last three letters of the word "internet"
-Domain name = The first four letters of the word "software",
-              followed by the first four letters of the word
-              "homeless".
-My appologies in advance for the jumbled eMail address
-and request to BCC me, but SPAM has become a very serious
-problem.  The eMail address in my header information is
-not a valid eMail address for me.  I needed to use a valid
-domain due to ISP SMTP screen rules.
-
---(joH?j=.KP3EZA?B
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-
-iEYEARECAAYFAj0g0BgACgkQsrsjS27q9xbDiQCfQS3pfKtJxpg0u0+sLX8QhDFz
-toYAn2Wd1uKZZcZj609XOphKadXXIQ9b
-=LsDu
------END PGP SIGNATURE-----
-
---(joH?j=.KP3EZA?B--
-
+Arnvid Karstad 

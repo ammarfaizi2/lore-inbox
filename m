@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276832AbRJZAme>; Thu, 25 Oct 2001 20:42:34 -0400
+	id <S276988AbRJZBMO>; Thu, 25 Oct 2001 21:12:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276988AbRJZAmY>; Thu, 25 Oct 2001 20:42:24 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:61966 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S276832AbRJZAmO> convert rfc822-to-8bit; Thu, 25 Oct 2001 20:42:14 -0400
-Date: Thu, 25 Oct 2001 17:41:00 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: =?iso-8859-1?q?Ren=E9=20Scharfe?= <l.s.r@web.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] strtok --> strsep in framebuffer drivers
-In-Reply-To: <m15wsSM-007qjJC@smtp.web.de>
-Message-ID: <Pine.LNX.4.33.0110251739440.1118-100000@penguin.transmeta.com>
+	id <S276990AbRJZBMH>; Thu, 25 Oct 2001 21:12:07 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:57353 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S276988AbRJZBLt>;
+	Thu, 25 Oct 2001 21:11:49 -0400
+Date: Thu, 25 Oct 2001 23:12:00 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Luigi Genoni <kernel@Expansa.sns.it>
+Cc: CaT <cat@zip.com.au>, Marton Kadar <marton.kadar@freemail.hu>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: concurrent VM subsystems
+In-Reply-To: <Pine.LNX.4.33.0110260033170.8916-100000@Expansa.sns.it>
+Message-ID: <Pine.LNX.4.33L.0110252234460.3690-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-MIME-Autoconverted: from 8bit to quoted-printable by deepthought.transmeta.com id RAA28581
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 26 Oct 2001, Luigi Genoni wrote:
 
-On Thu, 25 Oct 2001, René Scharfe wrote:
->
-> Yes. I assumed my compiler (gcc 2.96) was misbehaving by reporting all
-> that warnings about code which is actually just some normal C code. But
-> after some consideration I see that it can help greatly in case of
-> typos and so on.
+> Obviously I was not meaning that desktops have not to be stable, but
+> they are not subjects to long uptimes, at less usually, so page aging
+> is, how can I say in correct english?, dealing with different
+> conditions...
 
-Please use an explicit test - I know gcc suggest just an extra set of
-parenthesis, but I'm personally convinced that is just because some gcc
-people have been damaged by too much LISP.
+Interestingly, of all the people saying that we should have
+different VM systems for different situations, NOBODY has
+managed to point out what specific things should be different.
 
-I think
+The current situation of having 2 competing VMs seems to work
+out nicely, though. Especially when ideas get merged all the
+time.
 
-	if ((a = b))
+regards,
 
-looks nothing but stupid, while
+Rik
+-- 
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
 
-	if ((a = b) != 0)
-
-"explains" the parenthesis..
-
-		Linus
+http://www.surriel.com/		http://distro.conectiva.com/
 

@@ -1,111 +1,158 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267602AbTCFAzF>; Wed, 5 Mar 2003 19:55:05 -0500
+	id <S267640AbTCFA7M>; Wed, 5 Mar 2003 19:59:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267648AbTCFAzF>; Wed, 5 Mar 2003 19:55:05 -0500
-Received: from ns.suse.de ([213.95.15.193]:12300 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S267602AbTCFAzC>;
-	Wed, 5 Mar 2003 19:55:02 -0500
-Date: Thu, 6 Mar 2003 02:05:17 +0100
-From: Andi Kleen <ak@suse.de>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: Andi Kleen <ak@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Better CLONE_SETTLS support for Hammer
-Message-ID: <20030306010517.GB17865@wotan.suse.de>
-References: <3E664836.7040405@redhat.com> <20030305190622.GA5400@wotan.suse.de> <3E6650D4.8060809@redhat.com> <20030305212107.GB7961@wotan.suse.de> <3E668267.5040203@redhat.com>
+	id <S267656AbTCFA7M>; Wed, 5 Mar 2003 19:59:12 -0500
+Received: from coruscant.franken.de ([193.174.159.226]:38625 "EHLO
+	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
+	id <S267640AbTCFA7J>; Wed, 5 Mar 2003 19:59:09 -0500
+Date: Thu, 6 Mar 2003 02:09:20 +0100
+From: Harald Welte <laforge@netfilter.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: CaT <cat@zip.com.au>, linux-kernel@vger.kernel.org,
+       David Miller <davem@redhat.com>
+Subject: Re: [2.5 patch] remove EXPORT_NO_SYMBOLS from ip6tables code
+Message-ID: <20030306010920.GN4880@sunbeam.de.gnumonks.org>
+References: <20030305153259.GE2075@zip.com.au> <20030305220542.GM20423@fs.tum.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="MmaWY3eZhcRnoVUs"
 Content-Disposition: inline
-In-Reply-To: <3E668267.5040203@redhat.com>
+In-Reply-To: <20030305220542.GM20423@fs.tum.de>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux sunbeam 2.4.20-nfpom
+X-Date: Today is Pungenday, the 63rd day of Chaos in the YOLD 3169
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 05, 2003 at 03:04:07PM -0800, Ulrich Drepper wrote:
-> >>1. every process will already use the prctl(ARCH_SET_FS).  We are
-> >>talking here only about the 2nd thread and later.  We need to use
-> >>prctl(ARCH_SET_FS) for TLS support.
-> > 
-> > 
-> > Not when you put it into the first four GB. Then you can use the same
-> > calls as 32bit.
-> 
-> Show me numbers.  Or even better: fix the kernel so that I can run it
 
-You want the change, not me ;)
+--MmaWY3eZhcRnoVUs
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I did benchmark it some time ago (cannot share numbers sorry) and it 
-didn't look like a good idea.
+On Wed, Mar 05, 2003 at 11:05:42PM +0100, Adrian Bunk wrote:
+> The patch that added new ip6tables matches in 2.5.64 added seven=20
+> occurances of the obsolete EXPORT_NO_SYMBOLS. The patch below removes=20
+> them.
 
-> myself.  What is the time difference between using the segment register
-> switching with all the different allocated thread areas version using wrmsr.
+Thanks, this was my fault.  I submitted one patch (for 2.4 and 2.5) to
+davem... and obviously this is no longer possible with the intrusive
+changes of 2.5.x ...
 
-It should already work on the current kernel, modulo clone.
-(but arch_prctl, set_thread_area in 2.5, ldt in 2.4 etc.) 
+Davem, please include this into your 2.5.x tree. Thanks.
 
-> 
-> 
-> *Iff* using the MSR is slower, as far as I'm concerned the
-> set_thread_area syscall should complete go away from x86-64.  Require
 
-It's needed for 32bit emulation at least. The code is 100% shared
-between the emulation and the native 64bit model.
-In theory it could be removed from the system call table for 64bit
-but there didn't seem a good reason to do so - after all 64bit programs
-can put their thread local data into the first 4GB and 
-fast context switches.
+> cu
+> Adrian
 
-> the use of prctl to get and set the base address.  Then internally in
-> the prctl call map it to either the use of a 32 base address segment or
-> use the MSR.
+--- linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_ah.c.old	2003-03-05 22:57:=
+24.000000000 +0100
++++ linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_ah.c	2003-03-05 22:57:41.0=
+00000000 +0100
+@@ -9,7 +9,6 @@
+ #include <linux/netfilter_ipv6/ip6_tables.h>
+ #include <linux/netfilter_ipv6/ip6t_ah.h>
+=20
+-EXPORT_NO_SYMBOLS;
+ MODULE_LICENSE("GPL");
+ MODULE_DESCRIPTION("IPv6 AH match");
+ MODULE_AUTHOR("Andras Kis-Szabo <kisza@sch.bme.hu>");
+--- linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_dst.c.old	2003-03-05 22:58=
+:18.000000000 +0100
++++ linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_dst.c	2003-03-05 22:58:31.=
+000000000 +0100
+@@ -15,7 +15,6 @@
+=20
+ #define HOPBYHOP	0
+=20
+-EXPORT_NO_SYMBOLS;
+ MODULE_LICENSE("GPL");
+ #if HOPBYHOP
+ MODULE_DESCRIPTION("IPv6 HbH match");
+--- linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_esp.c.old	2003-03-05 22:59=
+:57.000000000 +0100
++++ linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_esp.c	2003-03-05 23:00:03.=
+000000000 +0100
+@@ -9,7 +9,6 @@
+ #include <linux/netfilter_ipv6/ip6_tables.h>
+ #include <linux/netfilter_ipv6/ip6t_esp.h>
+=20
+-EXPORT_NO_SYMBOLS;
+ MODULE_LICENSE("GPL");
+ MODULE_DESCRIPTION("IPv6 ESP match");
+ MODULE_AUTHOR("Andras Kis-Szabo <kisza@sch.bme.hu>");
+--- linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_frag.c.old	2003-03-05 23:0=
+0:04.000000000 +0100
++++ linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_frag.c	2003-03-05 23:00:10=
+.000000000 +0100
+@@ -11,7 +11,6 @@
+ #include <linux/netfilter_ipv6/ip6_tables.h>
+ #include <linux/netfilter_ipv6/ip6t_frag.h>
+=20
+-EXPORT_NO_SYMBOLS;
+ MODULE_LICENSE("GPL");
+ MODULE_DESCRIPTION("IPv6 FRAG match");
+ MODULE_AUTHOR("Andras Kis-Szabo <kisza@sch.bme.hu>");
+--- linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_hbh.c.old	2003-03-05 23:00=
+:11.000000000 +0100
++++ linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_hbh.c	2003-03-05 23:00:17.=
+000000000 +0100
+@@ -15,7 +15,6 @@
+=20
+ #define HOPBYHOP	1
+=20
+-EXPORT_NO_SYMBOLS;
+ MODULE_LICENSE("GPL");
+ #if HOPBYHOP
+ MODULE_DESCRIPTION("IPv6 HbH match");
+--- linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_ipv6header.c.old	2003-03-0=
+5 23:00:17.000000000 +0100
++++ linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_ipv6header.c	2003-03-05 23=
+:00:24.000000000 +0100
+@@ -14,7 +14,6 @@
+ #include <linux/netfilter_ipv6/ip6_tables.h>
+ #include <linux/netfilter_ipv6/ip6t_ipv6header.h>
+=20
+-EXPORT_NO_SYMBOLS;
+ MODULE_LICENSE("GPL");
+ MODULE_DESCRIPTION("IPv6 headers match");
+ MODULE_AUTHOR("Andras Kis-Szabo <kisza@sch.bme.hu>");
+--- linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_rt.c.old	2003-03-05 23:00:=
+24.000000000 +0100
++++ linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_rt.c	2003-03-05 23:00:30.0=
+00000000 +0100
+@@ -11,7 +11,6 @@
+ #include <linux/netfilter_ipv6/ip6_tables.h>
+ #include <linux/netfilter_ipv6/ip6t_rt.h>
+=20
+-EXPORT_NO_SYMBOLS;
+ MODULE_LICENSE("GPL");
+ MODULE_DESCRIPTION("IPv6 RT match");
+ MODULE_AUTHOR("Andras Kis-Szabo <kisza@sch.bme.hu>");
 
-The problem is that the 64bit base has different semantics. 
 
-When you use a segment register you have to do:
+--=20
+- Harald Welte <laforge@netfilter.org>             http://www.netfilter.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+  "Fragmentation is like classful addressing -- an interesting early
+   architectural error that shows how much experimentation was going
+   on while IP was being designed."                    -- Paul Vixie
 
-	call kernel to set gdt/ldt
-	movl index,%%fs
+--MmaWY3eZhcRnoVUs
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-But when the kernel did set the 64bit base in the kernel call the
-following movl to the selector would destroy it again
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-Loading the index inside the system call would also be problematic:
-First it would be different from what i386 does, causing porting headaches.
-Also you could not easily do it from a different thread unlike the 
-LDT load.
-	
+iD8DBQE+Zp/AXaXGVTD0i/8RAkuZAKCmHZZhSFpzDDm2Q3bG8pFtbKGNvQCgr125
+3XaWGmMQ5E/r27j/pFadddE=
+=he2N
+-----END PGP SIGNATURE-----
 
-> This way whoever needs a segment base address can preferably allocate it
-> in the low 4GB, but if it fails the kernel support still work.  And with
-> the same interface.  Currently this is not the case and this is not
-> acceptable.
-
-That should already work and it is in fact how I imagined this to be: 
-
-do MAP_32BIT - if yes use set_thread_area or an LDT entry;
-
-if not use arch_prctl
-
-The NPTL signal race problem for the clones in case you have a 64bit
-base is a bit ugly though I agree.
-
-I don't like your patch currently because it'll guarantee slow 
-context switch times for 64bit.
-
-Automatic switching based on the set bits in the base may be possible 
-(in fact I had something like this in set_thread_area for some time, but 
-removed it because of the ugly semantics because set_thread_area doesn't
-already load the selector). If the selector load is forced
-in clone however it would not be as weird, just only somewhat
-ugly. You'll have to guarantee in user space then that you don't
-reload it.
-
-Real solution would be Windowish - Create clone7() with both
-selectors and bases 
-
-[I suspect 2.8 and 3.0 will get that anyways as experience
-on other operating systems who started on the same path 
-shows. e.g. AmigaOS grew more CreateTask
-variants with more arguments with each release until they eventually
-settled on passing tag lists.]
-
--Andi
+--MmaWY3eZhcRnoVUs--

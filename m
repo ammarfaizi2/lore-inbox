@@ -1,54 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316136AbSEJVsx>; Fri, 10 May 2002 17:48:53 -0400
+	id <S316137AbSEJVxE>; Fri, 10 May 2002 17:53:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316135AbSEJVsw>; Fri, 10 May 2002 17:48:52 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:10223 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S316136AbSEJVsv>;
-	Fri, 10 May 2002 17:48:51 -0400
-Message-ID: <3CDC4037.8040104@us.ibm.com>
-Date: Fri, 10 May 2002 14:48:39 -0700
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020504
-X-Accept-Language: en-us, en
+	id <S316138AbSEJVxD>; Fri, 10 May 2002 17:53:03 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:4370 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S316137AbSEJVxD>; Fri, 10 May 2002 17:53:03 -0400
+Date: Fri, 10 May 2002 14:52:41 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: george anzinger <george@mvista.com>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: 64-bit jiffies, a better solution
+In-Reply-To: <3CDC3D39.607D1923@mvista.com>
+Message-ID: <Pine.LNX.4.33.0205101451120.22516-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: matthew@wil.cx
-CC: linux-kernel@vger.kernel.org
-Subject: fs/locks.c BKL removal
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew,
-Al Viro pointed me your way.
 
-I'm looking into the fs/locks.c mess.  It appears that there was an 
-attempt to convert this over to a semaphore, but it was removed just 
-before the 2.4 release because of some deadlocks.
+On Fri, 10 May 2002, george anzinger wrote:
+> 
+> should work.  So here is a solution that does all the above and does 
+> NOT invade new name spaces:
 
-Whenever the i_flock list is traversed, the BKL is held.  It is also 
-held while running through the file_lock_list which I think is used 
-only for /proc/locks.
+Ok, looks fine, but I'd really rather move the "jiffies" linker games
+into the per-architecture stuff, and get rid of the jiffies_at_jiffies_64 
+games.
 
-We definitely need a semaphore because of all the blocking that goes 
-on.  We can either have a global lock for all of them, which I think 
-was tried last time.  Or, we can split it up a bit more.  With the 
-current design, there will need to be a lock for the global list, each 
-individual list, and one for each individual lock to protect against 
-access from the reference in the file_lock_list and the inode->i_flock 
-list.
+It's just one line per architecture, after all.
 
-However, I think that the file_lock_list complexity may be able to be 
-reduced.  If we make the file_lock_list a list of inodes (or just the 
-i_flocks) with active locks, we can avoid the complexity of having an 
-individual file_lock lock.  That way, we at least reduce the number of 
-_types_ of locks.  It increases the number of dereferences, but this 
-is /proc we're talking about.  Any comments?
-
-Talking about locks for locks is confusing :)
-
--- 
-Dave Hansen
-haveblue@us.ibm.com
+		Linus
 

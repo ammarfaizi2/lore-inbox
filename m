@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261959AbUC1QbE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Mar 2004 11:31:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261981AbUC1QbD
+	id S261984AbUC1QcR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Mar 2004 11:32:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261996AbUC1QcR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Mar 2004 11:31:03 -0500
-Received: from lindsey.linux-systeme.com ([62.241.33.80]:33552 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S261959AbUC1QbB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Mar 2004 11:31:01 -0500
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-rc2-mm[34] causes drop in DRI FPS
-Date: Sun, 28 Mar 2004 18:30:12 +0200
-User-Agent: KMail/1.6.1
-Cc: Glenn Johnson <glennpj@charter.net>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>
-References: <1080435375.8280.1.camel@gforce.johnson.home> <20040328090637.GA11056@elte.hu> <1080490657.9667.7.camel@gforce.johnson.home>
-In-Reply-To: <1080490657.9667.7.camel@gforce.johnson.home>
-X-Operating-System: Linux 2.6.4-wolk2.3 i686 GNU/Linux
-MIME-Version: 1.0
+	Sun, 28 Mar 2004 11:32:17 -0500
+Received: from adsl-67-120-171-161.dsl.lsan03.pacbell.net ([67.120.171.161]:35456
+	"HELO home.linuxace.com") by vger.kernel.org with SMTP
+	id S261984AbUC1QcN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Mar 2004 11:32:13 -0500
+Date: Sun, 28 Mar 2004 08:32:10 -0800
+From: Phil Oester <kernel@linuxace.com>
+To: Hasso Tepper <hasso@estpak.ee>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel panic in 2.4.25
+Message-ID: <20040328163210.GA21803@linuxace.com>
+References: <200403260035.09821.hasso@estpak.ee> <200403281911.07139.hasso@estpak.ee>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200403281830.12976@WOLK>
+In-Reply-To: <200403281911.07139.hasso@estpak.ee>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 28 March 2004 18:17, Glenn Johnson wrote:
+I'm having similar problems, and wonder:
 
-Hi Glenn,
+1) Is the box also serving as a firewall (iptables)?
 
-> > > > It could be the AGP changes.  Please do a `patch -p1 -R' of
-> > > > bk-agpgart.patch and retest?
-> > > I reverted that patch and retested but it did not solve the problem. I
-> > > am still only seeing about 180 fps with glxgears.
-> > what does 'glxinfo | grep rendering' show?
+2) Are you using Intel E100 nics?
 
-what about reverting "DRM-cvs-update.patch"?
+Phil Oester
 
-ciao, Marc
+
+On Sun, Mar 28, 2004 at 07:11:06PM +0300, Hasso Tepper wrote:
+> Hasso Tepper wrote:
+> > It's almost 100% (sometimes it just hangs) reproducable for me
+> > although in somewhat strange situation. I have to run Quagga/Zebra
+> > routing suite with zebra and ospfd daemons running. Networking
+> > restart script (removing 60 vlans, creating them again and
+> > assigning IPs to them) leads to panic. Process isn't always
+> > swapper, I have seen ip and kupdated as well, but trace is always
+> > same. I can't reproduce it with 2.4.20 kernel.
+> 
+> It's introduced with 2.4.25-rc1 (2.4.25-pre8 is OK). And it's still 
+> there in 2.4.26-rc1.

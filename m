@@ -1,136 +1,209 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318130AbSGWQAD>; Tue, 23 Jul 2002 12:00:03 -0400
+	id <S318128AbSGWPzY>; Tue, 23 Jul 2002 11:55:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318129AbSGWP7A>; Tue, 23 Jul 2002 11:59:00 -0400
-Received: from pg-fw.paradigmgeo.com ([192.117.235.33]:6476 "EHLO
-	ntserver2.geodepth.com") by vger.kernel.org with ESMTP
-	id <S318119AbSGWP5w>; Tue, 23 Jul 2002 11:57:52 -0400
-Message-ID: <EE83E551E08D1D43AD52D50B9F511092E1149F@ntserver2>
-From: Gregory Giguashvili <Gregoryg@ParadigmGeo.com>
-To: "Linux Kernel (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: Problem with msync system call
-Date: Tue, 23 Jul 2002 18:58:31 +0200
+	id <S318117AbSGWPyb>; Tue, 23 Jul 2002 11:54:31 -0400
+Received: from server72.aitcom.net ([208.234.0.72]:13469 "EHLO test-area.com")
+	by vger.kernel.org with ESMTP id <S318119AbSGWPxO>;
+	Tue, 23 Jul 2002 11:53:14 -0400
+Message-Id: <200207231556.LAA15086@test-area.com>
+Content-Type: text/plain; charset=US-ASCII
+From: anton wilson <anton.wilson@camotion.com>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH] RML pre-emptive 2.4.19-ac2 with O(1)
+Date: Tue, 23 Jul 2002 11:55:42 -0400
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0207231048180.2980-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.44.0207231048180.2980-100000@localhost.localdomain>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_000_01C2326A.2CD20A00"
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
 
-------_=_NextPart_000_01C2326A.2CD20A00
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Strangely enough I'm getting processes exiting with preemption count of 1 
+when I use my patch.
+What causes such a problem?
 
-Hello,
+Anton
 
-RH 7.2 (kernel 2.4.7-10) and RH 7.3 (kernel 2.4.18-3) (I haven't checked the
-others).
 
-I attempt to read/write memory mapped file from two Linux machines, which
-resides on NFS mounted drive. The file gets corrupted since the changes made
-on one machine aren't immediately available on the other. The sample program
-is attached to this e-mail. The problematic API set includes (mmap, munmap
-and msync system calls). It seems that MS_INVALIDATE has no effect....
+=================================================================
+diff -ru linux-2.4.19-rc2/kernel/sched.c linux/kernel/sched.c
+--- linux-2.4.19-rc2/kernel/sched.c	Mon Jul 22 19:02:43 2002
++++ linux/kernel/sched.c	Tue Jul 23 09:44:54 2002
+@@ -345,11 +345,13 @@
+ #if CONFIG_SMP
+ 	int need_resched;
+ 
++      preempt_disable();
+ 	need_resched = p->need_resched;
+ 	wmb();
+ 	set_tsk_need_resched(p);
+ 	if (!need_resched && (p->cpu != smp_processor_id()))
+ 		smp_send_reschedule(p->cpu);
++ preempt_enable();
+ #else
+ 	set_tsk_need_resched(p);
+ #endif
+@@ -367,6 +369,7 @@
+ 	runqueue_t *rq;
+ 
+ repeat:
++	preempt_disable();
+ 	rq = task_rq(p);
+ 	if (unlikely(task_running(rq, p))) {
+ 		cpu_relax();
+@@ -375,14 +378,17 @@
+ 		 * a preemption point - we are busy-waiting
+ 		 * anyway.
+ 		 */
++	        preempt_enable();
+ 		goto repeat;
+ 	}
+ 	rq = task_rq_lock(p, &flags);
+ 	if (unlikely(task_running(rq, p))) {
+ 		task_rq_unlock(rq, &flags);
++		preempt_enable();
+ 		goto repeat;
+ 	}
+ 	task_rq_unlock(rq, &flags);
++	preempt_enable();
+ }
+ #endif
+ 
+@@ -519,7 +525,7 @@
+ 			p->sleep_avg) / (EXIT_WEIGHT + 1);
+ }
+ 
+-#if CONFIG_SMP
++#if CONFIG_SMP  || CONFIG_PREEMPT
+ asmlinkage void schedule_tail(task_t *prev)
+ {
+ 	finish_arch_switch(this_rq(), prev);
+@@ -1078,6 +1084,7 @@
+ 		BUG();
+ 
+ need_resched:
++	preempt_disable();
+ 	prev = current;
+ 	rq = this_rq();
+ 
+@@ -1085,6 +1092,14 @@
+ 	prev->sleep_timestamp = jiffies;
+ 	spin_lock_irq(&rq->lock);
+ 
++#ifdef CONFIG_PREEMPT
++	/*
++	 * entering from preempt_schedule, off a kernel preemption,
++	 * go straight to picking the next task.
++	 */
++	if (unlikely(preempt_get_count() & PREEMPT_ACTIVE))
++		goto pick_next_task;
++#endif
+ 	switch (prev->state) {
+ 	case TASK_INTERRUPTIBLE:
+ 		if (unlikely(signal_pending(prev))) {
+@@ -1096,9 +1111,8 @@
+ 	case TASK_RUNNING:
+ 		;
+ 	}
+-#if CONFIG_SMP
++
+ pick_next_task:
+-#endif
+ 	if (unlikely(!rq->nr_running)) {
+ #if CONFIG_SMP
+ 		load_balance(rq, 1);
+@@ -1151,13 +1165,33 @@
+ 		spin_unlock_irq(&rq->lock);
+ 
+ 	reacquire_kernel_lock(current);
++
+ 	if (need_resched())
+ 		goto need_resched;
++     	preempt_enable_no_resched();
++
++}
++
++#ifdef CONFIG_PREEMPT
++
++ /*
++  * this is is the entry point to schedule() from in-kernel preemption.
++  */
++ asmlinkage void preempt_schedule(void)
++ {
++       do {
++               current->preempt_count += PREEMPT_ACTIVE;
++               schedule();
++               current->preempt_count -= PREEMPT_ACTIVE;
++               barrier();
++       } while (current->need_resched);
+ }
+ 
++#endif /* CONFIG_PREEMPT */
++
+ /*
+  * The core wakeup function.  Non-exclusive wakeups (nr_exclusive == 0) just
+- * wake everything up.  If it's an exclusive wakeup (nr_exclusive == small 
++ve
++ * wake everything up.  If it's an exclusive wakeup (nr_exclusive == small
+  * number) then we wake all the non-exclusive tasks and one exclusive task.
+  *
+  * There are circumstances in which we can try to wake a task which has 
+already
+@@ -1923,6 +1957,11 @@
+ 	double_rq_unlock(idle_rq, rq);
+ 	set_tsk_need_resched(idle);
+ 	__restore_flags(flags);
++
++#if CONFIG_PREEMPT
++       /* Set the preempt count _outside_ the spinlocks! */
++       idle->preempt_count = (idle->lock_depth >= 0);
++#endif
+ }
+ 
+ #if CONFIG_SMP
+@@ -1968,6 +2007,7 @@
+ 	if (!new_mask)
+ 		BUG();
+ 
++	preempt_disable();
+ 	rq = task_rq_lock(p, &flags);
+ 	p->cpus_allowed = new_mask;
+ 	/*
+@@ -1995,7 +2035,7 @@
+ 
+ 	down(&req.sem);
+ out:
+-	return;
++	preempt_enable();
+ }
+ 
+ static __initdata int master_migration_thread;
 
-The original code uses NFS locking to assure file consistency, but the
-example misses this part to simplicity (locking is simulated by the user).
-The same code works on a variety of other operating systems, but fails to
-work between two Linux or Linux/Other OS machines.
 
-I decided to give up on the performance issue and even tried to remap the
-whole file before every attempt to read/write the mapped file. Surprisingly,
-even this extreme measure didn't help (the code is commented out using
-preprocessor directives in the sample program).
-I couldn't find any patch, which specifically fixes this problem, though I
-have seen some patches related to msync, which I don't think to be relevant
-(Am I wrong?).
-
-I'm sure that someone has come across this problem and I sure hope there is
-some workaround/patch available. 
-Any help will be greatly appreciated.
-
-Thanks in advance.
-Giga
-
- <<mmap.cc>> 
-
-------_=_NextPart_000_01C2326A.2CD20A00
-Content-Type: application/octet-stream;
-	name="mmap.cc"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="mmap.cc"
-
-#include <stdio.h>=0A=
-#include <unistd.h>=0A=
-#include <sys/mman.h>=0A=
-#include <string.h>=0A=
-#include <sys/types.h>=0A=
-#include <sys/stat.h>=0A=
-#include <fcntl.h>=0A=
-=0A=
-int main (int argc, char* argv []) =0A=
-{=0A=
-    char buffer [BUFSIZ];=0A=
-    char* pMap;=0A=
-=0A=
-    int fd =3D open ("MAPPED.FILE", O_CREAT | O_RDWR | O_SYNC, =
-0666);=0A=
-    if (fd =3D=3D -1) {=0A=
-	perror ("open");=0A=
-	return -1;=0A=
-    }=0A=
-=0A=
-    write (fd, "\0", 1);=0A=
-    if (lseek (fd, BUFSIZ - 1, SEEK_SET) !=3D BUFSIZ - 1) {=0A=
-	perror ("lseek");=0A=
-	return -1;=0A=
-    }=0A=
-    write (fd, "\0", 1);=0A=
-=0A=
-    pMap =3D (char*) mmap (NULL, BUFSIZ, PROT_READ | PROT_WRITE, =0A=
-			 MAP_SHARED, fd, 0);=0A=
-    if ((size_t) pMap =3D=3D -1) {=0A=
-	perror ("mmap");=0A=
-	return -1;=0A=
-    }=0A=
-    =0A=
-    while (1) {=0A=
-	fprintf (stderr, "<Press ENTER to read> OR <Enter string to write> $ =
-");=0A=
-	fgets (buffer, sizeof (buffer) - 1, stdin);=0A=
-=0A=
-#if 0=0A=
-	if (munmap (pMap, BUFSIZ)) {=0A=
-	    perror ("munmap");=0A=
-	    return -1;=0A=
-	}=0A=
-	pMap =3D (char*) mmap (NULL, BUFSIZ, PROT_READ | PROT_WRITE, =0A=
-				   MAP_SHARED, fd, 0);=0A=
-	if ((size_t) pMap =3D=3D -1) {=0A=
-	    perror ("mmap");=0A=
-	    return -1;=0A=
-	}=0A=
-#endif=0A=
-=0A=
-	if (buffer [0] =3D=3D '\n') {=0A=
-	    fprintf (stderr, "Mapped file contents: %s\n", pMap);=0A=
-	} else {=0A=
-	    strncpy (pMap, buffer, strlen (buffer) - 1);=0A=
-	    fprintf (stderr, "Written to mapped file: %s\n", pMap);=0A=
-	}=0A=
-=0A=
-	if (msync (pMap, BUFSIZ, MS_SYNC | MS_INVALIDATE)) {=0A=
-	    perror ("msync");=0A=
-	    return -1;=0A=
-	}=0A=
-    }=0A=
-=0A=
-    return 0;=0A=
-}=0A=
-
-------_=_NextPart_000_01C2326A.2CD20A00--
+=====================================================
+On Tuesday 23 July 2002 04:49 am, Ingo Molnar wrote:
+> On Mon, 22 Jul 2002, anton wilson wrote:
+> > I tried to change the current RML preemptive patch for 2.4.19-rc2 to
+> > work with the O(1) scheduler patch applied. The only changes I made were
+> > in sched.c - Not sure if this is a correct change:
+>
+> looks good at first sight.
+>
+> this one:
+> > +
+> > +       /* Set the preempt count _outside_ the spinlocks! */
+> > +       idle->preempt_count = (idle->lock_depth >= 0);
+>
+> needs to be #if CONFIG_PREEMPT.
+>
+> 	Ingo
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

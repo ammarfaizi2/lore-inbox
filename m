@@ -1,97 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264542AbUA2K2a (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 05:28:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265587AbUA2K2a
+	id S265587AbUA2Kah (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 05:30:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265647AbUA2Kah
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 05:28:30 -0500
-Received: from 13.2-host.augustakom.net ([80.81.2.13]:41091 "EHLO phoebee.mail")
-	by vger.kernel.org with ESMTP id S264542AbUA2K22 (ORCPT
+	Thu, 29 Jan 2004 05:30:37 -0500
+Received: from gprs103-63.eurotel.cz ([160.218.103.63]:5505 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S265587AbUA2KaV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 05:28:28 -0500
-Date: Thu, 29 Jan 2004 11:28:21 +0100
-From: Martin Zwickel <martin.zwickel@technotrend.de>
-To: linux-kernel@vger.kernel.org
-Subject: IDE questions [kernel: 2.6.1-rc1]
-Message-Id: <20040129112821.27b59313@phoebee>
-Organization: TechnoTrend AG
-X-Mailer: Sylpheed version 0.9.8claws54 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Operating-System: Linux Phoebee 2.6.0-test4 i686 Intel(R) Pentium(R) 4 CPU
- 2.40GHz
-X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
- ?J0GVZ4&
+	Thu, 29 Jan 2004 05:30:21 -0500
+Date: Thu, 29 Jan 2004 11:29:48 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Hugang <hugang@soulinfo.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Nigel Cunningham <ncunningham@users.sourceforge.net>,
+       Patrick Mochel <mochel@digitalimplant.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linuxppc-dev list <linuxppc-dev@lists.linuxppc.org>
+Subject: Re: pmdisk working on ppc (WAS: Help port swsusp to ppc)
+Message-ID: <20040129102948.GA480@elf.ucw.cz>
+References: <20040123183030.02fd16d6@localhost> <1074912854.834.61.camel@gaston> <20040126181004.GB315@elf.ucw.cz> <1075154452.6191.91.camel@gaston> <1075156310.2072.1.camel@laptop-linux> <20040128202217.0a1f8222@localhost> <1075336478.30623.317.camel@gaston> <20040129100554.6453e6c8@localhost> <1075350214.1231.18.camel@gaston> <20040129165119.553403f1@localhost>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Thu__29_Jan_2004_11_28_21_+0100_HTH7oMv6K3AJPnww"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040129165119.553403f1@localhost>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Thu__29_Jan_2004_11_28_21_+0100_HTH7oMv6K3AJPnww
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+Hi!
 
-Hi there,
-
-2 questions about IDE:
-
-1.: with my machine:
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-SIS5513: IDE controller at PCI slot 0000:00:02.5
-SIS5513: chipset revision 0
-SIS5513: not 100% native mode: will probe irqs later
-SIS5513: SiS 962/963 MuTIOL IDE UDMA133 controller
-    ide0: BM-DMA at 0xff00-0xff07, BIOS settings: hda:DMA, hdb:DMA
-    ide1: BM-DMA at 0xff08-0xff0f, BIOS settings: hdc:DMA, hdd:DMA
-hda: WDC WD800BB-00CAA1, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-hdc: IDE DVD-ROM 16X, ATAPI CD/DVD-ROM drive
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: max request size: 128KiB
-hda: 156301488 sectors (80026 MB) w/2048KiB Cache, CHS=65535/16/63, UDMA(100)
- /dev/ide/host0/bus0/target0/lun0: p1 p2 p3 p4 < p5 p6 p7 p8 >
-cdrom: : unknown mrw mode page
-      ^ no cdi->name?
-        is this for the hda device or hdc?
-
-hdc: ATAPI 48X DVD-ROM drive, 512kB Cache, UDMA(33)
-Uniform CD-ROM driver Revision: 3.20
-
-
-2.: with another machine:
-I have a disk that has some bad sectors (that says the drive fitness test from
-ibm). and I think one of the sectors is where the partition table is.
-on kernel boot the kernel stops when it tries to detect the partitions and
-gives some "dma timeout"s.
-can I disable the partition table probe? is the "hdx=noprobe" argument the right
-one?
+> > As long as you make sure you save the LR in case you need it, you
+> > can call asm functions. macros are _evil_ :)
+> > 
+> > Also, you can remove the code playing with BATs for now, they don't
+> > really need to be saved. If the boot kernel sets them up any
+> > differently than the saved kernel, we are in trouble anyway. And the
+> > G5 has no BATs.
+> 
+> Thanks, I hate macros too, I'll change code to function as soon as
+> possible.
+> 
+> First I would tell you current swusp(2) signal ppc part has a problem.
+> I has add follow code into do_signal to let process to FREEZE before 
+> suspend.
+> ppc/
+>     int signr, ret;
+> 
+> +    if (current->flags & PF_FREEZE) {
+> +        refrigerator(PF_FREEZE);
+> +        return 0;
+> +    }
+> 
+>     if (!oldset)
+>         oldset = &current->blocked;
+> 
+> i386/
+>     if (current->flags & PF_FREEZE) {
+>         refrigerator(PF_FREEZE);
+>         if (!signal_pending(current))
+>             goto no_signal;
+>     }
 
 
-Regards,
-Martin
+You may want to try this one.. Maybe it helps?
+								Pavel
+Index: linux/kernel/power/process.c
+===================================================================
+--- linux.orig/kernel/power/process.c	2004-01-13 22:52:40.000000000 +0100
++++ linux/kernel/power/process.c	2004-01-09 20:33:05.000000000 +0100
+@@ -49,10 +49,11 @@
+ 	pr_debug("%s entered refrigerator\n", current->comm);
+ 	printk("=");
+ 	current->flags &= ~PF_FREEZE;
+-	if (flag)
+-		flush_signals(current); /* We have signaled a kernel thread, which isn't normal behaviour
+-					   and that may lead to 100%CPU sucking because those threads
+-					   just don't manage signals. */
++
++	spin_lock_irq(&current->sighand->siglock);
++	recalc_sigpending(); /* We sent fake signal, clean it up */
++	spin_unlock_irq(&current->sighand->siglock);
++
+ 	current->flags |= PF_FROZEN;
+ 	while (current->flags & PF_FROZEN)
+ 		schedule();
 
-
-ps.: sorry for my bad english
 
 -- 
-MyExcuse:
-halon system went off and killed the operators.
-
-Martin Zwickel <martin.zwickel@technotrend.de>
-Research & Development
-
-TechnoTrend AG <http://www.technotrend.de>
-
---Signature=_Thu__29_Jan_2004_11_28_21_+0100_HTH7oMv6K3AJPnww
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFAGOBFmjLYGS7fcG0RAn9NAJ4untolBYYzlnQIPLYD1vwqhYorvwCgrwVH
-hgPBwwtJTY27JpYpzjU074s=
-=E7he
------END PGP SIGNATURE-----
-
---Signature=_Thu__29_Jan_2004_11_28_21_+0100_HTH7oMv6K3AJPnww--
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

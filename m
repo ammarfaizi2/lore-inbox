@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270855AbRHSWrY>; Sun, 19 Aug 2001 18:47:24 -0400
+	id <S270862AbRHSWsx>; Sun, 19 Aug 2001 18:48:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270856AbRHSWrP>; Sun, 19 Aug 2001 18:47:15 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:2311 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S270855AbRHSWqy>; Sun, 19 Aug 2001 18:46:54 -0400
-Message-ID: <3B8041E4.8D02A20B@zip.com.au>
-Date: Sun, 19 Aug 2001 15:47:00 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8-ac7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: ptb@it.uc3m.es
-CC: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: scheduling with io_lock held in 2.4.6
-In-Reply-To: "from (env: ptb) at Aug 19, 2001 06:38:18 pm" <200108191858.UAA01216@nbd.it.uc3m.es>
+	id <S270866AbRHSWsn>; Sun, 19 Aug 2001 18:48:43 -0400
+Received: from [65.10.228.207] ([65.10.228.207]:13042 "HELO whatever.local")
+	by vger.kernel.org with SMTP id <S270862AbRHSWsc>;
+	Sun, 19 Aug 2001 18:48:32 -0400
+From: chuckw@ieee.org
+Date: Sun, 19 Aug 2001 06:57:02 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: Looking for comments on Bottom-Half/Tasklet/SoftIRQ
+Message-ID: <20010819065702.C2388@ieee.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20010818231704.A2388@ieee.org> <3B7FF06A.4090606@fugmann.dhs.org> <20010819013508.B2388@ieee.org> <3B800CF9.9000606@fugmann.dhs.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B800CF9.9000606@fugmann.dhs.org>; from afu@fugmann.dhs.org on Sun, Aug 19, 2001 at 09:01:13PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Peter T. Breuer" wrote:
+Many thanks once again.
+
+Chuck
+
+On Sun, Aug 19, 2001 at 09:01:13PM +0200, Anders Peter Fugmann wrote:
+> chuckw@ieee.org wrote:
+> > Thanks
+> > 
+> > 	So, Bottom halves don't need to be re-entrant as do tasklets.  SoftIRQ's
+> > need to be re-entrant.  The advantage of tasklets is that each tasklet can
+> > be farmed out to different CPU's AND they don't need to be re-entrant 
+> > because only one instance is allowed at a time.  I think I got it.
 > 
-> I am now fairly certain that the schedule occured while
-> blkdev_release_request was in a completely innocuous line
+> That is 100% correct.
 > 
-
-No - from your earlier trace it looks like what happened
-was that you dereferenced a bad address in blkdev_release_request():
-
-Unable to handle kernel paging request at virtual address 00002004
-
-But when the kernel processes this error the last thing it
-tries to do is to kill off the offending process by calling
-do_exit().  But do_exit() calls schedule().
-
-So if you take an oops in interrupt context you'll basically
-always see the "scheduling in interrupt" thing.  So don't
-worry about it.
-
-You need to find out why you're dereferencing a bad pointer
-in blkdev_release_request().
-
--
+> > 
+> > 	Could you direct me to some code in the kernel which uses tasklets
+> > so I can see the inner workings?
+> 
+> Actually very few systems in the kernel has been rewritten to use 
+> tasklets instead og BH's.
+> 
+> But as they are very simillar to BH's, you should be able to use the 
+> same thinking, its just a new API.
+> 
+> Take a look at include/linux/interrupt.h
+> (or http://lxr.linux.no/source/include/linux/interrupt.h, an invaluable 
+> source when coding for linux).
+> 
+> Regards
+> Anders Fugmann
+> 

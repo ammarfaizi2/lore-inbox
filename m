@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266820AbRGFToB>; Fri, 6 Jul 2001 15:44:01 -0400
+	id <S266822AbRGFTqc>; Fri, 6 Jul 2001 15:46:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266821AbRGFTnw>; Fri, 6 Jul 2001 15:43:52 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:41989 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S266820AbRGFTnl>; Fri, 6 Jul 2001 15:43:41 -0400
+	id <S266821AbRGFTqW>; Fri, 6 Jul 2001 15:46:22 -0400
+Received: from ns1.dvti.com ([12.144.144.44]:25240 "EHLO hannibal.mammoth.org")
+	by vger.kernel.org with ESMTP id <S266822AbRGFTqO>;
+	Fri, 6 Jul 2001 15:46:14 -0400
+Date: Fri, 6 Jul 2001 14:46:15 -0500 (CDT)
+From: josh <skulcap@mammoth.org>
+To: linux-kernel@vger.kernel.org
 Subject: Re: funky tyan s2510
-To: skulcap@mammoth.org (josh)
-Date: Fri, 6 Jul 2001 20:43:54 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0107061109400.20154-100000@hannibal.mammoth.org> from "josh" at Jul 06, 2001 02:39:24 PM
-X-Mailer: ELM [version 2.5 PL3]
+In-Reply-To: <E15IbW6-0004pr-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21.0107061444110.20990-100000@hannibal.mammoth.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15IbW6-0004pr-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> gcc never gets all the way through a make... it will die with a
-> sig11, misc asm errors, or random crap.
+On Fri, 6 Jul 2001, Alan Cox wrote:
 
-If its doing that at random then suspect hardaware
+> > gcc never gets all the way through a make... it will die with a
+> > sig11, misc asm errors, or random crap.
+> 
+> If its doing that at random then suspect hardaware
 
-> This is a serverworks chipset... i have always thought that they were
-> a bit, you know, funny.  :)   
+Thats what I thought at first, but after going through three different 
+brands of memory and a new (slower) cpu, im not sure what to think.
 
-Serverworks have an obscure MTRR bug in a few chips (which we handle) but
-quite honestly they don't show up a lot in kernel bug reports.
+> > This is a serverworks chipset... i have always thought that they were
+> > a bit, you know, funny.  :)   
+> 
+> Serverworks have an obscure MTRR bug in a few chips (which we handle) but
+> quite honestly they don't show up a lot in kernel bug reports.
+
+I actually like SW chipsets... they do some neat things... more than
+me at least. 
 
 
-
-Alan
+                          www.mammoth.org/~skulcap
+**********************************************BEGIN GEEK CODE BLOCK************
+"Sometimes, if you're perfectly      * GCS d- s: a-- C++ ULSC++++$ P+ L+++ E--- 
+still, you can hear the virgin       * W+(++) N++ o+ K- w--(---) O- M- V- PS-- 
+weeping for the savior of your will."* PE Y+ PGP t+ 5 X+ R !tv b+>+++ DI++ D++  
+ --DreamTheater, "Lines in the Sand" * G e h+ r-- y-   (www.geekcode.com)
+**********************************************END GEEK CODE BLOCK**************
 

@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261292AbUCQKXA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Mar 2004 05:23:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbUCQKXA
+	id S261296AbUCQKbB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Mar 2004 05:31:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbUCQKbB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Mar 2004 05:23:00 -0500
-Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:30410 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S261292AbUCQKWz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Mar 2004 05:22:55 -0500
-Date: Wed, 17 Mar 2004 11:22:49 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: TLD.rmk.(none) junk in BitKeeper logs where BK_HOST belongs?
-Message-ID: <20040317102249.GA6464@merlin.emma.line.org>
-Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20040316184455.GA31710@merlin.emma.line.org> <20040316193014.B7886@flint.arm.linux.org.uk> <1079479795.17681.6.camel@imladris.demon.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1079479795.17681.6.camel@imladris.demon.co.uk>
-User-Agent: Mutt/1.5.5.1i
+	Wed, 17 Mar 2004 05:31:01 -0500
+Received: from 213-187-164-3.dd.nextgentel.com ([213.187.164.3]:60937 "EHLO
+	ford.pronto.tv") by vger.kernel.org with ESMTP id S261296AbUCQKa7 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Mar 2004 05:30:59 -0500
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: vmware on linux 2.6.4
+References: <yw1xu10ogy4m.fsf@kth.se> <200403171119.48026@WOLK>
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: Wed, 17 Mar 2004 11:30:52 +0100
+In-Reply-To: <200403171119.48026@WOLK> (Marc-Christian Petersen's message of
+ "Wed, 17 Mar 2004 11:19:48 +0100")
+Message-ID: <yw1xu10n22ar.fsf@kth.se>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Mar 2004, David Woodhouse wrote:
+Marc-Christian Petersen <m.c.p@wolk-project.de> writes:
 
-> On Tue, 2004-03-16 at 19:30 +0000, Russell King wrote:
-> > and read through the (flash) bits.  Now consider "are email addresses
-> > information which can be used to identify individuals?"  The answer is
-> > "yes".  Are we storing that in a kind of database?  Yes.  Therefore,
-> > does this fall under the terms of the Data Protection Act?  Yes.
-> 
-> You already have my email address in your copy of the BK tree. You
-> achieve nothing by simply not adding _more_ valid email addresses.
-> 
-> I think civil disobedience in this case is appropriate.
+> On Wednesday 17 March 2004 00:39, Måns Rullgård wrote:
+>
+> Hi Mans,
+>
+>> I tried to build the vmware modules for kernel 2.6.4 and got this oops
+>> when loading vmmon.o:
+>> vmmon: no version magic, tainting kernel.
+>> vmmon: module license 'unspecified' taints kernel.
+>> Unable to handle kernel NULL pointer dereference at virtual address
+>> Suggestions welcome.
+>
+> what vmware version do you use? Please make sure you've updated to latest 
+> any-any update from (1.)
 
-Why would it? I see legal ways to provide such information - and after
-all, we want the authors' names rather than their addresses in the frist
-place, at least in "shortlog".
+I installed vmware 4.5.1, and at first I got an oops from insmod
+again.  Then I build the modules manually instead of letting the
+configure script do it, and now it's up and running.
 
 -- 
-Matthias Andree
-
-Encrypt your mail: my GnuPG key ID is 0x052E7D95
+Måns Rullgård
+mru@kth.se

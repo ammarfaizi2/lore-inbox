@@ -1,59 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264492AbUFNVlS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264503AbUFNVl4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264492AbUFNVlS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 17:41:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264513AbUFNVlR
+	id S264503AbUFNVl4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 17:41:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264500AbUFNVl4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 17:41:17 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:44687 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S264492AbUFNVlQ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 17:41:16 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Subject: Re: upcalls from kernel code to user space daemons
-Date: Mon, 14 Jun 2004 23:40:58 +0200
-User-Agent: KMail/1.6.2
-Cc: Steve French <smfltc@us.ibm.com>, linux-kernel@vger.kernel.org
-References: <1087236468.10367.27.camel@stevef95.austin.ibm.com> <40CDEECF.7060102@nortelnetworks.com>
-In-Reply-To: <40CDEECF.7060102@nortelnetworks.com>
-MIME-Version: 1.0
+	Mon, 14 Jun 2004 17:41:56 -0400
+Received: from mail.kroah.org ([65.200.24.183]:56528 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264503AbUFNVlv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jun 2004 17:41:51 -0400
+Date: Mon, 14 Jun 2004 14:40:17 -0700
+From: Greg KH <greg@kroah.com>
+To: Tobias Weisserth <tobias@weisserth.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Linux 2.6.4] EagleTec (rev 1.13) USB external harddisk support -> patch to unusual_devs.h
+Message-ID: <20040614214017.GB3688@kroah.com>
+References: <1086086759.10599.14.camel@coruscant.weisserth.net> <20040602165723.GI7829@kroah.com> <1086200163.8709.8.camel@coruscant.weisserth.net> <20040602182131.GA13193@kroah.com> <1086207977.8707.38.camel@coruscant.weisserth.net> <20040602203307.GA19749@kroah.com> <1086213609.8710.79.camel@coruscant.weisserth.net> <20040602225906.GA23819@kroah.com> <1086455663.7588.6.camel@coruscant.weisserth.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200406142341.13340.oliver@neukum.org>
+In-Reply-To: <1086455663.7588.6.camel@coruscant.weisserth.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-
-> > 1) getHostByName:  when the kernel cifs code detects a server crashes
-> > and fails reconnecting the socket and the kernel code wants to see if
-> > the hostname now has a new ip address.
-
-Is that possible at all? It looks like that might deadlock in the page
-out code path.
-
-> > 2) package a kerberos ticket ala RFC2478 (SPNEGO)
+On Sat, Jun 05, 2004 at 07:14:23PM +0200, Tobias Weisserth wrote:
+> Hi,
 > 
-> One way to do it (or is this what you meant by captive ioctl?)
+> On Thu, 2004-06-03 at 00:59, Greg KH wrote:
+> ...
+> > Nope, sorry.  Don't cut and paste.  Try attaching as a text attachment,
+> > or doing something with your editor to read from your patch file into
+> > the body of the email.
 > 
-> userspace daemon loops on ioctl()
-> kernel portion of ioctl call goes to sleep until something to do
-> when needed, fill in data and return to userspace
-> userspace does stuff, then passes data back down via ioctl()
-> ioctl() puts userspace back to sleep and continues on with other work
+> I tried the latter. Doesn't seem to work.
+> 
+> I attached the patches.
+> 
+> Those are a patch for the 2.6.6 kernel and the 2.6.4 kernel.
+> 
+> When I was going through all my kernel branches in /usr/src I noticed
+> that the Gentoo development branch already had a suitable entry for the
+> firmware version of my device:
+> 
+> /* Reported by Henning Schild <henning@wh9.tu-dresden.de> */
+> UNUSUAL_DEV(  0x05e3, 0x0702, 0x0113, 0x0113,
+>                 "EagleTec",
+>                 "External Hard Disk",
+>                 US_SC_DEVICE, US_PR_DEVICE, NULL,
+>                 US_FL_FIX_INQUIRY ),
+> 
+> More information on these sources:
+> 
+> http://packages.gentoo.org/ebuilds/?gentoo-dev-sources-2.6.5-r1
+> 
+> I found it in no other branch besides this.
+> 
+> So if you include my patch then you might consider putting his name
+> there too. I discovered his entry after I figured out by myself how to
+> make EagleTec revision 1.13 work, but I don't know whether he did it
+> before me.
 
-You could just as well implement an ordinary read()
+Hm, this is already fixed in the current kernel trees, so your patch
+should not be needed.
 
-	Regards
-		Oliver
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+thanks,
 
-iD8DBQFAzhtxbuJ1a+1Sn8oRAvupAJ0T6K8PMeKwWanDTHUmeYtpmsPnKQCeLZbk
-cZC0HjRPQSN3Xmkp1tSKFIA=
-=tZMS
------END PGP SIGNATURE-----
+greg k-h

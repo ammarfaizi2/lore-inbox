@@ -1,52 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261894AbVASVMa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261898AbVASVN3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261894AbVASVMa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 16:12:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbVASVM3
+	id S261898AbVASVN3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 16:13:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261899AbVASVN3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 16:12:29 -0500
-Received: from ozlabs.org ([203.10.76.45]:48351 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261894AbVASVM2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 16:12:28 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16878.11077.556326.769738@cargo.ozlabs.ibm.com>
-Date: Wed, 19 Jan 2005 20:41:25 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Olaf Hering <olh@suse.de>, linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] raid6: altivec support
-In-Reply-To: <1106120622.10851.42.camel@baythorne.infradead.org>
-References: <200501082324.j08NOIva030415@hera.kernel.org>
-	<20050109151353.GA9508@suse.de>
-	<1105956993.26551.327.camel@hades.cambridge.redhat.com>
-	<1106107876.4534.163.camel@gaston>
-	<1106120622.10851.42.camel@baythorne.infradead.org>
-X-Mailer: VM 7.19 under Emacs 21.3.1
+	Wed, 19 Jan 2005 16:13:29 -0500
+Received: from science.horizon.com ([192.35.100.1]:59189 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S261898AbVASVMv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 16:12:51 -0500
+Date: 19 Jan 2005 21:12:50 -0000
+Message-ID: <20050119211250.13528.qmail@science.horizon.com>
+From: linux@horizon.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: Make pipe data structure be a circular list of pages, rather than
+Cc: linux@horizon.com, lm@bitmover.com, torvalds@osdl.org
+In-Reply-To: <Pine.LNX.4.58.0501151838010.8178@ppc970.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse writes:
+lm@bitmover.com wrote:
+> You seem to have misunderstood the original proposal, it had little to do
+> with file descriptors.  The idea was that different subsystems in the OS
+> export pull() and push() interfaces and you use them.  The file decriptors
+> are only involved if you provide them with those interfaces(which you
+> would, it makes sense).  You are hung up on the pipe idea, the idea I
+> see in my head is far more generic.  Anything can play and you don't
+> need a pipe at all, you need 
 
-> Yeah.... I'm increasingly tempted to merge ppc32/ppc64 into one arch
-> like mips/parisc/s390. Or would that get vetoed on the basis that we
-> don't have all that horrid non-OF platform support in ppc64 yet, and
-> we're still kidding ourselves that all those embedded vendors will
-> either not notice ppc64 or will use OF?
+I was fantasizing about more generality as well.  In particular, my
+original fantasy allowed data to, in theory and with compatible devices,
+be read from one PCI device, passed through a series of pipes, and
+written to another without ever hitting main memory - only one PCI-PCI
+DMA operation performed.
 
-I'm going to insist that every new ppc64 platform supplies a device
-tree.  They don't have to have OF but they do need to have the booter
-or wrapper supply a flattened device tree (which is just a few kB of
-binary data as far as the booter/wrapper is concerned).  It doesn't
-have to include all the 
+A slightly more common case would be zero-copy, where data gets DMAed
+from the source into memory and from memory to the destination.
+That's roughly Larry's pull/push model.
 
-As for merging ppc32 and ppc64, I think it would end up an awful ifdef
-mess, but if you can see a clean way to do it, send me a patch. :)
+The direct DMA case requires buffer memory on one of the two cards.
+(And would possibly be a fruitful source of hardware bugs, since I
+suspect that Windows Doesn't Do That.)
 
-Paul.
+Larry has the "full-page gift" optimization, which could in theory allow
+data to be "renamed" straight into the page cache.  However, the page also
+has to be properly aligned and not in some awkward highmem address space.
+I'm not currently convinced that this would happen often enough to be
+worth the extra implementation hair, but feel free to argue otherwise.
+
+(And Larry, what's the "loan" bit for?   When is loan != !gift ?)
+
+
+The big gotcha, as Larry's original paper properly points out, is handling
+write errors.  We need some sort of "unpull" operation to put data back
+of the destination can't accept it.  Otherwise, what do you return from
+splice()?  If the source is seekable, that's easy, and a pipe isn't much
+harder, but for a general character device, we need a bit of help.
+
+The way I handle this in user-level software, to connect modules that
+provide data buffering, is to split "pull" into two operations.
+"Show me some buffered data" and "Consume some buffered data".
+The first returns a buffer pointer (to a const buffer) and length.
+(The length must be non-zero except at EOF, but may be 1 byte.)
+
+The second advances the buffer pointer.  The advance distance must be
+no more than the length returned previously, but may be less.
+
+In typical single-threaded code, I allow not calling the advance function
+or calling it multiple times, but they're typically called 1:1, and
+requiring that would give you a good place to do locking.  A character
+device, network stream, or the like, would acquire an exclusive lock.
+A block device or file would not need to (or could make it a shared lock
+or refcount).
+
+
+The same technique can be used when writing data to a module that does
+buffering: "Give me some bufer space" and "Okay, I filled some part of
+it in."  In some devices, the latter call can fail, and the writer has
+to be able to cope with that.
+
+
+By allowing both of those (and, knowing that PCI writes are more efficient
+than PCI reads, giving the latter preference if both are available),
+you can do direct device-to-device copies on splice().
+
+
+The problem with Larry's separate pull() and push() calls is that you
+then need a user-visible abstraction for "pulled but not yet pushed"
+data, which seems lile unnecessary abstraction violation.
+
+
+The main infrastructure hassle you need to support this *universally*
+is the unget() on "character devices" like pipes and network sockets.
+Ideally, it would be some generic buffer front end that could be used
+by the device for normal data as well as the special case.
+
+Ooh.  Need to think.  If there's a -EIO problem on one of the file
+descriptors, how does the caller know which one?  That's an argument for
+separate pull and push (although the splice() library routine still
+has the problem).  Any suggestions?  Does userland need to fall
+back on read()/write() for a byte?

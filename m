@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278975AbRJVVsv>; Mon, 22 Oct 2001 17:48:51 -0400
+	id <S278962AbRJVVwa>; Mon, 22 Oct 2001 17:52:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278974AbRJVVsn>; Mon, 22 Oct 2001 17:48:43 -0400
-Received: from gene.pbi.nrc.ca ([204.83.147.150]:40488 "EHLO gene.pbi.nrc.ca")
-	by vger.kernel.org with ESMTP id <S278965AbRJVVrz>;
-	Mon, 22 Oct 2001 17:47:55 -0400
-Date: Mon, 22 Oct 2001 15:48:17 -0600 (CST)
-From: <ognen@gene.pbi.nrc.ca>
-To: Craig Dickson <crdic@yahoo.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.2.20pre10
-In-Reply-To: <20011022143715.A18303@crdic.ath.cx>
-Message-ID: <Pine.LNX.4.30.0110221543060.30020-100000@gene.pbi.nrc.ca>
+	id <S278956AbRJVVwY>; Mon, 22 Oct 2001 17:52:24 -0400
+Received: from relay-1m.club-internet.fr ([195.36.216.170]:16119 "HELO
+	relay-1m.club-internet.fr") by vger.kernel.org with SMTP
+	id <S278965AbRJVVvs>; Mon, 22 Oct 2001 17:51:48 -0400
+Message-ID: <3BD4952B.4060801@freesurf.fr>
+Date: Mon, 22 Oct 2001 23:52:43 +0200
+From: Kilobug <kilobug@freesurf.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5+) Gecko/20011018
+X-Accept-Language: fr, en, fr-fr
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.20pre10
+In-Reply-To: <Pine.LNX.4.33L.0110221603120.22127-100000@duckman.distro.conectiva>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Nothing I've said reflects or, to a sensible person, suggests such a
-> doctrine. The US may not be the center of the world, or the most
-> important country in it, but it's no less important than any other
-> nation.
+Rik van Riel wrote:
 
-...or all nations except it?
+ >>I never said that Alan, or any particular individual, should
+ >>risk a lawsuit or jail.  I simply said that I hoped *someone
+ >>outside the US* (that is, someone not subject to US laws) would
+ >>make the information available.
+ >>
+ >
+ > If you publish to the US, you can be sued under US law.
+ >
 
-Most of what you said implied exactly that. You even indicated some
-statistics.
+Ok, so mail me the security-related informations at
+kilobug@club-internet.fr, it's in France so you can, and I'll forward them.
 
-> So are you saying that you don't agree that publishing complete
-> changelogs should be considered an essential duty of the kernel
-> maintainer?
+I don't plan to go to the US a day or another (I won't go to any country
+that use death penalty, for moral and political reasons), and so I don't
+fear their DMCA.
 
-I am saying that if the laws of your country are to blame for you not
-being able to obtain something, the maintainer cant help it. But he sure
-doesnt have to step down especially since he has been doing a great job.
+-- 
+   ** Gael Le Mignot, Ing3 EPITA, Coder of The Kilobug Team **
+Home Mail : kilobug@freesurf.fr          Work Mail : le-mig_g@epita.fr
+GSM       : 06.71.47.18.22 (in France)   ICQ UIN   : 7299959
+Web       : http://kilobug.freesurf.fr or http://drizzt.dyndns.org
 
-Ognen
+"Software is like sex it's better when it's free.", Linus Torvalds
+
 

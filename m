@@ -1,76 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262617AbUKLVQH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262618AbUKLVSI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262617AbUKLVQH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 16:16:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262619AbUKLVQG
+	id S262618AbUKLVSI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 16:18:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262620AbUKLVQS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 16:16:06 -0500
-Received: from 202-47-55-78.adsl.gil.com.au ([202.47.55.78]:25411 "EHLO
-	longlandclan.hopto.org") by vger.kernel.org with ESMTP
-	id S262617AbUKLVOW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 16:14:22 -0500
-Message-ID: <419527AF.9060001@longlandclan.hopto.org>
-Date: Sat, 13 Nov 2004 07:14:23 +1000
-From: Stuart Longland <stuartl@longlandclan.hopto.org>
-User-Agent: Mozilla Thunderbird 0.7 (X11/20040615)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "M. A. Imam" <maimam@wichita.edu>
-CC: Ed Schouten <ed@il.fontys.nl>,
+	Fri, 12 Nov 2004 16:16:18 -0500
+Received: from gprs214-66.eurotel.cz ([160.218.214.66]:22913 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262618AbUKLVPo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Nov 2004 16:15:44 -0500
+Date: Fri, 12 Nov 2004 22:15:31 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: Andrew Morton <akpm@digeo.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: howt o remake the kernel
-References: <419477AC@webmail.wichita.edu>
-In-Reply-To: <419477AC@webmail.wichita.edu>
-X-Enigmail-Version: 0.84.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+Subject: Re: [PATCH 3/3] Fix sysdev time support
+Message-ID: <20041112211531.GC1252@elf.ucw.cz>
+References: <1100213485.6031.18.camel@desktop.cunninghams> <1100213867.6031.33.camel@desktop.cunninghams> <20041112080000.GC6307@atrey.karlin.mff.cuni.cz> <1100291593.4090.2.camel@desktop.cunninghams>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <1100291593.4090.2.camel@desktop.cunninghams>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi!
 
-M. A. Imam wrote:
-> Thanks alot... but i have linux 2.4 would that work? and at what
-directory
-> level should i run 'make'
->
-> Thanks again.
+> > > Fix type of sleep_start, so as to eliminate clock skew due to math
+> > > errors.
+> > 
+> > Are you sure? I do not think long signed/unsigned problem can skew the
+> > clock by 1hour. I could see skewing clock by few years, but not by one
+> > hour...
+> 
+> It seemed small to me, too. Perhaps I just didn't notice the shift in
+> the date. I'll look again, if you like.
 
-Normally the process is you run 'make' from the root of the kernel
-source tree.
-
-The exact process you use to process a working binary depends on the
-architecture you're running.  On my main box here (Dual PIII 1GHz), I
-use something like:
-
-$ make -j8 bzImage modules
-
-When cross-compilling a kernel for my SGI Indy, I use:
-$ make -j8 vmlinux modules CROSS_COMPILE=mips-unknown-linux-gnu-
-
-Similar for my Gateway Microserver (rebadged Cobalt Qube 2):
-$ make -j8 vmlinux modules CROSS_COMPILE=mipsel-unknown-linux-gnu-
-
-To the others: What's happening with the Kernel HOWTO?  That guide
-covered a lot about how to do this...?
-
-Also, remember that you can use the -C argument to make, to tell it to
-change directories first... e.g. 'make -C /path/to/kernel/source' will
-do what you want without having to manually 'cd' first.
-- --
-+-------------------------------------------------------------+
-| Stuart Longland -oOo- http://stuartl.longlandclan.hopto.org |
-| Atomic Linux Project     -oOo-    http://atomicl.berlios.de |
-| - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-| I haven't lost my mind - it's backed up on a tape somewhere |
-+-------------------------------------------------------------+
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBlSevuarJ1mMmSrkRAoFXAJwLO8uvfzds7ClcAzyrzUIwF8P1bwCfXG01
-XDUlXzPr723W7RO3C0+soNs=
-=gQcS
------END PGP SIGNATURE-----
+Yes, I'd like to understand this problem.
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

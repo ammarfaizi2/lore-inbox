@@ -1,37 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263154AbUFNP3Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263188AbUFNPbN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263154AbUFNP3Y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 11:29:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263184AbUFNP3Y
+	id S263188AbUFNPbN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 11:31:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263184AbUFNPbM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 11:29:24 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:13170 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S263154AbUFNP3W (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 11:29:22 -0400
-Date: Mon, 14 Jun 2004 08:38:44 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: cesarb@nitnet.com.br, linux-kernel@vger.kernel.org, viro@math.psu.edu
-Subject: Re: [PATCH] O_NOATIME support
-Message-Id: <20040614083844.76ca7516.pj@sgi.com>
-In-Reply-To: <20040614095529.GA11563@infradead.org>
-References: <20040612011129.GD1967@flower.home.cesarb.net>
-	<20040614095529.GA11563@infradead.org>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 14 Jun 2004 11:31:12 -0400
+Received: from mail010.syd.optusnet.com.au ([211.29.132.56]:62165 "EHLO
+	mail010.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S263169AbUFNP3h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jun 2004 11:29:37 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: buy Win2k/xp/unix/linux---exploit
+Date: Tue, 15 Jun 2004 01:29:33 +1000
+User-Agent: KMail/1.6.1
+References: <S262882AbUFNPY3/20040614152429Z+1241@vger.kernel.org>
+In-Reply-To: <S262882AbUFNPY3/20040614152429Z+1241@vger.kernel.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="gb2312"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200406150129.34080.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> O_INVISIBLE
+On Tue, 15 Jun 2004 01:22, ddd@email.com wrote:
+> Mr. who esteems
+> Hello , I needs the not ovet Exploit of WIN2K/XP/UNIX/LINUX along with
+> software respect to buy not to there is in a lot of Webs Site the rightful
+> queen of ovet Exploit price now I shall spend money either the goods come
+> to interchange and you , in case  also possess Exploit in our hands you
+> sense well , I also may interchange Exploit with you . Please in case you
+> sense appropriate , transmiting the mail touch : Spirits@email.com
+> icq:326524530 -
 
-If I were writing Linux viruses, I'd like that option.
-One additional easy way to cover my tracks a bit more.
+No thanks.
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+We get ours for free.

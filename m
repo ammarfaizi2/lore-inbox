@@ -1,91 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264600AbTLFAlW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 19:41:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264867AbTLFAlW
+	id S264891AbTLFAo5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 19:44:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264896AbTLFAo5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 19:41:22 -0500
-Received: from host-65-117-135-105.timesys.com ([65.117.135.105]:14587 "EHLO
-	yoda.timesys") by vger.kernel.org with ESMTP id S264600AbTLFAlT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 19:41:19 -0500
-Date: Fri, 5 Dec 2003 19:41:11 -0500
-To: "Discussion on impl'on details of robust and real-time
-	 mutexes" <robustmutexes@lists.osdl.org>
-Cc: Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org
-Subject: Re: [robustmutexes] RE: [RFC/PATCH] FUSYN Realtime & Robust mutexes for Linux try 2
-Message-ID: <20031206004111.GA17731@yoda.timesys>
-References: <A20D5638D741DD4DBAAB80A95012C0AE0125DD67@orsmsx409.jf.intel.com>
+	Fri, 5 Dec 2003 19:44:57 -0500
+Received: from main.gmane.org ([80.91.224.249]:11207 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S264891AbTLFAo4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 19:44:56 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: Large-FAT32-Filesystem Bug
+Date: Sat, 06 Dec 2003 01:44:53 +0100
+Message-ID: <yw1x1xri3hbu.fsf@kth.se>
+References: <3FD0555F.5060608@gmx.de> <20031205160746.GA18568@codepoet.org>
+ <3FD0C64D.5050804@gmx.de> <20031205221051.GA3244@codepoet.org>
+ <20031205224529.GS29119@mis-mike-wstn.matchmail.com>
+ <yw1x65gu3kyp.fsf@kth.se> <jewu9add70.fsf@sykes.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <A20D5638D741DD4DBAAB80A95012C0AE0125DD67@orsmsx409.jf.intel.com>
-User-Agent: Mutt/1.5.4i
-From: Scott Wood <scott@timesys.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:wZF7lPtB9/76uJu0LXEhrRYy5L0=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 04, 2003 at 01:27:42AM -0800, Perez-Gonzalez, Inaky wrote:
-> Heh ... doing it for SCHED_OTHER becomes a nightmare, and I still
-> am not that sure is feasible without major surgery on the way
-> the priority information is stored in the task_struct now; as well,
-> POSIX says nothing about it, or at least is kind of gray in a sense
-> where it seems only SCHED_{FIFO,RR} should be involved, so I am 
-> really tempted not to do it (well, that's what is nicing it towards
-> 20 :)
+Andreas Schwab <schwab@suse.de> writes:
 
-I'd consider it the expected behavior, though, even if POSIX doesn't
-mandate it (the user did request PI on the lock, and it's only for
-the duration of the critical section, when the user really shouldn't
-be doing things that would break if done as a RT task).  What sort of
-problems with the scheduler do you see, other than an extra field to
-the task_struct to store the old dynamic priority?
+>>>> No problem.  I put this patch together quite a while ago for
+>>>> my own use and never got around to sending it in.  It removes
+>>>> a number of artificial fat32 limits, and allows files up to 4GB,
+>>>
+>>> Why only 4gb?
+>>
+>> That's what the 32 in fat32 means.
+>
+> No, it doesn't.  It's about the number of bits in a cluster number, thus
+> the size of the filesystem.  And that 32 is actually 28.
 
-In any case, returning an error if a non-RT task blocks on a PI lock
-is not likely what the user wants, and completely broken if you
-intend to use it inside the kernel for mutex-like semaphores.  If
-instead you silently fail to boost, it wouldn't necessarily be
-obvious to the user that you're not boosting.  IMHO, boosting
-SCHED_NORMAL tasks is the only sane thing to do.
+OK, my mistake, but there is a 32 as in file size, right?
 
-> Now, on ufuqueues (the ones that are associated to user space addresses,
-> the true futex equivalent) that means you can't do the trick of the 
-> futex chain lists, so you have on each chain a head per ufuqueue/user
-> space address. That ufuqueue cannot be declared on the stack of one
-> of the waiters, as it would disappear when it is woken up and might leave
-> others dangling.
-> 
-> So we have to allocate it, add the waiters to it and deallocate it when 
-> the wait list is empty.
+-- 
+Måns Rullgård
+mru@kth.se
 
-However, instead of allocating the memory on demand, you can keep a
-pool of available queues.  Every time a task is created, allocate
-one and add it to the queue; every time a task dies, retrieve one
-and free it.  Since a task can only wait on one queue at a time,
-you won't run out of queues (unless you want to implement some sort
-of wait for multiple objects; however, in such a case you could
-allocate the extra queues on demand without affecting the normal
-single-object case).
-
-Thus, it would be a simple linked-list operation plus a spinlock to
-acquire and release a queue whenever something blocks.  It would be
-slower than the current waitqueue implementation, but not by much
-(and it could be made configurable for those who want every last
-cycle and don't care about real-time wait queues).
-
-This would be beneficial for userspace usage as well, as blocking
-on a queue would no longer be subject to a return value of -ENOMEM
-(which is generally undesireable in what's supposed to be a
-predictable real-time application).
-
-> This is what complicates the whole thing and adds the blob of code
-> that is vl_locate() [the allocation and addition to the list,
-> checking for collisions when locks are dropped]. As the whole thing
-> is kind of expensive, we better cache it for a few seconds, as
-> chances are we will have some temporal locality (in fact, it
-> happens, it improves the performance a lot),
-
-If the pool is kept as a stack, you keep the cache benefits, as well
-as allowing re-use of the queue across different locks.
-
--Scott

@@ -1,49 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285094AbRLFKGf>; Thu, 6 Dec 2001 05:06:35 -0500
+	id <S285095AbRLFKLg>; Thu, 6 Dec 2001 05:11:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285097AbRLFKGZ>; Thu, 6 Dec 2001 05:06:25 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:1838 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S285092AbRLFKGO>; Thu, 6 Dec 2001 05:06:14 -0500
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: WRohdewald@dplanet.ch, linux-kernel@vger.kernel.org
-Subject: Re: Flash ASUS Bios without Floppy?
-In-Reply-To: <20011202230331.E30DA332@localhost.localdomain>
-	<4608.1007425933@redhat.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 06 Dec 2001 02:45:36 -0700
-In-Reply-To: <4608.1007425933@redhat.com>
-Message-ID: <m1itbkwukf.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S285092AbRLFKL0>; Thu, 6 Dec 2001 05:11:26 -0500
+Received: from warden.digitalinsight.com ([208.29.163.2]:46288 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S285086AbRLFKLS>; Thu, 6 Dec 2001 05:11:18 -0500
+From: David Lang <david.lang@digitalinsight.com>
+To: Henning Schmiedehausen <hps@intermeta.de>
+Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>, Larry McVoy <lm@bitmover.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Lars Brinkhoff <lars.spam@nocrew.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Date: Thu, 6 Dec 2001 01:46:09 -0800 (PST)
+Subject: Re: SMP/cc Cluster description [was Linux/Pro]
+In-Reply-To: <1007632244.24677.1.camel@forge>
+Message-ID: <Pine.LNX.4.40.0112060136520.3044-100000@dlang.diginsite.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse <dwmw2@infradead.org> writes:
+one other thing to keep in mind on this entire discussion is that there
+has not been a big incentive for the chip manufacturers to make a good
+locking primitive (after all if 99% of the market is UP boxes why design
+in extra stuff for the SMP modes)
 
-> WRohdewald@dplanet.ch said:
-> >  how can I update my Bios (Asus A7V266) if I don't have a floppy drive
-> > for using the Asus DOS utility?
-> 
-> > Is there any Linux utililty that can do this? 
-> 
-> There are flash chip 'map' drivers which know how to enable WE lines, Vpp 
-> etc for various northbridges. Only the L440GX one is in the kernel so far. 
-> For the rest, ask on the LinuxBIOS list <linuxbios@lanl.gov>.
-> 
-> Unless you fancy desoldering your flash chips to replace them when, this is
-> firmly in the "don't try this at home, kids" category, though :)
+This is changing as SMP boxes become mor popular.
 
-Hmm.  Actually most flash chips I have seen for roms have a couple of nice
-properties.  1 Voltage so you don't need to play with Vpp.  Either socketed or
-their is a jumper that inverts an address line to allow easy switching to a
-fallback image.  Of course not all motherboard makers have a clue, but
-most do.
+has anyone pointed out this problem to the CPU vendors? it may be that
+they would be interested in putting in some extra locking operations in a
+future chip (for example I can easily see AMD implementing a 1
+bit-per-lock set of locks that are arbatrated directly with the CPUs and
+the chipset similar to the way cache coherancy works now rather then
+the current model of useing a cacheline of memory that has to be moved
+back and forth and then checked for status)
 
-It may be worth asking but at this point I don't think anyone has actually
-written a driver for the A7V266.  Via hasn't been the most supportive of
-companies with the chipset documentation.
+the big drawback would be that it would be non-standard commands which
+each vendor would do differently, but the potential of implementing a
+significant number of locks at the hardware level rather then just in
+software is a very interesting thought.
 
-Eric
+David Lang
+
+
+
+ On 6 Dec
+2001, Henning Schmiedehausen wrote:
+
+> Date: 06 Dec 2001 10:50:43 +0100
+> From: Henning Schmiedehausen <hps@intermeta.de>
+> To: Martin J. Bligh <Martin.Bligh@us.ibm.com>
+> Cc: Larry McVoy <lm@bitmover.com>, Rik van Riel <riel@conectiva.com.br>,
+>      Lars Brinkhoff <lars.spam@nocrew.org>,
+>      Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+> Subject: Re: SMP/cc Cluster description [was Linux/Pro]
+>
+> On Wed, 2001-12-05 at 22:14, Martin J. Bligh wrote:
+> > > We don't agree on any of these points.  Scaling to a 16 way SMP pretty much
+> > > ruins the source base, even when it is done by very careful people.
+> >
+> > I'd say that the normal current limit on SMP machines is 8 way.
+> > But you're right, we don't agree.  Time will tell who was right.
+> > When I say I'm interested in 16 way scalability, I'm not talking about
+> > SMP, so perhaps we're talking at slightly cross purposes.
+>
+> Well I do remember those Sequent Symmetry machines from university which
+> scaled to 24 processors and more. If I remember correctly they ran 16x
+> 386 and 8x 486 in a single box (under Dynix?)
+>
+> Wasn't too much interested in that then. I was to busy toying with my
+> Amiga. ;-)
+>
+> 	Regards
+> 		Henning
+>
+> --
+> Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+> INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+>
+> Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+> D-91054 Buckenhof     Fax.: 09131 / 50654-20
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266142AbSKFVyw>; Wed, 6 Nov 2002 16:54:52 -0500
+	id <S266156AbSKFV73>; Wed, 6 Nov 2002 16:59:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266140AbSKFVyw>; Wed, 6 Nov 2002 16:54:52 -0500
-Received: from imrelay-2.zambeel.com ([209.240.48.8]:53258 "EHLO
-	imrelay-2.zambeel.com") by vger.kernel.org with ESMTP
-	id <S266142AbSKFVyu>; Wed, 6 Nov 2002 16:54:50 -0500
-Message-ID: <233C89823A37714D95B1A891DE3BCE5202AB184B@xch-a.win.zambeel.com>
-From: Manish Lachwani <manish@Zambeel.com>
-To: "'Robert Love'" <rml@tech9.net>, Manish Lachwani <manish@Zambeel.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: Regarding zerocopy implementation ...
-Date: Wed, 6 Nov 2002 14:01:12 -0800 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S266157AbSKFV73>; Wed, 6 Nov 2002 16:59:29 -0500
+Received: from harddata.com ([216.123.194.198]:37508 "EHLO mail.harddata.com")
+	by vger.kernel.org with ESMTP id <S266156AbSKFV72>;
+	Wed, 6 Nov 2002 16:59:28 -0500
+Date: Wed, 6 Nov 2002 15:05:26 -0700
+From: Michal Jaegermann <michal@harddata.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Werner Almesberger <wa@almesberger.net>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       "Matt D. Robinson" <yakker@aparity.com>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
+Subject: Re: [lkcd-devel] Re: What's left over.
+Message-ID: <20021106150526.A28533@mail.harddata.com>
+References: <Pine.LNX.4.44.0211052203150.1416-100000@home.transmeta.com> <m1znsndtpn.fsf@frodo.biederman.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <m1znsndtpn.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Wed, Nov 06, 2002 at 12:48:36AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for the response. When you say zerocopy networking, do you refer to
-zerocopy receives too? What linux kernel version offers this support? I am
-making use of 2.4.17 ...
+On Wed, Nov 06, 2002 at 12:48:36AM -0700, Eric W. Biederman wrote:
+> 
+> Then I guess the reasonable thing to do is to modify sys_reboot to
+> call machine_kexec instead of machine_restart when a kexec_image is
+> present.  Or should I add another magic number, and another case to
+> sys_reboot?  
 
------Original Message-----
-From: Robert Love [mailto:rml@tech9.net]
-Sent: Wednesday, November 06, 2002 1:46 PM
-To: Manish Lachwani
-Cc: 'linux-kernel@vger.kernel.org'
-Subject: Re: Regarding zerocopy implementation ...
+Given that "bird-eye" description why not to make a "normal" restart
+a particular case of kexec where you just have one kernel loaded
+from an external storage?  It does not seem to be that much
+different although some issues are skipped or taken for granted.  Or
+I am talking nonsense?
 
-
-On Wed, 2002-11-06 at 10:23, Manish Lachwani wrote:
-> Is there a zerocopy receive implementation in Linux? I know that FreeBSD
-> 5.0-CURRENT has such an implementation named zerocopy sockets and when
-used
-> with a Alteon Tigon II NIC with header splitting turned on in Firmware,
-> works well. Do we have any such implementation in Linux? Any reponse is
-> greatly appreciated ...
-
-Yes, we have zero-copy networking if the device supports the requisite
-features and the driver is so coded.
-
-Quick glance over 2.4, it looks like the following drivers support
-zero-copy networking: via-rhine, tg3, sunhme, sungem, starfire, ns83820,
-dl2k, acenic, 8139too, 8139cp, 3c59x family (includes 3c9xx), Intel
-e100, and Intel e1000.
-
-	Robert Love
-
+   Michal

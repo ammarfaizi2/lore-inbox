@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292876AbSBVOXy>; Fri, 22 Feb 2002 09:23:54 -0500
+	id <S292874AbSBVOdz>; Fri, 22 Feb 2002 09:33:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292880AbSBVOXf>; Fri, 22 Feb 2002 09:23:35 -0500
-Received: from host194.steeleye.com ([216.33.1.194]:5902 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S292876AbSBVOXX>; Fri, 22 Feb 2002 09:23:23 -0500
-Message-Id: <200202221423.g1MENIM02166@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+	id <S292875AbSBVOdp>; Fri, 22 Feb 2002 09:33:45 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:2318 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S292874AbSBVOde>;
+	Fri, 22 Feb 2002 09:33:34 -0500
+Date: Fri, 22 Feb 2002 15:33:28 +0100
+From: Thomas Wentzel <wentzel@kernel.dk>
 To: linux-kernel@vger.kernel.org
-cc: James.Bottomley@HansenPartnership.com
-Subject: [PATCH: NEW ARCHITECTURE FOR 2.5.5] support for NCR voyager
+Subject: Somewhat out of context
+Message-ID: <20020222153328.A3849@www.virtualhost.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 22 Feb 2002 09:23:18 -0500
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There are only three changes over the last voyager patch
+Not sooo long ago... I remember a lot of bickering mainly because Linus
+was (seemingly) ignoring patches from ESR.
+Well today my attention was directed towards:
+  http://www.tuxedo.org/~esr/faqs/smart-questions.html 
 
-- merge the minor processor capabilites change from smpboot.c
-- correct the configuration mess with VISW and MCA to make the file more 
-readable
-- Change the completion to a semaphore in voyager daemon (completions always 
-wait in D which was causing a spurious increase in the load average).
+And I stumbled across the following section:
+"We're (largely) volunteers. We take time out of busy lives to answer
+questions, and at times we're overwhelmed with them. So we filter
+ruthlessly. In particular, we throw away questions from people who 
+appear to be losers in order to spend our question-answering time more
+efficiently, on winners."
 
-The patch (153k) is available here
+So what is it, Eric? Are you a winner or a luser ("..for historical
+reasons.." :-)? It seems to me, as if you got a doze of your own
+medicine.
 
-http://www.hansenpartnership.com/voyager/files/voyager-2.5.5.diff
+Well... sorry for this rather irrelevant post - I simply couldn't help
+myself :)
 
-James Bottomley
-
-P.S. Just to clarify, the Voyager series are microchannel (MCA) SMP machines 
-produced by NCR with model numbers 345x, 35xx, 4100 or 51xx.
+Regards
+  Thomas Wentzel
 

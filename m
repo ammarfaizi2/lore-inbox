@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271711AbRHQRlJ>; Fri, 17 Aug 2001 13:41:09 -0400
+	id <S271716AbRHQRsl>; Fri, 17 Aug 2001 13:48:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271712AbRHQRlA>; Fri, 17 Aug 2001 13:41:00 -0400
-Received: from mhw.ulib.iupui.edu ([134.68.164.123]:63690 "EHLO
-	mhw.ULib.IUPUI.Edu") by vger.kernel.org with ESMTP
-	id <S271711AbRHQRko>; Fri, 17 Aug 2001 13:40:44 -0400
-Date: Fri, 17 Aug 2001 12:40:58 -0500 (EST)
-From: "Mark H. Wood" <mwood@IUPUI.Edu>
-X-X-Sender: <mwood@mhw.ULib.IUPUI.Edu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: ext2 not NULLing deleted files?
-In-Reply-To: <998034466.663.11.camel@phantasy>
-Message-ID: <Pine.LNX.4.33.0108171233360.392-100000@mhw.ULib.IUPUI.Edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+	id <S271715AbRHQRsa>; Fri, 17 Aug 2001 13:48:30 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:51190 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S269391AbRHQRsQ>; Fri, 17 Aug 2001 13:48:16 -0400
+From: Andreas Dilger <adilger@turbolabs.com>
+Date: Fri, 17 Aug 2001 11:48:20 -0600
+To: Peter Klotz <peter.klotz@aon.at>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Error on fs unmount
+Message-ID: <20010817114820.D17372@turbolinux.com>
+Mail-Followup-To: Peter Klotz <peter.klotz@aon.at>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <01081718390800.01143@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <01081718390800.01143@localhost.localdomain>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17 Aug 2001, Robert Love wrote:
-> On 17 Aug 2001 09:38:10 +0200, Enver Haase wrote:
-> > I just recognized there's an "undelete" now for ext2 file systems [a KDE
-> > app].
-> >
-> > "The Other OS" in its professional version does of course clear the deleted
-> > blocks with 0's for security reasons; I would have bet a thousand bucks Linux
-> > would do so, too [seems I should have read the source code, good thing no-one
-> > wanted to take on the bet :) ].
->
-> By "The Other OS" I assume you mean NT.  NT does _not_ zero files on
-> delete, either with NTFS or anything else.  It merely unlinks them like
-> any other OS.  I can't think of anything that nullifies files, except
-> utilities meant solely to do that (often called "sweeping").
+On Aug 17, 2001  18:39 +0200, Peter Klotz wrote:
+> Kernel 2.4.8 produces the following message on almost every shutdown:
+> 
+> Unmounting filesystems: Trying to _clear_inode of system file 9! Shouldn't 
+> happen.
 
-VMS.  "DELETE/ERASE FOO.BAR"  I don't recall whether it's done by the
-filesystem code or by the DELETE command in userspace, but I'm guessing
-it's built into FILES-11.  (Sorry, my Gray Wall is at home.)
+Please tell us what filesystem you are using?
 
-> Do you have any idea how long it would take to zero files?  If you
-> removed even a moderately sized directory, it would take a _very long_
-> time.
+Assuming ext2, please run "e2fsck -f <device>" on the unmounted filesystem.
+However, since I've never seen this message before, and e2fsck would run
+automatically after such an error I doubt it is ext2 unless there were
+recent changes.
 
-That's why it's optional.
-
+Cheers, Andreas
 -- 
-Mark H. Wood, Lead System Programmer   mwood@IUPUI.Edu
-Make a good day.
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 

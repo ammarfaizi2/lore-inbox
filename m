@@ -1,84 +1,111 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269976AbRHNBdh>; Mon, 13 Aug 2001 21:33:37 -0400
+	id <S269962AbRHNBcn>; Mon, 13 Aug 2001 21:32:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269967AbRHNBdH>; Mon, 13 Aug 2001 21:33:07 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:19162 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S269963AbRHNBct>;
-	Mon, 13 Aug 2001 21:32:49 -0400
-Date: Mon, 13 Aug 2001 21:33:02 -0400 (EDT)
+	id <S269963AbRHNBcf>; Mon, 13 Aug 2001 21:32:35 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:12761 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S269962AbRHNBcZ>;
+	Mon, 13 Aug 2001 21:32:25 -0400
+Date: Mon, 13 Aug 2001 21:32:38 -0400 (EDT)
 From: Alexander Viro <viro@math.psu.edu>
 To: Linus Torvalds <torvalds@transmeta.com>
 cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] (4/11) fs/super.c fixes
-In-Reply-To: <Pine.GSO.4.21.0108132132230.10579-100000@weyl.math.psu.edu>
-Message-ID: <Pine.GSO.4.21.0108132132470.10579-100000@weyl.math.psu.edu>
+Subject: [PATCH] (3/11) fs/super.c fixes
+In-Reply-To: <Pine.GSO.4.21.0108132131590.10579-100000@weyl.math.psu.edu>
+Message-ID: <Pine.GSO.4.21.0108132132230.10579-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Part 4/11
+Part 3/11
 
-do_remount_sb() placed under the exclusive lock on ->s_umount. All it takes
-is replacement of fsync_dev() with fsync_super(). Callers updated.
+And now the second part - we expand the call of read_super() in get_sb_bdev()
+and move superblock allocation in the beginning of the function. That
+gets the search in super_blocks for existing superblocks from our device
+together with insertion of new superblock into the list (if search fails, that
+is). We hold sb_lock over that area, which makes the whole "add if we hadn't
+one" thing atomic.
 
-diff -urN S9-pre3-get_sb_bdev2/fs/super.c S9-pre3-do_remount_sb/fs/super.c
---- S9-pre3-get_sb_bdev2/fs/super.c	Mon Aug 13 21:21:26 2001
-+++ S9-pre3-do_remount_sb/fs/super.c	Mon Aug 13 21:21:27 2001
-@@ -1035,8 +1035,8 @@
- 	if (!sb)
- 		BUG();
- 	atomic_inc(&sb->s_active);
--	do_remount_sb(sb, flags, data);
- 	down_write(&sb->s_umount);
-+	do_remount_sb(sb, flags, data);
- 	return sb;
- }
+diff -urN S9-pre3-get_sb_bdev/fs/super.c S9-pre3-get_sb_bdev2/fs/super.c
+--- S9-pre3-get_sb_bdev/fs/super.c	Mon Aug 13 21:21:26 2001
++++ S9-pre3-get_sb_bdev2/fs/super.c	Mon Aug 13 21:21:26 2001
+@@ -898,7 +898,7 @@
+ 	struct inode *inode;
+ 	struct block_device *bdev;
+ 	struct block_device_operations *bdops;
+-	struct super_block * sb;
++	struct super_block * s;
+ 	struct nameidata nd;
+ 	struct list_head *p;
+ 	kdev_t dev;
+@@ -935,6 +935,12 @@
+ 	if (!(flags & MS_RDONLY) && is_read_only(dev))
+ 		goto out1;
  
-@@ -1107,7 +1107,7 @@
- 	if (flags & MS_RDONLY)
- 		acct_auto_close(sb->s_dev);
- 	shrink_dcache_sb(sb);
--	fsync_dev(sb->s_dev);
-+	fsync_super(sb);
- 	/* If we are remounting RDONLY, make sure there are no rw files open */
- 	if ((flags & MS_RDONLY) && !(sb->s_flags & MS_RDONLY))
- 		if (!fs_may_remount_ro(sb))
-@@ -1192,8 +1192,11 @@
- 		 * Special case for "unmounting" root ...
- 		 * we just try to remount it readonly.
- 		 */
--		if (!(sb->s_flags & MS_RDONLY))
-+		if (!(sb->s_flags & MS_RDONLY)) {
-+			down_write(&sb->s_umount);
- 			retval = do_remount_sb(sb, MS_RDONLY, 0);
-+			up_write(&sb->s_umount);
-+		}
- 		return retval;
- 	}
- 
-@@ -1369,13 +1372,19 @@
- 
- static int do_remount(struct nameidata *nd, int flags, char *data)
- {
-+	int err;
-+	struct super_block * sb = nd->mnt->mnt_sb;
++	error = -ENOMEM;
++	s = alloc_super();
++	if (!s)
++		goto out1;
++	down_write(&s->s_umount);
 +
- 	if (!capable(CAP_SYS_ADMIN))
- 		return -EPERM;
- 
- 	if (nd->dentry != nd->mnt->mnt_root)
- 		return -EINVAL;
- 
--	return do_remount_sb(nd->mnt->mnt_sb, flags, data);
-+	down_write(&sb->s_umount);
-+	err = do_remount_sb(sb, flags, data);
-+	up_write(&sb->s_umount);
-+	return err;
- }
- 
- static int do_add_mount(struct nameidata *nd, char *type, int flags,
+ 	error = -EBUSY;
+ restart:
+ 	spin_lock(&sb_lock);
+@@ -946,22 +952,47 @@
+ 		if (old->s_type != fs_type ||
+ 		    ((flags ^ old->s_flags) & MS_RDONLY)) {
+ 			spin_unlock(&sb_lock);
++			atomic_dec(&s->s_active);
++			put_super(s);
+ 			goto out1;
+ 		}
+ 		if (!grab_super(old))
+ 			goto restart;
++		atomic_dec(&s->s_active);
++		put_super(s);
+ 		blkdev_put(bdev, BDEV_FS);
+ 		path_release(&nd);
+ 		return old;
+ 	}
++	s->s_dev = dev;
++	s->s_bdev = bdev;
++	s->s_flags = flags;
++	s->s_type = fs_type;
++	list_add (&s->s_list, super_blocks.prev);
++
+ 	spin_unlock(&sb_lock);
++
+ 	error = -EINVAL;
+-	sb = read_super(dev, bdev, fs_type, flags, data, 0);
+-	if (sb) {
+-		get_filesystem(fs_type);
+-		path_release(&nd);
+-		return sb;
+-	}
++	lock_super(s);
++	if (!fs_type->read_super(s, data, 0))
++		goto out_fail;
++	unlock_super(s);
++	/* tell bdcache that we are going to keep this one */
++	atomic_inc(&bdev->bd_count);
++	get_filesystem(fs_type);
++	path_release(&nd);
++	return s;
++
++out_fail:
++	s->s_dev = 0;
++	s->s_bdev = 0;
++	s->s_type = NULL;
++	unlock_super(s);
++	atomic_dec(&s->s_active);
++	spin_lock(&sb_lock);
++	list_del(&s->s_list);
++	spin_unlock(&sb_lock);
++	put_super(s);
+ out1:
+ 	blkdev_put(bdev, BDEV_FS);
+ out:
 
 

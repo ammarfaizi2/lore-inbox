@@ -1,61 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317814AbSFSIWq>; Wed, 19 Jun 2002 04:22:46 -0400
+	id <S317815AbSFSIkl>; Wed, 19 Jun 2002 04:40:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317815AbSFSIWp>; Wed, 19 Jun 2002 04:22:45 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:2536 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S317814AbSFSIWn>; Wed, 19 Jun 2002 04:22:43 -0400
-Date: Wed, 19 Jun 2002 10:22:41 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Joseph Pingenot <trelane@digitasaru.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Build problem in sched.c in 2.5.23
-In-Reply-To: <20020619031247.B5211@ksu.edu>
-Message-ID: <Pine.NEB.4.44.0206191022030.10290-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S317817AbSFSIkk>; Wed, 19 Jun 2002 04:40:40 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:33676 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S317815AbSFSIkk>;
+	Wed, 19 Jun 2002 04:40:40 -0400
+Date: Wed, 19 Jun 2002 10:38:46 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Subject: [patch] migration thread & hotplug fixes, 2.5.23
+Message-ID: <Pine.LNX.4.44.0206191037480.5939-100000@e2>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Jun 2002, Joseph Pingenot wrote:
 
-> make[1]: Entering directory `/usr/local/src/kernel/linux-2.5.23/kernel'
->   gcc -Wp,-MD,./.sched.o.d -D__KERNEL__ -I/usr/local/src/kernel/linux-2.5.23/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -nostdinc -iwithprefix include    -fno-omit-frame-pointer -DKBUILD_BASENAME=sched   -c -o sched.o sched.c
-> sched.c: In function `sys_sched_setaffinity':
-> sched.c:1332: `cpu_online_map' undeclared (first use in this function)
-> sched.c:1332: (Each undeclared identifier is reported only once
-> sched.c:1332: for each function it appears in.)
-> sched.c: In function `sys_sched_getaffinity':
-> sched.c:1391: `cpu_online_map' undeclared (first use in this function)
-> make[1]: *** [sched.o] Error 1
-> make[1]: Leaving directory `/usr/local/src/kernel/linux-2.5.23/kernel'
-> make: *** [kernel] Error 2
->
-> Need any more details?
+the attached patch fixes the migration init code to deal with nonlinear 
+enumeration of CPUs.
 
+	Ingo
 
-The following patch that is already in Linus' BK repository fixes it:
-
-
---- a/include/linux/smp.h	Wed Jun 19 00:00:41 2002
-+++ b/include/linux/smp.h	Wed Jun 19 00:00:41 2002
-@@ -86,6 +86,7 @@
- #define smp_call_function(func,info,retry,wait)	({ 0; })
- static inline void smp_send_reschedule(int cpu) { }
- static inline void smp_send_reschedule_all(void) { }
-+#define cpu_online_map				1
- #define cpu_online(cpu)				1
- #define num_online_cpus()			1
- #define __per_cpu_data
-
-cu
-Adrian
-
--- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
+diff -Nru a/kernel/sched.c b/kernel/sched.c
+--- a/kernel/sched.c	Wed Jun 19 10:35:55 2002
++++ b/kernel/sched.c	Wed Jun 19 10:35:55 2002
+@@ -1775,6 +1775,8 @@
+ 	preempt_enable();
+ }
+ 
++static __initdata int master_migration_thread;
++
+ static int migration_thread(void * bind_cpu)
+ {
+ 	int cpu = (int) (long) bind_cpu;
+@@ -1786,14 +1788,12 @@
+ 	sigfillset(&current->blocked);
+ 	set_fs(KERNEL_DS);
+ 
+-	/* FIXME: First CPU may not be zero, but this crap code
+-           vanishes with hotplug cpu patch anyway. --RR */
+ 	/*
+-	 * The first migration thread is started on CPU #0. This one can
+-	 * migrate the other migration threads to their destination CPUs.
++	 * The first migration thread is started on CPU #0, it migrates
++	 * the other migration threads to their destination CPUs.
+ 	 */
+-	if (cpu != 0) {
+-		while (!cpu_rq(0)->migration_thread)
++	if (cpu != master_migration_thread) {
++		while (!cpu_rq(master_migration_thread)->migration_thread)
+ 			yield();
+ 		set_cpus_allowed(current, 1UL << cpu);
+ 	}
+@@ -1857,7 +1857,9 @@
+ {
+ 	int cpu;
+ 
+-	current->cpus_allowed = 1UL << 0;
++	master_migration_thread = smp_processor_id();
++	current->cpus_allowed = 1UL << master_migration_thread;
++	
+ 	for (cpu = 0; cpu < NR_CPUS; cpu++) {
+ 		if (!cpu_online(cpu))
+ 			continue;
 

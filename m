@@ -1,54 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264163AbUBDTof (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 14:44:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264229AbUBDTof
+	id S263726AbUBDTkU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 14:40:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263803AbUBDTkU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 14:44:35 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:55765 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S264163AbUBDTo2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 14:44:28 -0500
-Subject: Re: Active Memory Defragmentation: Our implementation & problems
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Timothy Miller <miller@techsource.com>
-Cc: root@chaos.analogic.com, Alok Mooley <rangdi@yahoo.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>
-In-Reply-To: <40214A11.3060007@techsource.com>
-References: <20040204185446.91810.qmail@web9705.mail.yahoo.com>
-	 <Pine.LNX.4.53.0402041402310.2722@chaos>  <40214A11.3060007@techsource.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1075923832.27944.391.camel@nighthawk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 04 Feb 2004 11:43:53 -0800
-Content-Transfer-Encoding: 7bit
+	Wed, 4 Feb 2004 14:40:20 -0500
+Received: from ronispc.Chem.McGill.CA ([132.206.205.91]:131 "EHLO
+	ronispc.chem.mcgill.ca") by vger.kernel.org with ESMTP
+	id S263726AbUBDTkM convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 14:40:12 -0500
+From: David Ronis <ronis@ronispc.chem.mcgill.ca>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-ID: <16417.19084.870196.696467@ronispc.chem.mcgill.ca>
+Date: Wed, 4 Feb 2004 14:39:56 -0500
+To: "Juergen E. Fischer" <fischer@linux-buechse.de>
+Cc: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Problem with module-init-tools-3.0-pre3
+In-Reply-To: <20040204193154.GA29661@linux-buechse.de>
+References: <16417.14736.420280.796948@ronispc.chem.mcgill.ca>
+	<20040204193154.GA29661@linux-buechse.de>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: david.ronis@mcgill.ca
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-02-04 at 11:37, Timothy Miller wrote:
-> Would memory fragmentation have any appreciable impact on L2 cache line 
-> collisions?
-> Would defragmenting it help?
+Hi Jurgen,
 
-Nope.  The L2 lines are 32 or 64 bytes long, and the only unit we can
-defrag in is pages which are 4k.  Since everything is aligned, a
-cacheline cannot cross a page.  
+Without.  [Can you point me to it?  I'll give it a try].
 
-> In the case of the Opteron, there is a 1M cache that is (I forget) N-way 
-> set associative, and it's physically indexed.  If a bunch of pages were 
-> located such that there were a disproportionately large number of lines 
-> which hit the same tag, you could be thrashing the cache.
->
-> There are two ways to deal with this:  (1) intelligently locates pages
-> in physical memory; (2) hope that natural entropy keeps things random 
-> enough that it doesn't matter.
+David
 
-You're talking about page coloring now.  That a whole different debate. 
-I think it's been discussed here before. :)  It's good.  It's bad.  It's
-good.  It's bad.  
-
---dave
-
+Juergen E. Fischer writes:
+ > Hi David,
+ > 
+ > On Wed, Feb 04, 2004 at 13:27:28 -0500, David Ronis wrote:
+ > > I just built 2.6.2 and tried the scsi driver install/remove problem I
+ > > wrote about earlier (if, I manually remove the sg and aha152x modules
+ > > with modprobe, I get an oops the next time they are used).  The
+ > > problem is still present.
+ > 
+ > With or without the patch?  It wasn't applied in 2.6.2.
+ > 
+ > 
+ > Jürgen
+ > 
+ > -- 
+ > Phase 1: Where do you want to go today?
+ > Phase 2: This is where you want to go today.
+ > Phase 3: You're not going anywhere today.
+ >   -- seen on /.

@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317689AbSGOXGe>; Mon, 15 Jul 2002 19:06:34 -0400
+	id <S317687AbSGOXLj>; Mon, 15 Jul 2002 19:11:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317688AbSGOXGd>; Mon, 15 Jul 2002 19:06:33 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:54257 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S317687AbSGOXGb>; Mon, 15 Jul 2002 19:06:31 -0400
-Subject: [PATCH] fix memory leak in socket.c
-From: Robert Love <rml@tech9.net>
+	id <S317688AbSGOXLi>; Mon, 15 Jul 2002 19:11:38 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:2066 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S317687AbSGOXLi>; Mon, 15 Jul 2002 19:11:38 -0400
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 15 Jul 2002 16:09:26 -0700
-Message-Id: <1026774566.940.496.camel@sinai>
-Mime-Version: 1.0
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Linux 2.4.19-rc1-ac5
+Date: 15 Jul 2002 16:14:08 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <agvl00$jjm$1@cesium.transmeta.com>
+References: <200207152148.g6FLm7Q24750@devserv.devel.redhat.com> <20020715220241Z317668-685+9887@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This fixes a memory leak in sock_fasync :: net/socket.c.
+Followup to:  <20020715220241Z317668-685+9887@vger.kernel.org>
+By author:    Rudmer van Dijk <rvandijk@science.uva.nl>
+In newsgroup: linux.dev.kernel
+>
+> On Monday 15 July 2002 23:48, Alan Cox wrote:
+> > Linux 2.4.19rc1-ac5
+> 
+> it looks like the file is damaged:
+> 
+> # gzip -t patch-2.4.19-rc1-ac5.gz
+> gzip: patch-2.4.19-rc1-ac5.gz: invalid compressed data--format violated
+> 
+> waiting for the .bz2 file...
+> 
 
-I sent a fix to Linus and it is now in 2.5.
+The file on zeus.kernel.org is just fine.  Problem is on your end.
 
-2.4 and 2.4-ac still require the fix... the following patch applies to
-2.4.19-rc1 and 2.4.19-rc1-ac5.
-
-	Robert Love
-
-diff -urN linux-2.4.19-sausage/net/socket.c linux/net/socket.c
---- linux-sausage/net/socket.c	Mon Jun 10 15:26:30 2002
-+++ linux/net/socket.c	Mon Jun 10 15:37:48 2002
-@@ -743,11 +743,13 @@
- 			return -ENOMEM;
- 	}
- 
--
- 	sock = socki_lookup(filp->f_dentry->d_inode);
- 	
--	if ((sk=sock->sk) == NULL)
-+	if ((sk=sock->sk) == NULL) {
-+		if (fna)
-+			kfree(fna);
- 		return -EINVAL;
-+	}
- 
- 	lock_sock(sk);
- 
-
-
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

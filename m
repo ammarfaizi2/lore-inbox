@@ -1,40 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268282AbTBMUTL>; Thu, 13 Feb 2003 15:19:11 -0500
+	id <S268532AbTBMUZe>; Thu, 13 Feb 2003 15:25:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268284AbTBMUTL>; Thu, 13 Feb 2003 15:19:11 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:23827 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S268282AbTBMUTK>; Thu, 13 Feb 2003 15:19:10 -0500
-Date: Thu, 13 Feb 2003 12:25:26 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Davide Libenzi <davidel@xmailserver.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Synchronous signal delivery..
-In-Reply-To: <Pine.LNX.4.50.0302131215140.1869-100000@blue1.dev.mcafeelabs.com>
-Message-ID: <Pine.LNX.4.44.0302131222560.2125-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268533AbTBMUZe>; Thu, 13 Feb 2003 15:25:34 -0500
+Received: from f168.pav2.hotmail.com ([64.4.37.168]:55050 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S268532AbTBMUZd>;
+	Thu, 13 Feb 2003 15:25:33 -0500
+X-Originating-IP: [129.219.25.77]
+From: "shesha bhushan" <bhushan_vadulas@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Exporting Kernel Symbols
+Date: Thu, 13 Feb 2003 20:35:19 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F1682lxVp9AC7Ilz75r0002f84b@hotmail.com>
+X-OriginalArrivalTime: 13 Feb 2003 20:35:20.0110 (UTC) FILETIME=[6CF5BCE0:01C2D39F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Yup I have already appended read_write.o into export-objs list in the 
+linux/fs/Makefile.
+I am working on Hardhat linux kernel version "2.4.18-rmk7-ds3"
 
-On Thu, 13 Feb 2003, Davide Libenzi wrote:
-> 
-> That's really nice, I like file-based interfaces. No plan to have a way to
-> change the sig-mask ? Close and reopen ?
+Shesha
 
-You can have multiple fd's open at the same time, which is a lot more 
-convenient. 
 
-I will _not_ add a fcntl-like or ioctl interface to this. They are ugly 
-_and_ there are security issues (ie if you pass on the fd to somebody 
-else, they must not be able to change the signal mask _you_ specified).
 
-> What do you think about having timers through a file interface ?
 
-One of the reasons for the "flags" field (which is not unused) was because 
-I thought it might have extensions for things like alarms etc. 
 
-		Linus
+
+>From: "Randy.Dunlap" <rddunlap@osdl.org>
+>To: "shesha bhushan" <bhushan_vadulas@hotmail.com>
+>CC: linux-kernel@vger.kernel.org
+>Subject: Re: Exporting Kernel Symbols
+>Date: Thu, 13 Feb 2003 12:26:10 -0800
+>
+>On Thu, 13 Feb 2003 20:22:48 +0000
+>"shesha bhushan" <bhushan_vadulas@hotmail.com> wrote:
+>
+>| Hi,
+>|   I have written a new function in linux/fs/read_write.c and I want to 
+>make
+>| the function avaliable to other kernel modules loaded using insmod.
+>| He is what I did:
+>| 1. Wrore the func my_func() in linux/fs/read_write.c
+>| 2. Used the macro EXPORT_SYMBOL(my_func) inside linux/fs/read_write.c
+>| 3. Have a signature of my_func in my_func.h
+>| 4. Include my_func.h in linux/fs/read_write.c and my_driver.c
+>| 5. Recompiled the kernel
+>| 6. Compiler my_driver as loadable module.
+>| 7. Brought my new kernel Up.
+>| 8 . Insmod my_driver.o
+>| Here I get the error "Unresolved symbol my_func"
+>| Can any one clarify this.
+>
+>For what kernel version?
+>
+>In 2.4.20, e.g., in linux/fs/Makefile, change the following line:
+>
+>export-objs := filesystems.o open.o dcache.o buffer.o
+>
+>to include read_write.o
+>
+>--
+>~Randy
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+
+_________________________________________________________________
+The new MSN 8: smart spam protection and 2 months FREE*  
+http://join.msn.com/?page=features/junkmail
 

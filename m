@@ -1,44 +1,177 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285766AbRLHCLT>; Fri, 7 Dec 2001 21:11:19 -0500
+	id <S285778AbRLHCp7>; Fri, 7 Dec 2001 21:45:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285765AbRLHCLE>; Fri, 7 Dec 2001 21:11:04 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:15110 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S285763AbRLHCKx>;
-	Fri, 7 Dec 2001 21:10:53 -0500
-Date: Sat, 8 Dec 2001 03:10:40 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Marvin Justice <mjustice@austin.rr.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: highmem question
-Message-ID: <20011208021040.GE32569@suse.de>
-In-Reply-To: <Pine.LNX.4.30.0112071404280.29154-100000@mustard.heime.net> <01120719534703.00764@bozo> <20011208015446.GC32569@suse.de> <01120720102404.00764@bozo>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <01120720102404.00764@bozo>
+	id <S285779AbRLHCpt>; Fri, 7 Dec 2001 21:45:49 -0500
+Received: from mailgate.indstate.edu ([139.102.15.118]:13245 "EHLO
+	mailgate.indstate.edu") by vger.kernel.org with ESMTP
+	id <S285778AbRLHCph>; Fri, 7 Dec 2001 21:45:37 -0500
+From: Rich Baum <richbaum@acm.org>
+To: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org,
+        campbell@torque.net
+Subject: [PATCH][RFC] Allow drivers/scsi/imm.c to compile in 2.5.1pre6
+Date: Fri, 7 Dec 2001 21:45:46 -0500
+X-Mailer: KMail [version 1.3.2]
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_AO70AAF110LTNOKUAX4H"
+Message-ID: <29EB5FE64EF@coral.indstate.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 07 2001, Marvin Justice wrote:
-> 
-> > That's because of highmem page bouncing when doing I/O. There is indeed
-> > a solution for this -- 2.5 or 2.4 + block-highmem-all patches will
-> > happily do I/O directly to any page in your system as long as your
-> > hardware supports it. I'm sure we're beating w2k with that enabled :-)
-> 
-> Will your patch lead to better performance than the CONFIGH_HIGHMEM=n case? 
 
-No, it only makes sure that we do not take a hit with HIGHMEM enabled
-for I/O.
+--------------Boundary-00=_AO70AAF110LTNOKUAX4H
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-> Unfortunately, W2K with any amount of memory beat Linux with no highmem (see 
-> http://www.uwsg.indiana.edu/hypermail/linux/kernel/0110.3/0375.html ) so my 
-> PHB decided to hold off on Linux for now.
+The attached patch fixes compile errors in imm.c in 2.5.1pre6.  At boot it 
+will detect the drive however if a disk is in the drive I get an oops (see 
+oops1.log).  If there is no disk it will boot just fine.
 
-Hmm I see, we can do better. With the patch you should do decently at
-least with 2.4 too with 2gb of ram.
+When I run 'eject /dev/sda' after I insert a disk in the drive I get an oops 
+(see oops2.log).
 
--- 
-Jens Axboe
+Please give me some feedback on what can be done to fix these problems.  I 
+can also do other tests and provide more information if need.
 
+Thanks,
+Rich
+--------------Boundary-00=_AO70AAF110LTNOKUAX4H
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="imm.diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="imm.diff"
+
+LS0tIGxpbnV4L2RyaXZlcnMvc2NzaS9pbW0uYwlTdW4gU2VwIDMwIDE0OjI2OjA3IDIwMDEKKysr
+IGxpbnV4LXJiL2RyaXZlcnMvc2NzaS9pbW0uYwlTdW4gRGVjICAyIDIwOjQ1OjIwIDIwMDEKQEAg
+LTEzNyw3ICsxMzcsNyBAQAogCiAgICAgaWYgKCFwYikgewogCXByaW50aygiaW1tOiBwYXJwb3J0
+IHJlcG9ydHMgbm8gZGV2aWNlcy5cbiIpOwotCXNwaW5fbG9ja19pcnEoJmlvX3JlcXVlc3RfbG9j
+ayk7CisJc3Bpbl9sb2NrX2lycSgmaHJlZy0+aG9zdF9sb2NrKTsKIAlyZXR1cm4gMDsKICAgICB9
+CiAgIHJldHJ5X2VudHJ5OgpAQCAtMTYzLDcgKzE2Myw3IEBACiAJCSAgICAgICJwYXJkZXZpY2Ug
+aXMgb3duaW5nIHRoZSBwb3J0IGZvciB0b28gbG9uZ3RpbWUhXG4iLAogCQkJICAgaSk7CiAJCSAg
+ICBwYXJwb3J0X3VucmVnaXN0ZXJfZGV2aWNlIChpbW1faG9zdHNbaV0uZGV2KTsKLQkJICAgIHNw
+aW5fbG9ja19pcnEoJmlvX3JlcXVlc3RfbG9jayk7CisJCSAgICBzcGluX2xvY2tfaXJxKCZocmVn
+LT5ob3N0X2xvY2spOwogCQkgICAgcmV0dXJuIDA7CiAJCX0KIAkgICAgfQpAQCAtMjE5LDEzICsy
+MTksMTMgQEAKICAgICB9CiAgICAgaWYgKG5ob3N0cyA9PSAwKSB7CiAJaWYgKHRyeV9hZ2FpbiA9
+PSAxKSB7Ci0JICAgIHNwaW5fbG9ja19pcnEoJmlvX3JlcXVlc3RfbG9jayk7CisJICAgIHNwaW5f
+bG9ja19pcnEoJmhyZWctPmhvc3RfbG9jayk7CiAJICAgIHJldHVybiAwOwogCX0KIAl0cnlfYWdh
+aW4gPSAxOwogCWdvdG8gcmV0cnlfZW50cnk7CiAgICAgfSBlbHNlIHsKLQlzcGluX2xvY2tfaXJx
+ICgmaW9fcmVxdWVzdF9sb2NrKTsKKwlzcGluX2xvY2tfaXJxICgmaHJlZy0+aG9zdF9sb2NrKTsK
+IAlyZXR1cm4gMTsJCS8qIHJldHVybiBudW1iZXIgb2YgaG9zdHMgZGV0ZWN0ZWQgKi8KICAgICB9
+CiB9CkBAIC05NDgsMTAgKzk0OCwxMCBAQAogICAgIGlmIChjbWQtPlNDcC5waGFzZSA+IDApCiAJ
+aW1tX3BiX3JlbGVhc2UoY21kLT5ob3N0LT51bmlxdWVfaWQpOwogCi0gICAgc3Bpbl9sb2NrX2ly
+cXNhdmUoJmlvX3JlcXVlc3RfbG9jaywgZmxhZ3MpOworICAgIHNwaW5fbG9ja19pcnFzYXZlKCZj
+bWQtPmhvc3QtPmhvc3RfbG9jaywgZmxhZ3MpOwogICAgIHRtcC0+Y3VyX2NtZCA9IDA7CiAgICAg
+Y21kLT5zY3NpX2RvbmUoY21kKTsKLSAgICBzcGluX3VubG9ja19pcnFyZXN0b3JlKCZpb19yZXF1
+ZXN0X2xvY2ssIGZsYWdzKTsKKyAgICBzcGluX3VubG9ja19pcnFyZXN0b3JlKCZjbWQtPmhvc3Qt
+Pmhvc3RfbG9jaywgZmxhZ3MpOwogICAgIHJldHVybjsKIH0KIAo=
+
+--------------Boundary-00=_AO70AAF110LTNOKUAX4H
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="oops1.log"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="oops1.log"
+
+a3N5bW9vcHMgMi40LjMgb24gaTU4NiAyLjUuMS1wcmUxLiAgT3B0aW9ucyB1c2VkCiAgICAgLXYg
+L3Vzci9zcmMvbGludXgtcmIvdm1saW51eCAoc3BlY2lmaWVkKQogICAgIC1LIChzcGVjaWZpZWQp
+CiAgICAgLUwgKHNwZWNpZmllZCkKICAgICAtbyAvbGliL21vZHVsZXMvMi41LjEtcHJlNi8gKHNw
+ZWNpZmllZCkKICAgICAtbSAvdXNyL3NyYy9saW51eC1yYi9TeXN0ZW0ubWFwIChzcGVjaWZpZWQp
+CgpObyBtb2R1bGVzIGluIGtzeW1zLCBza2lwcGluZyBvYmplY3RzCkNQVTogMApFSVA6IDAwMTA6
+WzxjMDIxMGJjZj5dICBOb3QgdGFpbnRlZApVc2luZyBkZWZhdWx0cyBmcm9tIGtzeW1vb3BzIC10
+IGVsZjMyLWkzODYgLWEgaTM4NgpFRkxBR1M6IDAwMDAxMDIwMgplYXg6IDAwMDAwM2ViIGVieDog
+MDAwMDAyMDAgZWN4OiAwMDAwMDM3YSBlZHg6IDAwMDAwMDAwCmVzaTogMDAwMDAzNzggZWRpOiAw
+MDAwMDAwMSBlYnA6IDAwMDAwMDI1IGVzcDogYzAzMGZlNWMKZHM6IDAwMTggZXM6MDAxOCBzczow
+MDE4ClN0YWNrOiAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDM3OCBj
+MDIxMGVlZSAwMDAwMDM3OCAwMDAwMDAwMAogICAgICAgMDAwMDAyMDAgYzAzMGRlZGUgMDAwMDAw
+MDAgYzdmMTUyMDAgMDAwMDAzNzggYzAyMTBlZWUgMDAwMDAyMDAgYzdmMTUyMDAKICAgICAgIDAw
+MDAwMDAwIDAwMDAwMzc4IGMwMjExMzA5IDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMjAwIDAwMDAw
+MDAxIDAwMDAwMjFmCkNhbGwgVHJhY2U6IFs8YzAyMTBlZWU+XSBbPGMwMjEwZWVlPl0gWzxjMDIx
+MTMwOT5dIFtjMDIxMTgyMz5dIFs8YzAyMzAwZDg+XQogIFs8YzAyMGY1NTk+XSBbPGMwMTE5MmQ4
+Pl0gWzxjMDExYzU0YT5dIFs8YzAxOWRhbGY+XSBbPGMwMTE5MjM1Pl0gWzxjMDExOTExYz5dCiAg
+WzxjMDExOGVmMz5dIFs8YzAxMDg0NjU+XSBbPGMwMTBhNTk4Pl0gWzxjMDFhZjI5Mj5dIFs8YzAx
+YWYwYTA+XSBbPGMwMTA1MjYyPl0KICBbPGMwMTA1MDAwPl0KQ29kZTogODggMDIgODkgY2EgODkg
+ZTggZWUgNGIgNzUgZTcgODMgYzQgMDQgYjggMDEgMDAgMDAgMDAgNWIgNWUKCj4+RUlQOyBjMDIx
+MGJjZSA8aW1tX2J5dGVfaW4rM2UvNjA+ICAgPD09PT09ClRyYWNlOyBjMDIxMGVlZSA8aW1tX2lu
+KzE2ZS8xODA+ClRyYWNlOyBjMDIxMGVlZSA8aW1tX2luKzE2ZS8xODA+ClRyYWNlOyBjMDIxMTMw
+OCA8aW1tX2NvbXBsZXRpb24rZjgvMjAwPgpUcmFjZTsgYzAyMGY1NTggPG5jcl9zY2F0dGVyXzg5
+NlIxKzQ4L2UwPgpUcmFjZTsgYzAxMTkyZDggPF9fcnVuX3Rhc2tfcXVldWUrNDgvNjA+ClRyYWNl
+OyBjMDExYzU0YSA8dHF1ZXVlX2JoKzJhLzMwPgpUcmFjZTsgYzAxMThlZjIgPGRvX3NvZnRpcnEr
+NTIvYTA+ClRyYWNlOyBjMDEwODQ2NCA8ZG9fSVJRKzg0L2EwPgpUcmFjZTsgYzAxMGE1OTggPGNh
+bGxfZG9fSVJRKzYvZT4KVHJhY2U7IGMwMWFmMjkyIDxwcl9wb3dlcl9pZGxlKzFmMi8yNDA+ClRy
+YWNlOyBjMDFhZjBhMCA8cHJfcG93ZXJfaWRsZSswLzI0MD4KVHJhY2U7IGMwMTA1MjYyIDxjcHVf
+aWRsZSs1Mi83MD4KVHJhY2U7IGMwMTA1MDAwIDxfc3RleHQrMC8wPgpDb2RlOyAgYzAyMTBiY2Ug
+PGltbV9ieXRlX2luKzNlLzYwPgowMDAwMDAwMCA8X0VJUD46CkNvZGU7ICBjMDIxMGJjZSA8aW1t
+X2J5dGVfaW4rM2UvNjA+ICAgPD09PT09CiAgIDA6ICAgODggMDIgICAgICAgICAgICAgICAgICAg
+ICBtb3YgICAgJWFsLCglZWR4KSAgIDw9PT09PQpDb2RlOyAgYzAyMTBiZDAgPGltbV9ieXRlX2lu
+KzQwLzYwPgogICAyOiAgIDg5IGNhICAgICAgICAgICAgICAgICAgICAgbW92ICAgICVlY3gsJWVk
+eApDb2RlOyAgYzAyMTBiZDIgPGltbV9ieXRlX2luKzQyLzYwPgogICA0OiAgIDg5IGU4ICAgICAg
+ICAgICAgICAgICAgICAgbW92ICAgICVlYnAsJWVheApDb2RlOyAgYzAyMTBiZDQgPGltbV9ieXRl
+X2luKzQ0LzYwPgogICA2OiAgIGVlICAgICAgICAgICAgICAgICAgICAgICAgb3V0ICAgICVhbCwo
+JWR4KQpDb2RlOyAgYzAyMTBiZDQgPGltbV9ieXRlX2luKzQ0LzYwPgogICA3OiAgIDRiICAgICAg
+ICAgICAgICAgICAgICAgICAgZGVjICAgICVlYngKQ29kZTsgIGMwMjEwYmQ2IDxpbW1fYnl0ZV9p
+bis0Ni82MD4KICAgODogICA3NSBlNyAgICAgICAgICAgICAgICAgICAgIGpuZSAgICBmZmZmZmZm
+MSA8X0VJUCsweGZmZmZmZmYxPiBjMDIxMGJiZSA8aW1tX2J5dGVfaW4rMmUvNjA+CkNvZGU7ICBj
+MDIxMGJkOCA8aW1tX2J5dGVfaW4rNDgvNjA+CiAgIGE6ICAgODMgYzQgMDQgICAgICAgICAgICAg
+ICAgICBhZGQgICAgJDB4NCwlZXNwCkNvZGU7ICBjMDIxMGJkYSA8aW1tX2J5dGVfaW4rNGEvNjA+
+CiAgIGQ6ICAgYjggMDEgMDAgMDAgMDAgICAgICAgICAgICBtb3YgICAgJDB4MSwlZWF4CkNvZGU7
+ICBjMDIxMGJlMCA8aW1tX2J5dGVfaW4rNTAvNjA+CiAgMTI6ICAgNWIgICAgICAgICAgICAgICAg
+ICAgICAgICBwb3AgICAgJWVieApDb2RlOyAgYzAyMTBiZTAgPGltbV9ieXRlX2luKzUwLzYwPgog
+IDEzOiAgIDVlICAgICAgICAgICAgICAgICAgICAgICAgcG9wICAgICVlc2kK
+
+--------------Boundary-00=_AO70AAF110LTNOKUAX4H
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="oops2.log"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="oops2.log"
+
+a3N5bW9vcHMgMi40LjMgb24gaTU4NiAyLjUuMS1wcmUxLiAgT3B0aW9ucyB1c2VkCiAgICAgLXYg
+L3Vzci9zcmMvbGludXgtcmIvdm1saW51eCAoc3BlY2lmaWVkKQogICAgIC1LIChzcGVjaWZpZWQp
+CiAgICAgLUwgKHNwZWNpZmllZCkKICAgICAtbyAvbGliL21vZHVsZXMvMi41LjEtcHJlNi8gKHNw
+ZWNpZmllZCkKICAgICAtbSAvdXNyL3NyYy9saW51eC1yYi9TeXN0ZW0ubWFwIChzcGVjaWZpZWQp
+CgpObyBtb2R1bGVzIGluIGtzeW1zLCBza2lwcGluZyBvYmplY3RzCkNQVTogMApFSVA6IDAwMTA6
+WzxjMDIxMGJjZj5dICBOb3QgdGFpbnRlZApVc2luZyBkZWZhdWx0cyBmcm9tIGtzeW1vb3BzIC10
+IGVsZjMyLWkzODYgLWEgaTM4NgpFRkxBR1M6IDAwMDAxMDIwMgplYXg6IDAwMDAwM2ViIGVieDog
+MDAwMDAyMDAgZWN4OiAwMDAwMDM3YSBlZHg6IDAwMDAwMDAwCmVzaTogMDAwMDAzNzggZWRpOiAw
+MDAwMDAwMSBlYnA6IDAwMDAwMDI1IGVzcDogYzAzMGZlNWMKZHM6IDAwMTggZXM6MDAxOCBzczow
+MDE4ClN0YWNrOiAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDM3OCBj
+MDIxMGVlZSAwMDAwMDM3OCAwMDAwMDAwMAogICAgICAgMDAwMDAyMDAgYzAxMzc5MDAgYzExZTc4
+N2MgMDAwMDAwOTIgYzdmOGM2MjQgYzdmOGM2MjQgMDAwMDAyMDAgYzdmMTUyMDAKICAgICAgIDAw
+MDAwMDAwIDAwMDAwMzc4IGMwMjExMzA5IDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMjAwIDAwMDAw
+MDAxIDAwMDAzOTU3CkNhbGwgVHJhY2U6IFs8YzAyMTBlZWU+XSBbPGMwMTM3OTAwPl0gWzxjMDIx
+MTMwOT5dIFtjMDIxMTgyMz5dIFs8YzAxYzBlNDE+XQogIFs8YzAyMGY1NTk+XSBbPGMwMTE5MmQ4
+Pl0gWzxjMDExYzU0YT5dIFs8YzAxOWRhbGY+XSBbPGMwMTE5MjM1Pl0gWzxjMDExOTExYz5dCiAg
+WzxjMDExOGVmMz5dIFs8YzAxMDg0NjU+XSBbPGMwMTBhNTk4Pl0gWzxjMDFhZjI5Mj5dIFs8YzAx
+YWYwYTA+XSBbPGMwMTA1MjYyPl0KICBbPGMwMTA1MDAwPl0KQ29kZTogODggMDIgODkgY2EgODkg
+ZTggZWUgNGIgNzUgZTcgODMgYzQgMDQgYjggMDEgMDAgMDAgMDAgNWIgNWUKCj4+RUlQOyBjMDIx
+MGJjZSA8aW1tX2J5dGVfaW4rM2UvNjA+ICAgPD09PT09ClRyYWNlOyBjMDIxMGVlZSA8aW1tX2lu
+KzE2ZS8xODA+ClRyYWNlOyBjMDEzNzkwMCA8YmlvX2Rlc3RydWN0b3IrYzAvZTA+ClRyYWNlOyBj
+MDIxMTMwOCA8aW1tX2NvbXBsZXRpb24rZjgvMjAwPgpUcmFjZTsgYzAyMGY1NTggPG5jcl9zY2F0
+dGVyXzg5NlIxKzQ4L2UwPgpUcmFjZTsgYzAxMTkyZDggPF9fcnVuX3Rhc2tfcXVldWUrNDgvNjA+
+ClRyYWNlOyBjMDExYzU0YSA8dHF1ZXVlX2JoKzJhLzMwPgpUcmFjZTsgYzAxMThlZjIgPGRvX3Nv
+ZnRpcnErNTIvYTA+ClRyYWNlOyBjMDEwODQ2NCA8ZG9fSVJRKzg0L2EwPgpUcmFjZTsgYzAxMGE1
+OTggPGNhbGxfZG9fSVJRKzYvZT4KVHJhY2U7IGMwMWFmMjkyIDxwcl9wb3dlcl9pZGxlKzFmMi8y
+NDA+ClRyYWNlOyBjMDFhZjBhMCA8cHJfcG93ZXJfaWRsZSswLzI0MD4KVHJhY2U7IGMwMTA1MjYy
+IDxjcHVfaWRsZSs1Mi83MD4KVHJhY2U7IGMwMTA1MDAwIDxfc3RleHQrMC8wPgpDb2RlOyAgYzAy
+MTBiY2UgPGltbV9ieXRlX2luKzNlLzYwPgowMDAwMDAwMCA8X0VJUD46CkNvZGU7ICBjMDIxMGJj
+ZSA8aW1tX2J5dGVfaW4rM2UvNjA+ICAgPD09PT09CiAgIDA6ICAgODggMDIgICAgICAgICAgICAg
+ICAgICAgICBtb3YgICAgJWFsLCglZWR4KSAgIDw9PT09PQpDb2RlOyAgYzAyMTBiZDAgPGltbV9i
+eXRlX2luKzQwLzYwPgogICAyOiAgIDg5IGNhICAgICAgICAgICAgICAgICAgICAgbW92ICAgICVl
+Y3gsJWVkeApDb2RlOyAgYzAyMTBiZDIgPGltbV9ieXRlX2luKzQyLzYwPgogICA0OiAgIDg5IGU4
+ICAgICAgICAgICAgICAgICAgICAgbW92ICAgICVlYnAsJWVheApDb2RlOyAgYzAyMTBiZDQgPGlt
+bV9ieXRlX2luKzQ0LzYwPgogICA2OiAgIGVlICAgICAgICAgICAgICAgICAgICAgICAgb3V0ICAg
+ICVhbCwoJWR4KQpDb2RlOyAgYzAyMTBiZDQgPGltbV9ieXRlX2luKzQ0LzYwPgogICA3OiAgIDRi
+ICAgICAgICAgICAgICAgICAgICAgICAgZGVjICAgICVlYngKQ29kZTsgIGMwMjEwYmQ2IDxpbW1f
+Ynl0ZV9pbis0Ni82MD4KICAgODogICA3NSBlNyAgICAgICAgICAgICAgICAgICAgIGpuZSAgICBm
+ZmZmZmZmMSA8X0VJUCsweGZmZmZmZmYxPiBjMDIxMGJiZSA8aW1tX2J5dGVfaW4rMmUvNjA+CkNv
+ZGU7ICBjMDIxMGJkOCA8aW1tX2J5dGVfaW4rNDgvNjA+CiAgIGE6ICAgODMgYzQgMDQgICAgICAg
+ICAgICAgICAgICBhZGQgICAgJDB4NCwlZXNwCkNvZGU7ICBjMDIxMGJkYSA8aW1tX2J5dGVfaW4r
+NGEvNjA+CiAgIGQ6ICAgYjggMDEgMDAgMDAgMDAgICAgICAgICAgICBtb3YgICAgJDB4MSwlZWF4
+CkNvZGU7ICBjMDIxMGJlMCA8aW1tX2J5dGVfaW4rNTAvNjA+CiAgMTI6ICAgNWIgICAgICAgICAg
+ICAgICAgICAgICAgICBwb3AgICAgJWVieApDb2RlOyAgYzAyMTBiZTAgPGltbV9ieXRlX2luKzUw
+LzYwPgogIDEzOiAgIDVlICAgICAgICAgICAgICAgICAgICAgICAgcG9wICAgICVlc2kKCg==
+
+--------------Boundary-00=_AO70AAF110LTNOKUAX4H--

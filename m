@@ -1,74 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261773AbTGZSRB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 14:17:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266985AbTGZSRA
+	id S262955AbTGZSRx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 14:17:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267186AbTGZSRw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 14:17:00 -0400
-Received: from p4-7036.uk2net.com ([213.232.95.37]:33954 "EHLO
-	uptime.churchillrandoms.co.uk") by vger.kernel.org with ESMTP
-	id S261773AbTGZSQ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 14:16:57 -0400
-Subject: [2.6.0-test1] yenta_socket.c:yenta_get_status returns bad value
-	compared to 2.4
-From: Stefan Jones <cretin@gentoo.org>
-To: linux-kernel@vger.kernel.org
-Cc: Dominik Brodowski <linux@brodo.de>
-Content-Type: text/plain
-Organization: Gentoo Linux
-Message-Id: <1059244318.3400.17.camel@localhost>
+	Sat, 26 Jul 2003 14:17:52 -0400
+Received: from mx02.qsc.de ([213.148.130.14]:15249 "EHLO mx02.qsc.de")
+	by vger.kernel.org with ESMTP id S262955AbTGZSRR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 14:17:17 -0400
+Date: Sat, 26 Jul 2003 20:32:24 +0200
+From: Wiktor Wodecki <wodecki@gmx.de>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Cc: Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Subject: Re: [PATCH] O9int for interactivity
+Message-ID: <20030726183224.GA789@gmx.de>
+References: <200307270306.47363.kernel@kolivas.org> <1059243458.575.1.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 26 Jul 2003 19:31:59 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="T4sUOijqQbZv57TR"
+Content-Disposition: inline
+In-Reply-To: <1059243458.575.1.camel@teapot.felipe-alfaro.com>
+X-message-flag: Linux - choice of the GNU generation
+X-Operating-System: Linux 2.6.0-test1-mm2-O9 i686
+X-PGP-KeyID: 182C9783
+X-Info: X-PGP-KeyID, send an email with the subject 'public key request' to wodecki@gmx.de
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all,
 
-It seems the the change from 2.4 to 2.6 made the state read from 
-yenta_get_status change it's return value. It reads it from hardware.
+--T4sUOijqQbZv57TR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The change in value has an effect later on which causes CB_CBCARD not to
-be set, and thus SOCKET_CARDBUS not being set, this memory reads are
-from the wrong ioport, locking up the machine.
+On Sat, Jul 26, 2003 at 08:17:38PM +0200, Felipe Alfaro Solana wrote:
+> On Sat, 2003-07-26 at 19:06, Con Kolivas wrote:
+>=20
+> > Patch applies on top of 2.6.0-test1-mm2 + O8int. A patch against vanilla
+> > 2.6.0-test1 is also available on my website.
+>=20
+> patch-test1-O9 contains some differences with respect to patch-O9 for
+> the -mm kernels. In the patch-test1-O9, MAX_SLEEP_AVG and
+> STARVATION_LIMIT are both set to (10*HZ), while in patch-O9-mm2 they are
+> set to (HZ).
+>=20
+> Is this intentional?
 
-Hardware:
-00:0a.0 CardBus bridge: O2 Micro, Inc. OZ6912 Cardbus Controller
-with a Netgear wireless card for testing.
+probably yes, since vanilla runs on HZ=3D1000 and -mm on HZ=3D100
 
-see http://www.ussg.iu.edu/hypermail/linux/kernel/0307.3/0166.html 
-for more info.
+--=20
+Regards,
 
-I added 
+Wiktor Wodecki
 
-printk(KERN_DEBUG "yenta_get_status: status=%04x\n",state);
+--T4sUOijqQbZv57TR
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-after the call 
-u32 state = cb_readl(socket, CB_SOCKET_STATE);
-in 
-static int yenta_get_status(struct pcmcia_socket *sock, unsigned int
-*value)
-in drivers/pcmcia/yenta_socket.c
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-in both 2.4.21 and 2.6.0-test1
+iD8DBQE/Isk46SNaNRgsl4MRAkSPAKCOV7KaJHibDHG7ptbqT8mfrFrE7QCdFQ7T
+Mv68j4dDUkTq85lYqiVwhkg=
+=4FsJ
+-----END PGP SIGNATURE-----
 
-2.6.0-test1 gives: 30000411
-2.4.21 gives:      30000419
-
-I wonder why the values are different, and yet fairly close. It is
-enough to give hard lockups ( I debugged this one with printk's and
-commenting out code )
-
-I have added 
-
-state |= CB_CBCARD;
-
-to the 2.6 kernel and that stops lockups, but I haven't yet tried
-forcing the complete value.
-
-What should I do, who should I contact, please advise. ( I am not a
-kernel developer )
-
-Stefan
-
+--T4sUOijqQbZv57TR--

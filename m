@@ -1,64 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130502AbRCIMsJ>; Fri, 9 Mar 2001 07:48:09 -0500
+	id <S130496AbRCIM4J>; Fri, 9 Mar 2001 07:56:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130497AbRCIMr7>; Fri, 9 Mar 2001 07:47:59 -0500
-Received: from 13dyn199.delft.casema.net ([212.64.76.199]:24326 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S130502AbRCIMrv>; Fri, 9 Mar 2001 07:47:51 -0500
-Message-Id: <200103091247.NAA31936@cave.bitwizard.nl>
-Subject: Re: Microsoft begining to open source Windows 2000?
-In-Reply-To: <01030906084600.09523@tabby> from Jesse Pollard at "Mar 9, 2001
- 06:05:20 am"
-To: Jesse Pollard <jesse@cats-chateau.net>
-Date: Fri, 9 Mar 2001 13:47:19 +0100 (MET)
-CC: Graham Murray <graham@webwayone.com>, linux-kernel@vger.kernel.org
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	id <S130497AbRCIM4A>; Fri, 9 Mar 2001 07:56:00 -0500
+Received: from apegate.roma1.infn.it ([141.108.7.31]:35575 "EHLO sensei.ape")
+	by vger.kernel.org with ESMTP id <S130496AbRCIMzs>;
+	Fri, 9 Mar 2001 07:55:48 -0500
+Date: Fri, 9 Mar 2001 13:53:53 +0100 (CET)
+From: "davide.rossetti" <rossetti@roma1.infn.it>
+Reply-To: <davide.rossetti@roma1.infn.it>
+To: <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Linux 2.2.19pre16 - ip auto config problem
+In-Reply-To: <E14TWGf-00013r-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.30.0103091339120.16723-100000@sensei.ape>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Pollard wrote:
-> On Fri, 09 Mar 2001, Graham Murray wrote:
-> >"Mohammad A. Haque" <mhaque@haque.net> writes:
-> >
-> >> making a patch means you've modfied the source which you are not allowed
-> >> to do. The most you can do is report the bug through normal channels
-> >> (you dont even have priority in reporting bugs since you have the code).
-> >
-> >Does making a patch necessarily require modifying the source code?
-> >Back in my days as a mainframe systems programmer (ICL VME/B), most OS
-> >patches were made to the binary image, either in the file or to the
-> >loaded virtual memory image.
+Hi folks,
+after a long time, I tried to upgrade the kernel I use to boot some
+diskless PIII Katmai, C-PCI hosts (attached lspci -vv) with DEC ethernet
+chips.
 
-> Nearly always. The problem is that the patch may make the module
-> bigger/smaller or relocate variables whose address then changes. All
-> locations that these are referenced must be modified (either direct
-> address or offset).  Sometimes other modules will get relocated too.
+I had trouble to use "IP auto configure" feature... It seems like it is
+skipped; even more, net/core/dev.c:net_dev_init() call by
+drivers/block/genhd.c:device_setup() is never called.
 
-You're too young. Or I'm too old. :-)
+I remember that:
+1) the IDE hd scan was done, with no devices found (it is diskless:-)
+2) the net device driver was started, and it found 2 DEC chips
 
-IF your patch can be inserted into the code space available: Then good. 
-If not, you move the code out of the previously allocated space, and
-put it somewhere else. Put a "jump" instruction in the old place. 
+but a few lines later NFS root couldn't be mounted as no NFS server was
+set... anyway I had activated debug stuff in ipconfig.c and put a lot
+of printk/console_print in dev.c and none of them was displayed so I guess
+that code was never called actually.
 
+then I added a bunch of printk/console_print in device_setup(), especially
+before blk_dev_init
 
-At the university there was a lab-assignment where we had to use the
-provided semaphore routines. Turns out we found a bug. The TA then
-told us it was going to be hard-to-fix, as about 8192 bytes of the 8k
-PROM were in use. He was wrong. The bug was one instruction too
-many. We just wrote "nop" over the bad instruction. The processor had
-also been correctly designed: you could overwrite any instruction in
-the PROM with "nop", as the NOP instruction was 0xff. Fixed on the
-spot!
+-------------------------------------------
+#ifdef CONFIG_PARPORT
+	parport_init();
+#endif
+	chr_dev_init();
+	console_print("before blk_dev_init()\n");
+	blk_dev_init();
+	sti();
+#ifdef CONFIG_I2O
+	i2o_init();
+#endif
+#ifdef CONFIG_BLK_DEV_DAC960
+	DAC960_Initialize();
+#endif
+#ifdef CONFIG_FC4_SOC
+	/* This has to be done before scsi_dev_init */
+	soc_probe();
+#endif
+#ifdef CONFIG_SCSI
+	console_print("before scsi_dev_init()\n");
+	scsi_dev_init();
+#endif
+#ifdef CONFIG_BLK_CPQ_DA
+	cpqarray_init();
+#endif
+#ifdef CONFIG_BLK_CPQ_CISS_DA
+        cciss_init();
+#endif
+#ifdef CONFIG_NET
+	console_print("before net_dev_init()\n");
+	net_dev_init();
+#endif
+------------------------------------------------
 
-				Roger. 
+(I used console_print as I was scared it could mess with irq by the sti()
+code...)
+
+and all of a sudded it was all ok, I got all the printk/console_print...etc.
+I got NFS root mounting... everything OK!
+
+hope it is useful to you.
+
+ciao
+
 
 -- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
++------------------------------------------------------------------+
+|Rossetti Davide   INFN - Sezione Roma I - gruppo V, prog. APEmille|
+|                  web    : http://apegate.roma1.infn.it/~rossetti |
+|    """""         E-mail : davide.rossetti@roma1.infn.it          |
+|    |o o|         phone  : (+39)-06-49914412                      |
+|--o00O-O00o--     fax    : (+39)-06-49914423   (+39)-06-4957697   |
+|                  address: Dipartimento di Fisica (V.E.)          |
+|                           Universita' di Roma "La Sapienza"      |
+|                           P.le Aldo Moro,5 I - 00185 Roma - Italy|
+|  gnupg pub. key: http://apegate.roma1.infn.it/~rossetti/gnupg.txt|
+|                                                                  |
+|"Outside of a dog,a book is a man's best friend. Inside of a dog, |
+| it's too dark to read." - Groucho Marx                           |
++------------------------------------------------------------------+
+

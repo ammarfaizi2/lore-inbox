@@ -1,57 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267429AbTBXUVf>; Mon, 24 Feb 2003 15:21:35 -0500
+	id <S267425AbTBXUUe>; Mon, 24 Feb 2003 15:20:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267430AbTBXUVf>; Mon, 24 Feb 2003 15:21:35 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:28648 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S267429AbTBXUUz>; Mon, 24 Feb 2003 15:20:55 -0500
-Date: Mon, 24 Feb 2003 12:22:05 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 405] New: files transfered via SMB come with garbage 
-Message-ID: <328180000.1046118125@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+	id <S267427AbTBXUUe>; Mon, 24 Feb 2003 15:20:34 -0500
+Received: from phoenix.mvhi.com ([195.224.96.167]:11533 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S267425AbTBXUUd>; Mon, 24 Feb 2003 15:20:33 -0500
+Date: Mon, 24 Feb 2003 20:30:46 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: george@mvista.com
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.63
+Message-ID: <20030224203046.A14425@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>, george@mvista.com,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0302241127050.13335-100000@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0302241127050.13335-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Feb 24, 2003 at 11:32:07AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=405
+> George Anzinger <george@mvista.com>:
+>   o POSIX clocks & timers
 
-           Summary: files transfered via SMB come with garbage
-    Kernel Version: 2.5.62-bk7
-            Status: NEW
-          Severity: high
-             Owner: bugme-janitors@lists.osdl.org
-         Submitter: bwindle-kbt@fint.org
+Care to explain what  FOLD_NANO_SLEEP_INTO_CLOCK_NANO_SLEEP
+is supposed to do?  It's always defined in signal.h, so we can
+aswell get rid of it..
 
+And what's this:
 
-Distribution: Debian Testing
-Hardware Environment: x86 
-Software Environment: 
-Samba 2.2.3a-6 from Debian Testing
-CONFIG_SMB_FS=y
-# CONFIG_SMB_NLS_DEFAULT is not set
-CONFIG_SMB_NLS=y
+#ifndef div_long_long_rem
++#include <asm/div64.h>
++
++#define div_long_long_rem(dividend,divisor,remainder) ({ \
++                      u64 result = dividend;           \
++                      *remainder = do_div(result,divisor); \
++                      result; })
++
++#endif                         /* ifndef div_long_long_rem */
 
-Problem Description: When transfering a batch of image files from a Win2K
-Sp-2  machine to my Linux box running 2.5.62-bk7, the image files
-transfered, but  also make two files per image with the file name+some
-garbage.  
+Any reason you can't just use do_div directly like everyone else? :)
 
-i.e.:
-
--rwxr--r--    1 bwindle  bwindle     36329 Mar 12  2002 xp1.gif
--rwxr--r--    1 bwindle  bwindle      8700 Mar 12  2002 xp1.gif:?
-Q30lsldxJoudresxAaaqpcawXc:$DATA
--rwxr--r--    1 bwindle  bwindle         0 Mar 12  2002
-xp1.gif:{4c8cc155-6c1e- 11d1-8e41-00c04fb9386d}:$DATA
-
-The xp1.gif file is the right size, and works fine. It made copies like
-this of  most the the images, but not all of them. There is no messages on
-the Linux  console. /home/bwindle is ext3. I'm going to reboot to
-2.5.62-bk4 and try it  again.
 

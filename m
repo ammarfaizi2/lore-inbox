@@ -1,64 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261370AbTA1Vpd>; Tue, 28 Jan 2003 16:45:33 -0500
+	id <S261872AbTA1Vvj>; Tue, 28 Jan 2003 16:51:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261398AbTA1Vpc>; Tue, 28 Jan 2003 16:45:32 -0500
-Received: from adsl-67-114-192-42.dsl.pltn13.pacbell.net ([67.114.192.42]:4630
-	"EHLO mx1.corp.rackable.com") by vger.kernel.org with ESMTP
-	id <S261370AbTA1Vpb>; Tue, 28 Jan 2003 16:45:31 -0500
-Message-ID: <3E36FBF7.9080809@rackable.com>
-Date: Tue, 28 Jan 2003 13:53:59 -0800
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "tester7 A." <benew666@hotmail.com>
-CC: linux-kernel@vger.kernel.org, andrea@suse.de
-Subject: Re: Hangs with SW RAID5 and 2l.4.21-pre3aa1 patch
-References: <F85MjT3XOYR00HgHKkR00003b05@hotmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 28 Jan 2003 21:54:47.0083 (UTC) FILETIME=[DFB017B0:01C2C717]
+	id <S261874AbTA1Vvi>; Tue, 28 Jan 2003 16:51:38 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:42763 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id <S261872AbTA1Vvh>;
+	Tue, 28 Jan 2003 16:51:37 -0500
+Date: Tue, 28 Jan 2003 16:59:43 -0500
+From: Christopher Faylor <cgf@redhat.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: benoit-lists@fb12.de, kuznet@ms2.inr.ac.ru, dada1@cosmosbay.com,
+       andersg@0x63.nu, lkernel2003@tuxers.net, linux-kernel@vger.kernel.org,
+       tobi@tobi.nu
+Subject: Re: [TEST FIX] Re: SSH Hangs in 2.5.59 and 2.5.55 but not 2.4.x, through Cisco PIX
+Message-ID: <20030128215943.GA2019@redhat.com>
+References: <200301281409.RAA28740@sex.inr.ac.ru> <20030128.103534.115458142.davem@redhat.com> <20030128201645.A29746@turing.fb12.de> <20030128.123413.51821993.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030128.123413.51821993.davem@redhat.com>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tester7 A. wrote:
-
+On Tue, Jan 28, 2003 at 12:34:13PM -0800, David S. Miller wrote:
+>   From: Sebastian Benoit <benoit-lists@fb12.de>
+>   Date: Tue, 28 Jan 2003 20:16:45 +0100
 >
-> Motherboard: Intel SDS2
-> CPU: P-III 1.4
-> RAM: 1024MB
-> IDE Controller: 3Ware 7500-8
+>   David S. Miller(davem@redhat.com)@2003.01.28 10:35:34 +0000:
+>   > Good set of debug checks would be the following:
+>   
+>   no output, i did 4 tests, everytime i was able to lock the ssh-connection
+>   within a few seconds. kernel 2.5.59 + your debug-patch.
 >
-> I am trying to test S/W Raid5 with 2.4.21-pre3aa1 patch
-> After making the raidtab and doing 'mkraid' and mount xfs FS on /dev/md1,
-> it was keeep showing something about 'buffer size changed from 4096 
-> --> 512' and back and forth and hangs.
-> After reset, it would not boot due to Raid failure.
->
-> After booting with 2.4.20 kernel and remove the raidtab and boot to 
-> the 2.4.21-pre3aa1 again and repeat the same, 'mkraid' halts and ps 
-> -aux shows raid5d and raid5syncd is in RW and DW, respectively.
+>Thanks for testing, how about this new patch at the end of this email?
+>Does it make the problem go away?
 
+It does for me, yes.  I tried very hard to make ssh hang but I couldn't do
+so.
 
-  Does a 2.4.21-pre3 kernel work?
-
->
-> Is it known bug in 2.4.21-pre33aa1 kernel?
->
->
-
-  I've seen this as well when I attempted to upgrade a system with 2 
-raid0, and 1 raid1 devices.  It was a Intel se7500wv, 4G memory, and two 
-3ware  7500-8.  The system works just fine with old aa's, and redhat's 
-2.4.18-19 kernel.  I didn't have much time to spend with it, and I was 
-waiting to test 2.4.21-pre3 before reporting the bug.
-
--- 
-There is no such thing as obsolete hardware.
-Merely hardware that other people don't want.
-(The Second Rule of Hardware Acquisition)
-Sam Flory  <sflory@rackable.com>
-
-
-
+cgf

@@ -1,60 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263806AbUEMGIT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263802AbUEMGM6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263806AbUEMGIT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 02:08:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263802AbUEMGIT
+	id S263802AbUEMGM6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 02:12:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263804AbUEMGM6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 02:08:19 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:21937 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S263806AbUEMGIN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 02:08:13 -0400
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Andrew Morton <akpm@osdl.org>, rddunlap@osdl.org, davidm@hpl.hp.com,
-       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org,
-       drepper@redhat.com
-Subject: Re: [Fastboot] Re: [announce] kexec for linux 2.6.6
-References: <m13c66qicb.fsf@ebiederm.dsl.xmission.com>
-	<40A243C8.401@redhat.com> <m1brktod3f.fsf@ebiederm.dsl.xmission.com>
-	<40A2517C.4040903@redhat.com>
-	<m17jvhoa6g.fsf@ebiederm.dsl.xmission.com>
-	<20040512143233.0ee0405a.rddunlap@osdl.org>
-	<16546.41076.572371.307153@napali.hpl.hp.com>
-	<20040512152815.76280eac.akpm@osdl.org>
-	<16546.42537.765495.231960@napali.hpl.hp.com>
-	<20040512161603.44c50cec.akpm@osdl.org>
-	<20040513053051.A5286@infradead.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 13 May 2004 00:06:08 -0600
-In-Reply-To: <20040513053051.A5286@infradead.org>
-Message-ID: <m1lljwsvxr.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 13 May 2004 02:12:58 -0400
+Received: from mx1.actcom.net.il ([192.114.47.13]:7568 "EHLO
+	smtp1.actcom.co.il") by vger.kernel.org with ESMTP id S263802AbUEMGM4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 02:12:56 -0400
+Date: Thu, 13 May 2004 09:05:50 +0300
+From: Muli Ben-Yehuda <mulix@mulix.org>
+To: David Gibson <david@gibson.dropbear.id.au>, Andrew Morton <akpm@osdl.org>,
+       Anton Blanchard <anton@samba.org>, Adam Litke <agl@us.ibm.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linux-kernel@vger.kernel.org, linuxppc64-dev@lists.linuxppc.org
+Subject: Re: More convenient way to grab hugepage memory
+Message-ID: <20040513060549.GA12695@mulix.org>
+References: <20040513055520.GF27403@zax>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0F1p//8PRICkK4MW"
+Content-Disposition: inline
+In-Reply-To: <20040513055520.GF27403@zax>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> writes:
 
-> On Wed, May 12, 2004 at 04:16:03PM -0700, Andrew Morton wrote:
-> > But if we need additional infrastructure to "add new syscalls via VDSO" then
-> > this should be in the base kernel, even if it's empty, yes?
-> 
-> Linus has vetoed dynamic syscall registration a few times.  And I agree
-> with him, dynamic syscalls are the best way to get completely crappy
-> interfaces.
+--0F1p//8PRICkK4MW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The only thing I was thinking of doing was to export the symbol
-__kernel__NR_kexec_load.  With a little care we could probably export
-the system call numbers just as easily from /proc/kallsyms.
+On Thu, May 13, 2004 at 03:55:20PM +1000, David Gibson wrote:
 
-At this point that idea seems to add no real benefit.  Except for
-allowing for a user space that can more easily track syscall renumber in
-the kernel, which seems to be the wrong problem to solve.
+> --- working-2.6.orig/mm/mmap.c	2004-04-20 10:50:09.000000000 +1000
+> +++ working-2.6/mm/mmap.c	2004-04-27 13:40:01.062285976 +1000
+> @@ -21,6 +21,7 @@
+>  #include <linux/profile.h>
+>  #include <linux/module.h>
+>  #include <linux/mount.h>
+> +#include <linux/err.h>
+> =20
+>  #include <asm/uaccess.h>
+>  #include <asm/pgalloc.h>
+> @@ -62,6 +63,9 @@
+>  EXPORT_SYMBOL(sysctl_max_map_count);
+>  EXPORT_SYMBOL(vm_committed_space);
+> =20
+> +int mmap_use_hugepages =3D 0;
+> +int mmap_hugepages_map_sz =3D 256;
 
-So if kexec could actually get a reserved system call number that
-would be the best solution I have seen in this thread.
+These two global variables do not appear to be used anywhere in this
+patch?=20
 
-Andrew how close are we to a point where we can look at kexec inclusion?
+> +static inline unsigned long __do_mmap_pgoff(struct file * file, unsigned=
+ long addr,
 
-Eric
+__do_mmap_pgoff seems rather long to be inline?=20
+
+Cheers,=20
+Muli=20
+--=20
+Muli Ben-Yehuda
+http://www.mulix.org | http://mulix.livejournal.com/
+
+
+--0F1p//8PRICkK4MW
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAoxA9KRs727/VN8sRAk+5AKCXXawy1oY9GV8pf0Z8rBg6WFc3sgCfaLP8
+GLMSwfNncqpOq4QWhD6yf2U=
+=0cGi
+-----END PGP SIGNATURE-----
+
+--0F1p//8PRICkK4MW--

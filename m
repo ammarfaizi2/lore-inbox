@@ -1,85 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262828AbTHZTSx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 15:18:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262861AbTHZTSw
+	id S262919AbTHZTOS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 15:14:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262915AbTHZTOS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 15:18:52 -0400
-Received: from mailwasher.lanl.gov ([192.16.0.25]:31464 "EHLO
-	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
-	id S262828AbTHZTSu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 15:18:50 -0400
-Subject: Re: reiser4 snapshot for August 26th.
-From: Steven Cole <elenstev@mesatop.com>
-To: Alex Zarochentsev <zam@namesys.com>
-Cc: Hans Reiser <reiser@namesys.com>, Oleg Drokin <green@namesys.com>,
-       reiserfs-dev@namesys.com, reiserfs-list@namesys.com,
-       linux-kernel@vger.kernel.org, demidov <demidov@namesys.com>,
-       god@namesys.com
-In-Reply-To: <20030826184114.GP5448@backtop.namesys.com>
-References: <20030826102233.GA14647@namesys.com>
-	 <1061922037.1670.3.camel@spc9.esa.lanl.gov> <3F4BA9E9.4090108@namesys.com>
-	 <20030826184114.GP5448@backtop.namesys.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1061925286.1666.31.camel@spc9.esa.lanl.gov>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
-Date: 26 Aug 2003 13:14:46 -0600
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Aug 2003 15:14:18 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:5760 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262919AbTHZTMr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 15:12:47 -0400
+Date: Tue, 26 Aug 2003 15:12:46 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Andy Isaacson <adi@hexapodia.org>
+cc: max@vortex.physik.uni-konstanz.de,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test4 shocking (HT) benchmarking (wrong logic./phys. HT
+ CPU distinction?)
+In-Reply-To: <20030826135051.A16285@hexapodia.org>
+Message-ID: <Pine.LNX.4.53.0308261455590.4526@chaos>
+References: <200308261552.44541.max@vortex.physik.uni-konstanz.de>
+ <20030826135051.A16285@hexapodia.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-08-26 at 12:41, Alex Zarochentsev wrote:
-> On Tue, Aug 26, 2003 at 10:41:45PM +0400, Hans Reiser wrote:
-> > Mr. Demidov, if you put code that does not compile into our tree you 
-> > need to make the config option for it be invisible.
-> 
-> There is such an option already, CONFIG_REISER4_FS_SYSCALL, 
-> seems it is off by default.
+On Tue, 26 Aug 2003, Andy Isaacson wrote:
 
-Yes, but I the simple minded user that I am turned it on without reading
-the Kconfig help carefully.  Now, it's off, and it compiles.
+> On Tue, Aug 26, 2003, max@vortex.physik.uni-konstanz.de wrote:
+> > in our fine physics group we recently bought a DUAL XEON P4 2666MHz, 2GB,
+> > with
+> > hyper-threading support and I had the honour of making the thing work.
+> > In the
+> > process I also did some benchmarking using two different kernels (stock
+> > SuSE-8.2-Pro 2.4.20-64GB-SMP, and the latest and greatest vanilla
+> > 2.6.0-test4). I benchmarked
+> >
+> > [2] running time of a multi-threaded numerical simulation making
+> > extensive use of FFTs, using the fftw.org library.
+>
+> One thing to watch out for, with fftw:  I believe it will benchmark
+> various kernels, and decide which one to use, at run-time.  If the
+> scheduler fools it into thinking that a particular kernel is going to
+> perform better, it might do the wrong thing.
+>
+> Does fftw have a switch to write a debug log?
+>
+> ("kernel" in this context means "the small section of code used to solve
+> the fft", not "the OS code running in privileged mode".)
+>
+> -andy
 
-But, now for more interesting stuff:
+The benchmarks in the fftw.org libraries are useful only as
+time-sinks. At least on ix86, our tests show that a generic
+fft, perhaps 10 years old, with no special treatment except
+using pointers instead of indexes, when using 'double' as
+float, is, within the test noise, as fast as their "self-
+adapting" fft.
 
-[root@spc1 steven]# cd /
-[root@spc1 /]# mkdir share_r4
-[root@spc1 /]# mount -t reiser4 /dev/hda11 /share_r4
-[root@spc1 /]# df -T
-Filesystem    Type   1K-blocks      Used Available Use% Mounted on
-/dev/hda1     ext3      241116     89449    139219  40% /
-/dev/hda9     ext3    20556656  16526188   4030468  81% /home
-none         tmpfs      126784         0    126784   0% /dev/shm
-/dev/hda8     ext3      241116      4711    223957   3% /tmp
-/dev/hda6     ext3     3012204   2507596    351592  88% /usr
-/dev/hda7     ext3      489992     70721    393971  16% /var
-df: `/share_r4': Value too large for defined data type
+Also, the nature of a fft, reduces the influence of the kernel.
+Even with some kind of parallelism, for which there is little
+chance because of the serial nature of a fft, you are testing
+threads, not the kernel. To the kernel, a fft is just some
+CPU bound math.
 
-I have recently run mkfs.reiser4 on /dev/hda11 with no options.
-The reiser4progs version is 0.4.12.
-
-I made a local clone of the 2.6-test bk tree on the new reiser4
-file system and that worked OK.
-
-I then did a "time bk -r check -acv", twice for both reiser4 and ext3.
-Here are the results for the second run for each (I neglected to
-preserve the results for the initial bk -r check -acv):
-
-Reiser4:
-real    1m27.774s
-user    0m33.685s
-sys     0m16.059s
-
-Ext3:
-real    2m55.179s
-user    0m32.752s
-sys     0m5.835s
-
-Nice work.  I'll try to break Reiser4 now.
-
-Steven
+If you are going to do a lot of math simulation and are not
+going to be creating a lot of separate tasks that communicate,
+your choice of kernel (or operating system) is irrelevant.
+This kind of math-code just sits in user's memory plugging
+along until it writes its results to something, somewhere.
+The kernel is not involved until the answers are available.
 
 
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
 

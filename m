@@ -1,52 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266178AbRF2Ukm>; Fri, 29 Jun 2001 16:40:42 -0400
+	id <S266177AbRF2Umm>; Fri, 29 Jun 2001 16:42:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266177AbRF2Ukc>; Fri, 29 Jun 2001 16:40:32 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:57504 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S266178AbRF2UkV>;
-	Fri, 29 Jun 2001 16:40:21 -0400
-Date: Fri, 29 Jun 2001 22:40:18 +0200 (MET DST)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200106292040.WAA358371.aeb@vlet.cwi.nl>
-To: Gunther.Mayer@t-online.de, andre@aslab.com
-Subject: Re: Patch(2.4.5): Fix PCMCIA ATA/IDE freeze (w/ PCI add-in cards)V3
+	id <S266179AbRF2Umc>; Fri, 29 Jun 2001 16:42:32 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:63498 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S266177AbRF2Um2>; Fri, 29 Jun 2001 16:42:28 -0400
+Subject: Re: Bounce buffer deadlock
+To: lord@sgi.com (Steve Lord)
+Date: Fri, 29 Jun 2001 21:42:16 +0100 (BST)
 Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200106292033.f5TKXqw03584@jen.americas.sgi.com> from "Steve Lord" at Jun 29, 2001 03:33:52 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15G55k-0000yd-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Andre Hedrick wrote:
+> Has anyone else seen a hang like this:
+> 
+>   bdflush()
+>     flush_dirty_buffers()
+>       ll_rw_block()
+> 	submit_bh(buffer X)
+> 	  generic_make_request()
+> 	    __make_request()
+> 	        create_bounce()
+> 		  alloc_bounce_page()
+> 		    alloc_page()
+> 		      try_to_free_pages()
+> 			do_try_to_free_pages()
+> 			  page_launder()
+> 			    try_to_free_buffers( , 2)  -- i.e. wait for buffers
+> 			      sync_page_buffers()
+> 				__wait_on_buffer(buffer X)
 
-    > That is a legacy bit from ATA-2 but it is one of those things you cannot
-    > get rid of :-(
+Whoops. We actually carefully set PF_MEMALLOC to avoid deadlocks here but if
+the buffer is laundered.... ummm
 
-    in ANSI X3.279-1996, "AT Attachment Interface with Extensions (ATA-2)",
-    Approved September 11, 1996 , control register bit 3-7 are reserved.
+Looks like page_launder needs to be more careful
 
-    However ANSI X3.221-1994, "AT Attachment Interface for Disk Drives",
-    Approved May 12, 1994, bit3 is "1" and bits 4-7 are "x".
-    No further explanation.
+> I hit this in 2.4.6-pre6, and I don't see anything in the ac series to protect
+> against it.
 
-    How far back must we go, to get the sense ?
+Not this one no
 
-    >   struct {
-    >           unsigned bit0           : 1;
-    >           unsigned nIEN           : 1;    /* device INTRQ to host */
-    >           unsigned SRST           : 1;    /* host soft reset bit */
-    >           unsigned bit3           : 1;    /* ATA-2 thingy */
-    >           unsigned reserved456    : 3;
-    >           unsigned HOB            : 1;    /* 48-bit address ordering */
-    >   } control_t;
-    > 
-    > once I add-in the real def of bit3 then I will not
-    > need to look it up again.
+Alan
 
-bit3: 0: drive has 1-8 heads
-      1: drive has more than 8 heads
-
-(From old MFM/RLL times. In ATA-1 bit3 is set to 1.
-See also
-	http://www.win.tue.nl/~aeb/linux/hdtypes/hdtypes-2.html
-.)
-
-Andries

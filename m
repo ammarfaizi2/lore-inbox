@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132496AbRAaByX>; Tue, 30 Jan 2001 20:54:23 -0500
+	id <S132754AbRAaB4x>; Tue, 30 Jan 2001 20:56:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132349AbRAaByN>; Tue, 30 Jan 2001 20:54:13 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:60946 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S132876AbRAaBx5>; Tue, 30 Jan 2001 20:53:57 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-Date: Wed, 31 Jan 2001 12:53:42 +1100 (EST)
+	id <S132349AbRAaB4o>; Tue, 30 Jan 2001 20:56:44 -0500
+Received: from mercury.ukc.ac.uk ([129.12.21.10]:26578 "EHLO mercury.ukc.ac.uk")
+	by vger.kernel.org with ESMTP id <S132754AbRAaB42>;
+	Tue, 30 Jan 2001 20:56:28 -0500
+To: migras@atlas.uvigo.es
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Crash using DRI with 2.4.0 and 2.4.1
+In-Reply-To: <3A7733F6.4070505@terra.es>
+From: Adam Sampson <azz@gnu.org>
+Organization: The Campaign For The Writing Of "a lot" As Two Words
+In-Reply-To: Miguel Rodriguez Perez's message of "Tue, 30 Jan 2001 22:36:54
+ +0100"
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Carlsbad Caverns)
+Date: 31 Jan 2001 01:56:16 +0000
+Message-ID: <87n1c832nz.fsf@cartman.azz.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14967.28710.785746.261548@notabene.cse.unsw.edu.au>
-Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [NFS] Linux 2.2.18 nfs v3 server bug (was: Incompatible: FreeBSD 4.2 client, Linux 2.2.18 nfsv3 server, read-only export)
-In-Reply-To: message from Matthias Andree on Thursday January 25
-In-Reply-To: <20010123015612.H345@quadrajet.flashcom.com>
-	<20010123162930.B5443@emma1.emma.line.org>
-	<wuofwynsj5.fsf_-_@bg.sics.se>
-	<20010123105350.B344@quadrajet.flashcom.com>
-	<20010124041437.A28212@emma1.emma.line.org>
-	<14958.28927.756597.940445@notabene.cse.unsw.edu.au>
-	<20010124142002.A1405@emma1.emma.line.org>
-	<20010125012918.A15282@emma1.emma.line.org>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday January 25, matthias.andree@stud.uni-dortmund.de wrote:
-> On Wed, 24 Jan 2001, Matthias Andree wrote:
-> 
-> > This looks better and it makes FreeBSD able to ls the directory, and on
-> > touch /mnt/try, I get EROFS on the client, so this is okay; however, the
-> > access reply does not include EXECUTE permissions which I find strange,
-> > since the client lists this:
-> > 
-> 
-> My fault. NFSv3 has a different permission partitioning than local file
-> systems have, I did not see that. So Linux does the right
-> thing for ACCESS with Neil's patch. Neil, could you submit that patch to
-> Alan or bless it for inclusion into 2.2.19(pre)? The FreeBSD people
-> could then sleep well again. :-)
+Miguel Rodriguez Perez <migrax@terra.es> writes:
 
-I have sent bunch of patches to Alan some weeks ago, but no 2.2.19pre
-release has appeared since.  When the 2.2.19pre series gets going
-again, I will certainly sent this patch, and a few others that I have
-collected.
+> Hi, I have a Matrox G200 card installed on an Ali motherboard.
+> Sometimes when I use any opengl program my box crashes. It is more
+> likely that it will crash if I have used the xvideo extension or the
+> matroxfb, but this is not a must, it simply increases the chance of
+> a crash, which is very high anyway.
 
-NeilBrown
+> I have tried both 2.4.0 and 2.4.1 kernels with Xfree 4.0.2 both with
+> the same results.
+
+Are you sure you get the same results with 2.4.1? I'm in the exact
+same position (G200 on a Gigabyte GA5AX with ALi M1541/3). There was a
+patch to properly support AGP on these boards which went in between
+2.4.0 and 2.4.1 which solved the problem for me (at least in 2.4.0; I
+haven't tested DRI throughly in 2.4.1 yet).
+
+-- 
+
+Adam Sampson
+azz@gnu.org
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129145AbQK0PPE>; Mon, 27 Nov 2000 10:15:04 -0500
+        id <S129792AbQK0PUq>; Mon, 27 Nov 2000 10:20:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131173AbQK0POo>; Mon, 27 Nov 2000 10:14:44 -0500
-Received: from www.ylenurme.ee ([193.40.6.1]:61168 "EHLO ylenurme.ee")
-        by vger.kernel.org with ESMTP id <S129145AbQK0POd>;
-        Mon, 27 Nov 2000 10:14:33 -0500
-Date: Mon, 27 Nov 2000 16:42:13 +0200 (GMT-2)
-From: Elmer Joandi <elmer@ylenurme.ee>
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Universal debug macros.
-In-Reply-To: <200011270835.JAA16502@cave.bitwizard.nl>
-Message-ID: <Pine.LNX.4.10.10011271630320.13242-100000@yle-server.ylenurme.sise>
+        id <S131173AbQK0PUg>; Mon, 27 Nov 2000 10:20:36 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:28526 "EHLO
+        the-village.bc.nu") by vger.kernel.org with ESMTP
+        id <S129792AbQK0PUS>; Mon, 27 Nov 2000 10:20:18 -0500
+Subject: Re: KERNEL BUG: console not working in linux
+To: g.anzolin@inwind.it (Gianluca Anzolin)
+Date: Mon, 27 Nov 2000 14:50:33 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20001127150543.A3083@dracula.home.intranet> from "Gianluca Anzolin" at Nov 27, 2000 03:05:43 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E140Pc3-0003AI-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>         inb     $0x92, %al                      #
+>         orb     $02, %al                        # "fast	A20" version
+>         outb    %al, $0x92			# some chips have only this
+> 
+> Then my system worked without problems.
+> 
+> Now what I ask is:
+> 1) Why did they disable my videocard ?
 
+Because your machine is not properly PC compatible
 
-On Mon, 27 Nov 2000, Rogier Wolff wrote:
-> Turns out that people will
-> prefer to run the "performance" kernel, and they will send in useless
-> bugreports like "my just hangs" much more often than now.
+> 2) Whate are they supposed to do?
 
-But look at positive side:
-
-1. really few people run development kernels despite the "performance" so 
-	it probably will be with nondebug kernels.
-2. production kernels get more solid
-3. because there could be a lot more debug points in development kernels
-4. Distributors are interested in shipping debug-kernels.
-
-
-You see the part that lots of asserts and debug prints  may go.
-I see the advantage, that  a lot of them can come, at no cost.
-
-Besides, if you want to have some assert anyway, then do not write it with
-system-wide macro but make your own or mark it as "included allways".
-Faulty logic.
-
-elmer.
-
+They switch on the A20 line
 
 
 -

@@ -1,49 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316569AbSFZNFs>; Wed, 26 Jun 2002 09:05:48 -0400
+	id <S316573AbSFZNLX>; Wed, 26 Jun 2002 09:11:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316571AbSFZNFr>; Wed, 26 Jun 2002 09:05:47 -0400
-Received: from odin.sinectis.com.ar ([216.244.192.158]:26122 "EHLO
-	mail.sinectis.com.ar") by vger.kernel.org with ESMTP
-	id <S316569AbSFZNFq>; Wed, 26 Jun 2002 09:05:46 -0400
-Message-ID: <3D19BBC3.27BAC5DB@uolsinectis.com.ar>
-Date: Wed, 26 Jun 2002 10:04:03 -0300
-From: Gonzalo Augusto Arana Tagle <garana@uolsinectis.com.ar>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
+	id <S316574AbSFZNLX>; Wed, 26 Jun 2002 09:11:23 -0400
+Received: from pop.gmx.de ([213.165.64.20]:61601 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S316573AbSFZNLV>;
+	Wed, 26 Jun 2002 09:11:21 -0400
+Message-ID: <000101c21d12$b643aae0$0200a8c0@MichaelKerrisk>
+From: "Michael Kerrisk" <m.kerrisk@gmx.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Status of capabilities?
+Date: Wed, 26 Jun 2002 14:40:45 +0200
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: athlon 800MHz (Via82*) - Pentium4 Intel D845WN
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 4.72.3110.1
+X-MimeOLE: Produced By Microsoft MimeOLE V4.72.3110.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+When I asked the question below a while back, I got no response.  Is there
+really noone who can say anything about the future of capabilities?
 
-I had an Athlon 800MHz (chipset Via82... on motherboard) which got
-burned.
-I bought a Pentium 4 1.5 GHz with mother Intel D845WN.
-When I try to boot the same linux I had installed, it simply reboots,
-but I can install a new linux distribution (RH, Slackware, etc.).
+Cheers
 
-Linux: Red-Hat 7.2 (well, ..... I wanted to be comfortable really
-quickly),
-       kernel 2.4.10 (default kernel, no recompilation made)
-It reboots after writing:
+Michael
 
-"Uncompressing kernel .......................
-OK, now booting the kernel" (or similar).
+------- Forwarded message follows -------
+Date sent:       Fri, 10 May 2002 08:28:55 +0200 (MEST)
+From:            Michael Kerrisk <m.kerrisk@gmx.net>
+Subject:         Status of capabilities?
+To:              linux-kernel@vger.kernel.org
 
-How may I find out what's wrong?  Is it possible to debug this problem?
+Gidday,
 
-Thank you very much in advance,
+What are the current status and future of capabilites?  There seems to be no
+up-to-date information on this anywhere.
 
--- 
-Gonzalo A. Arana Tagle
-Lider de Proyectos - Ingenieria
-UOL-Sinectis
+It seems capabilities have been partly implemented since 2.2.  That is to
+say:
 
-Florida 537 Piso 6, Buenos Aires, Argentina 
-+54-11-4321-9110 ext 2544
-http://www.uolsinectis.com
+1. The kernel checks (effective) capabilities when performing various
+operations.
+
+2. System calls are provided to raise and lower capabilties
+
+What's still missing in 2.4, as far as I can see after reading the sources,
+is the ability to set capabilities on executable files so that a process
+gains those privileges when executing the file.  I recall seeing some
+information somewhere saying this wasn't possible / wasn't going to happen
+for ext2.  Is it on the drawing board for any file system?
+
+Thanks
+
+Michael
+
+

@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265305AbSLFSdi>; Fri, 6 Dec 2002 13:33:38 -0500
+	id <S265402AbSLFSbp>; Fri, 6 Dec 2002 13:31:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265369AbSLFSdi>; Fri, 6 Dec 2002 13:33:38 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:58854 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S265305AbSLFSdg>;
-	Fri, 6 Dec 2002 13:33:36 -0500
-Date: Fri, 06 Dec 2002 10:38:08 -0800 (PST)
-Message-Id: <20021206.103808.60419462.davem@redhat.com>
-To: willy@debian.org
-Cc: adam@yggdrasil.com, James.Bottomley@steeleye.com,
+	id <S265513AbSLFSbp>; Fri, 6 Dec 2002 13:31:45 -0500
+Received: from magic.adaptec.com ([208.236.45.80]:17616 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP
+	id <S265402AbSLFSbo>; Fri, 6 Dec 2002 13:31:44 -0500
+Date: Fri, 06 Dec 2002 11:39:00 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>,
        linux-kernel@vger.kernel.org
-Subject: Re: [RFC] generic device DMA implementation
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20021206183609.D16341@parcelfarce.linux.theplanet.co.uk>
-References: <200212061619.IAA22144@baldur.yggdrasil.com>
-	<20021206.101715.113691767.davem@redhat.com>
-	<20021206183609.D16341@parcelfarce.linux.theplanet.co.uk>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+cc: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+Subject: Re: linux-2.4.20 fails to build with aic7xxx
+Message-ID: <423680000.1039199940@aslan.btc.adaptec.com>
+In-Reply-To: <200212061730.16703.m.c.p@wolk-project.de>
+References: <200212061730.16703.m.c.p@wolk-project.de>
+X-Mailer: Mulberry/3.0.0b9 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Matthew Wilcox <willy@debian.org>
-   Date: Fri, 6 Dec 2002 18:36:09 +0000
-   
-   As I indicated to Adam, there's a fairly limited range of devices
-   available for these systems and there shouldn't be a huge problem
-   converting the few drivers we need to these interfaces.
+> Hi Ralf,
+> 
+>> yacc -d -b aicasm_gram aicasm_gram.y
+>> aicasm_gram.y:921.21: parse error, unexpected ":", expecting ";" or "|"
+>> aicasm_gram.y:936.2-5: $$ of critical_section_start' has no declared type
+>> aicasm_gram.y:938.2-5: $$ of critical_section_start' has no declared type
+>> make[6]: *** [aicasm_gram.h] Error 1
+> the fix is imho the easiest fix anyone ever done on earth ;)
+> 
+> attached!
 
-Ok, so to reiterate my other email, I'm fine with this as long as
-suitable names are used to describe what is happening in the API
-and to avoid confusion with existing practice.
+Actually, there is another missing ';' near the first you caught.  I've
+updated my local sources and will release a new driver drop for 2.4.X
+today.
 
-   
+--
+Justin

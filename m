@@ -1,63 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265777AbUF2PMP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265115AbUF2PRU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265777AbUF2PMP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 11:12:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265780AbUF2PMP
+	id S265115AbUF2PRU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 11:17:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265366AbUF2PRU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 11:12:15 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:47014 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S265777AbUF2PMN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 11:12:13 -0400
-Date: Tue, 29 Jun 2004 16:11:38 +0100
-From: Dave Jones <davej@redhat.com>
-To: fabian.frederick@skynet.be
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.7-mm3] cpuflags reviewed
-Message-ID: <20040629151138.GA27356@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, fabian.frederick@skynet.be,
-	linux-kernel@vger.kernel.org
-References: <200406290842.i5T8g42d030759@outmx008.isp.belgacom.be>
+	Tue, 29 Jun 2004 11:17:20 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:14084 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S265115AbUF2PRT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jun 2004 11:17:19 -0400
+Subject: Re: Linux scheduler (scheduling)  questions
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: "Povolotsky, Alexander" <Alexander.Povolotsky@marconi.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'andrebalsa@altern.org'" <andrebalsa@altern.org>,
+       "'Richard E. Gooch'" <rgooch@atnf.csiro.au>,
+       "'Ingo Molnar'" <mingo@elte.hu>, "'rml@tech9.net'" <rml@tech9.net>,
+       "'akpm@osdl.org'" <akpm@osdl.org>
+In-Reply-To: <313680C9A886D511A06000204840E1CF08F42FA3@whq-msgusr-02.pit.comms.marconi.com>
+References: <313680C9A886D511A06000204840E1CF08F42FA3@whq-msgusr-02.pit.comms.marconi.com>
+Content-Type: text/plain
+Date: Tue, 29 Jun 2004 17:17:13 +0200
+Message-Id: <1088522233.1709.2.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200406290842.i5T8g42d030759@outmx008.isp.belgacom.be>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 1.5.9.2 (1.5.9.2-1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 29, 2004 at 10:42:04AM +0200, fabian.frederick@skynet.be wrote:
+On Tue, 2004-06-29 at 08:51 -0400, Povolotsky, Alexander wrote:
 
- > I made this one in order to display flags in a clear way (ie better than
- > cpuinfo) and display \"what we have and what we don't\"
- > related to my arch. Kernel is authoritative there and gathers all
- > info.
+> 5. Deviating from the scheduling line of questions (but staying with threads
+> issues): is there an option in clone(2)  to make threads 
+>    not to run in the same  address space but rather act as independent
+> process(es).
 
-How is this more authorative than a userspace app ?
-If a new feature flag appears that the kernel doesn't know about,
-it won't get picked up. Just as it won't in a userspace app.
-The difference being, someone can grab the latest version of the
-app without needing to update their whole kernel.
+If you want something in a different address space, then you want a
+process. Threads of the same process share the whole address space
+(except they have their own stack) and this have some advantages, like
+faster CPU context switching between threads of the same process, and
+faster creation times, among others.
 
- > Having userland maintaining such stuff would be double-work
- > double-effort (ok, it's usual :) ).Let's say procps maintains flagging as
- > well, it would require all arch updates.
-
-Updating userspace is less impact than kernel updates.
-
- > All this without the fact that kernel would be able to deliver such info
- > through a syscall or something I'm not aware of...
-
-That would be even more overkill.  The cpuid driver does everything
-you need, in userspace.  It has established userspace users.
-Do you expect those users to switch over to /proc/cpuflags ?
-It won't happen, and adding duplicate interfaces is just pointless.
-
- > IOW, userland requires more feed.Feed userland pls :))))
-
-No, it does not.  All you patch brings afaics is the need to parse
-ASCII (/proc/cpuflags) vs binary (/dev/cpu/n/cpuid), and we
-already have a /proc/cpuinfo for that.
-
-		Dave
 

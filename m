@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263264AbUJ2Ac5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263202AbUJ2BSH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263264AbUJ2Ac5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 20:32:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263205AbUJ2AXO
+	id S263202AbUJ2BSH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 21:18:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263269AbUJ2AeT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 20:23:14 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:27142 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S263156AbUJ2ATm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 20:19:42 -0400
-Date: Fri, 29 Oct 2004 02:19:07 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: kraxel@bytesex.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] media/video/bw-qcam.c: remove an unused function
-Message-ID: <20041029001907.GL29142@stusta.de>
-References: <20041028222904.GR3207@stusta.de>
+	Thu, 28 Oct 2004 20:34:19 -0400
+Received: from pimout2-ext.prodigy.net ([207.115.63.101]:37824 "EHLO
+	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S263281AbUJ2A3D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 20:29:03 -0400
+Date: Thu, 28 Oct 2004 17:28:31 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Blaisorblade <blaisorblade_spam@yahoo.it>
+Cc: user-mode-linux-devel@lists.sourceforge.net,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Jeff Dike <jdike@addtoit.com>
+Subject: Re: [uml-devel] Re: Why UML often does not build (was: Re: [PATCH] UML: Build fix for TT w/o SKAS)
+Message-ID: <20041029002831.GD12434@taniwha.stupidest.org>
+References: <20041027053602.GB30735@taniwha.stupidest.org> <200410282254.21944.blaisorblade_spam@yahoo.it> <20041028214242.GB2269@taniwha.stupidest.org> <200410290149.31665.blaisorblade_spam@yahoo.it>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041028222904.GR3207@stusta.de>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <200410290149.31665.blaisorblade_spam@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ this time without the problems due to a digital signature... ]
+On Fri, Oct 29, 2004 at 01:49:31AM +0200, Blaisorblade wrote:
 
-The patch below removes an unused function from media/video/bw-qcam.c
+> Yes, it was using SIGKILL instead of PTRACE_KILL; this gets broken
+> by 2.6.9.
 
+the problem here is that ptrace semantics are not well defined to
+anything subtle can and will break from time to time
 
-diffstat output:
- drivers/media/video/bw-qcam.c |    5 -----
- 1 files changed, 5 deletions(-)
+if we can get UML in a more suitable state and perhaps get some minor
+QA stuff merged (a new make target using initramfs maybe?) we could
+'encourage' people to test UML more often
 
+> Well, I've seen Christoph Hellwig not particularly happy about us,
+> see for instance:
+>
+> http://linux.bkbits.net:8080/linux-2.5/cset@41752cc9xdFXib-03VDV5akqKJZ-yA?nav=index.html|ChangeSet@-7d
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+well, he is right in this case
 
---- linux-2.6.10-rc1-mm1-full/drivers/media/video/bw-qcam.c.old	2004-10-28 23:16:36.000000000 +0200
-+++ linux-2.6.10-rc1-mm1-full/drivers/media/video/bw-qcam.c	2004-10-28 23:17:06.000000000 +0200
-@@ -91,11 +91,6 @@
- 	return parport_read_status(q->pport);
- }
- 
--static inline int read_lpcontrol(struct qcam_device *q)
--{
--	return parport_read_control(q->pport);
--}
--
- static inline int read_lpdata(struct qcam_device *q)
- {
- 	return parport_read_data(q->pport);
+it's hard to find a balance between keeping it working for existing
+UML users (which is what i'm trying to make sure is the case) and
+doing cleanups which people such as hch point out really are needed
+
+> Sending a patch requires at least proof-reading it and writing a
+> meaningful changelog.  Also, managing mails takes tons of time.
+
+im happy to take any and all fixes w/o comments in any form for now if
+you want to fire them off to me

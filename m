@@ -1,168 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261917AbVBUIIg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261915AbVBUIJX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261917AbVBUIIg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 03:08:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbVBUIIg
+	id S261915AbVBUIJX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 03:09:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbVBUIJW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 03:08:36 -0500
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:993 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S261915AbVBUIH5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 03:07:57 -0500
-Subject: Re: [rfc/rft] Fujitsu B-Series Lifebook PS/2 TouchScreen driver
-From: Kenan Esau <kenan.esau@conan.de>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: harald.hoyer@redhat.de, dtor_core@ameritech.net,
-       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-In-Reply-To: <20050219131639.GA4922@ucw.cz>
-References: <20050211201013.GA6937@ucw.cz>
-	 <1108457880.2843.5.camel@localhost> <20050215134308.GE7250@ucw.cz>
-	 <1108578892.2994.2.camel@localhost> <20050216213508.GD3001@ucw.cz>
-	 <1108649993.2994.18.camel@localhost> <20050217150455.GA1723@ucw.cz>
-	 <20050217194217.GA2458@ucw.cz> <1108817681.5774.44.camel@localhost>
-	 <20050219131639.GA4922@ucw.cz>
-Content-Type: text/plain
-Date: Mon, 21 Feb 2005 09:06:55 +0100
-Message-Id: <1108973216.5774.72.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+	Mon, 21 Feb 2005 03:09:22 -0500
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:23719 "HELO
+	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261915AbVBUIJQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Feb 2005 03:09:16 -0500
+Message-ID: <42199727.2010309@yahoo.com.au>
+Date: Mon, 21 Feb 2005 19:09:11 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+CC: Andrew Morton <akpm@osdl.org>, Hugh Dickins <hugh@veritas.com>,
+       Andi Kleen <ak@suse.de>, davem@davemloft.net,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/2] page table iterators
+References: <4214A1EC.4070102@yahoo.com.au> <4214A437.8050900@yahoo.com.au>	 <20050217194336.GA8314@wotan.suse.de> <1108680578.5665.14.camel@gaston>	 <20050217230342.GA3115@wotan.suse.de>	 <20050217153031.011f873f.davem@davemloft.net>	 <20050217235719.GB31591@wotan.suse.de> <4218840D.6030203@yahoo.com.au>	 <Pine.LNX.4.61.0502210619290.7925@goblin.wat.veritas.com>	 <20050220224022.5b5c4a09.akpm@osdl.org> <1108969783.5411.6.camel@gaston>
+In-Reply-To: <1108969783.5411.6.camel@gaston>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Samstag, den 19.02.2005, 14:16 +0100 schrieb Vojtech Pavlik:
+Benjamin Herrenschmidt wrote:
 
-[...]
-
+> All of them are slightly differently implemented, some check overflow,
+> some don't, some have redudant checking, some aren't even consistent
+> between all 3/4 loops of a given walk routine set, and we have seen the
+> tendency to introduce subtle bugs in one of them when they all have to
+> be changed for some reason.
 > 
-> > I also checked my original standalone-driver: Because of this behaviour
-> > I always retried the last command 3 times if the responce from the
-> > device was 0xfe or 0xfc.
+> I'm all for turning them into something more consistent, and I like the
+> for_each_* idea...
 > 
-> And did it actually help? Did the touchscreen ever respond with a 0xfa
-> "ACK, OK" response to these commands?
+> It also allows to completely remove the code of the unused levels on 2
+> and 3 level page tables easily, regaining some of the perfs lost by the
+> move to 4 levels.
+> 
 
-I played around a little bit last weekend. And obviously the touchscreen
-always responds 0xfe to the 0xe8 0x07 command. Also repeating the
-command does not really help. After the firxt 0x07 you get back the 0xfe
-and the next byte you send to the device is ALWAYS answered by a
-0xfc!?!?
+It appears to do even better on 2-levels (i386, !PAE) than the old
+3-level code, not surprisingly. lmbench fork+exit overhead is under
+100us on a 3.4GHz xeon now, which is the lowest I've seen.
 
-At the end of this mail you'll find some traces I did.
+Haven't yet pulled out a pre-4-level kernel to see how 3-level compares
+I guess I'll do that now.
 
-I also wonder if it is possible at all to probe this device. I think
-not. IMHO we should go for a module-parameter which enforces the
-lifebook-protokoll. Something like "force_lb=1". Any Ideas /
-suggestions? How does this work out with a second/external mouse?
+> Now, we also need, in the long run, to improve perfs of walking the page
+> tables, especially PTEs, for things like tearing down processes or fork,
+> for example via a bitmap of used PGD entries etc... 
+> 
+> With proper iterators, such a thing could be implemented just by
+> modifying the iterator, and all loops would benefit from it.
+> 
 
-##################################################
+After looking at David's bitmap walking code, I'm starting to think
+that my current macros only _just_ scrape by because of the uniform
+nature of the walkers, and their relative simplicity. Anything much
+more complex will start to get ugly.
 
-Without e8 07
-input: LBPS/2 Fujitsu Lifebook TouchScreen on isa0060/serio1
-drivers/input/serio/i8042.c: d4 -> i8042 (command) [195082637]
-drivers/input/serio/i8042.c: f5 -> i8042 (parameter) [195082637]
-drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[195082645]
-drivers/input/serio/i8042.c: d4 -> i8042 (command) [195082804]
-drivers/input/serio/i8042.c: ff -> i8042 (parameter) [195082804]
-drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[195082807]
-drivers/input/serio/i8042.c: aa <- i8042 (interrupt, aux, 12)[195082869]
-drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux, 12)[195082871]
-drivers/input/serio/i8042.c: d4 -> i8042 (command) [195082871]
-drivers/input/serio/i8042.c: f3 -> i8042 (parameter) [195082871]
-drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[195082874]
-drivers/input/serio/i8042.c: d4 -> i8042 (command) [195082874]
-drivers/input/serio/i8042.c: 64 -> i8042 (parameter) [195082874]
-drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[195082878]
-drivers/input/serio/i8042.c: d4 -> i8042 (command) [195082879]
-drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [195082879]
-drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[195082884]
-drivers/input/serio/i8042.c: d4 -> i8042 (command) [195082884]
-drivers/input/serio/i8042.c: 03 -> i8042 (parameter) [195082884]
-drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[195082888]
-drivers/input/serio/i8042.c: d4 -> i8042 (command) [195082889]
-drivers/input/serio/i8042.c: f4 -> i8042 (parameter) [195082889]
-drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[195082894]
-drivers/input/serio/i8042.c: d4 -> i8042 (command) [195082894]
-drivers/input/serio/i8042.c: f4 -> i8042 (parameter) [195082894]
-drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[195082899]
+I'd like to look at a slightly more involved reworking in order to
+nicely support optimisations like bitmap walking, without blowing out
+the complexity of the macros and without hiding too much of the
+workings.
 
-Repeating: e8 07 e8 07
-input: LBPS/2 Fujitsu Lifebook TouchScreen on isa0060/serio1
-drivers/input/serio/i8042.c: d4 -> i8042 (command) [195781502]
-drivers/input/serio/i8042.c: f5 -> i8042 (parameter) [195781502]
-drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[195781506]
-drivers/input/serio/i8042.c: d4 -> i8042 (command) [195781506]
-drivers/input/serio/i8042.c: ff -> i8042 (parameter) [195781506]
-drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[195781511]
-drivers/input/serio/i8042.c: 2a <- i8042 (interrupt, kbd, 1) [195781569]
-drivers/input/serio/i8042.c: aa <- i8042 (interrupt, aux, 12)[195781575]
-drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux, 12)[195781577]
-drivers/input/serio/i8042.c: d4 -> i8042 (command) [195781595]
-drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [195781595]
-drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[195781601]
-drivers/input/serio/i8042.c: d4 -> i8042 (command) [195781602]
-drivers/input/serio/i8042.c: 07 -> i8042 (parameter) [195781602]
-drivers/input/serio/i8042.c: fe <- i8042 (interrupt, aux, 12)[195781606]
-drivers/input/serio/i8042.c: d4 -> i8042 (command) [195781607]
-drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [195781607]
-drivers/input/serio/i8042.c: fc <- i8042 (interrupt, aux, 12)[195781611]
-drivers/input/serio/i8042.c: d4 -> i8042 (command) [195781809]
-drivers/input/serio/i8042.c: f3 -> i8042 (parameter) [195781809]
-drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[195781813]
-drivers/input/serio/i8042.c: d4 -> i8042 (command) [195781813]
-drivers/input/serio/i8042.c: 64 -> i8042 (parameter) [195781813]
-drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[195781817]
-drivers/input/serio/i8042.c: d4 -> i8042 (command) [195781818]
-drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [195781818]
-drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[195781822]
-drivers/input/serio/i8042.c: d4 -> i8042 (command) [195781823]
-drivers/input/serio/i8042.c: 03 -> i8042 (parameter) [195781823]
-drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[195781827]
-drivers/input/serio/i8042.c: d4 -> i8042 (command) [195781828]
-drivers/input/serio/i8042.c: f4 -> i8042 (parameter) [195781828]
-drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[195781832]
-drivers/input/serio/i8042.c: d4 -> i8042 (command) [195781833]
-drivers/input/serio/i8042.c: f4 -> i8042 (parameter) [195781833]
+However, my main aim for these macros was mainly to fix the
+performance regressions on 2 and 3 level architectures. Ben's
+complaints about these loops just served to hurry it along. I think
+that these reasons (performance, code consistency) make it a good
+idea.
 
-Repeating: e8 07 e8 07 e8 07
-input: LBPS/2 Fujitsu Lifebook TouchScreen on isa0060/serio1
-drivers/input/serio/i8042.c: d4 -> i8042 (command) [196875239]
-drivers/input/serio/i8042.c: f5 -> i8042 (parameter) [196875239]
-drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[196875241]
-drivers/input/serio/i8042.c: d4 -> i8042 (command) [196875242]
-drivers/input/serio/i8042.c: ff -> i8042 (parameter) [196875242]
-drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[196875246]
-drivers/input/serio/i8042.c: aa <- i8042 (interrupt, aux, 12)[196875311]
-drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux, 12)[196875312]
-drivers/input/serio/i8042.c: d4 -> i8042 (command) [196875319]
-drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [196875319]
-drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[196875327]
-drivers/input/serio/i8042.c: d4 -> i8042 (command) [196875327]
-drivers/input/serio/i8042.c: 07 -> i8042 (parameter) [196875327]
-drivers/input/serio/i8042.c: fe <- i8042 (interrupt, aux, 12)[196875332]
-drivers/input/serio/i8042.c: d4 -> i8042 (command) [196875332]
-drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [196875332]
-drivers/input/serio/i8042.c: fc <- i8042 (interrupt, aux, 12)[196875336]
-drivers/input/serio/i8042.c: d4 -> i8042 (command) [196875534]
-drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [196875534]
-drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[196875538]
-drivers/input/serio/i8042.c: d4 -> i8042 (command) [196875538]
-drivers/input/serio/i8042.c: 07 -> i8042 (parameter) [196875538]
-drivers/input/serio/i8042.c: fe <- i8042 (interrupt, aux, 12)[196875543]
-drivers/input/serio/i8042.c: d4 -> i8042 (command) [196875543]
-drivers/input/serio/i8042.c: f3 -> i8042 (parameter) [196875543]
-drivers/input/serio/i8042.c: fc <- i8042 (interrupt, aux, 12)[196875547]
-drivers/input/serio/i8042.c: d4 -> i8042 (command) [196875746]
-drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [196875746]
-drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[196875754]
-drivers/input/serio/i8042.c: d4 -> i8042 (command) [196875755]
-drivers/input/serio/i8042.c: 03 -> i8042 (parameter) [196875755]
-drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[196875759]
-drivers/input/serio/i8042.c: d4 -> i8042 (command) [196875759]
-drivers/input/serio/i8042.c: f4 -> i8042 (parameter) [196875759]
-drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[196875764]
-drivers/input/serio/i8042.c: d4 -> i8042 (command) [196875765]
-drivers/input/serio/i8042.c: f4 -> i8042 (parameter) [196875765]
-drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[196875770]
-
+Nick
 

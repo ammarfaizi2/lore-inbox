@@ -1,60 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262769AbTCKBQP>; Mon, 10 Mar 2003 20:16:15 -0500
+	id <S262394AbTCKBP0>; Mon, 10 Mar 2003 20:15:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262773AbTCKBQO>; Mon, 10 Mar 2003 20:16:14 -0500
-Received: from fmr01.intel.com ([192.55.52.18]:40652 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S262769AbTCKBQL> convert rfc822-to-8bit;
-	Mon, 10 Mar 2003 20:16:11 -0500
-Message-ID: <A46BBDB345A7D5118EC90002A5072C780AFB088B@orsmsx116.jf.intel.com>
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "'Ingo Molnar'" <mingo@elte.hu>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: [patch] "HT scheduler", sched-2.5.63-B3
-Date: Mon, 10 Mar 2003 11:53:29 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	id <S262764AbTCKBP0>; Mon, 10 Mar 2003 20:15:26 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:27396 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262394AbTCKBPZ>;
+	Mon, 10 Mar 2003 20:15:25 -0500
+Date: Mon, 10 Mar 2003 17:15:32 -0800
+From: Greg KH <greg@kroah.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Oliver Neukum <oliver@neukum.name>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@osdl.org>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Jeff Garzik <jgarzik@pobox.com>, Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: PCI driver module unload race?
+Message-ID: <20030311011532.GH13145@kroah.com>
+References: <20030308104749.A29145@flint.arm.linux.org.uk> <20030308202101.GA26831@kroah.com> <20030310214443.GA13145@kroah.com> <200303110048.43514.oliver@neukum.name> <20030310235131.GF13145@kroah.com> <Pine.LNX.4.44.0303110147390.32518-100000@serv>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0303110147390.32518-100000@serv>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Fri, 7 Mar 2003, Perez-Gonzalez, Inaky wrote:
+On Tue, Mar 11, 2003 at 02:04:20AM +0100, Roman Zippel wrote:
+> On Mon, 10 Mar 2003, Greg KH wrote:
 > 
-> > Question: does this apply also to tasks that are current on another CPU
-> > other than the local?
-> >
-> > Or, can I change the prio of a task that is current on another CPU
-> > directly and then set_tsk_need_resched()? Or I also have to unqueue it
-> > first?
+> > > It seems that the semaphore in bus_add_device() makes this unnecessary.
+> > 
+> > Hm, yes.  I think you are correct.
+> > 
+> > So this patch is not needed, and the struct module * can be ripped out
+> > of struct usb_driver too :)
 > 
-> any task must be unqueued before changing its priority - the runqueues are
-> indexed by the priority field. The special case in wakeup is that 'p' is
-> not on any runqueues (hence the wakeup ...), so we have a cheap
-> opportunity there to fix up priority. But it's not a problem for an
-> already running process either - it needs to be requeued.
+> I think it's not easy. I haven't studied the code completely yet, but e.g. 
+> when you attach a device to a driver you also have to get a reference to 
+> the driver.
 
-Thanks, I was suspecting that [when something makes full sense, it is
-easy to suspect it :)].
+You get a link to the driver, but you can't increment the module count
+of the driver at that time, as we have to be able to remove a module
+somehow :)
 
-How friendly would you be to a hook into setscheduler()? I have this 
-same problem with real-time futexes, specially wrt to effective priority 
-in priority-inheritance & prio-protection. Basically, I need to know 
-right away when a waiting tasks' priority has been changed so I can
-properly reposition it into the waiting list.
+> I think there are more interesting races, e.g. when you create a sysfs 
+> symlink, that symlink might also have references to a module.
 
-As well, whenever I change the priority of an active/running task, it needs
-to activate the hooks (for my proof-of-concept I did that manually; however,
-it is limited and non-extensible), and I am looking into unfolding
-setscheduler() into setscheduler() and do_setscheduler(), the later taking
-the task struct, policy and priority to set, so that it can be called
-from inside the kernel. setscheduler() would only do the user-space 
-stuff handling.
+Yeah, I still think there are some nasty issues with regards to being in
+a sysfs directory, with a open file handle, and the module is removed.
+But I haven't checked stuff like that in a while.
 
-Would that be ok with you?
+CONFIG_MODULE_UNLOAD, just say no.
 
-Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
-(and my fault)
+thanks,
 
-
+greg k-h

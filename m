@@ -1,67 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262580AbTDAO7Q>; Tue, 1 Apr 2003 09:59:16 -0500
+	id <S262583AbTDAPAS>; Tue, 1 Apr 2003 10:00:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262582AbTDAO7Q>; Tue, 1 Apr 2003 09:59:16 -0500
-Received: from kestrel.vispa.uk.net ([62.24.228.12]:32528 "EHLO
-	kestrel.vispa.uk.net") by vger.kernel.org with ESMTP
-	id <S262580AbTDAO7P>; Tue, 1 Apr 2003 09:59:15 -0500
-Message-ID: <3E89AB56.3080000@walrond.org>
-Date: Tue, 01 Apr 2003 16:08:06 +0100
-From: Andrew Walrond <andrew@walrond.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: rgooch@atnf.csiro.au
-Subject: Linux 2.4-bk: Kernel BUG at dcache.c:653
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262585AbTDAPAS>; Tue, 1 Apr 2003 10:00:18 -0500
+Received: from mail.mtds.com ([194.204.200.6]:7824 "EHLO mail.mtds.com")
+	by vger.kernel.org with ESMTP id <S262583AbTDAPAQ>;
+	Tue, 1 Apr 2003 10:00:16 -0500
+Date: Tue, 1 Apr 2003 15:11:29 +0000
+From: Simon White <simon@mtds.com>
+To: Mikael Pettersson <mikpe@user.it.uu.se>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: New: SSE2 enabled by default on Celeron (P4 based)
+Message-ID: <20030401151129.GB963@mtds.com>
+References: <17080000.1049207466@[10.10.2.4]> <16009.43013.754047.36875@gargle.gargle.HOWL>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16009.43013.754047.36875@gargle.gargle.HOWL>
+User-Agent: Mutt/1.3.27i
+X-Operating-System: Linux 2.5.64
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.10; VAE: 6.18.0.3; VDF: 6.18.0.20; host: vexira.mtds.com)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+01-Apr-03 at 16:53, Mikael Pettersson (mikpe@user.it.uu.se) wrote :
+> Martin J. Bligh writes:
+>  > http://bugme.osdl.org/show_bug.cgi?id=527
+>  > 
+>  >            Summary: SSE2 enabled by default on Celeron (P4 based)
+>  >     Kernel Version: 2.5.64
+>  >             Status: NEW
+>  >           Severity: normal
+>  >              Owner: mbligh@aracnet.com
+>  >          Submitter: simon@mtds.com
+>  > 
+>  > 
+>  > Distribution: Customised RH 7.1 with many mods
+>  > Hardware Environment: Celeron i686 (P4 based)
+>  > Software Environment: gcc version 2.96 20000731 (Red Hat Linux 7.1 2.96-81)
+>  > 
+>  > Problem Description: Kernel compiles OK, but at boot kernel panics as CPU
+>  > doesn't support SSE2
+>  > 
+>  > Steps to reproduce: Compile kernel choosing *any* Celeron option
+>  > 
+>  > /proc/cpuinfo:-
+>  > processor       : 0
+>  > vendor_id       : GenuineIntel
+>  > cpu family      : 6
+>  > model           : 11
+> 
+> This is NOT a P4-based Celeron. It's a P6 Tualatin Celeron, and as such,
+> it does not support SSE2.
+> 
+> This CPU needs a kernel configured for a Pentium III or less.
 
-On about 50% of reboots of a server, I get this BUG message while the 
-kernel has just started processing my init script.
+Sorry. My reseller has told me a load of bull. In any case, I tried
+compiling with all of the Celeron options, and I recall that _all_ set
+SSE2, I think I must have screwed up on too much coffee, since checking
+now, the .config file only has SSE2 flags for Celeron-P4, while I seem
+to recall having compiled first for PIII-Celeron and still having the
+kernel panic for SSE2, maybe somewhere the config files got screwed.
 
-This is a dual P3 machine with DAC960 raid card.
+I feel so dumb.
 
-I am running the latest 2.4-bk kernel
-
-Any clues what might cause this? Since I am running Richard Gooch's 
-simpleinit (with homebrew scripts) which does loads of init stuff in 
-parallel, I'm sure they must be the cause.
-
-Very early in the scripts, root is remounted ro and fscked, then 
-remounted rw, while other parallel scripts wait on it to complete.
-
-What does this BUG indicate? It occurs in this function:
-
-/**
-  * d_instantiate - fill in inode information for a dentry
-  * @entry: dentry to complete
-  * @inode: inode to attach to this dentry
-  *
-  * Fill in inode information in the entry.
-  *
-  * This turns negative dentries into productive full members
-  * of society.
-  *
-  * NOTE! This assumes that the inode count has been incremented
-  * (or otherwise set) by the caller to indicate that it is now
-  * in use by the dcache.
-  */
-
-void d_instantiate(struct dentry *entry, struct inode * inode)
-{
-     if (!list_empty(&entry->d_alias)) BUG();
-     spin_lock(&dcache_lock);
-     if (inode)
-         list_add(&entry->d_alias, &inode->i_dentry);
-     entry->d_inode = inode;
-     spin_unlock(&dcache_lock);
-}
-
-
-Andrew Walrond
-
+-- 
+|-Simon White, Internet Services Manager, Certified Check Point CCSA.
+|-MTDS  Internet, Security, Anti-Virus, Linux and Hosting Solutions.
+|-MTDS  14, rue du 16 novembre, Agdal, Rabat, Morocco.
+|-MTDS  tel +212.3.767.4861 - fax +212.3.767.4863

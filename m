@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270457AbUJUG0T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270414AbUJUG0S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270457AbUJUG0T (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 02:26:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268950AbUJUGWG
+	id S270414AbUJUG0S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 02:26:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270418AbUJTT2X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 02:22:06 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:5760 "EHLO midnight.suse.cz")
-	by vger.kernel.org with ESMTP id S270437AbUJUGV0 (ORCPT
+	Wed, 20 Oct 2004 15:28:23 -0400
+Received: from cantor.suse.de ([195.135.220.2]:38080 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S270241AbUJTTTy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 02:21:26 -0400
-Date: Thu, 21 Oct 2004 08:21:03 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Greg KH <greg@kroah.com>, Dmitry Torokhov <dtor_core@ameritech.net>,
-       Alexandre Oliva <aoliva@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: forcing PS/2 USB emulation off
-Message-ID: <20041021062103.GA1252@ucw.cz>
-References: <orzn2lyw8k.fsf@livre.redhat.lsd.ic.unicamp.br> <200410172248.16571.dtor_core@ameritech.net> <20041018164539.GC18169@kroah.com> <20041019063057.GA3057@ucw.cz> <1098302200.12374.44.camel@localhost.localdomain>
+	Wed, 20 Oct 2004 15:19:54 -0400
+Date: Wed, 20 Oct 2004 21:16:50 +0200
+From: Andi Kleen <ak@suse.de>
+To: Olaf Hering <olh@suse.de>
+Cc: Andreas Kleen <ak@suse.de>, Sam Ravnborg <sam@ravnborg.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix cross compile on x86_64
+Message-ID: <20041020191650.GA1493@wotan.suse.de>
+References: <20041020183504.GA11821@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1098302200.12374.44.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20041020183504.GA11821@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 20, 2004 at 08:56:43PM +0100, Alan Cox wrote:
-
-> On Maw, 2004-10-19 at 07:30, Vojtech Pavlik wrote:
-> > Like 30% of all notebooks? ;) They do boot without the USB handoff, the
-> > PS/2 mouse works, but only as a PS/2 mouse, no extended capabilities
-> > detection is possible due to the BIOS interference.
+On Wed, Oct 20, 2004 at 08:35:04PM +0200, Olaf Hering wrote:
 > 
-> I started in favour of avoiding always doing the handoff, but now I'm
-> convinced handoff should be the default. 
+> make all fails while building a helper app:
+> 
+> arch/x86_64/boot/tools/build.c:36:22: asm/boot.h: No such file or directory
+> 
+> Possible that make O=$foo did never work on x86_64.
 
-And I would be fine to move the atkbd/psmouse initialization down in the
-Makefiles so that USB gets initialized first - but what do we do about
-the modular case? 
+It works just fine with make bzImage and make. I'm not sure what
+"make all" is good for though. 
 
-I do agree that we should have only one copy of the handoff code,
-regardless of where it's living.
+> 
+> This patch fixes it for me.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Thanks.
+
+-Andi

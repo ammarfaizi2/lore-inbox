@@ -1,11 +1,11 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268708AbTCCSov>; Mon, 3 Mar 2003 13:44:51 -0500
+	id <S268710AbTCCSq3>; Mon, 3 Mar 2003 13:46:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268714AbTCCSou>; Mon, 3 Mar 2003 13:44:50 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:48634 "EHLO
+	id <S268714AbTCCSp3>; Mon, 3 Mar 2003 13:45:29 -0500
+Received: from fmr06.intel.com ([134.134.136.7]:18683 "EHLO
 	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id <S268708AbTCCSnB>; Mon, 3 Mar 2003 13:43:01 -0500
+	id <S268710AbTCCSob>; Mon, 3 Mar 2003 13:44:31 -0500
 Subject: Re: [2.5.63 PATCH][RESUBMIT] Sysfs based watchdog infrastructure
 From: Rusty Lynch <rusty@linux.co.intel.com>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
@@ -15,334 +15,454 @@ References: <1046716982.2671.8.camel@vmhack>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 03 Mar 2003 10:51:05 -0800
-Message-Id: <1046717466.2819.11.camel@vmhack>
+Date: 03 Mar 2003 10:52:41 -0800
+Message-Id: <1046717563.2671.14.camel@vmhack>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is a port of the softdog watchdog driver for the new infrastructure.
+Here is a new watchdog driver for the ZT55XX line of CompactPCI single
+board computers that utilizes the watchdog infrastructure.
 
     --rustyl
 
-diff -Nru a/drivers/char/watchdog/softdog.c b/drivers/char/watchdog/softdog.c
---- a/drivers/char/watchdog/softdog.c	Fri Feb 28 20:09:48 2003
-+++ b/drivers/char/watchdog/softdog.c	Fri Feb 28 20:09:48 2003
-@@ -1,5 +1,5 @@
- /*
-- *	SoftDog	0.06:	A Software Watchdog Device
-+ *	SoftDog	0.07:	A Software Watchdog Device
-  *
-  *	(c) Copyright 1996 Alan Cox <alan@redhat.com>, All Rights Reserved.
-  *				http://www.redhat.com
-@@ -34,52 +34,41 @@
-  *
-  *  20020530 Joel Becker <joel.becker@oracle.com>
-  *  	Added Matt Domsch's nowayout module option.
-+ * 
-+ *  20030221 Rusty Lynch <rusty@linux.co.intel.com>
-+ *      Moved implementation to use the new watchdog infrastructure.  This
-+ *      adds the softdog to the sysfs topography and moves the common 
-+ *      miscdevice functions to the infrastructure as well.
-+ *       
-  */
-  
- #include <linux/module.h>
-+#include <linux/moduleparam.h>
- #include <linux/config.h>
- #include <linux/types.h>
--#include <linux/miscdevice.h>
- #include <linux/watchdog.h>
- #include <linux/reboot.h>
- #include <linux/init.h>
- #include <asm/uaccess.h>
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1132  -> 1.1133 
+#	drivers/char/watchdog/Kconfig	1.8     -> 1.9    
+#	drivers/char/watchdog/Makefile	1.8     -> 1.9    
+#	               (new)	        -> 1.1     drivers/char/watchdog/ztwd.c
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/02/28	rusty@penguin.co.intel.com	1.1133
+# Adding the ztwd watchdog timer
+# --------------------------------------------
+#
+diff -Nru a/drivers/char/watchdog/Kconfig b/drivers/char/watchdog/Kconfig
+--- a/drivers/char/watchdog/Kconfig	Fri Feb 28 20:10:03 2003
++++ b/drivers/char/watchdog/Kconfig	Fri Feb 28 20:10:03 2003
+@@ -377,4 +377,18 @@
+ 	  The module is called cpu5wdt.o.  If you want to compile it as a
+ 	  module, say M here and read <file:Documentation/modules.txt>.
  
- #define TIMER_MARGIN	60		/* (secs) Default is 1 minute */
--
--static int expect_close = 0;
- static int soft_margin = TIMER_MARGIN;	/* in seconds */
--#ifdef ONLY_TESTING
--static int soft_noboot = 1;
--#else
--static int soft_noboot = 0;
--#endif  /* ONLY_TESTING */
-+module_param(soft_margin,int,0);
-+MODULE_PARM_DESC(soft_margin, "Watchdog timer margin (timeout) in seconds");
- 
--MODULE_PARM(soft_margin,"i");
--MODULE_PARM(soft_noboot,"i");
--MODULE_LICENSE("GPL");
-+static int soft_noboot = 0;
-+module_param(soft_noboot,int,0);
-+MODULE_PARM_DESC(soft_noboot, "Disable machine restarts on watchdog timeout");
- 
- #ifdef CONFIG_WATCHDOG_NOWAYOUT
- static int nowayout = 1;
- #else
- static int nowayout = 0;
- #endif
--
--MODULE_PARM(nowayout,"i");
-+module_param(nowayout,int,0);
- MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default=CONFIG_WATCHDOG_NOWAYOUT)");
- 
- /*
-- *	Our timer
-- */
-- 
--static void watchdog_fire(unsigned long);
--
--static struct timer_list watchdog_ticktock =
--		TIMER_INITIALIZER(watchdog_fire, 0, 0);
--static unsigned long timer_alive;
--
--
--/*
-  *	If the timer expires..
-  */
-  
-@@ -96,135 +85,155 @@
- }
- 
- /*
-- *	Allow only one person to hold it open
-+ *	Software timer
-  */
-  
--static int softdog_open(struct inode *inode, struct file *file)
--{
--	if(test_and_set_bit(0, &timer_alive))
--		return -EBUSY;
-+static struct timer_list watchdog_ticktock =
-+		TIMER_INITIALIZER(watchdog_fire, 0, 0);
- 
--	/*
--	 *	Activate timer
--	 */
++config ZT55XX_WDT
++	tristate "ZT55XX Single Board Computer Watchdog"
++	depends on WATCHDOG
++	help
++          This is a driver for the hardware watchdog on the ZT55XX line 
++          of CompactPCI single board computers originally sold by Ziatech,
++          and then Intel, and then Performance Technologies.
 +
-+/* 
-+ *       Watchdog ops callback functions
-+ */
++	  This driver is also available as a module ( = code which can be
++	  inserted in and removed from the running kernel whenever you want).
++	  If you want to compile it as a module, say M here and read
++	  Documentation/modules.txt. The module will be called
++	  ztwd.ko
 +
-+static int softdog_start(struct watchdog_driver *d)
-+{
- 	mod_timer(&watchdog_ticktock, jiffies+(soft_margin*HZ));
- 	return 0;
- }
- 
--static int softdog_release(struct inode *inode, struct file *file)
-+static int softdog_stop(struct watchdog_driver *d)
- {
--	/*
--	 *	Shut off the timer.
--	 * 	Lock it in if it's a module and we set nowayout
--	 */
--	if (expect_close) {
--		del_timer(&watchdog_ticktock);
--	} else {
--		printk(KERN_CRIT "SOFTDOG: WDT device closed unexpectedly.  WDT will not stop!\n");
-+	if (nowayout) {
-+		printk(KERN_CRIT "SOFTDOG: WDT device closed unexpectedly.  "
-+		       "WDT will not stop!\n");
-+		return -1;
- 	}
--	clear_bit(0, &timer_alive);
-+
-+	del_timer(&watchdog_ticktock);
- 	return 0;
- }
- 
--static ssize_t softdog_write(struct file *file, const char *data, size_t len, loff_t *ppos)
-+static int softdog_keepalive(struct watchdog_driver *d) 
- {
--	/*  Can't seek (pwrite) on this device  */
--	if (ppos != &file->f_pos)
--		return -ESPIPE;
-+	mod_timer(&watchdog_ticktock, jiffies+(soft_margin*HZ));
-+	return 0;
-+}
-+
-+static int softdog_get_timeout(struct watchdog_driver *d, int *timeout)
-+{
-+	*timeout = soft_margin;
-+	return 0;
-+}
- 
--	/*
--	 *	Refresh the timer.
--	 */
--	if(len) {
--		if (!nowayout) {
--			size_t i;
-+static int softdog_set_timeout(struct watchdog_driver *d, int timeout)
-+{
-+	if (timeout < 1)
-+		return -1;
- 
--			/* In case it was set long ago */
--			expect_close = 0;
-+	soft_margin = timeout;
-+	if (timer_pending(&watchdog_ticktock))
-+	  mod_timer(&watchdog_ticktock, jiffies+(soft_margin*HZ));
-+	return 0;
-+}
- 
--			for (i = 0; i != len; i++) {
--				char c;
-+static int softdog_get_options(struct watchdog_driver *d, int *options)
-+{
-+	*options =  WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING;
-+	return 0;
-+}
- 
--				if (get_user(c, data + i))
--					return -EFAULT;
--				if (c == 'V')
--					expect_close = 1;
--			}
--		}
--		mod_timer(&watchdog_ticktock, jiffies+(soft_margin*HZ));
--		return 1;
--	}
-+static int softdog_get_nowayout(struct watchdog_driver *d, int *n)
-+{
-+	*n = nowayout;
- 	return 0;
- }
- 
--static int softdog_ioctl(struct inode *inode, struct file *file,
--	unsigned int cmd, unsigned long arg)
-+static int softdog_set_nowayout(struct watchdog_driver *d, int n)
- {
--	int new_margin;
--	static struct watchdog_info ident = {
--		.options = WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE,
--		.identity = "Software Watchdog",
--	};
--	switch (cmd) {
--		default:
--			return -ENOTTY;
--		case WDIOC_GETSUPPORT:
--			if(copy_to_user((struct watchdog_info *)arg, &ident, sizeof(ident)))
--				return -EFAULT;
--			return 0;
--		case WDIOC_GETSTATUS:
--		case WDIOC_GETBOOTSTATUS:
--			return put_user(0,(int *)arg);
--		case WDIOC_KEEPALIVE:
--			mod_timer(&watchdog_ticktock, jiffies+(soft_margin*HZ));
--			return 0;
--		case WDIOC_SETTIMEOUT:
--			if (get_user(new_margin, (int *)arg))
--				return -EFAULT;
--			if (new_margin < 1)
--				return -EINVAL;
--			soft_margin = new_margin;
--			mod_timer(&watchdog_ticktock, jiffies+(soft_margin*HZ));
--			/* Fall */
--		case WDIOC_GETTIMEOUT:
--			return put_user(soft_margin, (int *)arg);
--	}
-+	if (n)
-+		nowayout = 1;
-+	else 
-+		nowayout = 0;
-+	return 0;
- }
- 
--static struct file_operations softdog_fops = {
--	.owner		= THIS_MODULE,
--	.write		= softdog_write,
--	.ioctl		= softdog_ioctl,
--	.open		= softdog_open,
--	.release	= softdog_release,
+ endmenu
+diff -Nru a/drivers/char/watchdog/Makefile b/drivers/char/watchdog/Makefile
+--- a/drivers/char/watchdog/Makefile	Fri Feb 28 20:10:03 2003
++++ b/drivers/char/watchdog/Makefile	Fri Feb 28 20:10:03 2003
+@@ -33,3 +33,4 @@
+ obj-$(CONFIG_WAFER_WDT) += wafer5823wdt.o
+ obj-$(CONFIG_CPU5_WDT) += cpu5wdt.o
+ obj-$(CONFIG_AMD7XX_TCO) += amd7xx_tco.o
++obj-$(CONFIG_ZT55XX_WDT) += ztwd.o
+diff -Nru a/drivers/char/watchdog/ztwd.c b/drivers/char/watchdog/ztwd.c
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/drivers/char/watchdog/ztwd.c	Fri Feb 28 20:10:03 2003
+@@ -0,0 +1,390 @@
 +/*
-+ *      Structures required to register as a watchdog driver
++ * ztwd.c
++ *
++ * Intel/Ziatech ZT55xx watchdog driver
++ *
++ * Copyright (C) 2003 Rusty Lynch <rusty@linux.co.intel.com>
++ * 
++ * Based on original work from SOMA Networks. Original copyright:
++ * Copyright 2001-2003 SOMA Networks, Inc.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the
++ * Free Software Foundation; either version 2 of the License, or (at your
++ * option) any later version.
++ *
++ * THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
++ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY 
++ * AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL 
++ * THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
++ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
++ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
++ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
++ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
++ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
++ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
++ *
++ * You should have received a copy of the GNU General Public License along
++ * with this program; if not, write to the Free Software Foundation, Inc.,
++ * 675 Mass Ave, Cambridge, MA 02139, USA.
++ *
++ * Contributors:
++ * Scott Murray <scottm@somanetworks.com>
++ * Rusty Lynch <rusty@linux.co.intel.com>
++ *
++ * Send feedback to <rusty@linux.co.intel.com>
 + */
 +
-+static struct watchdog_ops softdog_ops = {
-+	.start                 = softdog_start,
-+	.stop                  = softdog_stop,
-+	.keepalive             = softdog_keepalive,
-+	.get_timeout           = softdog_get_timeout,
-+	.set_timeout           = softdog_set_timeout,
-+	.get_nowayout          = softdog_get_nowayout,
-+	.set_nowayout          = softdog_set_nowayout,
-+	.get_options           = softdog_get_options,
-+	/* get_bootstatus not implemented */
-+	/* get_status not implemented */
++/*
++ * This driver implements the IO controlled watchdog device found
++ * on the ZT55XX line of single board computers. 
++ */
++
++#include <linux/config.h>
++#include <linux/module.h>
++#include <linux/moduleparam.h>
++#include <linux/init.h>
++#include <linux/kobject.h>
++#include <linux/ioport.h>
++#include <linux/device.h>
++#include <linux/watchdog.h>
++#include <asm/io.h>
++
++#ifdef DEBUG
++#define dbg(format, arg...)				\
++		 printk (KERN_DEBUG "%s: " format "\n",	\
++			 __FUNCTION__, ## arg);
++#define trace(format, arg...)				 \
++                 printk(KERN_INFO "%s(" format ")\n",    \
++		        __FUNCTION__ , ## arg);
++#else
++#define trace(format, arg...) do { } while (0)
++#define dbg(format, arg...) do { } while (0)
++#endif
++
++#define err(format, arg...) \
++                printk(KERN_ERR "%s: " format "\n", \
++		       __FUNCTION__ , ## arg)
++#define info(format, arg...) \
++                printk(KERN_INFO "%s: " format "\n", \
++		       __FUNCTION__ , ## arg)
++#define warn(format, arg...) \
++                printk(KERN_WARNING "%s: " format "\n", \
++		       __FUNCTION__ , ## arg)
++
++#define WD_CTL_REG	       0x79
++
++#define WD_TERMINALCOUNT_MASK  0x07
++#define WD_STAGE1_ACTION_MASK  0x08
++#define WD_STAGE1_ENABLE_MASK  0x10
++#define WD_STAGE2_ENABLE_MASK  0x20
++#define WD_STAGE2_MONITOR_MASK 0x40
++#define WD_STAGE1_MONITOR_MASK 0x80
++
++#define WD_TC_250MS	       0x00
++#define WD_TC_500MS	       0x01
++#define WD_TC_1S	       0x02
++#define WD_TC_8S	       0x03
++#define WD_TC_32S	       0x04
++#define WD_TC_64S	       0x05
++#define WD_TC_128S	       0x06
++#define WD_TC_256S	       0x07
++
++#define DEFAULT_TIMEOUT          64  /* seconds */
++
++static int nowayout = 0;
++static int bootstatus = 0;
++static int status = 0;
++static int pretimeout = 0;
++
++static int ztwd_start(struct watchdog_driver *d)
++{
++    	uint8_t value;
++
++	trace("%s", d->driver.name);
++	value = inb(WD_CTL_REG);
++	if (pretimeout)
++		value |= WD_STAGE1_ENABLE_MASK;
++	value |= WD_STAGE2_ENABLE_MASK;
++	outb(value, WD_CTL_REG);
++	return 0;
++}
++
++static int ztwd_stop(struct watchdog_driver *d)
++{
++    	uint8_t value;
++
++	trace("%s", d->driver.name);
++	if (nowayout) {
++		warn("Nowayout flag is set.  Request to stop timer denied!");
++		return -1;
++	}
++
++	value = inb(WD_CTL_REG);
++	value &= ~WD_STAGE1_ENABLE_MASK;
++	value &= ~WD_STAGE2_ENABLE_MASK;
++	outb(value, WD_CTL_REG);
++	return 0;
++}
++
++static int ztwd_keepalive(struct watchdog_driver *d) 
++{
++	trace("%s", d->driver.name);
++	inb(WD_CTL_REG);
++	status |= WDIOF_KEEPALIVEPING;
++	return 0;
++}
++
++static int ztwd_get_status(struct watchdog_driver *d, int *s) 
++{
++	uint8_t value;
++
++	trace("%s, %p", d->driver.name, s);
++	*s = status;
++	value = inb(WD_CTL_REG);
++	if (value & WD_STAGE1_MONITOR_MASK || value & WD_STAGE2_MONITOR_MASK)
++		*s |= WDIOF_CARDRESET;
++	return 0;
++}
++
++static int ztwd_get_bootstatus(struct watchdog_driver *d, int *bs) 
++{
++	trace("%s, %p", d->driver.name, bs);
++	*bs = bootstatus;
++	return 0;
++}
++
++static int ztwd_get_timeout(struct watchdog_driver *d, int *timeout)
++{
++	uint8_t value;
++
++	trace("%s, %p", d->driver.name, timeout);
++	if (!timeout) {
++		dbg("recieved a null timeout pointer!");
++		return -1;
++	}
++
++	value = inb(WD_CTL_REG);
++	switch (value & WD_TERMINALCOUNT_MASK) {
++	default:
++		dbg("unexpected value in terminal count");
++		return -EFAULT;
++	case WD_TC_250MS:
++	case WD_TC_500MS:
++	case WD_TC_1S:
++		*timeout = 1;
++		break;
++	case WD_TC_8S:
++		*timeout = 8;
++		break;
++	case WD_TC_32S:
++		*timeout = 32;
++		break;
++	case WD_TC_64S:
++		*timeout = 64;
++		break;
++	case WD_TC_128S:
++		*timeout = 128;
++		break;
++	case WD_TC_256S:
++		*timeout = 256;		
++	}
++	status |= WDIOF_SETTIMEOUT;
++	return 0;
++}
++
++static int ztwd_set_timeout(struct watchdog_driver *d, int timeout)
++{
++    	uint8_t value;
++
++	trace("%p, %i", d->driver.name, timeout);
++	if (timeout < 0) {
++	    	dbg("invalid time specifed"); 
++	    	return 1;
++	}
++
++	if (timeout == 0) {
++		ztwd_stop(d);
++		return 0;
++	}
++	if (timeout == 1)
++		timeout = WD_TC_1S;
++	else if (timeout <= 8)
++		timeout = WD_TC_8S;
++	else if (timeout <= 32)
++	    	timeout = WD_TC_32S;
++	else if (timeout <= 64)
++	    	timeout = WD_TC_64S;
++	else if (timeout <= 128)
++	    	timeout = WD_TC_128S;
++	else if (timeout <= 256)
++	    	timeout = WD_TC_256S;
++	else
++	    	timeout = WD_TC_256S;
++	
++	value = inb(WD_CTL_REG);
++	value &= ~WD_TC_256S;
++	value |= timeout;
++	dbg("timeout value set to %X", value);
++	outb (value, WD_CTL_REG);
++	return 0;
++}
++
++static int ztwd_get_options(struct watchdog_driver *d, int *c)
++{
++	trace("%s, %p", d->driver.name, c);
++	*c = WDIOS_DISABLECARD|WDIOS_ENABLECARD;
++	return 0;
++}
++
++static int ztwd_get_nowayout(struct watchdog_driver *d, int *n)
++{
++	trace("%s, %p", d->driver.name, n);
++	*n = nowayout;
++	return 0;
++}
++
++static int ztwd_set_nowayout(struct watchdog_driver *d, int n)
++{
++	trace("%s, %i", d->driver.name, n);
++	nowayout = n;
++	return 0;
++}
++
++static struct watchdog_ops ztwd_ops = {
++	.start                 = ztwd_start,
++	.stop                  = ztwd_stop,
++	.keepalive             = ztwd_keepalive,
++	.get_timeout           = ztwd_get_timeout,
++	.set_timeout           = ztwd_set_timeout,
++	.get_nowayout          = ztwd_get_nowayout,
++	.set_nowayout          = ztwd_set_nowayout,
++	.get_options           = ztwd_get_options,
++	.get_bootstatus        = ztwd_get_bootstatus,
++	.get_status            = ztwd_get_status,
 +	/* get/set_temppanic not implemented */
 +	/* get_firmware_version not implemented */
- };
- 
--static struct miscdevice softdog_miscdev = {
--	.minor		= WATCHDOG_MINOR,
--	.name		= "watchdog",
--	.fops		= &softdog_fops,
-+static struct watchdog_driver softdog_driver = {
-+	.ops = &softdog_ops,
++};
++
++static struct watchdog_driver ztwd_driver = {
++	.ops = &ztwd_ops,
 +	.driver = {
-+		.name		= "softdog",
++		.name		= "ztwd",
 +		.bus		= &system_bus_type,
 +		.devclass       = &watchdog_devclass,
 +	}
- };
- 
--static char banner[] __initdata = KERN_INFO "Software Watchdog Timer: 0.06, soft_margin: %d sec, nowayout: %d\n";
++};
++
 +/* 
-+ *      enable testing the of driver to not cause a machine restart 
++ * ZT55XX specific controls 
 + */
 +
-+static ssize_t soft_noboot_show(struct device_driver * d, char * buf)
++/* enabling the pretimeout (stage 1 timeout) will cause either a */
++/* NMI or INIT to happen when the stage 1 timer expires */
++static ssize_t pretimeout_enable_show(struct device_driver * d, char * buf)
 +{
-+	return sprintf(buf, "%i\n",soft_noboot);
++	trace("%s, %p", d->name, buf);
++	return sprintf(buf, "%i\n",pretimeout);
 +}
-+static ssize_t soft_noboot_store(struct device_driver *d,const char * buf, 
-+				 size_t count)
++static ssize_t pretimeout_enable_store(struct device_driver *d,
++				       const char * buf, 
++				       size_t count)
++{
++	trace("%s, %p, %i", d->name, buf, count);
++	if (sscanf(buf,"%i",&pretimeout) != 1)
++		return -EINVAL;
++
++	return count;
++}
++DRIVER_ATTR(pretimeout_enable,0644,pretimeout_enable_show,
++	    pretimeout_enable_store);
++
++/* 1 = NMI; 0 = INIT */
++static ssize_t pretimeout_action_show(struct device_driver * d, char * buf)
++{
++	uint8_t value;
++	
++	trace("%s, %p", d->name, buf);
++	value = inb(WD_CTL_REG);
++	return sprintf(buf, "%i\n",value&WD_STAGE1_ACTION_MASK?1:0);
++}
++static ssize_t pretimeout_action_store(struct device_driver *d,
++				       const char * buf, 
++				       size_t count)
 +{
 +	int tmp;
++	uint8_t value;
 +
++	trace("%s, %p, %i", d->name, buf, count);
 +	if (sscanf(buf,"%i",&tmp) != 1)
 +		return -EINVAL;
 +
++	value = inb(WD_CTL_REG);
 +	if (tmp)
-+		soft_noboot = 1;
++		value |= WD_STAGE1_ACTION_MASK;
 +	else
-+		soft_noboot = 0;
++		value &= ~WD_STAGE1_ACTION_MASK;
++	outb(value, WD_CTL_REG);
 +	return count;
 +}
-+DRIVER_ATTR(soft_noboot,0644,soft_noboot_show,soft_noboot_store);
++DRIVER_ATTR(pretimeout_action,0644,pretimeout_action_show,
++	    pretimeout_action_store);
 +
-+static char banner[] __initdata = KERN_INFO "Software Watchdog Timer: 0.07, soft_margin: %d sec, nowayout: %d\n";
- 
- static int __init watchdog_init(void)
- {
- 	int ret;
- 
--	ret = misc_register(&softdog_miscdev);
--
-+	ret = watchdog_driver_register(&softdog_driver);
- 	if (ret)
- 		return ret;
- 
-+	driver_create_file(&softdog_driver.driver, &driver_attr_soft_noboot);
- 	printk(banner, soft_margin, nowayout);
--
- 	return 0;
- }
- 
- static void __exit watchdog_exit(void)
--{
--	misc_deregister(&softdog_miscdev);
-+{     
-+	driver_remove_file(&softdog_driver.driver, &driver_attr_soft_noboot);
-+	watchdog_driver_unregister(&softdog_driver);
++static int __init ztwd_init(void)
++{
++	int ret = 0;
++    	uint8_t value;
 +
-+	/* ensure somebody didn't leave the watchdog ticking */
-+	del_timer(&watchdog_ticktock);
- }
- 
- module_init(watchdog_init);
- module_exit(watchdog_exit);
++	trace();
++	if (!request_region(WD_CTL_REG, 1, "ZT55XX Watchdog")) {
++		err("Unable to reserve io region 0x%2x", WD_CTL_REG);
++		return -EBUSY;
++	}
++
++	/* determine if the watchdog was previously tripped */
++	value = inb(WD_CTL_REG);	
++	if (value & WD_STAGE2_MONITOR_MASK) {
++		dbg("previous stage 2 watchdog timeout detected");
++		bootstatus = WDIOF_CARDRESET;
++
++		/* clear the stage 1 & 2 monitor flags */
++		value &= 0x3F;
++		outb(value, WD_CTL_REG);
++	}	
++
++	/* set the timeout before we give anyone */
++	/* a chance to start the watchdog device ticking */
++	if (ztwd_set_timeout(&ztwd_driver, DEFAULT_TIMEOUT))
++		return -EFAULT;
++
++	ret = watchdog_driver_register(&ztwd_driver);
++	if (ret) {
++		err("failed to register watchdog device");
++		return -ENODEV;
++	}
++
++	/* create zt55xx specific sysfs control files */
++	driver_create_file(&ztwd_driver.driver, 
++			   &driver_attr_pretimeout_enable);
++	driver_create_file(&ztwd_driver.driver, 
++			   &driver_attr_pretimeout_action);
++	return 0;
++}
++
++static void __exit ztwd_exit(void)
++{
++	trace();
++
++	/* remove zt55xx specific sysfs control files */
++	driver_remove_file(&ztwd_driver.driver, 
++			   &driver_attr_pretimeout_enable);
++	driver_remove_file(&ztwd_driver.driver, 
++			   &driver_attr_pretimeout_action);
++
++	release_region(WD_CTL_REG, 1);
++	watchdog_driver_unregister(&ztwd_driver);
++}
++
++module_init(ztwd_init);
++module_exit(ztwd_exit);
 +MODULE_LICENSE("GPL");
 

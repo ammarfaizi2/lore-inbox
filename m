@@ -1,55 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262796AbTJTVDw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 17:03:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262791AbTJTVDg
+	id S262774AbTJTVUs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 17:20:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262775AbTJTVUs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 17:03:36 -0400
-Received: from [62.67.222.139] ([62.67.222.139]:36305 "EHLO mail.ku-gbr.de")
-	by vger.kernel.org with ESMTP id S262796AbTJTVCa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 17:02:30 -0400
-Date: Mon, 20 Oct 2003 23:54:01 +0200
-From: Konstantin Kletschke <konsti@ludenkalle.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Uncorrectable Error on IDE, significant accumulation
-Message-ID: <20031020215401.GB15563%konsti@ludenkalle.de>
-Reply-To: Konstantin Kletschke <konsti@ludenkalle.de>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20031020132705.GA1171@synertronixx3> <3F93E728.5050908@inet6.fr> <20031020144822.GA593@synertronixx3> <3F93FA5E.2020300@inet6.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 20 Oct 2003 17:20:48 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:20185 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262774AbTJTVUl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 17:20:41 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: "Svetoslav Slavtchev" <svetljo@gmx.de>,
+       "Carlos Fernandez Sanz" <cfs-lk@nisupu.com>
+Subject: Re: HighPoint 374
+Date: Mon, 20 Oct 2003 23:25:05 +0200
+User-Agent: KMail/1.5.4
+Cc: Tomi.Orava@ncircle.nullnet.fi, linux-kernel@vger.kernel.org
+References: <001901c39734$8a2c2bb0$0514a8c0@HUSH> <31727.1066684060@www30.gmx.net>
+In-Reply-To: <31727.1066684060@www30.gmx.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3F93FA5E.2020300@inet6.fr>
-Organization: Kletschke & Uhlig GbR
-User-Agent: Mutt/1.5.4i-ja.1
+Message-Id: <200310202325.05384.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Lionel Bouton <Lionel.Bouton@inet6.fr> [Mon, Oct 20, 2003 at 05:08:14PM +0200]:
-> 
-> Maybe... do you mean your CMOS settings are periodically reset ? In this 
-> case it usually is simply a worn-out battery.
 
-No, I replaced it already, it is also a known K7S5A bug, once a month it
-looses CMOS. BTW, near the last PCI Slot was a little square Button
-labeled with a "5".
+multicount affects PIO transfers performance only...
 
-> K7S5A Pro are dirt cheap these days, so it might be a good idea to buy a 
-> new one.
+On Monday 20 of October 2003 23:07, Svetoslav Slavtchev wrote:
+> > BTW, isn't m0 supposed to reduce perfomance?
+>
+> hm here it also doesn't seem to change much,
+> may be it's ignored if UDMA is used
+>
+> mem is 1024Mb
+>
+> [root@svetljo kernel]#  hdparm -m0 /dev/hde
+>
+> /dev/hde:
+>  setting multcount to 0
+>  multcount    =  0 (off)
+>
+> [root@svetljo 1]# time dd if=/dev/zero of=10Gb.zeros count=20000 bs=512k
+> 20000+0 records in
+> 20000+0 records out
+> 0.09user 29.38system 5:44.49elapsed 8%CPU (0avgtext+0avgdata 0maxresident)k
+> 0inputs+0outputs (149major+40minor)pagefaults 0swaps
+> [root@svetljo 1]#  hdparm -m8 /dev/hde
+>
+> /dev/hde:
+>  setting multcount to 8
+>  multcount    =  8 (on)
+> [root@svetljo 1]# time dd if=/dev/zero of=10Gb.zeros count=20000 bs=512k
+> 20000+0 records in
+> 20000+0 records out
+> 0.10user 28.99system 5:50.44elapsed 8%CPU (0avgtext+0avgdata 0maxresident)k
+> 0inputs+0outputs (150major+41minor)pagefaults 0swaps
+>
+> root@svetljo 1]#  hdparm -m16 /dev/hde
+>
+> /dev/hde:
+>  setting multcount to 16
+>  multcount    = 16 (on)
+> [root@svetljo 1]# time dd if=/dev/zero of=10Gb.zeros count=20000 bs=512k
+> 20000+0 records in
+> 20000+0 records out
+> 0.09user 28.83system 5:53.57elapsed 8%CPU (0avgtext+0avgdata 0maxresident)k
+> 0inputs+0outputs (165major+40minor)pagefaults 0swaps
+> [root@svetljo 1]#
+>
+> > [root@fulanito wd1200jb]# time dd if=/dev/zero of=filling count=20000
+> > bs=65536
+> > 20000+0 records in
+> > 20000+0 records out
+> >
+> > real    0m33.763s
+> > user    0m0.200s
+> > sys     0m10.920s
+> > [root@fulanito wd1200jb]# hdparm -m4 /dev/hdk
+> >
+> > /dev/hdk:
+> >  setting multcount to 4
+> >  multcount    =  4 (on)
+> > [root@fulanito wd1200jb]# time dd if=/dev/zero of=filling count=20000
+> > bs=65536
+> > 20000+0 records in
+> > 20000+0 records out
+> >
+> > real    0m30.321s
+> > user    0m0.150s
+> > sys     0m10.630s
+> > [root@fulanito wd1200jb]# hdparm -m0 /dev/hdk
+> >
+> > /dev/hdk:
+> >  setting multcount to 0
+> >  multcount    =  0 (off)
+> > [root@fulanito wd1200jb]# time dd if=/dev/zero of=filling count=20000
+> > bs=65536
+> > 20000+0 records in
+> > 20000+0 records out
+> >
+> > real    0m30.749s
+> > user    0m0.130s
+> > sys     0m10.900s
+> > [root@fulanito wd1200jb]#
 
-Thats it, bought Board and PSU, for 55EUR...
-
-> perfectly. You should install the smartmontools and run smartd 
-> configured to send you an e-mail each time a new defect is found. You 
-
-Yes, absolutely...
-
-Konsti
-
--- 
-2.6.0-test6-mm4
-Konstantin Kletschke <konsti@ludenkalle.de>, <konsti@ku-gbr.de>
-GPG KeyID EF62FCEF
-Fingerprint: 13C9 B16B 9844 EC15 CC2E  A080 1E69 3FDA EF62 FCEF
-keulator.homelinux.org up 4:06, 8 users

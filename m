@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314149AbSHFRc1>; Tue, 6 Aug 2002 13:32:27 -0400
+	id <S315257AbSHFRkm>; Tue, 6 Aug 2002 13:40:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314278AbSHFRc1>; Tue, 6 Aug 2002 13:32:27 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:22514 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S314149AbSHFRc0>; Tue, 6 Aug 2002 13:32:26 -0400
-Subject: Re: Thread group exit
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: george anzinger <george@mvista.com>
-Cc: "Zeuner, Axel" <Axel.Zeuner@partner.commerzbank.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <3D500607.78A11BFD@mvista.com>
-References: <A1081E14241CD4119D2B00508BCF80410843F27D@SV021558>
-	<1028544328.17780.18.camel@irongate.swansea.linux.org.uk> 
-	<3D500607.78A11BFD@mvista.com>
-Content-Type: text/plain
+	id <S315259AbSHFRkm>; Tue, 6 Aug 2002 13:40:42 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51471 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315257AbSHFRkk>;
+	Tue, 6 Aug 2002 13:40:40 -0400
+Message-ID: <3D500AF1.9050901@mandrakesoft.com>
+Date: Tue, 06 Aug 2002 13:44:17 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Russell, Nathaniel" <reddog83@chartermi.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] trivial patch for 2.4.20-pre1 8139too.c driver  (fwd)
+References: <web-46527136@back1.chartermi.net>
+X-Enigmail-Version: 0.65.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 06 Aug 2002 19:54:59 +0100
-Message-Id: <1028660099.18130.187.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-08-06 at 18:23, george anzinger wrote:
+Russell, Nathaniel wrote:
+> My i ask what the sense is to not remove the dead code if
+>  all we are trying to do is stablize the 2.4x kernel series
+>  and not add extra code or change around the drivers for
+>  perticular hardware. The code is not used anymore so why
+>  keep it in the 2.4x series. The code can stay in the 2.5x
+>  series no problem because there we can change drivers
+>  rewrite hardware protocalls and tthings like that. 
 
-> Have the glibc folks decided NOT to move to thread groups? 
-> I sort of expected that they were just taking their time,
-> but would eventually move.
 
-I've no idea. Either way it makes no difference really. Its an issue
-with the current setup 
+...because I maintain the driver, and want to keep that code around as a 
+note to myself.
+
+	Jeff
+
+
 

@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262589AbREOAeU>; Mon, 14 May 2001 20:34:20 -0400
+	id <S262592AbREOBBE>; Mon, 14 May 2001 21:01:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262590AbREOAeK>; Mon, 14 May 2001 20:34:10 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:16141 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S262589AbREOAdz>; Mon, 14 May 2001 20:33:55 -0400
-Date: Mon, 14 May 2001 21:33:35 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        "H. Peter Anvin" <hpa@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        <viro@math.psu.edu>
-Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <E14zPot-0001Sa-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0105142132510.18102-100000@duckman.distro.conectiva>
+	id <S262593AbREOBAy>; Mon, 14 May 2001 21:00:54 -0400
+Received: from viper.haque.net ([66.88.179.82]:13953 "EHLO mail.haque.net")
+	by vger.kernel.org with ESMTP id <S262592AbREOBAp>;
+	Mon, 14 May 2001 21:00:45 -0400
+Message-ID: <3B007F9A.484520C0@haque.net>
+Date: Mon, 14 May 2001 21:00:10 -0400
+From: "Mohammad A. Haque" <mhaque@haque.net>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Rik van Riel <riel@conectiva.com.br>
+CC: Jeff Golds <jgolds@resilience.com>,
+        Wayne Whitney <whitney@math.berkeley.edu>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.4 kernel reports wrong amount of physical memory
+In-Reply-To: <Pine.LNX.4.33.0105142143190.18102-100000@duckman.distro.conectiva>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 May 2001, Alan Cox wrote:
+Rik van Riel wrote:
+> Where did you get the mythical "1GB" option?
+> 
+> Last I looked we had "off", "4GB" and "64GB" ;)
 
-> > I've been doubting whether to work on both the -ac kernels
-> > and the -linus tree, but this is a pretty good argument for
-> > sticking with -ac and just ignoring the -linus tree...
->
-> Time will make that decision. Linus kindly gave us all the power
-> to vote with our feet. One thing I absolutely refuse to do is to
-> let a disagreemnt over some specific device implementation turn
-> into an excuse for a wider difference in the trees.
+We do .. under 2.4.x
 
-Agreed. However, if this thing means I cannot use the -linus
-tree without devfs, then it will also mean my VM stuff only
-gets tested on -ac kernels...
+In 2.2.x we have 1 Gb and 2 GB ... 2.2.19 at least
+-- 
 
-regards,
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/ 
+                                               mhaque@haque.net
 
-Rik
---
-Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
-
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
-
+  "Alcohol and calculus don't mix.             Project Lead
+   Don't drink and derive." --Unknown          http://wm.themes.org/
+                                               batmanppc@themes.org
+=====================================================================

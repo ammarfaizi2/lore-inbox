@@ -1,42 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293461AbSCUMgD>; Thu, 21 Mar 2002 07:36:03 -0500
+	id <S293668AbSCUMxp>; Thu, 21 Mar 2002 07:53:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293668AbSCUMfx>; Thu, 21 Mar 2002 07:35:53 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:20611 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S293461AbSCUMfo>;
-	Thu, 21 Mar 2002 07:35:44 -0500
-Date: Thu, 21 Mar 2002 13:33:57 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: device.h: typo fix
-Message-ID: <20020321123356.GA22872@elf.ucw.cz>
-Mime-Version: 1.0
+	id <S293713AbSCUMxf>; Thu, 21 Mar 2002 07:53:35 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:57863 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S293668AbSCUMxX>; Thu, 21 Mar 2002 07:53:23 -0500
+Subject: Re: What happen if video.S failed?
+To: xujing_cn2001@yahoo.com (Jing Xu)
+Date: Thu, 21 Mar 2002 13:09:40 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020321091927.40269.qmail@web14708.mail.yahoo.com> from "Jing Xu" at Mar 21, 2002 01:19:27 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-Warning: Reading this can be dangerous to your mental health.
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16o2K4-00057w-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> What will happen if I add some code in video.S but it
+> goes wrong? Can I still boot by choosing another
+> kernel? 
 
-Please apply (to 2.5.7 only, probably).
-								Pavel
-
---- clean/include/linux/device.h	Tue Mar  5 21:52:49 2002
-+++ linux-acpi/include/linux/device.h	Thu Mar 21 13:19:25 2002
-@@ -83,7 +84,7 @@
- 					   device */
- 	void		*driver_data;	/* data private to the driver */
- 	void		*platform_data;	/* Platform specific data (e.g. ACPI,
--					   BIOS data relevant to device */
-+					   BIOS data relevant to device) */
- 
- 	u32		current_state;  /* Current operating state. In
- 					   ACPI-speak, this is D0-D3, D0
-
--- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+Yes

@@ -1,41 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264305AbTLBEPY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 23:15:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264311AbTLBEPY
+	id S262765AbTLBE3O (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 23:29:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263364AbTLBE3N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 23:15:24 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:29706
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S264305AbTLBEPW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 23:15:22 -0500
-Date: Mon, 1 Dec 2003 20:15:13 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
-Cc: Jens Axboe <axboe@suse.de>, LKML <linux-kernel@vger.kernel.org>,
-       Linux-raid maillist <linux-raid@vger.kernel.org>, linux-lvm@sistina.com
-Subject: Re: Reproducable OOPS with MD RAID-5 on 2.6.0-test11
-Message-ID: <20031202041513.GN1566@mis-mike-wstn.matchmail.com>
-Mail-Followup-To: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>,
-	Jens Axboe <axboe@suse.de>, LKML <linux-kernel@vger.kernel.org>,
-	Linux-raid maillist <linux-raid@vger.kernel.org>,
-	linux-lvm@sistina.com
-References: <3FCB4AFB.3090700@backtobasicsmgmt.com> <20031201141144.GD12211@suse.de> <3FCB4CFA.4020302@backtobasicsmgmt.com> <20031201155143.GF12211@suse.de> <3FCC0EE0.9010207@backtobasicsmgmt.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FCC0EE0.9010207@backtobasicsmgmt.com>
-User-Agent: Mutt/1.5.4i
+	Mon, 1 Dec 2003 23:29:13 -0500
+Received: from pacific.moreton.com.au ([203.143.235.130]:13838 "EHLO
+	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
+	id S262765AbTLBE3M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Dec 2003 23:29:12 -0500
+Message-ID: <3FCC1542.1080008@snapgear.com>
+Date: Tue, 02 Dec 2003 14:29:54 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH]: linux-2.6.0-test11-uc0 (MMU-less fixups)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 01, 2003 at 09:02:40PM -0700, Kevin P. Fleming wrote:
-> Tested with mem=800m, problem still occurs. Additional test was done 
-> without device-mapper in place, though, and I could not reproduce the 
-> problem! I copied > 500MB of stuff to the XFS filesystem created using 
-> the entire /dev/md/0 device without a single unusual message. I then 
-> unmounted the filesystem and used pvcreate/vgcreate/lvcreate to make a 
-> 3G volume on the array, made an XFS filesystem on it, mounted it, and 
-> tried copying data over. The oops message came back.
+Hi All,
 
-Can you try with DM on regular disk tm, instead of sw raid?
+An update of the uClinux (MMU-less) fixups against 2.6.0-test11.
+No changes over linux-2.6.0-test10-uc0 just generated and tested
+against test11.
+
+http://www.uclinux.org/pub/uClinux/uClinux-2.6.x/linux-2.6.0-test11-uc0.patch.gz
+
+
+Regards
+Greg
+
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Dude          EMAIL:  gerg@snapgear.com
+Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
+825 Stanley St,                                  FAX:    +61 7 3279 1820
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

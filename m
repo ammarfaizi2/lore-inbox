@@ -1,67 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266533AbUGLLmR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266566AbUGLLwG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266533AbUGLLmR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 07:42:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266630AbUGLLmR
+	id S266566AbUGLLwG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 07:52:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266630AbUGLLwG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 07:42:17 -0400
-Received: from S010600104b97db1e.gv.shawcable.net ([24.68.211.67]:45316 "EHLO
-	antichrist") by vger.kernel.org with ESMTP id S266533AbUGLLmN (ORCPT
+	Mon, 12 Jul 2004 07:52:06 -0400
+Received: from cantor.suse.de ([195.135.220.2]:11689 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S266566AbUGLLwE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 07:42:13 -0400
-Date: Mon, 12 Jul 2004 04:36:29 -0700
-From: carbonated beverage <ramune@net-ronin.org>
-To: sparclinux@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: mouse in 2.6.8-rc1 not working
-Message-ID: <20040712113629.GA3151@net-ronin.org>
+	Mon, 12 Jul 2004 07:52:04 -0400
+Date: Mon, 12 Jul 2004 13:49:48 +0200
+From: Olaf Hering <olh@suse.de>
+To: zippel@linux-m68k.org, linux-kernel@vger.kernel.org
+Subject: scripts/kconfig/mconf.c:91: error: static declaration of 'current_menu' follows non-static declaration
+Message-ID: <20040712114948.GA9843@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
 
-The mouse attached to the Type 5 keyboard on my Ultra 5
-stopped working when I upgraded from 2.6.7-rc3 to 2.6.8-rc1.
+gcc 3.5 does not like this anymore. 
+This is 2.6.8-rc1
 
-Previously, even with 2.6.7-rc3, I had to boot into 2.4.x
-and "wiggle" the mouse to get it initialized.  2.6.7-rc3
-recognizes that a mouse is attached.  2.6.8-rc1 doesn't.
+GNU C version 3.5.0 20040711 (experimental) (powerpc-unknown-linux-gnu)
+        compiled by GNU C version 3.3.3 (SuSE Linux).
+GGC heuristics: --param ggc-min-expand=30 --param ggc-min-heapsize=4096
+scripts/kconfig/mconf.c:91: error: static declaration of 'current_menu' follows non-static declaration
+scripts/kconfig/lkc.h:63: error: previous declaration of 'current_menu' was here
 
-Doing a cat /dev/input/mouse0:
 
-2.6.7-rc3 w/o booting into 2.4.x first:
-Nothing is read.
+-- 
+USB is for mice, FireWire is for men!
 
-2.6.8-rc1 regardless of 2.4.x being used:
-mouse device isn't seen.
-
-2.6.7-rc3 after initializing moue under 2.4.x:
-works.
-
-CONFIG_SERIAL_SUNCORE=y
-CONFIG_SERIAL_SUNZILOG=y
-CONFIG_SERIAL_SUNSU=y
-CONFIG_SERIAL_SUNSAB=y
-CONFIG_SERIAL_CORE=y
-CONFIG_SERIAL_CORE_CONSOLE=y
-
-CONFIG_INPUT=y
-
-CONFIG_INPUT_MOUSEDEV=m
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_INPUT_EVDEV=y
-
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_SUNKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=m
-CONFIG_INPUT_MISC=y
-CONFIG_INPUT_SPARCSPKR=y
-
--- DN
-Daniel
+sUse lINUX ag, nÜRNBERG

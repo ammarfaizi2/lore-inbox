@@ -1,118 +1,254 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131320AbRC0S5t>; Tue, 27 Mar 2001 13:57:49 -0500
+	id <S131495AbRC0TIT>; Tue, 27 Mar 2001 14:08:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131486AbRC0S5k>; Tue, 27 Mar 2001 13:57:40 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:5137
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S131320AbRC0S5d>; Tue, 27 Mar 2001 13:57:33 -0500
-Date: Tue, 27 Mar 2001 10:56:16 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Padraig Brady <Padraig@AnteFacto.com>
-cc: Richard Smith <ras2@tant.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Compact flash disk and slave drives in 2.4.2
-In-Reply-To: <3AC0E112.6040607@AnteFacto.com>
-Message-ID: <Pine.LNX.4.10.10103271055560.17821-100000@master.linux-ide.org>
+	id <S131494AbRC0TIK>; Tue, 27 Mar 2001 14:08:10 -0500
+Received: from m577-mp1-cvx1c.col.ntl.com ([213.104.78.65]:1545 "EHLO
+	[213.104.78.65]") by vger.kernel.org with ESMTP id <S131491AbRC0TIF>;
+	Tue, 27 Mar 2001 14:08:05 -0500
+To: David Balazic <david.balazic@uni-mb.si>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        <linux-laptop@vger.kernel.org>, <apm@linuxcare.com.au>,
+        <apenwarr@worldvisions.ca>, <sfr@canb.auug.org.au>
+Subject: Re: kernel apm code
+In-Reply-To: <3AC0A679.DFA9F74B@uni-mb.si>
+From: John Fremlin <chief@bandits.org>
+Date: 27 Mar 2001 20:06:30 +0100
+In-Reply-To: David Balazic's message of "Tue, 27 Mar 2001 16:40:57 +0200"
+Message-ID: <m28zlr58w9.fsf@boreas.yi.org.>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (GTK)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="=-=-="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--=-=-=
 
-./linux/drivers/ide/ide.c
+ David Balazic <david.balazic@uni-mb.si> writes:
 
- * "hdx=flash"          : allows for more than one ata_flash disk to be
- *                              registered. In most cases, only one device
- *                              will be present.
+> The newer version has among other things support for
+> the APM_IOC_REJECT ioctl which is useful for example
+> when implementing "run /sbin/shutdown -h when the power
+> button is pressed".
+> 
+> While isn't this merged into the official kernel ?
+
+The maintainer hasn't the time to do it. He promised me he would in
+February, when I telephone, but hasn't bothered to do anything
+AFAICS. I hacked together the following patch for it a while ago,
+which updated APM_IOC_REJECT for slightly more recent kernels (be
+warned, I think I made some mistakes)
 
 
-On Tue, 27 Mar 2001, Padraig Brady wrote:
+--=-=-=
+Content-Type: text/x-patch
+Content-Disposition: attachment;
+  filename=linux-2.4.0-test13-pre4-apm-reject.patch
 
-> How do you activate the walk around you describe
-> to allow the detection of the slave? hda=ataflash?
-> Is this sort of stuff documented anywhere?
-> 
-> For those interested you also mention it here:
-> http://lists.sourceforge.net/archives//linux-usb-devel/2000-August/000929.html
-> 
-> This describes the other combination that causes
-> a problem where you have a normal disk as master
-> and the CF as slave:
-> http://boudicca.tux.org/hypermail/linux-kernel/2000week25/0973.html
-> 
-> Again the problem unresolved:
-> http://boudicca.tux.org/hypermail/linux-kernel/2000week26/0174.html
-> 
-> cheers,
-> Padraig.
-> 
-> Andre Hedrick wrote:
-> 
-> > Because 'real' ATA devices use a signature map the detects presense of
-> > master slave during execute diagnostics.  This is done in the BIOS.
-> > CFA does no report this correctly and waiting for a 31 second time out is
-> > not acceptable.  If you have a complain take it to CFA commitee and have
-> > them fix it.
-> > 
-> > I put in a walk around for having 2 CFA's to allow detection.
-> > This will work also if you call it for a CFA+Disk pair.
-> > 
-> > On Tue, 27 Mar 2001, Padraig Brady wrote:
-> > 
-> >> OK the following assumes CF never have slaves which is just wrong.
-> >> The CF should be logically treated as an IDE harddisk. So the fix is
-> >> probably have a kernel parameter that causes the following check to
-> >> be skipped?
-> > 
-> > Logically treated, is true, but again CFA does not follow the rules of
-> > what the ATA committee gives them, and I refuse to break rules as the
-> > standard model.  Rule breaking are exceptions.
-> > 
-> > Also show me a case where a laptop will do master/slave in CFA.
-> > 
-> >> /*
-> >>    * Prevent long system lockup probing later for non-existant
-> >>    * slave drive if the hwif is actually a flash memory card of some 
-> >> variety:
-> >>    */
-> >>   if (drive_is_flashcard(drive)) {
-> >>           ide_drive_t *mate = &HWIF(drive)->drives[1^drive->select.b.unit];
-> >>           if (!mate->ata_flash) {
-> >>                 mate->present = 0;
-> >>                 ide_drive_t *mate = 
-> >> &HWIF(drive)->drives[1^drive->select.b.unit]
-> >>                 mate->noprobe = 1;
-> >>           }
-> >>   }
-> >> 
-> >> But do we need this check? Is it just for speed. If you have an "ordinary"
-> >> harddrive as master with no slave, will the check for slave cause the same
-> >> "long system lockup", and if not, why.
-> >> 
-> >> Padraig.
-> >> 
-> >> Andre Hedrick wrote:
-> >> 
-> >> 
-> >>> Because in laptops, the primary use of CFA.
-> >>> Laptops using CFA do not have slaves.
-> >> 
-> > 
-> > Andre Hedrick
-> > Linux ATA Development
-> > ASL Kernel Development
-> > -----------------------------------------------------------------------------
-> > ASL, Inc.                                     Toll free: 1-877-ASL-3535
-> > 1757 Houret Court                             Fax: 1-408-941-2071
-> > Milpitas, CA 95035                            Web: www.aslab.com
-> 
+diff -u linux-2.4.0-test13-pre4/arch/i386/kernel/apm.c linux-hacked/arch/i386/kernel/apm.c
+--- linux-2.4.0-test13-pre4/arch/i386/kernel/apm.c	Fri Dec 29 22:47:16 2000
++++ linux-hacked/arch/i386/kernel/apm.c	Fri Dec 29 22:49:32 2000
+@@ -38,6 +38,7 @@
+  * Jan 2000, Version 1.12
+  * Feb 2000, Version 1.13
+  * Nov 2000, Version 1.14
++ * Dec 2000, Version 1.15
+  *
+  * History:
+  *    0.6b: first version in official kernel, Linux 1.3.46
+@@ -148,6 +149,10 @@
+  *   1.14: Make connection version persist across module unload/load.
+  *         Enable and engage power management earlier.
+  *         Disengage power management on module unload.
++ *   1.15: Add APM_IOC_REJECT ioctl, based on a patch from Stephen
++ *         Rothwell but apparently written by Craig Markwardt
++ *         <craigm@lheamail.gsfc.nasa.gov>.
++ *         John Fremlin <vii@penguinpowered.com>
+  *
+  * APM 1.1 Reference:
+  *
+@@ -301,6 +306,7 @@
+ 	int		suspend_result;
+ 	int		suspends_pending;
+ 	int		standbys_pending;
++	int		rejects_pending;
+ 	int		suspends_read;
+ 	int		standbys_read;
+ 	int		event_head;
+@@ -325,6 +331,7 @@
+ #endif
+ static int			suspends_pending;
+ static int			standbys_pending;
++static int			rejects_pending;
+ static int			waiting_for_resume;
+ static int			ignore_normal_resume;
+ static int			bounce_interval = DEFAULT_BOUNCE_INTERVAL;
+@@ -350,7 +357,7 @@
+ static DECLARE_WAIT_QUEUE_HEAD(apm_suspend_waitqueue);
+ static struct apm_user *	user_list;
+ 
+-static char			driver_version[] = "1.14";	/* no spaces */
++static char			driver_version[] = "1.15";	/* no spaces */
+ 
+ static char *	apm_event_name[] = {
+ 	"system standby",
+@@ -832,6 +839,15 @@
+ 			as->standbys_pending++;
+ 			standbys_pending++;
+ 			break;
++
++		case APM_SUSPEND_REJECT:
++			as->suspend_wait = 0;
++			as->suspend_result = -EAGAIN;
++			/* Fall through to */
++		case APM_STANDBY_REJECT:
++			as->rejects_pending++;
++			rejects_pending++;
++			break;
+ 		}
+ 	}
+ 	wake_up_interruptible(&apm_waitqueue);
+@@ -1211,6 +1227,41 @@
+ 	return 0;
+ }
+ 
++static int send_reject(struct apm_user *as, apm_event_t state)
++{
++	if (as->rejects_pending > 0) {
++		as->rejects_pending--;
++		rejects_pending--;
++	} else {
++		switch (state) {
++		case APM_SYS_SUSPEND:
++		case APM_USER_SUSPEND:
++			queue_event(APM_SUSPEND_REJECT, as);
++			break;
++		case APM_SYS_STANDBY:
++		case APM_USER_STANDBY:
++			queue_event(APM_STANDBY_REJECT, as);
++			break;
++		}
++	}
++	if ((rejects_pending <= 0) &&
++	    (suspends_pending <= 0) &&
++	    (standbys_pending <= 0)) {
++		switch (state) {
++		case APM_SYS_SUSPEND:
++		case APM_USER_SUSPEND:
++			send_event(APM_NORMAL_RESUME);
++			break;
++		case APM_SYS_STANDBY:
++		case APM_USER_STANDBY:
++			send_event(APM_STANDBY_RESUME);
++			break;
++		}
++		return apm_set_power_state(APM_STATE_REJECT);
++	}
++	return APM_SUCCESS;
++}
++
+ static int do_ioctl(struct inode * inode, struct file *filp,
+ 		    u_int cmd, u_long arg)
+ {
+@@ -1262,12 +1313,30 @@
+ 			return as->suspend_result;
+ 		}
+ 		break;
++	case APM_IOC_REJECT:
++		if (as->suspends_read > 0) {
++			as->suspends_read--;
++			as->suspends_pending--;
++			suspends_pending--;
++			if(send_reject(as, APM_SYS_SUSPEND)!=APM_SUCCESS)
++				return -EREMOTEIO;
++		} else if (as->standbys_read > 0) {
++			as->standbys_read--;
++			as->standbys_pending--;
++			standbys_pending--;
++			if(send_reject(as, APM_SYS_STANDBY)!=APM_SUCCESS)
++				return -EREMOTEIO;
++		} else
++			return -EINVAL;
++		break;
+ 	default:
+ 		return -EINVAL;
+ 	}
+ 	return 0;
+ }
+ 
++
++
+ static int do_release(struct inode * inode, struct file * filp)
+ {
+ 	struct apm_user *	as;
+@@ -1277,14 +1346,16 @@
+ 		return 0;
+ 	filp->private_data = NULL;
+ 	lock_kernel();
++	rejects_pending -= as->rejects_pending;
++	as->rejects_pending = 0;
+ 	if (as->standbys_pending > 0) {
+ 		standbys_pending -= as->standbys_pending;
+-		if (standbys_pending <= 0)
++		if (standbys_pending <= 0 && rejects_pending <= 0)
+ 			standby();
+ 	}
+ 	if (as->suspends_pending > 0) {
+ 		suspends_pending -= as->suspends_pending;
+-		if (suspends_pending <= 0)
++		if (suspends_pending <= 0 && rejects_pending <= 0)
+ 			(void) suspend();
+ 	}
+ 	if (user_list == as)
+@@ -1318,7 +1389,7 @@
+ 	}
+ 	as->magic = APM_BIOS_MAGIC;
+ 	as->event_tail = as->event_head = 0;
+-	as->suspends_pending = as->standbys_pending = 0;
++	as->suspends_pending = as->standbys_pending = as->rejects_pending = 0;
+ 	as->suspends_read = as->standbys_read = 0;
+ 	/*
+ 	 * XXX - this is a tiny bit broken, when we consider BSD
+diff --recursive -u linux-2.4.0-test13-pre4/include/linux/apm_bios.h linux-hacked/include/linux/apm_bios.h
+--- linux-2.4.0-test13-pre4/include/linux/apm_bios.h	Fri Dec 29 22:46:31 2000
++++ linux-hacked/include/linux/apm_bios.h	Fri Dec 29 06:57:09 2000
+@@ -139,6 +139,8 @@
+ #define APM_USER_SUSPEND	0x000a
+ #define APM_STANDBY_RESUME	0x000b
+ #define APM_CAPABILITY_CHANGE	0x000c
++#define APM_STANDBY_REJECT	0x000d
++#define APM_SUSPEND_REJECT	0x000e
+ 
+ /*
+  * Error codes
+@@ -210,5 +212,6 @@
+ 
+ #define APM_IOC_STANDBY		_IO('A', 1)
+ #define APM_IOC_SUSPEND		_IO('A', 2)
++#define APM_IOC_REJECT		_IO('A', 3)
+ 
+ #endif	/* LINUX_APM_H */
 
-Andre Hedrick
-Linux ATA Development
-ASL Kernel Development
------------------------------------------------------------------------------
-ASL, Inc.                                     Toll free: 1-877-ASL-3535
-1757 Houret Court                             Fax: 1-408-941-2071
-Milpitas, CA 95035                            Web: www.aslab.com
+--=-=-=
 
+
+I made a (IMHO) better version called pmpolicy, based on different
+principles. More information is available at
+
+        http://john.snoop.dk/programs/linux/offbutton/
+
+The most recent version of the patch (for 2.4.2) is not yet uploaded
+however - mail me if you want it. It has not been included in the
+kernel, because the APM maintainer Stephen Rothwell didn't like the
+idea of me implementing it, as some people at linuxcare (including
+Stephen) want to do it differently themselves. However this
+"political" reason aside, Alan Cox says it changes too much for a
+stable release so I guess it's not going in.
+
+[...]
+
+-- 
+
+	http://www.penguinpowered.com/~vii
+
+--=-=-=--

@@ -1,74 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267050AbUBMPWi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 10:22:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267052AbUBMPWi
+	id S267052AbUBMP1m (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 10:27:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267053AbUBMP1m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 10:22:38 -0500
-Received: from mail2-116.ewetel.de ([212.6.122.116]:33155 "EHLO
-	mail2.ewetel.de") by vger.kernel.org with ESMTP id S267050AbUBMPWf
+	Fri, 13 Feb 2004 10:27:42 -0500
+Received: from gw-nl3.philips.com ([161.85.127.49]:39559 "EHLO
+	gw-nl3.philips.com") by vger.kernel.org with ESMTP id S267052AbUBMP1k
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 10:22:35 -0500
-To: "Andrey Borzenkov" <arvidjaar@mail.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Initrd Question
-In-Reply-To: <1oMkR-1Zk-21@gated-at.bofh.it>
-References: <1oMkR-1Zk-21@gated-at.bofh.it>
-Date: Fri, 13 Feb 2004 16:23:46 +0100
-Message-Id: <E1ArfAQ-00007f-7Z@localhost>
-From: der.eremit@email.de
-X-CheckCompat: OK
+	Fri, 13 Feb 2004 10:27:40 -0500
+Message-ID: <402CED8C.4040203@basmevissen.nl>
+Date: Fri, 13 Feb 2004 16:30:20 +0100
+From: Bas Mevissen <ml@basmevissen.nl>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: tevaugha@ball.com, tevaughan@comcast.net
+Cc: Matthew Garrett <mgarrett@chiark.greenend.org.uk>,
+       debian-devel@lists.debian.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6 kernel boot crashing
+References: <20040211154044.GA656@ball.com> <E1Aqxgm-0005G4-00@chiark.greenend.org.uk> <20040211213243.GA5133@ball.com>
+In-Reply-To: <20040211213243.GA5133@ball.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Feb 2004 15:20:13 +0100, you wrote in linux.kernel:
->>> echo 0x0100 > /proc/sys/kernel/real-root-dev
->> This makes no sense as you're using pivot_root. 
-> this makes all sort of sense. Please check sources. It is required so
-> that kernel will not attempt to mount root passed to it by loader.
-> You are welcome to clean up the code :)
-
-I'm not doing that and it works as expected. Note that the initrd code
-in question never exits. It execs init. So when would the kernel do
-this attempted mount of the root filesystem passed in by the bootloader?
-My understanding is that the old, non-pivot_root method works by
-exiting the initrd script - and *then* the kernel attempts to mount
-real-root-dev.
-
-In any case, if that wasn't clear, I expect the bootloader to pass
-in root=/dev/ram0 anyway. ;)
-
->>> mount -n -o ro /dev/sda2 /new_root
+Thomas E. Vaughan wrote:
+> On Wed, Feb 11, 2004 at 04:58:16PM +0000, Matthew Garrett
+> wrote:
+> 
+>>Thomas E. Vaughan wrote:
 >>
->> This doesn't even match with the 0x0100 above, now does it?
->
-> so what? kernel happily ignores real-root-dev, it is possible that
-> some user-level tools may be confused but I have not seen any so far.
+>>
+>>>PnPBIOS: PnP BIOS version 1.0, entry 0xf000:0x6d5a, dseg 0xf000
+>>>general protection fault: 0000 [#1]
+>>
+>>There have been problems with PnP BIOS support on various
+>>motherboards.  Try rebuilding the kernel package without
+>>PNPBIOS support (you probably don't need it - it's there
+>>in order to manage resource allocation for legacy hardware
+>>like serial ports, and in most cases the BIOS will happily
+>>set those up on its own) and see if that works.
+> 
+> 
+> That did the trick.  The only config option that matters is
+> 
+>    "Plug and Play BIOS support (EXPERIMENTAL)",
+> 
+> which must *not* be selected.  I noticed that the top-level
+> 
+>    "Plug and Play support"
+> 
+> and also
+> 
+>    "ISA Plug and Play support (EXPERIMENTAL)"
+> 
+> can be selected, and the kernel still boots OK.  But that
+> PnPBIOS support crashes the kernel hard.
+> 
 
-Now you're saying the kernel ignores real-root-dev, while a moment
-before you state that it is important to set real-root-dev because
-otherwise the kernel does something. Which is it?
+I can confirm that on an Asus P4P800 Deluxe motherboard too for at least 
+kernel 2.6.0 and 2.6.1.
 
->>> pivot_root /new_root /new_root/initrd
->> You should cd into /new_root before running pivot_root,
-> Huh? Why?
->
-> SYNOPSIS
->        pivot_root new_root put_old
+Setting the command line option pnpbios=off is a good fix for people who 
+would like to run a pre-compiled kernel on those mainboards.
 
-And just a couple of lines further down:
+Regards,
 
-       Note that, depending on the implementation of pivot_root, root and  cwd
-       of  the  caller  may or may not change. The following is a sequence for
-       invoking pivot_root that works in either case, assuming that pivot_root
-       and chroot are in the current PATH:
-                            
-       cd new_root
-       pivot_root . put_old
-       exec chroot . command
+Bas.
 
-The pivot_root(2) manpage states the same, by the way.
-                                                 
--- 
-Ciao,
-Pascal

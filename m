@@ -1,77 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261428AbTEQMYD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 May 2003 08:24:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbTEQMYD
+	id S261433AbTEQM0N (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 May 2003 08:26:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbTEQM0N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 May 2003 08:24:03 -0400
-Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:20144 "HELO
-	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S261428AbTEQMYC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 May 2003 08:24:02 -0400
-Subject: Re: 2.5.69-mm6: pccard oops while booting: round 2
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Andrew Morton <akpm@digeo.com>
-Cc: c-d.hailfinger.kernel.2003@gmx.net, rmk@arm.linux.org.uk,
-       LKML <linux-kernel@vger.kernel.org>, davej@suse.de
-In-Reply-To: <20030517043946.421c8f4a.akpm@digeo.com>
-References: <1052964213.586.3.camel@teapot.felipe-alfaro.com>
-	 <20030514191735.6fe0998c.akpm@digeo.com>
-	 <1052998601.726.1.camel@teapot.felipe-alfaro.com>
-	 <20030515130019.B30619@flint.arm.linux.org.uk>
-	 <1053004615.586.2.camel@teapot.felipe-alfaro.com>
-	 <20030515144439.A31491@flint.arm.linux.org.uk>
-	 <1053037915.569.2.camel@teapot.felipe-alfaro.com>
-	 <20030515160015.5dfea63f.akpm@digeo.com>
-	 <1053090184.653.0.camel@teapot.felipe-alfaro.com>
-	 <1053110098.648.1.camel@teapot.felipe-alfaro.com>
-	 <20030516132908.62e54266.akpm@digeo.com>
-	 <1053121346.569.1.camel@teapot.felipe-alfaro.com>
-	 <3EC56173.1000306@gmx.net>
-	 <1053166275.586.9.camel@teapot.felipe-alfaro.com>
-	 <20030517031840.486683fc.akpm@digeo.com>
-	 <1053169552.613.1.camel@teapot.felipe-alfaro.com>
-	 <20030517043946.421c8f4a.akpm@digeo.com>
-Content-Type: text/plain
-Message-Id: <1053174997.695.1.camel@teapot.felipe-alfaro.com>
+	Sat, 17 May 2003 08:26:13 -0400
+Received: from dracula.eas.gatech.edu ([130.207.67.209]:51922 "EHLO
+	shaft.shaftnet.org") by vger.kernel.org with ESMTP id S261433AbTEQM0M
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 May 2003 08:26:12 -0400
+Date: Sat, 17 May 2003 08:34:47 -0400
+From: Stuffed Crust <pizza@shaftnet.org>
+To: linux-kernel@vger.kernel.org, Joseph Fannin <jhf@rivenstone.net>
+Subject: Re: 2.6 must-fix, v4
+Message-ID: <20030517123447.GA31064@shaftnet.org>
+References: <20030516161717.1e629364.akpm@digeo.com> <20030516161753.08470617.akpm@digeo.com> <20030517051621.GA10348@rivenstone.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.3 (Preview Release)
-Date: 17 May 2003 14:36:38 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="oyUTqETQ0mS9luUI"
+Content-Disposition: inline
+In-Reply-To: <20030517051621.GA10348@rivenstone.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-05-17 at 13:39, Andrew Morton wrote:
-> Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> wrote:
-> >
-> > Unable to handle kernel paging request at virtual address fceec0d7
-> >  printing eip:
-> > c016954f
-> > *pde = 00000000
-> > Oops: 0000 [#1]
-> > CPU:    0
-> > EIP:    0060:[<c016954f>]     Not tainted VLI
-> > EFLAGS: 00010246
-> > EIP is at sys_create_link+0xcf/0x130
-> 
-> bah.   That's totally different :(
-> 
-> But there seems to be a bug in there.
-> 
-> --- 25/fs/sysfs/symlink.c~sysfs_create_link-fix	2003-05-17 04:34:50.000000000 -0700
-> +++ 25-akpm/fs/sysfs/symlink.c	2003-05-17 04:34:56.000000000 -0700
-> @@ -80,7 +80,7 @@ int sysfs_create_link(struct kobject * k
->  	char * s;
->  
->  	depth = object_depth(kobj);
-> -	size = object_path_length(target) + depth * 3 - 1;
-> +	size = object_path_length(target) + depth * 3 + 1;
->  	if (size > PATH_MAX)
->  		return -ENAMETOOLONG;
->  	pr_debug("%s: depth = %d, size = %d\n",__FUNCTION__,depth,size);
-> 
-> That probably won't fix it though.
 
-I'm sorry to say the above patch doesn't fix the problem :-(
+--oyUTqETQ0mS9luUI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Sat, May 17, 2003 at 01:16:21AM -0400, Joseph Fannin wrote:
+> On Fri, May 16, 2003 at 04:17:53PM -0700, Andrew Morton wrote:
+> > - synaptic touchpad support
+> >=20
+> >   Apparently there's a userspace `tpconfig'
+>=20
+>    For 2.4, yes, but the new input layer doesn't allow the raw
+> access to the device needed for tpconfig to frob the touchpads'
+> configuration -- this is the reason for Bugzilla #18.  Vojitech
+> Pavlik said writing support for raw access from userspace wouldn't be
+> much less work than writing the kernel support.
 
+More important than 'tpconfig' is that the native synaptics drivers for=20
+both gpm and XFree86 won't work under 2.5+ either.
+
+Jens Taprogee has also been working on a Synaptics Input driver.  The=20
+main difference in what I have is that his passes the absolute events up=20
+to the mousdev layer, which in turn does the heavy lifting.  Much better=20
+IMO, as mousedev can get new features which will apply to all=20
+absolute-mode touchpads and other input devices.
+
+ - Pizza
+--=20
+Solomon Peachy                                   pizza@f*cktheusers.org
+                                                           ICQ #1318444
+Quidquid latine dictum sit, altum viditur                 Melbourne, FL
+
+--oyUTqETQ0mS9luUI
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE+xixmPuLgii2759ARAhHfAJ9xN3MTY3d898ZRkSavG7IKyLGl0gCcDg3g
+eOv17OyeCxPqujY2Ie0sdrk=
+=KvJX
+-----END PGP SIGNATURE-----
+
+--oyUTqETQ0mS9luUI--

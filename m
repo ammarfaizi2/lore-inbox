@@ -1,58 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131732AbRCUR2F>; Wed, 21 Mar 2001 12:28:05 -0500
+	id <S131734AbRCUR0f>; Wed, 21 Mar 2001 12:26:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131737AbRCUR17>; Wed, 21 Mar 2001 12:27:59 -0500
-Received: from ns.suse.de ([213.95.15.193]:36879 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S131732AbRCUR0v>;
-	Wed, 21 Mar 2001 12:26:51 -0500
-Date: Wed, 21 Mar 2001 18:34:40 +0100 (CET)
-From: egger@suse.de
-Reply-To: egger@suse.de
-Subject: Re: Only 10 MB/sec with via 82c686b chipset?
-To: chromi@cyberspace.org
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <l03130301b6de66229e10@[192.168.239.101]>
+	id <S131732AbRCUR0Z>; Wed, 21 Mar 2001 12:26:25 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:36880 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131734AbRCUR0T>; Wed, 21 Mar 2001 12:26:19 -0500
+Subject: Re: DPT Driver Status
+To: dcalford@distributel.ca (Dalton Calford)
+Date: Wed, 21 Mar 2001 17:28:35 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (Linux kernel development list)
+In-Reply-To: <3AAF1072.A38B2508@distributel.ca> from "Dalton Calford" at Mar 14, 2001 01:32:18 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
-Message-Id: <20010321182613.85AF354D6@Nicole.muc.suse.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14fmPW-0000v5-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 21 Mar, Jonathan Morton wrote:
+> Does anyone have a working patch for the 2.2.18 kernel? 
+> What is the most stable version of the kernel for the use of the patch?
+> 
+> Has the native i2o driver been updated to handle what the dpt card is
+> doing?
 
-> The "blue and white" PowerMac G3 and certain early PowerMac G4s used a
-> 66MHz PCI card for graphics in lieu of proper AGP.  66MHz PCI is used
-> in certain high-end workstations, as well, but it's not normally found
-> on consumer-level devices.
- 
-> Look at 'lspci -vvv' output for the "66MHz" flag on the devices listed
-> there - all the ones in my Duron system leave it unset, except for my
-> (very recent and pretty nippy) SCSI controller and (AGP) video card.
+I tried, I never managed to get the board and our i2o driver to be happy. As
+far as I could tell the board was the problem end but its never easy to be 100%
+sure about such things
 
- Well, I wasn't talking about 66Mhz nor about 64bit cards but rather 
- normal consumer cards which are specified for 33Mhz.
-
-> That said, *most* PCI devices don't like being overclocked, and it's
-> not well known that pushing the system bus also pushes the PCI and ISA
-> buses in the same manner.  A friend of mine had *severe* locking
-> problems with his system when he inserted his cheap SCSI adapter into
-> his overclocked machine, even though the other cards handled it OK
-> (relatively speaking - I'm not convinced).  I don't know how far he'd
-> overclocked it, but 37MHz kinda rings true.
-
- Trying to enhance a systems performance by overclocking the bus is
- about the most stupid thing one can do as one ANY of the connected
- devices memory/CPU/chipset/PCI devices/AGP cards (just to name a
- few) have a high probability of failing and all those probabilites
- factor up which basically means that the system is in a unpredictable
- state which is never acceptable for any serious kind of system. 
-
- Better leave the overclocking of busses to kids who are bored
- by their live.
-
--- 
-
-Servus,
-       Daniel
+Alan
 

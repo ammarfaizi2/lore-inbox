@@ -1,76 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264367AbTLPXU3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 18:20:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264369AbTLPXU3
+	id S264321AbTLPXd7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 18:33:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264331AbTLPXd6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 18:20:29 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:26254 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S264367AbTLPXU1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 18:20:27 -0500
-Message-ID: <3FDF943B.8020906@us.ltcfwd.linux.ibm.com>
-Date: Tue, 16 Dec 2003 17:24:43 -0600
-From: Linda Xie <lxiep@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Linda Xie <lxiep@us.ibm.com>, linux-kernel@vger.kernel.org,
-       Greg KH <gregkh@us.ibm.com>, scheel@us.ibm.com, wortman@us.ibm.com
-Subject: Re: PATCH -- kobject_set_name() doesn't allocate enough space
-References: <3FDF67ED.1070605@us.ltcfwd.linux.ibm.com> <Pine.LNX.4.58.0312161241570.1599@home.osdl.org>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+	Tue, 16 Dec 2003 18:33:58 -0500
+Received: from pentafluge.infradead.org ([213.86.99.235]:45512 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S264321AbTLPXd5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Dec 2003 18:33:57 -0500
+Subject: Re: essid any -> orinoco_lock() called with hw_unavailable -test11
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Soeren Sonnenburg <kernel@nn7.de>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1071571879.2498.65.camel@localhost>
+References: <1071571879.2498.65.camel@localhost>
+Content-Type: text/plain
+Message-Id: <1071617600.734.44.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 17 Dec 2003 10:33:21 +1100
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-
+On Tue, 2003-12-16 at 21:51, Soeren Sonnenburg wrote:
+> Hi.
 > 
-> The patch looks correct, but you should change the last test to be
-> appropriate too, ie the
+> I get quiete many error messages in when I do
 > 
-> 	/* Still? Give up. */
-> 	if (need > limit) {
+> ifconfig eth1 192.168.0.1 up
+> iwconfig eth1 mode ad-hoc
+> iwconfig eth1 nick bla
+> iwconfig eth1 key off
+> iwconfig eth1 essid "any"
+> ifconfig eth1 down
 > 
-> test should, as far as I can tell, be
+> and no wireless network is available. The device is no longer accessible
+> afterwards. Reloading kernel modules helps, however if I go to sleep
+> mode on this 1GHz 15" G4 Powerbook the machine hangs on resume, see
 > 
-> 	if (need >= limit) {
+> http://www.nn7.de/kernel/essid_any.jpg
 > 
-> instead.
-> 
-> 		Linus
+> for the messages and xmon trace (please use a webbrowser to view it, it
+> is a redirect)
 
-Hi Linus,
+Which test11 ? Did you try my tree ?
 
-Thank you for pointing that out. Here is the updated patch:
+(ppc.bkbits.net/linuxppc-2.5-benh via bitkeeper, rsync mirror on
+source.mvista.com)
 
-diff -Nru a/lib/kobject.c b/lib/kobject.c
---- a/lib/kobject.c     Tue Dec 16 17:10:16 2003
-+++ b/lib/kobject.c     Tue Dec 16 17:10:16 2003
-@@ -344,16 +344,16 @@
-                 /*
-                  * Need more space? Allocate it and try again
-                  */
--               name = kmalloc(need,GFP_KERNEL);
-+               limit = need + 1;
-+               name = kmalloc(limit,GFP_KERNEL);
-                 if (!name) {
-                         error = -ENOMEM;
-                         goto Done;
-                 }
--               limit = need;
-                 need = vsnprintf(name,limit,fmt,args);
-
-                 /* Still? Give up. */
--               if (need > limit) {
-+               if (need >= limit) {
-                         kfree(name);
-                         error = -EFAULT;
-                         goto Done;
-
-
-
+Ben.
 
 

@@ -1,56 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318208AbSHZUCL>; Mon, 26 Aug 2002 16:02:11 -0400
+	id <S318275AbSHZUH0>; Mon, 26 Aug 2002 16:07:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318230AbSHZUCK>; Mon, 26 Aug 2002 16:02:10 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:11525
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S318208AbSHZUCE>; Mon, 26 Aug 2002 16:02:04 -0400
-Subject: [PATCH] make lockd and rpciod drop locks on exit
-From: Robert Love <rml@tech9.net>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 26 Aug 2002 16:06:20 -0400
-Message-Id: <1030392380.861.420.camel@phantasy>
+	id <S318277AbSHZUH0>; Mon, 26 Aug 2002 16:07:26 -0400
+Received: from ulima.unil.ch ([130.223.144.143]:17297 "HELO ulima.unil.ch")
+	by vger.kernel.org with SMTP id <S318275AbSHZUHZ>;
+	Mon, 26 Aug 2002 16:07:25 -0400
+Date: Mon, 26 Aug 2002 22:11:42 +0200
+From: Gregoire Favre <greg@ulima.unil.ch>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Interdiff of AC series?
+Message-ID: <20020826201142.GA4183@ulima.unil.ch>
+References: <20020826123340.GD25765@ulima.unil.ch> <20020826132511.GA11762@neon.hh59.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20020826132511.GA11762@neon.hh59.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+On Mon, Aug 26, 2002 at 03:25:11PM +0200, axel@hh59.org wrote:
 
-Neither lockd nor rpciod properly drop the BKL on exit.
+> No. Unfortunately not but you can easily create one yourself using 
+> interdiff from GNU diffutils.
 
-Yes, the BKL is automatically relinquished on schedule but the failure
-to drop the lock throws off the atomic accounting.
+;-)
+I know how to make interdiff, what I would like is to fetch less bits
+with my modem connection...
 
-This makes them play fair.  Please, apply.
+Thank you very much,
 
-	Robert Love
-
-diff -urN linux-2.5.31/fs/lockd/svc.c linux/fs/lockd/svc.c
---- linux-2.5.31/fs/lockd/svc.c	Sat Aug 10 21:41:42 2002
-+++ linux/fs/lockd/svc.c	Sat Aug 24 20:18:08 2002
-@@ -203,6 +203,7 @@
- 	rpciod_down();
- 
- 	/* Release module */
-+	unlock_kernel();
- 	MOD_DEC_USE_COUNT;
- }
- 
-diff -urN linux-2.5.31/net/sunrpc/sched.c linux/net/sunrpc/sched.c
---- linux-2.5.31/net/sunrpc/sched.c	Sat Aug 10 21:41:36 2002
-+++ linux/net/sunrpc/sched.c	Sat Aug 24 20:18:08 2002
-@@ -1030,6 +1030,7 @@
- 	wake_up(assassin);
- 
- 	dprintk("RPC: rpciod exiting\n");
-+	unlock_kernel();
- 	MOD_DEC_USE_COUNT;
- 	return 0;
- }
-
-
+	Grégoire
+________________________________________________________________
+http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

@@ -1,61 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262294AbUBXP4l (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 10:56:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262287AbUBXPyI
+	id S262289AbUBXP4z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 10:56:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262297AbUBXP4s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 10:54:08 -0500
-Received: from [212.239.224.65] ([212.239.224.65]:42112 "EHLO
-	precious.kicks-ass.org") by vger.kernel.org with ESMTP
-	id S262289AbUBXPux (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 10:50:53 -0500
-From: Jan De Luyck <lkml@kcore.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Why are 2.6 modules so huge?
-Date: Tue, 24 Feb 2004 16:50:46 +0100
-User-Agent: KMail/1.6.1
-References: <9cfptc4lckg.fsf@rogue.ncsl.nist.gov>
-In-Reply-To: <9cfptc4lckg.fsf@rogue.ncsl.nist.gov>
+	Tue, 24 Feb 2004 10:56:48 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43443 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262289AbUBXPzd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 10:55:33 -0500
+Message-ID: <403B73E3.80100@pobox.com>
+Date: Tue, 24 Feb 2004 10:55:15 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
+To: Pekka Pietikainen <pp@ee.oulu.fi>
+CC: Andrew Walrond <andrew@walrond.org>, linux-kernel@vger.kernel.org
+Subject: Re: Promise SATA driver
+References: <200402241110.07526.andrew@walrond.org> <403B6BF3.8070301@pobox.com> <20040224154446.GA28720@ee.oulu.fi>
+In-Reply-To: <20040224154446.GA28720@ee.oulu.fi>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200402241650.49744.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Pekka Pietikainen wrote:
+> On Tue, Feb 24, 2004 at 10:21:23AM -0500, Jeff Garzik wrote:
+> 
+>>Andrew Walrond wrote:
+>>
+>>>I've got a 378 s150 tx chipset with their fasttrak raid bios. How should I 
+>>>configure the drives to use with the 2.6.3 kernel promise SATA driver? Can 
+>>>I configure them as a raid array?
+>>
+>>The 2.6.3 sata_promise driver ignores any RAID configuration you set up, 
+>>and directly talks to the drives.
+> 
+> To boot off one you might have to setup a RAID configuration in the
+> card BIOS though (Which is why I have a single drive configured as a raid0 :-) )
 
-On Tuesday 24 February 2004 16:30, Ian Soboroff wrote:
-> Can anyone help me understand why 2.6-series kernel modules are so
-> huge?
->
-> $ cd /lib/modules
-> $ ls -l */kernel/fs/vfat
-> 2.4.20-18.8bigmem/kernel/fs/vfat:
-> total 20
-> -rw-r--r--    1 root     root        17678 May 29  2003 vfat.o
->
-> 2.6.3/kernel/fs/vfat:
-> total 288
-> -rw-r--r--    1 root     root       289086 Feb 24 10:09 vfat.ko
 
-You probably have some sort of debugging on.
+Hum, the BIOS works fine here with no arrays defined...
 
-devilkin@precious:/lib/modules/2.6.2/kernel/fs/vfat$ ls -l
-total 20
-- -rw-r--r--    1 root     root        18750 2004-02-09 12:56 vfat.ko
+	Jeff
 
-Jan
-- --
-I will make you shorter by the head.
-		-- Elizabeth I
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQFAO3LYUQQOfidJUwQRAnSrAJ4oV2H2wxWBSL7OcEW4A0c13nq/ewCfbcgQ
-LCE637rjKmxxbDpiAvVy1NE=
-=UVX/
------END PGP SIGNATURE-----
+

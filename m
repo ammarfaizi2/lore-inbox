@@ -1,70 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268684AbTGTVl4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 17:41:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268685AbTGTVl4
+	id S268564AbTGTVkF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 17:40:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268577AbTGTVkF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 17:41:56 -0400
-Received: from 81-5-136-19.dsl.eclipse.net.uk ([81.5.136.19]:2433 "EHLO
-	vlad.carfax.org.uk") by vger.kernel.org with ESMTP id S268684AbTGTVk7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 17:40:59 -0400
-Date: Sun, 20 Jul 2003 22:55:45 +0100
-From: Hugo Mills <hugo-lkml@carfax.org.uk>
-To: Andre Hedrick <andre@linux-ide.org>
+	Sun, 20 Jul 2003 17:40:05 -0400
+Received: from mail.tlink.de ([217.9.16.16]:23823 "EHLO chewie.terralink.de")
+	by vger.kernel.org with ESMTP id S268564AbTGTVj7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 17:39:59 -0400
+Subject: Re: 2.6.0-test1-mm2 music skips
+From: Lukas Kolbe <lucky@knup.de>
+To: Ed Sweetman <ed.sweetman@wmich.edu>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: SiI3112 lost interrupts
-Message-ID: <20030720215545.GD1247@carfax.org.uk>
-Mail-Followup-To: Hugo Mills <hugo-lkml@carfax.org.uk>,
-	Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
-References: <20030720203758.GB1247@carfax.org.uk> <Pine.LNX.4.10.10307201348530.29430-100000@master.linux-ide.org>
+In-Reply-To: <3F1B05D7.8060303@wmich.edu>
+References: <1058733270.1169.32.camel@tigris.chaoswg>
+	 <3F1B05D7.8060303@wmich.edu>
+Content-Type: text/plain
+Message-Id: <1058738207.17387.14.camel@tigris.chaoswg>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="x4pBfXISqBoDm8sr"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10307201348530.29430-100000@master.linux-ide.org>
-X-GPG-Fingerprint: B997 A9F1 782D D1FD 9F87  5542 B2C2 7BC2 1C33 5860
-X-GPG-Key: 1C335860
-X-Parrot: It is no more. It has joined the choir invisible.
-X-IRC-Nick: darksatanic
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 20 Jul 2003 23:56:48 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am Son, 2003-07-20 um 23.12 schrieb Ed Sweetman:
+> Too many times music skipping is blamed on the kernel.  This is not 
+> always the case.  Bad userspace programming can cause audio skipping. 
+[...]
 
---x4pBfXISqBoDm8sr
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I didn't want to 'blame the kernel' for the audio-skipping, I just
+followed Andrew Morton's call for feedback. One of three things I find
+annoying in 2.5/2.6 is the audio-skipping, as far as I remember it 'felt
+better' with the late 2.2 to middle 2.4 kernels on older hardware.
 
-On Sun, Jul 20, 2003 at 01:51:36PM -0700, Andre Hedrick wrote:
-> 
-> Well I just now got it refixed (for two environments) and discussing with
-> SiI how to address this in a final solution.
+But I also have to say that interactivity (with heavy multitasking, many
+apps, massive window-moving etc. pp) on my desktop-system has improved
+very very much compared to 2.4. Though I don't have figures to back that
+:).
 
-   That's good to know what's happening with these drivers, and that
-there's a fix on the way. Thank you.
 
-   Are you able & willing to give an estimated timescale for the
-public release of the solution?
+> I'm not saying xmms is entirely at fault for the skips. But i've written 
+> other ogg decoders for zinf that skipped as well doing those things. 
+> Also, i moved to fluxbox as my window manager because other equally 
+> functional window managers caused major X lag during redraws, fluxbox 
+> does not.  Also, make sure you have dma enabled on your hdds, swap on a 
+> non-dma drive can easily crawl the system.  And by the way, my x is 
 
-   Thanks,
-   Hugo.
+Yay, hd's have dma enabled (udma5). And Metacity is indeed a problem, it
+is damn lagging behind most other window managers, but it's gnome2's
+default. 
+
+> In short, it's not always the kernel that's the problem, but in the 
+> implimentation the program uses for playing and  decoding audio. They 
+> may need to be redone since what they used to be able to get away with 
+> in older kernels doesn't work anymore now that it's more strict and fair 
+>    and thus better at doing it's job.
+
+ACK.
 
 -- 
-=== Hugo Mills: hugo@... carfax.org.uk | darksatanic.net | lug.org.uk ===
-  PGP key: 1C335860 from wwwkeys.eu.pgp.net or http://www.carfax.org.uk
-           --- There are three mistaiks in this sentance. ---            
+bye
+  Lukas
 
---x4pBfXISqBoDm8sr
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/Gw/hssJ7whwzWGARAnj1AKCnZQVbS8qztOZpUQbweDTfjX8VvACfWZhn
-pC1Eq4mFm8eYBNCBErpuQ5Q=
-=rshR
------END PGP SIGNATURE-----
-
---x4pBfXISqBoDm8sr--

@@ -1,72 +1,156 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130147AbQKHKLj>; Wed, 8 Nov 2000 05:11:39 -0500
+	id <S129055AbQKHK2I>; Wed, 8 Nov 2000 05:28:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130372AbQKHKLa>; Wed, 8 Nov 2000 05:11:30 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:38436 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130147AbQKHKLQ>; Wed, 8 Nov 2000 05:11:16 -0500
-Subject: Re: When I use kernel-2.4.0-test10,I got this problem on my server.
-To: asdf2970@netease.com
-Date: Wed, 8 Nov 2000 10:07:13 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
-In-Reply-To: <20001108092403.0E0351C404EAA@mx1.netease.com> from "cnchun" at Nov 08, 2000 05:17:33 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S129901AbQKHK17>; Wed, 8 Nov 2000 05:27:59 -0500
+Received: from sportingbet.gw.dircon.net ([195.157.147.30]:49158 "HELO
+	sysadmin.sportingbet.com") by vger.kernel.org with SMTP
+	id <S129055AbQKHK1x>; Wed, 8 Nov 2000 05:27:53 -0500
+Date: Wed, 8 Nov 2000 10:19:48 +0000
+From: Sean Hunter <sean@dev.sportingbet.com>
+To: Richard Henderson <rth@twiddle.net>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>, axp-list@redhat.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: PCI-PCI bridges mess in 2.4.x
+Message-ID: <20001108101948.A7083@bart.dev.sportingbet.com>
+Mail-Followup-To: Sean Hunter <sean@dev.sportingbet.com>,
+	Richard Henderson <rth@twiddle.net>,
+	Ivan Kokshaysky <ink@jurassic.park.msu.ru>, axp-list@redhat.com,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20001101153420.A2823@jurassic.park.msu.ru> <20001101093319.A18144@twiddle.net> <20001103111647.A8079@jurassic.park.msu.ru> <20001103011640.A20494@twiddle.net> <20001106192930.A837@jurassic.park.msu.ru> <20001108013931.A26972@twiddle.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13tS8R-0008QN-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001108013931.A26972@twiddle.net>; from rth@twiddle.net on Wed, Nov 08, 2000 at 01:39:31AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The kernel-2.2.18 can run on my server very well.My server is DELL 6450/550 with 4G MEM and 4 CPU,I also have 2 Raid-5(DELL
-> Powervault 210s) with 1.6 TG storage.
+Hi Richard.
 
-My fault. 2.4test contains a forward port of some 2.2 experimenting that
-was backed out
+I'm _very_ keen to try this (my Alpha won't boot 2.4 at the mo), however I
+think the attachments faery has been playing tricks again.
 
-Try
+Do you have a patch relative to 2.4.0-test10?
+
+Sean
+
+On Wed, Nov 08, 2000 at 01:39:31AM -0800, Richard Henderson wrote:
+> [ For l-k, the issue is that pci-pci bridges and the devices behind
+>   them are not initialized properly.  There are a number of Alphas
+>   whose built-in scsi controlers are behind such a bridge preventing
+>   these machines from booting at all.  Ivan provided an initial 
+>   patch to solve this issue.  ]
+> 
+> I've not gotten a chance to try this on the rawhide yet,
+> but I did give it a whirl on my up1000, which does have
+> an agp bridge that acts like a pci bridge.
+> 
+> Notable changes from your patch:
+> 
+>   * Use kmalloc, not vmalloc.  (ouch!)
+>   * Replace cropped found_vga detection code.
+>   * Handle bridges with empty I/O (or MEM) ranges.
+>   * Collect the proper width of the bus range.
+> 
+> 
+> r~
+
+Content-Description: diff vs bridges-2.4.0t10
+> diff -rup linux/drivers/pci/setup-bus.c 2.4.0-11-1/drivers/pci/setup-bus.c
+> --- linux/drivers/pci/setup-bus.c	Wed Nov  8 01:24:16 2000
+> +++ 2.4.0-11-1/drivers/pci/setup-bus.c	Wed Nov  8 01:04:17 2000
+> @@ -20,7 +20,7 @@
+>  #include <linux/errno.h>
+>  #include <linux/ioport.h>
+>  #include <linux/cache.h>
+> -#include <linux/vmalloc.h>
+> +#include <linux/slab.h>
+>  
+>  
+>  #define DEBUG_CONFIG 1
+> @@ -56,31 +56,50 @@ pbus_assign_resources_sorted(struct pci_
+>  			mem_reserved += 32*1024*1024;
+>  			continue;
+>  		}
+> +
+> +		if (dev->class >> 8 == PCI_CLASS_DISPLAY_VGA)
+> +			found_vga = 1;
+> +
+>  		pdev_sort_resources(dev, &head_io, IORESOURCE_IO);
+>  		pdev_sort_resources(dev, &head_mem, IORESOURCE_MEM);
+>  	}
+> +
+>  	for (list = head_io.next; list;) {
+>  		res = list->res;
+>  		idx = res - &list->dev->resource[0];
+> -		if (pci_assign_resource(list->dev, idx) == 0)
+> +		if (pci_assign_resource(list->dev, idx) == 0
+> +		    && ranges->io_end < res->end)
+>  			ranges->io_end = res->end;
+>  		tmp = list;
+>  		list = list->next;
+> -		vfree(tmp);
+> +		kfree(tmp);
+>  	}
+>  	for (list = head_mem.next; list;) {
+>  		res = list->res;
+>  		idx = res - &list->dev->resource[0];
+> -		if (pci_assign_resource(list->dev, idx) == 0)
+> +		if (pci_assign_resource(list->dev, idx) == 0
+> +		    && ranges->mem_end < res->end)
+>  			ranges->mem_end = res->end;
+>  		tmp = list;
+>  		list = list->next;
+> -		vfree(tmp);
+> +		kfree(tmp);
+>  	}
+> +
+>  	ranges->io_end += io_reserved;
+>  	ranges->mem_end += mem_reserved;
+> +
+> +	/* ??? How to turn off a bus from responding to, say, I/O at
+> +	   all if there are no I/O ports behind the bus?  Turning off
+> +	   PCI_COMMAND_IO doesn't seem to do the job.  So we must
+> +	   allow for at least one unit.  */
+> +	if (ranges->io_end == ranges->io_start)
+> +		ranges->io_end += 1;
+> +	if (ranges->mem_end == ranges->mem_start)
+> +		ranges->mem_end += 1;
+> +
+>  	ranges->io_end = ROUND_UP(ranges->io_end, 4*1024);
+>  	ranges->mem_end = ROUND_UP(ranges->mem_end, 1024*1024);
+> +
+>  	return found_vga;
+>  }
+>  
+> diff -rup linux/drivers/pci/setup-res.c 2.4.0-11-1/drivers/pci/setup-res.c
+> --- linux/drivers/pci/setup-res.c	Wed Nov  8 01:24:16 2000
+> +++ 2.4.0-11-1/drivers/pci/setup-res.c	Wed Nov  8 00:21:13 2000
+> @@ -22,10 +22,10 @@
+>  #include <linux/errno.h>
+>  #include <linux/ioport.h>
+>  #include <linux/cache.h>
+> -#include <linux/vmalloc.h>
+> +#include <linux/slab.h>
+>  
+>  
+> -#define DEBUG_CONFIG 0
+> +#define DEBUG_CONFIG 1
+>  #if DEBUG_CONFIG
+>  # define DBGC(args)     printk args
+>  #else
+> @@ -146,7 +146,7 @@ pdev_sort_resources(struct pci_dev *dev,
+>  			if (ln)
+>  				size = ln->res->end - ln->res->start;
+>  			if (r->end - r->start > size) {
+> -				tmp = vmalloc(sizeof(*tmp));
+> +				tmp = kmalloc(sizeof(*tmp), GFP_KERNEL);
+>  				tmp->next = ln;
+>  				tmp->res = r;
+>  				tmp->dev = dev;
 
 
---- drivers/scsi/megaraid.c~	Tue Oct 31 20:32:01 2000
-+++ drivers/scsi/megaraid.c	Wed Nov  8 09:26:17 2000
-@@ -1491,21 +1491,6 @@
- 	    pciDev,
- 	    pdev->slot_name);
- 
--    /*
--     *	Dont crash on boot with AMI cards configured for I2O. 
--     *  (our I2O code will find them then they will fail oddly until
--     *   we figure why they upset our I2O code). This driver will die
--     *   if it tries to boot an I2O mode board and we dont stop it now.
--     *     - Alan Cox , Red Hat Software, Jan 2000
--     */
--     	    
--    if((pdev->class >> 8) == PCI_CLASS_INTELLIGENT_I2O)
--    {
--    	printk( KERN_INFO "megaraid: Board configured for I2O, ignoring this card. Reconfigure the card\n"
--		KERN_INFO "megaraid: in the BIOS for \"mass storage\" to use it with this driver.\n");
--	continue;
--    }		
--
-     /* Read the base port and IRQ from PCI */
-     megaBase = pci_resource_start (pdev, 0);
-     megaIrq  = pdev->irq;
-@@ -1545,12 +1530,11 @@
-     megaCtlrs[numCtlrs++] = megaCfg; 
-     if (flag != BOARD_QUARTZ) {
-       /* Request our IO Range */
--      if (check_region (megaBase, 16)) {
-+      if (request_region (megaBase, 16, "megaraid")) {
- 	printk (KERN_WARNING "megaraid: Couldn't register I/O range!" CRLFSTR);
- 	scsi_unregister (host);
- 	continue;
-       }
--      request_region (megaBase, 16, "megaraid");
-     }
- 
-     /* Request our IRQ */
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

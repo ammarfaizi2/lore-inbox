@@ -1,32 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266179AbSKOL6B>; Fri, 15 Nov 2002 06:58:01 -0500
+	id <S265402AbSKOLzl>; Fri, 15 Nov 2002 06:55:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266186AbSKOL6B>; Fri, 15 Nov 2002 06:58:01 -0500
-Received: from precia.cinet.co.jp ([210.166.75.133]:41090 "EHLO
-	precia.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S266179AbSKOL6A>; Fri, 15 Nov 2002 06:58:00 -0500
-Message-ID: <3DD4E2D5.AEF13F1@cinet.co.jp>
-Date: Fri, 15 Nov 2002 21:04:37 +0900
-From: Osamu Tomita <tomita@cinet.co.jp>
-X-Mailer: Mozilla 4.8C-ja  [ja/Vine] (X11; U; Linux 2.5.47-ac4-pc98smp i686)
-X-Accept-Language: ja, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: PC-9800 patch for 2.5.47-ac4: not merged yet (0/15)
-Content-Type: text/plain; charset=iso-2022-jp
-Content-Transfer-Encoding: 7bit
+	id <S265568AbSKOLzl>; Fri, 15 Nov 2002 06:55:41 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:9737 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S265402AbSKOLzj>; Fri, 15 Nov 2002 06:55:39 -0500
+Date: Fri, 15 Nov 2002 13:02:33 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] swsuspend and CONFIG_DISCONTIGMEM=y
+Message-ID: <20021115120233.GC25902@atrey.karlin.mff.cuni.cz>
+References: <20021115081044.GI18180@conectiva.com.br> <20021115084915.GS23425@holomorphy.com> <20021115094827.GT23425@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021115094827.GT23425@holomorphy.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for interest in PC-9800 subarchitecture support.
-I've made additional patch for 2.5.47-ac4 to support 
-PC-9800 completely. Would you please merge into your tree?
+Hi!
 
-Regards,
-Osamu
+> > The following dropped hunk from Pavel should repair it:
+> 
+> [cc: list trimmed to spare the uninterested]
+> 
+> Hmm, there are some oddities here in count_and_copy_data_pages(). It
+> looks like the CONFIG_HIGHMEM panic() is there because copy_page() is
+> done without kmapping, and the CONFIG_DISCONTIGMEM panic() is there
+> because the pgdat list etc. are not walked according to VM
+> conventions.
 
+How much memory is needed for HIGHMEM to be neccessary? Is it 1GB? If
+so, I can well imagine 1GB laptop....
+
+> So the traversal looks like it should go something like:
+> 
+> 	for_each_zone(zone) {
+> 		for (k = 0; k < zone->present_pages; ++k) {
+> 			struct page *page = &zone->zone_mem_map[k];
+> 
+> 			if (!PageReserved) {
+> 				if (PageNosave(page))
+> 					continue;
+> 
+> 				chunk_size = is_head_of_free_region(page);
+> 
+> 				/* c.f. k++ above */
+> 				if (chunk_size) {
+> 					k += chunk_size - 1;
+> 					continue;
+> 				}
+> 			} else if (PageReserved(page)) {
+> 				BUG_ON(PageNosave(page));
+> 
+> 				if (page_to_pfn(page) >= nosave_begin_pfn
+> 					&& page_to_pfn(page) < nosave_end_pfn)
+> 					continue;
+> 			}
+> 
+> 			nr_copy_pages++;
+> 
+> 			/*
+> 			 * The general usage of page backup entries
+> 			 * is unclear; this is probably incorrect in
+> 			 * some cases, and needs some idea of the size
+> 			 * and layout of the page backup entry array(s)
+> 			 * if they cannot be contiguously allocated or
+> 			 * simultaneously mapped by kernel pagetables.
+> 			 */
+> 			if (pagedir_p) {
+> 				char *src, *dst;
+> 				src = kmap_atomic(page, KM_SWSUSP0);
+> 				dst = kmap_atomic(pagedir_p->page, KM_SWSUSP1);
+> 				copy_page(dst, src);
+> 				kunmap_atomic(dst, KM_SWSUSP0);
+> 				kunmap_atomic(src, KM_SWSUSP1);
+> 				++pagedir_p;
+
+This certainly does not work. We'd need to do some deep magic in
+suspend_asm.S to copy pages back. [Well, deep magic... Same
+kmap_atomic.] But suspend_asm.S has to guarantee not touching any
+memory so the change is not quite trivial.
+
+> I don't know what to make of highmem on laptops etc., but the VM's
+> conventions should not be that hard to follow; also, there are uses for
+> the swsusp functionality on other kinds of machines (e.g. checkpointing).
+> Pure computationally-oriented systems such as would make use of this
+> are somewhat different from my primary userbase to support, but I think
+> it would be valuable to generalize swsusp in this way, and so provide
+> rudimentary support for such users in addition to some small measure of
+> cleanup (i.e. the cleanup adds functionality).
+> 
+> Pavel, what do you think?
+
+I definitely want to support swsusp for server boxes, but I'm not 100%
+sure how to do that easily.
+								Pavel
 -- 
-Osamu Tomita
-tomita@cinet.co.jp
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

@@ -1,48 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277951AbRJIUOc>; Tue, 9 Oct 2001 16:14:32 -0400
+	id <S277950AbRJIUOc>; Tue, 9 Oct 2001 16:14:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277949AbRJIUOW>; Tue, 9 Oct 2001 16:14:22 -0400
-Received: from dfw-smtpout3.email.verio.net ([129.250.36.43]:31384 "EHLO
-	dfw-smtpout3.email.verio.net") by vger.kernel.org with ESMTP
-	id <S277950AbRJIUOD>; Tue, 9 Oct 2001 16:14:03 -0400
-Message-ID: <3BC35A71.9F783868@bigfoot.com>
-Date: Tue, 09 Oct 2001 13:13:37 -0700
-From: Tim Moore <timothymoore@bigfoot.com>
-Organization: Yoyodyne Propulsion Systems, Inc.
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.20p10i i686)
-X-Accept-Language: en
+	id <S277951AbRJIUON>; Tue, 9 Oct 2001 16:14:13 -0400
+Received: from CM-46-145.chello.cl ([24.152.46.145]:25226 "EHLO
+	ronto.dewback.cl") by vger.kernel.org with ESMTP id <S277949AbRJIUOC>;
+	Tue, 9 Oct 2001 16:14:02 -0400
+Date: Tue, 9 Oct 2001 16:13:47 -0400 (CLT)
+From: Fabian Arias <dewback@vtr.net>
+X-X-Sender: dewback@ronto.dewback.cl
+To: seth goldberg <seth.goldberg@Sun.COM>
+cc: linux-kernel@vger.kernel.org, <davem@redhat.com>
+Subject: Re: sis900 does not work in 2.4.10
+In-Reply-To: <3BC3569C.AF959299@Sun.COM>
+Message-ID: <Pine.LNX.4.40.0110091609570.9480-100000@ronto.dewback.cl>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Bill Davidsen <davidsen@tmr.com>
-Subject: Re: Breaking system configuration in stable kernels
-In-Reply-To: <Pine.LNX.3.96.1011008113808.27023A-100000@gatekeeper.tmr.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
-> 
->   I've beaten this dead horse before, but Linux will not look to
-> management like a viable candidate for default o/s until whoever releases
-> new versions of *stable* kernel series with cosmetic changes which break
-> existing systems running earlier releases of the same stable kernel
-> series.
+On Tue, 9 Oct 2001, seth goldberg wrote:
+
+> Hi,
 >
-> [cmpci module stuff]
-> 
->   I love getting problems like this on my vacation, I'm pissed, and I
-> really think it indicates a lack of attention to detail. I think I saw
+>   I just upgraded to the ECS K7S5A Athlon M/B (SiS-735 based) and was
+> trying to get the onboard SiS900 ethernet adapter working.  It works
+> fine on 2.4.5, but when I try to get it going under 2.4.10, the only
+>
+>   Does anyone have any suggestions?
 
-I wouldn't use a new release of Windows or OSF/1 or Digital Unix or
-Solaris in a commercial situation and linux is no different.  In this
-case [cmpci] it sounds like some user's desktop which is also asking for
-problems.  Having it visible to management is just too much risk
-regardless of the os. 
+In my case, SiS630E based, also SiS900 eth :
 
-Stick with distribution OR 2.2.x (2.2.19pre2 or higher) kernels.
+ronto:~# lspci
+00:00.0 Host bridge: Silicon Integrated Systems [SiS] 630 Host (rev 21)
+00:00.1 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev
+d0)
+00:01.0 ISA bridge: Silicon Integrated Systems [SiS] 85C503/5513
+00:01.1 Ethernet controller: Silicon Integrated Systems [SiS] SiS900
+10/100 Ethernet (rev 83)
+00:01.2 USB Controller: Silicon Integrated Systems [SiS] 7001 (rev 07)
+00:01.3 USB Controller: Silicon Integrated Systems [SiS] 7001 (rev 07)
+00:02.0 PCI bridge: Silicon Integrated Systems [SiS] 5591/5592 AGP
+00:05.0 Multimedia audio controller: C-Media Electronics Inc CM8738 (rev
+10)
+01:00.0 VGA compatible controller: Silicon Integrated Systems [SiS] SiS630
+GUI Accelerator+3D (rev 21)
 
-rgds,
-tim.
---
+ronto:~# uname -a
+Linux ronto 2.4.10-ac9 #1 Mon Oct 8 14:06:53 CLT 2001 i686 unknown
+
+100% Working.
+
+
+>
+>  Thanks,
+>   Seth
+>
+
+ ---
+ pub  1024D/0DD0F1CA 2001-09-19 Fabian A. Arias M. (dewback) <dewback@vtr.net>
+     Key fingerprint = B478 850E 6C8A C388 2B65  68E5 9604 A4FC 0DD0 F1CA
+              Debian GNU/Linux Sid - Kernel 2.4.10-ac9 - ReiserFS
+

@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262945AbREWBwi>; Tue, 22 May 2001 21:52:38 -0400
+	id <S262943AbREWBss>; Tue, 22 May 2001 21:48:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262946AbREWBw2>; Tue, 22 May 2001 21:52:28 -0400
-Received: from deliverator.sgi.com ([204.94.214.10]:41826 "EHLO
-	deliverator.sgi.com") by vger.kernel.org with ESMTP
-	id <S262945AbREWBwW>; Tue, 22 May 2001 21:52:22 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Daniel Phillips <phillips@bonn-fries.net>
-cc: John Stoffel <stoffel@casc.com>, linux-kernel@vger.kernel.org
-Subject: Re: Background to the argument about CML2 design philosophy 
-In-Reply-To: Your message of "Tue, 22 May 2001 11:24:54 +0200."
-             <01052211245404.06233@starship> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 23 May 2001 11:51:31 +1000
-Message-ID: <5810.990582691@kao2.melbourne.sgi.com>
+	id <S262944AbREWBsi>; Tue, 22 May 2001 21:48:38 -0400
+Received: from ns.suse.de ([213.95.15.193]:13317 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S262943AbREWBsW>;
+	Tue, 22 May 2001 21:48:22 -0400
+Date: Wed, 23 May 2001 03:48:21 +0200 (CEST)
+From: Dave Jones <davej@suse.de>
+To: Martin Knoblauch <martin.knoblauch@teraport.de>
+Cc: "H. Peter Anvin" <hpa@transmeta.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch] Output of L1,L2 and L3 cache sizes to /proc/cpuinfo
+In-Reply-To: <3B0AFCFB.CAE7A145@teraport.de>
+Message-ID: <Pine.LNX.4.30.0105230345440.22207-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 May 2001 11:24:54 +0200, 
-Daniel Phillips <phillips@bonn-fries.net> wrote:
->On Tuesday 22 May 2001 02:59, Keith Owens wrote:
->> # Not a real dependency, this checks for hand editing of .config.
->> $(KBUILD_OBJTREE)include/linux/autoconf.h: $(KBUILD_OBJTREE).config
->>         @echo Your .config is newer than include/linux/autoconf.h,
->> this should not happen. @echo Always run make one of
->> "{menu,old,x}config" after manually updating .config. @/bin/false
->
->Ahem.  What is wrong with revalidating it automatically?  *Then* if there's a
->problem, bother the user.
+On Wed, 23 May 2001, Martin Knoblauch wrote:
 
-Revalidate using which tool?  Did the user even mean to edit .config?
-This is a case where the user has to decide what to do.
+>  They may not be stupid, just mislead :-( When Intel created the "cpuid"
+> Feature some way along the P3 line, they gave a stupid reason for it and
+> created a big public uproar. As silly as I think that was (on both
+> sides), the term "cpuid" is tainted. Some people just fear it like hell.
+> Anyway.
+
+I think you are confusing the CPU serial number with CPUID which is
+not the same. CPUID instruction has been around since late 486en.
+
+The P3 Serial number is still disabled by default in Linux,
+unless overridden with a boottime switch.
+
+regards,
+
+Davej.
+
+-- 
+| Dave Jones.        http://www.suse.de/~davej
+| SuSE Labs
 

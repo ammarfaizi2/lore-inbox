@@ -1,48 +1,247 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262319AbVCBPou@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262317AbVCBPrJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262319AbVCBPou (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 10:44:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbVCBPou
+	id S262317AbVCBPrJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 10:47:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbVCBPrJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 10:44:50 -0500
-Received: from fire.osdl.org ([65.172.181.4]:4005 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262319AbVCBPor (ORCPT
+	Wed, 2 Mar 2005 10:47:09 -0500
+Received: from ns.suse.de ([195.135.220.2]:9150 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262317AbVCBPpy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 10:44:47 -0500
-Date: Wed, 2 Mar 2005 07:46:05 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Matthias Andree <matthias.andree@gmx.de>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.11
-In-Reply-To: <20050302103158.GA13485@merlin.emma.line.org>
-Message-ID: <Pine.LNX.4.58.0503020738300.25732@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0503012356480.25732@ppc970.osdl.org>
- <20050302103158.GA13485@merlin.emma.line.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 2 Mar 2005 10:45:54 -0500
+Subject: Re: 2.6.11-rc5-mm1
+From: Andreas Gruenbacher <agruen@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: =?ISO-8859-1?Q?Aur=E9lien?= Francillon <aurel@naurel.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Olaf Kirch <okir@suse.de>
+In-Reply-To: <20050302005344.1c3420db.akpm@osdl.org>
+References: <20050301012741.1d791cd2.akpm@osdl.org>
+	 <4224A905.7060801@naurel.org>  <20050302005344.1c3420db.akpm@osdl.org>
+Content-Type: multipart/mixed; boundary="=-aJipZPpxc9/tvR7wR6Ct"
+Organization: SUSE Labs
+Message-Id: <1109778352.22077.155.camel@winden.suse.de>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 02 Mar 2005 16:45:53 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--=-aJipZPpxc9/tvR7wR6Ct
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Wed, 2 Mar 2005, Matthias Andree wrote:
-> 
-> ftp.kernel.org:/pub/linux/kernel/v2.6 doesn't seem to carry a crypto
-> signature for the patch, patch-2.6.11.gz.sign
+Hello,
 
-It's there now (along with the ChangeLog).
+On Wed, 2005-03-02 at 09:53, Andrew Morton wrote:
+> Aurélien Francillon <aurel@naurel.org> wrote:
+> > [...]
+> > cvs diff Makefile 
+> >              cvs diff: cannot create read lock in repository 
+> > `/mnt/iseran/roca/cvsroot/ldpc': No such file or directory
+> > cvs [diff aborted]: read lock failed - giving up
+> > 
+> > but the file is created and i can "cat " it without problem ...
 
-The signatures are automatically generated at the master site, and the 
-mirroring out to the public sites is a separate event, so sometimes (if 
-you check early) you may miss the signatures for a while until the next 
-time the scripts run.
+This fixes it:
 
-The same is true of the .bz2 files, btw (I only upload the .gz ones, the 
-rest is generated). And obviously the incremental patches.
+Index: linux-2.6.11/fs/nfs/nfs3proc.c
+===================================================================
+--- linux-2.6.11.orig/fs/nfs/nfs3proc.c
++++ linux-2.6.11/fs/nfs/nfs3proc.c
+@@ -423,6 +423,9 @@ exit:
+                if (!inode)
+                        goto out;
+                status = nfs3_set_default_acl(dir, inode, mode);
++               if (status)
++                       goto out;
++               return inode;
+        }
+ out:
+        return ERR_PTR(status);
 
-(In contrast the full ChangeLog was missing because the generation script
-I use is not exactly the smart way, so it's O(slow(n)), where slow is n**3 
-or worse, so the log from the last -rc release is fast, but going back all 
-the way to 2.6.10 took long long enough that I didn't wait for it).
+I'll reply to this message with an updated patch:
 
-		Linus
+  Re: [nfsacl v2 15/16] ACL umask handling workaround in nfs client
+
+Regards,
+-- 
+Andreas Gruenbacher <agruen@suse.de>
+SUSE Labs, SUSE LINUX GMBH
+
+--=-aJipZPpxc9/tvR7wR6Ct
+Content-Disposition: attachment; filename=nfsacl-acl-umask-handling-workaround-in-nfs-client-3.patch
+Content-Type: message/rfc822; name=nfsacl-acl-umask-handling-workaround-in-nfs-client-3.patch
+
+From: Andreas Gruenbacher <agruen@suse.de>
+Subject: ACL umask handling workaround in nfs client
+Date: Wed, 02 Mar 2005 16:41:47 +0100
+Message-Id: <1109778107.22077.150.camel@winden.suse.de>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+
+NFSv3 has no concept of a umask on the server side: The client applies
+the umask locally, and sends the effective permissions to the server.
+This behavior is wrong when files are created in a directory that has a
+default ACL.  In this case, the umask is supposed to be ignored, and
+only the default ACL determines the file's effective permissions.
+
+Usually its the server's task to conditionally apply the umask.  But
+since the server knows nothing about the umask, we have to do it on the
+client side.  This patch tries to fetch the parent directory's default
+ACL before creating a new file, computes the appropriate create mode to
+send to the server, and finally sets the new file's access and default
+acl appropriately.
+
+Many thanks to Buck Huppmann <buchk@pobox.com> for sending the initial
+version of this patch, as well as for arguing why we need this change.
+
+Signed-off-by: Andreas Gruenbacher <agruen@suse.de>
+Acked-by: Olaf Kirch <okir@suse.de>
+
+Index: linux-2.6.11/fs/nfs/nfs3proc.c
+===================================================================
+--- linux-2.6.11.orig/fs/nfs/nfs3proc.c
++++ linux-2.6.11/fs/nfs/nfs3proc.c
+@@ -292,6 +292,38 @@ static int nfs3_proc_commit(struct nfs_w
+ 	return status;
+ }
+ 
++static int nfs3_set_default_acl(struct inode *dir, struct inode *inode,
++				mode_t mode)
++{
++#ifdef CONFIG_NFS_ACL
++	struct posix_acl *dfacl, *acl;
++	int error = 0;
++
++	dfacl = NFS_PROTO(dir)->getacl(dir, ACL_TYPE_DEFAULT);
++	if (IS_ERR(dfacl)) {
++		error = PTR_ERR(dfacl);
++		return (error == -EOPNOTSUPP) ? 0 : error;
++	}
++	if (!dfacl)
++		return 0;
++	acl = posix_acl_clone(dfacl, GFP_KERNEL);
++	error = -ENOMEM;
++	if (!acl)
++		goto out;
++	error = posix_acl_create_masq(acl, &mode);
++	if (error < 0)
++		goto out;
++	error = NFS_PROTO(inode)->setacls(inode, acl, S_ISDIR(inode->i_mode) ?
++						      dfacl : NULL);
++out:
++	posix_acl_release(acl);
++	posix_acl_release(dfacl);
++	return error;
++#else
++	return 0;
++#endif
++}
++
+ /*
+  * Create a regular file.
+  * For now, we don't implement O_EXCL.
+@@ -314,8 +346,12 @@ nfs3_proc_create(struct inode *dir, stru
+ 		.fh		= &fhandle,
+ 		.fattr		= &fattr
+ 	};
++	mode_t			mode;
+ 	int			status;
+ 
++	mode = sattr->ia_mode;
++	sattr->ia_mode &= ~current->fs->umask;
++
+ 	dprintk("NFS call  create %s\n", dentry->d_name.name);
+ 	arg.createmode = NFS3_CREATE_UNCHECKED;
+ 	if (flags & O_EXCL) {
+@@ -350,7 +386,6 @@ again:
+ 
+ exit:
+ 	dprintk("NFS reply create: %d\n", status);
+-
+ 	if (status != 0)
+ 		goto out;
+ 	if (fhandle.size == 0 || !(fattr.valid & NFS_ATTR_FATTR)) {
+@@ -384,9 +419,13 @@ exit:
+ 	if (status == 0) {
+ 		struct inode *inode;
+ 		inode = nfs_fhget(dir->i_sb, &fhandle, &fattr);
+-		if (inode)
+-			return inode;
+ 		status = -ENOMEM;
++		if (!inode)
++			goto out;
++		status = nfs3_set_default_acl(dir, inode, mode);
++		if (status)
++			goto out;
++		return inode;
+ 	}
+ out:
+ 	return ERR_PTR(status);
+@@ -556,8 +595,12 @@ nfs3_proc_mkdir(struct inode *dir, struc
+ 		.fh		= &fh,
+ 		.fattr		= &fattr
+ 	};
++	mode_t mode;
+ 	int status;
+ 
++	mode = sattr->ia_mode;
++	sattr->ia_mode &= ~current->fs->umask;
++
+ 	dprintk("NFS call  mkdir %s\n", dentry->d_name.name);
+ 	dir_attr.valid = 0;
+ 	fattr.valid = 0;
+@@ -566,6 +609,8 @@ nfs3_proc_mkdir(struct inode *dir, struc
+ 	if (!status)
+ 		status = nfs_instantiate(dentry, &fh, &fattr);
+ 	dprintk("NFS reply mkdir: %d\n", status);
++	if (!status)
++		status = nfs3_set_default_acl(dir, dentry->d_inode, mode);
+ 	return status;
+ }
+ 
+@@ -659,6 +704,7 @@ nfs3_proc_mknod(struct inode *dir, struc
+ 		.fh		= &fh,
+ 		.fattr		= &fattr
+ 	};
++	mode_t mode;
+ 	int status;
+ 
+ 	switch (sattr->ia_mode & S_IFMT) {
+@@ -669,6 +715,9 @@ nfs3_proc_mknod(struct inode *dir, struc
+ 	default:	return -EINVAL;
+ 	}
+ 
++	mode = sattr->ia_mode;
++	sattr->ia_mode &= ~current->fs->umask;
++
+ 	dprintk("NFS call  mknod %s %u:%u\n", dentry->d_name.name,
+ 			MAJOR(rdev), MINOR(rdev));
+ 	dir_attr.valid = 0;
+@@ -678,6 +727,8 @@ nfs3_proc_mknod(struct inode *dir, struc
+ 	if (!status)
+ 		status = nfs_instantiate(dentry, &fh, &fattr);
+ 	dprintk("NFS reply mknod: %d\n", status);
++	if (!status)
++		status = nfs3_set_default_acl(dir, dentry->d_inode, mode);
+ 	return status;
+ }
+ 
+Index: linux-2.6.11/fs/nfs/inode.c
+===================================================================
+--- linux-2.6.11.orig/fs/nfs/inode.c
++++ linux-2.6.11/fs/nfs/inode.c
+@@ -485,6 +485,8 @@ nfs_fill_super(struct super_block *sb, s
+ 		server->client_acl = clnt;
+ 		/* Initially assume the nfsacl program is supported */
+ 		server->flags |= NFSACL;
++		/* The nfs client applies the umask itself when needed. */
++		sb->s_flags |= MS_POSIXACL;
+ 	}
+ #endif
+ 	if (server->flags & NFS_MOUNT_VER3) {
+
+--=-aJipZPpxc9/tvR7wR6Ct--
+

@@ -1,34 +1,116 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262091AbREPU7c>; Wed, 16 May 2001 16:59:32 -0400
+	id <S262028AbREPVXn>; Wed, 16 May 2001 17:23:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262093AbREPU7W>; Wed, 16 May 2001 16:59:22 -0400
-Received: from comverse-in.com ([38.150.222.2]:35971 "EHLO
-	eagle.comverse-in.com") by vger.kernel.org with ESMTP
-	id <S262091AbREPU7P>; Wed, 16 May 2001 16:59:15 -0400
-Message-ID: <6B1DF6EEBA51D31182F200902740436802678ED4@mail-in.comverse-in.com>
-From: "Khachaturov, Vassilii" <Vassilii.Khachaturov@comverse.com>
-To: LINUX Kernel <linux-kernel@vger.kernel.org>
-Subject: ((struct pci_dev*)dev)->resource[...].start
-Date: Wed, 16 May 2001 16:58:29 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="koi8-r"
+	id <S262099AbREPVXd>; Wed, 16 May 2001 17:23:33 -0400
+Received: from ch-12-44-141-183.lcisp.com ([12.44.141.183]:18184 "EHLO
+	debian-home") by vger.kernel.org with ESMTP id <S261358AbREPVXP>;
+	Wed, 16 May 2001 17:23:15 -0400
+Date: Wed, 16 May 2001 16:23:12 -0500
+To: linux-kernel@vger.kernel.org
+Message-ID: <20010516162312.A19485@debian-home.lcisp.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="1yeeQ81UyVL57Vl7"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.18i
+From: Gordon Sadler <gbsadler1@lcisp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can someone please confirm if my assumptions below are correct:
-1) Unless someone specifically tampered with my driver's device since the OS
-bootup, the mapping of the PCI base address registers to virtual memory will
-remain the same (just as seen in /proc/pci, and as reflected in <subj>)? If
-not, is there a way to freeze it for the time I want to access it?
 
-2) (Basically, the question is "Do I understand Documentation/IO-mapping.txt
-right?")
-PCI memory, whenever IO type or memory type, can not be dereferenced but
-should be accessed with readb() etc. On i386, PCI mem (memory type) can be
-accessed by direct pointer access, but this is not portable.
+--1yeeQ81UyVL57Vl7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Kind regards,
-	Vassilii
+Please CC replies as I'm not subscribed.
+I seem to be having some problems with sound ioctl's.
+
+I've attached a short c file that opens /dev/dsp, prints the fd, tries
+to issue SNDCTL_DSP_NONBLOCK ioctl, then does the same with /dev/audio.
+
+Both calls to ioctl for NONBLOCK yield Invalid Invalid argument.
+I've searched the kernel source under drivers/sound/ to see if/where
+this ioctl is defined. 
+
+grep -rl SNDCTL_DSP_NONBLOCK drivers/sound/*
+drivers/sound/audio.c
+drivers/sound/cmpci.c
+drivers/sound/cs4281/cs4281m.c
+drivers/sound/cs46xx.c
+drivers/sound/emu10k1/audio.c
+drivers/sound/es1370.c
+drivers/sound/es1371.c
+drivers/sound/esssolo1.c
+drivers/sound/i810_audio.c
+drivers/sound/maestro.c
+drivers/sound/maestro3.c
+drivers/sound/msnd_pinnacle.c
+drivers/sound/sonicvibes.c
+drivers/sound/trident.c
+drivers/sound/vwsnd.c
+drivers/sound/ymfpci.c
+
+Now I'm using a via chipset embedded sound.
+lsmod
+via82cxxx_audio        16496   0 (autoclean)
+soundcore               3472   2 (autoclean) [via82cxxx_audio]
+ac97_codec              8352   0 (autoclean) [via82cxxx_audio]
+
+So none of the files that use SNDCTL_DSP_NONBLOCK were compiled for my
+kernel. I came up with a question and 2 possible solutions.
+
+Question:
+  Are all ioctl's valid for all devices within a major block?
+
+Solutions:
+ 1.  Turn on CONFIG_SOUND_OSS so sound.o is produced, however the
+ Configure.help says, "...Say Y or M here (the module will be called
+ sound.o) if you haven't found a driver for your sound card above, then
+ pick your driver from the list below.
+       
+ 2.  Determine a way to tell which ioctl's a particular driver supports.
+
+Any ideas here?
+
+-- 
+Gordon Sadler
+
+
+--1yeeQ81UyVL57Vl7
+Content-Type: text/x-csrc; charset=us-ascii
+Content-Disposition: attachment; filename="test.c"
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <linux/soundcard.h>
+
+
+
+int main()
+{
+  int fd, fd1, ver;
+  if((fd=open("/dev/dsp",O_WRONLY))<0)
+	  perror("open ");
+  printf (" %d is fd...\n",fd);
+  if (ioctl(fd, OSS_GETVERSION, &ver)<0)
+	  perror("ioctl ");
+  printf (" %x is version...\n",ver);
+  if (ioctl(fd, SNDCTL_DSP_NONBLOCK, NULL)<0)
+	  perror("ioctl ");
+  close(fd);
+  
+  if((fd1=open("/dev/audio",O_WRONLY))<0)
+	  perror("open ");
+  printf (" %d is fd1...\n",fd);
+  if (ioctl(fd1, SNDCTL_DSP_NONBLOCK, NULL)<0)
+	  perror("ioctl ");
+  close(fd1);
+  return 0;
+}
+  
+
+--1yeeQ81UyVL57Vl7--

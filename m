@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267654AbTACU1p>; Fri, 3 Jan 2003 15:27:45 -0500
+	id <S267650AbTACUal>; Fri, 3 Jan 2003 15:30:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267653AbTACUX1>; Fri, 3 Jan 2003 15:23:27 -0500
-Received: from fencepost.gnu.org ([199.232.76.164]:52417 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S267650AbTACUWf>; Fri, 3 Jan 2003 15:22:35 -0500
-From: Richard Stallman <rms@gnu.org>
-to: efault@gmx.de, Hell.Surfers@cwctv.net, linux-kernel@vger.kernel.org
-Subject: Re: Nvidia and its choice to read the GPL "differently"
-Reply-to: rms@gnu.org
-Message-Id: <E18UYTD-0004ye-00@fencepost.gnu.org>
-Date: Fri, 03 Jan 2003 15:31:07 -0500
+	id <S267655AbTACUal>; Fri, 3 Jan 2003 15:30:41 -0500
+Received: from bitmover.com ([192.132.92.2]:446 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S267650AbTACUaj>;
+	Fri, 3 Jan 2003 15:30:39 -0500
+Date: Fri, 3 Jan 2003 12:39:09 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Richard Stallman <rms@gnu.org>
+Cc: lm@bitmover.com, mark@mark.mielke.cc, billh@gnuppy.monkey.org,
+       paul@clubi.ie, riel@conectiva.com.br, Hell.Surfers@cwctv.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+Message-ID: <20030103203909.GC24896@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Richard Stallman <rms@gnu.org>, lm@bitmover.com,
+	mark@mark.mielke.cc, billh@gnuppy.monkey.org, paul@clubi.ie,
+	riel@conectiva.com.br, Hell.Surfers@cwctv.net,
+	linux-kernel@vger.kernel.org
+References: <20030102013736.GA2708@gnuppy.monkey.org> <Pine.LNX.4.44.0301020245080.8691-100000@fogarty.jakma.org> <20030102055859.GA3991@gnuppy.monkey.org> <20030102061430.GA23276@mark.mielke.cc> <E18UIZS-0006Cr-00@fencepost.gnu.org> <20030103040612.GA10651@work.bitmover.com> <E18UYT2-0004xV-00@fencepost.gnu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E18UYT2-0004xV-00@fencepost.gnu.org>
+User-Agent: Mutt/1.4i
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A rather misguided person wrote this:
+> The clear part of your statement is your attitude toward our
+> community.  You express derision for the very idea of asking a company
+> to contribute to free software.  We are fortunate that Netscape, Sun,
+> and IBM, and the people who won their partial cooperation, did not
+> take your advice.
 
-	  This is the Linux-kernel list. It deals with
-	  Linux-kernel issues. It does not deal with
-	  your continual attempt to claim some sort of
-	  credit for the work of thousands.
+News flash: it's a well documented fact that there was nobody at Sun who
+before or since has spent as much time as I have trying to free up Sun's
+code.  
 
-He wants to give all the credit for the whole system to just one
-person.  I'm asking people to give a group of thousands of people
-credit *also*.  In which of these two alternatives does one person
-claim credit for the work of thousands?  The "Linux" alternative does
-that.  If he applied his own criterion even-handedly to these two
-alternatives, he would call the system "GNU/Linux".  But he doesn't
-apply it even-handedly; he has led himself to apply a double standard.
+Take a look at http://www.bitmover.com/lm/papers/srcos.html which Bob Young
+credits as having a large influence on how Red Hat was set up, also well
+documented.
 
-Why does an intelligent person do this?  He is clinging to the idea
-that "Linux" is the right name for the system, and that requires
-distorting something.  Just as some people insist the Earth is flat,
-or that astrology makes valid predictions, others believe that the
-whole system is Linux.  All of them have to find a way to deny or
-ignore the facts in order to go on believing what they believe.
-
-If you call the system "Linux", you are misinforming other people:
-teaching them a false picture of the system's history.  Some of them
-may become so attached to the false picture that it distorts their
-thinking.  If you call it "GNU/Linux", this won't happen.
-
+Tell me again that I don't understand free software and that I'm against it
+and all you do is make yourself look even more foolish.  Whether you want 
+to resemble one of the wackos on soapbox in Hyde Park is up to you, but
+that's what you look like.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

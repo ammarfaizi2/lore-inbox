@@ -1,59 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261172AbULDVrj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbULDVyL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261172AbULDVrj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Dec 2004 16:47:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261173AbULDVrj
+	id S261174AbULDVyL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Dec 2004 16:54:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261175AbULDVyL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Dec 2004 16:47:39 -0500
-Received: from main.gmane.org ([80.91.229.2]:13201 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261172AbULDVrc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Dec 2004 16:47:32 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>
-Subject: Re: Linux 2.6.10-rc3
-Date: Sat, 04 Dec 2004 16:47:45 -0500
-Message-ID: <cotb9g$jfc$1@sea.gmane.org>
-References: <Pine.LNX.4.58.0412031611460.22796@ppc970.osdl.org> <pan.2004.12.04.09.06.09.707940@nn7.de> <87oeha6lj1.fsf@sycorax.lbl.gov> <cosrt1$j67$1@sea.gmane.org> <87eki66jx8.fsf@sycorax.lbl.gov>
+	Sat, 4 Dec 2004 16:54:11 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:45702 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261174AbULDVyE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Dec 2004 16:54:04 -0500
+Subject: Re: [PATCH] Fix ALSA resume
+From: Lee Revell <rlrevell@joe-job.com>
+To: Martin Josefsson <gandalf@wlug.westbo.se>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org,
+       alsa-devel <alsa-devel@lists.sourceforge.net>
+In-Reply-To: <1102195391.1560.65.camel@tux.rsn.bth.se>
+References: <1102195391.1560.65.camel@tux.rsn.bth.se>
+Content-Type: text/plain
+Date: Sat, 04 Dec 2004 16:54:02 -0500
+Message-Id: <1102197242.28776.49.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ool-4571c239.dyn.optonline.net
-User-Agent: KNode/0.8.90
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Romosan wrote:
+Please cc: alsa-devel@lists.sourceforge.net on all ALSA issues.
 
-> Ari Pollak <aripollak@gmail.com> writes:
+On Sat, 2004-12-04 at 22:23 +0100, Martin Josefsson wrote:
+> Some time ago, a patch was merged that removed pci_save_state() and
+> pci_restore_state() from various ALSA drivers. That patch also added
+> pci_restore_state() to sound/core/init.c but didn't add pci_save_state()
+> anywhere. This is needed since the core pci handling doesn't do this for
+> us anymore.
 > 
-> i saw there were some changes to alsa cvs having to do with the new
-> pci device handling. i'll reconfigure the kernel with alsa as modules
-> and try alsa cvs to see if that makes any difference. thanks.
+> My laptop doesn't resume (gets what I assume is an ACPI timeout and
+> hangs solid) without this small obvious patch.
 > 
-
-I have been using the following patch for a while with no problems:
-
-
---- linux/sound/pci/intel8x0.c 2004-12-04 16:37:11.000000000 -0500
-+++ linux/sound/pci/intel8x0.c 2004-12-04 04:47:14.000000000 -0500
-@@ -2279,6 +2279,8 @@
-  for (i = 0; i < 3; i++)
-   if (chip->ac97[i])
-    snd_ac97_suspend(chip->ac97[i]);
-+ pci_save_state(chip->pci);
-+ pci_disable_device(chip->pci);
-  snd_power_change_state(card, SNDRV_CTL_POWER_D3hot);
-  return 0;
- }
-@@ -2289,6 +2291,7 @@
-  int i;
- 
-  pci_enable_device(chip->pci);
-+ pci_restore_state(chip->pci);
-  pci_set_master(chip->pci);
-  snd_intel8x0_chip_init(chip, 0);
- 
+> Signed-off-by: Martin Josefsson <gandalf@wlug.westbo.se>
+> Fixed-by: Takashi Iwai <tiwai@suse.de>
+> 
+> --- linux/sound/core/init.c	8 Nov 2004 11:37:08 -0000	1.48
+> +++ linux/sound/core/init.c	12 Nov 2004 13:56:32 -0000
+> @@ -782,12 +782,15 @@<br>
+>  int snd_card_pci_suspend(struct pci_dev *dev, u32 state)
+>  {
+>  	snd_card_t *card = pci_get_drvdata(dev);
+> +	int err;
+>  	if (! card || ! card->pm_suspend)
+>  		return 0;
+>  	if (card->power_state == SNDRV_CTL_POWER_D3hot)
+>  		return 0;
+>  	/* FIXME: correct state value? */
+> -	return card->pm_suspend(card, 0);
+> +	err = card->pm_suspend(card, 0);
+> +	pci_save_state(dev);
+> +	return err;
+>  }
+> 
+>  int snd_card_pci_resume(struct pci_dev *dev)
+> 
+> 
+-- 
+Lee Revell <rlrevell@joe-job.com>
 

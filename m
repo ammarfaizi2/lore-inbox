@@ -1,74 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270335AbTG3L03 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 07:26:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272820AbTG3L0V
+	id S272822AbTG3LpD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 07:45:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272838AbTG3LpD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 07:26:21 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:14720
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S272460AbTG3LZw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 07:25:52 -0400
-Date: Wed, 30 Jul 2003 13:28:19 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, linas@austin.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: PATCH: Race in 2.6.0-test2 timer code
-Message-ID: <20030730112819.GK23835@dualathlon.random>
-References: <20030730083726.GE23835@dualathlon.random> <Pine.LNX.4.44.0307301232220.13891-100000@localhost.localdomain> <20030730035140.7c834268.akpm@osdl.org>
+	Wed, 30 Jul 2003 07:45:03 -0400
+Received: from grouse.mail.pas.earthlink.net ([207.217.120.116]:12718 "EHLO
+	grouse.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S272822AbTG3Lo7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 07:44:59 -0400
+Date: Wed, 30 Jul 2003 07:46:50 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: dbench has intermittent hang on 2.6.0-test1-ac2
+Message-ID: <20030730114650.GA3244@rushmore>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030730035140.7c834268.akpm@osdl.org>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.4.1i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 30, 2003 at 03:51:40AM -0700, Andrew Morton wrote:
-> Ingo Molnar <mingo@elte.hu> wrote:
-> >
-> > But on 2.6 the timer will run precisely on the CPU it was added, so i
-> >  think the race is not possible.
-> 
-> well there is add_timer_on()...
-> 
-> I still don't see the race in the itimer code actually.  On return
-> from del_timer_sync() we know that the timer is not pending, even
-> if it_real_fn() tried to re-add it.
-> 
-> ie: why does the below "crash"?
-> 
-> 
-> Andrea Arcangeli <andrea@suse.de> wrote:
-> >
-> > 	cpu0			cpu1
-> >  	------------		--------------------
-> > 
-> >  	do_setitimer
-> >  				it_real_fn
-> >  	del_timer_sync		add_timer	-> crash
-> 
-> 
-> (Does the timer_pending() test in del_timer_sync() needs some
-> barriers btw?)
+Summary:
+dbench has been intermittantly not completing on uniprocessor.
+I run dbench 10 times.  1 of the ten runs has 1 dbench child
+that never gets started.  That child is in sys_pause.
 
-it might be possible to use ordered writes on one side and ordered reads
-on the other side to fix this instead of spinlock. I suggested to use my
-spinlock-by-hand idea to fix it in 2.4 (like I previously did with
-mod_timer), but we might try to do something more efficient in 2.6 if
-you've some idea. I don't think it matters much anyways since the
-cacheline wouldn't be exlusive anyways if we get into the above path,
-and the above isn't the common path, but maybe it does. I think the
-unified way of locking with mod_timer/add_timer/del_timer I'm currently
-used is simple and clean, but if you see any significant performance
-advantage we can change it of course.
+2.6.0-test1 and 2.6.0-test1-mm2 did not hang.
 
-If my last email where I analyzed the problem in more detail is not
-clear or you see fault please let me know of course.
+2.6.0-test1-ac1, 2.6.0-test1-ac2, 2.6.0-test2, and
+2.6.0-test2-mm1 have hung.  So it seems like a patch
+that Alan may have picked up first.
 
-thanks,
+The hang has occurred on ext2, ext3, reiserfs, and xfs,
+so filesystem type seems unrelated.
 
-Andrea
+pkill -9 dbench will let the processes continue.
+
+dbench version 2.0.
+
+<sysrq-t> from 2.6.0-test2-mm1 before pkill is at:
+http://home.earthlink.net/~rwhron/kernel/minicom.cap
+
+-- 
+Randy Hron
+http://home.earthlink.net/~rwhron/kernel/bigbox.html
+

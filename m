@@ -1,39 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261492AbUJaScK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261493AbUJaSdG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261492AbUJaScK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 13:32:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261493AbUJaScK
+	id S261493AbUJaSdG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 13:33:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261497AbUJaSdF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 13:32:10 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:37808 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261492AbUJaScI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 13:32:08 -0500
-Subject: Re: HP C2502 SCSI card (NCR 53C400A based) not working
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ondrej Zary <linux@rainbow-software.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <41851D24.3040303@rainbow-software.org>
-References: <4184D8EB.6000306@rainbow-software.org>
-	 <1099236179.16385.16.camel@localhost.localdomain>
-	 <41851D24.3040303@rainbow-software.org>
-Content-Type: text/plain
+	Sun, 31 Oct 2004 13:33:05 -0500
+Received: from LPBPRODUCTIONS.COM ([68.98.211.131]:58756 "HELO
+	lpbproductions.com") by vger.kernel.org with SMTP id S261493AbUJaSc6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 13:32:58 -0500
+From: Matt Heler <lkml@lpbproductions.com>
+Reply-To: lkml@lpbproductions.com
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: 2.6.10-rc1-mm2: konqueror crash because of cputime patches
+Date: Sun, 31 Oct 2004 11:32:21 -0700
+User-Agent: KMail/1.7.50
+Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>,
+       Andrew Morton <akpm@osdl.org>
+References: <200410291823.34175.rjw@sisk.pl> <200410301837.25828.rjw@sisk.pl> <200410311651.23631.rjw@sisk.pl>
+In-Reply-To: <200410311651.23631.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
-Message-Id: <1099243737.16414.39.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 31 Oct 2004 17:29:18 +0000
+Content-Disposition: inline
+Message-Id: <200410311132.22766.lkml@lpbproductions.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2004-10-31 at 17:13, Ondrej Zary wrote:
-> I forgot to say that I'm trying this in 2.6.9. I've tried options like this:
-> ncr_53c400a=1 ncr_addr=0x350 ncr_irq=255
-> also tried ncr_53c400=1 (without the 'a'), various addresses and IRQs.
-> It never worked. I always get "scsi0: bus busy, attempting abort", etc.
-> and even Oops sometimes.
-
-The driver hasn't been updated fully to 2.6 so thats not suprising (it
-ought to be marked && BROKEN I guess)
+On Sunday 31 October 2004 8:51 am, Rafael J. Wysocki wrote:
+> Done.  Evidently, if the cputime patches:
+>
+> cputime-introduce-cputime-fix.patch
+> cputime-introduce-cputime.patch
+> cputime-missing-pieces.patch
+>
 
 
+Reversing theese fixed my konqueror issues to. In 2.6.10-rc1-mm2 , konqueror 
+would crash instantly when I tried browsing a webpage ( any page ).
+
+
+mattt

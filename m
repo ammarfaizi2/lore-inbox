@@ -1,90 +1,376 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbUEAQbR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbUEAQi3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261156AbUEAQbR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 May 2004 12:31:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261380AbUEAQbR
+	id S261252AbUEAQi3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 May 2004 12:38:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbUEAQi3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 May 2004 12:31:17 -0400
-Received: from pop.gmx.de ([213.165.64.20]:55760 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261156AbUEAQbO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 May 2004 12:31:14 -0400
-X-Authenticated: #7370606
-Message-ID: <4093D0C8.5010905@gmx.at>
-Date: Sat, 01 May 2004 18:31:04 +0200
-From: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
-X-Accept-Language: en-us, en
+	Sat, 1 May 2004 12:38:29 -0400
+Received: from 80-218-57-148.dclient.hispeed.ch ([80.218.57.148]:23558 "EHLO
+	ritz.dnsalias.org") by vger.kernel.org with ESMTP id S261252AbUEAQiR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 May 2004 12:38:17 -0400
+From: Daniel Ritz <daniel.ritz@gmx.ch>
+Reply-To: daniel.ritz@gmx.ch
+To: linux-usb-devel@lists.sourceforge.net, Greg KH <greg@kroah.com>
+Subject: [PATCH] new USB HID driver: eGalax Touchscreens
+Date: Sat, 1 May 2004 18:34:20 +0200
+User-Agent: KMail/1.5.2
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
-CC: Thomas Horsten <thomas@horsten.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       medley@lists.infowares.com, linux-hotplug-devel@lists.sourceforge.net,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Greg KH <greg@kroah.com>
-Subject: Re: [RFC] [DRAFT] [udev PATCH] First attempt at vendor RAID support
- in 2.6
-References: <Pine.LNX.4.40.0404151458450.30892-100000@jehova.dsm.dk> <40803C61.503@gmx.net>
-In-Reply-To: <40803C61.503@gmx.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Message-Id: <200405011833.55337.daniel.ritz@gmx.ch>
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+a first version of a USB HID driver for eGalax touchscreens called Touchkit.
+this touchscreen is found for example in Xenarc 700TSV monitor.
 
-I just returned from my vacation and checked my emails. That's why the 
-response is so late.
+comments?
 
-Carl-Daniel Hailfinger wrote:
->>>- People checking the numerous FIXMEs
-> 
-> 
-> I now have the following FIXMEs (aka "I have no idea about it"):
-> - 5 FIXMEs in the Medley RAID code. Thomas, could you comment once you're
-> back?
-> - 3 FIXMEs in the Highpoint RAID code. Wilfried, could you please take a
-> look at them?
+thanks
+-daniel
 
-1) FIXME: Does "no array defined" correspond to HPT_T_SINGLEDISK?
-I have to check this but I believe it is so.
 
-2) FIXME: Is HPT_T_RAID_01_RAID_1 a value that can ever be found?
-I think this is the new style raid-10 format that is supported by hpt374 
-and upwards. I do not have such a controller so I cannot verify this.
+--- 1.18/drivers/usb/input/Makefile	Mon Mar 22 15:32:15 2004
++++ edited/drivers/usb/input/Makefile	Sun Apr 25 16:18:58 2004
+@@ -33,6 +33,7 @@
+ obj-$(CONFIG_USB_KBTAB)		+= kbtab.o
+ obj-$(CONFIG_USB_MOUSE)		+= usbmouse.o
+ obj-$(CONFIG_USB_MTOUCH)	+= mtouchusb.o
++obj-$(CONFIG_USB_EGALAX)	+= touchkit.o
+ obj-$(CONFIG_USB_POWERMATE)	+= powermate.o
+ obj-$(CONFIG_USB_WACOM)		+= wacom.o
+ obj-$(CONFIG_USB_XPAD)		+= xpad.o
+--- 1.14/drivers/usb/input/Kconfig	Mon Mar 22 15:42:37 2004
++++ edited/drivers/usb/input/Kconfig	Thu Apr 29 21:34:06 2004
+@@ -191,6 +191,19 @@
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called mtouchusb.
+ 
++config USB_EGALAX
++	tristate "eGalax TouchKit USB Touchscreen Driver"
++	depends on USB && INPUT
++	---help---
++	  Say Y here if you want to use a eGalax TouchKit USB
++	  Touchscreen controller.
++
++	  The driver has been tested on a Xenarc 700TSV monitor
++	  with eGalax touchscreen.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called touchkit
++
+ config USB_XPAD
+ 	tristate "X-Box gamepad support"
+ 	depends on USB && INPUT
+--- /dev/null	1998-05-05 22:32:27
++++ linux-2.6/drivers/usb/input/touchkit.c	2004-04-29 22:52:03
+@@ -0,0 +1,304 @@
++/******************************************************************************
++ * touchkit.c  --  Driver for eGalax TouchKit USB Touchscreens
++ *
++ * Copyright (C) 2004 by Daniel Ritz
++ * Copyright (C) by Todd E. Johnson (mtouchusb.c)
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License as
++ * published by the Free Software Foundation; either version 2 of the
++ * License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ *
++ * Based upon mtouchusb.c
++ *
++ *****************************************************************************/
++
++//#define DEBUG
++
++#include <linux/config.h>
++#include <linux/kernel.h>
++#include <linux/slab.h>
++#include <linux/input.h>
++#include <linux/module.h>
++#include <linux/init.h>
++
++#if !defined(DEBUG) && defined(CONFIG_USB_DEBUG)
++#define DEBUG
++#endif
++#include <linux/usb.h>
++
++
++#define TOUCHKIT_MIN_XC			0x0
++#define TOUCHKIT_MAX_XC			0x07ff
++#define TOUCHKIT_XC_FUZZ		0x0
++#define TOUCHKIT_XC_FLAT		0x0
++#define TOUCHKIT_MIN_YC			0x0
++#define TOUCHKIT_MAX_YC			0x07ff
++#define TOUCHKIT_YC_FUZZ		0x0
++#define TOUCHKIT_YC_FLAT		0x0
++#define TOUCHKIT_REPORT_DATA_SIZE	8
++
++#define TOUCHKIT_DOWN			0x01
++#define TOUCHKIT_POINT_TOUCH		0x81
++#define TOUCHKIT_POINT_NOTOUCH		0x80
++
++#define TOUCHKIT_GET_TOUCHED(dat)	((((dat)[0]) & TOUCHKIT_DOWN) ? 1 : 0)
++#define TOUCHKIT_GET_X(dat)		(((dat)[3] << 7) | (dat)[4])
++#define TOUCHKIT_GET_Y(dat)		(((dat)[1] << 7) | (dat)[2])
++
++#define DRIVER_VERSION "v0.1"
++#define DRIVER_AUTHOR "Daniel Ritz <daniel.ritz@gmx.ch>"
++#define DRIVER_DESC "eGalax TouchKit USB HID Touchscreen Driver"
++
++struct touchkit_usb {
++	unsigned char *data;
++	dma_addr_t data_dma;
++	struct urb *irq;
++	struct usb_device *udev;
++	struct input_dev input;
++	int open;
++	char name[128];
++	char phys[64];
++};
++
++static struct usb_device_id touchkit_devices[] = {
++	{USB_DEVICE(0x3823, 0x0001)},
++	{USB_DEVICE(0x0eef, 0x0001)},
++	{}
++};
++
++static void touchkit_irq(struct urb *urb, struct pt_regs *regs)
++{
++	struct touchkit_usb *touchkit = urb->context;
++	int retval;
++
++	switch (urb->status) {
++	case 0:
++		/* success */
++		break;
++	case -ETIMEDOUT:
++		/* this urb is timing out */
++		dbg("%s - urb timed out - was the device unplugged?",
++		    __FUNCTION__);
++		return;
++	case -ECONNRESET:
++	case -ENOENT:
++	case -ESHUTDOWN:
++		/* this urb is terminated, clean up */
++		dbg("%s - urb shutting down with status: %d",
++		    __FUNCTION__, urb->status);
++		return;
++	default:
++		dbg("%s - nonzero urb status received: %d",
++		    __FUNCTION__, urb->status);
++		goto exit;
++	}
++
++	input_regs(&touchkit->input, regs);
++	input_report_key(&touchkit->input, BTN_TOUCH,
++	                 TOUCHKIT_GET_TOUCHED(touchkit->data));
++	input_report_abs(&touchkit->input, ABS_X,
++	                 TOUCHKIT_GET_X(touchkit->data));
++	input_report_abs(&touchkit->input, ABS_Y,
++	                 TOUCHKIT_GET_Y(touchkit->data));
++	input_sync(&touchkit->input);
++
++exit:
++	retval = usb_submit_urb(urb, GFP_ATOMIC);
++	if (retval)
++		err("%s - usb_submit_urb failed with result: %d",
++		    __FUNCTION__, retval);
++}
++
++static int touchkit_open(struct input_dev *input)
++{
++	struct touchkit_usb *touchkit = input->private;
++
++	if (touchkit->open++)
++		return 0;
++
++	touchkit->irq->dev = touchkit->udev;
++
++	if (usb_submit_urb(touchkit->irq, GFP_ATOMIC))
++		return -EIO;
++
++	return 0;
++}
++
++static void touchkit_close(struct input_dev *input)
++{
++	struct touchkit_usb *touchkit = input->private;
++
++	if (!--touchkit->open)
++		usb_unlink_urb(touchkit->irq);
++}
++
++static int touchkit_alloc_buffers(struct usb_device *udev,
++				  struct touchkit_usb *touchkit)
++{
++	touchkit->data = usb_buffer_alloc(udev, TOUCHKIT_REPORT_DATA_SIZE,
++	                                  SLAB_ATOMIC, &touchkit->data_dma);
++
++	if (!touchkit->data)
++		return -1;
++
++	return 0;
++}
++
++static void touchkit_free_buffers(struct usb_device *udev,
++				  struct touchkit_usb *touchkit)
++{
++	if (touchkit->data)
++		usb_buffer_free(udev, TOUCHKIT_REPORT_DATA_SIZE,
++		                touchkit->data, touchkit->data_dma);
++}
++
++static int touchkit_probe(struct usb_interface *intf,
++			  const struct usb_device_id *id)
++{
++	int ret;
++	struct touchkit_usb *touchkit;
++	struct usb_host_interface *interface;
++	struct usb_endpoint_descriptor *endpoint;
++	struct usb_device *udev = interface_to_usbdev(intf);
++	char path[64];
++	char *buf;
++
++	interface = intf->cur_altsetting;
++	endpoint = &interface->endpoint[0].desc;
++
++	if (!(touchkit = kmalloc(sizeof(struct touchkit_usb), GFP_KERNEL)))
++		return -ENOMEM;
++
++	memset(touchkit, 0, sizeof(struct touchkit_usb));
++	touchkit->udev = udev;
++
++	if (touchkit_alloc_buffers(udev, touchkit)) {
++		ret = -ENOMEM;
++		goto out_free;
++	}
++
++	touchkit->input.private = touchkit;
++	touchkit->input.open = touchkit_open;
++	touchkit->input.close = touchkit_close;
++
++	usb_make_path(udev, path, 64);
++	sprintf(touchkit->phys, "%s/input0", path);
++
++	touchkit->input.name = touchkit->name;
++	touchkit->input.phys = touchkit->phys;
++	touchkit->input.id.bustype = BUS_USB;
++	touchkit->input.id.vendor = udev->descriptor.idVendor;
++	touchkit->input.id.product = udev->descriptor.idProduct;
++	touchkit->input.id.version = udev->descriptor.bcdDevice;
++	touchkit->input.dev = &intf->dev;
++
++	touchkit->input.evbit[0] = BIT(EV_KEY) | BIT(EV_ABS);
++	touchkit->input.absbit[0] = BIT(ABS_X) | BIT(ABS_Y);
++	touchkit->input.keybit[LONG(BTN_TOUCH)] = BIT(BTN_TOUCH);
++
++	/* Used to Scale Compensated Data */
++	touchkit->input.absmin[ABS_X] = TOUCHKIT_MIN_XC;
++	touchkit->input.absmax[ABS_X] = TOUCHKIT_MAX_XC;
++	touchkit->input.absfuzz[ABS_X] = TOUCHKIT_XC_FUZZ;
++	touchkit->input.absflat[ABS_X] = TOUCHKIT_XC_FLAT;
++	touchkit->input.absmin[ABS_Y] = TOUCHKIT_MIN_YC;
++	touchkit->input.absmax[ABS_Y] = TOUCHKIT_MAX_YC;
++	touchkit->input.absfuzz[ABS_Y] = TOUCHKIT_YC_FUZZ;
++	touchkit->input.absflat[ABS_Y] = TOUCHKIT_YC_FLAT;
++
++	if (!(buf = kmalloc(63, GFP_KERNEL))) {
++		ret = -ENOMEM;
++		goto out_free_buffers;
++	}
++
++	if (udev->descriptor.iManufacturer &&
++	    usb_string(udev, udev->descriptor.iManufacturer, buf, 63) > 0)
++		strcat(touchkit->name, buf);
++	if (udev->descriptor.iProduct &&
++	    usb_string(udev, udev->descriptor.iProduct, buf, 63) > 0)
++		sprintf(touchkit->name, "%s %s", touchkit->name, buf);
++
++	if (!strlen(touchkit->name))
++		sprintf(touchkit->name, "USB Touchscreen %04x:%04x",
++		        touchkit->input.id.vendor, touchkit->input.id.product);
++
++	kfree(buf);
++
++	touchkit->irq = usb_alloc_urb(0, GFP_KERNEL);
++	if (!touchkit->irq) {
++		dbg("%s - usb_alloc_urb failed: touchkit->irq", __FUNCTION__);
++		ret = -ENOMEM;
++		goto out_free_buffers;
++	}
++
++	usb_fill_int_urb(touchkit->irq, touchkit->udev,
++	                 usb_rcvintpipe(touchkit->udev, 0x81),
++	                 touchkit->data, TOUCHKIT_REPORT_DATA_SIZE,
++	                 touchkit_irq, touchkit, endpoint->bInterval);
++
++	input_register_device(&touchkit->input);
++
++	printk(KERN_INFO "input: %s on %s\n", touchkit->name, path);
++	usb_set_intfdata(intf, touchkit);
++
++	return 0;
++
++out_free_buffers:
++	touchkit_free_buffers(udev, touchkit);
++out_free:
++	kfree(touchkit);
++	return ret;
++}
++
++static void touchkit_disconnect(struct usb_interface *intf)
++{
++	struct touchkit_usb *touchkit = usb_get_intfdata(intf);
++
++	dbg("%s - called", __FUNCTION__);
++	usb_set_intfdata(intf, NULL);
++	if (touchkit) {
++		dbg("%s - touchkit is initialized, cleaning up", __FUNCTION__);
++		usb_unlink_urb(touchkit->irq);
++		input_unregister_device(&touchkit->input);
++		usb_free_urb(touchkit->irq);
++		touchkit_free_buffers(interface_to_usbdev(intf), touchkit);
++		kfree(touchkit);
++	}
++}
++
++MODULE_DEVICE_TABLE(usb, touchkit_devices);
++
++static struct usb_driver touchkit_driver = {
++	.owner		= THIS_MODULE,
++	.name		= "touchkitusb",
++	.probe		= touchkit_probe,
++	.disconnect	= touchkit_disconnect,
++	.id_table	= touchkit_devices,
++};
++
++static int __init touchkit_init(void)
++{
++	return usb_register(&touchkit_driver);
++}
++
++static void __exit touchkit_cleanup(void)
++{
++	usb_deregister(&touchkit_driver);
++}
++
++module_init(touchkit_init);
++module_exit(touchkit_cleanup);
++
++MODULE_AUTHOR(DRIVER_AUTHOR);
++MODULE_DESCRIPTION(DRIVER_DESC);
++MODULE_LICENSE("GPL");
 
-3) FIXME: what does HPT_MAGIC_BAD mean?
-You get this if you pull one disk out of a raid-0 array for example. The 
-HPT-BIOS detects that the raid is not operational and marks the array as 
-bad (writes the HPT_MAGIC_BAD to the remaining disks).
-
-[snip]
-
->>>- More data about Medley/Highpoint vendor superblocks (can I check for
->>>bogus values?)
-> 
-> 
-> Wilfried, is there any consistency check I can add for Highpoint?
-
-I have not found any crc or so. But since HPT marks any disks that is 
-not in an array as HPT_T_SINGLEDISK or HPT_MAGIC_BAD we should be fine 
-unless someone writes some garbage to the superblock.
-
-> 
-> 
-> 
->>>- Help with sorting out who owns which copyrights
-> 
-> 
-> This is still a _big issue_.
-
-The HPT copyrights look fine.
-
-I am looking forward to see the part that writes the dm configuration so 
-that I can integrate it into the evms plugin.
-
-bye,
-wilfried
-
-PS: add_disk_to_raidlists() does never return retval!

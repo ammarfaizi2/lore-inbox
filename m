@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131046AbQKPRfp>; Thu, 16 Nov 2000 12:35:45 -0500
+	id <S131138AbQKPRmJ>; Thu, 16 Nov 2000 12:42:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131138AbQKPRff>; Thu, 16 Nov 2000 12:35:35 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:24071 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S131046AbQKPRfZ>;
-	Thu, 16 Nov 2000 12:35:25 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200011161705.UAA03238@ms2.inr.ac.ru>
-Subject: Re: Local root exploit with kmod and modutils > 2.1.121
-To: alan@lxorguk.UKuu.ORG.UK (Alan Cox)
-Date: Thu, 16 Nov 2000 20:05:05 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E13wRWU-0007yG-00@the-village.bc.nu> from "Alan Cox" at Nov 16, 0 07:15:02 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S131142AbQKPRl6>; Thu, 16 Nov 2000 12:41:58 -0500
+Received: from cs.utexas.edu ([128.83.139.9]:32398 "EHLO cs.utexas.edu")
+	by vger.kernel.org with ESMTP id <S131138AbQKPRlq>;
+	Thu, 16 Nov 2000 12:41:46 -0500
+Date: Thu, 16 Nov 2000 11:11:45 -0600 (CST)
+From: Nishant Rao <nishant@cs.utexas.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Setting IP Options in the IP-Header 
+Message-ID: <Pine.LNX.4.21.0011161111210.5572-100000@crom.cs.utexas.edu>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hi,
 
-> > request_module has the same effect as running suid.  dev_load() can
-> > take the interface name and pass it to modprobe unchanged and modprobe
-> > does not verify its input, it trusts root/kernel.
-> 
-> Then dev_load is being called the wrong way. In older kernels we explicitly
-> only did a dev_load with user passed names providing suser() was true.
+We are conducting some research that involves setting our custom data as
+a new IP option in the IP header (in the options field) of every packet.
 
-It checks CAP_SYS_MODULE nowadays.
+We have poured over the source code but it is quite confusing to figure
+out how the details of the way the options field is split among various
+options (ie. offsets etc). Can anyone help us figure out how to add new
+custom options into the IP header ? 
 
-Which does not look good by the way, it is function of request_module(),
-rather than of caller.
+Please CC me on your replies so that I can also get the answer :
+<nishant@cs.utexas.edu> 
 
-Alexey
+Thanks,
+Nishant
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

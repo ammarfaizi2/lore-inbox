@@ -1,68 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264468AbTDPQba (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 12:31:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264477AbTDPQb3
+	id S264451AbTDPQdp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 12:33:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264449AbTDPQdd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 12:31:29 -0400
-Received: from [203.117.131.12] ([203.117.131.12]:8128 "EHLO
-	gort.metaparadigm.com") by vger.kernel.org with ESMTP
-	id S264468AbTDPQbZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 12:31:25 -0400
-Message-ID: <3E9D8823.5060105@metaparadigm.com>
-Date: Thu, 17 Apr 2003 00:43:15 +0800
-From: Michael Clark <michael@metaparadigm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: James Bourne <jbourne@hardrock.org>
-Cc: Lincoln Dale <ltd@cisco.com>, Jurjen Oskam <jurjen@quadpro.stupendous.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Booting from Qlogic qla2300 fibre channel card
-References: <Pine.LNX.4.44.0304160952470.1406-100000@cafe.hardrock.org>
-In-Reply-To: <Pine.LNX.4.44.0304160952470.1406-100000@cafe.hardrock.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 16 Apr 2003 12:33:33 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:32708
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S264447AbTDPQd2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 12:33:28 -0400
+Subject: Re: firmware separation filesystem (fwfs)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: ranty@debian.org
+Cc: David Gibson <david@gibson.dropbear.id.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030416163641.GA2183@ranty.ddts.net>
+References: <20030416005710.GB29682@ranty.ddts.net>
+	 <1050492681.28586.39.camel@dhcp22.swansea.linux.org.uk>
+	 <20030416144631.GB899@zax>  <20030416163641.GA2183@ranty.ddts.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1050508028.28586.126.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 16 Apr 2003 16:47:09 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Actually i just realized after checking - we are using 6.04 also (standard
-- not failover). The error and abort messages in my previous were from
-the 6.04 driver.
+On Mer, 2003-04-16 at 17:36, Manuel Estrada Sainz wrote:
+>  On the other hand, there are already many drivers in the kernel that
+>  include firmware in headers, keyspan, io_edgeport, dabusb, ser_a2232,
+>  sym53c8xx_2, ...
 
-Happens on 2 different machines that do around 200 IOs/sec during the day.
+But so would loading it from hotplug via ioctl. It might be we want
+a clean hotplug way to ask for 'firmare for xyz'.
 
-We are beginning to suspect heat from a e1000 in a slot next door.
-All the crashes occur when our thermostat switches to one aircon instead
-of two although the ambient temp is around 25 celcius which is still
-relatively cool. Sometimes after the failure, the card will fail to
-re-initialise after a cold boot but works after leaving the machine
-off for about 20 minutes.
-
-~mc
-
-On 04/16/03 23:56, James Bourne wrote:
-> On Wed, 16 Apr 2003, Michael Clark wrote:
-> 
-> 
->>Hi,
-> 
-> ...
-> 
->>I'm currently looking for alternatives to qlogic HBAs after a year of
->>not being able to find a stable driver combo (one that can stand up
->>for more than a few weeks). Does any one out there have experience
->>with the LSI HBAs and Fusion MPT drivers or perhaps Emulex?
-> 
-> 
-> We are currently using the EMC approved 6.04-fo qla2300 driver with great
-> success.  With multiple connections to a CX600 fail over occurs properly, it
-> also does failover for the tape drives, and the system has been running for
-> about 40 days without any problems...
-> 
-> YMMV, but for us it has been working quite well.
-> 
-> Regards
-> James Bourne
-> 
 

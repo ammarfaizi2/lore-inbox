@@ -1,46 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276429AbRJYVYZ>; Thu, 25 Oct 2001 17:24:25 -0400
+	id <S276341AbRJYV3G>; Thu, 25 Oct 2001 17:29:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276411AbRJYVYU>; Thu, 25 Oct 2001 17:24:20 -0400
-Received: from atlrel6.hp.com ([192.151.27.8]:64008 "HELO atlrel6.hp.com")
-	by vger.kernel.org with SMTP id <S276424AbRJYVYD>;
-	Thu, 25 Oct 2001 17:24:03 -0400
-Message-ID: <C5C45572D968D411A1B500D0B74FF4A80418D595@xfc01.fc.hp.com>
-From: "DICKENS,CARY (HP-Loveland,ex2)" <cary_dickens2@hp.com>
-To: "Kernel Mailing List (E-mail)" <linux-kernel@vger.kernel.org>
-Cc: "Jens Axboe (E-mail)" <axboe@suse.de>
-Subject: performance of 2.4.13pre4 with Jens blockhighmem 
-Date: Thu, 25 Oct 2001 17:22:57 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S276380AbRJYV2z>; Thu, 25 Oct 2001 17:28:55 -0400
+Received: from [194.213.32.137] ([194.213.32.137]:35076 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S276341AbRJYV2k>;
+	Thu, 25 Oct 2001 17:28:40 -0400
+Date: Thu, 25 Oct 2001 23:47:24 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        Patrick Mochel <mochel@osdl.org>,
+        Jonathan Lundell <jlundell@pobox.com>
+Subject: Re: [RFC] New Driver Model for 2.5
+Message-ID: <20011025234724.A10358@elf.ucw.cz>
+In-Reply-To: <Pine.LNX.4.33.0110240901350.8049-100000@penguin.transmeta.com> <20011024173349.20613@smtp.adsl.oleane.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011024173349.20613@smtp.adsl.oleane.com>
+User-Agent: Mutt/1.3.23i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is some more performance data.
+Hi!
 
-I had some problems with the megaraid portion of the patch and removed that
-part of it since most of the storage was connected via the qlogicfc card.
-What I measured was a maximum throughput of 125% that of the 2.4.13pre4
-without the patch.  The run was also much more stable.  (No dropped packets
-because of response times.)
+> >We should not have pending IO, but that's for a totally different reason:
+> >the first thing the much much MUCH higher levels of suspend should be
+> >doing is to make sure that user apps are "quiescent". And that isn't done
+> >by getting involved with sg.c or anything similar, but by basically
+> >stopping all user apps (think of the equivalent of a "kill -STOP -1", but
+> >done internally in the kernel without actually using a signal).
+> 
+> Is this necessary ? That would definitely make things easier to implement
+> to forget about incoming requests, but I'm not sure it's the right way.
+> In fact, is it really working ? You could well have in-kernel threads
+> triggering IOs or launching new userland stuffs (what happens if a not
+> yet suspended driver for, let's say USB, see a new device coming in 
+> and starts /sbin/hotplug). Some filesystems have garbage collector threads
+> that can do IOs eventually. There are various kind of IOs that can in fact
+> be triggered entirely within the kernel.
 
-The formula used is:
+I need this for suspend to disk. I really need quiescent system if I
+want to write to swap image, right?
 
-Max throughput of the 2.4.13pre4 with patch
---------------------------------------------------------------- * 100
-Max throughput of the' 2.4.13pre4 w/o patch
+I implemented a "refrigerator" mechanism, and manually marked threads
+that should not be frozen. I'm doing my best to stop everyone who
+might try to wake userland.
 
-The problem that I see is that 2.4.13preX were all really slow.  I'm seeing
-less than 50% of the throughput that was seen in 2.4.5pre1 and the response
-times increased by 50% in the 2.4.13pre2 time frame.  Where we were getting
-1 ms response times, we now see 1.5 to 2.  This multiplicative factor grows
-as the test becomes more aggressive.
+[I just mailed the patch as 2.4.13 - swsusp. Tell me if you want a
+copy.]
 
-The benchmark is SPEC SFS NFS benchmark testing. The filesystem is reiserfs.
+								Pavel
+-- 
+STOP THE WAR! Someone killed innocent Americans. That does not give
+U.S. right to kill people in Afganistan.
 
-I hope this information helps.
 
-Cary

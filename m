@@ -1,60 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130294AbQKRSbq>; Sat, 18 Nov 2000 13:31:46 -0500
+	id <S130386AbQKRSeq>; Sat, 18 Nov 2000 13:34:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130415AbQKRSbg>; Sat, 18 Nov 2000 13:31:36 -0500
-Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:49417 "EHLO
-	almesberger.net") by vger.kernel.org with ESMTP id <S130294AbQKRSbX>;
-	Sat, 18 Nov 2000 13:31:23 -0500
-Date: Sat, 18 Nov 2000 19:01:07 +0100
-From: Werner Almesberger <Werner.Almesberger@epfl.ch>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] linux/time.h name space pollution in 2.4.0-test11-pre6/pre7
-Message-ID: <20001118190107.D23033@almesberger.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S130415AbQKRSeg>; Sat, 18 Nov 2000 13:34:36 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:9483 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130386AbQKRSeT>; Sat, 18 Nov 2000 13:34:19 -0500
+Date: Sat, 18 Nov 2000 10:03:38 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Freeze on FPU exception with Athlon
+In-Reply-To: <E13xBcX-0001sY-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10011181002190.1655-100000@cesium.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
 
-include/linux/time.h leaks out mktime, creating a possible conflict with
-POSIX mktime. This patch puts mktime and a few helper functions into
-#ifdef __KERNEL__
 
-Originally for 2.4.0-test11-pre6, but applies also to 2.4.0-test11-pre7
+On Sat, 18 Nov 2000, Alan Cox wrote:
 
-Cheers, Werner
+> > Linus Torvalds wrote:
+> > > 
+> > > I sure as hell hope this isn't an Athlon issue.  Can other people try
+> > > the test-program and see if we have a pattern (ie "it happens only on
+> > > Athlons", or "Linus is on drugs and it happens for everybody else").
+> > 
+> > I've tried both variants (fesetenv and inline-asm) with glibc-2.1.3,
+> > 2.4.0-test11pre7 and an AMD Thunderbird. Neither does freeze, but
+> > both yield:
+> > 
+> > Floating point exception (core dumped)
+> 
+> Compiler specific ?
 
----------------------------------- cut here -----------------------------------
+There's almost certainly more than that. I'd love to have a report on my
+asm-only version, but even so I suspect it also requires the 3dnow stuff,
+because I'm not able to trigger anything like this on any machines I have
+access to (none of them are AMD, though)
 
---- linux.orig/include/linux/time.h	Mon Oct  2 20:01:17 2000
-+++ linux/include/linux/time.h	Sat Nov 18 18:45:15 2000
-@@ -12,6 +12,8 @@
- };
- #endif /* _STRUCT_TIMESPEC */
- 
-+#ifdef __KERNEL__
-+
- /*
-  * Change timeval to jiffies, trying to avoid the
-  * most obvious overflows..
-@@ -79,6 +81,8 @@
- 	  )*60 + min /* now have minutes */
- 	)*60 + sec; /* finally seconds */
- }
-+
-+#endif /* __KERNEL__ */
- 
- 
- struct timeval {
+		Linus
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
-/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

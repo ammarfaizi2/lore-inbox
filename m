@@ -1,87 +1,127 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261433AbUCPTXg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 14:23:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbUCPTXb
+	id S261253AbUCPT14 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 14:27:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261461AbUCPT1V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 14:23:31 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:1550 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261433AbUCPTWy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 14:22:54 -0500
-Date: Tue, 16 Mar 2004 19:22:47 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>, Ian Campbell <icampbell@arcom.com>,
-       netdev@oss.sgi.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Do not include linux/irq.h from linux/netpoll.h
-Message-ID: <20040316192247.A7886@flint.arm.linux.org.uk>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Ian Campbell <icampbell@arcom.com>, netdev@oss.sgi.com,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1079369568.19012.100.camel@icampbell-debian> <20040316001141.C29594@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040316001141.C29594@flint.arm.linux.org.uk>; from rmk+lkml@arm.linux.org.uk on Tue, Mar 16, 2004 at 12:11:41AM +0000
+	Tue, 16 Mar 2004 14:27:21 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:50405 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S261421AbUCPTT0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 14:19:26 -0500
+Message-Id: <200403161919.i2GJJIED007767@eeyore.valparaiso.cl>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: unionfs 
+In-Reply-To: Your message of "Tue, 16 Mar 2004 18:31:47 +0100."
+             <20040316173146.GB27046@wohnheim.fh-wedel.de> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
+Date: Tue, 16 Mar 2004 15:19:18 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 16, 2004 at 12:11:41AM +0000, Russell King wrote:
-> On Mon, Mar 15, 2004 at 04:52:50PM +0000, Ian Campbell wrote:
-> > The culprit would appear to be the addition of a 
-> > 	#include <linux/netpoll.h>
-> > to net/core/dev.c which in turn pulls in <linux/irq.h> which (as Russell
-> > King notes in a comment therein) should not be included from generic
-> > code.
+=?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de> said:
+> On Tue, 16 March 2004 12:04:30 -0400, Horst von Brand wrote:
+> > Chris Friesen <cfriesen@nortelnetworks.com> said:
+> > 
+> > > I don't see how you win nothing.  I create an overlay filesystem. 
+> >  
+> > Completely empty is what you get then... and you have to explicitly link in
+> > each file. Or everything shows up here.
 > 
-> Linus - I haven't tested this patch myself yet, but I do think something
-> needs to happen with linux/irq.h.  It seems a comment in the file isn't
-> sufficient.
-> 
-> The file itself is misplaced and misleading sitting in the include/linux
-> subdirectory, which causes problems when people decide to include it into
-> architecture independent files, in the belief that it's a generic include
-> file.
-> 
-> I believe that linux/irq.h should at least become asm-generic/irq.h to
-> stop this happening.
-> 
-> What are your thoughts on this?
+> Correct.  Is that a problem?
 
-So how do we solve this problem.  Should I just merge this change and
-ask you to pull it?  I think that's rather impolite though.
+Yes. Use it for a kernel tree (some 18.000 files by now), and do it each
+time you mount it.
 
-Or should I send a BK cset which removes include/linux/irq.h entirely,
-thereby fixing _my_ problem (though it'll break everyone elses build.) 8)
+> > > delete a bunch of files in the overlay and it doesn't show through. 
+> > 
+> > Next time you mount it, what happens? How do you know the "top files" where
+> > deleted, and should not show up? 
+> > 
+> > What happens if I mount the live 2.6.4 kernel source over a CD containing
+> > 2.5.30? What happens to identical files, files that moved, changed files,
+> > deleted files? Pray tell, how does the kernel find out which is which?
 
-> Index: linux-2.6-bkpxa/include/linux/netpoll.h
-> ===================================================================
-> --- linux-2.6-bkpxa.orig/include/linux/netpoll.h        2004-03-15 15:03:30.000000000 +0000
-> +++ linux-2.6-bkpxa/include/linux/netpoll.h     2004-03-15 16:24:25.000000000 +0000
-> @@ -9,7 +9,6 @@
->   
->  #include <linux/netdevice.h>
->  #include <linux/interrupt.h>
-> -#include <linux/irq.h>
->  #include <linux/list.h>
->   
->  struct netpoll;
+> What happens if I write to /dev/hda while having my rootfs /dev/hda1?
+> Bad things, damn right.  But why would anyone do that?
+
+> Can you tell me what the point behind your examples is?  It escapes
+> me.
+
+OK, let's see... I've got a laptop, on CD is the "original" kernel tree, on
+HD is my modified stuff. I delete a file (or move it). Then I pack up, go
+home. There I start up again. How is the fact that the file is gone recorded?
+
+> > How do you back up a beast like this?
 > 
+> - Use a really large tape (stupid).
+
+All layers? Urgh...
+
+> - cp /dev/... backup_medium
+> - Backup software with a clue about the underlying fs.
+
+Another special, non-POSIX piece that needs to be written and maintained.
+
+> > In any case, there are tools that create a farm of symlinks, and when you
+> > try to write to a file (pointing to a RO area/file), you get an error. This
+> > gives you 90% of what you want, _without_ aggravating the filesystem
+> > hackers.
+> 
+> Great, so you found *your* solution already.  I've done the same
+> without the need for symlinks in a 90-line patch, good enough for my
+> immediate needs right now.  But someday I'd like to have the remaining
+> 10% as well. :)
+
+I had my solution with _no_ kernel patch. Better still, it also works on
+propietary Unix systems. Even better yet, any newbie Unix (even without any
+Linux-with-funky-patch background) user understands what is going on here.
+Fully POSIX compliant.
+
+> > > I would dearly love to use something like to make it easy to track 
+> > > changes made all over a source tree.  If I could sync them up at the 
+> > > begining, then make all my changes in the overly, then doing a diff is 
+> > > really easy since you just look for places where the inodes are 
+> > > different between the two filesystems.  Like having hard links, but the 
+> > > filesystem breaks them for you when you write.
+> > 
+> > This is called BitKeeper, CVS, Subversion, arch, RCS, SCCS, ... Better yet,
+> > it keeps the history of each file (not just the one version on RO media),
+> > with annotations. You decide when a version is ready for archiving.
+> > 
+> > Sure, this would save disk space. But at today's prices, it just is not
+> > worth the trouble.
+> 
+> Not true:
+> - Even with bitkeeper, people copy their complete tree before making
+> changes, at least Linus sais he does.  Go back to start, do not
+> collect $2000.
+
+Not needed at all. Sure, if you have enough disk... now hand over the $2000
+
+> - Copying the kernel tree is not just a question of space and money,
+> but also about time.
+
+And both copies slowly diverge, and need to be sychronized sometime. You
+owe me another $2000
+
+> - When the time and disk hit of identical copies approaches zero,
+> people will do this a lot more, they have new possibilities.  *That*
+> is really important, not doing the same as before, just slightly
+> optimized.
+
+What you talking about is some kind of (modifiable) disk cache of data on
+ro media... 
+
 > -- 
-> Russell King
->  Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
->  maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
->                  2.6 Serial core
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Everything should be made as simple as possible, but not simpler.
+> -- Albert Einstein
 
+This stuff definitely fails this, IMHO.
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

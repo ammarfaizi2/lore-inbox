@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310213AbSCAHZk>; Fri, 1 Mar 2002 02:25:40 -0500
+	id <S310379AbSCAH4i>; Fri, 1 Mar 2002 02:56:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310382AbSCAHVr>; Fri, 1 Mar 2002 02:21:47 -0500
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:10252 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S310369AbSCAHUA>; Fri, 1 Mar 2002 02:20:00 -0500
-Date: Fri, 1 Mar 2002 08:19:47 +0100
-From: Jurriaan on Alpha <thunder7@xs4all.nl>
-To: Dave Jones <davej@suse.de>, James Simmons <jsimmons@transvirtual.com>,
-        Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] Re: [PATCH] tdfx ported to new fbdev api
-Message-ID: <20020301071947.GA13938@alpha.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-In-Reply-To: <20020228214045.E32662@suse.de> <Pine.LNX.4.10.10202281259230.20040-100000@www.transvirtual.com> <20020228220847.J32662@suse.de>
-Mime-Version: 1.0
+	id <S310385AbSCAHw3>; Fri, 1 Mar 2002 02:52:29 -0500
+Received: from mailout11.sul.t-online.com ([194.25.134.85]:42393 "EHLO
+	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S310377AbSCAHsv>; Fri, 1 Mar 2002 02:48:51 -0500
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: nfs-devel@linux.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.5: compile error in fs/filesystems.c
+In-Reply-To: <87vgchi2v8.fsf@tigram.bogus.local>
+	<15486.50159.606621.827886@notabene.cse.unsw.edu.au>
+	<87bse9hzok.fsf@tigram.bogus.local>
+	<15486.54383.958359.357643@notabene.cse.unsw.edu.au>
+From: Olaf Dietsche <olaf.dietsche--list.linux-kernel@exmail.de>
+Date: Fri, 01 Mar 2002 08:48:30 +0100
+In-Reply-To: <15486.54383.958359.357643@notabene.cse.unsw.edu.au> (Neil
+ Brown's message of "Fri, 1 Mar 2002 12:07:59 +1100 (EST)")
+Message-ID: <87664giv8x.fsf@tigram.bogus.local>
+User-Agent: Gnus/5.090006 (Oort Gnus v0.06) XEmacs/21.4 (Artificial
+ Intelligence, i386-debian-linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020228220847.J32662@suse.de>
-User-Agent: Mutt/1.3.27i
-X-Message-Flag: Still using Outlook? Please Upgrade to real software!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Dave Jones <davej@suse.de>
-Date: Thu, Feb 28, 2002 at 10:08:47PM +0100
-> On Thu, Feb 28, 2002 at 01:00:04PM -0800, James Simmons wrote:
->  > > > The patch is against 2.5.5-dj2
->  > > > http://www.transvirtual.com/~jsimmons/tdfx.diff
->  > >  Is this one different to the one I saw last time?
->  > Actually no. I think the driver hasn't changed. I does work for me. Did
->  > you try it out again.
-> 
->  Ok. I didn't look too deeply last time, but it died immediately
->  on switching the display, and was really dead, no keyboard leds,
->  nada.
-> 
-That was my experience also (Voodoo 4500 pci/Alpha architecture).
-However, the VIDCFG_2X handling in his patch worked, and the kernel
-(pre-2.4.18) didn't. Luckily, a small patch was accepted to change that.
+Hi Neil,
 
-I'm willing to test any patches for tdfxfb on Alpha.
+Neil Brown <neilb@cse.unsw.edu.au> writes:
 
-Good luck,
-Jurriaan
--- 
-One guide for speakers of Klingon advises them to begin by
-purchasing a large supply of napkins.
-	Robert O'Reilly [Gowron] on speaking Klingon.
-GNU/Linux 2.4.19pre1 on Debian/Alpha 988 bogomips load:1.64 1.33 0.76
+> There have been a number of problem reports on linux-kernel over the
+> last year or two from people who cannot load nfsd.o as a module.
+> Often it is because they originally compiled without and NFSD support
+> at all, but subsequently decided that wanted to compile and load
+> nfsd.o
+>
+> This works for many modules (e.g. filesystems)  It is reasonable that
+> it work for nfsd as well.
+>
+> I thought that the cost of always including the hooks to load nfsd was
+> minimal, and worth the consistency/convenience.
+>
+> Does that seem reasonable to you?
+
+Ok, I didn't think of that. Thanks for clarifying.
+
+Regards, Olaf.

@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131154AbQLFEWG>; Tue, 5 Dec 2000 23:22:06 -0500
+	id <S129183AbQLFFMC>; Wed, 6 Dec 2000 00:12:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131155AbQLFEVq>; Tue, 5 Dec 2000 23:21:46 -0500
-Received: from sparrow.ists.dartmouth.edu ([129.170.249.49]:29580 "EHLO
-	sparrow.websense.net") by vger.kernel.org with ESMTP
-	id <S131154AbQLFEVk>; Tue, 5 Dec 2000 23:21:40 -0500
-Date: Tue, 5 Dec 2000 22:49:54 -0500 (EST)
-From: William Stearns <wstearns@pobox.com>
-Reply-To: William Stearns <wstearns@pobox.com>
-To: Mourad Lakhdar <992C396651@stud.alakhawayn.ma>
-cc: ML-linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: to compile the kernel
-In-Reply-To: <Pine.SOL.3.96.1001206025107.13995A-100000@stud.alakhawayn.ma>
-Message-ID: <Pine.LNX.4.30.0012052247160.1531-100000@sparrow.websense.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129423AbQLFFLw>; Wed, 6 Dec 2000 00:11:52 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:55814 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S129183AbQLFFLk>; Wed, 6 Dec 2000 00:11:40 -0500
+Date: Tue, 5 Dec 2000 22:40:44 -0600
+To: Steven Cole <elenstev@mesatop.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Documentation/Changes reminder to upgrade modutils.
+Message-ID: <20001205224044.K6567@cadcamlab.org>
+In-Reply-To: <00120518571500.20053@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <00120518571500.20053@localhost.localdomain>; from elenstev@mesatop.com on Tue, Dec 05, 2000 at 06:57:15PM -0700
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good day, Mourad,
 
-On Wed, 6 Dec 2000, Mourad Lakhdar wrote:
+[Steven Cole]
+> The following patch may seem ridiculous
 
-> 	so , having these parameters, what is please the detailed andexact
-> steps to make and recompile a new kernel.
+> -o  modutils               2.3.18                  # insmod -V
+> +o  modutils               2.3.21                  # insmod -V
 
-	Please see the Kernel Howto at http://www.linuxdoc.org ,
-Buildkernel at http://buildkernel.stearns.org , and "The Open Source Tech
-Support Partnership" at http://www.linuxmonth.com .  In particular, your
-phrasing of this last question gives me the impression you want someone
-else to do the work for you.
-	Cheers,
-	- Bill
+It's not ridiculous at all.  Documentation/Changes definitely needs to
+reflect reality.
 
----------------------------------------------------------------------------
-	"Windows 95 will now attempt to blow chunks across your primary
-partition.  Press any key to continue..."
-(Courtesy of "Eric Princen" <eprincen@maad.com>)
---------------------------------------------------------------------------
-William Stearns (wstearns@pobox.com).  Mason, Buildkernel, named2hosts,
-and ipfwadm2ipchains are at:                http://www.pobox.com/~wstearns
-LinuxMonth; articles for Linux Enthusiasts! http://www.linuxmonth.com
---------------------------------------------------------------------------
-
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

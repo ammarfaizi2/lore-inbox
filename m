@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266191AbSLCKLL>; Tue, 3 Dec 2002 05:11:11 -0500
+	id <S266200AbSLCK2k>; Tue, 3 Dec 2002 05:28:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266200AbSLCKLL>; Tue, 3 Dec 2002 05:11:11 -0500
-Received: from uucp.cistron.nl ([62.216.30.38]:23045 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id <S266191AbSLCKLK>;
-	Tue, 3 Dec 2002 05:11:10 -0500
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: bincancels in linux.kernel
-Date: Tue, 3 Dec 2002 10:18:40 +0000 (UTC)
-Organization: Cistron
-Message-ID: <asi0e0$9ul$2@ncc1701.cistron.net>
-References: <fa.fv5l6nv.1am209b@ifi.uio.no> <fa.eas3r1v.k3isq5@ifi.uio.no> <3DEC6A73.2090903@debian.org>
-Content-Type: text/plain; charset=iso-8859-15
-X-Trace: ncc1701.cistron.net 1038910720 10197 62.216.29.67 (3 Dec 2002 10:18:40 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+	id <S266218AbSLCK2k>; Tue, 3 Dec 2002 05:28:40 -0500
+Received: from port-212-202-177-38.reverse.qdsl-home.de ([212.202.177.38]:1796
+	"EHLO camelot.fbunet.de") by vger.kernel.org with ESMTP
+	id <S266200AbSLCK2j> convert rfc822-to-8bit; Tue, 3 Dec 2002 05:28:39 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Fridtjof Busse <fridtjof@fbunet.de>
 To: linux-kernel@vger.kernel.org
+Subject: Compile error with 2.4.20-ac1
+Date: Tue, 3 Dec 2002 11:35:49 +0100
+X-OS: Linux on i686
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200212031135.49423@fbunet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3DEC6A73.2090903@debian.org>,
-Giacomo Catenazzi  <cate@debian.org> wrote:
->I read the LKML at news:fa.linux.kernel since4 years, without problems
->(no full mailbox box during vacations :-), and the headers are unchanged,
->so the private reply are allowed)
+Hi
+If I change an option (make menuconfig) and run 'make dep && make clean 
+bzImage modules modules_install' afterwards, I get:
 
-The big problem is when multiple gateways to news exist in multiple
-hierarchies. News servers accept a certain message only once - and
-the only thing that is looked at is the message-id.
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.20/include -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
+-fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 
+-malign-functions=4    -nostdinc -iwithprefix include 
+-DKBUILD_BASENAME=compat  -c -o compat.o compat.c
+make[3]: *** No rule to make target 
+`/usr/src/linux-2.4.20/drivers/pci/devlist.h', needed by `names.o'.  
+Stop.
+make[3]: Leaving directory `/usr/src/linux-2.4.20/drivers/pci'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.4.20/drivers/pci'
+make[1]: *** [_subdir_pci] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.20/drivers'
+make: *** [_dir_drivers] Error 2
 
-So if your news server gets fa.linux.kernel and linux.kernel, half
-of the articles will end up in the first group and half of the
-articles in the second.
+If I run 'make dep && make clean bzImage modules modules_install' again, 
+without changing anything, the compilation doesn't give any errors and 
+the kernel runs fine.
+But if I again change an option, same thing happens.
 
-That's why it's not a good idea anymore to read linux-kernel etc
-mailinglists through news, you'll miss a lot of articles. Unless
-you do the gatewaying yourself and have enough of a clue to
-prevent the above scenario.
-
-Mike (reading this with 'trn' in the /local/ lists.linux.kernel group).
 -- 
-They all laughed when I said I wanted to build a joke-telling machine.
-Well, I showed them! Nobody's laughing *now*! -- acesteves@clix.pt
+Fridtjof Busse
+BOFH excuse #185:
+system consumed all the paper for paging
+
 

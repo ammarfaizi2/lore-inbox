@@ -1,63 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261620AbTHYIu2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 04:50:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261621AbTHYIu2
+	id S261738AbTHYImr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 04:42:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261756AbTHYImr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 04:50:28 -0400
-Received: from trained-monkey.org ([209.217.122.11]:38916 "EHLO
-	trained-monkey.org") by vger.kernel.org with ESMTP id S261620AbTHYIuW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 04:50:22 -0400
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] RFC: kills consistent_dma_mask
-References: <m3oeynykuu.fsf@defiant.pm.waw.pl>
-	<20030818111522.A12835@devserv.devel.redhat.com>
-	<m33cfyt3x6.fsf@trained-monkey.org>
-	<1061298438.30566.29.camel@dhcp23.swansea.linux.org.uk>
-	<20030819095547.2bf549e3.davem@redhat.com>
-	<m34r0dwfrr.fsf@defiant.pm.waw.pl> <m38ypl29i4.fsf@defiant.pm.waw.pl>
-	<m3isoo2taz.fsf@trained-monkey.org> <m3n0dz5kfg.fsf@defiant.pm.waw.pl>
-	<20030824060057.7b4c0190.davem@redhat.com>
-	<m365kmltdy.fsf@defiant.pm.waw.pl>
-From: Jes Sorensen <jes@wildopensource.com>
-Date: 25 Aug 2003 04:50:24 -0400
-In-Reply-To: <m365kmltdy.fsf@defiant.pm.waw.pl>
-Message-ID: <m3vfsmm88f.fsf@trained-monkey.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 25 Aug 2003 04:42:47 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:1299 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261738AbTHYImp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 04:42:45 -0400
+Date: Mon, 25 Aug 2003 09:42:42 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: =?iso-8859-1?Q?Laurent_Hug=E9?= <laurent.huge@wanadoo.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Personnal line discipline difficulties
+Message-ID: <20030825094242.B28712@flint.arm.linux.org.uk>
+Mail-Followup-To: =?iso-8859-1?Q?Laurent_Hug=E9?= <laurent.huge@wanadoo.fr>,
+	linux-kernel@vger.kernel.org
+References: <200308251018.58127.laurent.huge@wanadoo.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200308251018.58127.laurent.huge@wanadoo.fr>; from laurent.huge@wanadoo.fr on Mon, Aug 25, 2003 at 10:18:58AM +0200
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Krzysztof" == Krzysztof Halasa <khc@pm.waw.pl> writes:
+On Mon, Aug 25, 2003 at 10:18:58AM +0200, Laurent Hugé wrote:
+> the result is not constant : sometimes, the line discipline receive the 11 
+> caracters (including the 0D and 0A termination), but most of the time, it 
+> receive firstly 8 the 3 caracters. The *fp value is always 0 (so there's no 
+> error !).
 
-Krzysztof> "David S. Miller" <davem@redhat.com> writes:
->> See, to show something is broken, you have to show a device that
->> will break currently.
+That's not correct.  fp is an array of error characters, length "count".
+Each entry corresponds directly with each received character.
 
-Krzysztof> SBE wanXL sync serial adapter. 32 bits for buffers but 28
-Krzysztof> bits for consistent data.
+I take it you know that receive_buf can be called at any time with any
+number of characters?  In other words, it doesn't have any framing on
+the group of characters it may hand you.
 
-Well if the buffers are dynamic, why would they want to be allocated
-using the consistent interface?
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-Krzysztof> I can't imagine all devices work properly on all platforms
-Krzysztof> wrt consistent allocs. Say, sound drivers setting only
-Krzysztof> dma_mask to < 32 bits and expecting consistent alloc will
-Krzysztof> use that and not consistent_dma_mask.
-
-If sound drivers set the dma_mask to something and expect that to
-apply to the consistent allocations, then they aren't complying with
-the current API and needs to be fixed.
-
-Krzysztof> Of course, there is a question if we want to support such
-Krzysztof> sound cards on Itaniums and Opterons? Of course they work
-Krzysztof> on i386 as i386 pci_alloc_consistent() ignores
-Krzysztof> consistent_dma_mask.
-
-So fix it on ia32 to respect that mask for consistent allocations,
-problem solved.
-
-Jes

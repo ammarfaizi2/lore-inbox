@@ -1,67 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318350AbSG3Q40>; Tue, 30 Jul 2002 12:56:26 -0400
+	id <S317211AbSG3RPh>; Tue, 30 Jul 2002 13:15:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318351AbSG3Q40>; Tue, 30 Jul 2002 12:56:26 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:5874 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S318350AbSG3Q4Y>; Tue, 30 Jul 2002 12:56:24 -0400
-Date: Tue, 30 Jul 2002 12:59:43 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-       linux-aio@kvack.org
-Subject: Re: async-io API registration for 2.5.29
-Message-ID: <20020730125943.B10315@redhat.com>
-References: <20020730054111.GA1159@dualathlon.random> <20020730091140.A6726@infradead.org> <20020730164320.GH1181@dualathlon.random>
+	id <S318356AbSG3RPh>; Tue, 30 Jul 2002 13:15:37 -0400
+Received: from mout1.freenet.de ([194.97.50.132]:27099 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id <S317211AbSG3RPg>;
+	Tue, 30 Jul 2002 13:15:36 -0400
+Date: Tue, 30 Jul 2002 19:10:27 +0200
+From: Axel Siebenwirth <axel@hh59.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: LKCD/kmsgdump for 2.5?
+Message-ID: <20020730171027.GA278@prester.freenet.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20020730142305.GA691@prester.freenet.de> <20020730153523.GA9238@alpha.home.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020730164320.GH1181@dualathlon.random>; from andrea@suse.de on Tue, Jul 30, 2002 at 06:43:20PM +0200
+In-Reply-To: <20020730153523.GA9238@alpha.home.local>
+Organization: hh59.org
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 30, 2002 at 06:43:20PM +0200, Andrea Arcangeli wrote:
+Hi!
+
+On Tue, 30 Jul 2002, Willy Tarreau wrote:
+
+> On Tue, Jul 30, 2002 at 04:23:05PM +0200, Axel Siebenwirth wrote:
+> > Hi,
 > > 
-> > Please don't.  First Ben has indicated on kernel summit that the abi might
-> > change and I think it's a bad idea to lock him into the old ABI just because
+> > I'm tired of handcopying my oopses. I read of something like LKCD and
+> > kmsgdump but then I saw that these are only available for 2.4. But wouldn't
+> > something like that be more useful for a development kernel as 2.5?
 > 
-> What I heard and that I remeber crystal clear is that Ben indicated that
-> the API isn't changing for a long time, and that's been stable so far,
-> I could imagine why.
+> of course, you're right. In my case, it's simply because I never
+> compiled a 2.5 kernel yet. I may port kmsgdump to 2.5 if it doesn't
+> take too much time.
 
-I suspect what Christoph is remember is that the in-kernel API was still 
-in flux and up for discussion.
+Wouldn't it be wonderful to have something like that in development kernels
+officially? That way more people could easily help debug the whole thing. Or
+maybe just an officially maintained patch to current development kernels.
 
-> I'm trying to do my best to avoid having to merge the code I quoted
-> above, that's disgusting and since the api isn't gonna change anwyays
-> like Ben said I'm trying to do the right thing to avoid clashes with
-> syscall 250 as well.
-
-syscall 250 isn't used in anything Red Hat shipped, that was a matter 
-of experimentation I was doing in recent aio development trees (which 
-is what the 2.4.18 patches are, as they still cause that VM to OOM under 
-rather trivial io patterns).
-
-> Really last thing: one of the major reasons I don't like the above code
-> besides the overhead and complexity it introduces is that it doesn't
-> guarantee 100% that it will be forward compatible with 2.5 applications
-> (the syscall 250 looks not to check even for the payload, I guess they
-> changed it because it was too slow to be forward compatible in most
-> cases), the /dev/urandom payload may match the user arguments if you're
-> unlucky and since we can guarantee correct operations by doing a syscall
-> registration, I don't see why we should make it work by luck.
-
-You haven't looked at the code very closely then.  It checks that the 
-payload matches, and that the caller is coming from the vsyscall pages.  
-Yes, the dynamic syscall thing is a horrific kludge that shouldn't be 
-used, but the vsyscall technique is rather useful.  This is something 
-that x86-64 gets wrong by not requiring the vsyscall page to need an 
-mmap into the user's address space: UML cannot emulate vsyscalls by 
-faking the mmap.
-
-		-ben
--- 
-"You will be reincarnated as a toad; and you will be much happier."
+Regards,
+Axel

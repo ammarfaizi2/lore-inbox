@@ -1,33 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291226AbSAaSmw>; Thu, 31 Jan 2002 13:42:52 -0500
+	id <S291233AbSAaSnK>; Thu, 31 Jan 2002 13:43:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291229AbSAaSmk>; Thu, 31 Jan 2002 13:42:40 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:56962 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S291226AbSAaSm1>;
-	Thu, 31 Jan 2002 13:42:27 -0500
-Date: Thu, 31 Jan 2002 13:42:25 -0500
-From: Jeff Garzik <garzik@havoc.gtf.org>
-To: "Heinz J . Mauelshagen" <mauelshagen@sistina.com>
-Cc: linux-kernel@vger.kernel.org, mge@sistina.com
-Subject: Re: [ANNOUNCE] LVM reimplementation ready for beta testing
-Message-ID: <20020131134225.B32321@havoc.gtf.org>
-In-Reply-To: <20020130202254.A7364@fib011235813.fsnet.co.uk> <20020131010119.GB858@ufies.org> <20020131134533.A10295@sistina.com>
+	id <S291230AbSAaSmx>; Thu, 31 Jan 2002 13:42:53 -0500
+Received: from ns.suse.de ([213.95.15.193]:16907 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S291228AbSAaSmj>;
+	Thu, 31 Jan 2002 13:42:39 -0500
+Date: Thu, 31 Jan 2002 19:42:37 +0100
+From: Dave Jones <davej@suse.de>
+To: Tim Sullivan <tsullivan@datawest.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BusLogic build error in 2.5.3
+Message-ID: <20020131194237.B10343@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Tim Sullivan <tsullivan@datawest.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <1012501663.1349.20.camel@prostock.ecom-tech.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020131134533.A10295@sistina.com>; from mauelshagen@sistina.com on Thu, Jan 31, 2002 at 01:45:33PM +0100
+In-Reply-To: <1012501663.1349.20.camel@prostock.ecom-tech.com>; from tsullivan@datawest.net on Thu, Jan 31, 2002 at 11:27:42AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 31, 2002 at 01:45:33PM +0100, Heinz J . Mauelshagen wrote:
-> LVM2 and the device-mapper are GPL/LGPL.
+On Thu, Jan 31, 2002 at 11:27:42AM -0700, Tim Sullivan wrote:
+ > According to a note in the scsi_obsolete.c file, "Once the last
+ > driver uses the new code this *ENTIRE* file will be nuked."
+ > It seems that scsi_obsolete.c has been "nuked" prematurely :)
 
-Could you clarify the meaning of "GPL/LGPL"?  Are certain parts GPL and
-other parts LGPL?  If so, which parts?
+ Perhaps the was the hope a preemptive nuke would push the
+ maintainer / someone who cared about the driver to fix it up 8-)
+ Randy Dunlap's 2.5 page has a list of the steps needed iirc.
 
-	jeff
-
-
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

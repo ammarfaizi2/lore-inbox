@@ -1,49 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282139AbRK1MSg>; Wed, 28 Nov 2001 07:18:36 -0500
+	id <S283018AbRK1MXq>; Wed, 28 Nov 2001 07:23:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282131AbRK1MSZ>; Wed, 28 Nov 2001 07:18:25 -0500
-Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:3983 "EHLO
-	penguin.homenet") by vger.kernel.org with ESMTP id <S282136AbRK1MSN>;
-	Wed, 28 Nov 2001 07:18:13 -0500
-Date: Wed, 28 Nov 2001 12:18:08 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
+	id <S283011AbRK1MXg>; Wed, 28 Nov 2001 07:23:36 -0500
+Received: from ns.suse.de ([213.95.15.193]:3599 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S283017AbRK1MXW>;
+	Wed, 28 Nov 2001 07:23:22 -0500
 To: Frank Cornelis <Frank.Cornelis@rug.ac.be>
-cc: linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: task_struct.mm == NULL
-In-Reply-To: <Pine.GSO.4.31.0111281300070.8642-100000@eduserv.rug.ac.be>
-Message-ID: <Pine.LNX.4.21.0111281214550.613-100000@penguin.homenet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <Pine.GSO.4.31.0111281300070.8642-100000@eduserv.rug.ac.be.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 28 Nov 2001 13:23:20 +0100
+In-Reply-To: Frank Cornelis's message of "28 Nov 2001 13:09:45 +0100"
+Message-ID: <p734rnfrsnb.fsf@amdsim2.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Frank,
-
-It can be NULL for kernel threads which do not have a user address
-space. Nevertheless, their tsk->active_mm would not be NULL but point to
-some process' address space.
-
-The point of  having active_mm is to minimize TLB flushes on switching
-address spaces when the task is scheduled out.
-
-Regards,
-Tigran
-
-On Wed, 28 Nov 2001, Frank Cornelis wrote:
+Frank Cornelis <Frank.Cornelis@rug.ac.be> writes:
 
 > Hey,
 > 
 > I found in some code checks for task_struct.mm being NULL.
 > When can task_struct.mm of a process be NULL except right before the
 > process-kill?
-> 
-> Frank.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
 
+For kernel threads that run in lazy-mm mode. It allows a much cheaper context
+switch into kernel threads.
+
+-Andi

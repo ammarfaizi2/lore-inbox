@@ -1,67 +1,139 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262347AbUCMABW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 19:01:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbUCMABW
+	id S262538AbUCMAHq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 19:07:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262613AbUCMAHq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 19:01:22 -0500
-Received: from mail-06.iinet.net.au ([203.59.3.38]:29853 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S262347AbUCMABU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 19:01:20 -0500
-Message-ID: <40524CDC.8020101@cyberone.com.au>
-Date: Sat, 13 Mar 2004 10:50:52 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: Matthias Urlichs <smurf@smurf.noris.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.4-rc2-mm1: vm-split-active-lists
-References: <404FACF4.3030601@cyberone.com.au> <200403111825.22674@WOLK> <40517E47.3010909@cyberone.com.au> <20040312012703.69f2bb9b.akpm@osdl.org> <pan.2004.03.12.11.08.02.700169@smurf.noris.de> <4051B0C6.2070302@cyberone.com.au> <40520B86.50803@tmr.com>
-In-Reply-To: <40520B86.50803@tmr.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 12 Mar 2004 19:07:46 -0500
+Received: from mail.kroah.org ([65.200.24.183]:43148 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262538AbUCMAHm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 19:07:42 -0500
+Date: Fri, 12 Mar 2004 16:07:29 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] udev 022 release
+Message-ID: <20040313000729.GA10821@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I've released the 022 version of udev.  It can be found at:
+ 	kernel.org/pub/linux/utils/kernel/hotplug/udev-022.tar.gz
+
+rpms built against Red Hat FC2-test1 are available at:
+	kernel.org/pub/linux/utils/kernel/hotplug/udev-022-1.i386.rpm
+with the source rpm at:
+	kernel.org/pub/linux/utils/kernel/hotplug/udev-022-1.src.rpm
+
+udev allows users to have a dynamic /dev and provides the ability to
+have persistent device names.  It uses sysfs and /sbin/hotplug and runs
+entirely in userspace.  It requires a 2.6 kernel with CONFIG_HOTPLUG
+enabled to run.  Please see the udev FAQ for any questions about it:
+	kernel.org/pub/linux/utils/kernel/hotplug/udev-FAQ
+
+For any udev vs devfs questions anyone might have, please see:
+	kernel.org/pub/linux/utils/kernel/hotplug/udev_vs_devfs
 
 
-Bill Davidsen wrote:
+There are a few minor bugfixes in this release, and a few new features.
+Which pretty much seems to prove my "udev is mature" statement I made
+for the last release :)
 
->
-> I have noticed that 2.6 seems to clear memory (any version I've run 
-> for a while) and a lunch break results in a burst of disk activity 
-> before the screen saver even gets in to unlock the screen. I know this 
-> box has no cron activity during the day, so the pages were not forced 
-> out.
->
+Oh, I'd like to thank OSDL for doing some preliminary speed tests (as
+well as functionality tests) on udev.  Unofficially it looks like it
+only took 7 seconds extra to use udev to name 1000 scsi disks (and the
+rule was calling out to scsi_id for every disk, and then parsing over
+1000 rules.)  Note that is 7 seconds extra to name _all_ of the disks at
+once using the scsi_debug module.  That's not too shabby at all.
+
+Where are those "hotplug is too slow to do device naming" whiners now...
+
+Major changes from the 021 version:
+	- lots of security audits in libsysfs and the remaining udev
+	  files.
+	- fixes for the foo-%c{N} type rules
+	- add foo-%c{N+} type rule option (see the manpage for info).
+	- allow node permissions to be specified in the rules file.
+	- more tests added to the test scripts
+	- number of other small fixes.
+
+Again a big thanks to Kay Sievers for sending me patches faster than I
+can integrate them.  udev is a viable program due to his excellent work.
+
+Thanks also to everyone else who has send me patches for this release, a
+full list of everyone, and their changes is below.
+
+udev development is done in a BitKeeper repository located at:
+	bk://linuxusb.bkbits.net/udev
+
+Daily snapshots of udev from the BitKeeper tree can be found at:
+	http://www.codemonkey.org.uk/projects/bitkeeper/udev/
+If anyone ever wants a tarball of the current bk tree, just email me.
+
+thanks,
+
+greg k-h
 
 
-It shouldn't. Perhaps something else is using memory in the background?
+Summary of changes from v021 to v022
+============================================
 
+<ananth:in.ibm.com>:
+  o more Libsysfs updates
+  o Libsysfs updates
 
-> It's a good thing IMHO to write dirty pages to swap so the space can 
-> be reclaimed if needed, but shouldn't the page be marked as clean and 
-> left in memory for use without swap-in nif it's needed? I see this on 
-> backup servers, and a machine with 3GB of free memory, no mail, no 
-> cron and no app running isn't getting much memory pressure ;-)
->
+<async:cc.gatech.edu>:
+  o fix HOWTO-udev_for_dev for udevdir
 
-Well it is basically just written out and reclaimed when it is needed,
-it won't just be swapped out without memory pressure.
+<kay.sievers:vrfy.org>:
+  o udev-test.pl cleanup
+  o add dev node test to udev-test.pl
+  o add permission tests
+  o "symlink only" test
+  o callout part selector tweak
+  o cleanup callout fork
+  o allow to specify node permissions in the rule
+  o man page beauty
+  o put symlink only rules to the man page
+  o rename strn*() macros to strmax
+  o conditional remove of trailing sysfs whitespace
+  o clarify udevinfo text
+  o better fix for NAME="foo-%c{N}" gets a truncated name
+  o overall trivial trivial cleanup
+  o fix NAME="foo-%c{N}" gets a truncated name
+  o cleanup mult field string handling
 
-Although, there were some highmem balancing problems in 2.6 including
-2.6.4 (now fixed in -bk). This causes too much pressure to be put on
-ZONE_NORMAL mapped and file cache memory in favour of slab cache. This
-could easily be causing the misbehaviour.
+<ken:cgi101.com>:
+  o fix a type in docs/libsysfs.txt
+  o Added line to udev.permissions.redhat
+  o Include more examples in the docs area for gentoo and redhat
 
-> I am not saying the behaviour is wrong, I just fail to see why the 
-> last application run isn't still in memory an hour later, absent 
-> memory pressure.
->
+<md:linux.it>:
+  o udevstart fixes
 
-There would have to be *some* memory pressure... honestly, try 2.6-bk,
-or if they are production machines and you can't, then wait for 2.6.5.
+Greg Kroah-Hartman:
+  o add big major tests to udev-test.pl
+  o add a test for a minor over 255
+  o udev-test.pl: print out major:minor and perm test "ok" if is ok
+  o make perm and major:minor test errors be reported properly
+  o remove extra ; in namedev_parse.c
+  o Added multipath-tools 0.1.1 release
+  o deleted current extras/multipath directory
+  o 021_bk mark
+  o fix the build for older versions of gcc
+  o 021 release TAG: v021
 
+Hanna V. Linder:
+  o Small fix to remove extra "will" in man page
+
+Olaf Hering:
+  o make spotless
+  o udev* segfaults with new klibc
+
+Patrick Mansfield:
+  o add tests for NAME="foo-%c{N}"
 

@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268016AbTB1QyV>; Fri, 28 Feb 2003 11:54:21 -0500
+	id <S268033AbTB1RRj>; Fri, 28 Feb 2003 12:17:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268031AbTB1QyV>; Fri, 28 Feb 2003 11:54:21 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:59711 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S268016AbTB1QyU>; Fri, 28 Feb 2003 11:54:20 -0500
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [KEXEC][2.5.63] Partially tested patches available
-References: <Pine.LNX.3.96.1030228085058.25875B-100000@gatekeeper.tmr.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 28 Feb 2003 10:03:20 -0700
-In-Reply-To: <Pine.LNX.3.96.1030228085058.25875B-100000@gatekeeper.tmr.com>
-Message-ID: <m1smu8l4mf.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S268038AbTB1RRj>; Fri, 28 Feb 2003 12:17:39 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:27654 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S268033AbTB1RRi>; Fri, 28 Feb 2003 12:17:38 -0500
+Date: Fri, 28 Feb 2003 20:27:21 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: "Dmitry A. Fedorov" <D.A.Fedorov@inp.nsk.su>, linux-kernel@vger.kernel.org
+Subject: Re: Proposal: Eliminate GFP_DMA
+Message-ID: <20030228202721.A4481@jurassic.park.msu.ru>
+References: <1046445897.16599.60.camel@irongate.swansea.linux.org.uk> <Pine.SGI.4.10.10302282138180.244855-100000@Sky.inp.nsk.su> <20030228160550.B31251@flint.arm.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030228160550.B31251@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Fri, Feb 28, 2003 at 04:05:50PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen <davidsen@tmr.com> writes:
+On Fri, Feb 28, 2003 at 04:05:50PM +0000, Russell King wrote:
+> Umm, question - I've seen ISA bridges with the ability to perform 32-bit
+> DMA using the ISA DMA controllers.  AFAIK, Linux doesn't make use of this
+> feature, except on ARM PCI systems with ISA bridges.
 
-> On 27 Feb 2003, Eric W. Biederman wrote:
-> 
-> 
-> > We need to get up some steam and see what it will take for Linus
-> > to notice and actually get this patch included.
-> 
-> I hate to say it, but "notice" and "include" are two different things. He
-> noticed the "write oops to disk" feature, he just didn't like it. Linus is
-> a great developer, but he has limited sys admin experience, if any. 
-> Hopefully he will think it's cool, but don't assume that if you can get
-> his attention he will respond as you wish. 
+Alpha uses this from day 1, BTW.
+Also, in 2.5 we have "isa_bridge" stuff which was intended exactly for
+that - it's a pointer to pci device (real ISA bridge with appropriate
+dma_mask) that can be used by non-busmastering ISA devices as a pci_dev *
+arg to pci_* mapping functions.
 
-The code has already gotten tentative approval from Linus.  And I suspect
-the biggest reason it isn't in is that I have gotten distracted lately
-and have not been asking for it to be included.
+>  Is there a reason
+> why this isn't used on x86 hardware?
 
-Being able to use this for processing panics is one of the side features
-of kexec.  Admittedly one of the more useful ones, but definitely not a core
-feature.
+Given a huge number of various ISA bridges found in x86 systems,
+I don't see a generic way to determine which ones can do 32-bit DMA...
+Maybe kind of white list?
 
-Given the encouragement I have received until I actually get negative
-feedback from Linus I will continue to figure it has not made it into
-the kernel because Linus has limited hours in the day, and an overflowing
-inbox.
-
-Eric
+Ivan.

@@ -1,69 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131711AbRBMPKc>; Tue, 13 Feb 2001 10:10:32 -0500
+	id <S131788AbRBMPNm>; Tue, 13 Feb 2001 10:13:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131788AbRBMPKX>; Tue, 13 Feb 2001 10:10:23 -0500
-Received: from host217-32-132-155.hg.mdip.bt.net ([217.32.132.155]:64004 "EHLO
-	penguin.homenet") by vger.kernel.org with ESMTP id <S131711AbRBMPKM>;
-	Tue, 13 Feb 2001 10:10:12 -0500
-Date: Tue, 13 Feb 2001 15:12:56 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Thomas Foerster <puckwork@madz.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: How to install Alan's patches?
-In-Reply-To: <20010213150328Z131694-514+4497@vger.kernel.org>
-Message-ID: <Pine.LNX.4.21.0102131510300.829-100000@penguin.homenet>
+	id <S131888AbRBMPNc>; Tue, 13 Feb 2001 10:13:32 -0500
+Received: from relay.dera.gov.uk ([192.5.29.49]:52317 "HELO relay.dera.gov.uk")
+	by vger.kernel.org with SMTP id <S131810AbRBMPNU>;
+	Tue, 13 Feb 2001 10:13:20 -0500
+Message-ID: <XFMail.20010213150816.gale@syntax.dera.gov.uk>
+X-Mailer: XFMail 1.4.4 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <21887.982075420@redhat.com>
+Date: Tue, 13 Feb 2001 15:08:16 -0000 (GMT)
+From: Tony Gale <gale@syntax.dera.gov.uk>
+To: David Woodhouse <dwmw2@infradead.org>
+Subject: Re: 2.4.x SMP blamed for Xfree 4.0 crashes
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan's patches are installed like this:
 
-# cd /usr/src
-# tar xIf linux-2.4.1.tar.bz2
-# cd linux
-# patch -sp1 < ../patch-2.4.1-ac6
-# chown -R root:root .
+On 13-Feb-2001 David Woodhouse wrote:
+> The crashes got less frequent when I started running X against
+> glibc-2.1
+> (note _running_ against glibc-2.1, not just compiling against it
+> and running
+> against glibc-2.2). But they were still happening. 
 
-Note the "-sp1" and that you need to be _inside_ the tree. Also, you don't
-need to waste another process ("cat") and create a pipe, just use shell
-input redirection facility "<".
+I'm running RH6.2 with glibc-2.1.3-22
 
-Regards,
-Tigran
+> 
+> In the week or so since killing xscreensaver, neither of the boxen
+> on which
+> I was seeing this have fallen over. Another box on which I killed 
+> xscreensaver but didn't run X against glibc-2.1 is still suffering,
+> albeit 
+> less frequently. 
 
-On Tue, 13 Feb 2001, Thomas Foerster wrote:
+Yes, a number of the xscreensaver modules cause XFree to crash - they
+always have. I have previously tested them all and disabled the ones
+that crash Xfree.
 
-> Hi folks,
-> 
-> sorry for the silly question, but i can't get it to work :
-> 
-> I have linux-2.4.1 unpacked, configured and installed.
-> Now i want to apply Alan Cox patche (linux-2.4.1-ac9), but i always get
-> these errors :
-> 
-> [root@space src]# cat /home/puck/patch-2.4.1-ac9 | patch -p0
-> can't find file to patch at input line 4
-> Perhaps you used the wrong -p or --strip option?
-> The text leading up to this was:
-> --------------------------
-> |diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla/CREDITS linux.ac/CREDITS
-> |--- linux.vanilla/CREDITS      Wed Jan 31 22:05:29 2001
-> |+++ linux.ac/CREDITS   Fri Feb  9 13:19:13 2001
-> --------------------------
-> File to patch: 
-> [root@space src]#
-> 
-> Do i have to create linux.vanilla and linux.ac, or what's the magic?! :-)
-> 
-> Thanx a lot,
->   Thomas
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+But, under 2.4 I have had X crash whilst I've been using it - which
+didn't happen under 2.2.
 
+> 
+> Looks like two separate bugs - I see no reason to expect that
+> there's only 
+> one such bug causing X to fall over :)
+
+It's a good premise :-)
+
+-tony
+
+
+---
+E-Mail: Tony Gale <gale@syntax.dera.gov.uk>
+I base my fashion taste on what doesn't itch.
+		-- Gilda Radner
+
+The views expressed above are entirely those of the writer
+and do not represent the views, policy or understanding of
+any other person or official body.

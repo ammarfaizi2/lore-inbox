@@ -1,32 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262186AbREQVcg>; Thu, 17 May 2001 17:32:36 -0400
+	id <S262189AbREQVp1>; Thu, 17 May 2001 17:45:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262187AbREQVc0>; Thu, 17 May 2001 17:32:26 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:19973 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S262186AbREQVcL>;
-	Thu, 17 May 2001 17:32:11 -0400
-Date: Thu, 17 May 2001 23:31:34 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux-Kernel Archive: ATA overlap/queuing support ?
-Message-ID: <20010517233134.D3227@suse.de>
-In-Reply-To: <3B043FA1.D45D3B2B@linux-ide.org> <Pine.LNX.4.10.10105171417550.2341-100000@master.linux-ide.org>
-Mime-Version: 1.0
+	id <S262190AbREQVpS>; Thu, 17 May 2001 17:45:18 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:3847 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262189AbREQVpG>; Thu, 17 May 2001 17:45:06 -0400
+Subject: Re: Linux 2.4.4-ac10: Oops
+To: greg@ulima.unil.ch (FAVRE Gregoire)
+Date: Thu, 17 May 2001 22:41:39 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <20010517225232.A8072@ulima.unil.ch> from "FAVRE Gregoire" at May 17, 2001 10:52:32 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10105171417550.2341-100000@master.linux-ide.org>; from andre@linux-ide.org on Thu, May 17, 2001 at 02:22:45PM -0700
+Content-Transfer-Encoding: 7bit
+Message-Id: <E150VWd-0006Cz-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 17 2001, Andre Hedrick wrote:
-> ATA-overlap or ATAPI-overlap?  The later is known as DSC based on
-> SFF-8020/8070/8090, I have forgotten where it is located but I have the
-> docs, and it is supported in ide-floppy and ide-tape.
+> SCSI subsystem driver Revision: 1.00
+> PCI: Found IRQ 11 for device 00:0b.0
+> Unable to handle kernel NULL pointer dereference at virtual address 0000000
+> printing eip:
 
-And ide-cd
-
--- 
-Jens Axboe
-
+What scsi drivers do you have and which are on IRQ 11

@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263578AbTIBGxd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 02:53:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263579AbTIBGxd
+	id S263586AbTIBGzb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 02:55:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263588AbTIBGzb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 02:53:33 -0400
-Received: from [212.34.184.41] ([212.34.184.41]:39852 "EHLO mail.hometree.net")
-	by vger.kernel.org with ESMTP id S263578AbTIBGxb (ORCPT
+	Tue, 2 Sep 2003 02:55:31 -0400
+Received: from [212.34.184.41] ([212.34.184.41]:44204 "EHLO mail.hometree.net")
+	by vger.kernel.org with ESMTP id S263586AbTIBGz1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 02:53:31 -0400
+	Tue, 2 Sep 2003 02:55:27 -0400
 To: linux-kernel@vger.kernel.org
 Path: not-for-mail
 From: "Henning P. Schmiedehausen" <hps@intermeta.de>
 Newsgroups: hometree.linux.kernel
 Subject: Re: bandwidth for bkbits.net (good news)
-Date: Tue, 2 Sep 2003 06:53:09 +0000 (UTC)
+Date: Tue, 2 Sep 2003 06:55:07 +0000 (UTC)
 Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <bj1eol$its$1@tangens.hometree.net>
-References: <20030830230701.GA25845@work.bitmover.com> <Pine.LNX.4.44.0308310256420.16308-100000@neptune.local>
+Message-ID: <bj1esb$its$2@tangens.hometree.net>
+References: <20030830230701.GA25845@work.bitmover.com> <Pine.LNX.4.44.0308310256420.16308-100000@neptune.local> <20030831013928.GN24409@dualathlon.random> <20030831025659.GA18767@work.bitmover.com>
 Reply-To: hps@intermeta.de
 NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1062485589 19388 212.34.184.4 (2 Sep 2003 06:53:09 GMT)
+X-Trace: tangens.hometree.net 1062485707 19388 212.34.184.4 (2 Sep 2003 06:55:07 GMT)
 X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Tue, 2 Sep 2003 06:53:09 +0000 (UTC)
+NNTP-Posting-Date: Tue, 2 Sep 2003 06:55:07 +0000 (UTC)
 X-Copyright: (C) 1996-2003 Henning Schmiedehausen
 X-No-Archive: yes
 User-Agent: nn/6.6.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pascal Schmidt <der.eremit@email.de> writes:
+Larry McVoy <lm@bitmover.com> writes:
 
->In a way, you're on the right end of the pipe because the system
->that does your traffic shaping is part of the general network, viewed
->from the machines behind the shaper.
+>I'm pretty convinced we can't solve the problem at our end.  Maybe we can
 
-Stop argueing. You can shape only outgoing packets, which means that the
-shaper must have a big uplink pipe and then shape that into a thin downlink
-pipe. In Larrys' case, the shaper must be on the ISP network before the T1.
+You're right. You can't no matter what all the "network experts"
+around here say. It's either placing a shaper at the ISP or getting a
+second line.
 
-Once the packets hit the T1 (or your ISDN link), you've already
-lost. No matter how much shaping, dropping, non-acking you're doing on
-your side of the link.
+I still don't understand why you don't simply co-lo the bkbits.net
+box. There should be plenty of housing centers in the Bay Area within
+a 30 minute drive of your office. ;-)
 
 	Regards
 		Henning
-
 
 -- 
 Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH

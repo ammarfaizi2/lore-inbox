@@ -1,33 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318376AbSIBTTh>; Mon, 2 Sep 2002 15:19:37 -0400
+	id <S315923AbSIBTUx>; Mon, 2 Sep 2002 15:20:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318383AbSIBTTh>; Mon, 2 Sep 2002 15:19:37 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:37382 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S318376AbSIBTTh>; Mon, 2 Sep 2002 15:19:37 -0400
-Date: Mon, 2 Sep 2002 20:24:07 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Kenneth Corbin <kencx@peak.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Linux consistently crashes running grip.
-Message-ID: <20020902202407.A11014@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Kenneth Corbin <kencx@peak.org>, linux-kernel@vger.kernel.org
-References: <200209021149.41654.kencx@peak.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200209021149.41654.kencx@peak.org>; from kencx@peak.org on Mon, Sep 02, 2002 at 11:49:41AM -0700
+	id <S318389AbSIBTUx>; Mon, 2 Sep 2002 15:20:53 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51986 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315923AbSIBTUw>;
+	Mon, 2 Sep 2002 15:20:52 -0400
+Message-ID: <3D73BB19.6000302@mandrakesoft.com>
+Date: Mon, 02 Sep 2002 15:25:13 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Linus Torvalds <torvalds@transmeta.com>, rth@twiddle.net
+Subject: required C optimizations?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 02, 2002 at 11:49:41AM -0700, Kenneth Corbin wrote:
-> I am not subscribed to this list, please cc me with any response.
-> Thanks in advance for wading through this.
-> 
-> 1. Linux consistently crashes running grip.
+Hi all,
 
-Remove the nvidia driver and retry.
+I'm trying to get an idea of the minimum compiler requirements necessary 
+to build a Linux kernel, excluding parsing requirements.  For example, 
+IIRC, some portions of the code depend on 'static inline' working and 
+decent constant propagation/folding.
+
+Are you guys aware of a list of such examples, either in your own head 
+or written down somewhere?
+
+If you're wondering what this is about, I'm playing around with "tinycc" 
+(http://www.tinycc.org/) ...  it's nowhere near building a kernel, being 
+basically a C parser that emits binary code, but I wanted to get an idea 
+of the obstacles.
+
+	Jeff
+
 

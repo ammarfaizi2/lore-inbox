@@ -1,85 +1,55 @@
 Return-Path: <linux-kernel-owner+ralf=40uni-koblenz.de@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S315779AbSFPAx3>; Sat, 15 Jun 2002 20:53:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S315784AbSFPAx2>; Sat, 15 Jun 2002 20:53:28 -0400
-Received: from norma.kjist.ac.kr ([203.237.41.18]:15311 "EHLO norma.kjist.ac.kr") by vger.kernel.org with ESMTP id <S315779AbSFPAx1>; Sat, 15 Jun 2002 20:53:27 -0400
-Message-ID: <3D0BE1AC.3080202@nospam.com>
-Date: Sun, 16 Jun 2002 09:54:04 +0900
-From: Hugh <hugh@nospam.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux alpha; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: ko, en-us
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S316437AbSFPRfZ>; Sun, 16 Jun 2002 13:35:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S316456AbSFPRfY>; Sun, 16 Jun 2002 13:35:24 -0400
+Received: from list.netatlantic.com ([140.239.165.184]:14110 "HELO list.netatlantic.com") by vger.kernel.org with SMTP id <S316437AbSFPRfX>; Sun, 16 Jun 2002 13:35:23 -0400
+Date: Sun, 16 Jun 2002 13:33:17 -0400
+Subject: SuperLaugh: Little Bobby & The Maxi Pads :0 ~ You'll Love It !!!
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+From: "SuperLaugh Daily Fun" <updates-superlaugh@list.netatlantic.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, coles@vip.kos.netDear
-Subject: Re: Dual Athlon 2000 XP MP nightmare
-Content-Type: text/plain; charset=EUC-KR
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Reply-To: SuperLaugh Daily Fun <updates-superlaugh@list.netatlantic.com>
+Message-Id: <20020616173523Z316437-22020+5361@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Steve, Richard, and others,
+THE SUPERLAUGH.com DAILY FUNPAGE NEWSLETTER!
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
->I'm not sure that what I'm experiencing is a kernel problem, but I >thought
->I would stick my foot in the door nonetheless, since I have no real
->indication of what is going on.
->
->I have a dual Athlon 2000+ XP MP system. It's crashing very frequently >and
->looks to be getting worse. It seems to crash less with 2.4.19pre10-ac2
->which supports the 760 bus and 744x IDE controller, but with something
->that
->is as intermittent as this, who can tell?
-
-I found three of us trying to use Athlon dual as a linux server so far.
-
->Machine specs:
->
-> ASUS A7M266-D motherboard, 1006 BIOS rev.
-> 2GB ECC registered memory
-> 4 x 15K RPM Seagate UltraSCSI drives
-
-So far the same.
-
-> 2 x 2960 (AIC7892 rev 2) controllers
-> 2 x 3C59x 3Com ethernet controllers
-> !USB card to free up IRQs (removed later)
-> 400W power supply
-
-I also have a 400 watts.
-
-> 240W power supply driving two of the hard drives + CD ROM
-> Budget vid card
-> 2 drives partitioned 30%/70%, 30% mirrored together for boot, 70%
->mirrored
->in RAID 0+1 with other drives
-
-I got intemittent Memory-related errors while running Latex on a 1000
-page book manuscript.
-Without the error, the speed on this machine was the most impressive:
-
-Athlon dual 1.6GHz : 16 sec
-P4 Xeon dual 1.7GHz : 52 sec
-P III single at 700 MHz : 35 sec
-
-No error log in /var/log/message.  Very rarely but certainly the
-Athlon dual crashed with the Reiserfs error (horrible!! I lost a file
-of a chapter.  I recovered it only from a backup.)  Initially, I
-thought that it is a kernel problem in the recent kernels.  In the
-end, I realized that the kernel version really does not matter.  I
-finally checked the memory one by one using memtest86 with the ECC
-disabled in the CMOS setup.   No problem.  I then installed all four
-memory modules and did memtest86.  Alas!!!!,  it found the memory error.
-  Did the test three times.  All three times, it always stopped in the
-middle with slightly different error messages, everytime reinstalled
-the memory modules just to be sure about the contact.
-
-That was when I returned the motherboard the second time.
-The first time, the board gave me a CMOS error.   The third time, the
-board even did not give me the first beep.  I now think that I should
-have bought the Tyan board instead of the ASUS.
-
-Regards,
-
-G. Hugh Song
+Come Out & Play(SM) weekend rates by Marriott. Starting at $44 a night. Book by June 28. Play through Labor Day. Participating: Fairfield Inn, TownePlace Suites, Courtyard, SpringHill Suites, & Residence Inn. Book now. Click here for details.
+http://psstt.com/1/c/54598/59523/183994/183994
+<a href="http://psstt.com/1/c/54598/59523/183994/183994"> AOL users click here </a>
 
 
+Uh - Oh... Little Bobby & The Maxi Pads ~ Hilarious
+http://www.superlaugh.com/1/napkins.htm
+<a href="http://www.superlaugh.com/1/napkins.htm"> AOL users click here </a>
 
 
+It's Like Fire by The Fudd Man ~ You'll Love It !!!
+http://www.superlaugh.com/1/fudd.htm
+<a href="http://www.superlaugh.com/1/fudd.htm"> AOL users click here </a>
+
+
+Hilarious Passifiers For Babies! 
+http://superlaugh.com/fun/passify.htm
+<a href="http://www.superlaugh.com/fun/passify.htm"> AOL users click here </a>
+
+
+** FORECLOSED HOMES: NO MONEY DOWN! **
+Try a FREE search in your area. America's largest & oldest bank foreclosure service.650,000 foreclosed homes, starting at $25,000 with NO MONEY DOWN. Homes for sale directly from banks and owners. Beautiful 3-4-5 bedroom foreclosed homes in great locations in all 50 states. First Time Homebuyers, Investment Homes, Condo's and commercial foreclosures. Search online: Names, Addresses, and Phone Numbers with 24 hour access. FOR A List In Your Area Click Here
+http://psstt.com/1/c/54598/41137/183994/183994
+<a href="http://psstt.com/1/c/54598/41137/183994/183994"> AOL users click here </a>
+
+
+Who Talks More? Men or Women...
+http://www.superlaugh.com/funpages/talk.htm
+<a href="http://www.superlaugh.com/funpages/talk.htm"> AOL users click here </a>
+
+---
+You are currently subscribed to superlaugh as: linux-kernel@vger.kernel.org
+To unsubscribe click on the link below:
+http://list.netatlantic.com/cgi-bin/unsubscribe.pl?id=15177794R
+<a href="http://list.netatlantic.com/cgi-bin/unsubscribe.pl?id=15177794R"> AOL Users Click Here </a>
 

@@ -1,33 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276591AbRJMHmv>; Sat, 13 Oct 2001 03:42:51 -0400
+	id <S278277AbRJMIC4>; Sat, 13 Oct 2001 04:02:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278276AbRJMHmm>; Sat, 13 Oct 2001 03:42:42 -0400
-Received: from [202.135.142.195] ([202.135.142.195]:3346 "EHLO
-	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
-	id <S276591AbRJMHm2>; Sat, 13 Oct 2001 03:42:28 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: dipankar@in.ibm.com, linux-kernel@vger.kernel.org,
-        paul.mckenney@us.ibm.com
-Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists with insertion 
-In-Reply-To: Your message of "Fri, 12 Oct 2001 09:28:07 PDT."
-             <Pine.LNX.4.33.0110120919130.31677-100000@penguin.transmeta.com> 
-Date: Sat, 13 Oct 2001 17:38:21 +1000
-Message-Id: <E15sJNF-0005Je-00@wagner>
+	id <S278278AbRJMICr>; Sat, 13 Oct 2001 04:02:47 -0400
+Received: from CPE-61-9-149-34.vic.bigpond.net.au ([61.9.149.34]:57839 "EHLO
+	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
+	id <S278277AbRJMICf>; Sat, 13 Oct 2001 04:02:35 -0400
+Message-ID: <3BC7F263.680E023F@eyal.emu.id.au>
+Date: Sat, 13 Oct 2001 17:50:59 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.12 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: list linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.13-pre[12]: i2o does not compile
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.33.0110120919130.31677-100000@penguin.transmeta.com> you
- write:
-> And hey, if you want to, feel free to create the regular
-> 
-> 	#define read_barrier()		rmb()
-> 	#define write_barrier()		wmb()
-> 	#define memory_barrier()	mb()
+A number of failure led me to deselect the subsystem. Something is
+very wrong in the i2o 2.4.13-pre patches so far.
 
-I agree... read_barrier_depends() then?
-
-Rusty.
 --
-Premature optmztion is rt of all evl. --DK
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.anu.edu.au/eyal/>

@@ -1,35 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261353AbSIZQB7>; Thu, 26 Sep 2002 12:01:59 -0400
+	id <S261332AbSIZPy0>; Thu, 26 Sep 2002 11:54:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261358AbSIZQB7>; Thu, 26 Sep 2002 12:01:59 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:60665
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261353AbSIZQA5>; Thu, 26 Sep 2002 12:00:57 -0400
-Subject: Re: 2.5.38: modular IDE broken
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bob_Tracy <rct@gherkin.frus.com>
-Cc: Kai Germaschewski <kai-germaschewski@uiowa.edu>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <m17tqRL-0005khC@gherkin.frus.com>
-References: <m17tqRL-0005khC@gherkin.frus.com>
-Content-Type: text/plain
+	id <S261336AbSIZPy0>; Thu, 26 Sep 2002 11:54:26 -0400
+Received: from [217.167.51.129] ([217.167.51.129]:25585 "EHLO zion.wanadoo.fr")
+	by vger.kernel.org with ESMTP id <S261332AbSIZPyZ>;
+	Thu, 26 Sep 2002 11:54:25 -0400
+From: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Linus Torvalds" <torvalds@transmeta.com>
+Subject: [RFC] {read,write}s{b,w,l} or iobarrier_*()
+Date: Thu, 26 Sep 2002 17:59:40 +0200
+Message-Id: <20020926155941.3602@192.168.4.1>
+X-Mailer: CTM PowerMail 4.0.1 carbon <http://www.ctmdev.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 26 Sep 2002 17:10:42 +0100
-Message-Id: <1033056642.1269.64.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Specific example: proc_ide_read_geometry has the requisite EXPORT_SYMBOL()
-> wrapper in ide-proc.c, yet, I still end up with proc_ide_read_geometry_R*
-> unresolved at depmod time.  In case anyone is wondering, I *did* do a
-> "make clean", manually cleaned out linux/include/modules to make *sure*
+Hi !
 
-Let me give a simple clear explanation here. I don't give a flying ***k
-about modular IDE until the IDE works. Cleaning up the modular IDE after
-it all works is relatively easy and gets easier the more IDE is cleaned
-up. Until then its not even on the radar unless someone else wants to do
-all the work for 2.4/2.5 and verify/test them
+Here I need people to agree so we decide once for all what
+we want and move further (this has been discussed several
+times already withotu agreement).
+
+So, the "generic" problem is: reading/writing from/to a FIFO
+that is larger than 8 bits wide on a big endian machine requires
+more than just a loop of reads or writes. Those IO functions
+are doing byteswap (and barriers on every call) while the FIFO
+access wants typically to be not byteswapped nor have barriers
+on every access.
+
+For "PIO", we already provide the "s" functions {in,out}s{b,w,l}
+that are implemented by every arch and provide drivers with a
+good abstraction to use (see ide_insw/ide_outsw in 2.5 which
+should just be a simple insw/outsw for normal interfaces for
+example).
+
+However, we don't provide a similar abstraction for MMIO.
+Typical cases where we want this is MMIO versions of the
+IDE iops (we probably want to provide generic impl of both
+PIO and MMIO ones in ide-iops, not just PIO); some sound
+cards, etc...
+
+A driver needing that today will have to either use a loop
+of {read,write}{b,w,l} and undo byteswapping (ugh), or try
+to re-implement it using raw_{read,write}{b,w,l} and adding
+proper iobarrier_* where needed. But the iobarrier functions
+aren't provided by all archs which means ugly #ifdef salad,
+and I hate having to put the burden of knowing everything
+about barriers one each single driver maintainer.
+
+So we have 2 solutions here (one of which I prefer, but I
+still want the debate open here):
+
+ - Have all archs provide {read,write}s{b,w,l} functions.
+Those will hide all of the details of bytewapping & barriers
+from the drivers and can be used as-is for things like IDE
+MMIO iops.
+
+ - Have all archs provide iobarrier_* functions. Here, drivers
+would still have to re-implement the transfer loops with
+raw_{read,write}{b,w,l} and do proper use of iobarrier_*.
+
+Ben.
+
 

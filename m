@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261624AbTEDToV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 May 2003 15:44:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261631AbTEDToV
+	id S261568AbTEDTza (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 May 2003 15:55:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261618AbTEDTza
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 May 2003 15:44:21 -0400
-Received: from pat.uio.no ([129.240.130.16]:22501 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261624AbTEDToU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 May 2003 15:44:20 -0400
+	Sun, 4 May 2003 15:55:30 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:32778 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S261568AbTEDTz3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 May 2003 15:55:29 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [Announcement] "Exec Shield", new Linux security feature
+Date: 4 May 2003 13:07:37 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <b93ru9$oua$1@cesium.transmeta.com>
+References: <Pine.LNX.4.44.0305030249280.30960-100000@devserv.devel.redhat.com> <Pine.LNX.4.33L2.0305040243390.2890-100000@rtlab.med.cornell.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16053.28792.244921.560392@charged.uio.no>
-Date: Sun, 4 May 2003 21:56:40 +0200
-To: David S Miller <davem@redhat.com>
-Cc: Christoph Hellwig <hch@lst.de>, torvalds@transmeta.com,
-       Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove useless MOD_{INC,DEC}_USE_COUNT from sunrpc
-In-Reply-To: <1052075166.27465.12.camel@rth.ninka.net>
-References: <20030504191447.C10659@lst.de>
-	<16053.20430.903508.188812@charged.uio.no>
-	<20030504203655.A11574@lst.de>
-	<16053.24599.277205.64363@charged.uio.no>
-	<20030504205306.A11647@lst.de>
-	<16053.25445.434038.90945@charged.uio.no>
-	<1052075166.27465.12.camel@rth.ninka.net>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Followup to:  <Pine.LNX.4.33L2.0305040243390.2890-100000@rtlab.med.cornell.edu>
+By author:    "Calin A. Culianu" <calin@ajvar.org>
+In newsgroup: linux.dev.kernel
+> 
+> Clearly this address is less than 16MB, so then it must be possible to
+> jump to memory below 16MB.
+> 
 
-Actually. Looking around at the server side, there appear to be a
-couple of potential problems too...
+There is another issue: x86 uses relative jumps, so although "ASCII
+armor" addresses aren't easily accessible using return address smashes
+(although the \0 at the end thing is a real issue), you may be able to
+get to them through a jump instruction.
 
-There don't seem to be any checks and balances to prevent the user
-from removing the sunrpc module immediately after svc_create_thread()
-gets called.
-I presume that the call to lockd_up() in nfsd() will help (since that
-calls rpciod_up() and hence MOD_INC_COUNT) but AFAICS there appears to
-be plenty of possible races before we get to that point.
-
-Cheers,
-  Trond
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

@@ -1,60 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316886AbSILSVC>; Thu, 12 Sep 2002 14:21:02 -0400
+	id <S316883AbSILS06>; Thu, 12 Sep 2002 14:26:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316897AbSILSVB>; Thu, 12 Sep 2002 14:21:01 -0400
-Received: from s383.jpl.nasa.gov ([137.78.170.215]:23549 "EHLO
-	s383.jpl.nasa.gov") by vger.kernel.org with ESMTP
-	id <S316886AbSILSVB>; Thu, 12 Sep 2002 14:21:01 -0400
-Message-ID: <3D80DC19.4080508@jpl.nasa.gov>
-Date: Thu, 12 Sep 2002 11:25:29 -0700
-From: Bryan Whitehead <driver@jpl.nasa.gov>
-Organization: Jet Propulsion Laboratory
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S316897AbSILS05>; Thu, 12 Sep 2002 14:26:57 -0400
+Received: from pD9E23F87.dip.t-dialin.net ([217.226.63.135]:38373 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S316883AbSILS04>; Thu, 12 Sep 2002 14:26:56 -0400
+Date: Thu, 12 Sep 2002 12:30:53 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Giuliano Pochini <pochini@shiny.it>
+cc: Jim Sibley <jlsibley@us.ibm.com>, Troy Reed <tdreed@us.ibm.com>,
+       <ltc@linux.ibm.com>, <riel@conectiva.com.br>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: Killing/balancing processes when overcommited
+In-Reply-To: <XFMail.20020912092526.pochini@shiny.it>
+Message-ID: <Pine.LNX.4.44.0209121223470.10048-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
 MIME-Version: 1.0
-To: Hans Reiser <reiser@namesys.com>
-CC: Nick LeRoy <nleroy@cs.wisc.edu>, jw schultz <jw@pegasys.ws>,
-       linux-kernel@vger.kernel.org
-Subject: Re: XFS?
-References: <p73wupuq34l.fsf@oldwotan.suse.de> <200209101518.31538.nleroy@cs.wisc.edu> <20020911084327.GF6085@pegasys.ws> <200209110820.36925.nleroy@cs.wisc.edu> <3D7F789F.2030103@namesys.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser wrote:
-> Nick LeRoy wrote:
-> 
->>  
->>
->>
->> Think about this:  Namesys is working on Reiserfs v4.0.  v4.0.  Hell - 
->> it's only been incorporated into the mainstream kernel for less than a 
->> year (at least by my recollection), yet it keeps advancing.  I have 
->> _no_ idea what UFS version Solaris 8 is using (admittedly at least 
->> somewhat due to ignorance -- I use Solaris because I have a good ol' 
->> SPARCprinter which alas is not supported by Linux), or whether they've 
->> bother to do development on it to make it better, faster, etc.  Yet, 
->> _we_ get this advancement all the time.  Isn't it great?!
->>
->>  
->>
-> I think you'll really like v4, it is a complete rewrite from scratch, 
-> and far better in every way.  :)
-> 
-> Hans
+Hi,
 
-What blows my mind (from someone that only watches kernel development) 
-is how one project, XFS, a filesystem basically "done" is excluded from 
-the mainline kernel while ReiserFS is getting a "complete rewrite from 
-scratch".
+On Thu, 12 Sep 2002, Giuliano Pochini wrote:
+> It's not difficult to make the kerner choose the right processes
+> to kill. It's impossible.
 
-Maybe I don't get it cause I'm just watching... ;)
+Not quite. But it's expensive. It adds 4 bytes per task, plus a second 
+OOM killer.
 
+> Imagine that when it goes oom the system stops and asks you what
+> processes have to be killed. What do you kill ?
+
+Rather whom would you ask?
+
+> Probably we do need an oomd that the sysadmin can configure as he likes.
+
+That's bad, it could get killed. ;-)
+
+Mostly the mem eaters are those who hang in an malloc() deadloop.
+
+	char *x = NULL;
+
+	/*
+	 * We need this variable, so if we don't get it, we reallocate it 
+	 * regardless of what happened.
+	 */
+	do {
+		x = malloc(X_SIZE);
+	} while (!x);
+
+That's possibly a candidate.
+
+So if we just count how often per second that stubborn process uses 
+malloc(), you'll catch the right guy most of the time. If you don't get 
+a process that's over the threshold, do usual OOM killing...
+
+			Thunder
 -- 
-Bryan Whitehead
-SysAdmin - JPL - Interferometry Systems and Technology
-Phone: 818 354 2903
-driver@jpl.nasa.gov
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
 

@@ -1,350 +1,325 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261498AbTCKSVB>; Tue, 11 Mar 2003 13:21:01 -0500
+	id <S261505AbTCKSaP>; Tue, 11 Mar 2003 13:30:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261505AbTCKSVB>; Tue, 11 Mar 2003 13:21:01 -0500
-Received: from vulcan.americom.com ([208.187.207.195]:62866 "HELO
-	solo.americom.com") by vger.kernel.org with SMTP id <S261498AbTCKSUz>;
-	Tue, 11 Mar 2003 13:20:55 -0500
-Date: 11 Mar 2003 18:31:38 -0000
-Message-ID: <20030311183138.13152.qmail@solo.americom.com>
-To: linux-kernel@vger.kernel.org
-From: jeff@AmeriCom.com
-Subject: kernel bug page_alloc.c 2.4.18-14
+	id <S261509AbTCKSaP>; Tue, 11 Mar 2003 13:30:15 -0500
+Received: from dsl081-067-005.sfo1.dsl.speakeasy.net ([64.81.67.5]:53663 "EHLO
+	renegade") by vger.kernel.org with ESMTP id <S261505AbTCKSaK>;
+	Tue, 11 Mar 2003 13:30:10 -0500
+Date: Tue, 11 Mar 2003 10:40:43 -0800
+From: Zack Brown <zbrown@tumblerings.org>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BitBucket: GPL-ed KitBeeper clone
+Message-ID: <20030311184043.GA24925@renegade>
+References: <200303020011.QAA13450@adam.yggdrasil.com> <20030309000514.GB1807@work.bitmover.com> <20030309024522.GA25121@renegade> <20030309225857.0FAC7101207@mx12.arcor-online.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030309225857.0FAC7101207@mx12.arcor-online.net>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Mar 11, 2003 at 12:03:18AM +0100, Daniel Phillips wrote:
+> On Sun 09 Mar 03 03:45, Zack Brown wrote:
+> > OK, so here is my distillation of Larry's post.
+...
+> > I'd be willing to maintain this as the beginning of a feature list and
+> > post it regularly to lkml if enough people feel it would be useful and not
+> > annoying. The goal would be to identify the features/problems that would
+> > need to be handled by a kernel-ready version control system.
+> >
+> > Be well,
+> > Zack
+> 
+> Hi Zack,
+> 
+> You might want to have a look here, there's lots of good stuff:
+> 
+>    http://arx.fifthvision.net/bin/view/Arx/LinuxKernel
+>    (Kernel Hackers SCM wish list)
 
-This dual CPU system will stay up for a few days, and then it starts reporting these
-errors to the console, shortly after these messages start appearing it will lock up.
-Below is the output from dmesg. Below that is my system info. Is there a patch for
-this? This is the standard redhat 8.0 kernel (2.4.18-14smp).
+Hi,
 
-Thanks,
+I remember that discussion. It was pretty interesting, but some
+conflicting ideas about what should be done; and not much organization
+to it all.
 
--Jeff Moss
-jeff@americom.com
+I've taken a lot of stuff from that wish list, combined it with what I gathered
+from Larry's earlier post, and from Petr Baudis' recent post, and elsewhere,
+and organized it into something that might be interesting. If anyone would
+like to host this document on the web, please let me know.
 
- ------------[ cut here ]------------
-kernel BUG at page_alloc.c:125!
-invalid operand: 0000
-ipt_MASQUERADE ipt_state iptable_filter ip_nat_ftp iptable_nat ip_tables ip_co
-CPU:    1
-EIP:    0010:[<c0140b5e>]    Not tainted
-EFLAGS: 00010286
+--------------------------------- cut here ---------------------------------
 
-EIP is at __free_pages_ok [kernel] 0x2e (2.4.18-14smp)
-eax: 0200080c   ebx: c1dcb478   ecx: c1dcb478   edx: 00000000
-esi: f2100e60   edi: 080fd000   ebp: 00000000   esp: c6fb1ed0
-ds: 0018   es: 0018   ss: 0018
-Process sshd2 (pid: 8073, stackpage=c6fb1000)
-Stack: c03338e0 080f6000 0000008a c53a23e8 c013416c e502c520 d94fa9e0 401cd39c 
-       edfea734 0000008b 00000073 0000008b 080fd000 0000008b c01321a2 c1dcb478 
-       e615e080 08048000 000b5000 08448000 c03d85c0 0000008b 080fd000 e615e084 
-Call Trace: [<c013416c>] zap_pte_range [kernel] 0x1ec (0xc6fb1ee0))
-[<c01321a2>] do_zap_page_range [kernel] 0x152 (0xc6fb1f08))
-[<c01326a8>] zap_page_range [kernel] 0x58 (0xc6fb1f40))
-[<c0135af2>] exit_mmap [kernel] 0xe2 (0xc6fb1f64))
-[<c011f3f1>] mmput [kernel] 0x51 (0xc6fb1f8c))
-[<c0124b9f>] do_exit [kernel] 0xdf (0xc6fb1f9c))
-[<c0124e13>] sys_exit [kernel] 0x13 (0xc6fb1fb8))
-[<c0109437>] system_call [kernel] 0x33 (0xc6fb1fc0))
+           Linux Kernel Requirements For A Version Control System    
 
+Document version 0.0.1
 
-Code: 0f 0b 7d 00 39 bc 27 c0 8b 53 08 85 d2 0f 85 c2 02 00 00 8b 
- ------------[ cut here ]------------
-kernel BUG at page_alloc.c:125!
-invalid operand: 0000
-ipt_MASQUERADE ipt_state iptable_filter ip_nat_ftp iptable_nat ip_tables ip_co
-CPU:    1
-EIP:    0010:[<c0140b5e>]    Not tainted
-EFLAGS: 00010286
+This document describes the features required for a version control system
+that would be acceptable to Linux kernel developers. A second section below
+lists features that would also be good, but not required for adoption by the
+kernel team.
 
-EIP is at __free_pages_ok [kernel] 0x2e (2.4.18-14smp)
-eax: 0200080c   ebx: c1dcb478   ecx: c1dcb478   edx: 00000000
-esi: f2100e60   edi: 080fd000   ebp: 00000000   esp: c4679ed0
-ds: 0018   es: 0018   ss: 0018
-Process sshd2 (pid: 9309, stackpage=c4679000)
-Stack: c03338e0 080f6000 0000008a c639c3e8 c013416c c4b311c0 ed45ad20 401cd39c 
-       f0c47734 0000008b 00000073 0000008b 080fd000 0000008b c01321a2 c1dcb478 
-       e4b86080 08048000 000b5000 08448000 c03d85c0 0000008b 080fd000 e4b86084 
-Call Trace: [<c013416c>] zap_pte_range [kernel] 0x1ec (0xc4679ee0))
-[<c01321a2>] do_zap_page_range [kernel] 0x152 (0xc4679f08))
-[<c01326a8>] zap_page_range [kernel] 0x58 (0xc4679f40))
-[<c0135af2>] exit_mmap [kernel] 0xe2 (0xc4679f64))
-[<c011f3f1>] mmput [kernel] 0x51 (0xc4679f8c))
-[<c0124b9f>] do_exit [kernel] 0xdf (0xc4679f9c))
-[<c0124e13>] sys_exit [kernel] 0x13 (0xc4679fb8))
-[<c0109437>] system_call [kernel] 0x33 (0xc4679fc0))
+Please help out by clarifying features; identifying which features are
+really required and which would just be nice; and by listing corner cases
+and other implementation issues.
 
+                          * * * Basic summary * * *
 
-Code: 0f 0b 7d 00 39 bc 27 c0 8b 53 08 85 d2 0f 85 c2 02 00 00 8b 
- ------------[ cut here ]------------
-kernel BUG at page_alloc.c:125!
-invalid operand: 0000
-ipt_MASQUERADE ipt_state iptable_filter ip_nat_ftp iptable_nat ip_tables ip_co
-CPU:    0
-EIP:    0010:[<c0140b5e>]    Not tainted
-EFLAGS: 00010286
+A distributed, replicated, version controlled user level file system with no
+limits on any of the file system events which may happen in parallel. All
+changes must be put correctly back together, no matter how much parallelism
+there has been.
 
-EIP is at __free_pages_ok [kernel] 0x2e (2.4.18-14smp)
-eax: 0200080c   ebx: c1dcb478   ecx: c1dcb478   edx: 00000000
-esi: f2100e60   edi: 080fd000   ebp: 00000000   esp: dd31ded0
-ds: 0018   es: 0018   ss: 0018
-Process sshd2 (pid: 10175, stackpage=dd31d000)
-Stack: c03338e0 080f6000 0000008a da68e3e8 c013416c c77eb5e0 d42b3f80 401cd39c 
-       ec299734 0000008b 00000073 0000008b 080fd000 0000008b c01321a2 c1dcb478 
-       ea863080 08048000 000b5000 08448000 c03d7dc0 0000008b 080fd000 ea863084 
-Call Trace: [<c013416c>] zap_pte_range [kernel] 0x1ec (0xdd31dee0))
-[<c01321a2>] do_zap_page_range [kernel] 0x152 (0xdd31df08))
-[<c01326a8>] zap_page_range [kernel] 0x58 (0xdd31df40))
-[<c0135af2>] exit_mmap [kernel] 0xe2 (0xdd31df64))
-[<c011f3f1>] mmput [kernel] 0x51 (0xdd31df8c))
-[<c0124b9f>] do_exit [kernel] 0xdf (0xdd31df9c))
-[<c0124e13>] sys_exit [kernel] 0x13 (0xdd31dfb8))
-[<c0109437>] system_call [kernel] 0x33 (0xdd31dfc0))
+                   * * * Requirements For The Kernel * * *
 
+                            Distributed Branches
 
-Code: 0f 0b 7d 00 39 bc 27 c0 8b 53 08 85 d2 0f 85 c2 02 00 00 8b 
- ------------[ cut here ]------------
-kernel BUG at page_alloc.c:125!
-invalid operand: 0000
-ipt_MASQUERADE ipt_state iptable_filter ip_nat_ftp iptable_nat ip_tables ip_co
-CPU:    0
-EIP:    0010:[<c0140b5e>]    Not tainted
-EFLAGS: 00010286
+  1. Introduction
 
-EIP is at __free_pages_ok [kernel] 0x2e (2.4.18-14smp)
-eax: 0200080c   ebx: c1dcb478   ecx: c1dcb478   edx: 00000000
-esi: f2100e60   edi: 080fd000   ebp: 00000000   esp: f58dbed0
-ds: 0018   es: 0018   ss: 0018
-Process sshd2 (pid: 10272, stackpage=f58db000)
-Stack: c03338e0 080f6000 0000008a eebe03e8 c013416c c34a4088 c01b40fc c34a4088 
-       c361d1a0 0000008b 00000073 0000008b 080fd000 0000008b c01321a2 c1dcb478 
-       ecb97080 08048000 000b5000 08448000 c03d7dc0 0000008b 080fd000 ecb97084 
-Call Trace: [<c013416c>] zap_pte_range [kernel] 0x1ec (0xf58dbee0))
-[<c01b40fc>] account_io_end [kernel] 0x2c (0xf58dbee8))
-[<c01321a2>] do_zap_page_range [kernel] 0x152 (0xf58dbf08))
-[<c01326a8>] zap_page_range [kernel] 0x58 (0xf58dbf40))
-[<c0135af2>] exit_mmap [kernel] 0xe2 (0xf58dbf64))
-[<c011f3f1>] mmput [kernel] 0x51 (0xf58dbf8c))
-[<c0124b9f>] do_exit [kernel] 0xdf (0xf58dbf9c))
-[<c0124e13>] sys_exit [kernel] 0x13 (0xf58dbfb8))
-[<c0109437>] system_call [kernel] 0x33 (0xf58dbfc0))
+The idea of distributed branches is to allow developers to pull an entire,
+full-featured repository onto their home system from the 'main' repository,
+allow them to work off-line or with other groups of developers without
+sacrificing the features of a full repository, then merge their work back to
+the main repository or to other repositories.
 
+A 'main' repository in this case is simply a repository used by the project
+leader of a given project. It has no special features or privileges missing
+from other branches. It is only considered the 'main' repository for social
+reasons, not technical ones. Therefore, branches that have been cloned from
+the main repository should not have to 'register' with the repository they
+cloned from. i.e. one repository should be able to interact fully with
+another, without either of them having prior knowledge of the other.
 
-Code: 0f 0b 7d 00 39 bc 27 c0 8b 53 08 85 d2 0f 85 c2 02 00 00 8b 
- ------------[ cut here ]------------
-kernel BUG at page_alloc.c:125!
-invalid operand: 0000
-ipt_MASQUERADE ipt_state iptable_filter ip_nat_ftp iptable_nat ip_tables ip_co
-CPU:    0
-EIP:    0010:[<c0140b5e>]    Not tainted
-EFLAGS: 00010286
+  2. Behavior
 
-EIP is at __free_pages_ok [kernel] 0x2e (2.4.18-14smp)
-eax: 0200080c   ebx: c1dcb478   ecx: c1dcb478   edx: 00000000
-esi: f2100e60   edi: 080fd000   ebp: 00000000   esp: f58dbed0
-ds: 0018   es: 0018   ss: 0018
-Process sshd2 (pid: 10282, stackpage=f58db000)
-Stack: c03338e0 080f6000 0000008a efdd03e8 c013416c f00dd480 f3a271e0 401cd39c 
-       f0521734 0000008b 00000073 0000008b 080fd000 0000008b c01321a2 c1dcb478 
-       c3f20080 08048000 000b5000 08448000 c03d7dc0 0000008b 080fd000 c3f20084 
-Call Trace: [<c013416c>] zap_pte_range [kernel] 0x1ec (0xf58dbee0))
-[<c01321a2>] do_zap_page_range [kernel] 0x152 (0xf58dbf08))
-[<c01326a8>] zap_page_range [kernel] 0x58 (0xf58dbf40))
-[<c0135af2>] exit_mmap [kernel] 0xe2 (0xf58dbf64))
-[<c011f3f1>] mmput [kernel] 0x51 (0xf58dbf8c))
-[<c0124b9f>] do_exit [kernel] 0xdf (0xf58dbf9c))
-[<c0124e13>] sys_exit [kernel] 0x13 (0xf58dbfb8))
-[<c0109437>] system_call [kernel] 0x33 (0xf58dbfc0))
+Creating one repository from another should produce a full clone; not just
+the current state of the parent repository, but all data from the parent
+should be included in the child.
 
+When cloning a repository, committing changes back to the parent, or sharing
+changes with any other repositories, no assumptions should be made about the
+location of the repositories on the network. Repositories may be on the same
+machine, or on entirely different machines anywhere in the world.
 
-Code: 0f 0b 7d 00 39 bc 27 c0 8b 53 08 85 d2 0f 85 c2 02 00 00 8b
+                                 Changesets
 
+  1. Introduction
 
-SYSTEM INFO
+A changeset is a group of files in a repository, that have been tagged by
+the developer, as being logical parts of a patch dealing with a single
+feature or fix. A developer working on multiple aspects of a repository, may
+create one changeset for each aspect, in which each changeset consists of
+the files relevant to that aspect.
 
-00:00.0 Host bridge: VIA Technologies, Inc. VT82C691 [Apollo PRO] (rev c4)
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR-
-FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+
->SERR- <PERR-
-	Latency: 8
-	Region 0: Memory at d0000000 (32-bit, prefetchable) [size=64M]
-	Capabilities: <available only to root>
+In the context of sharing changesets between repositories, a changeset
+consists of a diff between the set of files in the local and remote
+repositories.
 
-00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo MVP3/Pro133x AGP]
-(prog-if 00 [Normal decode])
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR-
-FastB2B-
-	Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+
->SERR- <PERR-
-	Latency: 0
-	Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
-	I/O behind bridge: 0000f000-00000fff
-	Memory behind bridge: d6000000-d7ffffff
-	Prefetchable memory behind bridge: d4000000-d5ffffff
-	BridgeCtl: Parity- SERR- NoISA+ VGA+ MAbort- >Reset- FastB2B-
-	Capabilities: <available only to root>
+  2. Behavior
 
-00:07.0 ISA bridge: VIA Technologies, Inc. VT82C596 ISA [Mobile South] (rev 23)
-	Subsystem: VIA Technologies, Inc. VT82C596/A/B PCI to ISA Bridge
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping+ SERR-
-FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort-
->SERR- <PERR-
-	Latency: 0
+    2.1 Tagging
 
-00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 10) (prog-if 8a
-[Master SecP PriP])
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR-
-FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort-
->SERR- <PERR-
-	Latency: 32
-	Region 4: I/O ports at c000 [size=16]
-	Capabilities: <available only to root>
+It must be trivial for a developer to tag a file as part of a given
+changeset.
 
-00:07.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 11) (prog-if 00 [UHCI])
-	Subsystem: Unknown device 0925:1234
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR-
-FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort-
->SERR- <PERR-
-	Latency: 32, cache line size 08
-	Interrupt: pin D routed to IRQ 12
-	Region 4: I/O ports at c400 [size=32]
-	Capabilities: <available only to root>
+It must be possible to reorganize changesets, so that a given changeset may
+be split up into more manageable pieces.
 
-00:07.3 Bridge: VIA Technologies, Inc. VT82C596 Power Management (rev 30)
-	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR-
-FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort-
->SERR- <PERR-
+    2.2 Versioning
 
-00:08.0 Ethernet controller: Lite-On Communications Inc LNE100TX (rev 20)
-	Subsystem: Netgear FA310TX
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR-
-FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort-
->SERR- <PERR-
-	Latency: 32
-	Interrupt: pin A routed to IRQ 11
-	Region 0: I/O ports at c800 [size=256]
-	Region 1: Memory at d9000000 (32-bit, non-prefetchable) [size=256]
-	Expansion ROM at <unassigned> [disabled] [size=256K]
+Changesets are given their own local version number, incremented with each
+checkin.
 
-00:0a.0 Ethernet controller: 3Com Corporation 3c900 Combo [Boomerang]
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR-
-FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort-
->SERR- <PERR-
-	Latency: 32 (750ns min, 2000ns max)
-	Interrupt: pin A routed to IRQ 10
-	Region 0: I/O ports at cc00 [size=64]
-	Expansion ROM at <unassigned> [disabled] [size=64K]
+  3. Problems For Clarification
 
-00:0b.0 Unknown mass storage controller: HighPoint Technologies, Inc. HPT366/370
-UltraDMA 66/100 IDE Controller (rev 03)
-	Subsystem: HighPoint Technologies, Inc.: Unknown device 0001
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR-
-FastB2B-
-	Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort-
->SERR- <PERR-
-	Latency: 120 (2000ns min, 2000ns max), cache line size 08
-	Interrupt: pin A routed to IRQ 11
-	Region 0: I/O ports at d000 [size=8]
-	Region 1: I/O ports at d400 [size=4]
-	Region 2: I/O ports at d800 [size=8]
-	Region 3: I/O ports at dc00 [size=4]
-	Region 4: I/O ports at e000 [size=256]
-	Expansion ROM at <unassigned> [disabled] [size=128K]
-	Capabilities: <available only to root>
+If a file is tagged as being part of two different changesets, then changes
+to that file should be associated with which changeset???
 
-01:00.0 VGA compatible controller: nVidia Corporation Vanta [NV6] (rev 15) (prog-if
-00 [VGA])
-	Subsystem: Unknown device 3842:3107
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR-
-FastB2B-
-	Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort-
->SERR- <PERR-
-	Latency: 32 (1250ns min, 250ns max)
-	Interrupt: pin A routed to IRQ 11
-	Region 0: Memory at d6000000 (32-bit, non-prefetchable) [size=16M]
-	Region 1: Memory at d4000000 (32-bit, prefetchable) [size=32M]
-	Expansion ROM at <unassigned> [disabled] [size=64K]
-	Capabilities: <available only to root>
+                                  Checkins
 
-CPU INFO:
+  1. Introduction
 
-processor	: 0
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 8
-model name	: Pentium III (Coppermine)
-stepping	: 6
-cpu MHz		: 866.378
-cache size	: 256 KB
-Physical processor ID	: 775501358
-Number of siblings	: 1
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx
-fxsr sse
-bogomips	: 1720.95
+Checkins consist of making local modifications to a given repository. This
+is distinct from merging changes from one repository into another. A
+developer making local changes to their own repository is doing checkins. A
+developer sharing their changes with a separate repository is doing merging.
 
-processor	: 1
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 8
-model name	: Pentium III (Coppermine)
-stepping	: 6
-cpu MHz		: 866.378
-cache size	: 256 KB
-Physical processor ID	: 757085748
-Number of siblings	: 1
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx
-fxsr sse
-bogomips	: 1729.05
+  2. Behavior
+
+Files that are not part of a changeset are treated individually. On checkin,
+the developer may include a comment for each file. This is distinct from
+version control systems that take a single comment for the whole checkin.
+
+It must be possible to checkin a single changeset to a local repository, and
+have that changeset be treated as an individual unit, just as plain files
+are: on checkin, the developer includes a single comment for the entire
+changeset.
+
+                                   Merging
+
+  1. Introduction
+
+Merging consists of sending and receiving changes between two or more
+repositories.
+
+  2. Behavior
+
+    2.1 Preserving Local Work
+
+It must be possible to update a local repository to match changes that have
+been made to a remote repository, while at the same time preserve changes
+that have been made to the local repository. If conflicts arise because some
+of the same files have changed on both the local and remote repositories,
+conflict resolution tools should be automatically invoked for the local
+developer (see below).
+
+If a checkin is interrupted for some reason, it should be easy to clean up
+the tree, bringing it back to a consistant, useful state.
+
+It should be possible to mark a file as private to a local repository, so
+that a merge will never try to commit that file's changes to a remote
+repository.
+
+    2.2 Preserving History
+
+Checkin tags and version numbers are local to a given repository. Because
+duplicates may exist across repositories, these historical details must be
+remapped during checkin, to values that are unique within the remote
+repository, but that can still be identified with their originals.
+
+A merge between two repositories does not consist only of merging the
+current state of a set of changesets, but their entire history, including
+all their versions and the files that comprise them.
+
+Even if no history is available for a given patch, it should be easy to
+checkin and merge that patch.
+
+The implementation must not depend on time being accurately reported by any
+of the repositories.
+
+  3. Graph Structure
+
+To illustrate some of the above behaviors, see the following DAG (Directed
+Acyclic Graph). This graph will look different when viewed from each
+repository (diagrams show the ChangeSet numbers). From the imaginary Linus'
+branch, it looks like:
 
 
-cat iomem 
-00000000-0009ffff : System RAM
-000a0000-000bffff : Video RAM area
-000c0000-000c7fff : Video ROM
-000f0000-000fffff : System ROM
-00100000-3ffeffff : System RAM
-  00100000-0026ac09 : Kernel code
-  0026ac0a-003758c3 : Kernel data
-3fff0000-3fff2fff : ACPI Non-volatile Storage
-3fff3000-3fffffff : ACPI Tables
-d0000000-d3ffffff : VIA Technologies, Inc. VT82C693A/694x [Apollo PRO133x]
-d4000000-d5ffffff : PCI Bus #01
-  d4000000-d5ffffff : nVidia Corporation Vanta [NV6]
-d6000000-d7ffffff : PCI Bus #01
-  d6000000-d6ffffff : nVidia Corporation Vanta [NV6]
-d9000000-d90000ff : Lite-On Communications Inc LNE100TX
-  d9000000-d90000ff : tulip
-fec00000-fec00fff : reserved
-fee00000-fee00fff : reserved
-ffff0000-ffffffff : reserved
+linus  1.1 -> 1.2 -> 1.3 -----> 1.4 -> 1.5 -----> 1.6 -----> 1.7
+                \               / \                          /
+alan             \-> 1.2.1.1 --/---\-> 1.2.1.2 -> 1.2.1.3 --/
+
+
+But from the Alan' branch, it looks like:
+
+
+linus  1.1 -> 1.2 -> 1.2.1.1 -> 1.2.1.2 -> 1.2.1.3 -> 1.2.1.4 -> 1.2.1.5
+                \               / \                              /
+alan             \-> 1.3 ------/---\-----> 1.4 -----> 1.5 ------/
+
+
+A virtual branch, used to track changesets, not per-file revisions, is
+created in the parent repository during merge. At this time the merged
+changesets receive new numbers appropriate for that branch. But since the
+branch is only virtual, there is still only one line of development in the
+repository. To see the changesets in the order they were applied, they must
+be sorted not by revision number buy by merge time. Thus, with respect to
+the above diagrams, the order in which the patches were applied, from Linus'
+perspective, is:
+
+1.1  1.2  1.3  1.2.1.1  1.4  1.5  1.6  1.2.1.2  1.2.1.3  1.7
+
+                         Distributed Rename Handling
+
+  1. Introduction
+
+This consists of allowing developers to rename files and directories, and
+have all repository operations properly recognize and handle this.
+
+  2. Behavior
+
+    2.1 Local
+
+Renaming files and directories locally should preserve all historical
+information including changeset tags.
+
+    2.2 Distributed
+
+In the general case, a single local repository attempts to merge
+name-changes with a remote repository. In this case, the remote repository
+receives the name change, along with all history including changeset tags.
+
+      2.2.1 Conflicts
+
+An arbitrary number of repositories cloned from either a single remote
+repository or from each other may attempt to change the name of a single
+file to arbitrary other names and then merge that change back to a single
+remote repository or to each other.
+
+An arbitrary number of repositories cloned from either a single remote
+repository or from each other may rename file A to something else, and then
+other files to the name formerly used by File A, or create a new file with
+the name formerly used by file A; and then merge those changes to the single
+remote repository or to each other.
+
+An arbitrary number of repositories cloned from either a single remote
+repository or from each other may attempt to create a file with the same
+name and merge that change back to the remote repository or to each other.
+
+                        Graphical 2- And 3-Way Merging Tool
+
+  1. Introduction
+
+Merge tools are tools used to resolve conflicts when merging files. See
+tkdiff ( http://www.accurev.com/free/tkdiff/ )
+
+  2. Behavior
+
+The merge tools should identify precisely the areas of conflict, and enable
+the user to quickly edit the files to resolve the conflicts and apply the
+patch.
+
+Merge tools must be able to handle patches as well as entire files.
+
+A typical usage would be to pull all recent changes to a local tree from a
+remote repository; then run the merge tools to resolve any conflicts between
+the remote repository and changes that have been made locally; tag local
+files to produce a changeset; and generate a diff for sharing.
+
+               * * * Not Required For Kernel Development * * *
+
+                                 Changesets
+
+It should be possible to exchange changesets via email.
+
+                                 File Types
+
+The system should support symlinks, device special files, fifos, etc. (i.e.
+inode metadata)
 
 
 
 
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+This document is copyright Zack Brown and released under the terms of the
+GNU General Public License, version 2.0.
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+--------------------------------- cut here ---------------------------------
+
+
+> 
+> Regards,
+> 
+> Daniel
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+Zack Brown

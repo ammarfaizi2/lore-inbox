@@ -1,62 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290080AbSA3QvG>; Wed, 30 Jan 2002 11:51:06 -0500
+	id <S290228AbSA3RNs>; Wed, 30 Jan 2002 12:13:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290127AbSA3Qtf>; Wed, 30 Jan 2002 11:49:35 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:62880
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S290082AbSA3Qsf>; Wed, 30 Jan 2002 11:48:35 -0500
-Date: Wed, 30 Jan 2002 09:47:38 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Larry McVoy <lm@work.bitmover.com>,
+	id <S290119AbSA3RM7>; Wed, 30 Jan 2002 12:12:59 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:16902 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S290115AbSA3RMo>;
+	Wed, 30 Jan 2002 12:12:44 -0500
+Date: Wed, 30 Jan 2002 09:11:26 -0800
+From: Greg KH <greg@kroah.com>
+To: Jeff Garzik <garzik@havoc.gtf.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
         Linus Torvalds <torvalds@transmeta.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Alexander Viro <viro@math.psu.edu>, Ingo Molnar <mingo@elte.hu>,
-        Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org,
-        Rik van Riel <riel@conectiva.com.br>
+        Alexander Viro <viro@math.psu.edu>,
+        Daniel Phillips <phillips@bonn-fries.net>, mingo@elte.hu,
+        Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org
 Subject: Re: A modest proposal -- We need a patch penguin
-Message-ID: <20020130164738.GP25973@opus.bloom.county>
-In-Reply-To: <E16Vp2w-0000CA-00@starship.berlin> <Pine.LNX.4.33.0201292326110.1428-100000@penguin.transmeta.com> <20020130154233.GK25973@opus.bloom.county> <20020130080308.D18381@work.bitmover.com> <20020130160707.GL25973@opus.bloom.county> <20020130081134.F18381@work.bitmover.com> <20020130161825.GM25973@opus.bloom.county> <20020130083756.I23269@work.bitmover.com>
+Message-ID: <20020130171126.GA26583@kroah.com>
+In-Reply-To: <Pine.LNX.4.33.0201300110420.1542-100000@penguin.transmeta.com> <E16VrdT-0006t7-00@the-village.bc.nu> <20020130051855.E11267@havoc.gtf.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020130083756.I23269@work.bitmover.com>
-User-Agent: Mutt/1.3.27i
+In-Reply-To: <20020130051855.E11267@havoc.gtf.org>
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Wed, 02 Jan 2002 14:38:16 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 30, 2002 at 08:37:56AM -0800, Larry McVoy wrote:
-> > Er, not the pristine tree, the linuxppc_2_4 tree, sorry.  I'll try
-> > again.  One of the problems we hit frequently is that we have to move
-> > files from linuxppc_2_4_devel into linuxppc_2_4, once they prove stable.
-> > But just creating a normal patch, or cp'ing the files means when we pull
-> > linuxppc_2_4 back into linuxppc_2_4_devel we get a file conflict, and
-> > have to move one of the files (the previously existing one) into the
-> > deleted dir.  How do we cleanly move just a few files from a child tree
-> > into the parent?  I think this is a lot like what would happen, if Linus
-> > used BK and we wanted to send him support for some platforms, but not
-> > all of the other changes we have.
+On Wed, Jan 30, 2002 at 05:18:55AM -0500, Jeff Garzik wrote:
+> On Wed, Jan 30, 2002 at 10:06:35AM +0000, Alan Cox wrote:
+> > The other related question is device driver implementation stuff (not interfaces
+> > and abstractions). You don't seem to check that much anyway, or have any taste
+> > in device drivers 8) so should that be part of the small fixing job ?
 > 
-> BitKeeper is like a distributed, replicated file system with atomic changes.
-> That has certain advantages, much like a database.  What you are asking 
-> violates the database rules, if I understand you properly.  Are you asking
-> to move part of a changeset?  That's a no no, that's like moving the 
-> increment to your bank account without the decrement to mine; the banks
-> frown on that :-)
-> 
-> Or are you asking more about the out of order stuff, i.e., whole changesets
-> are fine but not all of them.
+> I've often dreamt of an overall "drivers maintainer" or perhaps just an
+> unmaintained-drivers maintainer:  a person with taste who could give
+> driver patches a glance, when noone else does.
+> (and no I'm not volunteering :))
 
-Unfortunatly I think the PPC tree has hit both cases :)  The restriction
-that everything gets moved as a changeset is fine tho. One problem is
-an out-of-order (or rather a single) changeset which creates a few
-files.
+I have had that same dream too, Jeff :)
+Especially after spelunking through the SCSI drivers, and being amazed
+that only one of them uses the, now two year old, pci_register_driver()
+interface (which means that only that driver works properly in PCI
+hotplug systems.)
 
-The other problem is we create a file (say
-arch/ppc/kernel/prpmc750_setup.c) and then 4-5 changesets effect this
-file (code, code, bk mv, code, code).  If this is doable in multiple
-out-of-order sends to the parent, that'd probably be OK.
+Having someone with "taste" to run driver patches by first would have
+been a great help when I started out writing them.  I've been trying to
+provide that resource for the new USB drivers.
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+greg k-h

@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269057AbRHFWL1>; Mon, 6 Aug 2001 18:11:27 -0400
+	id <S269067AbRHFW1d>; Mon, 6 Aug 2001 18:27:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269061AbRHFWLR>; Mon, 6 Aug 2001 18:11:17 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:64979 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S269057AbRHFWK7>;
-	Mon, 6 Aug 2001 18:10:59 -0400
-Date: Mon, 06 Aug 2001 15:07:59 -0700
-From: richard offer <offer@sgi.com>
-To: linux-kernel@vger.kernel.org
-cc: Red Phoenix <redph0enix@hotmail.com>
-Subject: Re: Linux C2-Style Audit Capability
-Message-ID: <1634130000.997135679@changeling.engr.sgi.com>
-In-Reply-To: <fa.hg36o7v.1076epo@ifi.uio.no>
-In-Reply-To: <fa.i3h9gdv.45k3go@ifi.uio.no> <fa.hg36o7v.1076epo@ifi.uio.no>
-X-Mailer: Mulberry/2.1.0b3 (Linux/x86)
-X-HomePage: http://www.whitequeen.com/users/richard/
+	id <S269068AbRHFW1X>; Mon, 6 Aug 2001 18:27:23 -0400
+Received: from femail43.sdc1.sfba.home.com ([24.254.60.37]:54935 "EHLO
+	femail43.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S269067AbRHFW1N>; Mon, 6 Aug 2001 18:27:13 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Nicholas Knight <tegeran@home.com>
+Reply-To: tegeran@home.com
+To: Nico Schottelius <nicos@pcsystems.de>, safemode <safemode@speakeasy.net>
+Subject: Re: 3c509: broken(verified)
+Date: Mon, 6 Aug 2001 15:30:12 -0700
+X-Mailer: KMail [version 1.2]
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <E15TNpL-0007rV-00@the-village.bc.nu> <20010805160035Z269969-28344+1638@vger.kernel.org> <3B6EBDAE.F5D619EB@pcsystems.de>
+In-Reply-To: <3B6EBDAE.F5D619EB@pcsystems.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-Id: <01080615301200.00599@c779218-a>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 06 August 2001 08:54 am, Nico Schottelius wrote:
+> > i was just using a 3c509 in my friend's old 486 and it was working
+> > fine with 2.4.7.   Just modprobed it and set up the ips and it was
+> > able to ping and be pinged.
+>
+> Did you use twisted pair or coax (bnc) ?
+>
+> This problems occurs (at least ) when trying to use TP.
+>
+> Nico
+>
+> ps: Alan, do you have an solution ?
 
+For what it's worth, I'm using a 3c509 card on vanilla 2.4.7 right now, 
+using standard twisted pair patch cable, and it works fine. I've used it 
+both as a module and compiled in (using compiled in at the moment) on 
+2.4.5 and 2.4.7, I've also previously used it on 2.4.3, both compiled in 
+and as a module.
 
-* frm alan@lxorguk.ukuu.org.uk "08/04/01 09:24:11 +0000" | sed '1,$s/^/* /'
-*
-*> System calls are overridden by pointing sys_call_table[system call] to a 
-*> replacement function which saves off the data for auditing purposes,
-*> then  calls the original system call.
-* 
-* Ugly but that bit probably ties in with all the other folks trying to put
-* together a unified security hook set for 2.5
+The motherboard is a Soyo K7VIA w/single ISA slot, VIA Apollo Pro KX133 
+chipset, using an Athlon processor.
 
-Simply wrapping the system calls isn't going to get a CAPP (or C2)
-compliant audit implementation. It also isn't how the "unified security
-hooks" (aka LSM, Linux Security Modules) are working.
+The card is connected to a hub and communicates fine with both my other 
+system and my cable modem, using DHCP.
 
-SGI is working towards a CAPP compliant audit implementation under the LSM
-framework, I'd suggest that you head over to http://lsm.immunix.org/ for
-more details on LSM.
-
-
-richard.
-
------------------------------------------------------------------------
-Richard Offer                     Technical Lead, Trust Technology, SGI
-"Specialization is for insects"
-_______________________________________________________________________
-
+You mention the problem is being unable to change the media, I was 
+unaware this was even possible with the current 3c509 driver, and most 
+people do it on 3c509's and other PNP cards of this sort (such as NE2000 
+clones)  by using a DOS boot diskette and the DOS utilities provided by 
+the manufacturer.

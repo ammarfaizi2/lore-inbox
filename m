@@ -1,45 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261863AbTJRV2z (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Oct 2003 17:28:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbTJRV2z
+	id S261868AbTJRVj3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Oct 2003 17:39:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbTJRVj3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Oct 2003 17:28:55 -0400
-Received: from gprs144-147.eurotel.cz ([160.218.144.147]:5253 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261863AbTJRV2y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Oct 2003 17:28:54 -0400
-Date: Sat, 18 Oct 2003 23:28:33 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: pavel@ucw.cz
-Cc: James Simmons <jsimmons@infradead.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] Re: FBDEV 2.6.0-test7 updates.
-Message-ID: <20031018212833.GA28644@elf.ucw.cz>
-References: <20031015162056.018737f1.akpm@osdl.org> <Pine.LNX.4.44.0310160022210.13660-100000@phoenix.infradead.org> <20031016091918.GA1002@casa.fluido.as> <1066298431.1407.119.camel@gaston> <20031016101905.GA7454@casa.fluido.as> <1066300935.646.136.camel@gaston> <20031017100412.GA1639@casa.fluido.as> <1066387778.661.226.camel@gaston> <20031017111032.GB1639@casa.fluido.as>
-Mime-Version: 1.0
+	Sat, 18 Oct 2003 17:39:29 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:3264 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261868AbTJRVjH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Oct 2003 17:39:07 -0400
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Linux 2.6.0-test8 __might_sleep warnings on boot
+X-Message-Flag: Warning: May contain useful information
+X-Priority: 1
+X-MSMail-Priority: High
+From: Roland Dreier <roland@digitalvampire.org>
+Date: 18 Oct 2003 14:38:09 -0700
+Message-ID: <87he26p6pq.fsf@love-shack.home.digitalvampire.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031017111032.GB1639@casa.fluido.as>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+I'm seeing the following on boot (and I've seen at least one other
+similar report on lkml):
 
-I tried those updates (over -test8, I downloaded .gz-version, and it
-contained lots of files like include/asm/*, no problems patching,
-through). Well, cursor problems only got worse.
+    Detected 930.391 MHz processor.
+    Console: colour VGA+ 80x25
+    Debug: sleeping function called from invalid context at include/asm/semaphore.h:119
+    in_atomic():1, irqs_disabled():1
+    Call Trace:
+     [<c011a67d>] __might_sleep+0x9d/0xb0
+     [<c011cdf2>] acquire_console_sem+0x2a/0x48
+     [<c011d05d>] register_console+0x109/0x178
+     [<c03b8a70>] con_init+0x1e0/0x1ec
+     [<c0105000>] _stext+0x0/0x50
+     [<c03b8184>] console_init+0x24/0x34
+     [<c03aa575>] start_kernel+0xa5/0x17c
+     [<c03aa3c4>] unknown_bootoption+0x0/0xdc
 
-VGA-softcursor problems are still there (backspace leaves ghost
-cursors behind).
+    Memory: 515040k/524032k available (1801k kernel code, 8244k reserved, 912k data, 132k init, 0k highmem)
+    Debug: sleeping function called from invalid context at mm/slab.c:1857
+    in_atomic():1, irqs_disabled():0
+    Call Trace:
+     [<c011a67d>] __might_sleep+0x9d/0xb0
+     [<c01386b3>] kmem_cache_alloc+0x1f/0x54
+     [<c0137a0c>] kmem_cache_create+0x6c/0x438
+     [<c0105000>] _stext+0x0/0x50
+     [<c03b6076>] kmem_cache_init+0xf6/0x23c
+     [<c0105000>] _stext+0x0/0x50
+     [<c03aa5c0>] start_kernel+0xf0/0x17c
 
-Cursor problems got *worse*. With vanilla, cursor got corrupted when
-using gpm. Now it is *allways* corrupted :-(. I'm using vesafb.
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+    Calibrating delay loop... 1839.10 BogoMIPS
+
+These were probably always there but are just getting exposed because
+of the fix for printing __might_sleep warnings before the jiffies
+wrap (which went in between -test7 and -test8).
+
+I can see what's going on -- in init/main.c, we have:
+
+        console_init();
+        profile_init();
+        local_irq_enable();
+
+        /* ... deletia ... */
+
+        kmem_cache_init();
+
+        /* ... deletia ... */
+
+        init_idle(current, smp_processor_id());
+
+irqs_disabled() is true until the local_irq_enable() and in_atomic()
+is true until init_idle().
+
+I guess the fix is something like the patch below (tested and working
+in my setup), which just disables __might_sleep warnings until after
+init_idle().
+
+(Another alternative might be to add functions like
+"i_know_its_safe_to_call_functions_that_might_sleep()" and
+"done_with_functions_that_might_sleep()" and add them everywhere
+appropriate, but that seems a lot harder)
+
+ - Roland
+
+--- linux-2.6.0-test8/kernel/sched.c~early_might_sleep	Sat Oct 18 11:54:24 2003
++++ linux-2.6.0-test8/kernel/sched.c	Sat Oct 18 12:16:57 2003
+@@ -38,6 +38,10 @@
+ #include <linux/cpu.h>
+ #include <linux/percpu.h>
+ 
++/* we need to know when init_idle() is done so that we don't print
++   spurious __might_sleep warnings on boot. */
++static int init_idle_done;
++
+ #ifdef CONFIG_NUMA
+ #define cpu_to_node_mask(cpu) node_to_cpumask(cpu_to_node(cpu))
+ #else
+@@ -2538,6 +2542,9 @@ void __init init_idle(task_t *idle, int 
+ #else
+ 	idle->thread_info->preempt_count = 0;
+ #endif
++
++	/* __might_sleep checks now make sense */
++	init_idle_done = 1;
+ }
+ 
+ #ifdef CONFIG_SMP
+@@ -2848,7 +2855,7 @@ void __might_sleep(char *file, int line)
+ #if defined(in_atomic)
+ 	static unsigned long prev_jiffy;	/* ratelimiting */
+ 
+-	if (in_atomic() || irqs_disabled()) {
++	if (init_idle_done && (in_atomic() || irqs_disabled())) {
+ 		if (time_before(jiffies, prev_jiffy + HZ) && prev_jiffy)
+ 			return;
+ 		prev_jiffy = jiffies;
+

@@ -1,61 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314277AbSF2UWh>; Sat, 29 Jun 2002 16:22:37 -0400
+	id <S314395AbSF2Wts>; Sat, 29 Jun 2002 18:49:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314325AbSF2UWg>; Sat, 29 Jun 2002 16:22:36 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:57075 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S314277AbSF2UWf>; Sat, 29 Jun 2002 16:22:35 -0400
-Date: Sat, 29 Jun 2002 22:24:52 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: linux-kernel@vger.kernel.org
-Subject: DocBook-problem with kernel-api in 2.4.19-rc1
-Message-ID: <Pine.NEB.4.44.0206292219310.18640-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314403AbSF2Wtr>; Sat, 29 Jun 2002 18:49:47 -0400
+Received: from p015.as-l031.contactel.cz ([212.65.234.207]:40832 "EHLO
+	ppc.vc.cvut.cz") by vger.kernel.org with ESMTP id <S314395AbSF2Wto>;
+	Sat, 29 Jun 2002 18:49:44 -0400
+Date: Sun, 30 Jun 2002 02:28:34 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
+Subject: [PATCH] 2.5.24 matroxfb memory corruption
+Message-ID: <20020630002834.GG25118@ppc.vc.cvut.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+  Linus, please apply this. When James converted all drivers to unified
+do_install_cmap(), he blindly changed also matroxfb, which happily
+uses fbcon.currcon == -1. This caused memory corruption because of
+memory before fb_display[] array was overwritten.
+  Default do_install_cmap() also installed invalid default color map
+in some matroxfb resolutions. Not all world have >= 4bpp.
+					Thanks,
+						Petr Vandrovec
+						vandrove@vc.cvut.cz
 
-There's the following error when I try a "make psdocs" in 2.4.19-rc1:
 
-<--  snip  -->
-
-$ make psdocs
-chmod 755 /home/bunk/linux/linux/scripts/docgen
-chmod 755 /home/bunk/linux/linux/scripts/gen-all-syms
-chmod 755 /home/bunk/linux/linux/scripts/kernel-doc
-make -C /home/bunk/linux/linux/Documentation/DocBook books
-make[1]: Entering directory `/home/bunk/linux/linux/Documentation/DocBook'
-/home/bunk/linux/linux/scripts/docgen
-...
-/home/bunk/linux/linux/kernel/sysctl.c /home/bunk/linux/linux/lib/string.c
-/home/bunk/linux/linux/lib/vsprintf.c /home/bunk/linux/linux/net/netsyms.c
-<kernel-api.tmpl >kernel-api.sgml
-Error(2021): cannot understand prototype: 'struct seq_operations slabinfo_op = '
-make[1]: Leaving directory `/home/bunk/linux/linux/Documentation/DocBook'
-make -C Documentation/DocBook ps
-make[1]: Entering directory `/home/bunk/linux/linux/Documentation/DocBook'
-db2ps kernel-api.sgml
-Using catalogs: /etc/sgml/catalog
-Using stylesheet: /usr/share/sgml/docbook/utils-0.6.10/docbook-utils.dsl#print
-Working on: /home/bunk/linux/linux/Documentation/DocBook/kernel-api.sgml
-jade:/home/bunk/linux/linux/Documentation/DocBook/kernel-api.sgml:668:12:E:
-end tag for "SECT1" which is not finished
-make[1]: *** [kernel-api.ps] Error 8
-make[1]: Leaving directory `/home/bunk/linux/linux/Documentation/DocBook'
-make: *** [psdocs] Error 2
-$
-
-<--  snip  -->
-
-cu
-Adrian
-
--- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
-
+diff -urdN linux/drivers/video/matrox/matroxfb_base.c linux/drivers/video/matrox/matroxfb_base.c
+--- linux/drivers/video/matrox/matroxfb_base.c	Fri Jun 21 00:53:55 2002
++++ linux/drivers/video/matrox/matroxfb_base.c	Sun Jun 30 02:19:15 2002
+@@ -141,6 +141,19 @@
+ 
+ 
+ /* --------------------------------------------------------------------- */
++static inline void my_install_cmap(WPMINFO2)
++{
++	/* Do not touch this code if you do not understand what it does! */
++	/* Never try to use do_install_cmap() instead. It is crap. */
++	struct fb_cmap* cmap = &ACCESS_FBINFO(currcon_display)->cmap;
++
++	if (cmap->len)
++		fb_set_cmap(cmap, 1, &ACCESS_FBINFO(fbcon));
++	else
++		fb_set_cmap(fb_default_cmap(ACCESS_FBINFO(curr.cmap_len)),
++			    1, &ACCESS_FBINFO(fbcon));
++}
++
+ 
+ static void matrox_pan_var(WPMINFO struct fb_var_screeninfo *var) {
+ 	unsigned int pos;
+@@ -869,7 +882,7 @@
+ 				up_read(&ACCESS_FBINFO(altout.lock));
+ 			}
+ 			matrox_cfbX_init(PMINFO display);
+-			do_install_cmap(ACCESS_FBINFO(fbcon.currcon),&ACCESS_FBINFO(fbcon));
++			my_install_cmap(PMINFO2);
+ #if defined(CONFIG_FB_COMPAT_XPMAC)
+ 			if (console_fb_info == &ACCESS_FBINFO(fbcon)) {
+ 				int vmode, cmode;
+diff -urdN linux/drivers/video/matrox/matroxfb_crtc2.c linux/drivers/video/matrox/matroxfb_crtc2.c
+--- linux/drivers/video/matrox/matroxfb_crtc2.c	Fri Jun 21 00:53:48 2002
++++ linux/drivers/video/matrox/matroxfb_crtc2.c	Sun Jun 30 02:19:15 2002
+@@ -84,6 +84,19 @@
+ #undef m2info
+ }
+ 
++static inline void my_install_cmap(struct matroxfb_dh_fb_info* m2info)
++{
++	/* Do not touch this code if you do not understand what it does! */
++	/* Never try to use do_install_cmap() instead. It is crap. */
++	struct fb_cmap* cmap = &m2info->currcon_display->cmap;
++	
++	if (cmap->len)
++		fb_set_cmap(cmap, 1, &m2info->fbcon);
++	else
++		fb_set_cmap(fb_default_cmap(16), 1, &m2info->fbcon);
++}
++
++
+ static void matroxfb_dh_restore(struct matroxfb_dh_fb_info* m2info,
+ 		struct my_timming* mt,
+ 		struct display* p,
+@@ -439,7 +452,7 @@
+ 			up_read(&ACCESS_FBINFO(altout.lock));
+ 		}
+ 		matroxfb_dh_cfbX_init(m2info, p);
+-		do_install_cmap(ACCESS_FBINFO(fbcon.currcon), &ACCESS_FBINFO(fbcon));
++		my_install_cmap(m2info);
+ 	}
+ 	return 0;
+ #undef m2info

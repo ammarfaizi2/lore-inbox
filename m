@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265384AbUBIUc2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 15:32:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265385AbUBIUc2
+	id S265415AbUBIUoR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 15:44:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265423AbUBIUoR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 15:32:28 -0500
-Received: from mailhost.tue.nl ([131.155.2.7]:59912 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S265384AbUBIUc1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 15:32:27 -0500
-Date: Mon, 9 Feb 2004 21:32:24 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Albert Cahalan <albert@users.sourceforge.net>
-Cc: "H. Peter Anvin" <hpa@zytor.com>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Does anyone still care about BSD ptys?
-Message-ID: <20040209213224.A1125@pclin040.win.tue.nl>
-References: <1076334541.27234.140.camel@cube> <4027BFE7.5040100@zytor.com> <1076347137.27234.166.camel@cube>
+	Mon, 9 Feb 2004 15:44:17 -0500
+Received: from pool-64-222-172-33.man.east.verizon.net ([64.222.172.33]:966
+	"EHLO mx.wuff.dhs.org") by vger.kernel.org with ESMTP
+	id S265415AbUBIUoQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Feb 2004 15:44:16 -0500
+Subject: HT CPU handling - 2.6.2
+From: Hod McWuff <hod@wuff.dhs.org>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1076359454.32765.5.camel@siberian.wuff.dhs.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1076347137.27234.166.camel@cube>; from albert@users.sf.net on Mon, Feb 09, 2004 at 12:18:57PM -0500
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 09 Feb 2004 15:44:14 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 09, 2004 at 12:18:57PM -0500, Albert Cahalan wrote:
 
-> I should mention here that the SysV pty stuff
-> is nearly 100% undocumented in the man pages.
-> I get nothing for pts, pty, grantpt...
+I've got a 2.0A GHz P4, advertised as non-hyperthread, that seems to be
+reporting the presence of a second CPU. It also seems to be disabled by
+setting bit 7 of its ID. I've tried compiling with support for 130 CPU's
+and nothing changed. What would have to be done to get this disabled
+CPU half back online?
 
-% man pts
-NAME
-       ptmx and pts - pseudo-terminal master and slave
+Feb  9 04:45:03 pug ACPI: Local APIC address 0xfee00000
+Feb  9 04:45:03 pug ACPI: LAPIC (acpi_id[0x01] lapic_id[0x00] enabled)
+Feb  9 04:45:03 pug Processor #0 15:2 APIC version 20
+Feb  9 04:45:03 pug ACPI: LAPIC (acpi_id[0x02] lapic_id[0x81] disabled)
+Feb  9 04:45:03 pug Processor #129 invalid (max 16)
+Feb  9 04:45:03 pug ACPI: LAPIC_NMI (acpi_id[0x01] dfl dfl lint[0x1])
+Feb  9 04:45:03 pug ACPI: LAPIC_NMI (acpi_id[0x02] dfl dfl lint[0x1])
 
-% man grantpt
-NAME
-       grantpt - grant access to the slave pseudotty
-
-% man posix_openpt
-NAME
-       posix_openpt - open a pseudo-terminal device
-
-
-I have to conclude that your version of "the man pages"
-is older than man-pages-1.55. Current is man-pages-1.66.
-
-Andries

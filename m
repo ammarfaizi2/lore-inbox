@@ -1,87 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263485AbTK1Vfq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Nov 2003 16:35:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263496AbTK1Vfq
+	id S263500AbTK1Vj0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Nov 2003 16:39:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263522AbTK1Vj0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Nov 2003 16:35:46 -0500
-Received: from paiol.terra.com.br ([200.176.3.18]:2987 "EHLO
-	paiol.terra.com.br") by vger.kernel.org with ESMTP id S263485AbTK1Vfo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Nov 2003 16:35:44 -0500
-Date: Fri, 28 Nov 2003 19:35:41 -0200
-From: Ricardo Nabinger Sanchez <rnsanchez@terra.com.br>
-To: Tim Schmielau <tim@physik3.uni-rostock.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       sisopiii-l@cscience.org
-Subject: Re: [PATCH] fix #endif misplacement
-Message-Id: <20031128193541.448d2893.rnsanchez@terra.com.br>
-In-Reply-To: <Pine.LNX.4.53.0311281732100.21904@gockel.physik3.uni-rostock.de>
-References: <20031128141927.5ff1f35a.rnsanchez@terra.com.br>
-	<Pine.LNX.4.53.0311281732100.21904@gockel.physik3.uni-rostock.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 28 Nov 2003 16:39:26 -0500
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:52149 "EHLO
+	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S263500AbTK1VjW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Nov 2003 16:39:22 -0500
+Message-ID: <3FC7C05F.8070606@nortelnetworks.com>
+Date: Fri, 28 Nov 2003 16:38:39 -0500
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Andries.Brouwer@cwi.nl
+Cc: linux-kernel@vger.kernel.org, root@chaos.analogic.com,
+       szepe@pinerecords.com, torvalds@osdl.org
+Subject: Re: BUG (non-kernel), can hurt developers.
+References: <UTC200311282121.hASLLOm22001.aeb@smtp.cwi.nl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting  Tim Schmielau <tim@physik3.uni-rostock.de>
-Sent on  Fri, 28 Nov 2003 17:34:49 +0100 (CET)
-
-> > This patch fixes an #endif misplacement, which leads to dead code in
-> > sched_clock() in arch/i386/kernel/timers/timer_tsc.c, due to a return
-> > outside the ifdef/endif.
+Andries.Brouwer@cwi.nl wrote:
+>>You may also want to mention the SUS async-safe list as well,
+>>since there are some additional functions there.
+>>
 > 
-> No, this is exactly what is intended: don't use the TSC on NUMA, use 
-> jiffies instead.
-> Look at the comment just above those lines.
+> Are you sure?
+> Which? In which SUS version?
 
-I'm breaking things.  Sorry.
+My bad.  SUS references the posix list.  I must have been looking at an 
+old function list.  POSIX should be sufficient.
 
-I think I understood it now: the #ifndef protects only the check for TSC
-availability on non-NUMA archs.  If it's available, and not under NUMA (so
-the ifndef), use it (jump to the rdtscll()), otherwise return the expression
-result.
+Chris
 
-The strange thing to me is that I'm getting 1/10 of the expected value when
-measuring tasks timeslices.  Instead of getting ~100ms for tasks which just
-burn CPU, I'm getting 10ms.
-
-I measure timeslices inside schedule(), updating the average timeslice for
-the leaving process, using (now - prev->timestamp).
-
-Any clue of what am I doing wrong?
-
-Regards.
-
-
-unsigned long long sched_clock(void)
-{
-        unsigned long long this_offset;
-
-        /*
-         * In the NUMA case we dont use the TSC as they are not
-         * synchronized across all CPUs.
-         */
-#ifndef CONFIG_NUMA
-        if (!use_tsc)
-#endif
-                return (unsigned long long)jiffies * (1000000000 / HZ);
-
-        /* Read the Time Stamp Counter */
-        rdtscll(this_offset);
-
-        /* return the value in ns */
-        return cycles_2_ns(this_offset);
-}
 
 
 -- 
-Ricardo Nabinger Sanchez
-GNU/Linux #140696 [http://counter.li.org]
-Slackware Linux
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 
-  Warning: 
-    Trespassers will be shot.
-    Survivors will be shot again.

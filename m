@@ -1,42 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262694AbRE3KGU>; Wed, 30 May 2001 06:06:20 -0400
+	id <S262701AbRE3KNc>; Wed, 30 May 2001 06:13:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262695AbRE3KGA>; Wed, 30 May 2001 06:06:00 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:16145 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262694AbRE3KFy>; Wed, 30 May 2001 06:05:54 -0400
-Subject: Re: 2.4.5 -ac series broken on Sparc64
-To: lsawyer@gci.com (Leif Sawyer)
-Date: Wed, 30 May 2001 08:58:19 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (linux kernel mailinglist)
-In-Reply-To: <BF9651D8732ED311A61D00105A9CA3150446E125@berkeley.gci.com> from "Leif Sawyer" at May 29, 2001 04:30:46 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S262702AbRE3KNV>; Wed, 30 May 2001 06:13:21 -0400
+Received: from sunrise.pg.gda.pl ([153.19.40.230]:23961 "EHLO
+	sunrise.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S262701AbRE3KNK>; Wed, 30 May 2001 06:13:10 -0400
+From: Andrzej Krzysztofowicz <ankry@pg.gda.pl>
+Message-Id: <200105301011.MAA17517@sunrise.pg.gda.pl>
+Subject: Re: [PATCH] net #3
+To: dwmw2@infradead.org (David Woodhouse)
+Date: Wed, 30 May 2001 12:11:37 +0200 (MET DST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), andrewm@uow.edu.au,
+        p_gortmaker@yahoo.com, linux-kernel@vger.kernel.org (kernel list)
+In-Reply-To: <29071.991213917@redhat.com> from "David Woodhouse" at May 30, 2001 10:11:57 AM
+Reply-To: ankry@green.mif.pg.gda.pl
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E1550s0-0005XN-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I went to check the -ac series, and each [1-4] breaks
-> in the same way on Sparc64 platform:
-
-Well I don't guarantee they will.
-
-> include/linux/irq.h:61: asm/hw_irq.h: No such file or directory
-> *** [sched.o] Error 1
+"David Woodhouse wrote:"
 > 
-> a find . -name 'hw_irq.h' shows appropriate versions
-> in i386, ia64, mips, mips64, alpha, ppc, parisc, um, and sh
+> ankry@green.mif.pg.gda.pl said:
+> > -#ifdef CONFIG_ISAPNP 
+> > +#if defined(CONFIG_ISAPNP) || (defined(CONFIG_ISAPNP_MODULE) && defined(MODULE)) 
 > 
-> Is this is a ports-maintainer issue, or what?  Surely
-> breaking the sparc platform is not in the future plans...
+> The result here would be a 3c509 module which differs depending on whether 
+> the ISAPNP module happened to be compiled at the same time or not. 
 
-The sparc64 tree isnt very well integrated with -ac. What I have I merge but
-where -ac varies from the Linus tree or the Linus tree requires new files
-tends to break it.
+I'm just thinking whether the ISA PnP hardware related modules should depend
+on isa-pnp.o at all 
+(I mean having different behaviour of a the SAME (compiled) module depending
+on whether isa-pnp.o is available or not)
 
-It can probably be an empty file
+It is just adding some persistent pointers for isa-pnp functions to the
+kernel and teaching the modules to use request_module(). Probably also some
+hacking to keep away from already used ISA PnP hardware during
+initialization...
+
+Also implementing "nopnp" option should be mandatory, IMHO.
+
+> The ISAPNP-specific parts of the code aren't large. Please consider
+> including them unconditionally instead. 
+
+I see no objection if __init for modules is implemented...
+
+Andrzej
+-- 
+=======================================================================
+  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
+  phone (48)(58) 347 14 61
+Faculty of Applied Phys. & Math.,   Technical University of Gdansk
 

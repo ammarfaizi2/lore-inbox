@@ -1,187 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262896AbUEKL0E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262902AbUEKL1x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262896AbUEKL0E (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 07:26:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262927AbUEKLZ7
+	id S262902AbUEKL1x (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 07:27:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262932AbUEKL1w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 07:25:59 -0400
-Received: from smtpq3.home.nl ([213.51.128.198]:50887 "EHLO smtpq3.home.nl")
-	by vger.kernel.org with ESMTP id S262896AbUEKLZu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 07:25:50 -0400
-Message-ID: <40A0B7DA.9090905@keyaccess.nl>
-Date: Tue, 11 May 2004 13:24:10 +0200
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040117
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: B.Zolnierkiewicz@elka.pw.edu.pl, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, arjanv@redhat.com
-Subject: Re: Linux 2.6.6 "IDE cache-flush at shutdown fixes"
-References: <409F4944.4090501@keyaccess.nl>	<200405102125.51947.bzolnier@elka.pw.edu.pl>	<409FF068.30902@keyaccess.nl>	<200405102352.24091.bzolnier@elka.pw.edu.pl>	<20040510215626.6a5552f2.akpm@osdl.org> <20040510221729.3b8e93da.akpm@osdl.org>
-In-Reply-To: <20040510221729.3b8e93da.akpm@osdl.org>
-Content-Type: multipart/mixed;
- boundary="------------020508090905090200030103"
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+	Tue, 11 May 2004 07:27:52 -0400
+Received: from 8.75.30.213.rev.vodafone.pt ([213.30.75.8]:47377 "EHLO
+	odie.graycell.biz") by vger.kernel.org with ESMTP id S262910AbUEKL0U
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 07:26:20 -0400
+Subject: 2.6.6 Oops disconnecting speedtouch usb modem
+From: Nuno Ferreira <nuno.ferreira@graycell.biz>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: Graycell
+Message-Id: <1084274778.2262.7.camel@taz.graycell.biz>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.5.7 
+Date: Tue, 11 May 2004 12:26:18 +0100
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 11 May 2004 11:24:58.0718 (UTC) FILETIME=[97CDEFE0:01C4374A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020508090905090200030103
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+After upgrading from 2.6.5 to 2.6.6 I got this error while disconnecting
+my Speedtouch USB ADSL modem.
 
-Andrew Morton wrote:
+May 10 23:31:57 taz kernel: usb 1-1: USB disconnect, address 2
+May 10 23:31:57 taz kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000004
+May 10 23:31:57 taz kernel:  printing eip:
+May 10 23:31:57 taz kernel: c02315d4
+May 10 23:31:57 taz kernel: *pde = 00000000
+May 10 23:31:57 taz kernel: Oops: 0000 [#1]
+May 10 23:31:57 taz kernel: CPU:    0
+May 10 23:31:57 taz kernel: EIP:    0060:[destroy_async+84/128]    Not tainted
+May 10 23:31:57 taz kernel: EFLAGS: 00010013   (2.6.6)
+May 10 23:31:57 taz kernel: EIP is at destroy_async+0x54/0x80
+May 10 23:31:57 taz kernel: eax: dcd656ac   ebx: 00000286   ecx: 00000000   edx: dcd65690
+May 10 23:31:57 taz kernel: esi: dcd656ac   edi: dcd65690   ebp: dd39e424   esp: ddd75ea0
+May 10 23:31:57 taz kernel: ds: 007b   es: 007b   ss: 0068
+May 10 23:31:57 taz kernel: Process khubd (pid: 5, threadinfo=ddd75000 task=ddfa6030)
+May 10 23:31:57 taz kernel: Stack: c022e368 ddd13294 c0330ba0 dd39e400 c02316c9 dcd65690 dcd656ac c022873a
+May 10 23:31:57 taz kernel:        ddd13294 ddd13294 dd15f648 ddd132a4 c0330bc0 c01f6a94 ddd132a4 ddd132cc
+May 10 23:31:57 taz kernel:        ddd132a4 dd39e4cc c01f6bc5 ddd132a4 ddd132fc ddd132a4 dd39e4cc c01f5b2d
+May 10 23:31:57 taz kernel: Call Trace:
+May 10 23:31:57 taz kernel:  [usb_disable_interface+56/80] usb_disable_interface+0x38/0x50
+May 10 23:31:57 taz kernel:  [driver_disconnect+57/64] driver_disconnect+0x39/0x40
+May 10 23:31:57 taz kernel:  [usb_unbind_interface+122/128] usb_unbind_interface+0x7a/0x80
+May 10 23:31:57 taz kernel:  [device_release_driver+100/112] device_release_driver+0x64/0x70
+May 10 23:31:57 taz kernel:  [bus_remove_device+85/160] bus_remove_device+0x55/0xa0
+May 10 23:31:57 taz kernel:  [device_del+93/160] device_del+0x5d/0xa0
+May 10 23:31:57 taz kernel:  [device_unregister+19/48] device_unregister+0x13/0x30
+May 10 23:31:57 taz kernel:  [usb_disable_device+111/176] usb_disable_device+0x6f/0xb0
+May 10 23:31:57 taz kernel:  [usb_disconnect+150/240] usb_disconnect+0x96/0xf0
+May 10 23:31:57 taz kernel:  [hub_port_connect_change+625/640] hub_port_connect_change+0x271/0x280
+May 10 23:31:57 taz kernel:  [hub_port_status+67/176] hub_port_status+0x43/0xb0
+May 10 23:31:57 taz kernel:  [hub_events+672/768] hub_events+0x2a0/0x300
+May 10 23:31:57 taz kernel:  [hub_thread+45/240] hub_thread+0x2d/0xf0
+May 10 23:31:57 taz kernel:  [default_wake_function+0/32] default_wake_function+0x0/0x20
+May 10 23:31:57 taz kernel:  [hub_thread+0/240] hub_thread+0x0/0xf0
+May 10 23:31:57 taz kernel:  [kernel_thread_helper+5/20] kernel_thread_helper+0x5/0x14
+May 10 23:31:57 taz kernel:
+May 10 23:31:57 taz kernel: Code: 8b 51 04 8b 01 89 50 04 89 02 89 49 04 89 09 53 9d 8b 41 20
 
->>It's a bit grubby, but we could easily add a fourth state to
->> `system_state': split SYSTEM_SHUTDOWN into SYSTEM_REBOOT and SYSTEM_HALT. 
->> That would be a quite simple change.
-> 
-> Like this.  I checked all the SYSTEM_FOO users and none of them seem to
-> care about the shutdown state at present.  Easy.
+I also had another problem before that one, modem_run complained that it
+couldn't read interrupts and exited. The connections stayed up, though.
 
-Wonderful. Placed the following quick hack on top:
+May 10 23:22:31 taz modem_run[1364]: [monitoring report] ADSL link went
+up
+May 10 23:22:50 taz modem_run[874]: ADSL synchronization has been obtained
+May 10 23:22:50 taz modem_run[874]: ADSL line is up (512 kbit/s down | 128 kbit/s up)
+May 10 23:22:50 taz modem_run[1364]: Error reading interrupts
+May 10 23:22:50 taz modem_run[1364]: [monitoring report] ADSL link went down
+May 10 23:22:51 taz modem_run[1364]: Device disconnected, shutting down
 
-[drivers/ide/ide-disk.c]
+Neither of these problems happen with the same setup running 2.6.5. I'll
+try to find more find more information about this second problem when I
+get home.
 
-@@ -1704,10 +1704,11 @@
+Anyone else having problems with the speedtouch usb on 2.6.6?
+-- 
+Nuno Ferreira
 
-  static void ide_device_shutdown(struct device *dev)
-  {
--       ide_drive_t *drive = container_of(dev, ide_drive_t, gendev);
--
--       printk("Shutdown: %s\n", drive->name);
--       dev->bus->suspend(dev, PM_SUSPEND_STANDBY);
-+       if (system_state != SYSTEM_RESTART) {
-+               ide_drive_t *drive = container_of(dev, ide_drive_t, gendev);
-+               printk("Shutdown: %s\n", drive->name);
-+               dev->bus->suspend(dev, PM_SUSPEND_STANDBY);
-+       }
-  }
-
-  /*
-
-Seems very wrong there; will likely want to be pushed up a few levels, 
-but... Works For Me.
-
-Have attached a patch of what I'm currently using against 2.6.6 just in 
-case anyone interested lost track. It's bart+morton+hack.
-
-Rene.
-
---------------020508090905090200030103
-Content-Type: text/plain;
- name="linux-2.6.6_rollup.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="linux-2.6.6_rollup.diff"
-
-diff -urN linux-2.6.6.orig/drivers/ide/ide-disk.c linux-2.6.6/drivers/ide/ide-disk.c
---- linux-2.6.6.orig/drivers/ide/ide-disk.c	2004-05-11 12:40:53.000000000 +0200
-+++ linux-2.6.6/drivers/ide/ide-disk.c	2004-05-11 12:09:30.000000000 +0200
-@@ -1704,10 +1704,11 @@
- 
- static void ide_device_shutdown(struct device *dev)
- {
--	ide_drive_t *drive = container_of(dev, ide_drive_t, gendev);
--
--	printk("Shutdown: %s\n", drive->name);
--	dev->bus->suspend(dev, PM_SUSPEND_STANDBY);
-+	if (system_state != SYSTEM_RESTART) {
-+		ide_drive_t *drive = container_of(dev, ide_drive_t, gendev);
-+		printk("Shutdown: %s\n", drive->name);
-+		dev->bus->suspend(dev, PM_SUSPEND_STANDBY);
-+	}
- }
- 
- /*
-@@ -1758,6 +1759,8 @@
- 		if (drive->doorlocking && ide_raw_taskfile(drive, &args, NULL))
- 			drive->doorlocking = 0;
- 	}
-+	if (drive->usage != 1 || !drive->removable)
-+		return 0;
- 	drive->wcache = 0;
- 	/* Cache enabled? */
- 	if (drive->id->csfo & 1)
-diff -urN linux-2.6.6.orig/include/linux/kernel.h linux-2.6.6/include/linux/kernel.h
---- linux-2.6.6.orig/include/linux/kernel.h	2004-05-10 09:31:47.000000000 +0200
-+++ linux-2.6.6/include/linux/kernel.h	2004-05-11 11:18:09.000000000 +0200
-@@ -109,14 +109,17 @@
- extern void bust_spinlocks(int yes);
- extern int oops_in_progress;		/* If set, an oops, panic(), BUG() or die() is in progress */
- extern int panic_on_oops;
--extern int system_state;		/* See values below */
- extern int tainted;
- extern const char *print_tainted(void);
- 
- /* Values used for system_state */
--#define SYSTEM_BOOTING 0
--#define SYSTEM_RUNNING 1
--#define SYSTEM_SHUTDOWN 2
-+extern enum system_states {
-+	SYSTEM_BOOTING,
-+	SYSTEM_RUNNING,
-+	SYSTEM_HALT,
-+	SYSTEM_POWER_OFF,
-+	SYSTEM_RESTART,
-+} system_state;
- 
- #define TAINT_PROPRIETARY_MODULE	(1<<0)
- #define TAINT_FORCED_MODULE		(1<<1)
-diff -urN linux-2.6.6.orig/init/main.c linux-2.6.6/init/main.c
---- linux-2.6.6.orig/init/main.c	2004-05-10 09:31:47.000000000 +0200
-+++ linux-2.6.6/init/main.c	2004-05-11 11:18:09.000000000 +0200
-@@ -95,7 +95,8 @@
- extern void tc_init(void);
- #endif
- 
--int system_state;	/* SYSTEM_BOOTING/RUNNING/SHUTDOWN */
-+enum system_states system_state;
-+EXPORT_SYMBOL(system_state);
- 
- /*
-  * Boot command-line arguments
-diff -urN linux-2.6.6.orig/kernel/sys.c linux-2.6.6/kernel/sys.c
---- linux-2.6.6.orig/kernel/sys.c	2004-05-10 09:31:47.000000000 +0200
-+++ linux-2.6.6/kernel/sys.c	2004-05-11 11:18:09.000000000 +0200
-@@ -447,7 +447,7 @@
- 	switch (cmd) {
- 	case LINUX_REBOOT_CMD_RESTART:
- 		notifier_call_chain(&reboot_notifier_list, SYS_RESTART, NULL);
--		system_state = SYSTEM_SHUTDOWN;
-+		system_state = SYSTEM_RESTART;
- 		device_shutdown();
- 		printk(KERN_EMERG "Restarting system.\n");
- 		machine_restart(NULL);
-@@ -463,7 +463,7 @@
- 
- 	case LINUX_REBOOT_CMD_HALT:
- 		notifier_call_chain(&reboot_notifier_list, SYS_HALT, NULL);
--		system_state = SYSTEM_SHUTDOWN;
-+		system_state = SYSTEM_HALT;
- 		device_shutdown();
- 		printk(KERN_EMERG "System halted.\n");
- 		machine_halt();
-@@ -473,7 +473,7 @@
- 
- 	case LINUX_REBOOT_CMD_POWER_OFF:
- 		notifier_call_chain(&reboot_notifier_list, SYS_POWER_OFF, NULL);
--		system_state = SYSTEM_SHUTDOWN;
-+		system_state = SYSTEM_POWER_OFF;
- 		device_shutdown();
- 		printk(KERN_EMERG "Power down.\n");
- 		machine_power_off();
-@@ -489,7 +489,7 @@
- 		buffer[sizeof(buffer) - 1] = '\0';
- 
- 		notifier_call_chain(&reboot_notifier_list, SYS_RESTART, buffer);
--		system_state = SYSTEM_SHUTDOWN;
-+		system_state = SYSTEM_RESTART;
- 		device_shutdown();
- 		printk(KERN_EMERG "Restarting system with command '%s'.\n", buffer);
- 		machine_restart(buffer);
-
---------------020508090905090200030103--

@@ -1,88 +1,155 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268438AbUH3BpI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268430AbUH3Buh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268438AbUH3BpI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 21:45:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268430AbUH3Boz
+	id S268430AbUH3Buh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 21:50:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268439AbUH3Buh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 21:44:55 -0400
-Received: from dh138.citi.umich.edu ([141.211.133.138]:14244 "EHLO
-	lade.trondhjem.org") by vger.kernel.org with ESMTP id S268415AbUH3BoH convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 21:44:07 -0400
-Subject: Re: silent semantic changes with reiser4
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Hans Reiser <reiser@namesys.com>, flx@msu.ru, Paul Jackson <pj@sgi.com>,
-       riel@redhat.com, ninja@slaphack.com, diegocg@teleline.es,
-       jamie@shareable.org, christophe@saout.de,
-       vda@port.imtp.ilyichevsk.odessa.ua, christer@weinigel.se,
-       spam@tnonline.net, Andrew Morton <akpm@osdl.org>, wichert@wiggy.net,
-       jra@samba.org, hch@lst.de,
-       Linux Filesystem Development <linux-fsdevel@vger.kernel.org>,
-       linux-kernel@vger.kernel.org, flx@namesys.com,
-       reiserfs-list@namesys.com
-In-Reply-To: <Pine.LNX.4.58.0408291641070.2295@ppc970.osdl.org>
-References: <Pine.LNX.4.44.0408271043090.10272-100000@chimarrao.boston.redhat.com>
-	 <412F7D63.4000109@namesys.com> <20040827230857.69340aec.pj@sgi.com>
-	 <20040829150231.GE9471@alias> <4132205A.9080505@namesys.com>
-	 <20040829183629.GP21964@parcelfarce.linux.theplanet.co.uk>
-	 <20040829185744.GQ21964@parcelfarce.linux.theplanet.co.uk>
-	 <41323751.5000607@namesys.com>
-	 <20040829212700.GA16297@parcelfarce.linux.theplanet.co.uk>
-	 <Pine.LNX.4.58.0408291431070.2295@ppc970.osdl.org>
-	 <1093821430.8099.49.camel@lade.trondhjem.org>
-	 <Pine.LNX.4.58.0408291641070.2295@ppc970.osdl.org>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1093830135.8099.181.camel@lade.trondhjem.org>
+	Sun, 29 Aug 2004 21:50:37 -0400
+Received: from vana.vc.cvut.cz ([147.32.240.58]:60555 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id S268430AbUH3Bua (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Aug 2004 21:50:30 -0400
+Date: Mon, 30 Aug 2004 03:50:18 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: linux-kernel@vger.kernel.org
+Cc: rmk+serial@arm.linux.org.uk, akpm@osdl.org
+Subject: [PATCH] Add support for Possio GCC AKA PCMCIA Siemens MC45
+Message-ID: <20040830015018.GB5298@vana.vc.cvut.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 29 Aug 2004 21:42:15 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På su , 29/08/2004 klokka 19:54, skreiv Linus Torvalds:
+Hello,
 
-> The problem really ends up being directories with attributes (where we
-> can't just overmount the existing directory). That's where "openat()" 
-> helps us. 
+   This ugly hack add support for Siemens MC45 PCMCIA GPRS card (which is
+identical to Possio GCC, and which is offered by one of our local GPRS
+providers).  Card has unfortunate feature that after poweron oxcf950 chip 
+is fully powered and works, but attached MC45 modem is powered down :-(  
+There is a special sequence (which takes 1 sec :-( ) to poweron
+MC45 (and after MC45 powers on, it takes more than 2 secs until firmware
+fully boots...) which needs to be executed after all powerons.
 
-Well, yes there has to be a distinction between a true bind mount which
-actually covers the file or directory, and something like the stream
-"bind mount" which doesn't.
+   I'm really not familiar with PCMCIA subsystem, so I have no idea whether
+I should issue request_region() on rest of oxcf950 address range (0-7
+is UART, 8-F are special configuration registers), or how this should be
+better integrated with PM system and so on - I just put it in same place
+where another hack already lived...
 
-The stream "bind mount" is just there to allow you to root the
-attributes in a single tree. It can be made functionally entirely
-equivalent to the openat(), but uses pathname semantics (e.g., "//") to
-denote the attribute fork instead of an extra function call.
+   Card uses 18.432MHz XTAL, so to get it to work you must add lines below
+to the /etc/pcmcia/serial.opts.
 
-> > Is it just the fantasy of supporting hard-links across "stream
-> > boundaries" (as in "touch a b; ln b a/b; ln a b/a")? I'm pretty sure
-> > nobody wants to have to add cyclic graph detection to their filesystems
-> > anyway. 8-)
-> 
-> It's easy enough to do the graph detection at the VFS layer, exactly 
-> because of the density of the dentry graph. 
+case "$MANFID-$FUNCID-$PRODID_1-$PRODID_2-$PRODID_3-$PRODID_4" in
+'030c,0003-2-GPRS-CARD--')
+    SERIAL_OPTS="baud_base 1152000"
+    ;;
+esac
 
-Don't you end up having to lock the entire paths b/c/d and a/e/f in
-order to prevent "ln a b/c/d/a; ln b a/e/f/b"?
+						Best regards,
+							Petr Vandrovec
 
-> > What other issues would need to be addressed?
 
->  - how to actually test this out in practice (ie getting reiser4 to do the
->    proper thing wrt the VFS layer, but preferably _also_ having another
->    filesystem like NFSv4 or cifs that actually uses this and shows what
->    the problems are).
 
-As I said, NFSv4 can be made ready pretty quickly: Bruce is already
-finishing up the xattr implementation.
-
->  - whether it makes any sense at all unless we also make at least a few 
->    other filesystems support it, so that people start using it as an 
->    "expected feature" rather than a "works only on a couple of machines".
-
-NTFS? ;-)
-
-Cheers,
-  Trond
+diff -urN linux/drivers/serial/serial_cs.c linux/drivers/serial/serial_cs.c
+--- linux/drivers/serial/serial_cs.c   2004-08-28 23:19:58.000000000 +0200
++++ linux/drivers/serial/serial_cs.c   2004-08-30 02:53:05.000000000 +0200
+@@ -44,6 +44,7 @@
+ #include <linux/serial.h>
+ #include <linux/serial_core.h>
+ #include <linux/major.h>
++#include <linux/delay.h>
+ #include <asm/io.h>
+ #include <asm/system.h>
+ 
+@@ -112,6 +113,8 @@
+ 	int			multi;
+ 	int			slave;
+ 	int			manfid;
++	int			prodid;
++	int			c950ctrl;
+ 	dev_node_t		node[4];
+ 	int			line[4];
+ };
+@@ -127,6 +130,33 @@
+ 
+ static dev_link_t *dev_list = NULL;
+ 
++static void wakeup_card(struct serial_info *info)
++{
++	int ctrl = info->c950ctrl;
++
++	if (info->manfid == MANFID_OXSEMI) {
++		outb(12, ctrl + 1);
++	} else if (info->manfid == MANFID_SIEMENS && info->prodid == PRODID_SIEMENS_MC45) {
++		/* request_region? oxsemi branch does no request_region too... */
++		/* This sequence is needed to properly initialize MC45 attached to OXCF950.
++		 * I tried decreasing these msleep()s, but it worked properly (survived
++		 * 1000 stop/start operations) with these timeouts (or bigger). */
++		outb(0xA, ctrl + 1);
++		msleep(100);
++		outb(0xE, ctrl + 1);
++		msleep(300);
++		outb(0xC, ctrl + 1);
++		msleep(100);
++		outb(0xE, ctrl + 1);
++		msleep(200);
++		outb(0xF, ctrl + 1);
++		msleep(100);
++		outb(0xE, ctrl + 1);
++		msleep(100);
++		outb(0xC, ctrl + 1);
++	}
++}
++
+ /*======================================================================
+ 
+     After a card is removed, serial_remove() will unregister
+@@ -191,6 +221,7 @@
+ 
+ 		for (i = 0; i < info->ndev; i++)
+ 			serial8250_resume_port(info->line[i]);
++		wakeup_card(info);
+ 	}
+ }
+ 
+@@ -554,15 +585,20 @@
+ 	}
+ 
+ 	/* The Oxford Semiconductor OXCF950 cards are in fact single-port:
+-	   8 registers are for the UART, the others are extra registers */
+-	if (info->manfid == MANFID_OXSEMI) {
++	   8 registers are for the UART, the others are extra registers.
++	   Siemen's MC45 PCMCIA (Possio's GCC) is OXCF950 based too. */
++	if (info->manfid == MANFID_OXSEMI ||
++	    (info->manfid == MANFID_SIEMENS && info->prodid == PRODID_SIEMENS_MC45)) {
++		int err;
++
+ 		if (cf->index == 1 || cf->index == 3) {
+-			setup_serial(info, base2, link->irq.AssignedIRQ);
+-			outb(12, link->io.BasePort1 + 1);
++			err = setup_serial(info, base2, link->irq.AssignedIRQ);
++			base2 = link->io.BasePort1;
+ 		} else {
+-			setup_serial(info, link->io.BasePort1, link->irq.AssignedIRQ);
+-			outb(12, base2 + 1);
++			err = setup_serial(info, link->io.BasePort1, link->irq.AssignedIRQ);
+ 		}
++		info->c950ctrl = base2;
++		wakeup_card(info);
+ 		return 0;
+ 	}
+ 
+@@ -622,9 +658,10 @@
+ 	tuple.DesiredTuple = CISTPL_MANFID;
+ 	if (first_tuple(handle, &tuple, &parse) == CS_SUCCESS) {
+ 		info->manfid = le16_to_cpu(buf[0]);
++		info->prodid = le16_to_cpu(buf[1]);
+ 		for (i = 0; i < MULTI_COUNT; i++)
+ 			if ((info->manfid == multi_id[i].manfid) &&
+-			    (le16_to_cpu(buf[1]) == multi_id[i].prodid))
++			    (info->prodid == multi_id[i].prodid))
+ 				break;
+ 		if (i < MULTI_COUNT)
+ 			info->multi = multi_id[i].multi;

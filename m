@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266487AbUGKCpa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266488AbUGKCtP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266487AbUGKCpa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 22:45:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266488AbUGKCp3
+	id S266488AbUGKCtP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 22:49:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266489AbUGKCtP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 22:45:29 -0400
-Received: from CPE-203-51-26-230.nsw.bigpond.net.au ([203.51.26.230]:26606
-	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
-	id S266487AbUGKCp2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 22:45:28 -0400
-Message-ID: <40F0A9C4.9000405@eyal.emu.id.au>
-Date: Sun, 11 Jul 2004 12:45:24 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Use NULL instead of integer 0 in security/selinux/
-References: <E1BiPKz-0008Q7-00@gondolin.me.apana.org.au>	<Pine.LNX.4.58.0407072214590.1764@ppc970.osdl.org>	<m1fz80c406.fsf@ebiederm.dsl.xmission.com>	<Pine.LNX.4.58.0407092313410.1764@ppc970.osdl.org>	<Pine.LNX.4.58.0407092319180.1764@ppc970.osdl.org> <52r7rj7txj.fsf@topspin.com>
-In-Reply-To: <52r7rj7txj.fsf@topspin.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 10 Jul 2004 22:49:15 -0400
+Received: from fmr02.intel.com ([192.55.52.25]:19590 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id S266488AbUGKCtO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 22:49:14 -0400
+Subject: Re: IRQ issues, (nobody cared, disabled), not USB
+From: Len Brown <len.brown@intel.com>
+To: Christopher Swingley <cswingle@iarc.uaf.edu>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <A6974D8E5F98D511BB910002A50A6647615FFACC@hdsmsx403.hd.intel.com>
+References: <A6974D8E5F98D511BB910002A50A6647615FFACC@hdsmsx403.hd.intel.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1089514128.32038.62.camel@dhcppc2>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 10 Jul 2004 22:48:48 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland Dreier wrote:
-> Suppose I have
-> 
-> 	struct foo {
-> 		int a;
-> 		int b;
-> 	};
-> 
-> then sparse is perfectly happy with someone clearing out a struct foo
-> like this:
-> 
-> 	struct foo bar = { 0 };
-> 
-> but then if someone changes struct foo to be
-> 
-> 	struct foo {
-> 		void *x;
-> 		int a;
-> 		int b;
-> 	};
-> 
-> sparse will complain about that initialization, and all of the fixes
-> I can think of seem somewhat worse than the original to me:
+On Fri, 2004-07-09 at 11:32, Christopher Swingley wrote:
 
-Come on, this is madness. By accident, the first memeber which
-changed from 'int' to 'void *' now accepts the old initializer.
-In my book this is a really bad thing because you just changed
-the semantics of the initialiser '{ 0 }' quietly.
+> I can no longer recall when this first started happening, but there's
+> a good chance this happened when I was running 2.6.5 too.  I track the
+> vanilla releases pretty closely.
 
-BTW, if nothing else, don't add new members at the top.
+It would be interesting if the IRQ failure was always on IRQ7.
 
---
-Eyal Lebedinsky		(eyal@eyal.emu.id.au)
+When you moved slots, did the device move to a different
+IRQ and fail there too?
+
+Running ACPI, you may be able to move that device off of
+IRQ7 with "acpi_irq_balance" plus "acpi_isa_irq=7".
+
+Hardware routes spurious interrupts to IRQ7, so your
+device may be an innocent victim of those.  Also,
+there may be some motherboard device pulling on IRQ7
+that Linux doesn't know about -- so see if you can
+disable any extra motherboard devices in BIOS setup.
+
+Finally, you might run a kernel with the IOAPIC enabled,
+such as the CONFIG_SMP kernel, to see if you have an
+IOAPIC on the board and if that mode works differently.
+
+cheers,
+-Len
+
+

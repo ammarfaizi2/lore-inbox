@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131456AbRBNAZ2>; Tue, 13 Feb 2001 19:25:28 -0500
+	id <S129694AbRBNAkd>; Tue, 13 Feb 2001 19:40:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131406AbRBNAZS>; Tue, 13 Feb 2001 19:25:18 -0500
-Received: from gnu.in-berlin.de ([192.109.42.4]:10502 "EHLO gnu.in-berlin.de")
-	by vger.kernel.org with ESMTP id <S131456AbRBNAZE>;
-	Tue, 13 Feb 2001 19:25:04 -0500
-X-Envelope-From: michael.karcher@dpk.berlin.fido.de
-Date: Tue, 13 Feb 2001 20:17:04 +0100
-From: Michael Karcher <michael.karcher@dpk.berlin.fido.de>
-Subject: Crash in request_region while handling kernel parameters
-Message-ID: <20010213201704.A319@p9.dpk.berlin.fido.de>
-To: linux-kernel@vger.kernel.org
-Organization: Welt am Draht - Berlin
-X-Gateway: FIDO WAD.in-berlin.de [FIDOGATE 4.4.0]
-X-FTN-From: Michael Karcher @ 242:7000/710.9
-X-FTN-To: UUCP @ 242:7000/2.0
-X-FTN-Tearline: FIDOGATE 4.2.3
-X-FTN-Via: FIDOGATE/rfc2ftn 242:7000/710.9, Tue Feb 13 2001 at 20:17:08 CET
-X-FTN-Via: 242:7000/710 @20010213.214005 FastEcho 1.46.1 1078
-X-FTN-Via: 242:7000/704@fidode @20010213.220454 FastEcho 1.46.1 2212
-X-FTN-Via: FIDOGATE/ftntoss 242:7000/2.0, Wed Feb 14 2001 at 01:23:41 CET
-X-FTN-Domain: Z242@FidoDE
+	id <S129752AbRBNAkX>; Tue, 13 Feb 2001 19:40:23 -0500
+Received: from mail-3.addcom.de ([62.96.128.37]:5902 "HELO mail-3.addcom.de")
+	by vger.kernel.org with SMTP id <S129694AbRBNAkM>;
+	Tue, 13 Feb 2001 19:40:12 -0500
+Date: Wed, 14 Feb 2001 01:41:59 +0100 (CET)
+From: Kai Germaschewski <kai@thphy.uni-duesseldorf.de>
+To: <thunder7@xs4all.nl>
+cc: <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        <keil@isdn4linux.de>
+Subject: Re: 2.2.19pre10 locks up hard on unloading the isdn module 'hisax.o'
+In-Reply-To: <20010213215158.A967@middle.of.nowhere>
+Message-ID: <Pine.LNX.4.30.0102140052170.3833-100000@vaio>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello kernel-hackers,
+On Tue, 13 Feb 2001 thunder7@xs4all.nl wrote:
 
-I found a problem with kernel 2.4, that makes the kernel crash at
-bootup, for example when using the UMC8672 VLB IDE controller driver.
-The problem is in kernel/resource.c. In line 229 some memory for
-handling new io-regions is kmalloc()ed. This crashes the computer
-before mem_init(), as it seems.
-But some drivers, for example the above mentioned one in
-drivers/ide/umc8672.c, do already claim i/o ports in their kernel
-parameter driven initialization procedures, so they crash the system.
+> SMP machine, 2x P3/700 on an Abit VP6.
+> Never any trouble with the earlier 2.2.19pre's.
+> 
+> a strace shows the hang to be in the delete_module("hisax") call.
 
-The point to discuss is whether one needs to fix the drivers, to not
-request i/o space while handling kernel parameters or to fix the kernel
-to allow this behaviour. As I do not read this mailing list, a
-currently don't have web access ready, I don't know whether this topic
-has already been discussed. Currently I helped myself by just
-commenting out the calls for check_region and request_region in the
-umc8672.c file, but I know it smells.
+I got another report of the same problem already. I'll try to sort it out 
+tomorrow.
 
-Please send me a cc if you think you have a decision how to fix the
-crash.
+What does "ps axwll" say for the rmmod process?
 
-Michael Karcher
+--Kai
+
+
+
+
+
+

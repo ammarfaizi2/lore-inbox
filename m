@@ -1,97 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267458AbRGZDyJ>; Wed, 25 Jul 2001 23:54:09 -0400
+	id <S267615AbRGZEm4>; Thu, 26 Jul 2001 00:42:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267594AbRGZDx7>; Wed, 25 Jul 2001 23:53:59 -0400
-Received: from research.suspicious.org ([209.236.159.254]:49519 "EHLO
-	research.suspicious.org") by vger.kernel.org with ESMTP
-	id <S267458AbRGZDxm>; Wed, 25 Jul 2001 23:53:42 -0400
-Date: Wed, 25 Jul 2001 23:53:29 -0400 (EDT)
-From: Phil <phil@research.suspicious.org>
-To: linux-kernel@vger.kernel.org
-Subject: oops on suspend
-Message-ID: <Pine.BSO.4.21.0107252351500.17078-200000@research.suspicious.org>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="0-1210263702-996119609=:17078"
+	id <S267620AbRGZEmr>; Thu, 26 Jul 2001 00:42:47 -0400
+Received: from ns.suse.de ([213.95.15.193]:35334 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S267615AbRGZEmc>;
+	Thu, 26 Jul 2001 00:42:32 -0400
+Date: Thu, 26 Jul 2001 06:42:37 +0200
+From: Thorsten Kukuk <kukuk@suse.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Leif Sawyer <lsawyer@gci.com>, linux-kernel@vger.kernel.org
+Subject: Re: Sparc-64 kernel build fails on version.h during 'make oldconfig'
+Message-ID: <20010726064237.A26837@suse.de>
+Mail-Followup-To: Thorsten Kukuk <kukuk@suse.de>,
+	"David S. Miller" <davem@redhat.com>, Leif Sawyer <lsawyer@gci.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <BF9651D8732ED311A61D00105A9CA315053E1265@berkeley.gci.com> <15199.18841.458617.411246@pizda.ninka.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <15199.18841.458617.411246@pizda.ninka.net>; from davem@redhat.com on Wed, Jul 25, 2001 at 03:35:05PM -0700
+Organization: SuSE GmbH, Nuernberg, Germany
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Wed, Jul 25, David S. Miller wrote:
 
---0-1210263702-996119609=:17078
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+> 
+> Leif Sawyer writes:
+>  > When 'bootstrapping' a new kernel:
+>  > 
+>  > cp ../oldlinux/.config .
+>  > make oldconfig
+>  > make dep
+>  > ...
+>  > /usr/src/linux/include/linux/udf_fs_sb.h:22: linux/version.h: No such file
+>  > or directory
+> 
+> Something is terribly wrong with either your system tools or
+> this ".config" you are using.
+
+No, I send you and on the sparclinux list already a patch for 
+this 2 weeks ago. The problem is, that make dep will build at first
+sparc specific programs (archdep) which needs linux/version.h, but 
+make dep does create linux/version.h only after building this tools. The
+following patch solved the problem for me:
+
+--- linux/Makefile
++++ linux/Makefile      2001/05/21 12:57:07
+@@ -440,7 +440,7 @@
+ sums:
+        find . -type f -print | sort | xargs sum > .SUMS
+ 
+-dep-files: scripts/mkdep archdep include/linux/version.h
++dep-files: include/linux/version.h scripts/mkdep archdep
+        scripts/mkdep -- init/*.c > .depend
+        scripts/mkdep -- `find $(FINDHPATH) -name SCCS -prune -o -follow -name \
+*.h ! -name modversions.h -print` > .hdepend
+        $(MAKE) $(patsubst %,_sfdep_%,$(SUBDIRS)) _FASTDEP_ALL_SUB_DIRS="$(SUBDI
+RS)"
 
 
-Hey there,
-
-     This happens on suspend on an HP pavillion laptop, hanging the screen
-or stopping pcmcia. 
-
---0-1210263702-996119609=:17078
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="fmtted_dump.txt"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.BSO.4.21.0107252353290.17078@research.suspicious.org>
-Content-Description: 
-Content-Disposition: attachment; filename="fmtted_dump.txt"
-
-a3N5bW9vcHMgMi40LjEgb24gaTU4NiAyLjQuNy4gDQoNClVuYWJsZSB0byBo
-YW5kbGUga2VybmVsIE5VTEwgcG9pbnRlciBkZXJlZmVyZW5jZSBhdCB2aXJ0
-dWFsIGFkZHJlc3MgMDAwMDAwMDANCmM0ODA4NWQ1DQoqcGRlID0gMDAwMDAw
-MDANCk9vcHM6IDAwMDINCkNQVTogICAgMA0KRUlQOiAgICAwMDEwOls8YzQ4
-MDg1ZDU+XQ0KVXNpbmcgZGVmYXVsdHMgZnJvbSBrc3ltb29wcyAtdCBlbGYz
-Mi1pMzg2IC1hIGkzODYNCkVGTEFHUzogMDAwMTAyMDYNCmVheDogMDAwMDAw
-MDAgICBlYng6IGMzNzk5ZTAwICAgZWN4OiAwMDAwMDAwMiAgIGVkeDogMDAw
-MGZmZmYNCmVzaTogMDAwMDAwMDAgICBlZGk6IDAwMDAwMDAwICAgZWJwOiAw
-MDAwMDAwMyAgIGVzcDogYzM3YjdlZTQNCmRzOiAwMDE4ICAgZXM6IDAwMTgg
-ICBzczogMDAxOA0KUHJvY2VzcyBrYXBtLWlkbGVkIChwaWQ6IDMsIHN0YWNr
-cGFnZT1jMzdiNzAwMCkNClN0YWNrOiBjMzc5OWUwMCAwMDAwMDAwMiAwMDAw
-MDAwMCBjMzdiZmMwOCBjMzdjMTQ1NCBjMzdjMTQ0MCAwMDAwMDAwMyBjMDFh
-YzBmMw0KICAgICAgIGMzN2JmYzAwIDAwMDAwMDAzIGMwMWFjMWFjIGMzN2Jm
-YzAwIDAwMDAwMDAzIGMzN2MxNDQwIDAwMDAwMDAzIDAwMDAwMDAzDQogICAg
-ICAgMDAwMDAwMDAgYzAxYWMyNjcgYzM3YzE0NDAgMDAwMDAwMDMgYzM3Y2Yy
-NjAgMDAwMDAwMDAgYzAxYWMyZTYgMDAwMDAwMDMNCkNhbGwgVHJhY2U6IFs8
-YzAxYWMwZjM+XSBbPGMwMWFjMWFjPl0gWzxjMDFhYzI2Nz5dIFs8YzAxYWMy
-ZTY+XSBbPGMwMTFkYjBjPl0gWzxjMDExZGJjOT5dDQpbPGMwMTBlYzNjPl0g
-WzxjMDEwZWU5Nz5dIFs8YzAxMGVmYjE+XSBbPGMwMTBmMDdlPl0gWzxjMDEw
-Zjk5NT5dIFs8YzAxMDU0M2Y+XSBbPGMwMTA1NDQ4Pl0NCkNvZGU6IDY2IDg5
-IDE0IDc4IDQ3IDgzIGM0IDBjIDQ2IDgxIGZlIGZmIDBiIDAwIDAwIDdlIGRl
-IGJlIDAwIDEwDQoNCj4+RUlQOyBjNDgwODVkNSA8W3NuZC1jYXJkLW1hZXN0
-cm8zXXNuZF9tM19zdXNwZW5kKzgxL2RjPiAgIDw9PT09PQ0KVHJhY2U7IGMw
-MWFjMGYzIDxwY2lfcG1fc3VzcGVuZF9kZXZpY2UrMWYvMjQ+DQpUcmFjZTsg
-YzAxYWMxYWMgPHBjaV9wbV9zdXNwZW5kX2J1cyszYy80Yz4NClRyYWNlOyBj
-MDFhYzI2NyA8cGNpX3BtX3N1c3BlbmQrMWYvM2M+DQpUcmFjZTsgYzAxYWMy
-ZTYgPHBjaV9wbV9jYWxsYmFjayszMi80ND4NClRyYWNlOyBjMDExZGIwYyA8
-cG1fc2VuZCs2NC85Yz4NClRyYWNlOyBjMDExZGJjOSA8cG1fc2VuZF9hbGwr
-NDUvOTA+DQpUcmFjZTsgYzAxMGVjM2MgPHNlbmRfZXZlbnQrMjAvNzg+DQpU
-cmFjZTsgYzAxMGVlOTcgPGNoZWNrX2V2ZW50cytmNy8xOTg+DQpUcmFjZTsg
-YzAxMGVmYjEgPGFwbV9ldmVudF9oYW5kbGVyKzc5LzdjPg0KVHJhY2U7IGMw
-MTBmMDdlIDxhcG1fbWFpbmxvb3ArY2EvMTAwPg0KVHJhY2U7IGMwMTBmOTk1
-IDxhcG0rMjgxLzI5Yz4NClRyYWNlOyBjMDEwNTQzZiA8a2VybmVsX3RocmVh
-ZCsxZi8zOD4NClRyYWNlOyBjMDEwNTQ0OCA8a2VybmVsX3RocmVhZCsyOC8z
-OD4NCkNvZGU7ICBjNDgwODVkNSA8W3NuZC1jYXJkLW1hZXN0cm8zXXNuZF9t
-M19zdXNwZW5kKzgxL2RjPg0KMDAwMDAwMDAgPF9FSVA+Og0KQ29kZTsgIGM0
-ODA4NWQ1IDxbc25kLWNhcmQtbWFlc3RybzNdc25kX20zX3N1c3BlbmQrODEv
-ZGM+ICAgPD09PT09DQogICAwOiAgIDY2IDg5IDE0IDc4ICAgICAgICAgICAg
-ICAgbW92ICAgICVkeCwoJWVheCwlZWRpLDIpICAgPD09PT09DQpDb2RlOyAg
-YzQ4MDg1ZDkgPFtzbmQtY2FyZC1tYWVzdHJvM11zbmRfbTNfc3VzcGVuZCs4
-NS9kYz4NCiAgIDQ6ICAgNDcgICAgICAgICAgICAgICAgICAgICAgICBpbmMg
-ICAgJWVkaQ0KQ29kZTsgIGM0ODA4NWRhIDxbc25kLWNhcmQtbWFlc3RybzNd
-c25kX20zX3N1c3BlbmQrODYvZGM+DQogICA1OiAgIDgzIGM0IDBjICAgICAg
-ICAgICAgICAgICAgYWRkICAgICQweGMsJWVzcA0KQ29kZTsgIGM0ODA4NWRk
-IDxbc25kLWNhcmQtbWFlc3RybzNdc25kX20zX3N1c3BlbmQrODkvZGM+DQog
-ICA4OiAgIDQ2ICAgICAgICAgICAgICAgICAgICAgICAgaW5jICAgICVlc2kN
-CkNvZGU7ICBjNDgwODVkZSA8W3NuZC1jYXJkLW1hZXN0cm8zXXNuZF9tM19z
-dXNwZW5kKzhhL2RjPg0KICAgOTogICA4MSBmZSBmZiAwYiAwMCAwMCAgICAg
-ICAgIGNtcCAgICAkMHhiZmYsJWVzaQ0KQ29kZTsgIGM0ODA4NWU0IDxbc25k
-LWNhcmQtbWFlc3RybzNdc25kX20zX3N1c3BlbmQrOTAvZGM+DQogICBmOiAg
-IDdlIGRlICAgICAgICAgICAgICAgICAgICAgamxlICAgIGZmZmZmZmVmIDxf
-RUlQKzB4ZmZmZmZmZWY+IGM0ODA4NWM0IDxbc25kLWNhcmQtbWFlc3RybzNd
-c25kX20zX3N1c3BlbmQrNzAvZGM+DQpDb2RlOyAgYzQ4MDg1ZTYgPFtzbmQt
-Y2FyZC1tYWVzdHJvM11zbmRfbTNfc3VzcGVuZCs5Mi9kYz4NCiAgMTE6ICAg
-YmUgMDAgMTAgMDAgMDAgICAgICAgICAgICBtb3YgICAgJDB4MTAwMCwlZXNp
-DQoNCg0KMSB3YXJuaW5nIGlzc3VlZC4gIFJlc3VsdHMgbWF5IG5vdCBiZSBy
-ZWxpYWJsZS4NCg==
---0-1210263702-996119609=:17078--
+-- 
+Thorsten Kukuk       http://www.suse.de/~kukuk/        kukuk@suse.de
+SuSE GmbH            Deutschherrenstr. 15-19       D-90429 Nuernberg
+--------------------------------------------------------------------    
+Key fingerprint = A368 676B 5E1B 3E46 CFCE  2D97 F8FD 4E23 56C6 FB4B

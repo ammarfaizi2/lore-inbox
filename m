@@ -1,75 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261720AbVA3P4u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261721AbVA3P6h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261720AbVA3P4u (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jan 2005 10:56:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261721AbVA3P4t
+	id S261721AbVA3P6h (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jan 2005 10:58:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbVA3P6g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jan 2005 10:56:49 -0500
-Received: from natnoddy.rzone.de ([81.169.145.166]:46061 "EHLO
-	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S261720AbVA3P4c
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jan 2005 10:56:32 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-Subject: Re: [PATCH] Fix SERIAL_TXX9 dependencies
-Date: Sun, 30 Jan 2005 16:45:08 +0100
-User-Agent: KMail/1.6.2
-Cc: ralf@linux-mips.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       bunk@stusta.de
-References: <20050129131134.75dacb41.akpm@osdl.org> <20050130001555.GA3648@linux-mips.org> <20050130.220537.45151614.anemo@mba.ocn.ne.jp>
-In-Reply-To: <20050130.220537.45151614.anemo@mba.ocn.ne.jp>
+	Sun, 30 Jan 2005 10:58:36 -0500
+Received: from mail.dif.dk ([193.138.115.101]:46008 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261718AbVA3P57 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jan 2005 10:57:59 -0500
+Date: Sun, 30 Jan 2005 17:01:21 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Achim Leubner <achim_leubner@adaptec.com>,
+       Boji Tony Kannanthanam <boji.t.kannanthanam@intel.com>,
+       Johannes Dinner <johannes_dinner@adaptec.com>,
+       linux-scsi@vger.kernel.org
+Subject: shouldn't "irq" be module_param_array instead of module_param in
+ scsi/gdth.c ?
+Message-ID: <Pine.LNX.4.62.0501301653480.2731@dragon.hygekrogen.localhost>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_JEQ/BFUC7nowt3j";
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200501301645.14069.arnd@arndb.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Boundary-02=_JEQ/BFUC7nowt3j
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+This little warning made me take a closer look : 
+drivers/scsi/gdth.c:645: warning: return from incompatible pointer type
 
-On S=FCnndag 30 Januar 2005 14:05, Atsushi Nemoto wrote:
-> >>>>> On Sun, 30 Jan 2005 00:15:55 +0000, Ralf Baechle <ralf@linux-mips.o=
-rg> said:
-> ralf> Ask for SERIAL_TXX9 only on those devices that actually have
-> ralf> one.
->=20
-> Well, "depends on MIPS || PCI" was intentional.  The driver can be
-> used for both TX39/TX49 internal SIO and TC86C001 PCI chip.  TC86C001
-> chip can be available for any platform with PCI bus (though I have
-> never seen it on platform other than MIPS ...)
- =09
-There is at least one device that uses the same uart on a non-MIPS
-platform. I'll submit a patch once I have it working.
+And line 645 looks like this :
 
-> So I suppose "depends on HAS_TXX9_SERIAL || PCI" might be better, but
-> Ralf's patch will be OK for now.
+module_param(irq, int, 0);
 
-Right. There is however one bigger problem with the original patch:
-It removes the driver for tx3912 and adds one for tx3927/tx49xx.
-AFAICS, the 3912 has a very different register layout from the other
-chips, so the old driver must not be removed yet.
+looking a bit up in the file I find :
 
-	Arnd <><
+/* IRQ list for GDT3000/3020 EISA controllers */
+static int irq[MAXHA] __initdata =
+{0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+ 0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff};
 
---Boundary-02=_JEQ/BFUC7nowt3j
-Content-Type: application/pgp-signature
-Content-Description: signature
+That certainly looks like an array to me, so I'm wondering if something 
+like this patch would be correct?  I'm not familliar enough with 
+module_param* to be completely confident, but this silences the warning.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
-iD8DBQBB/QEJ5t5GS2LDRf4RAnqcAJ0emsuxeMqq5Ki1yd+J7anEFs+T6QCghJ0j
-GyW95ObG3gSbtLlKSuycvms=
-=aX/o
------END PGP SIGNATURE-----
+--- linux-2.6.11-rc2-bk7-orig/drivers/scsi/gdth.c	2005-01-22 21:59:46.000000000 +0100
++++ linux-2.6.11-rc2-bk7/drivers/scsi/gdth.c	2005-01-30 16:52:45.000000000 +0100
+@@ -642,7 +642,7 @@ static int probe_eisa_isa = 0;
+ static int force_dma32 = 0;
+ 
+ /* parameters for modprobe/insmod */
+-module_param(irq, int, 0);
++module_param_array(irq, int, NULL, 0);
+ module_param(disable, int, 0);
+ module_param(reserve_mode, int, 0);
+ module_param_array(reserve_list, int, NULL, 0);
 
---Boundary-02=_JEQ/BFUC7nowt3j--
+
+
+-- 
+Kind regards,
+  Jesper Juhl
+
+PS. Please CC me on replies.
+
+

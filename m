@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262623AbTDGORK (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 10:17:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262639AbTDGORK (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 10:17:10 -0400
-Received: from imap.gmx.net ([213.165.64.20]:3448 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262623AbTDGORI (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Apr 2003 10:17:08 -0400
-Message-ID: <3E918B13.4080805@gmx.net>
-Date: Mon, 07 Apr 2003 16:28:35 +0200
-From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
-X-Accept-Language: de, en
+	id S263465AbTDGOOU (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 10:14:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263466AbTDGOOU (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 10:14:20 -0400
+Received: from smtp02.web.de ([217.72.192.151]:13344 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id S263465AbTDGOOR (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Apr 2003 10:14:17 -0400
+From: Michael Buesch <freesoftwaredeveloper@web.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: compile error with 2.5.66-ac2
+Date: Mon, 7 Apr 2003 16:25:47 +0200
+User-Agent: KMail/1.5
+References: <20030407122310.22b2023a.hv@trust-mart.com.cn>
+In-Reply-To: <20030407122310.22b2023a.hv@trust-mart.com.cn>
 MIME-Version: 1.0
-To: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Problems booting PDC20276 with new IDE setup code.
-References: <Pine.LNX.4.44.0304070201420.8701-100000@sharra.ivimey.org> <Pine.LNX.4.44.0304070201420.8701-100000@sharra.ivimey.org> <5.2.0.9.0.20030407141330.00b346c0@mailhost.ivimey.org>
-In-Reply-To: <5.2.0.9.0.20030407141330.00b346c0@mailhost.ivimey.org>
-X-Enigmail-Version: 0.71.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Message-Id: <200304071624.01993.freesoftwaredeveloper@web.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ruth Ivimey-Cook wrote:
-> At 03:34 07/04/2003, Carl-Daniel Hailfinger wrote:
-> 
->> Could you please try 2.4.21-pre7 (this has another batch of IDE 
->> updates) and enable the option
->> "Special FastTrak Feature"?
->> In your .config, the option would be
->> CONFIG_PDC202XX_FORCE=y
->> and report back to the list?
-> 
-> For reasons reported in another mail (ac97 fails to build) my attempt at 
-> pre7 failed. Also, as far as I know, the FastTrak feature enables the 
-> Promise RAID mode: I am not using that. Instead, I just want 4 IDE disks 
-> which will be bound using Linux raid5.
+On Monday 07 April 2003 06:12, hv wrote:
+> arch/i386/kernel/apic.c: In function `setup_local_APIC':
+> arch/i386/kernel/apic.c:454: unrecognizable insn:
+> (insn 541 1623 1624 (set (strict_low_part (reg:QI 2 cl [58]))
+>         (const_int 0 [0x0])) -1 (insn_list:REG_DEP_OUTPUT 530 (nil))
+>     (nil))
+> arch/i386/kernel/apic.c:454: Internal compiler error in
+> insn_default_length, at insn-attrtab.c:356
+> Please submit a full bug report,
+> with preprocessed source if appropriate.
+> See <URL:http://bugzilla.redhat.com/bugzilla/> for instructions.
+> make[1]: *** [arch/i386/kernel/apic.o] Error 1
+> make: *** [arch/i386/kernel] Error 2
 
-No, without the "Special FastTrak Feature" you cannot see the disks at 
-all, regardless if you want RAID or plain IDE.
+seems to be a gcc bug, isn't it? Have you tried a newer version of gcc?
 
-> Are you saying you want to know if the Promise mode works (independent 
-> of whether I wish to use it?)
-
-I'm currently trying to find out if enabling the "Special FastTrak 
-Feature" is hurting anyone. So far, it seems that enabling it only 
-conflicts with the binary only driver from Promise.
-
-If you want to see your disks, please enable the feature.
-
-Regards,
-Carl-Daniel
+Regards
+Michael Buesch.
 
 -- 
-http://www.hailfinger.org
+My homepage: http://www.8ung.at/tuxsoft
+fighting for peace is like fu**ing for virginity
 

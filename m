@@ -1,50 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132960AbRDESFt>; Thu, 5 Apr 2001 14:05:49 -0400
+	id <S132944AbRDESNl>; Thu, 5 Apr 2001 14:13:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132959AbRDESFj>; Thu, 5 Apr 2001 14:05:39 -0400
-Received: from aslan.scsiguy.com ([63.229.232.106]:14608 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S132886AbRDESFS>; Thu, 5 Apr 2001 14:05:18 -0400
-Message-Id: <200104051804.f35I48s48040@aslan.scsiguy.com>
-To: peter@rottengatter.de
-cc: linux-kernel@vger.kernel.org
-Subject: Re: AIC7xxx in Kernel 2.4.3 
-In-Reply-To: Your message of "Wed, 04 Apr 2001 01:11:01 +0200."
-             <E14kZx0-00079C-00@> 
-Date: Thu, 05 Apr 2001 12:04:08 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S132959AbRDESNc>; Thu, 5 Apr 2001 14:13:32 -0400
+Received: from munch-it.turbolinux.com ([38.170.88.129]:27389 "EHLO
+	mail.us.tlan") by vger.kernel.org with ESMTP id <S132944AbRDESNU>;
+	Thu, 5 Apr 2001 14:13:20 -0400
+Date: Thu, 5 Apr 2001 11:12:27 -0700
+From: Prasanna P Subash <psubash@turbolinux.com>
+To: Marcus Meissner <mm@jet.caldera.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Problem] 3c90x on 2.4.3-ac3
+Message-ID: <20010405111227.A2597@turbolinux.com>
+In-Reply-To: <20010404180709.A564@turbolinux.com> <200104050814.f358EuT01869@jet.caldera.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200104050814.f358EuT01869@jet.caldera.de>; from Marcus Meissner on Thu, Apr 05, 2001 at 10:14:56AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->Hi
->
->This driver seems to be pretty broken, the way it is. It does not compile.
->The new author, Justin T. Gibbs, has been careful in avoiding to mention
->his e-mail address in his code :-(
+Thats right. ACPI was what made 3c90x not work :( With APM it works perfectly.
 
-I actually don't believe in putting email address in code.  They become
-stale far too easily.  If you ever want to find me, type my name
-into a Yahoo search.  I did this today and was a little surprised at
-the number of acurate hits. ;-)
+Thanks Marcus.
 
->Hence the post to this list.
-
-You should really check the archives before posting to LK.  This has
-been discussed *a lot*.
-
-The version that was released in 2.4.3 was stale weeks prior to
-that final kernel cut.  I'm working on getting revised versions into
-2.4.4.  If you want to upgrade to something newer, try the 6.1.9
-release from here:
-
-http://people.FreeBSD.org/~gibbs/linux/
-
-Just be sure to configure the bus settle delay to 5000ms as the default
-in that release causes a timeout.
-
-You can also configure the aic7xxx_old driver.
-
---
-Justin
+On Thu, Apr 05, 2001 at 10:14:56AM +0200, Marcus Meissner wrote:
+> In article <20010404180709.A564@turbolinux.com> you wrote:
+> 
+> > hi lkml,
+> > 	I just built 2.4.3-ac3 with my old 2.4.2 .config and somehow networking does not work. 
+> > dhclient eventually froze the machine.
+> 
+> > here is what dhclient complains.
+> 
+> > [root@psubash linux]# cat /tmp/error.txt
+> > skb: pf=2 (unowned) dev=lo len=328
+> > PROTO=17 0.0.0.0:68 255.255.255.255:67 L=328 S=0x10 I=0 F=0x0000 T=16
+> > DHCPDISCOVER on lo to 255.255.255.255 port 67 interval 14
+> > ip_local_deliver: bad loopback skb: PRE_ROUTING LOCAL_IN
+> > skb: pf=2 (unowned) dev=lo len=328
+> > PROTO=17 0.0.0.0:68 255.255.255.255:67 L=328 S=0x10 I=0 F=0x0000 T=16
+> > DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 9
+> > DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 7
+> > DHCPDISCOVER on lo to 255.255.255.255 port 67 interval 12
+> > ip_local_deliver: bad loopback skb: PRE_ROUTING LOCAL_IN
+> > skb: pf=2 (unowned) dev=lo len=328
+> 
+> > Here is my ver_linux info
+> 
+> ...
+> > CONFIG_ACPI=y
+> 
+> The ACPI powermanagement for the 3c59x devices appears to be a bit broken.
+> 
+> Disable ACPI support. Recompile. Reboot. Watch problem disappear hopefully.
+> 
+> Ciao, Marcus

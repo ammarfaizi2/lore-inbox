@@ -1,103 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261896AbVCANLt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261898AbVCANMC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261896AbVCANLt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 08:11:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261895AbVCANLt
+	id S261898AbVCANMC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 08:12:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261895AbVCANMC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 08:11:49 -0500
-Received: from gprs215-241.eurotel.cz ([160.218.215.241]:38879 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261896AbVCANLH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 08:11:07 -0500
-Date: Tue, 1 Mar 2005 14:10:51 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Patrick Mochel <mochel@digitalimplant.org>,
-       Greg KH <greg@kroah.com>
-Subject: Re: 2.6.11-rc4-mm1: something is wrong with swsusp powerdown
-Message-ID: <20050301131051.GE1843@elf.ucw.cz>
-References: <20050228231721.GA1326@elf.ucw.cz> <20050301020722.6faffb69.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050301020722.6faffb69.akpm@osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 1 Mar 2005 08:12:02 -0500
+Received: from smtp.andrew.cmu.edu ([128.2.10.81]:57991 "EHLO
+	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S261900AbVCANLL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 08:11:11 -0500
+Message-ID: <422469E3.7010805@andrew.cmu.edu>
+Date: Tue, 01 Mar 2005 08:10:59 -0500
+From: James Bruce <bruce@andrew.cmu.edu>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Gerd Knorr <kraxel@bytesex.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Potentially dead bttv cards from 2.6.10
+References: <422001CD.7020806@andrew.cmu.edu> <20050228134410.GA7499@bytesex>	<42232DFC.6090000@andrew.cmu.edu> <87mzto3c78.fsf@bytesex.org>	<42240EB3.6040504@andrew.cmu.edu> <87is4b21s5.fsf@bytesex.org>
+In-Reply-To: <87is4b21s5.fsf@bytesex.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Forgive me for being annoying; I'm trying to be careful because I get 
+one more failure in a test and then that's it.  The manufacturer no 
+longer lists that model as being produced.  Thus if there's a way to 
+ruin a bttv card through the V4L2 interface I will no longer be of any 
+assistance in finding it.
 
-> btw, suspend is a bit messy.  The disk spins down.  Then up.  Then down
-> again.  And:
+Gerd Knorr wrote:
+> James Bruce <bruce@andrew.cmu.edu> writes:
+>>If you could suggest a very well tested kernel for bttv (2.6.9?),
+> What do you expect?  With just one single report and not remotely
+> being clear what exactly caused it ...
 
-Yes, this is going to be properly solved by switching pm_message_t to
-struct (preview patch attached, EVENT will become .event, this is just
-for me). I could do some hack to make disk not go up-down-up (and will
-need to do it for suse9.3, anyway), but I do not think that would
-belong to mainline.
+It goes further than that though; I have about 3+ people a month asking 
+me what camera and capture card to use with my GPL'd machine vision library:
+	http://www-2.cs.cmu.edu/~jbruce/cmvision/
 
-> Powering off system
-> Debug: sleeping function called from invalid context at include/linux/rwsem.h:66
-> in_atomic():0, irqs_disabled():1                                                
->  [<c010318d>] dump_stack+0x19/0x20
->  [<c0111731>] __might_sleep+0x91/0x9c
->  [<c0285872>] device_shutdown+0x16/0x82
->  [<c012aa97>] power_down+0x47/0x74     
->  [<c012ac5a>] pm_suspend_disk+0x5a/0x74
->  [<c01292ea>] enter_state+0x2e/0x70    
->  [<c0129336>] software_suspend+0xa/0x10
->  [<c024a8a7>] acpi_system_write_sleep+0x73/0x98
->  [<c0149f1b>] vfs_write+0xaf/0x118             
->  [<c014a028>] sys_write+0x3c/0x68 
->  [<c0102c05>] sysenter_past_esp+0x52/0x75
-> Synchronizing SCSI cache for disk sda:   
-> Shutdown: hda                          
-> acpi_power_off called
+Right now, I have to tell them "use 2.4 patched with V4L2", which is 
+neither what they want to hear nor what I want to tell them.  CMVision 
+can use IEEE1394 cameras, but since that has been "working, not working, 
+then working again" in relatively recent 2.6.x, I can't sanely tell 
+people to use that yet.  Now that the V4L2 API churn rate has gone down, 
+I'm trying to get it working properly with the 2.6.x V4L2 API (which 
+AFAICT doesn't match any 2.4.x V4L2 API variant).  If it works I could 
+just tell people "Use 2.6.x with a commonly available bttv card", which 
+would be great.  However, so far I've gotten that to work for five days 
+before the cards stopped working.  I've been tracking the V4L API since 
+1999, on something like 10 different cards, and this is the most serious 
+failure I've had.  So I'm back to telling CMVision users "Use 2.4 + 
+patches", which I would really like to *not* have to tell people.
 
-Hmm, device_shutdown is confused. Should it be called with interrupts
-enabled or disabled? It uses rwsem, that suggests interrupts enabled,
-but I do not think sysdev_shutdown with enabled interrupts is good
-idea (and comment suggests it should be called with interrupts disabled).
+As far as kernels go, there was the guy only one report on lkml by 
+someone overwritting mozilla by running XawTV in 2.6.10-ac8.  The 
+changes between 2.6.11-rc* and 2.6.10 seem to be minor, but I guess I2C 
+has changed causing the reported 2.6.11-rc* bttv issues.  Going back to 
+2.6.9 there are a lot more changes in the driver.  I'd know more if 
+linux.bkbits didn't seem to be down at the moment.
 
-								Pavel
+Google says:
+[linux bttv problem "2.6.7"]  -> 1230 hits
+[linux bttv problem "2.6.8"]  -> 1010 hits
+[linux bttv problem "2.6.9"]  ->  958 hits
+[linux bttv problem "2.6.10"] ->  831 hits
 
-/**
- * We handle system devices differently - we suspend and shut them
- * down last and resume them first. That way, we don't do anything
-stupid like
- * shutting down the interrupt controller before any devices..
- *
- * Note that there are not different stages for power management calls
--
- * they only get one called once when interrupts are disabled.
- */
+That's certainly promising, so I guess I'll try 2.6.9 and 2.6.10 on 
+another computer with the remaining card.  If you want me to also try 
+some out-of-tree-latest-version patches, now would be the time to speak 
+up before I've messed up the third card.
 
-extern int sysdev_shutdown(void);
+>>I've heard that there is some way to dump eeproms; Is there a way to
+>>write them also?
+> 
+> Yes, you can.  That works only if you can still talk to it though.
 
-/**
- * device_shutdown - call ->shutdown() on each device to shutdown.
- */
-void device_shutdown(void)
-{
-        struct device * dev;
+I'll gather all the information I can from the remaining card.
 
-        down_write(&devices_subsys.rwsem);
-        list_for_each_entry_reverse(dev, &devices_subsys.kset.list, kobj.entry) {
-                pr_debug("shutting down %s: ", dev->bus_id);
-                if (dev->driver && dev->driver->shutdown) {
-                        pr_debug("Ok\n");
-                        dev->driver->shutdown(dev);
-                } else
-                        pr_debug("Ignored.\n");
-        }
-        up_write(&devices_subsys.rwsem);
+>>If I could copy the eeprom from the unused cards to the (now broken)
+>>pair that might fix things.
+> 
+> No.  It's not accessable, not just the content scrambled.
+> 
+>   Gerd
 
-        sysdev_shutdown();
-}
+Ok.
 
-
-
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Thanks,
+   Jim Bruce

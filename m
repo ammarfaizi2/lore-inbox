@@ -1,48 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264663AbUEJMfQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264673AbUEJMmA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264663AbUEJMfQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 08:35:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264667AbUEJMfQ
+	id S264673AbUEJMmA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 08:42:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264668AbUEJMmA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 08:35:16 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:37066 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264663AbUEJMfL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 08:35:11 -0400
-Date: Mon, 10 May 2004 14:35:05 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>, James Simmons <jsimmons@infradead.org>
+	Mon, 10 May 2004 08:42:00 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:59813 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S264677AbUEJMls (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 08:41:48 -0400
+Date: Mon, 10 May 2004 14:41:40 +0200 (MEST)
+Message-Id: <200405101241.i4ACfeid029222@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: perfctr-devel@lists.sourceforge.net
+Subject: perfctr-2.7.1 released
 Cc: linux-kernel@vger.kernel.org
-Subject: 2.6.6-mm1: FB_ASILIANT: no help text
-Message-ID: <20040510123505.GH9028@fs.tum.de>
-References: <20040510024506.1a9023b6.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040510024506.1a9023b6.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 10, 2004 at 02:45:06AM -0700, Andrew Morton wrote:
->...
-> All 391 patches:
->...
-> new-asiliant-framebuffer-driver.patch
->   New Asiliant framebuffer driver.
->...
+Version 2.7.1 of perfctr, the Linux performance
+monitoring counters driver, is now available at the usual
+place: http://www.csd.uu.se/~mikpe/linux/perfctr/
 
-There is no help text for FB_ASILIANT in the Kconfig file.
+Version 2.7.1, 2004-05-10
+- Updated the x86 and x86-64 drivers for the final version
+  of the local APIC ownership API included in kernel 2.6.6.
+  Perfctr and Oprofile can now coexist safely.
 
-Please add a help text.
-
-TIA
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+/ Mikael Pettersson

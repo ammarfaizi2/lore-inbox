@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261688AbSJFQZW>; Sun, 6 Oct 2002 12:25:22 -0400
+	id <S261685AbSJFQTK>; Sun, 6 Oct 2002 12:19:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261689AbSJFQZW>; Sun, 6 Oct 2002 12:25:22 -0400
-Received: from almesberger.net ([63.105.73.239]:3347 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S261688AbSJFQZT>; Sun, 6 Oct 2002 12:25:19 -0400
-Date: Sun, 6 Oct 2002 13:30:44 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: New BK License Problem?
-Message-ID: <20021006133044.A14894@almesberger.net>
-References: <20021006075627.I9032@work.bitmover.com> <Pine.LNX.4.44.0210061718370.9062-100000@localhost.localdomain>
+	id <S261695AbSJFQRx>; Sun, 6 Oct 2002 12:17:53 -0400
+Received: from bitmover.com ([192.132.92.2]:45965 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S261685AbSJFQRW>;
+	Sun, 6 Oct 2002 12:17:22 -0400
+Date: Sun, 6 Oct 2002 09:22:56 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Ingo Molnar <mingo@elte.hu>, Manfred Spraul <manfred@colorfullife.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Larry McVoy <lm@bitmover.com>, "David S. Miller" <davem@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: BK MetaData License Problem?
+Message-ID: <20021006092256.H29486@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Ingo Molnar <mingo@elte.hu>,
+	Manfred Spraul <manfred@colorfullife.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Larry McVoy <lm@bitmover.com>, "David S. Miller" <davem@redhat.com>,
+	Linus Torvalds <torvalds@transmeta.com>
+References: <Pine.LNX.4.44.0210061452400.6237-100000@localhost.localdomain> <1033921747.21257.6.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0210061718370.9062-100000@localhost.localdomain>; from mingo@elte.hu on Sun, Oct 06, 2002 at 05:22:33PM +0200
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1033921747.21257.6.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Sun, Oct 06, 2002 at 05:29:07PM +0100
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ Ccs trimmed ]
+On Sun, Oct 06, 2002 at 05:29:07PM +0100, Alan Cox wrote:
+> On Sun, 2002-10-06 at 14:13, Ingo Molnar wrote:
+> > yes, but what i say is that BK *creates* a problem, (just like CVS would
+> > create similar problems) and the license clearly shows that BM is aware of
+> > and tries to handle part of this legal problem. (And given that the BK
+> > metadata is richer than eg. CVS, i suspect it will be a magnified problem
+> > later on.)
+> 
+> The onyl real problem BK creates here IMHO is its not possible to use BK
+> to maintain the true master tree of a piece of software, because like
+> everyone else Linux people get security reports/fixes which are set to
+> go out on specific dates by people like CERT. The BK rules prevent
+> anyone from checking a change into their BK tree until the embargo date,
+> which can be a pain in the butt.
 
-Ingo Molnar wrote:
-> just wondering where the boundary line is. Eg. if i started working on a
-> versioned filesystem today, i'd not be allowed to use BK. I just have to
-> keep stuff like that in mind when using BK.
-
-Worse yet, assuming you work for a sufficiently large company,
-your license is void if or as soon as anybody works in that
-company's name on something BKS (or any legal successor of
-them *) considers as competition.
-
-(* I'm not a lawyer, but I'm not sure if GPLing BK in the last
-   moment before, say, bankruptcy, would really work.)
-
-- Werner
-
+We could easily fix this at our end.  We already have mechanisms to not
+publish openlogging trees, that's how we handle the research/edu waivers,
+we could figure out some way to do the same for individual changesets.
 -- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,64 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263129AbSJGUih>; Mon, 7 Oct 2002 16:38:37 -0400
+	id <S262585AbSJGUSd>; Mon, 7 Oct 2002 16:18:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263147AbSJGUih>; Mon, 7 Oct 2002 16:38:37 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.18.111]:6666 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S263129AbSJGUig>; Mon, 7 Oct 2002 16:38:36 -0400
-Date: Mon, 7 Oct 2002 22:44:14 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: tom_gall@mac.com
-Cc: Pavel Machek <pavel@ucw.cz>, Ben Collins <bcollins@debian.org>,
-       Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: BK is *evil* corporate software [was Re: New BK License Problem?]
-Message-ID: <20021007204414.GD7428@atrey.karlin.mff.cuni.cz>
-References: <20021007001137.A6352@elf.ucw.cz> <6BB2BEDE-DA26-11D6-990A-0003939E069A@mac.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <6BB2BEDE-DA26-11D6-990A-0003939E069A@mac.com>
-User-Agent: Mutt/1.3.28i
+	id <S262747AbSJGUSd>; Mon, 7 Oct 2002 16:18:33 -0400
+Received: from modemcable166.48-200-24.mtl.mc.videotron.ca ([24.200.48.166]:42116
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP
+	id <S262585AbSJGUSc>; Mon, 7 Oct 2002 16:18:32 -0400
+Date: Mon, 7 Oct 2002 16:24:00 -0400 (EDT)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: nico@xanadu.home
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Pavel Machek <pavel@suse.cz>, Ulrich Drepper <drepper@redhat.com>,
+       Larry McVoy <lm@bitmover.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: New BK License Problem?
+In-Reply-To: <1034021987.26503.24.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0210071616120.913-100000@xanadu.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On 7 Oct 2002, Alan Cox wrote:
 
-> >>We're a business.  We're a business which happens to be committed to
-> >>helping the kernel team because we think that the kernel is vital to
-> >>the world at large.  Helping the kernel absolutely does not translate
-> >>to helping people who happen to be our competitors.  By your own
-> >
-> >Stop lying. Your job is to make lots of money and you are using Linux
-> >as cheap advertising. You are trying to make people pay *you* to do
-> >kernel development (as it stands you want $5000 for any bk-using
-> >developer inside RedHat and SuSE).
+> On Mon, 2002-10-07 at 20:06, Nicolas Pitre wrote:
+> > If BK migrates to proprietary format everybody will notice and you'll still
+> > have the opportunity to rescue a not too old repository and carry on with
+> > life using whatever alternate SCM you wish.  If such a thing happened Lary
+> > would be publicly and universally discredited and he's not looking for that
+> > I'm sure.
 > 
-> O Please!  As the person that started this thread this is way way way 
-> way out there and quite frankly I find offensive.
-> 
-> I do NOT honestly think that Larry made the change to the license that 
-> he did for the express purpose of milking some set of companies out of 
-> $$$$.  That's just dumb.
+> If BK migrates to a proprietary format the code won't be in the
+> preferred form of the work for making modifications.
 
-Maybe it is doing for purpose of slowing down subversion/CVS/arch
-development. Thats about as bad.
+Because you think BK will still have the backing of all kernel developers
+using it today if that happens?  Some might find BK's nice to use despite its
+license, but locking the main kernel repository into a proprietary format is
+totally unacceptable for most if not all of them I'm sure.  That's why Larry
+won't go that route or he'll lose the Linux kernel user base right away.
 
-> Granted it's a different kind of license, (IE Microsoft doesn't have a 
-> clause in IE that says Netscape developers can't use IE) but hey, it's 
-> Larry's company and he's perfectly in his rights to do so.  It is 
-> truely a good thing that Larry is allowing some set of us in the open 
-> source community to use his product without costs. 
 
-Good thing for who?
+Nicolas
 
-Good thing for Larry? I don't know.
-
-Good thing for us? I don't think so.
-
-Good thing for subversion developers? Definitely not.
-
-								Pavel
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.

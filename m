@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316023AbSE3BDw>; Wed, 29 May 2002 21:03:52 -0400
+	id <S316067AbSE3BcN>; Wed, 29 May 2002 21:32:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316043AbSE3BDv>; Wed, 29 May 2002 21:03:51 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:39858 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S316023AbSE3BDu>;
-	Wed, 29 May 2002 21:03:50 -0400
-Date: Wed, 29 May 2002 17:48:25 -0700 (PDT)
-Message-Id: <20020529.174825.66872964.davem@redhat.com>
-To: Andries.Brouwer@cwi.nl
-Cc: linux-kernel@vger.kernel.org, mathieu@newview.com, andre@linux-ide.org,
-        dalecki@evision-ventures.com
-Subject: Re: 2.4.19-pre9, IDE on Sparc, Big Disks
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <UTC200205300009.g4U09ri18210.aeb@smtp.cwi.nl>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S316069AbSE3BcM>; Wed, 29 May 2002 21:32:12 -0400
+Received: from dsl0206.netquest.net ([206.117.109.206]:28620 "HELO
+	arcadia.augart.com") by vger.kernel.org with SMTP
+	id <S316067AbSE3BcL>; Wed, 29 May 2002 21:32:11 -0400
+From: Steven Augart <steve@Augart.com>
+To: linux-kernel@vger.kernel.org
+Subject: linux-2.5.18: fs/hfs/inode.c: PATCH to fix compilation error
+Cc: Brad Littlejohn <tyketto@wizard.com>, John Weber <john.weber@linuxhq.com>
+Message-Id: <20020530013158.2DCBE3DF2@abruzzo.augart.com>
+Date: Wed, 29 May 2002 18:31:58 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andries.Brouwer@cwi.nl
-   Date: Thu, 30 May 2002 02:09:53 +0200 (MEST)
-   
-   Precisely what happened is easiest to trace with the identify data in hand.
-   For example, maybe the sparc code still has to be extended to fix the
-   order of lba_capacity48 or so (in ide_fix_driveid).
-   
-Almost certainly this is the problem.  I am looking
-at it.   
-   
-   BTW, this fixing in-place of the driveid is a very bad idea.
-   Nobody should ever touch driveid. It is a read-only variable.
+Subject: Patch to fix compilation error in linux-2.5.18/fs/hfs/inode.c
 
-Well, you are probably right.  Currently it is defined as read-only
-after ide_fix_driveid() runs on it :-)
+This patch fixes a compilation error in linux-2.5.18/fs/hfs/inode.c,
+where gcc 2.95.3 complains that it does not have a complete definition
+for `struct page' in hfs_prepare_write().   The exact error message
+given is:
+
+  inode.c: In function `hfs_prepare_write':
+  inode.c:242: dereferencing pointer to incomplete type
+
+To give credit where due, after I fixed this bug I found that
+suggested fixes have also been sent in by 
+Alexander Viro <viro@math.psu.edu>, by Christoph Hellwig
+<hch@infradead.org>, and by Jan Harkes <jaharkes@cs.cmu.edu>
+
+The compilation problem has already been reported by Brad Littlejohn
+<tyketto@wizard.com> and John Weber <john.weber@linuxhq.com>.
+
+Steven Augart
+steve@augart.com
+
+
+diff -ur linux-2.5.18/fs/hfs/inode.c linux-2.5.18+/fs/hfs/inode.c
+--- linux-2.5.18/fs/hfs/inode.c Thu May  9 15:24:20 2002
++++ linux-2.5.18+/fs/hfs/inode.c        Tue May 28 17:23:06 2002
+@@ -21,6 +21,7 @@
+ #include <linux/hfs_fs_i.h>
+ #include <linux/hfs_fs.h>
+ #include <linux/smp_lock.h>
++#include <linux/mm.h>          /* for struct page */
+ 
+ /*================ Variable-like macros ================*/
+ 

@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261765AbUL1Hd5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261760AbUL1HmF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261765AbUL1Hd5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Dec 2004 02:33:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbUL1HYB
+	id S261760AbUL1HmF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Dec 2004 02:42:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261698AbUL1HW3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Dec 2004 02:24:01 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:62920 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262104AbUL1GAU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Dec 2004 01:00:20 -0500
-Date: Tue, 28 Dec 2004 00:59:33 -0500
-From: Dave Jones <davej@redhat.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: Patrick McHardy <kaber@trash.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: kmalloc packet slab
-Message-ID: <20041228055933.GA5481@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Manfred Spraul <manfred@colorfullife.com>,
-	Patrick McHardy <kaber@trash.net>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <41D04977.2040902@colorfullife.com>
+	Tue, 28 Dec 2004 02:22:29 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:49490 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S262101AbUL1F7J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Dec 2004 00:59:09 -0500
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       openib-general@openib.org
+In-Reply-To: <200412272151.3Lde9MPbD7ODIUdu@topspin.com>
+X-Mailer: Roland's Patchbomber
+Date: Mon, 27 Dec 2004 21:51:19 -0800
+Message-Id: <200412272151.zeKZJPoIEBr55elh@topspin.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41D04977.2040902@colorfullife.com>
-User-Agent: Mutt/1.4.1i
+To: davem@davemloft.net
+From: Roland Dreier <roland@topspin.com>
+X-SA-Exim-Connect-IP: 127.0.0.1
+X-SA-Exim-Mail-From: roland@topspin.com
+Subject: [PATCH][v5][22/24] Document InfiniBand ioctl use
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on eddore)
+X-OriginalArrivalTime: 28 Dec 2004 05:51:19.0876 (UTC) FILETIME=[41115040:01C4ECA1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 27, 2004 at 06:42:15PM +0100, Manfred Spraul wrote:
+Add the 0x1b ioctl magic number used by ib_umad module to
+Documentation/ioctl-number.txt.
 
- > Hmm. If the shared_info is that large then the patch won't help much.
- > Alan - what is printed in the /proc/slabinfo line for the new cache?
+Signed-off-by: Roland Dreier <roland@topspin.com>
 
-On my laptop which has been up for 5 days, and seen quite a bit
-of network traffic over the xmas holidays..
 
-size-1620(DMA)         0      0   1632    5    2 : tunables   24   12    0 : slabdata      0      0      0
-size-1620             35     35   1632    5    2 : tunables   24   12    0 : slabdata      7      7      0
-
-		Dave
+--- linux-bk.orig/Documentation/ioctl-number.txt	2004-12-27 21:47:59.407053483 -0800
++++ linux-bk/Documentation/ioctl-number.txt	2004-12-27 21:48:28.036839302 -0800
+@@ -72,6 +72,7 @@
+ 0x09	all	linux/md.h
+ 0x12	all	linux/fs.h
+ 		linux/blkpg.h
++0x1b	all	InfiniBand Subsystem	<http://www.openib.org/>
+ 0x20	all	drivers/cdrom/cm206.h
+ 0x22	all	scsi/sg.h
+ '#'	00-3F	IEEE 1394 Subsystem	Block for the entire subsystem
 

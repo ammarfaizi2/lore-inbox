@@ -1,47 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262665AbRE0BCy>; Sat, 26 May 2001 21:02:54 -0400
+	id <S262663AbRE0A7y>; Sat, 26 May 2001 20:59:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262668AbRE0BCo>; Sat, 26 May 2001 21:02:44 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:26062 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S262665AbRE0BC3>;
-	Sat, 26 May 2001 21:02:29 -0400
-Message-ID: <3B10521D.346E5886@mandrakesoft.com>
-Date: Sat, 26 May 2001 21:02:21 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre6 i686)
-X-Accept-Language: en
+	id <S262665AbRE0A7f>; Sat, 26 May 2001 20:59:35 -0400
+Received: from green.mif.pg.gda.pl ([153.19.42.8]:8205 "EHLO
+	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S262664AbRE0A7c>; Sat, 26 May 2001 20:59:32 -0400
+From: Andrzej Krzysztofowicz <kufel!ankry@green.mif.pg.gda.pl>
+Message-Id: <200105262023.WAA02740@kufel.dom>
+Subject: Re: vm in 2.4.5
+To: kufel!conectiva.com.br!riel@green.mif.pg.gda.pl (Rik van Riel)
+Date: Sat, 26 May 2001 22:23:14 +0200 (CEST)
+Cc: kufel!able.es!jamagallon@green.mif.pg.gda.pl (J . A . Magallon),
+        kufel!vger.kernel.org!linux-kernel@green.mif.pg.gda.pl (Linux Kernel)
+In-Reply-To: <Pine.LNX.4.21.0105261049130.30264-100000@imladris.rielhome.conectiva> from "Rik van Riel" at maj 26, 2001 10:54:16 
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: "Ingo T. Storm" <it@lapavoni.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.5 does not link on Ruffian (alpha)
-In-Reply-To: <3B0BFE90.CE148B7@kjist.ac.kr> <20010523210923.A730@athlon.random> <022e01c0e5fc$39ac0cf0$2e2ca8c0@buxtown.de> <20010526193649.B1834@athlon.random> <20010526201442.D1834@athlon.random>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-> diff -urN alpha/arch/alpha/kernel/sys_dp264.c alpha-1/arch/alpha/kernel/sys_dp264.c
-> --- alpha/arch/alpha/kernel/sys_dp264.c Sun Apr  1 01:17:07 2001
-> +++ alpha-1/arch/alpha/kernel/sys_dp264.c       Wed May 23 02:43:49 2001
-> @@ -16,15 +16,18 @@
->  #include <linux/pci.h>
->  #include <linux/init.h>
+> On Sat, 26 May 2001, J . A . Magallon wrote:
+> > It does not begin to use swap in a growing fashion, it just appears
+> > full in a moment.
 > 
-> +#define __EXTERN_INLINE inline
-> +#include <asm/io.h>
-> +#include <asm/core_tsunami.h>
-> +#undef  __EXTERN_INLINE
-> +
+> It gets _allocated_ in a moment, but things don't actually get
+> swapped out. This isn't a problem.
+> 
+> The real problem is that we don't actively reclaim swap space
+> when it gets full. We just assign swap to parts of processes,
+> but we never reclaim it when we need swap space for something
+> else; at least, not until the process exit()s or exec()s.
 
-Why is "__EXTERN_INLINE" defined as "inline" not "extern inline"?
+As I understand the original message, before the compilation and after the
+system is in a "similar" state ("the same" processes should be running; even
+less of them if some were killed by OOM).
 
-I simply added "extern" and things started working (as noted in my
-previous message in this thread)..
+:              total       used       free     shared    buffers     cached
+: -/+ buffers/cache:      49908     205780
+: Swap:       152576          0     152576
 
--- 
-Jeff Garzik      | Disbelief, that's why you fail.
-Building 1024    |
-MandrakeSoft     |
+~49 MB in use befere the test,
+
+: -/+ buffers/cache:      14844     240844
+: Swap:       152576     152576          0
+
+~149 MB allocated swap. By processes of total size of 49 MB ? Strange...
+
+Either the test shows some leak in running userspace processes (they
+allocate a lot of memory) as an effect of memory shortage (strange) or there
+is some leak in the kernel. Or the test is bad (something else is running
+when it finishes).
+
+Am I right ?
+
+Andrzej
+

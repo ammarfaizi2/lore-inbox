@@ -1,59 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132147AbRDWVZv>; Mon, 23 Apr 2001 17:25:51 -0400
+	id <S132226AbRDWVdb>; Mon, 23 Apr 2001 17:33:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132118AbRDWVZo>; Mon, 23 Apr 2001 17:25:44 -0400
-Received: from rhdv.cistron.nl ([195.64.71.178]:45572 "EHLO rhdv.cistron.nl")
-	by vger.kernel.org with ESMTP id <S132301AbRDWVZa>;
-	Mon, 23 Apr 2001 17:25:30 -0400
-Content-Type: text/plain; charset=US-ASCII
-X-KMail-Redirect-From: Robert H. de Vries <rhdv@rhdv.cistron.nl>
-Subject: Re: high-res-timers start code.
-From: "Robert H. de Vries" <rhdv@rhdv.cistron.nl> (by way of Robert H. de
-	Vries <rhdv@rhdv.cistron.nl>)
-Date: Mon, 23 Apr 2001 23:25:32 +0200
-To: high-res-timers-discourse@lists.sourceforge.net,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Message-Id: <01042323253201.18984@calvin>
-Content-Transfer-Encoding: 7BIT
+	id <S132281AbRDWVdW>; Mon, 23 Apr 2001 17:33:22 -0400
+Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:31399 "EHLO
+	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S132226AbRDWVdP>; Mon, 23 Apr 2001 17:33:15 -0400
+Date: Mon, 23 Apr 2001 23:33:12 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Matt <madmatt@bits.bris.ac.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ioctl arg passing
+Message-ID: <20010423233312.Y682@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <Pine.LNX.4.21.0104231648330.1089-100000@bits.bris.ac.uk> <Pine.LNX.4.21.0104232051040.7619-100000@bits.bris.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.21.0104232051040.7619-100000@bits.bris.ac.uk>; from madmatt@bits.bris.ac.uk on Mon, Apr 23, 2001 at 08:58:54PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Apr 23, 2001 at 08:58:54PM +0100, Matt wrote:
+> Matt aka Doofus festures mentioned the following:
+> 
+> | struct instruction_t local;
+> | __s16 *temp;
+> | 
+> | copy_from_user( &local, ( struct instruction_t * ) arg, sizeof( struct instruction_t ) );
+> | temp = kmalloc( sizeof( __s16 ) * local.rxlen, GFP_KERNEL );
+> | copy_from_user( temp, arg, sizeof( __s16 ) * local.rxlen );
+> 
+> I meant that last line to be:
+> 
+> copy_from_user( temp, local.rxbuf, sizeof( __s16 ) * local.rxlen );
+>                       ^^^^^^^^^^^
+> That's the main crux of my query, can I retrieve the value of a pointer
+> in some struct passed via ioctl? In this case, the struct/chunk of memory
+> referenced by local.rxbuf, (which is rxlen x 2 bytes big).
 
-On Monday 23 April 2001 22:43, George Anzinger wrote:
-> "Robert H. de Vries" wrote:
-> > On Monday 23 April 2001 19:45, you wrote:
-> > > By the way, is the user land stuff the same for all "arch"s?
-> >
-> > Not if you plan to handle the CPU cycle counter in user space. That is at
-> > least what I would propose.
->
-> Just got interesting, lets let the world look in.
->
-> What did you have in mind here?  I suspect that on some archs the cycle
-> counter is not available to user code.  I know that on parisc it is
-> optionally available (kernel can set a bit to make it available), but by
-> it self it is only good for intervals.  You need to peg some value to a
-> CLOCK to use it to get timeofday, for instance.
->
-> On the other hand, if there is an area of memory that both users and
-> system can read but only system can write, one might put the soft clock
-> there.  This would allow gettimeofday (with the cycle counter) to work
-> without a system call.  To the best of my knowledge the system does not
-> have such an area as yet.
+Yes, that works (with the obvious note on checking argument sizes
+and not kmallocing too much memory).
 
-It obviously is an architecture dependent thing. I know of two archtictures
-which have such a counter: your standard pentium and up and the SGI systems
-from at least the Indy and up. I wouldn't be surprised if most CPU's have
-such a counter. If you look at some of the architecture specific code for the
-gettimeofday code you would quickly find out which architectures have such a
-feature. I have some code for the intel in my user space library. For the SGI
-I also have some code, but only for IRIX. I guess for Linux we could do
-similar code.
+All "read" functions do the same. As you were clever enough to
+copy the pointer itself into kernel space, too (which many driver
+writes forget!), you have done the right thing here.
 
-	Robert
+Congratulations! ;-)
 
+Regards
+
+Ingo Oeser
 -- 
-Robert de Vries
-rhdv@rhdv.cistron.nl
+10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
+         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>

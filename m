@@ -1,52 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265534AbTFMVSZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 17:18:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265535AbTFMVSZ
+	id S265540AbTFMVgy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 17:36:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265544AbTFMVgu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 17:18:25 -0400
-Received: from pa186.opole.sdi.tpnet.pl ([213.76.204.186]:5651 "EHLO
-	deimos.one.pl") by vger.kernel.org with ESMTP id S265534AbTFMVSY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 17:18:24 -0400
-Date: Fri, 13 Jun 2003 23:31:47 +0200 (CEST)
-From: =?ISO-8859-2?Q?Damian_Ko=B3kowski?= <deimos@deimos.one.pl>
-To: Daniel Egger <degger@fhm.edu>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Stephan von Krawczynski <skraw@ithnet.com>, <stefan@stefan-foerster.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: linux-2.4.21 released
-In-Reply-To: <1055538278.11366.13.camel@sonja>
-Message-ID: <Pine.LNX.4.44.0306132325110.26388-100000@wenus.deimos.one.pl>
-X-OS: Slackware GNU/Linux
-X-Age: 22 (1980.09.27 - libra)
-X-Girl: 1 will be enough!
-X-GG: 88988
-X-ICQ: 59367544
-X-GPG: http://deimos.one.pl/deimos.asc
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2
-Content-Transfer-Encoding: 8BIT
+	Fri, 13 Jun 2003 17:36:50 -0400
+Received: from deviant.impure.org.uk ([195.82.120.238]:36838 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S265540AbTFMVfz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 17:35:55 -0400
+Date: Fri, 13 Jun 2003 22:49:44 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: OverrideX <overridex@punkass.com>, vojtech@suse.cz
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.70 hangs on boot
+Message-ID: <20030613214944.GA10406@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	OverrideX <overridex@punkass.com>, vojtech@suse.cz,
+	linux-kernel@vger.kernel.org
+References: <1055466518.29294.10.camel@nazgul>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1055466518.29294.10.camel@nazgul>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13 Jun 2003, Daniel Egger wrote:
+On Thu, Jun 12, 2003 at 09:08:39PM -0400, OverrideX wrote:
+ > Hi all, 
+ > 
+ > I've tried 2.5.70, 2.5.70-mm8 and 2.5.70-bk17.  All of them hang while
+ > booting, the last message they display is "Uncompressing Linux... Ok,
+ > booting the kernel." then they just sit blank and boot no further.  I've
+ > booted previous 2.5.x kernels on this system, the last I had used was
+ > 2.5.63. My Hardware and other info is below, .config is attached. Is
+ > anyone else experiencing this problem?  Is there any other information I
+ > can provide to help debuging?  Please cc me any replies as my mailbox
+ > can't take the full brunt of this mailing list, thanks -Dan
 
-> Surprise, but ACPI never was the problem with this board... :)
+Ugh, what a mess. Take a look at http://www.codemonkey.org.uk/post-halloween-2.5.txt
+You'll notice that your .config doesn't contain most of those in the
+'gotchas' section that it suggests you make sure you have.
 
-ROTFL
+The root cause of this is that you have CONFIG_INPUT=m.
 
-It is. As you know now.
+CONFIG_VT only shows up if you have CONFIG_INPUT=y.
+With it set to =m a whole bunch of options never ever show up in the
+configuration.
 
-> I've tested a few more kernels. .21 fails as well as the latest -ac.
+This really wants fixing badly. The source of this problem seems to be
+people taking 2.4 configs (where CONFIG_INPUT=m was fine), and it all
+going pear-shaped when people make oldconfig.  I'm aware of the problems
+that oldconfig can't override variables set in .config, so how about 
+just renaming CONFIG_INPUT to something else ?
 
-Now you surprise me, so 2.4.21-rc8-ac1 with ACPI:
-
-	CONFIG_X86_UP_APIC
-	CONFIG_X86_UP_IOAPIC
-
-with module via-rhine on ECS_L7VTA works for you or not..?
-
--- 
-# Damian *dEiMoS* Ko³kowski # http://deimos.one.pl/ #
+		Dave
 

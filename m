@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270221AbRHWTxI>; Thu, 23 Aug 2001 15:53:08 -0400
+	id <S270229AbRHWT5i>; Thu, 23 Aug 2001 15:57:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270229AbRHWTw6>; Thu, 23 Aug 2001 15:52:58 -0400
-Received: from imo-d07.mx.aol.com ([205.188.157.39]:16045 "EHLO
-	imo-d07.mx.aol.com") by vger.kernel.org with ESMTP
-	id <S270221AbRHWTww>; Thu, 23 Aug 2001 15:52:52 -0400
-Date: Thu, 23 Aug 2001 15:52:54 -0400
-From: schemins@netscape.net (Thunder from the hill)
-To: linux-kernel@vger.kernel.org
-Subject: ne2k-pci crash on ifconfig
-Message-ID: <099D519D.3FD237C3.00A6DFE2@netscape.net>
-X-Mailer: Atlas Mailer 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	id <S270195AbRHWT5S>; Thu, 23 Aug 2001 15:57:18 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:26122 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S270252AbRHWT5Q>; Thu, 23 Aug 2001 15:57:16 -0400
+Subject: Re: gcc bug causing problem in kernel builds
+To: Paul.Clements@SteelEye.com (Paul Clements)
+Date: Thu, 23 Aug 2001 21:00:34 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3B855C19.7A4233BF@SteelEye.com> from "Paul Clements" at Aug 23, 2001 03:40:09 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15a0eY-0004U3-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> Now, the problem is that RedHat also apparently compiles (at least its
+> newer) kernels with the 2.96 gcc. Unfortunately, there appears to be a
+> structure misalignment problem in gcc 2.96. 
 
-I am using a rtl8029 PCI ethernet card. The driver works fine, the netcard is detected, but when ifconfig is executed on eth0, the system locks up. I had used a ne2k-isa (ne) netcard before, and it worked just fine. But I can't stick back to this card, and I want to know if there is something known about this crash.
-I cannot append my settings, as I have no connection from the server to anywhere else. The most important things:
-K6-II 400, 100 MHz BUS, 384 MB of RAM, 13.6 GB harddisk, Voodoo II Banshee card, SB Live! Full, RTL8029 NIC, IPv4, IPv6, PCI access mode: any
-Anything more to be known?
+The kernel is compiled with some objects differently according to the
+compiler features. In paticular we have to pad out structures with 0 length
+elements in the older compilers to fix a compiler bug. You must
+compile with the same precise compiler and options as the kernel itself.
 
-Thunder
+> Does anyone know if the structure misalignment problem in gcc 2.96 is a
+> known issue? (could this bug be induced by a RedHat-applied gcc patch,
+> if there are any)
 
--- 
----
-Woah! I did a "cat /boot/vmlinuz >> /dev/audio", and I think I heard god...
+gcc 2.96-54 had plenty of bugs, 2.96-75+ should be perfectly fine for
+all uses. If you have a 2.96 RH problem please report it in Red Hat
+bugzilla - the gcc core folks won't be too interested as they are focused
+on 2.95.4 and 3.0.1 bug fixing.
 
-
-
-__________________________________________________________________
-Your favorite stores, helpful shopping tools and great gift ideas. Experience the convenience of buying online with Shop@Netscape! http://shopnow.netscape.com/
-
-Get your own FREE, personal Netscape Mail account today at http://webmail.netscape.com/
-
+Alan

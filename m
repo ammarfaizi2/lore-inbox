@@ -1,77 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263571AbTLOTTP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 14:19:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263742AbTLOTTP
+	id S263742AbTLOTkO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 14:40:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263832AbTLOTkO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 14:19:15 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:59070 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263571AbTLOTTN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 14:19:13 -0500
-Date: Mon, 15 Dec 2003 20:13:35 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Toad <toad@amphibian.dyndns.org>, linux-kernel@vger.kernel.org
-Subject: Re: 'bad: scheduling while atomic!', preempt kernel, 2.6.1-test11, reading an apparently duff DVD-R
-Message-ID: <20031215191335.GG2267@suse.de>
-References: <20031215135802.GA4332@amphibian.dyndns.org> <Pine.LNX.4.58.0312151043480.1631@home.osdl.org>
+	Mon, 15 Dec 2003 14:40:14 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:45714
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S263742AbTLOTkJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 14:40:09 -0500
+Date: Mon, 15 Dec 2003 20:40:57 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Larry McVoy <lm@work.bitmover.com>, Sergey Vlasov <vsu@altlinux.ru>,
+       linux-kernel@vger.kernel.org
+Subject: Re: RFC - tarball/patch server in BitKeeper
+Message-ID: <20031215194057.GL6730@dualathlon.random>
+References: <20031214172156.GA16554@work.bitmover.com> <2259130000.1071469863@[10.10.2.4]> <20031215151126.3fe6e97a.vsu@altlinux.ru> <20031215132720.GX7308@phunnypharm.org> <20031215192402.528ce066.vsu@altlinux.ru> <20031215183138.GJ6730@dualathlon.random> <20031215185839.GA8130@work.bitmover.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0312151043480.1631@home.osdl.org>
+In-Reply-To: <20031215185839.GA8130@work.bitmover.com>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 15 2003, Linus Torvalds wrote:
+On Mon, Dec 15, 2003 at 10:58:39AM -0800, Larry McVoy wrote:
+> On Mon, Dec 15, 2003 at 07:31:38PM +0100, Andrea Arcangeli wrote:
+> > you get the 2.4 branch linear history via bkcvs. Though there you lose
+> > all the granular xfs development changesets instead, the xfs merge
+> > becames a huge monolithic patch see below.  Either way or another you
+> > lose information compared to true BK. From my part I'm fine with the
+> > info provided in bkcvs, I'm only correcting Larry statement about him
+> > providing lots of way to get at the data in a interoperable protocol,
+> > he's only providing _partial_ data in a interoperable way. I'm stating
+> > facts, no whining intendend.
 > 
+> You can get at the full patch level granularity via BK/Web, on bkbits,
+> complete with checkin comments, diffs, whatever you want.  There isn't
+> any more information to give you that is not internal BK information
+> which is covered by trade secret.  We have every right to not provide
+> you with information about how BitKeeper works and we've already provided
+> the data in multiple ways.
 > 
-> On Mon, 15 Dec 2003, Toad wrote:
-> >
-> > ide-scsi: reset called for 133
-> 
-> Ok, I can't trigger an IDE reset even with a bad CDROM, so I'm kind of out
-> of luck on testing this. Can you try out the following silly patch, and
-> report what it says?
-> 
-> The old ide-scsi reset function is just terminally broken, there's no way
-> it can work. This patch _might_ make it work, but is more likely to just
-> print out what it's trying to do.
+> - You have an open export of the data into bkcvs, this addressed the "I'm not
+>   using BK so I'm at a disadvantage" problem
 
-abort doesn't work well either, and ide-scsi needs to be ported to do
-proper new error handling. It's internal buffering stinks. In short, it
-really needs to be almost rewritten if it is serve some useful purpose.
-If it wasn't for the principle of it, it really should not be a big job.
+the open export lacks some granular information this is a fact. that's
+fine with me though.
 
-> -	printk (KERN_ERR "ide-scsi: reset called for %lu\n", cmd->serial_number);
-> -	/* first null the handler for the drive and let any process
-> -	 * doing IO (on another CPU) run to (partial) completion
-> -	 * the lock prevents processing new requests */
-> -	spin_lock_irqsave(&ide_lock, flags);
-> -	while (HWGROUP(drive)->handler) {
-> -		HWGROUP(drive)->handler = NULL;
-> -		schedule_timeout(1);
-> -	}
+> - You have patch by patch access to the data at bkbits.net for all
+>   repositories, this addressed the "I want the fine granularity of
+>   individual patches" problem.
 
-It's incredible how anything like that ever got merged, looks like it
-was introduced with scsi_sleep() change.
+I think it's reasonable to write an automated tool that generates all
+the granular info for the big merges by doing a lookup on the web for
+every single bkcvs changeset, I did something similar already but I
+missed the linearization of bkcvs, not maybe it could have a chance to
+work. But the last time I attempted to use the web as a "fetch" tool,
+not as a "browsing tool with a browser with an human behind" you said if
+we would use it that way you would shut it down, that doesn't match my
+definition of interoperability or availability very well.
 
-> -	/* now nuke the drive queue */
-> -	while ((req = elv_next_request(drive->queue))) {
-> -		blkdev_dequeue_request(req);
-> -		end_that_request_last(req);
+> - I've offered up the tarball+patch update protocol to address the "I'm
+>   not
+>  using BK so I can't easily track the latest version of J Random tree"
+>  problem.
 
-Broken, will introduced infinite stalls.
-
-> -	}
-> -	/* FIXME - this will probably leak memory */
-> -	HWGROUP(drive)->rq = NULL;
-> -	if (drive_to_idescsi(drive))
-> -		drive_to_idescsi(drive)->pc = NULL;
-> -	spin_unlock_irqrestore(&ide_lock, flags);
-> -	/* finally, reset the drive (and its partner on the bus...) */
-> -	ide_do_reset (drive);
-
--- 
-Jens Axboe
-
+that's an enterely different issue, don't mix things up. That loses
+*tons* of information, much more than bkcvs, I'm not even considering
+it. that's only useful to projects where the developers don't even
+supply tarballs and patches anymore if I understood correctly. On the
+kernel we've the bkcvs that doesn't lose that much of information, so I
+don't see any use for this tool on the kernel side.

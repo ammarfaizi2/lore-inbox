@@ -1,141 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261200AbVB0SQr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261461AbVB0SMn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261200AbVB0SQr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 13:16:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbVB0SQV
+	id S261461AbVB0SMn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 13:12:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbVB0RrN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 13:16:21 -0500
-Received: from ffm.saftware.de ([217.20.127.95]:56553 "EHLO ffm.saftware.de")
-	by vger.kernel.org with ESMTP id S261200AbVB0SN5 (ORCPT
+	Sun, 27 Feb 2005 12:47:13 -0500
+Received: from mail.suse.de ([195.135.220.2]:11427 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261461AbVB0RXF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 13:13:57 -0500
-Subject: Re: [PATCH] possible bug in i2c-algo-bit's inb function
-From: Andreas Oberritter <obi@saftware.de>
-To: LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Cc: Greg KH <greg@kroah.com>
-In-Reply-To: <20050227103538.218fa1b0.khali@linux-fr.org>
-References: <E1D5GN2-0000Bi-KG@localhost.localdomain>
-	 <20050227103538.218fa1b0.khali@linux-fr.org>
-Content-Type: text/plain
-Date: Sun, 27 Feb 2005 19:13:54 +0100
-Message-Id: <1109528034.4564.16.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+	Sun, 27 Feb 2005 12:23:05 -0500
+Message-Id: <20050227170311.727719000@blunzn.suse.de>
+References: <20050227165954.566746000@blunzn.suse.de>
+Date: Sun, 27 Feb 2005 17:59:57 +0100
+From: Andreas Gruenbacher <agruen@suse.de>
+To: linux-kernel@vger.kernel.org, Neil Brown <neilb@cse.unsw.edu.au>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Olaf Kirch <okir@suse.de>, "Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
+       Andrew Morton <akpm@osdl.org>
+Subject: [nfsacl v2 03/16] Return -ENOSYS for RPC programs that are unavailable
+Content-Disposition: inline; filename=nfsacl-return-enosys-for-rpc-programs-that-are-unavailable.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jean,
+The issuer of an RPC call should be able to tell the difference between
+an I/O error and program unavailable / program version unavailable /
+procedure unavailable.  Return -ENOSYS for unavailable RPCs instead of
+-EIO.
 
-On Sun, 2005-02-27 at 10:35 +0100, Jean Delvare wrote:
-> > while writing a driver for a cardbus card which is supposed to use the
-> > bit-banging algorithm I noticed that communication with the I2C slave
-> > (Philips TDA10046) would fail without this patch. It forces SDA to
-> > high for every bit in i2c_inb() instead of once per byte. Can this
-> > patch go into the mainline kernel or will this break other drivers? I
-> > am using Kernel version 2.6.10.
-> 
-> There is no reason why this would be necessary. Once SDA is set high on
-> the master's side, the client will be controlling it for the rest of the
-> byte (transferred from client to master). Setting SDA high again on the
-> master's side for each bit shouldn't have any effet, let alone the
-> substantial slowdown. If it changes something for you, then either your
-> implementation of setscl or getsda is broken and does actually change
-> SDA as a side effect, or what really helps is the additional delay, not
-> setting SDA high per se. In the former case, check your code. If you
-> can't figure out what's wrong, post it here and I'll take at look.
-> What's your bus master BTW? In the latter case, you might simply need to
-> lower the bus speed (increase udelay).
+Only issue a program unavailable warning for program numbers other than
+the one for nfsacl: Clients with nfsacl support are quite common
+already; no need to clutter the syslog.
 
-Increasing udelay from 10us to 100us, 1ms, 10ms or 100ms did not help.
+Signed-off-by: Andreas Gruenbacher <agruen@suse.de>
 
-Here's my I2C code:
+Index: linux-2.6.11-rc5/net/sunrpc/clnt.c
+===================================================================
+--- linux-2.6.11-rc5.orig/net/sunrpc/clnt.c
++++ linux-2.6.11-rc5/net/sunrpc/clnt.c
+@@ -1041,23 +1041,26 @@ call_verify(struct rpc_task *task)
+ 	case RPC_SUCCESS:
+ 		return p;
+ 	case RPC_PROG_UNAVAIL:
+-		printk(KERN_WARNING "RPC: call_verify: program %u is unsupported by server %s\n",
+-				(unsigned int)task->tk_client->cl_prog,
+-				task->tk_client->cl_server);
+-		goto out_eio;
++		dprintk(KERN_WARNING "RPC: call_verify: program %u is unsupported by server %s\n",
++			(unsigned int)task->tk_client->cl_prog,
++			task->tk_client->cl_server);
++		error = -ENOSYS;
++		goto out_err;
+ 	case RPC_PROG_MISMATCH:
+ 		printk(KERN_WARNING "RPC: call_verify: program %u, version %u unsupported by server %s\n",
+ 				(unsigned int)task->tk_client->cl_prog,
+ 				(unsigned int)task->tk_client->cl_vers,
+ 				task->tk_client->cl_server);
+-		goto out_eio;
++		error = -ENOSYS;
++		goto out_err;
+ 	case RPC_PROC_UNAVAIL:
+ 		printk(KERN_WARNING "RPC: call_verify: proc %p unsupported by program %u, version %u on server %s\n",
+ 				task->tk_msg.rpc_proc,
+ 				task->tk_client->cl_prog,
+ 				task->tk_client->cl_vers,
+ 				task->tk_client->cl_server);
+-		goto out_eio;
++		error = -EOPNOTSUPP;
++		goto out_err;
+ 	case RPC_GARBAGE_ARGS:
+ 		dprintk("RPC: %4d %s: server saw garbage\n", task->tk_pid, __FUNCTION__);
+ 		break;			/* retry */
 
-#define REG_SLCS                0x003c
-#define SLCS_SCL                (0x0001 <<  7)
-#define SLCS_SDA                (0x0001 <<  6)
-
-static inline u32 pluto_readreg(struct pluto *pluto, u32 reg)
-{
-        return readl(&pluto->io_mem[reg]);
-}
-
-static inline void pluto_writereg(struct pluto *pluto, u32 reg, u32 val)
-{
-        writel(val, &pluto->io_mem[reg]);
-}
-
-static inline void pluto_rw(struct pluto *pluto, u32 reg, u32 mask, u32
-bits)
-{
-        u32 val = pluto_readreg(pluto, reg);
-        val &= ~mask;
-        val |= bits;
-        pluto_writereg(pluto, reg, val);
-}
-
-static void pluto_setsda(void *data, int state)
-{
-        struct pluto *pluto = data;
-
-        if (state)
-                pluto_rw(pluto, REG_SLCS, SLCS_SDA, SLCS_SDA);
-        else
-                pluto_rw(pluto, REG_SLCS, SLCS_SDA, 0);
-}
-
-static void pluto_setscl(void *data, int state)
-{
-        struct pluto *pluto = data;
-
-        if (state)
-                pluto_rw(pluto, REG_SLCS, SLCS_SCL, SLCS_SCL);
-        else
-                pluto_rw(pluto, REG_SLCS, SLCS_SCL, 0);
-}
-
-static int pluto_getsda(void *data)
-{
-        struct pluto *pluto = data;
-
-        return pluto_readreg(pluto, REG_SLCS) & SLCS_SDA;
-}
-
-static int pluto_getscl(void *data)
-{
-        struct pluto *pluto = data;
-
-        return pluto_readreg(pluto, REG_SLCS) & SLCS_SCL;
-}
-
-in the pci probe function:
-
-        i2c_set_adapdata(&pluto->i2c_adap, pluto);
-        strcpy(pluto->i2c_adap.name, DRIVER_NAME);
-        pluto->i2c_adap.owner = THIS_MODULE;
-        pluto->i2c_adap.id = I2C_ALGO_BIT;
-        pluto->i2c_adap.class = I2C_CLASS_TV_DIGITAL;
-        pluto->i2c_adap.dev.parent = &pdev->dev;
-        pluto->i2c_adap.algo_data = &pluto->i2c_bit;
-        pluto->i2c_bit.data = pluto;
-        pluto->i2c_bit.setsda = pluto_setsda;
-        pluto->i2c_bit.setscl = pluto_setscl;
-        pluto->i2c_bit.getsda = pluto_getsda;
-        pluto->i2c_bit.getscl = pluto_getscl;
-        pluto->i2c_bit.udelay = 10;
-        pluto->i2c_bit.timeout = 10;
-
-        /* Raise SCL and SDA */
-        pluto_setsda(pluto, 1);
-        pluto_setscl(pluto, 1);
-
-	ret = i2c_bit_add_bus(&pluto->i2c_adap);
-
-The bus master is a so called Pluto2 by SCM (part of a DVB-T card sold
-by Satelco). If this is a hardware bug, is it possible to add a flag to
-struct i2c_algo_bit_data to workaround this bug?
-
-Regards,
-Andreas
+--
+Andreas Gruenbacher <agruen@suse.de>
+SUSE Labs, SUSE LINUX PRODUCTS GMBH
 

@@ -1,83 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282652AbRLBB2n>; Sat, 1 Dec 2001 20:28:43 -0500
+	id <S282655AbRLBBhy>; Sat, 1 Dec 2001 20:37:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282654AbRLBB2f>; Sat, 1 Dec 2001 20:28:35 -0500
-Received: from a212-113-174-249.netcabo.pt ([212.113.174.249]:9763 "EHLO
-	smtp.netcabo.pt") by vger.kernel.org with ESMTP id <S282652AbRLBB2T>;
-	Sat, 1 Dec 2001 20:28:19 -0500
+	id <S282656AbRLBBho>; Sat, 1 Dec 2001 20:37:44 -0500
+Received: from adsl-67-36-120-14.dsl.klmzmi.ameritech.net ([67.36.120.14]:23468
+	"HELO tabris.net") by vger.kernel.org with SMTP id <S282655AbRLBBha>;
+	Sat, 1 Dec 2001 20:37:30 -0500
 Content-Type: text/plain; charset=US-ASCII
-From: Miguel Maria Godinho de Matos <Astinus@netcabo.pt>
-To: linux-kernel@vger.kernel.org
-Subject: SENDMAIL Ages to start !!!!!
-Date: Sun, 2 Dec 2001 01:29:13 +0000
+From: Adam Schrotenboer <ajschrotenboer@lycosmail.com>
+Organization: Dome-S-Isle Data
+To: Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Christian =?iso-8859-1?q?Borntr=E4ger?= 
+	<linux-kernel@borntraeger.net>
+Subject: Re: 2.4.17pre2: devfs: devfs_mk_dir(printers): could not append to dir: dffe45c0 "", err: -17
+Date: Sat, 1 Dec 2001 20:37:24 -0500
 X-Mailer: KMail [version 1.3.1]
 Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E16A6LR-00042s-00@mrvdom02.schlund.de> <200112011808.fB1I8lq31535@vindaloo.ras.ucalgary.ca>
+In-Reply-To: <200112011808.fB1I8lq31535@vindaloo.ras.ucalgary.ca>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-ID: <EXCH01SMTP01fVwcdZ0000059be@smtp.netcabo.pt>
-X-OriginalArrivalTime: 02 Dec 2001 01:27:33.0870 (UTC) FILETIME=[848CF0E0:01C17AD0]
+Message-Id: <20011202013724.9085AFB80D@tabris.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am having some prblems with sendmail since the second time i booted linux.
+On Saturday 01 December 2001 13:08, Richard Gooch wrote:
+> linux-kernel@borntraeger.net writes:
+<snip>
+> The new devfs core is less forgiving about these kinds of
+> bugs/misuses.
+>
+> > devfs: devfs_register(nvidiactl): could not append to parent, err: -17
+> > devfs: devfs_register(nvidia0): could not append to parent, err: -17
+> >
+> > with 2.4.16 and before the message was:
+> >
+> > devfs: devfs_register(): device already registered: "nvidia0"
+>
+> Who knows what nvidia does? Talk to them. Could be a bug in their
+> driver where they create duplicate entries (the old devfs code would
+> often let you get away with this). Or again, perhaps something in
+> user-space is creating these entries.
+>
+As of 1541 anyway (haven't tried anything newer, assuming newer exists), the 
+make install of the nvidia driver also runs makedevices.sh (a vendor sp 
+script that makes the devnodes. This may also have been put in the 
+initscripts (mine isn't, but i tend to use the tar.gz fmt, not using the RPMs)
+Perhaps there is no check for devfs (likely will be fixed in the next 
+release, as this is a new situation)
 
-I have linux for about 2 months now and i just now understood that my send 
-mail deamon takes too long to start.
+> > Why has this changed, and what is actually happen? My system runs
+> > fine.
+>
+> You're lucky that the with way you use your system, it still works.
+>
+<snip> AFAIK, the nvidia scipt does not make the devnodes persistent (if so, 
+it's b0rken on my box)
 
-this is the log message that appeard when i upgraded linux red hat 7.1 to 7.2 
-for the first time:
-
-( firstboot after installing )
-
-Nov 18 09:48:04 localhost sendmail[1031]: alias database /etc/aliases rebuilt 
-by root
-Nov 18 09:48:04 localhost sendmail[1031]: /etc/aliases: 42 aliases, longest 
-10 bytes, 432 bytes total
-Nov 18 09:48:04 localhost sendmail[1043]: starting daemon (8.11.6): 
-SMTP+queueing@01:00:00
-Nov 18 09:53:11 localhost sendmail[1675]: fAI9rAX01675: from=root, size=186, 
-class=0, nrcpts=1, msgid=<200111180953.fAI9rAX01675@localhost.localdomain>, 
-relay=root@localhost
-Nov 18 09:53:11 localhost sendmail[1679]: fAI9rAX01675: to=root, ctladdr=root 
-(0/0), delay=00:00:01, xdelay=00:00:00, mailer=local, pri=30186, dsn=2.0.0, 
-stat=Sent
-Nov 18 10:06:18 localhost sendmail[22560]: fAIA6H722560: from=root, size=241, 
-class=0, nrcpts=1, msgid=<200111181006.fAIA6H722560@localhost.localdomain>, 
-relay=root@localhost
-Nov 18 10:06:18 localhost sendmail[22560]: fAIA6H722560: to=root, 
-ctladdr=root (0/0), delay=00:00:01, xdelay=00:00:00, mailer=loc
-
-no problems this time, send mail started smoothly and quickly!!!!!!!!
-
-Well, the first thing i did when i loged in was to configure my hostname and 
-network devices.
-
-So i changed my hostname to: AstinusGod, i added this host and it's network 
-ip to the hostname table and so on!!!
-
-since then look:
-
-send mail takes ages to start and it keeps these kinda error messages in the 
-log  files:
-
-Dec  2 00:56:04 AstinusGod sendmail[9808]: My unqualified host name 
-(AstinusGod) unknown; sleeping for retry
-Dec  2 00:57:12 AstinusGod sendmail[9808]: unable to qualify my own domain 
-name (AstinusGod) -- using short name
-Dec  2 00:57:12 AstinusGod sendmail[9808]: fB20vCX09808: from=root, size=230, 
-class=0, nrcpts=1, msgid=<200112020057.fB20vCX09808@AstinusGod>, 
-relay=root@localhost
-Dec  2 00:57:12 AstinusGod sendmail[9808]: fB20vCX09808: to=root, 
-ctladdr=root (0/0), delay=00:00:00, xdelay=00:00:00, mailer=local, pri=30230, 
-dsn=2.0.0, stat=Sent
-
-I don't know what to do.... to solve this problem....
-
-i figure that if i change my hostname to localhost again, and if i remove the 
-ip entries i entered... it may be solved.. but i don't want that, just want 
-sendmail to recognize them!!!!!
-
-plz somebody help!!
-
-regards, Astinus
+-- 
+tabris

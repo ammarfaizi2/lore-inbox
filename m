@@ -1,90 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265031AbUGGLKc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265053AbUGGLMi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265031AbUGGLKc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 07:10:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265053AbUGGLKc
+	id S265053AbUGGLMi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 07:12:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265054AbUGGLMi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 07:10:32 -0400
-Received: from web41111.mail.yahoo.com ([66.218.93.27]:6741 "HELO
-	web41111.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265031AbUGGLK3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 07:10:29 -0400
-Message-ID: <20040707111028.82649.qmail@web41111.mail.yahoo.com>
-Date: Wed, 7 Jul 2004 04:10:28 -0700 (PDT)
-From: tom st denis <tomstdenis@yahoo.com>
-Subject: Re: 0xdeadbeef vs 0xdeadbeefL
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20040707030029.GD12308@parcelfarce.linux.theplanet.co.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 7 Jul 2004 07:12:38 -0400
+Received: from fw.osdl.org ([65.172.181.6]:51437 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265053AbUGGLMf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 07:12:35 -0400
+Date: Wed, 7 Jul 2004 04:10:59 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: jim.houston@comcast.net
+Cc: kevcorry@us.ibm.com, linux-kernel@vger.kernel.org, dm-devel@redhat.com,
+       torvalds@osdl.org, agk@redhat.com
+Subject: Re: [PATCH] 1/1: Device-Mapper: Remove 1024 devices limitation
+Message-Id: <20040707041059.17287591.akpm@osdl.org>
+In-Reply-To: <1089197914.986.17.camel@new.localdomain>
+References: <200407011035.13283.kevcorry@us.ibm.com>
+	<200407021233.09610.kevcorry@us.ibm.com>
+	<20040702124218.0ad27a85.akpm@osdl.org>
+	<200407061323.27066.kevcorry@us.ibm.com>
+	<20040706142335.14efcfa4.akpm@osdl.org>
+	<1089151650.985.129.camel@new.localdomain>
+	<20040706152817.38ce1151.akpm@osdl.org>
+	<1089154845.985.164.camel@new.localdomain>
+	<20040706161641.01c1bbce.akpm@osdl.org>
+	<1089197914.986.17.camel@new.localdomain>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- viro@parcelfarce.linux.theplanet.co.uk wrote:
-> On Tue, Jul 06, 2004 at 05:06:12PM -0700, tom st denis wrote:
-> > --- David Eger <eger@havoc.gtf.org> wrote:
-> > > Is there a reason to add the 'L' to such a 32-bit constant like
-> this?
-> > > There doesn't seem a great rhyme to it in the headers...
+Jim Houston <jim.houston@comcast.net> wrote:
+>
+> On Tue, 2004-07-06 at 19:16, Andrew Morton wrote:
+> Jim Houston <jim.houston@comcast.net> wrote:
+> > >
+> > > With out the test above an id beyond the allocated space will alias
+> > > to one that exists.  Perhaps the highest id currently allocated is 
+> > > 100, there will be two layers in the radix tree and the while loop
+> > > above will only look at the 10 least significant bits.  If you call
+> > > idr_find with 1025 it will return the pointer associated with id 1.
 > > 
-> > IIRC it should have the L [probably UL instead] since numerical
-> > constants are of type ``int'' by default.  
+> > OK.
 > > 
-> > Normally this isn't a problem since int == long on most platforms
-> that
-> > run Linux.  However, by the standard 0xdeadbeef is not a valid
-> unsigned
-> > long constant.
+> > > The patch I sent was against linux-2.6.7, so I missed the change to
+> > > MAX_ID_SHIFT.
+> > 
+> > How about this?
+> >  
+> >  	n = idp->layers * IDR_BITS;
+> > +	if (id >= (1 << n))
+> > +		return NULL;
+> > +
+> >  	p = idp->top;
+> > +
+> >  	/* Mask off upper bits we don't use for the search. */
+> >  	id &= MAX_ID_MASK;
+> >  
 > 
-> ... and that would be your F for C101.  Suggested remedial reading
-> before
-> you take the test again: any textbook on C, section describing
-> integer
-> constants; alternatively, you can look it up in any revision of C
-> standard.
-> Pay attention to difference in the set of acceptable types for
-> decimal
-> and heaxdecimal constants.
+> Hi Andrew,
+> 
+> It's not quite right.  If you want to keep a count in the upper bits
+> you have to mask off that count before checking if the id is beyond the
+> end of the allocated space.
 
-You're f'ing kidding me right?  Dude, I write portable ISO C source
-code for a living.  My code has been built on dozens and dozens of
-platforms **WITHOUT** changes.  I know what I'm talking about.
+OK, I'll fix that up.
 
-0x01, 1 are 01 all **int** constants.
+But I don't want to keep a count in the upper bits!  I want rid of that
+stuff altogether, completely, all of it.  It just keeps on hanging around :(
 
-On some platforms 0xdeadbeef may be a valid int, in most cases the
-compiler won't diagnostic it.  splint thought it was worth mentioning
-which is why I replied.
-
-In fact GCC has odd behaviour.  It will diagnostic
-
-char x = 0xFF;
-
-and
-
-int x = 0xFFFFFFFFULL;
-
-But not 
-
-int x = 0xFFFFFFFF;
-
-[with --std=c99 -pedantic -O2 -Wall -W]
-
-So I'd say it thinks that all of the constants are "int".  In this case
-0xFF is greater than 127 [max for char] and 0xFFFFFFFFFFULL is larger
-than max for int.  in the 3rd case the expression is converted
-implicitly to int before the assignment is performed which is why there
-is no warning.
-
-Before you step down to belittle others I'd suggest you actually make
-sure you're right.  
-
-Tom
-
-
-	
-		
-__________________________________
-Do you Yahoo!?
-New and Improved Yahoo! Mail - 100MB free storage!
-http://promotions.yahoo.com/new_mail 
+We should remove MAX_ID_* from the kernel altogether.

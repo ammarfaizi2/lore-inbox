@@ -1,48 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262414AbTEFHIV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 03:08:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262423AbTEFHIV
+	id S262412AbTEFHMt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 03:12:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262423AbTEFHMt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 03:08:21 -0400
-Received: from [12.47.58.20] ([12.47.58.20]:60435 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S262412AbTEFHIS (ORCPT
+	Tue, 6 May 2003 03:12:49 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:40870 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262412AbTEFHMr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 03:08:18 -0400
-Date: Tue, 6 May 2003 00:22:29 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: rusty@rustcorp.com.au, dipankar@in.ibm.com, linux-kernel@vger.kernel.org
+	Tue, 6 May 2003 03:12:47 -0400
+Date: Tue, 6 May 2003 09:25:00 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@digeo.com>
+Cc: "David S. Miller" <davem@redhat.com>, rusty@rustcorp.com.au,
+       dipankar@in.ibm.com, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] kmalloc_percpu
-Message-Id: <20030506002229.631a642a.akpm@digeo.com>
-In-Reply-To: <20030505.225748.35026531.davem@redhat.com>
-References: <20030505224815.07e5240c.akpm@digeo.com>
-	<20030505.223554.88485673.davem@redhat.com>
-	<20030505235549.5df75866.akpm@digeo.com>
-	<20030505.225748.35026531.davem@redhat.com>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Message-ID: <20030506072500.GS812@suse.de>
+References: <20030505.211606.28803580.davem@redhat.com> <20030505224815.07e5240c.akpm@digeo.com> <20030505234248.7cc05f43.akpm@digeo.com> <20030505.223944.23027730.davem@redhat.com> <20030505235758.25f769fc.akpm@digeo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 06 May 2003 07:20:43.0431 (UTC) FILETIME=[01515B70:01C313A0]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030505235758.25f769fc.akpm@digeo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@redhat.com> wrote:
->
-> Make kmalloc_per_cpu() merely a convenience macro, made up of existing
-> non-percpu primitives.
+On Mon, May 05 2003, Andrew Morton wrote:
+> "David S. Miller" <davem@redhat.com> wrote:
+> >
+> >    From: Andrew Morton <akpm@digeo.com>
+> >    Date: Mon, 5 May 2003 23:42:48 -0700
+> >    
+> >    Can't think of anything very clever there, except to go and un-percpuify the
+> >    disk stats.  I think that's best, really - disk requests only come in at 100
+> >    to 200 per second - atomic_t's or int-plus-per-disk-spinlock will be fine.
+> >    
+> > Use some spinlock we already have to be holding during the
+> > counter bumps.
+> 
+> Last time we looked at that, q->lock was already held in almost all the right
+> places so yes, that'd work.
 
-I think we're agreeing here.
+As far as I can see, queue lock _is_ held in all the right spot. At
+least where it matters, adding new samples.
 
-The current kmalloc_percpu() is a wrapper around kmalloc.  That seems OK to
-me.
+> > Frankly, these things don't need to be %100 accurate.  Using
+> > a new spinlock or an atomic_t for this seems rediculious.
+> 
+> The disk_stats structure has an "in flight" member.  If we don't have proper
+> locking around that, disks will appear to have -3 requests in flight for all
+> time, which would look a tad odd.
 
-What we _do_ want to solve is the problem that DEFINE_PERCPU() does not work
-in modules.  Rusty's patch (reworked to not alter kmalloc_percpu) would suit
-that requirement.
+So check for < 0 in flight? I totally agree with davem here.
 
-
-(kiran has a new version of kmalloc_percpu() which may be faster than the
-current one, but for the purposes of this discussion it's equivalent).
+-- 
+Jens Axboe
 

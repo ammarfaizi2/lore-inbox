@@ -1,44 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130043AbRB1CZx>; Tue, 27 Feb 2001 21:25:53 -0500
+	id <S130044AbRB1Cf0>; Tue, 27 Feb 2001 21:35:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130044AbRB1CZo>; Tue, 27 Feb 2001 21:25:44 -0500
-Received: from 2-194.cwb-adsl.telepar.net.br ([200.193.161.194]:30192 "HELO
-	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
-	id <S130043AbRB1CZY>; Tue, 27 Feb 2001 21:25:24 -0500
-Date: Tue, 27 Feb 2001 21:46:14 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Amit D Chaudhary <amitc@brocade.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: mke2fs hangs while running on /dev/loop0 - kernel version 2.4
-Message-ID: <20010227214614.A13399@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Amit D Chaudhary <amitc@brocade.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <3A9C6184.9050802@brocade.com>
-Mime-Version: 1.0
+	id <S130048AbRB1CfQ>; Tue, 27 Feb 2001 21:35:16 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:15099 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S130044AbRB1CfB>; Tue, 27 Feb 2001 21:35:01 -0500
+Message-ID: <3A9C6336.D2E086A6@mvista.com>
+Date: Tue, 27 Feb 2001 18:32:22 -0800
+From: Jun Sun <jsun@mvista.com>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: rx_copybreak value for non-i386 architectures
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.14i
-In-Reply-To: <3A9C6184.9050802@brocade.com>; from amitc@brocade.com on Tue, Feb 27, 2001 at 06:25:08PM -0800
-X-Url: http://advogato.org/person/acme
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Tue, Feb 27, 2001 at 06:25:08PM -0800, Amit D Chaudhary escreveu:
-> I am hoping someone knows more about this case. I have a intel pc 
-> running linux 2.4 and the last command below hangs and the statements as 
-> they are printed. Even kill -9 does not get it to terminate.
-> 
-> #touch img.test
-> #dd if=/dev/zero of=img.test bs=1k count=2000
-> 2000+0 records in
-> 2000+0 records out
-> #losetup /dev/loop0 img.test
-> #mke2fs
-> 
 
-known bug, try 2.4.2-ac5 (ac6 seems to have some small problems,
-Keith seems to have fixed with a patch some moments ago) some friends of
-mine said 2.4.2-ac seems to make loop behave, haven't checked
+I notice that many net drivers set rx_copybreak to 1518 (the max packet size)
+for non-i386 architectures.  Once I thought I understood it and it seems
+related to cache line alignment.  However, I am not sure exactly about the
+reason now.  Can someone enlighten me a little bit?
 
-- Arnaldo
+Basically I try to understand whether for MIPS architectures we need to set
+this value as well.
+
+Please CC your reply to my email address.
+
+TIA.
+
+Jun

@@ -1,222 +1,467 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269299AbUJQVz5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269310AbUJQW3a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269299AbUJQVz5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 17:55:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269310AbUJQVz5
+	id S269310AbUJQW3a (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 18:29:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267978AbUJQW3a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 17:55:57 -0400
-Received: from mid-2.inet.it ([213.92.5.19]:59882 "EHLO mid-2.inet.it")
-	by vger.kernel.org with ESMTP id S269299AbUJQVzr convert rfc822-to-8bit
+	Sun, 17 Oct 2004 18:29:30 -0400
+Received: from mail.metronet.co.uk ([213.162.97.75]:64973 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S269310AbUJQW3J
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 17:55:47 -0400
-From: Fabio Coatti <cova@ferrara.linux.it>
-Organization: FerraraLUG
-To: linux-kernel@vger.kernel.org
-Subject: USB storage oops 2.6.9-rc4-mm1
-Date: Sun, 17 Oct 2004 23:55:30 +0200
-User-Agent: KMail/1.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sun, 17 Oct 2004 18:29:09 -0400
+Date: Sun, 17 Oct 2004 23:29:16 +0100
+From: Alexander Clouter <alex-kernel@digriz.org.uk>
+To: venkatesh.pallipadi@intel.com, cpufreq@www.linux.org.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] cpufreq_ondemand
+Message-ID: <20041017222916.GA30841@inskipp.digriz.org.uk>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="i9LlY+UWpKt15+FH"
 Content-Disposition: inline
-Message-Id: <200410172355.30812.cova@ferrara.linux.it>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got the following oops when I insert a USB storage device (512 Mb stick) on 
-i875p system, kernel 2.6.9-rc4-mm1 with optimize-profile-path-slightly.patch 
-reverted.
 
-=======================================================
-Oct 17 23:37:29 kefk kernel: ehci_hcd 0000:00:1d.7: GetStatus port 1 status 
-001803 POWER sig=j  CSC CONNECT
-Oct 17 23:37:29 kefk kernel: hub 5-0:1.0: port 1, status 0501, change 0001, 
-480 Mb/s
-Oct 17 23:37:29 kefk kernel: hub 5-0:1.0: debounce: port 1: total 100ms stable 
-100ms status 0x501
-Oct 17 23:37:29 kefk kernel: hub 5-0:1.0: port 1 not reset yet, waiting 50ms
-Oct 17 23:37:29 kefk kernel: ehci_hcd 0000:00:1d.7: port 1 high speed
-Oct 17 23:37:29 kefk kernel: ehci_hcd 0000:00:1d.7: GetStatus port 1 status 
-001005 POWER sig=se0  PE CONNECT
-Oct 17 23:37:29 kefk kernel: usb 5-1: new high speed USB device using address 
-4
-Oct 17 23:37:29 kefk kernel: usb 5-1: new device strings: Mfr=1, Product=2, 
-SerialNumber=3
-Oct 17 23:37:29 kefk kernel: usb 5-1: default language 0x0409
-Oct 17 23:37:29 kefk kernel: usb 5-1: Product: Mass storage
-Oct 17 23:37:29 kefk kernel: usb 5-1: Manufacturer: USB
-Oct 17 23:37:29 kefk kernel: usb 5-1: SerialNumber: 142E19413C2FCA34
-Oct 17 23:37:29 kefk kernel: usb 5-1: hotplug
-Oct 17 23:37:29 kefk kernel: usb 5-1: adding 5-1:1.0 (config #1, interface 0)
-Oct 17 23:37:29 kefk kernel: usb 5-1:1.0: hotplug
-Oct 17 23:37:29 kefk kernel: Initializing USB Mass Storage driver...
-Oct 17 23:37:29 kefk kernel: usb-storage 5-1:1.0: usb_probe_interface
-Oct 17 23:37:29 kefk kernel: usb-storage 5-1:1.0: usb_probe_interface - got id
-Oct 17 23:37:29 kefk kernel: scsi3 : SCSI emulation for USB Mass Storage 
-devices
-Oct 17 23:37:29 kefk kernel: usbcore: registered new driver usb-storage
-Oct 17 23:37:29 kefk kernel: USB Mass Storage support registered.
-Oct 17 23:37:29 kefk kernel: usb-storage: device found at 4
-Oct 17 23:37:29 kefk kernel: usb-storage: waiting for device to settle before 
-scanning
-Oct 17 23:37:34 kefk kernel:   Vendor: 512MB     Model: USB2.0FlashDrive  Rev: 
-2.00
-Oct 17 23:37:34 kefk kernel:   Type:   Direct-Access                      ANSI 
-SCSI revision: 02
-Oct 17 23:37:34 kefk kernel: sdb: Unit Not Ready, sense:
-Oct 17 23:37:34 kefk kernel: Current : sense = 70  6
-Oct 17 23:37:34 kefk kernel: ASC=28 ASCQ= 0
-Oct 17 23:37:34 kefk kernel: Raw sense data:0x70 0x00 0x06 0x00 0x00 0x00 0x00 
-0x0a 0x00 0x00 0x00 0x00 0x28 0x00 0x00 0x00 0x00 0x00
-Oct 17 23:37:34 kefk kernel: sdb : READ CAPACITY failed.
-Oct 17 23:37:34 kefk kernel: sdb : status=1, message=00, host=0, driver=08
-Oct 17 23:37:34 kefk kernel: Current sd: sense = 70  6
-Oct 17 23:37:34 kefk kernel: ASC=28 ASCQ= 0
-Oct 17 23:37:34 kefk kernel: Raw sense data:0x70 0x00 0x06 0x00 0x00 0x00 0x00 
-0x0a 0x00 0x00 0x00 0x00 0x28 0x00 0x00 0x00 0x00 0x00
-Oct 17 23:37:34 kefk kernel: sdb: assuming Write Enabled
-Oct 17 23:37:34 kefk kernel: sdb: assuming drive cache: write through
-Oct 17 23:37:34 kefk kernel: sdb: Unit Not Ready, sense:
-Oct 17 23:37:34 kefk kernel: Current : sense = 70  6
-Oct 17 23:37:34 kefk kernel: ASC=28 ASCQ= 0
-Oct 17 23:37:34 kefk kernel: Raw sense data:0x70 0x00 0x06 0x00 0x00 0x00 0x00 
-0x0a 0x00 0x00 0x00 0x00 0x28 0x00 0x00 0x00 0x00 0x00
-Oct 17 23:37:34 kefk kernel: SCSI device sdb: 1024000 512-byte hdwr sectors 
-(524 MB)
-Oct 17 23:37:34 kefk kernel: sdb: assuming Write Enabled
-Oct 17 23:37:34 kefk kernel: sdb: assuming drive cache: write through
-Oct 17 23:37:34 kefk kernel: SCSI device sdb: 1024000 512-byte hdwr sectors 
-(524 MB)
-Oct 17 23:37:34 kefk kernel: sdb: assuming Write Enabled
-Oct 17 23:37:34 kefk kernel: sdb: assuming drive cache: write through
-Oct 17 23:37:34 kefk kernel:  sdb: sdb1
-Oct 17 23:37:34 kefk kernel:  sdb: sdb1
-Oct 17 23:37:34 kefk kernel: kobject_register failed for sdb1 (-17)
-Oct 17 23:37:34 kefk kernel:  [<c01f25e0>] kobject_register+0x51/0x5f
-Oct 17 23:37:34 kefk kernel:  [<c0184898>] add_partition+0xbb/0xf0
-Oct 17 23:37:34 kefk kernel:  [<c0184a10>] register_disk+0xee/0x11d
-Oct 17 23:37:34 kefk kernel:  [<c024bb36>] add_disk+0x36/0x41
-Oct 17 23:37:34 kefk kernel:  [<c024baec>] exact_match+0x0/0x7
-Oct 17 23:37:34 kefk kernel:  [<c024baf3>] exact_lock+0x0/0xd
-Oct 17 23:37:34 kefk kernel:  [<c028bf92>] sd_probe+0x224/0x32f
-Oct 17 23:37:34 kefk kernel:  [<c0311dce>] _spin_lock+0x1a/0x6e
-Oct 17 23:37:34 kefk kernel:  [<c0243680>] bus_match+0x32/0x6a
-Oct 17 23:37:34 kefk kernel:  [<c02436fe>] device_attach+0x46/0xaa
-Oct 17 23:37:34 kefk kernel:  [<c0168ce2>] dput+0x76/0x209
-Oct 17 23:37:34 kefk kernel:  [<c02439ae>] bus_add_device+0x55/0x97
-Oct 17 23:37:34 kefk kernel:  [<c0242a4d>] device_add+0x9c/0x128
-Oct 17 23:37:34 kefk kernel:  [<c026a6e2>] scsi_sysfs_add_sdev+0xa0/0x309
-Oct 17 23:37:34 kefk kernel:  [<c02692ac>] scsi_add_lun+0x2d9/0x32f
-Oct 17 23:37:34 kefk kernel:  [<c02693bf>] scsi_probe_and_add_lun+0xbd/0x1a9
-Oct 17 23:37:34 kefk kernel:  [<c0269b4d>] scsi_scan_target+0x9a/0x106
-Oct 17 23:37:34 kefk kernel:  [<c0269c35>] scsi_scan_channel+0x7c/0x9a
-Oct 17 23:37:34 kefk kernel:  [<c0269ccc>] scsi_scan_host_selected+0x79/0xd8
-Oct 17 23:37:34 kefk kernel:  [<c0269d4c>] scsi_scan_host+0x21/0x25
-Oct 17 23:37:34 kefk kernel:  [<f8c5187a>] usb_stor_scan_thread+0x134/0x145 
-[usb_storage]
-Oct 17 23:37:34 kefk kernel:  [<c012d901>] autoremove_wake_function+0x0/0x43
-Oct 17 23:37:34 kefk kernel:  [<c0103d1a>] ret_from_fork+0x6/0x14
-Oct 17 23:37:34 kefk kernel:  [<c012d901>] autoremove_wake_function+0x0/0x43
-Oct 17 23:37:34 kefk kernel:  [<f8c51746>] usb_stor_scan_thread+0x0/0x145 
-[usb_storage]
-Oct 17 23:37:34 kefk kernel:  [<c0102035>] kernel_thread_helper+0x5/0xb
-Oct 17 23:37:34 kefk kernel: Attached scsi removable disk sdb at scsi3, 
-channel 0, id 0, lun 0
-Oct 17 23:37:34 kefk kernel: Attached scsi generic sg4 at scsi3, channel 0, id 
-0, lun 0,  type 0
-Oct 17 23:37:34 kefk kernel: usb-storage: device scan complete
-Oct 17 23:37:35 kefk scsi.agent[6870]: disk 
-at /devices/pci0000:00/0000:00:1d.7/usb5/5-1/5-1:1.0/host3/target3:0:0/3:0:0:0
-==========================================================
-
-After that I can create by hand sdb1 block device, and then access the pen 
-drive. But If I umount sdb1 device and pull out the pen, syslogs report this:
+--i9LlY+UWpKt15+FH
+Content-Type: multipart/mixed; boundary="sdtB3X0nJg68CQEu"
+Content-Disposition: inline
 
 
-===========================================================
-Oct 17 23:47:34 kefk kernel: ehci_hcd 0000:00:1d.7: GetStatus port 1 status 
-001002 POWER sig=se0  CSC
-Oct 17 23:47:34 kefk kernel: hub 5-0:1.0: port 1, status 0100, change 0001, 12 
-Mb/s
-Oct 17 23:47:34 kefk kernel: usb 5-1: USB disconnect, address 4
-Oct 17 23:47:34 kefk kernel: usb 5-1: usb_disable_device nuking all URBs
-Oct 17 23:47:34 kefk kernel: usb 5-1: unregistering interface 5-1:1.0
-Oct 17 23:47:34 kefk kernel: Unable to handle kernel NULL pointer dereference 
-at virtual address 00000050
-Oct 17 23:47:34 kefk kernel:  printing eip:
-Oct 17 23:47:34 kefk kernel: c018654b
-Oct 17 23:47:34 kefk kernel: *pde = 00000000
-Oct 17 23:47:34 kefk kernel: Oops: 0000 [#1]
-Oct 17 23:47:34 kefk kernel: PREEMPT SMP
-Oct 17 23:47:34 kefk kernel: Modules linked in: nls_cp437 usb_storage 
-snd_seq_midi snd_emu10k1_synth snd_emux_synth snd_seq_virmidi 
-snd_seq_midi_emul nvidia
- tun md5 ipv6 rfcomm l2cap bluetooth snd_seq_oss snd_seq_midi_event snd_seq 
-snd_pcm_oss snd_mixer_oss snd_emu10k1 snd_rawmidi snd_seq_device 
-snd_ac97_codec
-snd_pcm snd_timer snd_page_alloc snd_util_mem snd_hwdep snd soundcore 
-ipt_REJECT iptable_filter ip_tables loop nls_utf8 ide_cd i2c_dev w83781d 
-i2c_sensor i2
-c_isa i2c_i801 isofs zlib_inflate e1000 parport_pc ppa parport usblp ehci_hcd 
-uhci_hcd genrtc
-Oct 17 23:47:34 kefk kernel: CPU:    1
-Oct 17 23:47:34 kefk kernel: EIP:    0060:[<c018654b>]    Tainted: P      VLI
-Oct 17 23:47:34 kefk kernel: EFLAGS: 00010246   (2.6.9-rc4-mm1)
-Oct 17 23:47:34 kefk kernel: EIP is at sysfs_remove_dir+0x1d/0xef
-Oct 17 23:47:34 kefk kernel: eax: d7e9c208   ebx: d7e9c208   ecx: c1991cf4   
-edx: c1000000
-Oct 17 23:47:34 kefk kernel: esi: e2883a40   edi: 00000000   ebp: f613d594   
-esp: c1991de4
-Oct 17 23:47:34 kefk kernel: ds: 007b   es: 007b   ss: 0068
-Oct 17 23:47:34 kefk kernel: Process khubd (pid: 125, threadinfo=c1991000 
-task=c198a530)
-Oct 17 23:47:34 kefk kernel: Stack: 00000001 d7e9c208 e2883a40 00000001 
-f613d594 c01f26f0 d7e9c208 c01f2700
-Oct 17 23:47:34 kefk kernel:        ee9ed080 c0184c18 f613d594 e2883a40 
-e86b3400 f613d594 c028c0b4 f613d594
-Oct 17 23:47:34 kefk kernel:        c03af724 c024383d f613d594 e2ec5c04 
-c0243a43 f613d594 e2ec5c04 c0242b5e
-Oct 17 23:47:34 kefk kernel: Call Trace:
-Oct 17 23:47:34 kefk kernel:  [<c01f26f0>] kobject_del+0x14/0x1c
-Oct 17 23:47:34 kefk kernel:  [<c01f2700>] kobject_unregister+0x8/0x10
-Oct 17 23:47:34 kefk kernel:  [<c0184c18>] del_gendisk+0x1d/0xd5
-Oct 17 23:47:34 kefk kernel:  [<c028c0b4>] sd_remove+0x17/0x5b
-Oct 17 23:47:34 kefk kernel:  [<c024383d>] device_release_driver+0x56/0x58
-Oct 17 23:47:34 kefk kernel:  [<c0243a43>] bus_remove_device+0x53/0x90
-Oct 17 23:47:34 kefk kernel:  [<c0242b5e>] device_del+0x54/0x91
-Oct 17 23:47:34 kefk kernel:  [<c026a9a0>] scsi_remove_device+0x55/0xa6
-Oct 17 23:47:34 kefk kernel:  [<c0269d7d>] scsi_forget_host+0x2d/0x4f
-Oct 17 23:47:34 kefk kernel:  [<c0263fe7>] scsi_remove_host+0x8/0x59
-Oct 17 23:47:34 kefk kernel:  [<f8c51b25>] storage_disconnect+0x7d/0x8f 
-[usb_storage]
-Oct 17 23:47:34 kefk kernel:  [<c0297e95>] usb_unbind_interface+0x5e/0x60
-Oct 17 23:47:34 kefk kernel:  [<c024383d>] device_release_driver+0x56/0x58
-Oct 17 23:47:34 kefk kernel:  [<c0243a43>] bus_remove_device+0x53/0x90
-Oct 17 23:47:34 kefk kernel:  [<c0242b5e>] device_del+0x54/0x91
-Oct 17 23:47:34 kefk kernel:  [<c029f939>] usb_disable_device+0xda/0x147
-Oct 17 23:47:34 kefk kernel:  [<c029a66d>] usb_disconnect+0xab/0x198
-Oct 17 23:47:34 kefk kernel:  [<c029b923>] hub_port_connect_change+0x2ce/0x47b
-Oct 17 23:47:34 kefk kernel:  [<c029bda4>] hub_events+0x2d4/0x4ac
-Oct 17 23:47:34 kefk kernel:  [<c029bfb1>] hub_thread+0x35/0x10e
-Oct 17 23:47:34 kefk kernel:  [<c0115142>] finish_task_switch+0x38/0x84
-Oct 17 23:47:34 kefk kernel:  [<c012d901>] autoremove_wake_function+0x0/0x43
-Oct 17 23:47:34 kefk kernel:  [<c0103d1a>] ret_from_fork+0x6/0x14
-Oct 17 23:47:34 kefk kernel:  [<c012d901>] autoremove_wake_function+0x0/0x43
-Oct 17 23:47:34 kefk kernel:  [<c029bf7c>] hub_thread+0x0/0x10e
-Oct 17 23:47:34 kefk kernel:  [<c0102035>] kernel_thread_helper+0x5/0xb
-Oct 17 23:47:34 kefk kernel: Code: 55 3c 32 c0 e9 4d ff ff ff e9 23 ff ff ff 
-55 57 56 53 83 ec 04 8b 78 30 85 ff 74 0d 8b 07 85 c0 0f 84 ca 00 00 00 f0 ff 
-0
-7 85 ff <8b> 57 50 0f 84 b4 00 00 00 8b 47 10 8d 48 78 f0 ff 48 78 0f 88
-=========================================================
+--sdtB3X0nJg68CQEu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->From this point on any insertion of usb devices simply goes ignored.
-If further details are needed, please let me know.
+Hi all,
 
+After playing with the cpufreq_ondemand governor (many thanks to those whom=
+=20
+made it) I made a number of alterations which suit me at least.  Really=20
+looking for feedback and of course once people have fixed any bugs they fin=
+d=20
+and made the code look neater, possible inclusion?
 
+The improvements (well I think they are) I have made:
 
--- 
-Fabio Coatti       http://members.ferrara.linux.it/cova     
-Ferrara Linux Users Group           http://ferrara.linux.it
-GnuPG fp:9765 A5B6 6843 17BC A646  BE8C FA56 373A 5374 C703
-Old SysOps never die... they simply forget their password.
+1. I have replaced the algoritm it used to one which calculates the number =
+of
+	cpu idle cycles that have passed and compares it to the number of cpu
+	cycles it would have expected to pass (for, the defaults, 20%/80%)
+
+	this means a couple of divisions have been removed, which is always=20
+	nice and it lead to clearer code (for me at least), that was=20
+	until I added the handful of 'if' conditionals though.... :-/
+
+2. controllable through=20
+	/sys/.../ondemand/ignore_nice, you can tell it to consider 'nice'=20
+	time as also idle cpu cycles.  Set it to '1' to treat 'nice' as cpu=20
+	in an active state.
+
+3. (major) the scaling up and down of the cpufreq is now smoother.  I found=
+=20
+	it really nasty that if it tripped < 20% idle time that the freq was=20
+	set to 100%.  This code smoothly increases the cpufreq as well as=20
+	doing a better job of decreasing it too
+
+4. (minor) I changed DEF_SAMPLING_RATE_LATENCY_MULTIPLIER to 50000 and
+	DEF_SAMPLING_DOWN_FACTOR to 5 as I found the defaults a bit annoying=20
+	on my system and resulted in the cpufreq constantly jumping.
+
+	For my patch it works far better if the sampling rate is much lower=20
+	anyway, which can only be good for cpu efficiency in the long run
+
+5. the grainity of how much cpufreq is increased or decreased is controlled=
+=20
+	with sending a percentage to /sys/.../ondemand/freq_step_percent
+
+6. debugging (with 'watch -n1 cat /sys/.../ondemand/requested_freq') and=20
+	backwards 'compatibility' to act like the 'userspace' governor is=20
+	avaliable with /sys/.../ondemand/requested_freq if=20
+	'freq_step_percent' is set to zero
+
+7. there are extra checks to not bother to try increasing/decreasing the=20
+	cpufreq if there is nothing to do, or even can be done as it might=20
+	already be at min/max (or freq_step_percent is zero)
+
+The code seems to work for me fine.  This is my first patch and the first=
+=20
+thing I have really posted here so be gentle with me :)
+
+Comments and improvements are of course more than welcome.
+
+Of course full thanks go to all the original authors, my C coding is naff a=
+nd=20
+I would of not been able to do this if it was not for the pretty much=20
+complete (for my needs) cpufreq_ondemand module; Venkatesh did say we could=
+=20
+rip out the core algorithm and replace it with our own easily, he was right=
+=20
+:)
+
+Cheers
+
+Alex
+
+--=20
+ ___________________________________=20
+< Two is company, three is an orgy. >
+ -----------------------------------=20
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+
+--sdtB3X0nJg68CQEu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="updated-ondemand.diff"
+Content-Transfer-Encoding: quoted-printable
+
+diff -u -U 2 -r -N -d linux-2.6.9-rc4.orig/drivers/cpufreq/cpufreq_ondemand=
+=2Ec linux-2.6.9-rc4/drivers/cpufreq/cpufreq_ondemand.c
+--- linux-2.6.9-rc4.orig/drivers/cpufreq/cpufreq_ondemand.c	2004-10-11 03:5=
+8:49.000000000 +0100
++++ linux-2.6.9-rc4/drivers/cpufreq/cpufreq_ondemand.c	2004-10-17 18:32:28.=
+000000000 +0100
+@@ -56,8 +56,8 @@
+ static unsigned int 				def_sampling_rate;
+ #define MIN_SAMPLING_RATE			(def_sampling_rate / 2)
+ #define MAX_SAMPLING_RATE			(500 * def_sampling_rate)
+-#define DEF_SAMPLING_RATE_LATENCY_MULTIPLIER	(1000)
+-#define DEF_SAMPLING_DOWN_FACTOR		(10)
++#define DEF_SAMPLING_RATE_LATENCY_MULTIPLIER	(50000)
++#define DEF_SAMPLING_DOWN_FACTOR		(5)
+ #define TRANSITION_LATENCY_LIMIT		(10 * 1000)
+ #define sampling_rate_in_HZ(x)			(((x * HZ) < (1000 * 1000))?1:((x * HZ) /=
+ (1000 * 1000)))
+=20
+@@ -65,8 +65,8 @@
+=20
+ struct cpu_dbs_info_s {
+ 	struct cpufreq_policy 	*cur_policy;
+-	unsigned int 		prev_cpu_idle_up;
+-	unsigned int 		prev_cpu_idle_down;
++	unsigned int 		prev_cpu_ticks;
++	unsigned int		prev_cpu_idle_ticks;
+ 	unsigned int 		enable;
+ };
+ static DEFINE_PER_CPU(struct cpu_dbs_info_s, cpu_dbs_info);
+@@ -81,6 +81,9 @@
+ 	unsigned int		sampling_down_factor;
+ 	unsigned int		up_threshold;
+ 	unsigned int		down_threshold;
++	unsigned int		requested_freq;
++	unsigned int		freq_step_percent;
++	unsigned int		ignore_nice;
+ };
+=20
+ struct dbs_tuners dbs_tuners_ins =3D {
+@@ -116,6 +119,22 @@
+ {									\
+ 	return sprintf(buf, "%u\n", dbs_tuners_ins.object);		\
+ }
++
++static ssize_t show_requested_freq(struct cpufreq_policy *policy, char *bu=
+f)
++{
++	return sprintf (buf, "%u\n", dbs_tuners_ins.requested_freq);
++}
++
++static ssize_t show_freq_step_percent(struct cpufreq_policy *policy, char =
+*buf)
++{
++	return sprintf (buf, "%u\n", dbs_tuners_ins.freq_step_percent);
++}
++
++static ssize_t show_ignore_nice(struct cpufreq_policy *policy, char *buf)
++{
++	return sprintf (buf, "%u\n", dbs_tuners_ins.ignore_nice);
++}
++
+ show_one(sampling_rate, sampling_rate);
+ show_one(sampling_down_factor, sampling_down_factor);
+ show_one(up_threshold, up_threshold);
+@@ -189,6 +208,63 @@
+ 	return count;
+ }
+=20
++static ssize_t store_ignore_nice(struct cpufreq_policy *unused,
++		const char *buf, size_t count)
++{
++	unsigned int input;
++	int ret;
++	ret =3D sscanf (buf, "%u", &input);
++	down(&dbs_sem);
++	if ( ret =3D=3D 1 ) {
++		if ( input > 1 )
++			input =3D 1;
++		dbs_tuners_ins.ignore_nice =3D input;
++	}
++	up(&dbs_sem);
++	return count;
++}
++
++static ssize_t store_freq_step_percent(struct cpufreq_policy *unused,
++		const char *buf, size_t count)
++{
++	unsigned int input;
++	int ret;
++	ret =3D sscanf (buf, "%u", &input);
++	down(&dbs_sem);
++	if ( ret =3D=3D 1 ) {
++		/* someone might find 'freq_step_percent =3D 0' useful so this is
++		 * why I have added support to manually set the freq also; I
++		 * guess this would then permit a userland tool to jump in
++		 * without rmmod/insmod'ing.  show/store_requested_freq is also
++		 * darn handy for debugging
++		 */
++		if ( input > 100 )
++			input =3D 100;
++		dbs_tuners_ins.freq_step_percent =3D input;
++	}
++	up(&dbs_sem);
++	return count;
++}
++
++static ssize_t store_requested_freq(struct cpufreq_policy *policy,
++		const char *buf, size_t count)
++{
++	unsigned int input;
++	int ret;
++	ret =3D sscanf (buf, "%u", &input);
++	down(&dbs_sem);
++	if ( ret =3D=3D 1 ) {
++		if ( input < policy->min )
++			input =3D policy->min;
++		if ( input > policy->max )
++			input =3D policy->max;
++		dbs_tuners_ins.requested_freq =3D input;
++		__cpufreq_driver_target(policy, input, CPUFREQ_RELATION_H);
++	}
++	up(&dbs_sem);
++	return count;
++}
++
+ #define define_one_rw(_name) 					\
+ static struct freq_attr _name =3D { 				\
+ 	.attr =3D { .name =3D __stringify(_name), .mode =3D 0644 }, 	\
+@@ -200,6 +276,9 @@
+ define_one_rw(sampling_down_factor);
+ define_one_rw(up_threshold);
+ define_one_rw(down_threshold);
++define_one_rw(requested_freq);
++define_one_rw(freq_step_percent);
++define_one_rw(ignore_nice);
+=20
+ static struct attribute * dbs_attributes[] =3D {
+ 	&sampling_rate_max.attr,
+@@ -208,6 +287,9 @@
+ 	&sampling_down_factor.attr,
+ 	&up_threshold.attr,
+ 	&down_threshold.attr,
++	&requested_freq.attr,
++	&freq_step_percent.attr,
++	&ignore_nice.attr,
+ 	NULL
+ };
+=20
+@@ -220,10 +302,9 @@
+=20
+ static void dbs_check_cpu(int cpu)
+ {
+-	unsigned int idle_ticks, up_idle_ticks, down_idle_ticks;
+-	unsigned int total_idle_ticks;
+-	unsigned int freq_down_step;
+-	unsigned int freq_down_sampling_rate;
++	unsigned int total_ticks, total_idle_ticks;
++	unsigned int ticks, idle_ticks;
++	unsigned int freq_step;
+ 	static int down_skip[NR_CPUS];
+ 	struct cpu_dbs_info_s *this_dbs_info;
+=20
+@@ -242,26 +323,82 @@
+ 	 *
+ 	 * Any frequency increase takes it to the maximum frequency.=20
+ 	 * Frequency reduction happens at minimum steps of=20
+-	 * 5% of max_frequency=20
++	 * 5% (default) of max_frequency=20
++	 *
++	 * My modified routine compares the number of idle ticks with the
++	 * expected number of idle ticks for the boundaries and acts accordingly
++	 * - Alexander Clouter <alex-kernel@digriz.org.uk>
+ 	 */
+-	/* Check for frequency increase */
+-	total_idle_ticks =3D kstat_cpu(cpu).cpustat.idle +
++
++	/* get various cpu stats */
++	total_ticks =3D
++		kstat_cpu(cpu).cpustat.user +
++		kstat_cpu(cpu).cpustat.nice +
++		kstat_cpu(cpu).cpustat.system +
++		kstat_cpu(cpu).cpustat.softirq +
++		kstat_cpu(cpu).cpustat.irq +
++		kstat_cpu(cpu).cpustat.idle +
++		kstat_cpu(cpu).cpustat.iowait;
++	total_idle_ticks =3D
++		kstat_cpu(cpu).cpustat.idle +
+ 		kstat_cpu(cpu).cpustat.iowait;
+-	idle_ticks =3D total_idle_ticks -
+-		this_dbs_info->prev_cpu_idle_up;
+-	this_dbs_info->prev_cpu_idle_up =3D total_idle_ticks;
+=20
+-	/* Scale idle ticks by 100 and compare with up and down ticks */
+-	idle_ticks *=3D 100;
+-	up_idle_ticks =3D (100 - dbs_tuners_ins.up_threshold) *
+-			sampling_rate_in_HZ(dbs_tuners_ins.sampling_rate);
++	/* if the /sys says we need to consider nice tasks as 'idle' time too */
++	if (dbs_tuners_ins.ignore_nice =3D=3D 0)
++		total_idle_ticks +=3D kstat_cpu(cpu).cpustat.nice;
++=09
++	ticks =3D (total_ticks -
++		this_dbs_info->prev_cpu_ticks) * 100;
++	idle_ticks =3D (total_idle_ticks -
++		this_dbs_info->prev_cpu_idle_ticks) * 100;
++=09
++	this_dbs_info->prev_cpu_ticks =3D total_ticks;
++	this_dbs_info->prev_cpu_idle_ticks =3D total_idle_ticks;
++=09
++	/* nothing to do if we cannot shift the frequency */
++	if (dbs_tuners_ins.freq_step_percent =3D=3D 0)
++		return;
++=09
++	/* checks to see if we have anything to do or can do and breaks out if:
++	 *  - we are within the 20% <-> 80% region
++	 *  - if the cpu freq needs increasing we are not already at max
++	 *  - if the cpu freq needs decreasing we are not already at min
++	 *
++	 *  you have to love those parentheses.... :)
++	 */
++	if (!( ( (ticks-idle_ticks) > (dbs_tuners_ins.up_threshold*idle_ticks)
++			&& dbs_tuners_ins.requested_freq
++				!=3D this_dbs_info->cur_policy->max
++	       )
++  	    || ( (ticks-idle_ticks) < (dbs_tuners_ins.down_threshold*idle_ticks)
++			&& dbs_tuners_ins.requested_freq
++				!=3D this_dbs_info->cur_policy->min
++	       ) ) )
++		return;
+=20
+-	if (idle_ticks < up_idle_ticks) {
++	/* max freq cannot be less than 100. But who knows.... */
++	if (unlikely(this_dbs_info->cur_policy->max < 100)) {
++		freq_step =3D dbs_tuners_ins.freq_step_percent;
++	} else {
++		freq_step =3D (dbs_tuners_ins.freq_step_percent *
++				this_dbs_info->cur_policy->max) / 100;
++	}
++
++	/* Check for frequency increase */
++	if ( (ticks-idle_ticks) > (dbs_tuners_ins.up_threshold*idle_ticks) ) {
++		dbs_tuners_ins.requested_freq +=3D freq_step;
++		if (dbs_tuners_ins.requested_freq >
++				this_dbs_info->cur_policy->max)
++			dbs_tuners_ins.requested_freq =3D
++				this_dbs_info->cur_policy->max;
++
++		/* printk("up: %u->%u\n",
++				this_dbs_info->cur_policy->cur,
++				dbs_tuners_ins.requested_freq); */
+ 		__cpufreq_driver_target(this_dbs_info->cur_policy,
+-			this_dbs_info->cur_policy->max,=20
+-			CPUFREQ_RELATION_H);
++        	       	dbs_tuners_ins.requested_freq,
++        	       	CPUFREQ_RELATION_H);
+ 		down_skip[cpu] =3D 0;
+-		this_dbs_info->prev_cpu_idle_down =3D total_idle_ticks;
+ 		return;
+ 	}
+=20
+@@ -270,27 +407,19 @@
+ 	if (down_skip[cpu] < dbs_tuners_ins.sampling_down_factor)
+ 		return;
+=20
+-	idle_ticks =3D total_idle_ticks -
+-		this_dbs_info->prev_cpu_idle_down;
+-	/* Scale idle ticks by 100 and compare with up and down ticks */
+-	idle_ticks *=3D 100;
+ 	down_skip[cpu] =3D 0;
+-	this_dbs_info->prev_cpu_idle_down =3D total_idle_ticks;
+-
+-	freq_down_sampling_rate =3D dbs_tuners_ins.sampling_rate *
+-		dbs_tuners_ins.sampling_down_factor;
+-	down_idle_ticks =3D (100 - dbs_tuners_ins.down_threshold) *
+-			sampling_rate_in_HZ(freq_down_sampling_rate);
+-
+-	if (idle_ticks > down_idle_ticks ) {
+-		freq_down_step =3D (5 * this_dbs_info->cur_policy->max) / 100;
+-
+-		/* max freq cannot be less than 100. But who knows.... */
+-		if (unlikely(freq_down_step =3D=3D 0))
+-			freq_down_step =3D 5;
+-
++	if ( (ticks-idle_ticks) < (dbs_tuners_ins.down_threshold*idle_ticks) ) {
++		dbs_tuners_ins.requested_freq -=3D freq_step;
++		if (dbs_tuners_ins.requested_freq <
++				this_dbs_info->cur_policy->min)
++			dbs_tuners_ins.requested_freq =3D
++				this_dbs_info->cur_policy->min;
++	=09
++		/* printk("down: %u->%u\n",
++				this_dbs_info->cur_policy->cur,
++				dbs_tuners_ins.requested_freq); */
+ 		__cpufreq_driver_target(this_dbs_info->cur_policy,
+-			this_dbs_info->cur_policy->cur - freq_down_step,=20
++			dbs_tuners_ins.requested_freq,=20
+ 			CPUFREQ_RELATION_H);
+ 		return;
+ 	}
+@@ -344,10 +473,16 @@
+ 		down(&dbs_sem);
+ 		this_dbs_info->cur_policy =3D policy;
+ 	=09
+-		this_dbs_info->prev_cpu_idle_up =3D=20
++		this_dbs_info->prev_cpu_ticks =3D
++				kstat_cpu(cpu).cpustat.user +
++				kstat_cpu(cpu).cpustat.nice +
++				kstat_cpu(cpu).cpustat.system +
++				kstat_cpu(cpu).cpustat.softirq +
++				kstat_cpu(cpu).cpustat.irq +
+ 				kstat_cpu(cpu).cpustat.idle +
+ 				kstat_cpu(cpu).cpustat.iowait;
+-		this_dbs_info->prev_cpu_idle_down =3D=20
++		this_dbs_info->prev_cpu_idle_ticks =3D=20
++				kstat_cpu(cpu).cpustat.nice +
+ 				kstat_cpu(cpu).cpustat.idle +
+ 				kstat_cpu(cpu).cpustat.iowait;
+ 		this_dbs_info->enable =3D 1;
+@@ -368,7 +503,10 @@
+ 			def_sampling_rate =3D (latency / 1000) *
+ 					DEF_SAMPLING_RATE_LATENCY_MULTIPLIER;
+ 			dbs_tuners_ins.sampling_rate =3D def_sampling_rate;
+-
++			dbs_tuners_ins.requested_freq
++				=3D this_dbs_info->cur_policy->cur;
++			dbs_tuners_ins.freq_step_percent =3D 5;
++			dbs_tuners_ins.ignore_nice =3D 0;
+ 			dbs_timer_init();
+ 		}
+ 	=09
+
+--sdtB3X0nJg68CQEu--
+
+--i9LlY+UWpKt15+FH
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFBcvI8Nv5Ugh/sRBYRArohAJ49rNGCJ3uPwNQlrkHrjbQ+xqfKNQCeMBJs
+WoKltq4g6pHxtaxm1aNlQl4=
+=pbAZ
+-----END PGP SIGNATURE-----
+
+--i9LlY+UWpKt15+FH--

@@ -1,64 +1,120 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264124AbTFIL5m (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 07:57:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264144AbTFIL5m
+	id S264190AbTFIMIW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 08:08:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264202AbTFIMIW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 07:57:42 -0400
-Received: from rsys000a.roke.co.uk ([193.118.201.102]:37892 "HELO
-	rsys000a.roke.co.uk") by vger.kernel.org with SMTP id S264124AbTFIL5j
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 07:57:39 -0400
-From: "ZCane, Ed (Test Purposes)" <zed.cane@roke.co.uk>
-To: linux-kernel@vger.kernel.org
-Message-ID: <009001c32e80$352da020$d8c176c1@roke.co.uk>
-Subject: Advice regarding memory allocation/sharing
-Date: Mon, 9 Jun 2003 13:11:07 +0100
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	Mon, 9 Jun 2003 08:08:22 -0400
+Received: from camus.xss.co.at ([194.152.162.19]:58374 "EHLO camus.xss.co.at")
+	by vger.kernel.org with ESMTP id S264190AbTFIMIT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 08:08:19 -0400
+Message-ID: <3EE47BE4.8020000@xss.co.at>
+Date: Mon, 09 Jun 2003 14:21:56 +0200
+From: Andreas Haumer <andreas@xss.co.at>
+Organization: xS+S
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Stephan von Krawczynski <skraw@ithnet.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.21-rc7] AP1700-S5 system freeze :-((
+References: <Pine.LNX.4.55L.0306031353580.3892@freak.distro.conectiva>	<3EDF3310.7040501@xss.co.at>	<3EE208F1.4000008@xss.co.at>	<3EE45E94.7070209@xss.co.at> <20030609134606.094d55ae.skraw@ithnet.com>
+In-Reply-To: <20030609134606.094d55ae.skraw@ithnet.com>
+X-Enigmail-Version: 0.74.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I appreciate this is probably trivial to you experts, but would be very
-grateful if you could spare a minute to tell me if I'm on the right tracks,
-or barking up the wrong tree!
+Hi!
 
-I'm trying to write a system to capture large amounts of data from a Gb
-Ethernet card. Using Linux, Kernel Version 2.4.
+Many thanks for your reply!
 
-I've done a bit of reading, and this is how I propose to do it.
+Stephan von Krawczynski wrote:
+> Hello Andreas,
+>
+> I am not quite sure if you are experiencing something similar to my problem.
+> Fact is this:
+>
+> I have a serverworks based dual PIII board and I am experiencing freezes just
+> about every day.
+>
+> Equal setups:
+>
+> Kernel 2.4.21-rc7
+> 00:00.0 Host bridge: ServerWorks CNB20HE Host Bridge (me: rev 23 you: rev 31)
+> 00:00.1 Host bridge: ServerWorks CNB20HE Host Bridge (rev 01)
+>
+> Lockups during light load
+>
+Me too.
+I had it running for 24 hours with heavy stress testing
+and a load above 7 all the time without problems. I then
+stopped this test, and the box locked up 2 hours later,
+and locked up about 7 or 8 times in the past few days :-(
 
-Allocate a large block (500mb) of contiguous physical memory, at boot time,
-using bootmem.
-Share this memory with user-space processess, using memmap and shared memory
-IPC.
-Modify our Ethernet driver so that it DMA's into my block of memory.
+>
+> Differing:
+>
+> Just about everything else:
+>                        yours:            mine:
+> Storage System:        Symbios           AIC
 
-I'll use semaphores, and split the memory into separate chunks, and make it
-so it rotates in a ring buffer style, I can handle all that stuff, just
-wanted to make sure I was on the right tracks with the design/concept of the
-memory.
+This is not a "normal" symbios logic "sym53c8xx"
+storage controller, but a "Symbios Logic 53c1030",
+which uses the Fusion MPT driver. This is the first
+time I'm running this driver, so I don't know if it's
+considered stable (but I guess so)
+Unfortunately I can't replace it as I don't have any
+spare SCSI controller which fits right now.
 
-Any advice appreciated, dont wish to take too much of your time!
+> VGA           :        ATI Rage XL       ATI Radeon RV200
+> Network       :        Intel/3com        Intel/Broadcom
+> Processor     :        Xeon UP           PIII SMP
+>
+>
+> I could already produce oops-messages on the problem and mine all come up in
+> kmem_cache_alloc_batch. It would be interesting where your box freezes. It
+> cannot be at this same place, because the code is not there in UP.
+> Try this (in case you are not working in front of the box):
+>
+> Start box and switch to text console, enter "setterm -blank 0" to disable
+> screen blanker. Wait for oops. If we are lucky you will see something, get a
+> pencil then :-)
+>
+I always have the system running with text console and
+screen blanking disabled. Alas, I see no oops :-(
 
-Best regards,
-Ed
-(sorry about the attached disclaimer, its added by the mail server, not me!)
+IMHO it doesn't look like the kernel crashes with an oops,
+it does look more like it suddenly goes into an endless
+loop or ridiculously high load somehow.
+Last time I hade this freeze, I noticed that the system
+answered my ICMP ping messages with a delay of more than
+60 seconds. This looked like the system was very busy
+at that time.
 
+I'm now running with 2.4.20rc2, and also have syslog
+routed to another system on the network. We'll see if
+I can get any more information out of this.
 
-begin 666 RMRL-Disclaimer.txt
-M4F5G:7-T97)E9"!/9F9I8V4Z(%)O:V4@36%N;W(@4F5S96%R8V@@3'1D+"!3
-M:65M96YS($AO=7-E+"!/;&1B=7)Y+"!"<F%C:VYE;&PL( T*0F5R:W-H:7)E
-M+B!21S$R(#A&6@T*#0I4:&4@:6YF;W)M871I;VX@8V]N=&%I;F5D(&EN('1H
-M:7,@92UM86EL(&%N9"!A;GD@871T86-H;65N=',@:7,@8V]N9FED96YT:6%L
-M('1O(%)O:V4@#0T-"DUA;F]R(%)E<V5A<F-H($QT9"!A;F0@;75S="!N;W0@
-M8F4@<&%S<V5D('1O(&%N>2!T:&ER9"!P87)T>2!W:71H;W5T('!E<FUI<W-I
-M;VXN(%1H:7,@#0T-"F-O;6UU;FEC871I;VX@:7,@9F]R(&EN9F]R;6%T:6]N
-M(&]N;'D@86YD('-H86QL(&YO="!C<F5A=&4@;W(@8VAA;F=E(&%N>2!C;VYT
-;<F%C='5A;" -#0T*<F5L871I;VYS:&EP+@T*
-end
+- - andreas
+
+- --
+Andreas Haumer                     | mailto:andreas@xss.co.at
+*x Software + Systeme              | http://www.xss.co.at/
+Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
+A-1100 Vienna, Austria             | Fax: +43-1-6060114-71
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQE+5HvjxJmyeGcXPhERAvOvAJ94cQS4tlzylHiVU084v7FK/e/aowCgw4w9
+M3YWSHXzx9IuKeU4Z6WicEk=
+=8102
+-----END PGP SIGNATURE-----
 

@@ -1,105 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261682AbREXSPr>; Thu, 24 May 2001 14:15:47 -0400
+	id <S261791AbREXSQs>; Thu, 24 May 2001 14:16:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261738AbREXSPh>; Thu, 24 May 2001 14:15:37 -0400
-Received: from sloth.wcug.wwu.edu ([140.160.176.172]:50986 "HELO
-	sloth.wcug.wwu.edu") by vger.kernel.org with SMTP
-	id <S261682AbREXSP0>; Thu, 24 May 2001 14:15:26 -0400
-Date: Thu, 24 May 2001 11:15:25 -0700 (PDT)
-From: Josh Logan <josh@wcug.wwu.edu>
-To: Costas Tavernarakis <taver@otenet.gr>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: aic7xxx problem on -ac series
-In-Reply-To: <20010524201518.A20971@noc.otenet.gr>
-Message-ID: <Pine.BSO.4.21.0105241114180.21043-100000@sloth.wcug.wwu.edu>
+	id <S261747AbREXSQh>; Thu, 24 May 2001 14:16:37 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:39941 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S261738AbREXSQM>; Thu, 24 May 2001 14:16:12 -0400
+Subject: Re: SyncPPP IPCP/LCP loop problem and patch
+To: paulkf@microgate.com (Paul Fulghum)
+Date: Thu, 24 May 2001 19:13:04 +0100 (BST)
+Cc: rjd@xyzzy.clara.co.uk, linux-kernel@vger.kernel.org
+In-Reply-To: <003b01c0e472$6f7a3ae0$0c00a8c0@diemos> from "Paul Fulghum" at May 24, 2001 10:56:11 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E152zbc-0005Oz-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I did not realize that syncppp does not implement
+> all the RFC1661 states. That's simply broken :(
+> A proper state machine implementation would be nice.
 
-I have also seen this problem...  I don't have any ideas.  Is this a
-module or compiled in?
+syncppp.c -predates- RFC1661 I believe.
 
-							Later, JOSH
+> On the other hand, it works in a minimal way
+> for most people and it's supposed to be folded
+> into the generic PPP implementation someday.
+> So there's not much point in trying to overhaul the code.
 
-On Thu, 24 May 2001, Costas Tavernarakis wrote:
-
-> Hi all,
-> 
-> I'm not subscribed to LKML, so please Cc: me with any replies.
-> 
-> I'm running 2.4.5-pre4 with success on an ASUS-CUV4X-D based system
-> (noapic boot parameter, highmem). This kernel works for me (with a few
-> occasional hard lockups, but that's another story).
-> 
-> However, I'm having trouble with kernels from the -ac series.
-> These kernels (with noapic) halt while detecting the first scsi
-> controller on the system. The messages I get are:
-> 
-> SCSI subsystem driver Revision: 1.00
-> PCI: Found IRQ9 for device 00:09.0
-> PCI: The same IRQ used for device 00:0a.1
-> ahc_pci: 0:90: Using left over BIOS settings
-> 
-> and then the system stops responding.
-> 
-> while -pre4 goes ahead to print:
-> 
-> scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.1.13
->         <Adaptec 29160N Ultra160 SCSI adapter>
->         aic7892: Ultra160 Wide Channel A, SCSI Id=7, 32/255 SCBs
-> ...
-> 
-> The same problem is seen with virtually all kernels in
-> 2.4.4-ac series, including -ac15. (haven't tried any
-> earlier -ac, though).
-> 
-> lspci on this system gives:
-> 
-> 00:00.0 Host bridge: VIA Technologies, Inc. VT82C693A/694x [Apollo PRO133x] (rev c4)
-> 00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo MVP3/Pro133x AGP]
-> 00:04.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 40)
-> 00:04.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06)
-> 00:04.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 16)
-> 00:04.3 USB Controller: VIA Technologies, Inc. UHCI USB (rev 16)
-> 00:04.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 40)
-> 00:09.0 SCSI storage controller: Adaptec 7892A (rev 02)
-> 00:0a.0 SCSI storage controller: Symbios Logic Inc. (formerly NCR) 53c875 (rev 14)
-> 00:0a.1 SCSI storage controller: Symbios Logic Inc. (formerly NCR) 53c875 (rev 14)
-> 00:0b.0 Ethernet controller: 3Com Corporation 3c905C-TX [Fast Etherlink] (rev 74)
-> 00:0c.0 Multimedia audio controller: Creative Labs SB Live! EMU10000 (rev 08)
-> 00:0c.1 Input device controller: Creative Labs SB Live! (rev 08)
-> 01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP (rev 82)
-> 
-> ver_linux output:
-> Linux idefix 2.4.5-pre4 #4 SMP Mon May 21 14:52:36 EEST 2001 i686 unknown
->  
-> Gnu C                  2.95.4
-> Gnu make               3.79.1
-> binutils               2.11.90.0.7
-> util-linux             2.11b
-> mount                  2.11b
-> modutils               2.4.6
-> e2fsprogs              1.19
-> reiserfsprogs          3.x.0j
-> Linux C Library        2.2.3
-> Dynamic linker (ldd)   2.2.3
-> Procps                 2.0.7
-> Net-tools              1.60
-> Console-tools          0.2.3
-> Sh-utils               2.0.11
-> Modules Loaded         
-> 
-> I am, of course, willing to provide any more information you
-> may find important and/or to test any patches.
-> I'm not a kernel expert, though...
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+I had hoped for 2.4 to use generic ppp with it. That might be the more
+productive way to attack the problem
 

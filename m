@@ -1,59 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293154AbSB1Esi>; Wed, 27 Feb 2002 23:48:38 -0500
+	id <S292909AbSB1FN1>; Thu, 28 Feb 2002 00:13:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293161AbSB1ErT>; Wed, 27 Feb 2002 23:47:19 -0500
-Received: from CPEdeadbeef0000.cpe.net.cable.rogers.com ([24.100.234.67]:16132
-	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
-	id <S293159AbSB1Eqx>; Wed, 27 Feb 2002 23:46:53 -0500
-Date: Wed, 27 Feb 2002 23:48:14 -0500 (EST)
-From: Shawn Starr <spstarr@sh0n.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ANNOUNCEMENT: 2.4.19-pre1-ac2-xfs-shawn8 released - important
-In-Reply-To: <Pine.LNX.4.40.0202272257270.572-100000@coredump.sh0n.net>
-Message-ID: <Pine.LNX.4.40.0202272347320.763-100000@coredump.sh0n.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293171AbSB1FLe>; Thu, 28 Feb 2002 00:11:34 -0500
+Received: from rj.SGI.COM ([204.94.215.100]:49597 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S293170AbSB1FLQ>;
+	Thu, 28 Feb 2002 00:11:16 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Benjamin Pharr <ben@benpharr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: .text problems in 2.5.6-pre1 
+In-Reply-To: Your message of "Wed, 27 Feb 2002 22:34:41 MDT."
+             <20020228043441.GA32149@hst000004380um.kincannon.olemiss.edu> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 28 Feb 2002 16:11:00 +1100
+Message-ID: <13808.1014873060@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 27 Feb 2002 22:34:41 -0600, 
+Benjamin Pharr <ben@benpharr.com> wrote:
+>I saw a couple of mentions in the changelog that the .text problem had
+>been fixed in this version. However, I found this one while compiling:
+>drivers/char/drm/drm.o: In function `i810_dma_initialize':
+>drivers/char/drm/drm.o(.text+0x1dc19): undefined reference to `virt_to_bus_not_defined_use_pci_map'
 
-xfs_utils.c:35: storage size of `xfsstats' isn't known
-make[3]: *** [xfs_utils.o] Error 1
-make[3]: Leaving directory `/usr/src/linux-xfs-shawn8/fs/xfs'
-
-This is expected, if you compile EXT2/EXT3 with XFS (all). A fix is coming
-tomorrow.
-
-Shawn.
-
-
-On Wed, 27 Feb 2002, Shawn Starr wrote:
-
->
-> xfs-2.4.19-ac2-shawn8   against 2.4.18 vanilla, (Feb 27th, 2002)
->
-> Contains:
->
-> 2.4.19-pre1                     (Marcelo Tosatti)
-> 2.4.19-pre1-ac2                 (Alan Cox)
-> 2.4.18-pre3-quotactl            (Jan Kara
->                                  SGI XFS people)
-> rmap-12f                        (Rik van Riel
->                                  William Lee Irwin III)
->
-> *NOTE: rmap-12g coming and may go into -shawn9 testing 12f still*
->
-> Feb 27th, XFS CVS               (me)
-> IDE taskfile (newest)           (Andre Hedrick)
->
-> Shawn.
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
+That has nothing to do with the .text problem.  DRM is using an old PCI
+API.
 

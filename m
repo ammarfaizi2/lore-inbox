@@ -1,39 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262794AbUBDMBD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 07:01:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263014AbUBDMBD
+	id S262838AbUBDM1l (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 07:27:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263014AbUBDM1k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 07:01:03 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:6826 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S262794AbUBDMBB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 07:01:01 -0500
-Date: Wed, 4 Feb 2004 13:00:49 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Hans Reiser <reiser@namesys.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: ReiserFS V4 (was Re: 2.6.2-rc3-mm1)
-Message-ID: <20040204120049.GA11621@louise.pinerecords.com>
-References: <20040202235817.5c3feaf3.akpm@osdl.org> <1075798370.1829.80.camel@tribesman.namesys.com> <20040203010456.3f3a2618.akpm@osdl.org> <40202D17.1000904@namesys.com>
+	Wed, 4 Feb 2004 07:27:40 -0500
+Received: from coruscant.franken.de ([193.174.159.226]:51377 "EHLO
+	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
+	id S262838AbUBDM1i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 07:27:38 -0500
+Date: Wed, 4 Feb 2004 13:25:50 +0100
+From: Harald Welte <laforge@netfilter.org>
+To: Dan McGrath <troubled@emaildesktop.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: iptables stopped logging to files, but shows in ring buffer
+Message-ID: <20040204122550.GE25175@obroa-skai.de.gnumonks.org>
+References: <001801c3ead5$9d0d6420$0201a8c0@wksdan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="4ZQ/M1iA+qg8otEW"
 Content-Disposition: inline
-In-Reply-To: <40202D17.1000904@namesys.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <001801c3ead5$9d0d6420$0201a8c0@wksdan>
+X-Operating-System: Linux obroa-skai.de.gnumonks.org 2.6.1-rc1-ben1
+X-Date: Today is Prickle-Prickle, the 34th day of Chaos in the YOLD 3170
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb-03 2004, Tue, 15:21 -0800
-Hans Reiser <reiser@namesys.com> wrote:
 
-[snip]
-> V4 is 2-5x the speed of V3, has more 
-> functionality, better security, is more maintainable, etc.  Once V4 is 
-> as stable and tested as V3,
-[snip]
+--4ZQ/M1iA+qg8otEW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Are there any plans to release a reliable version of V4 any time soon?
+On Tue, Feb 03, 2004 at 11:16:07PM -0500, Dan McGrath wrote:
+> I remembered that iptables logs seem to show in dmesg command in the
+> past, and sure enough, they are all showing up there no problems, but not=
+ in
+> any files, including dmesg.log.
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
+If they are in dmesg, but in no files, than this cannot be a kernel
+problem.  It has to be a userspace (klogd/syslogd) issue.
+
+Thus, it is off-topic to lkml, and is not a problem of
+netfilter/iptables.
+
+> troubled
+
+--=20
+- Harald Welte <laforge@netfilter.org>             http://www.netfilter.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+  "Fragmentation is like classful addressing -- an interesting early
+   architectural error that shows how much experimentation was going
+   on while IP was being designed."                    -- Paul Vixie
+
+--4ZQ/M1iA+qg8otEW
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQFAIOTOXaXGVTD0i/8RAnOHAJ9hbocWmW1txsL2MlShpsZ8zG/VFwCgjb8e
+l+fg3in9LZDO9oSj6euEY+k=
+=p0v8
+-----END PGP SIGNATURE-----
+
+--4ZQ/M1iA+qg8otEW--

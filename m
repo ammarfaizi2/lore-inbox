@@ -1,32 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271572AbRIMNGA>; Thu, 13 Sep 2001 09:06:00 -0400
+	id <S269593AbRIMNfQ>; Thu, 13 Sep 2001 09:35:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271582AbRIMNFk>; Thu, 13 Sep 2001 09:05:40 -0400
-Received: from falka.mfa.kfki.hu ([148.6.72.6]:23982 "EHLO falka.mfa.kfki.hu")
-	by vger.kernel.org with ESMTP id <S271572AbRIMNFR>;
-	Thu, 13 Sep 2001 09:05:17 -0400
-Date: Thu, 13 Sep 2001 15:04:09 +0200 (CEST)
-From: Gergely Tamas <dice@mfa.kfki.hu>
-To: Liakakis Kostas <kostas@skiathos.physics.auth.gr>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Stomping on Athlon bug (fwd)
-In-Reply-To: <Pine.GSO.4.21.0109131456230.10198-100000@skiathos.physics.auth.gr>
-Message-ID: <Pine.LNX.4.33.0109131501200.5472-100000@falka.mfa.kfki.hu>
+	id <S271679AbRIMNfG>; Thu, 13 Sep 2001 09:35:06 -0400
+Received: from ns.suse.de ([213.95.15.193]:46084 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S269593AbRIMNey>;
+	Thu, 13 Sep 2001 09:34:54 -0400
+Date: Thu, 13 Sep 2001 15:35:16 +0200 (CEST)
+From: Dave Jones <davej@suse.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Athlon crashing bug research.
+Message-ID: <Pine.LNX.4.30.0109131525060.21239-100000@Appserv.suse.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-I tried it again and wrote down the error message ...
+I believe I may be onto something, but I need some test
+data from people who both are seeing crashes when the
+athlon memcopy is used, and without.
+Boot with a kernel that doesn't cause crashes
+(Ie, no athlon optimisations)
 
- > freezes the system with memory related error messages at init.
+The info I need can be displayed using my x86info
+tool, available from  ..
+ftp://ftp.suse.com/pub/people/davej/x86info/x86info-1.5.tgz
 
-"Unable to handle kernel NULL pointer dereference at virtual address
-00000019"
-^^^^^^^^ -> this one changes, but msg is the same
+x86info -m is the important info here. You'll need the
+cpuid/msr drivers installed, /dev/cpu nodes set up, and
+you'll need to run it as root.
 
-Gergely
+Mail the reports directly to me, rather than flooding
+the mailing list with these reports.
+
+x86info -m | mail davej@suse.de -s "Athlon bugdata"
+would be just fine.
+
+Any findings will be summarised and reported back
+to the list.
+
+regards,
+
+Dave.
+
+-- 
+| Dave Jones.        http://www.suse.de/~davej
+| SuSE Labs
 

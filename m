@@ -1,45 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317599AbSGLEfv>; Fri, 12 Jul 2002 00:35:51 -0400
+	id <S317648AbSGLElX>; Fri, 12 Jul 2002 00:41:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317648AbSGLEfu>; Fri, 12 Jul 2002 00:35:50 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:15298 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S317599AbSGLEft>;
-	Fri, 12 Jul 2002 00:35:49 -0400
-Date: Thu, 11 Jul 2002 21:38:34 -0700
-From: Jesse Barnes <jbarnes@sgi.com>
-To: pmenage@ensim.com
-Cc: Daniel Phillips <phillips@arcor.de>, linux-kernel@vger.kernel.org
-Subject: Re: spinlock assertion macros
-Message-ID: <20020712043834.GA710558@sgi.com>
-Mail-Followup-To: pmenage@ensim.com, Daniel Phillips <phillips@arcor.de>,
-	linux-kernel@vger.kernel.org
-References: <0C01A29FBAE24448A792F5C68F5EA47D2B0FDD@nasdaq.ms.ensim.com> <E17SpMA-0008OG-00@pmenage-dt.ensim.com>
+	id <S317675AbSGLElX>; Fri, 12 Jul 2002 00:41:23 -0400
+Received: from codepoet.org ([166.70.99.138]:49595 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S317648AbSGLElW>;
+	Fri, 12 Jul 2002 00:41:22 -0400
+Date: Thu, 11 Jul 2002 22:44:13 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IDE/ATAPI in 2.5
+Message-ID: <20020712044413.GA2436@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	"H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+References: <agl7ov$p91$1@cesium.transmeta.com> <20020712041320.GA2046@codepoet.org> <3D2E585F.2010302@zytor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E17SpMA-0008OG-00@pmenage-dt.ensim.com>
-User-Agent: Mutt/1.3.27i
+In-Reply-To: <3D2E585F.2010302@zytor.com>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.18-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 11, 2002 at 06:36:26PM -0700, pmenage@ensim.com wrote:
-> The spin_assert_unlocked() macro in Jesse's patch doesn't cope with
-> the fact that someone else might quite legitimately have the spinlock
-> locked. You'd need debugging spinlocks that track the owner of the
-> spinlock, and then check in MUST_NOT_HOLD() you'd check that
-> lock->owner != current. You'd also have to have some special
-> non-checking lock/unlock macros to handle situations where locks are
-> taken in non-process context or released by someone other than the
-> original locker (does the migration code still do that?).
+On Thu Jul 11, 2002 at 09:17:35PM -0700, H. Peter Anvin wrote:
+> Erik Andersen wrote:
+> >On Thu Jul 11, 2002 at 05:27:11PM -0700, H. Peter Anvin wrote:
+> >
+> >>Okay, I have suggested this before, and I haven't quite looked at this
+> >>in detail, but I would again like to consider the following,
+> >>especially given the changes in 2.5:
+> >>
+> >>Please consider deprecating or removing ide-floppy/ide-tape/ide-cdrom
+> >>and treat all ATAPI devices as what they really are -- SCSI over IDE.
+> >>It is a source of no ending confusion that a Linux system will not
+> >>write CDs to an IDE CD-writer out of the box, for the simple reason
+> >>that cdrecord needs access to the generic packet interface, which is
+> >>only available in the nonstandard ide-scsi configuration.
+> >
+> >
+> >cdrecord should use the CDROM_SEND_PACKET ioctl, then it would
+> >work regardless,
+> >
+> 
+> Lovely.  Let's make EACH APPLICATION support two disjoint APIs for no 
+> good reason.
 
-You're right about that, it would be much more useful to add a
-spin_assert_unlocked_all() or MUST_NOT_HOLD_ANY() macro, as Arnd
-suggested.  I'll take the suggestions I've received and try to put
-together a more complete patch early next week.  It'll include lock
-checks for rwlocks, semaphores, and rwsems as well as the global
-no-locks-held macro.  And as an added bonus, I'll even try to test it
-:).
+Lovely.  Lets rip off a sarcastic answer without spending two
+seconds to think.  Why would anybody need to support two APIs?  
+The existing CDROM_SEND_PACKET ioctl is an ATAPI/SCSI pass
+through interface, and is sufficient to operate both IDE and 
+SCSI cd writers.
 
-Thanks,
-Jesse
+ -Erik
+
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

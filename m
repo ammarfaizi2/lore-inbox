@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262050AbTJAMEs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 08:04:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262055AbTJAMEs
+	id S262072AbTJAMQ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 08:16:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbTJAMQ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 08:04:48 -0400
-Received: from mail.icablenet.com.br ([200.215.9.228]:47369 "EHLO
-	mail.icablenet.com.br") by vger.kernel.org with ESMTP
-	id S262050AbTJAMEs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 08:04:48 -0400
-Message-ID: <00a901c38816$01f3d180$0201a8c0@bigip>
-Reply-To: "Rivalino M. Jr." <rmj@icablenet.com.br>
-From: "Rivalino M. Jr." <rmj@icablenet.com.br>
-To: <linux-kernel@vger.kernel.org>
-References: <4AAAA1EF5359E2478E766A11357773A70545BE3F@cceexc16.americas.cpqcorp.net>
-Subject: Re: libgcc
-Date: Wed, 1 Oct 2003 09:17:38 -0300
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Wed, 1 Oct 2003 08:16:56 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:33161 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S262072AbTJAMQz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 08:16:55 -0400
+Date: Wed, 1 Oct 2003 14:16:43 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Al Smith <Al.Smith@aeschi.ch.eu.org>
+Cc: linux-kernel@vger.kernel.org, viro@math.psu.edu
+Subject: include/linux/efs_fs.h declares a symbol
+Message-ID: <20031001121643.GD31698@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message ----- 
-From: "KALBAGILMATH, VISHWANATH" <vishwanath.kalbagilmath@hp.com>
+Hi!
 
+Al, your version string cprt[] should better be in one of the .c files
+and the declaration in the header be extern.  No need to keep six
+seperate copies of that string in the kernel binary.
 
-> I want to know where do I find libgcc for RHAS2.1, or can I install libgcc
-of RH 9.0.
+Thanks!
 
-You need a RHN account (RHEL AS 2.1 channel) to take the binary version, or
-the source code from Red Hat ftp.
+Al Viro: There is no maintainer for efs in the kernel MAINTAINERS
+file.  Is this filesystem orphaned?
 
+Jörn
 
-RMJ.
-
-
+-- 
+But this is not to say that the main benefit of Linux and other GPL
+software is lower-cost. Control is the main benefit--cost is secondary.
+-- Bruce Perens

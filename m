@@ -1,33 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264496AbRFTC6H>; Tue, 19 Jun 2001 22:58:07 -0400
+	id <S264567AbRFTC7S>; Tue, 19 Jun 2001 22:59:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264567AbRFTC55>; Tue, 19 Jun 2001 22:57:57 -0400
-Received: from 513.holly-springs.nc.us ([216.27.31.173]:51213 "EHLO
-	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
-	id <S264496AbRFTC5p>; Tue, 19 Jun 2001 22:57:45 -0400
-Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
-From: Michael Rothwell <rothwell@holly-springs.nc.us>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <E15CQlA-0006Tr-00@the-village.bc.nu>
-In-Reply-To: <E15CQlA-0006Tr-00@the-village.bc.nu>
-Content-Type: text/plain
-X-Mailer: Evolution/0.10 (Preview Release)
-Date: 19 Jun 2001 22:57:38 -0400
-Message-Id: <993005859.1799.1.camel@gromit>
+	id <S264819AbRFTC7I>; Tue, 19 Jun 2001 22:59:08 -0400
+Received: from sgi.SGI.COM ([192.48.153.1]:55658 "EHLO sgi.com")
+	by vger.kernel.org with ESMTP id <S264567AbRFTC7C>;
+	Tue, 19 Jun 2001 22:59:02 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: John Weber <weber@nyc.rr.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: How to compile on one machine and install on another? 
+In-Reply-To: Your message of "Tue, 19 Jun 2001 22:23:47 -0400."
+             <3B300933.2090807@nyc.rr.com> 
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 20 Jun 2001 12:58:30 +1000
+Message-ID: <28123.993005910@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 19 Jun 2001 20:01:56 +0100, Alan Cox wrote:
+On Tue, 19 Jun 2001 22:23:47 -0400, 
+John Weber <weber@nyc.rr.com> wrote:
+>On a related note... is System.map also necessary?  Anyone care to explain 
+>what System.map does?  I have noticed that my kernel works with or 
+>without that file, but just figured it was a good question to ask in 
 
-> Linux inherits several unix properties which are not friendly to good state
-> based programming - lack of good AIO for one.
-
-Oh, how I would love for select() and poll() to work on files... or for
-any other working AIO mothods to be present.
-
-What would get broken if things were changed to let select() work for
-filesystem fds?
-
+Used by assorted user space utilities, ps, ksymoops, klogd and others.
+It is not needed for booting, so its presence in /boot is a mistake.
 

@@ -1,58 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265682AbTF2PcF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 11:32:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265690AbTF2PcF
+	id S265690AbTF2PvE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 11:51:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265692AbTF2PvE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 11:32:05 -0400
-Received: from 82-43-130-207.cable.ubr03.mort.blueyonder.co.uk ([82.43.130.207]:37000
-	"EHLO efix.biz") by vger.kernel.org with ESMTP id S265682AbTF2PcD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 11:32:03 -0400
-Subject: Re: Linux 2.4.22-pre2 and AthlonMP
-From: Edward Tandi <ed@efix.biz>
-To: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1056883336.16253.9.camel@dhcp22.swansea.linux.org.uk>
-References: <1056833424.30265.39.camel@wires.home.biz>
-	 <1056837060.6778.2.camel@dhcp22.swansea.linux.org.uk>
-	 <1056840603.30264.45.camel@wires.home.biz>
-	 <1056842271.6753.19.camel@dhcp22.swansea.linux.org.uk>
-	 <1056844328.2315.22.camel@wires.home.biz>
-	 <1056883336.16253.9.camel@dhcp22.swansea.linux.org.uk>
-Content-Type: text/plain
-Message-Id: <1056901610.23008.40.camel@wires.home.biz>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 29 Jun 2003 16:46:51 +0100
-Content-Transfer-Encoding: 7bit
+	Sun, 29 Jun 2003 11:51:04 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:10370 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S265690AbTF2PvC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jun 2003 11:51:02 -0400
+Date: Sun, 29 Jun 2003 17:13:40 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200306291613.h5TGDerX001001@81-2-122-30.bradfords.org.uk>
+To: jamie@shareable.org, john@grabjohn.com
+Subject: Re: File System conversion -- ideas
+Cc: linux-kernel@vger.kernel.org, mlmoser@comcast.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-06-29 at 11:42, Alan Cox wrote:
-> On Sul, 2003-06-29 at 00:52, Edward Tandi wrote:
-> > It does have an AGP NVidia card in it. I'm using the standard XFree
-> > drivers with it at the moment but I have played UT on it for hours
-> > before (using NVidia drivers) without problems. It might be an AGP x2
-> > card though. The computer is now mostly a back-end server and I haven't
-> > really pushed it on the graphics side recently
-> > 
-> > Could the problem be caused by some BIOS setting? I could spend some
-> > time looking at them.
-> 
-> The BIOS has magic tuning tables for AMD76x chipsets for various video
-> cards. Its one of the reasons that new BIOSes sometimes make AGP 4x
-> work, or more reliable.
-> 
-> > The version running prior to this one was 2.4.21-rc3. This version
-> > allowed me to specify noapic.
-> 
-> Out of interest, compile out ACPI support and see what it does
+> > I think
+> > the performance of an on-the-fly filesystem conversion utility is
+> > going to be so much worse than just creating a new partition and
+> > copying the data across,
+>
+> which is awfully difficult if you have, say, a 60GB filesystem, a 60GB
+> disk, and nothing else.
 
-OK, compiled without ACPI. The system boots and runs fine with or
-without noapic. No nasty warnings.
+Well, I don't partition all of the space on every new disk I buy
+straight away, I partition off what I think I'll need, and leave the
+rest unallocated.
 
-The AMD76x power management has been off in all tests to date.
+> > that the only reason to do it would be if you
+> > could do it on a read-write filesystem without unmounting it.
+>
+> IMHO even if it requires the filesystem to be unmounted, it would
+> still be useful.  More challenging to use - you'd have to boot and run
+> from ramdisk, but much more useful than not being able to convert at all.
 
-Ed-T.
+Only if it is the root filesystem, the filesystem of which generally
+isn't going to affect overall performance that much.
 
+> > What I'd like to see is union mounts which allowed you to mount a new
+> > filesystem of a different type over the original one, and have all new
+> > writes go to the new fileystem.  I.E. as files were modified, they
+> > would be re-written to the new FS.  That would be one way of avoiding
+> > the performance hit on a busy server.
+>
+> But useless unless you have a second disk lying around that you don't
+> use for anything but filesystem conversions.
 
+Not at all.  You can just use unpartitioned space on your existing
+disk.
+
+John.

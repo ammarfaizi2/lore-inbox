@@ -1,73 +1,119 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282145AbRKWNy2>; Fri, 23 Nov 2001 08:54:28 -0500
+	id <S282148AbRKWN4I>; Fri, 23 Nov 2001 08:56:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282146AbRKWNyS>; Fri, 23 Nov 2001 08:54:18 -0500
-Received: from elin.scali.no ([62.70.89.10]:5388 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id <S282145AbRKWNyF>;
-	Fri, 23 Nov 2001 08:54:05 -0500
-Subject: Re: [Q] was the SYSENTER/SYSCALL fast system calls completed or
-		discared in the end??
-From: Terje Eggestad <terje.eggestad@scali.no>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <p73snb6x1wo.fsf@amdsim2.suse.de>
-In-Reply-To: <1006184327.19902.2.camel@pc-16.office.scali.no.suse.lists.linux.kernel>
-	<20011121225402.A175@elf.ucw.cz.suse.lists.linux.kernel>
-	<1006440069.22598.4.camel@pc-16.office.scali.no.suse.lists.linux.kernel> 
-	<p73snb6x1wo.fsf@amdsim2.suse.de>
-Content-Type: text/plain
+	id <S282146AbRKWNz7>; Fri, 23 Nov 2001 08:55:59 -0500
+Received: from sis.com.tw ([203.67.208.3]:2924 "EHLO maillog.sis.com.tw")
+	by vger.kernel.org with ESMTP id <S282147AbRKWNzp>;
+	Fri, 23 Nov 2001 08:55:45 -0500
+Message-ID: <047701c17426$19b64740$b5d20ac0@sis.com.tw>
+Reply-To: "Nelson Lee" <nelson@sis.com.tw>
+From: "Nelson Lee" <nelson@sis.com.tw>
+To: "kmliu" <kmliu@sis.com.tw>, <linux-kernel@vger.kernel.org>,
+        "Krzysztof Oledzki" <ole@ans.pl>
+Cc: "ron" <ronchang@sis.com.tw>, "JasonTsai" <jstsai@sis.com.tw>,
+        "charles" <charles@sis.com.tw>, <andre@suse.com>
+In-Reply-To: <NDBBJBFIOLNMNHAELGHFKEGACJAA.kmliu@sis.com.tw>
+Subject: Re: SiS601?!
+Date: Fri, 23 Nov 2001 21:52:33 +0800
+Organization: sis-tpa
+MIME-Version: 1.0
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+X-MIMETrack: Itemize by SMTP Server on twtpem01/TPE/SiS(Release 5.0.3 (Intl)|21 March
+ 2000) at 23/11/2001 09:51:59 PM,
+	Serialize by Router on twtpem01/TPE/SiS(Release 5.0.3 (Intl)|21 March 2000) at
+ 23/11/2001 09:52:05 PM,
+	Serialize complete at 23/11/2001 09:52:05 PM
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.2 (Preview Release)
-Date: 23 Nov 2001 14:54:02 +0100
-Message-Id: <1006523642.25167.7.camel@pc-16.office.scali.no>
-Mime-Version: 1.0
+Content-Type: text/plain;
+	charset="big5"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cool, 
+K.M.:
 
-do you happen top know where the patch is? On e that I can apply to
-stock 2.4.1x??
+No, we do not have.
+]
+Best Regards,
 
-TJ
+Nelson Lee
+/\/\/\/\/\/\/\/\/
+Sr. Technical Marketing Manager
+Integrated Product Division
+Silicon Integrated Systems Corp.
+6F, NO. 1, ALLEY 1, LANE 235,
+BAO CHIAO RD. HSIN TIEN,
+TAIPEI, TAIWAN, R.O.C.
+TEL:886-2-29161619  ext:381
+FAX:886-2-29161618
+http://www.sis.com.tw
+**************************
 
-tor, 2001-11-22 kl. 16:26 skrev Andi Kleen:
-> Terje Eggestad <terje.eggestad@scali.no> writes:
-> 
-> > ons, 2001-11-21 kl. 22:54 skrev Pavel Machek:
-> > > 
-> > > On Mon 19-11-01 16:38:45, Terje Eggestad wrote:
-> > > > subject says it all....
-> > > > 
-> > > > I remember there was a discussion and a patch floating around that 
-> > > > implemented SYSCALL/SYSRET, just want to know what happened to it....
-> > > 
-> > > discarded
-> > 
-> > Because there was no perf benefit  or because the patch was in poor
-> > quality?
-> 
-> The x86-64 port uses SYSCALL/SYSRET as the native call method for 64bit
-> programs.
-> 
-> Before x86-64 it turned out that SYSCALL is not really usable because
-> of some builtin limitations (which are fixed in x86-64). This is only
-> a problem for the K6, K7 should have support for SYSENTER/SYSEXIT (the 
-> Intel equivalent), which seems to be better designed. There is a patch
-> to use SYSENTER/SYSEXIT.
-> 
-> 
-> -Andi
--- 
-_________________________________________________________________________
+----- Original Message -----
+From: "kmliu" <kmliu@sis.com.tw>
+To: "nelson" <nelson@sis.com.tw>; <linux-kernel@vger.kernel.org>; "Krzysztof
+Oledzki" <ole@ans.pl>
+Cc: "ron" <ronchang@sis.com.tw>; "JasonTsai" <jstsai@sis.com.tw>; "charles"
+<charles@sis.com.tw>; <andre@suse.com>
+Sent: Friday, November 23, 2001 8:11 AM
+Subject: SiS601?!
 
-Terje Eggestad                  terje.eggestad@scali.no
-Scali Scalable Linux Systems    http://www.scali.com
 
-Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
-P.O.Box 70 Bogerud                      +47 975 31 574  (MOBILE)
-N-0621 Oslo                     fax:    +47 22 62 89 51
-NORWAY            
-_________________________________________________________________________
+> Hi,
+>
+> We do not have any product which name is SiS601,
+>
+> The IDE controller is SiS5513, the north bridge is
+SiS620/530/630/540/550/635/735/730/740/640/645/640.
+>
+> Please make sure what is the name of the chipset.
+>
+> Nelson:
+>
+> Do we have SiS601 in notebook market?
+>
+> Regards,
+> K.M. Liu
+>
+> -----Original Message-----
+> From: Krzysztof Oledzki [mailto:ole@ans.pl]
+> Sent: Friday, November 23, 2001 4:53 AM
+> To: linux-kernel@vger.kernel.org
+> Cc: kmliu@sis.com.tw; andre@suse.com
+> Subject: SIS IDE (sis5513.c)
+>
+>
+> Hello :)
+>
+> I have a notebook with SIS IDE Chipset - SIS601. This week I have
+> installed Linux. It seems that this chipset is not supported by sis5513.c
+> driver. I tried adding support myself by putting PCI_DEVICE_ID_SI_601 in
+> each switch/case in this file (because I found that it sound work for
+> PCI_DEVICE_ID_SI_540 and PCI_DEVICE_ID_SI_620 ). Unfortunetly ugly
+> "unknown IDE controller" message still appeard. Then I go to the ide-pci.c
+> and noticed that int ide_pci_chipsets here is only one line for SIS:
+>
+>         {DEVID_SIS5513, "SIS5513",      PCI_SIS5513,    ATA66_SIS5513,
+INIT_SIS5513,   NULL,        {{0x4a,0x02,0x02}, {0x4a,0x04,0x04}},
+ON_BOARD,       0 },
+>
+> and one #define:
+> #define DEVID_SIS5513   ((ide_pci_devid_t){PCI_VENDOR_ID_SI,
+PCI_DEVICE_ID_SI_5513})
+>
+> BTW: Am I right, this makes that only PCI_DEVICE_ID_SI_5513 chipset is
+> supported and all other chipset listed in sis5513.c will not work?
+>
+> Ok, I added DEVID_SIS601 (PCI_DEVICE_ID_SI_601) with parameters from
+> SIS5513 or all zeros but... now I have "neither IDE port enabled (BIOS)"
+> message. So? Is there any way to enable DMA transfers for my HDD? With PIO
+> my HDD is verry slow (hdparm shows 3 MB/sek).
+>
+> Best regards,
+>
+> Krzysztof Oledzki
+>
 

@@ -1,49 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282915AbRK1PN1>; Wed, 28 Nov 2001 10:13:27 -0500
+	id <S283059AbRK1PTq>; Wed, 28 Nov 2001 10:19:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282908AbRK1PNQ>; Wed, 28 Nov 2001 10:13:16 -0500
-Received: from [128.165.17.254] ([128.165.17.254]:62155 "EHLO
-	balance.radtt.lanl.gov") by vger.kernel.org with ESMTP
-	id <S282156AbRK1PNI>; Wed, 28 Nov 2001 10:13:08 -0500
-Date: Wed, 28 Nov 2001 08:13:05 -0700
-From: Eric Weigle <ehw@lanl.gov>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Magic Lantern
-Message-ID: <20011128081305.I22767@lanl.gov>
-In-Reply-To: <Pine.LNX.3.95.1011128090654.10732B-100000@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.95.1011128090654.10732B-100000@chaos.analogic.com>
-User-Agent: Mutt/1.3.18i
-X-Eric-Unconspiracy: There ought to be a conspiracy
-X-Editor: Vim, http://www.vim.org
+	id <S282163AbRK1PTh>; Wed, 28 Nov 2001 10:19:37 -0500
+Received: from smtp-rt-14.wanadoo.fr ([193.252.19.224]:17101 "EHLO
+	adansonia.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S282908AbRK1PTR>; Wed, 28 Nov 2001 10:19:17 -0500
+Date: Wed, 28 Nov 2001 15:19:38 +0100 (CET)
+From: Pascal Lengard <pascal.lengard@wanadoo.fr>
+To: <lnz@dandelion.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: dac960 broken ?
+Message-ID: <Pine.LNX.4.33.0111281425090.11410-100000@h2o.chezmoi.fr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > "Richard B. Johnson" <root@chaos.analogic.com> writes:
-> > > Are there currently any kernel hooks to support Magic Lantern?
-> > > Basically, a "tee" to capture all network packets and pass them
-> > > on to a filtering task without affecting normal network activity.
-> > > It's like `tcpdump`, but allows packets to be inserted into the
-> > > output queue as well without affecting normal network activity.
-> > 
-> > The af_packet module can read and write raw ethernet frames.
-The af_packet module may also be fairly inefficient. If you need performance
-over, say, a gigabit link, you may have trouble. I last used it one of the
-earlier 2.4 series (2.4.8 I think) with the Acenic Tigon II gigE copper
-cards to implement a network flooder; At that time a simple unoptimized loop
-sending raw ethernet packets maxed out at at around 80Mbps, while the same loop
-sending UDP packets maxed out at around 400. This may have been fixed by now,
-I don't know... Just a warning.
+Hello,
 
--Eric
+I have several "servers" using old mylex DAC960P scsi raid adapter.
+So I though clever to install redhat 7.2 on them ...
 
--- 
---------------------------------------------
- Eric H. Weigle   CCS-1, RADIANT team
- ehw@lanl.gov     Los Alamos National Lab
- (505) 665-4937   http://home.lanl.gov/ehw/
---------------------------------------------
+redhat 7.2 does install and run well with the 2.4.7-10 kernel from the
+distribution, but when I try upgrading to 2.4.9-13 (via rpm) it does not boot, 
+there is a problem with resolving ext3fs symbols ... this is more a RedHat
+problem, but read on :-)
+
+I choosed to compile a customized kernel with only what I need inside kernel
+(ext3fs, dac960, ..) plus some modules I might need some day.
+
+I tried compiling 2.4.14 => my mylex card is not detected !
+	(driver dac960 version 2.4.11 from 11 october 2001)
+I tried with 2.4.9-13 from redhat => same problem
+	(driver dac960 version 2.4.10 from 23 july 2001)
+I tried custom 2.4.7-10 from redhat => works like a charm
+	(driver dac960 version 2.4.10 from 1 february 2001)
+all these kernels were compiled with the same .config (make oldconfig)
+
+hardware used:
+	DAC960P-2,  D040351-0-IBM REV.E firmware 3.51-0-04
+
+detected like this by kernel 2.4.7-10:
+DAC960: ***** DAC960 RAID Driver Version 2.4.10 of 1 February 2001 *****
+DAC960: Copyright 1998-2001 by Leonard N. Zubkoff <lnz@dandelion.com>
+DAC960#0: Configuring Mylex DAC960PD PCI RAID Controller
+DAC960#0:   Firmware Version: 3.51-0-04, Channels: 2, Memory Size: 4MB
+DAC960#0:   PCI Bus: 1, Device: 10, Function: 0, I/O Address: 0x6200
+DAC960#0:   PCI Address: 0xBF800C00 mapped at 0xC482DC00, IRQ Channel: 11
+DAC960#0:   Controller Queue Depth: 64, Maximum Blocks per Command: 128
+DAC960#0:   Driver Queue Depth: 63, Scatter/Gather Limit: 17 of 17 Segments
+DAC960#0:   Stripe Size: 64KB, Segment Size: 8KB, BIOS Geometry: 128/32
+
+
+I am insterested in any clue, since I am stuck to 2.4.7 for now ...
+linux-kernel readers, please cc me on replies since I am not subscribed
+to the list.
+
+Pascal Lengard
+

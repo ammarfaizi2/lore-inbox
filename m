@@ -1,53 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263148AbUKTSsR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263149AbUKTSuO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263148AbUKTSsR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 13:48:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263149AbUKTSsQ
+	id S263149AbUKTSuO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 13:50:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263151AbUKTSuN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 13:48:16 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:35211 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S263148AbUKTSsN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 13:48:13 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.29-0
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
-In-Reply-To: <20041120191403.GA16262@elte.hu>
-References: <20041111215122.GA5885@elte.hu> <20041116125402.GA9258@elte.hu>
-	 <20041116130946.GA11053@elte.hu> <20041116134027.GA13360@elte.hu>
-	 <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu>
-	 <20041118164612.GA17040@elte.hu> <1100920963.1424.1.camel@krustophenia.net>
-	 <20041120125536.GC8091@elte.hu> <1100971141.6879.18.camel@krustophenia.net>
-	 <20041120191403.GA16262@elte.hu>
-Content-Type: text/plain
-Date: Sat, 20 Nov 2004 13:35:44 -0500
-Message-Id: <1100975745.6879.35.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+	Sat, 20 Nov 2004 13:50:13 -0500
+Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:60773 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S263149AbUKTSsb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Nov 2004 13:48:31 -0500
+Message-ID: <419F916C.5060409@microgate.com>
+Date: Sat, 20 Nov 2004 12:48:12 -0600
+From: Paul Fulghum <paulkf@microgate.com>
+User-Agent: Mozilla Thunderbird 0.9 (Windows/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Fwd: [Bug 3592] New: pppd "IPCP: timeout sending Config-Requests"
+References: <20041019131240.A20243@flint.arm.linux.org.uk> <20041120131159.C13550@flint.arm.linux.org.uk> <1100954046.11951.0.camel@localhost.localdomain> <20041120142104.D13550@flint.arm.linux.org.uk> <419F5E28.7070606@microgate.com> <20041120165758.F13550@flint.arm.linux.org.uk>
+In-Reply-To: <20041120165758.F13550@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-11-20 at 20:14 +0100, Ingo Molnar wrote:
-> i only tried the !PREEMPT version though - does that one work for you? 
+Russell King wrote:
+> Right, I've closed the bug then.  It's a shame someone else couldn't
+> have done that when the bug was known to have been fixed.
 
-Not sure, will test.  My goal was to see if I could get the stability
-and low latency of T3 (this is low enough latency for me!) with the new
-versions.
+My bad.
 
-> Also, please send me the .config that produces the failing kernel.
+I had not previously participated in this particular
+bugzilla database. In the future, if I supply a fix
+I know to be associated with a bug tracker, and
+I am allowed access to change that bug, I will do so.
 
-Sent (off-list).
+--
+Paul Fulghum
+paulkf@microgate.com
 
-Lee
+
+
 

@@ -1,59 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272681AbRILHoU>; Wed, 12 Sep 2001 03:44:20 -0400
+	id <S272682AbRILHuV>; Wed, 12 Sep 2001 03:50:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272682AbRILHoL>; Wed, 12 Sep 2001 03:44:11 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:18701 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S272681AbRILHn7>; Wed, 12 Sep 2001 03:43:59 -0400
-Date: Wed, 12 Sep 2001 09:44:10 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: ajit k jena <ajit@indica.iitb.ac.in>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problems with Quantum DLT 4000 + HP C5173-4000
-Message-ID: <20010912094406.A15765@arthur.ubicom.tudelft.nl>
-In-Reply-To: <Pine.LNX.4.33.0109121004380.7146-100000@indica.iitb.ac.in>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0109121004380.7146-100000@indica.iitb.ac.in>; from ajit@indica.iitb.ac.in on Wed, Sep 12, 2001 at 10:05:17AM +0530
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+	id <S272692AbRILHuL>; Wed, 12 Sep 2001 03:50:11 -0400
+Received: from pat.uio.no ([129.240.130.16]:20966 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S272682AbRILHuC>;
+	Wed, 12 Sep 2001 03:50:02 -0400
+MIME-Version: 1.0
+Message-ID: <15263.5043.111878.128803@charged.uio.no>
+Date: Wed, 12 Sep 2001 09:50:11 +0200
+To: "chen, xiangping" <chen_xiangping@emc.com>
+Cc: "'nfs-request@lists.sourceforge.net'" 
+	<nfs-request@lists.sourceforge.net>,
+        linux-kernel@vger.kernel.org
+Subject: RE: Questions on NFS client inode management.
+In-Reply-To: <276737EB1EC5D311AB950090273BEFDD043BC5A3@elway.lss.emc.com>
+In-Reply-To: <276737EB1EC5D311AB950090273BEFDD043BC5A3@elway.lss.emc.com>
+X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+User-Agent: SEMI/1.13.7 (Awazu) CLIME/1.13.6 (=?ISO-2022-JP?B?GyRCQ2YbKEI=?=
+ =?ISO-2022-JP?B?GyRCJU4+MRsoQg==?=) MULE XEmacs/21.1 (patch 14) (Cuyahoga
+ Valley) (i386-redhat-linux)
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 12, 2001 at 10:05:17AM +0530, ajit k jena wrote:
-> We have a Quantum DLT 4000 SCSI-2 tape device connected to a
-> RedHat Linux 7.1 box using BusLogic BT-950 card.
+>>>>> " " == xiangping chen <chen> writes:
 
-[...]
+     > Hi, Trond Thanks for the reply. What kind of reclaiming scheme
+     > is used by NFS client and the Linux local file system, say
+     > ext2/ext3? Is it used for reclaiming the inode resources, or
+     > for memory in general (like killing processes)?
 
-> When I try to do a tar onto the tape, I get the message:
-> 
-> 	Wrote only 0 of 10240 bytes
-> 	Error is not recoverable: exiting now
-
-Try to play with the "-b" option to get a correct blocking size. 10,
-20, and 40 are useful numbers to try. It worked for me with a DLT 7000
-tape drive connected to an SGI Origin200, though IRIX is not that
-verbose in its error messages.
-
-> The tape unit was attached to an HP9000 system before. The
-> HP DLTtape IV cartridges are recommended for this drive.
-> I thought there may something wrong with the particular
-> cartridge and so I even tried brand new cartridges. The
-> results are the same every time.
-
-In my experience the brand of tapes doesn't matter. We use a mix of
-Sony, Quantum, and Fuji tapes without any problem.
+I'm not really much of an expert on the memory management. I try to
+stick to doing NFS. If you are interested in the exact mechanisms of
+page reclaiming, you might want to try to study the function
+try_to_free_pages() in mm/vmscan.c. It never stops changing though ;-)
 
 
-Erik
+     > Is there any benchmark available to test how many active inodes
+     > a particular system can support?
 
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+Not to my knowledge, but as I say, I'm not really an expert...
+
+Cheers,
+   Trond

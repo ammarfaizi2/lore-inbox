@@ -1,107 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319112AbSIDJV1>; Wed, 4 Sep 2002 05:21:27 -0400
+	id <S319110AbSIDJVD>; Wed, 4 Sep 2002 05:21:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319113AbSIDJV0>; Wed, 4 Sep 2002 05:21:26 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:27664 "HELO mx.in-addr.de")
-	by vger.kernel.org with SMTP id <S319112AbSIDJVY>;
-	Wed, 4 Sep 2002 05:21:24 -0400
-Date: Wed, 4 Sep 2002 11:26:45 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: "Peter T. Breuer" <ptb@it.uc3m.es>
-Cc: root@chaos.analogic.com, Rik van Riel <riel@conectiva.com.br>,
-       linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] mount flag "direct" (fwd)
-Message-ID: <20020904092645.GE7836@marowsky-bree.de>
-References: <20020903185344.GA7836@marowsky-bree.de> <200209032107.g83L71h10758@oboe.it.uc3m.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200209032107.g83L71h10758@oboe.it.uc3m.es>
-User-Agent: Mutt/1.4i
-X-Ctuhulu: HASTUR
+	id <S319112AbSIDJVD>; Wed, 4 Sep 2002 05:21:03 -0400
+Received: from pop.sttl.uswest.net ([206.81.192.7]:28684 "HELO
+	sttlpop6.sttl.uswest.net") by vger.kernel.org with SMTP
+	id <S319110AbSIDJVC>; Wed, 4 Sep 2002 05:21:02 -0400
+Date: Wed, 04 Sep 2002 02:25:24 -0700
+Message-ID: <3D75D184.6020303@cs.rose-hulman.edu>
+From: "Leslie Donaldson" <donaldlf@cs.rose-hulman.edu>
+To: "Remco Post" <r.post@sara.nl>
+Cc: "Thunder from the hill" <thunder@lightweight.ods.org>,
+       "Oliver Pitzeier" <o.pitzeier@uptime.at>, linux-kernel@vger.kernel.org,
+       ink@jurassic.park.msu.ru
+User-Agent: Mozilla/5.0 (X11; U; Linux alpha; en-US; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+Subject: Re: [PATCH] include/linux/ptrace.h Re: Kernel 2.5.33 compile errors
+ (Re: Kernel 2.5.33 successfully compiled)
+References: <9556288E-BFD8-11D6-8DD9-000393911DE2@sara.nl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2002-09-03T23:07:01,
-   "Peter T. Breuer" <ptb@it.uc3m.es> said:
+Hello all,
+  Here is my latest.
 
-> > *ouch* Sure. Right. You just have to read it from scratch every time. How
-> > would you make readdir work?
-> Well, one has to read it from scratch. I'll set about seeing how to do.
-> CLues welcome.
+Steps
+O) Fix sound support.
+         Add the following line to 
+/usr/src/linux-2.5.X/linux-2.5.33/sound/core/device.c
 
-Yes, use a distributed filesystem. There are _many_ out there; GFS, OCFS,
-OpenGFS, Compaq has one as part of their SSI, Inter-Mezzo (sort of), Lustre,
-PvFS etc.
+         #include <asm-generic/errno-base.h>
 
-Any of them will appreciate the good work of a bright fellow.
+O) The following file needed to be copied (a quick hack)
+      Luckly the lower end alphas have the same chipsets as pc's
 
-Noone appreciates reinventing the wheel another time, especially if - for
-simplification - it starts out as a square.
+        cd include/asm-alpha
+        cp ../asm-i386/kmap_types.h  .
 
-> > Just please, tell us why.
-> You don't really want the whole rationale.
+O) Argument list changed to do_fork add another zero. The uid is in
+      a register someplace but I'm not sure which one....
 
-Yes, I do.
+      FILE: arch/alpha/kernel/process.c
+       add a last argument of zero to the 2 calls to do_fork
 
-You tell me why Distributed Filesystems are important. I fully agree.
+O) ptrace needs to include sched.h
 
-You fail to give a convincing reason why that must be made to work with
-"all" conventional filesystems, especially given the constraints this implies.
+      FILE:  include/linux/ptrace.h  Line: 27
+      add  >> #include <linux/sched.h>
 
-Conventional wisdom seems to be that this can much better be handled specially
-by special filesystems, who can do finer grained locking etc because they
-understand the on disk structures, can do distributed journal recovery etc.
+O) The CIA chipset has a type in the file... sigh...
 
-What you are starting would need at least 3-5 years to catch up with what
-people currently already can do, and they'll improve in this time too. 
+     FILE:  arch/alpha/kernel/core_cia.c
+     Line:232
+     Line:261
 
-I've seen your academic track record and it is surely impressive. I am not
-saying that your approach won't work within the constraints. Given enough
-thrust, pigs fly. I'm just saying that it would be nice to learn what reasons
-you have for this, because I believe that "within the constraints" makes your
-proposal essentially useless (see the other mails).
+     change
+        mase = 0x18;
+     to
+        mask = 0x18;
 
-In particular, they make them useless for the requirements you seem to have. A
-petabyte filesystem without journaling? A petabyte filesystem with a single
-write lock? Gimme a break.
+O) Delete the following lines from the top of :
 
-Please, do the research and tell us what features you desire to have which are
-currently missing, and why implementing them essentially from scratch is
-preferrable to extending existing solutions.
+      NOTE: This is a synthetic file so the compile must fail to fix it.
 
-You are dancing around all the hard parts. "Don't have a distributed lock
-manager, have one central lock." Yeah, right, has scaled _really_ well in the
-past. Then you figure this one out, and come up with a lock-bitmap on the
-device itself for locking subtrees of the fs. Next you are going to realize
-that a single block is not scalable either because one needs exclusive write
-lock to it, 'cause you can't just rewrite a single bit. You might then begin
-to explore that a single bit won't cut it, because for recovery you'll need to
-be able to pinpoint all locks a node had and recover them. Then you might
-begin to think about the difficulties in distributed lock management and
-recovery. ("Transaction processing" is an exceptionally good book on that I
-believe)
+      FILE: arch/alpha/vmlinux.lds.s
 
-I bet you a dinner that what you are going to come up with will look
-frighteningly like one of the solutions which already exist; so why not
-research them first in depth and start working on the one you like most,
-instead of wasting time on an academic exercise?
-
-> So, start thinking about general mechanisms to do distributed storage.
-> Not particular FS solutions.
-
-Distributed storage needs a way to access it; in the Unix paradigm,
-"everything is a file", that implies a distributed filesystem. Other
-approaches would include accessing raw blocks and doing the locking in the
-application / via a DLM (ie, what Oracle RAC does).
+# 1 "vmlinux.lds.S"
+# 1 "<built-in>"
+# 1 "<command line>"
+# 1 "vmlinux.lds.S"
+# 1 "/usr/src/linux-2.5.X/linux-2.5.33/include/linux/config.h" 1
 
 
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
+
+# 1 "/usr/src/linux-2.5.X/linux-2.5.33/include/linux/autoconf.h" 1
+# 5 "/usr/src/linux-2.5.X/linux-2.5.33/include/linux/config.h" 2
+# 2 "vmlinux.lds.S" 2
+
+
+
+Okay. I will try a rebbot tomorrow. I also want to try to compile the 
+modules. sigh.
+
+just everyone know I run a pure redhat rawhide. therefore.. here are my 
+packages..
+
+gcc-3.2-4.src.rpm
+glibc-2.2.90-26.src.rpm
+binutils-2.13.90.0.2-2.src.rpm
+
+If these numbers don't scare you.....
+
+Leslie Donaldson
 
 -- 
-Immortality is an adequate definition of high availability for me.
-	--- Gregory F. Pfister
+/----------------------------\ Current Contractor: None
+|    Leslie F. Donaldson     | Current Customer  : None
+|    Computer Contractor     | Skills: Unix/OS9/VMS/Linux/SUN-OS/C/C++/assembly
+| Have Computer will travel. | WWW  : http://www.cs.rose-hulman.edu/~donaldlf
+\----------------------------/ Email: mail://donaldlf@cs.rose-hulman.edu
+Goth Code V1.1: GoCS$$ TYg(T6,T9) B11Bk!^1 C6b-- P0(1,7) M+ a24 n--- b++:+
+                H6'11" g m---- w+ r+++ D--~!% h+ s10 k+++ R-- Ssw LusCA++
+
+
 

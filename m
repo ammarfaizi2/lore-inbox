@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130235AbQKJQ6a>; Fri, 10 Nov 2000 11:58:30 -0500
+	id <S129963AbQKJRIb>; Fri, 10 Nov 2000 12:08:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131067AbQKJQ6U>; Fri, 10 Nov 2000 11:58:20 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:36365 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S130235AbQKJQ6H>; Fri, 10 Nov 2000 11:58:07 -0500
-Date: Fri, 10 Nov 2000 10:54:32 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: "Mike A. Harris" <mharris@opensourceadvocate.org>
-Cc: "Jeff V. Merkey" <jmerkey@timpanogas.org>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: test11-pre2
-Message-ID: <20001110105432.A21351@vger.timpanogas.org>
-In-Reply-To: <3A0B5C0F.D7C23116@timpanogas.org> <Pine.LNX.4.21.0011100609310.677-100000@asdf.capslock.lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.21.0011100609310.677-100000@asdf.capslock.lan>; from mharris@opensourceadvocate.org on Fri, Nov 10, 2000 at 06:10:40AM -0500
+	id <S130491AbQKJRIW>; Fri, 10 Nov 2000 12:08:22 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:24071 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129963AbQKJRIQ>; Fri, 10 Nov 2000 12:08:16 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: [BUG] /proc/<pid>/stat access stalls badly for swapping process,
+ 2.4.0-test10
+Date: 10 Nov 2000 09:07:48 -0800
+Organization: Transmeta Corporation
+Message-ID: <8uha14$3gi$1@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.10.10011091005390.1909-100000@penguin.transmeta.com> <Pine.Linu.4.10.10011100732250.601-100000@mikeg.weiden.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 10, 2000 at 06:10:40AM -0500, Mike A. Harris wrote:
-> On Thu, 9 Nov 2000, Jeff V. Merkey wrote:
-> 
-> >>     - David Miller: sparc64 updates, make sparc32 boot again
-> >>     - Davdi Millner: spel "synchronous" correctly
-> >Spell "David Miller" correctly.  8).
-> 
-> I believe that was a taste of Linus's good sense of humor there
-> Jeff.  ;o)  I got a good kick out of it anyway.  ;o)
+In article <Pine.Linu.4.10.10011100732250.601-100000@mikeg.weiden.de>,
+Mike Galbraith  <mikeg@wen-online.de> wrote:
+>> 
+>> (This schenario, btw, is much harder to trigger on SMP than on UP. And
+>> it's completely separate from the issue of simple disk bandwidth issues
+>> which can obviously cause no end of stalls on anything that needs the
+>> disk, and which can also happen on SMP).
+>
+>Unfortunately, it didn't help in the scenario I'm running.
+>
+>time make -j30 bzImage:
+>
+>real    14m19.987s  (within stock variance)
+>user    6m24.480s
+>sys     1m12.970s
 
-So long as Linus can spell "sparc" correctly, I doubt David will
-be offended.  
+Note that the above kin of "throughput performance" should not have been
+affected, and was not what I was worried about. 
 
-Jeff
+>procs                      memory    swap          io     system         cpu
+> r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+>31  2  1     12   1432   4440  12660   0  12    27   151  202   848  89  11   0
+>34  4  1   1908   2584    536   5376 248 1904   602   763  785  4094  63  32  5
+>13 19  1  64140  67728    604  33784 106500 84612 43625 21683 19080 52168  28  22  50
 
-> 
-> 
-> ----------------------------------------------------------------------
->       Mike A. Harris  -  Linux advocate  -  Open source advocate
->           This message is copyright 2000, all rights reserved.
->   Views expressed are my own, not necessarily shared by my employer.
-> ----------------------------------------------------------------------
-> 
-> Are you an open source developer?  Need web space?  Your own project mailing
-> lists?  Bug tracking software?  CVS Repository?  Build environments?
-> Head over to http://sourceforge.net for all of that, and more, for free!
+Looks like there was a big delay in vmstat there - that could easily be
+due to simple disk throughput issues..
+
+Does it feel any different under the original load that got the original
+complaint? The patch may have just been buggy and ineffective, for all I
+know. 
+
+		Linus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

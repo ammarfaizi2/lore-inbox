@@ -1,61 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264034AbUDSLNa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 07:13:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264346AbUDSLNa
+	id S264346AbUDSLSu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 07:18:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264352AbUDSLSu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 07:13:30 -0400
-Received: from gstserv.netnea.com ([213.200.225.210]:26459 "EHLO
-	james.netnea.com") by vger.kernel.org with ESMTP id S264034AbUDSLN2
+	Mon, 19 Apr 2004 07:18:50 -0400
+Received: from mail.shareable.org ([81.29.64.88]:10404 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S264346AbUDSLSs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 07:13:28 -0400
-Date: Mon, 19 Apr 2004 08:23:35 +0200
-From: Charles Bueche <charles@bueche.ch>
-To: linux-kernel@vger.kernel.org
-Cc: vcjones@NetworkingUnlimited.com (Vincent C Jones), kevin@scrye.com
-Subject: Re: 2.6.5, ACPI, suspend and ThinkPad R40
-Message-Id: <20040419082335.6b10bdd9@bluez.bueche.ch>
-In-Reply-To: <20040406131602.CCED21421B@x23.networkingunlimited.com>
-References: <1HjUX-5pa-3@gated-at.bofh.it>
-	<1HnYA-hr-9@gated-at.bofh.it>
-	<1HKVd-1Uf-3@gated-at.bofh.it>
-	<20040406131602.CCED21421B@x23.networkingunlimited.com>
-X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: $|Nk/@TgZ5o#.yMqN*6c'4p/618&z3u~2V8.*td7vyVp9lPIy!O@{.bF+/o["H-00Fxfh3E|X"G|[K7y(aN\\BZ^'J#\"1u2&Qbe'8l<{3qBqy|R/_s_8o5fVUjg@dZ'E\tf_u^{;{g%*/6Glu!-~D\#,Gw_TD&p'mURwR2AnKX"!FSB#b&CD`0\ZEp52#W-z`Z~b2lPwv~de]a01M[&e+SwzgeIwtGaPp@@6pK=4?a0d9rVYnGs(Cf
+	Mon, 19 Apr 2004 07:18:48 -0400
+Date: Mon, 19 Apr 2004 12:18:31 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Sau Dan Lee <danlee@informatik.uni-freiburg.de>,
+       Andrew Morton <akpm@osdl.org>, Tuukka Toivonen <tuukkat@ee.oulu.fi>,
+       b-gruber@gmx.de, linux-kernel@vger.kernel.org
+Subject: Re: /dev/psaux-Interface
+Message-ID: <20040419111831.GA13759@mail.shareable.org>
+References: <Pine.GSO.4.58.0402271451420.11281@stekt37> <Pine.GSO.4.58.0404191124220.21825@stekt37> <20040419015221.07a214b8.akpm@osdl.org> <xb77jwci86o.fsf@savona.informatik.uni-freiburg.de> <1082372020.4691.9.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1082372020.4691.9.camel@laptop.fenrus.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue,  6 Apr 2004 09:16:02 -0400 (EDT)
-vcjones@NetworkingUnlimited.com (Vincent C Jones) wrote:
-> Is it my imagination or is there an acute lack of interest in
-> supporting notebook features in 2.6.X? Since the early days of 2.5.X,
-> there have been questions raised regarding suspend/resume and related
-> questions of critical importance to mobile users. All (at least those
-> associated with IBM ThinkPads) have been ignored by developers, with
-> the only responses coming from other notebook users expressing similar
-> concerns.
+Arjan van de Ven wrote:
+> well, it's the kernels job to abstract hardware. You don't also expose
+> raw scsi and ide devices to userspace, you abstract them away and
+> provide a uniform "block device" interface to userspace.
 
-I can add my "me-too" here. I own a Dell I8600 which perform excellently
-in gentoo with 2.6.x, with the only remaining issue being
-suspend+resume.
+Not quite.  Both SCSI and IDE layers offer "generic" access for
+sending commands to the device which the kernel doesn't understand.
 
-I have tried several times to understand this ACPI thing, only to find
-that the KISS principle has been forgotten when it has been designed.
-Maybe it's simply not possible to design something"acceptably simple" in
-this business, but the fact that Alan Cox has called it "terminally
-broken" tend to support my point of view.
+> The input layer tries to do the same wrt HID devices and imo it makes
+> sense. Why should userspace care if a mouse is attached to the USB port
+> or via the USB->PS/2 connector thingy to the PS/2 port. Requiring
+> different configuration for both cases, and potentially even requiring
+> different userspace applications for each type make it sound like
+> abstracting this away from userspace does have merit. 
 
-My intend is not to start a flamewar here, but with laptop HW coming
-down in price, we have to provide a better support for casual users. 
+I agree in this case: the touchpad should be handled by the input
+layer, for uniformity if nothing else.
 
-I can't contribute code here, but I can test things you throw at me for
-Dell I8600, so feel free.
+However, what happens when the thing connected to the PS/2 port isn't
+a mouse or keyboard, just a strange device talking bytes?  With 2.4
+kernels you could talk to it.
 
-Charles
+-- Jamie
 
--- 
-Charles Bueche <charles@bueche.ch>
-sand, snow, wave, wind and net -surfer
+
+

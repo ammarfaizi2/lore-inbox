@@ -1,70 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263625AbUAOWGB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 17:06:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263810AbUAOWGA
+	id S263800AbUAOWFQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 17:05:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263777AbUAOWFQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 17:06:00 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:52497 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S263625AbUAOWFr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 17:05:47 -0500
-Date: Thu, 15 Jan 2004 22:55:25 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: David Brownell <david-b@pacbell.net>
-cc: Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org, greg@kroah.com,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [2.6 patch] improce USB Gadget Kconfig
-In-Reply-To: <3FF0F6F5.10409@pacbell.net>
-Message-ID: <Pine.LNX.4.58.0401152200330.2530@serv>
-References: <20031123172356.GB16828@fs.tum.de> <3FF0F6F5.10409@pacbell.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; FORMAT=flowed
-Content-ID: <Pine.LNX.4.58.0401152200332.2530@serv>
+	Thu, 15 Jan 2004 17:05:16 -0500
+Received: from rrcs-central-24-123-144-118.biz.rr.com ([24.123.144.118]:10810
+	"EHLO zso-proxy.zeusinc.com") by vger.kernel.org with ESMTP
+	id S263625AbUAOWD0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 17:03:26 -0500
+Subject: 2.6.1-mm3 minor issues
+From: Tom Sightler <ttsig@tuxyturvy.com>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1074204199.5494.14.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 15 Jan 2004 17:03:20 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+In my continuing effort to get my Dell Latitude D800 running perfectly
+with 2.6.x I recently upgraded to 2.6.1-mm3.  I'll have to admit it's
+getting very close, but I still have the following minor issues I hope
+someone can help me with.
 
-On Mon, 29 Dec 2003, David Brownell wrote:
+1.  When using an external USB mouse (a basic Microsoft Optical Wheel
+Mouse) everything works fine unless I move the mouse very fast, then the
+pointer seems to stall and stutter randomly in the same location. 
+Moving the mouse very quickly back and forth across my mouse pad will
+make the mouse jump all over the screen randomly.  It doesn't have this
+behaviour under 2.4.  My ALPS touchpad (using the Synaptics driver with
+the ALPS patch) works flawlessly.
 
-> How about using this approach instead?   It simplifies the kconfig
-> for the gadget drivers by providing a boolean "which hardware"
-> symbol, so gadget drivers don't need to make their own.  The symbol
-> that's synthetic is the one needed only by the Makefile.
+2.  I cannot put my system to standby and them properly resume it. 
+Under 2.4.x with the recent ACPI patches I can put the system into S1
+state and it will resume.  With 2.6.x the system does seem to enter S1
+state but it hangs on resume with no informational messages.  Suspend
+state (S3 and S4) don't work on either 2.4 or 2.6 but I think that's
+"normal" so this isn't a significant concern, but the S1 state was nice
+when I just needed to walk from one building to another.
 
-There are some strange things in there.
-choice values can also be tristate symbols, so you wouldn't need the
-separate defines, unless you really always want to compile only a single
-controller (even as module).
-The "default m if USB_GADGET = m" looks weird, if I understand them
-correctly this should just be "depends on USB_GADGET", e.g.
+Any help or suggestions would be appreciated.
 
-config USB_NET2280
-	tristate
-	depends on USB_GADGET
-	default USB_GADGET_NET2280
+Later,
+Tom
 
-this would also fix the menu structure and the drivers menu would appear
-below the gadget option.
-I'm also not sure about USB_PXA2XX_SMALL, as it also can be written as:
 
-config USB_PXA2XX_SMALL
-	depends on USB_PXA2XX = y
-	default USB_ZERO = y || USB_ETH = y || USB_G_SERIAL
 
-is this really intended?
 
-The dependency "USB_DUMMY_HCD || USB_NET2280 || USB_PXA2XX || USB_SA1100
-|| USB_GOKU" can be basically reduced to "USB_GADGET".
-
-> Roman, this seems to trigger some kind of xconfig/menuconfig bug,
-> since I can go down the list of hardware options (net2280, goku,
-> dummy -- three, not the single one Adrian was working with) and
-> each deselects the previous selection ... but then it's impossible
-> to turn off the dummy, and select real hardware.
-
-I can't reproduce this, it works fine here.
-
-bye, Roman

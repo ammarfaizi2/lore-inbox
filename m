@@ -1,47 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315753AbSENO7r>; Tue, 14 May 2002 10:59:47 -0400
+	id <S315750AbSENPFr>; Tue, 14 May 2002 11:05:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315750AbSENO7q>; Tue, 14 May 2002 10:59:46 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:22657 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S315753AbSENO7o>; Tue, 14 May 2002 10:59:44 -0400
-Date: Tue, 14 May 2002 08:59:41 -0600
-Message-Id: <200205141459.g4EExfU07828@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove compat code for old devfs naming scheme
-In-Reply-To: <20020514155508.A31292@infradead.org>
+	id <S315755AbSENPFq>; Tue, 14 May 2002 11:05:46 -0400
+Received: from [168.159.40.71] ([168.159.40.71]:36101 "EHLO
+	srexchimc2.lss.emc.com") by vger.kernel.org with ESMTP
+	id <S315750AbSENPFq>; Tue, 14 May 2002 11:05:46 -0400
+Message-ID: <FA2F59D0E55B4B4892EA076FF8704F553D1A51@srgraham.eng.emc.com>
+From: "chen, xiangping" <chen_xiangping@emc.com>
+To: "'Jes Sorensen'" <jes@wildopensource.com>
+Cc: "'Steve Whitehouse'" <Steve@ChyGwyn.com>, linux-kernel@vger.kernel.org
+Subject: RE: Kernel deadlock using nbd over acenic driver.
+Date: Tue, 14 May 2002 11:05:40 -0400
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig writes:
-> On Tue, May 14, 2002 at 08:35:03AM -0600, Richard Gooch wrote:
-> > > As this was never present in official kernels there is really no need
-> > > in keeping it - it just bloats the kernel.
-> > > 
-> > > Could you please forward this patch to Linus and maybe Marcelo with
-> > > your next devfs update?
-> > 
-> > What on earth are you talking about? This code has been in the kernel
-> > since 2.3.46. It's just lived in a different place: fs/devfs/util.c.
-> 
-> Of course this code was present, otherwise it would be rather hard
-> to remove it..
-> 
-> But the old devfs naming scheme was obsolete before devfs was merged
-> in 2.3.46 so there is no valid reason to support it for root=.
+But the acenic driver author suggested that sndbuf should be at least
+262144, and the sndbuf can not exceed r/wmem_default. Is that correct?
 
-The reason to support it is because lots of people are depending on
-it. A lot of systems would break for no real gain. This code is in the
-init section, so the memory will be freed before init(8) starts.
+So for gigabit Ethernet driver, what is the optimal mem configuration
+for performance and reliability?
 
-The code should stay. In 2.5, I can move it into the mini devfsd that
-will go into the initial rootfs.
+Thanks,
 
-				Regards,
+Xiangping
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+-----Original Message-----
+From: Jes Sorensen [mailto:jes@wildopensource.com]
+Sent: Tuesday, May 14, 2002 10:59 AM
+To: chen, xiangping
+Cc: 'Steve Whitehouse'; linux-kernel@vger.kernel.org
+Subject: Re: Kernel deadlock using nbd over acenic driver.
+
+
+>>>>> "xiangping" == chen, xiangping <chen_xiangping@emc.com> writes:
+
+xiangping> Hi, When the system stucks, I could not get any response
+xiangping> from the console or terminal.  But basically the only
+xiangping> network connections on both machine are the nbd connection
+xiangping> and a couple of telnet sessions. That is what shows on
+xiangping> "netstat -t".
+
+xiangping> /proc/sys/net/ipv4/tcp_[rw]mem are "4096 262144 4096000",
+xiangping> /proc/sys/net/core/*mem_default are 4096000,
+xiangping> /proc/sys/net/core/*mem_max are 8192000, I did not change
+xiangping> /proc/sys/net/ipv4/tcp_mem.
+
+Don't do this, setting the [rw]mem_default values to that is just
+insane. Do it in the applications that needs it and nowhere else.
+
+xiangping> The system was low in memory, I started up 20 to 40 thread
+xiangping> to do block write simultaneously.
+
+If you have a lot of outstanding connections and active threads, it's
+not unlikely you run out of memory if each socket eats 4MB.
+
+Jes

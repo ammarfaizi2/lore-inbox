@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264946AbUE2Oku@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264949AbUE2OlN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264946AbUE2Oku (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 May 2004 10:40:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264949AbUE2Oku
+	id S264949AbUE2OlN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 May 2004 10:41:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264962AbUE2OlN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 May 2004 10:40:50 -0400
-Received: from mail.kroah.org ([65.200.24.183]:37258 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264946AbUE2Okg (ORCPT
+	Sat, 29 May 2004 10:41:13 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:43908 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S264949AbUE2Ok4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 May 2004 10:40:36 -0400
-Date: Sat, 29 May 2004 07:39:41 -0700
-From: Greg KH <greg@kroah.com>
-To: Jens Axboe <axboe@suse.de>, Alan Stern <stern@rowland.harvard.edu>
+	Sat, 29 May 2004 10:40:56 -0400
+Date: Sat, 29 May 2004 16:41:07 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Andries Brouwer <aebr@win.tue.nl>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6-BK usb (printing) broken
-Message-ID: <20040529143941.GA12257@kroah.com>
-References: <20040529140757.GA16264@suse.de>
+Subject: Re: keyboard problem with 2.6.6
+Message-ID: <20040529144107.GA15172@ucw.cz>
+References: <20040525201616.GE6512@gucio> <20040528194136.GA5175@pclin040.win.tue.nl> <20040528214620.GA2352@gucio> <20040529132320.GC5175@pclin040.win.tue.nl> <20040529134614.GA6420@ucw.cz> <20040529143043.GE5175@pclin040.win.tue.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040529140757.GA16264@suse.de>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040529143043.GE5175@pclin040.win.tue.nl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 29, 2004 at 04:08:00PM +0200, Jens Axboe wrote:
-> 
-> Something between 2.6.7-rc1 and current 2.6-BK broke usb printing here
-> again. I have two printers attached:
-> 
-> usb 1-1: new full speed USB device using address 6
-> usb 1-1: control timeout on ep0out
-> usb 1-1: control timeout on ep0out
-> usb 1-1: device not accepting address 6, error -110
-> usb 1-1: new full speed USB device using address 7
-> usb 1-1: control timeout on ep0out
-> usb 1-1: control timeout on ep0out
-> usb 1-1: device not accepting address 7, error -110
-> 
-> It's a VIA EPIA-800 board, lspci shows the following for usb:
-> 
-> 00:11.2 USB Controller: VIA Technologies, Inc. USB (rev 24)
-> 00:11.3 USB Controller: VIA Technologies, Inc. USB (rev 24)
+On Sat, May 29, 2004 at 04:30:43PM +0200, Andries Brouwer wrote:
 
-Alan, looks like your "fix the VIA controller driver" patch broke
-something here, care to look into it?
+> On Sat, May 29, 2004 at 03:46:14PM +0200, Vojtech Pavlik wrote:
+> 
+> > > Thus, showkeys -s gave a garbage answer.
+> > > 
+> > > Thanks for the report. It shows that resurrecting raw mode is even
+> > > more desirable than I thought at first.
+> > 
+> > What for?
+> 
+> As you know, the keyboard/mouse situation in 2.6 is unfortunate.
+> 
+> I get a steady stream with letters from people complaining about
+> the keyboard utilities under 2.6. How can I answer and tell them
+> what the problem is? I need facts - raw data, so that I can
+> trace the path of this raw data through the kernel.
+> 
+> That is my reason I want a raw mode. Often I have to ask them
+> to boot 2.4 first to get reality, so that one afterwards is
+> in a better position to understand the fake reality of 2.6.
+> 
+> But apart from such debugging use, there is also the more
+> direct use: in order to assign a keycode to an unusual key
+> one first asks for the scancode using scancode -s, and then
+> assigns the keycode using setkeycodes. If scancode -s lies,
+> this fails.
 
-thanks,
+That's a good reason. I'll implement true rawmode support.
 
-greg k-h
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

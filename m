@@ -1,79 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267714AbTASXPo>; Sun, 19 Jan 2003 18:15:44 -0500
+	id <S267715AbTASXRh>; Sun, 19 Jan 2003 18:17:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267715AbTASXPo>; Sun, 19 Jan 2003 18:15:44 -0500
-Received: from pat.uio.no ([129.240.130.16]:18173 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S267714AbTASXPn>;
-	Sun, 19 Jan 2003 18:15:43 -0500
-MIME-Version: 1.0
+	id <S267720AbTASXRh>; Sun, 19 Jan 2003 18:17:37 -0500
+Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:29167 "EHLO
+	schatzie.adilger.int") by vger.kernel.org with ESMTP
+	id <S267715AbTASXRf>; Sun, 19 Jan 2003 18:17:35 -0500
+Date: Sun, 19 Jan 2003 16:26:14 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: Is the BitKeeper network protocol documented?
+Message-ID: <20030119162614.I1594@schatzie.adilger.int>
+Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
+	Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+References: <20030118043309.GA18658@bjl1.asuk.net> <20030118052919.GA22751@work.bitmover.com> <3E296342.B3042E09@linux-m68k.org> <20030119113902.D1594@schatzie.adilger.int> <3E2B1DA7.CAA76FFF@linux-m68k.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15915.13242.291976.585239@charged.uio.no>
-Date: Mon, 20 Jan 2003 00:24:42 +0100
-To: Martin Josefsson <gandalf@wlug.westbo.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: problems with nfs-server in 2.5 bk as of 030115
-In-Reply-To: <1043016608.727.0.camel@tux.rsn.bth.se>
-References: <1043012373.7986.94.camel@tux.rsn.bth.se>
-	<15915.8496.899499.957528@charged.uio.no>
-	<1043016608.727.0.camel@tux.rsn.bth.se>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3E2B1DA7.CAA76FFF@linux-m68k.org>; from zippel@linux-m68k.org on Sun, Jan 19, 2003 at 10:50:32PM +0100
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Martin Josefsson <gandalf@wlug.westbo.se> writes:
+On Jan 19, 2003  22:50 +0100, Roman Zippel wrote:
+> Andreas Dilger wrote:
+> > > IOW "You should be thankful for what I offer, if you don't like it, piss
+> > > off!"  Might not be what you've intended, but that's what I arrived here
+> > > and I'm sure I'm not the only one.
+> > 
+> > That's what he intended, and rightfully so.
+> 
+> I just wanted to make sure I understood correctly, I have an appropriate
+> answer, but I can't word it as nicely as Larry.
+> 
+> >  You now have things you didn't
+> > have before (i.e. hourly snapshots of Linus' tree) and you still aren't
+> > happy.  I guess some people will never be happy with anything, so there is
+> > no point in trying to appease them.
+> 
+> If you don't see the problem, maybe you should read
+> /usr/src/linux/COPYING again for a change.
 
-     > On Sun, 2003-01-19 at 23:05, Trond Myklebust wrote:
-    >> Could you apply the following patch, so that I can see what the
-    >> actual returned error is?
+There is nothing in the GPL which requires anyone to make their changes
+available to you the minute they make them.  The fact that you have access
+to the changes within an hour of when they are made far exceeds the
+requirements in the GPL, which only require that the source code be made
+available if you distribute the OBJECT CODE OR EXECUTABLE.
 
-     > RPC: Couldn't create pipefs entry /portmap/clnteb11b574, error
-     > -17 RPC: Couldn't create pipefs entry /portmap/clnteb11b574,
-     > error -17 RPC: Couldn't create pipefs entry
-     > /portmap/clnteb11b574, error -17
+If Linus uses BK to make pre-releases available to some people, that
+does not appear to even invoke the "executable distribution" clause,
+any more than him emailing patches to other developers privately.  If
+Linus started making kernel patches available via a Lotus Notes database
+(heaven forbid, I think even the IBM folks agree on that one ;-) doesn't
+mean that IBM suddenly has to make all the details of Lotus Notes
+available, or that Linus is forbidden to use tools as he wants.  There
+are still lots of other ways to get the kernel source.
 
-OK. That's what I thought it might be...
+In fact (think about this for a while 8-o), EVERY SINGLE CHANGE that has
+gone into the "official Linus kernel" had Linus doing the merge
+(i.e. acting as editor of the combined work which is the kernel), which
+may imply that Linus even owns a complete copyright over the entire
+kernel source tree (i.e. compiled work).  Since he has never (or not
+in the last decade, AFAIK) distributed a binary or object version of
+the kernel, it may be that he isn't under any obligation to do anything
+related to distribution under the GPL.  If you think that being the editor
+of a combined work is not enough to give him copyright over the combined
+work, then you need to learn your copyright law a bit more.  If it wasn't
+for Linus acting as a "gatekeeper", the kernel would be full of the crap
+that makes up 99% of the sourceforge projects out there.
 
-Looks like rmdir() is failing, so that when 'clnt' gets reused, then
-a directory with the old pathname still exists so mkdir() fails...
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 
-Could you try applying the following extra patch, just in order to
-confirm that this is indeed the case (and to trace what the eventual
-rmdir() error might be)?
-
-Cheers,
-  Trond
-
---- linux-2.5.59-00-fix/net/sunrpc/clnt.c.orig	2003-01-12 22:40:13.000000000 +0100
-+++ linux-2.5.59-00-fix/net/sunrpc/clnt.c	2003-01-20 00:19:15.000000000 +0100
-@@ -135,7 +135,12 @@
- 	printk(KERN_INFO "RPC: out of memory in rpc_create_client\n");
- 	goto out;
- out_no_auth:
--	rpc_rmdir(clnt->cl_pathname);
-+	{
-+		int error = rpc_rmdir(clnt->cl_pathname);
-+		if (error)
-+			printk(KERN_INFO "%s: rpc_rmdir(%s) failed with error %d\n",
-+					__FUNCTION__, clnt->cl_pathname, error)
-+	}
- out_no_path:
- 	kfree(clnt);
- 	clnt = NULL;
-@@ -188,7 +193,12 @@
- 		rpcauth_destroy(clnt->cl_auth);
- 		clnt->cl_auth = NULL;
- 	}
--	rpc_rmdir(clnt->cl_pathname);
-+	{
-+		int error = rpc_rmdir(clnt->cl_pathname);
-+		if (error)
-+			printk(KERN_INFO "%s: rpc_rmdir(%s) failed with error %d\n",
-+					__FUNCTION__, clnt->cl_pathname, error)
-+	}
- 	if (clnt->cl_xprt) {
- 		xprt_destroy(clnt->cl_xprt);
- 		clnt->cl_xprt = NULL;

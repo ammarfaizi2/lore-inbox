@@ -1,72 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281034AbRKCUgh>; Sat, 3 Nov 2001 15:36:37 -0500
+	id <S281037AbRKCUrX>; Sat, 3 Nov 2001 15:47:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281035AbRKCUgZ>; Sat, 3 Nov 2001 15:36:25 -0500
-Received: from libra.cus.cam.ac.uk ([131.111.8.19]:54998 "EHLO
-	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S281034AbRKCUgO>; Sat, 3 Nov 2001 15:36:14 -0500
-Subject: [PATCH] NTFS sparc compile fix
-To: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk
-Date: Sat, 3 Nov 2001 20:36:11 +0000 (GMT)
+	id <S281042AbRKCUrM>; Sat, 3 Nov 2001 15:47:12 -0500
+Received: from are.twiddle.net ([64.81.246.98]:7866 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S281039AbRKCUq7>;
+	Sat, 3 Nov 2001 15:46:59 -0500
+Date: Sat, 3 Nov 2001 12:46:57 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Linus Torvalds <torvalds@transmeta.com>
 Cc: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <E1607WV-0001xb-00@libra.cus.cam.ac.uk>
-From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
+Subject: Re: pre6 BUG oops
+Message-ID: <20011103124657.C5984@twiddle.net>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3BE03401.406B8585@mandrakesoft.com> <20011031.094112.125896630.davem@redhat.com> <9rpfbj$vrn$1@penguin.transmeta.com> <3BE04338.8F0AF9D4@mandrakesoft.com> <9rpks1$bk$1@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <9rpks1$bk$1@penguin.transmeta.com>; from torvalds@transmeta.com on Wed, Oct 31, 2001 at 07:53:37PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, Alan,
+On Wed, Oct 31, 2001 at 07:53:37PM +0000, Linus Torvalds wrote:
+> I wonder if the "VALID_PAGE(page)" macro is reliable on alpha? You seem
+> to be able to trigger this too easily for it to not being something
+> specific to the setup..
 
-Please apply below patchlet for your next releases (applies cleanly to
-any recent kernel). It fixes compilation of NTFS driver on Sparc.
+Should be.  I've never seen an alpha with discontiguous memory.
+(Well, I've not looked at a numa box, but that's not at issue here.)
 
-Thanks to Jan-Benedict Glaw for reporting and testing.
+FWIW, we dump the HWRPB memory table early in the boot process, e.g.
 
-Best regards,
+memcluster 0, usage 1, start        0, end      192
+memcluster 1, usage 0, start      192, end    16267
+memcluster 2, usage 1, start    16267, end    16384
 
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+where "usage 1" is reserved by the console.
 
---- ntfs-sparc.diff ---
 
-diff -u -urN linux-2.4.14-pre7-vanilla/fs/ntfs/dir.c linux-2.4.14-pre7-ntfs/fs/ntfs/dir.c
---- linux-2.4.14-pre7-vanilla/fs/ntfs/dir.c	Wed Sep 12 01:02:46 2001
-+++ linux-2.4.14-pre7-ntfs/fs/ntfs/dir.c	Sat Nov  3 17:56:40 2001
-@@ -19,6 +19,7 @@
- #include "support.h"
- #include "util.h"
- #include <linux/smp_lock.h>
-+#include <linux/bitops.h>
- 
- static char I30[] = "$I30";
- 
-diff -u -urN linux-2.4.14-pre7-vanilla/include/linux/ntfs_fs.h linux-2.4.14-pre7-ntfs/include/linux/ntfs_fs.h
---- linux-2.4.14-pre7-vanilla/include/linux/ntfs_fs.h	Sat Sep  8 20:24:40 2001
-+++ linux-2.4.14-pre7-ntfs/include/linux/ntfs_fs.h	Sat Nov  3 16:43:03 2001
-@@ -10,12 +10,12 @@
-  * Attribute flags (16-bit).
-  */
- typedef enum {
--	ATTR_IS_COMPRESSED      = cpu_to_le16(0x0001),
--	ATTR_COMPRESSION_MASK   = cpu_to_le16(0x00ff),  /* Compression method
--							 * mask. Also, first
--							 * illegal value. */
--	ATTR_IS_ENCRYPTED       = cpu_to_le16(0x4000),
--	ATTR_IS_SPARSE          = cpu_to_le16(0x8000),
-+	ATTR_IS_COMPRESSED      = __constant_cpu_to_le16(0x0001),
-+	ATTR_COMPRESSION_MASK   = __constant_cpu_to_le16(0x00ff),
-+					/* Compression method mask. Also,
-+					 * first illegal value. */
-+	ATTR_IS_ENCRYPTED       = __constant_cpu_to_le16(0x4000),
-+	ATTR_IS_SPARSE          = __constant_cpu_to_le16(0x8000),
- } __attribute__ ((__packed__)) ATTR_FLAGS;
- 
- /*
-
+r~

@@ -1,75 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261290AbVBFTNS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261289AbVBFTTH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261290AbVBFTNS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 14:13:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbVBFTNH
+	id S261289AbVBFTTH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 14:19:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbVBFTTG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 14:13:07 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:9048 "EHLO
-	pd4mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S261283AbVBFTFS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 14:05:18 -0500
-Date: Sun, 06 Feb 2005 12:05:17 -0700
-From: Jeremy Nickurak <atrus@rifetech.com>
-Subject: Logitech MX-Series "Cruise Control" buttons
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <20050206190517.GA8046@agaeris.rifetech.com>
-MIME-version: 1.0
-Content-type: multipart/signed; boundary=ew6BAiZeqk4r7MaW;
- protocol="application/pgp-signature"; micalg=pgp-sha1
-Content-disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Sun, 6 Feb 2005 14:19:06 -0500
+Received: from wproxy.gmail.com ([64.233.184.206]:495 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261289AbVBFTI5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 14:08:57 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=ZsnTrSRSzjXocDkqlXBA28oZjNGlTgCKweb9OzoALTFlzS3b44z4DFgVEhcXUc4KytZCWrMl6zti5brLV+RdYtT7pVaUe9C9IbBHeusCZ3PYHRUtyJfA9xfYa45L0j1kann+Mjc7YrM7bpXMAeShHOLN9mQ1u9v5WBjbYssH2oc=
+Message-ID: <58cb370e05020611081a604a45@mail.gmail.com>
+Date: Sun, 6 Feb 2005 20:08:53 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Tejun Heo <tj@home-tj.org>
+Subject: Re: [PATCH 2.6.11-rc2 04/09] ide: convert REQ_DRIVE_TASK to REQ_DRIVE_TASKFILE
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20050205102843.93952132701@htj.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <42049F20.7020706@home-tj.org>
+	 <20050205102843.93952132701@htj.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I forgot about this one...
 
---ew6BAiZeqk4r7MaW
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> @@ -55,22 +55,19 @@
+>  #include <asm/io.h>
+>  #include <asm/bitops.h>
+> 
+> -static void ide_fill_flush_cmd(ide_drive_t *drive, struct request *rq)
+> +void ide_init_flush_task(ide_drive_t *drive, ide_task_t *args)
+>  {
+> -       char *buf = rq->cmd;
+> -
+> -       /*
+> -        * reuse cdb space for ata command
+> -        */
+> -       memset(buf, 0, sizeof(rq->cmd));
+> -
+> -       rq->flags = REQ_DRIVE_TASK | REQ_STARTED;
+> -       rq->buffer = buf;
+> -       rq->buffer[0] = WIN_FLUSH_CACHE;
+> +       memset(args, 0, sizeof(*args));
+> 
+>         if (ide_id_has_flush_cache_ext(drive->id) &&
+>             (drive->capacity64 >= (1UL << 28)))
+> -               rq->buffer[0] = WIN_FLUSH_CACHE_EXT;
+> +               args->tfRegister[IDE_COMMAND_OFFSET] = WIN_FLUSH_CACHE_EXT;
+> +       else
+> +               args->tfRegister[IDE_COMMAND_OFFSET] = WIN_FLUSH_CACHE;
+> +
+> +       args->command_type = IDE_DRIVE_TASK_NO_DATA;
+> +       args->data_phase = TASKFILE_NO_DATA;
+> +       args->handler = task_no_data_intr;
+>  }
 
-I recently posted an update to http://bugme.osdl.org/show_bug.cgi?id=3D1786=
- that shows the bug escalating on newer hardware, such that there is no use=
-r-accessable workaround.
-
-It seem that where an MX-series mouse's cruise-control buttons are concerne=
-d, the mouse (by default) produces two events for each button press: The bu=
-tton itself, as well as a scroll event simulating a keyboard-style press-de=
-lay-repeat cycle on the scroll wheel axis/buttons.
-
-Utilities such as logitech_applet (unmaintained afaict) seem to be able to =
-change some settings. For example, on my MX1000 mouse it's able to disable =
-the cruise-control scroll button simulation, which would allow me to use th=
-e buttons as ordinary mouse buttons. What I'd love to do is to be able to d=
-isable the button's native function and use *only* the cruise-control funct=
-ion, as the mouse was intended.
-
-If such a hardware reconfiguration is not possible, perhaps it would be eas=
-ier to leave the mouse in the default configuration, but filter one event o=
-r the other before it reaches userspace? Or is it more natural to filter ou=
-t the mouse's scroll-simulation, and do a mapping & key-repeat simulation i=
-n userspace somewhere?
-
-Please CC me in replies.
-
---=20
-Jeremy Nickurak -=3D Email: atrus@lkml.spam.rifetech.com =3D-
-Remember, when you buy major label CD's, you're paying
-companies to sue families and independant music. Learn
-more now at downhillbattle.org.
-
---ew6BAiZeqk4r7MaW
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQFCBmpttjFmtbiy5uYRAi7XAJ9RzdhawP3MHx2dHy2d/P+VJT/4kgCeNhea
-NIwCtcWxHy5vuUcBAwchh2s=
-=6Baz
------END PGP SIGNATURE-----
-
---ew6BAiZeqk4r7MaW--
+Isn't EXPORT_SYMBOL_{GPL} needed for ide_init_flush_task()?

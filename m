@@ -1,59 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262020AbUCVPA1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 10:00:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262027AbUCVPA1
+	id S262027AbUCVPJT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 10:09:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262031AbUCVPJT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 10:00:27 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:60898 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S262020AbUCVPA0 (ORCPT
+	Mon, 22 Mar 2004 10:09:19 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:33460 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262027AbUCVPJS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 10:00:26 -0500
-Message-Id: <200403221500.i2MF0EI7003024@eeyore.valparaiso.cl>
-To: rudi@lambda-computing.de
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: File change notification (enhanced dnotify) 
-In-Reply-To: Your message of "Mon, 22 Mar 2004 12:18:15 +0100."
-             <405ECB77.9080803@gamemakers.de> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
-Date: Mon, 22 Mar 2004 11:00:14 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Mon, 22 Mar 2004 10:09:18 -0500
+Date: Mon, 22 Mar 2004 10:09:06 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Hugh Dickins <hugh@veritas.com>, Christoph Hellwig <hch@infradead.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.5-rc2-aa1
+In-Reply-To: <20040322145019.GZ3649@dualathlon.random>
+Message-ID: <Pine.LNX.4.44.0403221007300.20045-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-=?ISO-8859-1?Q?R=FCdiger_Klaehn?= <rudi@gamemakers.de> said:
-> Horst von Brand wrote:
-> > =?ISO-8859-1?Q?R=FCdiger_Klaehn?= <rudi@gamemakers.de> said:
-> >>I am working on a mechanism to let programs watch for file system 
-> >>changes in large directory trees or on the whole system. Since my last 
-> >>post in january I have been trying various approaches.
+On Mon, 22 Mar 2004, Andrea Arcangeli wrote:
 
-> > How do you propose to handle the fact that there are changes to _files_,
-> > which happen to be pointed to by entries in directories? There is no
-> > "change in the directory tree" in Unix...
+> >  * This is kept modular because we may want to experiment
+> >  * with object-based reverse mapping schemes.
+> 
+> obviously I read that comment, but I definitely hope he meant people
+> adding objrmap.c w/o necessairly deleting rmap.c too like me and you did
 
-> Of course it is files that change. But as you say each file is pointed 
-> to by one or more dentry, so I use the dentry hierarchy to propagate the 
-> information about the change. Just like the old dnotify.
+On the contrary.  I started out by looking at object based
+rmap, but Ben and Dave told me about the worst case scenarios.
+Only after that I started working on a pte based rmap scheme.
 
-dentries just keep the path travelled by hard links to get to the file in
-memory for fast future access. So if you have, say:
+Now that the big problems with object based rmap are solved,
+I'd really like to see the pte chain code go away...
 
-   dir1  dir2
-    |     |
-    .     .
-    .     .
-    .     .
-     \   /
-    somefile
-
-and you referenced somefile by the path through dir1, if you monitor dir2
-you won't notice the change. There is no on-disk data to trace back through
-all the directories that reference the file, and reading all of the
-filesystem's metadata to find this out is ludicrous (ever seen fsck(8)
-taking an hour or so to make much the same?).
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
+

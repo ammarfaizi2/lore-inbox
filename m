@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263366AbVCKPNd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263367AbVCKPRa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263366AbVCKPNd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 10:13:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263364AbVCKPNc
+	id S263367AbVCKPRa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 10:17:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263350AbVCKPRa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 10:13:32 -0500
-Received: from ns1.g-housing.de ([62.75.136.201]:51342 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S263350AbVCKPLU (ORCPT
+	Fri, 11 Mar 2005 10:17:30 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:54726 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263367AbVCKPRE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 10:11:20 -0500
-Message-ID: <4231B4E9.3080005@g-house.de>
-Date: Fri, 11 Mar 2005 16:10:33 +0100
-From: Christian Kujau <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050212)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-CC: Coywolf Qi Hunt <coywolf@gmail.com>
-Subject: Re: oom with 2.6.11
-References: <422DC2F1.7020802@g-house.de> <2cd57c9005031102595dfe78e6@mail.gmail.com>
-In-Reply-To: <2cd57c9005031102595dfe78e6@mail.gmail.com>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+	Fri, 11 Mar 2005 10:17:04 -0500
+Date: Fri, 11 Mar 2005 16:16:44 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Simone Piunno <simone.piunno@wseurope.com>
+Cc: Baruch Even <baruch@ev-en.org>, Fabio Coatti <fabio.coatti@wseurope.com>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       linux-kernel@vger.kernel.org
+Subject: Re: bonnie++ uninterruptible under heavy I/O load
+Message-ID: <20050311151644.GJ28188@suse.de>
+References: <200503111208.20283.simone.piunno@wseurope.com> <200503111420.52890.fabio.coatti@wseurope.com> <42319D2D.7060402@ev-en.org> <200503111514.34949.simone.piunno@wseurope.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200503111514.34949.simone.piunno@wseurope.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, Mar 11 2005, Simone Piunno wrote:
+> Alle 14:29, venerdì 11 marzo 2005, Baruch Even ha scritto:
+> 
+> > echo t > /proc/sysrq-trigger
+> 
+> Before killing bonnie:
 
-Coywolf Qi Hunt wrote:
-> In file mm/oom_kill.c, uncomment line 24: /* #define DEBUG */. 
-> And next time when oom happens again, we'll see the badness.
+I'm guessing your problem is that bonnie dirtied tons of data before you
+killed it, so it has to flush it out. If you run out of request entries,
+you will get to sleep uninterruptibly on those while the data is
+flushing. I don't see anything unexpected here, it is normal behaviour.
 
-oh, good hint. will do this before the next reboot (in a few hours i guess)
+> bonnie++      D ffff81010383f820     0  2042   2016
+> (NOTLB)
+> ffff8100f51d7248 0000000000000082 000000010000007d 000000000003bd42 
+> ffff8101ffeee1f0 ffff8101ff538a60 ffff8101ff538cd8 0000000000000292 
+> 0000000000000292 0000000000000282 
+> Call Trace:<ffffffff804a0b11>{io_schedule+49} 
+> <ffffffff80365a8e>{get_request_wait+174} 
+> <ffffffff801459d0>{autoremove_wake_function+0} 
+> <ffffffff801459d0>{autoremove_wake_function+0} 
+> <ffffffff8036697c>{__make_request+812} 
 
-
-thanks,
-Christian.
-
-- --
-BOFH excuse #134:
-
-because of network lag due to too many people playing deathmatch
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFCMbTj+A7rjkF8z0wRAmdAAJ4sCIaUqZaKn7gGtkpN7Wb47acFiACgrOSe
-DpT3tE1/4zfPIDueDwBMhDU=
-=o6Lr
------END PGP SIGNATURE-----
+This is what is happening here, after you kill it.
 
 -- 
-BOFH excuse #37:
+Jens Axboe
 
-heavy gravity fluctuation, move computer to floor rapidly

@@ -1,49 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261626AbULIV3n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261631AbULIVa0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261626AbULIV3n (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 16:29:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261631AbULIV3n
+	id S261631AbULIVa0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 16:30:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261632AbULIVa0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 16:29:43 -0500
-Received: from waste.org ([209.173.204.2]:55987 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261626AbULIV3l (ORCPT
+	Thu, 9 Dec 2004 16:30:26 -0500
+Received: from mail.igrin.co.nz ([202.49.244.12]:32149 "EHLO mail.igrin.co.nz")
+	by vger.kernel.org with ESMTP id S261631AbULIVaM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 16:29:41 -0500
-Date: Thu, 9 Dec 2004 13:29:36 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: "Theodore Ts'o" <tytso@mit.edu>, Bernard Normier <bernard@zeroc.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Concurrent access to /dev/urandom
-Message-ID: <20041209212936.GO8876@waste.org>
-References: <Pine.LNX.4.53.0411272154560.6045@yvahk01.tjqt.qr> <009501c4d4c6$40b4f270$6400a8c0@centrino> <Pine.LNX.4.53.0411272220530.26852@yvahk01.tjqt.qr> <02c001c4d58c$f6476bb0$6400a8c0@centrino> <06a501c4dcb6$3cb80cf0$6401a8c0@centrino> <20041208012802.GA6293@thunk.org> <079001c4dcc9$1bec3a60$6401a8c0@centrino> <20041208192126.GA5769@thunk.org> <20041208215614.GA12189@waste.org> <20041209015705.GB6978@thunk.org>
+	Thu, 9 Dec 2004 16:30:12 -0500
+Message-Id: <6.1.2.0.1.20041210102725.05bdc350@pop3.igrin.co.nz>
+X-Mailer: QUALCOMM Windows Eudora Version 6.1.2.0
+Date: Fri, 10 Dec 2004 10:29:41 +1300
+To: Len Brown <len.brown@intel.com>, Willy Tarreau <willy@w.ods.org>
+From: Simon Byrnand <simon@igrin.co.nz>
+Subject: Re: 2.4.27 -> 2.4.28 breaks i810-tco watchdog timer
+Cc: linux-kernel@vger.kernel.org, Shaohua Li <shaohua.li@intel.com>
+In-Reply-To: <1102487662.2196.18.camel@d845pe>
+References: <20041208054834.GD17946@alpha.home.local>
+ <1102487662.2196.18.camel@d845pe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041209015705.GB6978@thunk.org>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 08, 2004 at 08:57:05PM -0500, Theodore Ts'o wrote:
-> On Wed, Dec 08, 2004 at 01:56:14PM -0800, Matt Mackall wrote:
-> > 
-> > Ted, I think this is a bit more straightforward than your patch, and
-> > safer as it protects get_random_bytes() and internal extract_entropy()
-> > users. And I'd be leery of your get_cpu() trick due to preempt
-> > issues.
-> > 
-> 
-> I'm concerned that turning off interrupts during even a single SHA-1
-> transform will put us above the radar with respect to the preempt
-> latency statistics again.  We could use a separate spinlock that only
-> pretects the mix_ptr and mixing access to the pool, so we're at least
-> not disabling interrupts, but we still are holding a spinlock across a
-> cryptographic operation.
+At 19:34 8/12/2004, Len Brown wrote:
 
-It's been suggested to me that a sequence lock might be the right
-approach to this, which I'll try to take a look at this evening. Also,
-I'm going to time the lock hold time in my previous more conventional
-patch and see what kind of neighborhood we're in.
+>On Wed, 2004-12-08 at 00:48, Willy Tarreau wrote:
+> > Hi,
+> >
+> > On Wed, Dec 08, 2004 at 08:59:35AM +1300, Simon Byrnand wrote:
+> > (...)
+> > > e400-e47f : motherboard
+> > > e800-e81f : motherboard
+> > > ec00-ec3f : motherboard
+> > > f000-f00f : Intel Corp. 82801DB Ultra ATA Storage Controller
+> > >   f000-f007 : ide0
+> > >   f008-f00f : ide1
+> > >
+> > > Clearly the IO range the driver is trying to open is already in use
+> > by
+> > > "motherboard". If I check another almost identical machine still
+> > running
+>
+>
+>Does this patch in 2.4.29 help?
+>http://linux.bkbits.net:8080/linux-2.4/cset@41a29b2db1heWGdXTVfdZPyWafsD8g
 
--- 
-Mathematics is the supreme nostalgia of our time.
+Yes! That did the trick. The watchdog timer now loads :-)
+
+Cat /proc/ioports now shows:
+
+0000-001f : dma1
+0020-003f : pic1
+0040-005f : timer
+0060-006f : keyboard
+0070-007f : rtc
+0080-008f : dma page reg
+00a0-00bf : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0170-0177 : ide1
+02f8-02ff : serial(auto)
+0376-0376 : ide1
+0378-037a : parport0
+03c0-03df : vga+
+03f8-03ff : serial(auto)
+0cf8-0cff : PCI conf1
+1000-101f : Intel Corp. 82801DB/DBM SMBus Controller
+a400-a47f : 3Com Corporation 3c905C-TX/TX-M [Tornado]
+   a400-a47f : 02:0c.0
+a800-a8ff : 3ware Inc 3ware ATA-RAID
+d000-dfff : PCI Bus #01
+   d800-d8ff : ATI Technologies Inc Radeon RV100 QY [Radeon 7000/VE]
+e400-e47f : motherboard
+   e400-e403 : PM1a_EVT_BLK
+   e404-e405 : PM1a_CNT_BLK
+   e408-e40b : PM_TMR
+   e428-e42f : GPE0_BLK
+   e460-e46f : i810 TCO
+e800-e81f : motherboard
+ec00-ec3f : motherboard
+f000-f00f : Intel Corp. 82801DB Ultra ATA Storage Controller
+   f000-f007 : ide0
+   f008-f00f : ide1
+
+Is this patch already in 2.4.29 "for sure" or is it just a proposed patch 
+at this time ? Hopefully it will go in.
+
+Regards,
+Simon
+

@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264126AbTLOTCP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 14:02:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264127AbTLOTCP
+	id S263871AbTLOSxE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 13:53:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263903AbTLOSxE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 14:02:15 -0500
-Received: from cpe.atm2-0-1071046.0x50a5258e.abnxx8.customer.tele.dk ([80.165.37.142]:60091
+	Mon, 15 Dec 2003 13:53:04 -0500
+Received: from cpe.atm2-0-1071046.0x50a5258e.abnxx8.customer.tele.dk ([80.165.37.142]:58555
 	"EHLO starbattle.com") by vger.kernel.org with ESMTP
-	id S264123AbTLOTCK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 14:02:10 -0500
+	id S263871AbTLOSwu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 13:52:50 -0500
 From: Daniel Tram Lux <daniel@starbattle.com>
-Date: Mon, 15 Dec 2003 20:02:08 +0100
+Date: Mon, 15 Dec 2003 19:52:47 +0100
 To: linux-kernel@vger.kernel.org
-Subject: [2.4.23][patch]no DRQ after issuing WRITE
-Message-ID: <20031215190208.GB801@starbattle.com>
+Subject: [2.6.0-test11][patch] no DRQ after issuing WRITE
+Message-ID: <20031215185247.GA801@starbattle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,20 +23,26 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-basically same patch as for 2.6.0-test 11
+I had the following problem:
 
-against following problem:
 
 hda: no DRQ after issuing WRITE
 ide0: reset: success
 hda: status timeout: status=0xd0 { Busy }
 
+hda: no DRQ after issuing WRITE
+ide0: reset: success 
+
+
+the following patch cured this problem...
+
 Regards
+
 Daniel Lux
 
---- linux-2.4.23.org/drivers/ide/ide-iops.c     2003-12-15 14:32:39.000000000 +0100
-+++ linux-2.4.23/drivers/ide/ide-iops.c 2003-12-15 19:55:33.000000000 +0100
-@@ -664,12 +664,22 @@
+--- linux-2.6.0-test11.org/drivers/ide/ide-iops.c       2003-10-08 21:24:04.000000000 +0200
++++ linux-2.6.0-test11/drivers/ide/ide-iops.c   2003-12-15 19:36:02.000000000 +0100
+@@ -645,12 +645,22 @@
         if ((stat = hwif->INB(IDE_STATUS_REG)) & BUSY_STAT) {
                 local_irq_set(flags);
                 timeout += jiffies;

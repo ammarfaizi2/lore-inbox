@@ -1,40 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264797AbRGSBKy>; Wed, 18 Jul 2001 21:10:54 -0400
+	id <S263918AbRGRWyy>; Wed, 18 Jul 2001 18:54:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264769AbRGSBKf>; Wed, 18 Jul 2001 21:10:35 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:56585 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S264827AbRGSBKa>; Wed, 18 Jul 2001 21:10:30 -0400
-Date: Wed, 18 Jul 2001 20:39:01 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        Dave McCracken <dmc@austin.ibm.com>, Dirk Wetter <dirkw@rentec.com>
-Subject: Re: [PATCH] swap usage of high memory (fwd)
-In-Reply-To: <Pine.LNX.4.33L.0107181529100.28730-100000@imladris.rielhome.conectiva>
-Message-ID: <Pine.LNX.4.21.0107182037410.8813-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263927AbRGRWyo>; Wed, 18 Jul 2001 18:54:44 -0400
+Received: from t2.redhat.com ([199.183.24.243]:32765 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S263918AbRGRWyg>; Wed, 18 Jul 2001 18:54:36 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: bitops.h ifdef __KERNEL__ cleanup.
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 18 Jul 2001 23:54:36 +0100
+Message-ID: <27472.995496876@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Not all architectures put clear_bit et al in asm/bitops.h in a form which 
+is usable from userspace. Yet because it happens to work on a PeeCee, 
+people do it anyway. 
 
+There's a simple way to fix that :)
 
-On Wed, 18 Jul 2001, Rik van Riel wrote:
+Index: include/asm-i386/bitops.h
+===================================================================
+RCS file: /inst/cvs/linux/include/asm-i386/bitops.h,v
+retrieving revision 1.2.2.7
+diff -u -r1.2.2.7 bitops.h
+--- include/asm-i386/bitops.h	2001/06/02 16:27:54	1.2.2.7
++++ include/asm-i386/bitops.h	2001/07/18 22:52:11
+@@ -7,6 +7,8 @@
+ 
+ #include <linux/config.h>
+ 
++#ifdef __KERNEL__
++
+ /*
+  * These have to be done with inline assembly: that way the bit-setting
+  * is guaranteed to be atomic. All bit operations return 0 if the bit
+@@ -329,8 +331,6 @@
+ 		:"r" (~word));
+ 	return word;
+ }
+-
+-#ifdef __KERNEL__
+ 
+ /**
+  * ffs - find first bit set
 
-> Hi Alan, Linus,
-> 
-> Dave found a stupid bug in the swapin code, leading to
-> bad balancing problems in the VM.
-> 
-> I suspect marcelo's zone VM hack could even go away
-> with this patch applied ;)
-
-Rik,
-
-Still able to trigger the problem with the GFP_HIGHUSER patch applied.
-
+--
+dwmw2
 
 

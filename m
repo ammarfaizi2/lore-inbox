@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261668AbUD1WzD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261802AbUD1XCD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261668AbUD1WzD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 18:55:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261711AbUD1WyR
+	id S261802AbUD1XCD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 19:02:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbUD1XCD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 18:54:17 -0400
-Received: from [216.150.199.16] ([216.150.199.16]:13201 "EHLO mail.aspsys.com")
-	by vger.kernel.org with ESMTP id S261668AbUD1Wxc (ORCPT
+	Wed, 28 Apr 2004 19:02:03 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:6102 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S261802AbUD1XB7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 18:53:32 -0400
-Date: Wed, 28 Apr 2004 16:53:31 -0600
-From: Bryan Stillwell <bryans@aspsys.com>
-To: linux-kernel@vger.kernel.org
-Subject: Dual Opteron 248s w/ 8GB RAM on Tyan K8W (S2885)
-Message-ID: <20040428225331.GA19698@aspsys.com>
-Mime-Version: 1.0
+	Wed, 28 Apr 2004 19:01:59 -0400
+To: ken@coverity.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [CHECKER] Implementation inconsistencies in 2.6.3
+References: <4448.171.64.70.113.1083102442.spork@webmail.coverity.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Wed, 28 Apr 2004 18:15:42 +0200
+In-Reply-To: <4448.171.64.70.113.1083102442.spork@webmail.coverity.com> (Ken
+ Ashcraft's message of "Tue, 27 Apr 2004 14:47:22 -0700 (PDT)")
+Message-ID: <m3llkgnknl.fsf@defiant.pm.waw.pl>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am having a problem with getting 8GB of RAM to work with the 2.6.5
-kernel that Red Hat uses in their new Fedora Core 2 test3 release.  Yes,
-not vanilla, but hopefully close enough (otherwise I can try it with a
-custom kernel).  The systems (I'm testing on two mostly identical
-systems) that are experiencing the problem have these specs:
+"Ken Ashcraft" <ken@coverity.com> writes:
 
-Motherboard: Tyan K8W (S2885)
-Processors: 2 x Opteron 248
-Memory: 8 x 1GB
-BIOS version: 1.02 (2-3-2004 - latest available)
-SCSI card: Adaptec 29320
+/drivers/net/wan/hdlc_cisco.c:
 
-About 80% of the time I get this error when booting:
+> ---------------------------------------------------------
+> [BUG] <khc@pm.waw.pl> not referencing 'dev'
+>
+> example:
+> /home/kash/linux/2.6.3/linux-2.6.3/drivers/ieee1394/eth1394.c:569:ether1394_header:
+> NOTE:READ: Checking arg dev [EXAMPLE=net_device.hard_header-1]
+>
+> /home/kash/linux/2.6.3/linux-2.6.3/drivers/net/wan/hdlc_cisco.c:37:cisco_hard_header:
+> ERROR:READ: Not checking arg [COUNTER=net_device.hard_header-1]  [fit=62]
+> [fit_fn=1] [fn_ex=0] [fn_counter=1] [ex=10] [counter=1] [z =
+> -0.622543017479467] [fn-z = -4.35889894354067]
+> #define CISCO_ADDR_REQ		0	/* Cisco address request */
+> #define CISCO_ADDR_REPLY	1	/* Cisco address reply */
+> #define CISCO_KEEPALIVE_REQ	2	/* Cisco keepalive request */
+>
+>
+>
+> Error --->
+> static int cisco_hard_header(struct sk_buff *skb, struct net_device *dev,
+> 			     u16 type, void *daddr, void *saddr,
+> 			     unsigned int len)
+> {
 
-...
-RAMDISK: Compressed image found at block 0
-crc error
-VFS: Cannot open root device "<NULL>" or unknown-block(3,2)
-Please append a correct "root=" boot option
-Kernel panic: VFS: Unable to mount root fs on unknown-block(3,2)
-
-
-The other 20% of the time it boots up fine, but that's not enough
-consistency for these computers final task (beowulf compute nodes).
-Also I haven't really stressed the kernel on these boots.
-
-The systems seem to work fine if I pull out half the memory so that they
-only has 4GB of RAM.  I've also tested a similar setup using a Rioworks
-Arima HDAMA board with 8GB of RAM and it worked.  So I'm led to believe
-that this is some kind of driver issue or possibly a bios problem...
-
-Any help/ideas are of course appreciated.
-
-Thanks,
-Bryan
-
+False positive - while other hard_header functions may want to know
+the actual outbound device, it isn't the case here.
 -- 
-Aspen Systems, Inc.    | http://www.aspsys.com/
-Production Engineer    | Phone: (303)431-4606
-bryans@aspsys.com      | Fax:   (303)431-7196
+Krzysztof Halasa, B*FH

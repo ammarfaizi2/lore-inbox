@@ -1,65 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261887AbVCHWqZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261575AbVCHWvd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261887AbVCHWqZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 17:46:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbVCHWqR
+	id S261575AbVCHWvd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 17:51:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbVCHWvd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 17:46:17 -0500
-Received: from web52906.mail.yahoo.com ([206.190.39.183]:47200 "HELO
-	web52906.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261599AbVCHWpq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 17:45:46 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=Pp7kXz+HmBFULEfSa44BmMSFIqEhcORLN4cLV5jZ5Z31NulVyHBFgohWpbUxuBzvMrVxWzSZQRss1ywC4j7VYYwh3yNbuahWa6QS+GmhQHvYQmwucsu0ZK9W2gVTUgqgvecYSOshq/wLNtI/Ik3yi6JG8GO/TdMt7l12ikwoFv4=  ;
-Message-ID: <20050308224539.64838.qmail@web52906.mail.yahoo.com>
-Date: Tue, 8 Mar 2005 23:45:39 +0100 (CET)
-From: szonyi calin <caszonyi@yahoo.com>
-Subject: Re: RFD: Kernel release numbering
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: 6667
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Tue, 8 Mar 2005 17:51:33 -0500
+Received: from gate.crashing.org ([63.228.1.57]:63922 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261575AbVCHWuu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 17:50:50 -0500
+Subject: Re: [PATCH] VGA arbitration: draft of kernel side
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Kronos <kronos@kronoz.cjb.net>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050308212909.GA18376@dreamland.darkstar.lan>
+References: <20050308212909.GA18376@dreamland.darkstar.lan>
+Content-Type: text/plain
+Date: Wed, 09 Mar 2005 09:46:20 +1100
+Message-Id: <1110321980.13607.294.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2005-03-08 at 22:29 +0100, Kronos wrote:
 
---- Zwane Mwaikambo <zwane@arm.linux.org.uk> wrote:
+> > +       bus = pdev->bus;
+> > +       while (bus) {
+> > +               bridge = bus->self;
+> > +               if (bridge) {
+> > +                       pci_read_config_word(bridge, PCI_BRIDGE_CONTROL, &cmd);
+> > +                       if (!(cmd & PCI_BRIDGE_CTL_VGA))
+> > +                               continue;
 > 
-> Certainly -mm can be the feature tree, but i've noticed that
-> not that many 
-> people run -mm aside from developers. Meaning that a fair
-> number of bugs 
-> seep into Linus' tree before they get attended to. It would
-> even be more 
-> effective if we could get more -mm user coverage. A Linus
-> based odd number 
-> might be closer to that if we hope on people unwittingly
-> running them.
+> This seems wrong: if the condition is true the loop will restart with
+> the same bus device and will never stop. I think you should do:
 
-I used to run mm. I don't submit bug reports because i'm lazy
-;-).
-Now i don't run it because 2.6 doesn't look very usable and i
- don't want to test two development versions. Also sometimes is 
-handy to have a stable version around when something goes wrong
-(i.e. filesystem corruption after a crash or power failure).
+Yup. I always try to avoid nesting if's tho, which is why I wrote it
+that way :) But yes, it should be fixed.
 
-I had my filesystem trashed with 2.6 so i'm more carefull now. 
+> > +
+> > +       /* Only deal with VGA class devices */
+> > +       if ((pdev->class >> 8) != PCI_CLASS_DISPLAY_VGA)
+> > +               return;
+> > +
+> > +       /* Allocate structure */
+> > +       vgadev = kmalloc(sizeof(struct vga_device), GFP_KERNEL);
+> 
+> Not checking return value of kmalloc, this is evil :P
+> Also it may be worth to change return type in order to signal the error.
+
+Yah, yah, I know :) will fix. I'm not sure there is point signaling the
+error to the PCI layer. It won't do anything good with it.
+
+> > +#endif
+> > +
+> > +       /* Add to the list */
+> > +       list_add(&vgadev->list, &vga_list);
+> > +       spin_unlock_irqrestore(&vga_lock, flags);
+> 
+> Missing return?
+
+Yup.
+
+> > + fail:
+> > +       spin_unlock_irqrestore(&vga_lock, flags);
+> > +       kfree(vgadev);
+> > +}
+> > +
+> > +void vga_arbiter_del_pci_device(struct pci_dev *pdev)
+> > +{
+> > +       struct vga_device *vgadev;
+> > +       unsigned long flags;
+> > +
+> > +       spin_lock_irqsave(&vga_lock, flags);
+> > +       vgadev = vgadev_find(pdev);
+> > +       if (vgadev == NULL)
+> > +               goto bail;
+> > +       if (vgadev->locks)
+> > +               __vga_put(vgadev, vgadev->locks);
+> > +       list_del(&vgadev->list);
+> > + bail:
+> > +       spin_unlock_irqrestore(&vga_lock, flags);
+> > +       if (vgadev)
+> > +               kfree(vgadev);
+> 
+> kfree(NULL) is fine, no need to check for null pointer.
+> 
+Hehe, yes, but I don't like it :)
+
+Thanks. I spotted a few other issues (I was quite tired yesterday when I
+finished this code). I'll do another pass on it today. One thing is: I
+don't have x86 hardware, or at least, nothing where I can have 2 VGA
+cards in (I may have access to an old laptop). So I'll need help &
+testers at one point.
+
+Ben.
 
 
---
-A mouse is a device used to point at 
-the xterm you want to type in.
-Kim Alm on a.s.r.
-
-
-	
-
-	
-		
-Découvrez le nouveau Yahoo! Mail : 250 Mo d'espace de stockage pour vos mails ! 
-Créez votre Yahoo! Mail sur http://fr.mail.yahoo.com/

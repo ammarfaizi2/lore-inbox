@@ -1,202 +1,202 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261599AbULNSAV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261597AbULNSBp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261599AbULNSAV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 13:00:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbULNSAC
+	id S261597AbULNSBp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 13:01:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbULNR6u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 13:00:02 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:46731 "EHLO
+	Tue, 14 Dec 2004 12:58:50 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:48779 "EHLO
 	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261583AbULNRxW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 12:53:22 -0500
-Date: Tue, 14 Dec 2004 11:53:13 -0600
+	id S261591AbULNRxY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 12:53:24 -0500
+Date: Tue, 14 Dec 2004 11:53:20 -0600
 From: Brent Casavant <bcasavan@sgi.com>
 Reply-To: Brent Casavant <bcasavan@sgi.com>
 To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
 cc: linux-ia64@vger.kernel.org, ak@suse.de
-Subject: [PATCH 0/3] NUMA boot hash allocation interleaving
-Message-ID: <Pine.SGI.4.61.0412141140030.22462@kzerza.americas.sgi.com>
+Subject: [PATCH 1/3] alloc_large_system_hash: NUMA interleaving
+Message-ID: <Pine.SGI.4.61.0412141145410.22462@kzerza.americas.sgi.com>
 Organization: "Silicon Graphics, Inc."
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-NUMA systems running current Linux kernels suffer from substantial
-inequities in the amount of memory allocated from each NUMA node
-during boot.  In particular, several large hashes are allocated
-using alloc_bootmem, and as such are allocated contiguously from
-a single node each.
+The following patch against 2.6.10-rc3 modifies alloc_large_system_hash
+to enable the use of vmalloc to alleviate boottime allocation imbalances
+on NUMA systems.
 
-This becomes a problem for certain workloads that are relatively common
-on big-iron HPC NUMA systems.  In particular, a number of MPI and OpenMP
-applications which require nearly all available processors in the system
-and nearly all the memory on each node run into difficulties.  Due to the
-uneven memory distribution onto a few nodes, any thread on those nodes will
-require a portion of its memory be allocated from remote nodes.  Any
-access to those memory locations will be slower than local accesses,
-and thereby slows down the effective computation rate for the affected
-CPUs/threads.  This problem is further amplified if the application is
-tightly synchronized between threads (as is often the case), as they entire
-job can run only at the speed of the slowest thread.
+Both the 2/3 and 3/3 portions of this set of patches depend on
+this patch (1/3).
 
-Additionally since these hashes are usually accessed by all CPUS in the
-system, the NUMA network link on the node which hosts the hash experiences
-disproportionate traffic levels, thereby reducing the memory bandwidth
-available to that node's CPUs, and further penalizing performance of the
-threads executed thereupon.
+Due to limited vmalloc space on some architectures (i.e. x86),
+the use of vmalloc is enabled by default only on NUMA IA64 kernels.
+There should be no problem enabling this change for any other
+interested NUMA architecture.
 
-As such, it is desired to find a way to distribute these large hash
-allocations more evenly across NUMA nodes.  Fortunately current
-kernels do perform allocation interleaving for vmalloc() during boot,
-which provides a stepping stone to a solution.
+Note also one small bug fix introduced here -- the "table" automatic
+variable in alloc_large_system_hash is now initialized to NULL.  One
+test case tripped over this bug.
 
-This series of patches enables (but does not require) the kernel to
-allocate several boot time hashes using vmalloc rather than alloc_bootmem,
-thereby causing the hashes to be interleaved amongst NUMA nodes.  In
-particular the dentry cache, inode cache, TCP ehash, and TCP bhash have been
-changed to be allocated in this manner.  Due to the limited vmalloc space
-on architectures such as i386, this behavior is turned on by default only
-for IA64 NUMA systems (though there is no reason other interested
-architectures could not enable it if desired).  Non-IA64 and non-NUMA
-systems continue to use the existing alloc_bootmem() allocation mechanism.
-A boot line parameter "hashdist" can be set to override the default
-behavior.
+Signed-off-by: Brent Casavant <bcasavan@sgi.com>
 
-The following two sets of example output show the uneven distribution
-just after boot, using init=/bin/sh to eliminate as much non-kernel
-allocation as possible.
-
-Without the boot hash distribution patches:
-
- Nid  MemTotal   MemFree   MemUsed      (in kB)
-   0   3870656   3697696    172960
-   1   3882992   3866656     16336
-   2   3883008   3866784     16224
-   3   3882992   3866464     16528
-   4   3883008   3866592     16416
-   5   3883008   3866720     16288
-   6   3882992   3342176    540816
-   7   3883008   3865440     17568
-   8   3882992   3866560     16432
-   9   3883008   3866400     16608
-  10   3882992   3866592     16400
-  11   3883008   3866400     16608
-  12   3882992   3866400     16592
-  13   3883008   3866432     16576
-  14   3883008   3866528     16480
-  15   3864768   3848256     16512
- ToT  62097440  61152096    945344
-
-Notice that nodes 0 and 6 have a substantially larger memory utilization
-than all other nodes.
-
-With the boot hash distribution patch:
-
- Nid  MemTotal   MemFree   MemUsed      (in kB)
-   0   3870656   3789792     80864
-   1   3882992   3843776     39216
-   2   3883008   3843808     39200
-   3   3882992   3843904     39088
-   4   3883008   3827488     55520
-   5   3883008   3843712     39296
-   6   3882992   3843936     39056
-   7   3883008   3844096     38912
-   8   3882992   3843712     39280
-   9   3883008   3844000     39008
-  10   3882992   3843872     39120
-  11   3883008   3843872     39136
-  12   3882992   3843808     39184
-  13   3883008   3843936     39072
-  14   3883008   3843712     39296
-  15   3864768   3825760     39008
- ToT  62097440  61413184    684256
-
-While not perfectly even, we can see that there is a substantial
-improvement in the spread of memory allocated by the kernel during
-boot.  The remaining uneveness may be due in part to further boot
-time allocations that could be addressed in a similar manner, but
-some difference is due to the somewhat special nature of node 0
-during boot.  However the uneveness has fallen to a much more
-acceptable level (at least to a level that SGI isn't concerned about).
-
-The astute reader will also notice that in this example, with this patch
-approximately 256 MB less memory was allocated during boot.  This is due
-to the size limits of a single vmalloc.  More specifically, this is because
-the automatically computed size of the TCP ehash exceeds the maximum
-size which a single vmalloc can accomodate.  However this is of little
-practical concern as the vmalloc size limit simply reduces one ridiculously
-large allocation (512MB) to a slightly less ridiculously large allocation
-(256MB).  In practice machines with large memory configurations are using
-the thash_entries setting to limit the size of the TCP ehash _much_ lower
-than either of the automatically computed values.  Illustrative of the
-exceedingly large nature of the automatically computed size, SGI
-currently recommends that customers boot with thash_entries=2097152,
-which works out to a 32MB allocation.  In any case, setting hashdist=0
-will allow for allocations in excess of vmalloc limits, if so desired.
-
-Other than the vmalloc limit, great care was taken to ensure that the
-size of TCP hash allocations was not altered by this patch.  Due to
-slightly different computation techniques between the existing TCP code
-and alloc_large_system_hash (which is now utilized), some of the magic
-constants in the TCP hash allocation code were changed.  On all sizes
-of system (128MB through 64GB) that I had access to, the patched code
-preserves the previous hash size, as long as the vmalloc limit
-(256MB on IA64) is not encountered.
-
-There was concern that changing the TCP-related hashes to use vmalloc
-space may adversely impact network performance.  To this end the netperf
-set of benchmarks was run.  Some individual tests seemed to benefit
-slightly, some seemed to be harmed slightly, but in all cases the average
-difference with and without these patches was well within the variabilty
-I would see from run to run.
-
-The following is the overall netperf averages (30 10 second runs each)
-against an older kernel with these same patches. These tests were run
-over loopback as GigE results were so inconsistent run to run both with
-and without these patches that they provided no meaningful comparison that
-I could discern.  I used the same kernel (IA64 generic) for each run,
-simply varying the new "hashdist" boot parameter to turn on or off the new
-allocation behavior.  In all cases the thash_entries value was manually
-specified as discussed previously to eliminate any variability that
-might result from that size difference.
-
-HP ZX1, hashdist=0
-==================
-TCP_RR = 19389
-TCP_MAERTS = 6561 
-TCP_STREAM = 6590 
-TCP_CC = 9483 
-TCP_CRR = 8633 
-
-HP ZX1, hashdist=1
-==================
-TCP_RR = 19411
-TCP_MAERTS = 6559 
-TCP_STREAM = 6584 
-TCP_CC = 9454 
-TCP_CRR = 8626 
-
-SGI Altix, hashdist=0
-=====================
-TCP_RR = 16871
-TCP_MAERTS = 3925 
-TCP_STREAM = 4055 
-TCP_CC = 8438 
-TCP_CRR = 7750 
-
-SGI Altix, hashdist=1
-=====================
-TCP_RR = 17040
-TCP_MAERTS = 3913 
-TCP_STREAM = 4044 
-TCP_CC = 8367 
-TCP_CRR = 7538 
-
-I believe the TCP_CC and TCP_CRR are the tests most sensitive to this
-particular change.  But again, I want to emphasize that even the
-differences you see above are _well_ within the variability I saw
-from run to run of any given test.
+Index: linux/mm/page_alloc.c
+===================================================================
+--- linux.orig/mm/page_alloc.c	2004-12-10 18:09:56.325929784 -0600
++++ linux/mm/page_alloc.c	2004-12-10 18:10:39.618232395 -0600
+@@ -32,6 +32,7 @@
+ #include <linux/sysctl.h>
+ #include <linux/cpu.h>
+ #include <linux/nodemask.h>
++#include <linux/vmalloc.h>
+ 
+ #include <asm/tlbflush.h>
+ 
+@@ -2023,27 +2024,42 @@
+ 	return 0;
+ }
+ 
++__initdata int hashdist = HASHDIST_DEFAULT;
++
++#ifdef CONFIG_NUMA
++static int __init set_hashdist(char *str)
++{
++	if (!str)
++		return 0;
++	hashdist = simple_strtoul(str, &str, 0);
++	return 1;
++}
++__setup("hashdist=", set_hashdist);
++#endif
++
+ /*
+  * allocate a large system hash table from bootmem
+  * - it is assumed that the hash table must contain an exact power-of-2
+  *   quantity of entries
++ * - limit is the number of hash buckets, not the total allocation size
+  */
+ void *__init alloc_large_system_hash(const char *tablename,
+ 				     unsigned long bucketsize,
+ 				     unsigned long numentries,
+ 				     int scale,
+-				     int consider_highmem,
++				     int flags,
+ 				     unsigned int *_hash_shift,
+-				     unsigned int *_hash_mask)
++				     unsigned int *_hash_mask,
++				     unsigned long limit)
+ {
+-	unsigned long long max;
++	unsigned long long max = limit;
+ 	unsigned long log2qty, size;
+-	void *table;
++	void *table = NULL;
+ 
+ 	/* allow the kernel cmdline to have a say */
+ 	if (!numentries) {
+ 		/* round applicable memory size up to nearest megabyte */
+-		numentries = consider_highmem ? nr_all_pages : nr_kernel_pages;
++		numentries = (flags & HASH_HIGHMEM) ? nr_all_pages : nr_kernel_pages;
+ 		numentries += (1UL << (20 - PAGE_SHIFT)) - 1;
+ 		numentries >>= 20 - PAGE_SHIFT;
+ 		numentries <<= 20 - PAGE_SHIFT;
+@@ -2057,9 +2073,11 @@
+ 	/* rounded up to nearest power of 2 in size */
+ 	numentries = 1UL << (long_log2(numentries) + 1);
+ 
+-	/* limit allocation size to 1/16 total memory */
+-	max = ((unsigned long long)nr_all_pages << PAGE_SHIFT) >> 4;
+-	do_div(max, bucketsize);
++	/* limit allocation size to 1/16 total memory by default */
++	if (max == 0) {
++		max = ((unsigned long long)nr_all_pages << PAGE_SHIFT) >> 4;
++		do_div(max, bucketsize);
++	}
+ 
+ 	if (numentries > max)
+ 		numentries = max;
+@@ -2068,7 +2086,16 @@
+ 
+ 	do {
+ 		size = bucketsize << log2qty;
+-		table = alloc_bootmem(size);
++		if (flags & HASH_EARLY)
++			table = alloc_bootmem(size);
++		else if (hashdist)
++			table = __vmalloc(size, GFP_ATOMIC, PAGE_KERNEL);
++		else {
++			unsigned long order;
++			for (order = 0; ((1UL << order) << PAGE_SHIFT) < size; order++)
++				;
++			table = (void*) __get_free_pages(GFP_ATOMIC, order);
++		}
+ 	} while (!table && size > PAGE_SIZE && --log2qty);
+ 
+ 	if (!table)
+Index: linux/fs/inode.c
+===================================================================
+--- linux.orig/fs/inode.c	2004-12-10 18:09:40.416477252 -0600
++++ linux/fs/inode.c	2004-12-10 18:10:39.626044070 -0600
+@@ -1333,9 +1333,10 @@
+ 					sizeof(struct hlist_head),
+ 					ihash_entries,
+ 					14,
+-					0,
++					HASH_EARLY,
+ 					&i_hash_shift,
+-					&i_hash_mask);
++					&i_hash_mask,
++					0);
+ 
+ 	for (loop = 0; loop < (1 << i_hash_shift); loop++)
+ 		INIT_HLIST_HEAD(&inode_hashtable[loop]);
+Index: linux/fs/dcache.c
+===================================================================
+--- linux.orig/fs/dcache.c	2004-12-10 18:09:55.313341416 -0600
++++ linux/fs/dcache.c	2004-12-10 18:10:39.630926367 -0600
+@@ -1579,9 +1579,10 @@
+ 					sizeof(struct hlist_head),
+ 					dhash_entries,
+ 					13,
+-					0,
++					HASH_EARLY,
+ 					&d_hash_shift,
+-					&d_hash_mask);
++					&d_hash_mask,
++					0);
+ 
+ 	for (loop = 0; loop < (1 << d_hash_shift); loop++)
+ 		INIT_HLIST_HEAD(&dentry_hashtable[loop]);
+Index: linux/include/linux/bootmem.h
+===================================================================
+--- linux.orig/include/linux/bootmem.h	2004-12-10 18:05:25.365287838 -0600
++++ linux/include/linux/bootmem.h	2004-12-10 18:10:39.642643879 -0600
+@@ -74,8 +74,23 @@
+ 					    unsigned long bucketsize,
+ 					    unsigned long numentries,
+ 					    int scale,
+-					    int consider_highmem,
++					    int flags,
+ 					    unsigned int *_hash_shift,
+-					    unsigned int *_hash_mask);
++					    unsigned int *_hash_mask,
++					    unsigned long limit);
++
++#define HASH_HIGHMEM	0x00000001	/* Consider highmem? */
++#define HASH_EARLY	0x00000002	/* Allocating during early boot? */
++
++/* Only NUMA needs hash distribution.
++ * IA64 is known to have sufficient vmalloc space.
++ */
++#if defined(CONFIG_NUMA) && defined(CONFIG_IA64)
++#define HASHDIST_DEFAULT 1
++#else
++#define HASHDIST_DEFAULT 0
++#endif
++extern int hashdist;		/* Distribute hashes across NUMA nodes? */
++
+ 
+ #endif /* _LINUX_BOOTMEM_H */
 
 -- 
 Brent Casavant                          If you had nothing to fear,

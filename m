@@ -1,362 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262984AbTDBM2L>; Wed, 2 Apr 2003 07:28:11 -0500
+	id <S262989AbTDBMau>; Wed, 2 Apr 2003 07:30:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262985AbTDBM2L>; Wed, 2 Apr 2003 07:28:11 -0500
-Received: from 217-125-129-224.uc.nombres.ttd.es ([217.125.129.224]:56308 "HELO
-	cocodriloo.com") by vger.kernel.org with SMTP id <S262984AbTDBM1v>;
-	Wed, 2 Apr 2003 07:27:51 -0500
-Date: Wed, 2 Apr 2003 14:46:43 +0200
-From: Antonio Vargas <wind@cocodriloo.com>
-To: Antonio Vargas <wind@cocodriloo.com>
-Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
-       Robert Love <rml@tech9.net>
-Subject: Re: fairsched + O(1) process scheduler
-Message-ID: <20030402124643.GA13168@wind.cocodriloo.com>
-References: <20030401125159.GA8005@wind.cocodriloo.com> <20030401164126.GA993@holomorphy.com> <20030401221927.GA8904@wind.cocodriloo.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="45Z9DzgjV8m4Oswq"
-Content-Disposition: inline
-In-Reply-To: <20030401221927.GA8904@wind.cocodriloo.com>
-User-Agent: Mutt/1.3.28i
+	id <S262990AbTDBMau>; Wed, 2 Apr 2003 07:30:50 -0500
+Received: from 12-241-67-156.client.attbi.com ([12.241.67.156]:24583 "HELO
+	12-241-67-156.client.attbi.com") by vger.kernel.org with SMTP
+	id <S262989AbTDBMas>; Wed, 2 Apr 2003 07:30:48 -0500
+From: "buzybee164" <neko711stabme@yahoo.com>
+To: "" <linux-kernel@vger.kernel.org>
+Subject: =?ISO-8859-1?Q?=F3=C5=CD=C9=CE=C1=D2=D9?= =?ISO-8859-1?Q?=C4=CC=D1?= =?ISO-8859-1?Q?=C2=D5=C8=C7=C1=CC=D4=C5=D2=C9=C9?=
+X-Mailer: The Bat! (v1.61) Personal
+MIME-Version: 1.0
+Date: Wed, 2 Apr 2003 05:46:10 -0800
+Content-Type: multipart/related;
+  boundary="----=_NextPart_000_000B_1B57143E.6F4E34A0"
+Message-Id: <20030402123048Z262989-25575+40700@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+------=_NextPart_000_000B_1B57143E.6F4E34A0
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: base64
 
---45Z9DzgjV8m4Oswq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Wed, Apr 02, 2003 at 12:19:27AM +0200, Antonio Vargas wrote:
-> On Tue, Apr 01, 2003 at 08:41:26AM -0800, William Lee Irwin III wrote:
-> > On Tue, Apr 01, 2003 at 02:51:59PM +0200, Antonio Vargas wrote:
-> > +
-> > +	if(fairsched){
-> > +		/* special processing for per-user fair scheduler */
-> > +	}
-> > 
-> > I suspect something more needs to happen there. =)
-> 
->  :) I haven't even compiled with this patch, I'm just trying
-> to get around my ideas and thus I posted so that:
-> 
-> a. We had an off-site backup
-> 
-> b. People with experience could shout out loud if they saw
->    some big-time silliness.
-> 
-> > I'd recommend a different approach, i.e. stratifying the queue into a
-> > user top level and a task bottom level. The state is relatively well
-> > encapsulated so it shouldn't be that far out.
-> > 
-> > 
-> > -- wli
-> 
-> I suspect you mean the scheduler runqueues?
-> 
-> My initial idea runs as follows:
-> 
-> a. On each array switch, we add some fixed value
->    to user->ticks. (HZ perhaps?)
-> 
-> b. When adding, we cap at some maximum value.
->    (2*HZ perhaps?)
-> 
-> c. On each timer tick, we decrement current->user->ticks.
-> 
-> d. When decrementing, if it's below zero we just
->    end this thread. (user has expired)
-> 
-> e. When switching threads, we take the first one that belongs
->    to a non-expired user. I think this can be done by sending
->    the user-expired threads to the expired array, just like
->    when they expire themselves.
-> 
-> I'll try to code this tonight, so I'll post later on
-> if I'm lucky.
-> 
-> I think this needs much less complexity for a first version,
-> but I would try what you propose if I get intimate enough
-> with the scheduler.
-> 
-> Greets, Antonio.
-
-Ok, second try...
-
-I have a doubt, do we need any locking for struct user when reading/writing
-his priority or when surfing the user_list?
-
-Greets, Antnonio.
-
-
---45Z9DzgjV8m4Oswq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="fairsched-A1.patch"
-
-
-
-This patch is a forward port of the fairsched-2.4.19 patch by Rik van Riel, which
-ensures all competing users get an equal share of cpu time.
-
-Since the earlier patch applied to the classic O(n) process scheduler,
-and this one applies to the standard 2.5 O(1) one, the mapping isn't
-one-to-one but rather more complex.
-
-Original 2.4.19 version:       Rik van Riel, riel@surriel.com
-Forward ported 2.5.66 version: Antonio Vargas, wind@cocodriloo.com
-
-A0: initial layout for code and data
-A1: introduce runqueue handling related to per-user cpu share
+8NLJx8zB28HFzSD3wdMg0M/TxdTJ1NggwcvU1cHM2M7ZxSDTxc3JzsHS2ToKNyDB0NLFzNE6
+IPPMz9bO2cUg18/Q0s/T2SDOwczPx8/PwszP1sXOydEgKM7BzM/HIM7BINDSycLZzNgsIO7k
+8ywgz9DMwdTBINTS1cTBKQo4IMHQ0sXM0Tog7s/SzcHUydfO2cUgxM/L1c3FztTZINDPIMLV
+yMfBzNTF0tPLz83VINXexdTVOiDOz9fP19fFxMXOydEgySDJ2s3FzsXOydEuCvTFzMXGz87Z
+OiAyMDctMjYtMjEsIDc3Mi05Mi00NgoK88XNyc7B0jog88zP1s7ZxSAg18/Q0s/T2SDOwczP
+x8/PwszP1sXOydEKKM7BzM/HIM7BINDSycLZzNgsIO7k8ywgz9DMwdTBINTS1cTBKQo3IMHQ
+0sXM0SAyMDAyIMcuCgruwSDTxc3JzsHSxSDBzsHMydrJ0tXA1NPRINDSz9TJ18/Sxd7J0SDJ
+INPPzc7FzsnRINcg1M/My8/Xwc7JySDuwczPx8/Xz8fPIArLz8TFy9PBIPLmLCDSxcfMwc3F
+ztTJ0tXA3cnIIMnT3snTzMXOycUgIO7k8yDJIM7BzM/HwSDOwSDQ0snC2czYIM/Sx8HOydrB
+w8nKIArJIM7BzM/Hz9cg0yDGydrJ3sXTy8nIIMzJwy4g9yDS0cTFINPM1d7Bxdcgy8/Oy9LF
+1M7ZxSDIz9rRytPU18XOztnFINPJ1NXBw8nJIArJzMzA09TSydLVwNTT0SDQ0snNxdLBzckg
+ydog09XExcLOzy3B0sLJ1NLB1s7PyiDQ0sHL1MnLySwgzsEgz9POz9fBzsnJIMvP1M/S2cgg
+CtfZ0sHCwdTZ18HA1NPRINDSwcvUyd7F08vJxSDSxcvPzcXOxMHDyckgzsHMz8fP0MzB1MXM
+2N3Jy8HNLiAKCjEuIO7BzM/HIM7BINDSycLZzNgKMS4xICAgICDkz8jPxNkg1yDC1cjHwczU
+xdLTy8/NIMkgzsHMz8fP18/NINXexdTFICjX2dLV3svBLCDXzsXSxcHMydrBw8nPzs7ZyiDE
+z8jPxCkKMS4yLiAgICDywdPIz8TZICAo08jFzcEg0NLJ2s7BzsnRINLB08jPxM/XLCDH0tXQ
+0MnSz9fLwSDSwdPIz8TP1ywgzcHUxdLJwczYztnFIArSwdPIz8TZLCDBzc/S1MnawcPJ0SDJ
+IMTSLikKCjIuIO7BzM/HIM7BIMTPwsHXzMXOztXAINPUz8nNz9PU2AoyLjEuICAg/sXNINPM
+xcTVxdQg0tXLz9fPxNPU18/XwdTY09Eg0NLJIMnT3snTzMXOyckg7uTzCjIuMiAgICD3IMvB
+y8nIINPM1d7B0cggzsHMz8fP0MzB1MXM2N3JyyDOxSDR18zRxdTT0SDQzMHUxczY3cnLz80g
+7uTzLCAKMi4zLiAgIPDSz8LMxc3ZINPPINPULiAxNDUg7usg8uYKMi40LiAgIPPIxc3BIMnT
+3snTzMXOydEg7uTzCgozLiDv0MzB1MEg1NLVxME6IMLVyMfBzNTF0tPLycogySDOwczPx8/X
+2cogwdPQxcvULgozLjEgICAgIOLVyMfBzNTF0tPLycogySDOwczPx8/X2cog1d7F1CDSwdPI
+z8TP1yDQzyDP0MzB1MUg1NLVxMEuCjMuMiAgICAg88HOy8PJySDawSDOwdLV28XOycUg1NLV
+xM/Xz8fPIMkgzsHMz8fP18/HzyDawcvPzs/EwdTFzNjT1NfBINcg08bF0sUgz9DMwdTZIArU
+0tXEwS4KMy4zICAgICDzzM/WztnFINfP0NLP09kgySDUydDJ3s7ZxSDP28nCy8kg1yDSwdPe
+xdTByCDQzyDP0MzB1MUg1NLVxMEuCiAK7sEg08XNyc7B0sUg19nT1NXQwcDUOgoK7eXk9+Xk
+5fcg4czFy9PBzsTSIO7Jy8/MwcXXyd4sICDLLtwuziwgx8zB187ZyiDB1cTJ1M/SIPrh7yAi
+4dXEydQg4vQiLCDB19TP0sEgCjQwIMvOyccgySDT19nbxSAyMDAgINbV0s7BzNjO2cgg09TB
+1MXKICDQzyDXz9DSz9PBzSDC1cjHwczUxdLTy8/HzyDV3sXUwSwgIArOwczPx8/PwszP1sXO
+ydEgIMkgyM/a0crT1NfFzs7Px88g0NLB18EuCuvs6e3v9+Eg7cHSyc7BIOHSy8HE2MXXzsEs
+IMsu3C7OLiwg0NLPxsXT08nPzsHM2M7ZyiDC1cjHwczUxdIsIMHX1M/SIMvOyccgCiLuwczP
+xyDOwSDEz8jPxNkgxsnayd7F08vJyCDMycMiLCAgIuvByyDQ0sHXyczYzs8gz8bP0s3J1Ngg
+1d7F1M7VwCDQz8zJ1MnL1SAKz9LHwc7J2sHDyckiLCAi5M/L1c3FztTPz8LP0s/UINcgwtXI
+x8HM1MXS08vPzSDV3sXUxSIsICL00tXEz9fPyiDrz8TFy9Mg8uY6IArQz9PUwdTFys7ZyiDL
+z83Nxc7UwdLJyiIsICAi+sHSwcLP1M7B0SDQzMHUwTog0NLBy9TJ3sXTy8/FINLVy8/Xz8TT
+1NfPIiwgCiL10NLP3cXOzsHRINPJ09TFzcEgzsHMz8fPz8LMz9bFzsnRIiDJIM3Oz8fJyCDE
+0tXHycguCgrzxc3JzsHSOiDuz9LNwdTJ187ZxSDEz8vVzcXO1Nkg0M8gwtXIx8HM1MXS08vP
+zdUg1d7F1NUgMjAwMi0yMDAzIMfHLjogCs7P18/X18XExc7J0SDJIMnazcXOxc7J0Qo4IMHQ
+0sXM0SAyMDAyIMcuCgoxLiDvwt3B0SDLz87DxdDDydEg0sXGz9LN2SDSz9PTycrTy8/HzyDC
+1cjHwczUxdLTy8/HzyDV3sXUwSAo0MXSxcjPxCDLINfFxMXOycAgCtXexdTBINDPIM3F1sTV
+zsHSz8TO2c0g09TBzsTB0tTBzSkuIO7P18HRINLFxMHLw8nRIPrBy8/OwSAi7yDC1cjHwczU
+xdLTy8/NINXexdTFIi4KMi4g7s/X2cUg0M/Mz9bFzsnRINDPIMLVyMfBzNTF0tPLz83VINXe
+xdTVOgoiCfDi9SAxNS8wMSAi9d7F1CDawcrNz9cgySDL0sXEydTP1yDJINrB1NLB1CDQzyDJ
+yCDPwtPM1dbJ18HOycAiICjX09TV0MHF1CDXIArExcrT1NfJxSDTIDEg0c7XwdLRIDIwMDIg
+xy4pLAoiCfDi9SAxNi8wMiAi6c7Gz9LNwcPJ0SDQzyDQ0sXL0sHdwcXNz8ogxMXR1MXM2M7P
+09TJIiwKIgnw4vUgMTcvMDIgIvXexdQg0sHTyM/Ez9cgzsEgzsHV3s7PLcnT08zFxM/XwdTF
+zNjTy8nFLCDP0NnUzs8ty8/O09TS1cvUz9LTy8nFIArJINTFyM7PzM/Hyd7F08vJxSDSwcLP
+1NkiLAoiCfDi9SAxOC8wMiAi9d7F1CDSwdPexdTP1yDQzyDOwczPx9UgzsEg0NLJwtnM2CIs
+CiIJ8OL1IDE5LzAyICL13sXUIMbJzsHO08/X2cgg18zP1sXOycoiLgrrz83Nxc7UwdLJySDL
+INTFy9PU1SDw4vUgySDSxcvPzcXOxMHDyckg0M8gycgg0NLBy9TJ3sXTy8/N1SDQ0snNxc7F
+zsnALgozLiDuz9LNwdTJ187ZxSDEz8vVzcXO1NksIMnazcXOxc7J0SDXIMvP1M/S2cUgz8bJ
+w8nBzNjOzyDQ0snO0dTZIM7FIMLZzMksIM7PIArQxdLF09TB19vJxSDVxM/XzMXU18/S0dTY
+INTSxcLP18HOydHNIM7P0s3B1MnXztnIIMTPy9XNxc7Uz9cgws/MxcUg19nTz8vPx88g1dLP
+187RLgoKICAgICDw0s/H0sHNzcEg0sHa0sHCz9TBzsEg4S7hLuXG0sXNz9fPyiAtIMHX1M/S
+z80g0tHEwSDLzsnHINDPIM3F1M/Ez8zPx8nJIMkgCgkg0NLBy9TJy8UgwtXIx8HM1MXS08vP
+x88g1d7F1MEsINcg1C7eLjogIvXexdTOwdEg0M/MydTJy8E6INPPxMXS1sHOycUgySAKCSDQ
+0s/DxdPTIMbP0s3J0s/Xwc7J0SIsICL13sXUINPPwtPU18XOzs/HzyDLwdDJ1MHMwSIsICL1
+3sXUIM/Tzs/XztnIINPSxcTT1NcgCgkgySDV3sXUzsHRINDPzMnUycvBINDSxcTQ0snR1MnR
+IiwgwSDUwcvWxSDNzs/Hz97J08zFzs7ZyCDT1MHUxcog1yAKCSDT0MXDycHMydrJ0s/Xwc7O
+2cgg0MXSyc/Eyd7F08vJyCDJ2sTBzsnRyC4KCu/Sx8HOydrB1M/SINPFzcnOwdLP1yDtxdbE
+1c7B0s/EztnKIMPFztTSIM/C1d7FzsnRLiAK68/O1MHL1M7ZxSDUxczFxs/O2SAyMDctMjYt
+MjEsIDc3Mi05Mi00NiAKCvDSySDV3sHT1MnJIM/Ezs/HzyDexczP18XLwSDT1M/Jzc/T1Ngg
+zMDCz8fPINPFzcnOwdLBINPP09TB18zRxdQgMyA5MDAg0tXCLiwgCtMg1d7F1M/NIO7k8y4g
+8NLJINXewdPUyckg1yDE19XIINPFzcnOwdLByCAoyczJIMTX1cgg3sXMz9fFyyDXIM/Ezs/N
+INPFzcnOwdLFKSAK0NLFxM/T1MHXzNHF1NPRINPLycTLwSAxMCUuIPDSySDV3sHT1MnJINcg
+1NLFyCDTxc3JzsHSwcggKMnMySDU0sXIIN7FzM/XxcspLCAK3sXU18XS1NnKIC0g1yDQz8TB
+0s/LLiD3INPUz8nNz9PU2CDTxc3JzsHSwSDUwcvWxSDXyM/EydQg0sHaxMHUz97O2cogzcHU
+xdLJwcwsIArLz8bFLdDB1drBIMkgz8LFxCDXINLF09TP0sHOxS4g7sHewczBINPFzcnOwdLB
+INcgMTAg3sHTz9csIM/Lz87ewc7JxSDXIDE3LjAwLTE3LjMwLiAK7cXT1M8g0NLP18XExc7J
+0SDNLiDhy8HExc3J3sXTy8HRLCAyIM3JztXU2SDP1CDNxdTSzy4=
 
 
- include/linux/sched.h  |    6 +++
- include/linux/sysctl.h |    2 +
- kernel/sched.c         |   78 +++++++++++++++++++++++++++++++++++++++++++++++--
- kernel/sysctl.c        |    6 +++
- kernel/user.c          |   10 +++++-
- 5 files changed, 99 insertions(+), 3 deletions(-)
 
-diff -puN include/linux/sched.h~fairsched-A1 include/linux/sched.h
---- 25/include/linux/sched.h~fairsched-A1	Wed Apr  2 13:17:44 2003
-+++ 25-wind/include/linux/sched.h	Wed Apr  2 13:17:44 2003
-@@ -280,6 +280,12 @@ struct user_struct {
- 	/* Hash table maintenance information */
- 	struct list_head uidhash_list;
- 	uid_t uid;
-+
-+	/* List maintenance information */
-+	struct list_head uid_list;
-+
-+	/* Per-user timeslice management */
-+	unsigned int time_slice;
- };
- 
- #define get_current_user() ({ 				\
-diff -puN include/linux/sysctl.h~fairsched-A1 include/linux/sysctl.h
---- 25/include/linux/sysctl.h~fairsched-A1	Wed Apr  2 13:17:44 2003
-+++ 25-wind/include/linux/sysctl.h	Wed Apr  2 13:17:44 2003
-@@ -129,6 +129,8 @@ enum
- 	KERN_CADPID=54,		/* int: PID of the process to notify on CAD */
- 	KERN_PIDMAX=55,		/* int: PID # limit */
-   	KERN_CORE_PATTERN=56,	/* string: pattern for core-file names */
-+	KERN_FAIRSCHED=57,		/* turn per-user fair cpu scheduler on/off */
-+	KERN_MAX_TIMESLICE_USER=58,	/* maximum user timeslice */
- };
- 
- 
-diff -puN kernel/sched.c~fairsched-A1 kernel/sched.c
---- 25/kernel/sched.c~fairsched-A1	Wed Apr  2 13:17:44 2003
-+++ 25-wind/kernel/sched.c	Wed Apr  2 14:02:29 2003
-@@ -33,6 +33,13 @@
- #include <linux/timer.h>
- #include <linux/rcupdate.h>
- 
-+/*
-+ * turn per-user fair scheduler on/off
-+ */
-+
-+int fairsched = 0;
-+
-+
- #ifdef CONFIG_NUMA
- #define cpu_to_node_mask(cpu) node_to_cpumask(cpu_to_node(cpu))
- #else
-@@ -75,6 +82,9 @@
- #define STARVATION_LIMIT	(10*HZ)
- #define NODE_THRESHOLD		125
- 
-+int max_timeslice_user = (200 * HZ) / 100;
-+#define MAX_TIMESLICE_USER	(max_timeslice_user)
-+
- /*
-  * If a task is 'interactive' then we reinsert it in the active
-  * array after it has expired its current timeslice. (it will not
-@@ -317,6 +327,10 @@ static int effective_prio(task_t *p)
- 	bonus = MAX_USER_PRIO*PRIO_BONUS_RATIO*p->sleep_avg/MAX_SLEEP_AVG/100 -
- 			MAX_USER_PRIO*PRIO_BONUS_RATIO/100/2;
- 
-+	if(fairsched){
-+		/* special processing for per-user fair scheduler */
-+	}
-+
- 	prio = p->static_prio - bonus;
- 	if (prio < MAX_RT_PRIO)
- 		prio = MAX_RT_PRIO;
-@@ -1194,6 +1208,8 @@ void scheduler_tick(int user_ticks, int 
- 	runqueue_t *rq = this_rq();
- 	task_t *p = current;
- 
-+	unsigned int user_time_slice;
-+
- 	if (rcu_pending(cpu))
- 		rcu_check_callbacks(cpu, user_ticks);
- 
-@@ -1246,14 +1262,24 @@ void scheduler_tick(int user_ticks, int 
- 		}
- 		goto out;
- 	}
--	if (!--p->time_slice) {
-+
-+	/* Update per-user timeslice */
-+	if(fairsched) {
-+		if(p->user->time_slice > 0)
-+			--p->user->time_slice;
-+		user_time_slice = p->user->time_slice;
-+	}else
-+		user_time_slice = 1;
-+
-+	/* Update per-process timeslice and queue the task when used up */
-+	if (!--p->time_slice || !user_time_slice) {
- 		dequeue_task(p, rq->active);
- 		set_tsk_need_resched(p);
- 		p->prio = effective_prio(p);
- 		p->time_slice = task_timeslice(p);
- 		p->first_time_slice = 0;
- 
--		if (!TASK_INTERACTIVE(p) || EXPIRED_STARVING(rq)) {
-+		if (!TASK_INTERACTIVE(p) || EXPIRED_STARVING(rq) || !user_time_slice) {
- 			if (!rq->expired_timestamp)
- 				rq->expired_timestamp = jiffies;
- 			enqueue_task(p, rq->expired);
-@@ -1268,6 +1294,38 @@ out:
- void scheduling_functions_start_here(void) { }
- 
- /*
-+ * Gime more timeslices to users on each array switch
-+ */
-+static inline void update_user_timeslices(void)
-+{
-+	extern struct list_head user_list;
-+	struct list_head *entry;
-+	struct user_struct *user;
-+	unsigned int user_time_slice;
-+
-+	if(!fairsched) return;
-+
-+	list_for_each(entry, &user_list) {
-+		user = list_entry(entry, struct user_struct, uid_list);
-+
-+		if(!user) continue;
-+
-+		if(0){
-+			user_time_slice = user->time_slice;
-+
-+			user_time_slice += HZ;
-+			if(user_time_slice > MAX_TIMESLICE_USER)
-+				user_time_slice = MAX_TIMESLICE_USER;
-+
-+			if(user->time_slice != user_time_slice)
-+				user->time_slice = user_time_slice;
-+		}else{
-+			user->time_slice += HZ;
-+		}
-+	}
-+}
-+
-+/*
-  * schedule() is the main scheduler function.
-  */
- asmlinkage void schedule(void)
-@@ -1339,11 +1397,27 @@ pick_next_task:
- 		rq->expired = array;
- 		array = rq->active;
- 		rq->expired_timestamp = 0;
-+
-+		/*
-+		 * Give new timeslices to users
-+		 */
-+		update_user_timeslices();
- 	}
- 
- 	idx = sched_find_first_bit(array->bitmap);
- 	queue = array->queue + idx;
- 	next = list_entry(queue->next, task_t, run_list);
-+
-+	/*
-+	 * If next task' user has used all his timeslice,
-+	 * send his task to the expired array.
-+	 */
-+
-+	if(fairsched && !next->user->time_slice){
-+		dequeue_task(next, array);
-+		enqueue_task(next, rq->expired);
-+		goto pick_next_task;
-+	}
- 
- switch_tasks:
- 	prefetch(next);
-diff -puN kernel/sysctl.c~fairsched-A1 kernel/sysctl.c
---- 25/kernel/sysctl.c~fairsched-A1	Wed Apr  2 13:17:44 2003
-+++ 25-wind/kernel/sysctl.c	Wed Apr  2 13:17:44 2003
-@@ -57,6 +57,8 @@ extern char core_pattern[];
- extern int cad_pid;
- extern int pid_max;
- extern int sysctl_lower_zone_protection;
-+extern int fairsched;
-+extern int max_timeslice_user;
- 
- /* this is needed for the proc_dointvec_minmax for [fs_]overflow UID and GID */
- static int maxolduid = 65535;
-@@ -263,6 +265,10 @@ static ctl_table kern_table[] = {
- #endif
- 	{KERN_PIDMAX, "pid_max", &pid_max, sizeof (int),
- 	 0600, NULL, &proc_dointvec},
-+	{KERN_FAIRSCHED, "fairsched", &pid_max, sizeof (int),
-+	 0644, NULL, &proc_dointvec},
-+	{KERN_MAX_TIMESLICE_USER, "max_timeslice_user", &pid_max, sizeof (int),
-+	 0644, NULL, &proc_dointvec},
- 	{0}
- };
- 
-diff -puN kernel/user.c~fairsched-A1 kernel/user.c
---- 25/kernel/user.c~fairsched-A1	Wed Apr  2 13:17:44 2003
-+++ 25-wind/kernel/user.c	Wed Apr  2 13:17:44 2003
-@@ -27,10 +27,13 @@ static kmem_cache_t *uid_cachep;
- static struct list_head uidhash_table[UIDHASH_SZ];
- static spinlock_t uidhash_lock = SPIN_LOCK_UNLOCKED;
- 
-+struct list_head user_list;
-+
- struct user_struct root_user = {
- 	.__count	= ATOMIC_INIT(1),
- 	.processes	= ATOMIC_INIT(1),
--	.files		= ATOMIC_INIT(0)
-+	.files		= ATOMIC_INIT(0),
-+	.time_slice	= 1
- };
- 
- /*
-@@ -39,10 +42,12 @@ struct user_struct root_user = {
- static inline void uid_hash_insert(struct user_struct *up, struct list_head *hashent)
- {
- 	list_add(&up->uidhash_list, hashent);
-+	list_add(&up->uid_list, &user_list);
- }
- 
- static inline void uid_hash_remove(struct user_struct *up)
- {
-+	list_del(&up->uid_list);
- 	list_del(&up->uidhash_list);
- }
- 
-@@ -97,6 +102,7 @@ struct user_struct * alloc_uid(uid_t uid
- 		atomic_set(&new->__count, 1);
- 		atomic_set(&new->processes, 0);
- 		atomic_set(&new->files, 0);
-+		new->time_slice = 1;
- 
- 		/*
- 		 * Before adding this, check whether we raced
-@@ -146,6 +152,8 @@ static int __init uid_cache_init(void)
- 
- 	for(n = 0; n < UIDHASH_SZ; ++n)
- 		INIT_LIST_HEAD(uidhash_table + n);
-+
-+	INIT_LIST_HEAD(&user_list);
- 
- 	/* Insert the root user immediately - init already runs with this */
- 	uid_hash_insert(&root_user, uidhashentry(0));
-
-_
-
---45Z9DzgjV8m4Oswq--
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+------=_NextPart_000_000B_1B57143E.6F4E34A0--

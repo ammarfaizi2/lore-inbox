@@ -1,47 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262406AbTDALiQ>; Tue, 1 Apr 2003 06:38:16 -0500
+	id <S262408AbTDALmJ>; Tue, 1 Apr 2003 06:42:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262408AbTDALiQ>; Tue, 1 Apr 2003 06:38:16 -0500
-Received: from ns.suse.de ([213.95.15.193]:2058 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S262406AbTDALiL>;
-	Tue, 1 Apr 2003 06:38:11 -0500
-Subject: Re: [PATCH][2.5][RFT] sfence wmb for K7,P3,VIAC3-2(?)
-From: Andi Kleen <ak@suse.de>
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: Zwane Mwaikambo <zwane@linuxpower.ca>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030401112800.GA23027@suse.de>
-References: <Pine.LNX.4.50.0304010242250.8773-100000@montezuma.mastecende.com>
-	<Pine.LNX.4.50.0304010320220.8773-100000@montezuma.mastecende.com>
-	<1049191863.30759.3.camel@averell>  <20030401112800.GA23027@suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 01 Apr 2003 13:49:32 +0200
-Message-Id: <1049197774.31041.15.camel@averell>
+	id <S262423AbTDALmJ>; Tue, 1 Apr 2003 06:42:09 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:52484 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262408AbTDALmI>; Tue, 1 Apr 2003 06:42:08 -0500
+Date: Tue, 1 Apr 2003 12:53:28 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.66-mm2-1 freezes solid after init PCMCIA
+Message-ID: <20030401125328.B30470@flint.arm.linux.org.uk>
+Mail-Followup-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <1049196020.789.8.camel@teapot>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1049196020.789.8.camel@teapot>; from felipe_alfaro@linuxmail.org on Tue, Apr 01, 2003 at 01:20:21PM +0200
+X-Message-Flag: Your copy of Microsoft Outlook is vurnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-04-01 at 13:28, Dave Jones wrote:
-> On Tue, Apr 01, 2003 at 12:11:00PM +0200, Andi Kleen wrote:
->  > sfence is part of SSE2. That's X86_SSE2
+On Tue, Apr 01, 2003 at 01:20:21PM +0200, Felipe Alfaro Solana wrote:
+> PCI: Found IRQ 10 for device 00:0c.0
+> yenta 00:0c.0: Preassigned resource 3 busy, reconfiguring...
+> Yenta IRQ list 08d8, PCI irq10
+> Socket status: 30000006
+> PCI: Found IRQ 5 for device 00:0c.1
+> PCI: Sharing IRQ 5 with 00:09.0
+> yenta 00:0c.1: Preassigned resource 2 busy, reconfiguring...
+> yenta 00:0c.1: Preassigned resource 3 busy, reconfiguring...
+> Yenta IRQ list 08d8, PCI irq5
+> Socket status: 30000020
 > 
-> I'm not so sure this is correct. A quick google suggests
-> otherwise, and the C3 Nehemiah (which only supports SSE1) seems
-> to run sfence instructions just fine.
+> At this point, the machine hangs. This didn't happen with 2.5.66-mm1 or
+> 2.5.66-mm2 (but it happens with 2.5.66-mm2-1). I'm 99% sure this is
+> caused by Dominik or Russell King PCMCIA patches.
 
-Yes, you're correct. It was SSE1, not SSE2.
+What happens if you boot without the cardbus card inserted?  If this
+works, please send lspci -vv output.  What happens if you insert the
+cardbus card?  If this works, again, please send the lspci -vv output.
 
-The problem Zwane encountered is that early Athlons don't support SSE1,
-only XP+ do
+Please send lspci -vv output under a kernel which works with the card
+inserted.
 
-To use it he would need an a new CONFIG split for Athlon XP and earlier
-Athlon. iirc it didn't make much difference on the athlon anyways which
-has quite fast locked operations on exclusive cachelines - sfence seems
-to be more useful on P4.
+(so you should have up to 3 lspci outputs to send me.)
 
--Andi
+Thanks.
 
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

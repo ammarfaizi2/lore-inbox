@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130579AbRBCVTx>; Sat, 3 Feb 2001 16:19:53 -0500
+	id <S129030AbRBCWH6>; Sat, 3 Feb 2001 17:07:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130132AbRBCVTn>; Sat, 3 Feb 2001 16:19:43 -0500
-Received: from femail15.sdc1.sfba.home.com ([24.0.95.142]:11675 "EHLO
-	femail15.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S130576AbRBCVTe>; Sat, 3 Feb 2001 16:19:34 -0500
-Message-ID: <3A7C7756.EA5778DB@didntduck.org>
-Date: Sat, 03 Feb 2001 16:25:42 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Viktor Rosenfeld <rosenfel@informatik.hu-berlin.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [BUG?] ISA-PnP and 3c509 NIC won't work together
-In-Reply-To: <3A7C45E4.15C470A3@informatik.hu-berlin.de>
+	id <S129089AbRBCWHt>; Sat, 3 Feb 2001 17:07:49 -0500
+Received: from [209.53.19.107] ([209.53.19.107]:21376 "EHLO continuum.cm.nu")
+	by vger.kernel.org with ESMTP id <S129030AbRBCWHa>;
+	Sat, 3 Feb 2001 17:07:30 -0500
+Date: Sat, 3 Feb 2001 14:07:27 -0800
+From: Shane Wegner <shane@cm.nu>
+To: linux-kernel@vger.kernel.org
+Subject: SMP problem with 2.2.19pre8
+Message-ID: <20010203140727.A2873@cm.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+Organization: Continuum Systems, Vancouver, Canada
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Viktor Rosenfeld wrote:
-> 
-> Hi kernel hackers,
-> 
-> I have troubles getting both ISA-PnP and the driver for my 3c509 NIC
-> working together.  
-> 
-> I can only get my NIC to work when I leave ISA-PnP completely out of the
-> kernel.  When I have ISA-PnP activated, the card will not show up in
-> /proc/isapnp (see below) nor is it listed in the table that my system
-> displays prior to starting LILO.  The kernel help on the 3c509 driver
-> suggests to completely deactivate PNP for the NIC, which is what I have
-> done since kernel 2.0.x.  Unfortunately, I can't find info on
-> re-enabling PNP on the card.
-> 
-> Below, I have attached the content of /proc/isapnp.  If I can do
-> anything to provide more info, let me know.
+Hi,
 
-Go to 3Com's site and get the setup program for the card (for DOS).  It
-is configurable via eeprom for io and irq or PnP mode.
+I just built this SMP system and am getting some weird
+errors from kern.log.  The system will run smoothly but
+after about a half hour running the distributed.net RC5
+client, the following errors show up.
 
---
-					Brian Gerst
+Feb  3 04:40:18 continuum kernel: stuck on TLB IPI wait
+(CPU#0)
+Feb  3 04:40:23 continuum last message repeated 4 times
+Feb  3 04:40:45 continuum last message repeated 4 times
+Feb  3 04:40:56 continuum kernel: stuck on TLB IPI wait
+(CPU#1)
+Feb  3 04:41:02 continuum last message repeated 2 times
+
+The system doesn't actually crash but it does slow to a
+crawl such that you can't really do anything with it.  It
+is an Abit VP6 motherboard running 2 P-III 850 CPUs at
+100MHZ bus speed.  256MB of PC133 micron ram.
+
+If anyone knows whether this is a kernel issue or a
+hardware one, I would appreciate hearing from you.
+
+Shane
+
+
+-- 
+Shane Wegner: shane@cm.nu
+              http://www.cm.nu/~shane/
+PGP:          1024D/FFE3035D
+              A0ED DAC4 77EC D674 5487
+              5B5C 4F89 9A4E FFE3 035D
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

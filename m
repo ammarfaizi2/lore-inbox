@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262703AbTCJDbB>; Sun, 9 Mar 2003 22:31:01 -0500
+	id <S262704AbTCJDlD>; Sun, 9 Mar 2003 22:41:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262704AbTCJDbB>; Sun, 9 Mar 2003 22:31:01 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:4049 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id <S262703AbTCJDbB>;
-	Sun, 9 Mar 2003 22:31:01 -0500
-Message-Id: <200303100341.h2A3fKEO004164@eeyore.valparaiso.cl>
-To: Zack Brown <zbrown@tumblerings.org>
-cc: Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: BitBucket: GPL-ed KitBeeper clone 
-In-Reply-To: Your message of "Sat, 08 Mar 2003 18:45:22 -0800."
-             <20030309024522.GA25121@renegade> 
-Date: Sun, 09 Mar 2003 23:41:20 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S262705AbTCJDlD>; Sun, 9 Mar 2003 22:41:03 -0500
+Received: from smtp1.euronet.nl ([194.134.35.133]:14012 "EHLO smtp1.euronet.nl")
+	by vger.kernel.org with ESMTP id <S262704AbTCJDlC>;
+	Sun, 9 Mar 2003 22:41:02 -0500
+Message-ID: <3E6C0B93.5040205@koffie.nl>
+Date: Mon, 10 Mar 2003 04:50:43 +0100
+From: Segher Boessenkool <segher@koffie.nl>
+User-Agent: Mozilla/5.0 (Macintosh; U; PPC; en-US; rv:1.2.1) Gecko/20021130
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Albert Cahalan <albert@users.sourceforge.net>,
+       "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+       oprofile-list@lists.sourceforge.net, linuxppc-dev@lists.linuxppc.org,
+       o.oppitz@web.de, afleming@motorola.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch] oprofile for ppc
+References: <200303070929.h279TGTu031828@saturn.cs.uml.edu>	 <1047032003.12206.5.camel@zion.wanadoo.fr>  <1047061862.1900.67.camel@cube> <1047136206.12202.85.camel@zion.wanadoo.fr>
+In-Reply-To: <1047136206.12202.85.camel@zion.wanadoo.fr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zack Brown <zbrown@tumblerings.org> said:
+Benjamin Herrenschmidt wrote:
+> Beware though that some G4s have a nasty bug that prevents
+> using the performance counter interrupt (and the thermal interrupt
+> as well).
 
-[...]
+MPC7400 version 1.2 and lower have this problem.
 
-> I'd be willing to maintain this as the beginning of a feature list and
-> post it regularly to lkml if enough people feel it would be useful and not
-> annoying. The goal would be to identify the features/problems that would
-> need to be handled by a kernel-ready version control system.
+ > The problem is that if any of those fall at the same
+> time as the DEC interrupt, the CPU messes up it's internal
+> state and you lose SRR0/SRR1, which means you can't recover
+> from the exception.
 
-I believe that has very little relevance to lkml, only perhaps to a mailing
-list for a bk replacement. For the kernel this work has already been done
-(by Larry and the head penguins).
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+But the worst that happens is that you lose that process, isn't
+it?  Not all that big a problem, esp. since the window in which
+this can happen is very small.
+
+
+Segher
+

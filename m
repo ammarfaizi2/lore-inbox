@@ -1,52 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263288AbTIAVM5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 17:12:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263299AbTIAVM5
+	id S263279AbTIAVMX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 17:12:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263287AbTIAVMX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 17:12:57 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:31875 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S263288AbTIAVMe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 17:12:34 -0400
-Date: Mon, 1 Sep 2003 23:12:20 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@osdl.org>
-Subject: Re: Fix up power managment in 2.6
-Message-ID: <20030901211220.GD342@elf.ucw.cz>
-References: <20030831232812.GA129@elf.ucw.cz> <Pine.LNX.4.44.0309010925230.7908-100000@home.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0309010925230.7908-100000@home.osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+	Mon, 1 Sep 2003 17:12:23 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15539 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263279AbTIAVMP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 17:12:15 -0400
+Date: Mon, 1 Sep 2003 18:14:54 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@parcelfarce.linux.theplanet.co.uk>
+X-X-Sender: marcelo@logos.cnet
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.4.22
+In-Reply-To: <Pine.LNX.4.44.0309011743420.6008-100000@logos.cnet>
+Message-ID: <Pine.LNX.4.44.0309011814350.6008-100000@logos.cnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > Patrick fucked up power managment in 2.6.0-test4 [...]
+
+On Mon, 1 Sep 2003, Marcelo Tosatti wrote:
+
 > 
-> Ok, guys, how about just talking to each other without the personal 
-> attacks. Pavel in particular - this is more personal friction than 
-> anything else, since others do not seem to have the same visceral dislike 
-> of the patches, and there _has_ been discussion about them. 
+> 
+> On Tue, 26 Aug 2003, Richard B. Johnson wrote:
+> 
+> > 
+> > I configured, built and booted Linux-2.4.22. There are
+> > some problems.
+> > 
+> > (1) `dmesg` fails to read the first part of the buffered
+> > kernel log. I have attached two files, dmesg-20 (normal)
+> > and dmesg-22 (bad). File dmesg-22 is from Linux-2.4.22
+> > and dmesg-20 is from Linux-2.4.20. To save space, I
+> > snip everything after 'NET4'.
+> > 
+> > (2)  The ipx module fails to load with undefined symbols.
+> > This module loads fine in Linux-2.4.20.
+> > 
+> > depmod: *** Unresolved symbols in /lib/modules/2.4.22/kernel/net/ipx/ipx.o
+> > depmod: 	unregister_8022_client
+> > depmod: 	make_EII_client
+> > depmod: 	register_8022_client
+> > depmod: 	register_snap_client
+> > depmod: 	make_8023_client
+> > depmod: 	destroy_8023_client
+> > depmod: 	destroy_EII_client
+> > depmod: 	unregister_snap_client
+> 
+> > (3)  When umounting the root file-system, the machine usually
+> > hangs. The result is a long `fsck` on the next boot. The problem
+> > seems to be that sendmail doesn't get killed during the `init 0`
+> > sequence. It remains with a file open and the root file-system isn't
+> > unmounted. A temporary work-round is to `ifconfig eth0 down` before
+> > starting shutdown. Otherwise, sendmail remains stuck in the 'D' state.
+> 
+> Which previous kernel didnt show this behaviour? 
+> 
+> > 
+> > (4)  When mounting the DOS file-systems during startup, the echo
+> > on the screen shows about 15 lines of white-space. This never
+> > happened before. When mounting /proc, there are 6 lines of
+> > white-space, also strange.
+> 
+> Again, which kernel doesnt show that behaviour? 
 
-Unfortunately, that was not personal attack, that was a fact. Even
-Patrick had to agree that his -test4 changes were bad idea, and I even
-have "official apology" from him (on irc).
+Oh, Jason already answered. The fix he talks about is already in 
+2.4.23-pre. 
 
-He just thinks he can fix his code, and I want that code to be
-reverted, reviewed, tested, and than merged back. There's no way
-current mess can be fixed in reasonable time.
-
-I've seen no discussion about that code, and certainly have not seen
-that code before it was merged, which is strange since I'm listed as
-software suspend maintainer.
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

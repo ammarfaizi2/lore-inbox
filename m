@@ -1,70 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129977AbQK3RPa>; Thu, 30 Nov 2000 12:15:30 -0500
+        id <S130639AbQK3RS2>; Thu, 30 Nov 2000 12:18:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129982AbQK3RPU>; Thu, 30 Nov 2000 12:15:20 -0500
-Received: from green.csi.cam.ac.uk ([131.111.8.57]:53393 "EHLO
-        green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-        id <S129572AbQK3RPQ>; Thu, 30 Nov 2000 12:15:16 -0500
-From: James A Sutherland <jas88@cam.ac.uk>
-To: Arnaud Installe <ainstalle@filepool.com>,
-        Ray Bryant <raybry@austin.ibm.com>
-Subject: Re: high load & poor interactivity on fast thread creation
-Date: Thu, 30 Nov 2000 16:37:19 +0000
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20001130081443.A8118@bach.iverlek.kotnet.org> <3A266895.F522A0E2@austin.ibm.com> <20001130171137.A1851@bartok.filepool.com>
-In-Reply-To: <20001130171137.A1851@bartok.filepool.com>
+        id <S129572AbQK3RSS>; Thu, 30 Nov 2000 12:18:18 -0500
+Received: from 13dyn240.delft.casema.net ([212.64.76.240]:12037 "EHLO
+        abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+        id <S129982AbQK3RSJ>; Thu, 30 Nov 2000 12:18:09 -0500
+Message-Id: <200011301647.RAA03831@cave.bitwizard.nl>
+Subject: Re: [PATCH] New user space serial port driver
+In-Reply-To: <200011301500.eAUF0o905978@flint.arm.linux.org.uk> from Russell
+ King at "Nov 30, 2000 03:00:50 pm"
+To: Russell King <rmk@arm.linux.org.uk>
+Date: Thu, 30 Nov 2000 17:47:24 +0100 (MET)
+CC: Rogier Wolff <R.E.Wolff@bitwizard.nl>,
+        Tigran Aivazian <tigran@veritas.com>,
+        Patrick van de Lageweg <patrick@bitwizard.nl>,
+        Rogier Wolff <wolff@bitwizard.nl>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+From: R.E.Wolff@bitwizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
-Message-Id: <00113016451700.12212@dax.joh.cam.ac.uk>
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Nov 2000, Arnaud Installe wrote:
-> On Thu, Nov 30, 2000 at 08:47:49AM -0600, Ray Bryant wrote:
-> > The IBM implementations of the Java language use native threads --
-> > the result is that every time you do a Java thread creation, you
-> > end up with a new cloned process.  Now this should be pretty fast,
+Russell King wrote:
+> Rogier Wolff writes:
+> > > > +static struct termios    * ussp_termios[USSP_MAX_PORTS];
+> > > > +static struct termios    * ussp_termios_locked[USSP_MAX_PORTS];
+> > 
+> > this SHOULD mean that these are first initialized before use. 
+> > 
+> > If you think they can be used before first being initialized by the
+> > code, then that's a bug, and I'll look into it.
 > 
-> Well, I think the problem is that it is *too* fast.  :-/  What I think
-> happens is that a lot of threads get created at the same time, and they
-> all run a bit of initialization code.  This way a lot of processes are in
-> the running state, so that the load average gets *very* high, which makes
-> the system very unresponsive.
+> Ah, but they are initialised before use, by arch/*/kernel/head.S.
+> Therefore no bug exists.
 
-Certainly sounds plausible; if the first process is able to create a lot of
-runnable processes/threads in a single timeslice, the scheduler is then hit
-with a huge queue to plough through once that timeslice ends.
+Documentation bug. Not code bug. 
 
-Making calls to clone() force a schedule() might help here? That way, hopefully
-each thread can run its initialisation code before the next one is created,
-avoiding the problem?
-
-> Could this be correct ?  Also, I haven't seen this happen with NT.  Could
-> it be that Java on NT uses user-mode threading and creates threads much
-> more slowly, resulting in a lower load ?
-
-Perhaps; alternatively, if it schedules the new thread to run before resuming
-the parent thread, each thread is initialised when created, rather than
-building up a huge backlog, that would avoid the problem.
-
-> > so I am surprised that it stalls like that.  It is possible this
-> > is a scheduler effect.  Do you have a program example you can
-> > share with us?
-> 
-> So I suppose it is a scheduler effect.  Can this be solved on the kernel
-> side (a /proc/sys setting perhaps ?), or should a check be built-in into
-> the software that no more than a certain number of threads are created per
-> time unit ?
-
-Either of those could help. Alternatively, have you tried inserting a yield
-instruction in the Java code after creating each thread, to make sure the new
-thread gets a chance to initialise?
+			Roger. 
 
 
-James.
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,56 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288971AbSBDN3Z>; Mon, 4 Feb 2002 08:29:25 -0500
+	id <S288977AbSBDNnH>; Mon, 4 Feb 2002 08:43:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288973AbSBDN3O>; Mon, 4 Feb 2002 08:29:14 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:40607 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S288971AbSBDN3E>; Mon, 4 Feb 2002 08:29:04 -0500
-Message-ID: <3C5E8D84.5216D0EC@in.ibm.com>
-Date: Mon, 04 Feb 2002 19:02:52 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-Organization: IBM
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i686)
-X-Accept-Language: en
+	id <S288981AbSBDNnB>; Mon, 4 Feb 2002 08:43:01 -0500
+Received: from wep10a-3.wep.tudelft.nl ([130.161.65.38]:7439 "EHLO
+	wep10a-3.wep.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S288977AbSBDNl5>; Mon, 4 Feb 2002 08:41:57 -0500
+Date: Mon, 4 Feb 2002 14:41:46 +0100 (CET)
+From: Taco IJsselmuiden <taco@wep.tudelft.nl>
+Reply-To: Taco IJsselmuiden <taco@wep.tudelft.nl>
+To: Jens Axboe <axboe@suse.de>
+cc: Paul Bristow <paul@paulbristow.net>, linux-kernel@vger.kernel.org
+Subject: Re: [OOPS] Oops with ide-floppy in 2.5.2 / 2.5.3
+In-Reply-To: <20020204091509.Q29553@suse.de>
+Message-ID: <Pine.LNX.4.21.0202041440390.23695-100000@banaan.taco.dhs.org>
 MIME-Version: 1.0
-To: sathish jayapalan <sathish_jayapalan@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: How to crash a system and take a dump?
-In-Reply-To: <20020204112621.31480.qmail@web14805.mail.yahoo.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With LKCD, you can also trigger a dump via the Alt+Sysrq+c key. 
-If you run into problems when trying to use this, then you might need
-some of the fixes that we've checked into the lkcd cvs tree.
+Jens, Paul,
 
-Regards
-Suparna
-IBM Linux Technology Center
+> If the driver knows what it is doing, then this patch should cure your
+> problem.
+> 
+> --- drivers/ide/ide.c~        Mon Feb  4 09:12:10 2002
+> +++ drivers/ide/ide.c Mon Feb  4 09:14:39 2002
+> @@ -1784,6 +1784,8 @@
+>       if (blk_queue_empty(&drive->queue) || action == ide_preempt) {
+>               if (action == ide_preempt)
+>                       hwgroup->rq = NULL;
+> +             if (!blk_queue_empty(&drive->queue))
+> +                     list_entry_rq(queue_head)->flags &= ~REQ_STARTED;
+>       } else {
+>               if (action == ide_wait || action == ide_end) {
+>                       queue_head = queue_head->prev;
+> 
 
-sathish jayapalan wrote:
-> 
-> Hi,
-> I have a doubt. I know that linux kernel doesn't crash
-> so easily. Is there any way to panic the system? Can I
-> go to the source area and insert/modify a variable in
-> kernel code so that the kernel references a null
-> pointer and crashes while running the kernel compiled
-> with this variable. My aim is to learn crash dump
-> analysis with 'Lcrash tool". Please help me out with
-> this.
-> 
-> Thanks in advance,
-> sathish
-> 
-> __________________________________________________
-> Do You Yahoo!?
-> Great stuff seeking new owners in Yahoo! Auctions!
-> http://auctions.yahoo.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+when using this in vanilla 2.5.3 it continues to oops.
+But, when using Ingo's K0 on top of 2.5.3 it 'works' with this patch.
+That is: it doesn't oops.
+it now just goes:
+brood:~# insmod ide-floppy
+using /lib/modules/2.5.3-K0/kernel/drivers/ide/ide-floppy.o
+ide-floppy driver 0.98a
+hdd: 98304kB, 196608 blocks, 512 sector size
+
+
+and doesn't return to the prompt
+
+and /proc/modules has
+ide-floppy             11744 (initializing)
+(even after waiting a _LONG_ time....)
+
+
+
+Cheers,
+Taco.
+
+

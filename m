@@ -1,346 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264301AbTEJPcO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 11:32:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264402AbTEJPcO
+	id S264402AbTEJPgK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 11:36:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264403AbTEJPgK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 11:32:14 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:32182 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S264301AbTEJPcH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 11:32:07 -0400
-Date: Sat, 10 May 2003 17:41:24 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix .altinstructions linking failures
-Message-ID: <20030510154124.GA11613@wohnheim.fh-wedel.de>
-References: <20030506063055.GA15424@averell> <20030507092329.GA2389@wohnheim.fh-wedel.de> <20030507094752.GA4050@averell> <20030510085022.GL13649@fs.tum.de>
+	Sat, 10 May 2003 11:36:10 -0400
+Received: from pop.gmx.de ([213.165.65.60]:60707 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264402AbTEJPgJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 May 2003 11:36:09 -0400
+Date: Sat, 10 May 2003 17:46:31 +0200
+From: Tuncer M "zayamut" Ayaz <tuncer.ayaz@gmx.de>
+To: Ahmed Masud <masud@googgun.com>
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.69 strange high tone on DELL Inspiron 8100
+In-Reply-To: <Pine.LNX.4.33.0305101138110.24188-100000@marauder.googgun.com>
+References: <S264373AbTEJPSN/20030510151813Z+1648@vger.kernel.org>
+	<Pine.LNX.4.33.0305101138110.24188-100000@marauder.googgun.com>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030510085022.GL13649@fs.tum.de>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <S264402AbTEJPgJ/20030510153609Z+7028@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 10 May 2003 10:50:22 +0200, Adrian Bunk wrote:
-> On Wed, May 07, 2003 at 11:47:52AM +0200, Andi Kleen wrote:
-> > P.S.: In case someone is interested: The hall of shame for the 2.5.69 SMP
-> > maxi kernel (stuff that doesn't build) currently is:  Sound/Alsa (one driver 
-> > doesn't compile), USB (3 drivers don't compile), MTD (lots of stuff doesn't 
-> > compile).  Everything else is quite good.
+On Sat, 10 May 2003 11:39:12 -0400 (EDT)
+Ahmed Masud <masud@googgun.com> wrote:
+
 > 
-> At about a dozen SCSI drivers plus half a dozen drivers under 
-> drivers/char/* don't compile in 2.5.69 even for non-SMP. How did you 
-> manage to compile these?
+> 
+> On Sat, 10 May 2003, Tuncer M zayamut Ayaz wrote:
+> 
+> > On Sat, 10 May 2003 17:07:51 +0200
+> > Tuncer M "zayamut" Ayaz <tuncer.ayaz@gmx.de> wrote:
+> >
+> > > On 10 May 2003 14:59:31 +0100
+> > > Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> > >
+> > > > On Sad, 2003-05-10 at 14:57, Tuncer M zayamut Ayaz wrote:
+> > > > > description of the strange sound:
+> > > > >   - high tone
+> > > > >   - permanent
+> > > > >   - happens before loading ALSA modules
+> 
+> Is this high tone comming out of external speakers or is it from
+> internal speaker?
 
-Just so we can name those drivers, this is the diff between my maximal
-config for 2.5.69 and allyesconfig. Well, for easier reading, it is
-piped through grep '^-'.
-
-Is this list of any interest? Should I generate it regularly for newer
-kernels? Would anyone actually read it and fix things?
-
-Jörn
-
--- 
-Sometimes, asking the right question is already the answer.
--- Unknown
-
--CONFIG_X86_GENERIC=y
--CONFIG_X86_L1_CACHE_SHIFT=7
--CONFIG_X86_INTEL_USERCOPY=y
--CONFIG_SMP=y
--CONFIG_NR_CPUS=32
--CONFIG_EISA_VLB_PRIMING=y
--CONFIG_HOTPLUG_PCI_ACPI=y
--CONFIG_MTD_BLOCK=y
--CONFIG_MTD_UCLINUX=y
--CONFIG_MTD_BLKMTD=y
--CONFIG_SCSI_AIC7XXX=y
--CONFIG_AIC7XXX_CMDS_PER_DEVICE=32
--CONFIG_AIC7XXX_RESET_DELAY_MS=15000
--CONFIG_AIC7XXX_PROBE_EISA_VL=y
--CONFIG_AIC7XXX_BUILD_FIRMWARE=y
--CONFIG_AIC7XXX_DEBUG_ENABLE=y
--CONFIG_AIC7XXX_DEBUG_MASK=0
--CONFIG_AIC7XXX_REG_PRETTY_PRINT=y
--CONFIG_SCSI_AIC7XXX_OLD=y
--CONFIG_SCSI_AIC79XX=y
--CONFIG_AIC79XX_CMDS_PER_DEVICE=32
--CONFIG_AIC79XX_RESET_DELAY_MS=15000
--CONFIG_AIC79XX_BUILD_FIRMWARE=y
--CONFIG_AIC79XX_ENABLE_RD_STRM=y
--CONFIG_AIC79XX_DEBUG_ENABLE=y
--CONFIG_AIC79XX_DEBUG_MASK=0
--CONFIG_AIC79XX_REG_PRETTY_PRINT=y
--CONFIG_SCSI_DPT_I2O=y
--CONFIG_SCSI_AM53C974=y
--CONFIG_SCSI_CPQFCTS=y
--CONFIG_SCSI_GENERIC_NCR5380=y
--CONFIG_SCSI_GENERIC_NCR5380_MMIO=y
--CONFIG_SCSI_GENERIC_NCR53C400=y
--CONFIG_SCSI_INITIO=y
--CONFIG_SCSI_INIA100=y
--CONFIG_SCSI_MCA_53C9X=y
--CONFIG_SCSI_PCI2000=y
--CONFIG_SCSI_PCI2220I=y
--CONFIG_SCSI_PSI240I=y
--CONFIG_SCSI_DC395x=y
--CONFIG_SCSI_DC390T=y
--CONFIG_SCSI_DC390T_NOGENSUPP=y
--CONFIG_DECNET=y
--CONFIG_DECNET_SIOCGIFCONF=y
--CONFIG_DECNET_ROUTER=y
--CONFIG_DECNET_ROUTE_FWMARK=y
--CONFIG_IXGB=y
--CONFIG_IXGB_NAPI=y
--CONFIG_DEFXX=y
--CONFIG_STRIP=y
--CONFIG_TMS380TR=y
--CONFIG_TMSPCI=y
--CONFIG_SKISA=y
--CONFIG_PROTEON=y
--CONFIG_ABYSS=y
--CONFIG_MADGEMC=y
--CONFIG_IPHASE5526=y
--CONFIG_RCPCI=y
--CONFIG_VENDOR_SANGOMA=y
--CONFIG_WANPIPE_CHDLC=y
--CONFIG_WANPIPE_FR=y
--CONFIG_WANPIPE_X25=y
--CONFIG_WANPIPE_PPP=y
--CONFIG_WANPIPE_MULTPPP=y
--CONFIG_6PACK=y
--CONFIG_DMASCC=y
--CONFIG_ISDN=y
--CONFIG_ISDN_NET_SIMPLE=y
--CONFIG_ISDN_NET_CISCO=y
--CONFIG_ISDN_PPP=y
--CONFIG_ISDN_PPP_VJ=y
--CONFIG_ISDN_MPP=y
--CONFIG_ISDN_PPP_BSDCOMP=y
--CONFIG_ISDN_AUDIO=y
--CONFIG_ISDN_TTY_FAX=y
--
--#
--# ISDN feature submodules
--#
--CONFIG_ISDN_DRV_LOOP=y
--CONFIG_ISDN_DIVERSION=y
--CONFIG_ISDN_CAPI_CAPIDRV=y
--# ISDN4Linux hardware drivers
--#
--
--#
--# Passive cards
--#
--CONFIG_ISDN_DRV_HISAX=y
--
--#
--# D-channel protocol features
--#
--CONFIG_HISAX_EURO=y
--CONFIG_DE_AOC=y
--CONFIG_HISAX_NO_SENDCOMPLETE=y
--CONFIG_HISAX_NO_LLC=y
--CONFIG_HISAX_NO_KEYPAD=y
--CONFIG_HISAX_1TR6=y
--CONFIG_HISAX_NI1=y
--CONFIG_HISAX_MAX_CARDS=8
--
--#
--# HiSax supported cards
--#
--CONFIG_HISAX_16_0=y
--CONFIG_HISAX_16_3=y
--CONFIG_HISAX_TELESPCI=y
--CONFIG_HISAX_S0BOX=y
--CONFIG_HISAX_AVM_A1=y
--CONFIG_HISAX_FRITZPCI=y
--CONFIG_HISAX_AVM_A1_PCMCIA=y
--CONFIG_HISAX_ELSA=y
--CONFIG_HISAX_IX1MICROR2=y
--CONFIG_HISAX_DIEHLDIVA=y
--CONFIG_HISAX_ASUSCOM=y
--CONFIG_HISAX_TELEINT=y
--CONFIG_HISAX_HFCS=y
--CONFIG_HISAX_SEDLBAUER=y
--CONFIG_HISAX_SPORTSTER=y
--CONFIG_HISAX_MIC=y
--CONFIG_HISAX_NETJET=y
--CONFIG_HISAX_NETJET_U=y
--CONFIG_HISAX_NICCY=y
--CONFIG_HISAX_ISURF=y
--CONFIG_HISAX_HSTSAPHIR=y
--CONFIG_HISAX_BKM_A4T=y
--CONFIG_HISAX_SCT_QUADRO=y
--CONFIG_HISAX_GAZEL=y
--CONFIG_HISAX_HFC_PCI=y
--CONFIG_HISAX_W6692=y
--CONFIG_HISAX_HFC_SX=y
--CONFIG_HISAX_ENTERNOW_PCI=y
--CONFIG_HISAX_DEBUG=y
--CONFIG_HISAX_SEDLBAUER_CS=y
--CONFIG_HISAX_ELSA_CS=y
--CONFIG_HISAX_AVM_A1_CS=y
--CONFIG_HISAX_ST5481=y
--CONFIG_HISAX_FRITZ_PCIPNP=y
--CONFIG_HISAX_FRITZ_CLASSIC=y
--CONFIG_HISAX_HFCPCI=y
--
--#
--# Active cards
--#
--CONFIG_ISDN_DRV_ICN=y
--CONFIG_ISDN_DRV_PCBIT=y
--CONFIG_ISDN_DRV_SC=y
--CONFIG_ISDN_DRV_ACT2000=y
--CONFIG_ISDN_DRV_EICON=y
--# CONFIG_ISDN_DRV_EICON_DIVAS is not set
--CONFIG_ISDN_DRV_EICON_OLD=y
--CONFIG_ISDN_DRV_EICON_PCI=y
--# CONFIG_ISDN_DRV_EICON_ISA is not set
--CONFIG_ISDN_DRV_TPAM=y
--CONFIG_HYSDN=m
--CONFIG_HYSDN_CAPI=y
--
--#
--CONFIG_ROCKETPORT=y
--CONFIG_DIGIEPCA=y
--CONFIG_ESPSERIAL=y
--CONFIG_RISCOM8=y
--CONFIG_SPECIALIX=y
--CONFIG_SPECIALIX_RTSCTS=y
--CONFIG_SX=y
--CONFIG_RIO=y
--CONFIG_RIO_OLDPCI=y
--CONFIG_STALLION=y
--CONFIG_ISTALLION=y
--CONFIG_SCx200_I2C=y
--CONFIG_SCx200_I2C_SCL=12
--CONFIG_SCx200_I2C_SDA=13
--CONFIG_SENSORS_ADM1021=y
--CONFIG_SENSORS_IT87=y
--CONFIG_SENSORS_LM75=y
--CONFIG_SENSORS_VIA686A=y
--CONFIG_SENSORS_W83781D=y
--CONFIG_I2C_SENSOR=y
--CONFIG_IPMI_HANDLER=y
--CONFIG_IPMI_PANIC_EVENT=y
--CONFIG_IPMI_DEVICE_INTERFACE=y
--CONFIG_IPMI_KCS=y
--CONFIG_IPMI_WATCHDOG=y
--CONFIG_SONYPI=y
--CONFIG_MWAVE=y
--CONFIG_VIDEO_CPIA=y
--CONFIG_VIDEO_CPIA_PP=y
--CONFIG_VIDEO_CPIA_USB=y
--CONFIG_VIDEO_ZORAN=y
--CONFIG_VIDEO_ZORAN_BUZ=y
--CONFIG_VIDEO_ZORAN_DC10=y
--CONFIG_VIDEO_ZORAN_LML33=y
--CONFIG_VIDEO_ZR36120=y
--CONFIG_VIDEO_MEYE=y
--CONFIG_RADIO_MIROPCM20_RDS=y
--CONFIG_NEC98_PARTITION=y
--CONFIG_FB_CIRRUS=y
--CONFIG_FB_PM2=y
--CONFIG_FB_PM2_FIFO_DISCONNECT=y
--CONFIG_FB_PM2_PCI=y
--CONFIG_FB_I810=y
--CONFIG_FB_I810_GTF=y
--CONFIG_FB_MATROX=y
--CONFIG_FB_MATROX_MILLENIUM=y
--CONFIG_FB_MATROX_MYSTIQUE=y
--CONFIG_FB_MATROX_G450=y
--CONFIG_FB_MATROX_G100=y
--CONFIG_FB_MATROX_I2C=y
--CONFIG_FB_MATROX_MAVEN=y
--CONFIG_FB_MATROX_MULTIHEAD=y
--CONFIG_FB_PM3=y
--CONFIG_SND_AD1816A=y
--CONFIG_SND_CS4232=y
--CONFIG_SND_CS4236=y
--CONFIG_SND_ES18XX=y
--CONFIG_SND_INTERWAVE=y
--CONFIG_SND_INTERWAVE_STB=y
--CONFIG_SND_OPTI92X_AD1848=y
--CONFIG_SND_OPTI92X_CS4231=y
--CONFIG_SND_OPTI93X=y
--CONFIG_SND_SBAWE=y
--CONFIG_SND_WAVEFRONT=y
--CONFIG_SND_CMI8330=y
--CONFIG_SND_OPL3SA2=y
--CONFIG_SND_ICE1712=y
--CONFIG_SOUND_MSNDCLAS=y
--
--#
--# Compiled-in MSND Classic support requires firmware during compilation.
--#
--CONFIG_MSNDCLAS_HAVE_BOOT=y
--CONFIG_MSNDCLAS_INIT_FILE="/etc/sound/msndinit.bin"
--CONFIG_MSNDCLAS_PERM_FILE="/etc/sound/msndperm.bin"
--CONFIG_MSNDCLAS_IRQ=5
--CONFIG_MSNDCLAS_MEM=0xD0000
--CONFIG_MSNDCLAS_IO=0x290
--CONFIG_SOUND_MSNDPIN=y
--
--#
--# Compiled-in MSND Pinnacle support requires firmware during compilation.
--#
--CONFIG_MSNDPIN_HAVE_BOOT=y
--CONFIG_MSNDPIN_INIT_FILE="/etc/sound/pndspini.bin"
--CONFIG_MSNDPIN_PERM_FILE="/etc/sound/pndsperm.bin"
--CONFIG_MSNDPIN_IRQ=5
--CONFIG_MSNDPIN_MEM=0xD0000
--CONFIG_MSNDPIN_IO=0x290
--CONFIG_MSNDPIN_DIGITAL=y
--CONFIG_MSNDPIN_NONPNP=y
--
--#
--# MSND Pinnacle DSP section will be configured to above parameters.
--#
--CONFIG_MSNDPIN_CFG=0x250
--
--#
--# Pinnacle-specific Device Configuration (0 disables)
--#
--CONFIG_MSNDPIN_MPU_IO=0x0
--CONFIG_MSNDPIN_MPU_IRQ=0
--CONFIG_MSNDPIN_IDE_IO0=0x0
--CONFIG_MSNDPIN_IDE_IO1=0x0
--CONFIG_MSNDPIN_IDE_IRQ=0
--CONFIG_MSNDPIN_JOYSTICK_IO=0x0
--CONFIG_MSND_FIFOSIZE=128
--CONFIG_SOUND_AD1816=y
--CONFIG_SOUND_CS4232=y
--CONFIG_SOUND_GUS=y
--CONFIG_SOUND_GUS16=y
--CONFIG_SOUND_GUSMAX=y
--CONFIG_TRIX_HAVE_BOOT=y
--CONFIG_TRIX_BOOT_FILE="/etc/sound/trxpro.hex"
--CONFIG_SOUND_MAD16=y
--CONFIG_MAD16_OLDCARD=y
--CONFIG_PSS_HAVE_BOOT=y
--CONFIG_PSS_BOOT_FILE="/etc/sound/dsp001.ld"
--CONFIG_SOUND_AWE32_SYNTH=y
--CONFIG_MAUI_HAVE_BOOT=y
--CONFIG_MAUI_BOOT_FILE="/etc/sound/oswf.mot"
--CONFIG_USB_AN2720=y
--CONFIG_USB_BELKIN=y
--CONFIG_USB_GENESYS=y
--CONFIG_USB_NET1080=y
--CONFIG_USB_PL2301=y
--CONFIG_USB_ARMLINUX=y
--CONFIG_USB_EPSON2888=y
--CONFIG_USB_ZAURUS=y
--CONFIG_USB_SERIAL_CONSOLE=y
--CONFIG_BT_HCIUSB=y
--CONFIG_BT_USB_SCO=y
--CONFIG_BT_USB_ZERO_PACKET=y
--CONFIG_X86_SMP=y
--CONFIG_X86_HT=y
--CONFIG_X86_TRAMPOLINE=y
+definitely not external speaker.
+can't say whether there is an internal speaker it could come
+from. source of sound is right beneath the keyboard,
+and creating load aka moving an x11 window around produces
+funny patterns --> no high tone, it almost disappears,
+but just low-volume sound reacting to when I move the
+window around.
+for a non-hardware-expert this is strange stuff.

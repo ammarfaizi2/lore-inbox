@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316399AbSEOPR1>; Wed, 15 May 2002 11:17:27 -0400
+	id <S316398AbSEOPQn>; Wed, 15 May 2002 11:16:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316403AbSEOPR0>; Wed, 15 May 2002 11:17:26 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:29292 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S316399AbSEOPRX>; Wed, 15 May 2002 11:17:23 -0400
-Date: Wed, 15 May 2002 17:17:17 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Justin T. Gibbs" <gibbs@scsiguy.com>, Andrey Nekrasov <andy@spylog.ru>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Adaptec Aic7xxx driver & 2.4.19pre8aa2
-Message-ID: <20020515151717.GA20464@dualathlon.random>
-In-Reply-To: <20020515164802.GG25593@dualathlon.random> <E1780jL-0002Ac-00@the-village.bc.nu>
+	id <S316399AbSEOPQl>; Wed, 15 May 2002 11:16:41 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:3090 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id <S316398AbSEOPQg>;
+	Wed, 15 May 2002 11:16:36 -0400
+Date: Wed, 15 May 2002 10:16:33 -0500
+From: Tommy Reynolds <reynolds@redhat.com>
+To: "Joe deBlaquiere" <jadb@redhat.com>
+Cc: Jack.Bloch@icn.siemens.com, linux-kernel@vger.kernel.org
+Subject: Re: Device driver question
+Message-Id: <20020515101633.24348d0e.reynolds@redhat.com>
+In-Reply-To: <1021474990.1450.56.camel@uberdog>
+Organization: Red Hat Software, Inc. / Embedded Development
+X-Mailer: Sylpheed version 0.7.6cvs4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$ t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ boundary="=.wnmLIVRJauwQi."
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 15, 2002 at 04:30:19PM +0100, Alan Cox wrote:
-> > > >Hardware motherboard: Intel "Lancewood" L440GX, SCSI integrated, last BIOS/BMC
-> 
-> 440GX
-> 
-> > search across the 2.4.19pre patches (from pre2 to pre8) that would limit
-> > the bug to a certain diff. thanks,
-> 
-> No need. The 440GX stuff is a known disaster area. You must use APIC support
-> on those and Intel doesn't want to be helpful on non APIC stuff.
+--=.wnmLIVRJauwQi.
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-I was assuming he used the same .config (with IO-APIC enabled), if not
-then that's the problem. Really such part of .config wasn't shown.
+Uttered "Joe deBlaquiere" <jadb@redhat.com>, spoke thus:
 
-Andrea
+>  How about just write a driver that responds to the interrupt, and write
+>  a program that does a blocking read from the driver.
+
+Then there's the
+
+	printk( KERN_EMERG "Hey, Y'all, let's reboot!\n" );
+
+solution.
+--=.wnmLIVRJauwQi.
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+
+iEYEARECAAYFAjzie9EACgkQWEn3bOOMcuoOagCdFkASSUuBg+CRAhmF8T8pihOO
++O4AoIYla+t1Ayk+HCvgn/btn15LMsdA
+=DZ3z
+-----END PGP SIGNATURE-----
+
+--=.wnmLIVRJauwQi.--
+

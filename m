@@ -1,57 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264009AbTEWO3A (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 10:29:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264015AbTEWO3A
+	id S264059AbTEWOtb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 10:49:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264067AbTEWOtb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 10:29:00 -0400
-Received: from dodge.jordet.nu ([217.13.8.142]:31397 "EHLO dodge.hybel")
-	by vger.kernel.org with ESMTP id S264009AbTEWO2w (ORCPT
+	Fri, 23 May 2003 10:49:31 -0400
+Received: from holomorphy.com ([66.224.33.161]:55443 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S264059AbTEWOta (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 10:28:52 -0400
-Subject: Re: [2.5.69] rtnl-deadlock with usermodehelper and keventd
-From: Stian Jordet <liste@jordet.nu>
-To: "David S. Miller" <davem@redhat.com>
-Cc: lists@mdiehl.de, akpm@digeo.com, greg@kroah.com,
-       linux-kernel@vger.kernel.org, jt@hpl.hp.com, shemminger@osdl.org
-In-Reply-To: <20030523.024308.94566989.davem@redhat.com>
-References: <20030522.235905.42785280.davem@redhat.com>
-	 <Pine.LNX.4.44.0305230934490.14825-100000@notebook.home.mdiehl.de>
-	 <20030523.024308.94566989.davem@redhat.com>
-Content-Type: text/plain
-Message-Id: <1053700957.711.3.camel@chevrolet.hybel>
+	Fri, 23 May 2003 10:49:30 -0400
+Date: Fri, 23 May 2003 08:02:22 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Dave Hansen <haveblue@us.ibm.com>, Andrew Morton <akpm@digeo.com>,
+       lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Subject: Re: 2.5.69-mm8
+Message-ID: <20030523150222.GC19818@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	Dave Hansen <haveblue@us.ibm.com>, Andrew Morton <akpm@digeo.com>,
+	lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+References: <20030522021652.6601ed2b.akpm@digeo.com> <17990000.1053670694@[10.10.2.4]> <1053673399.1547.27.camel@nighthawk> <26160000.1053700350@[10.10.2.4]>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.3 (Preview Release)
-Date: 23 May 2003 16:42:37 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <26160000.1053700350@[10.10.2.4]>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fre, 23.05.2003 kl. 11.43 skrev David S. Miller:
->    From: Martin Diehl <lists@mdiehl.de>
->    Date: Fri, 23 May 2003 11:38:38 +0200 (CEST)
-> 
->    On Thu, 22 May 2003, David S. Miller wrote:
->    
->    >    Asking just because there was another user hitting this deadlock:
->    > 
->    > It's fixed in current 2.5.x sources, wake up :-)
->    
->    Oops, sorry for the noise, I hadn't noticed this yet.
->    
->    But nope, unfortunately it's still hanging! I've just tested with 
->    2.5.69-bk15. Running into the same deadlock due to sleeping with rtnl 
->    hold. This time however it seems it's triggered from sysfs side!
-> 
-> Stephen, you need to do the device class stuff outside of the RTNL
-> lock please.
-> 
-> At least I didn't add this bug :-)
-> 
-> This should fix it.
+At some point in the past, Dave Hansen removed Martin Bligh's attribution from:
+>>>       1004     2.0% default_idle
+>>>        272     8.3% __copy_from_user_ll
+>>>        129     1.7% __d_lookup
+>>>         79     7.5% link_path_walk
 
-And so it did :-) Thanks.
+At some point in the past, Martin Bligh removed Dave Hansen's attribution from:
+>> I have to wonder if these are cache effects, or just noise.  Can you
+>> give oprofile a try with one of the cache performance counters?
 
-Best regards,
-Stian
+On Fri, May 23, 2003 at 07:32:31AM -0700, Martin J. Bligh wrote:
+> No, but you can ;-)
 
+Cache things are usually link order and .config dependent, in 2.4.x at
+least they were highly dependent on cache color conflicts between task
+structures and hot codepaths and similar bizarre phenomena. i.e. exact
+binutils, compiler, kernel source, and .config matches are required to
+reproduce. And sometimes even that isn't enough and it's not reproducible
+across runs. You also want instruction-level multiplicative differential
+profiling to find cacheline bounces, not function-level additive
+differential profiling, with some method of correlating assembly to source.
+
+-- wli

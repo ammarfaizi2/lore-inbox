@@ -1,54 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281578AbRK0Q7X>; Tue, 27 Nov 2001 11:59:23 -0500
+	id <S281596AbRK0RBN>; Tue, 27 Nov 2001 12:01:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281541AbRK0Q7N>; Tue, 27 Nov 2001 11:59:13 -0500
-Received: from www.wen-online.de ([212.223.88.39]:45836 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S281504AbRK0Q7E>;
-	Tue, 27 Nov 2001 11:59:04 -0500
-Date: Tue, 27 Nov 2001 17:58:31 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel Releases
-In-Reply-To: <01112716084403.00872@manta>
-Message-ID: <Pine.LNX.4.33.0111271738480.807-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281599AbRK0RBD>; Tue, 27 Nov 2001 12:01:03 -0500
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:9478 "HELO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
+	id <S281596AbRK0Q7z>; Tue, 27 Nov 2001 11:59:55 -0500
+Date: Tue, 27 Nov 2001 17:59:52 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Journaling pointless with today's hard disks?
+Message-ID: <20011127175952.F13416@emma1.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10111261229190.8817-100000@master.linux-ide.org> <0111261535070J.02001@localhost.localdomain> <20011126165920.N730@lynx.no> <9tumf0$dvr$1@cesium.transmeta.com> <9tuo54$e8p$1@cesium.transmeta.com> <3C02E856.A24BACD5@zip.com.au> <3C02E921.3050107@zytor.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <3C02E921.3050107@zytor.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Nov 2001, vda wrote:
+On Mon, 26 Nov 2001, H. Peter Anvin wrote:
 
-> On Monday 26 November 2001 16:45, Mike Galbraith wrote:
-> > On Mon, 26 Nov 2001, vda wrote:
-> > > On Monday 26 November 2001 13:02, Rik van Riel wrote:
-> > > > On Mon, 26 Nov 2001, Ian Stirling wrote:
-> > > > > However, I for one never run a -pre kernel.
-> > > > >
-> > > > > I don't run -pre, because rightly or wrongly, I've got the impression
-> > > > > that these get even less testing than releases.
-> > > >
-> > > > I think the opening sentence of your email states
-> > > > the reason for that pretty well.
-> > >
-> > > The only way we can get good testing for new kernels is to stop using
-> > > -preN prefix in development branch (2.5.x). Just increment that 'x'.
-> >
-> > That won't change anything except the number on the kernel.  The people
-> > who you're trying to turn into bleeding edge testers (those who stay a
-> > little behind [bignum]) will continue to ride the curve at the point of
-> > their choosing.
->
-> Yes, but they can't tell which 2.5.x is more stable just from version number.
-> This way Linus will get better test coverage in 2.5.x.
+> Waiting for write barriers to clear is key to implementing fsync()
+> efficiently and correctly.
 
-Wrong.  Anybody who has been around a while will not be foxed.  Those
-newcomers who haven't figured out where on the curve they want to sit
-will figure it out, so I repeat.. changes nothing.
+Well, all you want is a feature to write a set of blocks and be
+acknowledged of completion of the write before you send more data, but
+OTOH you would not want to serialize fsync() operations, see my "groups"
+that I told previously. That would probably involve tagging data blocks
+in the long run. Not sure if the current tag command API of ATA can
+already provide that, if so, all is there, and the barrier can be
+implemented in the driver rather than the drive firmware.
 
-	-Mike
+-- 
+Matthias Andree
 
-P.S.  I had deleted the cc list quite intentionally.... :-
-
+"They that can give up essential liberty to obtain a little temporary
+safety deserve neither liberty nor safety."         Benjamin Franklin

@@ -1,64 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291088AbSCOLId>; Fri, 15 Mar 2002 06:08:33 -0500
+	id <S291169AbSCOLPo>; Fri, 15 Mar 2002 06:15:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290593AbSCOLGk>; Fri, 15 Mar 2002 06:06:40 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6923 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S290120AbSCOLFk>;
-	Fri, 15 Mar 2002 06:05:40 -0500
-Message-ID: <3C91D571.5070806@mandrakesoft.com>
-Date: Fri, 15 Mar 2002 06:05:21 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: Olivier Galibert <galibert@pobox.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] My AMD IDE driver, v2.7
-In-Reply-To: <Pine.LNX.4.33.0203111829550.1153-100000@home.transmeta.com> <3C8D69E3.3080908@mandrakesoft.com> <20020311223439.A2434@zalem.nrockv01.md.comcast.net> <3C8D8061.4030503@mandrakesoft.com> <20020314141342.B37@toy.ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S290823AbSCOLOg>; Fri, 15 Mar 2002 06:14:36 -0500
+Received: from angband.namesys.com ([212.16.7.85]:22657 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S290277AbSCOLNd>; Fri, 15 Mar 2002 06:13:33 -0500
+Date: Fri, 15 Mar 2002 14:13:28 +0300
+From: Oleg Drokin <green@namesys.com>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org
+Subject: Re: BUG REPORT: kernel nfs between 2.4.19-pre2 (server) and 2.2.21-pre3 (client)
+Message-ID: <20020315141328.A1879@namesys.com>
+In-Reply-To: <200203110018.BAA11921@webserver.ithnet.com> <15499.64058.442959.241470@charged.uio.no> <20020311091458.A24600@namesys.com> <20020311114654.2901890f.skraw@ithnet.com> <20020311135256.A856@namesys.com> <20020311155937.A1474@namesys.com> <20020315133241.A1636@namesys.com> <20020315120232.6d9b1dd5.skraw@ithnet.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020315120232.6d9b1dd5.skraw@ithnet.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
+Hello!
 
->Hi
->
->>Under more restricted domains, root cannot bit-bang the interface. 
->> s/CAP_SYS_RAWIO/CAP_DEVICE_CMD/ for the raw cmd ioctl interface.  Have 
->>
->
->Nobody uses capabilities these days, right?
->
+On Fri, Mar 15, 2002 at 12:02:32PM +0100, Stephan von Krawczynski wrote:
+> > Ok I tried your scenario of mounting fs1, then mounting fs2, do io on fs2,
+> > umount fs2 and access fs1 and everything went fine.
+> > I cannot reproduce this at all. :(
+> There must be a reason for this. One "non-standard" option in my setup is in /etc/exports:
+> /p2/backup              192.168.1.1(rw,no_root_squash,no_subtree_check)
+> Can the "no_subtree_check" be a cause?
+I will try with this one.
+BTW how much i/o do you usually do to observe an effect.
+Are exported filesystems actually reside on one physical flesystem on server
+or they are separate physical filesystems too?
 
-Actually, the NSA and HP secure linux products do, at the very least. 
- And there is some ELF capabilities project out there IIRC, but I dunno 
-if anybody's using it.
+> What kernels are you using (client,server)?
+2.4.18 at both sides.
 
->>The filter is useful for other reasons like correctness, as well.
->>
->
->If you want to test if it works, you just disallow that access altogether.
->It is usually not needed , anyway.
->
-
-The filter, or directly sending drive commands to userspace?
-
-I agree the filter is of limited usefulness.
-
-Sending drive commands directly from userspace is definitely -very- 
-useful.  As we start doing more and more stuff in userspace, I predict 
-this facility will be used more and more.  Plus, IBM particularly 
-already has their Drive Fitness Tests, or whatever, sending direct drive 
-commands.  With the proper sequencing, you can even do power management 
-of the drives in userspace.  You don't want to do system suspend/resume 
-that way, but you can certainly have a userspace policy daemon running, 
-that powers-down and powers-up the drives, etc.
-
-    Jeff
-
-
-
-
-
+Bye,
+    Oleg

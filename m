@@ -1,100 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274133AbRI0Xph>; Thu, 27 Sep 2001 19:45:37 -0400
+	id <S274146AbRI0Xrg>; Thu, 27 Sep 2001 19:47:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274137AbRI0Xp0>; Thu, 27 Sep 2001 19:45:26 -0400
-Received: from cr1041142-a.mtmk1.on.wave.home.com ([24.156.58.161]:37389 "HELO
-	sh0n.net") by vger.kernel.org with SMTP id <S274133AbRI0XpP>;
-	Thu, 27 Sep 2001 19:45:15 -0400
-Message-ID: <3BB3BA24.328D5791@datawire.net>
-Date: Thu, 27 Sep 2001 19:45:41 -0400
-From: Shawn Starr <shawn.starr@datawire.net>
-Organization: Datawire Communication Networks Inc.
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.10 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: lkm <linux-kernel@vger.kernel.org>
-Subject: Re: HPNA 2.0 Update Binary only driver released as beta
-In-Reply-To: <3BB1485A.F964EF93@datawire.net>
-Content-Type: multipart/mixed;
- boundary="------------6F01D237812221C518B851F1"
+	id <S274154AbRI0Xr0>; Thu, 27 Sep 2001 19:47:26 -0400
+Received: from [195.223.140.107] ([195.223.140.107]:18172 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S274146AbRI0XrN>;
+	Thu, 27 Sep 2001 19:47:13 -0400
+Date: Fri, 28 Sep 2001 01:47:20 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Robert Macaulay <robert_macaulay@dell.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Craig Kulesa <ckulesa@as.arizona.edu>, linux-kernel@vger.kernel.org,
+        Bob Matthews <bmatthews@redhat.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: highmem deadlock fix [was Re: VM in 2.4.10(+tweaks) vs. 2.4.9-ac14/15(+stuff)]
+Message-ID: <20010928014720.Z14277@athlon.random>
+In-Reply-To: <20010928001321.L14277@athlon.random> <Pine.LNX.4.33.0109271605550.25667-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0109271605550.25667-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Sep 27, 2001 at 04:16:11PM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------6F01D237812221C518B851F1
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+On Thu, Sep 27, 2001 at 04:16:11PM -0700, Linus Torvalds wrote:
+> 
+> On Fri, 28 Sep 2001, Andrea Arcangeli wrote:
+> However, your patch is racy:
+> 
+> > --- 2.4.10aa2/fs/buffer.c.~1~	Wed Sep 26 18:45:29 2001
+> > +++ 2.4.10aa2/fs/buffer.c	Fri Sep 28 00:04:44 2001
+> > @@ -194,6 +194,7 @@
+> >  		struct buffer_head * bh = *array++;
+> >  		bh->b_end_io = end_buffer_io_sync;
+> >  		submit_bh(WRITE, bh);
+> > +		clear_bit(BH_Pending_IO, &bh->b_state);
+> 
+> No way can we clear the bit here, because the submit_bh() may have caused
+> the buffer to be unlocked and IO to have completed, and it is no longer
+> "owned" by us - somebody else might have started IO on it and we'd be
+> clearing the bit for the wrong user.
 
-the HomePNA group has given me a binary driver for HPNA 2.0 Linksys
-cards.
+Moving clear_bit just above submit_bh will fix it (please Robert make
+this change before testing it), because if we block in submit_bh in the
+bounce, then we won't deadlock on ourself because of the pagehighmem
+check, and all previous non-pending bh are ok too, (only the next are
+problematic, and they're still marked pending_IO so we can't deadlock on
+them).
 
-It is beta and can be found at:
+So you can re-consider my approch, the design of the fix was ok, it was
+just a silly implementation error.
 
-lynx ftp://ftp.linksys.com/beta/linux_full_binary_2_33.exe
-
-you can use Wine to extract it since its a windows setup executable
-(LAME!)
-
-perhaps we can dissasemble this module and build a non cluttered
-driver? :-)
-
->From the readme.txt:
-
-Linux Release 2_33
-
-Linux network device driver for the Broadcom BCM42XX PCI
-
-InsideLine 10Mbps Home Phoneline Networking chip.
-
-This release includes:
-- support for HPNA 2.0 Certification Testing
-- MODVERSIONS support for Linux 2.2 and 2.4 Kernels.  These
-modules have been compiled and tested with MODVERSIONS defined
-on a RedHat 6.2 system with include files from the RedHat
-2.2.14-5.0 kernel.  The driver for the 2.4 kernel uses the
-2.4.0-test10 kernel distribution from ftp.kernel.org.
-
-Note:  The kernels should be compiled with nonSMP
-
-This distribution includes two il.o executables:
-
-  - \Kernel_2.2.14-5.0\il.o ---> 62545 bytes (nonSMP)
-  - \Kernel_2.4.0-Test10\il.o ---> 70695 bytes (nonSMP)
-
-
-Shawn Starr wrote:
-
-> http://www.homepna.org/docs/paper500.pdf
->
-> I found this document via google and it tells you the format for an
-> HPNA 2.0 frame
->
-> Shawn.
-
---------------6F01D237812221C518B851F1
-Content-Type: text/x-vcard; charset=iso-8859-15;
- name="shawn.starr.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Description: Card for Shawn Starr
-Content-Disposition: attachment;
- filename="shawn.starr.vcf"
-
-begin:vcard 
-n:Starr;Shawn
-tel;fax:416-213-2008
-tel;home:905-707-1154
-tel;work:416-213-2001- ext 179
-x-mozilla-html:FALSE
-url:http://www.datawire.net
-org:Datawire Communication Networks Inc.;Engineering
-adr:;;10 Carlson Court, Suite 300;Toronto;Ontario;M9W 6L2;Canada
-version:2.1
-email;internet:shawn.starr@datawire.net
-title:UNIX System Administrator, Operations
-x-mozilla-cpt:;0
-fn:Shawn Starr
-end:vcard
-
---------------6F01D237812221C518B851F1--
-
+Andrea

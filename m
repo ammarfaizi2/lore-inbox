@@ -1,97 +1,441 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270850AbTHKBew (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 21:34:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270854AbTHKBew
+	id S270805AbTHKBrU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 21:47:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270831AbTHKBrU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 21:34:52 -0400
-Received: from [66.45.37.187] ([66.45.37.187]:37295 "HELO lucidpixels.com")
-	by vger.kernel.org with SMTP id S270850AbTHKBet (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 21:34:49 -0400
-Date: Sun, 10 Aug 2003 21:09:06 -0400 (EDT)
-From: war <war@lucidpixels.com>
-X-X-Sender: war@p500
-To: linux-kernel@vger.kernel.org
-cc: kernelnewbies@nl.linux.org
-Subject: Kernel 2.4.21 Crashing
-Message-ID: <Pine.LNX.4.56.0308102103190.21263@p500>
+	Sun, 10 Aug 2003 21:47:20 -0400
+Received: from uswgco35.uswest.com ([199.168.32.124]:43222 "EHLO
+	uswgco35.uswest.com") by vger.kernel.org with ESMTP id S270805AbTHKBrK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 21:47:10 -0400
+Message-ID: <3F36F564.6050109@milent.com>
+Date: Sun, 10 Aug 2003 21:46:12 -0400
+From: Alexander Markley <alex@milent.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: EHCI Driver hard-locks system when USB devices plugged.
+ (2.4.21 & 2.6.0-test2)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am out of ideas as to what could cause this crashing...
-Can anyone offer any suggestions as to what I should do next?
+I'm sure you guys in this list just thrill with delight when a bug 
+report comes in. Keeping that in mind, I have attempted to make this the 
+most complete bug-report possible. I am using the template for bug 
+reports that is in the root of the source tree. (If there is too much 
+here, sorry... Just following the bug report template.)
 
-war@war:~$ lsmod
-Module                  Size  Used by    Not tainted
-w83781d                20656   0
-i2c-isa                 1160   0 (unused)
-i2c-algo-pcf            5316   0 (unused)
-i2c-algo-bit            7560   0 (unused)
-i2c-dev                 4516   0 (unused)
-i2c-proc                7216   0 [w83781d]
-i2c-core               13028   0 [w83781d i2c-isa i2c-algo-pcf
-i2c-algo-bit i2c-dev i2c-proc]
-emu10k1                66284   0
-ac97_codec             10356   0 [emu10k1]
-sound                  58440   0 (unused)
-war@war:~$
+NOTE: Please CC messages about this to me, since I can't stay on the 
+mailing list for long.
 
-Other than that, I am not using any binary-only modules or applications.
+This problem has occurred with all of the recent kernels that I have 
+tested. This includes 2.4.X and 2.6.0-testX.
 
-My X crashes randomly, my machine panicks, etc...
+Please note that most of the diagnostics preformed as per the template's 
+recommendations were preformed while running 2.4.21.
 
-I've compiled 2.4.20, 2.4.21, with gcc-3.2.3, gcc-3.3, both have the same
-or similiar problems.
+The kernel boot messages were copied by hand from 2.6.0-test2, with USB 
+verbose debugging and kernel debugging turned on. (Copied by hand 
+because you can't cut/paste on a crashed kernel.) (Don't make me swear 
+by every jot and tiddle in those messages, since I copied 'em by hand. I 
+am confident, however, that the important stuff is right.)
 
-I am out of ideas, I've tried all sorts of kernels, etc, re-installing
-Slack 9.0, etc, I run the same setup on 2 other machines, and they work
-fine, I've checked all the hardware (memory), (disk (on another machine)),
-etc, it shows as OK.
+BEGIN BOOT MESSAGES
+2.6.0-test2
+  ehci_hcd 0000:00:1d.7: Intel Corp. 82801DB USB EHCI Con
+  ehci_hcd 0000:00:1d.7: irq 23, pci mem e5823c00
+  ehci_hcd 0000:00:1d.7: new USB bus registered, assigned bus number 1
+  ehci_hcd 0000:00:1d.7: enabled 64bit PCI DMA
+  PCI: cache line size of 128 is not supported by device 0000:00:1d.7
+  ehci_hcd 0000:00:1d.7: USB 2.0 enabled, EHCI 1.00, driver 2003-Jun-13
+2.4.21
+  ehci-hcd 00:1d.7: Intel Corp. 82801DB USB EHCI Controller
+  ehci-hcd 00:1d.7: irq 23, pci mem e0829c00
+  usb.c: new USB bus registered, assigned bus number 1
+  ehci-hcd 00:1d.7: enabled 64bit PCI DMA
+  PCI 00:1d.7 PCI cache line size set incorrectly (0 bytes) by BIOS/FW.
+  PCI 00:1d.7 PCI cache line size corrected to 128.
+  ehci-hcd 00:1d.7: USB 2.0 enabled, EHCI 1.00, driver 2003-Jan-22
+END BOOT MESSAGES
 
-Should I try a windows variant (win2k,xp) and see if I get any crashes,
-beucase at this point I am not sure what else to do?
+BEGIN FILLED-OUT TEMPLATE
+[1.] One line summary of the problem:
+   PROBLEM: EHCI Driver hard-locks system when USB devices plugged. 
+(>=2.4.X)
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
- printing eip:
-c0131906
-*pde = 00000000
-Oops: 0002
-CPU:    0
-EIP:    0010:[<c0131906>]    Not tainted
-EFLAGS: 00010246
-eax: c0306a18   ebx: 00000000   ecx: c250fffc   edx: 00000000
-esi: c250ffe0   edi: 0001328a   ebp: c0306c40   esp: c2821f40
-ds: 0018   es: 0018   ss: 0018
-Process kswapd (pid: 5, stackpage=c2821000)
-Stack: c2095dd0 000001d0 000001ff 000001d0 00000016 0000001f 000001d0 00000020
-       00000006 c0131ca3 00000006 c0306b90 c0306c40 000001d0 00000006 c0306c40
-       00000000 c0131d1e 00000020 c0306c40 00000002 c2820000 c0131e3c c0306c40
-Call Trace:    [<c0131ca3>] [<c0131d1e>] [<c0131e3c>] [<c0131eb8>] [<c0131fe8>]
-  [<c0131f50>] [<c0105000>] [<c01057ae>] [<c0131f50>]
+[2.] Full description of the problem/report:
+   This problem applies to all 2.4 kernels that I've tried, and 
+2.6.0-test2. When I have EHCI built in, and I have USB devices plugged 
+in, the kernel never gets past initializing EHCI. If I boot without USB 
+devices, and plug them in after the booting process, the system 
+hard-locks wherever it was. (No console, no network, no disk activity, 
+nothing.)
 
-Code: 89 02 c7 01 00 00 00 00 89 50 04 a1 18 6a 30 c0 89 48 04 89
- <1>Unable to handle kernel NULL pointer dereference at virtual address 00000000
- printing eip:
-c0131906
-*pde = 00000000
-Oops: 0002
-CPU:    0
-EIP:    0010:[<c0131906>]    Not tainted
-EFLAGS: 00010246
-eax: c0306a18   ebx: 00000000   ecx: c250fffc   edx: 00000000
-esi: c250ffe0   edi: 00013361   ebp: c0306c40   esp: e11c1e04
-ds: 0018   es: 0018   ss: 0018
-Process cp (pid: 8221, stackpage=e11c1000)
-Stack: e11c1e38 c281916c 00000200 000001d2 00000020 00000020 000001d2 00000020
-       00000006 c0131ca3 00000006 004be6f5 c0306c40 000001d2 00000006 c0306c40
-       00000000 c0131d1e 00000020 e11c0000 0000021f c0306c40 c0132ba4 00000000
-Call Trace:    [<c0131ca3>] [<c0131d1e>] [<c0132ba4>] [<c0132e32>] [<c012ae99>]
-  [<c012b4ff>] [<c012b77d>] [<c012bcf0>] [<c012be82>] [<c012bcf0>] [<c01834a8>]
-  [<c01399a3>] [<c01073df>]
+[3.] Keywords:
+   USB, EHCI, 2.4, 2.6, kernel, bug, crash
 
-Code: 89 02 c7 01 00 00 00 00 89 50 04 a1 18 6a 30 c0 89 48 04 89
+[4.] Kernel version (from /proc/version):
+   2.4:
+[root@elbmin3 usb]# cat /proc/version
+Linux version 2.4.21 (root@elbmin3) (gcc version 3.2.2 20030222 (Red Hat 
+Linux 3.2.2-5)) #2 SMP Wed Jul 30 16:56:41 EDT 2003
+[root@elbmin3 usb]#
+   2.6:
+[root@elbmin3 root]$ cat /proc/version
+Linux version 2.6.0-test2 (root@elbmin3) (gcc version 3.2.2 20030222 
+(Red Hat Linux 3.2.2-5)) #3 SMP Sun Aug 10 19:37:59 EDT 2003
+[root@elbmin3 root]$
 
+[5.] Output of Oops.. message
+   No Oops is generated by this. No error messages are generated at all, 
+as a matter of fact.
+
+[6.] A small shell script or example program which triggers the problem
+   Step 1. Run linux on my crappy intel hardware.
+   Step 2. Plug in USB2 device.
+   Step 3. Weep over lost work.
+   Step 4. GOTO Step 1.
+
+[7.] Environment
+   Not actually sure how to go about gathering relevent info, so I'll 
+continue to follow the directions.
+
+[7.1.] Software (add the output of the ver_linux script here)
+   This is my system running the 2.4.X kernel. I assume that most of the 
+info doesn't change when a new kernel is built and used.
+[root@elbmin3 scripts]# sh ./ver_linux
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
+
+Linux elbmin3 2.4.21 #2 SMP Wed Jul 30 16:56:41 EDT 2003 i686 i686 i386 
+GNU/Linux
+
+Gnu C                  3.2.2
+Gnu make               3.79.1
+util-linux             2.11y
+mount                  2.11y
+module-init-tools      2.4.22
+e2fsprogs              1.32
+jfsutils               1.0.17
+reiserfsprogs          3.6.4
+pcmcia-cs              3.1.31
+quota-tools            3.06.
+PPP                    2.4.1
+isdn4k-utils           3.1pre4
+nfs-utils              1.0.1
+Linux C Library        2.3.2
+Dynamic linker (ldd)   2.3.2
+Procps                 2.0.11
+Net-tools              1.60
+Kbd                    1.08
+Sh-utils               4.5.3
+Modules Loaded         nvidia vmnet vmmon
+[root@elbmin3 scripts]#
+
+[7.2.] Processor information (from /proc/cpuinfo):
+   My stupid p4.
+[root@elbmin3 scripts]# cat /proc/cpuinfo
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 2
+model name      : Intel(R) Pentium(R) 4 CPU 2.40GHz
+stepping        : 4
+cpu MHz         : 2400.153
+cache size      : 512 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge 
+mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
+bogomips        : 4784.12
+
+[root@elbmin3 scripts]#
+
+[7.3.] Module information (from /proc/modules):
+   Yes, I like big kernels.
+[root@elbmin3 scripts]# cat /proc/modules
+nvidia               1670816  10 (autoclean)
+vmnet                  26656   1
+vmmon                  25268   0 (unused)
+[root@elbmin3 scripts]#
+
+[7.4.] Loaded driver and hardware information (/proc/ioports, /proc/iomem)
+   Here, I do not have EHCI built into the running kernel, since I can't 
+hardly boot the system using my USB-centric setup.
+[root@elbmin3 scripts]# cat /proc/ioports
+0000-001f : dma1
+0020-003f : pic1
+0040-005f : timer
+0060-006f : keyboard
+0070-007f : rtc
+0080-008f : dma page reg
+00a0-00bf : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0170-0177 : ide1
+01f0-01f7 : ide0
+02f8-02ff : serial(auto)
+0376-0376 : ide1
+0378-037a : parport0
+037b-037f : parport0
+03c0-03df : vga+
+03f6-03f6 : ide0
+03f8-03ff : serial(auto)
+0778-077a : parport0
+0c00-0c1f : Intel Corp. 82801DB SMBus
+0cf8-0cff : PCI conf1
+bc00-bc1f : Intel Corp. 82557/8/9 [Ethernet Pro 100]
+   bc00-bc1f : e100
+cc00-cc3f : Intel Corp. 82801DB AC'97 Audio
+   cc00-cc3f : Intel ICH4
+d000-d0ff : Intel Corp. 82801DB AC'97 Audio
+   d000-d0ff : Intel ICH4
+d400-d41f : Intel Corp. 82801DB USB (Hub #1)
+   d400-d41f : usb-uhci
+d800-d81f : Intel Corp. 82801DB USB (Hub #2)
+   d800-d81f : usb-uhci
+dc00-dc1f : Intel Corp. 82801DB USB (Hub #3)
+   dc00-dc1f : usb-uhci
+fc00-fc0f : Intel Corp. 82801DB ICH4 IDE
+   fc00-fc07 : ide0
+   fc08-fc0f : ide1
+[root@elbmin3 scripts]# cat /proc/iomem
+00000000-0009fbff : System RAM
+0009fc00-0009ffff : reserved
+000a0000-000bffff : Video RAM area
+000c0000-000c7fff : Video ROM
+000cc800-000ccfff : Extension ROM
+000ce000-000d5fff : reserved
+000f0000-000fffff : System ROM
+00100000-1ffeffff : System RAM
+   00100000-002da287 : Kernel code
+   002da288-00378263 : Kernel data
+1fff0000-1fff7fff : ACPI Tables
+1fff8000-1fffffff : ACPI Non-volatile Storage
+20000000-200003ff : Intel Corp. 82801DB ICH4 IDE
+cd400000-dd5fffff : PCI Bus #01
+   d0000000-d7ffffff : nVidia Corporation NV11 [GeForce2 MX DDR]
+dd6ff000-dd6fffff : Intel Corp. 82557/8/9 [Ethernet Pro 100]
+   dd6ff000-dd6fffff : e100
+dd800000-df9fffff : PCI Bus #01
+   de000000-deffffff : nVidia Corporation NV11 [GeForce2 MX DDR]
+dfd00000-dfdfffff : Intel Corp. 82557/8/9 [Ethernet Pro 100]
+   dfd00000-dfdfffff : e100
+dffff900-dffff9ff : Intel Corp. 82801DB AC'97 Audio
+   dffff900-dffff9ff : ich_audio MBBAR
+dffffa00-dffffbff : Intel Corp. 82801DB AC'97 Audio
+   dffffa00-dffffbff : ich_audio MMBAR
+dffffc00-dfffffff : Intel Corp. 82801DB USB EHCI Controller
+e0000000-e3ffffff : Intel Corp. 82845 845 (Brookdale) Chipset Host Bridge
+fec00000-fec00fff : reserved
+fee00000-fee00fff : reserved
+ffb00000-ffbfffff : reserved
+fff00000-ffffffff : reserved
+[root@elbmin3 scripts]#
+
+[7.5.] PCI information ('lspci -vvv' as root)
+   Wow, lspci -vvv sure is verbose...
+[root@elbmin3 scripts]# /sbin/lspci -vvv
+00:00.0 Host bridge: Intel Corp. 82845 845 (Brookdale) Chipset Host 
+Bridge (rev 11)
+         Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+         Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- 
+<TAbort- <MAbort+ >SERR- <PERR-
+         Latency: 0
+         Region 0: Memory at e0000000 (32-bit, prefetchable) [size=64M]
+         Capabilities: [e4] #09 [a104]
+         Capabilities: [a0] AGP version 2.0
+                 Status: RQ=31 SBA+ 64bit- FW+ Rate=x1,x2,x4
+                 Command: RQ=0 SBA- AGP+ 64bit- FW- Rate=x4
+
+00:01.0 PCI bridge: Intel Corp. 82845 845 (Brookdale) Chipset AGP Bridge 
+(rev 11) (prog-if 00 [Normal decode])
+         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR+ FastB2B-
+         Status: Cap- 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- 
+<TAbort- <MAbort- >SERR+ <PERR-
+         Latency: 32
+         Bus: primary=00, secondary=01, subordinate=02, sec-latency=32
+         I/O behind bridge: 0000f000-00000fff
+         Memory behind bridge: dd800000-df9fffff
+         Prefetchable memory behind bridge: cd400000-dd5fffff
+         BridgeCtl: Parity+ SERR+ NoISA+ VGA+ MAbort- >Reset- FastB2B-
+
+00:1d.0 USB Controller: Intel Corp. 82801DB USB (Hub #1) (rev 01) 
+(prog-if 00 [UHCI])
+         Subsystem: Micro-Star International Co., Ltd.: Unknown device 5661
+         Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+         Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium 
+ >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+         Latency: 0
+         Interrupt: pin A routed to IRQ 16
+         Region 4: I/O ports at d400 [size=32]
+
+00:1d.1 USB Controller: Intel Corp. 82801DB USB (Hub #2) (rev 01) 
+(prog-if 00 [UHCI])
+         Subsystem: Micro-Star International Co., Ltd.: Unknown device 5661
+         Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+         Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium 
+ >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+         Latency: 0
+         Interrupt: pin B routed to IRQ 19
+         Region 4: I/O ports at d800 [size=32]
+
+00:1d.2 USB Controller: Intel Corp. 82801DB USB (Hub #3) (rev 01) 
+(prog-if 00 [UHCI])
+         Subsystem: Micro-Star International Co., Ltd.: Unknown device 5661
+         Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+         Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium 
+ >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+         Latency: 0
+         Interrupt: pin C routed to IRQ 18
+         Region 4: I/O ports at dc00 [size=32]
+
+00:1d.7 USB Controller: Intel Corp. 82801DB USB EHCI Controller (rev 01) 
+(prog-if 20 [EHCI])
+         Subsystem: Micro-Star International Co., Ltd. 845PE Max 
+(MS-6580) Onboard USB EHCI Controller
+         Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR+ FastB2B-
+         Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium 
+ >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+         Latency: 0
+         Interrupt: pin D routed to IRQ 23
+         Region 0: Memory at dffffc00 (32-bit, non-prefetchable) [size=1K]
+         Capabilities: [50] Power Management version 2
+                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=375mA 
+PME(D0+,D1-,D2-,D3hot+,D3cold+)
+                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+         Capabilities: [58] #0a [2080]
+
+00:1e.0 PCI bridge: Intel Corp. 82801BA/CA/DB PCI Bridge (rev 81) 
+(prog-if 00 [Normal decode])
+         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR+ FastB2B-
+         Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR+
+         Latency: 0
+         Bus: primary=00, secondary=03, subordinate=03, sec-latency=32
+         I/O behind bridge: 0000b000-0000bfff
+         Memory behind bridge: dfa00000-dfefffff
+         Prefetchable memory behind bridge: dd600000-dd6fffff
+         BridgeCtl: Parity- SERR+ NoISA+ VGA- MAbort- >Reset- FastB2B-
+
+00:1f.0 ISA bridge: Intel Corp. 82801DB ISA Bridge (LPC) (rev 01)
+         Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+         Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium 
+ >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+         Latency: 0
+
+00:1f.1 IDE interface: Intel Corp. 82801DB ICH4 IDE (rev 01) (prog-if 8a 
+[Master SecP PriP])
+         Subsystem: Micro-Star International Co., Ltd.: Unknown device 5661
+         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+         Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium 
+ >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+         Latency: 0
+         Interrupt: pin A routed to IRQ 18
+         Region 0: I/O ports at <unassigned>
+         Region 1: I/O ports at <unassigned>
+         Region 2: I/O ports at <unassigned>
+         Region 3: I/O ports at <unassigned>
+         Region 4: I/O ports at fc00 [size=16]
+         Region 5: Memory at 20000000 (32-bit, non-prefetchable) [size=1K]
+
+00:1f.3 SMBus: Intel Corp. 82801DB SMBus (rev 01)
+         Subsystem: Micro-Star International Co., Ltd.: Unknown device 5661
+         Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+         Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium 
+ >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+         Interrupt: pin B routed to IRQ 17
+         Region 4: I/O ports at 0c00 [size=32]
+
+00:1f.5 Multimedia audio controller: Intel Corp. 82801DB AC'97 Audio 
+(rev 01)
+         Subsystem: Micro-Star International Co., Ltd.: Unknown device 5661
+         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+         Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium 
+ >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+         Latency: 0
+         Interrupt: pin B routed to IRQ 17
+         Region 0: I/O ports at d000 [size=256]
+         Region 1: I/O ports at cc00 [size=64]
+         Region 2: Memory at dffffa00 (32-bit, non-prefetchable) [size=512]
+         Region 3: Memory at dffff900 (32-bit, non-prefetchable) [size=256]
+         Capabilities: [50] Power Management version 2
+                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=375mA 
+PME(D0+,D1-,D2-,D3hot+,D3cold+)
+                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+01:00.0 VGA compatible controller: nVidia Corporation NV11DDR [GeForce2 
+MX 100 DDR/200 DDR] (rev b2) (prog-if 00 [VGA])
+         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+         Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium 
+ >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+         Latency: 248 (1250ns min, 250ns max)
+         Interrupt: pin A routed to IRQ 16
+         Region 0: Memory at de000000 (32-bit, non-prefetchable) [size=16M]
+         Region 1: Memory at d0000000 (32-bit, prefetchable) [size=128M]
+         Expansion ROM at df9f0000 [disabled] [size=64K]
+         Capabilities: [60] Power Management version 2
+                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+         Capabilities: [44] AGP version 2.0
+                 Status: RQ=31 SBA- 64bit- FW+ Rate=x1,x2,x4
+                 Command: RQ=31 SBA- AGP+ 64bit- FW- Rate=x4
+
+03:05.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] 
+(rev 05)
+         Subsystem: Intel Corp. EtherExpress PRO/100+ Management Adapter
+         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- 
+ParErr- Stepping- SERR+ FastB2B-
+         Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium 
+ >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+         Latency: 32 (2000ns min, 14000ns max), cache line size 08
+         Interrupt: pin A routed to IRQ 17
+         Region 0: Memory at dd6ff000 (32-bit, prefetchable) [size=4K]
+         Region 1: I/O ports at bc00 [size=32]
+         Region 2: Memory at dfd00000 (32-bit, non-prefetchable) [size=1M]
+         Expansion ROM at dfc00000 [disabled] [size=1M]
+         Capabilities: [dc] Power Management version 1
+                 Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA 
+PME(D0+,D1+,D2+,D3hot+,D3cold-)
+                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+[root@elbmin3 scripts]#
+
+[7.6.] SCSI information (from /proc/scsi/scsi)
+   Are you kidding? I can't afford the luxury of SCSI.
+[root@elbmin3 scripts]# cat /proc/scsi/scsi
+cat: /proc/scsi/scsi: No such file or directory
+[root@elbmin3 scripts]#
+
+[7.7.] Other information that might be relevant to the problem
+   I can't imagine what other information would be relevant. If anybody 
+wants some specific info, please contact me.
+END FILLED-OUT TEMPLATE
+
+TIA.
+
+--Alex Markley
 

@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262409AbTFORAE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 13:00:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbTFORAE
+	id S262429AbTFORBZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 13:01:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262430AbTFORBY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 13:00:04 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:28176 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262409AbTFOQ5U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 12:57:20 -0400
-Date: Sun, 15 Jun 2003 18:11:07 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: mochel@osdl.org, david-b@pacbell.net, linux-kernel@vger.kernel.org
-Subject: Re: GFDL in the kernel tree
-Message-ID: <20030615181107.B19242@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Linus Torvalds <torvalds@transmeta.com>, mochel@osdl.org,
-	david-b@pacbell.net, linux-kernel@vger.kernel.org
-References: <20030615140758.A9390@infradead.org> <Pine.LNX.4.44.0306150942280.8088-100000@home.transmeta.com>
+	Sun, 15 Jun 2003 13:01:24 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:13440 "EHLO
+	lapdancer.baythorne.internal") by vger.kernel.org with ESMTP
+	id S262429AbTFORBS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 13:01:18 -0400
+Subject: Re: bad: scheduling while atomic!
+From: David Woodhouse <dwmw2@infradead.org>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030615142950.A32102@flint.arm.linux.org.uk>
+References: <20030615142950.A32102@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1055697278.1244.19.camel@lapdancer.baythorne.internal>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0306150942280.8088-100000@home.transmeta.com>; from torvalds@transmeta.com on Sun, Jun 15, 2003 at 09:48:45AM -0700
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5.dwmw2) 
+Date: Sun, 15 Jun 2003 18:14:38 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 15, 2003 at 09:48:45AM -0700, Linus Torvalds wrote:
-> 
-> On Sun, 15 Jun 2003, Christoph Hellwig wrote:
-> > 
-> > Folks, could we please only use GPL-compatible licenses in the kernel
-> > tree?
-> 
-> I'd agree. The GFDL is a disaster anyway.  You can't even fix bugs in the
-> documentation without having to change the title etc. There are much
-> better licenses around.
-> 
-> I'd say we just remove the files.
+On Sun, 2003-06-15 at 14:29, Russell King wrote:
+> It would be useful if we could balance the spin_locks with the
+> spin_unlocks. 8)
 
-Okay, I'll wait a day or two for the copyright holders to comment and
-maybe change the license and then submit a patch.
+I can see how that could be considered appropriate. There are a handful
+of other such trivia in CVS which want to go to Linus shortly -- I
+assume that includes your afs partitioning fix?
+
+-- 
+dwmw2
+
 

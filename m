@@ -1,113 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285424AbSAULkm>; Mon, 21 Jan 2002 06:40:42 -0500
+	id <S284890AbSAULtw>; Mon, 21 Jan 2002 06:49:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285229AbSAULkd>; Mon, 21 Jan 2002 06:40:33 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:8720 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S284890AbSAULk0>; Mon, 21 Jan 2002 06:40:26 -0500
-Date: Mon, 21 Jan 2002 03:34:15 -0800 (PST)
-From: Andre Hedrick <andre@linuxdiskcert.org>
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: Jens Axboe <axboe@suse.de>, Davide Libenzi <davidel@xmailserver.org>,
-        Anton Altaparmakov <aia21@cam.ac.uk>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.3-pre1-aia1
-In-Reply-To: <20020121121456.A24656@suse.cz>
-Message-ID: <Pine.LNX.4.10.10201210324150.14375-100000@master.linux-ide.org>
+	id <S284902AbSAULtm>; Mon, 21 Jan 2002 06:49:42 -0500
+Received: from gold.MUSKOKA.COM ([216.123.107.5]:26376 "EHLO gold.muskoka.com")
+	by vger.kernel.org with ESMTP id <S284890AbSAULtg>;
+	Mon, 21 Jan 2002 06:49:36 -0500
+Message-ID: <3C4C0056.4F50C3D6@yahoo.com>
+Date: Mon, 21 Jan 2002 06:49:42 -0500
+From: Paul Gortmaker <p_gortmaker@yahoo.com>
+X-Mailer: Mozilla 3.04 (X11; I; Linux 2.2.20 i586)
 MIME-Version: 1.0
+To: esr@thyrsus.com
+CC: Dave Jones <davej@suse.de>, Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Calling EISA experts
+In-Reply-To: <20020117015456.A628@thyrsus.com> <20020117121723.B22171@suse.de> <3C46B718.26F52BD5@mandrakesoft.com> <20020117124849.F22171@suse.de> <20020117085056.B7299@thyrsus.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Jan 2002, Vojtech Pavlik wrote:
+Eric S. Raymond wrote:
 
-> On Mon, Jan 21, 2002 at 11:48:30AM +0100, Jens Axboe wrote:
-> > On Mon, Jan 21 2002, Vojtech Pavlik wrote:
-> > > On Sun, Jan 20, 2002 at 04:12:36PM -0800, Andre Hedrick wrote:
-> > > 
-> > > > > > > We only read out 4k thus the device has the the next 4k we may be wanting
-> > > > > > > ready.  Look at it as a dirty prefetch, but eventally the drive is going
-> > > > > > > to want to go south, thus [lost interrupt]
-> > > > > >
-> > > > > > Even if the drive is programmed for 16 sectors in multi mode, it still
-> > > > > > must honor lower transfer sizes. The fix I did was not to limit this,
-> > > > > > but rather to only setup transfers for the amount of sectors in the
-> > > > > > first chunk. This is indeed necessary now that we do not have a copy of
-> > > > > > the request to fool around with.
-> > > > 
-> > > > Listen and for just a second okay.
-> > > > 
-> > > > Since the set multimode command is similar to the set transfer rate, if
-> > > > you program the drive to run at U100 but the host can feed only U33 you
-> > > > have problems.  Much of this simple arguement is the same answer for
-> > > > multimode.
-> > > > 
-> > > > Same thing here but a variation, of the operations,
-> > > 
-> > > So you're saying that if you program the drive to multimode 16, you
-> > > can't read a single sector and always have to read 16? That not only
-> > > doesn't make sense to me, but it also contradicts anything that I've
-> > > heard before.
-> > 
-> > Well it didn't/doesn't make sense to me either, let me quote spec
-> > though:
-> > 
-> > (READ_MULTIPLE)
-> > 
-> > "If the number of requested sectors is not evenly divisible by the block
-> > count, as many full blocks as possible are transferred, followed by a
-> > final, partial block transfer."
-> > 
-> > (block count being the multi setting here)
-> > 
-> > I actually misread this the first time around, it seems my original code
-> > was indeed correct (and that 2.4 of course also is). For the example 24
-> > sector request and multi mode of 16, the drive _will_ only expect 8
-> > sectors in the final run. That makes sense to me again, I couldn't
-> > understand the apparent brain damage in the model Andre suggested.
-> > 
-> > Time for a new patch...
-> 
-> I always thought it is like this (and this is what I still believe after
-> having read the sprcification):
-> 
-> ---
-> SET_MUTIPLE 16 sectors
-> ---
-> READ_MULTIPLE 24 sectors
-> IRQ
-> PIO transfer 16 sectors
-> IRQ
-> PIO transfer 8 sectors
-> ---
-> 
-> Where am I wrong?
-> 
-> By the way, the device *isn't* required to support any lower multiple
-> count than the maximum one it advertizes. Ugly.
+> Bingo.  I've got reliable /proc tests for ISAPNP, PCI, and MCA.  Previous
+> discussion indicates I can't get one for ISA classic.  An EISA test would,
+> as ever, allow me to cut the number of questions about ancient dead
+> hardware that users have to see.
 
-No but the HOST is to obey the requirements of the device.
-The spec is written from the drive side not the host side.
+Minimal approach: Register motherboard EISA ID (i.e. slot zero) ports in
+/proc/ioports.  Works on all kernel versions.  See $0.02 patch below.
 
-"All Ye Hosts, SHALL address me in such a manner as described, or be
-aborted or I SHALL remain in an undertermined state."
+This is probably the least intrusive way to get what you want.  It doesn't
+add Yet Another Proc File, and costs zero bloat to the 99.9% of us who 
+have a better chance of meeting Aunt Tillie than an EISA box. 
 
-Note only recently have the HOSTS been about to setup guidelines for what
-is sane and not stupid for the device to do or behave.
+Possible alternative: Create something like /proc/bus/eisa/devices which
+lists the EISA ID (e.g. abc0123) found in each EISA slot.   This might
+have been worthwhile some 8 years ago, but now? ....
 
-Again, the HOST(Linux) is not following the device side rules so expect
-difficulty when we depart.  The Brain Damage is how to talk to the
-hardware, and it is clear we are not doing it right because we are bending
-the rules stuff it into and API that not acceptable.  However we are
-stuck.  Again, simplicity works, generate a MEMPOOL for PIO such that the
-buffer pages are contigious and the 4k page dance is a NOOP.  Until that
-time we will be fussing about.
-
-Regards,
+Paul.
 
 
-Andre Hedrick
-Linux Disk Certification Project                Linux ATA Development
+--- arch/i386/kernel/setup.c~	Tue Nov  6 19:14:03 2001
++++ arch/i386/kernel/setup.c	Mon Jan 21 06:22:15 2002
+@@ -122,6 +122,7 @@
+  */
+ #ifdef CONFIG_EISA
+ int EISA_bus;
++struct resource eisa_id = { "EISA ID", 0xc80, 0xc83, IORESOURCE_BUSY };
+ #endif
+ int MCA_bus;
+ 
+@@ -1020,6 +1021,11 @@
+ 	/* request I/O space for devices used on all i[345]86 PCs */
+ 	for (i = 0; i < STANDARD_IO_RESOURCES; i++)
+ 		request_resource(&ioport_resource, standard_io_resources+i);
++
++#ifdef CONFIG_EISA
++	if (EISA_bus)
++		request_resource(&ioport_resource, &eisa_id);
++#endif
+ 
+ 	/* Tell the PCI layer not to allocate too close to the RAM area.. */
+ 	low_mem_size = ((max_low_pfn << PAGE_SHIFT) + 0xfffff) & ~0xfffff;
 

@@ -1,36 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318776AbSHBLGf>; Fri, 2 Aug 2002 07:06:35 -0400
+	id <S318780AbSHBLZ3>; Fri, 2 Aug 2002 07:25:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318777AbSHBLGe>; Fri, 2 Aug 2002 07:06:34 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:21750 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318776AbSHBLGe>; Fri, 2 Aug 2002 07:06:34 -0400
-Subject: Re: [PATCH] pdc20265 problem.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Nick Orlov <nick.orlov@mail.ru>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020802014728.GA796@nikolas.hn.org>
-References: <Pine.LNX.4.44.0208010336330.1728-100000@freak.distro.conectiva> 
-	<20020802014728.GA796@nikolas.hn.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 02 Aug 2002 13:27:25 +0100
-Message-Id: <1028291245.18317.15.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S318778AbSHBLZ3>; Fri, 2 Aug 2002 07:25:29 -0400
+Received: from p5085EA05.dip.t-dialin.net ([80.133.234.5]:53889 "EHLO
+	majestix.gallier.de") by vger.kernel.org with ESMTP
+	id <S318774AbSHBLZ1>; Fri, 2 Aug 2002 07:25:27 -0400
+Date: Fri, 2 Aug 2002 13:28:54 +0200 (CEST)
+From: Oliver Joa <ojoa@gatrixx.com>
+X-X-Sender: <olli@majestix.gallier.de>
+To: <linux-net@vger.kernel.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: strange behaviour in TCP-Connect-Handshake
+Message-ID: <Pine.LNX.4.33.0208021323120.7906-100000@majestix.gallier.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-08-02 at 02:47, Nick Orlov wrote:
-> 
-> > <marcelo@plucky.distro.conectiva> (02/07/19 1.646)
-> > 	Fix wrong #ifdef in ide-pci.c: Was causing problems with FastTrak
-> 
-> Because of this fix my Promise 20265 became ide0 instead of ide2.
-> Is there any reason to mark pdc20265 as ON_BOARD controller?
+Hi,
 
-How about because it can be and it should be checked. I don't know what
-is going on with the ifdef in your case to cause this but its not as
-simple as it seems
+we have found something strange in TCP-Connect-Handshake. Here is the
+tcpdump of a connect:
+
+12:41:27.997216 eth0 < 217.111.11.28.53656 > 10.10.2.10.www: S
+1550641618:1550641618(0) win 5840 <mss 1460,sackOK,timestamp 646924298
+0,nop,wscale 0> (DF)
+
+12:41:27.997243 eth0 > 10.10.2.10.www > 217.111.11.28.53656: .
+281850:281850(0) ack 124 win 32120 <nop,nop,timestamp 88850 648121803>
+(DF)
+
+12:41:27.998085 eth0 < 217.111.11.28.53656 > 10.10.2.10.www: R
+1438731713:1438731713(0) win 0 (DF)
+
+217.111.11.28 sends the syn-packet to 10.10.2.10, and 10.10.2.10 answers
+with a ack-packet, but without the syn-flag set. I thought this might be
+violating the TCP-protcol. It happens 3 to 4 times per second on a
+Squid-Server with lots of Requests (100-200 per second). We use the
+2.4.18-kernel. We have tried a 2.2.20-kernel and it worked normal.
+
+What could be the problem?
+
+many thanks
+
+Oliver
+
+
+-- 
+Dipl. Inf. (FH) Oliver Joa
+senior IT-architect
+
+Gatrixx NetSolutions GmbH
+Karl-Goetz-Strasse 5
+97424 Schweinfurt
+Fon +49 9721 797 420
+Fax +49 9383 999-58
+Mobil +49 160 47874 62
+E-Mail ojoa@gatrixx.com, ojoa@gmx.net, oliver@j-o-a.de
+
+Weitere Informationen erhalten Sie unter:
+http://www.gedif.de/
+
 

@@ -1,30 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279986AbRKDMvu>; Sun, 4 Nov 2001 07:51:50 -0500
+	id <S279983AbRKDNUs>; Sun, 4 Nov 2001 08:20:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279985AbRKDMvl>; Sun, 4 Nov 2001 07:51:41 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:59141 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S279983AbRKDMvW>; Sun, 4 Nov 2001 07:51:22 -0500
-Subject: Re: Support for Matrox G550 framebuffer?
-To: vandrove@vc.cvut.cz (Petr Vandrovec)
-Date: Sun, 4 Nov 2001 12:57:51 +0000 (GMT)
-Cc: ledzep37@home.com (Jordan Breeding),
-        linux-kernel@vger.kernel.org (Linux Kernel)
-In-Reply-To: <20011104024800.D2214@ppc.vc.cvut.cz> from "Petr Vandrovec" at Nov 04, 2001 02:48:00 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E160MqV-0001nK-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S279985AbRKDNU3>; Sun, 4 Nov 2001 08:20:29 -0500
+Received: from green.csi.cam.ac.uk ([131.111.8.57]:52147 "EHLO
+	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S279983AbRKDNUH>; Sun, 4 Nov 2001 08:20:07 -0500
+Message-Id: <5.1.0.14.2.20011104131312.02bd8ae8@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sun, 04 Nov 2001 13:20:04 +0000
+To: Sean Middleditch <elanthis@awesomeplay.com>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: Via Onboard Audio - Round #2
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1004851818.457.24.camel@stargrazer>
+In-Reply-To: <3BE4CC20.5FFEC4B5@mandrakesoft.com>
+ <1004849558.457.15.camel@stargrazer>
+ <3BE4CC20.5FFEC4B5@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I sent patches to Alan on Friday. I do not know whether he'll
-> apply them or not. But for using G550 you must download matroxset
-> from ftp://platan.vc.cvut.cz/pub/linux/matrox-latest, as if
-> you are connecting VGA monitor to card, you are on 90% using
-> secondary output...
+At 05:30 04/11/2001, Sean Middleditch wrote:
+>On Sun, 2001-11-04 at 00:03, Jeff Garzik wrote:
+> > You cannot, through driver options.
+> >
+> > The IRQ routing conflict is definitely the problem.  You can try booting
+> > with "PNP OS: No" and maybe other irq options are hidden in your BIOS
+> > setup under an advanced menu.
+>
+>There is no option.
 
-They are in my working tree and will be in the next -ac
+You mean you bios doesn't allow you to choose whether you have a PNP OS or 
+not?!? That would be very unusual (unless you have a Dell...). Linux is not 
+a PNP OS and hence problems like yours often get fixed by setting in the 
+BIOS that you are not using a PNP OS. Windows still works fine with PNP OS 
+= NO btw. - On my P4 I had to set PNP OS = NO otherwise I couldn't get my 
+sound card to work...
+
+Anton
+
+
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+

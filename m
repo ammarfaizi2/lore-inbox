@@ -1,77 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288686AbSA3HAg>; Wed, 30 Jan 2002 02:00:36 -0500
+	id <S288557AbSA3HG1>; Wed, 30 Jan 2002 02:06:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288716AbSA3HAR>; Wed, 30 Jan 2002 02:00:17 -0500
-Received: from waste.org ([209.173.204.2]:50322 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S288686AbSA3HAI>;
-	Wed, 30 Jan 2002 02:00:08 -0500
-Date: Wed, 30 Jan 2002 01:00:04 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] per-cpu areas for 2.5.3-pre6 
-In-Reply-To: <E16Vir4-0005rs-00@wagner.rustcorp.com.au>
-Message-ID: <Pine.LNX.4.44.0201292328530.25123-100000@waste.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288731AbSA3HGI>; Wed, 30 Jan 2002 02:06:08 -0500
+Received: from zero.tech9.net ([209.61.188.187]:60171 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S288557AbSA3HF5>;
+	Wed, 30 Jan 2002 02:05:57 -0500
+Subject: Re: Configure.help in 2.5.3-pre6
+From: Robert Love <rml@tech9.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <a3847v$17m$1@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0201292147530.22800-100000@barbarella.hawaga.org.uk>
+	<1012370595.3392.21.camel@phantasy>  <a3847v$17m$1@penguin.transmeta.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 30 Jan 2002 02:11:16 -0500
+Message-Id: <1012374707.3213.24.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Jan 2002, Rusty Russell wrote:
+On Wed, 2002-01-30 at 01:35, Linus Torvalds wrote:
 
-> In message <Pine.LNX.4.44.0201291813110.25443-100000@waste.org> you write:
->
-> > Nearly as good would be replacing the current logic for figuring out the
-> > current processor id through current with logic to access the per-cpu
-> > data. The primary use of that id is indexing that data anyway.
->
-> And if you'd been reading this thread, you would have already seen
-> this idea, and if you'd read the x86 code, you'd have realised that
-> the tradeoff is arch-specific.
+> I'd much _prefer_ to have somebody who knows menuconfug/xconfig (or just
+> wants to learn).  I have a totally untested patch for menuconfig, that
+> probably just works (like the regular config thing it doesn't actualy
+> take _advantage_ of pairing the Config.help files up with the questions,
+> but at least it should give you the help texts like it used to).
 
-This 'thread' as you call it began with the message I replied to. Nor can
-I find any other reference to the idea on recent threads relating to
-per_cpu on this list.
+Does not work for me; menuconfig bails out to the console (but does not
+return to prompt) on "?" ...
 
-Looking closer, I've found an issue with your patch related to the above,
-so I think it bears closer examination. The common case is of course to
-access data for the current CPU, either by dedicated register on non-x86
-as you've mentioned, or a scheme like I proposed, which works out
-something like this:
+I don't no one lick of this stuff either, so that is all you get from
+me. :)
 
-#define per_cpu_offset(cpu) (current->per_cpu_offset)
-#define smp_processor_id() (per_cpu(current_processor_id,0))
-
-The problem is that either of these schemes don't let you get at the data
-on anything but the current processor, because per_cpu would be per-force
-ignoring its CPU argument to actually take advantage of the convenient
-pointer/register. What is needed is an additional this_cpu interface that
-looks generically something like this:
-
-#define this_cpu(var)
-(*(__typeof__(&var)((void *)&var + per_cpu_offset(smp_processor_id()))))
-
-and on x86 something like this:
-
-#define this_cpu(var)
-(*(__typeof__(&var)((void *)&var + current->per_cpu_offset)))
-#define smp_processor_id() (this_cpu(current_processor_id))
-
-I suspect in practice the lack of a this_cpu style interface would be a
-great nuisance, given that it's _the common case by definition_. Reviewing
-the other arches in the main tree, going through current seems to _always_
-be better than indexing __per_cpu_offset for the common case because all
-arches except SPARC look in current for the processor id and SPARC already
-has a register for current. And there have been various suggestions for
-fitting current into special registers on x86 as well.
-
-(While it's obviously possible to extend the task struct to hold both the
-offset and the processor id, it seems that the main use of the
-smp_processor_id is looking up per-cpu data and that it should largely
-disappear once a per_cpu/this_cpu framework is in use. And updating both
-on moving between processors would then seem pointless.)
-
---
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+	Robert Love
 

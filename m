@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262320AbTEFD6e (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 23:58:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262342AbTEFD6e
+	id S262341AbTEFEPm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 00:15:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262342AbTEFEPm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 23:58:34 -0400
-Received: from h80ad263c.async.vt.edu ([128.173.38.60]:53888 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S262320AbTEFD6D (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 23:58:03 -0400
-Message-Id: <200305060410.h464AMMF002501@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: sumit_uconn@lycos.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Write file in EXT2 
-In-Reply-To: Your message of "Mon, 05 May 2003 23:14:46 EDT."
-             <FCLJBBJOHCHPBDAA@mailcity.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <FCLJBBJOHCHPBDAA@mailcity.com>
+	Tue, 6 May 2003 00:15:42 -0400
+Received: from granite.he.net ([216.218.226.66]:4361 "EHLO granite.he.net")
+	by vger.kernel.org with ESMTP id S262341AbTEFEPl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 00:15:41 -0400
+Date: Mon, 5 May 2003 21:25:52 -0700
+From: Greg KH <greg@kroah.com>
+To: David Ford <david+powerix@blue-labs.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       apcupsd-devel@apcupsd.org
+Subject: Re: APC USB ups, Back-UPS ES series, 2.5.68
+Message-ID: <20030506042552.GA5612@kroah.com>
+References: <3EB331B5.4080306@blue-labs.org> <20030503063632.GA2769@kroah.com> <3EB39463.2080307@blue-labs.org> <3EB7130D.6080802@blue-labs.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1184673444P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 06 May 2003 00:10:22 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EB7130D.6080802@blue-labs.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1184673444P
-Content-Type: text/plain; charset=us-ascii
+On Mon, May 05, 2003 at 09:42:37PM -0400, David Ford wrote:
+> I haven't had time to look at it and try to debug it.  The 96 v.s. 192 
+> minor look like it's exactly 128 too high.  Perhaps it's a simple fix?
 
-On Mon, 05 May 2003 23:14:46 EDT, Sumit Narayan <sumit_uconn@lycos.com>  said:
-> I would like to create a log file containing the reads and writes made on a
-> disk, by adding a function in the kernel. And once this log table reaches a
+Can you try this patch and let me know if it works or not?
 
-Have you considered looking at the ext3 file system, which is basically ext2
-with a journal?
+thanks,
 
---==_Exmh_-1184673444P
-Content-Type: application/pgp-signature
+greg k-h
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQE+tzWucC3lWbTT17ARAlE6AJ0QLQZ5WHo1fsV7Sa8EG3doBdNQAACgi9OS
-KJo3lfMeqsVS52/OlX+6I3o=
-=7YFh
------END PGP SIGNATURE-----
-
---==_Exmh_-1184673444P--
+--- a/drivers/usb/input/hiddev.c	Sun May  4 23:49:54 2003
++++ b/drivers/usb/input/hiddev.c	Mon May  5 21:23:42 2003
+@@ -714,9 +714,9 @@
+ 	hiddev->hid = hid;
+ 	hiddev->exist = 1;
+ 
+-	sprintf(devfs_name, "usb/hid/hiddev%d", minor);
++	sprintf(devfs_name, "usb/hid/hiddev%d", minor - HIDDEV_MINOR_BASE);
+ 	devfs_register(NULL, devfs_name, 0,
+-		USB_MAJOR, minor + HIDDEV_MINOR_BASE,
++		USB_MAJOR, minor,
+ 		S_IFCHR | S_IRUGO | S_IWUSR, &hiddev_fops, NULL);
+ 	hid->minor = minor;
+ 	hid->hiddev = hiddev;

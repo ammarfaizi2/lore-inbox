@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261954AbTCLT6f>; Wed, 12 Mar 2003 14:58:35 -0500
+	id <S261979AbTCLT7V>; Wed, 12 Mar 2003 14:59:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261979AbTCLT6f>; Wed, 12 Mar 2003 14:58:35 -0500
-Received: from blowme.phunnypharm.org ([65.207.35.140]:56333 "EHLO
+	id <S261980AbTCLT7U>; Wed, 12 Mar 2003 14:59:20 -0500
+Received: from blowme.phunnypharm.org ([65.207.35.140]:57357 "EHLO
 	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
-	id <S261954AbTCLT6e>; Wed, 12 Mar 2003 14:58:34 -0500
-Date: Wed, 12 Mar 2003 15:08:49 -0500
+	id <S261979AbTCLT7S>; Wed, 12 Mar 2003 14:59:18 -0500
+Date: Wed, 12 Mar 2003 15:09:48 -0500
 From: Ben Collins <bcollins@debian.org>
-To: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+To: Nicolas Pitre <nico@cam.org>
+Cc: Larry McVoy <lm@work.bitmover.com>, lkml <linux-kernel@vger.kernel.org>
 Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
-Message-ID: <20030312200849.GL563@phunnypharm.org>
-References: <20030312174244.GC13792@work.bitmover.com> <Pine.LNX.4.44.0303121324510.14172-100000@xanadu.home> <20030312195120.GB7275@work.bitmover.com>
+Message-ID: <20030312200948.GM563@phunnypharm.org>
+References: <20030312183413.GH563@phunnypharm.org> <Pine.LNX.4.44.0303121426450.14172-100000@xanadu.home> <20030312195311.GK563@phunnypharm.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030312195120.GB7275@work.bitmover.com>
+In-Reply-To: <20030312195311.GK563@phunnypharm.org>
 User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So we actually captured 100% of the checkin information, both in data
-> files and in the pseudo ChangeSet file, not one byte of that is lost.
-> All we did is collapse all the branches into the longest possible straight
-> line, which is actually for many purposes nicer than the rats nets that
-> you get with BK.
+> > Oh of course you won't trust Larry and maybe he's trying to screw you with 
+> > that 10% by carefully crafting essential details in there so you'll end up 
+> > being forced into buying a BK license otherwise you won't be able to make 
+> > any sense of what happened in the source tree, or even make it compile!  
+> > Isn't it pure paranoia?
+> > 
+> 
+> What part of the structure of the BK repo don't you understand? Didn'y
+> you pay attention to what Larry said? The tree looks like branches that
+> always return to the trunk. To put this into CVS, he had to choose a
+> line of those branches that contained the _most_ changesets (which
+> doesn't always equate to the most important, or largest deltas). There
+> are some changesets on the side that are not included here. Are all of
+> those changesets empty merges? No.
 
-Now that wasn't apparent from your original post. You made it sound more
-like meta-data was missing (we all know that via the merges, as long as
-you picked a line, none of the diffs were missing).
-
-That's good to know, and makes my whole rant kind of pointless now.
-
-I still don't like your move to change the SCCS format. Regardless of
-your intentions, it makes my gut hurt. That doesn't mean I don't like
-you or what you do. I never said I didn't in this discussion, although
-some people decided to get rude on my behalf, when they shouldn't which
-triggered others to target people in the discussion with rudeness, which
-shouldn't have happened.
-
-I can dislike the change, just the same as you can license your product
-and develop it any way you want. The day someone takes that right away
-from either of us is when we have a real problem.
+s/changeset/metadata/ to clarify my point, which is of no use now.
 
 -- 
 Debian     - http://www.debian.org/

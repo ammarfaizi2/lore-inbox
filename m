@@ -1,78 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265642AbSJSRh0>; Sat, 19 Oct 2002 13:37:26 -0400
+	id <S265636AbSJSRdc>; Sat, 19 Oct 2002 13:33:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265643AbSJSRh0>; Sat, 19 Oct 2002 13:37:26 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:26119 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S265642AbSJSRhX>; Sat, 19 Oct 2002 13:37:23 -0400
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: Linux v2.5.43
-Date: 19 Oct 2002 17:43:14 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <aos5ji$rsg$1@gatekeeper.tmr.com>
-References: <20021016163515.C2874@q.mn.rr.com> <Pine.LNX.3.96.1021018152918.23760A-100000@gatekeeper.tmr.com>
-X-Trace: gatekeeper.tmr.com 1035049394 28560 192.168.12.62 (19 Oct 2002 17:43:14 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	id <S265637AbSJSRdc>; Sat, 19 Oct 2002 13:33:32 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:57898 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S265636AbSJSRda>; Sat, 19 Oct 2002 13:33:30 -0400
+To: Werner Almesberger <wa@almesberger.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [CFT] kexec syscall for 2.5.43 (linux booting linux)
+References: <m1k7kfzffk.fsf@frodo.biederman.org>
+	<20021018173248.E14894@almesberger.net>
+	<m1bs5rz1d6.fsf@frodo.biederman.org>
+	<20021018231540.C7951@almesberger.net>
+	<20021019025309.A24579@almesberger.net>
+	<m17kgfyltc.fsf@frodo.biederman.org>
+	<20021019040600.D7951@almesberger.net>
+	<m13cr2zs99.fsf@frodo.biederman.org>
+	<20021019141806.E7951@almesberger.net>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 19 Oct 2002 11:37:56 -0600
+In-Reply-To: <20021019141806.E7951@almesberger.net>
+Message-ID: <m1hefixrbf.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article
-<Pine.LNX.3.96.1021018152918.23760A-100000@gatekeeper.tmr.com>,
+Werner Almesberger <wa@almesberger.net> writes:
 
-I'm happy to report that ide-scsi is still working fine, both for CD,
-CD-RW and ZIP drives. Which makes life nice on a system with both ATAPI
-and SCSI CD devices, since my scripts need only get the bus and id, not
-use another device name format.
+> Eric W. Biederman wrote:
+> > Cool.  What fails with X11.  Fixing it might be as simple as calling
+> > int 0x10 early in the new image.
+> 
+> The graphic engine (i810) simply doesn't switch back to text mode.
+> Yes, 0x10 helps. I've attached a little patch that does this in a
+> relatively safe way. (Alternative, one could also use set_80x25,
+> but I think always forcing mode 3 is slightly more reliable.
+> Except for MGA users, of course :-)
+> 
+> If you get a new boot loader type code from Peter Anvin, this
+> should even be good enough for inclusion into the mainstream
+> kernel. Alternatively, we could also pick a new loader flag to
+> indicate that the firmware didn't initialize the system.
 
-Bill Davidsen  <davidsen@tmr.com> wrote:
-| On Wed, 16 Oct 2002, Shawn wrote:
-| 
-| > On 10/16, Bill Davidsen said something like:
-| 
-| > > I hope you haven't broken running WITH ide-scsi, because most people still
-| > > run 2.4 kernels in real life and only test 2.5 because someone has to do
-| > > it. Reconfiguring the system to use ide-scsi or not is just one more PITA
-| > > thing which needs to be done, or more likely forgotten, with every new
-| > > kernel.
-| > 
-| > Honestly, I think it's ok to bust the old stuff if needed. This is
-| > simply my opinion from a user standpoint.
-| > 
-| > It's really just one kernel argument or /etc/modules.conf modification
-| > to fix the old setup, asnd likely, if you set it up in the first place,
-| > you can un-set it up.
-| 
-| And change every script from dev=b,d,l to dev=/dev/cdN. Without hitting
-| the actual SCSI CD's, and of course the scd0 (ATAPI on ide-scsi) goes away
-| so you have to rename all of your real SCSI CD's.
-| 
-| On a simple system with one ATAPI CD the problem is small, but on a larger
-| and busier system with a fair number of CD-RW drives, it is likely to be a
-| real pain, and if you forget to convert back you mess up production stuff.
-| 
-| It's not impossible, just something I would rather not do unless the
-| system is going permanently to 2.6, maybe not even then, since what I have
-| works fine.
-| 
-| -- 
-| bill davidsen <davidsen@tmr.com>
-|   CTO, TMR Associates, Inc
-| Doing interesting things with little computers since 1979.
-| 
-| -
-| To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-| the body of a message to majordomo@vger.kernel.org
-| More majordomo info at  http://vger.kernel.org/majordomo-info.html
-| Please read the FAQ at  http://www.tux.org/lkml/
-| 
+For the most part my preferences is to put the system into a sane state
+when we reboot/shutdown.  The device_shutdown call in the kernel can handle
+this, on reboot.  The problem with video is mostly that the drivers
+are not well integrated.
 
+> > [vmlinux] specifies incorrect physical
+> > addresses, and it expects to be passed a whole host of strange values,
+> > in weird places.
+> 
+> I see. Perhaps you could say then that mkelfImage fixes flaws in
+> the vmlinux ELF image meta-data, or such:
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+The primary thing it does is give the kernel a working 32bit entry
+point.
+
+> | A kernel reformater is makes images that seem to boot more reliably is at:
+> | ftp://ftp.lnxi.com/pub/mkelfImage/mkelfImage-1.17.tar.gz
+> 
+> This sounds more like "if I kick it here, it usually works,
+> but I have no idea why" :-)
+
+The code was built so I could put a kernel, a ramdisk, and a command line
+all in a single ELF executable.    With the addition of entering the kernel
+at it's unsupported 32bit entry point.  So I perform a different set of BIOS
+calls that setup.S does.  Though they are very similar.
+
+But why mkelfImage works occasionally when a bzImage doesn't and you
+have a pcbios is a mystery to me.  I know why only mkelfImage works
+under LinuxBIOS...
+
+> And yes, if it's not too intrusive, fixing the ELF meta-data
+> along with the addition of kexec might be a good idea.
+
+The meta-data is easy, about one line in vmlinux.lds.  Fixing the
+actual entry point is more interesting.  I've done it and the result
+is maintainable but the patch met some definitions of intrusive.
+
+Eric

@@ -1,48 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262697AbVBBVbJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262445AbVBBV3k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262697AbVBBVbJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 16:31:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262363AbVBBVVL
+	id S262445AbVBBV3k (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 16:29:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262450AbVBBV3j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 16:21:11 -0500
-Received: from rproxy.gmail.com ([64.233.170.203]:20548 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262792AbVBBVRg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 16:17:36 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=o+kyuPJuIB2nCmAvViAFrznyFytzq2BKwe474kgZn3iGxQzQFy0FxM9B+mt8rCWE95eceSj9GbN9aJ9FXu2zPoC6rtA67Vx/nsWclraHb/T5wWnLhZa8chflhXm+bVMwwxNSMATuaFK7wMoLmVDu+E6WCMj6G5IOa563YT+iBm0=
-Message-ID: <d120d50005020213176eab546a@mail.gmail.com>
-Date: Wed, 2 Feb 2005 16:17:28 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Peter Osterlund <petero2@telia.com>
-Subject: Re: Touchpad problems with 2.6.11-rc2
-Cc: Pete Zaitcev <zaitcev@redhat.com>, vojtech@suse.cz,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <m3lla64r3w.fsf@telia.com>
+	Wed, 2 Feb 2005 16:29:39 -0500
+Received: from dsl093-002-214.det1.dsl.speakeasy.net ([66.93.2.214]:62139 "EHLO
+	pickle.fieldses.org") by vger.kernel.org with ESMTP id S262445AbVBBV0D
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 16:26:03 -0500
+Date: Wed, 2 Feb 2005 16:25:57 -0500
+To: Mike Waychison <Michael.Waychison@Sun.COM>
+Cc: Ram <linuxram@us.ibm.com>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] shared subtrees
+Message-ID: <20050202212557.GC3879@fieldses.org>
+References: <20050116180656.GQ26051@parcelfarce.linux.theplanet.co.uk> <20050116184209.GD13624@fieldses.org> <20050117061150.GS26051@parcelfarce.linux.theplanet.co.uk> <20050117173213.GC24830@fieldses.org> <1106687232.3298.37.camel@localhost> <20050201232106.GA22118@fieldses.org> <1107369381.5992.73.camel@localhost> <42012DE7.4080003@sun.com> <1107376434.5992.113.camel@localhost> <42014150.9090500@sun.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050123190109.3d082021@localhost.localdomain>
-	 <m3acqr895h.fsf@telia.com>
-	 <20050201234148.4d5eac55@localhost.localdomain>
-	 <m3lla64r3w.fsf@telia.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42014150.9090500@sun.com>
+User-Agent: Mutt/1.5.6+20040907i
+From: "J. Bruce Fields" <bfields@fieldses.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 02 Feb 2005 13:07:21 -0800 (PST), Peter Osterlund
-<petero2@telia.com> wrote:
-> +                               if (mousedev->pkt_count >= 2) {
-> +                                       tmp = ((fx(0) - fx(2)) * (250 * FRACTION_DENOM)) / size;
-> +                                       tmp += mousedev->frac_dx;
-> +                                       mousedev->packet.dx = tmp / FRACTION_DENOM;
-> +                                       mousedev->frac_dx = tmp - mousedev->packet.dx * FRACTION_DENOM;
-> +                               }
+On Wed, Feb 02, 2005 at 04:08:32PM -0500, Mike Waychison wrote:
+> Well, fwiw, I have the same kind of race in autofsng.  I counter it by
+> building up the vfsmount tree elsewhere and mount --move'ing it.
+> 
+> Unfortunately, the RFC states that moving a shared vfsmount is
+> prohibited (for which the reasoning slips my mind).
 
-What about setting scale to 256 and fractions to 128 - that should
-save some cycles? Or it will be too much?
+See http://marc.theaimsgroup.com/?l=linux-fsdevel&m=110594248826226&w=2
 
--- 
-Dmitry
+As I understand it, the problem isn't sharing of the vfsmount being
+moved, but sharing of the vfsmount on which that vfsmount is
+mounted.--b.

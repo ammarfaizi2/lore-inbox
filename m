@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129415AbRAAQD1>; Mon, 1 Jan 2001 11:03:27 -0500
+	id <S131617AbRAAQeC>; Mon, 1 Jan 2001 11:34:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129568AbRAAQDR>; Mon, 1 Jan 2001 11:03:17 -0500
-Received: from mail.sun.ac.za ([146.232.128.1]:8722 "EHLO mail.sun.ac.za")
-	by vger.kernel.org with ESMTP id <S129415AbRAAQDF>;
-	Mon, 1 Jan 2001 11:03:05 -0500
-Date: Mon, 1 Jan 2001 17:32:31 +0200 (SAST)
-From: Hans Grobler <grobh@sun.ac.za>
-To: f5ibh <f5ibh@db0bm.ampr.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.0-prerelease, AX25 problems
-In-Reply-To: <200101011509.QAA15904@db0bm.ampr.org>
-Message-ID: <Pine.LNX.4.30.0101011720480.688-100000@prime.sun.ac.za>
+	id <S131957AbRAAQdw>; Mon, 1 Jan 2001 11:33:52 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:64782 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131617AbRAAQds>; Mon, 1 Jan 2001 11:33:48 -0500
+Subject: Re: PATCH: __bad_udelay fixes(?) for linux-2.4.0-prerelease
+To: adam@yggdrasil.com (Adam J. Richter)
+Date: Mon, 1 Jan 2001 16:04:32 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20001231213459.A17636@baldur.yggdrasil.com> from "Adam J. Richter" at Dec 31, 2000 09:34:59 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14D7Rq-00010O-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Jan 2001, f5ibh wrote:
-> I've just compiled and tested 2.4.0-prerelease. My AX25 (hamradio) system does
-> not work with this new release. There is a timing problem. When a fram is sent
-> on the air, the frame is VERY long (switched off by the watchdog of my drsi
-> card) and contains no data. On this point of vue, the previous test version was
-> right.
+> (that is, 20 milliseconds).  I guess the purpose of this change is
+> to tell driver maintainers to either take a harder look at whether they
+> really need to do a busy sleep for that long (you can still do it with
 
-Is the "previous test version" you talk about 2.4.0-test13-pre7?  There
-weren't any changes since then that could explain this, except maybe:
+It is primarily there because udelay() that long will fail. An mdelay is
+an acceptable substitution. mdelay knows the delays will be bigger so the
+time to do the math and a loop doesnt throw small delays
 
-> Gnu C                  2.95.2
+> drivers/video/atyfb.c           - An intentional 50ms delay.
+> drivers/video/clgenfb.c	        - An intentional 100ms delay.
+> 				  I've changed both files to keep the
+> 				  delays by using mdelay instead of udelay.
+> 				  Perhaps somebody could check the
+> 				  approaprirate documentation and test
+> 				  on real hardware to determine if the
+> 				  delays really need to be this long.
 
-The minimum required gcc for 2.4 is now 2.91.66. However, AFAIK 2.95.5 was
-considered suspect at one point.
-
--- Hans
-
-
-
+Seems sane. For toshoboe in my tree I just switched it to mdelay()
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

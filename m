@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262408AbSJVLHY>; Tue, 22 Oct 2002 07:07:24 -0400
+	id <S262425AbSJVLOh>; Tue, 22 Oct 2002 07:14:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262425AbSJVLHY>; Tue, 22 Oct 2002 07:07:24 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:48099 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S262408AbSJVLHX>;
-	Tue, 22 Oct 2002 07:07:23 -0400
-Date: Tue, 22 Oct 2002 13:12:47 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Rob Landley <landley@trommello.org>, Xavier Bestel <xavier.bestel@free.fr>,
-       Robert Love <rml@tech9.net>, Ben Collins <bcollins@debian.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Bitkeeper outrage, old and new
-Message-ID: <20021022131247.F21346@ucw.cz>
-References: <200210201926.19757.landley@trommello.org> <Pine.LNX.4.44L.0210211233080.22993-100000@imladris.surriel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262447AbSJVLOh>; Tue, 22 Oct 2002 07:14:37 -0400
+Received: from a213-84-34-179.xs4all.nl ([213.84.34.179]:58752 "EHLO
+	defiant.binary-magic.com") by vger.kernel.org with ESMTP
+	id <S262425AbSJVLOg> convert rfc822-to-8bit; Tue, 22 Oct 2002 07:14:36 -0400
+From: Take Vos <Take.Vos@binary-magic.com>
+Organization: Binary Magic
+To: bert hubert <ahu@ds9a.nl>
+Subject: Re: PROBLEM: PCMCIA cardmgr kill hangs kernel
+Date: Tue, 22 Oct 2002 13:13:45 +0200
+User-Agent: KMail/1.4.7
+Cc: linux-kernel@vger.kernel.org
+References: <200210221046.46700.Take.Vos@binary-magic.com> <20021022093410.GA2392@outpost.ds9a.nl>
+In-Reply-To: <20021022093410.GA2392@outpost.ds9a.nl>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.44L.0210211233080.22993-100000@imladris.surriel.com>; from riel@conectiva.com.br on Mon, Oct 21, 2002 at 12:33:54PM -0200
+Message-Id: <200210221313.49423.Take.Vos@binary-magic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 21, 2002 at 12:33:54PM -0200, Rik van Riel wrote:
-> On Sun, 20 Oct 2002, Rob Landley wrote:
-> > On Sunday 20 October 2002 17:53, Rik van Riel wrote:
-> 
-> > > Germany (and France, judging from your words) have laws that
-> > > guarantee that the creator of a work keeps copyright on the
-> > > work.  At least, part of the copyright cannot be signed over
-> > > to other people or organisations.
-> 
-> > 3) The creator of a work doesn't always get the copyright, at least in
-> > the US.
-> 
-> Please see above.  It's possible the FSF copyright assignment
-> just can't be legal in some countries.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Even the GNU GPL isn't legally valid in some countries. Czech Republic,
-where I'm from is an example - for a license agreement like this, both
-parties (the author and the user) have to be at least notified, and if
-they are not, the agreement is invalid. This is a quite understandable
-law, but doesn't work with the GPL unless you always contact all the
-authors.
+Hello,
 
--- 
-Vojtech Pavlik
-SuSE Labs
+> > kernel:	linux-2.5.43
+> > cardmgr:	3.2.1
+> > hardware:DELL Inspiron 8100
+> > config:	CONFIG_PCMCIA
+> > 		CONFIG_CARDUBS
+> > 		CONFIG_BLK_DEV_IDECS
+> >
+> > killing the cardmgr hangs the kernel,
+removing the flashcard from the pcmcia slot also hangs the kernel.
+So it seams a flashcard issue (I had issues with this card in the early 2.4.x 
+kernels, but it would hang the kernel at insertion)
+
+> How hard? Does numlock still work? Can you tell if the CPU is busy
+> afterwards (ie, your laptop remains hot).
+numlock doesn't work.
+CPU gets hot (fans start after a minute).
+
+Thanks
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9tTLrMMlizP1UqoURAvXaAJ9MmPl54/qrQKwAdccoe91Q+Of8YwCgp7yP
+h4pA8QC95P0+HSaUa3iGuUw=
+=6QXb
+-----END PGP SIGNATURE-----
+

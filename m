@@ -1,44 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311169AbSCHV73>; Fri, 8 Mar 2002 16:59:29 -0500
+	id <S311170AbSCHV73>; Fri, 8 Mar 2002 16:59:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311168AbSCHV7U>; Fri, 8 Mar 2002 16:59:20 -0500
-Received: from adsl-209-233-33-110.dsl.snfc21.pacbell.net ([209.233.33.110]:33519
-	"EHLO lorien.emufarm.org") by vger.kernel.org with ESMTP
-	id <S311165AbSCHV7K>; Fri, 8 Mar 2002 16:59:10 -0500
-Date: Fri, 8 Mar 2002 13:59:08 -0800
-From: Danek Duvall <duvall@emufarm.org>
-To: J Sloan <jjs@lexus.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: root-owned /proc/pid files for threaded apps?
-Message-ID: <20020308215908.GB886@lorien.emufarm.org>
-Mail-Followup-To: Danek Duvall <duvall@emufarm.org>,
-	J Sloan <jjs@lexus.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020307060110.GA303@lorien.emufarm.org> <E16iyBW-0002HP-00@the-village.bc.nu> <20020308100632.GA192@lorien.emufarm.org> <20020308195939.A6295@devcon.net> <20020308203157.GA457@lorien.emufarm.org> <20020308222942.A7163@devcon.net> <3C893171.2050003@lexus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C893171.2050003@lexus.com>
-User-Agent: Mutt/1.3.25i
+	id <S311161AbSCHV7U>; Fri, 8 Mar 2002 16:59:20 -0500
+Received: from zeke.inet.com ([199.171.211.198]:44176 "EHLO zeke.inet.com")
+	by vger.kernel.org with ESMTP id <S311168AbSCHV7O>;
+	Fri, 8 Mar 2002 16:59:14 -0500
+Message-ID: <3C893429.2020406@inet.com>
+Date: Fri, 08 Mar 2002 15:59:05 -0600
+From: Eli <eli.carter@inet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: "Jonathan A. George" <JGeorge@greshamstorage.com>
+CC: Dave Jones <davej@suse.de>, Rik van Riel <riel@conectiva.com.br>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Kernel SCM: When does CVS fall down where it REALLY matters?
+In-Reply-To: <3C87FD12.8060800@greshamstorage.com> <Pine.LNX.4.44L.0203072057510.2181-100000@imladris.surriel.com> <20020308021909.L29587@suse.de> <3C891EA4.6090102@greshamstorage.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 08, 2002 at 01:47:29PM -0800, J Sloan wrote:
-
-> Andreas Ferber wrote:
+Jonathan A. George wrote:
+ >  My respect for BK is certainly been enhanced by this
+> discussion, but I still would prefer a free (or failing that GPL) 
+> license. ;-)
 > 
-> >As a side note, IMHO it would be sensible to have some way of
-> >disabling module autoloading of protocol modules in the network stack.
-> >
-> 
-> What is the problem with using modules.conf e.g.
-> 
-> alias net-pf-10 off
+> Comments?
 
-I have that.  The problem is that if every time a program attempts to
-make an IPv6 connection it forces the kernel to spawn off modprobe to go
-look for it, you have a performance issue.  Of course, I'd imagine that
-a reasonably written program would not try to use IPv6 beyond the first
-failure.
+A comment/request.
+Take your list of requirements and see how each system "we" (as in 
+kernel hackers) use stacks up and post that to the list.
 
-Danek
+Be sure to include ARCH, Bitkeeper, CVS, diff&patch, emacs, SCCS, 
+Subversion, and any others I've missed... I don't know what all the 
+options are, and that is something that would be useful to know.
+(Also, consider "bundles" such as CVS+cervisia+tkdiff or something).
+The list should have comments about each rather than just a checklist, 
+so you give an idea of quality of implementations as well.
+Actually, Larry McVoy might have such a compilation in his sales 
+materials, or should. ;)
+
+Also, you didn't mention Subversion, which is a Free license, and has 
+many of the same stated goals as you have.  There is some decent 
+documentation on their design and some discussion about _why_ they made 
+their choices.  That should be worth-while reading regardless of the 
+path you choose to pursue.  You might consider that if Subversion does 
+half of your goals it might be easier to add to it than start from CVS 
+or from scratch...
+
+Comments?
+
+Eli
+disclaimer: I use CVS because it is what I know and it is available 
+"everywhere".  I'm planning to use Subversion at some future date. 
+Plans subject to change based upon additional knowledge, partly from 
+this list. *shrug*
+--------------------. "If it ain't broke now,
+Eli Carter           \                  it will be soon." -- crypto-gram
+eli.carter(a)inet.com `-------------------------------------------------
+

@@ -1,53 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbUEONxX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262503AbUEOOUv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262085AbUEONxX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 May 2004 09:53:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262499AbUEONxX
+	id S262503AbUEOOUv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 May 2004 10:20:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbUEOOUv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 May 2004 09:53:23 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7322 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262085AbUEONxV
+	Sat, 15 May 2004 10:20:51 -0400
+Received: from h00207813f68b.ne.client2.attbi.com ([24.91.60.206]:20624 "EHLO
+	buddha.badbelly.com") by vger.kernel.org with ESMTP id S262503AbUEOOUs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 May 2004 09:53:21 -0400
-Date: Sat, 15 May 2004 14:53:18 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Oleg Drokin <green@linuxhacker.ru>
-Cc: trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org
-Subject: Re: NFS & long symlinks = stack overflow
-Message-ID: <20040515135318.GP17014@parcelfarce.linux.theplanet.co.uk>
-References: <20040515132149.GA14880@linuxhacker.ru>
+	Sat, 15 May 2004 10:20:48 -0400
+Subject: Re: Burning CDs with a CD-ROM is a bad idea
+From: Gregory Boyce <gboyce@badbelly.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040515104752.GC24600@suse.de>
+References: <Pine.LNX.4.58.0405141352540.7746@buddha.badbelly.com>
+	 <20040515104752.GC24600@suse.de>
+Content-Type: text/plain
+Message-Id: <1084630641.1540.8.camel@qube.badbelly.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040515132149.GA14880@linuxhacker.ru>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 15 May 2004 10:17:21 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 15, 2004 at 04:21:49PM +0300, Oleg Drokin wrote:
-> Hello!
+On Sat, 2004-05-15 at 06:47, Jens Axboe wrote:
+> On Fri, May 14 2004, gboyce@badbelly.com wrote:
+> > Hello folks,
+> > 
+> > Yesterday I made a slight thinko while attempting to burn a CD.  Rather 
+> > than specifying dev=/dev/hdd, I add dev=/dev/hdc, which is my CD-ROM 
+> > drive rather than my cd burner.  Whoops!
+> > 
+> > Now, I believe I've done this before, and recieved an error message.  
+> > However, in this particular case with 2.6.6, the system behaved a bit 
+> > different.
+> > 
+> > bio 00000000, biotail 00000000, buffer 00000000, data 00000000, len 0
+> > cdb: 1e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> > hdc: cdrom_pc_intr: The drive appears confused (ireason = 0x02)
+> > ide-cd: cmd 0x1e timed out
+> > hdc: lost interrupt
 > 
->    For some time already I am investigating problems where fsstress run on
->    NFS where NFSD is run on ext3 crashes in something like a hour.
->    (but does not crash on reiserfs). On x86 crash looks like stack overflow
->    (deref of pointer with last 3 digits being zero in kmap directly after
->    get_current() call on 2.4.2x).
+> Looks like one of the burning commands confused the drive so much, that
+> it now refuses to do anything (the above command is a simple medium
+> removal prevention command, doesn't even need a data transfer).
 > 
->    Finally I was able to reduce a test case to two simple operations
->    that reproduce the problem 100% reliably:
-> 
-> [root@ranma root]# mount ranma:/testing /mnt -t nfs
-> [root@ranma root]# cd /mnt
-> [root@ranma mnt]# perl -e 'symlink("a"x4095, "f")'; ls -la f
-> Segmentation fault
-> 
->    (btw if you try to pass in something like 4090 worth of symbols, then
->    subsequent ls won't crash, but last few symbols of link content will be
->    corrupted)
+> So I don't think this is a kernel problem. Well maybe we could reset the
+> device and see if it recovers (do you see any resets in the log?)
 
-Lovely.  The real limit imposed by client (apparently not enforced, though)
-is PAGE_CACHE_SIZE - 4 - 1.  What are the protocol limits?  I've been looking
-into the same area for other reasons just now and all I could find was NFS v2
-"no more than 1024 bytes", no information on v3 or v4.
+There was a reset early on, but it was before the majority of errors.
 
-Trond?
+Here is the begining of problem:
+
+May 13 16:38:14 cthulhu hdc: DMA interrupt recovery
+May 13 16:38:14 cthulhu hdc: lost interrupt
+May 13 16:38:14 cthulhu hdc: status timeout: status=0xd0 { Busy }
+May 13 16:38:14 cthulhu hdc: status timeout: error=0x00
+May 13 16:38:14 cthulhu hdc: DMA disabled
+May 13 16:38:14 cthulhu hdc: drive not ready for command
+May 13 16:38:15 cthulhu hdc: ATAPI reset complete
+May 13 16:38:15 cthulhu cdrom_pc_intr, write: dev hdc: flags = REQ_STARTED REQ_PC
+May 13 16:38:15 cthulhu sector 0, nr/cnr 0/0
+May 13 16:38:15 cthulhu bio 00000000, biotail 00000000, buffer 00000000, data 00000000, len 0
+May 13 16:38:15 cthulhu cdb: 1e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+May 13 16:38:15 cthulhu hdc: cdrom_pc_intr: The drive appears confused (ireason = 0x02)
+May 13 16:39:15 cthulhu ide-cd: cmd 0x1e timed out
+May 13 16:39:15 cthulhu hdc: lost interrupt
+May 13 16:39:15 cthulhu cdrom_pc_intr, write: dev hdc: flags = REQ_STARTED REQ_PC REQ_FAILED
+May 13 16:39:15 cthulhu sector 0, nr/cnr 0/0
+May 13 16:39:15 cthulhu bio 00000000, biotail 00000000, buffer 00000000, data 00000000, len 0
+May 13 16:39:15 cthulhu cdb: 1e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+May 13 16:39:15 cthulhu hdc: cdrom_pc_intr: The drive appears confused (ireason = 0x02)
+
+There are an additional 700K of errors like this before I finally
+rebooted the machine the next day.  The machine also refused to let me
+burn CDs on the actual CD burner during this time.
+
+--
+Greg
+

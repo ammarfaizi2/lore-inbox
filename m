@@ -1,57 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292622AbSBQAFN>; Sat, 16 Feb 2002 19:05:13 -0500
+	id <S293469AbSBRBha>; Sun, 17 Feb 2002 20:37:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292621AbSBQAFE>; Sat, 16 Feb 2002 19:05:04 -0500
-Received: from femail44.sdc1.sfba.home.com ([24.254.60.38]:61362 "EHLO
-	femail44.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S292622AbSBQAEq>; Sat, 16 Feb 2002 19:04:46 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: Nicolas Pitre <nico@cam.org>, "Eric S. Raymond" <esr@thyrsus.com>
-Subject: Re: Disgusted with kbuild developers
-Date: Sat, 16 Feb 2002 19:05:29 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0202161055030.16872-100000@xanadu.home>
-In-Reply-To: <Pine.LNX.4.44.0202161055030.16872-100000@xanadu.home>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020217000440.FTZN23150.femail44.sdc1.sfba.home.com@there>
+	id <S293470AbSBRBhU>; Sun, 17 Feb 2002 20:37:20 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:24116 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S293469AbSBRBhP>; Sun, 17 Feb 2002 20:37:15 -0500
+Date: Mon, 18 Feb 2002 02:38:00 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
+        rsf@us.ibm.com
+Subject: Re: [TEST] page tables filling non-highmem
+Message-ID: <20020218023800.A23743@athlon.random>
+In-Reply-To: <20020215045106.GB26322@holomorphy.com> <E16beDZ-0002jy-00@starship.berlin>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E16beDZ-0002jy-00@starship.berlin>
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 16 February 2002 11:06 am, Nicolas Pitre wrote:
+On Fri, Feb 15, 2002 at 09:59:45AM +0100, Daniel Phillips wrote:
+> On February 15, 2002 05:51 am, William Lee Irwin III wrote:
+> > The following testcase brought down 2.4.17 mainline on an
+> > 8-way P-III 700MHz machine with 12GB of RAM. The last thing
+> > logged from it was a LowFree of 2MB with 9GB of highmem free
+> > after something like 6-8 hours of pounding away, at which
+> > time the machine stopped responding (IIRC it was given ~12
+> > hours to echo another character).
+> > 
+> > This testcase is a blatant attempt to fill the direct-mapped
+> > portion of the kernel virtual address space with process pagetables.
+> > It was suspected such a thing was happening in another failure scenario
+> > which is what motivated me to devise this testcase. I believe a fix
+> > already exists (i.e. aa's ptes in highmem stuff) though I've not yet
+> > verified its correct operation here.
+> 
+> As you described it to me on irc, this demonstration turns up a
+> considerably worse problem than just having insufficient space for
+> page tables - the system locks up hard instead of doing anything
+> reasonable on page table-related oom.  It's wrong that the system
+> should behave this way, it is after all, just an oom.
+> 
+> Now that basic stability issues seem to be under control, perhaps
+> it's time to give the oom problem the attention it deserves?
 
-> Don't tell us that's not doable.  Do it and show us that you can do a
-> perfect translation of CML1 into CML2 with all CML1 structural flaws.
+My tree doesn't lock up hard even without pte-highmem applied.  The task
+gets killed. backout pte-highmem, try the same testcase again on my tree
+and you'll see. The oom handling in mainline is deadlock prone, I always
+known this and that's why I always rejected it. Nobody but me
+acklowledged this problem and I spent quite an amount of time convincing
+mainline maintainers about those deadlock flaws of the mainline approch
+but I failed so I giveup waiting for a report like this, just like with
+all the other stuff that is now in my vm patch, 90% of it I tried to
+push it separately into mainline before having to accumulate it.
 
-"Hey, the new VM in 2.4.10 should have replicated the swap overload failure 
-case in 2.4.9!  The first implementation should definitely melt down exactly 
-the same way!  We need to artificially introduce all the flaws in the old 
-one, just to prove it can be done!  Otherwise the new code is not 
-interesting."
-
-"To get people to try Linux on the desktop, first we need to make it 
-blue-screen just like windows."
-
-"It's unfair to compare laptops to desktops unless you first remove the 
-battery from the laptop."
-
-What the...?
-
-Wouldn't it be nice if there was an implementation of CML2 that did 
-everything CML1 did -EXCEPT- for the structural flaws?  Rather than a blind 
-mindless drooling bug-for-bug clone that defeats the whole purpose of 
-reimplementing the thing?
-
-Your requirement seems to be based on the blind assumption that CML1 had 
-nothing whatsoever wrong with it, and CML2 didn't need to be done in the 
-first place.  If that's your argument, then say it directly.  (That might be 
-a defendable position.  The one you just stated isn't.)
-
-As for breaking CML2 so it's capable of producing a configuration that the 
-rulebase says won't compile, the way CML1 can...  You do understand the 
-difference between a procedural and a declarative language, right?
-
-Rob
+Andrea

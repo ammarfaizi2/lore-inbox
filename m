@@ -1,55 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267375AbUIJJ5f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266560AbUIJKGP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267375AbUIJJ5f (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 05:57:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267352AbUIJJxH
+	id S266560AbUIJKGP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 06:06:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266808AbUIJKGP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 05:53:07 -0400
-Received: from p5089E239.dip.t-dialin.net ([80.137.226.57]:4868 "EHLO
-	timbaland.dnsalias.org") by vger.kernel.org with ESMTP
-	id S267354AbUIJJug (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 05:50:36 -0400
-From: Borislav Petkov <petkov@uni-muenster.de>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2/2] Re: 2.6.9-rc1-mm4, sub-serial.c, Badness in usb_unlink_urb
-Date: Fri, 10 Sep 2004 11:50:34 +0200
-User-Agent: KMail/1.7
-Cc: Greg KH <greg@kroah.com>
-References: <20040910082601.GA32746@gamma.logic.tuwien.ac.at>
-In-Reply-To: <20040910082601.GA32746@gamma.logic.tuwien.ac.at>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+	Fri, 10 Sep 2004 06:06:15 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:49319 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S266560AbUIJKGN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 06:06:13 -0400
+Subject: Re: linux-2.6.9-rc1-bk16 Still cdrom/DVD oops
+From: Lee Revell <rlrevell@joe-job.com>
+To: sboyce@blueyonder.co.uk
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <4140FC70.1070101@blueyonder.co.uk>
+References: <4140F3A7.8040103@blueyonder.co.uk>
+	 <1094776333.1396.31.camel@krustophenia.net>
+	 <4140FC70.1070101@blueyonder.co.uk>
+Content-Type: text/plain
+Message-Id: <1094810774.15407.9.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 10 Sep 2004 06:06:15 -0400
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409101150.34249.petkov@uni-muenster.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove the deprecated call to usb_unlink_urb in usb-serial.c
+On Thu, 2004-09-09 at 20:59, Sid Boyce wrote:
+> Lee Revell wrote:
+> >Your kernel is tainted.  Please reproduce with an untainted kernel and
+> >report.
+> >
+> The only tainted module is "nvidia", the results are the same without 
+> that module loaded in -bk15, i.e in runlevel 3. I've seen this problem 
+> on all kernels from 2.6.8.1 including -mm?. It's fine with 
+> 2.6.8-rc4-mm1, the earliest kernel I currently have around.
 
-Signed-off-by: Borislav Petkov <petkov@uni-muenster.de>
+Understood.  No one is suggesting the nvidia module caused the Oops,
+it's just that as long as there's a binary module loaded, the Oops can't
+be interpreted fully.
 
---- linux-2.6.9-rc1-mm/drivers/usb/serial/usb-serial.c.orig 2004-09-10 
-11:41:16.000000000 +0200
-+++ linux-2.6.9-rc1-mm/drivers/usb/serial/usb-serial.c 2004-09-10 
-11:41:44.000000000 +0200
-@@ -819,15 +819,15 @@ static void port_release(struct device *
- 
-  dbg ("%s - %s", __FUNCTION__, dev->bus_id);
-  if (port->read_urb) {
--  usb_unlink_urb(port->read_urb);
-+  usb_kill_urb(port->read_urb);
-   usb_free_urb(port->read_urb);
-  }
-  if (port->write_urb) {
--  usb_unlink_urb(port->write_urb);
-+  usb_kill_urb(port->write_urb);
-   usb_free_urb(port->write_urb);
-  }
-  if (port->interrupt_in_urb) {
--  usb_unlink_urb(port->interrupt_in_urb);
-+  usb_kill_urb(port->interrupt_in_urb);
-   usb_free_urb(port->interrupt_in_urb);
-  }
-  kfree(port->bulk_in_buffer);
+If you can reproduce without nvidia loaded, then post one of these.
+
+Lee
+

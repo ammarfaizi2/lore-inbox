@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275062AbTHGFML (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 01:12:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275066AbTHGFML
+	id S275066AbTHGFOo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 01:14:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275070AbTHGFOo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 01:12:11 -0400
-Received: from anumail2.anu.edu.au ([150.203.2.42]:31107 "EHLO anu.edu.au")
-	by vger.kernel.org with ESMTP id S275062AbTHGFMK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 01:12:10 -0400
-Message-ID: <3F31DF98.6020908@cyberone.com.au>
-Date: Thu, 07 Aug 2003 15:11:52 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
+	Thu, 7 Aug 2003 01:14:44 -0400
+Received: from [66.212.224.118] ([66.212.224.118]:22031 "EHLO
+	hemi.commfireservices.com") by vger.kernel.org with ESMTP
+	id S275066AbTHGFOn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 01:14:43 -0400
+Date: Thu, 7 Aug 2003 01:02:56 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Ro0tSiEgE LKML <lkml@ro0tsiege.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Soekris not exec'ing INIT
+In-Reply-To: <003701c35c56$4e4dcbd0$0500000a@bp>
+Message-ID: <Pine.LNX.4.53.0308070100080.9517@montezuma.mastecende.com>
+References: <003701c35c56$4e4dcbd0$0500000a@bp>
 MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: Cliff White <cliffw@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.0-test2-mm3 osdl-aim-7 regression
-References: <200308061910.h76JAYw16323@mail.osdl.org> <200308071240.54863.kernel@kolivas.org>
-In-Reply-To: <200308071240.54863.kernel@kolivas.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Sender-Domain: cyberone.com.au
-X-Spam-Score: (-2.8)
-X-Spam-Tests: DATE_IN_PAST_06_12,EMAIL_ATTRIBUTION,IN_REP_TO,REFERENCES,SPAM_PHRASE_00_01,USER_AGENT,USER_AGENT_MOZILLA_UA
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
+On Wed, 6 Aug 2003, Ro0tSiEgE LKML wrote:
 
->On Thu, 7 Aug 2003 05:10, Cliff White wrote:
->
->>>Binary searching (insert gratuitous rant about benchmarks that take more
->>>than two minutes to complete) reveals that the slowdown is due to
->>>sched-2.6.0-test2-mm2-A3.
->>>
->
->This is most likely the round robinning of tasks every 25ms. The extra 
->overhead of nanosecond timing I doubt could make that size difference (but I 
->could be wrong). There is some tweaking of this round robinning in my code 
->which may help this, but it won't bring it back up to original performance I 
->believe. Two things to try are add my patches up to O12.3int first to see how 
->much (if at all!) it helps, and change TIMESLICE_GRANULARITY in sched.c to 
->(MAX_TIMESLICE) which basically disables it completely. If there is still  a 
->drop in performance with this, the remainder is the extra locking/overhead in 
->nanosecond timing.
->
->
-What is the need for this round robining? Don't processes get a calculated
-timeslice anyway?
+> 
+> I'm not sure that this is a specific kernel issue or not, but here goes...
+> 
+> I have a distro (hand compiled) running off of a CF card that's booting from
+> a Soekris (Elan SC520) net4501(and net4521) with the console kernel cmdline
+> set to ttyS0,19200n81, and the kernel messages show up fine and everything
+> over my serial terminal, but when the kernel goes to execute /sbin/init or
+> whatever I set init equal to (after the "Freeing unused kernel memory" bit),
+> nothing happens, init doesn't get executed (or I cannot see it). This same
+> CF card boots and runs fine from a normal PC, but from any Elan I have, init
+> never gets executed. What is wrong here?
 
+Userspace compiled for incorrect processor? One common problem is i686 
+compiled binaries, you could try the following quick test (but not 100% 
+conclusive)
 
+objdump -d binary_file | grep cmov
+
+-- 
+function.linuxpower.ca

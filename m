@@ -1,34 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277371AbRKHSIP>; Thu, 8 Nov 2001 13:08:15 -0500
+	id <S277230AbRKHSMf>; Thu, 8 Nov 2001 13:12:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277533AbRKHSIJ>; Thu, 8 Nov 2001 13:08:09 -0500
-Received: from adsl-64-166-241-227.dsl.snfc21.pacbell.net ([64.166.241.227]:16394
-	"EHLO www.hockin.org") by vger.kernel.org with ESMTP
-	id <S277371AbRKHSHO>; Thu, 8 Nov 2001 13:07:14 -0500
-From: Tim Hockin <thockin@hockin.org>
-Message-Id: <200111081744.fA8Hivr07577@www.hockin.org>
-Subject: Re: WOL stops working on halt
-To: akpm@zip.com.au (Andrew Morton)
-Date: Thu, 8 Nov 2001 09:44:57 -0800 (PST)
-Cc: madmatt@bits.bris.ac.uk (Matt), linux-kernel@vger.kernel.org
-In-Reply-To: <3BEAC5E2.5A301DB@zip.com.au> from "Andrew Morton" at Nov 08, 2001 09:50:26 AM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S277380AbRKHSMQ>; Thu, 8 Nov 2001 13:12:16 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:3069 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S277230AbRKHSMA>;
+	Thu, 8 Nov 2001 13:12:00 -0500
+Date: Thu, 8 Nov 2001 11:10:24 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: kuznet@ms2.inr.ac.ru
+Cc: "David S. Miller" <davem@redhat.com>, tim@physik3.uni-rostock.de,
+        jgarzik@mandrakesoft.com, andrewm@uow.edu.au,
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+        netdev@oss.sgi.com, ak@muc.de
+Subject: Re: [PATCH] net/ipv4/*, net/core/neighbour.c jiffies cleanup
+Message-ID: <20011108111024.X5922@lynx.no>
+Mail-Followup-To: kuznet@ms2.inr.ac.ru,
+	"David S. Miller" <davem@redhat.com>, tim@physik3.uni-rostock.de,
+	jgarzik@mandrakesoft.com, andrewm@uow.edu.au,
+	linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+	netdev@oss.sgi.com, ak@muc.de
+In-Reply-To: <20011107.160950.57890584.davem@redhat.com> <200111081754.UAA24454@ms2.inr.ac.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <200111081754.UAA24454@ms2.inr.ac.ru>; from kuznet@ms2.inr.ac.ru on Thu, Nov 08, 2001 at 08:54:29PM +0300
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> As far as the driver is concerned, a shutdown and a reboot are identical,
-> so we need to look at external causes.  Presumably Linux APM or BIOS.
+On Nov 08, 2001  20:54 +0300, kuznet@ms2.inr.ac.ru wrote:
+> I want to _ask_ one thing people working on these changes.
+> _Please_, defer this edit to 2.5. The changes are very good,
+> but time for them is very bad.
+> 
+> When I wrote this code the macros did not exist.
 
-With our boards I had to track the issue that the chipset only delivered 
-wake events in certain sleep modes.  It could be that linux shutdown puts
-the system in a sleep mode that does not accept wake-events, but the
-power-button override puts it in a wake-able sleep.  (S5 vs S3/4 ?).  Our
-solution is to enable wake events in S3/4/5 on the chipset.
+Well, Alan said the same thing, and I went and checked - the macros existed
+since 2.1.106, probably the last time there was a "jiffies wrap" effort.  It
+is more likely that nobody knows about them, because nobody uses them, 
+because nobody knows about them, etc.
 
-It could be not a net driver issue but an ACPI issue.
+> However, this code is right, take my word. Hence, it is pure maintanance
+> problem and as soon as main reader of this code is me, I would be glad to
+> see the changes, but only having no deadlines.
 
-Tim
+If people don't want to see them, that is fine with me - they will stop.
+
+Tim and I were only trying to fix instability that he noticed when
+initializing jiffies to some large pre-wrap value.  If people are OK
+with 2.4 Linux boxes hanging after 497 days, that is fine with me.
+
+The only box I have that could stay up that long is my router (486/33),
+and it does not have a UPS so it is not likely to actually make it
+(record is 6 months or so).
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+

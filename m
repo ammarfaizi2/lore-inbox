@@ -1,56 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbULNSFG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261600AbULNSBo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261602AbULNSFG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 13:05:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbULNSEM
+	id S261600AbULNSBo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 13:01:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbULNSAl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 13:04:12 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:11672 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261603AbULNSCt (ORCPT
+	Tue, 14 Dec 2004 13:00:41 -0500
+Received: from fw.osdl.org ([65.172.181.6]:39314 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261591AbULNR7u (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 13:02:49 -0500
-Date: Tue, 14 Dec 2004 19:02:47 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Kernel thoughts of a Linux user
-Message-ID: <Pine.LNX.4.61.0412141856480.13661@yvahk01.tjqt.qr>
+	Tue, 14 Dec 2004 12:59:50 -0500
+Date: Tue, 14 Dec 2004 09:59:42 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andreas Schwab <schwab@suse.de>
+cc: Werner Almesberger <wa@almesberger.net>, Paul Mackerras <paulus@samba.org>,
+       Greg KH <greg@kroah.com>, David Woodhouse <dwmw2@infradead.org>,
+       Matthew Wilcox <matthew@wil.cx>, David Howells <dhowells@redhat.com>,
+       hch@infradead.org, aoliva@redhat.com, linux-kernel@vger.kernel.org,
+       libc-hacker@sources.redhat.com
+Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
+In-Reply-To: <jek6rkhlax.fsf@sykes.suse.de>
+Message-ID: <Pine.LNX.4.58.0412140958320.3279@ppc970.osdl.org>
+References: <19865.1101395592@redhat.com> <20041125165433.GA2849@parcelfarce.linux.theplanet.co.uk>
+ <1101406661.8191.9390.camel@hades.cambridge.redhat.com> <20041127032403.GB10536@kroah.com>
+ <16810.24893.747522.656073@cargo.ozlabs.ibm.com>
+ <Pine.LNX.4.58.0411281710490.22796@ppc970.osdl.org> <20041214025110.A28617@almesberger.net>
+ <Pine.LNX.4.58.0412140734340.3279@ppc970.osdl.org> <jek6rkhlax.fsf@sykes.suse.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>So they could make themselves a favor and run something like seti@home.
->>>
->>>That does consume more energy than just sitting at idle.  I've seen some
->>>estimates of how much it costs to run seti 24/7 rather than just sit idle, 
->>>and the price was something like $80/year.
->>
->> For CPUs which don't have some sort of speedstep, it does not matter.
->> (Please correct me if I am wrong. It might be that HLT cycles are still 
->> more power-conservative even without speedstep than 24/7 on the FPU.)
+
+
+On Tue, 14 Dec 2004, Andreas Schwab wrote:
 >
->You're wrong :)
->Nowadays the power consumption of a CPU is more than the rest of the
->machine altogether (including hard disks, etc.).
->
->On my P4 2.8GHz HT CPU, I've measured the power consumed by *the entire
->computer* more than doubling as the processor went from idle into 100%
->load.
->
->Of course, this doesn't include a monster 3D card, is it could very well
->consume something close to the processor when doing a lot of 3D operations.
+> Linus Torvalds <torvalds@osdl.org> writes:
+> 
+> > This is a common issue with namespace pollution. For example, this program 
+> > is perfectly valid afaik (well, except for being _stupid_, but that's 
+> > another issue):
+> >
+> > 	#include <stdio.h>
+> >
+> > 	const char *int32_t(int i)
+> > 	{
+> > 		return i ? "non-zero" : "zero";
+> > 	}
+> 
+> Actually this is not allowed in POSIX.  _Any_ header may define any
+> identifier ending with "_t".
 
-I have got a power measure device from university and experimented myself.
-I keep it short: running SETI (in constrast to nothing, i.e. HLT insns),
-only costs me 17 more Watts. With a price of 6 cent per kWh, this makes 
-roughly 5.54 EUR per year when the machine is on 16h/340days.
+.. and that's POSIX.
 
-(The theoretical case of 24/365 would make up 8.91 EUR.)
+It's not true for BSD_SOURCE, for example.
 
-Wait, did not Intel pull back some processors because of their enormous heat 
-of some P4 (which melted some)? Well, I guess *there* is all your $$ going.
+WHICH IS MY POINT, DAMMIT!
 
+How hard is it to understand? There are millions of different standards, 
+many of them without any standards body at all, and just plain standards 
+by virtue of "that's how people have done it for years".
 
-Jan Engelhardt
--- 
-ENOSPC
+uint32_t is totally useless for the kernel. We should never ever use it.
+
+		Linus

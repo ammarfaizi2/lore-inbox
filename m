@@ -1,51 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268393AbTAMXwN>; Mon, 13 Jan 2003 18:52:13 -0500
+	id <S268425AbTAMXwx>; Mon, 13 Jan 2003 18:52:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268412AbTAMXwN>; Mon, 13 Jan 2003 18:52:13 -0500
-Received: from canela.sanfelipe.com.mx ([200.33.143.226]:34315 "EHLO
-	canela.sanfelipe.com.mx") by vger.kernel.org with ESMTP
-	id <S268393AbTAMXwM>; Mon, 13 Jan 2003 18:52:12 -0500
-Message-Id: <200301132323.PAA07475@ann.qtpi.lakewood.ca.us>
-X-Mailer: exmh version 2.1.1 10/15/1999
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: any chance of 2.6.0-test*? 
-In-Reply-To: Message from ebiederm@xmission.com (Eric W. 
- Biederman)
-   of "13 Jan 2003 04:09:41 MST." <m14r8dgvbe.fsf@frodo.biederman.org> 
-Mime-Version: 1.0
+	id <S268423AbTAMXwx>; Mon, 13 Jan 2003 18:52:53 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:62974 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S268412AbTAMXwv>; Mon, 13 Jan 2003 18:52:51 -0500
+Date: Mon, 13 Jan 2003 15:54:18 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
+       Zwane Mwaikambo <zwane@holomorphy.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>
+cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       James Cleverdon <jamesclv@us.ibm.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: RE: APIC version
+Message-ID: <421050000.1042502058@flay>
+In-Reply-To: <3FAD1088D4556046AEC48D80B47B478C022BD8EB@usslc-exch-4.slc.unisys.com>
+References: <3FAD1088D4556046AEC48D80B47B478C022BD8EB@usslc-exch-4.slc.unisys.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 13 Jan 2003 15:23:07 -0800
-From: Bob Taylor <brtaylor@canela.sanfelipe.com.mx>
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <m14r8dgvbe.fsf@frodo.biederman.org>, Eric W. 
-Biederman writes:
+> If you index it by 4-bit GET_APIC_ID() (not GET_APIC_LOGICAL_ID()), i.e.
+> hard_smp_processor_id(), you can get away with it.
 
-[snip]
+Not on clustered mode platforms - the physical address is not unique.
+ 
+> Of course, it is possible that it can just be "don't care":
 
-> Though standard Pascal was not unusable because of the lack of a goto,  
-> that was the one feature it actually had.  But I suspect a lot of
-> teachers failed to mention it.
+;-)
 
-If my memory serves me, Niklaus Wirth invented Pascal as a 
-teaching language not meant for production work. Modula, I 
-think, was meant for production work. I don't care for either 
-also.
-
-[snip]
-
-Bob
-
--- 
-+---------------------------------------------------------------+
-| Bob Taylor             Email: brtaylor@sanfelipe.com.mx       |
-|---------------------------------------------------------------|
-| Like the ad says, at 300 dpi you can tell she's wearing a     |
-| swimsuit. At 600 dpi you can tell it's wet. At 1200 dpi you   |
-| can tell it's painted on. I suppose at 2400 dpi you can tell  |
-| if the paint is giving her a rash. (So says Joshua R. Poulson)|
-+---------------------------------------------------------------+
-
+M.
 

@@ -1,61 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268395AbRGXRkw>; Tue, 24 Jul 2001 13:40:52 -0400
+	id <S268392AbRGXRlM>; Tue, 24 Jul 2001 13:41:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268391AbRGXRkd>; Tue, 24 Jul 2001 13:40:33 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:59528 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S268390AbRGXRkQ>;
-	Tue, 24 Jul 2001 13:40:16 -0400
-Date: Tue, 24 Jul 2001 14:04:28 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: <phillips@bonn-fries.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Optimization for use-once pages
-In-Reply-To: <200107241648.f6OGmqp29445@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33L.0107241359180.20326-100000@duckman.distro.conectiva>
+	id <S268390AbRGXRlD>; Tue, 24 Jul 2001 13:41:03 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:50700 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S268394AbRGXRkt>; Tue, 24 Jul 2001 13:40:49 -0400
+Date: Tue, 24 Jul 2001 10:38:45 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Davide Libenzi <davidel@xmailserver.org>
+cc: Andrea Arcangeli <andrea@suse.de>, Jeff Dike <jdike@karaya.com>,
+        <user-mode-linux-user@lists.sourceforge.net>,
+        <linux-kernel@vger.kernel.org>, Jan Hubicka <jh@suse.cz>,
+        Jonathan Lundell <jlundell@pobox.com>,
+        Alexander Viro <viro@math.psu.edu>
+Subject: Re: user-mode port 0.44-2.4.7
+In-Reply-To: <XFMail.20010724103157.davidel@xmailserver.org>
+Message-ID: <Pine.LNX.4.33.0107241037120.29495-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Tue, 24 Jul 2001, Linus Torvalds wrote:
 
-> Hey, this looks _really_ nice. I never liked the special-cases
-> that you removed (drop_behind in particular), and I have to say
-> that the new code looks a lot saner, even without your extensive
-> description and timing analysis.
+On Tue, 24 Jul 2001, Davide Libenzi wrote:
+>
+> Not that much if you look at how incl is "decomposed" internally ( w/o LOCK )
+> by the CPU. If you really care about  j  you need an atomic op here, in any case.
 
-Fully agreed, drop_behind is an ugly hack.  The sooner
-it dies the happier I am ;)
+Yes, but the "inc" is atomic at least on a UP system. So here "volatile"
+might actually _show_ bugs instead of hiding them.
 
-> Please people, test this out extensively - I'd love to integrate
-> it, but while it looks very sane I'd really like to hear of
-> different peoples reactions to it under different loads.
+The real isssue, though, is that that is all volatile ever does. It can
+show or hide bugs, but it can't fix them.
 
-The one thing which has always come up in LRU/k and 2Q
-papers is that the "first reference" can really be a
-series of references in a very short time.
+Of course, some people consider hidden bugs to _be_ fixed. I don't believe
+in that particulat philosophy myself.
 
-Counting only the very first reference will fail if we
-do eg. sequential IO with non-page aligned read() calls,
-which doesn't look like it's too uncommon.
-
-In order to prevent this from happening, either the system
-counts all first references in a short timespan (complex to
-implement) or it has the new pages on a special - small fixed
-size - page list and all references to the page while on that
-list are ignored.
-
-regards,
-
-Rik
---
-Executive summary of a recent Microsoft press release:
-   "we are concerned about the GNU General Public License (GPL)"
-
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+		Linus
 

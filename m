@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262465AbSJETdw>; Sat, 5 Oct 2002 15:33:52 -0400
+	id <S262477AbSJETlT>; Sat, 5 Oct 2002 15:41:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262464AbSJETdw>; Sat, 5 Oct 2002 15:33:52 -0400
-Received: from 62-190-216-136.pdu.pipex.net ([62.190.216.136]:37638 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S262465AbSJETdv>; Sat, 5 Oct 2002 15:33:51 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200210051946.g95JkvcP001469@darkstar.example.net>
-Subject: Re: New BK License Problem?
-To: lm@bitmover.com (Larry McVoy)
-Date: Sat, 5 Oct 2002 20:46:57 +0100 (BST)
-Cc: lmb@suse.de, linux-kernel@vger.kernel.org, bcollins@debian.org,
-       reiser@namesys.com, wa1ter@hotmail.com
-In-Reply-To: <20021005121527.A11375@work.bitmover.com> from "Larry McVoy" at Oct 05, 2002 12:15:27 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S262478AbSJETlS>; Sat, 5 Oct 2002 15:41:18 -0400
+Received: from se1.cogenit.fr ([195.68.53.173]:185 "EHLO cogenit.fr")
+	by vger.kernel.org with ESMTP id <S262477AbSJETkn>;
+	Sat, 5 Oct 2002 15:40:43 -0400
+Date: Sat, 5 Oct 2002 21:46:13 +0200
+From: Francois Romieu <romieu@cogenit.fr>
+To: Gigi Duru <giduru@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: The end of embedded Linux?
+Message-ID: <20021005214613.A22346@fafner.intra.cogenit.fr>
+References: <20021005193650.17795.qmail@web13202.mail.yahoo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20021005193650.17795.qmail@web13202.mail.yahoo.com>; from giduru@yahoo.com on Sat, Oct 05, 2002 at 12:36:50PM -0700
+X-Organisation: Marie's fan club - III
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The only thing that has changed from Ben's point of view is that Linus
-> is a little less stressed out and somewhat less likely to drop a patch.
+Gigi Duru <giduru@yahoo.com> :
+[...]
+> As an embedded developer, I can't stand bloat. I think
+> an OS designer should feel the same, and develop in a
+> fully modular and configurable manner, going for both
+> speed and size. For a long time I've felt that Linux
+> has got it right, but lately I'm not that sure
+> anymore. 
 
-#if defined(sense_of_humor)
+It has been stated many times that it would be nice to 
+have an option dedicated to devices with few memory
+(no big hashes etc.). You know what you have to do :o)
 
-Plus the fact that his inbox is probably overflowing because of this thread ;-).
-
-Sorry, I couldn't resist that one :-).
-
-#endif
-
-John.
+-- 
+Ueimor

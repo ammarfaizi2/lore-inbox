@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279926AbRKIP4p>; Fri, 9 Nov 2001 10:56:45 -0500
+	id <S279951AbRKIQCF>; Fri, 9 Nov 2001 11:02:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279944AbRKIP4g>; Fri, 9 Nov 2001 10:56:36 -0500
-Received: from zero.tech9.net ([209.61.188.187]:11025 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S279926AbRKIP4c>;
-	Fri, 9 Nov 2001 10:56:32 -0500
-Subject: Re: [PATCH] Adding KERN_INFO to some printks #2
-From: Robert Love <rml@tech9.net>
-To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <01110913474600.02130@nemo>
-In-Reply-To: <01110913474600.02130@nemo>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.1+cvs.2001.11.07.16.47 (Preview Release)
-Date: 09 Nov 2001 10:56:21 -0500
-Message-Id: <1005321383.1209.8.camel@phantasy>
-Mime-Version: 1.0
+	id <S279952AbRKIQB4>; Fri, 9 Nov 2001 11:01:56 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:4224 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S279951AbRKIQBs>; Fri, 9 Nov 2001 11:01:48 -0500
+Date: Fri, 9 Nov 2001 11:01:42 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: "David S. Miller" <davem@redhat.com>, jakub@redhat.com, bcrl@redhat.com,
+        torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk, arjanv@redhat.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] take 2 of the tr-based current
+In-Reply-To: <3BEBF730.86CAE1CC@colorfullife.com>
+Message-ID: <Pine.LNX.3.95.1011109105639.2037A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2001-11-09 at 08:47, vda wrote:
-> Primary purpose of this patch is to make KERN_WARNING and
-> KERN_INFO log levels closer to their original meaning.
-> Today they are quite far from what was intended.
-> Just look what kernel writes at the WARNING level
-> each time you boot your box!
+On Fri, 9 Nov 2001, Manfred Spraul wrote:
 
-This is an _excellent_ patch and you should proffer it to Linus and Alan
-when you are done.  I would recommend diffing off 2.4.14 instead of
-2.4.13, to this end.
+> "David S. Miller" wrote:
+> > 
+> >    From: Manfred Spraul <manfred@colorfullife.com>
+> >    Date: Fri, 09 Nov 2001 15:54:03 +0100
+> > 
+[SNIPPED...]
 
-I haven't gone over the actual loglevel warnings, but I plan to.  A
-quick glimpse shows you are changing what needs to be changed.  Good
-job.
-
-> Patch can be found at
-> http://port.imtp.ilyichevsk.odessa.ua/linux/vda/KERN_INFO-2.4.13.diff
+> smp_processor_id() is definitively not const.
 > 
-> or emailed on request (our www server isn't exactly powerful, you may
-> have difficulty downloading the patch)
+> OTHO 'current' is const.
+> --
 
-Yah it was slow but it worked :)
+Not as far as the compiler is concerned! You don't want the compiler
+to generate code that reads 'current' once upon startup, and never
+again. Further, you don't want that pointer to exist in .rodata, you
+want it with the changable variables in .data or .bss .
 
-	Robert Love
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
 

@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266175AbUF3HKq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265697AbUF3HOM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266175AbUF3HKq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 03:10:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266573AbUF3HKq
+	id S265697AbUF3HOM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 03:14:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266573AbUF3HOM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 03:10:46 -0400
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:46341 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S266175AbUF3HKp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 03:10:45 -0400
-Date: Wed, 30 Jun 2004 09:10:35 +0200
-To: Arjan van de Ven <arjanv@redhat.com>, EdHamrick@aol.com
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.7-mm2, mmaps rework, buggy apps, setarch
-Message-ID: <20040630071035.GC28214@gamma.logic.tuwien.ac.at>
-References: <20040625105312.GD20954@devserv.devel.redhat.com> <20040625082243.GA11515@gamma.logic.tuwien.ac.at> <20040625013508.70e6d689.akpm@osdl.org> <20040625103326.GA21814@gamma.logic.tuwien.ac.at> <20040625104449.GC20954@devserv.devel.redhat.com> <20040625082243.GA11515@gamma.logic.tuwien.ac.at> <20040625013508.70e6d689.akpm@osdl.org> <20040625103326.GA21814@gamma.logic.tuwien.ac.at> <20040625104317.GB20954@devserv.devel.redhat.com> <20040625204702.GA22859@gamma.logic.tuwien.ac.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040625204702.GA22859@gamma.logic.tuwien.ac.at>
-User-Agent: Mutt/1.3.28i
-From: Norbert Preining <preining@logic.at>
+	Wed, 30 Jun 2004 03:14:12 -0400
+Received: from mail1.speakeasy.net ([216.254.0.201]:43440 "EHLO
+	mail1.speakeasy.net") by vger.kernel.org with ESMTP id S265697AbUF3HOK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jun 2004 03:14:10 -0400
+Date: Wed, 30 Jun 2004 00:14:04 -0700
+Message-Id: <200406300714.i5U7E48O027579@magilla.sf.frob.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+X-Fcc: ~/Mail/linus
+Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: zombie with CLONE_THREAD
+In-Reply-To: Andrew Morton's message of  Tuesday, 29 June 2004 23:08:04 -0700 <20040629230804.3e9ed144.akpm@osdl.org>
+Emacs: if it payed rent for disk space, you'd be rich.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All!
+That change sure looks incorrect and unnecessary to me.  It wasn't clear to
+me from Andrea's description whether there is really any kernel bug here or
+not.  If some process is ptrace'ing a CLONE_THREAD thread, then the thread
+should not disappear as this patch makes it do.  It becomes a zombie and
+reports its death status to the ptracer.  When the ptracer waits for it, it
+reverts to its original parent and then the logic in wait_task_zombie
+should call release_task for the CLONE_THREAD case.
 
-Just wanted to say that with 2.6.7-mm4 the problem is gone. I don't know
-which changes have been made to mm3/mm4 but now vuescan works again
-without any problem.
+Are you saying that if the ptracer dies, it can leave some threads in limbo?
+I think that case is supposed to work because forget_original_parent will
+move all the threads ptrace'd by the dying tracer process to be ptrace'd by
+init, which will then clean up their zombies as previously described.
 
-Thanks a lot for your patience!
 
-Best wishes
-
-Norbert
-
--------------------------------------------------------------------------------
-Norbert Preining <preining AT logic DOT at>         Technische Universität Wien
-gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
--------------------------------------------------------------------------------
-PUDSEY (n.)
-The curious-shaped flat wads of dough left on a kitchen table after
-someone has been cutting scones out of it.
-			--- Douglas Adams, The Meaning of Liff
+Thanks,
+Roland

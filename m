@@ -1,54 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129825AbQLHPk1>; Fri, 8 Dec 2000 10:40:27 -0500
+	id <S130272AbQLHPlR>; Fri, 8 Dec 2000 10:41:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130272AbQLHPkU>; Fri, 8 Dec 2000 10:40:20 -0500
-Received: from cerebus-ext.cygnus.co.uk ([194.130.39.252]:25329 "EHLO
-	passion.cygnus") by vger.kernel.org with ESMTP id <S129825AbQLHPkK>;
-	Fri, 8 Dec 2000 10:40:10 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <Pine.LNX.4.30.0012080938560.11198-100000@viper.haque.net> 
-In-Reply-To: <Pine.LNX.4.30.0012080938560.11198-100000@viper.haque.net> 
-To: "Mohammad A. Haque" <mhaque@haque.net>
-Cc: Rik van Riel <riel@conectiva.com.br>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Jeff V. Merkey" <jmerkey@timpanogas.org>,
-        Peter Samuelson <peter@cadcamlab.org>, linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: NTFS repair tools] 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 08 Dec 2000 15:08:39 +0000
-Message-ID: <2535.976288119@redhat.com>
+	id <S131860AbQLHPlH>; Fri, 8 Dec 2000 10:41:07 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:24449 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S130272AbQLHPkr>;
+	Fri, 8 Dec 2000 10:40:47 -0500
+Date: Fri, 8 Dec 2000 06:54:28 -0800
+Message-Id: <200012081454.GAA02632@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: fribes@capgemini.fr
+CC: linux-kernel@vger.kernel.org
+In-Reply-To: <3A30F463.2EE04F4E@capgemini.fr> (message from Fabien Ribes on
+	Fri, 08 Dec 2000 15:46:59 +0100)
+Subject: Re: Networking: RFC1122 and 1123 status for kernel 2.4
+In-Reply-To: <3A30F463.2EE04F4E@capgemini.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   Date: 	Fri, 08 Dec 2000 15:46:59 +0100
+   From: Fabien Ribes <fribes@capgemini.fr>
 
-mhaque@haque.net said:
->  They'd prolly blast through it without reading (You don't think they
-> read teh MS agreement when istalling windows do you?) but I bet we
-> could argue that they accepted the agreement to protect us. 
+   Looking at Linux kernel sources, I've found RFC1122 status splitted in
+   each file. Is there a complete document showing RFC1122 status as a
+   whole for a given kernel version ?
 
+No, unfortunately nobody has the time to do this.
 
-tristate 'NTFS file system support (read only)' CONFIG_NTFS_FS
-dep_mbool '  NTFS write support (DANGEROUS)' CONFIG_NTFS_RW $CONFIG_NTFS_FS $CONFIG_EXPERIMENTAL
-if [ "$CONFIG_NTFS_RW" = "y" ] ; then
-   string '  Enter the magic text to really enable NTFS write' CONFIG_NTFS_MAGICTEXT
-fi
-
-
-
-
-#ifdef CONFIG_NTFS_RW
-#if CONFIG_NTFS_MAGICTEXT != "I know it will eat my filesystem"
-#error you got the magic text wrong
-#endif
-#endif
-
---
-dwmw2
-
-
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

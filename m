@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262296AbTCJXiy>; Mon, 10 Mar 2003 18:38:54 -0500
+	id <S262289AbTCJXiD>; Mon, 10 Mar 2003 18:38:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262327AbTCJXiy>; Mon, 10 Mar 2003 18:38:54 -0500
-Received: from mailrelay2.lrz-muenchen.de ([129.187.254.102]:18097 "EHLO
-	mailrelay2.lrz-muenchen.de") by vger.kernel.org with ESMTP
-	id <S262296AbTCJXiu>; Mon, 10 Mar 2003 18:38:50 -0500
-From: Oliver Neukum <oliver@neukum.name>
-To: Greg KH <greg@kroah.com>, Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@osdl.org>,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       Jeff Garzik <jgarzik@pobox.com>, Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: PCI driver module unload race?
-Date: Tue, 11 Mar 2003 00:48:43 +0100
-User-Agent: KMail/1.5
-References: <20030308104749.A29145@flint.arm.linux.org.uk> <20030308202101.GA26831@kroah.com> <20030310214443.GA13145@kroah.com>
-In-Reply-To: <20030310214443.GA13145@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	id <S262296AbTCJXiD>; Mon, 10 Mar 2003 18:38:03 -0500
+Received: from packet.digeo.com ([12.110.80.53]:10219 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262289AbTCJXiC>;
+	Mon, 10 Mar 2003 18:38:02 -0500
+Date: Mon, 10 Mar 2003 15:43:51 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Joel Becker <Joel.Becker@oracle.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: WimMark I for 2.5.64-mm2
+Message-Id: <20030310154351.1dd104cf.akpm@digeo.com>
+In-Reply-To: <20030310174746.GO2835@ca-server1.us.oracle.com>
+References: <20030310174746.GO2835@ca-server1.us.oracle.com>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200303110048.43514.oliver@neukum.name>
+X-OriginalArrivalTime: 10 Mar 2003 23:48:37.0592 (UTC) FILETIME=[91ECCD80:01C2E75F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Joel Becker <Joel.Becker@oracle.com> wrote:
+>
+> 
+> WimMark I report for 2.5.64-mm2 
+> 
+> Runs with deadline scheduler:  1580.10 1537.95
+> Runs with anticipatory scheduler:  632.87 597.33 555.19
 
-> diff -Nru a/drivers/base/bus.c b/drivers/base/bus.c
-> --- a/drivers/base/bus.c	Mon Mar 10 13:52:15 2003
-> +++ b/drivers/base/bus.c	Mon Mar 10 13:52:15 2003
-> @@ -263,14 +263,25 @@
->  	if (dev->bus->match(dev,drv)) {
->  		dev->driver = drv;
->  		if (drv->probe) {
-> -			if ((error = drv->probe(dev))) {
+The anticipatory scheduler will never be better than deadline with these
+sorts of workloads.  The best we can do is to equal it.
 
-It seems that the semaphore in bus_add_device() makes this unnecessary.
+With other OLTP-style tests, AS is at worst 5-10% behind deadline.
 
-[..]
-> diff -Nru a/drivers/base/power.c b/drivers/base/power.c
-> --- a/drivers/base/power.c	Mon Mar 10 13:52:15 2003
-> +++ b/drivers/base/power.c	Mon Mar 10 13:52:15 2003
-> @@ -41,10 +41,17 @@
->  	list_for_each(node,&devices_subsys.kset.list) {
->  		struct device * dev = to_dev(node);
->  		if (dev->driver && dev->driver->suspend) {
-> -			pr_debug("suspending device %s\n",dev->name);
-> -			error = dev->driver->suspend(dev,state,level);
+So what's up with WimMark?  Is it possible that the test is exhibiting some
+nonlinearity, wherein a small change in inputs causes a large swing in
+output?
 
-This change is no good.
-Either the semaphore protects you or it doesn't. If it doesn't you can't
-even trust the dev pointer, because suspend() can sleep.
+One way to tell that would be to perform several runs with different values
+of /sys/block/sdXX/io_sched/antic_expire.  And see how the overall runtime
+varies as that is altered.
 
-	Regards
-		Oliver
+The default it currently 10 (milliseconds).  With zero you should get the
+same throughput as deadline.
 
+I'm not sure what to conclude from this result.  Can you shed any light on
+what it means, on what's going on?

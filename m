@@ -1,47 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262159AbTH3TmE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Aug 2003 15:42:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263827AbTH3TmD
+	id S262069AbTH3Tzk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Aug 2003 15:55:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262077AbTH3Tzk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Aug 2003 15:42:03 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:16852 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S262159AbTH3TmB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Aug 2003 15:42:01 -0400
-Date: Sat, 30 Aug 2003 16:37:42 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: system_lists@nullzone.org
-Cc: "David S. Miller" <davem@redhat.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.23-pre2
-Message-ID: <Pine.LNX.4.55L.0308301636520.31751@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 30 Aug 2003 15:55:40 -0400
+Received: from mail-8.tiscali.it ([195.130.225.154]:45627 "EHLO
+	mail-8.tiscali.it") by vger.kernel.org with ESMTP id S262069AbTH3Tzj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Aug 2003 15:55:39 -0400
+Date: Sat, 30 Aug 2003 21:55:29 +0200
+From: Kronos <kronos@kronoz.cjb.net>
+To: linux-kernel@vger.kernel.org
+Cc: "Alan Cox" <alan@redhat.com>, kraxel@bytesex.org
+Subject: [PATCH] Use after free in drivers/media/video/videodev.c
+Message-ID: <20030830195529.GA15036@dreamland.darkstar.lan>
+Reply-To: kronos@kronoz.cjb.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+I think that there's a bug in videdev.c. Look at
+video_unregister_device:
 
-I guess that will come through davem?
+void video_unregister_device(struct video_device *vfd) {
+        [...]
+        class_device_unregister(&vfd->class_dev);
+        devfs_remove(vfd->devfs_name);
+        video_device[vfd->minor]=NULL;
+}
 
-----
-Hello Marcelo,
+The class_device_unregister will  call video_release. This function will
+call  a  ->release callback. As  far  as  I  can  see drivers  do  their
+own cleanup  outside video_unregister_device so there is no problem.
 
-   You have forgot the "Patrick McHardy [kaber@trash.net]" patch to get the
-MASQUERADE/FORWARD working again ( so important! :-) ).
+However,  if  a  driver  switch to  dynamically  allocated  video_device
+this  ->release  callback  will   free  the  struct  video_device  (look
+at   video_device_release)   and   possibly  its   container. So   after
+class_device_unregister vfd may be a pointer to deallocated memory.
 
-Please, add it when you get a minute.
+I think that class_device_unregister should be moved down:
 
-===== net/ipv4/netfilter/ipt_MASQUERADE.c 1.6 vs edited =====
---- 1.6/net/ipv4/netfilter/ipt_MASQUERADE.c     Tue Aug 12 11:30:12 2003
-+++ edited/net/ipv4/netfilter/ipt_MASQUERADE.c  Thu Aug 28 16:54:15 2003
-@@ -90,6 +90,7 @@
- #ifdef CONFIG_IP_ROUTE_FWMARK
-        key.fwmark = (*pskb)->nfmark;
- #endif
-+       key.oif = 0;
-        if (ip_route_output_key(&rt, &key) != 0) {
-                 /* Funky routing can do this. */
-                 if (net_ratelimit())
+--- 2.6.0.orig/drivers/media/video/videodev.c	Tue Aug 12 17:02:29 2003
++++ 2.6.0/drivers/media/video/videodev.c	Sat Aug 30 21:13:29 2003
+@@ -349,9 +349,9 @@
+ 	if(video_device[vfd->minor]!=vfd)
+ 		panic("videodev: bad unregister");
+ 
+-	class_device_unregister(&vfd->class_dev);
+ 	devfs_remove(vfd->devfs_name);
+ 	video_device[vfd->minor]=NULL;
++	class_device_unregister(&vfd->class_dev);
+ 	up(&videodev_lock);
+ }
+ 
 
-
+Luca
+-- 
+Reply-To: kronos@kronoz.cjb.net
+Home: http://kronoz.cjb.net
+The trouble with computers is that they do what you tell them,
+not what you want.
+D. Cohen

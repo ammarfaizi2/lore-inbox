@@ -1,60 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261624AbUKGOnW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261564AbUKGOre@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261624AbUKGOnW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 09:43:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261625AbUKGOnW
+	id S261564AbUKGOre (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 09:47:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261566AbUKGOre
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 09:43:22 -0500
-Received: from imap3.nextra.sk ([195.168.1.92]:23559 "EHLO tic.nextra.sk")
-	by vger.kernel.org with ESMTP id S261624AbUKGOnQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 09:43:16 -0500
-Message-ID: <418E349F.60709@rainbow-software.org>
-Date: Sun, 07 Nov 2004 15:43:43 +0100
-From: Ondrej Zary <linux@rainbow-software.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041105)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Sami Farin <7atbggg02@sneakemail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kernel panic while using netcat since linux-2.6.9
-References: <20041106202600.GA1002@debbie> <418E1CB4.2040805@rainbow-software.org> <20041107131641.GA6312@m.safari.iki.fi>
-In-Reply-To: <20041107131641.GA6312@m.safari.iki.fi>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Sun, 7 Nov 2004 09:47:34 -0500
+Received: from sv1.valinux.co.jp ([210.128.90.2]:14268 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S261564AbUKGOrb convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Nov 2004 09:47:31 -0500
+Date: Sun, 07 Nov 2004 23:43:51 +0900 (JST)
+Message-Id: <20041107.234351.74751760.taka@valinux.co.jp>
+To: kloczek@rudy.mif.pg.gda.pl
+Cc: liudeyan@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]tar filesystem for 2.6.10-rc1-mm3(easily access tar
+ file)
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+In-Reply-To: <Pine.LNX.4.60L.0411071408320.21903@rudy.mif.pg.gda.pl>
+References: <Pine.LNX.4.60L.0411071337240.21903@rudy.mif.pg.gda.pl>
+	<aad1205e04110705073ee8399b@mail.gmail.com>
+	<Pine.LNX.4.60L.0411071408320.21903@rudy.mif.pg.gda.pl>
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sami Farin wrote:
-> On Sun, Nov 07, 2004 at 02:01:40PM +0100, Ondrej Zary wrote:
-> 
->>Ramsés Rodríguez Martínez wrote:
->>
->>>Hi,
->>>Sorry i don't include any dump, but it seems kernel-patch-lkcd for 2.6.9 is
->>>not available yet. I could handcopy the kernel-oops if you want. I think
->>>it'll be something related with bind() as it fails with "netcat".
->>>
->>>The problem is only present with 2.6.9 (or at least not with 2.6.8 nor
->>>2.6.5)
->>>
->>>------------------------
->>>SCRIPT TO REPRODUCE:
->>> 
->>>su
->>>apt-get install nc
->>>exit
->>>nc -p2000 127.0.0.1 2000        # kernel panic
->>>
->>>------------------------
->>
->>It does the same thing for me. Here's the BUG output from serial console.
-> 
-> 
-> can you confirm does this patch fix the issue.
-> http://linux.bkbits.net:8080/linux-2.6/gnupatch@4175f00ayR2dZynZ8yUWYSVkL6Z5og
+Hi,
 
-Thanks, this patch fixes the problem.
+This filesystem was designed as an educational material.
 
--- 
-Ondrej Zary
+However, I guess it may be used to maintain many tar archives
+as they are. This is a good point that nobody should have to care
+about archive/filesystem formats.
+
+I think saving disk space is secondary effect, which wouldn't be
+important.
+
+> [..]
+> >>> Simply wonderful!
+> >>
+> >> Which is ~equal to .. unpack tarfile.tar to /dir/to/mnt :o)
+> > if the tarfile.tar contain huge little file and unpack it will cost
+> > time and much disk space.
+> 
+> 1) This tarfs code have only RO support. Prepare RW acces for tar nball
+>     file structure will not be so trivial.
+> 2) If You want save disk space for small files with also RO access
+>     only better will be spend some time on romfs for extend them for allow
+>     operate on slightly bigger file systeme than curreent lmitation this fs.
+>     Packing to tar file will be functionaly equal to generate romfs image
+>     using genromfs.
+> 3) Maybe I'm wrong but IIRC raiserfs have block suballocation. If I'm
+>     wrong (about current raiserfs) btter will be write and use some fs with
+>     this kind feacture.
+> 4) Huge or very huge amout of small files it is usulaly case on filesystem
+>     for mail spool. It need RW access. Subject was many tilme in past
+>     discussed and can be find on archives aroud mailfs or mailstorfs
+>     words. Tar ball structure isn't specialized for allow fast RW operation.
+>     In cases where speed isn't issue tarfs will be fuctional equivalet to romfs.
+> 
+> Count of cases where tarfs will be useable will be probably very close to 
+> cout of cases where romfs is used now. All without add single line of code 
+> on kernel level :-)
+> 
+> tarfs it is *good* code example but IMO .. only example :_)
+> 
+> kloczek
+> -- 
+> -----------------------------------------------------------
+> *Ludzie nie maj± problemów, tylko sobie sami je stwarzaj±*
+> -----------------------------------------------------------
+> Tomasz K³oczko, sys adm @zie.pg.gda.pl|*e-mail: kloczek@rudy.mif.pg.gda.pl*

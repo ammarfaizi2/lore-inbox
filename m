@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261955AbSJZIJ7>; Sat, 26 Oct 2002 04:09:59 -0400
+	id <S261945AbSJZIRO>; Sat, 26 Oct 2002 04:17:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261963AbSJZIJ6>; Sat, 26 Oct 2002 04:09:58 -0400
-Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:31222 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S261955AbSJZIJ6>; Sat, 26 Oct 2002 04:09:58 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Sat, 26 Oct 2002 02:13:18 -0600
-To: Andi Kleen <ak@suse.de>
-Cc: Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org
-Subject: Re: The return of the return of crunch time (2.5 merge candidate list 1.6)
-Message-ID: <20021026081318.GZ28822@clusterfs.com>
-Mail-Followup-To: Andi Kleen <ak@suse.de>,
-	Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org
-References: <200210251557.55202.landley@trommello.org.suse.lists.linux.kernel> <p7365vptz49.fsf@oldwotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <p7365vptz49.fsf@oldwotan.suse.de>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S261950AbSJZIRN>; Sat, 26 Oct 2002 04:17:13 -0400
+Received: from anchor-post-30.mail.demon.net ([194.217.242.88]:27917 "EHLO
+	anchor-post-30.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S261945AbSJZIRN>; Sat, 26 Oct 2002 04:17:13 -0400
+Message-ID: <$33IAFAtClu9EwpX@n-cantrell.demon.co.uk>
+Date: Sat, 26 Oct 2002 09:22:05 +0100
+To: linux-kernel@vger.kernel.org
+From: robert w hall <bobh@n-cantrell.demon.co.uk>
+Subject: Re: loadlin with 2.5.?? kernels
+References: <m1bs5in1zh.fsf@frodo.biederman.org>
+ <5.1.0.14.2.20021020192952.00b95e80@pop.gmx.net>
+ <5.1.0.14.2.20021021192410.00b4ffb8@pop.gmx.net>
+ <m18z0os1iz.fsf@frodo.biederman.org> <007501c27b37$144cf240$6400a8c0@mikeg>
+ <m1bs5in1zh.fsf@frodo.biederman.org>
+ <5.1.0.14.2.20021026064044.00b9a310@pop.gmx.net>
+ <m13cqtn5cm.fsf@frodo.biederman.org>
+In-Reply-To: <m13cqtn5cm.fsf@frodo.biederman.org>
+MIME-Version: 1.0
+X-Mailer: Turnpike Integrated Version 4.02 U <ZNyPpF8T4habUIG8OkVoLRXKJZ>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 26, 2002  09:53 +0200, Andi Kleen wrote:
-> Patches available on request or older versions from 
-> ftp://ftp.firstfloor.org/pub/ak/v2.5/nsec*
-> They don't actually add ns resolution, but jiffies resolution, which
-> is 1ms on 2.5 and should be good enough for now. It reuses reserved fields
-> in struct stat and doesn't need any user interface changes.
-> 
-> It requires editing of a lot of file systems in a straight forward way,
-> so should be better done before the stable series starts.
-> 
-> There are some minor compatbility issues with fs that only support 
-> second timestamps like ext2/ext3, see nsec.notes in the ftp directory
-> or past threads on that on the list.
+In article <m13cqtn5cm.fsf@frodo.biederman.org>, Eric W. Biederman
+<ebiederm@xmission.com> writes
+>Mike Galbraith <efault@gmx.de> writes:
+>I wonder what the change in 1.6b was....
+>
+>Eric
 
-Just as an FYI - this is "in the pipes" for ext2/ext3 also, which the
-(very basic) support for variable-sized inodes that Ted has already
-submitted is the groundwork for (among other things).  We will then have
-space to add usec timestamps to ext2/ext3 inodes for people who choose to
-have larger inodes (new filesystems only, to start with), and when we get
-more efficient EA storage we will also be able to store the "large inode
-fields" into EAs for existing filesystems.
+IIRC - kernel_cs & kernel_ds are taken at runtime rather than from the
+header file (segment.h?).
+(because win4lin bumps them up from their old default values)
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+(Wine went to using a similar trick I think)
+this is all from fading memory - but it's in the README for 1.6b I think
 
+Bob
+
+-- 
+robert w hall

@@ -1,51 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261864AbVCHB0T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262027AbVCHBbn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261864AbVCHB0T (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 20:26:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbVCHBVw
+	id S262027AbVCHBbn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 20:31:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbVCHBba
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 20:21:52 -0500
-Received: from postmanpat.isu.mmu.ac.uk ([149.170.192.66]:5599 "EHLO
-	postmanpat.isu.mmu.ac.uk") by vger.kernel.org with ESMTP
-	id S261864AbVCHBTj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 20:19:39 -0500
-Subject: Re: Keyboard broken on Inspiron 5150 with 2.6.11
-From: David Johnson <dj@david-web.co.uk>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200503022043.35777.dtor_core@ameritech.net>
-References: <200503022135.16575.dj@david-web.co.uk>
-	 <d120d50005030214037e7531cb@mail.gmail.com>
-	 <200503022233.12913.dj@david-web.co.uk>
-	 <200503022043.35777.dtor_core@ameritech.net>
-Content-Type: text/plain
-Date: Tue, 08 Mar 2005 01:19:24 +0000
-Message-Id: <1110244764.13765.4.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.1.6 
+	Mon, 7 Mar 2005 20:31:30 -0500
+Received: from ns1.lanforge.com ([66.165.47.210]:33445 "EHLO www.lanforge.com")
+	by vger.kernel.org with ESMTP id S262024AbVCHB3k (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 20:29:40 -0500
+Message-ID: <422CFFFF.2010501@candelatech.com>
+Date: Mon, 07 Mar 2005 17:29:35 -0800
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041020
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Josef E. Galea" <josefeg@euroweb.net.mt>
+CC: Scott Feldman <sfeldma@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: Sending IP datagrams
+References: <422CE853.8070603@euroweb.net.mt> <9b84705fe7666dfbbf1782ca85ae2ae0@pobox.com> <422CF779.6030508@euroweb.net.mt>
+In-Reply-To: <422CF779.6030508@euroweb.net.mt>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-MMU-Signature: 823cb7940e45668b32ac5acf673ecc46
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-03-02 at 20:43 -0500, Dmitry Torokhov wrote:
+Josef E. Galea wrote:
+> Scott Feldman wrote:
 > 
-> Can you check dmesg for 2.6.11 when booted _without_ i8042.noacpi for
-> messages from ACPI and i8042 please? Do you see something like following:
-> 
-> > ACPI: PS/2 Keyboard Controller [KBC] at I/O 0x60, 0x66, irq 1
-> > ACPI: PS/2 Mouse Controller [PS2M] at irq 12
-> > i8042.c: Can't read CTR while initializing i8042.
-> 
+>>
+>> On Mar 7, 2005, at 3:48 PM, Josef E. Galea wrote:
+>>
+>>> Hi,
+>>>
+>>> Is there any way, other than socket buffers, to send IP datagrams 
+>>> from a kernel module? If yes, can you please point me to some good 
+>>> tutorial or sample code
+>>
+>>
+>>
+>> See net/core/pktgen.c for an example.
+>>
+>> -scott
+>>
+> AFAIK that module uses socket buffers (struct sk_buff) to send the 
+> packets. I was asking whether there was another way to send the IP 
+> datagrams.
 
-Sorry for taking so long to check this out, but yes, I get exactly what
-you've quoted above.
+The sk_buf is the thing you send to network drivers, it doesn't get
+any more basic unless you are hacking a particular driver and DMA'ing memory
+or something like that...
 
-Regards,
-David.
+Maybe you should explain what you are really trying to do?
+
+Ben
 
 -- 
-David Johnson
-www.david-web.co.uk
-www.penguincomputing.co.uk
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
 

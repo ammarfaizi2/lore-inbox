@@ -1,96 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262557AbUKEB6T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262552AbUKECCJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262557AbUKEB6T (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 20:58:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbUKEB6S
+	id S262552AbUKECCJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 21:02:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262563AbUKECCI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 20:58:18 -0500
-Received: from fmr04.intel.com ([143.183.121.6]:30628 "EHLO
+	Thu, 4 Nov 2004 21:02:08 -0500
+Received: from fmr04.intel.com ([143.183.121.6]:33701 "EHLO
 	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262552AbUKEB6G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 20:58:06 -0500
-Date: Thu, 4 Nov 2004 17:54:11 -0800
-From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+	id S262552AbUKECBw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 21:01:52 -0500
+Date: Thu, 4 Nov 2004 17:57:55 -0800
+From: Ashok Raj <ashok.raj@intel.com>
 To: Nathan Lynch <nathanl@austin.ibm.com>
 Cc: linux-kernel@vger.kernel.org, greg@kroah.com, rusty@rustcorp.com.au,
        mochel@digitalimplant.org, anton@samba.org
-Subject: Re: [RFC/PATCH 0/4] cpus, nodes, and the device model: dynamic cpu registration
-Message-ID: <20041104175411.A9367@unix-os.sc.intel.com>
-Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-References: <20041024094551.28808.28284.87316@biclops>
+Subject: Re: [RFC/PATCH 3/4] introduce cpu_add and cpu_remove
+Message-ID: <20041104175755.B9271@unix-os.sc.intel.com>
+References: <20041024094551.28808.28284.87316@biclops> <20041024094613.28808.17748.71291@biclops>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20041024094551.28808.28284.87316@biclops>; from nathanl@austin.ibm.com on Sun, Oct 24, 2004 at 03:42:10AM -0600
+In-Reply-To: <20041024094613.28808.17748.71291@biclops>; from nathanl@austin.ibm.com on Sun, Oct 24, 2004 at 05:42:31AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 24, 2004 at 03:42:10AM -0600, Nathan Lynch wrote:
-Hi Natan,
-	Sorry I am replying to you mail so late as I got to see your mail now:)
-Firstly good to see that some other architecture other than ia64 is planning to
-support physical CPU hotplug. Recenlty I had submitted some patches for supporting
-ACPI based physical cpu hotplug for IA64 arch. I will take a look at you patches and 
-give more comments later.
+On Sun, Oct 24, 2004 at 05:42:31AM -0400, Nathan Lynch wrote:
+> 
+> These functions safely update cpu_present_map (i.e. with the
+> cpucontrol semaphore held) and register or unregister the cpu device
+> as needed.  These are needed by systems which can add or remove cpus
+> from the system after boot (e.g. ppc64 and ia64), and are intended to
+> be called from the platform-specific code such as the ACPI or Open
+> Firmware layers.
+> 
+> Signed-off-by: Nathan Lynch <nathanl@austin.ibm.com>
+> 
+> 
+> ---
+> 
+> 
+> +
+> +/*
+> + * Add a cpu to the system.  Return the number of the cpu added,
+> + * or NR_CPUS if no more slots available.
+> + */
+> +unsigned int cpu_add(void)
+> +{
+> +	unsigned int cpu = NR_CPUS;
+> +
+> +	lock_cpu_hotplug();
+> +
+> +	if (num_present_cpus() == num_possible_cpus())
+> +goto out;
+> +
+> +	for_each_cpu(cpu)
+> +		if (!cpu_present(cpu))
+> +			break;
 
-thanks for your efforts.
+     could we simplify this by
 
--Anil
+   cpus_compliment(cpu_compliment_map, cpu_present_map);
+   cpu = first_cpu(cpu_compliment_map);
 
-> Hi there-
-> 
-> I know of at least two platforms (ppc64 and ia64) which allow cpus to
-> be physically or logically added and removed from a running system.
-> These are distinct operations from onlining or offlining, which is
-> well supported already.  Right now there is little support in the core
-> cpu "driver" for dynamic addition or removal.  The patch series which
-> follows implements support for this in a way which will (hopefully)
-> reduce code duplication and enforce some uniformity across the
-> relevant architectures.
-> 
-> For starters, the current situation is that cpu sysdevs are registered
-> from architecture code at boot.  Already we have inconsistencies
-> betweeen the arches -- ia64 registers only online cpus, ppc64
-> registers all "possible" cpus.  I propose to move the initial cpu
-> sysdev registrations to the cpu "driver" itself (drivers/base/cpu.c),
-> and to register only "present" cpus at boot.
-> 
-> But that breaks all the arch code which explicitly registers cpu
-> sysdevs.  For instance, ppc64 wants to hang all kinds of attributes
-> off of the cpu devices for performance counter stuff.  So code such as
-> this needs to be converted to register a sysdev_driver with the cpu
-> device class, which will allow the ppc64 code to be notified when a
-> cpu is added or removed.  In the patches that follow I include the
-> changes necessary for ppc64, as an example.  (An arch sweep or
-> temporary compatibility hack can come later if I get positive
-> responses to this approach.)
-> 
-> Also, there is the matter of the base numa "node" driver.  Currently
-> the cpu driver makes symlinks from nodes to their cpus.  This seems
-> backwards to me, so I have changed the node driver to create or remove
-> the symlinks upon cpu addition or removal, respectively, also using
-> the sysdev_driver approach.  I've also converted base/drivers/node.c
-> to doing the boot-time node registration itself, like the cpu code.
+> +
+> +	if (register_cpu(cpu)) {
+> +		cpu = NR_CPUS;
+> +		goto out;
+> +	}
+> +	cpu_set(cpu, cpu_present_map);
 
+I would prefer that register_cpu is performed in arch side, as there may be other setup 
+necessary to capture the hardware->logical associations before consuming these. 
+
+
+> +out:
+> +	unlock_cpu_hotplug();
+> +	return cpu;
+> +}
+> +
+> +/*
+> + * Remove a cpu from the system.
+> + */
+> +void cpu_remove(unsigned int cpu)
+> +{
+> +	lock_cpu_hotplug();
+> +
+> +	BUG_ON(cpu_present(cpu));
+> +
+> +	unregister_cpu(cpu);
+> +
+> +	cpu_clear(cpu, cpu_present_map);
+> +
+> +	unlock_cpu_hotplug();
+> +}
+>  #else
+>  static inline int cpu_run_sbin_hotplug(unsigned int cpu, const char *action)
+>  {
 > 
-> Finally, I've added two new interfaces which wrap all this up --
-> cpu_add() and cpu_remove().  These carry out the necessary update to
-> cpu_present_map and take care of the cpu device registration.  These
-> are meant to be invoked from the platform-specific code which
-> discovers and removes processors.
-> 
-> This is the first real device model-related hacking I've done.  I'm
-> hoping Greg or Patrick will tell me whether I'm on the right track or
-> abusing the APIs :)
-> 
-> These patches have been boot-tested on ppc64.  I haven't gotten to
-> test the removal paths yet.
-> 
-> 
-> Nathan
+> _
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+Cheers,
+Ashok Raj
+- Linux OS & Technology Team

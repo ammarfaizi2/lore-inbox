@@ -1,59 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292124AbSBAWzg>; Fri, 1 Feb 2002 17:55:36 -0500
+	id <S292126AbSBAW54>; Fri, 1 Feb 2002 17:57:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292125AbSBAWz1>; Fri, 1 Feb 2002 17:55:27 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:36107 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S292124AbSBAWzZ>; Fri, 1 Feb 2002 17:55:25 -0500
-Message-ID: <3C5B1CBB.6080802@zytor.com>
-Date: Fri, 01 Feb 2002 14:54:51 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en, sv
-MIME-Version: 1.0
-To: Peter Monta <pmonta@pmonta.com>
-CC: garzik@havoc.gtf.org, linux-kernel@vger.kernel.org
-Subject: Re: Continuing /dev/random problems with 2.4
-In-Reply-To: <20020201031744.A32127@asooo.flowerfire.com> <1012582401.813.1.camel@phantasy> <a3enf3$93p$1@cesium.transmeta.com> <20020201202334.72F921C5@www.pmonta.com> <20020201153346.B2497@havoc.gtf.org> <20020201205605.ED5111C5@www.pmonta.com>
+	id <S292127AbSBAW5r>; Fri, 1 Feb 2002 17:57:47 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:20998 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S292126AbSBAW5f>;
+	Fri, 1 Feb 2002 17:57:35 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: A modest proposal -- We need a patch penguin 
+In-Reply-To: Your message of "Fri, 01 Feb 2002 08:43:27 -0800."
+             <20020201084327.D8664@work.bitmover.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Sat, 02 Feb 2002 09:57:22 +1100
+Message-ID: <15713.1012604242@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Monta wrote:
+On Fri, 1 Feb 2002 08:43:27 -0800, 
+Larry McVoy <lm@bitmover.com> wrote:
+>I do agree that there are times when you really want to collapse a pile
+>of changes into one and I'm willing to write that code if it becomes
+>agreed that it is widely useful.  It's maintaining both versions of 
+>the changes, the collapsed and uncollapsed, that I don't want to do.
 
-> 
-> Well, yes and no.  What you really need is a conservative estimate
-> of how much entropy is contained in n bits of input; a cryptographic
-> hash, such as MD5, will distill out the "truly random".  The comments
-> in drivers/char/random.c claim that the input hash is cryptographically
-> noncritical, but to be pedantic, maybe MD5 the audio noise before
-> writing to /dev/random.
-> 
+Hand waving solutions without seeing the bk code ...
 
+Don't maintain both versions of the changes.
 
-/dev/random rather does that itself (that's what the output hash does.)
+Everybody except the person with the uncollapsed set only sees the
+collapsed set, no problem there.
 
+The person with the uncollapsed set only has one version of the
+changes, in the uncollapsed set.
 
-> Assuming the sound-card output looks like reasonable noise of
-> a few LSBs amplitude, a conservative estimate might be 0.1 bit
-> of entropy per sample.  This is 9600 bits of entropy per second
-> from a stereo card, more than enough.
-> 
-> A small daemon would wake up every so often, check if /dev/random
-> needs topped up, read some audio samples, MD5(), write(),
-> ioctl(# of claimed entropy bits).  I haven't seen the i810 RNG tools,
-> but I guess they do something similar.
+Identify each externally visible patchset with a unique id, you
+probably already do this.
 
+Define a meta patchset entry which maps the uncollapsed line of patches
+to the collapsed set.  That is, don't duplicate the changes, add a
+mapping instead.
 
-The point with the tests that have been mentioned is to derive such a
-conservative estimate, and to raise a red flag if the output suddenly
-becomes predictable.
+The meta entry maps the externally visible patchset to the internal set
+by listing just the start and end point of the LOD.  These are the
+entries that would be given to export patch.
 
-	-hpa
+Add a global repository option, show/hide detail.  The default is show
+detail, the current behaviour.
 
- 
+For show detail, you cannot use meta patchset entries.  Everything is
+visible to the rest of the world.
 
+For hide detail, you must define meta entries for what you want to be
+visible, the rest of the world can only see what you expose.  That is,
+you cannot publish some detail entries and some meta entries, you must
+choose one or the other at the repository level.
+
+Meta sets are single level, no collapse within collapse.  A meta set is
+externally visible, to collapse a meta set into a meta-meta set is
+equivalent to rewriting the distributed bk history, don't allow that.
+
+No duplication of changes.  No rewriting of bk history.  Users who want
+to hide their detail changes and only expose the result can do so.
+Users who only check in working (as opposed to hacking) code are not
+affected.  Users who want the extra flexibility incur the cost of
+defining meta sets before they can publish anything.
 

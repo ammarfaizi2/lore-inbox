@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280593AbRKSSnh>; Mon, 19 Nov 2001 13:43:37 -0500
+	id <S280594AbRKSSnj>; Mon, 19 Nov 2001 13:43:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280594AbRKSSnW>; Mon, 19 Nov 2001 13:43:22 -0500
-Received: from freeside.toyota.com ([63.87.74.7]:21767 "EHLO
-	freeside.toyota.com") by vger.kernel.org with ESMTP
-	id <S280591AbRKSSmp>; Mon, 19 Nov 2001 13:42:45 -0500
-Message-ID: <3BF9529C.38228533@lexus.com>
-Date: Mon, 19 Nov 2001 10:42:36 -0800
-From: J Sloan <jjs@lexus.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.15-pre6 i686)
-X-Accept-Language: en
+	id <S280591AbRKSSna>; Mon, 19 Nov 2001 13:43:30 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:19974 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S280593AbRKSSnS>; Mon, 19 Nov 2001 13:43:18 -0500
+Date: Mon, 19 Nov 2001 16:43:03 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Erik Gustavsson <cyrano@algonet.se>, <linux-kernel@vger.kernel.org>
+Subject: Re: Swap
+In-Reply-To: <m1snba7hpw.fsf@frodo.biederman.org>
+Message-ID: <Pine.LNX.4.33L.0111191642390.1491-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-CC: James A Sutherland <jas88@cam.ac.uk>, linux-kernel@vger.kernel.org
-Subject: Re: x bit for dirs: misfeature?
-In-Reply-To: <01111916225301.00817@nemo> <E165pWu-0000Pi-00@mauve.csi.cam.ac.uk> <01111916583804.00817@nemo>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-vda wrote:
+On 19 Nov 2001, Eric W. Biederman wrote:
 
-> I know. I'd like to hear anybody who have a directory with r!=x
-> on purpose (and quite curious on that purpose). UNIX gugus, anybody?
+> > Is there a way to limit the size of the cache?
+>
+> Reasonable.  It looks like the use once heuristics are failing for your
+> mp3 files.   Find out why that is happening and they should push the
+> rest of your system into swap.
 
-Absolutely -
+I bet they're getting mmap()d, like all mp3 programs seem to do  ;)
 
-It is quite common to have dirs with perms 711 -
+Rik
+-- 
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
 
-This allows arbitrary users to copy specific files
-from such a directory, but does not allow them to
-cd into that directory or to browse it.
-
-Losing that distinction would be crippling.
-
-cu
-
-jjs
+http://www.surriel.com/		http://distro.conectiva.com/
 

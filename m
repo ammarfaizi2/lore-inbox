@@ -1,95 +1,239 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262780AbVAQMUa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262781AbVAQMXg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262780AbVAQMUa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 07:20:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262781AbVAQMU3
+	id S262781AbVAQMXg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 07:23:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262783AbVAQMXI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 07:20:29 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:65429
-	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S262780AbVAQMUU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 07:20:20 -0500
-Subject: Re: 2.6.11-rc1-mm1
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Karim Yaghmour <karim@opersys.com>
-Cc: Roman Zippel <zippel@linux-m68k.org>, Andi Kleen <ak@muc.de>,
-       Nikita Danilov <nikita@clusterfs.com>,
-       LKML <linux-kernel@vger.kernel.org>, Tom Zanussi <zanussi@us.ibm.com>,
-       Robert Wisniewski <bob@watson.ibm.com>
-In-Reply-To: <41EB21C2.3020608@opersys.com>
-References: <20050114002352.5a038710.akpm@osdl.org> <m1zmzcpfca.fsf@muc.de>
-	 <m17jmg2tm8.fsf@clusterfs.com> <20050114103836.GA71397@muc.de>
-	 <41E7A7A6.3060502@opersys.com>
-	 <Pine.LNX.4.61.0501141626310.6118@scrub.home>
-	 <41E8358A.4030908@opersys.com>
-	 <Pine.LNX.4.61.0501150101010.30794@scrub.home>
-	 <41E899AC.3070705@opersys.com>
-	 <Pine.LNX.4.61.0501160245180.30794@scrub.home>
-	 <41EA0307.6020807@opersys.com>
-	 <Pine.LNX.4.61.0501161648310.30794@scrub.home> <41EADA11.70403@opersys.com>
-	 <1105925842.13265.364.camel@tglx.tec.linutronix.de>
-	 <41EB21C2.3020608@opersys.com>
-Content-Type: text/plain
-Date: Mon, 17 Jan 2005 13:20:17 +0100
-Message-Id: <1105964417.13265.406.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 (2.0.3-2) 
-Content-Transfer-Encoding: 7bit
+	Mon, 17 Jan 2005 07:23:08 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:4629 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S262781AbVAQMWd convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 07:22:33 -0500
+Date: Mon, 17 Jan 2005 12:21:51 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: "man_josewanadoo.es" <man_jose@wanadoo.es>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel bug: mm/rmap.c:483
+In-Reply-To: <E1CqHh7-0000uQ-93@mb05.in.mad.eresmas.com>
+Message-ID: <Pine.LNX.4.44.0501171209360.4412-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-01-16 at 21:24 -0500, Karim Yaghmour wrote:
-
-> > Sorting out disabled events in the hot path and moving the if
-> > (pid/gid/grp) whatever stuff into userspace postprocessing is not an
-> > alien request.
+On Sun, 16 Jan 2005, man_josewanadoo.es wrote:
+> My name is José María García Pérez (Spain). My system is an: AMD Athlon 800 (this is not an Athlon-XP). I was trying Gentoo for the first time (I'm a newbie). The kernel 2.6.9-r1 makes a similar bug. Then I try to upgrade to kernel-2.6.10-r4. The error persist. It appears when I try to "emerge" with Gentoo. 
 > 
-> It is. Have you even read what I suggested to change in my other mail:
-> if ((any_filtering) && !(ltt_filter(event_id, event_struct, data)))
-> 	return -EINVAL;
+> What is next is with the kernel-2.6.10-r4
+> 
+> Would you post me to say if the bug is closed or if is my system who is broken?
+> kernel BUG at mm/rmap.c:483!
+> invalid operand: 0000 [#1]
+> Modules linked in:
+> CPU:    0
+> EIP:    0060:[<c0143ed9>]    Not tainted VLI
+> EFLAGS: 00010296   (2.6.10-gentoo-r4)
+> EIP is at page_remove_rmap+0x29/0x40
 
-Sorting out disabled events is the filtering you have to do in kernel
-and you should do it in the hot path or remove the unneccecary
-tracepoints at compiletime. 
+This bug has not yet been closed, I am anxious to solve it.
+If you can get reproduce it as easily as it sounds you can,
+you can really help us to fix it.
 
-> > 4096kB/sec for  64 events/ms (event frequency  64kHz) (15 us)
-> > 8192kB/sec for 128 events/ms (event frequency 128kHz) ( 8 us) 
+Let me quote what I wrote on it last week.  Below is a patch
+for you to try (this one against 2.6.10, if another kernel would
+suit you better let me know), to give us more debug info about it.
+But first thing to try would be an (overnight?) run of memtest86.
 
-> Actually, on a PII-350MHz, I was already generating 0.5MB/s of data
-> just by running an X session. If we assume that a machine 10 times
-> faster generates 10 times as many events, we've already got 5MB/s,
-> and I'm sure that there are heavier cases than X.
+> We still do not know; we'd very much like to know.
+> 
+> It would not be the fault of any userspace program
+> (unless they corrupt via /dev/mem or something like that).
+> 
+> It may be a core kernel problem, but I've searched repeatedly and
+> failed.  It may be a driver problem e.g. GregKH's incident suggested
+> a problem in DRM, and Andrea has pointed to a worrying ioctl there
+> (looks like it could ClearPageReserved too early): I've been halfway
+> through following that up for a few weeks now.  Are you using DRM?
+> (but the hallmarks in your case are different.)
+> 
+> It can be caused by somewhere freeing a page it no longer holds;
+> but in that case we'd usually expect to see the Bad page state
+> error coming from free_pages_check rather than prep_new_page,
+> and to be followed by the rmap.c BUG rather than following it.
+> 
+> It could easily be caused by bad memory bitflipping in a page table
+> (but in general, we'd expect to be hearing of swap_free errors,
+> or random corruption, if that were generally the case - I think).
+> Please give memtest86 a good run to rule out that possibility.
+> 
+> If memtest86 is satifisfied, would you mind running with the patch
+> below (against 2.6.9, suitable for i386 or x86_64, but not suitable
+> for the various architectures which use PG_arch_1)?  To give us more
+> debug info - it's unlikely to solve the mystery on it's own, but I
+> hope it might help us to look in the right direction.  And send me
+> any "Bad rmap" and "Bad page state" log entries you find (but
+> perhaps this was a one-off, and nothing more will appear).
 
-You are not answering my argument. 8MB/sec is an event frequency of
-128hz when we assume 64byte/event. It's one event every 8us. So every
-unneccecary computation, every leaving the hotpath for nothing is just
-giving you performance loss.
+Are you using DRM?  Please mail me your .config.  As I ask above,
+please mail me any "Bad rmap" and "Bad page state" log entries you
+get with the patch below (including the date and time on the left).
 
-> Not even Ingo hinted at getting rid of filtering. Remember the earlier
-> e-mail I refered to? Here's what he was suggesting:
+You will find me particularly slow to respond at the moment,
+sorry; but I am nonetheless very keen to solve this finally.
 
-I said:
-> > Sorting out disabled events in the hot path 
+Thanks a lot,
+Hugh
 
-s/Sorting/Filtering/
-
-I never said this should not be done.
-
-> Like I said, we are willing to accomodate those who want to be able
-> to use relayfs for kernel debugging purposes, but we can hardly
-> be blamed for not making LTT a generic kernel debugging tool as this
-> is exactly the excuse many kernel developers had for not including
-> LTT to start with. It's just totally dissengenious for giving us
-> grief for claiming that we are doing something and then later turn
-> around and blame us for not doing it ... cheesh ...
-
-Seperating layers as I suggested before is not making it a generic
-debugging tool. It makes parts of those layers available for other usage
-and gives us the chance to reuse the parts for cleaning up already
-available code which has the same hardwired structure.
-
-tglx
-
-
+--- 2.6.10/include/linux/rmap.h	2004-12-24 21:36:18.000000000 +0000
++++ linux/include/linux/rmap.h	2005-01-17 11:36:16.626371920 +0000
+@@ -72,7 +72,7 @@ void __anon_vma_link(struct vm_area_stru
+  */
+ void page_add_anon_rmap(struct page *, struct vm_area_struct *, unsigned long);
+ void page_add_file_rmap(struct page *);
+-void page_remove_rmap(struct page *);
++void page_remove_rmap(struct page *, struct vm_area_struct *, unsigned long);
+ 
+ /**
+  * page_dup_rmap - duplicate pte mapping to a page
+--- 2.6.10/mm/fremap.c	2004-12-24 21:36:17.000000000 +0000
++++ linux/mm/fremap.c	2005-01-17 11:36:16.679363864 +0000
+@@ -37,7 +37,7 @@ static inline void zap_pte(struct mm_str
+ 			if (!PageReserved(page)) {
+ 				if (pte_dirty(pte))
+ 					set_page_dirty(page);
+-				page_remove_rmap(page);
++				page_remove_rmap(page, vma, addr);
+ 				page_cache_release(page);
+ 				mm->rss--;
+ 			}
+--- 2.6.10/mm/memory.c	2004-12-24 21:36:48.000000000 +0000
++++ linux/mm/memory.c	2005-01-17 11:36:16.706359760 +0000
+@@ -366,6 +366,7 @@ nomem:
+ }
+ 
+ static void zap_pte_range(struct mmu_gather *tlb,
++		struct vm_area_struct *vma,
+ 		pmd_t *pmd, unsigned long address,
+ 		unsigned long size, struct zap_details *details)
+ {
+@@ -431,7 +432,7 @@ static void zap_pte_range(struct mmu_gat
+ 			else if (pte_young(pte))
+ 				mark_page_accessed(page);
+ 			tlb->freed++;
+-			page_remove_rmap(page);
++			page_remove_rmap(page, vma, address+offset);
+ 			tlb_remove_page(tlb, page);
+ 			continue;
+ 		}
+@@ -449,6 +450,7 @@ static void zap_pte_range(struct mmu_gat
+ }
+ 
+ static void zap_pmd_range(struct mmu_gather *tlb,
++		struct vm_area_struct *vma,
+ 		pgd_t * dir, unsigned long address,
+ 		unsigned long size, struct zap_details *details)
+ {
+@@ -467,7 +469,7 @@ static void zap_pmd_range(struct mmu_gat
+ 	if (end > ((address + PGDIR_SIZE) & PGDIR_MASK))
+ 		end = ((address + PGDIR_SIZE) & PGDIR_MASK);
+ 	do {
+-		zap_pte_range(tlb, pmd, address, end - address, details);
++		zap_pte_range(tlb, vma, pmd, address, end - address, details);
+ 		address = (address + PMD_SIZE) & PMD_MASK; 
+ 		pmd++;
+ 	} while (address && (address < end));
+@@ -483,7 +485,7 @@ static void unmap_page_range(struct mmu_
+ 	dir = pgd_offset(vma->vm_mm, address);
+ 	tlb_start_vma(tlb, vma);
+ 	do {
+-		zap_pmd_range(tlb, dir, address, end - address, details);
++		zap_pmd_range(tlb, vma, dir, address, end - address, details);
+ 		address = (address + PGDIR_SIZE) & PGDIR_MASK;
+ 		dir++;
+ 	} while (address && (address < end));
+@@ -1114,7 +1116,7 @@ static int do_wp_page(struct mm_struct *
+ 		if (PageReserved(old_page))
+ 			++mm->rss;
+ 		else
+-			page_remove_rmap(old_page);
++			page_remove_rmap(old_page, vma, address);
+ 		break_cow(vma, new_page, address, page_table);
+ 		lru_cache_add_active(new_page);
+ 		page_add_anon_rmap(new_page, vma, address);
+--- 2.6.10/mm/rmap.c	2004-12-24 21:37:19.000000000 +0000
++++ linux/mm/rmap.c	2005-01-17 11:36:16.709359304 +0000
+@@ -462,8 +462,12 @@ void page_add_anon_rmap(struct page *pag
+ void page_add_file_rmap(struct page *page)
+ {
+ 	BUG_ON(PageAnon(page));
+-	if (!pfn_valid(page_to_pfn(page)) || PageReserved(page))
++	if (!pfn_valid(page_to_pfn(page)))
+ 		return;
++	if (PageReserved(page)) {
++		set_bit(PG_arch_1, &page->flags);
++		return;
++	}
+ 
+ 	if (atomic_inc_and_test(&page->_mapcount))
+ 		inc_page_state(nr_mapped);
+@@ -475,12 +479,36 @@ void page_add_file_rmap(struct page *pag
+  *
+  * Caller needs to hold the mm->page_table_lock.
+  */
+-void page_remove_rmap(struct page *page)
++void page_remove_rmap(struct page *page,
++	struct vm_area_struct *vma, unsigned long address)
+ {
++	struct address_space *mapping = NULL;
++	unsigned long index;
++
+ 	BUG_ON(PageReserved(page));
+ 
++	index = (address - vma->vm_start) >> PAGE_SHIFT;
++	index += vma->vm_pgoff;
++
++	if (PageAnon(page))
++		mapping = (void *) vma->anon_vma + PAGE_MAPPING_ANON;
++	else if (!(vma->vm_flags & (VM_IO|VM_RESERVED)))
++		mapping = vma->vm_file? vma->vm_file->f_mapping: (void *)(-1);
++
++	if (page_mapcount(page) <= 0 || page_count(page) <= 0 ||
++	    (mapping && (mapping != page->mapping || index != page->index)) ||
++	    test_bit(PG_arch_1, &page->flags)) {
++		printk("Bad rmap in %s: page %p flags %lx "
++			"count %d mapcount %d addr %lx vm_flags %lx\n",
++			current->comm, page, (unsigned long)page->flags,
++			page_count(page), page_mapcount(page), address,
++			vma->vm_flags);
++		printk("\tpage mapping %p index %lx vma mapping %p index %lx\n",
++			page->mapping, page->index, mapping, index);
++		get_page(page);
++		return;
++	}
+ 	if (atomic_add_negative(-1, &page->_mapcount)) {
+-		BUG_ON(page_mapcount(page) < 0);
+ 		/*
+ 		 * It would be tidy to reset the PageAnon mapping here,
+ 		 * but that might overwrite a racing page_add_anon_rmap
+@@ -596,7 +624,7 @@ static int try_to_unmap_one(struct page 
+ 	}
+ 
+ 	mm->rss--;
+-	page_remove_rmap(page);
++	page_remove_rmap(page, vma, address);
+ 	page_cache_release(page);
+ 
+ out_unmap:
+@@ -693,7 +721,7 @@ static void try_to_unmap_cluster(unsigne
+ 		if (pte_dirty(pteval))
+ 			set_page_dirty(page);
+ 
+-		page_remove_rmap(page);
++		page_remove_rmap(page, vma, address);
+ 		page_cache_release(page);
+ 		mm->rss--;
+ 		(*mapcount)--;
 

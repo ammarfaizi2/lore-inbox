@@ -1,38 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261488AbUKWS1k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261491AbUKWScA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261488AbUKWS1k (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 13:27:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbUKWSYv
+	id S261491AbUKWScA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 13:32:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbUKWS34
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 13:24:51 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15280 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261495AbUKWSYW
+	Tue, 23 Nov 2004 13:29:56 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33200 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261491AbUKWS2I
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 13:24:22 -0500
-Message-ID: <41A38040.3080505@pobox.com>
-Date: Tue, 23 Nov 2004 13:24:00 -0500
+	Tue, 23 Nov 2004 13:28:08 -0500
+Message-ID: <41A38128.90305@pobox.com>
+Date: Tue, 23 Nov 2004 13:27:52 -0500
 From: Jeff Garzik <jgarzik@pobox.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: johon Doe <johond@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: problems with ich6r
-References: <20041123172627.57807.qmail@web52503.mail.yahoo.com>
-In-Reply-To: <20041123172627.57807.qmail@web52503.mail.yahoo.com>
+To: Mathias Kretschmer <posting@blx4.net>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: VIA VT610 IDE support for 2.4.28 (trivial)
+References: <41A2E581.2010305@blx4.net>
+In-Reply-To: <41A2E581.2010305@blx4.net>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-johon Doe wrote:
-> Hi I found maybe a bug over ich6r sata controller.
-> here,
-> http://groups.google.it/groups?q=johond&hl=it&lr=&ie=UTF-8&selm=33pIh-8l5-51%40gated-at.bofh.it&rnum=2
+Mathias Kretschmer wrote:
+> hi,
+> 
+> I found an older version of this patch (against 2.4.22) on some website. 
+> After a little bit of editing it applied cleanly to 2.4.27 (and now 
+> 2.4.28). It works fine for me on a ASUS P4P800-Deluxe with 4x 300GB disks.
+> 
+> Maybe someone finds this patch helpful. Any reason why the original 
+> patch did not make it into the kernel ?
 
-
-Not related to SATA or ICH6 AFAICS...
+Why not add it to the existing via82cxxx driver, and get better 
+performance and device tuning?
 
 	Jeff
+
 
 

@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289191AbSBDWLp>; Mon, 4 Feb 2002 17:11:45 -0500
+	id <S289198AbSBDWNr>; Mon, 4 Feb 2002 17:13:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289198AbSBDWLf>; Mon, 4 Feb 2002 17:11:35 -0500
-Received: from [217.9.226.246] ([217.9.226.246]:49024 "HELO
-	merlin.xternal.fadata.bg") by vger.kernel.org with SMTP
-	id <S289191AbSBDWLT>; Mon, 4 Feb 2002 17:11:19 -0500
+	id <S289211AbSBDWNg>; Mon, 4 Feb 2002 17:13:36 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27920 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S289198AbSBDWNV>; Mon, 4 Feb 2002 17:13:21 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.5.3-dj1] Radix tree page cache
-In-Reply-To: <87zo2pybv0.fsf@fadata.bg>
-X-No-CC: Post to lists, not to me.
-From: Momchil Velikov <velco@fadata.bg>
-In-Reply-To: <87zo2pybv0.fsf@fadata.bg>
-Date: 05 Feb 2002 00:10:34 +0200
-Message-ID: <87sn8g525h.fsf@fadata.bg>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: How to check the kernel compile options ?
+Date: 4 Feb 2002 14:12:57 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a3n119$gbp$1@cesium.transmeta.com>
+In-Reply-To: <3C5EB070.4370181B@uni-mb.si> <3C5EB070.4370181B@uni-mb.si> <4.3.2.7.2.20020204124812.00aec590@mail.osagesoftware.com> <4.3.2.7.2.20020204133252.00c50f00@mail.osagesoftware.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Momchil" == Momchil Velikov <velco@fadata.bg> writes:
+Followup to:  <4.3.2.7.2.20020204133252.00c50f00@mail.osagesoftware.com>
+By author:    David Relson <relson@osagesoftware.com>
+In newsgroup: linux.dev.kernel
+> 
+> >I have had in my /sbin/installkernel a clause to save .config as
+> >config-<foo> when I install vmlinuz-<foo>; I believe anyone not doing
+> >that[1] is, quite frankly, a moron.
+> 
+> Why not a simple patch for "make install" to do this?
+> 
 
-Momchil> This is the radix tree page cache patch against 2.5.3-dj1. Changes
-Momchil> from the previous release - couple of bug fixes.
+Good thought.  I was waiting for the various kernel build changes in
+2.5 to overhaul make install, but a small thing should be doable in
+2.4.  Note that if you have an /sbin/installkernel it overrides make
+install -- as it should be.
 
-Ok, here goes an additional one, let it _actually_ use the mempools.
-
-Regards,
--velco
-
-diff -Nru a/lib/radix-tree.c b/lib/radix-tree.c
---- a/lib/radix-tree.c	Tue Feb  5 00:06:57 2002
-+++ b/lib/radix-tree.c	Tue Feb  5 00:06:57 2002
-@@ -56,12 +56,6 @@
- #define radix_tree_node_free(node) \
- 	mempool_free((node), radix_tree_node_pool);
- 
--#define radix_tree_node_alloc(root) \
--	kmem_cache_alloc(radix_tree_node_cachep, (root)->gfp_mask)
--#define radix_tree_node_free(node) \
--	kmem_cache_free(radix_tree_node_cachep, (node))
--
--
- /*
-  * Return the maximum key, which can be store into a radix tree
-  * with height HEIGHT.
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

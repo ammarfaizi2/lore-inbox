@@ -1,67 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261616AbVAGWJ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261671AbVAGWOn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261616AbVAGWJ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 17:09:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbVAGWJF
+	id S261671AbVAGWOn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 17:14:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261667AbVAGWOT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 17:09:05 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:36613 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261616AbVAGWID (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 17:08:03 -0500
-Message-Id: <200501072207.j07M7Lda004987@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/04/2005 with nmh-1.1-RC3
+	Fri, 7 Jan 2005 17:14:19 -0500
+Received: from [213.85.13.118] ([213.85.13.118]:31618 "EHLO tau.rusteko.ru")
+	by vger.kernel.org with ESMTP id S261665AbVAGWMn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 17:12:43 -0500
 To: Andrew Morton <akpm@osdl.org>
-Cc: Lee Revell <rlrevell@joe-job.com>, paul@linuxaudiosystems.com,
-       arjanv@redhat.com, hch@infradead.org, mingo@elte.hu, chrisw@osdl.org,
-       alan@lxorguk.ukuu.org.uk, joq@io.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM 
-In-Reply-To: Your message of "Fri, 07 Jan 2005 13:49:41 PST."
-             <20050107134941.11cecbfc.akpm@osdl.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <200501071620.j07GKrIa018718@localhost.localdomain> <1105132348.20278.88.camel@krustophenia.net>
-            <20050107134941.11cecbfc.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1105135640_12694P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Fri, 07 Jan 2005 17:07:20 -0500
+Cc: pmarques@grupopie.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       hch@infradead.org
+Subject: Re: [RFC] per thread page reservation patch
+References: <20050103011113.6f6c8f44.akpm@osdl.org>
+	<20050103114854.GA18408@infradead.org> <41DC2386.9010701@namesys.com>
+	<1105019521.7074.79.camel@tribesman.namesys.com>
+	<20050107144644.GA9606@infradead.org>
+	<1105118217.3616.171.camel@tribesman.namesys.com>
+	<41DEDF87.8080809@grupopie.com> <m1llb5q7qs.fsf@clusterfs.com>
+	<20050107132459.033adc9f.akpm@osdl.org>
+From: Nikita Danilov <nikita@clusterfs.com>
+Date: Sat, 08 Jan 2005 01:12:28 +0300
+In-Reply-To: <20050107132459.033adc9f.akpm@osdl.org> (Andrew Morton's
+ message of "Fri, 7 Jan 2005 13:24:59 -0800")
+Message-ID: <m1d5wgrir7.fsf@clusterfs.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.5 (chayote, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1105135640_12694P
-Content-Type: text/plain; charset=us-ascii
+Andrew Morton <akpm@osdl.org> writes:
 
-On Fri, 07 Jan 2005 13:49:41 PST, Andrew Morton said:
+[...]
 
-> Chris Wright <chrisw@osdl.org> wrote:
+>
+> Maybe I'm being thick, but I don't see how you can protect the reservation
+> of an outer reserver in the above way:
+>
+> 	perthread_pages_reserve(10);
+> 	...				/* current->private_pages_count = 10 */
+> 		perthread_pages_reserve(10)	/* private_pages_count = 20 */
+> 		use 5 pages			/* private_pages_count = 15 */
+> 		perthread_pages_release(5);
+>
+> But how does the caller come up with the final "5"?
 
-> > Last I checked they could be controlled separately in that module.  It
-> > has been suggested (by me and others) that one possible solution would
-> > be to expand it to be generic for all caps.
-> 
-> Maybe this is the way?
+	wasreserved = perthread_pages_count();
+	result = perthread_pages_reserve(estimate_reserve(), GFP_KERNEL);
+	if (result != 0)
+		return result;
 
-We already *know* how to (in principle) fix the capabilities system to make
-it useful.  We should probably investigate doing that and at the same time
-fixing the current CAP_SYS_ADMIN mess (which we also have at least some ideas
-on fixing). The remaining problem is possible breakage of software that's doing
-capability things The Old Way (as the inheritance rules are incompatible).
+    /* do something that consumes reservation */
 
-Linus at one time said that a 2.7 might open if there was some issue that
-caused enough disruption to require a fork - could this be it, or does somebody
-have a better way to address the backward-combatability problem?
+	perthread_pages_release(perthread_pages_count() - wasreserved);
 
---==_Exmh_1105135640_12694P
-Content-Type: application/pgp-signature
+>
+> Seems better to me if prethread_pages_reserve() were to return the initial
+> value of private_pages_count, so the caller can do:
+>
+> 	old = perthread_pages_reserve(10);
+> 		use 5 pages
+> 	perthread_pages_release(old);
+>
+> or whatever.
+>
+> That kinda stinks too in a way, because both the outer and the inner
+> callers need to overallocate pages on behalf of the worst case user in some
+> deep call stack.
+>
+> And the whole idea is pretty flaky really - how can one precalculate how
+> much memory an arbitrary md-on-dm-on-loop-on-md-on-NBD stack will want to
+> use?  It really would be better if we could drop the whole patch and make
+> reiser4 behave more sanely when its writepage is called with for_reclaim=1.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+Reiser4 doesn't use this for ->writepage(), by the way. This is used by
+tree balancing code to assure that balancing cannot get -ENOMEM in the
+middle of tree modification, because undo is _so_ very complicated.
 
-iD8DBQFB3wgYcC3lWbTT17ARAp3DAJ4heXJkqlHsHju5KeE1CY/+QQCB2QCdFqT1
-koSCUMxj+A4rvLsDElNHqa8=
-=f5kY
------END PGP SIGNATURE-----
-
---==_Exmh_1105135640_12694P--
+Nikita.

@@ -1,76 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268329AbTBNKBD>; Fri, 14 Feb 2003 05:01:03 -0500
+	id <S268331AbTBNJot>; Fri, 14 Feb 2003 04:44:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268330AbTBNKBD>; Fri, 14 Feb 2003 05:01:03 -0500
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:30711 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id <S268329AbTBNKBB>; Fri, 14 Feb 2003 05:01:01 -0500
-From: Thomas Schlichter <schlicht@uni-mannheim.de>
-To: Dave Jones <davej@codemonkey.org.uk>, Andrew Morton <akpm@digeo.com>
-Subject: Re: 2.5.60-mm2
-Date: Fri, 14 Feb 2003 11:10:41 +0100
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <20030214013144.2d94a9c5.akpm@digeo.com> <20030214093856.GC13845@codemonkey.org.uk>
-In-Reply-To: <20030214093856.GC13845@codemonkey.org.uk>
+	id <S268338AbTBNJ1U>; Fri, 14 Feb 2003 04:27:20 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:37715
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S268329AbTBNJZX>; Fri, 14 Feb 2003 04:25:23 -0500
+Date: Fri, 14 Feb 2003 04:33:43 -0500 (EST)
+From: Zwane Mwaikambo <zwane@zwane.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+cc: Linus Torvalds <torvalds@transmeta.com>, "" <linux-mips@linux-mips.org>
+Subject: [PATCH][2.5][4/14] smp_call_function_on_cpu - MIPS
+Message-ID: <Pine.LNX.4.50.0302140356050.3518-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_pCMT+DYGeShQy4x";
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200302141110.49348.schlicht@uni-mannheim.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ smp.c |   43 +++++++++++++++++++++++++++++--------------
+ 1 files changed, 29 insertions(+), 14 deletions(-)
 
---Boundary-02=_pCMT+DYGeShQy4x
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Description: signed data
-Content-Disposition: inline
-
-On Friday, 14. February 2003 10:38, Dave Jones wrote:
-> On Fri, Feb 14, 2003 at 01:31:44AM -0800, Andrew Morton wrote:
->  > . Considerable poking at the NFS MAP_SHARED OOM lockup.  It is limping
->  >   along now, but writeout bandwidth is poor and it is still struggling.
->  >   Needs work.
->  >
->  > . There's a one-liner which removes an O(n^2) search in the NFS
->  > writeback path.  It increases writeout bandwidth by 4x and decreases C=
-PU
->  > load from 100% to 3%.  Needs work.
->
-> I'm puzzled that you've had NFS stable enough to test these.
-> How much testing has this stuff had? Here 2.5.60+bk clients fall over und=
-er
-> moderate NFS load. (And go splat quickly under high load).
->
-> Trying to run things like dbench causes lockups, fsx/fstress made it
-> reboot, plus the odd 'cheating' errors reported yesterday.
->
-> 		Dave
-
-I've got NFS problems with 2.5.5x - 60-bk3, too, but here I can workaround=
-=20
-them by simply pinging the NFS-server every second... Funny, but it works!
-Perhaps this can help finding the real bug?!
-
-  Thomas
---Boundary-02=_pCMT+DYGeShQy4x
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+TMCpYAiN+WRIZzQRAkV8AJwKY8v7t1jvBMFbyNXaFt1c5QzKbQCdFcXB
-/KQsXPQPTki+B5HzH3QsQZc=
-=PNko
------END PGP SIGNATURE-----
-
---Boundary-02=_pCMT+DYGeShQy4x--
-
+Index: linux-2.5.60/arch/mips/kernel/smp.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.60/arch/mips/kernel/smp.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 smp.c
+--- linux-2.5.60/arch/mips/kernel/smp.c	10 Feb 2003 22:15:04 -0000	1.1.1.1
++++ linux-2.5.60/arch/mips/kernel/smp.c	14 Feb 2003 06:09:00 -0000
+@@ -185,22 +185,32 @@
+ 	smp_call_function(reschedule_this_cpu, NULL, 0, 0);
+ }
+ 
+-
+ /*
+- * The caller of this wants the passed function to run on every cpu.  If wait
+- * is set, wait until all cpus have finished the function before returning.
+- * The lock is here to protect the call structure.
++ * smp_call_function_on_cpu - Runs func on all processors in the mask
++ *
++ * @func: The function to run. This must be fast and non-blocking.
++ * @info: An arbitrary pointer to pass to the function.
++ * @wait: If true, wait (atomically) until function has completed on other CPUs.
++ * @mask The bitmask of CPUs to call the function
++ * 
++ * Returns 0 on success, else a negative status code. Does not return until
++ * remote CPUs are nearly ready to execute func or have executed it.
++ *
+  * You must not call this function with disabled interrupts or from a
+  * hardware interrupt handler or from a bottom half handler.
+  */
+-int smp_call_function (void (*func) (void *info), void *info, int retry, 
+-								int wait)
++
++int smp_call_function_on_cpu (void (*func) (void *info), void *info, int wait,
++				unsigned long mask)
+ {
+-	int cpus = smp_num_cpus - 1;
+-	int i;
++	int cpu, i, num_cpus;
+ 
+-	if (smp_num_cpus < 2) {
+-		return 0;
++	cpu = get_cpu();
++	mask &= ~(1UL << cpu);
++	num_cpus = hweight32(mask);
++	if (num_cpus == 0) {
++		put_cpu_no_resched();
++		return -EINVAL;
+ 	}
+ 
+ 	spin_lock(&smp_fn_call.lock);
+@@ -209,19 +219,24 @@
+ 	smp_fn_call.fn = func;
+ 	smp_fn_call.data = info;
+ 
+-	for (i = 0; i < smp_num_cpus; i++) {
+-		if (i != smp_processor_id()) {
++	for (i = 0; i < NR_CPUS; i++) {
++		if (cpu_online(i) && ((1UL << i) & mask))
+ 			/* Call the board specific routine */
+ 			core_call_function(i);
+-		}
+ 	}
+ 
+ 	if (wait) {
+-		while(atomic_read(&smp_fn_call.finished) != cpus) {}
++		while(atomic_read(&smp_fn_call.finished) != num_cpus) {}
+ 	}
+ 
+ 	spin_unlock(&smp_fn_call.lock);
++	put_cpu_no_resched();
+ 	return 0;
++}
++
++int smp_call_function (void (*func) (void *info), void *info, int retry, int wait)
++{
++	return smp_call_function_on_cpu(func, info, wait, cpu_online_map);
+ }
+ 
+ void synchronize_irq(void)

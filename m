@@ -1,38 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261538AbVAGTNu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261531AbVAGTPY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261538AbVAGTNu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 14:13:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261535AbVAGTNu
+	id S261531AbVAGTPY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 14:15:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261535AbVAGTOG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 14:13:50 -0500
-Received: from [213.146.154.40] ([213.146.154.40]:13763 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261538AbVAGTMg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 14:12:36 -0500
-Date: Fri, 7 Jan 2005 19:12:34 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Christoph Hellwig <hch@infradead.org>, Vladimir Saveliev <vs@namesys.com>,
-       linux-mm <linux-mm@kvack.org>, Andrew Morton <akpm@osdl.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] per thread page reservation patch
-Message-ID: <20050107191234.GA14108@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Vladimir Saveliev <vs@namesys.com>, linux-mm <linux-mm@kvack.org>,
-	Andrew Morton <akpm@osdl.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <20050103011113.6f6c8f44.akpm@osdl.org> <20050103114854.GA18408@infradead.org> <41DC2386.9010701@namesys.com> <1105019521.7074.79.camel@tribesman.namesys.com> <20050107144644.GA9606@infradead.org> <1105118217.3616.171.camel@tribesman.namesys.com> <20050107190545.GA13898@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050107190545.GA13898@infradead.org>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 7 Jan 2005 14:14:06 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15540 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261531AbVAGTLm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 14:11:42 -0500
+Message-ID: <41DEDEE5.5020908@pobox.com>
+Date: Fri, 07 Jan 2005 14:11:33 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Francois Romieu <romieu@fr.zoreil.com>
+CC: Netdev <netdev@oss.sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: netdev-2.6 queue updated
+References: <41DE73B5.6080303@pobox.com> <20050107190426.GA17017@electric-eye.fr.zoreil.com>
+In-Reply-To: <20050107190426.GA17017@electric-eye.fr.zoreil.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Now the big question is, what's synchronizing access to
-> current->private_pages?
+Francois Romieu wrote:
+> Jeff Garzik <jgarzik@pobox.com> :
+> [...]
+> 
+>>  o r8169: oversized driver field for ethtool
+>>  o r8169: reduce max MTU for large frames
+>>  o r8169: Large Send enablement
+>>  o r8169: C 101
+>>  o r8169: missing netif_poll_enable and irq ack
+> 
+> 
+> Imho you can push these changes to mainline (with due credit to
+> Jon D Mason for its contributions).
 
-Umm, it's obviously correct as we're thread-local.  Objection taken back :)
+Yep, it's going in the next batch.  Most of netdev-2.6 is bound for 
+mainline "soon".
+
+	Jeff
+
+
 

@@ -1,73 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281893AbRKUO0q>; Wed, 21 Nov 2001 09:26:46 -0500
+	id <S281757AbRKUOlH>; Wed, 21 Nov 2001 09:41:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281675AbRKUO0j>; Wed, 21 Nov 2001 09:26:39 -0500
-Received: from [195.157.147.30] ([195.157.147.30]:35090 "HELO
-	pookie.dev.sportingbet.com") by vger.kernel.org with SMTP
-	id <S281255AbRKUO0d>; Wed, 21 Nov 2001 09:26:33 -0500
-Date: Wed, 21 Nov 2001 14:24:37 +0000
-From: Sean Hunter <sean@uncarved.com>
-To: Jan Hudec <bulb@ucw.cz>, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] Bad #define, nonportable C, missing {}
-Message-ID: <20011121142437.A24408@dev.sportingbet.com>
-Mail-Followup-To: Sean Hunter <sean@uncarved.com>, Jan Hudec <bulb@ucw.cz>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <01112112401703.01961@nemo> <3BFB9FAE.DB9B6003@dexterus.com> <20011121143738.D2196@artax.karlin.mff.cuni.cz>
-Mime-Version: 1.0
+	id <S281434AbRKUOk5>; Wed, 21 Nov 2001 09:40:57 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:365 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S281395AbRKUOkr>; Wed, 21 Nov 2001 09:40:47 -0500
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: "David S. Miller" <davem@redhat.com>, <linux-mm@kvack.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.14 + Bug in swap_out.
+In-Reply-To: <Pine.LNX.4.33L.0111211219420.1491-100000@duckman.distro.conectiva>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 21 Nov 2001 07:21:45 -0700
+In-Reply-To: <Pine.LNX.4.33L.0111211219420.1491-100000@duckman.distro.conectiva>
+Message-ID: <m1d72c19xi.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011121143738.D2196@artax.karlin.mff.cuni.cz>; from bulb@ucw.cz on Wed, Nov 21, 2001 at 02:37:38PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The great thing about the C standard is that you don't have to know, or guess,
-or remember.  I respectfully suggest that all of those who are interested in
-this topic buy a copy of K&R Second Edition (ISBN 0-13-110370-9), and read
-chapter 2, particularly section 2.12 "Precedence and order of Evaluation".
+Rik van Riel <riel@conectiva.com.br> writes:
 
-And take this facinating topic off-line.
+> On 21 Nov 2001, Eric W. Biederman wrote:
+> 
+> > We only hold a ref count for the duration of swap_out_mm.
+> > Not for the duration of the value in swap_mm.
+> 
+> In that case, why can't we just take the next mm from
+> init_mm and just "roll over" our mm to the back of the
+> list once we're done with it ?
 
-Sean
+Sounds good to me.  Unless we have another user for that list.
+ 
+> Removing magic is good ;)
 
-On Wed, Nov 21, 2001 at 02:37:38PM +0100, Jan Hudec wrote:
-> > >     *a++ = byte_rev[*a]
-> > It looks perferctly okay to me. Anyway, whenever would you listen to a
-> > C++ book talking about good C coding :p
-> 
-> AFAIK the ANSI C specification explicitely claims, that it's not defined.
-> The trick is, that the specification explicitly allows the compiler to
-> choose wether it does the inc/dec right after/before the fetch, or at the
-> begin/end of evaluation. Thus the second reference to a might return the
-> original or incremented value at compiler's will.
-> 
-> > Go read up on C operator precedence. Unary ++ comes before %, so if we
-> > rewrite the #define to make it more "readable" it would be #define
-> > MODINC(x,y) (x = (x+1) % y)
-> 
-> *NO* 
-> MODINC(x,y) (x = (x+1) % y)
-> is correct and beaves as expected. Unfortunately:
-> MODINC(x,y) (x = x++ % y)
-> is a nonsence, because the evaluation is something like this
-> x++ returns x
-> x++ % y returns x % y
-> x is assigned the result and it's incremented IN UNDEFINED ORDER!!!
-> AFAIK the ANSI C spec explicitly undefines the order.
-> 
-> > >     *a++ = byte_rev[*a];
-> > C std says *always* evaluate from right to left for = operators, so this
-> > will always make perfect sense.
-> Yes, this should make perfect sense, but I fear the spec talks about
-> operand used twice, once with side-efect generaly. So to be ANSI C
-> correct, it's not good.
-> 
-> -------------------------------------------------------------------------------
->                   				- Jan Hudec `Bulb' <bulb@ucw.cz>
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Definitely.  Things that are locally correct are much easier
+to verify and trust.  I'm satisfied for the moment that it isn't
+actually broken.  But more obvious code is definitely a plus
+if we can get it.
+
+Eric

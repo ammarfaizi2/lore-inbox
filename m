@@ -1,80 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261333AbUJZQvI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261335AbUJZQyW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261333AbUJZQvI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 12:51:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbUJZQvI
+	id S261335AbUJZQyW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 12:54:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261337AbUJZQyW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 12:51:08 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:29862 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261333AbUJZQvE
+	Tue, 26 Oct 2004 12:54:22 -0400
+Received: from king.bitgnome.net ([66.207.162.30]:28140 "EHLO
+	king.bitgnome.net") by vger.kernel.org with ESMTP id S261335AbUJZQyT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 12:51:04 -0400
-Subject: Re: [Ext2-devel] Re: [PATCH 2/3] ext3 reservation allow turn off
-	for specifed file
-From: Mingming Cao <cmm@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: ray-lk@madrabbit.org, sct@redhat.com, pbadari@us.ibm.com,
-       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-In-Reply-To: <20041025164516.1f02bb9f.akpm@osdl.org>
-References: <1097846833.1968.88.camel@sisko.scot.redhat.com>
-	<1097856114.4591.28.camel@localhost.localdomain>
-	<1097858401.1968.148.camel@sisko.scot.redhat.com>
-	<1097872144.4591.54.camel@localhost.localdomain>
-	<1097878826.1968.162.camel@sisko.scot.redhat.com> <109787 
-	<1098147705.8803.1084.camel@w-ming2.beaverton.ibm.com>
-	<1098294941.18850.4.camel@orca.madrabbit.org>
-	<1098736389.9692.7243.camel@w-ming2.beaverton.ibm.com>
-	<1098745548.9754.7427.camel@w-ming2.beaverton.ibm.com> 
-	<20041025164516.1f02bb9f.akpm@osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 26 Oct 2004 09:53:20 -0700
-Message-Id: <1098809607.8919.7466.camel@w-ming2.beaverton.ibm.com>
+	Tue, 26 Oct 2004 12:54:19 -0400
+Date: Tue, 26 Oct 2004 11:53:49 -0500
+From: Mark Nipper <nipsy@bitgnome.net>
+To: Charles Shannon Hendrix <shannon@widomaker.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: My thoughts on the "new development model"
+Message-ID: <20041026165349.GA61911@king.bitgnome.net>
+References: <20041023000956.GI17038@holomorphy.com> <417D6CD9.2090702@tmr.com> <20041026161247.GB28427@widomaker.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041026161247.GB28427@widomaker.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-10-25 at 16:45, Andrew Morton wrote:
-> Mingming Cao <cmm@us.ibm.com> wrote:
-> >
-> > 	/*
-> > +	 * if user passed a seeky-access hint to kernel,
-> > +	 * through POSIX_FADV_RANDOM,(file->r_ra.ra_pages is cleared)
-> > +	 * turn off reservation for block allocation correspondingly.
-> > +	 *
-> > +	 * Otherwise, if user switch back to POSIX_FADV_SEQUENTIAL or
-> > +	 * POSIX_FADV_NORMAL, re-open the reservation window.
-> > +	 */
-> > +	windowsz = atomic_read(&EXT3_I(inode)->i_rsv_window.rsv_goal_size);
-> > +	if ((windowsz > 0) && (!file->f_ra.ra_pages))
-> > +		atomic_set(&EXT3_I(inode)->i_rsv_window.rsv_goal_size, -1);
-> > +	if ((windowsz == -1) && file->f_ra.ra_pages)
-> > +		atomic_set(&EXT3_I(inode)->i_rsv_window.rsv_goal_size,
-> > +					EXT3_DEFAULT_RESERVE_BLOCKS);
-> > +
-> 
-> It's pretty sad that we add this extra code into ext3_prepare_write() -
-> it's almost never actually executed.
-> 
-:(
+On 26 Oct 2004, Charles Shannon Hendrix wrote:
+> > I note that BSD has another serious fork 
 
-> I wonder how important this optimisation really is?  I bet no applications
-> are using posix_fadvise(POSIX_FADV_RANDOM) anyway.
-> 
-I don't know if there is application using the POSIX_FADV_RANDOM. No? If
-this is the truth, I think we don't need this optimization at present.
-Logically reservation does not benefit seeky random write, but there is
-no benchmark showing performance issue so far. We have already provided
-ways for applications turn off reservation through the existing ioctl
-for specified file and -o noreservation mount option for the whole
-filesystem.
+	I assume he means DragonFly BSD.  Looks promising so far.
+I still prefer Linux for most things personally though.  :)
 
-> It we really see that benefits are available from this approach we probably
-> need to bite the bullet and add file_operations.fadvise()
-> 
-I agree.
+http://www.dragonflybsd.org/
 
-Mingming
+-- 
+Mark Nipper                                                e-contacts:
+4475 Carter Creek Parkway                           nipsy@bitgnome.net
+Apartment 724                               http://nipsy.bitgnome.net/
+Bryan, Texas, 77802-4481           AIM/Yahoo: texasnipsy ICQ: 66971617
+(979)575-3193                                      MSN: nipsy@tamu.edu
 
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.1
+GG/IT d- s++:+ a- C++$ UBL++++$ P--->+++ L+++$ !E---
+W++(--) N+ o K++ w(---) O++ M V(--) PS+++(+) PE(--)
+Y+ PGP t+ 5 X R tv b+++@ DI+(++) D+ G e h r++ y+(**)
+------END GEEK CODE BLOCK------
 
+---begin random quote of the moment---
+"I do not know whether I was then a man dreaming I was a
+butterfly, or whether I am now a butterfly dreaming I am a man."
+ -- Chang Tzu
+----end random quote of the moment----

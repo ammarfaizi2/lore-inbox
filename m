@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261839AbTCLR5q>; Wed, 12 Mar 2003 12:57:46 -0500
+	id <S261805AbTCLSEs>; Wed, 12 Mar 2003 13:04:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261840AbTCLR5q>; Wed, 12 Mar 2003 12:57:46 -0500
-Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:26347 "EHLO
-	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id <S261839AbTCLR5p>; Wed, 12 Mar 2003 12:57:45 -0500
-Date: Wed, 12 Mar 2003 19:08:19 +0100
-From: Martin Waitz <tali@admingilde.org>
-To: Giuliano Pochini <pochini@shiny.it>
-Cc: Davide Libenzi <davidel@xmailserver.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch, rfc] lt-epoll ( level triggered epoll ) ...
-Message-ID: <20030312180819.GB27366@admingilde.org>
-Mail-Followup-To: Giuliano Pochini <pochini@shiny.it>,
-	Davide Libenzi <davidel@xmailserver.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.50.0303101139520.1922-100000@blue1.dev.mcafeelabs.com> <XFMail.20030311171056.pochini@shiny.it>
+	id <S261811AbTCLSEs>; Wed, 12 Mar 2003 13:04:48 -0500
+Received: from to-wiznet.redhat.com ([216.129.200.2]:34030 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S261805AbTCLSEr>; Wed, 12 Mar 2003 13:04:47 -0500
+Date: Wed, 12 Mar 2003 13:15:31 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+Cc: Linux Kernel Maillist <linux-kernel@vger.kernel.org>,
+       linux-ns83820@kvack.org
+Subject: Re: problem w/ auto negotiate & ns83820 & netgear fsm726s switch
+Message-ID: <20030312131531.F16642@redhat.com>
+References: <Pine.LNX.4.53.0303120908470.21265@filesrv1.baby-dragons.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <XFMail.20030311171056.pochini@shiny.it>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.53.0303120908470.21265@filesrv1.baby-dragons.com>; from babydr@baby-dragons.com on Wed, Mar 12, 2003 at 09:11:02AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 11, 2003 at 05:10:56PM +0100, Giuliano Pochini wrote:
-> If ET il faster than LT, tell people to stop whining and to learn
-> the API. Otherwise choose LT, mainly because of 2), but also
-> because ET API is more subtle bug prone.
+On Wed, Mar 12, 2003 at 09:11:02AM -0500, Mr. James W. Laferriere wrote:
+> 	The switch reports negotiating ...
+> 	Port Name        Link On/Off State      Rate/Duplex Flow Ctrl
+> 	26GB Not Defined Up   On     Forwarding (10   Full) (Disabled)
+> 
+> 	ns83820 reports ,  eth0: link now 1000F mbps, full duplex and up.
+...
+> 	I am quite aware that this could well be a difficulty in the
+> 	switch still .  So I am looking for pointers on where to look ?
+>  	I already tried the netgear suport site ;-} .  That is why I am
+> 	running the lastest code for the switch (1.0.4) .
 
-in some situations, ET simply has wrong semantics.
+It's entirely possible the card has a different polarity for the phy bits 
+as compared to the fibre card (Netgear) that the driver is already tested 
+on.  Also, I've only managed to test on a cisco switch -- is there any 
+other hardware you can test against (ie using the fibre cable for cross 
+over) to narrow things down?  Enabling debug and dumping the status bits 
+might hint as to what has to be changed.  Thankfully Trendnet seems to 
+have programmed the subsystem id, so I'll be able to include the change 
+automatically.
 
--- 
-CU,		  / Friedrich-Alexander University Erlangen, Germany
-Martin Waitz	//  [Tali on IRCnet]  [tali.home.pages.de] _________
-______________/// - - - - - - - - - - - - - - - - - - - - ///
-dies ist eine manuell generierte mail, sie beinhaltet    //
-tippfehler und ist auch ohne grossbuchstaben gueltig.   /
-			    -
-Wer bereit ist, grundlegende Freiheiten aufzugeben, um sich 
-kurzfristige Sicherheit zu verschaffen, der hat weder Freiheit 
-noch Sicherheit verdient.            Benjamin Franklin (1706 - 1790)
+		-ben

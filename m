@@ -1,56 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132704AbRA3Wiz>; Tue, 30 Jan 2001 17:38:55 -0500
+	id <S132446AbRA3WnR>; Tue, 30 Jan 2001 17:43:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132785AbRA3Wip>; Tue, 30 Jan 2001 17:38:45 -0500
-Received: from usuario0-37-165-207.dialup.uni2.es ([62.37.165.207]:56992 "EHLO
-	TeLeNiEkO") by vger.kernel.org with ESMTP id <S132704AbRA3Wij>;
-	Tue, 30 Jan 2001 17:38:39 -0500
-Date: Tue, 30 Jan 2001 23:35:49 +0100
-From: TeLeNiEkO <telenieko@telenieko.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2 Possible bugs, 1 'stuff'
-Message-ID: <20010130233549.A5149@telenieko.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-X-Mailer: Mutt 1.3.12i
-X-Editor: GNU Emacs 20.7.2
-X-Info: http://www.telenieko.com
-X-Operating-System: Linux(TeLeNiEkO)/2.4.0 (i686)
-X-Uptime: 11:23pm  up 9 days, 10:26,  8 users,  load average: 0.27, 0.27, 0.26
+	id <S132569AbRA3WnJ>; Tue, 30 Jan 2001 17:43:09 -0500
+Received: from www.llamacom.com ([209.152.94.130]:23827 "HELO www.llamacom.com")
+	by vger.kernel.org with SMTP id <S132446AbRA3Wmz>;
+	Tue, 30 Jan 2001 17:42:55 -0500
+Date: Tue, 30 Jan 2001 16:42:52 -0600 (CST)
+From: Eric Molitor <emolitor@molitor.org>
+To: Jurgen Botz <jurgen@botz.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Wavelan IEEE driver 
+In-Reply-To: <200101302222.OAA04184@nova.botz.org>
+Message-ID: <Pine.LNX.4.10.10101301637300.27121-100000@www.llamacom.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On kernel 2.4.0:
- The ne2k-pci driver (NE2000 PCI) cannont be compiled as a module. I tried it on two computers and I had really hard problems.
- I built it in. If this wasn't notified yet let me know and I'll recompile the kernel to get the exact error message and bring it to you. (It was about unresolved simbols, you won't need to habe the card to see it!)
+On Tue, 30 Jan 2001, Jurgen Botz wrote:
 
-The other think is about Traffic Shaping and QoS:
-Wendy:/etc/ipconf# tc filter add dev eth1 parent 1:0 protocol ip prio 100 u32 match ip dst 192.168.0.69 flowid 1:2
-RTNETLINK answers: Invalid argument
+> Eric Molitor wrote:
+> > I updated the Wavelan IEEE driver from 2.3.50 so that it builds with 2.4.0
+> > (The 2.3.50 patch is available at
+> > http://www.fasta.fh-dortmund.de/users/andy/wvlan/ ) It works for me but
+> > I've heard there are issues with firmware 6.xx not initializing.
+> > 
+> > The patch against 2.4.0 is at http://www.molitor.org/wavelan
+> 
+> Actually the 1.0.6 driver included in the latest pcmcia-cs packages
+> works with 2.4.  Normally, when you build pcmcia-cs against a 2.4
+> kernel the modules are not built since they are supposed to be included
+> with the kernel... obviously not all of them are, however.  You can
+> force it to build the wvlan_cs driver by adding "wireless" to the
+> end of DIRS in the top-level makefile.  This will successfully build
+> the wvlan_cs module, which can then be inserted into a 2.4 kernel
+> and appears to work.  I did observe a problem with iwconfig dumping
+> core, but it seems to do its job before it dies, so this may be non-
+> critical.
+>
 
-Both 1:0 and 1:2 are created, and according to the howto that should run (and it did on 2.2.18), if you want I'll send you a complete list of the commands issued to 'tc'.
+Hmm, this probably should be commented in the wavelan.txt file within the
+kernel. What is the intention with pcmcia-cs and the kernel in regards to
+pcmcia modules. Is the intention to roll the drivers into the kernel 
+(ALA the tulip module and other various pcmcia modules in 2.4.xx) or is
+the intention to keep them in the pcmcia-cs package.
+ 
+> The 1.0.6 driver is dated Dec-7-2000 and supports all the latest
+> "orinico" firmware revisions.  Somebody with the time and inclination
+> should probably integrate it into the main kernel source and send a
+> patch to Linus.
+> 
 
-(Traffic Shaper and QoS was compiled as built-in, i got more unresolved simbols having them as modules!)
+I'll probably look at doing that when I get back into town next
+week. Although that depends on the answer to the above.
 
-The other thing...
- Many new users are coming to linux world. But the BUG-HUNTING really goes far for a lot of people. Many people are trying linux for first time, after 2 months they try to get witth kernel update and OOOhh, they find a bug! then:
- a) They don't find a nice button to notify the bug on their desktop... and the most clever can't find it on a website.
- b) When they read the BUG-HUNTING doc they just get the windows CD and go back to monkeys world.
+Cheers, Eric Molitor
 
-So, as Linux intends to approach to more "home-users" each day, there should be an easier way to notify bugs, for thoose users. Remember that it's while you mess up with things is when bugs appear. 
-And there's nothing better than a novice user to mess-up with a kernel ;o)
-
-So, try to find an easier, but reallybly way, for notifiing bugs (a form on kernel.org won't do much!)
-
-And let me know about the ne2k-pci and TF bugs (if they are).
-
-sincerelly,
- TeLeNiEkO (Barcelona, Spain)
-
-PD: If you want full info about one of the "bugs" let me know, and I'll do my best to recompile the kernel.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

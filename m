@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270261AbUJTBNv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270273AbUJTBNv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270261AbUJTBNv (ORCPT <rfc822;willy@w.ods.org>);
+	id S270273AbUJTBNv (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 19 Oct 2004 21:13:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270271AbUJTBIt
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270261AbUJTBJG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 21:08:49 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:25517 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S270261AbUJTBHe (ORCPT
+	Tue, 19 Oct 2004 21:09:06 -0400
+Received: from palrel13.hp.com ([156.153.255.238]:22194 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S269536AbUJTBGu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 21:07:34 -0400
-Date: Tue, 19 Oct 2004 18:07:33 -0700
+	Tue, 19 Oct 2004 21:06:50 -0400
+Date: Tue, 19 Oct 2004 18:06:49 -0700
 To: "David S. Miller" <davem@davemloft.net>,
        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6 IrDA] Stir driver usb reset fix
-Message-ID: <20041020010733.GJ12932@bougret.hpl.hp.com>
+Subject: [PATCH 2.6 IrDA] Debug module param
+Message-ID: <20041020010649.GI12932@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -26,36 +26,25 @@ From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-irXXX_stir_reset.diff :
-~~~~~~~~~~~~~~~~~~~~~
+irXXX_debug_mod_parm.diff :
+~~~~~~~~~~~~~~~~~~~~~~~~~
 		<Patch from Stephen Hemminger>
-	o [CORRECT] stir4200 - get rid of reset on speed change
-The Sigmatel 4200 doesn't accept the address setting which gets done on
-USB reset.  The USB core recently changed to resend address (or
-something like that), so usb_reset_device is failing.
-
-The device works without doing the USB reset on speed change, it just
-will be less robust in recovering when things get wedged (like coming
-out of FIR mode).
+	o [CORRECT] irda 2.6 - fix module info
+The module parameter info for irda is incorrect.
+The debug parameter is named "debug", the variable is irda_debug.
 
 Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
 Signed-off-by: Jean Tourrilhes <jt@hpl.hp.com>
 
-
-diff -Nru a/drivers/net/irda/stir4200.c b/drivers/net/irda/stir4200.c
---- a/drivers/net/irda/stir4200.c	2004-10-08 14:01:29 -07:00
-+++ b/drivers/net/irda/stir4200.c	2004-10-08 14:01:29 -07:00
-@@ -520,11 +520,6 @@
-  found:
- 	pr_debug("speed change from %d to %d\n", stir->speed, speed);
+diff -Nru a/net/irda/irmod.c b/net/irda/irmod.c
+--- a/net/irda/irmod.c	2004-10-08 10:48:24 -07:00
++++ b/net/irda/irmod.c	2004-10-08 10:48:24 -07:00
+@@ -62,7 +62,7 @@
+ #ifdef CONFIG_IRDA_DEBUG
+ unsigned int irda_debug = IRDA_DEBUG_LEVEL;
+ module_param_named(debug, irda_debug, uint, 0);
+-MODULE_PARM_DESC(irda_debug, "IRDA debugging level");
++MODULE_PARM_DESC(debug, "IRDA debugging level");
+ EXPORT_SYMBOL(irda_debug);
+ #endif
  
--	/* sometimes needed to get chip out of stuck state */
--	err = usb_reset_device(stir->usbdev);
--	if (err)
--		goto out;
--
- 	/* Reset modulator */
- 	err = write_reg(stir, REG_CTRL1, CTRL1_SRESET);
- 	if (err)
-
-

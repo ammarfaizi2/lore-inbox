@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283375AbRLEPmb>; Wed, 5 Dec 2001 10:42:31 -0500
+	id <S283536AbRLEPoM>; Wed, 5 Dec 2001 10:44:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282955AbRLEPmX>; Wed, 5 Dec 2001 10:42:23 -0500
-Received: from colorfullife.com ([216.156.138.34]:7186 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S283274AbRLEPmO>;
-	Wed, 5 Dec 2001 10:42:14 -0500
-Message-ID: <3C0E4055.4060201@colorfullife.com>
-Date: Wed, 05 Dec 2001 16:42:13 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
+	id <S283443AbRLEPoD>; Wed, 5 Dec 2001 10:44:03 -0500
+Received: from relay6.gateway.net ([208.230.117.245]:34564 "EHLO
+	smtp1.gateway.net") by vger.kernel.org with ESMTP
+	id <S283410AbRLEPnt>; Wed, 5 Dec 2001 10:43:49 -0500
+Date: Wed, 5 Dec 2001 15:43:44 +0000 (GMT)
+From: Neil Stone <neil@flashtek.co.uk>
+X-X-Sender: <neil@linux.flashtek>
+cc: <linux-kernel@vger.kernel.org>
+Subject: 2.4.16 problem....
+In-Reply-To: <200112051527.KAA21483@mx-a.awc.net>
+Message-ID: <Pine.LNX.4.33.0112051541110.4205-100000@linux.flashtek>
 MIME-Version: 1.0
-To: Giuliano Pochini <pochini@shiny.it>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] improve spinlock debugging
-In-Reply-To: <XFMail.20011205094744.pochini@shiny.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Giuliano Pochini wrote:
+Hello all,
 
->
->It's very useful to log when a lock(irq) is held more than xx ms
->and who is the caller. Is it possible ?
->
-Have you looked at SGI's lockmeter patch?
-It's very good to check performance numbers of spinlocks.
+This is my first post to the group and i would like some assistance with a 
+question about kernel compilation....
 
---   
-    Manfred
+I have an AMD K6-2 500 w/ 256 MB RAM, RedHat linux 7.2 and Kernel 2.4.16
+
+When i try to re-compile my kernel it dosn't work unles i include SMP 
+support.... any ideas why ? a few of my mates have the same problem !! 
+(unsure of their system specs)
+
+Any help appreciated..
+
+Neil Stone
 

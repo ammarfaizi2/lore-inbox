@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286278AbRL0Nry>; Thu, 27 Dec 2001 08:47:54 -0500
+	id <S286275AbRL0NsE>; Thu, 27 Dec 2001 08:48:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286274AbRL0Nre>; Thu, 27 Dec 2001 08:47:34 -0500
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:10715 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S285134AbRL0Nr2>; Thu, 27 Dec 2001 08:47:28 -0500
-Date: 27 Dec 2001 13:18:00 +0200
+	id <S286272AbRL0Nrz>; Thu, 27 Dec 2001 08:47:55 -0500
+Received: from mailout09.sul.t-online.com ([194.25.134.84]:27790 "EHLO
+	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S286279AbRL0Nrj>; Thu, 27 Dec 2001 08:47:39 -0500
+Date: 27 Dec 2001 13:57:00 +0200
 From: kaih@khms.westfalen.de (Kai Henningsen)
 To: linux-kernel@vger.kernel.org
-Message-ID: <8FeKheImw-B@khms.westfalen.de>
-In-Reply-To: <20011221205711.GA32465@weta.f00f.org>
+Message-ID: <8FeKj4zXw-B@khms.westfalen.de>
+In-Reply-To: <20011220234939.A32287@suse.cz>
 Subject: Re: Configure.help editorial policy
 X-Mailer: CrossPoint v3.12d.kh8 R/C435
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <20011221153136.G15926@redhat.com> <20011221141847.E15926@redhat.com> <20011221201033.GA32368@weta.f00f.org> <20011221153136.G15926@redhat.com> <20011221205711.GA32465@weta.f00f.org>
+In-Reply-To: <20011220143247.A19377@thyrsus.com> <esr@thyrsus.com> <20011220143247.A19377@thyrsus.com> <20011220234939.A32287@suse.cz>
 X-No-Junk-Mail: I do not want to get *any* junk mail.
 Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
 X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-cw@f00f.org (Chris Wedgwood)  wrote on 22.12.01 in <20011221205711.GA32465@weta.f00f.org>:
+vojtech@suse.cz (Vojtech Pavlik)  wrote on 20.12.01 in <20011220234939.A32287@suse.cz>:
 
-> Standards exist to make peoples lives easier, the fact the hard drive
-> and memory vendors currently don't use these phrases right now doesn't
-> make the standard wrong --- this world is full of clue-less marketing
-> people and nothing will change this.
+> Now my opinion on this would be: By sticking KiB everywhere nothing is
+> helped. To the knowledgeable, it's nothing new that memory is measured
+> in binary units, while ethernet speed in decimal ones. To the newbie,
+> KiB is about as cryptical as KB and he'll never know which is which,
+> because as a newbie (s)he didn't read the standards.
 
-Oh, it can be changed. Just the way car advertising has been changed to  
-use kW. (Well, it has over here.) And the way monitor size advertising is  
-in the process of being changed to use SI units, not US ones.
+Well, considering that I had to look at half a dozen web pages via Google  
+to make sure that ethernet did, indeed, use decimal, despite having been  
+in the industry for about a decade, I'd say that this *would* help.
 
-Fair advertising laws can be rather effective.
+And the newbie would at least recognize that there is something going on,  
+learning about which just might be a good idea. And the answer would  
+presumably come not out of a standard, but out of a FAQ.
+
+> And speaking of the 1 Mbps connection - I fear that in many cases
+> that'll be 1024000 bytes per second. What M is that? Binary or decimal?
+
+A lied-about one. These abominations deserve to die, yesterday.  
+Preferrably messily.
+
+> Who does care?
+
+If you're selling it to me, I certainly do.
 
 MfG Kai

@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278423AbRJSPLh>; Fri, 19 Oct 2001 11:11:37 -0400
+	id <S278429AbRJSPT6>; Fri, 19 Oct 2001 11:19:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278424AbRJSPL2>; Fri, 19 Oct 2001 11:11:28 -0400
-Received: from [206.162.172.138] ([206.162.172.138]:63738 "EHLO
-	remtk.solucorp.qc.ca") by vger.kernel.org with ESMTP
-	id <S278423AbRJSPLI>; Fri, 19 Oct 2001 11:11:08 -0400
-From: Jacques Gelinas <jack@solucorp.qc.ca>
-Date: Fri, 19 Oct 2001 11:11:47 -0500
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Announce: many virtual servers on a single box (ipv6)
-Cc: Riley Williams <rhw@memalpha.cx>
-X-mailer: tlmpmail 0.1
-Message-ID: <20011019111147.482a46f3e2d4@remtk.solucorp.qc.ca>
+	id <S278427AbRJSPTs>; Fri, 19 Oct 2001 11:19:48 -0400
+Received: from cs6625129-123.austin.rr.com ([66.25.129.123]:49420 "HELO
+	dragon.taral.net") by vger.kernel.org with SMTP id <S278426AbRJSPTj> convert rfc822-to-8bit;
+	Fri, 19 Oct 2001 11:19:39 -0400
+Date: Fri, 19 Oct 2001 10:21:36 -0500
+From: Taral <taral@taral.net>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Patrick Mochel <mochelp@infinity.powertie.org>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [RFC] New Driver Model for 2.5
+Message-ID: <20011019102136.C30774@taral.net>
+In-Reply-To: <3BCE7568.1DAB9FF0@mandrakesoft.com> <20011018121318.17949@smtp.adsl.oleane.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Oct 2001 09:11:44 -0500, Riley Williams wrote
-> Hi Jacques.
+On Thu, Oct 18, 2001 at 02:13:18PM +0200, Benjamin Herrenschmidt wrote:
+> I would add to the generic structure device, a "uuid" string field.
+> This field would contain a "munged" unique identifier composed of
+> the bus type followed which whatever bus-specific unique ID is
+> provided by the driver. If the driver don't provide one, it defaults
+> to a copy of the busID.
+> 
+> What I have in mind here is to have a common place to look for the
+> best possible unique identification for a device. Typical example are
+> ieee1394 hard disks which do have a unique ID, and so can be properly
+> tracked between insertion removal.
 
-> > The concept is both very simple and sound
->
-> ...
->
-> > 	set_ipv4root to tie all processes in a vserver to one IP.
->
-> How well does this work on an ipv6 only box?
+Actually, if this field were to be added, I think it would be far better
+to have it be NULL in the case where there is no ID which can be
+expected to remain the same on insert/remove. Otherwise we might have
+people getting very confused when someone removes device A and adds
+device B and they end up with the same "unique id" because neither one
+has a real unique id.
 
-For now, I guess it does not work. I have not tried it at all I must admit.
-I suspect a tiny patch will work though. The set_ipv4root() syscall only handle
-a u32 argument for now. It could be generalised I guess.
-
-
----------------------------------------------------------
-Jacques Gelinas <jack@solucorp.qc.ca>
-vserver: run general purpose virtual servers on one box, full speed!
-http://www.solucorp.qc.ca/miscprj/s_context.hc
+-- 
+Taral <taral@taral.net>
+This message is digitally signed. Please PGP encrypt mail to me.
+"Any technology, no matter how primitive, is magic to those who don't
+understand it." -- Florence Ambrose

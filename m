@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281806AbRKVW1b>; Thu, 22 Nov 2001 17:27:31 -0500
+	id <S281807AbRKVWkn>; Thu, 22 Nov 2001 17:40:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281807AbRKVW1M>; Thu, 22 Nov 2001 17:27:12 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:59405 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S281806AbRKVW1C>; Thu, 22 Nov 2001 17:27:02 -0500
-Date: Thu, 22 Nov 2001 14:21:15 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Leif Sawyer <lsawyer@gci.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>, <leif@denali.net>
-Subject: RE: Linux-2.4.15-pre9
-In-Reply-To: <BF9651D8732ED311A61D00105A9CA31506DB3B73@berkeley.gci.com>
-Message-ID: <Pine.LNX.4.33.0111221417001.1006-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281808AbRKVWkY>; Thu, 22 Nov 2001 17:40:24 -0500
+Received: from w089.z209220022.nyc-ny.dsl.cnc.net ([209.220.22.89]:1801 "HELO
+	yucs.org") by vger.kernel.org with SMTP id <S281807AbRKVWkE>;
+	Thu, 22 Nov 2001 17:40:04 -0500
+Subject: Thinkpad t21 hard lockup when left overnight
+From: Shaya Potter <spotter@cs.columbia.edu>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.2 (Preview Release)
+Date: 22 Nov 2001 17:39:44 -0500
+Message-Id: <1006468789.5778.7.camel@zaphod>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+When I've left my thinkpad on overnight (without apm --suspend'ing it)
+when I wake up in the morning, it's locked up hard.  For some reason it
+seems to run for a few hours w/o any interaction on the machine itself,
+then it just dies.  I did a test where I ssh'd into the box and ran a
+simple while [ 1 ] { data ; sleep 30 } test, and it died after 3,4 hours
+of inactivity.  
 
-On Thu, 22 Nov 2001, Leif Sawyer wrote:
->
-> adding the 'pci=biosirq' to my kernel boot command line causes an oops:
+I've seen this at least since 2.4.13-AC5, and see it currently in
+.15-pre8.  
 
-Well, you seem to have a buggered BIOS - the oops is actually in the BIOS
-segment, and the BIOS appears to try to re-load the ES segment register
-with some strange non-existing segment.
+I'm using the pcmcia package (instead of the kernel's because I can't
+get my orinoco card to work with the kernel's driver) and I always have
+my xircom (ibm rebranded) card inside when it crashes (so the associated
+module installed). I'm also using the thinkpad module (tpctl related). 
+I also have the cs46xx module installed, as well as using devfs + ext3
+(though would the last 2 really have anything to do with it?).  The
+kernel is compiled with usb support, and the rest should be a fairly
+normal kernel build.  How would I go about trying to diagnose why the
+machine is locking up hard.  
 
-Your BIOS PCI irq routing routines probably only work in real-mode or
-something like that.
+Nothing is in syslog when I reboot.
 
-This is the reason Linux avoids BIOS calls like the plague, and why you
-have to ask for them explicitly - the likelihood of any random BIOS being
-broken is actually rather high. That's probably because
+thanks,
 
- - the BIOS is written mostly in assembly
- - the BIOS is tested exclusively with DOS and Windows
- - most BIOS writers appear to simply be incompetent, or just not care.
-
-Not a good combination, in short.
-
-I'd love to just remove the support for BIOS calls entirely, but for every
-ten broken machines there is one machine that actually works, so..
-
-		Linus
+shaya potter
 

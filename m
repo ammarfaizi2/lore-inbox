@@ -1,69 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266910AbUFZBWZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266912AbUFZB3M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266910AbUFZBWZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 21:22:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266912AbUFZBWZ
+	id S266912AbUFZB3M (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 21:29:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266913AbUFZB3M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 21:22:25 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:14900 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S266910AbUFZBWX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 21:22:23 -0400
-Date: Sat, 26 Jun 2004 02:22:13 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mm lock ordering summary
-In-Reply-To: <20040625174150.7ad7ee97.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.44.0406260153380.20414-100000@localhost.localdomain>
+	Fri, 25 Jun 2004 21:29:12 -0400
+Received: from mail013.syd.optusnet.com.au ([211.29.132.67]:16832 "EHLO
+	mail013.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S266912AbUFZB3J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jun 2004 21:29:09 -0400
+Message-ID: <40DCD152.8050903@kolivas.org>
+Date: Sat, 26 Jun 2004 11:28:50 +1000
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.7 (X11/20040615)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+To: Matthias Urlichs <smurf@smurf.noris.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Staircase scheduler v7.4
+References: <40DC38D0.9070905@kolivas.org> <pan.2004.06.25.18.32.36.821877@smurf.noris.de>
+In-Reply-To: <pan.2004.06.25.18.32.36.821877@smurf.noris.de>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 Jun 2004, Andrew Morton wrote:
-> 
-> Yes, but what does
-> 
-> 	a
-> 	b
-> 	  c
-> 	  d
-> 
-> mean?
-> 
-> The above graph tells us that one or more of (swap_device_lock,
-> mapping->private_lock and inode_lock) nests inside one or more of
-> (swap_list_lock, zone->lru_lock and page->flags PG_maplock).
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Yes.  I think I ordered it so that it meant c and d nest inside b,
-and a's a leaf of less interest; but of course it's just good luck
-if any such ordering is possible.
+Matthias Urlichs wrote:
+| Con Kolivas wrote:
+|
+|
+|>+// interactive - interactive tasks get longer intervals at best
+|>priority
+|
+|
+| Hmmm... IIRC, C++ comments are frowned upon in the kernel.
 
-> And has no way of telling us _where_, say, swap_device_lock nests inside
-> zone->lru_lock.
+Good point. I will fatten it up with generous kernel style comments.
+|
+| Other than that: thanks for the work. Your comments seem to indicate that
+| INYO the staircase scheduler is ready for "real-world" kernels. Correct?
 
-Hence the comments, or search the source: this is only a summary.
+Almost. I needed wider audience testing which already has revealed two
+bugs it seems. Watch this space.
 
-> And it alleges that tree_lock nests inside lru_lock, which isn't so.  Is
-> it?  These guys used to have no locking relationship.  Hopefully that's
-> still the case.  But how to represent that?
+Con
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-It's alleging that you'll be okay if you write code with tree_lock
-nesting inside lru_lock, and you need to worry if you do the reverse.
-
-How is this summary used?  I use it to check whether I've got my locks
-in the right order.  Look at the summary and if what I've written fits
-with the sequence shown, I'm okay.  If not, I need to enquire further:
-think about changing around my new code to fit the ordering shown; if
-that's difficult then look through the source to find where those rules
-come from, think about changing them around; or, complicate (refine?)
-the summary to show that actually my new case is not a problem after all.
-
-I'm suggesting it be a checklist, rather than a declaration of truth:
-easier to maintain the checklist.  But I doubt I'm persuading you:
-please add page_map_lock and anon_vma->lock (but where and how many?).
-
-Hugh
-
+iD8DBQFA3NA0ZUg7+tp6mRURAnQCAKCAPG26O0YXCm75zjxnUBfm2N+UswCfeMxN
+NaguMXecXIIOeAl72wLYcRQ=
+=By+w
+-----END PGP SIGNATURE-----

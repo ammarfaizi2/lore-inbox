@@ -1,63 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289877AbSA2VAF>; Tue, 29 Jan 2002 16:00:05 -0500
+	id <S289882AbSA2VB0>; Tue, 29 Jan 2002 16:01:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289882AbSA2U7z>; Tue, 29 Jan 2002 15:59:55 -0500
-Received: from holomorphy.com ([216.36.33.161]:57502 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S289877AbSA2U7p>;
-	Tue, 29 Jan 2002 15:59:45 -0500
-Date: Tue, 29 Jan 2002 13:01:16 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Momchil Velikov <velco@fadata.bg>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Oliver Xymoron <oxymoron@waste.org>,
-        Rik van Riel <riel@conectiva.com.br>,
+	id <S289886AbSA2VBJ>; Tue, 29 Jan 2002 16:01:09 -0500
+Received: from waste.org ([209.173.204.2]:39383 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S289882AbSA2VAt>;
+	Tue, 29 Jan 2002 16:00:49 -0500
+Date: Tue, 29 Jan 2002 15:00:29 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: Rik van Riel <riel@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>,
         Josh MacDonald <jmacd@CS.Berkeley.EDU>,
-        linux-kernel <linux-kernel@vger.kernel.org>, reiserfs-list@namesys.com,
-        reiserfs-dev@namesys.com
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        <reiserfs-list@namesys.com>, <reiserfs-dev@namesys.com>
 Subject: Re: Note describing poor dcache utilization under high memory pressure
-Message-ID: <20020129130116.L899@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Momchil Velikov <velco@fadata.bg>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	Oliver Xymoron <oxymoron@waste.org>,
-	Rik van Riel <riel@conectiva.com.br>,
-	Josh MacDonald <jmacd@CS.Berkeley.EDU>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	reiserfs-list@namesys.com, reiserfs-dev@namesys.com
-In-Reply-To: <20020129123932.K899@holomorphy.com> <Pine.LNX.4.33.0201291240180.1223-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <Pine.LNX.4.33.0201291240180.1223-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Jan 29, 2002 at 12:49:24PM -0800
-Organization: The Domain of Holomorphy
+In-Reply-To: <E16VfBX-0000AN-00@starship.berlin>
+Message-ID: <Pine.LNX.4.44.0201291446460.25443-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 29, 2002 at 12:49:24PM -0800, Linus Torvalds wrote:
-> I really isn't a co-incidence. The reason so many architectures have page
-> table trees is that most architects try to make good decisions, and a tree
-> layout is a simple and efficient data structure that maps well to both
-> hardware and to usage patterns.
+On Tue, 29 Jan 2002, Daniel Phillips wrote:
 
-No debate there.
+> On January 29, 2002 06:25 pm, Rik van Riel wrote:
+> > On Tue, 29 Jan 2002, Oliver Xymoron wrote:
+> >
+> > > Daniel's approach seems to be workable (once he's spelled out all the
+> > > details) but it misses the big performance win for fork/exec, which is
+> > > surely the common case. Given that exec will be throwing away all these
+> > > mappings, we can safely assume that we will not be inheriting many shared
+> > > mappings from parents of parents so Daniel's approach also still ends up
+> > > marking most of the pages RO still.
+> >
+> > It gets worse.  His approach also needs to adjust the reference
+> > counts on all pages (and swap pages).
+>
+> Well, Rik, time to present your algorithm.  I assume it won't reference
+> counts on pages, and will do some kind of traversal of the mm tree.  Note
+> however, that I did investigate the class of algorithm you are interested in,
+> and found only nasty, complex solutions there, with challenging locking
+> problems.  (I also looked at a number of possible improvements to virtual
+> scanning, as you know, and likewise only found ugly or inadequate solutions.)
 
-On Tue, Jan 29, 2002 at 12:49:24PM -0800, Linus Torvalds wrote:
-> Hashed page tables are incredibly naive, and perform badly for build-up
-> and tear-down (and mostly have horrible cache access patterns). At least
-> in some version of the UltraSparc, the Linux tree-based software TLB fill
-> outperformed the Solaris version, even though the Solaris version was
-> handtuned assembly and used hardware acceleration for the hash
-> computations. That should tell you something.
+I think it goes something like this:
 
-Given this, it appears less useful to play with the representations.
-There also appears to be some other material on this subject which
-you yourself have written. I'll review that for my own enlightenment,
-and regardless, I'll focus on something else.
+fork:
+  detach page tables from parent
+  retain pointer to "backing page tables" in parent and child
+  update use count in page tables
+  "prefault" tables for current stack and instruction pages in both parent
+    and child
 
-Thanks again,
-Bill
+page fault:
+  if faulted on page table:
+    look up backing page tables
+    if use count > 1: copy, dec use count
+    else: take ownership
+
+> Before you sink a lot of time into it though, you might add up the actual
+> overhead you're worried about above, and see if it moves the needle in a real
+> system.
+
+I'm pretty sure something like the above does signficantly less work in
+the fork/exec case, which is the important one.
+
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+

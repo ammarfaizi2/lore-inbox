@@ -1,42 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266521AbUHOHXQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266324AbUHOHrN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266521AbUHOHXQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 03:23:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266525AbUHOHXQ
+	id S266324AbUHOHrN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 03:47:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266531AbUHOHrN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 03:23:16 -0400
-Received: from puzzle.sasl.smtp.pobox.com ([207.8.226.4]:23276 "EHLO
-	puzzle.pobox.com") by vger.kernel.org with ESMTP id S266521AbUHOHXP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 03:23:15 -0400
-Date: Sun, 15 Aug 2004 00:23:11 -0700
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: xerces8 <xerces8@butn.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: New versioning scheme ? ( 2.6.8.1 )
-Message-ID: <20040815072311.GA3343@ip68-4-98-123.oc.oc.cox.net>
-References: <WorldClient-F200408150404.AA04094351@butn.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <WorldClient-F200408150404.AA04094351@butn.net>
-User-Agent: Mutt/1.5.5.1i
+	Sun, 15 Aug 2004 03:47:13 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:60875 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S266324AbUHOHrM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Aug 2004 03:47:12 -0400
+Date: Sun, 15 Aug 2004 03:51:10 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] smp_call_function WARN_ON
+In-Reply-To: <411F08D1.7060400@colorfullife.com>
+Message-ID: <Pine.LNX.4.58.0408150337170.22078@montezuma.fsmlabs.com>
+References: <411F08D1.7060400@colorfullife.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 15, 2004 at 04:04:09AM +0200, xerces8 wrote:
-> Hi!
-> 
-> Can someone tell me why the ages old, established versioning scheme of
-> x.y.z was "abolished" and x.y.z.w was introduced ?
+On Sun, 15 Aug 2004, Manfred Spraul wrote:
 
-Explanation in general:
-http://kerneltrap.org/node/view/3522
-(you may want to search within that page for "2.6.20.1" to jump to the
-meat of the explanation)
+> Wrong: At least on i386 the code always waits for delivery of the IPI,
+> it just doesn't wait for completion of the callback.
+> Do you need IPIs from irq or bh context? It would be tricky to change
+> the current code: an IPI just delivers an interrupt without any payload.
+> The global 'call_data' variable contains the description of the IPI and
+> accesses to it must be synchronized.
 
-Explanation of why 2.6.8.1 and not 2.6.9 in this particular case:
-http://article.gmane.org/gmane.linux.kernel/225784
+Oops yes you're right, i'd have to setup a seperate vector to be able to
+do it without the wait entirely. Sorry about the noise.
 
--Barry K. Nathan <barryn@pobox.com>
+Thanks,
+	Zwane
 

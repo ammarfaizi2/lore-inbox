@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261728AbSJZATv>; Fri, 25 Oct 2002 20:19:51 -0400
+	id <S261733AbSJZAbs>; Fri, 25 Oct 2002 20:31:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261729AbSJZATu>; Fri, 25 Oct 2002 20:19:50 -0400
-Received: from mg01.austin.ibm.com ([192.35.232.18]:3789 "EHLO
-	mg01.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S261728AbSJZATt>; Fri, 25 Oct 2002 20:19:49 -0400
-Message-ID: <3DB9DA64.E48C8C5B@us.ibm.com>
-Date: Fri, 25 Oct 2002 18:57:24 -0500
-From: Jon Grimm <jgrimm2@us.ibm.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.5.44 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, vojtech@suse.cz
-Subject: 2.5.44: Still has KVM + Mouse issues
-Content-Type: text/plain; charset=us-ascii
+	id <S261742AbSJZAbs>; Fri, 25 Oct 2002 20:31:48 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:21778
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S261733AbSJZAbs>; Fri, 25 Oct 2002 20:31:48 -0400
+Subject: Re: [PATCH] hyper-threading information in /proc/cpuinfo
+From: Robert Love <rml@tech9.net>
+To: "David D. Hagood" <wowbagger@sktc.net>
+Cc: Jeff Garzik <jgarzik@pobox.com>, "Nakajima, Jun" <jun.nakajima@intel.com>,
+       Daniel Phillips <phillips@arcor.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "'Dave Jones'" <davej@codemonkey.org.uk>,
+       "'akpm@digeo.com'" <akpm@digeo.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'chrisl@vmware.com'" <chrisl@vmware.com>,
+       "'Martin J. Bligh'" <mbligh@aracnet.com>
+In-Reply-To: <3DB9D789.4020101@sktc.net>
+References: <F2DBA543B89AD51184B600508B68D4000ECE7086@fmsmsx103.fm.intel.com>	<3DB9CC5D.
+	 7000600@pobox.com>  <3DB9D1FE.5010607@sktc.net>
+	<1035588310.734.4165.camel@phantasy>  <3DB9D789.4020101@sktc.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 25 Oct 2002 20:37:57 -0400
+Message-Id: <1035592677.734.4377.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-	I see that Thomas Molina 2.5 problem list no longer carries a KVM and
-mouse 
-issue where it previously had.  
+On Fri, 2002-10-25 at 19:45, David D. Hagood wrote:
 
-	If a fix is available I'd love to test it out as I still see strange
-behavior 
-with an Intellimouse and my MasterView CS-104 KVM switch (yep its
-old).   
+> I would assert that, at least in the case of the P4, there IS a "major 
+> core", as the 2 subcores share L1 and bus controller access, as well as 
+> several other parts of the chip.
+> 
+> I beleive this is to some extent the case in the Power4 modules - that 
+> each module contains resources shared by the execution units. However, I 
+> might be full of it, and since there are plenty of @ibm.com's here I 
+> expect to be corrected shortly....
 
-	With a few trusty printks, it looks like after I switch away & back 
-into 2.5.44, the mouse is now sending 3 byte packets instead of the 4 it 
-previously was.  
+You are entirely right :)
 
-	As you can imagine this causes all sorts of havok as the packets are 
-interpretted completely wrong from there on out.  If there is enough
-delay between 
-events, the synchonization logic kicks in and throws the packet out,
-since 
-it thinks the 4th byte is old (where it is really the first byte of the
-next 
-3-byte packet).   This generates those pesky "psmouse.c: Lost
-synchronization "..  
-However, much of the time an incorrect 4-byte frame gets interpretted
-and 
-the X going totally haywire.    
+But argument for siblings vs. subcore is that in the context of the
+processors displayed in /proc/cpuinfo known of them are "subscores" of
+the other (and thus none of them are the "main core").
 
-BTW, serio_rescan() gets the mouse back into a happy 4-byte generating 
-state.     
+Some are just "siblings" in the same parent process package.  So given a
+dual Xeon machine, you have 4 virtual processors, which are broken into
+two sets of two siblings.  Those two sets are each part of the same
+package.
 
-Best Regards,
-Jon Grimm
+	Robert Love
+

@@ -1,64 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262489AbVBCBTN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262390AbVBCB31@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262489AbVBCBTN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 20:19:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262828AbVBCBOg
+	id S262390AbVBCB31 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 20:29:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262658AbVBCB3U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 20:14:36 -0500
-Received: from fencepost.gnu.org ([199.232.76.164]:29577 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP id S262898AbVBCBNQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 20:13:16 -0500
-Date: Wed, 2 Feb 2005 20:13:15 -0500 (EST)
-From: Pavel Roskin <proski@gnu.org>
-X-X-Sender: proski@localhost.localdomain
-To: Joseph Pingenot <trelane@digitasaru.net>
-cc: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <greg@kroah.com>,
-       Patrick Mochel <mochel@digitalimplant.org>
-Subject: Re: Please open sysfs symbols to proprietary modules
-In-Reply-To: <20050203000917.GA12204@digitasaru.net>
-Message-ID: <Pine.LNX.4.62.0502021950040.19812@localhost.localdomain>
-References: <Pine.LNX.4.62.0502021723280.5515@localhost.localdomain>
- <20050203000917.GA12204@digitasaru.net>
+	Wed, 2 Feb 2005 20:29:20 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:7041 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S262896AbVBCB17 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 20:27:59 -0500
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Vivek Goyal <vgoyal@in.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       fastboot <fastboot@lists.osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [Fastboot] [PATCH] Minor Kexec bug fix (2.6.11-rc2-mm2)
+References: <1107352593.11609.146.camel@2fwv946.in.ibm.com>
+	<42016B55.4000804@osdl.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 02 Feb 2005 18:26:03 -0700
+In-Reply-To: <42016B55.4000804@osdl.org>
+Message-ID: <m1hdku8mdw.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Joseph!
+"Randy.Dunlap" <rddunlap@osdl.org> writes:
 
-On Wed, 2 Feb 2005, Joseph Pingenot wrote:
+> Vivek Goyal wrote:
+> > Hi Andrew,
+> > This patch has been generated against 2.6.11-rc2-mm2. This fixes a very
+> > minor bug in kexec.
+> 
+> Have you run sparse on a kexec-patched kernel tree?
+> I have, but not lately.  It needed some s/0/NULL/ in several places,
+> but that was before the latest big changes...
 
->> From Pavel Roskin on Wednesday, 02 February, 2005:
->> All I want to do is to have a module that would create subdirectories for
->> some network interfaces under /sys/class/net/*/, which would contain
->> additional parameters for those interfaces.  I'm not creating a new
->> subsystem or anything like that.  sysctl is not good because the data is
->> interface specific.  ioctl on a socket would be OK, although it wouldn't
->> be easily scriptable.  The restriction on sysfs symbols would just force
->> me to write a proprietary userspace utility to set those parameters
->> instead of using a shell script.
->
-> Please pardon my ignorance, but if the existing network device management
->  framework is insufficient, it seems that the optimal way to deal with
->  this is to work with the community to address the insufficiencies, not
->  hacking in a new interface to the device.
+I have been avoiding adding more but I have not done had a flag
+day and killed them all either.
 
-OK, then the "insufficiency" is inability to set and get additional named 
-variables for network interfaces.
+The one bit int bug was a stupid thinko in the new code.
+Totally obvious when someone tried it, to use it.
 
-I won't open all details, but suppose I want the bridge to handle certain 
-frames in a special way, just like BPDU frames are handled if STP is 
-enabled.  There is a hook for that already - see br_handle_frame_hook. 
-The proprietary module would just have to change it.
+I think I am about ready to provide a sysrq panic interface.
+At least for testing that code path it would be good.  And
+if we actually have kernel core dumps it might be useful
+beyond that.
 
-What I want it to tell that module what to do with those special frames. 
-I also want to get information like what was in the last special frame and 
-how many of them have been received.  In other words, I want the 
-proprietary module to communicate with userspace.  Ideally, the userspace 
-application should be a simple shell script, so I'm reluctant to use 
-ioctl.
+Eric
 
--- 
-Regards,
-Pavel Roskin
+

@@ -1,36 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267939AbTBVWtq>; Sat, 22 Feb 2003 17:49:46 -0500
+	id <S267950AbTBVWxv>; Sat, 22 Feb 2003 17:53:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267942AbTBVWtq>; Sat, 22 Feb 2003 17:49:46 -0500
-Received: from to-wiznet.redhat.com ([216.129.200.2]:28145 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S267939AbTBVWtp>; Sat, 22 Feb 2003 17:49:45 -0500
-Date: Sat, 22 Feb 2003 17:59:55 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Thomas Hofer <th@monochrom.at>
+	id <S267951AbTBVWxv>; Sat, 22 Feb 2003 17:53:51 -0500
+Received: from [212.156.4.132] ([212.156.4.132]:56056 "EHLO fep02.ttnet.net.tr")
+	by vger.kernel.org with ESMTP id <S267950AbTBVWxu>;
+	Sat, 22 Feb 2003 17:53:50 -0500
+Date: Sun, 23 Feb 2003 01:03:48 +0200
+From: Faik Uygur <faikuygur@ttnet.net.tr>
+To: andre@linux-ide.org
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Box freezes if I enable "AMD 76x native power management"
-Message-ID: <20030222175955.C5536@redhat.com>
-References: <20030222163057.A884@namesys.com> <20030222185329.GA22170@morningstar.nowhere.lie> <200302222321.27820.th@monochrom.at>
+Subject: [PATCH] 2.5.62: /proc/ide/hpt366 returns incomplete data [7/17]
+Message-ID: <20030222230348.GF2996@ttnet.net.tr>
+Mail-Followup-To: andre@linux-ide.org, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-9
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200302222321.27820.th@monochrom.at>; from th@monochrom.at on Sat, Feb 22, 2003 at 11:21:27PM +0100
+User-Agent: Mutt/1.4i
+X-PGP-Fingerprint: 15 C0 AA 31 59 F9 DE 4F 7D A6 C7 D8 A0 D5 67 73
+X-PGP-Key-ID: 0x5C447959
+X-PGP-Key-Size: 2048 bits
+X-Editor: GNU Emacs 21.2.1
+X-Operating-System: Debian GNU/Linux
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 22, 2003 at 11:21:27PM +0100, Thomas Hofer wrote:
-> With "AMD 76x native power management" I experienced freezes under X11 
-> when the system was idle for about 30 min that usually went away when I 
-> typed on the keyboard. Using the (USB) mouse had no effect. But I had 
-> no problems at boot-time.
+This patch fixes the incomplete data return problem of /proc/ide/hpt366.
+When the number of consecutive read bytes are smaller than the total
+data in hpt366_get_info(), the second read() returns 0.
 
-I've seen this too, but only in certain kernels.  Someone needs to take 
-the time to binary search the pre patches to track down which one 
-introduced the problem...
+--- linux-2.5.62-vanilla/drivers/ide/pci/hpt366.c	Sat Feb 22 23:00:40 2003
++++ linux-2.5.62/drivers/ide/pci/hpt366.c	Sun Feb 23 00:01:09 2003
+@@ -85,7 +85,7 @@
+ 	char *chipset_nums[] = {"366", "366",  "368",
+ 				"370", "370A", "372",
+ 				"302", "371",  "374" };
+-	int i;
++	int i, len;
+ 
+ 	p += sprintf(p, "\n                             "
+ 		"HighPoint HPT366/368/370/372/374\n");
+@@ -153,8 +153,12 @@
+ 		}
+ 	}
+ 	p += sprintf(p, "\n");
++
++	/* p - buffer must be less than 4k! */
++	len = (p - buffer) - offset;
++	*addr = buffer + offset;
+ 	
+-	return p-buffer;/* => must be less than 4k! */
++	return len > count ? count : len;
+ }
+ #endif  /* defined(DISPLAY_HPT366_TIMINGS) && defined(CONFIG_PROC_FS) */
+ 
 
-		-ben
--- 
-Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>
+

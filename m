@@ -1,52 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261325AbUJ3VP3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261332AbUJ3Vdj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261325AbUJ3VP3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 17:15:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbUJ3VPD
+	id S261332AbUJ3Vdj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 17:33:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbUJ3Vdi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 17:15:03 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:63931 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261325AbUJ3VOw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 17:14:52 -0400
-Subject: code bloat [was Re: Semaphore assembly-code bug]
-From: Lee Revell <rlrevell@joe-job.com>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200410310000.38019.vda@port.imtp.ilyichevsk.odessa.ua>
-References: <417550FB.8020404@drdos.com.suse.lists.linux.kernel>
-	 <200410301228.42561.vda@port.imtp.ilyichevsk.odessa.ua>
-	 <Pine.LNX.4.58.0410301040050.28839@ppc970.osdl.org>
-	 <200410310000.38019.vda@port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain
-Date: Sat, 30 Oct 2004 17:14:50 -0400
-Message-Id: <1099170891.1424.1.camel@krustophenia.net>
+	Sat, 30 Oct 2004 17:33:38 -0400
+Received: from fw.osdl.org ([65.172.181.6]:42463 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261332AbUJ3Vdg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 17:33:36 -0400
+Date: Sat, 30 Oct 2004 14:31:32 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>,
+       Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: No PS2 with ACPI [was Re: 2.6.10-rc1-mm2]
+Message-Id: <20041030143132.5f20d048.akpm@osdl.org>
+In-Reply-To: <1099149503l.23066l.0l@werewolf.able.es>
+References: <20041029014930.21ed5b9a.akpm@osdl.org>
+	<1099149503l.23066l.0l@werewolf.able.es>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-10-31 at 00:00 +0300, Denis Vlasenko wrote:
-> If only glibc / X / KDE / OpenOffice (ugggh) people could hear you more...
+"J.A. Magallon" <jamagallon@able.es> wrote:
+>
 > 
->   PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME CPU COMMAND
-> 15364 root      15   0 38008  26M 28496 S     0,0 10,8   0:57   0 kmail
-> 20022 root      16   0 40760  24M 23920 S     0,1 10,0   0:04   0 mozilla-bin
->  1627 root      14  -1 71064  19M 53192 S <   0,1  7,9   3:16   0 X
->  1700 root      15   0 25348  16M 23508 S     0,1  6,5   0:46   0 kdeinit
->  3578 root      15   0 24032  14M 21524 S     0,5  5,8   0:23   0 konsole
+> On 2004.10.29, Andrew Morton wrote:
+> > 
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc1/2.6.10-rc1-mm2/
+> > 
+> > 
+> 
+> Here we go again...
 
-Wow. evolution is now more bloated than kmail.
+Perhaps Dmitry and Vojtech can help.
 
- 1424 rlrevell  15   0  125m  47m  29m S  7.8 10.1   1:41.78 evolution
- 1508 rlrevell  15   0 92432  30m  29m S  0.0  6.4   0:14.15 mozilla-bin
- 1090 root      16   0 55676  18m  40m S 24.8  3.9   0:46.98 XFree86
- 1379 rlrevell  15   0 33776  16m  18m S  0.3  3.5   0:06.65 nautilus
- 1377 rlrevell  15   0 19392  11m  15m S  0.0  2.5   0:03.29 gnome-panel
- 1458 rlrevell  16   0 28188  11m  15m S  3.9  2.5   0:10.44 gnome-terminal
- 1307 rlrevell  15   0 20828  11m  17m S  0.0  2.4   0:03.08 gnome-settings-
-
-Lee
-
+> With normal boot, I have no kbd nor mouse (both PS2).
+> 2.6.9-mm1 detects them correctly:
+> 
+> mice: PS/2 mouse device common for all mice
+> input: AT Translated Set 2 keyboard on isa0060/serio0
+> input: PS2++ Logitech <NULL> on isa0060/serio1
+> 
+> 2.6.10-rc1-mm2 misses the two 'input' lines, I just get the 'mice:' one.
+> 
+> Booting with i8042.noacpi makes them work again.
+> 
+> BTW, what is that <NULL> ? 
+> I don't have the full logs, but 2.6.9-rc2-mm2 told 'Mouse',and
+> the next I have is -rc3-mm3 that says '<NULL>'.
+> 
+> TIA
+> 
+> --
+> J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+> werewolf!able!es                         \         It's better when it's free
+> Mandrakelinux release 10.1 (Community) for i586
+> Linux 2.6.9-jam1 (gcc 3.4.1 (Mandrakelinux 10.1 3.4.1-4mdk)) #6
+> 
+> 

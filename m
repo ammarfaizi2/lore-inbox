@@ -1,34 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264543AbUEYLKJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263733AbUEYLLg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264543AbUEYLKJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 07:10:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264582AbUEYLKJ
+	id S263733AbUEYLLg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 07:11:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264588AbUEYLLg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 07:10:09 -0400
-Received: from fw.osdl.org ([65.172.181.6]:20615 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264543AbUEYLKH (ORCPT
+	Tue, 25 May 2004 07:11:36 -0400
+Received: from main.gmane.org ([80.91.224.249]:59815 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263733AbUEYLLb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 07:10:07 -0400
-Date: Tue, 25 May 2004 04:09:34 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Paul Mackerras <paulus@samba.org>
-Cc: torvalds@osdl.org, anton@samba.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] IRQ stacks for PPC64
-Message-Id: <20040525040934.14e20635.akpm@osdl.org>
-In-Reply-To: <16563.9827.783950.254480@cargo.ozlabs.ibm.com>
-References: <16563.9827.783950.254480@cargo.ozlabs.ibm.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 25 May 2004 07:11:31 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Giuseppe Bilotta <bilotta78@hotpop.com>
+Subject: Re: [RFD] Explicitly documenting patch submission
+Date: Tue, 25 May 2004 13:11:21 +0200
+Message-ID: <MPG.1b1d29dfeabcc73f9896a1@news.gmane.org>
+References: <1YUY7-6fF-11@gated-at.bofh.it> <m3fz9pd2dw.fsf@averell.firstfloor.org> <200405242250.38442.tglx@linutronix.de> <Pine.LNX.4.58.0405241400280.32189@ppc970.osdl.org> <20040525034920.GY5414@waste.org> <Pine.LNX.4.58.0405242100170.32189@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ppp-174-128.29-151.libero.it
+X-Newsreader: MicroPlanet Gravity v2.60
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Mackerras <paulus@samba.org> wrote:
->
-> This patch implements separate per-cpu stacks for
->  processing interrupts and softirqs, along the lines of the
->  CONFIG_4KSTACKS stuff on x86.
+Linus Torvalds wrote:
+> > > Any process that doesn't allow for common sense is just broken, and
+> > > clearly from a _legal_ standpoint it doesn't matter if we track who fixed
+> > > out (atrocious) spelling errors.
+> > 
+> > "our"
+> 
+> Ahem.
+> 
+> "I did that on purpose to make a point".
+> 
+> Sure, that's the ticket.
+> 
+> 		Linus "ehh, good save" Torvalds
 
-Your show_stack()-from-irq code will need a bit of work to hop across to
-the next stack.
+Maybe in English "fix out" is a phrasal verb? Uh? Can we make 
+it up like that? Any native speaker?
+
+-- 
+Giuseppe "Oblomov" Bilotta
+
+Can't you see
+It all makes perfect sense
+Expressed in dollar and cents
+Pounds shillings and pence
+                  (Roger Waters)
+

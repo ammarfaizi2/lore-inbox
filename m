@@ -1,30 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132825AbRDITV7>; Mon, 9 Apr 2001 15:21:59 -0400
+	id <S132826AbRDITZJ>; Mon, 9 Apr 2001 15:25:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132826AbRDITVt>; Mon, 9 Apr 2001 15:21:49 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:13073 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132825AbRDITVg>; Mon, 9 Apr 2001 15:21:36 -0400
-Subject: Re: Zero Copy IO
-To: aqchen@us.ibm.com (Alex Q Chen)
-Date: Mon, 9 Apr 2001 20:23:47 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <OF31086D36.2158EA0D-ON87256A28.008001ED@LocalDomain> from "Alex Q Chen" at Apr 08, 2001 04:31:27 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14mhGR-0002ie-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S132827AbRDITZA>; Mon, 9 Apr 2001 15:25:00 -0400
+Received: from [204.244.205.25] ([204.244.205.25]:16196 "HELO post.gateone.com")
+	by vger.kernel.org with SMTP id <S132826AbRDITYp>;
+	Mon, 9 Apr 2001 15:24:45 -0400
+Subject: [OT] Re: goodbye
+From: Michael Peddemors <michael@linuxmagic.com>
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+Cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010408023228.L805@mea-ext.zmailer.org>
+In-Reply-To: <Pine.LNX.4.21.0104031800030.14090-100000@imladris.rielhome.conectiva>
+	<20010404012102Z131724-406+7418@vger.kernel.org> 
+	<20010408023228.L805@mea-ext.zmailer.org>
+Content-Type: text/plain
+X-Mailer: Evolution/0.10 (Preview Release)
+Date: 09 Apr 2001 12:20:03 -0700
+Message-Id: <986844003.21377.12.camel@mistress>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> advantageous to enable zero copy IO than copy_from_user() and copy_to_user
-> () all the data.  Other OS such as AIX and OS2 have kernel functions that
-> can be used to accomplish such a task.  Has any ground work been done in
-> Linux 2.4 to enable "zero copying IO"?
+Uh... use their ISP relay service anyway???
+I take my laptop all over, to lot's of my clients locations, and if I
+could relay through their servers, then I had better give them some good
+advice.. Some places I just pick an available IP and it might not be in
+the allowed relay list.  And this happens when I am in M$ or Linux..
+And sometimes, I even go to locations where they can't tell me their
+ISP's SMTP mailer.. Not to mention, I shouln't have to reset my
+configuration for each location I happen to be at..
+The point is, if it is a pain, then people will be less likely to
+contribute..
 
-kiovecs support this. Note that the current kiovec has problems when it comes
-to certain kinds of latency critical use and the 2.5 kernel meeting hashed out
-some big changes here. But for 2.4 the kiovecs are there 
+My point was that.. the LKML shouldn't make it tough for legimate
+posters.. And if someone's purpose is to spam the list, they can get
+around DULS easy enough..
+
+On 08 Apr 2001 02:32:28 +0300, Matti Aarnio wrote:
+> On Tue, Apr 03, 2001 at 06:14:33PM -0700, Michael Peddemors wrote:
+> > This would be a shame, as he has been a valuable resource..
+
+> > Why has the list become more restrictive?
+>       The incentive behind the DUL is to force users not to post
+>       straight out to the world, but to use their ISP's servers
+>       for outbound email --- normal M$ users do that, after all.
+>       Only spammers - and UNIX powerusers - want to post directly
+>       to the world from dialups.  And UNIX powerusers should know
+>       better, and be able to use ISP relay service anyway.
+> 
+-- 
+"Catch the Magic of Linux..."
+--------------------------------------------------------
+Michael Peddemors - Senior Consultant
+LinuxAdministration - Internet Services
+NetworkServices - Programming - Security
+WizardInternet Services http://www.wizard.ca
+Linux Support Specialist - http://www.linuxmagic.com
+--------------------------------------------------------
+(604)589-0037 Beautiful British Columbia, Canada
+

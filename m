@@ -1,39 +1,62 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <157230-27300>; Sun, 31 Jan 1999 03:35:53 -0500
-Received: by vger.rutgers.edu id <154209-27302>; Sun, 31 Jan 1999 03:35:45 -0500
-Received: from noc.nyx.net ([206.124.29.3]:3110 "EHLO noc.nyx.net" ident: "mail") by vger.rutgers.edu with ESMTP id <154241-27302>; Sun, 31 Jan 1999 03:35:18 -0500
-Date: Sun, 31 Jan 1999 01:47:23 -0700 (MST)
-From: Colin Plumb <colin@nyx.net>
-Message-Id: <199901310847.BAA07662@nyx10.nyx.net>
-X-Nyx-Envelope-Data: Date=Sun Jan 31 01:47:23 1999, Sender=colin, Recipient=, Valsender=colin@localhost
-To: lm@bitmover.com
-Subject: Re: Page coloring HOWTO [ans]
-Cc: linux-kernel@vger.rutgers.edu
+Received: by vger.rutgers.edu via listexpand id <160069-27302>; Sun, 31 Jan 1999 14:14:50 -0500
+Received: by vger.rutgers.edu id <157467-27302>; Sun, 31 Jan 1999 14:14:25 -0500
+Received: from [207.181.251.162] ([207.181.251.162]:6767 "EHLO bitmover.com" ident: "root") by vger.rutgers.edu with ESMTP id <160069-27302>; Sun, 31 Jan 1999 14:12:23 -0500
+Message-Id: <199901311924.LAA04620@bitmover.com>
+To: linux-kernel@vger.rutgers.edu
+From: lm@bitmover.com (Larry McVoy)
+Subject: Re: Page coloring HOWTO [ans] 
+Date: Sun, 31 Jan 1999 11:24:39 -0800
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Larry McVoy wrote:
+davem@redhat.com (Hey, look where Dave is :-) says:
 
-> Page allocation becomes hash on virtual address and take a page from
-> the bucket.However, here's the trick that fans them out in the cache,
-> you hash on virtual address plus pid (I don't remember the exact details
-> but you'll get it immeditately when you implement it - you just process
-> 0 to take page 0 from bucket 0, process 1 to take page 0 from bucket 1,
-> and so on).
+:    Page coloring, in the sense that we are talking about here,
+:    is %99 dealing with physically indexed secondary/third-level
+:    etc. caches.  Virtually indexed secondary/third-level caches
+:    are dinosaurs 
 
-Um, this is difficult, given that the same virtual->physical mapping
-may be present in multiple processes.  Which pid do I use?
+Are you sure about that? We should come to agreement on terminology.
+I thought that the HyperSparc was virtually indexed and virtually tagged,
+with just about everything else being virtually indexed but physically
+tagged.
 
-I think that assigning a colour to the vm_area_struct would be better.
-You *would* have essentially random relationships between the colour offsets
-of the various vm_area_structs in a process (text, data, stack).
+: The following is a distribution scheme which I found to work extremely
+: well in practice and testing:
+: 
+:     Add to task_struct a member "int cur_color;"
+: 
+:     Add to inode a member "int cur_color"
+: 
+:     When giving a new address space to a process (via exec() or some
+:     other means, but not during fork/clone for example) set
+:     tsk->cur_color to zero.
+: 
+:     When allocating a new inode structure in the vfs, set
+:     inode->cur_color to zero.
+: 
+:     Now track page cache, page table allocation, and anonymous page
+:     faulting in the following way:
+: 
+:        a) At each anonymous page write fault, allocate a free page
+:           with color current->cur_color, and then increment this.
+: 
+:        b) At each page table page allocation, do the same as in #a
+: 
+:        c) At each addition of a new page into the page cache, allocate
+:           this page using the vfs object's inode->cur_color, and then
+:           increment.
 
-Erm, I just thought of COW issues.  which arise because the data
-segment is mapped COW from the backing file.  Do the cow-copied pages
-have different colour offsets then the pages htey're copied from?
+This has some nice attributes in that it will work well if a process
+chooses to touch memory at a stride of exactly cache size.  However,
+it's a little harder to tune for if you are an application writer because
+different inputs to the program will give you different page colors.
 
-I can see disadvnatages to both possible answers.
--- 
-	-Colin
+You could argue it either way but I'm curious as to why not just use the
+(pageno + pid) % cachesize alg.  Did you try this and find that it gave
+consistently worse results?  I'd find that sort of hard to believe but 
+your oblique reference to mmaped shared libraries gave me a hint that you
+might be onto something.  Can you explain the results please?
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

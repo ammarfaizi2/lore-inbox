@@ -1,25 +1,25 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289839AbSBEXHX>; Tue, 5 Feb 2002 18:07:23 -0500
+	id <S289844AbSBEXID>; Tue, 5 Feb 2002 18:08:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289850AbSBEXHN>; Tue, 5 Feb 2002 18:07:13 -0500
-Received: from darkwing.uoregon.edu ([128.223.142.13]:34208 "EHLO
-	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
-	id <S289839AbSBEXHH>; Tue, 5 Feb 2002 18:07:07 -0500
-Date: Tue, 5 Feb 2002 15:06:49 -0800 (PST)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: joelja@twin.uoregon.edu
+	id <S289850AbSBEXHy>; Tue, 5 Feb 2002 18:07:54 -0500
+Received: from air-2.osdl.org ([65.201.151.6]:32686 "EHLO segfault.osdlab.org")
+	by vger.kernel.org with ESMTP id <S289844AbSBEXHh>;
+	Tue, 5 Feb 2002 18:07:37 -0500
+Date: Tue, 5 Feb 2002 15:08:15 -0800 (PST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@segfault.osdlab.org>
 To: Andre Hedrick <andre@linuxdiskcert.org>
-cc: Russell King <rmk@arm.linux.org.uk>, Patrick Mochel <mochel@osdl.org>,
-        Pavel Machek <pavel@suse.cz>,
+cc: Russell King <rmk@arm.linux.org.uk>, Pavel Machek <pavel@suse.cz>,
         kernel list <linux-kernel@vger.kernel.org>
 Subject: Re: driverfs support for motherboard devices
 In-Reply-To: <Pine.LNX.4.10.10202051445400.6350-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.44.0202051505040.15039-100000@twin.uoregon.edu>
+Message-ID: <Pine.LNX.4.33.0202051500510.25114-100000@segfault.osdlab.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
 
 On Tue, 5 Feb 2002, Andre Hedrick wrote:
 
@@ -36,31 +36,42 @@ On Tue, 5 Feb 2002, Andre Hedrick wrote:
 > 
 > LOL, how about ones that are quad-channel with a DEC-Bridge to slip the
 > local BUSS?
-> 
-> Cheers,
 
-or an i960rp and 3 promise 20276's, I've got two of those...
+LOL? I don't understand...
 
-joelja
- 
-> 
-> Andre Hedrick
-> Linux Disk Certification Project                Linux ATA Development
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+I don't see how any of those cases are necessarily hard to visualize. 
 
--- 
--------------------------------------------------------------------------- 
-Joel Jaeggli	      Academic User Services   joelja@darkwing.uoregon.edu    
---    PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E      --
-The accumulation of all powers, legislative, executive, and judiciary, in 
-the same hands, whether of one, a few, or many, and whether hereditary, 
-selfappointed, or elective, may justly be pronounced the very definition of
-tyranny. - James Madison, Federalist Papers 47 -  Feb 1, 1788
+Case 1: Typical PC with IDE as function of southbridge.
 
+pci0
+ |
+  -- 07.2 (IDE controller)
+     |
+      --- disk0
+     |
+      --- disk1
+
+Case 2: Promise IDE Controller with 2 channels
+
+
+pci0
+ |
+  --- 03.0 (Promise IDE Controller)
+      |
+       --- channel0
+           |
+            ---- disk0
+           |
+            ---- disk1
+
+
+Case 3: Quad channel DEC Bridge
+
+Ok, maybe I don't understand completely what you're talking about, Andre. 
+That's just a 4 channel IDE controller, that happens to be on the board? 
+So, it's looks the same as the last example.
+
+Unless, I'm missing something, which is always likely.
+
+	-pat
 

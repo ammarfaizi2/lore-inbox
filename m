@@ -1,98 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131900AbRAKSgL>; Thu, 11 Jan 2001 13:36:11 -0500
+	id <S131476AbRAKSgl>; Thu, 11 Jan 2001 13:36:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131476AbRAKSgB>; Thu, 11 Jan 2001 13:36:01 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:50685 "HELO
-	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
-	id <S131900AbRAKSfq>; Thu, 11 Jan 2001 13:35:46 -0500
-Date: Thu, 11 Jan 2001 14:48:29 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: andre@linux-ide.org
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: [PATCH] ide-probe.c: check kmalloc return
-Message-ID: <20010111144829.J5473@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	andre@linux-ide.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	id <S132517AbRAKSgh>; Thu, 11 Jan 2001 13:36:37 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:1289 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S131476AbRAKSgS>;
+	Thu, 11 Jan 2001 13:36:18 -0500
+Message-ID: <3A5DFC64.2969D25E@innominate.de>
+Date: Thu, 11 Jan 2001 19:33:08 +0100
+From: Daniel Phillips <phillips@innominate.de>
+Organization: innominate
+X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Strange umount problem in latest 2.4.0 kernels
+In-Reply-To: <3A5DF9CC.2F614F2A@Hell.WH8.TU-Dresden.De>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Url: http://advogato.org/person/acme
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+"Udo A. Steinberg" wrote:
+> Upon fscking after reboot, I always have errors on a
+> single inode and it's always the same one:
+> 
+> /dev/hdb1: Inode 522901, i_blocks is 64, should be 8. FIXED
+> 
+> Can someone tell me an easy and reliable way of figuring
+> out which file (program) uses said inode? I think that's
+> probably the key to figuring out why the partition is
+> busy on umount.
 
-	Please consider applying.
+ls -iR | grep 12345
 
-- Arnaldo
-
---- linux-2.4.0-ac6/drivers/ide/ide-probe.c	Thu Aug 10 10:14:26 2000
-+++ linux-2.4.0-ac6.acme/drivers/ide/ide-probe.c	Thu Jan 11 14:37:35 2001
-@@ -56,6 +56,12 @@
- 	struct hd_driveid *id;
- 
- 	id = drive->id = kmalloc (SECTOR_WORDS*4, GFP_ATOMIC);	/* called with interrupts disabled! */
-+	if (!id) {
-+		printk(KERN_WARNING "%s: ouch, out of memory in do_identify!\n",
-+			       	drive->name);
-+		drive->present = 0;
-+		return;
-+	}
- 	ide_input_data(drive, id, SECTOR_WORDS);		/* read 512 bytes of id info */
- 	ide__sti();	/* local CPU only */
- 	ide_fix_driveid(id);
-@@ -652,6 +658,10 @@
- 		hwgroup = match->hwgroup;
- 	} else {
- 		hwgroup = kmalloc(sizeof(ide_hwgroup_t), GFP_KERNEL);
-+		if (!hwgroup) {
-+			restore_flags(flags);	/* all CPUs */
-+			return 1;
-+		}
- 		memset(hwgroup, 0, sizeof(ide_hwgroup_t));
- 		hwgroup->hwif     = hwif->next = hwif;
- 		hwgroup->rq       = NULL;
-@@ -746,11 +756,23 @@
- 	}
- 	minors    = units * (1<<PARTN_BITS);
- 	gd        = kmalloc (sizeof(struct gendisk), GFP_KERNEL);
-+	if (!gd)
-+		goto out;
- 	gd->sizes = kmalloc (minors * sizeof(int), GFP_KERNEL);
-+	if (!gd->sizes)
-+		goto out_gd;
- 	gd->part  = kmalloc (minors * sizeof(struct hd_struct), GFP_KERNEL);
-+	if (!gd->part)
-+		goto out_sizes;
- 	bs        = kmalloc (minors*sizeof(int), GFP_KERNEL);
-+	if (!bs)
-+		goto out_part;
- 	max_sect  = kmalloc (minors*sizeof(int), GFP_KERNEL);
-+	if (!max_sect)
-+		goto out_bs;
- 	max_ra    = kmalloc (minors*sizeof(int), GFP_KERNEL);
-+	if (!max_ra)
-+		goto out_max_sect;
- 
- 	memset(gd->part, 0, minors * sizeof(struct hd_struct));
- 
-@@ -802,6 +824,13 @@
- 				devfs_mk_dir (ide_devfs_handle, name, NULL);
- 		}
- 	}
-+	goto out;
-+out_max_sect:	kfree(max_sect);
-+out_bs:		kfree(bs);
-+out_part:	kfree(gd->part);
-+out_sizes:	kfree(gd->sizes);
-+out_gd:		kfree(gd);
-+out:		return;
- }
- 
- static int hwif_init (ide_hwif_t *hwif)
+--
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

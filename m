@@ -1,47 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267818AbUI1Ny2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267760AbUI1N6j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267818AbUI1Ny2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 09:54:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267683AbUI1Ny1
+	id S267760AbUI1N6j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 09:58:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267683AbUI1N6R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 09:54:27 -0400
-Received: from mail.dif.dk ([193.138.115.101]:63893 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S267831AbUI1Nx4 (ORCPT
+	Tue, 28 Sep 2004 09:58:17 -0400
+Received: from owa.go-wlan.com ([192.114.175.10]:320 "EHLO owa.go-wlan.com")
+	by vger.kernel.org with ESMTP id S267823AbUI1N4M (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 09:53:56 -0400
-Date: Tue, 28 Sep 2004 15:51:29 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Brian McGrew <Brian@doubledimension.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Probing for System Model Information
-In-Reply-To: <E6456D527ABC5B4DBD1119A9FB461E35019377@constellation.doubledimension.com>
-Message-ID: <Pine.LNX.4.61.0409281549550.23395@jjulnx.backbone.dif.dk>
-References: <E6456D527ABC5B4DBD1119A9FB461E35019377@constellation.doubledimension.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 28 Sep 2004 09:56:12 -0400
+Subject: [PATCH] export __dma_sync under
+	arch/ppc/linux/kernel/dma-mapping.c,2.6.8.1
+From: Elad Ben-Israel <eladb@go-wlan.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1096379760.4145.166.camel@dt-eladb-01.go80211.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 28 Sep 2004 15:56:00 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Sep 2004, Brian McGrew wrote:
+__dma_sync() needs to be exported from dma-mapping.c under PPC.
+we needed it in order to make MadWiFi (the Atheros 802.11 driver) work
+with 2.6.8.1 under ppc.
 
-> Date: Tue, 28 Sep 2004 06:32:31 -0700
-> From: Brian McGrew <Brian@doubledimension.com>
-> To: linux-kernel@vger.kernel.org
-> Subject: Probing for System Model Information
-> 
-> Good morning All!
-> 
-> We exclusively ship Dell boxes with our hardware.  However, we use several different models, 1400's, 1600's, 2350's, 4600's and so on.  I need to write a small program to probe the system for the model information since I don't seem to find it in the logs anywhere.  
-> 
-> I know the model info is in there somewhere and it's accessible because if I look on the default factory installed version of Windows, it's listed.
-> 
-> Does anyone know how to do this or can you point me to one that's already done or some samples?
-> 
+Elad Ben-Israel
+eladb@go-wlan.com
 
-Can't answer your question, sorry, but have you considered asking Dell 
-that question (and then share the info later) ?
+--- linux-2.6.8.1/arch/ppc/kernel/dma-mapping.c	2004-09-27 21:03:54.000000000 +0200
++++ linux/arch/ppc/kernel/dma-mapping.c	2004-09-27 20:58:01.000000000 +0200
+@@ -381,6 +381,7 @@
+ 		break;
+ 	}
+ }
++EXPORT_SYMBOL(__dma_sync);
+ 
 
---
-Jesper Juhl
-
-
+ #ifdef CONFIG_HIGHMEM

@@ -1,63 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261773AbUB0Kde (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 05:33:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261783AbUB0Kdd
+	id S261783AbUB0Kq2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 05:46:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbUB0Kq2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 05:33:33 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:53009 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261773AbUB0Kdc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 05:33:32 -0500
-Date: Fri, 27 Feb 2004 21:33:20 +1100
-To: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [X86] Allow X86_MCE_NONFATAL to be a module
-Message-ID: <20040227103320.GA27726@gondor.apana.org.au>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="tKW2IUtsqtDRztdT"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	Fri, 27 Feb 2004 05:46:28 -0500
+Received: from k1.dinoex.de ([80.237.200.138]:37118 "EHLO k1.dinoex.de")
+	by vger.kernel.org with ESMTP id S261783AbUB0KqY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 05:46:24 -0500
+To: linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Greg KH <greg@kroah.com>
+Subject: [USB, SCANNER] scanner.ko removed, but documentation remains
+X-Face: ""xJff<P[R~C67]V?J|X^Dr`YigXK|;1wX<rt^>%{>hr-{:QXl"Xk2O@@(+F]e{"%EYQiW@mUuvEsL>=mx96j12qW[%m;|:B^n{J8k?Mz[K1_+H;$v,nYx^1o_=4M,L+]FIU~[[`-w~~xsy-BX,?tAF_.8u&0y*@aCv;a}Y'{w@#*@iwAl?oZpvvv
+X-Message-Flag: This space is intentionally left blank
+X-Noad: Please don't send me ad's by mail.  I'm bored by this type of mail.
+X-Note: sending SPAM is a violation of both german and US law and will
+	at least trigger a complaint at your provider's postmaster.
+X-GPG: 1024D/77D4FC9B 2000-08-12 Jochen Hein (28 Jun 1967, Kassel, Germany) 
+     Key fingerprint = F5C5 1C20 1DFC DEC3 3107  54A4 2332 ADFC 77D4 FC9B
+X-BND-Spook: RAF Taliban BND BKA Bombe Waffen Terror AES GPG
+From: Jochen Hein <jochen@jochen.org>
+X-No-Archive: yes
+Date: Fri, 27 Feb 2004 11:44:48 +0100
+Message-ID: <87y8qols2n.fsf@echidna.jochen.org>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---tKW2IUtsqtDRztdT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+That was the ChangeLog to 2.6.3:
 
-Hi:
+<greg@kroah.com>
+        [PATCH] USB: remove scanner driver files.
 
-By allowing X86_MCE_NONFATAL to be a module, it can be included in
-distribution kernels without upsetting those with strange hardware.
 
-Cheers,
+I think that ./Documentation/usb/scanner.txt should be removed or
+rewritten to point to libusb for scanner access.
+
+Jochen
+
 -- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
-
---tKW2IUtsqtDRztdT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=p
-
-Index: kernel-2.5/arch/i386/Kconfig
-===================================================================
-RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/arch/i386/Kconfig,v
-retrieving revision 1.10
-diff -u -r1.10 Kconfig
---- kernel-2.5/arch/i386/Kconfig	19 Feb 2004 09:55:28 -0000	1.10
-+++ kernel-2.5/arch/i386/Kconfig	27 Feb 2004 10:31:01 -0000
-@@ -569,7 +569,7 @@
- 	  the 386 and 486, so nearly everyone can say Y here.
- 
- config X86_MCE_NONFATAL
--	bool "Check for non-fatal errors on AMD Athlon/Duron / Intel Pentium 4"
-+	tristate "Check for non-fatal errors on AMD Athlon/Duron / Intel Pentium 4"
- 	depends on X86_MCE
- 	help
- 	  Enabling this feature starts a timer that triggers every 5 seconds which
-
---tKW2IUtsqtDRztdT--
+#include <~/.signature>: permission denied

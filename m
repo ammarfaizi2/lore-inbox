@@ -1,48 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264959AbTFRMsj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 08:48:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264994AbTFRMsj
+	id S265091AbTFRNKQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 09:10:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265112AbTFRNKQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 08:48:39 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10945 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264959AbTFRMsi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 08:48:38 -0400
-Date: Wed, 18 Jun 2003 14:02:34 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Matthew Wilcox <willy@debian.org>, Anton Blanchard <anton@samba.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@osdl.org>, Greg KH <greg@kroah.com>
-Subject: Re: pci_domain_nr vs. /sys/devices
-Message-ID: <20030618130234.GN24357@parcelfarce.linux.theplanet.co.uk>
-References: <1055341842.754.3.camel@gaston> <20030611144801.GZ28581@parcelfarce.linux.theplanet.co.uk> <20030617044948.GA1172@krispykreme> <20030617134156.A2473@jurassic.park.msu.ru> <20030617124950.GF8639@krispykreme> <20030617171100.B730@jurassic.park.msu.ru> <20030617194227.GG24357@parcelfarce.linux.theplanet.co.uk> <20030618013058.A686@pls.park.msu.ru>
+	Wed, 18 Jun 2003 09:10:16 -0400
+Received: from mail.ithnet.com ([217.64.64.8]:42763 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id S265091AbTFRNKM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 09:10:12 -0400
+Date: Wed, 18 Jun 2003 15:10:34 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: babydr@baby-dragons.com, linux-kernel@vger.kernel.org
+Subject: Re: BUG: Massive performance drop in routing throughput with 2.4.21
+ (62KB)
+Message-Id: <20030618151034.0a84b2e2.skraw@ithnet.com>
+In-Reply-To: <1055880260.19796.7.camel@rth.ninka.net>
+References: <20030616141806.6a92f839.skraw@ithnet.com>
+	<Pine.LNX.4.51.0306161444090.18129@dns.toxicfilms.tv>
+	<20030616145135.0ef5c436.skraw@ithnet.com>
+	<20030616151035.735fcaf2.martin.zwickel@technotrend.de>
+	<Pine.LNX.4.56.0306161413360.3114@filesrv1.baby-dragons.com>
+	<Pine.LNX.4.56.0306171518080.6807@filesrv1.baby-dragons.com>
+	<1055880260.19796.7.camel@rth.ninka.net>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030618013058.A686@pls.park.msu.ru>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 18, 2003 at 01:30:58AM +0400, Ivan Kokshaysky wrote:
-> On Tue, Jun 17, 2003 at 08:42:27PM +0100, Matthew Wilcox wrote:
-> > How about this (PPC & Sparc64 will have to decide what they want to do
-> > for this case):
-> 
-> I'm fine with it.
-> 
-> > +/* We never have overlapping bus numbers on Alpha */
-> 
-> "Never" is not quite correct - "in general we don't have"
-> would be better. Full-sized Marvel can have up to 512 root buses.
+On 17 Jun 2003 13:04:20 -0700
+"David S. Miller" <davem@redhat.com> wrote:
 
-So what do you want to do about that case?  If it's going to turn out to
-be the same as other architectures, maybe we can do it differently...
+> On Tue, 2003-06-17 at 12:33, Mr. James W. Laferriere wrote:
+> > 	Hello All ,  Here goes .  I made 'me too'ism in another thread
+> > 	that may be related to what I am presenting here .  After my .sig
+> > 	is what I hope to be enough pertitanent information to get the bug
+> > 	stomped on .  This is driving me crazy .  Also if someone would
+> > 	like to point me at a URL:/Method(s)/... to be able to acquire
+> > 	further information that would make the effort for those that
+> > 	really can code in the kernel jobs easier please do .
+> > 	The slow down mentioned below happens with any network based
+> > 	connection .  JimL
+> 
+> You can start by reporting the bug and all your debugging
+> informtion to the correct list.
+> 
+> Networking developers DO NOT sit on linux-kernel, it's too high
+> volume for them.  So use the correct list to report such
+> problems.
 
--- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk
+Maybe I should have made it a bit clearer in my original post to this thread:
+the thing is a show-stopper. You can watch a 2.4.21 box drop down its
+throughput to somewhere around 2-4 kByte/sec on a 100 MBit/sec switched
+network. You have to setup a real routing-environment testbed to notice the
+problem. I did not see it using any of the rc's as a simple host with all kinds
+of network applications (including high volume nfs), but not routing...
+
+Regards,
+Stephan
+
+

@@ -1,48 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311858AbSCUQcM>; Thu, 21 Mar 2002 11:32:12 -0500
+	id <S311710AbSCUQbM>; Thu, 21 Mar 2002 11:31:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311868AbSCUQcE>; Thu, 21 Mar 2002 11:32:04 -0500
-Received: from dsl-65-188-226-101.telocity.com ([65.188.226.101]:65294 "HELO
-	fancypants.trellisinc.com") by vger.kernel.org with SMTP
-	id <S311858AbSCUQbx>; Thu, 21 Mar 2002 11:31:53 -0500
-From: nicholas black <dank@trellisinc.com>
-To: linux-kernel@vger.kernel.org
-Cc: Vinolin <vinolin@nodeinfotech.com>
-Subject: Re: ip_options.c
-In-Reply-To: <02032116405005.00890@Vinolin>
-X-Newsgroups: mlist.linux-kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.2.19ext3 (i686))
-Message-Id: <20020321163151.53841A3C21@fancypants.trellisinc.com>
-Date: Thu, 21 Mar 2002 11:31:51 -0500 (EST)
+	id <S311858AbSCUQbC>; Thu, 21 Mar 2002 11:31:02 -0500
+Received: from NEVYN.RES.CMU.EDU ([128.2.145.6]:39590 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id <S311710AbSCUQa4>;
+	Thu, 21 Mar 2002 11:30:56 -0500
+Date: Thu, 21 Mar 2002 11:27:22 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: "Vamsi Krishna S ." <vamsi@in.ibm.com>
+Cc: Mark Gross <mgross@unix-os.sc.intel.com>, Pavel Machek <pavel@suse.cz>,
+        linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+        marcelo@conectiva.com.br, tachino@jp.fujitsu.com, jefreyr@pacbell.net,
+        vamsi_krishna@in.ibm.com, richardj_moore@uk.ibm.com,
+        hanharat@us.ibm.com, bsuparna@in.ibm.com, bharata@in.ibm.com,
+        asit.k.mallick@intel.com, david.p.howell@intel.com,
+        tony.luck@intel.com, sunil.saxena@intel.com
+Subject: Re: [PATCH] multithreaded coredumps for elf exeecutables
+Message-ID: <20020321112722.A31634@nevyn.them.org>
+Mail-Followup-To: "Vamsi Krishna S ." <vamsi@in.ibm.com>,
+	Mark Gross <mgross@unix-os.sc.intel.com>,
+	Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org,
+	alan@lxorguk.ukuu.org.uk, marcelo@conectiva.com.br,
+	tachino@jp.fujitsu.com, jefreyr@pacbell.net,
+	vamsi_krishna@in.ibm.com, richardj_moore@uk.ibm.com,
+	hanharat@us.ibm.com, bsuparna@in.ibm.com, bharata@in.ibm.com,
+	asit.k.mallick@intel.com, david.p.howell@intel.com,
+	tony.luck@intel.com, sunil.saxena@intel.com
+In-Reply-To: <20020315170726.A3405@in.ibm.com> <20020319152959.C55@toy.ucw.cz> <200203192147.g2JLl3W01070@unix-os.sc.intel.com> <20020320113630.A6882@in.ibm.com> <20020320133709.A10958@nevyn.them.org> <20020321154650.A1435@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <02032116405005.00890@Vinolin> you wrote:
-> Can i get the summary of what exactly ip_options.c is doing ?
-> Through any web page or documents ...
+On Thu, Mar 21, 2002 at 03:46:50PM +0530, Vamsi Krishna S . wrote:
+> Dan,
+> 
+> Thanks for pointing this out. I see that this change has now gone into
+> 2.4.18 as well as 2.5.4. We would ensure that the down_write happens
+> only after the registers of all threads are collected.
 
-it deals with ip options (see rfc's 791 and 1122).  
+Yes, your other patch for this looks OK.
 
-ip_options_build is called while putting together the headers, but
-prior to checksumming from numerous places in net/ipv4/ip_output.c.  
+> Coming back to the original point raised by Pavel, indeed there is 
+> nothing preventing external code (any other kernel modules) modifying
+> the cpus_allowed field from under us. This could get worse in 2.5.x
+> where a user could change cpu affinity (through proc or a syscall, 
+> though I don't think the patches providing this are accepted as yet).
 
-ip_options_fragment does special handling for options in fragmented
-datagrams (again, ip_output.c).
-
-ip_options_echo is used to setup the options used in a reply; see
-net/ipv4/icmp.c et al.
-
-ip_options_compile and ip_options_get both seem to be used to extract raw
-options from an skb.
-
-ip_options_forward handles setting up source-routed packets, while 
-ip_options_rcv_srr handles their receipt.
-
-i am by not any mean at all an authority on these matters, so take this with
-a grain of salt :).
+We really need a non-signal-based way to tell the scheduler that a task
+can not be scheduled.  A lot of the machinery is all there, but private to
+sched.c; the rest is pretty straightforward.
 
 -- 
-nicholas black (dank@trellisinc.com)
-"c has types for a reason.  c++ improved the type system for a reason.  perl
- and php programs have run-time failures for a reason." - lkml
+Daniel Jacobowitz                           Carnegie Mellon University
+MontaVista Software                         Debian GNU/Linux Developer

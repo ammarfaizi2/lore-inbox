@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271825AbRHUS7L>; Tue, 21 Aug 2001 14:59:11 -0400
+	id <S271832AbRHUTBa>; Tue, 21 Aug 2001 15:01:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271824AbRHUS7A>; Tue, 21 Aug 2001 14:59:00 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:56727 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S271825AbRHUS6w>; Tue, 21 Aug 2001 14:58:52 -0400
-Date: Tue, 21 Aug 2001 14:59:08 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200108211859.f7LIx8A18707@devserv.devel.redhat.com>
-To: bcrl@redhat.com
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: FYI  PS/2 Mouse problems -- userland issue
-In-Reply-To: <mailman.998417940.18388.linux-kernel2news@redhat.com>
-In-Reply-To: <mailman.998417940.18388.linux-kernel2news@redhat.com>
+	id <S271834AbRHUTBU>; Tue, 21 Aug 2001 15:01:20 -0400
+Received: from 64-42-29-14.atgi.net ([64.42.29.14]:23815 "HELO
+	mail.clouddancer.com") by vger.kernel.org with SMTP
+	id <S271824AbRHUTBK>; Tue, 21 Aug 2001 15:01:10 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: Kernel Startup Delay
+In-Reply-To: <9lu1js$s3o$1@ns1.clouddancer.com>
+In-Reply-To: <027001c12a5b$e5d29be0$160e10ac@hades> <9lu1js$s3o$1@ns1.clouddancer.com>
+Reply-To: klink@clouddancer.com
+Message-Id: <20010821190122.E5A107840B@mail.clouddancer.com>
+Date: Tue, 21 Aug 2001 12:01:22 -0700 (PDT)
+From: klink@clouddancer.com (Colonel)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [...] it needs a few improvements during 2.5: I plan to submit a
-> patch that replaces much of the existing pc keyboard/mouse code with state
-> machine driven code that doesn't block interrupts out for long periods of
-> time, as well as fixing a few of the lockup issues the current driver has.
-> 
-> 		-ben
+In clouddancer.list.kernel, you wrote:
+>
+>Hello!
+>
+>I am setting up a server with 4 SCSI hard disks, two of which I will jumper
+>to have a delayed spin up as to not bake the power supply.  These two drives
+>will contain a striping RAID.  I am concerned that the kernel will load off
+>of the other drives and attempt to start this RAID before the disks have
+>even spun up - is there a way to have the kernel delay its startup for a
+>certain number of seconds while all the drives spin up?
+>
+>Any hints are greatly appreciated.
 
-Interesting. BTW, there is a request to introduce the mouse
-into the Input/HID framework in the way PS/2 keyboard is now.
-It does not overlap too much with a fix to hardware access,
-but it may help to remove the multitude of broken code from
-userland and direct it at your super-duper-state-machine code.
 
- http://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=50921
+You will find that the BIOS will wait for the drive spin up.  I use 9
+drives and power 'on' takes a few minutes.  Additionally, the control
+electronics is active on the drives, which would delay any attempt to
+start RAID.
 
--- Pete
+
+
+-- 
+Windows 2001: "I'm sorry Dave ...  I'm afraid I can't do that."
+

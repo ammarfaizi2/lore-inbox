@@ -1,42 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264284AbTLVByU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 20:54:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264286AbTLVByT
+	id S264290AbTLVBzH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 20:55:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264292AbTLVBzH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 20:54:19 -0500
-Received: from dp.samba.org ([66.70.73.150]:28040 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264284AbTLVByT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 20:54:19 -0500
-Date: Mon, 22 Dec 2003 12:43:15 +1100
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Cc: kai@tp1.ruhr-uni-bochum.de, sam@ravnborg.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Get modpost to work properly with vmlinux in a
- different directory
-Message-Id: <20031222124315.46a4268c.rusty@rustcorp.com.au>
-In-Reply-To: <1071698186.10795.56.camel@serpentine.pathscale.com>
-References: <1071698186.10795.56.camel@serpentine.pathscale.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 21 Dec 2003 20:55:07 -0500
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:32408 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S264290AbTLVByy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 20:54:54 -0500
+Message-ID: <3FE64EEB.6090402@labs.fujitsu.com>
+Date: Mon, 22 Dec 2003 10:54:51 +0900
+From: Tsuchiya Yoshihiro <tsuchiya@labs.fujitsu.com>
+Reply-To: tsuchiya@labs.fujitsu.com
+Organization: Fujitsu Labs
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+CC: "Stephen C. Tweedie" <sct@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: filesystem bug?
+References: <3FDD7DFD.7020306@labs.fujitsu.com>	 <1071582242.5462.1.camel@sisko.scot.redhat.com> <3FDF7BE0.205@jpl.nasa.gov>	 <3FDF95EB.2080903@labs.fujitsu.com>  <3FE0E5C6.5040008@labs.fujitsu.com> <1071782986.3666.323.camel@sisko.scot.redhat.com> <3FE62999.90309@labs.fujitsu.com>
+In-Reply-To: <3FE62999.90309@labs.fujitsu.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Dec 2003 13:56:27 -0800
-Bryan O'Sullivan <bos@pathscale.com> wrote:
 
-> This is pretty trivial.  The current version of modpost breaks if
-> invoked from outside the build tree.  This patch fixes that, and
-> simplifies the code a bit while it's at it.
+Hi,
 
-Thanks, I've taken it.  I'll push to Andrew once things have calmed down.
+The problems I had seen with my script are followings:
+
+1. disk inode is filled by 0.
+2. disk inode is written by deleted inode.
+3. a directory is gone during and after the test.
+4. a directory is gone during the test, but it actually
+exists after the test. (test script says "no such file or dir",
+but when I see the directory, it is there.)
+5. file data is destroyed.
+
+Problem #1 to #3 happened both on ext2 and ext3.
+#5 only on ext2 and #4 only on ext3.
+
+
 
 Thanks,
-Rusty.
--- 
-   there are those who do and those who hang on and you don't see too
-   many doers quoting their contemporaries.  -- Larry McVoy
+Yoshi
+
+--
+Yoshihiro Tsuchiya
+
+

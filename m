@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132072AbRCYQfa>; Sun, 25 Mar 2001 11:35:30 -0500
+	id <S132101AbRCYQgV>; Sun, 25 Mar 2001 11:36:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132101AbRCYQfU>; Sun, 25 Mar 2001 11:35:20 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7183 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S132072AbRCYQfH>;
-	Sun, 25 Mar 2001 11:35:07 -0500
-Date: Sun, 25 Mar 2001 17:33:44 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-mm@kvack.org,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] pae-2.4.3-A4
-Message-ID: <20010325173344.B30655@flint.arm.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.31.0103191839510.1003-100000@penguin.transmeta.com> <Pine.LNX.4.30.0103251643070.6469-200000@elte.hu>
+	id <S132108AbRCYQgK>; Sun, 25 Mar 2001 11:36:10 -0500
+Received: from kweetal.tue.nl ([131.155.2.7]:16438 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S132101AbRCYQgE>;
+	Sun, 25 Mar 2001 11:36:04 -0500
+Message-ID: <20010325183522.A6759@win.tue.nl>
+Date: Sun, 25 Mar 2001 18:35:22 +0200
+From: Guest section DW <dwguest@win.tue.nl>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Martin Dalecki <dalecki@evision-ventures.com>,
+        Stephen Clouse <stephenc@theiqgroup.com>,
+        "Patrick O'Rourke" <orourke@missioncriticallinux.com>,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Prevent OOM from killing init
+In-Reply-To: <20010323174319.A6487@win.tue.nl> <Pine.LNX.4.21.0103240257010.1863-100000@imladris.rielhome.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.30.0103251643070.6469-200000@elte.hu>; from mingo@elte.hu on Sun, Mar 25, 2001 at 04:53:37PM +0200
+X-Mailer: Mutt 0.93i
+In-Reply-To: <Pine.LNX.4.21.0103240257010.1863-100000@imladris.rielhome.conectiva>; from Rik van Riel on Sat, Mar 24, 2001 at 02:57:27AM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 25, 2001 at 04:53:37PM +0200, Ingo Molnar wrote:
-> one nontrivial issue was that on PAE the pgd has to be installed with
-> 'present' pgd entries, due to a CPU erratum. This means that the
-> pgd_present() code in mm/memory.c, while correct theoretically, doesnt
-> work with PAE. An equivalent solution is to use !pgd_none(), which also
-> works with the PAE workaround.
+On Sat, Mar 24, 2001 at 02:57:27AM -0300, Rik van Riel wrote:
+> On Fri, 23 Mar 2001, Guest section DW wrote:
+> > On Fri, Mar 23, 2001 at 11:56:23AM -0300, Rik van Riel wrote:
+> > > On Fri, 23 Mar 2001, Martin Dalecki wrote:
+> > 
+> > > > > Feel free to write better-working code.
+> > > > 
+> > > > I don't get paid for it and I'm not idling through my days...
+> > > 
+> > >   <similar response from Andries>
+> > 
+> > No lies please.
+> 
+> You mean that you ARE willing to implement what you've been
+> arguing for?
 
-Certainly that's the way the original *_alloc routines used to work.
-In fact, ARM never had need to implement the pmd_present() macros, since
-they were never referenced - only the pmd_none() macros were.
+There had not been any such response by me -
+thus you should not ascribe to me such a response.
 
-However, I'm currently struggling with this change on ARM - so far after
-a number of hours trying to kick something into shape, I've not managed
-to even get to the stange where I get a kernel image to link, let alone
-the compilation to finish.
+Concerning overcommit: people tell me that Eduardo Horvath
+in his patch submitted to l-k on 2000-03-31 already solved
+the problem (entirely or to a large extent).
 
-One of my many dilemas at the moment is how to allocate the page 0 PMD
-in pgd_alloc(), where we don't have a mm_struct to do the locking against.
+: This patch will prevent the linux kernel from allowing VM overcommit.
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+I have not yet read the code.
 
+Andries

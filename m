@@ -1,46 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261336AbUBYOYk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 09:24:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261333AbUBYOYk
+	id S261337AbUBYO3H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 09:29:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261338AbUBYO3G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 09:24:40 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:23540 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id S261336AbUBYOYj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 09:24:39 -0500
-Date: Wed, 25 Feb 2004 15:24:34 +0100
-From: David Weinehall <david@southpole.se>
-To: Jakub Bogusz <qboosh@pld-linux.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.3 - fix for undefined mdelay in 3c505
-Message-ID: <20040225142434.GZ17140@khan.acc.umu.se>
-Mail-Followup-To: Jakub Bogusz <qboosh@pld-linux.org>,
-	linux-kernel@vger.kernel.org
-References: <20040225141101.GK16814@gruby.cs.net.pl>
+	Wed, 25 Feb 2004 09:29:06 -0500
+Received: from smtp-out5.xs4all.nl ([194.109.24.6]:18437 "EHLO
+	smtp-out5.xs4all.nl") by vger.kernel.org with ESMTP id S261337AbUBYO3D
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 09:29:03 -0500
+Subject: Re: megaraid unified driver version 2.20.0.0-alpha1
+From: Paul Wagland <paul@wagland.net>
+To: "Mukker, Atul" <Atulm@lsil.com>
+Cc: "'Arjan van de Ven'" <arjanv@redhat.com>,
+       "'Christoph Hellwig'" <hch@infradead.org>,
+       "'James Bottomley'" <James.Bottomley@SteelEye.com>,
+       "'matt_domsch@dell.com'" <matt_domsch@dell.com>,
+       Matthew Wilcox <willy@debian.org>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>
+In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E57033BC3E2@exa-atlanta.se.lsil.com>
+References: <0E3FA95632D6D047BA649F95DAB60E57033BC3E2@exa-atlanta.se.lsil.com>
+Content-Type: text/plain
+Message-Id: <1077719297.2560.157.camel@paulw-desktop.allshare.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040225141101.GK16814@gruby.cs.net.pl>
-User-Agent: Mutt/1.4.1i
-X-Accept-Language: Swedish, English
-X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
-X-GPG-Key: http://www.acc.umu.se/~tao/files/pubkey_dc47ca16.gpg.asc
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 25 Feb 2004 15:28:17 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 25, 2004 at 03:11:01PM +0100, Jakub Bogusz wrote:
-> This patch fixes undefined mdelay() in 3c505 driver - at least on alpha
-> (maybe on other archs <linux/delay.h> is included by some other headers,
-> but on alpha it isn't) there was warning:
-> 
-> *** Warning: "mdelay" [drivers/net/3c505.ko] undefined!
+Hi,
 
-You aren't seriously using a 3c505 on an Alpha, are you?!
+One of my goals with the forward porting of the 2.10.1 changes to the
+driver in lk2.6 was also to add a wider level of sysfs support. Is there
+any plan to add this to the unified driver?
 
+I am sure that other, more experienced, people will bring up other
+points, but here are a few comments of mine;
 
-Regards: David Weinehall
--- 
- /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/
+1. I had a quick look through the code to check on "extended" sysfs
+support, i.e. whether or not board specific abilities/information could
+be accessed through the sysfs interface. At the moment, they are only
+accessible through the /proc interface. Would it be possible to do
+something like what I did in
+http://marc.theaimsgroup.com/?l=linux-scsi&m=107724328420636&w=2 I.e.
+split the information gathering into a separate module, and then use
+that for both the /proc system, and the /sys system.
+
+2. The Scsi_Host_Template should have a ".module = THIS_MODULE,"
+initialiser, otherwise the device can be removed whilst it is still
+accurate. Please see
+http://marc.theaimsgroup.com/?l=linux-scsi&m=107692559912129&w=2
+
+3. Longer term perhaps, but, if sysfs support is included, is it
+possible/reasonable to include write support for some/all of the
+attributes? For example, to be able to set the rebuild-rate without
+using the LSI supplied binary.
+
+Cheers,
+Paul
+

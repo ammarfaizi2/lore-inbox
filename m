@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275334AbRIZQ6t>; Wed, 26 Sep 2001 12:58:49 -0400
+	id <S275336AbRIZRDI>; Wed, 26 Sep 2001 13:03:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275333AbRIZQ6i>; Wed, 26 Sep 2001 12:58:38 -0400
-Received: from mail.berlin.de ([195.243.105.33]:3530 "EHLO
-	mailoutvl21.berlin.de") by vger.kernel.org with ESMTP
-	id <S275331AbRIZQ6d>; Wed, 26 Sep 2001 12:58:33 -0400
-Message-ID: <3BB20949.19469C6F@berlin.de>
-Date: Wed, 26 Sep 2001 18:58:49 +0200
-From: Norbert Roos <n.roos@berlin.de>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9 i686)
-X-Accept-Language: en
+	id <S275337AbRIZRC7>; Wed, 26 Sep 2001 13:02:59 -0400
+Received: from chiara.elte.hu ([157.181.150.200]:3596 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S275336AbRIZRCm>;
+	Wed, 26 Sep 2001 13:02:42 -0400
+Date: Wed, 26 Sep 2001 19:00:46 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Alfred Munnikes <munnikes@cistron.nl>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: spurious 8259A interrupt: IRQ7. AND VM: killing process
+ ..
+In-Reply-To: <3BB200C2.7D7E84B4@cistron.nl>
+Message-ID: <Pine.LNX.4.33.0109261855220.6377-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: System hangs during interruptible_sleep_on_timeout() under 2.4.9
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hello!
+On Wed, 26 Sep 2001, Alfred Munnikes wrote:
 
-When I call interruptible_sleep_on_timeout(), the complete systems
-stops/hangs, even with small timeout values. This happens only on an
-Abit KT7A (VIA chip set) motherboard with an Athlon processor, other
-motherboards (different manufactors) behave normally.
+> first is gives the message "spurious 8259A interrupt: IRQ7." and I
+> don't think that is normal for a PCI clock generator.
 
-I call the function during the initialization of a PCI device, but
-during the sleep the device is not generating traffic on the PCI bus.
+unless you see lockups or a high number of these messages, this is nothing
+to worry about.
 
-Any idea where this might come from?
+> eth0: RealTek RTL-8029 found at 0xe000, IRQ 10, 00:00:B4:B6:73:BC.
 
-I'm using kernel version 2.4.9.
+> spurious 8259A interrupt: IRQ7.
+> NETDEV WATCHDOG: eth0: transmit timed out
+> eth0: Tx timed out, cable problem? TSR=0x16, ISR=0x0, t=26.
+> NETDEV WATCHDOG: eth0: transmit timed out
+> eth0: Tx timed out, cable problem? TSR=0x16, ISR=0x0, t=23.
 
-bye
-Norbert
+apparently interrupt 10 got lost and was delivered as a spurious
+interrupt. This can be the result of out-of-spec hardware. (card or
+board.)
+
+	Ingo
+

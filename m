@@ -1,57 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313480AbSDQKLl>; Wed, 17 Apr 2002 06:11:41 -0400
+	id <S313452AbSDQKOF>; Wed, 17 Apr 2002 06:14:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313483AbSDQKLk>; Wed, 17 Apr 2002 06:11:40 -0400
-Received: from zikova.cvut.cz ([147.32.235.100]:10512 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S313480AbSDQKLj>;
-	Wed, 17 Apr 2002 06:11:39 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: David Lang <david.lang@digitalinsight.com>
-Date: Wed, 17 Apr 2002 12:10:49 +0200
+	id <S313479AbSDQKOE>; Wed, 17 Apr 2002 06:14:04 -0400
+Received: from swazi.realnet.co.sz ([196.28.7.2]:28048 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S313452AbSDQKOD>; Wed, 17 Apr 2002 06:14:03 -0400
+Date: Wed, 17 Apr 2002 11:57:40 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Dave Jones <davej@suse.de>
+Subject: [PATCH][2.5-dj] P4 thermal LVT (damage control)
+Message-ID: <Pine.LNX.4.44.0204171029540.30470-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: [PATCH] 2.5.8 IDE 36
-CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        "David S. Miller" <davem@redhat.com>, vojtech@suse.cz,
-        rgooch@ras.ucalgary.ca, linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <29D25120801@vcnet.vc.cvut.cz>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17 Apr 02 at 2:39, David Lang wrote:
-> On Wed, 17 Apr 2002, Martin Dalecki wrote:
-> 
-> > > Now, the problem of dealing with DMA along with the swapping is
-> > > something scary. I beleive the sanest solution that won't please
-> > > affected people is to _not_ support DMA on these broken HW ;)
-> >
-> > No: the sane sollution would be to not support swapping disks between
-> > those systems and other systems.
-> 
-> in this case please send me a system compatable with my tivo so that I can
-> hack on it since you are telling me I'm not going to be able to swap disks
-> between it and any sane system.
-> 
-> doing without DMA is very reasonable and not a significant problem (yes it
-> slows me down if I am duplicating drives, but if I am mounting the drive
-> so that I can go in and vi the startup files the speed difference doesn't
-> matter)
+This patch avoids frobbing the LVT if we haven't touched it. In 
+particular, the case where its handled by SMM. And changes one #ifdef 
+(Dave does that look ok?)
 
-I believe that if you'll create patch which will not byteswap data in
-place, and which will not slow system down, he'll accept it.
+Against 2.5.8-dj1
 
-As there are only three places where bswap should be checked
-(taskfile_input_data, taskfile_output_data, enabling DMA),
-it is trivial - just fork ata_{input,output}_data, and use insw_swapw/
-outsw_swapw in new variant. It will work long as driver properly 
-diferentiates that taskfile_*_data is for data read to/from disk plates, 
-while ata_*_data is for data produced by disk itself (identify & co.),
-and without speed difference, as PCI/VLB/ISA/disk/whatever is limiting 
-factor for speed of ata_*_data function.
-                                                Petr Vandrovec
-                                                vandrove@vc.cvut.cz
-                                                
+<insert "please apply" chanting and bone throwing here>
+
+--- linux-2.5-dj/arch/i386/kernel/apic.c.orig	Wed Apr 17 09:52:58 2002
++++ linux-2.5-dj/arch/i386/kernel/apic.c	Wed Apr 17 10:25:33 2002
+@@ -78,6 +78,13 @@
+ 		apic_write_around(APIC_LVTPC, v | APIC_LVT_MASKED);
+ 	}
+ 
++/* lets not touch this if we didn't frob it */
++#ifdef CONFIG_X86_MCE_P4THERMAL
++	if (maxlvt >= 5) {
++		v = apic_read(APIC_LVTTHMR);
++		apic_write_around(APIC_LVTTHMR, v | APIC_LVT_MASKED);
++	}
++#endif
+ 	/*
+ 	 * Clean APIC state for other OSs:
+ 	 */
+@@ -88,6 +95,11 @@
+ 		apic_write_around(APIC_LVTERR, APIC_LVT_MASKED);
+ 	if (maxlvt >= 4)
+ 		apic_write_around(APIC_LVTPC, APIC_LVT_MASKED);
++
++#ifdef CONFIG_X86_MCE_P4THERMAL
++	if (maxlvt >= 5)
++		apic_write_around(APIC_LVTTHRM, APIC_LVT_MASKED);
++#endif
+ 	v = GET_APIC_VERSION(apic_read(APIC_LVR));
+ 	if (APIC_INTEGRATED(v)) {	/* !82489DX */
+ 		if (maxlvt > 3)		/* Due to Pentium errata 3AP and 11AP. */
+@@ -472,6 +484,7 @@
+ 	apic_pm_state.apic_tmict = apic_read(APIC_TMICT);
+ 	apic_pm_state.apic_tdcr = apic_read(APIC_TDCR);
+ 	apic_pm_state.apic_thmr = apic_read(APIC_LVTTHMR);
++	
+ 	__save_flags(flags);
+ 	__cli();
+ 	disable_local_APIC();
+--- linux-2.5-dj/include/asm/hw_irq.h.orig	Wed Apr 17 10:48:28 2002
++++ linux-2.5-dj/include/asm/hw_irq.h	Wed Apr 17 11:13:53 2002
+@@ -38,6 +38,7 @@
+ extern asmlinkage void apic_timer_interrupt(void);
+ extern asmlinkage void error_interrupt(void);
+ extern asmlinkage void spurious_interrupt(void);
++extern asmlinkage void smp_thermal_interrupt(struct pt_regs);
+ #endif
+ 
+ extern void mask_irq(unsigned int irq);
+--- linux-2.5-dj/arch/i386/kernel/i8259.c.orig	Wed Apr 17 10:37:55 2002
++++ linux-2.5-dj/arch/i386/kernel/i8259.c	Wed Apr 17 11:33:38 2002
+@@ -393,7 +393,7 @@
+ 	set_intr_gate(ERROR_APIC_VECTOR, error_interrupt);
+ 
+ 	/* thermal monitor LVT interrupt */
+-#ifdef CONFIG_MPENTIUM4
++#ifdef CONFIG_X86_MCE_P4THERMAL
+ 	set_intr_gate(THERMAL_APIC_VECTOR, thermal_interrupt);
+ #endif
+ #endif
+
+-- 
+http://function.linuxpower.ca
+

@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262477AbVAUTzk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262483AbVAUT5u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262477AbVAUTzk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 14:55:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262483AbVAUTzj
+	id S262483AbVAUT5u (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 14:57:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262479AbVAUT5t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 14:55:39 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:55266 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262477AbVAUTze (ORCPT
+	Fri, 21 Jan 2005 14:57:49 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:5612 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S262483AbVAUT5k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 14:55:34 -0500
-Date: Fri, 21 Jan 2005 20:55:22 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Rik van Riel <riel@redhat.com>, Andrea Arcangeli <andrea@cpushare.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: seccomp for 2.6.11-rc1-bk8
-Message-ID: <20050121195522.GA14982@elte.hu>
-References: <20050121100606.GB8042@dualathlon.random> <20050121120325.GA2934@elte.hu> <20050121093902.O469@build.pdx.osdl.net> <Pine.LNX.4.61.0501211338190.15744@chimarrao.boston.redhat.com> <20050121105001.A24171@build.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050121105001.A24171@build.pdx.osdl.net>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Fri, 21 Jan 2005 14:57:40 -0500
+Date: Fri, 21 Jan 2005 20:57:29 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: James Simmons <jsimmons@pentafluge.infradead.org>
+cc: Christoph Hellwig <hch@lst.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/3] merge vt_struct into vc_data
+In-Reply-To: <Pine.LNX.4.56.0501211753550.26614@pentafluge.infradead.org>
+Message-ID: <Pine.LNX.4.61.0501212053440.30794@scrub.home>
+References: <20041231143457.GA9165@lst.de> <Pine.LNX.4.61.0501150440400.6118@scrub.home>
+ <Pine.LNX.4.56.0501211753550.26614@pentafluge.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-* Chris Wright <chrisw@osdl.org> wrote:
+On Fri, 21 Jan 2005, James Simmons wrote:
 
-> * Rik van Riel (riel@redhat.com) wrote:
-> > Yes, but do you care about the performance of syscalls
-> > which the program isn't allowed to call at all ? ;)
+> Please don't remove strutc vt_struct. What should be done is that struct 
+> vt_struct is used to hold the data that is shared amoung all the VCs. For 
+> example struct consw. See we end up with something like this.
 > 
-> Heh, no, but it's for every syscall not just denied ones.  Point is
-> simply that ptrace (complexity aside) doesn't scale the same.
+> struct vt_struct {
+> 	const struct consw *vt_sw;
+> 	struct vc_data *vc_cons[MAX_NR_USER_CONSOLES];
+> }
 
-seccomp is about CPU-intense calculation jobs - the only syscalls
-allowed are read/write (and sigreturn). UML implements a full kernel
-via ptrace and CPU-intense applications run at native speed.
+This is basically a completely different structure, which you can still 
+reintroduce once needed (hopefully with a better name).
 
-	Ingo
+bye, Roman

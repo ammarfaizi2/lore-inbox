@@ -1,89 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263795AbUHBXAG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263664AbUHBXIZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263795AbUHBXAG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 19:00:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264085AbUHBXAG
+	id S263664AbUHBXIZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 19:08:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263709AbUHBXIZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 19:00:06 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:1018 "HELO
+	Mon, 2 Aug 2004 19:08:25 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:36089 "HELO
 	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S263795AbUHBW77 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 18:59:59 -0400
-Date: Tue, 3 Aug 2004 00:59:52 +0200
+	id S263664AbUHBXIX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 19:08:23 -0400
+Date: Tue, 3 Aug 2004 01:08:15 +0200
 From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] let 4KSTACKS depend on EXPERIMENTAL (fwd)
-Message-ID: <20040802225951.GR2746@fs.tum.de>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com
+Subject: Re: Some cleanup patches for: '...lvalues is deprecated'
+Message-ID: <20040802230815.GS2746@fs.tum.de>
+References: <200408021134.i72BYQdN026747@harpo.it.uu.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <200408021134.i72BYQdN026747@harpo.it.uu.se>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
-
-I'd like to see the patch below included in 2.6.8 .
-
-
------ Forwarded message from Adrian Bunk <bunk@fs.tum.de> -----
-
-Date:	Sun, 1 Aug 2004 21:02:41 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Nathan Scott <nathans@sgi.com>
-Cc: Arjan van de Ven <arjanv@redhat.com>,
-	"Jeffrey E. Hundstad" <jeffrey.hundstad@mnsu.edu>,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-	Steve Lord <lord@xfs.org>, linux-xfs@oss.sgi.com,
-	Cahya Wirawan <cwirawan@email.archlab.tuwien.ac.at>,
-	linux-kernel@vger.kernel.org
-Subject: [2.6 patch] let 4KSTACKS depend on EXPERIMENTAL
-
-On Fri, Jul 30, 2004 at 08:30:40AM +1000, Nathan Scott wrote:
->...
-> Adrian wrote:
-> > 2.6 is a stable kernel series used in production environments.
-> > 
-> > Regarding Linus' tree, it's IMHO the best solution to work around it 
-> > this way until all issues are sorted out.
+On Mon, Aug 02, 2004 at 01:34:26PM +0200, Mikael Pettersson wrote:
+> On Sun, 1 Aug 2004 12:40:26 +0200, Adrian Bunk wrote:
+> >
+> >BTW:
+> >
+> >Please don't include the compiler.h part of your patch.
+> >It's already reverted in -mm, and we're currently fixing the inlines
+> >in 2.6 .
+> >
+> >This was started after with this patch in 2.6 somewhere a required 
+> >inlining did no longer occur (and a compile error is definitely better 
+> >than a potential runtime problem).
 > 
-> I'm not really convinced - the EXPERIMENTAL marking should
-> be plenty of a deterent to folks in production environments.
-> There are reports of stack overruns on other filesystems as
-> well with 4KSTACKS, so doesn't seem worthwhile to me to do
-> this just for XFS.
+> Which one was that? DaveM wrote recently that they had eliminated
+> SPARC's save_flags/restore_flags-in-same-stack-frame requirement.
 
+The breakage that started the discussion regarding 2.6 was a breakage in 
+suspend2 (AFAIR on i386).
 
-OK, below is a patch that only adds a dependency of 4KSTACKS on 
-EXPERIMENTAL.
+It's unknown whether there are other breakages in in-kernel code, and I 
+strongly prefer three dozen easy compile fixes over possible runtime 
+errors.
 
-Considering that not all issues with 4kb stacks are currently corrected, 
-this patch should IMHO go in 2.6.8 .
+> >Although fixing it correctly touches at about three dozen files, these 
+> >are pretty straightforward patches (removing inlines or moving code 
+> >inside files). After all these issues are sorted out in 2.6, the inline 
+> >fixes could be backported to 2.4 .
+> 
+> I'll consider attacking the inlining issues, after I've reviewed my
+> cast-as-lvalue and fastcall fixes -- I noticed that at least one fix
+> had changed in 2.6 since I first adapted it to 2.4.
 
+I can also attack the inlining issues (I sent most of the 2.6 fixes), 
+but I'd prefer to wait until we've fixed all of them in 2.6 before 
+backporting the fixes.
 
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
+> /Mikael
 
---- linux-2.6.8-rc2-mm1-full/arch/i386/Kconfig.old	2004-08-01 20:59:02.000000000 +0200
-+++ linux-2.6.8-rc2-mm1-full/arch/i386/Kconfig	2004-08-01 20:59:46.000000000 +0200
-@@ -1474,7 +1474,8 @@
- 	  to solve problems without frame pointers.
- 
- config 4KSTACKS
--	bool "Use 4Kb for kernel stacks instead of 8Kb"
-+	bool "Use 4Kb for kernel stacks instead of 8Kb (EXPERIMENTAL)"
-+	depends on EXPERIMENTAL
- 	help
- 	  If you say Y here the kernel will use a 4Kb stacksize for the
- 	  kernel stack attached to each process/thread. This facilitates
+cu
+Adrian
 
+-- 
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
------ End forwarded message -----
-
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,100 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280790AbRKLN6h>; Mon, 12 Nov 2001 08:58:37 -0500
+	id <S280792AbRKLOBr>; Mon, 12 Nov 2001 09:01:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280787AbRKLN6R>; Mon, 12 Nov 2001 08:58:17 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:62793 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S280784AbRKLN6L>; Mon, 12 Nov 2001 08:58:11 -0500
-Date: Mon, 12 Nov 2001 14:57:38 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Mathijs Mohlmann <mathijs@knoware.nl>
-Cc: "David S. Miller" <davem@redhat.com>, jgarzik@mandrakesoft.com,
-        linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-        kuznet@ms2.inr.ac.ru
-Subject: Re: [PATCH] fix loop with disabled tasklets
-Message-ID: <20011112145738.Q1381@athlon.random>
-In-Reply-To: <20011112021142.O1381@athlon.random> <Pine.BSI.4.05L.10111120819290.9564-100000@utopia.knoware.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.BSI.4.05L.10111120819290.9564-100000@utopia.knoware.nl>; from mathijs@knoware.nl on Mon, Nov 12, 2001 at 08:42:27AM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S280789AbRKLOBh>; Mon, 12 Nov 2001 09:01:37 -0500
+Received: from as4-1-7.has.s.bonet.se ([217.215.31.238]:5008 "EHLO
+	k-7.stesmi.com") by vger.kernel.org with ESMTP id <S280786AbRKLOBY>;
+	Mon, 12 Nov 2001 09:01:24 -0500
+Message-ID: <3BEFD63F.4050703@stesmi.com>
+Date: Mon, 12 Nov 2001 15:01:35 +0100
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20010913
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: J Sloan <jjs@pobox.com>
+CC: CaT <cat@zip.com.au>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Re: [RFC-ONT (on topic)] Modprobe enhancement (was Re:  "Dance of  the Trolls")
+In-Reply-To: <Pine.SOL.3.96.1011111120107.21134C-100000@libra.cus.cam.ac.uk> <004601c16b0b$8b04bb80$f5976dcf@nwfs> <20011112110632.D991@zip.com.au> <3BEF16A5.A2006F4D@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 12, 2001 at 08:42:27AM +0100, Mathijs Mohlmann wrote:
+Hi.
+
+>>>This is a great suggestion.  You should ping Keith Owens (does he own
+>>>modutils, I think so) and make it happen.  A much desireable change.
+>>>
+>>Only if you can turn it off (ie a -[Yy] flag) as I don't really want my
+>>boot sequence to hang just because I bought a geforce card so that I
+>>could play my 3d games nice and fast.
+>>
 > 
+> Nothing against nvidia cards, of course -
 > 
-> On Mon, 12 Nov 2001, Andrea Arcangeli wrote:
-> > Mathijs, can you verify that? If my theory is right need_resched isn't
-> > set even if ksoftirqd loops forever. It could be one of those two
-> > possibilities:
-> > 
-> > 1) the timer irq isn't running yet
-> > 2) "current" isn't functional
+> But I play 3d games nice and fast here
+> (quake 3 arena, wolfenstein)
 > 
-> well, i'm at work now, no sparc32's here. But during my debugging i made
-> a piece of code that counted to times a process was selected by schedule.
-> A custom SysRq key read the values. What i saw during the deadlock was
-> that there where three processes running allready and scheduling seemed to
-> work find. keventd got selected everytime i pressed SysRq and ksoftirqd
-
-so "current" was _always_ "keventd" every time you press SYSRQ+P? sounds
-like you deadlocked in keventd then.
-
-> got selected during idle time.
+> BTW I'm using a voodoo 3 - well supported,
+> no 3rd party drivers to download, it always
+> just works, right from a fresh Linux install,
+> and with all new kernels...
 > 
-> This (to me) proves that "current" is working just fine. Not quite sure
-> about the timer irq. I will look at that tonight. But i'm pretty sure
-> need_resched is set again and again.
-> 
-> Even if the timer irq is working fine, the sun should not enable the 
-> keyboard irq without the tasklet being enabled. Initializing the keyboard
-
-scheduling the tasklet without it being enabled is perfect, there's no
-problem at all if the scheduler is functional by the time
-spwan_ksoftirqd is executed.
-
-All issues mentioned so far about the softirq should only to deal with
-performance, not with deadlocking. If it deadlocks that's a sparc32 bug,
-messing the softirq code can only hide the real bug.
-
-> tasklet enabled got the sun to boot just fine for me.
-> 
-> But i feel that this is fixing the symptoms. If this turns out to be the
-> problem, it should be fixed, but i feel the softirq code needs some good 
-> looking over with respect to disabled tasklets as well. (tasklet_enable 
-
-As we said several times so far, tasklets should remain disabled only
-for a little time during production (aka during the benchmarks), and
-it's a matter of the user to tasklet_kill only enabled tasklets (it's
-like quitting a function without a local_irq_restore, no surprise if irq
-remains stuck if you forget to reenable irq/tasklets).
-
-As Linus said tasklet_disable is the same thing of __cli() (or if you
-prefer as Alexey said, it's like local_bh_disable()), you shouldn't __cli()
-or local_bh_disable() for a long time, it's worthless to optimize for
-very long critical sections, tasklet_disable is just to serialize within
-a critical section. The boot case doesn't matter either, it doesn't
-matter if at boot we waste a couple of cpu cycles, boot time won't
-change anyways because of that (boot time is all cpu idle time waiting
-those scsi things).
-
-But again, those softirq issues are only performance issues, they cannot
-explain a deadlock in spwan_ksoftirqd, that is a sparc32 bug, period.
-
-So please fix the bug, then we can discuss the rest, but whatever we
-change it won't be for the boot process, the only thing that matters is
-production, even if ksoftirqd loops for seconds during the boot process
-it doesn't matter at all.
-
-> without a tasket_schedule and then a tasklet_kill will loop as well,
-> wont it?)
-> 
-> 	me (everything IMVHO)
+> Just a thought....
 
 
-Andrea
+Last I checked 32bit graphics and high resolutions wasn't an option on 
+the Voodoo 3... The GeForce line can do both and with nice enough speed.
+
+// Stefan
+
+
+

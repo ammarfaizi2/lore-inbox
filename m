@@ -1,63 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289725AbSBER7p>; Tue, 5 Feb 2002 12:59:45 -0500
+	id <S289711AbSBESDh>; Tue, 5 Feb 2002 13:03:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289718AbSBER7d>; Tue, 5 Feb 2002 12:59:33 -0500
-Received: from cc5993-b.ensch1.ov.nl.home.com ([212.204.161.160]:14608 "HELO
-	packetstorm.nu") by vger.kernel.org with SMTP id <S289711AbSBER7N>;
-	Tue, 5 Feb 2002 12:59:13 -0500
-Reply-To: <alex@packetstorm.nu>
-From: "Alex Scheele" <alex@packetstorm.nu>
-To: "Roger Massey" <rmassey@avaya.com>
-Cc: "Lkml" <linux-kernel@vger.kernel.org>
-Subject: RE: 2.4.17 panic on boot - patch for ide-pci
-Date: Tue, 5 Feb 2002 18:59:09 +0100
-Message-ID: <IOEMLDKDBECBHMIOCKODCECACJAA.alex@packetstorm.nu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <029b01c1ae68$5df20b20$12320987@dr.avaya.com>
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
-Importance: Normal
+	id <S289726AbSBESDR>; Tue, 5 Feb 2002 13:03:17 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:49157 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S289711AbSBESDC>;
+	Tue, 5 Feb 2002 13:03:02 -0500
+Date: Tue, 5 Feb 2002 10:00:37 -0800
+From: Greg KH <greg@kroah.com>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] List of maintainers
+Message-ID: <20020205180037.GC1052@kroah.com>
+In-Reply-To: <200202051015.g15AFDt19761@Port.imtp.ilyichevsk.odessa.ua> <20020205115713.D6672@suse.cz> <200202051357.g15DvDt22229@Port.imtp.ilyichevsk.odessa.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200202051357.g15DvDt22229@Port.imtp.ilyichevsk.odessa.ua>
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Tue, 08 Jan 2002 15:30:06 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[snip]
-> --- drivers/ide/ide-pci.c Mon Feb  4 19:44:02 2002
-> +++ drivers/ide/ide-pci.orig.c Mon Feb  4 19:37:50 2002
-> @@ -836,11 +836,7 @@
->   pci_read_config_dword(dev, PCI_CLASS_REVISION, &class_rev);
->   class_rev &= 0xff;
+On Tue, Feb 05, 2002 at 03:57:14PM -0200, Denis Vlasenko wrote:
+> On 5 February 2002 08:57, you wrote:
+> > > This is first draft. I picked some names and addresses and made entried
+> > > for them.
+> > > If you want to be in this list, mail me your corrected entry. Please
+> > > indicate what kind of reports you wish to receive and what kind of
+> > > reports you DON'T want to see.
+> > >
+> > > If you don't want to be in this list, mail me too - I'll remove your
+> > > entry.
+> > >
+> > > This is the very first draft.
+> >
+> > Ok, here's my entry:
+> >
+> > Vojtech Pavlik <vojtech@ucw.cz> [5 feb 2002]
+> > 	Input device drivers (drivers/input/*, drivers/char/joystick/*).
+> > 	Some USB drivers (printer, acm, catc, hid*, usbmouse, usbkbd, wacom).
+> > 	VIA IDE support.
 > 
-> - if(class_rev >= (sizeof(chipset_names)/sizeof(char *))) {
-> -  class_rev = (sizeof(chipset_names)/sizeof(char *)) - 1;
-> - }
-> -
-> - strncpy(d->name, chipset_names[class_rev], strlen(d->name));
-> + strcpy(d->name, chipset_names[class_rev]);
-> 
->   switch(class_rev) {
->    case 4:
-> --- drivers/ide/hpt366.c Mon Feb  4 19:32:45 2002
-> +++ drivers/ide/hpt366.orig.c Mon Feb  4 19:33:30 2002
-> @@ -214,9 +214,6 @@
->   pci_read_config_dword(bmide_dev, PCI_CLASS_REVISION, &class_rev);
->   class_rev &= 0xff;
-> 
-> - if(class_rev >= (sizeof(chipset_names)/sizeof(char *)))
-> -  class_rev = (sizeof(chipset_names)/sizeof(char *)) -1;
-> -
->          /*
->           * at that point bibma+0x2 et bibma+0xa are byte registers
->           * to investigate:
+> I want these entries to sound like "Hey, I am working on these parts of the 
+> kernel, if you have something, send it to me not to Linus". With precise 
+> indication of those parts and your level of involvement:
 
-Seems u diffed the wrong way :) original file should be first.
+Um, isn't that what Vojtech said?  You just converted his response into
+full sentances.
 
---
-	Alex (alex@packetstorm.nu)
+But I'm curious why you want to sort the list of maintainers by the
+maintainer name.  Isn't the format of the current MAINTAINERS file much
+nicer in that it's sorted by subsystem and driver type?  For if you want
+to know who to send your USB Printer driver changes to, you just look
+that up, instead of having to search through your file, which is ordered
+in the other way.
 
+So in short, why are you trying to do this?
 
+thanks,
+
+greg k-h

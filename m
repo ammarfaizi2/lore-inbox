@@ -1,42 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263448AbUECB4O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263467AbUECCRK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263448AbUECB4O (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 May 2004 21:56:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263460AbUECB4O
+	id S263467AbUECCRK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 May 2004 22:17:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263472AbUECCRK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 May 2004 21:56:14 -0400
-Received: from pop.potsdam.edu ([137.143.110.102]:10955 "HELO mail.potsdam.edu")
-	by vger.kernel.org with SMTP id S263448AbUECB4L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 May 2004 21:56:11 -0400
-Subject: Implementing an "on demand" routing protocol?
-From: Peter Hernberg <petehern@yahoo.com>
-To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+	Sun, 2 May 2004 22:17:10 -0400
+Received: from ausmtp02.au.ibm.com ([202.81.18.187]:56983 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S263467AbUECCRH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 May 2004 22:17:07 -0400
+Subject: Re: query_module in 2.6
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: "Pinyowattayakorn, Naris" <np151003@teradata-ncr.com>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <01B69E0E615FD5118EA00003477144BA1082B917@susdayte52.daytonoh.ncr.com>
+References: <01B69E0E615FD5118EA00003477144BA1082B917@susdayte52.daytonoh.ncr.com>
 Content-Type: text/plain
-Message-Id: <1083549369.613.23.camel@mine>
+Message-Id: <1083545486.25582.51.camel@bach>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 02 May 2004 21:56:09 -0400
+Date: Mon, 03 May 2004 12:16:34 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm implementing the AODV routing protocol (RFC 3561) on Linux. One of
-the protocol's salient features is being "on demand": rather than
-receiving (and transmitting) regular updates on the topology of the
-network, it waits until it needs a route to a given host (or network).
-With AODV routing, in the following simple network
+On Wed, 2004-04-28 at 13:24, Pinyowattayakorn, Naris wrote:
+> Hi,
+> 
+> I tried to search for posts regarding to the query_module but came up empty.
+> It seems to me that the sys_query_module call was removed from the 2.6
+> kernel. So the question I have is if there any alternative way to get the
+> kernel module symbols in 2.6. Or, I'm missing something here?
 
-Host A <----> Host B <----> Host C,
+You shouldn't need to.  But for debugging, you can use /proc/kallsyms.
 
-it may be that A is unaware of its route to C. If A has a packet
-destined for C, it buffers that packet and broadcasts a request for a
-route to C.
-
-Is there an interface whereby the kernel can be told "when you have a
-packet, but lack a route to its destination, pass a message to this
-daemon requesting a route and buffer that packet until the daemon is
-done searching for route"? Any info would be appreciated.
+Cheers,
+Rusty.
 -- 
-Peter Hernberg
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
 

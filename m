@@ -1,39 +1,65 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: (majordomo@vger.rutgers.edu) by vger.rutgers.edu via listexpand id <S160358AbQHAX7N>; Tue, 1 Aug 2000 19:59:13 -0400
-Received: by vger.rutgers.edu id <S157250AbQHAX6z>; Tue, 1 Aug 2000 19:58:55 -0400
-Received: from [209.10.217.66] ([209.10.217.66]:3752 "EHLO neon-gw.transmeta.com") by vger.rutgers.edu with ESMTP id <S160384AbQHAX56>; Tue, 1 Aug 2000 19:57:58 -0400
-To: linux-kernel@vger.rutgers.edu
-From: "H. Peter Anvin" <hpa@zytor.com>
+Received: (majordomo@vger.rutgers.edu) by vger.rutgers.edu via listexpand id <S160422AbQHBGmM>; Wed, 2 Aug 2000 02:42:12 -0400
+Received: by vger.rutgers.edu id <S160421AbQHBGlY>; Wed, 2 Aug 2000 02:41:24 -0400
+Received: from hog.ctrl-c.liu.se ([130.236.252.129]:1972 "HELO t1.ctrl-c.liu.se") by vger.rutgers.edu with SMTP id <S160420AbQHBGkn>; Wed, 2 Aug 2000 02:40:43 -0400
+Date: 2 Aug 2000 06:52:26 -0000
+Message-ID: <20000802065226.29333.qmail@t1.ctrl-c.liu.se>
+From: wingel@t1.ctrl-c.liu.se
+To: David.Howells@nexor.co.uk
+Cc: linux-kernel@vger.rutgers.edu
 Subject: Re: RLIM_INFINITY inconsistency between archs
-Date: 1 Aug 2000 17:18:26 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <8m7pci$fbt$1@cesium.transmeta.com>
-References: <7iw6kYsXw-B@khms.westfalen.de> <20000731211810.B28169@thune.mrc-home.org> <20000801023027.23228.qmail@t1.ctrl-c.liu.se> <20000801185531.B2091@thune.mrc-home.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
+Newsgroups: linux.kernel
+In-Reply-To: <20000801073357Z157113-15702+213@vger.rutgers.edu>
+References: <7iw6lD2Xw-B@khms.westfalen.de>
+Organization: 
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Followup to:  <20000801185531.B2091@thune.mrc-home.org>
-By author:    Mike Castle <dalgoda@ix.netcom.com>
-In newsgroup: linux.dev.kernel
-> 
-> If they are so stable, then why does it matter which version of the kernel
-> glibc was built against and why aren't those kernel headers good enough to
-> accomplish what automounter needs?
-> 
+David.Howells@nexor.co.uk wrote:
 
-They usually are just fine.  However, if the automount protocol is
-updated, we don't want to *have* to sit through a full glibc release
-cycle.
+>Kai Henningsen wrote:
+>> I notice just about everybody suggesting absolute paths.
+>>
+>> Try relative paths or environment variables instead. This has the  
+>> advantage of working anywhere you damn well please.
+>
+>Relative to what? Which environment variables? Who sets these variables?
 
-	-hpa
+Relative to the current directory of course.
+
+I've been propagating for this too, since it makes life so much easier
+for people compiling multiple versions of the kernel.
+
+The idea is that you tell people to untar the sources for whatever kernel
+related packages at the same place they untarred the kernel sources.  For
+most users this will mean /usr/src (i.e. on a RedHat system).
+
+So for the simple case:
+
+    /usr/src/linux
+    /usr/src/pcmcia-cs
+    /usr/src/my-whizbang-adapter
+
+and the pcmcia-cs and whizbang packages simply have line in Makefile saying:
+
+    KERNELDIR=../linux
+
+For somebody who's playing around with multiple kernels, it would
+look something like this:
+
+    /usr/src/kernel-2.2.16/linux
+    /usr/src/kernel-2.2.16/pcmcia-cs
+    /usr/src/kernel-2.2.16/my-whizbang-adapter
+
+    /usr/src/kernel-2.2.17pre3/linux
+    /usr/src/kernel-2.2.17pre3/pcmcia-cs
+    /usr/src/kernel-2.2.17pre3/my-whizbang-adapter
+
+And this will work with _no_ modifications to the sources and without
+any need to set environment variables.  How much easier can it get?
+
+    /Christer
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+"Just how much can I get away with and still go to heaven?"
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,115 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268966AbUHULGp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267523AbUHULSk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268966AbUHULGp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 07:06:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268971AbUHULGp
+	id S267523AbUHULSk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 07:18:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267534AbUHULSk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 07:06:45 -0400
-Received: from h241-28.NTCU.net ([211.76.241.28]:51974 "EHLO wagner.elixus.org")
-	by vger.kernel.org with ESMTP id S268966AbUHULF7 (ORCPT
+	Sat, 21 Aug 2004 07:18:40 -0400
+Received: from imap.gmx.net ([213.165.64.20]:6377 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S267523AbUHULSe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 07:05:59 -0400
-Date: Sat, 21 Aug 2004 12:05:46 +0100
-From: Chia-liang Kao <clkao@clkao.org>
-To: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] Subversion/svk mirror of the linux tree
-Message-ID: <20040821110545.GA11724@portege.clkao.org>
+	Sat, 21 Aug 2004 07:18:34 -0400
+X-Authenticated: #1725425
+Date: Sat, 21 Aug 2004 13:19:27 +0200
+From: Marc Ballarin <Ballarin.Marc@gmx.de>
+To: David Greaves <david@dgreaves.com>
+Cc: mrmacman_g4@mac.com, linux-kernel@vger.kernel.org,
+       alan@lxorguk.ukuu.org.uk, fsteiner-mail@bio.ifi.lmu.de,
+       kernel@wildsau.enemy.org, diablod3@gmail.com,
+       B.Zolnierkiewicz@elka.pw.edu.pl
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Message-Id: <20040821131927.37875e31.Ballarin.Marc@gmx.de>
+In-Reply-To: <41271026.8030905@dgreaves.com>
+References: <200408041233.i74CX93f009939@wildsau.enemy.org>
+	<4124BA10.6060602@bio.ifi.lmu.de>
+	<1092925942.28353.5.camel@localhost.localdomain>
+	<200408191800.56581.bzolnier@elka.pw.edu.pl>
+	<4124D042.nail85A1E3BQ6@burner>
+	<1092938348.28370.19.camel@localhost.localdomain>
+	<4125FFA2.nail8LD61HFT4@burner>
+	<101FDDA2-F2F5-11D8-8DEC-000393ACC76E@mac.com>
+	<4126F27B.9010107@dgreaves.com>
+	<20040821094955.3ab81037.Ballarin.Marc@gmx.de>
+	<41271026.8030905@dgreaves.com>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="a8Wt8u1KmwUX3Y2C"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 21 Aug 2004 10:04:38 +0100
+David Greaves <david@dgreaves.com> wrote:
 
---a8Wt8u1KmwUX3Y2C
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> Thanks - I get that :)
+> 
+> The 'write' point is that from a data perspective you've already lost 
+> your data (which is the most valuable thing from a security
+> perspective). I agree it's nice to give people write access to hardware
+> and not let them melt it permanently. However, if the semantics don't
+> allow 'safe' writing then prevent all user writing and use setgid for
+> safe programs (which is essentially what you are doing anyway) to allow
+> users to write.
+> 
 
-Greetings,
+That's basically my idea. By default CAP_SYS_RAWIO is needed to issue any
+comand. This will work fine if the software has been adjusted accordingly
+*and* there is a software for the desired purpose.
 
-I'm pleased to announce a Subversion/svk mirror of the linux kernel
-tree at:
+However, there are cases where users have to be granted read or write
+access to devices (databases, strange hardware, co-admins). In this cases,
+the admin should be able to allow certain SCSI commands even for non-root
+users.
 
-  svn://svn.clkao.org/linux/cvs
-
-Web interface at http://svn.clkao.org/svnweb/linux/log/cvs/
-
-Meanwhile svk 0.19 is available:  http://freshmeat.net/releases/170508/
-
-Before you start flaming about Subversion being centralized and not
-the right model for kernel development, please take a moment to read
-up about the additional features svk offers.
-
-Please keep me CC'ed for comments, as I'm not subscribed to the list.
-
-FAQ
-
-* I heard that Subversion isn't the preferred revision control system for
-  Linux. Why do you want to provide this mirror?
-
-I am not telling anyone to switch to Subversion for linux development,
-just helping to make the linux kernel more easily accessible to
-everyone.  Users who want to checkout the latest version of the kernel
-can use the increasingly popular open-source svn client to checkout.
-Developers can now use svk to mirror the above url, create a local and
-offline branch, generate diffs against the trunk and easily submit
-their patches upstream.
-
-You can learn more about svk at http://svk.elixus.org/.
-
-Since the tree is quite large, you might not want to grab the entire
-repository's history.  You can start off with the 100 most recent
-revisions like this:
-
-  svk mirror //linux/trunk svn://svn.clkao.org/linux/cvs
-  svk sync --skipto HEAD-100 //linux/trunk
-
-* svk is built on-top of Subversion? I heard Subversion is slow.
-  Doesn't that means svk is even slower?
-
-svk only uses the lowest two layers of Subversion, which is
-well-maintained and constantly improving.  On large trees that reside
-locally, svk checkout is about twice as fast as svn.
-
-* How is the mirror provided?
-
-svk can also mirror non-subversion repositories with the nice and
-extensible VCP framework.
-
-The exported cvs tree is rsynced, and then:
-
-svk mirror /linux/cvs cvsbk:/home/cvs/linux:linux-2.5/... --branch-only=trunk
-svk sync /linux/cvs
-
-That's it.
-
-The cvsbk VCP source driver can also be found on CPAN.
-
-The first mirror took quite a few hours for the 20000+ changesets, and
-the memory usage is around 200M.  Subsequent runs are usually done
-within 5 minute.
-
-
-ACKNOWLEDGMENT
-
-Special thanks to xs4all.nl for providing hardware and bandwidth for
-svk development and such mirror service.
-
-Cheers,
-CLK
-
---a8Wt8u1KmwUX3Y2C
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (FreeBSD)
-
-iD8DBQFBJyyJk1XldlEkA5YRArRpAJ9rcWCVXyQh7Xicr9yWLUXj59JwWgCeItHb
-Czt7GiI5NYvvubXM2gVbzAA=
-=mvgA
------END PGP SIGNATURE-----
-
---a8Wt8u1KmwUX3Y2C--
+Regards

@@ -1,60 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129434AbQLARON>; Fri, 1 Dec 2000 12:14:13 -0500
+	id <S129532AbQLARQN>; Fri, 1 Dec 2000 12:16:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129431AbQLAROD>; Fri, 1 Dec 2000 12:14:03 -0500
-Received: from mailhub2.shef.ac.uk ([143.167.2.154]:17300 "EHLO
-	mailhub2.shef.ac.uk") by vger.kernel.org with ESMTP
-	id <S129257AbQLARNv>; Fri, 1 Dec 2000 12:13:51 -0500
-Date: Fri, 1 Dec 2000 16:41:38 +0000 (GMT)
-From: Guennadi Liakhovetski <gvlyakh@mail.ru>
-To: linux-kernel@vger.kernel.org
-cc: Mike Dresser <mdresser@windsormachine.com>
-Subject: PCI support in kernel
-Message-ID: <Pine.GSO.4.21.0012011622040.12071-100000@acms23>
+	id <S129524AbQLARQD>; Fri, 1 Dec 2000 12:16:03 -0500
+Received: from mailhost.lanl.gov ([128.165.3.12]:26952 "EHLO mailhost.lanl.gov")
+	by vger.kernel.org with ESMTP id <S129532AbQLARPu>;
+	Fri, 1 Dec 2000 12:15:50 -0500
+Message-ID: <3A27D4D6.4DA47346@lanl.gov>
+Date: Fri, 01 Dec 2000 09:41:58 -0700
+From: Roger Crandell <rwc@lanl.gov>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: multiprocessor kernel problem
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Actually, this is a continuation of the 
-"Re: DMA !NOT ONLY! for triton again..."
-thread.
 
-Mike Dresser wrote:
-> I'm taking the case off the machine right now, i can guarantee you its
-> not UDMA compatible, simply because this thing was made in early1997. :)
-> 
-> Here we go:
-> 
-> MDL WDAC21600-00H
-> P/N 99-004199-000
-> CCC F3 20 FEB 97
+I have 2.4.0  test 10 and test 11 installed on a multiprocessor (Intel)
+machine.  I have tried both test versions of the kernel.  I configured
+the kernel for single
+and multi processor.  When I boot single processor, iptables will run
+fine.  When I boot the machine with the multiprocessor kernel and run
+iptables, the kernel dumps several pages of hex and the final two lines
+of output are:
 
-YEP! Mine is F6. Which means, that both of them are 'other than UDMA'. And
-since yours supports DMA I'll assume that so does mine too. Which means
-that the reason why I can't turn it on is BIOS - from your previous
-postings. Please, can anybody here explain, how is this possible, if
-ide.txt clearly says the contrary:
-"(linux) does not use the BIOS for disk access"
-or am I wrong somewhere? Shall I tell the kernel 
-'hda=noprobe,... ide0=dma...'
-?
+Killing interrupt handler
+scheduling in interrupt
 
-> DCM: BHBBKLP
-> 
-> I've got various of these hard drives in service, for the last 4
-> years.  Many run in windows pc's, and DMA mode in osr2 and newer, works,
-> and is noticeablely faster.
+The kernel logs nothing and you must reset the machine to bring it back
+up.  I believe this is a kernel issue rather than an iptables
+issue.
 
-Guennadi
-___
+Does anyone have experience with iptables on a multiprocessor machine?
 
-Dr. Guennadi V. Liakhovetski
-Department of Applied Mathematics
-University of Sheffield, U.K.
-email: G.Liakhovetski@sheffield.ac.uk
+I am not currently subscribed to this list, so may I please be
+personally CC'ed with the
+answers/comments posted to the list?  I have also submitted this to the
+netfilter list of which I am
+a member.
 
+
+Roger Crandell
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

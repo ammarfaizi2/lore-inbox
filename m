@@ -1,60 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264676AbTGJSHd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 14:07:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269590AbTGJSHd
+	id S266452AbTGJSQW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 14:16:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269522AbTGJSQW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 14:07:33 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:6593 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S264676AbTGJSH0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 14:07:26 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
+	Thu, 10 Jul 2003 14:16:22 -0400
+Received: from cerebus.immunix.com ([198.145.28.33]:16375 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id S266452AbTGJSQL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 14:16:11 -0400
+Date: Thu, 10 Jul 2003 11:28:07 -0700
+From: Chris Wright <chris@wirex.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Alexander Viro <viro@math.psu.edu>, lkml <linux-kernel@vger.kernel.org>,
+       Jeff Muizelaar <kernel@infidigm.net>
+Subject: Re: [PATCH] add seq file helpers from 2.5 (fwd)
+Message-ID: <20030710112807.A29562@figure1.int.wirex.com>
+References: <Pine.LNX.4.55L.0307100000100.6316@freak.distro.conectiva>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16141.44749.105050.260268@napali.hpl.hp.com>
-Date: Thu, 10 Jul 2003 11:22:05 -0700
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: davidm@hpl.hp.com, Rusty Russell <rusty@rustcorp.com.au>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>, <ak@suse.de>
-Subject: Re: per_cpu fixes 
-In-Reply-To: <Pine.LNX.4.44.0307101112320.16847-100000@home.osdl.org>
-References: <16141.43130.657025.952793@napali.hpl.hp.com>
-	<Pine.LNX.4.44.0307101112320.16847-100000@home.osdl.org>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.55L.0307100000100.6316@freak.distro.conectiva>; from marcelo@conectiva.com.br on Thu, Jul 10, 2003 at 12:02:05AM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Thu, 10 Jul 2003 11:15:25 -0700 (PDT), Linus Torvalds <torvalds@osdl.org> said:
+* Marcelo Tosatti (marcelo@conectiva.com.br) wrote:
+> +int single_open(struct file *file, int (*show)(struct seq_file *, void*), void *data)
+> +{
+> +	struct seq_operations *op = kmalloc(sizeof(*op), GFP_KERNEL);
+> +	int res = -ENOMEM;
+> +
+> +	if (op) {
+> +		op->start = single_start;
+> +		op->next = single_next;
+> +		op->stop = single_stop;
+> +		op->show = show;
+> +		res = seq_open(file, op);
 
-  Linus> On Thu, 10 Jul 2003, David Mosberger wrote:
-  >> 
-  >> You mean there would be three primitives:
-  >> 
-  >> (1) get value from a per-CPU variable
-  >> (2) set value of a per-CPU variable
-  >> (3) get the (canonical) address of a per-CPU variable
+Any reason not to simply allocate static ops struct?  As in:
 
-  Linus> Argh.
+  static struct seq_operations single_ops = {
+  	.start	= single_start;
+	.next	= single_next;
+	.stop	= single_stop;
+	.show	= show;
+  };
 
-  Linus> We'd better have the rule that if there are any virtual
-  Linus> caches or other issues, then the "canonical address" had
-  Linus> better be the _only_ address (or at least any virtual
-  Linus> remapping has to be done in such a way that it never causes
-  Linus> aliasing or other performance problems with the canonical
-  Linus> address).
+  int single_open()
+  {
+  	req = seq_open(file, &single_ops);
+	...
+  }
 
-  Linus> This is already turning fairly ugly, and I just don't want to
-  Linus> see even more ugly rules like "you can't mix direct accesses
-  Linus> with pointer accesses"
-
-Yes, Rusty's proposal (as I think I summarized above) would do exactly
-that: the only address that you'll ever see for a per-CPU variable
-will be the canonical one.  The get/set macros can use an alias on
-platforms where this is more efficient, but the alias will never be
-visible outside the macros.
-
-	--david
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

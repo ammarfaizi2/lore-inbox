@@ -1,70 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277103AbRJDSfs>; Thu, 4 Oct 2001 14:35:48 -0400
+	id <S276840AbRJDSds>; Thu, 4 Oct 2001 14:33:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276942AbRJDSfi>; Thu, 4 Oct 2001 14:35:38 -0400
-Received: from shell.cyberus.ca ([209.195.95.7]:41914 "EHLO shell.cyberus.ca")
-	by vger.kernel.org with ESMTP id <S277103AbRJDSf2>;
-	Thu, 4 Oct 2001 14:35:28 -0400
-Date: Thu, 4 Oct 2001 14:33:00 -0400 (EDT)
-From: jamal <hadi@cyberus.ca>
-To: Andreas Dilger <adilger@turbolabs.com>
-cc: Ingo Molnar <mingo@elte.hu>, <linux-kernel@vger.kernel.org>,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-        Robert Olsson <Robert.Olsson@data.slu.se>,
-        Benjamin LaHaise <bcrl@redhat.com>, <netdev@oss.sgi.com>,
-        Simon Kirby <sim@netnation.com>
-Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-In-Reply-To: <20011004114021.F31061@turbolinux.com>
-Message-ID: <Pine.GSO.4.30.0110041423140.10825-100000@shell.cyberus.ca>
+	id <S277103AbRJDSd3>; Thu, 4 Oct 2001 14:33:29 -0400
+Received: from Aniela.EU.ORG ([194.102.102.235]:1540 "EHLO NS1.Aniela.EU.ORG")
+	by vger.kernel.org with ESMTP id <S276840AbRJDSd0>;
+	Thu, 4 Oct 2001 14:33:26 -0400
+Date: Thu, 4 Oct 2001 21:33:52 +0300 (EEST)
+From: <lk@Aniela.EU.ORG>
+To: Karl Pitrich <pit@root.at>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: 100% sync block device on 2.2 ?
+In-Reply-To: <Pine.LNX.4.33.0110042022560.1056-100000@warp.root.at>
+Message-ID: <Pine.LNX.4.33.0110042132390.480-100000@ns1.Aniela.EU.ORG>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 4 Oct 2001, Andreas Dilger wrote:
-
-> On Oct 04, 2001  07:34 -0400, jamal wrote:
-> > 1) you shut down shared interupts; take a look at this posting by Marcus
-> > Sundberg <marcus@cendio.se>
 > >
-> > ---------------
+> > while :; do sync ; done
 > >
-> >   0:    7602983          XT-PIC  timer
-> >   1:      10575          XT-PIC  keyboard
-> >   2:          0          XT-PIC  cascade
-> >   8:          1          XT-PIC  rtc
-> >  11:    1626004          XT-PIC  Toshiba America Info Systems ToPIC95 PCI
-> > \
-> > to Cardbus Bridge with ZV Support, Toshiba America Info Systems ToPIC95
-> > PCI \
-> > to Cardbus Bridge with ZV Support (#2), usb-uhci, eth0, BreezeCom Card, \
-> > Intel 440MX, irda0  12:       1342          XT-PIC  PS/2 Mouse
-> >  14:      23605          XT-PIC  ide0
 > >
-> > -----------------------------
-> >
-> > Now you go and shut down IRQ 11 and punish all devices there. If you can
-> > avoid that, it is acceptable as a temporary replacement to be upgraded to
-> > a better scheme.
+> > and everything should be in sync :)
 >
-> Well, if we fall back to polling devices if the IRQ is disabled, then the
-> shared interrupt case can be handled as well.  However, there were complaints
-> about the patch when Ingo had device polling included, as opposed to just
-> IRQ mitigation.
+> sync does not call fsync_dev(), nor it calls this flush ioctl i
+> implemented in my driver.
+> sync seems just to sync the vfs.
+
+from my experience, sync flush all the buffers to disk just like the
+kernel does when it receies a halt or reboot command.
+
 >
-
-I dont think youve followed the discussions too well and normally i
-wouldnt respond but you addressed me. Ingos netdevice polling is not the
-right approach, please look at NAPI and read the paper. NAPI does
-all what youve been suggesting. We are not even discussing that at this
-point. We are discussing the sledgehammer effect and how you could break a
-finger or two trying to kill that fly with it. The example above
-illustrates it.
-
-cheers,
-jamal
-
+>
 

@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271005AbRH3Iak>; Thu, 30 Aug 2001 04:30:40 -0400
+	id <S270319AbRH3IeA>; Thu, 30 Aug 2001 04:34:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270333AbRH3Iab>; Thu, 30 Aug 2001 04:30:31 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:33932 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S270319AbRH3IaV>;
-	Thu, 30 Aug 2001 04:30:21 -0400
-Date: Thu, 30 Aug 2001 01:30:23 -0700 (PDT)
-Message-Id: <20010830.013023.94071732.davem@redhat.com>
-To: alan@lxorguk.ukuu.org.uk
-Cc: manik@cisco.com, linux-kernel@vger.kernel.org
-Subject: Re: ioctl conflicts
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <E15cN49-0000fz-00@the-village.bc.nu>
-In-Reply-To: <3B8DEF9D.26F7544D@cisco.com>
-	<E15cN49-0000fz-00@the-village.bc.nu>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S271068AbRH3Idu>; Thu, 30 Aug 2001 04:33:50 -0400
+Received: from linuxqa.com ([212.143.78.26]:6605 "EHLO alegator.linuxqa.com")
+	by vger.kernel.org with ESMTP id <S270319AbRH3Idf>;
+	Thu, 30 Aug 2001 04:33:35 -0400
+Message-ID: <3B8DFA63.86E13099@aduva.com>
+Date: Thu, 30 Aug 2001 11:33:39 +0300
+From: Alexander Gavrilov <alegator@aduva.com>
+Reply-To: alegator@aduva.com
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.14-5.0 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: kernel compile problems
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-   Date: Thu, 30 Aug 2001 09:20:45 +0100 (BST)
+I am trying to compile kernel 2.2.16-20
 
-   > I was grep-ing on a 2.4 source tree when i found the
-   > following :
-   > 
-   > ./include/linux/videodev.h:#define VIDIOCGCAP          
-   > _IOR('v',1,struct video_capability)
-   > ./include/linux/ext2_fs.h:#define  EXT2_IOC_GETVERSION  _IOR('v',1,
-   > long)   
-   
-   Thats fine. ext2 ioctls and video ioctls go to different places
+with kgcc :
 
-Consider sparc64.
+kgcc-1.1.2-40
 
-Later,
-David S. Miller
-davem@redhat.com
+
+and i getting those errors :
+
+
+make[1]: Entering directory `/usr/src/linux-2.2.16/arch/i386/boot'
+kgcc -D__KERNEL__ -I/usr/src/linux/include -E -D__BIG_KERNEL__
+-traditional -DSVGA_MODE=NORMAL_VGA  bootsect.S -o bbootsect.s
+as86 -0 -a -o bbootsect.o bbootsect.s
+make[1]: as86: Command not found
+make[1]: *** [bbootsect.o] Error 127
+make[1]: Leaving directory `/usr/src/linux-2.2.16/arch/i386/boot'
+make: *** [bzImage] Error 2
+
+
+~
+~
+
+
+

@@ -1,38 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129363AbRBHLcL>; Thu, 8 Feb 2001 06:32:11 -0500
+	id <S129518AbRBHLdb>; Thu, 8 Feb 2001 06:33:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129649AbRBHLbw>; Thu, 8 Feb 2001 06:31:52 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:1284 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S129363AbRBHLbt>;
-	Thu, 8 Feb 2001 06:31:49 -0500
-Message-ID: <20010208004021.D189@bug.ucw.cz>
-Date: Thu, 8 Feb 2001 00:40:21 +0100
+	id <S129953AbRBHLdV>; Thu, 8 Feb 2001 06:33:21 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:3076 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S129649AbRBHLdI>;
+	Thu, 8 Feb 2001 06:33:08 -0500
+Message-ID: <20010208004938.E189@bug.ucw.cz>
+Date: Thu, 8 Feb 2001 00:49:38 +0100
 From: Pavel Machek <pavel@suse.cz>
-To: Juergen Schneider <juergen.schneider@tuxia.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Animated framebuffer logo for 2.4.1
-In-Reply-To: <20010201183231.A373@tuxia.com>
+To: Andreas Dilger <adilger@turbolinux.com>,
+        Jeffrey Keller <jeff@commerceflow.com>
+Cc: sct@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: Reasons to honor readonly mount requests
+In-Reply-To: <3A7B7F8C.67C2B603@commerceflow.com> <200102030359.f133xrM02216@webber.adilger.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 0.93i
-In-Reply-To: <20010201183231.A373@tuxia.com>; from Juergen Schneider on Thu, Feb 01, 2001 at 06:32:31PM +0100
+In-Reply-To: <200102030359.f133xrM02216@webber.adilger.net>; from Andreas Dilger on Fri, Feb 02, 2001 at 08:59:53PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi!
+Hi!
 
-> I've created a patch for kernel 2.4.1 that adds some fancy options for
-> the framebuffer console driver concerning the boot logo.
-> I've added logo animation and logo centering.
-> People may find this not very useful but nice to look at. :-)
+> > I understand that both ext3fs and
+> > reiserfs will try to fix corrupt filesystems (or at least filesystems
+> > with unprocessed log entries) in-place even if they're mounted
+> > read-only.  Clearly, virtual replay means more work, but -- just for
+> > fun -- here are some cases in which it might matter:
+> > 
+> > 1. You want the disk image untouched for forensic analysis or data
+> >    recovery.
+> > 2. You don't trust the disk to do writes properly.
+> > 3. You don't trust the driver to do writes properly.
+> > 4. You want to test a newer or unstable FS implementation w/ option to
+> >    go back to the older one.
+> 
+> Excluding the root fs (which probably isn't involved in these sorts of
+> things anyways), you can always turn off the "RECOVERY" flag on the
+> filesystem and mount ext3 as ext2, which will not do any recovery.
 
-Long time ago I joked that win2000 will have 30-minute film at the
-bootup. [3.1 had picture, 95+ had static logo with moving line...] And
-now it looks like _linux_ is getting that feature...
-								Pavel,
-wondering when linux boot gets so long that mpeg2 player gets
-integrated into kernel.
+_If_ you happen to realize that mount -o ro -t ext3 is not really read
+only. sct know it may write to filesystem, now I know it; but I
+believe that if you asked Joe Admin 
+
+"Linux writes to partition mounted read-only in some cases; is it a
+bug?"
+
+he would say
+
+"YES!"
+								Pavel
+
 -- 
 I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
 Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

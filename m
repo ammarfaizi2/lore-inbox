@@ -1,185 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264896AbTLKLsJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 06:48:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264899AbTLKLsJ
+	id S264893AbTLKLnh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 06:43:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264894AbTLKLng
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 06:48:09 -0500
-Received: from c-130372d5.012-136-6c756e2.cust.bredbandsbolaget.se ([213.114.3.19]:25479
-	"EHLO pomac.netswarm.net") by vger.kernel.org with ESMTP
-	id S264896AbTLKLrv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 06:47:51 -0500
-Subject: Re: Fixes for nforce2 hard lockup, apic, io-apic, udma133 covered
-From: Ian Kumlien <pomac@vapor.com>
-To: ross@datscreative.com.au
-Cc: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>, linux-kernel@vger.kernel.org,
-       AMartin@nvidia.com, kernel@kolivas.org
-In-Reply-To: <200312111655.25456.ross@datscreative.com.au>
-References: <200312072312.01013.ross@datscreative.com.au>
-	 <200312101543.39597.ross@datscreative.com.au>
-	 <Pine.LNX.4.55.0312101653490.31543@jurand.ds.pg.gda.pl>
-	 <200312111655.25456.ross@datscreative.com.au>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-MGYUhWJsNYXHzW1q+zya"
-Message-Id: <1071143274.2272.4.camel@big.pomac.com>
+	Thu, 11 Dec 2003 06:43:36 -0500
+Received: from holomorphy.com ([199.26.172.102]:16869 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S264893AbTLKLnf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 06:43:35 -0500
+Date: Thu, 11 Dec 2003 03:40:18 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Rhino <rhino9@terra.com.br>
+Cc: Nick Piggin <piggin@cyberone.com.au>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Anton Blanchard <anton@samba.org>, Ingo Molnar <mingo@redhat.com>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>, Mark Wong <markw@osdl.org>
+Subject: Re: [CFT][RFC] HT scheduler
+Message-ID: <20031211114018.GB8039@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Rhino <rhino9@terra.com.br>, Nick Piggin <piggin@cyberone.com.au>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	Anton Blanchard <anton@samba.org>, Ingo Molnar <mingo@redhat.com>,
+	Rusty Russell <rusty@rustcorp.com.au>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	"Nakajima,  Jun" <jun.nakajima@intel.com>,
+	Mark Wong <markw@osdl.org>
+References: <3FD3FD52.7020001@cyberone.com.au> <20031208155904.GF19412@krispykreme> <3FD50456.3050003@cyberone.com.au> <20031209001412.GG19412@krispykreme> <3FD7F1B9.5080100@cyberone.com.au> <3FD81BA4.8070602@cyberone.com.au> <20031211060120.4769a0e8.rhino9@terra.com.br>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 11 Dec 2003 12:47:54 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031211060120.4769a0e8.rhino9@terra.com.br>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 11 Dec 2003 18:24:20 +1100 Nick Piggin wrote:
+>> The "average" plot for w26 I think is a little misleading because
+>> it got an unlucky result on the second last point making it look
+>> like its has a downward curve. It is usually more linear with a
+>> sharp downward spike at 150 rooms like the "maximum" plot.
+>> Don't ask me why it runs out of steam at 150 rooms. hackbench does
+>> something similar. I think it might be due to some resource running
+>> short, or a scalability problem somewhere else.
 
---=-MGYUhWJsNYXHzW1q+zya
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+On Thu, Dec 11, 2003 at 06:01:20AM -0400, Rhino wrote:
+> i didn't had the time to apply the patches (w26 and C1 from ingo ) 
+> on a vanilla t11, but i merged them with the wli-2,btw this one has
+> really put my box on steroids ;) .
+> none of them finished a hackbench 320 run, the OOM killed all of my
+> agetty's logging me out. the box is a 1way p4(HT) 1gb of ram 
+> and no swap heh.
 
-On Thu, 2003-12-11 at 07:55, Ross Dickson wrote:
-> albatron:/usr/src/mptable-2.0.15a # ./mptable -verbose
->=20
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D
->=20
-> MPTable, version 2.0.15 Linux
->=20
->  looking for EBDA pointer @ 0x040e, found, searching EBDA @ 0x0009fc00
->  searching CMOS 'top of mem' @ 0x0009f800 (638K)
->  searching default 'top of mem' @ 0x0009fc00 (639K)
->  searching BIOS @ 0x000f0000
->=20
->  MP FPS found in BIOS @ physical addr: 0x000f50b0
->=20
-> -------------------------------------------------------------------------=
-------
->=20
-> MP Floating Pointer Structure:
->=20
->   location:                     BIOS
->   physical address:             0x000f50b0
->   signature:                    '_MP_'
->   length:                       16 bytes
->   version:                      1.1
->   checksum:                     0x00
->   mode:                         Virtual Wire
->=20
-> -------------------------------------------------------------------------=
-------
->=20
-> MP Config Table Header:
->=20
->   physical address:             0x0xf0c00
->   signature:                    '$ml$'
->   base table length:            0
->   version:                      1.6
->   checksum:                     0x00
->   OEM ID:                       '=C4
->                                   =B8=A7'
-> =B0=F6Product ID:                   '(
-> m'P
->   OEM table pointer:            0x12d90e22
->   OEM table size:               7964
->   entry count:                  7964
->   local APIC address:           0x1f1c1f1c
->   extended table length:        65284
->   extended table checksum:      255
->=20
-> -------------------------------------------------------------------------=
-------
->=20
-> MP Config Base Table Entries:
->=20
-> --
-> MPTABLE HOSED! record type =3D 55
-> albatron:/usr/src/mptable-2.0.15a #
->=20
+It might help to check how many processes and/or threads are involved.
+I've got process scalability stuff in there (I'm not sure how to read
+your comments though they seem encouraging).
 
-> Perhaps someone else could get mptable to run on their machine and send y=
-ou
-> the result.
 
-mptable dosn't seem to accept it's own options, anyways, heres the
-output.
-
-mptable -extra -verbose -pirq
-=20
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D
-=20
-MPTable, version 2.0.15 Linux
-=20
- looking for EBDA pointer @ 0x040e, found, searching EBDA @ 0x0009fc00
- searching CMOS 'top of mem' @ 0x0009f800 (638K)
- searching default 'top of mem' @ 0x0009fc00 (639K)
- searching BIOS @ 0x000f0000
-=20
- MP FPS found in BIOS @ physical addr: 0x000f5ce0
-=20
----------------------------------------------------------------------------=
-----
-=20
-MP Floating Pointer Structure:
-=20
-  location:                     BIOS
-  physical address:             0x000f5ce0
-  signature:                    '_MP_'
-  length:                       16 bytes
-  version:                      1.1
-  checksum:                     0x00
-  mode:                         Virtual Wire
-=20
----------------------------------------------------------------------------=
-----
-=20
-MP Config Table Header:
-=20
-  physical address:             0x0xf0c00
-  signature:                    ''
-  base table length:            1280
-  version:                      1.7
-  checksum:                     0x00
-  OEM ID:                       ''
-  Product ID:                   ''
-  OEM table pointer:            0x0000ffff
-  OEM table size:               0
-  entry count:                  65535
-  local APIC address:           0x000000c4
-  extended table length:        1
-  extended table checksum:      0
-=20
----------------------------------------------------------------------------=
-----
-=20
-MP Config Base Table Entries:
-=20
---
-Processors:     APIC ID Version State           Family  Model   Step    Fla=
-gs
-                 0       0x 7    BSP, usable     15      15      15      0x=
-1a00c035
-                 0       0x 0    AP, unusable    0       0       10      0x=
-78ffff0a
---
-MPTABLE HOSED! record type =3D 15
-
-I couldn't find the source so i used a old RedHat rpm...
-(Asus A7N8X-X bios 1007)
-=20
---=20
-Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
-
---=-MGYUhWJsNYXHzW1q+zya
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/2Flq7F3Euyc51N8RAgn3AKCsJWnd9Yugwy1hyaxjILfeLQ2F3ACeNuj6
-5cr1dQ08CJKRPMUVt3u0We8=
-=gDpH
------END PGP SIGNATURE-----
-
---=-MGYUhWJsNYXHzW1q+zya--
-
+-- wli

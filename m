@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265996AbUJLP6h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265970AbUJLQCW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265996AbUJLP6h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 11:58:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265971AbUJLP6h
+	id S265970AbUJLQCW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 12:02:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266034AbUJLQCW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 11:58:37 -0400
-Received: from defender.easycracker.org ([217.160.180.132]:59100 "HELO
-	s-und-t-linnich.de") by vger.kernel.org with SMTP id S265996AbUJLPx3
+	Tue, 12 Oct 2004 12:02:22 -0400
+Received: from defender.easycracker.org ([217.160.180.132]:9437 "HELO
+	s-und-t-linnich.de") by vger.kernel.org with SMTP id S265970AbUJLP51
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 11:53:29 -0400
-Date: Tue, 12 Oct 2004 19:54:48 +0200
+	Tue, 12 Oct 2004 11:57:27 -0400
+Date: Tue, 12 Oct 2004 19:58:41 +0200
 From: "mobil@wodkahexe.de" <mobil@wodkahexe.de>
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.9-rc4 No local APIC present or hardware disabled
-Message-Id: <20041012195448.2eaabcea.mobil@wodkahexe.de>
+Subject: 2.6.9-rc4 ACPI problem after starting X
+Message-Id: <20041012195841.408d71ec.mobil@wodkahexe.de>
 X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: multipart/mixed;
- boundary="Multipart=_Tue__12_Oct_2004_19_54_48_+0200_OOX1+b9bn9zMO0O8"
+ boundary="Multipart=_Tue__12_Oct_2004_19_58_41_+0200_l_fBav0iuilfJl5z"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
---Multipart=_Tue__12_Oct_2004_19_54_48_+0200_OOX1+b9bn9zMO0O8
+--Multipart=_Tue__12_Oct_2004_19_58_41_+0200_l_fBav0iuilfJl5z
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
 Hi,
 
-after upgrading to 2.6.9-rc4 I'm getting the following message in dmesg:
+I reported this problem some time ago, but there was no reply.
 
-No local APIC present or hardware disabled
+After starting X (v. 4.4.0) I'm getting still some strange ACPI errors in dmesg.
 
-2.6.9-rc3 and older kernels did not show this message. They showed:
- Local APIC disabled by BIOS -- reenabling.
- Found and enabled local APIC!
+ dswload-0292: *** Error: Looking up [PBST] in namespace, AE_ALREADY_EXISTS
+ psparse-1133: *** Error: Method execution failed [\_SB_.PCI0.LPC0.BAT1._BST] (Node c1474f28), AE_ALREADY_EXISTS
 
-Any hints ?
+This does not happen, when working with the console. It starts some seconds, after i started X.
 
 Machine is an Acer Travelmate 291lci laptop.
 
@@ -46,7 +45,8 @@ Config is attached. Do you need any other information?
 Regards, Sebastian
 
 
---Multipart=_Tue__12_Oct_2004_19_54_48_+0200_OOX1+b9bn9zMO0O8
+
+--Multipart=_Tue__12_Oct_2004_19_58_41_+0200_l_fBav0iuilfJl5z
 Content-Type: text/plain;
  name="config"
 Content-Disposition: attachment;
@@ -1402,4 +1402,5 @@ CONFIG_ZLIB_INFLATE=y
 CONFIG_X86_BIOS_REBOOT=y
 CONFIG_PC=y
 
---Multipart=_Tue__12_Oct_2004_19_54_48_+0200_OOX1+b9bn9zMO0O8--
+
+--Multipart=_Tue__12_Oct_2004_19_58_41_+0200_l_fBav0iuilfJl5z--

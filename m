@@ -1,74 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263091AbTJOMxs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 08:53:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263094AbTJOMxr
+	id S263072AbTJOMqJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 08:46:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263073AbTJOMqJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 08:53:47 -0400
-Received: from web40907.mail.yahoo.com ([66.218.78.204]:9760 "HELO
-	web40907.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263091AbTJOMxp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 08:53:45 -0400
-Message-ID: <20031015125344.59726.qmail@web40907.mail.yahoo.com>
-Date: Wed, 15 Oct 2003 05:53:44 -0700 (PDT)
-From: Bradley Chapman <kakadu_croc@yahoo.com>
-Subject: Re: 2.6.0-test7-mm1
-To: Tim Schmielau <tim@physik3.uni-rostock.de>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.53.0310151441300.1333@gockel.physik3.uni-rostock.de>
-MIME-Version: 1.0
+	Wed, 15 Oct 2003 08:46:09 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:30852
+	"EHLO velociraptor.random") by vger.kernel.org with ESMTP
+	id S263072AbTJOMqF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 08:46:05 -0400
+Date: Wed, 15 Oct 2003 14:46:11 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ernie Petrides <petrides@redhat.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Dave Kleikamp <shaggy@austin.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.4.23-pre7] alternate fix for BUG() in exec_mmap()
+Message-ID: <20031015124610.GB1735@velociraptor.random>
+References: <200310140111.h9E1BR6a015812@pasta.boston.redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200310140111.h9E1BR6a015812@pasta.boston.redhat.com>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mr. Schmielau,
-
---- Tim Schmielau <tim@physik3.uni-rostock.de> wrote:
-> > You're welcome. Unfortunately I got this non-fatal Oops when I first booted:
-> >
-> > ohci1394: $Rev: 1045 $ Ben Collins <bcollins@debian.org>
-> > ohci1394_0: OHCI-1394 1.1 (PCI): IRQ=[10]  MMIO=[e8207000-e82077ff]  Max
-> > Packet=[2048]
-> > Debug: sleeping function called from invalid context at mm/slab.c:1869
-> [...]
-> > I don't see any patches in your ChangeLog which could have caused this, since
-> > it didn't happen under 2.6.0-test7 or 2.6.0-test6-mm4.
+On Mon, Oct 13, 2003 at 09:11:27PM -0400, Ernie Petrides wrote:
+> Yes, this in fact necessary.  I have retested with the locking sequence
+> shown above and verified that the problem is still fixed.
 > 
-> "might_sleep-vs-jiffies-wrap.patch" pops to mind, it probably just didn't
-> get reported in earlier kernels because starting with INITIAL_JIFFIES!=0
-> broke the rate limiting logic (sorry for that)
-
-Well, I don't use the IEEE1394 drivers (yet), so like I said, it's non-fatal. Are
-there any other debugging options I can enable that would help pinpoint this
-(i.e frame pointers?)
-
-Interesting part of .config:
-
-CONFIG_DEBUG_KERNEL=y
-CONFIG_DEBUG_STACKOVERFLOW=y
-CONFIG_DEBUG_SLAB=y
-CONFIG_DEBUG_IOVIRT=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_DEBUG_SPINLOCK=y
-CONFIG_DEBUG_SPINLOCK_SLEEP=y
-CONFIG_X86_EXTRA_IRQS=y
-CONFIG_X86_FIND_SMP_CONFIG=y
-CONFIG_X86_MPPARSE=y
-
-
+> Further, I've discovered that in my original version, with the mmap_sem
+> held across mm_release() and exit_aio(), there are potential deadlocks
+> in at least the following hypothetical calling trees:
 > 
-> Tim
+> 	mm_release()
+> 	  put_user()
+> 	    direct_put_user()
+> 	      __put_user_check()
+> 	        __put_user_size()
+> 	          __put_user_asm()
+> 	            [page fault]
+> 	                do_page_fault()
+> 	                  down_read(&mm->mmap_sem)
 > 
+> 	exit_aio()
+> 	  aio_cancel_all()
+> 	    async_poll_cancel()
+> 	      aio_put_req()
+> 	        put_ioctx()
+> 	          __put_ioctx()
+> 	            aio_free_ring()
+> 	              down_write(&ctx->mm->mmap_sem)
+> 
+> The corrected patch against 2.4.23-pre7, which restores the fast path in
+> exec_mmap() and adds the holding of "mmap_sem" across only the exit_mmap()
+> call, is attached below.  Since "mmap_sem" locking is conceptually higher
+> than file system locks in the locking hierarchy, the whole calling tree
+> from exit_mmap() on down (including potential fput() calls) should be
+> safe to run with "mmap_sem" owned.
+> 
+> Thanks for the help.
+> 
+> Cheers.  -ernie
+> 
+> 
+> 
+> --- linux-2.4.23-pre7/fs/exec.c.orig
+> +++ linux-2.4.23-pre7/fs/exec.c
+> @@ -426,6 +426,13 @@ static int exec_mmap(void)
+>  	struct mm_struct * mm, * old_mm;
+>  
+>  	old_mm = current->mm;
+> +	if (old_mm && atomic_read(&old_mm->mm_users) == 1) {
+> +		mm_release();
+> +		down_write(&old_mm->mmap_sem);
+> +		exit_mmap(old_mm);
+> +		up_write(&old_mm->mmap_sem);
+> +		return 0;
+> +	}
+>  
+>  	mm = mm_alloc();
+>  	if (mm) {
 
-Brad
+looks fine thanks.
 
-
-=====
-Brad Chapman
-
-Permanent e-mail: kakadu_croc@yahoo.com
-
-__________________________________
-Do you Yahoo!?
-The New Yahoo! Shopping - with improved product search
-http://shopping.yahoo.com
+Andrea

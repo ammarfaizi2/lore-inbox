@@ -1,45 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277775AbRJIPeJ>; Tue, 9 Oct 2001 11:34:09 -0400
+	id <S277774AbRJIPf7>; Tue, 9 Oct 2001 11:35:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277774AbRJIPdt>; Tue, 9 Oct 2001 11:33:49 -0400
-Received: from ns.suse.de ([213.95.15.193]:56072 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S277775AbRJIPdr>;
-	Tue, 9 Oct 2001 11:33:47 -0400
-Date: Tue, 9 Oct 2001 17:34:13 +0200 (CEST)
-From: Dave Jones <davej@suse.de>
-To: Thomas Hood <jdthood@mail.com>
-Cc: <linux-kernel@vger.kernel.org>
+	id <S277776AbRJIPft>; Tue, 9 Oct 2001 11:35:49 -0400
+Received: from sushi.toad.net ([162.33.130.105]:44979 "EHLO sushi.toad.net")
+	by vger.kernel.org with ESMTP id <S277774AbRJIPff>;
+	Tue, 9 Oct 2001 11:35:35 -0400
 Subject: Re: sysctl interface to bootflags?
-In-Reply-To: <1002640876.1103.21.camel@thanatos>
-Message-ID: <Pine.LNX.4.30.0110091731480.31520-100000@Appserv.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Thomas Hood <jdthood@mail.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <E15qxhu-0004Js-00@the-village.bc.nu>
+In-Reply-To: <E15qxhu-0004Js-00@the-village.bc.nu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.15 (Preview Release)
+Date: 09 Oct 2001 11:35:34 -0400
+Message-Id: <1002641737.1103.26.camel@thanatos>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9 Oct 2001, Thomas Hood wrote:
+On Tue, 2001-10-09 at 10:18, Alan Cox wrote:
+> Userspace can already do it via /dev/nvram
 
-> Hi.  I looked at your code and I saw that it depended
-> on ACPI.  Since ACPI doesn't work on my machine, I
-> thought I should look for another solution.  However,
+I see.  Good.
 
-Huh ? Read the code again.
-Its no more dependant upon ACPI than bootflag.c is.
-The bootflag is pointed at by an ACPI table.
-The code I wrote functions /exactly/ the same on
-a kernel with APM, ACPI or NO power management.
+I think that it would be helpful if the title for
+this feature in the kernel configuration menu was
+something more explanatory than "/dev/nvram support".
+I thought this had something to do with video RAM!
 
-> Alan now tells me that what I want to do can already
-> be done via /dev/nvram.
-
-My code _is_ using /dev/nvram !
-
-regards,
-
-Dave.
-
--- 
-| Dave Jones.        http://www.suse.de/~davej
-| SuSE Labs
+Cheers
+Thomas
 

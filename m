@@ -1,81 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285273AbSAZQIJ>; Sat, 26 Jan 2002 11:08:09 -0500
+	id <S285498AbSAZQXy>; Sat, 26 Jan 2002 11:23:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285338AbSAZQIA>; Sat, 26 Jan 2002 11:08:00 -0500
-Received: from mail.skjellin.net ([193.69.71.67]:55438 "HELO mail.skjellin.net")
-	by vger.kernel.org with SMTP id <S285273AbSAZQHp> convert rfc822-to-8bit;
-	Sat, 26 Jan 2002 11:07:45 -0500
-Subject: Re: acpi-rouble/amd disconnect patch
-From: Andre Tomt <andre@tomt.net>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020126122115.71FBA141B@shrek.lisa.de>
-In-Reply-To: <Pine.LNX.4.40.0201251248090.30265-100000@hades.uni-trier.de>
-	<1011968738.22709.29.camel@psuedomode>
-	<20020125203210Z290512-13996+12129@vger.kernel.org> 
-	<20020126122115.71FBA141B@shrek.lisa.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Evolution/1.0.1 
-Date: 26 Jan 2002 17:07:41 +0100
-Message-Id: <1012061261.6245.15.camel@slurv.home.i.vpn.tomt.net>
-Mime-Version: 1.0
+	id <S285352AbSAZQXd>; Sat, 26 Jan 2002 11:23:33 -0500
+Received: from sgie000400.kiv-webservice.de ([195.226.81.253]:18696 "EHLO
+	irc.kiv-host.de") by vger.kernel.org with ESMTP id <S285338AbSAZQX3>;
+	Sat, 26 Jan 2002 11:23:29 -0500
+Message-ID: <4353BABFDF95D311BFC30004AC4CB22AAE3495@sdar000001.kiv-da.de>
+From: "Stolle, Martin (KIV)" <MStolle@kiv.de>
+To: "'Anish Srivastava '" <anishs@vsnl.com>,
+        "'linux-kernel@vger.kernel.org '" <linux-kernel@vger.kernel.org>
+Subject: RE: kernel 2.4.17 with -rmap VM patch ROCKS!!!
+Date: Sat, 26 Jan 2002 17:23:12 +0100
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-01-26 at 13:21, Hans-Peter Jansen wrote:
-> Let's try to sort out things chipset wise:
-> 
-> asus a7v133 (KT133, 100 FSB, 12*): system flaky
+Hello,
 
-asus a7v133 (KT133A, 133(266)FSB, *10.5, 1.4Ghz Thunderbird, 768MB RAM).
-Stable, no obvious problems or performance issues. CPU temperature at
-32C during xmms, ssh usage.
+Thanks for your tip.
 
-mp3 playback is rock solid, even during heavy system load (two plus
-compiles, mozilla etc), and also with no system load. mpeg-video
-playback is smooth as always (mplayer with /dev/mga_vid), both with
-heavy load and without heavy load.
+I installed 2.4.17-rmap-11c and later 2.4.17-rmap-12a on my
+2-CPU-Pentium-III
+and on one of my 4-CPU-Xeon-III's, and since then, the machine isn't
+swapping any
+longer.
 
-kernel is 2.4.18-pre7 with preempt and lockbreak, plust a readlatency
-patch.
+I use Informix 7.3 and Oracle 8i.
 
-However, I prefer amd_disconnect disabled, for obvious reasons pointed
-out by other people on this list.. Temperature is now at an acceptable
-42C after a while of normal load, using just acpi in kernel.
+When i used the standard kernel with informix in former times, i had to
+reboot often, if there was much traffic on the machine.
 
-# lspci
-00:00.0 Host bridge: VIA Technologies, Inc.: Unknown device 0305 (rev
-03)
-00:01.0 PCI bridge: VIA Technologies, Inc.: Unknown device 8305
-00:04.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super] (rev
-40)
-00:04.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev
-06)
-00:04.2 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 16)
-00:04.3 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 16)
-00:04.4 Bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev
-40)
-00:09.0 Multimedia audio controller: Creative Labs SB Live! EMU10000
-(rev 07)
-00:09.1 Input device controller: Creative Labs SB Live! (rev 07)
-00:0b.0 Multimedia video controller: Brooktree Corporation Bt848 TV with
-DMA push (rev 12)
-00:0c.0 SCSI storage controller: Symbios Logic Inc. (formerly NCR)
-53c1010 Ultra3 SCSI Adapter (rev 01)
-00:0c.1 SCSI storage controller: Symbios Logic Inc. (formerly NCR)
-53c1010 Ultra3 SCSI Adapter (rev 01)
-00:0d.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone]
-(rev 34)
-00:11.0 Unknown mass storage controller: Promise Technology, Inc.:
-Unknown device 0d30 (rev 02)
-01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP
-(rev 04)
+I switched to Andrea's kernel patches, from then I hadn't to reboot, but the
+backup
+(including database consistency check) took 5 hours, and the swap file was
+around 200M,
+although there was enough RAM (3G)
 
-just my 2 kr.
+According to your idea, i switched to 2.4.17-rmap-series.
+
+I don't have to reboot any more, informix runs well, the backup takes only 1
+hour 20 minutes,
+there is no swap space any longer used.
+
+Thanks to you and Rik van Riels!
+
+I would like if Rik's kernel patches would go into standard.
+
+They are really well!
+
+Martin
+-----Original Message-----
+From: Anish Srivastava
+To: linux-kernel@vger.kernel.org
+Sent: 1/24/2002 12:17 PM
+Subject: kernel 2.4.17 with -rmap VM patch ROCKS!!!
+
+
+Hi!
  
--- 
-Mvh,
-André Tomt
-andre@tomt.net
+ I installed kernel 2.4.17 on my SMP server with 8CPU's and 8GB RAM 
+ and lets just say that whenever the entire physical memory was utilised
+ the box would topple over...with kswapd running a havoc on CPU
+utilization
+ So to avoid losing control I had to reboot every 8 hours.
+ 
+ But, it all changed after I applied Rik van Riels 2.4.17-rmap-11c patch
+ Now, the box is happily running for the past 3 days under heavy load 
+ without any problems. The RAM utilization is always at about 95% +
+ but the system doesnt swap at all.....kswapd is running all the time
+and 
+ freeing up main memory for other processes. I am quite happy with the
+ performance of the box........and highly recommend Rik's patches
+ for anyone else facing similar problems
+ 
+ Thanks to all you guys, especially Rik for helping me out....
+ 
+ Best regards,
+ 
+ Anish Srivastava
+ 
+ Linux Rulez!!!
+ 
+ 
+ 
 
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

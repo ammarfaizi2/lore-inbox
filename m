@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271107AbTG1VqH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 17:46:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271117AbTG1VqH
+	id S271119AbTG1VwT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 17:52:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271120AbTG1VwT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 17:46:07 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:12806 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S271107AbTG1VqE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 17:46:04 -0400
-Date: Mon, 28 Jul 2003 17:38:16 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] sched-2.6.0-test1-G6, interactivity changes
-In-Reply-To: <Pine.LNX.4.44.0307280921360.3537-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.3.96.1030728173045.19757A-100000@gatekeeper.tmr.com>
+	Mon, 28 Jul 2003 17:52:19 -0400
+Received: from amsfep16-int.chello.nl ([213.46.243.26]:46644 "EHLO
+	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
+	id S271119AbTG1VwR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 17:52:17 -0400
+From: Ben Twijnstra <bentw@chello.nl>
+Reply-To: bentw@chello.nl
+To: linux-kernel@vger.kernel.org
+Subject: Machine Check Exception in 2.6.0-test2
+Date: Mon, 28 Jul 2003 23:52:15 +0200
+User-Agent: KMail/1.5.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307282352.15775.bentw@chello.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Jul 2003, Ingo Molnar wrote:
+Hi all,
 
-> 
-> On Mon, 28 Jul 2003, Con Kolivas wrote:
-> 
-> > On Sun, 27 Jul 2003 23:40, Ingo Molnar wrote:
-> > >  - further increase timeslice granularity
-> > 
-> > For a while now I've been running a 1000Hz 2.4 O(1) kernel tree that
-> > uses timeslice granularity set to MIN_TIMESLICE which has stark
-> > smoothness improvements in X. I've avoided promoting this idea because
-> > of the theoretical drop in throughput this might cause. I've not been
-> > able to see any detriment in my basic testing of this small granularity,
-> > so I was curious to see what you throught was a reasonable lower limit?
-> 
-> it's a hard question. The 25 msecs in -G6 is probably too low.
+When running a fairly CPU and thread-hungry application under 2.5.75, 
+2.6.0-test1 and 2.6.0-test2 I'm getting the following error messages on the 
+console:
 
-It would seem to me that the lower limit for a given CPU is a function of
-CPU speed and cache size. One reason for longer slices is to preserve the
-cache, but the real time to get good use from the cache is not a constant,
-and you just can't pick any one number which won't be too short on a slow
-cpu or unproductively long on a fast CPU. Hyperthreading shrinks the
-effective cache size as well, but certainly not by 2:1 or anything nice.
+Jul 25 00:16:31 durak kernel: CPU 0: Machine Check Exception: 0000000000000004
+Jul 25 00:16:31 durak kernel: Bank 0: b600000000000175 at 0000000025a0cff8
+Jul 25 00:16:31 durak kernel: Kernel panic: CPU context corrupt
 
-Perhaps this should be a tunable set by a bit of hardware discovery at
-boot and diddled at your own risk. Sure one factor in why people can't
-agree on HZ and all to get best results.
+Once I get this message, one of the threads becomes unkillable yet remains 
+soaking up CPU cycles.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+This does not happen in the 2.4 kernels. How do I go about finding the source 
+of the problem? The address indicated in the second line indicates that this 
+happened somewhere in userspace (0x25a0cff8), but since this is a commercial 
+package I don't have any symbolic info. This last address changes between 
+runs, so I assume it's a virtual address.
+
+Any ideas welcome.
+
+Best regards,
+
+
+
+Ben
 

@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268417AbTCFVuE>; Thu, 6 Mar 2003 16:50:04 -0500
+	id <S268354AbTCFVpO>; Thu, 6 Mar 2003 16:45:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268422AbTCFVuE>; Thu, 6 Mar 2003 16:50:04 -0500
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:11501 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S268417AbTCFVuB> convert rfc822-to-8bit; Thu, 6 Mar 2003 16:50:01 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: Michael Hayes <mike@aiinc.ca>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix breakage caused by spelling 'fix'
-Date: Thu, 6 Mar 2003 22:59:20 +0100
-User-Agent: KMail/1.4.3
-Cc: torvalds@transmeta.com
-References: <200303062141.h26LfZK19533@aiinc.aiinc.ca>
-In-Reply-To: <200303062141.h26LfZK19533@aiinc.aiinc.ca>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200303062259.20480.m.c.p@wolk-project.de>
+	id <S268402AbTCFVpO>; Thu, 6 Mar 2003 16:45:14 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:28072
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S268354AbTCFVpN>; Thu, 6 Mar 2003 16:45:13 -0500
+Subject: Re: Disabling ATAPI retry?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: kelleycook@wideopenwest.com
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3e67c49b.7c12.1804289383@wideopenwest.com>
+References: <3e67c49b.7c12.1804289383@wideopenwest.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1046991672.17715.134.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 06 Mar 2003 23:01:12 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 06 March 2003 22:41, Michael Hayes wrote:
+On Thu, 2003-03-06 at 20:58, kelleycook@wideopenwest.com wrote:
+> Is there a boot parameter or a runtime command that can tell
+> the linux IDE driver not to automatically retry on error.
 
-Hi Michael,
+There isn't. You can always build a kernel set not to, but even then it
+takes the drive firmware a sizeable time to retry a block. If its an IBM
+you might want to try the ibm tools on them if you can get them. They 
+seem to have vanished from the face of the earth when IBM dumped its disk
+business 
 
-> This fixes a spelling "fix" that resulted in a compile error.
-> With apologies to Russell King.
-> diff -ur a/include/asm-arm/proc-fns.h b/include/asm-arm/proc-fns.h
-> --- a/include/asm-arm/proc-fns.h	Tue Mar  4 19:29:20 2003
-> +++ b/include/asm-arm/proc-fns.h	Thu Mar  6 11:46:15 2003
-> @@ -125,7 +125,7 @@
->
->  #if 0
->   * The following is to fool mkdep into generating the correct
-> - * dependencies.  Without this, it can't figure out that this
-> + * dependencies.  Without this, it cant figure out that this
-A spelling fix should be a right spelling fix ;)
-
-So either "cannot" or "can not" but not "cant" :)
-
-ciao, Marc

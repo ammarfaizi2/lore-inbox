@@ -1,107 +1,146 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263503AbTDTASZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Apr 2003 20:18:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263505AbTDTASZ
+	id S263507AbTDTBjC (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Apr 2003 21:39:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263508AbTDTBjC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Apr 2003 20:18:25 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:19640 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S263503AbTDTASX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Apr 2003 20:18:23 -0400
-Date: Sat, 19 Apr 2003 17:30:21 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BK->CVS, kernel.bkbits.net
-Message-ID: <20030420003021.GA10547@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	"H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-References: <20030417162723.GA29380@work.bitmover.com> <b7n46e$dtb$1@cesium.transmeta.com>
-Mime-Version: 1.0
+	Sat, 19 Apr 2003 21:39:02 -0400
+Received: from [62.37.236.142] ([62.37.236.142]:61391 "EHLO smtp.wanadoo.es")
+	by vger.kernel.org with ESMTP id S263507AbTDTBiv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Apr 2003 21:38:51 -0400
+Message-ID: <3EA1FCF4.5000800@wanadoo.es>
+Date: Sun, 20 Apr 2003 03:50:44 +0200
+From: =?ISO-8859-1?Q?xos=E9_v=E1zquez_p=E9rez?= <xose@wanadoo.es>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: gl, es, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-scsi <linux-scsi@vger.kernel.org>
+Subject: [report about real state of scsi drivers]
+X-Enigmail-Version: 0.63.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b7n46e$dtb$1@cesium.transmeta.com>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=0.5, required 4.5,
-	DATE_IN_PAST_06_12)
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 17, 2003 at 01:52:30PM -0700, H. Peter Anvin wrote:
-> Followup to:  <20030417162723.GA29380@work.bitmover.com>
-> By author:    Larry McVoy <lm@bitmover.com>
-> In newsgroup: linux.dev.kernel
-> >
-> > It's back up, and the CVS server up to date with the 2.4 2.5 kernels as
-> > of a few minutes ago.  The CVS server is at
-> > 
-> > :pserver:anonymous@kernel.bkbits.net:/home/cvs 
-> > 
-> > There are linux-2.4/ and linux-2.5/ subdirectories there (should this go in
-> > a FAQ someplace or does nobody except Andrea care?).
-> 
-> It definitely should.
+hi,
 
-OK, so how about this?  I assume you manage DNS for kernel.org, right?
-How about a DNS entry for cvs.kernel.org -> 64.241.2.13?  If you ever
-find a machine to host this then you already own cvs.kernel.org and you
-can just reset the address.  By the way, I think the bandwidth is pretty
-darn low, after all that fuss almost nobody seems to use this, it just
-gives them warm fuzzies to know that the history has been captured in
-an open format which is worth it if it means no more BK flame wars, eh?
+I have made a mini-report about scsi drivers.
+More information is welcome.
 
-Then whoever maintains the kernel FAQ these days could add something like
-this:
+-thanks-
 
-SCM access to the kernel trees:
--------------------------------
+--cut--
+        * LiNUX kernel SCSI/RAID HBA drivers *
 
-Linus started using an SCM (source code management) tool called BitKeeper
-in February of 2002.  Since BitKeeper isn't free software, he does not
-require that anyone else use BitKeeper, he continues to accept patches
-just like he always did.  The only difference is that information about
-who did what, and maybe why they did it, is recorded and is useful for
-learning the source base, tracking down bugs, etc.  Many, but not all,
-of the core developers have switched to using BitKeeper because it makes
-their life easier in various ways.
+                <xose_AT_wanadoo.es>
+           v1 Sun Apr 20 03:26:45 CEST 2003
+              kernel 2.4.21-pre7-ac1
 
-Some people haven't switched because BitKeeper isn't free software and
-they feel uncomfortable using non-free software as part of working on
-the kernel.  That's fine, it's an explicit goal of both Linus and the
-BitKeeper developers that nobody is required to use BitKeeper to work
-on the kernel.  Some senior developers have decided they'd rather
-not use BitKeeper, Alan Cox being a good example.  That's not a problem,
-the BitKeeper developers worked with Linus to streamline the importing
-of traditional patches so that anyone can work in any way they see fit.
+x aacraraid
+ - kernel: 0.9.9ac6-TEST
+ - latest: in kernel ??
+ - e-mail: <alan_AT_redhat.com> <aacraid_AT_adaptec.com>
+ - url:    http://ftp.linux.org.uk/pub/linux/alan/Kernel/Drivers/AACRAID/
+           http://www.domsch.com/linux/aacraid/alan/
 
-If you want to use BitKeeper (http://www.bitkeeper.com) then the official
-trees are maintained on linux.bkbits.net - to get a particular release
-try this:
+x aic7xxx/aic79xx
+ - kernel: 6.2.28/1.3.0 2003/01/21 18:26:00
+ - latest: 6.2.32/1.3.7 2003/04/16 15:54:11
+ - e-mail: Justin T. Gibbs <gibbs_AT_scsiguy.com>
+ - url:    http://people.freebsd.org/~gibbs/linux/SRC/
 
-	bk clone bk://linux.bkbits.net/linux-2.4
+x cciss
+ - kernel: 2.4.42
+ - latest: 2.4.44
+ - e-mail: <Mike.Miller_AT_hp.com>
+ - url:    http://sourceforge.net/projects/ccissa
+           http://www.ussg.iu.edu/hypermail/linux/kernel/0304.2/0120.html
 
-There was a fair amount of fuss amongst the free software purists,
-over the fact that a lot of information that was available in BitKeeper
-was lost when Linus provided the traditional tarball releases and patch
-updates.  Flame wars happened and when the dust settled, the BitKeeper
-folks built a BitKeeper to CVS gateway which captures the bulk of the
-information (as of this writing on April 19th 2003 there are 9,311
-snapshots captured).  If you would prefer to get your source with 100%
-God fearing, politically correct, open source, fully buzzword enabled
-software, then you can do this:
+x cpqfc
+ - kernel: 2.1.2 Jul 22, 2002
+ - latest: in kernel ??
+ - e-mail: <Charles.White_AT_hp.com> Amy Vanzant-Hodge <fibrechannel_AT_compaq.com>
+ - url:    http://sourceforge.net/projects/cpqfc
 
-	cvs -d:pserver:anonymous@cvs.kernel.org:/home/cvs co linux-2.4
+x DAC960
+ - kernel: 2.4.11 11 October 2001
+ - latest: 2.4.20 2003
+ - e-mail: Dave Olien dmo_AT_osdl.org
+ - url:    http://lists.debian.org/debian-alpha/2003/debian-alpha-200301/msg00020.html
+           http://www.ussg.iu.edu/hypermail/linux/kernel/0302.0/0829.html
+           http://www.dandelion.com/Linux/DAC960.html
+           http://www.osdl.org/archive/dmo/DAC960/
 
-As releases progress, the release numbers will change so some day you might
-say
+x dpt_i2o
+ - kernel: 2.4 25 July 01
+ - latest: 2.4 25 July 01
+ - e-mail: <deanna_bonds_AT_adaptec.com>
+ - url:    http://linux.adaptec.com/linux_raid_unsupported.html
+           http://linux.adaptec.com/Linux_drivers.html
 
-	bk clone bk://linux.bkbits.net/linux-4.2
-or
-	cvs -d:pserver:anonymous@cvs.kernel.org:/home/cvs co linux-4.2
+x fusion
+ - kernel: 2.05.00+ 2003/01/28 21:31:56
+ - latest: 2.05.00+ 2003/01/28 21:31:56
+ - e-mail: <Pam.Delaney_AT_lsil.com> <sjralston1_AT_netscape.net>
+ - url:    ftp://ftp.lsil.com/HostAdapterDrivers/linux/
 
+x ips
+ - kernel: 6.00.26
+ - latest: in kernel ??
+ - e-mail: <ipslinux_AT_adaptec.com>
+ - url:    unknow ??
+
+x gdth
+ - kernel: 2.05
+ - latest: 2.05
+ - e-mail: <achim.leubner_AT_intel.com> <boji.t.kannanthanam_AT_intel.com>
+ - url:    http://www.icp-vortex.com/english/download/rdrnrsrz/linux/linux_e.htm
+
+x megaraid
+
+ - kernel: v1.18f (Dec 10, 2002)
+ - latest: v2.00.3 (Feb 19, 2003)
+ - beta:   v2.00.4-beta1 (Apr 15, 2003)
+ - e-mail: Atul Mukke <atulm_AT_lsil.com>
+ - url:    ftp://ftp.lsil.com/pub/linux-megaraid/
+           http://domsch.com/linux/megaraid/
+
+x qla1280
+
+ - kernel: 3.00 Jan 17, 1999
+ - latest: 3.12 August 17, 2000
+ - beta:   3.23 Beta January 12 , 2001
+ - e-mail: someone at qlogic
+ - url:    http://www.qlogic.com/support/retired/qla1280_drvrs/linux/qla1x160src-3.12.tgz
+           http://download.qlogic.com/drivers/2209/qla1x160src-3.23Beta.tgz
+
+x qla2x00
+ - kernel: not in kernel !!
+ - latest: 6.04.00 January 20, 2003
+ - beta:   6.05.00b9 March 31, 2003
+ - e-mail: someone at qlogic
+ - url :   http://download.qlogic.com/drivers/9626/qla2x00-v6.04.00-dist.tgz
+           http://download.qlogic.com/drivers/9646/qla2x00-v6.05.00b9-dist.tgz
+
+x qla4xxx
+ - kernel: not in kernel !!
+ - latest: 1.14 12/13/2002
+ - e-mail: someone at qlogic
+ - url: i  http://download.qlogic.com/drivers/7506/
+
+x sym53c8xx_2
+ - kernel: 2.1.17a Sat Dec 01 18:00 2001
+ - latest: 2.1.19-pre3 Sat Nov 23 20:00 2002
+ - e-mail: Gerard Roudier <groudier_AT_free.fr>
+ - url:    ftp://ftp.tux.org/roudier/drivers/linux/stable/
+
+# EOF
+--the-end--
+
+regards,
 -- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Galiza nin perdoa nin esquence. Governo demision!
+

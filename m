@@ -1,116 +1,165 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314694AbSDTR4j>; Sat, 20 Apr 2002 13:56:39 -0400
+	id <S314700AbSDTR5t>; Sat, 20 Apr 2002 13:57:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314696AbSDTR4i>; Sat, 20 Apr 2002 13:56:38 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:31170 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S314694AbSDTR4g>;
-	Sat, 20 Apr 2002 13:56:36 -0400
-Date: Sat, 20 Apr 2002 13:56:35 -0400 (EDT)
+	id <S314701AbSDTR5s>; Sat, 20 Apr 2002 13:57:48 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:62148 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S314700AbSDTR5n>;
+	Sat, 20 Apr 2002 13:57:43 -0400
+Date: Sat, 20 Apr 2002 13:57:43 -0400 (EDT)
 From: Alexander Viro <viro@math.psu.edu>
 To: Linus Torvalds <torvalds@transmeta.com>
 cc: linux-kernel@vger.kernel.org
-Subject: [CFT][PATCH] (1/5) sane procfs/dcache interaction
-Message-ID: <Pine.GSO.4.21.0204201304150.25383-100000@weyl.math.psu.edu>
+Subject: [CFT][PATCH] (3/5) sane procfs/dcache interaction
+In-Reply-To: <Pine.GSO.4.21.0204201356480.25383-100000@weyl.math.psu.edu>
+Message-ID: <Pine.GSO.4.21.0204201357220.25383-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Contents:
 
-1) takes unhash_process() into sched.c, moves zeroing ->pid into it (and
-   under tasklist_lock
-
-2) new helper in fs/proc/base.c - name_to_int(dentry) returns ~0U if name
-   doesn't match 0|[1-9][0-9]* or is too large.  Otherwise it returns
-   numeric value of name.  proc_pid_lookup() and proc_lookupfd() converted.
-
-3) sane dentry retention.  Namely, we don't kill /proc/<pid> dentries at the
-   first opportunity (as the current tree does).  Instead we do the following:
-	* ->d_delete() kills it only if process is already dead.
-	* all ->lookup() in proc/base.c end with checking if process is still
-	  alive and unhash if it isn't.
-	* proc_pid_lookup() (lookup for /proc/<pid>) caches reference to dentry
-	  in task_struct.  It's _not_ counted in ->d_count.
-	* ->d_iput() resets said reference to NULL.
-	* release_task() (burying a zombie) checks if there is a cached
-	  reference and if there is - shrinks the subtree.
-	* tasklist_lock is used for exclusion.
-   That way we are guaranteed that after release_task() all dentries in
-   /proc/<pid> will go away as soon as possible; OTOH, before release_task()
-   we have normal retention policy - they go away under memory pressure with
-   the same rules as for dentries on any other fs.
-
-4) preparation to sane policy for /proc/<pid>/fd/* - we don't store
-   struct file * in these inodes anymore.
-
-5) sane retention policy for /proc/<pid>/fd/* - ->d_revalidate() says
-   "kill it" if descriptor is not opened anymore (in addition to checks
-   for task being dead) and we allow dentries of /proc/<pid>/fd/<n> to
-   stay around.
-
-Patchset eliminates a _lot_ of allocation/freeing/guaranteed negative dcache
-lookups for procfs.  It seems to be working here, but I would really appreciate
-help with testing/review.
-
-First chunk follows, the rest will go in separate mails.
-
-diff -urN C8-0/include/linux/sched.h C8-unhash_process/include/linux/sched.h
---- C8-0/include/linux/sched.h	Sun Apr 14 17:53:12 2002
-+++ C8-unhash_process/include/linux/sched.h	Fri Apr 19 01:16:35 2002
-@@ -769,15 +769,7 @@
- 
- #define thread_group_leader(p)	(p->pid == p->tgid)
- 
--static inline void unhash_process(struct task_struct *p)
--{
--	write_lock_irq(&tasklist_lock);
--	nr_threads--;
--	unhash_pid(p);
--	REMOVE_LINKS(p);
--	list_del(&p->thread_group);
--	write_unlock_irq(&tasklist_lock);
--}
-+extern void unhash_process(struct task_struct *p);
- 
- /* Protects ->fs, ->files, ->mm, and synchronises with wait4().  Nests inside tasklist_lock */
- static inline void task_lock(struct task_struct *p)
-diff -urN C8-0/kernel/exit.c C8-unhash_process/kernel/exit.c
---- C8-0/kernel/exit.c	Sun Apr 14 17:53:13 2002
-+++ C8-unhash_process/kernel/exit.c	Fri Apr 19 01:16:35 2002
-@@ -27,6 +27,17 @@
- 
- int getrusage(struct task_struct *, int, struct rusage *);
- 
-+static inline void __unhash_process(struct task_struct *p)
-+{
-+	write_lock_irq(&tasklist_lock);
-+	nr_threads--;
-+	unhash_pid(p);
-+	REMOVE_LINKS(p);
-+	list_del(&p->thread_group);
-+	p->pid = 0;
-+	write_unlock_irq(&tasklist_lock);
-+}
-+
- static void release_task(struct task_struct * p)
+diff -urN C8-name_to_int/fs/proc/base.c C8-retain_dentry/fs/proc/base.c
+--- C8-name_to_int/fs/proc/base.c	Fri Apr 19 01:17:11 2002
++++ C8-retain_dentry/fs/proc/base.c	Fri Apr 19 01:17:36 2002
+@@ -747,7 +747,7 @@
+  * directory. In this case, however, we can do it - no aliasing problems
+  * due to the way we treat inodes.
+  */
+-static int pid_base_revalidate(struct dentry * dentry, int flags)
++static int pid_revalidate(struct dentry * dentry, int flags)
  {
- 	if (p == current)
-@@ -43,8 +54,14 @@
- 	current->cmaj_flt += p->maj_flt + p->cmaj_flt;
- 	current->cnswap += p->nswap + p->cnswap;
- 	sched_exit(p);
--	p->pid = 0;
- 	put_task_struct(p);
-+}
-+
-+/* we are using it only for SMP init */
-+
-+void unhash_process(struct task_struct *p)
-+{
-+	return __unhash_process(p);
+ 	if (proc_task(dentry->d_inode)->pid)
+ 		return 1;
+@@ -755,25 +755,42 @@
+ 	return 0;
  }
  
- /*
+-static int pid_delete_dentry(struct dentry * dentry)
++static void pid_base_iput(struct dentry *dentry, struct inode *inode)
++{
++	struct task_struct *task = proc_task(inode);
++	write_lock_irq(&tasklist_lock);
++	if (task->proc_dentry == dentry)
++		task->proc_dentry = NULL;
++	write_unlock_irq(&tasklist_lock);
++	iput(inode);
++}
++
++static int pid_fd_delete_dentry(struct dentry * dentry)
+ {
+ 	return 1;
+ }
+ 
++static int pid_delete_dentry(struct dentry * dentry)
++{
++	return proc_task(dentry->d_inode)->pid == 0;
++}
++
+ static struct dentry_operations pid_fd_dentry_operations =
+ {
+ 	d_revalidate:	pid_fd_revalidate,
+-	d_delete:	pid_delete_dentry,
++	d_delete:	pid_fd_delete_dentry,
+ };
+ 
+ static struct dentry_operations pid_dentry_operations =
+ {
++	d_revalidate:	pid_revalidate,
+ 	d_delete:	pid_delete_dentry,
+ };
+ 
+ static struct dentry_operations pid_base_dentry_operations =
+ {
+-	d_revalidate:	pid_base_revalidate,
++	d_revalidate:	pid_revalidate,
++	d_iput:		pid_base_iput,
+ 	d_delete:	pid_delete_dentry,
+ };
+ 
+@@ -842,6 +859,8 @@
+ 		inode->i_mode |= S_IWUSR | S_IXUSR;
+ 	dentry->d_op = &pid_fd_dentry_operations;
+ 	d_add(dentry, inode);
++	if (!proc_task(dentry->d_inode)->pid)
++		d_drop(dentry);
+ 	return NULL;
+ 
+ out_unlock2:
+@@ -959,6 +978,8 @@
+ 	}
+ 	dentry->d_op = &pid_dentry_operations;
+ 	d_add(dentry, inode);
++	if (!proc_task(dentry->d_inode)->pid)
++		d_drop(dentry);
+ 	return NULL;
+ 
+ out:
+@@ -1045,6 +1066,11 @@
+ 
+ 	dentry->d_op = &pid_base_dentry_operations;
+ 	d_add(dentry, inode);
++	read_lock(&tasklist_lock);
++	proc_task(dentry->d_inode)->proc_dentry = dentry;
++	read_unlock(&tasklist_lock);
++	if (!proc_task(dentry->d_inode)->pid)
++		d_drop(dentry);
+ 	return NULL;
+ out:
+ 	return ERR_PTR(-ENOENT);
+diff -urN C8-name_to_int/include/linux/sched.h C8-retain_dentry/include/linux/sched.h
+--- C8-name_to_int/include/linux/sched.h	Fri Apr 19 01:16:35 2002
++++ C8-retain_dentry/include/linux/sched.h	Fri Apr 19 01:17:36 2002
+@@ -346,6 +346,7 @@
+ 
+ /* journalling filesystem info */
+ 	void *journal_info;
++	struct dentry *proc_dentry;
+ };
+ 
+ extern void __put_task_struct(struct task_struct *tsk);
+diff -urN C8-name_to_int/kernel/exit.c C8-retain_dentry/kernel/exit.c
+--- C8-name_to_int/kernel/exit.c	Fri Apr 19 01:16:35 2002
++++ C8-retain_dentry/kernel/exit.c	Fri Apr 19 01:17:36 2002
+@@ -29,13 +29,28 @@
+ 
+ static inline void __unhash_process(struct task_struct *p)
+ {
++	struct dentry *proc_dentry;
+ 	write_lock_irq(&tasklist_lock);
+ 	nr_threads--;
+ 	unhash_pid(p);
+ 	REMOVE_LINKS(p);
+ 	list_del(&p->thread_group);
+ 	p->pid = 0;
++	proc_dentry = p->proc_dentry;
++	if (unlikely(proc_dentry)) {
++		spin_lock(&dcache_lock);
++		if (!list_empty(&proc_dentry->d_hash)) {
++			dget_locked(proc_dentry);
++			list_del_init(&proc_dentry->d_hash);
++		} else
++			proc_dentry = NULL;
++		spin_unlock(&dcache_lock);
++	}
+ 	write_unlock_irq(&tasklist_lock);
++	if (unlikely(proc_dentry)) {
++		shrink_dcache_parent(proc_dentry);
++		dput(proc_dentry);
++	}
+ }
+ 
+ static void release_task(struct task_struct * p)
+diff -urN C8-name_to_int/kernel/fork.c C8-retain_dentry/kernel/fork.c
+--- C8-name_to_int/kernel/fork.c	Sun Apr 14 17:53:13 2002
++++ C8-retain_dentry/kernel/fork.c	Fri Apr 19 01:17:36 2002
+@@ -665,6 +665,7 @@
+ 
+ 	copy_flags(clone_flags, p);
+ 	p->pid = get_pid(clone_flags);
++	p->proc_dentry = NULL;
+ 
+ 	INIT_LIST_HEAD(&p->run_list);
+ 
+
 

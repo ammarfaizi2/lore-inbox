@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266414AbUBLNp1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 08:45:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266428AbUBLNp1
+	id S266420AbUBLNmP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 08:42:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266433AbUBLNmP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 08:45:27 -0500
-Received: from mra03.ex.eclipse.net.uk ([212.104.129.88]:11953 "EHLO
-	mra03.ex.eclipse.net.uk") by vger.kernel.org with ESMTP
-	id S266414AbUBLNpU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 08:45:20 -0500
-Reply-To: <grant@reflection-computer-services.co.uk>
-From: "Grant Fribbens" <grant@reflection-computer-services.co.uk>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.6.2 VFS unable to mount root fs
-Date: Thu, 12 Feb 2004 13:42:38 -0000
-Message-ID: <005701c3f16e$506886f0$0200a8c0@heron>
+	Thu, 12 Feb 2004 08:42:15 -0500
+Received: from snscrew.net ([62.212.110.148]:28720 "EHLO ns1-sns.snscrew.net")
+	by vger.kernel.org with ESMTP id S266420AbUBLNlP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 08:41:15 -0500
+Message-ID: <402B8256.8070503@snscrew.net>
+Date: Thu, 12 Feb 2004 14:40:38 +0100
+From: claude <claude@snscrew.net>
+Reply-To: claude@snscrew.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: dmo@osdl.org
+CC: linux-kernel@vger.kernel.org
+Subject: Mylex DAC960 - linux-2.6.2 - sysfs
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
-	I have been running successfully the 2.6.x series of kernel up until the
-release of 2.6.2 on my Dell Latitude C600 notebook with the Fedora Core 1
-distribution and updated with the latest module-init-tools. I can still boot
-into 2.6.1 and 2.4.25 fine but when 2.6.2 comes up I get the following:-
 
-VFS: Cannot open root device "hda6" or unknown-block(0,0)
-Please append a correct "root=" boot option
+I've got a box, with 1 Mylex dac960 card (3 physical drive,
+1 logical drive), running linux-2.6.2.
 
-my grub command line is as follows:-
+My problem is that mylex driver seems to export all possible logical
+drive to sysfs (eg : Looking at /sys/block shows me reference for c0d0
+to c0d31, but i only have c0d0).
 
-root=/dev/hda6 initrd=/boot/initrd-2.6.2.img rhgb
+I've read DAC960.{c,h} in kernel source tree, but my poor knowledge in C
+cannot help me there. (I can't find something related to sysfs in that
+code :(. Perhaps it happens elsewhere.)
 
-I did find there to be a similar issue with 2.6.0-test1-mm1 kernel which
-someone suggested putting the actual minor major number in the root option
-as shown below:-
+So my question is : Is there any way to report only existing logical drive
+to sysfs ?
 
-root=0306 initrd=/boot/initrd-2.6.2.img rhgb
-
-and I still cannot boot. I have tried the 2.6.3-rc1 and 2.6.3-rc2 releases
-and get the same problem.
-
-Is anyone else experiencing a similar problem or have a solution?
-
-Regards
-
-Grant Fribbens
-
+Thanks in advance. (If you need testing or others, please ask :) )

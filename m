@@ -1,44 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267548AbTBRC1E>; Mon, 17 Feb 2003 21:27:04 -0500
+	id <S267553AbTBRCdx>; Mon, 17 Feb 2003 21:33:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267552AbTBRC1E>; Mon, 17 Feb 2003 21:27:04 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:64772 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267548AbTBRC1D>; Mon, 17 Feb 2003 21:27:03 -0500
-Date: Mon, 17 Feb 2003 18:33:41 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Chris Wedgwood <cw@f00f.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>
-Subject: Re: Linux v2.5.62 --- spontaneous reboots
-In-Reply-To: <20030218021614.GA7924@f00f.org>
-Message-ID: <Pine.LNX.4.44.0302171828350.3558-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267560AbTBRCdx>; Mon, 17 Feb 2003 21:33:53 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:54465 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S267553AbTBRCdw>;
+	Mon, 17 Feb 2003 21:33:52 -0500
+Subject: [PATCH] PCI code cleanup
+From: Louis Zhuang <louis.zhuang@linux.co.intel.com>
+To: Greg KH <greg@kroah.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: Intel Crop.
+Message-Id: <1045535218.1018.0.camel@hawk.sh.intel.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 18 Feb 2003 10:26:58 +0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dear Greg,
+The patch clean up some old-style usage of list_head. Pls apply if you
+like it. Thanks
+-- 
+Yours truly,
+Louis Zhuang
+--
+Fault Injection Test Harness Project
+BK tree: http://fault-injection.bkbits.net/linux-2.5
+Home Page: http://sf.net/projects/fault-injection
 
-On Mon, 17 Feb 2003, Chris Wedgwood wrote:
-> 
-> The only thing I can think of is a triple-fault...  I'm wondering
-> about using gcc-3.2 instead of 2.95.4 (Debian blah blort blem) on the
-> off chance it's a weird compiler problem.
 
-A lot of people seem to be using gcc-3.2 these days, since it's what RH-8 
-comes with as standard. I don't think there are any _known_ problems with 
-that compiler, at least on x86.
+===== drivers/pci/probe.c 1.26 vs edited =====
+-- 1.26/drivers/pci/probe.c	Mon Jan 13 11:44:26 2003
++++ edited/drivers/pci/probe.c	Tue Feb 18 09:28:40 2003
+@@ -533,7 +533,7 @@
+ {
+ 	const struct list_head *l;
+ 
+-	for(l=list->next; l != list; l = l->next) {
++	list_for_each(l, list) {
+ 		const struct pci_bus *b = pci_bus_b(l);
+ 		if (b->number == nr || pci_bus_exists(&b->children, nr))
+ 			return 1;
+===== drivers/pci/setup-bus.c 1.12 vs edited =====
+-- 1.12/drivers/pci/setup-bus.c	Sun Dec 22 07:46:25 2002
++++ edited/drivers/pci/setup-bus.c	Tue Feb 18 09:33:33 2003
+@@ -45,7 +45,7 @@
+ 	int idx, found_vga = 0;
+ 
+ 	head.next = NULL;
+-	for (ln=bus->devices.next; ln != &bus->devices; ln=ln->next) {
++	list_for_each(ln, &bus->devices) {
+ 		struct pci_dev *dev = pci_dev_b(ln);
+ 		u16 class = dev->class >> 8;
+ 
+@@ -208,7 +208,7 @@
+ 	if (!(b_res->flags & IORESOURCE_IO))
+ 		return;
+ 
+-	for (ln=bus->devices.next; ln != &bus->devices; ln=ln->next) {
++	list_for_each(ln, &bus->devices) {
+ 		struct pci_dev *dev = pci_dev_b(ln);
+ 		int i;
+ 		
+@@ -261,7 +261,7 @@
+ 	max_order = 0;
+ 	size = 0;
+ 
+-	for (ln=bus->devices.next; ln != &bus->devices; ln=ln->next) {
++	list_for_each(ln, &bus->devices) {
+ 		struct pci_dev *dev = pci_dev_b(ln);
+ 		int i;
+ 		
+@@ -325,8 +325,9 @@
+ 	struct list_head *ln;
+ 	unsigned long mask, type;
+ 
+-	for (ln=bus->children.next; ln != &bus->children; ln=ln->next)
++	list_for_each(ln, &bus->children) {
+ 		pci_bus_size_bridges(pci_bus_b(ln));
++	}
+ 
+ 	/* The root bus? */
+ 	if (!bus->self)
+@@ -361,7 +362,7 @@
+ 			b->resource[0]->flags |= IORESOURCE_BUS_HAS_VGA;
+ 		}
+ 	}
+-	for (ln=bus->children.next; ln != &bus->children; ln=ln->next) {
++	list_for_each(ln, &bus->children) {
+ 		struct pci_bus *b = pci_bus_b(ln);
+ 
+ 		pci_bus_assign_resources(b);
 
-Now, interestingly enough, the mjb patch _does_ contain a change to 
-mm/memory.c that really makes no sense _except_ in the case of a compiler 
-bug. So you could check whether that (small) mm/memory.c patch is the 
-thing that makes a difference for you..
-
-It would also be interesting to see if you can check just the scheduler 
-part of the mjb patch. On the whole the mjb patch looks like it should be 
-fairly easy to cut into specific parts, and Martin may actually have it 
-somewhere as separate patches.
-
-		Linus
 

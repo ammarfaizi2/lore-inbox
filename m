@@ -1,60 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272494AbTHKKsz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 06:48:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272500AbTHKKsz
+	id S272485AbTHKLLR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 07:11:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272500AbTHKLLR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 06:48:55 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:48901 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S272494AbTHKKsy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 06:48:54 -0400
-Date: Mon, 11 Aug 2003 11:48:50 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Santiago Garcia Mantinan <manty@manty.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0test3 problems on Acer TravelMate 260 (ALSA,ACPIvsSynaptics,yenta)
-Message-ID: <20030811114850.E32508@flint.arm.linux.org.uk>
-Mail-Followup-To: Santiago Garcia Mantinan <manty@manty.net>,
-	linux-kernel@vger.kernel.org
-References: <20030811102236.GA731@man.beta.es>
+	Mon, 11 Aug 2003 07:11:17 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:62358 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S272485AbTHKLLP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 07:11:15 -0400
+Date: Mon, 11 Aug 2003 13:10:56 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Flameeyes <dgp85@users.sourceforge.net>,
+       LKML <linux-kernel@vger.kernel.org>,
+       LIRC list <lirc-list@lists.sourceforge.net>
+Subject: Re: [PATCH] lirc for 2.5/2.6 kernels - 20030802
+Message-ID: <20030811111056.GA400@elf.ucw.cz>
+References: <1059820741.3116.24.camel@laurelin> <20030807214311.GC211@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030811102236.GA731@man.beta.es>; from manty@manty.net on Mon, Aug 11, 2003 at 12:22:36PM +0200
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+In-Reply-To: <20030807214311.GC211@elf.ucw.cz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 11, 2003 at 12:22:36PM +0200, Santiago Garcia Mantinan wrote:
-> There are some weird old problems, like the yenta problem, the problem with
-> the cardbus interface is that you have to insert the card twice so that it
-> notices the card is in, everything else seems ok, on 2.4 there is the same
-> problem, so I'm using the pcmcia-cs i82365 driver which is working
-> perfectly. This is what the 2.6 yenta driver says on startup:
+Hi!
+
+> > This is the fourth version of my patch for use LIRC drivers under
+> > 2.5/2.6 kernels.
+> > 
+> > As usual, you can find it at
+> > http://flameeyes.web.ctonet.it/lirc/patch-lirc-20030802.diff.bz2
+> > 
+> > I changed the naming scheme, because I tried and the patch applies also
+> > in earliers and (probably) futures kernels, and call it only
+> > "patch-lirc.diff" will confuse about the versions. I think a datestamp
+> > is the best choice for now.
 > 
-> Yenta: CardBus bridge found at 0000:01:09.0 [1025:1024]
-> Yenta IRQ list 02b8, PCI irq10
-> Socket status: 30000007
+> If you want to get this applied to the official tree (I hope you want
+> ;-), you probably should start with smaller patch. I killed all
+> drivers but lirc_gpio, to make patch smaller/easier to check.
+> 
+> Its now small enough to inline, and that's good. 
+> 
+> Few questions:
+> 
+> * What does "For now don't try to use as static version" comment in
+>   lirc_gpio mean. Does it only work as a module?
 
-Please supply the following information:
+Here's fix for that particular uglyness. I tested lirc_gpio and it
+actually works here. Good. Please apply this,
 
-- does 2.6.0-test3 detect the card at boot ?
-  - if not, what are the complete kernel messages ?
-
-- does 2.6.0-test3 detect it at every insertion after the first
-  "insert remove insert" cycle, or does it always need an even
-  number of insertions for it to be recognised?
-
-- does 2.4 and 2.6-test3 yenta find the same IRQs ?
-
-- which version of pcmcia-cs are you using with 2.4 ?
-
-- which IRQ(s) does 2.4 i82365 use ?
-
+								Pavel
+--- linux-lirc/drivers/char/lirc/lirc_gpio.c.ofic	2003-08-10 23:44:28.000000000 +0200
++++ linux-lirc/drivers/char/lirc/lirc_gpio.c	2003-08-10 23:45:02.000000000 +0200
+@@ -530,13 +530,16 @@
+ 
+ 	dprintk(LOGHEAD "module successfully unloaded\n", minor);
+ }
+-/* Dont try to use it as a static version !  */
+ 
+ MODULE_DESCRIPTION("Driver module for remote control (data from bt848 GPIO port)");
+ MODULE_AUTHOR("Artur Lipowski");
+ MODULE_LICENSE("GPL");
+ 
++#ifdef MODULE
+ module_init(lirc_gpio_init);
++#else
++late_initcall(lirc_gpio_init);
++#endif
+ module_exit(lirc_gpio_exit);
+ 
+ /*
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

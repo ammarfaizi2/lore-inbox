@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318361AbSGYH75>; Thu, 25 Jul 2002 03:59:57 -0400
+	id <S318340AbSGYIEu>; Thu, 25 Jul 2002 04:04:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318362AbSGYH75>; Thu, 25 Jul 2002 03:59:57 -0400
-Received: from [80.94.163.134] ([80.94.163.134]:22144 "HELO blacklake.uucp")
-	by vger.kernel.org with SMTP id <S318361AbSGYH74>;
-	Thu, 25 Jul 2002 03:59:56 -0400
-Date: Thu, 25 Jul 2002 11:01:56 +0300
-From: Dzmitry Chekmarou <diavolo@mail.ru>
-To: Andy Grover <andrew.grover@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: linux-2.5.28 drivers/acpi/system.c missed interrupt.h
-Message-ID: <20020725080156.GA7422@blacklake>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S318365AbSGYIEt>; Thu, 25 Jul 2002 04:04:49 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:32701 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S318340AbSGYIEs>;
+	Thu, 25 Jul 2002 04:04:48 -0400
+Message-ID: <3D3FB062.90204@evision.ag>
+Date: Thu, 25 Jul 2002 10:01:38 +0200
+From: Marcin Dalecki <dalecki@evision.ag>
+Reply-To: martin@dalecki.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en, pl, ru
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFC/CFT] cmd640 irqlocking fixes
+References: <20020724225826.GF25038@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Andy
+William Lee Irwin III wrote:
+> I don't have one of these, and I'm not even sure what it is. But here's
+> a wild guess at a fix.
+> 
+> 
+> Cheers,
+> Bill
+> ===== drivers/ide/cmd640.c 1.11 vs edited =====
+> --- 1.11/drivers/ide/cmd640.c	Wed May 22 04:21:11 2002
+> +++ edited/drivers/ide/cmd640.c	Wed Jul 24 18:51:54 2002
+> @@ -115,6 +115,12 @@
+>  #include "ata-timing.h"
+>  
+>  /*
+> + * Is this remotely correct?
+> + */
 
-here it is:
-diff -uNr a/drivers/acpi/system.c b/drivers/acpi/system.c
---- a/drivers/acpi/system.c     Thu Jul 25 10:50:16 2002
-+++ b/drivers/acpi/system.c     Thu Jul 25 10:44:31 2002
-@@ -40,6 +40,7 @@
- #include <linux/pm.h>
- #include <linux/device.h>
- #include <linux/suspend.h>
-+#include <linux/interrupt.h>
- #include <asm/uaccess.h>
- #include <asm/acpi.h>
- #include "acpi_bus.h"
+The proper fix (rating: 50% propability of beeing perfect and 99.99% 
+propability of working) is just to *remove* those georgeous IRQ
+"tooglers" *alltogether*. Scrap them... becouse I don't see how any
+of the encolosed commands could cause an IRQ...
 
--- 
-Best regards,
-zmiter.

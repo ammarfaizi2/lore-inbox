@@ -1,56 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266322AbUFPVoY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266321AbUFPVoj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266322AbUFPVoY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 17:44:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266323AbUFPVoX
+	id S266321AbUFPVoj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 17:44:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266323AbUFPVoi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 17:44:23 -0400
-Received: from mail.gmx.net ([213.165.64.20]:25537 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S266322AbUFPVnW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 17:43:22 -0400
-X-Authenticated: #4512188
-Message-ID: <40D0BEF6.9030901@gmx.de>
-Date: Wed, 16 Jun 2004 23:43:18 +0200
-From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040604)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Stairacse scheduler v6.E for 2.6.7-rc3
-References: <1087333441.40cf6441277b5@vds.kolivas.org> <40D04439.5080100@gmx.de> <40D044BA.4080009@kolivas.org> <40D04717.9080701@gmx.de> <40D047C4.30209@kolivas.org>
-In-Reply-To: <40D047C4.30209@kolivas.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Jun 2004 17:44:38 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:31904 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S266321AbUFPVnB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 17:43:01 -0400
+Date: Wed, 16 Jun 2004 22:42:57 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.orgy
+Subject: Re: PATCH: Further aacraid work
+Message-ID: <20040616214257.GA20787@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org,
+	linux-scsi@vger.kernel.orgy
+References: <20040616210455.GA13385@devserv.devel.redhat.com> <20040616213343.GA20488@infradead.org> <20040616214048.GA27169@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040616214048.GA27169@devserv.devel.redhat.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
-> Prakash K. Cheemplavam wrote:
+On Wed, Jun 16, 2004 at 05:40:48PM -0400, Alan Cox wrote:
+> > Looks mostly good except for the GART iommu ifdef.  That code is bogus for
+> > almost everything but a plain PC and should just be killed.
 > 
->> Con Kolivas wrote:
->> >> Prakash K. Cheemplavam wrote:
->>
->>>>>> Con Kolivas wrote:
->>>>>>
->>>>>>>> Here is an updated version of the staircase scheduler. I've been 
->>>>>
->>>>> trying to hold
->>>>> off for 2.6.7 final but this has not been announced yet. Here is a 
->>>>> brief update
->>>>> summary.
->>>>
->>>> Hi, does this resolve the issue with ut2004? (Or is another setting 
->>>> for it needed?) I haven't tried myself, but others reported that 
->>>> setting interactive to 0 didn't help, nor giving ut2004 more 
->>>> priority via (re)nice.
->>>
->>> Good question. I don't own UT2004 so I was hoping a tester might 
->>> enlighten me.
+> There are lots of problems with the PC centric view of the world some
+> aacraid hardware has.  At the moment I'm still working on trying to understand
+> the rules and I'll need to talk to Mark some more. I've also got a third
+> party trace suggesting a request for low DMA memory came in through the
+> gart which is above the address in the mask to look at.
+> 
+> Its something I hope to get rid of eventually. In the meantime the GART
+> define is needed to make it work on AMD64.
 
-SO, I tried out vanilla + ck1 and guess what: ut2004 runs without probs, 
-I haven't changed anything. COuld it be mm related? I think I will try 
-your latest patch with mm again and see how it goes.
+Well, the code is completely wrong.  It must not only go away for AMD64 but
+for all arches.
 
-Prakash

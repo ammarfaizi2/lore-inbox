@@ -1,113 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267695AbUH1Tsx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267708AbUH1TsC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267695AbUH1Tsx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 15:48:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267709AbUH1Tso
+	id S267708AbUH1TsC (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 15:48:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267703AbUH1Trt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 15:48:44 -0400
-Received: from mail6.bluewin.ch ([195.186.4.229]:32209 "EHLO mail6.bluewin.ch")
-	by vger.kernel.org with ESMTP id S267695AbUH1Tqp (ORCPT
+	Sat, 28 Aug 2004 15:47:49 -0400
+Received: from fw.osdl.org ([65.172.181.6]:18304 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267666AbUH1TrK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 15:46:45 -0400
-Date: Sat, 28 Aug 2004 21:45:46 +0200
-From: Roger Luethi <rl@hellgate.ch>
-To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
-       Albert Cahalan <albert@users.sf.net>, Paul Jackson <pj@sgi.com>
-Subject: [BENCHMARK] nproc: netlink access to /proc information
-Message-ID: <20040828194546.GA25523@k3.hellgate.ch>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org, Albert Cahalan <albert@users.sf.net>,
-	Paul Jackson <pj@sgi.com>
-References: <20040827122412.GA20052@k3.hellgate.ch> <20040827162308.GP2793@holomorphy.com>
+	Sat, 28 Aug 2004 15:47:10 -0400
+Date: Sat, 28 Aug 2004 12:45:19 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Peter Osterlund <petero2@telia.com>
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Speed up the cdrw packet writing driver
+Message-Id: <20040828124519.0caf23bf.akpm@osdl.org>
+In-Reply-To: <m3zn4ff6jy.fsf@telia.com>
+References: <m33c2py1m1.fsf@telia.com>
+	<20040823114329.GI2301@suse.de>
+	<m3llg5dein.fsf@telia.com>
+	<20040824202951.GA24280@suse.de>
+	<m3hdqsckoo.fsf@telia.com>
+	<20040825065055.GA2321@suse.de>
+	<m3u0unwplj.fsf@telia.com>
+	<20040828130757.GA2397@suse.de>
+	<m3zn4ff6jy.fsf@telia.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040827162308.GP2793@holomorphy.com>
-X-Operating-System: Linux 2.6.8 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Aug 2004 09:23:08 -0700, William Lee Irwin III wrote:
-> than speed benefits. How many processes did you microbenchmark with?
+Peter Osterlund <petero2@telia.com> wrote:
+>
+> Is this a general VM limitation? Has anyone been able to saturate the
+>  write bandwidth of two different block devices at the same time, when
+>  they operate at vastly different speeds (45MB/s vs 5MB/s), and when
+>  the writes are large enough to cause memory pressure?
 
-Executive summary: I wrote a benchmark to compare /proc and nproc
-performance. The results are as expected: Parsing even the most simple
-strings is expensive. /proc performance does not scale if we have to
-open and close many files, which is the common case.
+I haven't explicitly tested the pdflush code in a while, and I never tested
+on devices with such disparate bandwidth.  But it _should_ work.
 
-In a situation with many processes p and fields/files f the delivery
-overhead is roughly O(p) for nproc and O(p*f) for /proc.
+The basic deign of the pdflush writeback path is:
 
-The difference becomes even more pronounced if a /proc file request
-triggers an expensive in-kernel computation for fields that are not
-of interest but part of the file, or if human-readable files need to
-be parsed.
+	for ( ; ; ) {
+		for (each superblock) {
+			if (no pdflush thread is working this sb's queue &&
+			    the superblock's backingdev is not congested) {
+				do some writeout, up to congestion, trying
+				to not block on request queue exhaustion
+			}
+		}
+		blk_congestion_wait()
+	}
 
+So it basically spins around all the queues keeping them full in a
+non-blocking manner.
 
-Benchmark: I chose the most favorable scenario for /proc I could think
-of: Reading a single, easy to parse file per process and find every data
-item useful.  I picked /proc/pid/statm. For nproc, I chose seven fields
-that are calculated with the same resource usage as the fields in statm:
-NPROC_VMSIZE, NPROC_VMLOCK, NPROC_VMRSS, NPROC_VMDATA, NPROC_VMSTACK,
-NPROC_VMEXE, and NPROC_VMLIB.
+There _are_ times when pdflush will accidentally block.  Say, doing a
+metadata read.  In that case other pdflush instances will keep other queues
+busy.
 
-
-Numbers:
-* The first run is basically lseek+read:
-/proc/pid/statm for 1000 processes, 1000 times, lseek
-CPU time : 7.080000s
-Wall time: 7.636732s
-
-* The second run adds a simple sscanf call to dump seven values
-  into seven variables:
-/prod/pid/statm for 1000 processes, 1000 times, lseek (scanf)
-CPU time : 10.230000s
-Wall time: 10.958432s
-
-* If we watch p processes with f files each, we typically hit the
-  file descriptor limit before p * f == 1024. From then on, lseek is
-  useless, we have to resort to opening and closing files:
-/prod/pid/statm for 1000 processes, 1000 times, open
-CPU time : 14.920000s
-Wall time: 16.087339s
-
-* Again, parsing the string comes at a cost:
-/prod/pid/statm for 1000 processes, 1000 times, open (scanf)
-CPU time : 18.110000s
-Wall time: 19.457451s
-
-* What happens if we need to read 2 simple /proc files (14 fields)
-  per process?
-/prod/pid/statm (2x) for 1000 processes, 1000 times, open (scanf)
-CPU time : 30.250000s
-Wall time: 32.650314s
-
-* 10000 processes at 3 files each (27 fields)
-/prod/pid/statm (3x) for 10000 processes, 1000 times, open (scanf)
-CPU time : 450.630000s
-Wall time: 500.265503s
-
-* nproc delivering said 7 fields:
-nproc for 1000 processes, 1000 times, one process per request
-CPU time : 7.910000s
-Wall time: 8.473371s
-
-* 200 processes per request, but still 1000 reply messages. If we stuffed
-  a bunch of them into every message, performance would improve further.
-nproc for 1000 processes, 1000 times, 200 processes per request
-CPU time : 6.350000s
-Wall time: 6.817391s
-
-* There's no large penalty if we need additional fields:
-14 nproc fields for 1000 processes, 1000 times, one process per request
-CPU time : 8.680000s
-Wall time: 9.328828s
-
-27 nproc fields for 10000 processes, 1000 times, one process per request
-CPU time : 88.270000s
-Wall time: 98.664330s
-
-Roger
+I tested it up to 12 disks.  Works OK.

@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265144AbUA1Hzq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 02:55:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265647AbUA1Hzq
+	id S265833AbUA1ICQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 03:02:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265863AbUA1ICQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 02:55:46 -0500
-Received: from mtaw4.prodigy.net ([64.164.98.52]:19126 "EHLO mtaw4.prodigy.net")
-	by vger.kernel.org with ESMTP id S265144AbUA1Hzp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 02:55:45 -0500
-Date: Tue, 27 Jan 2004 23:55:24 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.2-rc2-mm1
-Message-ID: <20040128075524.GC2445@srv-lnx2600.matchmail.com>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <20040127233402.6f5d3497.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040127233402.6f5d3497.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Wed, 28 Jan 2004 03:02:16 -0500
+Received: from zeus.gup.uni-linz.ac.at ([140.78.104.2]:41133 "HELO
+	zeus.gup.uni-linz.ac.at") by vger.kernel.org with SMTP
+	id S265833AbUA1ICP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 03:02:15 -0500
+Message-ID: <40176C85.90009@gup.jku.at>
+Date: Wed, 28 Jan 2004 09:02:13 +0100
+From: Martin Polak <mpolak@gup.jku.at>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.5) Gecko/20031117
+X-Accept-Language: de-at, de-de, en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: SMP AMD64 (Tyan S2882) problems.
+References: <20040127190911.B13769@fi.muni.cz.suse.lists.linux.kernel> <p73fze1fdk4.fsf@nielsen.suse.de>
+In-Reply-To: <p73fze1fdk4.fsf@nielsen.suse.de>
+X-Enigmail-Version: 0.82.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 27, 2004 at 11:34:02PM -0800, Andrew Morton wrote:
+Andi Kleen wrote:
+> Jan Kasprzak <kas@informatics.muni.cz> writes:
 > 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.2-rc2/2.6.2-rc2-mm1/
+> You don't say if you run a 32bit or a 64bit kernel. I will assume 64bit.
+>  
+> 
+>>Is it normal? How can I set up some IRQ balancing (or at least hard-wire
+>>3ware for CPU1 and eth0 for CPU0)?
 > 
 > 
-> - From now on, -mm kernels will contain the latest contents of:
+> Run irqbalanced
+>  
 > 
-> 	Linus's tree:		linus.patch
-> 	The ACPI tree:		acpi.patch
-> 	Vojtech's tree:		input.patch
-> 	Jeff's tree:		netdev.patch
-> 	The ALSA tree:		alsa.patch
-> 
->   If anyone has any more external trees which need similar treatment,
->   please let me know.
-> 
+Well I posted that thing two weeks ago, occuring on a dual 240 
+K8T-Master from MSI, and yes: running irqbalance works fine, but still I 
+believe that there is some sort of weirdness in initialization code of 
+the kernel (2.6), because on 2.4 Kernels smp-affinity defaults to every 
+cpu and on 2.6 it doesnt.
 
-How about the fbdev tree?
+Martin Polak
+

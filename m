@@ -1,55 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277399AbRJEOhD>; Fri, 5 Oct 2001 10:37:03 -0400
+	id <S277394AbRJEOix>; Fri, 5 Oct 2001 10:38:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277398AbRJEOgy>; Fri, 5 Oct 2001 10:36:54 -0400
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:44299 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S277394AbRJEOgi>; Fri, 5 Oct 2001 10:36:38 -0400
-Message-Id: <200110051435.f95EZrvw027128@pincoya.inf.utfsm.cl>
-To: Juha Siltala <juha.siltala@mail.suomi.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Fw: Re: Past CREDITS files 
-In-Reply-To: Your message of "Fri, 05 Oct 2001 10:38:22 +0300."
-             <20011005103822.21d1f663.juha.siltala@mail.suomi.net> 
-X-mailer: MH [Version 6.8.4]
-X-charset: ISO_8859-1
-Date: Fri, 05 Oct 2001 10:35:53 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S277398AbRJEOiu>; Fri, 5 Oct 2001 10:38:50 -0400
+Received: from ns.suse.de ([213.95.15.193]:42505 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S277394AbRJEOhj>;
+	Fri, 5 Oct 2001 10:37:39 -0400
+Date: Fri, 5 Oct 2001 16:38:07 +0200
+From: Andi Kleen <ak@suse.de>
+To: Padraig Brady <padraig@antefacto.com>
+Cc: Andi Kleen <ak@suse.de>, Alex Larsson <alexl@redhat.com>,
+        Ulrich Drepper <drepper@cygnus.com>, linux-kernel@vger.kernel.org
+Subject: Re: Finegrained a/c/mtime was Re: Directory notification problem
+Message-ID: <20011005163807.A13524@gruyere.muc.suse.de>
+In-Reply-To: <m3r8slywp0.fsf@myware.mynet> <Pine.LNX.4.33.0110031111470.29619-100000@devserv.devel.redhat.com> <20011003232609.A11804@gruyere.muc.suse.de> <3BBDAB24.7000909@antefacto.com> <20011005150144.A11810@gruyere.muc.suse.de> <3BBDB26D.2050705@antefacto.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3BBDB26D.2050705@antefacto.com>; from padraig@antefacto.com on Fri, Oct 05, 2001 at 02:15:25PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> >Another advantage of using the real time instead of a counter is that 
+> >you can easily merge the both values into a single 64bit value and do
+> >arithmetic on it in user space. With a generation counter you would need 
+> >to work with number pairs, which is much more complex. 
+> >
+> ??
+> if (file->mtime != mtime || file->gen_count != gen_count)
+>      file_changed=1;
 
-[...]
+And how would you implement "newer than" and "older than" with a generation
+count that doesn't reset in a always fixed time interval (=requiring
+additional timestamps in kernel)?  
 
-> Now this is not too much but a couple of developments are emerging:
-> checking out the geographical distribution of kernel hackers and some other
-> analysis based on the info that the files yield. I'm not the one doing this
-> but Dr. Silvonen (jussi.silvonen@helsinki.fi). I'm looking for a good way
-> of extracting names from the kernel sources instead of CREDITS, since Dr
-> Silvonen seems to be really getting into this and is data hungry now :)
+-Andi
 
-Check the list of people on lkml, I think that is a much more accurate list
-of "current developers" than CREDITS. Or look at who posted on the list.
-You might classify by includes/doesn't include a patch, perhaps (people who
-comment on a patch are helping development too... only flamers don't ;)
-
-> I've been getting a lot of warnings (from Brian Gerst, Horst von Brand, and
-> Mark Hahn and others) about the data above. For my own purposes, that is,
-> to just show that linux is not "witten by Linus Torvalds in 1991" like we
-> hear from the media, the data would do. But If we (Dr. Silvonen and perhaps
-> I too) are going to elaborate on this, we obviously need something more
-> reliable. Everyone puts their name in their files and patches right?
-
-No... I have posted several patches, most of those that did get included
-went in without my name (to be fair, they were mostly very small/simple).
-Others I sent directly to the maintainers, some went in with my name on a
-changelog or in the modified file(s), others without any mention at all.
-Policy on this clearly varies from maintainer to maintainer (and perhaps
-phase of the moon), so your idea will give data skewed at least by
-subsystem.
--- 
-Dr. Horst H. von Brand                Usuario #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

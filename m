@@ -1,30 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288958AbSBZXcK>; Tue, 26 Feb 2002 18:32:10 -0500
+	id <S289089AbSBZXeU>; Tue, 26 Feb 2002 18:34:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288801AbSBZXbu>; Tue, 26 Feb 2002 18:31:50 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:46344 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S288557AbSBZXbn>;
-	Tue, 26 Feb 2002 18:31:43 -0500
-Message-ID: <3C7C1A88.AA6CE5DD@zip.com.au>
-Date: Tue, 26 Feb 2002 15:30:16 -0800
+	id <S288967AbSBZXeK>; Tue, 26 Feb 2002 18:34:10 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52744 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S289089AbSBZXdu>;
+	Tue, 26 Feb 2002 18:33:50 -0500
+Message-ID: <3C7C1B07.92F9B8E0@zip.com.au>
+Date: Tue, 26 Feb 2002 15:32:23 -0800
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-rc2 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Dimitris Zilaskos <dzila@tassadar.physics.auth.gr>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: assertion failure : ext3 & lvm , 2.4.17 smp & 2.4.18-ac1 smp
-In-Reply-To: <Pine.LNX.4.44.0202270017250.5280-100000@tassadar.physics.auth.gr>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: christophe =?iso-8859-1?Q?barb=E9?= 
+	<christophe.barbe.ml@online.fr>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 3c59x and cardbus
+In-Reply-To: <20020226173038.GD803@ufies.org> <3C7BC897.8D607D08@zip.com.au> <20020226175819.GE803@ufies.org> <20020226181510.GF803@ufies.org> <3C7BD91C.3B758704@zip.com.au> <20020226185907.GG803@ufies.org>,
+		<20020226185907.GG803@ufies.org> <20020226230010.GI803@ufies.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dimitris Zilaskos wrote:
+christophe barbé wrote:
 > 
-> Assertion failure in do_get_write_access() at transaction.c:730: "(((jh2bh(jh))->b_state & (1UL << BH_Uptodate)) != 0)"
+> Now that the forget_option bug is solved I have the following :
+> 
+> Each time I suspend, the card resume in a bad state but return in a good
+> state after that :
+> 
+> NETDEV WATCHDOG: eth0: transmit timed out
 
-This was fixed in the ext3 patch which went into 2.4.18-pre5
+The transceiver didn't power up, or came up in silly
+mode.  I'll see if I can reproduce any of this.
+What NIC are you using?
 
 -

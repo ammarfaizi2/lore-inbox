@@ -1,44 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319487AbSIMBvL>; Thu, 12 Sep 2002 21:51:11 -0400
+	id <S319495AbSIMBxV>; Thu, 12 Sep 2002 21:53:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319484AbSIMBuT>; Thu, 12 Sep 2002 21:50:19 -0400
-Received: from dp.samba.org ([66.70.73.150]:12240 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S319486AbSIMBuK>;
-	Thu, 12 Sep 2002 21:50:10 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Generated files destruction 
-In-reply-to: Your message of "Thu, 12 Sep 2002 15:53:45 EST."
-             <Pine.LNX.4.44.0209121551010.31494-100000@chaos.physics.uiowa.edu> 
-Date: Fri, 13 Sep 2002 10:42:08 +1000
-Message-Id: <20020913015502.29C4E2C08B@lists.samba.org>
+	id <S319511AbSIMBvT>; Thu, 12 Sep 2002 21:51:19 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:43203 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S319488AbSIMBuu>;
+	Thu, 12 Sep 2002 21:50:50 -0400
+Date: Thu, 12 Sep 2002 18:47:19 -0700 (PDT)
+Message-Id: <20020912.184719.126771896.davem@redhat.com>
+To: pasky@pasky.ji.cz
+Cc: zdzichu@irc.pl, linux-kernel@vger.kernel.org
+Subject: Re: 2.4 and full ipv6 - will it happen?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020912150609.GE21715@pasky.ji.cz>
+References: <20020819043941.GA31158@irc.pl>
+	<20020818.213719.117777405.davem@redhat.com>
+	<20020912150609.GE21715@pasky.ji.cz>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0209121551010.31494-100000@chaos.physics.uiowa.edu> y
-ou write:
-> On Thu, 12 Sep 2002, Rusty Russell wrote:
-> 
-> > 	I would like to start migrating all build-generated files to
-> > names matching "generated*" or ".generated*", esp. those which look
-> > like source files.  This is mainly for readability and for simplicity
-> > when diffing built kernel trees.  I'll be encouraging various
-> > maintainers who generate (.c, .h and .s) files which are not meant to
-> > be shipped with the kernel source to migrate, in my copious free
-> > time...
-> 
-> I think the proper solution here is actually separate obj/src dirs, 
-> instead of special names. It's actually quite easy to get that implemented 
-> in the current kbuild, I just didn't find the time for proper testing yet. 
-> I'll have a patch ready for testing soon, though.
+   From: Petr Baudis <pasky@pasky.ji.cz>
+   Date: Thu, 12 Sep 2002 17:06:09 +0200
 
-Sure, if it basically comes for free.  Otherwise, I don't see any
-attraction in separating them: cp -al linux-2.5.34 working-2.5.34-foo
-takes a couple of seconds.
+   - IPsec for IPv6
 
-Cheers!
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Without ipv4 part and stackable destination cache, we do
+not see any way in which they could make this cleanly and
+properly and thus make patch acceptable.
+
+All of IPSEC is a routing and data representation problem, so unless
+routing code of ipv6 was rewritten by USAGI folks to support
+representation of security database (this means addition of
+protocol/source_port/dest_port route demux selectors and also
+RTA_IPSEC routing attribute for actual ESP/AH rule insertion), the
+patch is not likely to be accepted.
+
+So if done right, ipv4 would be just as easy to support and thusly
+I make parallel ipv6/ipv4 support a requirement for any ipsec
+implementation that goes into the tree.
+
+I also want ipsec to be implemented using rtnetlink which doubly means
+that it must be solved at the routing level.
+
+This also means that PF_KEY socket implementation is merely translator
+into rtnetlink messages and nothing more and that "ip" tool would be
+used for manual keying.
+
+The fact that I have so much to say about the implementation details
+of ipsec might suggest something if you're paying attention :-) And
+that's where I'll leave the topic of ipsec at the moment.
+
+Otherwise I look forward to seeing their other patches, but I find it
+strange that it takes them on the order months to submit things, which
+I have maintained from the start.  They work on this stuff nearly full
+time and it is very important to them, they also have high claims as
+to it's readiness, so what could possibly take so long?

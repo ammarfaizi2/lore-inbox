@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266091AbUALJqk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 04:46:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266094AbUALJqk
+	id S266096AbUALJ7g (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 04:59:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266097AbUALJ7g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 04:46:40 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:2308 "EHLO
-	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
-	id S266091AbUALJqh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 04:46:37 -0500
-Date: Mon, 12 Jan 2004 20:46:25 +1100
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [I810_AUDIO] 1/x: Fix wait queue race in drain_dac
-Message-ID: <20040112094625.GA16686@gondor.apana.org.au>
-References: <20031122070931.GA27231@gondor.apana.org.au> <4001B979.1080600@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4001B979.1080600@pobox.com>
-User-Agent: Mutt/1.5.4i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	Mon, 12 Jan 2004 04:59:36 -0500
+Received: from kluizenaar.xs4all.nl ([213.84.184.247]:55113 "EHLO samwel.tk")
+	by vger.kernel.org with ESMTP id S266096AbUALJ7f (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 04:59:35 -0500
+Message-ID: <40026FEC.4040707@samwel.tk>
+Date: Mon, 12 Jan 2004 10:59:08 +0100
+From: Bart Samwel <bart@samwel.tk>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jan De Luyck <lkml@kcore.org>, Dax Kelson <dax@gurulabs.com>
+CC: linux-kernel@vger.kernel.org, Kiko Piris <kernel@pirispons.net>,
+       Bartek Kania <mrbk@gnarf.org>, Simon Mackinlay <smackinlay@mail.com>
+Subject: Re: [PATCH] Laptop-mode v7 for linux 2.6.1
+References: <3FFFD61C.7070706@samwel.tk> <200401121045.56749.lkml@kcore.org>
+In-Reply-To: <200401121045.56749.lkml@kcore.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 11, 2004 at 04:00:41PM -0500, Jeff Garzik wrote:
-> 
-> Thanks much for these i810_audio patches.  I've been meaning to review 
-> them in-depth for some time.
+Jan De Luyck wrote:
+> There seems to be a typo in the battery.sh script. It 
+> reads /proc/acpi/ac_adapter/AC/state to determine the AC Adaptor state, but 
+> this is in the ACAD directory instead of the AC directory.
 
-Thanks a lot for reviewing them.
+Hmmm, Dax says it works for him, and I don't have an ac_adapter on my 
+machine because I don't own a laptop. Dax, is this a typo or is it 
+actually called AC on your machine?
 
-> Could you be kind and "spell out" the patch-1 race for me?
-
-Prior to the patch, if an interrupt occured between the count check
-and the setting of the current state the wait will timeout instead
-of waking up immediately.
-
-> Also, it seems to me that you would want to check for signal_pending()
-> (a) just after the schedule_timeout(), and
-> (b) -after- testing the 'signals_allowed' variable  ;-)
-
-schedule() already checks for signals.
-
-Cheers,
--- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+-- Bart

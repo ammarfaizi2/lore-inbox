@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278151AbRJWSHp>; Tue, 23 Oct 2001 14:07:45 -0400
+	id <S278159AbRJWSKF>; Tue, 23 Oct 2001 14:10:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278170AbRJWSHf>; Tue, 23 Oct 2001 14:07:35 -0400
-Received: from femail4.sdc1.sfba.home.com ([24.0.95.84]:48616 "EHLO
-	femail4.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S278151AbRJWSH1>; Tue, 23 Oct 2001 14:07:27 -0400
-Date: Tue, 23 Oct 2001 13:07:56 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.13-pre6 breaks Nvidia's kernel module
-Message-ID: <20011023130756.A742@cy599856-a.home.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <200110221846.f9MIkE416013@riker.skynet.be> <3BD532EC.6080803@eisenstein.dk>
+	id <S278170AbRJWSJz>; Tue, 23 Oct 2001 14:09:55 -0400
+Received: from fe010.worldonline.dk ([212.54.64.195]:59664 "HELO
+	fe010.worldonline.dk") by vger.kernel.org with SMTP
+	id <S278159AbRJWSJp>; Tue, 23 Oct 2001 14:09:45 -0400
+Date: Tue, 23 Oct 2001 20:10:10 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Shailabh Nagar <nagar@us.ibm.com>
+Cc: Martin Frey <frey@scs.ch>, "'Reto Baettig'" <baettig@scs.ch>,
+        lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Lse-tech] Re: Preliminary results of using multiblock raw I/O
+Message-ID: <20011023201010.D12005@suse.de>
+In-Reply-To: <OF98236159.2E4369EA-ON85256AEE.004D5B64@pok.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3BD532EC.6080803@eisenstein.dk>
-User-Agent: Mutt/1.3.23i
-X-Editor: GNU Emacs 20.7.2
-X-Operating-System: Debian GNU/Linux 2.4.12-ac5 i586 K6-3+
-X-Uptime: 13:02:21 up 0 min,  1 user,  load average: 0.57, 0.15, 0.05
-From: Josh McKinney <forming@home.com>
+In-Reply-To: <OF98236159.2E4369EA-ON85256AEE.004D5B64@pok.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On approximately Tue, Oct 23, 2001 at 11:05:48AM +0200, Jesper Juhl wrote:
+On Tue, Oct 23 2001, Shailabh Nagar wrote:
+> >On Tue, Oct 23 2001, Martin Frey wrote:
+> >> >I haven't seen the SGI rawio patch, but I'm assuming it used kiobufs to
+> >> >pass a single unit of 1 meg down at the time. Yes currently we do incur
+> >> >significant overhead compared to that approach.
+> >> >
+> >> Yes, it used kiobufs to get a gatherlist, setup a gather DMA out
+> >> of that list and submitted it to the SCSI layer. Depending on
+> >> the controller 1 MB could be transfered with 0 memcopies, 1 DMA,
+> >> 1 interrupt. 200 MB/s with 10% CPU load was really impressive.
+> >
+> >Let me repeat that the only difference between the kiobuf and the
+> >current approach is the overhead incurred on multiple __make_request
+> >calls. Given the current short queues, this isn't as bad as it used to
+> >be. Of course it isn't free, though.
 > 
-> I use the same version of the driver with my Geforce3 and I am also 
-> running 2.4.13-pre6 and it works just fine so I don't agree with you 
-> that it breaks...
-> You do know that there are a few files that need to be recompiled every 
-> time you build a new kernel - right?
+> The patch below attempts to address exactly that - reducing the number of
+> submit_bh/__make_request() calls made for raw I/O. The basic idea is to do
+> a major
+> part of the I/O in page sized blocks.
 > 
+> Comments on the idea ?
 
-I have replied to this person personally a when this thread started with what I
-think is the fix to his problem.  I have seen this error on my machine before.
-The problem arose when I compiled the running kernel with gcc-3.0.  At first I
-thought it was just gcc-3 breaking the kernel.  Then I realized that the nvidia
-modules use `cc` to compile.  The symlink to cc was gcc-2.95.  Changing the
-symlink to gcc-3.0 made the problem go away.
+Looks fine to me.
 
-Josh
 -- 
-Linux, the choice                | The first Rotarian was the first man to
-of a GNU generation       -o)    | call John the Baptist "Jack."   -- H.L.
-Kernel 2.4.12-ac5          /\    | Mencken 
-on a i586                 _\_v   | 
-                                 | 
+Jens Axboe
+

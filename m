@@ -1,66 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264090AbTCXD7O>; Sun, 23 Mar 2003 22:59:14 -0500
+	id <S264088AbTCXEHW>; Sun, 23 Mar 2003 23:07:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264091AbTCXD7O>; Sun, 23 Mar 2003 22:59:14 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:6340 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S264090AbTCXD7F>; Sun, 23 Mar 2003 22:59:05 -0500
-Date: Sun, 23 Mar 2003 20:10:05 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.65-mm4
-Message-ID: <11750000.1048479004@[10.10.2.4]>
-In-Reply-To: <20030323191744.56537860.akpm@digeo.com>
-References: <20030323020646.0dfcc17b.akpm@digeo.com>
- <9590000.1048475057@[10.10.2.4]> <20030323191744.56537860.akpm@digeo.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S264091AbTCXEHV>; Sun, 23 Mar 2003 23:07:21 -0500
+Received: from f88.pav2.hotmail.com ([64.4.37.88]:1542 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S264088AbTCXEHV>;
+	Sun, 23 Mar 2003 23:07:21 -0500
+X-Originating-IP: [129.219.25.77]
+X-Originating-Email: [bhushan_vadulas@hotmail.com]
+From: "shesha bhushan" <bhushan_vadulas@hotmail.com>
+To: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
+Subject: GETHOSTBYNAME()
+Date: Mon, 24 Mar 2003 04:18:22 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F88IYUmwO9suAkWORuX000101d2@hotmail.com>
+X-OriginalArrivalTime: 24 Mar 2003 04:18:23.0119 (UTC) FILETIME=[689EF9F0:01C2F1BC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> profile from SDET 64:
-> 
-> SDET is rather irritating because a) nobody has a copy and b) we don't
-> even know what it does.
+Hi All
+I am trying to find the gethostbyname() equivalent function in kernel space. 
+Does any one know that.
+The reason is...
+I am using UDP to transfer data from one machine to another. It is not one 
+time transfer. Once I get a message from machine A; I need to send some 
+message back to Machine A from Machine B. For that I was using the following 
+lines in user space program. I need to do the same in kernel space. Could 
+any one help me out in this.
 
-Yeah, I know. sorry ... I'm trying to get aim7 done instead.
+struct hostent *data;
+struct sockaddr_in server;
+int sock;
 
-> and b) we don't even know what it does.
+  sock = socket(AF_INET, SOCK_DGRAM , 0)
 
-Lots of shell scripty stuff, I think.
+/* binding and all are done here */
 
->> 82303 __down
->> 42835 schedule
->> 31323 __wake_up
->> 26435 .text.lock.sched
->> 15924 .text.lock.transaction
-> 
-> But judging by this, it's a rebadged dbench.  The profile is identical.
+  data = gethostbyname("158.168.1.1");
+  memcpy (&server.sin_addrs, data->h_addr, data->h_length);
+  retval = sendto(sock,msg,sizeof(msg), 0, (struct sockaddr *) &server, 
+sizeof server);
 
-Not sure what dbench does. But I'm probably doing lots of small reads
-and writes inside pagecache.
- 
-> Note that the lock_kernel() contention has been drastically reduced and
-> we're now hitting semaphore contention.
-> 
-> Running `dbench 32' on the quad Xeon, this patch took the context switch
-> rate from 500/sec up to 125,000/sec.
-> 
-> I've asked Alex to put together a patch for spinlock-based locking in the
-> block allocator (cut-n-paste from ext2).
 
-OK, sounds like a plan. Made a huge impact for ext2, and might enable
-us to actually be able to see the rest of it through the sem cloud.
- 
-> That will fix up lock_super(), but I suspect the main problem is the
-> lock_journal() in journal_start().  I haven't thought about that one yet.
+Thanking You
+Shesha
 
-Thanks,
-
-M.
+_________________________________________________________________
+Cricket - World Cup 2003 http://server1.msn.co.in/msnspecials/worldcup03/ 
+News, Views and Match Reports.
 

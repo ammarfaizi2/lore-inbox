@@ -1,59 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287804AbSA2AEH>; Mon, 28 Jan 2002 19:04:07 -0500
+	id <S287794AbSA2AGR>; Mon, 28 Jan 2002 19:06:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287794AbSA2AD5>; Mon, 28 Jan 2002 19:03:57 -0500
-Received: from mail205.mail.bellsouth.net ([205.152.58.145]:13657 "EHLO
-	imf05bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S287804AbSA2ADl>; Mon, 28 Jan 2002 19:03:41 -0500
-Subject: Re: Rik van Riel's vm-rmap
-From: Louis Garcia <louisg00@bellsouth.net>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33L.0201280613510.32617-100000@imladris.surriel.com>
-In-Reply-To: <Pine.LNX.4.33L.0201280613510.32617-100000@imladris.surriel.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 (1.0.1-2) 
-Date: 28 Jan 2002 19:07:06 -0500
-Message-Id: <1012262826.1634.1.camel@tiger>
+	id <S287817AbSA2AGH>; Mon, 28 Jan 2002 19:06:07 -0500
+Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:13336 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S287794AbSA2AFx>; Mon, 28 Jan 2002 19:05:53 -0500
+Date: Mon, 28 Jan 2002 19:05:51 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Jesper Juhl <jju@dif.dk>
+Cc: "'linux-kernel@vger.kernel.org '" <linux-kernel@vger.kernel.org>
+Subject: Re: Encountered a Null Pointer Problem on the SCSI Layer
+Message-ID: <20020128190551.A4236@devserv.devel.redhat.com>
+In-Reply-To: <8A43C34093B3D5119F7D0004AC56F4BCC3448C@difpst1a.dif.dk>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <8A43C34093B3D5119F7D0004AC56F4BCC3448C@difpst1a.dif.dk>; from jju@dif.dk on Tue, Jan 29, 2002 at 12:57:02AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Does this patch work well with Andrew's low-latency patch?
+> From: Jesper Juhl <jju@dif.dk>
+> Date: Tue, 29 Jan 2002 00:57:02 +0100
 
---Louis
+> > -       if (!dpnt)
+> > +       if (!dpnt->device)
+> >                 return NULL;    /* No such device */
+> 
+> Maybe I don't understand this right, but shouldn't that be 
+> 
+> if (!dpnt || !dpnt->device)
+>         return NULL;    /* No such device */
 
+In both cases, the code is like this:
 
-On Mon, 2002-01-28 at 03:21, Rik van Riel wrote:
-> On 27 Jan 2002, Louis Garcia wrote:
-> 
-> > Does he still use classzones as the basis for the vm? I thought that
-> > linux was trying to get away from classzones for better NUMA support in
-> > 2.5??
-> 
-> Nope.  I've done a few modifications:
-> 
-> 1) the IMHO inflexible classzone stuff has been removed
-> 
-> 2) we have reverse mappings, so we can do our pageout
->    scan by physical address
-> 
-> 3) this in turn means the active, inactive_dirty and
->    inactive_clean lists are per zone ... allowing us
->    to scan only in those zones where we actually need
->    to free pages
-> 
-> regards,
-> 
-> Rik
-> -- 
-> "Linux holds advantages over the single-vendor commercial OS"
->     -- Microsoft's "Competing with Linux" document
-> 
-> http://www.surriel.com/		http://distro.conectiva.com/
-> 
+  dpnt = &rscsi_disks[dev_nr];
+  if (!dpnt->device)
+    return NULL;
 
+So, it is unlikely that dpnt would be zero. It could be if rscsi_disks
+were NULL, and in such case whole logics is toast.
 
-
+-- Pete

@@ -1,66 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262249AbVBQH06@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262184AbVBQHw3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262249AbVBQH06 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 02:26:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262252AbVBQH06
+	id S262184AbVBQHw3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 02:52:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262252AbVBQHw3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 02:26:58 -0500
-Received: from gate.crashing.org ([63.228.1.57]:64415 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262249AbVBQH04 (ORCPT
+	Thu, 17 Feb 2005 02:52:29 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:14056 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262184AbVBQHwZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 02:26:56 -0500
-Subject: [PATCH] Fix buf in zeromap_pud_range() losing virtual address
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Thu, 17 Feb 2005 18:26:31 +1100
-Message-Id: <1108625191.5425.61.camel@gaston>
+	Thu, 17 Feb 2005 02:52:25 -0500
+Date: Thu, 17 Feb 2005 08:52:12 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: mgross@linux.intel.com, rostedt@goodmis.org, linux-kernel@vger.kernel.org,
+       Mark_H_Johnson@raytheon.com
+Subject: Re: queue_work from interrupt Real time preemption2.6.11-rc2-RT-V0.7.37-03
+Message-ID: <20050217075212.GA21621@elte.hu>
+References: <200502141240.14355.mgross@linux.intel.com> <200502141429.11587.mgross@linux.intel.com> <20050215104153.GB19866@elte.hu> <200502151006.44809.mgross@linux.intel.com> <20050216051645.GB15197@elte.hu> <20050216081143.50d0a9d6.davem@davemloft.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050216081143.50d0a9d6.davem@davemloft.net>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
 
-This patch fixes a nasty bug that took us almost a week to track down on
-ppc64, introduced by the 4L page table changes, and resulting in random
-memory corruption. All archs that rely on a PTE page's struct page to
-contain the mm & address (in mapping/index) will be affected.
+* David S. Miller <davem@davemloft.net> wrote:
 
-zeromap_pud_range() is one of these page tables walking functions that
-split the address into a base and an offset. It forgets to add back the
-"base" when calling the lower level zeromap_pmd_range(), thus passing a
-bogus virtual address. Most archs won't care, unless they do the above,
-since the lower level can allocate a PTE page.
+> > Maybe the networking
+> > stack would break if we allowed the TIMER softirq (thread) to preempt
+> > the NET softirq (threads) (and vice versa)?
+> 
+> The major assumption is that softirq's run indivisibly per-cpu.
+> Otherwise the per-cpu queues of RX and TX packet work would get
+> corrupted.
 
-Kudo's to Michael Ellerman too who spent that week running tests after
-tests to track it down, since the only way we managed to get it to show
-up was after about 1 to 2h of LTP runs ...
+as long as it stays on a single CPU, could we allow softirq contexts to
+preempt each other? I.e. we'd keep the per-CPU assumption (that is fair
+and needed for performance anyway), but we'd allow NET_TX to preempt
+NET_RX and vice versa. Would this corrupt the rx/tx queues? (i suspect
+it would.)
 
-(Note: We are in _urgent_ need to consolidate all those page table
-walking functions, they all do things in a subtely different way, with
-different checks (sometimes redudant) and inconsitent with each other,
-even within a given set of them. Hopefully, Nick has some work in
-progress there).
- 
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+(anyway, by adding an explicit no-preempt section around the 'take
+current rx queue private, then process it' on PREEMPT_RT it could be
+made safe. I'm wondering whether there are any other deeper assumptions
+about atomic separation of softirq contexts.)
 
-Index: linux-work/mm/memory.c
-===================================================================
---- linux-work.orig/mm/memory.c	2005-02-16 14:51:37.000000000 +1100
-+++ linux-work/mm/memory.c	2005-02-17 18:11:15.000000000 +1100
-@@ -1041,7 +1041,8 @@
- 		error = -ENOMEM;
- 		if (!pmd)
- 			break;
--		error = zeromap_pmd_range(mm, pmd, address, end - address, prot);
-+		error = zeromap_pmd_range(mm, pmd, base + address,
-+					  end - address, prot);
- 		if (error)
- 			break;
- 		address = (address + PUD_SIZE) & PUD_MASK;
-
-
+	Ingo

@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129115AbRB1SCH>; Wed, 28 Feb 2001 13:02:07 -0500
+	id <S129112AbRB1R6h>; Wed, 28 Feb 2001 12:58:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129116AbRB1SB6>; Wed, 28 Feb 2001 13:01:58 -0500
-Received: from penguin.roanoke.edu ([199.111.154.8]:38667 "EHLO
-	penguin.roanoke.edu") by vger.kernel.org with ESMTP
-	id <S129115AbRB1SBq>; Wed, 28 Feb 2001 13:01:46 -0500
-Message-ID: <3A9D3FD0.76E6457B@linuxjedi.org>
-Date: Wed, 28 Feb 2001 13:13:36 -0500
-From: "David L. Parsley" <parsley@linuxjedi.org>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH][CFT] per-process namespaces for Linux
-In-Reply-To: <Pine.GSO.4.21.0102280213000.4827-100000@weyl.math.psu.edu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129115AbRB1R6d>; Wed, 28 Feb 2001 12:58:33 -0500
+Received: from www0q.netaddress.usa.net ([204.68.24.46]:3212 "HELO
+	www0q.netaddress.usa.net") by vger.kernel.org with SMTP
+	id <S129112AbRB1R6R> convert rfc822-to-8bit; Wed, 28 Feb 2001 12:58:17 -0500
+Message-ID: <20010228175816.28039.qmail@www0q.netaddress.usa.net>
+Date: 28 Feb 2001 11:58:15 CST
+From: Neelam Saboo <neelam_saboo@usa.net>
+To: linux-kernel@vger.kernel.org
+Subject: paging behavior in Linux
+X-Mailer: USANET web-mailer (34FM.0700.15B.01)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
-> > Evil idea of the day: non-directory (even non-existant) mount points and
-> > non-directory mounts. So then "mount --bind /etc/foo /dev/bar" works.
-> 
-> Try it. It _does_ work.
+Hi,
 
-Yeah, mount --bind is cool, I've been using it on one of my projects
-today.  But - maybe I'm just not thinking creatively enough - what are
-the advantages of mount --bind versus just symlinking?
+I am a graduate student at Univ Of Illinois at Urbana-Champaign.
+Regarding my thesis, I need some help with running a multithreaded program on
+red hat linux. I am experimenting with paging behavior. I use a machine where
+swap space is large compared to available memory. I run two threads, worker
+thread & prefetch thread.
+prefetch thread prefetches data in memory by accessing it which worker
+thread will use later. Expected result is prefetch thread should take
+most of the page faults leaving worker thread time to do actual work.
+So, paging time in prefetch thread and work time in worker thread should
+overlap and total time taken should be less.
+In a PThreads book I found out that when one thread is waiting on a page
+fault, other thread continues to work.
 
-Also, I tried mount --bind fileone filetwo, and it fails if filetwo
-doesn't exist. ('mount point filetwo doesn't exist').  Is that supposed
-to work?  (using mount from latest redhat beta)
+When I run my program on a readhat linux machine, I dont get results as
+expected, work thread seems to be stuck when prefetch thread is waiting on
+a page fault. Is it because, when one thread waits on a page fault, page
+table is locked for the other thread also. This is linux specific, as I
+get expected results on solaris. 
 
-BTW, pivot_root is nifty, too. ;-)
+Can you please provide some explanations ?
 
-regards,
-	David
+Thanks
+Neelam  
+ 
 
--- 
-David L. Parsley
-Network Administrator
-Roanoke College
+
+____________________________________________________________________
+Get free email and a permanent address at http://www.netaddress.com/?N=1

@@ -1,60 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271408AbRHPPeh>; Thu, 16 Aug 2001 11:34:37 -0400
+	id <S271507AbRHPPgH>; Thu, 16 Aug 2001 11:36:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270873AbRHPPe2>; Thu, 16 Aug 2001 11:34:28 -0400
-Received: from smtp.alcove.fr ([212.155.209.139]:40972 "EHLO smtp.alcove.fr")
-	by vger.kernel.org with ESMTP id <S271408AbRHPPeL>;
-	Thu, 16 Aug 2001 11:34:11 -0400
-Date: Thu, 16 Aug 2001 17:34:21 +0200
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH 2.4.8-ac5] Another Sony Vaio laptop with a broken APM...
-Message-ID: <20010816173420.J8473@come.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.20i
+	id <S271575AbRHPPf5>; Thu, 16 Aug 2001 11:35:57 -0400
+Received: from mail.ayrix.net ([64.49.1.26]:54262 "EHLO mail.bignetsouth.net")
+	by vger.kernel.org with ESMTP id <S270873AbRHPPfj>;
+	Thu, 16 Aug 2001 11:35:39 -0400
+Message-ID: <3B7BE84D.117212FE@ayrix.net>
+Date: Thu, 16 Aug 2001 10:35:41 -0500
+From: Bob Martin <bmartin@ayrix.net>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Via chipset
+In-Reply-To: <E15X75K-0003vl-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-This patch adds yet another Vaio laptop to the list of those
-having the APM minutes left swapping problem.
-
-However, the Vaio bioses list is getting bigger and bigger
-and I wonder if there is _any_ Vaio laptop that gets this
-item right. If not, we could just do a search on SYS_VENDOR /
-PRODUCT_NAME strings, like the is_sony_vaio_laptop test...
-
-Comments ?
-
-In the meanwhile, Alan, please apply.
-
-Stelian.
+Alan Cox wrote:
+> 
+> > Someone should be able to forward failure cases to some AMD contacts. A
+> > day or so with a bus analyzer should pin things down, AMD certainly has
+> > the hardware to check this.
+> 
+> It doesnt happen with AMD chipsets. Although if anyone from AMD is
+> interested I'd be happy to know
+> 
+> Alan
 
 
-diff -uNr --exclude-from=dontdiff linux-2.4.8-ac5.orig/arch/i386/kernel/dmi_scan.c linux-2.4.8-ac5/arch/i386/kernel/dmi_scan.c
---- linux-2.4.8-ac5.orig/arch/i386/kernel/dmi_scan.c	Thu Aug 16 13:56:37 2001
-+++ linux-2.4.8-ac5/arch/i386/kernel/dmi_scan.c	Thu Aug 16 14:06:59 2001
-@@ -467,6 +467,11 @@
- 			MATCH(DMI_BIOS_VERSION, "R0121Z1"),
- 			MATCH(DMI_BIOS_DATE, "05/11/00"), NO_MATCH
- 			} },
-+	{ swab_apm_power_in_minutes, "Sony VAIO", {	/* Handle problems with APM on Sony Vaio PCG-C1VN/C1VE */
-+			MATCH(DMI_BIOS_VENDOR, "Phoenix Technologies LTD"),
-+			MATCH(DMI_BIOS_VERSION, "R0208P1"),
-+			MATCH(DMI_BIOS_DATE, "11/09/00"), NO_MATCH
-+			} },
- 	
- 	/* Problem Intel 440GX bioses */
- 
+I have a MSI-6195 slot-A , AMD chipset with a visiontek nvidia vanta 32mb agp
+card, RH 7.1 installed. I have experienced complete system lockups with random
+uptimes < 1 day to 4 days, no mouse, keyboard, VCs, can't even telnet in or
+ping. I finally made the connection it was happening when I was away from the
+box and not using it interactively, which lead me to xscreensaver and sure
+enough after I disabled it, no more lockups, up 30 days now. But I haven't
+figured what in xscreensaver is doing this, don't know if it might be kernel
+related or not, probably not. I suspect xscreensaver is triggering something in
+the xserver that is not normally getting hit in normal use.
+
 -- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-|---------------- Free Software Engineer -----------------|
-| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
-|------------- Alcôve, liberating software ---------------|
+
+Bob Martin

@@ -1,37 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262415AbVADXmG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262378AbVADXhO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262415AbVADXmG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 18:42:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262385AbVADXlh
+	id S262378AbVADXhO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 18:37:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262178AbVADXgn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 18:41:37 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:52893 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S262120AbVADXi5 (ORCPT
+	Tue, 4 Jan 2005 18:36:43 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:3208 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262378AbVADXTz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 18:38:57 -0500
-Date: Wed, 5 Jan 2005 00:38:41 +0100
-From: Andries Brouwer <Andries.Brouwer@cwi.nl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Nikita Danilov <nikita@clusterfs.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Andries.Brouwer@cwi.nl
-Subject: Re: [PATCH] mm: overcommit updates
-Message-ID: <20050104233841.GC10119@apps.cwi.nl>
-References: <200501040611.j046BHoq005158@hera.kernel.org> <m14qhxmkw4.fsf@clusterfs.com> <1104857514.17176.33.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1104857514.17176.33.camel@localhost.localdomain>
-User-Agent: Mutt/1.4i
+	Tue, 4 Jan 2005 18:19:55 -0500
+Date: Tue, 4 Jan 2005 18:18:42 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Felipe Alfaro Solana <lkml@mac.com>
+cc: Horst von Brand <vonbrand@inf.utfsm.cl>, linux-kernel@vger.kernel.org,
+       Adrian Bunk <bunk@stusta.de>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
+       Andries Brouwer <aebr@win.tue.nl>,
+       William Lee Irwin III <wli@debian.org>
+Subject: Re: starting with 2.7
+In-Reply-To: <6D2E0FC1-5EA5-11D9-A816-000D9352858E@mac.com>
+Message-ID: <Pine.LNX.4.61.0501041817260.19373@chimarrao.boston.redhat.com>
+References: <200501042058.j04KwFED002211@laptop11.inf.utfsm.cl>
+ <6D2E0FC1-5EA5-11D9-A816-000D9352858E@mac.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 04, 2005 at 10:03:56PM +0000, Alan Cox wrote:
+On Wed, 5 Jan 2005, Felipe Alfaro Solana wrote:
 
-> Looks like a broken merge to me. When the 3% trick was proposed I
-> rewrote it as capabilities and submitted it to Linus, now it looks like
-> some months later the original one has been regurgitated out of -mm
+> Stabilizing, for me at least, means fixing bugs, not adding new features 
+> (unless those new features are totally necessary).
 
-No. The two semi-identical fragments have independent origins.
+The definition of "totally necessary" is going to vary
+from user to user.  For some people, the ability to
+use AGP on a system with more than 4GB RAM is necessary,
+leading to the recent API change.
 
-Andries
+> Thus, I don't see how freezing the 2.6 codebase, waiting some time for 
+> bugs to get fixed and things to settle down, then forking off 2.7 could 
+> be a non-sense.
+
+Hey, that's what we do between 2.6.N and 2.6.(N+1) ;)
+
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

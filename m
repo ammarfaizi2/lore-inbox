@@ -1,41 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133106AbRAHRhW>; Mon, 8 Jan 2001 12:37:22 -0500
+	id <S135556AbRAHRiC>; Mon, 8 Jan 2001 12:38:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135469AbRAHRhC>; Mon, 8 Jan 2001 12:37:02 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:27632 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S135467AbRAHRhB>; Mon, 8 Jan 2001 12:37:01 -0500
-Date: Mon, 8 Jan 2001 15:36:23 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: afei@jhu.edu
-cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: MM/VM todo list
-In-Reply-To: <Pine.GSO.4.05.10101081230560.23656-100000@aa.eps.jhu.edu>
-Message-ID: <Pine.LNX.4.21.0101081535330.21675-100000@duckman.distro.conectiva>
+	id <S135195AbRAHRhp>; Mon, 8 Jan 2001 12:37:45 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:12299 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S135469AbRAHRha>; Mon, 8 Jan 2001 12:37:30 -0500
+Date: Mon, 8 Jan 2001 09:37:03 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+cc: Shane Nay <shane@agendacomputing.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cramfs is ro only, so honour this in inode->mode
+In-Reply-To: <20010108152904.K10035@nightmaster.csn.tu-chemnitz.de>
+Message-ID: <Pine.LNX.4.10.10101080930410.3750-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Jan 2001 afei@jhu.edu wrote:
 
-> About the RSS ulimit proposal, have we resolved the correctness
-> of counting RSS in a process?
 
-I have not taken^Whad the time to check the kernel tree
-and see if the RSS counting has indeed been made safe
-everywhere.
+On Mon, 8 Jan 2001, Ingo Oeser wrote:
 
-regards,
+> On Mon, Jan 08, 2001 at 12:13:39PM +0000, Shane Nay wrote:
+> > This may not initially seem like such a great thing..., but imagine a base 
+> > distro being distributed as a cramfs file.  Copy the thing over to your HD 
+> > and you're done, otherwise the distro packaging has to keep track of 
+> > permisions for each file, etc.
+> 
+> You can use (GNU-)tar for this. It even keeps track of other bits like
+> ext2fs attributes, AFAIK.
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+Ehh.. And how were you going to mount it?
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+The advantage of cramfs is that you can make a cramfs CD-ROM, and you can
+_run_ off that CD while you unpack it to your harddisk.
+
+Using "tar" is not very practical. Doing a "tarfs" is probably not that
+bad, but doing a "compressed-tar-fs" is a horrible pain in the neck
+without big double buffers etc.
+
+The advantage of cramfs is that it actually is a reasonably efficient
+filesystem - becasue of the fairly small compression block-size it doesn't
+compress as well as doing a bzip2 on a tar-file, but that small
+compression block is also what makes random-access easy. And that's what
+makes it easy to use cramfs as a "live" filesystem, very much unlike some
+compressed tar-balls.
+
+I've been thinking of doing a cramfs2, and the only thing I'd change is
+(a) slightly bigger blocksize (maybe 8k or 16k) and (b) re-order the
+meta-data and the real data so that I could easily compress the metadata
+too. cramfs doesn't have any traditional meta-data (no bitmap blocks or
+anything like that), but it wouldn't be that hard to put the directory
+structure in the page cache and just compress the directories the same way
+the real data is compressed.
+
+		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

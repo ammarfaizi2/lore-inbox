@@ -1,47 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284902AbRLZUq0>; Wed, 26 Dec 2001 15:46:26 -0500
+	id <S284890AbRLZUmq>; Wed, 26 Dec 2001 15:42:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284899AbRLZUqQ>; Wed, 26 Dec 2001 15:46:16 -0500
-Received: from rtlab.med.cornell.edu ([140.251.145.175]:21212 "HELO
-	openlab.rtlab.org") by vger.kernel.org with SMTP id <S284902AbRLZUqF>;
-	Wed, 26 Dec 2001 15:46:05 -0500
-Date: Wed, 26 Dec 2001 15:46:05 -0500 (EST)
-From: "Calin A. Culianu" <calin@ajvar.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: Unusual Stacksize Question
-Message-ID: <Pine.LNX.4.30.0112261534370.21850-100000@rtlab.med.cornell.edu>
+	id <S284899AbRLZUmg>; Wed, 26 Dec 2001 15:42:36 -0500
+Received: from dsl-213-023-038-250.arcor-ip.net ([213.23.38.250]:11283 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S284890AbRLZUmW>;
+	Wed, 26 Dec 2001 15:42:22 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Bill Huey <billh@tierra.ucsd.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Java and Flam^H^H^H^H AIO (was: aio)
+Date: Wed, 26 Dec 2001 21:42:40 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: "David S. Miller" <davem@redhat.com>, billh@tierra.ucsd.edu,
+        bcrl@redhat.com, torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        linux-aio@kvack.org
+In-Reply-To: <20011219.172046.08320763.davem@redhat.com> <E16HTTI-0000w0-00@the-village.bc.nu> <20011222214630.B12352@burn.ucsd.edu>
+In-Reply-To: <20011222214630.B12352@burn.ucsd.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16JKsv-0000bc-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On December 23, 2001 06:46 am, Bill Huey wrote:
+> On Fri, Dec 21, 2001 at 05:28:36PM +0000, Alan Cox wrote:
+> > > Precisely, in fact.  Anyone who can say that Java is going to be
+> > > relevant in a few years time, with a straight face, is only kidding
+> > > themselves.
+> > 
+> > Oh it'll be very relevant. Its leaking into all sorts of embedded uses,
+> > from Digital TV to smartcards. Its still useless for serious high end 
+> > work an likely to stay so.
+> > 
+> > > Java is not something to justify a new kernel feature, that is for
+> > > certain.
+> > 
+> > There we agree. Things like the current asynch/thread mess in java are
+> > partly poor design of language and greatly stupid design of JVM.
+> 
+> It's not the fault of the JVM runtime nor the the language per se since
+> both are excellent. The blame should instead be placed on the political
+> process within Sun, which has created a lag in getting a decent IO event
+> model/system available in the form of an API.
 
-Ok, this question is kind of strange, and I am not even sure how to phrase
-it clearly:
+Hey wait, it can't be so.  Sun apparently uses a boot camp system to 
+guarantee that every project finishes on time, every time. 
 
-Are there any possible issues with processes that have ELS (Extremely
-Large Stackspace [TM])?  [Ok, I made that term up..].  I have an ELS
-process that I was tinkering with..  Purely for academic reasons, mind
-you, I created huge arrays of doubles and managed to get the thing to
-coredump.  I used setrlimit() to set the stacksize limit to infinity.  No
-more core dumps.  But guess what?  Like half the time I now get a kernel
-panic screen dump and the system immediately hangs...  I should think that
-really, as long as you have enough memory, both real and imagined (I made
-that term up too), nothing too bad can happen beyond a coredump maybe.
+* daniel ducks and runs
 
-At any rate, I am suspicious of the motherboard and ram this system uses,
-but I was just wondering if you guys knew of any issues in the kernel with
-extremely large stack segments.. possibly in the context switch code or
-somesuch (again, I should think not.. but I figured I should ask
-anyway..).
-
-The kernel is the stock redhat 7.1 kernel: 2.4.2-2
-
-I apologize for the randomness of this question.. but at this point I am
-trying to eliminate possibilities and if there were a known issue with
-huge stack segments in userspace I would appreciate the info...
-
--Calin
-
+--
+Daniel
 

@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263415AbTDGM0g (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 08:26:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263414AbTDGM0g (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 08:26:36 -0400
-Received: from chii.cinet.co.jp ([61.197.228.217]:21378 "EHLO
-	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP id S263413AbTDGM0f (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Apr 2003 08:26:35 -0400
-Date: Mon, 7 Apr 2003 21:36:16 +0900
-From: Osamu Tomita <tomita@cinet.co.jp>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.5.66-ac2] PC-9800 sub architecture support (5/9) IDE
-Message-ID: <20030407123616.GA5734@yuzuki.cinet.co.jp>
-References: <20030407033627.GA4798@yuzuki.cinet.co.jp> <20030407035231.GE4840@yuzuki.cinet.co.jp> <1049715151.2965.40.camel@dhcp22.swansea.linux.org.uk>
+	id S263400AbTDGMbt (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 08:31:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263403AbTDGMbs (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 08:31:48 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:30645 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S263400AbTDGMbr (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 08:31:47 -0400
+Date: Mon, 7 Apr 2003 14:43:12 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: David Zaffiro <davzaffiro@netscape.net>
+Cc: Thomas Schlichter <schlicht@uni-mannheim.de>, linux-kernel@vger.kernel.org
+Subject: Re: An idea for prefetching swapped memory...
+Message-ID: <20030407124311.GD22630@wohnheim.fh-wedel.de>
+References: <200304071026.47557.schlicht@uni-mannheim.de> <3E916FDA.8070809@netscape.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <1049715151.2965.40.camel@dhcp22.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3E916FDA.8070809@netscape.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 07, 2003 at 12:32:32PM +0100, Alan Cox wrote:
-> On Llu, 2003-04-07 at 04:52, Osamu Tomita wrote:
-> > This is the patch to support NEC PC-9800 subarchitecture
-> > against 2.5.66-ac2. (5/9)
-> > 
-> > PC98 standard IDE I/F support.
-> >  - Change default IO port address and IRQ.
-> >  - Request region exactly for other optional cards.
+On Mon, 7 April 2003 14:32:26 +0200, David Zaffiro wrote:
 > 
-> I'm ignoring this one for the moment because one of the jobs I need
-> to do is to move all the resource handling in IDE into the drivers
-> not the core code. When that is done the problem goes away
-I see.
+> >The idea was about prefetching swapped out pages when some memory is free, 
+> >the CPU is idle and the I/O load is low.
+> >
+> >So this should not 'cost' much but behave better on following situation:
+> >(I think there are even more such situations, this one should just be an 
+> >example)
+> 
+> Wouldn't it cost almost twice as much when the user requests a different 
+> task, instead of the just swaped-in "last swaped-out task(s)"?!
+> 
+> Instead of loading this directly into a free portion of phys. memory, the 
+> just-swapped-in-ex-swapped-out task(s) would need to be swapped-out *again* 
+> in favour of the to-be-swaped-in task...
+> 
+> Or am I wrong here?
 
-Thanks,
-Osamu Tomita
+Partially. If done right, the swapout would simply free those pages.
+The information is already on the disk and unchanged, after all.
 
+Jörn
+
+-- 
+If you're willing to restrict the flexibility of your approach,
+you can almost always do something better.
+-- John Carmack

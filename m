@@ -1,57 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261580AbTI3P1Z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 11:27:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261581AbTI3P1Z
+	id S261567AbTI3Pdr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 11:33:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261570AbTI3Pcg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 11:27:25 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:61188 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S261580AbTI3P1Y convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 11:27:24 -0400
-Date: Tue, 30 Sep 2003 11:17:51 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.0-test6
-In-Reply-To: <20030930104201.GA11752@wohnheim.fh-wedel.de>
-Message-ID: <Pine.LNX.3.96.1030930111443.9817A-100000@gatekeeper.tmr.com>
+	Tue, 30 Sep 2003 11:32:36 -0400
+Received: from fw.osdl.org ([65.172.181.6]:31959 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261567AbTI3Pc0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 11:32:26 -0400
+Date: Tue, 30 Sep 2003 08:32:20 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jaroslav Kysela <perex@suse.cz>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [ALSA PATCH] OSS emulation fixes
+In-Reply-To: <Pine.LNX.4.53.0309301247030.1362@pnote.perex-int.cz>
+Message-ID: <Pine.LNX.4.44.0309300829330.13584-100000@home.osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Sep 2003, [iso-8859-1] Jörn Engel wrote:
 
-> On Mon, 29 September 2003 19:19:30 +0000, bill davidsen wrote:
-> > In article <Pine.LNX.4.44.0309281035370.6307-100000@home.osdl.org>,
-> > Linus Torvalds  <torvalds@osdl.org> wrote:
-> > 
-> > | Interesting. I'm pretty sure I did a "make allyesconfig" just before the
-> > | test6 release, so apparently x86 includes it indirectly through some path, 
-> > | and so it only shows up on m68k and arm?
-> > | 
-> > | This, btw, is a pretty common thing. I wonder what we could do to make 
-> > | sure that different architectures wouldn't have so different include file 
-> > | structures. It's happened _way_ too often.
-> > | 
-> > | Any ideas?
-> > 
-> > If CPU cycles are no object the include names and order can be picked
-> > out of the preprocessor output, add "-E" to the gcc call, pick only the
-> > lines starting with "1" and a header name, save in a text file. The
-> > problem is that config option (including arch) change the output, so
-> > it's only useful as a rough check.
+On Tue, 30 Sep 2003, Jaroslav Kysela wrote:
 > 
-> How is this better than adding "-H", as Jamie suggested?
+> Additional notes:
+> 
+>   Linus, please, merge C: (means changed code block) lines to your
+>   release change log too - otherwise it's not much readable. Thank you.
 
-I didn't see that in Linus' post, and still don't. I suspect you're
-thinking of some post which came later. Linus asked for ideas, I supplied
-one, sorry it offends you.
+The shortlogs are automatically generated, and I sometimes edit them to be 
+slightly more readable by hand.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+What this means is that if you want a human-readable short-log, then your
+ALSA log message itself should be human-readable, and not that automated
+crap.
+
+So instead of your CVS merges doing this crap:
+> 
+> <perex@suse.cz> (03/09/30 1.1457)
+>    ALSA CVS update
+>    D:2003/09/30 11:15:44
+>    C:RawMidi Midlevel
+>    A:Takashi Iwai <tiwai@suse.de>
+>    F:core/rawmidi.c:1.38->1.39
+>    L:fixed typos (open_lock -> open_mutex).
+
+Why don't you just make the BK log something sane instead, ie
+
+	RawMidi Midlevel: fixed typos (open_lock -> open_mutex).
+
+	Bt Takashi Iwai <tiwai@suse.de>
+
+(the "F:" is useless, since the files already show up in any sane source 
+control, and the rest is just fluff.
+
+		Linus
 

@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262640AbVAEXHd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262641AbVAEXIU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262640AbVAEXHd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 18:07:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262641AbVAEXHd
+	id S262641AbVAEXIU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 18:08:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262644AbVAEXIT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 18:07:33 -0500
-Received: from mail.dif.dk ([193.138.115.101]:38083 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S262640AbVAEXH0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 18:07:26 -0500
-Date: Thu, 6 Jan 2005 00:18:49 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Jesper Juhl <juhl-lkml@dif.dk>, linux-scsi <linux-scsi@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, ZP Gu <zpg@castle.net>
-Subject: Re: [PATCH][RFC] clean out old cruft from FD MCS driver
-In-Reply-To: <20050104030717.GQ18080@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.61.0501060015100.3492@dragon.hygekrogen.localhost>
-References: <Pine.LNX.4.61.0501032350040.3529@dragon.hygekrogen.localhost>
- <20050104030717.GQ18080@parcelfarce.linux.theplanet.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 5 Jan 2005 18:08:19 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12519 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262641AbVAEXIP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 18:08:15 -0500
+Date: Wed, 5 Jan 2005 18:32:18 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: riel@redhat.com, andrea@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][5/?] count writeback pages in nr_scanned
+Message-ID: <20050105203217.GB17265@logos.cnet>
+References: <Pine.LNX.4.61.0501031224400.25392@chimarrao.boston.redhat.com> <20050105020859.3192a298.akpm@osdl.org> <20050105180651.GD4597@dualathlon.random> <Pine.LNX.4.61.0501051350150.22969@chimarrao.boston.redhat.com> <20050105174934.GC15739@logos.cnet> <20050105134457.03aca488.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050105134457.03aca488.akpm@osdl.org>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Jan 2005, Matthew Wilcox wrote:
 
-> On Tue, Jan 04, 2005 at 12:11:27AM +0100, Jesper Juhl wrote:
-> > At this point I got the feeling that this driver had been left to rot and 
-> > I desided to see if there was more cruft in there that we might as well 
-> > get rid of, and indeed there is.
+> The caller would need to wait on all the zones which can satisfy the
+> caller's allocation request.  A bit messy, although not rocket science. 
+> One would have to be careful to avoid additional CPU consumption due to
+> delivery of multiple wakeups at each I/O completion.
 > 
-> Yup.  There's a lot of cruft in that driver.  I really don't like the
-> look of fd_mcs_intr() -- trying to deduce whether or not there's a data phase
-> out based on the command byte?  urgh.
-> 
-> There's a somehat better-maintained driver -- fdomain.c.  It'd be great
-> if someone could make fdomain.c support the MCA cards -- and even the PCMCIA
-> cards without having the separate fdomain_stub.c.
+> We should be able to demonstrate that such a change really fixes some
+> problem though.  Otherwise, why bother?
 
-That would be even better, but until that happens why not apply the patch 
-I submitted (assuming it is actually OK) in its current form? That at 
-least would clean out some of the cruft (and kill a warning) so there's 
-less to sift through for someone reading the driver later.
+Agreed. The current scheme works well enough, we dont have spurious OOM kills
+anymore, which is the only "problem" such change ought to fix. 
 
--- 
-Jesper
-
-
+You might have performance increase in some situations I believe (because you 
+have perzone waitqueues), but I agree its does not seem to be worth the
+trouble.

@@ -1,63 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261928AbVAaFoZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261929AbVAaFwl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261928AbVAaFoZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 00:44:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbVAaFoZ
+	id S261929AbVAaFwl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 00:52:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261930AbVAaFwl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 00:44:25 -0500
-Received: from inet-tsb.toshiba.co.jp ([202.33.96.40]:39822 "EHLO
-	inet-tsb.toshiba.co.jp") by vger.kernel.org with ESMTP
-	id S261928AbVAaFoL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 00:44:11 -0500
-Date: Mon, 31 Jan 2005 14:42:52 +0900 (JST)
-Message-Id: <200501310542.j0V5grsI029994@toshiba.co.jp>
-To: yoshfuji@linux-ipv6.org
-Cc: kaber@trash.net, kozakai@linux-ipv6.org, herbert@gondor.apana.org.au,
-       davem@davemloft.net, rmk+lkml@arm.linux.org.uk,
-       Robert.Olsson@data.slu.se, akpm@osdl.org, torvalds@osdl.org,
-       alexn@dsv.su.se, kas@fi.muni.cz, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com
-Subject: Re: Memory leak in 2.6.11-rc1?
-From: Yasuyuki KOZAKAI <yasuyuki.kozakai@toshiba.co.jp>
-In-Reply-To: <20050131.141636.20664459.yoshfuji@linux-ipv6.org>
-References: <20050131.134559.125426676.yoshfuji@linux-ipv6.org>
-	<41FDBB78.2050403@trash.net>
-	<20050131.141636.20664459.yoshfuji@linux-ipv6.org>
-X-Mailer: Mew version 3.3 on Emacs 20.7 / Mule 4.0 (HANANOEN)
+	Mon, 31 Jan 2005 00:52:41 -0500
+Received: from coyote.holtmann.net ([217.160.111.169]:15243 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S261929AbVAaFwj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 00:52:39 -0500
+Subject: Re: recent 2.6.x USB HID input weirdness
+From: Marcel Holtmann <marcel@holtmann.org>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Vojtech Pavlik <vojtech@suse.cz>
+In-Reply-To: <20050130212739.060f8e6f.davem@davemloft.net>
+References: <20050130212739.060f8e6f.davem@davemloft.net>
+Content-Type: text/plain
+Date: Mon, 31 Jan 2005 06:52:34 +0100
+Message-Id: <1107150754.7801.8.camel@pegasus>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-2022-jp
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Dave,
 
-Hi,
-
-From: YOSHIFUJI Hideaki / 吉藤英明 <yoshfuji@linux-ipv6.org>
-Date: Mon, 31 Jan 2005 14:16:36 +0900 (JST)
-
-> In article <41FDBB78.2050403@trash.net> (at Mon, 31 Jan 2005 06:00:40 +0100), Patrick McHardy <kaber@trash.net> says:
+> On sparc64 I just started getting this in my kernel logs
+> on 2.6.x-BK from hidinput_input_event:
 > 
-> |We don't need this for IPv6 yet. Once we get nf_conntrack in we
-> |might need this, but its IPv6 fragment handling is different from
-> |ip_conntrack, I need to check first.
+> warning: event field not found
 > 
-> Ok. It would be better to have some comment but anyway...
-> kozakai-san?
+> I added some debugging:
+> 
+> hidinput_input_event: type[4] code [4] value[458759]
+> hidinput_input_event: type[4] code [4] value[458761]
+> 
+> This is on a Sun Type-6 USB keyboard.  It does this for
+> every key I press.  The keys work properly, just the
+> warning is printed (which makes the console kind of hard
+> to use :-)
 
-IMO, fix for nf_conntrack isn't needed yet. Because someone may change
-IPv6 fragment handling in nf_conntrack.
+take a look at this patch: http://lkml.org/lkml/2005/1/29/111
 
-Anyway, current nf_conntrack passes the original (not de-fragmented) skb to
-IPv6 stack. nf_conntrack doesn't touch its dst.
+Regards
 
-Regards,
-----------------------------------------
-Yasuyuki KOZAKAI
+Marcel
 
-Communication Platform Laboratory,
-Corporate Research & Development Center,
-Toshiba Corporation
 
-yasuyuki.kozakai@toshiba.co.jp
-----------------------------------------

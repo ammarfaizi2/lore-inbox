@@ -1,52 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266853AbRGFVRK>; Fri, 6 Jul 2001 17:17:10 -0400
+	id <S266859AbRGFVXv>; Fri, 6 Jul 2001 17:23:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266852AbRGFVRA>; Fri, 6 Jul 2001 17:17:00 -0400
-Received: from moat2.centtech.com ([206.196.95.21]:1206 "EHLO
-	prox.centtech.com") by vger.kernel.org with ESMTP
-	id <S266853AbRGFVQs>; Fri, 6 Jul 2001 17:16:48 -0400
-Message-ID: <3B462AA8.F7F0089D@centtech.com>
-Date: Fri, 06 Jul 2001 16:16:24 -0500
-From: Eric Anderson <anderson@centtech.com>
-Reply-To: anderson@centtech.com
-Organization: Centaur Technology
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.14-5.0smp i686)
-X-Accept-Language: en
+	id <S266855AbRGFVXa>; Fri, 6 Jul 2001 17:23:30 -0400
+Received: from gate.tuxia.com ([213.209.134.221]:42737 "EHLO
+	exchange1.win.agb.tuxia") by vger.kernel.org with ESMTP
+	id <S266854AbRGFVXW> convert rfc822-to-8bit; Fri, 6 Jul 2001 17:23:22 -0400
+x-mimeole: Produced By Microsoft Exchange V6.0.4418.65
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: BIGMEM kernel question
-In-Reply-To: <E15IckP-0004w6-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: Trouble Booting Linux PPC 2000 On Mac G4
+Date: Fri, 6 Jul 2001 23:23:23 +0200
+Message-ID: <A16915712C18BD4EBD97897F82DA08CD480BFB@exchange1.win.agb.tuxia>
+Thread-Topic: Trouble Booting Linux PPC On Mac G4 2000
+Thread-Index: AcEGYC0JwWQWi5nlSI6uyVLBnjxUXQAALRVQ
+From: "Tim McDaniel" <tim.mcdaniel@tuxia.com>
+To: "Jeffrey W. Baker" <jwbaker@acm.org>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ahh. That makes sense.  So how can I change the chunk size from 64k to
-something higher (I assume I could set it to 128k to effectively double
-that 3GB to 6GB)?  
+I think what we are seeing is XBoot rather than yaboot and we tried just
+about all conceivable "kernel options", as exposed by Xboot. When Xboot
+comes up it shows a ramdisk_size=8192 as the only default parameter.
+Rapidly growing to hate the non-intuitive nature of the MAC OS we are
+not experts on the Mac OS.  P.S. We are running Mac OS 9.1.
 
-Eric Anderson
+Oops, We just discovered that Xboot does not work with MacOS 9.1 (geez)
+.... you MUST use yaboot.
 
 
-Alan Cox wrote:
-> 
-> > kernel.  My machine has 4GB of RAM, and 6GB of swap.  It appears that I
-> > can only allocate 2930 MB (using heapc_linux and other programs).  What
-> > do I need to do to get Linux to allow allocation of all available memory
-> 
-> A non x86 based computer. Its basically impractical to map more than 3Gb of
-> memory to user space per process on x86. You can use mmap and shared memory
-> to do DOS EMS like tricks with gig rather than 64K sized chunks but you want
-> a real 64bit processor to go further
-> 
-> Alan
+We will try the Q4 release.
 
--- 
--------------------------------------------------------------------------------
-Eric Anderson	 anderson@centtech.com    Centaur Technology    (512)
-418-5792
-For every complex problem, there is a solution that is simple, neat, and
-wrong.
--------------------------------------------------------------------------------
+Thanks,
+Tim
+
+
+-----Original Message-----
+From: Jeffrey W. Baker [mailto:jwbaker@acm.org]
+Sent: Friday, July 06, 2001 4:09 PM
+To: Tim McDaniel
+Cc: linux-ppc@vger.kernel.org; linux-kernel@vger.kernel.org
+Subject: RE: Trouble Booting Linux PPC On Mac G4 2000
+
+
+
+
+On Fri, 6 Jul 2001, Tim McDaniel wrote:
+
+>
+> We are having a great degree of difficulty getting Linux PPC20000
+> running on a Mac G4 466 tower with 128MB of memory, One 30MB HD and
+one
+> CR RW. This is not a NuBus based system. To the best of our knowledge
+we
+> have followed the user manual to the tee, and even tried forcing video
+> settings at the Xboot screen.
+>
+>
+> But still, when we encounter the screen where you must chose between
+> MacOS and Linux and we chose linux, the screen goes black and for all
+> practical purposes the box appears to be locked.   We've also tried
+> editing yaboot.conf but can't seem to save the new file.
+>
+> Any help would be greatly appreatiated.
+
+add "video=ofonly" to your boot command line.  That is, at the yaboot
+"boot: " prompt, type "linux video=ofonly"
+
+If that doesn't work, try something else :)
+
+-jwb
+

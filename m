@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278191AbRJLW64>; Fri, 12 Oct 2001 18:58:56 -0400
+	id <S278197AbRJLXPb>; Fri, 12 Oct 2001 19:15:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278195AbRJLW6q>; Fri, 12 Oct 2001 18:58:46 -0400
-Received: from [216.163.180.10] ([216.163.180.10]:56567 "EHLO
-	c0mailgw09.prontomail.com") by vger.kernel.org with ESMTP
-	id <S278191AbRJLW60>; Fri, 12 Oct 2001 18:58:26 -0400
-Message-ID: <3BC7757A.CB01C83C@starband.net>
-Date: Fri, 12 Oct 2001 18:58:03 -0400
-From: war <war@starband.net>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.12 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S278198AbRJLXPU>; Fri, 12 Oct 2001 19:15:20 -0400
+Received: from mailgw3.netvision.net.il ([194.90.1.11]:17037 "EHLO
+	mailgw3.netvision.net.il") by vger.kernel.org with ESMTP
+	id <S278197AbRJLXPP>; Fri, 12 Oct 2001 19:15:15 -0400
+Date: Sat, 13 Oct 2001 01:18:41 +0200
+From: Etay Meiri <cl1@netvision.net.il>
 To: linux-kernel@vger.kernel.org
-Subject: Evil scsi bug.
+Cc: cl1@netvision.net.il
+Subject: exporting open_namei to modules
+Message-ID: <20011013011841.B1069@amber.rog.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When ide-scsi is loaded, box a with a symbios scsi board does NOT work,
-the scanner does not work.
+Hi,
 
-Oct 12 18:39:23 p3 kernel: Attached scsi generic sg2 at scsi0, channel
-0, id 3, lun 0,  type 6
-Oct 12 18:39:23 p3 kernel: sym53c875-0-<3,*>: target did not report
-SYNC.
-Oct 12 18:39:23 p3 kernel: ide-scsi: The scsi wants to send us more data
-than expected - discarding data
-Oct 12 18:39:23 p3 kernel: ide-scsi: transferred 5 of 6 bytes
+Is there a particular reason why open_namei() is
+not exported to modules?
 
-When I unload ide-scsi, and load the scsi module all by itself, it works
-fine.
-What an evil bug/problem!
+Please CC me since I'm not on the list.
 
+TIA
 
-With box b, I have an adaptec and ide-scsi both built into the kernel,
-and they work great.
+-Etay
 
+-- 
+************************************************
+"When in doubt, use brute force."
+									Ken Thompson
+Etay Meiri
+cl1@netvision.net.il
+************************************************

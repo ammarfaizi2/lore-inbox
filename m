@@ -1,48 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269583AbTHSJuG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 05:50:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269639AbTHSJuG
+	id S269578AbTHSKFk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 06:05:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269619AbTHSKFk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 05:50:06 -0400
-Received: from hq.pm.waw.pl ([195.116.170.10]:2271 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S269583AbTHSJuC (ORCPT
+	Tue, 19 Aug 2003 06:05:40 -0400
+Received: from MailBox.iNES.RO ([80.86.96.21]:41352 "EHLO MailBox.iNES.RO")
+	by vger.kernel.org with ESMTP id S269578AbTHSKFj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 05:50:02 -0400
-To: Jes Sorensen <jes@wildopensource.com>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] RFC: kills consistent_dma_mask
-References: <m3oeynykuu.fsf@defiant.pm.waw.pl>
-	<20030818111522.A12835@devserv.devel.redhat.com>
-	<m33cfzuen2.fsf@defiant.pm.waw.pl> <m3y8xqroqo.fsf@trained-monkey.org>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 19 Aug 2003 11:49:28 +0200
-In-Reply-To: <m3y8xqroqo.fsf@trained-monkey.org>
-Message-ID: <m3vfsuj7tj.fsf@defiant.pm.waw.pl>
+	Tue, 19 Aug 2003 06:05:39 -0400
+Date: Tue, 19 Aug 2003 13:05:29 +0300 (EEST)
+From: Dumitru Ciobarcianu <cioby@ines.ro>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test3-mm3
+In-Reply-To: <20030819013834.1fa487dc.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.44.0308191302180.15679-100000@MailBox.iNES.RO>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-RAVMilter-Version: 8.4.1(snapshot 20020919) (MailBox.iNES.RO)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jes Sorensen <jes@wildopensource.com> writes:
 
-> Bzzzt, *wrong*! Take a look at drivers/scsi/aic7xxx/aic7xxx_osm_pci.c,
-> if you look at the code you will notice that the hardware does support
-> different masks for consistent vs dynamic allocations (32 bit for
-> consistent vs 39 or 64 bit for dynamic).
+For some reason, the ACPI support depends on local apic.
+If you don't set "Local APIC support on uniprocessors" you can't enter in 
+the "ACPI Support" menu.
 
-The hardware, maybe.
+Is this really necessary ?
 
-> However make a note that the
-> driver uses the current interface incorrectly and thinks that
-> pci_set_dma_mask() actually applies to pci_alloc_consistent, which is
-> something it never did.
+//Cioby
 
-No, it nearly always does. Looks at the actual pci_alloc_consistent on,
-say, i386.
 
-Will it be ok if I fix the consistent allocs to use consistent_dma_mask
-(some drivers will need a fix on i386 etc.)?
--- 
-Krzysztof Halasa
-Network Administrator

@@ -1,72 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293097AbSBWFOk>; Sat, 23 Feb 2002 00:14:40 -0500
+	id <S293098AbSBWFPk>; Sat, 23 Feb 2002 00:15:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293099AbSBWFOV>; Sat, 23 Feb 2002 00:14:21 -0500
-Received: from c9mailgw.prontomail.com ([216.163.188.209]:33551 "EHLO
-	C9Mailgw08.amadis.com") by vger.kernel.org with ESMTP
-	id <S293097AbSBWFOL>; Sat, 23 Feb 2002 00:14:11 -0500
-Message-ID: <3C7724FE.62001ABE@starband.net>
-Date: Sat, 23 Feb 2002 00:13:34 -0500
-From: Justin Piszcz <war@starband.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
+	id <S293099AbSBWFPb>; Sat, 23 Feb 2002 00:15:31 -0500
+Received: from dial-10-208-apx-01.btvt.together.net ([209.91.3.208]:4494 "EHLO
+	sparrow.websense.net") by vger.kernel.org with ESMTP
+	id <S293098AbSBWFPV>; Sat, 23 Feb 2002 00:15:21 -0500
+Date: Sat, 23 Feb 2002 00:14:12 -0500 (EST)
+From: William Stearns <wstearns@pobox.com>
+X-X-Sender: wstearns@sparrow.websense.net
+Reply-To: William Stearns <wstearns@pobox.com>
+To: Michal Jaegermann <michal@harddata.com>
+cc: ML-linux-kernel <linux-kernel@vger.kernel.org>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        William Stearns <wstearns@pobox.com>
+Subject: Re: 2.4.18-rc4 does not boot
+In-Reply-To: <20020222190538.A3819@mail.harddata.com>
+Message-ID: <Pine.LNX.4.44.0202222350230.2192-100000@sparrow.websense.net>
 MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: gcc-2.95.3 vs gcc-3.0.4
-In-Reply-To: <3C771D29.942A07C2@starband.net> <20020222204456.O11156@work.bitmover.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ahh! Thanks for the information.
+Good day, Michal,
+	(My apologies in advance if your problem is not a mischosen root 
+partition).
 
-Larry McVoy wrote:
+On Fri, 22 Feb 2002, Michal Jaegermann wrote:
 
-> Try 2.72, it's almost twice as fast as 2.95 for builds.  For BK, at least,
-> we don't see any benefit from the slower compiler, the code runs the same
-> either way.
->
-> On Fri, Feb 22, 2002 at 11:40:09PM -0500, Justin Piszcz wrote:
-> > Wow, not sure if anyone here has done any benchmarks, but look at these
-> > build times:
-> > Kernel 2.4.17 did compile with 3.0.4, just much much slower than 2.95.3
-> > however.
-> >
-> > GCC 2.95.3
-> > Boot sector 512 bytes.
-> > Setup is 2628 bytes.
-> > System is 899 kB
-> > make[1]: Leaving directory `/usr/src/linux-2.4.17/arch/i386/boot'
-> > 287.28user 23.99system 5:15.81elapsed 98%CPU (0avgtext+0avgdata
-> > 0maxresident)k
-> > 0inputs+0outputs (514864major+684661minor)pagefaults 0swaps
-> >
-> > GCC 3.0.4
-> > Boot sector 512 bytes.
-> > Setup is 2628 bytes.
-> > System is 962 kB
-> > warning: kernel is too big for standalone boot from floppy
-> > make[1]: Leaving directory `/usr/src/linux-2.4.17/arch/i386/boot'
-> > 406.87user 28.38system 7:23.68elapsed 98%CPU (0avgtext+0avgdata
-> > 0maxresident)k
-> > 0inputs+0outputs (546562major+989237minor)pagefaults 0swaps
-> >
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
->
-> --
-> ---
-> Larry McVoy              lm at bitmover.com           http://www.bitmover.com/lm
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> On Monday, Feb 18, I posted a message that 2.4.18-pre9-ac4
+> fails to boot on my machine with
+> 
+> FAT: bogus logical sector size 0
+> FAT: bogus logical sector size 0
+
+	See http://www.uwsg.iu.edu/hypermail/linux/kernel/0111.3/0454.html 
+; the post refers to the fact that the kernel doesn't know what filesystem 
+is being used on the root device, so it tries all of the filesystem 
+drivers.  The fat filesystem is whining because it can't recognize a fat 
+filesystem on /dev/hda...
+
+> Kernel panic: VFS: Unable to mount root fs on 03:00
+
+	The 03:00 seems to imply to me that the kernel is looking for a 
+root filesystem on /dev/hda (see /usr/src/linux/Documentation/devices.txt 
+).  Is your root filesystem truly on /dev/hda (the entire drive), or (more 
+likely) on one of the partitions, such as  /dev/hda1, /dev/hda2, etc.?
+	If your root filesystem is on one of these others, you can tell 
+the kernel what partition to use with:
+
+rdev /path/to/my/kernel/file /dev/hda9	#Replace hda9 with your root partition
+
+	or autodetect the partition with:
+
+rdev /path/to/my/kernel/file `cat /etc/mtab | grep ' / ' | cut -f 1 -d ' '`
+
+	If you're booting this kernel from a floppy, make sure 
+you tell that kernel to use the right root as well; redo either of the 
+above with
+
+rdev /dev/fd0 /dev/hda9	#Replace hda9 with your root partition
+rdev /dev/fd0 `cat /etc/mtab | grep ' / ' | cut -f 1 -d ' '`
+
+	You might also want to check your boot loader's configuration file 
+and make sure that it references the correct root filesystem.
+
+/etc/lilo.conf:
+
+image=/boot/bzImage-2.4.18-3
+        label=2.4.18-3
+        root=/dev/hda4
+        read-only
+
+
+	Cheers,
+	- Bill
+
+
+> messages.  2.4.18-rc1, and many different kernels, do not have
+> troubles of that sort.  Tonight I found to my dismay that the
+> same trouble afflicted 2.4.18-rc4.  No, I do not know why this
+> happens; at least at this moment.
+
+
+---------------------------------------------------------------------------
+        "cc:Mail is a wonderful application, as long as you don't want
+to read or send mail."
+(Courtesy of Nix <nix@esperi.demon.co.uk>)
+--------------------------------------------------------------------------
+William Stearns (wstearns@pobox.com).  Mason, Buildkernel, named2hosts, 
+and ipfwadm2ipchains are at:                http://www.pobox.com/~wstearns
+LinuxMonth; articles for Linux Enthusiasts! http://www.linuxmonth.com
+--------------------------------------------------------------------------
 

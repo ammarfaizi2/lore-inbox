@@ -1,70 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268650AbTGIWaY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 18:30:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268737AbTGIWaY
+	id S268663AbTGIWeV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 18:34:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268670AbTGIWeV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 18:30:24 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:16902 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S268650AbTGIWaP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 18:30:15 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: modutils-2.3.15 'insmod'
-Date: 9 Jul 2003 15:44:42 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <bei5sq$9ba$1@cesium.transmeta.com>
-References: <Pine.LNX.4.53.0307091119450.470@chaos> <jer84zln59.fsf@sykes.suse.de>
-MIME-Version: 1.0
+	Wed, 9 Jul 2003 18:34:21 -0400
+Received: from aneto.able.es ([212.97.163.22]:17580 "EHLO aneto.able.es")
+	by vger.kernel.org with ESMTP id S268663AbTGIWeU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 18:34:20 -0400
+Date: Thu, 10 Jul 2003 00:48:56 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.22-pre4
+Message-ID: <20030709224856.GC2604@werewolf.able.es>
+References: <Pine.LNX.4.55L.0307091918400.5325@freak.distro.conectiva>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
 Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+In-Reply-To: <Pine.LNX.4.55L.0307091918400.5325@freak.distro.conectiva>; from marcelo@conectiva.com.br on Thu, Jul 10, 2003 at 00:24:40 +0200
+X-Mailer: Balsa 2.0.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <jer84zln59.fsf@sykes.suse.de>
-By author:    Andreas Schwab <schwab@suse.de>
-In newsgroup: linux.dev.kernel
->
-> "Richard B. Johnson" <root@chaos.analogic.com> writes:
+
+On 07.10, Marcelo Tosatti wrote:
 > 
-> |> It is likely that malloc(0) returning a valid pointer is a bug
-> |> that has prevented this problem from being observed.
+> Hi,
 > 
-> It's not a bug, it's a behaviour explicitly allowed by the C standard.
+> Here goes -pre4. It contains a lot of updates and fixes.
 > 
 
-The bug is in xmalloc, meaning that it assumes that returning NULL is
-always an error.  Presumably xmalloc should look *either* like:
+Uh ? What the h**l have you diffed ?
 
-void *xmalloc(size_t s)
-{
-	void *p = malloc(s);
-	
-	if ( !p && s )
-		barf();
-	else
-		return p;
-}
+Ahhhh, is it reversed ???
 
-... or ...
+;)
 
-void *xmalloc(size_t s)
-{
-	void *p;
-
-	/* Always return a valid allocation */
-	if ( s == 0 ) s = 1;
-	p = malloc(s);
-	
-	if ( !p )
-		barf();
-	else
-		return p;
-}
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.2 (Cooker) for i586
+Linux 2.4.22-pre2-jam1 (gcc 3.3 (Mandrake Linux 9.2 3.3-2mdk))

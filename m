@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131369AbRCHNiu>; Thu, 8 Mar 2001 08:38:50 -0500
+	id <S131389AbRCHNqu>; Thu, 8 Mar 2001 08:46:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131370AbRCHNik>; Thu, 8 Mar 2001 08:38:40 -0500
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:21609 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S131369AbRCHNi3>; Thu, 8 Mar 2001 08:38:29 -0500
-Date: Thu, 8 Mar 2001 07:37:51 -0600 (CST)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200103081337.HAA76233@tomcat.admin.navo.hpc.mil>
-To: james.rich@m.cc.utah.edu, Tom Sightler <ttsig@tuxyturvy.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Questions about Enterprise Storage with Linux
-X-Mailer: [XMailTool v3.1.2b]
+	id <S131388AbRCHNqb>; Thu, 8 Mar 2001 08:46:31 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:43503 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S131387AbRCHNqY>; Thu, 8 Mar 2001 08:46:24 -0500
+Date: Thu, 8 Mar 2001 10:44:27 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Boris Dragovic <lynx@falcon.etf.bg.ac.yu>
+cc: Oswald Buddenhagen <ob6@inf.tu-dresden.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: static scheduling - SCHED_IDLE?
+In-Reply-To: <Pine.LNX.4.20.0103081427040.3785-100000@falcon.etf.bg.ac.yu>
+Message-ID: <Pine.LNX.4.33.0103081043550.1409-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-james rich <james.rich@m.cc.utah.edu>:
-> On Wed, 7 Mar 2001, Tom Sightler wrote:
-> 
-> > 2.  Does linux have any problems with large (500GB+) NFS exports, how about
-> > large files over NFS?
-> > 
-> > 3.  What filesystem would be best for such large volumes?  We currently use
-> > reirserfs on our internal system, but they generally have filesystems in the
-> > 18-30GB ranges and we're talking about potentially 10-20x that.  Should we
-> > look at JFS/XFS or others?
-> 
-> I think that for filesystems this size you definately want to look at XFS
-> of JFS.  Maybe you will decide not to use them - but you should test them.
-> 
-> I am currently using XFS and it really works.  It currently has some
-> issues when used with raid 1, but it is probably the most suited for what
-> you want.  Exporting an XFS volume over NFS is no problem.  You can also
-> use xfs_growfs to change the size of your XFS partition.  I haven't had
-> any instability during all the time I've used XFS.
+On Thu, 8 Mar 2001, Boris Dragovic wrote:
 
-The biggest difficulty I had with XFS (not on linux as a server) had
-more to do with NFS/XFS performance. The SGI clients worked fine while
-the Linux clients were about 10-20% slower. This was a year ago so this
-may not apply anymore. I haven't seen any Linux NFS benchmarks recently.
+> > did "these" apply only to the tasks, that actually hold a lock?
+> > if not, then i don't like this idea, as it gives the processes
+> > time for the only reason, that it _might_ hold a lock. this basically
+> > undermines the idea of static classes. in this case, we could actually
+> > just make the "nice" scale incredibly large and possibly nonlinear,
+> > as mark suggested.
+>
+> would it be possible to subqueue tasks that are holding a lock
+> so that they get some guaranteed amount of cpu and just leave
+> other to be executed when processor really idle?
 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
+Of course. Now we just need the code to determine when a task
+is holding some kernel-side lock  ;)
 
-Any opinions expressed are solely my own.
+regrads,
+
+Rik
+--
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
+
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
+

@@ -1,50 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281015AbRKGVpo>; Wed, 7 Nov 2001 16:45:44 -0500
+	id <S281005AbRKGVoO>; Wed, 7 Nov 2001 16:44:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280980AbRKGVp2>; Wed, 7 Nov 2001 16:45:28 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:46836
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S281011AbRKGVpI>; Wed, 7 Nov 2001 16:45:08 -0500
-Date: Wed, 7 Nov 2001 13:45:00 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Christian Borntr?ger <linux-kernel@borntraeger.net>
-Cc: "Zvi Har'El" <rl@math.technion.ac.il>, linux-kernel@vger.kernel.org
+	id <S280997AbRKGVoK>; Wed, 7 Nov 2001 16:44:10 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:47355 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S280954AbRKGVnf>;
+	Wed, 7 Nov 2001 16:43:35 -0500
+Date: Wed, 7 Nov 2001 14:42:31 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: "Zvi Har'El" <rl@math.technion.ac.il>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Roy Sigurd Karlsbakk <roy@karlsbakk.net>, linux-kernel@vger.kernel.org,
+        nyh@math.technion.ac.il
 Subject: Re: ext3 vs resiserfs vs xfs
-Message-ID: <20011107134500.E20245@mikef-linux.matchmail.com>
-Mail-Followup-To: Christian Borntr?ger <linux-kernel@borntraeger.net>,
-	Zvi Har'El <rl@math.technion.ac.il>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.33.0111072302460.12525-100000@leeor.math.technion.ac.il> <E161aDV-0005fn-00@mrvdom01.schlund.de>
+Message-ID: <20011107144231.M5922@lynx.no>
+Mail-Followup-To: Zvi Har'El <rl@math.technion.ac.il>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+	linux-kernel@vger.kernel.org, nyh@math.technion.ac.il
+In-Reply-To: <20011107131930.H5922@lynx.no> <Pine.GSO.4.33.0111072302460.12525-100000@leeor.math.technion.ac.il>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E161aDV-0005fn-00@mrvdom01.schlund.de>
-User-Agent: Mutt/1.3.23i
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <Pine.GSO.4.33.0111072302460.12525-100000@leeor.math.technion.ac.il>; from rl@math.technion.ac.il on Wed, Nov 07, 2001 at 11:11:59PM +0200
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 07, 2001 at 10:25:12PM +0100, Christian Borntr?ger wrote:
-> > /dev/root / ext2 rw 0 0
-> > /dev/hda6 /home ext3 rw 0 0
+On Nov 07, 2001  23:11 +0200, Zvi Har'El wrote:
+> On Wed, 7 Nov 2001, Andreas Dilger wrote:
+> > Are you SURE you are using ext3?  Check /proc/mounts to be sure.  What it
+> > says in /etc/fstab is irrelevant for the root filesystem.
 > >
-> > However, tune2fs -l on both /dev/hda1 (the root filesystem) and /dev/hda6
-> > gives Filesystem features:      has_journal sparse_super
+> /proc/mounts has
 > 
-> You don use ext3.
-> ext3 is backward compatible with ext2. So you can mount ext3 as ext2 
-> completely ignoring the journal.
+> /dev/root / ext2 rw 0 0
+> /dev/hda6 /home ext3 rw 0 0
 > 
-> Look for a line in /etc/fstab
-> /dev/root and change the file system to ext3.
+> However, tune2fs -l on both /dev/hda1 (the root filesystem) and /dev/hda6
+> Filesystem features:      has_journal sparse_super
 > 
+> 
+> How do  fix the situation at this stage? I am using Redhat 7.2 with kernel
+> 2.4.9-13
 
-No.
+Do you have ext3 compiled into the kernel?  I suspect you have it as a module.
 
-This is chosen at boot time before /etc/fstab can be read...
+Also, given the large number of similar bug reports, maybe RedHat has a bug in
+their mkinitrd script which doesn't try to mount the root fs with ext3?  I
+don't know enough about their mkinitrd tools to say - Alan, Stephen?
 
-check /proc/filesystems and make sure that ext3 is listed before ext2.
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 
-Also make sure that ext3 is compiled into the kernel.  You can use modules
-if you want to mess with initrd, but I don't...
-
-Mike

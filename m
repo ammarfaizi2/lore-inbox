@@ -1,47 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289226AbSCKTZS>; Mon, 11 Mar 2002 14:25:18 -0500
+	id <S289298AbSCKTZI>; Mon, 11 Mar 2002 14:25:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289114AbSCKTZJ>; Mon, 11 Mar 2002 14:25:09 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:4359 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S289046AbSCKTZB>; Mon, 11 Mar 2002 14:25:01 -0500
-Date: Mon, 11 Mar 2002 11:24:12 -0800 (PST)
-From: Andre Hedrick <andre@linuxdiskcert.org>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S289226AbSCKTY6>; Mon, 11 Mar 2002 14:24:58 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:24077 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S289046AbSCKTYs>; Mon, 11 Mar 2002 14:24:48 -0500
 Subject: Re: [PATCH] 2.5.6 IDE 19
-In-Reply-To: <3C8D019A.4010507@evision-ventures.com>
-Message-ID: <Pine.LNX.4.10.10203111118180.10583-100000@master.linux-ide.org>
+To: aia21@cus.cam.ac.uk (Anton Altaparmakov)
+Date: Mon, 11 Mar 2002 19:39:06 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        andre@linuxdiskcert.org (Andre Hedrick),
+        dalecki@evision-ventures.com (Martin Dalecki),
+        torvalds@transmeta.com (Linus Torvalds),
+        linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <Pine.SOL.3.96.1020311180113.13428A-100000@libra.cus.cam.ac.uk> from "Anton Altaparmakov" at Mar 11, 2002 06:05:36 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16kVdS-0001U0-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Mar 2002, Martin Dalecki wrote:
+> The idea behind native DFT is to be able to perform drive diagnostics from
+> within the OS without rebooting with a DOS disk and tying up the system
+> for hours during the checks. The advantages of this combined with IDE/SCSI
+> hot swap are strikingly obvious...
 
-> > http://www.t13.org/ballots/e01028r0.pdf
-> > 
-> > I do not see your name on that list for the ballot.
-> 
-> I didn't claim too. Your invisible friend was
-> apparently talking to you again. But still my question
-> remains where the heck is Yours?
-
-More proof that you can not read the documents handed to you.
-
-Listed between Iomega and LSI Logic
-
-But know I will not allow you to torque me anymore.
-You will get a patch that effectively removes the patch submitted to for
-2.5.3.  Unfortunately all the functionality will be gone too, so the
-driver will be crippled again and that is saddening.
-
-Regards,
-
-Andre Hedrick
-The Second Linux X-IDE guy
-
-
+So providing we have a properly generic "issue IDE command from user space"
+do we need any more kernel magic for this ?

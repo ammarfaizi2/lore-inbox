@@ -1,31 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263241AbREaVoD>; Thu, 31 May 2001 17:44:03 -0400
+	id <S263246AbREaWBl>; Thu, 31 May 2001 18:01:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263250AbREaVnx>; Thu, 31 May 2001 17:43:53 -0400
-Received: from quechua.inka.de ([212.227.14.2]:59769 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S263241AbREaVni>;
-	Thu, 31 May 2001 17:43:38 -0400
-From: Bernd Eckenfels <W1012@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: missing sysrq
-In-Reply-To: <3B15EF16.89B18D@idcomm.com>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.39 (i686))
-Message-Id: <E155aEF-0006VC-00@sites.inka.de>
-Date: Thu, 31 May 2001 23:43:39 +0200
+	id <S263251AbREaWBc>; Thu, 31 May 2001 18:01:32 -0400
+Received: from green.mif.pg.gda.pl ([153.19.42.8]:17680 "EHLO
+	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S263246AbREaWBT>; Thu, 31 May 2001 18:01:19 -0400
+From: Andrzej Krzysztofowicz <kufel!ankry@green.mif.pg.gda.pl>
+Message-Id: <200105312037.WAA01610@kufel.dom>
+Subject: Re: your mail
+To: kufel!tais.toshiba.com!Ramil.Santamaria@green.mif.pg.gda.pl
+Date: Thu, 31 May 2001 22:37:54 +0200 (CEST)
+Cc: kufel!vger.kernel.org!linux-kernel@green.mif.pg.gda.pl
+In-Reply-To: <OFCA65A58C.155A1FB1-ON88256A5D.005BDA7A@tais.net> from "Ramil.Santamaria@tais.toshiba.com" at May 31, 2001 09:53:43 AM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3B15EF16.89B18D@idcomm.com> you wrote:
-> However, if I go to /proc/sys/kernel/sysrq does not exist.
+> 
+> Minor issue with bootsect.s.
 
-It is a compile time option, so the person who compiled your kernel left it
-out.
+1. bootsect.S is the source file
 
-> vm.freepages = 383 766 1149
+> The single instance of the lds assembly instruction includes the comment of
+> !  ds:si is source
+> ...
+> seg fs
+> lds  si,(bx)        !     ds:si is source
+> ...
+> Is this comment not in reverse order (i.e should be lds
+> dest,src)................
 
-tat feature is removed in recent VM Systems.
+2. This is not a comment of i386 mnemonics. This comments the role of
+   specific register in the following instructions.
 
-Greetings
-Bernd
+BTW, linux-kernel readers: anybody is a volunteer for making the kernel size
+counter 32-bit here? This would enable using the simple bootloader for
+greater kernel loading...  (current limit is sligtly below 1MB)
+Possibly some 16/32-bit real mode code mixing would be necessary.
+
+Andrzej

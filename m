@@ -1,56 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275778AbRJ2PNl>; Mon, 29 Oct 2001 10:13:41 -0500
+	id <S275973AbRJ2PZy>; Mon, 29 Oct 2001 10:25:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275527AbRJ2PNb>; Mon, 29 Oct 2001 10:13:31 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:62470 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S274803AbRJ2PNO>;
-	Mon, 29 Oct 2001 10:13:14 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Manik Raina <manik@cisco.com>
-Date: Mon, 29 Oct 2001 16:13:14 MET-1
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: [PATCH] small compile warning fix 
-CC: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.40
-Message-ID: <7A9BC5E3241@vcnet.vc.cvut.cz>
+	id <S275980AbRJ2PZo>; Mon, 29 Oct 2001 10:25:44 -0500
+Received: from zero.tech9.net ([209.61.188.187]:35339 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S275973AbRJ2PZe>;
+	Mon, 29 Oct 2001 10:25:34 -0500
+Subject: [PATCH] scsi compile warning fix
+From: Robert Love <rml@tech9.net>
+To: laughing@shared-source.org, torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.16.99+cvs.2001.10.28.13.59 (Preview Release)
+Date: 29 Oct 2001 10:26:07 -0500
+Message-Id: <1004369168.861.15.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 29 Oct 01 at 15:43, Manik Raina wrote:
-> 
-> Index: ncplib_kernel.c
-> ===================================================================
-> RCS file: /vger/linux/fs/ncpfs/ncplib_kernel.c,v
-> retrieving revision 1.29
-> diff -u -r1.29 ncplib_kernel.c
-> --- ncplib_kernel.c 18 Sep 2001 22:29:08 -0000  1.29
-> +++ ncplib_kernel.c 29 Oct 2001 10:09:27 -0000
-> @@ -52,6 +52,11 @@
->     return;
->  }
-> 
-> +#ifdef LATER
-> +/*
-> + * This function is not currently in use. This leads to a compiler warning.
-> + * Remove #ifdef when in use...
-> + */
->  static void ncp_add_mem_fromfs(struct ncp_server *server, const char *source, int size)
->  {
->     assert_server_locked(server);
+drivers/scsi/scsi.c : proc_scsi_gen_write is declared prior to its
+formal definition.  it is not used before its definition, and thus the
+prior declaration is pointless, generating a compile warning...
 
-You can remove it completely. It should not be '#ifdef LATER', but
-'#ifdef OLDVERSION'... ncp_add_mem_fromfs was invoked with lock on
-ncp_server structure, but then it directly accessed userspace. It was
-possible to use this to cause deadlock, so now ncpfs uses bounce buffers
-and double copy instead of this.
+attached applies fine to 2.4.13-ac4...
 
-I have some ncpfs patches, but I though that I'll leave them for 2.5.x.
-Maybe it is time to change this decision.
-                                            Best regards,
-                                                Petr Vandrovec
-                                                vandrove@vc.cvut.cz
-                                                
+diff -urN linux-2.4.13-ac2/drivers/scsi/scsi.c linux/drivers/scsi/scsi.c
+--- linux-2.4.13-ac2/drivers/scsi/scsi.c	Fri Oct 26 15:47:59 2001
++++ linux/drivers/scsi/scsi.c	Fri Oct 26 23:34:20 2001
+@@ -1515,9 +1515,6 @@
+ 	spin_unlock_irqrestore(&device_request_lock, flags);
+ }
+ 
+-static int proc_scsi_gen_write(struct file * file, const char * buf,
+-                              unsigned long length, void *data);
+-
+ void __init scsi_host_no_insert(char *str, int n)
+ {
+     Scsi_Host_Name *shn, *shn2;
+
+
+	Robert Love
+

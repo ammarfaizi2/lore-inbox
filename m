@@ -1,73 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263967AbRFMPHO>; Wed, 13 Jun 2001 11:07:14 -0400
+	id <S263980AbRFMPJY>; Wed, 13 Jun 2001 11:09:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263976AbRFMPGy>; Wed, 13 Jun 2001 11:06:54 -0400
-Received: from gene.pbi.nrc.ca ([204.83.147.150]:16239 "EHLO gene.pbi.nrc.ca")
-	by vger.kernel.org with ESMTP id <S263967AbRFMPGt>;
-	Wed, 13 Jun 2001 11:06:49 -0400
-Date: Wed, 13 Jun 2001 09:06:12 -0600 (CST)
-From: <ognen@gene.pbi.nrc.ca>
-To: Philips <philips@iph.to>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: threading question
-In-Reply-To: <3B27760F.41A0635D@iph.to>
-Message-ID: <Pine.LNX.4.30.0106130905120.23896-100000@gene.pbi.nrc.ca>
+	id <S263981AbRFMPJO>; Wed, 13 Jun 2001 11:09:14 -0400
+Received: from 216-60-128-137.ati.utexas.edu ([216.60.128.137]:31872 "HELO
+	tsunami.webofficenow.com") by vger.kernel.org with SMTP
+	id <S263980AbRFMPJD>; Wed, 13 Jun 2001 11:09:03 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@webofficenow.com>
+Reply-To: landley@webofficenow.com
+To: Luigi Genoni <kernel@Expansa.sns.it>, Ben Greear <greearb@candelatech.com>
+Subject: Re: Hour long timeout to ssh/telnet/ftp to down host?
+Date: Wed, 13 Jun 2001 06:07:49 -0400
+X-Mailer: KMail [version 1.2]
+Cc: <landley@webofficenow.com>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0106131138390.22415-100000@Expansa.sns.it>
+In-Reply-To: <Pine.LNX.4.33.0106131138390.22415-100000@Expansa.sns.it>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01061306074902.00703@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Solaris has pset_create() and pset_bind() where you can bind LWPs to
-specific processors, but I doubt this works on anything else....
+On Wednesday 13 June 2001 05:40, Luigi Genoni wrote:
+> On Tue, 12 Jun 2001, Ben Greear wrote:
 
-Best regards,
-Ognen
+> > You can tune things by setting the tcp-timeout probably..I don't
+> > know exactly where to set this..
+>
+> /proc/sys/net/ipv4/tcp_fin_timeout
+>
+> default is 60.
 
-On Wed, 13 Jun 2001, Philips wrote:
+Never got that far.  My problem was actually tcp_syn_retries. Remember, I was 
+talking to a host that was unplugged.  (I wasn't even getting "host 
+unreachable" messages, the packets were just disappearing.)  The default 
+timeout in that case is rediculous do to the exponentially increasing delays 
+between retries.  10 retries wound up being something like 20 minutes.
 
-> 	BTW.
-> 	Question was poping in my mind and finally got negative answer by my mind ;-)
->
-> 	Is it possible to make somethis like:
->
->
-> 	char a[100] = {...}
-> 	char b[100] = {...}
-> 	char c[100];
-> 	char d[100];
->
-> 	1: { // run this on first CPU
-> 		for (int i=0; i<100; i++) c[i] = a[i] + b[i];
-> 	};
-> 	2: { // run this on any other CPU
-> 		for (int i=0; i<100; i++) d[i] = a[i] * b[i];
-> 	};
->
-> 	...
-> 	// do something else...
-> 	...
->
-> 	wait 1,2; // to be sure c[] and d[] are ready.
->
->
-> 	what was popping in my mind - some prefix (like 0x66 Intel used for 32
-> instructions) to say this instruction should run on other CPU?
-> 	I know - stupid idea. Too many questions will arise.
-> 	If we will do
->
-> 	PREFIX jmp far some_routing
->
-> 	and this routing will run on other CPU not blocking current execution thread.
-> 	(who will clean stack? when?.. question without answers...)
->
-> 	Is there anything like this in computerworld? I heard about old computers that
-> have a speacial instruction set to implicit run code on given processor.
-> 	Is it possible to emulate this behavior on PCs?
+I set it to 5 and everything works beautifully now.  ssh (which retries the 
+connection 4 times, and used to take over an hour to time out) now takes just 
+over 3 minutes, which I can live with.
 
--- 
-Ognen Duzlevski
-Plant Biotechnology Institute
-National Research Council of Canada
-Bioinformatics team
-
+Rob

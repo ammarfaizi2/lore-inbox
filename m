@@ -1,34 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265931AbSKBKz0>; Sat, 2 Nov 2002 05:55:26 -0500
+	id <S265930AbSKBKv4>; Sat, 2 Nov 2002 05:51:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265932AbSKBKz0>; Sat, 2 Nov 2002 05:55:26 -0500
-Received: from ns.suse.de ([213.95.15.193]:9732 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S265931AbSKBKz0>;
-	Sat, 2 Nov 2002 05:55:26 -0500
-Date: Sat, 2 Nov 2002 12:01:55 +0100
+	id <S265931AbSKBKv4>; Sat, 2 Nov 2002 05:51:56 -0500
+Received: from ns.suse.de ([213.95.15.193]:17683 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S265930AbSKBKvy>;
+	Sat, 2 Nov 2002 05:51:54 -0500
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2/2 2.5.45 cleanup & add original copy_ro/from_user
+References: <20021102025838.220E.AT541@columbia.edu.suse.lists.linux.kernel> <3DC3A9C0.7979C276@digeo.com.suse.lists.linux.kernel>
 From: Andi Kleen <ak@suse.de>
-To: Dipankar Sarma <dipankar@gamebox.net>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: dcache_rcu [performance results]
-Message-ID: <20021102120155.A17591@wotan.suse.de>
-References: <20021030161912.E2613@in.ibm.com.suse.lists.linux.kernel> <20021031162330.B12797@in.ibm.com.suse.lists.linux.kernel> <3DC32C03.C3910128@digeo.com.suse.lists.linux.kernel> <20021102144306.A6736@dikhow.suse.lists.linux.kernel> <p734rb0s2qb.fsf@oldwotan.suse.de> <20021102162419.A7894@dikhow>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021102162419.A7894@dikhow>
-User-Agent: Mutt/1.3.22.1i
+Date: 02 Nov 2002 11:58:24 +0100
+In-Reply-To: Andrew Morton's message of "2 Nov 2002 11:36:51 +0100"
+Message-ID: <p73y98cqlv3.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Well, on second thoughts I can't see why the path length for pwd
-> would make difference for kernel compilation - it uses relative
-> path and for path lookup, if the first character is not '/', then
-> lookup is done relative to current->fs->pwd. I will do some more
-> benchmarking on and verify.
+Andrew Morton <akpm@digeo.com> writes:
 
-Kernel compilation actually uses absolute pathnames e.g. for dependency
-checking. TOPDIR is also specified absolutely, so an include access likely
-uses an absolute pathname too.
+> (That is, using the movnta instructions for well-aligned copies
+> and clears so that we don't read the destination memory while overwriting
+> it).
+
+I did some experiments with movnta and it was near always a loss for
+memcpy/copy_*_user type stuff. The reason is that it flushes the destination
+out of cache and when you try to read it afterwards for some reason
+(which happens often - e.g. most copy_*_user uses actually do access it
+afterwards) then you eat a full cache miss for them and that is costly
+and kills all other advantages.
+
+It may be a win for direct copy-to-page cache and then page cache DMA
+outside and page cache not mapped anywhere, but even then it's not completely
+clear it's that helpful to have it not in cache. For example an Athlon
+can serve an DMA directly out of its CPU caches and that may be 
+faster than serving it out of RAM (Intel CPUs cannot however) 
 
 -Andi

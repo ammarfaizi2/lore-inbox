@@ -1,170 +1,186 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264539AbTFYPN5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 11:13:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264542AbTFYPN5
+	id S264538AbTFYPPx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 11:15:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264542AbTFYPPx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 11:13:57 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:62890 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S264539AbTFYPNx
+	Wed, 25 Jun 2003 11:15:53 -0400
+Received: from mailrelay1.lanl.gov ([128.165.4.101]:24743 "EHLO
+	mailrelay1.lanl.gov") by vger.kernel.org with ESMTP id S264538AbTFYPPq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 11:13:53 -0400
-Message-ID: <3EF9BF57.5090309@austin.ibm.com>
-Date: Wed, 25 Jun 2003 10:27:19 -0500
-From: Mark Peloquin <peloquin@austin.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>, linstab <linstab@osdl.org>,
-       ltp-results <ltp-results@lists.sourceforge.net>
-Subject: [Fwd: [BENCHMARK] 2.5.73, -bk1, -bk2, -mm1 regression results]
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 25 Jun 2003 11:15:46 -0400
+Subject: [PATCH] 2.4.22-pre2 add nine Configure.help entries from 2.5
+	Kconfig
+From: Steven Cole <elenstev@mesatop.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1056554975.2042.10.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
+Date: 25 Jun 2003 09:29:35 -0600
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The following nine CONFIG options exist in [Cc]onfig.in files,
+but do not have corresponding Configure.help entries.
 
+CONFIG_BLK_DEV_TRIFLEX
+CONFIG_BLK_DEV_SC1200
+CONFIG_FB_MATROX_G100A
+CONFIG_ATM_HE_USE_SUNI
+CONFIG_FUSION_MAX_SGE
+CONFIG_DRM_I830
+CONFIG_CHECKING
+CONFIG_CHASSIS_LCD_LED
+CONFIG_GART_IOMMU
 
-Nightly Regression Summary
-for
-2.5.72 vs 2.5.73
+The help texts were borrowed from the Kconfig files in 2.5, and
+modified as necessary.
 
+There are quite a few more of these, so more will come when I find
+the time.
 
-Benchmark         Pass/Fail   Improvements   Regressions       Results       Results   Summary
----------------   ---------   ------------   -----------   -----------   -----------   -------
+Patch is against the current 2.4 bk tree.
 
-dbench.ext2           P            N              N             2.5.72        2.5.73    report
-dbench.ext3           P            Y              N             2.5.72        2.5.73    report
-dbench.jfs            P            N              N             2.5.72        2.5.73    report
-dbench.reiser         P            N              N             2.5.72        2.5.73    report
-dbench.xfs            P            N              N             2.5.72        2.5.73    report
-kernbench             P            N              N             2.5.72        2.5.73    report
-lmbench               P            Y              Y             2.5.72        2.5.73    report
-rawiobench            P            N              Y             2.5.72        2.5.73    report
-specjbb               P            Y              Y             2.5.72        2.5.73    report
-specsdet              P            N              Y             2.5.72        2.5.73    report
-tbench                P            Y              N             2.5.72        2.5.73    report
-tiobench.ext2         P            N              N             2.5.72        2.5.73    report
-tiobench.ext3         P            Y              Y             2.5.72        2.5.73    report
-tiobench.jfs          P            N              N             2.5.72        2.5.73    report
-tiobench.reiser       P            Y              Y             2.5.72        2.5.73    report
-tiobench.xfs          P            N              Y             2.5.72        2.5.73    report
-volanomark            P            N              N             2.5.72        2.5.73    report
+Steven
 
-http://ltcperf.ncsa.uiuc.edu/data/2.5.73/2.5.72-vs-2.5.73/
-
-Nightly Regression Summary
-for
-2.5.73 vs 2.5.73-bk1
-
-
-Benchmark         Pass/Fail   Improvements   Regressions       Results       Results   Summary
----------------   ---------   ------------   -----------   -----------   -----------   -------
-
-dbench.ext2           P            N              N             2.5.73    2.5.73-bk1    report
-dbench.ext3           P            Y              N             2.5.73    2.5.73-bk1    report
-dbench.jfs            P            N              N             2.5.73    2.5.73-bk1    report
-dbench.reiser         P            N              N             2.5.73    2.5.73-bk1    report
-dbench.xfs            P            N              N             2.5.73    2.5.73-bk1    report
-kernbench             P            N              N             2.5.73    2.5.73-bk1    report
-lmbench               P            Y              Y             2.5.73    2.5.73-bk1    report
-rawiobench            P            Y              Y             2.5.73    2.5.73-bk1    report
-specjbb               P            Y              Y             2.5.73    2.5.73-bk1    report
-specsdet              P            N              N             2.5.73    2.5.73-bk1    report
-tbench                P            Y              Y             2.5.73    2.5.73-bk1    report
-tiobench.ext2         P            N              N             2.5.73    2.5.73-bk1    report
-tiobench.ext3         P            N              N             2.5.73    2.5.73-bk1    report
-tiobench.jfs          P            N              N             2.5.73    2.5.73-bk1    report
-tiobench.xfs          P            N              N             2.5.73    2.5.73-bk1    report
-volanomark            P            N              N             2.5.73    2.5.73-bk1    report
-
-http://ltcperf.ncsa.uiuc.edu/data/2.5.73-bk1/2.5.73-vs-2.5.73-bk1/
-
-Nightly Regression Summary
-for
-2.5.73 vs 2.5.73-bk2
-
-
-Benchmark         Pass/Fail   Improvements   Regressions       Results       Results   Summary
----------------   ---------   ------------   -----------   -----------   -----------   -------
-
-dbench.ext2           P            N              N             2.5.73    2.5.73-bk2    report
-dbench.ext3           P            N              Y             2.5.73    2.5.73-bk2    report
-dbench.jfs            P            N              N             2.5.73    2.5.73-bk2    report
-dbench.reiser         P            N              N             2.5.73    2.5.73-bk2    report
-dbench.xfs            P            N              N             2.5.73    2.5.73-bk2    report
-kernbench             P            N              N             2.5.73    2.5.73-bk2    report
-lmbench               P            Y              Y             2.5.73    2.5.73-bk2    report
-rawiobench            P            Y              Y             2.5.73    2.5.73-bk2    report
-specjbb               P            Y              Y             2.5.73    2.5.73-bk2    report
-specsdet              P            N              N             2.5.73    2.5.73-bk2    report
-tbench                P            Y              Y             2.5.73    2.5.73-bk2    report
-tiobench.ext2         P            N              N             2.5.73    2.5.73-bk2    report
-tiobench.ext3         P            Y              Y             2.5.73    2.5.73-bk2    report
-tiobench.jfs          P            N              N             2.5.73    2.5.73-bk2    report
-tiobench.reiser       P            Y              N             2.5.73    2.5.73-bk2    report
-tiobench.xfs          P            N              N             2.5.73    2.5.73-bk2    report
-volanomark            P            N              N             2.5.73    2.5.73-bk2    report
-
-http://ltcperf.ncsa.uiuc.edu/data/2.5.73-bk2/2.5.73-vs-2.5.73-bk2/
-
-Nightly Regression Summary
-for
-2.5.73-bk1 vs 2.5.73-bk2
-
-
-Benchmark         Pass/Fail   Improvements   Regressions       Results       Results   Summary
----------------   ---------   ------------   -----------   -----------   -----------   -------
-
-dbench.ext2           P            N              N         2.5.73-bk1    2.5.73-bk2    report
-dbench.ext3           P            Y              Y         2.5.73-bk1    2.5.73-bk2    report
-dbench.jfs            P            N              N         2.5.73-bk1    2.5.73-bk2    report
-dbench.reiser         P            N              N         2.5.73-bk1    2.5.73-bk2    report
-dbench.xfs            P            N              N         2.5.73-bk1    2.5.73-bk2    report
-kernbench             P            N              N         2.5.73-bk1    2.5.73-bk2    report
-lmbench               P            Y              Y         2.5.73-bk1    2.5.73-bk2    report
-rawiobench            P            N              N         2.5.73-bk1    2.5.73-bk2    report
-specjbb               P            Y              Y         2.5.73-bk1    2.5.73-bk2    report
-specsdet              P            N              N         2.5.73-bk1    2.5.73-bk2    report
-tbench                P            N              Y         2.5.73-bk1    2.5.73-bk2    report
-tiobench.ext2         P            N              N         2.5.73-bk1    2.5.73-bk2    report
-tiobench.ext3         P            Y              Y         2.5.73-bk1    2.5.73-bk2    report
-tiobench.jfs          P            N              N         2.5.73-bk1    2.5.73-bk2    report
-tiobench.reiser       P            Y              Y         2.5.73-bk1    2.5.73-bk2    report
-tiobench.xfs          P            N              N         2.5.73-bk1    2.5.73-bk2    report
-volanomark            P            N              N         2.5.73-bk1    2.5.73-bk2    report
-
-http://ltcperf.ncsa.uiuc.edu/data/2.5.73-bk2/2.5.73-bk1-vs-2.5.73-bk2/
-
-Nightly Regression Summary
-for
-2.5.73 vs 2.5.73-mm1
-
-
-Benchmark         Pass/Fail   Improvements   Regressions       Results       Results   Summary
----------------   ---------   ------------   -----------   -----------   -----------   -------
-
-dbench.ext2           P            N              N             2.5.73    2.5.73-mm1    report
-dbench.ext3           P            N              N             2.5.73    2.5.73-mm1    report
-dbench.jfs            P            N              N             2.5.73    2.5.73-mm1    report
-dbench.reiser         P            Y              N             2.5.73    2.5.73-mm1    report
-dbench.xfs            P            N              N             2.5.73    2.5.73-mm1    report
-kernbench             P            N              N             2.5.73    2.5.73-mm1    report
-lmbench               P            Y              Y             2.5.73    2.5.73-mm1    report
-rawiobench            P            Y              Y             2.5.73    2.5.73-mm1    report
-specjbb               P            Y              Y             2.5.73    2.5.73-mm1    report
-specsdet              P            N              N             2.5.73    2.5.73-mm1    report
-tbench                P            Y              N             2.5.73    2.5.73-mm1    report
-tiobench.ext2         P            Y              Y             2.5.73    2.5.73-mm1    report
-tiobench.ext3         P            Y              Y             2.5.73    2.5.73-mm1    report
-tiobench.jfs          P            Y              Y             2.5.73    2.5.73-mm1    report
-tiobench.reiser       P            Y              Y             2.5.73    2.5.73-mm1    report
-tiobench.xfs          P            Y              Y             2.5.73    2.5.73-mm1    report
-volanomark            P            N              N             2.5.73    2.5.73-mm1    report
-
-http://ltcperf.ncsa.uiuc.edu/data/2.5.73-mm1/2.5.73-vs-2.5.73-mm1/
-
-Mark
+--- testing-2.4/Documentation/Configure.help.orig	Wed Jun 25 07:27:25 2003
++++ testing-2.4/Documentation/Configure.help	Wed Jun 25 08:52:27 2003
+@@ -1129,6 +1129,15 @@
+   Say Y here if you have an IDE controller which uses any of these
+   chipsets: CMD643, CMD646 and CMD648.
+ 
++Compaq Triflex IDE support
++CONFIG_BLK_DEV_TRIFLEX
++  Say Y here if you have a Compaq Triflex IDE controller, such
++  as those commonly found on Compaq Pentium-Pro systems
++
++  If you want to compile it as a module, say M here and read
++  <file:Documentation/modules.txt>.  The module will be called
++  triflex.o.
++
+ CY82C693 chipset support
+ CONFIG_BLK_DEV_CY82C693
+   This driver adds detection and support for the CY82C693 chipset
+@@ -1198,6 +1207,15 @@
+   This is a driver for the OPTi 82C621 EIDE controller.
+   Please read the comments at the top of <file:drivers/ide/pci/opti621.c>.
+ 
++National SCx200 chipset support
++CONFIG_BLK_DEV_SC1200
++  This driver adds support for the built in IDE on the National
++  SCx200 series of embedded x86 "Geode" systems
++
++  If you want to compile it as a module, say M here and read
++  <file:Documentation/modules.txt>.  The module will be called
++  sc1200.o.
++
+ ServerWorks OSB4/CSB5 chipset support
+ CONFIG_BLK_DEV_SVWKS
+   This driver adds PIO/(U)DMA support for the ServerWorks OSB4/CSB5
+@@ -4812,6 +4830,19 @@
+   If you need support for G450 or G550 secondary head, say Y to
+   "Matrox G450/G550 second head support" below.
+ 
++G100/G200/G400 support
++CONFIG_FB_MATROX_G100A
++  Say Y here if you have a Matrox G100, G200 or G400 based
++  video card. If you select "Advanced lowlevel driver options", you
++  should check 8 bpp packed pixel, 16 bpp packed pixel, 24 bpp packed
++  pixel and 32 bpp packed pixel. You can also use font widths
++  different from 8.
++
++  If you need support for G400 secondary head, you must first say Y to
++  "I2C support" and "I2C bit-banging support" in the character devices
++  section, and then to "Matrox I2C support" and "G400 second head
++  support" here in the framebuffer section.
++
+ Matrox I2C support
+ CONFIG_FB_MATROX_I2C
+   This drivers creates I2C buses which are needed for accessing the
+@@ -6648,6 +6679,11 @@
+   need that capability don't include S-UNI support (it's not needed to
+   make the card work).
+ 
++Use S/UNI PHY driver
++CONFIG_ATM_HE_USE_SUNI
++  Support for the S/UNI-Ultra and S/UNI-622 found in the ForeRunner
++  HE cards.  This driver provides carrier detection some statistics.
++
+ Use IDT77015 PHY driver (25Mbps)
+ CONFIG_ATM_NICSTAR_USE_IDT77105
+   Support for the PHYsical layer chip in ForeRunner LE25 cards. In
+@@ -6960,6 +6996,16 @@
+   architecture is based on LSI Logic's Message Passing Interface (MPI)
+   specification.
+ 
++Maximum number of scatter gather entries
++CONFIG_FUSION_MAX_SGE
++  This option allows you to specify the maximum number of scatter-
++  gather entries per I/O. The driver defaults to 40, a reasonable number
++  for most systems. However, the user may increase this up to 128.
++  Increasing this parameter will require significantly more memory
++  on a per controller instance. Increasing the parameter is not
++  necessary (or recommended) unless the user will be running
++  large I/O's via the raw interface.
++
+ Fusion MPT enhanced SCSI error reporting [optional] module
+ CONFIG_FUSION_ISENSE
+   The isense module (roughly stands for Interpret SENSE data) is
+@@ -18425,6 +18471,13 @@
+   selected, the module will be called i810.o.  AGP support is required
+   for this driver to work.
+ 
++Intel 830M, 845G, 852GM, 855GM, 865G
++CONFIG_DRM_I830
++  Choose this option if you have a system that has Intel 830M, 845G,
++  852GM, 855GM or 865G integrated graphics.  If M is selected, the
++  module will be called i830.o.  AGP support is required for this driver
++  to work.
++
+ Matrox G200/G400/G450
+ CONFIG_DRM_MGA
+   Choose this option if you have a Matrox G200, G400 or G450 graphics
+@@ -26054,6 +26107,11 @@
+   best used in conjunction with the NMI watchdog so that spinlock
+   deadlocks are also debuggable.
+ 
++Additional run-time checks
++CONFIG_CHECKING
++  Enables some internal consistency checks for kernel debugging.
++  You should normally say N.
++
+ Read-write spinlock debugging
+ CONFIG_DEBUG_RWLOCK
+   If you say Y here then read-write lock processing will count how many
+@@ -26767,6 +26825,24 @@
+   kernel tree does. Such modules that use library CRC32 functions
+   require that you say M or Y here.
+ 
++Chassis LCD and LED support
++CONFIG_CHASSIS_LCD_LED
++  Say Y here if you want to enable support for the Heartbeat,
++  Disk/Network activities LEDs on some PA-RISC machines,
++  or support for the LCD that can be found on recent material.
++
++  This has nothing to do with LED State support for A, J and E class.
++
++  If unsure, say Y.
++
++IOMMU support
++CONFIG_GART_IOMMU
++  Support the K8 IOMMU. Needed to run systems with more than 4GB of memory
++  properly with 32-bit PCI devices that do not support DAC (Double Address
++  Cycle). The IOMMU can be turned off at runtime with the iommu=off parameter.
++  Normally the kernel will take the right choice by itself.
++  If unsure say Y
++
+ #
+ # A couple of things I keep forgetting:
+ #   capitalize: AppleTalk, Ethernet, DOS, DMA, FAT, FTP, Internet,
 
 
 

@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262592AbTJIV0e (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 17:26:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262593AbTJIV0e
+	id S262333AbTJIVhR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 17:37:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262590AbTJIVhR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 17:26:34 -0400
-Received: from mail.gmx.net ([213.165.64.20]:46249 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262592AbTJIV0b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 17:26:31 -0400
-X-Authenticated: #7204266
-Date: Thu, 09 Oct 2003 22:26:41 +0100
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Horrible ordeals with ACPI, APIC and HIGHMEM (2.6.0-test* and -ac kernels)
-Cc: Chris Wright <chrisw@osdl.org>
-References: <oprwsg9wfc9y0cdf@mail.gmx.net> <20031009140523.A18065@build.pdx.osdl.net>
-Message-ID: <oprwsoirf09y0cdf@mail.gmx.net>
-From: Martin Aspeli <optilude@gmx.net>
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20031009140523.A18065@build.pdx.osdl.net>
-User-Agent: Opera7.20/Win32 M2 build 3144
+	Thu, 9 Oct 2003 17:37:17 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:5649 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262333AbTJIVhQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 17:37:16 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: [Fastboot] kexec update (2.6.0-test7)
+Date: 9 Oct 2003 21:27:35 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bm4js7$6db$1@gatekeeper.tmr.com>
+References: <20031008172235.70d6b794.rddunlap@osdl.org> <Pine.NEB.4.58.0310090401310.17767@sdf.lonestar.org> <m1y8vufe5l.fsf@ebiederm.dsl.xmission.com>
+X-Trace: gatekeeper.tmr.com 1065734855 6571 192.168.12.62 (9 Oct 2003 21:27:35 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Oct 2003 14:05:23 -0700, Chris Wright <chrisw@osdl.org> wrote:
+In article <m1y8vufe5l.fsf@ebiederm.dsl.xmission.com>,
+Eric W. Biederman <ebiederm@xmission.com> wrote:
+| Cherry George Mathew <cherry@sdf.lonestar.org> writes:
+| 
+| > On Wed, 8 Oct 2003, Randy.Dunlap wrote:
+| > 
+| > > You'll need to update the kexec-syscall.c file for the correct
+| > > kexec syscall number (274).
+| > 
+| > Is there a consensus about what the syscall number will finally be ? We've
+| > jumped from 256 to 274 over the 2.5.x+  series kernels. Or is it the law
+| > the Jungle ?
+| 
+| So far the law of the jungle.  Regardless of the rest it looks like it
+| is time to submit a place keeping patch.
 
-> Which 2.6.0-test kernels?  Have you tried 2.6.0-test7?  A fix for this
-> type of problem went into -test7.
-
-Sadly, yes. My most recent and most comprehensive tests (today) were with 
-the -test7 kernel. Could you give me some details as to what the fix is 
-supposed to do and why it may not work?
-
-Also, I'd still be interested to know - what is "events/0"? And why do 
-things run like a 286 when I enable HIGHMEM?
-
-I eye some hope here. Must say a life without linux is pretty empty 
-(especially after my girlfriend left... you gotta reach for something; and 
-a new guitar is a little off budget still). :-)
-
-Martin
-
+Forgive me if the politics of this have changed, but will a place
+keeping patch be accepted for a feature which has not? 
 -- 
-Using M2, Opera's revolutionary e-mail client: http://www.opera.com/m2/
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

@@ -1,62 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265161AbTFULjb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 07:39:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265162AbTFULjb
+	id S265162AbTFULkJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 07:40:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265170AbTFULkI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 07:39:31 -0400
-Received: from mail.hometree.net ([212.34.181.120]:59821 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP id S265161AbTFULj1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jun 2003 07:39:27 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
-Date: Sat, 21 Jun 2003 11:53:29 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <bd1gvp$f22$1@tangens.hometree.net>
-References: <20030620120910.3f2cb001.skraw@ithnet.com> <20030621133928.4cda13e2.skraw@ithnet.com>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1056196409 15426 212.34.181.4 (21 Jun 2003 11:53:29 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Sat, 21 Jun 2003 11:53:29 +0000 (UTC)
-X-Copyright: (C) 1996-2003 Henning Schmiedehausen
-X-No-Archive: yes
-User-Agent: nn/6.6.5
+	Sat, 21 Jun 2003 07:40:08 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:14091 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S265162AbTFULj7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jun 2003 07:39:59 -0400
+Date: Sat, 21 Jun 2003 15:53:33 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Greg KH <greg@kroah.com>
+Cc: Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org,
+       "David S. Miller" <davem@redhat.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Anton Blanchard <anton@samba.org>, David Mosberger <davidm@hpl.hp.com>
+Subject: Re: [PATCH] reimplement pci proc name
+Message-ID: <20030621155333.A24141@jurassic.park.msu.ru>
+References: <20030620134811.GR24357@parcelfarce.linux.theplanet.co.uk> <20030620212413.GA13694@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030620212413.GA13694@kroah.com>; from greg@kroah.com on Fri, Jun 20, 2003 at 02:24:13PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephan von Krawczynski <skraw@ithnet.com> writes:
+On Fri, Jun 20, 2003 at 02:24:13PM -0700, Greg KH wrote:
+> Thanks, I've reverted your previous patch, and fixed the one typo in
+> this patch and applied it all to my bk tree.  Hopefully Linus will pull
+> from it sometime soon :)
 
->Do you really think it was _necessary_ to change the document format in just
->about any W*rd version available? Do you? Not really.
->Its all about creating problems for competitors and none about being kind to
->the own customer.
+Argh, where were my eyes... There was another typo which broke Alpha.
 
->You don't find this kind of behaviour in GPL software.
+Greg, please apply.
 
-I'd consider "If it does not work with the new version of libfoo,
-please recompile" or "you need a newer blafoo tool to use this" or
-"your compiler isn't usable for application xxx" much worse. 
+Ivan.
 
-And _this_ is common for many open source projects.
-
-Reality Check: 99,9% of all computer users don't know what a compiler
-is but can open Word 6.x documents in WordXP.
-
-	Regards
-		Henning
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
-hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
-
-Java, perl, Solaris, Linux, xSP Consulting, Web Services 
-freelance consultant -- Jakarta Turbine Development  -- hero for hire
-
---- Quote of the week: "Never argue with an idiot. They drag you down
-to their level, then beat you with experience." ---
-
+--- 2.5/include/asm-alpha/pci.h	Sat Jun 21 15:36:01 2003
++++ linux/include/asm-alpha/pci.h	Sat Jun 21 15:36:24 2003
+@@ -197,7 +197,8 @@ pcibios_resource_to_bus(struct pci_dev *
+ /* Bus number == domain number until we get above 256 busses */
+ static inline int pci_name_bus(char *name, struct pci_bus *bus)
+ {
+-	int domain = pci_domain_nr(bus)
++	int domain = pci_domain_nr(bus);
++
+ 	if (domain < 256) {
+ 		sprintf(name, "%02x", domain);
+ 	} else {

@@ -1,56 +1,574 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263025AbVAFUSO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263038AbVAFUXu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263025AbVAFUSO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 15:18:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263028AbVAFUQB
+	id S263038AbVAFUXu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 15:23:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263035AbVAFUWX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 15:16:01 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:41408 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263026AbVAFUHz (ORCPT
+	Thu, 6 Jan 2005 15:22:23 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:3779 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S263006AbVAFUQV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 15:07:55 -0500
-Date: Thu, 6 Jan 2005 12:07:38 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Christoph Hellwig <hch@infradead.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, jtk@us.ibm.com, wtaber@us.ibm.com,
-       pbadari@us.ibm.com, markv@us.ibm.com,
-       viro@parcelfarce.linux.theplanet.co.uk, greghk@us.ibm.com
-Subject: Re: [PATCH] fs: Restore files_lock and set_fs_root exports
-Message-ID: <20050106200738.GG1292@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20050106190538.GB1618@us.ibm.com> <20050106191355.GA23345@infradead.org>
+	Thu, 6 Jan 2005 15:16:21 -0500
+Date: Thu, 6 Jan 2005 20:17:13 +0100
+From: Jurriaan <thunder7@xs4all.nl>
+To: Andrew Morton <akpm@osdl.org>
+Cc: andreas.schnaiter@leo-computer.de, linux-kernel@vger.kernel.org
+Subject: Re: [Bugme-new] [Bug 3996] New: system hangs on boot - VIA, SMP, PIII 1GHz
+Message-ID: <20050106191713.GA6927@middle.of.nowhere>
+Reply-To: Jurriaan <thunder7@xs4all.nl>
+References: <200501051942.j05JgkcQ013658@fire-1.osdl.org> <20050105134957.0d5eef84.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050106191355.GA23345@infradead.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20050105134957.0d5eef84.akpm@osdl.org>
+X-Message-Flag: Still using Outlook? As you can see, it has some errors.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 06, 2005 at 07:13:55PM +0000, Christoph Hellwig wrote:
-> On Thu, Jan 06, 2005 at 11:05:38AM -0800, Paul E. McKenney wrote:
-> > Hello, Andrew,
+From: Andrew Morton <akpm@osdl.org>
+Date: Wed, Jan 05, 2005 at 01:49:57PM -0800
+> bugme-daemon@osdl.org wrote:
+> >
+> > http://bugme.osdl.org/show_bug.cgi?id=3996
 > > 
-> > Some export-removal work causes breakage for an out-of-tree filesystem.
-> > Could you please apply the attached patch to restore the exports for
-> > files_lock and set_fs_root?
+> >            Summary: system hangs on boot - VIA, SMP, PIII 1GHz
 > 
-> What out of tree filesystem, and what the heck is it doing?
+> Seems to be related to APIC interrupt startup, yes?  Did any earlier 2.6
+> kernel work correctly?
+> 
+The same chipset seems to run fine here, so perhaps this information may
+help?
 
-MVFS, as was correctly guessed from my diff.  It is providing a view into
-a source-code control system, so that a given process can specify the
-version it wishes to see.  Yes, different processes then see a different
-filesystem tree at the same mount point.
+AOpen DX34-U dual S370 motherboard, dual P3 1.26 GHz.
+It's an somewhat oem board, not sold to end users, so I have place to
+download newer bioses or such, and the bios is somewhat lacking - I
+can't setup anything regarding to MPS, for example.
 
-> Without proper explanation it's vetoed.
+2.6.10-mm1 and earlier works fine, with apic on.
+lspci, .config and dmesg follow.
 
-What additional explanation are you looking for?
+Here's lspci:
 
-> btw, any reason you put half the world in the Cc list?  Al and Andrew I
-> see, but do the other people on the Cc list have to do with it?  And you
-> forgot the person that killed the export.
+0000:00:00.0 Host bridge: VIA Technologies, Inc. VT82C693A/694x [Apollo PRO133x] (rev c4)
+0000:00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo MVP3/Pro133x AGP]
+0000:00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 40)
+0000:00:07.1 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
+0000:00:07.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 40)
+0000:00:08.0 Ethernet controller: Lite-On Communications Inc LNE100TX (rev 20)
+0000:00:0a.0 RAID bus controller: Triones Technologies, Inc. HPT374 (rev 07)
+0000:00:0a.1 RAID bus controller: Triones Technologies, Inc. HPT374 (rev 07)
+0000:00:0b.0 Ethernet controller: Intel Corp. 82541GI/PI Gigabit Ethernet Controller
+0000:00:0c.0 SCSI storage controller: Adaptec AIC-7892B U160/m (rev 02)
+0000:00:0d.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 0d)
+0000:01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP (rev 82)
 
-I figured that there was no way that you would miss it, so there was no
-point in adding to an already overly long CC line.  ;-)
+.config:
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_GENERIC_IOMAP=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_BROKEN=y
+CONFIG_BROKEN_ON_SMP=y
+CONFIG_LOCK_KERNEL=y
+CONFIG_LOCALVERSION=""
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_LOG_BUF_SHIFT=15
+CONFIG_HOTPLUG=y
+CONFIG_KOBJECT_UEVENT=y
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+CONFIG_KALLSYMS=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_SHMEM=y
+CONFIG_CC_ALIGN_FUNCTIONS=0
+CONFIG_CC_ALIGN_LABELS=0
+CONFIG_CC_ALIGN_LOOPS=0
+CONFIG_CC_ALIGN_JUMPS=0
+CONFIG_MODULES=y
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_KMOD=y
+CONFIG_X86_PC=y
+CONFIG_MPENTIUMIII=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_GENERIC_CALIBRATE_DELAY=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_HPET_TIMER=y
+CONFIG_SMP=y
+CONFIG_NR_CPUS=2
+CONFIG_PREEMPT=y
+CONFIG_PREEMPT_BKL=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_TSC=y
+CONFIG_X86_MCE=y
+CONFIG_HIGHMEM4G=y
+CONFIG_HIGHMEM=y
+CONFIG_HIGHPTE=y
+CONFIG_MTRR=y
+CONFIG_IRQBALANCE=y
+CONFIG_HAVE_DEC_LOCK=y
+CONFIG_REGPARM=y
+CONFIG_KERN_PHYS_OFFSET=1
+CONFIG_PM=y
+CONFIG_ACPI=y
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_SLEEP=y
+CONFIG_ACPI_SLEEP_PROC_FS=y
+CONFIG_ACPI_BUTTON=y
+CONFIG_ACPI_FAN=y
+CONFIG_ACPI_PROCESSOR=y
+CONFIG_ACPI_THERMAL=y
+CONFIG_ACPI_BLACKLIST_YEAR=0
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_MMCONFIG=y
+CONFIG_PCI_LEGACY_PROC=y
+CONFIG_PCI_NAMES=y
+CONFIG_ISA=y
+CONFIG_PCMCIA_PROBE=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_MISC=y
+CONFIG_PREVENT_FIRMWARE_BUILD=y
+CONFIG_PARPORT=y
+CONFIG_PARPORT_PC=y
+CONFIG_PARPORT_PC_CML1=y
+CONFIG_PARPORT_1284=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=y
+CONFIG_BLK_DEV_RAM_COUNT=16
+CONFIG_INITRAMFS_SOURCE=""
+CONFIG_LBD=y
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_IOSCHED_CFQ=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_IDE_GENERIC=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_HPT366=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_BLK_DEV_PDC202XX_NEW=y
+CONFIG_BLK_DEV_VIA82CXXX=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_SCSI=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_BLK_DEV_SR=y
+CONFIG_CHR_DEV_SG=y
+CONFIG_SCSI_AIC7XXX=y
+CONFIG_AIC7XXX_CMDS_PER_DEVICE=32
+CONFIG_AIC7XXX_RESET_DELAY_MS=15000
+CONFIG_AIC7XXX_DEBUG_ENABLE=y
+CONFIG_AIC7XXX_DEBUG_MASK=0
+CONFIG_AIC7XXX_REG_PRETTY_PRINT=y
+CONFIG_SCSI_QLA2XXX=y
+CONFIG_MD=y
+CONFIG_BLK_DEV_MD=y
+CONFIG_MD_LINEAR=y
+CONFIG_MD_RAID0=y
+CONFIG_MD_RAID1=y
+CONFIG_MD_RAID5=y
+CONFIG_NET=y
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IP_ADVANCED_ROUTER=y
+CONFIG_IP_ROUTE_VERBOSE=y
+CONFIG_SYN_COOKIES=y
+CONFIG_IP_TCPDIAG=y
+CONFIG_IP_TCPDIAG_IPV6=y
+CONFIG_IPV6=y
+CONFIG_NETFILTER=y
+CONFIG_IP_NF_CONNTRACK=y
+CONFIG_IP_NF_FTP=y
+CONFIG_IP_NF_QUEUE=y
+CONFIG_IP_NF_IPTABLES=y
+CONFIG_IP_NF_MATCH_LIMIT=y
+CONFIG_IP_NF_MATCH_IPRANGE=y
+CONFIG_IP_NF_MATCH_MAC=y
+CONFIG_IP_NF_MATCH_PKTTYPE=y
+CONFIG_IP_NF_MATCH_MARK=y
+CONFIG_IP_NF_MATCH_MULTIPORT=y
+CONFIG_IP_NF_MATCH_TOS=y
+CONFIG_IP_NF_MATCH_RECENT=y
+CONFIG_IP_NF_MATCH_ECN=y
+CONFIG_IP_NF_MATCH_DSCP=y
+CONFIG_IP_NF_MATCH_AH_ESP=y
+CONFIG_IP_NF_MATCH_LENGTH=y
+CONFIG_IP_NF_MATCH_TTL=y
+CONFIG_IP_NF_MATCH_TCPMSS=y
+CONFIG_IP_NF_MATCH_HELPER=y
+CONFIG_IP_NF_MATCH_STATE=y
+CONFIG_IP_NF_MATCH_CONNTRACK=y
+CONFIG_IP_NF_MATCH_OWNER=y
+CONFIG_IP_NF_FILTER=y
+CONFIG_IP_NF_TARGET_REJECT=y
+CONFIG_IP_NF_TARGET_LOG=y
+CONFIG_IP_NF_TARGET_ULOG=y
+CONFIG_IP_NF_TARGET_TCPMSS=y
+CONFIG_IP_NF_NAT=y
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=y
+CONFIG_IP_NF_TARGET_REDIRECT=y
+CONFIG_IP_NF_TARGET_NETMAP=y
+CONFIG_IP_NF_TARGET_SAME=y
+CONFIG_IP_NF_NAT_FTP=y
+CONFIG_IP_NF_MANGLE=y
+CONFIG_IP_NF_TARGET_TOS=y
+CONFIG_IP_NF_TARGET_ECN=y
+CONFIG_IP_NF_TARGET_DSCP=y
+CONFIG_IP_NF_TARGET_MARK=y
+CONFIG_IP_NF_TARGET_CLASSIFY=y
+CONFIG_IP_NF_ARPTABLES=y
+CONFIG_IP_NF_ARPFILTER=y
+CONFIG_IP_NF_ARP_MANGLE=y
+CONFIG_IP6_NF_IPTABLES=y
+CONFIG_IP6_NF_MATCH_LIMIT=y
+CONFIG_IP6_NF_MATCH_MAC=y
+CONFIG_IP6_NF_MATCH_RT=y
+CONFIG_IP6_NF_MATCH_OPTS=y
+CONFIG_IP6_NF_MATCH_FRAG=y
+CONFIG_IP6_NF_MATCH_HL=y
+CONFIG_IP6_NF_MATCH_MULTIPORT=y
+CONFIG_IP6_NF_MATCH_OWNER=y
+CONFIG_IP6_NF_MATCH_MARK=y
+CONFIG_IP6_NF_MATCH_IPV6HEADER=y
+CONFIG_IP6_NF_MATCH_AHESP=y
+CONFIG_IP6_NF_MATCH_LENGTH=y
+CONFIG_IP6_NF_MATCH_EUI64=y
+CONFIG_IP6_NF_FILTER=y
+CONFIG_IP6_NF_TARGET_LOG=y
+CONFIG_IP6_NF_MANGLE=y
+CONFIG_IP6_NF_TARGET_MARK=y
+CONFIG_IP6_NF_RAW=y
+CONFIG_NET_SCHED=y
+CONFIG_NET_SCH_CLK_JIFFIES=y
+CONFIG_NET_SCH_CBQ=m
+CONFIG_NET_SCH_HTB=m
+CONFIG_NET_SCH_PRIO=m
+CONFIG_NET_SCH_RED=m
+CONFIG_NET_SCH_SFQ=m
+CONFIG_NET_SCH_TEQL=m
+CONFIG_NET_SCH_TBF=m
+CONFIG_NET_SCH_GRED=m
+CONFIG_NET_SCH_DSMARK=m
+CONFIG_NET_SCH_INGRESS=m
+CONFIG_NET_QOS=y
+CONFIG_NET_ESTIMATOR=y
+CONFIG_NET_CLS=y
+CONFIG_NET_CLS_TCINDEX=m
+CONFIG_NET_CLS_ROUTE4=m
+CONFIG_NET_CLS_ROUTE=y
+CONFIG_NET_CLS_FW=m
+CONFIG_NET_CLS_U32=m
+CONFIG_NET_CLS_RSVP=m
+CONFIG_NET_CLS_RSVP6=m
+CONFIG_NET_CLS_POLICE=y
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=m
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=y
+CONFIG_NET_TULIP=y
+CONFIG_TULIP=y
+CONFIG_TULIP_MWI=y
+CONFIG_TULIP_MMIO=y
+CONFIG_NET_PCI=y
+CONFIG_E100=y
+CONFIG_E1000=y
+CONFIG_E1000_NAPI=y
+CONFIG_R8169=y
+CONFIG_R8169_NAPI=y
+CONFIG_PPP=y
+CONFIG_PPP_MULTILINK=y
+CONFIG_PPP_FILTER=y
+CONFIG_PPP_ASYNC=y
+CONFIG_PPP_SYNC_TTY=y
+CONFIG_PPP_DEFLATE=y
+CONFIG_PPP_BSDCOMP=y
+CONFIG_PPPOE=y
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1600
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=1200
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_SERIO_LIBPS2=y
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_NR_UARTS=4
+CONFIG_SERIAL_CORE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_LEGACY_PTYS=y
+CONFIG_LEGACY_PTY_COUNT=256
+CONFIG_PRINTER=y
+CONFIG_RTC=y
+CONFIG_AGP=y
+CONFIG_AGP_INTEL=y
+CONFIG_AGP_VIA=y
+CONFIG_DRM=y
+CONFIG_DRM_RADEON=y
+CONFIG_DRM_MGA=y
+CONFIG_HPET=y
+CONFIG_HPET_MMAP=y
+CONFIG_I2C=y
+CONFIG_I2C_CHARDEV=y
+CONFIG_I2C_ALGOBIT=y
+CONFIG_I2C_ISA=m
+CONFIG_I2C_PIIX4=m
+CONFIG_I2C_VIA=m
+CONFIG_I2C_VIAPRO=m
+CONFIG_I2C_SENSOR=m
+CONFIG_SENSORS_ADM1021=m
+CONFIG_SENSORS_IT87=m
+CONFIG_SENSORS_LM75=m
+CONFIG_SENSORS_LM78=m
+CONFIG_SENSORS_LM85=m
+CONFIG_SENSORS_VIA686A=m
+CONFIG_SENSORS_W83781D=m
+CONFIG_SENSORS_EEPROM=m
+CONFIG_FB=y
+CONFIG_FB_MODE_HELPERS=y
+CONFIG_FB_MATROX=y
+CONFIG_FB_MATROX_G450=y
+CONFIG_FB_MATROX_G100=y
+CONFIG_FB_RADEON=y
+CONFIG_FB_RADEON_I2C=y
+CONFIG_FB_RADEON_DEBUG=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FRAMEBUFFER_CONSOLE=y
+CONFIG_FONTS=y
+CONFIG_FONT_SUN12x22=y
+CONFIG_LOGO=y
+CONFIG_LOGO_LINUX_MONO=y
+CONFIG_LOGO_LINUX_VGA16=y
+CONFIG_LOGO_LINUX_CLUT224=y
+CONFIG_USB_ARCH_HAS_HCD=y
+CONFIG_USB_ARCH_HAS_OHCI=y
+CONFIG_EXT2_FS=y
+CONFIG_EXT3_FS=y
+CONFIG_EXT3_FS_XATTR=y
+CONFIG_JBD=y
+CONFIG_FS_MBCACHE=y
+CONFIG_REISER4_FS=y
+CONFIG_REISERFS_FS=y
+CONFIG_DNOTIFY=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_UDF_FS=y
+CONFIG_UDF_NLS=y
+CONFIG_FAT_FS=y
+CONFIG_MSDOS_FS=y
+CONFIG_VFAT_FS=y
+CONFIG_FAT_DEFAULT_CODEPAGE=437
+CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_SYSFS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_NFS_FS=y
+CONFIG_NFS_V3=y
+CONFIG_NFS_DIRECTIO=y
+CONFIG_NFSD=y
+CONFIG_NFSD_V3=y
+CONFIG_NFSD_TCP=y
+CONFIG_LOCKD=y
+CONFIG_LOCKD_V4=y
+CONFIG_EXPORTFS=y
+CONFIG_SUNRPC=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=y
+CONFIG_NLS_ISO8859_1=y
+CONFIG_DEBUG_PREEMPT=y
+CONFIG_DEBUG_BUGVERBOSE=y
+CONFIG_FRAME_POINTER=y
+CONFIG_EARLY_PRINTK=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+CONFIG_CRC_CCITT=y
+CONFIG_CRC32=y
+CONFIG_ZLIB_INFLATE=y
+CONFIG_ZLIB_DEFLATE=y
+CONFIG_GENERIC_HARDIRQS=y
+CONFIG_GENERIC_IRQ_PROBE=y
+CONFIG_X86_SMP=y
+CONFIG_X86_HT=y
+CONFIG_X86_BIOS_REBOOT=y
+CONFIG_X86_TRAMPOLINE=y
+CONFIG_PC=y
 
-							Thanx, Paul
+Here's dmesg:
+Linux version 2.6.10-mm1 (jurriaan@adsl-gate) (gcc version 3.3.5 (Debian 1:3.3.5-5)) #8 SMP Wed Jan 5 14:28:25 CET 2005
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 000000000009f800 (usable)
+ BIOS-e820: 000000000009f800 - 00000000000a0000 (reserved)
+ BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 000000005fff0000 (usable)
+ BIOS-e820: 000000005fff0000 - 000000005fff8000 (ACPI data)
+ BIOS-e820: 000000005fff8000 - 0000000060000000 (ACPI NVS)
+ BIOS-e820: 00000000fff80000 - 0000000100000000 (reserved)
+639MB HIGHMEM available.
+896MB LOWMEM available.
+found SMP MP-table at 000fa600
+On node 0 totalpages: 393200
+  DMA zone: 4096 pages, LIFO batch:1
+  Normal zone: 225280 pages, LIFO batch:16
+  HighMem zone: 163824 pages, LIFO batch:16
+DMI 2.3 present.
+__iounmap: bad address c00f0000
+ACPI: RSDP (v000 Aopen                                 ) @ 0x000fe030
+ACPI: RSDT (v001 Aopen  M25D-2   0x00000001 Aop  0x00000000) @ 0x5fff0000
+ACPI: FADT (v001 Aopen  M25D-2   0x00000001 Aop  0x00000000) @ 0x5fff008e
+ACPI: MADT (v001 Aopen  M25D-2   0x00000001 Aop  0x00000000) @ 0x5fff002c
+ACPI: DSDT (v001  Aopen   M25D-2 0x00001000 MSFT 0x0100000c) @ 0x00000000
+ACPI: Local APIC address 0xfee00000
+ACPI: LAPIC (acpi_id[0x01] lapic_id[0x00] enabled)
+Processor #0 6:11 APIC version 17
+ACPI: LAPIC (acpi_id[0x02] lapic_id[0x01] enabled)
+Processor #1 6:11 APIC version 17
+ACPI: LAPIC_NMI (acpi_id[0xff] high edge lint[0x1])
+ACPI: IOAPIC (id[0x02] address[0xfec00000] gsi_base[0])
+IOAPIC[0]: apic_id 2, version 17, address 0xfec00000, GSI 0-23
+ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 dfl dfl)
+ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 low level)
+ACPI: IRQ0 used by override.
+ACPI: IRQ2 used by override.
+ACPI: IRQ9 used by override.
+Enabling APIC mode:  Flat.  Using 1 I/O APICs
+Using ACPI (MADT) for SMP configuration information
+Built 1 zonelists
+mapped APIC to ffffd000 (fee00000)
+mapped IOAPIC to ffffc000 (fec00000)
+Initializing CPU#0
+Kernel command line: root=/dev/sda1 video=matroxfb:1600x1200-32@85 acpi=force
+PID hash table entries: 4096 (order: 12, 65536 bytes)
+Detected 1271.385 MHz processor.
+Using tsc for high-res timesource
+Console: colour VGA+ 80x25
+Dentry cache hash table entries: 131072 (order: 7, 524288 bytes)
+Inode-cache hash table entries: 65536 (order: 6, 262144 bytes)
+Memory: 1553472k/1572800k available (3403k kernel code, 18448k reserved, 1243k data, 248k init, 655296k highmem)
+Checking if this processor honours the WP bit even in supervisor mode... Ok.
+Calibrating delay loop... 2498.56 BogoMIPS (lpj=1249280)
+Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
+CPU: After generic identify, caps: 0383fbff 00000000 00000000 00000000 00000000 00000000
+CPU: After vendor identify, caps: 0383fbff 00000000 00000000 00000000 00000000 00000000
+CPU: L1 I cache: 16K, L1 D cache: 16K
+CPU: L2 cache: 512K
+CPU: After all inits, caps: 0383fbff 00000000 00000000 00000040 00000000 00000000
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#0.
+Enabling fast FPU save and restore... done.
+Enabling unmasked SIMD FPU exception support... done.
+Checking 'hlt' instruction... OK.
+CPU0: Intel(R) Pentium(R) III CPU family      1266MHz stepping 01
+per-CPU timeslice cutoff: 1462.60 usecs.
+task migration cache decay timeout: 2 msecs.
+Booting processor 1/1 eip 3000
+Initializing CPU#1
+Calibrating delay loop... 2539.52 BogoMIPS (lpj=1269760)
+CPU: After generic identify, caps: 0383fbff 00000000 00000000 00000000 00000000 00000000
+CPU: After vendor identify, caps: 0383fbff 00000000 00000000 00000000 00000000 00000000
+CPU: L1 I cache: 16K, L1 D cache: 16K
+CPU: L2 cache: 512K
+CPU: After all inits, caps: 0383fbff 00000000 00000000 00000040 00000000 00000000
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#1.
+CPU1: Intel(R) Pentium(R) III CPU family      1266MHz stepping 01
+Total of 2 processors activated (5038.08 BogoMIPS).
+ENABLING IO-APIC IRQs
+..TIMER: vector=0x31 pin1=2 pin2=-1
+checking TSC synchronization across 2 CPUs: passed.
+Brought up 2 CPUs
+CPU0:
+ domain 0: span 3
+  groups: 1 2
+CPU1:
+ domain 0: span 3
+  groups: 2 1
+NET: Registered protocol family 16
+PCI: PCI BIOS revision 2.10 entry at 0xf0220, last bus=1
+PCI: Using configuration type 1
+mtrr: v2.0 (20020519)
+ACPI: Subsystem revision 20041210
+    ACPI-1138: *** Error: Method execution failed [\OSCP] (Node c1d11f60), AE_AML_BUFFER_LIMIT
+    ACPI-1138: *** Error: Method execution failed [\_SB_.PCI0._INI] (Node c1d11b00), AE_AML_BUFFER_LIMIT
+ACPI: Interpreter enabled
+ACPI: Using IOAPIC for interrupt routing
+ACPI: PCI Interrupt Link [PILA] (IRQs 3 4 5 6 7 9 *10 11 12 14 15)
+ACPI: PCI Interrupt Link [PILB] (IRQs 3 4 5 6 7 *9 10 11 12 14 15)
+ACPI: PCI Interrupt Link [PILC] (IRQs 3 4 5 6 7 9 10 *11 12 14 15)
+ACPI: PCI Interrupt Link [PILD] (IRQs 3 4 5 6 *7 9 10 11 12 14 15)
+ACPI: PCI Root Bridge [PCI0] (00:00)
+PCI: Probing PCI hardware (bus 00)
+PCI: Via IRQ fixup
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
+ACPI: PCI Interrupt Link [ALKC] (IRQs 18 19 20 21 22 23) *15, disabled.
+ACPI: PCI Interrupt Link [ALKD] (IRQs 16) *15, disabled.
+SCSI subsystem initialized
+PCI: Using ACPI for IRQ routing
+** PCI interrupts are no longer routed automatically.  If this
+** causes a device to stop working, it is probably because the
+** driver failed to call pci_enable_device().  As a temporary
+** workaround, the "pci=routeirq" argument restores the old
+** behavior.  If this argument makes the device work again,
+** please email the output of "lspci" to bjorn.helgaas@hp.com
+** so I can fix the driver.
+highmem bounce pool size: 64 pages
+Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
+PCI: Enabling Via external APIC routing
+ACPI: PCI interrupt 0000:01:00.0[A] -> GSI 17 (level, low) -> IRQ 17
+matroxfb: Matrox G450 detected
+<snip lots of lines about harddisks, network etc.>
+
+Kind regards,
+Jurriaan
+-- 
+Why are there always boycotts?  Shouldn't there be girlcotts too?
+	argon on #Linux
+Debian (Unstable) GNU/Linux 2.6.10-mm1 2x6078 bogomips load 0.08

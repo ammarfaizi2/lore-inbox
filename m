@@ -1,51 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264347AbUAIXXi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 18:23:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264414AbUAIXXi
+	id S264453AbUAIXh0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 18:37:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264455AbUAIXh0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 18:23:38 -0500
-Received: from mail6.speakeasy.net ([216.254.0.206]:21176 "EHLO
-	mail6.speakeasy.net") by vger.kernel.org with ESMTP id S264347AbUAIXXh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 18:23:37 -0500
-X-AmikaGuardian-Id: mail6.speakeasy.net107369061626125267
-X-AmikaGuardian-Action: Do Nothing()
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Aaron Burt <aaron@speakeasy.org>
-Newsgroups: local.linux-kernel
-Subject: ALSA: bad sound with low CPU load
-Date: Fri, 9 Jan 2004 23:23:35 +0000 (UTC)
-Organization: The Aluminum Bavariati
-Message-ID: <slrnbvudvn.5ic.aaron@aluminum.bavariati.org>
-NNTP-Posting-Host: aluminum.bavariati.org
-X-Trace: aluminum.bavariati.org 1073690615 7101 127.0.0.1 (9 Jan 2004 23:23:35 GMT)
-X-Complaints-To: news
-NNTP-Posting-Date: Fri, 9 Jan 2004 23:23:35 +0000 (UTC)
-User-Agent: slrn/0.9.8.0 (Linux)
+	Fri, 9 Jan 2004 18:37:26 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:42710 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264453AbUAIXhX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 18:37:23 -0500
+Date: Sat, 10 Jan 2004 00:37:14 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@osdl.org>, thomas@winischhofer.net
+Cc: linux-kernel@vger.kernel.org, jsimmons@infradead.org
+Subject: 2.6.1-mm1: drivers/video/sis/sis_main.c link error
+Message-ID: <20040109233714.GL1440@fs.tum.de>
+References: <20040109014003.3d925e54.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040109014003.3d925e54.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Basically, sound comes out as a hissing, garbled mess *unless* I load
-down the CPU.  A kernel compile seems to do nicely for this purpose.
+On Fri, Jan 09, 2004 at 01:40:03AM -0800, Andrew Morton wrote:
+>...
+> All 393 patches
+>...
+> use-soft-float.patch
+>   Use -msoft-float
+>...
 
-I've been seeing this behavior in the late 2.6.0-pre kernels through
-2.6.1 plain and -mm1.  It happens with preempt and HPET both enabled
-and disabled.  I haven't yet found what exact kernel version the
-problem starts with, and I get no sound with the OSS drivers, so I
-can't test them ATM.  I plan to narrow things down if possible, but
-that takes time.
+FYI:
 
-System is an Athlon at 1145 MHz on an ECS K7S5A (SiS 735 chipset)
-running Debian Sid with ALSA-base v0.9.8-3.  The problem happens both
-with the onboard i810-compatible sound and a CM8738 PCI sound board.
-(Note that both are fixed at 48000 Hz.)  I'm tempted to buy 'n' try a
-SoundBlaster-PCI card from FreeGeek.
+This causes the following link error:
 
-I'd be happy to provide further info, but didn't want to start out
-with a super-long message for something that may be obvious, if not
-visible in Google or LKML.  Please reply to the list; I'm subscribed.
+<--  snip  -->
 
-Thanks in advance,
-  Aaron
+...
+  LD      .tmp_vmlinux1
+drivers/built-in.o(.text+0x55814f): In function `sisfb_do_set_var':
+: undefined reference to `__floatsidf'
+drivers/built-in.o(.text+0x55816d): In function `sisfb_do_set_var':
+: undefined reference to `__divdf3'
+drivers/built-in.o(.text+0x55817a): In function `sisfb_do_set_var':
+: undefined reference to `__floatsidf'
+drivers/built-in.o(.text+0x558196): In function `sisfb_do_set_var':
+: undefined reference to `__divdf3'
+drivers/built-in.o(.text+0x5581a9): In function `sisfb_do_set_var':
+: undefined reference to `__floatsidf'
+drivers/built-in.o(.text+0x5581bf): In function `sisfb_do_set_var':
+: undefined reference to `__divdf3'
+drivers/built-in.o(.text+0x5581cb): In function `sisfb_do_set_var':
+: undefined reference to `__adddf3'
+drivers/built-in.o(.text+0x5581e0): In function `sisfb_do_set_var':
+: undefined reference to `__adddf3'
+drivers/built-in.o(.text+0x5581ea): In function `sisfb_do_set_var':
+: undefined reference to `__fixunsdfsi'
+drivers/built-in.o(.text+0x5584fa): In function `sisfb_do_set_var':
+: undefined reference to `__adddf3'
+drivers/built-in.o(.text+0x558514): In function `sisfb_do_set_var':
+: undefined reference to `__adddf3'
+drivers/built-in.o(.text+0x55852e): In function `sisfb_do_set_var':
+: undefined reference to `__adddf3'
+drivers/built-in.o(.init.text+0x5cde2): In function `sisfb_init':
+: undefined reference to `__floatsidf'
+drivers/built-in.o(.init.text+0x5cdf5): In function `sisfb_init':
+: undefined reference to `__divdf3'
+drivers/built-in.o(.init.text+0x5cdff): In function `sisfb_init':
+: undefined reference to `__fixunsdfsi'
+make: *** [.tmp_vmlinux1] Error 1
+
+<--  snip  -->
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,64 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270647AbTHJUWs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 16:22:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270650AbTHJUWr
+	id S270652AbTHJUZ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 16:25:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270659AbTHJUZ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 16:22:47 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:18637 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S270647AbTHJUWp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 16:22:45 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Sun, 10 Aug 2003 22:22:28 +0200 (MEST)
-Message-Id: <UTC200308102022.h7AKMSI02375.aeb@smtp.cwi.nl>
-To: Andries.Brouwer@cwi.nl, fgrum@free.fr
-Subject: Re: Apacer SM/CF combo reader driver
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+	Sun, 10 Aug 2003 16:25:58 -0400
+Received: from mail-in-02.arcor-online.net ([151.189.21.42]:8154 "EHLO
+	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
+	id S270652AbTHJUZ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 16:25:56 -0400
+From: Daniel Phillips <phillips@arcor.de>
+To: Mike Galbraith <efault@gmx.de>, Takashi Iwai <tiwai@suse.de>
+Subject: Re: [patch] SCHED_SOFTRR starve-free linux scheduling policy    ...
+Date: Sun, 10 Aug 2003 21:28:49 +0100
+User-Agent: KMail/1.5.3
+Cc: Davide Libenzi <davidel@xmailserver.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <5.2.1.1.2.20030810080748.019cb090@pop.gmx.net> <5.2.1.1.2.20030810182157.019c66c0@pop.gmx.net>
+In-Reply-To: <5.2.1.1.2.20030810182157.019c66c0@pop.gmx.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308102128.49817.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    I've got an Apacer SM/CF combo reader too. I found your email :
-            
-            I just got myself an Apacer SM/CF combo reader, USB 07c4:a109. 
-            The CF part is supported in the stock kernel (by datafab.c), 
-            the SM part is not. 
-            This evening I wrote a read-only driver; hope to add the 
-            writing part soon. 
-            
-            Andries
+On Sunday 10 August 2003 18:49, Mike Galbraith wrote:
+> It doesn't appear to accomplish anything other than bypassing 'you must be
+> this tall (godly stature) to use this API'.
 
-    Does your driver work well ?
+But it is a big deal.  It means Linux can have superior audio performance 
+out-of-the-box, without having to run sound apps suid.  From what I've seen,  
+you do not want to let a typical sound app have free reign over your machine.  
+Not that they're malicious, but they do seem to be breeding grounds for 
+buffer overflows, races, dangling pointers, etc.
 
-Yes, it reads and writes without problems, both CF and SM,
-assuming the surrounding kernel works.
+> No matter what limit you put on the cpu usage, that amount can (xlat:
+> probably will) be abused.
 
-    Is it in the stock kernel now ? If not, is it possible to get it?
+How?  Anybody user can run an empty loop right now and it will have 
+approximately the same effect, i.e., it will use some cpu, big deal.  The 
+other danger is that the latency of certain kernel threads could be 
+increased, e.g., kswapd, ksoftirqd, keventd.  Here, a malicious softrr 
+application could only cause increased latency during the realtime slice, so 
+there's a cap on that.  And anyway, why aren't those kernel threads running 
+with realtime priority in the first place?
 
-Now the question arises what you mean by "stock kernel".
+While we're in here: what should be the maximum realtime priority granted to a 
+normal user?  It should probably be another adminstrator knob.
 
-2.6.0-test3 is still in a sorry state.
-I cannot insmod usb-storage.o for a vanilla 2.6.0-test3.
-It hangs. (Have not checked yet whether this is a permanent hang
-or one of these scsi_eh_X that spend hours resetting the bus and
-trying again. I booted 33 min ago and it still hangs.)
+> On my little box, I'd have to relinquish control of over 50% of my cpu at
+> _minimum_ to some random application developer.  (not)
 
-I have not tried 2.4 recently, but that is supposedly stable.
+It's your decision[tm].  At least you know that slowing down your kernel 
+compile is about the worst fallout you can expect from being wanton and 
+promiscuous with your chmod +x's.  More precisely, if you do get rooted, it 
+will have nothing to do with softrr ;-)
 
-If you need the CF half, you need no help from me, you must "just"
-find some kernel where usb-storage and usb and scsi all work.
-Maybe a recent 2.4 would do.
+The idea is, if the administrator decides not to let them have realtime 
+priority, sound apps will just have to do the best they can, with large 
+buffers etc, as they have been forced to until now.
 
-If you need the SM half, ask me again.
+> ...I'm sure it'll work.  What I tested briefly worked fine.  However, I'm
+> not sure that it's a good (or bad) idea.
 
+Well, perhaps it's time to get a word from a couple guys out there in the 
+trenches.  Takashi, Conrad, any thoughts on the relative importance of this?  
+(Technical details are earlier in this thread.)
 
-Andries
-
-
-
-[Long ago I made some general common infrastructure for SM readers.
-In May 2002 someone asked me for this stuff and I put something at
-ftp://ftp.kernel.org/pub/linux/kernel/people/aeb/usb-storage.tar.gz
-Don't recall precisely what this is, or to what kernel it belonged,
-in view of the date it may have been 2.5.13 or 2.5.14. But I see
-there is an apacer.c, and the source looks healthy at first sight.]

@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318945AbSHSQ4l>; Mon, 19 Aug 2002 12:56:41 -0400
+	id <S318934AbSHSRFT>; Mon, 19 Aug 2002 13:05:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318947AbSHSQ4k>; Mon, 19 Aug 2002 12:56:40 -0400
-Received: from taco.vianet.on.ca ([209.91.128.11]:43483 "HELO smtp.vianet.ca")
-	by vger.kernel.org with SMTP id <S318945AbSHSQ4k>;
-	Mon, 19 Aug 2002 12:56:40 -0400
-Message-ID: <3D61243A.8040304@thirddimension.net>
-Date: Mon, 19 Aug 2002 13:00:42 -0400
-From: Reid Sutherland <reid-lkml@thirddimension.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020615 Debian/1.0.0-3
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Philipp Matthias Hahn <pmhahn@titan.lahn.de>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Interrupt issue with 2.4.19 vs 2.4.18.
-References: <3D5D527E.5030607@thirddimension.net> 	<20020819155421.GA10726@titan.lahn.de> <1029774904.19375.40.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S318937AbSHSRFS>; Mon, 19 Aug 2002 13:05:18 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:3603 "EHLO www.home.local")
+	by vger.kernel.org with ESMTP id <S318934AbSHSRFS>;
+	Mon, 19 Aug 2002 13:05:18 -0400
+Date: Mon, 19 Aug 2002 19:09:07 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Dana Lacoste <dana.lacoste@peregrine.com>
+Cc: Jan-Benedict Glaw <jbglaw@lug-owl.de>, linux-kernel@vger.kernel.org
+Subject: Re: IDE?
+Message-ID: <20020819170907.GB25502@alpha.home.local>
+References: <20020817181624.GM10730@lug-owl.de> <1029765431.32209.77.camel@dlacoste.ottawa.loran.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1029765431.32209.77.camel@dlacoste.ottawa.loran.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
->>My board has a Intel 440GX chipset.  From my understanding these are a 
->>bitch to deal with and are littered with bugs.  I've also read that by 
-> 
-> 
-> Not bugs. Intel refusal to provide documentation on the IRQ routing for
-> them
+On Mon, Aug 19, 2002 at 09:57:11AM -0400, Dana Lacoste wrote:
+> Why do we need to maintain compatibility
+> with OLD (not 'low-end' but OLD) hardware if there's an existing
+> kernel that meets that hardware's needs already?
+ 
+because we always need new features, even on older hardware. If 2.4 didn't
+support my 386sx, I would have had to either port iptables, cramfs, pppoe
+and such things to 2.0 (or 2.2), or replace this solid-state, silent box
+with a new, noisy and power hungry one. I'm really happy that this box is
+still supported and hope it will still run 2.6.
 
-Ahh just lovely.  Any known hack/workaround?
-
-(pci=noacpi doesn't work)
-
--reid
-
-
+Cheers,
+Willy
 

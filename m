@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270802AbTGVLvv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 07:51:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270803AbTGVLvv
+	id S270808AbTGVLyG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 07:54:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270805AbTGVLyG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 07:51:51 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:19392 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S270802AbTGVLvu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 07:51:50 -0400
-Date: Tue, 22 Jul 2003 14:06:49 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Asfand Yar Qazi <email@asfandyar.cjb.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: VIA kt600 chipset supported in Linux?
-Message-ID: <20030722120649.GQ26422@fs.tum.de>
-References: <3F1CEAFB.2000607@asfandyar.cjb.net> <1058872027.2751.2.camel@dhcp22.swansea.linux.org.uk>
+	Tue, 22 Jul 2003 07:54:06 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:58139 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S270800AbTGVLyD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 07:54:03 -0400
+Date: Tue, 22 Jul 2003 08:09:05 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Otto Solares <solca@guug.org>
+Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org,
+       debian-sparc@lists.debian.org
+Subject: Re: sparc scsi esp depends on pci & hangs on boot
+Message-ID: <20030722080905.A21280@devserv.devel.redhat.com>
+References: <20030722025142.GC25561@guug.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1058872027.2751.2.camel@dhcp22.swansea.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030722025142.GC25561@guug.org>; from solca@guug.org on Mon, Jul 21, 2003 at 08:51:42PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 22, 2003 at 12:07:08PM +0100, Alan Cox wrote:
-> On Maw, 2003-07-22 at 08:42, Asfand Yar Qazi wrote:
-> > As subject really: I don't want any nVidia proprietry rubbish, just nice 
-> > clean vanilla kernel configuring and running.
-> > 
-> > For both 2.4 and 2.6?
+> Date: 	Mon, 21 Jul 2003 20:51:42 -0600
+> From: Otto Solares <solca@guug.org>
+
+> ultra enterprise 1 (sun4u sparc64)
+> sparc station 4    (sun4m sparc32)
 > 
-> What bits are on the KT600 - VIA 8237 south bridge I assume but what video ?
+> on both i need to enable PCI support even
+> when these boxes doesn't have a PCI bus,
 
-  http://www.via.com.tw/en/apollo/kt600.jsp
+I'll look into sparc32 problems when I get from Canada.
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+-- Pete

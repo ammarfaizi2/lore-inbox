@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262268AbTD3RTh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 13:19:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262270AbTD3RTh
+	id S262227AbTD3R0B (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 13:26:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbTD3R0B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 13:19:37 -0400
-Received: from h-66-134-11-58.CHCGILGM.covad.net ([66.134.11.58]:18185 "EHLO
-	miniborg.vocalabs.com") by vger.kernel.org with ESMTP
-	id S262268AbTD3RTg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 13:19:36 -0400
-Date: Wed, 30 Apr 2003 11:31:43 -0500 (CDT)
-From: Daniel Taylor <dtaylor@vocalabs.com>
-To: Balram Adlakha <b_adlakha@softhome.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Boot failure, VIA chipset.
-In-Reply-To: <20030430171909.GA9529@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0304301126430.7276-100000@dtaylor.vocalabs.com>
+	Wed, 30 Apr 2003 13:26:01 -0400
+Received: from mx02.uni-tuebingen.de ([134.2.3.12]:2757 "EHLO
+	mx02.uni-tuebingen.de") by vger.kernel.org with ESMTP
+	id S262227AbTD3R0B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 13:26:01 -0400
+X-Face: "iUeUu$b*W_"w?tV83Y3*r:`rh&dRv}$YnZ3,LVeCZSYVuf[Gpo*5%_=/\_!gc_,SS}[~xZ
+ wY77I-M)xHIx:2f56g%/`SOw"Dx%4Xq0&f\Tj~>|QR|vGlU}TBYhiG(K:2<T^
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: dphillips@sistina.com, <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] Faster generic_fls
+References: <Pine.LNX.4.44.0304300911420.16712-100000@home.transmeta.com>
+From: Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>
+Date: 30 Apr 2003 18:43:19 +0200
+In-Reply-To: <Pine.LNX.4.44.0304300911420.16712-100000@home.transmeta.com>
+Message-ID: <878ytsszq0.fsf@student.uni-tuebingen.de>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.5 (cabbage)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+X-AntiVirus: checked by AntiVir Milter 1.0.0.8; AVE 6.19.0.3; VDF 6.19.0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Apr 2003, Balram Adlakha wrote:
+Linus Torvalds <torvalds@transmeta.com> writes:
 
-> On Wed, Apr 30, 2003 at 11:11:54AM -0500, Daniel Taylor wrote:
-> > I have a KT400-based system that will not boot the 2.5 series kernels.
-> >
-> > It fails with a hard lock immediately after the video mode query when
-> > VGA=ask is set in /etc/lilo.conf.
-> >
-> > If anyone else is working on this contact me, otherwise I'll post
-> > my results when I get it working.
-> >
->
-> And what happens when VGA=ask is not set? What happens when its disabled in the config?
->
-It fails silently after unpacking the kernel.
+> Clearly you're not going to make _one_ load to get fls, since having
+> a 4GB lookup array for a 32-bit fls would be "somewhat" wasteful.
+> 
+> So the lookup table would probably look up just the last 8 bits.
+> 
+> So the lookup table version is several instructions in itself, doing
+> about half of what the calculating version needs to do _anyway_.
 
-Sorry, I was insufficiently clear on that.
+Right.
 
-So far I have tried:
-  Disabling all module functions
-  Disabling APIC
-  Recompiling for 386 rather than K7
-  Disabling all special video options (Framebuf,  video mode select)
+> Including those data-dependent branches.
 
-I have yet to try a completely minimal 386 config, that is my next step,
-then I start putting printk()'s in to localise the hang more effectively.
+Well, at least on Alpha, gcc can optimize them all away except one.
+
+Note I'm not really arguing Linux should use a lookup table for fls;
+I'm just arguing putting it as default into libgcc for architectures
+that don't provide a special version (which aren't particularly many)
+isn't stupid. But probably I'm just biased, because I put it there :)
 
 -- 
-Daniel Taylor        VP Operations and Development   Vocal Laboratories, Inc.
-dtaylor@vocalabs.com   http://www.vocalabs.com/        (952)941-6580x203
-
+	Falk

@@ -1,38 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267675AbTA1Rqs>; Tue, 28 Jan 2003 12:46:48 -0500
+	id <S267457AbTA1Rkk>; Tue, 28 Jan 2003 12:40:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267677AbTA1Rqs>; Tue, 28 Jan 2003 12:46:48 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:30593
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267675AbTA1Rqr>; Tue, 28 Jan 2003 12:46:47 -0500
-Subject: Re: PID of multi-threaded core's file name is wrong in 2.5.59
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Daniel Jacobowitz <dan@debian.org>
-Cc: Robert Love <rml@tech9.net>, MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030128174953.GA23424@nevyn.them.org>
-References: <20030125.135611.74744521.maeda@jp.fujitsu.com>
-	 <1043756485.1328.26.camel@dhcp22.swansea.linux.org.uk>
-	 <20030128154541.GA7269@nevyn.them.org> <1043774823.9069.59.camel@phantasy>
-	 <20030128173949.GA23077@nevyn.them.org> <1043775771.9069.63.camel@phantasy>
-	 <20030128174953.GA23424@nevyn.them.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1043779796.24849.10.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 28 Jan 2003 18:49:56 +0000
+	id <S267459AbTA1Rkk>; Tue, 28 Jan 2003 12:40:40 -0500
+Received: from boo-mda02.boo.net ([216.200.67.22]:38161 "EHLO
+	boo-mda02.boo.net") by vger.kernel.org with ESMTP
+	id <S267457AbTA1Rki>; Tue, 28 Jan 2003 12:40:38 -0500
+Message-Id: <200301281749.MAA12566@boo-mda02.boo.net>
+To: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+From: jasonp@boo.net
+Subject: Re: [PATCH] page coloring for 2.5.59 kernel, version 1
+Date: Tue, 28 Jan 2003 17:49:37 GMT
+X-Mailer: Endymion MailMan Standard Edition v3.0.20
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-01-28 at 17:49, Daniel Jacobowitz wrote:
-> > Are you telling me only one thread per thread group can coredump,
-> > period?  So if two of them segfault (say concurrently on two different
-> > processors) only one will win the race to dump and the others will
-> > simply exit?
-> 
-> That's right.  The dump will include all the threads anyway, now.
 
-In which case using tgid is probably the right thing. 
+> If a benefit cannot be show on some sort of semi-realistic workload,
+> it's probably not worth it, IMHO.
+
+With the present state of the patch my own limited tests don't uncover any
+speedups at all on my x86 test machine. For the Alpha with 2MB cache (and the 
+2.4 patch) there are measurable speedups; number-crunching benchmarks show it 
+the most.
+
+jasonp
+
+---------------------------------------------
+This message was sent using Endymion MailMan.
+http://www.endymion.com/products/mailman/
+
+

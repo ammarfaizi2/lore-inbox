@@ -1,64 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262240AbVATR1K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262157AbVATRaN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262240AbVATR1K (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 12:27:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262252AbVATR1I
+	id S262157AbVATRaN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 12:30:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262182AbVATR14
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 12:27:08 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2193 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262240AbVATR01 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 12:26:27 -0500
-Date: Thu, 20 Jan 2005 12:00:34 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>
-Subject: Re: oom killer gone nuts
-Message-ID: <20050120140033.GQ2240@logos.cnet>
-References: <20050120123402.GA4782@suse.de> <20050120131556.GC10457@pclin040.win.tue.nl>
+	Thu, 20 Jan 2005 12:27:56 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:3774 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262789AbVATRZT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 12:25:19 -0500
+Date: Thu, 20 Jan 2005 18:25:06 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "Jack O'Quin" <joq@io.com>
+Cc: Paul Davis <paul@linuxaudiosystems.com>, Con Kolivas <kernel@kolivas.org>,
+       linux <linux-kernel@vger.kernel.org>, rlrevell@joe-job.com,
+       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
+       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>
+Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt scheduling
+Message-ID: <20050120172506.GA20295@elte.hu>
+References: <200501201542.j0KFgOwo019109@localhost.localdomain> <87y8eo9hed.fsf@sulphur.joq.us>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050120131556.GC10457@pclin040.win.tue.nl>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <87y8eo9hed.fsf@sulphur.joq.us>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 20, 2005 at 02:15:56PM +0100, Andries Brouwer wrote:
-> On Thu, Jan 20, 2005 at 01:34:06PM +0100, Jens Axboe wrote:
-> 
-> > Using current BK on my x86-64 workstation, it went completely nuts today
-> > killing tasks left and right with oodles of free memory available.
-> 
-> Yes, the fact that the oom-killer exists is a serious problem.
-> People work on trying to tune it, instead of just removing it.
-> 
-> I am getting reports that also in overcommit mode 2 (no overcommit,
-> no oom-killer ever needed) processes are killed by the oom-killer
-> (on 2.6.10).
 
-Hi Andries,
+just finished a short testrun with nice--20 compared to SCHED_FIFO, on a
+relatively slow 466 MHz box:
 
-There is a user requirement for overcommit mode, you know. 
+ SCHED_FIFO:
+ ************* SUMMARY RESULT ****************
+ Total seconds ran . . . . . . :   120
+ Number of clients . . . . . . :     4
+ Ports per client  . . . . . . :     4
+ *********************************************
+ Timeout Count . . . . . . . . :(    0)
+ XRUN Count  . . . . . . . . . :    10
+ Delay Count (>spare time) . . :     0
+ Delay Count (>1000 usecs) . . :     0
+ Delay Maximum . . . . . . . . : 27879   usecs
+ Cycle Maximum . . . . . . . . :   732   usecs
+ Average DSP Load. . . . . . . :    38.8 %
+ Average CPU System Load . . . :    10.9 %
+ Average CPU User Load . . . . :    26.4 %
+ Average CPU Nice Load . . . . :     0.0 %
+ Average CPU I/O Wait Load . . :     0.1 %
+ Average CPU IRQ Load  . . . . :     0.0 %
+ Average CPU Soft-IRQ Load . . :     0.0 %
+ Average Interrupt Rate  . . . :  1709.6 /sec
+ Average Context-Switch Rate . :  6359.9 /sec
+ *********************************************
 
-Saying "hey, there's no more overcommit mode in future v2.6 releases, you 
-run out of memory and get -ENOMEM" is not really an option is it?
+nice--20-hack:
 
-You propose to remove the OOM killer and do what? Lockup solid?  
+ ************* SUMMARY RESULT ****************
+ Total seconds ran . . . . . . :   120
+ Number of clients . . . . . . :     4
+ Ports per client  . . . . . . :     4
+ *********************************************
+ Timeout Count . . . . . . . . :(    0)
+ XRUN Count  . . . . . . . . . :    10
+ Delay Count (>spare time) . . :     0
+ Delay Count (>1000 usecs) . . :     0
+ Delay Maximum . . . . . . . . :  6807   usecs
+ Cycle Maximum . . . . . . . . :  1059   usecs
+ Average DSP Load. . . . . . . :    39.9 %
+ Average CPU System Load . . . :    10.9 %
+ Average CPU User Load . . . . :    26.0 %
+ Average CPU Nice Load . . . . :     0.0 %
+ Average CPU I/O Wait Load . . :     0.1 %
+ Average CPU IRQ Load  . . . . :     0.0 %
+ Average CPU Soft-IRQ Load . . :     0.0 %
+ Average Interrupt Rate  . . . :  1712.8 /sec
+ Average Context-Switch Rate . :  5113.0 /sec
+ *********************************************
 
-It is _WAY_ off right now: look at the amount of free pages:
+this shows the surprising result that putting all RT tasks on nice--20
+reduced context-switch rate by 20% and the Delay Maximum is lower as
+well. (although the Delay Maximum is quite unreliable so this could be a
+fluke.) But the XRUN count is the same.
 
-DMA free:4536kB min:60kB low:72kB high:88kB active:0kB inactive:0kB present:16384kB pages_scanned:0 all_unreclaimable? no
-protections[]: 0 0 0
-Normal free:524648kB min:4028kB low:5032kB high:6040kB active:76508kB inactive:81760kB present:1031360kB pages_scanned:0 all_unreclaimable? no
-protections[]: 0 0 0
-HighMem free:0kB min:128kB low:160kB high:192kB active:0kB inactive:0kB present:0kB pages_scanned:0 all_unreclaimable? no
-protections[]: 0 0 0
-DMA: 556*4kB 155*8kB 65*16kB 1*32kB 0*64kB 0*128kB 0*256kB 0*512kB 0*1024kB 0*2048kB 0*4096kB = 4536kB
-Normal: 29800*4kB 25115*8kB 6953*16kB 1251*32kB 326*64kB 103*128kB 31*256kB 12*512kB 3*1024kB 1*2048kB 0*4096kB = 524648kB
-HighMem: empty
+can anyone else reproduce this, with the test-patch below applied?
 
-v2.4 gets it pretty much right for most cases, and its obviously screwed up right now in v2.6.
+	Ingo
 
-Andrea/Thomas were working on getting it fixed ??
+--- linux/kernel/sched.c.orig
++++ linux/kernel/sched.c
+@@ -2245,10 +2245,10 @@ EXPORT_PER_CPU_SYMBOL(kstat);
+  * if a better static_prio task has expired:
+  */
+ #define EXPIRED_STARVING(rq) \
+-	((STARVATION_LIMIT && ((rq)->expired_timestamp && \
++	((task_nice(current) > -20) && ((STARVATION_LIMIT && ((rq)->expired_timestamp && \
+ 		(jiffies - (rq)->expired_timestamp >= \
+ 			STARVATION_LIMIT * ((rq)->nr_running) + 1))) || \
+-			((rq)->curr->static_prio > (rq)->best_expired_prio))
++			((rq)->curr->static_prio > (rq)->best_expired_prio)))
+ 
+ /*
+  * Do the virtual cpu time signal calculations.
+@@ -3211,6 +3211,12 @@ static inline task_t *find_process_by_pi
+ static void __setscheduler(struct task_struct *p, int policy, int prio)
+ {
+ 	BUG_ON(p->array);
++	if (policy != SCHED_NORMAL) {
++		p->policy = SCHED_NORMAL;
++		p->static_prio = NICE_TO_PRIO(-20);
++		p->prio = p->static_prio;
++		return;
++	}
+ 	p->policy = policy;
+ 	p->rt_priority = prio;
+ 	if (policy != SCHED_NORMAL)

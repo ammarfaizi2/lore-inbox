@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265246AbUBOWat (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 17:30:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265255AbUBOWat
+	id S265232AbUBOW03 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 17:26:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265233AbUBOW03
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 17:30:49 -0500
-Received: from gate.crashing.org ([63.228.1.57]:57502 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S265246AbUBOWal (ORCPT
+	Sun, 15 Feb 2004 17:26:29 -0500
+Received: from gate.crashing.org ([63.228.1.57]:54430 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S265232AbUBOW01 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 17:30:41 -0500
-Subject: Re: Linux 2.6.3-rc3
+	Sun, 15 Feb 2004 17:26:27 -0500
+Subject: Re: 2.6.3-rc3: radeon blanks screen
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: earny@net4u.de
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Peter Osterlund <petero2@telia.com>
-In-Reply-To: <200402152252.17301.earny@net4u.de>
-References: <Pine.LNX.4.58.0402141931050.14025@home.osdl.org>
-	 <200402152052.50596.earny@net4u.de> <m28yj42jcm.fsf@p4.localdomain>
-	 <200402152252.17301.earny@net4u.de>
+To: Alessandro Suardi <alessandro.suardi@oracle.com>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <402F83D4.3080605@oracle.com>
+References: <402F83D4.3080605@oracle.com>
 Content-Type: text/plain
-Message-Id: <1076884158.6959.105.camel@gaston>
+Message-Id: <1076883902.6959.100.camel@gaston>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 16 Feb 2004 09:29:19 +1100
+Date: Mon, 16 Feb 2004 09:25:04 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> This patch does not help, the console is still blank. The monitor shows:
+On Mon, 2004-02-16 at 01:36, Alessandro Suardi wrote:
+> On my Dell Latitude C640 as on Peter Osterlund's laptop - blind-typing
+>   login/password and startx gets me a visible X desktop.
 > 
-> H. Freq 63.98 kHz
-> V. Freq 60.00 HZ
-> Pixel Clock 107.98 Mhz
-> Resolution 1280x1024
-> Belinea101705
+> Old driver with Peter's patch works as before.
 > 
-> .. but with a black screen...
+> Note - this is the same laptop you tried I gave up using framebuffer on
+>   in the 2.4 series because after 2.4.22-pre4 it would send my screen in
+>   a crazed-up state (X didn't work either) [that was July 2003].
 
-Can you compare the above informations with a working setup ? Also,
-please send me the full dmesg log. Your problem is probably different
-than the laptop one.
-
-Did it work with the older driver at all ?
+Please enable the #define DEBUG 1 in radeonfb.h  and send me the
+output  again.
 
 Ben.
 

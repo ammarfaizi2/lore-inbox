@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263540AbUG1UYS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263448AbUG1UYQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263540AbUG1UYS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 16:24:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263467AbUG1UYS
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 16:24:18 -0400
-Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:13064 "EHLO
-	abraham.cs.berkeley.edu") by vger.kernel.org with ESMTP
-	id S263555AbUG1UYQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S263448AbUG1UYQ (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 28 Jul 2004 16:24:16 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@taverner.cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: [PATCH] Delete cryptoloop
-Date: Wed, 28 Jul 2004 20:24:06 +0000 (UTC)
-Organization: University of California, Berkeley
-Distribution: isaac
-Message-ID: <ce9216$o5o$1@abraham.cs.berkeley.edu>
-References: <Pine.LNX.4.58.0407211609230.19655@devserv.devel.redhat.com> <20040721230044.20fdc5ec.akpm@osdl.org> <Pine.LNX.4.58.0407212319560.13098@devserv.devel.redhat.com>
-Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
-NNTP-Posting-Host: taverner.cs.berkeley.edu
-X-Trace: abraham.cs.berkeley.edu 1091046246 24760 128.32.168.222 (28 Jul 2004 20:24:06 GMT)
-X-Complaints-To: usenet@abraham.cs.berkeley.edu
-NNTP-Posting-Date: Wed, 28 Jul 2004 20:24:06 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: daw@taverner.cs.berkeley.edu (David Wagner)
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263540AbUG1UYP
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Wed, 28 Jul 2004 16:24:15 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:37795 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263448AbUG1UYO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 16:24:14 -0400
+Subject: Re: Use of __pa() with CONFIG_NONLINEAR
+From: Dave Hansen <haveblue@us.ibm.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Mike Kravetz <kravetz@us.ibm.com>, Andy Whitcroft <apw@shadowen.org>,
+       Joel Schopp <jschopp@austin.ibm.com>, linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <49810000.1091045752@flay>
+References: <1090965630.15847.575.camel@nighthawk>
+	 <20040728181645.GA13758@w-mikek2.beaverton.ibm.com>
+	 <35960000.1091044039@flay> <1091045615.2871.364.camel@nighthawk>
+	 <49810000.1091045752@flay>
+Content-Type: text/plain
+Message-Id: <1091046231.2871.379.camel@nighthawk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 28 Jul 2004 13:23:52 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Morris  wrote:
->It would be good if we could get some further review on the issue by an 
->independent, well known cryptographer.
+On Wed, 2004-07-28 at 13:15, Martin J. Bligh wrote:
+> However ... what happens to functions calling __pa that are called from 
+> boot time and run time code?
 
-I'd be glad to review it if someone can point me to a clear, concise
-description of the scheme (trying to extract the spec from the code
-is too much work for me).
+I've actually only run into one of those so far that I know of, and that
+was on ppc64 (i386 had none that I found).  In that one case, I used an
+if(unlikely()) to optimize for the run-time one.  There might be more,
+but I think they're rare enough to just code it with an if() in each
+case.
 
-M.J. Saarinen's attack seems to be real, if that's what you're asking
-about.  IV generation is important; if you choose IVs poorly, then you
-can end up with some weaknesses even if the underlying block cipher is
-perfectly fine.  (I noticed that some posts from, e.g., Clemens were
-confused about this point.  If you use a great cipher in a bad mode of
-operation, you can easily end up with an insecure system.  The existence
-of an attack against such a system is not in contradiction to the security
-of the underlying block cipher against chosen plaintext attacks.)
+-- Dave
+

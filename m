@@ -1,60 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319354AbSHVOdH>; Thu, 22 Aug 2002 10:33:07 -0400
+	id <S319332AbSHVOly>; Thu, 22 Aug 2002 10:41:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319355AbSHVOdG>; Thu, 22 Aug 2002 10:33:06 -0400
-Received: from hermes.hrz.uni-giessen.de ([134.176.2.15]:52220 "EHLO
-	hermes.hrz.uni-giessen.de") by vger.kernel.org with ESMTP
-	id <S319354AbSHVOdG> convert rfc822-to-8bit; Thu, 22 Aug 2002 10:33:06 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Marc Dietrich <Marc.Dietrich@hrz.uni-giessen.de>
-To: Hugh Dickins <hugh@veritas.com>
-Subject: Re: Hyperthreading
-Date: Thu, 22 Aug 2002 16:36:54 +0200
-User-Agent: KMail/1.4.3
-References: <Pine.LNX.4.44.0208221455490.1253-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.44.0208221455490.1253-100000@localhost.localdomain>
-Cc: linux-kernel@vger.kernel.org
+	id <S319355AbSHVOly>; Thu, 22 Aug 2002 10:41:54 -0400
+Received: from 12-237-170-171.client.attbi.com ([12.237.170.171]:41709 "EHLO
+	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S319332AbSHVOlx>;
+	Thu, 22 Aug 2002 10:41:53 -0400
+Message-ID: <3D64F92A.9040406@acm.org>
+Date: Thu, 22 Aug 2002 09:46:02 -0500
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200208221636.54108.marc.dietrich@physik.uni-giessen.de>
+To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: [patch] export symbol for panic_notifier_list
+Content-Type: multipart/mixed;
+ boundary="------------010301020404080107090403"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Donnerstag, 22. August 2002 :06 schrieben Sie:
-> On Thu, 22 Aug 2002, Marc Dietrich wrote:
-> > On Wed, 21 Aug 2002, Hugh Dickins wrote:
-> > > You do need CONFIG_SMP and a processor capable of HyperThreading,
-> > > i.e. Pentium 4 XEON; but CONFIG_MPENTIUM4 is not necessary for HT,
-> > > just appropriate to that processor in other ways.
-> >
-> > I used KNOPPIX on a 2 way Dell WS 530 (Xeon 2.0 GHz). This distribution
-> > has CONFIG_M386 set (as most others also?) and HT was not enabled. I
-> > compiled the kernel myself (same config as KNOPPIX but with
-> > CONFIG_MPENTIUM4) and HT gets enabled. So is _does_ matter for which
-> > processor the kernel is optimized.
->
-> I'm surprised - perhaps the Knoppix distribution did not have SMP enabled
-> itself, but installed a config with CONFIG_SMP?  Or you built more recent
-> kernel sources (2.4.19 defaults to HT on) than the Knoppix distribution
-> (vanilla 2.4.18 defaults to HT off)?
+This is a multi-part message in MIME format.
+--------------010301020404080107090403
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I don't think so. Original kernel gives me 2 penguins and cpuinfo shows 2 
-cpu's. Kernel is 2.4.19 with xfs patches and there is no "noht" option. I 
-attached a dmesg file of this one. Btw, setting the processor also sets some 
-other options (CMPXCHG, TCS, PGE, ...).
+If a module needs to be notified of a panic, well, it needs to get at 
+the notifier list, but that's not exported.  patch is attached.
 
-> It would be awkward for me to try CONFIG_M386 on our P4 Xeon, but I did
-> just try building a CONFIG_M586 CONFIG_SMP kernel for it, which behaved
-> as I expected: /proc/cpuinfo showed 4 cpus, but only 2 cpus when booted
-> with "noht".
+Thanks,
 
-Give it a try. A dual Xeon won't take to much time to compile a new kernel ;)
+-Corey
 
-Greetings
+--------------010301020404080107090403
+Content-Type: text/plain;
+ name="linux-export_panic_list.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="linux-export_panic_list.diff"
 
-Marc
+--- linux.orig/kernel/ksyms.c	Thu Aug 22 08:20:26 2002
++++ linux/kernel/ksyms.c	Thu Aug 22 09:03:01 2002
+@@ -492,6 +492,7 @@
+ 
+ /* misc */
+ EXPORT_SYMBOL(panic);
++EXPORT_SYMBOL(panic_notifier_list);
+ EXPORT_SYMBOL(sprintf);
+ EXPORT_SYMBOL(snprintf);
+ EXPORT_SYMBOL(sscanf);
 
--- 
-Marc Dietrich
+--------------010301020404080107090403--
 

@@ -1,77 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317708AbSGVPnW>; Mon, 22 Jul 2002 11:43:22 -0400
+	id <S317706AbSGVPmK>; Mon, 22 Jul 2002 11:42:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317709AbSGVPnW>; Mon, 22 Jul 2002 11:43:22 -0400
-Received: from smtp.acn.pl ([212.76.33.20]:46133 "EHLO mail.astercity.net")
-	by vger.kernel.org with ESMTP id <S317708AbSGVPnU>;
-	Mon, 22 Jul 2002 11:43:20 -0400
-Subject: Re: Athlon XP 1800+ segemntation fault
-From: Karol Olechowski <karol_olechowski@acn.waw.pl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1027341850.31782.16.camel@irongate.swansea.linux.org.uk>
-References: <20020722133259.A1226@acc69-67.acn.pl> 
-	<1027341850.31782.16.camel@irongate.swansea.linux.org.uk>
+	id <S317708AbSGVPmJ>; Mon, 22 Jul 2002 11:42:09 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:32506 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317706AbSGVPmI>; Mon, 22 Jul 2002 11:42:08 -0400
+Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: Joe Thornber <joe@fib011235813.fsnet.co.uk>,
+       Guillaume Boissiere <boissiere@adiglobal.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <E17Wf0s-0001tS-00@starship>
+References: <3D361091.13618.16DC46FB@localhost>
+	<20020722102342.GE1196@fib011235813.fsnet.co.uk> 
+	<E17Wf0s-0001tS-00@starship>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 22 Jul 2002 17:46:29 +0200
-Message-Id: <1027352789.1655.41.camel@alpha>
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 22 Jul 2002 17:57:57 +0100
+Message-Id: <1027357077.31782.50.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-07-22 at 14:44, Alan Cox wrote:
-> On Mon, 2002-07-22 at 14:32, Karol Olechowskii wrote:
-> > Hello 
-> > 
-> > Few days ago I've bought new processor Athlon XP 1800+ to my computer
-> > (MSI K7D Master with 256 MB PC2100 DDR).Before that I've got Athlon ThunderBird
-> > 900 processor and everything had been working well till I change to the new one.
-> > Now for every few minutes I've got segmetation fault or immediate system reboot.
-> > Could anyone tell me what's goin' on?
-> 
-> > nvidia: loading NVIDIA NVdriver Kernel Module  1.0-2960  Tue May 14 07:41:42 PDT 2002
-> > devfs_register(nvidiactl): could not append to parent, err: -17
-> > devfs_register(nvidia0): could not append to parent, err: -17
-> 
-> Please duplicate the problem without ever loading the NVidia nvdriver
-> from a clean boot. If you can't do that then talk to Nvidia, if you can
-> then post new crash data here
-> 
+On Mon, 2002-07-22 at 16:22, Daniel Phillips wrote:developed equivalent
+> Supposing both device-mapper and (the kernel part of) EVMS get into the tree, 
+> there's nothing stopping you from submitting a patch to make EVMS use 
+> device-mapper.  If there's already equivalent code in EVMS, that just makes 
+> the job easier.
 
-Hi Alan
+So we end up with twice as much code to debug and lots of
+incompatibilities when people want to switch around. It would be far
+better if the two sets of userspace code could at least agree on a
+common kernel interface
 
-I've do exactly what You wrote me.(remove NVidia driver) but it isn't
-change anything.In the moment of writing this letter a try to compile
-kernel and I can't even do this.System hangs or logout console session
-or write something like this
+> I'm firmly in the 'we need both' camp.
 
-gcc: Internal compiler error:
-program cc1 got fatal signal 11
-make[3] : ***[igmp.o] Error 1
-
-under X
-
-Application "gkrellm" (process bal bal) has crashed
-due to a fatal error
-(Segmenataion fault)
-
-
-It's something strange with my computer cause not only Linux hangs.On
-the other disk I've got Win XP and it also hangs ( blue screen,memory
-dump and things like that...).Almost every component is a brand
-new(mother board, processor, memory, video card, power supply)
-
-I've look at the logs and everything looks good.Please send me any tip,
-what I can do with this stuff
-
-best regards
-
-Karol Olechowski
-
-
-
-
+If there is something important in only one then that matters. If there
+are important features in each that are not in the other then that
+really proves they should merge the projects
 

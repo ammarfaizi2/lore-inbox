@@ -1,53 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262884AbTEGGMS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 02:12:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262890AbTEGGMS
+	id S262894AbTEGGQA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 02:16:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262902AbTEGGQA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 02:12:18 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:6017 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S262884AbTEGGMR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 02:12:17 -0400
-Date: Tue, 06 May 2003 21:10:24 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       Paul Mackerras <paulus@samba.org>
-cc: Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@digeo.com>,
-       dipankar@in.ibm.com, linux-kernel@vger.kernel.org,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Subject: Re: [PATCH] kmalloc_percpu
-Message-ID: <4960000.1052280622@[10.10.2.4]>
-In-Reply-To: <20030507051901.GY8978@holomorphy.com>
-References: <20030506014745.02508f0d.akpm@digeo.com> <20030507023126.12F702C019@lists.samba.org> <20030507024135.GW8978@holomorphy.com> <16056.34210.319959.255815@argo.ozlabs.ibm.com> <20030507042250.GX8978@holomorphy.com> <16056.37397.694764.303333@argo.ozlabs.ibm.com> <20030507051901.GY8978@holomorphy.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Wed, 7 May 2003 02:16:00 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:7945 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262894AbTEGGP7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 02:15:59 -0400
+Date: Wed, 7 May 2003 07:28:30 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: dwmw2@infradead.org, thomas@horsten.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.21-rc1: byteorder.h breaks with __STRICT_ANSI__ defined (trivial)
+Message-ID: <20030507072830.A7586@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"David S. Miller" <davem@redhat.com>, dwmw2@infradead.org,
+	thomas@horsten.com, linux-kernel@vger.kernel.org
+References: <20030507062613.A5318@infradead.org> <20030506.220714.35679546.davem@redhat.com> <20030507072002.A7424@infradead.org> <20030506.221900.38693097.davem@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030506.221900.38693097.davem@redhat.com>; from davem@redhat.com on Tue, May 06, 2003 at 10:19:00PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> Same address mapped differently on different cpus is what I thought
->>> you meant. It does make sense, and besides, it only really matters
->>> when the thing is being switched in, so I think it's not such a big
->>> deal. e.g. mark per-thread mm context with the cpu it was prepped for,
->>> if they don't match at load-time then reset the kernel pmd's pgd entry
->>> in the per-thread pgd at the top level. x86 blows away the TLB at the
-> 
-> On Wed, May 07, 2003 at 02:56:53PM +1000, Paul Mackerras wrote:
->> Having to have a pgdir per thread would be a bit sucky, wouldn't it?
-> 
-> Not as bad as it initially sounds; on non-PAE i386, it's 4KB and would
-> hurt. On PAE i386, it's 32B and can be shoehorned, say, in thread_info.
-> Then the rest is just a per-cpu kernel pmd and properly handling vmalloc
-> faults (which are already handled properly for non-PAE vmallocspace).
-> There might be other reasons to do it, like reducing the virtualspace
-> overhead of the atomic kmap area, but it's not really time yet.
+On Tue, May 06, 2003 at 10:19:00PM -0700, David S. Miller wrote:
+> What about if I extend stuff without breaking the ABI?
+> How do apps get at the new features?
 
-Even if the space isn't a problem, having a full TLB flush on thread 
-context switch sounds sucky. Per-node is sufficient for most things,
-and is much cheaper (update on cross-node migrate). 
+They get the features when they use the new headers.  They ususally want
+changes to support those new features anyway..
 
-M.
+> Actually, if you look, things like include/linux/xfrm.h are excellent
+> examples of userland compatible kernel headers :-)
+
+rtnetlink.h is a bad example.  Just to use something you quoted earlier in
+this thread..
 

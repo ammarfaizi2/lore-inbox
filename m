@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264836AbTAJK6t>; Fri, 10 Jan 2003 05:58:49 -0500
+	id <S264878AbTAJK7u>; Fri, 10 Jan 2003 05:59:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264867AbTAJK6t>; Fri, 10 Jan 2003 05:58:49 -0500
-Received: from [217.167.51.129] ([217.167.51.129]:46551 "EHLO zion.wanadoo.fr")
-	by vger.kernel.org with ESMTP id <S264836AbTAJK6s>;
-	Fri, 10 Jan 2003 05:58:48 -0500
-Subject: Re: Problem in IDE Disks cache handling in kernel 2.4.XX
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: fverscheure@wanadoo.fr,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Andre Hedrick <andre@linux-ide.org>
-In-Reply-To: <1042198670.28469.45.camel@irongate.swansea.linux.org.uk>
-References: <20030110095558.E144CFF11@postfix4-1.free.fr>
-	 <1042198670.28469.45.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1042196875.523.44.camel@zion.wanadoo.fr>
+	id <S264883AbTAJK7u>; Fri, 10 Jan 2003 05:59:50 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:385 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S264878AbTAJK7p>;
+	Fri, 10 Jan 2003 05:59:45 -0500
+Date: Fri, 10 Jan 2003 11:05:47 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: jamesclv@us.ibm.com, Jason Lunz <lunz@falooley.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: detecting hyperthreading in linux 2.4.19
+Message-ID: <20030110110547.GC29190@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Mikael Pettersson <mikpe@csd.uu.se>, jamesclv@us.ibm.com,
+	Jason Lunz <lunz@falooley.org>, linux-kernel@vger.kernel.org
+References: <slrnb1rlct.g2c.lunz@stoli.localnet> <200301091337.04957.jamesclv@us.ibm.com> <15902.28835.127030.199073@harpo.it.uu.se>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 10 Jan 2003 12:07:56 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <15902.28835.127030.199073@harpo.it.uu.se>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-01-10 at 12:37, Alan Cox wrote:
+On Fri, Jan 10, 2003 at 08:05:07AM +0100, Mikael Pettersson wrote:
 
-> > And by the way how are powered off the IDE drives ?
-> > Because a FLUSH CACHE or STANDY or SLEEP is MANDATORY before powering off the 
-> > drive with cache enabled or you will enjoy lost data
-> 
-> IDE disagrees with itself over this but when we get a controlled power
-> off we do this. The same ATA5/ATA6 problem may well be present there
-> too. I will review both
+ > If the kernel has sched_setaffinity() or some other way of binding a process
+ > to a given CPU (as numbered by the kernel, which may or may not be related
+ > to any physical CPU numbers), then this will do it: execute CPUID on each
+ > CPU and check the initial APIC ID field. If you find one that's non-zero,
+ > then HT is enabled.
 
-I did fix a data loss problem with some PPC laptops that way too, that
-is just before shutdown and just before machine sleep, sending a STANDBYNOW
-command. In the case of machine sleep, I make sure not to accept any more
-request (mark the hwif busy) after that and until machine wake up (at which
-point I do a full hard reset or poweron reset of the drive).
+That's a horrible way of reimplementing /dev/cpu/x/cpuid  8-)
 
-Ben.
+		Dave
 
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,31 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269673AbRH0Wzd>; Mon, 27 Aug 2001 18:55:33 -0400
+	id <S269646AbRH0W7c>; Mon, 27 Aug 2001 18:59:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269693AbRH0WzW>; Mon, 27 Aug 2001 18:55:22 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:53266 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S269673AbRH0WzM>; Mon, 27 Aug 2001 18:55:12 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Bosko Radivojevic <bole@falcon.etf.bg.ac.yu>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Oops with 2.4.9
-Date: Tue, 28 Aug 2001 01:00:45 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0108272357010.18996-100000@falcon.etf.bg.ac.yu>
-In-Reply-To: <Pine.LNX.4.33.0108272357010.18996-100000@falcon.etf.bg.ac.yu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010827225408Z16102-32383+1801@humbolt.nl.linux.org>
+	id <S269693AbRH0W7W>; Mon, 27 Aug 2001 18:59:22 -0400
+Received: from juicer02.bigpond.com ([139.134.6.78]:29169 "EHLO
+	mailin5.bigpond.com") by vger.kernel.org with ESMTP
+	id <S269646AbRH0W7R>; Mon, 27 Aug 2001 18:59:17 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war 
+In-Reply-To: Your message of "Fri, 24 Aug 2001 21:15:43 EDT."
+             <Pine.GSO.4.21.0108242055410.19796-100000@weyl.math.psu.edu> 
+Date: Mon, 27 Aug 2001 10:02:40 +1000
+Message-Id: <E15b9rU-0002vE-00@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On August 27, 2001 11:58 pm, Bosko Radivojevic wrote:
-> Oops output is now a little bit different ;)
+In message <Pine.GSO.4.21.0108242055410.19796-100000@weyl.math.psu.edu> you wri
+te:
+> _THAT_ _IS_ _WRONG_.  Who the fuck said that we always want type of _first_
+> argument?  Mind you, IMNSHO Dave had been on a seriously bad trip when he
+> had added that "type" argument - separate names would be cleaner.  And yes,
+> it'd be better in prepatch instead of 2.4.9-final.
 
-It would help a lot if you ran your oops through ksymoops.
+We're going in circles.  Linus requested that the explicit type arg be
+added.
 
+IIUC Dave's original patch (and I just want to say that Dave is my
+hero for pushing this) looked vaguely like the existing code in
+include/linux/netfilter.h.  He's mentioned it before but noone
+bothered to read it, so I'll quote for you:
+
+/* From arch/i386/kernel/smp.c:
+ *
+ *	Why isn't this somewhere standard ??
+ *
+ * Maybe because this procedure is horribly buggy, and does
+ * not deserve to live.  Think about signedness issues for five
+ * seconds to see why.		- Linus
+ */
+
+/* Two signed, return a signed. */
+#define SMAX(a,b) ((ssize_t)(a)>(ssize_t)(b) ? (ssize_t)(a) : (ssize_t)(b))
+#define SMIN(a,b) ((ssize_t)(a)<(ssize_t)(b) ? (ssize_t)(a) : (ssize_t)(b))
+
+/* Two unsigned, return an unsigned. */
+#define UMAX(a,b) ((size_t)(a)>(size_t)(b) ? (size_t)(a) : (size_t)(b))
+#define UMIN(a,b) ((size_t)(a)<(size_t)(b) ? (size_t)(a) : (size_t)(b))
+
+/* Two unsigned, return a signed. */
+#define SUMAX(a,b) ((size_t)(a)>(size_t)(b) ? (ssize_t)(a) : (ssize_t)(b))
+#define SUMIN(a,b) ((size_t)(a)<(size_t)(b) ? (ssize_t)(a) : (ssize_t)(b))
+
+Cheers,
+Rusty.
 --
-Daniel
+Premature optmztion is rt of all evl. --DK

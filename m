@@ -1,139 +1,143 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262584AbSI0Tgt>; Fri, 27 Sep 2002 15:36:49 -0400
+	id <S262569AbSI0Tds>; Fri, 27 Sep 2002 15:33:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262582AbSI0Tgs>; Fri, 27 Sep 2002 15:36:48 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:1550 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262584AbSI0Tgq>;
-	Fri, 27 Sep 2002 15:36:46 -0400
-Date: Fri, 27 Sep 2002 12:40:25 -0700
+	id <S262574AbSI0Tds>; Fri, 27 Sep 2002 15:33:48 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:64781 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262569AbSI0Tdo>;
+	Fri, 27 Sep 2002 15:33:44 -0400
+Date: Fri, 27 Sep 2002 12:37:24 -0700
 From: Greg KH <greg@kroah.com>
-To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] More USB changes for 2.5.38
-Message-ID: <20020927194025.GC12909@kroah.com>
-References: <20020927193723.GA12909@kroah.com> <20020927193855.GB12909@kroah.com>
+To: torvalds@transmeta.com
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [BK PATCH] More USB changes for 2.5.38
+Message-ID: <20020927193723.GA12909@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020927193855.GB12909@kroah.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.611.1.1 -> 1.611.1.2
-#	drivers/usb/usb-skeleton.c	1.15    -> 1.16   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/09/26	greg@kroah.com	1.611.1.2
-# USB: convert the usb-skeleton.c driver to work with the latest USB core changes.
-# --------------------------------------------
-#
-diff -Nru a/drivers/usb/usb-skeleton.c b/drivers/usb/usb-skeleton.c
---- a/drivers/usb/usb-skeleton.c	Fri Sep 27 12:30:25 2002
-+++ b/drivers/usb/usb-skeleton.c	Fri Sep 27 12:30:25 2002
-@@ -1,12 +1,11 @@
- /*
-- * USB Skeleton driver - 0.7
-+ * USB Skeleton driver - 0.8
-  *
-- * Copyright (c) 2001 Greg Kroah-Hartman (greg@kroah.com)
-+ * Copyright (c) 2001-2002 Greg Kroah-Hartman (greg@kroah.com)
-  *
-  *	This program is free software; you can redistribute it and/or
-  *	modify it under the terms of the GNU General Public License as
-- *	published by the Free Software Foundation; either version 2 of
-- *	the License, or (at your option) any later version.
-+ *	published by the Free Software Foundation, version 2.
-  *
-  *
-  * This driver is to be used as a skeleton driver to be able to create a
-@@ -22,6 +21,8 @@
-  *
-  * History:
-  *
-+ * 2002_09_26 - 0.8 - changes due to USB core conversion to struct device
-+ *			driver.
-  * 2002_02_12 - 0.7 - zero out dev in probe function for devices that do
-  *			not have both a bulk in and bulk out endpoint.
-  *			Thanks to Holger Waechtler for the fix.
-@@ -133,8 +134,8 @@
- static int skel_open		(struct inode *inode, struct file *file);
- static int skel_release		(struct inode *inode, struct file *file);
- 	
--static void * skel_probe	(struct usb_device *dev, unsigned int ifnum, const struct usb_device_id *id);
--static void skel_disconnect	(struct usb_device *dev, void *ptr);
-+static int skel_probe		(struct usb_interface *intf, const struct usb_device_id *id);
-+static void skel_disconnect	(struct usb_interface *intf);
- 
- static void skel_write_bulk_callback	(struct urb *urb);
- 
-@@ -509,10 +510,10 @@
-  *	Called by the usb core when a new device is connected that it thinks
-  *	this driver might be interested in.
-  */
--static void * skel_probe(struct usb_device *udev, unsigned int ifnum, const struct usb_device_id *id)
-+static int skel_probe(struct usb_interface *interface, const struct usb_device_id *id)
- {
-+	struct usb_device *udev = interface_to_usbdev(interface);
- 	struct usb_skel *dev = NULL;
--	struct usb_interface *interface;
- 	struct usb_interface_descriptor *iface_desc;
- 	struct usb_endpoint_descriptor *endpoint;
- 	int minor;
-@@ -525,7 +526,7 @@
- 	/* See if the device offered us matches what we can accept */
- 	if ((udev->descriptor.idVendor != USB_SKEL_VENDOR_ID) ||
- 	    (udev->descriptor.idProduct != USB_SKEL_PRODUCT_ID)) {
--		return NULL;
-+		return -ENODEV;
- 	}
- 
- 	down (&minor_table_mutex);
-@@ -545,8 +546,6 @@
- 	memset (dev, 0x00, sizeof (*dev));
- 	minor_table[minor] = dev;
- 
--	interface = &udev->actconfig->interface[ifnum];
--
- 	init_MUTEX (&dev->sem);
- 	dev->udev = udev;
- 	dev->interface = interface;
-@@ -619,7 +618,11 @@
- 
- exit:
- 	up (&minor_table_mutex);
--	return dev;
-+	if (dev) {
-+		dev_set_drvdata (&interface->dev, dev);
-+		return 0;
-+	}
-+	return -ENODEV;
- }
- 
- 
-@@ -628,13 +631,17 @@
-  *
-  *	Called by the usb core when the device is removed from the system.
-  */
--static void skel_disconnect(struct usb_device *udev, void *ptr)
-+static void skel_disconnect(struct usb_interface *interface)
- {
- 	struct usb_skel *dev;
- 	int minor;
- 
--	dev = (struct usb_skel *)ptr;
--	
-+	dev = dev_get_drvdata (&interface->dev);
-+	dev_set_drvdata (&interface->dev, NULL);
-+
-+	if (!dev)
-+		return;
-+
- 	down (&minor_table_mutex);
- 	down (&dev->sem);
- 		
+Hi,
+
+This series includes some USB changes, and my changes to the driver core
+to move /sbin/hotplug notification there, and out of the USB and PCI
+cores.  This patch has been previously posted and discussed.
+
+Please pull from:  bk://linuxusb.bkbits.net/linus-2.5
+
+thanks,
+
+greg k-h
+
+ drivers/base/Makefile              |    2 
+ drivers/base/base.h                |   10 ++
+ drivers/base/core.c                |    6 +
+ drivers/base/hotplug.c             |  103 +++++++++++++++++++++++
+ drivers/net/irda/irda-usb.c        |   65 ++++++++------
+ drivers/pci/hotplug.c              |   96 ++++++++++++---------
+ drivers/pci/pci-driver.c           |    6 -
+ drivers/pci/pci.h                  |    5 +
+ drivers/usb/core/usb.c             |  163 ++++++++++++++++++-------------------
+ drivers/usb/storage/sddr55.c       |    2 
+ drivers/usb/storage/transport.c    |    8 +
+ drivers/usb/storage/unusual_devs.h |   15 ++-
+ drivers/usb/usb-skeleton.c         |   37 ++++----
+ include/linux/device.h             |    2 
+ include/net/irda/irda-usb.h        |    2 
+ 15 files changed, 343 insertions(+), 179 deletions(-)
+-----
+
+ChangeSet@1.611.1.10, 2002-09-27 11:32:53-07:00, greg@kroah.com
+  converted PCI to use the driver core's hotplug call.
+
+ drivers/pci/hotplug.c    |   96 ++++++++++++++++++++++++++---------------------
+ drivers/pci/pci-driver.c |    6 +-
+ drivers/pci/pci.h        |    5 ++
+ 3 files changed, 63 insertions(+), 44 deletions(-)
+------
+
+ChangeSet@1.611.1.9, 2002-09-27 11:29:36-07:00, greg@kroah.com
+  converted USB to use the driver core's hotplug call.
+
+ drivers/usb/core/usb.c |  163 ++++++++++++++++++++++++-------------------------
+ 1 files changed, 81 insertions(+), 82 deletions(-)
+------
+
+ChangeSet@1.611.1.8, 2002-09-27 11:21:46-07:00, greg@kroah.com
+  add hotplug support to the driver core for devices, if their bus type supports it.
+
+ drivers/base/Makefile  |    2 
+ drivers/base/base.h    |   10 ++++
+ drivers/base/core.c    |    6 ++
+ drivers/base/hotplug.c |  103 +++++++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/device.h |    2 
+ 5 files changed, 123 insertions(+)
+------
+
+ChangeSet@1.611.1.7, 2002-09-26 23:07:16-07:00, yuri@acronis.com
+  [PATCH] USB storage: Another (!) patch for the abort handler
+  
+  This is a simple, obvious patch for the abort handler.  I don't know how
+  we missed it before.
+  
+  Fix abort problem: us->srb was used after it was erased.
+
+ drivers/usb/storage/transport.c |    8 +++++---
+ 1 files changed, 5 insertions(+), 3 deletions(-)
+------
+
+ChangeSet@1.611.1.6, 2002-09-26 23:03:01-07:00, rgcrettol@datacomm.ch
+  [PATCH] USB 2.0 HDD Walker / ST-HW-818SLIM usb-storage fix
+  
+
+ drivers/usb/storage/unusual_devs.h |    6 ++++--
+ 1 files changed, 4 insertions(+), 2 deletions(-)
+------
+
+ChangeSet@1.611.1.5, 2002-09-26 23:01:59-07:00, tim@physik3.uni-rostock.de
+  [PATCH] fix compares of jiffies
+  
+  on rechecking the current stable kernel code, I found some places where jiffies
+  were compared in a way that seems to break when they wrap. For these,
+  I made up patches to use the macros "time_before()" or "time_after()"
+  that are supposed to handle wraparound correctly.
+
+ drivers/usb/storage/sddr55.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+------
+
+ChangeSet@1.611.1.4, 2002-09-26 23:01:20-07:00, brihall@pcisys.net
+  [PATCH] Update for JMTek USBDrive
+  
+  Attached is a patch against the 2.4.19 linux kernel. It adds an entry
+  for another version of the JMTek USBDrive (driverless), and also updates
+  my email address.
+
+ drivers/usb/storage/unusual_devs.h |    9 +++++++--
+ 1 files changed, 7 insertions(+), 2 deletions(-)
+------
+
+ChangeSet@1.611.1.3, 2002-09-26 17:17:41-07:00, greg@kroah.com
+  USB: fix ifnum usage that was missed in the previous irda-usb patch
+
+ drivers/net/irda/irda-usb.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+------
+
+ChangeSet@1.611.1.2, 2002-09-26 16:11:18-07:00, greg@kroah.com
+  USB: convert the usb-skeleton.c driver to work with the latest USB core changes.
+
+ drivers/usb/usb-skeleton.c |   37 ++++++++++++++++++++++---------------
+ 1 files changed, 22 insertions(+), 15 deletions(-)
+------
+
+ChangeSet@1.611.1.1, 2002-09-26 15:35:06-07:00, jt@bougret.hpl.hp.com
+  USB: convert the irda-usb driver to work properly with the new USB core changes.
+
+ drivers/net/irda/irda-usb.c |   63 ++++++++++++++++++++++++--------------------
+ include/net/irda/irda-usb.h |    2 -
+ 2 files changed, 36 insertions(+), 29 deletions(-)
+------
+

@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312846AbSCVVZf>; Fri, 22 Mar 2002 16:25:35 -0500
+	id <S312848AbSCVV21>; Fri, 22 Mar 2002 16:28:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312848AbSCVVZ0>; Fri, 22 Mar 2002 16:25:26 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:27520 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S312846AbSCVVZL>; Fri, 22 Mar 2002 16:25:11 -0500
-Date: Fri, 22 Mar 2002 16:26:08 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: walt <walt@nea-fast.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: printing from command line
-In-Reply-To: <3C9B9129.8F8D64C9@nea-fast.com>
-Message-ID: <Pine.LNX.3.95.1020322162417.2814A-100000@chaos.analogic.com>
+	id <S312625AbSCVV2R>; Fri, 22 Mar 2002 16:28:17 -0500
+Received: from pool-151-197-241-89.phil.east.verizon.net ([151.197.241.89]:42446
+	"EHLO porsche.genebrew.com") by vger.kernel.org with ESMTP
+	id <S312849AbSCVV2E>; Fri, 22 Mar 2002 16:28:04 -0500
+Message-ID: <58299.165.89.84.249.1016832733.squirrel@porsche.genebrew.com>
+Date: Fri, 22 Mar 2002 16:32:13 -0500 (EST)
+Subject: Re: 3Com 556B Tornado not working
+From: "Rahul Karnik" <rahul@genebrew.com>
+To: <akpm@zip.com.au>
+In-Reply-To: <3C9822CD.47ED9565@zip.com.au>
+X-Priority: 3
+Importance: Normal
+X-MSMail-Priority: Normal
+Cc: <linux-kernel@vger.kernel.org>
+X-Mailer: SquirrelMail (version 1.2.4)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Mar 2002, walt wrote:
+Andrew,
 
-> This is a general linux question, not really a kernel question. Does
-> anyone know if there is a "simple" good way to print code from linux at
-> the command promt.  On a Solaris machine,
-> /usr/openwin/bin/mp -o -l filename
-> gives me a page with 2 columuns, user_name, date, and pagenumber at the
-> top of each column, and the filename at the bottom of each column. I've
-> read  lots of howtos and man pages, even wrote a perl script to wrap the
-> lines for me, but I haven't figured out how to get the same format from
-> Linux as I do from Solaris.
-> 
-> Thanks!
+> And try another you-know-which operating system.  If that works OK then
+> we know the hardware's good.
 
-I think you want `pr` although some formatting isn't automatic. `man pr`
-shows it takes more parameters than `ls`. Fortunately, you can make
-an alias.
+Finally bit the bullet and installed Windows 2000 on the laptop. Now the
+card works fine. This means the hardware is good (Thank God!), and that the
+vortex driver needs to be fixed.
+
+By the way, I contacted some of the other people who noted similar behavior
+with this card on the vortex mailing list and they confirmed that their
+problems continue. Being a developer, I would really like to ditch the
+Windows install; how can I help debug this problem?
+
+Thanks,
+Rahul
 
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
 

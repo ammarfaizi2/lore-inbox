@@ -1,56 +1,115 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311800AbSCNVai>; Thu, 14 Mar 2002 16:30:38 -0500
+	id <S311801AbSCNVcS>; Thu, 14 Mar 2002 16:32:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311798AbSCNVaY>; Thu, 14 Mar 2002 16:30:24 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:15510 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S311813AbSCNV3l>;
-	Thu, 14 Mar 2002 16:29:41 -0500
-Date: Thu, 14 Mar 2002 13:25:05 -0800
-From: Greg KH <greg@kroah.com>
-To: Itai Nahshon <nahshon@actcom.co.il>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB-Storage in 2.4.19-pre
-Message-ID: <20020314212505.GA22263@us.ibm.com>
-In-Reply-To: <200203141432.g2EEWL628078@lmail.actcom.co.il>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200203141432.g2EEWL628078@lmail.actcom.co.il>
-User-Agent: Mutt/1.3.25i
-X-Operating-System: Linux 2.5.7-pre1 (i686)
+	id <S311799AbSCNVcC>; Thu, 14 Mar 2002 16:32:02 -0500
+Received: from [206.40.202.198] ([206.40.202.198]:5530 "EHLO
+	scsoftware.sc-software.com") by vger.kernel.org with ESMTP
+	id <S311798AbSCNVbL>; Thu, 14 Mar 2002 16:31:11 -0500
+Date: Thu, 14 Mar 2002 13:26:37 -0800 (PST)
+From: John Heil <kerndev@sc-software.com>
+To: "Pedro M. Rodrigues" <pmanuel@myrealbox.com>
+cc: <root@chaos.analogic.com>, Linus Torvalds <torvalds@transmeta.com>,
+        <linux-kernel@vger.kernel.org>,
+        Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
+Subject: Re: IO delay, port 0x80, and BIOS POST codes
+In-Reply-To: <3C9121EB.11632.26F0805@localhost>
+Message-ID: <Pine.LNX.4.33.0203141322590.1286-100000@scsoftware.sc-software.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 14, 2002 at 04:32:09PM +0200, Itai Nahshon wrote:
-> I have used usb-storage with stock redhat kernels for some times. That is usable
-> with just few problems. Recently I switched to 2.4.17, and then to 2.4.19-pre1.
-> 
-> On the stock redhat kernels (up to the latest update 2.4.9-31) and on 2.4.17  I had to
-> umount the disk before shutdown. Normal shutdown did not unmount the disk cleanly.
-> It looks like the scsi layer lost access to the physical disk - maybe after unmouting
-> of usbdevfs. (even when I unmount the disk I had some scsi errors reported).
-> 
-> This problem was fixed with 2.4.19-pre1.
-> 
-> Now I'm trying the latest changes. 2.4.19-pre2-ac{3.4} and 2.4.19-pre3 and I cannot
-> use usb-storage at all. I get all kind of erros similar to these:
+On Thu, 14 Mar 2002, Pedro M. Rodrigues wrote:
 
-<snip>
+> Date: Thu, 14 Mar 2002 22:19:23 +0100
+> From: Pedro M. Rodrigues <pmanuel@myrealbox.com>
+> To: John Heil <kerndev@sc-software.com>, root@chaos.analogic.com
+> Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+>      Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
+> Subject: Re: IO delay, port 0x80, and BIOS POST codes
+>
+>
+>    This piece of code is taken from an old Minix source code tree, the file being
+> boothead.s . Notice the port 0xED usage and the comment.
+>
+>
+> ! Enable (ah = 0xDF) or disable (ah = 0xDD) the A20 address line.
+> gate_A20:
+>         call    kb_wait
+>         movb    al, #0xD1       ! Tell keyboard that a command is coming
+>         outb    0x64
+>         call    kb_wait
+>         movb    al, ah          ! Enable or disable code
+>         outb    0x60
+>         call    kb_wait
+>
+>
+>         mov     ax, #25         ! 25 microsec delay for slow keyboard chip
+> 0:      out     0xED            ! Write to an unused port (1us)
+>         dec     ax
+>         jne     0b
+>
+>         ret
+> kb_wait:
+>         inb     0x64
+>         testb   al, #0x02       ! Keyboard input buffer full?
+>         jnz     kb_wait         ! If so, wait
+>         ret
+>
+>
+>
+> /Pedro
+>
+> On 14 Mar 2002 at 16:03, Richard B. Johnson wrote:
+>
+> >
+> >
+> > Well I can see why he's an EX-Phoenix BIOS developer. A port at 0xed
+> > does not exist on any standard or known non-standard Intel/PC/AT
+> > compatible.
+> >
+> > Remember DOS debug?
+> >
+> > C:\>debug
+> >
+> > -i ed
+> > FF
+> > -o ed aa
+> > -i ed
+> > FF
+> > -o ed 55
+> > -i ed
+> > FF
+> > -q
+> >
+> >
+> > This is not a DOS emulation. This is a real-mode boot where any ports
+> > will be visible. If you used it with success, it means that you didn't
+> > need the I/O delay of writing to a real port. Instead you got the few
+> > hundred nanoseconds of delay you get by writing to nowhere.
+> >
+> > Cheers,
+> > Dick Johnson
+>
+>
 
-Can you try either the patch at:
-	http://marc.theaimsgroup.com/?l=linux-usb-devel&m=101588420909194
+We did not want the I/O delay based on the port itself.
+We specifically wanted an unused port, and avoid the 0x80 conflict.
 
-Or just renaming your usbmodules binary to something else and see if the
-problem goes away?
+Perhaps this should be a kernel hacking/debug option, due to the
+difference in environments and needs.
 
-The USB initialization timing changed between 2.4.19-pre1 and -pre2,
-fixing a lot of problems with devices that had previously not worked on
-Linux, but worked fine on Windows.  Turned out we were wrong on the
-timing issues :)
 
-Let me know if this helps or not.
+Johnh
 
-thanks,
+-
+-----------------------------------------------------------------
+John Heil
+South Coast Software
+Custom systems software for UNIX and IBM MVS mainframes
+1-714-774-6952
+johnhscs@sc-software.com
+http://www.sc-software.com
+-----------------------------------------------------------------
 
-greg k-h

@@ -1,43 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277724AbRJLPBl>; Fri, 12 Oct 2001 11:01:41 -0400
+	id <S277722AbRJLPEL>; Fri, 12 Oct 2001 11:04:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277722AbRJLPBc>; Fri, 12 Oct 2001 11:01:32 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:34482
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S277724AbRJLPB1>; Fri, 12 Oct 2001 11:01:27 -0400
-Date: Fri, 12 Oct 2001 08:01:29 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Keith Owens <kaos@ocs.com.au>, Benjamin LaHaise <bcrl@redhat.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Modutils 2.5 change, start running this command now
-Message-ID: <20011012080129.B9992@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <7202.1002886635@ocs3.intra.ocs.com.au> <20283.1002888881@redhat.com>
+	id <S277728AbRJLPDv>; Fri, 12 Oct 2001 11:03:51 -0400
+Received: from smtp.alcove.fr ([212.155.209.139]:37385 "EHLO smtp.alcove.fr")
+	by vger.kernel.org with ESMTP id <S277722AbRJLPDl>;
+	Fri, 12 Oct 2001 11:03:41 -0400
+Date: Fri, 12 Oct 2001 17:04:11 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: PCI device search.
+Message-ID: <20011012170411.A21169@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20283.1002888881@redhat.com>
-User-Agent: Mutt/1.3.22i
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 12, 2001 at 01:14:41PM +0100, David Woodhouse wrote:
-> 
-> kaos@ocs.com.au said:
-> >  I was going to do it that way.  The problem is that it gives no
-> > indication if the module has been checked or not.  Adding
-> > EXPORT_NO_SYMBOLS says that somebody has reviewed the module and
-> > decided that exporting no symbols is the correct behaviour.  It is the
-> > difference between no maintainer and a maintained module. 
-> 
-> If all you want to know is whether modules are maintained or not, look to 
-> see how many have had MODULE_LICENSE(sic) tags added. 
+Hi,
 
-Not really.  There's been people auditing the drivers, which is probably
-what would happen here.  Either way even.  Forcing a break will make it
-much more obvious is all.
+I have a device driver (drivers/char/sonypi in this case)
+which can handle two cases:
+	- on older hardware, it gets attached to a specific 
+	  PCI device
 
+	- on newer hardware, when the previous PCI device
+	  is missing, it just uses a predefined set of
+	  ioports to access the hardware. There is no PCI
+	  device involved here.
+
+I am wondering what is the cleanest way to program this. 
+As I see it, I have two distinct choices:
+
+	1. Create a PCI driver (pci_device_id, struct pci_driver etc)
+	and in init_module call pci_module_init. If it fails,
+	assume the driver deals with newer hardware and 
+	call 'by hand' the 'probe' routine from pci_driver struct.
+
+	2. Not use the PCI driver infrastructure, and in
+	init_module just call pci_find_device manually searching
+	for older hardware, if it is present go further, if
+	it fails assume newer hardware and go further.
+
+What is considered to be the best way to do it ?
+(this is _not_ a hotplug device if it matters).
+
+Thanks,
+
+Stelian.
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+Stelian Pop <stelian.pop@fr.alcove.com>
+|---------------- Free Software Engineer -----------------|
+| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
+|------------- Alcôve, liberating software ---------------|

@@ -1,32 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283783AbRLHSxp>; Sat, 8 Dec 2001 13:53:45 -0500
+	id <S279798AbRLHSyu>; Sat, 8 Dec 2001 13:54:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283995AbRLHSxa>; Sat, 8 Dec 2001 13:53:30 -0500
-Received: from tomts5.bellnexxia.net ([209.226.175.25]:13985 "EHLO
-	tomts5-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S283783AbRLHSxW>; Sat, 8 Dec 2001 13:53:22 -0500
-Message-ID: <3C11100F.6B2D67F1@sympatico.ca>
-Date: Fri, 07 Dec 2001 13:53:03 -0500
-From: Chris Friesen <chris_friesen@sympatico.ca>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: how to set motherboard chipset registers
+	id <S284015AbRLHSyk>; Sat, 8 Dec 2001 13:54:40 -0500
+Received: from nc-ashvl-66-169-84-151.charternc.net ([66.169.84.151]:3712 "EHLO
+	orp.orf.cx") by vger.kernel.org with ESMTP id <S283995AbRLHSyX>;
+	Sat, 8 Dec 2001 13:54:23 -0500
+Message-Id: <200112081854.fB8IsIr01485@orp.orf.cx>
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
+To: Ken Brownfield <brownfld@irridia.com>
+Cc: linux-kernel@vger.kernel.org
+From: Leigh Orf <orf@mailbag.com>
+Organization: Department of Tesselating Kumquats
+X-URL: http://orf.cx
+X-face: "(Qpt_9H~41JFy=C&/h^zmz6Dm6]1ZKLat1<W!0bNwz2!LxG-lZ=r@4Me&uUvG>-r\?<DcDb+Y'p'sCMJ
+Subject: Re: 2.4.16 memory badness (reproducible) 
+In-Reply-To: Your message of "Sat, 08 Dec 2001 09:56:20 CST."
+             <20011208095620.C1179@asooo.flowerfire.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Sat, 08 Dec 2001 13:54:17 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I'm just wondering what would be the best way to get/set chipset
-registers (for tweaking purposes) in linux.  What is the proper way to
-address these things given bit numbers and offsets?
 
-I'm a decent coder, I've done low-level hardware stuff before, but I
-just don't know where to start with this.
+Ken Brownfield wrote:
 
-Thanks,
+|   This parallels what I'm seeing -- perhaps inode/dentry cache
+|   bloat is causing the memory issue (which mimics if not _is_
+|   a memory leak) _and_ my kswapd thrashing?  It fits both the
+|   situation you report and what I'm seeing with I/O across a
+|   large number of files (inodes) -- updatedb, smb, NFS, etc.
+|
+|   I think Andrea was on to this issue, so I'm hoping his work
+|   will help.  Have you tried an -aa kernel or an aa patch onto
+|   a 2.4.17-pre4 to see how the kernel's behavior changes?
+|   
+|   -- 
+|   Ken.
+|   brownfld@irridia.com
 
-Chris
+I get the exact same behavior with 2.4.17-pre4-aa1 - many applications
+abort with ENOMEM after updatedb (filling the buffer and cache). Is
+there another kernel/patch I should try?
+
+Leigh Orf
+

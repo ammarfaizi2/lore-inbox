@@ -1,52 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264922AbTLFB4F (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 20:56:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264923AbTLFB4F
+	id S264925AbTLFCIF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 21:08:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264927AbTLFCIF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 20:56:05 -0500
-Received: from dm51.neoplus.adsl.tpnet.pl ([80.54.235.51]:18436 "EHLO
-	satan.blackhosts") by vger.kernel.org with ESMTP id S264922AbTLFB4C
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 20:56:02 -0500
-Date: Sat, 6 Dec 2003 03:00:39 +0100
-From: Jakub Bogusz <qboosh@pld-linux.org>
+	Fri, 5 Dec 2003 21:08:05 -0500
+Received: from c-130372d5.012-136-6c756e2.cust.bredbandsbolaget.se ([213.114.3.19]:52111
+	"EHLO pomac.netswarm.net") by vger.kernel.org with ESMTP
+	id S264925AbTLFCIC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 21:08:02 -0500
+Subject: Re: Catching NForce2 lockup with NMI watchdog - found?
+From: Ian Kumlien <pomac@vapor.com>
 To: linux-kernel@vger.kernel.org
-Subject: builtin module aliases in 2.6.0-test11 - non-working MODULE_ALIAS_BLOCKDEV_MAJOR?
-Message-ID: <20031206020039.GD3914@satan.blackhosts>
+Cc: cbradney@zip.com.au
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-1K2Br9upLstkIEixaih9"
+Message-Id: <1070676480.1989.15.camel@big.pomac.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-Organization: PLD Linux Distribution
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 06 Dec 2003 03:08:00 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As I see after upgrade to test11 MODULE_ALIAS_CHARDEV_MAJOR has just
-begun to work without modprobe.conf entries - but
-MODULE_ALIAS_BLOCKDEV_MAJOR hasn't.
-At least for floppy module - there is:
-MODULE_ALIAS_BLOCKDEV_MAJOR(FLOPPY_MAJOR);
-and it means:
-$ /sbin/modinfo -F alias floppy
-block-major-2-*
 
-But accessing /dev/fd0 still causes modprobe block-major-2, which fails
-without block-major-2 alias in /etc/modprobe.conf...
+--=-1K2Br9upLstkIEixaih9
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
+Craig Bradney wrote:
+> All the interrupts are the same...except:
+> 0, timer is now IO-APIC-edge.
 
-BTW, maybe it would be good to build in some modules more aliases which
-seem constant?
-I mean (from my modprobe.conf):
+Same here...=20
 
-alias ppp-compress-21   bsd_comp
-alias ppp-compress-24   ppp_deflate
-alias ppp-compress-26   ppp_deflate
-alias iso9660           isofs
-alias block-major-11    sr_mod
-alias char-major-21     sg
+> Im not getting any NMI counts.. should I use nmi-watchdog=3D1?
 
+I got nmi counts with nmi_watchdog=3D2...  I never tested with =3D1... if
+you get nmi's 1 lemme know.
 
--- 
-Jakub Bogusz    http://cyber.cs.net.pl/~qboosh/
-PLD Linux       http://www.pld-linux.org/
+> Ian, from looking back, you have an A7N8X-X bios 1007.
+> Interesting that my USB hcis are still sharing IRQs there.
+
+Your? i only see one... But you share it with sound and eth0...=20
+
+> Any idea how I can get them apart, or if I should try.
+
+You could always move eth0 to a different slot. Other than that, you can
+do manual config for the irq's in the bios, but it shouldn't be
+needed...
+
+> My system was pretty stable as I've stated.. but the patch has changed
+> things slightly re the timer.
+
+As i stated in my prev email, i had to do 2 full greps at a sizable
+amount of data to recreate the crash... =3DP
+
+And, please CC since i'm not on this ml =3DP
+--=20
+Ian Kumlien <pomac@vapor.com>
+
+--=-1K2Br9upLstkIEixaih9
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/0ToA7F3Euyc51N8RAsswAKClVWZcd2uJ7edrkNiRnE0FJUZKBwCdEtqt
+rFuhyzzB1E2WwLWzOzytHvc=
+=sUwj
+-----END PGP SIGNATURE-----
+
+--=-1K2Br9upLstkIEixaih9--
+

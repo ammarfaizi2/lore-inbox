@@ -1,44 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263434AbRF0QFN>; Wed, 27 Jun 2001 12:05:13 -0400
+	id <S263851AbRF0QPD>; Wed, 27 Jun 2001 12:15:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263435AbRF0QFE>; Wed, 27 Jun 2001 12:05:04 -0400
-Received: from marine.sonic.net ([208.201.224.37]:21104 "HELO marine.sonic.net")
-	by vger.kernel.org with SMTP id <S263434AbRF0QEt>;
-	Wed, 27 Jun 2001 12:04:49 -0400
-Message-ID: <20010627090351.A7443@sonic.net>
-Date: Wed, 27 Jun 2001 09:03:51 -0700
-From: David Hinds <dhinds@sonic.net>
-To: Andre Hedrick <andre@aslab.com>, Gunther Mayer <Gunther.Mayer@t-online.de>
-Cc: linux-kernel@vger.kernel.org, dhinds@bolt.sonic.net
-Subject: Re: Patch(2.4.5): Fix PCMCIA ATA/IDE freeze (w/ PCI add-in cards)
-In-Reply-To: <3B38EE96.A6C11980@t-online.de> <Pine.LNX.4.10.10106270017350.13459-100000@master.linux-ide.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <Pine.LNX.4.10.10106270017350.13459-100000@master.linux-ide.org>; from Andre Hedrick on Wed, Jun 27, 2001 at 12:29:47AM -0700
+	id <S263435AbRF0QOx>; Wed, 27 Jun 2001 12:14:53 -0400
+Received: from pD4B9D66C.dip.t-dialin.net ([212.185.214.108]:2310 "EHLO
+	router.abc") by vger.kernel.org with ESMTP id <S263766AbRF0QOo> convert rfc822-to-8bit;
+	Wed, 27 Jun 2001 12:14:44 -0400
+Message-ID: <3B3A0631.1E5FA84@baldauf.org>
+Date: Wed, 27 Jun 2001 18:13:37 +0200
+From: Xuan Baldauf <xuan--lkml@baldauf.org>
+X-Mailer: Mozilla 4.77 [en] (Win98; U)
+X-Accept-Language: de-DE,en
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: VM deadlock
+In-Reply-To: <Pine.LNX.4.21.0106271010530.1331-100000@freak.distro.conectiva>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 27, 2001 at 12:29:47AM -0700, Andre Hedrick wrote:
-> 
-> I can not help if you have a device that not compliant to the rules.
-> ATA-2 is OBSOLETED thus we forced (the NCITS Standards Body) the CFA
-> people to move to ATA-4 or ATA-5.
-> 
-> That device is enabling with its ablity to assert its device->host
-> interrupt regardless of the HOST...that is a bad device.
-> 
-> Send me the manufacturer and I will tear them apart for making a
-> non-compliant device.  Then figure out a way to de-assert the like
-> regardless if it exists without hang the rest of the driver.
 
-I don't understand the ATA spec issue, but *every* PCMCIA ATA device I
-know of (including all SmartMedia, CompactFlash, etc) suffers from
-this problem.  It is not an isolated manufacturer.  As far as I know,
-the IDE driver has always had the problem that it may trigger
-interrupts before it installs a handler.  Are you saying that is only
-true of pre-ATA-4 devices, or only devices that deviate from the spec?
 
--- Dave
+Marcelo Tosatti wrote:
+
+> On Wed, 27 Jun 2001, Xuan Baldauf wrote:
+>
+> > Hello,
+> >
+> > I'm not sure wether this is a reiserfs bug or a kernel bug,
+> > so I'm posting to both lists...
+> >
+> > My linux box suddenly was not availbale using ssh|telnet,
+> > but it responded to pings. On console login, I could type
+> > "root", but after pressing "return", there was no reaction,
+> > and pressing keys did not result in writing them on the
+> > screen.
+> >
+> > "Emergency sync" and "Remount R/O" did not have any
+> > response.
+> >
+> > That's why I pressed Alt+SysRq+P 5 times and wrote all stack
+> > traces (without registers) onto paper. After that, I pressed
+> > Alt+SysRq+T and also wrote 3 long stack traces (others were
+> > available too, but too short) down.
+>
+> Xuan,
+>
+> Are you using kiobuf IO ?
+
+I do not exactly know what kiobuf-IO is, so I suppose: no.
+
+Xuân.
+
 

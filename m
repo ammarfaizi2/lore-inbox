@@ -1,113 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262657AbULPNDX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262664AbULPNDO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262657AbULPNDX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 08:03:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262665AbULPNDW
+	id S262664AbULPNDO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 08:03:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262659AbULPNDO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 08:03:22 -0500
-Received: from alog0205.analogic.com ([208.224.220.220]:17024 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262657AbULPM5B
+	Thu, 16 Dec 2004 08:03:14 -0500
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:53444 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S262665AbULPMxR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 07:57:01 -0500
-Date: Thu, 16 Dec 2004 07:42:16 -0500 (EST)
-From: linux-os <linux-os@chaos.analogic.com>
-Reply-To: linux-os@analogic.com
-To: Gene Heskett <gene.heskett@verizon.net>
-cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Eric St-Laurent <ericstl34@sympatico.ca>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Stefan Seyfried <seife@suse.de>, Con Kolivas <kernel@kolivas.org>,
-       Pavel Machek <pavel@suse.cz>, Andrea Arcangeli <andrea@suse.de>
-Subject: Re: dynamic-hz
-In-Reply-To: <200412152117.20568.gene.heskett@verizon.net>
-Message-ID: <Pine.LNX.4.61.0412160725120.8053@chaos.analogic.com>
-References: <20041211142317.GF16322@dualathlon.random>
- <1103133841.3180.1.camel@localhost.localdomain>
- <Pine.LNX.4.61.0412151448580.4365@chaos.analogic.com>
- <200412152117.20568.gene.heskett@verizon.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 16 Dec 2004 07:53:17 -0500
+Subject: Re: [PATCH] Split bprm_apply_creds into two functions
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Chris Wright <chrisw@osdl.org>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       James Morris <jmorris@redhat.com>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041215145222.V469@build.pdx.osdl.net>
+References: <20041215200005.GB3080@IBM-BWN8ZTBWA01.austin.ibm.com>
+	 <20041215145222.V469@build.pdx.osdl.net>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1103201275.1463.35.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 16 Dec 2004 07:47:55 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Dec 2004, Gene Heskett wrote:
+On Wed, 2004-12-15 at 17:52, Chris Wright wrote:
+> I don't like this approach.  The whole point is to ensure safety, and
+> avoid races that have been found in the past.  This gives a new interface
+> that could be easily used under the wrong conditions, and breaking
+> the interface into two pieces looks kinda hackish.  Is there no other
+> solution?  I looked at this once before and wondered why task_unlock()
+> is needed to call avc_audit?  audit should be as lock friendly as printk
+> IMO, and I don't recall seeing any deadlock after short review of it.
+> But I didn't get much beyond that.  Is it all the flushing that can't
+> hold task_lock?
 
-> On Wednesday 15 December 2004 14:54, linux-os wrote:
->> On Wed, 15 Dec 2004, Alan Cox wrote:
->>> On Maw, 2004-12-14 at 00:16, Eric St-Laurent wrote:
->>>> Alan,
->>>>
->>>> On a related subject, a few months ago you posted a patch which
->>>> added a nice add_timeout()/timeout_pending() API and converted
->>>> many (if not most) drivers to use it.
->>>>
->>>> If I remember correctly it did not generate much comments and the
->>>> work was not pushed into mainline.
->>>>
->>>> I think it's a nice cleanup, IMHO the
->>>> time_(before|after)(jiffies, ...) construct is horrible.
->>>>
->>>> Any chance to resurrect this work ?
->>>
->>> I plan to ressurect it when I have a little time but with some
->>> small additions from the original work. Several people said "it
->>> should be mS not HZ" and someone at OLS proposed that the API also
->>> includes an accuracy guide so that systems using programmed
->>> wakeups can aggregate timers when accuracy doesn't matter.
->>
->> I sure hope it isn't mS. Transconductance or its reciprocal doesn't
->> work very well for timing unless you supply the capacitor ;^)
->
-> Me sticks hand up and waves at teacher.
->
-> And what does 'Transconductance' have to do with this?
->
+avc_audit() used to always call get_task_mm() when fetching the mm for
+use in determining the executable, which was producing deadlock when the
+caller held task lock.  However, I changed it to only use get_task_mm
+when acting on a task other than current, since we can safely access
+current->mm, which eliminated the deadlock for the checks in
+bprm_apply_creds.  That is why Serge's patch folds
+avc_has_perm_noaudit()+avc_audit() pairs down to avc_has_perm() and
+keeps them in bprm_apply_creds.  Hence, avc_audit is no longer a
+concern.
 
-The international notation for transconductance is Siemens, no longer
-MHO (Ohm spelled backwards). This happened at the same time that c.p.s. 
-was changed to Hz. But, because the Siemens company is one of the
-world's largest, the "S" didn't catch on as readily as Hz and others.
-Siemens is so common you need to look up MHO in some really complete
-dictionary to find its usage as MHO.
+The concern is with lock nesting for the flushing code, e.g. call to
+force_sig_specific and signal inheritance flush would nest siglock under
+task lock and call to flush_unauthorized_files would nest file_list_lock
+and file_lock under task lock.  That code didn't used to be called under
+task lock prior to the reworking of compute_creds by Andy Lutomirski,
+and when compute_creds was overhauled, there was some concern expressed
+by Andrew Morton about the lock nesting, iirc.
 
-> That may be the wrong terminology to apply here.
->
-> In vacuum tube (remember those?) specifications, this is the gain of
-> the tube, which AIR is stated as the change in plate current for a
-> one volt change in grid bias, and is normally stated in micromho's as
-> they are high voltage, low current devices, with the highest gain
-> tube that I'm aware of being the 7788.   Using the same measurement
+Note that the flushing code isn't relying on the safety flags computed
+earlier by unsafe_exec, so it really doesn't need the task lock for that
+purpose.
 
-The older MHO was usually stated in micro-mho for vacuum
-tubes. For instance low mu triodes like 12AT7 had a mu
-of 10 (10 micro-mho). The "gainier" cousin, the 12AX7
-had a mu of 100 (100 micro-mho).
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
-Some modern FETs have transconductance up to 10
-MHO (10 Siemens).
-
-> technique applied to modern relatively highed power field effect
-> transistors where the currents can be many amperes, readings best
-> stated in mho's are fairly common today. A 'mho' of course, is the
-> reciprocal of an ohm.
->
->> FYI, mS means milli-Siemens. Seconds is lower-case --always.
->
-> Yup.
->
-> -- 
-> Cheers, Gene
-> "There are four boxes to be used in defense of liberty:
-> soap, ballot, jury, and ammo. Please use in that order."
-> -Ed Howdershelt (Author)
-> 99.30% setiathome rank, not too shabby for a WV hillbilly
-> Yahoo.com attorneys please note, additions to this message
-> by Gene Heskett are:
-> Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
->
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by John Ashcroft.
-                  98.36% of all statistics are fiction.

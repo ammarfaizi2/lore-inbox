@@ -1,70 +1,140 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262655AbTJOLB0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 07:01:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262726AbTJOLB0
+	id S262761AbTJOLGw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 07:06:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262765AbTJOLGw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 07:01:26 -0400
-Received: from oban.u-picardie.fr ([193.49.184.8]:42471 "EHLO
-	mailx.u-picardie.fr") by vger.kernel.org with ESMTP id S262655AbTJOLBY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 07:01:24 -0400
-Date: Wed, 15 Oct 2003 13:01:22 +0200
-From: Jean Charles Delepine <delepine@u-picardie.fr>
-To: linux-kernel@vger.kernel.org
-Subject: Re: make htmldocs
-Message-ID: <20031015110122.GD994@u-picardie.fr>
-References: <20031013185539.B1832@beton.cybernet.src>
+	Wed, 15 Oct 2003 07:06:52 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:37532 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S262761AbTJOLGt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 07:06:49 -0400
+Date: Wed, 15 Oct 2003 13:06:47 +0200
+From: Jan Kara <jack@ucw.cz>
+To: torvalds@osdl.org
+Cc: dpalffy@rainstorm.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] Quota locking fix
+Message-ID: <20031015110647.GA13404@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20031013185539.B1832@beton.cybernet.src>
-X-Organization: Jack Daniel - Canal Habituel
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Karel Kulhavý <clock@twibright.com> écrivait (wrote) :
+  Hi Linus,
 
-> 3) Bugreport: there should be written
-> "Linux kernel depends on DocBook stylesheets. You may download DocBook
-> stylesheets here-and-there." in README
+  attached patch should fix a quota locking problem causing deadlock
+(when inode was being released from icache and it caused newly created
+quota structure to be written). The patch against 2.6.0-test7 is attached.
+Please apply.
 
-In README you should have read :
-                                      Please read the Changes file, as it
-   contains information about the problems, which may result by upgrading
-   your kernel.
+								Honza
 
- - The Documentation/DocBook/ subdirectory contains several guides for
-   kernel developers and users.  These guides can be rendered in a
-   number of formats:  PostScript (.ps), PDF, and HTML, among others.
-   After installation, "make psdocs", "make pdfdocs", or "make htmldocs"
-   will render the documentation in the requested format.
+------------- cut here ---------------
 
-And in Documentation/Changes :
-
-Linux documentation for functions is transitioning to inline
-documentation via specially-formatted comments near their
-definitions in the source.  These comments can be combined with the
-SGML templates in the Documentation/DocBook directory to make DocBook
-files, which can then be converted by DocBook stylesheets to PostScript,
-HTML, PDF files, and several other formats.  In order to convert from
-DocBook format to a format of your choice, you'll need to install Jade
-as well as the desired DocBook stylesheets.
-
-And :
-
-Jade
-----
-o  <ftp://ftp.jclark.com/pub/jade/jade-1.2.1.tar.gz>
-
-DocBook Stylesheets
--------------------
-o  <http://nwalsh.com/docbook/dsssl/>
-
-Please RTFM before trying to compile your own kernel or use your 
-favorite distribution's binary kernel.
-
-Sincerly,
-      Jean Charles
+diff -ruNX /home/jack/.kerndiffexclude linux-2.6.0-test7/fs/dquot.c linux-2.6.0-test7-1-lockfix/fs/dquot.c
+--- linux-2.6.0-test7/fs/dquot.c	Tue Oct 14 15:52:08 2003
++++ linux-2.6.0-test7-1-lockfix/fs/dquot.c	Tue Oct 14 16:26:28 2003
+@@ -826,28 +826,49 @@
+ }
+ 
+ /*
+- * Release all quota for the specified inode.
+- *
+- * Note: this is a blocking operation.
++ *	Remove references to quota from inode
++ *	This function needs dqptr_sem for writing
+  */
+-static void dquot_drop_nolock(struct inode *inode)
++static void dquot_drop_iupdate(struct inode *inode, struct dquot **to_drop)
+ {
+ 	int cnt;
+ 
+ 	inode->i_flags &= ~S_QUOTA;
+ 	for (cnt = 0; cnt < MAXQUOTAS; cnt++) {
+-		if (inode->i_dquot[cnt] == NODQUOT)
+-			continue;
+-		dqput(inode->i_dquot[cnt]);
++		to_drop[cnt] = inode->i_dquot[cnt];
+ 		inode->i_dquot[cnt] = NODQUOT;
+ 	}
+ }
+ 
++/*
++ * 	Release all quotas referenced by inode
++ */
+ void dquot_drop(struct inode *inode)
+ {
++	struct dquot *to_drop[MAXQUOTAS];
++	int cnt;
++	
+ 	down_write(&sb_dqopt(inode->i_sb)->dqptr_sem);
+-	dquot_drop_nolock(inode);
++	dquot_drop_iupdate(inode, to_drop);
+ 	up_write(&sb_dqopt(inode->i_sb)->dqptr_sem);
++	for (cnt = 0; cnt < MAXQUOTAS; cnt++)
++		if (to_drop[cnt] != NODQUOT)
++			dqput(to_drop[cnt]);
++}
++
++/*
++ *	Release all quotas referenced by inode.
++ *	This function assumes dqptr_sem for writing
++ */
++void dquot_drop_nolock(struct inode *inode)
++{
++	struct dquot *to_drop[MAXQUOTAS];
++	int cnt;
++
++	dquot_drop_iupdate(inode, to_drop);
++	for (cnt = 0; cnt < MAXQUOTAS; cnt++)
++		if (to_drop[cnt] != NODQUOT)
++			dqput(to_drop[cnt]);
+ }
+ 
+ /*
+@@ -862,6 +883,10 @@
+ 		warntype[cnt] = NOWARN;
+ 
+ 	down_read(&sb_dqopt(inode->i_sb)->dqptr_sem);
++	if (IS_NOQUOTA(inode)) {
++		up_read(&sb_dqopt(inode->i_sb)->dqptr_sem);
++		return QUOTA_OK;
++	}
+ 	spin_lock(&dq_data_lock);
+ 	for (cnt = 0; cnt < MAXQUOTAS; cnt++) {
+ 		if (inode->i_dquot[cnt] == NODQUOT)
+@@ -894,6 +919,10 @@
+ 	for (cnt = 0; cnt < MAXQUOTAS; cnt++)
+ 		warntype[cnt] = NOWARN;
+ 	down_read(&sb_dqopt(inode->i_sb)->dqptr_sem);
++	if (IS_NOQUOTA(inode)) {
++		up_read(&sb_dqopt(inode->i_sb)->dqptr_sem);
++		return QUOTA_OK;
++	}
+ 	spin_lock(&dq_data_lock);
+ 	for (cnt = 0; cnt < MAXQUOTAS; cnt++) {
+ 		if (inode->i_dquot[cnt] == NODQUOT)
+@@ -923,6 +952,10 @@
+ 	unsigned int cnt;
+ 
+ 	down_read(&sb_dqopt(inode->i_sb)->dqptr_sem);
++	if (IS_NOQUOTA(inode)) {
++		up_read(&sb_dqopt(inode->i_sb)->dqptr_sem);
++		return;
++	}
+ 	spin_lock(&dq_data_lock);
+ 	for (cnt = 0; cnt < MAXQUOTAS; cnt++) {
+ 		if (inode->i_dquot[cnt] == NODQUOT)
+@@ -942,6 +975,10 @@
+ 	unsigned int cnt;
+ 
+ 	down_read(&sb_dqopt(inode->i_sb)->dqptr_sem);
++	if (IS_NOQUOTA(inode)) {
++		up_read(&sb_dqopt(inode->i_sb)->dqptr_sem);
++		return;
++	}
+ 	spin_lock(&dq_data_lock);
+ 	for (cnt = 0; cnt < MAXQUOTAS; cnt++) {
+ 		if (inode->i_dquot[cnt] == NODQUOT)

@@ -1,70 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285433AbRLGGro>; Fri, 7 Dec 2001 01:47:44 -0500
+	id <S282784AbRLGG7a>; Fri, 7 Dec 2001 01:59:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285432AbRLGGrh>; Fri, 7 Dec 2001 01:47:37 -0500
-Received: from femail42.sdc1.sfba.home.com ([24.254.60.36]:28626 "EHLO
-	femail42.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S282784AbRLGGrX>; Fri, 7 Dec 2001 01:47:23 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: esr@thyrsus.com
-Subject: Re: [kbuild-devel] Converting the 2.4 kernel to kbuild 2.5
-Date: Thu, 6 Dec 2001 15:24:36 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, John Stoffel <stoffel@casc.com>,
-        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
-        kbuild-devel@lists.sourceforge.net
-In-Reply-To: <E16C2HM-0002JR-00@the-village.bc.nu> <20011206180432.IHMU19462.femail37.sdc1.sfba.home.com@there> <20011206195710.A1949@thyrsus.com>
-In-Reply-To: <20011206195710.A1949@thyrsus.com>
+	id <S285427AbRLGG7V>; Fri, 7 Dec 2001 01:59:21 -0500
+Received: from mgr2.xmission.com ([198.60.22.202]:11786 "EHLO
+	mgr2.xmission.com") by vger.kernel.org with ESMTP
+	id <S282784AbRLGG7J>; Fri, 7 Dec 2001 01:59:09 -0500
+Message-ID: <3C1068BB.6070100@xmission.com>
+Date: Thu, 06 Dec 2001 23:59:07 -0700
+From: Ben Carrell <ben@xmission.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011202
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011207064722.DIYZ17345.femail42.sdc1.sfba.home.com@there>
+To: linux-kernel@vger.kernel.org
+Subject: make xconfig fails
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 06 December 2001 07:57 pm, Eric S. Raymond wrote:
-> Rob Landley <landley@trommello.org>:
-> > P.S.  Can we seperate "add new subsystem y prime" and "remove old
-> > subsystem y".  LIke the new and old SCSI error handling, which have been
-> > in the tree in parallel for some time?  Did I hear Eric ever suggest
-> > removing the old configurator for 2.4?  Anybody?
->
-> The whole point of putting the new configurator in would be to be able
-> to drop the old one out.
+Is anyone else experiencing errors like the below when trying to run 
+'make xconfig'.   I have tcl/tk install fine, I'm not sure what else to 
+check...please help :)
 
-Eric, I hate to break this to you, but they ain't gonna do it.
+root@london:/usr/src/linux# make xconfig
+rm -f include/asm
+( cd include ; ln -sf asm-i386 asm)
+make -C scripts kconfig.tk
+make[1]: Entering directory `/usr/src/linux-2.4.16/scripts'
+cat header.tk >> ./kconfig.tk
+./tkparse < ../arch/i386/config.in >> kconfig.tk
+echo "set defaults \"arch/i386/defconfig\"" >> kconfig.tk
+echo "set ARCH \"i386\"" >> kconfig.tk
+cat tail.tk >> kconfig.tk
+chmod 755 kconfig.tk
+make[1]: Leaving directory `/usr/src/linux-2.4.16/scripts'
+wish -f scripts/kconfig.tk
+Application initialization failed: unknown color name "Black"
+Error in startup script: can't invoke "button" command: application has 
+been destroyed
+    while executing
+"button .ref"
+    (file "scripts/kconfig.tk" line 51)
+make: *** [xconfig] Error 1
 
-I like the new configurator, but It wouldn't matter if the thing cured 
-cancer.  Removing an old system from a stable series just doesn't happen.  We 
-don't even remove stuff that's clearly broken, we just mark it dangerous.  
-Even backporting the new configurator as an optional paralell subsystem is 
-pretty controversial.  Technical merit aside, too many people are still 
-shellshocked over the VM thing.
 
-Now that 2.4 has been handed off to Marcelo, people are looking for LESS 
-changes out of the stable series.  To be blunt, we haven't really HAD a 
-stable series in 2.4 yet.  Even 2.4.15 was almost a "dontuse" kernel due to 
-the shutdown sync thing.  After 11 months of frustration, people are just a 
-TOUCH sensitive on this issue.  Don't prod the sore tooth here, it's all pain 
-and no benefit...
 
-> But that would be strictly Marcelo's call.
-
-He's going to say no.  But by all means, ask him if that will resolve the 
-issue.  (I'll even refrain from calling it a cop-out, if this will help. :)
-
-> It would be up to him to decide whether the tradeoff were worth it.
-
-Worth it for who?
-
-If the whole point of merging the new configurator into 2.4 is to drop the 
-old one, and we can confirm that's not going to happen (by asking Marcelo), 
-then there is no point in trying to merge the new configurator into 2.4.  
-(All syllogisms have three parts, therefore this is not a syllogism.)
-
-Follow 2.5 and drop 2.4 support or hand it off to somebody else if you don't 
-want to do it.  A better configurator is yet another reason for people to 
-migrate to 2.6 when it comes out.  This is a good thing...
-
-Rob

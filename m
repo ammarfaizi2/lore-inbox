@@ -1,141 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264877AbTBJPxB>; Mon, 10 Feb 2003 10:53:01 -0500
+	id <S264878AbTBJP7Y>; Mon, 10 Feb 2003 10:59:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264878AbTBJPxB>; Mon, 10 Feb 2003 10:53:01 -0500
-Received: from relay2.uni-heidelberg.de ([129.206.210.211]:36013 "EHLO
-	relay2.uni-heidelberg.de") by vger.kernel.org with ESMTP
-	id <S264877AbTBJPw7> convert rfc822-to-8bit; Mon, 10 Feb 2003 10:52:59 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Bernd Schubert <bernd-schubert@web.de>
-To: John Clemens <john@deater.net>, linux-kernel@vger.kernel.org
-Subject: Re: Mouse/Keyboard hangs..
-Date: Mon, 10 Feb 2003 17:02:38 +0100
-User-Agent: KMail/1.4.3
-References: <Pine.LNX.4.44.0302100225160.26242-100000@pianoman.cluster.toy>
-In-Reply-To: <Pine.LNX.4.44.0302100225160.26242-100000@pianoman.cluster.toy>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200302101702.38448.bernd-schubert@web.de>
+	id <S264903AbTBJP7Y>; Mon, 10 Feb 2003 10:59:24 -0500
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:42197 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id <S264878AbTBJP7V>; Mon, 10 Feb 2003 10:59:21 -0500
+Date: Mon, 10 Feb 2003 17:08:54 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.21-pre4
+Message-ID: <20030210160854.GB1973@wohnheim.fh-wedel.de>
+References: <Pine.LNX.4.53L.0301290143350.27119@freak.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.53L.0301290143350.27119@freak.distro.conectiva>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-did you also try to disable apm (so disable acpi and apm) ?
+I got the following compile error on i386. Config is rather long.
+http://wh.fh-wedel.de/~joern/.config
 
-On my thinpad R31 a loop reading of /proc/apm makes mouses and keyboard usage 
-almost impossible (it is said that its the fault of the BIOS), perhaps your 
-problem is related.
+make[1]: Entering directory `/home/joern/i386/linux-2.4.21-pre4/kernel'
+make all_targets
+make[2]: Entering directory `/home/joern/i386/linux-2.4.21-pre4/kernel'
+gcc -D__KERNEL__ -I/home/joern/i386/linux-2.4.21-pre4/include -Wall -Wstrict-pro
+totypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-st
+ack-boundary=2 -march=i686   -nostdinc -iwithprefix include -DKBUILD_BASENAME=sc
+hed  -fno-omit-frame-pointer -c -o sched.o sched.c
+beam_compile  -DKBUILD_BASENAME=sched  -fno-omit-frame-pointer -c sched.c
+In file included from /usr/include/linux/timex.h:152,
+                 from /usr/include/linux/sched.h:14,
+                 from /usr/include/linux/mm.h:4,
+                 from sched.c:23:
+/usr/include/asm/timex.h:10:21: asm/msr.h: No such file or directory
+In file included from /usr/include/linux/sched.h:14,
+                 from /usr/include/linux/mm.h:4,
+                 from sched.c:23:
+/usr/include/linux/timex.h:173: field `time' has incomplete type
+In file included from /usr/include/linux/bitops.h:69,
+                 from /usr/include/asm/system.h:7,
+                 from /usr/include/linux/sched.h:16,
+                 from /usr/include/linux/mm.h:4,
+                 from sched.c:23:
+/usr/include/asm/bitops.h:333:2: warning: #warning This includefile is not avail
+able on all architectures.
+/usr/include/asm/bitops.h:334:2: warning: #warning Using kernel headers in users
+pace.
+In file included from /usr/include/linux/signal.h:4,
+                 from /usr/include/linux/sched.h:25,
+                 from /usr/include/linux/mm.h:4,
+                 from sched.c:23:
+/usr/include/asm/signal.h:107: parse error before "sigset_t"
+/usr/include/asm/signal.h:110: parse error before '}' token
+In file included from /usr/include/linux/timer.h:18,
+                 from /usr/include/linux/sched.h:81,
+                 from /usr/include/linux/mm.h:4,
+                 from sched.c:23:
+/usr/include/linux/spinlock.h:131: parse error before '*' token
+In file included from /usr/include/linux/sched.h:81,
+                 from /usr/include/linux/mm.h:4,
+                 from sched.c:23:
+/usr/include/linux/timer.h:32: field `vec' has incomplete type
+/usr/include/linux/timer.h:37: field `vec' has incomplete type
+/usr/include/linux/timer.h:63: field `list' has incomplete type
+/usr/include/linux/timer.h:121: confused by earlier errors, bailing out
+make[2]: *** [sched.o] Error 1
+make[2]: Leaving directory `/home/joern/i386/linux-2.4.21-pre4/kernel'
+make[1]: *** [first_rule] Error 2
+make[1]: Leaving directory `/home/joern/i386/linux-2.4.21-pre4/kernel'
+make: *** [_dir_kernel] Error 2
 
-Bernd
 
-On Monday 10 February 2003 09:23, John Clemens wrote:
-> Hi all..
->
-> I'm having an issue with my laptop.. the same issue i've had for since I
-> baught it..  Under linux the mouse (synaptics touchpad) and/or keyboard
-> will suddenly lock.  All input stops.  I can telnet in and shutdown
-> cleanly, but that doesn't help recover that I've got on my screen in X (or
-> the console).
->
-> Hardware: HP n5430 laptop, synaptics touchpad, trident XP graphics,
-> standard low-end laptop.
->
-> Here's the really odd part.  When it happens, if i notice quickly enough
-> and hit the power switch on my laptop for just a split second (not the 5
-> seconds to power off).. it sometimes comes back!  It's happened twice
-> while typing this email in pine using a text console (no X, no mouse).
-> But if I wait too long (a few seconds)...no matter how many times i nudge
-> the power switch, it never comes back.  Sometimes it's more frequent then
-> others.. sometimes I'll go for days/weeks without seeing it.
->
-> I've been seeing this since I got the laptop, and I've run almost every
-> 2.4.x (x > ~10) and a lot of 2.5 kernels on here (currently, 2.5.54).
-> The behavior is a little different recently though with the 2.5 series.
-> Now, sometimes when it comes back, i get the character i was typing
-> repeated (as if a key was stuck) until i hit another key.  This change
-> could be related to the new i8042 changes in 2.5, I'm not sure.
->
-> I've tried : APIC, no APIC.
-> 	     ACPI, no ACPI.
-> 	     ALI IRQ router, ACPI IRQ router.
-> 	     psmouse_noext command line arg.
-> 	     powernow-ing the CPU down to 500Mhz (850Mhz duron... heat
-> 							related?)
->
-> All to no avial.  The only possible reason I can think of that hitting the
-> power button could help is that triggers ACPI, which uses IRQ 9...
-> and I seem to remember something about IRQ 2 (cascade) and IRQ 9 (ACPI)
-> being one in the same, really.. maybe we missed an interrupt somewhere and
-> hitting the power switch forces IRQ 2 to trigger, somehow triggering IRQ
-> 1 (keyboard) as well?  It's a stretch and my understanding of PC IRQ
-> logic is sketchy at best.
->
-> Does anyone have any ideas?
->
-> /proc/interrupts and relevant dmesg output is below the sig..
-> thanks,
-> john.c
->
-> - --
-> John Clemens          http://www.deater.net/john
-> john@deater.net     ICQ: 7175925, IM: PianoManO8
->       "I Hate Quotes" -- Samuel L. Clemens
->
-> Linux diana 2.5.54 #14 Sat Jan 4 00:02:14 EST 2003 i686 unknown
->
->            CPU0
->   0:  615936502          XT-PIC  timer
->   1:       4574          XT-PIC  i8042
->   2:          0          XT-PIC  cascade
->   8:          1          XT-PIC  rtc
->  11:   24012204          XT-PIC  eth0
->  12:         52          XT-PIC  i8042
->  14:     285204          XT-PIC  ide0
->  15:     628739          XT-PIC  ide1
-> NMI:          0
-> LOC:          0
-> ERR:          0
->
-> dmesg:
-> ....
-> ACPI: RSDP (v000 PTLTD                      ) @ 0x000f7c20
-> ACPI: RSDT (v001 PTLTD    RSDT   01540.00000) @ 0x0fffcc46
-> ACPI: FADT (v001 ALI    M1533    01540.00000) @ 0x0fffef64
-> ACPI: BOOT (v001 PTLTD  $SBFTBL$ 01540.00000) @ 0x0fffefd8
-> ACPI: DSDT (v001 COMPAL      736 01540.00000) @ 0x00000000
-> ACPI: BIOS passes blacklist
-> ACPI: MADT not present
-> Building zonelist for node : 0
-> Kernel command line: BOOT_IMAGE=Linux ro root=305 ide0=ata66
-> psmouse_noext=1 ide_setup: ide0=ata66
-> Local APIC disabled by BIOS -- reenabling.
-> Found and enabled local APIC!
-> Initializing CPU#0
-> Detected 849.376 MHz processor.
-> ....
-> Enabling disabled K7/SSE Support.
-> CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-> CPU: L2 Cache: 64K (64 bytes/line)
-> CPU:     After generic, caps: 0383fbff c1c7fbff 00000000 00000000
-> Intel machine check architecture supported.
-> Intel machine check reporting enabled on CPU#0.
-> Machine check exception polling timer started.
-> CPU: AMD mobile AMD Duron(tm) Processor stepping 01
-> ....
-> device class 'input': registering
-> register interface 'mouse' with class 'input'
-> mice: PS/2 mouse device common for all mice
-> register interface 'event' with class 'input'
-> input: PS/2 Generic Mouse on isa0060/serio1
-> serio: i8042 AUX port at 0x60,0x64 irq 12
-> input: AT Set 2 keyboard on isa0060/serio0
-> serio: i8042 KBD port at 0x60,0x64 irq 1
-> ....
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Jörn
+
+-- 
+Optimizations always bust things, because all optimizations are, in
+the long haul, a form of cheating, and cheaters eventually get caught.
+-- Larry Wall 

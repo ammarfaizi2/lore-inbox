@@ -1,58 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269842AbUH0ANe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269827AbUH0AGg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269842AbUH0ANe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 20:13:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269829AbUH0AIp
+	id S269827AbUH0AGg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 20:06:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269823AbUH0AGS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 20:08:45 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:36343 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S269823AbUH0AIF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 20:08:05 -0400
-Date: Thu, 26 Aug 2004 11:06:38 -0500
-To: Paul Mackerras <paulus@samba.org>
-Cc: anton@samba.org, linuxppc64-dev@lists.linuxppc.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6 PPC64:  Another log buffer length patch.
-Message-ID: <20040826160638.GS14002@austin.ibm.com>
-References: <20040825200138.GN14002@austin.ibm.com> <16685.18011.723499.446490@cargo.ozlabs.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16685.18011.723499.446490@cargo.ozlabs.ibm.com>
-User-Agent: Mutt/1.5.6+20040523i
-From: Linas Vepstas <linas@austin.ibm.com>
+	Thu, 26 Aug 2004 20:06:18 -0400
+Received: from fw.osdl.org ([65.172.181.6]:43710 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269705AbUHZX7a (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 19:59:30 -0400
+Date: Thu, 26 Aug 2004 16:57:01 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: viro@parcelfarce.linux.theplanet.co.uk
+cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Rik van Riel <riel@redhat.com>, Diego Calleja <diegocg@teleline.es>,
+       jamie@shareable.org, christophe@saout.de, christer@weinigel.se,
+       spam@tnonline.net, akpm@osdl.org, wichert@wiggy.net, jra@samba.org,
+       reiser@namesys.com, hch@lst.de, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, flx@namesys.com,
+       reiserfs-list@namesys.com
+Subject: Re: [some sanity for a change] possible design issues for hybrids
+In-Reply-To: <20040826234048.GD21964@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.58.0408261652240.2304@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0408261132150.2304@ppc970.osdl.org>
+ <20040826191323.GY21964@parcelfarce.linux.theplanet.co.uk>
+ <20040826203228.GZ21964@parcelfarce.linux.theplanet.co.uk>
+ <Pine.LNX.4.58.0408261344150.2304@ppc970.osdl.org>
+ <20040826212853.GA21964@parcelfarce.linux.theplanet.co.uk>
+ <Pine.LNX.4.58.0408261436480.2304@ppc970.osdl.org>
+ <20040826223625.GB21964@parcelfarce.linux.theplanet.co.uk>
+ <Pine.LNX.4.58.0408261538030.2304@ppc970.osdl.org>
+ <20040826225308.GC21964@parcelfarce.linux.theplanet.co.uk>
+ <Pine.LNX.4.58.0408261619230.2304@ppc970.osdl.org>
+ <20040826234048.GD21964@parcelfarce.linux.theplanet.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 26, 2004 at 12:09:31PM +1000, Paul Mackerras was heard to remark:
+
+
+On Fri, 27 Aug 2004 viro@parcelfarce.linux.theplanet.co.uk wrote:
+
+> On Thu, Aug 26, 2004 at 04:24:51PM -0700, Linus Torvalds wrote:
+> > So basically: the "d_mounted++" just makes sure we get into
+> > "lookup_mnt()". That's where we will usually find the actual mount thing.
+> > 
+> > And that's also where the special case comes in: if we _don't_ find the 
+> > mount thing there, that's where we need to create it. That will only 
+> > happen if somebody looks it up using another namespace, though, so it 
+> > should be rare.
 > 
-> Linas,
+> No.  Trivial example:
 > 
-> > ===== arch/ppc64/kernel/ras.c 1.15 vs edited =====
-> > --- 1.15/arch/ppc64/kernel/ras.c	Mon Aug  2 03:00:41 2004
-> > +++ edited/arch/ppc64/kernel/ras.c	Wed Aug 25 14:46:33 2004
-> > @@ -108,6 +108,7 @@
-> >
-> >  	ras_get_sensor_state_token = rtas_token("get-sensor-state");
-> >  	ras_check_exception_token = rtas_token("check-exception");
-> > +	rtas_get_error_log_max();
+> mount --bind /foo /bar
+> mount /dev/sda1 /bar/baz
 > 
-> Why do we do this call, given that we don't use the result?  Is there
-> something time-critical about some future call, such that we want to
-> have fetched the value at this point?  If there is, it needs a comment
-> here, if not, let's remove this call.
+> do lookup for /foo/baz.  No namespaces involved, no vfsmounts found, d_mounted
+> positive and we certainly do *not* want anything to be created at that point.
 
-Clearly, I'm being too clever, and too conservative, belt-n-suspenders.  
-I was actually expecting that there might be objections, cause the usage
-isn't 'typical' :)
+Right. We obviously need to mark the dentry somehow, and only do the 
+"create vfsmount" special case in this special case. If we didn't do that, 
+then it wouldn't be a special case, now would it?
 
-The call sets a global var.  I figured that it would be best to just go 
-ahead and initialize it early, rather than hoping it all works at our
-moment of 'dire need'.   Removing this call shouldn't affect operation,
-except during some bizarro failure situation which can only be imagined
-after some creative thinking.
+So clearly lookup_mnt() needs to check the dentry in the failure case. The 
+marking could be in any of three places
+ - mark the dentry itself by just using a dentry flag ("DCACHE_AUTOVFSMNT")
+   or by having a dentry operation for this.
+ - mark the inode itself (same logic as dentry)
+ - look up the first vfsmount (on the inode list), and look if that one is 
+   of the automatic type.
 
---linas
+Clearly we should not _always_ create a vfsmount, that would just break 
+the existign logic.
 
-
+		Linus

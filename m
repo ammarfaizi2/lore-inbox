@@ -1,58 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262960AbVCQCAW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262961AbVCQCAn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262960AbVCQCAW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 21:00:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262961AbVCQCAW
+	id S262961AbVCQCAn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 21:00:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262963AbVCQCAn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 21:00:22 -0500
-Received: from ns1.g-housing.de ([62.75.136.201]:43684 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S262960AbVCQCAQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 21:00:16 -0500
-Message-ID: <4238E4B0.40703@g-house.de>
-Date: Thu, 17 Mar 2005 03:00:16 +0100
-From: Christian Kujau <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050212)
+	Wed, 16 Mar 2005 21:00:43 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39815 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262961AbVCQCAh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 21:00:37 -0500
+Message-ID: <4238E4AC.8090104@pobox.com>
+Date: Wed, 16 Mar 2005 21:00:12 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Andrew Morton <akpm@osdl.org>
-Subject: Re: oom with 2.6.11
-References: <422DC2F1.7020802@g-house.de>	<2cd57c9005031102595dfe78e6@mail.gmail.com>	<4231B4E9.3080005@g-house.de>	<42332F9C.7090703@g-house.de>	<4238DD01.9060500@g-house.de> <20050316175109.3c160d4d.akpm@osdl.org>
-In-Reply-To: <20050316175109.3c160d4d.akpm@osdl.org>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
+To: Ian Pilcher <i.pilcher@comcast.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [2/9] Possible AMD8111e free irq issue
+References: <20050316235336.GY5389@shell0.pdx.osdl.net> <20050316235427.GA5389@shell0.pdx.osdl.net> <d1aicj$iq1$2@sea.gmane.org>
+In-Reply-To: <d1aicj$iq1$2@sea.gmane.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Ian Pilcher wrote:
+> Chris Wright wrote:
 > 
-> Some application went berzerk, used up all the swap and then oomed the box.
+>>
+>> From: Andres Salomon <dilinger@debian.org>
+>>
+>> It seems to me that if in the amd8111e_open() fuction dev->irq isn't
+>> zero and the irq request succeeds it might not get released anymore.
+>>
 > 
-> You could perhaps run `top -d1' then hit M so the output is sorted by
-> bloatiness, then try to catch the culprit.
+> Based on the wording above, I can't help wondering if this fixes a
+> problem that anyone is actually seeing.
 
-i've already done that. as OOM happens when i am not around, i did that
-with "ps":
 
-http://lkml.org/lkml/2005/3/12/88
-http://nerdbynature.de/bits/sheep/2.6.11/oom/daily_stats-2.6.11-rc5-bk2.log.gz
+Maybe the wording is wrong, but the patch fixes an obvious 
+leak-on-error.  Allocations in amd8111e_init_ring() could certainly fail.
 
-> But it would be better to have some app which prints the N most
-> memory-hungry processes every second and simply scrolls that up the screen. 
-> I'm not aware of such a thing, but it could be cooked up via
-> /proc/N/cmdline and /proc/N/statm.
+	Jeff
 
-i hope the link above does reveal this information.
 
-i just wrote a bug report for the (debian), ppp package, but to know
-*where* the memory goes to would really help, i think.
-
-thank you,
-Christian.
--- 
-BOFH excuse #72:
-
-Satan did it

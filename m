@@ -1,72 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263523AbTDMOai (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 10:30:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263525AbTDMOai (for <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Apr 2003 10:30:38 -0400
-Received: from dsl081-067-005.sfo1.dsl.speakeasy.net ([64.81.67.5]:6356 "EHLO
-	renegade") by vger.kernel.org with ESMTP id S263523AbTDMOag (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Apr 2003 10:30:36 -0400
-Date: Sun, 13 Apr 2003 07:42:18 -0700
-From: Zack Brown <zbrown@tumblerings.org>
-To: Matthias Andree <matthias.andree@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: lk-changelog.pl 0.96
-Message-ID: <20030413144218.GB21855@renegade>
-References: <20030413104943.433A37EBE4@merlin.emma.line.org>
+	id S263517AbTDMOaU (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 10:30:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263523AbTDMOaU (for <rfc822;linux-kernel-outgoing>);
+	Sun, 13 Apr 2003 10:30:20 -0400
+Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:58088 "EHLO
+	tom.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id S263517AbTDMOaT (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 13 Apr 2003 10:30:19 -0400
+Date: Sun, 13 Apr 2003 15:12:32 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.67-mm2
+Message-ID: <20030413151232.D672@nightmaster.csn.tu-chemnitz.de>
+References: <20030412180852.77b6c5e8.akpm@digeo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=unknown-8bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030413104943.433A37EBE4@merlin.emma.line.org>
-User-Agent: Mutt/1.5.3i
+User-Agent: Mutt/1.2i
+In-Reply-To: <20030412180852.77b6c5e8.akpm@digeo.com>; from akpm@digeo.com on Sat, Apr 12, 2003 at 06:08:52PM -0700
+X-Spam-Score: -29.3 (-----------------------------)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *194igH-0001b4-00*OBpRn66DKU.*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 13, 2003 at 12:49:43PM +0200, Matthias Andree wrote:
-> This is a semi-automatic announcement.
+Hi Andrew,
+hi lists readers,
+
+On Sat, Apr 12, 2003 at 06:08:52PM -0700, Andrew Morton wrote:
+> +gfp_repeat.patch
 > 
-> lk-changelog.pl aka. shortlog version 0.96 has been released.
+>  Implement __GFP_REPEAT: so we can consolidate lots of alloc-with-retry code.
 
-I think these emails from Alan and Linus actually appear in changelogs.
+What about reworking the semantics of kmalloc()?
 
-Be well,
-Zack
+Many users of kmalloc get the flags and size reversed (major
+source of hard to find bugs), so wouldn't it be simpler to have:
 
---- lk-changelog-0.96.pl	2003-04-13 07:24:56.000000000 -0700
-+++ lk-changelog-0.96.pl.zb	2003-04-13 07:33:58.000000000 -0700
-@@ -128,6 +128,8 @@
- 'akpm:reardensteel.com' => 'Andrew Morton',
- 'akpm:zip.com.au' => 'Andrew Morton',
- 'akropel1:rochester.rr.com' => 'Adam Kropelin', # lbdb
-+'alan:hraefn.swansea.linux.org.uk' => 'Alan Cox',
-+'alan:irongate.swansea.linux.org.uk' => 'Alan Cox',
- 'alan:lxorguk.ukuu.org.uk' => 'Alan Cox',
- 'alan:redhat.com' => 'Alan Cox',
- 'alex:ssi.bg' => 'Alexander Atanasov',
-@@ -352,8 +354,8 @@
- 'erik:aarg.net' => 'Erik Arneson',
- 'erik_habbinga:hp.com' => 'Erik Habbinga',
- 'eyal:eyal.emu.id.au' => 'Eyal Lebedinsky', # lbdb
--'falk.hueffner:student.uni-tuebingen.de' => 'Falk Hüffner',
- 'faikuygur:ttnet.net.tr' => 'Faik Uygur',
-+'falk.hueffner:student.uni-tuebingen.de' => 'Falk Hüffner',
- 'fbl:conectiva.com.br' => 'Flávio Bruno Leitner', # google
- 'fdavis:si.rr.com' => 'Frank Davis',
- 'felipewd:terra.com.br' => 'Felipe Damasio', # by self (did not ask to include the W.)
-@@ -946,7 +948,13 @@
- 'tomlins:cam.org' => 'Ed Tomlinson',
- 'tony.luck:intel.com' => 'Tony Luck',
- 'tony:cantech.net.au' => 'Anthony J. Breeds-Taurima',
-+'torvalds:athlon.transmeta.com' => 'Linus Torvalds',
-+'torvalds:home.transmeta.com' => 'Linus Torvalds',
-+'torvalds:kiwi.transmeta.com' => 'Linus Torvalds',
- 'torvalds:linux.local' => 'Linus Torvalds',
-+'torvalds:penguin.transmeta.com' => 'Linus Torvalds',
-+'torvalds:tove.transmeta.com' => 'Linus Torvalds',
-+'torvalds:transmeta.com' => 'Linus Torvalds',
- 'trevor.pering:intel.com' => 'Trevor Pering',
- 'trini:bill-the-cat.bloom.county' => 'Tom Rini',
- 'trini:kernel.crashing.org' => 'Tom Rini',
+__kmalloc() /* The old kmalloc()*/
 
--- 
-Zack Brown
+kmalloc()               /* kmalloc(, GFP_KERNEL) */
+kmalloc_user()          /* kmalloc(, GFP_USER) */
+kmalloc_dma()           /* kmalloc(, GFP_KERNEL | GFP_DMA) */
+kmalloc_dma_repeat()    /* kmalloc(, GFP_KERNEL | GFP_DMA | __GFP_REPEAT) */
+kmalloc_repeat()        /* kmalloc(, GFP_KERNEL | __GFP_REPEAT) */
+kmalloc_atomic()        /* kmalloc(, GFP_ATOMIC) */
+kmalloc_atomic_dma()    /* kmalloc(, GFP_ATOMIC | GFP_DMA) */
+
+an so on? These functions will of course just be static inline
+wrappers for __kmalloc().
+
+These functions above would just take a size and not confuse
+programmers anymore (as prototypes with compatible arguments
+usally do).
+
+If it's just a matter of "nobody had the time do do it, yet",
+than this is doable, if only slowly.
+
+If this is considered nonsense, then I will shut-up.
+
+What do you think?
+
+Regards
+
+Ingo Oeser

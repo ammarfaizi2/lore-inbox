@@ -1,98 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283671AbRLEBik>; Tue, 4 Dec 2001 20:38:40 -0500
+	id <S283677AbRLEBtB>; Tue, 4 Dec 2001 20:49:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283674AbRLEBia>; Tue, 4 Dec 2001 20:38:30 -0500
-Received: from ziggy.one-eyed-alien.net ([64.169.228.100]:12296 "EHLO
-	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id <S283671AbRLEBiZ>; Tue, 4 Dec 2001 20:38:25 -0500
-Date: Tue, 4 Dec 2001 17:38:19 -0800
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: Jeremy Puhlman <jpuhlman@mvista.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>,
-        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Endianness-aware mkcramfs
-Message-ID: <20011204173819.C29968@one-eyed-alien.net>
-Mail-Followup-To: Jeremy Puhlman <jpuhlman@mvista.com>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3C0BD8FD.F9F94BE0@mvista.com> <3C0CB59B.EEA251AB@lightning.ch> <9uj5fb$1fm$1@cesium.transmeta.com> <20011205013630.C717@nightmaster.csn.tu-chemnitz.de> <3C0D6CB6.7000905@zytor.com> <20011204164941.A29968@one-eyed-alien.net> <20011204170235.M25671@mvista.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="9Ek0hoCL9XbhcSqy"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011204170235.M25671@mvista.com>; from jpuhlman@mvista.com on Tue, Dec 04, 2001 at 05:02:35PM -0800
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2001 Matthew Dharm, all rights reserved.
+	id <S283674AbRLEBsw>; Tue, 4 Dec 2001 20:48:52 -0500
+Received: from [203.117.131.12] ([203.117.131.12]:53892 "EHLO
+	gort.metaparadigm.com") by vger.kernel.org with ESMTP
+	id <S283677AbRLEBsh>; Tue, 4 Dec 2001 20:48:37 -0500
+Message-ID: <3C0D7CEA.2050307@metaparadigm.com>
+Date: Wed, 05 Dec 2001 09:48:26 +0800
+From: Michael Clark <michael@metaparadigm.com>
+Organization: Metaparadigm Pte Ltd
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011127
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rob Myers <rob.myers@gtri.gatech.edu>
+Cc: LKML <linux-kernel@vger.kernel.org>, Benjamin LaHaise <bcrl@redhat.com>
+Subject: Re: [PATCH] - 2.4.16 ns83820 optical support (Netgear GA621)
+In-Reply-To: <3C0CED3B.7030409@metaparadigm.com> <1007501048.14051.28.camel@ransom>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rob Myers wrote:
 
---9Ek0hoCL9XbhcSqy
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> cool, i've tested your patch and it seems to work.  now i will be free
+> of that unfriendly netgear driver. :)  i tested it on an updated redhat
+> 7.2 box. (2.4.9-13smp)  it is an asus p2b-d motherboard.  (p3 smp,
+> 32bitpci).
+> 
+> i did notice some odd dmesg output, however:
+> 
+> eth%d: enabling 64 bit PCI.
+> eth%d: enabling optical transceiver
+> eth1: ns83820.c v0.13: DP83820 00:40:f4:29:ea:d7 pciaddr=0xe1000000
+> irq=12 rev 0x103
+> eth1: link now 1000F mbps, full duplex and up.
+> eth1: link now 1000F mbps, full duplex and up.
+> 
+> [now keeping in mind i know nothing of linux device drivers...]
+> 
+> this is only a 32bit pci box so why would it enable 64bit pci?
 
-On Tue, Dec 04, 2001 at 05:02:35PM -0800, Jeremy Puhlman wrote:
-> On Tue, Dec 04, 2001 at 04:49:41PM -0800, Matthew Dharm wrote:
-> > There is another argument for supporting both endiannesses....
-> >=20
-> > Consider an embedded system which can be run in either endianness.  Sou=
-nds
-> > silly?  MIPS processors can run big or little endian, and many people
-> > routinely switch between them.
-> Yes but typically this also includes a step of reflashing firmware or
-> swaping of firmware...So it would not be unrealistic to swap out the
-> filesystem as well...
 
-Not necessarily.  Consider a configuration where the kernel comes in over a
-network, but each board contains board-specific configuration data in
-flash.  Reflashing isn't likely.
+The code reads a 64bit detect flag from the ns chip - so I guess it
+must be bogus with some motherboards. Mine is okay. Ben??
 
-And yes, people do that.  I have a day job in the single-board-computer
-industry.
 
-> Since in a deployment situation you will always be sticking with one endi=
-anness=20
-> it makes sense that you would want the most speed for your buck...Since f=
-lash=20
-> filesystems are slow to begin with also adding in the decompression
-> hit you get from cramfs...it would seem to me that adding in le<->be
-> would just add to its speed reduction....That would seem to be a good
-> place to trim the fat so to speak...
+> are references to dev->net_dev.name valid before
+> register_netdev(&dev->net_dev) in ns83820_init_one()?
 
-The speed reduction is going to be minimal.  Implement it via macros, like
-it's done everywhere else.  If the endianness is one way, the macros get
-optimized away.  If it's the other way, then they convert into an inlined
-byte swap.
 
-Yes, there can be a small performance hit, but it's absolutely tiny.
+Okay, so i'll move the register_netdev call earlier on in the
+initialisation and add any necessary unregister call for failures.
 
-Matt
 
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
+> is/why phy_intr() called 2wice?
 
-It was a new hope.
-					-- Dust Puppy
-User Friendly, 12/25/1998
 
---9Ek0hoCL9XbhcSqy
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+The card issues multiple interrupts during auto-negotiation. If you
+change the dprintk to a printk on the line with the tbisr=, tanar=,
+you'll see the details of the phy interrupt. The driver needs a link
+status variable so we then only print link status changes when
+link status changes. The current problem is purely cosmetic.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
 
-iD8DBQE8DXqLz64nssGU+ykRAsXxAKDFHmur8zchKcUbG8czkhZyw8yFQgCbBqhZ
-8/t/uFaW3MFqjmmBsC72aPo=
-=2ula
------END PGP SIGNATURE-----
+> thanks for the patch!
+> 
+> rob.
 
---9Ek0hoCL9XbhcSqy--
+
+

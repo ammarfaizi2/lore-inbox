@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262367AbTE2QgC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 12:36:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262368AbTE2QgC
+	id S262358AbTE2QlA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 12:41:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262362AbTE2QlA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 12:36:02 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:51635
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262367AbTE2Qf6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 12:35:58 -0400
-Date: Thu, 29 May 2003 18:49:40 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Willy TARREAU <willy@w.ods.org>
-Cc: Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@digeo.com>,
-       Matthias Mueller <matthias.mueller@rz.uni-karlsruhe.de>, axboe@suse.de,
-       marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
-Message-ID: <20030529164940.GS1453@dualathlon.random>
-References: <3ED2DE86.2070406@storadinc.com> <20030529132431.GK1453@dualathlon.random> <20030529135508.GC21673@alpha.home.local> <200305291607.33211.m.c.p@wolk-project.de> <20030529160604.GA4985@pcw.home.local>
+	Thu, 29 May 2003 12:41:00 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:65181 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262358AbTE2Qk7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 12:40:59 -0400
+Date: Thu, 29 May 2003 09:54:24 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Andy Pfiffer <andyp@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.5.70] drivers/video/matrox/* -- Any work-in-progress?
+Message-Id: <20030529095424.3a7d0d6f.rddunlap@osdl.org>
+In-Reply-To: <1054226710.17508.16.camel@andyp.pdx.osdl.net>
+References: <1054226710.17508.16.camel@andyp.pdx.osdl.net>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030529160604.GA4985@pcw.home.local>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 29, 2003 at 06:06:04PM +0200, Willy TARREAU wrote:
-> I also confirm it does ; it takes 122 seconds to write this file in -rc6, and
-> 142 seconds in -aa. But I don't think that desktop people would notice anyway.
+On 29 May 2003 09:45:10 -0700 Andy Pfiffer <andyp@osdl.org> wrote:
 
-btw, were you running parallel reads or writes at the same time? (i.e.
-launching xterms or ps etc.. in parallel?) I ask because if xterm
-startups quick is because the write workload is getting more seeks in
-its way.
+| I'm going through a long list of compile-time warnings for 2.5.70, and I
+| see a few from drivers/video/matrox/* .
+| 
+| Does someone have any work-in-progress patches that I should look at
+| before I dive in?
+| 
+| I have a Matrox board that I can use to help test the code...
 
-I'd be very interested if you can measure a bonnie performance change in
-contigous reads and writes on a otherwise completely idle machine, the
-size of the queue has to be big enough to keep the I/O pipeline full
-during contigous writes at full speed.  saying that throughput decrease
-alone is not enough to evaluate the reason of this drop.
+Petr posted this yesterday:
 
-you can also try with:
+I just sent email there yesterday with URL of matroxfb patch I sent to 
+Linus for inclusion.
 
-	echo 20 500 0 0 500 3000 30 10 >/proc/sys/vm/bdflush
+ftp://platan.vc.cvut.cz/pub/linux/matrox-latest/mga-stripdown-2.5.70.gz
 
-just in case.
+                                                    Petr Vandrovec
 
-Andrea
+--
+~Randy++

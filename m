@@ -1,30 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268723AbUJUMrC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268697AbUJUMrB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268723AbUJUMrC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 08:47:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268766AbUJUMpI
+	id S268697AbUJUMrB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 08:47:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269031AbUJUMp1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 08:45:08 -0400
-Received: from fw.osdl.org ([65.172.181.6]:24481 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268723AbUJUMkP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 08:40:15 -0400
-Date: Thu, 21 Oct 2004 05:40:13 -0700
-From: John Cherry <cherry@osdl.org>
-Message-Id: <200410211240.i9LCeDk8015277@cherrypit.pdx.osdl.net>
-To: linux-kernel@vger.kernel.org
-Subject: IA32 (2.6.9 - 2004-10-20.21.30) - 11 New warnings (gcc 3.2.2)
+	Thu, 21 Oct 2004 08:45:27 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:39948 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S268697AbUJUMkC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 08:40:02 -0400
+Date: Thu, 21 Oct 2004 13:39:53 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Paul <set@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Linux v2.6.9 (Strange tty problem?)
+Message-ID: <20041021133953.A13876@flint.arm.linux.org.uk>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Paul <set@pobox.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@osdl.org>
+References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org> <20041021024132.GB6504@squish.home.loc> <1098349651.17067.3.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1098349651.17067.3.camel@localhost.localdomain>; from alan@lxorguk.ukuu.org.uk on Thu, Oct 21, 2004 at 10:07:42AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-drivers/char/drm/drm_agpsupport.h:431: warning: `inter_module_put' is deprecated (declared at include/linux/module.h:582)
-drivers/char/drm/drm_stub.h:148: warning: `inter_module_put' is deprecated (declared at include/linux/module.h:582)
-drivers/char/drm/drm_stub.h:150: warning: `inter_module_unregister' is deprecated (declared at include/linux/module.h:578)
-drivers/char/drm/drm_stub.h:206: warning: `inter_module_register' is deprecated (declared at include/linux/module.h:577)
-drivers/char/drm/drm_stub.h:216: warning: `inter_module_unregister' is deprecated (declared at include/linux/module.h:578)
-drivers/char/mem.c:213: warning: `remap_page_range' is deprecated (declared at include/linux/mm.h:767)
-drivers/media/dvb/dibusb/dvb-dibusb.c:308: warning: `dibusb_interrupt_read_loop' defined but not used
-drivers/media/dvb/dibusb/dvb-dibusb.c:318: warning: `dibusb_read_remote_control' defined but not used
-drivers/media/dvb/dibusb/dvb-dibusb.c:345: warning: `dibusb_hw_sleep' defined but not used
-drivers/media/dvb/dibusb/dvb-dibusb.c:351: warning: `dibusb_hw_wakeup' defined but not used
-drivers/media/video/cx88/cx88-blackbird.c:367: warning: long int format, size_t arg (arg 3)
+On Thu, Oct 21, 2004 at 10:07:42AM +0100, Alan Cox wrote:
+> On Iau, 2004-10-21 at 03:41, Paul wrote:
+> > permanently unresponsive. (this burst of 'noise', seems to happen
+> > periodicly, and is a repetition of this:
+> > ~}#!}!}!} }8}!}$}"} }"}&} } } } }%}&]O='}'}"}(}"D~ 	)
+> 
+> Thats a PPP LCP conf request as far as I can decode it. You've got
+> a stuck pppd somewhere - thats a minor bug in 2.6.9rc and 2.6.9 that got
+> introduced by the tty changes. I'll try and fix it ASAP if Paul doesn't
+> beat me to it.
+
+I'm seeing random failures of krb5 login with 2.6.9 kernels - which has
+happened somewhere between 2.6.8.1 and 2.6.9-rc3.  It's proving impossible
+to debug because stracing eklogin results in the problem completely
+vanishing.
+
+Without the strace, it's reproducable in about 50% of cases.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

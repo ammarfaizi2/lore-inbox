@@ -1,32 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264424AbRFYGyy>; Mon, 25 Jun 2001 02:54:54 -0400
+	id <S264744AbRFYHdw>; Mon, 25 Jun 2001 03:33:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264848AbRFYGyo>; Mon, 25 Jun 2001 02:54:44 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:11228 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S264424AbRFYGyg>;
-	Mon, 25 Jun 2001 02:54:36 -0400
-Date: Mon, 25 Jun 2001 12:41:53 +0530 (IST)
-From: "SATHISH.J" <sathish.j@tatainfotech.com>
-To: linux-kernel@vger.kernel.org
-Subject: Reg Kernel Debugger kdb
-In-Reply-To: <Pine.LNX.4.10.10106201509560.27257-100000@blrmail>
-Message-ID: <Pine.LNX.4.10.10106251238230.28707-100000@blrmail>
+	id <S265884AbRFYHdm>; Mon, 25 Jun 2001 03:33:42 -0400
+Received: from web14810.mail.yahoo.com ([216.136.224.231]:64520 "HELO
+	web14810.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S265726AbRFYHdb>; Mon, 25 Jun 2001 03:33:31 -0400
+Message-ID: <20010625073329.63504.qmail@web14810.mail.yahoo.com>
+Date: Mon, 25 Jun 2001 00:33:29 -0700 (PDT)
+From: siva kumar <mobi_linux@yahoo.com>
+Subject: Re: Reg Kernel Debugger kdb
+To: "SATHISH.J" <sathish.j@tatainfotech.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10106251238230.28707-100000@blrmail>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
-I would like to use a kernel debugger to set some breakpoints in some
-of the kernel functions. In SVR4 and unixware we use kdb. What is its
-equivalent in linux? Please tell me where the kernel debugger can be
-downloaded for linux.
+You can download kernel debugger(kgdb) form the
+following location:
 
-Thanks in advance,
+http://kgdb.sourceforge.net/toc.html
 
-With regards,
-sathish.j
+Bye,
+siva.s
 
+--- "SATHISH.J" <sathish.j@tatainfotech.com> wrote:
+> Hi,
+> I would like to use a kernel debugger to set some
+> breakpoints in some
+> of the kernel functions. In SVR4 and unixware we use
+> kdb. What is its
+> equivalent in linux? Please tell me where the kernel
+> debugger can be
+> downloaded for linux.
+> 
+> Thanks in advance,
+> 
+> With regards,
+> sathish.j
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line
+> "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at 
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-
+__________________________________________________
+Do You Yahoo!?
+Get personalized email addresses from Yahoo! Mail - only $35 
+a year!  http://personal.mail.yahoo.com/

@@ -1,104 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263466AbTJVPsr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Oct 2003 11:48:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263478AbTJVPsr
+	id S263478AbTJVPyp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Oct 2003 11:54:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263486AbTJVPyo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Oct 2003 11:48:47 -0400
-Received: from CAT.NYU.EDU ([128.122.47.28]:40618 "EHLO cat.nyu.edu")
-	by vger.kernel.org with ESMTP id S263466AbTJVPsn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Oct 2003 11:48:43 -0400
-Date: Wed, 22 Oct 2003 11:48:41 -0400 (EDT)
-From: Daniel Thor Kristjansson <danielk@cat.nyu.edu>
-Reply-To: danielk@mrl.nyu.edu
-To: Dominik Brodowski <linux@brodo.de>
-Cc: danielk@mrl.nyu.edu, cpufreq@www.linux.org.uk,
-       linux-kernel@vger.kernel.org, Mattia Dongili <dongili@supereva.it>
-Subject: Re: [PATCH] 3/3 Dynamic cpufreq governor and updates to ACPI P-state
- driver
-In-Reply-To: <20031021203215.GE26971@brodo.de>
-Message-ID: <Pine.SOL.4.53.0310221123140.9450@graphics.cat.nyu.edu>
-References: <88056F38E9E48644A0F562A38C64FB60077914@scsmsx403.sc.intel.com>
- <1066725533.5237.3.camel@laptop.fenrus.com> <20031021095925.GB893@inferi.kami.home>
- <20031021101737.GA31352@wiggy.net> <20031021105234.GF893@inferi.kami.home>
- <Pine.SOL.4.53.0310211057060.6187@graphics.cat.nyu.edu> <20031021203215.GE26971@brodo.de>
+	Wed, 22 Oct 2003 11:54:44 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:10156 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S263478AbTJVPym
+	(ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Wed, 22 Oct 2003 11:54:42 -0400
+From: Nikita Danilov <Nikita@Namesys.COM>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16278.43073.52475.255188@laputa.namesys.com>
+Date: Wed, 22 Oct 2003 19:54:41 +0400
+To: Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
+Subject: -test{7,8} problem
+X-Mailer: VM 7.17 under 21.5  (beta14) "cassava" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-]> The _user_ shouldn't set the cpu frequency hundred of times a second,
-]> but a userland program should set the priorities. If you are just
-]Wrong. Passing "events" or "information" to cpufreq governors by
-]cpufreq_governor() is much easier, cheaper, and more reliable.
+running fsstress (file system stress tools from XFS ported by Andi Kleen
+<ak@suse.de>) as
 
-I think we may actually agree, but I may be wrong.
+./fsstress -d . -f sync=0 -n 1000000000 -p 111 -v
 
-I have no problem with a governor setting the frequency and voltage
-based on idle or temperature measurements only it can see efficiently.
-But I think you still want more complex things to be decided in userland
-which is more forgiving to programmer error. For instance this patch
-does not allow you to tailor the polling frequency, if someone wrote a
-such a governor that took battery into account my Vaio FXA53 would come
-to a grinding halt as checking the battery through ACPI stops the
-machine cold for about 200 ms. There is no need to poll the battery very
-often, but someone with a fast battery check might do so simply out of
-convenience.
+very slowly consumes all memory and brings system to a halt. I tested
+this on -test7 (plus some minor stuff) with reiserfs and reiser4 and on
+vanillaest -test8 with ext2.
 
-]> CPUFreq has been rearchitectured to allow this type of thing,
-]> you can have a governor in the kernel that sets CPU Frequency based on
-]> load within limits specified by a userland program.
-]Wrong again. CPUfreq has been rearchitectured to do this kernel-space.
-]The userspace governor allows setting to specific frequencies by the user
-]["I _want_ 500 MHz and nothing else!"], and it offers backwards
-]compatibility for the first-era cpufreq interface [LART project etc.].
-No, you can set a min and max frequency that the governor is allowed to
-move within. This can be done by a userspace program through the /sys
-interface. You can also use the "userspace" governor, but that's not
-what I'm recommending.
+It seems that all memory is consumed by inode slab of the respective
+file system. This is a portion of "slabtop -s c" output from ext2 run:
 
-]> ACPI can meantime throttle the CPU if it gets too hot
-]However, frequency scaling is much more efficient on lowering the CPU heat,
-]too.
-Sure, a governor that does goes to the minimum frequency it's userland
-governor has told it it has available to cool the CPU is a good thing.
-Or, even below that if the CPU is near critical. If the CPU gets that
-hot there is something wrong with the userland policy. Until this is
-written, ACPI can act as a backup system to keep the CPU from burning
-up.
+  OBJS ACTIVE  USE OBJ SIZE  SLABS OBJ/SLAB CACHE SIZE NAME                   
+  8470   8460  99%    0.50K   1210        7      4840K ext2_inode_cache       
+ 10470  10386  99%    0.25K    698       15      2792K dentry_cache
+   166    166 100%    8.00K    166        1      1328K size-8192
+   134    134 100%    4.00K    134        1       536K pgd
+   148    148 100%    2.00K     74        2       296K size-2048
+  1110    828  74%    0.25K     74       15       296K radix_tree_node
+  5390    779  14%    0.05K     70       77       280K buffer_head
+   170    166  97%    1.55K     34        5       272K task_struct
+   680    662  97%    0.38K     68       10       272K inode_cache
+   176    153  86%    1.38K     16       11       256K sighand_cache
+    55     54  98%    4.00K     55        1       220K size-4096    
+  1380   1176  85%    0.12K     46       30       184K size-128   
+  2436    659  27%    0.06K     42       58       168K bio
 
-]> The user may know things the kernel doesn't such as "this laptop is
-]> burning a hole in my pants." She might want to construct a policy that
-]Yes indeed. She wants to set a cpufreq policy which suits of her needs:
-]it consists of a
-]- minimum frequency	=> not too low [she's plugged in]
-]- maximum frequency	=> 100%
-]- cpufreq governor	=> some kind of yet-to-be-written
-]				dynamic cpufreq governor with
-]				temperature or long-term-statistic
-]				knowledge.
-Why not a sensible governor in the kernel and a userland governor that
-sets the minimum and maximum for desired effect?
+and /proc/vmstat:
 
-]_I_ wouldn't want to run this governor, though -- I want kernel compiles to
-]complete as fast as possible. So, we need different in-kernel governors.
-I think a governor could keep the CPU running at 100% for long enough to
-finish a kernel compile while still slowing down for a really long
-compile like KDE, Mozilla, etc. It might however be too complex for me
-to feel comfortable with it in the kernel.
+MemTotal:        28544 kB
+MemFree:          3072 kB
+Buffers:          1548 kB
+Cached:           1944 kB
+SwapCached:       3784 kB
+Active:           8612 kB
+Inactive:          300 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:        28544 kB
+LowFree:          3072 kB
+SwapTotal:     1028152 kB
+SwapFree:      1018816 kB
+Dirty:              28 kB
+Writeback:          48 kB
+Mapped:           6064 kB
+Slab:            13352 kB
+Committed_AS:    38992 kB
+PageTables:       1648 kB
+VmallocTotal:   999352 kB
+VmallocUsed:      1272 kB
+VmallocChunk:   998080 kB
 
-]Well, the thing one of the cpufreq userspace programs does is really fine:
-]based on low-frequency events [power plug-in, running specific programs,
-]etc.] different cpufreq policies [see above] are selected. No XML file
-]necessary.
+(Box has been booted with mem=32M to reproduce situation faster.)
 
-Yes, the userspace program can just switch from performance, to
-something in between w/min/max, to powersave. My arguement is just
-against making the "something in between" too complex, by for
-instance taking the low-frequency events into account.
+In -test7 I found (by using kgdb) that &inode_unused list is empty.
 
--- Daniel
-  <<McCain was held in a bamboo cage and poked at with sticks for years.
-    That's the kind of guy who should be in the White House.>> -- Anon.
+Is this already known/seen?
+
+Nikita.
+

@@ -1,26 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264942AbRFZNqM>; Tue, 26 Jun 2001 09:46:12 -0400
+	id <S264944AbRFZNtM>; Tue, 26 Jun 2001 09:49:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264943AbRFZNqD>; Tue, 26 Jun 2001 09:46:03 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:64518 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S264942AbRFZNpu>; Tue, 26 Jun 2001 09:45:50 -0400
-Subject: Re: AMD thunderbird oops
-To: puckwork@madz.net (Thomas Foerster)
-Date: Tue, 26 Jun 2001 14:45:28 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010626132506Z264920-17720+7784@vger.kernel.org> from "Thomas Foerster" at Jun 26, 2001 03:22:09 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S264945AbRFZNtC>; Tue, 26 Jun 2001 09:49:02 -0400
+Received: from smtp6.xs4all.nl ([194.109.6.48]:35264 "EHLO smtp6.xs4all.nl")
+	by vger.kernel.org with ESMTP id <S264944AbRFZNsw>;
+	Tue, 26 Jun 2001 09:48:52 -0400
+From: thunder7@xs4all.nl
+Message-ID: <12446.212.153.94.193.993563348.squirrel@webmail.xs4all.nl>
+Date: Tue, 26 Jun 2001 15:49:08 +0200 (CEST)
+Subject: Re: Reg installing a patch on linux
+To: <sathish.j@tatainfotech.com>
+In-Reply-To: <2407239113CD914CBA855A47698F01B017E829@SUGAH2.triscend.com>
+In-Reply-To: <2407239113CD914CBA855A47698F01B017E829@SUGAH2.triscend.com>
+Cc: <linux-kernel@vger.kernel.org>
+X-Mailer: SquirrelMail (version 1.1.3 [cvs])
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15Et9k-0003Yh-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> With 2.2.x Kernel my System runs stable, but when i'm using whatever 2.4.x kernel i like,
-> i get the oopses and processcrashes (but only when i'm NOT root!)
+> Hi,
+> Please tell me how to install a patch on linux kernel. I have
+> downloaded a patch "kernel-patch-2_2_13-kdb_0_6-2.deb". How to install
+> this patch? I am using a 2.2.14-12 kernel. Can I install the above
+> patch. 
+> 
+You seem to ask a lot of questions starting with 'Please tell me how',
+and so far, all of these could have been answered by looking in the source 
+or searching with google.
 
-That bit is fascinating. Do you do different things as non root ?
+Might I suggest a slight increase in your amount of trying to find things 
+out yourself before posting it to the list? There's archives of this list, 
+there's google, there's dejanews, all of which you don't seem to use.
+
+Good luck,
+Jurriaan
+
+

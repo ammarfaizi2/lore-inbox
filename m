@@ -1,59 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261764AbVDEOix@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261765AbVDEOlb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261764AbVDEOix (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 10:38:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261762AbVDEOix
+	id S261765AbVDEOlb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 10:41:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261766AbVDEOlb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 10:38:53 -0400
-Received: from alog0090.analogic.com ([208.224.220.105]:56503 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261765AbVDEOik
+	Tue, 5 Apr 2005 10:41:31 -0400
+Received: from mailgw.voltaire.com ([212.143.27.70]:62700 "EHLO
+	mailgw.voltaire.com") by vger.kernel.org with ESMTP id S261765AbVDEOlF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 10:38:40 -0400
-Date: Tue, 5 Apr 2005 10:38:00 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: John M Flinchbaugh <john@hjsoft.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: debug: sleeping function...slab.c:2090
-In-Reply-To: <20050405142836.GA25571@butterfly.hjsoft.com>
-Message-ID: <Pine.LNX.4.61.0504051036440.16098@chaos.analogic.com>
-References: <20050405142836.GA25571@butterfly.hjsoft.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 5 Apr 2005 10:41:05 -0400
+Subject: Re: [-mm patch] drivers/infiniband/hw/mthca/mthca_main.c: remove
+	an unused label
+From: Hal Rosenstock <halr@voltaire.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, Roland Dreier <roland@topspin.com>,
+       linux-kernel@vger.kernel.org, Sean Hefty <mshefty@ichips.intel.com>,
+       openib-general@openib.org
+In-Reply-To: <20050405142449.GF6885@stusta.de>
+References: <20050405000524.592fc125.akpm@osdl.org>
+	 <20050405142449.GF6885@stusta.de>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1112711845.4490.4.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 05 Apr 2005 10:37:25 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Apr 2005, John M Flinchbaugh wrote:
+On Tue, 2005-04-05 at 10:24, Adrian Bunk wrote:
+> On Tue, Apr 05, 2005 at 12:05:24AM -0700, Andrew Morton wrote:
+> >...
+> > Changes since 2.6.12-rc1-mm4:
+> >...
+> > +ib-mthca-add-support-for-new-mt25204-hca.patch
+> > 
+> >  Infiniband update
+> >...
+> 
+> 
+> This patch causes the following compile warning:
+> 
+> <--  snip  -->
+> 
+> ...
+>   CC      drivers/infiniband/hw/mthca/mthca_main.o
+> drivers/infiniband/hw/mthca/mthca_main.c: In function `mthca_init_icm':
+> drivers/infiniband/hw/mthca/mthca_main.c:479: warning: label 
+> `err_unmap_eqp' defined but not used
+> ...
+> 
+> <--  snip  -->
+> 
+> 
+> I'm not sure whether this patch to remove this label is correct, but if 
+> it isn't correct there must be a bug somewhere.
+> 
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> --- linux-2.6.12-rc2-mm1-full/drivers/infiniband/hw/mthca/mthca_main.c.old	2005-04-05 16:18:09.000000000 +0200
+> +++ linux-2.6.12-rc2-mm1-full/drivers/infiniband/hw/mthca/mthca_main.c	2005-04-05 16:19:15.000000000 +0200
+> @@ -475,8 +475,6 @@
+>  
+>  err_unmap_rdb:
+>  	mthca_free_icm_table(mdev, mdev->qp_table.rdb_table);
+> -
+> -err_unmap_eqp:
+>  	mthca_free_icm_table(mdev, mdev->qp_table.eqp_table);
+>  
+>  err_unmap_qp:
 
-> I got the debug statement below during boot.
->
-> Environment:
->    Pentium M, Thinkpad R40
->    Debian unstable
->    Linux 2.6.12-rc2
->    Gnu C 3.3.5
->    binutils 2.15
->
-> Debug: sleeping function called from invalid context at mm/slab.c:2090
-> in_atomic():1, irqs_disabled():0
-> [<c0103707>] dump_stack+0x17/0x20
-> [<c0114e6c>] __might_sleep+0xac/0xc0
-> [<c014394e>] kmem_cache_alloc+0x5e/0x60
-> [<c0142aa3>] kmem_cache_create+0xe3/0x570
-> [<c0268d39>] proto_register+0x99/0xc0
-> [<e0bea096>] inet6_init+0x16/0x1d0 [ipv6]
-> [<c0132902>] sys_init_module+0x172/0x230
-> [<c01030e5>] syscall_call+0x7/0xb
->
-> -- 
-> John M Flinchbaugh
-> john@hjsoft.com
->
+Roland caught this recently and there is a patch for this which will
+sent upstream. The proper fix is different from this.
 
-What module was being loaded at the time?
+-- Hal
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.

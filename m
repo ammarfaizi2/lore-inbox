@@ -1,36 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268714AbRHSSqi>; Sun, 19 Aug 2001 14:46:38 -0400
+	id <S270688AbRHSTBa>; Sun, 19 Aug 2001 15:01:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270676AbRHSSq3>; Sun, 19 Aug 2001 14:46:29 -0400
-Received: from prop.sonic.net ([208.201.224.193]:1872 "EHLO prop.sonic.net")
-	by vger.kernel.org with ESMTP id <S268714AbRHSSqK>;
-	Sun, 19 Aug 2001 14:46:10 -0400
-X-envelope-info: <dalgoda@ix.netcom.com>
-Date: Sun, 19 Aug 2001 11:46:23 -0700
-From: Mike Castle <dalgoda@ix.netcom.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] let Net Devices feed Entropy, updated (1/2)
-Message-ID: <20010819114623.D30309@thune.mrc-home.com>
-Reply-To: Mike Castle <dalgoda@ix.netcom.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33L.0108182137250.5646-100000@imladris.rielhome.conectiva>
-User-Agent: Mutt/1.3.18i
+	id <S270684AbRHSTBU>; Sun, 19 Aug 2001 15:01:20 -0400
+Received: from cpe.atm0-0-0-122182.bynxx2.customer.tele.dk ([62.243.2.100]:10592
+	"HELO marvin.athome.dk") by vger.kernel.org with SMTP
+	id <S270676AbRHSTBF>; Sun, 19 Aug 2001 15:01:05 -0400
+Message-ID: <3B800CF9.9000606@fugmann.dhs.org>
+Date: Sun, 19 Aug 2001 21:01:13 +0200
+From: Anders Peter Fugmann <afu@fugmann.dhs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: chuckw@ieee.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Looking for comments on Bottom-Half/Tasklet/SoftIRQ
+In-Reply-To: <20010818231704.A2388@ieee.org> <3B7FF06A.4090606@fugmann.dhs.org> <20010819013508.B2388@ieee.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 18, 2001 at 09:38:21PM -0300, Rik van Riel wrote:
-> So how are you going to feed /dev/urandom on your firewall ??
-> (which has no keyboard, program or disk activity)
+chuckw@ieee.org wrote:
+> Thanks
+> 
+> 	So, Bottom halves don't need to be re-entrant as do tasklets.  SoftIRQ's
+> need to be re-entrant.  The advantage of tasklets is that each tasklet can
+> be farmed out to different CPU's AND they don't need to be re-entrant 
+> because only one instance is allowed at a time.  I think I got it.
 
-Hardware random generator?
+That is 100% correct.
 
-mrc
--- 
-     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
-    We are all of us living in the shadow of Manhattan.  -- Watchmen
-fatal ("You are in a maze of twisty compiler features, all different"); -- gcc
+> 
+> 	Could you direct me to some code in the kernel which uses tasklets
+> so I can see the inner workings?
+
+Actually very few systems in the kernel has been rewritten to use 
+tasklets instead og BH's.
+
+But as they are very simillar to BH's, you should be able to use the 
+same thinking, its just a new API.
+
+Take a look at include/linux/interrupt.h
+(or http://lxr.linux.no/source/include/linux/interrupt.h, an invaluable 
+source when coding for linux).
+
+Regards
+Anders Fugmann
+

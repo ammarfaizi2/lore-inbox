@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277409AbRJEQgY>; Fri, 5 Oct 2001 12:36:24 -0400
+	id <S277484AbRJEQkZ>; Fri, 5 Oct 2001 12:40:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277483AbRJEQgO>; Fri, 5 Oct 2001 12:36:14 -0400
-Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:26040 "EHLO
-	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id <S277409AbRJEQgA>; Fri, 5 Oct 2001 12:36:00 -0400
-Message-ID: <3BBDE1AA.98C4712F@nortelnetworks.com>
-Date: Fri, 05 Oct 2001 12:36:58 -0400
-X-Sybari-Space: 00000000 00000000 00000000
-From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
-X-Accept-Language: en
+	id <S277483AbRJEQkP>; Fri, 5 Oct 2001 12:40:15 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:7221 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S277484AbRJEQkJ>; Fri, 5 Oct 2001 12:40:09 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: viro@math.psu.edu (Alexander Viro),
+        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
+Subject: Re: Security question: "Text file busy" overwriting executables but
+In-Reply-To: <E15pFHW-00041w-00@the-village.bc.nu>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 05 Oct 2001 10:30:19 -0600
+In-Reply-To: <E15pFHW-00041w-00@the-village.bc.nu>
+Message-ID: <m1zo76xd5w.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
 MIME-Version: 1.0
-To: lkv@isg.de
-Cc: "Kernel, Linux" <linux-kernel@vger.kernel.org>
-Subject: Re: Desperately missing a working "pselect()" or similar...
-In-Reply-To: <3BBDD37D.56D7B359@isg.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Orig: <cfriesen@nortelnetworks.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-lkv@isg.de wrote:
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+
+> > On Thu, 4 Oct 2001, Linus Torvalds wrote:
+> > 
+> > > The reason the kernel refuses to honour it, is that MAP_DENYWRITE is an
+> > > excellent DoS-vehicle - you just mmap("/etc/passwd") with MAP_DENYWRITE,
+> > > and even root cannot write to it.. Vary nasty.
+> > 
+> > <nit>
+> > I _really_ doubt that something does write() on /etc/passwd.  Create a
+> > file and rename it over the thing - sure, but that's it.
+> > </nit>
 > 
-> Hi,
-> 
-> I'm currently looking for a decent method to wait on either
-> an I/O event _or_ a signal coming from another process.
+> The MAP_DENYWRITE rule was added a long time ago because people found actual
+> workable DoS attacks
 
-> - Unix domain sockets would be awkward to use due to the fact
->   I'd need to come up with some "filenames" for them to bind to,
->   and both security considerations and the danger of "leaking"
->   files that remain on disk forever make me shudder...
- 
-If you use a named socket in the abstract namespace, then it can't "leak" to
-disk....
+Do you have any details.  I would like to figure out what it takes to
+export MAP_DENYWRITE safely to userspace.
 
-Chris
+Currently checking to see if the file is executable looks good
+enough.  I don't see any case where this would be a problem, unless
+someone has set their permissions wrong.  
 
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+The fix for bad permission (during a DOS attack) is either:
+	chmod correct_permissions foo
+	lsof foo | xargs kill
+or:
+        chmod correct_permissions foo
+	mv foo bar
+        cp -a bar foo
+        rm bar
+
+Which looks fairly straight forward.
+
+Eric

@@ -1,54 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319165AbSHTOhe>; Tue, 20 Aug 2002 10:37:34 -0400
+	id <S318939AbSHTOsD>; Tue, 20 Aug 2002 10:48:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319167AbSHTOhe>; Tue, 20 Aug 2002 10:37:34 -0400
-Received: from ns1.ionium.org ([62.27.22.2]:51468 "HELO mail.ionium.org")
-	by vger.kernel.org with SMTP id <S319165AbSHTOhQ> convert rfc822-to-8bit;
-	Tue, 20 Aug 2002 10:37:16 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Justin Heesemann <jh@ionium.org>
-Organization: ionium Technologies
-To: linux-kernel@vger.kernel.org
-Subject: Re: P4 with i845E not booting with 2.4.19 / 3.5.31
-Date: Tue, 20 Aug 2002 16:44:07 +0200
-User-Agent: KMail/1.4.2
-References: <3D6245DC.3A189656@hrzpub.tu-darmstadt.de> <3D62482D.4030500@myeastern.com>
-In-Reply-To: <3D62482D.4030500@myeastern.com>
+	id <S319006AbSHTOsD>; Tue, 20 Aug 2002 10:48:03 -0400
+Received: from host-65-162-110-4.intense3d.com ([65.162.110.4]:60426 "EHLO
+	exchusa03.intense3d.com") by vger.kernel.org with ESMTP
+	id <S318939AbSHTOsC>; Tue, 20 Aug 2002 10:48:02 -0400
+Message-ID: <23B25974812ED411B48200D0B774071701248AA8@exchusa03.intense3d.com>
+From: Bhavana Nagendra <Bhavana.Nagendra@3dlabs.com>
+To: Gilad Ben-Yossef <gilad@benyossef.com>,
+       Bhavana Nagendra <Bhavana.Nagendra@3dlabs.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: Alloc and lock down large amounts of memory
+Date: Tue, 20 Aug 2002 09:51:58 -0500
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200208201644.07289.jh@ionium.org>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 20 August 2002 15:46, Rohan Deshpande wrote:
-> Jens Wiesecke wrote:
-> hi there,
+
+> OK. *AFAIK* most drivers that use DMA request the memory 
+> allocation with
+> GFP_DMA so that the allocators (whatever they chose) will give them
+> DMAbale memory from the DMA memory zone. Memory from that 
+> zone is fixed
+> (not pagable). You can then map that memory into proccesses address
+> space according to demand (and the Linux device drivers 
+> second addition
+> has a good example of doing that).
 >
-> something to the same extent happened to me, with my P4, as ACPI caused
-> a kernel panic.  if you have acpi enabled, try disabling it.
+OK, understood.  
+ 
+> Now, if I understood you correctly you want to allocate 256M of memroy
+> and perform DMA into it? if so, you *cannot* use memory 
+> allocated using
+> vmalloc because the memory it supplies is virtual, that is it not
+> contigous in physical memory but might be scattered all over the place
+> and I doubt that whatever device you're DMAing from can handle that.
+ 
+I was thinking a scatter gather page table would convert the virtual address
+into physical addresses that DMA can use.
 
-his problem sound a lot like mine.. never going further than Ok, booting the 
-kernel. my chipset is a i845g.
+> Also, I think you don't want this memory to be swapable, because if it
+> is swapped out and then in and might very well end up on a completly
+> different address in physical memory from where it were and again, I
+> don't think the device that does DMA will be able to handle that - all
+> the ones I know require physical addresses (well actualy bus addresses
+> but for the sake of argument let's ignore that for a second).
+> 
+> In short, I don't think you need what you think want... :-)
 
-it looks like the problems start with 2.4.19-pre7 which shows exactly this 
-problem.
-2.4.19-pre6 still works.
+Gee, how did you guess?  :-) I was mistaken about who does the big 128M
+alloc. 
+The 128M will actually be malloced in user space and filled up with data in 
+user space. This memory will then have to be mapped into kernel space and 
+DMA performed. Before DMA is performed the memory obviously needs to be
+locked 
+down.  How does this play out with respect to DMA memory zone and GFP_DMA
+flag, 
+specifically pinning down memory?
 
-from the changelog pre6 to pre7 :
-
-<wim@iguana.be> (02/04/07 1.383.2.6)
-	[PATCH] 2.4.19-pre6 i8xx series chipsets patches
-
-<wim@iguana.be> (02/04/07 1.383.2.7)
-	[PATCH] 2.4.19-pre6 i8xx series chipsets patches
-
-<wim@iguana.be> (02/04/07 1.383.2.8)
-	[PATCH] 2.4.19-pre6 i8xx series chipsets patches
-
-could this be the root of the problems ? Jens ? could you check please if you 
-can boot pre6 and pre7 ?
-
---
-Best Regards,
-Justin Heesemann
+Thanks Gilad!
+ 
+> > 
+> > Does the VM_RESERVED flag lock down the memory so that it 
+> doesn't get paged out
+> > during DMA?
+> 
+> AFAIK the VM_RESERVED flag will cause kswapd to ignore the page
+> completly - no paging in or out at all.
+> 
+> > 
+> > >
+> > >
+> > > >     Can 256M be allocated using vmalloc, if so is it swappable?
+> > >
+> > > It can be alloacted via vmalloc and AFAIK it is not swappable by
+> > > default. This doesn't sound like a very good idea though.
+> > 
+> > Is there a good way to allocate large sums of memory in 
+> Linux?  Doesn't have to
+> > be
+> > vmalloc but I don't think kmalloc, get_free_pages will work 
+> for this purpose.  I
+> > looked
+> > into get_free_pages, but the largest order is 9 which 
+> results in 512 pages.
+> 
+> > Does the memory allocated by vmalloc has visibility across 
+> processes?
+> 
+> See my previous answer regarding why you don't vmalloced memory at
+> visibility.
+> 
+> > I didn't mean shared memory.   If several processes open a 
+> given device,
+> > under normal conditions the data structure stays till the 
+> last close at which
+> > time a
+> > release is done.   This depends on the usage or minor 
+> number count.  Can there
+> > be a case where the device exits before the processes 
+> close?   In which case
+> > the processes will be left hanging.    How is the close 
+> handled if the driver is 
+> > killed?
+> 
+> Very simple - you can't unload the device until the ref count says all
+> the users (proccesses in thuis case) have closed it.
+> 
+> Gilad.
+> 
+> -- 
+> Gilad Ben-Yossef <gilad@benyossef.com>
+> http://benyossef.com
+> 
+> "Money talks, bullshit walks and GNU awks."
+>   -- Shachar "Sun" Shemesh, debt collector for the GNU/Yakuza
+> 

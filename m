@@ -1,39 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262594AbREVJNa>; Tue, 22 May 2001 05:13:30 -0400
+	id <S262600AbREVJsg>; Tue, 22 May 2001 05:48:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262595AbREVJNV>; Tue, 22 May 2001 05:13:21 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:38157 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262594AbREVJNE>; Tue, 22 May 2001 05:13:04 -0400
-Subject: Re: VIA's Southbridge bug: Latest (pseudo-)patch
-To: atm@sdk.ca (God)
-Date: Tue, 22 May 2001 10:10:19 +0100 (BST)
-Cc: reality@delusion.de (Udo A. Steinberg),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <Pine.LNX.4.21.0105220209380.20719-100000@scotch.homeip.net> from "God" at May 22, 2001 02:11:28 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S262602AbREVJsP>; Tue, 22 May 2001 05:48:15 -0400
+Received: from atlante.atlas-iap.es ([194.224.1.3]:29454 "EHLO
+	atlante.atlas-iap.es") by vger.kernel.org with ESMTP
+	id <S262600AbREVJsH>; Tue, 22 May 2001 05:48:07 -0400
+From: "Ricardo Galli" <gallir@uib.es>
+To: "Hans Reiser" <reiser@namesys.com>, <linux-kernel@vger.kernel.org>,
+        <timothy@monkey.org>,
+        "Guillem Cantallops Ramis" <guillem@cantallops.net>,
+        "Yury Yu. Rupasov" <yura@yura.polnet.botik.ru>,
+        <reiserfs-dev@namesys.com>
+Subject: RE: [reiserfs-dev] Re: New XFS, ReiserFS and Ext2 benchmarks
+Date: Tue, 22 May 2001 11:48:39 +0200
+Message-ID: <LOEGIBFACGNBNCDJMJMOAEAGCJAA.gallir@uib.es>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="koi8-r"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E1528BH-0001b3-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+In-Reply-To: <3B09FF25.979EF793@namesys.com>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Not just crap hardware, but also vendors who refuse to release proper material
-> > required for writing drivers. NVidia springs to my mind.
-> > 
-> Not that the kernel list is the best place to bring this up, but NVIDIA
-> would NOT be on that list.  They are by far one of the best companies out
-> there providing support for their cards.  I bought my GF2 for exactly that
-> reason too....
+> My apologies, I meant that the make is probably compiler bound (I said CPU
+> bound) not FS bound.
 
-Sure. I spent much happy time telling people to report bugs to nvidia because
-their closed drivers mean that only nvidia can debug all the crashes people see
-with them loaded - at least some of which dont occur without the modules
+We undertood ;-)
 
-I wouldnt put them on the list though. Nvidia hardware seems to work, and they
-are being quite honest and up front with their proprietary drivers being
-exactly that
+> > cp -ar, and I would like Yura to try to reproduce the cp -ar as
+> >  it seems too
+> > good to be true.
+> We find that one must use cp and similar utilities (not
+
+The cp -a figures are somehow interesting, I had to repeat it for evey file
+system because the cache has to be populated before copying, to avoid the
+influence of the file system where the kernel is copied from. I did it by
+doing several cps before mesurements.
+
+Despite my "efforts", variances were much higher en XFS than in ReiserFS and
+Ext2. The ReiserFS individual times were closer to the average than the
+other.
+
+Why? have no idea, I didn't do any analysis of the samples because I am not
+an expert in Statistics.
+
+
+> compilers) to become FS
+> bound when using a Linux FS (unlike the older Unixes for which
+> compiles were
+> considered excellent benchmarks).
+
+I was equally suprised, not only due to the wall-clock time but also to the
+CPU. So, I think the cache is the major player when compiling a kernel that
+was _just_ copied from another file system (still in buffer/cache).
+
+> > Thanks for investing the time into this Ricardo.
+
+It's just for fun....
+
+--ricardo
 

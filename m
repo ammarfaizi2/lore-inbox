@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267613AbSIRTtL>; Wed, 18 Sep 2002 15:49:11 -0400
+	id <S267928AbSIRTxg>; Wed, 18 Sep 2002 15:53:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267844AbSIRTtL>; Wed, 18 Sep 2002 15:49:11 -0400
-Received: from packet.digeo.com ([12.110.80.53]:37623 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267613AbSIRTtK>;
-	Wed, 18 Sep 2002 15:49:10 -0400
-Message-ID: <3D88D9DE.2FB9A23D@digeo.com>
-Date: Wed, 18 Sep 2002 12:54:06 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S267995AbSIRTxg>; Wed, 18 Sep 2002 15:53:36 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:12703 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S267928AbSIRTxg>; Wed, 18 Sep 2002 15:53:36 -0400
+Date: Wed, 18 Sep 2002 12:53:43 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Cort Dougan <cort@fsmlabs.com>, Linus Torvalds <torvalds@transmeta.com>,
+       Rik van Riel <riel@conectiva.com.br>, Andries Brouwer <aebr@win.tue.nl>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] lockless, scalable get_pid(), for_each_process() elimination, 2.5.35-BK
+Message-ID: <142420000.1032378823@flay>
+In-Reply-To: <Pine.LNX.4.44.0209182026300.25598-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0209182026300.25598-100000@localhost.localdomain>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-To: Mark_H_Johnson@raytheon.com
-CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org, owner-linux-mm@kvack.org
-Subject: Re: [PATCH] recognize MAP_LOCKED in mmap() call
-References: <OFC0C42F8D.E1325D58-ON86256C38.00695CD8@hou.us.ray.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 18 Sep 2002 19:54:05.0979 (UTC) FILETIME=[25204EB0:01C25F4D]
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark_H_Johnson@raytheon.com wrote:
+>> Nobody's trying to screw the desktop users, we're being mind- bogglingly
+>> careful not to, in fact. If you have specific objections to a particular
+>> patch, raise them as technical arguments. Saying "we shouldn't do that
+>> because I'm not interested in it" is far less useful.
 > 
-> Andrew Morton wrote:
-> >(SuS really only anticipates that mmap needs to look at prior mlocks
-> >in force against the address range.  It also says
-> >
-> >     Process memory locking does apply to shared memory regions,
-> >
-> >and we don't do that either.  I think we should; can't see why SuS
-> >requires this.)
-> 
-> Let me make sure I read what you said correctly. Does this mean that Linux
-> 2.4 (or 2.5) kernels do not lock shared memory regions if a process uses
-> mlockall?
+> i fully agree with your points, but it does not hold in this specific
+> case. Eliminating for_each_task loops (the ones completely unrelated to
+> the get_pid() issue) is an improvement even for desktop setups, which have
+> at most 1000 processes running.
 
-Linux does lock these regions.  SuS seems to imply that we shouldn't.
-But we should.
+Right - which is exactly why I was saying we should stick to technical 
+debates rather than whether some people were interested in a particular
+market segment or not ;-)
 
-> If not, that is *really bad* for our real time applications. We don't want
-> to take a page fault while running some 80hz task, just because some
-> non-real time application tried to use what little physical memory we allow
-> for the kernel and all other applications.
-> 
-> I asked a related question about a week ago on linux-mm and didn't get a
-> response. Basically, I was concerned that top did not show RSS == Size when
-> mlockall(MCL_CURRENT|MCL_FUTURE) was called. Could this explain the
-> difference or is there something else that I'm missing here?
-> 
+M.
 
-That mlockall should have faulted everything in.  It could be an
-accounting bug, or it could be a bug.  That's not an aspect which
-gets tested a lot.  I'll take a look.

@@ -1,34 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312962AbSHFQ0e>; Tue, 6 Aug 2002 12:26:34 -0400
+	id <S313070AbSHFQas>; Tue, 6 Aug 2002 12:30:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313070AbSHFQ0e>; Tue, 6 Aug 2002 12:26:34 -0400
-Received: from [196.26.86.1] ([196.26.86.1]:6071 "EHLO
-	infosat-gw.realnet.co.sz") by vger.kernel.org with ESMTP
-	id <S312962AbSHFQ0d>; Tue, 6 Aug 2002 12:26:33 -0400
-Date: Tue, 6 Aug 2002 18:45:35 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@linux-box.realnet.co.sz
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: Kasper Dupont <kasperd@daimi.au.dk>, "David S. Miller" <davem@redhat.com>,
-       <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>
-Subject: Re: [TRIVIAL] Warn users about machines with non-working WP bit
-In-Reply-To: <3D4FDEF3.8070207@colorfullife.com>
-Message-ID: <Pine.LNX.4.44.0208061830480.21312-100000@linux-box.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313113AbSHFQas>; Tue, 6 Aug 2002 12:30:48 -0400
+Received: from mail.esstech.com ([64.152.86.3]:57267 "HELO [64.152.86.3]")
+	by vger.kernel.org with SMTP id <S313070AbSHFQar>;
+	Tue, 6 Aug 2002 12:30:47 -0400
+Subject: Re: ide prd table size
+From: Gerald Champagne <gerald.champagne@esstech.com>
+To: martin@dalecki.de
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3D4C67F4.20807@evision.ag>
+References: <1028309451.29024.659.camel@localhost.localdomain> 
+	<3D4C67F4.20807@evision.ag>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 06 Aug 2002 11:27:05 -0500
+Message-Id: <1028651230.25642.106.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Aug 2002, Manfred Spraul wrote:
+On Sat, 2002-08-03 at 18:32, Marcin Dalecki wrote:
+> Well the documentation is a bit inadequate.
+> The reality is a bit more complicated and reveals if you look at the
+> actual usage pattern:
+> 
+> 1. Two drives on a channel share them.
+> 2. primary and secondary channel are tightly coupled by the
+>     host controller hardware (in esp the PIIX) and have to
+>     be allocated in one go.
 
-> But how many 80386 Linux systems that run the 2.4 kernel exist?
+The comments say that happens, but it doesn't.  Here's the code as I see
+it:
 
-http://function.linuxpower.ca/dmesg-386-2.4.txt
+- setup_pci_device calls setup_host_channel once for ATA_PRIMARY and
+once for ATA_SECONDARY.
 
-8)
+- setup_host_channel calls setup_channel_dma, which calls the host-
+specific dma init routine, which calls ata_init_dma.
 
--- 
-function.linuxpower.ca
+- The routine ata_init_dma allocates the prd table.  It says that it
+will allocate enough room for the primary and secondary interface.  In
+reality, it allocates a page of memory for a table when called for the
+primary controller and uses half of it.  Then it does the same thing
+when called for the secondary controller.  Two different tables are
+defined separately with no guarantees about their placement, and neither
+interface uses the other table at all.
+
+None of this is a big issue, but with the new code that constant is
+exported to the bio code and it's not just an internal definition in the
+ide driver any more.  Since that constant is now a little more
+important, I think it should have a little more accurate definition.  Or
+at least a little more accurate description if the number happens to
+remain the same.
+
+Thanks.
+
+Gerald
 
 

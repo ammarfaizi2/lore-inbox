@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262473AbVA0DRN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261851AbVA0DI2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262473AbVA0DRN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 22:17:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262452AbVA0DQ4
+	id S261851AbVA0DI2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 22:08:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262429AbVAZXLt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 22:16:56 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:49861 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262473AbVA0DPo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 22:15:44 -0500
-Date: Thu, 27 Jan 2005 03:15:39 +0000
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: John Richard Moser <nigelenki@comcast.net>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: /proc parent &proc_root == NULL?
-Message-ID: <20050127031539.GK8859@parcelfarce.linux.theplanet.co.uk>
-References: <41F82218.1080705@comcast.net> <41F84313.4030509@osdl.org> <41F8530C.6010305@comcast.net>
-Mime-Version: 1.0
+	Wed, 26 Jan 2005 18:11:49 -0500
+Received: from mail.joq.us ([67.65.12.105]:36315 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S262409AbVAZQjc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 11:39:32 -0500
+To: hihone@bigpond.net.au
+Cc: Ingo Molnar <mingo@elte.hu>, linux <linux-kernel@vger.kernel.org>,
+       CK Kernel <ck@vds.kolivas.org>
+Subject: Re: [ck] [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU feature, -D7
+References: <87y8eo9hed.fsf@sulphur.joq.us> <20050120172506.GA20295@elte.hu>
+	<87wtu6fho8.fsf@sulphur.joq.us> <20050122165458.GA14426@elte.hu>
+	<87hdl940ph.fsf@sulphur.joq.us> <20050124085902.GA8059@elte.hu>
+	<20050124125814.GA31471@elte.hu> <20050125135613.GA18650@elte.hu>
+	<41F6C5CE.9050303@bigpond.net.au> <41F6C797.80403@bigpond.net.au>
+	<20050126100846.GB8720@elte.hu> <41F7C2CA.2080107@bigpond.net.au>
+From: "Jack O'Quin" <joq@io.com>
+Date: Wed, 26 Jan 2005 10:41:14 -0600
+In-Reply-To: <41F7C2CA.2080107@bigpond.net.au> (Cal's message of "Thu, 27
+ Jan 2005 03:18:18 +1100")
+Message-ID: <87acqwnnx1.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41F8530C.6010305@comcast.net>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 26, 2005 at 09:33:48PM -0500, John Richard Moser wrote:
-> create_proc_entry("kmsg", S_IRUSR, &proc_root);
-> 
-> So this is asking for proc_root to be filled?
-> 
-> create_proc_entry("kcore", S_IRUSR, NULL);
-> 
-> And this is just saying to shove it in proc's root?
+Cal <hihone@bigpond.net.au> writes:
 
-NULL is equivalent to &proc_root in that context; moreover, it's better
-style - drivers really shouldn't be refering to what is procfs-private
-object.
+> Consideringthe amount and rate of work in progress, this may well be
+> no longer be pertinent, but I'm consistently getting an oops running
+> the basic jack_test3.2 with rt-limit-2.6.11-rc2-D7 on SMP (P3 993 x
+> 2). The oops and jacktest log are at
+>   <http://www.graggrag.com/20050127-oops/>.
 
-> I'm trying to locate a specific proc entry, using this lovely piece of
-> code I ripped off:
+I notice that JACK's call to mlockall() is failing.  This is one
+difference between your system and mine (plus, my machine is UP).  
 
-That's not something allowed outside of procfs code - lifetime rules
-alone make that a Very Bad Idea(tm).  If that's just debugging - OK,
-but if your code really uses that stuff, I want details on the intended
-use.  In that case your design is almost certainly asking for trouble.
+As an experiment, you might try testing with `ulimit -l unlimited'.
+-- 
+  joq
+

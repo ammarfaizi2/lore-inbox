@@ -1,55 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261690AbREVN1T>; Tue, 22 May 2001 09:27:19 -0400
+	id <S261695AbREVNc3>; Tue, 22 May 2001 09:32:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261685AbREVN1J>; Tue, 22 May 2001 09:27:09 -0400
-Received: from femail24.sdc1.sfba.home.com ([24.0.95.149]:56783 "EHLO
-	femail24.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S261683AbREVN06>; Tue, 22 May 2001 09:26:58 -0400
-Date: Tue, 22 May 2001 09:26:48 -0400 (EDT)
-From: "Mike A. Harris" <mharris@opensourceadvocate.org>
-X-X-Sender: <mharris@asdf.capslock.lan>
-To: Adam <adam@cfar.umd.edu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: debugging xterm. 
-In-Reply-To: <Pine.GSO.4.33.0105211827350.18075-100000@chia.umiacs.umd.edu>
-Message-ID: <Pine.LNX.4.33.0105220926100.1590-100000@asdf.capslock.lan>
-X-Unexpected-Header: The Spanish Inquisition
-X-Spam-To: uce@ftc.gov
-Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
+	id <S261685AbREVNcT>; Tue, 22 May 2001 09:32:19 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:21775 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S261683AbREVNcI>; Tue, 22 May 2001 09:32:08 -0400
+Subject: Re: Fix for an SMP locking bug in NFS code
+To: matthewc@cse.unsw.edu.au (Matt Chapman)
+Date: Tue, 22 May 2001 14:28:47 +0100 (BST)
+Cc: torvalds@transmeta.com (Linus Torvalds),
+        trond.myklebust@fys.uio.no (Trond Myklebust),
+        linux-kernel@vger.kernel.org (Linux Kernel),
+        linux-fsdevel@vger.kernel.org (Linux FS-Devel)
+In-Reply-To: <20010522231139.A515@cse.unsw.edu.au> from "Matt Chapman" at May 22, 2001 11:11:40 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E152CDP-0001rY-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 May 2001, Adam wrote:
+> I've already run this by Trond so I'm sending this patch without
+> further ado.  It adds a lock_kernel around a call into NLM code,
+> and removes an extraneous (really) lock_kernel in sys_fcntl64.
 
->I'm trying to debug xterm and it seems like it is just not my day (I
->suppose the "Abandon All Hope, Ye Who Enter Here" in the README for xterm
->is for a reason there after all :P )
->
->I running gdb on xterm. I'm running it as root, the current execution is
->at main.c:main() and gdb seems to get lost when calling getuid), any idea?
->Is there something special about getuid() I'm missing?
->
->(gdb) next
->1612                uid_t ruid = getuid();
->2: screen->respond = 1448543468
->1: screen = (TScreen *) 0x4000ae60
->(gdb) next
->1613                gid_t rgid = getgid();
->2: screen->respond = Cannot access memory at address 0x4
->Disabling display 2 to avoid infinite recursion.
->(gdb)
->
->it does not know where screen data structure is anymore..
-
-This has nothing to do with the Linux kernel whatsoever.  Please
-send your request to xpert@xfree86.org for help.
-
-
-----------------------------------------------------------------------
-    Mike A. Harris  -  Linux advocate  -  Open Source advocate
-       Opinions and viewpoints expressed are solely my own.
-----------------------------------------------------------------------
+matthew@wil.cx is the locking code maintainer if he's not already seen this
 

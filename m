@@ -1,53 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266377AbRHFCOm>; Sun, 5 Aug 2001 22:14:42 -0400
+	id <S266469AbRHFDkl>; Sun, 5 Aug 2001 23:40:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266400AbRHFCOd>; Sun, 5 Aug 2001 22:14:33 -0400
-Received: from [24.93.67.54] ([24.93.67.54]:13580 "EHLO mail7.carolina.rr.com")
-	by vger.kernel.org with ESMTP id <S266377AbRHFCOV>;
-	Sun, 5 Aug 2001 22:14:21 -0400
-From: Zilvinas Valinskas <zvalinskas@carolina.rr.com>
-Date: Sun, 5 Aug 2001 22:13:21 -0400
-To: "Stephen C. Tweedie" <sct@redhat.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Jan Harkes <jaharkes@cs.cmu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: ext3-2.4-0.9.4
-Message-ID: <20010805221321.A2283@clt88-175-140.carolina.rr.com>
-In-Reply-To: <3B5FC7FB.D5AF0932@zip.com.au> <01080316082001.01827@starship> <20010803111803.B25450@cs.cmu.edu> <01080317471707.01827@starship> <20010803165036.C12470@redhat.com> <20010803201112.D31468@emma1.emma.line.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010803201112.D31468@emma1.emma.line.org>
-User-Agent: Mutt/1.3.20i
+	id <S266559AbRHFDkb>; Sun, 5 Aug 2001 23:40:31 -0400
+Received: from [208.152.224.2] ([208.152.224.2]:1811 "EHLO redhat1.mmaero.com")
+	by vger.kernel.org with ESMTP id <S266469AbRHFDkW>;
+	Sun, 5 Aug 2001 23:40:22 -0400
+Date: Sun, 5 Aug 2001 23:40:18 -0400 (EDT)
+From: <jlewis@lewis.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.2.1x kernel memory "leaks" 
+Message-ID: <Pine.LNX.4.30.0108052337300.1854-100000@redhat1.mmaero.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 03, 2001 at 08:11:12PM +0200, Matthias Andree wrote:
-> On Fri, 03 Aug 2001, Stephen Tweedie wrote:
-> 
-> > > We don't need all the paths, and not any specific path, just a path.
-> > 
-> > Exactly, because fsync makes absolutely no gaurantees about the
-> > namespace.  So a lost+found path is quite sufficient.
-> 
-> MTA authors don't share this. lost+found is "invisible" for the
-> application that created the file.
-> 
-> I have yet to meet a distribution which scans lost+found at boot time
-> and syslogs found files or sends root a mail.
+I have a mail relay server that seems to have serious kernel memory leak
+issues since upgrading to the later 2.2.1x kernels.  Currently, it's
+running Red Hat's 2.2.19-6.2.7.  What I see is that after a few days,
+pretty much all memory is consumed.  The majority of it is not being used
+by user-space processes.  i.e. killing nearly all processes free's up some
+memory, but the majority is still tied up by the kernel.  I haven't found
+much documentation on it, but I suspect the dentry_cache may be to blame.
+What's a reasonable size for the dentry_cache?
 
-Debian Woody ...
-> 
-> So, effectively, lost+found will NOT be sufficient. Discarding file
-> names at will is not a good thing.
-> 
-> -- 
-> Matthias Andree
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+# uptime
+ 10:30pm  up 3 days, 11:14,  1 user,  load average: 0.93, 0.63, 0.52
+
+# free
+             total       used       free     shared    buffers     cached
+Mem:        261668     251968       9700          0       7368       8192
+-/+ buffers/cache:     236408      25260
+Swap:       264168      13760     250408
+
+# cat /proc/slabinfo
+slabinfo - version: 1.0
+kmem_cache            29     42
+tcp_tw_bucket        128    210
+tcp_bind_bucket       80    254
+tcp_open_request       3     63
+skbuff_head_cache    192    378
+sock                 100    143
+dquot                  0      0
+filp                1887   1890
+signal_queue           0      0
+kiobuf                 0      0
+buffer_head         7517  10038
+mm_struct             90    155
+vm_area_struct      2224   3276
+dentry_cache      1189547 1263374
+files_cache           89    126
+uid_cache              3    127
+size-131072            0      0
+size-65536             0      0
+size-32768             1      1
+size-16384             0      0
+size-8192              1      1
+size-4096             18     20
+size-2048            255    344
+size-1024             15    112
+size-512              15     24
+size-256             515    882
+size-128             423    500
+size-64               83     84
+size-32             3623   4221
+slab_cache           115    189
+
+Anyone else run into this or have suggestions?
 
 -- 
-Zilvinas Valinskas
+----------------------------------------------------------------------
+ Jon Lewis *jlewis@lewis.org*|  I route
+ System Administrator        |  therefore you are
+ Atlantic Net                |
+_________ http://www.lewis.org/~jlewis/pgp for PGP public key_________
+
+

@@ -1,43 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269137AbUIXUmZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269136AbUIXUnK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269137AbUIXUmZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 16:42:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269121AbUIXUkQ
+	id S269136AbUIXUnK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 16:43:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269135AbUIXUmr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 16:40:16 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:22741 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S269135AbUIXUj7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 16:39:59 -0400
-Date: Fri, 24 Sep 2004 22:22:40 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Nuno Ferreira <nuno.ferreira@graycell.biz>
-Cc: Pavel Machek <pavel@ucw.cz>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] Re: problem with suspend and usb
-Message-ID: <20040924202239.GB826@openzaurus.ucw.cz>
-References: <1095685487.4294.14.camel@taz.graycell.biz> <20040922094844.GA9197@elf.ucw.cz> <1095870490.3809.3.camel@taz.graycell.biz> <20040922175058.GA14891@elf.ucw.cz> <1095981566.4339.16.camel@taz.graycell.biz>
+	Fri, 24 Sep 2004 16:42:47 -0400
+Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:62319 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S269132AbUIXUk5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 16:40:57 -0400
+Subject: Re: 2.6.9-rc2-mm3
+From: Paul Fulghum <paulkf@microgate.com>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: James Morris <jmorris@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <20040924204345.C11325@flint.arm.linux.org.uk>
+References: <Xine.LNX.4.44.0409241210220.8009-100000@thoron.boston.redhat.com>
+	 <1096051977.1938.5.camel@deimos.microgate.com>
+	 <1096053328.1938.11.camel@deimos.microgate.com>
+	 <20040924204345.C11325@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Message-Id: <1096058415.1981.25.camel@deimos.microgate.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1095981566.4339.16.camel@taz.graycell.biz>
-User-Agent: Mutt/1.3.27i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 24 Sep 2004 15:40:15 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, 2004-09-24 at 14:43, Russell King wrote:
+> a port supporting only 8 bit data transmission
+> must not report in termios that it is set to 7 bit data transmission.
 
-> OK, I inserted a printk between each line of acpi_power_off, I see
-> set_cpus_allowed finished and then the pause, then after ~30s the
-> poweroff, I never get to see the remaining printk.
+OK, the check should stay.
 
-Uh, can you quote lines that cause slowdown? This is probably best done
-on acpi list, perhaps even go to bugzilla.kernel.org.
+Side note: the current check has an off by one bug:
 
-> By the way, is there a swsusp specific list?
-> 
+if (cbaud < 1 || cbaud + 15 > n_baud_table)
+   termios->c_flag &= ~CBAUDEX;
+else
+   cbaud += 15;
 
-No. There's suspend2-specific list, but thats different codebase.
+where cbaud is an index into baud_table array
+and n_baud_table is the number of elements
+in baud_table. The conditional should be:
+
+if (cbaud < 1 || cbaud + 15 >= n_baud_table)
+
+
 -- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+Paul Fulghum
+paulkf@microgate.com
 

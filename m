@@ -1,33 +1,116 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275857AbRJPLPX>; Tue, 16 Oct 2001 07:15:23 -0400
+	id <S275990AbRJPLlF>; Tue, 16 Oct 2001 07:41:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275968AbRJPLPN>; Tue, 16 Oct 2001 07:15:13 -0400
-Received: from law2-oe59.hotmail.com ([216.32.180.152]:25107 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S275857AbRJPLOz>;
-	Tue, 16 Oct 2001 07:14:55 -0400
-X-Originating-IP: [213.82.66.51]
-From: "Marco Berizzi" <pupilla@hotmail.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: kernel 2.4.12 + abit KT7A ***success***
-Date: Tue, 16 Oct 2001 13:15:13 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S275994AbRJPLkp>; Tue, 16 Oct 2001 07:40:45 -0400
+Received: from elin.scali.no ([62.70.89.10]:41743 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S275990AbRJPLkg>;
+	Tue, 16 Oct 2001 07:40:36 -0400
+Subject: Q: A reliable way of testing if O_DIRECT is supported
+From: Terje Eggestad <terje.eggestad@scali.no>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Message-ID: <LAW2-OE59Ax0xgsWWfI00001836@hotmail.com>
-X-OriginalArrivalTime: 16 Oct 2001 11:15:23.0031 (UTC) FILETIME=[D9319270:01C15633]
+X-Mailer: Evolution/0.15 (Preview Release)
+Date: 16 Oct 2001 13:41:07 +0200
+Message-Id: <1003232468.1964.6.camel@pc-16.office.scali.no>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I want to thank everybody for the workaround introduced in kernel 2.4.12
-resolving the Athlon bug.
-I'm working with this HW:
-K7 1330MHz + Abit KT7A (series 1.3 bios rev 12/10/2001 5S) + AHA 39160
-I'm available for any kind of test.
+Is there a reliable way of testing if O_DIRECT is supported by the
+kernel?
 
-Thanks again.
+I've a test program as follows:
+
+======================================================================
+#include <errno.h>
+#include <unistd.h>
+
+#define __USE_GNU
+#include <fcntl.h>
+
+int main()
+{
+  int fd, flags, rc;
+  char * buffer;
+
+  buffer = (char *) malloc(getpagesize()*2);
+  buffer = (char *) (((long)buffer) / getpagesize() * getpagesize()) +
+getpagesize();
+  fd = open ("/tmp/checkdirect.dat", O_RDWR|O_CREAT|O_TRUNC|O_DIRECT,
+0600);
+  if (fd == -1) {
+    printf("open failed with errno=%d\n", errno);
+    exit(errno);
+  };
+
+  printf("open OK\n", errno);
+  unlink ("/tmp/checkdirect.dat");
+
+  flags = fcntl(fd, F_GETFL);	
+  printf("fcntl(fd, F_GETFL) retuned %#o \n", flags);
+
+  printf("setting O_DIRECT(=%#o) flag with fcntl()\n", O_DIRECT);
+  fcntl(fd, F_SETFL, O_DIRECT|flags);	
+
+  flags = fcntl(fd, F_GETFL);	
+  printf("fcntl(fd, F_GETFL) retuned %#o \n", flags, O_DIRECT);
+  if (!(flags & O_DIRECT)) {
+    printf("failed to set O_DIRECT flag errno=%d\n", errno);
+    exit(errno);
+  };
+
+  rc = write(fd, buffer, getpagesize());
+  if (rc !=  getpagesize()) {
+    printf("aligned write failed with errno=%d\n", errno);
+    exit(errno);
+  };
+  printf("aligned write OK\n", errno);
+  rc = write(fd, buffer+100, 100);
+  if (rc !=  100) {
+    printf("unaligned write failed with errno=%d\n", errno);
+    exit(errno);
+  };
+  printf("unaligned write OK\n", errno);
+};
+======================================================================
+
+Now on a 2.4.10 kernel it produces (correctly)
+
+open OK
+fcntl(fd, F_GETFL) retuned 040002 
+setting O_DIRECT(=040000) flag with fcntl()
+fcntl(fd, F_GETFL) retuned 040002 
+aligned write OK
+unaligned write failed with errno=22
+
+But on both a RH6.2 with a 2.2.19 and a RH7.1 with 2.4.3 (both non
+stock) it gives:
+
+open OK
+fcntl(fd, F_GETFL) retuned 040002 
+setting O_DIRECT(=040000) flag with fcntl()
+fcntl(fd, F_GETFL) retuned 040002 
+aligned write OK
+unaligned write OK
+
+
+I guess the open(,,O_DIRECT) *should* have failed on earlier kernels,
+but since they don't I need another way of testing if directio is
+supported.
+
+TJ
+ 
+-- 
+_________________________________________________________________________
+
+Terje Eggestad                  terje.eggestad@scali.no
+Scali Scalable Linux Systems    http://www.scali.com
+
+Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
+P.O.Box 70 Bogerud                      +47 975 31 574  (MOBILE)
+N-0621 Oslo                     fax:    +47 22 62 89 51
+NORWAY            
+_________________________________________________________________________
+

@@ -1,82 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319282AbSIFS14>; Fri, 6 Sep 2002 14:27:56 -0400
+	id <S319314AbSIFS1U>; Fri, 6 Sep 2002 14:27:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319297AbSIFS14>; Fri, 6 Sep 2002 14:27:56 -0400
-Received: from h00e098094f32.ne.client2.attbi.com ([24.60.61.209]:64640 "EHLO
-	linux.local") by vger.kernel.org with ESMTP id <S319282AbSIFS1x>;
-	Fri, 6 Sep 2002 14:27:53 -0400
-Date: Fri, 6 Sep 2002 14:44:15 -0400
-Message-Id: <200209061844.g86IiF701825@linux.local>
-From: Jim Houston <jim.houston@attbi.com>
+	id <S319315AbSIFS1U>; Fri, 6 Sep 2002 14:27:20 -0400
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:47887 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S319314AbSIFS1T>; Fri, 6 Sep 2002 14:27:19 -0400
+Date: Fri, 6 Sep 2002 19:31:57 +0100
+From: John Levon <movement@marcelothewonderpenguin.com>
 To: linux-kernel@vger.kernel.org
-cc: jim.houston@ccur.com
-Subject: O(1) Scheduler (tuning problem/live-lock)
-Reply-to: jim.houston@attbi.com
+Subject: Re: Early SPECWeb99 results on 2.5.33 with TSO on e1000
+Message-ID: <20020906183157.GA44177@compsoc.man.ac.uk>
+References: <3D78C9BD.5080905@us.ibm.com> <53430559.1031304588@[10.10.2.3]> <3D78E7A5.7050306@us.ibm.com> <20020906202646.A2185@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020906202646.A2185@wotan.suse.de>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Boards of Canada - Geogaddi
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Sep 06, 2002 at 08:26:46PM +0200, Andi Kleen wrote:
 
-   The current O(1) scheduler heuristics for calculating sleep_avg
-   and assigning process priorities allows a parent and a small group of 
-   compute bound child processes to live-lock the system.  
-   We found this problem running a stress test including the LTP
-   test suite.  In particular the waitpid06 test in the LTP triggered
-   this problem.  We are working with a 2.4.18 kernel with a backport of
-   the O(1) scheduler, but this problem is present in Linux-2.5.32.
+> > c0216ecc 257768   11.4219     inet_bind
+> 
+> The profile looks bogus. The NIC driver is nowhere in sight. Normally
+> its mmap IO for interrupts and device registers should show. I would
+> double check it (e.g. with normal profile) 
 
-How it happens.
+The system summary shows :
 
-   The waitpid06 test forks off 8 child processes.  Each child enters
-   an infinite loop waiting for a signal from the parent.  Yes, it's
-   a stupid test program.  The parent (if it gets to run) immediately sends
-   a signal to each child process and then does a wait() call for each child.
-   
-   The parent process spends all of its time in wait().  When a child
-   exits, the parents sleep_avg is adjusted twice.  
-   
-   In sched_exit():
-	parent->sleep_avg = ((3*parent->sleep_avg) + child->sleep_avg)/4;
+58181      1.8458 0.0000 /lib/modules/2.4.18+O1/kernel/drivers/net/acenic.o
 
-   In activate_task():
-	p->sleep_avg += sleep_time;
-	if (p->sleep_avg > MAX_SLEEP_AVG)
-		p->sleep_avg = MAX_SLEEP_AVG;
-  
-   The child->sleep_avg is set initially to 95% of the parent->sleep_avg.
-   The child->sleep_avg for the running child is decremented in
-   scheduler_tick().  If you have fewer processors than child processes,
-   child->sleep_avg will,  on average, decrease less than 1 each tick.
-   
-   The effect is that the parent sleep_avg will approach MAX_SLEEP_AVG giving
-   it and its children a favorable interactive priority.  
-   Since these processes are judged interactive they go back into the active
-   array when they use up their time slice but still with a favorable priority
-   and a new time quantum.
-   
-   The problem is easy to reproduce with the waitpid06 test.  It provides
-   options so that you can loop repeating the test and also run multiple
-   copies at once.  I have been using:
+so it won't show up in the monolithic kernel profile. You can probably
+get a combined comparison with
 
-	waitpid06 -c 8 -i 10000
+op_time -dnl | grep -e 'vmlinux|acenic'
 
-   This runs 8 copies of the test (64 unruly child processes) and loops
-   10,000 times.  I also run a top(1) and a:
-	  while true ; do date; sleep 1; done
-   loop so I can tell if the system has locked up.  This sometimes takes
-   a few minutes.
+regards
+john
 
-
-How do we fix this?
-
-   I'm just getting started playing with the code.  When I tried changing the 
-   EXIT_WEIGHT to 1, the problem still happened.  I tried changing 
-   sched_exit to give the parent the minimum of the two sleep_avg values.
-   This seems to fix the problem.  I suspect that this is really a symptom
-   of a larger problem, that the system can be over-commited with processes
-   which are all judged interactive never putting processes in the expired
-   array and so never triggering the EXPIRED_STARVING case.
-
-Please CC: me on answers/comments since I read the archives.
-
-Jim Houston - Concurrent Computer Corp.
+-- 
+ "Are you willing to go out there and save the lives of our children, even if it means losing your own life ?
+ Yes I am.
+ I believe you, Jeru... you're ready."

@@ -1,33 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130446AbRCGJI6>; Wed, 7 Mar 2001 04:08:58 -0500
+	id <S130577AbRCGJFJ>; Wed, 7 Mar 2001 04:05:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130448AbRCGJIs>; Wed, 7 Mar 2001 04:08:48 -0500
-Received: from sunrise.pg.gda.pl ([153.19.40.230]:27126 "EHLO
-	sunrise.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S130446AbRCGJIn>; Wed, 7 Mar 2001 04:08:43 -0500
-From: Andrzej Krzysztofowicz <ankry@pg.gda.pl>
-Message-Id: <200103070907.KAA05202@sunrise.pg.gda.pl>
-Subject: Re: IP autoconfig via DHCP?
-To: kenn@linux.ie (Kenn Humborg)
-Date: Wed, 7 Mar 2001 10:07:29 +0100 (MET)
-Cc: linux-kernel@vger.kernel.org (Linux-Kernel)
-In-Reply-To: <20010307020020.A29103@excalibur.research.wombat.ie> from "Kenn Humborg" at Mar 07, 2001 02:00:20 AM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S130453AbRCGJE7>; Wed, 7 Mar 2001 04:04:59 -0500
+Received: from smtp1.libero.it ([193.70.192.51]:50597 "EHLO smtp1.libero.it")
+	by vger.kernel.org with ESMTP id <S130445AbRCGJEx>;
+	Wed, 7 Mar 2001 04:04:53 -0500
+Message-ID: <3AA5F983.D963D199@alsa-project.org>
+Date: Wed, 07 Mar 2001 10:04:03 +0100
+From: Abramo Bagnara <abramo@alsa-project.org>
+Organization: Opera Unica
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.19pre6 i586)
+X-Accept-Language: it, en
 MIME-Version: 1.0
+To: Alexander Viro <viro@math.psu.edu>
+CC: Jeremy Elson <jelson@circlemud.org>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Mapping a piece of one process' addrspace to another?
+In-Reply-To: <Pine.GSO.4.21.0103070337560.2127-100000@weyl.math.psu.edu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Kenn Humborg wrote:"
+Alexander Viro wrote:
 > 
-> Back in 2.2, we could use DHCP to auto-config the IP setup.  In fact,
-> the choice was DHCP, BOOTP or RARP.
+> On Wed, 7 Mar 2001, Jeremy Elson wrote:
 > 
-> Now there is only BOOTP or RARP.  What happened to DHCP support?
+> > Right now, my code looks something like this: (it might make more
+> > sense if you know that I've written a framework for writing user-space
+> > device drivers... I'm going to be releasing it soon, hopefully after I
+> > resolve this performance problem.  Or maybe before, if it's hard.)
+> 
+> Ugh. Why not make that a named pipe and use zerocopy stuff for pipes?
+> I.e. why bother with making it look like a character device rather than
+> a FIFO?
 
-Nothing. It has been implemented in 2.2 very late and has never been ported
-to 2.3/2.4 kernels.
+What about ioctl? Device drivers sometimes need it ;-)
 
-Andrzej
+
+-- 
+Abramo Bagnara                       mailto:abramo@alsa-project.org
+
+Opera Unica                          Phone: +39.546.656023
+Via Emilia Interna, 140
+48014 Castel Bolognese (RA) - Italy
+
+ALSA project is            http://www.alsa-project.org
+sponsored by SuSE Linux    http://www.suse.com
+
+It sounds good!

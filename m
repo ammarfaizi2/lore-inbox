@@ -1,82 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266924AbSLWRQA>; Mon, 23 Dec 2002 12:16:00 -0500
+	id <S266926AbSLWRVT>; Mon, 23 Dec 2002 12:21:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266926AbSLWRQA>; Mon, 23 Dec 2002 12:16:00 -0500
-Received: from splat.lanl.gov ([128.165.17.254]:6293 "EHLO
-	balance.radtt.lanl.gov") by vger.kernel.org with ESMTP
-	id <S266924AbSLWRP7>; Mon, 23 Dec 2002 12:15:59 -0500
-Date: Mon, 23 Dec 2002 10:23:57 -0700
-From: Eric Weigle <ehw@lanl.gov>
+	id <S266927AbSLWRVT>; Mon, 23 Dec 2002 12:21:19 -0500
+Received: from [212.18.235.100] ([212.18.235.100]:64269 "EHLO
+	tench.street-vision.com") by vger.kernel.org with ESMTP
+	id <S266926AbSLWRVS>; Mon, 23 Dec 2002 12:21:18 -0500
+Subject: Re: OT: Which Gigabit ethernet card?
+From: Justin Cormack <justin@street-vision.com>
 To: nick@snowman.net
 Cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
-       Sampson Fung <sampson@attglobal.net>, linux-kernel@vger.kernel.org
-Subject: Re: OT: Which Gigabit ethernet card?
-Message-ID: <20021223172357.GS23388@lanl.gov>
-References: <854C62E2-1670-11D7-A27C-000393950CC2@karlsbakk.net> <Pine.LNX.4.21.0212230949270.22216-100000@ns.snowman.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="FiqEyLLt06qkB6ow"
-Content-Disposition: inline
+       Sampson Fung <sampson@attglobal.net>,
+       Kernel mailing list <linux-kernel@vger.kernel.org>
 In-Reply-To: <Pine.LNX.4.21.0212230949270.22216-100000@ns.snowman.net>
-User-Agent: Mutt/1.3.28i
-X-Eric-Conspiracy: There is no conspiracy
-X-Editor: Vim, http://www.vim.org
-X-GnuPG-fingerprint: 112E F8CA 12A9 771E DB10  6514 D4B0 D758 59EA 9C4F
-X-GnuPG-key: http://public.lanl.gov/ehw/ehw.gpg.key
+References: <Pine.LNX.4.21.0212230949270.22216-100000@ns.snowman.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 23 Dec 2002 17:28:11 +0000
+Message-Id: <1040664496.7156.112.camel@lotte>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+er, no. GigE over copper autodetects crossovers, so a standard cable
+will work anyway. Actually this has been backported to some 100MB
+switches now (presumably use same io interfaces) so crossover cables are
+fast disappearing. You can even stick a non crossover cable between a
+100MB pci card and a GigE one and it will work.
 
---FiqEyLLt06qkB6ow
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-> > > Can I just use a standard Cross Over UTP cable to link up two Intel
-> > > Gigabit card, just like Fast Ethernet does?
-> > yes, but be careful, as cat 5e is pretty tough when it comes to the=20
-> > connector specs
+On Mon, 2002-12-23 at 14:50, nick@snowman.net wrote:
 > I belive this is incorrect.  A traditional ethernet crossover crosses two
 > pairs, as ethernet & fast ethernet use 2 pairs.  Gigabit ethernet uses all
 > 4 pairs, and would need all 4 pairs crossed I assume.
-According to spec, maybe, but in practice not necessary. Modern gigE cards
-will run just fine over all sorts of pin-outs (even non-crossed over cables)
+> 	Nick
+> 
+> On Mon, 23 Dec 2002, Roy Sigurd Karlsbakk wrote:
+> 
+> > yes, but be careful, as cat 5e is pretty tough when it comes to the 
+> > connector specs
+> > 
+> > roy
+> > 
+> > On Saturday, December 21, 2002, at 06:28 PM, Sampson Fung wrote:
+> > 
+> > > Can I just use a standard Cross Over UTP cable to link up two Intel
+> > > Gigabit card, just like Fast Ethernet does?
+> > >
+> > > Sampson Fung
+> > > sampson@attglobal.net
+> > >
+> > > -----Original Message-----
+> > > From: linux-kernel-owner@vger.kernel.org
+> > > [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Jurgen Kramer
+> > > Sent: Saturday, December 21, 2002 8:43 PM
+> > > To: linux-kernel@vger.kernel.org
+> > > Subject: Re: OT: Which Gigabit ethernet card?
+> > >
+> > >
+> > > Thanks! I am going to try the Intel card.
+> > >
+> > > -
+> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> > > in the body of a message to majordomo@vger.kernel.org More majordomo
+> > > info at  http://vger.kernel.org/majordomo-info.html
+> > > Please read the FAQ at  http://www.tux.org/lkml/
+> > >
+> > >
+> > > -
+> > > To unsubscribe from this list: send the line "unsubscribe 
+> > > linux-kernel" in
+> > > the body of a message to majordomo@vger.kernel.org
+> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > Please read the FAQ at  http://www.tux.org/lkml/
+> > 
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> > 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-See=20
-http://www.intel.com/network/connectivity/products/pro1000mt_desktop_adapte=
-r.htm
 
-"automatically compensates for cable issues such as crossover cable, wrong
-pin-out and polarity"
-
-Or
-http://www.intel.com/design/network/products/lan/controllers/82546.htm
-
-"PHY detects polarity, MDI-X, 2 pair vs. 4 pair cables, and cable length
-=2E.. No need to know the difference between crossover and non-crossover ca=
-bles"
-
--Eric
-
---=20
-------------------------------------------------------------
-        Eric H. Weigle -- http://public.lanl.gov/ehw/
-"They that can give up essential liberty to obtain a little
-temporary safety deserve neither" -- Benjamin Franklin
-------------------------------------------------------------
-
---FiqEyLLt06qkB6ow
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE+B0at1LDXWFnqnE8RAjDdAKDxsqnAnv94mHGZKkVHAAfY3roDkQCgo4QY
-jbF/dLtL3hD4sWni1MiCZfE=
-=a0JI
------END PGP SIGNATURE-----
-
---FiqEyLLt06qkB6ow--

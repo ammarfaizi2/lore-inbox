@@ -1,67 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262913AbUA0Idh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 03:33:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262960AbUA0Idh
+	id S262705AbUA0Iwl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 03:52:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262805AbUA0Iwl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 03:33:37 -0500
-Received: from gprs178-245.eurotel.cz ([160.218.178.245]:5248 "EHLO
-	midnight.ucw.cz") by vger.kernel.org with ESMTP id S262913AbUA0Idf
+	Tue, 27 Jan 2004 03:52:41 -0500
+Received: from mtagate6.de.ibm.com ([195.212.29.155]:4093 "EHLO
+	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP id S262705AbUA0Iwj convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 03:33:35 -0500
-Date: Tue, 27 Jan 2004 09:33:38 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Voluspa <lista3@comhem.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: atkbd.c: Unknown key released
-Message-ID: <20040127083338.GA490@ucw.cz>
-References: <200401270716.i0R7Gxw21819@d1o408.telia.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200401270716.i0R7Gxw21819@d1o408.telia.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 27 Jan 2004 03:52:39 -0500
+Subject: Re: Cset 1.1490.4.201 - dasd naming
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: laroche@redhat.com, linux-kernel@vger.kernel.org, zaitcev@redhat.com
+X-Mailer: Lotus Notes Release 5.0.12   February 13, 2003
+Message-ID: <OFCE30A640.024A04A1-ONC1256E28.003023EA-C1256E28.0030BF4E@de.ibm.com>
+From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
+Date: Tue, 27 Jan 2004 09:52:27 +0100
+X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 27/01/2004 09:52:30
+MIME-Version: 1.0
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 27, 2004 at 08:16:59AM +0100, Voluspa wrote:
 
-> > > I keep getting the following in my syslog whenever I startx:
-> 
-> In fact, it is preemptively written even _before_ I start X :-)
-> I'm using an ancient IBM PS2 swedish keyboard, and this 0x7a crap began
-> showing somewhere at 2.6.1 (then without blaming X). Now it is - and the
-> blame on X came with 2.6.2-rc2:
-> 
-> Booting:
-> 
-> Jan 26 16:29:10 loke kernel: atkbd.c: Unknown key released (translated
-> set 2, code 0x7a on isa0060/serio0).
-> Jan 26 16:29:10 loke kernel: atkbd.c: This is an XFree86 bug. It
-> shouldn't access hardware directly.
-> Jan 26 16:29:11 loke kernel: atkbd.c: Unknown key released (translated
-> set 2, code 0x7a on isa0060/serio0).
-> Jan 26 16:29:11 loke kernel: atkbd.c: This is an XFree86 bug. It
-> shouldn't access hardware directly.
+Hi Pete,
 
-Do you use 'kbdrate' in your bootup scripts? That's another one touching
-the keyboard controller directly, when there are ioctls for that.
+> In a recent changeset in Linus' tree, there's your diff which blows up
+> the dasd naming scheme, with the comment:
+>  - Change dasd names from "dasdx" to "dasd_<busid>_".
+We plan to do this for tape and other ccw devices as well (where applicable).
 
-I guess I should modify to make the message not point not directly to X,
-but 'some application'.
+> This breaks mkinitrd, nash, and mount by label (not to mention every
+> zipl.conf out there, because root= aliases to /sys/block/%s).
+> Would you please explain what exactly you were thinking when you
+> submitted that patch?
+The reason for this change is the requirement to have persistent device
+names. The /dev/dasdxyz naming schema heavily depends on the order in
+which the device are added. Not good for persistent names. This change
+affects four things: 1) the internal name, 2) the name of the sysfs
+directory, 3) the root= parameter and 4) the hotplug events for dasd
+devices.
 
-> Starting X:
-> 
-> Jan 26 16:33:50 loke kernel: atkbd.c: Unknown key released (translated
-> set 2, code 0x7a on isa0060/serio0).
-> Jan 26 16:33:50 loke kernel: atkbd.c: This is an XFree86 bug. It
-> shouldn't access hardware directly.
-> Jan 26 16:33:50 loke kernel: atkbd.c: Unknown key released (translated
-> set 2, code 0x7a on isa0060/serio0).
-> Jan 26 16:33:50 loke kernel: atkbd.c: This is an XFree86 bug. It
-> shouldn't access hardware directly.
+blue skies,
+   Martin
+
+Linux/390 Design & Development, IBM Deutschland Entwicklung GmbH
+Schönaicherstr. 220, D-71032 Böblingen, Telefon: 49 - (0)7031 - 16-2247
+E-Mail: schwidefsky@de.ibm.com
 
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+

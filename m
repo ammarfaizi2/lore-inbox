@@ -1,31 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281160AbRLDRBy>; Tue, 4 Dec 2001 12:01:54 -0500
+	id <S281191AbRLDRE4>; Tue, 4 Dec 2001 12:04:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281129AbRLDRAa>; Tue, 4 Dec 2001 12:00:30 -0500
-Received: from air-1.osdl.org ([65.201.151.5]:46596 "EHLO osdlab.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S281252AbRLDRAL>;
-	Tue, 4 Dec 2001 12:00:11 -0500
-Date: Tue, 4 Dec 2001 08:56:32 -0800 (PST)
-From: <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Mark Mokryn <mark@sangate.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Docs on PC disk partition tables?
-In-Reply-To: <B71796881E0DF7409F066FE6656BDF29040F31@BEASLEY.il.sangate.com>
-Message-ID: <Pine.LNX.4.33L2.0112040856070.18921-100000@dragon.pdx.osdl.net>
+	id <S281165AbRLDRDd>; Tue, 4 Dec 2001 12:03:33 -0500
+Received: from web12302.mail.yahoo.com ([216.136.173.100]:8793 "HELO
+	web12302.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S281199AbRLDRCx>; Tue, 4 Dec 2001 12:02:53 -0500
+Message-ID: <20011204170252.43996.qmail@web12302.mail.yahoo.com>
+Date: Tue, 4 Dec 2001 09:02:52 -0800 (PST)
+From: Stephen Cameron <smcameron@yahoo.com>
+Subject: cciss max SGs is 31, not 32, 2.5.1-pre5
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Dec 2001, Mark Mokryn wrote:
+Guys,
 
-| Does anyone know of docs describing the PC disk partition tables, MBR
-| format, etc?
+wrt 2.5.1-pre5
 
-Try http://www.win.tue.nl/~aeb/partitions/
+The change below should be reverted.  The controller will reject a command
+with 32 scatter gather entries.  
 
--- 
-~Randy
+Thanks,
 
+-- steve
+
+diff -u --recursive --new-file v2.5.0/linux/drivers/block/cciss_cmd.h
+linux/drivers/block/cciss_cmd.h
+--- v2.5.0/linux/drivers/block/cciss_cmd.h      Fri Nov  2 17:45:42 2001
++++ linux/drivers/block/cciss_cmd.h     Tue Nov 27 09:23:27 2001
+@@ -7,7 +7,7 @@
+
+ //general boundary defintions
+ #define SENSEINFOBYTES          32//note that this value may vary between host implementations
+-#define MAXSGENTRIES            31
++#define MAXSGENTRIES            32
+ #define MAXREPLYQS              256
+
+
+__________________________________________________
+Do You Yahoo!?
+Buy the perfect holiday gifts at Yahoo! Shopping.
+http://shopping.yahoo.com

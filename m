@@ -1,44 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266870AbUJBAMM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266880AbUJBAP2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266870AbUJBAMM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 20:12:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266878AbUJBAMM
+	id S266880AbUJBAP2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 20:15:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266878AbUJBAP2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 20:12:12 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:33948 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S266870AbUJBAML (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 20:12:11 -0400
-Subject: alsa-driver will not compile with kernel 2.6.9-rc2-mm4-S7
-From: Lee Revell <rlrevell@joe-job.com>
-To: alsa-devel <alsa-devel@lists.sourceforge.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
-Content-Type: text/plain
-Message-Id: <1096675930.27818.74.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 01 Oct 2004 20:12:10 -0400
+	Fri, 1 Oct 2004 20:15:28 -0400
+Received: from gizmo02ps.bigpond.com ([144.140.71.12]:65212 "HELO
+	gizmo02ps.bigpond.com") by vger.kernel.org with SMTP
+	id S266884AbUJBANM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 20:13:12 -0400
+Message-ID: <415DF294.1050707@bigpond.net.au>
+Date: Sat, 02 Oct 2004 10:13:08 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Badari Pulavarty <pbadari@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc2-mm4 ps hang ?
+References: <1096646925.12861.50.camel@dyn318077bld.beaverton.ibm.com> <20041001120926.4d6f58d5.akpm@osdl.org> <1096666140.12861.82.camel@dyn318077bld.beaverton.ibm.com> <20041001145536.182dada9.akpm@osdl.org> <1096672002.12861.84.camel@dyn318077bld.beaverton.ibm.com> <20041001164938.3231482e.akpm@osdl.org>
+In-Reply-To: <20041001164938.3231482e.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At first I thought my build was incorrect, but I reproduced this error
-with a clean build and ALSA CVS from today:
+Andrew Morton wrote:
+> Badari Pulavarty <pbadari@us.ibm.com> wrote:
+> 
+>>Here is the full sysrq-t output.
+> 
+> 
+> What's this guy up to?
+> 
+> db2fmcd       D 0000000000000000     0 11032      1          1373 11031 (NOTLB)
+> 00000101b9b9bef8 0000000000000002 0000003700000037 00000101c13608a0 
+>        000000010000009f 0000010199649250 0000010199649588 0000000000000000 
+>        0000000000000206 ffffffff801353db 
+> Call Trace:<ffffffff801353db>{try_to_wake_up+971} <ffffffff80445570>{__down_write+128} 
+>        <ffffffff80125e7f>{sys32_mmap+143} <ffffffff80124b01>{ia32_sysret+0} 
+>        
+> 
+> Something is seriously screwed up if it's stuck in try_to_wake_up().  Tried
+> generating a few extra traces?
+> 
+> Then again, maybe we're missing an up_read() somewhere.  hrm, I'll check.
 
-  CC [M]  /home/rlrevell/cvs/alsa/alsa-driver/kbuild/../acore/pcm_native.o
-/home/rlrevell/cvs/alsa/alsa-driver/acore/pcm_native.c:3202:57: macro "io_remap_page_range" requires 5 arguments, but only 4 given
-/home/rlrevell/cvs/alsa/alsa-driver/acore/pcm_native.c: In function `snd_pcm_lib_mmap_iomem':
-/home/rlrevell/cvs/alsa/alsa-driver/acore/pcm_native.c:3200: error: `io_remap_page_range' undeclared (first use in this function)
-/home/rlrevell/cvs/alsa/alsa-driver/acore/pcm_native.c:3200: error: (Each undeclared identifier is reported only once
-/home/rlrevell/cvs/alsa/alsa-driver/acore/pcm_native.c:3200: error: for each function it appears in.)
-make[3]: *** [/home/rlrevell/cvs/alsa/alsa-driver/kbuild/../acore/pcm_native.o] Error 1
-make[2]: *** [/home/rlrevell/cvs/alsa/alsa-driver/kbuild/../acore] Error 2
-make[1]: *** [_module_/home/rlrevell/cvs/alsa/alsa-driver/kbuild] Error 2
-make[1]: Leaving directory `/home/rlrevell/kernel-source/linux-2.6.9-rc2-mm4-S7'
-make: *** [compile] Error 2
+It's highly^64 unlikely BUT a possible reason for a task getting stuck 
+in try_to_wakeup() is the function adjust_sched_timestamp() which is 
+part of the ZAPHOD patch.  This could be tested by removing the if-while 
+statement from that function and seeing if that fixes things.  Or you 
+could just remove the call from try_to_wake_up().
 
-I am not sure if this is an ALSA issue or -mm4.  I suspect -mm4 because
--mm3-S6 worked.  The VP patch does not seem to be involved.
+I'll use a more sensible (bounded) mechanism in the next version of ZAPHOD.
 
-Lee
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

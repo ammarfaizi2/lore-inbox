@@ -1,66 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262007AbUJYVMI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261992AbUJYVNO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262007AbUJYVMI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 17:12:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262014AbUJYVKk
+	id S261992AbUJYVNO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 17:13:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbUJYVJy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 17:10:40 -0400
-Received: from fmr03.intel.com ([143.183.121.5]:58596 "EHLO
-	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S262009AbUJYVGg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 17:06:36 -0400
-Message-Id: <200410252103.i9PL3Mq08901@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Christoph Lameter'" <clameter@SGI.com>,
-       "William Lee Irwin III" <wli@holomorphy.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Hugepages demand paging V1 [4/4]: Numa patch
-Date: Mon, 25 Oct 2004 14:05:56 -0700
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: AcS4b6KYBIroaEV4S/mU/jIdbX9V5QCYvIAg
-In-Reply-To: <Pine.LNX.4.58.0410221235300.9549@schroedinger.engr.sgi.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+	Mon, 25 Oct 2004 17:09:54 -0400
+Received: from smtp-101-monday.noc.nerim.net ([62.4.17.101]:53778 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S262060AbUJYU6f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 16:58:35 -0400
+Date: Mon, 25 Oct 2004 22:59:59 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Justin Thiessen <jthiessen@penguincomputing.com>
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com,
+       ppokorny@penguincomputing.com
+Subject: Re: [PATCH] 2.6 lm85.c driver update
+Message-Id: <20041025225959.6026626f.khali@linux-fr.org>
+In-Reply-To: <20041025203610.GA19053@penguincomputing.com>
+References: <20041004200943.GE22290@penguincomputing.com>
+	<20041019222920.GJ9521@kroah.com>
+	<20041025203610.GA19053@penguincomputing.com>
+Reply-To: LM Sensors <sensors@stimpy.netroedge.com>,
+       LKML <linux-kernel@vger.kernel.org>
+X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote on Friday, October 22, 2004 12:37 PM
-> > On Thu, Oct 21, 2004 at 09:58:54PM -0700, Christoph Lameter wrote:
-> > > Changelog
-> > > 	* NUMA enhancements (rough first implementation)
-> > > 	* Do not begin search for huge page memory at the first node
-> > > 	  but start at the current node and then search previous and
-> > > 	  the following nodes for memory.
-> > > Signed-off-by: Christoph Lameter <clameter@sgi.com>
-> >
-> > dequeue_huge_page() seems to want a nodemask, not a vma, though I
-> > suppose it's not particularly pressing.
->
-> How about this variation following __alloc_page:
->
-> @@ -32,14 +32,17 @@
-> +	struct zonelist *zonelist = NODE_DATA(nid)->node_zonelists;
-> +	struct zone **zones = zonelist->zones;
-> +	struct zone *z;
-> +	int i;
-> +
-> +	for(i=0; (z = zones[i])!= NULL; i++) {
-> +		nid = z->zone_pgdat->node_id;
-> +		if (list_empty(&hugepage_freelists[node_id]))
-> +			break;
->  	}
+> > Hm, there are a number of rejects in this patch.  Care to resync up
+> > with the next kernel release and resend this?
+> 
+> Ok, try this:
+> 
+> signed off by:  Justin Thiessen  <jthiessen@penguincomputing.com>
+> 
+> patch for kernel 2.6.X lm85 driver follows:
+> ----------------------------------------------------
+> 
+> --- linux-2.6.9/drivers/i2c/chips/lm85.c.orig	2004-10-18 14:53:46.000000000 -0700
+> +++ linux-2.6.9/drivers/i2c/chips/lm85.c	2004-10-24 18:16:04.188509824 -0700
 
-Must be typos in the if statement.  Two fatal errors here:  You don't
-really mean to break out of the for loop if there are no hugetlb page
-on that node, do you?  The variable name to index into the freelist is
-wrong, should be nid, otherwise this code won't compile.  That line
-should be this:
+Unfortunately this won't be OK either. 2.6.10-rc1 has a lot of i2c
+changes, including a number of things your patch attempts to fix (macro
+abuse reported by Mark Hoffman). So it won't apply to Greg's tree.
 
-+		if (!list_empty(&hugepage_freelists[nid]))
+Please provide your patch against 2.6.10-rc1. Sorry that you always seem
+to provide your patch against the not-really-last tree ;)
 
-
-Also this is generic code, we should consider scanning ZONE_HIGHMEM
-zonelist. Otherwise, this will likely screw up x86 numa machine.
-
-- Ken
-
-
+-- 
+Jean Delvare
+http://khali.linux-fr.org/

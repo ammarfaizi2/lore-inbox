@@ -1,70 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261708AbVCXThE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263184AbVCXTkm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261708AbVCXThE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 14:37:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261718AbVCXThE
+	id S263184AbVCXTkm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 14:40:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262657AbVCXTjk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 14:37:04 -0500
-Received: from imf16aec.mail.bellsouth.net ([205.152.59.64]:54770 "EHLO
-	imf16aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S261708AbVCXTg4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 14:36:56 -0500
-Date: Thu, 24 Mar 2005 13:36:28 -0600
-From: Tommy Reynolds <Tommy.Reynolds@MegaCoder.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Squashfs without ./..
-Message-Id: <20050324133628.196a4c41.Tommy.Reynolds@MegaCoder.com>
-In-Reply-To: <Pine.LNX.4.62.0503241855350.18295@numbat.sonytel.be>
-References: <Pine.LNX.4.61.0503221645560.25571@yvahk01.tjqt.qr>
-	<Pine.LNX.4.62.0503221656310.2683@dragon.hyggekrogen.localhost>
-	<200503231740.09572.maillist@zuco.org>
-	<Pine.LNX.4.61.0503231829570.1481@yvahk01.tjqt.qr>
-	<20050323174925.GA3272@zero>
-	<Pine.LNX.4.62.0503241855350.18295@numbat.sonytel.be>
-X-Mailer: Sylpheed version 1.9.6+svn (GTK+ 2.4.14; i686-redhat-linux-gnu)
-X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$
- t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl
- 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
+	Thu, 24 Mar 2005 14:39:40 -0500
+Received: from fire.osdl.org ([65.172.181.4]:47291 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262656AbVCXTis (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 14:38:48 -0500
+Date: Thu, 24 Mar 2005 11:38:34 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Jan Kara <jack@suse.cz>, Mark Wong <markw@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, stable@kernel.org
+Subject: Re: ext3 journalling BUG on full filesystem
+Message-ID: <20050324193834.GH28536@shell0.pdx.osdl.net>
+References: <20050323202130.GA30844@osdl.org> <20050323221753.GA6334@cse.unsw.EDU.AU> <20050324103945.GF19394@atrey.karlin.mff.cuni.cz> <1111691379.1995.91.camel@sisko.sctweedie.blueyonder.co.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Thu__24_Mar_2005_13_36_28_-0600_bTsZiT/H=K9QD76t"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1111691379.1995.91.camel@sisko.sctweedie.blueyonder.co.uk>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Thu__24_Mar_2005_13_36_28_-0600_bTsZiT/H=K9QD76t
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+* Stephen C. Tweedie (sct@redhat.com) wrote:
+> Hi,
+> 
+> On Thu, 2005-03-24 at 10:39, Jan Kara wrote:
+> 
+> >   Actually the patch you atached showed in the end as not covering all
+> > the cases and so Stephen agreed to stay with the first try (attached)
+> > which should cover all known cases (although it's not so nice).
+> 
+> Right.  The later patch is getting reworked into a proper locking
+> overhaul for the journal_put_journal_head() code.  The earlier one (that
+> Jan attached) is the one that's appropriate in the mean time; it covers
+> all of the holes we know about for sure and has proven robust in
+> testing.
 
-Uttered Geert Uytterhoeven <geert@linux-m68k.org>, spake thus:
+OK, good to know.  When I last checked you were working on a higher risk
+yet more complete fix, and I thought we'd wait for that one to stabilize.
+Looks like the one Jan attached is the better -stable candidate?
 
-> > There's probably a number of apps that skip the first two dirents, inst=
-ead
-> > of checking for the dot dirs.
->=20
-> Yep, check `-noleaf' in find(1)
-
-Then it is broken in several ways. =20
-
-First, file systems are not required to implement ".." (only "." is
-magical, ".." is a courtesy). =20
-
-Second, skipping the first two entries carries an implied assumtion
-about the file name sorting order that is not portable in a
-non-US-ASCII world.
-
-Cheers
-
---Signature=_Thu__24_Mar_2005_13_36_28_-0600_bTsZiT/H=K9QD76t
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQFCQxa//0ydqkQDlQERAg0ZAJ4uZgK1JXiROzKsXfgd+sCYbqvjdQCg28aU
-l9Q0PSRz0+8koNpEnmM4p8U=
-=5FyD
------END PGP SIGNATURE-----
-
---Signature=_Thu__24_Mar_2005_13_36_28_-0600_bTsZiT/H=K9QD76t--
+thanks,
+-chris

@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261966AbVASXSH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261969AbVASXVm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261966AbVASXSH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 18:18:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261971AbVASXRv
+	id S261969AbVASXVm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 18:21:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261975AbVASXSe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 18:17:51 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:36348 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261966AbVASXOt
+	Wed, 19 Jan 2005 18:18:34 -0500
+Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:9693 "EHLO
+	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S261968AbVASXRe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 18:14:49 -0500
-Message-ID: <41EEE9E4.4070105@mvista.com>
-Date: Wed, 19 Jan 2005 15:14:44 -0800
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: george@mvista.com
-CC: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: VST patches ported to 2.6.11-rc1
-References: <20050113132641.GA4380@elf.ucw.cz> <20050114001118.GA1367@elf.ucw.cz> <41E71A78.8050507@mvista.com>
-In-Reply-To: <41E71A78.8050507@mvista.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 19 Jan 2005 18:17:34 -0500
+Date: Wed, 19 Jan 2005 15:17:03 -0800
+From: Tony Lindgren <tony@atomide.com>
+To: George Anzinger <george@mvista.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Pavel Machek <pavel@suse.cz>,
+       john stultz <johnstul@us.ibm.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Con Kolivas <kernel@kolivas.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] dynamic tick patch
+Message-ID: <20050119231702.GJ14545@atomide.com>
+References: <20050119000556.GB14749@atomide.com> <20050119094342.GB25623@elf.ucw.cz> <20050119171323.GB14545@atomide.com> <20050119174858.GB12647@dualathlon.random> <41EEE648.2010309@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41EEE648.2010309@mvista.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-George Anzinger wrote:
-> Pavel Machek wrote:
-> 
->> Hi!
->>
->>
->>> I really hate sf download system... Here are those patches (only
->>> common+i386) ported to 2.6.11-rc1.
->>
->>
->>
->> Good news is it booted. But I could not measure any powersavings by
->> turning it on. (I could measure difference between HZ=100 and
->> HZ=1000).
->>
->> Hmm, it does not want to do anything. threshold used to be 1000, does
->> it mean that it would not use vst unless there was one second of quiet
->> state? I tried to lower it to 10 ("get me HZ=100 power consumption")
->> but it does not seem to be used, anyway:
+* George Anzinger <george@mvista.com> [050119 15:00]:
+>
+> I don't think you will ever get good time if you EVER reprogramm the PIT.  
+> That is why the VST patch on sourceforge does NOT touch the PIT, it only 
+> turns off the interrupt by interrupting the interrupt path (not changing 
+> the PIT).  This allows the PIT to be the "gold standard" in time that it is 
+> designed to be.  The wake up interrupt, then needs to come from an 
+> independent timer.  My patch requires a local APIC for this.  Patch is 
+> available at http://sourceforge.net/projects/high-res-timers/
 
-I wonder if the problem is that we are not disabling the PIT interrupt.  I have 
-a PIII SMP system so the interrupt path may be different and the code to stop 
-interrupts may be wrong.  The normal system does not admit to stopping the time 
-base so it is possible that this is wrong.
+Well on my test systems I have pretty good accurate time. But I agree,
+PIT is not the best option for interrupt. It should be possible to use
+other interrupt sources as well.
 
--g
+It should not matter where the timer interrupt comes from, as long as 
+it comes when programmed. Updating time should be separate from timer
+interrupts. Currently we have a problem where time is tied to the
+timer interrupt.
 
+I'll take a look at your patch again, and check out the APIC part.
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Regards,
 
+Tony

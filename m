@@ -1,70 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284143AbRLFQrl>; Thu, 6 Dec 2001 11:47:41 -0500
+	id <S284933AbRLFQvL>; Thu, 6 Dec 2001 11:51:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285164AbRLFQrb>; Thu, 6 Dec 2001 11:47:31 -0500
-Received: from [217.172.169.150] ([217.172.169.150]:56238 "EHLO
-	apollo81.plusserver.de") by vger.kernel.org with ESMTP
-	id <S284143AbRLFQrV>; Thu, 6 Dec 2001 11:47:21 -0500
-Message-ID: <3C0FA135.80504@usad.li>
-Date: Thu, 06 Dec 2001 17:47:49 +0100
-From: Robin Walser <robin.walser@usad.li>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2.1) Gecko/20010901
-X-Accept-Language: en-us
+	id <S285169AbRLFQvD>; Thu, 6 Dec 2001 11:51:03 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:58893 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S285051AbRLFQu4>; Thu, 6 Dec 2001 11:50:56 -0500
+Date: Thu, 6 Dec 2001 14:49:56 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Rob Landley <landley@trommello.org>
+Cc: "Eric S. Raymond" <esr@thyrsus.com>, <linux-kernel@vger.kernel.org>,
+        <kbuild-devel@lists.sourceforge.net>
+Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
+In-Reply-To: <20011206001558.OQCD485.femail3.sdc1.sfba.home.com@there>
+Message-ID: <Pine.LNX.4.33L.0112061447560.1282-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Kernel 2.4.x problem
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+On Wed, 5 Dec 2001, Rob Landley wrote:
 
-I didn't know what to do to fix my problem, so I thought I write to 
-you.... So the following is my Problem: ..
+> 3) The fact Linus was cc'd on this before I trimmed it suggests to me
+> that people are still wishfully thinking that the battle they lost
+> before the linux-kernel summit would just magically re-open at the
+> last minute.  It's not about the fact that reiserfs, ext3, and a new
+> VM subsystem went into 2.4 but THIS is way too much,
 
-Long years ago, I bought every time, Red Hat Linux lalala.. and so on, 
-and as I bought Red Hat Linux 7.2 there came the biggest problem I ever 
-had, when I compile kernels or oder progs then one time to the other the 
-whole computers down, and I get a message like this ....
+IMHO it's not acceptable that people upgrading from one 2.4
+kernel to the next will have to install Python 2 on their
+machine. Security bugs are and will be discovered, you cannot
+make it impossible for people to do security upgrades.
 
-www.usad.li/robin/fehler1.jpg
-  //                            fehler2.jpg
- //                             fehler3.jpg
+Reiserfs, ext3 and the new VM have never changed the build
+requirements for people and haven't made it impossible for
+people to upgrade to a new kernel.
 
-So I didn't knew what to do, in ircnet I asked some people they told me 
-that it could might be a memory problem, so they said I should make a 
-memory test with memtest86 ... so I did, but there where no errors, and 
-the message came every time again, the very strange thing is that this 
-never happend until i setup red hat 7.2
+> It's insidious, isn't it?
 
-So if you are interested to help me by my problem, It would be graceful 
-if you write back, otherwise, I'll spend again a lot of time, to fix 
-this problem....
+Yes, I agree the method you're using to smuggle CML2 into
+a stable kernel is insidious. Please stop it.
 
-uname -a
-Linux firebird 2.4.7-10 #1 Thu Sep 6 16:46:36 EDT 2001 i686 unknown
+regards,
 
-gcc -v
+Rik
+-- 
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
 
-gcc version 2.96 20000731 (Red Hat Linux 7.1 2.96-98)
-
-My environment :
-
-
-AMD xxx 1,2 GHz
-512 MB RAM
-40 GB Harddisk
-Riva TNT 2
-and so on (its a futjsu siemens machine )
-
-Sincerely
-
-Robin
-
-PS: besides I'm very sorry for my bad english, but I had no time to 
-correct my writing.... cya
-
-
+http://www.surriel.com/		http://distro.conectiva.com/
 

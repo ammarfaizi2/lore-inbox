@@ -1,45 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269481AbRHGWYo>; Tue, 7 Aug 2001 18:24:44 -0400
+	id <S270191AbRHGW1E>; Tue, 7 Aug 2001 18:27:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269801AbRHGWYf>; Tue, 7 Aug 2001 18:24:35 -0400
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:58336 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S269481AbRHGWYR>;
-	Tue, 7 Aug 2001 18:24:17 -0400
-Message-ID: <3B706ACE.CCF9148E@candelatech.com>
-Date: Tue, 07 Aug 2001 15:25:18 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies Inc
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Christian Robottom Reis <kiko@async.com.br>
-CC: LKML <linux-kernel@vger.kernel.org>,
-        "eepro100@scyld.com" <eepro100@scyld.com>
-Subject: Re: [eepro100] Problem with Linux 2.4.7 and builtin eepro on Intel'sEEA2 
- motherboard.
-In-Reply-To: <Pine.LNX.4.32.0108071910120.379-100000@blackjesus.async.com.br>
+	id <S269504AbRHGW0y>; Tue, 7 Aug 2001 18:26:54 -0400
+Received: from bender.toppoint.de ([195.244.243.2]:37512 "EHLO
+	mail.toppoint.de") by vger.kernel.org with ESMTP id <S270199AbRHGW0n>;
+	Tue, 7 Aug 2001 18:26:43 -0400
+>Received: (from netzwurm@localhost)
+	by gandalf.discordia (8.9.3/8.9.3/Debian 8.9.3-21) id XAA30316;
+	Tue, 7 Aug 2001 23:39:21 +0200
+Date: Tue, 7 Aug 2001 23:39:21 +0200
+From: David Spreen <david@spreen.de>
+To: Ted Unangst <tedu@stanford.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: summary Re: encrypted swap
+Message-ID: <20010807233921.B30244@foobar.toppoint.de>
+In-Reply-To: <fa.g4fleqv.1mle133@ifi.uio.no> <Pine.GSO.4.31.0108071419300.2838-100000@cardinal0.Stanford.EDU>
+Mime-Version: 1.0
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.4.31.0108071419300.2838-100000@cardinal0.Stanford.EDU>; from tedu@stanford.edu on Tue, Aug 07, 2001 at 02:34:48PM -0700
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Robottom Reis wrote:
-> 
-> Had the same board, and the same sort of problems with both drivers. Had
-> to roll back to 2.2 and intel's e100. :(
+On Tue, Aug 07, 2001 at 02:34:48PM -0700, Ted Unangst wrote:
+> conclusion:  if your data is that valuable, you will need a small army to
+> protect it.  don't bother encrypting swap, because guns are a better means
+> of protection.  
 
-Intel's e100 works with kernels up to 2.4.4, according to their page
-(which I can't seem to access from a 2.4.7 machine, interestingly
-enough!)
+NAK. Of course I have the united states army in front of my notebook
+to protect my pronsite passwds. But see, the army makes my notebook 
+an interesting target for data-thiefs, right? So I want encrypted swap
+as an additional feature.
+Okay stop kidding, of course crypted swap is no allround solution, but 
+a step to harden your security issues. I don't want to make you using
+it, but I can think of people who would want to including myself.
 
-I didn't try that kernel because in that kernel the tulip driver is
-busted for my NIC, so I'm caught between a rock and a huge amount of risky
-patching/hacking that I don't have time for!
+> if your data is only semi-valuable, or private that you
+> wouldn't want random others to read it, then swap encryption is good.
+> it's a nice feature that some people might like to have.  does it solve
+> every problem? no.  but the people in the edge cases are most likely very
+> aware of the possibilities.
 
-Ben
+ACK.
 
+> implementation paper:
+> http://www.openbsd.org/papers/swapencrypt.ps
+
+Thank you, this was what I meant when I wrote of some BSD :).
+
+Okay, so I got some ideas how to implement, the kernel-related
+thing with an automatic generated key and the kerneli-issue.
+
+I tried to get kerneli working with swap some time ago and it didn't work.
+Has the behavour changed? In the crypto HOWTO linked on kerneli.org is 
+still said that swap encryption doesn't work (but I don't know when the
+last release was written).
+
+so long & thanks for your suggestions...
+
+David
 -- 
-Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+  __          _              | David "netzwurm" Spreen      Kiel, Germany
+ / _|___  ___| |__  __ _ _ _ | http://www.netzwurm.cc/      david@spreen.de
+|  _/ _ \/ _ \ '_ \/ _` | '_|| gnupg key (on keyservers):   C8B6823A
+|_| \___/\___/_.__/\__,_|_|  | CellPhone:                   +49 173 3874061
+

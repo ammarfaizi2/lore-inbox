@@ -1,47 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270385AbUJUQ4a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268889AbUJUR2F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270385AbUJUQ4a (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 12:56:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270718AbUJUQwF
+	id S268889AbUJUR2F (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 13:28:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270768AbUJUR0Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 12:52:05 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:24034 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268702AbUJUQsV (ORCPT
+	Thu, 21 Oct 2004 13:26:16 -0400
+Received: from dmz21.neoplus.adsl.tpnet.pl ([83.24.81.21]:25216 "EHLO
+	orbiter.attika.ath.cx") by vger.kernel.org with ESMTP
+	id S270692AbUJURXy convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 12:48:21 -0400
-To: "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com>
-Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, "Greg KH" <greg@kroah.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Vojtech Pavlik" <vojtech@suse.cz>,
-       "Dmitry Torokhov" <dtor_core@ameritech.net>
-Subject: Re: forcing PS/2 USB emulation off
-References: <5F106036E3D97448B673ED7AA8B2B6B3017FC327@scl-exch2k.phoenix.com>
-From: Alexandre Oliva <aoliva@redhat.com>
-Organization: Red Hat Global Engineering Services Compiler Team
-Date: 21 Oct 2004 13:48:01 -0300
-In-Reply-To: <5F106036E3D97448B673ED7AA8B2B6B3017FC327@scl-exch2k.phoenix.com>
-Message-ID: <orhdoo5872.fsf@livre.redhat.lsd.ic.unicamp.br>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Thu, 21 Oct 2004 13:23:54 -0400
+Date: Thu, 21 Oct 2004 17:23:49 +0000
+From: Piotr Kaczuba <pepe@attika.ath.cx>
+Subject: [2.6.9-ac1] "suid_dumpable" [security/commoncap.ko] undefined
+To: linux-kernel@vger.kernel.org
+X-Mailer: Balsa 2.2.5
+Message-Id: <1098379429l.8350l.0l@orbiter>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII;
+	DelSp=Yes	Format=Flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 20, 2004, "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com> wrote:
+Building the kernel reports this when building modules:
 
->> It would be ok if someone bothered to copy the USB core code (or better
->> yet call into it) but the patch in the -mm tree doesn't know about the
->> zillion OHCI controller bugs, and doesn't know about the suprise
->> interrupt on switch from BIOS->host you sometimes see.
+*** Warning: "suid_dumpable" [security/commoncap.ko] undefined!
 
-> Isn't this interrupt disabled at that point, and status are cleared
-> right after handoff?
+The capability module fails then to load because it depends on  
+commoncap. As a consequence bind cannot be run with the -u option to  
+switch its user.
 
-I've no idea, but as soon as I started using the USB handoff patch,
-I've consistently got the K8 Errata #93 message as the first message
-(or maybe one of the first few) I get on boot.
+Looking at the ac patch I can see that it has changed "0" to  
+"suid_dumpable" but the module obviously lacks the definition.
 
--- 
-Alexandre Oliva             http://www.ic.unicamp.br/~oliva/
-Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
-Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}
+Please CC me as I'm not subscribed.
+
+Piotr Kaczuba
+
+

@@ -1,177 +1,136 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265313AbSKACOL>; Thu, 31 Oct 2002 21:14:11 -0500
+	id <S265611AbSKACLI>; Thu, 31 Oct 2002 21:11:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265324AbSKACOL>; Thu, 31 Oct 2002 21:14:11 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:35972 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S265313AbSKACOH>;
-	Thu, 31 Oct 2002 21:14:07 -0500
-From: Krishna Kumar <krkumar@us.ibm.com>
-Message-Id: <200211010219.gA12JMn11699@eng2.beaverton.ibm.com>
-Subject: [PATCHSET] Mobile IPv6 for 2.5.45
-To: kuznet@ms2.inr.ac.ru, davem@redhat.com
-Date: Thu, 31 Oct 2002 18:19:21 -0800 (PST)
-Cc: ajtuomin@tml.hut.fi (Antti Tuominen),
-       lpetande@tml.hut.fi (Petander Henrik), jagana@us.ibm.com,
-       krkumar@us.ibm.com (Krishna Kumar), netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S265612AbSKACLH>; Thu, 31 Oct 2002 21:11:07 -0500
+Received: from msg.vizzavi.pt ([212.18.167.162]:21996 "EHLO msg.vizzavi.pt")
+	by vger.kernel.org with ESMTP id <S265611AbSKACLC>;
+	Thu, 31 Oct 2002 21:11:02 -0500
+Date: Thu, 31 Oct 2002 02:15:58 +0000
+From: "Paulo Andre'" <fscked@netvisao.pt>
+To: linux-kernel@vger.kernel.org
+Cc: jgarzik@redhat.com, alan@redhat.com, Philip.Blundell@pobox.com
+Subject: [PATCH] Make 3c505.c use spinlocks instead of cli/sti
+Message-Id: <20021031021558.38763ed7.fscked@netvisao.pt>
+Organization: Tool Enterprises
+X-Mailer: Sylpheed version 0.8.5claws (GTK+ 1.2.10; )
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 01 Nov 2002 02:17:23.0364 (UTC) FILETIME=[D0660640:01C2814C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alexey,
+Hi,
 
-We have been working with MIPL to further split the patch as you had suggested. The patch I am sending breaks this into Correspondent Node, Mobile Node and Home Agent functionalities. This patch is against 2.5.45. As part of integrating with 2.5.45 as well as due to the splitting done, there is one outstanding issue with the patch : at module unload time, some memory allocated during module_init is not freed up. However this is a small issue and we are confident of submitting a patch in a couple of days to fix this. The code base is the same that was submitted a few days ago, so the only new thing is the further splitting work and integrating with 2.5.45.
+This patch does some cleanup on the 3c505.c driver by making use of
+spinlocks instead of the deprecated cli()/sti() scheme. Note that even
+though it compiles fine, I don't have the specific hardware to test
+this.
 
-The patch is in two parts, you need to first install the following patch :
-http://traci.mipl.mediapoli.com/patches/mipl-2.5.45.patch
+Patch is against 2.5.45.
 
-After that, please apply the patch at the end of this mail (created as part of 2.5.45 cleanup) to create the final tree. Once the two patches are applied, you will see separate files for the client and the agent parts.
+	-- Paulo Andre'
 
-Please let us know if you need any clarification on this patch.
+PS - This is my first patch ever. I'm scared. I'm shaking. Take that
+into account, please.
 
-Thanks,
 
-- KK
 
----------------------------- Patch 2 ------------------------------------------
-diff -ruN linux-2.5.45.org/net/ipv6/ipv6_syms.c linux-2.5.45/net/ipv6/ipv6_syms.c
---- linux-2.5.45.org/net/ipv6/ipv6_syms.c	Thu Oct 31 18:00:41 2002
-+++ linux-2.5.45/net/ipv6/ipv6_syms.c	Thu Oct 31 15:07:47 2002
-@@ -54,6 +54,7 @@
- EXPORT_SYMBOL(ip6_rt_addr_del);
- EXPORT_SYMBOL(ip6_routing_table);
- EXPORT_SYMBOL(ip6_route_add);
-+EXPORT_SYMBOL(ip6_route_del);
- EXPORT_SYMBOL(ip6_del_rt);
- EXPORT_SYMBOL(fib6_clean_tree);
- EXPORT_SYMBOL(rt6_lock);
-diff -ruN linux-2.5.45.org/net/ipv6/route.c linux-2.5.45/net/ipv6/route.c
---- linux-2.5.45.org/net/ipv6/route.c	Thu Oct 31 17:52:04 2002
-+++ linux-2.5.45/net/ipv6/route.c	Thu Oct 31 13:07:03 2002
-@@ -788,7 +788,7 @@
- 	return err;
+--- drivers/net/3c505.c.orig	2002-10-31 00:33:46.000000000 +0000
++++ drivers/net/3c505.c	2002-10-31 00:55:35.000000000 +0000
+@@ -274,9 +274,12 @@
+ 
+ static inline void set_hsf(struct net_device *dev, int hsf)
+ {
+-	cli();
++	elp_device *adapter = dev->priv;
++	unsigned long flags;
++
++	spin_lock_irqsave(&adapter->lock, flags);
+ 	outb_control((HCR_VAL(dev) & ~HSF_PCB_MASK) | hsf, dev);
+-	sti();
++	spin_unlock_irqrestore(&adapter->lock, flags);
  }
  
--static int ip6_route_del(struct in6_rtmsg *rtmsg)
-+int ip6_route_del(struct in6_rtmsg *rtmsg)
- {
- 	struct fib6_node *fn;
- 	struct rt6_info *rt;
-diff -ruN linux-2.5.45.org/net/ipv6/ipv6_tunnel.c linux-2.5.45/net/ipv6/ipv6_tunnel.c
---- linux-2.5.45.org/net/ipv6/ipv6_tunnel.c	Thu Oct 31 18:00:41 2002
-+++ linux-2.5.45/net/ipv6/ipv6_tunnel.c	Thu Oct 31 12:53:23 2002
-@@ -1202,16 +1202,16 @@
- 		       t->parms.name);
- 		goto tx_err_dst_release;
+ static int start_receive(struct net_device *, pcb_struct *);
+@@ -325,8 +328,7 @@
+ 	if (adapter->dmaing && time_after(jiffies, adapter->current_dma.start_time + 10)) {
+ 		unsigned long flags, f;
+ 		printk("%s: DMA %s timed out, %d bytes left\n", dev->name, adapter->current_dma.direction ? "download" : "upload", get_dma_residue(dev->dma));
+-		save_flags(flags);
+-		cli();
++		spin_lock_irqsave(&adapter->lock, flags);
+ 		adapter->dmaing = 0;
+ 		adapter->busy = 0;
+ 		
+@@ -337,7 +339,7 @@
+ 		if (adapter->rx_active)
+ 			adapter->rx_active--;
+ 		outb_control(adapter->hcr_val & ~(DMAE | TCEN | DIR), dev);
+-		restore_flags(flags);
++		spin_unlock_irqrestore(&adapter->lock, flags);
  	}
--	mtu = dst->pmtu - sizeof (*ipv6h);
-+	mtu = dst->metrics[RTAX_MTU-1] - sizeof (*ipv6h);
- 	if (opt) {
- 		mtu -= (opt->opt_nflen + opt->opt_flen);
- 	}
- 	if (mtu < IPV6_MIN_MTU)
- 		mtu = IPV6_MIN_MTU;
--	if (skb->dst && mtu < skb->dst->pmtu) {
-+	if (skb->dst && mtu < skb->dst->metrics[RTAX_MTU-1]) {
- 		struct rt6_info *rt6 = (struct rt6_info *) skb->dst;
- 		rt6->rt6i_flags |= RTF_MODIFIED;
--		rt6->u.dst.pmtu = mtu;
-+		rt6->u.dst.metrics[RTAX_MTU-1] = mtu;
- 	}
- 	if (skb->len > mtu) {
- 		icmpv6_send(skb, ICMPV6_PKT_TOOBIG, 0, mtu, dev);
-diff -ruN linux-2.5.45.org/net/ipv6/exthdrs.c linux-2.5.45/net/ipv6/exthdrs.c
---- linux-2.5.45.org/net/ipv6/exthdrs.c	Thu Oct 31 18:00:41 2002
-+++ linux-2.5.45/net/ipv6/exthdrs.c	Thu Oct 31 12:44:06 2002
-@@ -80,7 +80,7 @@
- 
- /* An unknown option is detected, decide what to do */
- 
--static int ip6_tlvopt_unknown(struct sk_buff *skb, int optoff)
-+int ip6_tlvopt_unknown(struct sk_buff *skb, int optoff)
- {
- 	switch ((skb->nh.raw[optoff] & 0xC0) >> 6) {
- 	case 0: /* ignore */
-diff -ruN linux-2.5.45.org/net/ipv6/mobile_ip6/ha.h linux-2.5.45/net/ipv6/mobile_ip6/ha.h
---- linux-2.5.45.org/net/ipv6/mobile_ip6/ha.h	Thu Oct 31 18:00:42 2002
-+++ linux-2.5.45/net/ipv6/mobile_ip6/ha.h	Thu Oct 31 15:43:25 2002
-@@ -258,6 +258,13 @@
- 	if (*lifetime > MAX_RR_BINDING_LIFE)
- 		*lifetime = MAX_RR_BINDING_LIFE;
  }
-+
-+static __inline__ int mipv6_del_tnl_to_mn(struct in6_addr *coa, 
-+			struct in6_addr *ha_addr, struct in6_addr *home_addr)
-+{
-+	return 0;
-+}
-+
- #endif	/* CONFIG_IPV6_MOBILITY_HA */
  
- #endif
-diff -ruN linux-2.5.45.org/net/ipv6/mobile_ip6/hashlist.c linux-2.5.45/net/ipv6/mobile_ip6/hashlist.c
---- linux-2.5.45.org/net/ipv6/mobile_ip6/hashlist.c	Thu Oct 31 18:00:42 2002
-+++ linux-2.5.45/net/ipv6/mobile_ip6/hashlist.c	Thu Oct 31 16:21:08 2002
-@@ -115,7 +115,9 @@
+@@ -405,6 +407,7 @@
+ 	int i;
+ 	int timeout;
+ 	elp_device *adapter = dev->priv;
++	unsigned long flags;
+ 
+ 	check_3c505_dma(dev);
+ 
+@@ -428,7 +431,7 @@
+ 	if (send_pcb_slow(dev->base_addr, pcb->command))
+ 		goto abort;
+ 
+-	cli();
++	spin_lock_irqsave(&adapter->lock, flags);
+ 
+ 	if (send_pcb_fast(dev->base_addr, pcb->length))
+ 		goto sti_abort;
+@@ -442,7 +445,7 @@
+ 	outb_command(2 + pcb->length, dev->base_addr);
+ 
+ 	/* now wait for the acknowledgement */
+-	sti();
++	spin_unlock_irqrestore(&adapter->lock, flags);
+ 
+ 	for (timeout = jiffies + 5*HZ/100; time_before(jiffies, timeout);) {
+ 		switch (GET_ASF(dev->base_addr)) {
+@@ -463,7 +466,7 @@
+ 		printk("%s: timeout waiting for PCB acknowledge (status %02x)\n", dev->name, inb_status(dev->base_addr));
+ 
+       sti_abort:
+-	sti();
++	spin_unlock_irqrestore(&adapter->lock, flags);
+       abort:
+ 	adapter->send_pcb_semaphore = 0;
+ 	return FALSE;
+@@ -489,6 +492,7 @@
+ 	int total_length;
+ 	int stat;
+ 	int timeout;
++	unsigned long flags;
+ 
+ 	elp_device *adapter = dev->priv;
+ 
+@@ -519,7 +523,7 @@
+ 		return FALSE;
  	}
- 
- 	if (hashlist->kmem) {
-+#if 0
- 		kmem_cache_destroy(hashlist->kmem);
-+#endif
- 		hashlist->kmem = NULL;
- 	}
- 
-diff -ruN linux-2.5.45.org/net/ipv6/mobile_ip6/bcache.c linux-2.5.45/net/ipv6/mobile_ip6/bcache.c
---- linux-2.5.45.org/net/ipv6/mobile_ip6/bcache.c	Thu Oct 31 18:00:42 2002
-+++ linux-2.5.45/net/ipv6/mobile_ip6/bcache.c	Thu Oct 31 16:31:47 2002
-@@ -905,7 +905,7 @@
- 	del_timer(&bcache->callback_timer);
- 
- 	while ((entry = (struct mipv6_bcache_entry *)
--		hashlist_get_first(bcache->entries)) != NULL) {
-+				hashlist_get_first(bcache->entries)) != NULL) {
- 		hashkey.a1 = &entry->home_addr;
- 		hashkey.a2 = &entry->our_addr;
- 
-diff -ruN linux-2.5.45.org/net/ipv6/mobile_ip6/halist.c linux-2.5.45/net/ipv6/mobile_ip6/halist.c
---- linux-2.5.45.org/net/ipv6/mobile_ip6/halist.c	Thu Oct 31 18:00:42 2002
-+++ linux-2.5.45/net/ipv6/mobile_ip6/halist.c	Thu Oct 31 16:59:17 2002
-@@ -472,7 +472,9 @@
- 	DEBUG(DBG_INFO, "Stopping the timer");
- 	del_timer(&home_agents->expire_timer);
- 
-+#if 0
- 	mipv6_halist_gc(1);
-+#endif
- 	hashlist_destroy(home_agents->entries);
- 
- 	proc_net_remove("mip6_home_agents");
-diff -ruN linux-2.5.45.org/include/net/ip6_route.h linux-2.5.45/include/net/ip6_route.h
---- linux-2.5.45.org/include/net/ip6_route.h	Thu Oct 31 18:00:41 2002
-+++ linux-2.5.45/include/net/ip6_route.h	Thu Oct 31 15:09:50 2002
-@@ -37,6 +37,7 @@
- extern int			ipv6_route_ioctl(unsigned int cmd, void *arg);
- 
- extern int			ip6_route_add(struct in6_rtmsg *rtmsg);
-+extern int			ip6_route_del(struct in6_rtmsg *rtmsg);
- extern int			ip6_del_rt(struct rt6_info *);
- 
- extern int			ip6_rt_addr_add(struct in6_addr *addr,
-diff -ruN linux-2.5.45.org/include/linux/sysctl.h linux-2.5.45/include/linux/sysctl.h
---- linux-2.5.45.org/include/linux/sysctl.h	Thu Oct 31 18:00:41 2002
-+++ linux-2.5.45/include/linux/sysctl.h	Thu Oct 31 12:32:08 2002
-@@ -359,7 +359,7 @@
- 	NET_IPV6_NEIGH=17,
- 	NET_IPV6_ROUTE=18,
- 	NET_IPV6_ICMP=19,
--	NET_IPV6_BINDV6ONLY=20
-+	NET_IPV6_BINDV6ONLY=20,
- 	NET_IPV6_MOBILITY=21
- };
- 
----------------------------- End of Patch -------------------------------------
+ 	/* read the data */
+-	cli();
++	spin_lock_irqsave(&adapter->lock, flags);
+ 	i = 0;
+ 	do {
+ 		j = 0;
+@@ -528,7 +532,7 @@
+ 		if (i > MAX_PCB_DATA)
+ 			INVALID_PCB_MSG(i);
+ 	} while ((stat & ASF_PCB_MASK) != ASF_PCB_END && j < 20000);
+-	sti();
++	spin_unlock_irqrestore(&adapter->lock, flags);
+ 	if (j >= 20000) {
+ 		TIMEOUT_MSG(__LINE__);
+ 		return FALSE;

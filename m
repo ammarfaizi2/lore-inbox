@@ -1,40 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261838AbVBZIJs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261857AbVBZISo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261838AbVBZIJs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Feb 2005 03:09:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261850AbVBZIJs
+	id S261857AbVBZISo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Feb 2005 03:18:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261850AbVBZISo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Feb 2005 03:09:48 -0500
-Received: from lantana.tenet.res.in ([202.144.28.166]:17594 "EHLO
-	lantana.cs.iitm.ernet.in") by vger.kernel.org with ESMTP
-	id S261838AbVBZIJq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Feb 2005 03:09:46 -0500
-Date: Sat, 26 Feb 2005 13:40:04 +0530 (IST)
-From: Payasam Manohar <pmanohar@lantana.cs.iitm.ernet.in>
-To: linux-kernel@vger.kernel.org
-Message-ID: <Pine.LNX.4.60.0502261336330.31846@lantana.cs.iitm.ernet.in>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Mail-scanner Found to be clean
-X-MailScanner-From: pmanohar@lantana.cs.iitm.ernet.in
-Subject: Calling user program(hello worldprogarm) from keboard driver.
+	Sat, 26 Feb 2005 03:18:44 -0500
+Received: from fire.osdl.org ([65.172.181.4]:56221 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261860AbVBZISD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Feb 2005 03:18:03 -0500
+Date: Sat, 26 Feb 2005 00:14:28 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Payasam Manohar <pmanohar@lantana.cs.iitm.ernet.in>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: calling call_usermodehelper from interrupt context
+Message-Id: <20050226001428.7515d17b.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.60.0502261319130.31181@lantana.cs.iitm.ernet.in>
+References: <Pine.LNX.4.60.0502261319130.31181@lantana.cs.iitm.ernet.in>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Payasam Manohar <pmanohar@lantana.cs.iitm.ernet.in> wrote:
+>
+> Is it possible to call call_usermodehelper from interrupt context.
 
-hai all,
-    I am newbie to linux module programming.
-  Can you please tell me that, is it possible to call a user program(let it 
-be hello world program ) from keyboard driver using call_usermodehelper?
-If not please tell me how can we do that task.
-
-   Any small help is welcome.
-
-
-
-   Thanks&Regards,
-
-   P.Manohar,
-
+No.  You'll need to run schedule_work() and then run call_usermodehelper()
+from within the work function.
 

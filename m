@@ -1,61 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263752AbUFFP6P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263769AbUFFQCi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263752AbUFFP6P (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 11:58:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263763AbUFFP6P
+	id S263769AbUFFQCi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 12:02:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263770AbUFFQCi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 11:58:15 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:10438 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263752AbUFFP6N (ORCPT
+	Sun, 6 Jun 2004 12:02:38 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:8576 "EHLO cloud.ucw.cz")
+	by vger.kernel.org with ESMTP id S263769AbUFFQCg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 11:58:13 -0400
-Subject: Re: Using getpid() often, another way? [was Re: clone() <->
-	getpid() bug in 2.6?]
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Russell Leighton <russ@elegant-software.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <40C33A84.4060405@elegant-software.com>
-References: <40C1E6A9.3010307@elegant-software.com>
-	 <Pine.LNX.4.58.0406051341340.7010@ppc970.osdl.org>
-	 <40C32A44.6050101@elegant-software.com>
-	 <40C33A84.4060405@elegant-software.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Ydn0fas4sJKfseuLaYzh"
-Organization: Red Hat UK
-Message-Id: <1086537490.3041.2.camel@laptop.fenrus.com>
+	Sun, 6 Jun 2004 12:02:36 -0400
+Date: Sun, 6 Jun 2004 18:02:45 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 2.6] Mousedev - better button handling under load
+Message-ID: <20040606160245.GA1350@ucw.cz>
+References: <200406050249.02523.dtor_core@ameritech.net> <20040606095843.GC1646@ucw.cz> <200406060940.21209.dtor_core@ameritech.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 06 Jun 2004 17:58:11 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200406060940.21209.dtor_core@ameritech.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jun 06, 2004 at 09:40:20AM -0500, Dmitry Torokhov wrote:
+> On Sunday 06 June 2004 04:58 am, Vojtech Pavlik wrote:
+> > On Sat, Jun 05, 2004 at 02:49:00AM -0500, Dmitry Torokhov wrote:
+> > > Hi,
+> > > 
+> > > Currently mousedev combines all hardware motion data that arrivers since
+> > > last time userspace read data into one cooked PS/2 packet. The problem is
+> > > that under heavy or even moderate load, when userspace can't read data
+> > > quickly enough, we start loosing valuable data which manifests in:
+> > > 
+> > > - ignoring buton presses as by the time userspace gets to read the data
+> > >   button has already been released;
+> > > - click starts in wrong place - by the time userspace got aroungd and read
+> > >   the packet mouse moved half way across the screen.
+> > > 
+> > > The patch below corrects the issue - it will start accumulating new packet
+> > > every time userspace is behind and button set changes. Size of the buffer
+> > > is 16 packets, i.e. up to 8 pairs of press/release events which should be
+> > > more than enough.
+> > > 
+> > > The patch is against Vojtech's tree and shuld apply to -mm. I also have
+> > > cumulative mousedev patch done against 2.6.7-pre2 at:
+> > > 
+> > > http://www.geocities.com/dt_or/input/misc/mousedev-2.6.7-rc2-cumulative.patch.gz
+> > 
+> > Thanks for this. Can I just pull from your tree, or is there more that I
+> > shouldn't take?
+> > 
+> 
+> I am exporting stuff to my bk tree on as-needed basis so there is nothing
+> extra (and no mousedev changes yet). Do you want button handling changes
+> only or you do also want tapping emulation exported?
 
---=-Ydn0fas4sJKfseuLaYzh
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Tapping is fine as well.
 
-On Sun, 2004-06-06 at 17:38, Russell Leighton wrote:
-> I have a library that creates 2 threads using clone().
-> [NOTE: I can't use pthreads for a variety of reasons, mostly due
-> to the wacky signal handling rules...it turns out that using clone() is=20
-> cleaner for me anyway.]
-
-a library using clone sounds suspect to me, I can't imagine an app using
-pthreads being able to just use your library as a result. Note also that
-clone() is not a portable interface even within linux architectures.
-
-
---=-Ydn0fas4sJKfseuLaYzh
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAwz8SxULwo51rQBIRAlLmAJ9D7kmQdzv4fTCOTRFjAw7dZd/81wCghwvB
-92cb7MPlxb7JX1Lw87q2X8I=
-=pbag
------END PGP SIGNATURE-----
-
---=-Ydn0fas4sJKfseuLaYzh--
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,137 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272269AbRH3Pc2>; Thu, 30 Aug 2001 11:32:28 -0400
+	id <S272277AbRH3PhS>; Thu, 30 Aug 2001 11:37:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272279AbRH3PcT>; Thu, 30 Aug 2001 11:32:19 -0400
-Received: from c1473286-a.stcla1.sfba.home.com ([24.176.137.160]:22277 "HELO
-	ocean.lucon.org") by vger.kernel.org with SMTP id <S272269AbRH3PcC>;
-	Thu, 30 Aug 2001 11:32:02 -0400
-Date: Thu, 30 Aug 2001 08:32:17 -0700
-From: "H . J . Lu" <hjl@lucon.org>
-To: Ian.Dall@dsto.defence.gov.au
-Cc: "Torvalds; Linus" <torvalds@transmeta.com>,
-        linux kernel <linux-kernel@vger.kernel.org>, alan@redhat.com
-Subject: Re: IPCONFIG fails for BOOTP
-Message-ID: <20010830083217.A8134@lucon.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S272273AbRH3PhI>; Thu, 30 Aug 2001 11:37:08 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:2944 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S272272AbRH3PhB>; Thu, 30 Aug 2001 11:37:01 -0400
+Date: Thu, 30 Aug 2001 11:37:02 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Venkatesh Ramachandran <rvenky@cisco.com>
+cc: linux-users@cisco.com, linux-kernel@vger.kernel.org,
+        linux-alpha@vger.kernel.org, brussels-linux@cisco.com,
+        Mathangi Kuppusamy <mathangi@cisco.com>
+Subject: Re: Linux Mounting problem
+In-Reply-To: <3B8E5791.5BBE92A2@cisco.com>
+Message-ID: <Pine.LNX.3.95.1010830112028.1525A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the patch I have been using since May.
+On Thu, 30 Aug 2001, Venkatesh Ramachandran wrote:
+
+> Hello,
+>    I am using Redhat Linux 7.1
+>    During reboot, i get the message " Mounting / as readonly"
+>    And, it enters into maintenance mode...( & all other steps fail -
+> /proc not mounted, swap not mounted, fsck fails)
+>    I did the following :
+>    mount -t proc proc /proc
+>    fsck /dev/hda1
+>    The following error messages : ERROR : Couldn't open /dev/null
+> (Read-only file system)
+> 
+
+First, verify that /dev/null is a character device, major=1, minor=3.
+`file /dev/null`.
+It may have gotten changed to some real file because of some errors.
+
+In maintenance mode do:
+
+/sbin/mount -n -o remount /dev/hda1 # Mount r/w, no write to /etc/mtab
+/bin/rm /dev/null             # Delete it
+/bin/mknod /dev/null c 1 3    # Make a new one
+/bin/chmod 777 /dev/null      # Accessible by everyone in all modes
+/bin/chown root.sys /dev/null # Standard ownership
+/sbin/umount /dev/hda1        # Now unmount it
+/sbin/mount /proc /proc -t proc # You can mount it if you want
+/sbin/e2fsck -f /dev/hda1     # Fix the disk
+... After you fix the errors ...
+`exec /sbin/init auto`  (or exit if from a startup script)
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
 
 
-H.J.
-----
---- linux-2.4.5-ac3-ext3/net/ipv4/ipconfig.c.dhcp	Tue May  1 20:59:24 2001
-+++ linux-2.4.5-ac3-ext3/net/ipv4/ipconfig.c	Tue May 29 09:30:16 2001
-@@ -816,61 +816,63 @@ static int __init ic_bootp_recv(struct s
- 		u8 *ext;
- 
- #ifdef IPCONFIG_DHCP
-+		if (ic_proto_enabled & IC_USE_DHCP) {
- 
--		u32 server_id = INADDR_NONE;
--		int mt = 0;
-+			u32 server_id = INADDR_NONE;
-+			int mt = 0;
- 
--		ext = &b->exten[4];
--		while (ext < end && *ext != 0xff) {
--			u8 *opt = ext++;
--			if (*opt == 0)	/* Padding */
--				continue;
--			ext += *ext + 1;
--			if (ext >= end)
--				break;
--			switch (*opt) {
--			case 53:	/* Message type */
--				if (opt[1])
--					mt = opt[2];
--				break;
--			case 54:	/* Server ID (IP address) */
--				if (opt[1] >= 4)
--					memcpy(&server_id, opt + 2, 4);
--				break;
-+			ext = &b->exten[4];
-+			while (ext < end && *ext != 0xff) {
-+				u8 *opt = ext++;
-+				if (*opt == 0)	/* Padding */
-+					continue;
-+				ext += *ext + 1;
-+				if (ext >= end)
-+					break;
-+				switch (*opt) {
-+				case 53:	/* Message type */
-+					if (opt[1])
-+						mt = opt[2];
-+					break;
-+				case 54:	/* Server ID (IP address) */
-+					if (opt[1] >= 4)
-+						memcpy(&server_id, opt + 2, 4);
-+					break;
-+				}
- 			}
--		}
- 
- #ifdef IPCONFIG_DEBUG
--		printk("DHCP: Got message type %d\n", mt);
-+			printk("DHCP: Got message type %d\n", mt);
- #endif
- 
--		switch (mt) {
--		    case DHCPOFFER:
--			/* While in the process of accepting one offer,
--			   ignore all others. */
--			if (ic_myaddr != INADDR_NONE)
--				goto drop;
--			/* Let's accept that offer. */
--			ic_myaddr = b->your_ip;
--			ic_servaddr = server_id;
-+			switch (mt) {
-+			case DHCPOFFER:
-+				/* While in the process of accepting one offer,
-+				   ignore all others. */
-+				if (ic_myaddr != INADDR_NONE)
-+					goto drop;
-+				/* Let's accept that offer. */
-+				ic_myaddr = b->your_ip;
-+				ic_servaddr = server_id;
- #ifdef IPCONFIG_DEBUG
--			printk("DHCP: Offered address %u.%u.%u.%u", NIPQUAD(ic_myaddr));
--			printk(" by server %u.%u.%u.%u\n", NIPQUAD(ic_servaddr));
-+				printk("DHCP: Offered address %u.%u.%u.%u", NIPQUAD(ic_myaddr));
-+				printk(" by server %u.%u.%u.%u\n", NIPQUAD(ic_servaddr));
- #endif
--			break;
-+				break;
- 
--		    case DHCPACK:
--			/* Yeah! */
--			break;
--
--		    default:
--			/* Urque.  Forget it*/
--			ic_myaddr = INADDR_NONE;
--			ic_servaddr = INADDR_NONE;
--			goto drop;
--		}
-+			case DHCPACK:
-+				/* Yeah! */
-+				break;
-+
-+			default:
-+				/* Urque.  Forget it*/
-+				ic_myaddr = INADDR_NONE;
-+				ic_servaddr = INADDR_NONE;
-+				goto drop;
-+			}
- 
--		ic_dhcp_msgtype = mt;
-+			ic_dhcp_msgtype = mt;
-+		}
- 
- #endif /* IPCONFIG_DHCP */
- 

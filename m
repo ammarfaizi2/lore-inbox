@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbUJ3PBM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261261AbUJ3PBM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261246AbUJ3PBM (ORCPT <rfc822;willy@w.ods.org>);
+	id S261261AbUJ3PBM (ORCPT <rfc822;willy@w.ods.org>);
 	Sat, 30 Oct 2004 11:01:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbUJ3Oyf
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261222AbUJ3O7P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 10:54:35 -0400
-Received: from mail06.syd.optusnet.com.au ([211.29.132.187]:61902 "EHLO
-	mail06.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261218AbUJ3Ol3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 10:41:29 -0400
-Message-ID: <4183A80D.3090705@kolivas.org>
-Date: Sun, 31 Oct 2004 00:41:17 +1000
+	Sat, 30 Oct 2004 10:59:15 -0400
+Received: from mail01.syd.optusnet.com.au ([211.29.132.182]:6820 "EHLO
+	mail01.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261215AbUJ3Okw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 10:40:52 -0400
+Message-ID: <4183A7E4.2020405@kolivas.org>
+Date: Sun, 31 Oct 2004 00:40:36 +1000
 From: Con Kolivas <kernel@kolivas.org>
 User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
 X-Accept-Language: en-us, en
@@ -21,178 +21,100 @@ Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
        William Lee Irwin III <wli@holomorphy.com>,
        Alexander Nyberg <alexn@dsv.su.se>,
        Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: [PATCH][plugsched 25/28] Make public parts of schedstats
+Subject: [PATCH][plugsched 21/28] Move private macro
 X-Enigmail-Version: 0.86.1.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: multipart/signed; micalg=pgp-sha1;
  protocol="application/pgp-signature";
- boundary="------------enigC5F624FDB5B99B039994671D"
+ boundary="------------enig98542F4DA5B2F69358F902AE"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigC5F624FDB5B99B039994671D
+--------------enig98542F4DA5B2F69358F902AE
 Content-Type: multipart/mixed;
- boundary="------------030202030201080206080304"
+ boundary="------------070503010703080601090504"
 
 This is a multi-part message in MIME format.
---------------030202030201080206080304
+--------------070503010703080601090504
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Make public parts of schedstats
+Move private macro
 
 
---------------030202030201080206080304
+--------------070503010703080601090504
 Content-Type: text/x-patch;
- name="publicise_schedstats.diff"
+ name="move_ingosched_macros.diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="publicise_schedstats.diff"
+ filename="move_ingosched_macros.diff"
 
-Take the common functions of schedstats out, and privatise those that are
-scheduler design dependant.
+Take the MAX_PRIO macro and comments out of sched.h to allow more
+flexible range of dynamic priorities and scheduler designs.
 
 Signed-off-by: Con Kolivas <kernel@kolivas.org>
 
 
 Index: linux-2.6.10-rc1-mm2-plugsched1/include/linux/sched.h
 ===================================================================
---- linux-2.6.10-rc1-mm2-plugsched1.orig/include/linux/sched.h	2004-10-30 00:20:11.034827926 +1000
-+++ linux-2.6.10-rc1-mm2-plugsched1/include/linux/sched.h	2004-10-30 00:20:12.649569607 +1000
-@@ -32,6 +32,7 @@
- #include <linux/pid.h>
- #include <linux/percpu.h>
- #include <linux/topology.h>
-+#include <linux/seq_file.h>
- 
- struct exec_domain;
- 
-Index: linux-2.6.10-rc1-mm2-plugsched1/include/linux/scheduler.h
-===================================================================
---- linux-2.6.10-rc1-mm2-plugsched1.orig/include/linux/scheduler.h	2004-10-30 00:19:31.771109110 +1000
-+++ linux-2.6.10-rc1-mm2-plugsched1/include/linux/scheduler.h	2004-10-30 00:20:12.649569607 +1000
-@@ -46,6 +46,9 @@ struct sched_drv
- 	void (*wait_task_inactive)(task_t *);
- 	void (*cpu_attach_domain)(struct sched_domain *, int);
- #endif
-+#ifdef CONFIG_SCHEDSTATS
-+	int (*show_schedstat)(struct seq_file *, void *);
-+#endif
+--- linux-2.6.10-rc1-mm2-plugsched1.orig/include/linux/sched.h	2004-10-29 21:47:52.739595073 +1000
++++ linux-2.6.10-rc1-mm2-plugsched1/include/linux/sched.h	2004-10-29 21:48:10.494824131 +1000
+@@ -328,11 +328,6 @@ struct signal_struct {
  };
  
  /*
+- * Priority of a process goes from 0..MAX_PRIO-1, valid RT
+- * priority is 0..MAX_RT_PRIO-1, and SCHED_NORMAL tasks are
+- * in the range MAX_RT_PRIO..MAX_PRIO-1. Priority values
+- * are inverted: lower p->prio value means higher priority.
+- *
+  * The MAX_USER_RT_PRIO value allows the actual maximum
+  * RT priority to be separate from the value exported to
+  * user-space.  This allows kernel threads to set their
+@@ -343,8 +338,6 @@ struct signal_struct {
+ #define MAX_USER_RT_PRIO	100
+ #define MAX_RT_PRIO		MAX_USER_RT_PRIO
+ 
+-#define MAX_PRIO		(MAX_RT_PRIO + 40)
+-
+ extern int rt_task(task_t *p);
+ 
+ /*
+@@ -515,6 +508,8 @@ struct mempolicy;
+ 
+ #include <linux/scheduler.h>
+ 
++extern struct sched_drv *scheduler;
++
+ struct task_struct {
+ 	volatile long state;	/* -1 unrunnable, 0 runnable, >0 stopped */
+ 	struct thread_info *thread_info;
 Index: linux-2.6.10-rc1-mm2-plugsched1/kernel/sched.c
 ===================================================================
---- linux-2.6.10-rc1-mm2-plugsched1.orig/kernel/sched.c	2004-10-30 00:20:11.036827607 +1000
-+++ linux-2.6.10-rc1-mm2-plugsched1/kernel/sched.c	2004-10-30 00:20:12.651569288 +1000
-@@ -348,7 +348,7 @@ static inline void task_rq_unlock(runque
-  */
- #define SCHEDSTAT_VERSION 10
- 
--static int show_schedstat(struct seq_file *seq, void *v)
-+static int ingo_show_schedstat(struct seq_file *seq, void *v)
- {
- 	int cpu;
- 	enum idle_type itype;
-@@ -407,32 +407,6 @@ static int show_schedstat(struct seq_fil
- 	return 0;
- }
- 
--static int schedstat_open(struct inode *inode, struct file *file)
--{
--	unsigned int size = PAGE_SIZE * (1 + num_online_cpus() / 32);
--	char *buf = kmalloc(size, GFP_KERNEL);
--	struct seq_file *m;
--	int res;
--
--	if (!buf)
--		return -ENOMEM;
--	res = single_open(file, show_schedstat, NULL);
--	if (!res) {
--		m = file->private_data;
--		m->buf = buf;
--		m->size = size;
--	} else
--		kfree(buf);
--	return res;
--}
--
--struct file_operations proc_schedstat_operations = {
--	.open    = schedstat_open,
--	.read    = seq_read,
--	.llseek  = seq_lseek,
--	.release = single_release,
--};
--
- # define schedstat_inc(rq, field)	rq->field++;
- # define schedstat_add(rq, field, amt)	rq->field += amt;
- #else /* !CONFIG_SCHEDSTATS */
-@@ -4149,4 +4123,7 @@ struct sched_drv ingo_sched_drv = {
- 	.sched_idle_next	= ingo_sched_idle_next,
- #endif	
- #endif
-+#ifdef CONFIG_SCHEDSTATS
-+	.show_schedstat		= ingo_show_schedstat,
-+#endif
- };
-Index: linux-2.6.10-rc1-mm2-plugsched1/kernel/scheduler.c
-===================================================================
---- linux-2.6.10-rc1-mm2-plugsched1.orig/kernel/scheduler.c	2004-10-30 00:20:11.037827447 +1000
-+++ linux-2.6.10-rc1-mm2-plugsched1/kernel/scheduler.c	2004-10-30 00:20:12.652569128 +1000
-@@ -928,6 +928,36 @@ void __devinit init_sched_build_groups(s
- }
+--- linux-2.6.10-rc1-mm2-plugsched1.orig/kernel/sched.c	2004-10-29 21:48:08.237176468 +1000
++++ linux-2.6.10-rc1-mm2-plugsched1/kernel/sched.c	2004-10-29 21:48:10.495823975 +1000
+@@ -59,6 +59,15 @@
  #endif
  
-+#ifdef CONFIG_SCHEDSTATS
-+int show_schedstat(struct seq_file *seq, void *v);
+ /*
++ * Priority of a process goes from 0..MAX_PRIO-1, valid RT
++ * priority is 0..MAX_RT_PRIO-1, and SCHED_NORMAL tasks are
++ * in the range MAX_RT_PRIO..MAX_PRIO-1. Priority values
++ * are inverted: lower p->prio value means higher priority.
++ */
 +
-+static int schedstat_open(struct inode *inode, struct file *file)
-+{
-+	unsigned int size = PAGE_SIZE * (1 + num_online_cpus() / 32);
-+	char *buf = kmalloc(size, GFP_KERNEL);
-+	struct seq_file *m;
-+	int res;
++#define MAX_PRIO		(MAX_RT_PRIO + 40)
 +
-+	if (!buf)
-+		return -ENOMEM;
-+	res = single_open(file, show_schedstat, NULL);
-+	if (!res) {
-+		m = file->private_data;
-+		m->buf = buf;
-+		m->size = size;
-+	} else
-+		kfree(buf);
-+	return res;
-+}
-+
-+struct file_operations proc_schedstat_operations = {
-+	.open    = schedstat_open,
-+	.read    = seq_read,
-+	.llseek  = seq_lseek,
-+	.release = single_release,
-+};
-+#endif
-+
- extern struct sched_drv ingo_sched_drv;
- 
- struct sched_drv *scheduler =
-@@ -1136,3 +1166,10 @@ asmlinkage void schedule_tail(task_t *ta
- {
- 	scheduler->tail(task);
- }
-+
-+#ifdef CONFIG_SCHEDSTATS
-+int show_schedstat(struct seq_file *seq, void *v)
-+{
-+	return scheduler->show_schedstat(seq, v);
-+}
-+#endif
++/*
+  * Convert user-nice values [ -20 ... 0 ... 19 ]
+  * to static priority [ MAX_RT_PRIO..MAX_PRIO-1 ],
+  * and back.
 
 
---------------030202030201080206080304--
+--------------070503010703080601090504--
 
---------------enigC5F624FDB5B99B039994671D
+--------------enig98542F4DA5B2F69358F902AE
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="signature.asc"
@@ -201,9 +123,9 @@ Content-Disposition: attachment; filename="signature.asc"
 Version: GnuPG v1.2.6 (GNU/Linux)
 Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-iD8DBQFBg6gNZUg7+tp6mRURAhCSAKCD7iPqkloy2XAgMJg87L4iMQN8tQCfUbO1
-ml4+qHb/lvOfwckaEiwvIj0=
-=5ijH
+iD8DBQFBg6fkZUg7+tp6mRURAmIqAJ9n2JKsp08OpCMPoBNFni+KlxxaDwCeJB49
+1qsQYLn6BzgE5NnWYs7qAZs=
+=hhZ+
 -----END PGP SIGNATURE-----
 
---------------enigC5F624FDB5B99B039994671D--
+--------------enig98542F4DA5B2F69358F902AE--

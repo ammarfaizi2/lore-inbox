@@ -1,58 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266096AbUH1Bf3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266127AbUH1BhJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266096AbUH1Bf3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 21:35:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266127AbUH1Bf3
+	id S266127AbUH1BhJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 21:37:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266137AbUH1BhJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 21:35:29 -0400
-Received: from 18-165-237-24-mvl.nwc.gci.net ([24.237.165.18]:3473 "EHLO
-	nevaeh-linux.org") by vger.kernel.org with ESMTP id S266096AbUH1BfW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 21:35:22 -0400
-Date: Fri, 27 Aug 2004 17:33:59 -0800 (AKDT)
-From: Arthur Corliss <corliss@digitalmages.com>
-X-X-Sender: acorliss@bifrost.nevaeh-linux.org
-To: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-cc: Tim Schmielau <tim@physik3.uni-rostock.de>, Andrew Morton <akpm@osdl.org>,
-       Jay Lan <jlan@engr.sgi.com>, lkml <linux-kernel@vger.kernel.org>,
-       erikj@dbear.engr.sgi.com, limin@engr.sgi.com,
-       lse-tech@lists.sourceforge.net,
-       =?X-UNKNOWN?Q?Ragnar_Kj=F8rstad?= <kernel@ragnark.vestdata.no>,
-       Yoshitaka ISHIKAWA <y.ishikawa@soft.fujitsu.com>
-Subject: Re: [PATCH] new CSA patchset for 2.6.8
-In-Reply-To: <20040827054218.GA4142@frec.bull.fr>
-Message-ID: <Pine.LNX.4.58.0408271728590.1075@bifrost.nevaeh-linux.org>
-References: <412D2E10.8010406@engr.sgi.com> <20040825221842.72dd83a4.akpm@osdl.org>
- <Pine.LNX.4.53.0408261821090.14826@gockel.physik3.uni-rostock.de>
- <Pine.LNX.4.58.0408261111520.22750@bifrost.nevaeh-linux.org>
- <Pine.LNX.4.53.0408262133190.8515@broiler.physik3.uni-rostock.de>
- <20040827054218.GA4142@frec.bull.fr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -1.971 () AWL,BAYES_00
+	Fri, 27 Aug 2004 21:37:09 -0400
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:58755
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S266127AbUH1Bgw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 21:36:52 -0400
+Date: Fri, 27 Aug 2004 18:36:46 -0700
+From: "David S. Miller" <davem@davemloft.net>
+To: linux-kernel@vger.kernel.org
+Cc: perex@suse.de
+Subject: ALSA update broke Sparc
+Message-Id: <20040827183646.1da2befc.davem@davemloft.net>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Aug 2004, Guillaume Thouvenin wrote:
 
-> I like this solution.
-> In fact what I proposed was to have PAGG and a modified BSD accounting
-> that can be used with PAGG as both are already in the -mm tree. But
-> manage group of processes from userspace is, IMHO, a better solution as
-> modifications in the kernel will be minimal.
->
->   Therefore the solution could be to enhance BSD accounting with data
-> collection from CSA and provide per job accounting with a userspace
-> mechanism. Sounds great to me...
+Each platform uses a different number of arguments for
+io_remap_page_range(), so you can't just blindly call it
+from generic code.
 
-The only concern I have with a userspace solution is that you run the risk of
-losing that data.  What happens if a process on the box drives drives it out
-of memory and paging space?  The box would still be working, it just wouldn't
-be able to fork new processes, and those already running that aren't purposely
-made high priority may not get much of a chance to execute as well.  I've lost
-SAR data that way.
+However, sound/core/pcm_native.c is doing exactly that.
 
-	--Arthur Corliss
-	  Bolverk's Lair -- http://arthur.corlissfamily.org/
-	  Digital Mages -- http://www.digitalmages.com/
-	  "Live Free or Die, the Only Way to Live" -- NH State Motto
+The reason each platform takes a different number of
+args is that the "unsigned long" base address argument
+is only 32-bits on 32-bit platforms yet on some of
+such platforms I/O and physical memory addresses
+are larger than 32-bits.
+
+Sparc and Sparc64 use a "space" argument to provide this
+upper 32-bits of information.
+
+Also, what this PCM mmap'ing code is trying to do
+is take I/O addresses and remap them into the process
+address space.  pci_resource_start() values are not necessarily
+suitable for passing around as physical addresses.  These
+things are well defined when used with ioremap() but
+that is it.  I don't know if we've defined it such that
+passing these into io_remap_page_range() can be expected
+to work.
+
+In fact, because of the sparc 32-bit issue, I know it won't
+work.  You'll need to have the full resource structure
+available, as that's where we hide the upper 32-bits of
+the physical address on sparc32.
+
+This is really non-portable, what the PCM code is doing.
+I would suggest, for the time being, to pass resources
+around and then have an arch-defined macro which takes
+the resource pointer and makes the appropriate io_remap_page_range()
+call.
+
+Can I make a small formal request of the ALSA folks?  Can you
+at least setup a cross-compiler to make sure your ALSA merges
+don't explode on sparc64?  As it stands, 1 out of every 2 ALSA
+merges breaks the build on that platform.

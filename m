@@ -1,78 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267587AbUHYOrB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267670AbUHYOup@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267587AbUHYOrB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 10:47:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267576AbUHYOpd
+	id S267670AbUHYOup (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 10:50:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267594AbUHYOrw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 10:45:33 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:38114 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267341AbUHYOo4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 10:44:56 -0400
-Date: Wed, 25 Aug 2004 10:44:39 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Michal Ludvig <mludvig@suse.cz>
-cc: CryptoAPI List <cryptoapi@lists.logix.cz>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] /dev/crypto for Linux
-In-Reply-To: <412BB517.4040204@suse.cz>
-Message-ID: <Xine.LNX.4.44.0408251025120.25396-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 25 Aug 2004 10:47:52 -0400
+Received: from fed1rmmtao03.cox.net ([68.230.241.36]:30691 "EHLO
+	fed1rmmtao03.cox.net") by vger.kernel.org with ESMTP
+	id S267341AbUHYOrP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 10:47:15 -0400
+Date: Wed, 25 Aug 2004 07:47:06 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Greg Weeks <greg.weeks@timesys.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, paulus@samba.org
+Subject: Re: [patch] ppc ep8260 support under 2.6.6
+Message-ID: <20040825144706.GE32539@smtp.west.cox.net>
+References: <412B638E.80500@timesys.com> <20040824213035.GH4521@smtp.west.cox.net> <412C77E2.1000702@timesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <412C77E2.1000702@timesys.com>
+User-Agent: Mutt/1.5.6+20040803i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Aug 2004, Michal Ludvig wrote:
+On Wed, Aug 25, 2004 at 07:28:34AM -0400, Greg Weeks wrote:
+> Tom Rini wrote:
+> 
+> >On Tue, Aug 24, 2004 at 11:49:34AM -0400, Greg Weeks wrote:
+> >
+> > 
+> >
+> >>This is basic support for the Embedded Planet's ep8260 board. It doesn't 
+> >>include MTD support. This patch unfortunatly doesn't apply to 2.6.8 just 
+> >>to 2.6.6. The code isn't mine, though it was developed here at Timesys. 
+> >>I just needed it running under 2.6.6.
+> >>
+> >>Signed-off-by: Greg Weeks <greg.weeks@timesys.com> under TS0057
+> >>   
+> >>
+> >
+> >Note the reason it doesn't apply is that ep8260 (rpx8260) went into
+> >2.6.8. :)
+> >
+> > 
+> >
+> That's even better. :)
+> 
+> >If you have access to the board, could you give it a shot in the
+> >linuxppc-2.5 tree?  There's fcc changes in there that I'd like to get
+> >tested on a few more boards before I push them out (or the driver gets
+> >obsoleted).
+> >
+> Unfortunately I don't have bitkeeper access. Is there a tar ball of the 
+> ppc tree? I didn't find one the last time I went looking.
 
-> How does it work?
-> - - Process opens /dev/crypto and with a set of ioctl() commands does what
-> it wants to. I.e. obtains a crypto session, does the {enc,dec}ryption
-> and finally closes the session. The sessions are bound to "struct file"
-> of the open /dev/crypto and thus are automatically removed even if the
-> process dies unexpectedly.
+There isn't one.  There is however, rsync.
+rsync://source.mvista.com::linuxppc-2.5
 
-I don't think this is the way forward for the user crypto API.  Rather 
-than using the openbsd device as a starting point, we need to look at what 
-is the best for Linux and work from there.
-
-In any case, the openbsd device is the wrong model.  An ioctl() based 
-interface is just a set of backdoor syscalls, but with weak semantics, and 
-a potential maintenance nightmare.
-
-At this stage, the only real use for the device is to make it easier to 
-test and benchmark the crypto modules, and I'm not sure if this is enough 
-justification for integration with the kernel at this stage.  Currently, 
-the tcrypt module provides a convienient way to test modules on whatever 
-architecture you can boot a kernel on, without the need for external 
-userspace packages.  It also tests some specific scatterlist cases.  So, 
-your crypto dev would not likely be considered a full replacement for 
-tcrypt at this stage.
-
-I would also want to see the user API evolve with the development of 
-hardware crypto support, and not lock us into forever supporting some 
-potentially inadequate/broken model.  So, any user API at this stage 
-should be marked experimental if it is going to be merged, if at all.
-
-I think there are really two options for developing the user API:
-
-1) a set of syscalls, or
-2) a filesystem.
-
-The main idea being to provide a well-structured, text-based (as far as
-possible) API with strong semantics.  I have a preference for a filesystem
-API (and done some initial design), but have not established yet whether
-it is feasible compared to the syscall approach.
-
-I would encourage you to look at a filesystem API, as a project which 
-evolves with the addition of hardware support.  I guess this is something 
-we could discuss in more detail on the crypto list rather than annoy the 
-lkml folk with.
-
-
-- James
 -- 
-James Morris
-<jmorris@redhat.com>
-
-
-
+Tom Rini
+http://gate.crashing.org/~trini/

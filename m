@@ -1,28 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282947AbRLMNrj>; Thu, 13 Dec 2001 08:47:39 -0500
+	id <S283390AbRLMOJ6>; Thu, 13 Dec 2001 09:09:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283390AbRLMNr3>; Thu, 13 Dec 2001 08:47:29 -0500
-Received: from firewall.sfn.asso.fr ([193.49.43.1]:47359 "HELO out.esrf.fr")
-	by vger.kernel.org with SMTP id <S282947AbRLMNrW>;
-	Thu, 13 Dec 2001 08:47:22 -0500
-Date: Thu, 13 Dec 2001 14:47:04 +0100
-From: Samuel Maftoul <maftoul@esrf.fr>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Graphical boot ( under kernel and not lilo)
-Message-ID: <20011213144704.A1833@pcmaftoul.esrf.fr>
+	id <S283680AbRLMOJs>; Thu, 13 Dec 2001 09:09:48 -0500
+Received: from hermes.toad.net ([162.33.130.251]:57482 "EHLO hermes.toad.net")
+	by vger.kernel.org with ESMTP id <S283390AbRLMOJa>;
+	Thu, 13 Dec 2001 09:09:30 -0500
+Subject: Re: USB not processing APM suspend event properly?
+From: Thomas Hood <jdthood@mail.com>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011213103652.A8007@flint.arm.linux.org.uk>
+In-Reply-To: <1008205428.3108.0.camel@thanatos> 
+	<20011213103652.A8007@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 13 Dec 2001 09:10:18 -0500
+Message-Id: <1008252621.937.0.camel@thanatos>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello hackers,
-I think that linux has somehow grown up and I would like to suggest we (
-mostly you as my knowledge ... ) integrate the "new version" of
-linux_logo.h which makes fullscreen tty1 graphical(maybe as non default
-).
-What do you think about that ?
-        
-        Sam
+On Thu, 2001-12-13 at 05:36, Russell King wrote:
+> On Wed, Dec 12, 2001 at 08:03:48PM -0500, Thomas Hood wrote:
+> > But do you agree that the present code does NOT do this?
+>
+> Ok, thinking about this obfuscated code more, it would appear so.  It
+> would also appear that when the suspend request comes from the APM bios,
+> the ioctl() method will not call send_event() at all - instead it comes
+> from check_events().
+
+Yes.
+
+> However, as I said previously, this is a minor issue.  I'd rather the
+> major problem was fixed.
+
+I agree entirely.  I think that this change should be made.
+The question is 'When?'.  Is this too big a change to make
+in 2.4?
+
+Thomas
+

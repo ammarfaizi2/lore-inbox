@@ -1,40 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261992AbSJITC3>; Wed, 9 Oct 2002 15:02:29 -0400
+	id <S262438AbSJISft>; Wed, 9 Oct 2002 14:35:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262007AbSJITC2>; Wed, 9 Oct 2002 15:02:28 -0400
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:12966 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261992AbSJITC1> convert rfc822-to-8bit; Wed, 9 Oct 2002 15:02:27 -0400
-Subject: Re: 2.5.41 does not build: ipv6/addrconf.c: case label
-	(htonln(something)) does not reduce to an integer constant
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: =?ISO-8859-1?Q?Nicol=E1s?= Lichtmaier <nick@technisys.com.ar>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3DA47DA1.4050804@technisys.com.ar>
-References: <3DA47DA1.4050804@technisys.com.ar>
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 09 Oct 2002 20:18:05 +0100
-Message-Id: <1034191085.2044.84.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S262432AbSJISfp>; Wed, 9 Oct 2002 14:35:45 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:6064 "EHLO cherise.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S262424AbSJISf3>;
+	Wed, 9 Oct 2002 14:35:29 -0400
+Date: Wed, 9 Oct 2002 11:43:39 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise.pdx.osdl.net
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [bk/patch] IDE driver model update
+In-Reply-To: <Pine.LNX.4.44.0210091131360.16276-100000@cherise.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.44.0210091143330.16276-100000@cherise.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-10-09 at 20:04, Nicolás Lichtmaier wrote:
->   gcc -Wp,-MD,net/ipv6/.addrconf.o.d -D__KERNEL__ -Iinclude -Wall 
-> -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
-> -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
-> -march=i686 -Iarch/i386/mach-generic -nostdinc -iwithprefix include 
-> -DMODULE   -DKBUILD_BASENAME=addrconf   -c -o net/ipv6/addrconf.o 
-> net/ipv6/addrconf.c
-> net/ipv6/addrconf.c: In function `ipv6_addr_type':
-> net/ipv6/addrconf.c:155: case label does not reduce to an integer constant
-> net/ipv6/addrconf.c:159: case label does not reduce to an integer constant
-> net/ipv6/addrconf.c:163: case label does not reduce to an integer constant
-> net/ipv6/addrconf.c:156: warning: unreachable code at beginning of 
 
-Grab the patch to that file from 2.5.41-ac and you'll be fine. Dave
-'bigendian' Miller says its fixed in the main tree now
+ChangeSet@1.728, 2002-10-09 10:52:46-07:00, mochel@osdl.org
+  IDE: register ide driver for all ide drives; not just for disk drives. 
+    
+  This adds
+        struct device_driver    gen_driver;
+    
+  to ide_driver_t, which is filled in with necessary fields when an ide
+  driver calls ide_register_driver(). That then registers the driver with
+  the driver model core. 
+    
+  As a result, this gives us the following output in driverfs:
+    
+  # tree -d /sys/bus/ide/drivers/
+  /sys/bus/ide/drivers/
+  |-- ide-cdrom
+  `-- ide-disk
+    
+  The suspend/resume callbacks in ide-disk.c have been temporarily
+  disabled until the ide core implements generic methods which forward
+  the calls to the drive drivers. 
+
+diff -Nru a/drivers/ide/ide-disk.c b/drivers/ide/ide-disk.c
+--- a/drivers/ide/ide-disk.c	Wed Oct  9 11:41:39 2002
++++ b/drivers/ide/ide-disk.c	Wed Oct  9 11:41:39 2002
+@@ -1664,14 +1664,6 @@
+ /* This is just a hook for the overall driver tree.
+  */
+ 
+-static struct device_driver idedisk_devdrv = {
+-	.bus = &ide_bus_type,
+-	.name = "IDE disk driver",
+-
+-	.suspend = idedisk_suspend,
+-	.resume = idedisk_resume,
+-};
+-
+ static int idedisk_ioctl (ide_drive_t *drive, struct inode *inode,
+ 	struct file *file, unsigned int cmd, unsigned long arg)
+ {
+@@ -1717,12 +1709,6 @@
+ 			drive->doorlocking = 1;
+ 		}
+ 	}
+-	{
+-		sprintf(drive->disk->disk_dev.name, "ide-disk");
+-		drive->disk->disk_dev.driver = &idedisk_devdrv;
+-		drive->disk->disk_dev.driver_data = drive;
+-	}
+-
+ #if 1
+ 	(void) probe_lba_addressing(drive, 1);
+ #else
+@@ -1806,7 +1792,7 @@
+ {
+ 	struct gendisk *g = drive->disk;
+ 
+-	device_unregister(&drive->disk->disk_dev);
++	device_unregister(&drive->gendev);
+ 	if ((drive->id->cfs_enable_2 & 0x3000) && drive->wcache)
+ 		if (do_idedisk_flushcache(drive))
+ 			printk (KERN_INFO "%s: Write Cache FAILED Flushing!\n",
+@@ -1905,7 +1891,6 @@
+ static int idedisk_init (void)
+ {
+ 	ide_register_driver(&idedisk_driver);
+-	driver_register(&idedisk_devdrv);
+ 	return 0;
+ }
+ 
+diff -Nru a/drivers/ide/ide.c b/drivers/ide/ide.c
+--- a/drivers/ide/ide.c	Wed Oct  9 11:41:39 2002
++++ b/drivers/ide/ide.c	Wed Oct  9 11:41:39 2002
+@@ -3440,7 +3440,9 @@
+ 		list_del_init(&drive->list);
+ 		ata_attach(drive);
+ 	}
+-	return 0;
++	driver->gen_driver.name = driver->name;
++	driver->gen_driver.bus = &ide_bus_type;
++	return driver_register(&driver->gen_driver);
+ }
+ 
+ EXPORT_SYMBOL(ide_register_driver);
+diff -Nru a/include/linux/ide.h b/include/linux/ide.h
+--- a/include/linux/ide.h	Wed Oct  9 11:41:39 2002
++++ b/include/linux/ide.h	Wed Oct  9 11:41:39 2002
+@@ -1200,6 +1200,7 @@
+ 	int		(*attach)(ide_drive_t *);
+ 	void		(*ata_prebuilder)(ide_drive_t *);
+ 	void		(*atapi_prebuilder)(ide_drive_t *);
++	struct device_driver	gen_driver;
+ 	struct list_head drives;
+ 	struct list_head drivers;
+ } ide_driver_t;
 

@@ -1,44 +1,31 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316953AbSEWQpq>; Thu, 23 May 2002 12:45:46 -0400
+	id <S316949AbSEWQu0>; Thu, 23 May 2002 12:50:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316957AbSEWQpp>; Thu, 23 May 2002 12:45:45 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:17869 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S316953AbSEWQpo>; Thu, 23 May 2002 12:45:44 -0400
-Date: Thu, 23 May 2002 09:46:08 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] 2.4 VM sucks. Again
-Message-ID: <399720000.1022172368@flay>
-In-Reply-To: <200205231629.g4NGTWE22956@mail.pronto.tv>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S316957AbSEWQuZ>; Thu, 23 May 2002 12:50:25 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:60129 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S316949AbSEWQuX>;
+	Thu, 23 May 2002 12:50:23 -0400
+Date: Thu, 23 May 2002 09:36:01 -0700 (PDT)
+Message-Id: <20020523.093601.20619013.davem@redhat.com>
+To: sebastian.droege@gmx.de
+Cc: hch@infradead.org, torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [2.5.17-cset1.656] patch to compile nfs (and maybe others)
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020523184141.6fe51ec2.sebastian.droege@gmx.de>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > Starting up 30 downloads from a custom HTTP server (or Tux - or Apache -
->> > doesn't matter), file size is 3-6GB, download speed = ~4.5Mbps. After
->> > some time the kernel (a) goes bOOM (out of memory) if not having any
->> > swap, or (b) goes gong swapping out anything it can.
->> 
->> How much RAM do you have, and what does /proc/meminfo
->> and /proc/slabinfo say just before the explosion point?
-> 
-> I have 1 gig - highmem (not enabled) - 900 megs.
-> for what I can see, kernel can't reclaim buffers fast enough.
-> ut looks better on -aa.
+   From: Sebastian Droege <sebastian.droege@gmx.de>
+   Date: Thu, 23 May 2002 18:41:41 +0200
 
-Sounds like exactly the same problem we were having. There are two
-approaches to solving this - Andrea has a patch that tries to free them
-under memory pressure, akpm has a patch that hacks them down as soon
-as you've fininshed with them (posted to lse-tech mailing list). Both approaches
-seemed to work for me, but the performance of the fixes still has to be established.
+   Ok... but then we've to copy the FASTCALL stuff (which is used
+   elsewhere too) from linkage.h to namei.h or something else...
 
-I've seen over 1Gb of buffer_heads ;-)
-
-M.
+namei.h should include linkage.h and I sent precisely that
+to Linus last evening...
 

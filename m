@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290423AbSCGCHO>; Wed, 6 Mar 2002 21:07:14 -0500
+	id <S290767AbSCGCZn>; Wed, 6 Mar 2002 21:25:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290587AbSCGCHE>; Wed, 6 Mar 2002 21:07:04 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:42507 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S290423AbSCGCG5>; Wed, 6 Mar 2002 21:06:57 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Wed, 6 Mar 2002 18:10:29 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Richard Henderson <rth@twiddle.net>
-cc: Hubertus Franke <frankeh@watson.ibm.com>, Robert Love <rml@tech9.net>,
-        Rusty Russell <rusty@rustcorp.com.au>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fast Userspace Mutexes III.
-In-Reply-To: <20020306175846.B26064@twiddle.net>
-Message-ID: <Pine.LNX.4.44.0203061808100.940-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290713AbSCGCZY>; Wed, 6 Mar 2002 21:25:24 -0500
+Received: from ns0.auctionwatch.com ([66.7.130.2]:65029 "EHLO
+	whitestar.auctionwatch.com") by vger.kernel.org with ESMTP
+	id <S290587AbSCGCZO>; Wed, 6 Mar 2002 21:25:14 -0500
+Date: Wed, 6 Mar 2002 18:25:07 -0800
+From: Petro <petro@auctionwatch.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Probable Memory/VM issue.
+Message-ID: <20020307022507.GE32504@auctionwatch.com>
+In-Reply-To: <20020306054143.GN22934@auctionwatch.com> <E16ikLn-00004q-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E16ikLn-00004q-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Mar 2002, Richard Henderson wrote:
+On Wed, Mar 06, 2002 at 10:57:35PM +0000, Alan Cox wrote:
+> > Bogus stack limit or frame pointer, fp=0xbfabf8c0, stack_bottom=0xbfc7fcb8, thread_stack=65536, aborting backtrace.
+> > Trying to get some variables.
+> > Some pointers may be invalid and cause the dump to abort...
+> > thd->query at (nil)  is invalid pointer
+> > thd->thread_id=20479119
+> Which says nothing alas - nothing about user or kernel space. If the system
+> had run out of memory and killed it you'd have seen "killed" and an OOM
+> entry logged
 
-> On Mon, Mar 04, 2002 at 02:15:58PM -0800, Davide Libenzi wrote:
-> > That's great. What if the process holding the mutex dies while there're
-> > sleeping tasks waiting for it ?
->
-> The lock is lost.  The same thing would happen with locks completely
-> implemented in userspace.
->
-> I don't see that the kernel should do anything about this.  If a
-> thread is killed with predudice (i.e. without pthread_cancel) then
-> there are all sorts of cleanups that won't happen.  Having the
-> kernel automatically unlock the locks doesn't help much, since
-> the data structures are quite likely in an inconsistent state.
+    It definately did not run out of memory--we monitor that pretty
+    close, and the memory usage was pretty constant for the 90+ hours
+    prior to the crash. 
 
-agreed, whatever solution does not solve it completely and makes things is
-lot more complex. it's not an issue ...
-
-
-
-- Davide
-
-
+-- 
+Share and Enjoy. 

@@ -1,92 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267669AbUG3NNv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265773AbUG3OFc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267669AbUG3NNv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 09:13:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267673AbUG3NNv
+	id S265773AbUG3OFc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 10:05:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267682AbUG3OFc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 09:13:51 -0400
-Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:20910 "EHLO
-	websrv.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S267669AbUG3NNs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 09:13:48 -0400
-Subject: Re: [PATCH] Delete cryptoloop
-From: Christophe Saout <christophe@saout.de>
-To: David Wagner <daw@cs.berkeley.edu>
-Cc: James Morris <jmorris@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200407292115.i6TLFTpo017213@taverner.CS.Berkeley.EDU>
-References: <200407292115.i6TLFTpo017213@taverner.CS.Berkeley.EDU>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-M84b06RkQfHou5oIfWzf"
-Date: Fri, 30 Jul 2004 15:13:39 +0200
-Message-Id: <1091193219.11944.17.camel@leto.cs.pocnet.net>
+	Fri, 30 Jul 2004 10:05:32 -0400
+Received: from cantor.suse.de ([195.135.220.2]:17635 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265773AbUG3OFX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jul 2004 10:05:23 -0400
+Date: Fri, 30 Jul 2004 15:58:40 +0200
+From: Karsten Keil <kkeil@suse.de>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [cleanup] do_general_protection doesn't disable irq
+Message-ID: <20040730135840.GA12152@pingi3.kke.suse.de>
+Mail-Followup-To: Linux Kernel list <linux-kernel@vger.kernel.org>
+References: <20040730025349.GE30369@dualathlon.random> <4109CCED.5020808@quark.didntduck.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.91 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4109CCED.5020808@quark.didntduck.org>
+Organization: SuSE Linux AG
+X-Operating-System: Linux 2.6.4-52-default i686
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jul 30, 2004 at 12:22:05AM -0400, Brian Gerst wrote:
+> Andrea Arcangeli wrote:
+> >A trap gate shouldn't affect the irq status at all.
+> >
+> >This should be a valid cleanup that removes a slightly confusing noop:
+> >
+> >Index: linux-2.5/arch/i386/kernel/traps.c
+> >===================================================================
+> >RCS file: /home/andrea/crypto/cvs/linux-2.5/arch/i386/kernel/traps.c,v
+> >retrieving revision 1.77
+> >diff -u -p -r1.77 traps.c
+> >--- linux-2.5/arch/i386/kernel/traps.c	13 Jul 2004 18:02:33 -0000 
+> >1.77
+> >+++ linux-2.5/arch/i386/kernel/traps.c	30 Jul 2004 02:44:23 -0000
+> >@@ -431,9 +431,6 @@ DO_ERROR_INFO(17, SIGBUS, "alignment che
+> > 
+> > asmlinkage void do_general_protection(struct pt_regs * regs, long 
+> > error_code)
+> > {
+> >-	if (regs->eflags & X86_EFLAGS_IF)
+> >-		local_irq_enable();
+> >- 
+> > 	if (regs->eflags & VM_MASK)
+> > 		goto gp_in_vm86;
+> > 
+> >
+> >Thanks to Karsten for noticing a trap gate doesn't actually enable irq
+> >by default either (offtopic issue with the above patch, but while
+> >reading the 2.6 code I found the above bit which just confused me more
+> >since it's a noop, either that or you meant to use set_intr_gate, not
+> >set_trap_gate on the do_general_protection handler, but it seems not
+> >needed to use a trap gate since a trap gate shouldn't enable irqs by
+> >default). Please correct me if wrong.
+> 
+> This is there for vm86 mode.  See http://tinyurl.com/3m5nr
+> 
 
---=-M84b06RkQfHou5oIfWzf
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+It makes also no sense, if the GP comes from VM86 mode, what you
+need there is the second hunk in the patch which does local_irq_enable();
+if it was from VM86. Note: the trap gate do not touch X86_EFLAGS_IF bit,
+so the saved value in regs->eflags is the same as in the CPU EFLAGS register.
 
-Am Donnerstag, den 29.07.2004, 14:15 -0700 schrieb David Wagner:
-
-> > IV =3D sector number (little endian, 32 bits), pad with zeroes
-> > The actual content is then encoded using the selected cipher and key in
-> > CBC mode.
-> > C[0] =3D E(IV     xor P[0])
-> > C[1] =3D E(C[0]   xor P[1])
-> > ...
->=20
-> Ok, that's what I thought.  The above is pretty good, but does have some
-> weaknesses due to the IV selection.  CBC mode needs uniformly random IVs
-> for security; using a counter can cause occasional information leakage.
-
-Yes, we already identified this problem.
-
-> You can see that the information leakage is typically modest and limited;
-> in many cases, there might be no leakage at all.  Nonetheless, this is
-> not an ideal situation.  As a cryptographer, one would usually consider
-> this a flawed design (primarily because it is so easy to do better).
-> There are known ways to prevent this attack; for instance, IV =3D E(secto=
-r
-> number) or IV =3D HMAC(sector number) should be much better.
-
-Exactly.
-
-But we identified more problems (I don't if these are all real issues).
-
-Assuming the attacker has access to both plaintext and the encrypted
-disk. (shared storage, user account on the machine or something)
-
-A simple one is if you set a sector to all zeroes, due to CBC you get
-tons of plaintext-encrypted pairs on the encrypted disk.
-
-One problem would be that if he modifies a sector only the rest of that
-sector changes, starting from the block he changed.
-Since CBC uses C[n] =3D E(C[n-1] xor P[n]) he could set P[n] =3D C[n-1] and
-then has C[n] =3D E(0) which could be precomputed.
-
-This can't happen if the IV also depends on the sector content, like IV
-=3D HMAC(sector number, P[1 .. n-1])
-
-Or if the attacker can copy around sectors on the encrypted side (shared
-storage) from one location to another location where he has read access
-on the machine that can decrypt the data, he can simply read the data
-except for the first block (if secured by an "random" IV). This can't be
-avoided when using CBC and a single key for every sector.
-
-
---=-M84b06RkQfHou5oIfWzf
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBCkmDZCYBcts5dM0RAsTAAJkBBS3PK9sNTDBFUOvvW6177JEkBACfU/ot
-gh5jQITIiiKhrCLqBBmAM9M=
-=v+3t
------END PGP SIGNATURE-----
-
---=-M84b06RkQfHou5oIfWzf--
-
+-- 
+Karsten Keil
+SuSE Labs
+ISDN development

@@ -1,42 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267126AbTAUVht>; Tue, 21 Jan 2003 16:37:49 -0500
+	id <S266868AbTAUVfD>; Tue, 21 Jan 2003 16:35:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267228AbTAUVht>; Tue, 21 Jan 2003 16:37:49 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:60946 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S267126AbTAUVhs>;
-	Tue, 21 Jan 2003 16:37:48 -0500
-Date: Tue, 21 Jan 2003 22:46:51 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
+	id <S266948AbTAUVfD>; Tue, 21 Jan 2003 16:35:03 -0500
+Received: from warden-p.diginsite.com ([208.29.163.248]:21743 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S266868AbTAUVfC>; Tue, 21 Jan 2003 16:35:02 -0500
+From: David Lang <david.lang@digitalinsight.com>
 To: Olaf Titz <olaf@bigred.inka.de>
 Cc: linux-kernel@vger.kernel.org
+Date: Tue, 21 Jan 2003 13:30:44 -0800 (PST)
 Subject: Re: ANN: LKMB (Linux Kernel Module Builder) version 0.1.16
-Message-ID: <20030121214651.GA958@mars.ravnborg.org>
-Mail-Followup-To: Olaf Titz <olaf@bigred.inka.de>,
-	linux-kernel@vger.kernel.org
-References: <25160.1042809144@passion.cambridge.redhat.com> <Pine.LNX.4.33L2.0301171857230.25073-100000@vipe.technion.ac.il> <E18a1aZ-0006mL-00@bigred.inka.de> <1042930522.15782.12.camel@laptop.fenrus.com> <E18ai8O-00032u-00@bigred.inka.de> <1043098758.27074.2.camel@laptop.fenrus.com> <E18b5kc-0003BB-00@bigred.inka.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <E18b5kc-0003BB-00@bigred.inka.de>
-User-Agent: Mutt/1.4i
+Message-ID: <Pine.LNX.4.44.0301211329420.7857-100000@dlang.diginsite.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 21, 2003 at 10:16:06PM +0100, Olaf Titz wrote:
+On Tue, 21 Jan 2003, Olaf Titz wrote:
+
+> Frankly, I think the main reason is that Linus doesn't care at all
+> about the kernel build process. We've had a _much_ better solution
+> already in the 2.5 cycle which was rejected for completely bogus
+> formal reasons coupled with an explicit "why do we need this at all",
+> even though it was pointed out over and over again what is broken
 > currently (or was back then, granted it has improved but not as much
 > as is desirable and possible).
 
->From your previous posts I have only noted down one feature that is
-not yet planned: 
-1) Building modules separate from module src.
+in this case the real reason is probably that Linus seldom uses modules.
 
-The other issues you have rasied are either queued for inclusion, or
-being worked on.
-Could you try to come up with some sort of list what you really miss.
-It is always nice to get inputs from others, not only judging based
-on your own needs.
-
-Any constructive inputs are greatly appreciated.
-
-	Sam
+David Lang

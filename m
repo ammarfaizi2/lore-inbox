@@ -1,60 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272341AbRIPPIA>; Sun, 16 Sep 2001 11:08:00 -0400
+	id <S271698AbRIPPTk>; Sun, 16 Sep 2001 11:19:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272345AbRIPPHu>; Sun, 16 Sep 2001 11:07:50 -0400
-Received: from mail1.rrz.Uni-Koeln.DE ([134.95.100.208]:27281 "EHLO
-	mail1.rrz.Uni-Koeln.DE") by vger.kernel.org with ESMTP
-	id <S272341AbRIPPHo>; Sun, 16 Sep 2001 11:07:44 -0400
-Date: Sun, 16 Sep 2001 17:08:05 +0200 (MET DST)
-From: Jens Ruehmkorf <J.Ruehmkorf@Uni-Koeln.DE>
-Reply-To: Jens Ruehmkorf <J.Ruehmkorf@Uni-Koeln.DE>
-To: linux-kernel@vger.kernel.org
-Subject: Root-NFS Problems and portmap
-Message-ID: <Pine.SOL.3.96.1010916153453.327A-100000@campfire.rrz.Uni-Koeln.DE>
+	id <S271129AbRIPPTb>; Sun, 16 Sep 2001 11:19:31 -0400
+Received: from m3d.uib.es ([130.206.132.6]:148 "EHLO m3d.uib.es")
+	by vger.kernel.org with ESMTP id <S271698AbRIPPTV>;
+	Sun, 16 Sep 2001 11:19:21 -0400
+Date: Sun, 16 Sep 2001 17:19:43 +0200 (MET)
+From: Ricardo Galli <gallir@m3d.uib.es>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: broken VM in 2.4.10-pre9
+Message-ID: <Pine.LNX.4.33.0109161711430.30482-100000@m3d.uib.es>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
+> So whether Linux uses swap or not is a 100% meaningless indicator of
+> "goodness". The only thing that matters is how well the job gets done,
+> ie was it reasonably responsive, and did the big untars finish quickly..
 
-I have some problems getting Root-NFS to work properly. 
+I am running 2.4.9 on a PII with 448MB RAM. After listening a couple of
+hours MP3 from the /dev/cdrom and KDE started, more than 70MB went to
+swap, about 300 MB in cache and KDE takes about 15-20 seconds just for
+logging out and showing the greeting console.
 
-On the server side is a linux 2.4.9 with tcp-wrapper (release 7.6) and
-portmapper (release 5) in use on a Debian GNU/Linux 3.0 box.
+Obviously, all apps went to disk to leave space for caching mp3 files that
+are read only once. Altough logging out is not a very often process...
 
-When using Root-NFS with linux-2.4.5 or later, I get the following
-messages repeatedly: 
+Regards,
 
--- snip --
-Looking up port of RPC 100003/2 on <server-ip>
-RPC: sendmesg returned error 101
-portmap: RPC call returned error 101
-Root-NFS: Unable to get nfsd port number from server, using default
--- snap --
 
-In particular I tried 2.4.5, 2.4.8 and 2.4.9 on this with the same errors. 
-I passed various nfsroot-options to the kernel (including nolock) with no
-success. 
-
-Surprisingly, when using 2.4.4 (or 2.2.19 which has dhcp-ipconfig as well) 
-everything works just fine. I used the working config-2.4.4-nfsroot to
-compile one of the more recent kernels (which fails).
-
-Starting with 2.4.5 net/ipv4/ipconfig.c has changed to add support of
-dhcp, so maybe it has something to do with this? According to tcpdump,
-IP-Config itself works alright though.
-
-If you need any more information such as kernel-config, send me an email.
-
-PLEASE: If anybody has a working 2.4.x nfsroot-kernel with x > 4, please
-send me your config so I can find the problem.
-
-Kind regards,
-Jens Ruehmkorf
-
---
-j dot ruehmkorf at uni hyphen koeln dot de
+--ricardo
 
 

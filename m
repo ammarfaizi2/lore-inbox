@@ -1,72 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270644AbUJUCE7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270639AbUJUCIb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270644AbUJUCE7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 22:04:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270737AbUJUCED
+	id S270639AbUJUCIb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 22:08:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270729AbUJUCDv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 22:04:03 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56501 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S270644AbUJUCAG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 22:00:06 -0400
-Message-ID: <41771813.8090204@pobox.com>
-Date: Wed, 20 Oct 2004 21:59:47 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+	Wed, 20 Oct 2004 22:03:51 -0400
+Received: from mx3.sover.net ([209.198.87.173]:2251 "EHLO mx3.sover.net")
+	by vger.kernel.org with ESMTP id S270639AbUJUCAQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 22:00:16 -0400
+Message-ID: <4177185A.9080708@sover.net>
+Date: Wed, 20 Oct 2004 22:00:58 -0400
+From: Stephen Wille Padnos <spadnos@sover.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.3) Gecko/20040910
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: viro@parcelfarce.linux.theplanet.co.uk
-CC: Linus Torvalds <torvalds@osdl.org>, John Cherry <cherry@osdl.org>,
-       Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-Subject: Re: Linux v2.6.9... (compile stats)
-References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org> <1098196575.4320.0.camel@cherrybomb.pdx.osdl.net> <20041019161834.GA23821@one-eyed-alien.net> <1098310286.3381.5.camel@cherrybomb.pdx.osdl.net> <20041020224106.GM23987@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0410201710370.2317@ppc970.osdl.org> <41770307.5060304@pobox.com> <20041021015522.GH23987@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20041021015522.GH23987@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Jon Smirl <jonsmirl@gmail.com>
+CC: Timothy Miller <miller@techsource.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+References: <4176E08B.2050706@techsource.com>	 <9e4733910410201808c0796c8@mail.gmail.com> <9e473391041020181150638b4@mail.gmail.com>
+In-Reply-To: <9e473391041020181150638b4@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-viro@parcelfarce.linux.theplanet.co.uk wrote:
-> On Wed, Oct 20, 2004 at 08:29:59PM -0400, Jeff Garzik wrote:
-> 
->>I still merging stuff, so won't get around to it for another day or so :)
->>
->>I certainly don't mind anyone stealing the task from me, but the effort 
->>is larger than the other iomap conversions.  The patch above hits all 
->>the easily-picked fruit, leaving the stuff that requires a modicum of 
->>effort:
->>
->>* map/unmap N PCI bars (N >= 4, per controller)
->>* map/unmap 2 ISA I/O regions (0x170, 0x1f0)
->>* accurately handle the odd situation where IDE driver steals 0x170 
->>while libata steals 0x1f0 (or vice versa), a.k.a. the reason for 
->>quirk_intel_ide_combined() and the ____request_resource nastiness
->>
->>Currently the code is set up to handle:
->>* N PIO ports
->>	or
->>* a single MMIO address that contains all the registers the driver needs
->>(mmio_base)
-> 
-> 
-> Hmm...  It misses a bunch of easy stuff, actually (tons of casts to void *
-> from what used to be unsigned long and is void __iomem * with your patch).
+Jon Smirl wrote:
 
-feel free to send a delta :)
+>Another thought, TV out is important in the embedded market. Think
+>about Tivo/MythTV/set top boxes.
+>
+OK - so the answer seems to be "if it does the right things, then it may 
+sell"  It's hard to sell a card that doesn't do good 3D these days (re: 
+Matrox Parhelia).  Speaking of the parhelia, I would look at that 
+feature set as a starting point.  10-bit color, multiscreen accelerated 
+3D, dual DVI, gamma corrected glyph antialiasing, etc.
 
+So, let's try to figure out the right feature set.  (that is what was 
+originally asked for, after all)
 
-> I don't see where you handle PIO stuff, though - no ioport_map() _or_
-> pci_iomap() in sight.
+Looking at 2D, I would definitely want to see: (some taken from other 
+emails on the subject)
+alpha blending
+antialiasing (related to alpha blending)
+bitblt
+fast primitive drawing
+accelerated offscreen operations
+more than 8 bits/color channel
+video output - preferably with independent scale / refresh (ie, clone 
+the 100Hz 1600x1200 monitor on a 648x480 60 Hz NTSC monitor)
+video decoding acceleration (possibly some encoding functions as well)
+bitmap scaling (think of font sizing and the like)
+2D rotation
+possibly 2.5D rotation - ie, the perspective "twist" of a plane image 
+into 3D space (like Sun's Looking Glass environment)
 
-Correct, that part doesn't exist yet.  grep in the above quoted text for 
-"* map/unap" for the to-do list.
+I would think that a chip that has a lot of simple functions, but 
+requires the OS to put them together to actually do something, would be 
+great.  This would be the UNIX mentality brought to hardware: lots of 
+small components that get strung together in ways their creator(s) never 
+imagined.  If there can be a programmable side as well (other than 
+re-burning the FPGA), that would be great.
 
-The mapping of the PIO PCI BARs requires independently mapping at least 
-5 (but varies from controller to controller) IO port ranges, and 
-tracking those mappings in a coherent manner.
+I guess I would look at this as an opportunity to make a "visual 
+coprocessor", that also has the hardware necessary to output to a 
+monitor (preferably multiple monitors).
 
-	Jeff
-
+- Steve
 

@@ -1,81 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289749AbSBUIIi>; Thu, 21 Feb 2002 03:08:38 -0500
+	id <S288748AbSBUIeE>; Thu, 21 Feb 2002 03:34:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288748AbSBUII2>; Thu, 21 Feb 2002 03:08:28 -0500
-Received: from 89dyn169.com21.casema.net ([62.234.20.169]:65501 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S289813AbSBUIIU> convert rfc822-to-8bit; Thu, 21 Feb 2002 03:08:20 -0500
-Message-Id: <200202210808.JAA20911@cave.bitwizard.nl>
-Subject: Re: ide cd-recording not working in 2.4.18-rc2-ac1
-In-Reply-To: <E16diR7-0005RF-00@the-village.bc.nu> from Alan Cox at "Feb 21,
- 2002 01:54:17 am"
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Thu, 21 Feb 2002 09:08:09 +0100 (MET)
-CC: Ed Sweetman <ed.sweetman@wmich.edu>, linux-kernel@vger.kernel.org
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	id <S289813AbSBUIdo>; Thu, 21 Feb 2002 03:33:44 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:52471 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S288748AbSBUIdm>; Thu, 21 Feb 2002 03:33:42 -0500
+Date: Thu, 21 Feb 2002 09:29:24 +0100 (CET)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.18-rc2
+In-Reply-To: <Pine.LNX.4.21.0202181815480.25479-100000@freak.distro.conectiva>
+Message-ID: <Pine.NEB.4.44.0202210924450.3462-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> > I get this on every cd I try and I've tried more than I'd have liked to.
-> > 
-> > Performing OPC...
-> > /usr/bin/cdrecord: Input/output error. write_g1: scsi sendcmd: no error
-> > CDB:  2A 00 00 00 00 1F 00 00 1F 00
-> > status: 0x2 (CHECK CONDITION)
-> > Sense Bytes: 70 00 05 00 00 00 00 0A 00 00 00 00 21 00 00 00
-> > Sense Key: 0x5 Illegal Request, Segment 0
-> > Sense Code: 0x21 Qual 0x00 (logical block address out of range) Fru 0x0
-> 
-> Thats saying that cdrecord sent the drive a bogus command.
+Hi Marcelo,
 
-A friend of mine had exactly the same problems. These were eventually
-solved by buying a new CDR drive.
-
-We tried running the "cdrecord" from the old installation: Same problem. 
-
-We tried it on the remainder of the spindle that used to work with the old
-installation: Same problem. 
-
-We tried it with the CDR discs that I use here: Same problem. 
-
-(I was suspecting a problem with the disks as "start of lead in:
-97:23:00" sounded a bit odd to me, and would result in "logical block
-address out of range", So I first suspected the discs to be
-incompatible with the current cdrecord.)
+as discussed in the thread of your 2.4.18-rc1 announcement (see [1] and
+[2]) 2.4.18 adds CONFIG_FB_TRIDENT but the code doesn't compile.  It's
+IMHO not a good a idea to add a new option that doesn't compile to a
+stable kernel. Please apply the patch below that disables this option as a
+workaround to 2.4.18:
 
 
-> > Now I know every cd isn't bad because they used to work in older
-> > 2.4.17ish kernels.  I have scsi-generic support compiled as a module as
-> 
-> Does it still work with them ?
+--- drivers/video/Config.in.old	Thu Feb 21 00:18:54 2002
++++ drivers/video/Config.in	Thu Feb 21 00:20:02 2002
+@@ -145,7 +145,7 @@
+ 	 fi
+ 	 tristate '  3Dfx Banshee/Voodoo3 display support (EXPERIMENTAL)' CONFIG_FB_3DFX
+ 	 tristate '  3Dfx Voodoo Graphics (sst1) support (EXPERIMENTAL)' CONFIG_FB_VOODOO1
+-	 tristate '  Trident support (EXPERIMENTAL)' CONFIG_FB_TRIDENT
++#	 tristate '  Trident support (EXPERIMENTAL)' CONFIG_FB_TRIDENT
+       fi
+    fi
+    if [ "$ARCH" = "sparc" -o "$ARCH" = "sparc64" ]; then
 
-His old installation won't boot anymore, so in that case we can't
-easily try anymore... Grmbl. 
 
-> > SCSI subsystem driver Revision: 1.00
-> > scsi0 : SCSI host adapter emulation for IDE ATAPI devices
-> 
-> Right same as I am using
+TIA
+Adrian
 
-Ehmm. My story is about a real SCSI CDR drive. He now has an IDE drive. 
+[1] http://www.lib.uaa.alaska.edu/linux-kernel/archive/2002-Week-06/0985.html
+[2] http://www.lib.uaa.alaska.edu/linux-kernel/archive/2002-Week-06/0988.html
 
-> > not sure what else I can get informationwize about what the drive is
-> > doing.  
-> 
-> What type of IDE controller ?
 
-NCR810. 
-
-			Roger. 
-
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 

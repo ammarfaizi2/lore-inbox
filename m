@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261320AbTDCQTe>; Thu, 3 Apr 2003 11:19:34 -0500
+	id <S261357AbTDCQ21>; Thu, 3 Apr 2003 11:28:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261321AbTDCQTe>; Thu, 3 Apr 2003 11:19:34 -0500
-Received: from denise.shiny.it ([194.20.232.1]:50578 "EHLO denise.shiny.it")
-	by vger.kernel.org with ESMTP id <S261320AbTDCQTe>;
-	Thu, 3 Apr 2003 11:19:34 -0500
-Message-ID: <XFMail.20030403183058.pochini@shiny.it>
-X-Mailer: XFMail 1.4.7 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S261363AbTDCQ20>; Thu, 3 Apr 2003 11:28:26 -0500
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:56852 "EHLO
+	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S261357AbTDCQ20>; Thu, 3 Apr 2003 11:28:26 -0500
+Date: Thu, 03 Apr 2003 10:39:37 -0600
+From: Dave McCracken <dmccr@us.ibm.com>
+To: Hugh Dickins <hugh@veritas.com>
+cc: Andrew Morton <akpm@digeo.com>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.5.66-mm2] Fix page_convert_anon locking issues
+Message-ID: <23590000.1049387977@baldur.austin.ibm.com>
+In-Reply-To: <Pine.LNX.4.44.0304031727420.2014-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0304031727420.2014-100000@localhost.localdomain>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-In-Reply-To: <3E8BFAA3.7010608@canada.com>
-Date: Thu, 03 Apr 2003 18:30:58 +0200 (CEST)
-From: Giuliano Pochini <pochini@shiny.it>
-To: Nehal <nehal@canada.com>
-Subject: Re: mount hfs on SCSI cdrom = segfault
-Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->>Once upon a time it worked just fine. Then someone removed
->>support for !=512 bytes sectors...
->>To workaround, use loopback.
->>
-> (yes Oliver has told me about this workaround)
-> 
-> 1. do u know why it was removed?
-> 2. is there a reason why can't support for it be put back?
+--On Thursday, April 03, 2003 17:33:31 +0100 Hugh Dickins
+<hugh@veritas.com> wrote:
 
-I don't know why, and I don't know if it was removed from the
-hfs code or if hfs relied on some features of a lower layer
-that has been modified.
+> No: see the various checks on page_count(page) in vmscan.c:
+> though page_convert_anon temporarily leaves a page with neither
+> mapcount nor the right number of pte pointers, page_count is unaffected.
 
+Oh, hmm... Ok, so it's safe... This could have some interesting
+implications all around.
 
-Bye.
+Dave
+
+======================================================================
+Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
+dmccr@us.ibm.com                                        T/L   678-3059
 

@@ -1,68 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269793AbUINUps@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269773AbUINUiY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269793AbUINUps (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 16:45:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269796AbUINUol
+	id S269773AbUINUiY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 16:38:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269663AbUINUdW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 16:44:41 -0400
-Received: from [195.190.190.7] ([195.190.190.7]:18860 "EHLO mail.pixelized.ch")
-	by vger.kernel.org with ESMTP id S269800AbUINUny (ORCPT
+	Tue, 14 Sep 2004 16:33:22 -0400
+Received: from smtp05.web.de ([217.72.192.209]:34219 "EHLO smtp05.web.de")
+	by vger.kernel.org with ESMTP id S269654AbUINUa0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 16:43:54 -0400
-Message-ID: <414757FD.5050209@pixelized.ch>
-Date: Tue, 14 Sep 2004 22:43:41 +0200
-From: "Giacomo A. Catenazzi" <cate@pixelized.ch>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040912)
+	Tue, 14 Sep 2004 16:30:26 -0400
+Message-ID: <414754DA.2010401@web.de>
+Date: Tue, 14 Sep 2004 22:30:18 +0200
+From: Michael Thonke <tk-shockwave@web.de>
+User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Chris Friesen <cfriesen@nortelnetworks.com>,
-       "Giacomo A. Catenazzi" <cate@debian.org>, linux-kernel@vger.kernel.org,
-       Tigran Aivazian <tigran@veritas.com>, md@Linux.IT
+To: linux-kernel@vger.kernel.org
 Subject: Re: udev is too slow creating devices
-References: <41473972.8010104@debian.org> <41474926.8050808@nortelnetworks.com> <20040914195221.GA21691@kroah.com>
-In-Reply-To: <20040914195221.GA21691@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+References: <http://lkml.org/lkml/2004/9/14/316@localhost.localdomain>
+In-Reply-To: <http://lkml.org/lkml/2004/9/14/316@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Tue, Sep 14, 2004 at 01:40:22PM -0600, Chris Friesen wrote:
-> 
->>Giacomo A. Catenazzi wrote:
->>
->>
->>>udev + modular microcode:
->>>$ modprobe -r microcode
->>>$ modprobe microcode ; microcode_ctl -u
->>>=> microcode_ctl does NOT find the device
->>
->>The loading of the module triggers udev to run.  There is no guarantee that 
->>udev runs before microcode_ctl.
->>
->>One workaround would be to have microcode_ctl use dnotify to get woken up 
->>whenever /dev changes.
-> 
-> 
-> Ick, no.  Use the /etc/dev.d/ notify method I described.  That is what
-> it is there for.
-> 
+Chris Friesen wrote:
 
-After a brief discussion with debian udev maintainer, I've an
-other proposal/opinion.
+> Re: udev is too slow creating devices 
 
-The "bug" appear only in two places: at udev start and after
-a modprobe, so IMHO we should correct these two place, so that:
-- from a user side perspective it is the right thing!
-   (after a successful modprobe, I expect module and devices
-    are created sussesfully)
-- there are not many special case:
-   with udev use dev.d, else do actions now!
+Never noticed that all devices are created at the right time
+and since udev know more device nodes it really great.
+I went to udev for about 6month without big problems.
 
-Else every distribution should create a script for
-every init.d script that would eventually use (also
-indirectly) a kernel module.
-
-ciao
-	cate

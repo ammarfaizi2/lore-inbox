@@ -1,60 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285612AbRLRGUb>; Tue, 18 Dec 2001 01:20:31 -0500
+	id <S285630AbRLRGeo>; Tue, 18 Dec 2001 01:34:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285617AbRLRGUV>; Tue, 18 Dec 2001 01:20:21 -0500
-Received: from adsl-63-207-97-74.dsl.snfc21.pacbell.net ([63.207.97.74]:11250
-	"EHLO nova.botz.org") by vger.kernel.org with ESMTP
-	id <S285612AbRLRGUJ> convert rfc822-to-8bit; Tue, 18 Dec 2001 01:20:09 -0500
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4
-To: Ross Vandegrift <ross@willow.seitz.com>
-cc: Diego Calleja <grundig@teleline.es>, linux-kernel@vger.kernel.org,
-        Jurgen Botz <jurgen@botz.org>
-Subject: Re: Reiserfs corruption on 2.4.17-rc1! 
-In-Reply-To: Message from Ross Vandegrift <ross@willow.seitz.com> 
-   of "Tue, 18 Dec 2001 00:01:45 EST." <20011218000145.A15150@willow.seitz.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Date: Mon, 17 Dec 2001 22:19:28 -0800
-Message-ID: <19261.1008656368@nova.botz.org>
-From: Jurgen Botz <jurgen@botz.org>
+	id <S285629AbRLRGee>; Tue, 18 Dec 2001 01:34:34 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29957 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S285630AbRLRGeX>;
+	Tue, 18 Dec 2001 01:34:23 -0500
+Message-ID: <3C1EE36C.AB4B9F7F@mandrakesoft.com>
+Date: Tue, 18 Dec 2001 01:34:20 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: William Lee Irwin III <wli@holomorphy.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Scheduler ( was: Just a second ) ...
+In-Reply-To: <Pine.LNX.4.33.0112172153410.2416-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ross Vandegrift wrote:
-> > This is my opinion:
-> > 	-Something (reiserfs, anything) has caused fs corruption
-> > 	-It should be repaired by reiserfsck, but it's broken :-((
-> > 	-This corruption should NOT have happened, reiserfsck shouldn't
-> > have to be used.
-> > 	-I'm not a kernel hacker, so I can't try anything...what I know is
-> > that
-> > 		/etc in hc5 doesn't work. /usr, /var....works correctly.
-> > 
-> > Well, I'd like to know what's happened in my drive. Can somebody try to
-> > give an explanation?
-> 
-> I've seen this happen when being careless about partitioning my drive.  If
-> you changed your partition table and created the filesystem without a reboot
-> you could be in for this problem.  If fdisk was unable to update the
-> partition table after writing it out and you ran mkreiserfs, you just made a
-> filesystem on the *old* partition, according to the *old* partition table.
-> Upon rebooting, the disk will be synced to the new partition table.  If you
-> happened to shrink the parition a bit, the filsystem is suddenly longer than
-> the partition.
+Linus Torvalds wrote:
+> Jeff, you've worked on the sb code at some point - does it really do
+> 32-byte sound fragments? Why? That sounds truly insane if I really parsed
+> that code correctly. That's thousands of separate DMA transfers
+> and interrupts per second..
 
-But that doesn't account for badblocks trying to read past the end of the
-device (which Diego reported in his previous post) unlesss... unless that
-was still the same session (boot) during which he changed partitions...
-Diego?
+I do not see a hardware minimum fragment size in the HW docs...  The
+default hardware reset frag size is 2048 bytes.  So, yes, 32 bytes is
+pretty small for today's rate.
 
-:j
+But... I wonder if the fault lies more with the application setting a
+too-small fragment size and the driver actually allows it to do so, or,
+the code following this comment in reorganize_buffers in
+drivers/sound/audio.c needs to be revisited:
+   /* Compute the fragment size using the default algorithm */
+
+Remember this code is from ancient times...  probably written way before
+44 Khz was common at all.
+
+	Jeff
 
 
 -- 
-Jürgen Botz                       | While differing widely in the various
-jurgen@botz.org                   | little bits we know, in our infinite
-                                  | ignorance we are all equal. -Karl Popper
-
-
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno

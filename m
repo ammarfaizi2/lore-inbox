@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266537AbUBQUlv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 15:41:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266557AbUBQUjR
+	id S266515AbUBQUf6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 15:35:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266537AbUBQUf6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 15:39:17 -0500
-Received: from [212.28.208.94] ([212.28.208.94]:26378 "HELO dewire.com")
-	by vger.kernel.org with SMTP id S266537AbUBQUhm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 15:37:42 -0500
-From: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: UTF-8 practically vs. theoretically in the VFS API (was: Re: JFS default behavior)
-Date: Tue, 17 Feb 2004 21:37:40 +0100
-User-Agent: KMail/1.6.1
-Cc: Marc Lehmann <pcg@schmorp.de>, Jamie Lokier <jamie@shareable.org>,
-       viro@parcelfarce.linux.theplanet.co.uk,
-       Linux kernel <linux-kernel@vger.kernel.org>
-References: <200402150107.26277.robin.rosenberg.lists@dewire.com> <20040217161111.GE8231@schmorp.de> <Pine.LNX.4.58.0402170820070.2154@home.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0402170820070.2154@home.osdl.org>
-MIME-Version: 1.0
+	Tue, 17 Feb 2004 15:35:58 -0500
+Received: from mailr-1.tiscali.it ([212.123.84.81]:8091 "EHLO
+	mailr-1.tiscali.it") by vger.kernel.org with ESMTP id S266515AbUBQUf4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 15:35:56 -0500
+X-BrightmailFiltered: true
+Date: Tue, 17 Feb 2004 21:36:04 +0100
+From: Kronos <kronos@kronoz.cjb.net>
+To: linux-kernel@vger.kernel.org
+Cc: Sergio Vergata <vergata@stud.fbi.fh-darmstadt.de>
+Subject: Re: Radeonfb problem
+Message-ID: <20040217203604.GA19110@dreamland.darkstar.lan>
+Reply-To: kronos@kronoz.cjb.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200402172137.40376.robin.rosenberg.lists@dewire.com>
+In-Reply-To: <200402172008.39887.vergata@stud.fbi.fh-darmstadt.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 17 February 2004 17.32, Linus Torvalds wrote:
-> 
-> On Tue, 17 Feb 2004, Marc Lehmann wrote:
-> > 
-> > Because there is a fundamental difference between file contents and
-> > filenames. Filenames are supposed to be text.
-> 
-> I think this is actually the fundamental point where we disagree.
-> 
-> You think of filenames as something the user types in, and that is 
-> "readable text". And I don't.
-> 
-> I think the filenames are just ways for a _program_ to look up stuff, and
-> the human readability is a secondary thing (it's "polite", but not a
-> fundamental part of their meaning).
+Sergio Vergata <vergata@stud.fbi.fh-darmstadt.de> ha scritto:
+> I'v 2.6.3-rc3-mm1 up and running on an t40p.
+> ATI Technologies Inc Radeon R250 Lf [Radeon Mobility 9000 M9] (rev 02)
+> The problem i observe was that reset won't clean my display just draw the new 
+> commandline on the upper left. The screen still old display. 
 
-So why don't we use an int as "filename" and why are users to "type" in
-filenames? How foolish...
+Are you running X? This is a known problem, it's X fiddling with accel
+registers. BenH is working on a fix, for now you can boot with "noaccel"
+to disable hw acceleration.
 
--- robin
+Btw, how does 2.6.3-rc4 work?
+
+Luca
+-- 
+Home: http://kronoz.cjb.net
+Ligabue canta: "Tutti vogliono viaggiare in primaaaa..."
+Io ci ho provato e dopo un chilometro ho fuso il motore e bruciato
+la frizione...

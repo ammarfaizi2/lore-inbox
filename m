@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292475AbSCIHS7>; Sat, 9 Mar 2002 02:18:59 -0500
+	id <S292473AbSCIHS7>; Sat, 9 Mar 2002 02:18:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292527AbSCIHRg>; Sat, 9 Mar 2002 02:17:36 -0500
+	id <S292482AbSCIHRd>; Sat, 9 Mar 2002 02:17:33 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:61645 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S292520AbSCIHPU>;
-	Sat, 9 Mar 2002 02:15:20 -0500
-Date: Fri, 8 Mar 2002 23:35:11 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Paul Mackerras <paulus@samba.org>
-Cc: torvalds@transmeta.com, <linux-kernel@vger.kernel.org>
-Subject: Re: bk://linux.bkbits.net/linux-2.5
-In-Reply-To: <15497.26229.778087.419723@argo.ozlabs.ibm.com>
-Message-ID: <Pine.LNX.4.44L.0203082333380.2181-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	by vger.kernel.org with ESMTP id <S292527AbSCIHP2>;
+	Sat, 9 Mar 2002 02:15:28 -0500
+Date: Fri, 8 Mar 2002 22:25:49 -0400 (AST)
+From: skidley <skidley@crrstv.net>
+X-X-Sender: skidley@localhost.localdomain
+To: "Lumpkin, Buddy" <Buddy.Lumpkin@nordstrom.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Latest stable kernel?
+In-Reply-To: <90BC88CE8F7DD411B18A00902727B4D20414254F@m0801p12.nordstrom.net>
+Message-ID: <Pine.LNX.4.43.0203082218590.5300-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 9 Mar 2002, Paul Mackerras wrote:
+On Fri, 8 Mar 2002, Lumpkin, Buddy wrote:
 
-> Could you push your repository to bk://linux.bkbits.net/linux-2.5
-> please?  It is still at 2.5.6-pre2.
-
-For now I've put up the 2.5 tree on bk://linuxvm.bkbits.net/linus-2.5
-
-This thing gets mirrored automagically from Linus's home directory
-on kernel.org by the script /home/riel/pushpull.sh which is run from
-my crontab.
-
-Ideally Linus would run it from his own crontab and commit the data
-to bk://linux.bkbits.net/linux-2.5 ;)
-
-cheers,
-
-Rik
+> Sorry for the dumb question but ...
+> 
+> If the latest stable kernel is a patch (http://www.kernel.org/pub/linux/kernel/v2.4/patch-2.4.18.gz) then what do I need to download to patch to get to the latest stable release?
+> 
+> Thanks in advance,
+> 
+> --Buddy
+ 
+You will see a legend on the site F = full source, V = view patch, etc
+next to 2.4.18 you will see F thats the link to the full source.
 -- 
-<insert bitkeeper endorsement here>
+"We must study them well, for there will be many more such killers in what 
+remains of this century - and it should be clearly understood that their intent
+is to steal our daughters and sons and to snuff out their lives." 
+-- Elliott Leyton
 
-http://www.surriel.com/		http://distro.conectiva.com/
+Chad Young - Registered Linux User #195191 @ http://counter.li.org
+-----------------------------------------------------------------------
+Linux localhost 2.4.19-pre2-ac3 #1 Thu Mar 7 19:50:49 AST 2002 i686 unknown
+ 10:15pm  up 10:30,  1 user,  load average: 0.22, 0.29, 0.18
 

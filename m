@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267488AbTBKQvz>; Tue, 11 Feb 2003 11:51:55 -0500
+	id <S267342AbTBKQzM>; Tue, 11 Feb 2003 11:55:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267650AbTBKQvz>; Tue, 11 Feb 2003 11:51:55 -0500
-Received: from sark.cc.gatech.edu ([130.207.7.23]:59546 "EHLO
-	sark.cc.gatech.edu") by vger.kernel.org with ESMTP
-	id <S267488AbTBKQvy>; Tue, 11 Feb 2003 11:51:54 -0500
-Date: Tue, 11 Feb 2003 12:01:38 -0500 (EST)
-From: James Gibson Fusia <visyz@cc.gatech.edu>
-To: linux-kernel@vger.kernel.org
-cc: visyz@cc.gatech.edu
-Subject: Keyboard Writing
-Message-ID: <Pine.GSO.4.50.0302111142060.53-100000@oscar.cc.gatech.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267553AbTBKQzM>; Tue, 11 Feb 2003 11:55:12 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:53203 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S267342AbTBKQzL>;
+	Tue, 11 Feb 2003 11:55:11 -0500
+Subject: Re: [Fastboot] Re: Kexec on 2.5.59 problems ?
+From: Andy Pfiffer <andyp@osdl.org>
+To: Suparna Bhattacharya <suparna@in.ibm.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org,
+       lkcd-devel@lists.sourceforge.net, fastboot@osdl.org
+In-Reply-To: <20030211125144.A2355@in.ibm.com>
+References: <3E448745.9040707@mvista.com>
+	 <m1isvuzjj2.fsf@frodo.biederman.org> <3E45661A.90401@mvista.com>
+	 <m1d6m1z4bk.fsf@frodo.biederman.org> <20030210164401.A11250@in.ibm.com>
+	 <1044896964.1705.9.camel@andyp.pdx.osdl.net>
+	 <m13cmwyppx.fsf@frodo.biederman.org>  <20030211125144.A2355@in.ibm.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1044983092.1705.27.camel@andyp.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 11 Feb 2003 09:04:52 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've read through the keyboard driver files (kd.h, keyboard*, pc_keyb*),
-and come to the conclusion that you can't write to the keyboard. Get mode,
-set mode, get leds, set leds, change keymap. But no write to keyboard.
+On Mon, 2003-02-10 at 23:21, Suparna Bhattacharya wrote:
+<snip>
+> The following patch from Anton Blanchard's WIP kexec tree 
+> for ppc64 seems to fix this for me. It just does a use_mm() 
+> (routine from fs/aio.c) instead of switch_mm(). 
+> 
+> Andy could you try this out and see if it helps  ?
+> 
+> The other change in Anton's tree that we should probably
+> include uses a separate kexec_mm rather than init_mm
+> for the mapping. 
+> 
+> Regards
+> Suparna
 
-I need to be able to re-program a keyboard from userspace, and this
-involves sending certain keycodes to the keyboard via port manipulation
-(set write bit, write, wait for write bit clear.. blah blah blah), and no
-manipulation handles.
+Will do. --Andy
 
-My question to you, then, is how do I add definitions for ioctl to be able
-to write to the ps/2 keyboard from user-space? (the #defs for
-KD(GET|SET)LED seem to be arbitrary and not related to 0x64).
-
-Essentially, I would like to be able to treat the keyboard like a serial
-port. Any docs you can point me at? (Yes, I've checked everything google
-showed me and none of it seemed pertinent to physically writing to the
-keyboard.)
-
-Please respond directly to me, as I'm a bum and don't want to join the
-kernel-dev list.
-			-James Gibson Fusia (visyz@cc.gatech.edu)

@@ -1,34 +1,31 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317187AbSEXPWW>; Fri, 24 May 2002 11:22:22 -0400
+	id <S317193AbSEXPXt>; Fri, 24 May 2002 11:23:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317188AbSEXPWV>; Fri, 24 May 2002 11:22:21 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:5118 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S317187AbSEXPWT>; Fri, 24 May 2002 11:22:19 -0400
-Subject: Re: Fix compilation warning in do_mounts.c
-From: Robert Love <rml@tech9.net>
-To: Peter Chubb <peter@chubb.wattle.id.au>
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-In-Reply-To: <15597.54208.157130.609749@wombat.chubb.wattle.id.au>
-Content-Type: text/plain
+	id <S317194AbSEXPXs>; Fri, 24 May 2002 11:23:48 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:38924 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S317193AbSEXPXp>; Fri, 24 May 2002 11:23:45 -0400
+Subject: Re: 2.4.19-pre8 ide bugs
+To: nick@octet.spb.ru
+Date: Fri, 24 May 2002 16:35:53 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <004101c20334$361b0b80$baefb0d4@nick> from "Nick Evgeniev" at May 24, 2002 07:03:49 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 24 May 2002 08:22:18 -0700
-Message-Id: <1022253738.967.240.camel@sinai>
-Mime-Version: 1.0
+Message-Id: <E17BH6f-0006da-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-05-23 at 22:46, Peter Chubb wrote:
+> I've got the following problem with 2.4.19-pre8 &
+> ide-2.4.19-p7.all.convert.10.patch (w/o patch & I've more fatal problems
+> with sb & filesystem corruptions) kernel reports "kernel: bug: kernel timer
+> added twice at c01a7356." & panics.
+> 
+> Is it a known issue? What is the solution??? I remember that with 2.4.7 I
 
-> 	change_floppy() is unused if you don't have the floppy device
-> compiled into the kernel --- so why not #ifdef it out?
-
-Heh I was getting to the point of annoyance where I was about to do this
-same thing.  Good.
-
-There are a few other similar warnings with other functions, too ... :)
-
-	Robert Love
-
+Does this happen with the up to date IDE code (2.4.19-pre8-ac5 ?). Also
+what drives do you have ?

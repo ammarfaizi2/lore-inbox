@@ -1,58 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261762AbVBPTke@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261823AbVBPTmI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261762AbVBPTke (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 14:40:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261488AbVBPTkd
+	id S261823AbVBPTmI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 14:42:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261824AbVBPTmH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 14:40:33 -0500
-Received: from poup.poupinou.org ([195.101.94.96]:48165 "EHLO
-	poup.poupinou.org") by vger.kernel.org with ESMTP id S261762AbVBPTkQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 14:40:16 -0500
-Date: Wed, 16 Feb 2005 20:40:17 +0100
-To: Stelian Pop <stelian@popies.net>, Len Brown <len.brown@intel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>
-Subject: Re: [ACPI] [PATCH, new ACPI driver] new sony_acpi driver
-Message-ID: <20050216194017.GQ1145@poupinou.org>
-References: <20050210161809.GK3493@crusoe.alcove-fr> <1108481448.2097.71.camel@d845pe> <20050215153912.GA3523@crusoe.alcove-fr>
+	Wed, 16 Feb 2005 14:42:07 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:35776 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261823AbVBPTlz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Feb 2005 14:41:55 -0500
+Date: Wed, 16 Feb 2005 19:41:51 +0000
+From: Alasdair G Kergon <agk@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] device-mapper: tag multipath exports GPL
+Message-ID: <20050216194151.GF10195@agk.surrey.redhat.com>
+Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050215153912.GA3523@crusoe.alcove-fr>
-User-Agent: Mutt/1.5.6+20040907i
-From: Bruno Ducrot <ducrot@poupinou.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > platform specific wart is the only way to go.  But
-> > it would be best if we can make the exotic Sony/SNC
-> > look more generic to the user so that the user
-> > (and the distro supporting them) don't need to learn
-> > special things to handle this system.
-> 
-> I agree, but unfortunately I don't think it's possible to handle
-> them in a generic way. However, my understanding of the ACPI layer
-> is limited, so I very well be wrong.
-> 
-> I attached two DSDT in bugzilla, I have a few more if you want them.
-> 
-
-I will (re)work some part of the acpi_video stuff in order to make it
-more generic (its design is to separate a kind of 'video bus', then
-'video devices' can attach.  For now, its support only one kind of device,
-the acpi one.  See acpi_viedo.c).  The original goal was to atleast
-attach others acpi specific drivers (the toshiba at that time).
-
-Problem though is my time which unfortunately is missing currently
-(professional stuff, other free projects and even real life) and
-I must admit I don't intend to work on acpi_video right now.
-
-Cheers,
-
--- 
-Bruno Ducrot
-
---  Which is worse:  ignorance or apathy?
---  Don't know.  Don't care.
+Tag multipath exports GPL.
+--- diff/drivers/md/dm-hw-handler.c	2005-02-16 19:39:25.775992632 +0000
++++ source/drivers/md/dm-hw-handler.c	2005-02-16 19:38:26.223046056 +0000
+@@ -211,6 +211,6 @@
+ 	return MP_FAIL_PATH;
+ }
+ 
+-EXPORT_SYMBOL(dm_register_hw_handler);
+-EXPORT_SYMBOL(dm_unregister_hw_handler);
+-EXPORT_SYMBOL(dm_scsi_err_handler);
++EXPORT_SYMBOL_GPL(dm_register_hw_handler);
++EXPORT_SYMBOL_GPL(dm_unregister_hw_handler);
++EXPORT_SYMBOL_GPL(dm_scsi_err_handler);
+--- diff/drivers/md/dm-mpath.c	2005-02-16 19:39:25.778992176 +0000
++++ source/drivers/md/dm-mpath.c	2005-02-16 19:38:38.738143472 +0000
+@@ -1292,7 +1292,7 @@
+ 	kmem_cache_destroy(_mpio_cache);
+ }
+ 
+-EXPORT_SYMBOL(dm_pg_init_complete);
++EXPORT_SYMBOL_GPL(dm_pg_init_complete);
+ 
+ module_init(dm_multipath_init);
+ module_exit(dm_multipath_exit);
+--- diff/drivers/md/dm-path-selector.c	2005-02-16 19:39:25.776992480 +0000
++++ source/drivers/md/dm-path-selector.c	2005-02-16 19:38:11.879226648 +0000
+@@ -152,5 +152,5 @@
+ 	return 0;
+ }
+ 
+-EXPORT_SYMBOL(dm_register_path_selector);
+-EXPORT_SYMBOL(dm_unregister_path_selector);
++EXPORT_SYMBOL_GPL(dm_register_path_selector);
++EXPORT_SYMBOL_GPL(dm_unregister_path_selector);

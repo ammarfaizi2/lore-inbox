@@ -1,72 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132709AbRDNCXU>; Fri, 13 Apr 2001 22:23:20 -0400
+	id <S132726AbRDNCak>; Fri, 13 Apr 2001 22:30:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132724AbRDNCXK>; Fri, 13 Apr 2001 22:23:10 -0400
-Received: from tisch.mail.mindspring.net ([207.69.200.157]:19242 "EHLO
-	tisch.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S132709AbRDNCXE>; Fri, 13 Apr 2001 22:23:04 -0400
-Message-ID: <3AD78A6C.F0F3CF5A@mindspring.com>
-Date: Fri, 13 Apr 2001 19:23:24 -0400
-From: Joe <joeja@mindspring.com>
-Reply-To: joeja@mindspring.com
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.18 i586)
+	id <S132717AbRDNCab>; Fri, 13 Apr 2001 22:30:31 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:9405 "HELO havoc.gtf.org")
+	by vger.kernel.org with SMTP id <S132722AbRDNCaU>;
+	Fri, 13 Apr 2001 22:30:20 -0400
+Message-ID: <3AD7B619.D1A812CC@mandrakesoft.com>
+Date: Fri, 13 Apr 2001 22:29:45 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-17mdksmp i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: bug in float on Pentium
+To: esr@thyrsus.com
+Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: CML2 1.0.0 doesn't remember configuration changes
+In-Reply-To: <20010411191940.A9081@thyrsus.com> <E14nU6n-0007po-00@the-village.bc.nu> <20010411204523.C9081@thyrsus.com> <002701c0c2f1$fc672960$0201a8c0@home> <20010411225055.A11009@thyrsus.com> <003c01c0c312$73713300$0201a8c0@home> <20010411220646.A12550@thyrsus.com> <20010412232021.A682@nightmaster.csn.tu-chemnitz.de> <20010413221102.C4651@thyrsus.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Not sure but I think I found a NEW bug.
+"Eric S. Raymond" wrote:
+> OK, 1.1.0 will do these things.  I'm still not certain I have `make
+> oldconfig' right, but I trust someone will club me gently over the
+> head if it's still not up to spec.
 
-I know that there have been some issues with pentiums and floating point
-arrithmatic, but this takes the cake...
+Yep :)   'vi .config' + 'make oldconfig' is the most efficient way to
+update your kernel config, if you really know what you are doing.
 
-Linux Lserver.org 2.2.18 #43 SMP Fri Mar 9 14:19:41 EST 2001 i586
-unknown
-
->kgcc --version
-egcs-2.91.66
-
-RH 6.2.x / 7.0
-
-try this program
-
-#include <stdio.h>
-
-int main() {
-
-    char tmpx[100];
- char tmpy[100];
-
- double x = 5483.99;
- float y = 5483.99;
-
-    sprintf (tmpx, "%f",x );
-    sprintf (tmpy, "%f",y );
-
- printf ("%s\n%s\n", tmpx, tmpy);
- return 0;
-}
-
-
-I am getting the following as output
-
-joeja@Lserver$ ./testf
-5483.990000
-5483.990234
-
-
-what is with the .990234??  it should be .990000
-
-any ideas on this??
-
---
-Joe Acosta ........
-home: joeja@mindspring.com
-
-
-
+-- 
+Jeff Garzik       | Sam: "Mind if I drive?"
+Building 1024     | Max: "Not if you don't mind me clawing at the dash
+MandrakeSoft      |       and shrieking like a cheerleader."

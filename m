@@ -1,70 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287090AbRL2CZt>; Fri, 28 Dec 2001 21:25:49 -0500
+	id <S287089AbRL2CVU>; Fri, 28 Dec 2001 21:21:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287096AbRL2CZa>; Fri, 28 Dec 2001 21:25:30 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:23556 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S287090AbRL2CZU>; Fri, 28 Dec 2001 21:25:20 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: zImage not supported for 2.2.20?
-Date: 28 Dec 2001 18:25:06 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a0j9i2$tkr$1@cesium.transmeta.com>
-In-Reply-To: <4.3.2.7.2.20011228124704.00abba70@192.168.124.1> <4.3.2.7.2.20011228173505.00aa3da0@192.168.124.1> <E16K1bW-0001K0-00@the-village.bc.nu> <20011228223604.A370@elektroni.ee.tut.fi>
+	id <S287084AbRL2CVK>; Fri, 28 Dec 2001 21:21:10 -0500
+Received: from paloma16.e0k.nbg-hannover.de ([62.181.130.16]:12723 "HELO
+	paloma16.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S287089AbRL2CU4>; Fri, 28 Dec 2001 21:20:56 -0500
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Phil Oester <kernel@theoesters.com>
+Subject: RE: 2.4.17 still croaks under heavy load
+Date: Sat, 29 Dec 2001 03:20:38 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Matti Aarnio <matti.aarnio@zmailer.org>, Andrea Arcangeli <andrea@suse.de>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Transfer-Encoding: 8bit
+Message-Id: <20011229022104Z287089-18284+8597@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20011228223604.A370@elektroni.ee.tut.fi>
-By author:    Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>
-In newsgroup: linux.dev.kernel
-> 
-> Hi, I was one that reported the problem that zImage doesn't work. I don't
-> personally care whether it works or not because bzImages are fine for my
-> machines. Anyway, 2.2.20pre3 was ok but 2.2.20pre5 was not. I just rechecked
-> with 2.2.20 final. I compiled 2.2.20 'make zImage; make bzImage' for one old
-> 486 and for one pentium. Both print Out of memory and System halted for the
-> zImages and work fine with bzImages.
-> 
-> 486:
-> 
-> Memory: 47176k/49152k available (796k kernel code, 408k reserved, 728k data, 44k init)
->    text    data     bss     dec     hex filename
->  853655   90740  125288 1069683  105273 vmlinux
-> -rwxr-xr-x    1 kaukasoi users     1111776 Dec 28 21:46 vmlinux
-> -rw-r--r--    1 kaukasoi users      458880 Dec 28 21:46 bzImage
-> -rw-r--r--    1 kaukasoi users      458877 Dec 28 21:46 zImage
-> 
-> pentium:
-> 
-> Memory: 63516k/65536k available (736k kernel code, 416k reserved, 828k data, 40k init)
->    text    data     bss     dec     hex filename
->  788441   90140  105768  984349   f051d vmlinux
-> -rwxr-xr-x    1 kaukasoi users     1098107 Dec 28 22:04 vmlinux
-> -rw-r--r--    1 kaukasoi users      442277 Dec 28 22:04 bzImage
-> -rw-r--r--    1 kaukasoi users      442277 Dec 28 22:04 zImage
-> 
-> I compiled them with gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2
-> release) and binutils 2.11.90.0.19 (tehy are the versions that come with
-> Slackware 8.0). The pentium uses LILO version 19 and the 486 uses version
-> 21.7-5.
-> 
-> If you think those are too large kernels for zImage, e.g. this 2.2.19 works
-> ok on the 486:
-> -rw-r--r--    1 root     root       476269 Aug 11 23:32 zImage
-> Memory: 47136k/49152k available (832k kernel code, 412k reserved, 728k data, 44k init)
-> -
+Phil Oester worte:
+>
+> No RAID1 on disks.
+>
+> Here's /proc/meminfo within 1 minute of the box dying last night:
+>
+>         total:    used:    free:  shared: buffers:  cached:
+> Mem:  1054371840 1044684800  9687040        0  7802880 834752512
+> Swap: 535797760  7626752 528171008
+> MemTotal:      1029660 kB
+> MemFree:          9460 kB
+> MemShared:           0 kB
+> Buffers:          7620 kB
+> Cached:         811872 kB
+> SwapCached:       3316 kB
+> Active:         231880 kB
+> Inactive:       747344 kB
+> HighTotal:      131072 kB
+> HighFree:         1028 kB  <---------  See comment below
+> LowTotal:       898588 kB
+> LowFree:          8432 kB
+> SwapTotal:      523240 kB
+> SwapFree:       515792 kB
+>
+> The HighFree value was at 2044 for the prior hour.  It went to 1028
+> within 1 minute of the box freezing.  Out of HighMem???
+>
+> Here's vmstat within 30 seconds of freezing:
+>
+>    procs                      memory    swap          io     system
+> cpu
+>  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us
+> sy  id
+>  1  0  0   7448   9536   7616 812092   0   0   932     2  235   577  50
+> 1  49
+>
+> Seems VM related.
 
-Machine/motherboard/chipset/BIOS info?
+Hello Phil,
 
-	-hpa
+can you please try Andrea Arcangeli's 10_vm-21?
+ftp://ftp.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.17rc2aa2/10_vm-21
+
+I think we need more "pressure" to get these "fixes" into 2.4.18...
+
+Regards,
+	Dieter
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+Dieter Nützel
+Graduate Student, Computer Science
+
+University of Hamburg
+Department of Computer Science
+@home: Dieter.Nuetzel@hamburg.de
+

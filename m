@@ -1,64 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261360AbVAGRbJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261363AbVAGRcv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261360AbVAGRbJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 12:31:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261361AbVAGRbJ
+	id S261363AbVAGRcv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 12:32:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbVAGRcv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 12:31:09 -0500
-Received: from relay01.pair.com ([209.68.5.15]:11281 "HELO relay01.pair.com")
-	by vger.kernel.org with SMTP id S261359AbVAGR3h (ORCPT
+	Fri, 7 Jan 2005 12:32:51 -0500
+Received: from albireo.ucw.cz ([81.27.203.89]:22404 "EHLO albireo.ucw.cz")
+	by vger.kernel.org with ESMTP id S261363AbVAGRca (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 12:29:37 -0500
-X-pair-Authenticated: 66.134.112.218
-Subject: Re: Process blocking behaviour
-From: Daniel Gryniewicz <dang@fprintf.net>
-To: selvakumar nagendran <kernelselva@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050107065809.60035.qmail@web60604.mail.yahoo.com>
-References: <20050107065809.60035.qmail@web60604.mail.yahoo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 07 Jan 2005 12:29:36 -0500
-Message-Id: <1105118976.25618.5.camel@athena.fprintf.net>
+	Fri, 7 Jan 2005 12:32:30 -0500
+Date: Fri, 7 Jan 2005 18:32:29 +0100
+From: Martin Mares <mj@ucw.cz>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Paul Davis <paul@linuxaudiosystems.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Arjan van de Ven <arjanv@redhat.com>, Lee Revell <rlrevell@joe-job.com>,
+       Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Jack O'Quin" <joq@io.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+Message-ID: <20050107173229.GA9794@ucw.cz>
+References: <20050107162902.GA7097@ucw.cz> <200501071636.j07Gateu018841@localhost.localdomain> <20050107170603.GB7672@ucw.cz> <20050107092918.B2357@build.pdx.osdl.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.1.2 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050107092918.B2357@build.pdx.osdl.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-01-06 at 22:58 -0800, selvakumar nagendran wrote:
-> Hello linux-experts,
->    
->   I am intercepting system calls in Linux kernel
-> 2.4.28.
->   
->   Pseudo-code:
->   ------------
->     saved_old_syscall =
-> sys_call_table[sycallno(read)];
->     sys_call_table[read] = my_sys_call;
->     
->   my_sys_call(file descriptor)
->   -------------
->      Call saved_old_syscall(file descriptor).
->     
->      Now at this point, I want to determine whether
-> the system call blocks waiting for the file descriptor
-> resource. How can I do that? Should I modify the
-> kernel code only for this?
-> 
->    Can I check its state after the call as
->      if (task_current_state == INTERRUPTIBLE
->             || UNINTERRUPTIBLE) to do this?
+Hello!
 
-No, you can't, because by the time the syscall returns to you, it's
-blocked, scheduled, unblocked, and been rescheduled.  It's too late.  I
-don't think you can do what you want, without modifying all the syscalls
-directly.
+> Yes, SETPCAP became a gaping security hole.  Recall the sendmail hole.
 
-Besides, most blocks are for data, not on something like a semaphore.
-What you really want is priority-inheritance semaphores, not
-modification of syscalls.  I seem to remember someone working on such a
-beast, and the RTOS versions of Linux presumably have something like
-this, so you could check around.
+Hmmm, I don't remember now, could you give me some pointer, please?
 
-Daniel
+> This won't work, you can't increase the bset, which is hardcoded to
+> leave out SETPCAP.  Also, init is hard coded to start without SETPCAP.
+
+If I read the source correctly, init is allowed to increase the bset,
+the other processes aren't.
+
+				Have a nice fortnight
+-- 
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+American patent law: two monkeys, fourteen days.

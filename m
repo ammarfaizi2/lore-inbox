@@ -1,53 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268907AbUIQQmA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268915AbUIQQ5D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268907AbUIQQmA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 12:42:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268899AbUIQPcw
+	id S268915AbUIQQ5D (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 12:57:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268894AbUIQQ4d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 11:32:52 -0400
-Received: from mo00.iij4u.or.jp ([210.130.0.19]:40166 "EHLO mo00.iij4u.or.jp")
-	by vger.kernel.org with ESMTP id S268812AbUIQPAY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 11:00:24 -0400
-Date: Sat, 18 Sep 2004 00:00:14 +0900
-From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-To: akpm@osdl.org
-Cc: yuasa@hh.iij4u.or.jp, linux-kernel@vger.kernel.org
-Subject: [PATCH] mips: fixed initialization error
-Message-Id: <20040918000014.346b48ea.yuasa@hh.iij4u.or.jp>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 17 Sep 2004 12:56:33 -0400
+Received: from out008pub.verizon.net ([206.46.170.108]:60861 "EHLO
+	out008.verizon.net") by vger.kernel.org with ESMTP id S268844AbUIQQsq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 12:48:46 -0400
+Message-ID: <001901c49cd5$cfba59c0$0300a8c0@r000000>
+From: "Mike R." <turbanator1@verizon.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: 
+Date: Fri, 17 Sep 2004 12:45:59 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1437
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+X-Authentication-Info: Submitted using SMTP AUTH at out008.verizon.net from [68.237.239.81] at Fri, 17 Sep 2004 11:48:44 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This change had fixed initialization error in arch/mips/vr41xx/common/icu.c
-
-Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-
-diff -urN -X dontdiff vr-orig/arch/mips/vr41xx/common/icu.c vr/arch/mips/vr41xx/common/icu.c
---- vr-orig/arch/mips/vr41xx/common/icu.c	2004-09-13 14:31:27.000000000 +0900
-+++ vr/arch/mips/vr41xx/common/icu.c	2004-09-17 17:15:30.000000000 +0900
-@@ -51,6 +51,12 @@
- static uint32_t icu1_base;
- static uint32_t icu2_base;
- 
-+static struct irqaction icu_cascade = {
-+	.handler	= no_action,
-+	.mask		= CPU_MASK_NONE,
-+	.name		= "cascade",
-+};
-+
- static unsigned char sysint1_assign[16] = {
- 	0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
- static unsigned char sysint2_assign[16] = {
-@@ -674,8 +680,6 @@
- 
- /*=======================================================================*/
- 
--static struct irqaction icu_cascade = {no_action, 0, 0, "cascade", NULL, NULL};
--
- static inline void init_vr41xx_icu_irq(void)
- {
- 	int i;
+unsubscribe linux-kernel

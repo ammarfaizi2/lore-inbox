@@ -1,95 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264134AbTLPWxT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 17:53:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264142AbTLPWxT
+	id S264363AbTLPW5d (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 17:57:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264367AbTLPW5d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 17:53:19 -0500
-Received: from wblv-224-192.telkomadsl.co.za ([165.165.224.192]:19594 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S264134AbTLPWxQ
+	Tue, 16 Dec 2003 17:57:33 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:35595 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264363AbTLPW5Z
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 17:53:16 -0500
-Subject: 2.6.0-test11-bk{9,11,12} (possibly bk0) breaks k3b device scanning
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: azarah@nosferatu.za.org
-To: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-Cc: Jens Axboe <axboe@suse.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-LcxaDlQg5uHiOSEV0Jba"
-Message-Id: <1071615313.5067.7.camel@nosferatu.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 17 Dec 2003 00:55:13 +0200
+	Tue, 16 Dec 2003 17:57:25 -0500
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: crypto-loop + highmen -> random crashes in -test11
+Date: 16 Dec 2003 22:45:55 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bro1v3$21d$1@gatekeeper.tmr.com>
+References: <20031215223438.196295a8.akpm@osdl.org> <1071570648.3528.50.camel@localhost>
+X-Trace: gatekeeper.tmr.com 1071614755 2093 192.168.12.62 (16 Dec 2003 22:45:55 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <1071570648.3528.50.camel@localhost>,
+Soeren Sonnenburg  <kernel@nn7.de> wrote:
 
---=-LcxaDlQg5uHiOSEV0Jba
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+| I get random crashes/corruption/ init kills when I use cryptoloop on
+| this highmem enabled ppc machine.
+| 
+| Applying the loop-* patches at
+| http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test10/2.6.0-test10-mm1/broken-out
+| 
+| seem to fix this problem (at least I did not get any crash due to
+| cryptoloop in the last 2 days)
 
-Hi
+Thank you for identifying this. I have been having perfect results iwth
+the systems I have running cryptoloop, but they are both small. Now I
+not only know why I don't have problems, I have a way to prevent
+problems.
 
-Have not been able to test much kernels lately due to time issues,
-but trying to run k3b with above kernels give below issue.  test9
-kernels that I still have around seems fine though.
-
-Error:
-
---
-# k3b
-QPixmap: Cannot create a QPixmap when no GUI is being used
-QPixmap: Cannot create a QPixmap when no GUI is being used
-QPixmap: Cannot create a QPixmap when no GUI is being used
-QPixmap: Cannot create a QPixmap when no GUI is being used
-kbuildsycoca running...
-ERROR: (K3bCdDevice) Unable to do inquiry.
-ERROR: (K3bCdDevice) Unable to do inquiry.
---
-
-Which results in no devices being detected (using ATAPI interface).
-If i run cdrecord though, it seems to work ok:
-
---
-[?]
-[?]
-scsidev: '/dev/hdb'
-devname: '/dev/hdb'
-scsibus: -2 target: -2 lun: -2
-Warning: Open by 'devname' is unintentional and not supported.
-Linux sg driver version: 3.5.27
-Using libscg version 'schily-0.7'
-Device type    : Removable CD-ROM
-Version        : 0
-Response Format: 1
-Vendor_info    : 'ASUS    '
-Identifikation : 'CRW-2410A       '
-Revision       : '1.0 '
-Device seems to be: Generic mmc CD-RW.
-Using generic SCSI-3/mmc   CD-R/CD-RW driver (mmc_cdr).
-Driver flags   : MMC-3 SWABAUDIO BURNFREE
-Supported modes: TAO PACKET SAO SAO/R96P SAO/R96R RAW/R16 RAW/R96P
-RAW/R96R
---
-
-Suggestions to what patch to try and back out?
+Hopefully this will get into 2.6.0-final, since it fixes a hard fail case.
+| 
+| Steps to reproduce:
+| 
+| dd if=/dev/zero of=/file bs=1M count=100
+| losetup -e blowfish /dev/loop0 /file
+| Password:
+| mkfs -t ext3 /dev/loop0
+| mount /dev/loop0 /mnt
+| cd /mnt  
+| dd if=/dev/zero of=bla
+| 
+| gives you nice unpredictable crashes.
+| 
+| 
+| Soeren
+| 
+| -
+| To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+| the body of a message to majordomo@vger.kernel.org
+| More majordomo info at  http://vger.kernel.org/majordomo-info.html
+| Please read the FAQ at  http://www.tux.org/lkml/
+| 
 
 
-Thanks,
-
---=20
-Martin Schlemmer
-
---=-LcxaDlQg5uHiOSEV0Jba
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/341RqburzKaJYLYRAlDqAKCBS/aOKNvAWQy6ZclZ42ZttlLHuQCcDf0J
-9+VbyrBL6CcWAkQqEBtp2TA=
-=XXGm
------END PGP SIGNATURE-----
-
---=-LcxaDlQg5uHiOSEV0Jba--
-
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

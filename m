@@ -1,75 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266224AbUFISWF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265894AbUFIS1D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266224AbUFISWF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 14:22:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266222AbUFISVf
+	id S265894AbUFIS1D (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 14:27:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266223AbUFIS1D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 14:21:35 -0400
-Received: from system65-210-78-197.hpti.com ([65.210.78.197]:21435 "EHLO
-	hptimail01.HPTI.COM") by vger.kernel.org with ESMTP id S265928AbUFISVa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 14:21:30 -0400
-Subject: Re: XFS over NFS corruption
-From: Craig Tierney <ctierney@hpti.com>
-To: Marat Mukhitov <marat@GSTJ2W.stavanger.eur.slb.com>
-Cc: Andy <genanr@emsphone.com>, linux-kernel@vger.kernel.org,
-       linux-xfs@oss.sgi.com
-In-Reply-To: <200406091949.47774.marat@GSTJ2W>
-References: <20040609165442.GA9569@thumper2>
-	 <200406091949.47774.marat@GSTJ2W>
-Content-Type: text/plain
-Message-Id: <1086805203.3283.0.camel@hpti9.fsl.noaa.gov>
+	Wed, 9 Jun 2004 14:27:03 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:3767 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S265894AbUFIS1A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jun 2004 14:27:00 -0400
+Date: Wed, 9 Jun 2004 20:27:06 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Byron Stanoszek <gandalf@winds.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [STACK] >3k call path in ncpfs
+Message-ID: <20040609182706.GC2950@wohnheim.fh-wedel.de>
+References: <20040609122002.GD21168@wohnheim.fh-wedel.de> <Pine.LNX.4.60.0406091414140.14198@winds.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 09 Jun 2004 12:20:04 -0600
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Jun 2004 18:21:30.0247 (UTC) FILETIME=[95E56170:01C44E4E]
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.60.0406091414140.14198@winds.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-06-09 at 11:49, Marat Mukhitov wrote:
-> Andy ,
+On Wed, 9 June 2004 14:15:19 -0400, Byron Stanoszek wrote:
 > 
-> We had a similar problem. 
-> Changing "async" to "sync" option of exportfs  on NFS server  helps in our case.
-> 
-> Regards,
-> Marat 
+> Jörn, do you have any analysis of stack usage for x86-64 or other 64-bit
+> processors? I assume they would more readily reach the 4K stack boundaries 
+> as all longs and pointers are 8 bytes instead of 4.
 
-Changing that option kills performance though.  Also, in my
-case where I am getting corruption, switching to sync did
-not help.
+No I don't, the tool isn't even tested on anything but i386.  Do any
+64bit architectures use 4k stacks?
 
-Craig
+Jörn
 
-> 
-> 
-> On Wednesday 09 June 2004 18:54, Andy wrote:
-> > I thought I had seen the bug even writing to an non-XFS nfs server, but I
-> > can't absolutely confirm this at the time (I was not doing the testing at
-> > the time, and some of the result may not have been accurate)
-> >
-> > But, the description of bug #198 on the XFS bugzilla, does sound like what
-> > I am seeing.
-> >
-> > What I do in my tests is take a file of offsets (every group of 4 bytes
-> > contains the offset of the 1st byte of the group) and copy that file to an
-> > nfs mounted volume and then compare the local copy to the remote copy
-> > (copying to several systems, each server is also receiving from several
-> > systems).  After a while I will see errors in the compare, data appearing
-> > at the wrong offset in the file.  The amount of data is small (<64k),
-> > always an 8k boundary at a large offset discrepancy (100's of megs).  I've
-> > attached the mkoffsetfile.c and cmpoffsets.c programs used for testing.
-> >
-> > Sample of cmpoffsets output :
-> >
-> > 431128576-431161343 (32768) (held data from 738426880-738459647)
-> >  starts at a 65536-byte block
-> >  ends at a 524288-byte block
-> >
-> > Hope this helps.
-> >
-> > Andy
-> 
-> 
-
+-- 
+If you're willing to restrict the flexibility of your approach,
+you can almost always do something better.
+-- John Carmack

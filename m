@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267735AbTBYGal>; Tue, 25 Feb 2003 01:30:41 -0500
+	id <S267761AbTBYGdE>; Tue, 25 Feb 2003 01:33:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267736AbTBYGak>; Tue, 25 Feb 2003 01:30:40 -0500
-Received: from webmail17.rediffmail.com ([203.199.83.27]:39821 "HELO
-	rediffmail.com") by vger.kernel.org with SMTP id <S267735AbTBYGaj>;
-	Tue, 25 Feb 2003 01:30:39 -0500
-Date: 25 Feb 2003 06:40:01 -0000
-Message-ID: <20030225064001.20937.qmail@webmail17.rediffmail.com>
-MIME-Version: 1.0
-From: "sudharsan  vijayaraghavan" <my_goal@rediffmail.com>
-Reply-To: "sudharsan  vijayaraghavan" <my_goal@rediffmail.com>
+	id <S267762AbTBYGdE>; Tue, 25 Feb 2003 01:33:04 -0500
+Received: from h-64-105-35-241.SNVACAID.covad.net ([64.105.35.241]:60363 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S267761AbTBYGdD>; Tue, 25 Feb 2003 01:33:03 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Mon, 24 Feb 2003 22:33:39 -0800
+Message-Id: <200302250633.WAA06979@adam.yggdrasil.com>
 To: linux-kernel@vger.kernel.org
-Cc: narendiran_srinivasan@satyam.com
-Subject: Unresolved symbol error in __wake_up_sync
-Content-type: text/plain;
-	format=flowed
-Content-Disposition: inline
+Subject: Replacement for "make SUBDIRS=...." in 2.5.63?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
-    We wrote a module in which we used wake_up_interruptible,
-wake_up_interruptible_sync calls and when I compiled it into a      
-module
-with the appropriate Macros, it gets compiled properly.
- 	But once, when I try to load the module with insmod, I get
-__wake_up_sync -  unresolved symbol?
- 	What module should I load to get out this error? I am using
-2.4.7-10.
+	I see that if I do something like "make SUBDIRS=net/ipv4 modules",
+I get warnings like:
 
-Please help us out.
+*** Warning: Overriding SUBDIRS on the command line can cause inconsistencies
+*** Uh-oh, you have stale module entries. You messed with SUBDIRS
 
-Regards,
-Sudharsan.
+	What is the proper way to rebuild just one subdirectory?  How
+about for building externally provided modules?  Is this is a new
+limitation of kbuild?  If so, I think it will reduce my productivity,
+and probably developer productivity on average.  I need to rebuild
+small sets of modules or core kernel subdirectories frequently.  I'd
+like to know what benefits I get from this so that I can measure
+whether this really saves me time somehow.
 
+	I suspect that this was added to support putting module
+dependencies into the ".ko" files, which might be underlying issue
+that needs a cost/benefit review, but perhaps there is some other
+factor that I'm just unaware of.
+
+	Any answers to these questions would be appreciated.
+
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

@@ -1,46 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262416AbSJDTAi>; Fri, 4 Oct 2002 15:00:38 -0400
+	id <S261775AbSJDSnN>; Fri, 4 Oct 2002 14:43:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262425AbSJDTAi>; Fri, 4 Oct 2002 15:00:38 -0400
-Received: from packet.digeo.com ([12.110.80.53]:47068 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262416AbSJDTAh>;
-	Fri, 4 Oct 2002 15:00:37 -0400
-Message-ID: <3D9DE69C.C6E88C9F@digeo.com>
-Date: Fri, 04 Oct 2002 12:06:04 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Manfred Spraul <manfred@colorfullife.com>
-CC: linux-kernel@vger.kernel.org, mbligh@aracnet.com
-Subject: Re: [PATCH] patch-slab-split-03-tail
-References: <3D9DCA1D.7070400@colorfullife.com>
+	id <S262035AbSJDSmE>; Fri, 4 Oct 2002 14:42:04 -0400
+Received: from 3512-780200-170.dialup.surnet.ru ([212.57.170.170]:50958 "EHLO
+	zzz.zzz") by vger.kernel.org with ESMTP id <S262040AbSJDSlq>;
+	Fri, 4 Oct 2002 14:41:46 -0400
+Date: Fri, 4 Oct 2002 22:50:51 +0600
+From: Denis Zaitsev <zzz@cd-club.ru>
+To: davej@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] [TRIVIAL] 2.5.40 de2104x: a lots of timer messages
+Message-ID: <20021004225051.B346@natasha.zzz.zzz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 04 Oct 2002 19:06:04.0980 (UTC) FILETIME=[1686BF40:01C26BD9]
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Spraul wrote:
-> 
-> part 3:
-> [depends on -02-SMP]
-> 
-> If an object is freed from a slab, then move the slab to the tail of the
-> partial list - this should increase the probability that the other
-> objects from the same page are freed, too, and that a page can be
-> returned to gfp later.
-> 
-> The cpu arrays are now always in front of the list, i.e. cache hit rates
-> should not matter.
-> 
+This patch fixes a lots of annoying timer messages for this ethernet
+adapter.  Please, apply it.
 
-Run that by me again?  So we're saying "if we just freed an
-object from this page then make this page be the *last* page
-which is eligible for new allocations"?  Under the assumption
-that other objects in that same page are about to be freed
-up as well?
 
-Makes sense.  It would be nice to get this confirmed in 
-targetted testing ;)
+--- drivers/net/tulip/de2104x.c.orig	Sun Aug 18 02:56:40 2002
++++ drivers/net/tulip/de2104x.c	Fri Oct  4 00:18:02 2002
+@@ -77,7 +77,6 @@
+ #define DE_DEF_MSG_ENABLE	(NETIF_MSG_DRV		| \
+ 				 NETIF_MSG_PROBE 	| \
+ 				 NETIF_MSG_LINK		| \
+-				 NETIF_MSG_TIMER	| \
+ 				 NETIF_MSG_IFDOWN	| \
+ 				 NETIF_MSG_IFUP		| \
+ 				 NETIF_MSG_RX_ERR	| \

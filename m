@@ -1,37 +1,162 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272998AbRIIRqX>; Sun, 9 Sep 2001 13:46:23 -0400
+	id <S273006AbRIIR7N>; Sun, 9 Sep 2001 13:59:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273005AbRIIRqN>; Sun, 9 Sep 2001 13:46:13 -0400
-Received: from AMontpellier-201-1-1-55.abo.wanadoo.fr ([193.252.31.55]:27922
-	"EHLO awak") by vger.kernel.org with ESMTP id <S272998AbRIIRp4>;
-	Sun, 9 Sep 2001 13:45:56 -0400
-Subject: Re: COW fs (Re: Editing-in-place of a large file)
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: John Ripley <jripley@riohome.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <3B9B9917.DA1CC12F@riohome.com>
-In-Reply-To: <20010902152137.L23180@draal.physics.wisc.edu>
-	<318476047.20010903002818@port.imtp.ilyichevsk.odessa.ua>
-	<3B9B80E2.C9D5B947@riohome.com>  <3B9B9917.DA1CC12F@riohome.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.13.99+cvs.2001.09.07.02.46 (Preview Release)
-Date: 09 Sep 2001 19:41:31 +0200
-Message-Id: <1000057292.1867.1.camel@nomade>
-Mime-Version: 1.0
+	id <S273007AbRIIR7E>; Sun, 9 Sep 2001 13:59:04 -0400
+Received: from [213.82.86.194] ([213.82.86.194]:20748 "EHLO fatamorgana.net")
+	by vger.kernel.org with ESMTP id <S273006AbRIIR6s>;
+	Sun, 9 Sep 2001 13:58:48 -0400
+Content-Type: Multipart/Mixed;
+  charset="iso-8859-1";
+  boundary="------------Boundary-00=_G3QECGQTA8QB55UJXEA2"
+From: Roberto Arcomano <berto@fatamorgana.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] proxyarp for shaper device, kernel 2.4.9
+Date: Sun, 9 Sep 2001 20:02:04 +0200
+X-Mailer: KMail [version 1.2]
+MIME-Version: 1.0
+Message-Id: <01090920020404.02606@berto.casa.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-le dim 09-09-2001 at 18:30 John Ripley a _rit :
 
-> /dev/sda6 - /tmp	-  210845 blocks,  17697 duplicates,  8.39%
-> /dev/sda7 - /var	-   32122 blocks,   5327 duplicates, 16.58%
-> /dev/sdb5 - /home	-  220885 blocks,  24541 duplicates, 11.11%
-> /dev/sdc7 - /usr	- 1084379 blocks, 122370 duplicates, 11.28%
+--------------Boundary-00=_G3QECGQTA8QB55UJXEA2
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-How many of these blocks actually belong to file data ?
+I report here a tested and working patch to manage proxy arp on shaper device.
+Details are on readme.txt file attached.
+I had problems using only a patch file, if someone could tell me what is the 
+right command to make a diff file for all kernel source tree.... (I tried 
+with "diff -ur tree.orig tree.modified > diff_file" but also other useless 
+data are reported... :-()
+Thank you
+Best Regards
+Roberto Arcomano
+--------------Boundary-00=_G3QECGQTA8QB55UJXEA2
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="readme.txt"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="readme.txt"
 
-	Xav
+U3ViamVjdDogUEFUQ0ggdG8gdXBkYXRlIHByb3h5IGFycCBmZWF0dXJlIG9uIHNoYXBlciBkZXZp
+Y2UKCkF1dGhvcjogUm9iZXJ0byBBcmNvbWFubywgYmVydG9AZmF0YW1vcmdhbmEuY29tLAogICAg
+ICAgIGh0dHA6Ly93d3cuZmF0YW1vcmdhbmEuY29tL2JlcnRvbGludXgKCkRhdGU6IDkvOS8yMDAx
+CgpEZXNjcmlwdGlvbjogU2hhcGVyIGRldmljZSBpcyBzZWVuIGJ5IHRoZSBrZXJuZWwgbGlrZSBh
+IAogICAgICAgICAgICAgZGlmZmVyZW50IGRldmljZSAoaS5lLiBzaGFwZXIwKSB0aGFuIHRoZSAK
+CSAgICAgcGh5c2ljYWwgb25lIChpLmUuIGV0aDApICB0byB3aGljaCBpcyBhdHRhY2hlZDoKCSAg
+ICAgc28ga2VybmVsIGFsd2F5cyBpc3N1ZXMgYW4gIkFSUCBSRVBMWSIgCgkgICAgIChpZiBwcm94
+eSBhcnAgaXMgYWN0aXZlIG9uIHNoYXBlciBwaHlzaWNhbCAKCSAgICAgaW50ZXJmYWNlKTogdGhp
+cyBwcmV2ZW50IHVzIGZyb20gdXNlIHByb3h5IGFycCBvbiAKCSAgICAgYSBzaGFwZXIgZGV2aWNl
+IGNhdXNlLCBkdXJpbmcgdHVybmluZyBvbiBjbGllbnQKCSAgICAgbWFjaGluZSwgd2Ugd291bGQg
+cmVjZWl2ZSBhbiAiSVAgY29uZmxpdCIgbWVzc2FnZS4KCSAgICAgClNvbHV0aW9uOiBQYXRjaCBj
+b25zaXN0cyBpbiA0IGZpbGVzOgoJICBhLSkgImluY2x1ZGUvbGludXgvbmV0ZGV2aWNlLmgiLCB3
+aGVyZSB3ZSBhZGQgYSBuZXcKCSAgICAgIG5ldCBmZWF0dXJlLCBORVRJRl9GX1NIQVBFUiB3aGlj
+aCB3aWxsIGhlbHAKCSAgICAgIHVzIHRvIHVuZGVyc3RhbmQgaWYgYSBkZXZpY2UgaXMgYSBzaGFw
+ZXIgb25lLgoJICAgICAgCgkgIGItKSAiZHJpdmVycy9uZXQvc2hhcGVyLmMiLCBpbiAic2hhcGVy
+X3Byb2JlIiBmdW5jdGlvbgoJICAgICAgd2Ugc2V0IE5FVElGX0ZfU0hBUEVSIGZsYWcgZm9yIGEg
+bmV3IHNoYXBlcgoJICAgICAgZGV2aWNlLgoJICAKCSAgYy0pICJpbmNsdWRlL2xpbnV4L2lmX3No
+YXBlci5oIiB3aGVyZSB3ZSBhZGQgdGhlIG1hY3JvCgkgICAgICBJU19TSEFQRVJERVZJQ0UsIHVz
+ZWQgdG8ga25vdyBpZiB0aGUgZGV2aWNlIGlzIGEgCgkgICAgICBzaGFwZXIgb25lIChpdCBjaGVj
+a3MgTkVUSUZfRl9TSEFQRVIgZmxhZyBpbiAKCSAgICAgIGZlYXR1cmVzIGZpZWxkLCB1bmRlciAi
+bmV0ZGV2aWNlIiBzdHJ1Y3QpLgoJCgkgIGQtKSAibmV0L2lwdjQvYXJwLmMiIHdoZXJlIGZpbmFs
+bHkgd2UgbW9kaWZ5IHByb3h5IGFycDsKCSAgICAgIFdlIHVzZSBzaGZsYWcgdG8gZGV0ZXJtaW5l
+IGlmIHdlIGFyZSBtYW5hZ2luZyBhCgkgICAgICBzaGFwZXIgZGV2aWNlICh3aXRoIElTX1NIQVBF
+UkRFVklDRSBtYWNybyk6IGluIAoJICAgICAgdGhpcyBjYXNlIHdlIGNoZWNrIAoJICAgICAgInJ0
+LT51LmRzdC5kZXYtPnByaXYtPmRldiIgKHBoeXNpY2FsIGRldmljZSkgCgkgICAgICBpbnN0ZWFk
+IG9mIAoJICAgICAgInJ0LT51LmRzdC5kZXYiIChzaGFwZXIgZGV2aWNlKQoJICAgICAgd2hpbGUg
+aWYgdGhlIGRldmljZSBpcyBhIG5vbiBzaGFwZXIgb25lLCB3ZSBjaGVjayAKCSAgICAgIHJ0LT51
+LmRzdC5kZXYgKGFuZGVkIHdpdGggIXNoZmxhZykKCSAgICAgIApUT0RPOglJIHVzZWQgImZlYXR1
+cmVzIiBmaWVsZCBpbiBuZXRkZXZpY2Ugc3RydWN0OiBtYXliZSBpdCBjb3VsZAogICAgICAgIGJl
+IGNob29zZW4gYW5vdGhlciBwbGFjZSB3aGVyZSB0byBwdXQgdGhlIHNoYXBlciBmbGFnLgkgICAg
+ICAKCSAgICAgIApUZXN0czogSSB0ZXN0ZWQgbmV3IGZlYXR1cmUgdXNpbmcgMyBQQ3MgbGlrZSB0
+aGF0OgoKICAgICAgICAgICBDTElFTlQxICAtLS0tLS0tLS0tLS0tIExJTlVYIC0tLS0tLS0tLS0t
+LS0gQ0xJRU5UMiAKICAgICAJICAgICAgICAgICAgICAgICAgIHNoYXBlcjAgICAgICBwcHAwCgkg
+ICAgICAgICAgICAgICAgICAgIFtldGgwXQoJICAgCiAgICAgICBMSU5VWCBob3N0IGhhcyBwcm94
+eSBhcnAgYW5kIHNoYXBlciBlbmFibGVkLCB3aXRoIENMSUVOVDEKICAgICAgIHJlYWNoYWJsZSB2
+aWEgc2hhcGVyMC4KICAgICAgIFdpdGggY2xhc3NpYyBwcm94eSBhcnAsIHdoZW4gSSB0dXJuIG9u
+IENMSUVOVCBtYWNoaW5lIEkgCiAgICAgICByZWNlaXZlIGFuICJJUCBjb25mbGl0IiBmcm9tIE9T
+LCB3aGlsZSB1c2luZyBwYXRjaGVkIHZlcnNpb24gCiAgICAgICB0aGVyZSBhcmUgbm8gcHJvYmxl
+bXMuCiAgICAgICBQcm94eSBhcnAgc3RpbGwgZG9lcyBpdHMgd29yayBjYXVzZSwgaWYgSSBnaXZl
+IENMSUVOVDIgSVAKICAgICAgIGFkZHJlc3MgdG8gQ0xJRU5UMSBtYWNoaW5lLCBJIHJlY2VpdmUg
+KGZyb20gQ0xJRU5UMSBPUykgYQogICAgICAgSVAgYnVzeSBtZXNzYWdlLgoKICAgICAgIEFsc28g
+dGVzdHMgb24gY29tbWVyY2lhbCBzZXJ2ZXIgaGF2ZSBiZWVuIGRvbmUgd2l0aCBnb29kCiAgICAg
+ICByZXN1bHRzLgoKICAgICAgIEtlcm5lbCB2ZXJzaW9uIHRlc3RlZCBpcyAyLjQuOQogICAgICAg
+CgpGaW5hbCBub3RlczogSXQgc2hvdWxkIGJlIHZlcnkgc2ltcGxlIHRvIHBvcnQgcGF0Y2ggdG8g
+b2xkZXIKICAgICAgICAgICAgIGtlcm5lbCB2ZXJzaW9uICgyLjAueHgsIDIuMS54eCwgMi4yLnh4
+LCAyLjMueHgpCgkgICAgCgkgICAgICAgICAgICAgCgkgICAgIAoJICAgICAK
 
+--------------Boundary-00=_G3QECGQTA8QB55UJXEA2
+Content-Type: text/x-c;
+  charset="iso-8859-1";
+  name="diff-shaper"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="diff-shaper"
+
+LS0tIGxpbnV4LTIuNC45Lm9yaWcvZHJpdmVycy9uZXQvc2hhcGVyLmMJVGh1IEp1biAyOCAwMjox
+MDo1NSAyMDAxCisrKyBsaW51eC0yLjQuOS9kcml2ZXJzL25ldC9zaGFwZXIuYwlTdW4gU2VwICA5
+IDE2OjI3OjE3IDIwMDEKQEAgLTY3MCw2ICs2NzAsNyBAQAogCWRldi0+YWRkcl9sZW4JCT0gMDsK
+IAlkZXYtPnR4X3F1ZXVlX2xlbgk9IDEwOwogCWRldi0+ZmxhZ3MJCT0gMDsKKwlkZXYtPmZlYXR1
+cmVzCQl8PSBORVRJRl9GX1NIQVBFUjsKIAkJCiAJLyoKIAkgKglTaGFwZXIgaXMgb2sK
+
+--------------Boundary-00=_G3QECGQTA8QB55UJXEA2
+Content-Type: text/x-c;
+  charset="iso-8859-1";
+  name="diff-netdevice"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="diff-netdevice"
+
+LS0tIGxpbnV4LTIuNC45Lm9yaWcvaW5jbHVkZS9saW51eC9uZXRkZXZpY2UuaAlTdW4gU2VwICA5
+IDE2OjE1OjQwIDIwMDEKKysrIGxpbnV4LTIuNC45L2luY2x1ZGUvbGludXgvbmV0ZGV2aWNlLmgJ
+U3VuIFNlcCAgOSAxNjoyODo1NiAyMDAxCkBAIC0zNDUsNiArMzQ1LDcgQEAKICNkZWZpbmUgTkVU
+SUZfRl9EWU5BTExPQwkxNgkvKiBTZWxmLWRlY3RydWN0YWJsZSBkZXZpY2UuICovCiAjZGVmaW5l
+IE5FVElGX0ZfSElHSERNQQkJMzIJLyogQ2FuIERNQSB0byBoaWdoIG1lbW9yeS4gKi8KICNkZWZp
+bmUgTkVUSUZfRl9GUkFHTElTVAk2NAkvKiBTY2F0dGVyL2dhdGhlciBJTy4gKi8KKyNkZWZpbmUg
+TkVUSUZfRl9TSEFQRVIgIAkxMjgJLyogU2hhcGVyIGRldmljZS4gKi8KIAogCS8qIENhbGxlZCBh
+ZnRlciBkZXZpY2UgaXMgZGV0YWNoZWQgZnJvbSBuZXR3b3JrLiAqLwogCXZvaWQJCQkoKnVuaW5p
+dCkoc3RydWN0IG5ldF9kZXZpY2UgKmRldik7Cg==
+
+--------------Boundary-00=_G3QECGQTA8QB55UJXEA2
+Content-Type: text/x-c;
+  charset="iso-8859-1";
+  name="diff-ifshaper"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="diff-ifshaper"
+
+LS0tIGxpbnV4LTIuNC45Lm9yaWcvaW5jbHVkZS9saW51eC9pZl9zaGFwZXIuaAlXZWQgQXVnIDE4
+IDIwOjM4OjQ3IDE5OTkKKysrIGxpbnV4LTIuNC45L2luY2x1ZGUvbGludXgvaWZfc2hhcGVyLmgJ
+U3VuIFNlcCAgOSAxNjoyNzowMSAyMDAxCkBAIC0xNCw2ICsxNCw4IEBACiAjZGVmaW5lIFNIQVBF
+Ul9NQVhTTElQCTIKICNkZWZpbmUgU0hBUEVSX0JVUlNUCShIWi81MCkJCS8qIEdvb2QgZm9yID4x
+MjhLIHRoZW4gKi8KIAorI2RlZmluZSBJU19TSEFQRVJERVZJQ0UoZGV2KSAoKGRldiktPmZlYXR1
+cmVzICYgTkVUSUZfRl9TSEFQRVIpCisKIHN0cnVjdCBzaGFwZXIKIHsKIAlzdHJ1Y3Qgc2tfYnVm
+Zl9oZWFkIHNlbmRxOwo=
+
+--------------Boundary-00=_G3QECGQTA8QB55UJXEA2
+Content-Type: text/x-c;
+  charset="iso-8859-1";
+  name="diff-arp"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="diff-arp"
+
+LS0tIGxpbnV4LTIuNC45Lm9yaWcvbmV0L2lwdjQvYXJwLmMJV2VkIE1heSAxNiAxOToyMTo0NSAy
+MDAxCisrKyBsaW51eC0yLjQuOS9uZXQvaXB2NC9hcnAuYwlTdW4gU2VwICA5IDE2OjI2OjU1IDIw
+MDEKQEAgLTExMSw4ICsxMTEsNyBAQAogCiAjaW5jbHVkZSA8YXNtL3N5c3RlbS5oPgogI2luY2x1
+ZGUgPGFzbS91YWNjZXNzLmg+Ci0KLQorI2luY2x1ZGUgPGxpbnV4L2lmX3NoYXBlci5oPgogCiAv
+KgogICoJSW50ZXJmYWNlIHRvIGdlbmVyaWMgbmVpZ2hib3VyIGNhY2hlLgpAQCAtNzY3LDggKzc2
+NiwxNSBAQAogCQkJfQogCQkJZ290byBvdXQ7CiAJCX0gZWxzZSBpZiAoSU5fREVWX0ZPUldBUkQo
+aW5fZGV2KSkgeworICAgICAgICAgICAgICAgICAgICAgICAgY2hhciBzaGZsYWc9MDsKKyAgICAg
+ICAgICAgICAgICAgICAgICAgIGlmICggKHJ0LT51LmRzdC5kZXYpICYmCisJCQkgICAgIChydC0+
+dS5kc3QuZGV2LT5wcml2KSAmJgorCQkJICAgICAoKChzdHJ1Y3Qgc2hhcGVyICopIHJ0LT51LmRz
+dC5kZXYtPnByaXYpLT5kZXYpICYmCisJCQkgICAgIChJU19TSEFQRVJERVZJQ0UocnQtPnUuZHN0
+LmRldikpICkKKwkJCSAgc2hmbGFnPTE7CiAJCQlpZiAoKHJ0LT5ydF9mbGFncyZSVENGX0ROQVQp
+IHx8Ci0JCQkgICAgKGFkZHJfdHlwZSA9PSBSVE5fVU5JQ0FTVCAgJiYgcnQtPnUuZHN0LmRldiAh
+PSBkZXYgJiYKKwkJCSAgICAoYWRkcl90eXBlID09IFJUTl9VTklDQVNUICAmJiAKKwkJCSAgICAo
+ICgoc2hmbGFnKSAmJiAoICgoc3RydWN0IHNoYXBlciAqKSBydC0+dS5kc3QuZGV2LT5wcml2KS0+
+ZGV2ICE9IGRldikpIHx8ICgoIXNoZmxhZykgJiYgKHJ0LT51LmRzdC5kZXYgIT0gZGV2KSkgKSAm
+JgogCQkJICAgICAoSU5fREVWX1BST1hZX0FSUChpbl9kZXYpIHx8IHBuZWlnaF9sb29rdXAoJmFy
+cF90YmwsICZ0aXAsIGRldiwgMCkpKSkgewogCQkJCW4gPSBuZWlnaF9ldmVudF9ucygmYXJwX3Ri
+bCwgc2hhLCAmc2lwLCBkZXYpOwogCQkJCWlmIChuKQo=
+
+--------------Boundary-00=_G3QECGQTA8QB55UJXEA2--

@@ -1,79 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266257AbUIEG0U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266275AbUIEG1m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266257AbUIEG0U (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 02:26:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266274AbUIEG0U
+	id S266275AbUIEG1m (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 02:27:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266274AbUIEG1m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 02:26:20 -0400
-Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:60502 "HELO
-	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266257AbUIEG0S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 02:26:18 -0400
-Message-ID: <413AB179.5030706@yahoo.com.au>
-Date: Sun, 05 Sep 2004 16:26:01 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
-X-Accept-Language: en
+	Sun, 5 Sep 2004 02:27:42 -0400
+Received: from smtp-out1.blueyonder.co.uk ([195.188.213.4]:64634 "EHLO
+	smtp-out1.blueyonder.co.uk") by vger.kernel.org with ESMTP
+	id S266275AbUIEG10 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 02:27:26 -0400
+Message-ID: <413AB1CC.7090008@blueyonder.co.uk>
+Date: Sun, 05 Sep 2004 07:27:24 +0100
+From: Sid Boyce <sboyce@blueyonder.co.uk>
+Reply-To: sboyce@blueyonder.co.uk
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: torvalds@osdl.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 0/3] beat kswapd with the proverbial clue-bat
-References: <413AA7B2.4000907@yahoo.com.au> <20040904230939.03da8d2d.akpm@osdl.org>
-In-Reply-To: <20040904230939.03da8d2d.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Paul Jakma <paul@clubi.ie>
+CC: Lee Revell <rlrevell@joe-job.com>, Tim Fairchild <tim@bcs4me.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: NVIDIA Driver 1.0-6111 fix
+References: <41390988.2010503@blueyonder.co.uk>  <20040904103601.D13149@infradead.org>  <200409041954.05272.tim@bcs4me.com> <1094327788.6575.209.camel@krustophenia.net> <Pine.LNX.4.61.0409050041500.23011@fogarty.jakma.org>
+In-Reply-To: <Pine.LNX.4.61.0409050041500.23011@fogarty.jakma.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 05 Sep 2004 06:27:49.0015 (UTC) FILETIME=[76CDEA70:01C49311]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> 
+Paul Jakma wrote:
 
->>Apparently these (higher-order && !wait) come up mainly in networking
->>which is the thing I had in mind. *However* as I only have half of a
->>gigabit network (ie. 1 card), I haven't done any testing where it
->>really counts. I'm also seeing surprisingly few reports on lkml, so
->>perhaps it is me that needs the beating?
-> 
-> 
-> There have been few reports, and I believe that networking is getting
-> changed to reduce the amount of GFP_ATOMIC higher-order allocation
-> attempts.
-> 
+> On Sat, 4 Sep 2004, Lee Revell wrote:
+>
+>> I bet 99.9% of the people who signed that stupid petition already own
+>> freaking ATI hardware.  The people yelling the loudest seem to be those
+>> who didn't realize the hardware wasn't Linux compatible when they bought
+>> it, when it would have taken 10 seconds to find out.
+>
+>
+In this game, I tend to leave it up to the individual and groups to 
+fight for whatever they want as it's sometimes a bit of concerted action 
+that yields results. It can be a protracted exercise, but nothing 
+ventured, nothing gained. The situation has improved as far as vendor 
+support is concerned, it started at zero, but still not all we would 
+like and may never be, so it's a case of eating what you have on your 
+plate and asking for more - no bones broken.
 
-That is the ideal goal, I think. But while our allocator offers higher
-order allocations, we *should* be a bit smarter about them.
+> Urm... the ATi R1xx and R2xx cards *are* open-source supported (thanks 
+> weather channel!). The R2xx ATi FireGL is the fastest open-driver DRI 
+> card..
+>
+> regards,
 
-> There have been multiple instances in the past year or so where we've made
-> changes in there, the changes were not adequately tested and stuff broke in
-> subtle ways.  We need to raise the bar a bit - clearly demonstrate that we
-> have a problem, and then demonstrate that the fix fixes it, then worry
-> about side-effects.
-> 
+It's users of that calibre and vendors with the clout of IBM, Dell, HP 
+etc. that can help and the fact that Linux will rapidly be a good 
+revenue stream for the most open of manufacturers. Today in Linux we are 
+not where we were 10 years ago and 10 years from now we won't be where 
+we are today and the signs are good.
+Regards
+Sid.
 
-Yep. As you see I've already corrected myself a couple of times :\
-RFC only at this stage.
+-- 
+Sid Boyce .... Hamradio G3VBV and keen Flyer
+=====LINUX ONLY USED HERE=====
 
-> 
-> I don't see anything in your code which directly prevents the following
-> serious scenario:
-> 
-> a) Some random 0-order allocation causes a 4-order page to be split up,
->    taking the 4-order pool below threshold.
-> 
-> b) kswapd goes berzerk reclaiming 9000 pages to replenish the 4-order
->    pool even though we don't need it.  
-> 
-> You have arith in there which kinda-sorta prevents it, but I don't see any
-> hard-and-fast protection.  Or did I miss it?  
-> 
-
-Yep. Kswapd will not care about 4-order allocations unless someone does
-a wake_kswapd(order 4);
-
-We could get into a situation where kswapd free smore than required, but
-if you've got someone regularly allocating 4-order pages, it probably
-isn't *that* dumb to free one or two more.
-
-If we complete an entire balance_pgdat round without freeing the required
-pages, that kswapd_max_order gets reset to zero anyway...

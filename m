@@ -1,53 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267822AbTAHSlO>; Wed, 8 Jan 2003 13:41:14 -0500
+	id <S267619AbTAHSiN>; Wed, 8 Jan 2003 13:38:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267845AbTAHSlO>; Wed, 8 Jan 2003 13:41:14 -0500
-Received: from kweetal.tue.nl ([131.155.2.7]:64876 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S267822AbTAHSlN>;
-	Wed, 8 Jan 2003 13:41:13 -0500
-Date: Wed, 8 Jan 2003 19:49:51 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB CF reader reboots PC
-Message-ID: <20030108184951.GA19268@win.tue.nl>
-References: <20030108165130.GA1181@Master.Wizards> <20030108181645.GC3127@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030108181645.GC3127@kroah.com>
-User-Agent: Mutt/1.3.25i
+	id <S267624AbTAHSiN>; Wed, 8 Jan 2003 13:38:13 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:63617 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S267619AbTAHSiM>; Wed, 8 Jan 2003 13:38:12 -0500
+Date: Wed, 8 Jan 2003 13:49:26 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Ray Lee <ray-lk@madrabbit.org>
+cc: fretre3618@hotmail.com, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: tenth post about PCI code, need help
+In-Reply-To: <1042049372.850.921.camel@orca.madrabbit.org>
+Message-ID: <Pine.LNX.3.95.1030108132812.28791A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 08, 2003 at 10:16:45AM -0800, Greg KH wrote:
+On 8 Jan 2003, Ray Lee wrote:
 
-> > Insert CF card. 
-> > ls /dev shows sda and sda1
-> > mount it. 
-> > ls /dev shows sda - no sda1
-> > cd to mounted CF card
-> > process hangs, sd-mod & usb-storage "busy"
-> > rmmod -f usb-storage or sd-mod causes PC to stop
-> > (keyboard & mouse unresponsive, wmfire frozen, net disconnects)
+> > 1. which device is at port address 0xCFB? (please note, NOT 0xCF8)
+> 
+> 0xcfb ('bee') is the fourth byte of the 32 bit register that sits/starts
+> at 0xcf8 ('eight'). Note the difference in the code between the outb and
+> outl calls.
+> 
+> To answer your other questions, I think you'd have better luck reading
+> the spec for the x86 pc-style PCI bridge chip, rather than the (generic)
+> PCI v2.0 spec itself. The spec for the actual chip is always the final
+> authority for what's going on. (Unless, of course, it's wrong...)
+> 
+> Ray
+> 
 
-> So if devfs is enabled, everything works just fine?
+The problem is that he's discovered something that's not supposed
+to be in the code. Only 32-bit accesses are supposed to be made to
+the PCI controller ports. He has discovered that somebody has made
+some 8-bit accesses that will not become configuration 'transactions'
+because they are not 32 bits. According to the spec, such accesses
+become direct I/O to some underlying device. So, if some underlying
+device shares the same I/O address space as the PCI device, that
+machine is broken.
 
-No. I have seen this kind of thing, and muttered a little bit
-on earlier occasions.
-The problem is that USB storage invents a GUID, that usually
-is composed of vendor and product ID of the reader, possibly
-also a serial number, but does not involve the card.
-When the card goes away, the partitions stay, and the device
-is treated as "not present".
-When a new card is inserted confusion arises.
+FYI, the mechanism by which ix86 hardware determines if the PCI
+port access is a configuration read or configuration write is
+the 32-bit access. Any other access cannot be interpreted by
+the hardware as a configuration transaction. (Page 321., 
+"Into to configuration Mechanisms", PCI System Architecture,
+ISBN 0-201-30974-2)
 
-We see that when a device goes from "not present" to "present"
-it may be necessary to throw out all data we have on it.
-Thus, maybe it was pointless to keep this data when it went away.
 
-This is somewhat related to the IDs discussion of a few days ago.
-People invent IDs, but nobody knows of what precisely.
+It is possible that somebody had a bad board and found that writing
+some junk to this port 'fixed' something. If this is so, then the
+code needs some comments. Otherwise, the non-32bit accesses should
+be removed.
 
-Andries
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
+
+

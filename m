@@ -1,34 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291126AbSAaQJE>; Thu, 31 Jan 2002 11:09:04 -0500
+	id <S291132AbSAaQMy>; Thu, 31 Jan 2002 11:12:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291124AbSAaQIr>; Thu, 31 Jan 2002 11:08:47 -0500
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:1979 "EHLO
-	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S291128AbSAaQIa>; Thu, 31 Jan 2002 11:08:30 -0500
-Date: Thu, 31 Jan 2002 17:08:12 +0100
-From: Andi Kleen <ak@muc.de>
-To: Oleg Drokin <green@namesys.com>
-Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Slab cache name fixes / reiserfs boot bug fix.
-Message-ID: <20020131170811.A1367@averell>
-In-Reply-To: <20020131002937.A1372@averell> <20020131100219.A11046@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020131100219.A11046@namesys.com>
-User-Agent: Mutt/1.3.22.1i
+	id <S291128AbSAaQMo>; Thu, 31 Jan 2002 11:12:44 -0500
+Received: from ns1.intercarve.net ([216.254.127.221]:51460 "HELO
+	ceramicfrog.intercarve.net") by vger.kernel.org with SMTP
+	id <S291127AbSAaQM3>; Thu, 31 Jan 2002 11:12:29 -0500
+Date: Thu, 31 Jan 2002 11:09:41 -0500 (EST)
+From: "Drew P. Vogel" <dvogel@intercarve.net>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Dave Jones <davej@suse.de>, <linux-kernel@vger.kernel.org>,
+        <patchbot-devel@killeri.net>
+Subject: Re: Public patch penguin
+In-Reply-To: <E16W7xt-0000KX-00@starship.berlin>
+Message-ID: <Pine.LNX.4.33.0201311103450.15627-100000@northface.intercarve.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 31, 2002 at 08:02:19AM +0100, Oleg Drokin wrote:
-> Hello!
-> 
-> On Thu, Jan 31, 2002 at 12:29:37AM +0100, Andi Kleen wrote:
-> > slab names. This fixes the reiserfs boot time BUG() that is still in 2.5.3.
-> Sorry, What BUG()? The one I know that was related to "reiserfs_inode_cache"
+>Agreed.  Please have a look at what we're doing here:
+>
+>   http://killeri.net/cgi-bin/alias/ezmlm-cgi
+>
+>It's too early to try the code, currently at version 0.0 (thanks to Rasmus
+>Andersen for that, Kalle Kivimaa for the mail list).  The guilding design
+>rule is to do everything with MTAs that submitters and maintainers _are
+>already using_, and to do it _just as they do it now_, using a normal mail
+>archive as the data base.  The only thing that changes is: you mail the
+>patchbot instead of the maintainer.
+>
+>Submitters will need to put some minimal number of additional lines in the
+>body of the email, and it's possible we'll get the 'minimal number' down to
+>zero for common cases (one line description comes from subject, long
+>description comes from mail, purpose is implied by [BUGFIX] in subject line,
+>etc).
+>
+>Do you see anything to object to so far?
 
-It seems to be gone already, yes. Sorry for the confusion.
-Anyways, the slab name patch should be the right thing to fix the interface.
+Well, I don't have any objections, per se. What I did notice immediately
+though is that the web browser is still involved. My *ideal*
+implementation would be very similar. The only significant difference
+would be that the patches would be sorted into directories, in a public
+ftp archive. The special comments would be display while changing
+directories in the archive. This way I can at least just type 'lynx
+ftp://kernel.patches.archive/patch_name/' and the first entry is the most
+current patch, and the special comments from the author would be displayed
+at the top.
 
--Andi
+--Drew Vogel
+
+

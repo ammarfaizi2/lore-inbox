@@ -1,53 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267008AbTAaNkm>; Fri, 31 Jan 2003 08:40:42 -0500
+	id <S266888AbTAaNrc>; Fri, 31 Jan 2003 08:47:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267026AbTAaNkm>; Fri, 31 Jan 2003 08:40:42 -0500
-Received: from matrix.roma2.infn.it ([141.108.255.2]:27332 "EHLO
-	matrix.roma2.infn.it") by vger.kernel.org with ESMTP
-	id <S267008AbTAaNkl>; Fri, 31 Jan 2003 08:40:41 -0500
-Message-ID: <55699.141.108.7.31.1044021002.squirrel@webmail.roma2.infn.it>
-Date: Fri, 31 Jan 2003 14:50:02 +0100 (CET)
-Subject: Re: yenta-cardbus IRQ0
-From: "Emiliano Gabrielli" <emiliano.gabrielli@roma2.infn.it>
-To: <rbisping@mindspring.com>
-In-Reply-To: <E18eXoy-0000iL-00@tisch.mail.mindspring.net>
-References: <E18eXoy-0000iL-00@tisch.mail.mindspring.net>
-X-Priority: 3
-Importance: Normal
-X-MSMail-Priority: Normal
-Cc: <linux-kernel@vger.kernel.org>
-X-Mailer: SquirrelMail (version 1.2.7)
+	id <S267026AbTAaNrc>; Fri, 31 Jan 2003 08:47:32 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:2745 "HELO thebsh.namesys.com")
+	by vger.kernel.org with SMTP id <S266888AbTAaNrb>;
+	Fri, 31 Jan 2003 08:47:31 -0500
+Message-ID: <3E3A8077.9050409@namesys.com>
+Date: Fri, 31 Jan 2003 16:56:07 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: Con Kolivas <conman@kolivas.net>
+CC: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [BENCHMARK] ext3, reiser, jfs, xfs effect on contest
+References: <200302010020.34119.conman@kolivas.net> <3E3A7C22.1080709@namesys.com> <200302010040.49141.conman@kolivas.net>
+In-Reply-To: <200302010040.49141.conman@kolivas.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Try running with the -E option for gcc, it might be less CPU intensive, 
+and thus a better FS benchmark.
 
-<quote who="Robert Bisping">
-> i have been trying to set up a cardbus card on my thinkpad 760ED for about  the last
-> month and it keeps coming up with IRQ0 and telling me it cant find a  irq for pin A.
-> what would be causing this and how do I correct it i have  already tried APCI and it
-> does not work on my laptop so that is no help. I  have compiled SMP into the kernel
-> though I dont have a dual processor (of  course) to gain the added functionality. I
-> have recompiled my kernel about  150 times with different setting hoping it might just
-> be a conflict in the  kernel with no luck.  I looked at the yenta driver it's self and
-> noticed that  it accepts IRQ0 as a valid irq but that appears to mean no irq at all.
-> which  config file would i use to force it to set a irq?
->
->
-> Thanx for any assistanc you might give
->
-
-plz send an lspci -vv -xxx -s *your dev*
-
-what kernel are you using ?
+What do you think?
 
 -- 
-Emiliano Gabrielli
-
-dip. di Fisica
-2° Università di Roma "Tor Vergata"
+Hans
 
 

@@ -1,90 +1,118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265791AbSKTFJa>; Wed, 20 Nov 2002 00:09:30 -0500
+	id <S267624AbSKTFTL>; Wed, 20 Nov 2002 00:19:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267619AbSKTFJa>; Wed, 20 Nov 2002 00:09:30 -0500
-Received: from h-64-105-34-70.SNVACAID.covad.net ([64.105.34.70]:46230 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S265791AbSKTFJ2>; Wed, 20 Nov 2002 00:09:28 -0500
-Date: Tue, 19 Nov 2002 21:16:26 -0800
-From: "Adam J. Richter" <adam@yggdrasil.com>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: PATCH(2.5.48): Eliminate pcidev.driver_data
-Message-ID: <20021119211626.A2389@baldur.yggdrasil.com>
+	id <S267627AbSKTFTL>; Wed, 20 Nov 2002 00:19:11 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:3602 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S267624AbSKTFS6>;
+	Wed, 20 Nov 2002 00:18:58 -0500
+Date: Tue, 19 Nov 2002 21:19:25 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pcibios removal changes for 2.5.48
+Message-ID: <20021120051925.GE21953@kroah.com>
+References: <20021120051702.GB21953@kroah.com> <20021120051751.GC21953@kroah.com> <20021120051820.GD21953@kroah.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="ZPt4rx8FFjLCG7dd"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
+In-Reply-To: <20021120051820.GD21953@kroah.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ChangeSet 1.872.3.3, 2002/11/19 20:30:40-08:00, greg@kroah.com
 
---ZPt4rx8FFjLCG7dd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+PCI: removed pcibios_read_config_* and pcibios_write_config_* functions.
 
-	The following patch eliminates pcidev.driver_data, in favor of
-pcidev.dev.driver_data, thereby shrinking pcidev by four bytes.
 
-	In the future, I hope this patch will make it simpler to have
-a facility where drivers can ask the generic device layer to do the
-kmalloc of their private memory area, but that's another patch.
-
-	Applying this patch now will help discourage anyone from
-building drivers that rely on having two different private pointers
-in struct pci_dev and struct device.
-
-	I oringally posted this patch against 2.5.44 along with a
-separate patch that changed the few device drivers that directly
-referenced pcidev.dev to use pci_{get,set}_drvdata().  The latter
-patches got into 2.5.45 via Jeff Garzik.  At 2.5.45, I reposted this
-patch and Greg Kroah-Hartman said that he would submit it to you in
-"the next round of pci cleanups I'm going to be sending to Linus", but
-it seems to have fallen through the cracks since then.  This patch has
-been posted to lkml twice before and nobody has stated any objections
-to this patch.
-
-	Although I do not make much use of 2.5.48 due to the modules
-problems, I have been running with this patch since 2.5.44 with no
-problems.
-
-	Please apply.  Thanks in advance.
-
--- 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
-
---ZPt4rx8FFjLCG7dd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="pci.diff"
-
---- linux-2.5.48/include/linux/pci.h	2002-11-17 20:29:45.000000000 -0800
-+++ linux/include/linux/pci.h	2002-11-19 21:13:04.000000000 -0800
-@@ -344,7 +344,6 @@
- 	u8		rom_base_reg;	/* which config register controls the ROM */
+diff -Nru a/drivers/pci/Makefile b/drivers/pci/Makefile
+--- a/drivers/pci/Makefile	Tue Nov 19 21:06:39 2002
++++ b/drivers/pci/Makefile	Tue Nov 19 21:06:39 2002
+@@ -3,10 +3,10 @@
+ #
  
- 	struct pci_driver *driver;	/* which driver has allocated this device */
--	void		*driver_data;	/* data private to the driver */
- 	u64		dma_mask;	/* Mask of the bits of bus address this
- 					   device implements.  Normally this is
- 					   0xffffffff.  You only need to change
-@@ -770,12 +769,12 @@
-  */
- static inline void *pci_get_drvdata (struct pci_dev *pdev)
- {
--	return pdev->driver_data;
-+	return pdev->dev.driver_data;
- }
+ export-objs	:= access.o hotplug.o pci-driver.o pci.o pool.o \
+-			probe.o proc.o search.o compat.o setup-bus.o
++			probe.o proc.o search.o setup-bus.o
  
- static inline void pci_set_drvdata (struct pci_dev *pdev, void *data)
- {
--	pdev->driver_data = data;
-+	pdev->dev.driver_data = data;
- }
+ obj-y		+= access.o probe.o pci.o pool.o quirks.o \
+-			compat.o names.o pci-driver.o search.o hotplug.o
++			names.o pci-driver.o search.o hotplug.o
+ obj-$(CONFIG_PM)  += power.o
+ obj-$(CONFIG_PROC_FS) += proc.o
  
- /*
-
---ZPt4rx8FFjLCG7dd--
+diff -Nru a/drivers/pci/compat.c b/drivers/pci/compat.c
+--- a/drivers/pci/compat.c	Tue Nov 19 21:06:39 2002
++++ /dev/null	Wed Dec 31 16:00:00 1969
+@@ -1,37 +0,0 @@
+-/*
+- *	$Id: compat.c,v 1.1 1998/02/16 10:35:50 mj Exp $
+- *
+- *	PCI Bus Services -- Function For Backward Compatibility
+- *
+- *	Copyright 1998--2000 Martin Mares <mj@ucw.cz>
+- */
+-
+-#include <linux/types.h>
+-#include <linux/kernel.h>
+-#include <linux/module.h>
+-#include <linux/pci.h>
+-
+-/* Obsolete functions, these will be going away... */
+-
+-#define PCI_OP(rw,size,type)							\
+-int pcibios_##rw##_config_##size (unsigned char bus, unsigned char dev_fn,	\
+-				  unsigned char where, unsigned type val)	\
+-{										\
+-	struct pci_dev *dev = pci_find_slot(bus, dev_fn);			\
+-	if (!dev) return PCIBIOS_DEVICE_NOT_FOUND;				\
+-	return pci_##rw##_config_##size(dev, where, val);			\
+-}
+-
+-PCI_OP(read, byte, char *)
+-PCI_OP(read, word, short *)
+-PCI_OP(read, dword, int *)
+-PCI_OP(write, byte, char)
+-PCI_OP(write, word, short)
+-PCI_OP(write, dword, int)
+-
+-EXPORT_SYMBOL(pcibios_read_config_byte);
+-EXPORT_SYMBOL(pcibios_read_config_word);
+-EXPORT_SYMBOL(pcibios_read_config_dword);
+-EXPORT_SYMBOL(pcibios_write_config_byte);
+-EXPORT_SYMBOL(pcibios_write_config_word);
+-EXPORT_SYMBOL(pcibios_write_config_dword);
+diff -Nru a/include/linux/pci.h b/include/linux/pci.h
+--- a/include/linux/pci.h	Tue Nov 19 21:06:39 2002
++++ b/include/linux/pci.h	Tue Nov 19 21:06:39 2002
+@@ -517,21 +517,6 @@
+ void pcibios_update_irq(struct pci_dev *, int irq);
+ void pcibios_fixup_pbus_ranges(struct pci_bus *, struct pbus_set_ranges_data *);
+ 
+-/* Backward compatibility, don't use in new code! */
+-
+-int pcibios_read_config_byte (unsigned char bus, unsigned char dev_fn,
+-			      unsigned char where, unsigned char *val);
+-int pcibios_read_config_word (unsigned char bus, unsigned char dev_fn,
+-			      unsigned char where, unsigned short *val);
+-int pcibios_read_config_dword (unsigned char bus, unsigned char dev_fn,
+-			       unsigned char where, unsigned int *val);
+-int pcibios_write_config_byte (unsigned char bus, unsigned char dev_fn,
+-			       unsigned char where, unsigned char val);
+-int pcibios_write_config_word (unsigned char bus, unsigned char dev_fn,
+-			       unsigned char where, unsigned short val);
+-int pcibios_write_config_dword (unsigned char bus, unsigned char dev_fn,
+-				unsigned char where, unsigned int val);
+-
+ /* Generic PCI functions used internally */
+ 
+ int pci_bus_exists(const struct list_head *list, int nr);
+@@ -668,8 +653,6 @@
+ static inline int pci_present(void) { return 0; }
+ 
+ #define _PCI_NOP(o,s,t) \
+-	static inline int pcibios_##o##_config_##s (u8 bus, u8 dfn, u8 where, t val) \
+-		{ return PCIBIOS_FUNC_NOT_SUPPORTED; } \
+ 	static inline int pci_##o##_config_##s (struct pci_dev *dev, int where, t val) \
+ 		{ return PCIBIOS_FUNC_NOT_SUPPORTED; }
+ #define _PCI_NOP_ALL(o,x)	_PCI_NOP(o,byte,u8 x) \

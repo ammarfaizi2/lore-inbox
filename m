@@ -1,64 +1,144 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131816AbRAKRmt>; Thu, 11 Jan 2001 12:42:49 -0500
+	id <S130480AbRAKRrT>; Thu, 11 Jan 2001 12:47:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131831AbRAKRmj>; Thu, 11 Jan 2001 12:42:39 -0500
-Received: from firebox-ext.surrey.redhat.com ([194.201.25.236]:30190 "EHLO
-	meme.surrey.redhat.com") by vger.kernel.org with ESMTP
-	id <S131816AbRAKRmb>; Thu, 11 Jan 2001 12:42:31 -0500
-Date: Thu, 11 Jan 2001 17:40:55 +0000
-From: Tim Waugh <twaugh@redhat.com>
-To: f5ibh <f5ibh@db0bm.ampr.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops while loading ppa in 2.2.19-pre7
-Message-ID: <20010111174055.L16951@redhat.com>
-In-Reply-To: <200101111729.SAA24053@db0bm.ampr.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="Re2uCLPLNzqOLVJA"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200101111729.SAA24053@db0bm.ampr.org>; from f5ibh@db0bm.ampr.org on Thu, Jan 11, 2001 at 06:29:27PM +0100
+	id <S130869AbRAKRrK>; Thu, 11 Jan 2001 12:47:10 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:60424
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S130480AbRAKRrB>; Thu, 11 Jan 2001 12:47:01 -0500
+Date: Thu, 11 Jan 2001 09:46:41 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: linux-kernel@vger.kernel.org
+Subject: AMD760/765 DDR Athlon testers needed....
+Message-ID: <Pine.LNX.4.10.10101110942250.29587-200000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; BOUNDARY="-1019260510-929799663-979235201=:29587"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
---Re2uCLPLNzqOLVJA
+---1019260510-929799663-979235201=:29587
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-On Thu, Jan 11, 2001 at 06:29:27PM +0100, f5ibh wrote:
 
-> I got this non-fatal oops while loading the ppa module for my IOMEGA parallel
-> port ZIP drive.
+Calling AMD Geeks^H^H^H^H^HUsers,
 
-It doesn't look like it's related to the ZIP drive though:
+I have one of these DDR boxes from AMD with the AMD760/765 cores, if you
+have one please let me know if you wnat to test this new code?
+It is only ATA66 limited and the DOCS I have do not have the ATA100
+timings.
 
-> Warning: kfree_skb passed an skb still on a list (from c8074fc1).
-> Oops: 0002
-> CPU:    0
-> EIP:    0010:[skb_recv_datagram+359/416]
-                ^^^^^^^^^^^^^^^^^
+Cheers,
 
-Seems to be a networking problem..
+Andre Hedrick
+Linux ATA Development
 
-Tim.
-*/
+---1019260510-929799663-979235201=:29587
+Content-Type: text/plain; charset=us-ascii; name="amd76x-boot.msg"
+Content-Transfer-Encoding: base64
+Content-ID: <Pine.LNX.4.10.10101110946410.29587@master.linux-ide.org>
+Content-Description: 
+Content-Disposition: attachment; filename="amd76x-boot.msg"
 
---Re2uCLPLNzqOLVJA
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6XfAmONXnILZ4yVIRAvkPAKCbeSc0Weimes0UOJCXJaMS4CxIbwCePzeg
-sBW5+vlUVPieBcxLjW6soaw=
-=08B5
------END PGP SIGNATURE-----
-
---Re2uCLPLNzqOLVJA--
+SW5zcGVjdGluZyAvYm9vdC9TeXN0ZW0ubWFwDQpTeW1ib2wgdGFibGUgaGFz
+IGluY29ycmVjdCB2ZXJzaW9uIG51bWJlci4NCg0KQ2Fubm90IGZpbmQgbWFw
+IGZpbGUuDQpObyBtb2R1bGUgc3ltYm9scyBsb2FkZWQuDQprbG9nZCAxLjMt
+MywgbG9nIHNvdXJjZSA9IGtzeXNsb2cgc3RhcnRlZC4NCjw0PkxpbnV4IHZl
+cnNpb24gMi4yLjE5cHJlNyAocm9vdEAzd2FyZSkgKGdjYyB2ZXJzaW9uIDIu
+OTUuMiAxOTk5MTAyNCAocmVsZWFzZSkpICMxIFdlZCBKYW4gMTAgMTU6MzM6
+MzcgUFNUIDIwMDENCjw0PlVTRVItcHJvdmlkZWQgcGh5c2ljYWwgUkFNIG1h
+cDoNCjw0PiBVU0VSOiAwMDA5ZjAwMCBAIDAwMDAwMDAwICh1c2FibGUpDQo8
+ND4gVVNFUjogMDdlMDAwMDAgQCAwMDEwMDAwMCAodXNhYmxlKQ0KPDQ+RGV0
+ZWN0ZWQgOTk1NTcwIGtIeiBwcm9jZXNzb3IuDQo8ND5pZGVfc2V0dXA6IGlk
+ZWJ1cz0zMw0KPDQ+Q29uc29sZTogY29sb3VyIFZHQSsgODB4MjUNCjw0PkNh
+bGlicmF0aW5nIGRlbGF5IGxvb3AuLi4gMTk4NS43NCBCb2dvTUlQUw0KPDQ+
+TWVtb3J5OiAxMjY3NTJrLzEzMDA0OGsgYXZhaWxhYmxlICgxMjMyayBrZXJu
+ZWwgY29kZSwgNDE2ayByZXNlcnZlZCwgMTU4NGsgZGF0YSwgNjRrIGluaXQp
+DQo8ND5EZW50cnkgaGFzaCB0YWJsZSBlbnRyaWVzOiAxNjM4NCAob3JkZXIg
+NSwgMTI4aykNCjw0PkJ1ZmZlciBjYWNoZSBoYXNoIHRhYmxlIGVudHJpZXM6
+IDEzMTA3MiAob3JkZXIgNywgNTEyaykNCjw0PlBhZ2UgY2FjaGUgaGFzaCB0
+YWJsZSBlbnRyaWVzOiAzMjc2OCAob3JkZXIgNSwgMTI4aykNCjw1PlZGUzog
+RGlza3F1b3RhcyB2ZXJzaW9uIGRxdW90XzYuNC4wIGluaXRpYWxpemVkDQo8
+ND5DUFU6IEwxIEkgQ2FjaGU6IDY0SyAgTDEgRCBDYWNoZTogNjRLDQo8ND5D
+UFU6IEwyIENhY2hlOiAyNTZLDQo8ND5DUFU6IEFNRCBBdGhsb24odG0pIFBy
+b2Nlc3NvciBzdGVwcGluZyAwMg0KPDY+Q2hlY2tpbmcgMzg2LzM4NyBjb3Vw
+bGluZy4uLiBPSywgRlBVIHVzaW5nIGV4Y2VwdGlvbiAxNiBlcnJvciByZXBv
+cnRpbmcuDQo8Nj5DaGVja2luZyAnaGx0JyBpbnN0cnVjdGlvbi4uLiBPSy4N
+Cjw0PlBPU0lYIGNvbmZvcm1hbmNlIHRlc3RpbmcgYnkgVU5JRklYDQo8ND5t
+dHJyOiB2MS4zNWEgKDE5OTkwODE5KSBSaWNoYXJkIEdvb2NoIChyZ29vY2hA
+YXRuZi5jc2lyby5hdSkNCjw0PlBDSTogUENJIEJJT1MgcmV2aXNpb24gMi4x
+MCBlbnRyeSBhdCAweGZiMTAwDQo8ND5QQ0k6IFVzaW5nIGNvbmZpZ3VyYXRp
+b24gdHlwZSAxDQo8ND5QQ0k6IFByb2JpbmcgUENJIGhhcmR3YXJlDQo8ND5Q
+Q0k6IEVuYWJsaW5nIEkvTyBmb3IgZGV2aWNlIDAwOjAwDQo8Nj5MaW51eCBO
+RVQ0LjAgZm9yIExpbnV4IDIuMg0KPDY+QmFzZWQgdXBvbiBTd2Fuc2VhIFVu
+aXZlcnNpdHkgQ29tcHV0ZXIgU29jaWV0eSBORVQzLjAzOQ0KPDY+TkVUNDog
+VW5peCBkb21haW4gc29ja2V0cyAxLjAgZm9yIExpbnV4IE5FVDQuMC4NCjw2
+Pk5FVDQ6IExpbnV4IFRDUC9JUCAxLjAgZm9yIE5FVDQuMA0KPDY+SVAgUHJv
+dG9jb2xzOiBJQ01QLCBVRFAsIFRDUA0KPDQ+VENQOiBIYXNoIHRhYmxlcyBj
+b25maWd1cmVkIChlaGFzaCAxMzEwNzIgYmhhc2ggNjU1MzYpDQo8ND5Jbml0
+aWFsaXppbmcgUlQgbmV0bGluayBzb2NrZXQNCjw0PlN0YXJ0aW5nIGtzd2Fw
+ZCB2IDEuNSANCjw2PnBhcnBvcnQwOiBQQy1zdHlsZSBhdCAweDM3OCBbU1BQ
+LFBTMl0NCjw2PkRldGVjdGVkIFBTLzIgTW91c2UgUG9ydC4NCjw2PlNlcmlh
+bCBkcml2ZXIgdmVyc2lvbiA0LjI3IHdpdGggU0hBUkVfSVJRIGVuYWJsZWQN
+Cjw2PnR0eVMwMCBhdCAweDAzZjggKGlycSA9IDQpIGlzIGEgMTY1NTBBDQo8
+Nj50dHlTMDIgYXQgMHgwM2U4IChpcnEgPSA0KSBpcyBhIDE2NTUwQQ0KPDQ+
+cHR5OiAyNTYgVW5peDk4IHB0eXMgY29uZmlndXJlZA0KPDY+bHAwOiB1c2lu
+ZyBwYXJwb3J0MCAocG9sbGluZykuDQo8ND5Tb2Z0d2FyZSBXYXRjaGRvZyBU
+aW1lcjogMC4wNSwgdGltZXIgbWFyZ2luOiA2MCBzZWMNCjw2PlJlYWwgVGlt
+ZSBDbG9jayBEcml2ZXIgdjEuMDkNCjw2Pk5vbi12b2xhdGlsZSBtZW1vcnkg
+ZHJpdmVyIHYxLjBhDQo8ND5SQU0gZGlzayBkcml2ZXIgaW5pdGlhbGl6ZWQ6
+ICAxNiBSQU0gZGlza3Mgb2YgNDA5Nksgc2l6ZQ0KPDY+bG9vcDogcmVnaXN0
+ZXJlZCBkZXZpY2UgYXQgbWFqb3IgNw0KPDY+VW5pZm9ybSBNdWx0aS1QbGF0
+Zm9ybSBFLUlERSBkcml2ZXIgUmV2aXNpb246IDYuMzANCjw0PmlkZTogQXNz
+dW1pbmcgMzNNSHogc3lzdGVtIGJ1cyBzcGVlZCBmb3IgUElPIG1vZGVzDQo8
+ND5BTUQ3NDExOiBJREUgY29udHJvbGxlciBvbiBQQ0kgYnVzIDAwIGRldiAz
+OQ0KPDQ+QU1ENzQxMTogY2hpcHNldCByZXZpc2lvbiAxDQo8ND5BTUQ3NDEx
+OiBub3QgMTAwJSBuYXRpdmUgbW9kZTogd2lsbCBwcm9iZSBpcnFzIGxhdGVy
+DQo8ND4gICAgaWRlMDogQk0tRE1BIGF0IDB4ZjAwMC0weGYwMDcsIEJJT1Mg
+c2V0dGluZ3M6IGhkYTpETUEsIGhkYjpETUENCjw0PiAgICBpZGUxOiBCTS1E
+TUEgYXQgMHhmMDA4LTB4ZjAwZiwgQklPUyBzZXR0aW5nczogaGRjOkRNQSwg
+aGRkOkRNQQ0KPDQ+UERDMjAyNjc6IElERSBjb250cm9sbGVyIG9uIFBDSSBi
+dXMgMDAgZGV2IDU4DQo8ND5QREMyMDI2NzogY2hpcHNldCByZXZpc2lvbiAy
+DQo8ND5QREMyMDI2Nzogbm90IDEwMCUgbmF0aXZlIG1vZGU6IHdpbGwgcHJv
+YmUgaXJxcyBsYXRlcg0KPDQ+UERDMjAyNjc6IFJPTSBlbmFibGVkIGF0IDB4
+ZTcwMDAwMDANCjw0PlBEQzIwMjY3OiAoVSlETUEgQnVyc3QgQml0IEVOQUJM
+RUQgUHJpbWFyeSBQQ0kgTW9kZSBTZWNvbmRhcnkgUENJIE1vZGUuDQo8ND4g
+ICAgaWRlMjogQk0tRE1BIGF0IDB4ZTgwMC0weGU4MDcsIEJJT1Mgc2V0dGlu
+Z3M6IGhkZTpETUEsIGhkZjpwaW8NCjw0PiAgICBpZGUzOiBCTS1ETUEgYXQg
+MHhlODA4LTB4ZTgwZiwgQklPUyBzZXR0aW5nczogaGRnOkRNQSwgaGRoOnBp
+bw0KPDQ+aGRhOiBRVUFOVFVNIEZJUkVCQUxMIENYMTMuMEEsIEFUQSBESVNL
+IGRyaXZlDQo8ND5oZGI6IFFVQU5UVU0gRklSRUJBTEwgQ1I0LjNBLCBBVEEg
+RElTSyBkcml2ZQ0KPDQ+aGRjOiBBVEFQSSBDRCBST00gRFJJVkUgNTBYIE1B
+WCwgQVRBUEkgQ0RST00gZHJpdmUNCjw0PmhkZDogSElUQUNISSBEVkQtUkFN
+IEdGLTIwMDAsIEFUQVBJIENEUk9NIGRyaXZlDQo8ND5pZGUwIGF0IDB4MWYw
+LTB4MWY3LDB4M2Y2IG9uIGlycSAxNA0KPDQ+aWRlMSBhdCAweDE3MC0weDE3
+NywweDM3NiBvbiBpcnEgMTUNCjw0PmhkYTogVEYuMT14MDAgVEYuMj14MDAg
+VEYuMz14MDAgVEYuND14MDAgVEYuNT14MDAgVEYuNj14NDAgVEYuNz14Zjgg
+DQo8Nj5oZGE6IFFVQU5UVU0gRklSRUJBTEwgQ1gxMy4wQSwgMTI0MTZNQiB3
+LzQxOGtCIENhY2hlLCBDSFM9MjUyMjgvMTYvNjMsIFVETUEoMzMpDQo8ND5o
+ZGI6IFRGLjE9eDAwIFRGLjI9eDAwIFRGLjM9eDAwIFRGLjQ9eDAwIFRGLjU9
+eDAwIFRGLjY9eDQwIFRGLjc9eGY4IA0KPDY+aGRiOiBRVUFOVFVNIEZJUkVC
+QUxMIENSNC4zQSwgNDExME1CIHcvNDE4a0IgQ2FjaGUsIENIUz0xNDg0OC85
+LzYzLCBVRE1BKDY2KQ0KPDQ+aGRjOiBBVEFQSSA1MFggQ0QtUk9NIGRyaXZl
+LCAxMjhrQiBDYWNoZSwgVURNQSgzMykNCjw2PlVuaWZvcm0gQ0QtUk9NIGRy
+aXZlciBSZXZpc2lvbjogMy4xMQ0KPDQ+aGRkOiBBVEFQSSBEVkQtUk9NIERW
+RC1SIGRyaXZlLCA1MTJrQiBDYWNoZSwgVURNQSgzMykNCjw2PkZsb3BweSBk
+cml2ZShzKTogZmQwIGlzIDEuNDRNDQo8Nj5GREMgMCBpcyBhIHBvc3QtMTk5
+MSA4MjA3Nw0KPDY+dHVsaXAuYzp2MC45MWctcHBjIDcvMTYvOTkgYmVja2Vy
+QGNlc2Rpcy5nc2ZjLm5hc2EuZ292DQo8Nj5ldGgwOiBMaXRlLU9uIDgyYzE2
+OCBQTklDIHJldiAzMiBhdCAweGQ0MDAsIDAwOkEwOkNDOjU2OkMwOjZCLCBJ
+UlEgMTAuDQo8Nj5ldGgwOiAgTUlJIHRyYW5zY2VpdmVyICMxIGNvbmZpZyAz
+MDAwIHN0YXR1cyA3ODI5IGFkdmVydGlzaW5nIDAxZTEuDQo8Nj5QYXJ0aXRp
+b24gY2hlY2s6DQo8Nj4gaGRhOiBoZGExIGhkYTIgaGRhMyA8IGhkYTUgaGRh
+NiBoZGE3IGhkYTggaGRhOSBoZGExMCA+DQo8Nj4gaGRiOiBoZGIxDQo8ND5W
+RlM6IE1vdW50ZWQgcm9vdCAoZXh0MiBmaWxlc3lzdGVtKSByZWFkb25seS4N
+Cjw0PkZyZWVpbmcgdW51c2VkIGtlcm5lbCBtZW1vcnk6IDY0ayBmcmVlZA0K
+S2VybmVsIGxvZ2dpbmcgKGtzeXNsb2cpIHN0b3BwZWQuDQpLZXJuZWwgbG9n
+IGRhZW1vbiB0ZXJtaW5hdGluZy4NCg==
+---1019260510-929799663-979235201=:29587--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

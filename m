@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269669AbUICRbu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269527AbUICRbt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269669AbUICRbu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 13:31:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269611AbUICRaU
+	id S269527AbUICRbt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 13:31:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269680AbUICRa0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 13:30:20 -0400
-Received: from mta6.srv.hcvlny.cv.net ([167.206.5.72]:39119 "EHLO
-	mta6.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S269680AbUICRZR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 13:25:17 -0400
-Date: Fri, 03 Sep 2004 13:24:28 -0400
-From: Jeff Sipek <jeffpc@optonline.net>
-Subject: Re: [PATCH/RFC 2.6] NET: 64-bit network statistics
-In-reply-to: <200409031307.01240.jeffpc@optonline.net>
-To: linux-kernel@vger.kernel.org
-Cc: netdev@oss.sgi.com
-Message-id: <200409031324.36252.jeffpc@optonline.net>
-MIME-version: 1.0
-Content-type: Text/Plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: KMail/1.6.2
-References: <200409031307.01240.jeffpc@optonline.net>
+	Fri, 3 Sep 2004 13:30:26 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:25057 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S269527AbUICR22 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 13:28:28 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Jon Smirl <jonsmirl@yahoo.com>
+Subject: Re: [PATCH] add PCI ROMs to sysfs
+Date: Fri, 3 Sep 2004 10:27:46 -0700
+User-Agent: KMail/1.7
+Cc: Greg KH <greg@kroah.com>, Matthew Wilcox <willy@debian.org>,
+       Martin Mares <mj@ucw.cz>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       linux-pci@atrey.karlin.mff.cuni.cz, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+References: <20040903014048.60310.qmail@web14922.mail.yahoo.com>
+In-Reply-To: <20040903014048.60310.qmail@web14922.mail.yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409031027.46354.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thursday, September 2, 2004 6:40 pm, Jon Smirl wrote:
+> This is a repost of the pci-sysfs-rom-22.patch. No one has made any
+> comments on this version. All previous objections have been addressed.
+> Any objections to sending it upstream?
 
-On Friday 03 September 2004 13:06, josef Jeff Sipek wrote:
-> I've created a patch that monitors changes to the network statistics
-> variables and keeps internal 64-bit counter. I decided to split it into two
-> parts (patches are to follow in next emails):
->  1) generic variable monitoring system (watch64)
->  2) network statistics specific patch (64network)
+Hm, the last one I tried worked fine, but this one makes my qla card stop 
+working, but not right way.  The system gets to init and then falls over, 
+maybe when it starts doing writes?  The last version I tried seems to work ok 
+though.  Has something changed in the PCI layer that would affect this?
 
-Btw, both of these patches apply cleanly against 2.6.9-rc1-bk10.
-
-Jeff.
-
-- -- 
-bad pun of the week: the formula 1 control computer suffered from a race 
-condition
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBOKjQwFP0+seVj/4RApg/AKDEFSTVOMSvVh9zVU65o/P6ZcfBxgCffeId
-QddOVsR+uHdkV2D4/U8QVO4=
-=jQIT
------END PGP SIGNATURE-----
+Thanks,
+Jesse

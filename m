@@ -1,49 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264246AbTEGTyb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 15:54:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264243AbTEGTyb
+	id S264264AbTEGT7O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 15:59:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264274AbTEGT7O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 15:54:31 -0400
-Received: from roc-24-169-2-225.rochester.rr.com ([24.169.2.225]:62115 "EHLO
-	death.krwtech.com") by vger.kernel.org with ESMTP id S264245AbTEGTy1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 15:54:27 -0400
-Date: Wed, 7 May 2003 16:06:51 -0400 (EDT)
-From: Ken Witherow <ken@krwtech.com>
-X-X-Sender: ken@death
-Reply-To: Ken Witherow <ken@krwtech.com>
-To: Thomas Horsten <thomas@horsten.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.69 Changes to Kconfig and i386 Makefile to include
- support for various K7 optimizations
-In-Reply-To: <Pine.LNX.4.40.0305072126450.30616-100000@jehova.dsm.dk>
-Message-ID: <Pine.LNX.4.55.0305071605590.709@death>
-References: <Pine.LNX.4.40.0305072126450.30616-100000@jehova.dsm.dk>
-Organization: KRW Technologies
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 7 May 2003 15:59:14 -0400
+Received: from smtp1.libero.it ([193.70.192.51]:58111 "EHLO smtp1.libero.it")
+	by vger.kernel.org with ESMTP id S264264AbTEGT7M (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 15:59:12 -0400
+Date: Wed, 7 May 2003 19:14:53 +0300
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] HFS+ driver
+Message-ID: <20030507161453.GC344@libero.it>
+References: <Pine.LNX.4.44.0305071643030.5042-100000@serv>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0305071643030.5042-100000@serv>
+User-Agent: Mutt/1.3.28i
+From: Daniele Pala <dandario@libero.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 May 2003, Thomas Horsten wrote:
+Wow , great! thx a lot for that. ;)
+So the major thing to fix now on macs is the sound part which is quite poor for now...at least on my old iMac DV...the
+problem is that i don't even know which audio chipset it uses! Gotta start searching better for info...well let's hope
+Apple gives info about this :)
 
-> +config K7_ATHLONXP
-> +	bool "Athlon XP"
-> +	help
-> +	  Select this if you have an Athlon XP CPU, to enable optimizations
-> +	  specific to that processor.
-> +
-> +config K7_ATHLONMP
-> +	bool "Athlon MP"
-> +	help
-> +	  Select this if you have an Athlon XP CPU, to enable optimizations
-> +	  specific to that processor.
-
-I do believe Athlon XP when you mean MP is a copy/paste typo :)
-
--- 
-       Ken Witherow <phantoml AT rochester.rr.com>
-           ICQ: 21840670  AIM: phantomlordken
-               http://www.krwtech.com/ken
-
+On Wed, May 07, 2003 at 05:06:59PM +0200, Roman Zippel wrote:
+> Hi,
+> 
+> I'm proud to announce a complete new version of the HFS+ fs driver. This 
+> work was made possible by Ardis Technologies (www.ardistech.com). It's 
+> based on the driver by Brad Boyer (http://sf.net/projects/linux-hfsplus).
+> 
+> The new driver now supports full read and write access. Perfomance has 
+> improved a lot, the btrees are kept in the page cache with a hash on top 
+> of this to speed up the access to the btree nodes.
+> I also added support for hard links and the resource fork is accessible 
+> via <file>/rsrc.
+> 
+> This is a beta release. I tested this a lot, so I consider it quite safe 
+> to use, but I can't give any guarantees at this time of course. There is 
+> also still a bit to do (e.g. the block allocator needs a bit more work).
+> 
+> The driver can be downloaded from http://www.ardistech.com/hfsplus/ .
+> The README describes how to build the driver.
+> 
+> If something should go wrong, I also have patch for Apple's diskdev_cmds 
+> (available from http://www.opensource.apple.com/darwinsource/10.2.5/), 
+> which ports newfs_hfs and fsck_hfs to Linux and fixes the endian problems. 
+> The patch is at http://www.ardistech.com/hfsplus/diskdev_cmds.diff.gz . 
+> After applying the patch the tools can be built with 'make -f 
+> Makefile.lnx'.
+> 
+> bye, Roman
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

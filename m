@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316637AbSGQUNz>; Wed, 17 Jul 2002 16:13:55 -0400
+	id <S316629AbSGQUJj>; Wed, 17 Jul 2002 16:09:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316649AbSGQUNz>; Wed, 17 Jul 2002 16:13:55 -0400
-Received: from ns.suse.de ([213.95.15.193]:59151 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S316662AbSGQUNt>;
-	Wed, 17 Jul 2002 16:13:49 -0400
-Date: Wed, 17 Jul 2002 22:16:40 +0200
-From: Dave Jones <davej@suse.de>
-To: Steven Cole <elenstev@mesatop.com>
-Cc: linux-kernel@vger.kernel.org, Steven Cole <scole@lanl.gov>,
-       wli@holomorphy.com
-Subject: Re: 2.5.25-dj2, kernel BUG at dcache.c:361
-Message-ID: <20020717221640.D32389@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Steven Cole <elenstev@mesatop.com>, linux-kernel@vger.kernel.org,
-	Steven Cole <scole@lanl.gov>, wli@holomorphy.com
-References: <1026936410.11636.107.camel@spc9.esa.lanl.gov>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1026936410.11636.107.camel@spc9.esa.lanl.gov>
-User-Agent: Mutt/1.3.22.1i
+	id <S316664AbSGQUJi>; Wed, 17 Jul 2002 16:09:38 -0400
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:41231 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S316629AbSGQUJL>; Wed, 17 Jul 2002 16:09:11 -0400
+Date: Wed, 17 Jul 2002 22:12:08 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Daniel Phillips <phillips@arcor.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] new module format
+In-Reply-To: <E17Utwm-0004Oy-00@starship>
+Message-ID: <Pine.LNX.4.44.0207172146590.8911-100000@serv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 17, 2002 at 02:06:50PM -0600, Steven Cole wrote:
- > While running 2.5.25-dj2 and dbench with increasing numbers of clients,
- > my test machine locked up with the following message:
- > 
- > kernel BUG at dcache.c:361!
+Hi,
 
-There are some -dj specific hacks to dcache.c to convert to use
-list_t types. Which from memory, I think William Lee Irwin did.
-(wli, can you double check those just in case there's either an
- obvious thinko, or a mismerge if you get time ?)
+On Wed, 17 Jul 2002, Daniel Phillips wrote:
 
-Failing that, this could be something that also affects mainline
-I think.
+> > 1. Properly fixing module races: I'm playing with a init/start/stop/exit
+> > model, this has the advantage that we can stop anyone from reusing a
+> > module and we only have to wait for remaining users to go away until we
+> > can safely unload the module.
+>
+> I'm satisfied that, for filesystems at least, all the module races can be
+> solved without adding start/stop, and I will present code in due course.
 
-        Dave
+The start/stop methods are not needed to fix the races, they allow better
+control of the unload process.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+> However, Rusty tells me there are harder cases than filesystems.  At this
+> point I'm waiting for a specific example.
+
+For filesystems it's only simpler because they only have a single entry
+point, but the basic problem is always the same. We have to protect
+against module load/unload and unregister. Without an interface change we
+will have to add module owner pointers everywhere and we will see
+contention on the unload_lock due to try_inc_mod_count.
+
+bye, Roman
+

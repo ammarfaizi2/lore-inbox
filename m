@@ -1,53 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317482AbSGEPeV>; Fri, 5 Jul 2002 11:34:21 -0400
+	id <S317481AbSGEPeT>; Fri, 5 Jul 2002 11:34:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317494AbSGEPeU>; Fri, 5 Jul 2002 11:34:20 -0400
-Received: from B5578.pppool.de ([213.7.85.120]:45837 "EHLO
+	id <S317489AbSGEPeS>; Fri, 5 Jul 2002 11:34:18 -0400
+Received: from B5578.pppool.de ([213.7.85.120]:46093 "EHLO
 	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id <S317482AbSGEPeQ>; Fri, 5 Jul 2002 11:34:16 -0400
+	id <S317483AbSGEPeQ>; Fri, 5 Jul 2002 11:34:16 -0400
 Subject: Re: IBM Desktar disk problem?
 From: Daniel Egger <degger@fhm.edu>
-To: Tomas Konir <moje@molly.vabo.cz>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44L0.0207051643580.709-100000@moje.ich.vabo.cz>
-References: <Pine.LNX.4.43.0207051524480.9092-100000@cibs9.sns.it>
-	<Pine.LNX.4.44L0.0207051606050.32493-100000@moje.ich.vabo.cz>
-	<20020705142619.GN1007@suse.de> 
-	<Pine.LNX.4.44L0.0207051643580.709-100000@moje.ich.vabo.cz>
+To: Thunder from the hill <thunder@ngforever.de>
+Cc: venom@sns.it, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0207050801190.10105-100000@hawkeye.luckynet.adm>
+References: <Pine.LNX.4.44.0207050801190.10105-100000@hawkeye.luckynet.adm>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.7 
-Date: 05 Jul 2002 17:38:31 +0200
-Message-Id: <1025883512.17296.28.camel@sonja.de.interearth.com>
+Date: 05 Jul 2002 17:23:39 +0200
+Message-Id: <1025882620.17269.15.camel@sonja.de.interearth.com>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Fre, 2002-07-05 um 16.48 schrieb Tomas Konir:
+Am Fre, 2002-07-05 um 16.03 schrieb Thunder from the hill:
 
-> Error Log Structure 1:
-> DCR   FR   SC   SN   CL   SH   D/H   CR   Timestamp
->  00   08   80   ee   88   a2    e0   cc     1210341
->  00   08   08   ee   88   a2    e0   a2     1210341
->  00   08   87   04   1d   20    e0   cc     1210341
->  00   00   00   04   1d   20    e0   00     1210341
->  00   00   80   06   42   67    e1   c8     1210341
->  00   84   00   85   42   67    e1   51     0
-> Error condition:   0    Error State:       3
+> ...and tell all the people who got a DTLA (because it's not as expensive 
+> as others in some countries, mind France, USA, Germany) to drop their 
+> disks if they want to use Linux, because we're too lazy to find a 
+> solution. That might be cool to you, but we want HARDWARE SUPPORT for 
+> Linux! That's why we're here.
  
-> Error Log Structure 2:
-> DCR   FR   SC   SN   CL   SH   D/H   CR   Timestamp
->  00   80   00   3e   66   23    e1   c7     1386233
->  00   80   08   3e   66   23    e0   a2     1386233
->  00   80   30   be   66   23    e1   c7     1386233
->  00   80   80   be   66   23    e1   c4     1386233
->  00   08   08   26   32   a4    e0   cc     1386237
->  00   84   00   2d   32   a4    e0   51     0
-> Error condition:   0    Error State:       3
+> There _is_ a solution, we just have to find it.
 
-Not good. Check for the "Reallocated Sector Ct".
- 
+Except you believe in the at least questionable explanation from IBM 
+there's nothing one can solve with software. And since quite a lot
+of drives died under several Linux, Windows, *BSD and Mac versions
+I don't buy the driver argument and in fact think that IBM is using
+this poor excuse to avoid a big (and expensive) replacement plan
+on the cost of the users.
+
+I've yet to see a <insert your favourite non-IBM harddrive manufacturer
+here>-drive dying after a few months of use, the negative record in this
+regard (except for the IBMs) was a Quantum Atlas UW-SCSI drive (which
+was in fact also manufactured FOR IBM) which died after 2,5 years of
+heavy use which is at least somewhere in the range what one might expect
+as lifetime; all other drives here (up to 10 years old) are still alive
+and kickin'.
+
+Even if you have backups and RAID systems, a broken harddrive can be
+quite expensive; think of data restoration, drive replacement,
+downtimes, shipment, data loss which all costs at least one thing: time
+and lots of it. 
+
+We estimate around 10h per broken drive while it takes a lot less time
+(<1h) to simple replace the discs before the accident which is what
+we're doing now with all IBM drives prophylactically.
+
 -- 
 Servus,
        Daniel

@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319605AbSIMLd5>; Fri, 13 Sep 2002 07:33:57 -0400
+	id <S319606AbSIMLk7>; Fri, 13 Sep 2002 07:40:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319606AbSIMLd4>; Fri, 13 Sep 2002 07:33:56 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:23826 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S319605AbSIMLd4>; Fri, 13 Sep 2002 07:33:56 -0400
-Message-ID: <3D81CE43.60409@namesys.com>
-Date: Fri, 13 Sep 2002 15:38:43 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S319607AbSIMLk7>; Fri, 13 Sep 2002 07:40:59 -0400
+Received: from [212.18.235.100] ([212.18.235.100]:12962 "EHLO
+	tench.street-vision.com") by vger.kernel.org with ESMTP
+	id <S319606AbSIMLk6>; Fri, 13 Sep 2002 07:40:58 -0400
+From: kernel@street-vision.com
+Message-Id: <200209131144.g8DBifW10216@tench.street-vision.com>
+Subject: Re: AMD 760MPX DMA lockup (partly solved)
+To: vda@port.imtp.ilyichevsk.odessa.ua
+Date: Fri, 13 Sep 2002 11:44:40 +0000 (GMT)
+Cc: kas@informatics.muni.cz, linux-kernel@vger.kernel.org
+In-Reply-To: <200209130702.g8D72sp09062@Port.imtp.ilyichevsk.odessa.ua> from "Denis Vlasenko" at Sep 13, 2002 09:58:00 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Ivan Ivanov <ivandi@vamo.orbitel.bg>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: XFS?
-References: <Pine.LNX.4.44.0209131011340.4066-100000@magic.vamo.orbitel.bg>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ivan Ivanov wrote:
+> 
+> On 12 September 2002 17:14, Jan Kasprzak wrote:
+> > : This is 2.4.20-pre1, dual AMD 2000MP, only difference is it is the Tyan
+> > : version of the MPX, not the MSI.
+> > :
+> > : Justin
+> >
+> >         Justin, thanks for this! I've tried 2.4.20-pre1 with your
+> > .config (and then with my .config), and it works!
+> >
+> >         Further investigation showed that the problem first appeared
+> > somewhere between 2.4.20-pre2 (works for me) and 2.4.20-pre5 (has the
+> > lock-up problem I've described). I was not able to test -pre3 and -pre4,
+> > because these kernel died on me during boot after the
+> > "Initializing RT netlink socket" message.
+> 
+> It would be interesting to test 2.4.20-pre5 on Justin's box
+> (if he can risk fs damage)
 
->With ReiserFS this happens sometimes, but much much rarely. May be v4 will
->solve this problem at all.
->
-We have a data ordered patch that is waiting for 2.4.21pre1.
+ok, tried it on 2.4.20-pre5, and it is fine. 
 
-V4 uses fully atomic transactions for every fs modifying syscall 
-including data, and still goes way faster than v3....
+I would send your board back...
 
-Hans
-
-
+Justin

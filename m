@@ -1,53 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265755AbUBFSzD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 13:55:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265775AbUBFSzD
+	id S265623AbUBFSjy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 13:39:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265636AbUBFSjy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 13:55:03 -0500
-Received: from main.gmane.org ([80.91.224.249]:18401 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S265755AbUBFSy5 (ORCPT
+	Fri, 6 Feb 2004 13:39:54 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:20910 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265623AbUBFSjv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 13:54:57 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: [Infiniband-general] Getting an Infiniband access layer in
- theLinux kernel
-Date: Fri, 06 Feb 2004 19:54:55 +0100
-Message-ID: <yw1xoescqbr4.fsf@kth.se>
-References: <C1B7430B33A4B14F80D29B5126C5E9470326258C@orsmsx401.jf.intel.com> <Pine.LNX.4.53.0402061150100.3862@chaos>
- <52smhounpn.fsf@topspin.com> <Pine.LNX.4.53.0402061258110.4045@chaos>
- <200402061822.i16IMdHJ013686@turing-police.cc.vt.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 213-187-164-3.dd.nextgentel.com
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:f00zAxH3ANzLBC8RaTbQ2/PzzMA=
+	Fri, 6 Feb 2004 13:39:51 -0500
+Date: Fri, 06 Feb 2004 10:39:31 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Rick Lindsley <ricklind@us.ibm.com>, Anton Blanchard <anton@samba.org>
+cc: piggin@cyberone.com.au, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       dvhltc@us.ibm.com
+Subject: Re: [PATCH] Load balancing problem in 2.6.2-mm1 
+Message-ID: <207100000.1076092771@flay>
+In-Reply-To: <200402061815.i16IFhY07073@owlet.beaverton.ibm.com>
+References: <200402061815.i16IFhY07073@owlet.beaverton.ibm.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu writes:
+>     Good stuff, I just gave the patch a spin and things seem a little
+>     calmer. However Im still seeing a lot of balancing going on within a
+>     node.
+> 
+> This is a clearly recognizable edge case, so I'll try drawing this up on
+> some paper and see if I can suggest another patch.  There's no good reason
+> to move one lone process from a particular processor to another idle one.
+> 
+> But it also approaches a question that's come up before:  if you have 2
+> tasks on processor A and 1 on processor B, do you move one from A to B?
+> One argument is that the two tasks on A will take twice as long as
+> the one on B if you do nothing.  But another says that bouncing a task
+> around can't correct the overall imbalance and so is wasteful.  I know
+> of benchmarks where both behaviors are considered important.  Thoughts?
 
-> On Fri, 06 Feb 2004 13:00:38 EST, "Richard B. Johnson" said:
->
->> Yes you can. You just don't use an ';' if you are going
->> to use 'else'.
->
-> You did realize we've changed things from macros to inline functions
-> (and vice versa) on occasion?
->
-> Yes, you *can* hack around the "problem".  Is there any actual
-> evidence that any real performance issues arise from the null
-> do/while?  Does said issue outweigh the increased fragility of
-> the code?
+It's the classic fairness vs throughput thing we've argued about before.
+Most workloads don't have that static a number of processes, but it 
+probably does need to do it if the imbalance is persistent ... but much
+more reluctantly than normal balancing. See the patch I sent out a bit
+earlier to test it - that may be *too* extreme in the other direction,
+but it should confirm what's going on, at least.
 
-I suspect that the compiler authors are well aware of this common
-idiom and take care to do whatever is appropriate.
-
--- 
-Måns Rullgård
-mru@kth.se
+M.
 

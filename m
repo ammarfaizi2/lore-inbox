@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289102AbSANWhe>; Mon, 14 Jan 2002 17:37:34 -0500
+	id <S289108AbSANWhe>; Mon, 14 Jan 2002 17:37:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289110AbSANWha>; Mon, 14 Jan 2002 17:37:30 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:12813 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S289102AbSANWgU>;
-	Mon, 14 Jan 2002 17:36:20 -0500
-Date: Mon, 14 Jan 2002 14:33:03 -0800
-From: Greg KH <greg@kroah.com>
-To: Rob Landley <landley@trommello.org>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Hardwired drivers are going away?
-Message-ID: <20020114223302.GC22267@kroah.com>
-In-Reply-To: <Pine.GSO.4.21.0201141337580.224-100000@weyl.math.psu.edu> <20020114222101.ZPUW15906.femail44.sdc1.sfba.home.com@there>
-Mime-Version: 1.0
+	id <S289120AbSANWh1>; Mon, 14 Jan 2002 17:37:27 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42769 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S289108AbSANWgY>;
+	Mon, 14 Jan 2002 17:36:24 -0500
+Message-ID: <3C435D65.E7FC999D@mandrakesoft.com>
+Date: Mon, 14 Jan 2002 17:36:21 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.2-pre9fs7 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Dave Jones <davej@suse.de>
+CC: esr@thyrsus.com, linux-kernel@vger.kernel.org
+Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the 
+ elegant solution)
+In-Reply-To: <20020114132618.G14747@thyrsus.com> <m16QCNJ-000OVeC@amadeus.home.nl> <20020114145035.E17522@thyrsus.com> <20020114213732.M15139@suse.de> <20020114153844.A20537@thyrsus.com> <3C4356A9.367BC989@mandrakesoft.com> <20020114231855.A21353@suse.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020114222101.ZPUW15906.femail44.sdc1.sfba.home.com@there>
-User-Agent: Mutt/1.3.25i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Mon, 17 Dec 2001 20:00:03 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 14, 2002 at 09:19:01AM -0500, Rob Landley wrote:
+Dave Jones wrote:
 > 
-> The klibc source/binary debate still seems to be ongoing, but apart from 
-> that, will the build process for initramfs be part of the kernel build or not?
+> On Mon, Jan 14, 2002 at 05:07:37PM -0500, Jeff Garzik wrote:
+>  >
+>  > For network cards one needs only to issue the ETHTOOL_GDRVINFO ioctl to
+>  > find out what hardware is associated with an ethernet interface.
+> 
+>  but not all the net drivers support this yet do they?
 
-I would vote for yes.  I would like this, if for no other reason than
-the number of kernel builds most kernel developers do :)
+correct.  But it is the proper path one should take on this particular
+train of thought ;-)
 
-I was going to wait until kbuild 2.5 went into the tree before looking
-at what would be needed to add this to the build process.
-
-thanks,
-
-greg k-h
+-- 
+Jeff Garzik      | Alternate titles for LOTR:
+Building 1024    | Fast Times at Uruk-Hai
+MandrakeSoft     | The Took, the Elf, His Daughter and Her Lover
+                 | Samwise Gamgee: International Hobbit of Mystery

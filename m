@@ -1,70 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284569AbRLESxg>; Wed, 5 Dec 2001 13:53:36 -0500
+	id <S284573AbRLES4Q>; Wed, 5 Dec 2001 13:56:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284567AbRLESx1>; Wed, 5 Dec 2001 13:53:27 -0500
-Received: from pop.gmx.de ([213.165.64.20]:50564 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S284569AbRLESxP>;
-	Wed, 5 Dec 2001 13:53:15 -0500
-Date: Wed, 5 Dec 2001 19:53:08 +0100
-From: Rene Rebe <rene.rebe@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.16 freezes during IDE RAID5 resync
-Message-Id: <20011205195308.53c6170c.rene.rebe@gmx.net>
-Organization: FreeSourceCommunity ;-)
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S284572AbRLES4G>; Wed, 5 Dec 2001 13:56:06 -0500
+Received: from alageremail1.agere.com ([192.19.192.106]:32708 "EHLO
+	alageremail1.agere.com") by vger.kernel.org with ESMTP
+	id <S284565AbRLESz6>; Wed, 5 Dec 2001 13:55:58 -0500
+From: "Michael Smith" <smithmg@agere.com>
+To: <rddunlap@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Unresolved symbol memset
+Date: Wed, 5 Dec 2001 13:55:56 -0500
+Organization: Agere Systems
+Message-ID: <00a501c17dbe$7a6fa580$4d129c87@agere.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+In-Reply-To: <Pine.LNX.4.33L2.0112051024340.22241-100000@dragon.pdx.osdl.net>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all!
+That particular header is included.  As I mentioned, I am using memset
+in other areas of the code, as well as the same file.  If I take this
+one call out of the source, it compiles, links and I am able to perform
+and insmod correctly.  Below are the headers that are included in the
+file, and the area of the code that is causing the problem.  Let me say
+that the code, even with this particular call in, compiles and links.
+The problem happens when I go to perform the insmod on it.
 
-Due to a f**ked power shortage (no UPS yet) our server had to reboot:
-Hardware:
+#include <memory.h>
+#include <string.h>
+#include "myownheaders.h"
 
-model name      : AMD-K6(tm) 3D processor
-stepping        : 0
-cpu MHz         : 350.814
 
-RAM: 128 MB
+void myfunction( void *a, int len )
+{
+....
+Mymemmove() //used because NdisMoveMemory can not be used
+memset( &a->WORD[NUMWORDS-len], 0, len*4);
+...
+}
 
-Aladin5 based Asus board. IDE interface: Acer Laboratories Inc. [ALi] M5229 IDE
-(rev 193) and an additional:  Promise Technology, Inc. 20268 (rev 2).
 
-There where 1 (for /) and 3 software RAID 5 IBM-DTLA-305040 each as master
-on a single channel connected all using ReiserFS.
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of
+rddunlap@osdl.org
+Sent: Wednesday, December 05, 2001 1:27 PM
+To: Michael Smith
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Unresolved symbol memset
 
-The system freezed (no oops - simply freeze) reproduceable during a ReiseFS
-check of the / partiotion. (So it doens't even come to the /home md0 one).
+On Wed, 5 Dec 2001, Michael Smith wrote:
 
-I even booted a recsue disc mounted the / (so the transaction-log is clean),
-and rebooted. Then it freezes at an ramdon point during the init.d scripts.
+| Hello all,
+|      I am new the Linux world and have a problem which is somewhat
+| confusing.  I am using the system call memset() in kernel code written
+| for Red Hat 7.1(kernel 2.4).  I needed to make this code compatible
+with
+| Red Hat 6.2(kernel 2.2) and seem to be getting a unresolved symbol.
+| This is only happening in one place of the code in one file.  I am
+using
+| memset() in other areas of the code which does not lead to the
+problem.
+| If anyone can clue me in to what this possible can be, it would
+greatly
+| be appreciated.
 
-I fixed it by removing one IBM disc from the on-board IDE chip's
-second channel and adding it to the promisse as slave. Now it works?
-
-The server ran stable for 17 days using a 2.4.14 kernel and using the
-2.4.16 since it got out ... I do not know what might be wrong, IDE code,
-ALi M5229 IDE code, RAID code (or ReierFS)? - I do not expet it to be fixed
-from this lousy bug-report - only that you heared that there might be a problem
-somehere in this areas ...
-
-(Oh. I do not like to try this again with our data - and we will have a
-UPS in some days ;-) - AND I will never use IDE crapp again :-((( )
-
-Much thanks!
-  René
+um, memset() isn't actually a system call.
+However-- does the problem source file have
+#include <linux/string.h>
+in it?  It should.
+Or perhaps you could post the problem source file and/or
+gcc messages.
 
 -- 
-René Rebe (Registered Linux user: #248718 <http://counter.li.org>)
+~Randy
 
-eMail:    rene.rebe@gmx.net
-          rene@rocklinux.org
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 
-Homepage: http://www.tfh-berlin.de/~s712059/index.html
-
-Anyone sending unwanted advertising e-mail to this address will be
-charged $25 for network traffic and computing time. By extracting my
-address from this message or its header, you agree to these terms.

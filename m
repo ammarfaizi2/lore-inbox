@@ -1,33 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272584AbTG1AFd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 20:05:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272583AbTG1AE4
+	id S272466AbTG1AUx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 20:20:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272588AbTG1AGV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 20:04:56 -0400
+	Sun, 27 Jul 2003 20:06:21 -0400
 Received: from zeus.kernel.org ([204.152.189.113]:28659 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S272716AbTG0W6N (ORCPT
+	by vger.kernel.org with ESMTP id S272466AbTG0Wzq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 18:58:13 -0400
-Date: Sun, 27 Jul 2003 21:12:05 +0100
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200307272012.h6RKC5uJ029684@hraefn.swansea.linux.org.uk>
-To: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: PATCH: fix pcmcia_cs without ISA
+	Sun, 27 Jul 2003 18:55:46 -0400
+Date: Sun, 27 Jul 2003 23:21:34 +0200
+From: Manuel Estrada Sainz <ranty@debian.org>
+To: Matthew Wilcox <willy@debian.org>
+Cc: Marcel Holtmann <marcel@holtmann.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       greg@kroah.com, Patrick Mochel <mochel@osdl.org>
+Subject: Re: [PATCH] Re: Firmware loading problem
+Message-ID: <20030727212134.GA9171@ranty.pantax.net>
+Reply-To: ranty@debian.org
+References: <1058885139.2757.27.camel@pegasus> <20030722145546.GC23593@ranty.pantax.net> <1058888301.2755.8.camel@pegasus> <20030726090458.GA16634@ranty.pantax.net> <20030727192111.GT1485@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030727192111.GT1485@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Taral)
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.6.0-test2/drivers/pcmcia/cs.c linux-2.6.0-test2-ac1/drivers/pcmcia/cs.c
---- linux-2.6.0-test2/drivers/pcmcia/cs.c	2003-07-14 14:11:56.000000000 +0100
-+++ linux-2.6.0-test2-ac1/drivers/pcmcia/cs.c	2003-07-15 17:51:34.000000000 +0100
-@@ -1958,6 +1958,9 @@
- 	    irq = req->IRQInfo1 & IRQ_MASK;
- 	    ret = try_irq(req->Attributes, irq, 1);
- 	}
-+#else
-+    } else {
-+	ret = CS_UNSUPPORTED_MODE;
- #endif
-     }
-     if (ret != 0) return ret;
+On Sun, Jul 27, 2003 at 08:21:11PM +0100, Matthew Wilcox wrote:
+> On Sat, Jul 26, 2003 at 11:04:58AM +0200, Manuel Estrada Sainz wrote:
+> > 	- hopefully adapt drivers/pci/pci-sysfs.c to this changes
+> > 		- Please double check, I didn't look very carefully on
+> > 		  this.
+> 
+> Definitely wrong.  I was going to undo this change since I realised how
+> it doesn't work for you; but the change you made to the PCI code is wrong.
+> It ends up copying everything to offset 0 from the buf address. 
+
+ Exactly, and that is what sysfs code expects (with the rest of the
+ patch), the buffer is just temporary storage, it doesn't really matter
+ what offset you use as long as you don't write further than
+ buffer+PAGE_SIZE and both sides of the issue agree.
+
+> I wish Pat had cc'd me when making the change to the interface
+> originally ;-(
+> 
+> I'll whip up a patch in a few minutes.
+
+ Great.
+ 
+ Have a nice day
+
+ 	Manuel
+-- 
+--- Manuel Estrada Sainz <ranty@debian.org>
+                         <ranty@bigfoot.com>
+			 <ranty@users.sourceforge.net>
+------------------------ <manuel.estrada@hispalinux.es> -------------------
+Let us have the serenity to accept the things we cannot change, courage to
+change the things we can, and wisdom to know the difference.

@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263784AbTJ1AQl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 19:16:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263786AbTJ1AQl
+	id S263783AbTJ1AOy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 19:14:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263784AbTJ1AOy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 19:16:41 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:4612 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263784AbTJ1AQk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 19:16:40 -0500
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: sbp2 slab corruiton in 2.6-test9
-Date: 28 Oct 2003 00:06:28 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <bnkbu4$maf$1@gatekeeper.tmr.com>
-References: <Pine.LNX.4.44.0310261357100.16378-100000@parcelfarce.linux.theplanet.co.uk> <20031026141837.GA7904@phunnypharm.org>
-X-Trace: gatekeeper.tmr.com 1067299588 22863 192.168.12.62 (28 Oct 2003 00:06:28 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Mon, 27 Oct 2003 19:14:54 -0500
+Received: from fw.osdl.org ([65.172.181.6]:5508 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263783AbTJ1AOx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Oct 2003 19:14:53 -0500
+Date: Mon, 27 Oct 2003 16:15:02 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Joe Korty <joe.korty@ccur.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: gettimeofday resolution seriously degraded in test9
+Message-Id: <20031027161502.3f98c556.shemminger@osdl.org>
+In-Reply-To: <20031027234447.GA7417@rudolph.ccur.com>
+References: <20031027234447.GA7417@rudolph.ccur.com>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed version 0.9.6claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20031026141837.GA7904@phunnypharm.org>,
-Ben Collins  <bcollins@debian.org> wrote:
-| On Sun, Oct 26, 2003 at 02:01:26PM +0000, Matthew J Galgoci wrote:
-| > Hi Folks,
-| > 
-| > I'm seeing slab corruption in 2.6-test9 when I do a 
-| > cat /proc/scsi/scsi
-| > 
-| 
-| Known. The fix is non-trivial, so I am holding off on it until 2.6.0
-| gets out.
+On Mon, 27 Oct 2003 18:44:47 -0500
+Joe Korty <joe.korty@ccur.com> wrote:
 
-Is the fix available somewhere? I have a machine with external devices
-which does just that cat as part of rc.local, to see what's connected. I
-do understand your not wanting to make a major change now, but a fix
-could get some mileage if it were out.
+> [ 2nd posting, the first seems to have been lost ]
+> 
+> Linus,
+>  This bit of -test9 code reduces the resolution of gettimeofday(2) from
+> 1 microsecond to 1 millisecond whenever a negative time adjustment is
+> in progress.  This seriously damages efforts to measure time intervals
+> accurately with gettimeofday.  Please consider backing it out.
+> 
+> Joe
 
-Is this a new bug since test6?
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+The problem is that it is worse to have time go backwards which is what we
+have done up until test9. It might be possible to compress time when NTP is doing
+negative adjustments, but if you really care about microsecond resolution then
+you will still lose. 
+
+If you care about microseconds, then NTP is going to whack your data.  It has to
+cause clock to speed up/slow down.  Your data points will skip and stall due to it.
+Use a different clock source or don't run NTP if you are doing real time stuff.
+

@@ -1,54 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131418AbQKYSUA>; Sat, 25 Nov 2000 13:20:00 -0500
+        id <S129770AbQKYSoj>; Sat, 25 Nov 2000 13:44:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131532AbQKYSTu>; Sat, 25 Nov 2000 13:19:50 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:49395 "EHLO
-        brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-        id <S131418AbQKYSTf>; Sat, 25 Nov 2000 13:19:35 -0500
-Date: Sat, 25 Nov 2000 15:49:25 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Roger Larsson <roger.larsson@norran.net>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Nigel Gamble <nigel@nrg.org>
-Subject: Re: *_trylock return on success?
-In-Reply-To: <00112516072500.01122@dox>
-Message-ID: <Pine.LNX.4.21.0011251547210.8818-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+        id <S129648AbQKYSoa>; Sat, 25 Nov 2000 13:44:30 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:56590 "EHLO
+        vger.timpanogas.org") by vger.kernel.org with ESMTP
+        id <S129770AbQKYSoQ>; Sat, 25 Nov 2000 13:44:16 -0500
+Date: Sat, 25 Nov 2000 12:10:49 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: J Sloan <jjs@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: setting up pppd dial-in on linux
+Message-ID: <20001125121049.A29510@vger.timpanogas.org>
+In-Reply-To: <20001125003600.A28207@vger.timpanogas.org> <3A1F6EB6.A5E47686@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <3A1F6EB6.A5E47686@pobox.com>; from jjs@pobox.com on Fri, Nov 24, 2000 at 11:48:06PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 25 Nov 2000, Roger Larsson wrote:
+On Fri, Nov 24, 2000 at 11:48:06PM -0800, J Sloan wrote:
+> "Jeff V. Merkey" wrote:
+> 
+> > Anyone out there a whiz at setting up a pppd dialin server?  I am
+> > trying to put together an RPM for pppd dialin configurations
+> > that will support default Windows NT and Linux dial in clients
+> > without requiring the poor user to learn bash scripting, chat
+> > scripting, mgetty and inittab configuration, etc.  The steps
+> > in setting this up are about as easy as going on a U.N. relief
+> > mission to equatorial Africa, and most customers who are
+> > "mere mortals" would give up about an hour into it.
+> 
+> Red Hat's ppp client setup is about a 90 second job
 
-> Questions:
->   What are _trylocks supposed to return?
+I am using theirs as a base.   Setup's not the issue.  It's the 
+chap MD5 authentication for NT clients and the constant 
+crashing that's troublesome.  I have it working, just not
+with NT clients.
 
-It depends on the type of _trylock  ;(
+> 
+> > I am seeing massive problems with pppd dial-in and IP/IPX
+> > routing with problems that range from constant Oops, to
+> > the bug infested pppd daemon failing valid MD5 chap
+> > authentication.  The HOW-TO's and man pages provide
+> > wonderful commentary on all the things about pppd
+> > that don't work, but it's not too helpful on getting
+> > it to work reliably.  An NT dial-in server takes about
+> > 5 minutes to configure on W2K.  Linux takes about 2 days, and
+> > won't stay up reliably.
+> 
+> hmm, an awful lot of ISPs use Linux dialup servers...
+> 
+> I set up a linux ppp server back in 1996 - things might have
+> changed, but it seemed fairly straightforward at the time -
+> 
+> can't imagine it's gotten worse since then...
+> 
+> > Who out there is an expert on Linux pppd that would like
+> > to help put together some easy configs for standard
+> > dial-in scenarios?
+> 
+> Crunch time for me right now, finals coming right up...
 
->   Does spin_trylock and down_trylock behave differently?
->   Why isn't the expected return value documented?
+Thank's anyway.  I'll keep working on the bugs.
 
-The whole trylock stuff is, IMHO, a big mess. When you
-change from one type of trylock to another, you may be
-forced to invert the logic of your code since the return
-code from the different locks is different.
+:-)
 
-For bitflags, for example, the trylock returns the state
-the bit had before the lock (ie. 1 if the thing was already
-locked).
+Jeff
 
-For spinlocks, it'll probably return something else ;/
-
-regards,
-
-Rik
---
-Hollywood goes for world dumbination,
-	Trailer at 11.
-
-http://www.conectiva.com/		http://www.surriel.com/
-
+> 
+> I'll bet there's quite a few ISP-savvy admins who could
+> lend a hand though -
+> 
+> jjs
+> 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,65 +1,191 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275305AbTHGNMc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 09:12:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275310AbTHGNMc
+	id S275340AbTHGNYj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 09:24:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275342AbTHGNYj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 09:12:32 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:14350 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S275305AbTHGNMa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 09:12:30 -0400
-Date: Thu, 7 Aug 2003 14:12:27 +0100
-From: Russell King <rmk@arm.linux.org.uk>
+	Thu, 7 Aug 2003 09:24:39 -0400
+Received: from pwmail.portoweb.com.br ([200.248.222.108]:16533 "EHLO
+	portoweb.com.br") by vger.kernel.org with ESMTP id S275340AbTHGNYd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 09:24:33 -0400
+Date: Thu, 7 Aug 2003 10:27:03 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@logos.cnet
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Pavel Roskin <proski@gnu.org>, Tim Small <tim@buttersideup.com>,
-       linux-pcmcia@lists.infradead.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: TI yenta-alikes (was: ToPIC specific init for yenta_socket)
-Message-ID: <20030807141227.B25908@flint.arm.linux.org.uk>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Pavel Roskin <proski@gnu.org>, Tim Small <tim@buttersideup.com>,
-	linux-pcmcia@lists.infradead.org,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200308062025.08861.daniel.ritz@gmx.ch> <20030806194430.D16116@flint.arm.linux.org.uk> <Pine.LNX.4.56.0308061452310.3849@marabou.research.att.com> <20030806203217.F16116@flint.arm.linux.org.uk> <Pine.LNX.4.56.0308061554480.4178@marabou.research.att.com> <3F317FD7.6020209@buttersideup.com> <Pine.LNX.4.56.0308062301550.1995@marabou.research.att.com> <20030807100211.A17690@flint.arm.linux.org.uk> <1060258695.3123.36.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1060258695.3123.36.camel@dhcp22.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Thu, Aug 07, 2003 at 01:18:15PM +0100
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+cc: Mitch@0Bits.COM, Erik Andersen <andersen@codepoet.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, <hch@lst.de>
+Subject: Re: Linux 2.4.22-pre10-ac1 DRI doesn't work with
+In-Reply-To: <1060256649.3169.20.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0308071023040.6818-200000@logos.cnet>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-425860263-1060262816=:6818"
+Content-ID: <Pine.LNX.4.44.0308071027000.6818@logos.cnet>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 07, 2003 at 01:18:15PM +0100, Alan Cox wrote:
-> On Iau, 2003-08-07 at 10:02, Russell King wrote:
-> > doing is *wrong*.  The only people who know whether the pin has been
-> > wired for INTA or IRQ3 are the _designers_ of the hardware, not the
-> > Linux kernel.
-> 
-> That assumes the yenta controller isnt hotplugged.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Even if it is hot plugged, the _kernel_ doesn't have the hardware
-design information to make the correct decision about the value to
-program into that register.
+--8323328-425860263-1060262816=:6818
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.44.0308071027001.6818@logos.cnet>
 
-However, luckily, some devices load the IRQMUX register from an
-EEPROM, so it should be correctly setup.
 
-> > Currently, the Linux kernel assumes a "greater than designers" approach
-> > to fiddling with the registers which control the function of these pins,
-> > and so far I've seen:
+
+On 7 Aug 2003, Alan Cox wrote:
+
+> On Mer, 2003-08-06 at 15:38, Mitch@0Bits.COM wrote:
+> > I think with the new vmap changes that went in in -pre7 means
+> > you will need to get a new drm module (like from X cvs or
+> > http://dri.sourceforge.net/downloads.phtml) and recompile it
+> > with the new kernel headers which will then pick up the define
+> > -DVMAP_4_ARGS in the Makefile and give you a good module that works.
 > > 
-> > - changing the mode from serial PCI interrupts to parallel PCI interrupts
-> >   causes the machine to lock hard (since some cardbus controllers use the
-> >   same physical pins for both functions.)
+> > The DRI kernel trees need updating.
 > 
-> Basically we got burned by changing the IRQMUX register rather than just
-> using it as an information source.
+> That doesn't seem a 2.4.22 candidate thing to me. If vmap broke the DRI
+> then the vmap patch wants reverting for 2.4.22 IMHO, and looking at for
+> 2.4.23.
 
-Different register - that was the device control register...
+I dont understand how the vmap change can break DRM. 
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+The vmap patch only changes internal mm/vmalloc.c code (vmalloc() call
+acts exactly the same way as before AFAICS).
 
+Anyway, Mitch (or Erik who's seeing the problem), can please revert the
+vmap() change to check if its causing the mentioned problem? 
+
+The patch is attached. Apply it with -R.
+
+--8323328-425860263-1060262816=:6818
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="vmap-backport.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0308071026560.6818@logos.cnet>
+Content-Description: 
+Content-Disposition: ATTACHMENT; FILENAME="vmap-backport.patch"
+
+IyBUaGlzIGlzIGEgQml0S2VlcGVyIGdlbmVyYXRlZCBwYXRjaCBmb3IgdGhl
+IGZvbGxvd2luZyBwcm9qZWN0Og0KIyBQcm9qZWN0IE5hbWU6IExpbnV4IGtl
+cm5lbCB0cmVlDQojIFRoaXMgcGF0Y2ggZm9ybWF0IGlzIGludGVuZGVkIGZv
+ciBHTlUgcGF0Y2ggY29tbWFuZCB2ZXJzaW9uIDIuNSBvciBoaWdoZXIuDQoj
+IFRoaXMgcGF0Y2ggaW5jbHVkZXMgdGhlIGZvbGxvd2luZyBkZWx0YXM6DQoj
+CSAgICAgICAgICAgQ2hhbmdlU2V0CTEuMTAxNi4xLjIgLT4gMS4xMDE2LjEu
+Mw0KIwkgICAgICBrZXJuZWwva3N5bXMuYwkxLjc3ICAgIC0+IDEuNzggICAN
+CiMJICAgICAgICBtbS92bWFsbG9jLmMJMS4xNSAgICAtPiAxLjE2ICAgDQoj
+CWluY2x1ZGUvbGludXgvdm1hbGxvYy5oCTEuMiAgICAgLT4gMS4zICAgIA0K
+Iw0KIyBUaGUgZm9sbG93aW5nIGlzIHRoZSBCaXRLZWVwZXIgQ2hhbmdlU2V0
+IExvZw0KIyAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLQ0KIyAwMy8wNy8xOAloY2hAbHN0LmRlCTEuMTAxNi4xLjMNCiMg
+W1BBVENIXSB2bWFwKCkgYmFja3BvcnQNCiMgDQojIEhpIE1hcmNlbG8sDQoj
+IA0KIyB0aGlzIHBhdGNoIGJhY2twb3J0cyB2bWFwKCkgZnJvbSAyLjUuICB2
+bWFwKCkgaXMgbmVlZGVkIGZvcg0KIyANCiMgIC0gWEZTDQojICAtIHByb3Bl
+ciBBR1Agc3VwcG9ydCBvbiBpYTY0IGFuZCBwcGMNCiMgKC0gbGF0ZXN0IEFM
+U0Egc2VlbXMgdG8gaGF2ZSBzb21lIHVzZSBmb3IgaW4gb24gMi41KQ0KIyAN
+CiMgdGhlIDIuNCBpbXBsZW1lbnRhdGlvbiBpcyBub3QgYXMgc291bmQgYXMg
+dGhlIDIuNSBvbmUgYnV0IGZhciBsZXNzDQojIGludHJ1c2l2ZS4gIEl0IGhh
+cyBiZWVuIHRlc3RlZCBmb3IgbW9yZSB0aGFuIGEgeWVhciBpbiB0aGUgWEZT
+IHRyZWUNCiMgYW5kIC1hYSBhbmQgaW4gLWFjIGZvciBhIHdoaWxlLg0KIyAt
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQ0K
+Iw0KZGlmZiAtTnJ1IGEvaW5jbHVkZS9saW51eC92bWFsbG9jLmggYi9pbmNs
+dWRlL2xpbnV4L3ZtYWxsb2MuaA0KLS0tIGEvaW5jbHVkZS9saW51eC92bWFs
+bG9jLmgJVGh1IEF1ZyAgNyAxMDoyMTozNSAyMDAzDQorKysgYi9pbmNsdWRl
+L2xpbnV4L3ZtYWxsb2MuaAlUaHUgQXVnICA3IDEwOjIxOjM1IDIwMDMNCkBA
+IC0yMSw2ICsyMSw5IEBADQogDQogZXh0ZXJuIHN0cnVjdCB2bV9zdHJ1Y3Qg
+KiBnZXRfdm1fYXJlYSAodW5zaWduZWQgbG9uZyBzaXplLCB1bnNpZ25lZCBs
+b25nIGZsYWdzKTsNCiBleHRlcm4gdm9pZCB2ZnJlZSh2b2lkICogYWRkcik7
+DQorI2RlZmluZSB2dW5tYXAoYWRkcikJdmZyZWUoYWRkcikNCitleHRlcm4g
+dm9pZCAqIHZtYXAoc3RydWN0IHBhZ2UgKipwYWdlcywgaW50IGNvdW50LA0K
+KwkJICAgdW5zaWduZWQgbG9uZyBmbGFncywgcGdwcm90X3QgcHJvdCk7DQog
+ZXh0ZXJuIHZvaWQgKiBfX3ZtYWxsb2MgKHVuc2lnbmVkIGxvbmcgc2l6ZSwg
+aW50IGdmcF9tYXNrLCBwZ3Byb3RfdCBwcm90KTsNCiBleHRlcm4gbG9uZyB2
+cmVhZChjaGFyICpidWYsIGNoYXIgKmFkZHIsIHVuc2lnbmVkIGxvbmcgY291
+bnQpOw0KIGV4dGVybiB2b2lkIHZtZnJlZV9hcmVhX3BhZ2VzKHVuc2lnbmVk
+IGxvbmcgYWRkcmVzcywgdW5zaWduZWQgbG9uZyBzaXplKTsNCmRpZmYgLU5y
+dSBhL2tlcm5lbC9rc3ltcy5jIGIva2VybmVsL2tzeW1zLmMNCi0tLSBhL2tl
+cm5lbC9rc3ltcy5jCVRodSBBdWcgIDcgMTA6MjE6MzUgMjAwMw0KKysrIGIv
+a2VybmVsL2tzeW1zLmMJVGh1IEF1ZyAgNyAxMDoyMTozNSAyMDAzDQpAQCAt
+MTEyLDYgKzExMiw3IEBADQogRVhQT1JUX1NZTUJPTChrZnJlZSk7DQogRVhQ
+T1JUX1NZTUJPTCh2ZnJlZSk7DQogRVhQT1JUX1NZTUJPTChfX3ZtYWxsb2Mp
+Ow0KK0VYUE9SVF9TWU1CT0wodm1hcCk7DQogRVhQT1JUX1NZTUJPTCh2bWFs
+bG9jX3RvX3BhZ2UpOw0KIEVYUE9SVF9TWU1CT0wobWVtX21hcCk7DQogRVhQ
+T1JUX1NZTUJPTChyZW1hcF9wYWdlX3JhbmdlKTsNCmRpZmYgLU5ydSBhL21t
+L3ZtYWxsb2MuYyBiL21tL3ZtYWxsb2MuYw0KLS0tIGEvbW0vdm1hbGxvYy5j
+CVRodSBBdWcgIDcgMTA6MjE6MzUgMjAwMw0KKysrIGIvbW0vdm1hbGxvYy5j
+CVRodSBBdWcgIDcgMTA6MjE6MzUgMjAwMw0KQEAgLTkzLDcgKzkzLDggQEAN
+CiB9DQogDQogc3RhdGljIGlubGluZSBpbnQgYWxsb2NfYXJlYV9wdGUgKHB0
+ZV90ICogcHRlLCB1bnNpZ25lZCBsb25nIGFkZHJlc3MsDQotCQkJdW5zaWdu
+ZWQgbG9uZyBzaXplLCBpbnQgZ2ZwX21hc2ssIHBncHJvdF90IHByb3QpDQor
+CQkJdW5zaWduZWQgbG9uZyBzaXplLCBpbnQgZ2ZwX21hc2ssDQorCQkJcGdw
+cm90X3QgcHJvdCwgc3RydWN0IHBhZ2UgKioqcGFnZXMpDQogew0KIAl1bnNp
+Z25lZCBsb25nIGVuZDsNCiANCkBAIC0xMDMsOSArMTA0LDIwIEBADQogCQll
+bmQgPSBQTURfU0laRTsNCiAJZG8gew0KIAkJc3RydWN0IHBhZ2UgKiBwYWdl
+Ow0KLQkJc3Bpbl91bmxvY2soJmluaXRfbW0ucGFnZV90YWJsZV9sb2NrKTsN
+Ci0JCXBhZ2UgPSBhbGxvY19wYWdlKGdmcF9tYXNrKTsNCi0JCXNwaW5fbG9j
+aygmaW5pdF9tbS5wYWdlX3RhYmxlX2xvY2spOw0KKw0KKwkJaWYgKCFwYWdl
+cykgew0KKwkJCXNwaW5fdW5sb2NrKCZpbml0X21tLnBhZ2VfdGFibGVfbG9j
+ayk7DQorCQkJcGFnZSA9IGFsbG9jX3BhZ2UoZ2ZwX21hc2spOw0KKwkJCXNw
+aW5fbG9jaygmaW5pdF9tbS5wYWdlX3RhYmxlX2xvY2spOw0KKwkJfSBlbHNl
+IHsNCisJCQlwYWdlID0gKCoqcGFnZXMpOw0KKwkJCSgqcGFnZXMpKys7DQor
+DQorCQkJLyogQWRkIGEgcmVmZXJlbmNlIHRvIHRoZSBwYWdlIHNvIHdlIGNh
+biBmcmVlIGxhdGVyICovDQorCQkJaWYgKHBhZ2UpDQorCQkJCWF0b21pY19p
+bmMoJnBhZ2UtPmNvdW50KTsNCisNCisJCX0NCiAJCWlmICghcHRlX25vbmUo
+KnB0ZSkpDQogCQkJcHJpbnRrKEtFUk5fRVJSICJhbGxvY19hcmVhX3B0ZTog
+cGFnZSBhbHJlYWR5IGV4aXN0c1xuIik7DQogCQlpZiAoIXBhZ2UpDQpAQCAt
+MTE3LDcgKzEyOSw5IEBADQogCXJldHVybiAwOw0KIH0NCiANCi1zdGF0aWMg
+aW5saW5lIGludCBhbGxvY19hcmVhX3BtZChwbWRfdCAqIHBtZCwgdW5zaWdu
+ZWQgbG9uZyBhZGRyZXNzLCB1bnNpZ25lZCBsb25nIHNpemUsIGludCBnZnBf
+bWFzaywgcGdwcm90X3QgcHJvdCkNCitzdGF0aWMgaW5saW5lIGludCBhbGxv
+Y19hcmVhX3BtZChwbWRfdCAqIHBtZCwgdW5zaWduZWQgbG9uZyBhZGRyZXNz
+LA0KKwkJCXVuc2lnbmVkIGxvbmcgc2l6ZSwgaW50IGdmcF9tYXNrLA0KKwkJ
+CXBncHJvdF90IHByb3QsIHN0cnVjdCBwYWdlICoqKnBhZ2VzKQ0KIHsNCiAJ
+dW5zaWduZWQgbG9uZyBlbmQ7DQogDQpAQCAtMTI5LDcgKzE0Myw4IEBADQog
+CQlwdGVfdCAqIHB0ZSA9IHB0ZV9hbGxvYygmaW5pdF9tbSwgcG1kLCBhZGRy
+ZXNzKTsNCiAJCWlmICghcHRlKQ0KIAkJCXJldHVybiAtRU5PTUVNOw0KLQkJ
+aWYgKGFsbG9jX2FyZWFfcHRlKHB0ZSwgYWRkcmVzcywgZW5kIC0gYWRkcmVz
+cywgZ2ZwX21hc2ssIHByb3QpKQ0KKwkJaWYgKGFsbG9jX2FyZWFfcHRlKHB0
+ZSwgYWRkcmVzcywgZW5kIC0gYWRkcmVzcywNCisJCQkJCWdmcF9tYXNrLCBw
+cm90LCBwYWdlcykpDQogCQkJcmV0dXJuIC1FTk9NRU07DQogCQlhZGRyZXNz
+ID0gKGFkZHJlc3MgKyBQTURfU0laRSkgJiBQTURfTUFTSzsNCiAJCXBtZCsr
+Ow0KQEAgLTEzNyw4ICsxNTIsMTEgQEANCiAJcmV0dXJuIDA7DQogfQ0KIA0K
+LWlubGluZSBpbnQgdm1hbGxvY19hcmVhX3BhZ2VzICh1bnNpZ25lZCBsb25n
+IGFkZHJlc3MsIHVuc2lnbmVkIGxvbmcgc2l6ZSwNCi0gICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgaW50IGdmcF9tYXNrLCBwZ3Byb3RfdCBwcm90
+KQ0KK3N0YXRpYyBpbmxpbmUgaW50IF9fdm1hbGxvY19hcmVhX3BhZ2VzICh1
+bnNpZ25lZCBsb25nIGFkZHJlc3MsDQorCQkJCQl1bnNpZ25lZCBsb25nIHNp
+emUsDQorCQkJCQlpbnQgZ2ZwX21hc2ssDQorCQkJCQlwZ3Byb3RfdCBwcm90
+LA0KKwkJCQkJc3RydWN0IHBhZ2UgKioqcGFnZXMpDQogew0KIAlwZ2RfdCAq
+IGRpcjsNCiAJdW5zaWduZWQgbG9uZyBlbmQgPSBhZGRyZXNzICsgc2l6ZTsN
+CkBAIC0xNTUsNyArMTczLDcgQEANCiAJCQlicmVhazsNCiANCiAJCXJldCA9
+IC1FTk9NRU07DQotCQlpZiAoYWxsb2NfYXJlYV9wbWQocG1kLCBhZGRyZXNz
+LCBlbmQgLSBhZGRyZXNzLCBnZnBfbWFzaywgcHJvdCkpDQorCQlpZiAoYWxs
+b2NfYXJlYV9wbWQocG1kLCBhZGRyZXNzLCBlbmQgLSBhZGRyZXNzLCBnZnBf
+bWFzaywgcHJvdCwgcGFnZXMpKQ0KIAkJCWJyZWFrOw0KIA0KIAkJYWRkcmVz
+cyA9IChhZGRyZXNzICsgUEdESVJfU0laRSkgJiBQR0RJUl9NQVNLOw0KQEAg
+LTE2OCw2ICsxODYsMTIgQEANCiAJcmV0dXJuIHJldDsNCiB9DQogDQoraW50
+IHZtYWxsb2NfYXJlYV9wYWdlcyh1bnNpZ25lZCBsb25nIGFkZHJlc3MsIHVu
+c2lnbmVkIGxvbmcgc2l6ZSwNCisJCSAgICAgICBpbnQgZ2ZwX21hc2ssIHBn
+cHJvdF90IHByb3QpDQorew0KKwlyZXR1cm4gX192bWFsbG9jX2FyZWFfcGFn
+ZXMoYWRkcmVzcywgc2l6ZSwgZ2ZwX21hc2ssIHByb3QsIE5VTEwpOw0KK30N
+CisNCiBzdHJ1Y3Qgdm1fc3RydWN0ICogZ2V0X3ZtX2FyZWEodW5zaWduZWQg
+bG9uZyBzaXplLCB1bnNpZ25lZCBsb25nIGZsYWdzKQ0KIHsNCiAJdW5zaWdu
+ZWQgbG9uZyBhZGRyLCBuZXh0Ow0KQEAgLTI0Niw3ICsyNzAsMzAgQEANCiAJ
+aWYgKCFhcmVhKQ0KIAkJcmV0dXJuIE5VTEw7DQogCWFkZHIgPSBhcmVhLT5h
+ZGRyOw0KLQlpZiAodm1hbGxvY19hcmVhX3BhZ2VzKFZNQUxMT0NfVk1BRERS
+KGFkZHIpLCBzaXplLCBnZnBfbWFzaywgcHJvdCkpIHsNCisJaWYgKF9fdm1h
+bGxvY19hcmVhX3BhZ2VzKFZNQUxMT0NfVk1BRERSKGFkZHIpLCBzaXplLCBn
+ZnBfbWFzaywNCisJCQkJIHByb3QsIE5VTEwpKSB7DQorCQl2ZnJlZShhZGRy
+KTsNCisJCXJldHVybiBOVUxMOw0KKwl9DQorCXJldHVybiBhZGRyOw0KK30N
+CisNCit2b2lkICogdm1hcChzdHJ1Y3QgcGFnZSAqKnBhZ2VzLCBpbnQgY291
+bnQsDQorCSAgICB1bnNpZ25lZCBsb25nIGZsYWdzLCBwZ3Byb3RfdCBwcm90
+KQ0KK3sNCisJdm9pZCAqIGFkZHI7DQorCXN0cnVjdCB2bV9zdHJ1Y3QgKmFy
+ZWE7DQorCXVuc2lnbmVkIGxvbmcgc2l6ZSA9IGNvdW50IDw8IFBBR0VfU0hJ
+RlQ7DQorDQorCWlmICghc2l6ZSB8fCBzaXplID4gKG1heF9tYXBuciA8PCBQ
+QUdFX1NISUZUKSkNCisJCXJldHVybiBOVUxMOw0KKwlhcmVhID0gZ2V0X3Zt
+X2FyZWEoc2l6ZSwgZmxhZ3MpOw0KKwlpZiAoIWFyZWEpIHsNCisJCXJldHVy
+biBOVUxMOw0KKwl9DQorCWFkZHIgPSBhcmVhLT5hZGRyOw0KKwlpZiAoX192
+bWFsbG9jX2FyZWFfcGFnZXMoVk1BTExPQ19WTUFERFIoYWRkciksIHNpemUs
+IDAsDQorCQkJCSBwcm90LCAmcGFnZXMpKSB7DQogCQl2ZnJlZShhZGRyKTsN
+CiAJCXJldHVybiBOVUxMOw0KIAl9DQo=
+--8323328-425860263-1060262816=:6818--

@@ -1,48 +1,114 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278911AbRJ2A3u>; Sun, 28 Oct 2001 19:29:50 -0500
+	id <S278924AbRJ2ArP>; Sun, 28 Oct 2001 19:47:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278913AbRJ2A3k>; Sun, 28 Oct 2001 19:29:40 -0500
-Received: from shed.alex.org.uk ([195.224.53.219]:9357 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S278911AbRJ2A3W>;
-	Sun, 28 Oct 2001 19:29:22 -0500
-Date: Mon, 29 Oct 2001 00:29:53 -0000
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: linux-kernel@vger.kernel.org
-Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: IBM T-23 crashes on resume from suspend, 2.4.12-ac5
-Message-ID: <34228322.1004315393@[195.224.237.69]>
-X-Mailer: Mulberry/2.1.0 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S278926AbRJ2ArF>; Sun, 28 Oct 2001 19:47:05 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:9792 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S278924AbRJ2Aqr>; Sun, 28 Oct 2001 19:46:47 -0500
+Date: Mon, 29 Oct 2001 01:47:15 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: rwhron@earthlink.net
+Cc: linux-kernel@vger.kernel.org, ltp-list@lists.sourceforge.net
+Subject: Re: VM test on 2.4.14pre3aa2 (compared to 2.4.14pre3aa1)
+Message-ID: <20011029014715.J1396@athlon.random>
+In-Reply-To: <20011028120721.A286@earthlink.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20011028120721.A286@earthlink.net>; from rwhron@earthlink.net on Sun, Oct 28, 2001 at 12:07:21PM -0500
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When I suspend (apm -s, or system driven suspend), it appears to
-work. When I resume, the screen comes back, but the system
-appears to be dead to the extent that interrupts are disabled
-(i.e. caps lock key has no effect, SysReq+anything does nothing).
+On Sun, Oct 28, 2001 at 12:07:21PM -0500, rwhron@earthlink.net wrote:
+> 
+> Summary:	2.4.14pre3aa2 gave oom errors not seen in 2.4.14pre3aa1.
+> 
+> Test:	Usual scripts to execute mtest01 and mmap001.  
+> 	Listen to long mp3 with mp3blaster.
+> 
+> mtest01 -p 80 -w
+> ================
+> 
+> 2.4.14pre3aa1
+> 
+> Averages for 10 mtest01 runs
+> bytes allocated:                    1246232576
+> User time (seconds):                2.105
+> System time (seconds):              2.773
+> Elapsed (wall clock) time:          59.503
+> Percent of CPU this job got:        7.80
+> Major (requiring I/O) page faults:  132.8
+> Minor (reclaiming a frame) faults:  305043.1
+> 
+> 2.4.14pre3aa2
+> 
+> Averages for 10 mtest01 runs
+> bytes allocated:                    1254201753
+> User time (seconds):                2.211
+> System time (seconds):              2.794
+> Elapsed (wall clock) time:          65.176
+> Percent of CPU this job got:        7.20
+> Major (requiring I/O) page faults:  129.7
+> Minor (reclaiming a frame) faults:  306988.9
 
-Although I'm running X, I'm doing this bit from a normal virtual
-console to make things simple.
+I'm looking into optimizing this test. While it probably doesn't affect
+the above numbers given the bytes allocated are quite similar, the
+benchmark is not reliable, if you want to use it as benchmark you should
+apply this patch first to make sure to compare apples to apples (not to
+oranges). For example, without those fixes it allocates only 20mbytese
+of ram here so it cannot swapout despite I use -p 80, because it
+considers only the freeswap and freememory but on any real load all the
+free memory will be allocated in cache most of the time.
 
-I have tried various configuration options, including enabling
-and disabling ACPI, Plug & Play, and setting APM to call the
-BIOS with interrupts either enabled (seems to be recommended
-for 'later IBM laptops' or disabled). And indeed disabling
-APM support totally (I think I got it to work, once, using
-this, but couldn't repeat it).
+the bench in short measure how fast we can push stuff to disk (just the
+swapout, no the swapins).
 
-Any ideas?
+Index: mtest01.c
+===================================================================
+RCS file: /cvsroot/ltp/ltp/testcases/kernel/mem/mtest01/mtest01.c,v
+retrieving revision 1.1
+diff -u -r1.1 mtest01.c
+--- mtest01.c	2001/08/27 22:15:12	1.1
++++ mtest01.c	2001/10/29 00:32:08
+@@ -69,24 +69,9 @@
+   }
+ 
+   if(maxpercent) {
+-    unsigned long int D, C;
+     sysinfo(&sstats);
+-    maxbytes = ((float)maxpercent/100)*(sstats.totalram+sstats.totalswap) - ((sstats.totalram+sstats.totalswap)-(sstats.freeram+sstats.freeswap));
+-    /* Total memory needed to reach maxpercent */
+-    D = ((float)maxpercent/100)*(sstats.totalram+sstats.totalswap);
+-
+-    /* Total memory already used */
+-    C = (sstats.totalram+sstats.totalswap)-(sstats.freeram+sstats.freeswap);
+-
+-    /* Are we already using more than maxpercent? */
+-    if(C>D) {
+-      printf("More memory than the maximum amount you specified is already being used\n");
+-      exit(1);
+-    }
+-
+-    /* set maxbytes to the extra amount we want to allocate */
+-    maxbytes = D-C;
+-    printf("Filling up %d%%  of ram which is %lud bytes\n",maxpercent,maxbytes);
++    maxbytes = ((float)maxpercent/100)*(sstats.totalram+sstats.totalswap);
++    printf("Filling up %d of ram which is %lu bytes\n",maxpercent,maxbytes);
+   }
+ 
+   bytecount=chunksize;
 
-.config file (one iteration thereof) can be found at:
-  http://www.alex.org.uk/T23/dot-config-2.4.12-ac5
 
-lspci output can be found at:
-  http://www.alex.org.uk/T23/lspci.txt
+For the mmap001 failures, they're due the max_mapped logic (the one that
+was supposed to improve the swapout), I break the loop but I don't
+consider I didn't scanned all the nr_inactive/vm_scan_ratio. they
+triggers only with mmap001 because with mmap001 the lru gets filled by
+mapped pages.
 
---
-Alex Bligh
+thanks for the feedback,
+
+Andrea

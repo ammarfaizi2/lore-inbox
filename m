@@ -1,64 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262953AbTDQEtK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 00:49:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262977AbTDQEtK
+	id S263052AbTDQFBt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 01:01:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263055AbTDQFBt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 00:49:10 -0400
-Received: from dnvrdslgw14poolC198.dnvr.uswest.net ([63.228.86.198]:33117 "EHLO
-	q.dyndns.org") by vger.kernel.org with ESMTP id S262953AbTDQEtJ
+	Thu, 17 Apr 2003 01:01:49 -0400
+Received: from webhosting.rdsbv.ro ([213.157.185.164]:39094 "EHLO
+	hosting.rdsbv.ro") by vger.kernel.org with ESMTP id S263052AbTDQFBq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 00:49:09 -0400
-Date: Wed, 16 Apr 2003 23:01:06 -0600 (MDT)
-From: Benson Chow <blc@q.dyndns.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ac97, alc101+kt8235 sound
-In-Reply-To: <1050424108.27745.77.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0304162257080.6238-100000@q.dyndns.org>
+	Thu, 17 Apr 2003 01:01:46 -0400
+Date: Thu, 17 Apr 2003 08:13:26 +0300 (EEST)
+From: Catalin BOIE <util@deuroconsult.ro>
+To: jamal <hadi@cyberus.ca>
+cc: Catalin BOIE <util@deuroconsult.ro>, Tomas Szepe <szepe@pinerecords.com>,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       manfred@colorfullife.com, kuznet@ms2.inr.ac.ru
+Subject: Re: [PATCH] qdisc oops fix
+In-Reply-To: <20030416072952.E4013@shell.cyberus.ca>
+Message-ID: <Pine.LNX.4.53.0304170801460.23586@hosting.rdsbv.ro>
+References: <20030415084706.O1131@shell.cyberus.ca>
+ <Pine.LNX.4.53.0304160838001.25861@hosting.rdsbv.ro> <20030416072952.E4013@shell.cyberus.ca>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You're right, it's not necessary.
+Hi!
 
-It just reports as 'Unknown' but works same as with the patch.
+> This is a different problem from previous one posted.
+Same oops in slab.c:1128. Why do you think is different.
 
-After some more testing, it plays fine, mixer works mostly, minus the
-issue with recording.  Attempting to record seems to inject 60 cycle hum
-into the system and recorded output either bombs out or is just the hum -
-no line-in signal is recorded.  Looks like the realtek alc101 has some
-quirks...
-
--bc
-
-On 15 Apr 2003, Alan Cox wrote:
-
-> Date: 15 Apr 2003 17:28:29 +0100
-> From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-> To: Benson Chow <blc@q.dyndns.org>
-> Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-> Subject: Re: ac97, alc101+kt8235 sound
+> Theres a small window (exposed given that you are provisioning a lot
+> of qdiscs  and running traffic at the same time) that an incoming packet
+> interupt will cause the BUG().
 >
-> On Maw, 2003-04-15 at 18:09, Benson Chow wrote:
-> > What's the normal flow to get this added into ac97_codecs.c?
+> GFP_ATOMIC will fix it, but i wonder if it appropriate.
+>
+> Alexey or Manfred?
+>
+> cheers,
+> jamal
+>
+> PS:- 15mbits is not a lot of traffic ;->
+Yes, I know. I was comparing 15mbit with almost no traffic on the machine
+running same qdiscs/filters/classes... :)
+
+>
+> On Wed, 16 Apr 2003, Catalin BOIE wrote:
+>
+> > > -       sch = kmalloc(size, GFP_KERNEL);
+> > > +       sch = kmalloc(size, GFP_ATOMIC);
+> > >
+> > > mysteriously fixes the problem? Could the problem be elsewhere?
+> > > Can you repost what the issue was? I am not on lk and i just saw the
+> > > posting on a web page.
 > >
-> > +        {0x414C4730, "ALC101",             &null_ops},
+> > With many rules (~5000 classes and ~3500 qdiscs and ~50000 filters)
+> > the kernel oopses in slab.c:1128.
+> > It happens on high rates (~15mbit).
+> > On low rates, doesn't.
 > >
-> > Adding this line into the table in ac97_codecs.c (with a few missing
-> > #defines fixed... then I noticed they're already in -ac1 :) in
-> > 2.4.21-pre7 made sound work fine.
->
-> This really shouldnt make any difference. Does it work without that
-> patch as well ?
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> > Seems that an interrupt come and broke the memory allocation.
+> >
+> >
+> > >>EIP; c0127ab4 <kmem_cache_grow+44/1d8>   <=====
+> >
+> > >>EAX; ffffffff <END_OF_CODE+3fd31247/????>
+> > >>EBX; c12c52c0 <END_OF_CODE+ff6508/????>
+> > >>EDI; c12c52c0 <END_OF_CODE+ff6508/????>
+> > >>ESP; ceab1c60 <END_OF_CODE+e7e2ea8/????>
+> >
+> > Trace; c0127e0f <kmalloc+eb/110>
+> > Trace; c01d3cac <qdisc_create_dflt+20/bc>
+> > Trace; d081ecc7 <END_OF_CODE+1054ff0f/????>
+> > Trace; c01d5265 <tc_ctl_tclass+1cd/214>
+> > Trace; d0820600 <END_OF_CODE+10551848/????>
+> > Trace; c01d27e4 <rtnetlink_rcv+298/3bc>
+> > Trace; c01d0605 <__neigh_event_send+89/1b4>
+> > Trace; c01d7cd4 <netlink_data_ready+1c/60>
+> > Trace; c01d7730 <netlink_unicast+230/278>
+> > Trace; c01d7b73 <netlink_sendmsg+1fb/20c>
+> > Trace; c01c79d5 <sock_sendmsg+69/88>
+> > Trace; c01c8b48 <sys_sendmsg+18c/1e8>
+> > Trace; c0120010 <map_user_kiobuf+8/f8>
+> >
+> >
 >
 
-WARNING: All HTML emails get deleted.  DO NOT SEND HTML MAIL.
-
+---
+Catalin(ux) BOIE
+catab@deuroconsult.ro

@@ -1,56 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267235AbUBMXsd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 18:48:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267247AbUBMXrr
+	id S267242AbUBMXri (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 18:47:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267239AbUBMXqM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 18:47:47 -0500
-Received: from fw.osdl.org ([65.172.181.6]:34267 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267235AbUBMXq3 (ORCPT
+	Fri, 13 Feb 2004 18:46:12 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.51]:12431 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S267235AbUBMXp4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 18:46:29 -0500
-Date: Fri, 13 Feb 2004 15:48:15 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Daniel McNeil <daniel@osdl.org>
-Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.3-rc2-mm1] __block_write_full patch
-Message-Id: <20040213154815.42e74cb5.akpm@osdl.org>
-In-Reply-To: <1076715039.1956.104.camel@ibm-c.pdx.osdl.net>
-References: <20040212015710.3b0dee67.akpm@osdl.org>
-	<1076707830.1956.46.camel@ibm-c.pdx.osdl.net>
-	<20040213143836.0a5fdabb.akpm@osdl.org>
-	<1076715039.1956.104.camel@ibm-c.pdx.osdl.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Fri, 13 Feb 2004 18:45:56 -0500
+Date: Sat, 14 Feb 2004 00:45:54 +0100
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel Cross Compiling
+Message-ID: <20040213234554.GA32440@MAIL.13thfloor.at>
+Mail-Followup-To: Andi Kleen <ak@suse.de>,
+	linux-kernel@vger.kernel.org
+References: <20040213205743.GA30245@MAIL.13thfloor.at.suse.lists.linux.kernel> <p73n07my8nn.fsf@verdi.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p73n07my8nn.fsf@verdi.suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel McNeil <daniel@osdl.org> wrote:
->
-> My only concern is that a racing mpage_writepages(WB_SYNC_NONE)
-> with a mpage_write_pages(WB_SYNC_ALL) from a filemap_write_and_wait. 
-> Both could be processing the io_pages list, if the
-> mpage_writepages(WB_SYNC_NONE) moves a page that has locked buffers 
-> back to the dirty_pages list, then when the filemap_write_and_wait()
-> calls filemap_fdatawait, it will not wait for the page moved back
-> to the dirty list.
+On Fri, Feb 13, 2004 at 10:25:00PM +0100, Andi Kleen wrote:
+> Herbert Poetzl <herbert@13thfloor.at> writes:
+> 
+> > 	[ARCH sparc64/sparc]    failed.     failed.
+> > 	[ARCH x86_64/x86_64]    failed.     succeeded.
+> 
+> Your test methology must be broken. 2.4.25rc2 cross compiles 
+> just fine here from i386 to x86_64. 
 
-Yes.  I suspect we simply cannot get this right without insane locking. 
-We're trying to do something here which the writeback code simply does not
-and cannot generally do, namely write and wait upon IO and dirtyings which
-are initiated by other processes.
+okay, here is the promised update, a little later
+as planned, because I discovered that doing 'make dep'
+would be a great idea too (well that isn't necessary
+for 2.6.x so it doesn't change those results), but
+still some archs give troubles ...
 
-The best way to handle *all* this crap is to remove the address_space page
-lists completely and replace all these things with radix tree walks, but I
-never got onto that.  Sad.
+  linux-2.4.25-rc2        config  dep     kernel  modules
 
-Maybe we could implement some form of per-address_space serialisation which
-permts multiple WB_SYNC_NONE writers, but exclusive WB_SYNC_ALL writers. 
-That's basically an rwsem, but we don't want to block WB_SYNC_NONE
-processes if there's a sync in progress.
+  alpha/alpha:            OK      OK      OK      OK
+  hppa/parisc:            OK      OK      FAILED  FAILED
+  hppa64/parisc:          OK      OK      FAILED  FAILED
+  i386/i386:              OK      OK      OK      OK
+  m68k/m68k:              OK      OK      OK      OK
+  mips/mips:              OK      OK      FAILED  FAILED
+  mips64/mips64:          OK      OK      FAILED  FAILED
+  ppc/ppc:                OK      OK      OK      OK
+  ppc64/ppc64:            OK      FAILED  FAILED  OK
+  s390/s390:              OK      OK      OK      OK
+  sparc/sparc:            OK      OK      FAILED  FAILED
+  sparc64/sparc64:        OK      OK      OK      OK
+  x86_64/x86_64:          OK      OK      OK      OK
 
-So WB_SYNC_NONE callers would use down_read_trylock() and WB_SYNC_ALL
-callers would use down_write().   That just fixes all this stuff up.
+but hey, it's better than before ...
 
+you can get all the details, what and why? it fails
+from the logs:
+
+  http://vserver.13thfloor.at/Stuff/Cross/LOGS-2.4.25-rc2/
+
+any help or hints are appreciated, as it would be great
+to get this running ...
+
+TIA,
+Herbert
+
+> -Andi

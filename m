@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284609AbRLETW1>; Wed, 5 Dec 2001 14:22:27 -0500
+	id <S284576AbRLETVG>; Wed, 5 Dec 2001 14:21:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284588AbRLETWR>; Wed, 5 Dec 2001 14:22:17 -0500
-Received: from pc26.tromso2.avidi.online.no ([148.122.16.26]:7182 "EHLO
-	shogun.thule.no") by vger.kernel.org with ESMTP id <S284586AbRLETWF>;
-	Wed, 5 Dec 2001 14:22:05 -0500
-From: "Troels Walsted Hansen" <troels@thule.no>
-To: linux-kernel@vger.kernel.org
-Subject: VIA acknowledges North Bridge bug (AKA Linux Kernel with Athlon optimizations bug)
-Date: Wed, 5 Dec 2001 20:21:57 +0100
-Message-ID: <005b01c17dc2$1c244130$0300000a@samurai>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3311
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S284586AbRLETU5>; Wed, 5 Dec 2001 14:20:57 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:13308
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S284576AbRLETUt>; Wed, 5 Dec 2001 14:20:49 -0500
+Date: Wed, 5 Dec 2001 11:20:41 -0800
+To: Sven Heinicke <sven@research.nj.nec.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: hints at modifying kswapd params in 2.4.16
+Message-ID: <20011205192041.GA9050@mikef-linux.matchmail.com>
+Mail-Followup-To: Sven Heinicke <sven@research.nj.nec.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <15373.13379.382015.406274@abasin.nj.nec.com> <E16BMqa-0003V2-00@the-village.bc.nu> <15374.13775.921872.835210@abasin.nj.nec.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <15374.13775.921872.835210@abasin.nj.nec.com>
+User-Agent: Mutt/1.3.24i
+From: Mike Fedyk <mfedyk@matchmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remember the pci_fixup_via_athlon_bug() (AKA "Athlon bug stomper")
-function which went into kernel 2.4.14 after much discussion?
+On Wed, Dec 05, 2001 at 09:57:19AM -0500, Sven Heinicke wrote:
+> 
+> I'm not sure if I was understood here.  On both Mandrake 8.0 and Red
+> Hat 7.1 I'm running the 2.4.16 kernel with the same .confg file, and
+> built on there respective kernel.  And I'm getting the below different
+> memory usage patterns with the same processes running.  Seems
+> something external to the kernel is causing the differences.
+> 
+> As of this morning, December 5th, the Mandrake systems has run longer
+> then the same kernel ever did on Red Hat.  I say again, with the same
+> kernel source and same .confg file.
+> 
 
-Apparently the mysterious register 55 in the Northbridge controls a
-buggy Memory Write Queue timer. They finally acknowledged the problem
-when Nvidia drivers and Windows XP started pushing the hardware enough
-to trigger the bug...
-
-http://bbs.pcstats.com/viahardware/messageview.cfm?catid=19&threadid=863
-8
-
--- 
-Troels Walsted Hansen
-
-
+What about compiler version, glibc version, and hardware revision (think
+lspci) differences?

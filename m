@@ -1,38 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278128AbRJWRhd>; Tue, 23 Oct 2001 13:37:33 -0400
+	id <S278120AbRJWRhX>; Tue, 23 Oct 2001 13:37:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278131AbRJWRhY>; Tue, 23 Oct 2001 13:37:24 -0400
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:24328 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S278128AbRJWRhO>;
-	Tue, 23 Oct 2001 13:37:14 -0400
-Date: Tue, 23 Oct 2001 10:37:27 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, coldsync-bugs@ooblick.com
-Subject: Re: [OOPS] USB, Palm M500, Coldsync
-Message-ID: <20011023103727.C9943@kroah.com>
-In-Reply-To: <20011023191458.A4261@oisec.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011023191458.A4261@oisec.net>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.2.19 (i586)
+	id <S278131AbRJWRhO>; Tue, 23 Oct 2001 13:37:14 -0400
+Received: from florence.ie.alphyra.com ([193.120.224.170]:52114 "EHLO
+	florence.ie.alphyra.com") by vger.kernel.org with ESMTP
+	id <S278120AbRJWRg6>; Tue, 23 Oct 2001 13:36:58 -0400
+Date: Tue, 23 Oct 2001 18:36:47 +0100 (IST)
+From: Paul Jakma <paulj@alphyra.ie>
+To: Aaron Lehmann <aaronl@vitelus.com>
+cc: Rik van Riel <riel@conectiva.com.br>, Craig Dickson <crdic@yahoo.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.2.20pre10
+In-Reply-To: <20011022185918.D535@vitelus.com>
+Message-ID: <Pine.LNX.4.33.0110231823280.1641-100000@dunlop.dub.ie.alphyra.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 23, 2001 at 07:14:58PM +0200, Cliff Albert wrote:
-> Hi,
+On Mon, 22 Oct 2001, Aaron Lehmann wrote:
+
+> And how are you going to do that? Challenge/response ("How do you say
+> hello in Dutch?")?
+
+ooooh... i know i know! :)
+
 > 
-> Coldsync segfaults after a successful hotsync with my Palm M500 which
-> is connected using the USB Cradle. It also generates a oops. I hope
-> the following info is enough to fix this problem.
+> IP-based restrictions will not work. I have shell accounts in Europe
+> that can serve as SSH tunnels. If I use one of these, you will still
+> be liable.
 
-This isn't a coldsync bug :)
+no he wouldn't.
 
-A number of other people have reported this problem, and it is on my
-TODO list to fix.
+you would have circumvented Rik's content-protection system. who
+knows, perhaps /you/ might be liable to face punitive measures under
+your own DMCA.
 
-Thanks for the oops trace.
+to everyone else: see Thomas Hood's rather good post, ie:
 
-greg k-h
+A kernel hacker absolutely positively has the right to do what he
+wants with his own patches, and esp. is not obliged to users to
+do/publish things which carry any risk of possible legal action
+relating to his work on his linux. (esp. when you consider that the UK
+lies far further to the west politically than it's geographic position
+might suggest).
+
+finally: can all the political/legal stuff please go somewhere else?
+
+some of us actually subscribe to this list to read kernel bods discuss
+kernel stuff.... :)
+
+--paulj
+
+

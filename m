@@ -1,55 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285226AbRLMWYe>; Thu, 13 Dec 2001 17:24:34 -0500
+	id <S285246AbRLMW2Y>; Thu, 13 Dec 2001 17:28:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285227AbRLMWYY>; Thu, 13 Dec 2001 17:24:24 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:31944
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S285226AbRLMWYJ>; Thu, 13 Dec 2001 17:24:09 -0500
-Date: Thu, 13 Dec 2001 17:13:58 -0500
-Message-Id: <200112132213.fBDMDwc17766@snark.thyrsus.com>
-From: "Eric S. Raymond" <esr@snark.thyrsus.com>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Cc: rmk@arm.linux.org.uk, linux-arm-kernel@lists.arm.linux.org.uk,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: State of Configure.help
+	id <S285241AbRLMW2O>; Thu, 13 Dec 2001 17:28:14 -0500
+Received: from boss.kretz.co.at ([193.154.97.2]:56327 "EHLO boss.kretz.co.at")
+	by vger.kernel.org with ESMTP id <S285229AbRLMW2E>;
+	Thu, 13 Dec 2001 17:28:04 -0500
+Date: Thu, 13 Dec 2001 23:31:50 +0100
+From: ki@kretz.co.at
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.17pre2: ieee1394 sd hotplug problems (Oops)
+Message-ID: <20011213233150.A8628@boss.kretz.co.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We're down to just 14 missing entries:
+Hello all,
 
-ARM port:
+I am using an 80GB ide disk together with an 
+ide <> firewire converter card. (Oxford chip)
 
-CPU_ARM1020_CPU_IDLE: arch/arm/mm/proc-arm1020.S
-CPU_ARM1020_FORCE_WRITE_THROUGH: arch/arm/config.in arch/arm/mm/proc-arm1020.S
-CPU_ARM1020_ROUND_ROBIN: arch/arm/config.in arch/arm/mm/proc-arm1020.S
-CPU_ARM920_CPU_IDLE: arch/arm/config.in arch/arm/mm/proc-arm920.S
-CPU_ARM926_CPU_IDLE: arch/arm/config.in arch/arm/mm/proc-arm926.S
-CPU_ARM926_ROUND_ROBIN: arch/arm/config.in arch/arm/mm/proc-arm926.S
-CPU_FREQ: drivers/video/sa1100fb.c drivers/video/sa1100fb.h drivers/pcmcia/sa1100_generic.c arch/arm/config.in arch/arm/mach-sa1100/Makefile arch/arm/mach-sa1100/generic.c arch/arm/mach-integrator/cpu.c
-MTD_ARM_INTEGRATOR: drivers/mtd/maps/Config.in drivers/mtd/maps/Makefile
+usually I am doing the following: (no SCSI hd present but sd_mod loaded)
 
-S390 port:
+ * connect & power on hd
+ * insmod ieee1394, ohci1394 and sbp2
+ * look for the partition info in the syslog, looks like this:
 
-DASD_AUTO_DIAG: drivers/s390/Config.in drivers/s390/block/dasd.c
-DASD_AUTO_ECKD: drivers/s390/Config.in drivers/s390/block/dasd.c
-DASD_AUTO_FBA: drivers/s390/Config.in drivers/s390/block/dasd.c
-HWC_CPI: drivers/s390/Config.in drivers/s390/char/Makefile
-PFAULT: arch/s390/config.in arch/s390/kernel/smp.c arch/s390/kernel/traps.c arch/s390/mm/fault.c arch/s390x/config.in arch/s390x/kernel/smp.c arch/s390x/kernel/traps.c arch/s390x/mm/fault.c
-SHARED_KERNEL: arch/s390/Makefile arch/s390/config.in arch/s390/kernel/head.S arch/s390x/Makefile arch/s390x/config.in arch/s390x/kernel/head.S
+Dec 13 20:24:29 ki_pc2 kernel: scsi0 : IEEE-1394 SBP-2 protocol driver
+Dec 13 20:24:29 ki_pc2 kernel:   Vendor: MAXTOR 4  Model: K080H4            Rev:     
+Dec 13 20:24:29 ki_pc2 kernel:   Type:   Direct-Access                      ANSI SCSI revision: 06
+Dec 13 20:24:29 ki_pc2 kernel: Attached scsi disk sdd at scsi0, channel 0, id 0, lun 0
+Dec 13 20:24:29 ki_pc2 kernel: SCSI device sdd: 156301487 512-byte hdwr sectors (80026 MB)
+Dec 13 20:24:29 ki_pc2 kernel:  sdd: sdd1
+Dec 13 20:24:58 ki_pc2 /sbin/hotplug: no runnable /etc/hotplug/ieee1394.agent is installed
 
-Martin, you said you had asked some person named "Carsten" to write
-the S390 entries.  Would you give me his email address, please?
+note: sdd,  not sda as expected
 
-ARM guys, I got nine entries from one of your people recently, but as
-you can see there is still a little work to be done.  Please help me
-wrap this up.
+ * use the disk - works ok, hdparm says  ~12MB/sec
+ * rmmod sbp2 (and perhaps also the other 1394 modules) 
+ * disconnect hard drive.
+ etc..
+
+The following happens: on  'insmod sbp2' the disk is found
+but the minor device is incremented every time (now I am at /dev/sde :-( )
+
+Trying to open one of the lower (non-present) minors results in an Oops:
+
+in sd.c: at about line 470
+        }
+        /*
+         * The following code can sleep.
+         * Module unloading must be prevented
+         */
+        SDev = rscsi_disks[target].device;
+
+	^^^^^ this becomes zero for the lower minor devices.
+
+        if (SDev->host->hostt->module) ---- Oops
+
+So it seems that the rmmod sbp2 does not properly clean up
+the internal bookkeeping in sd.c when being unloaded.
+
+I am not sure what happens if scsi-remove-single-device is done instead
+of rmmod sbp2.
+
+OTOH /proc/scsi/scsi correctly shows the present devices
+ 
+there are a few /dev/sd[a-?]  left so I dont have to reboot every time but
+the situation is a bit non-optimal for now.
+
+Greetings,
+karl
+
 -- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
-
-[The disarming of citizens] has a double effect, it palsies the hand
-and brutalizes the mind: a habitual disuse of physical forces totally
-destroys the moral [force]; and men lose at once the power of
-protecting themselves, and of discerning the cause of their
-oppression.
-        -- Joel Barlow, "Advice to the Privileged Orders", 1792-93
+Karl Kiniger	    ki@kretz.co.at
+Kretztechnik AG     OE5KVN
+Tiefenbach 15
+A-4871 Zipf	    Tel: (++43) 7682-3800-710  Fax (++43) 7682-3800-47

@@ -1,57 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272747AbTHSRxZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 13:53:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272602AbTHSRvK
+	id S270995AbTHSRjy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 13:39:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272372AbTHSRfh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 13:51:10 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:62091 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S270772AbTHSRn6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 13:43:58 -0400
-Date: Tue, 19 Aug 2003 10:36:13 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Lars Marowsky-Bree <lmb@suse.de>
-Cc: bloemsaa@xs4all.nl, richard@aspectgroup.co.uk, skraw@ithnet.com,
-       willy@w.ods.org, alan@lxorguk.ukuu.org.uk, carlosev@newipnet.com,
-       lamont@scriptkiddie.org, davidsen@tmr.com, marcelo@conectiva.com.br,
-       netdev@oss.sgi.com, linux-net@vger.kernel.org, layes@loran.com,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org
+	Tue, 19 Aug 2003 13:35:37 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:20753 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S272619AbTHSR1T
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 13:27:19 -0400
+Date: Tue, 19 Aug 2003 13:17:44 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: willy@w.ods.org, richard@aspectgroup.co.uk, alan@lxorguk.ukuu.org.uk,
+       skraw@ithnet.com, carlosev@newipnet.com, lamont@scriptkiddie.org,
+       bloemsaa@xs4all.nl, marcelo@conectiva.com.br, netdev@oss.sgi.com,
+       linux-net@vger.kernel.org, layes@loran.com, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
 Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
-Message-Id: <20030819103613.4485e549.davem@redhat.com>
-In-Reply-To: <20030819173920.GA3301@marowsky-bree.de>
-References: <353568DCBAE06148B70767C1B1A93E625EAB57@post.pc.aspectgroup.co.uk>
-	<070c01c36653$7f3c1ab0$c801a8c0@llewella>
-	<20030819083438.26c985b9.davem@redhat.com>
-	<20030819173920.GA3301@marowsky-bree.de>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20030819091414.512d80c4.davem@redhat.com>
+Message-ID: <Pine.LNX.3.96.1030819125244.7550A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Aug 2003 19:39:20 +0200
-Lars Marowsky-Bree <lmb@suse.de> wrote:
+On Tue, 19 Aug 2003, David S. Miller wrote:
 
-> On 2003-08-19T08:34:38,
->    "David S. Miller" <davem@redhat.com> said:
+> On Tue, 19 Aug 2003 11:53:29 -0400 (EDT)
+> Bill Davidsen <davidsen@tmr.com> wrote:
 > 
-> > There are two valid ways the RFCs allow systems to handle
-> > IP addresses.
-> > 
-> > 1) IP addresses are owned by "the host"
-> > 2) IP addresses are owned by "the interface"
-> > 
-> > Linux does #1, many systems do #2, both are correct.
+> > I wonder if a change to add a flag preventing *any* packet from being sent
+> > on a NIC which doesn't have the proper source address would be politically
+> > acceptable.
 > 
-> Yes, both are "correct" in the sense that the RFC allows this
-> interpretation. The _sensible_ interpretation for practical networking
-> however is #2, and the only persons who seem to believe differently are
-> those in charge of the Linux network code...
+> This would disable things like MSG_DONTROUTE and many valid
+> uses of RAW sockets.
+> 
 
-And, as Alan said, we provide a way for one to obtain your networking
-religion of week.
+Probably would, but since it's a flag people could use it or not. I did
+that via a patch and it didn't show any problems in a tcp/udp environment.
+I would assume that source routing would produce the same problem in some
+cases, would it not? And I bet that using rp_filter can break some things
+as well, so there is precedent for having capabilities which could impact
+some valid procedures.
 
-Changing the default is not an option, that would undoubtedly
-break things.
+I appreciate your point (which I totally overlooked), but I don't see that
+we have avoided other capabilities which could cause problems if
+misconfigured. It is clearly the responsibility of the admin to do
+configuration, and this seems (based on my actual experience) to work in
+an environment where arp/tcp/udp are being used.
+
+Unless you have additional issues, I would suggest that there are good
+reasons to add this capability.
+- no more dangerous than source routing and much easier to use
+- saves much discussion and time
+- much better to have one change done properly than lots of half-assed
+  patches
+
+I understand your objections to the hidden patch, I think the approach I
+suggest could be done at the proper level and would provide a standard way
+to solve a common problem. If this can be reasonably done I would think
+you would support it just to be able to say "use default_source_routing"
+when the hidden patch visits the next time ;-)
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

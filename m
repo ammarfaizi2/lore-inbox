@@ -1,34 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280190AbRK0PJf>; Tue, 27 Nov 2001 10:09:35 -0500
+	id <S280026AbRK0PJR>; Tue, 27 Nov 2001 10:09:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280101AbRK0PJU>; Tue, 27 Nov 2001 10:09:20 -0500
-Received: from ns.suse.de ([213.95.15.193]:25352 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S280727AbRK0PIF>;
-	Tue, 27 Nov 2001 10:08:05 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S280805AbRK0PIR>; Tue, 27 Nov 2001 10:08:17 -0500
+Received: from smtp102.urscorp.com ([65.207.129.233]:28179 "EHLO
+	smtp102.urscorp.com") by vger.kernel.org with ESMTP
+	id <S280190AbRK0PHK>; Tue, 27 Nov 2001 10:07:10 -0500
+To: "Martin A. Brooks" <martin@jtrix.com>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: 'spurious 8259A interrupt: IRQ7'
-In-Reply-To: <1793.10.119.8.1.1006872608.squirrel@extranet.jtrix.com.suse.lists.linux.kernel> <E168jk1-0001J7-00@the-village.bc.nu.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 27 Nov 2001 16:08:00 +0100
-In-Reply-To: Alan Cox's message of "27 Nov 2001 15:59:50 +0100"
-Message-ID: <p73hergs14f.fsf@amdsim2.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.7
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+From: mike_phillips@urscorp.com
+Message-ID: <OF508D235C.0A51F5DD-ON85256B11.004D2BC9@urscorp.com>
+Date: Tue, 27 Nov 2001 10:04:05 -0500
+X-MIMETrack: Serialize by Router on SMTP102/URSCorp(Release 5.0.5 |September 22, 2000) at
+ 11/27/2001 10:05:51 AM,
+	Serialize complete at 11/27/2001 10:05:51 AM
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+> In my research before posting, a common thread seemed to be the presence 
+of
+> a tulip card in the machine.  Has anyone seen this on a non-tulip box?
 
-> > > Something I should have added to my post is that I have a Tulip based
-> > > NIC  from Netgear.  But I believe something is definitely amiss with
-> > > Athlon based  machines and Tulip cards and compiled in SMP support.
-> > 
-> > Mine is a UP box.
-> 
-> With IO Apic support included ? If you are using an AMD/VIA combo chipset
-> board that would explain it
+Does the same on my laptop, but only after the 3C575 cardbus adapter is 
+plugged in (using the 3c59x driver).
 
-I see it on a SIS 735 board too (with IO-APIC enabled).
+Mike
 
--Andi

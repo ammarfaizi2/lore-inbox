@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131309AbQJ1Ubo>; Sat, 28 Oct 2000 16:31:44 -0400
+	id <S131338AbQJ1Ui0>; Sat, 28 Oct 2000 16:38:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130854AbQJ1Ubf>; Sat, 28 Oct 2000 16:31:35 -0400
-Received: from mail.bilboul.com ([193.117.73.30]:40044 "EHLO www.bilboul.com")
-	by vger.kernel.org with ESMTP id <S130478AbQJ1UbR>;
-	Sat, 28 Oct 2000 16:31:17 -0400
-Newsgroups: localnet.mail.linux.kernel
-Path: sweh
-From: sweh@spuddy.mew.co.uk (Stephen Harris)
-Subject: Re: syslog() blocks on glibc 2.1.3 with kernel 2.2.x
-Message-ID: <G35ns0.3rD@spuddy.mew.co.uk>
-Organization: Spud's Public Usenet Domain
-X-Newsreader: TIN [version 1.2 PL2]
-In-Reply-To: <G31psL.73r@spuddy.mew.co.uk>
-Date: Sat, 28 Oct 2000 19:36:00 GMT
-To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
+	id <S131337AbQJ1UiQ>; Sat, 28 Oct 2000 16:38:16 -0400
+Received: from chac.inf.utfsm.cl ([200.1.19.54]:6148 "EHLO chac.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S129068AbQJ1UiK>;
+	Sat, 28 Oct 2000 16:38:10 -0400
+Message-Id: <200010281629.e9SGTah07672@sleipnir.valparaiso.cl>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.0-test10-pre6: Use of abs()
+X-Mailer: MH [Version 6.8.4]
+Date: Sat, 28 Oct 2000 13:29:36 -0300
+From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A lot of talk here has been about syslog and DNS blocking, but the
-original message mentioned:
+Red Hat 7.0, i686, gcc-20001027 (Yes, I know. Just to flush out bugs on
+both sides).
 
-> If you send SIGSTOP to syslogd on a Red Hat 6.2 system (glibc 2.1.3,
-> kernel 2.2.x), within a few minutes you will find your entire machine
-> grinds to a halt.  For example, nobody can log in.
+abs() is used at least in:
 
-Has this been addressed (and I missed it) or did the question get
-diverted?  If it has been addressed, just please mail me personally to
-save traffic on the list.
+arch/i386/kernel/time.c
+drivers/md/raid1.c
+drivers/sound/sb_ess.c
 
-Thanks!
+gcc warns about use of a non-declared function each time.
+
+No definition for the function is to be found (grep over all include/ comes
+up clean, except for extern definitions in asm-{mips,ppc}; ditto for lib/).
+Presumably gcc is using a builtin (it doesn't show up in System.map). Is
+this the desired state of affairs? Should a include/linux/stdlib.h be
+added, containing (for now, to be expanded later as needed, like
+include/linux/stddef.h):
+
+#ifndef _LINUX_STDLIB_H
+#define _LINUX_STDLIB_H
+
+extern int abs(int);
+
+#endif
 -- 
-                                 Stephen Harris
-                 sweh@spuddy.mew.co.uk   http://www.spuddy.org/
-      The truth is the truth, and opinion just opinion.  But what is what?
-       My employer pays to ignore my opinions; you get to do it for free.      
-  * Meeeeow ! Call  Spud the Cat on > 01708 442043 < for free Usenet access *
+Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
+Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

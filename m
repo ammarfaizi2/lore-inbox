@@ -1,87 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312690AbSDAXRL>; Mon, 1 Apr 2002 18:17:11 -0500
+	id <S312704AbSDAXTC>; Mon, 1 Apr 2002 18:19:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312704AbSDAXQw>; Mon, 1 Apr 2002 18:16:52 -0500
-Received: from air-2.osdl.org ([65.201.151.6]:3599 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S312690AbSDAXQj>;
-	Mon, 1 Apr 2002 18:16:39 -0500
-Date: Mon, 1 Apr 2002 15:14:34 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Questions about /proc/stat
-In-Reply-To: <Pine.LNX.4.33.0203280908530.1795-100000@shell1.aracnet.com>
-Message-ID: <Pine.LNX.4.33L2.0204011441230.13412-100000@dragon.pdx.osdl.net>
+	id <S312706AbSDAXSw>; Mon, 1 Apr 2002 18:18:52 -0500
+Received: from mailrelay1.lrz-muenchen.de ([129.187.254.101]:59859 "EHLO
+	mailrelay1.lrz-muenchen.de") by vger.kernel.org with ESMTP
+	id <S312704AbSDAXSq>; Mon, 1 Apr 2002 18:18:46 -0500
+Date: Tue, 2 Apr 2002 01:18:41 +0200 (CEST)
+From: Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>
+To: Benny Sjostrand <gorm@cucumelo.org>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux needs new leadership.
+In-Reply-To: <3CA8E3CF.5060508@cucumelo.org>
+Message-Id: <Pine.LNX.4.44.0204020117430.5784-100000@phobos>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Mar 2002, M. Edward (Ed) Borasky wrote:
+On Tue, 2 Apr 2002, Benny Sjostrand wrote:
 
-| I have some questions about the "page" and "swap" entries in /proc/stat.
-| Here is the relevant code from 2.4.12
-| /usr/src/linux/fs/proc/proc_misc.c:
-|
-|     292         len += sprintf(page + len,
-|     293                 "page %u %u\n"
-|     294                 "swap %u %u\n"
-|     295                 "intr %u",
-|     296                         kstat.pgpgin >> 1,
-|     297                         kstat.pgpgout >> 1,
-|     298                         kstat.pswpin,
-|     299                         kstat.pswpout,
-|     300                         sum
-|     301         );
+> PS. you dont know what PROPS is? just never take a job where they stands
+> for PROPS if you
+>       think you are a hacker.
 
-Of course the basic answer is something like
-  Try cscope
-or
-  cd /usr/src/linux
-  grep -r "kstat.p" * | more
+$ dict props
+1 definition found
 
-Using the latter one:
+>From Webster's Revised Unabridged Dictionary (1913) [web1913]:
 
-| 1. Why are kstat.pgpgin and kstat.pgpgout shifted right / halved?
+  Props \Props\, n. pl.
+     A game of chance, in which four sea shells, each called a
+     prop, are used instead of dice.
 
-I had wondered that also, so you made me look.
+Hrm, which takes us back to the CLAMS.
 
-pgpgin and pgpgout are maintained (counted) in units of 512-byte
-blocks but displayed in /proc/stat in 1 KB (KiB :) blocks by
-shifting right by 1.
-
-| 2. Are the "page" and "swap" numbers mutually exclusive? That is, if a
-| page is brought in from swap and counted in kstat.pswpin, is it also
-| counted in kstat.pgpgin? I found the places in the code where the counts
-| are incremented, but I couldn't tell if the swapin routine calls the
-| block driver or not.
-
-No, "page" and "swap" counts are not mutually exclusive.
-Both paths call submit_bh().
-
-For swap:
-
-mm/page_io.c::rw_swap_page_base():
-	/* reads or writes a swap page */
-	kstat.pswpin++;
-	kstat.pswpout++;
-	calls brw_page();
-		which calls submit_bh();
-
-For all low-level block I/O:
-
-drivers/block/ll_rw_blk.c::ll_rw_block():
-	/* low-level access to block devices */
-	calls submit_bh();
-
-drivers/block/ll_rw_blk.c::submit_bh():
-	count := is number of 512-byte blocks;
-	kstat.pgpgout += count;
-	kstat.pgpgin += count;
-	calls generic_make_request();
+   Simon
 
 -- 
-~Randy
+GPG public key available from http://phobos.fs.tum.de/pgp/Simon.Richter.asc
+ Fingerprint: 040E B5F7 84F1 4FBC CEAD  ADC6 18A0 CC8D 5706 A4B4
+Hi! I'm a .signature virus! Copy me into your ~/.signature to help me spread!
 

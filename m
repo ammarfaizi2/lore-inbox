@@ -1,60 +1,68 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S154203AbPHSRrD>; Thu, 19 Aug 1999 13:47:03 -0400
-Received: by vger.rutgers.edu id <S154236AbPHSRqt>; Thu, 19 Aug 1999 13:46:49 -0400
-Received: from neon-best.transmeta.com ([206.184.214.10]:16492 "EHLO neon.transmeta.com") by vger.rutgers.edu with ESMTP id <S154180AbPHSRpP>; Thu, 19 Aug 1999 13:45:15 -0400
-Date: Thu, 19 Aug 1999 10:45:45 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jes Sorensen <Jes.Sorensen@cern.ch>
-cc: x-linux-kernel@vger.rutgers.edu
-Subject: Re: irq.h changes in 2.3.14
-In-Reply-To: <199908190914.LAA15538@lxp03.cern.ch>
-Message-ID: <Pine.LNX.4.10.9908191034350.2091-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Received: by vger.rutgers.edu via listexpand id <S154500AbPHYPBJ>; Wed, 25 Aug 1999 11:01:09 -0400
+Received: by vger.rutgers.edu id <S154370AbPHYO6b>; Wed, 25 Aug 1999 10:58:31 -0400
+Received: from [216.70.176.28] ([216.70.176.28]:1529 "EHLO rsts-11.mit.edu") by vger.rutgers.edu with ESMTP id <S154534AbPHYO4f>; Wed, 25 Aug 1999 10:56:35 -0400
+Date: Wed, 25 Aug 1999 10:54:13 -0400
+Message-Id: <199908251454.KAA01398@rsts-11.mit.edu>
+To: osman@Cable.EU.org
+CC: linux-kernel@vger.rutgers.edu
+In-reply-to: <Pine.LNX.4.10.9908240528280.2367-100000@fw.Cable.EU.org> (message from Osman on Tue, 24 Aug 1999 05:38:25 +0200 (CEST))
+Subject: Re: Question: finding boundaries of ext2fs-partitions.
+From: tytso@mit.edu
+Address: 1 Amherst St., Cambridge, MA 02139
+Phone: (617) 253-8091
+References: <Pine.LNX.4.10.9908240528280.2367-100000@fw.Cable.EU.org>
 Sender: owner-linux-kernel@vger.rutgers.edu
 
+   Date:   Tue, 24 Aug 1999 05:38:25 +0200 (CEST)
+   From: Osman <osman@Cable.EU.org>
 
+   I heard from an other list that there was a discussion here a few weeks
+   ago or some, about this topic.
+   I need a prg wich will help me in rebuilding/recreating my partition
+   table.
+   The data is still there, only the table was lost due to a mistake I made
+   while installing RH6.0.
 
-On Thu, 19 Aug 1999, Jes Sorensen wrote:
-> 
-> I noticed the moving of arch/i386/kernel/irq.h to include/linux/irq.h in
-> the 2.3.14 final patch.
-> 
-> I really don't think it is a good idea to move this very i386 specific
-> definitions in there since the interrupt subsystems on other
-> architectures are very different from that of the i386.
+The following list of tools that will allow you to rebuild partition
+tables was written up by Andries Brouwer (Andries.Brouwer@cwi.nl) a few
+months ago, and as far as I know it's still an accurate description of
+the various choices you have out there for this task.  
 
-The thing is, that the irq handling is _too_ different on different
-architectures. A lot of the problems, especially the SMP issues, are
-simply completely architecture-independent. 
+In my personal opinion, gpart is probably the best of the bunch at this
+point, although all of the programs are relatively new and aren't
+foolproof.  In particular, nearly all of them can be confused by
+previous filesystems whose superblocks are still present on the disk.
+(In the future, programs could be made smarter by looking at the mount
+times to see which filesystem is more recent if there are two
+overlapping filesystems.  As far as I know none of the programs do this
+kind of hueristics for you, so manual human judgement will be required.)
 
->					 Ie. on the m68k
-> we do not use the same types or irq descriptors, the IRQ line statuses
-> make no sense etc. and I am sure it is the same for some of the other
-> non x86 architectures.
+Anyway, here's Anderies's list:
 
-It is. And I _know_ that just about every architecture except for the x86
-has bugs when it comes to SMP handling. Some, like the 68k, do not need to
-care. 
+   (i) findsuper is a small utility that finds blocks with the ext2
+   superblock signature, and prints out location and some info.
+   It is in the non-installed part of the e2progs distribution.
 
-> I see that it expects asm/hw_irq.h to be the architecture dependant
-> stuff, but even the things that made it into include/linux/irq.h are way
-> to architecture specific.
+   (ii) rescuept is a utility that recognizes ext2 superblocks,
+   FAT partitions, swap partitions, and extended partition tables;
+   it prints out information that can be used with fdisk or sfdisk
+   to reconstruct the partition table.
+   It is in the non-installed part of the util-linux distribution.
 
-There's absolutely nothing architecture-specific in <linux/irq.h>.
+   (iii) fixdisktable (http://bmrc.berkeley.edu/people/chaffee/fat32.html)
+   is a utility that handles ext2, FAT, NTFS, ufs, BSD disklabels
+   (but not yet v1 Linux swap partitions); it actually will rewrite
+   the partition table, if you give it permission.
 
-It may be _different_ than existing architectures, but I'll try to make
-sure that future ports use the same correct irq handling, and I'll see if
-I can port some of the existing stuff (notably alpha) to use the new
-generic handling. It's actually very flexible - it pretty much has to be
-in order to handle the different kinds of interrupt controllers that exist
-on PC-like machines.
+   (iv) gpart (http://home.pages.de/~michab/gpart/) is a utility
+   that handles ext2, FAT, Linux swap, HPFS, NTFS, FreeBSD and
+   Solaris/x86 disklabels, minix, reiser fs; it prints a proposed
+   contents for the primary partition table, and is well-documented.
 
-No architecture will be _forced_ to use the new stuff, so don't worry. But
-I'll just warn you that you're likely to get the SMP stuff wrong if you
-don't use it ;)
+Hope this helps!
 
-			Linus
+						 - Ted
 
 
 -

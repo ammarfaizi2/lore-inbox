@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284309AbRLGSoj>; Fri, 7 Dec 2001 13:44:39 -0500
+	id <S284318AbRLGSoK>; Fri, 7 Dec 2001 13:44:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284324AbRLGSoa>; Fri, 7 Dec 2001 13:44:30 -0500
-Received: from [213.156.59.6] ([213.156.59.6]:54026 "HELO
-	smail2.dmz1.icn.siemens.it") by vger.kernel.org with SMTP
-	id <S284309AbRLGSoV>; Fri, 7 Dec 2001 13:44:21 -0500
-X-WebMail-UserID: salinarl@ikuws01.icn.siemens.it
-Date: Fri, 7 Dec 2001 19:44:49 +0100
-From: salinarl <Lanfranco.Salinari@icn.siemens.it>
-To: linux-kernel@vger.kernel.org
-X-EXP32-SerialNo: 00003484
-Subject: Question about sniffers and linux
-Message-ID: <3BEC87A2@webmail>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
+	id <S284324AbRLGSn4>; Fri, 7 Dec 2001 13:43:56 -0500
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:60604 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S284318AbRLGSmz>; Fri, 7 Dec 2001 13:42:55 -0500
+Date: Fri, 07 Dec 2001 10:42:00 -0800
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Larry McVoy <lm@bitmover.com>
+cc: Henning Schmiedehausen <hps@intermeta.de>, linux-kernel@vger.kernel.org
+Subject: Re: SMP/cc Cluster description
+Message-ID: <2699373574.1007721720@mbligh.des.sequent.com>
+In-Reply-To: <20011207102318.J27589@work.bitmover.com>
+X-Mailer: Mulberry/2.0.8 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: WebMail (Hydra) SMTP v3.61.08
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello to everyone,
-I am new to kernel internals, and I would like to know how can a sniffer
-read whole packets, I mean including the link layer header. In the receive
-path, this happens, I think,  in the net_rx_action(), but in the transmit
-path?
-I know that there is a function called dev_queue_xmit_nit() for this, but
-how can a driver add a link layer header to a packet before this function
-gets called? The hard_start_xmit() of the driver is, in fact, called after
-the dev_queue_xmit_nit(), (in the function dev_queue_xmit() ).
-I think I'm missing something important about the subject, but I hope someone 
-will answer me, anyway.
-Thank you in advance,
+>> So would that mean I would need bitkeeper installed in order to change my
+>> password? 
+> 
+> No, that's just one way to solve the problem.  Another way would be to have
+> a master/slave relationship between the replicas sort of like CVS.  In fact,
+> you could use CVS.
 
-Lanfranco
+I'm not sure that's any less vomitworthy. 
+
+Keeping things simple that users and/or sysadmins have to deal with is a 
+Good Thing (tm). I'd have the complexity in the kernel, where complexity 
+is pushed to the kernel developers, thanks.
+ 
+>> And IIRC, bitkeeper is not free either?
+>
+> (... some slighty twisted concept of free snipped.)
+>
+>  But this is more than a bit off topic...
+
+No it's not that far off topic, my point is that you're shifting the complexity 
+problems to other areas (eg. system mangement / the application level / 
+filesystems / scheduler load balancing) rather than solving them.
+
+Martin.
 

@@ -1,65 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266081AbUKBDXT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S516268AbUKBDg5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266081AbUKBDXT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 22:23:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S516105AbUKBDVy
+	id S516268AbUKBDg5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 22:36:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270589AbUKBDg4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 22:21:54 -0500
-Received: from fw.osdl.org ([65.172.181.6]:32389 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S515027AbUKBDUB (ORCPT
+	Mon, 1 Nov 2004 22:36:56 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:29648 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S272746AbUKBDg3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 22:20:01 -0500
-Date: Mon, 1 Nov 2004 20:18:08 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Peter Chubb <peterc@gelato.unsw.edu.au>
-Cc: tony.luck@intel.com, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] IA64 build broken... cond_syscall()... Fixes?
-Message-Id: <20041101201808.58a559a5.akpm@osdl.org>
-In-Reply-To: <200411020239.iA22dsQl026520@mail23.syd.optusnet.com.au>
-References: <200411020239.iA22dsQl026520@mail23.syd.optusnet.com.au>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 1 Nov 2004 22:36:29 -0500
+Date: Mon, 1 Nov 2004 19:36:16 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Paul Fulghum <paulkf@microgate.com>
+Cc: zaitcev@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.4] usb serial write fix
+Message-ID: <20041101193616.2d517e77@lembas.zaitcev.lan>
+In-Reply-To: <mailman.1099321382.10097.linux-kernel2news@redhat.com>
+References: <mailman.1099321382.10097.linux-kernel2news@redhat.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.13; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Chubb <peterc@gelato.unsw.edu.au> wrote:
->
-> 
-> Hi Folks,
->    The kernel 2.6 IA64 build has been broken for several days (see
-> http://www.gelato.unsw.edu.au/kerncomp )
-> 
-> The reason is that cond_syscall() for IA64 is defined as:
-> 
->   #define cond_syscall(x) asmlinkage long x (void) \
-> 	__attribute__((weak,alias("sys_ni_syscall")))   
-> 
-> which of course doesn't work if there's a prototype in scope for x,
-> unless the type of x just happens to be the same as for sys_ni_syscall.
-> 
-> Changing to the type-safe version
->    #define cond_syscall(x) __typeof__ (x) x \
-> 	   __attribute__((weak,alias("sys_ni_syscall")));
-> gives an error, e.g., 
->  error: `compat_sys_futex' defined both normally and as an alias
+On Mon, 01 Nov 2004 08:51:08 -0600, Paul Fulghum <paulkf@microgate.com> wrote:
 
-Yeah, it's a real bitch, that.
+Not a bad idea. I must admit that I thought about that, but then I had
+concerns about monopolizing keventd, decided to think later about it, and
+forgot about the issue.
 
-> Most architectures use inline assembly language which avoids the
-> problem.  However, we don't want to do this for IA64, to allow
-> compilers other than gcc to be used (in general, gcc generated code
-> for IA64 is extremely poor).
-> 
-> There are several ways to fix this.  The simple way is to ensure that
-> there are no prototypes for any system calls included in kernel/sys.c
-> (the only place where cond_syscall is used).  That's what this patch
-> does:
+> +++ b/drivers/usb/serial/usbserial.c	2004-11-01 08:29:07.000000000 -0600
+> +		if (port->tty != NULL) {
+> +			int rc;
+> +			int sent = 0;
+> +			while (sent < job->len) {
+> +				rc = __serial_write(port, 0, job->buff + sent, job->len - sent);
+> +				if ((rc < 0) || signal_pending(current))
+> +					break;
 
-But I bet it introduces various nasty warnings or type-unsafety on other
-architectures.
+Why testing for signals? Do you expect any?
 
-Shouldn't we just bite the bullet and hoist all that cond_syscall stuff out
-into its own .c file?
+> +				sent += rc;
+> +				if ((sent < job->len) && current->need_resched)
+> +					schedule();
+
+That's the main problem here, isn't it. Serial communications are slow.
+Tying up a shared thread just because of this just does not look right.
+And in such CPU intensive way, too.
+
+Looking at pl2303 in 2.4, I do not see any difference between its ->write
+method and generic_write which would be specific to pl2303. The key
+difference is that generic_write participates in the protocol governed by
+port->write_busy. So why don't you simply drop pl2303_write?
+
+-- Pete

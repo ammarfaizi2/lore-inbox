@@ -1,39 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291152AbSBLSmM>; Tue, 12 Feb 2002 13:42:12 -0500
+	id <S291160AbSBLSsv>; Tue, 12 Feb 2002 13:48:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291160AbSBLSmC>; Tue, 12 Feb 2002 13:42:02 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:17415 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S291152AbSBLSlu>; Tue, 12 Feb 2002 13:41:50 -0500
-Date: Tue, 12 Feb 2002 13:40:09 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Jens Axboe <axboe@suse.de>, andersen@codepoet.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.18-pre9-ac1
-In-Reply-To: <E16ae1e-0001ws-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.3.96.1020212133708.6082C-100000@gatekeeper.tmr.com>
+	id <S291162AbSBLSsl>; Tue, 12 Feb 2002 13:48:41 -0500
+Received: from zarjazz.demon.co.uk ([194.222.135.25]:22912 "EHLO
+	zarjazz.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S291160AbSBLSsc>; Tue, 12 Feb 2002 13:48:32 -0500
+Message-ID: <003d01c1b3f5$ce90a570$0201010a@frodo>
+From: "Vincent Sweeney" <v.sweeney@barrysworld.com>
+To: "Andrew Morton" <akpm@zip.com.au>, "Dan Kegel" <dank@kegel.com>
+Cc: <linux-kernel@vger.kernel.org>, <coder-com@undernet.org>,
+        "Dan Kegel" <dank@kegel.com>
+In-Reply-To: <3C56E327.69F8B70F@kegel.com> <001901c1a900$e2bc7420$0201010a@frodo> <3C58D50B.FD44524F@kegel.com> <001d01c1aa8e$2e067e60$0201010a@frodo> <3C5CEEED.E98D35B7@kegel.com> <3C5CF686.1145AE14@zip.com.au>
+Subject: Re: PROBLEM: high system usage / poor SMP network performance
+Date: Tue, 12 Feb 2002 18:48:00 -0000
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Feb 2002, Alan Cox wrote:
+Well I've recoded the poll() section in the ircu code base as follows:
 
-> I don't think that should be required actually. The killer on M/O disks
-> is seek time, and to an extent rotational latency (its 3 trips round a 
-> cheaper M/O disk to rewrite a sector). If anything clustering writes to
-> the same track should be a big win.
+Instead of the default :
 
-I believe the impetus to the cluster patch is not to address parformance,
-but because without it a media error on the MO causes a system failure.
-That seems a good reason to put in the patch, and you can certainly test
-it with and without, just be sure to sync() before trying the standard
-code ;-)
+    ...
+    nfds = poll(poll_fds, pfd_count, timeout);
+    ...
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+we now have
+
+    ...
+    nfds = poll(poll_fds, pfd_count, 0);
+    if (nfds == 0) {
+      usleep(1000000 / 10); /* sleep 1/10 second */
+      nfds = poll(poll_fds, pfd_count, timeout);
+    }
+    ...
+
+And as 'top' results now show, instead of maxing out a dual P3-800 we now
+only use a fraction of that without any noticable side effects.
+
+  PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
+14684 ircd      15   0 81820  79M   800 S    22.5 21.2 215:39 ircd
+14691 ircd      12   0 80716  78M   800 S    21.1 20.9 212:22 ircd
+
+
+Vince.
+
+----- Original Message -----
+From: "Andrew Morton" <akpm@zip.com.au>
+To: "Dan Kegel" <dank@kegel.com>
+Cc: "Vincent Sweeney" <v.sweeney@barrysworld.com>;
+<linux-kernel@vger.kernel.org>; <coder-com@undernet.org>; "Kevin L.
+Mitchell" <klmitch@mit.edu>
+Sent: Sunday, February 03, 2002 8:36 AM
+Subject: Re: PROBLEM: high system usage / poor SMP network performance
+
+
+> Dan Kegel wrote:
+> >
+> > Before I did any work, I'd measure CPU
+> > usage under a simulated load of 2000 clients, just to verify that
+> > poll() was indeed a bottleneck (ok, can't imagine it not being a
+> > bottleneck, but it's nice to have a baseline to compare the improved
+> > version against).
+>
+> I half-did this earlier in the week.  It seems that Vincent's
+> machine is calling poll() maybe 100 times/second.  Each call
+> is taking maybe 10 milliseconds, and is returning approximately
+> one measly little packet.
+>
+> select and poll suck for thousands of fds.  Always did, always
+> will.  Applications need to work around this.
+>
+> And the workaround is rather simple:
+>
+> ....
+> + usleep(100000);
+> poll(...);
+>
+> This will add up to 0.1 seconds latency, but it means that
+> the poll will gather activity on ten times as many fds,
+> and that it will be called ten times less often, and that
+> CPU load will fall by a factor of ten.
+>
+> This seems an appropriate hack for an IRC server.  I guess it
+> could be souped up a bit:
+>
+> usleep(nr_fds * 50);
+>
+> -
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

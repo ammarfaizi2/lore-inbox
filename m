@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284905AbRL2Aad>; Fri, 28 Dec 2001 19:30:33 -0500
+	id <S287039AbRL2AsF>; Fri, 28 Dec 2001 19:48:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287026AbRL2AaX>; Fri, 28 Dec 2001 19:30:23 -0500
-Received: from holomorphy.com ([216.36.33.161]:50333 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S284905AbRL2AaF>;
-	Fri, 28 Dec 2001 19:30:05 -0500
-Date: Fri, 28 Dec 2001 16:29:44 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: UML has been sent to Linus
-Message-ID: <20011228162944.D750@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200112280635.fBS6Zl728162@karaya.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <200112280635.fBS6Zl728162@karaya.com>; from jdike@karaya.com on Fri, Dec 28, 2001 at 01:35:47AM -0500
-Organization: The Domain of Holomorphy
+	id <S287038AbRL2Arz>; Fri, 28 Dec 2001 19:47:55 -0500
+Received: from ADSLP35-NV-p104.adsl.netvision.net.il ([212.143.35.104]:12165
+	"EHLO witch.dyndns.org") by vger.kernel.org with ESMTP
+	id <S287037AbRL2Arm>; Fri, 28 Dec 2001 19:47:42 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Hetz Ben Hamo <hetz@kde.org>
+To: Daniel Phillips <phillips@bonn-fries.net>, linux-kernel@vger.kernel.org
+Subject: Re: Serious VM problems (cont..)
+Date: Sat, 29 Dec 2001 02:46:12 +0200
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <E16JzWl-0006iD-00@witch.dyndns.org> <E16K7em-0000Ba-00@starship.berlin>
+In-Reply-To: <E16K7em-0000Ba-00@starship.berlin>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16K7dG-00070M-00@witch.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 28, 2001 at 01:35:47AM -0500, Jeff Dike wrote:
-> I put together a patch against 2.5.1 and sent it in.
-> 
-> So, if you don't see it soon on a kernel mirror near you, start bugging
-> Linus :-)
-> 
-> 				Jeff
+Umm, did you read the text of this email? I specifically said I tried 2.4.17.
 
-Excellent! uml has been a very valuable tool for me to both learn kernel
-programming and to get kernel programming done. And it's extremely cool.
+Hetz
 
-IMHO it's excellent programming as well.
-
-
-Thanks,
-Bill
+On Saturday 29 December 2001 02:47, Daniel Phillips wrote:
+> On December 28, 2001 05:06 pm, Hetz Ben Hamo wrote:
+> > Sorry,
+> >
+> > I forgot to mention my Linux: Redhat 7.2 + the official kernel 2.4.17 (I
+> > also tested 2.4.9-13 - same errors) + all the latest updates (including
+> > FAM 2.6.6), XFree 4.1.0-3, KDE 2.2.1...
+>
+> PleaseBetter try 2.4.17.

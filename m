@@ -1,37 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269023AbUIHDgc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269024AbUIHDiE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269023AbUIHDgc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 23:36:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269024AbUIHDgc
+	id S269024AbUIHDiE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 23:38:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269026AbUIHDiD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 23:36:32 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10149 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S269023AbUIHDg2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 23:36:28 -0400
-Date: Wed, 8 Sep 2004 04:36:28 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
+	Tue, 7 Sep 2004 23:38:03 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:61389 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S269024AbUIHDhx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 23:37:53 -0400
+Subject: Re: [CHECKER] possible deadlock in 2.6.8.1 lockd code
+From: Greg Banks <gnb@melbourne.sgi.com>
 To: Dawson Engler <engler@coverity.dreamhost.com>
 Cc: linux-kernel@vger.kernel.org, developers@coverity.com
-Subject: Re: [CHECKER] possible reiserfs deadlock in 2.6.8.1
-Message-ID: <20040908033628.GV23987@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.58.0409072016090.12274@coverity.dreamhost.com>
+In-Reply-To: <Pine.LNX.4.58.0409071956380.6778@coverity.dreamhost.com>
+References: <Pine.LNX.4.58.0409071956380.6778@coverity.dreamhost.com>
+Content-Type: text/plain
+Organization: Silicon Graphics Inc, Australian Software Group.
+Message-Id: <1094615146.20243.162.camel@hole.melbourne.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0409072016090.12274@coverity.dreamhost.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Wed, 08 Sep 2004 13:45:46 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 07, 2004 at 08:16:53PM -0700, Dawson Engler wrote:
+On Wed, 2004-09-08 at 12:57, Dawson Engler wrote:
 > Hi All,
 > 
-> below is a possible deadlock in the linux-2.6.8.1 reiserfs code found by
-> a static deadlock checker I'm writing.  Let me know if it looks valid
-> and/or whether the output is too cryptic.    Note, one of the locks is
-> through a struct pointer, so the deadlock depends on both acquisitions
-> being to the same struct.
+> below is a possible deadlock in the linux-2.6.8.1 lockd code found by a
+> static deadlock checker I'm writing.  Let me know if it looks valid and/or
+> whether the output is too cryptic.  (Note, the locking dependencies go
+> across a bunch of function calls, so the paths may be infeasible.)
 
-Not valid, for the same reason as the above.  BKL and down() do not form
-a mutual deadlock.
+Nick's comment applies here.  Furthermore, there is at most one lockd
+thread so once again there is no thread B to deadlock with.
+
+Greg.
+-- 
+Greg Banks, R&D Software Engineer, SGI Australian Software Group.
+I don't speak for SGI.
+
+

@@ -1,56 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261827AbUBJWDN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 17:03:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbUBJWDN
+	id S261735AbUBJWH5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 17:07:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbUBJWH5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 17:03:13 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:52236 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S261827AbUBJWDL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 17:03:11 -0500
-Message-ID: <40295509.1050100@zytor.com>
-Date: Tue, 10 Feb 2004 14:02:49 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031030
-X-Accept-Language: en, sv
-MIME-Version: 1.0
-To: "Theodore Ts'o" <tytso@mit.edu>
-CC: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
-Subject: Re: Does anyone still care about BSD ptys?
-References: <1ne1M-1Oc-1@gated-at.bofh.it> <4029364F.9030905@tmr.com> <20040210215225.GA1666@thunk.org>
-In-Reply-To: <20040210215225.GA1666@thunk.org>
-Content-Type: text/plain; charset=us-ascii
+	Tue, 10 Feb 2004 17:07:57 -0500
+Received: from shiva.warpcore.org ([216.81.249.60]:41705 "EHLO
+	shiva.warpcore.org") by vger.kernel.org with ESMTP id S261735AbUBJWH4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 17:07:56 -0500
+Subject: Re: Kernel GPL Violations and How to Research
+From: Gidon <gidon@warpcore.org>
+To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040210215213.GA8092@one-eyed-alien.net>
+References: <1076388828.9259.32.camel@CPE-65-26-89-23.kc.rr.com>
+	 <20040210192007.GA6987@one-eyed-alien.net>
+	 <1076449796.6373.3.camel@CPE-65-26-89-23.kc.rr.com>
+	 <20040210215213.GA8092@one-eyed-alien.net>
+Content-Type: text/plain
+Message-Id: <1076450874.6373.13.camel@CPE-65-26-89-23.kc.rr.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 10 Feb 2004 16:07:54 -0600
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Ts'o wrote:
-> On Tue, Feb 10, 2004 at 02:51:43PM -0500, Bill Davidsen wrote:
-> 
->>Sorry, last reply "just went" for some reason... ijn any case I hope the 
->>number and tone of replies has shown that a number of people DO care, 
->>and that "you can just program around it with your effort instead of 
->>mine" isn't going to be popular.
->>
->>In other words, this sounds more like 2.7 material where people expect 
->>things to change than something which should just suddenly break in 2.6. 
->>Violation of Plauger's Law of Least Astonishment and all that.
-> 
-> 
-> I think the discussion has always been that this would be a 2.7 item.  
-> 
-> However, it might be useful to make 2.6 start issueing printk's *now*
-> when a program uses a BSD pty, so that application programs have
-> plenty of notice that they will be going away.
-> 
+On Tue, 2004-02-10 at 15:52, Matthew Dharm wrote:
+> Obfuscation can obscure the names of functions, but generally not string
+> constants or the structure of functions calling other functions.
 
-The way it looks right now it's not going to matter; it appears that
-(optionally) continuing to supporting BSD ptys will "fall out naturally"
-at least initially.
+Sadly, objdump turns up nothing really interesting. The kernel image is
+in i386-linux a.out format. This is all it gives me for headers:
 
-Ted, could I ask you to eyeball my patch to see how broken it is?
+SOME.FILE:     file format a.out-i386-linux
+SOME.FILE
+architecture: i386, flags 0x000001be:
+EXEC_P, HAS_LINENO, HAS_DEBUG, HAS_SYMS, HAS_LOCALS, WP_TEXT, D_PAGED
+start address 0x00100020
+                                                                                                                                                         
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         00079fc0  00000020  00000020  00000020  2**2
+                  CONTENTS, ALLOC, LOAD, CODE
+  1 .data         0002a000  0007a000  0007a000  00079fe0  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .bss          00018004  000a4000  000a4000  00000000  2**2
+                  ALLOC
 
-	-hpa
+
+It is easier to read some of the function names and other things using
+objdump's -s option, but beyond that it's not much more useful than
+strings. It appears that I will have to get medieval on it.
+
+-- 
+I am subscribed to this mailing list. It is not necessary to CC me.
+Thank you. -Gidon
 

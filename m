@@ -1,771 +1,247 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262737AbTEBRkm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 13:40:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262951AbTEBRkl
+	id S262976AbTEBQZD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 12:25:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262977AbTEBQZD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 13:40:41 -0400
-Received: from smtp012.mail.yahoo.com ([216.136.173.32]:54532 "HELO
-	smtp012.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262737AbTEBRkQ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 13:40:16 -0400
-From: Michael Buesch <fsdeveloper@yahoo.de>
-To: pgmdsg@ibi.com
-Subject: [2.5.68] Compiletime error in riscom8.h
-Date: Fri, 2 May 2003 19:52:02 +0200
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org
+	Fri, 2 May 2003 12:25:03 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:50586 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S262976AbTEBQY7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 May 2003 12:24:59 -0400
+Date: Fri, 2 May 2003 12:37:23 -0400 (EDT)
+From: Ingo Molnar <mingo@redhat.com>
+X-X-Sender: mingo@devserv.devel.redhat.com
+To: linux-kernel@vger.kernel.org
+Subject: [Announcement] "Exec Shield", new Linux security feature
+Message-ID: <Pine.LNX.4.44.0305021217090.17548-100000@devserv.devel.redhat.com>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200305021952.14376.fsdeveloper@yahoo.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Hi.
+We are pleased to announce the first publically available source code
+release of a new kernel-based security feature called the "Exec Shield",
+for Linux/x86. The kernel patch (against 2.4.21-rc1, released under the
+GPL/OSL) can be downloaded from:
 
-  gcc -Wp,-MD,drivers/char/.riscom8.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon -Iinclude/asm-i386/mach-default -fomit-frame-pointer -nostdinc -iwithprefix include    -DKBUILD_BASENAME=riscom8 -DKBUILD_MODNAME=riscom8 -c -o drivers/char/riscom8.o drivers/char/riscom8.c
-In file included from drivers/char/riscom8.c:51:
-drivers/char/riscom8.h:89: field `tqueue' has incomplete type
-drivers/char/riscom8.h:90: field `tqueue_hangup' has incomplete type
-drivers/char/riscom8.c:84: warning: type defaults to `int' in declaration of `DECLARE_TASK_QUEUE'
-drivers/char/riscom8.c:84: warning: parameter names (without types) in function declaration
-drivers/char/riscom8.c:142: confused by earlier errors, bailing out
-make[2]: *** [drivers/char/riscom8.o] Fehler 1
-make[1]: *** [drivers/char] Fehler 2
-make: *** [drivers] Fehler 2
+	http://redhat.com/~mingo/exec-shield/
+
+The exec-shield feature provides protection against stack, buffer or
+function pointer overflows, and against other types of exploits that rely
+on overwriting data structures and/or putting code into those structures.
+The patch also makes it harder to pass in and execute the so-called
+'shell-code' of exploits. The patch works transparently, ie. no
+application recompilation is necessary.
+
+Background:
+-----------
+
+It is commonly known that x86 pagetables do not support the so-called
+executable bit in the pagetable entries - PROT_EXEC and PROT_READ are
+merged into a single 'read or execute' flag. This means that even if an
+application marks a certain memory area non-executable (by not providing
+the PROT_EXEC flag upon mapping it) under x86, that area is still
+executable, if the area is PROT_READ.
+
+Furthermore, the x86 ELF ABI marks the process stack executable, which
+requires that the stack is marked executable even on CPUs that support an
+executable bit in the pagetables.
+
+This problem has been addressed in the past by various kernel patches,
+such as Solar Designer's excellent "non-exec stack patch". These patches
+mostly operate by using the x86 segmentation feature to set the code
+segment 'limit' value to a certain fixed value that points right below the
+stack frame. The exec-shield tries to cover as much virtual memory via the
+code segment limit as possible - not just the stack.
+
+Implementation:
+---------------
+
+The exec-shield feature works via the kernel transparently tracking
+executable mappings an application specifies, and maintains a 'maximum
+executable address' value. This is called the 'exec-limit'. The scheduler
+uses the exec-limit to update the code segment descriptor upon each
+context-switch. Since each process (or thread) in the system can have a
+different exec-limit, the scheduler sets the user code segment dynamically
+so that always the correct code-segment limit is used.
+
+the kernel caches the user segment descriptor value, so the overhead in
+the context-switch path is a very cheap, unconditional 6-byte write to the
+GDT, costing 2-3 cycles at most.
+
+Furthermore, the kernel also remaps all PROT_EXEC mappings to the
+so-called ASCII-armor area, which on x86 is the addresses 0-16MB. These
+addresses are special because they cannot be jumped to via ASCII-based
+overflows. E.g. if a buggy application can be overflown via a long URL:
+
+  http://somehost/buggy.app?realyloooooooooooooooooooong.123489719875
+
+then only ASCII (ie. value 1-255) characters can be used by attackers. If
+all executable addresses are in the ASCII-armor, then no attack URL can be
+used to jump into the executable code - ie. the attack cannot be
+successful. (because no URL string can contain the \0 character.) E.g. the
+recent sendmail remote root attack was an ASCII-based overflow as well.
+
+With the exec-shield activated, and the 'cat' binary relinked into the the
+ASCII-armor, the following layout is created:
+
+  $ ./cat-lowaddr /proc/self/maps
+  00101000-00116000 r-xp 00000000 03:01 319365     /lib/ld-2.3.2.so
+  00116000-00117000 rw-p 00014000 03:01 319365     /lib/ld-2.3.2.so
+  00117000-0024a000 r-xp 00000000 03:01 319439     /lib/libc-2.3.2.so
+  0024a000-0024e000 rw-p 00132000 03:01 319439     /lib/libc-2.3.2.so
+  0024e000-00250000 rw-p 00000000 00:00 0
+  01000000-01004000 r-xp 00000000 16:01 2036120    /home/mingo/cat-lowaddr
+  01004000-01005000 rw-p 00003000 16:01 2036120    /home/mingo/cat-lowaddr
+  01005000-01006000 rw-p 00000000 00:00 0
+  40000000-40001000 rw-p 00000000 00:00 0
+  40001000-40201000 r--p 00000000 03:01 464809     locale-archive
+  40201000-40207000 r--p 00915000 03:01 464809     locale-archive
+  40207000-40234000 r--p 0091f000 03:01 464809     locale-archive
+  40234000-40235000 r--p 00955000 03:01 464809     locale-archive
+  bfffe000-c0000000 rw-p fffff000 00:00 0
+
+In the above layout, the highest executable address is 0x01003fff, ie.
+every executable address is in the ASCII-armor.
+
+this means that not only the stack is non-executable, but lots of
+mmap()-ed data areas and the malloc() heap is non-executable as well.  
+(some data areas are still executable, but most of them are not.)
+
+the first 1MB of the ASCII-armor is left unused to provide NULL pointer
+dereference protection and leave space for 16-bit emulation mappings used
+by XFree86 and others.
+
+Compare this with the memory layout without exec-shield:
+
+  08048000-0804b000 r-xp 00000000 16:01 3367       /bin/cat
+  0804b000-0804c000 rw-p 00003000 16:01 3367       /bin/cat
+  0804c000-0804e000 rwxp 00000000 00:00 0
+  40000000-40012000 r-xp 00000000 16:01 3759       /lib/ld-2.2.5.so
+  40012000-40013000 rw-p 00011000 16:01 3759       /lib/ld-2.2.5.so
+  40013000-40014000 rw-p 00000000 00:00 0
+  40018000-40129000 r-xp 00000000 16:01 4058       /lib/libc-2.2.5.so
+  40129000-4012f000 rw-p 00111000 16:01 4058       /lib/libc-2.2.5.so
+  4012f000-40133000 rw-p 00000000 00:00 0
+  bffff000-c0000000 rwxp 00000000 00:00 0
+
+In this layout none of the executable areas are in the ASCII-armor, plus
+the exec-limit is 0xbfffffff (3GB) - ie. including all userspace mappings.
+
+Note that the kernel will relocate every shared-library to the
+ASCII-armor, but the binary address is determined at link-time. To ease
+the relinking of applications to the ASCII-armor, Arjan Van de Ven has
+written a binutils patch (binutils-2.13.90.0.18-elf-small.patch), which
+adds a new 'ld' flag "ld -melf_i386_small" (or "gcc -Wl,-melf_i386_small")
+to relink applications into the ASCII-armor. (The patch can be found at
+the exec-shield URL as well.)
+
+Overhead:
+---------
+
+the patch was designed to be as efficient as possible. There's a very
+minimal (couple of cycles) tracking overhead for every PROT_MMAP
+system-call, plus there's the 2-3 cycles cost per context-switch.
+
+Limitations:
+------------
+
+This feature will not protect against every type of attack.
+
+E.g. if an overflow can be used to overwrite a local variable which
+changes the flow of control in a way that compromises the system. But we
+do believe that this feature will stop every attack that is purely
+operating by overflowing the return address on the stack, or overflowing a
+function pointer in the heap. Furthermore, exec-shield makes it quite hard
+to mount a successful attack even in the other cases, because it inhibits
+the execution of exploit shell-code, in most cases.
+
+also, if the overflow is within the exec-shield itself (e.g. within the
+data section of one of the shared library objects in the ASCII-armor) then
+the overflow might be possible to exploit.
+
+All in one, exec-shield is one barrier against attacks, not blanket 100%
+protection in any way. The most efficient security can be provided by
+installing as many layers as possible.
+
+To provide as good protection as possible, there's no trampoline
+workaround in the exec-shield code - ie. exec-limit violations in the
+trampoline case are never let through. Applications that need to rely on
+gcc trampolines will have to use the per-binary ELF flag to make the stack
+executable again. (The ELF flag is the same as used by Solar Designer's
+non-exec stack patch, to provide as much compatibility with existing
+non-exec-stack installations as possible.)
+
+The exec-shield feature will uncover applications that incorrectly assumed
+that PROT_READ allows execution on x86. One such example is the XFree86
+module loader. The latest XFree86 on rawhide.redhat.com fixes this
+problem. For those who cannot install the XFree86 bugfix at the moment
+there's a workaround added by the patch, which can be activated via:
+
+    echo 1 > /proc/sys/kernel/X-workaround
+
+This will make every iopl() using application (such as X) have the
+exec-shield disabled. Other applications (sendmail, etc.) will still have
+the exec-shield enabled. This workaround is default-off. We strongly
+encourage to solve this problem by upgrading X, or by using the 'chkstk'
+utility to make X's stack forced-executable.
+
+Using it:
+---------
+
+Apply the exec-shield-2.4.21-rc1-B6 kernel patch to the 2.4.21-rc1 kernel,
+recompile & install the kernel and reboot into it, that's all.
+
+There is a new boot-time kernel command line option called exec-shield=,
+which has 4 values. Each value represents a different level of security:
+
+ exec-shield=0    - always-disabled
+ exec-shield=1    - default disabled, except binaries that enable it
+ exec-shield=2    - default enabled, except binaries that disable it
+ exec-shield=3    - always-enabled
+
+the current patch defaults to 'exec-shield=2'. The security level can also
+be changed runtime, by writing the level into /proc:
+
+  echo 0 > /proc/sys/kernel/exec-shield
+
+IMPORTANT: security-relevant applications that were started while the
+exec-shield was disabled, will have an executable stack and will thus have
+to be restarted if the exec-shield is enabled again.
+
+I've also uploaded a modified version of Solar Designer's chstk.c code,
+which adds the options necessary to change the 'enable non-exec stack' ELF
+flag:
+
+  $ ./chstk
+  Usage: ./chstk OPTION FILE...
+  Manage stack area executability flag for binaries
+
+    -e    enable execution permission
+    -E    enable non-execution permission
+    -d    disable execution permission
+    -D    disable non-execution permission
+    -v    view current flag state
+
+ie. there are two distinct flags, one for forcing an executable stack, one
+for forcing a non-executable stack. If both flags are zero then the binary
+will follow the system default.
+
+ie. it's possible to use an exec-shield level of 1, and enable the
+non-exec stack on a per binary basis, by using the 'exec-shield=1' boot
+option and changing binaries one at a time:
+
+   ./chstk -E /usr/sbin/sendmail
+
+(People migrating production environments to an exec-shield kernel might
+prefer this variant.)
+
+anyway, comments, suggestions and test feedback is welcome.
+
+	Ingo
 
 
-$ grep "=[y|m]" .config
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_BSD_PROCESS_ACCT=y
-CONFIG_SYSCTL=y
-CONFIG_MODULES=y
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_KMOD=y
-CONFIG_X86_PC=y
-CONFIG_MK7=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_X86_USE_3DNOW=y
-CONFIG_X86_TSC=y
-CONFIG_X86_MCE=y
-CONFIG_TOSHIBA=m
-CONFIG_I8K=m
-CONFIG_MICROCODE=m
-CONFIG_X86_MSR=m
-CONFIG_X86_CPUID=m
-CONFIG_HIGHMEM4G=y
-CONFIG_HIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_PM=y
-CONFIG_APM=y
-CONFIG_APM_CPU_IDLE=y
-CONFIG_APM_RTC_IS_GMT=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_ISA=y
-CONFIG_EISA=y
-CONFIG_EISA_PCI_EISA=y
-CONFIG_EISA_VIRTUAL_ROOT=y
-CONFIG_EISA_NAMES=y
-CONFIG_HOTPLUG=y
-CONFIG_PCMCIA=m
-CONFIG_CARDBUS=y
-CONFIG_I82092=m
-CONFIG_I82365=m
-CONFIG_TCIC=m
-CONFIG_PCMCIA_PROBE=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_AOUT=m
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=m
-CONFIG_PARPORT=m
-CONFIG_PARPORT_PC=m
-CONFIG_PARPORT_PC_PCMCIA=m
-CONFIG_PARPORT_1284=y
-CONFIG_PNP=y
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_XD=m
-CONFIG_PARIDE=m
-CONFIG_PARIDE_PARPORT=m
-CONFIG_PARIDE_PD=m
-CONFIG_PARIDE_PCD=m
-CONFIG_PARIDE_PF=m
-CONFIG_PARIDE_PT=m
-CONFIG_PARIDE_PG=m
-CONFIG_PARIDE_ATEN=m
-CONFIG_PARIDE_BPCK=m
-CONFIG_PARIDE_BPCK6=m
-CONFIG_PARIDE_COMM=m
-CONFIG_PARIDE_DSTR=m
-CONFIG_PARIDE_FIT2=m
-CONFIG_PARIDE_FIT3=m
-CONFIG_PARIDE_EPAT=m
-CONFIG_PARIDE_EPIA=m
-CONFIG_PARIDE_FRIQ=m
-CONFIG_PARIDE_FRPW=m
-CONFIG_PARIDE_KBIC=m
-CONFIG_PARIDE_KTTI=m
-CONFIG_PARIDE_ON20=m
-CONFIG_PARIDE_ON26=m
-CONFIG_BLK_CPQ_DA=m
-CONFIG_BLK_CPQ_CISS_DA=m
-CONFIG_CISS_SCSI_TAPE=y
-CONFIG_BLK_DEV_DAC960=m
-CONFIG_BLK_DEV_LOOP=m
-CONFIG_BLK_DEV_NBD=m
-CONFIG_BLK_DEV_RAM=y
-CONFIG_BLK_DEV_INITRD=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECS=m
-CONFIG_BLK_DEV_IDECD=m
-CONFIG_BLK_DEV_IDEFLOPPY=y
-CONFIG_BLK_DEV_IDESCSI=m
-CONFIG_BLK_DEV_CMD640=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_AEC62XX=y
-CONFIG_BLK_DEV_ALI15X3=y
-CONFIG_BLK_DEV_AMD74XX=y
-CONFIG_BLK_DEV_CMD64X=y
-CONFIG_BLK_DEV_CY82C693=y
-CONFIG_BLK_DEV_HPT34X=y
-CONFIG_BLK_DEV_HPT366=y
-CONFIG_BLK_DEV_PIIX=y
-CONFIG_BLK_DEV_RZ1000=y
-CONFIG_BLK_DEV_SVWKS=y
-CONFIG_BLK_DEV_SIS5513=y
-CONFIG_BLK_DEV_SLC90E66=y
-CONFIG_BLK_DEV_VIA82CXXX=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_BLK_DEV_IDE_MODES=y
-CONFIG_SCSI=m
-CONFIG_BLK_DEV_SD=m
-CONFIG_CHR_DEV_ST=m
-CONFIG_CHR_DEV_OSST=m
-CONFIG_BLK_DEV_SR=m
-CONFIG_BLK_DEV_SR_VENDOR=y
-CONFIG_CHR_DEV_SG=m
-CONFIG_SCSI_REPORT_LUNS=y
-CONFIG_SCSI_CONSTANTS=y
-CONFIG_SCSI_LOGGING=y
-CONFIG_BLK_DEV_3W_XXXX_RAID=m
-CONFIG_SCSI_7000FASST=m
-CONFIG_SCSI_ACARD=m
-CONFIG_SCSI_AHA152X=m
-CONFIG_SCSI_AHA1542=m
-CONFIG_SCSI_AHA1740=m
-CONFIG_SCSI_AIC7XXX=m
-CONFIG_AIC7XXX_DEBUG_ENABLE=y
-CONFIG_AIC7XXX_REG_PRETTY_PRINT=y
-CONFIG_SCSI_AIC7XXX_OLD=m
-CONFIG_SCSI_AIC79XX=m
-CONFIG_AIC79XX_ENABLE_RD_STRM=y
-CONFIG_AIC79XX_REG_PRETTY_PRINT=y
-CONFIG_SCSI_DPT_I2O=m
-CONFIG_SCSI_ADVANSYS=m
-CONFIG_SCSI_IN2000=m
-CONFIG_SCSI_AM53C974=m
-CONFIG_SCSI_MEGARAID=m
-CONFIG_SCSI_BUSLOGIC=m
-CONFIG_SCSI_CPQFCTS=m
-CONFIG_SCSI_DMX3191D=m
-CONFIG_SCSI_DTC3280=m
-CONFIG_SCSI_EATA=m
-CONFIG_SCSI_EATA_TAGGED_QUEUE=y
-CONFIG_SCSI_EATA_PIO=m
-CONFIG_SCSI_FUTURE_DOMAIN=m
-CONFIG_SCSI_GDTH=m
-CONFIG_SCSI_GENERIC_NCR5380=m
-CONFIG_SCSI_IPS=m
-CONFIG_SCSI_INITIO=m
-CONFIG_SCSI_INIA100=m
-CONFIG_SCSI_PPA=m
-CONFIG_SCSI_IMM=m
-CONFIG_SCSI_NCR53C406A=m
-CONFIG_53C700_IO_MAPPED=y
-CONFIG_SCSI_NCR53C7xx=m
-CONFIG_SCSI_NCR53C7xx_FAST=y
-CONFIG_SCSI_NCR53C7xx_DISCONNECT=y
-CONFIG_SCSI_SYM53C8XX_2=m
-CONFIG_SCSI_NCR53C8XX=m
-CONFIG_SCSI_SYM53C8XX=m
-CONFIG_SCSI_PAS16=m
-CONFIG_SCSI_PCI2000=m
-CONFIG_SCSI_PCI2220I=m
-CONFIG_SCSI_PSI240I=m
-CONFIG_SCSI_QLOGIC_FAS=m
-CONFIG_SCSI_QLOGIC_ISP=m
-CONFIG_SCSI_QLOGIC_FC=m
-CONFIG_SCSI_QLOGIC_1280=m
-CONFIG_SCSI_SEAGATE=m
-CONFIG_SCSI_SIM710=m
-CONFIG_SCSI_SYM53C416=m
-CONFIG_SCSI_DC390T=m
-CONFIG_SCSI_T128=m
-CONFIG_SCSI_U14_34F=m
-CONFIG_SCSI_ULTRASTOR=m
-CONFIG_SCSI_DEBUG=m
-CONFIG_PCMCIA_AHA152X=m
-CONFIG_PCMCIA_FDOMAIN=m
-CONFIG_PCMCIA_NINJA_SCSI=m
-CONFIG_PCMCIA_QLOGIC=m
-CONFIG_MD=y
-CONFIG_BLK_DEV_MD=y
-CONFIG_MD_LINEAR=m
-CONFIG_MD_RAID0=m
-CONFIG_MD_RAID1=m
-CONFIG_MD_RAID5=m
-CONFIG_MD_MULTIPATH=m
-CONFIG_FUSION=m
-CONFIG_FUSION_CTL=m
-CONFIG_FUSION_LAN=m
-CONFIG_I2O=m
-CONFIG_I2O_PCI=m
-CONFIG_I2O_BLOCK=m
-CONFIG_I2O_SCSI=m
-CONFIG_I2O_PROC=m
-CONFIG_NET=y
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-CONFIG_NETLINK_DEV=y
-CONFIG_NETFILTER=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_IP_ADVANCED_ROUTER=y
-CONFIG_IP_MULTIPLE_TABLES=y
-CONFIG_IP_ROUTE_FWMARK=y
-CONFIG_IP_ROUTE_NAT=y
-CONFIG_IP_ROUTE_MULTIPATH=y
-CONFIG_IP_ROUTE_TOS=y
-CONFIG_IP_ROUTE_VERBOSE=y
-CONFIG_IP_ROUTE_LARGE_TABLES=y
-CONFIG_NET_IPIP=m
-CONFIG_NET_IPGRE=m
-CONFIG_NET_IPGRE_BROADCAST=y
-CONFIG_IP_MROUTE=y
-CONFIG_IP_PIMSM_V1=y
-CONFIG_IP_PIMSM_V2=y
-CONFIG_SYN_COOKIES=y
-CONFIG_IP_NF_CONNTRACK=m
-CONFIG_IP_NF_FTP=m
-CONFIG_IP_NF_IRC=m
-CONFIG_IP_NF_IPTABLES=m
-CONFIG_IP_NF_MATCH_LIMIT=m
-CONFIG_IP_NF_MATCH_MAC=m
-CONFIG_IP_NF_MATCH_MARK=m
-CONFIG_IP_NF_MATCH_MULTIPORT=m
-CONFIG_IP_NF_MATCH_TOS=m
-CONFIG_IP_NF_MATCH_AH_ESP=m
-CONFIG_IP_NF_MATCH_LENGTH=m
-CONFIG_IP_NF_MATCH_TTL=m
-CONFIG_IP_NF_MATCH_TCPMSS=m
-CONFIG_IP_NF_MATCH_STATE=m
-CONFIG_IP_NF_FILTER=m
-CONFIG_IP_NF_TARGET_REJECT=m
-CONFIG_IP_NF_NAT=m
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=m
-CONFIG_IP_NF_TARGET_REDIRECT=m
-CONFIG_IP_NF_NAT_IRC=m
-CONFIG_IP_NF_NAT_FTP=m
-CONFIG_IP_NF_MANGLE=m
-CONFIG_IP_NF_TARGET_TOS=m
-CONFIG_IP_NF_TARGET_MARK=m
-CONFIG_IP_NF_TARGET_LOG=m
-CONFIG_IP_NF_TARGET_ULOG=m
-CONFIG_IP_NF_TARGET_TCPMSS=m
-CONFIG_IP_NF_ARPTABLES=m
-CONFIG_IP_NF_ARPFILTER=m
-CONFIG_IP_NF_COMPAT_IPCHAINS=m
-CONFIG_IP_NF_COMPAT_IPFWADM=m
-CONFIG_VLAN_8021Q=m
-CONFIG_DECNET=m
-CONFIG_DECNET_SIOCGIFCONF=y
-CONFIG_BRIDGE=m
-CONFIG_NET_SCHED=y
-CONFIG_NET_SCH_CBQ=m
-CONFIG_NET_SCH_HTB=m
-CONFIG_NET_SCH_CSZ=m
-CONFIG_NET_SCH_PRIO=m
-CONFIG_NET_SCH_RED=m
-CONFIG_NET_SCH_SFQ=m
-CONFIG_NET_SCH_TEQL=m
-CONFIG_NET_SCH_TBF=m
-CONFIG_NET_SCH_GRED=m
-CONFIG_NET_SCH_DSMARK=m
-CONFIG_NET_SCH_INGRESS=m
-CONFIG_NET_QOS=y
-CONFIG_NET_ESTIMATOR=y
-CONFIG_NET_CLS=y
-CONFIG_NET_CLS_TCINDEX=m
-CONFIG_NET_CLS_ROUTE4=m
-CONFIG_NET_CLS_ROUTE=y
-CONFIG_NET_CLS_FW=m
-CONFIG_NET_CLS_U32=m
-CONFIG_NET_CLS_RSVP=m
-CONFIG_NET_CLS_RSVP6=m
-CONFIG_NET_CLS_POLICE=y
-CONFIG_NETDEVICES=y
-CONFIG_DUMMY=m
-CONFIG_BONDING=m
-CONFIG_EQUALIZER=m
-CONFIG_TUN=m
-CONFIG_NET_ETHERNET=y
-CONFIG_HAPPYMEAL=m
-CONFIG_SUNGEM=m
-CONFIG_NET_VENDOR_3COM=y
-CONFIG_EL1=m
-CONFIG_EL2=m
-CONFIG_ELPLUS=m
-CONFIG_EL3=m
-CONFIG_3C515=m
-CONFIG_VORTEX=m
-CONFIG_LANCE=m
-CONFIG_NET_VENDOR_SMC=y
-CONFIG_WD80x3=m
-CONFIG_ULTRA=m
-CONFIG_ULTRA32=m
-CONFIG_SMC9194=m
-CONFIG_NET_VENDOR_RACAL=y
-CONFIG_NI52=m
-CONFIG_NI65=m
-CONFIG_DEPCA=m
-CONFIG_HP100=m
-CONFIG_NET_ISA=y
-CONFIG_E2100=m
-CONFIG_EWRK3=m
-CONFIG_EEXPRESS=m
-CONFIG_EEXPRESS_PRO=m
-CONFIG_HPLAN_PLUS=m
-CONFIG_HPLAN=m
-CONFIG_LP486E=m
-CONFIG_ETH16I=m
-CONFIG_NE2000=m
-CONFIG_NET_PCI=y
-CONFIG_PCNET32=m
-CONFIG_ADAPTEC_STARFIRE=m
-CONFIG_APRICOT=m
-CONFIG_CS89x0=m
-CONFIG_DGRS=m
-CONFIG_EEPRO100=m
-CONFIG_NATSEMI=m
-CONFIG_NE2K_PCI=m
-CONFIG_8139TOO=m
-CONFIG_8139TOO_8129=y
-CONFIG_SIS900=m
-CONFIG_EPIC100=m
-CONFIG_SUNDANCE=m
-CONFIG_TLAN=m
-CONFIG_VIA_RHINE=m
-CONFIG_NET_POCKET=y
-CONFIG_ATP=m
-CONFIG_DE600=m
-CONFIG_DE620=m
-CONFIG_ACENIC=m
-CONFIG_DL2K=m
-CONFIG_NS83820=m
-CONFIG_HAMACHI=m
-CONFIG_SK98LIN=m
-CONFIG_TIGON3=m
-CONFIG_FDDI=y
-CONFIG_DEFXX=m
-CONFIG_SKFP=m
-CONFIG_PLIP=m
-CONFIG_PPP=m
-CONFIG_PPP_FILTER=y
-CONFIG_PPP_ASYNC=m
-CONFIG_PPP_SYNC_TTY=m
-CONFIG_PPP_DEFLATE=m
-CONFIG_SLIP=m
-CONFIG_SLIP_COMPRESSED=y
-CONFIG_SLIP_SMART=y
-CONFIG_SLIP_MODE_SLIP6=y
-CONFIG_NET_RADIO=y
-CONFIG_STRIP=m
-CONFIG_ARLAN=m
-CONFIG_WAVELAN=m
-CONFIG_PCMCIA_WAVELAN=m
-CONFIG_PCMCIA_NETWAVE=m
-CONFIG_PCMCIA_RAYCS=m
-CONFIG_AIRO=m
-CONFIG_HERMES=m
-CONFIG_PCMCIA_HERMES=m
-CONFIG_AIRO_CS=m
-CONFIG_NET_WIRELESS=y
-# Token Ring devices (depends on LLC=y)
-CONFIG_NET_FC=y
-CONFIG_IPHASE5526=m
-CONFIG_WAN=y
-CONFIG_HOSTESS_SV11=m
-CONFIG_COSA=m
-CONFIG_SEALEVEL_4021=m
-CONFIG_DLCI=m
-CONFIG_SDLA=m
-CONFIG_SBNI=m
-CONFIG_SBNI_MULTILINE=y
-CONFIG_NET_PCMCIA=y
-CONFIG_PCMCIA_3C589=m
-CONFIG_PCMCIA_3C574=m
-CONFIG_PCMCIA_FMVJ18X=m
-CONFIG_PCMCIA_PCNET=m
-CONFIG_PCMCIA_NMCLAN=m
-CONFIG_PCMCIA_SMC91C92=m
-CONFIG_PCMCIA_XIRC2PS=m
-CONFIG_PCMCIA_AXNET=m
-CONFIG_IRDA=m
-CONFIG_IRLAN=m
-CONFIG_IRNET=m
-CONFIG_IRCOMM=m
-CONFIG_IRDA_ULTRA=y
-CONFIG_IRDA_CACHE_LAST_LSAP=y
-CONFIG_IRDA_FAST_RR=y
-CONFIG_IRTTY_SIR=m
-CONFIG_DONGLE=y
-CONFIG_ESI_DONGLE=m
-CONFIG_ACTISYS_DONGLE=m
-CONFIG_TEKRAM_DONGLE=m
-CONFIG_IRPORT_SIR=m
-CONFIG_NSC_FIR=m
-CONFIG_WINBOND_FIR=m
-CONFIG_TOSHIBA_FIR=m
-CONFIG_PHONE=m
-CONFIG_PHONE_IXJ=m
-CONFIG_PHONE_IXJ_PCMCIA=m
-CONFIG_INPUT=m
-CONFIG_INPUT_MOUSEDEV=m
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_JOYDEV=m
-CONFIG_INPUT_EVDEV=m
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_SERIO_SERPORT=y
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=m
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=m
-CONFIG_SERIAL_NONSTANDARD=y
-CONFIG_COMPUTONE=m
-CONFIG_ROCKETPORT=m
-CONFIG_CYCLADES=m
-CONFIG_DIGIEPCA=m
-CONFIG_ESPSERIAL=m
-CONFIG_MOXA_INTELLIO=m
-CONFIG_MOXA_SMARTIO=m
-CONFIG_SYNCLINK=m
-CONFIG_N_HDLC=m
-CONFIG_RISCOM8=y
-CONFIG_SPECIALIX=m
-CONFIG_SPECIALIX_RTSCTS=y
-CONFIG_SX=m
-CONFIG_STALDRV=y
-CONFIG_STALLION=m
-CONFIG_ISTALLION=m
-CONFIG_UNIX98_PTYS=y
-CONFIG_PRINTER=m
-CONFIG_LP_CONSOLE=y
-CONFIG_PPDEV=m
-CONFIG_I2C=m
-CONFIG_I2C_ALGOBIT=m
-CONFIG_I2C_PHILIPSPAR=m
-CONFIG_I2C_ELV=m
-CONFIG_I2C_VELLEMAN=m
-CONFIG_I2C_ALGOPCF=m
-CONFIG_I2C_ELEKTOR=m
-CONFIG_I2C_CHARDEV=m
-CONFIG_BUSMOUSE=m
-CONFIG_WATCHDOG=y
-CONFIG_SOFT_WATCHDOG=m
-CONFIG_WDT=m
-CONFIG_WDTPCI=m
-CONFIG_PCWATCHDOG=m
-CONFIG_ACQUIRE_WDT=m
-CONFIG_ADVANTECH_WDT=m
-CONFIG_EUROTECH_WDT=m
-CONFIG_IB700_WDT=m
-CONFIG_I810_TCO=m
-CONFIG_W83877F_WDT=m
-CONFIG_MACHZ_WDT=m
-CONFIG_SC520_WDT=m
-CONFIG_AMD7XX_TCO=m
-CONFIG_ALIM7101_WDT=m
-CONFIG_SC1200_WDT=m
-CONFIG_WAFER_WDT=m
-CONFIG_NVRAM=m
-CONFIG_RTC=y
-CONFIG_DTLK=m
-CONFIG_R3964=m
-CONFIG_FTAPE=m
-CONFIG_ZFTAPE=m
-CONFIG_ZFT_COMPRESSOR=m
-CONFIG_FT_NORMAL_DEBUG=y
-CONFIG_FT_STD_FDC=y
-CONFIG_AGP=m
-CONFIG_AGP_INTEL=m
-CONFIG_AGP_VIA=m
-CONFIG_AGP_AMD=m
-CONFIG_AGP_SIS=m
-CONFIG_AGP_ALI=m
-CONFIG_AGP_SWORKS=m
-CONFIG_DRM=y
-CONFIG_DRM_TDFX=m
-CONFIG_DRM_R128=m
-CONFIG_DRM_RADEON=m
-CONFIG_DRM_I810=m
-CONFIG_DRM_I830=m
-CONFIG_DRM_MGA=m
-CONFIG_SYNCLINK_CS=m
-CONFIG_MWAVE=m
-CONFIG_VIDEO_DEV=m
-CONFIG_VIDEO_PROC_FS=y
-CONFIG_VIDEO_BT848=m
-CONFIG_VIDEO_PMS=m
-CONFIG_VIDEO_BWQCAM=m
-CONFIG_VIDEO_W9966=m
-CONFIG_VIDEO_CPIA=m
-CONFIG_VIDEO_CPIA_PP=m
-CONFIG_VIDEO_CPIA_USB=m
-CONFIG_VIDEO_SAA5249=m
-CONFIG_TUNER_3036=m
-CONFIG_VIDEO_ZORAN=m
-CONFIG_VIDEO_ZORAN_BUZ=m
-CONFIG_VIDEO_ZORAN_DC10=m
-CONFIG_VIDEO_ZORAN_LML33=m
-CONFIG_VIDEO_ZR36120=m
-CONFIG_RADIO_CADET=m
-CONFIG_RADIO_RTRACK=m
-CONFIG_RADIO_RTRACK2=m
-CONFIG_RADIO_AZTECH=m
-CONFIG_RADIO_GEMTEK=m
-CONFIG_RADIO_GEMTEK_PCI=m
-CONFIG_RADIO_MAXIRADIO=m
-CONFIG_RADIO_MAESTRO=m
-CONFIG_RADIO_SF16FMI=m
-CONFIG_RADIO_TERRATEC=m
-CONFIG_RADIO_TRUST=m
-CONFIG_RADIO_TYPHOON=m
-CONFIG_RADIO_TYPHOON_PROC_FS=y
-CONFIG_RADIO_ZOLTRIX=m
-CONFIG_VIDEO_VIDEOBUF=m
-CONFIG_VIDEO_TUNER=m
-CONFIG_VIDEO_BUF=m
-CONFIG_VIDEO_BTCX=m
-CONFIG_EXT2_FS=y
-CONFIG_EXT3_FS=m
-CONFIG_EXT3_FS_XATTR=y
-CONFIG_EXT3_FS_POSIX_ACL=y
-CONFIG_JBD=y
-CONFIG_FS_MBCACHE=y
-CONFIG_REISERFS_FS=m
-CONFIG_REISERFS_PROC_INFO=y
-CONFIG_JFS_FS=m
-CONFIG_JFS_DEBUG=y
-CONFIG_FS_POSIX_ACL=y
-CONFIG_MINIX_FS=m
-CONFIG_ROMFS_FS=m
-CONFIG_QUOTA=y
-CONFIG_QUOTACTL=y
-CONFIG_AUTOFS_FS=m
-CONFIG_AUTOFS4_FS=m
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_ZISOFS=y
-CONFIG_ZISOFS_FS=y
-CONFIG_UDF_FS=m
-CONFIG_FAT_FS=m
-CONFIG_MSDOS_FS=m
-CONFIG_VFAT_FS=m
-CONFIG_PROC_FS=y
-CONFIG_DEVPTS_FS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_CRAMFS=m
-CONFIG_VXFS_FS=m
-CONFIG_SYSV_FS=m
-CONFIG_UFS_FS=m
-CONFIG_NFS_FS=m
-CONFIG_NFS_V3=y
-CONFIG_NFSD=m
-CONFIG_NFSD_V3=y
-CONFIG_LOCKD=m
-CONFIG_LOCKD_V4=y
-CONFIG_EXPORTFS=m
-CONFIG_SUNRPC=m
-CONFIG_SMB_FS=m
-CONFIG_NCP_FS=m
-CONFIG_NCPFS_PACKET_SIGNING=y
-CONFIG_NCPFS_IOCTL_LOCKING=y
-CONFIG_NCPFS_STRONG=y
-CONFIG_NCPFS_NFS_NS=y
-CONFIG_NCPFS_OS2_NS=y
-CONFIG_NCPFS_SMALLDOS=y
-CONFIG_NCPFS_NLS=y
-CONFIG_NCPFS_EXTRAS=y
-CONFIG_CODA_FS=m
-CONFIG_PARTITION_ADVANCED=y
-CONFIG_OSF_PARTITION=y
-CONFIG_MAC_PARTITION=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_BSD_DISKLABEL=y
-CONFIG_MINIX_SUBPARTITION=y
-CONFIG_SOLARIS_X86_PARTITION=y
-CONFIG_UNIXWARE_DISKLABEL=y
-CONFIG_SGI_PARTITION=y
-CONFIG_SUN_PARTITION=y
-CONFIG_SMB_NLS=y
-CONFIG_NLS=y
-CONFIG_NLS_CODEPAGE_437=m
-CONFIG_NLS_CODEPAGE_737=m
-CONFIG_NLS_CODEPAGE_775=m
-CONFIG_NLS_CODEPAGE_850=m
-CONFIG_NLS_CODEPAGE_852=m
-CONFIG_NLS_CODEPAGE_855=m
-CONFIG_NLS_CODEPAGE_857=m
-CONFIG_NLS_CODEPAGE_860=m
-CONFIG_NLS_CODEPAGE_861=m
-CONFIG_NLS_CODEPAGE_862=m
-CONFIG_NLS_CODEPAGE_863=m
-CONFIG_NLS_CODEPAGE_864=m
-CONFIG_NLS_CODEPAGE_865=m
-CONFIG_NLS_CODEPAGE_866=m
-CONFIG_NLS_CODEPAGE_869=m
-CONFIG_NLS_CODEPAGE_936=m
-CONFIG_NLS_CODEPAGE_950=m
-CONFIG_NLS_CODEPAGE_932=m
-CONFIG_NLS_CODEPAGE_949=m
-CONFIG_NLS_CODEPAGE_874=m
-CONFIG_NLS_ISO8859_8=m
-CONFIG_NLS_CODEPAGE_1250=m
-CONFIG_NLS_CODEPAGE_1251=m
-CONFIG_NLS_ISO8859_1=m
-CONFIG_NLS_ISO8859_2=m
-CONFIG_NLS_ISO8859_3=m
-CONFIG_NLS_ISO8859_4=m
-CONFIG_NLS_ISO8859_5=m
-CONFIG_NLS_ISO8859_6=m
-CONFIG_NLS_ISO8859_7=m
-CONFIG_NLS_ISO8859_9=m
-CONFIG_NLS_ISO8859_13=m
-CONFIG_NLS_ISO8859_14=m
-CONFIG_NLS_ISO8859_15=m
-CONFIG_NLS_KOI8_R=m
-CONFIG_NLS_KOI8_U=m
-CONFIG_NLS_UTF8=m
-CONFIG_FB=y
-CONFIG_FB_PM2=m
-CONFIG_FB_PM2_PCI=y
-CONFIG_FB_VESA=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_FB_HGA=m
-CONFIG_FB_RIVA=m
-CONFIG_FB_MATROX=m
-CONFIG_FB_MATROX_MILLENIUM=y
-CONFIG_FB_MATROX_MYSTIQUE=y
-CONFIG_FB_MATROX_I2C=m
-CONFIG_FB_MATROX_MULTIHEAD=y
-CONFIG_FB_RADEON=m
-CONFIG_FB_ATY128=m
-CONFIG_FB_ATY=m
-CONFIG_FB_ATY_CT=y
-CONFIG_FB_ATY_GX=y
-CONFIG_FB_SIS=m
-CONFIG_FB_SIS_300=y
-CONFIG_FB_SIS_315=y
-CONFIG_FB_NEOMAGIC=m
-CONFIG_FB_3DFX=m
-CONFIG_FB_VOODOO1=m
-CONFIG_FB_PM3=m
-CONFIG_SOUND=m
-CONFIG_USB=m
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_EHCI_HCD=m
-CONFIG_USB_AUDIO=m
-CONFIG_USB_ACM=m
-CONFIG_USB_PRINTER=m
-CONFIG_USB_STORAGE=m
-CONFIG_USB_STORAGE_FREECOM=y
-CONFIG_USB_STORAGE_ISD200=y
-CONFIG_USB_STORAGE_DPCM=y
-CONFIG_USB_HID=m
-CONFIG_USB_AIPTEK=m
-CONFIG_USB_WACOM=m
-CONFIG_USB_SCANNER=m
-CONFIG_USB_MICROTEK=m
-CONFIG_USB_DABUSB=m
-CONFIG_USB_IBMCAM=m
-CONFIG_USB_OV511=m
-CONFIG_USB_PWC=m
-CONFIG_USB_SE401=m
-CONFIG_USB_STV680=m
-CONFIG_USB_KAWETH=m
-CONFIG_USB_PEGASUS=m
-CONFIG_USB_USBNET=m
-CONFIG_USB_USS720=m
-CONFIG_USB_SERIAL=m
-CONFIG_USB_SERIAL_GENERIC=y
-CONFIG_USB_SERIAL_BELKIN=m
-CONFIG_USB_SERIAL_WHITEHEAT=m
-CONFIG_USB_SERIAL_DIGI_ACCELEPORT=m
-CONFIG_USB_SERIAL_EMPEG=m
-CONFIG_USB_SERIAL_VISOR=m
-CONFIG_USB_SERIAL_IPAQ=m
-CONFIG_USB_SERIAL_EDGEPORT=m
-CONFIG_USB_SERIAL_KEYSPAN_PDA=m
-CONFIG_USB_SERIAL_KEYSPAN=m
-CONFIG_USB_SERIAL_KEYSPAN_USA28XA=y
-CONFIG_USB_SERIAL_KEYSPAN_USA28XB=y
-CONFIG_USB_SERIAL_MCT_U232=m
-CONFIG_USB_SERIAL_PL2303=m
-CONFIG_USB_SERIAL_XIRCOM=m
-CONFIG_USB_EZUSB=y
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_KALLSYMS=y
-CONFIG_ZLIB_INFLATE=y
-CONFIG_ZLIB_DEFLATE=m
-CONFIG_X86_BIOS_REBOOT=y
 
-- -- 
-Regards Michael Büsch
-http://www.8ung.at/tuxsoft
- 19:47:25 up  3:29,  3 users,  load average: 1.13, 1.13, 1.15
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+srBOoxoigfggmSgRAn2xAJ4hmuo+1BVE9KXiNOENL6SddAVlOgCcCKbd
-rszFbNrnK/tqqM+zw1qzJn4=
-=wCvL
------END PGP SIGNATURE-----
 

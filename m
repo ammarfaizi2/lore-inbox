@@ -1,42 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310488AbSCLIXw>; Tue, 12 Mar 2002 03:23:52 -0500
+	id <S287425AbSCLI7N>; Tue, 12 Mar 2002 03:59:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310489AbSCLIXm>; Tue, 12 Mar 2002 03:23:42 -0500
-Received: from tmhoyle.gotadsl.co.uk ([195.149.46.162]:51727 "EHLO
-	mail.cvsnt.org") by vger.kernel.org with ESMTP id <S310488AbSCLIX1>;
-	Tue, 12 Mar 2002 03:23:27 -0500
-Mailbox-Line: From tmh@nothing-on.tv  Tue Mar 12 08:23:24 2002
-Message-ID: <3C8DBAB2.9050100@nothing-on.tv>
-Date: Tue, 12 Mar 2002 08:22:10 +0000
-From: Tony Hoyle <tmh@nothing-on.tv>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
+	id <S293731AbSCLI7E>; Tue, 12 Mar 2002 03:59:04 -0500
+Received: from p50846F82.dip.t-dialin.net ([80.132.111.130]:54757 "EHLO
+	sol.fo.et.local") by vger.kernel.org with ESMTP id <S287425AbSCLI64>;
+	Tue, 12 Mar 2002 03:58:56 -0500
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.6 IDE 19
+In-Reply-To: <E16kUED-0001GB-00@the-village.bc.nu>
+	<Pine.SOL.3.96.1020311180113.13428A-100000@libra.cus.cam.ac.uk>
+	<20020311230158.B3167@ucw.cz>
+From: Joachim Breuer <jmbreuer@gmx.net>
+Date: Tue, 12 Mar 2002 09:58:53 +0100
+In-Reply-To: <20020311230158.B3167@ucw.cz> (Vojtech Pavlik's message of
+ "Mon, 11 Mar 2002 23:01:58 +0100")
+Message-ID: <m3d6yakvqq.fsf@venus.fo.et.local>
+User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.1 (Cuyahoga Valley,
+ i386-redhat-linux)
 MIME-Version: 1.0
-To: Adam Keys <akeys@post.cis.smu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Dog slow IDE
-In-Reply-To: <3C8CB3EB.8070704@nothing-on.tv> <20020312072348.WUOR1214.rwcrmhc54.attbi.com@there>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam Keys wrote:
+Vojtech Pavlik <vojtech@suse.cz> writes:
 
-> Are they dog slow after a *cold* start?  My solution to slow Maxtor drives 
-> was to fix the CPU fans in my machine and put the main drive in a bay cooler. 
+> On Mon, Mar 11, 2002 at 06:05:36PM +0000, Anton Altaparmakov wrote:
+>> On Mon, 11 Mar 2002, Alan Cox wrote:
+>> > > Funny you should mention that point ... The "flagged taskfile code" is a
+>> > > project to allow for NATIVE DFT support in Linux.  Nice screw job you did
+>> > > to IBM.
+>> > 
+>> > Ok so whats native DFT and where does he (and I for that matter) read about
+>> > it ?
+>> 
+>> DFT = Drive Fault Tolerance
 >
-Heck, the machine won't even boot after a cold start....  depending on 
-the ambient temperature it can take anything from a few seconds to a few 
-minutes to 'warm up'.  I think this will be my last Asus board for a 
-while...
+> Hmmm, I thought it was Drive Fitness test. TLAs ...
+>
+> [...]
+>
+> Hmm. I stopped believing in the usefulness of the IBM DFT after my IBM
+> drive started giving unrecoverable errors reading my swap partition and
+> the DFT said that everything was OK later when I ran it ...
 
-Tony
+Happened to me *more than once*. Every single time: Drive has what
+looks like "Surface Errors" to the OS, SMART thinks the drive is
+dandy, DFT thinks the drive is dandy and after using the DFT "erase"
+feature it would even work (on the whole surface) again. Question only
+remains for how long. My dealer usually gives me a replacement disk
+when I tell him "this one's bogus" even if it doesn't show any
+immediate errors in DFT and similar tests, but I'm sure not everyone's
+that lucky.
+
+I don't usually bash manufacturers, but with recent (> 10GB) IBM
+ATA-33+ drives I've experienced this behaviour in well above 50% of
+all units I've seen. The MTBF on their SCA LVD ones doesn't make me
+squirm with delight either, but those a) don't lie about being broken
+and b) tend to be easier to replace.
+
+
+So long,
+   Joe
 
 -- 
-"Wipe Info uses hexadecimal values to wipe files. This provides more 
-security than wiping with decimal values." -- Norton SystemWorks 2002 Manual
-
-tmh@nothing-on.tv 
-http://www.nothing-on.tv
-
+"I use emacs, which might be thought of as a thermonuclear
+ word processor."
+-- Neal Stephenson, "In the beginning... was the command line"

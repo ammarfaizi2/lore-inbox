@@ -1,60 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265437AbUABJHP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 04:07:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265463AbUABJHP
+	id S265463AbUABJcS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 04:32:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265464AbUABJcS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 04:07:15 -0500
-Received: from node-d-1fcf.a2000.nl ([62.195.31.207]:55936 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S265437AbUABJHN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 04:07:13 -0500
-Subject: Re: ext2 on a CD-RW
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Peter Osterlund <petero2@telia.com>
-Cc: Andrew Morton <akpm@osdl.org>, axboe@suse.de, packet-writing@suse.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <m2llorkuhn.fsf@telia.com>
-References: <Pine.LNX.4.44.0401020022060.2407-100000@telia.com>
-	 <20040101162427.4c6c020b.akpm@osdl.org>  <m2llorkuhn.fsf@telia.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-aSMuloVyP2kmDoPUHlE8"
-Organization: Red Hat, Inc.
-Message-Id: <1073034412.4429.1.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 02 Jan 2004 10:06:52 +0100
+	Fri, 2 Jan 2004 04:32:18 -0500
+Received: from dbl.q-ag.de ([213.172.117.3]:38793 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S265463AbUABJcQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jan 2004 04:32:16 -0500
+Message-ID: <3FF53A9E.7040905@colorfullife.com>
+Date: Fri, 02 Jan 2004 10:32:14 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Davide Libenzi <davidel@xmailserver.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [rfc/patch] wake_up_info() draft ...
+References: <Pine.LNX.4.44.0401011921250.1458-100000@bigblue.dev.mdolabs.com>
+In-Reply-To: <Pine.LNX.4.44.0401011921250.1458-100000@bigblue.dev.mdolabs.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Davide Libenzi wrote:
 
---=-aSMuloVyP2kmDoPUHlE8
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+>On Fri, 2 Jan 2004, Manfred Spraul wrote:
+>
+>  
+>
+>>Hi Davide,
+>>    
+>>
+>
+>Hi Manfred,
+>
+>
+>  
+>
+>>I think the patch adds unnecessary bloat, and mandates one particular 
+>>use of the wait queue info interface.
+>>    
+>>
+>
+>why are you saying so?
+>
+>  
+>
+sizeof(waitqueue_t) increases.
 
-On Fri, 2004-01-02 at 02:30, Peter Osterlund wrote:
+>@@ -1658,6 +1659,8 @@
+> 		unsigned flags;
+> 		curr = list_entry(tmp, wait_queue_t, task_list);
+> 		flags = curr->flags;
+>+		if (info)
+>+			dup_wait_info(&curr->info, info);
+> 		if (curr->func(curr, mode, sync) &&
+> 		    (flags & WQ_FLAG_EXCLUSIVE) &&
+> 		    !--nr_exclusive)
+>
+IMHO these two lines belong into curr->func, perhaps with a reference 
+implementation that uses
 
-> The packet writing code has the restriction that a bio must not span a
-> packet boundary. (A packet is 32*2048 bytes.) If the page when mapped
-> to disk starts 2kb before a packet boundary, merge_bvec_fn therefore
-> returns 2048, which is less than len, which is 4096 if the whole page
-> is mapped, so the bio_add_page() call fails.
+struct wait_queue_entry_info {
+    wait_queue_t wait;
+    struct wait_info info;
+};
 
-devicemapper has similar restrictions for raid0 format; in that case
-it's device-mappers job to split the page/bio. Just as it is UDF's task
-to do the same I suspect...
+We have already a callback pointer, so why add special case code into 
+the common codepaths? Custom callbacks could handle the special case of 
+an info wakeup.
 
+--
+    Manfred
 
---=-aSMuloVyP2kmDoPUHlE8
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/9TSsxULwo51rQBIRAh2qAJ9xWevQsSBzVVq/hcv2FrH6OQkLlwCfa8+i
-o7gh8z7PRbUxO/v3xs8tyes=
-=152j
------END PGP SIGNATURE-----
-
---=-aSMuloVyP2kmDoPUHlE8--

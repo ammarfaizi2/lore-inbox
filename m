@@ -1,65 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130383AbRCLOqe>; Mon, 12 Mar 2001 09:46:34 -0500
+	id <S130434AbRCLOlX>; Mon, 12 Mar 2001 09:41:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130403AbRCLOqY>; Mon, 12 Mar 2001 09:46:24 -0500
-Received: from mons.uio.no ([129.240.130.14]:61368 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S130383AbRCLOqP>;
-	Mon, 12 Mar 2001 09:46:15 -0500
-To: Leon Bottou <leonb@research.att.com>
+	id <S130441AbRCLOlO>; Mon, 12 Mar 2001 09:41:14 -0500
+Received: from se1.cogenit.fr ([195.68.53.173]:54277 "EHLO se1.cogenit.fr")
+	by vger.kernel.org with ESMTP id <S130434AbRCLOlK>;
+	Mon, 12 Mar 2001 09:41:10 -0500
+Date: Mon, 12 Mar 2001 15:40:10 +0100
+From: Francois Romieu <romieu@cogenit.fr>
+To: Rama Krishna Mandava <ramakrishna.mandava@wipro.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Subtle NFS/VFS/GLIBC interaction bug
-In-Reply-To: <3AA7EC55.E0020B8E@research.att.com>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Content-Type: text/plain; charset=US-ASCII
-Date: 12 Mar 2001 15:45:27 +0100
-In-Reply-To: Leon Bottou's message of "Thu, 08 Mar 2001 15:32:21 -0500"
-Message-ID: <shsr903jbaw.fsf@charged.uio.no>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
-MIME-Version: 1.0
+Subject: Re: memcpy
+Message-ID: <20010312154010.A8760@se1.cogenit.fr>
+In-Reply-To: <01031220481904.06445@elinux.wipsys>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <01031220481904.06445@elinux.wipsys>; from ramakrishna.mandava@wipro.com on Mon, Mar 12, 2001 at 08:44:43PM +0530
+X-Organisation: Marie's fan club - I
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Leon Bottou <leonb@research.att.com> writes:
+Rama Krishna Mandava <ramakrishna.mandava@wipro.com> écrit :
+[...]
+>            can memcpy ,memset functions be used in  drivermodules code  of
+> linux ? if so header file string.h is enough to be included?
 
-     > Note the strange numbers in the d_off fields.  These are in
-     > fact cookies used internally by nfs.  Under nfs2, these are 32
-     > bit unsigned number, sign extended to 64 bits.
+Take a look at <kernel_tree>/include/linux/string.h. You just need to:
+#include <linux/string.h>
 
-     > The last cookie has not been properly sign extended.  The
-     > glibc-2.2.2 source code for readdir uses __NR_getdents64 and
-     > converts the result into 32 bit dirents.  But it sees that the
-     > last d_ino cannot fit in an off_t and it simply bails out.
-
-     > There is already a problem in the making since nfs3 cookies are
-     > 64 bits long.  But things should work with nfs2.
-
-This is why I wish glibc would drop the whole idea of relying on
-seekdir/telldir existing. The LFS does in fact not specify any
-equivalent seekdir64/telldir64, and most implementations of *NIX don't
-support them.
-Currently, the VFS only allows us to support the minimum
-implementation which is required to support the 32-bit interface.
-
-     > I can fix the problem using the following hack:
-
-I've got a more complete one. See the 'IRIX' patch on
-
-  http://www.fys.uio.no/~trondmy/src/2.4.2/linux-2.4.2-dir.dif
-
-That patch also sign-extends 32-bit cookies at the NFS level, so that
-we can
-  a) convert cookies back so that the server accepts them
-  b) match sign-extended 32-bit cookies in the page cache
-
-     > That is acceptable as long as filldir_t does not handle 64bits
-     > offsets anyway.
-
-     > But it won't last.
-
-Yes and no. All NFSv3 implementations are supposed to support 32-bit
-client implementations. All you lose here is the ability to handle
-multi-Gigabyte directories.
-
-Cheers,
-  Trond
+-- 
+Ueimor

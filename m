@@ -1,68 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262506AbUBYHhj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 02:37:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262592AbUBYHhj
+	id S262492AbUBYHzs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 02:55:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262521AbUBYHzs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 02:37:39 -0500
-Received: from moutng.kundenserver.de ([212.227.126.183]:14047 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S262506AbUBYHh2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 02:37:28 -0500
-Message-ID: <403C50B0.6080402@helmutauer.de>
-Date: Wed, 25 Feb 2004 08:37:20 +0100
-From: Helmut Auer <vdr@helmutauer.de>
-User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Herbert Poetzl <herbert@13thfloor.at>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: HELP Re: Keyboard not working under 2.6.2
-References: <403911AD.1030005@helmutauer.de> <403B101D.3070601@helmutauer.de> <20040224101154.GD993@cse.unsw.EDU.AU> <403B2C18.3070906@helmutauer.de> <20040224112600.GB19216@MAIL.13thfloor.at>
-In-Reply-To: <20040224112600.GB19216@MAIL.13thfloor.at>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 25 Feb 2004 02:55:48 -0500
+Received: from fmr03.intel.com ([143.183.121.5]:38346 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S262492AbUBYHzp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 02:55:45 -0500
+Subject: Re: [RFC] ACPI power-off on P4 HT
+From: Len Brown <len.brown@intel.com>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       linux-kernel@vger.kernel.org,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>
+In-Reply-To: <20040225070019.GA30971@alpha.home.local>
+References: <1076145024.8687.32.camel@dhcppc4>
+	 <20040208082059.GD29363@alpha.home.local>
+	 <20040208090854.GE29363@alpha.home.local>
+	 <20040214081726.GH29363@alpha.home.local>
+	 <1076824106.25344.78.camel@dhcppc4>
+	 <20040225070019.GA30971@alpha.home.local>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1077695701.5911.130.camel@dhcppc4>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 25 Feb 2004 02:55:01 -0500
 Content-Transfer-Encoding: 7bit
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:dc795559fd1207bef82c0d6ee61125c0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Herbert,
+Willy,
+I do think we need a generic way to be sure that certain routines are
+run only on cpu0.
 
->>Now I can work with an USB keyboard connected to USB or with an "normal" 
->>PS/2 keyboard connected to the PS/2 pins via a standard PS/2 Slotblech 
->>Adapter.
->>
->>    
->>
->>>Is the power supply in the keyboard OK
->>>      
->>>
->>Yes - as I said it works without problems, when I boot the 2.4.18 kernel
->>
->>    
->>
->>>Is there power at the IR receiver
->>>      
->>>
->>Yes
->>
->>    
->>
->>>Is the receiver connected to the PS2 ports.
->>>      
->>>
->>Yes - The receiver is only connecet to the keyboard dataa and keyboard 
->>clock pins of the PS/2 connector., but that should be enough :-)
->>    
->>
->
->try with 2.6.3 or one of the bk snapshots, maybe 
->this issue has already been fixed somehow ...
->  
->
+I don't see it in the ACPI spec, but it seems that on some platforms,
+some register accesses (such as writing to the sleep control reg) are
+reliable only when accessed from cpu0.
 
-I just tried with 2.6.3 bk5 but the problem is not goen. Any other hints 
-what I can do ?
+This issue has been with us for some time:
+http://bugzilla.kernel.org/show_bug.cgi?id=1141
 
-Bye
-Helmut
+I am hopeful that the prepare-shutdown sequence you suggest below will
+not be necessary.
+
+thanks,
+-Len
+
+
+On Wed, 2004-02-25 at 02:00, Willy Tarreau wrote:
+> Hi Len & Marcelo,
+> 
+> as I previously said, the patch I sent which fixes the poweroff on my VAIO is
+> not enough to shut down the supermicro P4 HT. So I borrowed some code from
+> machine_restart() to try to :
+>   - disable APIC  => was not enough, but I must retry on the VAIO
+>   - stop the second CPU => was not enough either
+>   - bounce on boot_cpu and stop the others => it did work.
+> 
+> So I think that ACPI is not SMP-proof nor HT-proof on some hardware. My new
+> problem is that I feel like the code I have included in acpi_power_off() to
+> do this is a bit too much x86 specific, so I'd like to move this to
+> arch/i386/kernel/process.c with all the rest, but I don't know how to cut
+> this. I think that a general function such as machine_prepare_shutdown() or
+> something like this would be useful and could be shared by both ACPI and
+> machine_restart(). It would basically to everything that is needed in such
+> a case :
+>   - on SMP, bounce on boot_cpu, then halt the current CPU if != boot_cpu
+>   - on SMP, stop all other CPUs
+>   - on UP, disable IOAPIC
+>   - disable local APIC
+> 
+> I suspect that this function would be useful for some suspend cases, but I'm
+> not sure. My other problem is to know what we should do then with other
+> arches. Create an identical function for everyone, or just call it from
+> ACPI on CONFIG_X86, or even add a CONFIG_MACHINE_PREPARE_SHUTDOWN ?
+> 
+> I need some feedback here. Any suggestions ?
+> 
+> Regards,
+> Willy
+> 
+

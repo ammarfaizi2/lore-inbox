@@ -1,94 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264374AbTFLMGs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 08:06:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264479AbTFLMGr
+	id S264618AbTFLMTX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 08:19:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264632AbTFLMTX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 08:06:47 -0400
-Received: from smtp02.web.de ([217.72.192.151]:41226 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S264374AbTFLMGq (ORCPT
+	Thu, 12 Jun 2003 08:19:23 -0400
+Received: from mail2.ewetel.de ([212.6.122.20]:42442 "EHLO mail2.ewetel.de")
+	by vger.kernel.org with ESMTP id S264618AbTFLMTS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 08:06:46 -0400
-Message-ID: <000f01c33013$c713eeb0$6602a8c0@Schleppi>
-From: "Gregor Essers" <gregor.essers@web.de>
-To: "I Am Falling I Am Fading" <skuld@anime.net>
-Cc: <davej@codemonkey.org.uk>, <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0306120512320.13378-100000@inconnu.isu.edu>
-Subject: Re: Via KT400 and AGP 8x Support
-Date: Wed, 11 Jun 2003 14:19:58 +0200
+	Thu, 12 Jun 2003 08:19:18 -0400
+Date: Thu, 12 Jun 2003 14:33:01 +0200 (CEST)
+From: Pascal Schmidt <der.eremit@email.de>
+To: Jens Axboe <axboe@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.5] capability flag for ATAPI MO devices
+Message-ID: <Pine.LNX.4.44.0306121428410.2153-100000@neptune.local>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi i will look into that with the bridges, i hope that Hercules is so that
-they give me the spec´s (Plan of the Card) with the Jupers/Bridges for AGP
-2.0.
 
-The minus on Performace is not great, in my eyes.
+Hi Jens,
 
-It´s very SAD that Ati and Nvidia will not give the Specs or an Sourcecode
-of the Drivers :/.
+I though I already sent this version of the patch to you, but I can't
+find it in my sent-mail folder, so I may have forgotten to do so.
 
-Regards
+This just adds a capability flag to ide-cd.{c,h} and cdrom.h so that we
+may later know this device is an MO drive (needed for write support).
 
-Gregor Essers
-
------ Original Message -----
-From: "I Am Falling I Am Fading" <skuld@anime.net>
-To: "John Bradford" <john@grabjohn.com>
-Cc: <davej@codemonkey.org.uk>; <gregor.essers@web.de>;
-<linux-kernel@vger.kernel.org>
-Sent: Thursday, June 12, 2003 1:15 PM
-Subject: Re: Via KT400 and AGP 8x Support
+Please apply.
 
 
-> On Thu, 12 Jun 2003, John Bradford wrote:
->
-> > > The only other solution is to kick your card down into AGP 2.0 mode,
-which
-> > > most BIOSes do not allow you to do in software. Instead what you have
-to
-> > > do is cut/unsolder traces on your video card for the pins used for AGP
-3.0
-> > > detection. This is a near-permanent and horrible solution but it does
-get
-> > > everything working. :-/
-> >
-> > Insulating tape on certain pins works on ISA cards, but whether it would
-be
-> > practical on the smaller pins of an AGP card, I'm not sure.
->
-> Tried it already... The pins are too small to get adequate purchase for
-> the tape -- the friction just causes it to slide around in the slot and
-> gets goo around.
->
-> Superglue might be a better solution....
->
-> ...but I think the solder method is better.
->
-> On the Radeon 9700 Pro at least there are a couple jumpers on the
-> appropriate pins, bridged by 0-ohm surface mount resistors (i.e. simple
-> conductors). What you can do is just unsolder the bridges and it becomes
-> an AGP 2.0 card... If you have a very steady hand you can also resolder
-> them to get your AGP 3.0 back.
->
-> Still this is not a fun solution as you can potentially cook your card
-> (make sure to use a 15 watt iron, nothing higher).
->
-> -----
-> James Sellman -- ISU CoE-CS/ISLUG Linux Lab Admin   |"Lum, did you just
-see
-> ----------------------------------------------------| a hentai rabbit
-flying
-> skuld@inconnu.isu.edu      |   // A4000/604e/60 128M| through the air?"
-> skuld@anime.net            | \X/  A500/20 3M        |   - Miyake Shinobu
->
->
+Index: drivers/ide/ide-cd.c
+===================================================================
+RCS file: /home/bkcvs/linux-2.5/drivers/ide/ide-cd.c,v
+retrieving revision 1.112
+diff -u -3 -b -p -r1.112 ide-cd.c
+--- drivers/ide/ide-cd.c	3 Jun 2003 00:35:28 -0000	1.112
++++ drivers/ide/ide-cd.c	6 Jun 2003 13:07:31 -0000
+@@ -2805,7 +2805,7 @@ static struct cdrom_device_ops ide_cdrom
+ 				CDC_MEDIA_CHANGED | CDC_PLAY_AUDIO | CDC_RESET |
+ 				CDC_IOCTLS | CDC_DRIVE_STATUS | CDC_CD_R |
+ 				CDC_CD_RW | CDC_DVD | CDC_DVD_R| CDC_DVD_RAM |
+-				CDC_GENERIC_PACKET,
++				CDC_GENERIC_PACKET | CDC_MO_DRIVE,
+ 	.generic_packet		= ide_cdrom_packet,
+ };
+ 
+@@ -2838,6 +2838,8 @@ static int ide_cdrom_register (ide_drive
+ 		devinfo->mask |= CDC_PLAY_AUDIO;
+ 	if (!CDROM_CONFIG_FLAGS(drive)->close_tray)
+ 		devinfo->mask |= CDC_CLOSE_TRAY;
++	if (!CDROM_CONFIG_FLAGS(drive)->mo_drive)
++		devinfo->mask |= CDC_MO_DRIVE;
+ 
+ 	return register_cdrom(devinfo);
+ }
+@@ -2884,6 +2886,7 @@ int ide_cdrom_probe_capabilities (ide_dr
+ 	int nslots = 1;
+ 
+ 	if (drive->media == ide_optical) {
++		CDROM_CONFIG_FLAGS(drive)->mo_drive = 1;
+ 		printk("%s: ATAPI magneto-optical drive\n", drive->name);
+ 		return nslots;
+ 	}
+Index: drivers/ide/ide-cd.h
+===================================================================
+RCS file: /home/bkcvs/linux-2.5/drivers/ide/ide-cd.h,v
+retrieving revision 1.16
+diff -u -3 -b -p -r1.16 ide-cd.h
+--- drivers/ide/ide-cd.h	2 Nov 2002 21:12:01 -0000	1.16
++++ drivers/ide/ide-cd.h	6 Jun 2003 13:06:08 -0000
+@@ -85,7 +85,8 @@ struct ide_cd_config_flags {
+ 	__u8 audio_play		: 1; /* can do audio related commands */
+ 	__u8 close_tray		: 1; /* can close the tray */
+ 	__u8 writing		: 1; /* pseudo write in progress */
+-	__u8 reserved		: 3;
++	__u8 mo_drive		: 1; /* drive is an MO device */
++	__u8 reserved		: 2;
+ 	byte max_speed;		     /* Max speed of the drive */
+ };
+ #define CDROM_CONFIG_FLAGS(drive) (&(((struct cdrom_info *)(drive->driver_data))->config_flags))
+Index: include/linux/cdrom.h
+===================================================================
+RCS file: /home/bkcvs/linux-2.5/include/linux/cdrom.h,v
+retrieving revision 1.14
+diff -u -3 -b -p -r1.14 cdrom.h
+--- include/linux/cdrom.h	24 Apr 2003 01:27:54 -0000	1.14
++++ include/linux/cdrom.h	6 Jun 2003 13:05:30 -0000
+@@ -387,6 +387,7 @@ struct cdrom_generic_command
+ #define CDC_DVD			0x8000	/* drive is a DVD */
+ #define CDC_DVD_R		0x10000	/* drive can write DVD-R */
+ #define CDC_DVD_RAM		0x20000	/* drive can write DVD-RAM */
++#define CDC_MO_DRIVE		0x40000 /* drive is an MO device */
+ 
+ /* drive status possibilities returned by CDROM_DRIVE_STATUS ioctl */
+ #define CDS_NO_INFO		0	/* if not implemented */
+
+
+-- 
+Ciao,
+Pascal
 

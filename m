@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263042AbTDBVSw>; Wed, 2 Apr 2003 16:18:52 -0500
+	id <S263096AbTDBVXd>; Wed, 2 Apr 2003 16:23:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263096AbTDBVSv>; Wed, 2 Apr 2003 16:18:51 -0500
-Received: from [12.47.58.55] ([12.47.58.55]:10733 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id <S263042AbTDBVSu>;
-	Wed, 2 Apr 2003 16:18:50 -0500
-Date: Wed, 2 Apr 2003 13:29:39 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Dave McCracken <dmccr@us.ibm.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.5.66-mm2] Fix page_convert_anon locking issues
-Message-Id: <20030402132939.647c74a6.akpm@digeo.com>
-In-Reply-To: <8910000.1049303582@baldur.austin.ibm.com>
-References: <8910000.1049303582@baldur.austin.ibm.com>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S263148AbTDBVXd>; Wed, 2 Apr 2003 16:23:33 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:3601
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S263096AbTDBVXd>; Wed, 2 Apr 2003 16:23:33 -0500
+Subject: Re: fairsched + O(1) process scheduler
+From: Robert Love <rml@tech9.net>
+To: Antonio Vargas <wind@cocodriloo.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20030402213629.GB13168@wind.cocodriloo.com>
+References: <20030401125159.GA8005@wind.cocodriloo.com>
+	 <20030401164126.GA993@holomorphy.com>
+	 <20030401221927.GA8904@wind.cocodriloo.com>
+	 <20030402124643.GA13168@wind.cocodriloo.com>
+	 <20030402163512.GC993@holomorphy.com>
+	 <20030402213629.GB13168@wind.cocodriloo.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1049319300.2872.21.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
+Date: 02 Apr 2003 16:35:00 -0500
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 Apr 2003 21:30:11.0615 (UTC) FILETIME=[0AAD8AF0:01C2F95F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave McCracken <dmccr@us.ibm.com> wrote:
->
+On Wed, 2003-04-02 at 16:36, Antonio Vargas wrote:
+
+> I've been thinking about this thing a while ago, and I think I could do this:
 > 
-> I came up with a scheme for accessing the page tables in page_convert_anon
-> that should work without requiring locks.  Hugh has looked at it and agrees
-> it addresses the problems he found.  Anyway, here's the patch.
-> 
+> a. Have a kernel thread which wakes up on each tick.
 
-I am unable to convince myself that this is correct.  It's playing with pmd
-and pte pages which can be freed, reallocated and filled with random stuff.
-I really don't see how that can work, but am willing to be taught.
+Why not use the timer tick itself?  It already calls scheduler_tick()...
 
-Because we hold i_shared_sem we know that the pgd layer is stable and that
-the mm's aren't going away.
+Oh, because you need to grab uidhash_lock?  Ew.  Needing a kernel thread
+for this is not pretty.
 
-Is it not possible to take each mm's page_table_lock?  There's a ranking
-problem with pte_chain_lock(), but that can presumably be resolved by doing a
-trylock on the page_table_lock and if that fails, restart the whole operation.
+> Also, this locking rule means I can't even read current->user->time_slice?
+> What if I changed the type to an atomic_int?
 
-But then again, why is it not possible to just do:
+You can always read a single word-sized type atomically.  No need for
+atomic_t's.
 
-	list_for_each_entry(vma, &mapping->i_mmap, shared) {
-		if (!pte_chain)
-			pte_chain = pte_chain_alloc(GFP_KERNEL);
-		spin_lock(&mm->page_table_lock);
-		pte = find_pte(vma, page, NULL);
-		if (pte)
-			pte_chain = page_add_rmap(page, pte, pte_chain);
-		spin_unlock(&mm->page_table_lock);
-	}
+	Robert Love
 
-	pte_chain_free(pte_chain);
-	up(&mapping->i_shared_sem);
-
-?

@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264610AbTBESpz>; Wed, 5 Feb 2003 13:45:55 -0500
+	id <S263321AbTBETCy>; Wed, 5 Feb 2003 14:02:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264617AbTBESpz>; Wed, 5 Feb 2003 13:45:55 -0500
-Received: from fw-az.mvista.com ([65.200.49.158]:6652 "EHLO
-	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
-	id <S264610AbTBESpw>; Wed, 5 Feb 2003 13:45:52 -0500
-Message-ID: <3E415D89.1050805@mvista.com>
-Date: Wed, 05 Feb 2003 11:52:57 -0700
-From: Steven Dake <sdake@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Nicolas Pitre <nico@cam.org>,
-       andrea.glorioso@binary-only.com, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Monta Vista software license terms
-References: <87d6m6fx4c.fsf@topo.binary-only.priv> <Pine.LNX.4.44.0302051247280.8496-100000@xanadu.home> <20030205181512.A24002@infradead.org> <3E4156E0.6010004@mvista.com> <1044474105.32062.39.camel@irongate.swansea.linux.org.uk> <20030205184719.A24870@infradead.org>
-In-Reply-To: <20030205184719.A24870@infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S263491AbTBETCy>; Wed, 5 Feb 2003 14:02:54 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:46606 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S263321AbTBETCx>; Wed, 5 Feb 2003 14:02:53 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: gcc 2.95 vs 3.21 performance
+Date: Wed, 5 Feb 2003 19:09:56 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <b1rni4$3dr$1@penguin.transmeta.com>
+References: <1044385759.1861.46.camel@localhost.localdomain.suse.lists.linux.kernel> <b1pbt8$2ll$1@penguin.transmeta.com.suse.lists.linux.kernel> <p73znpbpuq3.fsf@oldwotan.suse.de> <3E4045D1.4010704@rogers.com>
+X-Trace: palladium.transmeta.com 1044472339 8004 127.0.0.1 (5 Feb 2003 19:12:19 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 5 Feb 2003 19:12:19 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks I stand corrected, when I looked previously I couldn't find them, 
-but maybe I just didn't look hard enough
+In article <3E4045D1.4010704@rogers.com>,
+Jeff Muizelaar  <muizelaar@rogers.com> wrote:
+>
+>There is also tcc (http://fabrice.bellard.free.fr/tcc/)
+>It claims to support gcc-like inline assembler, appears to be much 
+>smaller and faster than gcc. Plus it is GPL so the liscense isn't a 
+>problem either.
+>Though, I am not really sure of the quality of code generated or of how 
+>mature it is.
 
--steve
+tcc is interesting.  The code generation is pretty simplistic (read:
+trivially horrible for most things), but it sure is fast and small.  And
+judging by the changelog, Fabrice is trying to compile the kernel with
+it. 
 
-Christoph Hellwig wrote:
+For a lot of problems, small-and-fast is good.  Hell, some of the things
+I'd personally find interesting don't have any code generation part at
+all (static analysis of annotated source-code - stanford checker on the
+cheap).  And development doesn't always need good code generation (right
+now some people use "gcc -O0" for that, because anything else hurts too
+much.  Now, the code from tcc will probably look more like "-O-1", but
+at least you can test out things _quickly_). 
 
->On Wed, Feb 05, 2003 at 07:41:46PM +0000, Alan Cox wrote:
->  
->
->>On Wed, 2003-02-05 at 18:24, Steven Dake wrote:
->>    
->>
->>>Redhat does _not_ put up the source or binaries to redhat advanced 
->>>server on their web site.
->>>      
->>>
->>The AS kernel sources are up on http://www.kernelnewbies.org/kernels/ if 
->>anyone needs them.
->>    
->>
->
->Or at ftp.redhat.com/pub/redhat/linux/enterprise (or in the updates section
->for the current versions).
->
->
->
->  
->
-
+		Linus

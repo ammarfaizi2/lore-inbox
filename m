@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264185AbTEHAUO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 20:20:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264340AbTEHAUO
+	id S264154AbTEHATL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 20:19:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264185AbTEHATL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 20:20:14 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:1996 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264185AbTEHAUM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 20:20:12 -0400
-Date: Wed, 7 May 2003 17:32:23 -0700
-From: Greg KH <greg@kroah.com>
-To: Daniel Pittman <daniel@rimspace.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: CPUFreq sysfs interface MIA?
-Message-ID: <20030508003223.GA5051@kroah.com>
-References: <873cjsv8hg.fsf@enki.rimspace.net> <20030506211210.GA3148@kroah.com> <87n0hzbnk6.fsf@enki.rimspace.net> <20030507233257.GA4481@kroah.com> <873cjqmgl6.fsf@enki.rimspace.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <873cjqmgl6.fsf@enki.rimspace.net>
-User-Agent: Mutt/1.4.1i
+	Wed, 7 May 2003 20:19:11 -0400
+Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:41351 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S264154AbTEHATK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 20:19:10 -0400
+From: Rusty Russell <rusty@au1.ibm.com>
+To: Ravikiran G Thirumalai <kiran@in.ibm.com>
+Cc: akpm@zip.com.au, Dipankar Sarma <dipankar@in.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kmalloc_percpu 
+In-reply-to: Your message of "Wed, 07 May 2003 11:21:03 +0530."
+             <20030507055103.GA31797@in.ibm.com> 
+Date: Wed, 07 May 2003 16:16:06 +1000
+Message-Id: <20030508003139.432A617DE0@ozlabs.au.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 08, 2003 at 10:23:33AM +1000, Daniel Pittman wrote:
-> On Wed, 7 May 2003, Greg KH wrote:
-> > On Wed, May 07, 2003 at 10:36:09AM +1000, Daniel Pittman wrote:
-> >> On Tue, 6 May 2003, Greg KH wrote:
-> >> > On Tue, May 06, 2003 at 05:29:15PM +1000, Daniel Pittman wrote:
-> >> >> 
-> >> >> The content of /sys/devices/sys/cpu0 is:
-> >> >> /sys/devices/sys/cpu0
-> >> >> |-- name
-> >> >> `-- power
-> >> > 
-> >> > What does /sys/class/cpu show?
-> >> 
-> >> /sys/class/cpu
-> >> `-- cpu0
-> >>     `-- device -> ../../../devices/sys/cpu0
-> > 
-> > Oops, forgot to hook up stuff... Does the following patch from
-> > Jonathan Corbet fix this?
-> 
-> I tested this patch earlier and, no, it does not resolve the issue.
-> I have exactly the same issue with it applied as before.
+In message <20030507055103.GA31797@in.ibm.com> you write:
+> I tried to run a test to compare this implementation, but got an oops.
+> Here is the oops and the patch I was trying...  
 
-Hm, I just applied this patch, and dug up some hardware that will work
-with cpufreq, and it shows up just fine for me.  I don't know what's
-wrong, sorry.
+> +	if (!init_committed_space)
 
-greg k-h
+init_committed_space is a function.  You meant to call it 8)
+
+> btw, why the change from kmalloc_percpu(size) to kmalloc_percpu(type)?
+> You do kmalloc(sizeof (long)) for the usual kmalloc, but 
+> kmalloc_percpu(long) for percpu data...looks strange no?
+
+Yes, I'd probably want to change the name, if Andrew had agreed to the
+concept.  But the type is very convenient, because you want to know
+the alignment (kmalloc doesn't care, it just pads to cachline).
+
+Cheers,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

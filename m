@@ -1,61 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266248AbUBDAVe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 19:21:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266251AbUBDAVd
+	id S266242AbUBDAdF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 19:33:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266220AbUBDAcv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 19:21:33 -0500
-Received: from gprs156-172.eurotel.cz ([160.218.156.172]:1152 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S266248AbUBDAVQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 19:21:16 -0500
-Date: Tue, 3 Feb 2004 23:20:31 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: the grugq <grugq@hcunix.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH - ext2fs privacy (i.e. secure deletion) patch
-Message-ID: <20040203222030.GB465@elf.ucw.cz>
-References: <4017E3B9.3090605@hcunix.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 3 Feb 2004 19:32:51 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:31701 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S266184AbUBDAcs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Feb 2004 19:32:48 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: s0348365@sms.ed.ac.uk, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.2-rc3-mm1
+Date: Wed, 4 Feb 2004 01:35:56 +0100
+User-Agent: KMail/1.5.3
+Cc: Andrew Morton <akpm@osdl.org>, linux-mm@kvack.org
+References: <20040202235817.5c3feaf3.akpm@osdl.org> <200402040100.40682.bzolnier@elka.pw.edu.pl> <200402040017.43787.s0348365@sms.ed.ac.uk>
+In-Reply-To: <200402040017.43787.s0348365@sms.ed.ac.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <4017E3B9.3090605@hcunix.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Message-Id: <200402040135.56602.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wednesday 04 of February 2004 01:17, Alistair John Strachan wrote:
+> On Wednesday 04 February 2004 00:00, Bartlomiej Zolnierkiewicz wrote:
+> [snip]
+>
+> > > > > UDMA(133) /dev/ide/host0/bus0/target0/lun0: p1 p2 p3
+> > > > > hde: max request size: 128KiB
+> > > > >
+> > > > > 30 seconds later, I get something like:
+> > > > >
+> > > > > hde: lost interrupt
+> > > > > hde: lost interrupt
+> > > >
+> > > > It seems kernel hangs in ide-disk.c,
+> > > > idedisk_setup()->write_cache()->...
+> > > >
+> > > > > The kernel does not recover. Presumably it is a problem specific to
+> > > > > my PDC IDE controller.
+> > > >
+> > > > Do you run with Promise BIOS disabled?  If so please try booting
+> > > > kernel with "hde=autotune hdg=autotune" parameters.  If still no-go,
+> > > > try this patch:
+> > >
+> > > Neither suggestion changes the behaviour. I've got the BIOS enabled,
+> > > but in the past it's made no difference. I still see lost interrupts.
+> >
+> > Please try this debugging patch to see it hangs on
+> > idedisk_setup()->write_cache().
+> >
+> > --- linux/drivers/ide/ide-disk.c	2004-02-04 00:57:49.000000000 +0100
+> > +++ linux-2.6.2-rc3-bk3/drivers/ide/ide-disk.c	2004-02-04
+> > 00:58:58.571025744 +0100 @@ -1668,8 +1668,10 @@
+> >  #endif	/* CONFIG_IDEDISK_MULTI_MODE */
+> >  	}
+> >  	drive->no_io_32bit = id->dword_io ? 1 : 0;
+> > +	printk(KERN_INFO "%s: before write_cache()\n", drive->name);
+> >  	if (drive->id->cfs_enable_2 & 0x3000)
+> >  		write_cache(drive, (id->cfs_enable_2 & 0x3000));
+> > +	printk(KERN_INFO "%s: after write_cache()\n", drive->name);
+> >
+> >  #ifdef CONFIG_BLK_DEV_IDE_TCQ_DEFAULT
+> >  	if (drive->using_dma)
+>
+> Tried the patch. I see both before and after messages for hda, but when hde
+> is probed I see neither. Briefly looking at the IDE code, I see the max
+> request size: printk comes before either of those lines, as as nothing else
+> is printed after that line (see original bug report), I can only assume the
+> problem is somewhere before the write_cache().
 
->  }
->  
-> +static inline void destroy_block(struct inode *inode, unsigned long block)
-> +{
-> +#ifdef CONFIG_EXT2_FS_PRIVACY
-> +	struct buffer_head	* bh;
-> +
-> +	bh = sb_getblk(inode->i_sb, block);
-> +
-> +	memset(bh->b_data, 0x00, bh->b_size);
-> +
-> +	mark_buffer_dirty(bh);
-> +	wait_on_buffer(bh);
-> +	brelse(bh);
-> +
-> +	return;
-> +#endif
-> +}
-> +
+Oh yes, I am stupid^Wtired.  Maybe it is init_idedisk_capacity()?.
+Can you add some more printks to idedisk_setup() to see where it hangs?
 
-Perhaps this should still be controlled by (chattr(1)) [its already
-documented, just not yet implemented].
+> I applied the patch on top of your previous changes, as they seemed
+> innocuous enough.
 
-       When a file with the `s' attribute set is deleted, its blocks
-	are zeroed and written back to the disk.
+OK.
 
-...at which point config option is not really neccessary.
+--bart
 
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

@@ -1,45 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263207AbUDEVAV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 17:00:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262996AbUDEVAV
+	id S263006AbUDEU67 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 16:58:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262673AbUDEU67
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 17:00:21 -0400
-Received: from fw.osdl.org ([65.172.181.6]:44225 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263210AbUDEVAN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 17:00:13 -0400
-Date: Mon, 5 Apr 2004 14:02:23 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Matt Mackall <mpm@selenic.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] shrink core hashes on small systems
-Message-Id: <20040405140223.2f775da4.akpm@osdl.org>
-In-Reply-To: <20040405204957.GF6248@waste.org>
-References: <20040405204957.GF6248@waste.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 5 Apr 2004 16:58:59 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:9600 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263195AbUDEU6n
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 16:58:43 -0400
+Date: Mon, 5 Apr 2004 16:59:04 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Jamie Lokier <jamie@shareable.org>
+cc: Chris Friesen <cfriesen@nortelnetworks.com>, bero@arklinux.org,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Catching SIGSEGV with signal() in 2.6
+In-Reply-To: <20040405204028.GA21649@mail.shareable.org>
+Message-ID: <Pine.LNX.4.53.0404051644440.2948@chaos>
+References: <Pine.LNX.4.58.0404050824310.13367@build.arklinux.oregonstate.edu>
+ <20040405181707.GA21245@mail.shareable.org> <4071B093.9030601@nortelnetworks.com>
+ <20040405204028.GA21649@mail.shareable.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Mackall <mpm@selenic.com> wrote:
+On Mon, 5 Apr 2004, Jamie Lokier wrote:
+
+> Chris Friesen wrote:
+> > SA_SIGINFO implies sigaction().  The original poster was talking about
+> > signal().
+> >
+> > That said, it seems to work with 2.6.4 on ppc32.
 >
-> Shrink hashes on small systems
-> 
-> Tweak vfs_caches_init logic so that hashes don't start growing as
-> quickly on small systems.
-> 
-> -	vfs_caches_init(num_physpages);
-> +	/* Treat machines smaller than 6M as having 2M of memory
-> +	   for hash-sizing purposes */
-> +	vfs_caches_init(max(500, (int)num_physpages-1000));
+> Just tried it with 2.6.3, x86 and signal().  Works fine.
+>
+> -- Jamie
 
-This seems rather arbitrary.  It also implicitly "knows" that
-PAGE_SIZE=4096.
+Are you using a longjump to get out of the signal handler?
+You may find that you can trap SIGSEGV, but you can't exit
+from it because it will return to the instruction that
+caused the trap!!!
 
-num_physpages is of course the wrong thing to use here - on small systems
-we should be accounting for memory which is pinned by kernel text, etc.
+#include <stdio.h>
+#include <signal.h>
+void handler(int sig) {
+    fprintf(stderr, "Caught %d\n", sig);
+}
+int main() {
+    char *foo = NULL;
+    signal(SIGSEGV, handler);
+    fprintf(stderr, "Send a signal....\n");
+    kill(0, SIGSEGV);
+    fprintf(stderr, "Okay! That worked!\n");
+//    *foo = 0;
+    return 0;
+}
 
-But you're going further than that.  What's the theory here?
+Just un-comment the null-pointer de-reference and watch!
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
+

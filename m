@@ -1,45 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281403AbRKZCJ6>; Sun, 25 Nov 2001 21:09:58 -0500
+	id <S281410AbRKZCLH>; Sun, 25 Nov 2001 21:11:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281395AbRKZCJr>; Sun, 25 Nov 2001 21:09:47 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:63505 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S281403AbRKZCJb>; Sun, 25 Nov 2001 21:09:31 -0500
-Message-ID: <3C01A441.6070702@zytor.com>
-Date: Sun, 25 Nov 2001 18:09:05 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us, en, sv
-MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.15-final drivers/net/bonding.c includes user space headers
-In-Reply-To: <1432.1006740397@ocs3.intra.ocs.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S281404AbRKZCK5>; Sun, 25 Nov 2001 21:10:57 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:47113 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S281395AbRKZCKw>;
+	Sun, 25 Nov 2001 21:10:52 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Marcin Glogowski <marcingl@poczta.onet.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: modules.conf aliases 
+In-Reply-To: Your message of "Mon, 26 Nov 2001 01:24:50 BST."
+             <Pine.LNX.4.33.0111260106040.2697-100000@opium.domek> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 26 Nov 2001 13:10:40 +1100
+Message-ID: <1494.1006740640@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
+On Mon, 26 Nov 2001 01:24:50 +0100 (CET), 
+Marcin Glogowski <marcingl@poczta.onet.pl> wrote:
+>Does anybody know where can I find the STANDARD kernel aliases that
+>are send by kernel to modprobe, when the kernel can't find properly
+>piece of code himself?
 
-> 
-> kbuild 2.5 does
->   '-nostdinc -I/usr/lib/gcc-lib/... gcc version ../include/'
-> so it allows includes from the compiler headers.  The problem is:
-> 
->   bonding.c includes limits.h, picked up from gcc, OK.
->   limits.h includes syslimits.h from gcc, OK.
->   syslimits.h tries to include_next <limits.h> to get the user space
->   limits, not OK.
-> 
-> Any kernel code that includes limits.h or syslimits.h is polluted by
-> user space headers.  net/bonding.c does not even need limits.h.
-> 
-
-How UTTERLY braindamaged... I guess we could provide a (dummy?) 
-<limits.h> for the kernel environment.  I would definitely like to see 
-the standard compiler-related headers like <stdint.h> as well...
-
-	-hpa
+You can grep the kernel source for calls to request_module() and see
+what string is built.  If you are just trying to diagnose a problem,
+create directory /var/log/ksymoops (man insmod for details) and
+modprobe will create a log entry whenever it is called.
 

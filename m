@@ -1,91 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274922AbTHNScI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 14:32:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275018AbTHNScI
+	id S275065AbTHNSdZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 14:33:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275077AbTHNSdZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 14:32:08 -0400
-Received: from [63.226.249.57] ([63.226.249.57]:55239 "EHLO nymph.dleonard.net")
-	by vger.kernel.org with ESMTP id S274922AbTHNScD (ORCPT
+	Thu, 14 Aug 2003 14:33:25 -0400
+Received: from fw.osdl.org ([65.172.181.6]:43442 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S275065AbTHNSdW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 14:32:03 -0400
-Date: Thu, 14 Aug 2003 11:53:02 -0700 (PDT)
-From: <dleonard@dleonard.net>
-To: Mark Watts <m.watts@eris.qinetiq.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Via KT400 agpgart issues
-In-Reply-To: <200308141025.12747.m.watts@eris.qinetiq.com>
-Message-ID: <Pine.LNX.4.31.0308141129130.4489-100000@nymph.dleonard.net>
+	Thu, 14 Aug 2003 14:33:22 -0400
+Date: Thu, 14 Aug 2003 11:33:09 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jamie Lokier <jamie@shareable.org>
+cc: Roland McGrath <roland@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Matt Wilson <msw@redhat.com>, <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@redhat.com>, Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH] revert zap_other_threads breakage, disallow CLONE_THREAD
+ without CLONE_DETACHED
+In-Reply-To: <20030814182757.GA11623@mail.jlokier.co.uk>
+Message-ID: <Pine.LNX.4.44.0308141130300.1692-100000@home.osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For my geforce3 and geforce4 I didn't notice anything odd about using the
-KT400 chipset in spite of agpgart not fully supporting it.
 
-For my fx5800 I actually *had* to use the nvidia agp driver to get
-anything other than console mode to function.  Now it could be that I just
-needed to drop the AGP rate to 4x in bios but frankly I didn't think of
-that option until I'd already switched to using the nvidia code.  The
-nvidia agp code has been behaving quite well under 2.4.20 and 2.4.22-pre*
-for me.
+On Thu, 14 Aug 2003, Jamie Lokier wrote:
+> 
+> I'm thinking of programs that don't use Glibc, but do use these features.
+> Perhaps I'm the only person who writes such code :)
 
--- 
+Sure, there have always been projects out there that have used the
+"native" clone() interfaces, but they're fairly rare, and CLONE_THREAD
+being a new addition makes it less likely to show up as a problem.
 
-<Douglas Leonard>
-<dleonard@dleonard.net>
+> > But yes, there will be a warning, at least for a time (and eventually 
+> > we'll just return -EINVAL silently - ie the program will _fail_ the 
+> > clone(), it won't just act strangely).
+> 
+> -EINVAL would be great.
 
-On Thu, 14 Aug 2003, Mark Watts wrote:
+I've pushed the change to the BK trees, and if you're not a BK user you
+can just test the attached patch directly to see if it affects you..
 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
->
->
-> Ok, I _am_ using the nVidia modules (on 2.4.21) but the fact that the agpgart
-> driver can't sense my agp apature size is concerning... (its set to 256MB in
-> the bios)
->
-> 0: nvidia: loading NVIDIA Linux x86 nvidia.o Kernel Module  1.0-4496  Wed Jul
-> 16 19:03:09 PDT 2003
-> Linux agpgart interface v0.99 (c) Jeff Hartmann
-> agpgart: Maximum main memory to use for agp memory: 439M
-> agpgart: Detected Via Apollo Pro KT400 chipset
-> agpgart: unable to determine aperture size.
-> 0: NVRM: AGPGART: unable to retrieve symbol table
->
-> I'm running a GeForce FX 5600 128Mb with AGP 3.0 support enabled.
-> It seems to run ok, but its slower than the Ti 4200-4x I took out by a larger
-> margin than it really should be (according to the benchmarks I've seen
-> scattered through the internet.)
-> I'm also running with the Local APIC turned on (it doesnt seem to break
-> anything).
->
-> Is anything actually broken or is this nothing to worry about?
->
-> Cheers,
->
-> Mark.
->
-> - --
-> Mark Watts
-> Senior Systems Engineer
-> QinetiQ TIM
-> St Andrews Road, Malvern
-> GPG Public Key ID: 455420ED
->
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.2.2 (GNU/Linux)
->
-> iD4DBQE/O1V4Bn4EFUVUIO0RAu0VAJip/2qWkG6e6uc/YVYKD5u2f6RwAJ9msH9y
-> y1VIT2ZaUL5dCQPGoRvjTg==
-> =a21r
-> -----END PGP SIGNATURE-----
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+		Linus
+
+----
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1149  -> 1.1150 
+#	include/linux/sched.h	1.159   -> 1.160  
+#	       kernel/fork.c	1.134   -> 1.135  
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/08/14	torvalds@home.osdl.org	1.1150
+# Mark CLONE_DETACHED as being irrelevant: it must match CLONE_THREAD.
+# 
+# CLONE_THREAD without CLONE_DETACHED will now return -EINVAL, and
+# for a while we will warn about anything that uses it (there are no
+# known users, but this will help pinpoint any problems if somebody
+# used to care about the invalid combination).
+# --------------------------------------------
+#
+diff -Nru a/include/linux/sched.h b/include/linux/sched.h
+--- a/include/linux/sched.h	Thu Aug 14 11:32:19 2003
++++ b/include/linux/sched.h	Thu Aug 14 11:32:19 2003
+@@ -49,7 +49,7 @@
+ #define CLONE_SETTLS	0x00080000	/* create a new TLS for the child */
+ #define CLONE_PARENT_SETTID	0x00100000	/* set the TID in the parent */
+ #define CLONE_CHILD_CLEARTID	0x00200000	/* clear the TID in the child */
+-#define CLONE_DETACHED		0x00400000	/* parent wants no child-exit signal */
++#define CLONE_DETACHED		0x00400000	/* Not used - CLONE_THREAD implies detached uniquely */
+ #define CLONE_UNTRACED		0x00800000	/* set if the tracing process can't force CLONE_PTRACE on this clone */
+ #define CLONE_CHILD_SETTID	0x01000000	/* set the TID in the child */
+ #define CLONE_STOPPED		0x02000000	/* Start in stopped state */
+diff -Nru a/kernel/fork.c b/kernel/fork.c
+--- a/kernel/fork.c	Thu Aug 14 11:32:19 2003
++++ b/kernel/fork.c	Thu Aug 14 11:32:19 2003
+@@ -746,8 +746,22 @@
+ 	 */
+ 	if ((clone_flags & CLONE_THREAD) && !(clone_flags & CLONE_SIGHAND))
+ 		return ERR_PTR(-EINVAL);
+-	if ((clone_flags & CLONE_DETACHED) && !(clone_flags & CLONE_THREAD))
++
++	/*
++	 * CLONE_DETACHED must match CLONE_THREAD: it's a historical
++	 * thing.
++	 */
++	if (!(clone_flags & CLONE_DETACHED) != !(clone_flags & CLONE_THREAD)) {
++		/* Warn about the old no longer supported case so that we see it */
++		if (clone_flags & CLONE_THREAD) {
++			static int count;
++			if (count < 5) {
++				count++;
++				printk(KERN_WARNING "%s trying to use CLONE_THREAD without CLONE_DETACH\n", current->comm);
++			}
++		}
+ 		return ERR_PTR(-EINVAL);
++	}
+ 
+ 	retval = security_task_create(clone_flags);
+ 	if (retval)
+@@ -877,10 +891,7 @@
+ 	p->parent_exec_id = p->self_exec_id;
+ 
+ 	/* ok, now we should be set up.. */
+-	if (clone_flags & CLONE_DETACHED)
+-		p->exit_signal = -1;
+-	else
+-		p->exit_signal = clone_flags & CSIGNAL;
++	p->exit_signal = (clone_flags & CLONE_THREAD) ? -1 : (clone_flags & CSIGNAL);
+ 	p->pdeath_signal = 0;
+ 
+ 	/*
 

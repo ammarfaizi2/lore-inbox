@@ -1,44 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271637AbRH0AKf>; Sun, 26 Aug 2001 20:10:35 -0400
+	id <S271633AbRH0A1h>; Sun, 26 Aug 2001 20:27:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271635AbRH0AK0>; Sun, 26 Aug 2001 20:10:26 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:64521 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S271631AbRH0AKR>;
-	Sun, 26 Aug 2001 20:10:17 -0400
-Date: Sun, 26 Aug 2001 21:10:13 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Rob Radez <rob@osinvestor.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Documentation/ changes
-In-Reply-To: <Pine.LNX.4.33.0108261731140.5038-100000@pita.lan>
-Message-ID: <Pine.LNX.4.33L.0108262109280.5646-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271634AbRH0A11>; Sun, 26 Aug 2001 20:27:27 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:54224 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S271633AbRH0A1W>;
+	Sun, 26 Aug 2001 20:27:22 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linuxppc-dev@lists.linuxppc.org, linux-kernel@vger.kernel.org
+Subject: 2.4.9-ac12 ppc ftr_fixup
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 27 Aug 2001 10:27:22 +1000
+Message-ID: <19943.998872042@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 26 Aug 2001, Rob Radez wrote:
+2.4.9-ac12 has new ppc code for CPU feature fixups.  The ftr_fixup code
+only handles entries that are built into the kernel.  timex.h defines
+get_cycles() using ftr_fixup and get_cycles() is used all over the
+place, including in modules.  AFAICT we need to add modutils support
+for ftr_fixup.
 
-> Comments/Flames/Improvements?
-
-> +++ linux-2.4.9/Documentation/KernelProjects	Sun Aug 26 16:15:38 2001
-> @@ -0,0 +1,28 @@
-> +Kernel Projects:
-
-	http://kernelnewbies.org/
-	http://linux-mm.org/
-
-cheers,
-
-Rik
--- 
-IA64: a worthy successor to i860.
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+Don't write any code yet, Maciej W. Rozycki has some patches for a
+similar problem in mips and his fix is nicely extensible.  I just need
+confirmation that ftr_fixup needs modutils support.
 

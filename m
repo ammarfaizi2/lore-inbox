@@ -1,52 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282801AbSAARlD>; Tue, 1 Jan 2002 12:41:03 -0500
+	id <S282843AbSAASIu>; Tue, 1 Jan 2002 13:08:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282413AbSAARko>; Tue, 1 Jan 2002 12:40:44 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:22277 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S282067AbSAARkX>;
-	Tue, 1 Jan 2002 12:40:23 -0500
-Date: Tue, 1 Jan 2002 18:40:04 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Peter Osterlund <petero2@telia.com>, Greg KH <greg@kroah.com>,
-        linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] Re: "sr: unaligned transfer" in 2.5.2-pre1
-Message-ID: <20020101184004.B16092@suse.de>
-In-Reply-To: <m2vgexzv90.fsf@ppro.localdomain> <20011223112249.B4493@kroah.com> <m23d1trr4w.fsf@pengo.localdomain> <20011230122756.L1821@suse.de> <20011230212700.B652@one-eyed-alien.net> <20011231125157.D1246@suse.de> <20011231145455.C6465@one-eyed-alien.net>
+	id <S282687AbSAASIl>; Tue, 1 Jan 2002 13:08:41 -0500
+Received: from [206.98.161.5] ([206.98.161.5]:64385 "HELO
+	blossom.learningpatterns.com") by vger.kernel.org with SMTP
+	id <S282845AbSAASI1>; Tue, 1 Jan 2002 13:08:27 -0500
+Subject: RE: Problems booting 2.4.17
+From: Edward Muller <emuller@learningpatterns.com>
+To: chris.lo@corp.sunday.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3C31405E.6030209@corp.sunday.com>
+In-Reply-To: <3C31405E.6030209@corp.sunday.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 01 Jan 2002 13:07:41 -0500
+Message-Id: <1009908461.12587.3.camel@cc234543-a>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011231145455.C6465@one-eyed-alien.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 31 2001, Matthew Dharm wrote:
-> Jens --
+For now I've moved back to 2.4.16, which boots without a problem. I had
+lots of work to do to get those systems up and configured so I haven't
+had time to play.
+
+I'm not sure what is causing the problem. I know how to make an initrd
+image and it's there. It may be a problem with devfs because I remember
+that Mandrake based their devfs scripts on some very very very old stuff
+from the devfs ditribution (which is being removed IIRC).
+
+It's probably not fs based as you are using reiserfs and I'm using ext3.
+
+Anyway ... For now I've gone back to 2.4.16, but I'd like to try 2.4.17.
+So if you happen to have some time and figure it out, please let me
+know.
+
+On Mon, 2001-12-31 at 23:51, Chris Lo wrote:
+> Good Morning,
 > 
-> Thanks for the info.  It may have been discussed 'here' (tho, this is
-> crosposted to two different lists), but I've been focused on 2.4 bugs (one
-> more left!) and hadn't seen this item.
-
-oh sorry, 'here' means linux-kernel to me :-)
-
-> I think for the first 2.5 kernels, we'll o with your 'vaddr' line, but I
-> think that being able to set highmem_io is a worthwhile thing.  Which leads
-> me to two questions:
-
-indeed
-
-> (1) Do the USB HCDs support highmem?  I seem to recall they do, but I'm not
-> certain.
-
-most likely, I don't know though. I would imagine they support full
-32-bit dma.
-
-> (2) How do I pass a highmem address to the HCDs?  The URB structures we use
-> don't seem particularly well-suited for this.
-
-you need to use the pci dma mapping interface, see
-Documentation/DMA-mapping.txt
-
+> I had the same problem, with resierfs. Any workaround 
+> found?
+> 
+> Have a happy new year!!
+> 
+> Regards,
+> Chris
+> 
+> 
+> 
+> 
+> Hello all.
+> 
+> I'm having problems booting 2.4.17 on a Mandrake 8.1 system (with all
+> current updates).
+> 
+> When I boot 2.4.17 (with an initrd image) I get the following...
+> 
+> kernel boots ...
+> Creating root device
+> mkrootdev: mknod failed: 17
+> Mounting root filesyste with flags data=ordered
+> Mount: error 16 mounting ext3 flags data=ordered
+> ...Tried to remount without flags and fails with the same error...
+> Kernel Panic: No initrd found ...
+> 
+> I am using ext3 / /boot /usr /var & /home filesystems
+> 
+> 2.4.8-34.1mdk boots fine however.
+> 
+> I'm about to go try 2.4.16 (it was working with reiserfs partitions
+> before).
+> 
+> The machine is an AMD Athalon 1.3 Ghz on an EPOC board with a 3ware 7800
+> series RAID card, with three 75/80 GB drives in a RAID 5 array.
+> 
+> Anyone else run into something like this? 
+> 
+> I'll report back about 2.4.16 and if anyone would like more info, just
+> shout.
+> 
+> 
+> -- 
+> -------------------------------
+> Edward Muller
+> Director of IS
+> 
+> 973-715-0230 (cell)
+> 212-487-9064 x115 (NYC)
+> 
+> http://www.learningpatterns.com
+> -------------------------------
+> 
 -- 
-Jens Axboe
+-------------------------------
+Edward Muller
+Director of IS
+
+973-715-0230 (cell)
+212-487-9064 x115 (NYC)
+
+http://www.learningpatterns.com
+-------------------------------
 

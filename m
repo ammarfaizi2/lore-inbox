@@ -1,29 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263741AbTCUSiM>; Fri, 21 Mar 2003 13:38:12 -0500
+	id <S262734AbTCUU6O>; Fri, 21 Mar 2003 15:58:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262595AbTCUShT>; Fri, 21 Mar 2003 13:37:19 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:7300
-	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263744AbTCUSgV>; Fri, 21 Mar 2003 13:36:21 -0500
-Date: Fri, 21 Mar 2003 19:51:36 GMT
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200303211951.h2LJpaiQ026073@hraefn.swansea.linux.org.uk>
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: PATCH: fix fat handling of some weirder variants
+	id <S262728AbTCUU5O>; Fri, 21 Mar 2003 15:57:14 -0500
+Received: from mailrelay2.lanl.gov ([128.165.4.103]:34277 "EHLO
+	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP
+	id <S262727AbTCUU4b>; Fri, 21 Mar 2003 15:56:31 -0500
+Subject: Re: Linux 2.5.65-ac2
+From: Steven Cole <elenstev@mesatop.com>
+To: Alan Cox <alan@redhat.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200303211741.h2LHfPn00366@devserv.devel.redhat.com>
+References: <200303211741.h2LHfPn00366@devserv.devel.redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 21 Mar 2003 14:03:10 -0700
+Message-Id: <1048280590.2545.14.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/fs/fat/inode.c linux-2.5.65-ac2/fs/fat/inode.c
---- linux-2.5.65/fs/fat/inode.c	2003-02-10 18:38:30.000000000 +0000
-+++ linux-2.5.65-ac2/fs/fat/inode.c	2003-03-06 23:43:48.000000000 +0000
-@@ -939,7 +939,8 @@
- 		error = first;
- 		goto out_fail;
- 	}
--	if (FAT_FIRST_ENT(sb, media) != first) {
-+	if (FAT_FIRST_ENT(sb, media) != first
-+	    && (media != 0xf8 || FAT_FIRST_ENT(sb, 0xfe) != first)) {
- 		if (!silent) {
- 			printk(KERN_ERR "FAT: invalid first entry of FAT "
- 			       "(0x%x != 0x%x)\n",
+On Fri, 2003-03-21 at 10:41, Alan Cox wrote:
+> Linux 2.5.65-ac2
+
+On boot of 2.5.65-ac2, I got this (taken down by hand)
+
+checking TSC synchronization across 2 CPUs:
+divide error: 0000
+CPU	0
+[register stuff not transcribed]
+Call Trace:
+
+release_console_sem+0xa0
+init+0x53
+init+0x0
+kernel_thread_help+0x5
+
+I can write down the register stuff if needed.
+
+I had previously booted with MORSE_PANICS enabled, and
+the machine also either oopsed or panicked on boot.
+I saw something about morse_panics in that trace, which was
+very long, so I rebuilt -ac2 without MORSE_PANICS and got
+the above.
+
+The machine is dual PIII, kernel SMP, PREEMPT.
+I can provide the .config if needed.
+
+Steven
+
+
+
+

@@ -1,72 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317433AbSHHJ6A>; Thu, 8 Aug 2002 05:58:00 -0400
+	id <S317424AbSHHKDj>; Thu, 8 Aug 2002 06:03:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317435AbSHHJ6A>; Thu, 8 Aug 2002 05:58:00 -0400
-Received: from 213-97-251-19.uc.nombres.ttd.es ([213.97.251.19]:33419 "EHLO
-	mortadelo") by vger.kernel.org with ESMTP id <S317433AbSHHJ57>;
-	Thu, 8 Aug 2002 05:57:59 -0400
-Date: Thu, 8 Aug 2002 12:04:02 +0200
-From: Roberto Gordo Saez <rgs@linalco.com>
-To: linux-kernel@vger.kernel.org
-Cc: benh@kernel.crashing.org, linuxppc-dev@lists.linuxppc.org
-Subject: [PATCH] GMAC ethernet controller (Apple PowerPC)
-Message-ID: <20020808100402.GA7953@filemon>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S317429AbSHHKDj>; Thu, 8 Aug 2002 06:03:39 -0400
+Received: from dclient217-162-176-39.hispeed.ch ([217.162.176.39]:18707 "EHLO
+	alder.intra.bruli.net") by vger.kernel.org with ESMTP
+	id <S317424AbSHHKDi>; Thu, 8 Aug 2002 06:03:38 -0400
+From: "Martin Brulisauer" <martin@bruli.net>
+To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Date: Thu, 8 Aug 2002 12:07:15 +0200
+Subject: RE: O_SYNC option doesn't work (2.4.18-3)
+Reply-to: martin@bruli.net
+CC: "Linux Kernel (E-mail)" <linux-kernel@vger.kernel.org>
+Message-ID: <3D525EF3.23894.928E229@localhost>
+In-reply-to: <200208072048.PAA04274@tomcat.admin.navo.hpc.mil>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Small fix for the link status (carrier) on PowerPC GMAC net driver.
+On 7 Aug 2002, at 15:48, Jesse Pollard wrote:
 
-Now ifconfig reports correctly the "RUNNING" flag, the same way that it is reported with other network cards i've tested (intel eepro100 on i386).
+> 
+> There never was any such thing as "cache coherency" in NFS. And there won't
+> be - the overhead is way too high. Think- to lock a section of a file,
+> you first tell the local daemon. That local daemon must then contact the
+> remote file server. That file server must then contact EVERY client to verify
+> that a lock is not in the process of being established. And confirm that the
+> locked section just hasn't yet been flushed back to the server. Then the server
+> can tell the client the section is locked.
+>
+On VMS we call it "Distributed Lock Manager". The overhead is not 
+so high and it works well. 
+> 
+> What happens when one of the clients is down....
+> How long do you wait to determine a client is down...
+> What happens to other clients while the client holding the lock is down...
+> What happens when the server goes down....
+> What happens when the down client comes back up....
+> What happens when the server comes back up....
+> How do you request all clients to re-acquire locks... (and in what order)
+> 
 
+To solve this problem you need the cluster votes/quorum technique.
 
---- linux-2.4.19.orig/drivers/net/gmac.c	2002-08-08 08:38:10.000000000 +0200
-+++ linux-2.4.19/drivers/net/gmac.c	2002-08-08 09:26:07.000000000 +0200
-@@ -246,6 +246,7 @@
- #endif
- 		    	full_duplex = ((aux_stat & MII_BCM5201_AUXCTLSTATUS_DUPLEX) != 0);
- 		    	link_100 = ((aux_stat & MII_BCM5201_AUXCTLSTATUS_SPEED) != 0);
-+			netif_carrier_on(gm->dev);
- 		        break;
- 		      case PHY_B5400:
- 		      case PHY_B5401:
-@@ -260,6 +261,7 @@
- 		    	full_duplex = phy_BCM5400_link_table[link][0];
- 		    	link_100 = phy_BCM5400_link_table[link][1];
- 		    	gigabit = phy_BCM5400_link_table[link][2];
-+			netif_carrier_on(gm->dev);
- 		    	break;
- 		      case PHY_LXT971:
- 		    	aux_stat = mii_read(gm, gm->phy_addr, MII_LXT971_STATUS2);
-@@ -269,6 +271,7 @@
- #endif
- 		    	full_duplex = ((aux_stat & MII_LXT971_STATUS2_FULLDUPLEX) != 0);
- 		    	link_100 = ((aux_stat & MII_LXT971_STATUS2_SPEED) != 0);
-+			netif_carrier_on(gm->dev);
- 		    	break;
- 		      default:
- 		    	full_duplex = (lpar_ability & MII_ANLPA_FDAM) != 0;
-@@ -296,6 +299,7 @@
- #ifdef DEBUG_PHY
- 		    printk(KERN_INFO "%s:    Link down !\n", gm->dev->name);
- #endif
-+			netif_carrier_off(gm->dev);
- 		}
- 	}
- }
-@@ -1101,7 +1105,10 @@
- 	
- 	/* Initialize the multicast tables & promisc mode if any */
- 	gmac_set_multicast(dev);
--	
-+
-+	/* Initialize the carrier status */
-+	netif_carrier_off(dev);
-+
- 	/*
- 	 * Check out PHY status and start auto-poll
- 	 * 
+> And remember... NFS is a stateless protocol. No additional information about
+
+The only way to do it is the implementation of a real linux cluster 
+with it's distributed and shared disk access. NFS can never be a 
+replacement for a clusterd disk access.
+
+Martin Brulisauer
+

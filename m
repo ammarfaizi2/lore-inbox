@@ -1,52 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268030AbTAIT2M>; Thu, 9 Jan 2003 14:28:12 -0500
+	id <S266981AbTAITbt>; Thu, 9 Jan 2003 14:31:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268031AbTAIT2M>; Thu, 9 Jan 2003 14:28:12 -0500
-Received: from 12-237-170-171.client.attbi.com ([12.237.170.171]:9811 "EHLO
-	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S268030AbTAIT2L>;
-	Thu, 9 Jan 2003 14:28:11 -0500
-Message-ID: <3E1DCF8C.8060408@acm.org>
-Date: Thu, 09 Jan 2003 13:37:48 -0600
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dave Jones <davej@codemonkey.org.uk>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] PATCH: IPMI driver
-References: <200301090332.h093WML05981@hera.kernel.org> <20030109164407.GA26195@codemonkey.org.uk> <1042135594.27796.37.camel@irongate.swansea.linux.org.uk> <20030109172229.GA27288@codemonkey.org.uk> <1042135971.27796.44.camel@irongate.swansea.linux.org.uk> <3E1DCA8D.4040005@acm.org> <20030109192022.GA5693@codemonkey.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S266979AbTAITbt>; Thu, 9 Jan 2003 14:31:49 -0500
+Received: from mailhost.NMT.EDU ([129.138.4.52]:28179 "EHLO mailhost.nmt.edu")
+	by vger.kernel.org with ESMTP id <S266981AbTAITbq>;
+	Thu, 9 Jan 2003 14:31:46 -0500
+Date: Thu, 9 Jan 2003 12:40:19 -0700
+From: Val Henson <val@nmt.edu>
+To: linux-kernel@vger.kernel.org
+Cc: David van Hoose <davidvh@cox.net>, dpaun@rogers.com, rms@gnu.org,
+       Miles Bader <miles@gnu.org>, lm@bitmover.com, acahalan@cs.uml.edu
+Subject: Re: "Mother" == "computer-illiterate"
+Message-ID: <20030109194019.GH26010@boardwalk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030109072043.GE26010@boardwalk>
+User-Agent: Mutt/1.4i
+Favorite-Color: Polka dot
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
+On Thu, Jan 09, 2003 at 12:20:43AM -0700, Val Henson wrote:
+> On Wed, Jan 08, 2003 at 11:29:47AM +0900, Miles Bader wrote:
+> > 
+> > If someone's mom (having heard the gossip) asks their computer-literate
+> > child, `What is this XXX thing, anyway?', the answer is likely to be
+> > very different when XXX is "GNU" as opposed to when XXX is "Linux".
+> 
+> How come no one ever talks about a Linux distribution so easy that
+> your grandfather could install it?  Or a kernel configuration tool so
+> simple that even Uncle Timmy can use it?
+> 
+> Can we quit with the "clueless mother" examples already?  My own
+> mother has installed more distributions of Linux than I've even logged
+> into.  I know quite a few mothers who have PhDs in CS, own several
+> CS-related patents, and/or made important fundamental discoveries in
+> CS.  Hint: Find out who invented the spanning tree algorithm for
+> ethernet bridges, $10 ThinkGeek gift certificate to the first person
+> who emails me the correct answer.
 
->On Thu, Jan 09, 2003 at 01:16:29PM -0600, Corey Minyard wrote:
->
-> > >Pull the 2.5 port from openipmi.sourceforge.net  saves you doing the port
-> > >yourself. 
-> > >
-> > Definately pull the 2.5 port from there, as there are some differences 
-> > between the 2.4 and 2.5 versions.
->
->I had a quick skim through the patch.
->Is the handling of jiffies wraps done correctly ? It doesn't
->look like it...
->
->time_diff = ((jiffies_now - kcs_info->last_timeout_jiffies)
->
->		Dave
->
-I don't understand why that wouldn't work.  Those are both unsigned long 
-values.  Assuming twos complement, the time difference could be correct, 
-even in a wraparound case (unless a very large number of jiffies has 
-transpired, but that will never be the case here).
+And the winner is David Hoose, who sent the answer to me 10 minutes
+after the message to linux-kernel arrived in my mail queue.  The
+answer is:
 
-Am I missing something here?
+Radia Perlman
 
--Corey
+She is the inventor of the spanning tree algorithm, the author of
+"Interconnections: Bridges, Routers, Switches, and Internetworking
+Protocols" from Addison-Wesley, and the mother of at least two
+children.  Honorable mention to: Joe Perches, Joe Sloan, Chris Ricker,
+Larry McVoy, and "Disconnect," real name withheld.
 
+-VAL
 
+P.S. For extra credit (but no ThinkGeek certificate) you can look up
+the following women in computer science, some of whom are mothers:
+Mary Baker, Margo Seltzer, Monica Lam, Ellen Spertus, Carla Ellis, and
+Barbara Simons.

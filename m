@@ -1,74 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269795AbUICTyU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269779AbUICTuE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269795AbUICTyU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 15:54:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269803AbUICTxt
+	id S269779AbUICTuE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 15:50:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269761AbUICTsc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 15:53:49 -0400
-Received: from mail3.utc.com ([192.249.46.192]:22162 "EHLO mail3.utc.com")
-	by vger.kernel.org with ESMTP id S269795AbUICTuf (ORCPT
+	Fri, 3 Sep 2004 15:48:32 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:63390 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S269795AbUICTi1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 15:50:35 -0400
-Message-ID: <4138CACD.1030905@cybsft.com>
-Date: Fri, 03 Sep 2004 14:49:33 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       Daniel Schmitt <pnambic@unu.nu>, Lee Revell <rlrevell@joe-job.com>,
-       Mark_H_Johnson@raytheon.com,
-       "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-R3
-References: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com> <20040902063335.GA17657@elte.hu> <20040902065549.GA18860@elte.hu> <20040902111003.GA4256@elte.hu> <20040902215728.GA28571@elte.hu> <4138A56B.4050006@cybsft.com> <20040903181710.GA10217@elte.hu> <20040903193052.GA16617@elte.hu>
-In-Reply-To: <20040903193052.GA16617@elte.hu>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 3 Sep 2004 15:38:27 -0400
+Subject: Re: [RFC][PATCH] new timeofday core subsystem (v.A0)
+From: john stultz <johnstul@us.ibm.com>
+To: george anzinger <george@mvista.com>
+Cc: Christoph Lameter <clameter@sgi.com>, lkml <linux-kernel@vger.kernel.org>,
+       tim@physik3.uni-rostock.de, albert@users.sourceforge.net,
+       Ulrich.Windl@rz.uni-regensburg.de, Len Brown <len.brown@intel.com>,
+       linux@dominikbrodowski.de, David Mosberger <davidm@hpl.hp.com>,
+       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
+       jimix@us.ibm.com, keith maanthey <kmannth@us.ibm.com>,
+       greg kh <greg@kroah.com>, Patricia Gaughen <gone@us.ibm.com>,
+       Chris McDermott <lcm@us.ibm.com>
+In-Reply-To: <413820A2.80409@mvista.com>
+References: <1094159238.14662.318.camel@cog.beaverton.ibm.com>
+	 <1094159379.14662.322.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.58.0409021512360.28532@schroedinger.engr.sgi.com>
+	 <1094164096.14662.345.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.58.0409021536450.28532@schroedinger.engr.sgi.com>
+	 <1094166858.14662.367.camel@cog.beaverton.ibm.com>
+	 <B6E8046E1E28D34EB815A11AC8CA312902CF6059@mtv-atc-605e--n.corp.sgi.com>
+	 <1094170054.14662.391.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.58.0409021737310.6412@schroedinger.engr.sgi.com>
+	 <1094175004.14662.440.camel@cog.beaverton.ibm.com>
+	 <413820A2.80409@mvista.com>
+Content-Type: text/plain
+Message-Id: <1094239970.14662.516.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Fri, 03 Sep 2004 12:32:51 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Ingo Molnar <mingo@elte.hu> wrote:
+On Fri, 2004-09-03 at 00:43, George Anzinger wrote:
+> john stultz wrote:
+> > On Thu, 2004-09-02 at 17:47, Christoph Lameter wrote:
+> > 
+> >>On Thu, 2 Sep 2004, john stultz wrote:
+> > read(): Rather then just giving the address of the register, the read
+> > call allows for timesource specific logic. This lets us use jiffies as a
+> > timesource, or in cases like the ACPI PM timesource, where the register
+> > must be read 3 times in order to ensure a correct value is latched, we
+> > can avoid having to include that logic into the generic code, so it does
+> > not affect systems that do not use or have that timesource.
 > 
-> 
->>i'll add a new feature to debug this: when crashing on an assert and
->>tracing is enabled the trace leading up to the crash will be printed
->>to the console. [...]
-> 
-> 
-> the -R3 patch has this feature:
-> 
->   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc1-bk4-R3 
-> 
-> you can enable it via enabling CONFIG_LATENCY_TRACE and doing:
-> 
->   echo 3 > /proc/sys/kernel/trace_enabled
-> 
-> it's all automatic from this point on: tracing will happen nonstop and
-> any assert or crash that prints the process stack will also print the
-> last 100 trace entries. Sample output:
-> 
->  Call Trace:
->   [<c0160401>] sys_munmap+0x61/0x80
->   [<c010520d>] sysenter_past_esp+0x52/0x71
->  Last 100 trace entries:
->  00000001: zap_pmd_range+0xe/0x90  <= (unmap_page_range+0x55/0x80)
->  00000001: stop_trace+0x8/0x20  <= (bust_spinlocks+0x20/0x60)
->  00000001: bust_spinlocks+0xe/0x60  <= (die+0xbc/0x2a0)
->  [... 97 more trace entries ...]
-> 
-> Please capture and mail the first 'extended' oops that triggers
-> (secondary followup traces are probably just side-effects of the crash),
-> it could give us clues about where the bug is.
-> 
-> 	Ingo
-> 
+> I am not convince that 3 reads are in fact needed.  In fact, I am amost certain 
+> that two is more than enough.  In fact, it takes so long to read it that I just 
+> use one read and a sanity check in the HRT code.  Here is the code I use:
 
-Building now.
+[snip]
 
-kr
+I'd have to defer to Dominik (acpi-pm author) for that. But the case
+remains, to get a "good" value, you have to do more then just give
+access to the raw register.
+
+thanks
+-john
+

@@ -1,38 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263152AbRE1VQV>; Mon, 28 May 2001 17:16:21 -0400
+	id <S263162AbRE1VVL>; Mon, 28 May 2001 17:21:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263159AbRE1VQL>; Mon, 28 May 2001 17:16:11 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:18949 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S263152AbRE1VQB>; Mon, 28 May 2001 17:16:01 -0400
-Subject: Re: [patch]: ide dma timeout retry in pio
-To: hahn@coffee.psychology.mcmaster.ca (Mark Hahn)
-Date: Mon, 28 May 2001 22:12:31 +0100 (BST)
-Cc: axboe@suse.de (Jens Axboe), andre@linux-ide.org, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10105281533400.25183-100000@coffee.psychology.mcmaster.ca> from "Mark Hahn" at May 28, 2001 03:39:00 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S263165AbRE1VVC>; Mon, 28 May 2001 17:21:02 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:51206 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S263162AbRE1VUp>;
+	Mon, 28 May 2001 17:20:45 -0400
+Date: Mon, 28 May 2001 23:20:31 +0200
+From: Jens Axboe <axboe@kernel.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] 4GB I/O, 2nd edition
+Message-ID: <20010528232031.P9102@suse.de>
+In-Reply-To: <20010528175940.M9102@suse.de> <Pine.LNX.4.21.0105281546010.1261-100000@freak.distro.conectiva>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E154UJT-0003XV-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0105281546010.1261-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Mon, May 28, 2001 at 03:48:28PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> really?  do we know the nature of the DMA engine problem well enough?
+On Mon, May 28 2001, Marcelo Tosatti wrote:
+> > Hi,
+> > 
+> > One minor bug found that would possibly oops if the SCSI pool ran out of
+> > memory for the sg table and had to revert to a single segment request.
+> > This should never happen, as the pool is sized after number of devices
+> > and queue depth -- but it needed fixing anyway.
+> > 
+> > Other changes:
+> > 
+> > - Support cpqarray and cciss (two separate patches)
+> > 
+> > - Cleanup IDE DMA on/off wrt highmem
+> > 
+> > - Move run_task_queue back again in __wait_on_buffer. Need to look at
+> >   why this hurts performance.
+> 
+> It decrease performance of what in which way ?
 
-I can categorise some of them:
+Initial dbench testing on a 3.5gb box showed a decrease in performance.
+Which did not make sense to me, since there would be no reason to run
+tq_disk if the buffer is not locked as is. In fact, I would have
+expected this small change to increase performance slightly (which is
+why I did it of course), we would be able to build longer queues. I
+didn't do any queue monitoring, but I noted that __make_request scan
+times were _smaller_ with this change. Which really doesn't make sense
+at all :-)
 
-1.	Hardware that just doesnt support it.
-2.	Timeouts that are false positives caused by disks having problems
-	and being very slow to recover
-3.	Bad cabling
-4.	Stalls caused by heavy PCI traffic
+So I'm suspecting a weird mm interaction, I'll drop more info as I find
+out. Unfortunately I've been disconnected from above box since this
+afternoon, so haven't been able to test since...
 
-> is there a reason to believe that it'll work better "later"?
+-- 
+Jens Axboe
 
-#1 will go fail, fail, fail -> PIO now (or should do Im about to try it)
-#2 and #4 will be transient
-#3 could go either way

@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262006AbUF0Lko@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbUF0Lnb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262006AbUF0Lko (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jun 2004 07:40:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261987AbUF0Lko
+	id S261474AbUF0Lnb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jun 2004 07:43:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261987AbUF0Lnb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jun 2004 07:40:44 -0400
-Received: from [80.72.36.106] ([80.72.36.106]:32428 "EHLO alpha.polcom.net")
-	by vger.kernel.org with ESMTP id S262006AbUF0Lkm (ORCPT
+	Sun, 27 Jun 2004 07:43:31 -0400
+Received: from albireo.ucw.cz ([81.27.203.89]:25984 "EHLO albireo.ucw.cz")
+	by vger.kernel.org with ESMTP id S261474AbUF0Lna (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jun 2004 07:40:42 -0400
-Date: Sun, 27 Jun 2004 13:40:37 +0200 (CEST)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Wes Janzen <superchkn@sbcglobal.net>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>,
-       Pauli Virtanen <pauli.virtanen@hut.fi>
-Subject: Re: [PATCH] Staircase scheduler v7.4
-In-Reply-To: <Pine.LNX.4.58.0406271915440.29181@kolivas.org>
-Message-ID: <Pine.LNX.4.58.0406271337290.8480@alpha.polcom.net>
-References: <40DC38D0.9070905@kolivas.org> <40DDD6CC.7000201@sbcglobal.net>
- <Pine.LNX.4.58.0406271915440.29181@kolivas.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 27 Jun 2004 07:43:30 -0400
+Date: Sun, 27 Jun 2004 13:43:29 +0200
+From: Martin Mares <mj@ucw.cz>
+To: Roland Dreier <roland@topspin.com>
+Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pciutils: Support for MSI-X capability
+Message-ID: <20040627114329.GE670@ucw.cz>
+References: <52y8mayzdy.fsf@topspin.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <52y8mayzdy.fsf@topspin.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 27 Jun 2004, Con Kolivas wrote:
+Hi!
 
-> On Sat, 26 Jun 2004, Wes Janzen wrote:
+> Hi, here is a patch to pciutils that adds parsing of MSI-X capability
+> entries.  With this patch, an MSI-X capability will be dumped with -v as
 > 
-> > I don't know what's going on but 2.6.7-mm2 with the staircase v7.4 (with 
-> > or without staircase7.4-1) takes about 3 hours to get from loading the 
-> > kernel from grub to the login prompt.  Now I realize my K6-2 400 isn't 
-> > state of the art...  I don't have this problem running 2.6.7-mm2.
-> > 
-> > It just pauses after starting nearly every service for an extended 
-> > period of time.  It responds to sys-rq keys but just seems to be doing 
-> > nothing while waiting.
+> 	Capabilities: [40] MSI-X: Enable- Mask- TabSize=32
 > 
-> Same problem as the rest I'm sure. I'm looking into it. Thanks for report.
+> and with -vv as
+> 
+> 	Capabilities: [40] MSI-X: Enable- Mask- TabSize=32
+> 		Vector table: BAR=0 offset=00082000
+> 		PBA: BAR=0 offset=00082200
+> 
+> Please let me know if you need any changes/fixes before you can apply.
 
-I have this problem since 2.6.7-ck1. I use Gentoo (with paralell rc 
-scripts). For me it hangs somewhere in hotpluging (hotplug+udev). As a 
-workaround I press SysRQ-P ("Show regs") several times and it does help.
+Applied and will appear in -test6 soon.
 
+Could you please add a couple of comments to the capability defines in header.h?
 
-Grzegorz Kulewski
-
+				Have a nice fortnight
+-- 
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+Q: Do you believe in One God? A: Yes, up to isomorphism.

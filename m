@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316530AbSGAVhz>; Mon, 1 Jul 2002 17:37:55 -0400
+	id <S316535AbSGAVua>; Mon, 1 Jul 2002 17:50:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316532AbSGAVhz>; Mon, 1 Jul 2002 17:37:55 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17670 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316530AbSGAVhy>;
-	Mon, 1 Jul 2002 17:37:54 -0400
-Message-ID: <3D20CBD7.BC184F53@zip.com.au>
-Date: Mon, 01 Jul 2002 14:38:31 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
-X-Accept-Language: en
+	id <S316538AbSGAVu3>; Mon, 1 Jul 2002 17:50:29 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:48913 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S316535AbSGAVu3>;
+	Mon, 1 Jul 2002 17:50:29 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200207012152.g61LqjX387143@saturn.cs.uml.edu>
+Subject: Re: Diff b/w 32bit & 64-bit
+To: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: Mon, 1 Jul 2002 17:52:45 -0400 (EDT)
+Cc: MohamedG@ggn.hcltech.com (Mohamed Ghouse Gurgaon),
+       linux-kernel@vger.kernel.org ('linux-kernel@vger.kernel.org')
+In-Reply-To: <yw1xpty71bea.fsf@gladiusit.e.kth.se> from "=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=" at Jul 01, 2002 09:44:13 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-To: Bongani <bonganilinux@mweb.co.za>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: EXT3 errors
-References: <1025551456.1587.2.camel@localhost.localdomain>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bongani wrote:
-> 
-> Hi
-> 
-> Does anyone what cause's these message. I have a 41M messages file
-> because of the.
-> 
-> Jul  1 04:02:14 localhost kernel: EXT3-fs error (device ide0(3,70)):
-> ext3_new_block: Allocating block in system zone - block = 32802
+=?iso-8859-1?q?M=E5ns_Rullg=E5rd?= writes:
 
-Your filesystem is wrecked.  Did you get some I/O errors?
+> For Alpha: sizeof(int) == 4, sizeof(long) == 8, sizeof(void *) == 8
+> For intel: sizeof(int) == 4, sizeof(long) == 4, sizeof(void *) == 8
 
-You need to unmount it, run `e2fsck -f' and fix it up.
+That second line is _only_ correct for Win64.
+The Linux way:
 
--
+char is 8 bits
+char may be signed or unsigned by default
+short is 16 bits
+int is 32 bits
+long is the name number of bits as a pointer
+long is either 32 bits or 64 bits
+long long is 64 bits
+don't cast from "foo *" to "bar *" if sizeof(foo)<sizeof(bar)
+in a struct, put big items first to avoid padding
+don't use "long" in a struct that goes to disk or over the network
+with few exceptions, floating-point math in the kernel is prohibited
+don't assume that all physical memory is continuously mapped
+don't assume that you can DMA to any address you like

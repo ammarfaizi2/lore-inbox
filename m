@@ -1,42 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272540AbRH3XCO>; Thu, 30 Aug 2001 19:02:14 -0400
+	id <S272544AbRH3XHE>; Thu, 30 Aug 2001 19:07:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272541AbRH3XCE>; Thu, 30 Aug 2001 19:02:04 -0400
-Received: from smtp.mailbox.co.uk ([195.82.125.32]:13781 "EHLO
-	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
-	id <S272540AbRH3XB6>; Thu, 30 Aug 2001 19:01:58 -0400
-Date: Thu, 30 Aug 2001 23:25:51 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Paul Larson <plars@austin.ibm.com>
-Cc: Frank Davis <fdavis@si.rr.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.4.9-ac4: undefined reference pgtable_cache_init
-Message-ID: <20010830232551.J1149@flint.arm.linux.org.uk>
-In-Reply-To: <3B8E6467.1030204@si.rr.com> <20010830172612.F1149@flint.arm.linux.org.uk> <999184657.9362.32.camel@plars.austin.ibm.com>
+	id <S272546AbRH3XGz>; Thu, 30 Aug 2001 19:06:55 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:51859 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S272543AbRH3XGo>;
+	Thu, 30 Aug 2001 19:06:44 -0400
+Date: Thu, 30 Aug 2001 16:06:51 -0700 (PDT)
+Message-Id: <20010830.160651.75218604.davem@redhat.com>
+To: kraxel@bytesex.org
+Cc: linux-kernel@vger.kernel.org
+Newsgroups: lists.linux.kernel
+Subject: Re: [UPDATE] 2.4.10-pre2 PCI64, API changes README
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <slrn9oscm3.4o6.kraxel@bytesex.org>
+In-Reply-To: <20010829.181852.98555095.davem@redhat.com>
+	<slrn9oscm3.4o6.kraxel@bytesex.org>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <999184657.9362.32.camel@plars.austin.ibm.com>; from plars@austin.ibm.com on Thu, Aug 30, 2001 at 03:17:36PM +0000
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 30, 2001 at 03:17:36PM +0000, Paul Larson wrote:
-> I've seen this as well on i386.  It crops up when you are using HIGHMEM.
-> In include/asm-i386/pgtable.h you declare pgtable_cache_init if HIGHMEM
-> is on, or define it to the empty while loop if not.  It really needs to
-> be calling init_pae_pgd_cache instead though.  Try this patch against
-> 2.4.9-ac4.  I don't know if changing the name of init_pae_pgd_cache was
-> the Right Thing (tm) to do, but it worked for me.  It's not getting
-> called anywhere else anyways.
+   From: Gerd Knorr <kraxel@bytesex.org>
+   Date: 30 Aug 2001 12:34:11 GMT
 
-It got changed because we don't want to add multiple architecture
-specific functions to init/main.c, but rather have one generic call
-which any architecture can use for this type of thing.
+   These days I tried what happens if I start a PCI->PCI transfer this way:
+   Open the framebuffer device, mmap the framebuffer memory, then ask bttv
+   to blit one video frame to the framebuffer by passing the pointer of the
+   fb mapping to bttv's read() function.
+   
+   Didn't work, looks like map_user_buf can deal with main memory only, but
+   not with I/O memory.  It gave me NULL pointers in the iobuf page list.
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Right.
+   
+   Is there any way (portable) way to deal with this situation?  I'd expect
+   I can get the physical address for the I/O memory by walking the page
+   tables, but then I'd have to translate that to a bus address somehow.
+   How PCI->PCI transfers are handled on architectures with a iommu?  Do I
+   need a iommu entry for them?
 
+Not currently.  Note that just using that physical address you'd find
+in the page tables might not even work on many platforms.  And
+anyways, the DMA-mapping.txt document is pretty clear that of what
+types of memory can be passed in to get DMA mappings for.
+
+You _REALLY_ need to know the PCI device in question before you can
+properly and portably set up a PCI peer to peer transfer.  We have no
+API for this yet though.
+
+When such an API would be created, it would take two PCI_DEV structs,
+and it would possibly fail.  On sparc64 for example, it is not
+possible to PCI peer-to-peer DMA between two PCI devices behind
+different PCI controllers, it simply doesn't work.
+
+Later,
+David S. Miller
+davem@redhat.com

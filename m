@@ -1,35 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129517AbRCFV2s>; Tue, 6 Mar 2001 16:28:48 -0500
+	id <S129524AbRCFVcs>; Tue, 6 Mar 2001 16:32:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129524AbRCFV2c>; Tue, 6 Mar 2001 16:28:32 -0500
-Received: from anime.net ([63.172.78.150]:26634 "EHLO anime.net")
-	by vger.kernel.org with ESMTP id <S129517AbRCFV2T>;
-	Tue, 6 Mar 2001 16:28:19 -0500
-Date: Tue, 6 Mar 2001 13:29:25 -0800 (PST)
-From: Dan Hollis <goemon@anime.net>
-To: Mordechai Ovits <movits@ovits.net>
-cc: Hao Sun <hsun@mtgbcs.usae.avaya.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: TCP vegas implementation
-In-Reply-To: <20010306162038.A28153@ovits.net>
-Message-ID: <Pine.LNX.4.30.0103061328260.21276-100000@anime.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129525AbRCFVci>; Tue, 6 Mar 2001 16:32:38 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:47622 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S129524AbRCFVc2>;
+	Tue, 6 Mar 2001 16:32:28 -0500
+Date: Tue, 6 Mar 2001 22:31:51 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: Microsoft ZERO Sector Virus, Result of Taskfile WAR
+Message-ID: <20010306223151.W2803@suse.de>
+In-Reply-To: <20010306214838.V2803@suse.de> <Pine.LNX.4.10.10103061255301.13719-100000@master.linux-ide.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10103061255301.13719-100000@master.linux-ide.org>; from andre@linux-ide.org on Tue, Mar 06, 2001 at 12:59:37PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Mar 2001, Mordechai Ovits wrote:
-> On Tue, Mar 06, 2001 at 12:03:02PM -0500, Hao Sun wrote:
-> > > From Neal Cardwell (cardwell@cs.washington.edu)
-> > > Tue, 20 Jul 1999 03:08:21 -0700 (PDT)
-> > > A new TCP Vegas patch for 2.2.10/2.3.10 is available at:
-> > > http://www.cs.washington.edu/homes/cardwell/linux-vegas/
-> > Does anyone know where to get the above TCP vegas implementation code
-> > or a more recent one? The link above is broken and Neal Cardwell is
-> > not there.
+On Tue, Mar 06 2001, Andre Hedrick wrote:
+> > But I might want to do this (write sector 0), why would we want
+> > to filter that? If someone a) uses an email client that will execute
+> > java script code (or whatever) and b) runs that as root (which
+> > he would have to do, surely no ordinary user has privileges to send
+> > arbitrary commands) then he gets what he deserves.
+> 
+> Jens we are not going there....the filter is the only way known to jam
+> unknown commands, and you missed the point of the issue then and I think
+> you still miss it.  "arbitrary commands" + wrong hander is lock-up.
 
-I had big performance problems with tcp-vegas on highly assymetric WAN
-connections (eg 8m/640k adsl). Normal tcp worked fine.
+I'm perfectly aware of the handler issue. So make it part of the
+user space taskfile interface in a nice way, done and done. And I
+knew I shouldn't have replied to this, the last thing I want to do
+is start another flamewar :-)
 
--Dan
+So EOD from me.
+
+-- 
+Jens Axboe
 

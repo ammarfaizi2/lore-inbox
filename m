@@ -1,55 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262164AbTKYQeZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 11:34:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbTKYQeZ
+	id S261890AbTKYQgu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 11:36:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbTKYQgt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 11:34:25 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:28679 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262164AbTKYQeN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 11:34:13 -0500
-Date: Tue, 25 Nov 2003 11:23:07 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Nick Piggin <piggin@cyberone.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] generalise scheduling classes
-In-Reply-To: <3FC2B487.8080709@cyberone.com.au>
-Message-ID: <Pine.LNX.3.96.1031125111256.4037B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 25 Nov 2003 11:36:49 -0500
+Received: from smithers.nildram.co.uk ([195.112.4.54]:48657 "EHLO
+	smithers.nildram.co.uk") by vger.kernel.org with ESMTP
+	id S262491AbTKYQei (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 11:34:38 -0500
+Date: Tue, 25 Nov 2003 16:35:37 +0000
+From: Joe Thornber <thornber@sistina.com>
+To: Joe Thornber <thornber@sistina.com>
+Cc: Linux Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@osdl.org>
+Subject: [Patch 5/5] dm: dm_table_event() sleep on spinlock bug
+Message-ID: <20031125163537.GF524@reti>
+References: <20031125162451.GA524@reti>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031125162451.GA524@reti>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Nov 2003, Nick Piggin wrote:
-
-> 
-> 
-> bill davidsen wrote:
-> 
-> >In article <3FC0A0C2.90800@cyberone.com.au>,
-> >Nick Piggin  <piggin@cyberone.com.au> wrote:
-> >
-> >| We still don't have an HT aware scheduler, which is unfortunate because
-> >| weird stuff like that looks like it will only become more common in future.
-> >
-> >The idea is hardly new, in the late 60's GE (still a mainframe vendor at
-> >that time) was looking at two execution units on a single memory path.
-> >They decided it would have problems with memory bandwidth, what else is
-> >new?
-> >
-> 
-> I don't think I said new, but I guess they (SMT, NUMA, CMP) are newish
-> for architectures supported by Linux Kernel. OK NUMA has been around for
-> a while, but the scheduler apparently doesn't work so well for atypical
-> new NUMAs like Opteron.
-
-You didn't say new, I wasn't correcting you, just thought that the
-historical perspective might be interesting. I would love to try the new
-scheduler, but my test computer is not pleased with Fedora.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+You can no longer call dm_table_event() from interrupt context.
+--- diff/drivers/md/dm-table.c	2003-11-25 15:47:59.000000000 +0000
++++ source/drivers/md/dm-table.c	2003-11-25 15:52:15.000000000 +0000
+@@ -12,6 +12,7 @@
+ #include <linux/namei.h>
+ #include <linux/ctype.h>
+ #include <linux/slab.h>
++#include <linux/interrupt.h>
+ #include <asm/atomic.h>
+ 
+ #define MAX_DEPTH 16
+@@ -746,22 +747,28 @@
+ 	return r;
+ }
+ 
+-static spinlock_t _event_lock = SPIN_LOCK_UNLOCKED;
++static DECLARE_MUTEX(_event_lock);
+ void dm_table_event_callback(struct dm_table *t,
+ 			     void (*fn)(void *), void *context)
+ {
+-	spin_lock_irq(&_event_lock);
++	down(&_event_lock);
+ 	t->event_fn = fn;
+ 	t->event_context = context;
+-	spin_unlock_irq(&_event_lock);
++	up(&_event_lock);
+ }
+ 
+ void dm_table_event(struct dm_table *t)
+ {
+-	spin_lock(&_event_lock);
++	/*
++	 * You can no longer call dm_table_event() from interrupt
++	 * context, use a bottom half instead.
++	 */
++	BUG_ON(in_interrupt());
++
++	down(&_event_lock);
+ 	if (t->event_fn)
+ 		t->event_fn(t->event_context);
+-	spin_unlock(&_event_lock);
++	up(&_event_lock);
+ }
+ 
+ sector_t dm_table_get_size(struct dm_table *t)

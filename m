@@ -1,33 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263775AbTEFOGG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 10:06:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263772AbTEFOFE
+	id S263729AbTEFOHf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 10:07:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263778AbTEFOGx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 10:05:04 -0400
-Received: from watch.techsource.com ([209.208.48.130]:44252 "EHLO
-	techsource.com") by vger.kernel.org with ESMTP id S263729AbTEFOD4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 10:03:56 -0400
-Message-ID: <3EB7C490.5040803@techsource.com>
-Date: Tue, 06 May 2003 10:20:00 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Another question about thrashing
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 6 May 2003 10:06:53 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:58764 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S263729AbTEFOFj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 10:05:39 -0400
+Subject: Re: Linux 2.5.69
+From: "David S. Miller" <davem@redhat.com>
+To: Roger Luethi <rl@hellgate.ch>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, acme@conectiva.com.br
+In-Reply-To: <20030506133938.GA11062@k3.hellgate.ch>
+References: <Pine.LNX.4.44.0305041739020.1737-100000@home.transmeta.com>
+	 <20030506133938.GA11062@k3.hellgate.ch>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1052230132.983.48.camel@rth.ninka.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 06 May 2003 07:08:52 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There didn't seem to be much interest in my earlier post about kernel 
-behavior when swap thrashing.
+On Tue, 2003-05-06 at 06:39, Roger Luethi wrote:
+> I'm seeing "kernel BUG at include/linux/module.h:284!" with 2.5.69.
+> 
+> I first suspected the early summer in Europe made my hardware flaky, but I
+> can't reproduce with 2.5.68.
 
-So my question is, are we not concerned about system behavior when one 
-process uses so much memory that it grinds everything else to a halt?
+Arnaldo, it's the socket module stuff.  He's using AF_UNIX
+as a module.
 
-It appears that a thrashing process is being given more preferential 
-treatment than it should.
-
+-- 
+David S. Miller <davem@redhat.com>

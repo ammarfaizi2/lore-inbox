@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263718AbTDNTix (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 15:38:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263720AbTDNTiw (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 15:38:52 -0400
-Received: from fmr03.intel.com ([143.183.121.5]:28137 "EHLO
-	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S263718AbTDNTiv convert rfc822-to-8bit (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Apr 2003 15:38:51 -0400
-Message-ID: <A46BBDB345A7D5118EC90002A5072C780BEBADA1@orsmsx116.jf.intel.com>
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "'Bryan Shumsky'" <bzs@via.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: Memory mapped files question
-Date: Mon, 14 Apr 2003 12:50:33 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 8BIT
+	id S263815AbTDNSun (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 14:50:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263804AbTDNSum (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 14:50:42 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:32449 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263816AbTDNSuZ (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Apr 2003 14:50:25 -0400
+Date: Mon, 14 Apr 2003 21:02:06 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@digeo.com>, alan@lxorguk.ukuu.org.uk,
+       marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.21-pre7 ide request races
+Message-ID: <20030414190206.GC9776@suse.de>
+References: <20030414093418.GQ9776@suse.de> <20030414030751.7bf17b04.akpm@digeo.com> <20030414101747.GR9776@suse.de> <20030414032339.27079dd8.akpm@digeo.com> <20030414102723.GS9776@suse.de> <20030414161508.GA1460@beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030414161508.GA1460@beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> From: Bryan Shumsky [mailto:bzs@via.com]
+On Mon, Apr 14 2003, Mike Anderson wrote:
+> Jens Axboe [axboe@suse.de] wrote:
+> > On Mon, Apr 14 2003, Andrew Morton wrote:
+> > > Jens Axboe <axboe@suse.de> wrote:
+> > > >
+> > > > How would that solve the problem? The request could be gone even before
+> > > > end_that_request_last() is run, that is the issue.
+> > > 
+> > > In that case I didn't understand your description of the bug even the tiniest
+> > > little bit.
+> > > 
+> > > That request is sitting in the kernel stack of some process which is sleeping
+> > > in wait_for_completion().  Hence it is safe memory until someone runs
+> > > complete() against the completion struct.
+> > 
+> > Sorry you are right, that should fix the problem as well! Your fix is
+> > probably the better one for 2.4, less intrusive. I'll kill the stack
+> > requests in 2.5 then.
 > 
-> Hi, everyone.  Thanks for all your responses.  Our confusion is that in
-Unix
-> environments, when we modify memory in memory-mapped files the underlying
-> system flusher manages to flush the files for us before the files are
-> munmap'ed or msysnc'ed.
-> 
-> Rewriting all of our code to manually handle the flushing is a MAJOR
-> undertaking, so I was hoping there might be some sneaky solution you could
-> come up with.  Any ideas?
+> In 2.5 will you include the 2.4 end_that_request_last fix proposed in
+> this thread along with removal of requests on the stack?
 
-Have a high prio thread msync()ing every now and then? OOps forget it,
-I never said that, it is really a lame solution :) you can run in all
-kinds of trouble.
+Yes of course. One is a good cleanup, the other prevents similar
+problems from other drivers.
 
-Or maybe it is not that lame if you know *exactly* when do you need
-the flush (for example, some other program is going to access the data);
-this way you can signal the process who did the modification for it
-to issue an msync(). However, this is going to be some delicate
-synchronization
-between the two apps.
+-- 
+Jens Axboe
 
-Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
-(and my fault)

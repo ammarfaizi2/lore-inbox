@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311716AbSCNS21>; Thu, 14 Mar 2002 13:28:27 -0500
+	id <S311717AbSCNS31>; Thu, 14 Mar 2002 13:29:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311717AbSCNS2R>; Thu, 14 Mar 2002 13:28:17 -0500
-Received: from moutvdom01.kundenserver.de ([195.20.224.200]:19819 "EHLO
-	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S311716AbSCNS2K>; Thu, 14 Mar 2002 13:28:10 -0500
-Message-ID: <3C90EB9D.617F22B0@ngforever.de>
-Date: Thu, 14 Mar 2002 11:27:41 -0700
-From: Thunder from the hill <thunder@ngforever.de>
-Organization: The LuckyNet Administration
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.8-26mdk i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Andreas Dilger <adilger@clusterfs.com>, David Rees <dbr@greenhydrant.com>
-Subject: Re: mke2fs (and mkreiserfs) core dumps
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S311718AbSCNS3S>; Thu, 14 Mar 2002 13:29:18 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:33470 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S311717AbSCNS3I>; Thu, 14 Mar 2002 13:29:08 -0500
+Date: Thu, 14 Mar 2002 11:01:54 -0700
+Message-Id: <200203141801.g2EI1sK00638@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Juan Quintela <quintela@mandrakesoft.com>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: pcmcia oops problem?
+In-Reply-To: <m2henjruos.fsf@trasno.mitica>
+In-Reply-To: <3C90BA11.40106@mandrakesoft.com>
+	<m2henjruos.fsf@trasno.mitica>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-> If you don't have any "ulimit" calls in the login, it should also be OK.
-> It's just that some vendor startup scripts set a ulimit for non-root
-> users.  Trying to set it back to "unlimited" doesn't work.
+Juan Quintela writes:
+> >>>>> "jeff" == Jeff Garzik <jgarzik@mandrakesoft.com> writes:
 > 
-> Cheers, Andreas
+> jeff> Can you describe the pcmcia oops problem in detail?
+> jeff> What output do you get from a serial console?
+> 
+> Ok, trying to get better message now.
 
-Not exactly, there's a trap: Some models have a
-/etc/security/limits.conf which might ulimit some stuff even though you
-don't have any direct calls to ulimit. I had already encountered this
-several times and wondered if I might consider this a misbehavior.
-Anyway, these limits don't apply to root then in the model. I don't know
-if this problem is based on that.
+Can you:
 
-Thunder
+- capture the Oops and decode with ksymoops
+- make sure you always Cc: me on devfs-related problems (I nearly
+  missed this one).
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

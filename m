@@ -1,53 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264355AbRFIQTO>; Sat, 9 Jun 2001 12:19:14 -0400
+	id <S264381AbRFIQUY>; Sat, 9 Jun 2001 12:20:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264375AbRFIQTE>; Sat, 9 Jun 2001 12:19:04 -0400
-Received: from smtp8.xs4all.nl ([194.109.127.134]:43719 "EHLO smtp8.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S264355AbRFIQSr>;
-	Sat, 9 Jun 2001 12:18:47 -0400
-Date: Sat, 9 Jun 2001 18:15:51 +0200
-From: "P.A.M. van Dam" <nucleus@ramoth.xs4all.nl>
-To: "Peter J. Braam" <braam@clusterfilesystem.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Ext3 kernel RPMS (2.4.5 & 2.2.19)
-Message-ID: <20010609181551.A26422@ladystrange.bluehorizon.nl>
-In-Reply-To: <Pine.LNX.4.33.0106081522340.1388-100000@lustre.clusterfilesystem.com>
-Mime-Version: 1.0
+	id <S264376AbRFIQUO>; Sat, 9 Jun 2001 12:20:14 -0400
+Received: from sr3.terra.com.br ([200.176.3.63]:50186 "EHLO sr3.terra.com.br")
+	by vger.kernel.org with ESMTP id <S264375AbRFIQUG>;
+	Sat, 9 Jun 2001 12:20:06 -0400
+Message-ID: <3B224CFC.2ECB7CE0@zaz.com.br>
+Date: Sat, 09 Jun 2001 13:21:16 -0300
+From: Paulo Afonso Graner Fessel <pafessel@zaz.com.br>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i586)
+X-Accept-Language: pt-BR, en
+MIME-Version: 1.0
+To: "Mathiasen, Torben" <Torben.Mathiasen@compaq.com>
+CC: linux-kernel@vger.kernel.org, hollis@austin.rr.com
+Subject: Re: Probable endianess problem in TLAN driver
+In-Reply-To: <22F662CDC53ED411B65700805F31DE1C135A70@exccop-01.dmo.cpqcorp.net>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.1i
-In-Reply-To: <Pine.LNX.4.33.0106081522340.1388-100000@lustre.clusterfilesystem.com>; from Peter J. Braam on Fri, Jun 08, 2001 at 03:23:16PM -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 08, 2001 at 03:23:16PM -0600, Peter J. Braam wrote:
-> Hi,
+"Mathiasen, Torben" wrote:
 > 
-> Mostly for my own use, I prepared two kernel RPM's with Ext3 in them.
+> Paulo,
 > 
-> Versions:
-> 2.2.19 + 0.0.7a
-> 2.4.5  + 0.0.6
-> 
-> PLEASE USE THESE AT YOUR OWN RISK - THEY CONTAIN EXPERIMENTAL FILE SYSTEM
-> CODE.
-> - Peter J. Braam -
-> http://www.clusterfilesystem.com
+> Thanks for the update/patch. Sorry I missed your first email, bu I've been
+> way too busy with other stuff the last couple of months.
 
-Ext3 for 2.4 kernels. Great. It's probably been asked before, but where can I
-find the ext3 patch for the 2.4 kernels?
+Thank Hollis. :-) As I've already said, I'm really no kernel hacker.
+OTOH I've programmed a lot 5+ years ago, so I can understand some
+things. I'm relieved also that you have replied, because seemed that you
+had a disease or something - your contributions both to the list and
+updates to the page stopped abruptly.
 
-Thanks in advance!
+> There's a lot of endianess issues in the tlan driver, but none really
+> bothered fixing them. No one really assumed the tlan adapters would be used
+> on bigendian machines. Well, let me say, you're probaly the first ;-).
 
-Best regards,
+Actually, I decided on Netelligent Dual because of two things:
 
-	Pascal
+* I had the oportunity to get such a board by a reasonable price (US$
+50.00); here in Brazil, it's rather difficult to get real multiport
+adapters (what is available are hubs-on-a-board. Bleargh). The ones
+available are Adaptec ones, and here they cost US$ 500.00 up. Too bad
+because they have the 21x4x chip that works flawlessly on PPC. :-(
 
+* I've read someplace that someone got to make TLAN work on PowerPC (no
+links, please :-). He said also that MacOS would olympically ignore the
+driver, but it would work on PPCLinux.
+
+Even in US multiport Adaptec boards are not cheap; in eBay prices vary
+from US$ 150 to US$ 225.
+ 
+> Now, I have pile of updates/issues for the tlan driver I need to check up
+> on. Hopefully I'll have some sparetime within a reasonable future to address
+> this.
+
+The adapter ROM must be enabled for the driver work? I'm asking this
+because lspci -v shows that the adapter ROM in both ports is "disabled".
+
+> BTW. The project page on compaq.com is the "new" tlan site.
+
+Could you the group membership issues on the site? I'd like to see the
+bug reports but I can't do it. Check the site for the actual messages
+without logging in.
+
+> Thanks,
 > 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Torben Mathiasen
+
+Thanks also!
+
+Paulo
+
+-- 
+Now I want you to remember that no bastard ever won a war by
+dying for his country. He won it by making the other poor dumb 
+bastard die for his country.
+
+(Gen. George S. Patton Jr.)

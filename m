@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315232AbSEYSph>; Sat, 25 May 2002 14:45:37 -0400
+	id <S315235AbSEYSry>; Sat, 25 May 2002 14:47:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315235AbSEYSpf>; Sat, 25 May 2002 14:45:35 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:18959 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S315232AbSEYSov>; Sat, 25 May 2002 14:44:51 -0400
-Date: Sat, 25 May 2002 11:44:39 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Karim Yaghmour <karim@opersys.com>
-cc: Wolfgang Denk <wd@denx.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
-In-Reply-To: <3CEFD65A.ED871095@opersys.com>
-Message-ID: <Pine.LNX.4.44.0205251138390.17649-100000@home.transmeta.com>
+	id <S315238AbSEYSrx>; Sat, 25 May 2002 14:47:53 -0400
+Received: from relay04.valueweb.net ([216.219.253.238]:7946 "EHLO
+	relay04.valueweb.net") by vger.kernel.org with ESMTP
+	id <S315235AbSEYSrv>; Sat, 25 May 2002 14:47:51 -0400
+Message-ID: <3CEFDBE4.5BE20C7C@opersys.com>
+Date: Sat, 25 May 2002 14:45:56 -0400
+From: Karim Yaghmour <karim@opersys.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Mark Mielke <mark@mark.mielke.cc>
+CC: Linus Torvalds <torvalds@transmeta.com>, Wolfgang Denk <wd@denx.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
+In-Reply-To: <Pine.LNX.4.44.0205251057370.6515-100000@home.transmeta.com> <3CEFD65A.ED871095@opersys.com> <20020525143358.A4481@mark.mielke.cc>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Mark Mielke wrote:
+> None of which proves that it is the right way to do things.
 
-On Sat, 25 May 2002, Karim Yaghmour wrote:
->
-> Blinders ehh... Well, if you would care to ask I would answer.
->
-> In reality, what you point out is actually a non-issue since the hard-rt
-> user-land tasks are not allowed to call on normal Linux services. They
-> can only call on RTAI services which are exported by an extra soft-int.
-> These services are hard-rt, so there's no problem there.
+So, this is all about the "right way"? So the right way is to have
+everything in the kernel without memory protection?
 
-.. which was exactly what I said:
+> >From what I understand, Linux _is_ being considered for RT applications
+> by quite a few heavy-weights in the field including IBM, Intel and
+> quite a few others. The patent issue that you present does not seem to be
+> discouraging them in any way.
 
- "..every single spinlock in the kernel assumes that the kernel isn't
-  preempted, which means that user apps that can preempt the kernel
-  cannot use them."
+True, but see who you're pointing to: Intel and IBM. Both patent heavywheights.
+Do you really think they're going to run scared because of one tiny company
+with a questionnable patent? I personnally don't. They probably even have
+patents which invalidate the rtlinux patent.
 
-Karim, I don't _need_ to download RTAI or ask you questions about how it
-works, because this is fundamental "RT-101" stuff. This is what priority
-inversion is all about: if you make user land more important than the
-kernel, it _cannot_ stay RT and use kernel services.
+Those who do run scared are all those who develop embedded apps and don't
+have the size of IBM or Intel to carry them. And there a great deal of those.
 
-I went on to say:
+Karim
 
-   "Karim claims to give "user land" hard-real-time abilities, but the
-    fact is, it's not "user land" any more. it's a limited shadow, and a
-    _perversion_ of what user land is supposed to be all about."
-
-Which certainly should have told you that I understood the limitations of
-RTAI very well indeed. And I reject them.
-
-		Linus
-
+===================================================
+                 Karim Yaghmour
+               karim@opersys.com
+      Embedded and Real-Time Linux Expert
+===================================================

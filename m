@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129578AbQKJKOi>; Fri, 10 Nov 2000 05:14:38 -0500
+	id <S129567AbQKJKNs>; Fri, 10 Nov 2000 05:13:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129714AbQKJKO2>; Fri, 10 Nov 2000 05:14:28 -0500
-Received: from mail.zmailer.org ([194.252.70.162]:50952 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S129695AbQKJKOM>;
-	Fri, 10 Nov 2000 05:14:12 -0500
-Date: Fri, 10 Nov 2000 12:14:02 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Constantine Gavrilov <const-g@xpert.com>
-Cc: willy tarreau <wtarreau@yahoo.fr>, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.18pre21
-Message-ID: <20001110121402.F13151@mea-ext.zmailer.org>
-In-Reply-To: <20001110092846.29847.qmail@web1102.mail.yahoo.com> <20001110114425.E13151@mea-ext.zmailer.org> <3A0BC699.791064BE@xpert.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3A0BC699.791064BE@xpert.com>; from const-g@xpert.com on Fri, Nov 10, 2000 at 11:57:45AM +0200
+	id <S129578AbQKJKN2>; Fri, 10 Nov 2000 05:13:28 -0500
+Received: from [62.254.209.2] ([62.254.209.2]:2811 "EHLO cam-gw.zeus.co.uk")
+	by vger.kernel.org with ESMTP id <S129567AbQKJKNY>;
+	Fri, 10 Nov 2000 05:13:24 -0500
+Date: Fri, 10 Nov 2000 10:13:21 +0000 (GMT)
+From: Ben Mansell <ben@zeus.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Missing ACKs with Linux 2.2/2.4?
+In-Reply-To: <200011100020.QAA00913@pizda.ninka.net>
+Message-ID: <Pine.LNX.4.30.0011100951300.11412-100000@artemis.cam.zeus.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 10, 2000 at 11:57:45AM +0200, Constantine Gavrilov wrote:
-> >         Cisco Trademark is  EtherChannel -- there the capitalization
-> >         is important.  We could call it ETHERNETCHANNEL (and even
-> >         "Etherchannel" or "ETHERCHANNEL") get away with it clean.
-> > ...
-> > > Regards,
-> > > Willy
-> > 
-> > /Matti Aarnio
-> 
-> ISDN uses "channel bonding", not bonding. As for "Etherchannel", let us
-> change it to "EtherChannel" is this is how it is called.
+On Thu, 9 Nov 2000, David S. Miller wrote:
 
-	Anything but "EtherChannel" -- trademark people are sometimes
-	unpleasant when they consider something being infringed.
-	(And nowhere as much as in USA..)
+>    Any ideas whats going on? I'm no expert at reading tcpdumps, if
+>    anyone can shed some light on the problem, I'd be most greatful.
+>
+> Anything less than ~2.2.16 are about as buggy as they come wrt. TCP
+> Please upgrade ;-)
 
-	We dont' have cisco approval of using their trademark in Linux
-	kernel feature name, or do we ?
+A fair point! But I still can't see what the server is doing wrong,
+which makes it look like the clients (inc 2.4.0-test10) are misbehaving.
 
-> -- 
-> Constantine Gavrilov
-> Xpert Integrated Systems
-> 1 Shenkar St, Herzliya 46725, Israel
+> Something is wrong with the Cobalt side, for sure:
+>
+> 10:10:15.845869 cobalt-box.echo > hydra.3700: . ack 8681 win 30408 <nop,nop,timestamp 15607469 268081752> (DF)
+>
+> Cobalt sends the ACK, everything is fine.
+>
+> 10:10:18.836367 cobalt-box.echo > hydra.3700: P 1:1449(1448) ack 8681 win 31856 <nop,nop,timestamp 15607768 268081752> (DF)
+>
+> Cobalt then waits for 3 seconds to send data bytes 1:1449
+> (ie. the echo service response).
 
-/Matti Aarnio
+This is a resend of the data sent on line 8 of the trace:
+
+10:10:15.845002 cobalt-box.echo > hydra.3700: P 1:1449(1448) ack 1449 win 31856 <nop,nop,timestamp 0 268081751> (DF)
+
+It looks like hydra didn't ACK this data, so the server eventually
+re-sent it?
+
+
+Ben
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

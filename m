@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266986AbSLDR75>; Wed, 4 Dec 2002 12:59:57 -0500
+	id <S266996AbSLDR5Q>; Wed, 4 Dec 2002 12:57:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266999AbSLDR75>; Wed, 4 Dec 2002 12:59:57 -0500
-Received: from lennier.cc.vt.edu ([198.82.162.213]:4357 "EHLO
-	lennier.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S266986AbSLDR74>; Wed, 4 Dec 2002 12:59:56 -0500
-Subject: RE: is KERNEL developement finished, yet ???
-From: "Richard B. Tilley " "(Brad)" <rtilley@vt.edu>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1039027094.16377.62.camel@irongate.swansea.linux.org.uk>
-References: <001901c29bb6$d4f98270$6c873841@joe> 
-	<1039027094.16377.62.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 04 Dec 2002 13:07:27 -0500
-Message-Id: <1039025247.8992.22.camel@oubop4.bursar.vt.edu>
+	id <S266997AbSLDR5Q>; Wed, 4 Dec 2002 12:57:16 -0500
+Received: from host194.steeleye.com ([66.206.164.34]:30470 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S266996AbSLDR5N>; Wed, 4 Dec 2002 12:57:13 -0500
+Message-Id: <200212041804.gB4I4g803144@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Greg KH <greg@kroah.com>
+cc: James Bottomley <James.Bottomley@SteelEye.com>, mochel@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BKPATCH] bus notifiers for the generic device model 
+In-Reply-To: Message from Greg KH <greg@kroah.com> 
+   of "Wed, 04 Dec 2002 09:56:03 PST." <20021204175602.GC27780@kroah.com> 
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 04 Dec 2002 12:04:41 -0600
+From: James Bottomley <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hope you are wearing flame retardant underwear today ;)
+greg@kroah.com said:
+> But doesn't the bus specific core know when drivers are attached, as
+> it was told to register or unregister a specific driver?  So I don't
+> see why this is really needed. 
 
-On Wed, 2002-12-04 at 13:38, Alan Cox wrote:
-> On Wed, 2002-12-04 at 17:01, Joseph D. Wagner wrote:
-> > However, I know Mach and GNU Hurd, which are both microkernels, have
-> > plenty of room for low-level pioneers.
-> > 
-> > Personally, I think the most interesting aspects of kernel development
-> > and research are taking place on microkernels.
-> 
-> Oh dear. Maybe people should do useful research instead 8)
-> 
-> <runs>
-> 
+The problem is that the bus specific core registration no-longer knows if the 
+probes succeeded or failed (and if they did, what devices were attached), 
+since probing is controlled by the base core.
+
+What the bus needs to know is when a driver attaches to a specific device (and 
+what device it has attached to).
+
+Unless you have a better way of getting the attachment information out of the 
+bus after the base probes have executed, a notifier seemed to be the simplest 
+thing.
+
+James
 
 

@@ -1,59 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266203AbTAPKTo>; Thu, 16 Jan 2003 05:19:44 -0500
+	id <S266295AbTAPKZs>; Thu, 16 Jan 2003 05:25:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266295AbTAPKTn>; Thu, 16 Jan 2003 05:19:43 -0500
-Received: from 5-116.ctame701-1.telepar.net.br ([200.193.163.116]:35535 "EHLO
-	5-116.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S266203AbTAPKTm>; Thu, 16 Jan 2003 05:19:42 -0500
-Date: Thu, 16 Jan 2003 08:28:11 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Alex <akhripin@MIT.EDU>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Dynamic memory stack?
-In-Reply-To: <20030116010454.GB3288@dodecahedron.mit.edu>
-Message-ID: <Pine.LNX.4.50L.0301160825330.6044-100000@imladris.surriel.com>
-References: <20030116010454.GB3288@dodecahedron.mit.edu>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S266307AbTAPKZs>; Thu, 16 Jan 2003 05:25:48 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:45222 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S266295AbTAPKZr>;
+	Thu, 16 Jan 2003 05:25:47 -0500
+From: Mikael Pettersson <mikpe@csd.uu.se>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15910.35488.252418.356477@harpo.it.uu.se>
+Date: Thu, 16 Jan 2003 11:34:08 +0100
+To: sfr@canb.auug.org.au
+Subject: CONFIG_APM_DISPLAY_BLANK problem in the 2.5 kernel
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Jan 2003, Alex wrote:
+I have an ex-desktop PIII box which now runs as a leafnode News
+server. It's up 24/7 and 2.4 and 2.2 kernels are rock solid on it.
 
-> bar(){
-> .
-> foo=kmallc
-> .
-> kfree(foo)
+However, 2.5 kernels tend to hang the machine when the console screen
+blanker kicks in. "Tend to" as in almost but not quite always.
+Recently I found that disabling APM_DISPLAY_BLANK eliminates the hangs.
 
-> This sort of thing is best handled on the stack,
+My other boxes don't have any problems with APM_DISPLAY_BLANK, and this
+box does run 2.4 fine with APM_DISPLAY_BLANK, so it seems there must
+be some change in the 2.5 kernel's APM driver that is problematic on
+this particular box.
 
-The kernel stack is 8 kB per process.
+(UP_APIC, APM, and APM_DO_ENABLE are enabled; IO_APIC, SMP, PREEMPT, ACPI,
+and the other APM options are disabled. PCI S3 Trio64V2/DX graphics card.)
 
-> A way to deal with this is to create a per-cpu kmalloc'ed dynamically
-> extended stack from which memory can be allocated.
-
-That only works if this kernel thread doesn't schedule.
-
-If you schedule, you'd end up with multiple processes
-wanting to use the same pool, or with a process moving
-from one pool to the other (without the ability to
-take its data with it).
-
-> Furthermore, with the help of macros, memory leaks due to mid-function
-> returns and such can be completely avoided.
-
-I'm doubtful, but if you think you know a way to pull
-it off I'm curious to see it ...
-
-cheers,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://guru.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+/Mikael

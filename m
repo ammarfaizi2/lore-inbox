@@ -1,57 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289130AbSAMLqP>; Sun, 13 Jan 2002 06:46:15 -0500
+	id <S289132AbSAMLxF>; Sun, 13 Jan 2002 06:53:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289132AbSAMLqF>; Sun, 13 Jan 2002 06:46:05 -0500
-Received: from camus.xss.co.at ([194.152.162.19]:47633 "EHLO camus.xss.co.at")
-	by vger.kernel.org with ESMTP id <S289130AbSAMLpy>;
-	Sun, 13 Jan 2002 06:45:54 -0500
-Message-ID: <3C417364.5358BEDD@xss.co.at>
-Date: Sun, 13 Jan 2002 12:45:40 +0100
-From: Andreas Haumer <andreas@xss.co.at>
-Organization: xS+S
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Reid Hekman <reid.hekman@ndsu.nodak.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.2.20 SMP & Asus CUR-DLS: "stuck on TLB IPI wait (CPU#3)"
-In-Reply-To: <E16PZxl-0003lQ-00@the-village.bc.nu>
+	id <S289165AbSAMLwz>; Sun, 13 Jan 2002 06:52:55 -0500
+Received: from adsl-212-59-30-243.takas.lt ([212.59.30.243]:16885 "EHLO
+	gintaras.vetrunge.lt.eu.org") by vger.kernel.org with ESMTP
+	id <S289132AbSAMLwl>; Sun, 13 Jan 2002 06:52:41 -0500
+Date: Sun, 13 Jan 2002 13:52:30 +0200
+From: Marius Gedminas <mgedmin@centras.lt>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Hard lock when mounting loopback file
+Message-ID: <20020113115230.GB1955@gintaras>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <3C3F3267.7050103@actarg.com> <3C413BF0.24576AEC@zip.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3C413BF0.24576AEC@zip.com.au>
+User-Agent: Mutt/1.3.25i
+X-URL: http://ice.dammit.lt/~mgedmin/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-Alan Cox wrote:
+On Sat, Jan 12, 2002 at 11:49:04PM -0800, Andrew Morton wrote:
+> I don't know a thing about fat layout, but it appears that it uses a
+> linked list of blocks, and if that list ends up pointing back onto
+> itself, the kernel goes into an infinite loop in several places chasing
+> its way to the end of the list.
 > 
-> > > 2.2 does not support VIA SMP, its probably not a good kernel to choose for
-> > > the buggy VIA chipsets either.
-> >
-> > So ServerWorks (re: his Asus CUR-DLS) is right out as well?
+> The below patch fixed it for me, and I was able to mount and read
+> your filesystem image.
 > 
-> Serverworks I don't know. I've got reports of serverworks SMP working perfectly
-> well in the 2.2 tree so I don't know what the full story is there.
+> Unless someone has a smarter fix, I'll send this to the kernel
+> maintainers in a week or two.
 
-This board worked fine for several months under 2.2.18
-I then upgraded to 2.2.20 yesterday and noticed this problem
-for the first time (I didn't try 2.2.19 on it)
+It seems to me that this patch will find only those infinite loops where
+the last link of the chain points to itself.  But there could be loops
+where the last link points to the middle of the chain.
 
-I still have the full 2.2.18 installation (I did the 2.2.20
-installation on a separate SCA harddisk) so I can easily
-switch. To see if it's a hardware problem I already switched
-back to 2.2.18 once, and the problem went away.
-Under 2.2.20 I have to boot with "noapic" to have it running
-smoothly.
+Additional check on the number of followed links could be useful there.
+No chain should be longer than the number of clusters on the fs.
+Although on large FAT32 filesystems the number of clusters can be high,
+a very long loop is still better than an infinite one.  (In cases where
+we know the file size, this limit can be reduced to
+file_size/cluster_size + 1 links).
 
-So if someone wants me to try or test something, just send
-me a short note.
-
-- andreas
-
+Marius Gedminas
 -- 
-Andreas Haumer                     | mailto:andreas@xss.co.at
-*x Software + Systeme              | http://www.xss.co.at/
-Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
-A-1100 Vienna, Austria             | Fax: +43-1-6060114-71
+This company has performed an illegal operation and will be shut down. If
+the problem persists, contact your vendor or appeal to a higher court.

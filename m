@@ -1,43 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265608AbSLBHjd>; Mon, 2 Dec 2002 02:39:33 -0500
+	id <S265656AbSLBHsq>; Mon, 2 Dec 2002 02:48:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265650AbSLBHjd>; Mon, 2 Dec 2002 02:39:33 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:62655 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S265608AbSLBHjd>;
-	Mon, 2 Dec 2002 02:39:33 -0500
-Date: Sun, 01 Dec 2002 23:44:38 -0800 (PST)
-Message-Id: <20021201.234438.39375070.davem@redhat.com>
-To: rth@twiddle.net
-Cc: torvalds@transmeta.com, sfr@canb.auug.org.au, linux-kernel@vger.kernel.org,
-       anton@samba.org, ak@muc.de, davidm@hpl.hp.com, schwidefsky@de.ibm.com,
-       ralf@gnu.org, willy@debian.org
-Subject: Re: [PATCH] Start of compat32.h (again)
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20021201233901.B32203@twiddle.net>
-References: <Pine.LNX.4.44.0212011047440.12964-100000@home.transmeta.com>
-	<1038804400.4411.4.camel@rth.ninka.net>
-	<20021201233901.B32203@twiddle.net>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S265661AbSLBHsq>; Mon, 2 Dec 2002 02:48:46 -0500
+Received: from viola.sinor.ru ([217.70.106.9]:57257 "EHLO viola.sinor.ru")
+	by vger.kernel.org with ESMTP id <S265656AbSLBHso>;
+	Mon, 2 Dec 2002 02:48:44 -0500
+Date: Mon, 2 Dec 2002 10:03:59 +0600
+From: "Andrey R. Urazov" <coola@ngs.ru>
+To: "Bryan O'Sullivan" <bos@serpentine.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: a bug in autofs
+Message-ID: <20021202040359.GB1081@ktulu>
+References: <20021201071612.GA936@ktulu> <1038767363.3185.11.camel@camp4.serpentine.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="DqhR8hV3EnoxUkKN"
+Content-Disposition: inline
+In-Reply-To: <1038767363.3185.11.camel@camp4.serpentine.com>
+User-Agent: Mutt/1.4i
+X-PGP-public-key: pub 1024D/02B49FF2
+X-PGP-fingerprint: A1CE D50E 0CF3 C0EF BA35  CBEC 87D7 4A2B 02B4 9FF2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Richard Henderson <rth@twiddle.net>
-   Date: Sun, 1 Dec 2002 23:39:01 -0800
-   
-   Except that x86-64 binaries get to use 16 more registers, can use
-   pc-relative addressing modes, and have a sane function calling
-   convention.  So things tend to run a bit faster in 64-bit mode.
 
-Sure, I'll give you that, but nothing in the architecture is going to
-half the size of every pointer for you.
+--DqhR8hV3EnoxUkKN
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I bet overall the TLB and cache usage is higher.  The things the lack
-of registers do is spill and thus beat on the stack, big deal, that
-all tends to be in a contiguous areas of memory (ie. same cache blocks
-and same TLB pages) and at least Intel has optimized stack memory
-accesses out the wazoo.
+On Sun, Dec 01, 2002 at 10:29:23AM -0800, Bryan O'Sullivan wrote:
+> On Sat, 2002-11-30 at 23:16, Andrey R. Urazov wrote:
+>=20
+> > I'm constantly observing a bug in autofs.
+>=20
+> Which version of the autofs userspace tools are you using?
+3.1.7 as supplied in Red Hat 8.0
+
+
+Best regards,
+  Andrey Urazov
+--=20
+Murray's Rule:
+	Any country with "democratic" in the title isn't.
+--
+lundi 02 d=E9cembre, 2002, 10:03:00 +0600 - Andrey R. Urazov (mailto:coola@=
+ngs.ru)
+
+
+--DqhR8hV3EnoxUkKN
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE96tush9dKKwK0n/IRAuBqAKCVu7JEKqJK4djqavmdEUTaQmI0RQCcCVhF
+2EHSRR2n7qELJSZcLEwei9k=
+=NGf/
+-----END PGP SIGNATURE-----
+
+--DqhR8hV3EnoxUkKN--

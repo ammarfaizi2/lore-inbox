@@ -1,62 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275305AbTHSB5k (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 21:57:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275307AbTHSB5j
+	id S275244AbTHSCH3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 22:07:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275300AbTHSCH3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 21:57:39 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18627 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S275305AbTHSB5h
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 21:57:37 -0400
-Message-ID: <3F418403.709@pobox.com>
-Date: Mon, 18 Aug 2003 21:57:23 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	Mon, 18 Aug 2003 22:07:29 -0400
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:28035
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S275244AbTHSCH2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 22:07:28 -0400
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jan Rychter <jan@rychter.com>
+Subject: Re: Centrino support
+Date: Mon, 18 Aug 2003 19:52:08 -0400
+User-Agent: KMail/1.5
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <m2wude3i2y.fsf@tnuctip.rychter.com> <m2oeyq3bi2.fsf@tnuctip.rychter.com> <1061046769.10596.0.camel@dhcp23.swansea.linux.org.uk>
+In-Reply-To: <1061046769.10596.0.camel@dhcp23.swansea.linux.org.uk>
 MIME-Version: 1.0
-To: "Brown, Len" <len.brown@intel.com>
-CC: Stian Jordet <liste@jordet.nu>, linux-kernel@vger.kernel.org
-Subject: Re: [SOLVED] RE: 2.6.0-test3 latest bk hangs when enabling IO-APIC
-References: <BF1FE1855350A0479097B3A0D2A80EE009FC78@hdsmsx402.hd.intel.com>
-In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE009FC78@hdsmsx402.hd.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308181952.08577.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brown, Len wrote:
-> implementation.  Unless I screwed up the config dependencies, it should
-> be impossible to enable the full CONFIG_ACPI without including
-> CONFIG_ACPI_HT.
+On Saturday 16 August 2003 11:12, Alan Cox wrote:
+> On Gwe, 2003-08-15 at 21:35, Jan Rychter wrote:
+> > Question time:
+> >
+> > 1. Will cpufreq make it into the standard 2.4 kernels?
+>
+> In time maybe - up to Marcelo.
+>
+> > 2. If not, will Alan incorporate swsusp into -ac kernels? (given that
+> >    -ac kernels seem to have cpufreq included)
+>
+> Not in its current form. To do the job well swsuspend needs the kernel
+> device model.
 
+I've tried it a few times on 2.6.0-test3 right after the system comes up and I 
+log in to text mode, and the sucker spits out exactly one line of text 
+(something like "Suspending processes:") and hangs with the cursor right 
+after the semicolon.  After about a minute I hit ctrl-scroll lock, but 
+everything except the suspend thread (which was waiting in some kind of yield 
+for other threads to do something) scrolled off the top and I don't know how 
+to cursor up to see it (or get it to not scroll off).
 
-You got it right...
+I'd be happy to test someting better.  APM suspend doesn't work on my new 
+thinkpad, so it's swsusp or nothing.  Currently, it's "shutdown -h now", 
+which has some obvious deficiencies...
 
-...unfortunately the current options are very non-obvious.  Linux kernel 
-config has always presented a "subsystem switch", and under that, you 
-have a bunch of options and modules and such.  It is not obvious to me 
-at all that _disabling_ CONFIG_ACPI_HT means that CONFIG_ACPI will 
-simply never appear.  And users who want ACPI, but don't have 
-HyperThreading, would probably think similarly.  I think the current 
-thread shows it generates at least a little bit of confusion, too.
-
-To me, it makes sense for CONFIG_ACPI_HT to require CONFIG_ACPI -- from 
-a Kconfig standpoint -- but not the other way around.  My first time 
-configuring with the new options, I wanted to turn off CONFIG_ACPI_HT 
-and turn on CONFIG_ACPI, but was frustrated when the config system 
-wouldn't allow it.
-
-I actually think the old method was a bit less confusing -- 
-CONFIG_ACPI=N would never prompt me for any other ACPI config option. 
-But if I wanted only the HT stuff, you had CONFIG_ACPI_HT_ONLY :)
-
-So... concrete suggestions?  Overall, IMO, move everything under 
-CONFIG_ACPI, or, make CONFIG_ACPI_BOOT a _peer_ option, whose selection 
-or lackthereof doesn't affect CONFIG_ACPI visibility at all.
-
-	Jeff
-
-
+Rob
 

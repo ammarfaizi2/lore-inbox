@@ -1,55 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263702AbTKADs1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Oct 2003 22:48:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263716AbTKADs1
+	id S263426AbTKAEbG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Oct 2003 23:31:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263581AbTKAEbG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Oct 2003 22:48:27 -0500
-Received: from goose.mail.pas.earthlink.net ([207.217.120.18]:8909 "EHLO
-	goose.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id S263702AbTKADs0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Oct 2003 22:48:26 -0500
-Subject: Re: oops with pci=biosirq in 2.4.22 (not in 2.4.18)
-From: Brad Langhorst <brad@langhorst.com>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20031101024356.GB3907@matchmail.com>
-References: <1067654215.19557.412.camel@up>
-	 <20031101024356.GB3907@matchmail.com>
-Content-Type: text/plain
-Message-Id: <1067658502.19557.419.camel@up>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 31 Oct 2003 22:48:23 -0500
+	Fri, 31 Oct 2003 23:31:06 -0500
+Received: from mail.g-housing.de ([62.75.136.201]:25015 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S263426AbTKAEbB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Oct 2003 23:31:01 -0500
+Message-ID: <3FA33702.60401@g-house.de>
+Date: Sat, 01 Nov 2003 05:30:58 +0100
+From: Christian <evil@g-house.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5) Gecko/20030924 Thunderbird/0.3
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com
+Subject: ppc32 lockups with 2.6
+X-Enigmail-Version: 0.81.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-ELNK-Originating-IP: 209.91.48.165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-10-31 at 21:43, Mike Fedyk wrote:
-> On Fri, Oct 31, 2003 at 09:36:56PM -0500, Brad Langhorst wrote:
-> > I don't have time to try more kernels and narrow the window at the
-> > moment.
-> > 
-> > perhaps this is enough information for somebody who knows where to look.
-> 
-> Most likely not.
-> 
-> Did you get any problems with 2.4.21?
-> 
-> What about 2.4.23-pre?
-> 
-> Too much between 2.4.22 and 2.4.18 changed to use this little info to track
-> anything down...
-i feared as much - unfortunately i just don't have time to spend on this
-at the moment.
-I figure a weak ass bug report is better than no bug report - at least
-somebody googling might be able to save some time now...
+moin,
 
-It's working in 2.6.0 so i guess 2.4 will just have to live with the
-bug.
 
-thanks for the response!
+i have problems with my ppc32 (PReP) machine and 2.6.0-test* kernels.
+since this is some kind of home "server", i did not test any ealier
+versions, but 2.6.0-test{7|8|9}. all show the same behaviour, somewhere
+during the bootup, the machine just freezes. i found out, that upon
+configuring my thernet devices the lockups occur.
 
-brad
+so, i have 2 network cards, both are working under 2.4 with the 3c59x
+(eth0) and tulip (eth1, it's an on-board 21140).
+
+loading the drivers by using insmod / modprobe succeeds, the driver
+registers, some messages are printed.
+
+e.g.
+
+Linux Tulip driver version 1.1.13 (May 11, 2002)
+PCI: Enabling device 0000:00:04.0 (0000 -> 0003)
+tulip0:  EEPROM default media type Autosense.
+tulip0:  Index #0 - Media AUI (#2) described by a 21140 non-MII (0) block.
+tulip0:  Index #1 - Media MII (#11) described by a 21140 MII PHY (1) block.
+tulip0:  MII transceiver #8 config 3100 status 786b advertising 01e1.
+eth0: Digital DS21140 Tulip rev 34 at 0x1800, 08:00:3E:29:0B:B6, IRQ 9.
+
+or
+
+3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
+See Documentation/networking/vortex.txt
+0000:00:06.0: 3Com PCI 3c905C Tornado at 0x1000. Vers LK1.1.19
+  00:01:02:f1:83:37, IRQ 11
+   product code 464a rev 00.13 date 11-12-00
+   Internal config register is 1800000, transceivers 0xa.
+   8K byte-wide RAM 5:3 Rx:Tx split, autoselect/Autonegotiate interface.
+   MII transceiver found at address 24, status 782d.
+   Enabling bus-master transmits and whole-frame receives.
+0000:00:06.0: scatter/gather enabled. h/w checksums enabled
+
+
+"ifconfig eth0" gives then an unconfigured eth0, ok. but using "ifconfig
+eth0 192.168.1.1" results in a lockup. no oops printed, no SysReq anymore.
+
+i tried with the "tulip" modul first, and could "strace" the ifconfig,
+until it freezes.
+
+    http://nerdbynature.de/bits/sheep/network/ifc-tulip.log
+
+the 3c59x module however acted somehow differently: upon using "ifconfig
+eth0 192.168.1.1" the screen filled with strange chars in some pattern,
+i've never seen before on a linux box (no, i was clean :-)) (ok, the
+pattern is probably not important, but it's on [1] anyway) then, the
+system locked up too.
+
+as you can see (http://nerdbynature.de/bits/sheep/network/config) i have
+then compiled some debug options into the kernel, i loaded the 3c59x
+module with "debug=6". also, i want to say that this is not my first
+build of a 2.6 kernel, i have a i386 running pretty stable with 2.6 for
+weeks now; some time ago i used to have an Alpha (AXP) with 2.5.x
+running 24x7.
+
+please let me know, i have forgotten something or where to look further.
+i will be glad to help with running tests and the like.
+
+i don't suspect hw errors here, because both cards are happy working
+under 2.4.
+
+some details about the PrEP machine:
+[1] http://nerdbynature.de/bits/
+
+Thank you,
+Christian.
+
+
+-- 
+BOFH excuse #396:
+
+Mail server hit by UniSpammer.
 

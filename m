@@ -1,34 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261965AbUL0UJU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261958AbUL0UMj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261965AbUL0UJU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 15:09:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261983AbUL0UJT
+	id S261958AbUL0UMj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 15:12:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261968AbUL0UMj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 15:09:19 -0500
-Received: from manson.clss.net ([65.211.158.2]:36050 "HELO manson.clss.net")
-	by vger.kernel.org with SMTP id S261965AbUL0UJF (ORCPT
+	Mon, 27 Dec 2004 15:12:39 -0500
+Received: from sweep.bur.st ([202.61.227.58]:5653 "EHLO stutter.bur.st")
+	by vger.kernel.org with ESMTP id S261958AbUL0UKR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 15:09:05 -0500
-Message-ID: <20041227200901.23134.qmail@manson.clss.net>
-From: "Alan Curry" <pacman-kernel@manson.clss.net>
-Subject: Re: Module Names - Hyphen Converted to Underscore
-To: linux-kernel@vger.kernel.org
-Date: Mon, 27 Dec 2004 15:09:01 -0500 (EST)
-In-Reply-To: <1104177282.5683.2.camel@localhost.localdomain> from "Tomasz Torcz" at Dec 27, 2004 08:54:42 PM
-MIME-Version: 1.0
+	Mon, 27 Dec 2004 15:10:17 -0500
+Date: Tue, 28 Dec 2004 04:10:15 +0800
+From: Trent Lloyd <lathiat@bur.st>
+To: William Park <opengeometry@yahoo.ca>, linux-kernel@vger.kernel.org
+Subject: Re: waiting 10s before mounting root filesystem?
+Message-ID: <20041227201015.GB18911@sweep.bur.st>
+References: <20041227195645.GA2282@node1.opengeometry.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20041227195645.GA2282@node1.opengeometry.net>
+X-Random-Number: 9.81640062318437e+302
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tomasz Torcz writes the following:
->
-> modprobe intelligently adds or removes a module from the Linux kernel:
->note  that  for  convenience,there  is  no  difference  between  _  and
->- in module names. 
+This is really suited to the task of an initrd, then you can spin until
+the usb storage device comes up in a bash script or something similar.
 
-What definition of convenience led to this?
+Cheers,
+Trent
 
-In that spirit, should fs now interpret backslash as a directory separator?
-Having to remember the difference is SO inconvenient.
+> How do I make the kernel to wait about 10s before attempting to mount
+> root filesystem?  Is there obscure kernel parameter?
+> 
+> I can load the kernel from /dev/fd0, then mount /dev/hda2 as root
+> filesystem.  But, I can't seem to mount /dev/sda1 (USB key drive) as
+> root filesystem.  All relevant USB and SCSI modules are compiled into
+> the kernel.  I think kernel is too fast in panicking.  I would like the
+> kernel to wait about 10s until 'usb-storage' and 'sd_mod' work out all
+> the details.
+> 
+> -- 
+> William Park <opengeometry@yahoo.ca>
+> Open Geometry Consulting, Toronto, Canada
+> Linux solution for data processing. 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
+-- 
+Trent Lloyd <lathiat@bur.st>
+Bur.st Networking Inc.

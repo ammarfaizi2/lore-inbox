@@ -1,72 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136145AbRDVORV>; Sun, 22 Apr 2001 10:17:21 -0400
+	id <S136148AbRDVOTK>; Sun, 22 Apr 2001 10:19:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136148AbRDVORL>; Sun, 22 Apr 2001 10:17:11 -0400
-Received: from node181b.a2000.nl ([62.108.24.27]:62733 "EHLO ddx.a2000.nu")
-	by vger.kernel.org with ESMTP id <S136145AbRDVORB>;
-	Sun, 22 Apr 2001 10:17:01 -0400
-Date: Sun, 22 Apr 2001 15:54:35 +0200 (CEST)
-From: <raid@ddx.a2000.nu>
-To: <linux-raid@vger.kernel.org>
-Subject: Maxtor 80gb slow on asus p2b-d ? (going to use it in raid5 config)
-Message-ID: <Pine.LNX.4.30.0104221547120.3518-100000@ddx.a2000.nu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S136150AbRDVOTB>; Sun, 22 Apr 2001 10:19:01 -0400
+Received: from t2.redhat.com ([199.183.24.243]:63729 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S136148AbRDVOSw>; Sun, 22 Apr 2001 10:18:52 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <041d01c0cb21$1f147e90$910201c0@zapper> 
+In-Reply-To: <041d01c0cb21$1f147e90$910201c0@zapper>  <E14qHRp-0007Yc-00@the-village.bc.nu> <Pine.LNX.4.31.0104190944090.4074-100000@penguin.transmeta.com> <E14qXEU-0005xo-00@g212.hadiko.de> <9bqgvi$63q$1@penguin.transmeta.com> <3AE10741.FA4E40BD@gmx.de> <E14rGU8-0003zk-00@g212.hadiko.de> 
+To: "Alon Ziv" <alonz@nolaviz.org>
+Cc: linux-kernel@vger.kernel.org, dhowells@cambridge.redhat.com
+Subject: Re: light weight user level semaphores 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 22 Apr 2001 15:18:34 +0100
+Message-ID: <27025.987949114@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i'm going to build a raid5 config with 6*maxtor 80gb
-mainbord is an asus p2b-d (with dual 450 and 512mb ram)
-and 2 addon ultra66 promise controllers
 
-i did some tests using hdparm (4.1)
-and i get these result :
+alonz@nolaviz.org said:
+>  [BTW, another solution is to truly support opaque "handles" to kernel
+> objects; I believe David Howells is already working on something like
+> this for Wine? The poll interface can be trivially extended to support
+> waiting on those...]
 
-(hda and hdc are on the onboard controller)
+ISTR it wasn't quite trivial to do it that way - it would require the 
+addition of an extra argument to the fops->poll() method.
 
-/dev/hda:
- Timing buffered disk reads:  64 MB in  4.94 seconds = 12.96 MB/sec
+David?
 
-/dev/hdc:
- Timing buffered disk reads:  64 MB in  4.94 seconds = 12.96 MB/sec
-
-/dev/hde:
- Timing buffered disk reads:  64 MB in  2.26 seconds = 28.32 MB/sec
-
-/dev/hdg:
- Timing buffered disk reads:  64 MB in  2.25 seconds = 28.44 MB/sec
-
-/dev/hdi:
- Timing buffered disk reads:  64 MB in  2.25 seconds = 28.44 MB/sec
-
-/dev/hdk:
- Timing buffered disk reads:  64 MB in  2.25 seconds = 28.44 MB/sec
-
-kernel reports :
-hda: 160086528 sectors (81964 MB) w/2048KiB Cache, CHS=158816/16/63,
-UDMA(33)
-hdc: 160086528 sectors (81964 MB) w/2048KiB Cache, CHS=158816/16/63,
-UDMA(33)
-hde: 160086528 sectors (81964 MB) w/2048KiB Cache, CHS=158816/16/63,
-UDMA(66)
-hdg: 160086528 sectors (81964 MB) w/2048KiB Cache, CHS=158816/16/63,
-UDMA(66)
-hdi: 160086528 sectors (81964 MB) w/2048KiB Cache, CHS=158816/16/63,
-UDMA(66)
-hdk: 160086528 sectors (81964 MB) w/2048KiB Cache, CHS=158816/16/63,
-UDMA(66)
-
-and i use hdparm -m16 -c1 -d1 -a8  on all hd's
-so why do i only see 13mb/sec on the ultra33 controller
-(i thought 28mb/sec would be possible on the ultra33 controller)
-
-i also made a raid0 on the 6 disks
-and this gives me :
-
-/dev/md0:
- Timing buffered disk reads:  64 MB in  2.13 seconds = 30.05 MB/sec
-
-
+--
+dwmw2
 
 

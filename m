@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261458AbULTLTH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261475AbULTLXr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261458AbULTLTH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 06:19:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261476AbULTLTG
+	id S261475AbULTLXr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 06:23:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261476AbULTLXr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 06:19:06 -0500
-Received: from smtprelay03.ispgateway.de ([80.67.18.15]:49540 "EHLO
+	Mon, 20 Dec 2004 06:23:47 -0500
+Received: from smtprelay03.ispgateway.de ([80.67.18.15]:5510 "EHLO
 	smtprelay03.ispgateway.de") by vger.kernel.org with ESMTP
-	id S261458AbULTLPe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 06:15:34 -0500
-Message-ID: <41C6B3E8.60401@einar-lueck.de>
-Date: Mon, 20 Dec 2004 12:13:44 +0100
+	id S261475AbULTLR7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 06:17:59 -0500
+Message-ID: <41C6B45F.9050403@einar-lueck.de>
+Date: Mon, 20 Dec 2004 12:15:43 +0100
 From: =?ISO-8859-1?Q?Einar_L=FCck?= <lkml@einar-lueck.de>
 User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
 X-Accept-Language: en-us, en

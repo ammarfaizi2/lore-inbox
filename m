@@ -1,54 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbVCTQsS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261238AbVCTQ6Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261236AbVCTQsS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Mar 2005 11:48:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbVCTQsR
+	id S261238AbVCTQ6Q (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Mar 2005 11:58:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261240AbVCTQ6Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Mar 2005 11:48:17 -0500
-Received: from wproxy.gmail.com ([64.233.184.198]:64943 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261236AbVCTQsO (ORCPT
+	Sun, 20 Mar 2005 11:58:16 -0500
+Received: from dbl.q-ag.de ([213.172.117.3]:31455 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S261238AbVCTQ6L (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Mar 2005 11:48:14 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=adxhV3pdBQ5Dgfp47w2UoHm/dqNRERksurSbOBfBzbF2uce+zd8iCZSnQJ+wW384ZBGGwh3TawxBYabUc8YKUemN4nO0NWU4GWFrSZ/nc51pWKBuoweVqeDUf6vomCDh4NXrbU1iWbOvXjrNTSJpaWookIrwcr0UJCJbwenV6CI=
-Message-ID: <aec7e5c305032008487f378246@mail.gmail.com>
-Date: Sun, 20 Mar 2005 17:48:13 +0100
-From: Magnus Damm <magnus.damm@gmail.com>
-Reply-To: Magnus Damm <magnus.damm@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: ide-xxx.c and KBUILD_MODNAME
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Sun, 20 Mar 2005 11:58:11 -0500
+Message-ID: <423DAB73.2030904@colorfullife.com>
+Date: Sun, 20 Mar 2005 17:57:23 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.3) Gecko/20041020
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: tglx@linutronix.de
+CC: Ingo Molnar <mingo@elte.hu>, "Paul E. McKenney" <paulmck@us.ibm.com>,
+       dipankar@in.ibm.com, shemminger@osdl.org, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, rusty@au1.ibm.com, tgall@us.ibm.com,
+       jim.houston@comcast.net, gh@us.ibm.com,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Real-Time Preemption and RCU
+References: <20050318002026.GA2693@us.ibm.com>	 <20050318091303.GB9188@elte.hu> <20050318092816.GA12032@elte.hu>	 <423BB299.4010906@colorfullife.com> <20050319162601.GA28958@elte.hu>	 <423D19FE.7020902@colorfullife.com> <1111310736.17944.24.camel@tglx.tec.linutronix.de>
+In-Reply-To: <1111310736.17944.24.camel@tglx.tec.linutronix.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello again,
+Thomas Gleixner wrote:
 
-The KBUILD_MODNAME problem with af_unix.c is sort of also affecting
-the ide code, but with another twist. "unix" is not a problem, but
-KBUILD_MODNAME collides with constants defined in <linux/ide.h>:
+>On Sun, 2005-03-20 at 07:36 +0100, Manfred Spraul wrote:
+>  
+>
+>>cpu 1:
+>>acquire random networking spin_lock_bh()
+>>
+>>cpu 2:
+>>read_lock(&tasklist_lock) from process context
+>>interrupt. softirq. within softirq: try to acquire the networking lock.
+>>* spins.
+>>
+>>cpu 1:
+>>hardware interrupt
+>>within hw interrupt: signal delivery. tries to acquire tasklist_lock.
+>>
+>>--> deadlock.
+>>    
+>>
+>
+>Signal delivery from hw interrupt context (interrupt is flagged
+>SA_NODELAY) is not possible in RT preemption mode. The
+>local_irq_save_nort() check in __cache_alloc will catch you.
+>
+>  
+>
+That was just one random example.
+Another one would be :
 
-[snip]
-/*
- * Now for the data we need to maintain per-drive:  ide_drive_t
- */
+drivers/chat/tty_io.c, __do_SAK() contains
+    read_lock(&tasklist_lock);
+    task_lock(p);
 
-#define ide_scsi	0x21
-#define ide_disk	0x20
-#define ide_optical	0x7
-#define ide_cdrom	0x5
-#define ide_tape	0x1
-#define ide_floppy	0x0
-[snip]
+kernel/sys.c, sys_setrlimit contains
+    task_lock(current->group_leader);
+    read_lock(&tasklist_lock);
 
-this results in wierd KBUILD_MODNAME preprocessing:
-- KBUILD_MODNAME in ide-disk.c equals "0x20"
-- KBUILD_MODNAME in ide-tape.c equals "0x1"
-- KBUILD_MODNAME in ide-floppy.c equals "0x0"
+task_lock is a shorthand for spin_lock(&p->alloc_lock). If read_lock is 
+a normal spinlock, then this is an A/B B/A deadlock.
 
-Why again are we using lowercase constants?
-
-/ magnus
+--
+    Manfred

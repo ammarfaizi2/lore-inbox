@@ -1,44 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137078AbREKIhK>; Fri, 11 May 2001 04:37:10 -0400
+	id <S137081AbREKI7A>; Fri, 11 May 2001 04:59:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137076AbREKIhA>; Fri, 11 May 2001 04:37:00 -0400
-Received: from ns.suse.de ([213.95.15.193]:39429 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S137078AbREKIgu>;
-	Fri, 11 May 2001 04:36:50 -0400
-Date: Fri, 11 May 2001 10:36:40 +0200
-From: Andi Kleen <ak@suse.de>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Andi Kleen <ak@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Ulrich.Weigand@de.ibm.com, linux-kernel@vger.kernel.org,
-        schwidefsky@de.ibm.com
-Subject: Re: Deadlock in 2.2 sock_alloc_send_skb?
-Message-ID: <20010511103640.A2454@gruyere.muc.suse.de>
-In-Reply-To: <C1256A48.00451BD1.00@d12mta11.de.ibm.com> <E14xq0v-0004j0-00@the-village.bc.nu> <20010510193047.A22970@gruyere.muc.suse.de> <20010510231300.W848@athlon.random> <20010510231717.A25610@gruyere.muc.suse.de> <20010510233225.Y848@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010510233225.Y848@athlon.random>; from andrea@suse.de on Thu, May 10, 2001 at 11:32:25PM +0200
+	id <S137082AbREKI6u>; Fri, 11 May 2001 04:58:50 -0400
+Received: from pat.uio.no ([129.240.130.16]:45238 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S137081AbREKI6i>;
+	Fri, 11 May 2001 04:58:38 -0400
+MIME-Version: 1.0
+Message-ID: <15099.43446.132871.699151@charged.uio.no>
+Date: Fri, 11 May 2001 10:58:30 +0200
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.4.4 linearize UDP RPC requests using GFP_KERNEL...
+X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+User-Agent: SEMI/1.13.7 (Awazu) CLIME/1.13.6 (=?ISO-2022-JP?B?GyRCQ2YbKEI=?=
+ =?ISO-2022-JP?B?GyRCJU4+MRsoQg==?=) MULE XEmacs/21.1 (patch 14) (Cuyahoga
+ Valley) (i386-redhat-linux)
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 10, 2001 at 11:32:25PM +0200, Andrea Arcangeli wrote:
-> you said interrupt won't call that function so I don't see the
-> GFP_ATOMIC issue.
 
-I said interrupts should not call it, but apparently somebody tries to 
-call it with GFP_ATOMIC and I'm suspecting that caller is broken (whatever
-it is, I don't think it is in the main tree)
+Hi,
 
-> 
-> I also don't what's the issue with GFP_ATOMIC regardless somebody uses
+  The zero-copy TCP patch that was integrated in 2.4.4 has allowed us
+to move the task of reassembling of the fragments into one buffer
+until we're out of the ->data_ready() bottom half context.
+  In 2.4.4 therefore, the nfsd thread can end up calling the function
+skb_linearize(), in order to allocate a new buffer and copy over the
+fragments.
 
-[...]
+  IMHO allocating the buffer using GFP_ATOMIC is a mistake. As I said
+we're in a thread context, so sleeping in GFP_KERNEL is safe. In
+addition, the cost of dropping the request if we can't allocate the
+buffer is heavy in that the client has to wait for a timeout, and then
+retry.
 
-No argument about that it should handle oom anyways.
+I'd therefore like to propose the following change.
 
+Cheers,
+  Trond
 
-
--Andi
+--- linux-2.4.4/net/sunrpc/svcsock.c.orig	Fri Apr 27 23:15:01 2001
++++ linux-2.4.4/net/sunrpc/svcsock.c	Fri May 11 10:08:36 2001
+@@ -383,7 +383,7 @@
+ 
+ 	/* Sorry. */
+ 	if (skb_is_nonlinear(skb)) {
+-		if (skb_linearize(skb, GFP_ATOMIC) != 0) {
++		if (skb_linearize(skb, GFP_KERNEL) != 0) {
+ 			kfree_skb(skb);
+ 			svc_sock_received(svsk, 0);
+ 			return 0;
 

@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319008AbSHMUDT>; Tue, 13 Aug 2002 16:03:19 -0400
+	id <S319024AbSHMUQe>; Tue, 13 Aug 2002 16:16:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319011AbSHMUDS>; Tue, 13 Aug 2002 16:03:18 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:47079 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S319008AbSHMUDQ>;
-	Tue, 13 Aug 2002 16:03:16 -0400
-Date: Tue, 13 Aug 2002 13:04:03 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Linus Torvalds <torvalds@transmeta.com>
+	id <S319025AbSHMUQe>; Tue, 13 Aug 2002 16:16:34 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:62214 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S319024AbSHMUQd>; Tue, 13 Aug 2002 16:16:33 -0400
+Date: Tue, 13 Aug 2002 13:22:51 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
 cc: linux-kernel <linux-kernel@vger.kernel.org>,
        Matt Dobson <colpatch@us.ibm.com>
 Subject: Re: [PATCH] NUMA-Q disable irqbalance
-Message-ID: <2012000000.1029269043@flay>
-In-Reply-To: <Pine.LNX.4.44.0208131220350.7411-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0208131220350.7411-100000@home.transmeta.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+In-Reply-To: <2012000000.1029269043@flay>
+Message-ID: <Pine.LNX.4.44.0208131320280.1260-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> OK, I was being unclear, that's not really what I meant. If I may rephrase:
->> I don't like the performance hit it gives on P3 standard SMP machines (not
->> NUMA-Q) though it does work on there too, and there's no easy way for 
->> people to disable it.
+
+On Tue, 13 Aug 2002, Martin J. Bligh wrote:
 > 
-> Well, it makes performance _so_ much better on a P4 that it's not even 
-> funny. It's basically a "P4 is unusable with SMP" without it.
+> Right, accepted. But if it's good for P4, and bad for P3 (at least for some 
+> workloads), surely this leads to the conclusion that it should be a config 
+> option (probably defaulting to being on)? If you can see another way to
+> solve the conundrum ....
 
-Right, accepted. But if it's good for P4, and bad for P3 (at least for some 
-workloads), surely this leads to the conclusion that it should be a config 
-option (probably defaulting to being on)? If you can see another way to
-solve the conundrum ....
+But this is exactly the kinds of cases that config options do _not_ work 
+well for.
 
-I can understand you didn't like the negative stuff, but there's a choice 
-between two evils ... - some mess in the config.in file, and having a sensible
-default. We will cut that one whichever way you like (though I can't help
-thinking I'm missing some obvious default thing in the config language).
+There are tons of reasons to run the same kernel on a multitude of 
+machines, even ignoring the issue of things like installers etc. 
 
-If you still hate it, the other option I can see is to cut a minimal patch for now, 
-which institutes a CONFIG_IRQ_BALANCE, but just decides that off the existing
-config options, rather than asking any more questions. Then we'll look at
-the perf problems seperately, and see if we can fix them - people can force
-it off by editing the .config file by hand if they want until then.
+We had this CONFIG_xxxx disease when it came to SSE, we had it when it 
+came to TSC, etc. And in every case it ended up being bad, simply because 
+it's not the right interface for _users_. 
 
-M.
+So this is why I think the IRQ balance code has to be there, regardless, 
+and then it gets turned on dynamically for when it is needed (or turned 
+off when it hurts, whatever). But it should _not_ be a CONFIG option.
+
+		Linus
+

@@ -1,74 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265102AbRFUSrV>; Thu, 21 Jun 2001 14:47:21 -0400
+	id <S265101AbRFUSql>; Thu, 21 Jun 2001 14:46:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265103AbRFUSrL>; Thu, 21 Jun 2001 14:47:11 -0400
-Received: from isimail.interactivesi.com ([207.8.4.3]:64008 "HELO
-	dinero.interactivesi.com") by vger.kernel.org with SMTP
-	id <S265102AbRFUSq5>; Thu, 21 Jun 2001 14:46:57 -0400
-Date: Thu, 21 Jun 2001 13:46:48 -0500
-From: Timur Tabi <ttabi@interactivesi.com>
+	id <S265102AbRFUSqa>; Thu, 21 Jun 2001 14:46:30 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:24098 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S265101AbRFUSqT>; Thu, 21 Jun 2001 14:46:19 -0400
+Date: Thu, 21 Jun 2001 20:46:18 +0200
+From: Andrea Arcangeli <andrea@suse.de>
 To: linux-kernel@vger.kernel.org
-In-Reply-To: <200106211814.f5LIEgK04880@snark.thyrsus.com>
-Subject: Re: Controversy over dynamic linking -- how to end the panic
-X-Mailer: The Polarbar Mailer; version=1.19a; build=73
-Message-ID: <qi1bhC.A.lfF.ZEkM7@dinero.interactivesi.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Subject: 2.4.6pre5aa1
+Message-ID: <20010621204618.C707@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-** Reply to message from "Eric S. Raymond" <esr@snark.thyrsus.com> on Thu, 21
-Jun 2001 14:14:42 -0400
+Diff between 2.4.6pre3aa2 and 2.4.6pre5aa1:
 
+-------------------------------------------------------------
+	Moved on top of 2.4.6pre5.
 
-> To calm down the lawyers, I as the principal kernel maintainer and
-> anthology copyright holder on the code am therefore adding the
-> following interpretations to the kernel license:
-> 
-> 1. Userland programs which request kernel services via normal system
->    calls *are not* to be considered derivative works of the kernel.
-> 
-> 2. A driver or other kernel component which is statically linked to
->    the kernel *is* to be considered a derivative work.
-> 
-> 3. A kernel module loaded at runtime, after kernel build, *is not*
->    to be considered a derivative work.
+Only in 2.4.6pre3aa2: 00_alpha-warnings-1
+Only in 2.4.6pre3aa2: 00_backout-udelay-1
+Only in 2.4.6pre3aa2: 00_locks-1
+Only in 2.4.6pre3aa2: 00_xircom-tulip-cb-2.4.5ac13-1
+Only in 2.4.6pre3aa2: 10_alpha-udelay-1
 
-Although these are good things to add, I don't think they're compatible with
-the GPL.  That is, Linus can't just state these "interpretations" and add them
-to the GPL, because it will weaken the GPL as a whole.  I say that because you
-do not include any language that clarifies that from a legal sense.
+	Merged in pre5.
 
-I heard recently that kernel modules are technically, from the GPL
-point-of-view, a derivative work, because they include kernel header files.
-However, since Linus understands that this precludes binary-only modules, he has
-"made an exception" to the Linux kernel license.
+Only in 2.4.6pre5aa1: 00_alpha-irq_err_count-1
 
-The problem with that is that I have never seen any written evidence of this.
+	Fix alpha compile from Jeff.
 
-IANAL, but IMO, there are only two solutions:
+	(recommended)
 
-1. License the Linux kernel under a different license that is effectively the
-GPL but with additional text that clarifies the binary module issue.
-Unfortunately, this license cannot be called the GPL.  Politically, this would
-probably be a bad idea.
+Only in 2.4.6pre5aa1: 00_bh-async-1
 
-2. License the Linux kernel under TWO licenses, one the GPL, and another which
-talks about the binary module issue.  Unfortunately, this would probably not
-work either, as technically these two licenses are incompatible.
+	Patch to Stefan.Bader@de.ibm.com to allow lowlevel layer
+	to override bh->b_end_io callback without breaking the
+	async I/O.
 
-I guess what I'm trying to say is that this issue won't be resolve simply by
-some "interpretations" by Linus as to what is and is not a derived work.  I
-think the FSF needs to be involved in this.
+	(nice to have)
 
-To be honest, I disagree that #include'ing a GPL header file should force your
-app to be GPL as well.  That may be how the license reads, but I think it's a
-very bad idea.  I could write 1 million lines of original code, but if someone
-told me that but simply adding #include <stdio.h> my code is now a derivative of
-the stdio.h, I'd tell him to go screw himself.
+Only in 2.4.6pre3aa2: 00_ksoftirqd-6
+Only in 2.4.6pre5aa1: 00_ksoftirqd-7
 
+	%c1 do_softirq merged in mainline, fix reject.
 
--- 
-Timur Tabi - ttabi@interactivesi.com
-Interactive Silicon - http://www.interactivesi.com
+Only in 2.4.6pre3aa2: 00_ksoftirqd-6_ppc-1
+Only in 2.4.6pre5aa1: 00_ksoftirqd-7_ppc-2
 
+	Dropped a comment (no code change). ('and' is really needed
+	because lwz doesn't update the equal bit state of the cpu)
+
+Only in 2.4.6pre3aa2: 10_no-virtual-1
+Only in 2.4.6pre5aa1: 10_no-virtual-2
+
+	Comments generated rejects, fixup.
+
+Only in 2.4.6pre3aa2/30_tux: 30_tux-2
+Only in 2.4.6pre5aa1/30_tux: 30_tux-3
+
+	Include init.h to fix some compilation trouble and drop the
+	__KERNEL_SYSCALLS__ #defines from the .c files.
+-------------------------------------------------------------
+
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.6pre5aa1/
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.6pre5aa1.bz2
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.6pre5aa1/30_tux/
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.6pre5aa1/40_experimental/
+
+In the 40_experimental there's the latest blkdev in pagecache and it has
+to be applied after all the other patches. Issue to solve in the
+blkdev-pagecache-3 patch are:
+
+-	fix ramdisk: lookup on pagecache and pin blkdev address space
+	while the ramdisk stays allocated
+-	I/O granularity is fixed to 4k, this can be easily decreased with
+	a recompile, but I'm wondering if we should make the granularity
+	dynamic somehow to avoid the partial write to do too many
+	read-modify-write cycles
+-	Currently the pagecache assumes the end of the device is aligned
+	for excess on the next 4k (in genereal BUFFERED_BLOCKSIZE)
+	boundary to be sure we can read and write all bytes of the disk.
+	(see buffered_blk_size) I don't expect problems but blkdev layer
+	must be able to cope with it.
+
+I'm running this patch on all my systems and I didn't had problems yet
+(though you cannot expect to get ramdisk and in turn initrd working
+[ramfs works fine of course]). As said in a earlier email you can do
+rawio now by simply openeing the blkdev with O_DIRECT (however you get
+the BUFFERED_BLOCKSIZE granularity for it too, instead of the
+hardblocksize granularity of the /dev/raw rawio, but this also means you
+pay less cycles for bulding a flood of 512 bytes large bh) and mmap
+private and shared on the blkdev works like with files in the fs.
+
+Andrea

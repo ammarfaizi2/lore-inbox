@@ -1,59 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316880AbSFARTO>; Sat, 1 Jun 2002 13:19:14 -0400
+	id <S316885AbSFARd2>; Sat, 1 Jun 2002 13:33:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316881AbSFARTN>; Sat, 1 Jun 2002 13:19:13 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:2821 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S316880AbSFARTM>; Sat, 1 Jun 2002 13:19:12 -0400
-Date: Sat, 1 Jun 2002 14:19:02 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 2/16] list_head debugging
-Message-ID: <20020601171902.GC14169@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Andrew Morton <akpm@zip.com.au>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <3CF88863.BF3AF0FA@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Url: http://advogato.org/person/acme
+	id <S316979AbSFARd1>; Sat, 1 Jun 2002 13:33:27 -0400
+Received: from mail.ah.edu.cn ([210.45.224.8]:42630 "HELO mail.ah.edu.cn")
+	by vger.kernel.org with SMTP id <S316885AbSFARd0>;
+	Sat, 1 Jun 2002 13:33:26 -0400
+Mailbox-Line: From chyang@ah.edu.cn Sun Jun 02 01:32:23 2002
+Message-Id: <20020602.AAA1022952482@ah.edu.cn>
+From: "Chen Yang" <chyang@ah.edu.cn>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Does VM of 2.4.18 have bugs?
+Date: Sun, 2 Jun 2002 01:32:23 +0800
+MIME-Version: 1.0
+X-Priority: 1
+X-Mailer: @MESSAGE-5.0.0905.1.2400 (Linux 2.4.18-6mdk)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Sat, Jun 01, 2002 at 01:40:03AM -0700, Andrew Morton escreveu:
-> A common and very subtle bug is to use list_heads which aren't on any
-> lists.  It causes kernel memory corruption which is observed long after
-> the offending code has executed.
- 
-> The patch nulls out the dangling pointers so we get a nice oops at the
-> site of the buggy code.
+  We installed a Mandrake 8.2 with the kernel of 
+2.4.18 . We are using rsync to backup the data.
+After some time, dmesg will print:
 
-> =====================================
-> 
-> --- 2.5.19/include/linux/list.h~list-debug	Sat Jun  1 01:18:05 2002
-> +++ 2.5.19-akpm/include/linux/list.h	Sat Jun  1 01:18:05 2002
-> @@ -94,6 +94,11 @@ static __inline__ void __list_del(struct
->  static __inline__ void list_del(struct list_head *entry)
->  {
->  	__list_del(entry->prev, entry->next);
+__alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+__alloc_pages: 0-order allocation failed (gfp=0xf0/0)
+__alloc_pages: 0-order allocation failed (gfp=0x1f0/0)
+__alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+VM: killing process klogd
+__alloc_pages: 0-order allocation failed (gfp=0xf0/0)
+__alloc_pages: 0-order allocation failed (gfp=0xf0/0)
+__alloc_pages: 0-order allocation failed (gfp=0x1f0/0)
+__alloc_pages: 0-order allocation failed (gfp=0x1f0/0)
+__alloc_pages: 0-order allocation failed (gfp=0xf0/0)
+__alloc_pages: 0-order allocation failed (gfp=0x1f0/0)
+__alloc_pages: 0-order allocation failed (gfp=0x1f0/0)
+__alloc_pages: 0-order allocation failed (gfp=0x1f0/0)
+__alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+VM: killing process rsync
+__alloc_pages: 0-order allocation failed (gfp=0xf0/0)
+__alloc_pages: 0-order allocation failed (gfp=0xf0/0)
+__alloc_pages: 0-order allocation failed (gfp=0xf0/0)
+__alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+VM: killing process rsync
+__alloc_pages: 0-order allocation failed (gfp=0xf0/0)
+__alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
 
-#ifdef CONFIG_DEBUG_LIST_DEL_NULLIFY
+This must be caused by the giant datas and memory leaks
+in Virtual memory management.Does anyone know some solutions?
+Thanks.
 
-> +	entry->next = 0;
-> +	entry->prev = 0;
+---
+  Chen Yang
+  http://mail.ustc.edu.cn/~chyang/
 
-#endif
 
->  }
 
-8) And get this configured in the Debug section of make *config
 
-The kernel will always have bugs ;)
 
-- Arnaldo
+
+
+

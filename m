@@ -1,49 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129991AbRB1ABt>; Tue, 27 Feb 2001 19:01:49 -0500
+	id <S129958AbRB1AMk>; Tue, 27 Feb 2001 19:12:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129958AbRB1ABi>; Tue, 27 Feb 2001 19:01:38 -0500
-Received: from smtp1.jp.psi.net ([154.33.63.111]:530 "EHLO smtp1.jp.psi.net")
-	by vger.kernel.org with ESMTP id <S129740AbRB1ABa>;
-	Tue, 27 Feb 2001 19:01:30 -0500
-From: "Rainer Mager" <rmager@vgkk.com>
-To: "Linux kernel list" <linux-kernel@vger.kernel.org>
-Subject: Building autofs
-Date: Wed, 28 Feb 2001 09:00:39 +0900
-Message-ID: <NEBBJBCAFMMNIHGDLFKGGENDDCAA.rmager@vgkk.com>
+	id <S129976AbRB1AMa>; Tue, 27 Feb 2001 19:12:30 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:45318 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S129958AbRB1AMN>; Tue, 27 Feb 2001 19:12:13 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: David Fries <dfries@umr.edu>
+Date: Wed, 28 Feb 2001 11:12:02 +1100 (EST)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-In-Reply-To: <20010228001221.P21238@garloff.etpnet.phys.tue.nl>
-Importance: Normal
+Message-ID: <15004.16978.439300.108625@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org, Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: Stale NFS handles on 2.4.2
+In-Reply-To: message from David Fries on Sunday February 25
+In-Reply-To: <20010214002750.B11906@unthought.net>
+	<20010224141855.B12988@d-131-151-189-65.dynamic.umr.edu>
+	<15000.39826.947692.141119@notabene.cse.unsw.edu.au>
+	<20010224235342.D483@d-131-151-189-65.dynamic.umr.edu>
+	<15000.53110.664338.230709@notabene.cse.unsw.edu.au>
+	<20010225131013.E483@d-131-151-189-65.dynamic.umr.edu>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Sunday February 25, dfries@umr.edu wrote:
+> On Sun, Feb 25, 2001 at 08:25:10PM +1100, Neil Brown wrote:
+> > On Saturday February 24, dfries@umr.edu wrote:
+> > Verrry odd.  I can see why you were suspecting a cache.
+> > I'm probably going to have to palm this off to Trond, the NFS client
+> > maintainer (are you listening Trond?) but could please confirm that
+> > from the client you can:
+> > 
+> >  1/ ping server
+> >  2/ rpcinfo -p server
+> >  3/ showmount -e server
+> >  4/ mount server:/exported/filesys /some/other/mount/point
+> > 
+> > If all of these work, them I am mistified.  If one of these fails,
+> > then that might point the way to further investigation.
+> 
+> I have server:/home mounted on /home, the directory /home/david is the
+> mount file/directory on that mount that has a stale handle, everything
+> else on that mount point works including accessing any file under
+> /home/david.
 
-	I'm trying to use autofs for the first time and am running into some
-problems. First,  the documentation seems quite weak, that is, I'm not sure
-if what I have is what I should have. I managed to find an autofs version 4
-pre 9 tarball on the kernel mirrors. This seem the latest but is still a bit
-old and the referenced home page doesn't seem any newer. My real problem,
-however, is that when I try to build it I get this error:
+So... you can access things under /home/david, but you cannot access
+/home/david itself?
+So, supposing that "fred" were some file that you happen to know is
+in /home/david, then
 
-lookup_program.c:147: `OPEN_MAX' undeclared (first use in this function)
+    ls /home/david             fails with ESTALE and does not cause
+			       any traffic to the server and
+    ls -l /home/david/fred     succeeds.
 
-My understanding is that OPEN_MAX is defined in linux/limits.h but I
-hesitate to change the code since I would expect this to build out of the
-box.
+Is that right?
 
+Could you try:
+  echo 255 > /proc/sys/sunrpc/nfs_debug 
 
-	Cas someone who is using autofs give me some pointers? Am I on the right
-track?
+and then do the "ls /home/david" and see what gets put in 
+/var/log/messages (or kern_log or syslog or where such things go).
 
-Thanks,
-
---Rainer
-
+NeilBrown

@@ -1,41 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262446AbVCXLr2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262790AbVCXLzC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262446AbVCXLr2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 06:47:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbVCXLr1
+	id S262790AbVCXLzC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 06:55:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263094AbVCXLzC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 06:47:27 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:26525 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262446AbVCXLqH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 06:46:07 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <Pine.LNX.4.62.0503222223180.2683@dragon.hyggekrogen.localhost> 
-References: <Pine.LNX.4.62.0503222223180.2683@dragon.hyggekrogen.localhost> 
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: security/keys/key.c broken with defconfig 
-X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
-Date: Thu, 24 Mar 2005 11:46:04 +0000
-Message-ID: <24082.1111664764@redhat.com>
+	Thu, 24 Mar 2005 06:55:02 -0500
+Received: from matlock.hofmann.stw.uni-erlangen.de ([131.188.24.35]:3746 "HELO
+	mail.hofmann.stw.uni-erlangen.de") by vger.kernel.org with SMTP
+	id S262790AbVCXLyy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 06:54:54 -0500
+Date: Thu, 24 Mar 2005 12:54:52 +0100
+From: Peter Baumann <waste.manager@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [Bug] invalid mac address after rebooting (kernel 2.6.11.5)
+Message-ID: <20050324115452.GA5561@xp.machine.de>
+References: <20050323122423.GA24316@faui00u.informatik.uni-erlangen.de> <20050323185225.11097185.akpm@osdl.org> <20050324110102.GA30711@faui00u.informatik.uni-erlangen.de> <20050324030751.6e150376.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050324030751.6e150376.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl <juhl-lkml@dif.dk> wrote:
-
-> If I just do a 'make defconfig' and then try to build security/keys/ the 
-> build breaks.  Doing 'make allyesconfig' fixes it by defining CONFIG_KEYS 
-> which makes include/linux/key-ui.h include the full struct key definition.
+On Thu, Mar 24, 2005 at 03:07:51AM -0800, Andrew Morton wrote:
+> Peter Baumann <waste.manager@gmx.de> wrote:
+> >
+> > > 
+> > > The only PCI change I see is
+> > > 
+> > > --- drivers/pci/pci.c   22 Jan 2005 03:20:37 -0000      1.71
+> > > +++ drivers/pci/pci.c   24 Feb 2005 18:02:37 -0000      1.72
+> > > @@ -268,7 +268,7 @@
+> > >                 return -EIO; 
+> > >  
+> > >         pci_read_config_word(dev,pm + PCI_PM_PMC,&pmc);
+> > > -       if ((pmc & PCI_PM_CAP_VER_MASK) != 2) {
+> > > +       if ((pmc & PCI_PM_CAP_VER_MASK) > 2) {
+> > >                 printk(KERN_DEBUG
+> > >                        "PCI: %s has unsupported PM cap regs version (%u)\n",
+> > >                        dev->slot_name, pmc & PCI_PM_CAP_VER_MASK);
+> > > 
+> > > and you're not getting that message (are you?)
+> > > 
+> > 
+> > Reverting the above patch solved it. But _now_ I get the message.
+> > (dmesg output with above patch reverted at the end of the mail)
 > 
-> I've not attempted to fix this yet, but thought I'd at least report it.
+> Greg, help!
 > 
+> > > Nothing much in arch/i386..
+> > > 
+> > > There were some ACPI changes, which is always a worry ;) Does that machine
+> > > run OK without ACPI support?  If so, could you determine whether disabling
+> > > ACPI fixes things up?
+> > >
+> > Hm. I tried it with 2.6.11.5 by appending  acpi=off  at the cmdline but
+> > as I remember it hasn't changed anything. Or do I have to specify
+> > someting else at the commandline to deactivate acpi?
 > 
-> juhl@dragon:~/download/kernel/linux-2.6.12-rc1-mm1$ make defconfig
-> juhl@dragon:~/download/kernel/linux-2.6.12-rc1-mm1$ make security/keys/
+> We like to change these things so people send us more email.
+> 
+> According to Documentation/kernel-parameters.txt, acpi=off should still work.
+> 
 
-Ah. Why would you do that last command at all?
+Yes. That's were I was looking for :-)
+Sorry for my bad english but I meant that switching acpi off did not
+change anything releated to the bug. Of course it deactivates acpi.
 
-If you look in security/Makefile, you'll see that the security/keys/ directory
-is only entered if CONFIG_KEYS is defined; which in your config it isn't.
-
-David
+Peter

@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286184AbSAMPCB>; Sun, 13 Jan 2002 10:02:01 -0500
+	id <S284979AbSAMPIM>; Sun, 13 Jan 2002 10:08:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285935AbSAMPBv>; Sun, 13 Jan 2002 10:01:51 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:23559 "EHLO
+	id <S285593AbSAMPIC>; Sun, 13 Jan 2002 10:08:02 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:26887 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S285134AbSAMPBn>; Sun, 13 Jan 2002 10:01:43 -0500
-Subject: Re: [PATCH][RFC] Lightweight user-level semaphores
-To: matthew@hairy.beasts.org (Matthew Kirkwood)
-Date: Sun, 13 Jan 2002 15:13:30 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        manfred@colorfullife.com (Manfred Spraul),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0201131216230.24442-100000@sphinx.mythic-beasts.com> from "Matthew Kirkwood" at Jan 13, 2002 12:38:43 PM
+	id <S285134AbSAMPH5>; Sun, 13 Jan 2002 10:07:57 -0500
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+To: zippel@linux-m68k.org (Roman Zippel)
+Date: Sun, 13 Jan 2002 15:19:38 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), arjan@fenrus.demon.nl,
+        landley@trommello.org (Rob Landley), linux-kernel@vger.kernel.org
+In-Reply-To: <3C418CCC.3854D76E@linux-m68k.org> from "Roman Zippel" at Jan 13, 2002 02:34:04 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16PmKA-0007BS-00@the-village.bc.nu>
+Message-Id: <E16PmQ7-0007CJ-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Yep, that'd be fine.  However, you then lose the neatness
-> of "lock==file descriptor", and need something other than
-> read/write for down/up.
+> I wouldn't say it gets it wrong, the driver also has to take a non irq
+> spinlock anyway, so the window is quite small and even then the packet
+> is only delayed.
 
-If I have to have 2000 pages and 2000 file handles for 2000 locks I've
-kind of lost interest. read/write syscalls take offsets. I can pread/pwrite
-a lock in a set of locks. The only reason for using an fd I can see is so
-you can poll on a lock. All the other neatness issues are wrapped in the
-library support code anyway.
+Or you lose a pile of them
 
-> I guess the alternative is to store them in a hash table
-> or tree but I don't know what that would do to the
-> contended case.
+> But now I really have to look at that driver and try a more optimistic
+> irq disabling approach, otherwise it will happily disable the most
+> important shared interrupt on my Amiga for ages.
 
-Read my old mail you need neither a hash table or a tree. You just need
-the required shadow object
-
-	offset = addr - vma->vm_start;
-	offset /= sizeof(struct user_lock);
-	lock = ((struct lock *)vma->vm_private_data)[offset];
-
-Alan
+If you play with the code remember that the irq delivery on x86 is
+asynchronous. You can disable the irq on the chip, synchronize_irq() on 
+the result and very occasionally get the irq delivered after all of that

@@ -1,203 +1,256 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264716AbSKJDxK>; Sat, 9 Nov 2002 22:53:10 -0500
+	id <S264733AbSKJEMY>; Sat, 9 Nov 2002 23:12:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264708AbSKJDxJ>; Sat, 9 Nov 2002 22:53:09 -0500
-Received: from packet.digeo.com ([12.110.80.53]:27063 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S264720AbSKJDxD>;
-	Sat, 9 Nov 2002 22:53:03 -0500
-Message-ID: <3DCDD9AC.C3FB30D9@digeo.com>
-Date: Sat, 09 Nov 2002 19:59:40 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-Subject: 2.5.46-mm2
+	id <S264736AbSKJEMY>; Sat, 9 Nov 2002 23:12:24 -0500
+Received: from orion.netbank.com.br ([200.203.199.90]:57610 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id <S264733AbSKJEMV>; Sat, 9 Nov 2002 23:12:21 -0500
+Date: Sun, 10 Nov 2002 02:18:55 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.46-bk3: BUG in skbuff.c:178
+Message-ID: <20021110041855.GA17760@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Petr Vandrovec <vandrove@vc.cvut.cz>, linux-kernel@vger.kernel.org
+References: <6F45EB551A2@vcnet.vc.cvut.cz> <20021108220215.GA2437@vana>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 10 Nov 2002 03:59:41.0162 (UTC) FILETIME=[98876CA0:01C2886D]
+Content-Disposition: inline
+In-Reply-To: <20021108220215.GA2437@vana>
+User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-url: http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.46/2.5.46-mm2/
-
-There's some work here to address some of the whacky corner cases
-which have traditionally knocked the VM over.  Some are fixed, some
-still need work.  My latest party trick is to run a 4G highmem machine
-with 800 megabytes of ZONE_NORMAL under mlock.  Can't say that it
-completely works yet...
-
-Of note in -mm2 is a patch from Chris Mason which teaches reiserfs to
-use the mpage code for reads - it should show a nice reduction in CPU
-load under reiserfs reads.
-
-And Jens's rbtree-based insertion code for the request queue.  Which
-means that the queues can be grown a *lot* if people want to play with
-that.  The VM should be able to cope with it fine.
-
-And a new set of block a_ops which never, ever, ever attach buffer_heads
-to file pagecache.  Implemented for ext2 - use `mount -o nobh'.
-
-And several VM tuning and stability tweaks.
-
-
-Changes since 2.5.46-mm1:
-
--net-timer-init.patch
-
- Merged
-
-+rcu-stats.patch
-
- Stats in /proc/rcu
-
--mbcache-atomicity-fix.patch
--htree-fix.patch
-
- Merged
-
-+nuke-disk-stats.patch
-
- Remove the disk stats from /proc/stat: they're in /sys now.
-
--akpm-deadline.patch
-
- The IO scheduler can now be tuned via /sys/block/hda/iosched
-
-+aio-direct-io-infrastructure.patch
-+aio-direct-io.patch
-
- AIO support for direct-io
-
-+reiserfs-readpages.patch
-
- Use mpage in reiserfs3
-
-+remove-inode-buffers.patch
-
- Drop clean metadata buffers from inodes when we're trying to reclaim them.
-
-+unfreeable-zones.patch
-
- Handle weird situations where all of a zone's pages are pinned by something.
-
-+mpage-kmap.patch
-
- s/kmap/kmap_atomic/ in the mpage code
-
-+nobh.patch
-
- Don't attached buffer_heads to pagecache for writes.
-
-+inode-reclaim-balancing.patch
-
- Fix some overeager reclaim of dentries and hence inodes.
-
-+rbtree-iosched.patch
-
- Tree-based IO scheduler insertion, and /sys/block/XXX/iosched tunables
-
-
-
-
-All patches:
-
-linus.patch
-  cset-1.786.157.7-to-1.801.txt.gz
-
-kgdb.patch
-
-genksyms-hurts.patch
-  fix exporting of per-cpu symbols for modversions
-
-misc.patch
-  misc fixes
-
-writev-bad-seg-fix.patch
-  Fix readv/writev return value
-
-wli-01-iowait.patch
-  SMP iowait stats
-
-wli-02-zap_hugetlb_resources.patch
-  hugetlb: fix zap_hugetlb_resources()
-
-wli-03-remove-unlink_vma.patch
-  hugetlb: remove unlink_vma()
-
-wli-04-internalize-hugetlb-init.patch
-  hugetlb: internalize hugetlb init
-
-wli-05-sysctl-cleanup.patch
-  hugetlb: remove sysctl.c intrusion
-
-wli-06-cleanup-proc.patch
-  hugetlb: remove /proc/ intrusion
-
-wli-07-hugetlb-static.patch
-  hugetlb: make private functions static
-
-rcu-stats.patch
-  RCU statistics reporting
-
-msec-fix.patch
-  Fix math underflow in disk accounting
-
-touch_buffer-fix.patch
-  buffer_head refcounting fixes and cleanup
-
-pgalloc-accounting-fix.patch
-  fix page alloc/free accounting
-
-nuke-disk-stats.patch
-  duplicate statistics being gathered
-
-irq-save-vm-locks.patch
-  make mapping->page_lock irq-safe
-
-irq-safe-private-lock.patch
-  make mapping->private_lock irq-safe
-
-aio-direct-io-infrastructure.patch
-  AIO support for raw/O_DIRECT
-
-aio-direct-io.patch
-  AIO support for raw/O_DIRECT
-
-reiserfs-readpages.patch
-  reiserfs v3 readpages support
-
-remove-inode-buffers.patch
-  try to remove buffer_heads from to-be-reaped inodes
-
-resurrect-incremental-min.patch
-  strengthen the `incremental min' logic in the page allocator
-
-unfreeable-zones.patch
-  VM: handle zones which are ful of unreclaimable pages
-
-mpage-kmap.patch
-  kmap->kmap_atomic in mpage.c
-
-nobh.patch
-  no-buffer-head ext2 option
-
-inode-reclaim-balancing.patch
-  better inode reclaim balancing
-
-rbtree-iosched.patch
-  Subject: Re: 2.5.46: ide-cd cdrecord success report
-
-page-reservation.patch
-  Page reservation API
-
-wli-show_free_areas.patch
-  show_free_areas extensions
-
-dcache_rcu.patch
-  Use RCU for dcache
-
-shpte-ng.patch
-  pagetable sharing for ia32
+Em Fri, Nov 08, 2002 at 11:02:15PM +0100, Petr Vandrovec escreveu:
+> On Fri, Nov 08, 2002 at 09:33:24PM +0200, Petr Vandrovec wrote:
+> > On  8 Nov 02 at 12:01, Andrew Morton wrote:
+ 
+> Patch below removes 'bucket' from arp_iter_state, and merges it to the pos.
+> It is based on assumption that there is no more than 16M of entries in each
+> bucket, and that NEIGH_HASHMASK + 1 + PNEIGH_HASHMASK + 1 < 127
+
+I did that in the past, but it gets too ugly, see previous changeset in
+bk tree, lemme see... 1.781.1.52, but anyway, I was aware of this bug but I
+was on the run, going to Japan and back in 5 days :-\ Well, I have already
+sent this one to several people, so if you could review/test it...
+
+===== net/ipv4/arp.c 1.13 vs edited =====
+--- 1.13/net/ipv4/arp.c	Mon Oct 21 01:17:08 2002
++++ edited/net/ipv4/arp.c	Wed Nov  6 08:00:22 2002
+@@ -1140,67 +1140,122 @@
+ 
+ struct arp_iter_state {
+ 	int is_pneigh, bucket;
++	union {
++		struct neighbour    *n;
++		struct pneigh_entry *pn;
++	} u;
+ };
+ 
+-static __inline__ struct neighbour *neigh_get_bucket(struct seq_file *seq,
+-						     loff_t *pos)
++static struct neighbour *neigh_get_first(struct seq_file *seq)
+ {
+-	struct neighbour *n = NULL;
+ 	struct arp_iter_state* state = seq->private;
+-	loff_t l = *pos;
+-	int i;
+ 
+-	for (; state->bucket <= NEIGH_HASHMASK; ++state->bucket)
+-		for (i = 0, n = arp_tbl.hash_buckets[state->bucket]; n;
+-		     ++i, n = n->next)
+-			/* Do not confuse users "arp -a" with magic entries */
+-			if ((n->nud_state & ~NUD_NOARP) && !l--) {
+-				*pos = i;
+-				goto out;
+-			}
+-out:
+-	return n;
++	state->is_pneigh = 0;
++
++	for (state->bucket = 0;
++	     state->bucket <= NEIGH_HASHMASK;
++	     ++state->bucket) {
++		state->u.n = arp_tbl.hash_buckets[state->bucket];
++		while (state->u.n && !(state->u.n->nud_state & ~NUD_NOARP))
++			state->u.n = state->u.n->next;
++		if (state->u.n)
++			break;
++	}
++
++	return state->u.n;
+ }
+ 
+-static __inline__ struct pneigh_entry *pneigh_get_bucket(struct seq_file *seq,
+-							 loff_t *pos)
++static struct neighbour *neigh_get_next(struct seq_file *seq)
+ {
+-	struct pneigh_entry *n = NULL;
+ 	struct arp_iter_state* state = seq->private;
+-	loff_t l = *pos;
+-	int i;
+ 
+-	for (; state->bucket <= PNEIGH_HASHMASK; ++state->bucket)
+-		for (i = 0, n = arp_tbl.phash_buckets[state->bucket]; n;
+-		     ++i, n = n->next)
+-			if (!l--) {
+-				*pos = i;
+-				goto out;
+-			}
+-out:
+-	return n;
++	for (; state->bucket <= NEIGH_HASHMASK;
++	     ++state->bucket,
++	     state->u.n = arp_tbl.hash_buckets[state->bucket]) {
++		if (state->u.n)
++			do {
++				state->u.n = state->u.n->next;
++				/* Don't confuse "arp -a" w/ magic entries */
++			} while (state->u.n &&
++				 !(state->u.n->nud_state & ~NUD_NOARP));
++		if (state->u.n)
++			break;
++	}
++
++	return state->u.n;
++}
++
++static loff_t neigh_get_idx(struct seq_file *seq, loff_t pos)
++{
++	neigh_get_first(seq);
++	while (pos && neigh_get_next(seq))
++		--pos;
++	return pos;
++}
++
++static struct pneigh_entry *pneigh_get_first(struct seq_file *seq)
++{
++	struct arp_iter_state* state = seq->private;
++
++	state->is_pneigh = 1;
++
++	for (state->bucket = 0;
++	     state->bucket <= PNEIGH_HASHMASK;
++	     ++state->bucket) {
++		state->u.pn = arp_tbl.phash_buckets[state->bucket];
++		if (state->u.pn)
++			break;
++	}
++	return state->u.pn;
++}
++
++static struct pneigh_entry *pneigh_get_next(struct seq_file *seq)
++{
++	struct arp_iter_state* state = seq->private;
++
++	for (; state->bucket <= PNEIGH_HASHMASK;
++	     ++state->bucket,
++	     state->u.pn = arp_tbl.phash_buckets[state->bucket]) {
++		if (state->u.pn)
++			state->u.pn = state->u.pn->next;
++		
++		if (state->u.pn)
++			break;
++	}
++	return state->u.pn;
+ }
+ 
+-static __inline__ void *arp_get_bucket(struct seq_file *seq, loff_t *pos)
++static loff_t pneigh_get_idx(struct seq_file *seq, loff_t pos)
+ {
+-	void *rc = neigh_get_bucket(seq, pos);
++	pneigh_get_first(seq);
++	while (pos && pneigh_get_next(seq))
++		--pos;
++	return pos;
++}
++
++static void *arp_get_idx(struct seq_file *seq, loff_t pos)
++{
++	struct arp_iter_state* state = seq->private;
++	void *rc;
++	loff_t p;
++
++	read_lock_bh(&arp_tbl.lock);
++	p = neigh_get_idx(seq, pos);
+ 
+-	if (!rc) {
++	if (p || !state->u.n) {
+ 		struct arp_iter_state* state = seq->private;
+ 
+ 		read_unlock_bh(&arp_tbl.lock);
+-		state->is_pneigh = 1;
+-		state->bucket	 = 0;
+-		*pos		 = 0;
+-		rc = pneigh_get_bucket(seq, pos);
+-	}
++		pneigh_get_idx(seq, p);
++		rc = state->u.pn;
++	} else
++		rc = state->u.n;
+ 	return rc;
+ }
+ 
+ static void *arp_seq_start(struct seq_file *seq, loff_t *pos)
+ {
+-	read_lock_bh(&arp_tbl.lock);
+-	return *pos ? arp_get_bucket(seq, pos) : (void *)1;
++	return *pos ? arp_get_idx(seq, *pos - 1) : (void *)1;
+ }
+ 
+ static void *arp_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+@@ -1209,38 +1264,19 @@
+ 	struct arp_iter_state* state;
+ 
+ 	if (v == (void *)1) {
+-		rc = arp_get_bucket(seq, pos);
++		rc = arp_get_idx(seq, 0);
+ 		goto out;
+ 	}
+ 
+ 	state = seq->private;
+ 	if (!state->is_pneigh) {
+-		struct neighbour *n = v;
+-
+-		rc = n = n->next;
+-		if (n)
+-			goto out;
+-		*pos = 0;
+-		++state->bucket;
+-		rc = neigh_get_bucket(seq, pos);
++		rc = neigh_get_next(seq);
+ 		if (rc)
+ 			goto out;
+ 		read_unlock_bh(&arp_tbl.lock);
+-		state->is_pneigh = 1;
+-		state->bucket	 = 0;
+-		*pos		 = 0;
+-		rc = pneigh_get_bucket(seq, pos);
+-	} else {
+-		struct pneigh_entry *pn = v;
+-
+-		pn = pn->next;
+-		if (!pn) {
+-			++state->bucket;
+-			*pos = 0;
+-			pn   = pneigh_get_bucket(seq, pos);
+-		}
+-		rc = pn;
+-	}
++		rc = pneigh_get_first(seq);
++	} else
++		rc = pneigh_get_next(seq);
+ out:
+ 	++*pos;
+ 	return rc;
+@@ -1291,7 +1327,6 @@
+ static __inline__ void arp_format_pneigh_entry(struct seq_file *seq,
+ 					       struct pneigh_entry *n)
+ {
+-
+ 	struct net_device *dev = n->dev;
+ 	int hatype = dev ? dev->type : 0;
+ 	char tbuf[16];

@@ -1,35 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263796AbUBDTzU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 14:55:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263880AbUBDTzU
+	id S266458AbUBDUUK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 15:20:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266470AbUBDUUK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 14:55:20 -0500
-Received: from www.jubileegroup.co.uk ([212.22.195.7]:46766 "EHLO
-	www2.jubileegroup.co.uk") by vger.kernel.org with ESMTP
-	id S263796AbUBDTzR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 14:55:17 -0500
-Date: Wed, 4 Feb 2004 19:55:08 +0000 (GMT)
-From: Ged Haywood <ged@www2.jubileegroup.co.uk>
-To: linux-usb mlist <linux-usb-users@lists.sourceforge.net>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-usb-users] usb mouse/keyboard problems under 2.6.2
-In-Reply-To: <20040204174748.GA27554@yggdrasil.localdomain>
-Message-ID: <Pine.LNX.4.21.0402041954150.8212-100000@www2.jubileegroup.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 4 Feb 2004 15:20:10 -0500
+Received: from mailr-2.tiscali.it ([212.123.84.82]:4417 "EHLO
+	mailr-2.tiscali.it") by vger.kernel.org with ESMTP id S266458AbUBDUTe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 15:19:34 -0500
+Date: Wed, 4 Feb 2004 21:19:33 +0100
+From: Kronos <kronos@kronoz.cjb.net>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Compile Regression in 2.4.25-pre8][PATCH 15/42]
+Message-ID: <20040204201933.GA1240@dreamland.darkstar.lan>
+Reply-To: kronos@kronoz.cjb.net
+References: <20040130204956.GA21643@dreamland.darkstar.lan> <Pine.LNX.4.58L.0401301855410.3140@logos.cnet> <20040202180940.GA6367@dreamland.darkstar.lan> <20040202194631.GO6785@dreamland.darkstar.lan> <Pine.LNX.4.58L.0402041445480.1324@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58L.0402041445480.1324@logos.cnet>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+Il Wed, Feb 04, 2004 at 02:46:01PM -0200, Marcelo Tosatti ha scritto: 
+> > ../fdomain.c:565: warning: `fdomain_setup' defined but not used
+> >
+> > fdomain_setup isn't used when the driver is modular.
+> >
+> > diff -Nru -X dontdiff linux-2.4-vanilla/drivers/scsi/fdomain.c linux-2.4/drivers/scsi/fdomain.c
+> > --- linux-2.4-vanilla/drivers/scsi/fdomain.c	Sat Jan 31 15:54:42 2004
+> > +++ linux-2.4/drivers/scsi/fdomain.c	Sat Jan 31 17:21:13 2004
+> > @@ -561,6 +561,7 @@
+> >     printk( "\n" );
+> >  }
+> >
+> > +#ifndef MODULE
+> >  static int __init fdomain_setup( char *str )
+> >  {
+> >  	int ints[4];
+> > @@ -584,6 +585,7 @@
+> >  }
+> >
+> >  __setup("fdomain=", fdomain_setup);
+> > +#endif
+> >
+> >
+> >  static void do_pause( unsigned amount )	/* Pause for amount*10 milliseconds */
+> 
+> What?
+> 
+> from fdomain.c:
+> 
+> #ifdef MODULE
+>         if (fdomain)
+>                 fdomain_setup(fdomain);
+> #endif
 
-On Wed, 4 Feb 2004, Greg Norris wrote:
+Sorry, I misread the #ifdef. Drop the patch.
 
-> I'm seeing frequent issues with my usb mouse under the 2.6.2 kernel ...
-> The combination works flawlessly under 2.6.1.
-
-You should take this to the development list.
-
-73,
-Ged.
-
+Luca
+-- 
+Reply-To: kronos@kronoz.cjb.net
+Home: http://kronoz.cjb.net
+"La mia teoria scientifica preferita e` quella secondo la quale gli 
+ anelli di Saturno sarebbero interamente composti dai bagagli andati 
+ persi nei viaggi aerei." -- Mark Russel

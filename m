@@ -1,29 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272181AbRH3MQa>; Thu, 30 Aug 2001 08:16:30 -0400
+	id <S272179AbRH3MRc>; Thu, 30 Aug 2001 08:17:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272179AbRH3MQV>; Thu, 30 Aug 2001 08:16:21 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:18703 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S272178AbRH3MQH>; Thu, 30 Aug 2001 08:16:07 -0400
-Subject: Re: Having problems with 2.4.9-ac
-To: ledzep37@home.com
-Date: Thu, 30 Aug 2001 13:19:50 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel),
-        alan@lxorguk.ukuu.org.uk (Alan Cox)
-In-Reply-To: <3B8E2C35.1956DF51@inet.com> from "Jordan Breeding" at Aug 30, 2001 07:06:13 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S272173AbRH3MR2>; Thu, 30 Aug 2001 08:17:28 -0400
+Received: from elektra.higherplane.net ([203.37.52.137]:17606 "EHLO
+	elektra.higherplane.net") by vger.kernel.org with ESMTP
+	id <S272179AbRH3MRO>; Thu, 30 Aug 2001 08:17:14 -0400
+Date: Thu, 30 Aug 2001 22:17:33 +1000
+From: john slee <indigoid@higherplane.net>
+To: Philippe Amelant <philippe.amelant@free.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: smp freeze on 2.4.9
+Message-ID: <20010830221733.A3834@higherplane.net>
+In-Reply-To: <999166237.1257.31.camel@avior>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15cQnW-0000zL-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <999166237.1257.31.camel@avior>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 2.4.6-ac2.  I was very surprised when 2.4.8-ac10 was actually able to do
-> so as well.  If I issued any of the various commands to shut the box
+On Thu, Aug 30, 2001 at 12:10:37PM +0200, Philippe Amelant wrote:
+> I have an ABIT BP6 mobo with 2 celeron 400 running redhat 7.1 with 2.4.3
 
-Unfortunately "so am I" since I don't understand what would be relevant as
-a change affecting this 
+before you blame smp, try the usual bp6 stuff:
+*	bigger/better power supply
+*	better cooling
+*	boot with 'noapic' on commandline
 
+search a linux-kernel archive (http://marc.theaimsgroup.com)
+for more info.  these boards seem to be a bit of a lucky dip.  some
+never have any problems, others have heaps.  i have a vague memory of
+someone mentioning flaky caps on some revisions...  also are you using
+the onboard ata66 controller?  there's been a fair few reports of
+trouble with those, not sure if it was fixed/hacked-around or not.
+
+best of luck,
+
+j.
+
+-- 
+R N G G   "Well, there it goes again... And we just sit 
+ I G G G   here without opposable thumbs." -- gary larson

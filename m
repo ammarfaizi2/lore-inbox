@@ -1,47 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282187AbRL0PKA>; Thu, 27 Dec 2001 10:10:00 -0500
+	id <S286273AbRL0PQU>; Thu, 27 Dec 2001 10:16:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283777AbRL0PJu>; Thu, 27 Dec 2001 10:09:50 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:62989 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S282187AbRL0PJp>; Thu, 27 Dec 2001 10:09:45 -0500
-Date: Thu, 27 Dec 2001 16:09:42 +0100
-From: Martin Mares <mj@ucw.cz>
-To: Dominik Mierzejewski <dominik@aaf16.warszawa.sdi.tpnet.pl>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+	id <S286269AbRL0PQK>; Thu, 27 Dec 2001 10:16:10 -0500
+Received: from vega.digitel2002.hu ([213.163.0.181]:45186 "EHLO
+	vega.digitel2002.hu") by vger.kernel.org with ESMTP
+	id <S283777AbRL0PP6>; Thu, 27 Dec 2001 10:15:58 -0500
+Date: Thu, 27 Dec 2001 16:15:51 +0100
+From: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
+To: Mike Galbraith <mikeg@wen-online.de>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Configure.help editorial policy
-Message-ID: <20011227160942.A7960@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20011223174608.A25335@thyrsus.com> <20011227091702.A8528@zapff.research.canon.com.au> <20011226233413.GA17037@msp-150.man.olsztyn.pl> <E16JTce-0000cp-00@starship.berlin> <20011227112431.GA1582@msp-150.man.olsztyn.pl>
+Message-ID: <20011227151551.GB13004@vega.digitel2002.hu>
+Reply-To: lgb@lgb.hu
+In-Reply-To: <20011224094211.A15930@zapff.research.canon.com.au> <Pine.LNX.4.33.0112240713050.552-100000@mikeg.weiden.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-In-Reply-To: <20011227112431.GA1582@msp-150.man.olsztyn.pl>
-User-Agent: Mutt/1.3.20i
+In-Reply-To: <Pine.LNX.4.33.0112240713050.552-100000@mikeg.weiden.de>
+User-Agent: Mutt/1.3.24i
+X-Operating-System: vega Linux 2.4.17 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Mon, Dec 24, 2001 at 07:25:44AM +0100, Mike Galbraith wrote:
+> > Well, what we have is KB, which people _think_ they understand, but do not.
+> > And KiB, which is ugly but well defined, albeit less known (at present).
+> >
+> > | Also, the kB vs KiB mess is so ambiguous and complex that
+> > | it virtually guarantees that the _writers_ of documentation
+> > | will get it wrong occasionally and only confuse the readers
+> > | more.
+> >
+> > KiB is not ambiguous. KB demonstrably is.
+> > And therefore KB is NOT useful for communication, _especially_ technical
+> > communication.
+> 
+> Grep around in your RFC directory, and apply your argument.  The KiB
+> definition will _create_ ambiguity in technical communication which
+> did not exist before.
 
-> If you look at my post more closely, you'll see I used `kB' (that's small
-> k and capital B) for decimal kilobyte. I would never suggest using `KB'
-> (that's capital K and capital B) for it. I do agree that `KB' is traditionally
-> used for binary kilobytes, but what about MB, GB and so on? These _are_
-> ambiguous. I am in favour of using Ki, Mi and Gi for binary quantities.
+Agreed. I think almost technical guys assumed that 'KB' (or kB, or kb, or
+something ;-) IS 1024 bytes. Know even they starting to loose their
+belief about old one, and that new and 'strange' 'KiB'. Imho '1000 bytes =
+1 kbytes' was only used by some tricky hardware vendors to trick their
+costumers (they could show bigger values ...). But even my sister knows
+that when someone's speaking about computers, 'kilo' means 1024, not 1000.
 
-Yes, the current MB/GB units are awfully ambiguous, but using Mi/Gi won't
-cure the confusion as nobody will know whether MB/GB in that text means
-the old-fashioned name of binary megabyte or the decimal megabyte according
-to the new standard. Yes, the confusion might die out after a long period
-of time of everybody switches to the new system, but I seriously doubt
-it will happen in the near future.
+It's like when we declared that direction of electrical current is from
+positive to negative. Yes, we CAN change it now, because we know that it's
+not the right direction of electrons in real.
 
-It seems that the only way which is going to work is to create a new decimal
-prefix for units of information as well. Not a particularly nice solution,
-but probable the only working one.
+So, if the 'technical world' already assumed (imho) that 'kilo' is 1024
+in computer technology then we shouldn't change it now ...
 
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-Every program in development at MIT expands until it can read mail.
+- Gabor

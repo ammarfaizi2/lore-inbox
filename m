@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261276AbTJMAdz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Oct 2003 20:33:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbTJMAdz
+	id S261297AbTJMAhv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Oct 2003 20:37:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbTJMAhv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Oct 2003 20:33:55 -0400
-Received: from fw.osdl.org ([65.172.181.6]:40095 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261276AbTJMAdy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Oct 2003 20:33:54 -0400
-Date: Sun, 12 Oct 2003 17:37:02 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Domen Puncer <domen@coderock.org>
-Cc: zwane@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: 3c59x on 2.6.0-test3->test6 slow
-Message-Id: <20031012173702.57eea934.akpm@osdl.org>
-In-Reply-To: <200310130222.03175.domen@coderock.org>
-References: <200310061529.56959.domen@coderock.org>
-	<Pine.LNX.4.53.0310091904400.3679@montezuma.fsmlabs.com>
-	<200310100155.53205.domen@coderock.org>
-	<200310130222.03175.domen@coderock.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 12 Oct 2003 20:37:51 -0400
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:52385 "EHLO
+	cluless.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S261297AbTJMAhu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Oct 2003 20:37:50 -0400
+Date: Sun, 12 Oct 2003 20:37:47 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@cluless.boston.redhat.com
+To: anlar@hellfish.org
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Future of the security features
+In-Reply-To: <1065990395.3f89b8fb73015@mail.hellfish.org>
+Message-ID: <Pine.LNX.4.44.0310122036460.873-100000@cluless.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Domen Puncer <domen@coderock.org> wrote:
->
-> Tried a bunch of 2.5.x kernels... no better.
->  Then i tried 2.4.22... and my nic still doesn't work fast.
+On Sun, 12 Oct 2003 anlar@hellfish.org wrote:
 
-There's some stuff in Documentation/networking/vortex.txt telling you how
-to locate and run vortex-diag and mii-diag.
+> The Linux kernel could be tweaked to be one nasty animal (can penguins be
+> nasty?) guarding the security. Linux based systems could be a lot more secure
+> with "some light tweaking" and now it is mostly up to the kernel developers.
+> So, why not?
 
-You might need to reprogram the eeprom using 3c90xx2.exe.
+Maybe it's just me, but I didn't see the grsecurity people
+send small mergeable patches to Linus ...
+
+Then again, I wasn't watching well for most of the summer
+so maybe they did submit something and I just didn't see it.
+
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
+

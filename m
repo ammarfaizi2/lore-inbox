@@ -1,179 +1,200 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264621AbUDVSWe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264617AbUDVS1u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264621AbUDVSWe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 14:22:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264623AbUDVSWe
+	id S264617AbUDVS1u (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 14:27:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264629AbUDVS1u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 14:22:34 -0400
-Received: from h24-71-77-159.ok.shawcable.net ([24.71.77.159]:47622 "EHLO
-	indygecko.com") by vger.kernel.org with ESMTP id S264621AbUDVSWU
+	Thu, 22 Apr 2004 14:27:50 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:27073 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S264617AbUDVS0U
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 14:22:20 -0400
-Subject: Re: [PATCH 2.6.0] megaraid 64bit fix/cleanup (AMD64)
-From: Jord Tanner <jord@indygecko.com>
-To: Paul Wagland <paul@wagland.net>
-Cc: linux-kernel@vger.kernel.org, Atulm@lsil.com
-In-Reply-To: <A1E28594-9478-11D8-B5AA-000A95CD704C@wagland.net>
-References: <0E3FA95632D6D047BA649F95DAB60E57033BC53C@exa-atlanta.se.lsil.com>
-	 <1082143294.11606.81.camel@gecko>
-	 <A1E28594-9478-11D8-B5AA-000A95CD704C@wagland.net>
-Message-Id: <1082658137.22804.1563.camel@gecko>
+	Thu, 22 Apr 2004 14:26:20 -0400
+Subject: Re: stack dumps, CONFIG_FRAME_POINTER and i386 (was Re: sysrq
+	shows impossible call stack)
+From: Adam Litke <agl@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: roland@topspin.com, mlxk@mellanox.co.il, linux-kernel@vger.kernel.org
+In-Reply-To: <20040421165059.4579e64d.akpm@osdl.org>
+References: <408545AA.6030807@mellanox.co.il> <52ekqizkd2.fsf@topspin.com>
+	 <40855F95.7080003@mellanox.co.il> <5265buzgfn.fsf_-_@topspin.com>
+	 <1082492730.716.76.camel@agtpad> <52llkqw5me.fsf@topspin.com>
+	 <20040420183915.4eee560c.akpm@osdl.org>
+	 <20040420184109.6876b3d9.akpm@osdl.org> <1082590136.715.190.camel@agtpad>
+	 <20040421165059.4579e64d.akpm@osdl.org>
+Content-Type: text/plain
+Organization: IBM
+Message-Id: <1082658310.715.224.camel@agtpad>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 22 Apr 2004 11:22:17 -0700
+Date: Thu, 22 Apr 2004 11:25:10 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Paul,
-
-(I'm not subscribed to the list, so if this doesn't make it through,
-please forward it for me)
-
-After some testing, the machine works much better with the new
-(2.20.0.B2) megaraid driver, but we still get the occasional postgres
-corrupted data. The symptoms are somewhat different now (corrupted pages
-contain mostly blanks, whereas with the 2.00.3 driver the pages were
-filled with FF), so I think there may be multiple causes. We were
-running XFS on LVM2 on linux RAID0 on megaraid RAID1. I switched from
-XFS to JFS yesterday, and at this point have not had any more problems.
-We are continuing to test, and once we have a stable configuration, I'll
-post the details.
-
-Jord Tanner
-Independent Gecko Consultants
-
-On Thu, 2004-04-22 at 09:18, Paul Wagland wrote:
-> Hi Jord,
+On Wed, 2004-04-21 at 16:50, Andrew Morton wrote:
+> Adam Litke <agl@us.ibm.com> wrote:
+> >
+> > On Tue, 2004-04-20 at 18:41, Andrew Morton wrote:
+> > > Andrew Morton <akpm@osdl.org> wrote:
+> > > >
+> > > > Roland Dreier <roland@topspin.com> wrote:
+> > > >  >
+> > > >  >     Adam> This problem was annoying me a few months ago so I coded up
+> > > >  >     Adam> a stack trace patch that actually uses the frame pointer.
+> > > >  >     Adam> It is currently maintained in -mjb but I have pasted below.
+> > > >  >     Adam> Hope this helps.
+> > > >  > 
+> > > >  > Thanks, that looks really useful.  What is the chance of this moving
+> > > >  > from -mjb to mainline?
+> > > > 
+> > > >  Good, but it needs to be updated to do the right thing with 4k stacks when
+> > > >  called from interrupt context.
+> > 
+> > The show_trace() for the CONFIG_FRAME_POINTER case will now be called
+> > the same way as the existing code.
 > 
-> In response to this thread I seem to recall that you mentioned that you  
-> would test out the new driver and see if it resolved your problem. I  
-> was wondering if you had any results from this testing yet?
-> 
-> Thanks in advance,
-> Paul
-> 
-> On Apr 16, 2004, at 21:21, Jord Tanner wrote:
-> 
-> >
-> > Thanks Atul!
-> >
-> > After patching for 2.6.5 the 2.20.0.B2 driver compiled clean and the
-> > machine in now running with that driver. We are about to run some  
-> > stress
-> > tests to see if we can duplicate the previous problems.
-> >
-> > Given that we are running a 64bit compile, and the previous attempts by
-> > Brad House to make amd64 modifications were abandonded, could you
-> > comment on whether you think the newest megaraid code
-> > (ftp://ftp.lsil.com/pub/linux-megaraid/drivers/version-unified
-> > -2.20.0.B2.04.14.2004)
-> > is 64bit safe?
-> >
-> > TIA
-> >
-> > Jord Tanner
-> > Independent Gecko Consultants
-> >
-> > On Fri, 2004-04-16 at 09:35, Mukker, Atul wrote:
-> >> Please use the latest driver 2.20.0.B2, about to be released today.  
-> >> Please
-> >> provide a feedback if you see the same issues.
-> >>
-> >> -Atul Mukker
-> >> LSI Logic
-> >>
-> >>> -----Original Message-----
-> >>> From: Jord Tanner [mailto:jord@indygecko.com]
-> >>> Sent: Friday, April 16, 2004 9:57 AM
-> >>> To: linux-kernel@vger.kernel.org
-> >>> Cc: brad_mssw@gentoo.org; Atulm@lsil.com
-> >>> Subject: Re: [PATCH 2.6.0] megaraid 64bit fix/cleanup (AMD64)
-> >>>
-> >>>
-> >>>
-> >>> On Tue Dec 30 2003 - 16:11:40 EST Brad House wrote:
-> >>>
-> >>>         Ok, I just ported the 2.00.9 driver to 2.6.0.
-> >>>         It still has these warnings during compilation as I did not
-> >>>         attempt to apply my 64bit fixes from before as I've been told
-> >>>         they are just plain wrong :/
-> >>>
-> >>>         But, I suppose this should work fine in 32bit mode, I would
-> >>>         greatly appreciate any help in porting it for 64bit  
-> >>> platforms.
-> >>>
-> >>>         The patch can be downloaded here :
-> >>>
-> >>> http://dev.gentoo.org/~brad_mssw/kernel_patches/megaraid/megar
-> >>> aid-v2.00.9-linux2.6.patch
-> >>>         And only applies to the source from ftp.lsil.com, it's not a
-> >>>         kernel-patch
-> >>>         per-se, but copying the result over to the drivers/scsi will
-> >>>         compile inplace
-> >>>         of the current versions.
-> >>>
-> >>>         Please CC me on any replies!
-> >>>         -Brad House <brad_mssw@xxxxxxxxxx>
-> >>>
-> >>>
-> >>>
-> >>> This thread has been inactive for a while, but I've not found  
-> >>> anything
-> >>> more relevant to my situation.
-> >>>
-> >>> I'm running 2.6.3-gentoo (and 2.6.5-gentoo) with a LSILogic SATA
-> >>> Megaraid 150-6 raid controller on a dual Opteron system. The entire
-> >>> system is compiled in 64bit. We are seeing random database corruption
-> >>> when access very large Postgres tables (more than 10 million rows).
-> >>> Other than that, the system runs beautifully.
-> >>>
-> >>> As far as I can tell, no amd64 specific patches have been
-> >>> applied to the
-> >>> megaraid driver in 2.6.3 (version 2.00.3). Brad House has posted a  
-> >>> 2.6
-> >>> patch for megaraid 2.00.9, but his previous amd64 patches
-> >>> were removed.
-> >>> LSI tech support has suggested I upgrade to 2.00.9, but the LSI  
-> >>> source
-> >>> is for 2.4.
-> >>>
-> >>> So my questions are:
-> >>>
-> >>>         - Could the 2.00.3 driver be responsible for random data
-> >>>         corruption when running on 2.6.3 in 64bit?
-> >>>         - Is it safe to run Brad House's 2.6 megaraid 2.00.9
-> >>> patches in
-> >>>         64 bit mode on amd64?
-> >>>         - Are there any patches for megaraid 2.00.9 (or higher, I see
-> >>>         2.00.10-3 has just been released) that combine patches for  
-> >>> 2.6
-> >>>         and amd64?
-> >>>
-> >>> TIA,
-> >>>
-> >>>
-> >>> -- 
-> >>> Jord Tanner <jord@indygecko.com>
-> >>>
-> >>> -
-> >>> To unsubscribe from this list: send the line "unsubscribe
-> >>> linux-kernel" in
-> >>> the body of a message to majordomo@vger.kernel.org
-> >>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >>> Please read the FAQ at  http://www.tux.org/lkml/
-> >>>
-> > -- 
-> > Jord Tanner <jord@indygecko.com>
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe  
-> > linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
+> I still don't see any code in there to handle the transition from the
+> interrupt stack page to the non-interrupt stack page in the 4k-stacks case?
+
+Ok here is the latest version of the patch.  I added support for the
+4k-stacks interrupt stack case.  I also moved some things around to
+minimize code duplication.  Andrew, how does this look?
+
+diff -purN linux-2.6.5-bk/arch/i386/kernel/traps.c linux-2.6.5-bk-stack/arch/i386/kernel/traps.c
+--- linux-2.6.5-bk/arch/i386/kernel/traps.c	Thu Apr 22 09:10:57 2004
++++ linux-2.6.5-bk-stack/arch/i386/kernel/traps.c	Thu Apr 22 10:57:39 2004
+@@ -92,29 +92,84 @@ asmlinkage void alignment_check(void);
+ asmlinkage void spurious_interrupt_bug(void);
+ asmlinkage void machine_check(void);
+ 
+-static int kstack_depth_to_print = 24;
++#define valid_stack_ptr(task, p) \
++	((struct thread_info*)p > task->thread_info) && \
++	 !kstack_end((unsigned long*)p)
+ 
+-void show_trace(struct task_struct *task, unsigned long * stack)
++#ifdef CONFIG_FRAME_POINTER
++void show_stack_frame(unsigned long start, unsigned long end)
++{
++	unsigned long i;
++
++	printk("              ");
++	for (i = start; i < end; i += 4) {
++		if ((i - start) && ((i - start)%24 == 0))
++			printk("\n              ");
++		printk("%08lx ", *(unsigned long *) i);
++	}
++	printk("\n");
++}
++
++void print_context_stack(struct task_struct *task, unsigned long * stack, 
++			 unsigned long ebp)
+ {
+ 	unsigned long addr;
+ 
+-	if (!stack)
+-		stack = (unsigned long*)&stack;
++	show_stack_frame((unsigned long) stack, ebp + 4);
++	while (valid_stack_ptr(task, ebp)) {
++		addr = *(unsigned long *) (ebp + 4);
++		printk(" [<%08lx>] ", addr);
++		print_symbol("%s", addr);
++		printk("\n");
++
++		/* Show the stack frame (excluding the frame pointer) */
++		show_stack_frame(ebp + 8, (*(unsigned long *) ebp) + 4);
++		ebp = *(unsigned long *) ebp;
++	}
++}
++#else
++int kstack_depth_to_print = 24;
++
++void print_context_stack(struct task_struct *task, unsigned long * stack,
++			 unsigned long ebp)
++{
++	unsigned long addr;
+ 
+-	printk("Call Trace:");
+-#ifdef CONFIG_KALLSYMS
+-	printk("\n");
++	while (!kstack_end(stack)) {
++		addr = *stack++;
++		if (kernel_text_address(addr)) {
++			printk(" [<%08lx>] ", addr);
++			print_symbol("%s\n", addr);
++		}
++	}
++}
+ #endif
++
++void show_trace(struct task_struct *task, unsigned long * stack)
++{
++	unsigned long ebp;
++
++	if (!task)
++		task = current;
++	
++	if (!valid_stack_ptr(task, stack)) {
++		printk("Stack pointer is garbage, not printing trace\n");
++		return;
++	}
++	
++	if (task == current) {
++		/* Grab ebp right from our regs */
++		asm ("movl %%ebp, %0" : "=r" (ebp) : );
++	} else {
++		/* ebp is the last reg pushed by switch_to */
++		ebp = *(unsigned long *) task->thread.esp;
++	}
++	
+ 	while (1) {
+ 		struct thread_info *context;
+-		context = (struct thread_info*) ((unsigned long)stack & (~(THREAD_SIZE - 1)));
+-		while (!kstack_end(stack)) {
+-			addr = *stack++;
+-			if (kernel_text_address(addr)) {
+-				printk(" [<%08lx>] ", addr);
+-				print_symbol("%s\n", addr);
+-			}
+-		}
++		context = (struct thread_info*) 
++			((unsigned long)stack & (~(THREAD_SIZE - 1)));
++		print_context_stack(task, stack, ebp);
+ 		stack = (unsigned long*)context->previous_esp;
+ 		if (!stack)
+ 			break;
+@@ -135,9 +190,6 @@ void show_trace_task(struct task_struct 
+ 
+ void show_stack(struct task_struct *task, unsigned long *esp)
+ {
+-	unsigned long *stack;
+-	int i;
+-
+ 	if (esp == NULL) {
+ 		if (task)
+ 			esp = (unsigned long*)task->thread.esp;
+@@ -145,6 +197,10 @@ void show_stack(struct task_struct *task
+ 			esp = (unsigned long *)&esp;
+ 	}
+ 
++#ifndef CONFIG_FRAME_POINTER
++	{
++	unsigned long *stack;
++	int i;
+ 	stack = esp;
+ 	for(i = 0; i < kstack_depth_to_print; i++) {
+ 		if (kstack_end(stack))
+@@ -154,6 +210,8 @@ void show_stack(struct task_struct *task
+ 		printk("%08lx ", *stack++);
+ 	}
+ 	printk("\n");
++	}
++#endif
+ 	show_trace(task, esp);
+ }
+ 
+
 -- 
-Jord Tanner <jord@indygecko.com>
+Adam Litke - (agl at us.ibm.com)
+IBM Linux Technology Center
 

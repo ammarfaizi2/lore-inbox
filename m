@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267142AbSKXCud>; Sat, 23 Nov 2002 21:50:33 -0500
+	id <S267155AbSKXC5U>; Sat, 23 Nov 2002 21:57:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267155AbSKXCuc>; Sat, 23 Nov 2002 21:50:32 -0500
-Received: from mx1.it.wmich.edu ([141.218.1.89]:44164 "EHLO mx1.it.wmich.edu")
-	by vger.kernel.org with ESMTP id <S267142AbSKXCuc>;
-	Sat, 23 Nov 2002 21:50:32 -0500
-Message-ID: <3DE04028.5090007@wmich.edu>
-Date: Sat, 23 Nov 2002 21:57:44 -0500
-From: Ed Sweetman <ed.sweetman@wmich.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
+	id <S267158AbSKXC5U>; Sat, 23 Nov 2002 21:57:20 -0500
+Received: from c17928.thoms1.vic.optusnet.com.au ([210.49.249.29]:7296 "EHLO
+	laptop.localdomain") by vger.kernel.org with ESMTP
+	id <S267155AbSKXC5U> convert rfc822-to-8bit; Sat, 23 Nov 2002 21:57:20 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Con Kolivas <conman@kolivas.net>
+To: matt@mh.dropbear.id.au
+Subject: Re: 2.4.19-ck13 oops
+Date: Sun, 24 Nov 2002 14:06:11 +1100
+User-Agent: KMail/1.4.3
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.49-mm1 paging request error -> kernel panic
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200211241406.13739.conman@kolivas.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-after finishing boot sequence, ntpd eventually does something bad.  i 
-get an "Unable to handle kernel paging request at virtual address 400413cc"
-I have that share bottom level page tables option enabled. Also preempt.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-printing eip:
-400085ca
-*pde = 0ec26067
-*pte = 0fc18065
-Oops: 0007
-CPU: 0
-EIP: 0023:[<400085ca>] Not tainted
-EFLAGS: 00010202
-eax: 0000003d ebx: 400114a8 ecx: 4004147a edx: 40041258
-esi: bffff0e0 edi: 00000000 ebp: bffff1a8 esp: bffff0d0
-ds: 002b es: 002b ss: 002b
-Process ntpd (pid: 385, theradinfo=ceb02000 task=cfc53380)
-<0>Kernel panic: Aiee, killing interrupt handler!
-In interrupt handler - not syncing
+Hi
 
+Try ck14. ck13 was a temporary release which had problems and was quickly 
+superceded by ck14. If the problem remains, use separated patches and dont 
+apply the variable timeslice patch.
+
+Con
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQE94EIjF6dfvkL3i1gRAtS/AJ9l1ZLT4pChRdWuBZqyGUgaoAwzTQCdF5ZI
+36hbhcXU7r/f27s58Z9eGNc=
+=MoPm
+-----END PGP SIGNATURE-----

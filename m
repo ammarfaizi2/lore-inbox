@@ -1,120 +1,170 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261300AbSJHR4o>; Tue, 8 Oct 2002 13:56:44 -0400
+	id <S261288AbSJHRzO>; Tue, 8 Oct 2002 13:55:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261307AbSJHR4n>; Tue, 8 Oct 2002 13:56:43 -0400
-Received: from tolkor.sgi.com ([198.149.18.6]:31675 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S261300AbSJHRzk>;
-	Tue, 8 Oct 2002 13:55:40 -0400
-Date: Tue, 8 Oct 2002 21:15:13 -0400
-From: Christoph Hellwig <hch@sgi.com>
-To: Erich Focht <efocht@ess.nec.de>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       Michael Hohnbaum <hohnbaum@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] pooling NUMA scheduler with initial load balancing
-Message-ID: <20021008211513.A28583@sgi.com>
-Mail-Followup-To: Christoph Hellwig <hch@sgi.com>,
-	Erich Focht <efocht@ess.nec.de>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	Michael Hohnbaum <hohnbaum@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <200210072209.41880.efocht@ess.nec.de> <1420721189.1034032091@[10.10.2.3]> <200210081933.06677.efocht@ess.nec.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200210081933.06677.efocht@ess.nec.de>; from efocht@ess.nec.de on Tue, Oct 08, 2002 at 07:33:06PM +0200
+	id <S261300AbSJHRzO>; Tue, 8 Oct 2002 13:55:14 -0400
+Received: from port48.ds1-vbr.adsl.cybercity.dk ([212.242.58.113]:29263 "EHLO
+	brian.localnet") by vger.kernel.org with ESMTP id <S261336AbSJHRzI>;
+	Tue, 8 Oct 2002 13:55:08 -0400
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.5] explicit CRC32 (early) initialization
+Message-Id: <E17yyew-0000s7-00@brian.localnet>
+From: Brian Murphy <brm@murphy.dk>
+Date: Tue, 08 Oct 2002 20:00:43 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 08, 2002 at 07:33:06PM +0200, Erich Focht wrote:
-> Aaargh, you got the wrong second patch :-( Sorry for that...
-> 
-> Thanks for the hints, I cleaned up the first patch, too. No
-> CONFIG_NUMA_SCHED any more, switched to MAX_NUMNODES, including
-> asm/numa.h from asm/topology.h, so no need for you to see it.
+Here is a patch to the crc32 library routine to allow explicit
+initialization of the tables used by the routines. 
 
+I need this to be able to use the crc routines in the early 
+start up code for my platform which saves crc protected 
+information (clock speed, machine type) in an eeprom.
 
-diff -urNp a/arch/i386/kernel/smpboot.c b/arch/i386/kernel/smpboot.c
---- a/arch/i386/kernel/smpboot.c	Fri Sep 27 23:49:54 2002
-+++ b/arch/i386/kernel/smpboot.c	Tue Oct  8 11:37:56 2002
-@@ -1194,6 +1194,11 @@ int __devinit __cpu_up(unsigned int cpu)
- void __init smp_cpus_done(unsigned int max_cpus)
- {
- 	zap_low_mappings();
-+#ifdef CONFIG_NUMA
-+	pooldata_lock();
-+	bld_pools();
-+	pooldata_unlock();
+The option CONFIG_CRC32_EXPLICIT is defined for the platforms 
+which need it in the config.in file.
+
+I have removed dynamic allocation of memory because the 
+memory subsystem is also not initialised at the stage where I
+need the crc functions.
+
+/Brian
+
+--- include/linux/crc32.h	5 Jul 2002 05:05:27 -0000	1.2
++++ include/linux/crc32.h	8 Oct 2002 17:46:39 -0000
+@@ -6,6 +6,11 @@
+ #define _LINUX_CRC32_H
+ 
+ #include <linux/types.h>
++#include <linux/config.h>
++
++#ifdef CONFIG_CRC32_EXPLICIT
++extern int init_crc32(void);
 +#endif
-
-All callers of bld_pools() need the pooldata lock - taking
-it inside that function makes the code a little more readable..
-Also I'd suggest to rename bld_pools() to build_pools() ;)
-
--	cache_decay_ticks = 10;	/* XXX base this on PAL info and cache-bandwidth estimate */
-+	cache_decay_ticks = 8;	/* XXX base this on PAL info and cache-bandwidth estimate */
-
-Could you explain this change?  And it's affect on non-NUMA IA64
-machines?
-
+ 
+ extern u32  crc32_le(u32 crc, unsigned char const *p, size_t len);
+ extern u32  crc32_be(u32 crc, unsigned char const *p, size_t len);
+--- lib/crc32.c	9 Jul 2002 15:23:04 -0000	1.3
++++ lib/crc32.c	8 Oct 2002 17:46:40 -0000
+@@ -68,7 +68,6 @@
+  * simplified by inlining the table in ?: form.
+  */
+ #define crc32init_le()
+-#define crc32cleanup_le()
  /**
-+ * atomic_inc_return - increment atomic variable and return new value
-+ * @v: pointer of type atomic_t
-+ *
-+ * Atomically increments @v by 1 and return it's new value.  Note that
-+ * the guaranteed useful range of an atomic_t is only 24 bits.
-+ */
-+static inline int atomic_inc_return(atomic_t *v){
-+	atomic_inc(v);
-+	return v->counter;
-+}
-
-Who do you guarantee this is atomic?  Please make it fit
-Documentation/CodyingStyle, btw..
-
-+int numpools, pool_ptr[MAX_NUMNODES+1], pool_cpus[NR_CPUS], pool_nr_cpus[MAX_NUMNODES];
-+unsigned long pool_mask[MAX_NUMNODES];
-
-Hmm, shouldn't those [MAX_NUMNODES] arrays be in some per-node array
-to avoid cacheline-bouncing?
-
-+void pooldata_lock(void)
-+{
-+	int i;
-+ retry:
-+	while (atomic_read(&pool_lock));
-+	if (atomic_inc_return(&pool_lock) > 1) {
-+		atomic_dec(&pool_lock);
-+		goto retry;
-+	}
-
-Why not a simple spin_lock()?
-
-+	/* 
-+	 * Wait a while, any loops using pool data should finish
-+	 * in between. This is VERY ugly and should be replaced
-+	 * by some real RCU stuff. [EF]
-+	 */
-+	for (i=0; i<100; i++)
-+		udelay(1000);
-
-Urgg.  I'd suggest you switch to RCU now and make your patch apply
-ontop of it - another reason to apply the RCU core patch..
-
-+void pooldata_unlock(void)
-+{
-+	atomic_dec(&pool_lock);
-+}
-
-Dito for spin_unlock.
-
-+	/* avoid deadlock by timer interrupt on own cpu */
-+	if (atomic_read(&pool_lock)) return;
-
-spin_trylock..
-
-All in all your code doesn't seem to be very cachelign-friendly,
-lots of global bouncing.  Do you have any numbers on what your
-patch changes for normal SMP configurations?
+  * crc32_le() - Calculate bitwise little-endian Ethernet AUTODIN II CRC32
+  * @crc - seed value for computation.  ~0 for Ethernet, sometimes 0 for
+@@ -89,7 +88,7 @@
+ }
+ #else				/* Table-based approach */
+ 
+-static u32 *crc32table_le;
++static u32 crc32table_le[1 << CRC_LE_BITS];
+ /**
+  * crc32init_le() - allocate and initialize LE table data
+  *
+@@ -102,10 +101,6 @@
+ 	unsigned i, j;
+ 	u32 crc = 1;
+ 
+-	crc32table_le =
+-	    kmalloc((1 << CRC_LE_BITS) * sizeof(u32), GFP_KERNEL);
+-	if (!crc32table_le)
+-		return 1;
+ 	crc32table_le[0] = 0;
+ 
+ 	for (i = 1 << (CRC_LE_BITS - 1); i; i >>= 1) {
+@@ -117,15 +112,6 @@
+ }
+ 
+ /**
+- * crc32cleanup_le(): free LE table data
+- */
+-static void __exit crc32cleanup_le(void)
+-{
+-	if (crc32table_le) kfree(crc32table_le);
+-	crc32table_le = NULL;
+-}
+-
+-/**
+  * crc32_le() - Calculate bitwise little-endian Ethernet AUTODIN II CRC32
+  * @crc - seed value for computation.  ~0 for Ethernet, sometimes 0 for
+  *        other uses, or the previous crc32 value if computing incrementally.
+@@ -168,7 +154,6 @@
+  * simplified by inlining the table in ?: form.
+  */
+ #define crc32init_be()
+-#define crc32cleanup_be()
+ 
+ /**
+  * crc32_be() - Calculate bitwise big-endian Ethernet AUTODIN II CRC32
+@@ -192,7 +177,7 @@
+ }
+ 
+ #else				/* Table-based approach */
+-static u32 *crc32table_be;
++static u32 crc32table_be[1 << CRC_BE_BITS];
+ 
+ /**
+  * crc32init_be() - allocate and initialize BE table data
+@@ -202,10 +187,6 @@
+ 	unsigned i, j;
+ 	u32 crc = 0x80000000;
+ 
+-	crc32table_be =
+-	    kmalloc((1 << CRC_BE_BITS) * sizeof(u32), GFP_KERNEL);
+-	if (!crc32table_be)
+-		return 1;
+ 	crc32table_be[0] = 0;
+ 
+ 	for (i = 1; i < 1 << CRC_BE_BITS; i <<= 1) {
+@@ -217,16 +198,6 @@
+ }
+ 
+ /**
+- * crc32cleanup_be(): free BE table data
+- */
+-static void __exit crc32cleanup_be(void)
+-{
+-	if (crc32table_be) kfree(crc32table_be);
+-	crc32table_be = NULL;
+-}
+-
+-
+-/**
+  * crc32_be() - Calculate bitwise big-endian Ethernet AUTODIN II CRC32
+  * @crc - seed value for computation.  ~0 for Ethernet, sometimes 0 for
+  *        other uses, or the previous crc32 value if computing incrementally.
+@@ -545,7 +516,10 @@
+  * Since crc32.o is a library module, there's no requirement
+  * that the user can unload it.
+  */
+-static int __init init_crc32(void)
++#ifndef CONFIG_CRC32_EXPLICIT
++static 
++#endif
++int __init init_crc32(void)
+ {
+ 	int rc1, rc2, rc;
+ 	rc1 = crc32init_le();
+@@ -555,17 +529,9 @@
+ 	return rc;
+ }
+ 
+-/**
+- * cleanup_crc32(): frees crc32 data when no longer needed
+- */
+-static void __exit cleanup_crc32(void)
+-{
+-	crc32cleanup_le();
+-	crc32cleanup_be();
+-}
+-
+-fs_initcall(init_crc32);
+-module_exit(cleanup_crc32);
++#ifndef CONFIG_CRC32_EXPLICIT
++core_initcall(init_crc32);
++#endif
+ 
+ EXPORT_SYMBOL(crc32_le);
+ EXPORT_SYMBOL(crc32_be);

@@ -1,57 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265358AbTF1TIg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jun 2003 15:08:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265346AbTF1TIf
+	id S265379AbTF1TL1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jun 2003 15:11:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265373AbTF1TK4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jun 2003 15:08:35 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:43658
+	Sat, 28 Jun 2003 15:10:56 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:45706
 	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S265342AbTF1TIZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jun 2003 15:08:25 -0400
+	id S265366AbTF1TJp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jun 2003 15:09:45 -0400
 Subject: Re: networking bugs and bugme.osdl.org
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "David S. Miller" <davem@redhat.com>
-Cc: greearb@candelatech.com, davidel@xmailserver.org, mbligh@aracnet.com,
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Larry McVoy <lm@bitmover.com>, "David S. Miller" <davem@redhat.com>,
+       greearb@candelatech.com, davidel@xmailserver.org,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        linux-net@vger.kernel.org, netdev@oss.sgi.com
-In-Reply-To: <20030627.172123.78713883.davem@redhat.com>
+In-Reply-To: <34700000.1056760028@[10.10.2.4]>
 References: <3EFCC1EB.2070904@candelatech.com>
 	 <20030627.151906.102571486.davem@redhat.com>
-	 <1056755336.5459.16.camel@dhcp22.swansea.linux.org.uk>
-	 <20030627.172123.78713883.davem@redhat.com>
+	 <3EFCC6EE.3020106@candelatech.com>
+	 <20030627.170022.74744550.davem@redhat.com>
+	 <20030628001954.GD18676@work.bitmover.com>
+	 <34700000.1056760028@[10.10.2.4]>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1056827972.6295.28.camel@dhcp22.swansea.linux.org.uk>
+Message-Id: <1056828052.6295.31.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 28 Jun 2003 20:19:32 +0100
+Date: 28 Jun 2003 20:20:53 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2003-06-28 at 01:21, David S. Miller wrote:
->    From: Alan Cox <alan@lxorguk.ukuu.org.uk>
->    Date: 28 Jun 2003 00:08:56 +0100
-> 
->    Tried doing an SQL query or text analysis for similarities on random
->    messages lurking in private mailboxes
-> 
-> I respond to private reports with "please send this to the lists,
-> what if I were on vacation for the next month?"  I never actually
-> process or analyze such reports.
+On Sad, 2003-06-28 at 01:27, Martin J. Bligh wrote:
+> That's a trivial change to make if you want it. we just add a "reviewed"
+> / "certified" state between "new" and "assigned". Yes, might be a good 
+> idea.  I'm not actually that convinced that "assigned" is overly useful
+> in the context of open-source, but that's a separate discussion.
 
-Which means you miss stuff. Here is an example my tools found yesterday
-
-18 months ago someone with a specific printer reported doing network printing
-to it crashed the kernel. Lost in the noise, filed in bugzilla, categorised 
-mentally at the time as "weird".
-
-Not long ago a second identical report popped up. Different setup, same
-network printing, similar "it reboots" report.
-
-So now I've gone chasing tcpdumps from these.
-
-Its a *different* thing to the kind of patch management you are doing, but its
-only possible because of tools like bugzilla
+Most bugzilla's seem to use VERIFIED for this, and it means people who
+have better things to do can just pull bugs that are verified and/or
+tagged with "patch" in the attachments
 

@@ -1,82 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263250AbRFEGOD>; Tue, 5 Jun 2001 02:14:03 -0400
+	id <S262761AbRFEGLM>; Tue, 5 Jun 2001 02:11:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263245AbRFEGNw>; Tue, 5 Jun 2001 02:13:52 -0400
-Received: from [164.164.82.20] ([164.164.82.20]:10487 "EHLO subexgroup.com")
-	by vger.kernel.org with ESMTP id <S263240AbRFEGNq>;
-	Tue, 5 Jun 2001 02:13:46 -0400
-From: "Anil Kumar" <anilk@subexgroup.com>
-To: "Mihai Moise" <mmoise@giref.ulaval.ca>, <linux-kernel@vger.kernel.org>
-Subject: RE: semaphores and noatomic flag
-Date: Tue, 5 Jun 2001 11:58:17 +0530
-Message-ID: <NEBBIIKAMMOCGCPMPBJOCEGICEAA.anilk@subexgroup.com>
+	id <S263239AbRFEGKx>; Tue, 5 Jun 2001 02:10:53 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:46858 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S263238AbRFEGKs>; Tue, 5 Jun 2001 02:10:48 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] fs/devfs/base.c
+Date: 4 Jun 2001 23:10:27 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9fht4j$cce$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.4.21.0106031652090.32451-100000@penguin.transmeta.com> <E156o6c-0005AB-00@the-village.bc.nu> <200106040707.f5477ET11421@vindaloo.ras.ucalgary.ca> <m2elt011y6.fsf@sympatico.ca>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <3B1BC6BF.8098111A@giref.ulaval.ca>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
-X-Return-Path: anilk@subexgroup.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Will it not be a very specialized case rather than being general call type?
+Followup to:  <m2elt011y6.fsf@sympatico.ca>
+By author:    Bill Pringlemeir <bpringle@sympatico.ca>
+In newsgroup: linux.dev.kernel
+> 
+> There was a discussion on comp.arch.embedded about bounded stack use.
+> It is fairly easy to calculate the stack usage for call trees, but
+> much more difficult for `DAGs'.  Ie, a recursive functions etc.
+> 
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Mihai Moise
-Sent: Monday, June 04, 2001 11:05 PM
-To: linux-kernel@vger.kernel.org
-Subject: semaphores and noatomic flag
+It's trivial to calculate for DAGs -- directed acyclic graphs.  It's
+when the "acyclic" constraint is violated that you have problems!
 
-
-I write this to discuss the reasons why the semop system call should
-have an IPC_NOATOMIC flag.
-
-Suppose we have two processes, called client and server, which
-communicate through a shared memory segment and two semaphores, and need
-to synchonize their activities so that they don't operate simultaneously
-except at startup.
-
-The server would do,
-
-down(smephore 0)
-
-to wait for a message from the client. When the client needs the server
-to execute, it would,
-
-up(semaphore 0)		/* wake up server */
-down(semaphore 1)	/* put itself to sleep */
-
-after the server has completed its portion of the task, it would,
-
-up(semaphore 1)		/* wake up client */
-down(semaphore 0)	/* put iself to sleep */
-
-The problem is that the two system calls make the whole process twice as
-slow as it needs to be, and they are both needed because the semop
-system call is implemented in an atomic manner. If the semop system call
-had an IPC_NOATOMIC flag, then the each process would only have to do
-one call,
-
-semop(up semaphore 0 & down semaphore 1, IPC_NOATOMIC)
-
-which would be interpreted in the kernel as the sequence of two system
-calls I have written previously.
-
-I want to know what other people think about this idea.
-
-Mihai
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

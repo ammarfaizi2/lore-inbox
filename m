@@ -1,56 +1,138 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262174AbTKWAmS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Nov 2003 19:42:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262240AbTKWAmS
+	id S262240AbTKWA5W (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Nov 2003 19:57:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263002AbTKWA5W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Nov 2003 19:42:18 -0500
-Received: from nycsmtp4out-eri0.rdc-nyc.rr.com ([24.29.99.227]:39850 "EHLO
-	nycsmtp4out-eri0.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id S262174AbTKWAmR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Nov 2003 19:42:17 -0500
-Message-Id: <200311230041.hAN0f6cx021656@nycsmtp4out-eri0.rdc-nyc.rr.com>
-Reply-To: <vm@netcity.ru>
-From: "Valentin" <vm@netcity.ru>
-Subject: Letter from Russia
-Date: Sun, 23 Nov 2003 09:41:05 +0300
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-To: unlisted-recipients:; (no To-header on input)
+	Sat, 22 Nov 2003 19:57:22 -0500
+Received: from aneto.able.es ([212.97.163.22]:57479 "EHLO aneto.able.es")
+	by vger.kernel.org with ESMTP id S262240AbTKWA5T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Nov 2003 19:57:19 -0500
+Date: Sun, 23 Nov 2003 01:57:17 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Lista Linux-BProc <bproc-users@lists.sourceforge.net>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BProc] Re: Reading libs fails through NFS
+Message-ID: <20031123005717.GA2025@werewolf.able.es>
+References: <20031117004539.GA2155@werewolf.able.es> <shsu153okhp.fsf@charged.uio.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 2.0.15
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Friend,
 
-Please excuse me for the inconvience caused by this message.
+On 11.17, Trond Myklebust wrote:
+> >>>>> " " == J A Magallon <J.A.> writes:
+> 
+>      > Hi all...  Anybody has any idea about why this fails:
+> 
+>      >     fd = open("/lib/libnss_files.so.2", O_RDONLY); res =
+>      >     read(fd,buf,512);
+> 
+> No. Nobody else will be able to tell you either until you tell us what
+> setup you are using.
+> 
 
-My name is Valentin. I'm a student and I live with my mother in the city of Kaluga, Russia, that is 200km south from Moscow. My mother is invalid. She cannot see and she receives pension from government very rare which is not enough even for medications.
+I run a small bproc cluster. Nodes are diskless, boot with a custom initrd,
+and execute a simple linuxrc (comments and echo's stripped):
 
-I work very hard every day to be able to take care of my mother, but my salary is very small, because my studies still not finished. Due to the crisis our authorities recently stoped gas in our district. Now we cannot heat our home without gas. I don't know what to do, because the winter is coming and the temperature in the street can be lower than minus 20 degrees Celsius. I'm very afraid that the temperature inside our home can be very cold and we will not be able to survive.
+PATH=/bin:/sbin:/usr/bin:/usr/sbin
+mount -n -o remount,rw /
+mount -t proc none /proc
+mount -t devpts -omode=0620 none /dev/pts
+mount -t tmpfs none /dev/shm
+mount -t tmpfs none /tmp
+ifconfig lo up 127.0.0.1
+modprobe eth0
+ifconfig eth0 up
+dhcpcd -H -D -R -N eth0
+portmap
+mount /lib
+mount /bin
+mount /sbin
+mount /usr
+mount /opt
+mount /home
+mount /work/shared
+modprobe eth1
+ifconfig eth1 up
+dhcpcd -R -N eth1
+ntpdate -v 192.168.0.1
+modprobe bproc
+bpslave -v -d -r 192.168.1.1
 
-Our only chance to survive is to use the free access to internet at our local library when it is possible. I have found several e-mail addresses, including yours, that is why I have decided to appeal to you with a prayer in my heart for a small help. 
+fstab for nodes (in /etc in initrd) is:
 
-If you have any old warm clothes, warm blankets, electric heater or portable stove, high-calories food, vitamins, medicaments against cold, any hygiene-products, I will be very grateful to you if you could send it to our postal address which is:
+rootfs / rootfs defaults 0 0
+none /proc proc defaults 0 0
+none /dev/pts devpts mode=0620 0 0
+none /dev/shm tmpfs defaults 0 0
+none /tmp tmpfs defaults 0 0
+192.168.0.1:/lib    /lib            nfs nfsvers=3,ro,noac,suid
+192.168.0.1:/bin    /bin            nfs nfsvers=3,ro,noac,suid
+192.168.0.1:/sbin   /sbin           nfs nfsvers=3,ro,noac,suid
+192.168.0.1:/usr    /usr            nfs nfsvers=3,ro,noac,suid
+192.168.0.1:/opt    /opt            nfs nfsvers=3,ro,noac,suid
+192.168.0.1:/home   /home           nfs nfsvers=3,rw
+192.168.0.1:/work   /work/shared    nfs nfsvers=3,rw
 
-Valentin Mihailin,
-Ryleeva Street, 6-45.
-Kaluga. 248030,
-Russia.
+For example, /opt is just the mount point in initrd, so it is empty. It is
+ro, just soft to use:
 
-If you think that it would be better or easier for you to help with some money, please write me back and I will give you details for sending it safely if you agree. This way to help is very good because the necessities here are not very expensive.
+annwn:/opt> pwd
+/opt
+annwn:/opt> ls
+aleph/  coin/  intel/  mpich/
+annwn:/opt> bpsh 0 pwd
+/opt
+annwn:/opt> bpsh 0 ls 
+ls: reading directory .: Invalid argument
+annwn:~> bpsh 0 ls /opt/*
+ls: reading directory /opt/aleph: Invalid argument
+/opt/aleph:
+ls: reading directory /opt/coin: Invalid argument
 
-I hope to hear from you very soon and I pray that you will be able to help us to survive this winter. I also hope very much that this hard situation will get better very soon in our country.
+/opt/coin:
+ls: reading directory /opt/intel: Invalid argument
 
-I wish you a Merry Christmas and a Happy New Year 2004. I'm sending to you many thanks in advance for your kind understanding. Please excuse me, once more, for any inconvience I could cause you by sending this message.
+/opt/intel:
+ls: 
+/opt/mpich:
+reading directory /opt/mpich: Invalid argument
 
-God Bless You
+annwn:~> bpsh 0 strace ls /opt
+...
+stat64("/opt", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+open("/opt", O_RDONLY|O_NONBLOCK|O_LARGEFILE|O_DIRECTORY) = 3
+fstat64(3, {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+fcntl64(3, F_SETFD, FD_CLOEXEC)         = 0
+getdents64(3, 0x8060360, 8192)          = -1 EINVAL (Invalid argument)
+close(3)                                = 0
+...
+annwn:/opt> bpsh 0 strace ls
+...
+open(".", O_RDONLY|O_NONBLOCK|O_LARGEFILE|O_DIRECTORY) = 3
+fstat64(3, {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+fcntl64(3, F_SETFD, FD_CLOEXEC)         = 0
+getdents64(3, 0x8060350, 8192)          = -1 EINVAL (Invalid argument)
+close(3)                                = 0
+...
 
-Valentin and my mother Elena.
-Kaluga. Russia.
- 
+It looks like readdir fails (getdents).
+Uh ? 
+I use a custom kernel, still have to try with plain -rc3 + bproc. But
+do you have any ideas about what is going/what am I doing wrong ? This
+all worked some time ago with my hacked -jam kernels.
+
+TIA for you attention.
+
+-- 
+J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
+werewolf!able!es                         \           It's better when it's free
+Mandrake Linux release 10.0 (Cooker) for i586
+Linux 2.4.23-rc3-jam1 (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-4mdk))

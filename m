@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265799AbUH0OyY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265805AbUH0Oyl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265799AbUH0OyY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 10:54:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265800AbUH0OyY
+	id S265805AbUH0Oyl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 10:54:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265808AbUH0Oyk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 10:54:24 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:32740 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265799AbUH0OyW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 10:54:22 -0400
-Date: Fri, 27 Aug 2004 16:54:16 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org, gregkh@us.ibm.com
-Subject: Re: [2.4 patch][1/6] ibmphp_res.c: fix gcc 3.4 compilation
-Message-ID: <20040827145416.GP12772@fs.tum.de>
-References: <20040826195133.GB12772@fs.tum.de> <20040826195455.GC12772@fs.tum.de> <20040827120330.GD32707@logos.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040827120330.GD32707@logos.cnet>
-User-Agent: Mutt/1.5.6i
+	Fri, 27 Aug 2004 10:54:40 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:1152 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265805AbUH0Oyh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 10:54:37 -0400
+Date: Fri, 27 Aug 2004 10:50:23 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Roger Luethi <rl@hellgate.ch>
+cc: linux-kernel@vger.kernel.org,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, Paul Jackson <pj@sgi.com>,
+       Chris Wright <chrisw@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: [0/2][ANNOUNCE] nproc: netlink access to /proc information
+In-Reply-To: <20040827122412.GA20052@k3.hellgate.ch>
+Message-ID: <Xine.LNX.4.44.0408271043130.7393-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 27, 2004 at 09:03:31AM -0300, Marcelo Tosatti wrote:
-> > 
-> > The patch below fixes this issue by uninlining find_bus_wprev (as done 
-> > in 2.6).
-> 
-> Just out of curiosity, if you move the inlined function up to the beginning of the 
-> file (before any calls to it), and remove the declaration (at 45), does it
-> stop complaining?
+On Fri, 27 Aug 2004, Roger Luethi wrote:
 
-Yes it does.
+> At the moment, the kernel sends a separate netlink message for every
+> process.
 
-For all these inline errors you can choose between uninlining and 
-reordering the file.
+You should look at the way rtnetlink dumps large amounts of data to  
+userspace.
 
-In this case I did choose unlinlining because find_bus_wprev is 
-uninlined in 2.6 .
+> I haven't implemented any form of access control. One possibility is
+> to use some of the reserved bits in the ID field to indicate access
+> restrictions to both kernel and user space (e.g. everyone, process owner,
+> root) 
 
-cu
-Adrian
+So, user tools would all need to be privileged?  That sounds problematic.
 
+> and add some LSM hook for those needing fine-grained control.
+
+Control over the user request, or what the kernel returns?  If the latter, 
+LSM is not really a filtering API.
+
+
+- James
 -- 
+James Morris
+<jmorris@redhat.com>
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

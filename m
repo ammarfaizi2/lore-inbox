@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135580AbREHDSy>; Mon, 7 May 2001 23:18:54 -0400
+	id <S135953AbREHDTO>; Mon, 7 May 2001 23:19:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135953AbREHDSp>; Mon, 7 May 2001 23:18:45 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:32940 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S135580AbREHDSh>;
-	Mon, 7 May 2001 23:18:37 -0400
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15095.25990.868966.309506@pizda.ninka.net>
-Date: Mon, 7 May 2001 20:18:30 -0700 (PDT)
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+	id <S136047AbREHDTE>; Mon, 7 May 2001 23:19:04 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:14863 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S135953AbREHDSz>; Mon, 7 May 2001 23:18:55 -0400
+Date: Mon, 7 May 2001 22:40:24 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
 Subject: Re: page_launder() bug
-In-Reply-To: <Pine.LNX.4.21.0105072231470.7685-100000@freak.distro.conectiva>
-In-Reply-To: <15095.24153.737361.998494@pizda.ninka.net>
-	<Pine.LNX.4.21.0105072231470.7685-100000@freak.distro.conectiva>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+In-Reply-To: <Pine.LNX.4.21.0105071929190.8237-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0105072234580.7685-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Marcelo Tosatti writes:
- > I just thought about this case:
- >   
- > We find a dead swap cache page, so dead_swap_page goes to 1.
- > 
- > We call swap_writepage(), but in the meantime the swapin readahead code   
- > got a reference on the swap map for the page.
- > 
- > We write the page out because "(swap_count(page) > 1)", and we may
- > not have __GFP_IO set in the gfp_mask. Boom.
 
-Hmmm, can't this happen without my patch?
+On Mon, 7 May 2001, Linus Torvalds wrote:
 
-Nothing stops people from getting references to the page
-between the "Page is or was in use?" test and the line
-which does "TryLockPage(page)".
+> > To divert people's brains to what the intent was :-)
+> 
+> I can see the intent.
+> 
+> I can also see that the code doesn't match up to the intent.
+> 
+> I call that a bug. You don't. Fine.
+> 
+> But that code isn't coming anywhere _close_ to my tree until the two
+> match. And I stand by my assertion that it should be reverted from Alans
+> tree too.
 
-Later,
-David S. Miller
-davem@redhat.com
+I was wrong. The patch is indeed buggy because of the __GFP_IO thing.
+
+So what about moving the check for a dead swap cache page from
+swap_writepage() to page_launder() (+ PageSwapCache() check) just before
+the "if (!launder_loop)" ? 
+
+Yes, its ugly special casing. Any other suggestion ? 
 

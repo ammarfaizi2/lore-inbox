@@ -1,70 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287563AbSAFCkP>; Sat, 5 Jan 2002 21:40:15 -0500
+	id <S287607AbSAFDC2>; Sat, 5 Jan 2002 22:02:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287612AbSAFCkF>; Sat, 5 Jan 2002 21:40:05 -0500
-Received: from codepoet.org ([166.70.14.212]:17681 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S287590AbSAFCjw>;
-	Sat, 5 Jan 2002 21:39:52 -0500
-Date: Sat, 5 Jan 2002 19:39:53 -0700
-From: Erik Andersen <andersen@codepoet.org>
-To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Binutils and the Linux kernel source finder
-Message-ID: <20020106023953.GA1728@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	"Dr. David Alan Gilbert" <gilbertd@treblig.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020105180237.GF485@gallifrey>
-Mime-Version: 1.0
+	id <S287612AbSAFDCJ>; Sat, 5 Jan 2002 22:02:09 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:61454
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S287607AbSAFDB7>; Sat, 5 Jan 2002 22:01:59 -0500
+Date: Sat, 5 Jan 2002 18:58:38 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: PDC20269 support in 2.2?
+In-Reply-To: <Pine.LNX.4.30.0201052018520.10735-100000@mustard.heime.net>
+Message-ID: <Pine.LNX.4.10.10201051849540.24436-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020105180237.GF485@gallifrey>
-User-Agent: Mutt/1.3.24i
-X-Operating-System: Linux 2.4.16-rmk1, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat Jan 05, 2002 at 06:02:37PM +0000, Dr. David Alan Gilbert wrote:
-> Hi,
->   I am the author of the 'Linux kernel source finder' web page that
-> lists for each architecture the place to get appropriate Linux kernel
-> patches - see:
->   http://www.treblig.org/Linux_kernel_source_finder.html
+
+Roy,
+
+The day somebody pays for it and the check clears the bank or it is
+requested by the 2.2.X kernel maintainer for inclusion.  Since none of the
+distros are willing to fund the development of the driver, it is now
+market driven development.  The companys maintain the chipset code, they
+pay for updates for the new hardware, somebody who has the latest
+hardware effected does a gpl good deed, and when it is convienent to do
+busy work for kicks who knows.  Since I recently totalled my Porsche and
+technically should have died, I have more concerns than doing busy work
+for something that does not produce an income (or a replacement toy car).
+I suspect this had much to do with my irrational behavor lately.  One
+should note I have no excuse for the flames I blasted Jens with, nor any
+explaination.
+
+
+Regards,
+
+Andre Hedrick
+Linux ATA Development
+
+On Sat, 5 Jan 2002, Roy Sigurd Karlsbakk wrote:
+
+> hi
 > 
->   I wish to extend this to include pointers to the best/latest/most
-> appropriate binutils for each architecture.  I've put links in for x86,
-> Alpha and MIPS to H.J.Lu's ftp site, since he tests for those 3
-> platforms prior to release.
+> I saw a previous thread about this, but I can't work. It's not mentioned
+> in the latest patch (ide.2.2.19.05042001.patch.gz) either.
 > 
->   I'd appreciate recommendations and comments from those using binutils
-> on Linux for other platforms, with links to ftp, cvs or web pages
-> describing the solutions for those architectures.
+> Does anyone know if or when this will be back ported to 2.2?
+> 
+> roy
+> 
+> --
+> Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+> 
+> Computers are like air conditioners.
+> They stop working when you open Windows.
+> 
 
-Note that uClinux (not ucLinux as on your page) does not natively
-run the ELF binary file format, but uses what is called the
-"Flat" binary format.  It is structurally much simpler (and
-therefore smaller) then ELF, but more importantly, this format
-helps us avoid needing to always use PIC and/or do tons of
-relocations.
-
-We use an ELF toolchain to create binaries, except the toolchain
-is modified such that ld is actually a script which first runs
-the real 'ld' to produce an ELF file and then also runs
-'elf2flt' to create the flat executable.  
-
-The uClinux toolchains for ARM and m68k (which are the two most
-commonly used architectures) are available from 
-    http://www.uclinux.org/pub/uClinux/m68k-elf-tools/
-
-Links to toolchains for other arches and _lots_ of help
-information can be found at 
-    http://home.at/uclinux/
-
- -Erik
-
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--

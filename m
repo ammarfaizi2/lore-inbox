@@ -1,48 +1,115 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291061AbSBLUG1>; Tue, 12 Feb 2002 15:06:27 -0500
+	id <S291084AbSBLULz>; Tue, 12 Feb 2002 15:11:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291084AbSBLUGP>; Tue, 12 Feb 2002 15:06:15 -0500
-Received: from codepoet.org ([166.70.14.212]:61406 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S291061AbSBLUF7>;
-	Tue, 12 Feb 2002 15:05:59 -0500
-Date: Tue, 12 Feb 2002 13:05:58 -0700
-From: Erik Andersen <andersen@codepoet.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.18-pre9-ac1
-Message-ID: <20020212200558.GA6002@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Jens Axboe <axboe@suse.de>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020212092658.Z729@suse.de> <E16ae1e-0001ws-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E16ae1e-0001ws-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.25i
-X-Operating-System: Linux 2.4.17-rmk5, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+	id <S291162AbSBLULp>; Tue, 12 Feb 2002 15:11:45 -0500
+Received: from mail.libertysurf.net ([213.36.80.91]:10022 "EHLO
+	mail.libertysurf.net") by vger.kernel.org with ESMTP
+	id <S291084AbSBLULa> convert rfc822-to-8bit; Tue, 12 Feb 2002 15:11:30 -0500
+Date: Mon, 11 Feb 2002 22:10:44 +0100 (CET)
+From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
+X-X-Sender: <groudier@gerard>
+To: Daniel Stodden <stodden@in.tum.de>
+cc: "David S. Miller" <davem@redhat.com>, <alan@lxorguk.ukuu.org.uk>,
+        <zaitcev@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: pci_pool reap?
+In-Reply-To: <1013528224.2240.245.camel@bitch>
+Message-ID: <20020211220922.I1867-100000@gerard>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue Feb 12, 2002 at 02:35:18PM +0000, Alan Cox wrote:
-> > > > I want to find out why it was done first and then test it. Leaving it out
-> > > > will ensure it bugs me until I test it
-> > > 
-> > > If you leave it out, you surely want to make sure that the other request
-> > > init and re-init paths agree on the clustering for MO devices. Because
-> > > they don't.
-> 
-> No - I want to run a test set with an M/O drive before and after the change
-> and see what it shows in real life. I suspect nothing much.
 
-I was able to hang the kernel several times while talking 
-to my MO drive prior to the fix...
+So, everything is ok. :-)
 
- -Erik
+  Gérard.
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+On 12 Feb 2002, Daniel Stodden wrote:
+
+> hi.
+>
+> On Tue, 2002-02-12 at 03:44, David S. Miller wrote:
+> >    From: Gérard Roudier <groudier@free.fr>
+> >    Date: Sun, 10 Feb 2002 21:20:05 +0100 (CET)
+> >
+> >    On Mon, 11 Feb 2002, Alan Cox wrote:
+> >
+> >    > This function may not be called in interrupt context.
+> >
+> >    Such limitation looks poor implementation to me.
+> >
+> > I agree with you Gerard, and probably nobody truly even requires
+> > this limitation.  I do plan to remove it after I've done a thorough
+> > investigation of the platform implementations.
+>
+> ok, i've looked through most of 2.5.4 now.
+> results look like this:
+>
+> 			pci_alloc_consistent()	pci_free_consistent()
+> i386:
+> 		[1]	ok			ok
+>
+> ppc:
+> 		[1]	ok			ok
+>
+> mips:
+> 		[1]	ok			ok
+>
+> sh:
+> 		[1]	ok			ok
+>   stm:		[1]	ok			ok
+>   dc:		[3]	ok			ok
+>
+> mips64:
+>   ip32:		[1]	ok			ok
+>   ip27:		[1]	ok			ok
+>
+> sparc:
+> 		[1]	GFP_KERNEL		ok
+> sparc64:
+> 		[2]	ok			ok
+>
+> arm:		[4]	BUG()/GFP_KERNEL	BUG()
+>
+> alpha:
+> 		[2]	ok			ok
+>
+> ia64:		[5]	ok?			ok?
+>
+>
+> [1]
+> gfp() + __pa() (or similar)
+>
+> [2]
+> gfp() + IOMMU
+>
+> [3]
+> dummy, offsets only
+>
+> [4]
+> ARM does GFP_KERNEL, and then __ioremaps the underlying pages.
+> ugh. is that the only way to get the area coherent?
+> furthermore i don't see why this could not be interrupt safe.
+>
+> [5]
+> i don't understand ia64. but it looks somewhat atomic :)
+>
+> well, assuming i didn't oversee anything, there are indeed few reasons
+> left why the whole _consistent() machinery shouldn't be callable from
+> interrupts.
+>
+> back to my original question: what were the last trees with shrinking
+> pools? would the original version still work or any redesigns needed?
+>
+>
+> regards,
+> dns
+>
+> --
+> ___________________________________________________________________________
+>  mailto:stodden@in.tum.de
+>
+>
+

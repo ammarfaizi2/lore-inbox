@@ -1,120 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261714AbUJ1QTf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261722AbUJ1QXm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261714AbUJ1QTf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 12:19:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261762AbUJ1QTe
+	id S261722AbUJ1QXm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 12:23:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbUJ1QXZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 12:19:34 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:30463 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261714AbUJ1QOs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 12:14:48 -0400
-Message-ID: <41811AF2.2000503@comcast.net>
-Date: Thu, 28 Oct 2004 12:14:42 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20041022)
-X-Accept-Language: en-us, en
+	Thu, 28 Oct 2004 12:23:25 -0400
+Received: from ms002msg.fastwebnet.it ([213.140.2.52]:30945 "EHLO
+	ms002msg.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S261722AbUJ1QVs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 12:21:48 -0400
+From: Alessandro Amici <lists@b-open-solutions.it>
+Organization: B-Open Solutions srl
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: massive cross-builds without too much PITA
+Date: Thu, 28 Oct 2004 18:21:22 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+References: <20041028054833.GP24336@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20041028054833.GP24336@parcelfarce.linux.theplanet.co.uk>
 MIME-Version: 1.0
-To: michael@optusnet.com.au
-CC: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>,
-       Ed Tomlinson <edt@aei.ca>, Massimo Cetra <mcetra@navynet.it>,
-       "'Chuck Ebbert'" <76306.1226@compuserve.com>,
-       "'Bill Davidsen'" <davidsen@tmr.com>,
-       "'William Lee Irwin III'" <wli@holomorphy.com>,
-       "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: Re: My thoughts on the "new development model"
-References: <00c201c4bb4c$56d1b8b0$e60a0a0a@guendalin>	<200410261719.56474.edt@aei.ca>	<Pine.LNX.4.61.0410270402340.20284@student.dei.uc.pt>	<417F315A.9060906@comcast.net> <m1sm7znxul.fsf@mo.optusnet.com.au>
-In-Reply-To: <m1sm7znxul.fsf@mo.optusnet.com.au>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200410281821.22486.lists@b-open-solutions.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
+Al,
 
+I happen to be learning how to cross-compile on Debian right now, so i can 
+testify that building the cross toolchain 'The Debian Way' is even easier 
+than you describe ;).
 
-michael@optusnet.com.au wrote:
-| John Richard Moser <nigelenki@comcast.net> writes:
-| [ .. lots of stuff .. ]
-|
-|>Let's make 2.7 what 2.6 is now (a relatively stable kernel that gets
-|>relatively stable feature enhancements continuously), rather than what
-|>2.5 was (a hell of a lot of patches and then a hell of a lot of
-|>debugging), and make 2.6 more restrictive than 2.4 in that it should be
-|>strictly bugfixes (including security bugs) and no backported drivers or
-|>features.
-|
-|
-| There seems to be a lot of strange notions on this concept of 'stable'.
-| The only thing that makes a kernel 'stable' is time. Not endless
-| bugfixes. Just time. The idea of stable software is software that not
-| going to give you any suprises, software that you can trust.
-|
+On Thursday 28 October 2004 07:48, Al Viro wrote:
+> Building cross-toolchain is surprisingly easy these days; I'm using debian
+> on build boxen and cross-compilers are not hard to do:
+>  apt-get build-dep binutils
+>  apt-get build-dep gcc-3.3
+>  apt-get install dpkg-cross
+>  apt-get source binutils
+>  get binutils-cross-... patch from bugs.debian.org/231707
+>  cd binutils-...
+>  apply patch
+>  TARGET=<target>-linux fakeroot debian/rules binary-cross
+>  cd ..
+>  dpkg -i binutils-<target>-....deb
+>  got linux-kernel-headers, libc6, libc6-dev and libdb1-compat for target
+>  dpkg-cross -a <target> -b on all of those
+>  dpkg -i resulting packages
+>  apt-get source gcc-3.3
+>  cd gcc-3.3-...
+>  GCC_TARGET=<gcc_target> debian/rules control
+>  GCC_TARGET=<gcc_target> debian/rules build
+>  GCC_TARGET=<gcc_target> fakeroot debian/rules binary
+>  cd ..
+>  dpkg -i resulting packages.
+> One note: <target> here is debian platform name (e.g. ppc), but
+> <gcc_target> is *gcc* idea of what that bugger is called (e.g. powerpc).
+>
+> IIRC, Nikita Youshchenko had pre-built debs somewhere, but they were not
+> for the host I'm using (amd64/sid).
 
-Right.  Bugfixing the "Stable" branch ONLY will make sure it does not
-surprise you with sudden new features (which may surprise you by. . .
-breaking your own patches!).
+The package toolchain-source (together with dpkg-cross) makes the process even 
+more automatic. Detailed instructions are at:
+http://people.debian.org/~debacle/cross.html
 
-| That's NOT the same as bug free software. For a start, there's no such
-| thing.
+The short story is:
+# apt-get toolchain-source dpkg-cross autoconf2.13 fakeroot
+# tpkg-install-libc <terget>-linux # grabs, converts and install the headers
+$ tpkg-make <target>-linux  # no need to patch anything
+$ cd binutils...
+$ debuild -us -uc    # no magic env variables
+# dpkg -i ../binutils...deb
+$ cd ../gcc...
+$ debuild -us -uc
+# dpkg -i ../gcc...deb
 
-5-50 per KLOC.
+If I'm not mistaken, that's all.
 
-| For another, many bugs are perfectly acceptable in a production
-| environment as long as they're not impacting. (The linux kernel is a
-| very large piece of work. Few installations would use even 20% of the
-| total kernel functionality).
-|
-| If you want a stable kernel version, pick one (almost any one will
-| do). Test the hell of out it with your application(s). If it fails,
-| fix the bug, or pick a different version. rinse, repeat.
-|
-| Now you've got a kernel that tests clean with your app. DON'T
-| CHANGE IT!!
-|
-| Ta-Dah! You've got a stable kernel.
-|
+> In practical terms it means no ppc64.
 
-That if I keep my realtime patches or my security enhancements or my new
-drivers or my new filesystems on and don't continuously upgrade will
-cause me to stagnate and be left behind and ignored.
+Sadly right! guess which platform I needed to cross compile :-/
 
-I've already heard rumors (very few, and they've been squashed) of
-GrSecurity being abandoned.  The authors of both PaX and Gr are both
-active, they're just spinning on 2.6.7.
-
-Do you see the scenario occuring here?  Their project is obviously
-inferior in many peoples' minds because it's not the latest
-hot-off-the-LKML 2.6 kernel.  Indeed, many security fixes in (soon to
-be) 2.6.10 aren't in 2.6.7, which could provide known ways to easily
-slip straight past PaX and Gr (I haven't done my research, but this is
-not a hollow scenario).
-
-| Now why would you change it? The only possible reasons
-| are that your testing was terrible and you missed a bug,
-| in which case you can go back to step 1, or that you
-| want a new feature. In which case you can go back to
-| step 1.
-|
-| That wasn't too hard, was it. Even better, you didn't see
-| anything in there about 2.6 v 2.7 or other such fluff.
-|
-| Michael.
-|
-
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBgRrxhDd4aOud5P8RArUKAJ97tfBLjXCGYQx1DiR0Iul0mwa2FgCfXZMS
-vi6YYB8ik6IWO441jZPX5oI=
-=YvZq
------END PGP SIGNATURE-----
+Cheers,
+Alessandro

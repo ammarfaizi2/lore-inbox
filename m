@@ -1,69 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263714AbUHBVSv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263733AbUHBV22@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263714AbUHBVSv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 17:18:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263725AbUHBVSv
+	id S263733AbUHBV22 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 17:28:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263735AbUHBV22
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 17:18:51 -0400
-Received: from host4-67.pool80117.interbusiness.it ([80.117.67.4]:3735 "EHLO
-	dedasys.com") by vger.kernel.org with ESMTP id S263714AbUHBVSs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 17:18:48 -0400
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] speedy boot from usb devices
-References: <87fz79xk5q.fsf@dedasys.com> <410E27DC.4090009@grupopie.com>
-From: davidw@dedasys.com (David N. Welton)
-Date: 02 Aug 2004 23:17:00 +0200
-Message-ID: <876581s0j7.fsf@dedasys.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Mon, 2 Aug 2004 17:28:28 -0400
+Received: from mail8.fw-bc.sony.com ([160.33.98.75]:18818 "EHLO
+	mail8.fw-bc.sony.com") by vger.kernel.org with ESMTP
+	id S263733AbUHBV2Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 17:28:25 -0400
+Message-ID: <410EB30F.3060001@am.sony.com>
+Date: Mon, 02 Aug 2004 14:33:03 -0700
+From: Tim Bird <tim.bird@am.sony.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Alan Cox <alan@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Initial bits to help pull jiffies out of drivers
+References: <20040727195939.GA20712@devserv.devel.redhat.com>
+In-Reply-To: <20040727195939.GA20712@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paulo Marques <pmarques@grupopie.com> writes:
+Alan Cox wrote:
+> This is really for comment, the basic idea is to add some relative
+> timer functionality. This gives us timeout objects as well as pulling
+> jiffies use into one place in the timer code.
 
-> David N. Welton wrote:
+This is very welcome.  Here are some random thoughts:
 
-> >         Works like so: whenever a block device comes on line, it
-> >         signals this fact to a wait queue, so that the init
-> >         process can stop and wait for slow devices, in particular
-> >         things such as USB storage devices, which are much slower
-> >         than IDE devices.  The init process checks the list of
-> >         available devices and compares it with the desired root
-> >         device, and if there is a match, proceeds with the
-> >         initialization process, secure in the knowledge that the
-> >         device in question has been brought up.  This is useful if
-> >         one wants to boot quickly from a USB storage device
-> >         without a trimmed-down kernel, and without going through
-> >         the whole initrd slog.
+It looks like there are a few "jiffy-usage" idioms that this patch
+deals with:
+  1. use of jiffies for timing debug output, in a printk
+  2. checking to see if a time period has elapsed or not
+  3. conversion from absolute time units to relative time units
+  4. conversion from polled timeout to sleep (msleep)
 
-> I find this to be very useful. I always found the "sleep for a while
-> until the device we want appears" approach very cumbersome.
+Your solution to 1) is to just remove the printk output:
+ > -		printk("serdatr = %d (jiff=%lu)...", lsr, jiffies);
+ > +		printk("serdatr = %d ...", lsr);
 
-Glad to hear someone likes it.
+I have some code that allows one to configure the kernel so every
+printk includes timing data (based on sched_clock().  I trim to
+microsecond resolution on x86).
 
-> However, after looking at your patch, it seems that having a
-> get_blkdevs() function that alloc's an array of strings, and return
-> it to a function that only compares the strings against the name it
-> is looking for and drops the array altogether, is a little overkill.
+Would it be worth adding a feature like this to compensate
+for removing the debug timing information?
 
-> Why not have a simple blkdev_exists(char *name) function in genhd.c,
-> call it directly, and drop the match_root_name() function
-> completely?
+Alternatively, I could cook up a macro using sched_clock() to provide
+a substitute value to use to print timing info, in cases where it
+was desirable to preserve it.
 
-Sure, that's probably better.  Maybe "blkdev_is_online"?  I'll see if
-I can do it tommorow.
+----
+I noticed that some comments in the original code
+are wrong based on an assumed value for HZ:
 
-I'm also a bit dubious of having the wait queue floating around as a
-global, but don't know the kernel well enough to find it a better
-home.
+-static void moxadelay(int tick)
+-{
+-	unsigned long st, et;
+-
+-	st = jiffies;
+-	et = st + tick;
+-	while (time_before(jiffies, et));
+-}
+...
+ > -				moxadelay(1);	/* delay 10 ms */
+ > +				msleep(10);	/* delay 10 ms */
 
-Thanks!
--- 
-David N. Welton
-     Personal: http://www.dedasys.com/davidw/
-Free Software: http://www.dedasys.com/freesoftware/
-   Apache Tcl: http://tcl.apache.org/
-       Photos: http://www.dedasys.com/photos/
+So reworking the code may give a nice comment cleanup, or possibly
+clean up the code to actually delay the amount intended.
+This is a nice side effect of this work.
+
+=============================
+Tim Bird
+Architecture Group Co-Chair, CE Linux Forum
+Senior Staff Engineer, Sony Electronics
+E-mail: tim.bird@am.sony.com
+=============================

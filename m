@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269718AbRIDWyM>; Tue, 4 Sep 2001 18:54:12 -0400
+	id <S269777AbRIDWzc>; Tue, 4 Sep 2001 18:55:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269777AbRIDWyC>; Tue, 4 Sep 2001 18:54:02 -0400
-Received: from mx1.afara.com ([63.113.218.20]:61913 "EHLO afara-gw.afara.com")
-	by vger.kernel.org with ESMTP id <S269718AbRIDWxt>;
-	Tue, 4 Sep 2001 18:53:49 -0400
-Subject: Re: Applying multiple patches
-From: Thomas Duffy <Thomas.Duffy.99@alumni.brown.edu>
-To: "Elgar, Jeremy" <JElgar@ndsuk.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <F128989C2E99D4119C110002A507409801555FD8@topper.hrow.ndsuk.com>
-In-Reply-To: <F128989C2E99D4119C110002A507409801555FD8@topper.hrow.ndsuk.com>
-Content-Type: text/plain
+	id <S269778AbRIDWzW>; Tue, 4 Sep 2001 18:55:22 -0400
+Received: from faui11.informatik.uni-erlangen.de ([131.188.31.2]:35059 "EHLO
+	faui11.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id <S269777AbRIDWzO>; Tue, 4 Sep 2001 18:55:14 -0400
+From: Ulrich Weigand <weigand@immd1.informatik.uni-erlangen.de>
+Message-Id: <200109042255.AAA03096@faui11.informatik.uni-erlangen.de>
+Subject: Re: [SOLVED + PATCH]: documented Oops running big-endian reiserfs on parisc architecture
+To: jeffm@suse.com, ak@suse.de, linux-kernel@vger.kernel.org
+Date: Wed, 5 Sep 2001 00:55:24 +0200 (MET DST)
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.12.99+cvs.2001.08.21.23.41 (Preview Release)
-Date: 04 Sep 2001 15:53:52 -0700
-Message-Id: <999644032.17558.20.camel@tduffy-lnx.afara.com>
-Mime-Version: 1.0
-X-OriginalArrivalTime: 04 Sep 2001 22:49:47.0343 (UTC) FILETIME=[E5B58DF0:01C13593]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2001-09-04 at 06:07, Elgar, Jeremy wrote:
 
-> The problem I have is thus,  I want to apply patch-2.4.9-ac6 (I guess might
-> as well do ac7 now) and the xfs patch
-> but both are from a vanilla 2-4-9.
+Jeff Mahoney wrote:
 
-I would suggest not trying this out as your first patch conflict fix
-attempt.  Both xfs and ac are large and touch a bunch of core linux
-files.  Getting xfs to apply on top of ac requires an intimate knowledge
-of the xfs (and some ac) code.  If you are interested in trying out, see
-how it was done for the 2.4.3-SGI_XFS_1.0.1 rpm that SGI put out for
-xfs-enabled redhat 7.1.
+> Are the S/390 asm/unaligned.h versions broken, or is the ReiserFS code doing 
+> something not planned for? It's a 16-bit member, at a 16-bit alignment 
+> in the structure. The structure itself need not be aligned in any 
+> particular manner as it is read directly from disk, and is a packed structure.
 
-If you download the src.rpm from oss.sgi.com/projects/xfs, you will find
-an xfs patch that applies on an ac patch.  Now, both xfs and ac have
-changed a bunch from the 2.4.3 days, but this will give you a good start
-at figuring out what was done to get the two to play nice together.
+One other point I overlooked before: using set_bit etc on a *16-bit* 
+member is fundamentally broken on S/390 anyway (and I far as I know all 
+other bigendian architectures as well).  set_bit assumes to operate on
+a long (or an array of longs); if you use set_bit to set bit number 0
+in the bitfield starting at address X, it will actually modify the byte 
+located at address X+3 (or X+7 on 64-bit bigendian machines), because
+this is where the bit with value 2^0 is located in a long.
 
--tduffy
+If your bitfield is only 2 bytes long, this will obviously clobber
+random memory after the field ...  (Note that the _unaligned variants
+do not fix this problem, they will just cause it to clobber memory
+*before* the field instead, if I interpret them correctly.)
 
+Bye,
+Ulrich
 
+-- 
+  Dr. Ulrich Weigand
+  weigand@informatik.uni-erlangen.de

@@ -1,54 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264542AbUFQAYU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264578AbUFQA1v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264542AbUFQAYU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 20:24:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264774AbUFQAYU
+	id S264578AbUFQA1v (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 20:27:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264639AbUFQA1u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 20:24:20 -0400
-Received: from motgate7.mot.com ([129.188.136.7]:13966 "EHLO motgate7.mot.com")
-	by vger.kernel.org with ESMTP id S264542AbUFQAYS (ORCPT
+	Wed, 16 Jun 2004 20:27:50 -0400
+Received: from cantor.suse.de ([195.135.220.2]:45954 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264578AbUFQA1t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 20:24:18 -0400
-In-Reply-To: <16584.20584.603036.208206@cargo.ozlabs.ibm.com>
-References: <E6751074-B98D-11D8-B63C-000393DBC2E8@freescale.com> <16584.20584.603036.208206@cargo.ozlabs.ibm.com>
-Mime-Version: 1.0 (Apple Message framework v618)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <A84BD37E-BFF4-11D8-AF45-000393DBC2E8@freescale.com>
+	Wed, 16 Jun 2004 20:27:49 -0400
+Date: Thu, 17 Jun 2004 02:23:00 +0200
+From: Andi Kleen <ak@suse.de>
+To: Tim Hockin <thockin@hockin.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Opteron fatal machine check during PCI probe
+Message-Id: <20040617022300.6ba744bb.ak@suse.de>
+In-Reply-To: <20040617000602.GA7435@hockin.org>
+References: <20040617000602.GA7435@hockin.org>
+X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Cc: Paul Mackerras <paulus@samba.org>,
-       linuxppc-embedded <linuxppc-embedded@lists.linuxppc.org>,
-       linux-kernel@vger.kernel.org
-From: Kumar Gala <kumar.gala@freescale.com>
-Subject: Re: Support for e500 and 85xx in 2.6
-Date: Wed, 16 Jun 2004 19:24:12 -0500
-To: Andrew Morton <akpm@osdl.org>
-X-Mailer: Apple Mail (2.618)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+On Wed, 16 Jun 2004 17:06:02 -0700
+Tim Hockin <thockin@hockin.org> wrote:
 
-Now that 2.6.7 is out I've pushed the patch to 
-bk://ppc.bkbits.net/for-linus-ppc.  If you can pull it into linux-2.5 
-that would be great.
+> Hey all,
+> 
+> I have a couple dual Opteron boxen that consistently gets an MCE during
+> PCI probing. This is from linux-2.6.6, but the EXACT same scenario happens
+> on a 2.4.x kernel.
 
-Thanks
+> The MCE shows that the error is an IO read, with the address 0xfdfc000cfe.
+> The RIP points to pci_conf1_read(), when we try to inw() from the PCI data
+> register.
 
-- Kumar
+Is it an master abort (0x100 set in MC4_STATUS) ?
+If yes it's an BIOS issue, the BIOS are supposed to disable that one.
 
-On Jun 10, 2004, at 7:13 AM, Paul Mackerras wrote:
+> This is called during the PCI probing, and stops the kernel dead in it's
+> tracks.  The disassembly of the surrounding code is:
+> 
+> ffffffff802822c5:	89 ca                	mov    %ecx,%edx
+> ffffffff802822c7:	83 e2 02             	and    $0x2,%edx
+> ffffffff802822ca:	66 81 c2 fc 0c       	add    $0xcfc,%dx
+> ffffffff802822cf:	66 ed                	in     (%dx),%ax
+> 
+> This all seems legit to me.
+> 
+> What is interesting is that the address 0xfdfc000cfe is correct in the
+> low-order 16 bits.  The extra 0xfdfc000000 is what is puzzling to me, or
+> maybe it's a red herring.
 
-> Kumar Gala writes:
->
->> Once Paul ok's the patches can you please apply them to the 2.6 tree.
->> I've included bk patches because of the addition of several new files.
->> Also, please consider me maintainer of the e500/85xx PPC subarch
->> (unless Paul has any objections), similar to Matt Porter for 4xx PPC.
->
-> I'm OK with the patch but I guess it is post-2.6.7 material now.
->
-> I'll try to remember to do a patch for MAINTAINERS for Kumar and Matt.
->
-> Regards,
-> Paul.
+It is. in only uses 16 bits of its operand.
 
+
+-Andi

@@ -1,63 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264674AbSJTXuc>; Sun, 20 Oct 2002 19:50:32 -0400
+	id <S264677AbSJTXw5>; Sun, 20 Oct 2002 19:52:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264677AbSJTXuc>; Sun, 20 Oct 2002 19:50:32 -0400
-Received: from dgesmtp01.wcom.com ([199.249.16.16]:17652 "EHLO
-	dgesmtp01.wcom.com") by vger.kernel.org with ESMTP
-	id <S264674AbSJTXub>; Sun, 20 Oct 2002 19:50:31 -0400
-Date: Sun, 20 Oct 2002 18:53:55 -0500
-From: steve roemen <steve.roemen@wcom.com>
-Subject: RE: 2.5.44 PIIX4 ide oops on boot
-In-reply-to: <Pine.LNX.4.44.0210201757470.860-100000@dad.molina>
-To: "'Thomas Molina'" <tmolina@cox.net>
-Cc: linux-kernel@vger.kernel.org
-Reply-to: steve.roemen@wcom.com
-Message-id: <005901c27893$f36cbab0$e70a7aa5@WSXA7NCC106.wcomnet.com>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V4.72.3719.2500
-X-Mailer: Microsoft Outlook 8.5, Build 4.71.2173.0
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7bit
-Importance: Normal
-X-Priority: 3 (Normal)
-X-MSMail-priority: Normal
+	id <S264678AbSJTXw5>; Sun, 20 Oct 2002 19:52:57 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:38956 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S264677AbSJTXw4>; Sun, 20 Oct 2002 19:52:56 -0400
+To: Patrick Mochel <mochel@osdl.org>
+Cc: "Adam J. Richter" <adam@yggdrasil.com>, <linux-kernel@vger.kernel.org>,
+       <eblade@blackmagik.dynup.net>, Russell King <rmk@arm.linux.org.uk>
+Subject: Re: Patch: linux-2.5.42/kernel/sys.c - warm reboot should not suspend devices
+References: <Pine.LNX.4.44.0210201330380.963-100000@cherise.pdx.osdl.net>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 20 Oct 2002 17:57:12 -0600
+In-Reply-To: <Pine.LNX.4.44.0210201330380.963-100000@cherise.pdx.osdl.net>
+Message-ID: <m18z0swtnr.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-thanks for the tip on ide-cd, but i get a similar oops.
+Patrick Mochel <mochel@osdl.org> writes:
 
--steve
-
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Thomas Molina
-Sent: Sunday, October 20, 2002 5:59 PM
-To: steve roemen
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.44 PIIX4 ide oops on boot
-
-
-On Sun, 20 Oct 2002, steve roemen wrote:
-
+> > Mostly I want a comment from Patrick Mochel why he made the change,
+> > and roughly what he was thinking.  So I have a good idea about which
+> > code I need to dig into and send patches to fix.  If he makes a good
+> > case for an independent shutdown, method I am fine with that, just
+> > every driver in the kernel needs to change, and that is a heck of a
+> > lot of work before 2.6.  Otherwise we can go back to calling remove.
+> 
+> The main problem is locking and refcounting on the device objects. 
+> ->remove() is removing objects from the device tree and freeing them. This 
+> is not good when we expect the list to remain intact while we iterate over 
+> it. 
 >
-> attached is the oops, the config,  and some info on the box.
->
-> ide is only used for the cdrom.
->
-> it oopes during bootup.  also, if i remove ide from this kernel, it'll
-boot
-> on the scsi drive just fine.
->
-> 2.4.19 works just fine on this box.
+> This is fine when a device is unplugged or a module is removed, but 
+> completely unnecessary during a power transition. Nothing is going away; 
+> we're just turning everything off. And, we don't we don't have to mess 
+> with getting the list traversal right, since we can assume it's intact. 
+ 
+O.k.  That is very good reason for making the change.
 
-Your config says you have ide-cd configured.  Try taking just ide-cd out
-and reboot.  I've found a problem with 2.5.44 and ide-cd on my system
-also.  I have a similar oops on boot or module insertion.
+> In short, it's about the data structures, not the hardware. It is going to
+> require modification to drivers, but the changes should be small and make
+> the code cleaner. It can also happen gradually. There is going to be a lot
+> of cleanup of drivers in the coming months as more things are converted to
+> exploit the driver model, anyway. 
+>> 
+> In general, I agree with the patch that you sent later in the thread. I'll 
+> apply it, at least for now. 
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+My big concern is with getting the shutdown path setup in a manner
+that works, and gets testing.  When booting linux from linux with
+sys_kexec a lot of my problems come back to some device driver not
+getting shutdown.
 
+Question, is there a method from the class shutdown code that we
+can/should call, during reboot.  I just have this memory that for
+network interfaces simply downing the interface tends to put it in
+a quiescent state.  And I am wondering if that might be a general
+thing we can take advantage of.  Though if the class remove methods
+modify the data structures I guess that is out.
+
+Eric

@@ -1,55 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267266AbRGKKD4>; Wed, 11 Jul 2001 06:03:56 -0400
+	id <S267275AbRGKLEl>; Wed, 11 Jul 2001 07:04:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267271AbRGKKDn>; Wed, 11 Jul 2001 06:03:43 -0400
-Received: from rhenium.btinternet.com ([194.73.73.93]:50423 "EHLO rhenium")
-	by vger.kernel.org with ESMTP id <S267266AbRGKKD2>;
-	Wed, 11 Jul 2001 06:03:28 -0400
-Reply-To: <lar@cs.york.ac.uk>
-From: "Laramie Leavitt" <laramie.leavitt@btinternet.com>
-To: "David Balazic" <david.balazic@uni-mb.si>, <cslater@wcnet.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: RE: Switching Kernels without Rebooting?
-Date: Wed, 11 Jul 2001 11:08:02 +0100
-Message-ID: <JKEGJJAJPOLNIFPAEDHLGEEFDFAA.laramie.leavitt@btinternet.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-In-Reply-To: <3B4C21DA.5FFCBE2@uni-mb.si>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S267274AbRGKLEb>; Wed, 11 Jul 2001 07:04:31 -0400
+Received: from [195.82.120.238] ([195.82.120.238]:3347 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id <S267273AbRGKLEZ>; Wed, 11 Jul 2001 07:04:25 -0400
+Date: Wed, 11 Jul 2001 12:00:23 +0100
+From: Dave Jones <davej@suse.de>
+To: linux-kernel@vger.kernel.org
+Cc: Jordan <ledzep37@home.com>, Jordan Breeding <jordan.breeding@inet.com>
+Subject: Re: Discrepancies between /proc/cpuinfo and Dave J's x86info
+Message-ID: <20010711120023.B24339@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>, linux-kernel@vger.kernel.org,
+	Jordan <ledzep37@home.com>,
+	Jordan Breeding <jordan.breeding@inet.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3B4BC5C0.BDDC12A6@home.com>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> This is not a problem at all, because UNIX does not guarantee that
-> a process will get at least one CPU slice every X seconds.
-> ( read : UNIX is not a real time system )
->
-> soft-suspend "freezes" processes for several hours anyway ...
->
-> Note that there is a patch for hot replacing a kernel, which is equivalent
-> to rebooting, but much faster :
-> Two Kernel Monte (Linux loading Linux on x86)
-> http://www.scyld.com/products/beowulf/software/monte.html
->
+On Tue, Jul 10, 2001 at 10:19:28PM -0500, Jordan wrote:
+ > cpuid level     : 2
+ > cpuid level     : 3
 
-So if the Two Kernel Monte patch was combined with the
-system suspend/resume in swap patch then you add some
-transitions so that the code path does this:
+ > According to Dave J's utility the cpu's appear to be exactly the same
+ > just as the Intel boxes said when I bought them.  What might be causing
+ > these values to be different.  And if the BIOS is setting things up
+ > incorrectly then why does Dave J's utility show the correct values? 
+ > Thanks for any help.
 
-1-  Suspend->Monte
-2-  Monte->Load new Kernel
-3-  Load->Resume.
+This is a mystery to me. Rogier Wolff mentioned the same problem
+a month or two back. At the time x86info had a bug that meant that
+it was reading the same cpuid info from the same CPU twice in an
+SMP box. This is fixed in 1.3 (or at least, should be).
 
-If it was just for very similar kernels, i.e. most
--pre and -ac kernels it would probably work fine.
-If not, then you could just do the Monte route.
+This brings several questions.
 
-Laramie
+1. Why does proc/cpuinfo think they are different.
+2. Lowering from 3 -> 2 on a P3 happens when CPU serial number is
+   disabled. Is this not happening on the 2nd CPU? If not, why?
+3. Why can't we see the discrepancy from userspace?
 
+possibilities include
+ a. The CPUID /dev nodes are incorrectly numbered.
+    Can you check this, and make sure they have the right
+	minors ?
+ b. The CPUID driver cpu-scheduling is broken.
+    Unlikely, but possible, as afaik x86info is the only
+	program where you'd notice this difference.
+	hpa?
+ c. The CPU serial number disabling is done after the
+    /proc/cpuinfo creation. AFAIR this is not the case.
+	I'll check further into this after lunch.
+
+regards,
+
+Dave.
+
+-- 
+| Dave Jones.        http://www.suse.de/~davej
+| SuSE Labs

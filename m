@@ -1,39 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268510AbRG3LZD>; Mon, 30 Jul 2001 07:25:03 -0400
+	id <S268503AbRG3LZd>; Mon, 30 Jul 2001 07:25:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268506AbRG3LYx>; Mon, 30 Jul 2001 07:24:53 -0400
-Received: from elektra.higherplane.net ([203.37.52.137]:53714 "EHLO
-	elektra.higherplane.net") by vger.kernel.org with ESMTP
-	id <S268503AbRG3LYo>; Mon, 30 Jul 2001 07:24:44 -0400
-Date: Mon, 30 Jul 2001 21:45:22 +1000
-From: john slee <indigoid@higherplane.net>
-To: Paul Mundt <lethal@ChaoticDreams.ORG>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Test mail
-Message-ID: <20010730214522.C1183@higherplane.net>
+	id <S268509AbRG3LZX>; Mon, 30 Jul 2001 07:25:23 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:22800 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S268503AbRG3LZK>;
+	Mon, 30 Jul 2001 07:25:10 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: laughing@shared-source.org (Alan Cox), linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.7-ac3 
+In-Reply-To: Your message of "Mon, 30 Jul 2001 12:16:20 +0100."
+             <E15RB24-0003Xb-00@the-village.bc.nu> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010730040747.A17077@ChaoticDreams.ORG>
-User-Agent: Mutt/1.3.18i
+Date: Mon, 30 Jul 2001 21:25:12 +1000
+Message-ID: <23269.996492312@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Mon, Jul 30, 2001 at 04:07:47AM -0700, Paul Mundt wrote:
-> While these things are a nuisance, they're hardly that big of a deal. These
-> kind of things have existed forever, and people have somehow managed to get
-> by.
+On Mon, 30 Jul 2001 12:16:20 +0100 (BST), 
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+>> -spec:
+>> +spec:	newversion
+>>  	. scripts/mkspec >kernel.spec
+>
+>I only need a new version for a new rpm
 
-they ARE a big deal.  someone, somewhere pays for the traffic.  they
-didn't CHOOSE to be flooded with virii/worms.  but their upstream won't
-be nice and say "aw you got hit by some email virus i wont bill you for
-that traffic..."
+mkspec requires .version, the only rule that creates .version is
+newversion.  If you start from make mrproper, make spec fails.
 
-your attitude seems similar to that of spammers.  "just press del!"
-
-j.
-
--- 
-"Bobby, jiggle Grandpa's rat so it looks alive, please" -- gary larson

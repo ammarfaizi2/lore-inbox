@@ -1,34 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131878AbRDACbZ>; Sat, 31 Mar 2001 21:31:25 -0500
+	id <S131873AbRDACBS>; Sat, 31 Mar 2001 21:01:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131882AbRDACbO>; Sat, 31 Mar 2001 21:31:14 -0500
-Received: from penguin.scsinternet.com ([216.129.11.4]:44041 "EHLO
-	penguin.scsinternet.com") by vger.kernel.org with ESMTP
-	id <S131878AbRDACbM>; Sat, 31 Mar 2001 21:31:12 -0500
+	id <S131878AbRDACBI>; Sat, 31 Mar 2001 21:01:08 -0500
+Received: from radix.rossi.com ([198.136.189.98]:1664 "EHLO mantissa.rossi.com")
+	by vger.kernel.org with ESMTP id <S131873AbRDACAx>;
+	Sat, 31 Mar 2001 21:00:53 -0500
+Date: Sat, 31 Mar 2001 20:59:56 -0500 (EST)
+From: Bill Rossi <bill@rossi.com>
 To: linux-kernel@vger.kernel.org
-Subject: KernelWiki Lives
-From: Gary Lawrence Murphy <garym@canada.com>
-X-Home-Page: http://www.teledyn.com
-Organization: T(c)Inc Business Innovation through Open Source Computing
-Date: 31 Mar 2001 21:30:29 -0500
-Message-ID: <m3y9tlfj22.fsf@maya.dyndns.org>
-Reply-To: Gary Lawrence Murphy <garym@canada.com>
-X-Url: http://www.teledyn.com/
+Subject: Loopback device hangs on mount command
+Message-ID: <Pine.LNX.3.95.1010331205249.371A-100000@mantissa.rossi.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Out of the ashes arises a better KernelWiki, with more expressive
-power, more features, more pages and a _lot_ of work to be done to
-update all your excellent submissions to the new PhpWiki syntax ;)
+[1.] Loopback device hangs on mount command.
 
-enjoy: http://kernelbook.sourceforge.net/wiki/index.php
+[2.] Mounting a loopback device hangs the process.  Eg.  Issuing
 
--- 
-Gary Lawrence Murphy <garym@canada.com>  TeleDynamics Communications Inc
-Business Innovations Through Open Source Systems: http://www.teledyn.com
-"Computers are useless.  They can only give you answers."(Pablo Picasso)
+     losetup /dev/loop0 fsimg
+     mount /dev/loop0 /mnt
+
+     will hang at the mount command.  The mount process cannot be
+     killed, nor can the loopback device be destroyed with losetup.
+
+[3.] modules kernel loop
+[4.] Linux mantissa 2.4.2 #15 Wed Mar 28 11:00:17 EST 2001 i686
+
+-- Versions installed: (if some fields are empty or look
+-- unusual then possibly you have very old versions)
+Linux mantissa 2.4.2 #15 Wed Mar 28 11:00:17 EST 2001 i686
+Kernel modules         2.4.3
+Gnu C                  2.95.2
+Gnu Make               3.75
+Binutils               2.6.0.14
+Linux C Library        5.4.46
+Dynamic linker         ldd: version 1.9.9
+Linux C++ Library      27.1.4
+Linux C++ Library      10.0.so
+Procps                 0.99
+Mount                  2.10s
+Net-tools              V
+Kbd                    0.89
+Sh-utils               1.12
+Modules Loaded         sg loop isofs sr_mod cdrom ide-scsi aic7xxx 3c59x unix serial es1371 ac97_codec uart401 sound soundcore
+
+Thank you,
+Bill Rossi
+
 

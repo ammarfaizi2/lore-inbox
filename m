@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311483AbSDCLeR>; Wed, 3 Apr 2002 06:34:17 -0500
+	id <S311564AbSDCLeH>; Wed, 3 Apr 2002 06:34:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311211AbSDCLeH>; Wed, 3 Apr 2002 06:34:07 -0500
-Received: from johnsl.lnk.telstra.net ([139.130.12.152]:2322 "HELO
-	ns.higherplane.net") by vger.kernel.org with SMTP
-	id <S311320AbSDCLd7>; Wed, 3 Apr 2002 06:33:59 -0500
-Date: Wed, 3 Apr 2002 21:34:59 +1000
-From: john slee <indigoid@higherplane.net>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT] who's maintaining util-linux?
-Message-ID: <20020403113459.GB13429@higherplane.net>
-In-Reply-To: <200204030938.g339cnX16298@Port.imtp.ilyichevsk.odessa.ua>
-Mime-Version: 1.0
+	id <S311483AbSDCLd5>; Wed, 3 Apr 2002 06:33:57 -0500
+Received: from zork.zork.net ([66.92.188.166]:60433 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id <S311211AbSDCLdq>;
+	Wed, 3 Apr 2002 06:33:46 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Dell laptop crashes -- data point (was Re: Ext2 vs. ext3 recovery
+ after crash)
+In-Reply-To: <Pine.LNX.3.96.1020402225256.9671A-100000@gatekeeper.tmr.com>
+From: Sean Neakums <sneakums@zork.net>
+X-Worst-Pick-Up-Line-Ever: "Hey baby, wanna peer with my leafnode instance?"
+X-Groin-Mounted-Steering-Wheel: "Arrrr... it's driving me nuts!"
+X-Message-Flag: Message text advisory: PRURIENT SUBTEXT, STYLE OVER
+ SUBSTANCE
+X-Mailer: Norman
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Date: Wed, 03 Apr 2002 12:33:45 +0100
+Message-ID: <6ulmc5nhie.fsf@zork.zork.net>
+User-Agent: Gnus/5.090006 (Oort Gnus v0.06) Emacs/21.1
+ (i386-debian-linux-gnu)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 03, 2002 at 12:38:08PM -0200, Denis Vlasenko wrote:
-> Hi folks,
-> 
-> I'm using util-linux and have some problems with them.
-> The biggest of promlems is that I am unable to contact
-> maintainers of said utils :-(   Are they maintained?
+commence  Bill Davidsen quotation:
 
-according to debian/testing's /usr/share/doc/util-linux/copyright:
+> I have a laptop (Dell Inspiron C600) which, like most Dell laptops,
+> crashes every time I log out of X.
 
------
-This is the Debian GNU/Linux prepackaged version of util-linux.
-
-This package was put together by Guy Maor <maor@debian.org> and later
-maintained by Sean 'Shaleh' Perry <shaleh@debian.org>.
-Current maintainer is Adrian Bunk <bunk@fs.tum.de>.
------
-
-hope that helps,
-
-j.
+I have never had this happen with my Dell Inspiron 4100.  Running the
+latest Debian unstable X packages (with a 4.1.99 server + modules
+build overlaid for the non-VESA ATI Mobility support).
 
 -- 
-R N G G   "Well, there it goes again... And we just sit 
-I G G G   here without opposable thumbs." -- gary larson
+ /////////////////  |                  | The spark of a pin
+<sneakums@zork.net> |  (require 'gnu)  | dropping, falling feather-like.
+ \\\\\\\\\\\\\\\\\  |                  | There is too much noise.

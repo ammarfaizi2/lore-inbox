@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262259AbTFXPpk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 11:45:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262174AbTFXPpk
+	id S262174AbTFXPqw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 11:46:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbTFXPqw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 11:45:40 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55221 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262259AbTFXPpg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 11:45:36 -0400
-Message-ID: <3EF87566.6060703@pobox.com>
-Date: Tue, 24 Jun 2003 11:59:34 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	Tue, 24 Jun 2003 11:46:52 -0400
+Received: from cmailm3.svr.pol.co.uk ([195.92.193.19]:21260 "EHLO
+	cmailm3.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id S262174AbTFXPqs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 11:46:48 -0400
+Message-ID: <3EF87637.1090109@asfandyar.cjb.net>
+Date: Tue, 24 Jun 2003 17:03:03 +0100
+From: Asfand Yar Qazi <email@asfandyar.cjb.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021221
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Stephan von Krawczynski <skraw@ithnet.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Broadcom bcm 4401
-References: <20030623151040.135133f9.skraw@ithnet.com>	 <1056377068.13529.41.camel@dhcp22.swansea.linux.org.uk>	 <3EF860A7.5000102@pobox.com> <1056469248.14611.29.camel@dhcp22.swansea.linux.org.uk>
-In-Reply-To: <1056469248.14611.29.camel@dhcp22.swansea.linux.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Does a patch exist to override the 2GB vfat limit on 2.4.21?
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Maw, 2003-06-24 at 15:31, Jeff Garzik wrote:
-> 
->>What cleaning needs to be done?
->>
->>AFAIK, I need only to fix a phy-related bug, and b44 will be working 
->>nicely.  (I have test h/w, too)
-> 
-> 
-> The driver I have is very windowsish, I assumne the one you have is not ?
+
+The 2GB limit on vfat is quite troublesome, especially as the big hard 
+disk is shared with Windoze (for the family :-( ) and I need all that 
+luvverly space.
+
+I've heard of it here some time, just can't find it...
+
+Sorry for the trouble if its already been posted,
+
+	Asfand Yar
 
 
-Look at drivers/net/b44.c in 2.5 :)
 
-It will appear in 2.4 as soon as it works for me.
-
-	Jeff
-
-
+-- 
+http://www.it-is-truth.org/
 

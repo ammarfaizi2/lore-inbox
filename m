@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317723AbSFLPXH>; Wed, 12 Jun 2002 11:23:07 -0400
+	id <S317724AbSFLP0m>; Wed, 12 Jun 2002 11:26:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317724AbSFLPXG>; Wed, 12 Jun 2002 11:23:06 -0400
-Received: from holomorphy.com ([66.224.33.161]:47520 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S317723AbSFLPXG>;
-	Wed, 12 Jun 2002 11:23:06 -0400
-Date: Wed, 12 Jun 2002 08:22:47 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: Robert Love <rml@tech9.net>,
-        Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>,
-        "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org,
-        akpm@zip.com.au
-Subject: Re: [PATCH] CONFIG_NR_CPUS, redux
-Message-ID: <20020612152247.GH22961@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-	Robert Love <rml@tech9.net>,
-	Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>,
-	"Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org,
-	akpm@zip.com.au
-In-Reply-To: <1023820116.22156.271.camel@sinai> <3215445436.1023869217@[10.10.2.3]>
+	id <S317725AbSFLP0l>; Wed, 12 Jun 2002 11:26:41 -0400
+Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:64428 "EHLO
+	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id <S317724AbSFLP0k>; Wed, 12 Jun 2002 11:26:40 -0400
+Date: Wed, 12 Jun 2002 11:26:42 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] tmpfs 2/4 mknod times
+Message-ID: <20020612152642.GA2725@ravel.coda.cs.cmu.edu>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0206120423200.1290-100000@localhost.localdomain> <200206112031.23257.ryan@completely.kicks-ass.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
 Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.3.28i
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 12, 2002 at 08:06:58AM -0700, Martin J. Bligh wrote:
-> Indeed. And before that gets changed, it would be necessary
-> to change the bootstrap procedure not to crash if you have
-> more than NR_CPUS cpus (as Andrew reported it did), but instead 
-> to just not configure them ... much less troublesome.
-> M.
+On Tue, Jun 11, 2002 at 08:31:20PM -0700, Ryan Cumming wrote:
+> On June 11, 2002 20:25, Hugh Dickins wrote:
+> > On Tue, 11 Jun 2002, Ryan Cumming wrote:
+> > > On June 11, 2002 19:54, Hugh Dickins wrote:
+> > > > +               dir->i_ctime = dir->i_mtime = CURRENT_TIME;
+> > >
+> > > I'm probably misreading this, but why does shmem_mknod modify the
+> > > directory's ctime?
+> >
+> > Hmmm, good question.  Perhaps I'll have dreamt up an answer by morning.
+> Well, lets see if the list has any ideas while you're sleeping.
 
-There are also fun deadlocks on i386 with "too many cpu's" as it
-appears the kernel attempts to use logical APIC mode to get beyond
-the eigth cpu and seems unaware that it can't IPI them that way unless
-it's configured to always use the clustered hierarchical destination
-format, though that's perhaps a little beyond just NR_CPUS. Perhaps
-some kind of sanity checking is needed at the arch level for issues
-like this as well, not just the absolute maximum number of cpu's?
+My guess would be that 'mtime' should be always updated because the
+directory contents is changed (a new name is added). And 'ctime' has to
+change whenever this new name cause a change in the size of the
+directory because the i_size attribute has changed.
 
+As tmpfs doesn't really have on-disk blocks for it's directories, every
+create will change the directory size. (as well as every unlink).
 
-Cheers,
-Bill
+Jan
+

@@ -1,64 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277377AbRJRA1n>; Wed, 17 Oct 2001 20:27:43 -0400
+	id <S277527AbRJRBJQ>; Wed, 17 Oct 2001 21:09:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277325AbRJRA1Y>; Wed, 17 Oct 2001 20:27:24 -0400
-Received: from pc-62-30-142-167-nm.blueyonder.co.uk ([62.30.142.167]:60423
-	"EHLO merry.bs.lan") by vger.kernel.org with ESMTP
-	id <S277324AbRJRA1O>; Wed, 17 Oct 2001 20:27:14 -0400
-Date: Thu, 18 Oct 2001 01:27:34 +0100
-To: David Gibson <hermes@gibson.dropbear.id.au>,
-        Jean Tourrilhes <jt@hpl.hp.com>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] to tidy up some orinoco driver log messages
-Message-ID: <20011018012734.A2802@merry.bs.lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.18i
-From: Charles Briscoe-Smith <charles@briscoe-smith.org.uk>
+	id <S277531AbRJRBJG>; Wed, 17 Oct 2001 21:09:06 -0400
+Received: from research.suspicious.org ([209.236.159.254]:8258 "EHLO
+	research.suspicious.org") by vger.kernel.org with ESMTP
+	id <S277527AbRJRBJE>; Wed, 17 Oct 2001 21:09:04 -0400
+Date: Wed, 17 Oct 2001 21:11:47 -0400 (EDT)
+From: Phil <phil@research.suspicious.org>
+To: linux-kernel@vger.kernel.org
+Subject: error in udf fs
+Message-ID: <Pine.BSO.4.21.0110172110070.12347-100000@research.suspicious.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This trivial patch cleans up a few missing newlines in some log messages
-in the Orinoco driver.  Generated from linux-2.4.12 (orinoco.c 0.08a);
-should apply cleanly to linux-2.4.13-pre3.
 
-diff -ur linux/drivers/net/wireless/orinoco.c linux-2.4.12/drivers/net/wireless/orinoco.c
---- linux/drivers/net/wireless/orinoco.c	Thu Oct 18 01:08:20 2001
-+++ linux-2.4.12/drivers/net/wireless/orinoco.c	Wed Oct 17 23:42:29 2001
-@@ -1431,7 +1431,7 @@
- 			priv->ibss_port = 0;
- 		else {
- 			printk(KERN_NOTICE "%s: Intersil firmware earlier "
--			       "than v0.08 - several features not supported.",
-+			       "than v0.08 - several features not supported.\n",
- 			       dev->name);
- 			priv->ibss_port = 1;
- 		}
-@@ -1497,7 +1497,7 @@
- 	err = hermes_read_ltv(hw, USER_BAP, HERMES_RID_CNF_NICKNAME,
- 			      sizeof(nickbuf), &reclen, &nickbuf);
- 	if (err) {
--		printk(KERN_ERR "%s: failed to read station name!n",
-+		printk(KERN_ERR "%s: failed to read station name!\n",
- 		       dev->name);
- 		goto out;
- 	}
-@@ -1798,7 +1798,7 @@
- 		if (err == -EIO)
- 			DEBUG(1, "%s: DEBUG: EIO writing packet header to BAP\n", dev->name);
- 		else
--			printk(KERN_ERR "%s: Error %d writing packet header to BAP",
-+			printk(KERN_ERR "%s: Error %d writing packet header to BAP\n",
- 			       dev->name, err);
- 		stats->tx_errors++;
- 		goto fail;
+this is what happens with the udf fs in 2.4.13-pre3 
 
--- 
-Charles Briscoe-Smith             Hacking Free Software for fun and profit
-PGP/GPG:  1024R/B35EE811  74 68 AB 2E 1C 60 22 94  B8 21 2D 01 DE 66 13 E2
-Governing Law:
-   This License Agreement shall be construed and governed in accordance
-   with the laws of the State of Inebriation. 
-                                    -- http://www.thalia.org/computer.html
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
+-pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4     -c
+-o lowlevel.o lowlevel.c
+lowlevel.c:72: conflicting types for `udf_get_last_block'
+udfdecl.h:153: previous declaration of `udf_get_last_block'
+make[3]: *** [lowlevel.o] Error 1
+make[3]: Leaving directory `/usr/src/linux/fs/udf'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/linux/fs/udf'
+make[1]: *** [_subdir_udf] Error 2
+make[1]: Leaving directory `/usr/src/linux/fs'
+make: *** [_dir_fs] Error 2
+
+

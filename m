@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263114AbVCXMR7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262567AbVCXM0p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263114AbVCXMR7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 07:17:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263115AbVCXMR7
+	id S262567AbVCXM0p (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 07:26:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262804AbVCXM0p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 07:17:59 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:18185 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263114AbVCXMRy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 07:17:54 -0500
-Date: Thu, 24 Mar 2005 12:17:46 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Hirokazu Takata <takata@linux-m32r.org>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: Bitrotting serial drivers
-Message-ID: <20050324121746.A4189@flint.arm.linux.org.uk>
-Mail-Followup-To: Hirokazu Takata <takata@linux-m32r.org>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <20050319172101.C23907@flint.arm.linux.org.uk> <20050324.191424.233669632.takata.hirokazu@renesas.com>
+	Thu, 24 Mar 2005 07:26:45 -0500
+Received: from mx2.suse.de ([195.135.220.15]:54684 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S262567AbVCXM0n (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 07:26:43 -0500
+Date: Thu, 24 Mar 2005 13:26:37 +0100
+From: Andi Kleen <ak@suse.de>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, akpm@osdl.org, davem@davemloft.net,
+       tony.luck@intel.com, benh@kernel.crashing.org, ak@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/6] freepgt: free_pgtables use vma list
+Message-ID: <20050324122637.GK895@wotan.suse.de>
+References: <Pine.LNX.4.61.0503231705560.15274@goblin.wat.veritas.com> <Pine.LNX.4.61.0503231710310.15274@goblin.wat.veritas.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050324.191424.233669632.takata.hirokazu@renesas.com>; from takata@linux-m32r.org on Thu, Mar 24, 2005 at 07:14:24PM +0900
+In-Reply-To: <Pine.LNX.4.61.0503231710310.15274@goblin.wat.veritas.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 24, 2005 at 07:14:24PM +0900, Hirokazu Takata wrote:
-> Could you please accept the following patch?
+On Wed, Mar 23, 2005 at 05:11:34PM +0000, Hugh Dickins wrote:
+> Recent woes with some arches needing their own pgd_addr_end macro; and
+> 4-level clear_page_range regression since 2.6.10's clear_page_tables;
+> and its long-standing well-known inefficiency in searching throughout
+> the higher-level page tables for those few entries to clear and free:
+> all can be blamed on ignoring the list of vmas when we free page tables.
+> 
+> Replace exit_mmap's clear_page_range of the total user address space by
+> free_pgtables operating on the mm's vma list; unmap_region use it in the
+> same way, giving floor and ceiling beyond which it may not free tables.
+> This brings lmbench fork/exec/sh numbers back to 2.6.10 (unless preempt
+> is enabled, in which case latency fixes spoil unmap_vmas throughput).
+> 
+> Beware: the do_mmap_pgoff driver failure case must now use unmap_region
+> instead of zap_page_range, since a page table might have been allocated,
+> and can only be freed while it is touched by some vma.
+> 
+> Move free_pgtables from mmap.c to memory.c, where its lower levels are
+> adapted from the clear_page_range levels.  (Most of free_pgtables' old
+> code was actually for a non-existent case, prev not properly set up,
+> dating from before hch gave us split_vma.)  Pass mmu_gather** in the
+> public interfaces, since we might want to add latency lockdrops later;
+> but no attempt to do so yet, going by vma should itself reduce latency.
+> 
+> But what if is_hugepage_only_range?  Those ia64 and ppc64 cases need
+> careful examination: put that off until a later patch of the series.
 
-Probably, but I'd like to have a reply to my comments below first.
+Sorry for late answer. Nice approach.... It will not work as well
+on large sparse mappings as the bit vectors, but that may be tolerable.
 
-> diff -ruNp a/include/asm-m32r/serial.h b/include/asm-m32r/serial.h
-> --- a/include/asm-m32r/serial.h	2004-12-25 06:35:40.000000000 +0900
-> +++ b/include/asm-m32r/serial.h	2005-03-24 17:25:05.812651363 +0900
+> 
+> What of x86_64's 32bit vdso page __map_syscall32 maps outside any vma?
 
-Can m32r accept PCMCIA cards?  If so, this may mean that 8250.c gets
-built, which will use this file to determine where it should look for
-built-in 8250 ports.
+Everything. It could be easily changed though, but I was too lazy for 
+it so far. Do you think it is needed for your patch?
 
-If this file is used to describe non-8250 compatible ports, you could
-end up with a nasty mess.  Therefore, I recommend that you do not use
-asm-m32r/serial.h to describe your SIO ports.
-
-Instead, since these definitions are private to your own driver, you
-may consider moving them into the driver, or a header file closely
-associated with your driver in drivers/serial.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+-Andi

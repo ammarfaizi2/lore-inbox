@@ -1,76 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129280AbQKBXbF>; Thu, 2 Nov 2000 18:31:05 -0500
+	id <S129426AbQKBXbG>; Thu, 2 Nov 2000 18:31:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129426AbQKBXa4>; Thu, 2 Nov 2000 18:30:56 -0500
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:7699
-	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
-	id <S129280AbQKBXap>; Thu, 2 Nov 2000 18:30:45 -0500
-Date: Thu, 2 Nov 2000 18:39:30 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: Chris Meadors <clubneon@hereintown.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Dual XEON - >>SLOW<< on SMP
-Message-ID: <20001102183930.A17064@animx.eu.org>
-In-Reply-To: <m3bsvy2qlb.fsf@otr.mynet.cygnus.com> <Pine.LNX.4.21.0011021334170.83-100000@rc.priv.hereintown.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <Pine.LNX.4.21.0011021334170.83-100000@rc.priv.hereintown.net>; from Chris Meadors on Thu, Nov 02, 2000 at 01:38:18PM -0500
+	id <S129440AbQKBXaz>; Thu, 2 Nov 2000 18:30:55 -0500
+Received: from mercury.eng.emc.com ([168.159.40.77]:4881 "EHLO
+	mercury.lss.emc.com") by vger.kernel.org with ESMTP
+	id <S129426AbQKBXar>; Thu, 2 Nov 2000 18:30:47 -0500
+Message-ID: <276737EB1EC5D311AB950090273BEFDD979DF7@elway.lss.emc.com>
+From: "chen, xiangping" <chen_xiangping@emc.com>
+To: "'Elizabeth Morris-Baker'" <eamb@liu.fafner.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: scsi init problem in 2.4.0-test10?
+Date: Thu, 2 Nov 2000 18:24:52 -0500 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I'm seeing this as well, but only with PIII Xeon systems, not PII
-> > Xeon.  Every single timer interrupt on any CPU is accompanied by a NMI
-> > and LOC increment on every CPU.
-> > 
-> >            CPU0       CPU1       
-> >   0:     146727     153389    IO-APIC-edge  timer
-> > [...]
-> > NMI:     300035     300035 
-> > LOC:     300028     300028 
-> 
-> You mean that isn't supposed to happen?
-> 
->            CPU0       CPU1
->   0:    8480192    7786028    IO-APIC-edge  timer
->   1:          3          1    IO-APIC-edge  keyboard
->   2:          0          0          XT-PIC  cascade
->   8:          0          0    IO-APIC-edge  rtc
->  13:          0          0          XT-PIC  fpu
->  23:     188915     191259   IO-APIC-level  eth0
->  28:         16         14   IO-APIC-level  sym53c8xx
->  29:      33655      33665   IO-APIC-level  sym53c8xx
->  30:          0          0   IO-APIC-level  es1371
-> NMI:   16266140   16266140
-> LOC:   16266123   16266122
-> ERR:          0
-> 
-> This machine isn't even a Xeon, just a PIII CuMine on a ServerWorks HeIII
-> chipset.
+Hi,
 
-[wakko@gohan:/home/wakko] cat /proc/interrupts 
-           CPU0       CPU1       
-  0:   15276613   18358687    IO-APIC-edge  timer
-  1:        391        455    IO-APIC-edge  keyboard
-  2:          0          0          XT-PIC  cascade
-  4:          1          0    IO-APIC-edge  serial
- 13:          1          0          XT-PIC  fpu
- 14:       3013       2422    IO-APIC-edge  ide0
- 16:     179450     191589   IO-APIC-level  eth0
- 17:         22         23   IO-APIC-level  aic7xxx
- 18:      17254      15655   IO-APIC-level  es1371
- 19:         11         10   IO-APIC-level  aic7xxx
-NMI:   33635184   33635184 
-LOC:   33636726   33636725 
-ERR:          0
-[wakko@gohan:/home/wakko] cat /proc/mtrr 
+Thanks for replying. What bothers me is that it works
+in another pc with the same setup to the external disk,
+but different internal scsi adaptor. So I did not think
+it was the kernel software caused the problem. Any other
+guess?
 
-I noticed it was a tad slow, but I figured it was the fact it was a netboot
-machine.  It's a dual ppro 200 192mb ram.
-                         
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Thanks,
+
+Xiangping
+
+
+
+
+-----Original Message-----
+From: Elizabeth Morris-Baker [mailto:eamb@liu.fafner.com]
+Sent: Thursday, November 02, 2000 4:58 PM
+To: chen_xiangping@emc.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: scsi init problem in 2.4.0-test10?
+
+
+> 
+> Hello,
+
+	Yes, I encountered the same problem, and have a fix, but
+	want to test it. If the author of scsi_scan.c would like
+	to correct it, then that would be fine.
+
+	Basically the problem is in scan_scsis_single.
+	Some scsi devices are notoriously brain dead
+	about answering inquiries without having 
+	recived a TUR and then spinning up.
+	The problem seems to be the disk, not the controller,
+	if this is the same problem.
+
+	The problem appeared in the test kernels because
+	the TUR *used* to be there, now it is not.
+
+	Hope this helps.
+
+	Just curious, what kind of scsi disk do you have??
+	lemme guess... Compaq Atlas?? :>
+
+	cheers, 
+
+	Elizabeth
+
+> 
+> I met a problem when trying to upgrade my Linux kernel to 2.4.0-test10.
+> The machine is Compay AP550, dual processor, mem 512 MB, and 863 MHZ freq.
+> It has two scsi host adaptors. one is AIC-7892 ultra 160/m connected to 
+> internal hard disk, and the other is AHA-3944 ultra scsi connected to 
+> an attached disk. The boot process stops after detection of the first
+> scsi host, error info is:
+> 	scsi: aborting command due to time out: pid0, scsci1, channel 0, 
+> 	id 0, lun 0, Inquiry 00 00 00 ff 00
+> 
+> Previous OS on this machine was RedHat 6.2 kernel version 2.2.14
+> 
+> looking forward to your help!
+> 
+> Xiangping
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+> 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

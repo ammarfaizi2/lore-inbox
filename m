@@ -1,71 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272631AbRIGNOq>; Fri, 7 Sep 2001 09:14:46 -0400
+	id <S272648AbRIGNXQ>; Fri, 7 Sep 2001 09:23:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272640AbRIGNOg>; Fri, 7 Sep 2001 09:14:36 -0400
-Received: from picard.csihq.com ([204.17.222.1]:11407 "EHLO picard.csihq.com")
-	by vger.kernel.org with ESMTP id <S272631AbRIGNOZ>;
-	Fri, 7 Sep 2001 09:14:25 -0400
-Message-ID: <033a01c1379e$e3514880$e1de11cc@csihq.com>
-From: "Mike Black" <mblack@csihq.com>
-To: "Trond Myklebust" <trond.myklebust@fys.uio.no>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-In-Reply-To: <024f01c13601$c763d3c0$e1de11cc@csihq.com> <shsae07md9d.fsf@charged.uio.no>
-Subject: Re: 2.4.8 NFS Problems
-Date: Fri, 7 Sep 2001 09:13:29 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S272649AbRIGNXH>; Fri, 7 Sep 2001 09:23:07 -0400
+Received: from [195.89.159.99] ([195.89.159.99]:13301 "EHLO
+	kushida.degree2.com") by vger.kernel.org with ESMTP
+	id <S272648AbRIGNW7>; Fri, 7 Sep 2001 09:22:59 -0400
+Date: Fri, 7 Sep 2001 02:47:46 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: notion of a local address [was: Re: ioctl SIOCGIFNETMASK: ip alias bug 2.4.9 and 2.2.19]
+Message-ID: <20010907024746.C7329@kushida.degree2.com>
+In-Reply-To: <20010906212303.A23595@castle.nmd.msu.ru> <20010906173948.502BFBC06C@spike.porcupine.org> <9n8ev1$qba$1@cesium.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <9n8ev1$qba$1@cesium.transmeta.com>; from hpa@zytor.com on Thu, Sep 06, 2001 at 11:23:29AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-But my timeouts were only 10 seconds -- well below the timeo and retrans
-timeout periods.
-And my network traffic shows that this is the client causing the problem NOT
-the server.
-It's the read() that pauses for 10 seconds and then the NFS write
-immediately returns EIO.
-So...I don't think soft mounts has anything to do with it.
-Also...I've now seen this error once more even with the 4096 read/write
-sizes.
-________________________________________
-Michael D. Black   Principal Engineer
-mblack@csihq.com  321-676-2923,x203
-http://www.csihq.com  Computer Science Innovations
-http://www.csihq.com/~mike  My home page
-FAX 321-676-2355
------ Original Message -----
-From: "Trond Myklebust" <trond.myklebust@fys.uio.no>
-To: "Mike Black" <mblack@csihq.com>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-Sent: Friday, September 07, 2001 7:49 AM
-Subject: Re: 2.4.8 NFS Problems
+H. Peter Anvin wrote:
+> In autofs, I use the following technique to determine if the IP number
+> for a host is local (and therefore vfsbinds can be used rather than
+> NFS mounts):
+> 
+> connect a datagram socket (which won't produce any actual traffic) to
+> the remote host with INADDR_ANY as the local address, and then query
+> the local address.  If the local address is the same as the remote
+> address, the address is local.
 
+Nice.  Gives false negatives in some cases (e.g. a local tunnel) but
+that doesn't really matter.
 
->>>>> " " == Mike Black <mblack@csihq.com> writes:
+I've considered this technique for deciding whether it's safe to use the
+MIT-SHM extension with X:
 
-     > I've been getting random NFS EIO errors for a few months but
-     > now it's repeatable.  Trying to copy a large file from one
-     > 2.4.8 SMP box to another is consistently failing (at different
-     > offsets each time).  This doesn't appear to be a network
-     > problem as the last comm between the machines looks OK.  By the
-     > timestamps it appears that a read() is taking too long and
-     > causing a timeout?
+Open a SHM segment; write fairly secure random data into it; ask the X
+server to connect to that segment and read it back as an image over the
+X protocol; check whether they match.
 
-Morale: Don't use soft mounts: they are prone to these things. If you
-insist on using them, then try playing around with the `timeo' and
-`retrans' mount variables.
+If the X server reports an error, it's remote.  If it finds a SHM
+segment it may still be remote, hence the random data check.
 
-Soft mount timeouts are not only due to network problems, but can
-equally well be due to internal congestion. The rate at which the
-network can transmit requests is usually (unless you are using
-Gigabit) way below the rate at which your machine can generate them.
-
-Cheers,
-   Trond
-
+-- Jamie

@@ -1,41 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266980AbSKQX0x>; Sun, 17 Nov 2002 18:26:53 -0500
+	id <S267014AbSKQXap>; Sun, 17 Nov 2002 18:30:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266987AbSKQX0w>; Sun, 17 Nov 2002 18:26:52 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:55218 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266980AbSKQX0w>; Sun, 17 Nov 2002 18:26:52 -0500
-Subject: Re: Reserving "special" port numbers in the kernel ?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Arun Sharma <arun.sharma@intel.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <uu1ig9mps.fsf@unix-os.sc.intel.com>
-References: <uel9mbcyi.fsf@unix-os.sc.intel.com>
-	<1037414638.21937.20.camel@irongate.swansea.linux.org.uk> 
-	<uu1ig9mps.fsf@unix-os.sc.intel.com>
-Content-Type: text/plain
+	id <S267016AbSKQXap>; Sun, 17 Nov 2002 18:30:45 -0500
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:54145
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id <S267014AbSKQXao>; Sun, 17 Nov 2002 18:30:44 -0500
+Message-ID: <3DD8284C.409@redhat.com>
+Date: Sun, 17 Nov 2002 15:37:48 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021114
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Linus Torvalds <torvalds@transmeta.com>, Luca Barbieri <ldb@ldb.ods.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] threading fix, tid-2.5.47-A3
+References: <Pine.LNX.4.44.0211172132070.13235-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.44.0211172132070.13235-100000@localhost.localdomain>
+X-Enigmail-Version: 0.65.4.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 17 Nov 2002 22:59:11 +0000
-Message-Id: <1037573951.5356.8.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-11-17 at 16:37, Arun Sharma wrote:
-> The thing that's unique about our situation is that the daemon in not
-> user level. It runs at hardware/firmware level, so that you can
-> remotely administer the machine even when software is malfunctioning.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-So you've got an administration port that ignores the firewall
-facilities on the machine. Now tell me why anyone would buy such a
-product ? What if your firmware has a network layer bug, what if someone
-finds a security hole in it ?
+Ingo Molnar wrote:
+> here are the my current TID-setting changes. It's now 3 clone flags:
+> 
+>  - CLONE_PARENT_SETTID
+> [...]
 
-If you want to steal ports from under the OS then you need your own IP
-address and full network stack, not the one assigned to the Linux
-system. 
+BTW, this patch contains one little bug.
 
-Alan
+diff -u linux/arch/i386/kernel/process.c linux/arch/i386/kernel/process.c
+- --- linux/arch/i386/kernel/process.c    2002-11-17 21:11:52.000000000 +0100
++++ linux/arch/i386/kernel/process.c    2002-11-17 21:11:52.000000000 +0100
+@@ -516,7 +516,7 @@
+        clone_flags = regs.ebx;
+        newsp = regs.ecx;
+        parent_tidptr = (int *)regs.edx;
+- -       child_tidptr = (int *)regs.esi;
++       child_tidptr = (int *)regs.edi;
+        if (!newsp)
+                newsp = regs.esp;
+        p = do_fork(clone_flags & ~CLONE_IDLETASK, newsp, &regs, 0,
+parent_tidptr, child_tidptr);
+
+
+%esi is used for the TLS pointer.
+
+- -- 
+- --------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE92ChN2ijCOnn/RHQRAqUnAKCa4VHC6EtZCCtArHJ9qHcznA84kACgrGNG
+0niSahEXQ5aGa0XrSLSwv7A=
+=YpSY
+-----END PGP SIGNATURE-----
 

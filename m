@@ -1,66 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262726AbTJJJIc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 05:08:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262708AbTJJJIc
+	id S262729AbTJJJKH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 05:10:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262731AbTJJJKH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 05:08:32 -0400
-Received: from holomorphy.com ([66.224.33.161]:3457 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S262726AbTJJJI3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 05:08:29 -0400
-Date: Fri, 10 Oct 2003 02:11:34 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Frederick, Fabian" <Fabian.Frederick@prov-liege.be>
-Cc: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: Re: [2.7 "thoughts"] V0.3
-Message-ID: <20031010091134.GA682@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Frederick, Fabian" <Fabian.Frederick@prov-liege.be>,
-	"Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
-References: <D9B4591FDBACD411B01E00508BB33C1B01F24E98@mesadm.epl.prov-liege.be>
+	Fri, 10 Oct 2003 05:10:07 -0400
+Received: from hirsch.in-berlin.de ([192.109.42.6]:46284 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S262729AbTJJJKE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 05:10:04 -0400
+X-Envelope-From: kraxel@bytesex.org
+Date: Fri, 10 Oct 2003 11:09:55 +0200
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Michael Buesch <mbuesch@freenet.de>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6-test7] [bttv] lots of warning/error messages
+Message-ID: <20031010090955.GE32386@bytesex.org>
+References: <200310091729.30465.mbuesch@freenet.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <D9B4591FDBACD411B01E00508BB33C1B01F24E98@mesadm.epl.prov-liege.be>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <200310091729.30465.mbuesch@freenet.de>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 10, 2003 at 09:54:12AM +0200, Frederick, Fabian wrote:
-> 2.7 "thoughts"
-> Thanks to Gabor, Stuart, Stephan and others
-> Don't hesitate to send me more or comment.
+> get lots of warning/error messages from the bttv driver.
+> Here are todays messages:
+> 
+> Oct  9 15:51:13 lfs kernel: bttv0: skipped frame. no signal? high irq latency?
+> Oct  9 15:57:57 lfs kernel: bttv0: OCERR @ 1fd95000,bits: HSYNC OFLOW OCERR*
 
-Ugh, this is all crackpot wishlist gunk.
+Hmm.  Is the signal good?
 
-How about some goodies backed with real working code, like:
+> I'm using a preemptible kernel.
+> Should I try it again with preemptible disabled?
 
-* O(1) proc_pid_statm()
-	-- originally by bcrl for 2.4, fwd port maintained by wli
-* O(lg(n)) proc_pid_readdir()/proc_task_readdir()
-	-- original O(1) proc_pid_readdir() by manfred, rewritten by
-	-- wli to use rbtrees for O(lg(n)) seeks into the relevant
-	-- lists (walking over empty buckets had overhead)
-* 4KB ia32 kernel stacks + irqstacks
-	-- original by bcrl, fwd port maintained by dhansen for a
-	-- substantial amount of time, now maintained by wli
-* ia32 leaf pagetable node cache
-	-- wli
-* node-local per_cpu areas for ia32 NUMA
-	-- wli
-* highpmd, analogue of highpte for pmd's
-	-- wli. Gets pmd's on node-local mem on ia32 NUMA, and
-	-- alleviates a lot of lowmem pressure under heavy
-	-- multiprogramming levels on PAE.
+I would be surprised if CONFIG_PREMPT on/off makes a difference, looks
+more like a hardware issue to me.  Neverless it's worth a try.  
 
-Some benchmarks of a patchset including these (and several other things)
-are at http://home.earthlink.net/~rwhron/kernel/wli.html, and some ports
-of the patch set are at ftp://ftp.kernel.org/people/wli/kernels/
+  Gerd
 
-Whatever fantasy may be worth, working code is worth a lot more. I'll
-refrain from mentioning prototype-quality patches I'm hacking on atm.
-
-
--- wli

@@ -1,60 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290078AbSAWUys>; Wed, 23 Jan 2002 15:54:48 -0500
+	id <S290082AbSAWUzb>; Wed, 23 Jan 2002 15:55:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290080AbSAWUyj>; Wed, 23 Jan 2002 15:54:39 -0500
-Received: from darkwing.uoregon.edu ([128.223.142.13]:12737 "EHLO
-	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
-	id <S290078AbSAWUyb>; Wed, 23 Jan 2002 15:54:31 -0500
-Date: Wed, 23 Jan 2002 12:50:54 -0800 (PST)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: <joelja@twin.uoregon.edu>
-To: Daniel Nofftz <nofftz@castor.uni-trier.de>
-cc: Hans-Peter Jansen <hpj@urpla.net>,
+	id <S290080AbSAWUzT>; Wed, 23 Jan 2002 15:55:19 -0500
+Received: from dns.uni-trier.de ([136.199.8.101]:19935 "EHLO
+	rzmail.uni-trier.de") by vger.kernel.org with ESMTP
+	id <S290079AbSAWUzO> convert rfc822-to-8bit; Wed, 23 Jan 2002 15:55:14 -0500
+Date: Wed, 23 Jan 2002 21:55:11 +0100 (CET)
+From: Daniel Nofftz <nofftz@castor.uni-trier.de>
+X-X-Sender: nofftz@infcip10.uni-trier.de
+To: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+cc: Daniel Nofftz <nofftz@castor.uni-trier.de>,
+        Timothy Covell <timothy.covell@ashavan.org>,
         Linux Kernel List <linux-kernel@vger.kernel.org>
 Subject: Re: [patch] amd athlon cooling on kt266/266a chipset
-In-Reply-To: <Pine.LNX.4.40.0201232138140.2478-100000@infcip10.uni-trier.de>
-Message-ID: <Pine.LNX.4.33.0201231250320.9553-100000@twin.uoregon.edu>
+In-Reply-To: <200201232023.VAA07669@rzmail.uni-trier.de>
+Message-ID: <Pine.LNX.4.40.0201232150160.2478-100000@infcip10.uni-trier.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Jan 2002, Daniel Nofftz wrote:
+On Wed, 23 Jan 2002, Dieter [iso-8859-15] Nützel wrote:
 
-> On Wed, 23 Jan 2002, Hans-Peter Jansen wrote:
-> 
-> > Oups. Just tried vlc and indeed: skippy sound and picture loss after
-> > switching to fullscreen :( Also uncommon delays on startup noticable.
-> >
-> > Will revert it for now (vlc is more important:).
-> 
-> what is vlc ?
+> > eenabling the discconect function causes a performance drop of about 2-3 %
+> > as far as i heared ...
+>
+> If not smaller. Read the VCool doku.
 
-video lan client - http://www.videolan.org
- 
-> daniel
-> 
-> 
-> # Daniel Nofftz
-> # Sysadmin CIP-Pool Informatik
-> # University of Trier(Germany), Room V 103
-> # Mail: daniel@nofftz.de
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+i know this doku :)
 
--- 
--------------------------------------------------------------------------- 
-Joel Jaeggli	      Academic User Services   joelja@darkwing.uoregon.edu    
---    PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E      --
-The accumulation of all powers, legislative, executive, and judiciary, in 
-the same hands, whether of one, a few, or many, and whether hereditary, 
-selfappointed, or elective, may justly be pronounced the very definition of
-tyranny. - James Madison, Federalist Papers 47 -  Feb 1, 1788
+>
+> > but this patch is only for athlon
+>
+> Athlon and Duron
+>
 
+ant athlon xp :) ... ok .. .i generalized it  ....
+
+> > processors on an board with via chipset ...
+>
+> AMD 750/760/maybe MP/MPX, SiS, Ali, Nvidia (?), etc.
+>
+
+my patch only supports the kt133/kx133 and kt266/kt266a chipset by now ...
+maybe it supports the k133a chipset (not tested ... if it has the same
+register layout as the kt133 it will work). i have some informations on
+the sis735 ... but as far as i know the k7s5a (most common mobo woth
+sis735) has some serios problems with the disconnect on STPGNT detect
+function ... maybe i will add the sis735 to the patch but it will be a
+littlebit risky i think :)
+if i get additional informations on the other chipsets, i will add them to
+
+daniel
+
+
+# Daniel Nofftz
+# Sysadmin CIP-Pool Informatik
+# University of Trier(Germany), Room V 103
+# Mail: daniel@nofftz.de
 

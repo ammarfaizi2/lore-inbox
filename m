@@ -1,81 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129716AbQKBWXq>; Thu, 2 Nov 2000 17:23:46 -0500
+	id <S129844AbQKBWYq>; Thu, 2 Nov 2000 17:24:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129819AbQKBWXg>; Thu, 2 Nov 2000 17:23:36 -0500
-Received: from cr416993-a.ym1.on.wave.home.com ([24.112.193.232]:32019 "EHLO
-	cr416993-a.ym1.on.wave.home.com") by vger.kernel.org with ESMTP
-	id <S129716AbQKBWXb>; Thu, 2 Nov 2000 17:23:31 -0500
-Date: Thu, 2 Nov 2000 17:23:07 -0500 (EST)
-From: "D. Hugh Redelmeier" <hugh@mimosa.com>
-Reply-To: hugh@mimosa.com
-To: Tim Riker <Tim@Rikers.org>
-cc: Andrea Arcangeli <andrea@suse.de>, Andi Kleen <ak@suse.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: non-gcc linux?
-In-Reply-To: <3A01C7CD.C5AEB5B5@Rikers.org>
-Message-ID: <Pine.LNX.4.21.0011021655260.8398-100000@redshift.mimosa.com>
+	id <S129839AbQKBWYg>; Thu, 2 Nov 2000 17:24:36 -0500
+Received: from front1.grolier.fr ([194.158.96.51]:48310 "EHLO
+	front1.grolier.fr") by vger.kernel.org with ESMTP
+	id <S129819AbQKBWYU> convert rfc822-to-8bit; Thu, 2 Nov 2000 17:24:20 -0500
+Date: Thu, 2 Nov 2000 22:24:27 +0100 (CET)
+From: Gérard Roudier <groudier@club-internet.fr>
+To: "David S. Miller" <davem@redhat.com>
+cc: cort@fsmlabs.com, npsimons@fsmlabs.com, garloff@suse.de,
+        jamagallon@able.es, linux-kernel@vger.kernel.org
+Subject: Re: Where did kgcc go in 2.4.0-test10 ?
+In-Reply-To: <200011012345.PAA20284@pizda.ninka.net>
+Message-ID: <Pine.LNX.4.10.10011022209420.2328-100000@linux.local>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-| From: Tim Riker <Tim@Rikers.org>
 
-| However, it makes me a bit nervous to take this route. It assumes that
-| the way gcc does things is the "best way". A more formal route of adding
-| to the ANSI C standard would involve more eyes and therefore hopefully
-| add to the quality of what has been done solely for gcc.
-| 
-| This started off with some comments from the group (hpa in particular)
-| that even between gcc releases, the gcc extensions have been much less
-| stable that the standard compiler features. The danger of implementing
-| gcc extensions in another compiler is that these feature are solely
-| under the control of the gcc team. They are to a large degree
-| "documented as implemented" and as such can be difficult to determine
-| the Right Way to implement. The Good Things that are in gcc, that we
-| believe are implemented the Right Way should probably be added to the
-| ANSI C spec. The others should be avoided, especially when there is an
-| existing ANSI C way to do them.
 
-I strongly support Tim's direction here.
+On Wed, 1 Nov 2000, David S. Miller wrote:
 
-I've found that code improves when you port it to different compilers
-(unless you are in a hurry -- then it grows warts).
+>    Date: Wed, 1 Nov 2000 16:54:18 -0700
+>    From: Cort Dougan <cort@fsmlabs.com>
+> 
+>    Since you're setting yourself up as a proponent of this can you
+>    explain why RedHat includes a compiler that doesn't work with the
+>    kernel?
+> 
+> Because the kernel is buggy (the specifics of this has been discussed
 
-Being GCC-dependent is rather parochial.  Being GCC-version-dependent
-is downright embarrassing.
+Every software seems to be buggy and gcc does not seem to be better than 
+the kernel in this area.
 
-Summary: spurious GCC-isms are a bad thing.
+> before on this list) and we didn't have time to implement and QA the
+> changes needed in time for the 7.0 release.
+> 
+> Furthermore I was correcting Nathan's statement that this was a "Red
+> Hat thing", not specifically upholding the virtues of using a
+> different compiler for the kernel.  That is a completely seperate
+> topic and we've had that taken that conversation as far as it will go
+> already remember? :-)
 
-Earlier, Tim gave quite a good outline of how to address GCCisms.
-My summary:
+You were just claiming that other main Linux packagers do also suggest a
+different compiler version for the kernel, which was only part of the
+facts that let RedHat 7 have been loose with its kgcc/gcc mess.
 
-- use ISO C 89 when possible (without undue pain)
+And since it seems that everybody can build a Linux based package in his 
+garage and then find morons to buy it, let me ask my mother-in-law if 
+she also did so and let the planet know how she decide to handle the
+kernel compiler issue, if this can let you feel better. :o)
 
-- use IOS C 99 when advantageous
+> Finally, if I were to state "fsmlabs are a bunch of pinheads because
+> they did XXX" I would expect you to defend your employer as well if I
+> misrepresented them due to incorrect statements.  Right?  :-)
 
-- use GCCisms for the remainder of appropriate things BUT embed them
-  in macros defined in header so that they can be systematically
-  replaced.  Using these macros probably makes the code more readable.
-  Use of any GCCism should probably be justified in commentary.
+Wrong, as far as it is David S. Miller who is one of the greatest Linux 
+contributors that made Linux become what it is nowadays, mostly as a free
+contributors for years.
 
-This would improve the code *and* make it more portable.
+I would even accept something like "you caring about your stock-options
+not to be victimized by RH7 kgcc blundering", but certainly not that you
+just want to blindly defend your employer for corporate reasons.
 
-The important advantages accrue to everyone, including those who never
-use a different compiler.
-
-Hugh Redelmeier
-hugh@mimosa.com  voice: +1 416 482-8253
-
-PS: I don't agree with all that ISO SC22 WG14 does, but I think that
-its work is valuable.  I attended their meeting in Toronto a couple of
-weeks ago.
-
-PPS: my own C compiler is not a toy and does not implement "packed".
-I've not even thought of trying it on the linux kernel, but experience
-shows that putting a program through my compiler does point to places
-to improve the code.  Ask Miguel de Icaza, for example.
+Regards,
+  Gérard.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

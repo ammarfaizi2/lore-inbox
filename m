@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318706AbSHWIPb>; Fri, 23 Aug 2002 04:15:31 -0400
+	id <S318710AbSHWIRQ>; Fri, 23 Aug 2002 04:17:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318708AbSHWIPa>; Fri, 23 Aug 2002 04:15:30 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:59125 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318706AbSHWIPa>; Fri, 23 Aug 2002 04:15:30 -0400
-Subject: Re: SMP Netfinity 340 hangs under 2.4.19
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Maurice Volaski <mvolaski@aecom.yu.edu>
+	id <S318711AbSHWIRP>; Fri, 23 Aug 2002 04:17:15 -0400
+Received: from mail.iok.net ([62.249.129.22]:8978 "EHLO mars.iok.net")
+	by vger.kernel.org with ESMTP id <S318710AbSHWIRP>;
+	Fri, 23 Aug 2002 04:17:15 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Holger Schurig <h.schurig@mn-logistik.de>
+To: Oskar Schirmer <os@emlix.com>
+Subject: Re: cell-phone like keyboard driver anywhere?
+Date: Fri, 23 Aug 2002 09:54:11 +0200
+User-Agent: KMail/1.4.3
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <a05111608b98b96373cce@[129.98.90.227]>
-References: <a05111608b98b96373cce@[129.98.90.227]>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 23 Aug 2002 09:21:04 +0100
-Message-Id: <1030090864.5932.5.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+References: <200208210932.36132.h.schurig@mn-logistik.de> <E17i91I-0007nB-00@mailer.emlix.com>
+In-Reply-To: <E17i91I-0007nB-00@mailer.emlix.com>
+X-Archive: encrypt
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200208230954.11132.h.schurig@mn-logistik.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-08-23 at 08:58, Maurice Volaski wrote:
-> A single processor Netfinity 340 running RedHat 7.1 and kernel 2.4.18 
-> was recently upgraded to
-> 
-> 1) 1 GB RAM
-> 2) second processor (1 Ghz Xeon)
-> 3) 2.4.19 for SMP with bigmem and added NFS server patches and 
-> ext3-related patches.
+> IMO this should not be done by the kernel, but by the application.
 
-Exactly what patches ? and does unpatched 2.4.19 behave ?
+One can read such stuff all the time ... but really this is not possible in a 
+general way. You don't know in advance if one runs a ncurses, text-only, 
+Qt/Embedded or X-Windows application.
 
-> Is there significance to the fact that keyboard and mouse are frozen 
-> but apparently some processes are still up?
+> - it is easy for the application to check the timing of the
+>   keys pressed and produce the desired characters instead [poll (2)].
 
-Interrupts are running but its stuck looping in kernel space I suspect. 
+Yes, it's easy to put that in a Qt/Embedded app, but what is when the app 
+terminates?  You could not restart it via the keyboard, because the keyboard 
+is dead. Yeah, it's cumbersome to restart it with a cell-like keyboard, but 
+it's possible.
+
+
+
+Anyway, I have to write it low-level, in the kernel. I just wondered if 
+something like this already exists.
 

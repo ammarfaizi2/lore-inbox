@@ -1,71 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266327AbUGAWFJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266338AbUGAWIT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266327AbUGAWFJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 18:05:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266322AbUGAWFI
+	id S266338AbUGAWIT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 18:08:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266361AbUGAWIS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 18:05:08 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:32952 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S266319AbUGAWEv (ORCPT
+	Thu, 1 Jul 2004 18:08:18 -0400
+Received: from fw.osdl.org ([65.172.181.6]:5588 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266338AbUGAWGx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 18:04:51 -0400
-Date: Fri, 2 Jul 2004 00:04:48 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: Mikael.Pettersson@csd.uu.se
+	Thu, 1 Jul 2004 18:06:53 -0400
+Date: Thu, 1 Jul 2004 15:09:44 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jan Kara <jack@suse.cz>
 Cc: linux-kernel@vger.kernel.org
-Subject: perfctr questions
-Message-ID: <20040701220448.GA16515@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Mikael.Pettersson@csd.uu.se, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix minor quota race
+Message-Id: <20040701150944.19b33862.akpm@osdl.org>
+In-Reply-To: <20040701200740.GE3540@atrey.karlin.mff.cuni.cz>
+References: <20040701200740.GE3540@atrey.karlin.mff.cuni.cz>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael,
+Jan Kara <jack@suse.cz> wrote:
+>
+> I'm sending one more quota fix - it fixes a possible race between
+> quotaoff and prune_icache. The race could lead to some forgotten
+> pointers to quotas in inodes leading later to BUG when invalidating
+> quota structures. The patch is against 2.6.7.
 
-I'm trying to test your performance counters stuff, but I can't get it to do
-anything remotely useful! Probably just me.
+It tossed one reject against the lock ranking comment in dquot.c.  I fixed
+that up.
 
-I have a very hard time understanding things like:
+I'll apply the below patch on top of it - please always put extern decls in
+header files so that the implementor and all users of the data/function
+always see the same declaration.
 
- *      perfex -e 0x00039000/0x04000204@0x8000000C some_program
- *
- *      Explanation: Program IQ_CCCR0 with required flags, ESCR select 4
- *      (== CRU_ESCR0), and Enable. Program CRU_ESCR0 with event 2
- *      (instr_retired), NBOGUSNTAG, CPL>0. Map this event to IQ_COUNTER0
- *      (0xC) with fast RDPMC enabled.
 
-I'd love to author a small perfctr howto for people like me who just want to
-know if their code is thrashing the cache. 
 
-Do you have a pointer to tools that do this, or, how to calculate these
-0x00039000 numbers for perfex? I can't find anything relevant. The best
-information I found is in the 'hardmeter' sources.
+diff -puN fs/dquot.c~fix-minor-quota-race-tweaks fs/dquot.c
+--- 25/fs/dquot.c~fix-minor-quota-race-tweaks	Thu Jul  1 15:05:45 2004
++++ 25-akpm/fs/dquot.c	Thu Jul  1 15:06:12 2004
+@@ -730,11 +730,6 @@ static void put_dquot_list(struct list_h
+ 	}
+ }
+ 
+-/* Function in inode.c - remove pointers to dquots in icache */
+-extern void remove_dquot_ref(struct super_block *, int, struct list_head *);
+-
+-extern struct semaphore iprune_sem;
+-
+ /* Gather all references from inodes and drop them */
+ static void drop_dquot_ref(struct super_block *sb, int type)
+ {
+diff -puN include/linux/fs.h~fix-minor-quota-race-tweaks include/linux/fs.h
+--- 25/include/linux/fs.h~fix-minor-quota-race-tweaks	Thu Jul  1 15:05:45 2004
++++ 25-akpm/include/linux/fs.h	Thu Jul  1 15:07:08 2004
+@@ -1386,6 +1386,8 @@ extern void clear_inode(struct inode *);
+ extern void destroy_inode(struct inode *);
+ extern struct inode *new_inode(struct super_block *);
+ extern int remove_suid(struct dentry *);
++extern void remove_dquot_ref(struct super_block *, int, struct list_head *);
++extern struct semaphore iprune_sem;
+ 
+ extern void __insert_inode_hash(struct inode *, unsigned long hashval);
+ extern void remove_inode_hash(struct inode *);
+_
 
-I tried one very basic thing, perfex -e 0x00410005 ./null which I hoped
-would measure unaligned memory accesses, but I can't get this counter raised
-from 0. null.c:
-
-int main(int argc, char **argv)
-{
-        char room[12];
-        int i, n;
-
-        for(n=0;n<1000000;++n) {
-                i=*((int*)(room+n%4));  
-        }
-        
-        printf("%d\n", i);
-}
-
-I'm on a Pentium M, 2.6.7-mm5. Not even sure if an Pentium M will measure
-cache misses though.
-
-Thanks
-
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263633AbTKXH7X (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 02:59:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263636AbTKXH7X
+	id S263628AbTKXHwl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 02:52:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263633AbTKXHwl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 02:59:23 -0500
-Received: from zero.aec.at ([193.170.194.10]:65028 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S263633AbTKXH7W (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 02:59:22 -0500
-Date: Mon, 24 Nov 2003 08:59:19 +0100
-From: Andi Kleen <ak@muc.de>
-To: linux-kernel@vger.kernel.org
-Subject: deadlock in group_send_sig_info
-Message-ID: <20031124075919.GA29874@averell>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 24 Nov 2003 02:52:41 -0500
+Received: from out002pub.verizon.net ([206.46.170.141]:36519 "EHLO
+	out002.verizon.net") by vger.kernel.org with ESMTP id S263628AbTKXHwk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Nov 2003 02:52:40 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+To: Junio C Hamano <junkio@cox.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Re: Linux 2.6.0-test10
+Date: Mon, 24 Nov 2003 02:52:35 -0500
+User-Agent: KMail/1.5.1
+Cc: Linus Torvalds <torvalds@osdl.org>
+References: <Pine.LNX.4.44.0311231804170.17378-100000@home.osdl.org> <7vvfpai81r.fsf@assigned-by-dhcp.cox.net>
+In-Reply-To: <7vvfpai81r.fsf@assigned-by-dhcp.cox.net>
+Organization: None that appears to be detectable by casual observers
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Message-Id: <200311240252.35688.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out002.verizon.net from [151.205.54.127] at Mon, 24 Nov 2003 01:52:39 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 24 November 2003 01:40, Junio C Hamano wrote:
+>Sorry for being paranoid, but is this message really from the
+>real Linus?  I have never seen Linus' e-mail with long lines
+>folded with '=' at the end of line, nor with charset ISO-8859-1.
 
-I had my ipsec daemon deadlock on me in 2.6.0test9/x86-64.
-It became unkillable. Apparently it deadlocked while sending
-a signal:
+Its not being displayed that way here, using kmail from kde-3.1.1a.
 
-pluto         T 0000010002417450    16 20769  20656 20841               (NOTLB)
-ffffffff80499dc8 0000010034a3ed70 ffffffff80499e08 0000010034a3ed70 
-        0000010002426400 ffffffff8013247d 0000000000000002 000001003fa72000 
-        0000000000000001 ffffffff8025ff78 
-Call Trace:<IRQ> <ffffffff8013247d>{show_state+93} <ffffffff8025ff78>{k_spec+56} 
-        <ffffffff80260ac5>{kbd_keycode+693} <ffffffff80260b10>{kbd_event+32} 
-        <ffffffff802c1809>{input_event+905} <ffffffff802c3ccf>{atkbd_interrupt+719} 
-        <ffffffff802c6f6b>{serio_interrupt+27} <ffffffff802c77cc>{i8042_interrupt+300} 
-        <ffffffffa006d473>{:pppoe:pppoe_rcv_core+163} <ffffffff8013d64c>{update_wall_time+12} 
-        <ffffffffa006d071>{:pppoe:__get_item+17} <ffffffff8012f5de>{recalc_task_prio+382} 
-        <ffffffff801104ef>{reschedule_interrupt+99} <ffffffff8013d64c>{update_wall_time+12} 
-        <ffffffff8013d9c1>{do_timer+49} <ffffffff80116113>{timer_interrupt+515} 
-        <ffffffff8011281f>{handle_IRQ_event+47} <ffffffff80112a62>{do_IRQ+194} 
-        <ffffffff80110385>{ret_from_intr+0}  <EOI> <ffffffff80181797>{do_select+855} 
-        <ffffffff8013f4d2>{group_send_sig_info+1074} <ffffffff8013f6a2>{kill_proc_info+66} 
-        <ffffffff801418ac>{sys_kill+76} <ffffffff80124299>{sys32_kill+9} 
-        <ffffffff801211fe>{ia32_do_syscall+30} 
+-- 
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.27% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
 
-I unfortunately don't have the vmlinux for this kernel anymore
-and cannot decode it further.
-
--Andi

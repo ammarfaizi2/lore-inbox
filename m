@@ -1,81 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293028AbSCJMzG>; Sun, 10 Mar 2002 07:55:06 -0500
+	id <S293035AbSCJN3W>; Sun, 10 Mar 2002 08:29:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293030AbSCJMy5>; Sun, 10 Mar 2002 07:54:57 -0500
-Received: from mail.gmx.de ([213.165.64.20]:48994 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S293028AbSCJMyr>;
-	Sun, 10 Mar 2002 07:54:47 -0500
-Date: Sun, 10 Mar 2002 13:54:39 +0100
-From: Tobias Diedrich <ranma@gmx.at>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] ite8330g pirq router support
-Message-ID: <20020310125439.GA4825@router.ranmachan.dyndns.org>
-Mail-Followup-To: Tobias Diedrich <ranma@gmx.at>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+	id <S293036AbSCJN3N>; Sun, 10 Mar 2002 08:29:13 -0500
+Received: from 99dyn73.com21.casema.net ([62.234.30.73]:52137 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S293035AbSCJN3C>; Sun, 10 Mar 2002 08:29:02 -0500
+Message-Id: <200203101328.OAA15987@cave.bitwizard.nl>
+Subject: RAID superblock....
+To: mingo@redhat.com, Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        viro@math.psu.edu
+Date: Sun, 10 Mar 2002 14:28:57 +0100 (MET)
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-notice1: This Email contains my Email address. This grants you the right
+X-notice2: to communicate with me using this address, related to the subject
+X-notice3: in this message. Unsollicitated mass-mailings are explictly 
+X-notice4: forbidden here, and by Dutch law. 
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This small patch adds support for the pirq router of the ITE8330G
-chipset my notebook is using. The pirqmap is probably partly wrong though,
-as the BIOS does a very bad job at setting up the irq routing table...
 
-Against 2.4.19-pre2-ac4.
+Hi,
 
-diff -urN linux-2.4.19-pre2-ac4/arch/i386/kernel/pci-irq.c linux-2.4.19-pre2-ac4-ite8330g/arch/i386/kernel/pci-irq.c
---- linux-2.4.19-pre2-ac4/arch/i386/kernel/pci-irq.c	Sun Mar 10 13:26:16 2002
-+++ linux-2.4.19-pre2-ac4-ite8330g/arch/i386/kernel/pci-irq.c	Sun Mar 10 13:39:25 2002
-@@ -208,6 +208,24 @@
- }
- 
- /*
-+ * ITE 8330G pirq rules are nibble-based
-+ * FIXME: pirqmap may be { 1, 0, 3, 2 },
-+ * 	  2+3 are both mapped to irq 9 on my system
-+ */
-+static int pirq_ite_get(struct pci_dev *router, struct pci_dev *dev, int pirq)
-+{
-+	static unsigned char pirqmap[4] = { 1, 0, 2, 3 };
-+	return read_config_nybble(router,0x43, pirqmap[pirq-1]);
-+}
-+
-+static int pirq_ite_set(struct pci_dev *router, struct pci_dev *dev, int pirq, int irq)
-+{
-+	static unsigned char pirqmap[4] = { 1, 0, 2, 3 };
-+	write_config_nybble(router, 0x43, pirqmap[pirq-1], irq);
-+	return 1;
-+}
-+
-+/*
-  * OPTI: high four bits are nibble pointer..
-  * I wonder what the low bits do?
-  */
-@@ -448,6 +466,8 @@
- 	{ "PIIX", PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801BA_0, pirq_piix_get, pirq_piix_set },
- 
- 	{ "ALI", PCI_VENDOR_ID_AL, PCI_DEVICE_ID_AL_M1533, pirq_ali_get, pirq_ali_set },
-+
-+	{ "ITE", PCI_VENDOR_ID_ITE, PCI_DEVICE_ID_ITE_IT8330G_0, pirq_ite_get, pirq_ite_set },
- 
- 	{ "VIA", PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_0, pirq_via_get, pirq_via_set },
- 	{ "VIA", PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C596, pirq_via_get, pirq_via_set },
-diff -urN linux-2.4.19-pre2-ac4/include/linux/pci_ids.h linux-2.4.19-pre2-ac4-ite8330g/include/linux/pci_ids.h
---- linux-2.4.19-pre2-ac4/include/linux/pci_ids.h	Sun Mar 10 13:26:03 2002
-+++ linux-2.4.19-pre2-ac4-ite8330g/include/linux/pci_ids.h	Sun Mar 10 13:38:48 2002
-@@ -1291,7 +1291,7 @@
- #define PCI_DEVICE_ID_ITE_IT8172G	0x8172
- #define PCI_DEVICE_ID_ITE_IT8172G_AUDIO 0x0801
- #define PCI_DEVICE_ID_ITE_8872		0x8872
--
-+#define PCI_DEVICE_ID_ITE_IT8330G_0	0xe886
- 
- /* formerly Platform Tech */
- #define PCI_VENDOR_ID_ESS_OLD		0x1285
+The MD code I see doing: 
+
+
+488         sb_offset = calc_dev_sboffset(rdev->dev, rdev->mddev, 1);
+489         rdev->sb_offset = sb_offset;
+490         fsync_dev(dev);
+491         set_blocksize (dev, MD_SB_BYTES);
+492         bh = bread (dev, sb_offset / MD_SB_BLOCKS, MD_SB_BYTES);
+
+
+where sb_offset is calculated as: 
+
+290         if (blk_size[MAJOR(dev)])
+291                 size = blk_size[MAJOR(dev)][MINOR(dev)];
+
+Now, for aguments sake, I have a 4k disk. I'd expect the size to be 4
+(1k blocks, according to the comment near the definition of blk_size). 
+
+Thus the "bread" would effectively try to read the block at offset 4k. 
+
+That would be past the end of my mini-disk, right?
+
+I would have expected a "-1" in there somewhere, to get the last block
+of the dev, and not the block just past the end of the drive.
+
+Anyway on the old machine, I still cannot find the raid superblock by
+hand, but the drives now mount, so the kernel must have been able to
+locate them somehow......
+
+The machine is still running 2.4.16 + IDE patches for 48 bit
+addressing.
+
+The working machine is an 850MHz PIII w/384Mb RAM, the non-working
+machine is an AMD 1800+ MP w/1G RAM (with another one of those
+processors sitting idle close by)...
+
+				Roger. 
 
 -- 
-Tobias								PGP: 0x9AC7E0BC
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

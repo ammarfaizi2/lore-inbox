@@ -1,76 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261263AbUDAAoQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 19:44:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbUDAAoP
+	id S261439AbUDAAqA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 19:46:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261772AbUDAAp7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 19:44:15 -0500
-Received: from fire.osdl.org ([65.172.181.4]:30878 "EHLO fire-2.osdl.org")
-	by vger.kernel.org with ESMTP id S261263AbUDAAoN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 19:44:13 -0500
-Subject: Re: 2.6.5-rc3-mm2 (compile stats)
-From: John Cherry <cherry@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040331014351.1ec6f861.akpm@osdl.org>
-References: <20040331014351.1ec6f861.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1080780181.2582.54.camel@cherrybomb.pdx.osdl.net>
+	Wed, 31 Mar 2004 19:45:59 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:23742
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S261439AbUDAAp3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Mar 2004 19:45:29 -0500
+Date: Thu, 1 Apr 2004 02:45:28 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@osdl.org>, vrajesh@umich.edu,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity fix
+Message-ID: <20040401004528.GU2143@dualathlon.random>
+References: <20040331150718.GC2143@dualathlon.random> <Pine.LNX.4.44.0403311735560.27163-100000@localhost.localdomain> <20040331172851.GJ2143@dualathlon.random>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 31 Mar 2004 16:43:01 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040331172851.GJ2143@dualathlon.random>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux 2.6 (mm tree) Compile Statistics (gcc 3.2.2)
-Warnings/Errors Summary
+On Wed, Mar 31, 2004 at 07:28:51PM +0200, Andrea Arcangeli wrote:
+> if they run into trouble I'll return to the pagecache API adding the
+> GFP_KERNEL and check for oom failure.
 
-Kernel            bzImage   bzImage  bzImage  modules  bzImage  modules
-                (defconfig) (allno) (allyes) (allyes) (allmod) (allmod)
---------------- ---------- -------- -------- -------- -------- --------
-2.6.5-rc3-mm3     0w/0e     5w/0e   129w/14e   8w/0e   4w/0e    129w/6e
-2.6.5-rc3-mm2     0w/0e     5w/0e   130w/14e   8w/0e   4w/0e    129w/6e
-2.6.5-rc3-mm1     0w/0e     5w/0e   129w/ 0e   8w/0e   4w/0e    129w/0e
-2.6.5-rc2-mm5     0w/0e     5w/0e   130w/ 0e   8w/0e   4w/0e    129w/0e
-2.6.5-rc2-mm4     0w/0e     5w/0e   134w/ 0e   8w/0e   3w/0e    133w/0e
-2.6.5-rc2-mm3     0w/0e     5w/0e   134w/ 0e   8w/0e   3w/0e    133w/0e
-2.6.5-rc2-mm2     0w/0e     5w/0e   137w/ 0e   8w/0e   3w/0e    134w/0e
-2.6.5-rc2-mm1     0w/0e     5w/0e   136w/ 0e   8w/0e   3w/0e    134w/0e
-2.6.5-rc1-mm2     0w/0e     5w/0e   135w/ 5e   8w/0e   3w/0e    133w/0e
-2.6.5-rc1-mm1     0w/0e     5w/0e   135w/ 5e   8w/0e   3w/0e    133w/0e
-2.6.4-mm2         1w/2e     5w/2e   144w/10e   8w/0e   3w/2e    144w/0e
-2.6.4-mm1         1w/0e     5w/0e   146w/ 5e   8w/0e   3w/0e    144w/0e
-2.6.4-rc2-mm1     1w/0e     5w/0e   146w/12e  11w/0e   3w/0e    147w/2e
-2.6.4-rc1-mm2     1w/0e     5w/0e   144w/ 0e  11w/0e   3w/0e    145w/0e
-2.6.4-rc1-mm1     1w/0e     5w/0e   147w/ 5e  11w/0e   3w/0e    147w/0e
-2.6.3-mm4         1w/0e     5w/0e   146w/ 0e   7w/0e   3w/0e    142w/0e
-2.6.3-mm3         1w/2e     5w/2e   146w/15e   7w/0e   3w/2e    144w/5e
-2.6.3-mm2         1w/8e     5w/0e   140w/ 0e   7w/0e   3w/0e    138w/0e
-2.6.3-mm1         1w/0e     5w/0e   143w/ 5e   7w/0e   3w/0e    141w/0e
-2.6.3-rc3-mm1     1w/0e     0w/0e   144w/13e   7w/0e   3w/0e    142w/3e
-2.6.3-rc2-mm1     1w/0e     0w/265e 144w/ 5e   7w/0e   3w/0e    145w/0e
-2.6.3-rc1-mm1     1w/0e     0w/265e 141w/ 5e   7w/0e   3w/0e    143w/0e
-2.6.2-mm1         2w/0e     0w/264e 147w/ 5e   7w/0e   3w/0e    173w/0e
-2.6.2-rc3-mm1     2w/0e     0w/265e 146w/ 5e   7w/0e   3w/0e    172w/0e
-2.6.2-rc2-mm2     0w/0e     0w/264e 145w/ 5e   7w/0e   3w/0e    171w/0e
-2.6.2-rc2-mm1     0w/0e     0w/264e 146w/ 5e   7w/0e   3w/0e    172w/0e
-2.6.2-rc1-mm3     0w/0e     0w/265e 144w/ 8e   7w/0e   3w/0e    169w/0e
-2.6.2-rc1-mm2     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
-2.6.2-rc1-mm1     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
-2.6.1-mm5         2w/5e     0w/264e 153w/11e  10w/0e   3w/0e    180w/0e
-2.6.1-mm4         0w/821e   0w/264e 154w/ 5e   8w/1e   5w/0e    179w/0e
-2.6.1-mm3         0w/0e     0w/0e   151w/ 5e  10w/0e   3w/0e    177w/0e
-2.6.1-mm2         0w/0e     0w/0e   143w/ 5e  12w/0e   3w/0e    171w/0e
-2.6.1-mm1         0w/0e     0w/0e   146w/ 9e  12w/0e   6w/0e    171w/0e
-2.6.1-rc2-mm1     0w/0e     0w/0e   149w/ 0e  12w/0e   6w/0e    171w/4e
-2.6.1-rc1-mm2     0w/0e     0w/0e   157w/15e  12w/0e   3w/0e    185w/4e
-2.6.1-rc1-mm1     0w/0e     0w/0e   156w/10e  12w/0e   3w/0e    184w/2e
-2.6.0-mm2         0w/0e     0w/0e   161w/ 0e  12w/0e   3w/0e    189w/0e
-2.6.0-mm1         0w/0e     0w/0e   173w/ 0e  12w/0e   3w/0e    212w/0e
+there were troubles with the header indeed. So I went back to the
+pagecache version (now fixed with GFP_KERNEL and oom retval checking).
 
-Web page with links to complete details:
-   http://developer.osdl.org/cherry/compile/
+the oops I've got with the header trouble was weird (but at least the
+previous radix_tree_delete crash is gone), so it's not completely clear
+if this will be enough to make it work as well as it was working before
+the -mm writeback changes. I tried to reproduce but apparently acpi is
+doing nothing here for a echo 4 > sleep :/.
 
-
+diff -urNp --exclude CVS --exclude BitKeeper --exclude {arch} --exclude .arch-ids x-ref/mm/page_io.c x/mm/page_io.c
+--- x-ref/mm/page_io.c	2004-04-01 02:09:53.846664248 +0200
++++ x/mm/page_io.c	2004-04-01 02:11:41.526294456 +0200
+@@ -139,7 +139,7 @@ struct address_space_operations swap_aop
+ 
+ /*
+  * A scruffy utility function to read or write an arbitrary swap page
+- * and wait on the I/O.
++ * and wait on the I/O.  The caller must have a ref on the page.
+  */
+ int rw_swap_page_sync(int rw, swp_entry_t entry, struct page *page)
+ {
+@@ -151,8 +151,11 @@ int rw_swap_page_sync(int rw, swp_entry_
+ 	lock_page(page);
+ 
+ 	BUG_ON(page->mapping);
+-	page->mapping = &swapper_space;
+-	page->index = entry.val;
++	ret = add_to_page_cache(page, &swapper_space, entry.val, GFP_KERNEL);
++	if (unlikely(ret)) {
++		unlock_page(page);
++		return ret;
++	}
+ 
+ 	if (rw == READ) {
+ 		ret = swap_readpage(NULL, page);
+@@ -161,7 +164,12 @@ int rw_swap_page_sync(int rw, swp_entry_
+ 		ret = swap_writepage(page, &swap_wbc);
+ 		wait_on_page_writeback(page);
+ 	}
+-	page->mapping = NULL;
++
++	lock_page(page);
++	remove_from_page_cache(page);
++	unlock_page(page);
++	page_cache_release(page);	/* For add_to_page_cache() */
++
+ 	if (ret == 0 && (!PageUptodate(page) || PageError(page)))
+ 		ret = -EIO;
+ 	return ret;

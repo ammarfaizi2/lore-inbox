@@ -1,42 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318367AbSGaNbz>; Wed, 31 Jul 2002 09:31:55 -0400
+	id <S317696AbSGaNfU>; Wed, 31 Jul 2002 09:35:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318371AbSGaNbz>; Wed, 31 Jul 2002 09:31:55 -0400
-Received: from CPE-203-51-28-61.nsw.bigpond.net.au ([203.51.28.61]:46835 "EHLO
-	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
-	id <S318367AbSGaNby>; Wed, 31 Jul 2002 09:31:54 -0400
-Message-ID: <3D47E796.3188C62@eyal.emu.id.au>
-Date: Wed, 31 Jul 2002 23:35:18 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
-X-Accept-Language: en
+	id <S318371AbSGaNfU>; Wed, 31 Jul 2002 09:35:20 -0400
+Received: from sunny.pacific.net.au ([203.25.148.40]:25294 "EHLO
+	sunny.pacific.net.au") by vger.kernel.org with ESMTP
+	id <S317696AbSGaNfU>; Wed, 31 Jul 2002 09:35:20 -0400
+From: "David Luyer" <david@luyer.net>
+To: "'Dana Lacoste'" <dana.lacoste@peregrine.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Linux 2.4.19ac3rc3 on IBM x330/x340 SMP - "ps" time skew
+Date: Wed, 31 Jul 2002 23:38:41 +1000
+Message-ID: <00c901c23897$9593e530$638317d2@pacific.net.au>
 MIME-Version: 1.0
-To: Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: RAID problems
-References: <Pine.LNX.3.96.1020730223102.6974A-100000@gatekeeper.tmr.com> <004501c23841$03265a30$6a01a8c0@wa1hco>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.3416
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
+In-Reply-To: <1028122277.13632.3.camel@dlacoste.ottawa.loran.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jeff millar wrote:
-[trimmed]
-> Raid needs an automatic way to maintain device synchronization.  Why should
-> I have to...
->     manually examine the device data (lsraid)
->     find two devices that match
->     mark the others failed in /etc/raidtab
->     reinitialize the raid devices...putting all data at risk
->     hot add the "failed" device
->     wait for it to recover (hours)
+Dana Lacoste wrote:
+> On Wed, 2002-07-31 at 13:59, David Luyer wrote:
+> >   printf("%d\n", sysconf(_SC_NPROCESSORS_CONF));
+> > }
+> > luyer@praxis8:~$ ./cpus
+> > 4
+> 
+> I ran your test program on a Compaq DL360 and an IBM x330
+> and both showed '2' for the CPU count (2.4.18 stock, glibc 2.2.3)
+> 
+> Just a point of reference to help narrow the problem area down :)
 
-There is no need to wait here, go a head and remount it now if you need
-it.
+Yes, the problem is in the -ac train only.  It's the "processor id"
+field that has been added to /proc/cpuinfo which is confusing libc's
+way of counting CPUs.
 
->     change /etc/raidtab again
->     retest everything
+That's a libc bug.  But there's also a kernel bug with that field
+it appears.
 
+The kernel bug: the "processor id" fields are both printing zero.
+
+Possibly because show_cpuinfo() in arch/i386/kernel/setup.c prints
+directly out of phys_proc_id as at the time it's called, but
+smpboot.c declates phys_proc_id as __initdata (either that, or
+phys_proc_id is actually zero for both CPUs?).
+
+David.
 --
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+David Luyer                                     Phone:   +61 3 9674 7525
+Network Development Manager    P A C I F I C    Fax:     +61 3 9699 8693
+Pacific Internet (Australia)  I N T E R N E T   Mobile:  +61 4 1111 BYTE
+http://www.pacific.net.au/                      NASDAQ:  PCNTF
+

@@ -1,90 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262955AbTC1L12>; Fri, 28 Mar 2003 06:27:28 -0500
+	id <S262931AbTC1LZK>; Fri, 28 Mar 2003 06:25:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262959AbTC1L12>; Fri, 28 Mar 2003 06:27:28 -0500
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:21765 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id <S262955AbTC1L1Z>;
-	Fri, 28 Mar 2003 06:27:25 -0500
-Date: Fri, 28 Mar 2003 12:38:40 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix non-TSC ia32 CPUs
-Message-ID: <20030328113840.GR11958@lug-owl.de>
-Mail-Followup-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="NKys6zTV8iyMJiwY"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
+	id <S262955AbTC1LZK>; Fri, 28 Mar 2003 06:25:10 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:47369 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S262931AbTC1LZI>; Fri, 28 Mar 2003 06:25:08 -0500
+Date: Fri, 28 Mar 2003 12:36:18 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Andries.Brouwer@cwi.nl
+cc: greg@kroah.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: 64-bit kdev_t - just for playing
+In-Reply-To: <UTC200303281110.h2SBA1L24473.aeb@smtp.cwi.nl>
+Message-ID: <Pine.LNX.4.44.0303281219350.5042-100000@serv>
+References: <UTC200303281110.h2SBA1L24473.aeb@smtp.cwi.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---NKys6zTV8iyMJiwY
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Fri, 28 Mar 2003 Andries.Brouwer@cwi.nl wrote:
 
-Hi Marcelo!
+> Roman, Your questions are misguided.
 
-I'm currently resurrecting some old i386SX16 and Am386 systems. Linux
-doesn't boot on thhese boxes because TSC support wasn't switched off as
-axpected. This patch fixes it for me. Please apply...
+Thanks for your trust. :-(
 
-MfG, JBG
+> A larger dev_t is infrastructure.
+> A sand road that is turned into an asphalt road.
+> 
+> Nobody has to use this improved infrastructure.
+> But many uses are conceivable.
 
---- linux-2.4.21-pre5-clean/arch/i386/config.in	2003-03-25 10:57:12.0000000=
-00 +0100
-+++ linux-2.4.21-pre5/arch/i386/config.in	2003-03-28 11:59:54.000000000 +01=
-00
-@@ -55,6 +55,7 @@
-    define_bool CONFIG_RWSEM_XCHGADD_ALGORITHM n
-    define_bool CONFIG_X86_PPRO_FENCE y
-    define_bool CONFIG_X86_F00F_WORKS_OK n
-+   define_bool CONFIG_X86_HAS_TSC n
- else
-    define_bool CONFIG_X86_WP_WORKS_OK y
-    define_bool CONFIG_X86_INVLPG y
-@@ -71,6 +72,7 @@
-    define_bool CONFIG_X86_ALIGNMENT_16 y
-    define_bool CONFIG_X86_PPRO_FENCE y
-    define_bool CONFIG_X86_F00F_WORKS_OK n
-+   define_bool CONFIG_X86_HAS_TSC n
- fi
- if [ "$CONFIG_M586" =3D "y" ]; then
-    define_int  CONFIG_X86_L1_CACHE_SHIFT 5
-@@ -78,6 +80,7 @@
-    define_bool CONFIG_X86_ALIGNMENT_16 y
-    define_bool CONFIG_X86_PPRO_FENCE y
-    define_bool CONFIG_X86_F00F_WORKS_OK n
-+   define_bool CONFIG_X86_HAS_TSC n
- fi
- if [ "$CONFIG_M586TSC" =3D "y" ]; then
-    define_int  CONFIG_X86_L1_CACHE_SHIFT 5
+The size of dev_t doesn't matter at all, what matters is how this number 
+is managed and used. The kernel has somehow to generate a number for a 
+device and tell the user about it, so that he can use it to access the 
+device. This requires infrastructure and the actual size of this number is 
+only a small detail in the whole picture. I want to know how the whole 
+picture looks like, so could you please stop talking bullshit and answer 
+my questions?
 
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-      ret =3D do_actions((curr | FREE_SPEECH) & ~(IRAQ_WAR_2 | DRM | TCPA));
+> I can imagine that there will be people wanting
+> to take part of the available space for a universal
+> hash of disk serial number or partition label or
+> I don't know what, so that devices are addressable
+> by content instead of path.
 
---NKys6zTV8iyMJiwY
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+This won't happen, dev_t is the wrong place to encode such information.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+bye, Roman
 
-iD8DBQE+hDRAHb1edYOZ4bsRAvcYAJ49dlGjkKFUybiQgqaGgJ+ZSOZOLQCeOnYd
-ZZ7nzsv7B85E24uii77IBdk=
-=1pEH
------END PGP SIGNATURE-----
-
---NKys6zTV8iyMJiwY--

@@ -1,89 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262743AbTIEWGr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 18:06:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262758AbTIEWGq
+	id S263787AbTIEWVZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 18:21:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264015AbTIEWVY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 18:06:46 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:32264 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S262743AbTIEWGk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 18:06:40 -0400
-Subject: Re: 2.6.0-test4-mm6
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Malte =?ISO-8859-1?Q?Schr=F6der?= <MalteSch@gmx.de>
-Cc: linux-kernel@vger.kernel.org, Jan Ischebeck <mail@jan-ischebeck.de>
-In-Reply-To: <200309051620.07380.MalteSch@gmx.de>
-References: <1062758896.2085.19.camel@JHome.uni-bonn.de>
-	 <200309051620.07380.MalteSch@gmx.de>
-Content-Type: text/plain; charset=
-Message-Id: <1062799577.2669.0.camel@glass.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
-Date: Sat, 06 Sep 2003 00:06:17 +0200
-Content-Transfer-Encoding: 8bit
+	Fri, 5 Sep 2003 18:21:24 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:24564 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S263787AbTIEWVV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 18:21:21 -0400
+Message-ID: <3F590BDD.9010902@mvista.com>
+Date: Fri, 05 Sep 2003 15:19:09 -0700
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: andersen@codepoet.org
+CC: Andrew Morton <akpm@osdl.org>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org, jun.nakajima@intel.com
+Subject: Re: [PATCHSET][2.6-test4][0/6]Support for HPET based timer - Take
+ 2
+References: <C8C38546F90ABF408A5961FC01FDBF1902C7D211@fmsmsx405.fm.intel.com> <20030829112347.2d8e292d.akpm@osdl.org> <20030829210335.GA3150@codepoet.org>
+In-Reply-To: <20030829210335.GA3150@codepoet.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-09-05 at 16:20, Malte Schröder wrote:
-> I have the same X problem on mm6. I use a Radeon 8500, Debian/Sid.
-
-Me too on RHL 9.0.93 Beta (Severn)
-
+Erik Andersen wrote:
+> On Fri Aug 29, 2003 at 11:23:47AM -0700, Andrew Morton wrote:
 > 
-> On Friday 05 September 2003 12:48, Jan Ischebeck wrote:
-> > On Friday 05 September 2003 16:59, Andrew Morton wrote:
-> >
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test4/2
-> >.6.0-test4-mm6/
-> >
-> >
-> > Hi Andrew,
-> >
-> > Some first impressions:
-> >
-> > 1. swsusp works great (Thinkpad R40 2722)
-> >
-> > 2. X11R6 won't start anymore, it fails with a strange
-> > Fatal server error:
-> > xf86OpenConsole: VT_GETMODE failed
-> > I can't find a reason for that in the changelog.
-> >
-> > 3. The oss mixer emulation doesn't load correctly, I get the following
-> > messages in the syslog, f.e. after a "modprobe snd-mixer-oss":
-> >
-> > snd: Unknown parameter `device_mode'
-> > snd_mixer_oss: Unknown symbol snd_info_register
-> > snd_mixer_oss: Unknown symbol snd_info_free_entry
-> > snd_mixer_oss: Unknown symbol snd_info_get_str
-> > snd_mixer_oss: Unknown symbol snd_unregister_oss_device
-> > snd_mixer_oss: Unknown symbol snd_ctl_find_id
-> > snd_mixer_oss: Unknown symbol snd_register_oss_device
-> > snd_mixer_oss: Unknown symbol snd_card_file_add
-> > snd_mixer_oss: Unknown symbol snd_mixer_oss_notify_callback
-> > snd_mixer_oss: Unknown symbol snd_iprintf
-> > snd_mixer_oss: Unknown symbol snd_kcalloc
-> > snd_mixer_oss: Unknown symbol snd_cards
-> > snd_mixer_oss: Unknown symbol snd_ctl_notify
-> > snd_mixer_oss: Unknown symbol snd_oss_info_register
-> > snd_mixer_oss: Unknown symbol snd_kmalloc_strdup
-> > snd_mixer_oss: Unknown symbol snd_info_create_card_entry
-> > snd_mixer_oss: Unknown symbol snd_card_file_remove
-> > snd_mixer_oss: Unknown symbol snd_info_unregister
-> > snd_mixer_oss: Unknown symbol snd_info_get_line
-> >
-> > Could be connected with
-> >
-> > > +sound-remove-duplicate-includes.patch
-> > > +kernel-remove-duplicate-includes.patch
-> > >
-> > > janitorial work
-> >
-> > 4. Powerdown via ACPI still doesn't work (broken since -test2 or -test1)
-> >
-> > Thanks for the great work.
-> >
-> > Jan
-> >
-> > (Please CC me on reply)
+>>"Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com> wrote:
+>>
+>>>Resending the patch.
+>>
+>>Thanks, I'll include these in the next -mm kernel.
+>>
+>>Reading the code, the only thing which leaps out is:
+>>
+>>+/* Use our own asm for 64 bit multiply/divide */
+>>+#define ASM_MUL64_REG(eax_out,edx_out,reg_in,eax_in) 			\
+>>+		__asm__ __volatile__("mull %2" 				\
+>>+				:"=a" (eax_out), "=d" (edx_out) 	\
+>>+				:"r" (reg_in), "0" (eax_in))
+
+This can be done in standard C.  If you want an inline, how about 
+(from .../kernel/posix-timers.c):
+
+static inline u64  mpy_l_X_l_ll(unsigned long mpy1,unsigned long mpy2)
+{
+	return (u64)mpy1 * mpy2;
+}
+
+
+>>+
+>>+#define ASM_DIV64_REG(eax_out,edx_out,reg_in,eax_in,edx_in) 		\
+>>+		__asm__ __volatile__("divl %2" 				\
+>>+				:"=a" (eax_out), "=d" (edx_out) 	\
+>>+				:"r" (reg_in), "0" (eax_in), "1" (edx_in))
+
+This appears to be the same as (from .../include/asm-i386/div64.h):
+
+#define div_long_long_rem(a,b,c) div_ll_X_l_rem(a,b,c)
+
+extern inline long
+div_ll_X_l_rem(long long divs, long div, long *rem)
+{
+	long dum2;
+       __asm__("divl %2":"=a"(dum2), "=d"(*rem)
+       :	"rm"(div), "A"(divs));
+
+	return dum2;
+
+}
+
+-g
+
+>>
+>>We seem to keep on proliferating home-grown x86 64-bit math functions.
+>>
+>>Do you really need these?  Is it possible to use do_div() and the C 64x64
+>>`*' operator instead?
+> 
+> 
+> 
+> The fundamental reason these are proliferating is that given
+> some random bit of code such as:
+> 
+>     u64 foo=9, bar=3, baz;
+>     baz = foo / bar;
+>     baz = foo % bar;
+> 
+> gcc then generates code calling __udivdi3 and __umoddi3.  Since
+> the kernel does not provide these, people keep reinventing them.
+> Perhaps it is time to kill off do_div and all its little friends
+> and simply copy __udivdi3 and __umoddi3 from libgcc.....
+> 
+>  -Erik
+> 
+> --
+> Erik B. Andersen             http://codepoet-consulting.com/
+> --This message was written using 73% post-consumer electrons--
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

@@ -1,46 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278613AbRJVLZJ>; Mon, 22 Oct 2001 07:25:09 -0400
+	id <S275278AbRJVLaj>; Mon, 22 Oct 2001 07:30:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278520AbRJVLY7>; Mon, 22 Oct 2001 07:24:59 -0400
-Received: from hal.astr.lu.lv ([195.13.134.67]:47111 "EHLO hal.astr.lu.lv")
-	by vger.kernel.org with ESMTP id <S278613AbRJVLYj>;
-	Mon, 22 Oct 2001 07:24:39 -0400
-Message-Id: <200110221115.f9MBFGG03559@hal.astr.lu.lv>
-Content-Type: text/plain; charset=US-ASCII
-From: Andris Pavenis <pavenis@latnet.lv>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.4.12-ac5: i810_audio does not work
-Date: Mon, 22 Oct 2001 14:15:16 +0300
-X-Mailer: KMail [version 1.3.1]
+	id <S278727AbRJVLa3>; Mon, 22 Oct 2001 07:30:29 -0400
+Received: from finch-post-11.mail.demon.net ([194.217.242.39]:2825 "EHLO
+	finch-post-11.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S275278AbRJVLaT>; Mon, 22 Oct 2001 07:30:19 -0400
+Message-ID: <hwHwJtbLMA17Ew7i@wookie.demon.co.uk>
+Date: Mon, 22 Oct 2001 12:29:15 +0100
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E15vcbD-0001Vn-00@the-village.bc.nu>
-In-Reply-To: <E15vcbD-0001Vn-00@the-village.bc.nu>
+From: John Beardmore <wookie@wookie.demon.co.uk>
+Subject: Re: ISDN cards and SMP
+In-Reply-To: <NPHLGxZPH$07EwlQ@wookie.demon.co.uk> <4947.1003748210@redhat.com>
+In-Reply-To: <4947.1003748210@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;charset=us-ascii;format=flowed
+User-Agent: Turnpike/6.00-U (<F7naP4S4l2F1q+EHsIexcg5ozp>)
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 22 October 2001 13:46, Alan Cox wrote:
-> > Sound practically doesn't work under KDE-2.2.1. For example I'm getting
-> > only some garbled sound for a very short time when I'm trying sound test
-> > in kcontrol. Maybe these problems are due to non blocking output to
-> > /dev/sound/dsp which artsd is using. Here is fragment from strace output
-> > for artsd
+In message <4947.1003748210@redhat.com>, David Woodhouse 
+<dwmw2@infradead.org> writes
+>wookie@wookie.demon.co.uk said:
+
+>>  This works fine with a single processor kernel, but the module fails
+>> to load with a kernel compiled for SMP.
 >
-> Do you know which release it actually broke for you ? By -ac5 there are
-> both core changes and multi-channel stuff that might be involved
+>> I gather this is true for all the Isdn4Linux drivers, though as I have
+>> a three processor machine, this is a real pain !
+>
+>The HiSax driver should be fine -
 
-It's difficult to say exactly as it's broken already for a rather long time:
-	kernels beginning 2.4.9 (if I remeber correctly) have trouble with  
-		i810_audio under KDE-2.2
-	the same about 2.4.6-ac2 and later ones
+This is hisax.  What version are you using ?  Maybe it's been sorted in 
+the last year or so ?
 
-Earlier I found some combination (some 2.4.8-ac or soimething similar with 
-reverted one of the patches between 2.4.6-ac1 and 2.4.6-ac2) which mostly 
-works for KDE with fragment size up to 512 bytes. 2.4.7 worked with any fragment 
-size set in kcontrol.
 
-I haven't tested much under GNOME, as I'm starting it very seldom
+> I use it 100% of the time (or at least
+>100% of the time we have power to the house) on my SMP box at home,
 
-Andris
+:)   !
+
+
+> without
+>trouble. I see no reason why the other drivers would have problems.
+
+OK, but I've been told by other people that there are problems and this 
+is consistent with my experience of this release.
+
+
+>If you're having problem with modules loading, there's probably a
+>compilation problem.
+
+It seems odd that that the module compiles and links OK, and loads into 
+a uniprocessor kernel if it's broken in any way.  Or can it be broken in 
+some subtle SMP specific way ?
+
+
+> If you're using a distro kernel, check it's installed
+>properly.
+
+I've built it from the sources that shipped with RH 6.2 using the GUI 
+tool to specify SMP support.  I think it's installed properly in as far 
+as all three CPUs get used once its installed.  Very cute !  Roll over 
+NT etc !
+
+
+> If you're building your own, rebuild it and the modules.
+
+I can do, but I'd like to know what to do differently first.
+
+
+Cheers, J/.
+-- 
+John Beardmore

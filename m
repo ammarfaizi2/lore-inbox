@@ -1,97 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261447AbVBNPeC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261454AbVBNPjE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261447AbVBNPeC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 10:34:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261448AbVBNPeC
+	id S261454AbVBNPjE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 10:39:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbVBNPjE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 10:34:02 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:28809 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261447AbVBNPd5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 10:33:57 -0500
-Date: Sat, 12 Feb 2005 06:12:28 -0600
-From: Robin Holt <holt@sgi.com>
-To: Andi Kleen <ak@muc.de>
-Cc: Ray Bryant <raybry@sgi.com>, Ray Bryant <raybry@austin.rr.com>,
-       linux-mm <linux-mm@kvack.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC 2.6.11-rc2-mm2 0/7] mm: manual page migration -- overview
-Message-ID: <20050212121228.GA15340@lnx-holt.americas.sgi.com>
-References: <20050212032535.18524.12046.26397@tomahawk.engr.sgi.com> <m1vf8yf2nu.fsf@muc.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1vf8yf2nu.fsf@muc.de>
-User-Agent: Mutt/1.4.1i
+	Mon, 14 Feb 2005 10:39:04 -0500
+Received: from RT-soft-2.Moscow.itn.ru ([80.240.96.70]:51627 "HELO
+	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S261457AbVBNPhj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 10:37:39 -0500
+Message-ID: <4210C801.2000204@ru.mvista.com>
+Date: Mon, 14 Feb 2005 18:47:13 +0300
+From: Andrei Konovalov <akonovalov@ru.mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: mporter@kernel.crashing.org
+CC: linuxppc-embedded@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: [PATCH][PPC32] Move irq_desc[].status, IRQ_LEVEL bit setup to xilinx_pic.c
+Content-Type: multipart/mixed;
+ boundary="------------030809020300080903070107"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 12, 2005 at 12:17:25PM +0100, Andi Kleen wrote:
-> Ray Bryant <raybry@sgi.com> writes:
-> > set of pages associated with a particular process need to be moved.
-> > The kernel interface that we are proposing is the following:
-> >
-> > page_migrate(pid, va_start, va_end, count, old_nodes, new_nodes);
-> 
-> [Only commenting on the interface, haven't read your patches at all]
-> 
-> This is basically mbind() with MPOL_F_STRICT, except that it has a pid 
-> argument. I assume that's for the benefit of your batch scheduler.
-> 
-> But it's not clear to me how and why the batch scheduler should know about
-> virtual addresses of different processes anyways. Walking
-> /proc/pid/maps? That's all inherently racy when the process is doing
-> mmap in parallel. The only way I can think of to do this would be to
-> check for changes in maps after a full move and loop, but then you risk
-> livelock.
+This is a multi-part message in MIME format.
+--------------030809020300080903070107
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-For our use, the batch scheduler will give an intermediary program a
-list of processes and a series of from-to node pairs.  That process would
-then ensure all the processes are stopped, scan their VMAs to determine
-what regions are mapped by more than one process, which are mapped
-by additional processes not in the job, and make this system call for
-each of the unique ranges in the job to migrate their pages from one
-node to the next.  I believe Ray is working on a library and a standalone
-program to do this from a command line.
+This patch applies to the kernel 2.6.11-rc3.
+It moves the code that informs the kernel if the particular interrupt is edge triggered
+or level sensitive from the board specific file to a "CONFIG_VIRTEX_II_PRO-specific" file.
+Using old IRQ numbering in that code is also fixed.
 
-> 
-> And you cannot also just specify va_start=0, va_end=~0UL because that
-> would make the node arrays grow infinitely.
+Signed-off-by: Andrei Konovalov <akonovalov@ru.mvista.com>
 
-Across the job, you could be moving some memory regions multiple times.
 
-> 
-> Also is there a good use case why the batch scheduler should only
-> move individual areas in a process around, not the full process?
+--------------030809020300080903070107
+Content-Type: text/plain;
+ name="xilinx_pic.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="xilinx_pic.diff"
 
-Overlapping regions.
+diff -uprN linux-2.5.base/arch/ppc/platforms/4xx/xilinx_ml300.c linux-2.5.cur/arch/ppc/platforms/4xx/xilinx_ml300.c
+--- linux-2.5.base/arch/ppc/platforms/4xx/xilinx_ml300.c	2005-02-11 17:19:08.000000000 +0300
++++ linux-2.5.cur/arch/ppc/platforms/4xx/xilinx_ml300.c	2005-02-14 18:37:26.000000000 +0300
+@@ -122,25 +122,7 @@ ml300_setup_arch(void)
+ void __init
+ ml300_init_irq(void)
+ {
+-	unsigned int i;
+-
+ 	ppc4xx_init_IRQ();
+-
+-	/*
+-	 * For PowerPC 405 cores the default value for NR_IRQS is 32.
+-	 * See include/asm-ppc/irq.h for details.
+-	 * This is just fine for ML300.
+-	 */
+-#if (NR_IRQS != 32)
+-#error NR_IRQS must be 32 for ML300
+-#endif
+-
+-	for (i = 0; i < NR_IRQS; i++) {
+-		if (XPAR_INTC_0_KIND_OF_INTR & (0x80000000 >> i))
+-			irq_desc[i].status &= ~IRQ_LEVEL;
+-		else
+-			irq_desc[i].status |= IRQ_LEVEL;
+-	}
+ }
+ 
+ void __init
+diff -uprN linux-2.5.base/arch/ppc/syslib/xilinx_pic.c linux-2.5.cur/arch/ppc/syslib/xilinx_pic.c
+--- linux-2.5.base/arch/ppc/syslib/xilinx_pic.c	2005-02-11 17:20:49.000000000 +0300
++++ linux-2.5.cur/arch/ppc/syslib/xilinx_pic.c	2005-02-14 16:57:40.000000000 +0300
+@@ -114,6 +114,14 @@ ppc4xx_pic_init(void)
+ {
+ 	int i;
+ 
++	/*
++	 * NOTE: The assumption here is that NR_IRQS is 32 or less
++	 * (NR_IRQS is 32 for PowerPC 405 cores by default).
++	 */
++#if (NR_IRQS > 32)
++#error NR_IRQS > 32 not supported
++#endif
++
+ #if XPAR_XINTC_USE_DCR == 0
+ 	intc = ioremap(XPAR_INTC_0_BASEADDR, 32);
+ 
+@@ -138,6 +146,12 @@ ppc4xx_pic_init(void)
+ 
+ 	ppc_md.get_irq = xilinx_pic_get_irq;
+ 
+-	for (i = 0; i < NR_IRQS; ++i)
++	for (i = 0; i < NR_IRQS; ++i) {
+ 		irq_desc[i].handler = &xilinx_intc;
++
++		if (XPAR_INTC_0_KIND_OF_INTR & (0x00000001 << i))
++			irq_desc[i].status &= ~IRQ_LEVEL;
++		else
++			irq_desc[i].status |= IRQ_LEVEL;
++	}
+ }
 
-> 
-> I think the only sane way for an external process to move another 
-> around is to do it for the whole process. For that you wouldn't need
-> most of the arguments, but just a simple move_process_vm call,
-> or perhaps just a file in /proc where the new node can be written to.
+--------------030809020300080903070107--
 
-But when you take into consideration multiple processes in a job that
-all started from one set of mappings and has since tweaked their
-mappings to suite their particular needs, there doesn't appear to
-be any way to do it without some form of leg work as described
-above.
-
-> 
-> There may be an argument to do this for individual 
-> tmpfs/hugetlbfs/sysv shm segments too, but mbind() already supports
-> that (just map them from a different process and change the policy there)
-> 
-> For process use you could just do it in mbind() or perhaps
-> part of the process policy (move page around when touched by process). 
-
-This functionality will be used by the batch scheduler to not only
-move the processes memory to a different set of nodes, but also reduce
-the memory usage on the old set of nodes.  For that reason, you can not
-rely on touch as the process that _NEEDS_ the memory moved does not
-have control of program flow to ensure that after the SIGCONT is sent
-the process will touch all of its address space.
-
-Thanks,
-Robin Holt

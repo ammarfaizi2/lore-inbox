@@ -1,91 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317947AbSHGKgO>; Wed, 7 Aug 2002 06:36:14 -0400
+	id <S317148AbSHGKBs>; Wed, 7 Aug 2002 06:01:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317945AbSHGKgO>; Wed, 7 Aug 2002 06:36:14 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:20701 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S317947AbSHGKgN>; Wed, 7 Aug 2002 06:36:13 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Florian Weimer <fw@deneb.enyo.de>
-Date: Wed, 7 Aug 2002 20:40:21 +1000
+	id <S317191AbSHGKBs>; Wed, 7 Aug 2002 06:01:48 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:56326 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S317148AbSHGKBr>; Wed, 7 Aug 2002 06:01:47 -0400
+From: Nikita Danilov <Nikita@Namesys.COM>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15696.63765.38094.618742@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org, gam3@acm.org
-Subject: Re: Problems with NFS exports
-In-Reply-To: message from Florian Weimer on Wednesday August 7
-References: <87eldchtr2.fsf@deneb.enyo.de>
-	<87k7n3t3zm.fsf@deneb.enyo.de>
-X-Mailer: VM 7.07 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Message-ID: <15696.61666.452460.264138@laputa.namesys.com>
+Date: Wed, 7 Aug 2002 14:05:22 +0400
+X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
+X-PGP-Key-ID: CCAAAC92
+X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
+Subject: Re: kernel thread exit race
+In-Reply-To: <1028719111.18156.227.camel@irongate.swansea.linux.org.uk>
+References: <15696.59115.395706.489896@laputa.namesys.com>
+	<1028719111.18156.227.camel@irongate.swansea.linux.org.uk>
+X-Mailer: VM 7.07 under 21.5  (beta6) "bok choi" XEmacs Lucid
+X-Tom-Swifty: "The printer is using too much toner," Tom said darkly.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday August 7, fw@deneb.enyo.de wrote:
-> Florian Weimer <fw@deneb.enyo.de> writes:
-> 
-> > I'm seeing weired errors with nfsctl():
-> >
-> > This works:
-> >
-> > nfsservctl(NFSCTL_EXPORT, "deneb.enyo.de", "/mnt/storage/2/backup/deneb/tmp", makedev(3, 66), ino 167772288, uid 65534, gid 65534) = 0
-> >
-> > But a subsequent call fails:
-> >
-> > nfsservctl(NFSCTL_EXPORT, "deneb.enyo.de", "/mnt/storage/2/backup/deneb", makedev(3, 66), ino 150995072, uid 65534, gid 65534) = -1 EINVAL (Invalid argument)
-> >
-> > I don't understand what makes the difference (the inode values are
-> > correct).  This is kernel 2.4.18 with XFS support, and the directory
-> > resides on an XFS file system.
-> >
-> > Any ideas?
-> 
-> (Full quote because of additional recipeint.)
-> 
-> It appears that a directory tree can only be exported once.  Is this
-> intentional?  If yes, the following patch should be applied (to
-> linux/fs/nfsd/export.c), so that the return value is more meaningful:
+Alan Cox writes:
+ > 
+ > On Wed, 2002-08-07 at 10:22, Nikita Danilov wrote:
+ > > Hello,
+ > > 
+ > > what is the politically correct way to exit from a kernel thread daemon
+ > > without module unload races?
+ > 
+ > You probably want to use completions. There is a function in the kernel
+ > core "complete_and_exit" which does both the complete() and then the
+ > exit() so that after complete finishes the task will not re-enter
+ > modulespace and risk an unload race
+ > 
 
-Probably better documentation in exports.5 would be just as useful.
-And "BUSY" probably isn't correct ....
-The rule is that you cannot export a directory and an ancestor of that
-directory in the same filesystem.
-/a/1 and /a/2 can both be exported, but not /a and /a/1.
+Ah I see, thank you and Russell. But this depends on no architecture
+ever accessing spinlock data after letting waiters to run, otherwise
+there still is (tiny) window for race at the end of complete() call,
+right?
 
-Reason:  exporting "/a" means exporting that directoring and all
-descendants of it in the same filesystem.
-If you export /a with different flags than /a/1 it is ambiguous.
+ > 
 
-And personally, I doubt that there are very many situations where it
-makes sense.
-
-It would be possible to dis-ambiguate the ambiguity but it wouldn't be
-very clean, and I really am not sure that it is worth the effort.
-
-NeilBrown
-
-
-> 
-> --- export.c	2002/08/07 09:22:11	1.1
-> +++ export.c	2002/08/07 09:22:28
-> @@ -219,6 +219,7 @@
->  		goto finish;
->  	}
->  
-> +	err = -EBUSY;
->  	if ((parent = exp_child(clp, dev, nd.dentry)) != NULL) {
->  		dprintk("exp_export: export not valid (Rule 3).\n");
->  		goto finish;
-> 
-> 
-> After this change, the userspace tools can issue are more meaningful
-> error message for this case.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Nikita.

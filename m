@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311320AbSEINTR>; Thu, 9 May 2002 09:19:17 -0400
+	id <S311948AbSEINU2>; Thu, 9 May 2002 09:20:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311564AbSEINTQ>; Thu, 9 May 2002 09:19:16 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:43187 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S311320AbSEINTN>;
-	Thu, 9 May 2002 09:19:13 -0400
-Date: Thu, 09 May 2002 06:07:03 -0700 (PDT)
-Message-Id: <20020509.060703.121443473.davem@redhat.com>
-To: hugh@veritas.com
-Cc: torvalds@transmeta.com, akpm@zip.com.au, cr@sap.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] double flush_page_to_ram
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.21.0205091416360.10889-100000@localhost.localdomain>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S311710AbSEINU1>; Thu, 9 May 2002 09:20:27 -0400
+Received: from [199.128.236.1] ([199.128.236.1]:22532 "EHLO
+	intranet.reeusda.gov") by vger.kernel.org with ESMTP
+	id <S311701AbSEINUY>; Thu, 9 May 2002 09:20:24 -0400
+Message-ID: <630DA58AD01AD311B13A00C00D00E9BC05D20130@CSREESSERVER>
+From: "Martinez, Michael - CSREES/ISTM" <MMARTINEZ@intranet.reeusda.gov>
+To: "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Anyone aware of known issues with the scsi driver in kernel-smp-2
+	.4.2-2?
+Date: Thu, 9 May 2002 09:20:43 -0400 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Hugh Dickins <hugh@veritas.com>
-   Date: Thu, 9 May 2002 14:18:49 +0100 (BST)
+I'm using kernel-smp-2.4.2-2, and I'm having some problems with my
+scsi tape, which is a HP SureDat device; and using Sony DDS-3 DAT tapes.
 
-   On Thu, 9 May 2002, David S. Miller wrote:
-   > Wrong, consider the case where we do early COW in do_no_page, you miss
-   > a flush on the new-new page.
-   
-   Of course we do, and then we don't map it into user address space;
-   if it ever gets mapped into user address space later, do_no_page
-   does the flush_page_to_ram then.
+Any sort of write and recover procedure (tar; dump; cat; dd) results in
+random byte mistakes in the recovered data. These byte mistakes always
+follow the form of being offset from the original byte, by 2.
 
-You miss the fact that if we do an early COW and another process
-recently WROTE into that page via a shared MMAP, we will potentially
-copy old data into the COW page we use for the current process.
+For example, if the original byte had an octal value of 88; then the
+recovered byte would be 90.
 
-Your changes are wrong and will cause corruption.
+A file of 12kbytes would have on average five or six of these mistakes. 
+
+Has anyone heard of an issue with the SCSI driver that would produce this
+type of problem?
+
+
+Michael Martinez
+System Administrator
+Research, Education and Extension Service
+United States Department of Agriculture
+Washington, DC
+(202) 720-6223
+

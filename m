@@ -1,45 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266285AbTBTRU7>; Thu, 20 Feb 2003 12:20:59 -0500
+	id <S266243AbTBTRjF>; Thu, 20 Feb 2003 12:39:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266233AbTBTRUE>; Thu, 20 Feb 2003 12:20:04 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:5782 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S265402AbTBTRS5>;
-	Thu, 20 Feb 2003 12:18:57 -0500
-Date: Thu, 20 Feb 2003 12:28:57 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-       Alex Larsson <alexl@redhat.com>, procps-list@redhat.com,
-       Alexander Viro <viro@math.psu.edu>
-Subject: Re: [patch] procfs/procps threading performance speedup, 2.5.62
-Message-ID: <20030220172857.GH9800@gtf.org>
-References: <Pine.LNX.4.44.0302200902260.2493-100000@home.transmeta.com> <Pine.LNX.4.44.0302201810160.32017-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0302201810160.32017-100000@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
+	id <S266186AbTBTRjF>; Thu, 20 Feb 2003 12:39:05 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:51949 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S266243AbTBTRjD> convert rfc822-to-8bit;
+	Thu, 20 Feb 2003 12:39:03 -0500
+content-class: urn:content-classes:message
+Subject: RE: 8x AGP under linux?
+Date: Thu, 20 Feb 2003 09:48:58 -0800
+Message-ID: <D36CE1FCEFD3524B81CA12C6FE5BCAB00143B5C2@fmsmsx406.fm.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 8x AGP under linux?
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6334.0
+Thread-Index: AcLZBgAKKBocg0T4Edeo9ABQi2jWzAAAdiIA
+From: "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>
+To: "Dave Jones" <davej@codemonkey.org.uk>,
+       "Casey Lancour" <cjlancour@link.com>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 20 Feb 2003 17:48:59.0307 (UTC) FILETIME=[58D44FB0:01C2D908]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 20, 2003 at 06:14:38PM +0100, Ingo Molnar wrote:
-> On Thu, 20 Feb 2003, Linus Torvalds wrote:
-> > It would just be _so_ much nicer if the threads would show up as
-> > subdirectories ie /proc/<tgid>/<tid>/xxx. More scalable, more readable,
-> > and just generally more sane.
+Casey, I can send you the 2.4 patch for the E7205/E7505 chipsets that I posted a while back that also incorporates AGP 3.0 support if you are interested.  However as Dave mentioned, I did have quite a bit of trouble with the Nvidia 8x binary only driver, so ymmv....
+
+matt
+
+> -----Original Message-----
+> From: Dave Jones [mailto:davej@codemonkey.org.uk]
+> Sent: Thursday, February 20, 2003 9:36 AM
+> To: Casey Lancour
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: 8x AGP under linux?
 > 
-> Al says that this cannot be done sanely, and is fraught with security
-> problems. I'd vote for it if it were possible. Al?
-
-Having the kernel automatically manage creation/destruction of
-directories is the sticking point, AFAIK.
-
-Why not use the "squid method"?  Create directories 00..FF, and sort the
-pids/tids into buckets that way.  Then you are not creating and
-destroying directories all the time.
-
-	Jeff
-
-
-
+> 
+> On Thu, Feb 20, 2003 at 11:00:56AM -0600, Casey Lancour wrote:
+>  > Does anyone know the status to 8x agp support under linux?
+>  > I am using the Granite bay 7205 chipset and I cant get my 
+> geforce4 card
+>  > to use agpgart or nvidia's agp support, it seems to be 
+> defaulting to pci
+>  > mode (not even using 4x agp).
+>  > I do a:
+> 
+> For 2.4, there is a patch for that chipset (that didnt get merged
+> to mainline). 2.5 has it supported out-of-the-box, but likely
+> breaks with your binary nvidia driver.
+> 
+> 		Dave
+> 
+> -- 
+> | Dave Jones.        http://www.codemonkey.org.uk
+> | SuSE Labs
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

@@ -1,134 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286687AbSABEEK>; Tue, 1 Jan 2002 23:04:10 -0500
+	id <S286692AbSABEWL>; Tue, 1 Jan 2002 23:22:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286693AbSABED7>; Tue, 1 Jan 2002 23:03:59 -0500
-Received: from [206.98.161.5] ([206.98.161.5]:47235 "HELO
-	blossom.learningpatterns.com") by vger.kernel.org with SMTP
-	id <S286688AbSABEDt>; Tue, 1 Jan 2002 23:03:49 -0500
-Subject: RE: Problems booting 2.4.17
-From: Edward Muller <emuller@learningpatterns.com>
-To: "Chris, Lo Cheuk Kong" <Chris.Lo@corp.sunday.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3A5681DBDB02D31186070008C7733BED088A127E@exchan01.mandarin.com>
-In-Reply-To: <3A5681DBDB02D31186070008C7733BED088A127E@exchan01.mandarin.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 01 Jan 2002 23:03:02 -0500
-Message-Id: <1009944182.2881.12.camel@cc234543-a>
+	id <S286693AbSABEWB>; Tue, 1 Jan 2002 23:22:01 -0500
+Received: from fep02-mail.bloor.is.net.cable.rogers.com ([66.185.86.72]:64454
+	"EHLO fep02-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
+	with ESMTP id <S286692AbSABEVv>; Tue, 1 Jan 2002 23:21:51 -0500
+Date: Tue, 1 Jan 2002 23:22:04 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: a great C++ book?
+Message-ID: <20020102042204.GD4313@tigger>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <a0tmmt$ear$1@cesium.transmeta.com> <Pine.GSO.4.21.0201012015430.16467-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="YToU2i3Vx8H2dn7O"
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0201012015430.16467-100000@weyl.math.psu.edu>
+User-Agent: Mutt/1.3.24i
+X-Mailer: Mutt-1.3.24-2 (Debian Linux 2.4.16, i686)
+From: "Michael P. Soulier" <michael.soulier@rogers.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmmm. Maybe it's a binutils problems like what was reported by some
-debian sid users.
 
+--YToU2i3Vx8H2dn7O
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, 2002-01-01 at 20:20, Chris, Lo Cheuk Kong wrote:
-> 
-> Thanks for info. My workaround is that: don't use initrd image and it boots
-> fine! 
-> My hardware setup is simple and allows me to put modules back into the
-> kernel. For 2.4.17, I drop the initrd line in the lilo...
-> 
-> -----Original Message-----
-> From: Edward Muller [mailto:emuller@learningpatterns.com]
-> Sent: Wednesday, January 02, 2002 2:08 AM
-> To: chris.lo@corp.sunday.com
-> Cc: linux-kernel@vger.kernel.org
-> Subject: RE: Problems booting 2.4.17
-> 
-> 
-> For now I've moved back to 2.4.16, which boots without a problem. I had
-> lots of work to do to get those systems up and configured so I haven't
-> had time to play.
-> 
-> I'm not sure what is causing the problem. I know how to make an initrd
-> image and it's there. It may be a problem with devfs because I remember
-> that Mandrake based their devfs scripts on some very very very old stuff
-> from the devfs ditribution (which is being removed IIRC).
-> 
-> It's probably not fs based as you are using reiserfs and I'm using ext3.
-> 
-> Anyway ... For now I've gone back to 2.4.16, but I'd like to try 2.4.17.
-> So if you happen to have some time and figure it out, please let me
-> know.
-> 
-> On Mon, 2001-12-31 at 23:51, Chris Lo wrote:
-> > Good Morning,
-> > 
-> > I had the same problem, with resierfs. Any workaround 
-> > found?
-> > 
-> > Have a happy new year!!
-> > 
-> > Regards,
-> > Chris
-> > 
-> > 
-> > 
-> > 
-> > Hello all.
-> > 
-> > I'm having problems booting 2.4.17 on a Mandrake 8.1 system (with all
-> > current updates).
-> > 
-> > When I boot 2.4.17 (with an initrd image) I get the following...
-> > 
-> > kernel boots ...
-> > Creating root device
-> > mkrootdev: mknod failed: 17
-> > Mounting root filesyste with flags data=ordered
-> > Mount: error 16 mounting ext3 flags data=ordered
-> > ...Tried to remount without flags and fails with the same error...
-> > Kernel Panic: No initrd found ...
-> > 
-> > I am using ext3 / /boot /usr /var & /home filesystems
-> > 
-> > 2.4.8-34.1mdk boots fine however.
-> > 
-> > I'm about to go try 2.4.16 (it was working with reiserfs partitions
-> > before).
-> > 
-> > The machine is an AMD Athalon 1.3 Ghz on an EPOC board with a 3ware 7800
-> > series RAID card, with three 75/80 GB drives in a RAID 5 array.
-> > 
-> > Anyone else run into something like this? 
-> > 
-> > I'll report back about 2.4.16 and if anyone would like more info, just
-> > shout.
-> > 
-> > 
-> > -- 
-> > -------------------------------
-> > Edward Muller
-> > Director of IS
-> > 
-> > 973-715-0230 (cell)
-> > 212-487-9064 x115 (NYC)
-> > 
-> > http://www.learningpatterns.com
-> > -------------------------------
-> > 
-> -- 
-> -------------------------------
-> Edward Muller
-> Director of IS
-> 
-> 973-715-0230 (cell)
-> 212-487-9064 x115 (NYC)
-> 
-> http://www.learningpatterns.com
-> -------------------------------
--- 
--------------------------------
-Edward Muller
-Director of IS
+On 01/01/02 Alexander Viro did speaketh:
 
-973-715-0230 (cell)
-212-487-9064 x115 (NYC)
+> And then there is "six month ago I cud not spel injuneer and now I r won"
+> crowd - and quite a few of them seem to be afraid of C.  FWIC it is a
+> damn good reason to stay with C...
 
-http://www.learningpatterns.com
--------------------------------
+:) That's because they picked-up "Visual Basic for Dummies" and now
+they claim to be programmers. *sigh*
 
+Mike
+
+--=20
+Michael P. Soulier <msoulier@mcss.mcmaster.ca>, GnuPG pub key: 5BC8BE08
+"...the word HACK is used as a verb to indicate a massive amount
+of nerd-like effort."  -Harley Hahn, A Student's Guide to Unix
+
+--YToU2i3Vx8H2dn7O
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8MorsKGqCc1vIvggRAoMlAJ9/lybbKfGnkGGtP+z7sAE61NBWywCfbl98
+dXacg1WgK9a4SZbQjjAO8v0=
+=g+h1
+-----END PGP SIGNATURE-----
+
+--YToU2i3Vx8H2dn7O--

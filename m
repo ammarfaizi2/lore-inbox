@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319130AbSIJODo>; Tue, 10 Sep 2002 10:03:44 -0400
+	id <S319136AbSIJOUT>; Tue, 10 Sep 2002 10:20:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319128AbSIJOCq>; Tue, 10 Sep 2002 10:02:46 -0400
-Received: from natwar.webmailer.de ([192.67.198.70]:50981 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S319123AbSIJOCi>; Tue, 10 Sep 2002 10:02:38 -0400
-Date: Tue, 10 Sep 2002 16:09:30 +0200
-From: Kristian Peters <kristian.peters@korseby.net>
-To: Stephane Wirtel <stephane.wirtel@belgacom.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: which driver for a Dlink DFE 650TXD (PCMCIA) ?
-Message-Id: <20020910160930.791c0b61.kristian.peters@korseby.net>
-In-Reply-To: <20020910080403.GA958@debian>
-References: <20020910080403.GA958@debian>
-X-Mailer: Sylpheed version 0.7.4claws (GTK+ 1.2.10; i386-debian-linux-gnu)
-X-Operating-System: i686-debian-linux-gnu 2.4.19
+	id <S319144AbSIJOUT>; Tue, 10 Sep 2002 10:20:19 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:11433 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S319136AbSIJOUR>;
+	Tue, 10 Sep 2002 10:20:17 -0400
+Date: Tue, 10 Sep 2002 16:24:44 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Oleg Drokin <green@namesys.com>
+Cc: linux-kernel@vger.kernel.org, viro@math.psu.edu, andre@linux-ide.org
+Subject: Re: 2.5.34 BUG at kernel/sched.c:944 (partitions code related?)
+Message-ID: <20020910142444.GB8719@suse.de>
+References: <20020910175639.A830@namesys.com> <20020910140622.GX8719@suse.de> <20020910181153.B1095@namesys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020910181153.B1095@namesys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephane Wirtel <stephane.wirtel@belgacom.net> schrieb:
-> i haven't found the driver for my pcmcia card.
+On Tue, Sep 10 2002, Oleg Drokin wrote:
+> Hello!
 > 
-> my kernel is the 2.4.20-pre5-ac4.
+> On Tue, Sep 10, 2002 at 04:06:22PM +0200, Jens Axboe wrote:
+> 
+> > >    Now it does it in reverse like this:
+> > > hdb: host protected area => 1
+> > > hdb: 120103200 sectors (61493 MB) w/1916KiB Cache, CHS=119150/16/63
+> > > hdb: hdb1
+> > > hda: host protected area => 1
+> > > hda: 120103200 sectors (61493 MB) w/1916KiB Cache, CHS=119150/16/63
+> > > hda: hda1 hda2 hda3 hda4 < hda5PANIC
+> > Kernel compiled with preempt support or not?
+> 
+> No.
+> green@angband:~/bk_work/reiser3-linux-2.5-work-t> grep PREEM .config
+> # CONFIG_PREEMPT is not set
 
-Have you tried pcmcia-cs ? Your card is at least supported there:
-http://pcmcia-cs.sourceforge.net/ftp/SUPPORTED.CARDS
+ok, then please give me the full trace regardless.
 
-But afaik the config option "D-Link DE620 pocket adapter support" also supports your card.
+-- 
+Jens Axboe
 
-*Kristian
-
-  :... [snd.science] ...:
- ::                             _o)
- :: http://www.korseby.net      /\\
- :: http://gsmp.sf.net         _\_V
-  :.........................:

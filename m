@@ -1,58 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263869AbTJEVjj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 17:39:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263870AbTJEVjj
+	id S263867AbTJEVc5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 17:32:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263869AbTJEVc5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 17:39:39 -0400
-Received: from intra.cyclades.com ([64.186.161.6]:21658 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S263869AbTJEVji
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 17:39:38 -0400
-Date: Sun, 5 Oct 2003 18:42:14 -0300 (BRT)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.23-pre6
-In-Reply-To: <20031002221312.GA4778@werewolf.able.es>
-Message-ID: <Pine.LNX.4.44.0310051841230.7861-100000@logos.cnet>
+	Sun, 5 Oct 2003 17:32:57 -0400
+Received: from mail.g-housing.de ([62.75.136.201]:50820 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S263867AbTJEVc4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Oct 2003 17:32:56 -0400
+Message-ID: <3F8071E8.1050303@g-house.de>
+Date: Sun, 05 Oct 2003 21:32:56 +0200
+From: Christian <evil@g-house.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5b) Gecko/20030914 Thunderbird/0.3a
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: compile error with 2.6.0-test6 on ppc32
+References: <3F7EE203.4030601@g-house.de> <pan.2003.10.04.17.39.19.402587@smurf.noris.de>
+In-Reply-To: <pan.2003.10.04.17.39.19.402587@smurf.noris.de>
+X-Enigmail-Version: 0.81.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 3 Oct 2003, J.A. Magallon wrote:
-
+Matthias Urlichs wrote:
+> Hi, Christian Kujau wrote:
 > 
-> On 10.01, Marcelo Tosatti wrote:
-> > 
-> > Hi,
-> > 
-> > Here goes -pre6. 
-> > 
 > 
-> make xconfig is broken:
+>>upon compiling kernel 2.6.0-test6 on my PowerPC 604r machine (PReP),
+>>i got the following error:
+>>
 > 
-> werewolf:/usr/src/linux-2.4.22-pre6# make xconfig
-> rm -f include/asm
-> ( cd include ; ln -sf asm-i386 asm)
-> make -C scripts kconfig.tk
-> make[1]: Entering directory `/usr/src/linux-2.4.22-pre6/scripts'
-> gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -c -o tkparse.o tkparse.c
-> gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -c -o tkcond.o tkcond.c
-> gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -c -o tkgen.o tkgen.c
-> gcc -o tkparse tkparse.o tkcond.o tkgen.o
-> cat header.tk >> ./kconfig.tk
-> ./tkparse < ../arch/i386/config.in >> kconfig.tk
-> make[1]: *** [kconfig.tk] Error 139
-> make[1]: Leaving directory `/usr/src/linux-2.4.22-pre6/scripts'
-> make: *** [xconfig] Error 2
-> 
-> Any way to get more info ? Some verbose mode for tkparse ?
+> That's a regression in binutils. Debian/unstable fixed it in version
+> 2.14.90.0.6-3.
 
-No idea... Mind trying to isolate the problem ? (check which -pre the 
-problems started)
+indeed! i just have to update *even more* often :-)
+
+hm, the term "regression" is only known to me from mathematics, but i 
+don't know how this could be related to compiling issues....
+
+Thank you, 2.6.0-test6 is compiling now.
+Christian.
+-- 
+BOFH excuse #88:
+
+Boss' kid fucked up the machine
+
 

@@ -1,29 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261454AbTDBDu3>; Tue, 1 Apr 2003 22:50:29 -0500
+	id <S261464AbTDBD5M>; Tue, 1 Apr 2003 22:57:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261459AbTDBDu3>; Tue, 1 Apr 2003 22:50:29 -0500
-Received: from locutus.cmf.nrl.navy.mil ([134.207.10.66]:20914 "EHLO
-	locutus.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
-	id <S261454AbTDBDu2>; Tue, 1 Apr 2003 22:50:28 -0500
-Message-Id: <200304020400.h3240rGi004010@locutus.cmf.nrl.navy.mil>
-To: Till Immanuel Patzschke <tip@inw.de>
-cc: linux-atm-general@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Linux-ATM-General] Re: [ATM] second pass at fixing atm spinlock 
-In-reply-to: Your message of "Tue, 01 Apr 2003 16:45:05 PST."
-             <3E8A3291.F8397F43@inw.de> 
-X-url: http://www.nrl.navy.mil/CCS/people/chas/index.html
-X-mailer: nmh 1.0
-Date: Tue, 01 Apr 2003 23:00:53 -0500
-From: chas williams <chas@locutus.cmf.nrl.navy.mil>
+	id <S261501AbTDBD5L>; Tue, 1 Apr 2003 22:57:11 -0500
+Received: from dial-ctb0348.webone.com.au ([210.9.243.48]:32516 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id <S261464AbTDBD5L>;
+	Tue, 1 Apr 2003 22:57:11 -0500
+Message-ID: <3E8A6227.7080209@cyberone.com.au>
+Date: Wed, 02 Apr 2003 14:08:07 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@digeo.com>
+CC: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [BENCHMARK] 2.5.66-mm2 with contest
+References: <200304021324.10799.kernel@kolivas.org>
+In-Reply-To: <200304021324.10799.kernel@kolivas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3E8A3291.F8397F43@inw.de>,Till Immanuel Patzschke writes:
->I've merged your 2.4 patch w/ my changes and check w/ a couple of thousand PPPoA
->sessions created and destroyed over night (which always triggered the
->locking/unlocking vcc problems on my SMP box).
+Con Kolivas wrote:
 
-you might still see problem.  i didnt fix the race when opening to
-prevent vpi/vci collisions.  however, i should have a patch tomorrow
-to address this.
+>Big rise in ctar_load and io_load. Drop in read_load.
+>(All uniprocessor with IDE and AS elevator). AS tweaks? No obvious scheduler 
+>tweak result changes.
+>
+Thanks Con,
+I'm a bit busy now, but next week I'll work something out for it.
+It is most likely to be as-queue_notready-cleanup.patch. I'll
+wait until after Jens ports his dynamic requests stuff over to
+mm before I go further.
+

@@ -1,56 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265174AbTANXCw>; Tue, 14 Jan 2003 18:02:52 -0500
+	id <S264903AbTANXdH>; Tue, 14 Jan 2003 18:33:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265242AbTANXCw>; Tue, 14 Jan 2003 18:02:52 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:4482 "EHLO doc.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S265174AbTANXCv>;
-	Tue, 14 Jan 2003 18:02:51 -0500
-Date: Tue, 14 Jan 2003 15:11:41 -0800
-From: Bob Miller <rem@osdl.org>
-To: DervishD <raul@pleyades.net>
-Cc: Philippe Troin <phil@fifi.org>, root@chaos.analogic.com,
-       Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Changing argv[0] under Linux.
-Message-ID: <20030114231141.GC4603@doc.pdx.osdl.net>
-References: <Pine.LNX.3.95.1030114140811.13496A-100000@chaos.analogic.com> <87iswrzdf1.fsf@ceramic.fifi.org> <20030114220401.GB241@DervishD> <20030114230418.GB4603@doc.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030114230418.GB4603@doc.pdx.osdl.net>
-User-Agent: Mutt/1.4i
+	id <S265008AbTANXdH>; Tue, 14 Jan 2003 18:33:07 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:42702 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S264903AbTANXdG>; Tue, 14 Jan 2003 18:33:06 -0500
+Message-ID: <F760B14C9561B941B89469F59BA3A84725A11D@orsmsx401.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>,
+       Zwane Mwaikambo <zwane@holomorphy.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>
+Cc: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       James Cleverdon <jamesclv@us.ibm.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: mpparse.c is a mess (was: APIC version)
+Date: Tue, 14 Jan 2003 15:41:49 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+content-class: urn:content-classes:message
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 14, 2003 at 03:04:18PM -0800, Bob Miller wrote:
-> On Tue, Jan 14, 2003 at 11:04:01PM +0100, DervishD wrote:
-> >     Hi Philippe :)
+> From: Martin J. Bligh [mailto:mbligh@aracnet.com] 
+> >> The entries in acpi_version[] are indexed by the APIC id, not 
+> >> smp_processor_id(). So you can overwrite acpi_version[] 
+> for a different 
+> >> processor.
 > > 
-> > > You just overwrote all your arguments (argv[0] and others) and part of
-> > > the environment.
-> > 
-> >     Oh, sh*t, you're true, and that is the problem I was afraid to
-> > suffer from. Then, all I can do is overwrite argv[0] with a new
-> > string whose length is less or equal than the existing one.
-> > 
-> >     Well, I suppose I must go with that limitation.
-> > 
-> >     Thanks, Philippe, for the code snipped and the explanation.
-> > 
-> >     Raúl
-> > -
+> > Is it possible to use smp_processor_id instead to avoid 
+> wasting memory 
+> > for the sparse APIC id case?
 > 
-> Or you can copy your all your args and env to a temporary place and
-> then re-build your args and env with the new argv[0] in it's place.
-> But you must be carefull that your new argv[0] length plus the 
-> length of all remaining args, envp and pointers is not greater than
-> the system defined size for this space.
-> 
-In thinking about this more this will NOT work.  The user stack starts
-right after your envp.  So, writing more info there would blow away
-your stack.
+> No, the array is set up in mpparse.c before we know the real 
+> processor 
+> numbers.
 
--- 
-Bob Miller					Email: rem@osdl.org
-Open Source Development Lab			Phone: 503.626.2455 Ext. 17
+I just thought I'd mention, if anyone has any spare time or needs a
+project, that it would be really nice if there was a more modular
+interface for this stuff. Right now we have MPS code and ACPI code
+messing with the same data structures (!!) and it is bug-prone and
+confusing. Every time I try to fix anything that touches my area (ACPI
+IRQ routing) I am paralyzed by fear that any change I make will break
+something, because it is a big, swampy bog of code.
+
+Regards -- Andy

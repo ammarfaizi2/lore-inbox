@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262167AbVAEApI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262154AbVAEAp3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262167AbVAEApI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 19:45:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262154AbVAEAo4
+	id S262154AbVAEAp3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 19:45:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbVAEApZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 19:44:56 -0500
-Received: from fw.osdl.org ([65.172.181.6]:39046 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261863AbVAEAmm (ORCPT
+	Tue, 4 Jan 2005 19:45:25 -0500
+Received: from THUNK.ORG ([69.25.196.29]:42152 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S261534AbVAEAdT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 19:42:42 -0500
-Date: Tue, 4 Jan 2005 16:47:20 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: clameter@sgi.com, linux-ia64@vger.kernel.org, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Prezeroing V3 [1/4]: Allow request for zeroed memory
-Message-Id: <20050104164720.3863d312.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0501041629490.4111@ppc970.osdl.org>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F02900FBD@scsmsx401.amr.corp.intel.com>
-	<41C20E3E.3070209@yahoo.com.au>
-	<Pine.LNX.4.58.0412211154100.1313@schroedinger.engr.sgi.com>
-	<Pine.LNX.4.58.0412231119540.31791@schroedinger.engr.sgi.com>
-	<Pine.LNX.4.58.0412231132170.31791@schroedinger.engr.sgi.com>
-	<Pine.LNX.4.58.0412231133130.31791@schroedinger.engr.sgi.com>
-	<Pine.GSO.4.61.0501011123550.27452@waterleaf.sonytel.be>
-	<Pine.LNX.4.58.0501041510430.1536@schroedinger.engr.sgi.com>
-	<Pine.LNX.4.58.0501041512450.1536@schroedinger.engr.sgi.com>
-	<Pine.LNX.4.58.0501041629490.4111@ppc970.osdl.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Tue, 4 Jan 2005 19:33:19 -0500
+Date: Tue, 4 Jan 2005 19:33:05 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, Thomas Graf <tgraf@suug.ch>,
+       Adrian Bunk <bunk@stusta.de>, Diego Calleja <diegocg@teleline.es>,
+       Willy Tarreau <willy@w.ods.org>, wli@holomorphy.com, aebr@win.tue.nl,
+       solt2@dns.toxicfilms.tv, linux-kernel@vger.kernel.org
+Subject: Re: starting with 2.7
+Message-ID: <20050105003304.GA7828@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Bill Davidsen <davidsen@tmr.com>,
+	Horst von Brand <vonbrand@inf.utfsm.cl>,
+	Thomas Graf <tgraf@suug.ch>, Adrian Bunk <bunk@stusta.de>,
+	Diego Calleja <diegocg@teleline.es>,
+	Willy Tarreau <willy@w.ods.org>, wli@holomorphy.com,
+	aebr@win.tue.nl, solt2@dns.toxicfilms.tv,
+	linux-kernel@vger.kernel.org
+References: <20050104211910.GB7280@thunk.org> <41DB2E20.90309@tmr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41DB2E20.90309@tmr.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> wrote:
->
-> On Tue, 4 Jan 2005, Christoph Lameter wrote:
-> >
-> > This patch introduces __GFP_ZERO as an additional gfp_mask element to allow
-> > to request zeroed pages from the page allocator.
-> 
-> Ok, let's start merging this slowly
+On Tue, Jan 04, 2005 at 07:00:32PM -0500, Bill Davidsen wrote:
+> I'm not an optimist; I assumed -rc meant "only fixes" and was worth 
+> testing to get bugs identified. And that's what I would hope could 
+> happen again. If you think -fo (fixes only) is a better term I wouldn't 
+> argue.
 
-One week hence, please.  Things like the no-bitmaps-for-the-buddy-allocator
-have been well tested and should go in first.
+You mean you haven't been reading Linus's changelogs that are in the
+-rc release announcements?
+
+						- Ted

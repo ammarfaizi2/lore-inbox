@@ -1,126 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265819AbTFSPtZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 11:49:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265820AbTFSPtZ
+	id S265828AbTFSPyF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 11:54:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265829AbTFSPyE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 11:49:25 -0400
-Received: from www.13thfloor.at ([212.16.59.250]:40665 "EHLO www.13thfloor.at")
-	by vger.kernel.org with ESMTP id S265819AbTFSPtL (ORCPT
+	Thu, 19 Jun 2003 11:54:04 -0400
+Received: from ps0.linanet.is ([62.145.128.3]:17897 "EHLO ps0.linanet.is")
+	by vger.kernel.org with ESMTP id S265828AbTFSPxw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 11:49:11 -0400
-Date: Thu, 19 Jun 2003 18:03:14 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
+	Thu, 19 Jun 2003 11:53:52 -0400
+Posted-Date: Thu, 19 Jun 2003 15:47:39 GMT
+Message-ID: <3EF1DEFC.8080906@hi.is>
+Date: Thu, 19 Jun 2003 16:04:12 +0000
+From: Petur Thors <peturth@hi.is>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030507
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Cc: Rusty Russell <rusty@rustcorp.com.au>,
-       Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>,
-       Pavel Machek <pavel@ucw.cz>
-Subject: Re: 2.4.21 Floppy Fallback with NFS root ...
-Message-ID: <20030619160314.GA27584@www.13thfloor.at>
-Reply-To: herbert@13thfloor.at
-References: <20030616141832.GG23590@www.13thfloor.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20030616141832.GG23590@www.13thfloor.at>
-User-Agent: Mutt/1.3.28i
+Subject: Badness in softirq.c 109, possible fix
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello.
 
-on a deeper look at this issue, another astounding
-(read confusing, erroneous) detail was revealed ...
+Got badness in local_bh_enable because Im still in irq_disabled.
+This is caused by local_irq_save() in do_tty_hangup (drivers/char/tty_io.c)
+He calls local_irq_save(flags) and then goes to flush_buffer and down
+to local_bh_enable.
+Do we really need local_irq_save/restore in do_tty_hangup() line 447 ?
+Its not safe.
+Thanks
 
-consider a kernel boot cmdline like
+Badness in local_bh_enable at kernel/softirq.c:109
+Jun 19 13:21:01 spiderman kernel: Call Trace:
+Jun 19 13:21:01 spiderman kernel:  [<c0128e63>] local_bh_enable+0x93/0xa0
+Jun 19 13:21:01 spiderman kernel:  [<e08ebed1>] 
+ppp_async_push+0xe1/0x250 [ppp_async]
+Jun 19 13:21:01 spiderman kernel:  [<c0173023>] cached_lookup+0x23/0x90
+Jun 19 13:21:01 spiderman kernel:  [<e08eb712>] 
+ppp_asynctty_wakeup+0x32/0x70 [ppp_async]
+Jun 19 13:21:01 spiderman kernel:  [<c022297a>] pty_unthrottle+0x5a/0x60
+Jun 19 13:21:01 spiderman kernel:  [<c021e2bb>] check_unthrottle+0x3b/0x40
+Jun 19 13:21:01 spiderman kernel:  [<c021e370>] 
+reset_buffer_flags+0xb0/0x100
+Jun 19 13:21:01 spiderman kernel:  [<c021e3d3>] n_tty_flush_buffer+0x13/0x60
+Jun 19 13:21:01 spiderman kernel:  [<c0222d46>] pty_flush_buffer+0x66/0x70
+Jun 19 13:21:01 spiderman pppd[1366]: Modem hangup
+Jun 19 13:21:01 spiderman kernel:  [<c021a105>] do_tty_hangup+0x4f5/0x5d0
 
-  "root=/dev/vg/slash ro"
+Jun 19 13:21:01 spiderman pppd[1366]: Connection terminated.
+Jun 19 13:21:01 spiderman kernel:  [<c021bbaf>] release_dev+0x6df/0x730
+Jun 19 13:21:01 spiderman pppd[1366]: Connect time 9.8 minutes.
+Jun 19 13:21:01 spiderman kernel:  [<c014bd8c>] release_pages+0x1dc/0x280
+Jun 19 13:21:01 spiderman pppd[1366]: Sent 84 bytes, received 50 bytes.
+Jun 19 13:21:01 spiderman kernel:  [<c0150dbb>] zap_pmd_range+0x4b/0x70
+Jun 19 13:21:01 spiderman kernel:  [<c017dce2>] dput+0x22/0x380
+Jun 19 13:21:01 spiderman kernel:  [<c021bffb>] tty_release+0x3b/0xc0
+Jun 19 13:21:01 spiderman kernel:  [<c01640f8>] __fput+0x118/0x120
+Jun 19 13:21:01 spiderman kernel:  [<c01624d0>] filp_close+0xd0/0x130
+Jun 19 13:21:01 spiderman kernel:  [<c0125f68>] put_files_struct+0x58/0xc0
+Jun 19 13:21:01 spiderman kernel:  [<c0126dfe>] do_exit+0x1fe/0x690
+Jun 19 13:21:02 spiderman kernel:  [<c01624d0>] filp_close+0xd0/0x130
+Jun 19 13:21:02 spiderman kernel:  [<c0127419>] do_group_exit+0xf9/0x180
+Jun 19 13:21:02 spiderman kernel:  [<c01625bb>] sys_close+0x8b/0x110
+Jun 19 13:21:02 spiderman kernel:  [<c010b1fb>] syscall_call+0x7/0xb
 
-which could be used to boot from a LVM LV named slash
-or, if you prefer a physical device (using devfs)
-
-  "root=/dev/ide//host0/bus0/target0/lun0/part1 ro"
-
-
-now what happens on boot is:
-
-root_dev_setup() is called with "root=" and, in turn
-calls name_to_kdev_t() which searches root_dev_names[]
-for the given device names, which of course, can not
-be found, because they are not listed, so ROOT_DEV
-becomes (0:0)
- 
-if you have CONFIG_ROOT_NFS enabled, then mount_root()
-will check if MAJOR(ROOT_DEV) == UNNAMED_MAJOR, which
-will be true, although root=/dev/nfs (0:ff) wasn't 
-specified, leading directly to "Unable to mount root 
-fs via NFS, trying floppy." and the Floppy Fallback, 
-instead of booting from your specified root device.
-
-  "root=/dev/hda1 ro"
-
-will work as expected, because it will be found in
-root_dev_names[] ...
-
-
-I suggest to do one fix, and one improvement ...
-
-and of course this _will_ break the current behaviour
-you won't be able to use root=tux (or your favorite
-pet name) to have root on nfs ...
-
-what do you think?
-
-best,
-Herbert
-
-
------------------- FIX
-
-diff -NurbP --minimal linux-2.4.21/init/do_mounts.c linux-2.4.21-ffb/init/do_mounts.c
---- linux-2.4.21/init/do_mounts.c	Fri Jun 13 17:49:28 2003
-+++ linux-2.4.21-ffb/init/do_mounts.c	Thu Jun 19 17:41:35 2003
-@@ -747,7 +747,8 @@
- static void __init mount_root(void)
- {
- #ifdef CONFIG_ROOT_NFS
--	if (MAJOR(ROOT_DEV) == UNNAMED_MAJOR) {
-+	if (MAJOR(ROOT_DEV) == UNNAMED_MAJOR
-+	    && MINOR(ROOT_DEV) == 255) {
- 		if (mount_nfs_root()) {
- 			sys_chdir("/root");
- 			ROOT_DEV = current->fs->pwdmnt->mnt_sb->s_dev;
+Petur Thors
 
 
-maybe a NFS_MAJOR, NFS_MINOR would be more descriptive here ...
-
-
------------------- SECURITY IMPROVEMENT ;)
-
-diff -NurbP --minimal linux-2.4.21/fs/Config.in linux-2.4.21-ffb/fs/Config.in
---- linux-2.4.21/fs/Config.in	Tue Dec 10 03:25:19 2002
-+++ linux-2.4.21-ffb/fs/Config.in	Thu Jun 19 17:42:35 2003
-@@ -103,6 +103,7 @@
-    dep_tristate 'NFS file system support' CONFIG_NFS_FS $CONFIG_INET
-    dep_mbool '  Provide NFSv3 client support' CONFIG_NFS_V3 $CONFIG_NFS_FS
-    dep_bool '  Root file system on NFS' CONFIG_ROOT_NFS $CONFIG_NFS_FS $CONFIG_IP_PNP
-+   dep_bool '    Disable Floppy Fallback' CONFIG_NO_FLOPPY_FALLBACK $CONFIG_ROOT_NFS
- 
-    dep_tristate 'NFS server support' CONFIG_NFSD $CONFIG_INET
-    dep_mbool '  Provide NFSv3 server support' CONFIG_NFSD_V3 $CONFIG_NFSD
-diff -NurbP --minimal linux-2.4.21/init/do_mounts.c linux-2.4.21-ffb/init/do_mounts.c
---- linux-2.4.21/init/do_mounts.c	Fri Jun 13 17:49:28 2003
-+++ linux-2.4.21-ffb/init/do_mounts.c	Thu Jun 19 17:41:35 2003
-@@ -754,8 +754,10 @@
- 			printk("VFS: Mounted root (nfs filesystem).\n");
- 			return;
- 		}
-+# ifndef CONFIG_NO_FLOPPY_FALLBACK
- 		printk(KERN_ERR "VFS: Unable to mount root fs via NFS, trying floppy.\n");
- 		ROOT_DEV = MKDEV(FLOPPY_MAJOR, 0);
-+# endif
- 	}
- #endif
- 	devfs_make_root(root_device_name);
 
 
 

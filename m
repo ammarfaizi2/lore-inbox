@@ -1,38 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131747AbRCQRpX>; Sat, 17 Mar 2001 12:45:23 -0500
+	id <S131736AbRCQS0Y>; Sat, 17 Mar 2001 13:26:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131756AbRCQRpO>; Sat, 17 Mar 2001 12:45:14 -0500
-Received: from cmailg3.svr.pol.co.uk ([195.92.195.173]:8520 "EHLO
-	cmailg3.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S131747AbRCQRoy>; Sat, 17 Mar 2001 12:44:54 -0500
-Date: Sat, 17 Mar 2001 17:46:39 +0000 (GMT)
-From: Will Newton <will@misconception.org.uk>
-X-X-Sender: <will@dogfox.localdomain>
-To: Mike Galbraith <mikeg@wen-online.de>
-cc: Tim Waugh <twaugh@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: VIA audio and parport in 2.4.2
-In-Reply-To: <Pine.LNX.4.33.0103170756470.2637-100000@mikeg.weiden.de>
-Message-ID: <Pine.LNX.4.33.0103171744430.4733-100000@dogfox.localdomain>
+	id <S131722AbRCQS0P>; Sat, 17 Mar 2001 13:26:15 -0500
+Received: from proxyd.rim.net ([206.51.26.194]:32412 "HELO mhs99ykf.rim.net")
+	by vger.kernel.org with SMTP id <S131736AbRCQS0J>;
+	Sat, 17 Mar 2001 13:26:09 -0500
+Message-ID: <A9FD1B186B99D4119BCC00D0B75B4D8104D4AA30@xch01ykf.rim.net>
+From: Aaron Lunansky <alunansky@rim.net>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Cc: "'kees@shoen.nl'" <kees@shoen.nl>
+Subject: Re: [OT] how to catch HW fault
+Date: Sat, 17 Mar 2001 13:22:46 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 17 Mar 2001, Mike Galbraith wrote:
+Sounds like the only thing you haven't swapped out of your machine is the
+ram/cpu.
 
-> > messages.1:Mar  8 22:49:00 dogfox kernel: spurious 8259A interrupt: IRQ7.
->
-> I see these once in a while too in 2.4.x, and only when copying largish
-> files between boxes.  NIC is IRQ-10, but the spurious interrupt is always
-> IRQ-7.  I'm not using the printer port for anything on this box.  It only
-> happens here when the network is going full bore for at least a few secs.
-
-With the VIA chipset?
-
-There definitely seems to be something wrong in the IRQ handling on this
-board. e.g. when I insmod the sound driver it just sits there on IRQ 10,
-getting no interrupts. Unfortunately I don't know enough about Linux
-internals to really investigate this further.
+It could very well be your ram (I don't suspect the cpu). If you can, try a
+different stick of ram.
 
 
+
+-----Original Message-----
+From: kees <kees@schoen.nl>
+To: linux-kernel@vger.kernel.org <linux-kernel@vger.kernel.org>
+Sent: Sat Mar 17 11:29:35 2001
+Subject: [OT] how to catch HW fault
+
+Hi,
+I'm getting mad because of random freezes of my system. Linux-2.2.19pre7
+on MSI 694D dual PIII(677MHz) 128 MB, no OC. I tried to isolate the
+problem with replacing cards (S3 video, 3com 59X, ES1373 and
+AIC7xxx) didn't solve anything. Even in initlevel 1 with only a videocard
+the freeze happens. It is a total lockup, no SYSRQ , no ping from network,
+nothing in the logs. A freeze may happen 4 times in a hour or once in 2
+weeks. I have the same mobo and PIII's at home without the slightest
+problems. Who knows of a suitable diagnostics to track this down?
+regards
+Kees
+
+
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,381 +1,136 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265492AbTLIMhs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 07:37:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265494AbTLIMhp
+	id S265520AbTLIMlm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 07:41:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265523AbTLIMll
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 07:37:45 -0500
-Received: from smithers.nildram.co.uk ([195.112.4.54]:14094 "EHLO
-	smithers.nildram.co.uk") by vger.kernel.org with ESMTP
-	id S265492AbTLIMh0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 07:37:26 -0500
-Date: Tue, 9 Dec 2003 12:25:21 +0000
-From: Joe Thornber <thornber@sistina.com>
-To: Joe Thornber <thornber@sistina.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Linux Mailing List <linux-kernel@vger.kernel.org>
-Subject: [Patch 2/4] dm: mempool backport
-Message-ID: <20031209122521.GD472@reti>
-References: <20031209115806.GA472@reti>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 9 Dec 2003 07:41:41 -0500
+Received: from out004pub.verizon.net ([206.46.170.142]:38567 "EHLO
+	out004.verizon.net") by vger.kernel.org with ESMTP id S265520AbTLIMld
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 07:41:33 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: None that appears to be detectable by casual observers
+To: Sebastian Kaps <seb-keyword-linux.637a6e@toyland.sauerland.de>
+Subject: Re: sensors vs 2.6
+Date: Tue, 9 Dec 2003 07:41:31 -0500
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org
+References: <200312090258.01944.gene.heskett@verizon.net> <m3zne21dsw.fsf@toyland.sauerland.de>
+In-Reply-To: <m3zne21dsw.fsf@toyland.sauerland.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20031209115806.GA472@reti>
-User-Agent: Mutt/1.5.4i
+Message-Id: <200312090741.31290.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out004.verizon.net from [151.205.57.120] at Tue, 9 Dec 2003 06:41:32 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Backport of mempool code.
---- diff/mm/Makefile	2002-08-05 14:57:44.000000000 +0100
-+++ source/mm/Makefile	2003-12-09 10:34:55.000000000 +0000
-@@ -9,12 +9,12 @@
- 
- O_TARGET := mm.o
- 
--export-objs := shmem.o filemap.o memory.o page_alloc.o
-+export-objs := shmem.o filemap.o memory.o page_alloc.o mempool.o
- 
- obj-y	 := memory.o mmap.o filemap.o mprotect.o mlock.o mremap.o \
- 	    vmalloc.o slab.o bootmem.o swap.o vmscan.o page_io.o \
- 	    page_alloc.o swap_state.o swapfile.o numa.o oom_kill.o \
--	    shmem.o
-+	    shmem.o mempool.o
- 
- obj-$(CONFIG_HIGHMEM) += highmem.o
- 
---- diff/include/linux/mempool.h	1970-01-01 01:00:00.000000000 +0100
-+++ source/include/linux/mempool.h	2003-12-09 10:34:55.000000000 +0000
-@@ -0,0 +1,31 @@
-+/*
-+ * memory buffer pool support
-+ */
-+#ifndef _LINUX_MEMPOOL_H
-+#define _LINUX_MEMPOOL_H
-+
-+#include <linux/list.h>
-+#include <linux/wait.h>
-+
-+struct mempool_s;
-+typedef struct mempool_s mempool_t;
-+
-+typedef void * (mempool_alloc_t)(int gfp_mask, void *pool_data);
-+typedef void (mempool_free_t)(void *element, void *pool_data);
-+
-+extern mempool_t * mempool_create(int min_nr, mempool_alloc_t *alloc_fn,
-+				 mempool_free_t *free_fn, void *pool_data);
-+extern int mempool_resize(mempool_t *pool, int new_min_nr, int gfp_mask);
-+extern void mempool_destroy(mempool_t *pool);
-+extern void * mempool_alloc(mempool_t *pool, int gfp_mask);
-+extern void mempool_free(void *element, mempool_t *pool);
-+
-+/*
-+ * A mempool_alloc_t and mempool_free_t that get the memory from
-+ * a slab that is passed in through pool_data.
-+ */
-+void *mempool_alloc_slab(int gfp_mask, void *pool_data);
-+void mempool_free_slab(void *element, void *pool_data);
-+
-+
-+#endif /* _LINUX_MEMPOOL_H */
---- diff/mm/mempool.c	1970-01-01 01:00:00.000000000 +0100
-+++ source/mm/mempool.c	2003-12-09 10:34:55.000000000 +0000
-@@ -0,0 +1,299 @@
-+/*
-+ *  linux/mm/mempool.c
-+ *
-+ *  memory buffer pool support. Such pools are mostly used
-+ *  for guaranteed, deadlock-free memory allocations during
-+ *  extreme VM load.
-+ *
-+ *  started by Ingo Molnar, Copyright (C) 2001
-+ */
-+
-+#include <linux/mm.h>
-+#include <linux/slab.h>
-+#include <linux/module.h>
-+#include <linux/mempool.h>
-+
-+struct mempool_s {
-+	spinlock_t lock;
-+	int min_nr;		/* nr of elements at *elements */
-+	int curr_nr;		/* Current nr of elements at *elements */
-+	void **elements;
-+
-+	void *pool_data;
-+	mempool_alloc_t *alloc;
-+	mempool_free_t *free;
-+	wait_queue_head_t wait;
-+};
-+
-+static void add_element(mempool_t *pool, void *element)
-+{
-+	BUG_ON(pool->curr_nr >= pool->min_nr);
-+	pool->elements[pool->curr_nr++] = element;
-+}
-+
-+static void *remove_element(mempool_t *pool)
-+{
-+	BUG_ON(pool->curr_nr <= 0);
-+	return pool->elements[--pool->curr_nr];
-+}
-+
-+static void free_pool(mempool_t *pool)
-+{
-+	while (pool->curr_nr) {
-+		void *element = remove_element(pool);
-+		pool->free(element, pool->pool_data);
-+	}
-+	kfree(pool->elements);
-+	kfree(pool);
-+}
-+
-+/**
-+ * mempool_create - create a memory pool
-+ * @min_nr:    the minimum number of elements guaranteed to be
-+ *             allocated for this pool.
-+ * @alloc_fn:  user-defined element-allocation function.
-+ * @free_fn:   user-defined element-freeing function.
-+ * @pool_data: optional private data available to the user-defined functions.
-+ *
-+ * this function creates and allocates a guaranteed size, preallocated
-+ * memory pool. The pool can be used from the mempool_alloc and mempool_free
-+ * functions. This function might sleep. Both the alloc_fn() and the free_fn()
-+ * functions might sleep - as long as the mempool_alloc function is not called
-+ * from IRQ contexts.
-+ */
-+mempool_t * mempool_create(int min_nr, mempool_alloc_t *alloc_fn,
-+				mempool_free_t *free_fn, void *pool_data)
-+{
-+	mempool_t *pool;
-+
-+	pool = kmalloc(sizeof(*pool), GFP_KERNEL);
-+	if (!pool)
-+		return NULL;
-+	memset(pool, 0, sizeof(*pool));
-+	pool->elements = kmalloc(min_nr * sizeof(void *), GFP_KERNEL);
-+	if (!pool->elements) {
-+		kfree(pool);
-+		return NULL;
-+	}
-+	spin_lock_init(&pool->lock);
-+	pool->min_nr = min_nr;
-+	pool->pool_data = pool_data;
-+	init_waitqueue_head(&pool->wait);
-+	pool->alloc = alloc_fn;
-+	pool->free = free_fn;
-+
-+	/*
-+	 * First pre-allocate the guaranteed number of buffers.
-+	 */
-+	while (pool->curr_nr < pool->min_nr) {
-+		void *element;
-+
-+		element = pool->alloc(GFP_KERNEL, pool->pool_data);
-+		if (unlikely(!element)) {
-+			free_pool(pool);
-+			return NULL;
-+		}
-+		add_element(pool, element);
-+	}
-+	return pool;
-+}
-+
-+/**
-+ * mempool_resize - resize an existing memory pool
-+ * @pool:       pointer to the memory pool which was allocated via
-+ *              mempool_create().
-+ * @new_min_nr: the new minimum number of elements guaranteed to be
-+ *              allocated for this pool.
-+ * @gfp_mask:   the usual allocation bitmask.
-+ *
-+ * This function shrinks/grows the pool. In the case of growing,
-+ * it cannot be guaranteed that the pool will be grown to the new
-+ * size immediately, but new mempool_free() calls will refill it.
-+ *
-+ * Note, the caller must guarantee that no mempool_destroy is called
-+ * while this function is running. mempool_alloc() & mempool_free()
-+ * might be called (eg. from IRQ contexts) while this function executes.
-+ */
-+int mempool_resize(mempool_t *pool, int new_min_nr, int gfp_mask)
-+{
-+	void *element;
-+	void **new_elements;
-+	unsigned long flags;
-+
-+	BUG_ON(new_min_nr <= 0);
-+
-+	spin_lock_irqsave(&pool->lock, flags);
-+	if (new_min_nr < pool->min_nr) {
-+		while (pool->curr_nr > new_min_nr) {
-+			element = remove_element(pool);
-+			spin_unlock_irqrestore(&pool->lock, flags);
-+			pool->free(element, pool->pool_data);
-+			spin_lock_irqsave(&pool->lock, flags);
-+		}
-+		pool->min_nr = new_min_nr;
-+		goto out_unlock;
-+	}
-+	spin_unlock_irqrestore(&pool->lock, flags);
-+
-+	/* Grow the pool */
-+	new_elements = kmalloc(new_min_nr * sizeof(*new_elements), gfp_mask);
-+	if (!new_elements)
-+		return -ENOMEM;
-+
-+	spin_lock_irqsave(&pool->lock, flags);
-+	memcpy(new_elements, pool->elements,
-+			pool->curr_nr * sizeof(*new_elements));
-+	kfree(pool->elements);
-+	pool->elements = new_elements;
-+	pool->min_nr = new_min_nr;
-+
-+	while (pool->curr_nr < pool->min_nr) {
-+		spin_unlock_irqrestore(&pool->lock, flags);
-+		element = pool->alloc(gfp_mask, pool->pool_data);
-+		if (!element)
-+			goto out;
-+		spin_lock_irqsave(&pool->lock, flags);
-+		if (pool->curr_nr < pool->min_nr)
-+			add_element(pool, element);
-+		else
-+			kfree(element);		/* Raced */
-+	}
-+out_unlock:
-+	spin_unlock_irqrestore(&pool->lock, flags);
-+out:
-+	return 0;
-+}
-+
-+/**
-+ * mempool_destroy - deallocate a memory pool
-+ * @pool:      pointer to the memory pool which was allocated via
-+ *             mempool_create().
-+ *
-+ * this function only sleeps if the free_fn() function sleeps. The caller
-+ * has to guarantee that all elements have been returned to the pool (ie:
-+ * freed) prior to calling mempool_destroy().
-+ */
-+void mempool_destroy(mempool_t *pool)
-+{
-+	if (pool->curr_nr != pool->min_nr)
-+		BUG();		/* There were outstanding elements */
-+	free_pool(pool);
-+}
-+
-+/**
-+ * mempool_alloc - allocate an element from a specific memory pool
-+ * @pool:      pointer to the memory pool which was allocated via
-+ *             mempool_create().
-+ * @gfp_mask:  the usual allocation bitmask.
-+ *
-+ * this function only sleeps if the alloc_fn function sleeps or
-+ * returns NULL. Note that due to preallocation, this function
-+ * *never* fails when called from process contexts. (it might
-+ * fail if called from an IRQ context.)
-+ */
-+void * mempool_alloc(mempool_t *pool, int gfp_mask)
-+{
-+	void *element;
-+	unsigned long flags;
-+	int curr_nr;
-+	DECLARE_WAITQUEUE(wait, current);
-+	int gfp_nowait = gfp_mask & ~(__GFP_WAIT | __GFP_IO);
-+
-+repeat_alloc:
-+	element = pool->alloc(gfp_nowait, pool->pool_data);
-+	if (likely(element != NULL))
-+		return element;
-+
-+	/*
-+	 * If the pool is less than 50% full then try harder
-+	 * to allocate an element:
-+	 */
-+	if ((gfp_mask != gfp_nowait) && (pool->curr_nr <= pool->min_nr/2)) {
-+		element = pool->alloc(gfp_mask, pool->pool_data);
-+		if (likely(element != NULL))
-+			return element;
-+	}
-+
-+	/*
-+	 * Kick the VM at this point.
-+	 */
-+	wakeup_bdflush();
-+
-+	spin_lock_irqsave(&pool->lock, flags);
-+	if (likely(pool->curr_nr)) {
-+		element = remove_element(pool);
-+		spin_unlock_irqrestore(&pool->lock, flags);
-+		return element;
-+	}
-+	spin_unlock_irqrestore(&pool->lock, flags);
-+
-+	/* We must not sleep in the GFP_ATOMIC case */
-+	if (gfp_mask == gfp_nowait)
-+		return NULL;
-+
-+	run_task_queue(&tq_disk);
-+
-+	add_wait_queue_exclusive(&pool->wait, &wait);
-+	set_task_state(current, TASK_UNINTERRUPTIBLE);
-+
-+	spin_lock_irqsave(&pool->lock, flags);
-+	curr_nr = pool->curr_nr;
-+	spin_unlock_irqrestore(&pool->lock, flags);
-+
-+	if (!curr_nr)
-+		schedule();
-+
-+	current->state = TASK_RUNNING;
-+	remove_wait_queue(&pool->wait, &wait);
-+
-+	goto repeat_alloc;
-+}
-+
-+/**
-+ * mempool_free - return an element to the pool.
-+ * @element:   pool element pointer.
-+ * @pool:      pointer to the memory pool which was allocated via
-+ *             mempool_create().
-+ *
-+ * this function only sleeps if the free_fn() function sleeps.
-+ */
-+void mempool_free(void *element, mempool_t *pool)
-+{
-+	unsigned long flags;
-+
-+	if (pool->curr_nr < pool->min_nr) {
-+		spin_lock_irqsave(&pool->lock, flags);
-+		if (pool->curr_nr < pool->min_nr) {
-+			add_element(pool, element);
-+			spin_unlock_irqrestore(&pool->lock, flags);
-+			wake_up(&pool->wait);
-+			return;
-+		}
-+		spin_unlock_irqrestore(&pool->lock, flags);
-+	}
-+	pool->free(element, pool->pool_data);
-+}
-+
-+/*
-+ * A commonly used alloc and free fn.
-+ */
-+void *mempool_alloc_slab(int gfp_mask, void *pool_data)
-+{
-+	kmem_cache_t *mem = (kmem_cache_t *) pool_data;
-+	return kmem_cache_alloc(mem, gfp_mask);
-+}
-+
-+void mempool_free_slab(void *element, void *pool_data)
-+{
-+	kmem_cache_t *mem = (kmem_cache_t *) pool_data;
-+	kmem_cache_free(mem, element);
-+}
-+
-+
-+EXPORT_SYMBOL(mempool_create);
-+EXPORT_SYMBOL(mempool_resize);
-+EXPORT_SYMBOL(mempool_destroy);
-+EXPORT_SYMBOL(mempool_alloc);
-+EXPORT_SYMBOL(mempool_free);
-+EXPORT_SYMBOL(mempool_alloc_slab);
-+EXPORT_SYMBOL(mempool_free_slab);
+On Tuesday 09 December 2003 05:33, Sebastian Kaps wrote:
+>Hi Gene!
+>
+>On Tue, 9 Dec 2003 02:58:01 -0500 you wrote:
+>> kernel, 2.6.0-test11, and have dilligently searched the /proc and
+>> /sys directories, and seem to have come up blank.
+>
+>I have configured "I2C support", "I2C device interface", "Intel
+> PIIX4" and "Winbond ...". I get all sensor readings in
+> /sys/bus/i2c/devices/*, e.g.:
+
+I have this:
+-----------------------
+[root@coyote linux-2.6]# grep I2C .config
+# I2C support
+CONFIG_I2C=y
+CONFIG_I2C_CHARDEV=y
+# I2C Algorithms
+CONFIG_I2C_ALGOBIT=y
+# CONFIG_I2C_ALGOPCF is not set
+# I2C Hardware Bus support
+# CONFIG_I2C_ALI1535 is not set
+# CONFIG_I2C_ALI15X3 is not set
+# CONFIG_I2C_AMD756 is not set
+# CONFIG_I2C_AMD8111 is not set
+# CONFIG_I2C_I801 is not set
+# CONFIG_I2C_I810 is not set
+# CONFIG_I2C_NFORCE2 is not set
+# CONFIG_I2C_PHILIPSPAR is not set
+# CONFIG_I2C_PIIX4 is not set
+# CONFIG_I2C_PROSAVAGE is not set
+# CONFIG_I2C_SAVAGE4 is not set
+# CONFIG_I2C_SIS5595 is not set
+# CONFIG_I2C_SIS630 is not set
+# CONFIG_I2C_SIS96X is not set
+CONFIG_I2C_VIA=y
+CONFIG_I2C_VIAPRO=y
+# CONFIG_I2C_VOODOO3 is not set
+# I2C Hardware Sensors Chip support
+CONFIG_I2C_SENSOR=y
+----------------
+and this:
+-----------------
+[root@coyote linux-2.6]# grep SENSORS .config
+# CONFIG_SENSORS_ADM1021 is not set
+CONFIG_SENSORS_EEPROM=y
+# CONFIG_SENSORS_IT87 is not set
+# CONFIG_SENSORS_LM75 is not set
+# CONFIG_SENSORS_LM78 is not set
+# CONFIG_SENSORS_LM85 is not set
+CONFIG_SENSORS_VIA686A=y
+CONFIG_SENSORS_W83781D=y
+---------------------
+set for a Biostar M7VIB mobo.  It all works for 2.4.
+
+No errors were noted during the build other than the advansys 
+deprecated "check_region" calls that have been noted here previously.
+
+But:
+--------------------
+[root@coyote linux-2.6]# tree /sys/bus/i2c/devices/
+/sys/bus/i2c/devices/
+|-- 0-0050 -> ../../../devices/pci0000:00/0000:00:09.0/i2c-0/0-0050
+|-- 0-0051 -> ../../../devices/pci0000:00/0000:00:09.0/i2c-0/0-0051
+|-- 0-0052 -> ../../../devices/pci0000:00/0000:00:09.0/i2c-0/0-0052
+|-- 0-0053 -> ../../../devices/pci0000:00/0000:00:09.0/i2c-0/0-0053
+|-- 0-0054 -> ../../../devices/pci0000:00/0000:00:09.0/i2c-0/0-0054
+|-- 0-0055 -> ../../../devices/pci0000:00/0000:00:09.0/i2c-0/0-0055
+|-- 0-0056 -> ../../../devices/pci0000:00/0000:00:09.0/i2c-0/0-0056
+|-- 0-0057 -> ../../../devices/pci0000:00/0000:00:09.0/i2c-0/0-0057
+|-- 0-0061 -> ../../../devices/pci0000:00/0000:00:09.0/i2c-0/0-0061
+|-- 1-0050 -> ../../../devices/pci0000:00/0000:00:11.0/i2c-1/1-0050
+`-- 1-0051 -> ../../../devices/pci0000:00/0000:00:11.0/i2c-1/1-0051
+
+11 directories, 0 files
+-----------------------
+And ALL of that is related to the various eeproms in the system.  
+Mostly on my bt979 card.
+
+To back out and do a tree on /sys/devices gets me 171 directories and 
+583 files, none of which are named 'input_fan1'.
+
+So obviously something didn't get built, and it looks like its the 
+winbond stuff.  The question is why?  Is there some method that can 
+be used to interrogate the kernel and determine if the stuff is 
+actually in there?
+
+>,----
+>
+>| # cat /sys/bus/i2c/devices/0-002d/fan_input1
+>| 5400
+>
+>`----
+
+No such subdir in the devices dir...
+
+-- 
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.22% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+

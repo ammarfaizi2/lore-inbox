@@ -1,43 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261273AbUCKNkZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 08:40:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbUCKNkY
+	id S261258AbUCKNkL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 08:40:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261273AbUCKNkL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 08:40:24 -0500
-Received: from uni02du.unity.ncsu.edu ([152.1.13.102]:27520 "EHLO
-	uni02du.unity.ncsu.edu") by vger.kernel.org with ESMTP
-	id S261273AbUCKNkT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 08:40:19 -0500
-From: jlnance@unity.ncsu.edu
-Date: Thu, 11 Mar 2004 08:40:17 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.4-mm1
-Message-ID: <20040311134017.GA2813@ncsu.edu>
-References: <20040310233140.3ce99610.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 11 Mar 2004 08:40:11 -0500
+Received: from mta07-svc.ntlworld.com ([62.253.162.47]:16051 "EHLO
+	mta07-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id S261258AbUCKNkF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 08:40:05 -0500
+From: Richard Browning <richard@redline.org.uk>
+Organization: Redline Software Engineering
+To: Len Brown <len.brown@intel.com>
+Subject: Re: SMP + Hyperthreading / Asus PCDL Deluxe / Kernel 2.4.x 2.6.x / Crash/Freeze
+Date: Thu, 11 Mar 2004 13:38:20 +0000
+User-Agent: KMail/1.6
+Cc: linux-kernel@vger.kernel.org
+References: <A6974D8E5F98D511BB910002A50A6647615F4B99@hdsmsx402.hd.intel.com> <1078987834.2556.84.camel@dhcppc4>
+In-Reply-To: <1078987834.2556.84.camel@dhcppc4>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040310233140.3ce99610.akpm@osdl.org>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200403111338.20255.richard@redline.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 10, 2004 at 11:31:40PM -0800, Andrew Morton wrote:
->   This affects I/O scheduling potentially quite significantly.  It is no
->   longer the case that the kernel will submit pages for I/O in the order in
->   which the application dirtied them.  We instead submit them in file-offset
->   order all the time.
+On Thursday 11 March 2004 06:50, Len Brown wrote:
+> On Wed, 2004-03-10 at 07:27, Richard Browning wrote:
+> > When operating from the
+> > command line it is usual to see a Machine Check Exception error
+> > immediately prior to system failure.
+>
+> details?
 
-Hi Andrew,
-    I have a feeling this change might significantly improve the external
-sorting benchmark I emailed you ( http://lkml.org/lkml/2003/12/20/46 ).
-I will try running it when I get a chance and let you know.  It gives me
-a good excuse to get 2.6 kernels working on my systems :-)
+CPU 2: Machine Check Exception: 000...0004
+CPU 3: Machine Check Exception: 000...0004
 
-Thanks,
+Is what I get now. Previously I also got "Kernel Context Corrupt" in addition 
+to the above.
 
-Jim
+The MCE error can be made to appear when, for example, I'm running a 
+configure/compile cycle. I thought it might be a SATA issue so installed 
+Mandrake on an IDE drive but I got the same error.
 
--- 
-www.jeweltran.com
+As an aside, I'm running Gentoo with CFLAGS=-O2 -march=pentium4 -pipe ... I 
+was running CFLAGS=-O3 -march=pentium3 -mcpu=pentium4 -mmmx -ssse2 (and so 
+on) with no difference whatsoever (probably shouldn't be a surprise bearing 
+in mind the kernel is compiled with its own flags).
+
+I've run MEMTEST with no errors reported. It's a very interesting problem, 
+since with SMP only everything works okay. But SMP+Hyperthreading and, sooner 
+rather than later, the thing will bomb.
+
+R

@@ -1,51 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267785AbUIKOg4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267958AbUIKOi5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267785AbUIKOg4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 10:36:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267958AbUIKOg4
+	id S267958AbUIKOi5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 10:38:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267976AbUIKOi4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 10:36:56 -0400
-Received: from legaleagle.de ([217.160.128.82]:35719 "EHLO www.legaleagle.de")
-	by vger.kernel.org with ESMTP id S267785AbUIKOgy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 10:36:54 -0400
-Message-ID: <41430D5E.9030207@trash.net>
-Date: Sat, 11 Sep 2004 16:36:14 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: linux-kernel@vger.kernel.org,
-       Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>
-Subject: Re: [PATCH 2.6 NETFILTER] new netfilter module ipt_program.c
-References: <20040911124106.GD24787@lkcl.net> <4142F4CC.7080708@trash.net> <20040911132935.GF24787@lkcl.net> <20040911133443.GG24787@lkcl.net>
-In-Reply-To: <20040911133443.GG24787@lkcl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 11 Sep 2004 10:38:56 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:11699 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S267958AbUIKOiy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Sep 2004 10:38:54 -0400
+Subject: Re: [PATCH] i386 reduce spurious interrupt noise
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: "Maciej W. Rozycki" <macro@linux-mips.org>,
+       LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <20040910232826.GA3302@taniwha.stupidest.org>
+References: <20040902192820.GA6427@taniwha.stupidest.org>
+	 <Pine.LNX.4.58L.0409102306420.20057@blysk.ds.pg.gda.pl>
+	 <20040910231052.GA3078@taniwha.stupidest.org>
+	 <1094854872.18282.29.camel@localhost.localdomain>
+	 <20040910232826.GA3302@taniwha.stupidest.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1094909793.21157.12.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sat, 11 Sep 2004 14:36:34 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luke Kenneth Casson Leighton wrote:
-> On Sat, Sep 11, 2004 at 02:29:35PM +0100, Luke Kenneth Casson Leighton wrote:
+On Sad, 2004-09-11 at 00:28, Chris Wedgwood wrote:
+> > > > > -			printk("spurious 8259A interrupt: IRQ%d.\n", irq);
+> > > > > +			printk(KERN_DEBUG "spurious 8259A interrupt: IRQ%d.\n", irq);
 > 
->  thing is, you see, i know just enough to be dangerous.
+> > This should really go.
 > 
->  using files->file_lock a) seems to work b) is accepted code in the
->  kernel.
+> do we want counters for this?  what about the APIC case?
 
-It seems to work - on UP where it is a NOP. On SMP it will deadlock.
-That we have some broken code doesn't mean we want more of it :)
-
->  if someone else has the experience and knowledge to fix ipt_owner.c
->  i'll quite happily cut/paste that instead - once it's fixed.
-
-The "fix" is quite easy, replace all occurences of
-spin_lock(&files->file_lock) in the kernel by spin_lock_bh.
-But that's not going to be accepted. IIRC the SELinux guys
-want to label packets with the name of the sending process,
-maybe we can use this for the owner match once it's done.
-
-Regards
-Patrick
+I don't know enough about the APIC version to comment, just the PIC one.

@@ -1,56 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261837AbTLLTBv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 14:01:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbTLLTBv
+	id S261807AbTLLTTe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 14:19:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbTLLTTe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 14:01:51 -0500
-Received: from verein.lst.de ([212.34.189.10]:59347 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S261837AbTLLTBL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 14:01:11 -0500
-Date: Fri, 12 Dec 2003 20:00:03 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: Nathan Scott <nathans@sgi.com>
-Cc: pinotj@club-internet.fr, torvalds@osdl.org, neilb@cse.unsw.edu.au,
-       manfred@colorfullife.com, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [Oops]  i386 mm/slab.c (cache_flusharray)
-Message-ID: <20031212190002.GA21253@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
-	Nathan Scott <nathans@sgi.com>, pinotj@club-internet.fr,
-	torvalds@osdl.org, neilb@cse.unsw.edu.au, manfred@colorfullife.com,
-	akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <mnet2.1070931455.23402.pinotj@club-internet.fr> <20031209020322.GA1798@frodo> <20031209072131.GD24599@lst.de> <20031209235832.GG783@frodo>
+	Fri, 12 Dec 2003 14:19:34 -0500
+Received: from fed1mtao02.cox.net ([68.6.19.243]:32992 "EHLO
+	fed1mtao02.cox.net") by vger.kernel.org with ESMTP id S261807AbTLLTTc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Dec 2003 14:19:32 -0500
+Date: Fri, 12 Dec 2003 12:29:55 -0700
+From: Jesse Allen <the3dfxdude@hotmail.com>
+To: Josh McKinney <forming@charter.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Working nforce2, was Re: Fixes for nforce2 hard lockup, apic, io-apic, udma133 covered
+Message-ID: <20031212192955.GA656@tesore.local>
+References: <200312072312.01013.ross@datscreative.com.au> <200312111655.25456.ross@datscreative.com.au> <1071143274.2272.4.camel@big.pomac.com> <200312111912.27811.ross@datscreative.com.au> <1071165161.2271.22.camel@big.pomac.com> <20031211182108.GA353@tesore.local> <3FD98A1F.901@nishanet.com> <20031212165929.GA187@tesore.local> <20031212181827.GA3862@forming>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031209235832.GG783@frodo>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -5 () EMAIL_ATTRIBUTION,IN_REP_TO,QUOTED_EMAIL_TEXT,REFERENCES,REPLY_WITH_QUOTES,USER_AGENT_MUTT
+In-Reply-To: <20031212181827.GA3862@forming>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 10, 2003 at 10:58:32AM +1100, Nathan Scott wrote:
-> > > [ Christoph, is this failure expected?  I think you/Steve made
-> > > some changes there to use __GFP_NOFAIL and assume it wont fail?
-> > > (in 2.4 we do memory allocations differently to better handle
-> > > failures, but that code was removed...) ]
-> > 
-> > It looks like the slab allocator doesn't like __GFP_NOFAIL, we'll
-> > probably have to revert the XFS memory allocation wrappers to the
-> > 2.4 versions.
-> > 
+On Fri, Dec 12, 2003 at 01:18:27PM -0500, Josh McKinney wrote:
 > 
-> OK, thanks - I'll look into it.
+> The thing that strikes me funny is that you get no crashes with the
+> updated BIOS and Disconnect on, but without the updated BIOS we have
+> to turn disconnect off with athcool or the patch?  This makes me think
+> that there is some voodoo going on in the BIOS update that they aren't
+> saying, surprise surprise, 
 
-This starts to look really fishy:
+Yes, it is weird.  I've now asked shuttle for more information.
 
-hch@bird:/repo/repo/linux-2.5/fs/jbd$ egrep -r NOFAIL *
-journal.c:      new_bh = alloc_buffer_head(GFP_NOFS|__GFP_NOFAIL);
-journal.c:      return kmalloc(size, flags | (retry ? __GFP_NOFAIL :
-0));
+> or something is just slowing down the time
+> it takes for it to crash.  I say this because I have gone 5+ days
+> without any of the patches from these threads, acpi apic lapic
+> enabled, and CPU disconnect on as stated by athcool.  This was with
+> much stress testing, idle time, etc.  One day I just ran a grep that I
+> have done probably 30 times and boom, hang.  
 
-both of these end up in the slab layer, just like XFS - except
-that __cache_alloc still may fail.  Looks like whe're better of
-fixing mm/slab.c
+I hope this is not the case!  The one/two grep test worked flawlessly, but now if it's delayed, then I can't do that anymore.
 
+(but at least I have the bios option now! heh)
+
+I suggest you reference the Shuttle AN35 12-05-2003 BIOS, and maybe Bob's MSI, when you talk to Asus.  If they can do it, then Asus should be able as well.
+
+Jesse

@@ -1,36 +1,132 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312770AbSCZVwu>; Tue, 26 Mar 2002 16:52:50 -0500
+	id <S312752AbSCZVyk>; Tue, 26 Mar 2002 16:54:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312772AbSCZVwk>; Tue, 26 Mar 2002 16:52:40 -0500
-Received: from b.smtp-out.sonic.net ([208.201.224.39]:23003 "HELO
-	b.smtp-out.sonic.net") by vger.kernel.org with SMTP
-	id <S312770AbSCZVw0>; Tue, 26 Mar 2002 16:52:26 -0500
-X-envelope-info: <dalgoda@ix.netcom.com>
-Newsgroups: local.ml.linux.kernel
-From: dalgoda@ix.netcom.com (Mike Castle)
-Subject: Re: version.h missing from 2.4.18?
-In-Reply-To: <20020325.234400.03241011.davem@redhat.com> <PPENJLMFIMGBGDDHEPBBKEAPCMAA.ashokr2@attbi.com>
-Organization: House of Linux
-X-Newsreader: trn 4.0-test74 (May 26, 2000)
-Path: not-for-mail
-Originator: nexus@thune.mrc.org (Mike Castle)
-Date: Tue, 26 Mar 2002 13:52:09 -0800
-Message-ID: <9iqq7a.rn1.ln@thune.mrc-home.org>
-To: linux-kernel@vger.kernel.org
+	id <S312773AbSCZVyb>; Tue, 26 Mar 2002 16:54:31 -0500
+Received: from [216.167.37.170] ([216.167.37.170]:10253 "EHLO cob427.dn.net")
+	by vger.kernel.org with ESMTP id <S312752AbSCZVyW>;
+	Tue, 26 Mar 2002 16:54:22 -0500
+Date: Wed, 27 Mar 2002 03:24:09 +0530
+From: "Sapan J . Bhatia" <lists@corewars.org>
+To: marcelo@conectiva.com.br, torvalds@transmeta.com, akpm@zip.com.au
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] POLL_OUT in ttys, misc bug fix
+Message-ID: <20020327032408.A7073@corewars.org>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="HcAYCG3uE/tztfnV"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Operating-System: Linux corewars 2.4.18
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <PPENJLMFIMGBGDDHEPBBKEAPCMAA.ashokr2@attbi.com>,
-Ashok Raj <ashokr2@attbi.com> wrote:
->Iam not sure if iam the only one doing this, could this be added to the
->kernel source tree?
 
-Use the EXTRAVERSIONS setting in the top level makefile.
+--HcAYCG3uE/tztfnV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-mrc
+Hello,
 
--- 
-     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
-    We are all of us living in the shadow of Manhattan.  -- Watchmen
-fatal ("You are in a maze of twisty compiler features, all different"); -- gcc
+While fixing a flow control bug that truncated output to a terminal in
+User Mode Linux, I noticed that the tty drivers only send POLL_IN on new
+data being available but not POLL_OUT when the device is ready for new
+data.
+
+This patch fixes the bug in the line discipline and the pty driver.
+
+Also, there's another minor bug in n_tty.c where write_chan returns
+on a (retvalue < 0) unconditionally. This is a problem, since the type of
+IO (BLOCKING / NON_BLOCKING) is stored in the tty, and if the console driver
+returns a -EAGAIN (eg. in UML on getting an EAGAIN from the host kernel), 
+write_chan returns even in the case of a blocking write, which is wrong
+since the process doesn't expect it.
+
+Regards,
+Sapan
+
+
+--HcAYCG3uE/tztfnV
+Content-Type: text/plain; charset=us-ascii
+Content-Description: tty_patch.diff
+Content-Disposition: attachment; filename="tty_bugs.diff"
+
+--- /tmp/work/linux/drivers/char/pty.c	Fri Dec 21 23:11:54 2001
++++ /usr/src/linux-2.4.18/drivers/char/pty.c	Thu Mar 21 20:26:01 2002
+@@ -5,6 +5,10 @@
+  *
+  *  Added support for a Unix98-style ptmx device.
+  *    -- C. Scott Ananian <cananian@alumni.princeton.edu>, 14-Jan-1998
++ *  Added TTY_DO_WRITE_WAKEUP to enable n_tty to send POLL_OUT to
++ *      waiting writers -- Sapan Bhatia <sapan@corewars.org>
++ *
++ *
+  */
+ 
+ #include <linux/config.h>
+@@ -331,6 +335,8 @@
+ 	clear_bit(TTY_OTHER_CLOSED, &tty->link->flags);
+ 	wake_up_interruptible(&pty->open_wait);
+ 	set_bit(TTY_THROTTLED, &tty->flags);
++	set_bit(TTY_DO_WRITE_WAKEUP, &tty->flags);
++
+ 	/*  Register a slave for the master  */
+ 	if (tty->driver.major == PTY_MASTER_MAJOR)
+ 		tty_register_devfs(&tty->link->driver,
+--- /tmp/work/linux/drivers/char/n_tty.c	Fri Apr  6 23:12:55 2001
++++ /usr/src/linux-2.4.18/drivers/char/n_tty.c	Thu Mar 21 07:22:44 2002
+@@ -23,6 +23,13 @@
+  * 2000/01/20   Fixed SMP locking on put_tty_queue using bits of 
+  *		the patch by Andrew J. Kroll <ag784@freenet.buffalo.edu>
+  *		who actually finally proved there really was a race.
++ *
++ * 2002/03/18   Implemented n_tty_wakeup to send SIGIO POLL_OUTs to
++ *		waiting writing processes-Sapan Bhatia <sapan@corewars.org>
++ *
++ * 2002/03/19   Fixed write_chan to stay put if console driver returns
++ *              EAGAIN and not return since it returns an EAGAIN in a 
++ *		non-blocking operation-Sapan Bhatia <sapan@corewars.org>
+  */
+ 
+ #include <linux/types.h>
+@@ -711,6 +718,22 @@
+ 	return 0;
+ }
+ 
++/*
++ * Required for the ptys, serial driver etc. since processes
++ * that attach themselves to the master and rely on ASYNC
++ * IO must be woken up
++ */
++
++static void n_tty_write_wakeup(struct tty_struct *tty)
++{
++	if (tty->fasync)
++	{
++ 		set_bit(TTY_DO_WRITE_WAKEUP, &tty->flags);
++		kill_fasync(&tty->fasync, SIGIO, POLL_OUT);
++	}
++	return;
++}
++
+ static void n_tty_receive_buf(struct tty_struct *tty, const unsigned char *cp,
+ 			      char *fp, int count)
+ {
+@@ -1156,7 +1179,7 @@
+ 		if (O_OPOST(tty) && !(test_bit(TTY_HW_COOK_OUT, &tty->flags))) {
+ 			while (nr > 0) {
+ 				ssize_t num = opost_block(tty, b, nr);
+-				if (num < 0) {
++				if (num < 0 && num != -EAGAIN) {
+ 					retval = num;
+ 					goto break_out;
+ 				}
+@@ -1236,6 +1259,6 @@
+ 	normal_poll,		/* poll */
+ 	n_tty_receive_buf,	/* receive_buf */
+ 	n_tty_receive_room,	/* receive_room */
+-	0			/* write_wakeup */
++	n_tty_write_wakeup	/* write_wakeup */
+ };
+ 
+
+--HcAYCG3uE/tztfnV--

@@ -1,37 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274520AbRJJDt2>; Tue, 9 Oct 2001 23:49:28 -0400
+	id <S273902AbRJJDvI>; Tue, 9 Oct 2001 23:51:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274530AbRJJDtS>; Tue, 9 Oct 2001 23:49:18 -0400
-Received: from mailout5-0.nyroc.rr.com ([24.92.226.122]:44929 "EHLO
-	mailout5.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id <S274520AbRJJDtH>; Tue, 9 Oct 2001 23:49:07 -0400
-Message-ID: <07a801c1513e$a07e2b90$1a01a8c0@allyourbase>
-From: "Dan Maas" <dmaas@dcine.com>
-To: "SATHISH.J" <sathish.j@tatainfotech.com>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <fa.evjttkv.77obpm@ifi.uio.no> <fa.i76guuv.758o9k@ifi.uio.no>
-Subject: Re: Reg-network driver.
-Date: Tue, 9 Oct 2001 23:49:50 -0400
+	id <S274530AbRJJDu6>; Tue, 9 Oct 2001 23:50:58 -0400
+Received: from psuvax1.cse.psu.edu ([130.203.4.6]:36575 "HELO mail.cse.psu.edu")
+	by vger.kernel.org with SMTP id <S273902AbRJJDur>;
+	Tue, 9 Oct 2001 23:50:47 -0400
+Date: Tue, 9 Oct 2001 23:51:17 -0400 (EDT)
+From: Jianyong Zhang <jzhang@cse.psu.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: a problem about non-linear sk_buff
+Message-ID: <Pine.SOL.4.33.0110092342190.24061-100000@frack.cse.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have cscope installed to search source files.
-> I could not find "register_netdevice()" functionthrough it. 
-> I want to see where it calls the driver initialisation.
+Hi,
 
-http://lxr.linux.no/ident is your friend =).
+  I'm a newcomer of this list.  I want to understand the tcp/ip stack's
+implementaion, and hope that I can get your help.
 
-Regards,
-Dan
+  I find that that sk_buff can be fragmented, and it's called nonlinear.
+What's the meaning of nonlinear?  And what are the meaning of sk_buff's
+fields: skb->data_len and skb_shinfo(skb)?  I have no idea about them.
+May you explain them?  Thank you.
 
+Jianyong Zhang
 
 

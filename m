@@ -1,97 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265189AbSJWUta>; Wed, 23 Oct 2002 16:49:30 -0400
+	id <S265213AbSJWU4O>; Wed, 23 Oct 2002 16:56:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265194AbSJWUta>; Wed, 23 Oct 2002 16:49:30 -0400
-Received: from [202.88.156.6] ([202.88.156.6]:65196 "EHLO
-	saraswati.hathway.com") by vger.kernel.org with ESMTP
-	id <S265189AbSJWUt3>; Wed, 23 Oct 2002 16:49:29 -0400
-Date: Thu, 24 Oct 2002 02:20:26 +0530
-From: Dipankar Sarma <dipankar@gamebox.net>
-To: Corey Minyard <cminyard@mvista.com>
-Cc: linux-kernel@vger.kernel.org, John Levon <levon@movementarian.org>
-Subject: Re: [PATCH] NMI request/release, version 4
-Message-ID: <20021024022026.D27739@dikhow>
-Reply-To: dipankar@gamebox.net
-References: <20021022232345.A25716@dikhow> <3DB59385.6050003@mvista.com> <20021022233853.B25716@dikhow> <3DB59923.9050002@mvista.com> <20021022190818.GA84745@compsoc.man.ac.uk> <3DB5C4F3.5030102@mvista.com> <20021023230327.A27020@dikhow> <3DB6E45F.5010402@mvista.com> <20021024002741.A27739@dikhow> <3DB7033C.1090807@mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3DB7033C.1090807@mvista.com>; from cminyard@mvista.com on Wed, Oct 23, 2002 at 03:14:52PM -0500
+	id <S265223AbSJWU4O>; Wed, 23 Oct 2002 16:56:14 -0400
+Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:16196 "EHLO
+	nakedeye.aparity.com") by vger.kernel.org with ESMTP
+	id <S265213AbSJWU4N>; Wed, 23 Oct 2002 16:56:13 -0400
+Date: Wed, 23 Oct 2002 14:10:35 -0700 (PDT)
+From: "Matt D. Robinson" <yakker@aparity.com>
+To: Christoph Hellwig <hch@infradead.org>,
+       Kai Germaschewski <kai-germaschewski@uiowa.edu>
+cc: linux-kernel@vger.kernel.org, <lkcd-devel@lists.sourceforge.net>
+Subject: Re: [PATCH] LKCD for 2.5.44 (3/8): kerntypes addition
+In-Reply-To: <20021023201521.A21529@infradead.org>
+Message-ID: <Pine.LNX.4.44.0210231259330.28800-100000@nakedeye.aparity.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, I haven't looked at the whole patch yet, but some quick
-responses -
+On Wed, 23 Oct 2002, Christoph Hellwig wrote:
+|>On Wed, Oct 23, 2002 at 10:52:35AM -0700, Matt D. Robinson wrote:
+|>> On Wed, 23 Oct 2002, Christoph Hellwig wrote:
+|>> |>On Wed, Oct 23, 2002 at 02:44:04AM -0700, Matt D. Robinson wrote:
+|>> |>> This adds kerntypes into the build so that symbols can be
+|>> |>> extracted from a single build object in the kernel.  This
+|>> |>> also modifies the install process (where applicable) to
+|>> |>> copy the Kerntypes file along with the kernel and map.
+|>> |>
+|>> |>Why can't you directly link in init/kerntypes.o?
+|>> 
+|>> We wanted to keep the bloat down, even as far as the
+|>> file size is concerned.  Some people have problems with
+|>> making the kernel image larger than it already is.  If
+|>> Kerntypes adds another 100K to the image, that isn't a
+|>> good thing in the eyes of some people.
+|>
+|>I meant using init/kerntypes.o directly instead of copying it
+|>to Kerntypes.  But after looking more into the build process
+|>I've now noticed that Kerntypes isn't actually linked into
+|>vmlinux at all.  But as it's a separate file you don't need
+|>the ifdef CONFIG_CRASH_DUMP - people not wanting on their
+|>potentially small root filesystems just don't have to copy
+|>it.  That would be the last ifdef on CONFIG_CRASH_DUMP, so
+|>dump.o can now be loaded into any kernel with the patch
+|>applied.  cool! :)
 
-On Wed, Oct 23, 2002 at 03:14:52PM -0500, Corey Minyard wrote:
-> I have noticed that the rcu callback can be delayed a long time, 
-> sometimes up to 3 seconds.  That seems odd.  I have verified that the 
-> delay happens there.
+Okay, so I've removed the $(TOPDIR)/Makefile CONFIG_CRASH_DUMP
+changes so that Kerntypes is never in $(TOPDIR), and if a 'make
+install' is done that the init/kerntypes.o gets copied into
+$(INSTALL_PATH) under the name 'Kerntypes'.
 
-That kind of latency is really bad. Could you please check the latency 
-with this change in kernel/rcupdate.c -
+The Makefiles for i386, s390 and s390x needed changing for
+$(TOPDIR)/Kerntypes to $(TOPDIR)/init/kerntypes.o.  That and
+$(TOPDIR)/Makefile is now the original.  The init/Makefile changes
+stay (per Kai's original comments).
 
- void rcu_check_callbacks(int cpu, int user)
- {
-        if (user ||
--           (idle_cpu(cpu) && !in_softirq() && hardirq_count() <= 1))
-+           (idle_cpu(cpu) && !in_softirq() &&
-+                               hardirq_count() <= (1 << HARDIRQ_SHIFT)))
-                RCU_qsctr(cpu)++;
-        tasklet_schedule(&RCU_tasklet(cpu));
+Putting this one on the patch web site.  Done.
 
-After local_irq_count() went away, the idle CPU check was broken
-and that meant that if you had an idle CPU, it could hold up RCU
-grace period completion.
+--Matt
 
-
-> +void release_nmi(struct nmi_handler *handler)
-> +{
-> +	wait_queue_t  q_ent;
-> +	unsigned long flags;
-> +
-> +	spin_lock_irqsave(&nmi_handler_lock, flags);
-> +	list_del_rcu(&(handler->link));
-> +
-> +	/* Wait for handler to finish being freed.  This can't be
-> +           interrupted, we must wait until it finished. */
-> +	init_waitqueue_head(&(handler->wait));
-> +	init_waitqueue_entry(&q_ent, current);
-> +	add_wait_queue(&(handler->wait), &q_ent);
-> +	call_rcu(&(handler->rcu), free_nmi_handler, handler);
-> +	for (;;) {
-> +		set_current_state(TASK_UNINTERRUPTIBLE);
-> +		if (list_empty(&(handler->link)))
-> +			break;
-> +		spin_unlock_irqrestore(&nmi_handler_lock, flags);
-> +		schedule();
-> +		spin_lock_irqsave(&nmi_handler_lock, flags);
-> +	}
-> +	remove_wait_queue(&(handler->wait), &q_ent);
-> +	spin_unlock_irqrestore(&nmi_handler_lock, flags);
-> +}
-
-It might just be simpler to use completions instead -
-
-	call_rcu(&(handler->rcu), free_nmi_handler, handler);
-	init_completion(&handler->completion);
-	spin_unlock_irqrestore(&nmi_handler_lock, flags);
-	wait_for_completion(&handler->completion);
-
-and do
-
-	complete(&handler->completion);
-
-in the  the RCU callback.
-
-Also, now I think your original idea of "Don't do this!" :) was right.
-Waiting until an nmi handler is seen unlinked could make a task
-block for a long time if another task re-installs it. You should
-probably just fail installation of a busy handler (checked under
-lock).
-
-
-Thanks
-Dipankar

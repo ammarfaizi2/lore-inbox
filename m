@@ -1,149 +1,153 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262746AbUAGXXe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 18:23:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262750AbUAGXXe
+	id S261775AbUAGXYi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 18:24:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262540AbUAGXYh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 18:23:34 -0500
-Received: from [193.138.115.2] ([193.138.115.2]:23313 "HELO
-	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
-	id S262746AbUAGXX3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 18:23:29 -0500
-Date: Thu, 8 Jan 2004 00:20:44 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: linux-kernel@vger.kernel.org
-cc: Ingo Molnar <mingo@redhat.com>
-Subject: [PATCH][RFC] variable size and signedness issues in ldt.c - potential
- problem?
-Message-ID: <8A43C34093B3D5119F7D0004AC56F4BC074AFBC9@difpst1a.dif.dk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 7 Jan 2004 18:24:37 -0500
+Received: from mail.kroah.org ([65.200.24.183]:11733 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261775AbUAGXY0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 18:24:26 -0500
+Date: Wed, 7 Jan 2004 15:24:25 -0800
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net
+Subject: [PATCH] sysfs sound class patch for ALSA drivers - [2/2]
+Message-ID: <20040107232425.GE2540@kroah.com>
+References: <20040107232137.GC2540@kroah.com> <20040107232335.GD2540@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040107232335.GD2540@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Adds sysfs sound class support for all ALSA drivers
 
-Hi,
-
-I'm hunting the kernel source for any potential problem I can find (and
-hopefully fix), and I've come across something that looks like a possible
-problem in arch/i386/kernel/ldt.c
-
-First thing that looks suspicious is this bit in read_ldt() :
-
-        for (i = 0; i < size; i += PAGE_SIZE) {
-		...
-	}
-
-'i' is a plain int while 'size' is an 'unsigned long' leaving the
-possibility that if size contains a value greater than what a signed int
-can hold then this code won't do the right thing, either 'i' will wrap
-around to zero and the loop will never exit or something "unknown" will
-happen (as far as I know, what happens when an int overflows is
-implementation defined).
-The easy fix for this is to simply make 'i' an 'unsigned long' which
-prevents the posibility that 'i' will be too small and also prevents a
-signed vs unsigned comparison.
-
-The second thing is that in the body of the 'for' loop there is this
-comparison :
-
-if (bytes > PAGE_SIZE)
-
-'bytes' is 'int', and from looking at include/asm-i386/page.h I see that
-
-#define PAGE_SHIFT      12
-#define PAGE_SIZE       (1UL << PAGE_SHIFT)
-
-so PAGE_SIZE is an 'unsigned long' utilizing 13 bits.
-
-This looks like another instance of the signed int in the comparison
-potentially being at risk of overflowing.  Yes, I'm aware that the default
-sizeof(int) on most i386 platforms is 32bits and that C requires it to
-be at least 16bits and thus that there should never be a real issue, but
-Changing it to be an 'unsigned long' type just like what it's compared
-against guarantees that there definately is no issue, and also again
-avoids a comparison between signed and unsigned values.
-This also harmonizes well with the fact that bytes is initialized by
-bytes = size - i;   and both 'size' and 'i' being 'unsigned long' values
-(assuming the change suggested above is made).
+Note, this is based on a previous patch from Leann Ogasawara
+<ogasawara@osdl.org>, but modified a lot by me.
 
 
-Assuming the above analysis and conclusion makes sense, here's a patch to
-implement the conclusion (against 2.6.1-rc1-mm2) - at the very least it
-kills some warnings from gcc about signed vs unsigned comparisons when
-compiling with "-W -Wall" but I'd like to know if it also fixes a real
-potential problem :
-
-
---- linux-2.6.1-rc1-mm2-orig/arch/i386/kernel/ldt.c	2004-01-06 01:33:04.000000000 +0100
-+++ linux-2.6.1-rc1-mm2/arch/i386/kernel/ldt.c	2004-01-07 23:28:38.000000000 +0100
-@@ -120,7 +120,8 @@ void destroy_context(struct mm_struct *m
-
- static int read_ldt(void __user * ptr, unsigned long bytecount)
+diff -Nru a/include/sound/core.h b/include/sound/core.h
+--- a/include/sound/core.h	Wed Jan  7 15:10:03 2004
++++ b/include/sound/core.h	Wed Jan  7 15:10:03 2004
+@@ -160,6 +160,7 @@
+ 	int shutdown;			/* this card is going down */
+ 	wait_queue_head_t shutdown_sleep;
+ 	struct work_struct free_workq;	/* for free in workqueue */
++	struct device *dev;
+ 
+ #ifdef CONFIG_PM
+ 	int (*set_power_state) (snd_card_t *card, unsigned int state);
+diff -Nru a/sound/core/sound.c b/sound/core/sound.c
+--- a/sound/core/sound.c	Wed Jan  7 15:10:03 2004
++++ b/sound/core/sound.c	Wed Jan  7 15:10:03 2004
+@@ -38,9 +38,7 @@
+ static int major = CONFIG_SND_MAJOR;
+ int snd_major;
+ static int cards_limit = SNDRV_CARDS;
+-#ifdef CONFIG_DEVFS_FS
+ static int device_mode = S_IFCHR | S_IRUGO | S_IWUGO;
+-#endif
+ 
+ MODULE_AUTHOR("Jaroslav Kysela <perex@suse.cz>");
+ MODULE_DESCRIPTION("Advanced Linux Sound Architecture driver for soundcards.");
+@@ -66,6 +64,7 @@
+ 
+ static DECLARE_MUTEX(sound_mutex);
+ 
++extern struct class sound_class;
+ #ifdef CONFIG_KMOD
+ 
+ /**
+@@ -203,6 +202,7 @@
  {
--	int err, i;
-+	int err;
-+	unsigned long i;
- 	unsigned long size;
- 	struct mm_struct * mm = current->mm;
-
-@@ -144,7 +145,8 @@ static int read_ldt(void __user * ptr, u
- 	__flush_tlb_global();
-
- 	for (i = 0; i < size; i += PAGE_SIZE) {
--		int nr = i / PAGE_SIZE, bytes;
-+		int nr = i / PAGE_SIZE;
-+		unsigned long bytes;
- 		char *kaddr = kmap(mm->context.ldt_pages[nr]);
-
- 		bytes = size - i;
-
-
-
-In order to "take my own medicine" and give the above patch a minimum
-amount of testing, I applied it to my own 2.6.1-rc1-mm2 tree, build the
-kernel (nothing blew up), installed the kernel and I'm currently running
-that kernel (and nothing has blown up yet).
-I realize that to test it properly I should ofcourse create a small
-program that calls modify_ldt() and exercises it a bit, but I haven't done
-so yet since I'd like some feedback first to find out if I'm off on a
-wild goose chase here...?
-
-
-there are a few other things in arch/i386/kernel/ldt.c that puzzle me.
-
-I know that the only user of read_ldt() and write_ldt() is
-sys_modify_ldt() , and the arguments for read_ldt and write_ldt thus have
-to match sys_modify_ldt, but why is the 'bytecount' argument for
-sys_modify_ldt an 'unsigned long' and the return type an 'int' ?
-The signedness of the return type makes sense given that it't supposed to
-return -1 on error. But on success, in the case where it calls read_ldt,
-it's supposed to return the actual number of bytes read. But if the
-number of bytes to read is given as an unsigned long, and the number
-actually read exceeds the size of a signed int then the return value will
-get truncated upon return - how can that be right?  And if the return
-value can never exceed what a signed int can hold, then why is it possible
-to request an unsigned long amount of bytes to read in the first place?
-
-and finally a purely style related thing (sure, call me pedantic); in both
-read_ldt() and write_ldt() 'mm' is declared as
-
-struct mm_struct * mm = current->mm;
-
-looking at the rest of ldt.c (and the kernel source in general) it seems
-to me that
-
-struct mm_struct *mm = current->mm;
-
-would be more in line with the general style... If this seems resonable
-I'll create a patch to change it - let me know.
-
-
-As you can probably deduce from the above I don't completely understand
-what's going on here, so I'd really appreciate being enlightened a bit.
-
-
-Kind regards,
-
-Jesper Juhl
-
+ 	int minor = snd_kernel_minor(type, card, dev);
+ 	snd_minor_t *preg;
++	struct device *device = NULL;
+ 
+ 	if (minor < 0)
+ 		return minor;
+@@ -221,10 +221,14 @@
+ 		return -EBUSY;
+ 	}
+ 	list_add_tail(&preg->list, &snd_minors_hash[SNDRV_MINOR_CARD(minor)]);
+-#ifdef CONFIG_DEVFS_FS
+-	if (strncmp(name, "controlC", 8))     /* created in sound.c */
++
++	if (strncmp(name, "controlC", 8)) {	/* created in sound.c */
+ 		devfs_mk_cdev(MKDEV(major, minor), S_IFCHR | device_mode, "snd/%s", name);
+-#endif
++		if (card)
++			device = card->dev;
++		simple_add_class_device(&sound_class, MKDEV(major, minor), device, name);
++	}
++
+ 	up(&sound_mutex);
+ 	return 0;
+ }
+@@ -252,10 +256,12 @@
+ 		up(&sound_mutex);
+ 		return -EINVAL;
+ 	}
+-#ifdef CONFIG_DEVFS_FS
+-	if (strncmp(mptr->name, "controlC", 8))	/* created in sound.c */
++
++	if (strncmp(mptr->name, "controlC", 8)) {	/* created in sound.c */
+ 		devfs_remove("snd/%s", mptr->name);
+-#endif
++		simple_remove_class_device(MKDEV(major, minor));
++	}
++
+ 	list_del(&mptr->list);
+ 	up(&sound_mutex);
+ 	kfree(mptr);
+@@ -322,9 +328,7 @@
+ 
+ static int __init alsa_sound_init(void)
+ {
+-#ifdef CONFIG_DEVFS_FS
+ 	short controlnum;
+-#endif
+ #ifdef CONFIG_SND_OSSEMUL
+ 	int err;
+ #endif
+@@ -358,10 +362,10 @@
+ #ifdef CONFIG_SND_OSSEMUL
+ 	snd_info_minor_register();
+ #endif
+-#ifdef CONFIG_DEVFS_FS
+-	for (controlnum = 0; controlnum < cards_limit; controlnum++) 
++	for (controlnum = 0; controlnum < cards_limit; controlnum++) {
+ 		devfs_mk_cdev(MKDEV(major, controlnum<<5), S_IFCHR | device_mode, "snd/controlC%d", controlnum);
+-#endif
++		simple_add_class_device(&sound_class, MKDEV(major, controlnum<<5), NULL, "controlC%d", controlnum);
++	}
+ #ifndef MODULE
+ 	printk(KERN_INFO "Advanced Linux Sound Architecture Driver Version " CONFIG_SND_VERSION CONFIG_SND_DATE ".\n");
+ #endif
+@@ -372,8 +376,10 @@
+ {
+ 	short controlnum;
+ 
+-	for (controlnum = 0; controlnum < cards_limit; controlnum++)
++	for (controlnum = 0; controlnum < cards_limit; controlnum++) {
+ 		devfs_remove("snd/controlC%d", controlnum);
++		simple_remove_class_device(MKDEV(major, controlnum<<5));
++	}
+ 
+ #ifdef CONFIG_SND_OSSEMUL
+ 	snd_info_minor_unregister();
+diff -Nru a/sound/pci/intel8x0.c b/sound/pci/intel8x0.c
+--- a/sound/pci/intel8x0.c	Wed Jan  7 15:10:03 2004
++++ b/sound/pci/intel8x0.c	Wed Jan  7 15:10:03 2004
+@@ -2591,6 +2591,7 @@
+ 			break;
+ 		}
+ 	}
++	card->dev = &pci->dev;
+ 
+ 	if ((err = snd_intel8x0_create(card, pci, pci_id->driver_data, &chip)) < 0) {
+ 		snd_card_free(card);

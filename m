@@ -1,69 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262272AbUK3Sy3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262262AbUK3Sya@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262272AbUK3Sy3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 13:54:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262265AbUK3SyP
+	id S262262AbUK3Sya (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 13:54:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbUK3Sx6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 13:54:15 -0500
-Received: from mail1.webmaster.com ([216.152.64.168]:23312 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S262274AbUK3Svz convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 13:51:55 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: Concurrent access to /dev/urandom
-Date: Tue, 30 Nov 2004 10:50:45 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKOEKJACAB.davids@webmaster.com>
+	Tue, 30 Nov 2004 13:53:58 -0500
+Received: from fire.osdl.org ([65.172.181.4]:16787 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S262265AbUK3Sva (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 13:51:30 -0500
+Message-ID: <41ACA5C0.1060509@osdl.org>
+Date: Tue, 30 Nov 2004 08:54:24 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-Importance: Normal
-In-Reply-To: <Pine.LNX.4.53.0411300919500.18635@yvahk01.tjqt.qr>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Tue, 30 Nov 2004 10:27:06 -0800
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Tue, 30 Nov 2004 10:27:07 -0800
+To: Yihan Li <Yihan.Li@Edgewater.CA>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: patch RTAI (fusion-0.6.4) with kernel 2.6.9 on Fedora Core 3
+References: <000901c4d70c$0ecf1bd0$8500a8c0@WS055>
+In-Reply-To: <000901c4d70c$0ecf1bd0$8500a8c0@WS055>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> >Even timer interrupts are incredibly unpredictable.  Instructions can
-> >take
-> >variable times to complete, and all instructions plus some indeterminate
-> >cache operations and queue flushing must occur before the CPU can
-> >even begin to service an interrupt.
+Yihan Li wrote:
+> Help needed!
+> I am trying to patch RTAI (fusion-0.6.4) with kernel 2.6.9 on Fedora 
+> Core 3.
+> The following steps are what I was following:
 > 
-> Well, don't timer interrupts happen every 1/1000 s (unless, of 
-> course, cli() is
-> in effect)?
-
-	Roughly. If you store the TSC on every timer interrupt, there is nobody in the world that can accurately predict what TSC value you will get. Or, to put it in more precise terms, if you log 100 such TSC values and run an MD5 on all of them together, nobody can predict with better than 50% accuracy the value of any bit of that MD5 output.
- 
-> >Also of note, there are small
-> >critical
-> >sections with interrupts disabled scattered all over the kernel and
-> >scheduler,
-> >in addition to varying memory latencies, etc. (NOTE: I am not an arch
-> >expert
+> I download a varnilla version of linux-2.6.9 from www.kernel.org,
+> Unpack the kernel source:
+> # cd /usr/src
+> # tar xvjf linux-2.6.9.tar.bz2
+> # ln -s linux-2.6.9 linux
 > 
-> In case you mean the RDTSC, it is of course better than the I8042, for
-> random-aphy.
+> Unpack or copy RTAI to  /usr/src/fusion-0.6.4.tar.bz2
+> # ln -s fusion-0.6.4  rtai
+> 
+> Patch the kernel:
+> # cd /usr/src/linux
+> # patch -p1 < ../rtai/arch/i386/patches/adeos-linux-2.6.9-i386-r8.patch
+> Copy the existing (Fedora) kernel config file to /usr/src/linux
+> # cp /boot/config-2.6.xxxx /usr/src/linux/.configConfigure the kernel:
+> # make menuconfig
+> # make
+> 
+> After 8 mins, I get error messages as following:
+> drivers/scsi/qla2xxx/qla_os.c: In function `qla2x00_queuecommand':
+> drivers/scsi/qla2xxx/qla_os.c:315: sorry, unimplemented: inlining failed in
+> call to 'qla2x00_callback': function not considered for inlining
+> drivers/scsi/qla2xxx/qla_os.c:269: sorry, unimplemented: called from here
+> drivers/scsi/qla2xxx/qla_os.c:315: sorry, unimplemented: inlining failed in
+> call to 'qla2x00_callback': function not considered for inlining
+> drivers/scsi/qla2xxx/qla_os.c:269: sorry, unimplemented: called from here
+> make[3]: *** [drivers/scsi/qla2xxx/qla_os.o] Error 1
+> make[2]: *** [drivers/scsi/qla2xxx] Error 2
+> make[1]: *** [drivers/scsi] Error 2
+> make: *** [drivers] Error 2
+> 
+> My guess is my configuration is not right, and don't know what to do, 
+> really
+> need a hand ...
+> 
+> I wish to be personally CC'ed the answers/comments in response to my
+> posting.
 
-	To mine the entropy in the unpredictability of instruction scheduling, cache effectiveness, and slew between the various oscillators in a computer, you need a timing source with the accuracy of the TSC.
+Some functions (inline) and function prototypes in that driver are
+not in the order needed.  It's been fixed for some time now.
+Check linux-2.6.10-rc2 or the -mm patches.
 
-	You can mine entropy from any two independent oscillators. However, the rate at which you can mine them varies largely upon the frequency of the slowest oscillator. This is why network cards are such good sources of entropy on Pentium machines. You have the network card's oscillator, the oscillator on the network card sending the data to you, and the TSC. All are fast and totally independent.
-
-	The timer interrupt may be generated by a clock that ultimately comes from the same source as the TSC clock. This varies from motherboard to motherboard. However, they're generally produced by a PLL that has lots of jitter and slew. So there should be some entropy in there, even without considering unpredictable cache and disk delays.
-
-	DS
-
-
+-- 
+~Randy

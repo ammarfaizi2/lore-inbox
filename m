@@ -1,72 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270870AbTHFVKb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 17:10:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270926AbTHFVKa
+	id S272557AbTHFVJO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 17:09:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272559AbTHFVJN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 17:10:30 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:50094
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S270870AbTHFVKY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 17:10:24 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Timothy Miller <miller@techsource.com>,
-       Nick Piggin <piggin@cyberone.com.au>
-Subject: Re: Interactivity improvements
-Date: Thu, 7 Aug 2003 07:15:29 +1000
+	Wed, 6 Aug 2003 17:09:13 -0400
+Received: from [64.140.61.244] ([64.140.61.244]:13190 "EHLO diva.home")
+	by vger.kernel.org with ESMTP id S272557AbTHFVJM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 17:09:12 -0400
+From: Michael Driscoll <fenris@ulfheim.net>
+Organization: FFW/CO
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Multiple symbols same address in vmlinux map file? huh?
+Date: Wed, 6 Aug 2003 15:09:01 -0600
 User-Agent: KMail/1.5.3
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-References: <200308050207.18096.kernel@kolivas.org> <3F2F21DF.1050601@cyberone.com.au> <3F314D6B.9090302@techsource.com>
-In-Reply-To: <3F314D6B.9090302@techsource.com>
+References: <1060177192.2866.11.camel@pussy.bemac.com> <Pine.LNX.4.53.0308061000280.9051@chaos>
+In-Reply-To: <Pine.LNX.4.53.0308061000280.9051@chaos>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200308070715.29461.kernel@kolivas.org>
+Message-Id: <200308061509.01206.fenris@ulfheim.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Aug 2003 04:48, Timothy Miller wrote:
-> Here's a kooky idea...
->
-> I'm not sure about this detail, but I would guess that the int
-> schedulers are trying to determine relatively stable priority values for
-> processes.  A process does not instantly come to its correct priority
-> level, because it gets there based on accumulation of behavioral patterns.
->
-> Well, it occurs to me that we could benefit from situations where
-> priority changes are underdamped.  The results would sometimes be an
-> oscillation in priority levels.  In the short term, a given process may
-> be given different amounts of CPU time when it is run, although in the
-> long term, it should average out.
->
-> At the same time, certain tasks can only be judged correctly over the
-> long term, like X, for example.  Its long-term behavior is interactive,
-> but now and then, it will become a CPU hog, and we want to LET it.
->
-> The idea I'm proposing, however poorly formed, is that if we allow some
-> "excessive" oscillation early on in the life of a process, we may be
-> able to more quickly get processes to NEAR its correct priority, OR get
-> its CPU time over the course of three times being run for the
-> underdamped case to be about the same as it would be if we knew in
-> advance what the priority should be.  But in the underdamped case, the
-> priority would continue to oscillate up and down around the correct
-> level, because we are intentionally overshooting the mark each time we
-> adjust priority.
->
-> This may not be related, but something that pops into my mind is a
-> numerical method called Newton's Method.  It's a way to solve for roots
-> of an equation, and it involved derivatives, and I don't quite remember
-> how it works.  But in any event, the results are less accurate than,
-> say, bisection, but you get to the answer MUCH more quickly.
+On Wednesday 06 August 2003 08:32, Richard B. Johnson wrote:
+> On Wed, 6 Aug 2003, Andy Winton wrote:
+> > nm vmlinux-2.4.18-14  | awk 'BEGIN{oldval=01;} { if ($1==oldval) {
+> > if(plast) { print "\n"; print oldrow;} print $0; plast=0} else plast=1;
+> > oldrow=$0; oldval=$1}' - | more
 
-Good thinking, but this is more or less already done in my code. I do have 
-very rapid elevation of priority, and once something is known interactive it 
-decays more slowly. It still _must_ be able to vary after the fact as 
-interactive tasks can turn into cpu hogs and so on. 
+[snip]
 
-Con
+> c01fd9c0 D i8259A_lock
+> c01fd9e0 d i8259A_irq_type
+>
+> These are (correctly) at different addresses, but the static
+> structure is still visible, which must not happen! So, you
+> have certainly discovered something that's not right. Perhaps
+> the 'd' stuff is "really" not visible? If so, what 'th..???
 
+In nm(1) output, uppercase symbol types means the name is externally 
+available, lowercase symbol means it is local.
+
+Even if an object is local, the object file still knows its name (for ELF, 
+anyways).  Finding local "static" variables would be very annoying otherwise, 
+for porting code to a threaded application :)
+
+-- 
+Michael Driscoll, fenris@ulfheim.net
+"A noble spirit embiggens the smallest man" -- J. Springfield

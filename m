@@ -1,54 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130008AbRAJWlh>; Wed, 10 Jan 2001 17:41:37 -0500
+	id <S129406AbRAJWzN>; Wed, 10 Jan 2001 17:55:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132114AbRAJWl1>; Wed, 10 Jan 2001 17:41:27 -0500
-Received: from e56090.upc-e.chello.nl ([213.93.56.90]:47624 "EHLO unternet.org")
-	by vger.kernel.org with ESMTP id <S130008AbRAJWlL>;
-	Wed, 10 Jan 2001 17:41:11 -0500
-Date: Wed, 10 Jan 2001 23:40:56 +0100
-From: Frank de Lange <frank@unternet.org>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardware related?
-Message-ID: <20010110234056.C20535@unternet.org>
-In-Reply-To: <20010110223015.B18085@unternet.org> <3A5CE07D.BD36D71C@colorfullife.com>
-Mime-Version: 1.0
+	id <S129436AbRAJWzD>; Wed, 10 Jan 2001 17:55:03 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31748 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129406AbRAJWyu>;
+	Wed, 10 Jan 2001 17:54:50 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200101102209.f0AM9N803486@flint.arm.linux.org.uk>
+Subject: Re: Compatibility issue with 2.2.19pre7
+To: andrea@suse.de (Andrea Arcangeli)
+Date: Wed, 10 Jan 2001 22:09:22 +0000 (GMT)
+Cc: mantel@suse.de (Hubert Mantel),
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
+        alan@lxorguk.ukuu.org.uk (Alan Cox)
+In-Reply-To: <20010110163158.F19503@athlon.random> from "Andrea Arcangeli" at Jan 10, 2001 04:31:58 PM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A5CE07D.BD36D71C@colorfullife.com>; from manfred@colorfullife.com on Wed, Jan 10, 2001 at 11:21:49PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 10, 2001 at 11:21:49PM +0100, Manfred Spraul wrote:
-> > which should work, they are
-> > NON-busmastering cards after all...),
-> third line in w840_probe1():
+Andrea Arcangeli writes:
+> (spotted by Andi) util-linux-2.10o/mount/nfs_mount4.h:
 > 
-> 	pci_set_master().
+> struct nfs3_fh {
+>         unsigned short          size;
+>         unsigned char           data[64];
+> };
 > 
-> And the documentation begins with
-> W89C840F
-> 	PCI Bus Master Fast Ethernet LAN Controller.
+> (see also nfs_mount_data structure in both kernel and mount)
 
-...in addition to my previous reply, your cards use the Winbond 840 series,
-while my cards use the 940 series. Higher number, but a less capabpe chipset or
-so it seems...
+Well, let me put it this way:
 
-Hm, but that reminds me not to get 840's to solve my problems :-)
+1. NFS locking worked on ARM in 2.2.17 without any problems or modifications
+   what so ever.
 
-Cheers//Frank
--- 
-  WWWWW      _______________________
- ## o o\    /     Frank de Lange     \
- }#   \|   /                          \
-  ##---# _/     <Hacker for Hire>      \
-   ####   \      +31-320-252965        /
-           \    frank@unternet.org    /
-            -------------------------
- [ "Omnis enim res, quae dando non deficit, dum habetur
-    et non datur, nondum habetur, quomodo habenda est."  ]
+2. NFS locking does NOT work on ARM without the above patch.  It FAILS
+   completely.
+
+> I also don't understand Alan's comment, what has the cast of data to a
+> structure have to do with the size of a field in the structure?
+
+I won't bother replying to this, since you obviously know the answer from
+your following comment. ;)
+
+> Furthmore
+> the cast of data to a struct should work on all architectures as far as C is
+> concerned (if you then run alignment problems then it's your mistake).
+
+WRONG WRONG WRONG WRONG WRONG.  You are *SO* wrong.
+
+C explicitly allows this behaviour.  The fact that most processors can load
+unaligned data without any trouble is merely co-incidence and leads to BAD
+programming techniques, like this one illusatrated above.
+
+Therefore, it is BAD code which needs to be fixed.  Now, on ARM, all
+structures are defined by the ABI to be aligned to a 32-bit word.  End
+of story.  No other story will do.  Finito.  Capisco?
+
+Yes, you can get around them by taking an alignment abort, but that is REALLY
+REALLY expensive.  Eg, instead of a load taking 1 cycle, it turns into around
+500 cycles, just to decode the instruction by hand, calculate the addresses,
+calculate the side effects and implement them.
+
+So, if we can get away with a little BETTER coding technique, then that is
+FAR FAR better than thaning a 499 cycle penalty.
+
+Oh, and did I mention that x86 also has a performance penalty for unaligned
+loads as well?
+
+> So for now I backed it out. If you want to push it in again then implement
+> it right and make an mount backwards compatible nfs_fh type for the
+> nfs_mount_data.
+
+This is pretty gawling, especially as the fix was posted to the NFS
+development list and not one person complained that it would break any APIs.
+
+I'd like the NFS developers to look at this.  Yes, I'm delegating it.  Why?
+I've got too much on my plate at the moment, and I'm desperately trying to
+get rid of the 2.2 ARM kernel tree so I can concentrate on 2.4 only.  In the
+spirit of open source, I am willing to test patches that claim to fix this
+problem once I've got my 2.2 kernel tree back into a reasonable state (after
+chasing some 128MB bad DIMM problem around for 2 months across 2 versions of
+Linux).
+
+And yes, APIs shouldn't break in a major kernel release.  Its a shame some
+API broke in 2.2.18.
+   _____
+  |_____| ------------------------------------------------- ---+---+-
+  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
+  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
+  | +-+-+                                                     --- -+-
+  /   |               THE developer of ARM Linux              |+| /|\
+ /  | | |                                                     ---  |
+    +-+-+ -------------------------------------------------  /\\\  |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

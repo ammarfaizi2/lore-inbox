@@ -1,63 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264388AbUHSJXQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264960AbUHSJWz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264388AbUHSJXQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 05:23:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264668AbUHSJXP
+	id S264960AbUHSJWz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 05:22:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264919AbUHSJWn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 05:23:15 -0400
-Received: from S010600105aa6e9d5.gv.shawcable.net ([24.68.24.66]:23428 "EHLO
-	spitfire.gotdns.org") by vger.kernel.org with ESMTP id S264388AbUHSJKy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 05:10:54 -0400
-From: Ryan Cumming <ryan@spitfire.gotdns.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8.1-mm2
-Date: Thu, 19 Aug 2004 02:10:50 -0700
-User-Agent: KMail/1.7
-References: <20040819014204.2d412e9b.akpm@osdl.org>
-In-Reply-To: <20040819014204.2d412e9b.akpm@osdl.org>
+	Thu, 19 Aug 2004 05:22:43 -0400
+Received: from chico.rediris.es ([130.206.1.3]:42437 "EHLO chico.rediris.es")
+	by vger.kernel.org with ESMTP id S264419AbUHSJLO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 05:11:14 -0400
+From: David Martinez Moreno - RedIRIS <david.martinez@rediris.es>
+Organization: Red.es/RedIRIS
+To: linux-kernel@vger.kernel.org, akpm@osdl.org, marcelo.tosatti@cyclades.com
+Subject: Re: [PATCH] Update ftape webpage
+Date: Thu, 19 Aug 2004 11:11:44 +0200
+User-Agent: KMail/1.6.2
+Cc: =?iso-8859-15?q?Ram=F3n_Rey_Vicente?= <ramon.rey@hispalinux.es>
+References: <4123F54E.4090900@hispalinux.es>
+In-Reply-To: <4123F54E.4090900@hispalinux.es>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2335667.SZsPq5mTZ9";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408190210.53408.ryan@spitfire.gotdns.org>
+Content-Disposition: inline
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_Q7GJB/TQsh1KGnP"
+Message-Id: <200408191111.45187.david.martinez@rediris.es>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2335667.SZsPq5mTZ9
-Content-Type: text/plain;
-  charset="iso-8859-1"
+
+--Boundary-00=_Q7GJB/TQsh1KGnP
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
 
-On Thursday 19 August 2004 01:42, you wrote:
-> - Added the reiser4 filesystem.  Please give it a whizz.  Please Cc
-=46rom the help text:
-"ReiserFS V3 is the stablest Linux filesystem, and V4 is the fastest.
+=2D----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-In regards to claims by ext2 that they are the de facto
-standard Linux filesystem, the most polite thing to say is that
-many persons disagree, and it is interesting that those persons
-seem to include the distros that are growing in market share.
-See http://www.namesys.com/benchmarks.html for why many disagree."
+	Hello, Andy and Marcelo.
 
-These statements seem inflammatory at best, and bloat an already large help=
-=20
-text. Looks like it could use a little editing.
+	Please apply, it is for both trees, Ram=F3n did not update the=20
+Documentation/ftape.txt.
 
-=2DRyan
+	Marcelo, I think that Ram=F3n's previous patch apply cleanly (with a lot o=
+f=20
+offset) to 2.4, so please apply as well.
 
---nextPart2335667.SZsPq5mTZ9
-Content-Type: application/pgp-signature
+	Thanks,
 
------BEGIN PGP SIGNATURE-----
+
+		Ender.
+=2D --=20
+We accidentally replaced your heart with a baked potato. You have
+ about three seconds to live.
+ 		-- Dr. Doctor to Kenny (South Park).
+=2D --
+Servicios de red - Network services
+RedIRIS - Spanish Academic Network for Research and Development
+Red.es - Madrid (Spain)
+Tlf (+34) 91.212.76.25
+=2D----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQBBJG6dW4yVCW5p+qYRAr+GAJ9KOjHxhRqtOCC1ktT0De6/vI9aCgCfSgXA
-jp4oTF9CUhJpZBVTAEpJ7fQ=
-=FpIR
------END PGP SIGNATURE-----
+iD8DBQFBJG7QWs/EhA1iABsRAnjYAJ4//38Jw0Q5O+7w3gRGBs+vVgT06ACgmxKo
+qqNTte0AMeEd3Km5zNwXlW0=3D
+=3DnIil
+=2D----END PGP SIGNATURE-----
 
---nextPart2335667.SZsPq5mTZ9--
+--Boundary-00=_Q7GJB/TQsh1KGnP
+Content-Type: text/x-diff;
+  charset="iso-8859-15";
+  name="ftape.txt.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="ftape.txt.patch"
+
+--- tmp/Documentation/ftape.txt.orig	2004-08-19 11:02:09.000000000 +0200
++++ tmp/Documentation/ftape.txt	2004-08-19 11:04:14.000000000 +0200
+@@ -15,7 +15,7 @@
+ 
+ ftape has a home page at
+ 
+-http://www-math.math.rwth-aachen.de/~LBFM/claus/ftape
++http://www.instmath.rwth-aachen.de/~heine/ftape/
+ 
+ which contains further information about ftape. Please cross check
+ this WWW address against the address given (if any) in the MAINTAINERS
+@@ -58,7 +58,7 @@
+ versions of ftape and useful links to related topics can be found at
+ the ftape home page at
+ 
+-http://www-math.math.rwth-aachen.de/~LBFM/claus/ftape
++http://www.instmath.rwth-aachen.de/~heine/ftape/
+ 
+ *******************************************************************************
+ 
+@@ -132,7 +132,7 @@
+ 
+    or from the ftape home page at
+ 
+-   http://www-math.math.rwth-aachen.de/~LBFM/claus/ftape
++   http://www.instmath.rwth-aachen.de/~heine/ftape/
+ 
+    `ftformat' is contained in the `./contrib/' subdirectory of that
+    separate ftape package.
+
+--Boundary-00=_Q7GJB/TQsh1KGnP--

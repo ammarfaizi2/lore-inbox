@@ -1,58 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261656AbULJDZU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261237AbULJDlK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261656AbULJDZU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 22:25:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbULJDZT
+	id S261237AbULJDlK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 22:41:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261242AbULJDlK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 22:25:19 -0500
-Received: from stat16.steeleye.com ([209.192.50.48]:36234 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261555AbULJDZM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 22:25:12 -0500
-Subject: Re: [PATCH 1/2] RE: How to add/drop SCSI drives from within the
-	drive r?
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: "Bagalkote, Sreenivas" <sreenib@lsil.com>
-Cc: Matt Domsch <Matt_Domsch@Dell.com>,
-       "'brking@us.ibm.com'" <brking@us.ibm.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       "'bunk@fs.tum.de'" <bunk@fs.tum.de>, Andrew Morton <akpm@osdl.org>,
-       "Ju, Seokmann" <sju@lsil.com>, "Doelfel, Hardy" <hdoelfel@lsil.com>,
-       "Mukker, Atul" <Atulm@lsil.com>
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E570230CA9F@exa-atlanta>
-References: <0E3FA95632D6D047BA649F95DAB60E570230CA9F@exa-atlanta>
+	Thu, 9 Dec 2004 22:41:10 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:35246 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S261237AbULJDlF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Dec 2004 22:41:05 -0500
+Subject: Re: [audit] Upstream solution for auditing file system objects
+From: Robert Love <rml@novell.com>
+To: Timothy Chavez <chavezt@gmail.com>
+Cc: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org,
+       sds@epoch.ncsc.mil, ttb@tentacle.dhs.org
+In-Reply-To: <f2833c76041209185024cb1c4d@mail.gmail.com>
+References: <f2833c760412091602354b4c95@mail.gmail.com>
+	 <20041209174610.K469@build.pdx.osdl.net>
+	 <f2833c76041209185024cb1c4d@mail.gmail.com>
 Content-Type: text/plain
-Organization: SteelEye Technology, inc.
-Date: Thu, 09 Dec 2004 21:24:06 -0600
-Message-Id: <1102649046.3814.6.camel@mulgrave>
+Date: Thu, 09 Dec 2004 22:42:18 -0500
+Message-Id: <1102650138.6052.228.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+X-Mailer: Evolution 2.0.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-12-09 at 20:18 -0500, Bagalkote, Sreenivas wrote:
-> diff -Naur a/Documentation/scsi/ChangeLog.megaraid
-> b/Documentation/scsi/ChangeLog.megaraid
-> --- a/Documentation/scsi/ChangeLog.megaraid	2004-12-07
-> 16:40:23.000000000 -0500
-> +++ b/Documentation/scsi/ChangeLog.megaraid	2004-12-09
-> 19:05:47.795231320 -0500
-> @@ -1,3 +1,10 @@
-> +Release Date	: Thu Dec  9 19:02:14 EST 2004 - Sreenivas Bagalkote
-> <sreenib@lsil.com>
-> +
-> +Current Version	: 2.20.4.1 (scsi module), 2.20.2.3 (cmm module)
-> +Older Version	: 2.20.4.1 (scsi module), 2.20.2.2 (cmm module)
-> +
-> +i.	Fix a bug in kioc's dma buffer deallocation
+On Fri, 2004-12-10 at 02:50 +0000, Timothy Chavez wrote:
 
-This patch won't apply --- it looks like your mailer broke the lines.
-Could you resend it?
+Hi, Timothy.  You work for IBM?
 
-Thanks,
+> Some way for inotify to "notify" other parts of the kernel of file
+> system activity would be good.  This is the arguement I'd like to use.
+>  If inotify can notify userspace apps of activity/events, why can't it
+> notify kernel subsystems?  There might be a very good reason as to why
+> this can't be so.  "Just because" might be it :-) Whatever the reason,
+> it'd be good to hear.  I wouldn't want to destroy or degrade the
+> intended use of inotify, but expand it.  If that's not doable, then
+> there's no way we can use inotify.  This would have to be something
+> John and Rob and whoever else contributes to Inotify would like in
+> addition to the community as a whole.
 
-James
+I do not think it makes any sense for inotify to be the mechanism that
+implements auditing.  What you want is a general file event mechanism at
+the level and time that we currently do the inotify hooks.  I agree,
+that is good.  What you also want is to do is hack into inotify your
+auditing code.  I don't like that--I don't want inotify to grow into a
+generic file system tap.
+
+What we both need, ultimately, is a generic file change notification
+system.  This way inotify, dnotify, your audit thing, and whatever else
+can hook into the filesystem as desired.
+
+Subverting the inotify project to add this functionality now will only
+hurt inotify.  We are not yet in the kernel and we need to streamline
+and simplify ourselves, not bloat and featurize.  Besides, indeed, we
+are not in the kernel yet--you can just as easily add the hooks
+yourself.
+
+So my position would be that I am all for moving the inotify hooks to
+generic file change hooks, but that needs to be done either once inotify
+is in the kernel proper or as a separate project.  Then inotify can be
+one consumer of the hooks and auditing another.
+
+If you want to move forward with a project to hook file system events,
+go for it.  Regardless, I think that you should post to lkml your
+intentions.
+
+Best,
+
+	Robert Love
 
 

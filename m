@@ -1,51 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262761AbVAQK7O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262766AbVAQLJV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262761AbVAQK7O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 05:59:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262766AbVAQK7O
+	id S262766AbVAQLJV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 06:09:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262768AbVAQLJV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 05:59:14 -0500
-Received: from one.firstfloor.org ([213.235.205.2]:59847 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S262761AbVAQK7L
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 05:59:11 -0500
-To: Tigran Aivazian <tigran@veritas.com>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [discuss] booting a kernel compiled with -mregparm=0
-References: <Pine.LNX.4.61.0501141623530.3526@ezer.homenet>
-	<20050114205651.GE17263@kam.mff.cuni.cz>
-	<Pine.LNX.4.61.0501141613500.6747@chaos.analogic.com>
-	<cs9v6f$3tj$1@terminus.zytor.com>
-	<Pine.LNX.4.61.0501170909040.4593@ezer.homenet>
-From: Andi Kleen <ak@muc.de>
-Date: Mon, 17 Jan 2005 11:59:09 +0100
-In-Reply-To: <Pine.LNX.4.61.0501170909040.4593@ezer.homenet> (Tigran
- Aivazian's message of "Mon, 17 Jan 2005 09:30:17 +0000 (GMT)")
-Message-ID: <m11xckwcci.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+	Mon, 17 Jan 2005 06:09:21 -0500
+Received: from mailr.eris.qinetiq.com ([128.98.1.9]:38303 "HELO
+	mailr.qinetiq-tim.net") by vger.kernel.org with SMTP
+	id S262766AbVAQLJQ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 06:09:16 -0500
+From: Mark Watts <m.watts@eris.qinetiq.com>
+Organization: QinetiQ
+To: linux-kernel@vger.kernel.org
+Subject: FireWire 800
+Date: Mon, 17 Jan 2005 11:16:05 +0000
+User-Agent: KMail/1.6.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200501171116.05565.m.watts@eris.qinetiq.com>
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.29.0.5; VDF: 6.29.0.52; host: mailr.qinetiq-tim.net)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tigran Aivazian <tigran@veritas.com> writes:
->
-> When I said "2-3 weeks of work" I didn't fully realize the complexity
-> of the problem. It is actually more like several months of research
-> work and then (most likely) coming to the conclusion that the code to
-> simulate the cpu (by disassembling the functions to track down where
-> those registers went in each function) is just too complex to be
-> written.
-
-Did you actually ever read the ABI? 
-
-The ABI supported way is to read the DWARF2 unwind tables. For that
-you would a dwarf2 reader.  gdb does that in user space, and libgcc2
-also does it for exception unwinding. IA64 has an in kernel dwarf2
-reader library (and ia64 kdb uses it), although it would probably need
-some work to make it work on x86-64.
-
-So far nobody wanted it enough to do the porting work though.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
 
--Andi
+LaCie sell the following FireWire 800 card:
+http://www.lacie.com/uk/products/product.htm?pid=10173
+
+According to the manual, it conforms to both the OHCI and EHCI specs.
+
+Does this card work out of the box with the standard Linux FireWire drivers?
+
+I'd like to get one of these cards to connect my LaCie 1TB 
+USB2/FireWire400/FireWire800 drive to.
+
+Cheers,
+
+Mark.
+
+
+- -- 
+Mark Watts
+Senior Systems Engineer
+QinetiQ Trusted Information Management
+Trusted Solutions and Services group
+GPG Public Key ID: 455420ED
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFB6551Bn4EFUVUIO0RAkt+AJ9nFQQCxBszr8fqsnOpEJua762wpgCfVd45
+E3Gz+i7iqJj+dB5GlgjE6wQ=
+=h5wc
+-----END PGP SIGNATURE-----

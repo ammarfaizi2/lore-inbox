@@ -1,74 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262071AbUKPRsr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262075AbUKPRvj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262071AbUKPRsr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 12:48:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262072AbUKPRsr
+	id S262075AbUKPRvj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 12:51:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbUKPRvj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 12:48:47 -0500
-Received: from mail.netshadow.at ([217.116.182.106]:61645 "EHLO
-	skeletor.netshadow.at") by vger.kernel.org with ESMTP
-	id S262071AbUKPRr1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 12:47:27 -0500
-Subject: Re: 2.6 native IPsec implementation question
-From: Andreas Unterkircher <unki@netshadow.at>
-Reply-To: unki@netshadow.at
-To: linux-kernel@vger.kernel.org
-Cc: Blizbor <kernel@globalintech.pl>
-In-Reply-To: <4198B2B6.9050803@globalintech.pl>
-References: <4198B2B6.9050803@globalintech.pl>
-Content-Type: text/plain
-Date: Tue, 16 Nov 2004 18:47:05 +0100
-Message-Id: <1100627225.1817.1.camel@kuecken.unki.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+	Tue, 16 Nov 2004 12:51:39 -0500
+Received: from mail.euroweb.hu ([193.226.220.4]:11711 "HELO mail.euroweb.hu")
+	by vger.kernel.org with SMTP id S262077AbUKPRvC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 12:51:02 -0500
+To: greg@kroah.com
+CC: rcpt-linux-fsdevel.AT.vger.kernel.org@jankratochvil.net,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-reply-to: <20041116170339.GD6264@kroah.com> (message from Greg KH on Tue,
+	16 Nov 2004 09:03:39 -0800)
+Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
+References: <E1CToBi-0008V7-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.58.0411151423390.2222@ppc970.osdl.org> <E1CTzKY-0000ZJ-00@dorka.pomaz.szeredi.hu> <84144f0204111602136a9bbded@mail.gmail.com> <E1CU0Ri-0000f9-00@dorka.pomaz.szeredi.hu> <20041116120226.A27354@pauline.vellum.cz> <E1CU3tO-0000rV-00@dorka.pomaz.szeredi.hu> <20041116163314.GA6264@kroah.com> <E1CU6SL-0007FP-00@dorka.pomaz.szeredi.hu> <20041116170339.GD6264@kroah.com>
+Message-Id: <E1CU7Tg-0007O8-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Tue, 16 Nov 2004 18:50:52 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FYI: openswan is working on a rebirth of klips (ipsecX interfaces)
-for 2.6 kernels
 
-http://www.openswan.org/
+> It's an old message, and yes, it's there to scare people away.  Glad to
+> see it's working :)
 
-Andi
+So if I only need a single device number should I register a "misc"
+device?  misc_register() seems to create the relevant sysfs entry.
 
-Am Montag, den 15.11.2004, 14:44 +0100 schrieb Blizbor:
-> Greetings,
-> 
-> I hope, this is right place to ask my questions.
-> 
-> 1. Why IPsec in 2.6 doesn't uses separate interface ?
-> It makes impossible to implement firewall logic like this (or I'm 
-> missing something):
-> 
-> incoming from eth0 allow AH
-> incoming from eth0 allow ESP
-> incoming from eth0 allow udp 500
-> incoming from eth0 allow udp 53
-> incoming from eth0 allow ICMP related
-> incoming from eth0 deny all
-> 
-> then set of filters restricting traffic incoming via IPsec for examle:
-> incoming from ipsec0 allow tcp 389
-> incoming from ipsec0 allow ICMP related
-> incoming from ipsec0 deny all
-> 
-> (please consider roadwarrior client with not known IP address)
-> 
-> 2. Why IPsec in 2.6 doesn't creates entries in the route tables ?
-> It's a bit confusing when 'ip route list' doesnt makes you aware that
-> some traffic is going somwhere else than defined in route tables.
-> 
-> (you must know that there is IPsec in use on the host, then you are using
-> setkey to list rules, and then you must analyse rules to catch routes - 
-> ugly solution.)
-> 
-> 
-> Reards,
-> Blizbor
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+Thanks,
+Miklos

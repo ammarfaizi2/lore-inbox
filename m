@@ -1,28 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270506AbRHSO1F>; Sun, 19 Aug 2001 10:27:05 -0400
+	id <S270528AbRHSOoC>; Sun, 19 Aug 2001 10:44:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270514AbRHSO0z>; Sun, 19 Aug 2001 10:26:55 -0400
-Received: from lambik.cc.kuleuven.ac.be ([134.58.10.1]:49926 "EHLO
-	lambik.cc.kuleuven.ac.be") by vger.kernel.org with ESMTP
-	id <S270506AbRHSO0s>; Sun, 19 Aug 2001 10:26:48 -0400
-Message-Id: <200108191427.QAA14159@lambik.cc.kuleuven.ac.be>
-Content-Type: text/plain; charset=US-ASCII
-From: Frank Dekervel <kervel@bakvis.kotnet.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.8-ac7 vm performance
-Date: Sun, 19 Aug 2001 16:27:00 +0200
-X-Mailer: KMail [version 1.3.1]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S270520AbRHSOnv>; Sun, 19 Aug 2001 10:43:51 -0400
+Received: from cogent.ecohler.net ([216.135.202.106]:44988 "EHLO
+	cogent.ecohler.net") by vger.kernel.org with ESMTP
+	id <S270521AbRHSOnk>; Sun, 19 Aug 2001 10:43:40 -0400
+Date: Sun, 19 Aug 2001 10:43:45 -0400
+From: lists@sapience.com
+To: Robert Love <rml@tech9.net>
+Cc: Oliver Xymoron <oxymoron@waste.org>, linux-kernel@vger.kernel.org,
+        riel@conectiva.com.br
+Subject: Re: [PATCH] let Net Devices feed Entropy, updated (1/2)
+Message-ID: <20010819104345.A11696@sapience.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <998193404.653.12.camel@phantasy>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-is really good here (compared to 2.4.8/2.4.9). I switched from plain 
-2.4.8/2.4.9 because it seems the new used-once is nonfunctional on my 
-machine. (playing high-quality wav-files for 5 minutes is enough to make my 
-system totally unresponsible for a few 10's of seconds (its swapping my 
-desktop back in then)).
 
-thanks !
-kervel
+ Perhaps the patch does this already, but if there are concerns about
+ pollution from the nasty outside is it possible to add a flag to /proc
+ to turn this on/off by interface - that way it could easily be limited
+ to only get influenced by the inside network rather than the outside.
+
+ Regards,
+
+ gene/
+ lists@sapience.com
+

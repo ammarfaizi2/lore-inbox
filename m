@@ -1,120 +1,639 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265435AbTLSDKq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 22:10:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265437AbTLSDKq
+	id S265431AbTLSD25 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 22:28:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265432AbTLSD25
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 22:10:46 -0500
-Received: from dp.samba.org ([66.70.73.150]:46280 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S265435AbTLSDKf (ORCPT
+	Thu, 18 Dec 2003 22:28:57 -0500
+Received: from mtaw6.prodigy.net ([64.164.98.56]:34008 "EHLO mtaw6.prodigy.net")
+	by vger.kernel.org with ESMTP id S265431AbTLSD2k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 22:10:35 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: greg@kroah.com, Matthias Andree <matthias.andree@gmx.de>
-Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Fw: 2.6.0-test11 BK: sg and scanner modules not auto-loaded? 
-In-reply-to: Your message of "Thu, 18 Dec 2003 09:14:04 -0800."
-             <20031218091404.4b2f743b.akpm@osdl.org> 
-Date: Fri, 19 Dec 2003 11:03:57 +1100
-Message-Id: <20031219031034.B28F62C0FA@lists.samba.org>
+	Thu, 18 Dec 2003 22:28:40 -0500
+Date: Thu, 18 Dec 2003 19:28:27 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.23: kernel: raid5: multiple 0 requests for sector
+Message-ID: <20031219032827.GR16034@matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20031218091404.4b2f743b.akpm@osdl.org> you write:
-> 
-> Rusty, is this something obvious?  (What are the new MODULE_ALIAS rules,
-> btw?  Why are they now growing an extra numeric field?)>
+I have an 300GB ext3, and I'm running bonnie on it while running a read-only
+badblocks on the block device.
 
-Because some did, some didn't have a minor number.
+While that's happening I got these:
 
-I standardized on char-major-x-y, because an alias is trivial
-(char-major-180-*), and almost all the modules are supposed to supply
-their own aliases, so this should be an entirely in-kernel issue, but
-they don't, and Linus stopped taking patches.
+I found it in drivers/md/raid5.c:790
 
-More aliases below.
+That's in:
 
-> Similar considerations apply to scanner:
-> alias char-major-180-48 scanner
+static void add_stripe_bh (struct stripe_head *sh, struct buffer_head *bh, int dd_idx, int rw)
+{
+	struct buffer_head **bhp;
+	raid5_conf_t *conf = sh->raid_conf;
 
-Where did this alias come from?  Of course, scanner.c could put in
-such an alias, but is it really constant?  If so, by all means add a
-MODULE_ALIAS_CHARDEV() line in scanner.c.  Otherwise, leave it to the
-hotplug code.
+	PRINTK("adding bh b#%lu to stripe s#%lu\n", bh->b_blocknr, sh->sector);
 
-MODULE_ALIAS* patches welcome,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
 
-Name: More Aliases
-Author: Steve Youngs, Stephen Hemminger
-Status: Trivial
+	spin_lock(&sh->lock);
+	spin_lock_irq(&conf->device_lock);
+	bh->b_reqnext = NULL;
+	if (rw == READ)
+		bhp = &sh->bh_read[dd_idx];
+	else
+		bhp = &sh->bh_write[dd_idx];
+	while (*bhp) {
+		printk(KERN_NOTICE "raid5: multiple %d requests for sector %ld\n", rw, sh->sector);
+		bhp = & (*bhp)->b_reqnext;
+	}
+	*bhp = bh;
+	spin_unlock_irq(&conf->device_lock);
+	spin_unlock(&sh->lock);
 
-D: Add more MODULE_ALIASes where required.
+	PRINTK("added bh b#%lu to stripe s#%lu, disk %d.\n", bh->b_blocknr, sh->sector, dd_idx);
+}
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .995-linux-2.6.0/drivers/net/pppoe.c .995-linux-2.6.0.updated/drivers/net/pppoe.c
---- .995-linux-2.6.0/drivers/net/pppoe.c	2003-11-28 12:27:23.000000000 +1100
-+++ .995-linux-2.6.0.updated/drivers/net/pppoe.c	2003-12-19 10:36:26.000000000 +1100
-@@ -1151,3 +1151,4 @@ module_exit(pppoe_exit);
- MODULE_AUTHOR("Michal Ostrowski <mostrows@speakeasy.net>");
- MODULE_DESCRIPTION("PPP over Ethernet driver");
- MODULE_LICENSE("GPL");
-+MODULE_ALIAS_NETPROTO(PF_PPPOX);
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .995-linux-2.6.0/drivers/scsi/sg.c .995-linux-2.6.0.updated/drivers/scsi/sg.c
---- .995-linux-2.6.0/drivers/scsi/sg.c	2003-11-24 15:42:31.000000000 +1100
-+++ .995-linux-2.6.0.updated/drivers/scsi/sg.c	2003-12-19 10:37:45.000000000 +1100
-@@ -2974,3 +2974,4 @@ sg_proc_version_info(char *buffer, int *
- 
- module_init(init_sg);
- module_exit(exit_sg);
-+MODULE_ALIAS_CHARDEV_MAJOR(SCSI_GENERIC_MAJOR);
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .995-linux-2.6.0/fs/isofs/inode.c .995-linux-2.6.0.updated/fs/isofs/inode.c
---- .995-linux-2.6.0/fs/isofs/inode.c	2003-10-09 18:02:58.000000000 +1000
-+++ .995-linux-2.6.0.updated/fs/isofs/inode.c	2003-12-19 10:36:26.000000000 +1100
-@@ -1463,4 +1463,5 @@ static void __exit exit_iso9660_fs(void)
- module_init(init_iso9660_fs)
- module_exit(exit_iso9660_fs)
- MODULE_LICENSE("GPL");
--
-+/* Actual filesystem name is iso9660, as requested in filesystems.c */
-+MODULE_ALIAS("iso9660");
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .995-linux-2.6.0/sound/core/sound.c .995-linux-2.6.0.updated/sound/core/sound.c
---- .995-linux-2.6.0/sound/core/sound.c	2003-09-29 10:26:17.000000000 +1000
-+++ .995-linux-2.6.0.updated/sound/core/sound.c	2003-12-19 10:36:26.000000000 +1100
-@@ -31,6 +31,7 @@
- #include <sound/initval.h>
- #include <linux/kmod.h>
- #include <linux/devfs_fs_kernel.h>
-+#include <linux/device.h>
- 
- #define SNDRV_OS_MINORS 256
- 
-@@ -52,6 +53,7 @@ MODULE_PARM_SYNTAX(major, "default:116,s
- MODULE_PARM(cards_limit, "i");
- MODULE_PARM_DESC(cards_limit, "Count of soundcards installed in the system.");
- MODULE_PARM_SYNTAX(cards_limit, "default:8,skill:advanced");
-+MODULE_ALIAS_CHARDEV_MAJOR(CONFIG_SND_MAJOR);
- #ifdef CONFIG_DEVFS_FS
- MODULE_PARM(device_mode, "i");
- MODULE_PARM_DESC(device_mode, "Device file permission mask for devfs.");
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .995-linux-2.6.0/sound/sound_core.c .995-linux-2.6.0.updated/sound/sound_core.c
---- .995-linux-2.6.0/sound/sound_core.c	2003-09-22 10:28:16.000000000 +1000
-+++ .995-linux-2.6.0.updated/sound/sound_core.c	2003-12-19 10:36:26.000000000 +1100
-@@ -45,6 +45,7 @@
- #include <linux/major.h>
- #include <linux/kmod.h>
- #include <linux/devfs_fs_kernel.h>
-+#include <linux/device.h>
- 
- #define SOUND_STEP 16
- 
-@@ -547,6 +548,7 @@ EXPORT_SYMBOL(mod_firmware_load);
- MODULE_DESCRIPTION("Core sound module");
- MODULE_AUTHOR("Alan Cox");
- MODULE_LICENSE("GPL");
-+MODULE_ALIAS_CHARDEV_MAJOR(SOUND_MAJOR);
- 
- static void __exit cleanup_soundcore(void)
- {
+Is this because the buffer cache and page cache are both asking for the same
+block because they're both reading/writing the same area on disk?
+
+Dec 17 21:28:26 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 175954880
+Dec 17 21:28:26 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 175954888
+Dec 17 21:28:26 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 175954896
+Dec 17 21:28:26 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 175954904
+Dec 18 09:41:17 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172892352
+Dec 18 09:41:17 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172892360
+Dec 18 09:41:17 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172892368
+Dec 18 09:41:17 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172892376
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172650720
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172650728
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172650736
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172650744
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172651136
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172651144
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172651152
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172651160
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172651520
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172651528
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172651536
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172651544
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172651552
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172651560
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172651568
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172651576
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172651840
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172651904
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172651912
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172651920
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172651928
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172652640
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172652648
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172652656
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172652664
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172654304
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172654312
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172656256
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172656264
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172656272
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172656280
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172656288
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172656296
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172656304
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172656312
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172656640
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172656648
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172656656
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172656664
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172656672
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172656680
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172656688
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172656696
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172657120
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172657128
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172657136
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172657144
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172657152
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172657160
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172657168
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172657176
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172657888
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172657896
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172657904
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172657912
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172658784
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172658792
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172658800
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172658808
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172659424
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172659432
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172659440
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172659448
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172660832
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172660840
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172660848
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172660856
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172660864
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172660872
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172660880
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172660888
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172661248
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172661256
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172663040
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172663048
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172663056
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172663064
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172663072
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172663080
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172663088
+Dec 18 15:40:54 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172663096
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172672640
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172672648
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172672656
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172672664
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172672672
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172672680
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172672688
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172672696
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172673184
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172673192
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172673200
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172673208
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172673280
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172673288
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172673296
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172673304
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172674304
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172674312
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172674320
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172674328
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172674336
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172674344
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172674352
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172674360
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172674432
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172674440
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172674448
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172674456
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172674656
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172674664
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172674672
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172674680
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172674560
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172674568
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172674576
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172674584
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172675904
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172675912
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172675920
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172675928
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172676160
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172676168
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172676176
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172676184
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172676192
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172676200
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172676208
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172676216
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172676800
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172676808
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172676816
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172676824
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172677344
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172677352
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172677360
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172677376
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172677384
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172677392
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172677400
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172677792
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172677800
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172677808
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172677816
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172678368
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172678376
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172678384
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172678392
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172679552
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172679560
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172679568
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172679576
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172680160
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172680168
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172680176
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172680184
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172680616
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172680624
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172680632
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172681024
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172681032
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172681040
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172681048
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172682176
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172682184
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172682192
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172682200
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172682208
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172682216
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172682224
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172682232
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172682688
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172682696
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172682704
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172682712
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172683072
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172683080
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172683088
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172683096
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172683104
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172683112
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172683120
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172684000
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172684008
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172684016
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172684024
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172684032
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172684040
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172684048
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172684056
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172684160
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172684168
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172684176
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172684184
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172684416
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172684424
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172684432
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172684440
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172685216
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172685224
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172685232
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172685240
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172685312
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172685320
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172685696
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172685704
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172685712
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172685720
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172685728
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172685736
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172685744
+Dec 18 15:40:55 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172685752
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172690432
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172690440
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172690448
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172690456
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172690464
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172690472
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172690480
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172690488
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172691840
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172691848
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172691856
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172691864
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172691872
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172691880
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172691888
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172691896
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172692352
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172692360
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172692368
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172692376
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172692896
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172692904
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172692912
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172692992
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172693000
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172693008
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172693016
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172693376
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172693384
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172693392
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172693400
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172693408
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172693416
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172693424
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172693432
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172694016
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172694024
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172694032
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172694040
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172694560
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172694568
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172695904
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172695912
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172695920
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172696320
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172696328
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172696336
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172696344
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172697024
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172697032
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172697040
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172697048
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172697088
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172697096
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172697104
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172697112
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172697568
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172697576
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172697584
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172697592
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172697888
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172697896
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172697904
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172697912
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172697984
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172697992
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172698000
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172698008
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172699200
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172699208
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172699216
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172699224
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172701024
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172701032
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172701040
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172701048
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172701536
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172701544
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172701552
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172701560
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172701568
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172702240
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172702248
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172702256
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172702264
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172702336
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172702344
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172702352
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172702360
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172705792
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172705800
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172705808
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172705816
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172705824
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172705832
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172705840
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172705848
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172706112
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172706120
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172706128
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172706136
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172706144
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172706152
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172706160
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172706168
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172707936
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172707944
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172707952
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172707960
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172707968
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172707976
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172707984
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172707992
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172708544
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172708552
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172708560
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172708568
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172708480
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172708488
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172708496
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172708504
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172709024
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172709032
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172709040
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172709048
+Dec 18 15:40:56 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172709280
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172710400
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172710408
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172710416
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172710424
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172710432
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172710440
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172710448
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172710456
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172710528
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172710536
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172710544
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172710552
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172710880
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172710888
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172710784
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172710792
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172710800
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172710808
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172710912
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172710920
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172710928
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172710936
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172711456
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172711464
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172711472
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172711480
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172711552
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172711560
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172711568
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172711576
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172711936
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172711944
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172711952
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172711960
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172711968
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172711976
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172711984
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172711992
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172713088
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172713096
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172713104
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172713112
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172713120
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172713128
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172713136
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172713144
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172716224
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172716232
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172716240
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172716248
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172716256
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172716264
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172716272
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172716280
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172718720
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172718728
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172718736
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172718744
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172718752
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172718760
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172718768
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172718776
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172720448
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172720456
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172720464
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172720472
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172720480
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172720488
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172720496
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172720504
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172721312
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172721320
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172721328
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172721336
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172723328
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172723336
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172723344
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172723352
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172723360
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172723368
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172723376
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172723384
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172723616
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172723624
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172723632
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172723640
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172724736
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172724744
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172724752
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172724760
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172724768
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172724776
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172724784
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172724792
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172725184
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172725192
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172725200
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172725208
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172725216
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172725224
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172725232
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172725240
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172727008
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172727016
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172727040
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172727048
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172727056
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172727064
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172730592
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172730600
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172730608
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172730496
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172730504
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172730624
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172730632
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172730640
+Dec 18 15:40:57 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172730648
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172731008
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172731016
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172731024
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172731032
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172732096
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172732104
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172732112
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172732120
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172732128
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172732136
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172732144
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172732152
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172733632
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172733640
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172733648
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172733656
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172733664
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172733672
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172733680
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172733688
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172733696
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172733704
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172733712
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172733720
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172734176
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172734184
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172735680
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172735688
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172735696
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172735704
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172735712
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172735720
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172735728
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172735736
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172736096
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172736104
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172736112
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172736120
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172736832
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172736840
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172736848
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172736856
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172736896
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172736904
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172736912
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172736920
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172737280
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172737288
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172737296
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172737304
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172737312
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172737320
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172737328
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172737336
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172738944
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172738952
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172738960
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172738968
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172738976
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172738984
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172738992
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172739000
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172739136
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172739144
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172739152
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172739160
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172739168
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172739176
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172739184
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172739192
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172741888
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172741896
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172741904
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172741912
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172741920
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172741928
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172741936
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172741944
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172743936
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172743944
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172743952
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172743960
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172744064
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172744072
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172744080
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172744088
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172745568
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172745576
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172745584
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172745592
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172745472
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172745480
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172745488
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172745496
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172746080
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172746088
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172746096
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172746104
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172746528
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172746536
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172746544
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172746552
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172746624
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172746632
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172746640
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172746648
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172747680
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172747688
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172747696
+Dec 18 15:40:58 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 172747704
+Dec 18 15:42:59 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 173543424
+Dec 18 15:42:59 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 173543432
+Dec 18 15:42:59 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 173543440
+Dec 18 15:42:59 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 173543448

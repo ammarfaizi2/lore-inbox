@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261451AbSJUPxt>; Mon, 21 Oct 2002 11:53:49 -0400
+	id <S261443AbSJUPyC>; Mon, 21 Oct 2002 11:54:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261450AbSJUPxt>; Mon, 21 Oct 2002 11:53:49 -0400
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:52916 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261451AbSJUPw3>; Mon, 21 Oct 2002 11:52:29 -0400
-Subject: Re: benchmarks of O_STREAMING in 2.5
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Padraig Brady <padraig.brady@corvil.com>
-Cc: Robert Love <rml@tech9.net>, akpm@digeo.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3DB41002.2050204@corvil.com>
-References: <1034823201.722.429.camel@phantasy>
-	<1035211132.27309.131.camel@irongate.swansea.linux.org.uk> 
-	<3DB41002.2050204@corvil.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 21 Oct 2002 17:14:17 +0100
-Message-Id: <1035216857.28189.192.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S261450AbSJUPxy>; Mon, 21 Oct 2002 11:53:54 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:48038 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S261443AbSJUPwY>;
+	Mon, 21 Oct 2002 11:52:24 -0400
+Date: Mon, 21 Oct 2002 08:55:56 -0700 (PDT)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: <jbradford@dial.pipex.com>
+cc: Josh Myer <jbm@joshisanerd.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Docs for 2.4.x -> 2.6.x
+In-Reply-To: <200210211550.g9LFoh1u005234@darkstar.example.net>
+Message-ID: <Pine.LNX.4.33L2.0210210853370.29900-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-10-21 at 15:32, Padraig Brady wrote:
-> I'm confused. Isn't this just an O_STREAM flag on open/fcntl ?
-> How could it be simpler? I suppose the VM could do better than
-> it currently does automatically but there is no harm in the app
-> giving a hint like this thus allowing stuff to be dropped from
-> the cache more aggresively?
+On Mon, 21 Oct 2002 jbradford@dial.pipex.com wrote:
 
-Which bit are you streaming, what kind of things are you doing with the
-data ?
+| > Would you volunteer to do the same thing for kernel API changes for those
+| > of us who don't pay enough attention to the list?
+|
+| Well, I'm certainly willing to spare the time to do it, but I'm not
+| sure that I'm particularly qualified to - the 2.4->2.6 doc would be
+| fairly straightforward for me, but documenting API changes in a useful
+| way may well require a better understanding of C than I have, (not
+| sure what I'd be letting myself in for - the only C I've done is
+| mainly games and other user mode stuff).
+|
+| > I have a few random drivers that aren't in mainline, so i always wind up
+| > porting to new kernels (they're trivial, so it's not a big deal, but
+| > sometimes it's annoying to find changes).
+| >
+| > Or is someone else already doing this wonderfully sexy job?
+|
+| It's possible they might be, I'm not sure...
+|
+| John.
+| -
 
-Take a database table are you - accessing it sequentially with caching,
-accessing it randomly without readahead or streaming it and discarding
-data. All three are valid answers, for the same data, and potentially on
-a per table basis in the same file.
+I got the impression that the first poster was asking
+for user-level 2.4 -> 2.6 migration HOWTO info,
+not kernel API changes.  (such as "be sure that all of those
+CONFIG_INPU_options are enabled!")
 
-See the fadvise proposal. O_STREAMING is basically a subset of what is
-needed
+I began keeping 2.5 kernel API changes very early, but then I ran
+out of time; there were just so many of them, coming too fast.
+Here are the early ones:
+  http://www.xenotime.net/linux/linux-port-25x.html
+
+-- 
+~Randy
+  "Do you need telco grade soundblaster 16 ?" -- Alan Cox
 

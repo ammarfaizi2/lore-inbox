@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262772AbTJZK1I (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Oct 2003 05:27:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262798AbTJZK1I
+	id S262736AbTJZK0E (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Oct 2003 05:26:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262771AbTJZK0E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Oct 2003 05:27:08 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:22170 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S262772AbTJZK1E (ORCPT
+	Sun, 26 Oct 2003 05:26:04 -0500
+Received: from quechua.inka.de ([193.197.184.2]:26046 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S262736AbTJZK0B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Oct 2003 05:27:04 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Sun, 26 Oct 2003 11:26:49 +0100 (MET)
-Message-Id: <UTC200310261026.h9QAQn404637.aeb@smtp.cwi.nl>
-To: Andries.Brouwer@cwi.nl, hirofumi@mail.parknet.co.jp
-Subject: Re: Linux 2.6.0-test9
-Cc: linux-kernel@vger.kernel.org
+	Sun, 26 Oct 2003 05:26:01 -0500
+From: Andreas Jellinghaus <aj@dungeon.inka.de>
+Subject: suspend works fine
+Date: Sun, 26 Oct 2003 11:25:56 +0100
+User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity. (Debian GNU/Linux))
+Message-Id: <pan.2003.10.26.10.25.55.369925@dungeon.inka.de>
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+2.6.0-test9, swsusp (the kernel one, not the 2.0alpha patch).
+works very fine. as usual video playback with mplayer&co
+had a problem, but starting another XFree86 and quiting it
+solved that.
 
-    Andries.Brouwer@cwi.nl writes:
+I was using pcmcia, a wireless lan card with hostap driver
+(0.1.0, kernel patched for that), and did not stop anything
+or remove any module. still everything works very fine.
+also I was using X, did not switch to console before suspending,
+and it worked fine. great!
 
-    > Within a few days two people have reported that they cannot
-    > mount a FAT fs that 2.4 and Windows handle fine.
-    > Probably also that should be fixed, for example with
-    > my patch from yesterday.
+For reference: it's a dell latitude c600 notebook.
+If you have one of these, swsusp should work fine for you, too.
 
-    Was the other report by private email?
-
-Yes. Mark McPherson wrote:
-
-  I have an Archos Jukebox Recorder 20 which has never been
-  re-formatted since I purchased it.  It fails to mount under 2.6 with
-  the same report as the flash card, and also mounts successfully under 2.4.
-  Patching around the code as you suggested allows it to mount without
-  complaint under 2.6.
-  Win2K thinks this file system is just fine.
-
-Andries
-
+Regards, Andreas
 

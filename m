@@ -1,53 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285829AbSBSSfv>; Tue, 19 Feb 2002 13:35:51 -0500
+	id <S286687AbSBSSlB>; Tue, 19 Feb 2002 13:41:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286336AbSBSSfr>; Tue, 19 Feb 2002 13:35:47 -0500
-Received: from zok.sgi.com ([204.94.215.101]:55190 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S286687AbSBSSf2>;
-	Tue, 19 Feb 2002 13:35:28 -0500
-Date: Tue, 19 Feb 2002 10:35:06 -0800
-From: Jesse Barnes <jbarnes@sgi.com>
-To: David Mosberger <davidm@hpl.hp.com>
-Cc: Dan Maas <dmaas@dcine.com>, linux-kernel@vger.kernel.org,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Ben Collins <bcollins@debian.org>
-Subject: Re: readl/writel and memory barriers
-Message-ID: <20020219103506.A1511175@sgi.com>
-Mail-Followup-To: David Mosberger <davidm@hpl.hp.com>,
-	Dan Maas <dmaas@dcine.com>, linux-kernel@vger.kernel.org,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Ben Collins <bcollins@debian.org>
-In-Reply-To: <092401c1b8e7$1d190660$1a01a8c0@allyourbase> <15474.34580.625864.963930@napali.hpl.hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15474.34580.625864.963930@napali.hpl.hp.com>
-User-Agent: Mutt/1.3.23i
+	id <S286712AbSBSSkv>; Tue, 19 Feb 2002 13:40:51 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:52700 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S286687AbSBSSkm>; Tue, 19 Feb 2002 13:40:42 -0500
+Date: Tue, 19 Feb 2002 11:40:20 -0700
+Message-Id: <200202191840.g1JIeKt18971@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Denis Zaitsev <zzz@cd-club.ru>
+Cc: linux-kernel@vger.kernel.org
+Reply-To: devfs@oss.sgi.com
+Subject: Re: [PATCH] a little strings-aware code change
+In-Reply-To: <20020219030003.D1639@zzz.zzz.zzz>
+In-Reply-To: <200202180612.g1I6C4L25410@vindaloo.ras.ucalgary.ca>
+	<20020219030003.D1639@zzz.zzz.zzz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 19, 2002 at 09:10:44AM -0800, David Mosberger wrote:
-> On ia64, the fact that readl()/writel() are accessing uncached space
-> ensures the CPU doesn't reorder the accesses.  Furthermore, the
-> accesses are performed through "volatile" pointers, which ensures that
-> the compiler doesn't reorder them (and, as a side-effect, such
-> pointers also generate ordered loads/stores, but this isn't strictly
-> needed, due to accessing uncached space).
+Denis Zaitsev writes:
+> This little patch does nothing with the functionality of devfsd, but
+> with the C code.  There are a number of constructions like:
+> 
+>        [PFXLEN = strlen(prefix);]
+>         if (strncmp(str, prefix, PFXLEN) == 0)
+>                 do_something_with(str + PFXLEN);
+> 
+> It is not the best way to do such a things.  The idea is to implement
+> the special function, which will test the string for some prefix and
+> return the address of a place of the string after that prefix or NULL
+> in case of an absence of the success.  The construction above becomes
+> better:
+> 
+>         if (ptr= strtry(str, prefix))
+>                 do_something_with(ptr);
+> 
+> And the new function itself is more lightweight than alone strncmp,
+> and just much more effective than <strlen + strncmp> in a couple.  It
+> is good again.  So, all the idea seems to be healthy.  I call this
+> function "strtry", as it tries its arg for the given prefix.
 
-Making a variable volatile doesn't guarantee that the compiler won't
-reorder references to it, AFAIK.  And on some platforms, even uncached
-I/O references aren't necessarily ordered.
+Apart from not really liking this approach, you've made the strtry()
+function inlined. Any saving you might make with removing code from
+the callers is probably more than lost due to all the extra inlined
+code.
 
-To avoid the overhead of having I/O flushed on every memory barrier
-and readX/writeX operation, we've introduced mmiob() on ia64, which
-explicity orders I/O space accesses.  Some ports have chosen to take
-the performance hit in every readX/writeX, memory barrier, and
-spinlock however (e.g. PPC64, MIPS).
+Did you compare the sizes of the stripped binary to see what the
+effect of your patch is?
 
-Is this a reasonable approach?  Is it acceptable to have a seperate
-barrier operation for I/O space?  If so, perhaps other archs would be
-willing to add mmiob() ops?
+> Richard, please, apply this patch, if you find it useful.  It is
+> against devfsd-1.3.22.  By the way, I've arranged the
+>         strrchr (devname, '/') + 1
+> stuff, so this thing to be done once instead of multiply times in the
+> original.
 
-Thanks,
-Jesse
+But you've inserted calls to strrchr in cases where it's not really
+needed.
+
+BTW: linux-kernel isn't the right place to discuss devfsd
+development. The right place is devfs@oss.sgi.com (I've set Reply-To:
+to do this).
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

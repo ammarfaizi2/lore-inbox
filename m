@@ -1,53 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbVAGAYt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261216AbVAGA2e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261174AbVAGAYt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 19:24:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261236AbVAGAUo
+	id S261216AbVAGA2e (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 19:28:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbVAGAUW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 19:20:44 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:53436 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262048AbVAGAQL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 19:16:11 -0500
-Subject: RE: [BUG][2.6.8.1] serial driver hangs SMP kernel, but not the UP
-	kernel
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Tim_T_Murphy@Dell.com
-Cc: rmk+lkml@arm.linux.org.uk,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <4B0A1C17AA88F94289B0704CFABEF1AB0B4D32@ausx2kmps304.aus.amer.dell.com>
-References: <4B0A1C17AA88F94289B0704CFABEF1AB0B4D32@ausx2kmps304.aus.amer.dell.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1105052674.24187.288.camel@localhost.localdomain>
+	Thu, 6 Jan 2005 19:20:22 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:387 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261542AbVAGARQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 19:17:16 -0500
+Date: Thu, 6 Jan 2005 16:17:15 -0800
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Subject: FW: [KJ] ftape/fdc-io: schedule_timeout() usage
+Message-ID: <20050107001715.GG3055@us.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 06 Jan 2005 23:11:09 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Operating-System: Linux 2.6.10 (i686)
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2005-01-06 at 22:47, Tim_T_Murphy@Dell.com wrote:
-> > anything i can do to avoid dropping characters without using 
-> > low_latency, which still hangs SMP kernels?
-> 
-> this patch fixes the problem for me, but its probably an awful hack -- a
-> brief interrupt storm occurs until tty processes its buffer, but IMHO
-> that's better than dropping characters.
+I haven't had any replies so far, and it was suggested that I also fish on LKML
+for input.
 
-On a PCI device you may never get to process the buffer if you do that.
-2.6.10 throws away the other bytes carefully and clears the IRQ.
+Thanks,
+Nish
 
-Presumably this is a device with a fake 8250 that produces sudden large
-bursts of data ? If so then for now you -need- to set low_latency and
-should probably do it by the PCI vendor subid/device id. The problem is
-that the serial layer expects serial data arriving at serial speeds. It
-completely breaks down when it hits an emulation of a generic uart that
-suddenely receives 32Kbytes of data at ethernet speed.
+----- Forwarded message from Nishanth Aravamudan <nacc@us.ibm.com> -----
 
-The longer term fix for this is when the flip buffers go away, and the
-same problem gets cleaned up for things like mainframes and some of the
-high performance DMA devices. Until then just set low_latency and
-comment it as "not your fault" 8)
+Date: Wed, 5 Jan 2005 16:14:00 -0800
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: linux-tape@vger.kernel.org
+Cc: kernel-janitors@lists.osdl.org
+Subject: [KJ] ftape/fdc-io: schedule_timeout() usage
 
-Alan
+Hello,
 
+I'm hoping someone here can help me correct some ftape code.
+drivers/char/ftape/lowlevel/fdc-io.c::fdc_interrupt_wait() contains the
+following code:
+
+set_current_state(TASK_INTERRUPTIBLE);
+add_wait_queue((&ftape_wait_intr, &wait);
+while (!ft_interrupt_seen && (current->state == TASK_INTERRUPTIBLE)) {
+	timeout = schedule_timeout(timeout);
+}
+
+The problem I have is that after the first iteration of the loop
+(schedule_timeout() with TASK_INTERRUPTIBLE), it will become a busy-wait, as
+schedule_timeout() will be running with current->state set to TASK_RUNNING. I'm
+not sure if this is desired, but it seems weird to me. Any input would be
+appreciated.
+
+-Nish
+
+_______________________________________________
+Kernel-janitors mailing list
+Kernel-janitors@lists.osdl.org
+http://lists.osdl.org/mailman/listinfo/kernel-janitors
+
+
+----- End forwarded message -----

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267375AbUHWTWP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267480AbUHWT03@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267375AbUHWTWP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 15:22:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267442AbUHWTV3
+	id S267480AbUHWT03 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 15:26:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267452AbUHWTZV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 15:21:29 -0400
-Received: from mail.kroah.org ([69.55.234.183]:1732 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S267232AbUHWSgs convert rfc822-to-8bit
+	Mon, 23 Aug 2004 15:25:21 -0400
+Received: from mail.kroah.org ([69.55.234.183]:61379 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S267165AbUHWSgk convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 14:36:48 -0400
+	Mon, 23 Aug 2004 14:36:40 -0400
 X-Fake: the user-agent is fake
 Subject: Re: [PATCH] PCI and I2C fixes for 2.6.8
 User-Agent: Mutt/1.5.6i
-In-Reply-To: <10932860862720@kroah.com>
-Date: Mon, 23 Aug 2004 11:34:46 -0700
-Message-Id: <10932860863161@kroah.com>
+In-Reply-To: <1093286082426@kroah.com>
+Date: Mon, 23 Aug 2004 11:34:43 -0700
+Message-Id: <10932860832487@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -23,41 +23,36 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1807.56.22, 2004/08/06 12:42:19-07:00, akpm@osdl.org
+ChangeSet 1.1790.2.11, 2004/08/02 15:36:46-07:00, killekulla@rdrz.de
 
-[PATCH] I2C: scx200_i2c build fix
+[PATCH] PCI: fix PCI access mode dependences in arch/i386/Kconfig
 
-drivers/i2c/busses/scx200_i2c.c: In function `__check_scl':
-drivers/i2c/busses/scx200_i2c.c:41: `scl' undeclared (first use in this function)
-drivers/i2c/busses/scx200_i2c.c:41: (Each undeclared identifier is reported only once
+While all ACPI stuff is deselected, and PCI access mode is set to "Any",
+CONFIG_ACPI_BOOT is going to be set because of CONFIG_PCI_MMCONFIG.
 
+If CONFIG_ACPI_BOOT is not allready set by other stuff, setting PCI access
+mode to "Any" shouldn't set CONFIG_PCI_MMCONFIG.  Anyhow, setting PCI
+access mode to "MMConfig" should select CONFIG_ACPI_BOOT.
 
+Signed-off-by: Raphael Zimmerer <killekulla@rdrz.de>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- drivers/i2c/busses/scx200_i2c.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+ arch/i386/Kconfig |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
 
-diff -Nru a/drivers/i2c/busses/scx200_i2c.c b/drivers/i2c/busses/scx200_i2c.c
---- a/drivers/i2c/busses/scx200_i2c.c	2004-08-23 11:04:30 -07:00
-+++ b/drivers/i2c/busses/scx200_i2c.c	2004-08-23 11:04:30 -07:00
-@@ -38,13 +38,13 @@
- MODULE_DESCRIPTION("NatSemi SCx200 I2C Driver");
- MODULE_LICENSE("GPL");
+diff -Nru a/arch/i386/Kconfig b/arch/i386/Kconfig
+--- a/arch/i386/Kconfig	2004-08-23 11:07:54 -07:00
++++ b/arch/i386/Kconfig	2004-08-23 11:07:54 -07:00
+@@ -1105,7 +1105,7 @@
  
-+static int scl = CONFIG_SCx200_I2C_SCL;
-+static int sda = CONFIG_SCx200_I2C_SDA;
-+
- module_param(scl, int, 0);
- MODULE_PARM_DESC(scl, "GPIO line for SCL");
- module_param(sda, int, 0);
- MODULE_PARM_DESC(sda, "GPIO line for SDA");
--
--static int scl = CONFIG_SCx200_I2C_SCL;
--static int sda = CONFIG_SCx200_I2C_SDA;
+ config PCI_MMCONFIG
+ 	bool
+-	depends on PCI && (PCI_GOMMCONFIG || PCI_GOANY)
++	depends on PCI && (PCI_GOMMCONFIG || (PCI_GOANY && ACPI_BOOT))
+ 	select ACPI_BOOT
+ 	default y
  
- static void scx200_i2c_setscl(void *data, int state)
- {
 

@@ -1,52 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbVCWWUG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262067AbVCWW16@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261474AbVCWWUG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 17:20:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261467AbVCWWUF
+	id S262067AbVCWW16 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 17:27:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbVCWW16
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 17:20:05 -0500
-Received: from mx1.suse.de ([195.135.220.2]:16037 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261474AbVCWWTj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 17:19:39 -0500
-To: Paul Mackerras <paulus@samba.org>
-Cc: "Luck, Tony" <tony.luck@intel.com>, "Hugh Dickins" <hugh@veritas.com>,
-       "Nick Piggin" <nickpiggin@yahoo.com.au>, <akpm@osdl.org>,
-       <davem@davemloft.net>, <benh@kernel.crashing.org>, <ak@suse.de>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/6] freepgt: free_pgtables use vma list
-References: <B8E391BBE9FE384DAA4C5C003888BE6F0324516D@scsmsx401.amr.corp.intel.com>
-	<16961.59549.946004.551974@cargo.ozlabs.ibm.com>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: Somewhere in DOWNTOWN BURBANK a prostitute is OVERCOOKING a LAMB
- CHOP!!
-Date: Wed, 23 Mar 2005 23:19:28 +0100
-In-Reply-To: <16961.59549.946004.551974@cargo.ozlabs.ibm.com> (Paul
- Mackerras's message of "Thu, 24 Mar 2005 09:07:25 +1100")
-Message-ID: <jevf7ic8en.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/22.0.50 (gnu/linux)
+	Wed, 23 Mar 2005 17:27:58 -0500
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.59]:29659 "EHLO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S262067AbVCWW1z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 17:27:55 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Paul Slootman <paul+nospam@wurtel.net>
+Date: Thu, 24 Mar 2005 09:27:40 +1100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16961.60764.827542.318291@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: md: bug in file drivers/md/md.c, line 1513
+In-Reply-To: message from Paul Slootman on Tuesday March 22
+References: <d1pi21$gjq$1@news.cistron.nl>
+X-Mailer: VM 7.19 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Mackerras <paulus@samba.org> writes:
+On Tuesday March 22, paul+nospam@wurtel.net wrote:
+> This is on kernel 2.6.11, mdadm 1.4.0
+> 
+> The system has MD devices that are auto-configured on boot.
+> 
+> However, there are also devices connected via another SCSI adapter
+> (actually, a Qlogic QLA2300). I'm using a module for that. As the
+> auto-configure only runs at boot (or rather, when the md subsystem is
+> started).  I wanted to restart a raid-0 device that I had previously
+> created. I did:
+> 
+> 	mdadm --run /dev/md10
 
-> Luck, Tony writes:
->
->> Can we legislate that "end==0" isn't possible.
->
-> I think this is only likely to be a problem on 32-bit platforms with
-> hardware support for separate user and kernel address spaces.  m68k
-> and sparc32 come to mind, though I might be mistaken.
+As you admit, this is wrong.  You want something like
+  mdadm --assemble /dev/md10 /dev/.....(list of component devices)
 
-On m68k we don't allow addresses above 0xF0000000.
+or describe the md10 array (e.g. via UUID) in /etc/mdadm.conf
 
-Andreas.
+> 
+> as a simple attempt to see what would happen. What happened was the
+> error message in the subject, and a "COMPLETE RAID STATE PRINTOUT"...
+> In that output there is a line "md10:", the next line is
+> "md1: <sde1><sdd1><sdc1><sdb1><sda1>".
+> 
+> 
+> Admittedly the usage may be wrong, but having the kernel say "bug" can't
+> be right :-)
+> 
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+Yes, there are quite a few of those silly bug messages.  I've removed
+a few, but have not yet gone through and checked and removed all the
+bad ones.
+NeilBrown

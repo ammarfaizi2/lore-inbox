@@ -1,49 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267923AbTAMF5l>; Mon, 13 Jan 2003 00:57:41 -0500
+	id <S267869AbTAMGNv>; Mon, 13 Jan 2003 01:13:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267925AbTAMF5l>; Mon, 13 Jan 2003 00:57:41 -0500
-Received: from [132.69.253.254] ([132.69.253.254]:13717 "HELO
-	vipe.technion.ac.il") by vger.kernel.org with SMTP
-	id <S267923AbTAMF5k>; Mon, 13 Jan 2003 00:57:40 -0500
-Date: Mon, 13 Jan 2003 08:06:20 +0200 (IST)
-From: Shlomi Fish <shlomif@vipe.technion.ac.il>
-To: <linux-kernel@vger.kernel.org>
-Subject: CLAN ideaware and planningware Revision 2
-In-Reply-To: <Pine.LNX.4.33L2.0301111825200.458-100000@vipe.technion.ac.il>
-Message-ID: <Pine.LNX.4.33L2.0301130759350.17278-100000@vipe.technion.ac.il>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267874AbTAMGNv>; Mon, 13 Jan 2003 01:13:51 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:35735 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S267869AbTAMGNu>; Mon, 13 Jan 2003 01:13:50 -0500
+Date: Mon, 13 Jan 2003 11:55:03 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, viro@math.psu.edu,
+       Maneesh Soni <maneesh@in.ibm.com>
+Subject: Re: 2.5.56-mm1
+Message-ID: <20030113062503.GA14996@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <200301111443.08527.akpm@digeo.com> <20030111225756.GA13330@gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030111225756.GA13330@gtf.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jan 11, 2003 at 11:00:38PM +0000, Jeff Garzik wrote:
+> On Sat, Jan 11, 2003 at 02:43:08PM -0800, Andrew Morton wrote:
+> > - dcache-RCU.
+> > 
+> >   This was recently updated to fix a rename race.  It's quite stable.  I'm
+> >   not sure where we stand wrt merging it now.  Al seems to have disappeared.
+> 
+> I talked to him in person last week, and this was one of the topics of
+> discussion.  He seemed to think it was fundamentally unfixable.  He
+> proceed to explain why, and then explained the scheme he worked out to
+> improve things.  Unfortunately my memory cannot do justice to the
+> details.
 
-Hi Good People and Kernel Hackes Extraordinaire!
+The rename race is fixed now. Yes, it was unfixable using *existing* RCU
+techniques, but one has to invent new tricks when the old bag of
+tricks is empty :)
 
-Your humble user-land Perl hacker, hereby announces the second revision of
-the CLAN (Comprehensive Linux Archive Network) ideaware and planningware
-suite:
+Fundamentally what happens is that rename may be *two* updates - delete
+from one hash chain and insert into another hash chain. In order for
+lockfree traversal to work correctly, you must have a grace period after
+each update. If we do a grace period between these two updates in a rename,
+it slows down renames to unacceptable levels. So we had a problem there.
 
-http://fc-solve.berlios.de/clan/
+The solution lies in the dcache itself - it has a fast path (cached_lookup)
+and a slow path (real_lookup). So all we had to do was to detect that a
+rename had happened to the dentry while we looked it up lockfree. This
+is done by a generation counter (d_move_count) in the dentry and is
+protected by the per-dentry spinlock which we take during rename and
+a successful cache lookup. 
 
-It contains a whitepaper, a preliminary SPEC and a roadmap. Your feedback
-is very welcome, as I'd like to be aware of as many possible catches in
-the design as possible before actually starting to write Perl code.
+Two things can happen due to the rename race - lookup incorrectly succeeds
+or lookup incorrectly fails. The success case is easily handled by 
+the lockfree lookup code that looks like this -
 
-Note that this is a temporary loation. I have already registered
-clan.berlios.de but did not yet receive an acknowledgement. I just wanted
-to put it on a site I have access to with good connectivity. Once I do get
-acknowledgement I'll prepare a nice site with a navigation bar, CSS
-styles, and organized good-looking pages. Until then, this site will have
-to do.
+for the dentries in the hash chain {
+	... More stuff....
+	move_count = dentry->d_move_count;
+	if (dentry name matches) {
+		/* lookup succeeds */
+		spin_lock(&dentry->d_lock);
+		if (move_count != dentry->d_move_count) {
+			/* 
+			 * A rename happened while looking up lockfree and 
+			 * we now cannot gurantee
+			 * that the lookup is correct
+			 */
+			spin_unlock(&dentry->d_lock);
+			return slow_lookup();
+		}
+		....
+		....
+	}
+	... More stuff....
+}
 
-Regards,
+If the lookup fails due to rename race, then there will anyway be a
+slow real_lookup which is serialized with rename.
 
-	Shlomi Fish
+Maneesh did a lot of testing using many ramfs and many millions of renames
+with millions of lookups going on at the same time and slow path was hit only
+100 times or so. For practical workloads, this should have absolutely no
+performance impact.
 
-----------------------------------------------------------------------
-Shlomi Fish        shlomif@vipe.technion.ac.il
-Home Page:         http://t2.technion.ac.il/~shlomif/
-
-He who re-invents the wheel, understands much better how a wheel works.
-
+Thanks
+Dipankar

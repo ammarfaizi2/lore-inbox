@@ -1,79 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268663AbTCCWWv>; Mon, 3 Mar 2003 17:22:51 -0500
+	id <S268665AbTCCWgd>; Mon, 3 Mar 2003 17:36:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268658AbTCCWWv>; Mon, 3 Mar 2003 17:22:51 -0500
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:57085 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id <S268604AbTCCWWt>; Mon, 3 Mar 2003 17:22:49 -0500
-Message-ID: <3E63D73A.2000402@nortelnetworks.com>
-Date: Mon, 03 Mar 2003 17:29:14 -0500
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	id <S268666AbTCCWgd>; Mon, 3 Mar 2003 17:36:33 -0500
+Received: from warden-p.diginsite.com ([208.29.163.248]:2233 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S268665AbTCCWgc>; Mon, 3 Mar 2003 17:36:32 -0500
+From: David Lang <david.lang@digitalinsight.com>
+To: John Bradford <john@grabjohn.com>
+Cc: root@chaos.analogic.com, alan@lxorguk.ukuu.org.uk, hch@infradead.org,
+       pavel@janik.cz, pavel@ucw.cz, linux-kernel@vger.kernel.org
+Date: Mon, 3 Mar 2003 09:50:07 -0800 (PST)
+Subject: Re: BitBucket: GPL-ed KitBeeper clone
+In-Reply-To: <200303031508.h23F8FEI000787@81-2-122-30.bradfords.org.uk>
+Message-ID: <Pine.LNX.4.44.0303030948310.29949-100000@dlang.diginsite.com>
 MIME-Version: 1.0
-To: Terje Eggestad <terje.eggestad@scali.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com,
-       linux-net@vger.kernel.org, davem@redhat.com
-Subject: Re: anyone ever done multicast AF_UNIX sockets?
-References: <3E5E7081.6020704@nortelnetworks.com>	<1046695876.7731.78.camel@pc-16.office.scali.no> 	<3E638C51.2000904@nortelnetworks.com> <1046720360.28127.209.camel@eggis1>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Terje Eggestad wrote:
-> On Mon, 2003-03-03 at 18:09, Chris Friesen wrote:
->     Terje Eggestad wrote:
->     > On a single box you would use a shared memory segment to do this. It has
->     > the following advantages:
->     > - no syscalls at all
->     
->     Unless you poll for messages on the receiving side, how do you trigger 
->     the receiver to look for a message?  Shared memory doesn't have file 
->     descriptors.
->     
-> OK, you want multicast to send the *same* info to all peers. The only of
-> two sane reason to do that is to update the peers with some info they
-> need to do real work. So when there is reel work to be done, the info is
-> available in the shm. 
+the big reason for haveing it be compatable with existing systems is so
+that if people move to it and decide they don't like it they can move away
+from it again.
 
-Okay, but how do they know there is work to be done?  They're waiting in 
-select() monitoring sockets, fds, being hit with signals, etc.  How do 
-you tell them to check their messages?  You have to hit them over the 
-head with a signal or something and tell them to check the shared memory 
-messages.
-> If you *had* multicast, you don't know *when* a peer proccessed it. 
-> What if the peer is suspended ??? you don't get an error on the send,
-> and you apparently never get an answer, then what? The peer may also
-> gone haywire on a while(1);
+you may like to think that your program is so good that people will never
+want to move away, but if it isn't an option then people will be very slow
+to adopt it as the risk to their source history just went up a few
+notches.
 
-Exactly.  So if the message got delivered you have no way of knowing for 
-sure that it was processed and you have application-level timers and 
-stuff. But if the message wasn't delivered to anyone and you know it 
-should have been, then you don't have to wait for the timer to expire to 
-know that they didn't get it.
-
->     How do they know the information has changed?  Suppose one process 
->     detects that the ethernet link has dropped.  How does it alert other 
->     processes which need to do something?
->     
-> Again, if you want someone to do something, they must ack the request
-> before you can safely assume that they are going to do something.
-
-Certainly.  My point was that if you're trying to handle all events in a 
-single thread, you need some way to tell the message recipient that it 
-needs to check the shared memory buffer.  Otherwise you need multiple 
-threads like you mentioned in your project description.
+David Lang
 
 
-Chris
+ On Mon, 3 Mar 2003, John Bradford wrote:
 
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
-
+> Date: Mon, 3 Mar 2003 15:08:15 +0000 (GMT)
+> From: John Bradford <john@grabjohn.com>
+> To: root@chaos.analogic.com
+> Cc: alan@lxorguk.ukuu.org.uk, hch@infradead.org, pavel@janik.cz, pavel@ucw.cz,
+>      linux-kernel@vger.kernel.org
+> Subject: Re: BitBucket: GPL-ed KitBeeper clone
+>
+> > > > > I haven't seen a single post to the list saying, "If we were designing
+> > > > > a version control system dedicated to the Linux kernel, what would you
+> > > > > like to see in it?".  Before I started work on my bug database, I
+> > > > > spent a week or so discussing it on the list with people.
+> > > >
+> > > > Larry spent a lot of time talking to people directly about such things.
+> > >
+> > > I meant in relation to Bit Bucket.
+> > >
+> > > If the need for Bit Keeper to make a profit for Bit Mover excludes
+> > > Linux developers from using it, the most logical thing to do in my
+> > > opinion is to start from scratch and write a version control system
+> > > dedicated to furthering Linux kernel development.
+> > >
+> > > Compatibility with Bit Keeper should not be a goal of that project.
+> >                                 ^^^^^^^^^^^^^^^^^^^^
+> > Hmmm. Compatibility with existing things is always one of the
+> > considerations of any new product (or project).
+>
+> I did consider it, I just don't think it's a good idea.
+>
+> > If compatibility can be achieved without a significant trade-off in
+> > performance, then it should become one of the goals.
+>
+> Agreed, but in a project to develop the best possible version control
+> system for the Linux kernel [1], I don't see how compatibility with
+> any other version control system is of any interest at all.
+>
+> It's only if you want to use several version control systems in
+> parallel that it might be an issue, but if a single, free, version
+> control system is in use, I don't see why that would be necessary.
+>
+> Getting the data out of Bit Keeper and in to a different version
+> control system is a one-time job, and as far as I am aware there is
+> no difficulty getting data out of a Bit Keeper repository, (using Bit
+> Keeper itself), in a suitable format.
+>
+> [1] As distinct from projects to develop the best possible version
+> control system in general or to develop a GPLed project to complete
+> with Bit Keeper.
+>
+> John.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

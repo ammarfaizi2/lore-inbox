@@ -1,78 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261790AbTD3JSJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 05:18:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbTD3JSJ
+	id S261757AbTD3JWz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 05:22:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbTD3JWz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 05:18:09 -0400
-Received: from [203.116.36.98] ([203.116.36.98]:32936 "HELO
-	mail.bii.a-star.edu.sg") by vger.kernel.org with SMTP
-	id S261790AbTD3JSI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 05:18:08 -0400
-Message-ID: <1209.192.168.122.46.1051695018.squirrel@web.bii.a-star.edu.sg>
-Date: Wed, 30 Apr 2003 17:30:18 +0800 (SGT)
-Subject: Re: RHAS kernel upgrade?
-From: "Yang-Hwee TAN" <tanyh@bii-sg.org>
-To: <venom@sns.it>
-In-Reply-To: <Pine.LNX.4.43.0304301125360.5028-100000@cibs9.sns.it>
-References: <1188.192.168.122.46.1051694168.squirrel@web.bii.a-star.edu.sg>
-        <Pine.LNX.4.43.0304301125360.5028-100000@cibs9.sns.it>
-X-Priority: 3
-Importance: Normal
-Cc: <linux-kernel@vger.kernel.org>
-X-Mailer: SquirrelMail (version 1.2.11)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 30 Apr 2003 05:22:55 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:23680 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261757AbTD3JWy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 05:22:54 -0400
+Date: Wed, 30 Apr 2003 10:35:08 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Jeffrey Souza <souza@psychopenguin.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
+Message-ID: <20030430093508.GD13859@mail.jlokier.co.uk>
+References: <Pine.LNX.4.44.0304232012400.19176-100000@home.transmeta.com> <20030427142106.GA24244@merlin.emma.line.org> <20030427165959.GC6820@work.bitmover.com> <200304290746.43055.souza@psychopenguin.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200304290746.43055.souza@psychopenguin.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-looking at the rhas kernel src rpm, there's alot of patches
-made into the kernel, i'm not sure if i use the plain vanilla
-kernel tarball would i disable some kernel options and
-"cripple" any of the RH's advance server's functionality(s).
+Jeffrey Souza wrote:
+> >Upon the
+> > advice of several of the leading kernel developers, I contacted Pavel's
+> > boss at SuSE and said "how about you nudge Pavel onto something more
+> > productive" and he said that he couldn't control Pavel.  That's nonsense
+> > and everyone knows that.  If one of my employees were doing something
+> > like that, it would be trivial to say "choose between your job and that".
+> > But Garloff just shrugged it off as not his problem.
+> 
+> Trying to influence someone's personal project through their boss? Wow.
+> No wonder so few people like you on lkml.
 
-has anyone use RHAS in a cluster environment with manual
-upgrading of kernel to perhaps 2.4.20, and everything goes
-well on the AS functionalities/add-ons?
+See, the thing Larry didn't hear was Garloff _actually_ said:
 
--yanghwee
+   "Sorry Larry, I can't [*in good conscience*] control Pavel [*like that*]."
 
->
-> why it should not?
->
-> if you do not need any particular driver not included into vanilla
-> kernel...
->
-> On Wed, 30 Apr 2003, Yang-Hwee TAN wrote:
->
->> Date: Wed, 30 Apr 2003 17:16:08 +0800 (SGT)
->> From: Yang-Hwee TAN <tanyh@bii.a-star.edu.sg>
->> To: linux-kernel@vger.kernel.org
->> Subject: RHAS kernel upgrade?
->>
->> hi,
->>
->> i'm wondering is it good build if i upgrade my
->> RedHat Advance Server kernel via the use of the
->> kernel tarball downloaded from kernel.org?
->>
->>
->> --
->> Yang-Hwee TAN
->> Systems Engineer (Cluster Computing)
->> http://www.bii.a-star.edu.sg/~tanyh
->>
->> Bioinformatics Institute
->> http://www.bii.a-star.edu.sg
->> Tel: +65 6874-1271
->>
->>
->> -
->> To unsubscribe from this list: send the line "unsubscribe
->> linux-kernel" in the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> Please read the FAQ at  http://www.tux.org/lkml/
+No to mention that it _isn't_ Garloff's problem.
 
+I wonder who are the "leading kernel developers" that Larry mentions.
+Probably giggling in the background after their practical joke
+actually worked :)
 
+On a more straight-faced note, perhaps Larry thought a BK clone was being
+developed _at SuSE_?  That would make it a less stupid request.
 
+-- Jamie

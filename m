@@ -1,156 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263220AbSJCJj2>; Thu, 3 Oct 2002 05:39:28 -0400
+	id <S263228AbSJCJrr>; Thu, 3 Oct 2002 05:47:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263224AbSJCJj2>; Thu, 3 Oct 2002 05:39:28 -0400
-Received: from hitpro.hitachi.co.jp ([133.145.224.7]:13763 "EHLO
-	hitpro.hitachi.co.jp") by vger.kernel.org with ESMTP
-	id <S263220AbSJCJjY>; Thu, 3 Oct 2002 05:39:24 -0400
-Message-Id: <5.0.2.6.2.20021003183537.06a8ad90@sdl99c>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2-Jr1
-Date: Thu, 03 Oct 2002 18:46:01 +0900
-To: karim@opersys.com
-From: Yumiko Sugita <sugita@sdl.hitachi.co.jp>
-Subject: Re: [Lkst-develop] Re: Release of LKST 1.3
-Cc: robert@schwebel.de, lkst-develop@lists.sourceforge.jp,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <3D947DC3.EEC6C0A6@opersys.com>
-References: <5.0.2.6.2.20020918210036.05287a40@sdl99c>
- <5.0.2.6.2.20020918210036.05287a40@sdl99c>
- <5.0.2.6.2.20020926182552.0506a898@sdl99c>
+	id <S263229AbSJCJrr>; Thu, 3 Oct 2002 05:47:47 -0400
+Received: from unthought.net ([212.97.129.24]:31203 "EHLO mail.unthought.net")
+	by vger.kernel.org with ESMTP id <S263228AbSJCJrq>;
+	Thu, 3 Oct 2002 05:47:46 -0400
+Date: Thu, 3 Oct 2002 11:53:16 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: AARGH! Please help. IDE controller fsckup
+Message-ID: <20021003095316.GC7350@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+	Kernel mailing list <linux-kernel@vger.kernel.org>
+References: <200210021516.46668.roy@karlsbakk.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-2022-JP"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200210021516.46668.roy@karlsbakk.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, Mr. Karim
+On Wed, Oct 02, 2002 at 03:16:46PM +0200, Roy Sigurd Karlsbakk wrote:
+> hi all
+> 
+> I have this cute little server with some 16 120gig IDE drives, and I've got 
+> some serious problems with it.
+> 
+> Controllers:
+> One onboard IDE controller (2 channels).
+> Two promise ATA100 (2 channels each).
+> One CMD649 (2 channels).
+> 
+> something seriously bad about the CMD649 makes Linux beleive it's the first 
+> controller with hd[abcd]. On these, there are two RAID-1s (/ and /var). Due 
+> to the fact that the box has some 1,6TB disk space, we haven't got any backup 
+> solution (we have an identical box in order to mirror them).
+> 
+> so - now - the CMD649 has suddenly begun to fail - losing contact with one or 
+> two drives, and I _really_ need to get what's on /data (RAID-5 on 
+> hd[efghijklmnop]) out. Problem is - the replacement controller I've got from 
+> the vendor works fine (turns up as controller 3 serving hd[mnop]). How can I 
+> revert this most easily to be able to boot again?
 
-  I'm Yumiko Sugita, a member of LKST developers.
-  I read your mail. Thank you for your advices.
+Hindsight:  had you used persistent superblocks, this would not have
+been a problem.  The kernel would know the correct ordering from the
+superblocks, not the device names.
 
-  The features for SMP are one of our important aims,
-so we, LKST developpers, developed them. We welcome
-IBM's work on them.
+Solution 1: Write to the RAID mailing list and have one of the mdadm
+gurus give you a one-liner to initialize the array with the proper
+ordering.
 
-  We think callback feature is useful for kernel developers.
-Are there any problems?$B!!(BAre you going to remove callbacks
-from LTT?  Is the main reason security?  If you have some
-cases of security problems about callbacks, please teach
-them and give some advice to us.
+Solution 2: Edit your /etc/raidtab to reflect the new device naming and
+run raidstart.
 
-  After future, we'll join community actively. We'll use LTT
-and want to concern LTT, so we'll join the discussion of you
-and other LTT developers about Linux RAS.
-  We hope to co-operate you and other developers about
-Linux RAS.
+If you start up the array with a bad ordering, no amount of magic is
+going to bring back you data (after parity has been "reconstructed" on
+various chunks of your existing data).
 
-Best regards,
 
-*$B!A(B*$B!A(B*$B!A(B*$B!A(B*$B!A(B
-Yumiko Sugita
-Hitachi, Ltd., Systems Development Laboratory
-Email : sugita@sdl.hitachi.co.jp
-                              $B!!!!!!!!!!(B  $B!A(B*$B!A(B*$B!A(B*$B!A(B*$B!A(B*
+> 
+> I hope this is not too off topic... Please excuse that.
+> 
 
-At 11:48 02/09/27 -0400, Karim Yaghmour wrote:
+linux-raid is a better place.
 
->Just a couple of general observations here.
->
->Yumiko Sugita wrote:
-> >    Consequently, LKST, which is oriented to enterprise systems,
-> > has the following features different from those of LTT.
-> > # These LKST features are also being enhanced at this time.
-> >
-> > (1) Little overhead and good scalability when tracing on a large-scale
-> >     SMP system
-> >    * To make lock mechanism overhead as little as possible, we
-> >       designed that the buffers are not shared among CPUs.
->
->I was wondering whether you followed the recent discussion about LTT on the
->LKML? Clearly this is not a problem for LTT since we don't use any form
->of locking whatsoever anymore. IBM's work on the lockless scheme has
->solved this problem and their current work on the per-CPU buffering solves
->the rest of the issue.
->
-> > (2) Easy to extend/expand the function (User-based extendibility)
-> >    * Without recompiling kernel, user can change/add/modify the kind
-> >      of events and information to be recorded at anytime.
->
->Ditto with LTT.
->
-> >       For example, LKST usually traces very few events for the purpose
-> >     of good performance.  Once the kernel get into the particular status
-> >     that user specified, LKST will trace and record more detail information.
->
->This implies callbacks, which do exist in LTT and which Ingo Molnar explicitly
->asked us to remove.
->
-> > (3) Preservation of trace information
-> >    * Recovery of trace information collected at the time of a system crash
-> >      in connection with LKCD.
->
->Connection with LKCD is really not a problem, but this points to the main
->purpose of the tool, which in the case of LKCD is kernel debugging. LTT isn't
->aimed as a kernel debugger, so although LKCD is on our to-do list, it's
->certainly not our priority.
->
->As for handling multiple output streams (which LKCD can be one of them), we
->already have very detailed plans on how LTT is going to integrate this (as I've
->mentioned a number of times before on this list). However, before we go down
->this road we need to make sure that the core tracing functionality is
->lightweight and fits the general requirements set for kernel code. Once this
->core lighweight functionality is there, we can build a rich and solid feature
->set around it.
->
-> >    * Saving of specific event information during tracing.
-> >       For example, switching to another buffer after the occurrence of
-> >      a specific event enables the information on that event to be left
-> >      in the previous buffer.
->
->Again, callbacks and triggers. A while back, I had written a state machine
->engine for LTT. Basically, you could provide it with an event-driven state
->machine and it would callback your functions depending on the sequence of
->events. All of this obviously implies callbacks, which, as I said earlier,
->we've been explicitly asked to remove.
->
-> > (4) Collection of even more kernel event information
-> >    * Information on more than 50 kernel events can be collected for
-> >      kernel debugging.
->
->Well, I think this is where LTT and LKST cannot be compared. If LKST is
->a kernel debugging tool, as it has always been advertised, then any comparison
->of LKST should be made with the other tracing tools which are used for
->kernel debugging, such as the ones mentioned by Ingo and Andi earlier on
->this list.
->
->LTT was built from the ground up to help users understand the dynamic
->behavior of the system. As such, it cannot be compared to any kernel
->debugging tool since it isn't one.
->
-> >   The demand for RAS functions in Linux should grow in the years to come.
-> > It is our hope that LKST becomes one means of implementing such functions.
->
->There was a RAS BoF at the OLS this year where tracing was intensively 
->discussed.
->All the attendees agreed to unify their efforts around LTT. At this meeting,
->Richard Moore of IBM presented a tracing to-do list
->(http://opersys.com/LTT/ltt-to-do-list.txt) which we are using a basic
->check list for our ongoing work. Instead of implementing yet another tracing
->system, I think that the LKST team would benefit much from contributing to
->LTT, which has already a proven track record and has been adopted by the
->community as much as the industry.
->
->Karim
->
->===================================================
->                  Karim Yaghmour
->                karim@opersys.com
->       Embedded and Real-Time Linux Expert
->===================================================
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
 
+Cheers,
+
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

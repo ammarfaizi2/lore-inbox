@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267154AbSLKNzX>; Wed, 11 Dec 2002 08:55:23 -0500
+	id <S267036AbSLKOFQ>; Wed, 11 Dec 2002 09:05:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267158AbSLKNzX>; Wed, 11 Dec 2002 08:55:23 -0500
-Received: from mail.zmailer.org ([62.240.94.4]:36303 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id <S267154AbSLKNzW>;
-	Wed, 11 Dec 2002 08:55:22 -0500
-Date: Wed, 11 Dec 2002 16:03:06 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Pavel Machek <pavel@suse.cz>, Matti Aarnio <matti.aarnio@zmailer.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: IBM spamms me with error messages
-Message-ID: <20021211140306.GJ32122@mea-ext.zmailer.org>
-References: <20021211134730.GD3575@atrey.karlin.mff.cuni.cz> <Pine.LNX.3.95.1021211085722.20098A-101000@chaos.analogic.com>
+	id <S267039AbSLKOFQ>; Wed, 11 Dec 2002 09:05:16 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:36612 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S267036AbSLKOFQ>;
+	Wed, 11 Dec 2002 09:05:16 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: IBM spamms me with error messages 
+In-reply-to: Your message of "Wed, 11 Dec 2002 14:35:12 BST."
+             <20021211133509.GC3575@atrey.karlin.mff.cuni.cz> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.95.1021211085722.20098A-101000@chaos.analogic.com>
+Date: Thu, 12 Dec 2002 01:12:50 +1100
+Message-ID: <13263.1039615970@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  I would not call these "spam", they are merely undesirable
-  behaviour of GW-MTAs in between the Internet, and some other
-  oddball network.  A pestilance they definitely are...
+On Wed, 11 Dec 2002 14:35:12 +0100, 
+Pavel Machek <pavel@suse.cz> wrote:
+>> > I replied to some mail on l-k and IBM spammed me with 20+ error
+>> > messages. Now it is apparently going to do that again.
+>> 
+>>    Still/again ?
+>
+>It seems to happen after I group-reply to message on the list. Being
+>subscribed and quiet does not seem to trigger it. When I do
+>group-reply, I do get pair of error messages, then another pair of
+>same error messages, and it continues like that.
+>
+>This time it "only" sent two pairs of error messages...
 
-On Wed, Dec 11, 2002 at 08:58:21AM -0500, Richard B. Johnson wrote:
-> You are not the only one. I will probably get spammed again. Here's
-> the complete raw mail from their last spam.
-> 
-> Cheers,
-> Dick Johnson
+<aol>Me too</aol>.  I have blocked 32.97.182.0/24 at my firewall, let
+IBM eat their own garbage messages.
 
-/Matti Aarnio

@@ -1,87 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265530AbRF2Exf>; Fri, 29 Jun 2001 00:53:35 -0400
+	id <S265542AbRF2FWe>; Fri, 29 Jun 2001 01:22:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265537AbRF2ExZ>; Fri, 29 Jun 2001 00:53:25 -0400
-Received: from smtp015.mail.yahoo.com ([216.136.173.59]:50183 "HELO
-	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S265530AbRF2ExN>; Fri, 29 Jun 2001 00:53:13 -0400
-X-Apparently-From: <slamaya@yahoo.com>
-Message-ID: <3B3C09E6.2030503@yahoo.com>
-Date: Fri, 29 Jun 2001 07:53:58 +0300
-From: Yaacov Akiba Slama <slamaya@yahoo.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.1+) Gecko/20010625
-X-Accept-Language: en, fr
-MIME-Version: 1.0
-To: Steve Lord <lord@sgi.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Announcing Journaled File System (JFS) release 1.0.0 available
-In-Reply-To: <200106282143.f5SLht624150@jen.americas.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265545AbRF2FWY>; Fri, 29 Jun 2001 01:22:24 -0400
+Received: from are.twiddle.net ([64.81.246.98]:43423 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S265542AbRF2FWN>;
+	Fri, 29 Jun 2001 01:22:13 -0400
+Date: Thu, 28 Jun 2001 22:22:01 -0700
+From: Richard Henderson <rth@twiddle.net>
+To: Tom Gall <tom_gall@vnet.ibm.com>
+Cc: "David S. Miller" <davem@redhat.com>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
+Subject: Re: RFC: Changes for PCI
+Message-ID: <20010628222201.A2521@twiddle.net>
+Mail-Followup-To: Tom Gall <tom_gall@vnet.ibm.com>,
+	"David S. Miller" <davem@redhat.com>,
+	Jeff Garzik <jgarzik@mandrakesoft.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3B3A58FC.2728DAFF@vnet.ibm.com> <3B3A5B00.9FF387C9@mandrakesoft.com> <3B3A64CD.28B72A2A@vnet.ibm.com> <15162.33332.781686.45753@pizda.ninka.net> <3B3A2EF9.4A44264F@vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B3A2EF9.4A44264F@vnet.ibm.com>; from tom_gall@vnet.ibm.com on Wed, Jun 27, 2001 at 02:07:37PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve Lord wrote:
+On Wed, Jun 27, 2001 at 02:07:37PM -0500, Tom Gall wrote:
+> Consider also in drivers/pci/pci.c:
+> 
+> The function pci_bus_exists checks based on bus numbers. This function is
+> of course used by pci_alloc_primary_bus, which is in turn used by
+> pci_scan_bus. As is today, this code can break me the second I'm
+> onto my second PCI system domain.
 
->>Hi,
->>
-> 
->>So I only hope that the smart guys at SGI find a way to prepare the 
->>patches the way Linus loves because now the file 
->>"patch-2.4.5-xfs-1.0.1-core" (which contains the modifs to the kernel 
->>and not the new files) is about 174090 bytes which is a lot.
->>
->>YA
->>
->>
-> 
-> But that is not a patch intended for Linus, it is intended to enable all
-> the XFS features. I have a couple of kernel patches which total 46298 bytes
-> which get you a working XFS filesystem in the kernel, and I could do
-> lots of things to make them smaller. When you hit header files in the
-> correct manner for different platforms the size tends to mushroom.
-> These lines are all in different fcntl.h files for example:
-> 
-> +#define O_INVISIBLE    01000000 /* invisible I/O, for DMAPI/XDSM */
-> +#define O_INVISIBLE    0x80000 /* invisible I/O, for DMAPI/XDSM */
-> +#define O_INVISIBLE    02000000 /* invisible I/O, for DMAPI/XDSM */
-> +#define O_INVISIBLE    01000000 /* invisible I/O, for DMAPI/XDSM */
-> +#define O_INVISIBLE    01000000 /* invisible I/O, for DMAPI/XDSM */
-> +#define O_INVISIBLE    0x200000 /* invisible I/O, for DMAPI/XDSM */
-> +#define O_INVISIBLE    01000000 /* invisible I/O, for DMAPI/XDSM */
-> +#define O_INVISIBLE    0x200000 /* invisible I/O, for DMAPI/XDSM */
-> +#define O_INVISIBLE    01000000 /* invisible I/O, for DMAPI/XDSM */
-> +#define O_INVISIBLE    02000000 /* invisible I/O, for DMAPI/XDSM */
-> +#define O_INVISIBLE    0x80000 /* invisible I/O, for DMAPI/XDSM */
-> +#define O_INVISIBLE    02000000 /* invisible I/O, for DMAPI/XDSM */
-> 
-> You make the patches look a lot bigger than they really are. There is
-> a difference between a patch which is placing things in the correct
-> places and one which is designed to be as short as possible.
-> 
+You'll find that the existing ports that support multiple pci
+domains do not number the busses on the secondary domains from
+zero.  If domain 0 has 3 busses, then domain 1's root bus will
+be bus number 3, and so on.
 
-Agree.
-But IMHO, you need to be more "visible" and to already propose those 
-kernel modifications - even not the final ones - in lkml in order to let 
-everyone see them and change the current think (even by Alan) that XFS 
-is too intrusive for 2.4.
-There are other people involved in the files you need to change and the 
-more your patches are visibles, the more they are "credibles".
-I didn't want to critisize XFS (or JFS and ext3) but to give some points 
-about their integration in 2.4.
-YA
+This approach works quite well in practice, even on machines
+with large numbers of pci domains, since there tends to be no
+pci-pci busses on domains other than the one containing legacy
+i/o widgetry.
 
 
-> Steve
-> 
-> 
-> 
-> 
-
-
-
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
-
+r~

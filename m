@@ -1,52 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262105AbVAOBMY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262104AbVAOBRD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262105AbVAOBMY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 20:12:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262104AbVAOBJg
+	id S262104AbVAOBRD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 20:17:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262103AbVAOBMp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 20:09:36 -0500
-Received: from wproxy.gmail.com ([64.233.184.193]:5400 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262078AbVAOBF2 (ORCPT
+	Fri, 14 Jan 2005 20:12:45 -0500
+Received: from gw.goop.org ([64.81.55.164]:24215 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S262089AbVAOBJJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 20:05:28 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=Q6m/wICnsc2AYxREhQo3vTTiUvMFzlm/BJ6p6wfGATq/uVykZatL5Lh9db3fnhJ4LzPq6Jjbxi8Nby80GlvAxZoxxq22h1oh6aTe0Tdn3m7Au+5QLvySdNGQTEai4Aca4yAj/yjwoOjsA/YjfeZSTdQuBQPTMJdTe5UAPucRplU=
-Message-ID: <58cb370e05011417057bae2e@mail.gmail.com>
-Date: Sat, 15 Jan 2005 02:05:27 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Gunther Mayer <gunther.mayer@gmx.net>
-Subject: Re: [PATCH-2.6.10] ide-lib printk readability fix
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <41E07F55.8030803@gmx.net>
+	Fri, 14 Jan 2005 20:09:09 -0500
+Subject: Re: 2.6.10-mm3: lseek broken on /proc/self/maps
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+To: Prasanna Meda <pmeda@akamai.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <41E867DE.11F4016A@akamai.com>
+References: <1105737819.11209.9.camel@localhost>
+	 <41E867DE.11F4016A@akamai.com>
+Content-Type: text/plain
+Date: Fri, 14 Jan 2005 17:05:48 -0800
+Message-Id: <1105751148.4150.2.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.3 (2.0.3-0.mozer.1) 
 Content-Transfer-Encoding: 7bit
-References: <41E07F55.8030803@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 08 Jan 2005 16:48:21 -0800, Gunther Mayer <gunther.mayer@gmx.net> wrote:
-> Hi,
-> this improves logic and readability:
-> - remove blank from: AbortedCommand (as other flags)
-> - add blank and {} to error= line
-> - clean up: remove 2 lines and extra printk
-> 
-> before:
->   hdd: status error: status=0x7f { DriveReady DeviceFault SeekComplete
-> DataRequest CorrectedError Index Error }
->   hdd: status error: error=0x7fIllegalLengthIndication EndOfMedia
-> Aborted Command MediaChangeRequested LastFailedSense 0x07
-> 
-> after:
->   hdd: status error: status=0x7f { DriveReady DeviceFault SeekComplete
-> DataRequest CorrectedError Index Error }
->   hdd: status error: error=0x7f { IllegalLengthIndication EndOfMedia
-> AbortedCommand MediaChangeRequested LastFailedSense=0x07 }
-> 
-> Please apply.
+On Fri, 2005-01-14 at 16:46 -0800, Prasanna Meda wrote:
+> Thanks a lot  for testing all the corner cases.
 
-applied
+I'm actually trying to find bugs in Valgrind's memory map tracking code,
+but so far all the problems have been in /proc/self/maps (which I had
+been treating as a golden reference...).
+
+I'll give this a go shortly.  
+
+BTW, your last patch fixed the >4k read problem, so I'm hoping this will
+be the last one.
+
+	J
+

@@ -1,12 +1,12 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316258AbSFDEkJ>; Tue, 4 Jun 2002 00:40:09 -0400
+	id <S316300AbSFDElQ>; Tue, 4 Jun 2002 00:41:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316300AbSFDEkI>; Tue, 4 Jun 2002 00:40:08 -0400
-Received: from holomorphy.com ([66.224.33.161]:35203 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S316258AbSFDEkH>;
-	Tue, 4 Jun 2002 00:40:07 -0400
-Date: Mon, 3 Jun 2002 21:40:02 -0700
+	id <S316309AbSFDElP>; Tue, 4 Jun 2002 00:41:15 -0400
+Received: from holomorphy.com ([66.224.33.161]:37251 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S316300AbSFDElN>;
+	Tue, 4 Jun 2002 00:41:13 -0400
+Date: Mon, 3 Jun 2002 21:41:09 -0700
 From: William Lee Irwin III <wli@holomorphy.com>
 To: Thunder from the hill <thunder@ngforever.de>
 Cc: Lightweight patch manager <patch@luckynet.dynu.com>,
@@ -14,7 +14,7 @@ Cc: Lightweight patch manager <patch@luckynet.dynu.com>,
         Daniel Phillips <phillips@bonn-fries.net>,
         Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
 Subject: Re: linux-2.5.20-ct1
-Message-ID: <20020604044002.GC8263@holomorphy.com>
+Message-ID: <20020604044109.GD8263@holomorphy.com>
 Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
 	Thunder from the hill <thunder@ngforever.de>,
 	Lightweight patch manager <patch@luckynet.dynu.com>,
@@ -41,33 +41,10 @@ On Mon, Jun 03, 2002 at 10:30:18PM -0600, Thunder from the hill wrote:
 > <URL:ftp://luckynet.dynu.com/pub/linux/2.5.20-ct1/single-patches/>
 > Usually the latest available.
 
-Rusty Russell gave me copious assistance in clarifying and verifying the
-effectiveness of the explanation given in updated buddy comment patches.
-Please replace the version you've provided with the following.
+Please discard the balance_classzone() patch. I will resubmit after
+other cleanups have made it to mainline as it alters some of the same
+lines affected by the others.
 
 
 Thanks,
 Bill
-
-
-===== mm/page_alloc.c 1.63 vs edited =====
---- 1.63/mm/page_alloc.c	Tue May 28 16:57:49 2002
-+++ edited/mm/page_alloc.c	Mon Jun  3 15:21:55 2002
-@@ -82,10 +82,13 @@
-  * at the bottom level available, and propagating the changes upward
-  * as necessary, plus some accounting needed to play nicely with other
-  * parts of the VM system.
-- *
-- * TODO: give references to descriptions of buddy system allocators,
-- * describe precisely the silly trick buddy allocators use to avoid
-- * storing an extra bit, utilizing entry point information.
-+ * At each level, we keep one bit for each pair of blocks, which
-+ * is set to 1 iff only one of the pair is allocated.  So when we
-+ * are allocating or freeing one, we can derive the state of the
-+ * other.  That is, if we allocate a small block, and both were   
-+ * free, the remainder of the region must be split into blocks.   
-+ * If a block is freed, and its buddy is also free, then this
-+ * triggers coalescing into a block of larger size.            
-  *
-  * -- wli
-  */

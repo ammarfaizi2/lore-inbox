@@ -1,65 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267886AbTAMQjT>; Mon, 13 Jan 2003 11:39:19 -0500
+	id <S267893AbTAMQmX>; Mon, 13 Jan 2003 11:42:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267882AbTAMQjS>; Mon, 13 Jan 2003 11:39:18 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:22917 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S267879AbTAMQjR>; Mon, 13 Jan 2003 11:39:17 -0500
-Date: Mon, 13 Jan 2003 11:50:20 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Mad Hatter <slokus@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: bootsect.S: 2 questions
-In-Reply-To: <20030113162827.46498.qmail@web13709.mail.yahoo.com>
-Message-ID: <Pine.LNX.3.95.1030113114007.21633A-100000@chaos.analogic.com>
+	id <S267896AbTAMQmX>; Mon, 13 Jan 2003 11:42:23 -0500
+Received: from matrix.roma2.infn.it ([141.108.255.2]:63623 "EHLO
+	matrix.roma2.infn.it") by vger.kernel.org with ESMTP
+	id <S267893AbTAMQmW>; Mon, 13 Jan 2003 11:42:22 -0500
+From: Emiliano Gabrielli <Emiliano.Gabrielli@roma2.infn.it>
+Organization: INFN
+To: robw@optonline.net, Scott Robert Ladd <scott@coyotegulch.com>
+Subject: Re: any chance of 2.6.0-test*?
+Date: Mon, 13 Jan 2003 17:51:57 +0100
+User-Agent: KMail/1.5
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Christoph Hellwig <hch@infradead.org>, Greg KH <greg@kroah.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <FKEAJLBKJCGBDJJIPJLJEELGECAA.scott@coyotegulch.com> <1042418292.1209.247.camel@RobsPC.RobertWilkens.com>
+In-Reply-To: <1042418292.1209.247.camel@RobsPC.RobertWilkens.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200301131751.57288.gabrielli@roma2.infn.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Jan 2003, Mad Hatter wrote:
+On 01:38, lunedì 13 gennaio 2003, Rob Wilkens wrote:
+> It only goes to show that the core of computer science hasn't changed
+> over the years.  While some technology changes, the science itself stays
+> the same.  Much like a physicist should know the outdated theories of
+> relativity by Albert Einstein (made way back in the 20th century as
+> well) a good computer scientist should appreciate the contributions of
+> its founders, and have a good grasp of their core contributions.  I'm
+> not claiming to be an expert in either field, however.
 
-> Hi,
-> 
-> I was looking through the linux (2.5.56) arch/i386/boot/bootsect.S and was
-> puzzled about a couple of things:
-> 
-> 1. Near line 221 we have:
->        sread:  .word 0             # sectors read of current track
->        head:   .word 0             # current head
->        track:  .word 0             # current track
-> 
->    However, since a diskette can have at most 2 heads, 80 tracks and 36 sectors
->    per track, why are these not bytes instead of words especially since space is
->    at such a tight premium in this code ?
->
+You think Relativity is outdated ?!?  I can't beleave !
 
-Because, when they are used, they are ORed into word-sized registers.
-The track and sector are are put into register CX and the head and drive
-number are put into DX.
 
-> 2. Near line 272 we have "movw    $7, %bx" but the documentation I've
->     been able to find about the "int 0x10" BIOS call says that for service
->     code 0xe (write character and advance cursor), it does not take an
->     attribute byte input parameter but rather uses the existing attribute. Is
->     this movw instruction superfluous ?
-> 
+-- 
+Emiliano Gabrielli
 
-On page 218, "System BIOS for IBM PC/XT/AT Computers", Phoenix
-Technical Reference Series, ISBN 0-201-51806-6, the documentation
-clearly states that BL contains the foreground color and BH the
-active page. Therefore 0x0007 is the correct value to be put
-into that register for the "Write Teletype to Active Page" function.
-
-FYI, the startup functions are used once-per-boot. Any "improvements"
-other than those necessary to "fix" something are useless in the
-overall scheme of things.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
+dip. di Fisica
+2° Università di Roma "Tor Vergata"
 

@@ -1,61 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310348AbSCLCiB>; Mon, 11 Mar 2002 21:38:01 -0500
+	id <S310362AbSCLCpl>; Mon, 11 Mar 2002 21:45:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310356AbSCLChy>; Mon, 11 Mar 2002 21:37:54 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4876 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S310348AbSCLChm>;
-	Mon, 11 Mar 2002 21:37:42 -0500
-Message-ID: <3C8D69E3.3080908@mandrakesoft.com>
-Date: Mon, 11 Mar 2002 21:37:23 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Bill Davidsen <davidsen@tmr.com>, LKML <linux-kernel@vger.kernel.org>
+	id <S310361AbSCLCpV>; Mon, 11 Mar 2002 21:45:21 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:11538 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S310359AbSCLCpO>; Mon, 11 Mar 2002 21:45:14 -0500
 Subject: Re: [patch] My AMD IDE driver, v2.7
-In-Reply-To: <Pine.LNX.4.33.0203111829550.1153-100000@home.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: jgarzik@mandrakesoft.com (Jeff Garzik)
+Date: Tue, 12 Mar 2002 02:57:17 +0000 (GMT)
+Cc: torvalds@transmeta.com (Linus Torvalds), davidsen@tmr.com (Bill Davidsen),
+        linux-kernel@vger.kernel.org (LKML)
+In-Reply-To: <3C8D5CCD.3050208@mandrakesoft.com> from "Jeff Garzik" at Mar 11, 2002 08:41:33 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16kcTV-0002ar-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+> Are such random vendor-specific commands really that common?
 
->
->On Mon, 11 Mar 2002, Jeff Garzik wrote:
->
->>If filtering is done, I agree the filter feature is disable-able if the
->>kernel builder / sysadmin desires such.  Disable the filter by default,
->>if that's your fancy.  But let us filter.  :)
->>
->
->BUT WHAT THE HELL IS THE POINT?
->
->Don't you get that? If the sysadmin can turn the filtering off, so can any
->root program. And your worry seems to be the CRM kind of disk locking
->utility which most _definitely_ would do exactly that if it is as evil as
->you think it is.
->
-dynamic filtering sucks, I agree, and I am not arguing for that.
+Not very
 
->And if you hardcode the filtering at compile-time in the kernel, that
->means that you've now painted yourself into the corner that you already
->seemed to admit was not a good idea - the same way it's not a good idea
->for network filtering.
->
-No, I think hardcoding at compile time is useful here.
+> Linus, would it be acceptable to you to include an -optional- filter for 
+> ATA commands?  There is definitely a segment of users that would like to 
+> firewall their devices, and I think (as crazy as it may sound) that 
+> notion is a valid one.
 
-It serves to encourage openness, nobody is forced to use it, and it 
-provides an additional layer of protection for those that choose to use 
-it.  That is the point.  It's a choice, and you don't have to enable it 
-in your kernel.  But there seems to be enough demand that it should be 
-at least an option.
-
-    Jeff
-
-
-
-
-
+Jeff -I like the idea of the filters - but if the ATA command raw stuff
+is CAP_SYS_RAWIO then its the same right set as inb/outb. Beyond that
+its a job for the NSA and RSBAC stuff ?

@@ -1,71 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261230AbUCALzQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 06:55:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbUCALzQ
+	id S261233AbUCAL7o (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 06:59:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261231AbUCAL7n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 06:55:16 -0500
-Received: from mail-04.iinet.net.au ([203.59.3.36]:56032 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S261230AbUCALzG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 06:55:06 -0500
-Message-ID: <4043227A.6050806@cyberone.com.au>
-Date: Mon, 01 Mar 2004 22:46:02 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] SMT Nice 2.6.4-rc1-mm1
-References: <200403011752.56600.kernel@kolivas.org> <200403012225.59538.kernel@kolivas.org> <4043205C.7050109@cyberone.com.au> <200403012240.34535.kernel@kolivas.org>
-In-Reply-To: <200403012240.34535.kernel@kolivas.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 1 Mar 2004 06:59:43 -0500
+Received: from mail.tpgi.com.au ([203.12.160.61]:62383 "EHLO mail4.tpgi.com.au")
+	by vger.kernel.org with ESMTP id S261233AbUCAL7i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Mar 2004 06:59:38 -0500
+Subject: Re: Dropping CONFIG_PM_DISK?
+From: Nigel Cunningham <ncunningham@users.sourceforge.net>
+Reply-To: ncunningham@users.sourceforge.net
+To: Pavel Machek <pavel@ucw.cz>
+Cc: M?ns Rullg?rd <mru@kth.se>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040301103946.GA9171@atrey.karlin.mff.cuni.cz>
+References: <1ulUA-33w-3@gated-at.bofh.it>
+	 <20040229161721.GA16688@hell.org.pl> <20040229162317.GC283@elf.ucw.cz>
+	 <yw1x4qt93i6y.fsf@kth.se> <20040229181053.GD286@elf.ucw.cz>
+	 <yw1xznb120zn.fsf@kth.se> <20040301094023.GF352@elf.ucw.cz>
+	 <yw1xhdx8ani6.fsf@kth.se>  <20040301103946.GA9171@atrey.karlin.mff.cuni.cz>
+Content-Type: text/plain
+Message-Id: <1078135138.3884.19.camel@laptop-linux.wpcb.org.au>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4-8mdk 
+Date: Mon, 01 Mar 2004 22:58:58 +1300
 Content-Transfer-Encoding: 7bit
+X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Can you provide specific examples? I can fix bugs if I'm given
+reproducible issues instead of hand waving :>
 
+Nigel
 
-Con Kolivas wrote:
+On Mon, 2004-03-01 at 23:39, Pavel Machek wrote:
+> It is latest, but not most stable.
 
->On Mon, 1 Mar 2004 10:37 pm, Nick Piggin wrote:
->
->>Con Kolivas wrote:
->>
->>>On Mon, 1 Mar 2004 05:52 pm, Con Kolivas wrote:
->>>
->>>>This patch provides full per-package priority support for SMT processors
->>>>(aka pentium4 hyperthreading) when combined with CONFIG_SCHED_SMT.
->>>>
->>>And here are some benchmarks to demonstrate what happens.
->>>P4 3.06Ghz booted with bios HT off as UP (up), SMP with mm1(mm1), SMP with
->>>mm1-smtnice(sn)
->>>
->>Pretty impressive numbers.
->>
->>How does it go on the desktop when running mprime at nice +19?
->>How much worse can latencies of the niced tasks become? Any idea?
->>
->
->Worst case scenario is easy to model; if a nice -19 task starts at exactly the 
->same time as a nice +19 task, the timeslices are 200 and 10ms. On 
->uniprocessor the nice+19 task will wait _at least_ 200 ms. On SMT nice SMP it 
->will be 200 - (200 * 15 / 100) so 170ms. That is of course worst case 
->scenario and still better than UP since the latency will be less, the task 
->will definitely start (interactive reinsertion wont affect it) and it will be 
->on a second runqueue.
->
->
-
-OK thats good. I'm still not exactly how to generalise the cpu power
-/ impact stuff, but that isn't critical. It should be done some time
-though.
-
-I'd be happy to see this patch in -mm. As Con mentioned, it would be
-probably good to merge it one major release after base sched domains
-is merged (if ever).
-
-Thanks Con.
+-- 
+My work on Software Suspend was graciously brought to you between
+October and January by LinuxFund.org.
 

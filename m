@@ -1,69 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262281AbTD3SDS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 14:03:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262284AbTD3SDS
+	id S262305AbTD3SHs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 14:07:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262306AbTD3SHs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 14:03:18 -0400
-Received: from [65.244.37.61] ([65.244.37.61]:3911 "EHLO
-	WSPNYCON1IPC.corp.root.ipc.com") by vger.kernel.org with ESMTP
-	id S262281AbTD3SDR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 14:03:17 -0400
-Message-ID: <170EBA504C3AD511A3FE00508BB89A9202032A98@exnanycmbx4.ipc.com>
-From: "Downing, Thomas" <Thomas.Downing@ipc.com>
-To: "Downing, Thomas" <Thomas.Downing@ipc.com>, linux-kernel@vger.kernel.org
-Subject: RE: CPIA unknown symbol - ?bug?
-Date: Wed, 30 Apr 2003 14:15:26 -0400
+	Wed, 30 Apr 2003 14:07:48 -0400
+Received: from pat.uio.no ([129.240.130.16]:26570 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S262305AbTD3SHr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 14:07:47 -0400
+To: Jan Harkes <jaharkes@cs.cmu.edu>
+Cc: David Howells <dhowells@warthog.cambridge.redhat.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       chas williams <chas@locutus.cmf.nrl.navy.mil>, torvalds@transmeta.com,
+       viro@math.psu.edu, David Howells <dhowells@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] add a stub by which a module can bind to the AFS syscall
+References: <20030430160239.A8956@infradead.org>
+	<27889.1051716620@warthog.warthog>
+	<20030430180659.GA29107@delft.aura.cs.cmu.edu>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 30 Apr 2003 20:19:32 +0200
+In-Reply-To: <20030430180659.GA29107@delft.aura.cs.cmu.edu>
+Message-ID: <shshe8fn8zv.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Let me repair some cardinal sins of omision:
+>>>>> " " == Jan Harkes <jaharkes@cs.cmu.edu> writes:
 
-kernel 2.5.67-bk2
-module-init-tools 0.9.9
+     > On Wed, Apr 30, 2003 at 04:30:20PM +0100, David Howells wrote:
+    >> The four calls implemented by Linux are:
+    >>
+    >> (*) int setpag(void)
+    >>
+    >> Set Process Authentication Group number. This could easily be
+    >> moved into the kernel proper, with the PAG being stored in or
+    >> depending from the task structure somehow.
+    >>
+    >> This would then obviate the need for OpenAFS to mangle the
+    >> setgroups and getgroups syscalls.
 
-usbcore, uhci_hcd, videodev, usbvideo, cpia, cpia_usb
-all built as modules, without complaint, installed
-without complaint.
+     > Has been proposed many times in the context of Coda. Perhaps
+     > now that there are 2 filesystems in the tree that want
+     > something like this we can afford the extra int in the task
+     > structure.
 
-Doesn' matter whether I do:
+Make that 3. We would be able to make good use of the same feature for
+strong authentication on NFS.
 
-modprobe cpia
-modprobe cpia_usb
-
-or modprobe cpia_usb
-
-
------Original Message-----
-From: Downing, Thomas 
-Sent: Wednesday, April 30, 2003 2:09 PM
-To: linux-kernel@vger.kernel.org
-Subject: CPIA unknown symbol - ?bug?
-
-
-When I load the module cpia_usb dmesg shows:
-
-cpia_usb: Unknown symbol cpia_register_camera
-cpia_usb: Unknown symbol cpia_unregister_camera
-
-Normally this would be no problem, I could fix that; BUT
-
-1. cpia.c does export both these methods, in fact they are
-the only two exported.
-
-2. more peculiar still - cpia_usb then successfully calls
-cpia_register_camera, the camera is registered according
-to dmesg, /proc/bus/usb/devices, /proc/cpia /proc/video/dev.
-
-And the camera works just fine!  So why the error?
-
-Am I missing something here?
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+Cheers,
+  Trond

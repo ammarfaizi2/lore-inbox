@@ -1,32 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261902AbVBKBkb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261999AbVBKBqT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261902AbVBKBkb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 20:40:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261999AbVBKBkb
+	id S261999AbVBKBqT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 20:46:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262000AbVBKBqS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 20:40:31 -0500
-Received: from pop.gmx.net ([213.165.64.20]:43652 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261902AbVBKBk0 (ORCPT
+	Thu, 10 Feb 2005 20:46:18 -0500
+Received: from pop.gmx.net ([213.165.64.20]:42130 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261999AbVBKBqQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 20:40:26 -0500
+	Thu, 10 Feb 2005 20:46:16 -0500
 X-Authenticated: #26200865
-Message-ID: <420C0D53.6000008@gmx.net>
-Date: Fri, 11 Feb 2005 02:41:39 +0100
+Message-ID: <420C0EAF.4000606@gmx.net>
+Date: Fri, 11 Feb 2005 02:47:27 +0100
 From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.2) Gecko/20040906
 X-Accept-Language: de, en
 MIME-Version: 1.0
-To: Jon Smirl <jonsmirl@gmail.com>
-CC: Matthew Garrett <mjg59@srcf.ucam.org>,
-       Kendall Bennett <kendallb@scitechsoft.com>,
-       =?ISO-8859-1?Q?Ville_Syrj=E4l=E4?= <syrjala@sci.fi>,
-       Bill Davidsen <davidsen@tmr.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Pavel Machek <pavel@ucw.cz>, ncunningham@linuxmail.org,
+To: Li-Ta Lo <ollie@lanl.gov>
+CC: Pavel Machek <pavel@ucw.cz>, Paulo Marques <pmarques@grupopie.com>,
+       Adam Sulmicki <adam@cfar.umd.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jon Smirl <jonsmirl@gmail.com>, ncunningham@linuxmail.org,
        ACPI List <acpi-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Kendall Bennett <kendallb@scitechsoft.com>
 Subject: Re: [ACPI] Re: [RFC] Reliable video POSTing on resume
-References: <1107695583.14847.167.camel@localhost.localdomain>	 <420BB267.8060108@tmr.com> <20050210192554.GA15726@sci.fi>	 <1108066096.4085.69.camel@tyrosine>	 <9e473391050210121756874a84@mail.gmail.com>	 <1108067388.4085.74.camel@tyrosine>	 <9e47339105021012341c94c441@mail.gmail.com>	 <420BC814.4050102@scitechsoft.com> <1108069596.4085.78.camel@tyrosine> <9e47339105021013285e390e2a@mail.gmail.com>
-In-Reply-To: <9e47339105021013285e390e2a@mail.gmail.com>
+References: <4202DF7B.2000506@gmx.net>	 <1107485504.5727.35.camel@desktop.cunninghams>	 <9e4733910502032318460f2c0c@mail.gmail.com>	 <20050204074454.GB1086@elf.ucw.cz>	 <9e473391050204093837bc50d3@mail.gmail.com>	 <20050205093550.GC1158@elf.ucw.cz>	 <1107695583.14847.167.camel@localhost.localdomain>	 <Pine.BSF.4.62.0502062107000.26868@www.missl.cs.umd.edu>	 <42077AC4.5030103@grupopie.com> <42077CFD.7030607@gmx.net>	 <20050207160105.GF8040@elf.ucw.cz> <1107793204.2930.18.camel@logarithm.lanl.gov>
+In-Reply-To: <1107793204.2930.18.camel@logarithm.lanl.gov>
 X-Enigmail-Version: 0.86.0.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
@@ -35,21 +34,33 @@ X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Smirl schrieb:
-> On Thu, 10 Feb 2005 21:06:36 +0000, Matthew Garrett <mjg59@srcf.ucam.org> wrote:
+Li-Ta Lo schrieb:
+> On Mon, 2005-02-07 at 09:01, Pavel Machek wrote:
 > 
->>On Thu, 2005-02-10 at 12:46 -0800, Kendall Bennett wrote:
+>>>>3 - it's always there and can be executed at *any* time: booting,
+>>>>returning from suspend, etc. Also it would allow the VESA framebuffer
+>>>>driver to change graphics mode at any time (for instance).
+>>>
+>>>OK, and what would force you to do the above in the kernel? If the code
+>>>lives in initramfs, it can be called very early, too.
 >>
->>
->>>So perhaps this problem is something similar?
+>>It will be easier to debug in kernel than in initramfs, for
+>>one. Kernel code is bad enough, but initramfs running while kernel is
+>>not even initialized is going to be even more "fun".
 > 
-> 
-> What type of computer has the problem? Who makes it's video chips?
+> One good thing about the emulator is it is very portable. There is
+> virtually no stdlib dependency. We can freely move it between user
+> and kernel space. When integrating the emulator into LinuxBIOS,
+> we first tried to use it as an user space program and then "port" it
+> into "kernel" space. The porting was done in a few days and the most
+> of the time was spent fixing LinuxBIOS itself than doing any "porting".
+> Actually, the same emulator source were used in both user and kernel
+> space as a kind of regression test.
 
-Samsung P35 notebook with ATI Mobility Radeon 9700.
-IIRC I saw the c000:xxxx jump on my machine.
-
-Give me code to test and I'll mail you the results in a few minutes.
+Do you have a kernel patch against a recent kernel? I'd like to try
+the in-kernel emulator. A userspace variant would also be fine, provided
+it solves the "VGA BIOS calls normal BIOS" type of problem I'm seeing
+on my machine (Samsung P35 laptop with ATI Radeon Mobility 9700).
 
 
 Regards,

@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266898AbUAXJ7V (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 04:59:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266900AbUAXJ7V
+	id S266902AbUAXKNO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 05:13:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266903AbUAXKNN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 04:59:21 -0500
-Received: from main.gmane.org ([80.91.224.249]:30432 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S266898AbUAXJ7U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 04:59:20 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: pmdisk working on ppc
-Date: Sat, 24 Jan 2004 10:59:17 +0100
-Message-ID: <yw1xllnx7jm2.fsf@ford.guide>
-References: <20040119105237.62a43f65@localhost> <1074483354.10595.5.camel@gaston>
- <1074489645.2111.8.camel@laptop-linux> <1074490463.10595.16.camel@gaston>
- <1074534964.2505.6.camel@laptop-linux> <1074549790.10595.55.camel@gaston>
- <20040122211746.3ec1018c@localhost> <1074841973.974.217.camel@gaston>
- <20040123183030.02fd16d6@localhost> <1074919185.814.82.camel@gaston>
- <20040124072007.GA233@elf.ucw.cz>
+	Sat, 24 Jan 2004 05:13:13 -0500
+Received: from yue.hongo.wide.ad.jp ([203.178.135.30]:8464 "EHLO
+	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
+	id S266902AbUAXKMs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jan 2004 05:12:48 -0500
+Date: Sat, 24 Jan 2004 19:13:24 +0900 (JST)
+Message-Id: <20040124.191324.128668023.yoshfuji@linux-ipv6.org>
+To: edi@gmx.de
+Cc: cfriesen@nortelnetworks.com, linux-kernel@vger.kernel.org
+Subject: Re: [OFFTOPIC] "smack the penguin"
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <20040124095208.GA20489@zombie.inka.de>
+References: <401177DB.8010901@nortelnetworks.com>
+	<20040124095208.GA20489@zombie.inka.de>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:zzrr18RFo97IMPhWe37yuak3M2Y=
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@ucw.cz> writes:
+In article <20040124095208.GA20489@zombie.inka.de> (at Sat, 24 Jan 2004 10:52:09 +0100), Eduard Bloch <edi@gmx.de> says:
 
-> Hi!
->
->> (RESENT, sorry if you got it already, something apparently went wrong
->> on the SMTP here)
->>
->> Ok, I hammered that for a day and got pmdisk (patrick's version) suspending
->> and resuming on a pismo G3 (with XFree etc.. running). Lots of rough
->> edges
->
-> Congratulations!
-> 								Pavel
-> [Now we'll have to do something with pmdisk vs. swsusp...]
+> #include <hallo.h>
+> * Chris Friesen [Fri, Jan 23 2004, 02:36:59PM]:
+> > Diversion for friday afternoon...how far can you get?
+> > 
+> > Personal best is 586
+> 
+> Which means that you are playing it either on a Windows box (what a
+> shame) or cheating somehow or you have a 5Ghz box or something else is
+> wrong on regular Linux systems. I do not any Linux user who got
+> more than 325.5 with the Linux version of the Shockwave plugin.
 
-pmdisk is the only one that ever was close to working on my laptop, do
-don't kill that one.  Some driver is (was?) preventing it from
-resuming properly.  Is there some list somewhere of drivers known to
-be pmdisk safe?
+I got 578.7 on Linux box (of course).
 
--- 
-Måns Rullgård
-mru@kth.se
+--yoshfuji
 

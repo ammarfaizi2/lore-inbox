@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263436AbTIBDli (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 23:41:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263400AbTIBDli
+	id S263452AbTIBDtm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 23:49:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263463AbTIBDtl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 23:41:38 -0400
-Received: from miranda.zianet.com ([216.234.192.169]:7686 "HELO
-	miranda.zianet.com") by vger.kernel.org with SMTP id S263436AbTIBDle
+	Mon, 1 Sep 2003 23:49:41 -0400
+Received: from h011.c007.snv.cp.net ([209.228.33.239]:26336 "HELO
+	c007.snv.cp.net") by vger.kernel.org with SMTP id S263452AbTIBDtl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 23:41:34 -0400
-Subject: Re: -mm patches on www.kernel.org ?
-From: Steven Cole <elenstev@mesatop.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Andrew Morton <akpm@osdl.org>, mfedyk@matchmail.com,
-       superchkn@sbcglobal.net, solt@dns.toxicfilms.tv,
-       linux-kernel@vger.kernel.org, webmaster@kernel.org
-In-Reply-To: <3F53E3AB.7070604@zytor.com>
-References: <Pine.LNX.4.51.0308071636100.31463@dns.toxicfilms.tv>
-	 <20030901211108.GE31760@matchmail.com>	<3F53B937.10103@sbcglobal.net>
-	 <20030901225339.GH31760@matchmail.com>	<3F53DEE1.5000709@zytor.com>
-	 <20030901171435.1ef05cc8.akpm@osdl.org>  <3F53E3AB.7070604@zytor.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1062474020.3477.16.camel@spc>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
-Date: 01 Sep 2003 21:40:20 -0600
+	Mon, 1 Sep 2003 23:49:41 -0400
+X-Sent: 2 Sep 2003 03:49:39 GMT
+Message-ID: <005e01c37105$1bddc600$323be90c@bananacabana>
+From: "Chris Peterson" <chris@potamus.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: PROBLEM: blank boot screen on linux-2.6.0-test4 (with workaround)
+Date: Mon, 1 Sep 2003 20:48:44 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-09-01 at 18:26, H. Peter Anvin wrote:
-> Andrew Morton wrote:
-> 
-> > 
-> > Well I always have a full rollup there, such as
-> > 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test4/2.6.0-test4-mm4/2.6.0-test4-mm4.gz
-> > 
-> > Is that what you mean?
-> > 
-> > (It would be good to add -aa patchsets too).
->  >
-> 
-> I might be able to do this.  However, please understand, everyone, that 
-> having to write individual scripts for each kernel author is turning 
-> into a horrible pain in the ass.  I think the only sane way to do this 
-> is to come up with a standard directory layout for specific user patches.
-> 
-> 	-hpa
+I upgraded a working Redhat 9 installation (linux-2.4.20) to
+linux-2.6.0-test4. When I boot, I see the "Uncompressing Linux..." message,
+but then the screen goes blank. I know the system did not crash because I
+can blindly login and shutdown.
 
-Or you could just post a few example scripts, along with a few more
-comments about how hard this is.  
+My previous kernel boot parameters included "vga=773" to give me 50 lines on
+my laptop display (a Dell Latitude C400). If I remove "vga=773" and add
+"video=vga16:off", then everything works correctly! If I include both
+"vga=773 video=vga16:off", then I get the blank boot screen again.
 
-Then you can watch your fence get whitewashed for free.  
+Why does "vga=773" work with linux-2.4.20, but not linux-2.60-test4? Why
+does linux-2.6.0-test4 require "video=vga16:off", but linux-2.4.20 does not?
 
-Steven
+thanks,
+chris
 

@@ -1,48 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261298AbVATRtz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261340AbVATRtQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261298AbVATRtz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 12:49:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261383AbVATRty
+	id S261340AbVATRtQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 12:49:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbVATRtP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 12:49:54 -0500
-Received: from fw.osdl.org ([65.172.181.6]:58266 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261298AbVATRtA (ORCPT
+	Thu, 20 Jan 2005 12:49:15 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:49079 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262219AbVATRrP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 12:49:00 -0500
-Date: Thu, 20 Jan 2005 09:48:47 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Peter Chubb <peterc@gelato.unsw.edu.au>, Chris Wedgwood <cw@f00f.org>,
-       Andrew Morton <akpm@osdl.org>, paulus@samba.org,
-       linux-kernel@vger.kernel.org, tony.luck@intel.com,
-       dsw@gelato.unsw.edu.au, benh@kernel.crashing.org,
-       linux-ia64@vger.kernel.org, hch@infradead.org, wli@holomorphy.com,
-       jbarnes@sgi.com
-Subject: Re: [patch 1/3] spinlock fix #1, *_can_lock() primitives
-In-Reply-To: <20050120164038.GA15874@elte.hu>
-Message-ID: <Pine.LNX.4.58.0501200947440.8178@ppc970.osdl.org>
-References: <16878.9678.73202.771962@wombat.chubb.wattle.id.au>
- <20050119092013.GA2045@elte.hu> <16878.54402.344079.528038@cargo.ozlabs.ibm.com>
- <20050120023445.GA3475@taniwha.stupidest.org> <20050119190104.71f0a76f.akpm@osdl.org>
- <20050120031854.GA8538@taniwha.stupidest.org> <16879.29449.734172.893834@wombat.chubb.wattle.id.au>
- <Pine.LNX.4.58.0501200747230.8178@ppc970.osdl.org> <20050120160839.GA13067@elte.hu>
- <Pine.LNX.4.58.0501200823010.8178@ppc970.osdl.org> <20050120164038.GA15874@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 20 Jan 2005 12:47:15 -0500
+Date: Thu, 20 Jan 2005 09:47:08 -0800
+From: Greg KH <greg@kroah.com>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: kobject_uevent.c moved to kernel connector.
+Message-ID: <20050120174708.GA10045@kroah.com>
+References: <20041124222857.GG3584@kroah.com> <1102504677.3363.55.camel@uganda> <20041221204101.GA9831@kroah.com> <1103707272.3432.6.camel@uganda> <20041225180241.38ffb9d8@zanzibar.2ka.mipt.ru> <20050104060211.50c2bf47@zanzibar.2ka.mipt.ru> <20050112190615.GC10885@kroah.com> <20050113011519.6e087fb4@zanzibar.2ka.mipt.ru> <20050119230518.GA5569@kroah.com> <1106210906.5264.46.camel@uganda>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1106210906.5264.46.camel@uganda>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 20 Jan 2005, Ingo Molnar wrote:
+On Thu, Jan 20, 2005 at 11:48:26AM +0300, Evgeniy Polyakov wrote:
+> On Wed, 2005-01-19 at 15:05 -0800, Greg KH wrote:
+> > On Thu, Jan 13, 2005 at 01:15:19AM +0300, Evgeniy Polyakov wrote:
+> > > --- include/linux/connector.h~	2005-01-13 00:21:55.000000000 +0300
+> > > +++ include/linux/connector.h	2005-01-13 00:53:21.000000000 +0300
+> > > @@ -24,6 +24,9 @@
+> > >  
+> > >  #include <asm/types.h>
+> > >  
+> > > +#define CONN_IDX_KOBJECT_UEVENT		0xabcd
+> > > +#define CONN_VAL_KOBJECT_UEVENT		0x0000
+> > > +
+> > >  #define CONNECTOR_MAX_MSG_SIZE 	1024
+> > >  
+> > >  struct cb_id
+> > > --- linux-2.6/drivers/connector/connector.c.orig	2005-01-13 00:21:23.000000000 +0300
+> > > +++ linux-2.6/drivers/connector/connector.c	2005-01-13 00:32:48.000000000 +0300
+> > > @@ -46,6 +46,8 @@
+> > >  
+> > >  static struct cn_dev cdev;
+> > >  
+> > > +int cn_already_initialized = 0;
+> > 
+> > <snip>
+> > 
+> > Hm, this patch needs to be rediffed, now that I've accepted the
+> > connector code, right?  The connector.c change seems to already be in
+> > your last connector patch, and the .h change is there with a different
+> > #define spelling, causing the uevent code to need to be changed.
+> > 
+> > Care to redo it?
 > 
-> You are right about UP, and the patch below adds the UP variants. It's
-> analogous to the existing wrapping concept that UP 'spinlocks' are
-> always unlocked on UP. (spin_can_lock() is already properly defined on
-> UP too.)
+> Sure. Patch attached. 
 
-Looking closer, it _looks_ like the spinlock debug case never had a 
-"spin_is_locked()" define at all. Or am I blind? Maybe UP doesn't 
-want/need it after all?
+Applied, thanks.
 
-		Linus
+greg k-h

@@ -1,88 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268269AbUIGQpj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268142AbUIGQtK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268269AbUIGQpj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 12:45:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268139AbUIGOi0
+	id S268142AbUIGQtK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 12:49:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268260AbUIGQrl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 10:38:26 -0400
-Received: from verein.lst.de ([213.95.11.210]:30617 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S268130AbUIGOgj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 10:36:39 -0400
-Date: Tue, 7 Sep 2004 16:36:32 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: akpm@osdl.org, manfred@colorfullife.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] make kmem_find_general_cachep static in slab.c
-Message-ID: <20040907143632.GA8480@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch>, akpm@osdl.org,
-	manfred@colorfullife.com, linux-kernel@vger.kernel.org
+	Tue, 7 Sep 2004 12:47:41 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:19109 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S268116AbUIGOiK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 10:38:10 -0400
+Subject: Re: Possible network issue in 2.6.8.1
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Joris Neujens <joris@discosmash.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0409071544570.6867@asus.discosmash.com>
+References: <Pine.LNX.4.58.0409071544570.6867@asus.discosmash.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1094564155.9152.13.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 07 Sep 2004 14:35:56 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Maw, 2004-09-07 at 14:55, Joris Neujens wrote:
+> We have ruled out the following:
+> Network source is slow (we were testing with the same FTP server all the
+> time, from which we normally download at 10MB/sec)
+> We tested with 3 different systems and network cards, and they all have
+> the same problem, and only with kernel 2.6.8
+> 
+> any thoughts?
 
---- 1.35/include/linux/slab.h	2004-09-03 11:08:25 +02:00
-+++ edited/include/linux/slab.h	2004-09-07 14:47:58 +02:00
-@@ -55,7 +55,6 @@
- /* prototypes */
- extern void kmem_cache_init(void);
- 
--extern kmem_cache_t *kmem_find_general_cachep(size_t, int gfpflags);
- extern kmem_cache_t *kmem_cache_create(const char *, size_t, size_t, unsigned long,
- 				       void (*)(void *, kmem_cache_t *, unsigned long),
- 				       void (*)(void *, kmem_cache_t *, unsigned long));
---- 1.146/mm/slab.c	2004-09-03 11:08:25 +02:00
-+++ edited/mm/slab.c	2004-09-07 14:48:33 +02:00
-@@ -562,6 +562,22 @@
- 	return cachep->array[smp_processor_id()];
- }
- 
-+static kmem_cache_t * kmem_find_general_cachep (size_t size, int gfpflags)
-+{
-+	struct cache_sizes *csizep = malloc_sizes;
-+
-+	/* This function could be moved to the header file, and
-+	 * made inline so consumers can quickly determine what
-+	 * cache pointer they require.
-+	 */
-+	for ( ; csizep->cs_size; csizep++) {
-+		if (size > csizep->cs_size)
-+			continue;
-+		break;
-+	}
-+	return (gfpflags & GFP_DMA) ? csizep->cs_dmacachep : csizep->cs_cachep;
-+}
-+
- /* Cal the num objs, wastage, and bytes left over for a given slab size. */
- static void cache_estimate (unsigned long gfporder, size_t size, size_t align,
- 		 int flags, size_t *left_over, unsigned int *num)
-@@ -2554,24 +2570,6 @@
- }
- 
- EXPORT_SYMBOL(kmem_cache_size);
--
--kmem_cache_t * kmem_find_general_cachep (size_t size, int gfpflags)
--{
--	struct cache_sizes *csizep = malloc_sizes;
--
--	/* This function could be moved to the header file, and
--	 * made inline so consumers can quickly determine what
--	 * cache pointer they require.
--	 */
--	for ( ; csizep->cs_size; csizep++) {
--		if (size > csizep->cs_size)
--			continue;
--		break;
--	}
--	return (gfpflags & GFP_DMA) ? csizep->cs_dmacachep : csizep->cs_cachep;
--}
--
--EXPORT_SYMBOL(kmem_find_general_cachep);
- 
- struct ccupdate_struct {
- 	kmem_cache_t *cachep;
+See the list archive, or the lwn article on broken routers mangling TCP
+window size negotiation. The lwn article has a nice discussion as well
+as workarounds if you need them.
+

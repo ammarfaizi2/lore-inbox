@@ -1,59 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264481AbTEPQMh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 12:12:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264482AbTEPQMh
+	id S264482AbTEPQPe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 12:15:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264485AbTEPQPd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 12:12:37 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:6321 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S264481AbTEPQMg (ORCPT
+	Fri, 16 May 2003 12:15:33 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:129 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S264482AbTEPQPc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 12:12:36 -0400
-Date: Fri, 16 May 2003 18:25:21 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: David van Hoose <davidvh@cox.net>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Support for SiS 961/961B/962/963/630S/630ET/633/733 IDE
-Message-ID: <20030516182521.A21496@ucw.cz>
-References: <20030516143021.A17346@ucw.cz> <3EC50CD9.6020508@cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3EC50CD9.6020508@cox.net>; from davidvh@cox.net on Fri, May 16, 2003 at 12:07:53PM -0400
+	Fri, 16 May 2003 12:15:32 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Date: Fri, 16 May 2003 18:28:07 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: [PATCH][2.5] VMWare doesn't like sysenter
+Cc: linux-kernel@vger.kernel.org, rddunlap@osdl.org
+X-mailer: Pegasus Mail v3.50
+Message-ID: <1AF6C870AF5@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 16, 2003 at 12:07:53PM -0400, David van Hoose wrote:
- 
-> > The goal of this patch is to add support for the new generation of
-> > MuTIOL southbridges by SiS, namely the 961/961B, 962 and 963. These
-> > integrate the IDE controller, unlike all other SiS chipsets where the
-> > controller is bound to the northbridge.
-> > 
-> > I had to do quite some research on what SiS IDE controllers exist that
-> > don't use the 96* southbridges, and thus found out that the 633 and 733
-> > controllers were missing. So those were added too.
-> > 
-> > This patch hovewer integrates a patch from Lionel which adds 630S/ET
-> > UDMA100 support.
-> > 
-> > And while doing the changes I did also some cleanups, mainly removing a
-> > bunch of debug code that doesn't seem very useful when lspci does the
-> > same job. And removing the config_drive_xfer_rate in favor of functions
-> > from ide-timing.h.
-> > 
-> > Tested on SiS963, works great.
-> > 
-> > Patches for current 2.4 and 2.5 attached.
+On 15 May 03 at 11:15, Zwane Mwaikambo wrote:
+> On Thu, 15 May 2003, Randy.Dunlap wrote:
 > 
-> I never thought about it, but my SiS963 is not recognized in lspci. The 
-> below is a link which has a diagram of the SiS648/SiS963 combo that is 
-> on my motherboard. Would it enhance performance any or would this 
-> correction just be cosmetic?
+> > On Thu, 15 May 2003 04:02:31 -0400 (EDT) Zwane Mwaikambo <zwane@linuxpower.ca> wrote:
+> > 
+> > | I get a monitor error in VMWare4 with a sysenter syscall enabled kernel, 
+> > | this patch simply disables sysenter based syscalls but doesn't clear the 
+> > | SEP bit in the capabilities.
+> > 
+> > | +static int __init do_nosysenter(char *s)
+> > | +{
+> > | +   nosysenter = 1;
+> > | +   return 1;
+> > | +}
+> > | +__setup("nosysenter", do_nosysenter);
+> > 
+> > Needs entry in Documentation/kernel-parameters.txt also
+> > if/when accepted.
+> 
+> Thanks for the heads up.
+> 
+> Index: linux-2.5.69-mm5/Documentation/kernel-parameters.txt
+> ===================================================================
+> RCS file: /build/cvsroot/linux-2.5.69/Documentation/kernel-parameters.txt,v
+> retrieving revision 1.1.1.1
+> diff -u -p -B -r1.1.1.1 kernel-parameters.txt
+> --- linux-2.5.69-mm5/Documentation/kernel-parameters.txt    6 May 2003 12:21:18 -0000   1.1.1.1
+> +++ linux-2.5.69-mm5/Documentation/kernel-parameters.txt    15 May 2003 15:14:23 -0000
+> @@ -1063,6 +1063,10 @@ running once the system is up.
+>  
+>     sym53c8xx=  [HW,SCSI]
+>             See Documentation/scsi/ncr53c8xx.txt.
+> +   
+> +   nosysenter  [IA-32]
+> +           Disable SYSENTER for syscalls, does not clear the SEP
+> +           capabilities bit.
 
-There will most likely be no change for you.
+RedHat's 9 backport of vsyscalls uses 'nosysinfo' name for 
+option which does simillar task (it just stops kernel from reporting
+relevant AT_SYSINFO completely).
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+BTW, what's reason for this backport? They just always put int 0x80
+into this page, so even on real CPU kernel booted with nosysinfo
+is faster than one which uses this vsyscall entry point.
+
+VMware's panic should be fixed in next update, but I'm afraid that
+penalty from exectuing code in upper couple of MBs of address space 
+will not disappear. Moving SYSINFO page from FFFFE000 to FF7FF000
+(PKMAP_BASE - PAGE_SIZE == VMALLOC_END + PAGE_SIZE) would fix both
+problems.
+                                                    Petr Vandrovec
+                                                    vandrove@vc.cvut.cz
+

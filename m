@@ -1,42 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264294AbTLVCRD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 21:17:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264301AbTLVCRD
+	id S264286AbTLVCts (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 21:49:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264289AbTLVCts
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 21:17:03 -0500
-Received: from fed1mtao02.cox.net ([68.6.19.243]:62922 "EHLO
-	fed1mtao02.cox.net") by vger.kernel.org with ESMTP id S264294AbTLVCRB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 21:17:01 -0500
-Date: Sun, 21 Dec 2003 18:17:00 -0800
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: Maciej Zenczykowski <maze@cela.pl>
-Cc: Arnaud Fontaine <arnaud@andesi.org>, Mike Fedyk <mfedyk@matchmail.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Oops with 2.4.23
-Message-ID: <20031222021659.GA4857@ip68-4-255-84.oc.oc.cox.net>
-References: <20031219224402.GA1284@scrappy> <Pine.LNX.4.44.0312200034560.15516-100000@gaia.cela.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0312200034560.15516-100000@gaia.cela.pl>
-User-Agent: Mutt/1.4.1i
+	Sun, 21 Dec 2003 21:49:48 -0500
+Received: from eastgate.starhub.net.sg ([203.116.1.189]:14598 "EHLO
+	eastgate.starhub.net.sg") by vger.kernel.org with ESMTP
+	id S264286AbTLVCtp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 21:49:45 -0500
+Date: Mon, 22 Dec 2003 10:52:17 +0800
+From: Richard Chan <rspchan@starhub.net.sg>
+Subject: [KBUILD] External modules,
+ SUBDIRS=<absolute path> => really odd include directories
+To: linux-kernel@vger.kernel.org
+Cc: sam@ravnborg.org
+Message-id: <3FE65C61.5010507@starhub.net.sg>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031016
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 20, 2003 at 12:35:24AM +0100, Maciej Zenczykowski wrote:
-> you did run memtest for a minimum dozen hours? sometimes it takes that 
-> long to find errors...
 
-On one machine (with a bad power supply, as it turned out) it took
-memtest86 almost 18 hours to report an error. So 12 hours isn't enough
-either.
+When building external modules with SUBDIRS on the command line set to 
+an absolute path, there
+are really odd includes in the gcc command line.
 
-(On a related note, one machine that I tested with mprime's Torture Test
-<http://www.mersenne.org/> took I think close to 43 hours to show a
-failure. In that case I don't know if the failure was the CPU or the
-motherboard, because in the end both failed on that system.)
+Example:
 
--Barry K. Nathan <barryn@pobox.com>
+I am building alsa-cvs against a current kernel tree.  I have built the 
+kernel+modules once using
+
+make -C /usr/src/linux-2.6.0-1.R  O=/usr/obj/2.6.0-1.R  EXTRAVERSION=-1.R
+
+Now I want to build the latest alsa-kernel modules from CVS:
+
+EXTMODDIR=/usr/src/alsa/alsa-kernel-20031220
+make -C /usr/src/linux-2.6.0-1.R O=/usr/obj/2.6.0-1.R 
+SUBDIRS=$EXTMODDIR  V=1 modules
+
+Here is an excerpt
+
+gcc -Wp,-MD,/usr/src/alsa/alsa-kernel-20031220/core/.hwdep.o.d -nostdinc 
+-iwithprefix include -D__KERNEL__
+   -Iinclude -Iinclude2 -I/usr/src/linux-2.6.0-1.R/include 
+-I/usr/src/alsa/alsa-kernel-20031220/core
+   -I/usr/src/linux-2.6.0-1.R//usr/src/alsa/alsa-kernel-20031220/core  
+-D__KERNEL__
+  -I/usr/src/linux-2.6.0-1.R/include  -I/usr/src/linux-2.6.0-1.R/include2
+  -I/usr/src/linux-2.6.0-1.R//usr/src/linux-2.6.0-1.R/include  -Wall  
+-Wstrict-prototypes
+ -Wno-trigraphs  -O2  -fno-strict-aliasing  -fno-common  -pipe  
+-mpreferred-stack-boundary=2  -march=athlon
+ -I/usr/src/linux-2.6.0-1.R/include/asm-i386/mach-default  
+-fomit-frame-pointer
+ -Wdeclaration-after-statement -DMODULE -DKBUILD_BASENAME=hwdep
+ -DKBUILD_MODNAME=snd_hwdep -c
+  -o /usr/src/alsa/alsa-kernel-20031220/core/hwdep.o 
+/usr/src/alsa/alsa-kernel-20031220/core/hwdep.c
+
+Note two weird paths where an absolute path is concatenated with $(srctree)
+
+   -I/usr/src/linux-2.6.0-1.R//usr/src/alsa/alsa-kernel-20031220/core
+  -I/usr/src/linux-2.6.0-1.R//usr/src/linux-2.6.0-1.R/include
+
+The first one looks like $(srctree)/<current build directory>, the 
+second one looks like
+$(srctree)/$(srctree)/include which is  odd.
+
+Is it a feature of the system that SUBDIRS is best specified as a 
+relative path to $(srctree)?
+How to account for the fact that $(srctree)/include is concatenated to 
+$(srctree)?
+
+2nd question: How do you get an include directory to precede 
+$(obj)/{include, include2}, $(srctree)/include?
+You see in this case I need to use the sound/*.h files from Alsa CVS so 
+I need my directory to win in the
+include path race. Currently, I copy the include files to 
+$(obj)/include/sound. Is there a more elegant way
+to specify an include directory that will precede both $(obj)/include 
+and $(srctree)/include?
+
+Cheers
+Richard
+
+
+
+
+
+
+
+
+
+
+
+
+

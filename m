@@ -1,98 +1,103 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280713AbRKBO4R>; Fri, 2 Nov 2001 09:56:17 -0500
+	id <S280709AbRKBO4R>; Fri, 2 Nov 2001 09:56:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280709AbRKBO4I>; Fri, 2 Nov 2001 09:56:08 -0500
-Received: from mail.scsiguy.com ([63.229.232.106]:8457 "EHLO aslan.scsiguy.com")
-	by vger.kernel.org with ESMTP id <S280712AbRKBOzw>;
+	id <S280712AbRKBO4J>; Fri, 2 Nov 2001 09:56:09 -0500
+Received: from [202.108.44.221] ([202.108.44.221]:7925 "HELO wm4.163.com")
+	by vger.kernel.org with SMTP id <S280711AbRKBOzw>;
 	Fri, 2 Nov 2001 09:55:52 -0500
-Message-Id: <200111021455.fA2EtVY46425@aslan.scsiguy.com>
-To: Krzysztof Halasa <khc@pm.waw.pl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: new aic7xxx bug, 2.4.13/6.2.4 
-In-Reply-To: Your message of "02 Nov 2001 15:03:09 +0100."
-             <m3n1259so2.fsf@defiant.pm.waw.pl> 
-Date: Fri, 02 Nov 2001 07:55:30 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Message-Id: <3BE2B180.28918@bj221.163.com>
+Date: Fri, 2 Nov 2001 22:45:20 +0800 (CST)
+From: =?ISO-8859-1?Q? "=CD=F5=C0=E8=C3=F7" ?= <firetiger977@163.com>
+To: linux-kernel@vger.kernel.org
+Subject: RE: OOPS: reiserfs panic
+X-Priority: 1
+X-Originating-IP: [211.99.162.14]
+X-Mailer: COREMAIL
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Jason Lunz <j@falooley.org> writes:
->
->> I'm having troubles with the last few revisions of the new Gibbs aic7xxx
->> driver that until now has served me well. This is kernel
->> 2.4.13-preempt-lvmrc4 with the 6.2.4 scsi driver, but I saw it happen on
->> 2.4.12 with 6.2.1. I haven't tried older versions with this CD.
->
->Something similar here, but I have disks on this SCSI :-(
+RedHat 7.2 shipped with kernel 2.4.7.
+I have tried the 2.4.14-pre7, panic too.
 
-Actually not that similar.
+ 
+/var/log/messages:
 
->scsi0:A:0: parity error detected in Message-in phase. SEQADDR(0x1b6) SCSIRATE(
->0x0) 
+Nov  3 17:35:32 localhost kernel: vs-5150: search_by_key: invalid format 
+found in block 20795. Fsck?
 
-Here's your first clue.  Parity errors occur on "broken" SCSI busses.
-Your cabling or terminator is bad, you have a bent pin, or just too
-much noise in and around your cabling.
+Nov  3 17:35:32 localhost kernel: vs-13050: reiserfs_update_sd: i/o failure 
+occurred trying to update [44468 44476 0x0 SD] stat data<4>is_leaf: item 
+location seems wrong (second one): *NEW* [44468 44474 0x0 SD], item_len 44, 
+item_location 4084, free_space(entry_count) 65535
 
->scsi0: Unexpected busfree in Message-out phase 
->SEQADDR == 0x166 
+ 
+fdisk output:
 
-When we tried to tell the target about the parity error during message-in
-phase, the target was unable to see our message without parity errors.
-So, it had to go bus free to terminate the transaction.  It is a bug
-here that we didn't properly identify the active transaction and abort
-it here due to some overly protective code, but that can be readily
-fixed.
+Disk /dev/hda: 255 heads, 63 sectors, 5005 cylinders
 
->scsi0:0:0:0: Attempting to queue an ABORT message 
+Units = cylinders of 16065 * 512 bytes
 
-Because we failed to abort the command above, the mid-layer
-timesout the command and we start recovery.
+    Device Boot    Start       End    Blocks   Id  System
 
->scsi0: Dumping Card State while idle, at SEQADDR 0x7 
->ACCUM = 0x33, SINDEX = 0x7, DINDEX = 0x8c, ARG_2 = 0x0 
->HCNT = 0x0 
->SCSISEQ = 0x12, SBLKCTL = 0x2 
-> DFCNTRL = 0x0, DFSTATUS = 0x29 
->LASTPHASE = 0x1, SCSISIGI = 0x0, SXFRCTL0 = 0x80 
->SSTAT0 = 0x5, SSTAT1 = 0xa 
->STACK == 0x3, 0x105, 0x160, 0xe4 
->SCB count = 20 
->Kernel NEXTQSCB = 19 
->Card NEXTQSCB = 19 
->QINFIFO entries:  
->Waiting Queue entries:  
->Disconnected Queue entries: 7:5  
->QOUTFIFO entries:  
->Sequencer Free SCB List: 8 11 4 5 10 15 2 3 1 0 9 13 14 6 12  
->Pending list: 5 
->Kernel Free SCB list: 7 12 0 4 10 6 9 14 3 1 8 11 15 13 2 18 17 16  
->DevQ(0:0:0): 0 waiting 
->DevQ(0:1:0): 0 waiting 
->(scsi0:A:0:0): Queuing a recovery SCB 
->scsi0:0:0:0: Device is disconnected, re-queuing SCB 
->Recovery code sleeping 
->(scsi0:A:0:0): Abort Tag Message Sent 
->(scsi0:A:0:0): SCB 5 - Abort Tag Completed. 
->Recovery SCB completes 
->Recovery code awake 
->aic7xxx_abort returns 0x2002 
+   /dev/hda1             1       383   3076416    b  Win95 FAT32
+   /dev/hda2           384       893   4096575    7  HPFS/NTFS
+   /dev/hda3   *       894       912    152617+  83  Linux
+   /dev/hda4           913      5005  32877022+   f  Win95 Ext'd (LBA)
+   /dev/hda5           913      1422   4096543+   7  HPFS/NTFS
+   /dev/hda6          1423      2442   8193118+   b  Win95 FAT32
+   /dev/hda7          2443      3717  10241406    b  Win95 FAT32
+   /dev/hda8          3718      4227   4096543+  83  Linux
+   /dev/hda9          4228      4278    409626   82  Linux swap
+   /dev/hda10         4279      5005   5839596   83  Linux
 
-And we abort the transaction successfully.
+ The reiserfs created at hda10.
 
->scsi0:A:0: parity error detected in Message-in phase. SEQADDR(0x1b6) SCSIRATE(
->0x0) 
->Kernel panic: HOST_MSG_LOOP with invalid SCB ff 
+ 
+3.x.0k-pre10
 
-We get another parity error in a state without a proper connection (probably
-on the identify message after a reselection) and some more defensive
-programming prevents us from handling it correctly. 8-(
+mkreiserfs /dev/hda10 display:
 
-The end result is that you need to fix your SCSI bus to be more reliable.
-I will fix the issues you've discovered in parity error and unexpected
-busfree handling in the next driver release.  If your bus is working
-properly, you shouldn't see these errors.
+mkreiserfs: Guessing about desired format..
+mkreiserfs: Kernel 2.4.14-pre7 is running.
 
---
-Justin
+13107k will be used
+Block 16 (0x30a) contains super block of format 3.6 with standart journal
+Block count: 1459899
+Bitmap number: 45
+Blocksize: 4096
+Free blocks: 1451643
+Root block: 8211
+Tree height: 2
+Hash function used to sort names: "r5"
+Objectid map size 2, max 972
+Journal parameters:
+        Device [0x0]
+        Magic [0x527942af]
+        Size 8193 (including journal header) (first block 18)
+        Max transaction length 1024
+        Max batch size 900
+        Max commit age 30
+      Spase reserved by journal: 0
+      Correctness checked after mount 1
+      Fsck field 0x0
+
+ 
+
+ 
+
+ 
+
+ 
+
+=============================================================
+http://dating.163.com    倾心的约会对象，完全可以这里掌握！
+http://sms.163.com       美好的感情在于不断的联系！
+http://stock.163.com     解股市烦恼，打开财富之门由此开始 ...
+
+ 
+
+
+
+
+

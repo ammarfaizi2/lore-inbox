@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281300AbRKEUBk>; Mon, 5 Nov 2001 15:01:40 -0500
+	id <S281301AbRKEUEA>; Mon, 5 Nov 2001 15:04:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281303AbRKEUBa>; Mon, 5 Nov 2001 15:01:30 -0500
-Received: from domino1.resilience.com ([209.245.157.33]:32482 "EHLO
-	intranet.resilience.com") by vger.kernel.org with ESMTP
-	id <S281300AbRKEUBU>; Mon, 5 Nov 2001 15:01:20 -0500
-Mime-Version: 1.0
-Message-Id: <p05100302b80c9aab7f40@[10.128.7.49]>
-In-Reply-To: <4.3.2.7.2.20011105080435.00bc7620@10.1.1.42>
-In-Reply-To: <200111042213.fA4MDoI229389@saturn.cs.uml.edu>
- <4.3.2.7.2.20011105080435.00bc7620@10.1.1.42>
-Date: Mon, 5 Nov 2001 11:58:27 -0800
-To: Stephen Satchell <satch@concentric.net>, dalecki@evision.ag,
-        "Albert D. Cahalan" <acahalan@cs.uml.edu>
-From: Jonathan Lundell <jlundell@pobox.com>
-Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-Cc: Jakob =?iso-8859-1?Q?=D8stergaard?= <jakob@unthought.net>,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
-        Alexander Viro <viro@math.psu.edu>, John Levon <moz@compsoc.man.ac.uk>,
-        linux-kernel@vger.kernel.org,
-        Daniel Phillips <phillips@bonn-fries.net>, Tim Jansen <tim@tjansen.de>
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+	id <S281303AbRKEUDv>; Mon, 5 Nov 2001 15:03:51 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:26555 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S281301AbRKEUDm>; Mon, 5 Nov 2001 15:03:42 -0500
+Date: Mon, 5 Nov 2001 13:03:34 -0700
+Message-Id: <200111052003.fA5K3YG10879@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] New devfs core
+In-Reply-To: <Pine.GSO.4.21.0111051447060.24894-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.LNX.4.33L.0111051742231.27028-100000@duckman.distro.conectiva>
+	<Pine.GSO.4.21.0111051447060.24894-100000@weyl.math.psu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 8:38 AM -0800 11/5/01, Stephen Satchell wrote:
->As for version fields:  I HATE THEM.  So much of my older code has 
->bloat because of "version fields" that require that I have multiple 
->blocks of code for the same damn thing.  POSIX code that has to 
->determine which version of POSIX is implemented, and tailor the code 
->at run-time to the whims of the OS gods.  BLOAT BLOAT BLOAT. 
->Besides, you already have a "version field", or is the release level 
->of Linux too coarse for you?
+Alexander Viro writes:
+> On Mon, 5 Nov 2001, Rik van Riel wrote:
+> > On Mon, 5 Nov 2001, Richard Gooch wrote:
+> > > But since interest has been expressed ;-) in seeing this code, here it
+> > > is. So don't flame if you see problems. Remember that this is a very
+> > > rough cut. I have a list of "issues" to process before I consider this
+> > > alpha quality.
+> > 
+> > This is nice for 2.5, but I have to wonder what you're
+> > going to do in order to get the bugs in 2.4 devfs fixed.
+> 
+> Come on.  Regardless of the quality of new code (I hadn't looked at
+> the patched tree yet, but from the look at patch itself locking is
+> heavily overdone, so my gut feeling is that there are deadlocks),
+> it's no worse than the old one.
 
-Either too coarse or too fine, often enough, when we're talking about 
-a semi-independent module. Consider, though, a more legitimate 
-non-bloating use of a version field. Rather than try to support all 
-versions, use it to determine whether the two ends of the 
-communication channel are compatible, and fail gracefully because of 
-the incompatible version. Tell the user to update the app, or 
-whatever.
--- 
-/Jonathan Lundell.
+As I said, this is a very rough cut. I'm not actually suggesting this
+is code people should run (although testing reports are always
+welcome), it's a release so that people can see what I'm doing.
+
+> I.e. as long as it doesn't touch the rest of tree, situation hadn't
+> become worse.  Usual arguments re lost testing obviously do not
+> apply - replaced code is known to be broken _and_ impossible to fix
+> without a massive rewrite.  So all old testing had been worthless
+> anyway.
+
+Surprising as it may seem, I agree with Al. The old code has too many
+problems, and can't be fixed with just a tweak here and there. A
+re-write is what is needed, and a re-write is what I'm doing. The new
+code will be tested, and once I'm satisfied that it works at least as
+well as the old code, I'll submit it to Linus. Any remaining problems
+should be much easier to fix in the new code, I hope.
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

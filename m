@@ -1,42 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131557AbQLIAfy>; Fri, 8 Dec 2000 19:35:54 -0500
+	id <S130420AbQLIAlP>; Fri, 8 Dec 2000 19:41:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135190AbQLIAfo>; Fri, 8 Dec 2000 19:35:44 -0500
-Received: from web4302.mail.yahoo.com ([216.115.104.194]:28428 "HELO
-	web4302.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S131557AbQLIAfi>; Fri, 8 Dec 2000 19:35:38 -0500
-Message-ID: <20001209000506.26629.qmail@web4302.mail.yahoo.com>
-Date: Fri, 8 Dec 2000 16:05:06 -0800 (PST)
-From: T R Vishwanath <trvish@yahoo.com>
-Subject: Any cure for kupdate freezing ongoing  I/Os ? 
-To: linux-kernel@vger.kernel.org
-Cc: trvish@yahoo.com
+	id <S131200AbQLIAlH>; Fri, 8 Dec 2000 19:41:07 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:2308 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130420AbQLIAku>; Fri, 8 Dec 2000 19:40:50 -0500
+Subject: Re: question about tulip patch to set CSR0 for pci 2.0 bus
+To: becker@scyld.com (Donald Becker)
+Date: Sat, 9 Dec 2000 00:12:07 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10012081558000.797-100000@vaio.greennet> from "Donald Becker" at Dec 08, 2000 04:09:47 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E144XcX-0004gd-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am running the 2.2.14 linux kernel, and doing
-buffered writes to disk. Whenever kupdate runs, I
-notice that the I/Os freeze up, sometimes taking 10-20
-seconds to complete. Are there any patches to the
-kernel to prevent thsi kind of behaviour ? I am using
-the standard bdflush parameters. Is this problem
-ameliorated in the 2.4 kernel ? 
+> Just in case you didn't catch it: this is not a PCI v2.0 vs. v2.1 issue.
+> The older Tulips work great with PCI v2.0 and v2.1.  The bug is with longer
+> bursts and a specific i486 chipset/motherboard.
 
- Any help on this would be greatly appreciated. Since
-I am not a member of this list, could you please reply
-
-to trvish@yahoo.com ?
-
-Thanks
-T R Vishwanath.
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Shopping - Thousands of Stores. Millions of Products.
-http://shopping.yahoo.com/
+Which chipset. I can then add it to the PCI quirks and we can do it nicely
+in 2.4 so that drivers can test the pci quirk list
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

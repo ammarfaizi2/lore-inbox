@@ -1,70 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288854AbSBMUTT>; Wed, 13 Feb 2002 15:19:19 -0500
+	id <S288855AbSBMU1I>; Wed, 13 Feb 2002 15:27:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288855AbSBMUTI>; Wed, 13 Feb 2002 15:19:08 -0500
-Received: from [208.252.96.252] ([208.252.96.252]:26716 "EHLO
-	riven.plaza.ds.adp.com") by vger.kernel.org with ESMTP
-	id <S288854AbSBMUSy>; Wed, 13 Feb 2002 15:18:54 -0500
-Date: Wed, 13 Feb 2002 12:18:48 -0800
-From: "Seth D. Alford" <setha@plaza.ds.adp.com>
-To: linux-kernel@vger.kernel.org
-Cc: "Seth D. Alford" <setha@plaza.ds.adp.com>
-Subject: LDT_ENTRIES in ldt.h: why 8192?
-Message-Id: <20020213121848.A31469@mallard.plaza.ds.adp.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	id <S288859AbSBMU07>; Wed, 13 Feb 2002 15:26:59 -0500
+Received: from hal.astro.umn.edu ([128.101.221.100]:15273 "EHLO astro.umn.edu")
+	by vger.kernel.org with ESMTP id <S288855AbSBMU0v>;
+	Wed, 13 Feb 2002 15:26:51 -0500
+Date: Wed, 13 Feb 2002 14:26:46 -0600
+From: kelley eicher <carde@astro.umn.edu>
+To: Rik Faith <faith@alephnull.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: scsi abort 0x2002 and eth0: too much work on a dual amd 760mpx system
+Message-ID: <20020213142646.F12947@astro.umn.edu>
+In-Reply-To: <15466.45319.699865.592862@photon.alephnull.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="cpvLTH7QU4gwfq3S"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <15466.45319.699865.592862@photon.alephnull.com>; from faith@alephnull.com on Wed, Feb 13, 2002 at 01:31:35PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting "ldt allocation failures" on one of my systems.  I know of Manfred
-Spraul's patch for this for 2.4.17.  I'm using 2.4.12, though, and was
-wondering about an alternate solution.  What would happen if LDT_ENTRIES was
-reduced, to, say, 4096, or 512, instead of 8192?
 
-.../include/asm-i386/ldt.h specifies:
+--cpvLTH7QU4gwfq3S
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-	/* Maximum number of LDT entries supported. */
-	#define LDT_ENTRIES	8192
+rik-
 
-This was set to 8192 in version 0.99.15, in December, 1993, according to what I
-could find by retrieving different revisions of the kernel.
+i have done extensive cpu load + i/o testing on the 760mp machine. it handl=
+es
+perfectly under very high cpu activity. one thing i should mention though is
+that neither of these chipsets, amd 760mp and amd760mpx, work with multi-
+processor specification 1.4 under linux. i had several problems using m.p.s.
+1.4 on the 760mp in dual processor mode and the 760mpx wouldn't even boot
+with m.p.s. 1.4 enabled.
 
-I instrumented the kernel by adding a printk to the write_ldt subroutine.
-Here's what I did, in the form of a patch:
+as an fyi to anyone listening, the 760mpx crashed while loading any smp lin=
+ux
+kernel during apic timer calibration.
 
-diff -Naur linux-2.4.12.orig/arch/i386/kernel/ldt.c linux-2.4.12/arch/i386/kernel/ldt.c
---- linux-2.4.12.orig/arch/i386/kernel/ldt.c	Thu Jul 26 13:29:45 2001
-+++ linux-2.4.12/arch/i386/kernel/ldt.c	Fri Feb  1 16:50:19 2002
-@@ -59,6 +59,8 @@
- 	if (copy_from_user(&ldt_info, ptr, sizeof(ldt_info)))
- 		goto out;
- 
-+	printk(KERN_DEBUG "write_ldt: ldt_info.entry_number: %d\n", ldt_info.entry_number);
-+
- 	error = -EINVAL;
- 	if (ldt_info.entry_number >= LDT_ENTRIES)
- 		goto out;
----end of patch----
+so my suggestion rik, if you haven't done this already, is to change the
+multi- processor specification in your bios from 1.4 to 1.1.
 
-Yes, this slows down the system, and it fills up /var.  And I would never think
-about doing this on a production system.  And there's probably a more efficient
-way to figure out the "high water mark" of LDT entry usage using /proc, or a
-static variable.
+-kelley
 
-In any case, the highest entry we got was 4.  We weren't using WINE.
-It seems somewhat wasteful to have many processes allocating 64 kbyte
-of memory for LDT's until no more processes can run, when each process
-uses only 4*8=32 bytes of the 64 kbyte LDT.
 
-I tried to find the answer to this in the lkml archives.  I couldn't
-find an lkml archive going back to 1993.  uwsg's only goes back to 1995,
-and the other lkml archives don't appear to go back even that far.
+On Wed, Feb 13, 2002 at 01:31:35PM -0500, Rik Faith wrote:
+> I'm seeing possibly related problems with a 760MP board (Tyan Tiger MP)
+> and 3ware adapters.  I can very reproduce the problem if I run two
+> instances of burnK7 (from cpuburn: http://users.ev1.net/~redelm/) and
+> then do an I/O operation.  Due to what I think is a bug in the 3ware
+> code, however, my machine locks hard during the SCSI reset.  Could you
+> try burnK7 (the idea is to load the CPUs -- not to heat them up) and see
+> if your problem gets worse?
+>=20
+> I was hoping to "fix" my problem by getting a AMD-760MPX MB from Asus,
+> but I'm no longer sure that's a good idea.  I'm currently running Linux
+> with maxcpus=3D1 on the boot prompt -- the system seems very stable when
+> only one CPU is being used -- have you tried that?
+>=20
+> The general problem may be that an interrupt gets lost, but I'd like to
+> get more evidence that leads to that conclusion.  Thanks, Rik.
+>=20
+>=20
+> BTW, I use:
+>     while :; do date; strace fdisk -l /dev/sda; uptime; echo; sleep 5; do=
+ne
+>=20
+> and then look for a stall at "read(4," when I start the second burnK7.
+> If I kill both burnK7's quick enough, the 3ware card will recover --
+> otherwise, the machine locks.
 
-Thanks,
+--=20
 
---Seth Alford
-setha@plaza.ds.adp.com
+ >> kelley j eicher
+<<  UNIX architect
+ >> Univ. of MN Astronomy Dept.
+<<  ph: (612) 626-2067 or (612) 624-3589
+ >> fx: (612) 626-2029
+<<  office: 385 physics
+ >> carde at astro dot umn dot edu
+
+--cpvLTH7QU4gwfq3S
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.2 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8aswGF3O5KT+A1xQRAmE3AJ9k1JR5eFollJvFIIAwgmdgg1uCbACcDl3q
+adVQoTOt/c0TQJdLqhdpcdY=
+=a4lY
+-----END PGP SIGNATURE-----
+
+--cpvLTH7QU4gwfq3S--

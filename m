@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262592AbVAPTmm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262597AbVAPTp3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262592AbVAPTmm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 14:42:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262594AbVAPTmm
+	id S262597AbVAPTp3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 14:45:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262591AbVAPTp3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 14:42:42 -0500
-Received: from opersys.com ([64.40.108.71]:17938 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S262592AbVAPTm3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 14:42:29 -0500
-Message-ID: <41EAC560.30202@opersys.com>
-Date: Sun, 16 Jan 2005 14:49:52 -0500
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: tglx@linutronix.de, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Robert Wisniewski <bob@watson.ibm.com>
-Subject: Re: 2.6.11-rc1-mm1
-References: <20050114002352.5a038710.akpm@osdl.org> <1105740276.8604.83.camel@tglx.tec.linutronix.de> <41E85123.7080005@opersys.com> <20050116162127.GC26144@infradead.org>
-In-Reply-To: <20050116162127.GC26144@infradead.org>
-Content-Type: text/plain; charset=us-ascii
+	Sun, 16 Jan 2005 14:45:29 -0500
+Received: from smtp-100-sunday.noc.nerim.net ([62.4.17.100]:46353 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S262594AbVAPToA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jan 2005 14:44:00 -0500
+Date: Sun, 16 Jan 2005 20:46:30 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Greg KH <greg@kroah.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       LM Sensors <sensors@stimpy.netroedge.com>
+Subject: [PATCH 2.6] I2C: Kill i2c_client.id (4/5)
+Message-Id: <20050116204630.7296f884.khali@linux-fr.org>
+In-Reply-To: <20050116194653.17c96499.khali@linux-fr.org>
+References: <20050116194653.17c96499.khali@linux-fr.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> (4/5) Deprecate i2c_client.id.
 
-Christoph Hellwig wrote:
-> the lockless mode is really just loops around cmpxchg.  It's spinlocks
-> reinvented poorly.
+Now that i2c_client.id has no more users in the kernel (none that I
+could find at least) we could remove that struct member. I however think
+that it's better to only deprecate it at the moment, in case I missed
+users or any of the other patches are delayed for some reason. We could
+then delete the id member definitely in a month or so.
 
-I beg to differ. You have to use different spinlocks depending on
-where you are:
-- serving user-space
-- bh-derivatives
-- irq
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
 
-lockless is the same primitive regardless of your current state,
-it's not the same as spinlocks.
+diff -ruN linux-2.6.11-rc1.orig/include/linux/i2c.h linux-2.6.11-rc1/include/linux/i2c.h
+--- linux-2.6.11-rc1.orig/include/linux/i2c.h	2004-12-24 22:34:01.000000000 +0100
++++ linux-2.6.11-rc1/include/linux/i2c.h	2005-01-16 18:41:51.000000000 +0100
+@@ -144,7 +144,7 @@
+  * function is mainly used for lookup & other admin. functions.
+  */
+ struct i2c_client {
+-	int id;
++	__attribute__ ((deprecated)) int id;
+ 	unsigned int flags;		/* div., see below		*/
+ 	unsigned int addr;		/* chip address - NOTE: 7bit 	*/
+ 					/* addresses are stored in the	*/
 
-Karim
+
 -- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+Jean Delvare
+http://khali.linux-fr.org/

@@ -1,43 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265102AbRGBNOt>; Mon, 2 Jul 2001 09:14:49 -0400
+	id <S265189AbRGBN2n>; Mon, 2 Jul 2001 09:28:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265100AbRGBNOj>; Mon, 2 Jul 2001 09:14:39 -0400
-Received: from t2.redhat.com ([199.183.24.243]:37617 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S265085AbRGBNOf>; Mon, 2 Jul 2001 09:14:35 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <E15H3C2-0005qS-00@the-village.bc.nu> 
-In-Reply-To: <E15H3C2-0005qS-00@the-village.bc.nu> 
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: sjhill@cotw.com, adam@yggdrasil.com (Adam J. Richter),
-        linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org
-Subject: Re: linux-2.4.6-pre8/drivers/mtd/nand/spia.c: undefined symbols 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 02 Jul 2001 14:14:23 +0100
-Message-ID: <28944.994079663@redhat.com>
+	id <S265100AbRGBN2d>; Mon, 2 Jul 2001 09:28:33 -0400
+Received: from smtp1.fw.nextra.de ([212.169.185.140]:45741 "EHLO fw.nextra.de")
+	by vger.kernel.org with ESMTP id <S265085AbRGBN2W> convert rfc822-to-8bit;
+	Mon, 2 Jul 2001 09:28:22 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: AW: VM Requirement Document - v0.0
+X-MimeOLE: Produced By Microsoft Exchange V6.0.4417.0
+Date: Mon, 2 Jul 2001 15:27:55 +0100
+Message-ID: <10AA1A316C98214F8C73CB26D96CEAD8435BC7@bn-ex-01.intern.nextra.de>
+Thread-Topic: VM Requirement Document - v0.0
+Thread-Index: AcD/1W8o/DUJjtM2T7C/53TEvY6X7gDLY4nA
+From: "Jens Hoffmann" <J.Hoffmann@nextra.de>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-alan@lxorguk.ukuu.org.uk said:
->  So the Config.in is wrong since I can select spia on x86 
+> My laptop has 256mb of ram, 
+> but every day 
+> it runs the updatedb for locate. 
 
-Yep. I've added a few more dependencies like that to the map drivers too. I
-heard rumours that someone else had done similar changes, but nobody sent me
-a patch so those rumours can't be true.
+The remedy here is simple: Do not run updatedb from cron,
+but only when you made changes.
 
-I'll wait for Steven to fix this up and then send all those changes to
-Linus.
-
-Assuming, that is, that nobody else takes it upon themselves to keep
-resending small bits of the pending changes, gratuitously making it harder
-to me to keep in sync.
-
---
-dwmw2
-
-
+Greetings,
+   Jens

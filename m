@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263339AbTCNOmq>; Fri, 14 Mar 2003 09:42:46 -0500
+	id <S263334AbTCNOvD>; Fri, 14 Mar 2003 09:51:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263340AbTCNOmq>; Fri, 14 Mar 2003 09:42:46 -0500
-Received: from aslan.scsiguy.com ([63.229.232.106]:7177 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S263339AbTCNOmo>; Fri, 14 Mar 2003 09:42:44 -0500
-Date: Fri, 14 Mar 2003 07:53:05 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: Terry Barnaby <terry@beam.ltd.uk>, mmadore@aslab.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Reproducible SCSI Error with Adaptec 7902
-Message-ID: <1999490000.1047653585@aslan.scsiguy.com>
-In-Reply-To: <3E71B629.60204@beam.ltd.uk>
-References: <3E71B629.60204@beam.ltd.uk>
-X-Mailer: Mulberry/3.0.2 (Linux/x86)
+	id <S263336AbTCNOvD>; Fri, 14 Mar 2003 09:51:03 -0500
+Received: from ms-smtp-01.southeast.rr.com ([24.93.67.82]:6288 "EHLO
+	ms-smtp-01.southeast.rr.com") by vger.kernel.org with ESMTP
+	id <S263334AbTCNOvD>; Fri, 14 Mar 2003 09:51:03 -0500
+Message-ID: <3E71EEBA.2040800@nc.rr.com>
+Date: Fri, 14 Mar 2003 10:01:14 -0500
+From: William Cohen <wcohen@nc.rr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "J.A. Magallon" <jamagallon@able.es>
+CC: Mikael Pettersson <mikpe@user.it.uu.se>,
+       perfctr-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Perfctr-devel] Re: perfctr-2.5.0 released
+References: <200303110002.h2B02Uxa025848@harpo.it.uu.se> <20030314012502.GA20357@werewolf.able.es>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Our system is:
-> System: Dual Xeon 2.4GHz system using SuperMicro X5DA8 Motherboard.
-> SCSI: Adaptec 7902 onboard dual channel SCSI controller
-> Disks: 2 off Quantum Atlas 10K2 18G (160LW), 1 of Quantum 9G (80LW)
-> Disks: 1 off Seagate ST336607LW 36G (320LW)
-> System: RedHat 7.3 with updates to 18/02/03
-> Kernel: 2.4.18-24.7.xsmp
-> Aic79xx Driver: versions 1.0.0 and 1.1.0
+You might also look at OProfile (http://oprofile.sourceforge.net/). 
+There is an option in the oprofpp command to dump data OProfile collects 
+in gprof format.
 
-Is there some reason why you are using such old versions of the aic79xx
-driver?  You can obtain the latest version of the driver from here:
+-Will
 
-http://people.FreeBSD.org/~gibbs/linux/RPM/aic79xx/
-http://people.FreeBSD.org/~gibbs/linux/DUD/aic79xx/
+J.A. Magallon wrote:
+> 
+> On 03.11, Mikael Pettersson wrote:
+> 
+>> Version 2.5.0 of perfctr, the Linux/x86 performance
+>> monitoring counters driver, is now available at the usual
+>> place: http://www.csd.uu.se/~mikpe/linux/perfctr/
+>>
+> 
+> Perhaps this has been asked for a million times, but I'm new to perfctrs...
+> Is there any tool available to profile a program based on this ?
+> I have seen perfex, but that gives total counts. I would like something
+> like gprof... We are now optimizing some software and I would like to
+> make my colleagues leave Windows (they use Intel's VTune) and go to
+> Linux.
+> Or at least compare the same kind of things between VTune on win and
+> 'something' in Linux that also uses the counters. They don't seem to
+> trust gprof. And, looking at the results, I'm beginning to untrust
+> VTune...
+> 
+> TIA
+> 
 
-or in source form for a 2.4.X or 2.5.X kernel from here:
-
-http://people.freebsd.org/~gibbs/linux/SRC/
-
---
-Justin
 

@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261369AbVAaVRR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261362AbVAaV0Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261369AbVAaVRR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 16:17:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbVAaVQ3
+	id S261362AbVAaV0Y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 16:26:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261379AbVAaV0Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 16:16:29 -0500
-Received: from opersys.com ([64.40.108.71]:30220 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261369AbVAaVQP (ORCPT
+	Mon, 31 Jan 2005 16:26:24 -0500
+Received: from ns1.lanforge.com ([66.165.47.210]:1251 "EHLO www.lanforge.com")
+	by vger.kernel.org with ESMTP id S261362AbVAaV0W (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 16:16:15 -0500
-Message-ID: <41FE9F57.5030603@opersys.com>
-Date: Mon, 31 Jan 2005 16:12:55 -0500
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Mon, 31 Jan 2005 16:26:22 -0500
+Message-ID: <41FEA27B.90508@candelatech.com>
+Date: Mon, 31 Jan 2005 13:26:19 -0800
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041020
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Tom Zanussi <zanussi@us.ibm.com>
-CC: Andi Kleen <ak@muc.de>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Roman Zippel <zippel@linux-m68k.org>,
-       Robert Wisniewski <bob@watson.ibm.com>, Tim Bird <tim.bird@AM.SONY.COM>
-Subject: Re: [PATCH] relayfs redux, part 2
-References: <16890.38062.477373.644205@tut.ibm.com>	<m1d5volksx.fsf@muc.de>	<16892.26990.319480.917561@tut.ibm.com>	<20050131125758.GA23172@muc.de>	<16894.23610.315929.805524@tut.ibm.com>	<41FE89E0.9030802@opersys.com> <16894.40247.701998.555392@tut.ibm.com>
-In-Reply-To: <16894.40247.701998.555392@tut.ibm.com>
-Content-Type: text/plain; charset=us-ascii
+To: Ulrich Drepper <drepper@gmail.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: close-exec flag not working in 2.6.9?
+References: <41FDE497.6040308@candelatech.com> <a36005b505013113084015a85@mail.gmail.com>
+In-Reply-To: <a36005b505013113084015a85@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ulrich Drepper wrote:
+> On Sun, 30 Jan 2005 23:56:07 -0800, Ben Greear <greearb@candelatech.com> wrote:
+> 
+>>   flags = fcntl(s, F_GETFL);
+>>   flags |= (FD_CLOEXEC);
+>>   if (fcntl(s, F_SETFL, flags) < 0) {
+> 
+> 
+> These have to be F_GETFD and F_SETFD respectively.  Note L -> D.
 
-Tom Zanussi wrote:
-> I don't think they need to be mutually exclusive - we could keep
-> relay_reserve(), but the relay_write() that's currently built on top
-> of relay_reserve() would use the putc code instead.  It's complicating
-> the API a bit, but if it makes everyone happy...
+Yes, that does seem to work much better.  It would have been
+a while before I ever figured that out on my own.
 
-Actually I think that this would be a much better use of relay_write(),
-which is unlikely to be used by any client that requires relay_reserve()
-to start with. Also, I don't think it complicates the API at all.
-Compared to the original API, what we've got now is very simple. So
-it basically boils down to:
-- use relay_write() if you want putc-like functionality.
-- use relay_reserve() if you want to reserve space and write separately.
+Thanks to you and the other people who pointed that out
+off the list!
 
-This is even better than having a separate ad-hoc mode.
+Ben
 
-Karim
 -- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
+

@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261555AbSJILqv>; Wed, 9 Oct 2002 07:46:51 -0400
+	id <S261564AbSJILr5>; Wed, 9 Oct 2002 07:47:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261560AbSJILqu>; Wed, 9 Oct 2002 07:46:50 -0400
-Received: from 213-187-164-2.dd.nextgentel.com ([213.187.164.2]:4231 "EHLO
-	mail.pronto.tv") by vger.kernel.org with ESMTP id <S261555AbSJILqr> convert rfc822-to-8bit;
-	Wed, 9 Oct 2002 07:46:47 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: ProntoTV AS
-To: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] O_STREAMING - flag for optimal streaming I/O
-Date: Wed, 9 Oct 2002 13:53:33 +0200
-User-Agent: KMail/1.4.1
-Cc: akpm@digeo.com, riel@conectiva.com.br
-References: <1034044736.29463.318.camel@phantasy>
-In-Reply-To: <1034044736.29463.318.camel@phantasy>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210091353.33286.roy@karlsbakk.net>
+	id <S261574AbSJILr4>; Wed, 9 Oct 2002 07:47:56 -0400
+Received: from out001pub.verizon.net ([206.46.170.140]:7096 "EHLO
+	out001.verizon.net") by vger.kernel.org with ESMTP
+	id <S261564AbSJILr4>; Wed, 9 Oct 2002 07:47:56 -0400
+Message-Id: <200210091149.g99BnWQ5000628@pool-141-150-241-241.delv.east.verizon.net>
+Date: Wed, 9 Oct 2002 07:49:32 -0400
+From: Skip Ford <skip.ford@verizon.net>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BK kernel commits list
+References: <3D9FFD21.8040404@pobox.com> <8973.1034111628@passion.cambridge.redhat.com> <18079.1034115320@passion.cambridge.redhat.com> <20021008.175153.20269215.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021008.175153.20269215.davem@redhat.com>; from davem@redhat.com on Tue, Oct 08, 2002 at 05:51:53PM -0700
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at out001.verizon.net from [141.150.241.241] at Wed, 9 Oct 2002 06:53:33 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 08 October 2002 04:38, Robert Love wrote:
-> Attached patch implements an O_STREAMING file I/O flag which enables
-> manual drop-behind of pages.
->
-> If the file has O_STREAMING set then the user has explicitly said "this
-> is streaming data, I know I will not revisit this, do not cache
-> anything".  So we drop pages from the pagecache before our current
-> index.  We have to fiddle a bit to get writes working since we do
-> write-behind but the logic is there and it works.
+David S. Miller wrote:
+> 
+> I've created:
+> 
+>     bk-commits-head@vger.kernel.org
+>     bk-commits-24@vger.kernel.org
+> 
+> (note: no "period" between the 2 and the 4)
+> Have at it.
 
-Great ;-)
-This is the nice way of doing what the akpm-patch did for me a while ago.
-
-roy
+Does this list need to allow posting as it does now?  Only one address
+needs write permission, or maybe a few addresses as backup.  Discussion
+should still happen on lkml.
 
 -- 
-Roy Sigurd Karlsbakk, Datavaktmester
-ProntoTV AS - http://www.pronto.tv/
-Tel: +47 9801 3356
-
-Computers are like air conditioners.
-They stop working when you open Windows.
-
+Skip

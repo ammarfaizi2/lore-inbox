@@ -1,35 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264333AbTLYRpw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Dec 2003 12:45:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264334AbTLYRpw
+	id S264337AbTLYSNZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Dec 2003 13:13:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264340AbTLYSNZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Dec 2003 12:45:52 -0500
-Received: from quechua.inka.de ([193.197.184.2]:38027 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S264333AbTLYRpv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Dec 2003 12:45:51 -0500
-From: Andreas Jellinghaus <aj@dungeon.inka.de>
-Subject: Re: [PATCH] add sysfs mem device support  [2/4]
-Date: Thu, 25 Dec 2003 18:48:51 +0100
-User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing	moment of clarity. (Debian GNU/Linux))
-Message-Id: <pan.2003.12.25.17.47.43.603779@dungeon.inka.de>
-References: <20031223002126.GA4805@kroah.com>	<20031223002439.GB4805@kroah.com> <20031223002609.GC4805@kroah.com>	<20031223131523.B6864@infradead.org> <1072193516.3472.3.camel@fur>	<20031223163904.A8589@infradead.org>
-To: linux-kernel@vger.kernel.org
+	Thu, 25 Dec 2003 13:13:25 -0500
+Received: from [195.62.234.69] ([195.62.234.69]:31646 "EHLO
+	mail.nectarine.info") by vger.kernel.org with ESMTP id S264337AbTLYSNY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Dec 2003 13:13:24 -0500
+Message-ID: <3FEB28F1.80305@nectarine.info>
+Date: Thu, 25 Dec 2003 19:14:09 +0100
+From: Giacomo Di Ciocco <admin@nectarine.info>
+Organization: Nectarine Networks
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+To: joe.korty@ccur.com
+Cc: Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       wli@holomorphy.com
+Subject: Re: 2.6.0 "Losing too many ticks!"
+References: <1072321519.1742.328.camel@cube> <20031225161748.GA31564@tsunami.ccur.com>
+In-Reply-To: <20031225161748.GA31564@tsunami.ccur.com>
+X-Enigmail-Version: 0.82.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Dec 2003 16:47:44 +0000, Christoph Hellwig wrote:
-> I disagree. For fully static devices like the mem devices the udev
-> indirection is completely superflous.
+Joe Korty wrote:
 
-If sysfs does not contain data on mem devices, we will need makedev.
+ > Or maybe IDE DMA is disabled. That would account for lost
+ > ticks during period of heavy disk IO.  Giacomo, type
+ >
+ >   hdparm /dev/hda
+ >
+ > If it shows 'using DMA' off, try
+ >
+ >   hdparm -d1 /dev/hda
+ >
+ > If that fails then the IDE driver you need is not
+ > configured in your kernel.
+ >
+ > Joe
 
-devfs did replace makedev. until udev can create all devices,
-it would need to re-introduce makedev.
+Hi Joe,
+enabling the dma mode has resolved the "Losing too many ticks" thing, now the
+system seems running fine, the unique strange thing is the "Unknown HZ value!
+(92) Assume 100." message, that appears before the output of any program launched.
 
-Andreas
+Thanks everyone for the support.
 
+Regards.
+
+-- 
+Giacomo Di Ciocco
+Nectarine Administrator
+Phone/Fax: (+39) 577663107
+Web: http://www.nectarine.info
+Irc: irc.nectarine.info #nectarine
+Email: admin@nectarine.info (pgp.mit.edu)

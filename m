@@ -1,100 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264322AbUEDMBf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264325AbUEDMQa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264322AbUEDMBf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 08:01:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264318AbUEDMBf
+	id S264325AbUEDMQa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 08:16:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264326AbUEDMQ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 08:01:35 -0400
-Received: from ozlabs.org ([203.10.76.45]:25494 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S264316AbUEDMBb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 08:01:31 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 4 May 2004 08:16:29 -0400
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:31184 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S264325AbUEDMQ0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 08:16:26 -0400
+Subject: Re: [PATCH][SELINUX] Re-open descriptors closed on exec by SELinux
+	to /dev/null
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Andrew Morton <akpm@osdl.org>
+Cc: James Morris <jmorris@redhat.com>, lkml <linux-kernel@vger.kernel.org>,
+       selinux@tycho.nsa.gov,
+       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20040503144130.42ba1fda.akpm@osdl.org>
+References: <1083603014.7446.197.camel@moss-spartans.epoch.ncsc.mil>
+	 <20040503144130.42ba1fda.akpm@osdl.org>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1083672952.19086.13.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 04 May 2004 08:15:52 -0400
 Content-Transfer-Encoding: 7bit
-Message-ID: <16535.34322.714345.393951@cargo.ozlabs.ibm.com>
-Date: Tue, 4 May 2004 22:01:22 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: akpm@osdl.org, torvalds@osdl.org, trini@kernel.crashing.org, olh@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH][PPC32] Updated boot fix
-X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes booting on some PPC32 machines, notably CHRP and
-powermac machines.  This is a modified version of Tom Rini's patch
-that addresses the concerns I had with it.
+On Mon, 2004-05-03 at 17:41, Andrew Morton wrote:
+> Stephen Smalley <sds@epoch.ncsc.mil> wrote:
+> >
+> > +/* Create an open file that refers to the null device.
+> > +   Derived from the OpenWall LSM. */
+> > +struct file *open_devnull(void) 
+> > +{
+> > +	struct inode *inode;
+> > +	struct dentry *dentry;
+> > +	struct file *file = NULL;
+> > +	struct inode_security_struct *isec;
+> > +	dev_t dev;
+> > +
+> > +	inode = new_inode(current->fs->rootmnt->mnt_sb);
+> > +	if (!inode)
+> > +		goto out;
+> > +
+> > +	dentry = dget(d_alloc_root(inode));
+> > +	if (!dentry)
+> > +		goto out_iput;
+> > +
+> > +	file = get_empty_filp();
+> > +	if (!file)
+> > +		goto out_dput;
+> > +
+> > +	dev = MKDEV(MEM_MAJOR, 3); /* null device */
+> > +
+> > +	inode->i_uid = current->fsuid;
+> > +	inode->i_gid = current->fsgid;
+> > +	inode->i_blksize = PAGE_SIZE;
+> > +	inode->i_blocks = 0;
+> > +	inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+> > +	inode->i_state = I_DIRTY; /* so that mark_inode_dirty won't touch us */
+> > +
+> > +	isec = inode->i_security;
+> > +	isec->sid = SECINITSID_DEVNULL;
+> > +	isec->sclass = SECCLASS_CHR_FILE;
+> > +	isec->initialized = 1;
+> > +
+> > +	file->f_flags = O_RDWR;
+> > +	file->f_mode = FMODE_READ | FMODE_WRITE;
+> > +	file->f_dentry = dentry;
+> > +	file->f_vfsmnt = mntget(current->fs->rootmnt);
+> > +	file->f_pos = 0;
+> > +
+> > +	init_special_inode(inode, S_IFCHR | S_IRUGO | S_IWUGO, dev);
+> > +	if (inode->i_fop->open(inode, file))
+> > +		goto out_fput;
+> > +
+> > +out:
+> > +	return file;
+> > +out_fput:
+> > +	mntput(file->f_vfsmnt);
+> > +	put_filp(file);
+> > +out_dput:	
+> > +	dput(dentry);
+> > +out_iput:	
+> > +	iput(inode);
+> > +	file = NULL;
+> > +	goto out;
+> > +}
+> 
+> That seems to be a heck of a lot of code to get a file* which refers to
+> /dev/null.  I guess calling flip_open("/dev/null") is a bit grubby, but are
+> you sure there's no simpler way?
 
-The problem was that the linker script was getting included in the
-list of things that got put together to make some of the sorts of
-bootable images that we produce.  This removes ld.script in cases
-where it wasn't appropriate and changes the rules in others so that
-although we have the dependency on ld.script, it doesn't get included
-in the list of things to link.
+Not that I know of.  Perhaps Al has a suggestion?
 
-Please apply.
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
-Thanks,
-Paul.
-
-diff -urN linux-2.5/arch/ppc/boot/openfirmware/Makefile pmac-2.5/arch/ppc/boot/openfirmware/Makefile
---- linux-2.5/arch/ppc/boot/openfirmware/Makefile	2004-04-28 07:31:34.000000000 +1000
-+++ pmac-2.5/arch/ppc/boot/openfirmware/Makefile	2004-05-04 13:46:36.000000000 +1000
-@@ -89,13 +89,14 @@
- 	$(call if_changed_dep,as_o_S)
- 
- quiet_cmd_gencoffb = COFF    $@
--      cmd_gencoffb = $(LD) -o $@ $(COFF_LD_ARGS) $(filter-out FORCE,$^) && \
-+      cmd_gencoffb = $(LD) -o $@ $(COFF_LD_ARGS) $(COFFOBJS) $< $(LIBS) && \
-                      $(OBJCOPY) $@ $@ -R .comment $(del-ramdisk-sec)
- targets += coffboot
--$(obj)/coffboot: $(COFFOBJS) $(obj)/image.o $(LIBS) FORCE
-+$(obj)/coffboot: $(obj)/image.o $(COFFOBJS) $(LIBS) $(boot)/ld.script FORCE
- 	$(call if_changed,gencoffb)
- targets += coffboot.initrd
--$(obj)/coffboot.initrd: $(COFFOBJS) $(obj)/image.initrd.o $(LIBS) FORCE
-+$(obj)/coffboot.initrd: $(obj)/image.initrd.o $(COFFOBJS) $(LIBS) \
-+			$(boot)/ld.script FORCE
- 	$(call if_changed,gencoffb)
- 
- 
-@@ -104,10 +105,10 @@
- 			$(HACKCOFF) $@ && \
- 			ln -sf $(notdir $@) $(images)/zImage$(initrd).pmac
- 
--$(images)/vmlinux.coff: $(obj)/coffboot $(boot)/ld.script
-+$(images)/vmlinux.coff: $(obj)/coffboot
- 	$(call cmd,gen-coff)
- 
--$(images)/vmlinux.initrd.coff: $(obj)/coffboot.initrd $(boot)/ld.script
-+$(images)/vmlinux.initrd.coff: $(obj)/coffboot.initrd
- 	$(call cmd,gen-coff)
- 
- quiet_cmd_gen-elf-pmac = ELF     $@
-@@ -116,19 +117,21 @@
- 			$(OBJCOPY) $@ $@ --add-section=.note=$(obj)/note \
- 					 -R .comment $(del-ramdisk-sec)
- 
--$(images)/vmlinux.elf-pmac: $(obj)/image.o $(NEWWORLDOBJS) $(LIBS) $(obj)/note $(boot)/ld.script
-+$(images)/vmlinux.elf-pmac: $(obj)/image.o $(NEWWORLDOBJS) $(LIBS) \
-+			$(obj)/note $(boot)/ld.script
- 	$(call cmd,gen-elf-pmac)
- $(images)/vmlinux.initrd.elf-pmac: $(obj)/image.initrd.o $(NEWWORLDOBJS) \
- 				   $(LIBS) $(obj)/note $(boot)/ld.script
- 	$(call cmd,gen-elf-pmac)
- 
- quiet_cmd_gen-chrp = CHRP    $@
--      cmd_gen-chrp = $(LD) $(CHRP_LD_ARGS) -o $@ $^ && \
-+      cmd_gen-chrp = $(LD) $(CHRP_LD_ARGS) -o $@ $(CHRPOBJS) $< $(LIBS) && \
- 			$(OBJCOPY) $@ $@ -R .comment $(del-ramdisk-sec)
- 
--$(images)/zImage.chrp: $(CHRPOBJS) $(obj)/image.o $(LIBS) $(boot)/ld.script
-+$(images)/zImage.chrp: $(obj)/image.o $(CHRPOBJS) $(LIBS) $(boot)/ld.script
- 	$(call cmd,gen-chrp)
--$(images)/zImage.initrd.chrp: $(CHRPOBJS) $(obj)/image.initrd.o $(LIBS) $(boot)/ld.script
-+$(images)/zImage.initrd.chrp: $(obj)/image.initrd.o $(CHRPOBJS) $(LIBS) \
-+			$(boot)/ld.script
- 	$(call cmd,gen-chrp)
- 
- quiet_cmd_addnote = ADDNOTE $@

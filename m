@@ -1,133 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274588AbRITRoG>; Thu, 20 Sep 2001 13:44:06 -0400
+	id <S274584AbRITRm0>; Thu, 20 Sep 2001 13:42:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274579AbRITRnw>; Thu, 20 Sep 2001 13:43:52 -0400
-Received: from tisch.mail.mindspring.net ([207.69.200.157]:6951 "EHLO
-	tisch.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S274588AbRITRnn>; Thu, 20 Sep 2001 13:43:43 -0400
-Subject: [PATCH] Re: AGPGART for AMD 761 broken in 2.4.10-pre12?
-From: Robert Love <rml@ufl.edu>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, DevilKin@gmx.net
-In-Reply-To: <20010920171534.C26E09BB3F@pop3.telenet-ops.be>
-In-Reply-To: <20010920171534.C26E09BB3F@pop3.telenet-ops.be>
-Content-Type: text/plain
+	id <S274581AbRITRmQ>; Thu, 20 Sep 2001 13:42:16 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:32780 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S274580AbRITRmE>; Thu, 20 Sep 2001 13:42:04 -0400
+Subject: Re: drivers/char/sonypi.h broken
+To: rgooch@ras.ucalgary.ca (Richard Gooch)
+Date: Thu, 20 Sep 2001 18:46:45 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <200109201418.f8KEIjG01625@vindaloo.ras.ucalgary.ca> from "Richard Gooch" at Sep 20, 2001 08:18:45 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Evolution-Format: text/plain
-X-Mailer: Evolution/0.13.99+cvs.2001.09.19.21.54 (Preview Release)
-Date: 20 Sep 2001 13:44:07 -0400
-Message-Id: <1001007848.6048.21.camel@phantasy>
-Mime-Version: 1.0
+Message-Id: <E15k7uP-0005im-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2001-09-20 at 13:14, DevilKin wrote:
-> First off, I'd like to say a big 'thank you!!!!' to all the people here, I 
-> was very amazed at the quickness the support for the chipset was integrated 
-> into the maintream kernel.
+> in 12 hours. I think this just highlights the need for BitKeeper or
+> equivalent, where automated regression testing (even a simple "does it
+> compile and link?") is performed, and if the test fails, it gets
+> bounced and doesn't even get to Linus.
 
-You are welcome :)
-
-> I've been testing the latest kernels a bit, and I've found out that when 
-> using the pre12 kernel, I once again get: <snip>
-
-It looks like Linus merged the AGP GART from Alan's tree, which did not
-yet have my AMD 761 patch, however it was more recent otherwise.  The
-following patch merges in what was removed. It also provides some
-cleanup.
-
-Linus, please apply to restore the unmerged AMD 761 code.
-
-
-diff -urN linux-2.4.10-pre12/Documentation/Configure.help linux/Documentation/Configure.help
---- linux-2.4.10-pre12/Documentation/Configure.help	Thu Sep 20 13:32:23 2001
-+++ linux/Documentation/Configure.help	Thu Sep 20 13:33:42 2001
-@@ -2578,10 +2578,10 @@
-   the GLX component for XFree86 3.3.6, which can be downloaded from
-   http://utah-glx.sourceforge.net/ .
- 
--AMD Irongate support
-+AMD Irongate, 761, and 762 support
- CONFIG_AGP_AMD
-   This option gives you AGP support for the GLX component of the
--  XFree86 4.x on AMD Irongate and 761 chipsets.
-+  XFree86 4.x on AMD Irongate, 761, and 762 chipsets.
- 
-   For the moment, you should probably say N, unless you want to test
-   the GLX component for XFree86 3.3.6, which can be downloaded from
-diff -urN linux-2.4.10-pre12/drivers/char/Config.in linux/drivers/char/Config.in
---- linux-2.4.10-pre12/drivers/char/Config.in	Thu Sep 20 13:31:44 2001
-+++ linux/drivers/char/Config.in	Thu Sep 20 13:34:03 2001
-@@ -208,7 +208,7 @@
-    bool '  Intel 440LX/BX/GX and I815/I840/I850 support' CONFIG_AGP_INTEL
-    bool '  Intel I810/I815 (on-board) support' CONFIG_AGP_I810
-    bool '  VIA chipset support' CONFIG_AGP_VIA
--   bool '  AMD Irongate and 761 support' CONFIG_AGP_AMD
-+   bool '  AMD Irongate, 761, and 762 support' CONFIG_AGP_AMD
-    bool '  Generic SiS support' CONFIG_AGP_SIS
-    bool '  ALI chipset support' CONFIG_AGP_ALI
-    bool '  Serverworks LE/HE support' CONFIG_AGP_SWORKS
-diff -urN linux-2.4.10-pre12/drivers/char/agp/agp.h linux/drivers/char/agp/agp.h
---- linux-2.4.10-pre12/drivers/char/agp/agp.h	Thu Sep 20 13:31:44 2001
-+++ linux/drivers/char/agp/agp.h	Thu Sep 20 13:35:12 2001
-@@ -202,6 +202,9 @@
- #ifndef PCI_DEVICE_ID_AMD_IRONGATE_0
- #define PCI_DEVICE_ID_AMD_IRONGATE_0    0x7006
- #endif
-+#ifndef PCI_DEVICE_ID_AMD_761_0
-+#define PCI_DEVICE_ID_AMD_761_0         0x700e
-+#endif
- #ifndef PCI_DEVICE_ID_AMD_762_0
- #define PCI_DEVICE_ID_AMD_762_0		0x700C
- #endif
-diff -urN linux-2.4.10-pre12/drivers/char/agp/agpgart_be.c linux/drivers/char/agp/agpgart_be.c
---- linux-2.4.10-pre12/drivers/char/agp/agpgart_be.c	Thu Sep 20 13:31:44 2001
-+++ linux/drivers/char/agp/agpgart_be.c	Thu Sep 20 13:37:26 2001
-@@ -388,8 +388,8 @@
-  * Driver routines - start
-  * Currently this module supports the following chipsets:
-  * i810, i815, 440lx, 440bx, 440gx, i840, i850, via vp3, via mvp3,
-- * via kx133, via kt133, amd irongate, amd 761, ALi M1541, and generic
-- * support for the SiS chipsets.
-+ * via kx133, via kt133, amd irongate, amd 761, amd 762, ALi M1541,
-+ * and generic support for the SiS chipsets.
-  */
- 
- /* Generic Agp routines - Start */
-@@ -2931,9 +2931,15 @@
- 		"AMD",
- 		"Irongate",
- 		amd_irongate_setup },
-+	{ PCI_DEVICE_ID_AMD_761_0,
-+		PCI_VENDOR_ID_AMD,
-+		AMD_761,
-+		"AMD",
-+		"761",
-+		amd_irongate_setup },
- 	{ PCI_DEVICE_ID_AMD_762_0,
- 		PCI_VENDOR_ID_AMD,
--		AMD_IRONGATE,
-+		AMD_762,
- 		"AMD",
- 		"AMD 760MP",
- 		amd_irongate_setup },
-diff -urN linux-2.4.10-pre12/include/linux/agp_backend.h linux/include/linux/agp_backend.h
---- linux-2.4.10-pre12/include/linux/agp_backend.h	Thu Sep 20 13:31:33 2001
-+++ linux/include/linux/agp_backend.h	Thu Sep 20 13:37:23 2001
-@@ -59,6 +59,7 @@
- 	AMD_GENERIC,
- 	AMD_IRONGATE,
- 	AMD_761,
-+	AMD_762,
- 	ALI_M1541,
- 	ALI_M1621,
- 	ALI_M1631,
-
-
-
--- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
+I do compile/link tests but not a million combinations of them. Its
+o(N!) remember..
 

@@ -1,43 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261543AbVCOR6v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261709AbVCOR6x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261543AbVCOR6v (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 12:58:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261697AbVCOR4Z
+	id S261709AbVCOR6x (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 12:58:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261703AbVCORt4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 12:56:25 -0500
-Received: from waste.org ([216.27.176.166]:7096 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261709AbVCORy6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 12:54:58 -0500
-Date: Tue, 15 Mar 2005 09:54:36 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Greg KH <greg@kroah.com>
-Cc: David Greaves <david@dgreaves.com>, Sam Ravnborg <sam@ravnborg.org>,
-       "Randy.Dunlap" <rddunlap@osdl.org>, Greg Norris <haphazard@kc.rr.com>,
-       linux-kernel@vger.kernel.org, akpm <akpm@osdl.org>
-Subject: Re: [BUG] Re: [PATCH] scripts/patch-kernel: use EXTRAVERSION
-Message-ID: <20050315175436.GP32638@waste.org>
-References: <Pine.LNX.4.58.0408140344110.1839@ppc970.osdl.org> <20040814115548.A19527@infradead.org> <Pine.LNX.4.58.0408140404050.1839@ppc970.osdl.org> <411E0A37.5040507@anomalistic.org> <20040814205707.GA11936@yggdrasil.localdomain> <20040818135751.197ce3c9.rddunlap@osdl.org> <20040822204002.GB8639@mars.ravnborg.org> <42370A3A.6020206@dgreaves.com> <20050315162545.GB24796@kroah.com> <20050315174424.GB26060@kroah.com>
+	Tue, 15 Mar 2005 12:49:56 -0500
+Received: from adsl-216-102-214-42.dsl.snfc21.pacbell.net ([216.102.214.42]:24594
+	"EHLO cynthia.pants.nu") by vger.kernel.org with ESMTP
+	id S261688AbVCORte (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 12:49:34 -0500
+Date: Tue, 15 Mar 2005 09:49:30 -0800
+From: Brad Boyer <flar@allandria.com>
+To: Linas Vepstas <linas@austin.ibm.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, akpm@osdl.org,
+       linuxppc64-dev@ozlabs.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PPC64 iSeries: cleanup viopath
+Message-ID: <20050315174929.GC10301@pants.nu>
+References: <20050315143412.0c60690a.sfr@canb.auug.org.au> <0961a209ce72bb9f2a01b163aa6e6fbd@penguinppc.org> <20050316025339.318fc246.sfr@canb.auug.org.au> <20050315174310.GH498@austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050315174424.GB26060@kroah.com>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050315174310.GH498@austin.ibm.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 15, 2005 at 09:44:24AM -0800, Greg KH wrote:
-> On Tue, Mar 15, 2005 at 08:25:46AM -0800, Greg KH wrote:
-> > On Tue, Mar 15, 2005 at 04:15:54PM +0000, David Greaves wrote:
-> > > Old thread (!) but this is the last time I could find patch-kernel updated.
-> > 
-> > Why not just use ketchup instead?
-> 
-> Actually, why not just replace patch-kernel with ketchup?
-> 
-> Matt, is that ok with you?
+On Tue, Mar 15, 2005 at 11:43:10AM -0600, Linas Vepstas wrote:
+> FWIW, keep in mind that a cache miss due to large structures not fitting
+> is a zillion times more expensive than byte-aligning in the cpu 
+> (even if byte operands had a cpu perf overhead, which I don't think 
+> they do on ppc).
 
-Yes. There are a handful of cleanups that I should do first though.
+Actually, there is a small overhead to bytes if you make them signed.
+That's why char is unsigned by default on ppc.
 
--- 
-Mathematics is the supreme nostalgia of our time.
+	Brad Boyer
+	flar@allandria.com
+

@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261716AbUJ1PY3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261707AbUJ1PYc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261716AbUJ1PY3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 11:24:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261714AbUJ1PXR
+	id S261707AbUJ1PYc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 11:24:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261718AbUJ1PWV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 11:23:17 -0400
-Received: from atlrel8.hp.com ([156.153.255.206]:2690 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S261708AbUJ1PSb (ORCPT
+	Thu, 28 Oct 2004 11:22:21 -0400
+Received: from holomorphy.com ([207.189.100.168]:21897 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261692AbUJ1PTX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 11:18:31 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: "Yu, Luming" <luming.yu@intel.com>
-Subject: Re: Userspace ACPI interpreter ( was RE: [ACPI] [RFC] dev_acpi: support for userspace access to acpi)
-Date: Thu, 28 Oct 2004 09:18:28 -0600
-User-Agent: KMail/1.7
-Cc: "Brown, Len" <len.brown@intel.com>,
-       "Moore, Robert" <robert.moore@intel.com>,
-       "Alex Williamson" <alex.williamson@hp.com>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>,
-       acpi-devel@lists.sourceforge.net
-References: <3ACA40606221794F80A5670F0AF15F84041ABFFA@pdsmsx403>
-In-Reply-To: <3ACA40606221794F80A5670F0AF15F84041ABFFA@pdsmsx403>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Oct 2004 11:19:23 -0400
+Date: Thu, 28 Oct 2004 08:19:19 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Dave Airlie <airlied@linux.ie>
+Cc: linux-kernel@vger.kernel.org, davem@redhat.com
+Subject: Re: sparc ffb drm driver...
+Message-ID: <20041028151919.GN12934@holomorphy.com>
+References: <Pine.LNX.4.58.0410281222450.15369@skynet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200410280918.28485.bjorn.helgaas@hp.com>
+In-Reply-To: <Pine.LNX.4.58.0410281222450.15369@skynet>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 27 October 2004 10:04 pm, Yu, Luming wrote:
-> On IA64 platform, ACPI interpreter seems to be mandatory for those
-> stuff, but IA32 is not.  So, the ram disk is the generic solution 
-> for loading user space interpreter for boot. 
+On Thu, Oct 28, 2004 at 12:38:08PM +0100, Dave Airlie wrote:
+> This driver is broken and has been since my first CVS merge went in
+> back in April, I just noticed there now when trying to fix it up for
+> some other changes that I was making,
+> List of issues:
+> a) no-one has complained or noticed it has been broken for at least 4
+> months
+> b) there is no current user space to go with the kernel space driver (Mesa
+> DRI driver is broken as far as I know....)
+> c) no-one has stepped up to maintain it
+> d) no-one has a working user space to tell me I broke the kernel space or
+> test it for me ..
+> Unless we can up with some plan for the future (user and kernel space),
+> this driver will be marked broken in my next merge and may in fact end
+> up broken as a side effect of the changes for the core/personality split..
+> Dave.
+> p.s. I'd love to take it on, but I've no sparc hardware and no real spare
+> time even if I had...
 
-In two sentences: If you want to play with moving the interpreter
-to user-space, please do so, and do it on ia64, so you have to
-deal with the interesting problems.
+I think all my sparc32 and UltraSPARC hardware is too ancient or crappy
+to help with this, at the very least because it's all headless.
 
-And this whole thing is a gigantic tangent that is only distracting
-attention from the real question at hand, namely, Alex's dev_acpi
-patch, which exists today and enables some very interesting new
-functionality.
+-- wli

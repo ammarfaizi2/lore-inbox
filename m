@@ -1,58 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261659AbULZNr1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261655AbULZNqw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261659AbULZNr1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Dec 2004 08:47:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbULZNr0
+	id S261655AbULZNqw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Dec 2004 08:46:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbULZNqv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Dec 2004 08:47:26 -0500
-Received: from out004pub.verizon.net ([206.46.170.142]:7812 "EHLO
-	out004.verizon.net") by vger.kernel.org with ESMTP id S261653AbULZNq5
+	Sun, 26 Dec 2004 08:46:51 -0500
+Received: from out008pub.verizon.net ([206.46.170.108]:6040 "EHLO
+	out008.verizon.net") by vger.kernel.org with ESMTP id S261653AbULZNql
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Dec 2004 08:46:57 -0500
+	Sun, 26 Dec 2004 08:46:41 -0500
 From: James Nelson <james4765@verizon.net>
-To: ultralinux@vger.kernel.org
+To: linux-sh@m17n.org
 Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
        James Nelson <james4765@verizon.net>
-Message-Id: <20041226134715.11731.39190.49206@localhost.localdomain>
-Subject: [PATCH] sparc64: remove x86-specific SMP reference in Kconfig
-X-Authentication-Info: Submitted using SMTP AUTH at out004.verizon.net from [209.158.220.243] at Sun, 26 Dec 2004 07:46:54 -0600
-Date: Sun, 26 Dec 2004 07:46:54 -0600
+Message-Id: <20041226134659.11730.54114.52485@localhost.localdomain>
+Subject: [PATCH] sh: Remove x86-specific help in Kconfig
+X-Authentication-Info: Submitted using SMTP AUTH at out008.verizon.net from [209.158.220.243] at Sun, 26 Dec 2004 07:46:38 -0600
+Date: Sun, 26 Dec 2004 07:46:38 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove inapplicable references to x86 SMP configuration in arch/sparc64/Kconfig.
+Remove x86-specific bus refernces in arch/sh/drivers/pci/Kconfig.
+
+Still applies against 2.6.10
 
 Signed-off-by: James Nelson <james4765@gmail.com>
 
-diff -urN --exclude='*~' linux-2.6.10-original/arch/sparc64/Kconfig linux-2.6.10/arch/sparc64/Kconfig
---- linux-2.6.10-original/arch/sparc64/Kconfig	2004-12-24 16:35:25.000000000 -0500
-+++ linux-2.6.10/arch/sparc64/Kconfig	2004-12-26 08:27:19.248406666 -0500
-@@ -92,8 +92,8 @@
- 	bool "Symmetric multi-processing support"
- 	---help---
- 	  This enables support for systems with more than one CPU. If you have
--	  a system with only one CPU, like most personal computers, say N. If
--	  you have a system with more than one CPU, say Y.
-+	  a system with only one CPU, say N. If you have a system with more
-+	  than one CPU, say Y.
+--- linux-2.6.10-original/arch/sh/drivers/pci/Kconfig	2004-12-24 16:33:49.000000000 -0500
++++ linux-2.6.10/arch/sh/drivers/pci/Kconfig	2004-12-26 08:24:25.476866445 -0500
+@@ -3,8 +3,7 @@
+ 	help
+ 	  Find out whether you have a PCI motherboard. PCI is the name of a
+ 	  bus system, i.e. the way the CPU talks to the other stuff inside
+-	  your box. Other bus systems are ISA, EISA, MicroChannel (MCA) or
+-	  VESA. If you have PCI, say Y, otherwise N.
++	  your box. If you have PCI, say Y, otherwise N.
  
- 	  If you say N here, the kernel will run on single and multiprocessor
- 	  machines, but will use only one CPU of a multiprocessor machine. If
-@@ -101,17 +101,11 @@
- 	  singleprocessor machines. On a singleprocessor machine, the kernel
- 	  will run faster if you say N here.
- 
--	  Note that if you say Y here and choose architecture "586" or
--	  "Pentium" under "Processor family", the kernel will not work on 486
--	  architectures. Similarly, multiprocessor kernels for the "PPro"
--	  architecture may not work on all Pentium based boards.
--
- 	  People using multiprocessor machines who say Y here should also say
- 	  Y to "Enhanced Real Time Clock Support", below. The "Advanced Power
- 	  Management" code will be disabled if you say Y here.
- 
- 	  See also the <file:Documentation/smp.txt>,
--	  <file:Documentation/i386/IO-APIC.txt>,
- 	  <file:Documentation/nmi_watchdog.txt> and the SMP-HOWTO available at
- 	  <http://www.tldp.org/docs.html#howto>.
- 
+ 	  The PCI-HOWTO, available from
+ 	  <http://www.tldp.org/docs.html#howto>, contains valuable

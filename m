@@ -1,42 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262428AbVAPE4z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262429AbVAPE7B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262428AbVAPE4z (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 23:56:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262429AbVAPE4z
+	id S262429AbVAPE7B (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 23:59:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262430AbVAPE7B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 23:56:55 -0500
-Received: from fire.osdl.org ([65.172.181.4]:2225 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S262428AbVAPE4x (ORCPT
+	Sat, 15 Jan 2005 23:59:01 -0500
+Received: from waste.org ([216.27.176.166]:469 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262429AbVAPE66 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 23:56:53 -0500
-Message-ID: <41E9F25D.5050906@osdl.org>
-Date: Sat, 15 Jan 2005 20:49:33 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: kaos@sgi.com, lkml <linux-kernel@vger.kernel.org>
-Subject: conglomerate objects in reference*.pl
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 15 Jan 2005 23:58:58 -0500
+Date: Sat, 15 Jan 2005 20:58:43 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: "Theodore Ts'o" <tytso@mit.edu>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: short read from /dev/urandom
+Message-ID: <20050116045843.GH3823@waste.org>
+References: <41E7509E.4030802@redhat.com> <20050116024446.GA3867@waste.org> <41E9E65F.1030100@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41E9E65F.1030100@redhat.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Keith,
+On Sat, Jan 15, 2005 at 07:58:23PM -0800, Ulrich Drepper wrote:
+> Matt Mackall wrote:
+> >_Neither_ case mentions signals and the "and will return as many bytes
+> >as requested" is clearly just a restatement of "does not have this
+> >limit". Whoever copied this comment to the manpage was a bit sloppy
+> >and dropped the first clause rather than the second:
+> 
+> It still means the documented API says there are no short reads.
 
-I'm seeing some drivers/*/built-in.o that should be ignored AFAIK,
-but they are not ignored.  Any ideas?
+I maintain that it's ambiguous. And read(2) makes it clear that short
+reads can happen any time, any where. Further, your interpretation
+makes for a nonsensical API as it implies being uninterruptible for
+arbitrary lengths of time. 
 
-This is 2.6.11-rc1-bk3 on i386 with allmodconfig
-(except DEBUG_INFO=n) and gcc 3.3.3.
+Changing the longstanding, sensible code to match a silly and highly
+non-standard interpretation of the documentation doesn't fix the
+problem in apps either. Presumably they'll still be running on kernels
+older than 2.6.11 and I believe most *BSDs have /dev/urandom as well.
 
-Error: ./drivers/ide/built-in.o .text refers to 00000939 R_386_PC32 
-      .init.text
-Error: ./drivers/ide/legacy/built-in.o .text refers to 00000939 
-R_386_PC32        .init.text
-Error: ./drivers/ide/legacy/hd.o .text refers to 00000939 R_386_PC32 
-       .init.text
+> >So anyone doing a read() can expect a short read regardless of the fd
+> >and is quite clear that reads can be interrupted by signals. "It is
+> >not an error". Ever.
+> 
+> Of course are signal interruptions wrong if the signal uses SA_RESTART.
 
-Thanks,
+That's a separate problem. I'll take a look at fixing that.
+
 -- 
-~Randy
+Mathematics is the supreme nostalgia of our time.

@@ -1,60 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129061AbQJaWYh>; Tue, 31 Oct 2000 17:24:37 -0500
+	id <S129234AbQJaW15>; Tue, 31 Oct 2000 17:27:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129050AbQJaWY2>; Tue, 31 Oct 2000 17:24:28 -0500
-Received: from fw.SuSE.com ([202.58.118.35]:25590 "EHLO linux.local")
-	by vger.kernel.org with ESMTP id <S129181AbQJaWYN>;
-	Tue, 31 Oct 2000 17:24:13 -0500
-Date: Tue, 31 Oct 2000 15:31:06 -0800
-From: Jens Axboe <axboe@suse.de>
-To: Paul Jakma <paul@clubi.ie>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: scsi-cdrom lockup and ide-scsi problem (both EFS related)
-Message-ID: <20001031153106.A9458@suse.de>
-In-Reply-To: <Pine.LNX.4.21.0010310054200.1041-100000@fogarty.jakma.org>
+	id <S129119AbQJaW1s>; Tue, 31 Oct 2000 17:27:48 -0500
+Received: from sdsl-208-184-147-195.dsl.sjc.megapath.net ([208.184.147.195]:62552
+	"EHLO bitmover.com") by vger.kernel.org with ESMTP
+	id <S129050AbQJaW1f>; Tue, 31 Oct 2000 17:27:35 -0500
+Date: Tue, 31 Oct 2000 14:27:33 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Cc: Larry McVoy <lm@bitmover.com>, Paul Menage <pmenage@ensim.com>,
+        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18Pre Lan Performance Rocks!
+Message-ID: <20001031142733.A23516@work.bitmover.com>
+Mail-Followup-To: "Jeff V. Merkey" <jmerkey@timpanogas.org>,
+	Larry McVoy <lm@bitmover.com>, Paul Menage <pmenage@ensim.com>,
+	Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+In-Reply-To: <E13qj56-0003h9-00@pmenage-dt.ensim.com> <39FF3D53.C46EB1A8@timpanogas.org> <20001031140534.A22819@work.bitmover.com> <39FF4488.83B6C1CE@timpanogas.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0010310054200.1041-100000@fogarty.jakma.org>; from paul@clubi.ie on Tue, Oct 31, 2000 at 01:11:44AM +0000
-X-OS: Linux 2.4.0-test10 i686
+X-Mailer: Mutt 1.0pre3i
+In-Reply-To: <39FF4488.83B6C1CE@timpanogas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 31 2000, Paul Jakma wrote:
-> I have 2 problems related to reading IRIX EFS cd's.
-> 
-> -------problem 1:
-> 
-> mounting an EFS cd from my Yamaha CDR-4416S SCSI CDRW consistently
-> causes a lockup when i try to read directory/file data from the CD. I
-> observed this initially with EFS CDR's, and assumed something had
-> gone wrong when burning that CD. But the exact same thing happens
-> with original SGI IRIX media. I have no problems with any of my EFS
-> CDs when accesed from an ATAPI CDROM.
+On Tue, Oct 31, 2000 at 03:15:37PM -0700, Jeff V. Merkey wrote:
+> The quality of the networking code in Linux is quite excellent.  There's
+> some scaling problems relative to NetWare.  We are firmly committed to
+> getting something out with a Linux code base and NetWare metrics.  Love
+> to have your help.
 
-Known problem, blocksizes != 2kb does not currently work
-correctly with SCSI CD-ROM (it's even on Ted's list).
-
-> My IDE CDROM under ide-scsi emulation does not like trying to mount
-> EFS CDs, here are the logs of multiple mount attempts:
-
-Same deal, SCSI CD-ROM driver. As you noted, pure ATAPI drive will
-work just fine.
-
-> ide-scsi emulation - if i want to mount the CD for any reason i have
-> to reboot again to get the IDE CDROM back to pure ATAPI mode, then
-> reboot again for ide-scsi to burn a cd... slightly frustrating. :)
-
-rmmod ide-scsi ; insmod ide-cd
-mount, etc
-rmmod ide-cd ; insmod ide-scsi
-burn
-
+Jeff, I'm a little concerned with some of your statements.  Netware may
+be the greatest thing since sliced bread, but it isn't a full operating
+system, so comparing it to Linux is sort of meaningless.  Consider your
+recent context switch claims.  Yes, I believe that you can do the moral
+equiv of a longjmp() in the kernel in a few cycles, but that isn't a
+context switch, at least, it isn't the same a context switch in the
+operating system sense.  It's different - last I checked, Netware was
+essentially a kernel and nothing else.  Is there a file system?  Are there
+processes with virtual memory?  Are they preemptive?  Does it support
+all of P1003.1?  Etc.  If the answers to all of the above are "yes"
+and you can support all that and get user to user context switches in a
+clock cycle, well, jeez, you really do walk on water and I'll publicly
+apologize for ever doubting your statements.  On the other hand, if the
+answers to that are not all "yes", then how about you do a little truth
+in advertising with your postings?  Without it, they are misleading to
+the point of being purposefully deceptive.
 -- 
-* Jens Axboe <axboe@suse.de>
-* SuSE Labs
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277768AbRJIPVk>; Tue, 9 Oct 2001 11:21:40 -0400
+	id <S277775AbRJIPeJ>; Tue, 9 Oct 2001 11:34:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277159AbRJIPV2>; Tue, 9 Oct 2001 11:21:28 -0400
-Received: from hermes.toad.net ([162.33.130.251]:12705 "EHLO hermes.toad.net")
-	by vger.kernel.org with ESMTP id <S277768AbRJIPVP>;
-	Tue, 9 Oct 2001 11:21:15 -0400
+	id <S277774AbRJIPdt>; Tue, 9 Oct 2001 11:33:49 -0400
+Received: from ns.suse.de ([213.95.15.193]:56072 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S277775AbRJIPdr>;
+	Tue, 9 Oct 2001 11:33:47 -0400
+Date: Tue, 9 Oct 2001 17:34:13 +0200 (CEST)
+From: Dave Jones <davej@suse.de>
+To: Thomas Hood <jdthood@mail.com>
+Cc: <linux-kernel@vger.kernel.org>
 Subject: Re: sysctl interface to bootflags?
-From: Thomas Hood <jdthood@mail.com>
-To: Dave Jones <davej@suse.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0110091613490.32557-100000@Appserv.suse.de>
-In-Reply-To: <Pine.LNX.4.30.0110091613490.32557-100000@Appserv.suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.15 (Preview Release)
-Date: 09 Oct 2001 11:21:14 -0400
-Message-Id: <1002640876.1103.21.camel@thanatos>
-Mime-Version: 1.0
+In-Reply-To: <1002640876.1103.21.camel@thanatos>
+Message-ID: <Pine.LNX.4.30.0110091731480.31520-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.  I looked at your code and I saw that it depended
-on ACPI.  Since ACPI doesn't work on my machine, I 
-thought I should look for another solution.  However,
-Alan now tells me that what I want to do can already
-be done via /dev/nvram.
+On 9 Oct 2001, Thomas Hood wrote:
 
-Thanks to both of you.
-Thomas
+> Hi.  I looked at your code and I saw that it depended
+> on ACPI.  Since ACPI doesn't work on my machine, I
+> thought I should look for another solution.  However,
 
-On Tue, 2001-10-09 at 10:15, Dave Jones wrote:
-> On 9 Oct 2001, Thomas Hood wrote:
-> 
-> > Would it be a good idea to do this using the sysctl infrastructure?
-> > If so, can someone please suggest an appropriate pathname for
-> > the flag files?  How about "/proc/sys/BIOS/bootflags/diagnostics"
-> > and "/proc/sys/BIOS/bootflags/PnP-OS" ?
-> > If this is a bad idea, someone please stop me before I waste my
-> > time implementing it.
-> 
-> Last week, I pointed you at http://www.codemonkey.org.uk/sbf.c
-> Can you give a reason why this needs to be done in kernel space ?
-> 
-> regards,
-> 
-> Dave.
+Huh ? Read the code again.
+Its no more dependant upon ACPI than bootflag.c is.
+The bootflag is pointed at by an ACPI table.
+The code I wrote functions /exactly/ the same on
+a kernel with APM, ACPI or NO power management.
 
+> Alan now tells me that what I want to do can already
+> be done via /dev/nvram.
+
+My code _is_ using /dev/nvram !
+
+regards,
+
+Dave.
+
+-- 
+| Dave Jones.        http://www.suse.de/~davej
+| SuSE Labs
 

@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132690AbRDXCPU>; Mon, 23 Apr 2001 22:15:20 -0400
+	id <S132691AbRDXCp2>; Mon, 23 Apr 2001 22:45:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132691AbRDXCPK>; Mon, 23 Apr 2001 22:15:10 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:3795 "HELO havoc.gtf.org")
-	by vger.kernel.org with SMTP id <S132690AbRDXCOx>;
-	Mon, 23 Apr 2001 22:14:53 -0400
-Message-ID: <3AE4E19D.41F117C1@mandrakesoft.com>
-Date: Mon, 23 Apr 2001 22:14:53 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-pre6 i686)
+	id <S132707AbRDXCpS>; Mon, 23 Apr 2001 22:45:18 -0400
+Received: from nat-pool.corp.redhat.com ([199.183.24.200]:11108 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S132691AbRDXCpN>; Mon, 23 Apr 2001 22:45:13 -0400
+Message-ID: <3AE4E87F.FDE83136@redhat.com>
+Date: Mon, 23 Apr 2001 22:44:15 -0400
+From: Doug Ledford <dledford@redhat.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-11 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Matt_Domsch@Dell.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] adding PCI bus information to SCSI layer
-In-Reply-To: <CDF99E351003D311A8B0009027457F140810E26A@ausxmrr501.us.dell.com>
+To: Chmouel Boudjnah <chmouel@mandrakesoft.com>
+CC: pawel.worach@mysun.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: i810_audio broken?
+In-Reply-To: <3804336226.3622638043@mysun.com> <m3n197ur5i.fsf@giants.mandrakesoft.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt_Domsch@Dell.com wrote:
+Chmouel Boudjnah wrote:
 > 
-> > PCI ids can be derived from bus/slot/function.
+> "Pawel Worach" <pworach@mysun.com> writes:
 > 
-> Even better.  I'll remove the extraneous fields then, and only return those.
+> > I was using mpg123 (xmms and c/o does exactly the same)
+> > if I run it like this Moby sounds very stupid... :)
 > 
-> typedef struct scsi_pci {
->         unsigned char   bus_number;
->         unsigned int    devfn;          /* encoded device & function index
-> */
-> } Scsi_Pci;
+> i got the same problem when using mpg123 compiled with esd on my dell
+> workstation (which has a need to have set explictely to a clocking of
+> 41194 via ftsodell option), compiling without esd seems fix the prob
+> for me.
 
-Why not pci_dev::slot_name?  Presumeably the only reason you need this
-is to export it to userspace...  We already have the ASCII text there,
-please consider using that :)
+The latest i810 driver does away with the ftsodell option entirely and should
+work on your laptop without having to do anything special.
 
 -- 
-Jeff Garzik      | The difference between America and England is that
-Building 1024    | the English think 100 miles is a long distance and
-MandrakeSoft     | the Americans think 100 years is a long time.
-                 |      (random fortune)
+
+ Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
+      Please check my web site for aic7xxx updates/answers before
+                      e-mailing me about problems

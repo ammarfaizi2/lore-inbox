@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261398AbSJZOqz>; Sat, 26 Oct 2002 10:46:55 -0400
+	id <S262201AbSJZO4X>; Sat, 26 Oct 2002 10:56:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261424AbSJZOqz>; Sat, 26 Oct 2002 10:46:55 -0400
-Received: from norma.kjist.ac.kr ([203.237.41.18]:49543 "EHLO
-	norma.kjist.ac.kr") by vger.kernel.org with ESMTP
-	id <S261398AbSJZOqz>; Sat, 26 Oct 2002 10:46:55 -0400
-Date: Sat, 26 Oct 2002 23:56:53 +0900 (KST)
-From: Maintaniner on duty <hugh@norma.kjist.ac.kr>
-To: <linux-kernel@vger.kernel.org>
-Subject: IDESCSI emulation with 2.4.20-pre10aa1
-Message-ID: <Pine.LNX.4.33.0210262343380.24144-100000@norma.kjist.ac.kr>
+	id <S262208AbSJZO4X>; Sat, 26 Oct 2002 10:56:23 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:34270 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S262201AbSJZO4W>; Sat, 26 Oct 2002 10:56:22 -0400
+Date: Sat, 26 Oct 2002 08:00:05 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Alan Cox <alan@redhat.com>, Dave Jones <davej@codemonkey.org.uk>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Double x86 initialise fix.
+Message-ID: <3007712682.1035619204@[10.10.2.3]>
+In-Reply-To: <200210261357.g9QDvgl13774@devserv.devel.redhat.com>
+References: <200210261357.g9QDvgl13774@devserv.devel.redhat.com>
+X-Mailer: Mulberry/2.1.2 (Win32)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> Isn't this always the case on x86 ?
+>> /me waits to hear gory details of some IBM monster.
+> 
+> It isnt. The boot CPU may be any number. In addition you can strap dual
+> pentium boxes to arbitrate for who is boot cpu (this is used for fault
+> tolerance).
 
-I do not think this problem has anything to do with -aa1 patch.
-Anyway, I tried to make a CDROM of an .iso file using a command
-like
+Eh? I don't understand this, and I think Dave is right for all the
+IBM monsters I know of ;-) The *apicid* may not be 0 but the CPU
+numbers are dynamically assigned as we boot, so the boot CPU will
+always get 0, surely?
 
-cdrecord -v dev=0,0 boot.iso
-
-It correctly identified the cdrom in /dev/sr0
-and strarted to write on the blank cd.
-Well.. almost at the end of it, "data write error" appeared with
-no reason.  The file size of the file "boot.iso" is just about 13M.
-I then looked into the made cd, I could mount it.  Inside, everything
-looked normal.
-
-HOwever, when I tried to boot my machine with this CDROM, it showed
-top of the familiar page.  But in the middle, it cannot finish
-showing the whole page of SuSE-8.1 boot.iso page.
-
-I suspect that in this particular kernel version, the idescsi emulation is
-not bug-free, because I remember that there was a lot of communication
-going on in kernel mailing list on this very topic.
-
-Can someone point me a working kernel version for idescsi?
-
-Thanks.
-
-
-HUgh
-
+M.
 

@@ -1,53 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280149AbRKIVbZ>; Fri, 9 Nov 2001 16:31:25 -0500
+	id <S280161AbRKIVcp>; Fri, 9 Nov 2001 16:32:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280154AbRKIVbF>; Fri, 9 Nov 2001 16:31:05 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:11281 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S280149AbRKIVax>; Fri, 9 Nov 2001 16:30:53 -0500
-Date: Fri, 9 Nov 2001 22:30:53 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Riley Williams <rhw@MemAlpha.cx>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: Linux updates RTC secretly when clock synchronizes
-Message-ID: <20011109223053.A964@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20011109103254.B2620@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.21.0111092102510.14996-100000@Consulate.UFP.CX>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0111092102510.14996-100000@Consulate.UFP.CX>
-User-Agent: Mutt/1.3.20i
+	id <S280154AbRKIVcf>; Fri, 9 Nov 2001 16:32:35 -0500
+Received: from [195.66.192.167] ([195.66.192.167]:18963 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S280162AbRKIVcW>; Fri, 9 Nov 2001 16:32:22 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] Adding KERN_INFO to some printks #2
+Date: Fri, 9 Nov 2001 23:31:58 +0000
+X-Mailer: KMail [version 1.2]
+Cc: rml@tech9.net (Robert Love), linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com (Linus Torvalds)
+In-Reply-To: <E162JGL-0004KH-00@the-village.bc.nu>
+In-Reply-To: <E162JGL-0004KH-00@the-village.bc.nu>
+MIME-Version: 1.0
+Message-Id: <01110923315804.00807@nemo>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Friday 09 November 2001 21:32, Alan Cox wrote:
+> > Well... thanks man.
+> > I hope patch will be noticed by our tribal leaders :-)
+> > (Linus? Alan?)
+>
+> Its not at the top of my list right now. I want to get the merge with Linus
+> done before attacking anything newer
 
-> >> According to your comments, you prefer (2).
-> >>
-> >> I most definitely prefer (1).
-> 
-> > Hmm, and if some malicious software insmods kernel module to work
-> > around your printk()?
-> 
-> ...it gets "Port busy" when it tries to access the RTC ports that the
-> RTC driver built into the kernel already has opened exclusively. At
-> least, that's my understanding of the situation at present.
+What amazes me to no end is how Alan can be so active.
+Alan, you are something. Really. :-)
 
-It does not work that way. Userland does iopl(0), and then it just
-bangs any port it wants to.
-
-> > We are talking root only here.
-> 
-> Are we?
-> 
-> Unless I've misunderstood the arguments so far, the aim is to take the
-> RTC driver out of the kernel altogether and replace it with a usermode
-> driver to do the same thing. As I see it, that opens up far too many
-
-No. Aim is to leave /dev/rtc in kernel, but make kernel never write to
-RTC at its own will.
-								Pavel
--- 
-Casualities in World Trade Center: 6453 dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+I will keep rediffing patches against newer kernels and announcing diffs.
+Take them when you are ready. 
+--
+vda

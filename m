@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271340AbUJVO45@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271333AbUJVO4i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271340AbUJVO45 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 10:56:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271339AbUJVO44
+	id S271333AbUJVO4i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 10:56:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271329AbUJVO4f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 10:56:56 -0400
-Received: from promon2.netbox.cz ([83.240.31.171]:61703 "EHLO brno.promon.cz")
-	by vger.kernel.org with ESMTP id S271331AbUJVOyU (ORCPT
+	Fri, 22 Oct 2004 10:56:35 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:50157 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S271333AbUJVOzI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 10:54:20 -0400
-To: linux-kernel@vger.kernel.org
-Subject: kernel BUG at smp.c:402
-MIME-Version: 1.0
-X-Mailer: Lotus Notes Release 6.0.3 September 26, 2003
-Message-ID: <OF655F179F.433E12D6-ONC1256F35.003AE7E7-C1256F35.0051DFF0@promon.cz>
-From: a.ledvinka@promon.cz
-Date: Fri, 22 Oct 2004 16:54:17 +0200
-X-MIMETrack: Serialize by Router on Brno/Micronic(Release 6.5.2|June 01, 2004) at
- 22.10.2004 16:54:20,
-	Serialize complete at 22.10.2004 16:54:20
-Content-Type: text/plain; charset="US-ASCII"
+	Fri, 22 Oct 2004 10:55:08 -0400
+Date: Fri, 22 Oct 2004 16:55:59 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Luben Tuikov <luben_tuikov@adaptec.com>
+Cc: "K.R. Foley" <kr@cybsft.com>, "J.A. Magallon" <jamagallon@able.es>,
+       Dave Hansen <haveblue@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.9-rc3-mm3 fails to detect aic7xxx
+Message-ID: <20041022145559.GA12434@elte.hu>
+References: <1097178019.24355.39.camel@localhost> <1097188963l.6408l.2l@werewolf.able.es> <41661013.9090700@cybsft.com> <41668346.6090109@adaptec.com> <20041022135800.GA8254@elte.hu> <41791302.5030305@adaptec.com> <20041022140701.GC8120@elte.hu> <41791BE6.7040209@adaptec.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41791BE6.7040209@adaptec.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
 
-I was unlucky enough to run on 2.4.27 (pub/linux/kernel/v2.4/)
-without custom patches
-just some more modules:
-        2_ft-par v1.00.0.15.tgz (promise ft3xx sata raid driver)
-        i2c-2.8.8
-        lm_sensors-2.8.8
-with hyperthreading enabled and smp support on cpu
-cpu family      : 15
-model           : 2
-model name      : Intel(R) Pentium(R) 4 CPU 2.80GHz
+* Luben Tuikov <luben_tuikov@adaptec.com> wrote:
 
-at Oct 22 12:10:30 into
-kernel BUG at smp.c:402!
-invalid operand: 0000
-+ some more lines which i runned through ksymoops (sorry after reboot)
+> >no, i havent. Is it easy to apply that tree to 2.6.9-rc4-mm1?
+> 
+> Yes, I think so.  There's 2 patches there for the AIC drivers: the PCI
+> tables and sleeping while holding a lock.
 
-I hope it will be usefull and that i have done it the correct usable way
-http://portal.promon.cz/ledvinka/i/smperr/ksymoops
-http://portal.promon.cz/ledvinka/i/smperr/config
-Compiled on debian woody's current gcc-3.0 + binutils. Could this be the 
-reason? I remember i have seen some sort of warning with kernel named in 
-it and link failure...
+linux-scsi.bkbits.net seems to be down - is there any alternate site for 
+the patches?
 
-
-need more info?
-please CC.
+	Ingo

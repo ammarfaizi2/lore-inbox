@@ -1,43 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275686AbRIZXIm>; Wed, 26 Sep 2001 19:08:42 -0400
+	id <S275694AbRIZXLm>; Wed, 26 Sep 2001 19:11:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275688AbRIZXId>; Wed, 26 Sep 2001 19:08:33 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:46857 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S275686AbRIZXIT>; Wed, 26 Sep 2001 19:08:19 -0400
-Subject: Re: SIGSTOP/CONT behaviour
-To: christian.jaeger@sl.ethz.ch (Christian Jaeger)
-Date: Thu, 27 Sep 2001 00:13:12 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010927004617.3ffcb95b.christian.jaeger@sl.ethz.ch> from "Christian Jaeger" at Sep 27, 2001 12:46:17 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S275692AbRIZXL0>; Wed, 26 Sep 2001 19:11:26 -0400
+Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:13956 "EHLO
+	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id <S275691AbRIZXLE>; Wed, 26 Sep 2001 19:11:04 -0400
+Date: Wed, 26 Sep 2001 19:11:25 -0400
+To: "Eloy A. Paris" <eloy.paris@usa.net>
+Cc: webcam@smcc.demon.nl, linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: [PATCH -R] Re: 2.4.10 is toxic to my system when I use my USB webcam (was: More info. on crash)
+Message-ID: <20010926191123.A30545@cs.cmu.edu>
+Mail-Followup-To: "Eloy A. Paris" <eloy.paris@usa.net>,
+	webcam@smcc.demon.nl, linux-kernel@vger.kernel.org,
+	torvalds@transmeta.com
+In-Reply-To: <20010926104354.A2192@antenas>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15mNrc-0002CV-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <20010926104354.A2192@antenas>
+User-Agent: Mutt/1.3.22i
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If I send a SIGSTOP to another process, I can NOT rely on him not
-> running anymore after the kill syscall returns. Is that right? I think
+On Wed, Sep 26, 2001 at 10:43:54AM -0400, Eloy A. Paris wrote:
+> I have been doing some tests to determine where the problems is. The
+> good news is that the problem is not in your driver. The bad news is
+> that 2.4.10 is toxic to my system (at least when I try to use my
+> Phillips webcam) and that the problem lies somewhere else.
+> 
+> Here's a quick summary of the tests I did:
+> 
+> (0) Stock 2.4.9: rock solid
+> (1) Stock 2.4.10: system crash after device is open()'ed
+> (2) 2.4.10 + pwc 8.1 (backed out pwc 8.2): system crash as in (1)
+> (3) 2.4.10 + changes to usbcore.o and usb-uhci.o backed out: system
+>     crash.
+> (4) 2.4.9 + pwc 8.2: rock solid
 
-Correct in specific narrow windows.  A signal is an asynchronous event
+It hit me as well and I found the culprit, the crash happens in
+usb-uhci.c:process_iso, where the following code used to be 'safe'
 
-> Additionally I could imagine there isn't even a guarantee that the
-> process won't execute userland code anymore in the case of SMP?
+	for (i = 0; p != &urb_priv->desc_list; i++) {
+...
+	    list_del (p);
+	    p = p->next;
+	    delete_desc (s, desc);
+	}
 
-Yep.
+However, some infidel sneaked the following change into 2.4.10, late in
+the testcycle, which is deadly. This patch needs to be reverted. If the
+behaviour is wanted all uses of list_del in the kernel need to be looked
+at very closely.
 
-> (What I wanted to do is stop several file serving daemons
-> (ftp,samba,netatalk) from fiddling with the filesystem while I traverse
-> through a file tree. I need to make sure I don't get files twice because
-> they have been moved while traversing and so on. I would not mind that
-> much about file *contents* changing, though. I'd welcome other
-> suggestions that don't imply changing the source code of these servers.)
+Jan
 
-I guess if you arent doing it often you could kill them then check they
-are in stopped state but thats icky. 
+====
+diff -u --recursive --new-file v2.4.9/linux/include/linux/list.h linux/include/l
+inux/list.h
+--- v2.4.9/linux/include/linux/list.h   Fri Feb 16 16:06:17 2001
++++ linux/include/linux/list.h  Sun Sep 23 10:31:02 2001
+@@ -90,6 +92,7 @@
+ static __inline__ void list_del(struct list_head *entry)
+ {
+        __list_del(entry->prev, entry->next);
++       entry->next = entry->prev = 0;
+ }
+ 
+ /**
 
-Alan

@@ -1,66 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264377AbUFKWeb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264382AbUFKWsK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264377AbUFKWeb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 18:34:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264382AbUFKWeb
+	id S264382AbUFKWsK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 18:48:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264385AbUFKWsK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 18:34:31 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:41975 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S264377AbUFKWe3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 18:34:29 -0400
-Message-ID: <40CA3342.9020105@mvista.com>
-Date: Fri, 11 Jun 2004 15:33:38 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: ganzinger@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjanv@redhat.com>
-CC: ganzinger@mvista.com, Geoff Levand <geoffrey.levand@am.sony.com>,
-       high-res-timers-discourse@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] high-res-timers patches for 2.6.6
-References: <40C7BE29.9010600@am.sony.com> <1086861862.2733.6.camel@laptop.fenrus.com> <40C8F68F.4030601@mvista.com> <20040611062256.GB13100@devserv.devel.redhat.com>
-In-Reply-To: <20040611062256.GB13100@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 11 Jun 2004 18:48:10 -0400
+Received: from moutng.kundenserver.de ([212.227.126.188]:39416 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S264382AbUFKWsH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jun 2004 18:48:07 -0400
+To: =?iso-8859-1?Q?Andrew_Morton?= <akpm@osdl.org>
+Subject: =?iso-8859-1?Q?Re:_[PATCH]_s390:_speedup_strn{cpy,len}_from_user=2E?=
+From: =?iso-8859-1?Q?Arnd_Bergmann?= <arnd@arndb.de>
+Cc: =?iso-8859-1?Q?Martin_Schwidefsky?= <schwidefsky@de.ibm.com>,
+       <linux-kernel@vger.kernel.org>,
+       =?iso-8859-1?Q?Arnd_Bergmann?= <arnd@arndb.de>
+Message-Id: <26879984$108699332440ca33ac7140a7.75829358@config21.schlund.de>
+X-Binford: 6100 (more power)
+X-Originating-From: 26879984
+X-Mailer: Webmail
+X-Routing: DE
+Content-Type: text/plain; charset=US-ASCII
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Date: Sat, 12 Jun 2004 00:46:01 +0200
+X-Provags-ID: kundenserver.de abuse@kundenserver.de ident:@172.23.4.148
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> On Thu, Jun 10, 2004 at 05:02:23PM -0700, George Anzinger wrote:
+
+Andrew Morton <akpm@osdl.org> schrieb am 12.06.2004, 00:19:18:
+> Martin Schwidefsky  wrote:
+> >  static inline long
+> >  strncpy_from_user(char *dst, const char *src, long count)
+> >  {
+> >          long res = -EFAULT;
+> >          might_sleep();
+> > -        if (access_ok(VERIFY_READ, src, 1))
+> > -                res = __strncpy_from_user_asm(dst, src, count);
+> > +        if (access_ok(VERIFY_READ, src, 1)) {
+> > +                res = __strncpy_from_user_asm(count, dst, src);
+> > +	}
+> >          return res;
+> >  }
 > 
->>Arjan van de Ven wrote:
->>
->>>On Thu, 2004-06-10 at 03:49, Geoff Levand wrote:
->>>
->>>
->>>>Available at 
->>>>http://tree.celinuxforum.org/pubwiki/moin.cgi/CELinux_5fPatchArchive
->>>>
->>>>For those interested, the set of three patches provide POSIX high-res 
->>>>timer support for linux-2.6.6.  The core and i386 patches are updates of 
->>>>George Anzinger's hrtimers-2.6.5-1.0.patch available on SourceForge 
->>>><http://sourceforge.net/projects/high-res-timers/>.  The ppc32 port is 
->>>>not available on SourceForge yet.
->>>
->>>
->>>My first impression is that it has WAAAAAAAAAAAY too many ifdefs. I
->>>would strongly suggest to not make this a config option and just
->>>mandatory, it's a core feature that has no point in being optional. If
->>>you accept that, the code also becomes a *LOT* cleaner.
->>>
-Can I be so bold as to ask about the changed to the timer list code?  Assuming 
-we scrapped all the ifdefs, that is.
+> Shouldn't the access_ok() check be passed `count', rather than `1'?
 
-I have been thinking of a major rewrite which would leave this code alone, but 
-would introduce an additional list and, of course, overhead for high-res timers. 
-  This will take some time and be sub optimal, so I wonder if it is needed.
+No, AFAIU, the logic in strncpy_from_user is that it succeeds for any
+string that is limited by either 'count' or a trailing zero or the end
+of the user mapping, whichever comes first. This means only one
+byte needs to be addressable.
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+On s390, it doesn't matter anyway because access_ok() is always true,
+but the check for access_ok() is the same on all architectures.
 
+       Arnd <><

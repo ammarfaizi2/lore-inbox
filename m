@@ -1,41 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262803AbUKRSQi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262829AbUKRSQi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262803AbUKRSQi (ORCPT <rfc822;willy@w.ods.org>);
+	id S262829AbUKRSQi (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 18 Nov 2004 13:16:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262845AbUKRSOZ
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262842AbUKRSON
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 13:14:25 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:38612 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S262841AbUKRSJ2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 13:09:28 -0500
-Message-Id: <200411181808.iAII8ECH009759@laptop11.inf.utfsm.cl>
-To: Avi Kivity <avi@argo.co.il>
-cc: Keith Owens <kaos@ocs.com.au>, Hugh Dickins <hugh@veritas.com>,
-       Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] WTF is VLI? 
-In-Reply-To: Message from Avi Kivity <avi@argo.co.il> 
-   of "Thu, 18 Nov 2004 17:47:14 +0200." <419CC402.7080109@argo.co.il> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
-Date: Thu, 18 Nov 2004 15:08:13 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Thu, 18 Nov 2004 13:14:13 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:32233 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261862AbUKRSNb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 13:13:31 -0500
+Subject: Re: X86_64: Many Lost ticks
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: kernel-stuff@comcast.net
+Cc: Zwane Mwaikambo <zwane@linuxpower.ca>, Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <111820041702.27846.419CD5AD000313A800006CC6220588448400009A9B9CD3040A029D0A05@comcast.net>
+References: <111820041702.27846.419CD5AD000313A800006CC6220588448400009A9B9CD3040A029D0A05@comcast.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1100797816.6019.24.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 18 Nov 2004 17:10:17 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Avi Kivity <avi@argo.co.il> said:
+On Iau, 2004-11-18 at 17:02, kernel-stuff@comcast.net wrote:
+> I tried all the newer kernels including -ac. All have the same problem.
+> 
+> Andi -  On a side note, your change  "NVidia ACPI timer override" present in 2.6.9-ac8 breaks on my laptop - I get some NMI errors ("Do you have a unusual power management setup?") and DMA timeouts - happens regularly.
 
-[...]
+Ok ACPI timer override probably goes back into the broken bucket and out
+of -ac in -ac11 then.
 
-> ksymoops can disasemble the entire code line, but starting at different 
-> offsets (up to the maximum instruction length) from the start. the first 
-> disassembly to include the program counter in the output would be deemed 
-> correct.
-
-There might be several... I see no reason to consider the first one
-correct.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

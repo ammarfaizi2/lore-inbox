@@ -1,40 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279103AbRJ2KQ5>; Mon, 29 Oct 2001 05:16:57 -0500
+	id <S279097AbRJ2KN1>; Mon, 29 Oct 2001 05:13:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279124AbRJ2KQr>; Mon, 29 Oct 2001 05:16:47 -0500
-Received: from t2.redhat.com ([199.183.24.243]:34290 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S279103AbRJ2KQ1>; Mon, 29 Oct 2001 05:16:27 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <E15xVcA-0003bG-00@the-village.bc.nu> 
-In-Reply-To: <E15xVcA-0003bG-00@the-village.bc.nu> 
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: adilger@turbolabs.com (Andreas Dilger), kaos@ocs.com.au (Keith Owens),
-        linux-kernel@vger.kernel.org
-Subject: Re: Non-standard MODULE_LICENSEs in 2.4.13-ac2 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 29 Oct 2001 10:16:21 +0000
-Message-ID: <26434.1004350581@redhat.com>
+	id <S279103AbRJ2KNR>; Mon, 29 Oct 2001 05:13:17 -0500
+Received: from sj-msg-core-1.cisco.com ([171.71.163.11]:4784 "EHLO
+	sj-msg-core-1.cisco.com") by vger.kernel.org with ESMTP
+	id <S279097AbRJ2KNF>; Mon, 29 Oct 2001 05:13:05 -0500
+Date: Mon, 29 Oct 2001 15:43:31 +0530 (IST)
+From: Manik Raina <manik@cisco.com>
+To: <linux-kernel@vger.kernel.org>, <linware@sh.cvut.cz>,
+        <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH] small compile warning fix 
+Message-ID: <Pine.GSO.4.33.0110291542310.198-100000@cbin2-view1.cisco.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-alan@lxorguk.ukuu.org.uk said:
->  "BSD" can indicate totally closed source material as well as other
-> stuff 
+ncplib_kernel.c defines ncp_add_mem_fromfs() but never
+uses it, resulting in a compile warning. Here are the
+diffs ...
 
-"GPL" can indicate modules which are either for internal use only and not
-distributed, or which are distributed only to paying customers and shipped
-with source, but the source is not publicly available.
+thanks
+Manik
 
-Should we make the licence string "GPL" taint the kernel too, unless it's
-explicitly stated that the source is available?
+Index: ncplib_kernel.c
+===================================================================
+RCS file: /vger/linux/fs/ncpfs/ncplib_kernel.c,v
+retrieving revision 1.29
+diff -u -r1.29 ncplib_kernel.c
+--- ncplib_kernel.c	18 Sep 2001 22:29:08 -0000	1.29
++++ ncplib_kernel.c	29 Oct 2001 10:09:27 -0000
+@@ -52,6 +52,11 @@
+ 	return;
+ }
 
---
-dwmw2
++#ifdef LATER
++/*
++ * This function is not currently in use. This leads to a compiler warning.
++ * Remove #ifdef when in use...
++ */
+ static void ncp_add_mem_fromfs(struct ncp_server *server, const char *source, int size)
+ {
+ 	assert_server_locked(server);
+@@ -59,6 +64,7 @@
+ 	server->current_size += size;
+ 	return;
+ }
++#endif
 
+ static void ncp_add_pstring(struct ncp_server *server, const char *s)
+ {
 

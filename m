@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273622AbRJDOA4>; Thu, 4 Oct 2001 10:00:56 -0400
+	id <S273577AbRJDNz4>; Thu, 4 Oct 2001 09:55:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273702AbRJDOAq>; Thu, 4 Oct 2001 10:00:46 -0400
-Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:24543 "EHLO
-	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id <S273622AbRJDOAa>; Thu, 4 Oct 2001 10:00:30 -0400
-Message-ID: <3BBC6BBD.128161B5@nortelnetworks.com>
-Date: Thu, 04 Oct 2001 10:01:33 -0400
-X-Sybari-Space: 00000000 00000000 00000000
-From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
-X-Accept-Language: en
+	id <S273622AbRJDNzr>; Thu, 4 Oct 2001 09:55:47 -0400
+Received: from ausxc08.us.dell.com ([143.166.99.216]:4131 "EHLO
+	ausxc08.us.dell.com") by vger.kernel.org with ESMTP
+	id <S273577AbRJDNzi>; Thu, 4 Oct 2001 09:55:38 -0400
+Message-ID: <DCAE0B077C81BE4CA50FD1E225531AE319A13A@AUSXMBT102VS1.amer.dell.com>
+From: Anwar_Payyoorayil@Dell.com
+To: linux-kernel@vger.kernel.org
+Cc: andrew.bond@compaq.com, jamshed.patel@oracle.com, Robert_Macaulay@Dell.com
+Subject: [PATCH] 2.4.10-ac4 panics when starting Oracle
+Date: Thu, 4 Oct 2001 08:55:49 -0500 
 MIME-Version: 1.0
-To: Etienne Lorrain <etienne_lorrain@yahoo.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: specific optimizations for unaccelerated framebuffers
-In-Reply-To: <20011004123118.49603.qmail@web11806.mail.yahoo.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Orig: <cfriesen@nortelnetworks.com>
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Etienne Lorrain wrote:
+The patch below (against 2.4.10-ac4) fixes it.
 
->   Been able to DMA the complete video memory image around 5-10 times/second
->  should be over the human eye sensitivity.
+Anwar.
 
-Since anything less than 75Hz gives me headaches, how do you propose to make
-this work?
+--- fs/iobuf.c.orig     Wed Oct  3 16:48:18 2001
++++ fs/iobuf.c  Wed Oct  3 17:01:06 2001
+@@ -47,6 +47,7 @@
+        iobuf->nr_pages = 0;
+        iobuf->locked = 0;
+        iobuf->io_count.counter = 0;
++        iobuf->end_io = NULL;
+ }
+ 
+ int alloc_kiobuf_bhs_sz(struct kiobuf * kiobuf, int sz)
 
-Chris
 
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+
+> From: Robert Macaulay (robert_macaulay@dell.com)
+
+> 2.4.10-ac4 will panic when starting Oracle. Oracle mounts the database, 
+> and causes the following panic before it finishes with the opening. The 
+> kernel is pure 2.4.10-ac4 with the qla2x00 driver patched in. The box has 
+> 8GB of RAM. 
+
+> Code: Bad EIP value. 
+> >>EIP; 00023384 Before first symbol <===== 
+> Trace; c014f4fc <end_kio_request+3c/60> 
+> Trace; c0137946 <bounce_end_io_read+b6/170> 
+> Trace; c01b18f4 <scsi_queue_next_request+44/110> 
+
+

@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265119AbRFUTEm>; Thu, 21 Jun 2001 15:04:42 -0400
+	id <S265111AbRFUTEA>; Thu, 21 Jun 2001 15:04:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265117AbRFUTEa>; Thu, 21 Jun 2001 15:04:30 -0400
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:62221 "EHLO
-	mailout06.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S265116AbRFUTET>; Thu, 21 Jun 2001 15:04:19 -0400
-Date: 21 Jun 2001 21:14:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
+	id <S265116AbRFUTDu>; Thu, 21 Jun 2001 15:03:50 -0400
+Received: from isimail.interactivesi.com ([207.8.4.3]:9994 "HELO
+	dinero.interactivesi.com") by vger.kernel.org with SMTP
+	id <S265111AbRFUTDk>; Thu, 21 Jun 2001 15:03:40 -0400
+Date: Thu, 21 Jun 2001 14:03:32 -0500
+From: Timur Tabi <ttabi@interactivesi.com>
 To: linux-kernel@vger.kernel.org
-Message-ID: <83JvUAC1w-B@khms.westfalen.de>
-In-Reply-To: <3B32280A.ADC08780@efore.fi>
-Subject: Re: temperature standard - global config option?
-X-Mailer: CrossPoint v3.12d.kh7 R/C435
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <OFE74ECCAE.A9CB9437-ON80256A72.0045BC45@portsmouth.uk.ibm.com> <3B32280A.ADC08780@efore.fi>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+In-Reply-To: <993153729.7844.3.camel@Monet>
+In-Reply-To: <qi1bhC.A.lfF.ZEkM7@dinero.interactivesi.com> <qi1bhC.A.lfF.ZEkM7@dinero.interactivesi.com>
+Subject: Re: Controversy over dynamic linking -- how to end the panic
+X-Mailer: The Polarbar Mailer; version=1.19a; build=73
+Message-ID: <Y0SvmB.A.0g.FUkM7@dinero.interactivesi.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-lauri.tischler@efore.fi (Lauri Tischler)  wrote on 21.06.01 in <3B32280A.ADC08780@efore.fi>:
+** Reply to message from Wei Weng <wweng@kencast.com> on 21 Jun 2001 16:01:58
+-0400
 
-> Richard J Moore wrote:
-> >
-> > > 59.42886726469 ±2°C is obviously ludicrous, even if that's
-> > > what my calculator gives me.  I should instead write 59 ±2°C, since
-> >
-> > So, if I follow you argument then shouldn't you be writing 58 ±2°C or
-> > should it be 60 ±2°C ?
->
-> What it means is that whatever dingus measured the temperature, reported
-> the temperature as 59C.
 
-Well, maybe. And maybe it reported the temperature as "76 units", where a  
-unit is approximately 0.69°C, and zero units are approximately 6.99°C, and  
-we happen to know the accuracy is 3 units.
+> Hell, why does the linux community need to care about other *greedy*
+> people who don't want to GPL their work anyway? If you want to protect
+> GPL as the principle in Linux, well, screw the device driver makers!
 
-(That makes out to 59.43 ±2.07°C, or 57.36 to 61.50°C, whereas 59 ±2°C  
-works out to 57.00 to 61.00°C - they do overlap, but they're not the same.  
-Now you might not care - but then again, you might care.)
+Unfortunately, your position will result in reduce hardware support.  There are
+companies out there that will not release the source code to their drivers.  By
+preventing binary-only drivers, you're basically telling those companies, "I
+don't care who needs your hardware to work under Linux, I won't let you ship
+your drivers." 
 
-MfG Kai
+Besides, your opinion on this matter is irrelevant.  Linus has already decided
+to allow binary-only drivers.  The question is not WHETHER it is allowed, but
+HOW it will be allowed.  Please stay on topic.
+
+> What is the difference between including kernel header file and
+> including GPLed header file?
+
+None, as far as I know, and that's the problem.  By Linus saying, "including
+kernel header files doesn't make your driver a derivative work", he is
+effectively _weakening_ a provision in the GPL _as a whole_ (assuming that you
+believe including header files makes your work a derivative, which I don't).
+
+
+-- 
+Timur Tabi - ttabi@interactivesi.com
+Interactive Silicon - http://www.interactivesi.com
+

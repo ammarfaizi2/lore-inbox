@@ -1,83 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261183AbTEHGho (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 02:37:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbTEHGho
+	id S261180AbTEHFT2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 01:19:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261181AbTEHFT2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 02:37:44 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:16273 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id S261183AbTEHGhm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 02:37:42 -0400
-Date: Thu, 8 May 2003 08:50:01 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: r.a.mercer@blueyonder.co.uk
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fix vesafb with large memory
-In-Reply-To: <200305072004.h47K4Ud2026111@hera.kernel.org>
-Message-ID: <Pine.GSO.4.21.0305080849010.12135-100000@vervain.sonytel.be>
+	Thu, 8 May 2003 01:19:28 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:34320 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S261180AbTEHFT1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 May 2003 01:19:27 -0400
+Date: Wed, 7 May 2003 22:31:43 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: rml@tech9.net, <mingo@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] How to write a portable "run_on" program?
+In-Reply-To: <20030508051539.31CFA2C04B@lists.samba.org>
+Message-ID: <Pine.LNX.4.44.0305072221120.16772-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 May 2003, Linux Kernel Mailing List wrote:
-> ChangeSet 1.1199, 2003/05/06 22:04:11-03:00, r.a.mercer@blueyonder.co.uk
-> 
-> 	[PATCH] Fix vesafb with large memory
-> 	
-> 	Hi
-> 	
-> 	I've recently been having a problem with the vesafb refusing to boot on
-> 	my system, after investigation the problem further I found that it had
-> 	been mentioned on the 27 March 2003, in this thread
-> 	
-> 	http://marc.theaimsgroup.com/?l=linux-kernel&m=104878364823195&w=2
-> 	
-> 	In the thread Walt H, waltabbyh <at> comcast <dot> net, provides a fix.
-> 	After just downloading 2.4.21-rc1 I noticed that this fix was not
-> 	present. So heres a patch against 2.4.21-rc1 to fix this probelm.
-> 	
-> 	Please CC me with any responses as I'm not on the list.
-> 	
-> 	Cheers
-> 	
-> 	Adam
-> 
-> 
-> # This patch includes the following deltas:
-> #	           ChangeSet	1.1198  -> 1.1199 
-> #	drivers/video/vesafb.c	1.7     -> 1.8    
-> #
-> 
->  vesafb.c |    2 +-
->  1 files changed, 1 insertion(+), 1 deletion(-)
-> 
-> 
-> diff -Nru a/drivers/video/vesafb.c b/drivers/video/vesafb.c
-> --- a/drivers/video/vesafb.c	Wed May  7 13:04:32 2003
-> +++ b/drivers/video/vesafb.c	Wed May  7 13:04:32 2003
-> @@ -520,7 +520,7 @@
->  	video_width         = screen_info.lfb_width;
->  	video_height        = screen_info.lfb_height;
->  	video_linelength    = screen_info.lfb_linelength;
-> -	video_size          = screen_info.lfb_size * 65536;
-> +	video_size          = screen_info.lfb_width *	screen_info.lfb_height * video_bpp;
->  	video_visual = (video_bpp == 8) ?
->  		FB_VISUAL_PSEUDOCOLOR : FB_VISUAL_TRUECOLOR;
 
-video_size must be in bytes, hence it must be
+On Thu, 8 May 2003, Rusty Russell wrote:
+> 	Currently you need to do the following in userspace to set your
+> affinity portably:
 
-    video_size = screen_info.lfb_width*screen_info.lfb_height*video_bpp/8;
+This is not true, and as long as you continue to claim this, nobody sane 
+can take you seriously.
 
-Gr{oetje,eeting}s,
+I have several times told you that the proper way to do it is the same as 
+for fd_set, and in fact you can use "fdset" as the CPU set _today_, even 
+if it looks a bit strange.
 
-						Geert
+In other words, the proper way to do set_cpu() is
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+	int set_cpu(int cpu)
+	{
+		fd_set cpuset;
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+		FD_ZERO(&cpuset);
+		FD_SET(cpu, cpuset);
+		return sched_setaffinity(getpid(), sizeof(cpuset), &cpuset);
+	}
+
+which is a HELL OF A LOT more readable than the crap you're spouting 
+(either your "before" _or_ your "after" crap).
+
+And if you want to make it more readable still, you make a "cpuset.h" 
+header file that creates a "cpu_set" type instead of "fd_set". You can 
+do it by search-and-replace of the fd_set stuff if you want to.
+
+But yeah, if you by "portable" mean that it won't handle more than 1024 
+CPUs, then I guess it isn't portable. But guess what? I don't care. If you 
+seriously expect to have more than 1024 CPUs in the near future, make the 
+cpu_set be bigger.
+
+But I expect you to ignore this email too, the way you ignored my previous
+ones. The same way I'll continue to ignore your idiotic patches.
+
+		Linus
 

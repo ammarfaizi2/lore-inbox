@@ -1,103 +1,178 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263330AbTLAGWp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 01:22:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263356AbTLAGWp
+	id S263356AbTLAG6S (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 01:58:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263369AbTLAG6S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 01:22:45 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:32409 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S263330AbTLAGWm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 01:22:42 -0500
-Date: Mon, 1 Dec 2003 17:20:52 +1100
-From: Nathan Scott <nathans@sgi.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: XFS for 2.4
-Message-ID: <20031201062052.GA2022@frodo>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 1 Dec 2003 01:58:18 -0500
+Received: from smtp800.mail.ukl.yahoo.com ([217.12.12.142]:63387 "HELO
+	smtp800.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S263356AbTLAG6N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Dec 2003 01:58:13 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [2.6 RFC/PATCH] Input: possible deadlock in i8042
+Date: Mon, 1 Dec 2003 01:58:01 -0500
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>,
+       Andrew Morton <akpm@osdl.org>
+References: <200311300303.57654.dtor_core@ameritech.net> <20031130090009.GA17038@ucw.cz>
+In-Reply-To: <20031130090009.GA17038@ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.3i
+Message-Id: <200312010158.02698.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+On Sunday 30 November 2003 04:00 am, Vojtech Pavlik wrote:
+> On Sun, Nov 30, 2003 at 03:03:57AM -0500, Dmitry Torokhov wrote:
+> > If request_irq fails in i8042_open it will call
+> > serio_unregister_port, which takes serio_sem. i8042_open may be
+> > called:
+> >
+> > serio_register_port - serio_find_dev - dev->connect
+> > serio_register_device - dev->connect
+> >
+> > Both serio_register_port and serio_register_device take serio_sem as
+> > well.
+> >
+> > I think that serio_{register|unregister}_port can be converted into
+> > submitting requests to kseriod thus removing deadlock on the
+> > serio_sem.
+> >
+> > The patch below is on top of serio* patches in Andrew Morton's -mm
+> > tree.
+>
+> It's nice to avoid the deadlock this way, but I think it's not a good
+> idea to make the register/unregister asynchronous - it could be a nasty
+> surprise for an unsuspecting driver writer.
+>
 
-Please do a
+OK, you were right, it's not a good idea to convert _all_ calls to
+asynchronous versions as my patch throughly screwed up module unloading.
+Still, I think it is OK to export separate asynchronous versions of the
+functions to be used as needed. 
 
-	bk pull http://xfs.org:8090/linux-2.4+coreXFS
+The patch below implements 2 new functions, serio_register_port_delayed 
+and serio_unregister_port_delayed that submit appropriate to kseriod.
 
-This will merge the core 2.4 kernel changes required for supporting
-the XFS filesystem, as listed below.  If this all looks acceptable,
-then please also pull the filesystem-specific code (fs/xfs/*)
+The patch to convert i8042 to use it will follow shortly.
 
-	bk pull http://xfs.org:8090/linux-2.4+justXFS
-
-cheers.
-
--- 
-Nathan
+Dmitry
 
 
-linux-2.4+coreXFS updates the following files:
+===================================================================
 
- Documentation/Changes              |   16 ++
- Documentation/Configure.help       |   84 +++++++++++++
- Documentation/filesystems/00-INDEX |    2 
- Documentation/filesystems/xfs.txt  |  226 +++++++++++++++++++++++++++++++++++--
- MAINTAINERS                        |    8 +
- drivers/block/ll_rw_blk.c          |    3 
- fs/Config.in                       |    7 +
- fs/Makefile                        |    4 
- fs/buffer.c                        |   59 ++++++++-
- fs/inode.c                         |   46 +++----
- fs/namei.c                         |   13 +-
- fs/open.c                          |   13 ++
- include/linux/dqblk_xfs.h          |    9 -
- include/linux/fs.h                 |   50 +++++++-
- include/linux/posix_acl_xattr.h    |   67 ++++++++++
- include/linux/sched.h              |    1 
- kernel/ksyms.c                     |   12 +
- mm/filemap.c                       |   63 +++++++++-
- 18 files changed, 618 insertions(+), 65 deletions(-)
 
-through these ChangeSets:
+ChangeSet@1.1512, 2003-11-30 23:29:06-05:00, dtor_core@ameritech.net
+  Input: Add serio_[un]register_port_delayed to allow delayed
+         execution of register/unregister code (via kseriod)
+         when it is not clear whether serio_sem has been taken
+         or not.
 
-<nathans@bruce.melbourne.sgi.com> (03/11/24 1.1183.1.1)
-   VFS support for filesystems which implement POSIX ACLs.
-   
-   This involves an inode flag which directs the VFS to skip application
-   of the umask so that the filesystem ACL code can do this according to
-   the POSIX rules, and a new header file defining the contents of the 2
-   system ACL extended attributes.  This is a backport from 2.6.
 
-<nathans@bruce.melbourne.sgi.com> (03/11/25 1.1194)
-   Fix utimes(2) and immutable/append-only files.
+ drivers/input/serio/serio.c |   38 +++++++++++++++++++++++++++++++++++---
+ include/linux/serio.h       |    2 ++
+ 2 files changed, 37 insertions(+), 3 deletions(-)
 
-<nathans@bruce.melbourne.sgi.com> (03/11/25 1.1195)
-   Remove some unused macros and related comment from the XFS quota header.
 
-<nathans@bruce.melbourne.sgi.com> (03/11/25 1.1196)
-   Add a process flag to identify a process performing a transaction.
-   Used by XFS and backported from 2.6.
+===================================================================
 
-<nathans@bruce.melbourne.sgi.com> (03/11/25 1.1197)
-   Support for delayed allocation.  Used by XFS and backported from 2.6.
 
-<nathans@bruce.melbourne.sgi.com> (03/11/25 1.1198)
-   Provide a simple try-lock based dirty page flushing routine.
 
-<nathans@bruce.melbourne.sgi.com> (03/11/25 1.1199)
-   Provide an iget variant without unlocking the inode and without the
-   read_inode call (iget_locked).  Used by XFS and backported from 2.6.
-
-<nathans@bruce.melbourne.sgi.com> (03/11/26 1.1200)
-   Export several kernel symbols used by the XFS filesystem.
-
-<nathans@bruce.melbourne.sgi.com> (03/11/26 1.1201)
-   Add XFS documentation and incorporate XFS into the kernel build.
-
-<nathans@bruce.melbourne.sgi.com> (03/12/01 1.1202.1.1)
-   [XFS] Document the XFS noikeep option, make ikeep the default.
-
+diff -Nru a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
+--- a/drivers/input/serio/serio.c	Mon Dec  1 01:15:33 2003
++++ b/drivers/input/serio/serio.c	Mon Dec  1 01:15:33 2003
+@@ -49,8 +49,10 @@
+ 
+ EXPORT_SYMBOL(serio_interrupt);
+ EXPORT_SYMBOL(serio_register_port);
++EXPORT_SYMBOL(serio_register_port_delayed);
+ EXPORT_SYMBOL(__serio_register_port);
+ EXPORT_SYMBOL(serio_unregister_port);
++EXPORT_SYMBOL(serio_unregister_port_delayed);
+ EXPORT_SYMBOL(__serio_unregister_port);
+ EXPORT_SYMBOL(serio_register_device);
+ EXPORT_SYMBOL(serio_unregister_device);
+@@ -83,8 +85,10 @@
+ 	}
+ }
+ 
+-#define SERIO_RESCAN	1
+-#define SERIO_RECONNECT	2
++#define SERIO_RESCAN		1
++#define SERIO_RECONNECT		2
++#define SERIO_REGISTER_PORT	3
++#define SERIO_UNREGISTER_PORT	4
+ 
+ static DECLARE_WAIT_QUEUE_HEAD(serio_wait);
+ static DECLARE_COMPLETION(serio_exited);
+@@ -111,6 +115,14 @@
+ 			goto event_done;
+ 		
+ 		switch (event->type) {
++			case SERIO_REGISTER_PORT :
++				__serio_register_port(event->serio);
++				break;
++
++			case SERIO_UNREGISTER_PORT :
++				__serio_unregister_port(event->serio);
++				break;
++
+ 			case SERIO_RECONNECT :
+ 				if (event->serio->dev && event->serio->dev->reconnect)
+ 					if (event->serio->dev->reconnect(event->serio) == 0)
+@@ -198,8 +210,18 @@
+ }
+ 
+ /*
++ * Submits register request to kseriod for subsequent execution.
++ * Can be used when it is not obvious whether the serio_sem is
++ * taken or not and when delayed execution is feasible.
++ */
++void serio_register_port_delayed(struct serio *serio)
++{
++	serio_queue_event(serio, SERIO_REGISTER_PORT);
++}
++
++/*
+  * Should only be called directly if serio_sem has already been taken,
+- * for example when unregistering a serio from other input device's 
++ * for example when registering a serio from other input device's 
+  * connect() function.
+  */
+ void __serio_register_port(struct serio *serio)
+@@ -213,6 +235,16 @@
+ 	down(&serio_sem);
+ 	__serio_unregister_port(serio);
+ 	up(&serio_sem);
++}
++
++/*
++ * Submits unregister request to kseriod for subsequent execution.
++ * Can be used when it is not obvious whether the serio_sem is
++ * taken or not and when delayed execution is feasible.
++ */
++void serio_unregister_port_delayed(struct serio *serio)
++{
++	serio_queue_event(serio, SERIO_UNREGISTER_PORT);
+ }
+ 
+ /*
+diff -Nru a/include/linux/serio.h b/include/linux/serio.h
+--- a/include/linux/serio.h	Mon Dec  1 01:15:33 2003
++++ b/include/linux/serio.h	Mon Dec  1 01:15:33 2003
+@@ -63,8 +63,10 @@
+ irqreturn_t serio_interrupt(struct serio *serio, unsigned char data, unsigned int flags, struct pt_regs *regs);
+ 
+ void serio_register_port(struct serio *serio);
++void serio_register_port_delayed(struct serio *serio);
+ void __serio_register_port(struct serio *serio);
+ void serio_unregister_port(struct serio *serio);
++void serio_unregister_port_delayed(struct serio *serio);
+ void __serio_unregister_port(struct serio *serio);
+ void serio_register_device(struct serio_dev *dev);
+ void serio_unregister_device(struct serio_dev *dev);

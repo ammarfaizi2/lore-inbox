@@ -1,172 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263996AbUBHVXU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Feb 2004 16:23:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264147AbUBHVWv
+	id S263539AbUBHV2C (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Feb 2004 16:28:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbUBHV2C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Feb 2004 16:22:51 -0500
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:6343 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S263996AbUBHVWp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Feb 2004 16:22:45 -0500
-Date: Sun, 8 Feb 2004 16:22:21 -0500 (EST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Philippe Elie <phil.el@wanadoo.fr>, Russell King <rmk@arm.linux.org.uk>,
-       "Jiang, Dave" <dave.jiang@intel.com>,
-       Linux ARM <linux-arm-kernel@lists.arm.linux.org.uk>
-Subject: [PATCH][2.6] Oprofile, ARM infrastructure
-Message-ID: <Pine.LNX.4.58.0402081606220.3370@montezuma.fsmlabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 8 Feb 2004 16:28:02 -0500
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:52437 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S263539AbUBHV16 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Feb 2004 16:27:58 -0500
+Date: Sun, 8 Feb 2004 22:27:57 +0100
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: IPV4 as module?
+Message-ID: <20040208212757.GW28571@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20040204200610.GB3802@localhost.localdomain> <20040205122921.GB28571@lug-owl.de> <Pine.LNX.4.58L.0402080257060.29247@rudy.mif.pg.gda.pl>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="gb4bweTRjl1pQhan"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58L.0402080257060.29247@rudy.mif.pg.gda.pl>
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds infrastructure code and enables ARM to utilise
-the timer int oprofile driver. There is PMU code under development for the
-XScale but that is still forthcoming. In the meantime you can use the
-timer int driver with an updated Oprofile-CVS userspace (SF is a bit slow,
-please allow 24hrs).
 
-Tested on an IOP331 eval board courtesy of Intel, if someone would like
-the additional patches to put on top of the iop1 patchset please contact
-me.
+--gb4bweTRjl1pQhan
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Index: linux-2.6.2/arch/arm/Kconfig
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.2/arch/arm/Kconfig,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 Kconfig
---- linux-2.6.2/arch/arm/Kconfig	4 Feb 2004 07:43:40 -0000	1.1.1.1
-+++ linux-2.6.2/arch/arm/Kconfig	8 Feb 2004 20:37:25 -0000
-@@ -633,6 +633,8 @@ source "drivers/media/Kconfig"
+On Sun, 2004-02-08 03:14:20 +0100, Tomasz K?oczko <kloczek@rudy.mif.pg.gda.=
+pl>
+wrote in message <Pine.LNX.4.58L.0402080257060.29247@rudy.mif.pg.gda.pl>:
+> On Thu, 5 Feb 2004, Jan-Benedict Glaw wrote:
+> > On Wed, 2004-02-04 23:06:10 +0300, Andrey Borzenkov <arvidjaar@mail.ru>
+> > wrote in message <20040204200610.GB3802@localhost.localdomain>:
+> > > Any technical reaon IPV4 cannot be built as module? Current kernel
+> > > barely fits on floopy (even with IDE as module); factoring out IPV4
+> > > would allow to reduce size even more.
+> >=20
+> > Some hard work need to be done to do that, but why shouldn't a kernel
+> > fit onto a floppy? My vmlinuz'es are at about 600 to 900 KB for i386 and
+> > a floppy can handle nearly about twice that size...
+>=20
+> Better will be ask why you must recompile kernel for add ipv4 abilities
+> if you uses (olny) for example ipv6 stack ? :)
 
- source "fs/Kconfig"
+That's the other way around :) Let's just omit legacy IPv4!
 
-+source "arch/arm/oprofile/Kconfig"
-+
- source "drivers/video/Kconfig"
+> PS. Many modern PCs wave now only CD drive .. one CD can fit much=20
+> more than kernel image and all kernel modules. So step your quostion path=
+=20
+> it will be "much more correct" ask why the hell kernel is (still ?)=20
+> modular (?) 8^>
 
- if ARCH_ACORN || ARCH_CLPS7500 || ARCH_TBOX || ARCH_SHARK || ARCH_SA1100 || PCI
-Index: linux-2.6.2/arch/arm/Makefile
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.2/arch/arm/Makefile,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 Makefile
---- linux-2.6.2/arch/arm/Makefile	4 Feb 2004 07:43:40 -0000	1.1.1.1
-+++ linux-2.6.2/arch/arm/Makefile	8 Feb 2004 20:37:25 -0000
-@@ -116,6 +116,7 @@ endif
- core-$(CONFIG_FPE_NWFPE)	+= arch/arm/nwfpe/
- core-$(CONFIG_FPE_FASTFPE)	+= $(FASTFPE_OBJ)
+That's not all correct. You can fit 700 MB data on a CD-ROM, but booting
+is still emulated from a 1.44 MB floppy (or some other floppy/HDD
+images, but many BIOSses won't accept those (or handle them correctly)).
 
-+drivers-$(CONFIG_OPROFILE)      += arch/arm/oprofile/
- drivers-$(CONFIG_ARCH_CLPS7500)	+= drivers/acorn/char/
- drivers-$(CONFIG_ARCH_L7200)	+= drivers/acorn/char/
+MfG, JBG
 
-Index: linux-2.6.2/arch/arm/kernel/time.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.2/arch/arm/kernel/time.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 time.c
---- linux-2.6.2/arch/arm/kernel/time.c	4 Feb 2004 07:43:40 -0000	1.1.1.1
-+++ linux-2.6.2/arch/arm/kernel/time.c	8 Feb 2004 18:23:15 -0000
-@@ -83,6 +83,9 @@ unsigned long long sched_clock(void)
-  */
- static inline void do_profile(struct pt_regs *regs)
- {
-+
-+	profile_hook(regs);
-+
- 	if (!user_mode(regs) &&
- 	    prof_buffer &&
- 	    current->pid) {
-Index: linux-2.6.2/arch/arm/oprofile/Kconfig
-===================================================================
-RCS file: linux-2.6.2/arch/arm/oprofile/Kconfig
-diff -N linux-2.6.2/arch/arm/oprofile/Kconfig
---- /dev/null	1 Jan 1970 00:00:00 -0000
-+++ linux-2.6.2/arch/arm/oprofile/Kconfig	8 Feb 2004 20:55:01 -0000
-@@ -0,0 +1,23 @@
-+
-+menu "Profiling support"
-+	depends on EXPERIMENTAL
-+
-+config PROFILING
-+	bool "Profiling support (EXPERIMENTAL)"
-+	help
-+	  Say Y here to enable the extended profiling support mechanisms used
-+	  by profilers such as OProfile.
-+
-+
-+config OPROFILE
-+	tristate "OProfile system profiling (EXPERIMENTAL)"
-+	depends on PROFILING
-+	help
-+	  OProfile is a profiling system capable of profiling the
-+	  whole system, include the kernel, kernel modules, libraries,
-+	  and applications.
-+
-+	  If unsure, say N.
-+
-+endmenu
-+
-Index: linux-2.6.2/arch/arm/oprofile/Makefile
-===================================================================
-RCS file: linux-2.6.2/arch/arm/oprofile/Makefile
-diff -N linux-2.6.2/arch/arm/oprofile/Makefile
---- /dev/null	1 Jan 1970 00:00:00 -0000
-+++ linux-2.6.2/arch/arm/oprofile/Makefile	8 Feb 2004 20:37:25 -0000
-@@ -0,0 +1,9 @@
-+obj-$(CONFIG_OPROFILE) += oprofile.o
-+
-+DRIVER_OBJS = $(addprefix ../../../drivers/oprofile/, \
-+		oprof.o cpu_buffer.o buffer_sync.o \
-+		event_buffer.o oprofile_files.o \
-+		oprofilefs.o oprofile_stats.o \
-+		timer_int.o )
-+
-+oprofile-y				:= $(DRIVER_OBJS) init.o
-Index: linux-2.6.2/arch/arm/oprofile/init.c
-===================================================================
-RCS file: linux-2.6.2/arch/arm/oprofile/init.c
-diff -N linux-2.6.2/arch/arm/oprofile/init.c
---- /dev/null	1 Jan 1970 00:00:00 -0000
-+++ linux-2.6.2/arch/arm/oprofile/init.c	8 Feb 2004 20:37:25 -0000
-@@ -0,0 +1,22 @@
-+/**
-+ * @file init.c
-+ *
-+ * @remark Copyright 2004 Oprofile Authors
-+ *
-+ * @author Zwane Mwaikambo
-+ */
-+
-+#include <linux/oprofile.h>
-+#include <linux/init.h>
-+#include <linux/errno.h>
-+
-+int oprofile_arch_init(struct oprofile_operations **ops)
-+{
-+	int ret = -ENODEV;
-+
-+	return ret;
-+}
-+
-+void oprofile_arch_exit(void)
-+{
-+}
-Index: linux-2.6.2/drivers/oprofile/timer_int.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.2/drivers/oprofile/timer_int.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 timer_int.c
---- linux-2.6.2/drivers/oprofile/timer_int.c	4 Feb 2004 07:43:53 -0000	1.1.1.1
-+++ linux-2.6.2/drivers/oprofile/timer_int.c	8 Feb 2004 20:37:25 -0000
-@@ -10,7 +10,6 @@
- #include <linux/kernel.h>
- #include <linux/notifier.h>
- #include <linux/smp.h>
--#include <linux/irq.h>
- #include <linux/oprofile.h>
- #include <linux/profile.h>
- #include <linux/init.h>
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
+PA));
+
+--gb4bweTRjl1pQhan
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQFAJqndHb1edYOZ4bsRAtpDAJwJ/6xAHgCfvB4HfNiY04FvX29wkgCeLFIq
+TEsOD/GzlnXGSv/tETzXwps=
+=eEzu
+-----END PGP SIGNATURE-----
+
+--gb4bweTRjl1pQhan--

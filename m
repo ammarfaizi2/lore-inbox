@@ -1,55 +1,34 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S154344AbPGZTyu>; Mon, 26 Jul 1999 15:54:50 -0400
-Received: by vger.rutgers.edu id <S154301AbPGZTye>; Mon, 26 Jul 1999 15:54:34 -0400
-Received: from franz.videotron.net ([205.151.222.14]:65385 "EHLO franz.videotron.net") by vger.rutgers.edu with ESMTP id <S154372AbPGZTyV>; Mon, 26 Jul 1999 15:54:21 -0400
-Message-ID: <379CBE18.B89F1837@info.polymtl.ca>
-Date: Mon, 26 Jul 1999 15:59:20 -0400
-From: Karim Yaghmour <karym@info.polymtl.ca>
-X-Mailer: Mozilla 4.6 [en] (X11; I; Linux 2.2.10 i686)
-X-Accept-Language: French/France, fr-FR, French/Canada, fr-CA, en
+Received: by vger.rutgers.edu via listexpand id <S154444AbPG1Gfq>; Wed, 28 Jul 1999 02:35:46 -0400
+Received: by vger.rutgers.edu id <S154382AbPG1Gf0>; Wed, 28 Jul 1999 02:35:26 -0400
+Received: from relayd.gateway.net ([208.230.117.252]:3397 "EHLO smtp8.gateway.net") by vger.rutgers.edu with ESMTP id <S154419AbPG1GfL>; Wed, 28 Jul 1999 02:35:11 -0400
+Message-ID: <379EA540.CE869EC2@gateway.net>
+Date: Tue, 27 Jul 1999 23:37:52 -0700
+From: merblich <merblich@gateway.net>
+X-Mailer: Mozilla 4.06 [en]C-gatewaynet  (Win98; I)
 MIME-Version: 1.0
-To: rjwalsh@durables.org
-CC: linux-kernel@vger.rutgers.edu
-Subject: Re: kernel profiling
+To: linux-kernel@vger.rutgers.edu
+Subject: [RFC] - skiplists and link lists
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-On Thu, 8 Jul 1999, Robert Walsh wrote:
+Group,
 
-> We're currently profiling the kernel NFS daemon (the entire path from
-> network to disk) using SPECsfs and other benchmarking mechanisms, and
-> before I start working on a home-grown profiling mechanism I'd like to
-> make sure I'm not reinventing the wheel.
+	At: http://www.medsp.com/scott/alg/node35.html
 
-You might want to check on the tool i've been working on, which enables
-you to see exactly what if happening on your system at all times. It
-would enable you to see what time is spent in kernel, what time is
-spent in the rest of the system, and why.
+	has a implimentation and description of skip lists.
 
-Moreover, the mechanisms I use are easily extendable. Therefore, if
-you find the information given insufficient, you can make the kernel
-generate more information without modifying too many things.
+	On lists that can grow beyond a specific number of
+	elements, I believe that the lists should then be
+	converted to skip lists.
 
-You can find the Linux 
-Trace Toolkit at the following address :
+	I am slowly working on a generic implimentation of
+	the above. Maybe by Sept timeframe...
 
-http://www.info.polymtl.ca/users/karym/www/trace/
+	Comments .....
 
-The information on how to use it is there and so is some information
-on how it works. If you need more info, don't hesitate to contact me
-if you need more information.
-
-Of course, it's all under GPL ...
-
-Regards.
-
-==============================================
-              Karim Yaghmour
-          karym@info.polymtl.ca
-            Computer Engineer
-      Ecole Polytechnique de Montreal
-==============================================
+	Mitchell Erblich
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

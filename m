@@ -1,62 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263752AbUDPUvu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 16:51:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263740AbUDPUpR
+	id S263733AbUDPU5J (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 16:57:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263754AbUDPU4Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 16:45:17 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:3807 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S263792AbUDPUn7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 16:43:59 -0400
-Date: Fri, 16 Apr 2004 22:43:50 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: "C.L. Tien - ??????" <cltien@cmedia.com.tw>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: cmpci 6.82 released
-Message-ID: <20040416204350.GC25673@fs.tum.de>
-References: <92C0412E07F63549B2A2F2345D3DB515F7D430@cm-msg-02.cmedia.com.tw>
+	Fri, 16 Apr 2004 16:56:16 -0400
+Received: from delerium.kernelslacker.org ([81.187.208.145]:10910 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S263731AbUDPUz0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 16:55:26 -0400
+Date: Fri, 16 Apr 2004 21:54:30 +0100
+From: Dave Jones <davej@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Fix mprotect bogus check.
+Message-ID: <20040416205430.GI20937@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <92C0412E07F63549B2A2F2345D3DB515F7D430@cm-msg-02.cmedia.com.tw>
-User-Agent: Mutt/1.4.2i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 15, 2004 at 01:15:31AM +0800, C.L. Tien - ?????? wrote:
-> Hi,
-> 
-> I made several changes for cmpci.6.77, so the version is now 6.82.
-> 
-> The patch is mostly from kernel 2.6, which change to support newer gcc,
-> fix possible security hole. I also use the same include files for both
-> kernel versions.
-> 
-> The cmpci-6.82-patch2.4.tar.bz2 is made from official kernel 2.4.25, but should  be able to patch other 2.4 kernel.
-> 
-> The cmpci-6.82-patch2.6.tar.bz2 is from official kernel 2.6.5, it will
-> show error when patch cmpci.c for kernel 2.6.4 or earlier, that's ok.
+If we want to trap NULL vma's, we'd better be sure
+that we don't dereference it first..
 
-There seem to be some bugs in the __{,dev}{init,exit} changes.
+		Dave
 
-E.g. in the 2.6 patch:
-
-  static void __devinit cm_remove(struct pci_dev *dev)
-                   ^^^^
-
-
-> Sincerely,
-> ChenLi Tien
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+--- linux-2.6.5/mm/mprotect.c~	2004-04-16 21:52:47.000000000 +0100
++++ linux-2.6.5/mm/mprotect.c	2004-04-16 21:53:12.000000000 +0100
+@@ -114,10 +114,11 @@
+ mprotect_attempt_merge(struct vm_area_struct *vma, struct vm_area_struct *prev,
+ 		unsigned long end, int newflags)
+ {
+-	struct mm_struct * mm = vma->vm_mm;
++	struct mm_struct * mm;
+ 
+ 	if (!prev || !vma)
+ 		return 0;
++	mm = vma->vm_mm;
+ 	if (prev->vm_end != vma->vm_start)
+ 		return 0;
+ 	if (!can_vma_merge(prev, newflags))

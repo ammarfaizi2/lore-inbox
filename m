@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267272AbUHDGjl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267306AbUHDGpV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267272AbUHDGjl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 02:39:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267301AbUHDGjl
+	id S267306AbUHDGpV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 02:45:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267313AbUHDGpJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 02:39:41 -0400
-Received: from ishtar.tlinx.org ([64.81.245.74]:41876 "EHLO ishtar.tlinx.org")
-	by vger.kernel.org with ESMTP id S267272AbUHDGjk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 02:39:40 -0400
-Message-ID: <41108433.9040002@tlinx.org>
-Date: Tue, 03 Aug 2004 23:37:39 -0700
-From: L A Walsh <lkml@tlinx.org>
-User-Agent: Mozilla Thunderbird 0.7.1 (Windows/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@muc.de>
-CC: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com, nathans@sgi.com
-Subject: Re: XFS: how to NOT null files on fsck?
-References: <200407050247.53743.norberto+linux-kernel@bensa.ath.cx>	<40EEC9DC.8080501@tlinx.org> <20040729013049.GE800@frodo>	<410FDA19.9020805@tlinx.org> <m3d627bueu.fsf@averell.firstfloor.org>
-In-Reply-To: <m3d627bueu.fsf@averell.firstfloor.org>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 4 Aug 2004 02:45:09 -0400
+Received: from 80.58.55.42.proxycache.rima-tde.net ([80.58.55.42]:30435 "HELO
+	vger.kernel.org") by vger.kernel.org with SMTP id S267303AbUHDGo4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 02:44:56 -0400
+To: <linux-kernel@vger.kernel.org>
+From: "joaquin" <mmirtceli@yahoo.com>
+Date: Wed, 04 Aug 2004 06:51:01 GMT
+Message-Id: <1091602261-30089@yahoo.com>
+Subject: UPS Shipped Drugs!  No Prescription!
+X-Mailer: gray redwing
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Not laptop, 2-CPU workstation used as home "server". :-)
+What do you pay now?
+
+If you pay more than these prices, maybe you should click this link....
+http://www.dfjndfv.com/_85924943b9db73ac62baa654773c6a8e/5
+
+VALIUM - $2 a pill! (Anti-Depressant)
+SOMA - $3 a pill! (Pain Relief)
+XANAX - $1.70 a pill! (Anti-Depressant)
+LIPITOR - $3.50 a pill! (Cholesterol Control)
+ZYBAN - $3 a pill! (Stop Smoking)
+ZOLOFT - $2 a pill! (Anti-Depressant)
+PAXIL - $3 a pill! (Anti-Depressant)
+PROZAC - $2 a pill! (Anti-Depressant)
+GLUCOPHAGE - 70 cents a pill! (Diabetes)
+MERIDIA - $2.50 a pill! (Weight Loss)
+VIOXX - $1 a pill! (Pain Relief)
+CELEBREX - $2 a pill! (Pain Relief)
+XENICAL - $2.50 a pill! (Weight Loss)  
+
+http://www.dfjndfv.com/_85924943b9db73ac62baa654773c6a8e/5
 
 
 
-Andi Kleen wrote:
 
->L A Walsh <lkml@tlinx.org> writes:
->
->  
->
->>Now I know it takes a while before data may end up on disk and that it
->>may not go out to disk in an ordered fashion, but 2-3 days?  This isn't
->>a case of a multi-extent file.  My current fstab is only 1335 bytes long.
->>I doubt it has ever been more than 2.
->>    
->>
->
->Is this perhaps on a laptop? Some scripts for laptop use configure
->insanely long data flush times to conserve HD spin time. Sometimes
->it is even completely turned off (laptop mode). The extent 
->flush is dependent on the configured bdflush or pdflushd data
->timeouts.
->
->The truncate is independent from this because it is flushed with a 
->different path.
->
->-Andi
->
->
->  
->
+
+
+
+
+
+master1 hornetmailman promethe kitty metallic bfi miranda 
+meow tintinmetallica lorraine safety
+orchid cutie fozzie 

@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262448AbSJIWmz>; Wed, 9 Oct 2002 18:42:55 -0400
+	id <S262449AbSJIWmu>; Wed, 9 Oct 2002 18:42:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262443AbSJIWmw>; Wed, 9 Oct 2002 18:42:52 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:19636 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262448AbSJIWlq>;
-	Wed, 9 Oct 2002 18:41:46 -0400
-Date: Wed, 09 Oct 2002 15:40:20 -0700 (PDT)
-Message-Id: <20021009.154020.99148626.davem@redhat.com>
-To: vividh@ipinfusion.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Interface address change netlink socket
- problem.(Patch attached)
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3DA4AEA5.8090105@ipinfusion.com>
-References: <3DA4A3A3.2090408@ipinfusion.com>
-	<20021009.150818.102229501.davem@redhat.com>
-	<3DA4AEA5.8090105@ipinfusion.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S262432AbSJIWlg>; Wed, 9 Oct 2002 18:41:36 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:1804 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262448AbSJIWkS>;
+	Wed, 9 Oct 2002 18:40:18 -0400
+Date: Wed, 9 Oct 2002 15:42:01 -0700
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
+Subject: Re: [PATCH] PCI hotplug changes for 2.5.41
+Message-ID: <20021009224200.GF18646@kroah.com>
+References: <20021009223848.GB18646@kroah.com> <20021009223945.GC18646@kroah.com> <20021009224015.GD18646@kroah.com> <20021009224041.GE18646@kroah.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021009224041.GE18646@kroah.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Vividh Siddha <vividh@ipinfusion.com>
-   Date: Wed, 09 Oct 2002 15:33:09 -0700
-
-   It first calls devinet_ioctl() with cmd as SIOCSIFADDR. In this we reset 
-   netmask and broadcast address.
-
-I understand now.
-
-But, I believe that this resetting of the netmask/broadcast address
-is required behavior for this SIOCSIFADDR ioctl.
-
-You can use rtnetlink messages to do this more precisely
-(f.e. via a tool such as 'ip') and thus to avoid the excessive
-netlink messages.
-
-After scanning relevant portions of Stevens Volume II, it seems
-the code you are deleting are required behavior of these ioctls
-and it is how BSD behaves.
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.743   -> 1.744  
+#	drivers/hotplug/ibmphp_core.c	1.13    -> 1.14   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/10/09	greg@kroah.com	1.744
+# IBM PCI Hotplug: fix typos in previous patch
+# --------------------------------------------
+#
+diff -Nru a/drivers/hotplug/ibmphp_core.c b/drivers/hotplug/ibmphp_core.c
+--- a/drivers/hotplug/ibmphp_core.c	Wed Oct  9 15:37:24 2002
++++ b/drivers/hotplug/ibmphp_core.c	Wed Oct  9 15:37:24 2002
+@@ -731,8 +731,8 @@
+ 		bus_speed = PCI_SPEED_UNKNOWN;
+ 	}
+ 
+-	info->cur_bus_speed_status = bus_speed;
+-	info->max_bus_speed_status = slot_cur->hotplug_slot->info->max_bus_speed_status;
++	info->cur_bus_speed = bus_speed;
++	info->max_bus_speed = slot_cur->hotplug_slot->info->max_bus_speed;
+ 	// To do: bus_names 
+ 	
+ 	rc = pci_hp_change_slot_info (buffer, info);

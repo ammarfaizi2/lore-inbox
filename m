@@ -1,71 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289781AbSA2Rh1>; Tue, 29 Jan 2002 12:37:27 -0500
+	id <S289783AbSA2RiH>; Tue, 29 Jan 2002 12:38:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289783AbSA2RhR>; Tue, 29 Jan 2002 12:37:17 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:35087 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S289781AbSA2RhI>; Tue, 29 Jan 2002 12:37:08 -0500
-Date: Tue, 29 Jan 2002 09:36:28 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Skip Ford <skip.ford@verizon.net>
-cc: <linux-kernel@vger.kernel.org>, Andrea Arcangeli <andrea@suse.de>
+	id <S289787AbSA2Rh5>; Tue, 29 Jan 2002 12:37:57 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:27155 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S289783AbSA2Rhp>;
+	Tue, 29 Jan 2002 12:37:45 -0500
+Date: Tue, 29 Jan 2002 18:37:23 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: torvalds@transmeta.com, lm@bitmover.com, landley@trommello.org,
+        linux-kernel@vger.kernel.org
 Subject: Re: A modest proposal -- We need a patch penguin
-In-Reply-To: <20020129143359.BBSA15035.out018.verizon.net@pool-141-150-235-204.delv.east.verizon.net>
-Message-ID: <Pine.LNX.4.33.0201290914270.7701-100000@athlon.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <20020129183723.18915729.skraw@ithnet.com>
+In-Reply-To: <3C568B6A.9090408@evision-ventures.com>
+In-Reply-To: <Pine.LNX.4.33.0201282217220.10929-100000@penguin.transmeta.com>
+	<3C568B6A.9090408@evision-ventures.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 29 Jan 2002 12:45:46 +0100
+Martin Dalecki <dalecki@evision-ventures.com> wrote:
 
-
-On Tue, 29 Jan 2002, Skip Ford wrote:
->
 > Linus Torvalds wrote:
-> [snip]
-> > A word of warning: good maintainers are hard to find.  Getting more of
-> > them helps, but at some point it can actually be more useful to help the
-> > _existing_ ones.  I've got about ten-twenty people I really trust, and
->
-> Then why not give the subsystem maintainers patch permissions on your tree.
-> Sort of like committers.  The problem people have is that you're dropping
-> patches from those ten-twenty people you trust.
+> 
+> >On Mon, 28 Jan 2002, Larry McVoy wrote:
+> >
+> >>What you didn't do, Linus, is paint a picture which allows development
+> >>to scale up.
+> >>
+> >
+> >Actually, I thought I did.
+> >
+> >Basic premise: development is done by humans.
+> >
+> >Now, look at how humans work. I don't know _anybody_ who works with
+> >hundreds of people. You work with 5-10 people, out of a pool of maybe
+> >30-50 people. Agreed?
+> >
+> Not at all. Please have a look at the ARMY. (A tightly hierarchical 
+> system...)
 
-No. Ask them, and they will (I bet) pretty uniformly tell you that I'm
-_not_ dropping their patches (although I'm sometimes critical of them,
-and will tell them that they do not get applied).
+Shoot me: where the heck is the creative/innovative element inside the ARMY?
+It just died somewhere down the hierarchy tree...
+Ants are a very successful species, too, but they will hardly ever write
+software (personal guess).
 
-Sure, it happens occasionally that they really do get dropped, just
-because I get too much email, but these people know how to re-send every
-once in a while, and keep their patches separate.
+Regards,
+Stephan
 
-I think there is some confusion about who I trust. Being listed as
-MAINTAINER doesn't mean you are automatically trusted. The MAINTAINERS
-list is not meant for me _at_all_ in fact, it's meant more as one of the
-places for _others_ to search for a contact with.
-
-Examples of people who I trust: Ingo Molnar, Jeff Garzik, Alan Cox, Al
-Viro, David Miller, Greg KH, Andrew Morton etc. They've shown what I call
-"good taste" for a long time. But it's not always a long process - some
-of you may remember Bill Hawes, for example, who came out of nowhere
-rather quickly.
-
-There are other categories: Andrea, for example, is in a category all of
-his own under "absolutely stunning, but sometimes somewhat erratic", which
-just means that I have to think a lot more about his patches. I love his
-experimentation, especially now that he maintains separate patches (and
-I'd also love for him to be more active in pushing the non-experimental
-parts towards me, hint hint, Andrea)
-
-And there are categories of people who just own a big enough chunk that is
-separate enough that I trust them for that area: architecture maintainers
-etc tend to be here, as long as they only affect their own architecture.
-
-But you have to realize that there are a _lot_ of people on the
-maintainers list that I don't implicitly trust. And being loud and
-wellknown on the mailing lists or IRC channels doesn't make them any more
-trusted.
-
-			Linus
 

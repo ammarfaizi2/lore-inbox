@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284280AbRLBTM3>; Sun, 2 Dec 2001 14:12:29 -0500
+	id <S284282AbRLBTM3>; Sun, 2 Dec 2001 14:12:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284281AbRLBTMU>; Sun, 2 Dec 2001 14:12:20 -0500
-Received: from moutvdom00.kundenserver.de ([195.20.224.149]:15972 "EHLO
-	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S284282AbRLBTMG> convert rfc822-to-8bit; Sun, 2 Dec 2001 14:12:06 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Christian =?iso-8859-1?q?Borntr=E4ger?= 
-	<linux-kernel@borntraeger.net>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>,
-        andrew may <acmay@acmay.homeip.net>
-Subject: Re: 2.4.17pre2: devfs: devfs_mk_dir(printers): could not append to dir: dffe45c0 "", err: -17
-Date: Sun, 2 Dec 2001 20:10:30 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Adam Schrotenboer <ajschrotenboer@lycosmail.com>,
-        Christian =?iso-8859-1?q?Borntr=E4ger?= 
-	<linux-kernel@borntraeger.net>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <E16A6LR-00042s-00@mrvdom02.schlund.de> <20011201180940.B21185@ecam.san.rr.com> <200112021847.fB2IlmZ11175@vindaloo.ras.ucalgary.ca>
-In-Reply-To: <200112021847.fB2IlmZ11175@vindaloo.ras.ucalgary.ca>
+	id <S284280AbRLBTMU>; Sun, 2 Dec 2001 14:12:20 -0500
+Received: from camus.xss.co.at ([194.152.162.19]:51728 "EHLO camus.xss.co.at")
+	by vger.kernel.org with ESMTP id <S284281AbRLBTMF>;
+	Sun, 2 Dec 2001 14:12:05 -0500
+Message-ID: <3C0A7CF6.3304AD83@xss.co.at>
+Date: Sun, 02 Dec 2001 20:11:50 +0100
+From: Andreas Haumer <andreas@xss.co.at>
+Organization: xS+S
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.19 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16Ac1n-0001Bd-00@mrvdom00.schlund.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: arrays@compaq.com, linux-kernel@vger.kernel.org, rgooch@atnf.csiro.au
+Subject: Re: [PATCH] missing gendisk initialization in cpqarray.c (Linux-2.2.20)
+In-Reply-To: <E16AbqW-0004Bt-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<-snip->
+Alan Cox wrote:
+> 
+> > The following patch adds code to initialize gendisk.fops
+> > in cpqarray.c. It's needed to avoid a kernel warning message
+> > when using devfs with the Compaq RAID Controller.
+> >
+> > --- linux-2.2.20/drivers/block/cpqarray.c       Fri Nov  2 17:39:06
+> > 2001
+> 
+> Im confused. Linux 2.2 doesn't include devfs. This patch therefore seems
+> nonsense
 
-> This appears reasonable. However, if they call this initialisation
-> code twice, it's a bug.
+Hm, ok...
 
+Then this patch (and the one for cciss.c) should better 
+go to Richard for inclusion in the 2.2.20 devfs patch?
 
-I found the reason for these messages. It has a boot-script source.
-Mandrake stores the attributes of device nodes in /lib/dev-state.
-This directory is copied into /dev directly before devfsd is started.
+Regards,
 
-If there is a device file in /lib/dev-state it is created in /dev even before 
-the driver is loaded.
-When the driver is loaded it tries again to create the node and the message 
-appears. 
-Thanks for your suggestions and remarks.
+- andreas
 
-greetings 
-
-Christian
-
+-- 
+Andreas Haumer                     | mailto:andreas@xss.co.at
+*x Software + Systeme              | http://www.xss.co.at/
+Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
+A-1100 Vienna, Austria             | Fax: +43-1-6060114-71

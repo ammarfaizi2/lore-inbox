@@ -1,55 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263378AbTLUPmj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 10:42:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263357AbTLUPmj
+	id S263840AbTLUPtF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 10:49:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263846AbTLUPtE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 10:42:39 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:40197 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S263378AbTLUPmh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 10:42:37 -0500
-Date: Sun, 21 Dec 2003 16:42:27 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Octave <oles@ovh.net>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Peter Zaitsev <peter@mysql.com>, linux-kernel@vger.kernel.org
-Subject: Re: lot of VM problem with 2.4.23
-Message-ID: <20031221154227.GB1323@alpha.home.local>
-References: <20031221001422.GD25043@ovh.net> <1071999003.2156.89.camel@abyss.local> <Pine.LNX.4.58L.0312211235010.6632@logos.cnet> <20031221150312.GJ25043@ovh.net>
+	Sun, 21 Dec 2003 10:49:04 -0500
+Received: from postfix4-2.free.fr ([213.228.0.176]:17102 "EHLO
+	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S263840AbTLUPtB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 10:49:01 -0500
+Date: Sun, 21 Dec 2003 16:49:54 +0100
+From: Arnaud Fontaine <arnaud@andesi.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Maciej Zenczykowski <maze@cela.pl>, Mike Fedyk <mfedyk@matchmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Oops with 2.4.23
+Message-ID: <20031221154954.GA6727@scrappy>
+References: <20031219224402.GA1284@scrappy> <Pine.LNX.4.44.0312200034560.15516-100000@gaia.cela.pl> <20031221075408.GA1444@scrappy> <Pine.LNX.4.58L.0312211238420.6632@logos.cnet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="NzB8fVQJ5HfG6fxh"
 Content-Disposition: inline
-In-Reply-To: <20031221150312.GJ25043@ovh.net>
-User-Agent: Mutt/1.4i
+In-Reply-To: <Pine.LNX.4.58L.0312211238420.6632@logos.cnet>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 21, 2003 at 04:03:12PM +0100, Octave wrote:
- 
-> # ps auxw | grep -v "0  0.0"
-> USER       PID %CPU %MEM   VSZ  RSS TTY      STAT START   TIME COMMAND
-> mysql    26958  0.0 14.0 275000 144972 ?     S    Dec19   2:09 /usr/sbin/mysqld --basedir=/ --datadir=/var/lib/mysql --user=mysql --
-> mysql    27004  0.0 14.0 275000 144972 ?     S    Dec19   2:28 /usr/sbin/mysqld --basedir=/ --datadir=/var/lib/mysql --user=mysql --
-> mysql    27005  0.0 14.0 275000 144972 ?     S    Dec19   2:03 /usr/sbin/mysqld --basedir=/ --datadir=/var/lib/mysql --user=mysql --
-> root      9621  0.0  0.1  6316 1860 ?        S    01:02   0:00 /usr/sbin/sshd
-> root      9631  0.0  0.1  2500 1352 pts/0    S    01:02   0:00 -bash
-> root      9683  0.0  0.1  6276 1844 ?        S    13:47   0:00 /usr/sbin/sshd
-> root      9707  0.0  0.1  2504 1356 pts/2    S    13:47   0:00 -bash
-> postfix  29728  0.0  0.1  3508 1184 ?        S    15:45   0:00 pickup -l -t fifo -u
-> mysql     7341  0.0 14.0 275000 144972 ?     S    15:59   0:00 /usr/sbin/mysqld --basedir=/ --datadir=/var/lib/mysql --user=mysql --
-> root      7347  0.0  0.1  2504 1356 pts/2    R    15:59   0:00 -bash
-> 
-> There is nothing to take 1Go of RAM.
 
-Octave,
+--NzB8fVQJ5HfG6fxh
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-one of my collegues had a server which occasionally crashed at night with
-mysql taking all the memory. I think it was with an old 2.4.18 kernel. He
-finally reinstalled all the machine and it never happened anymore. So
-eventhough it works for you with 2.4.22, perhaps 2.4.23 triggers a mysql
-bug which is fixed in more recent releases ?
+On Sun, Dec 21, 2003 at 12:39:48PM -0200, Marcelo Tosatti wrote:
+> >
+> > Hello,
+> >
+> > In fact, i have ran memtest86 for a long time and after 11 pass, i have
+> > stopped it ;). It is enough ?
+>=20
+> It lists the regions of memory which it finds bad in the screen.
+>=20
+> Did you see memtest86 report it?
+>=20
 
-Cheers,
-Willy
+Sorry, i forgot to tell if i had error. So after 11 pass, i have had no=20
+error. I have also test with cpuburn which printed nothing after 30
+minutes.
 
+Thanks for your help.
+Arnaud Fontaine
+
+--=20
+Arnaud Fontaine <arnaud@andesi.org> - http://www.andesi.org/
+GnuPG Public Key available on pgp.mit.edu
+Fingerprint: D792 B8A5 A567 B001 C342 2613 BDF2 A220 5E36 19D3
+
+--
+Think twice before speaking, but don't say "think think click click".
+
+--NzB8fVQJ5HfG6fxh
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/5cEivfKiIF42GdMRAsaIAJ9pNZwn5NnPqHHJ3n28YJU8PDqlcACfeu21
+lq/CNXKOQpdaFBy5inLxaVw=
+=Eg1o
+-----END PGP SIGNATURE-----
+
+--NzB8fVQJ5HfG6fxh--

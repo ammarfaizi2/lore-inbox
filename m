@@ -1,45 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129652AbRBYTZz>; Sun, 25 Feb 2001 14:25:55 -0500
+	id <S129657AbRBYTtQ>; Sun, 25 Feb 2001 14:49:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129646AbRBYTZo>; Sun, 25 Feb 2001 14:25:44 -0500
-Received: from islay.mach.uni-karlsruhe.de ([129.13.162.92]:55208 "EHLO
-	mailout.plan9.de") by vger.kernel.org with ESMTP id <S129652AbRBYTZ3>;
-	Sun, 25 Feb 2001 14:25:29 -0500
-Date: Sun, 25 Feb 2001 20:25:26 +0100
-From: Marc Lehmann <pcg@goof.com>
-To: Mike Galbraith <mikeg@wen-online.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux swap freeze STILL in 2.4.x
-Message-ID: <20010225202526.B8890@cerebro.laendle>
-Mail-Followup-To: Mike Galbraith <mikeg@wen-online.de>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010225155929.A371@cerebro.laendle> <Pine.LNX.4.33.0102251745360.568-100000@mikeg.weiden.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0102251745360.568-100000@mikeg.weiden.de>; from mikeg@wen-online.de on Sun, Feb 25, 2001 at 05:58:32PM +0100
-X-Operating-System: Linux version 2.4.2-ac3 (root@cerebro) (gcc version 2.95.2.1 19991024 (release)) 
+	id <S129659AbRBYTtG>; Sun, 25 Feb 2001 14:49:06 -0500
+Received: from d14144.upc-d.chello.nl ([213.46.14.144]:64168 "EHLO
+	amadeus.home.nl") by vger.kernel.org with ESMTP id <S129657AbRBYTs5>;
+	Sun, 25 Feb 2001 14:48:57 -0500
+Message-Id: <m14X7A1-000Ob6C@amadeus.home.nl>
+Date: Sun, 25 Feb 2001 20:48:49 +0100 (CET)
+From: arjan@fenrus.demon.nl (Arjan van de Ven)
+To: sandy@storm.ca (Sandy Harris)
+Subject: Re: [PATCH][CFT] per-process namespaces for Linux
+cc: linux-kernel@vger.kernel.org
+X-Newsgroups: fenrus.linux.kernel
+In-Reply-To: <Pine.GSO.4.21.0102251048280.25245-100000@weyl.math.psu.edu> <3A99569F.98C64B29@storm.ca>
+User-Agent: tin/pre-1.4-981002 ("Phobia") (UNIX) (Linux/2.2.18pre19 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oh, and one last thing I forgot: loop devices. Since 2.4.1 (the first
-version I used) through 2.4.2 and 2.4.2ac3 I only get:
+In article <3A99569F.98C64B29@storm.ca> you wrote:
 
-cerebro:~# strace -f -o x losetup -e rc6 /dev/loop0 /dev/hdd
-Memory Fault
+> A better approach might be to find or invent a generic compressed file system.
+> Given that, you just build a compressed root, copy an image of it into ramdisk
+> and let the compressed FS driver handle it from there. I suspect such a driver
+> might be useful elsewhere as well. Does one exist?
 
-And then no access to the loop device works anymore (clearly this is after
-the 2.4.0.something crypto-patch applied, so this is probably not a 2.4.2
-issue anyway since there is no 2.4.2 crypto patch).
+cramfs is compressed but read-only, jffs has the potential to do compressed
+writes as well....
 
-Happy Hacking ;)
-
--- 
-      -----==-                                             |
-      ----==-- _                                           |
-      ---==---(_)__  __ ____  __       Marc Lehmann      +--
-      --==---/ / _ \/ // /\ \/ /       pcg@goof.com      |e|
-      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
-    The choice of a GNU generation                       |
-                                                         |
+Greetings,
+    Arjan van de Ven

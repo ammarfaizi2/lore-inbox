@@ -1,57 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135759AbRDXXta>; Tue, 24 Apr 2001 19:49:30 -0400
+	id <S135760AbRDYABz>; Tue, 24 Apr 2001 20:01:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135760AbRDXXtV>; Tue, 24 Apr 2001 19:49:21 -0400
-Received: from 64-42-29-14.atgi.net ([64.42.29.14]:4356 "HELO
-	mail.clouddancer.com") by vger.kernel.org with SMTP
-	id <S135759AbRDXXtI>; Tue, 24 Apr 2001 19:49:08 -0400
-To: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-Message-Id: <20010424234901.6FCD578478@mail.clouddancer.com>
-Date: Tue, 24 Apr 2001 16:49:01 -0700 (PDT)
-From: klink@clouddancer.com (Colonel)
+	id <S135761AbRDYABh>; Tue, 24 Apr 2001 20:01:37 -0400
+Received: from vitelus.com ([64.81.36.147]:56844 "EHLO vitelus.com")
+	by vger.kernel.org with ESMTP id <S135760AbRDYABe>;
+	Tue, 24 Apr 2001 20:01:34 -0400
+Date: Tue, 24 Apr 2001 17:01:18 -0700
+From: Aaron Lehmann <aaronl@vitelus.com>
+To: imel96@trustix.co.id, Daniel Stone <daniel@kabuki.openfridge.net>,
+        Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Single user linux
+Message-ID: <20010424170118.F19171@vitelus.com>
+In-Reply-To: <20010424225841.D5803@piro.kabuki.openfridge.net> <Pine.LNX.4.33.0104242018410.16215-100000@tessy.trustix.co.id> <20010424233801.A6067@piro.kabuki.openfridge.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <20010424233801.A6067@piro.kabuki.openfridge.net>; from daniel@kabuki.openfridge.net on Tue, Apr 24, 2001 at 11:38:01PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Colonel <klink@clouddancer.com>
-To: marcelo@conectiva.com.br
-CC: linux-kernel@vger.kernel.org
-In-reply-to: <Pine.LNX.4.21.0104232030480.1264-100000@freak.distro.conectiva>
-	(message from Marcelo Tosatti on Mon, 23 Apr 2001 20:31:12 -0300
-	(BRT))
-Subject: Re: 2.4.4-pre6 :  THANKS!  very snappy here [nt]
-Reply-to: klink@clouddancer.com
-In-Reply-To:  <Pine.LNX.4.21.0104232030480.1264-100000@freak.distro.conectiva>
+On Tue, Apr 24, 2001 at 11:38:01PM +1000, Daniel Stone wrote:
+> And UNIX on a phone is pure overkill.
 
-   Date: Mon, 23 Apr 2001 20:31:12 -0300 (BRT)
-   From: Marcelo Tosatti <marcelo@conectiva.com.br>
-   X-Sender: marcelo@freak.distro.conectiva
-
-
-   Just as curiosity --- did it got faster in pre5 ? 
-
-   On Mon, 23 Apr 2001, Colonel wrote:
-
-   > but since you read it, system seems like it's running twice as fast
-
-
-Actually, it made not be pre6.  I patched the kernel per some thread
-on LKML a few days before, but had not had the opportunity to reboot
-and run it until pre6.  The patch was :
-
-
---- linux/mm/page_alloc.c.~1~	Tue Mar 20 15:05:46 2001
-+++ linux/mm/page_alloc.c	Sat Apr 21 19:01:47 2001
-@@ -454,7 +454,6 @@
- 		if (gfp_mask & __GFP_WAIT) {
- 			memory_pressure++;
- 			try_to_free_pages(gfp_mask);
--			wakeup_bdflush(0);
- 			goto try_again;
- 		}
- 	}
-
-
-It would make more sense that the above change was responsible for the
-improvement.
-
+Quit being a naysayer. UNIX on a PDA is a wet dream.

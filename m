@@ -1,55 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318075AbSHPDFW>; Thu, 15 Aug 2002 23:05:22 -0400
+	id <S318086AbSHPDIm>; Thu, 15 Aug 2002 23:08:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318078AbSHPDFW>; Thu, 15 Aug 2002 23:05:22 -0400
-Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:5601 "EHLO
-	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
-	id <S318075AbSHPDFV>; Thu, 15 Aug 2002 23:05:21 -0400
-Date: Fri, 16 Aug 2002 04:09:02 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] user-vm-unlock-2.5.31-A2
-Message-ID: <20020816040902.A31570@kushida.apsleyroad.org>
-References: <20020815222731.A28998@kushida.apsleyroad.org> <Pine.LNX.4.44.0208152350590.24024-100000@localhost.localdomain>
+	id <S318099AbSHPDIm>; Thu, 15 Aug 2002 23:08:42 -0400
+Received: from waste.org ([209.173.204.2]:40089 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S318086AbSHPDIl>;
+	Thu, 15 Aug 2002 23:08:41 -0400
+Date: Thu, 15 Aug 2002 22:12:03 -0500
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Erik Andersen <andersen@codepoet.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
+Subject: Re: [PATCH] cdrom sane fallback vs 2.4.20-pre1
+Message-ID: <20020816031203.GA5418@waste.org>
+References: <20020811215914.GC27048@codepoet.org> <Pine.LNX.4.44.0208122357590.3620-100000@freak.distro.conectiva> <20020813041243.GA23433@codepoet.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0208152350590.24024-100000@localhost.localdomain>; from mingo@elte.hu on Fri, Aug 16, 2002 at 12:02:54AM +0200
+In-Reply-To: <20020813041243.GA23433@codepoet.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> > [...] And I would like this while having the benefit of CLONE_DETACHED -
-> > because I want to use this for high performance threading but still be
-> > robust - so waitpid() is out.
+On Mon, Aug 12, 2002 at 10:12:44PM -0600, Erik Andersen wrote:
+> On Mon Aug 12, 2002 at 11:58:26PM -0300, Marcelo Tosatti wrote:
+> > 
+> > 
+> > On Sun, 11 Aug 2002, Erik Andersen wrote:
+> > 
+> > > +++ drivers/cdrom/cdrom.c	Sun Aug 11 15:37:24 2002
+> > > @@ -1916,6 +1916,7 @@
+> > >  {
+> > >  	struct cdrom_device_ops *cdo = cdi->ops;
+> > >  	struct cdrom_generic_command cgc;
+> > > +	struct request_sense sense;
+> > >  	kdev_t dev = cdi->dev;
+> > >  	char buffer[32];
+> > >  	int ret = 0;
+> > > @@ -1951,9 +1952,11 @@
+> > >  		cgc.buffer = (char *) kmalloc(blocksize, GFP_KERNEL);
+> > >  		if (cgc.buffer == NULL)
+> > >  			return -ENOMEM;
+> > > +		memset(&sense, 0, sizeof(sense));
+> > > +		cgc.sense = &sense;
+> > >  		cgc.data_direction = CGC_DATA_READ;
+> > >  		ret = cdrom_read_block(cdi, &cgc, lba, 1, format, blocksize);
+> > > -		if (ret) {
+> > > +		if (ret && sense.sense_key==0x05 && sense.asc==0x20 && sense.ascq==0x00) {
+> > 
+> > Do you really need to hardcode this values ?
 > 
-> like i said in the original email, the point of CLONE_DETACHED is to avoid
-> the waitpid() overhead. I also said that exit notification is done via
-> mutexes (futexes).
+> This allows it to falls back to READ_10 only when the drive
+> reports "Hey! You gave me an invalid command!" which is the one
+> and only case when a fall back to READ_10 is appropriate.  I am
+> not aware of any other reason for which a fallback to READ_10 is
+> useful.
 
-How?  Scenario:
+A comment to that effect would be useful. Not so much the
+interpretation of the numbers (which are easy enough to look up) but
+the rationale.
 
-   1. a thread calls a 3rd party library which was _not_ compiled with
-      threading in mind.  (It shouldn't have to be).
-
-   2. 3rd party library sends itself a SIGABRT; perhaps an assertion
-      failed.  (Variants: SIGFPE, library does execve(), etc.)
-
-   3. thread exits....   but the mutex was _not_ released
-
-   4. I _want_ to report the death to other thread, without having
-      to poll all my children in my main event loop.
-
-This is a very legitimate and useful kind of thread death, and it's
-perfectly safe too.  (Not pthreads-conformant, but clone() is useful for
-more than just pthreads).
-
-As things are at the moment, you've arranged things so that I can't use
-CLONE_DETACHED if I want to catch threads which die unexpectedly.
-
-Why can't I have both at the same time?  They are both good.
-
--- Jamie
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 

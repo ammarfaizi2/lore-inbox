@@ -1,52 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267975AbRG2MlH>; Sun, 29 Jul 2001 08:41:07 -0400
+	id <S267985AbRG2NZY>; Sun, 29 Jul 2001 09:25:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267967AbRG2Mk5>; Sun, 29 Jul 2001 08:40:57 -0400
-Received: from [212.150.191.130] ([212.150.191.130]:52941 "EHLO
-	vsun14.valor.com") by vger.kernel.org with ESMTP id <S267975AbRG2Mko>;
-	Sun, 29 Jul 2001 08:40:44 -0400
-Message-ID: <3B64044F.65B208C2@valor.com>
-Date: Sun, 29 Jul 2001 15:40:47 +0300
-From: Peter Gordon <peter@valor.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
+	id <S267983AbRG2NZO>; Sun, 29 Jul 2001 09:25:14 -0400
+Received: from fandango.cs.unitn.it ([193.205.199.228]:4356 "EHLO
+	fandango.cs.unitn.it") by vger.kernel.org with ESMTP
+	id <S267976AbRG2NZA>; Sun, 29 Jul 2001 09:25:00 -0400
+From: Massimo Dal Zotto <dz@cs.unitn.it>
+Message-Id: <200107290748.f6T7mKj7009629@dizzy.dz.net>
+Subject: Re: strange problem with reiserfs and /proc fs
+In-Reply-To: <20010729171209.D13366@eye-net.com.au> "from Craig Small at Jul
+ 29, 2001 05:12:09 pm"
+To: Craig Small <csmall@eye-net.com.au>
+Date: Sun, 29 Jul 2001 09:48:20 +0200 (MEST)
+CC: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
+X-Mailer: ELM [version 2.4ME+ PL89 (25)]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.4.7 DAC960.c won't compile
-Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-[1.] Kernel 2.4.7 won't compile on a Compaq ML370 Proliant
-[2.] I am running RedHat 7.1 and am trying to compile the modules for
-kernel 2.4.7. The computer has 2 cpus and 4GB memory.
+> On Sat, Jul 28, 2001 at 10:04:05PM +0200, Massimo Dal Zotto wrote:
+> > I've found a strange problem with reiserfs. In some situations it interferes
+> > with the /proc filesystem and makes all processes unreadable to top. After
+> > a few seconds the situation returns normal. To verify the problem try the
+> > following procedure:
+> Have to be one of the strangest bugs I've seen.  Makes be a bit lucky
+> that reiser will oops on my machine so I cannot use it...
+> I have also passed this bug onto the procps author, who may be able to
+> shed a bit more light on the problem.
+> 
+> > 3)	type a few characters and save the file with C-x C-s. After the
+> > 	file is saved top will show 0 processes. Sometimes it will show
+> > 	only a few processes for an istant and then nothing. Sometimes
+> > 	it will work fine. After a few seconds the missing processes
+> > 	will show again. Modifying and saving the file again will show
+> > 	the same behavior.
+> When you say top prints nothing do you mean it only prints the header
+> and no processes in the list?  Does this problem happen with any other
+> program, say vi, or only in emacs?  Does ps have this bevhavour?
 
-Here is the error message
+It prints the header with 0 processes and 100% idle:
 
-make[2]: Entering directory `/usr/src/linux-2.4.7/drivers/block'
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.7/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
--march=i686 -DMODULE -DMODVERSIONS -include
-/usr/src/linux-2.4.7/include/linux/modversions.h   -DEXPORT_SYMTAB -c
-DAC960.c
-DAC960.c: In function `DAC960_ProcessRequest':
-DAC960.c:2771: structure has no member named `sem'
-make[2]: *** [DAC960.o] Error 1
-make[2]: Leaving directory `/usr/src/linux-2.4.7/drivers/block'
-make[1]: *** [_modsubdir_block] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4.7/drivers'
-make: *** [_mod_drivers] Error 2
+ 09:40:24 up 24 min, 10 users,  load average: 0.16, 0.26, 0.34
+0 processes: 0 sleeping, 0 running, 0 zombie, 0 stopped
+CPU states:   0.0% user,   0.0% system,   0.0% nice,  100.0% idle
+Mem:    126332K total,   121072K used,     5260K free,    38592K buffers
+Swap:   257032K total,    73508K used,   183524K free,    24860K cached
 
+I have been able to reproduce the bug only with emacs. Another thing I have
+discovered is that if there is an intense disk activity (for example a find)
+the problem disappears, so the fact that it disappears by itself after a
+few seconds is probably caused by some other process accessing the disk.
+Also ps shows the same behavior:
 
+$ ps aux
+USER       PID %CPU %MEM   VSZ  RSS TTY      STAT START   TIME COMMAND
+$
 
-Peter
+> 
+> > In the attachments you will find two traces of the running top, one behaving
+> > normally and one exhibiting the problem, and my kernel config.
+> The interesting difference is that the good program does
+> stat64,open,read,close...
+> But the bad program does is just stat64.
+> I get 96 stat64s for both programs in that loop.
+> 
+> So obviously top doesn't like whatever stat64 is telling it.
+> Looking at the code (in readproc() in proc/readproc.c if anyone is
+> interested) I cannot see much that should upset it.  We know stat is
+> returning 0 so that is ok, about the only other thing is a alloc.
+> 
+> If you like, you can submit this as a bug report into the Debian Bug
+> Tracking System, but I suspect there is a kernel problem here giving
+> wierd stat returns for proc.
+
+I haven't submitted a bug because I'am not sure it is a procps problem.
 
 -- 
-Peter Gordon
-Tel: (972) 8 9432430 Ext: 129 Cell phone: 054 438029 Fax: (972) 8
-9432429  
-Valor Ltd, PO Box 152, Yavne 70600, Israel Email: peter@valor.com
+Massimo Dal Zotto
+
++----------------------------------------------------------------------+
+|  Massimo Dal Zotto               email: dz@cs.unitn.it               |
+|  Via Marconi, 141                phone: ++39-0461534251              |
+|  38057 Pergine Valsugana (TN)      www: http://www.cs.unitn.it/~dz/  |
+|  Italy                             pgp: see my www home page         |
++----------------------------------------------------------------------+

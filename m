@@ -1,96 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265810AbUFVU2B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265265AbUFVU2A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265810AbUFVU2B (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 16:28:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265132AbUFVUYs
+	id S265265AbUFVU2A (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 16:28:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265810AbUFVUZ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 16:24:48 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31901 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265810AbUFVUWs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 16:22:48 -0400
-Message-ID: <40D89509.6010502@pobox.com>
-Date: Tue, 22 Jun 2004 16:22:33 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-ide@vger.kernel.org
-CC: Ricky Beam <jfbeam@bluetronic.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fix sata_sil quirk
-Content-Type: multipart/mixed;
- boundary="------------010603080104080507040708"
+	Tue, 22 Jun 2004 16:25:26 -0400
+Received: from gate.crashing.org ([63.228.1.57]:31914 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S265265AbUFVUWm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 16:22:42 -0400
+Subject: [PATCH] radeonfb: Fix panel detection on some laptops
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1087935369.1855.8.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 22 Jun 2004 15:16:09 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010603080104080507040708
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi !
 
-Here's my suggested fix...  good catch Ricky.
+The code in radeonfb looking for the BIOS image currently uses the
+BIOS ROM if any, and falls back to the RAM image if not found. This
+is unfortunatly not correct for a bunch of laptops where the real
+panel data are only present in the RAM image.
 
-Yes, unfortunately performance will be dog slow.
+This works around this problem by preferring the RAM image on mobility
+chipsets. This is definitely not the best workaround, we need some arch
+support for linking the RAM image to the PCI ID (preferrably by having
+the arch snapshot it during boot, isolating us completely from the details
+of where this image is in memory). I'll see how we can get such
+an improvement later.
 
-Silicon Image 311x is fully SATA compliant -- but it's the only 
-controller that sends odd-sized packets to the SATA device.  That causes 
-no end of problems, including the thing that SIL_QUIRK_MOD15WRITE 
-attempts to work around.
+Please apply,
 
-I've got contacts at Silicon Image, and have been meaning to bug them 
-for a "real fix" for a while.  It is rumored that there is a much better 
-fix, which allows full performance while at the same time not killing 
-your SATA drive due to odd-sized SATA frames on the wire.
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
-Unfortunately, at this point in time, we must err on the side of caution 
-and cripple performance, for stability.
-
-	Jeff
-
-
-
---------------010603080104080507040708
-Content-Type: text/plain;
- name="patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch"
-
-===== drivers/scsi/libata-scsi.c 1.39 vs edited =====
---- 1.39/drivers/scsi/libata-scsi.c	2004-05-12 11:46:21 -04:00
-+++ edited/drivers/scsi/libata-scsi.c	2004-06-22 16:18:57 -04:00
-@@ -182,7 +182,8 @@
- 		 * 65534 when Jens Axboe's patch for dynamically
- 		 * determining max_sectors is merged.
- 		 */
--		if (dev->flags & ATA_DFLAG_LBA48) {
-+		if ((dev->flags & ATA_DFLAG_LBA48) &&
-+		    ((dev->flags & ATA_DFLAG_LOCK_SECTORS) == 0)) {
- 			sdev->host->max_sectors = 2048;
- 			blk_queue_max_sectors(sdev->request_queue, 2048);
- 		}
-===== drivers/scsi/sata_sil.c 1.26 vs edited =====
---- 1.26/drivers/scsi/sata_sil.c	2004-06-15 00:29:32 -04:00
-+++ edited/drivers/scsi/sata_sil.c	2004-06-22 16:18:21 -04:00
-@@ -302,6 +302,7 @@
- 		       ap->id, dev->devno);
- 		ap->host->max_sectors = 15;
- 		ap->host->hostt->max_sectors = 15;
-+		dev->flags |= ATA_DFLAG_LOCK_SECTORS;
- 		return;
- 	}
+===== drivers/video/aty/radeon_base.c 1.20 vs edited =====
+--- 1.20/drivers/video/aty/radeon_base.c	2004-06-18 11:36:48 -05:00
++++ edited/drivers/video/aty/radeon_base.c	2004-06-22 15:11:16 -05:00
+@@ -2268,9 +2268,17 @@
  
-===== include/linux/libata.h 1.38 vs edited =====
---- 1.38/include/linux/libata.h	2004-06-22 00:54:44 -04:00
-+++ edited/include/linux/libata.h	2004-06-22 16:17:44 -04:00
-@@ -91,6 +91,7 @@
- 	ATA_DFLAG_MASTER	= (1 << 2), /* is device 0? */
- 	ATA_DFLAG_WCACHE	= (1 << 3), /* has write cache we can
- 					     * (hopefully) flush? */
-+	ATA_DFLAG_LOCK_SECTORS	= (1 << 4), /* don't adjust max_sectors */
+ 	/*
+ 	 * Map the BIOS ROM if any and retreive PLL parameters from
+-	 * either BIOS or Open Firmware
++	 * the BIOS. We skip that on mobility chips as the real panel
++	 * values we need aren't in the ROM but in the BIOS image in
++	 * memory. This is definitely not the best meacnism though,
++	 * we really need the arch code to tell us which is the "primary"
++	 * video adapter to use the memory image (or better, the arch
++	 * should provide us a copy of the BIOS image to shield us from
++	 * archs who would store that elsewhere and/or could initialize
++	 * more than one adapter during boot).
+ 	 */
+-	radeon_map_ROM(rinfo, pdev);
++	if (!rinfo->is_mobility)
++		radeon_map_ROM(rinfo, pdev);
  
- 	ATA_DEV_UNKNOWN		= 0,	/* unknown device */
- 	ATA_DEV_ATA		= 1,	/* ATA device */
+ 	/*
+ 	 * On x86, the primary display on laptop may have it's BIOS
+@@ -2282,6 +2290,12 @@
+ 	if (rinfo->bios_seg == NULL)
+ 		radeon_find_mem_vbios(rinfo);
+ #endif /* __i386__ */
++
++	/* If both above failed, try the BIOS ROM again for mobility
++	 * chips
++	 */
++	if (rinfo->bios_seg == NULL && rinfo->is_mobility)
++		radeon_map_ROM(rinfo, pdev);
+ 
+ 	/* Get informations about the board's PLL */
+ 	radeon_get_pllinfo(rinfo);
 
---------------010603080104080507040708--
+

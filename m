@@ -1,42 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261894AbTABNwj>; Thu, 2 Jan 2003 08:52:39 -0500
+	id <S261900AbTABOGe>; Thu, 2 Jan 2003 09:06:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261900AbTABNwj>; Thu, 2 Jan 2003 08:52:39 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:53455 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S261894AbTABNwj>;
-	Thu, 2 Jan 2003 08:52:39 -0500
-Date: Thu, 2 Jan 2003 13:59:28 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Antonino Daplas <adaplas@pol.net>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] [TRIVIAL] [AGPGART]:  early agp init fix
-Message-ID: <20030102135928.GA28043@codemonkey.org.uk>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Antonino Daplas <adaplas@pol.net>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-References: <1041514432.1003.30.camel@localhost.localdomain>
-Mime-Version: 1.0
+	id <S261907AbTABOGe>; Thu, 2 Jan 2003 09:06:34 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:29444 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S261900AbTABOGd>; Thu, 2 Jan 2003 09:06:33 -0500
+Message-ID: <3E143F74.434AD08B@linux-m68k.org>
+Date: Thu, 02 Jan 2003 14:32:36 +0100
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Tomas Szepe <szepe@pinerecords.com>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] top-level config menu dependencies
+References: <20030101162519.GF15200@louise.pinerecords.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1041514432.1003.30.camel@localhost.localdomain>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 02, 2003 at 09:34:04PM +0800, Antonino Daplas wrote:
- 
- > intel_agp_init() must not be declared static for explicit early
- > initialization to work (ie i810fb).
+Hi,
 
-Ahh, I was wondering why that was the odd one out.
-Applied, with a comment added describing this so it doesn't
-happen again 8-)
+Tomas Szepe wrote:
 
-Thanks,
+> While converting the way submenus appear in menuconfig depending on
+> their main, parent config option, I stumbled upon certain subsystems
+> (such as MTD or IrDA) that should clearly have an on/off switch directly
+> in the main menu so that one doesn't have to enter the corresponding
+> submenus to even see if they're enabled or disabled.
+> 
+> Since the new kernel configurator would have no problems with such
+> a setup, I'm posting this RFC to get the general opinion on whether
+> this should be carried on with.  I'm willing to create and send in
+> the patches.
 
-		Dave
+While all config programs should be able to handle this, it might look a
+bit strange. Especially the split view of xconfig relies a bit on the
+current organisation of the config data.
+My idea to handle this would be to turn e.g.:
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+menu "Memory Technology Devices (MTD)"
+
+config MTD
+	tristate "Memory Technology Device (MTD) support"
+
+into something like this:
+
+menuconfig MTD
+	tristate "Memory Technology Device (MTD) support"
+
+This would give the front ends the most flexibility. The required
+changes are quite small, so it should be doable for 2.6. I'm not
+completely sure about the syntax yet, but above is the most likely
+version.
+
+bye, Roman
+
+

@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263772AbUDFLFM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 07:05:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263770AbUDFLFM
+	id S263751AbUDFLHF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 07:07:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263771AbUDFLGy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 07:05:12 -0400
-Received: from p062096.ppp.asahi-net.or.jp ([221.113.62.96]:17644 "EHLO
-	mitou.ysato.dip.jp") by vger.kernel.org with ESMTP id S263751AbUDFLAt
+	Tue, 6 Apr 2004 07:06:54 -0400
+Received: from p062096.ppp.asahi-net.or.jp ([221.113.62.96]:19180 "EHLO
+	mitou.ysato.dip.jp") by vger.kernel.org with ESMTP id S263765AbUDFLBB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 07:00:49 -0400
-Date: Tue, 06 Apr 2004 20:00:07 +0900
-Message-ID: <m2ad1pl6bs.wl%ysato@users.sourceforge.jp>
+	Tue, 6 Apr 2004 07:01:01 -0400
+Date: Tue, 06 Apr 2004 20:00:20 +0900
+Message-ID: <m27jwtl6bf.wl%ysato@users.sourceforge.jp>
 From: Yoshinori Sato <ysato@users.sourceforge.jp>
 To: Linus Torvalds <torvalds@osdl.org>
 Cc: linux kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] H8/300 support update (1/3) - ptrace fix
+Subject: [PATCH] H8/300 support update (3/3) - others
 User-Agent: Wanderlust/2.11.23 (Wonderwall) SEMI/1.14.6 (Maruoka)
  LIMIT/1.14.7 (Fujiidera) APEL/10.6 Emacs/21.3 (i386-pc-linux-gnu)
  MULE/5.0 (SAKAKI)
@@ -23,778 +23,273 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- fix PTRACE_SIGLESTEP bug.
-- separate to CPU depend.
+- use new serial driver (drivers/serial/sh-sci.[ch])
+- typo fix
+- add message level
 
 -- 
 Yoshinori Sato
 <ysato@users.sourceforge.jp>
 
-diff -Nru -X .exclude-diff linux-2.6.5/arch/h8300/kernel/ptrace.c linux-2.6.5-h8300/arch/h8300/kernel/ptrace.c
---- linux-2.6.5/arch/h8300/kernel/ptrace.c	2004-01-09 15:59:19.000000000 +0900
-+++ linux-2.6.5-h8300/arch/h8300/kernel/ptrace.c	2004-03-25 21:30:46.000000000 +0900
-@@ -1,7 +1,7 @@
- /*
-  *  linux/arch/h8300/kernel/ptrace.c
-  *
-- *  Yoshinori Sato <qzb04471@nifty.ne.jp>
-+ *  Yoshinori Sato <ysato@users.sourceforge.jp>
-  *
-  *  Based on:
-  *  linux/arch/m68k/kernel/ptrace.c
-@@ -32,194 +32,17 @@
- #include <asm/processor.h>
- #include <asm/signal.h>
+diff -Nru -X .exclude-diff linux-2.6.5/arch/h8300/Kconfig linux-2.6.5-h8300/arch/h8300/Kconfig
+--- linux-2.6.5/arch/h8300/Kconfig	2004-04-06 17:11:10.000000000 +0900
++++ linux-2.6.5-h8300/arch/h8300/Kconfig	2004-04-06 17:00:23.000000000 +0900
+@@ -57,17 +57,17 @@
+ config H8300H_AKI3068NET
+ 	bool "AE-3068/69"
+ 	help
+-	  AKI-H8/3068F / AKI-H8/3069F Flashmicom LAN Board Suppot
++	  AKI-H8/3068F / AKI-H8/3069F Flashmicom LAN Board Support
+ 	  More Information. (Japanese Only)
+ 	  <http://akizukidensi.com/catalog/h8.html>
+-	  AE-3068/69 Evalution Board Support
++	  AE-3068/69 Evaluation Board Support
+ 	  More Information.
+ 	  <http://www.microtronique.com/ae3069lan.htm>
  
-+/* cpu depend functions */
-+extern long h8300_get_reg(struct task_struct *task, int regno);
-+extern int  h8300_put_reg(struct task_struct *task, int regno, unsigned long data);
-+extern void h8300_disable_trace(struct task_struct *child);
-+extern void h8300_enable_trace(struct task_struct *child);
-+
- /*
-  * does not yet catch signals sent when the child dies.
-  * in exit.c or in signal.c.
-  */
+ config H8300H_H8MAX
+ 	bool "H8MAX"
+ 	help
+-	  H8MAX Evalution Board Suooprt
++	  H8MAX Evaluation Board Suooprt
+ 	  More Information. (Japanese Only)
+ 	  <http://strawberry-linux.com/h8/index.html>
  
--/* determines which bits in the SR the user has access to. */
--/* 1 = access 0 = no access */
--#define SR_MASK 0x001f
--
--/* sets the trace bits. */
--#define TRACE_BITS 0x8000
--
--/* Find the stack offset for a register, relative to thread.esp0. */
--#define PT_REG(reg)	((long)&((struct pt_regs *)0)->reg)
--/* Mapping from PT_xxx to the stack offset at which the register is
--   saved.  Notice that usp has no stack-slot and needs to be treated
--   specially (see get_reg/put_reg below). */
--static const int regoff[] = {
--	PT_REG(er1), PT_REG(er2), PT_REG(er3), PT_REG(er4),
--	PT_REG(er5), PT_REG(er6), PT_REG(er0), PT_REG(orig_er0),
--	PT_REG(ccr), PT_REG(pc)
--};
--
--/*
-- * Get contents of register REGNO in task TASK.
-- */
--static inline long get_reg(struct task_struct *task, int regno)
--{
--	unsigned long *addr;
--
--	if (regno == PT_USP)
--		addr = &task->thread.usp;
--	else if (regno < sizeof(regoff)/sizeof(regoff[0]))
--		addr = (unsigned long *)(task->thread.esp0 + regoff[regno]);
--	else
--		return 0;
--	return *addr;
--}
--
--/*
-- * Write contents of register REGNO in task TASK.
-- */
--static inline int put_reg(struct task_struct *task, int regno,
--			  unsigned long data)
--{
--	unsigned long *addr;
--
--	if (regno == PT_USP)
--		addr = &task->thread.usp;
--	else if (regno < sizeof(regoff)/sizeof(regoff[0]))
--		addr = (unsigned long *) (task->thread.esp0 + regoff[regno]);
--	else
--		return -1;
--	*addr = data;
--	return 0;
--}
--
--/*
-- * Called by kernel/ptrace.c when detaching..
-- *
-- * Make sure the single step bit is not set.
-- */
--int ptrace_cancel_bpt(struct task_struct *child)
--{
--        int i,r=0;
--
--	for(i=0; i<4; i++) {
--	        if (child->thread.debugreg[i]) {
--		        if (child->thread.debugreg[i] != ~0)
--		                put_user(child->thread.debugreg[i+4],
--                                         (unsigned short *)child->thread.debugreg[i]);
--			r = 1;
--			child->thread.debugreg[i] = 0;
--		}
--	}
--	return r;
--}
--
--const static unsigned char opcode0[]={
--  0x04,0x02,0x04,0x02,0x04,0x02,0x04,0x02,  /* 0x58 */
--  0x02,0x02,0x02,0x02,0x02,0x02,0x02,0x02,  /* 0x60 */
--  0x02,0x02,0x11,0x11,0x02,0x02,0x04,0x04,  /* 0x68 */
--  0x02,0x02,0x02,0x02,0x02,0x02,0x02,0x02,  /* 0x70 */
--  0x08,0x04,0x06,0x04,0x04,0x04,0x04,0x04}; /* 0x78 */
--
--const static int table_parser01(unsigned char *pc);
--const static int table_parser02(unsigned char *pc);
--const static int table_parser100(unsigned char *pc);
--const static int table_parser101(unsigned char *pc);
--
--const static int (*parsers[])(unsigned char *pc)={table_parser01,table_parser02};
--
--static int insn_length(unsigned char *pc)
--{
--  if (*pc == 0x01)
--    return table_parser01(pc+1);
--  if (*pc < 0x58 || *pc>=0x80) 
--    return 2;
--  else
--    if (opcode0[*pc-0x58]<0x10)
--      return opcode0[*pc-0x58];
--    else
--      return (*parsers[opcode0[*pc-0x58]-0x10])(pc+1);
--}
--
--const static int table_parser01(unsigned char *pc)
--{
--  const unsigned char codelen[]={0x10,0x00,0x00,0x00,0x11,0x00,0x00,0x00,
--                                 0x02,0x00,0x00,0x00,0x04,0x04,0x00,0x04};
--  const static int (*parsers[])(unsigned char *)={table_parser100,table_parser101};
--  unsigned char second_index;
--  second_index = (*pc) >> 4;
--  if (codelen[second_index]<0x10)
--    return codelen[second_index];
--  else
--    return parsers[codelen[second_index]-0x10](pc);
--}
--
--const static int table_parser02(unsigned char *pc)
--{
--  return (*pc & 0x20)?0x06:0x04;
--}
--
--const static int table_parser100(unsigned char *pc)
--{
--  return (*(pc+2) & 0x02)?0x08:0x06;
--}
--
--const static int table_parser101(unsigned char *pc)
--{
--  return (*(pc+2) & 0x02)?0x08:0x06;
--}
--
--#define BREAK_INST 0x5730 /* TRAPA #3 */
--
--int ptrace_set_bpt(struct task_struct *child)
--{
--        unsigned long pc,next;
--	unsigned short insn;
--	pc = get_reg(child,PT_PC);
--	next = insn_length((unsigned char *)pc) + pc;
--	get_user(insn,(unsigned short *)pc);
--	if (insn == 0x5470) {
--	        /* rts */ 
--	        unsigned long sp;
--		sp = get_reg(child,PT_USP);
--		get_user(next,(unsigned long *)sp);
--	} else if ((insn & 0xfb00) != 0x5800) {
--	        /* jmp / jsr */
--	        int regs;
--		const short reg_tbl[]={PT_ER0,PT_ER1,PT_ER2,PT_ER3,
--                                       PT_ER4,PT_ER5,PT_ER6,PT_USP};
--	        switch(insn & 0xfb00) {
--		        case 0x5900:
--			       regs = (insn & 0x0070) >> 8;
--                               next = get_reg(child,reg_tbl[regs]);
--			       break;
--		        case 0x5a00:
--			       get_user(next,(unsigned long *)(pc+2));
--			       next &= 0x00ffffff;
--			       break;
--		        case 0x5b00:
--			       /* unneccessary? */
--			       next = *(unsigned long *)(insn & 0xff);
--                               break;
--		}
--	} else if (((insn & 0xf000) == 0x4000) || ((insn &0xff00) == 0x5500)) { 
--	        /* b**:8 */
--	        unsigned long dsp;
--		dsp = (long)(insn && 0xff)+pc+2;
--		child->thread.debugreg[1] = dsp;
--		get_user(child->thread.debugreg[5],(unsigned short *)dsp);
--		put_user(BREAK_INST,(unsigned short *)dsp);
--	} else if (((insn & 0xff00) == 0x5800) || ((insn &0xff00) == 0x5c00)) { 
--	        /* b**:16 */
--	        unsigned long dsp;
--		get_user(dsp,(unsigned short *)(pc+2));
--		dsp = (long)dsp+pc+4;
--		child->thread.debugreg[1] = dsp;
--		get_user(child->thread.debugreg[5],(unsigned short *)dsp);
--		put_user(BREAK_INST,(unsigned short *)dsp);
--	}
--	child->thread.debugreg[0] = next;
--	get_user(child->thread.debugreg[4],(unsigned short *)next);
--	put_user(BREAK_INST,(unsigned short *)next);
--	return 0;
--}
--
- inline
- static int read_long(struct task_struct * tsk, unsigned long addr,
- 	unsigned long * result)
-@@ -230,7 +53,7 @@
+@@ -81,7 +81,7 @@
+ config H8S_EDOSK2674
+ 	bool "EDOSK-2674"
+ 	help
+-	  Renesas EDOSK-2674R Evalution Board Support
++	  Renesas EDOSK-2674 Evaluation Board Support
+ 	  More Information.
+ 	  <http://www.azpower.com/H8-uClinux/index.html>
+  	  <http://www.eu.renesas.com/tools/edk/support/edosk2674.html>
+@@ -240,70 +240,6 @@
+ 	depends on VT && !S390 && !UM
+ 	default y
  
- void ptrace_disable(struct task_struct *child)
- {
--	ptrace_cancel_bpt(child);
-+	h8300_disable_trace(child);
- }
- 
- asmlinkage int sys_ptrace(long request, long pid, long addr, long data)
-@@ -298,8 +121,8 @@
- 			
- 			tmp = 0;  /* Default return condition */
- 			addr = addr >> 2; /* temporary hack. */
--			if (addr < 10)
--				tmp = get_reg(child, addr);
-+			if (addr < H8300_REGS_NO)
-+				tmp = h8300_get_reg(child, addr);
- 			else {
- 				ret = -EIO;
- 				break ;
-@@ -328,14 +151,8 @@
- 				ret = -EIO;
- 				break ;
- 			}
--			if (addr == PT_CCR) {
--				data &= SR_MASK;
--			}
--			if (addr < 10) {
--				if (put_reg(child, addr, data))
--					ret = -EIO;
--				else
--					ret = 0;
-+			if (addr < H8300_REGS_NO) {
-+				ret = h8300_put_reg(child, addr, data);
- 				break ;
- 			}
- 			ret = -EIO;
-@@ -352,7 +169,7 @@
- 			child->exit_code = data;
- 			wake_up_process(child);
- 			/* make sure the single step bit is not set. */
--			ptrace_cancel_bpt(child);
-+			h8300_disable_trace(child);
- 			ret = 0;
- 		}
- 
-@@ -367,7 +184,7 @@
- 			if (child->state == TASK_ZOMBIE) /* already dead */
- 				break;
- 			child->exit_code = SIGKILL;
--			ptrace_cancel_bpt(child);
-+			h8300_disable_trace(child);
- 			wake_up_process(child);
- 			break;
- 		}
-@@ -377,8 +194,8 @@
- 			if ((unsigned long) data > _NSIG)
- 				break;
- 			clear_tsk_thread_flag(child, TIF_SYSCALL_TRACE);
--			child->thread.debugreg[0]=-1;
- 			child->exit_code = data;
-+			h8300_enable_trace(child);
- 			wake_up_process(child);
- 			ret = 0;
- 			break;
-@@ -391,8 +208,8 @@
- 		case PTRACE_GETREGS: { /* Get all gp regs from the child. */
- 		  	int i;
- 			unsigned long tmp;
--			for (i = 0; i < 19; i++) {
--			    tmp = get_reg(child, i);
-+			for (i = 0; i < H8300_REGS_NO; i++) {
-+			    tmp = h8300_get_reg(child, i);
- 			    if (put_user(tmp, (unsigned long *) data)) {
- 				ret = -EFAULT;
- 				break;
-@@ -406,12 +223,12 @@
- 		case PTRACE_SETREGS: { /* Set all gp regs in the child. */
- 			int i;
- 			unsigned long tmp;
--			for (i = 0; i < 10; i++) {
-+			for (i = 0; i < H8300_REGS_NO; i++) {
- 			    if (get_user(tmp, (unsigned long *) data)) {
- 				ret = -EFAULT;
- 				break;
- 			    }
--			    put_reg(child, i, tmp);
-+			    h8300_put_reg(child, i, tmp);
- 			    data += sizeof(long);
- 			}
- 			ret = 0;
-@@ -449,13 +266,3 @@
- 		current->exit_code = 0;
- 	}
- }
+-config SERIAL
+-	tristate "Serial (8250, 16450, 16550 or compatible) support"
+-	---help---
+-	  This selects whether you want to include the driver for the standard
+-	  serial ports.  The standard answer is Y.  People who might say N
+-	  here are those that are setting up dedicated Ethernet WWW/FTP
+-	  servers, or users that have one of the various bus mice instead of a
+-	  serial mouse and don't intend to use their machine's standard serial
+-	  port for anything.  (Note that the Cyclades and Stallion multi
+-	  serial port drivers do not need this driver built in for them to
+-	  work.)
 -
--asmlinkage void trace_trap(unsigned long bp)
--{
--	if (current->thread.debugreg[0] == bp ||
--            current->thread.debugreg[1] == bp) {
--	        ptrace_cancel_bpt(current);
--		force_sig(SIGTRAP,current);
--	} else
--	        force_sig(SIGILL,current);
--}
-diff -Nru -X .exclude-diff linux-2.6.5/arch/h8300/platform/h8300h/Makefile linux-2.6.5-h8300/arch/h8300/platform/h8300h/Makefile
---- linux-2.6.5/arch/h8300/platform/h8300h/Makefile	2004-04-06 17:11:10.000000000 +0900
-+++ linux-2.6.5-h8300/arch/h8300/platform/h8300h/Makefile	2004-03-23 23:42:00.000000000 +0900
-@@ -4,5 +4,4 @@
- # Reuse any files we can from the H8/300H
- #
- 
--obj-y := entry.o ints_h8300h.o
+-	  To compile this driver as a module, choose M here: the
+-	  module will be called serial.
+-	  [WARNING: Do not compile this driver as a module if you are using
+-	  non-standard serial ports, since the configuration information will
+-	  be lost when the driver is unloaded.  This limitation may be lifted
+-	  in the future.]
 -
-+obj-y := entry.o ints_h8300h.o ptrace_h8300h.o
-diff -Nru -X .exclude-diff linux-2.6.5/arch/h8300/platform/h8300h/ptrace_h8300h.c linux-2.6.5-h8300/arch/h8300/platform/h8300h/ptrace_h8300h.c
---- linux-2.6.5/arch/h8300/platform/h8300h/ptrace_h8300h.c	1970-01-01 09:00:00.000000000 +0900
-+++ linux-2.6.5-h8300/arch/h8300/platform/h8300h/ptrace_h8300h.c	2004-03-23 23:42:00.000000000 +0900
-@@ -0,0 +1,282 @@
-+/*
-+ *  linux/arch/h8300/platform/h8300h/ptrace_h8300h.c
-+ *    ptrace cpu depend helper functions
-+ *
-+ *  Yoshinori Sato <ysato@users.sourceforge.jp>
-+ *
-+ * This file is subject to the terms and conditions of the GNU General
-+ * Public License.  See the file COPYING in the main directory of
-+ * this archive for more details.
-+ */
-+
-+#include <linux/linkage.h>
-+#include <linux/sched.h>
-+#include <asm/ptrace.h>
-+
-+#define CCR_MASK 0x6f    /* mode/imask not set */
-+#define BREAKINST 0x5730 /* trapa #3 */
-+
-+/* Mapping from PT_xxx to the stack offset at which the register is
-+   saved.  Notice that usp has no stack-slot and needs to be treated
-+   specially (see get_reg/put_reg below). */
-+static const int h8300_register_offset[] = {
-+	PT_REG(er1), PT_REG(er2), PT_REG(er3), PT_REG(er4),
-+	PT_REG(er5), PT_REG(er6), PT_REG(er0), PT_REG(orig_er0),
-+	PT_REG(ccr), PT_REG(pc)
-+};
-+
-+/* read register */
-+long h8300_get_reg(struct task_struct *task, int regno)
-+{
-+	switch (regno) {
-+	case PT_USP:
-+		return task->thread.usp + sizeof(long)*2;
-+	case PT_CCR:
-+	    return *(unsigned short *)(task->thread.esp0 + h8300_register_offset[regno]);
-+	default:
-+	    return *(unsigned long *)(task->thread.esp0 + h8300_register_offset[regno]);
-+	}
-+}
-+
-+/* write register */
-+int h8300_put_reg(struct task_struct *task, int regno, unsigned long data)
-+{
-+	unsigned short oldccr;
-+	switch (regno) {
-+	case PT_USP:
-+		task->thread.usp = data - sizeof(long)*2;
-+	case PT_CCR:
-+		oldccr = *(unsigned short *)(task->thread.esp0 + h8300_register_offset[regno]);
-+		oldccr &= ~CCR_MASK;
-+		data &= CCR_MASK;
-+		data |= oldccr;
-+		*(unsigned short *)(task->thread.esp0 + h8300_register_offset[regno]) = data;
-+		break;
-+	default:
-+		*(unsigned long *)(task->thread.esp0 + h8300_register_offset[regno]) = data;
-+		break;
-+	}
-+	return 0;
-+}
-+
-+/* disable singlestep */
-+void h8300_disable_trace(struct task_struct *child)
-+{
-+	if((long)child->thread.breakinfo.addr != -1L) {
-+		*child->thread.breakinfo.addr = child->thread.breakinfo.inst;
-+		child->thread.breakinfo.addr = (unsigned short *)-1L;
-+	}
-+}
-+
-+/* calculate next pc */
-+enum jump_type {none,    /* normal instruction */
-+		jabs,    /* absolute address jump */
-+		ind,     /* indirect address jump */
-+		ret,     /* return to subrutine */
-+		reg,     /* register indexed jump */
-+		relb,    /* pc relative jump (byte offset) */
-+		relw,    /* pc relative jump (word offset) */
-+               };
-+
-+/* opcode decode table define
-+   ptn: opcode pattern
-+   msk: opcode bitmask
-+   len: instruction length (<0 next table index)
-+   jmp: jump operation mode */
-+struct optable {
-+	unsigned char bitpattern;
-+	unsigned char bitmask;
-+	signed char length;
-+	signed char type;
-+} __attribute__((aligned(1),packed));
-+
-+#define OPTABLE(ptn,msk,len,jmp)   \
-+        {                          \
-+		.bitpattern = ptn, \
-+		.bitmask    = msk, \
-+		.length	    = len, \
-+		.type       = jmp, \
-+	}
-+
-+const static struct optable optable_0[] = {
-+	OPTABLE(0x00,0xff, 1,none), /* 0x00 */
-+	OPTABLE(0x01,0xff,-1,none), /* 0x01 */
-+	OPTABLE(0x02,0xfe, 1,none), /* 0x02-0x03 */
-+	OPTABLE(0x04,0xee, 1,none), /* 0x04-0x05/0x14-0x15 */
-+	OPTABLE(0x06,0xfe, 1,none), /* 0x06-0x07 */
-+	OPTABLE(0x08,0xea, 1,none), /* 0x08-0x09/0x0c-0x0d/0x18-0x19/0x1c-0x1d */
-+	OPTABLE(0x0a,0xee, 1,none), /* 0x0a-0x0b/0x1a-0x1b */
-+	OPTABLE(0x0e,0xee, 1,none), /* 0x0e-0x0f/0x1e-0x1f */
-+	OPTABLE(0x10,0xfc, 1,none), /* 0x10-0x13 */
-+	OPTABLE(0x16,0xfe, 1,none), /* 0x16-0x17 */
-+	OPTABLE(0x20,0xe0, 1,none), /* 0x20-0x3f */
-+	OPTABLE(0x40,0xf0, 1,relb), /* 0x40-0x4f */
-+	OPTABLE(0x50,0xfc, 1,none), /* 0x50-0x53 */
-+	OPTABLE(0x54,0xfd, 1,ret ), /* 0x54/0x56 */
-+	OPTABLE(0x55,0xff, 1,relb), /* 0x55 */
-+	OPTABLE(0x57,0xff, 1,none), /* 0x57 */
-+	OPTABLE(0x58,0xfb, 2,relw), /* 0x58/0x5c */
-+	OPTABLE(0x59,0xfb, 1,reg ), /* 0x59/0x5b */
-+	OPTABLE(0x5a,0xfb, 2,jabs), /* 0x5a/0x5e */
-+	OPTABLE(0x5b,0xfb, 2,ind ), /* 0x5b/0x5f */
-+	OPTABLE(0x60,0xe8, 1,none), /* 0x60-0x67/0x70-0x77 */
-+	OPTABLE(0x68,0xfa, 1,none), /* 0x68-0x69/0x6c-0x6d */
-+	OPTABLE(0x6a,0xfe,-2,none), /* 0x6a-0x6b */
-+	OPTABLE(0x6e,0xfe, 2,none), /* 0x6e-0x6f */
-+	OPTABLE(0x78,0xff, 4,none), /* 0x78 */
-+	OPTABLE(0x79,0xff, 2,none), /* 0x79 */
-+	OPTABLE(0x7a,0xff, 3,none), /* 0x7a */
-+	OPTABLE(0x7b,0xff, 2,none), /* 0x7b */
-+	OPTABLE(0x7c,0xfc, 2,none), /* 0x7c-0x7f */
-+	OPTABLE(0x80,0x80, 1,none), /* 0x80-0xff */
-+};
-+
-+const static struct optable optable_1[] = {
-+	OPTABLE(0x00,0xff,-3,none), /* 0x0100 */
-+	OPTABLE(0x40,0xf0,-3,none), /* 0x0140-0x14f */
-+	OPTABLE(0x80,0xf0, 1,none), /* 0x0180-0x018f */
-+	OPTABLE(0xc0,0xc0, 2,none), /* 0x01c0-0x01ff */
-+};
-+
-+const static struct optable optable_2[] = {
-+	OPTABLE(0x00,0x20, 2,none), /* 0x6a0?/0x6a8?/0x6b0?/0x6b8? */
-+	OPTABLE(0x20,0x20, 3,none), /* 0x6a2?/0x6aa?/0x6b2?/0x6ba? */
-+};
-+
-+const static struct optable optable_3[] = {
-+	OPTABLE(0x69,0xfb, 2,none), /* 0x010069/0x01006d/014069/0x01406d */
-+	OPTABLE(0x6b,0xff,-4,none), /* 0x01006b/0x01406b */
-+	OPTABLE(0x6f,0xff, 3,none), /* 0x01006f/0x01406f */
-+	OPTABLE(0x78,0xff, 5,none), /* 0x010078/0x014078 */
-+};
-+
-+const static struct optable optable_4[] = {
-+	OPTABLE(0x00,0x78, 3,none), /* 0x0100690?/0x01006d0?/0140690/0x01406d0?/0x0100698?/0x01006d8?/0140698?/0x01406d8? */
-+	OPTABLE(0x20,0x78, 4,none), /* 0x0100692?/0x01006d2?/0140692/0x01406d2?/0x010069a?/0x01006da?/014069a?/0x01406da? */
-+};
-+
-+const static struct optables_list {
-+	const struct optable *ptr;
-+	int size;
-+} optables[] = {
-+#define OPTABLES(no)                                                   \
-+        {                                                              \
-+		.ptr  = optable_##no,                                  \
-+		.size = sizeof(optable_##no) / sizeof(struct optable), \
-+	}
-+	OPTABLES(0),
-+	OPTABLES(1),
-+	OPTABLES(2),
-+	OPTABLES(3),
-+	OPTABLES(4),
-+
-+};
-+
-+const unsigned char condmask[] = {
-+	0x00,0x40,0x01,0x04,0x02,0x08,0x10,0x20
-+};
-+
-+static int isbranch(struct task_struct *task,int reson)
-+{
-+	unsigned char cond = h8300_get_reg(task, PT_CCR);
-+	/* encode complex conditions */
-+	/* B4: N^V
-+	   B5: Z|(N^V)
-+	   B6: C|Z */
-+	__asm__("bld #3,%w0\n\t"
-+		"bxor #1,%w0\n\t"
-+		"bst #4,%w0\n\t"
-+		"bor #2,%w0\n\t"
-+		"bst #5,%w0\n\t"
-+		"bld #2,%w0\n\t"
-+		"bor #0,%w0\n\t"
-+		"bst #6,%w0\n\t"
-+		:"=&r"(cond)::"cc");
-+	cond &= condmask[reson >> 1];
-+	if (!(reson & 1))
-+		return cond == 0;
-+	else
-+		return cond != 0;
-+}
-+
-+static unsigned short *getnextpc(struct task_struct *child, unsigned short *pc)
-+{
-+	const struct optable *op;
-+	unsigned char *fetch_p;
-+	unsigned char inst;
-+	unsigned long addr;
-+	unsigned long *sp;
-+	int op_len,regno;
-+	op = optables[0].ptr;
-+	op_len = optables[0].size;
-+	fetch_p = (unsigned char *)pc;
-+	inst = *fetch_p++;
-+	do {
-+		if ((inst & op->bitmask) == op->bitpattern) {
-+			if (op->length < 0) {
-+				op = optables[-op->length].ptr;
-+				op_len = optables[-op->length].size + 1;
-+				inst = *fetch_p++;
-+			} else {
-+				switch (op->type) {
-+				case none:
-+					return pc + op->length;
-+				case jabs:
-+					addr = *(unsigned long *)pc;
-+					return (unsigned short *)(addr & 0x00ffffff);
-+				case ind:
-+					addr = *pc & 0xff;
-+					return (unsigned short *)(*(unsigned long *)addr);
-+				case ret:
-+					sp = (unsigned long *)h8300_get_reg(child, PT_USP);
-+					/* user stack frames
-+					   |   er0  | temporary saved
-+					   +--------+
-+					   |   exp  | exception stack frames
-+					   +--------+
-+					   | ret pc | userspace return address
-+					*/ 
-+					return (unsigned short *)(*(sp+2) & 0x00ffffff);
-+				case reg:
-+					regno = (*pc >> 4) & 0x07;
-+					if (regno == 0)
-+						addr = h8300_get_reg(child, PT_ER0);
-+					else
-+						addr = h8300_get_reg(child, regno-1+PT_ER1);
-+					return (unsigned short *)addr;
-+				case relb:
-+					if ((inst = 0x55) || isbranch(child,inst & 0x0f))
-+						(unsigned char *)pc += (signed char)(*fetch_p);
-+					return pc+1; /* skip myself */
-+				case relw:
-+					if ((inst = 0x5c) || isbranch(child,(*fetch_p & 0xf0) >> 4))
-+						(unsigned char *)pc += (signed short)(*(pc+1));
-+					return pc+2; /* skip myself */
-+				}
-+			}
-+		} else
-+			op++;
-+	} while(--op_len > 0);
-+	return NULL;
-+}
-+
-+/* Set breakpoint(s) to simulate a single step from the current PC.  */
-+
-+void h8300_enable_trace(struct task_struct *child)
-+{
-+	unsigned short *nextpc;
-+	nextpc = getnextpc(child,(unsigned short *)h8300_get_reg(child, PT_PC));
-+	child->thread.breakinfo.addr = nextpc;
-+	child->thread.breakinfo.inst = *nextpc;
-+	*nextpc = BREAKINST;
-+}
-+
-+asmlinkage void trace_trap(unsigned long bp)
-+{
-+	if ((unsigned long)current->thread.breakinfo.addr == bp) {
-+		h8300_disable_trace(current);
-+		force_sig(SIGTRAP,current);
-+	} else
-+	        force_sig(SIGILL,current);
-+}
-+
-diff -Nru -X .exclude-diff linux-2.6.5/arch/h8300/platform/h8s/Makefile linux-2.6.5-h8300/arch/h8300/platform/h8s/Makefile
---- linux-2.6.5/arch/h8300/platform/h8s/Makefile	2004-04-06 17:11:10.000000000 +0900
-+++ linux-2.6.5-h8300/arch/h8300/platform/h8s/Makefile	2004-03-23 23:42:00.000000000 +0900
-@@ -4,4 +4,4 @@
- # Reuse any files we can from the H8S
- #
+-	  BTW1: If you have a mouseman serial mouse which is not recognized by
+-	  the X window system, try running gpm first.
+-
+-	  BTW2: If you intend to use a software modem (also called Winmodem)
+-	  under Linux, forget it.  These modems are crippled and require
+-	  proprietary drivers which are only available under Windows.
+-
+-	  Most people will say Y or M here, so that they can use serial mice,
+-	  modems and similar devices connecting to the standard serial ports.
+-
+-config SH_SCI
+-	tristate "Serial (SCI, SCIF) support"
+-	help
+-	  Selecting this option will allow the Linux kernel to transfer data
+-	  over SCI (Serial Communication Interface) and/or SCIF (Serial
+-	  Communication Interface with FIFO) which are built into the Hitachi
+-	  SuperH processor.  The option provides 1 to 3 (depending
+-	  on the CPU model) standard Linux tty devices, /dev/ttySC[012]; one
+-	  of these is normally used as the system console.
+-
+-	  If in doubt, press "y".
+-
+-config SERIAL_CONSOLE
+-	bool "Support for console on serial port"
+-	depends on SERIAL=y || SH_SCI=y
+-	---help---
+-	  If you say Y here, it will be possible to use a serial port as the
+-	  system console (the system console is the device which receives all
+-	  kernel messages and warnings and which allows logins in single user
+-	  mode). This could be useful if some terminal or printer is connected
+-	  to that serial port.
+-
+-	  Even if you say Y here, the currently visible virtual console
+-	  (/dev/tty0) will still be used as the system console by default, but
+-	  you can alter that using a kernel command line option such as
+-	  "console=ttyS1". (Try "man bootparam" or see the documentation of
+-	  your boot loader (lilo or loadlin) about how to pass options to the
+-	  kernel at boot time.)
+-
+-	  If you don't have a VGA card installed and you say Y here, the
+-	  kernel will automatically use the first serial line, /dev/ttyS0, as
+-	  system console.
+-
+-	  If unsure, say N.
+-
+ comment "Unix98 PTY support"
  
--obj-y := entry.o ints_h8s.o
-+obj-y := entry.o ints_h8s.o ptrace_h8s.o
-diff -Nru -X .exclude-diff linux-2.6.5/arch/h8300/platform/h8s/ptrace_h8s.c linux-2.6.5-h8300/arch/h8300/platform/h8s/ptrace_h8s.c
---- linux-2.6.5/arch/h8300/platform/h8s/ptrace_h8s.c	1970-01-01 09:00:00.000000000 +0900
-+++ linux-2.6.5-h8300/arch/h8300/platform/h8s/ptrace_h8s.c	2004-03-23 23:42:00.000000000 +0900
-@@ -0,0 +1,84 @@
-+/*
-+ *  linux/arch/h8300/platform/h8s/ptrace_h8s.c
-+ *    ptrace cpu depend helper functions
-+ *
-+ *  Yoshinori Sato <ysato@users.sourceforge.jp>
-+ *
-+ * This file is subject to the terms and conditions of the GNU General
-+ * Public License.  See the file COPYING in the main directory of
-+ * this archive for more details.
-+ */
-+
-+#include <linux/linkage.h>
-+#include <linux/sched.h>
-+#include <linux/errno.h>
-+#include <asm/ptrace.h>
-+
-+#define CCR_MASK  0x6f
-+#define EXR_TRACE 0x80
-+
-+/* Mapping from PT_xxx to the stack offset at which the register is
-+   saved.  Notice that usp has no stack-slot and needs to be treated
-+   specially (see get_reg/put_reg below). */
-+static const int h8300_register_offset[] = {
-+	PT_REG(er1), PT_REG(er2), PT_REG(er3), PT_REG(er4),
-+	PT_REG(er5), PT_REG(er6), PT_REG(er0), PT_REG(orig_er0),
-+	PT_REG(ccr), PT_REG(pc), PT_REG(exr)
-+};
-+
-+/* read register */
-+long h8300_get_reg(struct task_struct *task, int regno)
-+{
-+	switch (regno) {
-+	case PT_USP:
-+		return task->thread.usp + sizeof(long)*2 + 2;
-+	case PT_CCR:
-+	case PT_EXR:
-+	    return *(unsigned short *)(task->thread.esp0 + h8300_register_offset[regno]);
-+	default:
-+	    return *(unsigned long *)(task->thread.esp0 + h8300_register_offset[regno]);
-+	}
-+}
-+
-+/* write register */
-+int h8300_put_reg(struct task_struct *task, int regno, unsigned long data)
-+{
-+	unsigned short oldccr;
-+	switch (regno) {
-+	case PT_USP:
-+		task->thread.usp = data - sizeof(long)*2 - 2;
-+	case PT_CCR:
-+		oldccr = *(unsigned short *)(task->thread.esp0 + h8300_register_offset[regno]);
-+		oldccr &= ~CCR_MASK;
-+		data &= CCR_MASK;
-+		data |= oldccr;
-+		*(unsigned short *)(task->thread.esp0 + h8300_register_offset[regno]) = data;
-+		break;
-+	case PT_EXR:
-+		/* exr modify not support */
-+		return -EIO;
-+	default:
-+		*(unsigned long *)(task->thread.esp0 + h8300_register_offset[regno]) = data;
-+		break;
-+	}
-+	return 0;
-+}
-+
-+/* disable singlestep */
-+void h8300_disable_trace(struct task_struct *child)
-+{
-+	*(unsigned short *)(child->thread.esp0 + h8300_register_offset[PT_EXR]) &= ~EXR_TRACE;
-+}
-+
-+/* enable singlestep */
-+void h8300_enable_trace(struct task_struct *child)
-+{
-+	*(unsigned short *)(child->thread.esp0 + h8300_register_offset[PT_EXR]) |= EXR_TRACE;
-+}
-+
-+asmlinkage void trace_trap(unsigned long bp)
-+{
-+	(void)bp;
-+	force_sig(SIGTRAP,current);
-+}
-+
-diff -Nru -X .exclude-diff linux-2.6.5/include/asm-h8300/processor.h linux-2.6.5-h8300/include/asm-h8300/processor.h
---- linux-2.6.5/include/asm-h8300/processor.h	2004-04-06 17:10:58.000000000 +0900
-+++ linux-2.6.5-h8300/include/asm-h8300/processor.h	2004-04-06 01:52:17.000000000 +0900
-@@ -51,16 +51,19 @@
- #define MCA_bus 0
+ config UNIX98_PTYS
+@@ -396,7 +332,7 @@
  
- struct thread_struct {
--	unsigned long ksp;		/* kernel stack pointer */
--	unsigned long usp;		/* user stack pointer */
--	unsigned long ccr;		/* saved status register */
--	unsigned long esp0;             /* points to SR of stack frame */
--	unsigned long debugreg[8];      /* debug info */
-+	unsigned long  ksp;		/* kernel stack pointer */
-+	unsigned long  usp;		/* user stack pointer */
-+	unsigned long  ccr;		/* saved status register */
-+	unsigned long  esp0;            /* points to SR of stack frame */
-+	struct {
-+		unsigned short *addr;
-+		unsigned short inst;
-+	} breakinfo;
- };
+ config GDB_DEBUG
+    	bool "Use gdb stub"
+-	depends on (!H8300H_SIM && H8S_SIM)
++	depends on (!H8300H_SIM && !H8S_SIM)
+ 	help
+ 	  gdb stub exception support
  
- #define INIT_THREAD  { \
- 	sizeof(init_stack) + (unsigned long) init_stack, 0, \
--	PS_S, \
-+	PS_S,  0, {(unsigned short *)-1, 0}, \
- }
+diff -Nru -X .exclude-diff linux-2.6.5/arch/h8300/Kconfig.ide linux-2.6.5-h8300/arch/h8300/Kconfig.ide
+--- linux-2.6.5/arch/h8300/Kconfig.ide	2004-04-06 17:10:56.000000000 +0900
++++ linux-2.6.5-h8300/arch/h8300/Kconfig.ide	2004-03-23 23:43:40.000000000 +0900
+@@ -14,7 +14,7 @@
+ 	help
+ 	  IDE alternate registers address
  
- /*
-diff -Nru -X .exclude-diff linux-2.6.5/include/asm-h8300/ptrace.h linux-2.6.5-h8300/include/asm-h8300/ptrace.h
---- linux-2.6.5/include/asm-h8300/ptrace.h	2004-01-09 16:00:02.000000000 +0900
-+++ linux-2.6.5-h8300/include/asm-h8300/ptrace.h	2004-03-25 21:30:46.000000000 +0900
-@@ -14,6 +14,7 @@
- #define PT_CCR	   8
- #define PT_PC	   9
- #define PT_USP	   10
-+#define PT_EXR     12
- 
- /* this struct defines the way the registers are stored on the
-    stack during a system call. */
-@@ -44,6 +45,16 @@
- #define PS_S  (0x10)
+-config H8300_IDE_IRQNO
++config H8300_IDE_IRQ
+ 	int "IDE IRQ no"
+ 	depends on IDE
+ 	help
+diff -Nru -X .exclude-diff linux-2.6.5/arch/h8300/kernel/setup.c linux-2.6.5-h8300/arch/h8300/kernel/setup.c
+--- linux-2.6.5/arch/h8300/kernel/setup.c	2004-04-06 17:11:10.000000000 +0900
++++ linux-2.6.5-h8300/arch/h8300/kernel/setup.c	2004-03-26 18:12:36.000000000 +0900
+@@ -138,27 +138,23 @@
+ 	register_console((struct console *)&gdb_console);
  #endif
  
-+#if defined(__H8300H__)
-+#define H8300_REGS_NO 11
-+#endif
-+#if defined(__H8300S__)
-+#define H8300_REGS_NO 12
-+#endif
-+
-+/* Find the stack offset for a register, relative to thread.esp0. */
-+#define PT_REG(reg)	((long)&((struct pt_regs *)0)->reg)
-+
- #define user_mode(regs) (!((regs)->ccr & PS_S))
- #define instruction_pointer(regs) ((regs)->pc)
- extern void show_regs(struct pt_regs *);
+-	printk("\r\n\nuClinux " CPU "\n");
+-	printk("Target Hardware: %s\n",_target_name);
+-	printk("Flat model support (C) 1998,1999 Kenneth Albanowski, D. Jeff Dionne\n");
+-	printk("H8/300 series support by Yoshinori Sato <ysato@users.sourceforge.jp>\n");
++	printk(KERN_INFO "\r\n\nuClinux " CPU "\n");
++	printk(KERN_INFO "Target Hardware: %s\n",_target_name);
++	printk(KERN_INFO "Flat model support (C) 1998,1999 Kenneth Albanowski, D. Jeff Dionne\n");
++	printk(KERN_INFO "H8/300 series support by Yoshinori Sato <ysato@users.sourceforge.jp>\n");
+ 
+ #ifdef DEBUG
+-	printk("KERNEL -> TEXT=0x%06x-0x%06x DATA=0x%06x-0x%06x "
++	printk(KERN_DEBUG "KERNEL -> TEXT=0x%06x-0x%06x DATA=0x%06x-0x%06x "
+ 		"BSS=0x%06x-0x%06x\n", (int) &_stext, (int) &_etext,
+ 		(int) &_sdata, (int) &_edata,
+ 		(int) &_sbss, (int) &_ebss);
+-	printk("KERNEL -> ROMFS=0x%06x-0x%06x MEM=0x%06x-0x%06x "
++	printk(KERN_DEBUG "KERNEL -> ROMFS=0x%06x-0x%06x MEM=0x%06x-0x%06x "
+ 		"STACK=0x%06x-0x%06x\n",
+ 	       (int) &_ebss, (int) memory_start,
+ 		(int) memory_start, (int) memory_end,
+ 		(int) memory_end, (int) &_ramend);
+ #endif
+ 
+-#ifdef CONFIG_BLK_DEV_BLKMEM
+-	ROOT_DEV = MKDEV(BLKMEM_MAJOR,0);
+-#endif
+-
+ #ifdef CONFIG_DEFAULT_CMDLINE
+ 	/* set from default command line */
+ 	if (*command_line == '\0')
+@@ -171,7 +167,7 @@
+ 
+ #ifdef DEBUG
+ 	if (strlen(*cmdline_p)) 
+-		printk("Command line: '%s'\n", *cmdline_p);
++		printk(KERN_DEBUG "Command line: '%s'\n", *cmdline_p);
+ #endif
+ 
+ 	/*
+@@ -195,30 +191,10 @@
+ 	paging_init();
+ 	h8300_gpio_init();
+ #ifdef DEBUG
+-	printk("Done setup_arch\n");
++	printk(KERN_DEBUG "Done setup_arch\n");
+ #endif
+ }
+ 
+-int get_cpuinfo(char * buffer)
+-{
+-    char *cpu;
+-    u_long clockfreq;
+-
+-    cpu = CPU;
+-
+-    clockfreq = CONFIG_CPU_CLOCK;
+-
+-    return(sprintf(buffer, "CPU:\t\t%s\n"
+-		   "Clock:\t%lu.%1luMHz\n"
+-		   "BogoMips:\t%lu.%02lu\n"
+-		   "Calibration:\t%lu loops\n",
+-		   cpu,
+-		   clockfreq/100,clockfreq%100,
+-		   (loops_per_jiffy*HZ)/500000,((loops_per_jiffy*HZ)/5000)%100,
+-		   (loops_per_jiffy*HZ)));
+-
+-}
+-
+ /*
+  *	Get CPU information for use by the procfs.
+  */
+@@ -226,17 +202,19 @@
+ static int show_cpuinfo(struct seq_file *m, void *v)
+ {
+     char *cpu;
++    int mode;
+     u_long clockfreq;
+ 
+     cpu = CPU;
++    mode = *(volatile unsigned char *)MDCR & 0x07;
+ 
+     clockfreq = CONFIG_CPU_CLOCK;
+ 
+-    seq_printf(m,  "CPU:\t\t%s\n"
+-		   "Clock:\t%lu.%1luMHz\n"
++    seq_printf(m,  "CPU:\t\t%s (mode:%d)\n"
++		   "Clock:\t\t%lu.%1luMHz\n"
+ 		   "BogoMips:\t%lu.%02lu\n"
+ 		   "Calibration:\t%lu loops\n",
+-		   cpu,
++	           cpu,mode,
+ 		   clockfreq/100,clockfreq%100,
+ 		   (loops_per_jiffy*HZ)/500000,((loops_per_jiffy*HZ)/5000)%100,
+ 		   (loops_per_jiffy*HZ));
+diff -Nru -X .exclude-diff linux-2.6.5/arch/h8300/platform/h8s/ints_h8s.c linux-2.6.5-h8300/arch/h8300/platform/h8s/ints_h8s.c
+--- linux-2.6.5/arch/h8300/platform/h8s/ints_h8s.c	2004-04-06 17:11:10.000000000 +0900
++++ linux-2.6.5-h8300/arch/h8300/platform/h8s/ints_h8s.c	2004-03-23 23:42:00.000000000 +0900
+@@ -63,7 +63,8 @@
+ 	{H8300_GPIO_P2,H8300_GPIO_B6},{H8300_GPIO_P2,H8300_GPIO_B7},
+ };
+ 
+-#define IRQ_GPIO_MAP(irqbit,port,bit)				  \
++/* IRQ to GPIO pinno transrate */
++#define IRQ_GPIO_MAP(irqbit,irq,port,bit)			  \
+ do {								  \
+ 	if (*(volatile unsigned short *)ITSR & irqbit) {	  \
+ 		port = irq_assign_table1[irq - EXT_IRQ0].port_no; \
+@@ -79,7 +80,7 @@
+ 	if (irq >= EXT_IRQ0 && irq <= EXT_IRQ15) {
+ 		unsigned short ptn = 1 << (irq - EXT_IRQ0);
+ 		unsigned int port_no,bit_no;
+-		IRQ_GPIO_MAP(ptn,port_no,bit_no);
++		IRQ_GPIO_MAP(ptn,irq,port_no,bit_no);
+ 		if (H8300_GPIO_RESERVE(port_no, bit_no) == 0)
+ 			return -EBUSY;                   /* pin already use */
+ 		H8300_GPIO_DDR(port_no, bit_no, H8300_GPIO_INPUT);
+diff -Nru -X .exclude-diff linux-2.6.5/include/asm-h8300/regs306x.h linux-2.6.5-h8300/include/asm-h8300/regs306x.h
+--- linux-2.6.5/include/asm-h8300/regs306x.h	2004-01-09 15:59:19.000000000 +0900
++++ linux-2.6.5-h8300/include/asm-h8300/regs306x.h	2004-03-26 18:12:46.000000000 +0900
+@@ -125,8 +125,8 @@
+ #define RDR2  0xFFFFC5
+ #define SCMR2 0xFFFFC6
+ 
+-#define MDCR   0xFEE000
+-#define SYSCR  0xFEE001
++#define MDCR   0xFEE011
++#define SYSCR  0xFEE012
+ #define DIVCR  0xFEE01B
+ #define MSTCRH 0xFEE01C
+ #define MSTCRL 0xFEE01D

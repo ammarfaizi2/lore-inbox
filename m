@@ -1,48 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267870AbTBYOg4>; Tue, 25 Feb 2003 09:36:56 -0500
+	id <S267956AbTBYOm1>; Tue, 25 Feb 2003 09:42:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267359AbTBYOg4>; Tue, 25 Feb 2003 09:36:56 -0500
-Received: from locutus.cmf.nrl.navy.mil ([134.207.10.66]:17805 "EHLO
-	locutus.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
-	id <S267176AbTBYOgy>; Tue, 25 Feb 2003 09:36:54 -0500
-Message-Id: <200302251445.h1PEjpGi030617@locutus.cmf.nrl.navy.mil>
-To: Adrian Bunk <bunk@fs.tum.de>, jgarzik@pobox.com
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.63: fore200e.c doesn't compile 
-In-reply-to: Your message of "Tue, 25 Feb 2003 14:15:46 +0100."
-             <20030225131546.GL7685@fs.tum.de> 
-X-url: http://www.nrl.navy.mil/CCS/people/chas/index.html
-X-mailer: nmh 1.0
-Date: Tue, 25 Feb 2003 09:45:51 -0500
-From: chas williams <chas@locutus.cmf.nrl.navy.mil>
+	id <S267970AbTBYOm1>; Tue, 25 Feb 2003 09:42:27 -0500
+Received: from [213.133.112.212] ([213.133.112.212]:40709 "EHLO
+	mail.symplon.com") by vger.kernel.org with ESMTP id <S267956AbTBYOm0>;
+	Tue, 25 Feb 2003 09:42:26 -0500
+Message-ID: <3E5B835E.7050601@symplon.com>
+Date: Tue, 25 Feb 2003 15:53:18 +0100
+From: Robert <robert.woerle@symplon.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.2.1) Gecko/20021130
+X-Accept-Language: de-at, de, en-us, en
+MIME-Version: 1.0
+To: Ducrot Bruno <ducrot@poupinou.org>
+CC: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       Robert Woerle <robert@paceblade.com>
+Subject: Re: [ACPI] PaceBlade broken acpi/memory map
+References: <20030220172144.GA15016@elf.ucw.cz> <20030224164209.GD13404@poup.poupinou.org> <20030224183955.GC517@atrey.karlin.mff.cuni.cz> <20030225143505.GH13404@poup.poupinou.org>
+In-Reply-To: <20030225143505.GH13404@poup.poupinou.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030225131546.GL7685@fs.tum.de>,Adrian Bunk writes:
->drivers/atm/fore200e.o drivers/atm/fore200e.c
->drivers/atm/fore200e.c: In function `fore200e_push_rpd':
->drivers/atm/fore200e.c:1135: structure has no member named `timestamp'
->drivers/atm/fore200e.c:1136: structure has no member named `timestamp'
 
-it shouldnt be doing that.  you only need to set the timestamp in the 
-skb.  i see the eni driver does the same thing.  i will see about
-a patch for that shortly.
 
-Index: linux/drivers/atm/fore200e.c
-===================================================================
-RCS file: /home/chas/CVSROOT/linux/drivers/atm/fore200e.c,v
-retrieving revision 1.1.1.1
-diff -u -d -b -w -r1.1.1.1 fore200e.c
---- linux/drivers/atm/fore200e.c	20 Feb 2003 13:45:03 -0000	1.1.1.1
-+++ linux/drivers/atm/fore200e.c	25 Feb 2003 14:42:06 -0000
-@@ -1132,8 +1132,7 @@
- 	return;
-     } 
- 
--	do_gettimeofday(&vcc->timestamp);
--    skb->stamp = vcc->timestamp;
-+    do_gettimeofday(&skb->stamp)
-     
- #ifdef FORE200E_52BYTE_AAL0_SDU
-     if (cell_header) {
+Ducrot Bruno schrieb:
+
+>On Mon, Feb 24, 2003 at 07:39:55PM +0100, Pavel Machek wrote:
+>  
+>
+>>Hi!
+>>
+>>    
+>>
+>>>>I have PaceBlade here, and its memory map is wrong, which leads to
+>>>>ACPI refusing to load. [It does not mention "ACPI data" in the memory
+>>>>map at all!]
+>>>>        
+>>>>
+>>>I have made those patches to workaround that.  I have no time
+>>>      
+>>>
+>>Yes, I have seen those... I also made a patch that enables you to do
+>>that workaround from mem= options at kernel command line.
+>>
+>>    
+>>
+>
+>I doubt you received the latest one, since I have not make it public
+>unless this day.
+>  
+>
+i did sent it to him since he recieved our machine from Suse Nuernberg
+
+>  
+>
+

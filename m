@@ -1,60 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264679AbRFZMSW>; Tue, 26 Jun 2001 08:18:22 -0400
+	id <S264714AbRFZMep>; Tue, 26 Jun 2001 08:34:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264678AbRFZMSN>; Tue, 26 Jun 2001 08:18:13 -0400
-Received: from elektra.higherplane.net ([203.37.52.137]:65498 "EHLO
-	elektra.higherplane.net") by vger.kernel.org with ESMTP
-	id <S264679AbRFZMR6>; Tue, 26 Jun 2001 08:17:58 -0400
-Date: Tue, 26 Jun 2001 22:36:04 +1000
-From: john slee <indigoid@higherplane.net>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Colonel <klink@clouddancer.com>, linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: Thrashing WITHOUT swap.
-Message-ID: <20010626223604.O30872@higherplane.net>
-Mime-Version: 1.0
+	id <S264717AbRFZMef>; Tue, 26 Jun 2001 08:34:35 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:37126 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S264714AbRFZMe0>; Tue, 26 Jun 2001 08:34:26 -0400
+Subject: Re: When the FUD is all around (sniff).
+To: kernel@Expansa.sns.it (Luigi Genoni)
+Date: Tue, 26 Jun 2001 13:34:04 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0106261015120.9537-100000@Expansa.sns.it> from "Luigi Genoni" at Jun 26, 2001 10:35:39 AM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <01062518321604.01008@starship>
-User-Agent: Mutt/1.3.18i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15Es2e-0003T1-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 25, 2001 at 06:32:16PM +0200, Daniel Phillips wrote:
-> On Monday 25 June 2001 18:16, Colonel wrote:
-> > Had you tried fvwm-1.24r (the original) ?  It was designed long ago to
-> > be lean and fast on the desktop.  I know it whips KDE.
-> 
-> Yes, I did.  It's even faster than xfce but there's one problem: it just
-> isn't very much like a modern desktop.  xfce is, to a surprising degree, like
-> a modern desktop.  It's roughly equivalent to W95 I'd say - more
-> sophisticated in some areas, less in others.  Oh, did I mention I haven't run
-> into a bug yet?  It's true.
+> I suppose they received some pression from M$, but if people read of a FUD
+> from a M$ employed, then they can guess what is going on, if it is a
+> newspaper usually telling facts in a correct way...
 
-firstly, i better have at least one paragraph related to the kernel ;)
-2.4 is a *much* better desktop than 2.2 for me.  make -j32 bzImage and
-other large amounts of processes/io don't destroy the interactivity of
-my X session anymore.
+It is common for newspaper staff to be corrupt, same with magazine people.
+Sometimes because people generally believe in a cause and are not impartial
+(which I've seen both pro and anti Linux btw) and sometimes because advertising
+revenue is a good thing.
 
-(wearing asbestos suit)
+> The situation is going to be sad
 
-i have run, as full-time desktops, kde-1.x, enlightenment, windowmaker
-and fvwm-* on 10baseT switched networks with Tektronix XP400 terminals
-hosted on linux (and of course on xfree86-based normal linux desktops)
+There is a saying in he UK 'You can fool all of the people some of the time,
+you can fool some of the people all the time, but you cannot fool all of the
+people all of the time'. You only have to look at the incredibly dim view
+technical people take of most printed reviews to see that.
 
-in both cases the better and "more interactive" window manager was not
-fvwm or wmaker.  sure, E can be a pig with the right theme, but with a
-nice lightweight theme it is great. E certainly seems lots better over
-ethernet than the other two...
+Alan
 
-kde 1.x of course was absolutely ghastly over a network (gnome not too 
-prominent in those days, so i didn't get a chance to try it)
-
-lately i have been trying to make kde2 run smooth like my E setup, but
-there are some niggles, and i wouldn't bother if i had less than 256mb
-ram.
-
-j.
-
--- 
-"Bobby, jiggle Grandpa's rat so it looks alive, please" -- gary larson

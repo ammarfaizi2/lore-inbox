@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262706AbTENTq4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 15:46:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262700AbTENTq4
+	id S262714AbTENTte (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 15:49:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262715AbTENTte
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 15:46:56 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:15006 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S262676AbTENTqz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 15:46:55 -0400
-Date: Wed, 14 May 2003 12:59:23 -0700 (PDT)
-Message-Id: <20030514.125923.102559449.davem@redhat.com>
-To: axboe@suse.de
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-       acme@conectiva.com.br
-Subject: Re: 2.5 qdisc problem
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030514130838.GJ15261@suse.de>
-References: <20030514122624.GA20480@babylon.d2dc.net>
-	<20030514125941.GI15261@suse.de>
-	<20030514130838.GJ15261@suse.de>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	Wed, 14 May 2003 15:49:34 -0400
+Received: from deviant.impure.org.uk ([195.82.120.238]:41693 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S262714AbTENTtd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 15:49:33 -0400
+Date: Wed, 14 May 2003 21:03:07 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Jonathan Bastien-Filiatrault <Intuxicated_kdev@yahoo.ca>
+Cc: mec@shout.net, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.69 Change to i386 Makefile to distinguish athlons.
+Message-ID: <20030514200307.GA31711@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Jonathan Bastien-Filiatrault <Intuxicated_kdev@yahoo.ca>,
+	mec@shout.net, Linux Kernel <linux-kernel@vger.kernel.org>
+References: <3EC29191.5030700@yahoo.ca>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EC29191.5030700@yahoo.ca>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Jens Axboe <axboe@suse.de>
-   Date: Wed, 14 May 2003 15:08:38 +0200
-   
-   This half-assed back-out from bk current makes it work here, Arnaldo
-   could you please fix this??
+On Wed, May 14, 2003 at 02:57:21PM -0400, Jonathan Bastien-Filiatrault wrote:
+ > It should succesfully set -march=athlon-<type> according to uname -p.
 
-This is a good clue, thanks for tracking it down this far.
-I'll help figure out what's wrong, I can reproduce the problem
-here too.
+"Look, a new way to do something pointless!"
 
-I believe the problem has something to do with changing when the
-rtnetlink/netlink init runs, not the socket owner stuff.
+This is just as broken as the previous patch that was posted.
+_READ_ the gcc sources. See what those flags do.
+
+The only differences are the enabling of PTA_SSE on the later models.
+"Cool, I have SSE, I want optimised SSE routines". Bad luck.
+This flag makes damn all difference on integer code. FP code is not
+allowed in kernel space, and in the few exceptions where we do use it
+(see the memcpy routines), it's guarded by explicit kernel_fpu_begin()
+kernel_fpu_end() pairs, something that gcc wouldn't be able to add for us.
+
+		Dave
+

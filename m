@@ -1,57 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265315AbTLHDKM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 22:10:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265316AbTLHDKL
+	id S265311AbTLHDHH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 22:07:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265314AbTLHDHH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 22:10:11 -0500
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:31970 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S265315AbTLHDKD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 22:10:03 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: Additional clauses to GPL in network drivers
-References: <MDEHLPKNGKAHNMBLJOLKKELHIIAA.davids@webmaster.com>
-From: Jeremy Maitin-Shepard <jbms@attbi.com>
-Date: Sun, 07 Dec 2003 22:11:47 -0500
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKKELHIIAA.davids@webmaster.com> (David
- Schwartz's message of "Sun, 7 Dec 2003 18:32:54 -0800")
-Message-ID: <87r7zg0zrg.fsf@jay.local.invalid>
-User-Agent: Gnus/5.1003 (Gnus v5.10.3) Emacs/21.3.50 (gnu/linux)
+	Sun, 7 Dec 2003 22:07:07 -0500
+Received: from k-kdom.nishanet.com ([65.125.12.2]:62731 "EHLO
+	mail2k.k-kdom.nishanet.com") by vger.kernel.org with ESMTP
+	id S265311AbTLHDHD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Dec 2003 22:07:03 -0500
+Message-ID: <3FD3EF21.2050701@nishanet.com>
+Date: Sun, 07 Dec 2003 22:25:21 -0500
+From: Bob <recbo@nishanet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031014 Thunderbird/0.3
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-	micalg=pgp-sha1; protocol="application/pgp-signature"
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Catching NForce2 lockup with NMI watchdog - found
+References: <DCB9B7AA2CAB7F418919D7B59EE45BAF49F87E@mail-sc-6.nvidia.com> <3FD1199E.2030402@gmx.de> <20031206081848.GA4023@localnet>
+In-Reply-To: <20031206081848.GA4023@localnet>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+cheuche+lkml@free.fr wrote:
 
-"David Schwartz" <davids@webmaster.com> writes:
+> ...................If you experience crashes with apic and your bios 
+> does not have such
+>
+>option, try athcool at
+>http://members.jcom.home.ne.jp/jacobi/linux/softwares.html
+>Its purpose is to *enable* cpu disconnect but can also disable it. Your
+>best bet is to run it to disable cpu disconnect the soonest possible at
+>boot.
+>
+>On the other hand, it isn't the cause of IRQ7 rogue interrupts. As I
+>initially suspected, it seems now totally unrelated. The ACPI override
+>handling may be buggy ? Since putting back the timer on IO-APIC-edge
+>solves it.
+>
+>Nevertheless this is still a problem, other chipsets for Athlon
+>processors seems to be able to have cpu disconnect and ioapic enabled
+>without any crashes. But so far I don't see any thermal differences, I'm
+>happy with that.
+>
+>Mathieu
+>
+I presently have /proc/interrupts
+ 0:  244393560          XT-PIC  timer
 
-> 	It occurs to me that it might not be a bad idea to have a short blurb that
-> could be included in individual files that clarifies that the file is part
-> of a GPL'd distribution but that's clear that it doesn't impose any
-> additional restrictions. Here's a stab at such a notice just off the top of
-> my head:
+but when I tried nvnet driver and onboard
+ethernet I think I saw both IRQ7 disabled
+and some 8259A spurious interrupt err.
 
-[snip]
+Presently there is no grep timer or TIMER
+or 8259A in logs. 8259A has to do with
+IO-APIC timer? It would make sense that
+nvnet would see apic and lapic on in bios
+and linux and look for io-apic timer as
+well as apic table, then fail confused.
 
-I don't understand the desire for a notice that is clearly redundant.
-Due to the nature of the GPL (version 1 or 2), licensing an entire work
-under it is exactly equivalent to licensing all of the component parts
-individually under it.
+Is there a link to that patch? I keep deleting
+this list it's huge so I lost a patch in a message.
 
--- 
-Jeremy Maitin-Shepard
+-Bob
 
---=-=-=
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/0+v9ASWI4gwIY4kRAvfNAJ9heJbal/r2izEGKeTwudJbMXnjPgCggbQk
-TAy/nscscYVuVz2JYPDz8E8=
-=JZtz
------END PGP SIGNATURE-----
---=-=-=--

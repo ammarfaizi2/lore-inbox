@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268160AbRGWJKn>; Mon, 23 Jul 2001 05:10:43 -0400
+	id <S268164AbRGWJNx>; Mon, 23 Jul 2001 05:13:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268161AbRGWJKd>; Mon, 23 Jul 2001 05:10:33 -0400
-Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:9063 "EHLO
-	penguin.homenet") by vger.kernel.org with ESMTP id <S268160AbRGWJKZ>;
-	Mon, 23 Jul 2001 05:10:25 -0400
-Date: Mon, 23 Jul 2001 10:12:19 +0100 (BST)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Ian Chilton <ian@ichilton.co.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: OT: Journaling FS Comparison
-In-Reply-To: <20010722162150.A23381@woody.ichilton.co.uk>
-Message-ID: <Pine.LNX.4.21.0107231004080.612-100000@penguin.homenet>
+	id <S268163AbRGWJNn>; Mon, 23 Jul 2001 05:13:43 -0400
+Received: from ns.suse.de ([213.95.15.193]:60429 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S268161AbRGWJN2>;
+	Mon, 23 Jul 2001 05:13:28 -0400
+Mail-Copies-To: never
+To: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
+Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Problem: Large file I/O waits (almost) forever
+In-Reply-To: <Pine.LNX.4.30.0107231043520.24403-100000@biker.pdb.fsc.net>
+From: Andreas Jaeger <aj@suse.de>
+Date: Mon, 23 Jul 2001 11:13:33 +0200
+In-Reply-To: <Pine.LNX.4.30.0107231043520.24403-100000@biker.pdb.fsc.net>
+ (Martin Wilck's message of "Mon, 23 Jul 2001 11:05:04 +0200 (CEST)")
+Message-ID: <hopuas9feq.fsf@gee.suse.de>
+User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Sun, 22 Jul 2001, Ian Chilton wrote:
-> With there been 4 of them (ext3, reiserfs, XFS and JFS),
-> it's not an easy choice for anyone.
+Martin Wilck <Martin.Wilck@fujitsu-siemens.com> writes:
 
-at the time when I did the comparison using SPEC SFS to benchmark, the
-choice was not hard at all -- absolute and obvious winner was reiserfs.
-That is, amongst the freely available ones. (this was not too long ago, a
-mere 2 months or so).
+> Hi,
+> 
+> I just came across the following phenomenon and would like to inquire
+> whether it's a feature or a bug, and what to do about it:
+> 
+> I have run our "copy-compare" test during the weekend to test I/O
+> stability on a IA64 server running 2.4.5. The test works by generating
+> a collection of binary files with specified lengths, copying them between
+> different directories, and checking the result a) by checking the
+> predefined binary patterns and b) by comparing source and destination with cmp.
 
-However, if you are willing to pay for your filesystem, our vxfs beats all
-of the above at _very_ (very) high loads (loads unreachable by any other
-filesystem so far ;) in both performance and stability. (well, it beats
-them in most situations at low loads as well but that is not interesting)
+Under what filesystem and with what kind of hardware did you run this?
 
-It should be available to our beta-customers via www.veritas.com
-somewhere...
-
-Regards,
-Tigran
-
+Andreas
+-- 
+ Andreas Jaeger
+  SuSE Labs aj@suse.de
+   private aj@arthur.inka.de
+    http://www.suse.de/~aj

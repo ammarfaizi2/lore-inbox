@@ -1,50 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268139AbTCCApC>; Sun, 2 Mar 2003 19:45:02 -0500
+	id <S268175AbTCCAqM>; Sun, 2 Mar 2003 19:46:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268150AbTCCApC>; Sun, 2 Mar 2003 19:45:02 -0500
-Received: from blowme.phunnypharm.org ([65.207.35.140]:17159 "EHLO
-	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
-	id <S268139AbTCCApB>; Sun, 2 Mar 2003 19:45:01 -0500
-Date: Sun, 2 Mar 2003 19:53:59 -0500
-From: Ben Collins <bcollins@debian.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: andrea@e-mind.com, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: BitBucket: GPL-ed BitKeeper clone
-Message-ID: <20030303005359.GG458@phunnypharm.org>
-References: <20030226200208.GA392@elf.ucw.cz> <20030302050420.GA22169@phunnypharm.org> <20030302051010.GB22169@phunnypharm.org> <20030302235318.GB319@elf.ucw.cz>
+	id <S268218AbTCCAqM>; Sun, 2 Mar 2003 19:46:12 -0500
+Received: from 211.228.252.64.snet.net ([64.252.228.211]:27265 "EHLO
+	uml.karaya.com") by vger.kernel.org with ESMTP id <S268175AbTCCAqJ>;
+	Sun, 2 Mar 2003 19:46:09 -0500
+Message-Id: <200303030100.h23102L07592@uml.karaya.com>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Michael Richardson <mcr@sandelman.ottawa.on.ca>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: anyone ever done multicast AF_UNIX sockets? 
+In-Reply-To: Your message of "03 Mar 2003 01:23:25 GMT."
+             <1046654604.4431.0.camel@irongate.swansea.linux.org.uk> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030302235318.GB319@elf.ucw.cz>
-User-Agent: Mutt/1.5.3i
+Date: Sun, 02 Mar 2003 20:00:02 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 03, 2003 at 12:53:18AM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> > > > I've created little project for read-only (for now ;-) bitkeeper
-> > > > clone. It is available at www.sf.net/projects/bitbucket (no tar balls,
-> > > > just get it fresh from CVS).
-> > > 
-> > > In case it may be of some help, here's a script that is the result of my
-> > > own reverse engineering of the bitkeeper SCCS files. It can output a
-> > > diff, almost exactly the same as BitKeeper's gnupatch output from a
-> > > BitKeeper repo.
-> > 
-> > Might aswell supply my hacked sccsdiff script aswell.
-> 
-> There's a problem with this: it changes CSSC, and its GNU (read: needs
-> copyright assignment to apply changes). I can't really push your
-> changes to CSSC :-(. [What I can do is add .diff file into
-> bitbucket...]
+alan@lxorguk.ukuu.org.uk said:
+> On Mon, 2003-03-03 at 00:05, Michael Richardson wrote:
+> >   First, multicast doesn't really work on loopback. I don't recall
+> > why... One symptom of this is that one can't use the multicast transport
+> > for User-Mode-Linux when not "online" (i.e. on the train).
+>
+> You have to specify you want your multicast packet looped back. By
+> default multicasts dont loop 
 
-I'm putting my changes to CSSC into the public domain. The FSF can do
-whatever it wants.
+Well, that problem is actually that lo and dummy interfaces don't support
+multicast.  You need something like an eth device for multicast, even if you're
+nowhere near a LAN.
 
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-Deqo       - http://www.deqo.com/
+				Jeff
+

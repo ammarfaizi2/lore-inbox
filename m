@@ -1,77 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266549AbUBFVR3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 16:17:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265665AbUBFVRY
+	id S266543AbUBFVOy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 16:14:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265796AbUBFVOc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 16:17:24 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:4736 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S266635AbUBFVQY
+	Fri, 6 Feb 2004 16:14:32 -0500
+Received: from 213-176-151-74.in.is ([213.176.151.74]:34195 "EHLO
+	schpilkas.net") by vger.kernel.org with ESMTP id S266544AbUBFVNy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 16:16:24 -0500
-Date: Fri, 6 Feb 2004 16:16:32 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: FATAL: Kernel too old
-Message-ID: <Pine.LNX.4.53.0402061550440.681@chaos>
+	Fri, 6 Feb 2004 16:13:54 -0500
+Message-ID: <40240391.7030209@hi.is>
+Date: Fri, 06 Feb 2004 21:13:53 +0000
+From: Gunnlaugur Thor Briem <gthb@hi.is>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20040130 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Gunnlaugur Thor Briem <gthb@hi.is>
+CC: Daniel Brahneborg <daniel.com@wtnord.net>, Jeff Garzik <jgarzik@pobox.com>,
+       linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Status of Promise drivers?
+References: <20031230200012.C14399@nettis.grimsta> <3FF1CCC1.3050304@pobox.com> <20040203192336.A5570@nettis.grimsta> <4021099A.6090209@hi.is>
+In-Reply-To: <4021099A.6090209@hi.is>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Gunnlaugur Thor Briem wrote:
+ > http://bugzilla.kernel.org/show_bug.cgi?id=2011
+[...]
+ > Don't know about any other motherboards, but in any case your kernel is
+ > likely to hang when trying to use a PDC 20376 (on a motherboard, as in
+ > my case, or on a separate board), for the time being.
 
-Who decides that the kernel is too old? Can't log-in over the
-network on a machine that has a lot of uptime. Telnet to the
-mail-server does work, though. It's just that shells don't
-seem to work anymore!!!
+... and now he corrects himself. I just tried applying Ross Dickson's 
+patches for APIC quirks on nForce2 chipsets:
 
-Script started on Fri Feb  6 15:44:32 2004
-# rlogin -l johnson quark
-ATAL: kernel too old
-# rlogin -l johnson quark
-ATAL: kernel too old
-# telnet quark
-Trying 10.106.100.200...
-Connected to quark.analogic.com.
-Escape character is '^]'.
-FATAL: kernel too old
-Connection closed by foreign host.
-# ping quark
-64 bytes from 10.106.100.200   icmp-seq:0  ttl:64  time(ms):3.53    lost:0
-64 bytes from 10.106.100.200   icmp-seq:1  ttl:64  time(ms):0.25    lost:0
-Aborted!
-# rsh quark
-ATAL: kernel too old
-#
-# telnet quark 25
-Trying 10.106.100.200...
-Connected to quark.analogic.com.
-Escape character is '^]'.
-220 quark.analogic.com ESMTP Sendmail 8.11.0.Beta3/8.12.0.A; Fri, 6 Feb 2004 15:51:27 -0500
-^]
-telnet> quit
-Connection closed.
+http://lkml.org/lkml/2003/12/21/7
 
-It wouldn't let me log in at the console either, got the "init spawing
-too fast..." message. Nothing in the logs. It's a generic RH with
-the Linux-2.4.18-14 that it came with, never been hacked and used
-as an internal mail-forwarding machine. It's been up since, probably
-last April.
+and that seems to have taken care of my problem completely. I have not 
+tested for very long, but I got through the bonnie++ test suite; never even 
+came close before.
 
-I couldn't find that "FATAL:" string in /bin/bash, in any
-/lib/libc* files, nor in vmlinux. It's in /bin/rpm and in
-/bin/ash.static. These are not used to log-in (I hope).
-It's also in a bunch of /sbin files, never used to log in
-(like e2fsck).
+So the Promise controller and driver appear to be innocent of my woes, and I 
+do not know any reason to think that your kernel will hang because of them.
 
-I crashed it and it rebooted fine, little fsck activity, with
-nothing in any logs that shows there was any problem whatsoever.
+Sorry 'bout that. (And thanks Ross!)
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
-
+     - Gulli

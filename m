@@ -1,60 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314395AbSHDNS7>; Sun, 4 Aug 2002 09:18:59 -0400
+	id <S315266AbSHDNj4>; Sun, 4 Aug 2002 09:39:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314553AbSHDNS6>; Sun, 4 Aug 2002 09:18:58 -0400
-Received: from pa91.banino.sdi.tpnet.pl ([213.76.211.91]:35090 "EHLO
-	alf.amelek.gda.pl") by vger.kernel.org with ESMTP
-	id <S314395AbSHDNS6>; Sun, 4 Aug 2002 09:18:58 -0400
-Subject: Re: [patch] USB storage: Datafab KECF-USB, Sagatek DCS-CF
-In-Reply-To: <20020626145741.GD4611@kroah.com>
-To: Greg KH <greg@kroah.com>
-Date: Sun, 4 Aug 2002 15:22:04 +0200 (CEST)
-CC: Marek Michalkiewicz <marekm@amelek.gda.pl>, marcelo@conectiva.com.br,
-       mdharm-usb@one-eyed-alien.net, mwilck@freenet.de,
-       linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL95 (25)]
+	id <S315276AbSHDNj4>; Sun, 4 Aug 2002 09:39:56 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:27140 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S315266AbSHDNjz>; Sun, 4 Aug 2002 09:39:55 -0400
+Date: Sun, 4 Aug 2002 10:42:03 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Andrew Morton <akpm@zip.com.au>,
+       Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: question on dup_task_struct
+In-Reply-To: <Pine.LNX.4.44.0208031829230.1549-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44L.0208041041220.23404-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <E17bLKe-0001p2-00@alf.amelek.gda.pl>
-From: Marek Michalkiewicz <marekm@amelek.gda.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, 3 Aug 2002, Linus Torvalds wrote:
+> On Sat, 3 Aug 2002, Andrew Morton wrote:
+> >
+> > It's not a 1-order allocation.  I'll go back to sleep now.
+>
+> According to slabinfo, it's an order-2 allocation at least on SMP-x86,
+> which is kind of sad. The object size is 1664 bytes, and the slab code
+> decides that putting two of them per page is too wasteful, so it
+> apparently puts 9 of them on 4 pages instead.
 
-> Heh, send this to me again after 2.4.19-final is out, and I'll
-> reconsider it :)
+> So I think it should be just GFP_KERNEL.
 
-Over a month later, here it is - this drivers/usb/storage/unusual_devs.h
-entry appears to be sufficient to make my Sagatek DCS-CF work:
+Trying a little bit of active defragmentation for 4 and 8-page
+allocations should be trivial with rmap.  If you want I could
+take a stab at writing this code.
 
-/* aka Sagatek DCS-CF */
-UNUSUAL_DEV(  0x07c4, 0xa400, 0x0000, 0xffff,
-		"Datafab",
-		"KECF-USB",
-		US_SC_SCSI, US_PR_BULK, NULL,
-		US_FL_FIX_INQUIRY ),
+regards,
 
-Not even US_FL_MODE_XLATE or US_FL_START_STOP is necessary as far as
-I can tell, but I guess that may depend on the chip revision.
-US_FL_FIX_INQUIRY is required, or the device does not work at all...
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
 
-Boot messages (with a 64MB == ~61 MiB CF card) look like this:
-
-scsi1 : SCSI emulation for USB Mass Storage devices
-  Vendor: Datafab   Model: KECF-USB          Rev: 0113
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-Attached scsi removable disk sda at scsi1, channel 0, id 0, lun 0
-SCSI device sda: 125185 512-byte hdwr sectors (64 MB)
-sda: test WP failed, assume Write Enabled
- sda: sda1
-WARNING: USB Mass Storage data integrity not assured
-USB Mass Storage device found at 2
-
-The "test WP failed" message appears to be harmless - I have tested
-reading and writing, and it works for me.
-
-Marek
+http://www.surriel.com/		http://distro.conectiva.com/
 

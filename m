@@ -1,101 +1,134 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312134AbSDXNY4>; Wed, 24 Apr 2002 09:24:56 -0400
+	id <S312141AbSDXNdn>; Wed, 24 Apr 2002 09:33:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312194AbSDXNYz>; Wed, 24 Apr 2002 09:24:55 -0400
-Received: from swan.mail.pas.earthlink.net ([207.217.120.123]:28126 "EHLO
-	swan.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S312134AbSDXNYy>; Wed, 24 Apr 2002 09:24:54 -0400
-Date: Wed, 24 Apr 2002 09:30:21 -0400
-To: dalecki@evision-ventures.com
-Cc: linux-kernel@vger.kernel.org
+	id <S312178AbSDXNdm>; Wed, 24 Apr 2002 09:33:42 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:60427 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S312141AbSDXNdl>;
+	Wed, 24 Apr 2002 09:33:41 -0400
+Date: Wed, 24 Apr 2002 15:33:29 +0200
+From: Jens Axboe <axboe@suse.de>
+To: rwhron@earthlink.net
+Cc: dalecki@evision-ventures.com, linux-kernel@vger.kernel.org
 Subject: Re: 2.5.9 -- OOPS in IDE code (symbolic dump and boot log included)
-Message-ID: <20020424093021.A21652@rushmore>
+Message-ID: <20020424133329.GA8988@suse.de>
+In-Reply-To: <20020424093021.A21652@rushmore>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Oops on 2.5.9 at boot time.
+On Wed, Apr 24 2002, rwhron@earthlink.net wrote:
+> >> Oops on 2.5.9 at boot time.
+> 
+> > Could you please introduce two printk("BANG\n") printk("BOOM\n")
+> > aroung the ata_ar_get() in ide-cd? Just to see whatever the
+> > command queue is already up and initialized.
+> 
+> This may not be what you wanted:
+> 
+> 	printk("BANG\n");
+>         ar = ata_ar_get(drive);
+>         printk("BOOM\n");
+> 
+> If it is, neither BANG nor BOOM printed before oops.
 
-> Could you please introduce two printk("BANG\n") printk("BOOM\n")
-> aroung the ata_ar_get() in ide-cd? Just to see whatever the
-> command queue is already up and initialized.
+Look, the problem is easy. Backout the changes to ide_cdrom_do_request()
+and cdrom_start_read(), then re-add the
 
-This may not be what you wanted:
+	HWGROUP(drive)->rq->special = NULL;
 
-	printk("BANG\n");
-        ar = ata_ar_get(drive);
-        printk("BOOM\n");
+in cdrom_end_request() before calling ide_end_request()
 
-If it is, neither BANG nor BOOM printed before oops.
+Something ala, completely untested (not even compiled). See the thread
+about the ide-cd changes being broken.
 
-I see Melchior may have narrowed down the code path in 
-this thread.  
-
-2.5.10 gives very similar oops to 2.5.9:
-
-Unable to handle kernel NULL pointer dereference at virtual address 00000004
-c01bf7f6
-*pde = 00000000
-Oops: 0002
-CPU:    0
-EIP:    0010:[<c01bf7f6>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010002
-eax: 00000004   ebx: d7f61eb4   ecx: 00000001   edx: 00000000
-esi: d7f61e30   edi: c02c8b6c   ebp: 00000292   esp: c026bedc
-ds: 0018   es: 0018   ss: 0018
-Stack: d7f61e30 00000001 c02c8b6c 00000003 00000001 c01c311b c02c8b6c 00000001
-       00000000 c01c9c52 c02c8b6c 00000001 00000018 d7f61eb4 d7f61e30 c01ca983
-       c02c8b6c 00000001 00000000 c02c8b6c d7f622c0 c02c8840 c02c8f0c d7f62380
-Call Trace: [<c01c311b>] [<c01c9c52>] [<c01ca983>] [<c01c13ba>] [<c01ca8bc>]
-   [<c01080fc>] [<c0108262>] [<c0105000>] [<c0106eff>] [<c0105240>] [<c0105000>]
-   [<c0105263>] [<c01052d4>] [<c0105019>]
-Code: c7 04 02 00 00 00 00 8b 53 0c 8b 87 34 02 00 00 0f b3 10 8b
-
-
->>EIP; c01bf7f6 <__ide_end_request+fe/140>   <=====
-
->>ebx; d7f61eb4 <END_OF_CODE+17c930f8/????>
->>esi; d7f61e30 <END_OF_CODE+17c93074/????>
->>edi; c02c8b6c <ide_hwifs+32c/3a70>
->>esp; c026bedc <init_thread_union+1edc/2000>
-
-Trace; c01c311b <ide_end_request+f/14>
-Trace; c01c9c52 <cdrom_end_request+42/4c>
-Trace; c01ca983 <cdrom_pc_intr+c7/1d0>
-Trace; c01c13ba <ide_intr+c6/13c>
-Trace; c01ca8bc <cdrom_pc_intr+0/1d0>
-Trace; c01080fc <handle_IRQ_event+30/5c>
-Trace; c0108262 <do_IRQ+6a/a8>
-Trace; c0105000 <_stext+0/0>
-Trace; c0106eff <common_interrupt+1f/30>
-Trace; c0105240 <default_idle+0/28>
-Trace; c0105000 <_stext+0/0>
-Trace; c0105263 <default_idle+23/28>
-Trace; c01052d4 <cpu_idle+28/38>
-Trace; c0105019 <rest_init+19/1c>
-
-Code;  c01bf7f6 <__ide_end_request+fe/140>
-00000000 <_EIP>:
-Code;  c01bf7f6 <__ide_end_request+fe/140>   <=====
-   0:   c7 04 02 00 00 00 00      movl   $0x0,(%edx,%eax,1)   <=====
-Code;  c01bf7fd <__ide_end_request+105/140>
-   7:   8b 53 0c                  mov    0xc(%ebx),%edx
-Code;  c01bf800 <__ide_end_request+108/140>
-   a:   8b 87 34 02 00 00         mov    0x234(%edi),%eax
-Code;  c01bf806 <__ide_end_request+10e/140>
-  10:   0f b3 10                  btr    %edx,(%eax)
-Code;  c01bf809 <__ide_end_request+111/140>
-  13:   8b 00                     mov    (%eax),%eax
-
- <0>Kernel panic: Aiee, killing interrupt handler!
-
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.558   -> 1.559  
+#	drivers/ide/ide-cd.c	1.35    -> 1.36   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/04/24	axboe@burns.home.kernel.dk	1.559
+# "fix" rq->special and ar usage, needs proper fixing
+# --------------------------------------------
+#
+diff -Nru a/drivers/ide/ide-cd.c b/drivers/ide/ide-cd.c
+--- a/drivers/ide/ide-cd.c	Wed Apr 24 15:32:59 2002
++++ b/drivers/ide/ide-cd.c	Wed Apr 24 15:32:59 2002
+@@ -558,10 +558,7 @@
+ 	if ((rq->flags & REQ_CMD) && !rq->current_nr_sectors)
+ 		uptodate = 1;
+ 
+-#if 0
+-	/* FIXME --mdcki */
+ 	HWGROUP(drive)->rq->special = NULL;
+-#endif
+ 	ide_end_request(drive, uptodate);
+ }
+ 
+@@ -1217,22 +1214,13 @@
+ /*
+  * Start a read request from the CD-ROM.
+  */
+-static ide_startstop_t cdrom_start_read(struct ata_device *drive, struct ata_request *ar, unsigned int block)
++static ide_startstop_t cdrom_start_read(struct ata_device *drive, unsigned int block)
+ {
+ 	struct cdrom_info *info = drive->driver_data;
+-	struct request *rq = ar->ar_rq;
+-
+-	if (ar->ar_flags & ATA_AR_QUEUED) {
+-//		spin_lock_irqsave(DRIVE_LOCK(drive), flags);
+-		blkdev_dequeue_request(rq);
+-//		spin_unlock_irqrestore(DRIVE_LOCK(drive), flags);
+-	}
+-
++	struct request *rq = HWGROUP(drive)->rq;
+ 
+ 	restore_request(rq);
+ 
+-	rq->special = ar;
+-
+ 	/* Satisfy whatever we can of this request from our cached sector. */
+ 	if (cdrom_read_from_buffer(drive))
+ 		return ide_stopped;
+@@ -1665,30 +1653,8 @@
+ 		if (IDE_LARGE_SEEK(info->last_block, block, IDECD_SEEK_THRESHOLD) && drive->dsc_overlap)
+ 			action = cdrom_start_seek (drive, block);
+ 		else {
+-			unsigned long flags;
+-			struct ata_request *ar;
+-
+-			/*
+-			 * get a new command (push ar further down to avoid grabbing lock here
+-			 */
+-			spin_lock_irqsave(DRIVE_LOCK(drive), flags);
+-
+-			ar = ata_ar_get(drive);
+-
+-			/*
+-			 * we've reached maximum queue depth, bail
+-			 */
+-			if (!ar) {
+-				spin_unlock_irqrestore(DRIVE_LOCK(drive), flags);
+-
+-				return ide_started;
+-			}
+-
+-			ar->ar_rq = rq;
+-			spin_unlock_irqrestore(DRIVE_LOCK(drive), flags);
+-
+ 			if (rq_data_dir(rq) == READ)
+-				action = cdrom_start_read(drive, ar, block);
++				action = cdrom_start_read(drive, block);
+ 			else
+ 				action = cdrom_start_write(drive, rq);
+ 		}
 
 -- 
-Randy Hron
+Jens Axboe
 

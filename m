@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136020AbREGGsq>; Mon, 7 May 2001 02:48:46 -0400
+	id <S136037AbREGHvY>; Mon, 7 May 2001 03:51:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136024AbREGGs0>; Mon, 7 May 2001 02:48:26 -0400
-Received: from deliverator.sgi.com ([204.94.214.10]:41587 "EHLO
-	deliverator.sgi.com") by vger.kernel.org with ESMTP
-	id <S136020AbREGGsV>; Mon, 7 May 2001 02:48:21 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Maciek Nowacki <maciek@Voyager.powersurfr.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: scripts/Configure patch for automatic module compile 
-In-Reply-To: Your message of "Mon, 07 May 2001 00:34:13 CST."
-             <20010507003413.A28246@megabyte> 
-Mime-Version: 1.0
+	id <S136044AbREGHvO>; Mon, 7 May 2001 03:51:14 -0400
+Received: from sunrise.pg.gda.pl ([153.19.40.230]:24770 "EHLO
+	sunrise.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S136037AbREGHvH>; Mon, 7 May 2001 03:51:07 -0400
+From: Andrzej Krzysztofowicz <ankry@pg.gda.pl>
+Message-Id: <200105070750.JAA28407@sunrise.pg.gda.pl>
+Subject: Re: [PATCH] for iso8859-13
+To: kaih@khms.westfalen.de (Kai Henningsen)
+Date: Mon, 7 May 2001 09:50:39 +0200 (MET DST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <80OKvFpXw-B@khms.westfalen.de> from "Kai Henningsen" at May 07, 2001 08:37:00 AM
+Reply-To: ankry@green.mif.pg.gda.pl
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 07 May 2001 16:48:02 +1000
-Message-ID: <11351.989218082@kao2.melbourne.sgi.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 May 2001 00:34:13 -0600, 
-Maciek Nowacki <maciek@Voyager.powersurfr.com> wrote:
->If you're like me, you build everything as modules, boot with an initrd that
->loads in the disk or net driver and filesystem module, and then let kmod take
->care of the rest. Here's a patch that changes Configure (make config) to
->build all possible modules - in other words, to answer 'M' for every tristate
->of some form y/m/n.
+"Kai Henningsen wrote:"
+> hpa@zytor.com (H. Peter Anvin)  wrote on 06.05.01 in <9d4ut6$9b9$1@cesium.transmeta.com>:
+> > Wouldn't it make a heck of a lot more sense if we had a preprocessor
+> > which could produce these kinds of tables from a more sensible input
+> > format (preferrably one which is already in use somewhere.)
+> 
+> For example from the tables on the Unicode webserver or from the IBM  
+> charset registry ...
+> 
 
-I already have a patch from Ghozlane Toumi in my inbox that supports:
+The original tables seem to be generated automatically, however manually
+broken in some places.
 
-make randconfig
-  answers randomly to the questions .
+Can anybody point me to the tools the original tables were generated with?
 
-make allyes
-  answers 'yes' to all questions .
+Andrzej
 
-make allno
-  answers 'no' to all questions .
-
-make allmod
-  answer 'm' if avaiable, 'yes' else .
-
-Plus you can specify defaults in .force_default which will always be
-honoured.  I have been using it to stress test the 2.4.4 configs and my
-2.5 makefile rewrite, it works very nicely.
-
+-- 
+=======================================================================
+  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
+  phone (48)(58) 347 14 61
+Faculty of Applied Phys. & Math.,   Technical University of Gdansk

@@ -1,75 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131151AbRAUBRt>; Sat, 20 Jan 2001 20:17:49 -0500
+	id <S131730AbRAUBwD>; Sat, 20 Jan 2001 20:52:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131590AbRAUBRj>; Sat, 20 Jan 2001 20:17:39 -0500
-Received: from mtiwmhc25.worldnet.att.net ([204.127.131.50]:16809 "EHLO
-	mtiwmhc25.worldnet.att.net") by vger.kernel.org with ESMTP
-	id <S131151AbRAUBRa>; Sat, 20 Jan 2001 20:17:30 -0500
-Message-ID: <3A6A39D0.E6E76CD3@att.net>
-Date: Sat, 20 Jan 2001 20:22:24 -0500
-From: Michael Lindner <mikel@att.net>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Chris Wedgwood <cw@f00f.org>
-CC: Dan Maas <dmaas@dcine.com>, Edgar Toernig <froese@gmx.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: select() on TCP socket sleeps for 1 tick even if data  
- available
-In-Reply-To: <fa.nc2eokv.1dj8r80@ifi.uio.no> <fa.dcei62v.1s5scos@ifi.uio.no> <015e01c082ac$4bf9c5e0$0701a8c0@morph> <3A69361F.EBBE76AA@att.net> <20010120200727.A1069@metastasis.f00f.org> <3A694254.B52AE20B@att.net> <3A6A09F2.8E5150E@gmx.de> <022f01c08342$088f67b0$0701a8c0@morph> <20010121133433.A1112@metastasis.f00f.org>
+	id <S131894AbRAUBvx>; Sat, 20 Jan 2001 20:51:53 -0500
+Received: from [200.193.161.11] ([200.193.161.11]:30460 "HELO
+	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
+	id <S131730AbRAUBvk>; Sat, 20 Jan 2001 20:51:40 -0500
+Date: Sat, 20 Jan 2001 22:04:47 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: pierre@minet.net (Pierre CORCINOS)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: 2.4.1-pre9 does not compile on r128.c
+Message-ID: <20010120220446.B24905@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	pierre@minet.net (Pierre CORCINOS), linux-kernel@vger.kernel.org
+In-Reply-To: <20010121024516.A6492@minet.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010121024516.A6492@minet.net>; from pierre@minet.net on Sun, Jan 21, 2001 at 02:45:16AM +0100
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood wrote:
-> 
-> On Sat, Jan 20, 2001 at 07:35:12PM -0500, Dan Maas wrote:
-> 
->     Bingo! With this fix, 2.2.18 performance becomes almost identical to 2.4.0
->     performance. I assume 2.4.0 disables Nagle by default on local
->     connections...
-> 
-> 2.4.x has a smarter nagle algorithm.
+Em Sun, Jan 21, 2001 at 02:45:16AM +0100, Pierre CORCINOS escreveu:
+> result of the compilation :
 
-Thanks again for all the help, guys...
+read a previous post by Linus, it has a patch for that, IIRC
 
-Haven't installed 2.4 yet, but I tried the setsockoption route.
-Performance is better, but the two processes together never total more
-than 50% of the CPU (i.e. the thing is still schedule-bound, not compute
-bound, as it is on other platforms), and throughput is only up to 800
-sends/sec. Better than the 100/sec. I was getting, but still a far cry
-from the identical box running Windows, where performance is 8K/sec.
-
-...and I still don't understand why the identical program, but using one
-socket instead of 2 sockets, IS CPU bound, and gets on the order of
-10K/sec. on the same HW. Diffs to produce 10K/sec. 1 socket version from
-my previous sample follow...
-
---
-Mike Lindner
-
-diff sockperf.c sockperf1.c
-163c163
-<                               if (pings++ < 1000) {
----
->                               if (pings++ < 10000) {
-177c177
-<       fprintf(stderr, "elapsed time for 1000 pingpongs is %g\n",
-now.tv_sec - then.tv_sec + (now.tv_usec - then.tv_usec) / 1000000.0);
----
->       fprintf(stderr, "elapsed time for 10000 pingpongs is %g\n", now.tv_sec - then.tv_sec + (now.tv_usec - then.tv_usec) / 1000000.0);
-205c205
-<                       int     s = connectsock(argv[1], argv[3],
-"tcp");
----
->                       int     s = r;
-214c214
-<                       int     r = accept(f, (struct sockaddr *) &fsin,
-&alen);
----
->                       int     r = s;
+- Arnaldo
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

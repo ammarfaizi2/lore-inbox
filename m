@@ -1,54 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261888AbUCaQi1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 11:38:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261852AbUCaQi0
+	id S262052AbUCaQqG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 11:46:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262073AbUCaQqG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 11:38:26 -0500
-Received: from dh132.citi.umich.edu ([141.211.133.132]:4739 "EHLO
-	lade.trondhjem.org") by vger.kernel.org with ESMTP id S261888AbUCaQiV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 11:38:21 -0500
-Subject: Re: NFS ENOLCK problem with CONFIG_SECURITY=n
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Roland Dreier <roland@topspin.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <527jx1atuu.fsf@topspin.com>
-References: <527jx1atuu.fsf@topspin.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1080751099.4194.23.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 31 Mar 2004 11:38:19 -0500
+	Wed, 31 Mar 2004 11:46:06 -0500
+Received: from s2.org ([195.197.64.39]:43663 "EHLO kalahari.s2.org")
+	by vger.kernel.org with ESMTP id S262052AbUCaQpv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Mar 2004 11:45:51 -0500
+To: Petr Sebor <petr@scssoft.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: [sata] libata update
+References: <4064E691.2070009@pobox.com> <4069FBC3.2080104@scssoft.com>
+	<406A8035.2080108@pobox.com> <406AB08C.1040907@scssoft.com>
+From: Jarno Paananen <jpaana@s2.org>
+Date: Wed, 31 Mar 2004 19:41:17 +0300
+In-Reply-To: <406AB08C.1040907@scssoft.com> (Petr Sebor's message of "Wed,
+ 31 Mar 2004 13:50:36 +0200")
+Message-ID: <m3r7v9geaa.fsf@kalahari.s2.org>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-03-31 at 11:01, Roland Dreier wrote:
-> I'm having problems with lockf returning ENOLCK on an NFS directory.
-> I also see messages like
-> 
->     nsm_mon_unmon: rpc failed, status=-13
->     lockd: cannot monitor 10.0.0.5
->     lockd: failed to monitor 10.0.0.5
-> 
-> The system is an IA64 system running Debian testing with kernel 2.6.4.
-> I found previous reports of a similar problem, but the solution was to
-> set CONFIG_SECURITY to n (or add CONFIG_SECURITY_CAPABILITIES).
-> However, I already have CONFIG_SECURITY off:
-> 
->     $ zgrep CONFIG_SECURITY /proc/config.gz
->     # CONFIG_SECURITY is not set
-> 
-> Am I missing something?
+Petr Sebor <petr@scssoft.com> writes:
 
-Error 13 == EPERM means "permission denied". Check that you haven't
-misconfigured your /etc/hosts.deny file to deny access to
-portmap/rpc.statd from localhost/your client on your server/your server
-on your client...
+> Jeff Garzik wrote:
+>
+>> Here's a potentially better patch, if you guys (or anyone else)
+>> would be willing to give it a quick test...?
+>>
+>>     Jeff
+>
+> Not good at all ...
+>
+> (eye-copied from the console @ boot time)
+>
+> 2.6.5-rc3 + this patch:
+>
+> sata_via (0000:00:0f.0): PATA sharing not supported (0x2)
+> via_sata: probe of (0000:00:0f.0) failed with error -5
+>
+> with following panic
+>
+> unable to mount root...
+>
+> wrt sata_via, no more messages are written...
 
-Cheers,
-  Trond
+Yup, no good here either (still 2.4-bk kernel):
 
--- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
+libata version 1.02 loaded.
+sata_via version 0.20
+sata_via(00:0f.0): PATA sharing not supported (0x82)
+Attached scsi disk sda at scsi0, channel 0, id 3, lun 0
+SCSI device sda: 71833096 512-byte hdwr sectors (36779 MB)
+ sda: sda1 sda2 sda3 < sda5 sda6 sda7 >
+
+// Jarno

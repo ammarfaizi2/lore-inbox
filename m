@@ -1,37 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262434AbTD3Vkz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 17:40:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262440AbTD3Vkz
+	id S262443AbTD3VmC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 17:42:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262447AbTD3VmC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 17:40:55 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:47699 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S262434AbTD3Vkz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 17:40:55 -0400
-Date: Wed, 30 Apr 2003 17:53:13 -0400
-From: Jeff Garzik <jgarzik@redhat.com>
-To: Matt Domsch <Matt_Domsch@Dell.com>
-Cc: greg@kroah.com, alan@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] Dynamic PCI Device IDs
-Message-ID: <20030430175313.A19093@devserv.devel.redhat.com>
-References: <Pine.LNX.4.44.0304301640450.8917-100000@humbolt.us.dell.com>
-Mime-Version: 1.0
+	Wed, 30 Apr 2003 17:42:02 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:34178 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S262443AbTD3VmB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 17:42:01 -0400
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200304302157.h3ULvxZw002257@81-2-122-30.bradfords.org.uk>
+Subject: Re: [Pointless Waffle] Re: Why DRM exists [was Re: Flame Linus to
+To: miller@techsource.com (Timothy Miller)
+Date: Wed, 30 Apr 2003 22:57:59 +0100 (BST)
+Cc: john@grabjohn.com (John Bradford), viro@parcelfarce.linux.theplanet.co.uk,
+       Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <3EB0397A.2070108@techsource.com> from "Timothy Miller" at Apr 30, 2003 05:00:42 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0304301640450.8917-100000@humbolt.us.dell.com>; from Matt_Domsch@Dell.com on Wed, Apr 30, 2003 at 04:45:14PM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, gee.  It's so pretty it's hard to say no.  :)
+> >>Was the whole DRM discussion off-topic?
+> > 
+> > 
+> > It was certainly ironic that the subject was 'Why DRM exists', when it
+> > clearly doesn't within the scope of the Linux kernel, and isn't on the
+> > horizon for the Linux kernel either, which is what this mailing list
+> > is intended for.
+> > 
+> > John.
+> > 
+> > 
+> 
+> Doesn't the lkml FAQ say that posts which complain about other posts 
+> being off-topic are themselves off-topic?
+> 
+> <ahem>  :)
+> 
 
-I've wanted this capability, dynamically adding PCI ids to drivers, for
-a while.  In addition to this feature, it also makes the existing code
-a bit better.  And it certainly seems sysfs-friendly, though getting
-an expert in that area to look over the sysfs parts would be nice, too.
+Oh, so we're just ignoring the other 95% noise on the list then :-).
 
-	Jeff
+Nothing short of this:
 
+   |   |
+___|___|__
+   |   |
+   | X |
+___|___|__
+   |   |
+   |   |
 
+Your move.
 
+seems to be considered off-topic these days.
+
+John.

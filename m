@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129205AbQKPVvs>; Thu, 16 Nov 2000 16:51:48 -0500
+	id <S129111AbQKPV5T>; Thu, 16 Nov 2000 16:57:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129178AbQKPVvj>; Thu, 16 Nov 2000 16:51:39 -0500
-Received: from cx518206-b.irvn1.occa.home.com ([24.21.107.123]:55814 "EHLO
-	cx518206-b.irvn1.occa.home.com") by vger.kernel.org with ESMTP
-	id <S129272AbQKPVv3>; Thu, 16 Nov 2000 16:51:29 -0500
-From: "Barry K. Nathan" <barryn@cx518206-b.irvn1.occa.home.com>
-Message-Id: <200011162121.NAA15305@cx518206-b.irvn1.occa.home.com>
-Subject: Re: APM oops with Dell 5000e laptop
-To: johnkim@aslab.com
-Date: Thu, 16 Nov 2000 13:21:21 -0800 (PST)
-Cc: linux-kernel@vger.kernel.org
-Reply-To: barryn@pobox.com
-In-Reply-To: <Pine.LNX.4.04.10011161254110.2078-100000@mail.aslab.com> from "John D. Kim" at Nov 16, 2000 01:04:41 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129886AbQKPV5I>; Thu, 16 Nov 2000 16:57:08 -0500
+Received: from nas1-6.kmp.club-internet.fr ([213.44.17.6]:35822 "EHLO
+	microsoft.com") by vger.kernel.org with ESMTP id <S129178AbQKPV5A>;
+	Thu, 16 Nov 2000 16:57:00 -0500
+Date: Thu, 16 Nov 2000 22:21:52 +0100
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Re: Local root exploit with kmod and modutils > 2.1.121
+Message-ID: <20001116222152.E8326@nomade>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John D. Kim wrote:
+Hi,
 
-> Well, there will be a great number of these laptops sold, not just through
-> dell, but other brands that buy from compal.  But most of them will be
-> running Windows, and Windows seem to work fine with it.  So these
-[snip]
+as modprobe (insmod) args parsing seems POSIX compliant, we should put a
+"--" before
+what should be interpreted only as a textual argument, not as an option.
+This is a lot safer: whatever is passed, modprobe will take it as a module
+name.
 
-FWIW, Windows uses ACPI on these machines, not APM.
+--- linux-2.4.0-test10/kernel/kmod.c    Tue Sep 26 01:18:55 2000
++++ linux/kernel/kmod.c Thu Nov 16 19:57:45 2000
+@@ -133,7 +133,7 @@
+ static int exec_modprobe(void * module_name)
+ {
+        static char * envp[] = { "HOME=/", "TERM=linux",
+"PATH=/sbin:/usr/sbin:/bin:/usr/bin", NULL };
+-       char *argv[] = { modprobe_path, "-s", "-k", (char*)module_name,
+NULL };
++       char *argv[] = { modprobe_path, "-s", "-k", "--",
+(char*)module_name, NULL };
+        int ret;
 
--Barry K. Nathan <barryn@pobox.com>
+        ret = exec_usermodehelper(modprobe_path, argv, envp);
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

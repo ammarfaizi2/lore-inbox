@@ -1,56 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263698AbUDGOu4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 10:50:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263702AbUDGOu4
+	id S263701AbUDGOwV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 10:52:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263697AbUDGOwU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 10:50:56 -0400
-Received: from ns.suse.de ([195.135.220.2]:6110 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263698AbUDGOus (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 10:50:48 -0400
-Date: Wed, 7 Apr 2004 16:50:41 +0200
-From: Andi Kleen <ak@suse.de>
-To: Anton Blanchard <anton@samba.org>
-Cc: david@gibson.dropbear.id.au, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       benh@kernel.crashing.org, paulus@samba.org,
-       linuxppc64-dev@lists.linuxppc.org
-Subject: Re: RFC: COW for hugepages
-Message-Id: <20040407165041.23d8d82a.ak@suse.de>
-In-Reply-To: <20040407142748.GO26474@krispykreme>
-References: <20040407074239.GG18264@zax>
-	<20040407143447.4d8f08af.ak@suse.de>
-	<20040407142748.GO26474@krispykreme>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 7 Apr 2004 10:52:20 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:10112 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S263704AbUDGOvg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Apr 2004 10:51:36 -0400
+Date: Wed, 7 Apr 2004 15:55:24 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200404071455.i37EtOn8000182@81-2-122-30.bradfords.org.uk>
+To: Redeeman <lkml@metanurb.dk>,
+       LKML Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <1081348038.5049.6.camel@redeeman.linux.dk>
+References: <20040407125406.209FC39834A@ws5-1.us4.outblaze.com>
+ <1081348038.5049.6.camel@redeeman.linux.dk>
+Subject: Re: Rewrite Kernel
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Apr 2004 00:27:48 +1000
-Anton Blanchard <anton@samba.org> wrote:
+> but, ofcourse, this would require all development to stop on linux(if
+> the linux developers should do it).
+> and that isnt possible. so therefore development goes on to just do the
+> best thing possible with what we got today.
 
->  
-> > Implementing this for ppc64 only is just wrong. Before you do this 
-> > I would suggest to factor out the common code in the various hugetlbpage
-> > implementations and then implement it in common code.
-> 
-> I could say a similar thing about your i386 specific largepage modifications
-> in the NUMA api :)
+Not really - there are free, open source OS projects other than Linux in
+fairly advanced stages technically, (I.E. they do more than just boot, and
+can run real applications).
 
-All they did was to modify the code to lazy faulting. That is architecture specific
+However, to take my attention away from Linux, an OS project would probably
+have to be fairly revolutionary, and represent something that I honestly
+believed could not ever be practically achieved with the Linux model.
 
-(and add the mpol code, but that was pretty minor) 
+The only obstacle that I can see to creating something better than the Linux
+kernel, is that nobody is doing it yet.
 
-COW is a different thing though.
-
-> 
-> We should probably look at making lots of the arch specific hugetlb code
-> common but im not sure we want that to become a prerequisite for merging
-> NUMA API and hugepage COW.
-
-That would just make the merging later harder. Making it common first and then
-adding features would be better.
-
--Andi
+John.

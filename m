@@ -1,70 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319173AbSHNBz3>; Tue, 13 Aug 2002 21:55:29 -0400
+	id <S319172AbSHNCWa>; Tue, 13 Aug 2002 22:22:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319180AbSHNBz3>; Tue, 13 Aug 2002 21:55:29 -0400
-Received: from antigonus.hosting.pacbell.net ([216.100.98.13]:50159 "EHLO
-	antigonus.hosting.pacbell.net") by vger.kernel.org with ESMTP
-	id <S319173AbSHNBz2>; Tue, 13 Aug 2002 21:55:28 -0400
-Reply-To: <imran.badr@cavium.com>
-From: "Imran Badr" <imran.badr@cavium.com>
-To: "'Rik van Riel'" <riel@conectiva.com.br>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Cache coherency and snooping
-Date: Tue, 13 Aug 2002 18:56:38 -0700
-Message-ID: <0aa601c24335$d4c6a0f0$9e10a8c0@IMRANPC>
+	id <S319180AbSHNCWa>; Tue, 13 Aug 2002 22:22:30 -0400
+Received: from rj.sgi.com ([192.82.208.96]:30892 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S319172AbSHNCW3>;
+	Tue, 13 Aug 2002 22:22:29 -0400
+Message-ID: <3D59BFF5.2C3B4B6A@alphalink.com.au>
+Date: Wed, 14 Aug 2002 12:27:01 +1000
+From: Greg Banks <gnb@alphalink.com.au>
+Organization: Corpus Canem Pty Ltd.
+X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.2.15-4mdkfb i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+To: Peter Samuelson <peter@cadcamlab.org>
+CC: Kai Germaschewski <kai-germaschewski@uiowa.edu>,
+       linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: [patch] config language dep_* enhancements
+References: <3D587483.1C459694@alphalink.com.au> <Pine.LNX.4.44.0208131306040.6035-100000@chaos.physics.uiowa.edu> <20020813204829.GJ761@cadcamlab.org> <3D59B212.DC24E231@alphalink.com.au> <20020814014241.GK761@cadcamlab.org>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <Pine.LNX.4.44L.0208132237390.23404-100000@imladris.surriel.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am looking at the linux kernel code. The driver in /drivers/char/agp uses
-this same seqeuence to allocate non-cacheable memory page ( look at the
-function static int agp_generic_create_gatt_table(void)).
+Peter Samuelson wrote:
+> 
+> [Greg Banks]
+> > Does "complete" mean all the ports have also made the change and
+> > been merged back?
+> [...]
+> Actually I suspect it would be more like the C99 thing: after the new
+> syntax is added, we start doing [TRIVIAL] patches to clean out the
+> old, and eventually once that is done we have the option of removing
+> the old syntax or leaving it in as a known oddity. [...]
 
-I will give it a try on my mips based platform and let you guys know the
-outcome.
+Fair enough.
 
-Thanks to everyone for all the responses and guidance.
-Imran.
+> > I'm more concerned about subtle dependencies on execution order
+> > resulting from misuse of conditionals.
+> 
+> Yeah, that's the real reason 'n'!='' is Considered Harmful (and warned
+> about in the docs even now).
 
+There are issues regardless of the behaviour of "".   For example, here's
+one of at least 8 ways I've identified where things can go wrong when
+conditionals are misused.
 
+#
+# Testing mixed overlap, type 1
+# (mixed overlap, define first, query conditional, same menu)
+#
 
------Original Message-----
-From: Rik van Riel [mailto:riel@conectiva.com.br]
-Sent: Tuesday, August 13, 2002 6:38 PM
-To: Imran Badr
-Cc: 'Ralf Baechle'; 'Alan Cox'; linux-kernel@vger.kernel.org
-Subject: RE: Cache coherency and snooping
+mainmenu_option next_comment
+comment 'xconfig needs this menu'
 
+    define_bool CONFIG_QUUX y
 
-On Tue, 13 Aug 2002, Imran Badr wrote:
+    bool 'Set this symbol to ON' CONFIG_FOO
 
-> Please advise if following sequence of operations are going to help:
->
-> alloc memory
-> reserve the page
-> flush every cache
-> call ioremap_nocache
+    if [ "$CONFIG_FOO" = "y" ]; then
+	bool 'Here QUUX is a query symbol' CONFIG_QUUX
+    fi
 
-Won't work around hardware limitations.  If the hardware
-cannot turn off caching, all you could do is flush the
-page to ram before every explicit IO request...
+endmenu
 
-regards,
+# Expected semantics:
+# FOO=n => QUUX not asked, is y.
+# FOO=y => QUUX asked, default y, can be either y or n.
+# so list of valid configs is:
+#   QUUX=y FOO=n
+#   QUUX=y FOO=y
+#   QUUX=n FOO=y
 
-Rik
---
-Bravely reimplemented by the knights who say "NIH".
+# Actual semantics, "make config"
+# FOO=n => QUUX not asked, is y (CORRECT)
+# FOO=y => QUUX asked, default y,
+#   	   if y appears twice with same value (INCORRECT)
+#          if n appears twice with different values (INCORRECT)
+# list of produced configs:
+#   QUUX=y FOO=n
+#   QUUX=y FOO=y QUUX=y
+#   QUUX=y FOO=y QUUX=n
 
-http://www.surriel.com/		http://distro.conectiva.com/
+# Actual semantics, "make menuconfig"
+# FOO=n => QUUX not asked, is y (CORRECT)
+# FOO=y => QUUX asked, default y,
+#   	   if y appears twice with same value (INCORRECT)
+#          cannot set to n (INCORRECT)
+# list of produced configs:
+#   QUUX=y FOO=n
+#   QUUX=y FOO=y QUUX=y
 
+# Actual semantics, "make xconfig"
+# FOO=n => QUUX not asked
+#   	   on save, get "ERROR - Attempting to write value for unconfigured variable (CONFIG_QUUX)"
+#          does not save QUUX at all (INCORRECT)
+# FOO=y => QUUX asked, default y,
+#   	   if y appears twice with same value (INCORRECT)
+#   	   cannot set to n (INCORRECT)
+# list of produced configs:
+#   FOO=n
+#   QUUX=y FOO=y QUUX=y
 
+Greg.
+-- 
+the price of civilisation today is a courageous willingness to prevail,
+with force, if necessary, against whatever vicious and uncomprehending
+enemies try to strike it down.     - Roger Sandall, The Age, 28Sep2001.

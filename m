@@ -1,56 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132164AbQLND2y>; Wed, 13 Dec 2000 22:28:54 -0500
+	id <S129413AbQLNDja>; Wed, 13 Dec 2000 22:39:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132220AbQLND2p>; Wed, 13 Dec 2000 22:28:45 -0500
-Received: from smtp03.mrf.mail.rcn.net ([207.172.4.62]:24268 "EHLO
-	smtp03.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S132164AbQLND2e>; Wed, 13 Dec 2000 22:28:34 -0500
-Date: Wed, 13 Dec 2000 21:58:06 -0500 (EST)
-From: "Mohammad A. Haque" <mhaque@haque.net>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: test12 lockups -- need feedback
-In-Reply-To: <3A3804CA.E07FDBB1@haque.net>
-Message-ID: <Pine.LNX.4.30.0012132157020.1272-100000@viper.haque.net>
+	id <S130304AbQLNDjT>; Wed, 13 Dec 2000 22:39:19 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:2251 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S131376AbQLNDjI>;
+	Wed, 13 Dec 2000 22:39:08 -0500
+Date: Wed, 13 Dec 2000 22:08:39 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Chris Lattner <sabre@nondot.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Jamie Lokier <lk@tantalophile.demon.co.uk>,
+        "Mohammad A. Haque" <mhaque@haque.net>, Ben Ford <ben@kalifornia.com>,
+        linux-kernel@vger.kernel.org, orbit-list@gnome.org,
+        korbit-cvs@lists.sourceforge.net
+Subject: Re: [Korbit-cvs] Re: ANNOUNCE: Linux Kernel ORB: kORBit
+In-Reply-To: <Pine.LNX.4.21.0012132025310.24483-100000@www.nondot.org>
+Message-ID: <Pine.GSO.4.21.0012132142100.6300-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, got locked up. Dropped me into kdb and I was able to write down the
-oops after doing a ss on btp 0.
 
-I'll try to have something posted in an hour.
 
-On Wed, 13 Dec 2000, Mohammad A. Haque wrote:
+On Wed, 13 Dec 2000, Chris Lattner wrote:
 
-> At first I thought it was just me when I reported the lockups I was
-> having with test12 earlier this week. Now the reports are flooding. Of
-> course, now my machine isn't locking up anymore after recompiling from a
-> clean source tree (test5 w/ patches through test12)
->
-> Now, I'm trying to determine what the common element is.
->
-> Those of you who are having lockups, was test12 compiled from a patched
-> tree that you've previously compiled?
->
-> Those that are locking up in X. Do you have a second machine you can
-> hook up via serial port to grab Oops output?
->
-> I've got KDB compiled in my current kernel. I'll compile a fresh kernel
-> without KDB and see how long I last when I get a chance.
->
+> CORBA, today, gives us superior interoperability (through IIOP), with
+> extensibility for the future.  As Alexander Viro mentions, 9P may be a
+> better protocol for local communications...
 
--- 
+	Local? Funny. It lives atop of TCP or IL quite fine. What's
+even funnier, I can use it to export /proc from CPU server to workstation
+and use _that_ for remote debugging. Ditto for window system. Ditto for
+DNS. Ditto for plumber. No, not on Linux...
 
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/
-                                               mhaque@haque.net
-
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
+	What you do is mapping your RPC to hierarchical namespace. After
+that... What extensibility do you need? You can use every utility written
+for core UNIX API (open()/read()/write()/close()) as a client. No need
+to reinvent the wheel...
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

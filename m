@@ -1,74 +1,127 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263806AbRFWJGP>; Sat, 23 Jun 2001 05:06:15 -0400
+	id <S264926AbRFWKgB>; Sat, 23 Jun 2001 06:36:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265671AbRFWJFy>; Sat, 23 Jun 2001 05:05:54 -0400
-Received: from 64-42-29-14.atgi.net ([64.42.29.14]:46852 "HELO
-	mail.clouddancer.com") by vger.kernel.org with SMTP
-	id <S263806AbRFWJFo>; Sat, 23 Jun 2001 05:05:44 -0400
-To: linux-kernel@vger.kernel.org
-Cc: Dylan_G@bigfoot.com
-Subject: Re: Annoying kernel behaviour
-In-Reply-To: <9h0r6s$fe7$1@ns1.clouddancer.com>
-In-Reply-To: <3B33EFC0.D9C930D5@bigfoot.com> <9h0r6s$fe7$1@ns1.clouddancer.com>
-Reply-To: klink@clouddancer.com
-Message-Id: <20010623090542.6019D7846F@mail.clouddancer.com>
-Date: Sat, 23 Jun 2001 02:05:42 -0700 (PDT)
-From: klink@clouddancer.com (Colonel)
+	id <S265013AbRFWKfw>; Sat, 23 Jun 2001 06:35:52 -0400
+Received: from hssx-sktn-167-47.sasknet.sk.ca ([142.165.167.47]:24336 "HELO
+	mail.thock.com") by vger.kernel.org with SMTP id <S264926AbRFWKfq>;
+	Sat, 23 Jun 2001 06:35:46 -0400
+Message-ID: <3B34711A.F25ED753@bigfoot.com>
+Date: Sat, 23 Jun 2001 04:36:10 -0600
+From: Dylan Griffiths <Dylan_G@bigfoot.com>
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Kernel BUG in inode.c line 486 in 2.4.5 
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In clouddancer.list.kernel, you wrote:
->
->	I upgraded a fileserver to 2.4.5 because of the RAID support (the 0.90
->patch I grabbed did not apply cleanly to 2.2.19, despite it being a fresh
->copy).
+Found these lurking in dmesg.. no timestamp on them, so I have no idea when
+they happened.. the system seems ok, but I'm going to go fsck it a bit now..
 
-Look in the people/mingo directory for a patch
+Asus A7M266 board (VIA Southbridge).  VIA82CXXX chipset support is on, use
+DMA by default is on.  ext2 partitions on a 20gb drive:
+Filesystem            Size  Used Avail Use% Mounted on
+/dev/hda5             2.9G  1.9G  873M  69% /
+/dev/hda7              13G   10G  2.6G  80% /home
+tmpfs                 103M     0  103M   0% /var/shm
 
->  Besides a nice speed increase (the EEPro now pumps 10 megs a second,
->instead of 2 or 3), there is a problem with the video4linux in it.  The box
->has a bttv card hooked up to a camera.  Under 2.2.19, Apache had mod_video
->installed, which would produce a jpeg of the composite in on the card (a
->cheapy CCD camera is hooked up).  Upon insmoding:
+Hope this helps..
 
-I have:
+-=-
 
-Linux video capture interface: v1.00
-bttv: driver version 0.7.63 loaded
-bttv: using 2 buffers with 2080k (4160k total) for capture
-bttv: Host bridge needs ETBF enabled.
-bttv: Bt8xx card found (0).
-bttv0: Bt878 (rev 2) at 00:0b.0, irq: 10, latency: 32, memory: 0xe3000000
-bttv0: subsystem: 144f:3000  =>  TView 99 (CPH063)  =>  card=38
-bttv0: model: BT878(TView99 CPH063) [autodetected]
-bttv0: enabling ETBF (430FX/VP3 compatibilty)
-i2c-core.o: adapter bt848 #0 registered as adapter 0.
+kernel BUG at inode.c:486!
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c0141e43>]
+EFLAGS: 00013286
+eax: 0000001b   ebx: c726a2c0   ecx: 00000001   edx: c022a068
+esi: c022cee0   edi: d489c9c0   ebp: d501dfa4   esp: d501deec
+ds: 0018   es: 0018   ss: 0018
+Process gmc (pid: 169, stackpage=d501d000)
+Stack: c01f602c c01f608b 000001e6 c726a2c0 c0142887 c726a2c0 d4221a40
+c726a2c0 
+       c015a66d c726a2c0 c01402f6 d4221a40 c726a2c0 d4221a40 00000000
+c0138d18 
+       d4221a40 d501df68 c013945a d489c9c0 d501df68 00000000 cc51b000
+00000000 
+Call Trace: [<c0142887>] [<c015a66d>] [<c01402f6>] [<c0138d18>] [<c013945a>]
+[<c0139a8c>] [<c01368a6>] 
+       [<c0106b9b>] 
 
- working in 2.4.5-ac12 SMP+RAID.  I used
+Code: 0f 0b 83 c4 0c f6 83 f4 00 00 00 10 75 1f 68 e8 01 00 00 68 
 
-Bttv-0.7.63-2.4.3.patch.bz2
+-=-
 
-from the website.  Video4linux has always worked in the various 2.4
-kernels I've tried.
+kernel BUG at inode.c:486!
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c0141e43>]
+EFLAGS: 00010286
+eax: 0000001b   ebx: c6bab980   ecx: 00000001   edx: c022a068
+esi: c022cee0   edi: d489c9c0   ebp: d5559fa4   esp: d5559eec
+ds: 0018   es: 0018   ss: 0018
+Process gmc (pid: 18464, stackpage=d5559000)
+Stack: c01f602c c01f608b 000001e6 c6bab980 c0142887 c6bab980 d4221dc0
+c6bab980 
+       c015a66d c6bab980 c01402f6 d4221dc0 c6bab980 d4221dc0 00000000
+c0138d18 
+       d4221dc0 d5559f68 c013945a d489c9c0 d5559f68 00000000 cae3b000
+00000000 
+Call Trace: [<c0142887>] [<c015a66d>] [<c01402f6>] [<c0138d18>] [<c013945a>]
+[<c0139a8c>] [<c01368a6>] 
+       [<c0106b9b>] 
 
+Code: 0f 0b 83 c4 0c f6 83 f4 00 00 00 10 75 1f 68 e8 01 00 00 68 
 
->and accesing mod_video, the box locked up hard (not even sysrq worked).  And
+-=-
 
-I don't run mod_video, but xawtv works fine.  Did you try that or
-rebuilding mod_video?
+kernel BUG at inode.c:486!
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c0141e43>]
+EFLAGS: 00010286
+eax: 0000001b   ebx: cf9b4640   ecx: 00000001   edx: c022a068
+esi: c022cee0   edi: d489c9c0   ebp: c3bd1fa4   esp: c3bd1eec
+ds: 0018   es: 0018   ss: 0018
+Process gmc (pid: 18470, stackpage=c3bd1000)
+Stack: c01f602c c01f608b 000001e6 cf9b4640 c0142887 cf9b4640 c1c1b5c0
+cf9b4640 
+       c015a66d cf9b4640 c01402f6 c1c1b5c0 cf9b4640 c1c1b5c0 00000000
+c0138d18 
+       c1c1b5c0 c3bd1f68 c013945a d489c9c0 c3bd1f68 00000000 c6087000
+00000000 
+Call Trace: [<c0142887>] [<c015a66d>] [<c01402f6>] [<c0138d18>] [<c013945a>]
+[<c0139a8c>] [<c01368a6>] 
+       [<c0106b9b>] 
 
+Code: 0f 0b 83 c4 0c f6 83 f4 00 00 00 10 75 1f 68 e8 01 00 00 68 
 
->when I rebooted, I found that some files is /etc were eaten -- even though
+-=-
 
-You must have grues.
+kernel BUG at inode.c:486!
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c0141e43>]
+EFLAGS: 00010286
+eax: 0000001b   ebx: cf9b4040   ecx: 00000001   edx: c022a068
+esi: c022cee0   edi: d489c9c0   ebp: d4ea1fa4   esp: d4ea1eec
+ds: 0018   es: 0018   ss: 0018
+Process xmms (pid: 14150, stackpage=d4ea1000)
+Stack: c01f602c c01f608b 000001e6 cf9b4040 c0142887 cf9b4040 c1c1b9c0
+cf9b4040 
+       c015a66d cf9b4040 c01402f6 c1c1b9c0 cf9b4040 c1c1b9c0 00000000
+c0138d18 
+       c1c1b9c0 d4ea1f68 c013945a d489c9c0 d4ea1f68 00000000 d3693000
+00000000 
+Call Trace: [<c0142887>] [<c015a66d>] [<c01402f6>] [<c0138d18>] [<c013945a>]
+[<c0139a8c>] [<c01367c6>] 
+       [<c0106b9b>] 
 
+Code: 0f 0b 83 c4 0c f6 83 f4 00 00 00 10 75 1f 68 e8 01 00 00 68 
 
--- 
-"Or heck, let's just make the VM a _real_ Neural Network, that self
-trains itself to the load you put on the system. Hideously complex and
-evil?  Well, why not wire up that roach on the floor, eating that stale
-cheese doodle. It can't do any worse job on VM that some of the VM
-patches I've seen..."  -- Jason McMullan
-
-ditto
+--
+    www.kuro5hin.org -- technology and culture, from the trenches.

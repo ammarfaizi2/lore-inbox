@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289826AbSAKBpK>; Thu, 10 Jan 2002 20:45:10 -0500
+	id <S289825AbSAKBrr>; Thu, 10 Jan 2002 20:47:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289825AbSAKBo6>; Thu, 10 Jan 2002 20:44:58 -0500
-Received: from gull.mail.pas.earthlink.net ([207.217.120.84]:58342 "EHLO
-	gull.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S289822AbSAKBoq>; Thu, 10 Jan 2002 20:44:46 -0500
-Date: Thu, 10 Jan 2002 20:48:01 -0500
-To: bunk@fs.tum.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.18pre3
-Message-ID: <20020110204801.A7049@earthlink.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-From: rwhron@earthlink.net
+	id <S289827AbSAKBrj>; Thu, 10 Jan 2002 20:47:39 -0500
+Received: from mail.shorewall.net ([206.124.146.177]:18693 "HELO
+	mail.shorewall.net") by vger.kernel.org with SMTP
+	id <S289825AbSAKBrd> convert rfc822-to-8bit; Thu, 10 Jan 2002 20:47:33 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Tom Eastep <teastep@shorewall.net>
+To: acrimon.beet@gmx.co.uk, linux-kernel@vger.kernel.org
+Subject: Re: via sound acting very dodgy
+Date: Thu, 10 Jan 2002 17:47:32 -0800
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <20020111005935.C5983@x.nat>
+In-Reply-To: <20020111005935.C5983@x.nat>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020111014732.74403ACF6@mail.shorewall.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> something changed between pre2 and pre3 that broke the booting of
-> non-modular kernels. After LILO's "Loading Linux" message nothing else
-> happens. When I enable CONFIG_MODULES my kernel boots.
+On Thursday 10 January 2002 04:59 pm, acrimon.beet@gmx.co.uk wrote:
 
-Maybe lilo didn't execute properly.
+>
+> kernel: Assertion failed! chan->is_active ==
+> sg_active(chan->iobase),via82cxxx_audio.c,via_chan_maybe_start,line=1198
+>
+> At the moment I'm pretty much assuming I've got broken hardware, but
+> I'd be interested to know if there are any known problems with
+> the driver.
 
-/usr/src/linux$ egrep 'CONFIG_MOD|=m' .config
-# CONFIG_MODULES is not set
+FWIW, I'm seeing the same message after which any attempt to play any sound 
+simply hangs (with an additional instance of the message). Unloading all 
+sound-related modules and reloaded them doesn't help and I end up rebooting 
+to clear the problem. I'm only running into this about once per week so it's 
+more of a nuisance than anything else. 
 
-/usr/src/linux$ uname -a
-Linux mountain 2.4.18-pre3 #1 Thu Jan 10 20:13:52 EST 2002 i586 unknown
-
+-Tom
 -- 
-Randy Hron
-
+Tom Eastep    \ A Firewall for Linux 2.4.*
+AIM: tmeastep  \ http://www.shorewall.net
+ICQ: #60745924  \ teastep@shorewall.net
+-------------------------------------------

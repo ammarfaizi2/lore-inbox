@@ -1,65 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264919AbTBOTmJ>; Sat, 15 Feb 2003 14:42:09 -0500
+	id <S264797AbTBOTqu>; Sat, 15 Feb 2003 14:46:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264956AbTBOTmI>; Sat, 15 Feb 2003 14:42:08 -0500
-Received: from quechua.inka.de ([193.197.184.2]:27778 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S264919AbTBOTmH>;
-	Sat, 15 Feb 2003 14:42:07 -0500
-X-Mailbox-Line: From aj@dungeon.inka.de  Sat Feb 15 20:51:59 2003
-Subject: 2.5.61/usb: poll does not time out
-From: Andreas Jellinghaus <aj@dungeon.inka.de>
-To: linux-kernel@vger.kernel.org
+	id <S264822AbTBOTqu>; Sat, 15 Feb 2003 14:46:50 -0500
+Received: from virtisp1.zianet.com ([216.234.192.105]:19471 "HELO
+	mesatop.zianet.com") by vger.kernel.org with SMTP
+	id <S264797AbTBOTqt>; Sat, 15 Feb 2003 14:46:49 -0500
+Subject: Re: PATCH: another ia64 typo
+From: Steven Cole <elenstev@mesatop.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <E18k81K-0007KN-00@the-village.bc.nu>
+References: <E18k81K-0007KN-00@the-village.bc.nu>
 Content-Type: text/plain
-Organization: 
-Message-Id: <1045338900.486.20.camel@simulacron>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 15 Feb 2003 20:55:01 +0100
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 15 Feb 2003 12:48:28 -0700
+Message-Id: <1045338511.10680.26.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, 2003-02-15 at 12:30, Alan Cox wrote:
+> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.61/include/asm-ia64/sn/router.h linux-2.5.61-ac1/include/asm-ia64/sn/router.h
+> --- linux-2.5.61/include/asm-ia64/sn/router.h	2003-02-10 18:38:16.000000000 +0000
+> +++ linux-2.5.61-ac1/include/asm-ia64/sn/router.h	2003-02-14 23:30:42.000000000 +0000
+> @@ -500,7 +500,7 @@
+>  
+>  	/*
+>  	 * Everything below here is for kernel use only and may change at	
+> -	 * at any time with or without a change in teh revision number
+> +	 * at any time with or without a change in the revision number
+>  	 *
+>  	 * Any pointers or things that come and go with DEBUG must go at
+>   	 * the bottom of the structure, below the user stuff.
+> -
 
-poll() should return as soon as there is some event.
-unplugging a usb device will cause poll to set
-revents to POLLERR|POLLHUP.
+Here is a similar fix in arch/alpha:
 
-But the poll() syscall is not returned, instead
-the kernel waits for the timeout to count down /
-in the case poll with a negative value to wait
-forever. This way an application will never
-notice that the usb device has been removed.
+Steven
 
-here is a strace on a test app.
-the kernel waits full 10 seconds (the timeout used),
-even though the usb device was removed in the first
-five seconds.
-
-send(4, "<15>Feb 15 20:47:52 usbtoken[947"..., 52, 0) = 52
-rt_sigaction(SIGPIPE, {SIG_DFL}, NULL, 8) = 0
-poll([{fd=3, events=POLLIN|POLLPRI|POLLOUT|POLLERR,
-revents=POLLERR|POLLHUP}], 1, 10000) = 1
-time([1045338482])                      = 1045338482
-getpid()                                = 9477
-writev(2, [{"usbtoken[9477]: device removed. "..., 41}],
-1usbtoken[9477]: device removed. exiting.
-) = 41
-rt_sigaction(SIGPIPE, {0x400edf48, [], 0x4000000}, {SIG_DFL}, 8) = 0
-send(4, "<15>Feb 15 20:48:02 usbtoken[947"..., 61, 0) = 61
-
-was it meant to be that way?
-
-if so: how can i work around this (in a nice way) ?
-
-i could:
-a) use short timeouts and a permanent loop (not nice)
-b) use the hotplug script when it is called with "remove"
-   to find the app with which has the device still open
-   and kill the process / send some signal. also not nice.
-
-Andreas
-
-
+--- linux-2.5.61/arch/alpha/kernel/sys_marvel.c.orig	Sat Feb 15 12:45:14 2003
++++ linux-2.5.61/arch/alpha/kernel/sys_marvel.c	Sat Feb 15 12:45:31 2003
+@@ -223,7 +223,7 @@
+ 	 */
+ 	val = io7->csrs->PO7_LSI_CTL[which].csr;
+ 	val &= ~(0x1ffUL << 14);		/* clear the target pid */
+-	val |= ((unsigned long)where << 14);	/* set teh new target pid */
++	val |= ((unsigned long)where << 14);	/* set the new target pid */
+ 
+ 	io7->csrs->PO7_LSI_CTL[which].csr = val;
+ 	mb();
+@@ -240,7 +240,7 @@
+ 	 */
+ 	val = io7->csrs->PO7_MSI_CTL[which].csr;
+ 	val &= ~(0x1ffUL << 14);		/* clear the target pid */
+-	val |= ((unsigned long)where << 14);	/* set teh new target pid */
++	val |= ((unsigned long)where << 14);	/* set the new target pid */
+ 
+ 	io7->csrs->PO7_MSI_CTL[which].csr = val;
+ 	mb();
 

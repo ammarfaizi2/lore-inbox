@@ -1,50 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317144AbSFWVxq>; Sun, 23 Jun 2002 17:53:46 -0400
+	id <S317148AbSFWWAK>; Sun, 23 Jun 2002 18:00:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317148AbSFWVxp>; Sun, 23 Jun 2002 17:53:45 -0400
-Received: from host.greatconnect.com ([209.239.40.135]:43538 "EHLO
-	host.greatconnect.com") by vger.kernel.org with ESMTP
-	id <S317144AbSFWVxo>; Sun, 23 Jun 2002 17:53:44 -0400
-Subject: Re: kernel taint
-From: Samuel Flory <sflory@rackable.com>
-To: Qin Tao <qtao@cisunix.unh.edu>
+	id <S317152AbSFWWAJ>; Sun, 23 Jun 2002 18:00:09 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:19467 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S317148AbSFWWAI>;
+	Sun, 23 Jun 2002 18:00:08 -0400
+Date: Mon, 24 Jun 2002 00:05:00 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Kai Germaschewski <kai-germaschewski@uiowa.edu>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.OSF.4.44.0206231524160.455830-100000@hypatia.unh.edu>
-References: <Pine.OSF.4.44.0206231524160.455830-100000@hypatia.unh.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 23 Jun 2002 14:53:11 -0700
-Message-Id: <1024869196.2168.452.camel@flory.corp.rackablelabs.com>
+Subject: Re: kbuild fixes and more
+Message-ID: <20020624000500.A11471@mars.ravnborg.org>
+References: <Pine.LNX.4.44.0206231325280.6241-100000@chaos.physics.uiowa.edu>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0206231325280.6241-100000@chaos.physics.uiowa.edu>; from kai-germaschewski@uiowa.edu on Sun, Jun 23, 2002 at 01:39:51PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  If this is a module in the RH kernel this may just be due to
-mislabeling of the license string.  What's the module?
+On Sun, Jun 23, 2002 at 01:39:51PM -0500, Kai Germaschewski wrote:
+> 
+> Feedback is very welcome, of course ;)
 
-On Sun, 2002-06-23 at 12:37, Qin Tao wrote:
-> Hi,
-> 
-> I am using redhat7.3 (kernel 2.4.18-3). When I tried to insert a
-> kernel module, I got the following warning message:
-> 
-> "Warning: loading mymodule.o will taint the kernel: forced load"
-> 
-> I didn't see this problem when I inserted the module to some earlier
-> version kernels, such as 2.4.15. Does anybody know what does the warning
-> message mean and how can I modify my module code to avoid that?
-> 
-> Thanks in advance.
-> 
-> Qin
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+1) Tried "make clean"
+In the end it gave the following result:
+make -C arch/i386/lib clean
+Cleaning up
+/home/sam/src/linux/kernel/bk/local/Rules.make:134: warning: overriding commands for target `clean'
+Makefile:168: warning: ignoring old commands for target `clean'
 
+make clean is too verbose now, especially taken KBUILD_VERBOSE= in consideration.
+
+2) While doing a clean build I spotted:
+  LD     drivers/char/pcmcia/built-in.o
+  LD     drivers/char/built-in.o
+rm defkeymap.c
+  CC     drivers/ide/device.o
+  CC     drivers/ide/ide-taskfile.o
+This rm looks wrong to me.
+Btw. I did not use -j and on UP.
+
+Second make did the following:
+  CP     drivers/char/defkeymap.c
+  CC     drivers/char/defkeymap.o
+  LD     drivers/char/built-in.o
+  LD     drivers/built-in.o
+  Generating build number
+  ...
+
+Third make completed with success.
+
+3) ChangeSet@1.490.1.62
+Within Rules.make in section "Commands useful for boot image"
+In the lines
+#	target: source(s) FORCE
+-#		$(if_changed,ld/objcopy)
++#              $(if_changed,ld/objcopy/gzip)
+
+ 
+4)  Clean up arch/i386
+I miss $(obj) in front of tools/build
+zImage: bootsect setup vmlinux.bin tools/build
+-	tools/build bootsect setup vmlinux.bin $(ROOT_DEV) > $@
++	$(obj)/tools/build bootsect setup vmlinux.bin $(ROOT_DEV) > $@
+
+
+bzImage: bbootsect bsetup bvmlinux.bin tools/build
+-	tools/build -b bbootsect bsetup bvmlinux.bin $(ROOT_DEV) > $@
++	$(obj)/tools/build -b bbootsect bsetup bvmlinux.bin $(ROOT_DEV) > $@
+
+Reading through the 4 patches I miss $(obj) in many places.
+In generally all temporary and final target needs $(obj)
+
+5) jobserver unavailable
+I've started too see this when I execute "make -j2":
+make[1]: warning: jobserver unavailable: using -j1.  Add `+' to parent make rule.
+Dunno if this is my local setup??
+It happens even with nothing to do, e.g. a second make without changes in-between.
+make -v:
+GNU Make version 3.79.1, by Richard Stallman and Roland McGrath.
+
+	Sam
 

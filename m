@@ -1,33 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264833AbTIDTt6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 15:49:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264835AbTIDTt6
+	id S264841AbTIDTuL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 15:50:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264845AbTIDTuL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 15:49:58 -0400
-Received: from mail.kroah.org ([65.200.24.183]:31111 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264833AbTIDTt5 (ORCPT
+	Thu, 4 Sep 2003 15:50:11 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:16585 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S264841AbTIDTuF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 15:49:57 -0400
-Date: Thu, 4 Sep 2003 12:49:30 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: BK-kernel-tools/shortlog update
-Message-ID: <20030904194930.GA11480@kroah.com>
-References: <20030904160911.GA6694@merlin.emma.line.org> <Pine.LNX.4.44.0309040932000.1665-100000@home.osdl.org> <20030904174245.GA7613@merlin.emma.line.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030904174245.GA7613@merlin.emma.line.org>
-User-Agent: Mutt/1.4.1i
+	Thu, 4 Sep 2003 15:50:05 -0400
+Message-ID: <3F579767.8030806@colorfullife.com>
+Date: Thu, 04 Sep 2003 21:49:59 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Henry Qian" <henry@amperion.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: SLAB_LEVEL_MASK question
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 04, 2003 at 07:42:46PM +0200, Matthias Andree wrote:
-> dmitri AT users.sourceforge.net
+Hi Henry,
 
-This is just "Dmitri".  It is the only name this address has ever given.
+>The kernel panics because in the flags variable, I have other flags
+>(0x1f0) besides SLAB_ATOMIC.
+>  
+>
+Which flags were set? __GFP_WAIT must not be set [i.e. will panic], the 
+other combinations are invalid. The only legal values for the flags 
+variable are 0 or SLAB_ATOMIC [aka GFP_ATOMIC, aka __GFP_HIGH].
 
-thanks,
+>I modified it to:
+>
+>        if (in_interrupt() && (flags & SLAB_ATOMIC) != SLAB_ATOMIC)
+>                BUG();
+>
+>It seems working fine.
+>
+>Is this good?
+>  
+>
+No, it's wrong. Your driver will panic once in a while, especially under 
+memory intensive stress tests.
 
-greg k-h
+--
+    Manfred
+

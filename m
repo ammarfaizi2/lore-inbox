@@ -1,41 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268228AbUIGPRn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268168AbUIGPV5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268228AbUIGPRn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 11:17:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268356AbUIGPNs
+	id S268168AbUIGPV5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 11:21:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268224AbUIGPTI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 11:13:48 -0400
-Received: from verein.lst.de ([213.95.11.210]:48538 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S268179AbUIGPK5 (ORCPT
+	Tue, 7 Sep 2004 11:19:08 -0400
+Received: from cantor.suse.de ([195.135.220.2]:41905 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S268339AbUIGPOc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 11:10:57 -0400
-Date: Tue, 7 Sep 2004 17:10:52 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] unexport lookup_create
-Message-ID: <20040907151052.GA9577@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org
+	Tue, 7 Sep 2004 11:14:32 -0400
+Date: Tue, 7 Sep 2004 17:10:22 +0200
+From: Andi Kleen <ak@suse.de>
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Cc: Andi Kleen <ak@suse.de>, discuss@x86-64.org, linux-kernel@vger.kernel.org
+Subject: Re: [discuss] f_ops flag to speed up compatible ioctls in linux kernel
+Message-ID: <20040907151022.GA32287@wotan.suse.de>
+References: <20040903080058.GB2402@wotan.suse.de> <20040907104017.GB10096@mellanox.co.il> <20040907121418.GC25051@wotan.suse.de> <20040907134517.GA1016@mellanox.co.il> <20040907141524.GA13862@wotan.suse.de> <20040907142530.GB1016@mellanox.co.il> <20040907142945.GB20981@wotan.suse.de> <20040907143702.GC1016@mellanox.co.il> <20040907144452.GC20981@wotan.suse.de> <20040907144543.GA1340@mellanox.co.il>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00,UPPERCASE_25_50
+In-Reply-To: <20040907144543.GA1340@mellanox.co.il>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-besides namei.c it's only used in the SN2 hwgraph code which can't be
-modular (and will be removed soon)
+On Tue, Sep 07, 2004 at 05:45:43PM +0300, Michael S. Tsirkin wrote:
+> > > > but I cannot think of a good alternative. 
+> > > > 
+> > > 
+> > > Maybe one entry point with a flag?
+> > 
+> > That would be IMHO far uglier than two. 
+> > 
+> > -Andi
+> >
+> 
+> What would be a good name? ioctl32/ioctl64? ioctl_compat/ioctl_native?
 
+Later two sound ok to me.
 
---- 1.107/fs/namei.c	2004-09-01 01:00:48 +02:00
-+++ edited/fs/namei.c	2004-09-07 13:57:28 +02:00
-@@ -2386,7 +2386,6 @@
- EXPORT_SYMBOL(get_write_access); /* binfmt_aout */
- EXPORT_SYMBOL(getname);
- EXPORT_SYMBOL(lock_rename);
--EXPORT_SYMBOL(lookup_create);
- EXPORT_SYMBOL(lookup_hash);
- EXPORT_SYMBOL(lookup_one_len);
- EXPORT_SYMBOL(page_follow_link);
+-Andi

@@ -1,79 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276729AbRJVQxi>; Mon, 22 Oct 2001 12:53:38 -0400
+	id <S277074AbRJVQ5S>; Mon, 22 Oct 2001 12:57:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277072AbRJVQx2>; Mon, 22 Oct 2001 12:53:28 -0400
-Received: from mail.myrio.com ([63.109.146.2]:2292 "HELO smtp1.myrio.com")
-	by vger.kernel.org with SMTP id <S276729AbRJVQxO>;
-	Mon, 22 Oct 2001 12:53:14 -0400
-Message-ID: <D52B19A7284D32459CF20D579C4B0C0211CA7B@mail0.myrio.com>
-From: Torrey Hoffman <torrey.hoffman@myrio.com>
-To: "'Jens Axboe'" <axboe@suse.de>, Torrey Hoffman <torrey.hoffman@myrio.com>
-Cc: "'Peter Moscatt'" <pmoscatt@yahoo.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: Can't see IDE CDR-W after compile ?
-Date: Mon, 22 Oct 2001 09:53:28 -0700
+	id <S277072AbRJVQ5I>; Mon, 22 Oct 2001 12:57:08 -0400
+Received: from cx838204-a.alsv1.occa.home.com ([24.16.83.66]:32929 "HELO
+	shakti.rupa.com") by vger.kernel.org with SMTP id <S277064AbRJVQ4v>;
+	Mon, 22 Oct 2001 12:56:51 -0400
+To: Kelledin Tane <feralgod@home.com>
+Cc: Volker Dierks <vd@mwi-online.de>, linux-kernel@vger.kernel.org
+Subject: Re: VIA 686b Bug - once again :(
+In-Reply-To: <200110211326.PAA01192@mail.mwi-online.de>
+	<3BD2DCFB.C00E93B6@home.com>
+From: Rupa Schomaker <rupa-list+linux-kernel@rupa.com>
+Mail-Copies-To: never
+Date: Mon, 22 Oct 2001 09:57:24 -0700
+In-Reply-To: <3BD2DCFB.C00E93B6@home.com> (Kelledin Tane's message of "Sun,
+ 21 Oct 2001 09:34:35 -0500")
+Message-ID: <m3wv1n7guj.fsf@shakti.rupa.com>
+User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.4 (Copyleft)
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I use the cdparanoia ripper.  Here's a quote from the 
-cdparanoia FAQ (cdparanoia III - alpha 9.8):
+Kelledin Tane <feralgod@home.com> writes:
 
-  "Note that the native ATAPI driver is supported, but that IDE-SCSI
-  emulation works better with ATAPI drives. This is an issue of control;
-  the emulation interface gives cdparanoia complete control over the
-  drive whereas the native ATAPI driver insists on hiding the device
-  under an abstraction layer with poor error handling capabilities. Note
-  also that a number of ATAPI drives that do not work at all with the
-  ATAPI driver (error 006: Could not read audio) *will* work with
-  IDE-SCSI emulation."
-
-That, (and the actual performance difference I experienced)
-is about all I know about the reasons behind this problem.    
-
-I also used to read the cdrecord mailing list, and IIRC, Jorg 
-Schilling (author of cdrecord, general expert on CD ROM stuff)
-is not too impressed with the default Linux driver.  I don't 
-remember the details... 
-
-I do hope this gets sorted out properly in 2.5.  Perhaps all 
-that's needed is better hints for people as they configure the 
-kernel, or an "auto-configure" that actually works for the 90% 
-of users who aren't experts on this stuff.
-
-With the 2.5 makefile rewrites this may be easy to do.
-
-Or perhaps the IDE-CD driver should be deprecated, kind of like 
-the old disk-only IDE driver?
-
-Torrey
-
-
-Jens Axboe wrote:
- 
-> On Fri, Oct 19 2001, Torrey Hoffman wrote:
-> > The other driver is the IDE-SCSI emulation layer.  This 
-> works better for
-> > some things, including ripping music CD's.  And, as you 
-> have discovered, it
-> > is a requirement for CDR's.  For example, using the 
-> IDE-SCSI driver I can
-> > rip audio with my Toshiba DVD drive at 10x speed, but with 
-> the "normal IDE"
-> > driver it could not even go at 1x speed.
+>> So my questions is:
+>> I'm going to buy a 3ware 6410(B)
+>> IDE raid controller .. can I suspect
+>> a failure safe system (in aspect to
+>> the 686b problems) when all discs
+>> are connected to the 3ware
+>> controller?
 > 
-> THat is funny, since the code for ripping audio is in the 
-> generic CDROM
-> layer and this shared by both ide-cd and sr. Exactly the same cdb is
-> sent down regardless of your setup.
-> 
-> So maybe your ripping program is accessing the CDROM differently
-> depending on the bus type (eg using sg for sr, maybe?).
-> 
-> -- 
-> Jens Axboe
-> 
+> I would certainly expect so.  I have a Gigabyte GA-7DX with the infamous VIA
+> 686B southbridge...and an SBLive! Value...and I have no IDE devices at all
+> (complete SCSI).  I have never encountered data corruption.
+
+
+I experienced constant and reproducable data corruption on two via
+motherboards.  One using 686 and one 686b.  However, not with the IDe
+drives.  This was with a DDS4 scsi tape drive attached to either a
+Adaptec or Advansys scsi controller.  A 2.5G file dump to tape would
+never restore the same.  One the Adaptec card, I would get 1 or 2
+blocks of 64bytes that would differ.  On the Advansys it would be 1 or
+2 blocks of 63 bytes.
+
+Switch to a PIII-500 on a BX motherboard and have had no problems.
+The VIA motherboards are now in windows machines where the flakiness
+of the OS is even worse than the hardware.
+
+-- 
+-rupa

@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129042AbQJ2TqN>; Sun, 29 Oct 2000 14:46:13 -0500
+	id <S129168AbQJ2UJU>; Sun, 29 Oct 2000 15:09:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129043AbQJ2TqE>; Sun, 29 Oct 2000 14:46:04 -0500
-Received: from twinlark.arctic.org ([204.107.140.52]:11021 "HELO
-	twinlark.arctic.org") by vger.kernel.org with SMTP
-	id <S129042AbQJ2Tpu>; Sun, 29 Oct 2000 14:45:50 -0500
-Date: Sun, 29 Oct 2000 11:45:49 -0800 (PST)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Andrew Morton <andrewm@uow.edu.au>, kumon@flab.fujitsu.co.jp,
-        Andi Kleen <ak@suse.de>, Alexander Viro <viro@math.psu.edu>,
-        "Jeff V. Merkey" <jmerkey@timpanogas.org>,
-        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
-        Olaf Kirch <okir@monad.swb.de>
-Subject: Re: [PATCH] Re: Negative scalability by removal of lock_kernel()?(Was:
-In-Reply-To: <E13pYis-0005Q0-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0010291135570.11954-100000@twinlark.arctic.org>
-X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
+	id <S129134AbQJ2UJL>; Sun, 29 Oct 2000 15:09:11 -0500
+Received: from mail0.atl.bellsouth.net ([205.152.0.27]:40876 "EHLO
+	mail0.atl.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S129168AbQJ2UI5>; Sun, 29 Oct 2000 15:08:57 -0500
+Message-ID: <39FC83CD.B10BF08D@mandrakesoft.com>
+Date: Sun, 29 Oct 2000 15:08:45 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: pavel rabel <pavel@web.sajt.cz>
+CC: linux-net@vger.kernel.org, p_gortmaker@yahoo.com, netdev@oss.sgi.com,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] NE2000
+In-Reply-To: <Pine.LNX.4.21.0010300344130.6792-100000@web.sajt.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 28 Oct 2000, Alan Cox wrote:
+pavel rabel wrote:
+> There are three drivers for n2k cards. One is MCA only, one is PCI only,
+> and the then the third one (ne.c) is both ISA and PCI. I think the ISA
+> driver should be ISA only, as is described in Documentation and in config
+> help. So I removed PCI code from ne.c to have ISA only driver. It
+> gets a bit smaller, although I am not sure whether more code can be
+> removed.
 
-> > The big question is: why is Apache using file locking so
-> > much?  Is this normal behaviour for Apache?
-> 
-> Apache uses file locking to serialize accept on hosts where accept either has
-> bad thundering heard problems or was simply broken with multiple acceptors
+This change sounds ok to me, if noone else objects.  (I added to the CC
+a bit)  I saw that code, and was thinking about doing the same thing
+myself.  ne2k-pci.c definitely has changes which are not included in
+ne.c, and it seems silly to duplicate ne2000 PCI support.
 
-if apache 1.3 is compiled with -DSINGLE_LISTEN_UNSERIALIZED_ACCEPT it'll
-avoid the fcntl() serialisation when there is only one listening port.  
-(it still uses it for multiple listeners... you can read all about my
-logic for that at <http://www.apache.org/docs/misc/perf-tuning.html>.)
+Regards,
 
-is it appropriate for this to be defined for newer linux kernels?  i
-haven't kept track, sorry.  tell me what versions to conditionalize it on.
+	Jeff
 
--dean
 
+P.S.  Pavel, for the future, patches made with "diff -u" are preferred.
+
+-- 
+Jeff Garzik             | "Mind if I drive?"  -Sam
+Building 1024           | "Not if you don't mind me clawing at the
+MandrakeSoft            |  dash and shrieking like a cheerleader."
+                        |                     -Max
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,72 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261669AbTELAWK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 20:22:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261678AbTELAWJ
+	id S261670AbTELAW4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 20:22:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261678AbTELAWN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 20:22:09 -0400
-Received: from ns.indranet.co.nz ([210.54.239.210]:18903 "EHLO
-	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
-	id S261669AbTELAWE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 20:22:04 -0400
-Date: Mon, 12 May 2003 12:34:36 +1200
-From: Andrew McGregor <andrew@indranet.co.nz>
-To: Tuncer M zayamut Ayaz <tuncer.ayaz@gmx.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.69 strange high tone on DELL Inspiron 8100
-Message-ID: <443147.1052742876@[192.168.1.249]>
-In-Reply-To: <17308.1052658225@www4.gmx.net>
-References: <3191078.1052695705@[192.168.1.249]>
- <17308.1052658225@www4.gmx.net>
-X-Mailer: Mulberry/3.0.0 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Sun, 11 May 2003 20:22:13 -0400
+Received: from qmail1.zwallet.com ([216.66.64.4]:41745 "HELO
+	qmail1.zwallet.com") by vger.kernel.org with SMTP id S261670AbTELAWH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 20:22:07 -0400
+From: basar tigris <troublebaghdad@zwallet.com>
+X-Originating-IP: [195.166.226.68]
+To: abdul_rasaaq@yahoo.com
+Subject: troublebaghdad
+Date: Sun, 11 May 2003 19:40:36 +0000
+Message-Id: <1052682036.633165.90578.zmail@web2.zwallet.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there...
+FROM: Abdul Rasaaq
 
---On Sunday, 11 May 2003 3:03 p.m. +0200 Tuncer M zayamut Ayaz 
-<tuncer.ayaz@gmx.de> wrote:
+SOUTHERN BASARA
 
->> Reasoning:
->> cpufreq and speedstep don't work on Dell P3 laptops anyway, and the
->> *internal power supplies* of the i8x00 series make wierd noises when APM
->> tries to idle the CPU.  The board will do this anyway, without making
->
-> hmm, at least now I know where that strange sound comes from.
-> I'm not quite sure that SpeedStep does not work,
-> with SpeedStep disabled in the BIOS the fans turned on again with
-> cpu load. this doesn't happen with SpeedStep. so I suppose it works
-> to some extent, right?
+IRAQ.
 
-Sounds like it to me.  It certainly does not work on my i8000, but the 8100 
-is possibly different.
+Halloo,
 
->
->> noise, so linux need not.
->
-> so what options should I set?
-> as I've already stated it's not bearable to do coding (incl. compiling)
-> on this box without "Battery Optimized Mode" as SpeedStep calls it.
-> on Linux I did that with a simple tool called speedstep.
-> I've seen autospeedstep from Fritz Ganter which seems to use ACPI,
-> dunno how that compares to cpufreqd.
+Please i write to look for your very urgent halp. My name is Abdul Rasaaq from BASARA my friend al--Sahhaf from TIGRIS both of us are IRAQS and surrendered soldiers. Iam the command guiding central bank of IRAQ until the fall of Baghdad to the colition forces. Before the total down of Baghdad many of the banks and every other Government agencies was the city looted, but the case of the central bank was different in the ground that it was SADDAM's son ( UDAY) that looted it first. He came to the bank in three okasions with 20 trucks loaded with money. As the fall of Baghdad become obivios the apex bank and other banks was looted by IRAQ people. For ALLAH Iam not thief, but the situation in my country cause me to move as much money as me and my second could lay our hand. In our possession is $500,000,000.00 and we want very urgently to put the money in foreign bank acount and find our way out here.
 
-Hmm.  Maybe the 8100 has working speedstep, then.  I'd suggest you see if 
-disabling just the APM idle calls, but leaving speedstep and cpufreq on 
-makes the noise.
+Please me want you to help us get trust person or company bank account for the money to be transferred there. If you help us and get the money to a safe custody/acount outside IRAQ we will share the money into 3 pats you take one pat me and my brother take the rest and oganise our life as all I have in life including my family of five was lost to war ..
 
-I have had no success whatever with ACPI on an i8000, but again an 8100 may 
-be different.
+We can manouver the money to the nabour town by using dissabled connection so either you will receive the money for our behalf and make acount paid the money and futher transfer to your country, or open good bank account and give us the particulars so that we can make transfer immediately all we need from you is fear ALLAH be honest to us. And for sure, no fear, no problem INSALLAH. We know how we get the moni and we are here, we know how to manuover. As immediately we hear from you today that I notify you, INSALLAH one week bonouhaha. 
 
->
-> anyway, this laptop is not-so-nice anyway, I'm just happy I didn't
-> buy it but my employer did ;)
+The colition army here does not allow usage of mobile phone so give me your own telephone number and tell me corect time I will call for you. And the most important is confidentiality and maximum cooperate. Please manage my english.
 
-Same here, and I mostly agree.  Good price for such a nice screen, though 
-(I have the 1600x1200 15" screen).
+Treat Very Urgent.
+Abdul Rasaaq
+ 
+NB:Send your reply at my private email address abdul_rasaaq@yahoo.com
 
-Andrew
+
+
+______________________________________________________
+Get Paid... With Your Free Email at
+http://www.zwallet.com/index.html?user=troublebaghdad

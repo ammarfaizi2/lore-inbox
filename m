@@ -1,45 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262285AbUCEJlo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 04:41:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262291AbUCEJlo
+	id S262291AbUCEJsN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 04:48:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262292AbUCEJsN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 04:41:44 -0500
-Received: from imladris.demon.co.uk ([193.237.130.41]:61314 "EHLO
-	baythorne.infradead.org") by vger.kernel.org with ESMTP
-	id S262285AbUCEJlm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 04:41:42 -0500
-Subject: Re: [linux-usb-devel] Re: [BUG] usblp_write spins forever after
-	an	error
-From: David Woodhouse <dwmw2@infradead.org>
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: Greg KH <greg@kroah.com>, Andy Lutomirski <luto@myrealbox.com>,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <4047221E.9050500@grupopie.com>
-References: <402FEAD4.8020602@myrealbox.com>
-	 <20040216035834.GA4089@kroah.com>  <4030DEC5.2060609@grupopie.com>
-	 <1078399532.4619.129.camel@hades.cambridge.redhat.com>
-	 <4047221E.9050500@grupopie.com>
-Content-Type: text/plain
-Message-Id: <1078479692.12176.32.camel@imladris.demon.co.uk>
+	Fri, 5 Mar 2004 04:48:13 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:62215 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262291AbUCEJsL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 04:48:11 -0500
+Date: Fri, 5 Mar 2004 09:48:07 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: "debian-powerpc@lists.debian.org" <debian-powerpc@lists.debian.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Matthias Urlichs <smurf@smurf.noris.de>,
+       =?iso-8859-1?Q?Martin-=C9ric_Racine?= <q-funk@pp.fishpool.fi>
+Subject: Re: [PATCH] For test only: pmac_zilog fixes (cups lockup at boot):
+Message-ID: <20040305094807.E22156@flint.arm.linux.org.uk>
+Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	"debian-powerpc@lists.debian.org" <debian-powerpc@lists.debian.org>,
+	Linux Kernel list <linux-kernel@vger.kernel.org>,
+	Matthias Urlichs <smurf@smurf.noris.de>,
+	=?iso-8859-1?Q?Martin-=C9ric_Racine?= <q-funk@pp.fishpool.fi>
+References: <1078473270.5703.57.camel@gaston> <20040305085838.B22156@flint.arm.linux.org.uk> <1078477504.5700.69.camel@gaston> <20040305092422.C22156@flint.arm.linux.org.uk> <1078478951.5698.82.camel@gaston>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8.dwmw2.2) 
-Date: Fri, 05 Mar 2004 09:41:32 +0000
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1078478951.5698.82.camel@gaston>; from benh@kernel.crashing.org on Fri, Mar 05, 2004 at 08:29:12PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-03-04 at 12:33 +0000, Paulo Marques wrote:
-> Yes, unfortunately it did went into 2.6.4-rc1. However it is already corrected 
-> in 2.6.4-rc2. Luckily it didn't went into any "non-rc" official release.
+On Fri, Mar 05, 2004 at 08:29:12PM +1100, Benjamin Herrenschmidt wrote:
 > 
-> Please try 2.6.4-rc2, and check to see if the bug went away...
+> > Yes, I know - but the point is its impossible to review, and I think
+> > you at least have an extra level of locking which isn't needed.
+> > 
+> > But I wouldn't know because of the huge number of changes which make
+> > it impossible to read.
+> 
+> That semaphore locking is only used to guard open/close against the
+> power management callback. It greatly simplify the deal with the shared
+> irq (the irq is shared between both ports). It's not used during
+> normal operations.
 
-Seems to work; thanks. Does this need backporting to 2.4 too?
+Err.  What power management callback?  Are you not using uart_suspend_port
+and uart_resume_port?
+
+These functions do all the locking for you already - using state->sem.
+
+Like I said, I can't see the twigs for the forest due to the shear
+noise caused by the up -> uap change.
 
 -- 
-dwmw2
-
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

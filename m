@@ -1,44 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264413AbTEJPys (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 11:54:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264414AbTEJPys
+	id S264412AbTEJPyA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 11:54:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264413AbTEJPyA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 11:54:48 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:41631 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S264413AbTEJPyO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 11:54:14 -0400
-Date: Sat, 10 May 2003 09:06:51 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Ben Collins <bcollins@debian.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel.bkbits.net and BK->CVS gateway
-Message-ID: <20030510160651.GA24686@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Ben Collins <bcollins@debian.org>, linux-kernel@vger.kernel.org
-References: <20030510140455.GA23475@work.bitmover.com> <20030510153416.GJ679@phunnypharm.org>
+	Sat, 10 May 2003 11:54:00 -0400
+Received: from mail.gmx.de ([213.165.64.20]:5157 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264412AbTEJPxw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 May 2003 11:53:52 -0400
+Date: Sat, 10 May 2003 18:04:12 +0200
+From: Tuncer M "zayamut" Ayaz <tuncer.ayaz@gmx.de>
+To: Ahmed Masud <masud@googgun.com>
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.69 strange high tone on DELL Inspiron 8100
+In-Reply-To: <Pine.LNX.4.33.0305101150420.24272-100000@marauder.googgun.com>
+References: <20030510154639.02DDC32C9@marauder.googgun.com>
+	<Pine.LNX.4.33.0305101150420.24272-100000@marauder.googgun.com>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030510153416.GJ679@phunnypharm.org>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=0.5, required 4.5,
-	DATE_IN_PAST_06_12)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <S264412AbTEJPxw/20030510155353Z+7031@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 10, 2003 at 11:34:16AM -0400, Ben Collins wrote:
-> > This bad disk is the cause of the CVS gateway being screwed up, we should
-> > have that back online tonight or tomorrow.  Sorry about the downtime.
-> 
-> Any idea if the new repo will be revision compatible with the old bkcvs?
-> IOW, will checkouts have to be redone?
+On Sat, 10 May 2003 11:52:39 -0400 (EDT)
+Ahmed Masud <masud@googgun.com> wrote:
 
-It should be 100% compatible, I build the CVS repo here and mirror it to
-kernel.bkbits.net.  You should be all set.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+> 
+> 
+> On Sat, 10 May 2003, Tuncer M zayamut Ayaz wrote:
+> 
+> > On Sat, 10 May 2003 11:39:12 -0400 (EDT)
+> > Ahmed Masud <masud@googgun.com> wrote:
+> >
+> > can't say whether there is an internal speaker it could come
+> > from. source of sound is right beneath the keyboard,
+> > and creating load aka moving an x11 window around produces
+> > funny patterns --> no high tone, it almost disappears,
+> > but just low-volume sound reacting to when I move the
+> > window around.
+> > for a non-hardware-expert this is strange stuff.
+> >
+> 
+> I think your keyboard may have a stuck key *grin*.
+> 
+> Suggest the following:
+> 
+> 1. remove keyboard from computer, to see if that stops the sound.
+> 2. remove mouse from computer to see if that stops the sound. (ps/2
+> mice can be silly)
+> 
+> if neither then we can say you have an odd bug.
+
+dunno how to remove builtin keyboard but plugging out externel ps/2
+mouse doesn't change a thing. but pluggin it in again makes the
+sound stop for .5sec and start again after that period.

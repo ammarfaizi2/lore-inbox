@@ -1,44 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263891AbTKLRLv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Nov 2003 12:11:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263895AbTKLRLu
+	id S263870AbTKLRR7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Nov 2003 12:17:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263890AbTKLRR7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Nov 2003 12:11:50 -0500
-Received: from mail.xor.ch ([212.55.210.163]:28934 "HELO mail.xor.ch")
-	by vger.kernel.org with SMTP id S263891AbTKLRLu (ORCPT
+	Wed, 12 Nov 2003 12:17:59 -0500
+Received: from gaia.cela.pl ([213.134.162.11]:43273 "EHLO gaia.cela.pl")
+	by vger.kernel.org with ESMTP id S263870AbTKLRR5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Nov 2003 12:11:50 -0500
-Message-ID: <3FB2691C.DB309FEC@orpatec.ch>
-Date: Wed, 12 Nov 2003 18:08:44 +0100
-From: Otto Wyss <otto.wyss@orpatec.ch>
-Reply-To: otto.wyss@orpatec.ch
-X-Mailer: Mozilla 4.78 (Macintosh; U; PPC)
-X-Accept-Language: de,en
+	Wed, 12 Nov 2003 12:17:57 -0500
+Date: Wed, 12 Nov 2003 18:17:26 +0100 (CET)
+From: Maciej Zenczykowski <maze@cela.pl>
+To: Paulo Marques <pmarques@grupopie.com>
+cc: Linus Torvalds <torvalds@osdl.org>, Solar Designer <solar@openwall.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.23-pre9 ide+XFree+ptrace=Complete hang
+In-Reply-To: <3FB2611C.40608@grupopie.com>
+Message-ID: <Pine.LNX.4.44.0311121753240.31972-100000@gaia.cela.pl>
 MIME-Version: 1.0
-To: Eric Sandall <eric@sandall.us>
-CC: "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: Re: USB-keyboard not recognized when not connected during startup
-References: <3FAFDA82.864DC1BE@orpatec.ch> <1068602198.3fb193567bcc7@horde.sandall.us>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Sandall wrote:
+> Maciej Zenczykowski wrote:
 > 
-> Quoting Otto Wyss <otto.wyss@orpatec.ch>:
-> > Please CC, I'm not subscribed.
-> >
+> > ....
+> > sure now that it wouldn't help - the system is just plain totally 
+> > and completely dead, even the system bios is likely dead - including the 
+> > System Management Mode code (likely responsible for lighting up the LED 
+> > on fn key press/release, which no longer works [although not on every 
+> > crash]).
 > 
-> Have you tried installing hotplug? That should automatically load the
-> modules/devices needed when you plug it in after boot.
+> It is usually the kernel that togles the leds, except when an application (like 
+> X) requests that the keyboard be put into RAW mode. In RAW mode it is the 
+> application that is responsible to for updating the leds. If X hangs, Caps-Lock 
+> and the like will not make the leds toggle anymore.
 > 
-Of course I use hotplue and so probably does Knoppix. I'll try Morphix
-but I'm quiet sure it also shows this problem. This is a worse USB bug
-in kernel 2.4.21 and I'm not sure if it's fixed in one of the later ones.
+> You can try to issue a SysRq+R to take the keyboard out of RAW mode into XLATE 
+> so that the kernel translates the keys and you might be able to toggle leds, 
+> switch consoles, etc.
 
-O. Wyss
+As I've already written no SysRQ comboes do anything.
 
--- 
-See "http://wxguide.sourceforge.net/" for ideas how to design your app
+I'm speaking about the FN-key led on a laptop which is most definitely not 
+kernel toggled - there are 3 keyboard LEDS - Caps, Cursor Keys, Numeric 
+Keypad - the first is toggled by caps by the kernel, the second two have 
+unusual semantics - the kernel is half responsible and the bios is half 
+responsible.  [There is no scroll lock LED]  So the single kernel viewed 
+numeric lock LED is visible as two LEDS on the laptop - the kernel can 
+toggle a single bit (numlock: off/on) and the SMM Bios sets up how this is 
+interpreted.  Normally pressing the FN-key causes the SMM Bios to change 
+this hardware intrepretation of the keyboard LED wiring causing a LED to 
+light up.  This probably wasn't very clear - but it's definetely not 
+kernel [it works during bios performed suspend to disk, etc.] :)
+
+Cheers,
+MaZe.
+

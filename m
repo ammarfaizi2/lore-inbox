@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266100AbRF2Oup>; Fri, 29 Jun 2001 10:50:45 -0400
+	id <S266098AbRF2OuY>; Fri, 29 Jun 2001 10:50:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266101AbRF2Oue>; Fri, 29 Jun 2001 10:50:34 -0400
-Received: from mail.muc.eurocyber.net ([195.143.108.5]:8695 "EHLO
-	mail.muc.eurocyber.net") by vger.kernel.org with ESMTP
-	id <S266100AbRF2Oua>; Fri, 29 Jun 2001 10:50:30 -0400
-Message-ID: <3B3C95AF.9D125337@TeraPort.de>
-Date: Fri, 29 Jun 2001 16:50:23 +0200
-From: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>
-Organization: TeraPort GmbH
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-ac21 i686)
-X-Accept-Language: en, de
+	id <S266100AbRF2OuO>; Fri, 29 Jun 2001 10:50:14 -0400
+Received: from tonib-gw-old.customer.0rbitel.net ([195.24.39.218]:9747 "HELO
+	mail.ludost.net") by vger.kernel.org with SMTP id <S266098AbRF2OuA>;
+	Fri, 29 Jun 2001 10:50:00 -0400
+Date: Fri, 29 Jun 2001 17:49:58 +0300 (EEST)
+From: Vasil Kolev <lnxkrnl@mail.ludost.net>
+X-X-Sender: <lnxkrnl@doom.bastun.net>
+To: Eugenio Mastroviti <eugeniom@gointernet.co.uk>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: __alloc_pages: 1-order allocation failed
+In-Reply-To: <3B3B28A6.A2457959@gointernet.co.uk>
+Message-ID: <Pine.LNX.4.33.0106291749010.2015-100000@doom.bastun.net>
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: VM behaviour under 2.4.5-ac21
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I had the same problem, and some other strange problems, booting with the
+'noapic' option solved them ...
+(sorry for the late reply, I was still testing the machine... )
 
- just something positive for the weekend. With 2.4.5-ac21, the behaviour
-on my laptop (128MB plus twice the sapw) seems a bit more sane. When I
-start new large applications now, the "used" portion of VM actually
-pushes against the cache instead of forcing stuff into swap. It is still
-using swap, but the effects on interactivity are much lighter.
+On Thu, 28 Jun 2001, Eugenio Mastroviti wrote:
 
- So, if this is a preview of 2.4.6 bahaviour, there may be a light at
-the end of the tunnel.
+> This is possibly not the best place to post this message, but if anybody
+> could help I'd be very grateful...
+>
+> Twice at about the same time one of our server, running kernel 2.4.4,
+> has died. Attached is an excerpt from syslog - the actual list of
+> messages is 5 or 6 times longer, all with the same timestamp - after
+> this the machine froze until it was rebooted, about an hour later.
+>
+> The server is a dual-CPU Dell 2450 with 1.5GB RAM, 1.5GB swap, Megaraid
+> controller, running application server software
+>
+> Another identical server in the same subnet, running the same kind of
+> software with kernel 2.2.16 without any modification, is running fine in
+> spite of the bigger load on it (more threads, larger memory usage)
+>
+> Eugenio Mastroviti
+>
+> Systems Administrator
+>
+> Go Internet Ltd
 
-Have a good weekend
-Martin
--- 
-------------------------------------------------------------------
-Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
-TeraPort GmbH            |    Phone:  +49-89-510857-309
-C+ITS                    |    Fax:    +49-89-510857-111
-http://www.teraport.de   |    Mobile: +49-170-4904759

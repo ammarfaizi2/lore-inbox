@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317961AbSGWG1o>; Tue, 23 Jul 2002 02:27:44 -0400
+	id <S317760AbSGWG0d>; Tue, 23 Jul 2002 02:26:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317965AbSGWG1o>; Tue, 23 Jul 2002 02:27:44 -0400
-Received: from [196.26.86.1] ([196.26.86.1]:36294 "HELO
-	infosat-gw.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S317961AbSGWG1o>; Tue, 23 Jul 2002 02:27:44 -0400
-Date: Tue, 23 Jul 2002 08:48:37 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@linux-box.realnet.co.sz
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Russell King <rmk@arm.linux.org.uk>,
-       Christoph Hellwig <hch@lst.de>, <linux-kernel@vger.kernel.org>,
-       Robert Love <rml@tech9.net>
-Subject: Re: [patch] cli()/sti() cleanup, 2.5.27-A2
-In-Reply-To: <Pine.LNX.4.44.0207221004420.2504-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0207230845070.32636-100000@linux-box.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317961AbSGWG0d>; Tue, 23 Jul 2002 02:26:33 -0400
+Received: from spud.dpws.nsw.gov.au ([203.202.119.24]:37115 "EHLO
+	spud.dpws.nsw.gov.au") by vger.kernel.org with ESMTP
+	id <S317760AbSGWG0c>; Tue, 23 Jul 2002 02:26:32 -0400
+Message-Id: <sd3d8473.096@out-gwia.dpws.nsw.gov.au>
+X-Mailer: Novell GroupWise Internet Agent 6.0.1
+Date: Tue, 23 Jul 2002 16:29:24 +1000
+From: "Daniel Lim" <Daniel.Lim@dpws.nsw.gov.au>
+To: <linux-kernel@vger.kernel.org>
+Subject: mkinitrd problem
+Mime-Version: 1.0
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+X-NAIMIME-Disclaimer: 1
+X-NAIMIME-Modified: 1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Jul 2002, Linus Torvalds wrote:
 
-> As to needing to do a save without a disable, show me where that really
-> matters..
 
-Heres an interesting one;
+Hello there,
+When I attempted to create the initial ramdisk images it failed with
+loopback devices are in use!
+# mkinitrd /boot/initrd-2.4.9-34.img 2.4.9-34
+All of your loopback devices are in use!
 
-void setup_APIC_timer(void * data)
-{
-	[...]
-        __save_flags(flags);
-        __sti();
-	[...]
-}
+Any idea ?
+Much thanks.
 
 Regards,
-	Zwane
--- 
-function.linuxpower.ca
+Daniel
+
+
+
+ This e-mail message (and attachments) is confidential, and / or privileged and is intended for the use of the addressee only. If you are not the intended recipient of this e-mail you must not copy, distribute, take any action in reliance on it or disclose it to anyone. Any confidentiality or privilege is not waived or lost by reason of mistaken delivery to you. DPWS is not responsible for any information not related to the business of DPWS. If you have received this e-mail in error please destroy the original and notify the sender.
+
+For information on services offered by DPWS, please visit our website at www.dpws.nsw.gov.au
+
+
 

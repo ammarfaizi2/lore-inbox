@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261674AbTDKTrj (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 15:47:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbTDKTrj (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 15:47:39 -0400
-Received: from windsormachine.com ([206.48.122.28]:29970 "EHLO
-	router.windsormachine.com") by vger.kernel.org with ESMTP
-	id S261674AbTDKTri (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 15:47:38 -0400
-Date: Fri, 11 Apr 2003 15:59:08 -0400 (EDT)
-From: Mike Dresser <mdresser_l@windsormachine.com>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: John Bradford <john@grabjohn.com>, <linux-kernel@vger.kernel.org>,
-       <linux-hotplug-devel@lists.sourceforge.net>,
-       <message-bus-list@redhat.com>
-Subject: Re: [ANNOUNCE] udev 0.1 release
-In-Reply-To: <Pine.LNX.4.53.0304111553050.15140@chaos>
-Message-ID: <Pine.LNX.4.33.0304111553380.14943-100000@router.windsormachine.com>
+	id S261684AbTDKTud (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 15:50:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbTDKTud (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 15:50:33 -0400
+Received: from fmr02.intel.com ([192.55.52.25]:44283 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id S261684AbTDKTuc convert rfc822-to-8bit 
+	(for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 15:50:32 -0400
+Message-ID: <A46BBDB345A7D5118EC90002A5072C780BEBAA25@orsmsx116.jf.intel.com>
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "'Valdis.Kletnieks@vt.edu'" <Valdis.Kletnieks@vt.edu>,
+       "'Shaya Potter'" <spotter@cs.columbia.edu>
+Cc: "'John Bradford'" <john@grabjohn.com>,
+       "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
+       "'root@chaos.analogic.com'" <root@chaos.analogic.com>,
+       "'Frank Davis'" <fdavis@si.rr.com>,
+       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: RE: kernel support for non-english user messages 
+Date: Fri, 11 Apr 2003 13:02:08 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Apr 2003, Richard B. Johnson wrote:
 
-> Every three-connection connector supplies power to two drives.
->
->      |--------D1
-> -----|--------D2    ________D3
->      |______________|_______D4
->                     |_______Continue
-Here's the way I thought of it.
+> 3) Version a 500 megabyte file.  Change one block.  Do it a few more
+times.
+> Are you better off copying the whole file (which bloats your disk usage
+and
+> kills your I/O bandwidth), or keeping deltas (the list of allocated blocks
+could be
+> almost identical except for the replaced/rewritten blocks).  However, this
+DOES
+> make doing an fsck() a *lot* more interesting - is a block allocated to
+multiple
+> files in error or not?
 
-                     |--x -- 3
-       |--------X----|--x -- 3
-       |             |--x -- 3
-       |
-       |             |--x -- 3
--------|--------X----|--x -- 3
-       |             |--x -- 3
-       |
-       |             |--x -- 3
-       |--------X----|--x -- 3
-                     |--x -- 3
+For this I would yield to a mechanism similar to COW, block you modify,
+block you copy ... it would impose some restrictions here and there, 
+but it'd work, I'd say - still it is fun for fsck(), as you are changing
+some semantics, but it'd be interesting.
 
-I now have 1 + 3 + 9 = 13 splitters, giving me 27 connections, out of 1.
-etc, etc. Same numbers I'd have doing it your way, yours would be 13
-levels deep instead.
-
-I think I just went for the massively parallel method of hooking
-these up and from there got massively lost.
-
-Mike
-
+Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
+(and my fault)

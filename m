@@ -1,72 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265295AbSJRS6p>; Fri, 18 Oct 2002 14:58:45 -0400
+	id <S265380AbSJRTEX>; Fri, 18 Oct 2002 15:04:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265200AbSJRS5c>; Fri, 18 Oct 2002 14:57:32 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:16638 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S265623AbSJRS4h>; Fri, 18 Oct 2002 14:56:37 -0400
-Subject: [RFC] vsyscall_A0 LD_PRELOAD implementation
-From: john stultz <johnstul@us.ibm.com>
-To: Linus Torvalds <torvalds@transmeta.com>, andrea <andrea@suse.de>
-Cc: Michael Hohnbaum <hbaum@us.ibm.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       george anzinger <george@mvista.com>,
-       lkml <linux-kernel@vger.kernel.org>, ak@muc.de
-In-Reply-To: <1034915132.1681.144.camel@cog>
-References: <1034915132.1681.144.camel@cog>
-Content-Type: multipart/mixed; boundary="=-RQVzvqqFIUg9+1c7vtnW"
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 18 Oct 2002 11:54:01 -0700
-Message-Id: <1034967241.4048.9.camel@cog>
-Mime-Version: 1.0
+	id <S265376AbSJRTCg>; Fri, 18 Oct 2002 15:02:36 -0400
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:15257 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S265200AbSJRTBf>; Fri, 18 Oct 2002 15:01:35 -0400
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.com, viro@math.psu.edu
+Subject: [PATCH][RFC] 2.5.42 (1/2): Filesystem capabilities kernel patch
+From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+Date: Fri, 18 Oct 2002 21:07:20 +0200
+Message-ID: <87y98vmuqf.fsf@goat.bogus.local>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
+ i386-debian-linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch adds filesystem capabilities to 2.5.42, but it applies to
+2.5.43 as well.
 
---=-RQVzvqqFIUg9+1c7vtnW
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+It's very simple. In the root directory of every filesystem, there
+must be a file named ".capabilities". This is the capability database
+indexed by inode number. These files are populated by a chcap tool,
+see next mail.
 
-Here's an example use of the vsyscall via LD_PRELOAD.
+This fs capability system should work on all filesystem, which can
+provide long dotted names and have some sort of inode. Another benefit
+is, when holes in files are allowed. Otherwise the .capabilities file
+could grow pretty large.
 
-Attached is an example library that can be LD_PRELOADED to alias glib's
-gettimeofday function w/ the vsyscall implementation. I've also included
-a quick performance test to give a rough idea of the savings this gives.
+I use this on an ext2 filesystem. It boots and seems to work so far.
 
-Example run on a SMP P4 box:
+Comments?
 
-[jstultz@elm3b52 vsyscall_test]$ ./run.sh 
-Normal gettimeofday
-gettimeofday ( 1391621us / 1000000runs ) = 1.391620us
-vsyscall LD_PRELOAD gettimeofday
-gettimeofday ( 286567us / 1000000runs ) = 0.286567us
+Regards, Olaf.
 
-So it looks like a pretty big win.
-
-thanks
--john
-
-
---=-RQVzvqqFIUg9+1c7vtnW
-Content-Disposition: attachment; filename=vsyscall_test.tar.gz
-Content-Type: application/x-gzip; name=vsyscall_test.tar.gz
-Content-Transfer-Encoding: base64
-
-H4sIAB2rrz0AA+2X3W/aMBDAeSV/xYmqU8JHcCAh0iiTpnYPlSitOqG9TEJZYiCbSVDioNFp//vO
-CQkERCtNtFU3/x4S+e58/rj4zlnF69h1GJtwGvN25VkgxCS2beHbMCzD3HkXVIhtWV27Yxk9lBsm
-MewKWM8znTJJzJ0IoPI95gnjD0ftntK/UVal+Oct3T3lGMQgpNczj8a/Y9t5/LuG3UX7HumYFSCn
-nMQx/vP4n/mByxKPwkXMPT/U5x+Ukoj534RMWYW+B2pdfCCaGvMocTlwf0FXDqs3YU+gwQBU0aOu
-kZ9ThGKUx8P+xs2McmEZTj1nve8L+AoO/AF/0JRfSjUfn6+aKOkrv5XX3r43T/n83zg/6NRn9LRj
-PHX+u0Y3P/+mSUT+t0zTkuf/JcDQv1eqM9eF1vTu+hJakbcOnIWP7Rm08PkFLWBbFza28dyJqAeo
-Zq04xA60WdjEoW5AK4SSQCcoLCQhtBh6YR7L/M146LXEF6i7omfRVBSXUSfAGUYLqOs7mkPvMhf8
-DeXzvxOHE46Rnn/z6Pk3jG6vqP+2TdL6b3fk+X8JHq//67gtanB6AzjzsDQEFEbjm8n9ePQZjCx8
-heLm+vL+tpAqfsBh4fiBmpbuckUHselc1Plw2QQU9JWqsPfxnQSxPwswubAwmGUPjzLuoGrKQofD
-kkYuDTi2txZ8scR26WLxbjPGaDwcaqJzGKn+gPTBh4tiEdhqNDSlutcVZ7TtuO9VTHmjE+sKlzpf
-TWKKmWuQrWvT7m+1yb46yfTpwsRl6XDR2o7nera1OM1q41HbzK1S3WyR8JzumZYO1FbzZTcMsbBl
-hHs+VWu7CwQVzhlLkhjacO5HOBaI29z5NIm/BrWmmEPqq1lsYTMPCLoEJKI8iQIg8nr2Fijnf4y3
-Hs9PPYbI/4/9/xuY7PP/f2LZ4v6HFUDm/5eAuvMQaqMwWmBW3k0ENUXfXgeUzCz/WGB4Nbm7/zS8
-/Xi112erGOjtwwvgrsvXXrlEIpFIJBKJRCKRSCQSiUQikfzb/AGCgp9CACgAAA==
-
---=-RQVzvqqFIUg9+1c7vtnW--
-
+diff -urN a/security/Config.in b/security/Config.in
+--- a/security/Config.in	Sat Oct  5 18:44:05 2002
++++ b/security/Config.in	Fri Oct 18 13:38:55 2002
+@@ -3,5 +3,6 @@
+ #
+ mainmenu_option next_comment
+ comment 'Security options'
+-define_bool CONFIG_SECURITY_CAPABILITIES y
++tristate 'Security Capabilities' CONFIG_SECURITY_CAPABILITIES
++dep_bool '  Filesystem Capabilities (EXPERIMENTAL)' CONFIG_FS_CAPABILITIES $CONFIG_EXPERIMENTAL
+ endmenu
+diff -urN a/security/capability.c b/security/capability.c
+--- a/security/capability.c	Sat Oct 12 14:24:21 2002
++++ b/security/capability.c	Fri Oct 18 20:05:30 2002
+@@ -18,6 +18,7 @@
+ #include <linux/smp_lock.h>
+ #include <linux/skbuff.h>
+ #include <linux/netlink.h>
++#include <linux/namei.h>
+ 
+ /* flag to keep track of how we were registered */
+ static int secondary;
+@@ -115,14 +116,53 @@
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_FS_CAPABILITIES
++static struct file *open_capabilities(struct linux_binprm *bprm)
++{
++	static char name[] = ".capabilities";
++	struct nameidata nd;
++	int err;
++	nd.mnt = mntget(bprm->file->f_vfsmnt);
++	nd.dentry = dget(nd.mnt->mnt_root);
++//	nd.last_type = LAST_ROOT;
++	nd.flags = 0;
++	err = path_walk(name, &nd);
++	if (err)
++		return ERR_PTR(err);
++
++	return dentry_open(nd.dentry, nd.mnt, O_RDONLY);
++}
++
++static void read_capabilities(struct file *filp, struct linux_binprm *bprm)
++{
++	__u32 fscaps[3];
++	unsigned long ino = bprm->file->f_dentry->d_inode->i_ino;
++	int n = kernel_read(filp, ino * sizeof(fscaps), (char *) fscaps, sizeof(fscaps));
++	if (n == sizeof(fscaps)) {
++		bprm->cap_effective = fscaps[0];
++		bprm->cap_inheritable = fscaps[1];
++		bprm->cap_permitted = fscaps[2];
++	}
++}
++#endif
++
+ static int cap_bprm_set_security (struct linux_binprm *bprm)
+ {
++#ifdef CONFIG_FS_CAPABILITIES
++	struct file *filp;
++#endif
+ 	/* Copied from fs/exec.c:prepare_binprm. */
+ 
+-	/* We don't have VFS support for capabilities yet */
+ 	cap_clear (bprm->cap_inheritable);
+ 	cap_clear (bprm->cap_permitted);
+ 	cap_clear (bprm->cap_effective);
++#ifdef CONFIG_FS_CAPABILITIES
++	filp = open_capabilities(bprm);
++	if (filp && !IS_ERR(filp)) {
++		read_capabilities(filp, bprm);
++		filp_close(filp, 0);
++	}
++#endif
+ 
+ 	/*  To support inheritance of root-permissions and suid-root
+ 	 *  executables under compatibility mode, we raise all three

@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291625AbSCRSgL>; Mon, 18 Mar 2002 13:36:11 -0500
+	id <S291745AbSCRSop>; Mon, 18 Mar 2002 13:44:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291745AbSCRSgB>; Mon, 18 Mar 2002 13:36:01 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:45835 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S291625AbSCRSf4>;
-	Mon, 18 Mar 2002 13:35:56 -0500
-Date: Mon, 18 Mar 2002 15:35:32 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help
-In-Reply-To: <a75bd6$mb5$1@cesium.transmeta.com>
-Message-ID: <Pine.LNX.4.44L.0203181535090.2181-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S291753AbSCRSof>; Mon, 18 Mar 2002 13:44:35 -0500
+Received: from sbcs.sunysb.edu ([130.245.1.15]:60878 "EHLO sbcs.cs.sunysb.edu")
+	by vger.kernel.org with ESMTP id <S291745AbSCRSoP>;
+	Mon, 18 Mar 2002 13:44:15 -0500
+Date: Mon, 18 Mar 2002 13:40:36 -0500 (EST)
+From: <prade@cs.sunysb.edu>
+X-X-Sender: <prade@compserv3>
+To: Robert Pfister <robertp@ustri.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Trapping all Incoming Network Packets 
+In-Reply-To: <003501c1ceaa$91678f90$1e00a8c0@nomaam>
+Message-ID: <Pine.GSO.4.33.0203181330530.5841-100000@compserv3>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 Mar 2002, H. Peter Anvin wrote:
+On Mon, 18 Mar 2002, Robert Pfister wrote:
 
-> The unit here is B, which does conflict with the unit bel, but is
-> widely used to mean byte in computer contexts.
+> There are ways to accomplish similar things in user space. Is there some
+> reason that you need to do this in the kernel? What is your end-goal with
+> this?
+>
+> Robb
+>
 
-Also, the kilobell is highly unlikely to be used ;)
+To do it in user space, you have to use the raw socket interface. This
+by-passes the entire TCP/IP stack. I want to sniff the packets, and make a
+decision based on certain characteristics of each packet. So I need to
+have a filter between the IP and link-layer. Also, I do not want the
+filter to slow down traffic. Hence I believe implementing inside kernel
+will be more efficient.
 
-Rik
--- 
-<insert bitkeeper endorsement here>
-
-http://www.surriel.com/		http://distro.conectiva.com/
+-- pradipta
 

@@ -1,73 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261786AbUENVG3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262772AbUENVIY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261786AbUENVG3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 17:06:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262772AbUENVG2
+	id S262772AbUENVIY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 17:08:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262873AbUENVIY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 17:06:28 -0400
-Received: from moraine.clusterfs.com ([66.246.132.190]:65175 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S261786AbUENVG0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 17:06:26 -0400
-Date: Fri, 14 May 2004 15:06:22 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: "Theodore Ts'o" <tytso@mit.edu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-Subject: Re: [Ext2-devel] Re: [RFC/RFT] [PATCH] EXT3: Retry allocation after journal commit
-Message-ID: <20040514210622.GH18086@schnapps.adilger.int>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	ext2-devel@lists.sourceforge.net
-References: <E1BOQmf-0005cP-4Q@thunk.org> <20040513195310.5725fa43.akpm@osdl.org> <20040514043743.GA22593@thunk.org> <20040513214922.24639ae3.akpm@osdl.org> <20040514174837.GF18086@schnapps.adilger.int> <20040514195920.GB30501@thunk.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040514195920.GB30501@thunk.org>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	Fri, 14 May 2004 17:08:24 -0400
+Received: from 169-17-63-200-ptr.ipbusiness.net.ar ([200.63.17.169]:16027 "HELO
+	baufest.com.ar") by vger.kernel.org with SMTP id S262772AbUENVIW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 17:08:22 -0400
+From: AvMailGate@naranja.baufest.com
+To: linux-kernel@vger.kernel.org
+Subject: AntiVir ALERT [your mail: "Information"]
+Message-Id: <S262772AbUENVIW/20040514210823Z+415@vger.kernel.org>
+Date: Fri, 14 May 2004 17:08:22 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On May 14, 2004  15:59 -0400, Theodore Ts'o wrote:
-> On Fri, May 14, 2004 at 11:48:37AM -0600, Andreas Dilger wrote:
-> > Well, actually my patch just waited on the _previous_ transaction to commit
-> > (which can be done anywhere without retrying the operation) and then set
-> > h_sync on the _current_ transaction so that as soon as the current operations
-> > are completed it will also be committed and the blocks released.  One can't
-> > of course arbitrarily call journal_stop() or that breaks the transaction
-> > atomicity.
-> > 
-> > For 99.9% of cases this should be sufficient and doesn't involve changing
-> > the code everywhere - only in ext3_new_block().  
-> 
-> I tried that first, actually.  In the test case I was trying, it only
-> worked 33% of the time.  The other 66% of the time, the rm -rf all fit
-> into the current running transaction, and waiting on the previous
-> transaction wasn't sufficient to solve the problem.
+* * * * * * * * * * * * * * * AntiVir ALERT * * * * * * * * * * * * * * *
 
-I guess the success ratio dependends on how many blocks are tied up in
-the transaction, the size of the journal, and how much free space is
-left in the filesystem.  In my tests (dd to a file that does O_TRUNC and
-overwrites with the same file size) this change wasn't 100% successful
-but fixed it the majority of the time.
+This version of AntiVir is licensed for private and non-commercial use.
 
-> > Also, Ted's approach of retrying the operations "outside" the
-> > transaction won't work if there are nested journal transactions
-> > being done - those will hold the transaction open so doing
-> > journal_stop/journal_start doesn't really accomplish anything.
-> 
-> That was why I was retrying at the top-level functions: ext3_mkdir,
-> for example.  There won't be a nested journal transaction there.
+AntiVir ha detectado lo siguiente en un email enviado desde su direccion
+de correo:
 
-Waiting for the currently committing transaction to complete would
-deadlock Lustre, because it starts journal transactions above ext3 so
-that it can write update records in the same transaction as the
-filesystem operation.
+	Worm/NetSky.Z worm
 
-Cheers, Andreas
+El email no ha sido transferido.
+
+Por favor, chequee y limpie toda fuente de virus que pueda haber en su
+computadora antes de enviar otro email con archivos anexados.
+
+
+Mail-Info:
+--8<--
+ From: linux-kernel@vger.kernel.org
+ To: ajperez@baufest.com
+ Date: Fri, 14 May 2004 16:07:49 -0500
+ Subject: Information
+--8<--
+
+This version of AntiVir is licensed for private and non-commercial use.
+
 --
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-
+AntiVir for UNIX
+Copyright (C) 1994-2002 by H+BEDV Datentechnik GmbH. All rights reserved.
+For more information see http://www.antivir.de/ or http://www.hbedv.com/

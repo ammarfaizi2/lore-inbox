@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262920AbUKYCaN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262918AbUKYCkP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262920AbUKYCaN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 21:30:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262918AbUKYCaN
+	id S262918AbUKYCkP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 21:40:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262921AbUKYCkP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 21:30:13 -0500
-Received: from mail3.spymac.net ([195.225.149.3]:14309 "EHLO spy23.spymac.net")
-	by vger.kernel.org with ESMTP id S262921AbUKYC3s (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 21:29:48 -0500
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: binary
+	Wed, 24 Nov 2004 21:40:15 -0500
+Received: from over.ny.us.ibm.com ([32.97.182.111]:11206 "EHLO
+	over.ny.us.ibm.com") by vger.kernel.org with ESMTP id S262918AbUKYCjB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 21:39:01 -0500
+Subject: Re: Clocks stopped drifting!  What happaned?
+From: john stultz <johnstul@us.ibm.com>
+To: Timothy Miller <miller@techsource.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <41A4E37C.7060501@techsource.com>
+References: <41A4E37C.7060501@techsource.com>
+Content-Type: text/plain
+Message-Id: <1101344573.31116.1.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-From: surya <surya_prabhakar@spymac.com>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       David Ford <david+challenge-response@blue-labs.org>
-Subject: Re: 2.6.10-rc2 and x86_64; spontaneous reboots
-Reply-To: surya_prabhakar@spymac.com
-X-Mailer: AtMail 4.02
-X-Origin: 82.3.32.74
-X-Uidl: 1101322551.H559739P20539.mail-in2.spymac.net
-Date: Wed, 24 Nov 2004 11:57:00 -0700
-Message-Id: <20041124185701.A6FDC38067@spy23.spymac.net>
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Wed, 24 Nov 2004 17:02:54 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-what is the hardware
+On Wed, 2004-11-24 at 11:39, Timothy Miller wrote:
+> It used to be that on every computer where I was using Linux, the clocks 
+> would drift really badly.  After a few weeks, they'd all be fast by as 
+> much as 30 minutes, and it got to be annoying to have to periodically 
+> reset the time.  For instance, this was the case for both a Dell with a 
+> 1.8GHz Pentium 4 and for a home-built PC with an Athlon XP 2800+ (via 
+> KT400 chipset).
+> 
+> I just realized that since I upgraded to 2.6.9, that problem has gone 
+> away.  I'm not using NTP, but my clocks are suddenly reliable.
+> 
+> What happened?
 
-On Wed Nov 24 11:40 , David Ford <david+challenge-response@blue-labs.org> sent:
+I'd be interested if you could narrow down the release where you saw the
+change. ie: Does 2.6.8.1 have the problem, or 2.6.7? 
 
->Is anyone else experiencing spontaneous reboots within a few minutes of 
->bootup?  (If the system survives past the first 10 minutes, it stays up 
->for a long time, but it reliably does an instant reboot with no panic or 
->other indication a good 9 out of 10 times.  The system is purely idle, 
->nothing going on.  memtest86+ runs for hours with no failures.
->
->David
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+My suspicion is the ACPI irq routing changes might have fixed it.
+
+thanks
+-john
 
 

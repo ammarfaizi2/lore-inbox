@@ -1,55 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262782AbTCKBDb>; Mon, 10 Mar 2003 20:03:31 -0500
+	id <S262611AbTCKBCK>; Mon, 10 Mar 2003 20:02:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262783AbTCKBDb>; Mon, 10 Mar 2003 20:03:31 -0500
-Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:51074 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id <S262782AbTCKBD3>;
-	Mon, 10 Mar 2003 20:03:29 -0500
-Date: Mon, 10 Mar 2003 20:17:19 +0000
-From: Adam Belay <ambx1@neo.rr.com>
-To: "Ruslan U. Zakirov" <cubic@miee.ru>
+	id <S262769AbTCKBCJ>; Mon, 10 Mar 2003 20:02:09 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:22981 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S262611AbTCKBCI>;
+	Mon, 10 Mar 2003 20:02:08 -0500
+Subject: Re: OLS2003 Performance BOF Proposals
+From: Craig Thomas <craiger@osdl.org>
+To: Ruth Forester <rsf@flying-dove.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PnP Changes for 2.5.64
-Message-ID: <20030310201719.GA10035@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	"Ruslan U. Zakirov" <cubic@miee.ru>, linux-kernel@vger.kernel.org
-References: <20030310000705.GD2118@neo.rr.com> <Pine.BSF.4.05.10303110205530.63523-100000@wildrose.miee.ru>
+In-Reply-To: <E981156C-5196-11D7-B7DA-000A95685D4E@flying-dove.com>
+References: <E981156C-5196-11D7-B7DA-000A95685D4E@flying-dove.com>
+Content-Type: text/plain
+Organization: OSDL
+Message-Id: <1047345168.25830.29.camel@bullpen.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.BSF.4.05.10303110205530.63523-100000@wildrose.miee.ru>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 10 Mar 2003 17:12:48 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 11, 2003 at 02:15:11AM +0300, Ruslan U. Zakirov wrote:
-> Hello, Adam and other.
-> Now with this changes, driver depend on CONFIG_PNP.
-> What to do if I want compile kernel without PnP layer and I want use my
-> soundcard?
-> 	Best regards, Ruslan.
+I think both can be combined into one.  The first seems to outline
+the way to run a benchmark (multiple runs, std dev, variance, etc)
+and a list of micro benchmarks.  The second seems to handle the larger
+performance tests such as large database loads, very long running tests,
+etc.
 
-Hi Ruslan,
+I wonder if you can include a discussion of monitoring tools for
+performance data collection as part of the first BOF?  We have found
+that for 2.5 the packages report different numbers when
+comparing between sysstat, vmstat, ziostat, and iostat.
 
-I understand your concern, actually the code that prevents users from using
-als100 without CONFIG_PNP is hidden in kconfig.
 
-config SND_ALS100
-	tristate "Avance Logic ALS100/ALS120"
-	depends on SND && ISAPNP
-	help
-	  Say 'Y' or 'M' to include support for Avance Logic ALS100, ALS110,
-	  ALS120 and ALS200 soundcards.
+On Sat, 2003-03-08 at 10:51, Ruth Forester wrote:
+> Everyone,
+> 
+> 
+> I would very much appreciate comments (even one-liners) on any
+> community interest in these two OLS Performance BoF sessions.  I
+> believe the topics are dissimilar and relevant enough to justify both:  
+> 
+> ----------------------------------------------------------------------
+> 
+> This BOF will include a discussion on Linux benchmark automation. We
+> will discuss the features needed to provide an effective benchmark
+> automation process for Linux. This will include, defining the
+> configuration, input files, benchmark execution, output files, etc. 
+> We will also discuss the types of benchmarks that are tailored for
+> rapid execution and results analysis, for maximum development impact.
+> 
+> 
+> PROPOSAL FOR LINUX PERFORMANCE
+> 
+> Linux changes occur very quickly in the open source community. There
+> is a strong need to quickly collect and share performance data and
+> analysis. However, there may be some instances where good, quality
+> performance data collection and analysis take longer than the short
+> turnaround required for maximum impact regarding newly released
+> patches. We plan to discuss the most effective methodology for
+> impacting Linux performance in a rapidly changing Linux open source
+> community environment.
+> 
+> --------------------------------------------------------
+> 
+> Please reply immediately so we can quickly submit them to OLS? 
+> 
+> Thanks for your (speedy) replies! 
+> 
+> 
+> ruth
+> 
+> Ruth Forester, Linux Performance LTC
+> 
+> <smaller>rsf@flying-dove.com
+> 
+> notes: rsf@us.ibm.com
+> 
+> IBM Linux Technology Center
+> 
+> Beaverton, Oregon</smaller>
+-- 
+Craig Thomas <craiger@osdl.org>
+OSDL
 
---->Notice ISAPNP
-
-Also the pnp functions are declared as blank inline functions if CONFIG_PNP
-isn't set (see pnp.h).  This will prevent compile errors.  When ALSA drivers
-contain support for both pnp and nonpnp devices (such as sb16), CONFIG_PNP
-will be used directly in the code.
-
-Best regards to you as well.
-
-Thanks,
-Adam

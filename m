@@ -1,199 +1,168 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263020AbUEFVBc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263028AbUEFVGb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263020AbUEFVBc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 17:01:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263024AbUEFVBc
+	id S263028AbUEFVGb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 17:06:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263027AbUEFVGb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 17:01:32 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:40157 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S263020AbUEFVBV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 17:01:21 -0400
-content-class: urn:content-classes:message
+	Thu, 6 May 2004 17:06:31 -0400
+Received: from omr2.netsolmail.com ([216.168.230.163]:41915 "EHLO
+	omr2.netsolmail.com") by vger.kernel.org with ESMTP id S263024AbUEFVGS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 May 2004 17:06:18 -0400
+Message-Id: <200405062105.BLI83826@ms6.netsolmail.com>
+Reply-To: <shai@ftcon.com>
+From: "Shai Fultheim" <shai@ftcon.com>
+To: "'Vojtech Pavlik'" <vojtech@suse.cz>,
+       "'Bartlomiej Zolnierkiewicz'" <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: <linux-ide@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: RE: Multiple (ICH3) IDE-controllers in a system
+Date: Thu, 6 May 2004 14:05:56 -0700
+Organization: FT Consulting
 MIME-Version: 1.0
 Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C433AD.3BD129BE"
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: [PATCH] mxcsr patch for i386 & x86-64
-Date: Thu, 6 May 2004 14:00:59 -0700
-Message-ID: <E305A4AFB7947540BC487567B5449BA802CA870E@scsmsx402.sc.intel.com>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] mxcsr patch for i386 & x86-64
-Thread-Index: AcQyqryVXyOSXEOaSWqYGJq/Dy/7SwA7uw+A
-From: "Kamble, Nitin A" <nitin.a.kamble@intel.com>
-To: "Pavel Machek" <pavel@ucw.cz>, "Linus Torvalds" <torvalds@osdl.org>
-Cc: "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>,
-       "Saxena, Sunil" <sunil.saxena@intel.com>
-X-OriginalArrivalTime: 06 May 2004 21:01:00.0648 (UTC) FILETIME=[3C412E80:01C433AD]
+	boundary="----=_NextPart_000_00D1_01C43373.41072760"
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+Thread-Index: AcQzNeC9mwL4bqI5RKyDnC4MX905GQAX7NKAAAXenhA=
+In-Reply-To: <200405061918.BLI57844@ms6.netsolmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
-------_=_NextPart_001_01C433AD.3BD129BE
+------=_NextPart_000_00D1_01C43373.41072760
 Content-Type: text/plain;
 	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
 
->i386/kernel/power/cpu.c now probably wants fpu_init, too...
+Vojtech and Bartlomiej,
 
-Hi Pavel,
-   I have updated the mxcsr patch to also enable it at the time of
-resume. Please find the patch attached.
-  fpu_init() is needed in the resume path, only if the user want to
-change the cpu between suspend and resume. Otherwise the
-mxcsr_features_mask calculated earlier will still be valid.
-	Also for changing the cpu, the user will need to shutdown the
-system, so it is useful for S4 (suspend to disk) state.=20
-  I am testing the patch. Meanwhile please let me know if these changes
-are ok for you?
-     =20
-Thanks & Regards,
-Nitin
+Attached patch that fix the problem according to (2) below.  Let me know if
+you can apply it.
 
-------_=_NextPart_001_01C433AD.3BD129BE
+Thanks. 
+
+
+--- linux-2.6.5-mm6.orig/arch/i386/pci/fixup.c  2004-04-29
+05:23:35.000000000 -0700
++++ linux-2.6.5-mm6/arch/i386/pci/fixup.c       2004-05-07
+01:45:31.000000000 -0700
+@@ -92,6 +92,15 @@
+        int i;
+ 
+        /*
++        * Runs the fixup only for the first IDE controller
++        * (Shai Fultheim - shai@ftcon.com)
++        */
++       static int called = 0;
++       if (called)
++               return;
++       called = 1;
++
++       /*
+         * There exist PCI IDE controllers which have utter garbage
+         * in first four base registers. Ignore that.
+         */
+
+
+
+--Shai
+
+
+-----Original Message-----
+From: linux-ide-owner@vger.kernel.org
+[mailto:linux-ide-owner@vger.kernel.org] On Behalf Of Shai Fultheim
+Sent: Thursday, May 06, 2004 12:19
+To: 'Vojtech Pavlik'; 'Bartlomiej Zolnierkiewicz'
+Cc: linux-ide@vger.kernel.org; linux-kernel@vger.kernel.org
+Subject: RE: Multiple (ICH3) IDE-controllers in a system
+
+Ok.
+I would suggest one of the followings:
+1. If we can't identify those machine, I would recommend to drop that patch,
+since probably the BIOS is taking care of it nowadays.
+2. If we believe we can't do (1) above, lets have it rest only the first
+controller it is being called for.  This will make any of the other
+controllers usable if their ports are set right.
+
+Any comments?
+ 
+
+--Shai
+
+
+-----Original Message-----
+From: linux-ide-owner@vger.kernel.org
+[mailto:linux-ide-owner@vger.kernel.org] On Behalf Of Vojtech Pavlik
+Sent: Wednesday, May 05, 2004 23:46
+To: Bartlomiej Zolnierkiewicz
+Cc: shai@ftcon.com; linux-ide@vger.kernel.org; linux-kernel@vger.kernel.org
+Subject: Re: Multiple (ICH3) IDE-controllers in a system
+
+On Wed, May 05, 2004 at 05:16:43PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> 
+> Hi Vojtech,
+> 
+> Do I correctly assume that these fixups for Intel chipsets are from you?
+
+Yes.
+
+>
+http://linus.bkbits.net:8080/linux-2.5/cset@3cfbacdfzHvfqp0Sa45QXt9pNn3LNg?n
+av=index.html|src/|src/arch|src/arch/i386|src/arch/i386/pci|related/arch/i38
+6/pci/fixup.c
+>
+http://linus.bkbits.net:8080/linux-2.5/cset@3cfcec0fOJreGFyCWkPeT7EWiydYFw?n
+av=index.html|src/|src/arch|src/arch/i386|src/arch/i386/pci|related/arch/i38
+6/pci/fixup.c
+> 
+> Care to explain why 'trash' fixup is needed in 2.6 but not in 2.4?
+
+Because 2.4 was never used on the affected machines, where this fixup
+was needed - those machines sere putting nonsense into the BARs. I don't
+recall exactly what model they were, though I remember they were one of
+the first machines with ICH MMIO support.
+
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR
+-
+To unsubscribe from this list: send the line "unsubscribe linux-ide" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-ide" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+------=_NextPart_000_00D1_01C43373.41072760
 Content-Type: application/octet-stream;
-	name="mxcsr_i386_x86-64_2.6.6-rc3_new2.patch"
-Content-Transfer-Encoding: base64
-Content-Description: mxcsr_i386_x86-64_2.6.6-rc3_new2.patch
+	name="pci-ide-fixup.patch"
+Content-Transfer-Encoding: quoted-printable
 Content-Disposition: attachment;
-	filename="mxcsr_i386_x86-64_2.6.6-rc3_new2.patch"
+	filename="pci-ide-fixup.patch"
 
-LS0tIDIuNi42LXJjMy9hcmNoL2kzODYva2VybmVsL2NwdS9jb21tb24uYy5vcmlnCTIwMDQtMDUt
-MDMgMTg6MDA6MDMuMDAwMDAwMDAwIC0wNzAwCisrKyAyLjYuNi1yYzMvYXJjaC9pMzg2L2tlcm5l
-bC9jcHUvY29tbW9uLmMJMjAwNC0wNS0wNiAxMzo1MToxOC4wMDAwMDAwMDAgLTA3MDAKQEAgLTQs
-NiArNCw3IEBACiAjaW5jbHVkZSA8bGludXgvc21wLmg+CiAjaW5jbHVkZSA8YXNtL3NlbWFwaG9y
-ZS5oPgogI2luY2x1ZGUgPGFzbS9wcm9jZXNzb3IuaD4KKyNpbmNsdWRlIDxhc20vaTM4Ny5oPgog
-I2luY2x1ZGUgPGFzbS9tc3IuaD4KICNpbmNsdWRlIDxhc20vaW8uaD4KICNpbmNsdWRlIDxhc20v
-bW11X2NvbnRleHQuaD4KQEAgLTUzNiw1ICs1MzcsNSBAQAogCSAqLwogCWN1cnJlbnRfdGhyZWFk
-X2luZm8oKS0+c3RhdHVzID0gMDsKIAljdXJyZW50LT51c2VkX21hdGggPSAwOwotCXN0dHMoKTsK
-KwlteGNzcl9mZWF0dXJlX21hc2tfaW5pdCgpOwogfQotLS0gMi42LjYtcmMzL2FyY2gvaTM4Ni9r
-ZXJuZWwvaTM4Ny5jLm9yaWcJMjAwNC0wNS0wMyAxODowMjoxNi4wMDAwMDAwMDAgLTA3MDAKKysr
-IDIuNi42LXJjMy9hcmNoL2kzODYva2VybmVsL2kzODcuYwkyMDA0LTA1LTA2IDEyOjI2OjU1LjAw
-MDAwMDAwMCAtMDcwMApAQCAtMjQsNiArMjQsMjIgQEAKICNkZWZpbmUgSEFWRV9IV0ZQIDEKICNl
-bmRpZgogCit1bnNpZ25lZCBsb25nIG14Y3NyX2ZlYXR1cmVfbWFzayA9IDB4ZmZmZmZmZmY7CisK
-K3ZvaWQgbXhjc3JfZmVhdHVyZV9tYXNrX2luaXQodm9pZCkKK3sKKwl1bnNpZ25lZCBsb25nIG1h
-c2sgPSAwOworCWNsdHMoKTsKKwlpZiAoY3B1X2hhc19meHNyKSB7CisJCW1lbXNldCgmY3VycmVu
-dC0+dGhyZWFkLmkzODcuZnhzYXZlLCAwLCBzaXplb2Yoc3RydWN0IGkzODdfZnhzYXZlX3N0cnVj
-dCkpOworCQlhc20gdm9sYXRpbGUoImZ4c2F2ZSAlMCIgOiA6ICJtIiAoY3VycmVudC0+dGhyZWFk
-LmkzODcuZnhzYXZlKSk7IAorCQltYXNrID0gY3VycmVudC0+dGhyZWFkLmkzODcuZnhzYXZlLm14
-Y3NyX21hc2s7CisJCWlmIChtYXNrID09IDApIG1hc2sgPSAweDAwMDBmZmJmOworCX0gCisJbXhj
-c3JfZmVhdHVyZV9tYXNrICY9IG1hc2s7CisJc3R0cygpOworfQorCiAvKgogICogVGhlIF9jdXJy
-ZW50XyB0YXNrIGlzIHVzaW5nIHRoZSBGUFUgZm9yIHRoZSBmaXJzdCB0aW1lCiAgKiBzbyBpbml0
-aWFsaXplIGl0IGFuZCBzZXQgdGhlIG14Y3NyIHRvIGl0cyBkZWZhdWx0CkBAIC0yMDQsMTMgKzIy
-MCw2IEBACiAJfQogfQogCi12b2lkIHNldF9mcHVfbXhjc3IoIHN0cnVjdCB0YXNrX3N0cnVjdCAq
-dHNrLCB1bnNpZ25lZCBzaG9ydCBteGNzciApCi17Ci0JaWYgKCBjcHVfaGFzX3htbSApIHsKLQkJ
-dHNrLT50aHJlYWQuaTM4Ny5meHNhdmUubXhjc3IgPSAobXhjc3IgJiAweGZmYmYpOwotCX0KLX0K
-LQogLyoKICAqIEZYU1IgZmxvYXRpbmcgcG9pbnQgZW52aXJvbm1lbnQgY29udmVyc2lvbnMuCiAg
-Ki8KQEAgLTM1NSw4ICszNjQsOCBAQAogCWNsZWFyX2ZwdSggdHNrICk7CiAJZXJyID0gX19jb3B5
-X2Zyb21fdXNlciggJnRzay0+dGhyZWFkLmkzODcuZnhzYXZlLCAmYnVmLT5fZnhzcl9lbnZbMF0s
-CiAJCQkJc2l6ZW9mKHN0cnVjdCBpMzg3X2Z4c2F2ZV9zdHJ1Y3QpICk7Ci0JLyogbXhjc3IgYml0
-IDYgYW5kIDMxLTE2IG11c3QgYmUgemVybyBmb3Igc2VjdXJpdHkgcmVhc29ucyAqLwotCXRzay0+
-dGhyZWFkLmkzODcuZnhzYXZlLm14Y3NyICY9IDB4ZmZiZjsKKwkvKiBteGNzciByZXNlcnZlZCBi
-aXRzIG11c3QgYmUgbWFza2VkIHRvIHplcm8gZm9yIHNlY3VyaXR5IHJlYXNvbnMgKi8KKwl0c2st
-PnRocmVhZC5pMzg3LmZ4c2F2ZS5teGNzciAmPSBteGNzcl9mZWF0dXJlX21hc2s7CiAJcmV0dXJu
-IGVyciA/IDEgOiBjb252ZXJ0X2Z4c3JfZnJvbV91c2VyKCAmdHNrLT50aHJlYWQuaTM4Ny5meHNh
-dmUsIGJ1ZiApOwogfQogCkBAIC00NTcsOCArNDY2LDggQEAKIAkJaWYgKF9fY29weV9mcm9tX3Vz
-ZXIoICZ0c2stPnRocmVhZC5pMzg3LmZ4c2F2ZSwgYnVmLAogCQkJCSAgc2l6ZW9mKHN0cnVjdCB1
-c2VyX2Z4c3Jfc3RydWN0KSApKQogCQkJcmV0ID0gLUVGQVVMVDsKLQkJLyogbXhjc3IgYml0IDYg
-YW5kIDMxLTE2IG11c3QgYmUgemVybyBmb3Igc2VjdXJpdHkgcmVhc29ucyAqLwotCQl0c2stPnRo
-cmVhZC5pMzg3LmZ4c2F2ZS5teGNzciAmPSAweGZmYmY7CisJCS8qIG14Y3NyIHJlc2VydmVkIGJp
-dHMgbXVzdCBiZSBtYXNrZWQgdG8gemVybyBmb3Igc2VjdXJpdHkgcmVhc29ucyAqLworCQl0c2st
-PnRocmVhZC5pMzg3LmZ4c2F2ZS5teGNzciAmPSBteGNzcl9mZWF0dXJlX21hc2s7CiAJfSBlbHNl
-IHsKIAkJcmV0ID0gLUVJTzsKIAl9Ci0tLSAyLjYuNi1yYzMvYXJjaC9pMzg2L3Bvd2VyL2NwdS5j
-Lm9yaWcJMjAwNC0wNS0wMyAxODowMTozMi4wMDAwMDAwMDAgLTA3MDAKKysrIDIuNi42LXJjMy9h
-cmNoL2kzODYvcG93ZXIvY3B1LmMJMjAwNC0wNS0wNiAxMjoxNDoyOC4wMDAwMDAwMDAgLTA3MDAK
-QEAgLTcyLDYgKzcyLDcgQEAKICAgICAgICAgLyogcmVzdG9yZSBGUFUgcmVncyBpZiBuZWNlc3Nh
-cnkgKi8KIAkvKiBEbyBpdCBvdXQgb2YgbGluZSBzbyB0aGF0IGdjYyBkb2VzIG5vdCBtb3ZlIGNy
-MCBsb2FkIHRvIHNvbWUgc3R1cGlkIHBsYWNlICovCiAgICAgICAgIGtlcm5lbF9mcHVfZW5kKCk7
-CisJbXhjc3JfZmVhdHVyZV9tYXNrX2luaXQoKTsKIH0KIAogdm9pZCByZXN0b3JlX3Byb2Nlc3Nv
-cl9zdGF0ZSh2b2lkKQotLS0gMi42LjYtcmMzL2FyY2gveDg2XzY0L2tlcm5lbC9pMzg3LmMub3Jp
-ZwkyMDA0LTA1LTAzIDE4OjAwOjMxLjAwMDAwMDAwMCAtMDcwMAorKysgMi42LjYtcmMzL2FyY2gv
-eDg2XzY0L2tlcm5lbC9pMzg3LmMJMjAwNC0wNS0wNiAxMjowOTozNy4wMDAwMDAwMDAgLTA3MDAK
-QEAgLTI0LDYgKzI0LDIwIEBACiAjaW5jbHVkZSA8YXNtL3B0cmFjZS5oPgogI2luY2x1ZGUgPGFz
-bS91YWNjZXNzLmg+CiAKK3Vuc2lnbmVkIGludCBteGNzcl9mZWF0dXJlX21hc2sgPSAweGZmZmZm
-ZmZmOworCit2b2lkIG14Y3NyX2ZlYXR1cmVfbWFza19pbml0KHZvaWQpCit7CisJdW5zaWduZWQg
-aW50IG1hc2s7CisJY2x0cygpOworCW1lbXNldCgmY3VycmVudC0+dGhyZWFkLmkzODcuZnhzYXZl
-LCAwLCBzaXplb2Yoc3RydWN0IGkzODdfZnhzYXZlX3N0cnVjdCkpOworCWFzbSB2b2xhdGlsZSgi
-ZnhzYXZlICUwIiA6IDogIm0iIChjdXJyZW50LT50aHJlYWQuaTM4Ny5meHNhdmUpKTsKKwltYXNr
-ID0gY3VycmVudC0+dGhyZWFkLmkzODcuZnhzYXZlLm14Y3NyX21hc2s7CisJaWYgKG1hc2sgPT0g
-MCkgbWFzayA9IDB4MDAwMGZmYmY7CisJbXhjc3JfZmVhdHVyZV9tYXNrICY9IG1hc2s7CisJc3R0
-cygpOworfQorCiAvKgogICogQ2FsbGVkIGF0IGJvb3R1cCB0byBzZXQgdXAgdGhlIGluaXRpYWwg
-RlBVIHN0YXRlIHRoYXQgaXMgbGF0ZXIgY2xvbmVkCiAgKiBpbnRvIGFsbCBwcm9jZXNzZXMuCkBA
-IC00MCw4ICs1NCw4IEBACiAKIAl3cml0ZV9jcjAob2xkY3IwICYgfigoMVVMPDwzKXwoMVVMPDwy
-KSkpOyAvKiBjbGVhciBUUyBhbmQgRU0gKi8KIAorCW14Y3NyX2ZlYXR1cmVfbWFza19pbml0KCk7
-CiAJLyogY2xlYW4gc3RhdGUgaW4gaW5pdCAqLwotCXN0dHMoKTsKIAljdXJyZW50X3RocmVhZF9p
-bmZvKCktPnN0YXR1cyA9IDA7CiAJY3VycmVudC0+dXNlZF9tYXRoID0gMDsKIH0KLS0tIDIuNi42
-LXJjMy9hcmNoL3g4Nl82NC9rZXJuZWwvc3VzcGVuZC5jLm9yaWcJMjAwNC0wNS0wMyAxODowMTow
-MC4wMDAwMDAwMDAgLTA3MDAKKysrIDIuNi42LXJjMy9hcmNoL3g4Nl82NC9rZXJuZWwvc3VzcGVu
-ZC5jCTIwMDQtMDUtMDYgMTI6MjM6NTkuMDAwMDAwMDAwIC0wNzAwCkBAIC03Nyw2ICs3Nyw3IEBA
-CiAgICAgICAgIC8qIHJlc3RvcmUgRlBVIHJlZ3MgaWYgbmVjZXNzYXJ5ICovCiAJLyogRG8gaXQg
-b3V0IG9mIGxpbmUgc28gdGhhdCBnY2MgZG9lcyBub3QgbW92ZSBjcjAgbG9hZCB0byBzb21lIHN0
-dXBpZCBwbGFjZSAqLwogICAgICAgICBrZXJuZWxfZnB1X2VuZCgpOworCW14Y3NyX2ZlYXR1cmVf
-bWFza19pbml0KCk7CiB9CiAKIHZvaWQgcmVzdG9yZV9wcm9jZXNzb3Jfc3RhdGUodm9pZCkKLS0t
-IDIuNi42LXJjMy9hcmNoL3g4Nl82NC9pYTMyL2ZwdTMyLmMub3JpZwkyMDA0LTA1LTAzIDE4OjAw
-OjAyLjAwMDAwMDAwMCAtMDcwMAorKysgMi42LjYtcmMzL2FyY2gveDg2XzY0L2lhMzIvZnB1MzIu
-YwkyMDA0LTA1LTA0IDEzOjI5OjM1LjAwMDAwMDAwMCAtMDcwMApAQCAtMTU1LDcgKzE1NSw3IEBA
-CiAJCQkJICAgICAmYnVmLT5fZnhzcl9lbnZbMF0sCiAJCQkJICAgICBzaXplb2Yoc3RydWN0IGkz
-ODdfZnhzYXZlX3N0cnVjdCkpKQogCQkJcmV0dXJuIC0xOwotCXRzay0+dGhyZWFkLmkzODcuZnhz
-YXZlLm14Y3NyICY9IDB4ZmZiZjsKKwkJdHNrLT50aHJlYWQuaTM4Ny5meHNhdmUubXhjc3IgJj0g
-bXhjc3JfZmVhdHVyZV9tYXNrOwogCQl0c2stPnVzZWRfbWF0aCA9IDE7CiAJfSAKIAlyZXR1cm4g
-Y29udmVydF9meHNyX2Zyb21fdXNlcigmdHNrLT50aHJlYWQuaTM4Ny5meHNhdmUsIGJ1Zik7Ci0t
-LSAyLjYuNi1yYzMvYXJjaC94ODZfNjQvaWEzMi9wdHJhY2UzMi5jLm9yaWcJMjAwNC0wNS0wMyAx
-ODowMDozMS4wMDAwMDAwMDAgLTA3MDAKKysrIDIuNi42LXJjMy9hcmNoL3g4Nl82NC9pYTMyL3B0
-cmFjZTMyLmMJMjAwNC0wNS0wNCAxMzoyOTozNS4wMDAwMDAwMDAgLTA3MDAKQEAgLTM1NywxMCAr
-MzU3LDEwIEBACiAJCS8qIG5vIGNoZWNraW5nIHRvIGJlIGJ1Zy10by1idWcgY29tcGF0aWJsZSB3
-aXRoIGkzODYgKi8KIAkJX19jb3B5X2Zyb21fdXNlcigmY2hpbGQtPnRocmVhZC5pMzg3LmZ4c2F2
-ZSwgdSwgc2l6ZW9mKCp1KSk7CiAJCWNoaWxkLT51c2VkX21hdGggPSAxOwotCSAgICAgICAgY2hp
-bGQtPnRocmVhZC5pMzg3LmZ4c2F2ZS5teGNzciAmPSAweGZmYmY7CisJCWNoaWxkLT50aHJlYWQu
-aTM4Ny5meHNhdmUubXhjc3IgJj0gbXhjc3JfZmVhdHVyZV9tYXNrOwogCQlyZXQgPSAwOyAKLQkJ
-CWJyZWFrOwotCQl9CisJCWJyZWFrOworCX0KIAogCWRlZmF1bHQ6CiAJCXJldCA9IC1FSU5WQUw7
-Ci0tLSAyLjYuNi1yYzMvaW5jbHVkZS9hc20teDg2XzY0L2kzODcuaC5vcmlnCTIwMDQtMDUtMDMg
-MTg6MDE6MDIuMDAwMDAwMDAwIC0wNzAwCisrKyAyLjYuNi1yYzMvaW5jbHVkZS9hc20teDg2XzY0
-L2kzODcuaAkyMDA0LTA1LTA2IDEzOjM1OjM5LjAwMDAwMDAwMCAtMDcwMApAQCAtMjAsNiArMjAs
-OCBAQAogI2luY2x1ZGUgPGFzbS91YWNjZXNzLmg+CiAKIGV4dGVybiB2b2lkIGZwdV9pbml0KHZv
-aWQpOworZXh0ZXJuIHVuc2lnbmVkIGludCBteGNzcl9mZWF0dXJlX21hc2s7CitleHRlcm4gdm9p
-ZCBteGNzcl9mZWF0dXJlX21hc2tfaW5pdCh2b2lkKTsKIGV4dGVybiB2b2lkIGluaXRfZnB1KHN0
-cnVjdCB0YXNrX3N0cnVjdCAqY2hpbGQpOwogZXh0ZXJuIGludCBzYXZlX2kzODcoc3RydWN0IF9m
-cHN0YXRlICpidWYpOwogCkBAIC01MiwxMSArNTQsNiBAQAogCX0JCQkJCQkJXAogfSB3aGlsZSAo
-MCkKIAotI2RlZmluZSBsb2FkX214Y3NyKHZhbCkgZG8geyBcCi0JCXVuc2lnbmVkIGxvbmcgX19t
-eGNzciA9ICgodW5zaWduZWQgbG9uZykodmFsKSAmIDB4ZmZiZik7IFwKLQkJYXNtIHZvbGF0aWxl
-KCJsZG14Y3NyICUwIiA6IDogIm0iIChfX214Y3NyKSk7IFwKLX0gd2hpbGUgKDApCi0KIC8qCiAg
-KiBwdHJhY2UgcmVxdWVzdCBoYW5kZXJzLi4uCiAgKi8KQEAgLTc1LDcgKzcyLDYgQEAKICNkZWZp
-bmUgc2V0X2ZwdV9jd2QodCx2YWwpICgodCktPnRocmVhZC5pMzg3LmZ4c2F2ZS5jd2QgPSAodmFs
-KSkKICNkZWZpbmUgc2V0X2ZwdV9zd2QodCx2YWwpICgodCktPnRocmVhZC5pMzg3LmZ4c2F2ZS5z
-d2QgPSAodmFsKSkKICNkZWZpbmUgc2V0X2ZwdV9meHNyX3R3ZCh0LHZhbCkgKCh0KS0+dGhyZWFk
-LmkzODcuZnhzYXZlLnR3ZCA9ICh2YWwpKQotI2RlZmluZSBzZXRfZnB1X214Y3NyKHQsdmFsKSAo
-KHQpLT50aHJlYWQuaTM4Ny5meHNhdmUubXhjc3IgPSAodmFsKSYweGZmYmYpCiAKIHN0YXRpYyBp
-bmxpbmUgaW50IHJlc3RvcmVfZnB1X2NoZWNraW5nKHN0cnVjdCBpMzg3X2Z4c2F2ZV9zdHJ1Y3Qg
-KmZ4KSAKIHsgCi0tLSAyLjYuNi1yYzMvaW5jbHVkZS9hc20taTM4Ni9pMzg3Lmgub3JpZwkyMDA0
-LTA1LTAzIDE4OjAxOjMxLjAwMDAwMDAwMCAtMDcwMAorKysgMi42LjYtcmMzL2luY2x1ZGUvYXNt
-LWkzODYvaTM4Ny5oCTIwMDQtMDUtMDYgMTI6MjY6MTAuMDAwMDAwMDAwIC0wNzAwCkBAIC0xMiwx
-MCArMTIsMTMgQEAKICNkZWZpbmUgX19BU01fSTM4Nl9JMzg3X0gKIAogI2luY2x1ZGUgPGxpbnV4
-L3NjaGVkLmg+CisjaW5jbHVkZSA8bGludXgvaW5pdC5oPgogI2luY2x1ZGUgPGFzbS9wcm9jZXNz
-b3IuaD4KICNpbmNsdWRlIDxhc20vc2lnY29udGV4dC5oPgogI2luY2x1ZGUgPGFzbS91c2VyLmg+
-CiAKK2V4dGVybiB1bnNpZ25lZCBsb25nIG14Y3NyX2ZlYXR1cmVfbWFzazsKK2V4dGVybiB2b2lk
-IG14Y3NyX2ZlYXR1cmVfbWFza19pbml0KHZvaWQpOwogZXh0ZXJuIHZvaWQgaW5pdF9mcHUoc3Ry
-dWN0IHRhc2tfc3RydWN0ICopOwogLyoKICAqIEZQVSBsYXp5IHN0YXRlIHNhdmUgaGFuZGxpbmcu
-Li4KQEAgLTg5LDEyICs5Miw2IEBACiBleHRlcm4gdm9pZCBzZXRfZnB1X2N3ZCggc3RydWN0IHRh
-c2tfc3RydWN0ICp0c2ssIHVuc2lnbmVkIHNob3J0IGN3ZCApOwogZXh0ZXJuIHZvaWQgc2V0X2Zw
-dV9zd2QoIHN0cnVjdCB0YXNrX3N0cnVjdCAqdHNrLCB1bnNpZ25lZCBzaG9ydCBzd2QgKTsKIGV4
-dGVybiB2b2lkIHNldF9mcHVfdHdkKCBzdHJ1Y3QgdGFza19zdHJ1Y3QgKnRzaywgdW5zaWduZWQg
-c2hvcnQgdHdkICk7Ci1leHRlcm4gdm9pZCBzZXRfZnB1X214Y3NyKCBzdHJ1Y3QgdGFza19zdHJ1
-Y3QgKnRzaywgdW5zaWduZWQgc2hvcnQgbXhjc3IgKTsKLQotI2RlZmluZSBsb2FkX214Y3NyKCB2
-YWwgKSBkbyB7IFwKLQl1bnNpZ25lZCBsb25nIF9fbXhjc3IgPSAoKHVuc2lnbmVkIGxvbmcpKHZh
-bCkgJiAweGZmYmYpOyBcCi0JYXNtIHZvbGF0aWxlKCAibGRteGNzciAlMCIgOiA6ICJtIiAoX19t
-eGNzcikgKTsgXAotfSB3aGlsZSAoMCkKIAogLyoKICAqIFNpZ25hbCBmcmFtZSBoYW5kbGVycy4u
-LgotLS0gMi42LjYtcmMzL2luY2x1ZGUvYXNtLWkzODYvcHJvY2Vzc29yLmgub3JpZwkyMDA0LTA1
-LTAzIDE4OjAwOjAzLjAwMDAwMDAwMCAtMDcwMAorKysgMi42LjYtcmMzL2luY2x1ZGUvYXNtLWkz
-ODYvcHJvY2Vzc29yLmgJMjAwNC0wNS0wNCAxMzoyOTozNS4wMDAwMDAwMDAgLTA3MDAKQEAgLTMz
-Miw3ICszMzIsNyBAQAogCWxvbmcJZm9vOwogCWxvbmcJZm9zOwogCWxvbmcJbXhjc3I7Ci0JbG9u
-ZwlyZXNlcnZlZDsKKwlsb25nCW14Y3NyX21hc2s7CiAJbG9uZwlzdF9zcGFjZVszMl07CS8qIDgq
-MTYgYnl0ZXMgZm9yIGVhY2ggRlAtcmVnID0gMTI4IGJ5dGVzICovCiAJbG9uZwl4bW1fc3BhY2Vb
-MzJdOwkvKiA4KjE2IGJ5dGVzIGZvciBlYWNoIFhNTS1yZWcgPSAxMjggYnl0ZXMgKi8KIAlsb25n
-CXBhZGRpbmdbNTZdOwo=
+--- linux-2.6.5-mm6.orig/arch/i386/pci/fixup.c	2004-04-29 =
+05:23:35.000000000 -0700=0A=
++++ linux-2.6.5-mm6/arch/i386/pci/fixup.c	2004-05-07 01:45:31.000000000 =
+-0700=0A=
+@@ -92,6 +92,15 @@=0A=
+ 	int i;=0A=
+ =0A=
+ 	/*=0A=
++	 * Runs the fixup only for the first IDE controller=0A=
++	 * (Shai Fultheim - shai@ftcon.com)=0A=
++	 */=0A=
++	static int called =3D 0;=0A=
++	if (called)=0A=
++		return;=0A=
++	called =3D 1;=0A=
++=0A=
++	/*=0A=
+ 	 * There exist PCI IDE controllers which have utter garbage=0A=
+ 	 * in first four base registers. Ignore that.=0A=
+ 	 */=0A=
 
-------_=_NextPart_001_01C433AD.3BD129BE--
+------=_NextPart_000_00D1_01C43373.41072760--
+

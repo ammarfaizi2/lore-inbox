@@ -1,65 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313444AbSC2OC3>; Fri, 29 Mar 2002 09:02:29 -0500
+	id <S313443AbSC2OOG>; Fri, 29 Mar 2002 09:14:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313448AbSC2OCT>; Fri, 29 Mar 2002 09:02:19 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:43793 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S313444AbSC2OCO>; Fri, 29 Mar 2002 09:02:14 -0500
-Message-ID: <3CA47378.70208@evision-ventures.com>
-Date: Fri, 29 Mar 2002 15:00:24 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, pl
+	id <S313447AbSC2ON4>; Fri, 29 Mar 2002 09:13:56 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:3200 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S313420AbSC2ONm>; Fri, 29 Mar 2002 09:13:42 -0500
+Date: Fri, 29 Mar 2002 09:13:38 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Padraig Brady <padraig@antefacto.com>
+cc: Anton Altaparmakov <aia21@cus.cam.ac.uk>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
+Subject: Re: ANN: NTFS 2.0.1 for kernel 2.5.7 released
+In-Reply-To: <3CA4703C.8000900@antefacto.com>
+Message-ID: <Pine.LNX.3.95.1020329085743.147A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: Mikael Pettersson <mikpe@csd.uu.se>
-CC: vojtech@ucw.cz, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.7 pre-UDMA PIIX bug
-In-Reply-To: <200203291239.NAA25704@harpo.it.uu.se>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson wrote:
-> Vojtech's version of drivers/ide/piix.c which went into 2.5.7
-> oopses with a divide-by-zero exception when initialising older
-> pre-UDMA chips, like in the following 430HX chipset:
-> 
-> 00:00.0 Host bridge: Intel Corporation 430HX - 82439HX TXC [Triton II] (rev 03)
-> 00:07.0 ISA bridge: Intel Corporation 82371SB PIIX3 ISA [Natoma/Triton II] (rev 01)
-> 00:07.1 IDE interface: Intel Corporation 82371SB PIIX3 IDE [Natoma/Triton II]
-> (PCI IDs 8086:1250, 8086:7000, and 8086:7010, respectively)
-> 
-> The error occurs in piix.c:piix_set_drive() line 334, shown below.
-> The 82371SB has PIIX_UDMA_NONE in the piix_ide_chips[] array,
-> so piix_config->flags & PIIX_UDMA is zero, which makes "umul" zero,
-> which causes the divide-by-zero on line 334.
-> 
->   317	static int piix_set_drive(ide_drive_t *drive, unsigned char speed)
->   318	{
->   319		ide_drive_t *peer = HWIF(drive)->drives + (~drive->dn & 1);
->   320		struct ata_timing t, p;
->   321		int err, T, UT, umul;
->   322	
->   323		if (speed != XFER_PIO_SLOW && speed != drive->current_speed)
->   324			if ((err = ide_config_drive_speed(drive, speed)))
->   325				return err;
->   326	
->   327		umul =  min((speed > XFER_UDMA_4) ? 4 : ((speed > XFER_UDMA_2) ? 2 : 1),
->   328			piix_config->flags & PIIX_UDMA);
->   329	
->   330		if (piix_config->flags & PIIX_VICTORY)
->   331			umul = 2;
->   332	
->   333		T = 1000000000 / piix_clock;
->   334		UT = T / umul;
+On Fri, 29 Mar 2002, Padraig Brady wrote:
 
-I think that it should be just sufficient to add the
-following test just in front of the offending calculartion.
+> Anton Altaparmakov wrote:
+> > On Fri, 29 Mar 2002, Padraig Brady wrote:
+> > 
+> >>Is this a good default?
+> > 
+> > 
+> > I don't see what's wrong with that. It follows the logic of least
+> > surprise. In Windows all files are executable as there is no way to
+> > distinguish executables from non-executables due to lack of executable
+> > bit. NTFS on Linux has no way of telling the difference either and hence
+> > it makes sense to allow execution of all files.
+> > 
+> > If you don't like it, use -o noexec,fmask=0111 and you will not have any
+> > files being executable.
+> > 
+> > 
+> >>IMHO you usually would not want to execute stuff off NTFS, and
+> >>if you do you can always just explicitly invoke using wine like:
+> >>`wine /ntfs/lookout.exe`
+> > 
+> > 
+> > No you couldn't.
+> > 
+> 
+> why not? wine should be changed to allow this if
+> it is a limitation with it.
+> 
+> >>To have all files executable breaks stuff like:
+> >>midnight commander (won't open executable files)
+> > 
+> > 
+> > Ouch, that is plain stupid... mc should be fixed. I open executables all
+> > the time and mc should automatically fire up a hexeditor.
+> 
+> Well by not opening I meant it tries to run them
+> which is sensible really. I would guess any unix
+> filemanager is going to have some issues with all
+> files having executable bits set.
+> 
+> Isn't there some kludge for vfat where it marks
+> *.{com,exe,bat} as executable?
+> 
 
-if (umul == 0)
-   ++umul;
+It used to be, under DOS, that ".COM" files were loaded and
+"executed" even if they were text. Then, when the ".EXE" file
+came out, it would be executed if the first two bytes were 'MZ' so
+you could make a text file with the first two characters "MZ" and
+save it as "CRASH.EXE" and that's what it would do. All ".BAT"
+files were assumed to be interpreted by 'COMMAND.COM', the "shell",
+as scripts. This means that you can make a ".BAT" file called
+"COMMAND.BAT", with interesting results.
 
-Vojtech is this right?
+When FAT-32, NTFS, VFAT,  Windozes file-system(s) were developed
+all bets are off. Long file-names are the result of a 'container-file'
+concept and anything goes.
+
+So the only way to guess at these file's execution capabilities
+is to read the name --and it's a bad guess.
+
+If the files are NOT set to 'executable' as read by Linux, then samba
+will not work. For the files to be visible to WIN/Clients, they
+must have all bits set. This 'feature' can be used to make DOS/Win
+files temporarily off-limits to WIN/Clients (like during a backup).
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
 

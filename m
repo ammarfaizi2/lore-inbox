@@ -1,38 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261418AbVCMSiB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261422AbVCMSv0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261418AbVCMSiB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 13:38:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbVCMSiB
+	id S261422AbVCMSv0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 13:51:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261423AbVCMSv0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 13:38:01 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:26263 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261418AbVCMSgv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 13:36:51 -0500
-Date: Sun, 13 Mar 2005 19:36:35 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.11: keyboard stopped working after memory upgrade
-Message-ID: <20050313183635.GD1427@elf.ucw.cz>
-References: <200503121421.03983.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200503121421.03983.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Sun, 13 Mar 2005 13:51:26 -0500
+Received: from h151_115.u.wavenet.pl ([217.79.151.115]:18064 "EHLO
+	alpha.polcom.net") by vger.kernel.org with ESMTP id S261422AbVCMSvX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Mar 2005 13:51:23 -0500
+Date: Sun, 13 Mar 2005 19:52:23 +0100 (CET)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: Stas Sergeev <stsp@aknet.ru>
+Cc: Alan Cox <alan@redhat.com>, Linux kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Petr Vandrovec <vandrove@vc.cvut.cz>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Pavel Machek <pavel@ucw.cz>
+Subject: Re: [patch] x86: fix ESP corruption CPU bug
+In-Reply-To: <42348474.7040808@aknet.ru>
+Message-ID: <Pine.LNX.4.62.0503131950190.23588@alpha.polcom.net>
+References: <42348474.7040808@aknet.ru>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun, 13 Mar 2005, Stas Sergeev wrote:
 
-> I'm just having a weird problem with 2.6.11.  Namely, the keyboard stopped
-> working after I'd added more RAM to the box (Asus L5D notebok, x86-64
-> kernel).  It works on 2.6.11-mm1.
+> Hi Alan.
+>
+> Attached patch works around the corruption
+> of the high word of the ESP register, which
+> is the official bug of x86 CPUs. The bug
+> triggers only when the one is using the
+> 16bit stack segment, and is described here:
+> http://www.intel.com/design/intarch/specupdt/27287402.PDF
 
-Custom DSDT? DSDTs are known to depend on ammount of memory...
-									Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Does the bug also egsist on AMD CPU's? Does the patch add anything to 
+kernels compiled for AMD CPU's?
+
+
+Thanks,
+
+Grzegorz Kulewski

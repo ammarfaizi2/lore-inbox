@@ -1,47 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265906AbUAEIkL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 03:40:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265907AbUAEIkL
+	id S263107AbUAEJKc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 04:10:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265905AbUAEJKc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 03:40:11 -0500
-Received: from mail.mediaways.net ([193.189.224.113]:33638 "HELO
-	mail.mediaways.net") by vger.kernel.org with SMTP id S265906AbUAEIkI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 03:40:08 -0500
-Subject: Re: xterm scrolling speed - scheduling weirdness in 2.6 ?!
-From: Soeren Sonnenburg <kernel@nn7.de>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: Willy Tarreau <willy@w.ods.org>, szonyi calin <caszonyi@yahoo.com>,
-       azarah@nosferatu.za.org, Con Kolivas <kernel@kolivas.org>,
-       Mark Hahn <hahn@physics.mcmaster.ca>,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
-       gillb4@telusplanet.net
-In-Reply-To: <20040104234703.GY1882@matchmail.com>
-References: <1073227359.6075.284.camel@nosferatu.lan>
-	 <20040104225827.39142.qmail@web40613.mail.yahoo.com>
-	 <20040104233312.GA649@alpha.home.local>
-	 <20040104234703.GY1882@matchmail.com>
-Content-Type: text/plain
-Message-Id: <1073291940.8884.66.camel@localhost>
+	Mon, 5 Jan 2004 04:10:32 -0500
+Received: from fw.osdl.org ([65.172.181.6]:63191 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263107AbUAEJKa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 04:10:30 -0500
+Date: Mon, 5 Jan 2004 01:10:30 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Dax Kelson <dax@gurulabs.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       Wim Van Sebroeck <wim@iguana.be>
+Subject: Re: 2.6.1-rc1-mm2
+Message-Id: <20040105011030.4383b5b0.akpm@osdl.org>
+In-Reply-To: <1073294151.10221.792.camel@mentor.gurulabs.com>
+References: <20040105002056.43f423b1.akpm@osdl.org>
+	<1073294151.10221.792.camel@mentor.gurulabs.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Date: Mon, 05 Jan 2004 09:39:01 +0100
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-01-05 at 00:47, Mike Fedyk wrote:
-> On Mon, Jan 05, 2004 at 12:33:12AM +0100, Willy Tarreau wrote:
-> > at a time. I have yet to understand why 'ls|cat' behaves
-> > differently, but fortunately it works and it has already saved
-> > me some useful time.
+Dax Kelson <dax@gurulabs.com> wrote:
+>
 > 
-> cat probably does some buffering for you, and sends the output to xterm in
-> larger blocks.
+> build error:
+> 
+>   CC [M]  drivers/char/watchdog/amd7xx_tco.o
+> drivers/char/watchdog/amd7xx_tco.c: In function `amdtco_fop_write':
+> drivers/char/watchdog/amd7xx_tco.c:257: error: syntax error before "i"
 
-interestingly running ls on a remote machine in a directory with a
-similiar amount of files (local xterm with ssh connection to that
-machine) is also as fast as this ls | cat workaround...
+Sorry.  This pooter, she be too slow for allyesconfig.
 
-Soeren
+
+diff -puN drivers/char/watchdog/amd7xx_tco.c~amd7xx_tco-fix drivers/char/watchdog/amd7xx_tco.c
+--- 25/drivers/char/watchdog/amd7xx_tco.c~amd7xx_tco-fix	2004-01-05 01:07:57.000000000 -0800
++++ 25-akpm/drivers/char/watchdog/amd7xx_tco.c	2004-01-05 01:08:24.000000000 -0800
+@@ -253,7 +253,7 @@ static ssize_t amdtco_fop_write(struct f
+ 		return -ESPIPE;
+ 
+ 	if (len) {
+-		if (!nowayout)
++		if (!nowayout) {
+ 			size_t i;
+ 			char c;
+ 			expect_close = 0;
+
+_
 
